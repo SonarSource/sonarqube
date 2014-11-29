@@ -19,7 +19,6 @@
  */
 package org.sonar.server.es;
 
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.server.search.request.ProxyBulkRequestBuilder;
@@ -43,7 +42,6 @@ import org.sonar.server.search.request.ProxySearchScrollRequestBuilder;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-@Ignore
 public class EsClientTest {
 
   @Rule

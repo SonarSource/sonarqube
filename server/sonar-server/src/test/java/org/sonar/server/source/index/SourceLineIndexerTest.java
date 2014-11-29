@@ -26,7 +26,6 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.fest.assertions.MapAssert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
@@ -43,7 +42,6 @@ import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-@Ignore
 public class SourceLineIndexerTest {
 
   @Rule

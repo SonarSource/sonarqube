@@ -20,9 +20,9 @@
 package org.sonar.server.es;
 
 import org.apache.commons.lang.StringUtils;
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingResponse;
-import org.elasticsearch.common.Priority;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
@@ -85,7 +85,7 @@ public class IndexCreator implements ServerComponent, Startable {
     if (!indexResponse.isAcknowledged()) {
       throw new IllegalStateException("Failed to create index " + index.getName());
     }
-    client.prepareHealth().setWaitForEvents(Priority.LANGUID).setWaitForGreenStatus().get();
+    client.waitForStatus(ClusterHealthStatus.YELLOW);
 
     // create types
     for (Map.Entry<String, IndexRegistry.IndexType> entry : index.getTypes().entrySet()) {
@@ -99,6 +99,7 @@ public class IndexCreator implements ServerComponent, Startable {
         throw new IllegalStateException("Failed to create type " + entry.getKey());
       }
     }
+    client.waitForStatus(ClusterHealthStatus.YELLOW);
   }
 
   private void deleteIndex(String indexName) {

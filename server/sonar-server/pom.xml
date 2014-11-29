@@ -9,11 +9,10 @@
     <relativePath>..</relativePath>
   </parent>
   <artifactId>sonar-server</artifactId>
-  <packaging>jar</packaging>
   <name>SonarQube :: Server</name>
 
   <properties>
-    <argLine>-Xmx1G -Djava.awt.headless=true -XX:MaxPermSize=128m</argLine>
+    <argLine>-Xmx512m -Djava.awt.headless=true -XX:MaxPermSize=128m</argLine>
   </properties>
 
   <dependencies>

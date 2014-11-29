@@ -120,7 +120,6 @@ public class ServerTester extends ExternalResource {
       platform.addComponents(components);
       platform.doStart();
     } catch (Exception e) {
-      LOG.error("Fail to start ServerTester", e);
       stop();
       Throwables.propagate(e);
     }

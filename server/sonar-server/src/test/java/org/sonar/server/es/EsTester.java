@@ -41,7 +41,6 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
 import org.elasticsearch.search.SearchHit;
-import org.junit.Ignore;
 import org.junit.rules.ExternalResource;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ComponentContainer;
@@ -55,7 +54,6 @@ import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-@Ignore
 public class EsTester extends ExternalResource {
 
   private static final int INSTANCE_ID = RandomUtils.nextInt();
@@ -69,7 +67,7 @@ public class EsTester extends ExternalResource {
   }
 
   protected void before() throws Throwable {
-    String nodeName = "es-ram-" + INSTANCE_ID;
+    String nodeName = "tmp-es-" + INSTANCE_ID;
     node = NodeBuilder.nodeBuilder().local(true).data(true).settings(ImmutableSettings.builder()
       .put("cluster.name", nodeName)
       .put("node.name", nodeName)

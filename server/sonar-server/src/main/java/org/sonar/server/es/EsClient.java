@@ -41,6 +41,7 @@ import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchScrollRequestBuilder;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.common.Priority;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.metrics.max.Max;
@@ -100,7 +101,6 @@ public class EsClient implements Startable {
     return health;
   }
 
-
   public RefreshRequestBuilder prepareRefresh(String... indices) {
     return new ProxyRefreshRequestBuilder(client, profiling).setIndices(indices);
   }
@@ -127,6 +127,10 @@ public class EsClient implements Startable {
 
   public ClusterHealthRequestBuilder prepareHealth(String... indices) {
     return new ProxyClusterHealthRequestBuilder(client, profiling).setIndices(indices);
+  }
+
+  public void waitForStatus(ClusterHealthStatus status) {
+    prepareHealth().setWaitForEvents(Priority.LANGUID).setWaitForStatus(status).get();
   }
 
   public IndicesExistsRequestBuilder prepareExists(String... indices) {
@@ -200,7 +204,7 @@ public class EsClient implements Startable {
   @Override
   public void stop() {
     // TODO re-enable when SearchClient is dropped
-    //client.close();
+    // client.close();
   }
 
   protected Client nativeClient() {

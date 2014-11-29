@@ -20,7 +20,6 @@
 package org.sonar.server.issue.index;
 
 import org.elasticsearch.search.SearchHit;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
@@ -34,7 +33,6 @@ import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-@Ignore
 public class IssueAuthorizationIndexerTest {
 
   @Rule
