@@ -20,10 +20,13 @@
 package org.sonar.server.tester;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.rules.ExternalResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.resources.Language;
 import org.sonar.process.NetworkUtils;
@@ -52,6 +55,7 @@ import java.util.Properties;
  */
 public class ServerTester extends ExternalResource {
 
+  private static final Logger LOG = LoggerFactory.getLogger(ServerTester.class);
   private static final String PROP_PREFIX = "mediumTests.";
 
   private final String clusterName;
@@ -113,9 +117,10 @@ public class ServerTester extends ExternalResource {
       platform.init(properties);
       platform.addComponents(components);
       platform.doStart();
-    } catch (RuntimeException e) {
+    } catch (Exception e) {
+      LOG.error("Fail to start ServerTester", e);
       stop();
-      throw e;
+      Throwables.propagate(e);
     }
     if (!platform.isStarted()) {
       throw new IllegalStateException("Server not started. You should check that db migrations " +
@@ -152,7 +157,7 @@ public class ServerTester extends ExternalResource {
         platform.doStop();
       }
     } catch (Exception e) {
-      e.printStackTrace();
+      LOG.error("Fail to stop web server", e);
     }
     platform = null;
     try {
@@ -160,7 +165,7 @@ public class ServerTester extends ExternalResource {
         searchServer.stop();
       }
     } catch (Exception e) {
-      e.printStackTrace();
+      LOG.error("Fail to stop elasticsearch server", e);
     }
     searchServer = null;
     FileUtils.deleteQuietly(homeDir);
