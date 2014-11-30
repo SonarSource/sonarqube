@@ -81,6 +81,7 @@ public class EsServerHolder {
     if (!response.isAcknowledged()) {
       throw new IllegalStateException("Fail to delete all indices");
     }
+    client.close();
   }
 
   public static synchronized EsServerHolder get() {
