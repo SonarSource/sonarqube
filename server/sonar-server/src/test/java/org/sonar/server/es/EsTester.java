@@ -25,15 +25,21 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.lang.reflect.ConstructorUtils;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.cluster.metadata.IndexMetaData;
+import org.elasticsearch.cluster.node.DiscoveryNode;
+import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.node.Node;
+import org.elasticsearch.node.NodeBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.junit.rules.ExternalResource;
 import org.sonar.api.config.Settings;
@@ -46,11 +52,14 @@ import java.io.FileInputStream;
 import java.util.Collections;
 import java.util.List;
 
+import static org.fest.assertions.Assertions.assertThat;
+
 public class EsTester extends ExternalResource {
 
+  private static final int INSTANCE_ID = RandomUtils.nextInt();
+  private Node node;
   private EsClient client;
   private final List<IndexDefinition> definitions = Lists.newArrayList();
-  private TransportClient transportClient;
 
   public EsTester addDefinitions(IndexDefinition... defs) {
     Collections.addAll(definitions, defs);
@@ -58,9 +67,36 @@ public class EsTester extends ExternalResource {
   }
 
   protected void before() throws Throwable {
-    EsServerHolder holder = EsServerHolder.get();
-    transportClient = holder.newClient();
-    client = new EsClient(new Profiling(new Settings()), transportClient);
+    String nodeName = "tmp-es-" + INSTANCE_ID;
+    node = NodeBuilder.nodeBuilder().local(true).data(true).settings(ImmutableSettings.builder()
+      .put("cluster.name", nodeName)
+      .put("node.name", nodeName)
+      // the two following properties are probably not used because they are
+      // declared on indices too
+      .put(IndexMetaData.SETTING_NUMBER_OF_SHARDS, 1)
+      .put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, 0)
+      // limit the number of threads created (see org.elasticsearch.common.util.concurrent.EsExecutors)
+      .put("processors", 1)
+      .put("http.enabled", false)
+      .put("index.store.type", "mmapfs")
+      .put("config.ignore_system_properties", true)
+      // reuse the same directory than other tests for faster initialization
+      .put("path.home", "target/" + nodeName)
+      .put("gateway.type", "none"))
+      .build();
+    node.start();
+    assertThat(DiscoveryNode.localNode(node.settings())).isTrue();
+
+    // wait for node to be ready
+    node.client().admin().cluster().prepareHealth()
+      .setWaitForGreenStatus()
+      .get();
+
+    // delete the indices created by previous tests
+    DeleteIndexResponse response = node.client().admin().indices().prepareDelete("_all").get();
+    assertThat(response.isAcknowledged()).isTrue();
+
+    client = new EsClient(new Profiling(new Settings()), node.client());
     client.start();
 
     if (!definitions.isEmpty()) {
@@ -75,14 +111,12 @@ public class EsTester extends ExternalResource {
 
   @Override
   protected void after() {
-    if (transportClient != null) {
-      // TODO to be removed as soon as EsClient.stop() is implemented correctly
-      transportClient.close();
-      transportClient = null;
-    }
     if (client != null) {
       client.stop();
-      client = null;
+    }
+    if (node != null) {
+      node.stop();
+      node.close();
     }
   }
 
@@ -151,6 +185,10 @@ public class EsTester extends ExternalResource {
       }
     }
     return result;
+  }
+
+  public Node node() {
+    return node;
   }
 
   public EsClient client() {
