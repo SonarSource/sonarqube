@@ -29,13 +29,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.resources.Language;
-import org.sonar.process.NetworkUtils;
 import org.sonar.process.ProcessConstants;
-import org.sonar.process.Props;
-import org.sonar.search.SearchServer;
+import org.sonar.server.es.EsServerHolder;
 import org.sonar.server.platform.BackendCleanup;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.ws.WsTester;
+import org.sonar.test.TestUtils;
 
 import javax.annotation.Nullable;
 
@@ -58,28 +57,10 @@ public class ServerTester extends ExternalResource {
   private static final Logger LOG = LoggerFactory.getLogger(ServerTester.class);
   private static final String PROP_PREFIX = "mediumTests.";
 
-  private final String clusterName;
-  private final Integer clusterPort;
-
-  private SearchServer searchServer;
   private Platform platform;
-  private final File homeDir;
+  private final File homeDir = TestUtils.newTempDir("tmp-sq-");
   private final List components = Lists.newArrayList(WsTester.class);
   private final Properties initialProps = new Properties();
-
-  public ServerTester() {
-    homeDir = createTempDir();
-    platform = new Platform();
-
-    clusterName = "cluster-" + System.currentTimeMillis();
-    clusterPort = NetworkUtils.freePort();
-    Properties properties = new Properties();
-    properties.setProperty(ProcessConstants.CLUSTER_NAME, clusterName);
-    properties.setProperty(ProcessConstants.CLUSTER_NODE_NAME, "test");
-    properties.setProperty(ProcessConstants.SEARCH_PORT, clusterPort.toString());
-    properties.setProperty(ProcessConstants.PATH_HOME, homeDir.getAbsolutePath());
-    searchServer = new SearchServer(new Props(properties));
-  }
 
   /**
    * Called only when JUnit @Rule or @ClassRule is used.
@@ -95,27 +76,23 @@ public class ServerTester extends ExternalResource {
   public void start() {
     checkNotStarted();
 
-    Properties properties = new Properties();
-    properties.putAll(initialProps);
-    properties.setProperty(ProcessConstants.CLUSTER_NAME, clusterName);
-    properties.setProperty(ProcessConstants.CLUSTER_NODE_NAME, "test");
-    properties.setProperty(ProcessConstants.SEARCH_PORT, clusterPort.toString());
-    properties.setProperty(ProcessConstants.PATH_HOME, homeDir.getAbsolutePath());
-    properties.setProperty(DatabaseProperties.PROP_URL, "jdbc:h2:" + homeDir.getAbsolutePath() + "/h2");
-    for (Map.Entry<Object, Object> entry : System.getProperties().entrySet()) {
-      String key = entry.getKey().toString();
-      if (key.startsWith(PROP_PREFIX)) {
-        properties.put(StringUtils.substringAfter(key, PROP_PREFIX), entry.getValue());
-      }
-    }
-
     try {
-      LOG.info("Starting elasticsearch server");
-      searchServer.start();
-      // wait for ES to be ready
-      searchServer.isReady();
-      LOG.info("Elasticsearch server started");
-      
+      Properties properties = new Properties();
+      properties.putAll(initialProps);
+      EsServerHolder esServerHolder = EsServerHolder.get();
+
+      properties.setProperty(ProcessConstants.CLUSTER_NAME, esServerHolder.getClusterName());
+      properties.setProperty(ProcessConstants.CLUSTER_NODE_NAME, esServerHolder.getNodeName());
+      properties.setProperty(ProcessConstants.SEARCH_PORT, String.valueOf(esServerHolder.getPort()));
+      properties.setProperty(ProcessConstants.PATH_HOME, homeDir.getAbsolutePath());
+      properties.setProperty(DatabaseProperties.PROP_URL, "jdbc:h2:" + homeDir.getAbsolutePath() + "/h2");
+      for (Map.Entry<Object, Object> entry : System.getProperties().entrySet()) {
+        String key = entry.getKey().toString();
+        if (key.startsWith(PROP_PREFIX)) {
+          properties.put(StringUtils.substringAfter(key, PROP_PREFIX), entry.getValue());
+        }
+      }
+      platform = new Platform();
       platform.init(properties);
       platform.addComponents(components);
       platform.doStart();
@@ -126,18 +103,6 @@ public class ServerTester extends ExternalResource {
     if (!platform.isStarted()) {
       throw new IllegalStateException("Server not started. You should check that db migrations " +
         "are correctly declared, for example in schema-h2.sql or DatabaseVersion");
-    }
-  }
-
-  private File createTempDir() {
-    try {
-      // Technique to create a temp directory from a temp file
-      File f = File.createTempFile("tmp-sq", "");
-      f.delete();
-      f.mkdir();
-      return f;
-    } catch (Exception e) {
-      throw new IllegalStateException("Fail to create temp dir", e);
     }
   }
 
@@ -161,16 +126,6 @@ public class ServerTester extends ExternalResource {
       LOG.error("Fail to stop web server", e);
     }
     platform = null;
-    try {
-      if (searchServer != null) {
-        LOG.info("Stopping Elasticsearch server");
-        searchServer.stop();
-        LOG.info("Elasticsearch server stopped");
-      }
-    } catch (Exception e) {
-      LOG.error("Fail to stop elasticsearch server", e);
-    }
-    searchServer = null;
     FileUtils.deleteQuietly(homeDir);
   }
 
@@ -204,7 +159,8 @@ public class ServerTester extends ExternalResource {
   }
 
   /**
-   * Set a property available for startup. Must be called before {@link #start()}.
+   * Set a property available for startup. Must be called before {@link #start()}. Does not affect
+   * Elasticsearch server.
    */
   public ServerTester setProperty(String key, String value) {
     checkNotStarted();
@@ -274,5 +230,4 @@ public class ServerTester extends ExternalResource {
       return XOO_SUFFIXES;
     }
   }
-
 }

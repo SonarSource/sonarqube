@@ -90,4 +90,16 @@ public final class TestUtils {
     }
     return ok;
   }
+
+  public static File newTempDir(String prefix) {
+    try {
+      // Technique to create a temp directory from a temp file
+      File f = File.createTempFile(prefix, "");
+      f.delete();
+      f.mkdir();
+      return f;
+    } catch (Exception e) {
+      throw new IllegalStateException("Fail to create temp dir", e);
+    }
+  }
 }

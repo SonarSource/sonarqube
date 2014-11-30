@@ -60,6 +60,18 @@ public class TestUtilsTest {
     }
   }
 
+  @Test
+  public void newTempDir() throws Exception {
+    File dir1 = TestUtils.newTempDir("foo");
+    assertThat(dir1).exists().isDirectory();
+    assertThat(dir1.listFiles()).isEmpty();
+
+    File dir2 = TestUtils.newTempDir("foo");
+    assertThat(dir2).exists().isDirectory();
+    assertThat(dir2.listFiles()).isEmpty();
+    assertThat(dir2.getCanonicalPath()).isNotEqualTo(dir1.getCanonicalPath());
+  }
+
   public static class OnlyPrivateConstructors {
     private OnlyPrivateConstructors() {
     }

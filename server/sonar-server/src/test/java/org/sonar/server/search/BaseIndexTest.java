@@ -22,24 +22,18 @@ package org.sonar.server.search;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.Settings;
-import org.sonar.process.NetworkUtils;
 import org.sonar.process.ProcessConstants;
-import org.sonar.process.Props;
-import org.sonar.search.SearchServer;
+import org.sonar.server.es.EsServerHolder;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Properties;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -47,43 +41,17 @@ public class BaseIndexTest {
 
   @ClassRule
   public static TemporaryFolder temp = new TemporaryFolder();
-  private static SearchServer searchServer;
 
   SearchClient searchClient;
-  private static String clusterName;
-  private static Integer clusterPort;
-
-  @BeforeClass
-  public static void setupSearchEngine() {
-    clusterName = "cluster-mem-" + System.currentTimeMillis();
-    clusterPort = NetworkUtils.freePort();
-    Properties properties = new Properties();
-    properties.setProperty(ProcessConstants.CLUSTER_NAME, clusterName);
-    properties.setProperty(ProcessConstants.CLUSTER_NODE_NAME, "test");
-    properties.setProperty(ProcessConstants.SEARCH_PORT, clusterPort.toString());
-    properties.setProperty(ProcessConstants.PATH_HOME, temp.getRoot().getAbsolutePath());
-    try {
-      searchServer = new SearchServer(new Props(properties));
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-    searchServer.start();
-  }
-
-  @AfterClass
-  public static void teardownSearchEngine() {
-    searchServer.stop();
-  }
 
   @Before
   public void setup() throws IOException {
-    File dataDir = temp.newFolder();
+    EsServerHolder holder = EsServerHolder.get();
     Settings settings = new Settings();
     settings.setProperty(ProcessConstants.CLUSTER_ACTIVATE, false);
-    settings.setProperty(ProcessConstants.CLUSTER_NAME, clusterName);
-    settings.setProperty(ProcessConstants.CLUSTER_NODE_NAME, "test");
-    settings.setProperty(ProcessConstants.SEARCH_PORT, clusterPort.toString());
-    settings.setProperty(ProcessConstants.PATH_HOME, dataDir.getAbsolutePath());
+    settings.setProperty(ProcessConstants.CLUSTER_NAME, holder.getClusterName());
+    settings.setProperty(ProcessConstants.CLUSTER_NODE_NAME, holder.getNodeName());
+    settings.setProperty(ProcessConstants.SEARCH_PORT, String.valueOf(holder.getPort()));
     searchClient = new SearchClient(settings);
   }
 
@@ -96,7 +64,7 @@ public class BaseIndexTest {
 
   @Test
   public void can_load() {
-    BaseIndex index = getIndex(this.searchClient);
+    BaseIndex index = getIndex(searchClient);
     assertThat(index).isNotNull();
   }
 
