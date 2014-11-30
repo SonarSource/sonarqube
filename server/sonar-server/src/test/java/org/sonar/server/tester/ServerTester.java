@@ -121,11 +121,11 @@ public class ServerTester extends ExternalResource {
     try {
       if (platform != null) {
         platform.doStop();
+        platform = null;
       }
     } catch (Exception e) {
       LOG.error("Fail to stop web server", e);
     }
-    platform = null;
     FileUtils.deleteQuietly(homeDir);
   }
 
@@ -194,7 +194,7 @@ public class ServerTester extends ExternalResource {
   }
 
   private void checkStarted() {
-    if (!platform.isStarted()) {
+    if (platform == null || !platform.isStarted()) {
       throw new IllegalStateException("Not started");
     }
   }
