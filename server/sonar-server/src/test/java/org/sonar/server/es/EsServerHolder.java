@@ -64,12 +64,7 @@ public class EsServerHolder {
   }
 
   private void reset() {
-    TransportClient client = new TransportClient(ImmutableSettings.settingsBuilder()
-      .put("node.name", nodeName)
-      .put("network.bind_host", "localhost")
-      .put("cluster.name", clusterName)
-      .build());
-    client.addTransportAddress(new InetSocketTransportAddress(LoopbackAddress.get().getHostAddress(), port));
+    TransportClient client = newClient();
 
     // wait for node to be ready
     client.admin().cluster().prepareHealth()
@@ -82,6 +77,16 @@ public class EsServerHolder {
       throw new IllegalStateException("Fail to delete all indices");
     }
     client.close();
+  }
+
+  public TransportClient newClient() {
+    TransportClient client = new TransportClient(ImmutableSettings.settingsBuilder()
+      .put("node.name", nodeName)
+      .put("network.bind_host", "localhost")
+      .put("cluster.name", clusterName)
+      .build());
+    client.addTransportAddress(new InetSocketTransportAddress(LoopbackAddress.get().getHostAddress(), port));
+    return client;
   }
 
   public static synchronized EsServerHolder get() {
