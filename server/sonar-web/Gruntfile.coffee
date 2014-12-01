@@ -297,6 +297,7 @@ module.exports = (grunt) ->
       test:
         options:
           script: '<%= pkg.sources %>js/tests/e2e/server.js'
+          port: '<%= grunt.option("port") %>'
       dev:
         options:
           background: false
@@ -309,6 +310,7 @@ module.exports = (grunt) ->
           test: true
           'no-colors': true
           concise: true
+          port: '<%= grunt.option("port") %>'
         src: ['<%= pkg.sources %>js/tests/e2e/tests/**/issues-spec.js']
       single:
         options:

@@ -1,7 +1,10 @@
 var fs = require('fs');
 
+var getPort = function () {
+  return casper.cli.options.port;
+};
 
-var BASE_URL = 'http://localhost:3000/pages/',
+var BASE_URL = 'http://localhost:' + getPort() + '/pages/',
     WINDOW_WIDTH = 1200,
     WINDOW_HEIGHT = 800;
 
