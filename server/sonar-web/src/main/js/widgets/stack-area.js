@@ -54,7 +54,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
   window.SonarWidgets.StackArea.prototype.render = function () {
     var widget = this,
-        cl = widget.colors().length;
+        colorsLength = widget.colors().length;
 
     this.svg = this.container.append('svg')
         .attr('class', 'sonar-d3');
@@ -104,7 +104,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .nice();
 
     this.color = function(i) {
-      return widget.colors()[i % cl][0];
+      return widget.colors()[i % colorsLength][0];
     };
 
 

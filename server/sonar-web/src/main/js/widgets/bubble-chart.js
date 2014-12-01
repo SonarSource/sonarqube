@@ -214,7 +214,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
           widget.infoDate.text(d.longName);
 
-          var metricLines = [
+          var metricLineList = [
             {
               metric: widget.metrics()[widget.xMetric].name,
               value: d.measures[widget.xMetric].fval
@@ -231,9 +231,9 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
           var lastX = 0;
           widget.infoMetrics
-              .data(metricLines)
-              .text(function(d) { return d.metric + ': ' + d.value; })
-              .attr('transform', function(d, i) {
+              .data(metricLineList)
+              .text(function(m) { return m.metric + ': ' + m.value; })
+              .attr('transform', function(d2, i) {
                 var posX = lastX;
                 lastX += widget.infoMetricWidth[i];
                 return trans(posX, 20);

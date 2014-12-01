@@ -45,30 +45,30 @@
           var ul = $('<ul></ul>').appendTo(resultsEl);
 
           r.results.forEach(function(qualifier) {
-            qualifier.items.forEach(function(item, index) {
-              var el = $('<li></li>')
+            qualifier.items.forEach(function(item, idx) {
+              var itemEl = $('<li></li>')
                   .data('key', item.id),
 
                   q = $('<div></div>')
                       .addClass('q')
-                      .appendTo(el),
+                      .appendTo(itemEl),
 
                   highlightRegexp = new RegExp(term, 'gi'),
                   highlightedName = item.name.replace(highlightRegexp, '<strong>$&</strong>'),
 
                   label = $('<span></span>')
                       .html(' ' + highlightedName)
-                      .appendTo(el);
+                      .appendTo(itemEl);
 
               $('<i>')
                   .addClass('icon-qualifier-' + qualifier.q.toLowerCase())
                   .prependTo(label);
 
-              if (index === 0) {
+              if (idx === 0) {
                 q.text(qualifier.name);
               }
 
-              el.appendTo(ul);
+              itemEl.appendTo(ul);
             });
           });
 

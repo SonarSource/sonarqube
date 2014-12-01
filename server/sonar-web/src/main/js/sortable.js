@@ -53,9 +53,9 @@
 
        headCells.filter(':not(.nosort)').addClass('sortcol');
        headCells.filter(':not(.nosort)').on('click', function() {
-         var asc = !$(this).is('.sortasc');
-         markSorted(headCells, $(this), asc);
-         sort(tbody, rows, headCells.index($(this)), asc ? 1 : -1);
+         var toAsc = !$(this).is('.sortasc');
+         markSorted(headCells, $(this), toAsc);
+         sort(tbody, rows, headCells.index($(this)), toAsc ? 1 : -1);
        });
 
       var sortFirst = headCells.filter('[class^=sortfirst],[class*=sortfirst]');

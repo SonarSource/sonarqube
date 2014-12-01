@@ -266,7 +266,9 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
           d3.select(widget.gevents[0][i]).attr('y2', -12);
 
           widget.infoEvent
-              .text(widget.events()[i].l.map(function(d) { return d.n; }).join(', '));
+              .text(widget.events()[i].l
+                  .map(function(e) { return e.n; })
+                  .join(', '));
         }
       });
     };

@@ -19,8 +19,8 @@ define([
 
     parse: function(r) {
       this.more = r.p * r.ps < r.total;
-      return r.rules.map(function(r) {
-         return { id: r.key, text: r.name, category: r.lang };
+      return r.rules.map(function(rule) {
+         return { id: rule.key, text: rule.name, category: rule.lang };
       });
     }
 

@@ -122,10 +122,10 @@ define([
               _.sortBy(
                   _.map(
                       _.groupBy(metrics, 'domain'),
-                      function (metrics, domain) {
+                      function (metricList, domain) {
                         return {
                           domain: domain,
-                          metrics: _.sortBy(metrics, 'short_name')
+                          metrics: _.sortBy(metricList, 'short_name')
                         };
                       }),
                   'domain'
