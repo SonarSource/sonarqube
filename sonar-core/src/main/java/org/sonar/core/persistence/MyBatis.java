@@ -65,7 +65,6 @@ import org.sonar.core.issue.db.ActionPlanDto;
 import org.sonar.core.issue.db.ActionPlanMapper;
 import org.sonar.core.issue.db.ActionPlanStatsDto;
 import org.sonar.core.issue.db.ActionPlanStatsMapper;
-import org.sonar.core.issue.db.IssueAuthorizationDto;
 import org.sonar.core.issue.db.IssueChangeDto;
 import org.sonar.core.issue.db.IssueChangeMapper;
 import org.sonar.core.issue.db.IssueDto;
@@ -201,7 +200,6 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "Measure", MeasureDto.class);
     loadAlias(conf, "Metric", MetricDto.class);
     loadAlias(conf, "Issue", IssueDto.class);
-    loadAlias(conf, "IssueAuthorization", IssueAuthorizationDto.class);
     loadAlias(conf, "IssueChange", IssueChangeDto.class);
     loadAlias(conf, "IssueFilter", IssueFilterDto.class);
     loadAlias(conf, "IssueFilterFavourite", IssueFilterFavouriteDto.class);
