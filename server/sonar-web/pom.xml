@@ -108,6 +108,24 @@
         </executions>
       </plugin>
       <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>reserve-network-port</id>
+            <goals>
+              <goal>reserve-network-port</goal>
+            </goals>
+            <phase>process-resources</phase>
+            <configuration>
+              <portNames>
+                <portName>jsTestPort</portName>
+              </portNames>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <groupId>com.github.eirslett</groupId>
         <artifactId>frontend-maven-plugin</artifactId>
         <executions>
@@ -139,7 +157,7 @@
               <goal>grunt</goal>
             </goals>
             <configuration>
-              <arguments>${gruntTask}</arguments>
+              <arguments>${gruntTask} --port=${jsTestPort}</arguments>
             </configuration>
           </execution>
         </executions>
