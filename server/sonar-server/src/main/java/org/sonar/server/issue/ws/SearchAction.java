@@ -24,6 +24,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.io.Resources;
+import org.apache.commons.lang.BooleanUtils;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
@@ -224,7 +225,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
   @Override
   protected Result<Issue> doSearch(IssueQuery query, QueryContext context) {
     Collection<String> components = query.componentUuids();
-    if (components != null && components.size() == 1 && query.ignorePaging()) {
+    if (components != null && components.size() == 1 && BooleanUtils.isTrue(query.ignorePaging())) {
       context.setShowFullResult(true);
     }
     return service.search(query, context);

@@ -22,11 +22,9 @@ package org.sonar.server.db.migrations.v50;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Database;
-import org.sonar.server.db.migrations.BaseDataChange;
-import org.sonar.server.db.migrations.MassUpdate;
+import org.sonar.server.db.migrations.*;
 import org.sonar.server.db.migrations.Select.Row;
 import org.sonar.server.db.migrations.Select.RowReader;
-import org.sonar.server.db.migrations.SqlStatement;
 
 import javax.annotation.Nullable;
 
@@ -42,7 +40,97 @@ import static com.google.common.base.Charsets.UTF_8;
  */
 public class FeedFileSources extends BaseDataChange {
 
-  private final class FileSourceBuilder implements MassUpdate.Handler {
+  private static final String SELECT_FILES_AND_MEASURES_SQL = "SELECT " +
+    "p.uuid, " +
+    "f.uuid, " +
+    "ss.data, " +
+    "ss.updated_at, " +
+
+    // revisions_by_line
+    "m1.text_value, " +
+    "m1.measure_data, " +
+
+    // authors_by_line
+    "m2.text_value, " +
+    "m2.measure_data, " +
+
+    // dates_by_line
+    "m3.text_value, " +
+    "m3.measure_data, " +
+
+    // hits_by_line
+    "m4.text_value, " +
+    "m4.measure_data, " +
+
+    // cond_by_line
+    "m5.text_value, " +
+    "m5.measure_data, " +
+
+    // cover_cond_by_line
+    "m6.text_value, " +
+    "m6.measure_data, " +
+
+    // it_hits_by_line
+    "m7.text_value, " +
+    "m7.measure_data, " +
+
+    // it_cond_by_line
+    "m8.text_value, " +
+    "m8.measure_data, " +
+
+    // it_cover_cond_by_line
+    "m9.text_value, " +
+    "m9.measure_data, " +
+
+    // overall_hits_by_line
+    "m10.text_value, " +
+    "m10.measure_data, " +
+
+    // overall_cond_by_line
+    "m11.text_value, " +
+    "m11.measure_data, " +
+
+    // overall_cover_cond_by_line
+    "m12.text_value, " +
+    "m12.measure_data  " +
+
+    "FROM snapshots s " +
+    "JOIN snapshot_sources ss " +
+    "ON s.id = ss.snapshot_id AND s.islast = ? " +
+    "JOIN projects p " +
+    "ON s.root_project_id = p.id " +
+    "JOIN projects f " +
+    "ON s.project_id = f.id " +
+    "LEFT JOIN project_measures m1 " +
+    "ON m1.snapshot_id = s.id AND m1.metric_id = ? " +
+    "LEFT JOIN project_measures m2 " +
+    "ON m2.snapshot_id = s.id AND m2.metric_id = ? " +
+    "LEFT JOIN project_measures m3 " +
+    "ON m3.snapshot_id = s.id AND m3.metric_id = ? " +
+    "LEFT JOIN project_measures m4 " +
+    "ON m4.snapshot_id = s.id AND m4.metric_id = ? " +
+    "LEFT JOIN project_measures m5 " +
+    "ON m5.snapshot_id = s.id AND m5.metric_id = ? " +
+    "LEFT JOIN project_measures m6 " +
+    "ON m6.snapshot_id = s.id AND m6.metric_id = ? " +
+    "LEFT JOIN project_measures m7 " +
+    "ON m7.snapshot_id = s.id AND m7.metric_id = ? " +
+    "LEFT JOIN project_measures m8 " +
+    "ON m8.snapshot_id = s.id AND m8.metric_id = ? " +
+    "LEFT JOIN project_measures m9 " +
+    "ON m9.snapshot_id = s.id AND m9.metric_id = ? " +
+    "LEFT JOIN project_measures m10 " +
+    "ON m10.snapshot_id = s.id AND m10.metric_id = ? " +
+    "LEFT JOIN project_measures m11 " +
+    "ON m11.snapshot_id = s.id AND m11.metric_id = ? " +
+    "LEFT JOIN project_measures m12 " +
+    "ON m12.snapshot_id = s.id AND m12.metric_id = ? " +
+    "WHERE " +
+    "f.enabled = ? " +
+    "AND f.scope = 'FIL' " +
+    "AND p.scope = 'PRJ' AND p.qualifier = 'TRK' ";
+
+  private static final class FileSourceBuilder implements MassUpdate.Handler {
     private final Date now;
 
     public FileSourceBuilder(System2 system) {
@@ -149,111 +237,22 @@ public class FeedFileSources extends BaseDataChange {
     Long overallCoverageHitsByLineMetricId = context.prepareSelect("SELECT id FROM metrics WHERE name = 'overall_coverage_line_hits_data'").get(simpleLongReader);
     Long overallConditionsByLineMetricId = context.prepareSelect("SELECT id FROM metrics WHERE name = 'overall_conditions_by_line'").get(simpleLongReader);
     Long overallCoveredConditionsByLineMetricId = context.prepareSelect("SELECT id FROM metrics WHERE name = 'overall_covered_conditions_by_line'").get(simpleLongReader);
-    Long duplicationDataMetricId = context.prepareSelect("SELECT id FROM metrics WHERE name = 'duplications_data'").get(simpleLongReader);
 
     MassUpdate massUpdate = context.prepareMassUpdate();
-    massUpdate.select("SELECT " +
-      "p.uuid, " +
-      "f.uuid, " +
-      "ss.data, " +
-      "ss.updated_at, " +
-
-      // revisions_by_line
-      "m1.text_value, " +
-      "m1.measure_data, " +
-
-      // authors_by_line
-      "m2.text_value, " +
-      "m2.measure_data, " +
-
-      // dates_by_line
-      "m3.text_value, " +
-      "m3.measure_data, " +
-
-      // hits_by_line
-      "m4.text_value, " +
-      "m4.measure_data, " +
-
-      // cond_by_line
-      "m5.text_value, " +
-      "m5.measure_data, " +
-
-      // cover_cond_by_line
-      "m6.text_value, " +
-      "m6.measure_data, " +
-
-      // it_hits_by_line
-      "m7.text_value, " +
-      "m7.measure_data, " +
-
-      // it_cond_by_line
-      "m8.text_value, " +
-      "m8.measure_data, " +
-
-      // it_cover_cond_by_line
-      "m9.text_value, " +
-      "m9.measure_data, " +
-
-      // overall_hits_by_line
-      "m10.text_value, " +
-      "m10.measure_data, " +
-
-      // overall_cond_by_line
-      "m11.text_value, " +
-      "m11.measure_data, " +
-
-      // overall_cover_cond_by_line
-      "m12.text_value, " +
-      "m12.measure_data  " +
-
-      "FROM snapshots s " +
-      "JOIN snapshot_sources ss " +
-      "ON s.id = ss.snapshot_id AND s.islast = ? " +
-      "JOIN projects p " +
-      "ON s.root_project_id = p.id " +
-      "JOIN projects f " +
-      "ON s.project_id = f.id " +
-      "LEFT JOIN project_measures m1 " +
-      "ON m1.snapshot_id = s.id AND m1.metric_id = ? " +
-      "LEFT JOIN project_measures m2 " +
-      "ON m2.snapshot_id = s.id AND m2.metric_id = ? " +
-      "LEFT JOIN project_measures m3 " +
-      "ON m3.snapshot_id = s.id AND m3.metric_id = ? " +
-      "LEFT JOIN project_measures m4 " +
-      "ON m4.snapshot_id = s.id AND m4.metric_id = ? " +
-      "LEFT JOIN project_measures m5 " +
-      "ON m5.snapshot_id = s.id AND m5.metric_id = ? " +
-      "LEFT JOIN project_measures m6 " +
-      "ON m6.snapshot_id = s.id AND m6.metric_id = ? " +
-      "LEFT JOIN project_measures m7 " +
-      "ON m7.snapshot_id = s.id AND m7.metric_id = ? " +
-      "LEFT JOIN project_measures m8 " +
-      "ON m8.snapshot_id = s.id AND m8.metric_id = ? " +
-      "LEFT JOIN project_measures m9 " +
-      "ON m9.snapshot_id = s.id AND m9.metric_id = ? " +
-      "LEFT JOIN project_measures m10 " +
-      "ON m10.snapshot_id = s.id AND m10.metric_id = ? " +
-      "LEFT JOIN project_measures m11 " +
-      "ON m11.snapshot_id = s.id AND m11.metric_id = ? " +
-      "LEFT JOIN project_measures m12 " +
-      "ON m12.snapshot_id = s.id AND m12.metric_id = ? " +
-      "WHERE " +
-      "f.enabled = ? " +
-      "AND f.scope = 'FIL' " +
-      "AND p.scope = 'PRJ' AND p.qualifier = 'TRK' ")
+    massUpdate.select(SELECT_FILES_AND_MEASURES_SQL)
       .setBoolean(1, true)
-      .setLong(2, revisionMetricId != null ? revisionMetricId : 0L)
-      .setLong(3, authorMetricId != null ? authorMetricId : 0L)
-      .setLong(4, datesMetricId != null ? datesMetricId : 0L)
-      .setLong(5, utCoverageHitsByLineMetricId != null ? utCoverageHitsByLineMetricId : 0L)
-      .setLong(6, utConditionsByLineMetricId != null ? utConditionsByLineMetricId : 0L)
-      .setLong(7, utCoveredConditionsByLineMetricId != null ? utCoveredConditionsByLineMetricId : 0L)
-      .setLong(8, itCoverageHitsByLineMetricId != null ? itCoverageHitsByLineMetricId : 0L)
-      .setLong(9, itConditionsByLineMetricId != null ? itConditionsByLineMetricId : 0L)
-      .setLong(10, itCoveredConditionsByLineMetricId != null ? itCoveredConditionsByLineMetricId : 0L)
-      .setLong(11, overallCoverageHitsByLineMetricId != null ? overallCoverageHitsByLineMetricId : 0L)
-      .setLong(12, overallConditionsByLineMetricId != null ? overallConditionsByLineMetricId : 0L)
-      .setLong(13, overallCoveredConditionsByLineMetricId != null ? overallCoveredConditionsByLineMetricId : 0L)
+      .setLong(2, zeroIfNull(revisionMetricId))
+      .setLong(3, zeroIfNull(authorMetricId))
+      .setLong(4, zeroIfNull(datesMetricId))
+      .setLong(5, zeroIfNull(utCoverageHitsByLineMetricId))
+      .setLong(6, zeroIfNull(utConditionsByLineMetricId))
+      .setLong(7, zeroIfNull(utCoveredConditionsByLineMetricId))
+      .setLong(8, zeroIfNull(itCoverageHitsByLineMetricId))
+      .setLong(9, zeroIfNull(itConditionsByLineMetricId))
+      .setLong(10, zeroIfNull(itCoveredConditionsByLineMetricId))
+      .setLong(11, zeroIfNull(overallCoverageHitsByLineMetricId))
+      .setLong(12, zeroIfNull(overallConditionsByLineMetricId))
+      .setLong(13, zeroIfNull(overallCoveredConditionsByLineMetricId))
       .setBoolean(14, true);
 
     massUpdate.update("INSERT INTO file_sources" +
@@ -265,4 +264,7 @@ public class FeedFileSources extends BaseDataChange {
     massUpdate.execute(new FileSourceBuilder(system));
   }
 
+  private static long zeroIfNull(@Nullable Long value) {
+    return value == null ? 0L : value.longValue();
+  }
 }
