@@ -16,7 +16,8 @@
       "scmRevision": "cafebabe",
       "lineHits": 3,
       "conditions": 2,
-      "coveredConditions": 1
+      "coveredConditions": 1,
+      "duplicated": true
     },
     {
       "code": "<span class=\"h3 sym-pylyp\">}</span>",

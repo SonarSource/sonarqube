@@ -19,6 +19,7 @@
  */
 package org.sonar.server.source.index;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterators;
 import org.apache.commons.io.IOUtils;
@@ -38,6 +39,7 @@ import org.sonar.test.TestUtils;
 
 import java.io.FileInputStream;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -74,6 +76,7 @@ public class SourceLineIndexerTest {
       .setRefresh(true)
       .get();
 
+    List<Integer> duplications = ImmutableList.of(1, 2, 3);
     SourceLineDoc line1 = new SourceLineDoc(ImmutableMap.<String, Object>builder()
       .put(SourceLineIndexDefinition.FIELD_PROJECT_UUID, "abcd")
       .put(SourceLineIndexDefinition.FIELD_FILE_UUID, "efgh")
@@ -82,6 +85,7 @@ public class SourceLineIndexerTest {
       .put(SourceLineIndexDefinition.FIELD_SCM_DATE, DateUtils.parseDateTime("2014-01-01T12:34:56+0100"))
       .put(SourceLineIndexDefinition.FIELD_SCM_AUTHOR, "polop")
       .put(SourceLineIndexDefinition.FIELD_SOURCE, "package org.sonar.server.source;")
+      .put(SourceLineIndexDefinition.FIELD_DUPLICATIONS, duplications)
       .put(BaseNormalizer.UPDATED_AT_FIELD, new Date())
       .build());
     SourceLineResultSetIterator.SourceFile file = new SourceLineResultSetIterator.SourceFile("efgh", System.currentTimeMillis());
@@ -96,7 +100,7 @@ public class SourceLineIndexerTest {
       .get();
     assertThat(fileSearch.getHits().getTotalHits()).isEqualTo(1L);
     Map<String, Object> fields = fileSearch.getHits().getHits()[0].sourceAsMap();
-    assertThat(fields).hasSize(8);
+    assertThat(fields).hasSize(9);
     assertThat(fields).includes(
       MapAssert.entry(SourceLineIndexDefinition.FIELD_PROJECT_UUID, "abcd"),
       MapAssert.entry(SourceLineIndexDefinition.FIELD_FILE_UUID, "efgh"),
@@ -104,7 +108,8 @@ public class SourceLineIndexerTest {
       MapAssert.entry(SourceLineIndexDefinition.FIELD_SCM_REVISION, "cafebabe"),
       MapAssert.entry(SourceLineIndexDefinition.FIELD_SCM_DATE, "2014-01-01T11:34:56.000Z"),
       MapAssert.entry(SourceLineIndexDefinition.FIELD_SCM_AUTHOR, "polop"),
-      MapAssert.entry(SourceLineIndexDefinition.FIELD_SOURCE, "package org.sonar.server.source;")
+      MapAssert.entry(SourceLineIndexDefinition.FIELD_SOURCE, "package org.sonar.server.source;"),
+      MapAssert.entry(SourceLineIndexDefinition.FIELD_DUPLICATIONS, duplications)
       );
   }
 

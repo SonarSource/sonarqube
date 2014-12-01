@@ -46,6 +46,7 @@ public class SourceLineIndexDefinition implements IndexDefinition {
   public static final String FIELD_OVERALL_CONDITIONS = "overallConditions";
   public static final String FIELD_OVERALL_COVERED_CONDITIONS = "overallCoveredConditions";
   public static final String FIELD_SYMBOLS = "symbols";
+  public static final String FIELD_DUPLICATIONS = "duplications";
 
   public static final String INDEX = "sourcelines";
 
@@ -90,6 +91,7 @@ public class SourceLineIndexDefinition implements IndexDefinition {
     sourceLineMapping.createShortField(FIELD_OVERALL_CONDITIONS);
     sourceLineMapping.createShortField(FIELD_OVERALL_COVERED_CONDITIONS);
     sourceLineMapping.stringFieldBuilder(FIELD_SYMBOLS).build();
+    sourceLineMapping.createShortField(FIELD_DUPLICATIONS);
     sourceLineMapping.createDateTimeField(BaseNormalizer.UPDATED_AT_FIELD);
   }
 }

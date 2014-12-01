@@ -108,8 +108,11 @@ public class LinesAction implements RequestHandler {
       json.prop("scmDate", scmDate == null ? null : DateUtils.formatDateTime(scmDate));
       json.prop("lineHits", line.overallLineHits())
         .prop("conditions", line.overallConditions())
-        .prop("coveredConditions", line.overallCoveredConditions())
-        .endObject();
+        .prop("coveredConditions", line.overallCoveredConditions());
+      if (! line.duplications().isEmpty()) {
+        json.prop("duplicated", true);
+      }
+      json.endObject();
     }
     json.endArray();
   }

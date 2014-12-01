@@ -19,6 +19,7 @@
  */
 package org.sonar.server.source.index;
 
+import com.google.common.collect.ImmutableList;
 import org.sonar.server.search.BaseDoc;
 import org.sonar.server.search.BaseNormalizer;
 import org.sonar.server.search.IndexUtils;
@@ -26,6 +27,7 @@ import org.sonar.server.search.IndexUtils;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 
@@ -214,4 +216,12 @@ public class SourceLineDoc extends BaseDoc {
     setField(SourceLineIndexDefinition.FIELD_SYMBOLS, s);
   }
 
+  public Collection<Integer> duplications() {
+    Collection<Integer> duplications = getNullableField(SourceLineIndexDefinition.FIELD_DUPLICATIONS);
+    return duplications == null ? ImmutableList.<Integer>of() : duplications;
+  }
+
+  public void setDuplications(@Nullable Collection<Integer> dups) {
+    setField(SourceLineIndexDefinition.FIELD_DUPLICATIONS, dups == null ? ImmutableList.<Integer>of() : dups);
+  }
 }

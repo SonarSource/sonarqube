@@ -19,6 +19,7 @@
  */
 package org.sonar.server.source.ws;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.elasticsearch.common.collect.Lists;
@@ -100,6 +101,7 @@ public class LinesActionTest {
       .put(SourceLineIndexDefinition.FIELD_OVERALL_LINE_HITS, 3)
       .put(SourceLineIndexDefinition.FIELD_OVERALL_CONDITIONS, 2)
       .put(SourceLineIndexDefinition.FIELD_OVERALL_COVERED_CONDITIONS, 1)
+      .put(SourceLineIndexDefinition.FIELD_DUPLICATIONS, ImmutableList.of())
       .put(BaseNormalizer.UPDATED_AT_FIELD, updatedAt)
       .build());
     SourceLineDoc line2 = new SourceLineDoc(ImmutableMap.<String, Object>builder()
@@ -115,6 +117,7 @@ public class LinesActionTest {
       .put(SourceLineIndexDefinition.FIELD_OVERALL_LINE_HITS, 3)
       .put(SourceLineIndexDefinition.FIELD_OVERALL_CONDITIONS, 2)
       .put(SourceLineIndexDefinition.FIELD_OVERALL_COVERED_CONDITIONS, 1)
+      .put(SourceLineIndexDefinition.FIELD_DUPLICATIONS, ImmutableList.of(1))
       .put(BaseNormalizer.UPDATED_AT_FIELD, updatedAt)
       .build());
     SourceLineDoc line3 = new SourceLineDoc(ImmutableMap.<String, Object>builder()
@@ -130,6 +133,7 @@ public class LinesActionTest {
       .put(SourceLineIndexDefinition.FIELD_OVERALL_LINE_HITS, 3)
       .put(SourceLineIndexDefinition.FIELD_OVERALL_CONDITIONS, 2)
       .put(SourceLineIndexDefinition.FIELD_OVERALL_COVERED_CONDITIONS, 1)
+      .put(SourceLineIndexDefinition.FIELD_DUPLICATIONS, ImmutableList.of())
       .put(BaseNormalizer.UPDATED_AT_FIELD, updatedAt)
       .build());
     when(sourceLineIndex.getLines(eq(componentUuid), anyInt(), anyInt())).thenReturn(newArrayList(
@@ -173,6 +177,7 @@ public class LinesActionTest {
     fieldMap.put(SourceLineIndexDefinition.FIELD_OVERALL_LINE_HITS, null);
     fieldMap.put(SourceLineIndexDefinition.FIELD_OVERALL_CONDITIONS, null);
     fieldMap.put(SourceLineIndexDefinition.FIELD_OVERALL_COVERED_CONDITIONS, null);
+    fieldMap.put(SourceLineIndexDefinition.FIELD_DUPLICATIONS, null);
     fieldMap.put(BaseNormalizer.UPDATED_AT_FIELD, new Date());
     when(sourceLineIndex.getLines(fileKey, 3, 3)).thenReturn(newArrayList(
       new SourceLineDoc(fieldMap)
