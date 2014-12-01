@@ -28,7 +28,10 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
+import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.BatchMediumTester.TaskResult;
 import org.sonar.plugins.cpd.CpdPlugin;
@@ -80,7 +83,7 @@ public class CpdMediumTest {
   }
 
   @Test
-  public void testDuplications() throws IOException {
+  public void testCrossFileDuplications() throws IOException {
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 
@@ -105,7 +108,55 @@ public class CpdMediumTest {
     // 4 measures per file
     assertThat(result.measures()).hasSize(8);
 
-    InputFile inputFile = result.inputFile("src/sample1.xoo");
+    InputFile inputFile1 = result.inputFile("src/sample1.xoo");
+    InputFile inputFile2 = result.inputFile("src/sample2.xoo");
+    // One clone group on each file
+    List<DuplicationGroup> duplicationGroupsFile1 = result.duplicationsFor(inputFile1);
+    assertThat(duplicationGroupsFile1).hasSize(1);
+
+    DuplicationGroup cloneGroupFile1 = duplicationGroupsFile1.get(0);
+    assertThat(cloneGroupFile1.duplicates()).hasSize(1);
+    assertThat(cloneGroupFile1.originBlock().startLine()).isEqualTo(1);
+    assertThat(cloneGroupFile1.originBlock().length()).isEqualTo(17);
+    assertThat(cloneGroupFile1.originBlock().resourceKey()).isEqualTo(((DefaultInputFile) inputFile1).key());
+    assertThat(cloneGroupFile1.duplicates()).hasSize(1);
+    assertThat(cloneGroupFile1.duplicates().get(0).resourceKey()).isEqualTo(((DefaultInputFile) inputFile2).key());
+
+    List<DuplicationGroup> duplicationGroupsFile2 = result.duplicationsFor(inputFile2);
+    assertThat(duplicationGroupsFile2).hasSize(1);
+
+    DuplicationGroup cloneGroupFile2 = duplicationGroupsFile2.get(0);
+    assertThat(cloneGroupFile2.duplicates()).hasSize(1);
+    assertThat(cloneGroupFile2.originBlock().startLine()).isEqualTo(1);
+    assertThat(cloneGroupFile2.originBlock().length()).isEqualTo(17);
+    assertThat(cloneGroupFile2.originBlock().resourceKey()).isEqualTo(((DefaultInputFile) inputFile2).key());
+    assertThat(cloneGroupFile2.duplicates()).hasSize(1);
+    assertThat(cloneGroupFile2.duplicates().get(0).resourceKey()).isEqualTo(((DefaultInputFile) inputFile1).key());
+  }
+
+  @Test
+  public void testIntraFileDuplications() throws IOException {
+    File srcDir = new File(baseDir, "src");
+    srcDir.mkdir();
+
+    String content = "Sample xoo\ncontent\nfoo\nbar\nSample xoo\ncontent\n";
+
+    File xooFile = new File(srcDir, "sample.xoo");
+    FileUtils.write(xooFile, content);
+
+    TaskResult result = tester.newTask()
+      .properties(builder
+        .put("sonar.sources", "src")
+        .put("sonar.cpd.xoo.minimumTokens", "2")
+        .put("sonar.cpd.xoo.minimumLines", "2")
+        .put("sonar.verbose", "true")
+        .build())
+      .start();
+
+    // 4 measures per file
+    assertThat(result.measures()).hasSize(4);
+
+    InputFile inputFile = result.inputFile("src/sample.xoo");
     // One clone group
     List<DuplicationGroup> duplicationGroups = result.duplicationsFor(inputFile);
     assertThat(duplicationGroups).hasSize(1);
@@ -113,7 +164,15 @@ public class CpdMediumTest {
     DuplicationGroup cloneGroup = duplicationGroups.get(0);
     assertThat(cloneGroup.duplicates()).hasSize(1);
     assertThat(cloneGroup.originBlock().startLine()).isEqualTo(1);
-    assertThat(cloneGroup.originBlock().length()).isEqualTo(17);
+    assertThat(cloneGroup.originBlock().length()).isEqualTo(2);
+    assertThat(cloneGroup.duplicates()).hasSize(1);
+    assertThat(cloneGroup.duplicates().get(0).startLine()).isEqualTo(5);
+    assertThat(cloneGroup.duplicates().get(0).length()).isEqualTo(2);
+
+    assertThat(result.measures()).contains(new DefaultMeasure<String>()
+      .forMetric(CoreMetrics.DUPLICATION_LINES_DATA)
+      .onFile(inputFile)
+      .withValue("1=1;2=1;3=0;4=0;5=1;6=1;7=0"));
   }
 
 }

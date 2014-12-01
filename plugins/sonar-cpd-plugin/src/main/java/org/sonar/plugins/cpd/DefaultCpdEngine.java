@@ -67,7 +67,7 @@ public class DefaultCpdEngine extends CpdEngine {
   private final CpdMappings mappings;
   private final FileSystem fs;
   private final Settings settings;
-  private final BlockCache duplicationCache;
+  private final BlockCache blockCache;
   private final Project project;
 
   public DefaultCpdEngine(@Nullable Project project, IndexFactory indexFactory, CpdMappings mappings, FileSystem fs, Settings settings, BlockCache duplicationCache) {
@@ -76,7 +76,7 @@ public class DefaultCpdEngine extends CpdEngine {
     this.mappings = mappings;
     this.fs = fs;
     this.settings = settings;
-    this.duplicationCache = duplicationCache;
+    this.blockCache = duplicationCache;
   }
 
   public DefaultCpdEngine(IndexFactory indexFactory, CpdMappings mappings, FileSystem fs, Settings settings, BlockCache duplicationCache) {
@@ -146,7 +146,7 @@ public class DefaultCpdEngine extends CpdEngine {
     for (InputFile inputFile : sourceFiles) {
       LOG.debug("Populating index from {}", inputFile);
       String resourceEffectiveKey = ((DeprecatedDefaultInputFile) inputFile).key();
-      FileBlocks fileBlocks = duplicationCache.byComponent(resourceEffectiveKey);
+      FileBlocks fileBlocks = blockCache.byComponent(resourceEffectiveKey);
       if (fileBlocks != null) {
         index.insert(inputFile, fileBlocks.blocks());
       } else if (bridge != null) {

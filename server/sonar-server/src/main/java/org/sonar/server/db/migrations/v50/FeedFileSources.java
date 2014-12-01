@@ -22,9 +22,11 @@ package org.sonar.server.db.migrations.v50;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Database;
-import org.sonar.server.db.migrations.*;
+import org.sonar.server.db.migrations.BaseDataChange;
+import org.sonar.server.db.migrations.MassUpdate;
 import org.sonar.server.db.migrations.Select.Row;
 import org.sonar.server.db.migrations.Select.RowReader;
+import org.sonar.server.db.migrations.SqlStatement;
 
 import javax.annotation.Nullable;
 
@@ -147,6 +149,7 @@ public class FeedFileSources extends BaseDataChange {
     Long overallCoverageHitsByLineMetricId = context.prepareSelect("SELECT id FROM metrics WHERE name = 'overall_coverage_line_hits_data'").get(simpleLongReader);
     Long overallConditionsByLineMetricId = context.prepareSelect("SELECT id FROM metrics WHERE name = 'overall_conditions_by_line'").get(simpleLongReader);
     Long overallCoveredConditionsByLineMetricId = context.prepareSelect("SELECT id FROM metrics WHERE name = 'overall_covered_conditions_by_line'").get(simpleLongReader);
+    Long duplicationDataMetricId = context.prepareSelect("SELECT id FROM metrics WHERE name = 'duplications_data'").get(simpleLongReader);
 
     MassUpdate massUpdate = context.prepareMassUpdate();
     massUpdate.select("SELECT " +

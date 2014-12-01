@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.measures.CoreMetrics;
@@ -37,6 +38,7 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.ProjectTree;
+import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.highlighting.SyntaxHighlightingData;
 import org.sonar.batch.highlighting.SyntaxHighlightingDataBuilder;
 import org.sonar.batch.scan.filesystem.InputPathCache;
@@ -72,6 +74,7 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
   private System2 system2;
   private MeasureCache measureCache;
   private ComponentDataCache componentDataCache;
+  private DuplicationCache duplicationCache;
 
   private static final String PROJECT_KEY = "foo";
 
@@ -90,9 +93,10 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     measureCache = mock(MeasureCache.class);
     when(measureCache.byMetric(anyString(), anyString())).thenReturn(Collections.<org.sonar.api.measures.Measure>emptyList());
     componentDataCache = mock(ComponentDataCache.class);
+    duplicationCache = mock(DuplicationCache.class);
     sourcePersister = new SourcePersister(resourcePersister, new SnapshotSourceDao(getMyBatis()), inputPathCache,
       getMyBatis(), measureCache, componentDataCache, projectTree, system2,
-      resourceCache, mock(CodeColorizers.class));
+      resourceCache, mock(CodeColorizers.class), duplicationCache);
     Project project = new Project(PROJECT_KEY);
     project.setUuid("projectUuid");
     when(projectTree.getRootProject()).thenReturn(project);
@@ -146,9 +150,9 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     assertThat(fileSourceDto.getCreatedAt()).isEqualTo(DateUtils.parseDateTime("2014-10-10T16:44:02+0200").getTime());
     assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(now.getTime());
     assertThat(fileSourceDto.getData()).isEqualTo(
-      ",,,,,,,,,,,,,,changed\r\n,,,,,,,,,,,,,,content\r\n");
+      ",,,,,,,,,,,,,,,changed\r\n,,,,,,,,,,,,,,,content\r\n");
     assertThat(fileSourceDto.getLineHashes()).isEqualTo(md5Hex("changed") + "\n" + md5Hex("content"));
-    assertThat(fileSourceDto.getDataHash()).isEqualTo("bd582d7001cfca180c3dacab10043292");
+    assertThat(fileSourceDto.getDataHash()).isEqualTo("d1a4dd62422639f665a8d80b37c59f8d");
   }
 
   @Test
@@ -190,9 +194,9 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     assertThat(fileSourceDto.getCreatedAt()).isEqualTo(now.getTime());
     assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(now.getTime());
     assertThat(fileSourceDto.getData()).isEqualTo(
-      ",,,,,,,,,,,,,,foo\r\n,,,,,,,,,,,,,,bar\r\n,,,,,,,,,,,,,,biz\r\n");
+      ",,,,,,,,,,,,,,,foo\r\n,,,,,,,,,,,,,,,bar\r\n,,,,,,,,,,,,,,,biz\r\n");
     assertThat(fileSourceDto.getLineHashes()).isEqualTo(md5Hex("foo") + "\n" + md5Hex("bar") + "\n" + md5Hex("biz"));
-    assertThat(fileSourceDto.getDataHash()).isEqualTo("e1827ac156bb76144486e6570a591cfb");
+    assertThat(fileSourceDto.getDataHash()).isEqualTo("a34ed99cc7d27150c82f5cba2b22b665");
 
   }
 
@@ -214,29 +218,30 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
 
     mockResourceCache(relativePathNew, PROJECT_KEY, "uuidnew");
 
-    when(measureCache.byMetric(PROJECT_KEY + ":" + relativePathNew, CoreMetrics.SCM_AUTHORS_BY_LINE_KEY))
+    String fileKey = PROJECT_KEY + ":" + relativePathNew;
+    when(measureCache.byMetric(fileKey, CoreMetrics.SCM_AUTHORS_BY_LINE_KEY))
       .thenReturn(Arrays.asList(new Measure(CoreMetrics.SCM_AUTHORS_BY_LINE, "1=julien;2=simon;3=julien")));
-    when(measureCache.byMetric(PROJECT_KEY + ":" + relativePathNew, CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY))
+    when(measureCache.byMetric(fileKey, CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY))
       .thenReturn(Arrays.asList(new Measure(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE, "1=2014-10-11T16:44:02+0100;2=2014-10-12T16:44:02+0100;3=2014-10-13T16:44:02+0100")));
-    when(measureCache.byMetric(PROJECT_KEY + ":" + relativePathNew, CoreMetrics.SCM_REVISIONS_BY_LINE_KEY))
+    when(measureCache.byMetric(fileKey, CoreMetrics.SCM_REVISIONS_BY_LINE_KEY))
       .thenReturn(Arrays.asList(new Measure(CoreMetrics.SCM_REVISIONS_BY_LINE, "1=123;2=234;3=345")));
-    when(measureCache.byMetric(PROJECT_KEY + ":" + relativePathNew, CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY))
+    when(measureCache.byMetric(fileKey, CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY))
       .thenReturn(Arrays.asList(new Measure(CoreMetrics.COVERAGE_LINE_HITS_DATA, "1=1;3=0")));
-    when(measureCache.byMetric(PROJECT_KEY + ":" + relativePathNew, CoreMetrics.CONDITIONS_BY_LINE_KEY))
+    when(measureCache.byMetric(fileKey, CoreMetrics.CONDITIONS_BY_LINE_KEY))
       .thenReturn(Arrays.asList(new Measure(CoreMetrics.CONDITIONS_BY_LINE, "1=4")));
-    when(measureCache.byMetric(PROJECT_KEY + ":" + relativePathNew, CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY))
+    when(measureCache.byMetric(fileKey, CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY))
       .thenReturn(Arrays.asList(new Measure(CoreMetrics.COVERED_CONDITIONS_BY_LINE, "1=2")));
-    when(measureCache.byMetric(PROJECT_KEY + ":" + relativePathNew, CoreMetrics.IT_COVERAGE_LINE_HITS_DATA_KEY))
+    when(measureCache.byMetric(fileKey, CoreMetrics.IT_COVERAGE_LINE_HITS_DATA_KEY))
       .thenReturn(Arrays.asList(new Measure(CoreMetrics.IT_COVERAGE_LINE_HITS_DATA, "1=2;3=0")));
-    when(measureCache.byMetric(PROJECT_KEY + ":" + relativePathNew, CoreMetrics.IT_CONDITIONS_BY_LINE_KEY))
+    when(measureCache.byMetric(fileKey, CoreMetrics.IT_CONDITIONS_BY_LINE_KEY))
       .thenReturn(Arrays.asList(new Measure(CoreMetrics.IT_CONDITIONS_BY_LINE, "1=5")));
-    when(measureCache.byMetric(PROJECT_KEY + ":" + relativePathNew, CoreMetrics.IT_COVERED_CONDITIONS_BY_LINE_KEY))
+    when(measureCache.byMetric(fileKey, CoreMetrics.IT_COVERED_CONDITIONS_BY_LINE_KEY))
       .thenReturn(Arrays.asList(new Measure(CoreMetrics.IT_COVERED_CONDITIONS_BY_LINE, "1=3")));
-    when(measureCache.byMetric(PROJECT_KEY + ":" + relativePathNew, CoreMetrics.OVERALL_COVERAGE_LINE_HITS_DATA_KEY))
+    when(measureCache.byMetric(fileKey, CoreMetrics.OVERALL_COVERAGE_LINE_HITS_DATA_KEY))
       .thenReturn(Arrays.asList(new Measure(CoreMetrics.OVERALL_COVERAGE_LINE_HITS_DATA, "1=3;3=0")));
-    when(measureCache.byMetric(PROJECT_KEY + ":" + relativePathNew, CoreMetrics.OVERALL_CONDITIONS_BY_LINE_KEY))
+    when(measureCache.byMetric(fileKey, CoreMetrics.OVERALL_CONDITIONS_BY_LINE_KEY))
       .thenReturn(Arrays.asList(new Measure(CoreMetrics.OVERALL_CONDITIONS_BY_LINE, "1=6")));
-    when(measureCache.byMetric(PROJECT_KEY + ":" + relativePathNew, CoreMetrics.OVERALL_COVERED_CONDITIONS_BY_LINE_KEY))
+    when(measureCache.byMetric(fileKey, CoreMetrics.OVERALL_COVERED_CONDITIONS_BY_LINE_KEY))
       .thenReturn(Arrays.asList(new Measure(CoreMetrics.OVERALL_COVERED_CONDITIONS_BY_LINE, "1=4")));
 
     SyntaxHighlightingData highlighting = new SyntaxHighlightingDataBuilder()
@@ -244,18 +249,28 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
       .registerHighlightingRule(4, 5, TypeOfText.COMMENT)
       .registerHighlightingRule(7, 16, TypeOfText.CONSTANT)
       .build();
-    when(componentDataCache.getData(PROJECT_KEY + ":" + relativePathNew, SnapshotDataTypes.SYNTAX_HIGHLIGHTING))
+    when(componentDataCache.getData(fileKey, SnapshotDataTypes.SYNTAX_HIGHLIGHTING))
       .thenReturn(highlighting);
 
-    DefaultSymbolTableBuilder symbolBuilder = new DefaultSymbolTableBuilder(PROJECT_KEY + ":" + relativePathNew, null);
+    DefaultSymbolTableBuilder symbolBuilder = new DefaultSymbolTableBuilder(fileKey, null);
     org.sonar.api.batch.sensor.symbol.Symbol s1 = symbolBuilder.newSymbol(1, 2);
     symbolBuilder.newReference(s1, 4);
     symbolBuilder.newReference(s1, 11);
     org.sonar.api.batch.sensor.symbol.Symbol s2 = symbolBuilder.newSymbol(4, 6);
     symbolBuilder.newReference(s2, 0);
     symbolBuilder.newReference(s2, 7);
-    when(componentDataCache.getData(PROJECT_KEY + ":" + relativePathNew, SnapshotDataTypes.SYMBOL_HIGHLIGHTING))
+    when(componentDataCache.getData(fileKey, SnapshotDataTypes.SYMBOL_HIGHLIGHTING))
       .thenReturn(symbolBuilder.build());
+
+    DuplicationGroup group1 = new DuplicationGroup(new DuplicationGroup.Block(fileKey, 1, 1))
+      .addDuplicate(new DuplicationGroup.Block(fileKey, 3, 1))
+      .addDuplicate(new DuplicationGroup.Block("anotherFile1", 12, 1))
+      .addDuplicate(new DuplicationGroup.Block("anotherFile2", 13, 1));
+
+    DuplicationGroup group2 = new DuplicationGroup(new DuplicationGroup.Block(fileKey, 1, 2))
+      .addDuplicate(new DuplicationGroup.Block("anotherFile1", 12, 2))
+      .addDuplicate(new DuplicationGroup.Block("anotherFile2", 13, 2));
+    when(duplicationCache.byComponent(fileKey)).thenReturn(Arrays.asList(group1, group2));
 
     sourcePersister.persist();
 
@@ -264,10 +279,10 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(now.getTime());
     assertThat(fileSourceDto.getLineHashes()).isEqualTo(md5Hex("foo") + "\n" + md5Hex("bar") + "\n" + md5Hex("biz"));
     assertThat(fileSourceDto.getData()).isEqualTo(
-      "123,julien,2014-10-11T16:44:02+0100,1,4,2,2,5,3,3,6,4,\"0,3,a\",\"1,2,1;0,2,2\",foo\r\n"
-        + "234,simon,2014-10-12T16:44:02+0100,,,,,,,,,,\"0,1,cd\",\"0,1,1;0,2,2\",bar\r\n"
-        + "345,julien,2014-10-13T16:44:02+0100,0,,,0,,,0,,,\"0,9,c\",\"4,5,1;0,2,2\",biz\r\n");
-    assertThat(fileSourceDto.getDataHash()).isEqualTo("594752666dd282f4a3bb985829c790fa");
+      "123,julien,2014-10-11T16:44:02+0100,1,4,2,2,5,3,3,6,4,\"0,3,a\",\"1,2,1;0,2,2\",\"1,3\",foo\r\n"
+        + "234,simon,2014-10-12T16:44:02+0100,,,,,,,,,,\"0,1,cd\",\"0,1,1;0,2,2\",3,bar\r\n"
+        + "345,julien,2014-10-13T16:44:02+0100,0,,,0,,,0,,,\"0,9,c\",\"4,5,1;0,2,2\",2,biz\r\n");
+    assertThat(fileSourceDto.getDataHash()).isEqualTo("26930cf0250d525b04083185ff24a046");
   }
 
   @Test

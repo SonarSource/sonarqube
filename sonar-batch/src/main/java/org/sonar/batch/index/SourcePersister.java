@@ -29,6 +29,8 @@ import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
+import org.sonar.api.batch.sensor.duplication.DuplicationGroup.Block;
 import org.sonar.api.batch.sensor.symbol.Symbol;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.measures.CoreMetrics;
@@ -38,6 +40,7 @@ import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.text.CsvWriter;
 import org.sonar.batch.ProjectTree;
+import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.highlighting.SyntaxHighlightingData;
 import org.sonar.batch.highlighting.SyntaxHighlightingRule;
 import org.sonar.batch.scan.filesystem.InputPathCache;
@@ -80,10 +83,11 @@ public class SourcePersister implements ScanPersister {
   private final ProjectTree projectTree;
   private final ResourceCache resourceCache;
   private CodeColorizers codeColorizers;
+  private DuplicationCache duplicationCache;
 
   public SourcePersister(ResourcePersister resourcePersister, SnapshotSourceDao sourceDao, InputPathCache inputPathCache,
-    MyBatis mybatis, MeasureCache measureCache, ComponentDataCache componentDataCache, ProjectTree projectTree, System2 system2, ResourceCache resourceCache,
-    CodeColorizers codeColorizers) {
+    MyBatis mybatis, MeasureCache measureCache, ComponentDataCache componentDataCache, ProjectTree projectTree, System2 system2,
+    ResourceCache resourceCache, CodeColorizers codeColorizers, DuplicationCache duplicationCache) {
     this.resourcePersister = resourcePersister;
     this.sourceDao = sourceDao;
     this.inputPathCache = inputPathCache;
@@ -94,6 +98,7 @@ public class SourcePersister implements ScanPersister {
     this.system2 = system2;
     this.resourceCache = resourceCache;
     this.codeColorizers = codeColorizers;
+    this.duplicationCache = duplicationCache;
   }
 
   public void saveSource(Resource resource, String source, Date updatedAt) {
@@ -223,6 +228,7 @@ public class SourcePersister implements ScanPersister {
     SyntaxHighlightingData highlighting = loadHighlighting(file);
     String[] highlightingPerLine = computeHighlightingPerLine(file, highlighting);
     String[] symbolReferencesPerLine = computeSymbolReferencesPerLine(file, loadSymbolReferences(file));
+    String[] duplicationsPerLine = computeDuplicationsPerLine(file, duplicationCache.byComponent(file.key()));
 
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     CsvWriter csv = CsvWriter.of(new OutputStreamWriter(output, UTF_8));
@@ -231,11 +237,49 @@ public class SourcePersister implements ScanPersister {
         utHitsByLine.get(lineIdx), utCondByLine.get(lineIdx), utCoveredCondByLine.get(lineIdx),
         itHitsByLine.get(lineIdx), itCondByLine.get(lineIdx), itCoveredCondByLine.get(lineIdx),
         overallHitsByLine.get(lineIdx), overallCondByLine.get(lineIdx), overallCoveredCondByLine.get(lineIdx),
-        highlightingPerLine[lineIdx - 1], symbolReferencesPerLine[lineIdx - 1],
+        highlightingPerLine[lineIdx - 1], symbolReferencesPerLine[lineIdx - 1], duplicationsPerLine[lineIdx - 1],
         CharMatcher.anyOf(BOM).removeFrom(lines.get(lineIdx - 1)));
     }
     csv.close();
     return StringUtils.defaultIfEmpty(new String(output.toByteArray(), UTF_8), null);
+  }
+
+  private String[] computeDuplicationsPerLine(DefaultInputFile file, List<DuplicationGroup> duplicationGroups) {
+    String[] result = new String[file.lines()];
+    if (duplicationGroups == null) {
+      return result;
+    }
+    StringBuilder[] dupPerLine = new StringBuilder[file.lines()];
+    int blockId = 1;
+    for (DuplicationGroup group : duplicationGroups) {
+      addBlock(blockId, group.originBlock(), dupPerLine);
+      blockId++;
+      for (Block dups : group.duplicates()) {
+        if (dups.resourceKey().equals(file.key())) {
+          addBlock(blockId, dups, dupPerLine);
+          blockId++;
+        }
+      }
+    }
+    for (int i = 0; i < file.lines(); i++) {
+      result[i] = dupPerLine[i] != null ? dupPerLine[i].toString() : null;
+    }
+    return result;
+  }
+
+  private void addBlock(int blockId, Block block, StringBuilder[] dupPerLine) {
+    int currentLine = block.startLine();
+    for (int i = 0; i < block.length(); i++) {
+      if (dupPerLine[currentLine - 1] == null) {
+        dupPerLine[currentLine - 1] = new StringBuilder();
+      }
+      if (dupPerLine[currentLine - 1].length() > 0) {
+        dupPerLine[currentLine - 1].append(',');
+      }
+      dupPerLine[currentLine - 1].append(blockId);
+      currentLine++;
+    }
+
   }
 
   @CheckForNull
