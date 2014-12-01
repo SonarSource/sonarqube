@@ -37,6 +37,8 @@ import java.util.List;
 
 public class HtmlSourceDecorator implements ServerComponent {
 
+  private static final String SINGLE_LINE_SYMBOLS = "single_line_symbols";
+
   private final MyBatis mybatis;
 
   private final SnapshotSourceDao snapshotSourceDao;
@@ -76,13 +78,19 @@ public class HtmlSourceDecorator implements ServerComponent {
   }
 
   @CheckForNull
-  public String getDecoratedSourceAsHtml(@Nullable String sourceLine, @Nullable String highlighting) {
+  public String getDecoratedSourceAsHtml(@Nullable String sourceLine, @Nullable String highlighting, @Nullable String symbols) {
     Collection<SnapshotDataDto> snapshotDataEntries = Lists.newArrayList();
     if (highlighting != null) {
       SnapshotDataDto highlightingDto = new SnapshotDataDto();
       highlightingDto.setData(highlighting);
       highlightingDto.setDataType(SnapshotDataTypes.SYNTAX_HIGHLIGHTING);
       snapshotDataEntries.add(highlightingDto);
+    }
+    if (symbols != null) {
+      SnapshotDataDto symbolsDto = new SnapshotDataDto();
+      symbolsDto.setData(symbols);
+      symbolsDto.setDataType(SINGLE_LINE_SYMBOLS);
+      snapshotDataEntries.add(symbolsDto);
     }
     List<String> decoratedSource = decorate(sourceLine, snapshotDataEntries, 1, 1);
     if (decoratedSource == null) {
@@ -121,6 +129,8 @@ public class HtmlSourceDecorator implements ServerComponent {
         dataHolder.loadSyntaxHighlightingData(entry.getData());
       } else if (SnapshotDataTypes.SYMBOL_HIGHLIGHTING.equals(entry.getDataType())) {
         dataHolder.loadSymbolReferences(entry.getData());
+      } else if (SINGLE_LINE_SYMBOLS.equals(entry.getDataType())) {
+        dataHolder.loadLineSymbolReferences(entry.getData());
       }
     }
   }

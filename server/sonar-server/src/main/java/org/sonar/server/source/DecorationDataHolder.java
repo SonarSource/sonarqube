@@ -54,6 +54,19 @@ class DecorationDataHolder {
     }
   }
 
+  void loadLineSymbolReferences(String symbolsReferences) {
+    String[] symbols = symbolsReferences.split(ENTITY_SEPARATOR);
+    for (String symbol : symbols) {
+      String[] symbolFields = symbol.split(FIELD_SEPARATOR);
+      int startOffset = Integer.parseInt(symbolFields[0]);
+      int endOffset = Integer.parseInt(symbolFields[1]);
+      int symbolLength = endOffset - startOffset;
+      int symbolId = Integer.parseInt(symbolFields[2]);
+      loadSymbolOccurrences(symbolId, symbolLength, new String[] { Integer.toString(startOffset) });
+    }
+  }
+
+
   void loadSyntaxHighlightingData(String syntaxHighlightingRules) {
     String[] rules = syntaxHighlightingRules.split(ENTITY_SEPARATOR);
     for (String rule : rules) {

@@ -145,6 +145,7 @@ public class SourceLineResultSetIterator extends ResultSetIterator<SourceLineRes
           doc.setOverallConditions(parseIntegerFromRecord(csvRecord, 10));
           doc.setOverallCoveredConditions(parseIntegerFromRecord(csvRecord, 11));
           doc.setHighlighting(csvRecord.get(12));
+          doc.setSymbols(csvRecord.get(13));
           doc.setSource(csvRecord.get(csvRecord.size() - 1));
 
           result.addLine(doc);

@@ -1,7 +1,7 @@
 {
   "sources": [
     {
-      "code": "<span class=\"\">}</span>",
+      "code": "<span class=\" sym-\">}</span>",
       "line": 3,
       "scmAuthor": "polop",
       "scmRevision": "cafebabe"

@@ -68,7 +68,7 @@ public class HtmlSourceDecoratorTest extends AbstractDaoTestCase {
 
   @Test
   public void highlight_syntax_with_html_from_component() throws Exception {
-    List<String> decoratedSource = sourceDecorator.getDecoratedSourceAsHtml("org.apache.struts:struts:Dispatcher", null, null);
+    List<String> decoratedSource = sourceDecorator.getDecoratedSourceAsHtml("org.apache.struts:struts:Dispatcher", (Integer) null, (Integer) null);
 
     assertThat(decoratedSource).containsExactly(
       "<span class=\"cppd\">/*</span>",
@@ -103,7 +103,7 @@ public class HtmlSourceDecoratorTest extends AbstractDaoTestCase {
 
   @Test
   public void mark_symbols_with_html_from_component() throws Exception {
-    List<String> decoratedSource = sourceDecorator.getDecoratedSourceAsHtml("org.apache.struts:struts:VelocityManager", null, null);
+    List<String> decoratedSource = sourceDecorator.getDecoratedSourceAsHtml("org.apache.struts:struts:VelocityManager", (Integer) null, (Integer) null);
 
     assertThat(decoratedSource).containsExactly(
       "/*",
@@ -136,7 +136,7 @@ public class HtmlSourceDecoratorTest extends AbstractDaoTestCase {
 
   @Test
   public void decorate_source_with_multiple_decoration_strategies_from_component() throws Exception {
-    List<String> decoratedSource = sourceDecorator.getDecoratedSourceAsHtml("org.apache.struts:struts:DebuggingInterceptor", null, null);
+    List<String> decoratedSource = sourceDecorator.getDecoratedSourceAsHtml("org.apache.struts:struts:DebuggingInterceptor", (Integer) null, (Integer) null);
 
     assertThat(decoratedSource).containsExactly(
       "<span class=\"cppd\">/*</span>",
@@ -173,7 +173,7 @@ public class HtmlSourceDecoratorTest extends AbstractDaoTestCase {
 
     HtmlSourceDecorator sourceDecorator = new HtmlSourceDecorator(mock(MyBatis.class), snapshotSourceDao, snapshotDataDao);
 
-    sourceDecorator.getDecoratedSourceAsHtml("org.apache.struts:struts:DebuggingInterceptor", null, null);
+    sourceDecorator.getDecoratedSourceAsHtml("org.apache.struts:struts:DebuggingInterceptor", (Integer) null, (Integer) null);
 
     verify(snapshotDataDao, times(1)).selectSnapshotDataByComponentKey(eq("org.apache.struts:struts:DebuggingInterceptor"), eq(Lists.newArrayList("highlight_syntax", "symbol")),
       any(SqlSession.class));
@@ -185,24 +185,25 @@ public class HtmlSourceDecoratorTest extends AbstractDaoTestCase {
   public void should_decorate_single_line() {
     String sourceLine = "package org.polop;";
     String highlighting = "0,7,k";
-    assertThat(sourceDecorator.getDecoratedSourceAsHtml(sourceLine, highlighting)).isEqualTo("<span class=\"k\">package</span> org.polop;");
+    String symbols = "8,17,42";
+    assertThat(sourceDecorator.getDecoratedSourceAsHtml(sourceLine, highlighting, symbols)).isEqualTo("<span class=\"k\">package</span> <span class=\"sym-42 sym\">org.polop</span>;");
   }
 
   @Test
   public void should_ignore_missing_highlighting() {
     String sourceLine = "    if (toto < 42) {";
-    assertThat(sourceDecorator.getDecoratedSourceAsHtml(sourceLine, null)).isEqualTo("    if (toto &lt; 42) {");
-    assertThat(sourceDecorator.getDecoratedSourceAsHtml(sourceLine, "")).isEqualTo("    if (toto &lt; 42) {");
+    assertThat(sourceDecorator.getDecoratedSourceAsHtml(sourceLine, (String) null, (String) null)).isEqualTo("    if (toto &lt; 42) {");
+    assertThat(sourceDecorator.getDecoratedSourceAsHtml(sourceLine, "", (String) null)).isEqualTo("    if (toto &lt; 42) {");
   }
 
   @Test
   public void should_ignore_null_source() {
-    assertThat(sourceDecorator.getDecoratedSourceAsHtml(null, null)).isNull();
+    assertThat(sourceDecorator.getDecoratedSourceAsHtml(null, (String) null, (String) null)).isNull();
   }
 
   @Test
   public void should_ignore_empty_source() {
-    assertThat(sourceDecorator.getDecoratedSourceAsHtml("", null)).isEqualTo("");
+    assertThat(sourceDecorator.getDecoratedSourceAsHtml("", (String) null, (String) null)).isEqualTo("");
   }
 }
 

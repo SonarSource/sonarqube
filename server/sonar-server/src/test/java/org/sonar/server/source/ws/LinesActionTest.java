@@ -72,10 +72,10 @@ public class LinesActionTest {
         mock(HashAction.class)
       )
     );
-    when(htmlSourceDecorator.getDecoratedSourceAsHtml(anyString(), anyString())).thenAnswer(new Answer<String>() {
+    when(htmlSourceDecorator.getDecoratedSourceAsHtml(anyString(), anyString(), anyString())).thenAnswer(new Answer<String>() {
       @Override
       public String answer(InvocationOnMock invocation) throws Throwable {
-        return "<span class=\"" + invocation.getArguments()[1] + "\">" +
+        return "<span class=\"" + invocation.getArguments()[1] + " sym-" + invocation.getArguments()[2] + "\">" +
           StringEscapeUtils.escapeHtml((String) invocation.getArguments()[0]) +
             "</span>";
       }
@@ -96,6 +96,7 @@ public class LinesActionTest {
       .put(SourceLineIndexDefinition.FIELD_SCM_AUTHOR, "polop")
       .put(SourceLineIndexDefinition.FIELD_SOURCE, "class Polop {")
       .put(SourceLineIndexDefinition.FIELD_HIGHLIGHTING, "h1")
+      .put(SourceLineIndexDefinition.FIELD_SYMBOLS, "palap")
       .put(SourceLineIndexDefinition.FIELD_OVERALL_LINE_HITS, 3)
       .put(SourceLineIndexDefinition.FIELD_OVERALL_CONDITIONS, 2)
       .put(SourceLineIndexDefinition.FIELD_OVERALL_COVERED_CONDITIONS, 1)
@@ -110,6 +111,7 @@ public class LinesActionTest {
       .put(SourceLineIndexDefinition.FIELD_SCM_AUTHOR, "polop")
       .put(SourceLineIndexDefinition.FIELD_SOURCE, "  // Empty")
       .put(SourceLineIndexDefinition.FIELD_HIGHLIGHTING, "h2")
+      .put(SourceLineIndexDefinition.FIELD_SYMBOLS, "pulup")
       .put(SourceLineIndexDefinition.FIELD_OVERALL_LINE_HITS, 3)
       .put(SourceLineIndexDefinition.FIELD_OVERALL_CONDITIONS, 2)
       .put(SourceLineIndexDefinition.FIELD_OVERALL_COVERED_CONDITIONS, 1)
@@ -124,6 +126,7 @@ public class LinesActionTest {
       .put(SourceLineIndexDefinition.FIELD_SCM_AUTHOR, "polop")
       .put(SourceLineIndexDefinition.FIELD_SOURCE, "}")
       .put(SourceLineIndexDefinition.FIELD_HIGHLIGHTING, "h3")
+      .put(SourceLineIndexDefinition.FIELD_SYMBOLS, "pylyp")
       .put(SourceLineIndexDefinition.FIELD_OVERALL_LINE_HITS, 3)
       .put(SourceLineIndexDefinition.FIELD_OVERALL_CONDITIONS, 2)
       .put(SourceLineIndexDefinition.FIELD_OVERALL_COVERED_CONDITIONS, 1)
@@ -166,6 +169,7 @@ public class LinesActionTest {
     fieldMap.put(SourceLineIndexDefinition.FIELD_SCM_AUTHOR, "polop");
     fieldMap.put(SourceLineIndexDefinition.FIELD_SOURCE, "}");
     fieldMap.put(SourceLineIndexDefinition.FIELD_HIGHLIGHTING, "");
+    fieldMap.put(SourceLineIndexDefinition.FIELD_SYMBOLS, "");
     fieldMap.put(SourceLineIndexDefinition.FIELD_OVERALL_LINE_HITS, null);
     fieldMap.put(SourceLineIndexDefinition.FIELD_OVERALL_CONDITIONS, null);
     fieldMap.put(SourceLineIndexDefinition.FIELD_OVERALL_COVERED_CONDITIONS, null);

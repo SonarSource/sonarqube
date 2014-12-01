@@ -89,7 +89,7 @@ public class SourceServiceTest {
 
     service.getLinesAsHtml(COMPONENT_KEY);
 
-    verify(sourceDecorator).getDecoratedSourceAsHtml(COMPONENT_KEY, null, null);
+    verify(sourceDecorator).getDecoratedSourceAsHtml(COMPONENT_KEY, (Integer) null, (Integer) null);
   }
 
   @Test

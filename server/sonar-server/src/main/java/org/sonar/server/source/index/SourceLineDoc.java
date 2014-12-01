@@ -86,8 +86,9 @@ public class SourceLineDoc extends BaseDoc {
     setField(SourceLineIndexDefinition.FIELD_SCM_DATE, scmDate);
   }
 
+  @CheckForNull
   public String highlighting() {
-    return getField(SourceLineIndexDefinition.FIELD_HIGHLIGHTING);
+    return getNullableField(SourceLineIndexDefinition.FIELD_HIGHLIGHTING);
   }
 
   public void setHighlighting(String s) {
@@ -114,7 +115,7 @@ public class SourceLineDoc extends BaseDoc {
     return String.format("%s_%d", fileUuid(), line());
   }
 
-  @Nullable
+  @CheckForNull
   public Integer utLineHits() {
     Number lineHits = (Number)getNullableField(SourceLineIndexDefinition.FIELD_UT_LINE_HITS);
     return lineHits == null ? null : lineHits.intValue();
@@ -124,7 +125,7 @@ public class SourceLineDoc extends BaseDoc {
     setField(SourceLineIndexDefinition.FIELD_UT_LINE_HITS, lineHits);
   }
 
-  @Nullable
+  @CheckForNull
   public Integer utConditions() {
     Number conditions = (Number)getNullableField(SourceLineIndexDefinition.FIELD_UT_CONDITIONS);
     return conditions == null ? null : conditions.intValue();
@@ -134,7 +135,7 @@ public class SourceLineDoc extends BaseDoc {
     setField(SourceLineIndexDefinition.FIELD_UT_CONDITIONS, conditions);
   }
 
-  @Nullable
+  @CheckForNull
   public Integer utCoveredConditions() {
     Number coveredConditions = (Number)getNullableField(SourceLineIndexDefinition.FIELD_UT_COVERED_CONDITIONS);
     return coveredConditions == null ? null : coveredConditions.intValue();
@@ -144,7 +145,7 @@ public class SourceLineDoc extends BaseDoc {
     setField(SourceLineIndexDefinition.FIELD_UT_COVERED_CONDITIONS, coveredConditions);
   }
 
-  @Nullable
+  @CheckForNull
   public Integer itLineHits() {
     Number lineHits = (Number)getNullableField(SourceLineIndexDefinition.FIELD_IT_LINE_HITS);
     return lineHits == null ? null : lineHits.intValue();
@@ -154,7 +155,7 @@ public class SourceLineDoc extends BaseDoc {
     setField(SourceLineIndexDefinition.FIELD_IT_LINE_HITS, lineHits);
   }
 
-  @Nullable
+  @CheckForNull
   public Integer itConditions() {
     Number conditions = (Number)getNullableField(SourceLineIndexDefinition.FIELD_IT_CONDITIONS);
     return conditions == null ? null : conditions.intValue();
@@ -164,7 +165,7 @@ public class SourceLineDoc extends BaseDoc {
     setField(SourceLineIndexDefinition.FIELD_IT_CONDITIONS, conditions);
   }
 
-  @Nullable
+  @CheckForNull
   public Integer itCoveredConditions() {
     Number coveredConditions = (Number)getNullableField(SourceLineIndexDefinition.FIELD_IT_COVERED_CONDITIONS);
     return coveredConditions == null ? null : coveredConditions.intValue();
@@ -174,7 +175,7 @@ public class SourceLineDoc extends BaseDoc {
     setField(SourceLineIndexDefinition.FIELD_IT_COVERED_CONDITIONS, coveredConditions);
   }
 
-  @Nullable
+  @CheckForNull
   public Integer overallLineHits() {
     Number lineHits = (Number)getNullableField(SourceLineIndexDefinition.FIELD_OVERALL_LINE_HITS);
     return lineHits == null ? null : lineHits.intValue();
@@ -184,7 +185,7 @@ public class SourceLineDoc extends BaseDoc {
     setField(SourceLineIndexDefinition.FIELD_OVERALL_LINE_HITS, lineHits);
   }
 
-  @Nullable
+  @CheckForNull
   public Integer overallConditions() {
     Number conditions = (Number)getNullableField(SourceLineIndexDefinition.FIELD_OVERALL_CONDITIONS);
     return conditions == null ? null : conditions.intValue();
@@ -194,7 +195,7 @@ public class SourceLineDoc extends BaseDoc {
     setField(SourceLineIndexDefinition.FIELD_OVERALL_CONDITIONS, conditions);
   }
 
-  @Nullable
+  @CheckForNull
   public Integer overallCoveredConditions() {
     Number coveredConditions = (Number)getNullableField(SourceLineIndexDefinition.FIELD_OVERALL_COVERED_CONDITIONS);
     return coveredConditions == null ? null : coveredConditions.intValue();
@@ -203,4 +204,14 @@ public class SourceLineDoc extends BaseDoc {
   public void setOverallCoveredConditions(@Nullable Integer coveredConditions) {
     setField(SourceLineIndexDefinition.FIELD_OVERALL_COVERED_CONDITIONS, coveredConditions);
   }
+
+  @CheckForNull
+  public String symbols() {
+    return getNullableField(SourceLineIndexDefinition.FIELD_SYMBOLS);
+  }
+
+  public void setSymbols(@Nullable String s) {
+    setField(SourceLineIndexDefinition.FIELD_SYMBOLS, s);
+  }
+
 }

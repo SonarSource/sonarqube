@@ -101,7 +101,7 @@ public class LinesAction implements RequestHandler {
     for (SourceLineDoc line: lines) {
       json.beginObject()
         .prop("line", line.line())
-        .prop("code", htmlSourceDecorator.getDecoratedSourceAsHtml(line.source(), line.highlighting()))
+        .prop("code", htmlSourceDecorator.getDecoratedSourceAsHtml(line.source(), line.highlighting(), line.symbols()))
         .prop("scmAuthor", line.scmAuthor())
         .prop("scmRevision", line.scmRevision());
       Date scmDate = line.scmDate();
