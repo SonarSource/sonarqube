@@ -386,12 +386,7 @@ module.exports = (grunt) ->
 
 
   grunt.registerTask 'default', [
-                                 # testing first
-                                 'clean:js', 'coffee:build', 'handlebars:build', 'copy:js', 'concat:dev',
-                                 'express:test', 'casper:test'
-
-                                 # then build
-                                 'clean:css', 'clean:js',
+                                'clean:css', 'clean:js',
                                  'less:build', 'cssUrlRewrite:build'
                                  'coffee:build', 'handlebars:build', 'copy:js',
                                  'concat:build',

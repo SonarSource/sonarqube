@@ -12,7 +12,7 @@
   <name>SonarQube :: Web</name>
 
   <properties>
-    <gruntTask>default</gruntTask>
+    <gruntTask>test build</gruntTask>
 
     <!-- self-analysis -->
     <sonar.sources>src/main/js</sonar.sources>
@@ -188,33 +188,15 @@
 
   <profiles>
     <profile>
-      <id>js-tests</id>
+      <id>skipJsTests</id>
       <activation>
         <property>
-          <name>skipWebTests</name>
-          <value>false</value>
+          <name>skipTests</name>
         </property>
       </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>com.github.eirslett</groupId>
-            <artifactId>frontend-maven-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>javascript tests</id>
-                <phase>test</phase>
-                <goals>
-                  <goal>grunt</goal>
-                </goals>
-                <configuration>
-                  <arguments>test</arguments>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
+      <properties>
+        <gruntTask>build</gruntTask>
+      </properties>
     </profile>
     <profile>
       <id>release</id>
