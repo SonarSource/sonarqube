@@ -174,7 +174,7 @@ define [
       filter = @options.app.state.get 'query'
       route = []
       _.map filter, (value, property) ->
-        route.push "#{property}=#{decodeURIComponent value}"
+        route.push "#{property}=#{encodeURIComponent value}"
       route.join separator
 
 
