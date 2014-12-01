@@ -16,18 +16,18 @@ function toggleFav(resourceId, elt) {
     success: function (data) {
       var star = $j(elt);
       star.removeClass('icon-favorite icon-not-favorite');
-      star.addClass(data['css']);
-      star.attr('title', data['title']);
+      star.addClass(data.css);
+      star.attr('title', data.title);
     }});
 }
 
 function dashboardParameters() {
   var queryString = window.location.search;
-  var parameters = "";
+  var parameters = '';
 
   var matchDashboard = queryString.match(/did=\d+/);
   if (matchDashboard && $j('#is-project-dashboard').length === 1) {
-    parameters += (matchDashboard[0] + "&");
+    parameters += (matchDashboard[0] + '&');
   }
 
   var matchPeriod = queryString.match(/period=\d+/);
@@ -35,12 +35,12 @@ function dashboardParameters() {
     // If we have a match for period, check that it is not project-specific
     var period = parseInt(/period=(\d+)/.exec(queryString)[1]);
     if (period <= 3) {
-      parameters += matchPeriod[0] + "&";
+      parameters += matchPeriod[0] + '&';
     }
   }
 
-  if (parameters !== "") {
-    parameters = "?" + parameters;
+  if (parameters !== '') {
+    parameters = '?' + parameters;
   }
   return parameters;
 }
@@ -226,10 +226,10 @@ Treemap.prototype.load = function () {
   $j('#tm-loading-' + this.id).show();
   var self = this;
   $j.ajax({
-    type: "GET",
+    type: 'GET',
     url: baseUrl + '/treemap/index?html_id=' + this.id + '&size_metric=' + this.sizeMetric +
       '&color_metric=' + this.colorMetric + '&resource=' + context.rid,
-    dataType: "html",
+    dataType: 'html',
     success: function (data) {
       if (data.length > 1) {
         self.rootNode().html(data);
@@ -238,9 +238,9 @@ Treemap.prototype.load = function () {
         // SONAR-3524
         // When data is empty, do not display it, revert breadcrumb state and display a message to user
         self.breadcrumb.pop();
-        $j("#tm-bottom-level-reached-msg-" + self.id).show();
+        $j('#tm-bottom-level-reached-msg-' + self.id).show();
       }
-      $j("#tm-loading-" + self.id).hide();
+      $j('#tm-loading-' + self.id).hide();
     }
   });
 };
@@ -251,26 +251,26 @@ Treemap.prototype.rootNode = function () {
 Treemap.prototype.initNodes = function () {
   var self = this;
   $j('#tm-' + this.id).find('a').each(function () {
-    $j(this).on("click", function (event) {
+    $j(this).on('click', function (event) {
       event.stopPropagation();
     });
   });
   $j('#tm-' + this.id).find('[rid]').each(function () {
-    $j(this).on("contextmenu", function (event) {
+    $j(this).on('contextmenu', function (event) {
       event.stopPropagation();
       event.preventDefault();
-      $j("#tm-bottom-level-reached-msg-" + self.id).hide();
+      $j('#tm-bottom-level-reached-msg-' + self.id).hide();
       // right click
       if (self.breadcrumb.length > 1) {
         self.breadcrumb.pop();
         self.load();
       } else if (self.breadcrumb.length === 1) {
-        $j("#tm-loading-" + self.id).show();
+        $j('#tm-loading-' + self.id).show();
         location.reload();
       }
       return false;
     });
-    $j(this).on("click", function () {
+    $j(this).on('click', function () {
         var source = $j(this);
         var rid = source.attr('rid');
         var context = new TreemapContext(rid, source.text());
@@ -282,7 +282,7 @@ Treemap.prototype.initNodes = function () {
 };
 
 function openModalWindow(url, options) {
-  var width = (options && options['width']) || 540;
+  var width = (options && options.width) || 540;
   var $dialog = $j('#modal');
   if (!$dialog.length) {
     $dialog = $j('<div id="modal" class="ui-widget-overlay ui-front"></div>').appendTo('body');
@@ -292,7 +292,7 @@ function openModalWindow(url, options) {
     $dialog.html(html);
     $dialog
       .dialog({
-        dialogClass: "no-close",
+        dialogClass: 'no-close',
         width: width,
         draggable: false,
         autoOpen: false,
@@ -304,9 +304,9 @@ function openModalWindow(url, options) {
           $j('#modal').remove();
         }
       });
-    $dialog.dialog("open");
+    $dialog.dialog('open');
   }).fail(function () {
-      alert("Server error. Please contact your administrator.");
+      alert('Server error. Please contact your administrator.');
     }).always(function () {
       $dialog.removeClass('ui-widget-overlay');
     });
@@ -346,17 +346,17 @@ function openModalWindow(url, options) {
             },
             error: function (xhr) {
               // If the modal window has defined a modal-error element, then returned text must be displayed in it
-              var errorElt = obj.find(".modal-error");
+              var errorElt = obj.find('.modal-error');
               if (errorElt.length) {
                 // Hide all loading images
-                $j('.loading-image').addClass("hidden");
+                $j('.loading-image').addClass('hidden');
                 // Re activate submit button
                 $j('input[type=submit]', obj).removeAttr('disabled');
                 errorElt.show();
                 errorElt.html(xhr.responseText);
               } else {
                 // otherwise replace modal window by the returned text
-                $j("#modal").html(xhr.responseText);
+                $j('#modal').html(xhr.responseText);
               }
             }
           }, ajax_options));
@@ -374,7 +374,7 @@ function closeModalWindow() {
 
 function supportsHTML5Storage() {
   try {
-    return 'localStorage' in window && window['localStorage'] !== null;
+    return 'localStorage' in window && window.localStorage !== null;
   } catch (e) {
     return false;
   }
@@ -383,19 +383,18 @@ function supportsHTML5Storage() {
 //******************* HANDLING OF ACCORDION NAVIGATION [BEGIN] ******************* //
 
 function openAccordionItem(url) {
-  var ajaxRequest = $j.ajax({
+  return $j.ajax({
       url: url
       }).fail(function (jqXHR, textStatus) {
-        var error = "Server error. Please contact your administrator. The status of the error is : " +
-          jqXHR.status + ", textStatus is : " + textStatus;
+        var error = 'Server error. Please contact your administrator. The status of the error is : ' +
+          jqXHR.status + ', textStatus is : ' + textStatus;
         console.log(error);
-        $j("#accordion-panel").append($j('<div class="error">').append(error));
+        $j('#accordion-panel').append($j('<div class="error">').append(error));
       }).done(function (html) {
-          var panel = $j("#accordion-panel");
+          var panel = $j('#accordion-panel');
           panel.html(html);
             panel.scrollIntoView(false);
       });
-  return ajaxRequest;
 }
 
 
@@ -435,7 +434,7 @@ function showDropdownMenuOnElement(elt) {
   var dropdownElt = $j(elt);
 
   if (dropdownElt === currentlyDisplayedDropdownMenu) {
-    currentlyDisplayedDropdownMenu = "";
+    currentlyDisplayedDropdownMenu = '';
   } else {
     currentlyDisplayedDropdownMenu = dropdownElt;
     $j(document).mouseup(hideCurrentDropdownMenu);

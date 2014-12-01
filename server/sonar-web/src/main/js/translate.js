@@ -42,10 +42,11 @@
         }, []),
         key = tokens.join('.'),
         start = window.SS && window.SS.phrases,
-        found = !!start;
+        found = !!start,
+        result = '';
 
     if (found) {
-      var result = tokens.reduce(function(prev, current) {
+      result = tokens.reduce(function(prev, current) {
         if (!current || !prev[current]) {
           warn('No translation for "' + key + '"');
           found = false;
@@ -70,7 +71,7 @@
     var bundleTimestamp = localStorage.getItem('l10n.timestamp');
     var params = {};
     if (bundleTimestamp !== null) {
-      params['ts'] = bundleTimestamp;
+      params.ts = bundleTimestamp;
     }
 
     var apiUrl = baseUrl + '/api/l10n/index';

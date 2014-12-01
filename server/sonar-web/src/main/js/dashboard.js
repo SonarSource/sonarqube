@@ -97,7 +97,7 @@
       }
 
       if (this.options.saveUrl) {
-        var postBody = this.options.dashboardState + '=' + escape(result);
+        var postBody = this.options.dashboardState + '=' + encodeURIComponent(result);
 
         $.ajax({
           url: this.options.saveUrl,

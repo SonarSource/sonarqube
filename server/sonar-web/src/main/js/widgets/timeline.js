@@ -3,13 +3,15 @@
  * Displays the evolution of metrics on a line chart, displaying related events.
  *
  * Parameters of the Timeline class:
- *   - data: array of arrays, each containing maps {x,y,yl} where x is a (JS) date, y is a number value (representing a metric value at
- *           a given time), and yl the localized value of y. The {x,y, yl} maps must be sorted by ascending date.
- *   - metrics: array of metric names. The order is important as it defines which array of the "data" parameter represents which metric.
- *   - snapshots: array of maps {sid,d} where sid is the snapshot id and d is the locale-formatted date of the snapshot. The {sid,d}
- *                maps must be sorted by ascending date.
- *   - events: array of maps {sid,d,l[{n}]} where sid is the snapshot id corresponding to an event, d is the (JS) date of the event, and l
- *             is an array containing the different event names for this date.
+ *   - data: array of arrays, each containing maps {x,y,yl} where x is a (JS) date, y is a number value (representing
+ *           a metric value at a given time), and yl the localized value of y. The {x,y, yl} maps must be sorted
+ *           by ascending date.
+ *   - metrics: array of metric names. The order is important as it defines which array of the "data" parameter
+ *           represents which metric.
+ *   - snapshots: array of maps {sid,d} where sid is the snapshot id and d is the locale-formatted date of the snapshot.
+ *           The {sid,d} maps must be sorted by ascending date.
+ *   - events: array of maps {sid,d,l[{n}]} where sid is the snapshot id corresponding to an event, d is the (JS) date
+ *           of the event, and l is an array containing the different event names for this date.
  *   - height: height of the chart area (notice header excluded). Defaults to 80.
  *
  * Example: displays 2 metrics:

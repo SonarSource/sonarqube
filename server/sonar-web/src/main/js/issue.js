@@ -6,9 +6,9 @@ function issueForm(actionType, elt) {
   var formElt = issueElt.find('.code-issue-form');
 
   actionsElt.addClass('hidden');
-  formElt.html("<img src='" + baseUrl + "/images/loading-small.gif'>").removeClass('hidden');
+  formElt.html('<img src="' + baseUrl + '/images/loading-small.gif">').removeClass('hidden');
 
-  $j.ajax(baseUrl + "/issue/action_form/" + actionType + "?issue=" + issueKey)
+  $j.ajax(baseUrl + '/issue/action_form/' + actionType + '?issue=' + issueKey)
     .done(function (msg) {
       formElt.html(msg);
       var focusField = formElt.find('[autofocus]');
@@ -47,7 +47,7 @@ function submitIssueForm(elt) {
   var issueKey = issueElt.attr('data-issue-key');
 
   $j.ajax({
-      type: "POST",
+      type: 'POST',
       url: baseUrl + '/issue/do_action',
       data: formElt.serialize()}
   ).success(function (htmlResponse) {
@@ -66,11 +66,11 @@ function doIssueAction(elt, action, parameters) {
   var issueElt = $j(elt).closest('[data-issue-key]');
   var issueKey = issueElt.attr('data-issue-key');
 
-  issueElt.find('.code-issue-actions').html("<img src='" + baseUrl + "/images/loading.gif'>");
-  parameters['issue'] = issueKey;
+  issueElt.find('.code-issue-actions').html('<img src="' + baseUrl + '"/images/loading.gif">');
+  parameters.issue = issueKey;
 
   $j.ajax({
-      type: "POST",
+      type: 'POST',
       url: baseUrl + '/issue/do_action/' + action,
       data: parameters
     }
@@ -102,13 +102,13 @@ function doIssueTransition(elt, transition) {
 }
 
 function deleteIssueComment(elt, confirmMsg) {
-  var commentElt = $j(elt).closest("[data-comment-key]");
+  var commentElt = $j(elt).closest('[data-comment-key]');
   var commentKey = commentElt.attr('data-comment-key');
   var issueElt = commentElt.closest('[data-issue-key]');
   if (confirm(confirmMsg)) {
     $j.ajax({
-      type: "POST",
-      url: baseUrl + "/issue/delete_comment?id=" + commentKey,
+      type: 'POST',
+      url: baseUrl + '/issue/delete_comment?id=' + commentKey,
       success: function (htmlResponse) {
         issueElt.replaceWith($j(htmlResponse));
       }
@@ -118,14 +118,14 @@ function deleteIssueComment(elt, confirmMsg) {
 }
 
 function formEditIssueComment(elt) {
-  var commentElt = $j(elt).closest("[data-comment-key]");
+  var commentElt = $j(elt).closest('[data-comment-key]');
   var commentKey = commentElt.attr('data-comment-key');
   var issueElt = commentElt.closest('[data-issue-key]');
 
   issueElt.find('.code-issue-actions').addClass('hidden');
-  commentElt.html("<img src='" + baseUrl + "/images/loading.gif'>");
+  commentElt.html('<img src="' + baseUrl + '/images/loading.gif">');
 
-  $j.get(baseUrl + "/issue/edit_comment_form/" + commentKey, function (html) {
+  $j.get(baseUrl + '/issue/edit_comment_form/' + commentKey, function (html) {
     commentElt.html(html);
   });
   return false;
@@ -136,8 +136,8 @@ function doEditIssueComment(elt) {
   var issueElt = formElt.closest('[data-issue-key]');
   var issueKey = issueElt.attr('data-issue-key');
   $j.ajax({
-    type: "POST",
-    url: baseUrl + "/issue/edit_comment",
+    type: 'POST',
+    url: baseUrl + '/issue/edit_comment',
     data: formElt.serialize(),
     success: function (htmlResponse) {
       var replaced = $j(htmlResponse);
@@ -156,7 +156,7 @@ function doEditIssueComment(elt) {
 function refreshIssue(elt) {
   var issueElt = $j(elt).closest('[data-issue-key]');
   var issueKey = issueElt.attr('data-issue-key');
-  $j.get(baseUrl + "/issue/show/" + issueKey + "?only_detail=true", function (html) {
+  $j.get(baseUrl + '/issue/show/' + issueKey + '?only_detail=true', function (html) {
     var replaced = $j(html);
     issueElt.replaceWith(replaced);
   });
@@ -165,7 +165,7 @@ function refreshIssue(elt) {
 
 /* Open form for creating a manual issue */
 function openCIF(elt, componentId, line) {
-  $j.get(baseUrl + "/issue/create_form?component=" + componentId + "&line=" + line, function (html) {
+  $j.get(baseUrl + '/issue/create_form?component=' + componentId + '&line=' + line, function (html) {
     $j(elt).closest('tr').find('td.line').append($j(html));
   });
   return false;
@@ -184,7 +184,7 @@ function submitCreateIssueForm(elt) {
 
   loadingElt.removeClass('hidden');
   $j.ajax({
-      type: "POST",
+      type: 'POST',
       url: baseUrl + '/issue/create',
       data: formElt.serialize()}
   ).success(function (html) {
@@ -215,7 +215,7 @@ function toggleIssueCollapsed(elt) {
     var ruleElt = issueElt.find('.issue-rule');
     ruleElt.addClass('hidden');
     var ruleKey = issueElt.attr('data-issue-rule');
-    $j.get(baseUrl + "/issue/rule/" + ruleKey, function (html) {
+    $j.get(baseUrl + '/issue/rule/' + ruleKey, function (html) {
       ruleElt.html(html);
       // re-enable the links opening modal popups
       ruleElt.find('.open-modal').modal();
@@ -231,7 +231,7 @@ function toggleIssueCollapsed(elt) {
     var changelogElt = issueElt.find('.issue-changelog');
     changelogElt.addClass('hidden');
     var issueKey = issueElt.attr('data-issue-key');
-    $j.get(baseUrl + "/issue/changelog/" + issueKey, function (html) {
+    $j.get(baseUrl + '/issue/changelog/' + issueKey, function (html) {
       changelogElt.html(html);
     }).always(function () {
       cangelogLoading.addClass('hidden');
@@ -244,6 +244,6 @@ function toggleIssueCollapsed(elt) {
 function openIssuePopup(elt) {
   var issueElt = $j(elt).closest('[data-issue-key]');
   var issueKey = issueElt.attr('data-issue-key');
-  openPopup(baseUrl + "/issue/show/" + issueKey + "?layout=false", 'issue');
+  openPopup(baseUrl + '/issue/show/' + issueKey + '?layout=false', 'issue');
   return false;
 }

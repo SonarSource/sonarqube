@@ -1,5 +1,3 @@
-/*global d3:false*/
-
 window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
 (function () {
@@ -302,7 +300,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .insert('path', ':first-child')
         .attr('class', 'area')
         .attr('d', function(d) { return widget.area(d); })
-        .style("fill", function(d, i) { return widget.color(i); });
+        .style('fill', function(d, i) { return widget.color(i); });
 
     this.gareaLine = this.plotWrap.selectAll('.area-line')
         .data(this.stackData)

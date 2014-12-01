@@ -18,7 +18,7 @@
   "plusplus": false,
   "quotmark": "single",
   "undef": true,
-  "unused": true,
+  "unused": false,
   "strict": false,
   "maxparams": false,
   "maxdepth": 4,
@@ -74,11 +74,19 @@
     "jQuery": true,
     "$j": true,
     "_": true,
+    "d3": true,
     "define": true,
+    "require": true,
     "requirejs": true,
     "console": true,
     "baseUrl": true,
     "key": true,
-    "Backbone": true
+    "Backbone": true,
+    "t": true,
+    "tp": true,
+    "moment": true,
+    "openPopup": true,
+    "dashboardParameters": true,
+    "getTemplate": true
   }
 }

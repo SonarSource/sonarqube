@@ -78,9 +78,9 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         !!component.measures[widget.metricsPriority()[0]] &&
         !!component.measures[widget.metricsPriority()[1]];
       atLeastOneValueOnX = atLeastOneValueOnX ||
-        (component.measures[widget.metricsPriority()[0]] || {}).fval !== '-';
+        (component.measures[widget.metricsPriority()[0]] || {}).fval !== '-';
       atLeastOneValueOnY = atLeastOneValueOnY ||
-        (component.measures[widget.metricsPriority()[1]] || {}).fval !== '-';
+        (component.measures[widget.metricsPriority()[1]] || {}).fval !== '-';
     });
     var validData = !!noInvalidEntry && !!atLeastOneValueOnX && !!atLeastOneValueOnY;
 
@@ -409,7 +409,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     if (this.xLog()) {
       this.xAxis.tickFormat(function (d) {
         var ticksCount = widget.availableWidth / 50;
-        return widget.x.tickFormat(ticksCount, d3.format(",d"))(d);
+        return widget.x.tickFormat(ticksCount, d3.format(',d'))(d);
       });
     }
 
@@ -417,7 +417,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     if (this.yLog()) {
       this.yAxis.tickFormat(function (d) {
         var ticksCount = widget.availableHeight / 30;
-        return widget.y.tickFormat(ticksCount, d3.format(",d"))(d);
+        return widget.y.tickFormat(ticksCount, d3.format(',d'))(d);
       });
     }
 

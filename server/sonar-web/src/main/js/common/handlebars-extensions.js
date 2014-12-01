@@ -1,3 +1,5 @@
+/* jshint eqeqeq:false */
+
 requirejs.config({
   paths: {
     'handlebars': 'third-party/handlebars'
@@ -92,7 +94,7 @@ define(['handlebars'], function (Handlebars) {
     var args = Array.prototype.slice.call(arguments),
         ret = null;
     args.forEach(function(arg) {
-      if (_.isString(arg) && ret == null) {
+      if (typeof arg === 'string' && ret == null) {
         ret = arg;
       }
     });
@@ -127,10 +129,12 @@ define(['handlebars'], function (Handlebars) {
   });
 
   Handlebars.registerHelper('eq', function(v1, v2, options) {
+    // use `==` instead of `===` to ignore types
     return v1 == v2 ? options.fn(this) : options.inverse(this);
   });
 
   Handlebars.registerHelper('notEq', function(v1, v2, options) {
+    // use `==` instead of `===` to ignore types
     return v1 != v2 ? options.fn(this) : options.inverse(this);
   });
 
@@ -401,9 +405,8 @@ define(['handlebars'], function (Handlebars) {
         prevLine = _.findWhere(source, { lineNumber: line - 1 }),
         changed = true;
     if (currentLine && prevLine && currentLine.scm && prevLine.scm) {
-      changed = (currentLine.scm.author !== prevLine.scm.author)
-          || (currentLine.scm.date !== prevLine.scm.date)
-          || (!prevLine.show);
+      changed = (currentLine.scm.author !== prevLine.scm.author) ||
+          (currentLine.scm.date !== prevLine.scm.date) || (!prevLine.show);
     }
     return changed ? options.fn(this) : options.inverse(this);
   });
@@ -413,8 +416,7 @@ define(['handlebars'], function (Handlebars) {
         prevLine = _.findWhere(source, { line: line - 1 }),
         changed = true;
     if (currentLine && prevLine && currentLine.scmAuthor && prevLine.scmAuthor) {
-      changed = (currentLine.scmAuthor !== prevLine.scmAuthor)
-          || (currentLine.scmDate !== prevLine.scmDate);
+      changed = (currentLine.scmAuthor !== prevLine.scmAuthor) || (currentLine.scmDate !== prevLine.scmDate);
     }
     return changed ? options.fn(this) : options.inverse(this);
   });
@@ -438,8 +440,7 @@ define(['handlebars'], function (Handlebars) {
   });
 
   Handlebars.registerHelper('projectFullName', function (component) {
-    var name = component.projectName + (component.subProjectName ? (' / ' + component.subProjectName) : '');
-    return name;
+    return component.projectName + (component.subProjectName ? (' / ' + component.subProjectName) : '');
   });
 
 });
