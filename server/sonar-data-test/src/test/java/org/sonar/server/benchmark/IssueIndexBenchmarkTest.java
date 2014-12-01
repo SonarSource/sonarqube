@@ -24,6 +24,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -41,13 +42,13 @@ import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
+import org.sonar.server.user.MockUserSession;
 
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class IssueIndexBenchmarkTest {
@@ -88,7 +89,7 @@ public class IssueIndexBenchmarkTest {
   private void benchmarkIssueIndexing() {
     LOGGER.info("Indexing issues");
     IssueIterator issues = new IssueIterator(PROJECTS, FILES_PER_PROJECT, ISSUES_PER_FILE);
-    ProgressTask progressTask = new ProgressTask("issues", issues.count());
+    ProgressTask progressTask = new ProgressTask(LOGGER, "issues", issues.count());
     Timer timer = new Timer("IssuesIndex");
     timer.schedule(progressTask, ProgressTask.PERIOD_MS, ProgressTask.PERIOD_MS);
 
@@ -98,10 +99,12 @@ public class IssueIndexBenchmarkTest {
 
     timer.cancel();
     long period = end - start;
-    LOGGER.info(String.format("%d issues indexed in %d ms (%d/second)", issues.count.get(), period, 1000 * issues.count.get() / period));
+    LOGGER.info(String.format("%d issues indexed in %d ms (%d docs/second)", issues.count.get(), period, 1000 * issues.count.get() / period));
+    LOGGER.info(String.format("Index disk: " + FileUtils.byteCountToDisplaySize(FileUtils.sizeOfDirectory(tester.getEsServerHolder().getHomeDir()))));
   }
 
   private void benchmarkQueries() {
+    MockUserSession.set().setUserGroups("sonar-users");
     benchmarkQuery("all issues", IssueQuery.builder().build());
     benchmarkQuery("project issues", IssueQuery.builder().projectUuids(Arrays.asList("PROJECT33")).build());
     benchmarkQuery("file issues", IssueQuery.builder().componentUuids(Arrays.asList("FILE333")).build());
@@ -196,34 +199,5 @@ public class IssueIndexBenchmarkTest {
       values.add(String.format("%s%d", prefix, i));
     }
     return Iterators.cycle(values);
-  }
-
-  static class ProgressTask extends TimerTask {
-    public static final long PERIOD_MS = 60000L;
-
-    private final String label;
-    private final AtomicLong counter;
-    private long previousCount = 0L;
-    private long previousTime = 0L;
-
-    public ProgressTask(String label, AtomicLong counter) {
-      this.label = label;
-      this.counter = counter;
-      this.previousTime = System.currentTimeMillis();
-    }
-
-    @Override
-    public void run() {
-      long currentCount = counter.get();
-      long now = System.currentTimeMillis();
-      LOGGER.info("{} {} indexed ({} {}/second)",
-        currentCount, label, documentsPerSecond(currentCount - previousCount, now - previousTime), label);
-      this.previousCount = currentCount;
-      this.previousTime = now;
-    }
-  }
-
-  static int documentsPerSecond(long nbIssues, long time) {
-    return (int) Math.round(nbIssues / (time / 1000.0));
   }
 }

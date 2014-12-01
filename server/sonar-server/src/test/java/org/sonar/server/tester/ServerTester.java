@@ -58,6 +58,7 @@ public class ServerTester extends ExternalResource {
   private static final String PROP_PREFIX = "mediumTests.";
 
   private Platform platform;
+  private EsServerHolder esServerHolder;
   private final File homeDir = TestUtils.newTempDir("tmp-sq-");
   private final List components = Lists.newArrayList(WsTester.class);
   private final Properties initialProps = new Properties();
@@ -79,8 +80,7 @@ public class ServerTester extends ExternalResource {
     try {
       Properties properties = new Properties();
       properties.putAll(initialProps);
-      EsServerHolder esServerHolder = EsServerHolder.get();
-
+      esServerHolder = EsServerHolder.get();
       properties.setProperty(ProcessConstants.CLUSTER_NAME, esServerHolder.getClusterName());
       properties.setProperty(ProcessConstants.CLUSTER_NODE_NAME, esServerHolder.getNodeName());
       properties.setProperty(ProcessConstants.SEARCH_PORT, String.valueOf(esServerHolder.getPort()));
@@ -126,6 +126,7 @@ public class ServerTester extends ExternalResource {
     } catch (Exception e) {
       LOG.error("Fail to stop web server", e);
     }
+    esServerHolder = null;
     FileUtils.deleteQuietly(homeDir);
   }
 
@@ -191,6 +192,10 @@ public class ServerTester extends ExternalResource {
 
   public WsTester wsTester() {
     return get(WsTester.class);
+  }
+
+  public EsServerHolder getEsServerHolder() {
+    return esServerHolder;
   }
 
   private void checkStarted() {

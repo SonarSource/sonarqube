@@ -38,13 +38,15 @@ public class EsServerHolder {
   private static EsServerHolder HOLDER = null;
   private final String clusterName, nodeName;
   private final int port;
+  private final File homeDir;
   private final SearchServer server;
 
-  private EsServerHolder(SearchServer server, String clusterName, String nodeName, int port) {
+  private EsServerHolder(SearchServer server, String clusterName, String nodeName, int port, File homeDir) {
     this.server = server;
     this.clusterName = clusterName;
     this.nodeName = nodeName;
     this.port = port;
+    this.homeDir = homeDir;
   }
 
   public String getClusterName() {
@@ -61,6 +63,10 @@ public class EsServerHolder {
 
   public SearchServer getServer() {
     return server;
+  }
+
+  public File getHomeDir() {
+    return homeDir;
   }
 
   private void reset() {
@@ -101,7 +107,7 @@ public class EsServerHolder {
       properties.setProperty(ProcessConstants.PATH_HOME, homeDir.getAbsolutePath());
       SearchServer server = new SearchServer(new Props(properties));
       server.start();
-      HOLDER = new EsServerHolder(server, clusterName, nodeName, port);
+      HOLDER = new EsServerHolder(server, clusterName, nodeName, port, homeDir);
     }
     HOLDER.reset();
     return HOLDER;
