@@ -307,7 +307,7 @@ module.exports = (grunt) ->
           'no-colors': true
           concise: true
           port: '<%= grunt.option("port") %>'
-        src: ['<%= pkg.sources %>js/tests/e2e/tests/**/issues-spec.js']
+        src: ['<%= pkg.sources %>js/tests/e2e/tests/**/*.js']
       single:
         options:
           test: true
