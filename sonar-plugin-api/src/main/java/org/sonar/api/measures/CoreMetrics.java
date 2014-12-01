@@ -1305,7 +1305,7 @@ public final class CoreMetrics {
     .create();
 
   /**
-   * @deprecated since 4.5. Internal storage of duplication is not an API. No more available on batch side.
+   * @deprecated since 4.5. Internal storage of duplication is not an API.
    */
   @Deprecated
   public static final String DUPLICATIONS_DATA_KEY = "duplications_data";
@@ -1326,7 +1326,7 @@ public final class CoreMetrics {
    *   </duplications>
    * </pre>
    * </p>
-   * @deprecated since 4.5. Internal storage of duplication is not an API. No more available on batch side.
+   * @deprecated since 4.5. Internal storage of duplication is not an API.
    */
   @Deprecated
   public static final Metric<String> DUPLICATIONS_DATA = new Metric.Builder(DUPLICATIONS_DATA_KEY, "Duplications details", Metric.ValueType.DATA)

@@ -22,8 +22,9 @@ package org.sonar.colorizer;
 /**
  * A thread safe Tokenizer. Before each use by the CodeColorizer, the method clone() is automatically
  * called to clone the current instance.
- * 
+ * @deprecated since 4.5.2 replace by highlighting mechanism
  */
+@Deprecated
 public abstract class NotThreadSafeTokenizer extends Tokenizer implements Cloneable {
 
   @Override

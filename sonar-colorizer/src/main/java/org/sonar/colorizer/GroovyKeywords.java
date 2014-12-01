@@ -23,11 +23,15 @@ import com.google.common.collect.ImmutableSet;
 
 import java.util.Set;
 
+/**
+ * @deprecated since 4.5.2 replace by highlighting mechanism
+ */
+@Deprecated
 public final class GroovyKeywords {
   private static final Set<String> KEYWORDS = ImmutableSet.of(
-      "as", "assert", "break", "case", "catch", "class", "continue", "def",
-      "default", "do", "else", "extends", "finally", "for", "if", "in", "implements", "import", "instanceof", "interface", "new", "package",
-      "property", "return", "switch", "throw", "throws", "try", "while");
+    "as", "assert", "break", "case", "catch", "class", "continue", "def",
+    "default", "do", "else", "extends", "finally", "for", "if", "in", "implements", "import", "instanceof", "interface", "new", "package",
+    "property", "return", "switch", "throw", "throws", "try", "while");
 
   private GroovyKeywords() {
   }

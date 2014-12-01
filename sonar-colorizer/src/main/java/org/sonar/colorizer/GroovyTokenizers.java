@@ -23,6 +23,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * @deprecated since 4.5.2 replace by highlighting mechanism
+ */
+@Deprecated
 public final class GroovyTokenizers {
 
   private static final String SPAN_END = "</span>";
@@ -32,8 +36,8 @@ public final class GroovyTokenizers {
 
   public static List<Tokenizer> forHtml() {
     return Collections.unmodifiableList(Arrays.asList(new JavaAnnotationTokenizer("<span class=\"a\">", SPAN_END), new LiteralTokenizer(
-        "<span class=\"s\">", SPAN_END), new CDocTokenizer("<span class=\"cd\">", SPAN_END), new CppDocTokenizer("<span class=\"cppd\">",
-        SPAN_END), new JavadocTokenizer("<span class=\"j\">", SPAN_END), new JavaConstantTokenizer("<span class=\"c\">", SPAN_END),
-        new KeywordsTokenizer("<span class=\"k\">", SPAN_END, GroovyKeywords.get())));
+      "<span class=\"s\">", SPAN_END), new CDocTokenizer("<span class=\"cd\">", SPAN_END), new CppDocTokenizer("<span class=\"cppd\">",
+      SPAN_END), new JavadocTokenizer("<span class=\"j\">", SPAN_END), new JavaConstantTokenizer("<span class=\"c\">", SPAN_END),
+      new KeywordsTokenizer("<span class=\"k\">", SPAN_END, GroovyKeywords.get())));
   }
 }

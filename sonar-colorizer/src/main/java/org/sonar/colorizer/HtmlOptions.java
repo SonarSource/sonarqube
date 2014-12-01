@@ -22,6 +22,10 @@ package org.sonar.colorizer;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+/**
+ * @deprecated since 4.5.2 replace by highlighting mechanism
+ */
+@Deprecated
 public class HtmlOptions {
   public static final HtmlOptions DEFAULT = new HtmlOptions(true, null, true);
   public static final OnlySyntaxHtmlOptions ONLY_SYNTAX = new OnlySyntaxHtmlOptions();

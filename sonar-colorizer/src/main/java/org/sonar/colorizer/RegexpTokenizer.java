@@ -19,12 +19,16 @@
  */
 package org.sonar.colorizer;
 
+import org.sonar.channel.CodeReader;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.sonar.channel.CodeReader;
-
-public class RegexpTokenizer extends NotThreadSafeTokenizer{
+/**
+ * @deprecated since 4.5.2 replace by highlighting mechanism
+ */
+@Deprecated
+public class RegexpTokenizer extends NotThreadSafeTokenizer {
 
   private final String tagBefore;
   private final String tagAfter;

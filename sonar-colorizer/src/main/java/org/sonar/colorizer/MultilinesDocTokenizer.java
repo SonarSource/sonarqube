@@ -24,6 +24,10 @@ import org.sonar.channel.EndMatcher;
 
 import java.util.Arrays;
 
+/**
+ * @deprecated since 4.5.2 replace by highlighting mechanism
+ */
+@Deprecated
 public class MultilinesDocTokenizer extends Tokenizer {
 
   private static final String COMMENT_STARTED_ON_PREVIOUS_LINE = "COMMENT_STARTED_ON_PREVIOUS_LINE";
@@ -50,9 +54,9 @@ public class MultilinesDocTokenizer extends Tokenizer {
 
   public boolean hasNextToken(CodeReader code, HtmlCodeBuilder codeBuilder) {
     return code.peek() != '\n'
-        && code.peek() != '\r'
-        && (isCommentStartedOnPreviousLine(codeBuilder) || (code.peek() == startToken[0] && Arrays.equals(code.peek(startToken.length),
-            startToken)));
+      && code.peek() != '\r'
+      && (isCommentStartedOnPreviousLine(codeBuilder) || (code.peek() == startToken[0] && Arrays.equals(code.peek(startToken.length),
+        startToken)));
   }
 
   @Override

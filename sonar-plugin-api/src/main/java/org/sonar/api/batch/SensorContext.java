@@ -19,8 +19,8 @@
  */
 package org.sonar.api.batch;
 
-import com.google.common.annotations.Beta;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
@@ -252,16 +252,20 @@ public interface SensorContext {
   void deleteEvent(Event event);
 
   /**
-   * Experimental - do not use
+   * Save measure on {@link InputFile}
    * @since 4.2
    */
-  @Beta
   Measure saveMeasure(InputFile inputFile, Metric metric, Double value);
 
   /**
-   * Experimental - do not use
+   * Save measure on {@link InputFile}
    * @since 4.2
    */
-  @Beta
   Measure saveMeasure(InputFile inputFile, Measure measure);
+
+  /**
+   * Allow to get {@link Resource} corresponding to provided {@link InputPath}.
+   * @since 4.5.2
+   */
+  Resource getResource(InputPath inputPath);
 }

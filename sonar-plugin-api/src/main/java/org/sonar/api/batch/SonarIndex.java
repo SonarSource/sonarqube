@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * @deprecated since 5.0 should not be an API. Everything should be accessed using {@link SensorContext}.
+ * @deprecated since 4.5.2 should not be used by plugins. Everything should be accessed using {@link SensorContext}.
  */
 @Deprecated
 public abstract class SonarIndex implements DirectedGraphAccessor<Resource, Dependency> {

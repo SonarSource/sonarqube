@@ -25,11 +25,14 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Event;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.SonarIndex;
+import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectLink;
@@ -259,15 +262,24 @@ public class DefaultSensorContext implements SensorContext {
 
   @Override
   public Measure saveMeasure(InputFile inputFile, Metric metric, Double value) {
-    return saveMeasure(fromInputFile(inputFile), metric, value);
+    return saveMeasure(getResource(inputFile), metric, value);
   }
 
   @Override
   public Measure saveMeasure(InputFile inputFile, Measure measure) {
-    return saveMeasure(fromInputFile(inputFile), measure);
+    return saveMeasure(getResource(inputFile), measure);
   }
 
-  private Resource fromInputFile(InputFile inputFile) {
-    return File.create(inputFile.relativePath());
+  @Override
+  public Resource getResource(InputPath inputPath) {
+    Resource r;
+    if (inputPath instanceof InputDir) {
+      r = Directory.create(((InputDir) inputPath).relativePath());
+    } else if (inputPath instanceof InputFile) {
+      r = File.create(((InputFile) inputPath).relativePath());
+    } else {
+      throw new IllegalArgumentException("Unknow input path type: " + inputPath);
+    }
+    return getResource(r);
   }
 }

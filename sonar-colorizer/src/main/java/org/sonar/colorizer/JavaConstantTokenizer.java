@@ -23,8 +23,9 @@ import org.sonar.channel.CodeReader;
 import org.sonar.channel.EndMatcher;
 
 /**
- * Detect Java constant
+ * @deprecated since 4.5.2 replace by highlighting mechanism
  */
+@Deprecated
 public class JavaConstantTokenizer extends Tokenizer {
 
   private final String tagBefore;
@@ -39,7 +40,7 @@ public class JavaConstantTokenizer extends Tokenizer {
   private boolean hasNextToken(CodeReader code) {
     int lastChar = code.lastChar();
     if (isJavaConstantStart(code.peek()) && !Character.isJavaIdentifierPart(lastChar) && !Character.isJavaIdentifierStart(lastChar)
-        && lastChar != DOT) {
+      && lastChar != DOT) {
       String constant = code.peekTo(endTokenMatcher);
       int nextCharAfterConstant = code.peek(constant.length() + 1)[constant.length()];
       if (nextCharAfterConstant != 0 && Character.isJavaIdentifierPart(nextCharAfterConstant)) {

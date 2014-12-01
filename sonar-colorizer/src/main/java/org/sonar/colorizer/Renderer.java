@@ -19,11 +19,15 @@
  */
 package org.sonar.colorizer;
 
+import org.sonar.channel.Channel;
+
 import java.io.Reader;
 import java.util.List;
 
-import org.sonar.channel.Channel;
-
+/**
+ * @deprecated since 4.5.2 replace by highlighting mechanism
+ */
+@Deprecated
 public abstract class Renderer {
 
   public abstract String render(Reader code, List<? extends Channel<HtmlCodeBuilder>> tokenizers);

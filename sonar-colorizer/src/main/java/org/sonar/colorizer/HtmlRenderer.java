@@ -19,13 +19,17 @@
  */
 package org.sonar.colorizer;
 
+import org.sonar.channel.Channel;
+import org.sonar.channel.CodeReader;
+
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.sonar.channel.Channel;
-import org.sonar.channel.CodeReader;
-
+/**
+ * @deprecated since 4.5.2 replace by highlighting mechanism
+ */
+@Deprecated
 public class HtmlRenderer extends Renderer {
 
   private HtmlOptions options = null;

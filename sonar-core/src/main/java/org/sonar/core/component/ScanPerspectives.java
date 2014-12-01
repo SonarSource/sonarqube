@@ -22,12 +22,18 @@ package org.sonar.core.component;
 import com.google.common.collect.Maps;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.SonarIndex;
+import org.sonar.api.batch.fs.InputDir;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.component.Component;
 import org.sonar.api.component.Perspective;
 import org.sonar.api.component.ResourcePerspectives;
+import org.sonar.api.resources.Directory;
+import org.sonar.api.resources.File;
 import org.sonar.api.resources.Resource;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Map;
 
 public class ScanPerspectives implements ResourcePerspectives, BatchComponent {
@@ -64,6 +70,19 @@ public class ScanPerspectives implements ResourcePerspectives, BatchComponent {
       return as(perspectiveClass, new ResourceComponent(indexedResource));
     }
     return null;
+  }
+
+  @Override
+  public <P extends Perspective> P as(Class<P> perspectiveClass, InputPath inputPath) {
+    Resource r;
+    if (inputPath instanceof InputDir) {
+      r = Directory.create(((InputDir) inputPath).relativePath());
+    } else if (inputPath instanceof InputFile) {
+      r = File.create(((InputFile) inputPath).relativePath());
+    } else {
+      throw new IllegalArgumentException("Unknow input path type: " + inputPath);
+    }
+    return as(perspectiveClass, r);
   }
 
   private <T extends Perspective> PerspectiveBuilder<T> builderFor(Class<T> clazz) {

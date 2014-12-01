@@ -19,20 +19,54 @@
  */
 package org.sonar.api.component;
 
-import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputPath;
+import org.sonar.api.issue.Issuable;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.source.Highlightable;
+import org.sonar.api.source.Symbolizable;
+import org.sonar.api.test.TestPlan;
+import org.sonar.api.test.Testable;
 
 import javax.annotation.CheckForNull;
 
 /**
+ * Use this component to create perspective from resources or {@link InputPath}
  * Only on batch-side.
+ * 
+ * <pre>
+ * public class MySensor implements Sensor {
+ *   private final ResourcePerspectives perspectives;
  *
+ *   public MySensor(ResourcePerspectives perspectives) {
+ *     this.perspectives = perspectives;
+ *   }
+ *   
+ *   public void analyse(Project module, SensorContext context) {
+ *      // Get some Resource or InputFile/InputPath
+ *      Highlightable highlightable = perspectives.as(Highlightable.class, inputPath);
+ *      if (highlightable != null) {
+ *        ...
+ *      }
+ *   }
+ * }
+ * </pre>
+ * @see Issuable
+ * @see Highlightable
+ * @see Symbolizable
+ * @see Testable
+ * @see TestPlan
  * @since 3.5
- * @deprecated since 5.0 everything you need is available in {@link SensorContext}
  */
-@Deprecated
 public interface ResourcePerspectives extends Perspectives {
 
   @CheckForNull
   <P extends Perspective> P as(Class<P> perspectiveClass, Resource resource);
+
+  /**
+   * Allow to create perspective from {@link InputPath}. In particular from {@link InputFile}.
+   * @since 4.5.2
+   */
+  @CheckForNull
+  <P extends Perspective> P as(Class<P> perspectiveClass, InputPath inputPath);
 }

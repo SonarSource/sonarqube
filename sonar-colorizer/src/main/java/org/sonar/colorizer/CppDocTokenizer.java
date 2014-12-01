@@ -19,6 +19,10 @@
  */
 package org.sonar.colorizer;
 
+/**
+ * @deprecated since 4.5.2 replace by highlighting mechanism
+ */
+@Deprecated
 public class CppDocTokenizer extends MultilinesDocTokenizer {
 
   public CppDocTokenizer(String tagBefore, String tagAfter) {

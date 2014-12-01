@@ -26,6 +26,8 @@ import org.sonar.channel.Channel;
  * and to add the highlighted token to an HtmlCodeBuilder.
  *
  * IMPORTANT: a Tokenizer must be THREAD-SAFE otherwise use {@link NotThreadSafeTokenizer}
+ * @deprecated since 4.5.2 replace by highlighting mechanism
  */
+@Deprecated
 public abstract class Tokenizer extends Channel<HtmlCodeBuilder> {
 }

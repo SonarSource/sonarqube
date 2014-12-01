@@ -22,7 +22,6 @@ package org.sonar.api.web;
 import com.google.common.base.Objects;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.source.Highlightable;
-import org.sonar.api.task.TaskExtension;
 import org.sonar.colorizer.Tokenizer;
 
 import java.util.List;
@@ -31,10 +30,10 @@ import java.util.List;
  * Extend the library sonar-colorizer to support new languages.
  * 
  * @since 1.12
- * @deprecated since 5.0 use {@link Highlightable} API
+ * @deprecated since 4.5.2 use {@link Highlightable} API
  */
 @Deprecated
-public abstract class CodeColorizerFormat implements ServerExtension, TaskExtension {
+public abstract class CodeColorizerFormat implements ServerExtension {
 
   private String languageKey;
 

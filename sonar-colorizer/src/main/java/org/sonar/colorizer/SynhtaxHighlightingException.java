@@ -19,6 +19,10 @@
  */
 package org.sonar.colorizer;
 
+/**
+ * @deprecated since 4.5.2 replace by highlighting mechanism
+ */
+@Deprecated
 public class SynhtaxHighlightingException extends RuntimeException {
 
   public SynhtaxHighlightingException(String arg0, Throwable arg1) {
