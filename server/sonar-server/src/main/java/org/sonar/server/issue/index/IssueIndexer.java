@@ -100,7 +100,7 @@ public class IssueIndexer extends BaseIndexer {
   private UpdateRequest newUpsertRequest(IssueDoc issue) {
     String projectUuid = issue.projectUuid();
 
-    // parent doc is issueAuthorization
+    // type of parent doc is "authorization"
     issue.setField("_parent", projectUuid);
 
     return new UpdateRequest(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE, issue.key())

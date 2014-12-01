@@ -37,7 +37,7 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * Manages the synchronization of index issues/issueAuthorization with authorization settings defined in database :
+ * Manages the synchronization of index issues/authorization with authorization settings defined in database :
  * <ul>
  *   <li>index the projects with recent permission changes</li>
  *   <li>delete project orphans from index</li>

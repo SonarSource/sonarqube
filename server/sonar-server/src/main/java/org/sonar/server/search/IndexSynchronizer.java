@@ -61,8 +61,6 @@ public class IndexSynchronizer {
     /* synchronize all activeRules until we have mng tables in INDEX */
     DbSession session = db.openSession(true);
     try {
-      LOG.info("Starting DB to Index synchronization");
-      long start = System.currentTimeMillis();
       List<String> projectUuids = db.componentDao().findProjectUuids(session);
       synchronize(session, db.ruleDao(), index.get(RuleIndex.class));
       issueAuthorizationIndexer.index();
@@ -75,7 +73,6 @@ public class IndexSynchronizer {
       sourceLineIndexer.index();
 
       session.commit();
-      LOG.info("Synchronization done in {}ms...", System.currentTimeMillis() - start);
     } finally {
       session.close();
     }

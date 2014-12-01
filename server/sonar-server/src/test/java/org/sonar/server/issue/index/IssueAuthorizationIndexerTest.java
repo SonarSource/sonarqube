@@ -46,7 +46,7 @@ public class IssueAuthorizationIndexerTest {
     IssueAuthorizationIndexer indexer = createIndexer();
     indexer.doIndex(0L);
 
-    assertThat(esTester.countDocuments("issues", "issueAuthorization")).isZero();
+    assertThat(esTester.countDocuments("issues", "authorization")).isZero();
   }
 
   @Test
@@ -56,7 +56,7 @@ public class IssueAuthorizationIndexerTest {
     IssueAuthorizationIndexer indexer = createIndexer();
     indexer.doIndex(0L);
 
-    List<SearchHit> docs = esTester.getDocuments("issues", "issueAuthorization");
+    List<SearchHit> docs = esTester.getDocuments("issues", "authorization");
     assertThat(docs).hasSize(1);
     SearchHit doc = docs.get(0);
     assertThat(doc.getSource().get("project")).isEqualTo("ABC");
@@ -73,7 +73,7 @@ public class IssueAuthorizationIndexerTest {
   public void do_not_fail_when_deleting_unindexed_project() throws Exception {
     IssueAuthorizationIndexer indexer = createIndexer();
     indexer.deleteProject("UNKNOWN", true);
-    assertThat(esTester.countDocuments("issues", "issueAuthorization")).isZero();
+    assertThat(esTester.countDocuments("issues", "authorization")).isZero();
   }
 
   @Test
@@ -85,13 +85,13 @@ public class IssueAuthorizationIndexerTest {
     indexer.index(Arrays.asList(authorization));
 
     // has permissions
-    assertThat(esTester.countDocuments("issues", "issueAuthorization")).isEqualTo(1);
+    assertThat(esTester.countDocuments("issues", "authorization")).isEqualTo(1);
 
     // remove permissions -> dto has no users nor groups
     authorization = new IssueAuthorizationDao.Dto("ABC", System.currentTimeMillis());
     indexer.index(Arrays.asList(authorization));
 
-    assertThat(esTester.countDocuments("issues", "issueAuthorization")).isZero();
+    assertThat(esTester.countDocuments("issues", "authorization")).isZero();
   }
 
   private IssueAuthorizationIndexer createIndexer() {

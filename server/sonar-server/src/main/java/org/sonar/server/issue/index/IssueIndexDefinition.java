@@ -34,7 +34,7 @@ public class IssueIndexDefinition implements IndexDefinition {
 
   public static final String INDEX = "issues";
 
-  public static final String TYPE_AUTHORIZATION = "issueAuthorization";
+  public static final String TYPE_AUTHORIZATION = "authorization";
   public static final String TYPE_ISSUE = "issue";
 
   public static final String FIELD_AUTHORIZATION_PROJECT_UUID = "project";
@@ -87,7 +87,7 @@ public class IssueIndexDefinition implements IndexDefinition {
       // else keep defaults (one shard)
     }
 
-    // type "issueAuthorization"
+    // type "authorization"
     NewIndex.NewIndexType authorizationMapping = index.createType(TYPE_AUTHORIZATION);
     authorizationMapping.setAttribute("_id", ImmutableMap.of("path", FIELD_AUTHORIZATION_PROJECT_UUID));
     authorizationMapping.createDateTimeField(FIELD_AUTHORIZATION_UPDATED_AT);

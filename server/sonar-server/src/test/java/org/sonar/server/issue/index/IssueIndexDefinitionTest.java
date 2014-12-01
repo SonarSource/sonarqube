@@ -39,7 +39,7 @@ public class IssueIndexDefinitionTest {
     assertThat(context.getIndices()).hasSize(1);
     NewIndex issuesIndex = context.getIndices().get("issues");
     assertThat(issuesIndex).isNotNull();
-    assertThat(issuesIndex.getTypes().keySet()).containsOnly("issue", "issueAuthorization");
+    assertThat(issuesIndex.getTypes().keySet()).containsOnly("issue", "authorization");
 
     // no cluster by default
     assertThat(issuesIndex.getSettings().get("index.number_of_shards")).isEqualTo("1");
