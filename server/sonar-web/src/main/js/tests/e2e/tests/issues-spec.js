@@ -90,7 +90,6 @@ casper.test.begin(testName('Issue Box', 'Check Elements'), function (test) {
         test.assertSelectorContains('.issue.selected .js-issue-plan', 'unplanned');
         test.assertSelectorContains('.issue.selected', '20min');
         test.assertExists('.issue.selected .js-issue-comment');
-        test.assertExists('.issue.selected .js-issue-more');
         test.assertExists('.issue.selected .js-issue-show-changelog');
       })
 

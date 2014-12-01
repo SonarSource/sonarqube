@@ -309,13 +309,24 @@ module.exports = (grunt) ->
           test: true
           'no-colors': true
           concise: true
-        src: ['<%= pkg.sources %>js/tests/e2e/tests/**/*.js']
+        src: ['<%= pkg.sources %>js/tests/e2e/tests/**/issues-spec.js']
       single:
         options:
           test: true
           verbose: true
           'fail-fast': true
         src: ['<%= pkg.sources %>js/tests/e2e/tests/<%= grunt.option("spec") %>-spec.js']
+
+
+    uglify:
+      build:
+        files: [
+          expand: true
+          cwd: '<%= pkg.assets %>js'
+          src: ['**/*.js']
+          dest: '<%= pkg.assets %>js'
+          ext: '.js'
+        ]
 
 
     jshint:
@@ -376,11 +387,25 @@ module.exports = (grunt) ->
                              'concat:dev']
 
 
-  grunt.registerTask 'default', ['clean:css', 'clean:js',
+  grunt.registerTask 'default', [
+                                 # testing first
+                                 'clean:js', 'coffee:build', 'handlebars:build', 'copy:js', 'concat:dev',
+                                 'express:test', 'casper:test'
+
+                                 # then build
+                                 'clean:css', 'clean:js',
                                  'less:build', 'cssUrlRewrite:build'
                                  'coffee:build', 'handlebars:build', 'copy:js',
                                  'concat:build',
-                                 'requirejs', 'clean:js', 'copy:build', 'copy:requirejs', 'clean:build']
+                                 'requirejs', 'clean:js', 'copy:build', 'copy:requirejs', 'uglify:build',
+                                 'clean:build']
+
+  grunt.registerTask 'build', ['clean:css', 'clean:js',
+                               'less:build', 'cssUrlRewrite:build'
+                               'coffee:build', 'handlebars:build', 'copy:js',
+                               'concat:build',
+                               'requirejs', 'clean:js', 'copy:build', 'copy:requirejs', 'uglify:build',
+                               'clean:build']
 
   grunt.registerTask 'test', ['clean:js', 'coffee:build', 'handlebars:build', 'copy:js', 'concat:dev',
                               'express:test', 'casper:test']
