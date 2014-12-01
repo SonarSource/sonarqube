@@ -116,7 +116,7 @@
             <goals>
               <goal>reserve-network-port</goal>
             </goals>
-            <phase>process-resources</phase>
+            <phase>generate-resources</phase>
             <configuration>
               <portNames>
                 <portName>jsTestPort</portName>
