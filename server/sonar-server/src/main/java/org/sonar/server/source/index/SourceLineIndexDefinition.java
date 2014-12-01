@@ -79,9 +79,15 @@ public class SourceLineIndexDefinition implements IndexDefinition {
     sourceLineMapping.createDateTimeField(FIELD_SCM_DATE);
     sourceLineMapping.stringFieldBuilder(FIELD_HIGHLIGHTING).build();
     sourceLineMapping.stringFieldBuilder(FIELD_SOURCE).build();
-    sourceLineMapping.createIntegerField(FIELD_UT_LINE_HITS);
-    sourceLineMapping.createIntegerField(FIELD_UT_CONDITIONS);
-    sourceLineMapping.createIntegerField(FIELD_UT_COVERED_CONDITIONS);
+    sourceLineMapping.createShortField(FIELD_UT_LINE_HITS);
+    sourceLineMapping.createShortField(FIELD_UT_CONDITIONS);
+    sourceLineMapping.createShortField(FIELD_UT_COVERED_CONDITIONS);
+    sourceLineMapping.createShortField(FIELD_IT_LINE_HITS);
+    sourceLineMapping.createShortField(FIELD_IT_CONDITIONS);
+    sourceLineMapping.createShortField(FIELD_IT_COVERED_CONDITIONS);
+    sourceLineMapping.createShortField(FIELD_OVERALL_LINE_HITS);
+    sourceLineMapping.createShortField(FIELD_OVERALL_CONDITIONS);
+    sourceLineMapping.createShortField(FIELD_OVERALL_COVERED_CONDITIONS);
     sourceLineMapping.createDateTimeField(BaseNormalizer.UPDATED_AT_FIELD);
   }
 }
