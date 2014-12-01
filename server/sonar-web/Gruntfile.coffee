@@ -318,6 +318,19 @@ module.exports = (grunt) ->
         src: ['<%= pkg.sources %>js/tests/e2e/tests/<%= grunt.option("spec") %>-spec.js']
 
 
+    jshint:
+      dev:
+        src: [
+          '<%= pkg.sources %>js/**/*.js'
+          '!<%= pkg.sources %>js/third-party/underscore.js'
+          '!<%= pkg.sources %>js/third-party/**/*.js'
+          '!<%= pkg.sources %>js/tests/**/*.js'
+          '!<%= pkg.sources %>js/require.js'
+        ]
+        options:
+          jshintrc: true
+
+
     watch:
       options:
         spawn: false
@@ -351,6 +364,7 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-contrib-clean'
   grunt.loadNpmTasks 'grunt-contrib-copy'
   grunt.loadNpmTasks 'grunt-contrib-concat'
+  grunt.loadNpmTasks 'grunt-contrib-jshint'
   grunt.loadNpmTasks 'grunt-express-server'
   grunt.loadNpmTasks 'grunt-casper'
 
