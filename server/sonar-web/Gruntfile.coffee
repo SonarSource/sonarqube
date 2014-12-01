@@ -102,8 +102,6 @@ module.exports = (grunt) ->
             '<%= pkg.assets %>js/application.js'
             '<%= pkg.assets %>js/csv.js'
             '<%= pkg.assets %>js/dashboard.js'
-            '<%= pkg.assets %>js/duplication.js'
-            '<%= pkg.assets %>js/resource.js'
             '<%= pkg.assets %>js/issue.js'
             '<%= pkg.assets %>js/recent-history.js'
           ]
@@ -138,8 +136,6 @@ module.exports = (grunt) ->
             '<%= pkg.assets %>js/application.js'
             '<%= pkg.assets %>js/csv.js'
             '<%= pkg.assets %>js/dashboard.js'
-            '<%= pkg.assets %>js/duplication.js'
-            '<%= pkg.assets %>js/resource.js'
             '<%= pkg.assets %>js/issue.js'
             '<%= pkg.assets %>js/recent-history.js'
           ]
