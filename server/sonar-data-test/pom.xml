@@ -4,65 +4,42 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.codehaus.sonar</groupId>
-    <artifactId>sonar</artifactId>
+    <artifactId>server</artifactId>
     <version>5.0-SNAPSHOT</version>
+    <relativePath>..</relativePath>
   </parent>
   <artifactId>sonar-data-test</artifactId>
-  <packaging>jar</packaging>
-  <name>SonarQube :: Server :: Data Tests</name>
+  <name>SonarQube :: Server :: Benchmark</name>
 
   <dependencies>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-server</artifactId>
-      <type>test-jar</type>
-      <scope>test</scope>
       <version>${project.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-server</artifactId>
+      <type>test-jar</type>
       <version>${project.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-search</artifactId>
       <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-core</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-core</artifactId>
-      <type>test-jar</type>
       <scope>test</scope>
-      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.easytesting</groupId>
-      <artifactId>fest-assert</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-testing-harness</artifactId>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.dbunit</groupId>
-      <artifactId>dbunit</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
     </dependency>
   </dependencies>
 
@@ -72,8 +49,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <skipTests>${skipServerTests}</skipTests>
-          <argLine>-Xmx256m</argLine>
+          <argLine>-Xmx1G -Xms256m -server -Djava.awt.headless=true</argLine>
         </configuration>
       </plugin>
     </plugins>

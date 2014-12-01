@@ -24,16 +24,6 @@
     <level value="WARN"/>
   </logger>
 
-  <!-- required for DryRunDatabaseFactoryTest -->
-  <logger name="org.sonar.core.persistence.DryRunDatabaseFactory">
-    <level value="DEBUG"/>
-  </logger>
-
-  <!-- required for DryRunDatabaseFactoryTest -->
-  <logger name="org.elasticsearch">
-    <level value="WARN"/>
-  </logger>
-
   <root>
     <level value="INFO"/>
     <appender-ref ref="STDOUT"/>
