@@ -45,31 +45,31 @@ import java.util.List;
  * Scroll over table FILE_SOURCES and directly parse CSV field required to
  * populate the index sourcelines
  */
-class SourceLineResultSetIterator extends ResultSetIterator<SourceLineResultSetIterator.SourceFile> {
+public class SourceLineResultSetIterator extends ResultSetIterator<SourceLineResultSetIterator.SourceFile> {
 
-  static class SourceFile {
+  public static class SourceFile {
     private final String fileUuid;
     private final long updatedAt;
     private final List<SourceLineDoc> lines = Lists.newArrayList();
 
-    SourceFile(String fileUuid, long updatedAt) {
+    public SourceFile(String fileUuid, long updatedAt) {
       this.fileUuid = fileUuid;
       this.updatedAt = updatedAt;
     }
 
-    String getFileUuid() {
+    public String getFileUuid() {
       return fileUuid;
     }
 
-    long getUpdatedAt() {
+    public long getUpdatedAt() {
       return updatedAt;
     }
 
-    List<SourceLineDoc> getLines() {
+    public List<SourceLineDoc> getLines() {
       return lines;
     }
 
-    void addLine(SourceLineDoc line) {
+    public void addLine(SourceLineDoc line) {
       this.lines.add(line);
     }
   }

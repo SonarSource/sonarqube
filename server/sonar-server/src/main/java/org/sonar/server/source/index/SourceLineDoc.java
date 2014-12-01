@@ -90,8 +90,8 @@ public class SourceLineDoc extends BaseDoc {
     return getField(SourceLineIndexDefinition.FIELD_HIGHLIGHTING);
   }
 
-  public void setHighlighting(String fileUuid) {
-    setField(SourceLineIndexDefinition.FIELD_HIGHLIGHTING, fileUuid);
+  public void setHighlighting(String s) {
+    setField(SourceLineIndexDefinition.FIELD_HIGHLIGHTING, s);
   }
 
   public String source() {

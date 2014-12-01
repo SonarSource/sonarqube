@@ -58,8 +58,7 @@ public class SourceLineIndexer extends BaseIndexer {
     }
   }
 
-  @VisibleForTesting
-  long index(Iterator<SourceLineResultSetIterator.SourceFile> sourceFiles) {
+  public long index(Iterator<SourceLineResultSetIterator.SourceFile> sourceFiles) {
     final BulkIndexer bulk = new BulkIndexer(esClient, SourceLineIndexDefinition.INDEX);
     return doIndex(bulk, sourceFiles);
   }
