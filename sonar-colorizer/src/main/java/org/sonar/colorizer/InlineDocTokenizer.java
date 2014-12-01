@@ -24,6 +24,10 @@ import org.sonar.channel.EndMatcher;
 
 import java.util.Arrays;
 
+/**
+ * @deprecated since 4.5.2 replace by highlighting mechanism
+ */
+@Deprecated
 public abstract class InlineDocTokenizer extends Tokenizer {
 
   private final String tagBefore;

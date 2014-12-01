@@ -21,6 +21,10 @@ package org.sonar.colorizer;
 
 import org.sonar.channel.CodeReader;
 
+/**
+ * @deprecated since 4.5.2 replace by highlighting mechanism
+ */
+@Deprecated
 public class StringTokenizer extends Tokenizer {
 
   private final LiteralTokenizer tokenizer;

@@ -21,6 +21,10 @@ package org.sonar.colorizer;
 
 import java.util.Set;
 
+/**
+ * @deprecated since 4.5.2 replace by highlighting mechanism
+ */
+@Deprecated
 public class CaseInsensitiveKeywordsTokenizer extends KeywordsTokenizer {
 
   public CaseInsensitiveKeywordsTokenizer(String tagBefore, String tagAfter, Set<String> keywords) {

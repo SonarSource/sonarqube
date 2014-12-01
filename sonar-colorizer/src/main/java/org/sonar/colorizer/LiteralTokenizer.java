@@ -22,6 +22,10 @@ package org.sonar.colorizer;
 import org.sonar.channel.CodeReader;
 import org.sonar.channel.EndMatcher;
 
+/**
+ * @deprecated since 4.5.2 replace by highlighting mechanism
+ */
+@Deprecated
 public class LiteralTokenizer extends Tokenizer {
 
   private final String tagBefore;
@@ -63,7 +67,7 @@ public class LiteralTokenizer extends Tokenizer {
 
     public boolean match(int endFlag) {
       literalValue.append((char) endFlag);
-      return code.lastChar()==firstChar && evenNumberOfBackSlashBeforeDelimiter() && literalValue.length()>1;
+      return code.lastChar() == firstChar && evenNumberOfBackSlashBeforeDelimiter() && literalValue.length() > 1;
     }
 
     private boolean evenNumberOfBackSlashBeforeDelimiter() {

@@ -28,8 +28,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Detect case-sensitive keywords
+ * @deprecated since 4.5.2 replace by highlighting mechanism
  */
+@Deprecated
 public class KeywordsTokenizer extends NotThreadSafeTokenizer {
 
   private final String tagBefore;
@@ -76,7 +77,7 @@ public class KeywordsTokenizer extends NotThreadSafeTokenizer {
   }
 
   private boolean isKeyword(String word) {
-    if ( !caseInsensitive && keywords.contains(word)) {
+    if (!caseInsensitive && keywords.contains(word)) {
       return true;
     } else if (caseInsensitive && keywords.contains(word.toUpperCase())) {
       return true;

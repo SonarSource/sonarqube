@@ -20,10 +20,13 @@
 package org.sonar.api.source;
 
 import org.sonar.api.component.Perspective;
+import org.sonar.api.component.ResourcePerspectives;
 
 import java.util.List;
 
 /**
+ * Use this perspective to save symbol references on files.
+ * See {@link ResourcePerspectives}.
  * @since 3.6
  */
 public interface Symbolizable extends Perspective {

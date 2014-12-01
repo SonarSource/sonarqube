@@ -22,6 +22,10 @@ package org.sonar.colorizer;
 import org.sonar.channel.CodeReader;
 import org.sonar.channel.EndMatcher;
 
+/**
+ * @deprecated since 4.5.2 replace by highlighting mechanism
+ */
+@Deprecated
 public class JavaAnnotationTokenizer extends Tokenizer {
 
   private final String tagBefore;

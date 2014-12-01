@@ -26,6 +26,10 @@ import org.sonar.channel.CodeReader;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * @deprecated since 4.5.2 replace by highlighting mechanism
+ */
+@Deprecated
 public class HtmlDecorator extends Tokenizer {
 
   private static final String CSS_PATH = "/sonar-colorizer.css";

@@ -22,6 +22,10 @@ package org.sonar.colorizer;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @deprecated since 4.5.2 replace by highlighting mechanism
+ */
+@Deprecated
 public class HtmlCodeBuilder implements Appendable {
 
   private StringBuilder colorizedCode = new StringBuilder();

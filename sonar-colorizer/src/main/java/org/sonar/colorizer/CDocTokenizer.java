@@ -19,6 +19,10 @@
  */
 package org.sonar.colorizer;
 
+/**
+ * @deprecated since 4.5.2 replace by highlighting mechanism
+ */
+@Deprecated
 public class CDocTokenizer extends InlineDocTokenizer {
 
   public CDocTokenizer(String tagBefore, String tagAfter) {

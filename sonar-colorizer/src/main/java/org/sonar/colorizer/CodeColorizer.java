@@ -22,6 +22,10 @@ package org.sonar.colorizer;
 import java.io.Reader;
 import java.util.List;
 
+/**
+ * @deprecated since 4.5.2 replace by highlighting mechanism
+ */
+@Deprecated
 public class CodeColorizer {
 
   private List<Tokenizer> tokenizers = null;

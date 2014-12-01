@@ -36,6 +36,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * @deprecated since 4.5.2 should not be used by plugins.
+ */
+@Deprecated
 public abstract class SonarIndex implements DirectedGraphAccessor<Resource, Dependency> {
 
   /**
