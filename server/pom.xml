@@ -17,5 +17,6 @@
     <module>sonar-server</module>
     <module>sonar-web</module>
     <module>sonar-ws-client</module>
+    <module>sonar-data-test</module>
   </modules>
 </project>

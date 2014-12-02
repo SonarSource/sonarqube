@@ -11,6 +11,11 @@
   <artifactId>sonar-data-test</artifactId>
   <name>SonarQube :: Server :: Benchmark</name>
 
+  <properties>
+    <testInclusions/>
+    <enableBenchmarkAssertions>true</enableBenchmarkAssertions>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
@@ -49,10 +54,31 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <argLine>-Xmx1G -Xms256m -server -Djava.awt.headless=true</argLine>
+          <skipTests>${skipServerTests}</skipTests>
+          <argLine>-Xmx1G -Xms256m -server -Djava.awt.headless=true -DenableBenchmarkAssertions=${enableBenchmarkAssertions}</argLine>
+          <includes>
+            <include>${testInclusions}</include>
+          </includes>
         </configuration>
       </plugin>
     </plugins>
   </build>
 
+  <!--
+  mvn install -DrunBenchmarks=true -DenableBenchmarkAssertions=true
+
+  -->
+  <profiles>
+    <profile>
+      <id>runBenchmarks</id>
+      <activation>
+        <property>
+          <name>runBenchmarks</name>
+        </property>
+      </activation>
+      <properties>
+        <testInclusions>org/sonar/server/benchmark/**/*.java</testInclusions>
+      </properties>
+    </profile>
+  </profiles>
 </project>

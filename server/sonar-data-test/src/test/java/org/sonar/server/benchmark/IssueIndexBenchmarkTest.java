@@ -75,6 +75,7 @@ public class IssueIndexBenchmarkTest {
   }
 
   private void indexAuthorizations() {
+    LOGGER.info("Indexing issue authorizations");
     IssueAuthorizationIndexer indexer = tester.get(IssueAuthorizationIndexer.class);
     List<IssueAuthorizationDao.Dto> authorizations = Lists.newArrayList();
     for (int i = 0; i < PROJECTS; i++) {
@@ -83,7 +84,10 @@ public class IssueIndexBenchmarkTest {
       authorization.addUser("admin");
       authorizations.add(authorization);
     }
+    long start = System.currentTimeMillis();
     indexer.index(authorizations);
+    long period = System.currentTimeMillis() - start;
+    LOGGER.info(String.format("%d authorizations indexed in %d ms (%d docs/second)", PROJECTS, period, 1000 * PROJECTS / period));
   }
 
   private void benchmarkIssueIndexing() {
@@ -95,10 +99,9 @@ public class IssueIndexBenchmarkTest {
 
     long start = System.currentTimeMillis();
     tester.get(IssueIndexer.class).index(issues);
-    long end = System.currentTimeMillis();
 
     timer.cancel();
-    long period = end - start;
+    long period = System.currentTimeMillis() - start;
     LOGGER.info(String.format("%d issues indexed in %d ms (%d docs/second)", issues.count.get(), period, 1000 * issues.count.get() / period));
     LOGGER.info(String.format("Index disk: " + FileUtils.byteCountToDisplaySize(FileUtils.sizeOfDirectory(tester.getEsServerHolder().getHomeDir()))));
   }
