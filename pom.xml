@@ -1445,6 +1445,9 @@
           <name>dbTests</name>
         </property>
       </activation>
+      <properties>
+        <skipWebTests>true</skipWebTests>
+      </properties>
       <dependencies>
         <dependency>
           <groupId>mysql</groupId>
