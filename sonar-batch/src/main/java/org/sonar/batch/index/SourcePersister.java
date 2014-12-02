@@ -121,7 +121,8 @@ public class SourcePersister implements ScanPersister {
 
   @Override
   public void persist() {
-    DbSession session = mybatis.openSession(true);
+    // Don't use batch insert for file_sources since keeping all data in memory can produce OOM for big files
+    DbSession session = mybatis.openSession(false);
     try {
 
       final Map<String, FileSourceDto> fileSourceDtoByFileUuid = new HashMap<String, FileSourceDto>();

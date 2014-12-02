@@ -71,10 +71,9 @@ public final class DuplicationPersister implements ScanPersister {
           Snapshot snapshot = snapshotCache.get(effectiveKey);
           MeasureModel measureModel = MeasurePersister.model(measure, ruleFinder).setSnapshotId(snapshot.getId());
           mapper.insert(measureModel);
+          session.commit();
         }
       }
-
-      session.commit();
     } catch (Exception e) {
       throw new IllegalStateException("Unable to save some measures", e);
     } finally {
