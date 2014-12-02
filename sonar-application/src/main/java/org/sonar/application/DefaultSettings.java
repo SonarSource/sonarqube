@@ -58,7 +58,7 @@ class DefaultSettings {
   private static Map<String, String> defaults() {
     Map<String, String> defaults = new HashMap<String, String>();
     defaults.put(ProcessConstants.CLUSTER_NAME, "sonarqube");
-    defaults.put(ProcessConstants.SEARCH_JAVA_OPTS, "-Xmx256m -Xms256m -Xss256k -Djava.net.preferIPv4Stack=true " +
+    defaults.put(ProcessConstants.SEARCH_JAVA_OPTS, "-Xmx1G -Xms256m -Xss256k -Djava.net.preferIPv4Stack=true " +
       "-XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:CMSInitiatingOccupancyFraction=75 -XX:+UseCMSInitiatingOccupancyOnly " +
       "-XX:+HeapDumpOnOutOfMemoryError");
     defaults.put(ProcessConstants.SEARCH_JAVA_ADDITIONAL_OPTS, "");
