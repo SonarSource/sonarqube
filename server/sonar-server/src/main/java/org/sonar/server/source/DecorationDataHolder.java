@@ -71,8 +71,12 @@ class DecorationDataHolder {
     String[] rules = syntaxHighlightingRules.split(ENTITY_SEPARATOR);
     for (String rule : rules) {
       String[] ruleFields = rule.split(FIELD_SEPARATOR);
-      insertAndPreserveOrder(new OpeningHtmlTag(Integer.parseInt(ruleFields[0]), ruleFields[2]), openingTagsEntries);
-      insertAndPreserveOrder(Integer.parseInt(ruleFields[1]), closingTagsOffsets);
+      int startOffset = Integer.parseInt(ruleFields[0]);
+      int endOffset = Integer.parseInt(ruleFields[1]);
+      if (startOffset < endOffset) {
+        insertAndPreserveOrder(new OpeningHtmlTag(startOffset, ruleFields[2]), openingTagsEntries);
+        insertAndPreserveOrder(endOffset, closingTagsOffsets);
+      }
     }
   }
 

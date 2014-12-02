@@ -190,6 +190,14 @@ public class HtmlSourceDecoratorTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void should_handle_highlighting_too_long() {
+    String sourceLine = "abc";
+    String highlighting = "0,5,c";
+    String symbols = "";
+    assertThat(sourceDecorator.getDecoratedSourceAsHtml(sourceLine, highlighting, symbols)).isEqualTo("<span class=\"c\">abc</span>");
+  }
+
+  @Test
   public void should_ignore_missing_highlighting() {
     String sourceLine = "    if (toto < 42) {";
     assertThat(sourceDecorator.getDecoratedSourceAsHtml(sourceLine, (String) null, (String) null)).isEqualTo("    if (toto &lt; 42) {");
@@ -203,7 +211,16 @@ public class HtmlSourceDecoratorTest extends AbstractDaoTestCase {
 
   @Test
   public void should_ignore_empty_source() {
-    assertThat(sourceDecorator.getDecoratedSourceAsHtml("", (String) null, (String) null)).isEqualTo("");
+    assertThat(sourceDecorator.getDecoratedSourceAsHtml("", "0,1,cppd", "")).isEqualTo("");
   }
+
+  @Test
+  public void should_ignore_empty_rule() {
+    String sourceLine = "@Deprecated";
+    String highlighting = "0,0,a;0,11,a";
+    String symbols = "1,11,1";
+    assertThat(sourceDecorator.getDecoratedSourceAsHtml(sourceLine, highlighting, symbols)).isEqualTo("<span class=\"a\">@<span class=\"sym-1 sym\">Deprecated</span></span>");
+  }
+
 }
 
