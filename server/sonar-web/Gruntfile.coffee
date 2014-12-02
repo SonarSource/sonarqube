@@ -393,15 +393,29 @@ module.exports = (grunt) ->
                                  'requirejs', 'clean:js', 'copy:build', 'copy:requirejs', 'uglify:build',
                                  'clean:build']
 
-  grunt.registerTask 'build', ['clean:css', 'clean:js',
-                               'less:build', 'cssUrlRewrite:build'
-                               'coffee:build', 'handlebars:build', 'copy:js',
-                               'concat:build',
-                               'requirejs', 'clean:js', 'copy:build', 'copy:requirejs', 'uglify:build',
-                               'clean:build']
-
   grunt.registerTask 'test', ['clean:js', 'coffee:build', 'handlebars:build', 'copy:js', 'concat:dev',
                               'express:test', 'casper:test']
 
   grunt.registerTask 'single', ['clean:js', 'coffee:build', 'handlebars:build', 'copy:js', 'concat:dev',
                             'express:test', 'casper:single']
+
+
+  # task used by Maven build (see pom.xml).
+  grunt.registerTask 'maven-build-skip-tests-true', [
+                                  'clean:css', 'clean:js',
+                                   'less:build', 'cssUrlRewrite:build'
+                                   'coffee:build', 'handlebars:build', 'copy:js',
+                                   'concat:build',
+                                   'requirejs', 'clean:js', 'copy:build', 'copy:requirejs', 'uglify:build',
+                                   'clean:build']
+
+  grunt.registerTask 'maven-build-skip-tests-false', [
+                                   'clean:js', 'coffee:build', 'handlebars:build', 'copy:js', 'concat:dev',
+                                   'express:test', 'casper:test',
+
+                                   'clean:css', 'clean:js',
+                                   'less:build', 'cssUrlRewrite:build'
+                                   'coffee:build', 'handlebars:build', 'copy:js',
+                                   'concat:build',
+                                   'requirejs', 'clean:js', 'copy:build', 'copy:requirejs', 'uglify:build',
+                                   'clean:build']

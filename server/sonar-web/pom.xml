@@ -12,8 +12,6 @@
   <name>SonarQube :: Web</name>
 
   <properties>
-    <gruntTask>test build</gruntTask>
-
     <!-- self-analysis -->
     <sonar.sources>src/main/js</sonar.sources>
     <sonar.exclusions>src/main/js/third-party/**/*,src/main/js/require.js,src/main/js/tests/**/*</sonar.exclusions>
@@ -157,7 +155,7 @@
               <goal>grunt</goal>
             </goals>
             <configuration>
-              <arguments>${gruntTask} --port=${jsTestPort}</arguments>
+              <arguments>maven-build-skip-tests-${skipWebTests} --port=${jsTestPort}</arguments>
             </configuration>
           </execution>
         </executions>
@@ -187,17 +185,6 @@
   </build>
 
   <profiles>
-    <profile>
-      <id>skipJsTests</id>
-      <activation>
-        <property>
-          <name>skipTests</name>
-        </property>
-      </activation>
-      <properties>
-        <gruntTask>build</gruntTask>
-      </properties>
-    </profile>
     <profile>
       <id>release</id>
       <build>
