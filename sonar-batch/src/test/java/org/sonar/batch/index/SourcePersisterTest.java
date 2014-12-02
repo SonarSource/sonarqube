@@ -292,14 +292,14 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
       .setOriginalLineOffsets(new long[] {0, 4, 7});
 
     SyntaxHighlightingData highlighting = new SyntaxHighlightingDataBuilder()
-      .registerHighlightingRule(0, 3, TypeOfText.ANNOTATION)
+      .registerHighlightingRule(0, 4, TypeOfText.ANNOTATION)
       .registerHighlightingRule(4, 5, TypeOfText.COMMENT)
       .registerHighlightingRule(7, 16, TypeOfText.CONSTANT)
       .build();
 
     String[] highlightingPerLine = sourcePersister.computeHighlightingPerLine(file, highlighting);
 
-    assertThat(highlightingPerLine).containsOnly("0,3,a", "0,1,cd", "0,9,c");
+    assertThat(highlightingPerLine).containsOnly("0,4,a", "0,1,cd", "0,9,c");
   }
 
   @Test

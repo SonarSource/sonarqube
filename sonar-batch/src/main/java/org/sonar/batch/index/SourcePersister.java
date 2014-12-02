@@ -368,21 +368,25 @@ public class SourcePersister implements ScanPersister {
   private <G> void writeDataPerLine(long[] originalLineOffsets, G item, int globalStartOffset, int globalEndOffset, StringBuilder[] dataPerLine, int startLine,
     RangeItemWriter<G> writer) {
     int currentLineIdx = startLine;
-    // We know current rule starts on current line
+    // We know current item starts on current line
     long ruleStartOffsetCurrentLine = globalStartOffset;
     while (currentLineIdx < originalLineOffsets.length && globalEndOffset >= originalLineOffsets[currentLineIdx]) {
-      // rule continue on next line so write current line and continue on next line with same rule
+      // item continue on next line so write current line and continue on next line with same item
       writeItem(item, dataPerLine, currentLineIdx, ruleStartOffsetCurrentLine - originalLineOffsets[currentLineIdx - 1], originalLineOffsets[currentLineIdx]
         - originalLineOffsets[currentLineIdx - 1], writer);
       currentLineIdx++;
       ruleStartOffsetCurrentLine = originalLineOffsets[currentLineIdx - 1];
     }
-    // Rule ends on current line
+    // item ends on current line
     writeItem(item, dataPerLine, currentLineIdx, ruleStartOffsetCurrentLine - originalLineOffsets[currentLineIdx - 1], globalEndOffset
       - originalLineOffsets[currentLineIdx - 1], writer);
   }
 
   private <G> void writeItem(G item, StringBuilder[] dataPerLine, int currentLineIdx, long startLineOffset, long endLineOffset, RangeItemWriter<G> writer) {
+    if (startLineOffset == endLineOffset) {
+      // Do not store empty items
+      return;
+    }
     if (dataPerLine[currentLineIdx - 1] == null) {
       dataPerLine[currentLineIdx - 1] = new StringBuilder();
     }
