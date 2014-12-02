@@ -48,7 +48,7 @@ public class InsertProjectsAuthorizationUpdatedAtMigration extends BaseDataChang
     final long now = system.now();
 
     MassUpdate massUpdate = context.prepareMassUpdate();
-    massUpdate.select("SELECT p.id FROM projects p WHERE p.scope=? AND p.enabled=?").setString(1, "PRJ").setBoolean(2, true);
+    massUpdate.select("SELECT p.id FROM projects p WHERE p.scope=? AND p.enabled=? and p.authorization_updated_at IS NULL").setString(1, "PRJ").setBoolean(2, true);
     massUpdate.update("UPDATE projects SET authorization_updated_at=? WHERE id=?");
     massUpdate.rowPluralName("projects");
     massUpdate.execute(new MassUpdate.Handler() {
