@@ -22,17 +22,14 @@ require 'set'
 
 class IssueController < ApplicationController
 
-  helper SourceHelper
-
   # GET /issue/show/<key>
   # This URL is used by the Eclipse Plugin
   #
   # ==== Optional parameters
   # 'layout' is false to remove sidebar and headers. Default value is true.
-  # 'source' is false to hide source code. Default value is true.
   #
   # ==== Example
-  # GET /issue/show/151f6853-58a1-4950-95e3-9866f8be3e35?layout=false&source=false
+  # GET /issue/show/151f6853-58a1-4950-95e3-9866f8be3e35?layout=false
   #
   def show
     require_parameters :id

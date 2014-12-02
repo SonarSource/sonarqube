@@ -23,7 +23,7 @@ class ResourceController < ApplicationController
   SECTION=Navigation::SECTION_RESOURCE
 
   helper :dashboard
-  helper SourceHelper, UsersHelper, IssuesHelper
+  helper UsersHelper, IssuesHelper
 
   def index
     require_parameters 'id'
