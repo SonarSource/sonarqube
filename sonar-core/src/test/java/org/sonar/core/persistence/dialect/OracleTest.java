@@ -50,5 +50,6 @@ public class OracleTest {
   @Test
   public void testFetchSizeForScrolling() throws Exception {
     assertThat(dialect.getScrollDefaultFetchSize()).isEqualTo(200);
+    assertThat(dialect.getScrollSingleRowFetchSize()).isEqualTo(1);
   }
 }

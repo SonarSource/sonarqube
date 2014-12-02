@@ -119,7 +119,7 @@ public class SourceLineDoc extends BaseDoc {
 
   @CheckForNull
   public Integer utLineHits() {
-    Number lineHits = (Number)getNullableField(SourceLineIndexDefinition.FIELD_UT_LINE_HITS);
+    Number lineHits = getNullableField(SourceLineIndexDefinition.FIELD_UT_LINE_HITS);
     return lineHits == null ? null : lineHits.intValue();
   }
 
@@ -129,7 +129,7 @@ public class SourceLineDoc extends BaseDoc {
 
   @CheckForNull
   public Integer utConditions() {
-    Number conditions = (Number)getNullableField(SourceLineIndexDefinition.FIELD_UT_CONDITIONS);
+    Number conditions = getNullableField(SourceLineIndexDefinition.FIELD_UT_CONDITIONS);
     return conditions == null ? null : conditions.intValue();
   }
 
@@ -139,7 +139,7 @@ public class SourceLineDoc extends BaseDoc {
 
   @CheckForNull
   public Integer utCoveredConditions() {
-    Number coveredConditions = (Number)getNullableField(SourceLineIndexDefinition.FIELD_UT_COVERED_CONDITIONS);
+    Number coveredConditions = getNullableField(SourceLineIndexDefinition.FIELD_UT_COVERED_CONDITIONS);
     return coveredConditions == null ? null : coveredConditions.intValue();
   }
 
@@ -149,7 +149,7 @@ public class SourceLineDoc extends BaseDoc {
 
   @CheckForNull
   public Integer itLineHits() {
-    Number lineHits = (Number)getNullableField(SourceLineIndexDefinition.FIELD_IT_LINE_HITS);
+    Number lineHits = getNullableField(SourceLineIndexDefinition.FIELD_IT_LINE_HITS);
     return lineHits == null ? null : lineHits.intValue();
   }
 
@@ -159,7 +159,7 @@ public class SourceLineDoc extends BaseDoc {
 
   @CheckForNull
   public Integer itConditions() {
-    Number conditions = (Number)getNullableField(SourceLineIndexDefinition.FIELD_IT_CONDITIONS);
+    Number conditions = getNullableField(SourceLineIndexDefinition.FIELD_IT_CONDITIONS);
     return conditions == null ? null : conditions.intValue();
   }
 
@@ -179,7 +179,7 @@ public class SourceLineDoc extends BaseDoc {
 
   @CheckForNull
   public Integer overallLineHits() {
-    Number lineHits = (Number)getNullableField(SourceLineIndexDefinition.FIELD_OVERALL_LINE_HITS);
+    Number lineHits = getNullableField(SourceLineIndexDefinition.FIELD_OVERALL_LINE_HITS);
     return lineHits == null ? null : lineHits.intValue();
   }
 
@@ -189,7 +189,7 @@ public class SourceLineDoc extends BaseDoc {
 
   @CheckForNull
   public Integer overallConditions() {
-    Number conditions = (Number)getNullableField(SourceLineIndexDefinition.FIELD_OVERALL_CONDITIONS);
+    Number conditions = getNullableField(SourceLineIndexDefinition.FIELD_OVERALL_CONDITIONS);
     return conditions == null ? null : conditions.intValue();
   }
 
@@ -199,7 +199,7 @@ public class SourceLineDoc extends BaseDoc {
 
   @CheckForNull
   public Integer overallCoveredConditions() {
-    Number coveredConditions = (Number)getNullableField(SourceLineIndexDefinition.FIELD_OVERALL_COVERED_CONDITIONS);
+    Number coveredConditions = getNullableField(SourceLineIndexDefinition.FIELD_OVERALL_COVERED_CONDITIONS);
     return coveredConditions == null ? null : coveredConditions.intValue();
   }
 

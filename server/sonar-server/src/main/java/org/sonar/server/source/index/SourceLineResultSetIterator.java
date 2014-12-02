@@ -32,6 +32,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.db.ResultSetIterator;
 import org.sonar.server.db.migrations.SqlUtil;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.io.IOException;
@@ -91,7 +92,8 @@ public class SourceLineResultSetIterator extends ResultSetIterator<SourceLineRes
   static SourceLineResultSetIterator create(DbClient dbClient, Connection connection, long afterDate) {
     try {
       String sql = afterDate > 0L ? SQL_AFTER_DATE : SQL_ALL;
-      PreparedStatement stmt = dbClient.newScrollingSelectStatement(connection, sql);
+      // rows are big, so they are scrolled once at a time (one row in memory at a time)
+      PreparedStatement stmt = dbClient.newScrollingSingleRowSelectStatement(connection, sql);
       if (afterDate > 0L) {
         stmt.setLong(1, afterDate);
       }
@@ -179,6 +181,7 @@ public class SourceLineResultSetIterator extends ResultSetIterator<SourceLineRes
     return dups;
   }
 
+  @CheckForNull
   private Integer parseIntegerFromRecord(CSVRecord record, int column) {
     String cellValue = record.get(column);
     if (cellValue == null || cellValue.isEmpty()) {

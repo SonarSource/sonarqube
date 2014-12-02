@@ -79,4 +79,12 @@ public interface Dialect {
    * @since 5.0
    */
   int getScrollDefaultFetchSize();
+
+  /**
+   * Fetch size to scroll one row at a time. It sounds strange because obviously value is 1 in most cases,
+   * but it's different on MySQL...
+   *
+   * @since 5.0
+   */
+  int getScrollSingleRowFetchSize();
 }

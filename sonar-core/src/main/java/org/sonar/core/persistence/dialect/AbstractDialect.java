@@ -82,4 +82,9 @@ abstract class AbstractDialect implements Dialect {
   public int getScrollDefaultFetchSize() {
     return 200;
   }
+
+  @Override
+  public int getScrollSingleRowFetchSize() {
+    return 1;
+  }
 }

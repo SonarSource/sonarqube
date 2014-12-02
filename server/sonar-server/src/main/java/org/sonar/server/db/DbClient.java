@@ -220,9 +220,23 @@ public class DbClient implements ServerComponent {
    * Create a PreparedStatement for SELECT requests with scrolling of results
    */
   public final PreparedStatement newScrollingSelectStatement(Connection connection, String sql) {
+    int fetchSize = database().getDialect().getScrollDefaultFetchSize();
+    return newScrollingSelectStatement(connection, sql, fetchSize);
+  }
+
+  /**
+   * Create a PreparedStatement for SELECT requests with scrolling of results row by row (only one row
+   * in memory at a time)
+   */
+  public final PreparedStatement newScrollingSingleRowSelectStatement(Connection connection, String sql) {
+    int fetchSize = database().getDialect().getScrollSingleRowFetchSize();
+    return newScrollingSelectStatement(connection, sql, fetchSize);
+  }
+
+  private PreparedStatement newScrollingSelectStatement(Connection connection, String sql, int fetchSize) {
     try {
       PreparedStatement stmt = connection.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-      stmt.setFetchSize(database().getDialect().getScrollDefaultFetchSize());
+      stmt.setFetchSize(fetchSize);
       return stmt;
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to create SQL statement: " + sql, e);
