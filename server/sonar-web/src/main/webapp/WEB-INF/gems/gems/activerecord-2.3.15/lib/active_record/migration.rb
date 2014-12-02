@@ -489,6 +489,12 @@ module ActiveRecord
         begin
           ddl_transaction do
             migration.migrate(@direction)
+
+            #SONAR fix closed connections (mainly MySQL) when Java migration is long to be executed.
+            # Database can close the underlying connection if no activity for a while.
+            Base.connection.reconnect!
+            #/SONAR
+
             record_version_state_after_migrating(migration.version)
           end
         rescue => e
