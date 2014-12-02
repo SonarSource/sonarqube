@@ -74,7 +74,13 @@ define([
         },
 
         open: function (id, key) {
-          var that = this;
+          var that = this,
+              finalize = function () {
+                that.requestIssues().done(function () {
+                  that.render();
+                  that.trigger('loaded');
+                });
+              };
           this.model.clear();
           this.model.set({
             uuid: id,
@@ -82,24 +88,12 @@ define([
           });
           this.requestComponent().done(function () {
             that.requestSource()
-                .done(function () {
-                  that.requestDuplications().done(function () {
-                    that.requestIssues().done(function () {
-                      that.render();
-                      that.trigger('loaded');
-                    });
-                  });
-                })
+                .done(finalize)
                 .fail(function () {
-                  that.model.set({
-                    source: [
-                      { line: 0 }
-                    ]
-                  });
-                  that.requestIssues().done(function () {
-                    that.render();
-                    that.trigger('loaded');
-                  });
+                  that.model.set({ source: [
+                    { line: 0 }
+                  ] });
+                  finalize();
                 });
           });
           return this;
@@ -295,7 +289,11 @@ define([
         },
 
         showDuplications: function () {
-          this.$el.addClass('source-duplications-expanded');
+          var that = this;
+          this.requestDuplications().done(function () {
+            that.render();
+            that.$el.addClass('source-duplications-expanded');
+          });
         },
 
         showDuplicationPopup: function (e) {
