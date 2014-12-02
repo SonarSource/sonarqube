@@ -19,38 +19,30 @@
  */
 package org.sonar.server.source;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
-import org.sonar.core.source.SnapshotDataTypes;
-import org.sonar.core.source.db.SnapshotDataDto;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.Collection;
 import java.util.List;
 
 public class HtmlSourceDecorator implements ServerComponent {
 
-  private static final String SINGLE_LINE_SYMBOLS = "single_line_symbols";
-
   @CheckForNull
   public String getDecoratedSourceAsHtml(@Nullable String sourceLine, @Nullable String highlighting, @Nullable String symbols) {
-    Collection<SnapshotDataDto> snapshotDataEntries = Lists.newArrayList();
-    if (highlighting != null) {
-      SnapshotDataDto highlightingDto = new SnapshotDataDto();
-      highlightingDto.setData(highlighting);
-      highlightingDto.setDataType(SnapshotDataTypes.SYNTAX_HIGHLIGHTING);
-      snapshotDataEntries.add(highlightingDto);
+    if (sourceLine == null) {
+      return null;
     }
-    if (symbols != null) {
-      SnapshotDataDto symbolsDto = new SnapshotDataDto();
-      symbolsDto.setData(symbols);
-      symbolsDto.setDataType(SINGLE_LINE_SYMBOLS);
-      snapshotDataEntries.add(symbolsDto);
+    DecorationDataHolder decorationDataHolder = new DecorationDataHolder();
+    if (StringUtils.isNotBlank(highlighting)) {
+      decorationDataHolder.loadSyntaxHighlightingData(highlighting);
     }
-    List<String> decoratedSource = decorate(sourceLine, snapshotDataEntries, 1, 1);
+    if (StringUtils.isNotBlank(symbols)) {
+      decorationDataHolder.loadLineSymbolReferences(symbols);
+    }
+    HtmlTextDecorator textDecorator = new HtmlTextDecorator();
+    List<String> decoratedSource = textDecorator.decorateTextWithHtml(sourceLine, decorationDataHolder, 1, 1);
     if (decoratedSource == null) {
       return null;
     } else {
@@ -62,29 +54,4 @@ public class HtmlSourceDecorator implements ServerComponent {
     }
   }
 
-  @CheckForNull
-  private List<String> decorate(@Nullable String snapshotSource, Collection<SnapshotDataDto> snapshotDataEntries, @Nullable Integer from, @Nullable Integer to) {
-    if (snapshotSource != null) {
-      DecorationDataHolder decorationDataHolder = new DecorationDataHolder();
-      for (SnapshotDataDto snapshotDataEntry : snapshotDataEntries) {
-        loadSnapshotData(decorationDataHolder, snapshotDataEntry);
-      }
-
-      HtmlTextDecorator textDecorator = new HtmlTextDecorator();
-      return textDecorator.decorateTextWithHtml(snapshotSource, decorationDataHolder, from, to);
-    }
-    return null;
-  }
-
-  private void loadSnapshotData(DecorationDataHolder dataHolder, SnapshotDataDto entry) {
-    if (!Strings.isNullOrEmpty(entry.getData())) {
-      if (SnapshotDataTypes.SYNTAX_HIGHLIGHTING.equals(entry.getDataType())) {
-        dataHolder.loadSyntaxHighlightingData(entry.getData());
-      } else if (SnapshotDataTypes.SYMBOL_HIGHLIGHTING.equals(entry.getDataType())) {
-        dataHolder.loadSymbolReferences(entry.getData());
-      } else if (SINGLE_LINE_SYMBOLS.equals(entry.getDataType())) {
-        dataHolder.loadLineSymbolReferences(entry.getData());
-      }
-    }
-  }
 }

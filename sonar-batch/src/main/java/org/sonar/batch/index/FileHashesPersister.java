@@ -22,18 +22,22 @@ package org.sonar.batch.index;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.source.SnapshotDataTypes;
 import org.sonar.core.source.db.SnapshotDataDao;
 import org.sonar.core.source.db.SnapshotDataDto;
 
 import java.util.Map;
 
-public class ComponentDataPersister implements ScanPersister {
+/**
+ * Store file hashes in snapshot_data for reuse in next analysis to know if a file is modified
+ */
+public class FileHashesPersister implements ScanPersister {
   private final ComponentDataCache data;
   private final SnapshotCache snapshots;
   private final SnapshotDataDao dao;
   private final MyBatis mybatis;
 
-  public ComponentDataPersister(ComponentDataCache data, SnapshotCache snapshots,
+  public FileHashesPersister(ComponentDataCache data, SnapshotCache snapshots,
     SnapshotDataDao dao, MyBatis mybatis) {
     this.data = data;
     this.snapshots = snapshots;
@@ -48,16 +52,14 @@ public class ComponentDataPersister implements ScanPersister {
       for (Map.Entry<String, Snapshot> componentEntry : snapshots.snapshots()) {
         String componentKey = componentEntry.getKey();
         Snapshot snapshot = componentEntry.getValue();
-        for (Cache.Entry<Data> dataEntry : data.entries(componentKey)) {
-          Data value = dataEntry.value();
-          if (value != null) {
-            SnapshotDataDto dto = new SnapshotDataDto();
-            dto.setSnapshotId(snapshot.getId());
-            dto.setResourceId(snapshot.getResourceId());
-            dto.setDataType(dataEntry.key()[1].toString());
-            dto.setData(value.writeString());
-            dao.insert(session, dto);
-          }
+        String fileHashesdata = data.getStringData(componentKey, SnapshotDataTypes.FILE_HASHES);
+        if (fileHashesdata != null) {
+          SnapshotDataDto dto = new SnapshotDataDto();
+          dto.setSnapshotId(snapshot.getId());
+          dto.setResourceId(snapshot.getResourceId());
+          dto.setDataType(SnapshotDataTypes.FILE_HASHES);
+          dto.setData(fileHashesdata);
+          dao.insert(session, dto);
         }
       }
       session.commit();

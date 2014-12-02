@@ -26,9 +26,10 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.core.persistence.AbstractDaoTestCase;
+import org.sonar.core.source.SnapshotDataTypes;
 import org.sonar.core.source.db.SnapshotDataDao;
 
-public class ComponentDataPersisterTest extends AbstractDaoTestCase {
+public class FileHashesPersisterTest extends AbstractDaoTestCase {
 
   @ClassRule
   public static TemporaryFolder temp = new TemporaryFolder();
@@ -54,15 +55,13 @@ public class ComponentDataPersisterTest extends AbstractDaoTestCase {
     Snapshot snapshot = new Snapshot();
     snapshot.setId(100);
     snapshot.setResourceId(200);
-    snapshots.put("org/struts/Action.java", snapshot);
+    snapshots.put("myProject", snapshot);
 
     data = new ComponentDataCache(caches);
-    data.setStringData("org/struts/Action.java", "SYMBOL", "content of symbol");
-    data.setStringData("org/struts/Action.java", "SYNTAX", "content of syntax");
-    data.setStringData("org/struts/Other.java", "SYMBOL", "unregistered component, should not be persisted");
+    data.setStringData("myProject", SnapshotDataTypes.FILE_HASHES, "org/struts/Action.java=123ABC");
 
     SnapshotDataDao dataDao = new SnapshotDataDao(getMyBatis());
-    ComponentDataPersister persister = new ComponentDataPersister(data, snapshots, dataDao, getMyBatis());
+    FileHashesPersister persister = new FileHashesPersister(data, snapshots, dataDao, getMyBatis());
     persister.persist();
 
     checkTables("should_persist_component_data", new String[] {"id", "created_at", "updated_at"}, "snapshot_data");
