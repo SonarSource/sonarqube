@@ -1,0 +1,38 @@
+{"tests": [
+  {
+    "name": "two_parts_key",
+    "status": "OK",
+    "durationInMs": 324,
+    "coveredLines": 0
+  },
+  {
+    "name": "remove_versus_clear",
+    "status": "OK",
+    "durationInMs": 81,
+    "coveredLines": 0
+  },
+  {
+    "name": "three_parts_key",
+    "status": "OK",
+    "durationInMs": 93,
+    "coveredLines": 0
+  },
+  {
+    "name": "test_key_being_prefix_of_another_key",
+    "status": "OK",
+    "durationInMs": 89,
+    "coveredLines": 0
+  },
+  {
+    "name": "one_part_key",
+    "status": "OK",
+    "durationInMs": 91,
+    "coveredLines": 0
+  },
+  {
+    "name": "empty_cache",
+    "status": "OK",
+    "durationInMs": 88,
+    "coveredLines": 0
+  }
+]}

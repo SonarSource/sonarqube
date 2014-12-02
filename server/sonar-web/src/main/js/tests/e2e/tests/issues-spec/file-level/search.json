@@ -1,0 +1,494 @@
+{
+  "total": 10,
+  "p": 1,
+  "ps": 50,
+  "projects": [
+    {
+      "uuid": "69e57151-be0d-4157-adff-c06741d88879",
+      "key": "org.codehaus.sonar:sonar",
+      "id": 2865,
+      "qualifier": "TRK",
+      "name": "SonarQube",
+      "longName": "SonarQube"
+    }
+  ],
+  "components": [
+    {
+      "uuid": "7feef7c3-11b9-4175-b5a7-527ca3c75cb7",
+      "key": "org.codehaus.sonar:sonar-plugin-api",
+      "id": 16,
+      "enabled": true,
+      "qualifier": "BRC",
+      "name": "SonarQube :: Plugin API",
+      "longName": "SonarQube :: Plugin API",
+      "path": "sonar-plugin-api",
+      "projectId": 2865,
+      "subProjectId": 2865
+    },
+    {
+      "uuid": "e1b3c47e-e9a2-42ea-9cac-439ce2345d7e",
+      "key": "org.codehaus.sonar:sonar-plugin-api:src/main/java/org/sonar/api/measures/Metric.java",
+      "id": 3543,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "Metric.java",
+      "longName": "src/main/java/org/sonar/api/measures/Metric.java",
+      "path": "src/main/java/org/sonar/api/measures/Metric.java",
+      "projectId": 2865,
+      "subProjectId": 16
+    },
+    {
+      "uuid": "69e57151-be0d-4157-adff-c06741d88879",
+      "key": "org.codehaus.sonar:sonar",
+      "id": 2865,
+      "enabled": true,
+      "qualifier": "TRK",
+      "name": "SonarQube",
+      "longName": "SonarQube"
+    },
+    {
+      "uuid": "e2550527-3f86-4082-a9ae-e345f5a735aa",
+      "key": "org.codehaus.sonar:sonar-plugin-api:src/main/java/org/sonar/api/measures/Measure.java",
+      "id": 3538,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "Measure.java",
+      "longName": "src/main/java/org/sonar/api/measures/Measure.java",
+      "path": "src/main/java/org/sonar/api/measures/Measure.java",
+      "projectId": 2865,
+      "subProjectId": 16
+    },
+    {
+      "uuid": "97606f40-f3ef-4922-aa37-f67485917e67",
+      "key": "org.codehaus.sonar:sonar-plugin-api:src/main/java/org/sonar/api/resources/File.java",
+      "id": 3592,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "File.java",
+      "longName": "src/main/java/org/sonar/api/resources/File.java",
+      "path": "src/main/java/org/sonar/api/resources/File.java",
+      "projectId": 2865,
+      "subProjectId": 16
+    },
+    {
+      "uuid": "69949290-cfe6-45b6-9dd0-53f1e467b810",
+      "key": "org.codehaus.sonar:sonar-duplications",
+      "id": 20,
+      "enabled": true,
+      "qualifier": "BRC",
+      "name": "SonarQube :: Duplications",
+      "longName": "SonarQube :: Duplications",
+      "path": "sonar-duplications",
+      "projectId": 2865,
+      "subProjectId": 2865
+    },
+    {
+      "uuid": "90dd5fda-5fce-4d76-bebf-132922abad95",
+      "key": "org.codehaus.sonar:sonar-duplications:src/main/java/org/sonar/duplications/index/PackedMemoryCloneIndex.java",
+      "id": 3308,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "PackedMemoryCloneIndex.java",
+      "longName": "src/main/java/org/sonar/duplications/index/PackedMemoryCloneIndex.java",
+      "path": "src/main/java/org/sonar/duplications/index/PackedMemoryCloneIndex.java",
+      "projectId": 2865,
+      "subProjectId": 20
+    },
+    {
+      "uuid": "1b915447-5aa8-4f59-9134-346a4e88c7b7",
+      "key": "org.codehaus.sonar.plugins:sonar-core-plugin",
+      "id": 2873,
+      "enabled": true,
+      "qualifier": "BRC",
+      "name": "SonarQube :: Plugins :: Core",
+      "longName": "SonarQube :: Plugins :: Core",
+      "path": "plugins/sonar-core-plugin",
+      "projectId": 2865,
+      "subProjectId": 2865
+    },
+    {
+      "uuid": "6c9c1986-59b3-4839-8dec-9499488f64d1",
+      "key": "org.codehaus.sonar.plugins:sonar-core-plugin:src/main/java/org/sonar/plugins/core/issue/tracking/StringTextComparator.java",
+      "id": 20777,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "StringTextComparator.java",
+      "longName": "src/main/java/org/sonar/plugins/core/issue/tracking/StringTextComparator.java",
+      "path": "src/main/java/org/sonar/plugins/core/issue/tracking/StringTextComparator.java",
+      "projectId": 2865,
+      "subProjectId": 2873
+    }
+  ],
+  "issues": [
+    {
+      "key": "200d4a8b-9666-4e70-9953-7bab57933f97",
+      "component": "org.codehaus.sonar:sonar-plugin-api:src/main/java/org/sonar/api/measures/Measure.java",
+      "componentId": 3538,
+      "project": "org.codehaus.sonar:sonar",
+      "subProject": "org.codehaus.sonar:sonar-plugin-api",
+      "rule": "common-java:DuplicatedBlocks",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "1 duplicated blocks of code.",
+      "debt": "1h",
+      "creationDate": "2014-06-06T23:38:06+0200",
+      "updateDate": "2014-07-01T17:51:37+0200",
+      "fUpdateAge": "5 months",
+      "actions": [],
+      "transitions": []
+    },
+    {
+      "key": "23c5a022-ab5b-4892-b676-a7fd58540f79",
+      "component": "org.codehaus.sonar:sonar-plugin-api:src/main/java/org/sonar/api/measures/Measure.java",
+      "componentId": 3538,
+      "project": "org.codehaus.sonar:sonar",
+      "subProject": "org.codehaus.sonar:sonar-plugin-api",
+      "rule": "common-java:InsufficientBranchCoverage",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "1 more branches need to be covered by unit tests to reach the minimum threshold of 65.0% branch coverage.",
+      "debt": "10min",
+      "creationDate": "2014-09-02T09:25:36+0200",
+      "updateDate": "2014-10-09T16:21:48+0200",
+      "fUpdateAge": "about a month",
+      "actions": [],
+      "transitions": []
+    },
+    {
+      "key": "23d6cd5e-83ba-4e65-abef-ff8592195638",
+      "component": "org.codehaus.sonar:sonar-plugin-api:src/main/java/org/sonar/api/measures/Measure.java",
+      "componentId": 3538,
+      "project": "org.codehaus.sonar:sonar",
+      "subProject": "org.codehaus.sonar:sonar-plugin-api",
+      "rule": "squid:S1142",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "Reduce the number of returns of this method 7, down to the maximum allowed 5.",
+      "line": 248,
+      "debt": "20min",
+      "author": "julien.henry@sonarsource.com",
+      "creationDate": "2014-06-16T23:38:20+0200",
+      "updateDate": "2014-07-01T18:26:25+0200",
+      "fUpdateAge": "5 months",
+      "actions": [],
+      "transitions": []
+    },
+    {
+      "key": "8c5a4fca-57c9-44ad-89c0-6673c483e357",
+      "component": "org.codehaus.sonar:sonar-plugin-api:src/main/java/org/sonar/api/measures/Measure.java",
+      "componentId": 3538,
+      "project": "org.codehaus.sonar:sonar",
+      "subProject": "org.codehaus.sonar:sonar-plugin-api",
+      "rule": "squid:MethodCyclomaticComplexity",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "The Cyclomatic Complexity of this method \"value\" is 22 which is greater than 10 authorized.",
+      "line": 248,
+      "debt": "10min",
+      "author": "julien.henry@sonarsource.com",
+      "creationDate": "2014-06-16T23:38:20+0200",
+      "updateDate": "2014-07-01T16:20:08+0200",
+      "fUpdateAge": "5 months",
+      "actions": [],
+      "transitions": []
+    },
+    {
+      "key": "57303136-93b5-4d96-b1ca-654160aa5bdb",
+      "component": "org.codehaus.sonar:sonar-plugin-api:src/main/java/org/sonar/api/measures/Measure.java",
+      "componentId": 3538,
+      "project": "org.codehaus.sonar:sonar",
+      "subProject": "org.codehaus.sonar:sonar-plugin-api",
+      "rule": "squid:S1151",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "Reduce this switch case number of lines from 8 to at most 5, for example by extracting code into methods.",
+      "line": 266,
+      "debt": "10min",
+      "author": "julien.henry@sonarsource.com",
+      "creationDate": "2014-06-16T23:38:20+0200",
+      "updateDate": "2014-06-30T16:41:24+0200",
+      "fUpdateAge": "5 months",
+      "actions": [],
+      "transitions": []
+    },
+    {
+      "key": "dbf052eb-f991-44db-a829-029d47b7fe2d",
+      "component": "org.codehaus.sonar:sonar-plugin-api:src/main/java/org/sonar/api/measures/Measure.java",
+      "componentId": 3538,
+      "project": "org.codehaus.sonar:sonar",
+      "subProject": "org.codehaus.sonar:sonar-plugin-api",
+      "rule": "squid:MethodCyclomaticComplexity",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "The Cyclomatic Complexity of this method \"getVariation\" is 12 which is greater than 10 authorized.",
+      "line": 562,
+      "debt": "10min",
+      "author": "Simon Brandhof",
+      "creationDate": "2011-10-25T12:27:40+0200",
+      "updateDate": "2013-12-18T23:54:49+0100",
+      "fUpdateAge": "11 months",
+      "actions": [],
+      "transitions": []
+    },
+    {
+      "key": "50db1415-bd3c-4c24-ab0a-763177059770",
+      "component": "org.codehaus.sonar:sonar-plugin-api:src/main/java/org/sonar/api/measures/Measure.java",
+      "componentId": 3538,
+      "project": "org.codehaus.sonar:sonar",
+      "subProject": "org.codehaus.sonar:sonar-plugin-api",
+      "rule": "squid:S1698",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "Change this comparison to use the equals method.",
+      "line": 684,
+      "debt": "2min",
+      "author": "david@gageot.net",
+      "creationDate": "2014-06-26T23:17:10+0200",
+      "updateDate": "2014-07-01T16:13:48+0200",
+      "fUpdateAge": "5 months",
+      "actions": [],
+      "transitions": []
+    },
+    {
+      "key": "5fbdc597-0d83-4ea2-9d9d-ac192ec1eec1",
+      "component": "org.codehaus.sonar:sonar-plugin-api:src/main/java/org/sonar/api/measures/Measure.java",
+      "componentId": 3538,
+      "project": "org.codehaus.sonar:sonar",
+      "subProject": "org.codehaus.sonar:sonar-plugin-api",
+      "rule": "squid:S1067",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "Reduce the number of conditional operators (5) used in the expression (maximum allowed 3).",
+      "line": 684,
+      "debt": "10min",
+      "author": "david@gageot.net",
+      "creationDate": "2013-08-28T12:19:16+0200",
+      "updateDate": "2013-12-10T14:28:37+0100",
+      "fUpdateAge": "12 months",
+      "actions": [],
+      "transitions": []
+    },
+    {
+      "key": "186d1419-f5e9-412f-8a8e-f8cd81920359",
+      "component": "org.codehaus.sonar:sonar-plugin-api:src/main/java/org/sonar/api/measures/Measure.java",
+      "componentId": 3538,
+      "project": "org.codehaus.sonar:sonar",
+      "subProject": "org.codehaus.sonar:sonar-plugin-api",
+      "rule": "squid:MethodCyclomaticComplexity",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "The Cyclomatic Complexity of this method \"equals\" is 15 which is greater than 10 authorized.",
+      "line": 724,
+      "debt": "10min",
+      "author": "Simon Brandhof",
+      "creationDate": "2011-10-25T12:27:40+0200",
+      "updateDate": "2014-03-12T10:43:19+0100",
+      "fUpdateAge": "9 months",
+      "actions": [],
+      "transitions": []
+    },
+    {
+      "key": "225d3b74-8b61-46a1-aac2-68221d6cd933",
+      "component": "org.codehaus.sonar:sonar-plugin-api:src/main/java/org/sonar/api/measures/Measure_2.java",
+      "componentId": 3538,
+      "project": "org.codehaus.sonar:sonar",
+      "subProject": "org.codehaus.sonar:sonar-plugin-api",
+      "rule": "squid:S1142",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "Reduce the number of returns of this method 6, down to the maximum allowed 5.",
+      "line": 724,
+      "debt": "20min",
+      "author": "simon.brandhof@gmail.com",
+      "creationDate": "2013-08-09T16:04:33+0200",
+      "updateDate": "2014-03-12T10:43:19+0100",
+      "fUpdateAge": "9 months",
+      "actions": [],
+      "transitions": []
+    }
+  ],
+  "rules": [
+    {
+      "key": "squid:S1698",
+      "name": "Objects should be compared with \"equals()\"",
+      "lang": "java",
+      "desc": "<p>Using the equality (<code>==</code>) and inequality (<code>!=</code>) operators to compare two objects does not check to see if they have the same values. Rather it checks to see if both object references point to exactly the same object in memory. The vast majority of the time, this is not what you want to do. Use the .equals() method to compare the values of two objects or to compare a string object to a string literal.</p>\n\n<h2>Noncompliant Code Sample</h2>\n<pre>\nString str1 = \"blue\";\nString str2 = \"blue\";\nString str3 = str1;\n\nif (str1 == str2)\n{\n  System.out.println(\"they're both 'blue'\"); // this doesn't print because the objects are different\n}\n\nif (str1 == \"blue\")\n{\n  System.out.println(\"they're both 'blue'\"); // this doesn't print because the objects are different\n}\n\nif (str1 == str3)\n{\n  System.out.println(\"they're the same object\"); // this prints\n}\n</pre>\n\n<h2>Compliant Solution</h2>\n<pre>\nString str1 = \"blue\";\nString str2 = \"blue\";\nString str3 = str1;\n\nif (str1.equals(str2))\n{\n  System.out.println(\"they're both 'blue'\"); // this prints\n}\n\nif (str1.equals(\"blue\"))\n{\n  System.out.println(\"they're both 'blue'\"); // this prints\n}\n\nif (str1 == str3)\n{\n  System.out.println(\"they're the same object\"); // this still prints, but it's probably not what you meant to do\n}\n</pre>",
+      "status": "READY",
+      "langName": "Java"
+    },
+    {
+      "key": "common-java:DuplicatedBlocks",
+      "name": "Duplicated blocks",
+      "lang": "java",
+      "desc": "<p>An issue is created on a file as soon as there is a block of duplicated code on this file. It gives the number of blocks in the file.</p>",
+      "status": "READY",
+      "langName": "Java"
+    },
+    {
+      "key": "squid:MethodCyclomaticComplexity",
+      "name": "Methods should not be too complex",
+      "lang": "java",
+      "desc": "<p>The Cyclomatic Complexity is measured by the number of\n\t(&amp;&amp;, ||) operators and (if, while, do, for, ?:, catch, switch,\n\tcase, return, throw) statements in the body of a class plus one for\n\teach constructor, method (but not getter/setter), static initializer,\n\tor instance initializer in the class. The last return stament in\n\tmethod, if exists, is not taken into account.</p>\n<p>\n\tEven when the Cyclomatic Complexity of a class is very high, this\n\tcomplexity might be well distributed among all methods. Nevertheless,\n\tmost of the time, a very complex class is a class which breaks the <a\n\t\thref=\"http://en.wikipedia.org/wiki/Single_responsibility_principle\">Single\n\t\tResponsibility Principle</a> and which should be re-factored to be split\n\tin several classes.\n</p>",
+      "status": "READY",
+      "langName": "Java"
+    },
+    {
+      "key": "squid:S1142",
+      "name": "Methods should not contain too many return statements",
+      "lang": "java",
+      "desc": "<p>\nHaving too many return statements in a method increases the method's essential complexity because the flow of execution is broken each time a return statement is encountered.\nThis makes it harder to read and understand the logic of the method.\n</p>\n\n<p>\nThe following code snippet illustrates this rule with the default threshold of 3:\n</p>\n\n<pre>\npublic boolean myMethod() { // Non-Compliant as there are 4 return statements\n  if (condition1) {\n    return true;\n  } else {\n    if (condition2) {\n      return false;\n    } else {\n      return true;\n    }\n  }\n  return false;\n}\n</pre>",
+      "status": "READY",
+      "langName": "Java"
+    },
+    {
+      "key": "squid:S1067",
+      "name": "Expressions should not be too complex",
+      "lang": "java",
+      "desc": "<p>\nThe complexity of an expression is defined by the number of <code>&&</code>, <code>||</code> and <code>condition ? ifTrue : ifFalse</code> operators it contains.\nA single expression's complexity should not become too high to keep the code readable.\n</p>\n\n<p>The following code, with a maximum complexity of 3:</p>\n\n<pre>\nif (condition1 && condition2 && condition3 && condition4) { /* ... */ }  // Non-Compliant\n</pre>\n\n<p>could be refactored into something like:</p>\n\n<pre>\nif (relevantMethodName1() && relevantMethodName2()) { /* ... */ }        // Compliant\n\n/* ... */\n\nprivate boolean relevantMethodName1() {\n  return condition1 && condition2;\n}\n\nprivate boolean relevantMethodName2() {\n  return condition3 && condition4;\n}\n</pre>",
+      "status": "READY",
+      "langName": "Java"
+    },
+    {
+      "key": "squid:S1151",
+      "name": "Switch cases should not have too many lines",
+      "lang": "java",
+      "desc": "<p>Switch cases should remain small to keep the overall switch compact and readable.</p>\n\n<p>The following code snippet illustrates this rule with the default threshold of 5:</p>\n\n<pre>\nswitch (myVariable) {\n  case 0:                     // Compliant - 5 lines till following case\n    System.out.println(\"\");\n    System.out.println(\"\");\n    System.out.println(\"\");\n    break;\n  default:                    // Non-Compliant - 6 lines till switch end\n    System.out.println(\"\");\n    System.out.println(\"\");\n    System.out.println(\"\");\n    System.out.println(\"\");\n    break;\n}\n</pre>",
+      "status": "READY",
+      "langName": "Java"
+    },
+    {
+      "key": "common-java:InsufficientBranchCoverage",
+      "name": "Insufficient branch coverage by unit tests",
+      "lang": "java",
+      "desc": "<p>An issue is created on a file as soon as the branch coverage on this file is less than the required threshold.It gives the number of branches to be covered in order to reach the required threshold.</p>",
+      "status": "READY",
+      "langName": "Java"
+    }
+  ],
+  "users": [],
+  "languages": [
+    {
+      "key": "js",
+      "name": "JavaScript"
+    },
+    {
+      "key": "java",
+      "name": "Java"
+    }
+  ],
+  "maxResultsReached": false,
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 50,
+    "total": 10,
+    "fTotal": "10",
+    "pages": 1
+  },
+  "facets": [
+    {
+      "property": "severities",
+      "values": [
+        {
+          "val": "MAJOR",
+          "count": 10
+        },
+        {
+          "val": "INFO",
+          "count": 3
+        },
+        {
+          "val": "MINOR",
+          "count": 0
+        },
+        {
+          "val": "CRITICAL",
+          "count": 0
+        },
+        {
+          "val": "BLOCKER",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "property": "statuses",
+      "values": [
+        {
+          "val": "CONFIRMED",
+          "count": 10
+        },
+        {
+          "val": "OPEN",
+          "count": 0
+        },
+        {
+          "val": "REOPENED",
+          "count": 0
+        },
+        {
+          "val": "RESOLVED",
+          "count": 0
+        },
+        {
+          "val": "CLOSED",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "property": "resolutions",
+      "values": [
+        {
+          "val": "REMOVED",
+          "count": 43
+        },
+        {
+          "val": "FIXED",
+          "count": 4
+        },
+        {
+          "val": "",
+          "count": 10
+        },
+        {
+          "val": "FALSE-POSITIVE",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "property": "projectUuids",
+      "values": [
+        {
+          "val": "69e57151-be0d-4157-adff-c06741d88879",
+          "count": 10
+        }
+      ]
+    },
+    {
+      "property": "componentUuids",
+      "values": [
+        {
+          "val": "90dd5fda-5fce-4d76-bebf-132922abad95",
+          "count": 20
+        },
+        {
+          "val": "e2550527-3f86-4082-a9ae-e345f5a735aa",
+          "count": 10
+        },
+        {
+          "val": "97606f40-f3ef-4922-aa37-f67485917e67",
+          "count": 8
+        },
+        {
+          "val": "6c9c1986-59b3-4839-8dec-9499488f64d1",
+          "count": 7
+        },
+        {
+          "val": "e1b3c47e-e9a2-42ea-9cac-439ce2345d7e",
+          "count": 6
+        }
+      ]
+    }
+  ]
+}

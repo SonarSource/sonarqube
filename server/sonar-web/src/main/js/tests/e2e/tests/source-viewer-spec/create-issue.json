@@ -1,0 +1,17 @@
+{
+  "issue": {
+    "key": "e69e2012-c58e-4c37-9e0e-9595576de9de",
+    "component": "org.codehaus.sonar:sonar-batch:src/main/java/org/sonar/batch/index/Cache.java",
+    "componentId": null,
+    "project": "org.codehaus.sonar:sonar",
+    "rule": "manual:api",
+    "status": "OPEN",
+    "severity": "MAJOR",
+    "message": "An issue message",
+    "line": 3,
+    "reporter": "admin",
+    "creationDate": "2014-12-08T14:22:49+0100",
+    "updateDate": "2014-12-08T14:22:49+0100",
+    "fUpdateAge": "less than a minute"
+  }
+}

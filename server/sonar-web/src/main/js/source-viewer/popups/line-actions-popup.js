@@ -15,7 +15,7 @@ define([
 
     getPermalink: function (e) {
       e.preventDefault();
-      var url = baseUrl + '/component/index#component=' +
+      var url = baseUrl + '/component/index?id=' +
               (encodeURIComponent(this.model.key())) + '&line=' + this.options.line,
           windowParams = 'resizable=1,scrollbars=1,status=1';
       window.open(url, this.model.get('name'), windowParams);

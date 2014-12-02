@@ -1,0 +1,130 @@
+{
+  "sources": [
+    {
+      "line": 1,
+      "code": "<span class=\"k\">package </span>foo;",
+      "scmAuthor": "fabrice.bellingard@sonarsource.com",
+      "scmRevision": "f467e9befd3ff15bb1dbf634b0e9b45d44110bac",
+      "scmDate": "2013-09-16T15:31:49+0200"
+    },
+    {
+      "line": 2,
+      "code": "",
+      "scmAuthor": "fabrice.bellingard@sonarsource.com",
+      "scmRevision": "f467e9befd3ff15bb1dbf634b0e9b45d44110bac",
+      "scmDate": "2013-09-16T15:31:49+0200"
+    },
+    {
+      "line": 3,
+      "code": "<span class=\"cppd\">/**</span>",
+      "scmAuthor": "fabrice.bellingard@sonarsource.com",
+      "scmRevision": "37acee5ff6e67cdb501c08a656fbabf21160b052",
+      "scmDate": "2013-09-19T15:37:05+0200"
+    },
+    {
+      "line": 4,
+      "code": "<span class=\"cppd\"> * Simple class</span>",
+      "scmAuthor": "fabrice.bellingard@sonarsource.com",
+      "scmRevision": "37acee5ff6e67cdb501c08a656fbabf21160b052",
+      "scmDate": "2013-09-19T15:37:05+0200"
+    },
+    {
+      "line": 5,
+      "code": "<span class=\"cppd\"> */</span>",
+      "scmAuthor": "fabrice.bellingard@sonarsource.com",
+      "scmRevision": "37acee5ff6e67cdb501c08a656fbabf21160b052",
+      "scmDate": "2013-09-19T15:37:05+0200"
+    },
+    {
+      "line": 6,
+      "code": "<span class=\"k\">public </span><span class=\"k\">class </span><span class=\"sym-1 sym\">Simplest</span> {",
+      "scmAuthor": "fabrice.bellingard@sonarsource.com",
+      "scmRevision": "f467e9befd3ff15bb1dbf634b0e9b45d44110bac",
+      "scmDate": "2013-09-16T15:31:49+0200"
+    },
+    {
+      "line": 7,
+      "code": "",
+      "scmAuthor": "fabrice.bellingard@sonarsource.com",
+      "scmRevision": "f467e9befd3ff15bb1dbf634b0e9b45d44110bac",
+      "scmDate": "2013-09-16T15:31:49+0200"
+    },
+    {
+      "line": 8,
+      "code": "    <span class=\"k\">public </span><span class=\"k\">static </span><span class=\"k\">int </span><span class=\"sym-2 sym\">add</span>(<span class=\"k\">int </span><span class=\"sym-3 sym\">a</span>, <span class=\"k\">int </span><span class=\"sym-4 sym\">b</span>) {",
+      "scmAuthor": "fabrice.bellingard@sonarsource.com",
+      "scmRevision": "f467e9befd3ff15bb1dbf634b0e9b45d44110bac",
+      "scmDate": "2013-09-16T15:31:49+0200"
+    },
+    {
+      "line": 9,
+      "code": "    \t<span class=\"cppd\">// introduce a variable that is not needed - just to get a violation</span>",
+      "scmAuthor": "fabrice.bellingard@sonarsource.com",
+      "scmRevision": "322e4e8b3cb54a39651f563273745e6ee737fb3e",
+      "scmDate": "2013-10-15T16:14:22+0200"
+    },
+    {
+      "line": 10,
+      "code": "    \t<span class=\"k\">int </span><span class=\"sym-5 sym\">result</span> = <span class=\"sym-3 sym\">a</span> + <span class=\"sym-4 sym\">b</span>;",
+      "scmAuthor": "fabrice.bellingard@sonarsource.com",
+      "scmRevision": "322e4e8b3cb54a39651f563273745e6ee737fb3e",
+      "scmDate": "2013-10-15T16:14:22+0200"
+    },
+    {
+      "line": 11,
+      "code": "",
+      "scmAuthor": "fabrice.bellingard@sonarsource.com",
+      "scmRevision": "44e0c5b4fc18a006a405d3f3d489896245fab3d1",
+      "scmDate": "2014-01-09T16:48:59+0100"
+    },
+    {
+      "line": 12,
+      "code": "    \tSystem.out.println(<span class=\"s\">\"\"</span>);",
+      "scmAuthor": "fabrice.bellingard@sonarsource.com",
+      "scmRevision": "44e0c5b4fc18a006a405d3f3d489896245fab3d1",
+      "scmDate": "2014-01-09T16:48:59+0100"
+    },
+    {
+      "line": 13,
+      "code": "",
+      "scmAuthor": "fabrice.bellingard@sonarsource.com",
+      "scmRevision": "44e0c5b4fc18a006a405d3f3d489896245fab3d1",
+      "scmDate": "2014-01-09T16:48:59+0100"
+    },
+    {
+      "line": 14,
+      "code": "        <span class=\"k\">return </span><span class=\"sym-5 sym\">result</span>;",
+      "scmAuthor": "fabrice.bellingard@sonarsource.com",
+      "scmRevision": "322e4e8b3cb54a39651f563273745e6ee737fb3e",
+      "scmDate": "2013-10-15T16:14:22+0200"
+    },
+    {
+      "line": 15,
+      "code": "    }",
+      "scmAuthor": "fabrice.bellingard@sonarsource.com",
+      "scmRevision": "f467e9befd3ff15bb1dbf634b0e9b45d44110bac",
+      "scmDate": "2013-09-16T15:31:49+0200"
+    },
+    {
+      "line": 16,
+      "code": "",
+      "scmAuthor": "fabrice.bellingard@sonarsource.com",
+      "scmRevision": "f467e9befd3ff15bb1dbf634b0e9b45d44110bac",
+      "scmDate": "2013-09-16T15:31:49+0200"
+    },
+    {
+      "line": 17,
+      "code": "}",
+      "scmAuthor": "fabrice.bellingard@sonarsource.com",
+      "scmRevision": "f467e9befd3ff15bb1dbf634b0e9b45d44110bac",
+      "scmDate": "2013-09-16T15:31:49+0200"
+    },
+    {
+      "line": 18,
+      "code": "",
+      "scmAuthor": "fabrice.bellingard@sonarsource.com",
+      "scmRevision": "f467e9befd3ff15bb1dbf634b0e9b45d44110bac",
+      "scmDate": "2013-09-16T15:31:49+0200"
+    }
+  ]
+}

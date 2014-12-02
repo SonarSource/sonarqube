@@ -1,0 +1,81 @@
+<div class="source-viewer-header-component">
+  {{#unless removed}}
+    {{#if projectName}}
+      <div class="source-viewer-header-component-project">
+        {{qualifierIcon 'TRK'}}&nbsp;<a href="{{dashboardUrl project}}">{{projectName}}</a>
+        {{#if subProjectName}}
+          &nbsp;&nbsp;&nbsp;
+          {{qualifierIcon 'TRK'}}&nbsp;<a href="{{dashboardUrl subProject}}">{{subProjectName}}</a>
+        {{/if}}
+      </div>
+    {{/if}}
+
+    <div class="source-viewer-header-component-name">
+      {{qualifierIcon q}} {{default path longName}}
+
+      {{#if canMarkAsFavourite}}
+        <a class="js-favorite source-viewer-header-favorite"
+           title="{{#if fav}}{{t 'click_to_remove_from_favorites'}}{{else}}{{t 'click_to_add_to_favorites'}}{{/if}}">
+          <i class="{{#if fav}}icon-favorite{{else}}icon-not-favorite{{/if}}"></i>
+        </a>
+      {{/if}}
+    </div>
+  {{else}}
+    <div class="source-viewer-header-component-project removed">{{removedMessage}}</div>
+  {{/unless}}
+</div>
+
+{{#unless removed}}
+  <a class="js-actions source-viewer-header-actions icon-list" title="{{t 'component_viewer.more_actions'}}"></a>
+
+  <div class="source-viewer-header-measures">
+    {{#if isUnitTest}}
+      <div class="source-viewer-header-measure">
+        <span class="source-viewer-header-measure-value">{{measures.fTests}}</span>
+        <span class="source-viewer-header-measure-label">{{t 'metric.tests.name'}}</span>
+      </div>
+    {{/if}}
+
+    {{#unless isUnitTest}}
+      <div class="source-viewer-header-measure">
+        <span class="source-viewer-header-measure-value">{{default measures.fLines '–'}}</span>
+        <span class="source-viewer-header-measure-label">{{t 'metric.lines.name'}}</span>
+      </div>
+    {{/unless}}
+
+    {{#if measures.fSqaleRating}}
+      <div class="source-viewer-header-measure">
+        <span class="rating rating-{{measures.fSqaleRating}}"
+              {{#if measures.fSqaleDebtRatio}}title="{{t 'metric.sqale_debt_ratio.name'}}: {{measures.fSqaleDebtRatio}}"{{/if}}>
+          {{measures.fSqaleRating}}
+        </span>
+      </div>
+    {{/if}}
+
+    <div class="source-viewer-header-measure">
+      <span class="source-viewer-header-measure-value">{{default measures.fDebt '0'}}</span>
+      <span class="source-viewer-header-measure-label">{{t 'component_viewer.header.debt'}}</span>
+    </div>
+    {{#if measures.fIssues}}
+      <div class="source-viewer-header-measure">
+        <span class="source-viewer-header-measure-value">{{measures.fIssues}}</span>
+        <span class="source-viewer-header-measure-label">{{t 'metric.violations.name'}}</span>
+      </div>
+    {{/if}}
+
+    {{#inArray tabs 'coverage'}}
+      <div class="source-viewer-header-measure">
+        <span class="source-viewer-header-measure-value">{{default measures.fCoverage '–'}}</span>
+        <span class="source-viewer-header-measure-label">{{t 'metric.coverage.name'}}</span>
+      </div>
+    {{/inArray}}
+
+    {{#inArray tabs 'duplications'}}
+      <div class="source-viewer-header-measure">
+        <span class="source-viewer-header-measure-value">{{default measures.fDuplicationDensity '–'}}</span>
+        <span class="source-viewer-header-measure-label">{{t 'duplications'}}</span>
+      </div>
+    {{/inArray}}
+
+  </div>
+{{/unless}}

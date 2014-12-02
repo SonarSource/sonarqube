@@ -1,0 +1,13 @@
+extends ./layouts/main
+
+block header
+  script(data-main='/js/source-viewer/app', src='../js/require.js')
+
+block body
+  #source-viewer
+
+  script.
+    window.file = {
+      uuid: '',
+      key: ''
+    };

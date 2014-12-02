@@ -12,19 +12,15 @@ var BASE_URL = 'http://localhost:' + getPort() + '/pages/',
 exports.initMessages = function () {
   // Dump log messages
   casper.removeAllListeners('remote.message');
-  if (casper.cli.get('verbose')) {
-    casper.on('remote.message', function(message) {
-      this.echo('Log: '+ message, 'LOG');
-    });
-  }
+  casper.on('remote.message', function(message) {
+    this.echo('Log: '+ message, 'LOG');
+  });
 
   // Dump uncaught errors
   casper.removeAllListeners('page.error');
-  if (casper.verbose) {
-    casper.on('page.error', function(msg) {
-      this.echo('Error: ' + msg, 'ERROR');
-    });
-  }
+  casper.on('page.error', function(msg) {
+    this.echo('Error: ' + msg, 'ERROR');
+  });
 };
 
 
@@ -61,7 +57,6 @@ exports.mockRequest = mockRequest;
 
 
 exports.mockRequestFromFile = function (url, fileName, options) {
-  console.log('mock request "' + url + '" from file "' + fs.workingDirectory + fs.separator + fileName + '"');
   var response = fs.read(fileName);
   return mockRequest(url, response, options);
 };

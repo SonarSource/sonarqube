@@ -1,0 +1,66 @@
+{
+  "total": 0,
+  "p": 1,
+  "ps": 100,
+  "projects": [
+    {
+      "uuid": "e07e9bed-f45d-4538-a5e8-77031c1ecae7",
+      "key": "test:fake-project-for-tests",
+      "id": 36125,
+      "qualifier": "TRK",
+      "name": "Fake Project for Tests",
+      "longName": "Fake Project for Tests"
+    }
+  ],
+  "components": [
+    {
+      "uuid": "58f53b48-f375-4e3d-9b84-1c0e5a373f62",
+      "key": "test:fake-project-for-tests:src/test/java/foo/SimplestTest.java",
+      "id": 36134,
+      "enabled": true,
+      "qualifier": "UTS",
+      "name": "SimplestTest.java",
+      "longName": "src/test/java/foo/SimplestTest.java",
+      "path": "src/test/java/foo/SimplestTest.java",
+      "projectId": 36125,
+      "subProjectId": 36125
+    },
+    {
+      "uuid": "e07e9bed-f45d-4538-a5e8-77031c1ecae7",
+      "key": "test:fake-project-for-tests",
+      "id": 36125,
+      "enabled": true,
+      "qualifier": "TRK",
+      "name": "Fake Project for Tests",
+      "longName": "Fake Project for Tests"
+    }
+  ],
+  "issues": [],
+  "rules": [],
+  "users": [
+    {
+      "login": "admin",
+      "name": "Admin Admin",
+      "active": true,
+      "email": "admin@sonarsource.com"
+    }
+  ],
+  "languages": [
+    {
+      "key": "js",
+      "name": "JavaScript"
+    },
+    {
+      "key": "java",
+      "name": "Java"
+    }
+  ],
+  "maxResultsReached": false,
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 100,
+    "total": 0,
+    "fTotal": "0",
+    "pages": 0
+  }
+}

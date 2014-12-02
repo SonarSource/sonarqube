@@ -60,6 +60,8 @@ define [
       data = $(e.currentTarget).serialize()
       $.post API_ADD_MANUAL_ISSUE, data
         .done (r) =>
+          r = JSON.parse(r) if typeof r == 'string'
+          console.log r
           @addIssue r.issue.key
         .fail (r) =>
           @hideSpinner()

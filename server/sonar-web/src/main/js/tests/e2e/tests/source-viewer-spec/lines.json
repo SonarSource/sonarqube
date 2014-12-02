@@ -1,0 +1,3868 @@
+{"sources": [
+  {
+    "line": 1,
+    "code": "<span class=\"cppd\">/*</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 2,
+    "code": "<span class=\"cppd\"> * SonarQube, open source software quality management tool.</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b1436788cfc71b23cc3e3c15400a6c630c914bec",
+    "scmDate": "2013-04-21T11:58:14+0200"
+  },
+  {
+    "line": 3,
+    "code": "<span class=\"cppd\"> * Copyright (C) 2008-2014 SonarSource</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "57ae3026c36ae3b0b71756d6161124b1ae594c53",
+    "scmDate": "2014-03-11T17:52:41+0100"
+  },
+  {
+    "line": 4,
+    "code": "<span class=\"cppd\"> * mailto:contact AT sonarsource DOT com</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 5,
+    "code": "<span class=\"cppd\"> *</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 6,
+    "code": "<span class=\"cppd\"> * SonarQube is free software; you can redistribute it and/or</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b1436788cfc71b23cc3e3c15400a6c630c914bec",
+    "scmDate": "2013-04-21T11:58:14+0200"
+  },
+  {
+    "line": 7,
+    "code": "<span class=\"cppd\"> * modify it under the terms of the GNU Lesser General Public</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 8,
+    "code": "<span class=\"cppd\"> * License as published by the Free Software Foundation; either</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 9,
+    "code": "<span class=\"cppd\"> * version 3 of the License, or (at your option) any later version.</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 10,
+    "code": "<span class=\"cppd\"> *</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 11,
+    "code": "<span class=\"cppd\"> * SonarQube is distributed in the hope that it will be useful,</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b1436788cfc71b23cc3e3c15400a6c630c914bec",
+    "scmDate": "2013-04-21T11:58:14+0200"
+  },
+  {
+    "line": 12,
+    "code": "<span class=\"cppd\"> * but WITHOUT ANY WARRANTY; without even the implied warranty of</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 13,
+    "code": "<span class=\"cppd\"> * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 14,
+    "code": "<span class=\"cppd\"> * Lesser General Public License for more details.</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 15,
+    "code": "<span class=\"cppd\"> *</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 16,
+    "code": "<span class=\"cppd\"> * You should have received a copy of the GNU Lesser General Public License</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "ce63bd4c293fe7a1fa066d73860bbaf4e1f5a608",
+    "scmDate": "2013-04-22T09:37:03+0200"
+  },
+  {
+    "line": 17,
+    "code": "<span class=\"cppd\"> * along with this program; if not, write to the Free Software Foundation,</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "ce63bd4c293fe7a1fa066d73860bbaf4e1f5a608",
+    "scmDate": "2013-04-22T09:37:03+0200"
+  },
+  {
+    "line": 18,
+    "code": "<span class=\"cppd\"> * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "ce63bd4c293fe7a1fa066d73860bbaf4e1f5a608",
+    "scmDate": "2013-04-22T09:37:03+0200"
+  },
+  {
+    "line": 19,
+    "code": "<span class=\"cppd\"> */</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 20,
+    "code": "<span class=\"k\">package</span> org.sonar.batch.index;",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 21,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 22,
+    "code": "<span class=\"k\">import </span>com.google.common.collect.<span class=\"sym-1 sym\">Sets</span>;",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 23,
+    "code": "<span class=\"k\">import </span>com.persistit.<span class=\"sym-2 sym\">Exchange</span>;",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 24,
+    "code": "<span class=\"k\">import </span>com.persistit.<span class=\"sym-3 sym\">Key</span>;",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 25,
+    "code": "<span class=\"k\">import </span>com.persistit.<span class=\"sym-4 sym\">KeyFilter</span>;",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 26,
+    "code": "<span class=\"k\">import </span>com.persistit.exception.<span class=\"sym-5 sym\">PersistitException</span>;",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200"
+  },
+  {
+    "line": 27,
+    "code": "<span class=\"k\">import </span>org.apache.commons.lang.builder.<span class=\"sym-6 sym\">ToStringBuilder</span>;",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200"
+  },
+  {
+    "line": 28,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200"
+  },
+  {
+    "line": 29,
+    "code": "<span class=\"k\">import </span>javax.annotation.<span class=\"sym-7 sym\">CheckForNull</span>;",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200"
+  },
+  {
+    "line": 30,
+    "code": "",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "171cd79c0b5152461434951ed5d6e5e58849a7b7",
+    "scmDate": "2014-04-23T14:41:32+0200"
+  },
+  {
+    "line": 31,
+    "code": "<span class=\"k\">import </span>java.util.<span class=\"sym-8 sym\">Iterator</span>;",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200"
+  },
+  {
+    "line": 32,
+    "code": "<span class=\"k\">import </span>java.util.<span class=\"sym-9 sym\">NoSuchElementException</span>;",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 33,
+    "code": "<span class=\"k\">import </span>java.util.<span class=\"sym-10 sym\">Set</span>;",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 34,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 35,
+    "code": "<span class=\"cppd\">/**</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 36,
+    "code": "<span class=\"cppd\"> * &lt;p&gt;</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200"
+  },
+  {
+    "line": 37,
+    "code": "<span class=\"cppd\"> * This cache is not thread-safe, due to direct usage of {@link com.persistit.Exchange}</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 38,
+    "code": "<span class=\"cppd\"> * &lt;/p&gt;</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200"
+  },
+  {
+    "line": 39,
+    "code": "<span class=\"cppd\"> */</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 40,
+    "code": "<span class=\"k\">public </span><span class=\"k\">class</span> <span class=\"sym-11 sym\">Cache</span>&lt;V&gt; {",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "6074164392edd3db2dfdfd21d05cd56c19e2b0e6",
+    "scmDate": "2014-07-25T16:31:45+0200"
+  },
+  {
+    "line": 41,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 42,
+    "code": "  <span class=\"k\">private </span><span class=\"k\">final </span>String <span class=\"sym-12 sym\">name</span>;",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 43,
+    "code": "  <span class=\"k\">private </span><span class=\"k\">final </span><span class=\"sym-2 sym\">Exchange</span> <span class=\"sym-13 sym\">exchange</span>;",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 44,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 45,
+    "code": "  <span class=\"sym-14 sym\">Cache</span>(String <span class=\"sym-15 sym\">name</span>, <span class=\"sym-2 sym\">Exchange</span> <span class=\"sym-16 sym\">exchange</span>) {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 46,
+    "code": "    <span class=\"k\">this</span>.<span class=\"sym-12 sym\">name</span> = <span class=\"sym-15 sym\">name</span>;",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 47,
+    "code": "    <span class=\"k\">this</span>.<span class=\"sym-13 sym\">exchange</span> = <span class=\"sym-16 sym\">exchange</span>;",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 48,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 49,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 50,
+    "code": "  <span class=\"k\">public </span><span class=\"sym-11 sym\">Cache</span>&lt;V&gt; <span class=\"sym-17 sym\">put</span>(Object <span class=\"sym-18 sym\">key</span>, V <span class=\"sym-19 sym\">value</span>) {",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 51,
+    "code": "    <span class=\"sym-127 sym\">resetKey</span>(<span class=\"sym-18 sym\">key</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 52,
+    "code": "    <span class=\"k\">return</span> <span class=\"sym-32 sym\">doPut</span>(<span class=\"sym-19 sym\">value</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 53,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 54,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 55,
+    "code": "  <span class=\"k\">public </span><span class=\"sym-11 sym\">Cache</span>&lt;V&gt; <span class=\"sym-20 sym\">put</span>(Object <span class=\"sym-21 sym\">firstKey</span>, Object <span class=\"sym-22 sym\">secondKey</span>, V <span class=\"sym-23 sym\">value</span>) {",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 56,
+    "code": "    <span class=\"sym-129 sym\">resetKey</span>(<span class=\"sym-21 sym\">firstKey</span>, <span class=\"sym-22 sym\">secondKey</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 57,
+    "code": "    <span class=\"k\">return</span> <span class=\"sym-32 sym\">doPut</span>(<span class=\"sym-23 sym\">value</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 58,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 59,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 60,
+    "code": "  <span class=\"k\">public </span><span class=\"sym-11 sym\">Cache</span>&lt;V&gt; <span class=\"sym-24 sym\">put</span>(Object <span class=\"sym-25 sym\">firstKey</span>, Object <span class=\"sym-26 sym\">secondKey</span>, Object <span class=\"sym-27 sym\">thirdKey</span>, V <span class=\"sym-28 sym\">value</span>) {",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 61,
+    "code": "    <span class=\"sym-132 sym\">resetKey</span>(<span class=\"sym-25 sym\">firstKey</span>, <span class=\"sym-26 sym\">secondKey</span>, <span class=\"sym-27 sym\">thirdKey</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 62,
+    "code": "    <span class=\"k\">return</span> <span class=\"sym-32 sym\">doPut</span>(<span class=\"sym-28 sym\">value</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 63,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 64,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 65,
+    "code": "  <span class=\"k\">public </span><span class=\"sym-11 sym\">Cache</span>&lt;V&gt; <span class=\"sym-29 sym\">put</span>(Object[] <span class=\"sym-30 sym\">key</span>, V <span class=\"sym-31 sym\">value</span>) {",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 66,
+    "code": "    <span class=\"sym-136 sym\">resetKey</span>(<span class=\"sym-30 sym\">key</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 0
+  },
+  {
+    "line": 67,
+    "code": "    <span class=\"k\">return</span> <span class=\"sym-32 sym\">doPut</span>(<span class=\"sym-31 sym\">value</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 0
+  },
+  {
+    "line": 68,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 69,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 70,
+    "code": "  <span class=\"k\">private </span><span class=\"sym-11 sym\">Cache</span>&lt;V&gt; <span class=\"sym-32 sym\">doPut</span>(V <span class=\"sym-33 sym\">value</span>) {",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 71,
+    "code": "    <span class=\"k\">try </span>{",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 72,
+    "code": "      <span class=\"sym-13 sym\">exchange</span>.getValue().put(<span class=\"sym-33 sym\">value</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 73,
+    "code": "      <span class=\"sym-13 sym\">exchange</span>.store();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 74,
+    "code": "      <span class=\"k\">return</span> <span class=\"k\">this</span>;",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 75,
+    "code": "    } <span class=\"k\">catch </span>(Exception <span class=\"sym-34 sym\">e</span>) {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 76,
+    "code": "      <span class=\"k\">throw</span> <span class=\"k\">new</span> IllegalStateException(<span class=\"s\">\"Fail to put element in the cache \" </span>+ <span class=\"sym-12 sym\">name</span>, <span class=\"sym-34 sym\">e</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "babb50a4f143c312df1ba45955d3d589ecb2845f",
+    "scmDate": "2013-05-29T14:27:38+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 77,
+    "code": "    }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 78,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 79,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 80,
+    "code": "  <span class=\"cppd\">/**</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 81,
+    "code": "<span class=\"cppd\">   * Returns the value object associated with keys, or null if not found.</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 82,
+    "code": "<span class=\"cppd\">   */</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 83,
+    "code": "  <span class=\"k\">public </span>V <span class=\"sym-35 sym\">get</span>(Object <span class=\"sym-36 sym\">key</span>) {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 84,
+    "code": "    <span class=\"sym-127 sym\">resetKey</span>(<span class=\"sym-36 sym\">key</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 85,
+    "code": "    <span class=\"k\">return</span> <span class=\"sym-46 sym\">doGet</span>();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 86,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 87,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 88,
+    "code": "  <span class=\"cppd\">/**</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 89,
+    "code": "<span class=\"cppd\">   * Returns the value object associated with keys, or null if not found.</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 90,
+    "code": "<span class=\"cppd\">   */</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 91,
+    "code": "  <span class=\"a\">@<span class=\"sym-7 sym\">CheckForNull</span></span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 92,
+    "code": "<span class=\"a\">  </span><span class=\"k\">public </span>V <span class=\"sym-37 sym\">get</span>(Object <span class=\"sym-38 sym\">firstKey</span>, Object <span class=\"sym-39 sym\">secondKey</span>) {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 93,
+    "code": "    <span class=\"sym-129 sym\">resetKey</span>(<span class=\"sym-38 sym\">firstKey</span>, <span class=\"sym-39 sym\">secondKey</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 94,
+    "code": "    <span class=\"k\">return</span> <span class=\"sym-46 sym\">doGet</span>();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 95,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 96,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 97,
+    "code": "  <span class=\"cppd\">/**</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 98,
+    "code": "<span class=\"cppd\">   * Returns the value object associated with keys, or null if not found.</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 99,
+    "code": "<span class=\"cppd\">   */</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 100,
+    "code": "  <span class=\"a\">@<span class=\"sym-7 sym\">CheckForNull</span></span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 101,
+    "code": "<span class=\"a\">  </span><span class=\"k\">public </span>V <span class=\"sym-40 sym\">get</span>(Object <span class=\"sym-41 sym\">firstKey</span>, Object <span class=\"sym-42 sym\">secondKey</span>, Object <span class=\"sym-43 sym\">thirdKey</span>) {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 102,
+    "code": "    <span class=\"sym-132 sym\">resetKey</span>(<span class=\"sym-41 sym\">firstKey</span>, <span class=\"sym-42 sym\">secondKey</span>, <span class=\"sym-43 sym\">thirdKey</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 103,
+    "code": "    <span class=\"k\">return</span> <span class=\"sym-46 sym\">doGet</span>();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 104,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 105,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 106,
+    "code": "  <span class=\"cppd\">/**</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 107,
+    "code": "<span class=\"cppd\">   * Returns the value object associated with keys, or null if not found.</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 108,
+    "code": "<span class=\"cppd\">   */</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 109,
+    "code": "  <span class=\"a\">@<span class=\"sym-7 sym\">CheckForNull</span></span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 110,
+    "code": "<span class=\"a\">  </span><span class=\"k\">public </span>V <span class=\"sym-44 sym\">get</span>(Object[] <span class=\"sym-45 sym\">key</span>) {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 111,
+    "code": "    <span class=\"sym-136 sym\">resetKey</span>(<span class=\"sym-45 sym\">key</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 0
+  },
+  {
+    "line": 112,
+    "code": "    <span class=\"k\">return</span> <span class=\"sym-46 sym\">doGet</span>();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 0
+  },
+  {
+    "line": 113,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 114,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 115,
+    "code": "  <span class=\"a\">@SuppressWarnings</span>(<span class=\"s\">\"unchecked\"</span>)",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 116,
+    "code": "  <span class=\"a\">@<span class=\"sym-7 sym\">CheckForNull</span></span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 117,
+    "code": "<span class=\"a\">  </span><span class=\"k\">private </span>V <span class=\"sym-46 sym\">doGet</span>() {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 118,
+    "code": "    <span class=\"k\">try </span>{",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 119,
+    "code": "      <span class=\"sym-13 sym\">exchange</span>.fetch();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 120,
+    "code": "      <span class=\"k\">if </span>(!<span class=\"sym-13 sym\">exchange</span>.getValue().isDefined()) {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200",
+    "lineHits": 1,
+    "conditions": 2,
+    "coveredConditions": 2
+  },
+  {
+    "line": 121,
+    "code": "        <span class=\"k\">return</span> <span class=\"k\">null</span>;",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 122,
+    "code": "      }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 123,
+    "code": "      <span class=\"k\">return</span> (V) <span class=\"sym-13 sym\">exchange</span>.getValue().get();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 124,
+    "code": "    } <span class=\"k\">catch </span>(Exception <span class=\"sym-47 sym\">e</span>) {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200",
+    "lineHits": 0
+  },
+  {
+    "line": 125,
+    "code": "      <span class=\"cppd\">// TODO add parameters to message</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e108f5de333cf36aff978aa03940590f9caca9fc",
+    "scmDate": "2013-10-10T12:18:02+0200"
+  },
+  {
+    "line": 126,
+    "code": "      <span class=\"k\">throw</span> <span class=\"k\">new</span> IllegalStateException(<span class=\"s\">\"Fail to get element from cache \" </span>+ <span class=\"sym-12 sym\">name</span>, <span class=\"sym-47 sym\">e</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "babb50a4f143c312df1ba45955d3d589ecb2845f",
+    "scmDate": "2013-05-29T14:27:38+0200",
+    "lineHits": 0
+  },
+  {
+    "line": 127,
+    "code": "    }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 128,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 129,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 130,
+    "code": "  <span class=\"k\">public </span><span class=\"k\">boolean </span><span class=\"sym-48 sym\">containsKey</span>(Object <span class=\"sym-49 sym\">key</span>) {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 131,
+    "code": "    <span class=\"sym-127 sym\">resetKey</span>(<span class=\"sym-49 sym\">key</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 132,
+    "code": "    <span class=\"k\">return</span> <span class=\"sym-59 sym\">doContainsKey</span>();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 133,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 134,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 135,
+    "code": "  <span class=\"k\">public </span><span class=\"k\">boolean </span><span class=\"sym-50 sym\">containsKey</span>(Object <span class=\"sym-51 sym\">firstKey</span>, Object <span class=\"sym-52 sym\">secondKey</span>) {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 136,
+    "code": "    <span class=\"sym-129 sym\">resetKey</span>(<span class=\"sym-51 sym\">firstKey</span>, <span class=\"sym-52 sym\">secondKey</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 137,
+    "code": "    <span class=\"k\">return</span> <span class=\"sym-59 sym\">doContainsKey</span>();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 138,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 139,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 140,
+    "code": "  <span class=\"k\">public </span><span class=\"k\">boolean </span><span class=\"sym-53 sym\">containsKey</span>(Object <span class=\"sym-54 sym\">firstKey</span>, Object <span class=\"sym-55 sym\">secondKey</span>, Object <span class=\"sym-56 sym\">thirdKey</span>) {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 141,
+    "code": "    <span class=\"sym-132 sym\">resetKey</span>(<span class=\"sym-54 sym\">firstKey</span>, <span class=\"sym-55 sym\">secondKey</span>, <span class=\"sym-56 sym\">thirdKey</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 142,
+    "code": "    <span class=\"k\">return</span> <span class=\"sym-59 sym\">doContainsKey</span>();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 143,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 144,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 145,
+    "code": "  <span class=\"k\">public </span><span class=\"k\">boolean </span><span class=\"sym-57 sym\">containsKey</span>(Object[] <span class=\"sym-58 sym\">key</span>) {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 146,
+    "code": "    <span class=\"sym-136 sym\">resetKey</span>(<span class=\"sym-58 sym\">key</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 0
+  },
+  {
+    "line": 147,
+    "code": "    <span class=\"k\">return</span> <span class=\"sym-59 sym\">doContainsKey</span>();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 0
+  },
+  {
+    "line": 148,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 149,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 150,
+    "code": "  <span class=\"k\">private </span><span class=\"k\">boolean </span><span class=\"sym-59 sym\">doContainsKey</span>() {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 151,
+    "code": "    <span class=\"k\">try </span>{",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e108f5de333cf36aff978aa03940590f9caca9fc",
+    "scmDate": "2013-10-10T12:18:02+0200"
+  },
+  {
+    "line": 152,
+    "code": "      <span class=\"sym-13 sym\">exchange</span>.fetch();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e108f5de333cf36aff978aa03940590f9caca9fc",
+    "scmDate": "2013-10-10T12:18:02+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 153,
+    "code": "      <span class=\"k\">return</span> <span class=\"sym-13 sym\">exchange</span>.isValueDefined();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e108f5de333cf36aff978aa03940590f9caca9fc",
+    "scmDate": "2013-10-10T12:18:02+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 154,
+    "code": "    } <span class=\"k\">catch </span>(Exception <span class=\"sym-60 sym\">e</span>) {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e108f5de333cf36aff978aa03940590f9caca9fc",
+    "scmDate": "2013-10-10T12:18:02+0200",
+    "lineHits": 0
+  },
+  {
+    "line": 155,
+    "code": "      <span class=\"cppd\">// TODO add parameters to message</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e108f5de333cf36aff978aa03940590f9caca9fc",
+    "scmDate": "2013-10-10T12:18:02+0200"
+  },
+  {
+    "line": 156,
+    "code": "      <span class=\"k\">throw</span> <span class=\"k\">new</span> IllegalStateException(<span class=\"s\">\"Fail to check if element is in cache \" </span>+ <span class=\"sym-12 sym\">name</span>, <span class=\"sym-60 sym\">e</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e108f5de333cf36aff978aa03940590f9caca9fc",
+    "scmDate": "2013-10-10T12:18:02+0200",
+    "lineHits": 0
+  },
+  {
+    "line": 157,
+    "code": "    }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e108f5de333cf36aff978aa03940590f9caca9fc",
+    "scmDate": "2013-10-10T12:18:02+0200"
+  },
+  {
+    "line": 158,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e108f5de333cf36aff978aa03940590f9caca9fc",
+    "scmDate": "2013-10-10T12:18:02+0200"
+  },
+  {
+    "line": 159,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e108f5de333cf36aff978aa03940590f9caca9fc",
+    "scmDate": "2013-10-10T12:18:02+0200"
+  },
+  {
+    "line": 160,
+    "code": "  <span class=\"k\">public </span><span class=\"k\">boolean </span><span class=\"sym-61 sym\">remove</span>(Object <span class=\"sym-62 sym\">key</span>) {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 161,
+    "code": "    <span class=\"sym-127 sym\">resetKey</span>(<span class=\"sym-62 sym\">key</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 162,
+    "code": "    <span class=\"k\">return</span> <span class=\"sym-72 sym\">doRemove</span>();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 163,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 164,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 165,
+    "code": "  <span class=\"k\">public </span><span class=\"k\">boolean </span><span class=\"sym-63 sym\">remove</span>(Object <span class=\"sym-64 sym\">firstKey</span>, Object <span class=\"sym-65 sym\">secondKey</span>) {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 166,
+    "code": "    <span class=\"sym-129 sym\">resetKey</span>(<span class=\"sym-64 sym\">firstKey</span>, <span class=\"sym-65 sym\">secondKey</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 167,
+    "code": "    <span class=\"k\">return</span> <span class=\"sym-72 sym\">doRemove</span>();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 168,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 169,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 170,
+    "code": "  <span class=\"k\">public </span><span class=\"k\">boolean </span><span class=\"sym-66 sym\">remove</span>(Object <span class=\"sym-67 sym\">firstKey</span>, Object <span class=\"sym-68 sym\">secondKey</span>, Object <span class=\"sym-69 sym\">thirdKey</span>) {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 171,
+    "code": "    <span class=\"sym-132 sym\">resetKey</span>(<span class=\"sym-67 sym\">firstKey</span>, <span class=\"sym-68 sym\">secondKey</span>, <span class=\"sym-69 sym\">thirdKey</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 172,
+    "code": "    <span class=\"k\">return</span> <span class=\"sym-72 sym\">doRemove</span>();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 173,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 174,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 175,
+    "code": "  <span class=\"k\">public </span><span class=\"k\">boolean </span><span class=\"sym-70 sym\">remove</span>(Object[] <span class=\"sym-71 sym\">key</span>) {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 176,
+    "code": "    <span class=\"sym-136 sym\">resetKey</span>(<span class=\"sym-71 sym\">key</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 0
+  },
+  {
+    "line": 177,
+    "code": "    <span class=\"k\">return</span> <span class=\"sym-72 sym\">doRemove</span>();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 0
+  },
+  {
+    "line": 178,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 179,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 180,
+    "code": "  <span class=\"k\">private </span><span class=\"k\">boolean </span><span class=\"sym-72 sym\">doRemove</span>() {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 181,
+    "code": "    <span class=\"k\">try </span>{",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 182,
+    "code": "      <span class=\"k\">return</span> <span class=\"sym-13 sym\">exchange</span>.remove();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "6f1161efb92298ace498df544e38f6f97216ec36",
+    "scmDate": "2013-04-26T15:19:16+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 183,
+    "code": "    } <span class=\"k\">catch </span>(Exception <span class=\"sym-73 sym\">e</span>) {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200",
+    "lineHits": 0
+  },
+  {
+    "line": 184,
+    "code": "      <span class=\"cppd\">// TODO add parameters to message</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e108f5de333cf36aff978aa03940590f9caca9fc",
+    "scmDate": "2013-10-10T12:18:02+0200"
+  },
+  {
+    "line": 185,
+    "code": "      <span class=\"k\">throw</span> <span class=\"k\">new</span> IllegalStateException(<span class=\"s\">\"Fail to get element from cache \" </span>+ <span class=\"sym-12 sym\">name</span>, <span class=\"sym-73 sym\">e</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "babb50a4f143c312df1ba45955d3d589ecb2845f",
+    "scmDate": "2013-05-29T14:27:38+0200",
+    "lineHits": 0
+  },
+  {
+    "line": 186,
+    "code": "    }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 187,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 188,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 189,
+    "code": "  <span class=\"cppd\">/**</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 190,
+    "code": "<span class=\"cppd\">   * Removes everything in the specified group.</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 191,
+    "code": "<span class=\"cppd\">   *</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 192,
+    "code": "<span class=\"cppd\">   * @param group The group name.</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 193,
+    "code": "<span class=\"cppd\">   */</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 194,
+    "code": "  <span class=\"k\">public </span><span class=\"sym-11 sym\">Cache</span>&lt;V&gt; <span class=\"sym-74 sym\">clear</span>(Object <span class=\"sym-75 sym\">key</span>) {",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 195,
+    "code": "    <span class=\"sym-127 sym\">resetKey</span>(<span class=\"sym-75 sym\">key</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 196,
+    "code": "    <span class=\"k\">return</span> <span class=\"sym-85 sym\">doClear</span>();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 197,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 198,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 199,
+    "code": "  <span class=\"k\">public </span><span class=\"sym-11 sym\">Cache</span>&lt;V&gt; <span class=\"sym-76 sym\">clear</span>(Object <span class=\"sym-77 sym\">firstKey</span>, Object <span class=\"sym-78 sym\">secondKey</span>) {",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 200,
+    "code": "    <span class=\"sym-129 sym\">resetKey</span>(<span class=\"sym-77 sym\">firstKey</span>, <span class=\"sym-78 sym\">secondKey</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 201,
+    "code": "    <span class=\"k\">return</span> <span class=\"sym-85 sym\">doClear</span>();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 202,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 203,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 204,
+    "code": "  <span class=\"k\">public </span><span class=\"sym-11 sym\">Cache</span>&lt;V&gt; <span class=\"sym-79 sym\">clear</span>(Object <span class=\"sym-80 sym\">firstKey</span>, Object <span class=\"sym-81 sym\">secondKey</span>, Object <span class=\"sym-82 sym\">thirdKey</span>) {",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 205,
+    "code": "    <span class=\"sym-132 sym\">resetKey</span>(<span class=\"sym-80 sym\">firstKey</span>, <span class=\"sym-81 sym\">secondKey</span>, <span class=\"sym-82 sym\">thirdKey</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 206,
+    "code": "    <span class=\"k\">return</span> <span class=\"sym-85 sym\">doClear</span>();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 207,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 208,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 209,
+    "code": "  <span class=\"k\">public </span><span class=\"sym-11 sym\">Cache</span>&lt;V&gt; <span class=\"sym-83 sym\">clear</span>(Object[] <span class=\"sym-84 sym\">key</span>) {",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 210,
+    "code": "    <span class=\"sym-136 sym\">resetKey</span>(<span class=\"sym-84 sym\">key</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 0
+  },
+  {
+    "line": 211,
+    "code": "    <span class=\"k\">return</span> <span class=\"sym-85 sym\">doClear</span>();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 0
+  },
+  {
+    "line": 212,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 213,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 214,
+    "code": "  <span class=\"k\">private </span><span class=\"sym-11 sym\">Cache</span>&lt;V&gt; <span class=\"sym-85 sym\">doClear</span>() {",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 215,
+    "code": "    <span class=\"k\">try </span>{",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 216,
+    "code": "      <span class=\"sym-3 sym\">Key</span> <span class=\"sym-86 sym\">to</span> = <span class=\"k\">new</span> <span class=\"sym-3 sym\">Key</span>(<span class=\"sym-13 sym\">exchange</span>.getKey());",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 217,
+    "code": "      <span class=\"sym-86 sym\">to</span>.append(<span class=\"sym-3 sym\">Key</span>.AFTER);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 218,
+    "code": "      <span class=\"sym-13 sym\">exchange</span>.removeKeyRange(<span class=\"sym-13 sym\">exchange</span>.getKey(), <span class=\"sym-86 sym\">to</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 219,
+    "code": "      <span class=\"k\">return</span> <span class=\"k\">this</span>;",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 220,
+    "code": "    } <span class=\"k\">catch </span>(Exception <span class=\"sym-87 sym\">e</span>) {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200",
+    "lineHits": 0
+  },
+  {
+    "line": 221,
+    "code": "      <span class=\"k\">throw</span> <span class=\"k\">new</span> IllegalStateException(<span class=\"s\">\"Fail to clear values from cache \" </span>+ <span class=\"sym-12 sym\">name</span>, <span class=\"sym-87 sym\">e</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 0
+  },
+  {
+    "line": 222,
+    "code": "    }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 223,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 224,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 225,
+    "code": "  <span class=\"cppd\">/**</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 226,
+    "code": "<span class=\"cppd\">   * Clears the default as well as all group caches.</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 227,
+    "code": "<span class=\"cppd\">   */</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 228,
+    "code": "  <span class=\"k\">public </span><span class=\"k\">void </span><span class=\"sym-88 sym\">clear</span>() {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 229,
+    "code": "    <span class=\"k\">try </span>{",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 230,
+    "code": "      <span class=\"sym-13 sym\">exchange</span>.clear();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 231,
+    "code": "      <span class=\"sym-13 sym\">exchange</span>.removeAll();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 232,
+    "code": "    } <span class=\"k\">catch </span>(Exception <span class=\"sym-89 sym\">e</span>) {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200",
+    "lineHits": 0
+  },
+  {
+    "line": 233,
+    "code": "      <span class=\"k\">throw</span> <span class=\"k\">new</span> IllegalStateException(<span class=\"s\">\"Fail to clear cache\"</span>, <span class=\"sym-89 sym\">e</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200",
+    "lineHits": 0
+  },
+  {
+    "line": 234,
+    "code": "    }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 235,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 236,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 237,
+    "code": "  <span class=\"cppd\">/**</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 238,
+    "code": "<span class=\"cppd\">   * Returns the set of cache keys associated with this group.</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 239,
+    "code": "<span class=\"cppd\">   * TODO implement a lazy-loading equivalent with Iterator/Iterable</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 240,
+    "code": "<span class=\"cppd\">   *</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 241,
+    "code": "<span class=\"cppd\">   * @param group The group.</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 242,
+    "code": "<span class=\"cppd\">   * @return The set of cache keys for this group.</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 243,
+    "code": "<span class=\"cppd\">   */</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 244,
+    "code": "  <span class=\"a\">@SuppressWarnings</span>(<span class=\"s\">\"rawtypes\"</span>)",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 245,
+    "code": "  <span class=\"k\">public </span><span class=\"sym-10 sym\">Set</span> <span class=\"sym-90 sym\">keySet</span>(Object <span class=\"sym-91 sym\">key</span>) {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 246,
+    "code": "    <span class=\"k\">try </span>{",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 247,
+    "code": "      <span class=\"sym-10 sym\">Set</span>&lt;Object&gt; <span class=\"sym-92 sym\">keys</span> = <span class=\"sym-1 sym\">Sets</span>.newLinkedHashSet();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 248,
+    "code": "      <span class=\"sym-13 sym\">exchange</span>.clear();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 249,
+    "code": "      <span class=\"sym-2 sym\">Exchange</span> <span class=\"sym-93 sym\">iteratorExchange</span> = <span class=\"k\">new</span> <span class=\"sym-2 sym\">Exchange</span>(<span class=\"sym-13 sym\">exchange</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 250,
+    "code": "      <span class=\"sym-93 sym\">iteratorExchange</span>.append(<span class=\"sym-91 sym\">key</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 251,
+    "code": "      <span class=\"sym-93 sym\">iteratorExchange</span>.append(<span class=\"sym-3 sym\">Key</span>.BEFORE);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 252,
+    "code": "      <span class=\"k\">while </span>(<span class=\"sym-93 sym\">iteratorExchange</span>.next(<span class=\"k\">false</span>)) {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200",
+    "lineHits": 1,
+    "conditions": 2,
+    "coveredConditions": 2
+  },
+  {
+    "line": 253,
+    "code": "        <span class=\"sym-92 sym\">keys</span>.add(<span class=\"sym-93 sym\">iteratorExchange</span>.getKey().indexTo(-<span class=\"c\">1</span>).decode());",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 254,
+    "code": "      }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 255,
+    "code": "      <span class=\"k\">return</span> <span class=\"sym-92 sym\">keys</span>;",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 256,
+    "code": "    } <span class=\"k\">catch </span>(Exception <span class=\"sym-94 sym\">e</span>) {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200",
+    "lineHits": 0
+  },
+  {
+    "line": 257,
+    "code": "      <span class=\"k\">throw</span> <span class=\"k\">new</span> IllegalStateException(<span class=\"s\">\"Fail to get keys from cache \" </span>+ <span class=\"sym-12 sym\">name</span>, <span class=\"sym-94 sym\">e</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "babb50a4f143c312df1ba45955d3d589ecb2845f",
+    "scmDate": "2013-05-29T14:27:38+0200",
+    "lineHits": 0
+  },
+  {
+    "line": 258,
+    "code": "    }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 259,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 260,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 261,
+    "code": "  <span class=\"a\">@SuppressWarnings</span>(<span class=\"s\">\"rawtypes\"</span>)",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 262,
+    "code": "  <span class=\"k\">public </span><span class=\"sym-10 sym\">Set</span> <span class=\"sym-95 sym\">keySet</span>(Object <span class=\"sym-96 sym\">firstKey</span>, Object <span class=\"sym-97 sym\">secondKey</span>) {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 263,
+    "code": "    <span class=\"k\">try </span>{",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 264,
+    "code": "      <span class=\"sym-10 sym\">Set</span>&lt;Object&gt; <span class=\"sym-98 sym\">keys</span> = <span class=\"sym-1 sym\">Sets</span>.newLinkedHashSet();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 265,
+    "code": "      <span class=\"sym-13 sym\">exchange</span>.clear();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 266,
+    "code": "      <span class=\"sym-2 sym\">Exchange</span> <span class=\"sym-99 sym\">iteratorExchange</span> = <span class=\"k\">new</span> <span class=\"sym-2 sym\">Exchange</span>(<span class=\"sym-13 sym\">exchange</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 267,
+    "code": "      <span class=\"sym-99 sym\">iteratorExchange</span>.append(<span class=\"sym-96 sym\">firstKey</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 268,
+    "code": "      <span class=\"sym-99 sym\">iteratorExchange</span>.append(<span class=\"sym-97 sym\">secondKey</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 269,
+    "code": "      <span class=\"sym-99 sym\">iteratorExchange</span>.append(<span class=\"sym-3 sym\">Key</span>.BEFORE);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 270,
+    "code": "      <span class=\"k\">while </span>(<span class=\"sym-99 sym\">iteratorExchange</span>.next(<span class=\"k\">false</span>)) {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1,
+    "conditions": 2,
+    "coveredConditions": 2
+  },
+  {
+    "line": 271,
+    "code": "        <span class=\"sym-98 sym\">keys</span>.add(<span class=\"sym-99 sym\">iteratorExchange</span>.getKey().indexTo(-<span class=\"c\">1</span>).decode());",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 272,
+    "code": "      }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 273,
+    "code": "      <span class=\"k\">return</span> <span class=\"sym-98 sym\">keys</span>;",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 274,
+    "code": "    } <span class=\"k\">catch </span>(Exception <span class=\"sym-100 sym\">e</span>) {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 0
+  },
+  {
+    "line": 275,
+    "code": "      <span class=\"k\">throw</span> <span class=\"k\">new</span> IllegalStateException(<span class=\"s\">\"Fail to get keys from cache \" </span>+ <span class=\"sym-12 sym\">name</span>, <span class=\"sym-100 sym\">e</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 0
+  },
+  {
+    "line": 276,
+    "code": "    }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 277,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 278,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 279,
+    "code": "  <span class=\"cppd\">/**</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 280,
+    "code": "<span class=\"cppd\">   * Returns the set of keys associated with this cache.</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 281,
+    "code": "<span class=\"cppd\">   *</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 282,
+    "code": "<span class=\"cppd\">   * @return The set containing the keys for this cache.</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 283,
+    "code": "<span class=\"cppd\">   */</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 284,
+    "code": "  <span class=\"k\">public </span><span class=\"sym-10 sym\">Set</span>&lt;Object&gt; <span class=\"sym-101 sym\">keySet</span>() {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 285,
+    "code": "    <span class=\"k\">try </span>{",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 286,
+    "code": "      <span class=\"sym-10 sym\">Set</span>&lt;Object&gt; <span class=\"sym-102 sym\">keys</span> = <span class=\"sym-1 sym\">Sets</span>.newLinkedHashSet();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 287,
+    "code": "      <span class=\"sym-13 sym\">exchange</span>.clear();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 288,
+    "code": "      <span class=\"sym-2 sym\">Exchange</span> <span class=\"sym-103 sym\">iteratorExchange</span> = <span class=\"k\">new</span> <span class=\"sym-2 sym\">Exchange</span>(<span class=\"sym-13 sym\">exchange</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 289,
+    "code": "      <span class=\"sym-103 sym\">iteratorExchange</span>.append(<span class=\"sym-3 sym\">Key</span>.BEFORE);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 290,
+    "code": "      <span class=\"k\">while </span>(<span class=\"sym-103 sym\">iteratorExchange</span>.next(<span class=\"k\">false</span>)) {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1,
+    "conditions": 2,
+    "coveredConditions": 2
+  },
+  {
+    "line": 291,
+    "code": "        <span class=\"sym-102 sym\">keys</span>.add(<span class=\"sym-103 sym\">iteratorExchange</span>.getKey().indexTo(-<span class=\"c\">1</span>).decode());",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 292,
+    "code": "      }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 293,
+    "code": "      <span class=\"k\">return</span> <span class=\"sym-102 sym\">keys</span>;",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 294,
+    "code": "    } <span class=\"k\">catch </span>(Exception <span class=\"sym-104 sym\">e</span>) {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 0
+  },
+  {
+    "line": 295,
+    "code": "      <span class=\"k\">throw</span> <span class=\"k\">new</span> IllegalStateException(<span class=\"s\">\"Fail to get keys from cache \" </span>+ <span class=\"sym-12 sym\">name</span>, <span class=\"sym-104 sym\">e</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 0
+  },
+  {
+    "line": 296,
+    "code": "    }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 297,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 298,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 299,
+    "code": "  <span class=\"cppd\">/**</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "babb50a4f143c312df1ba45955d3d589ecb2845f",
+    "scmDate": "2013-05-29T14:27:38+0200"
+  },
+  {
+    "line": 300,
+    "code": "<span class=\"cppd\">   * Lazy-loading values for given keys</span>",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "171cd79c0b5152461434951ed5d6e5e58849a7b7",
+    "scmDate": "2014-04-23T14:41:32+0200"
+  },
+  {
+    "line": 301,
+    "code": "<span class=\"cppd\">   */</span>",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "171cd79c0b5152461434951ed5d6e5e58849a7b7",
+    "scmDate": "2014-04-23T14:41:32+0200"
+  },
+  {
+    "line": 302,
+    "code": "  <span class=\"k\">public </span>Iterable&lt;V&gt; <span class=\"sym-105 sym\">values</span>(Object <span class=\"sym-106 sym\">firstKey</span>, Object <span class=\"sym-107 sym\">secondKey</span>) {",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "171cd79c0b5152461434951ed5d6e5e58849a7b7",
+    "scmDate": "2014-04-23T14:41:32+0200"
+  },
+  {
+    "line": 303,
+    "code": "    <span class=\"k\">try </span>{",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "171cd79c0b5152461434951ed5d6e5e58849a7b7",
+    "scmDate": "2014-04-23T14:41:32+0200"
+  },
+  {
+    "line": 304,
+    "code": "      <span class=\"sym-13 sym\">exchange</span>.clear();",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "171cd79c0b5152461434951ed5d6e5e58849a7b7",
+    "scmDate": "2014-04-23T14:41:32+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 305,
+    "code": "      <span class=\"sym-13 sym\">exchange</span>.append(<span class=\"sym-106 sym\">firstKey</span>).append(<span class=\"sym-107 sym\">secondKey</span>).append(<span class=\"sym-3 sym\">Key</span>.BEFORE);",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "171cd79c0b5152461434951ed5d6e5e58849a7b7",
+    "scmDate": "2014-04-23T14:41:32+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 306,
+    "code": "      <span class=\"sym-2 sym\">Exchange</span> <span class=\"sym-108 sym\">iteratorExchange</span> = <span class=\"k\">new</span> <span class=\"sym-2 sym\">Exchange</span>(<span class=\"sym-13 sym\">exchange</span>);",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "171cd79c0b5152461434951ed5d6e5e58849a7b7",
+    "scmDate": "2014-04-23T14:41:32+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 307,
+    "code": "      <span class=\"sym-4 sym\">KeyFilter</span> <span class=\"sym-109 sym\">filter</span> = <span class=\"k\">new</span> <span class=\"sym-4 sym\">KeyFilter</span>().append(<span class=\"sym-4 sym\">KeyFilter</span>.simpleTerm(<span class=\"sym-106 sym\">firstKey</span>)).append(<span class=\"sym-4 sym\">KeyFilter</span>.simpleTerm(<span class=\"sym-107 sym\">secondKey</span>));",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 308,
+    "code": "      <span class=\"k\">return</span> <span class=\"k\">new</span> <span class=\"sym-139 sym\">ValueIterable</span>&lt;V&gt;(<span class=\"sym-108 sym\">iteratorExchange</span>, <span class=\"sym-109 sym\">filter</span>);",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 309,
+    "code": "    } <span class=\"k\">catch </span>(Exception <span class=\"sym-110 sym\">e</span>) {",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "171cd79c0b5152461434951ed5d6e5e58849a7b7",
+    "scmDate": "2014-04-23T14:41:32+0200",
+    "lineHits": 0
+  },
+  {
+    "line": 310,
+    "code": "      <span class=\"k\">throw</span> <span class=\"sym-111 sym\">failToGetValues</span>(<span class=\"sym-110 sym\">e</span>);",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "904b462c56317b1fb5a616534bd58aa9c9097d0b",
+    "scmDate": "2014-06-20T14:13:01+0200",
+    "lineHits": 0
+  },
+  {
+    "line": 311,
+    "code": "    }",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "171cd79c0b5152461434951ed5d6e5e58849a7b7",
+    "scmDate": "2014-04-23T14:41:32+0200"
+  },
+  {
+    "line": 312,
+    "code": "  }",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "904b462c56317b1fb5a616534bd58aa9c9097d0b",
+    "scmDate": "2014-06-20T14:13:01+0200"
+  },
+  {
+    "line": 313,
+    "code": "",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "904b462c56317b1fb5a616534bd58aa9c9097d0b",
+    "scmDate": "2014-06-20T14:13:01+0200"
+  },
+  {
+    "line": 314,
+    "code": "  <span class=\"k\">private </span>IllegalStateException <span class=\"sym-111 sym\">failToGetValues</span>(Exception <span class=\"sym-112 sym\">e</span>) {",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "904b462c56317b1fb5a616534bd58aa9c9097d0b",
+    "scmDate": "2014-06-20T14:13:01+0200"
+  },
+  {
+    "line": 315,
+    "code": "    <span class=\"k\">return</span> <span class=\"k\">new</span> IllegalStateException(<span class=\"s\">\"Fail to get values from cache \" </span>+ <span class=\"sym-12 sym\">name</span>, <span class=\"sym-112 sym\">e</span>);",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "904b462c56317b1fb5a616534bd58aa9c9097d0b",
+    "scmDate": "2014-06-20T14:13:01+0200",
+    "lineHits": 0
+  },
+  {
+    "line": 316,
+    "code": "  }",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "171cd79c0b5152461434951ed5d6e5e58849a7b7",
+    "scmDate": "2014-04-23T14:41:32+0200"
+  },
+  {
+    "line": 317,
+    "code": "",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "171cd79c0b5152461434951ed5d6e5e58849a7b7",
+    "scmDate": "2014-04-23T14:41:32+0200"
+  },
+  {
+    "line": 318,
+    "code": "  <span class=\"cppd\">/**</span>",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "171cd79c0b5152461434951ed5d6e5e58849a7b7",
+    "scmDate": "2014-04-23T14:41:32+0200"
+  },
+  {
+    "line": 319,
+    "code": "<span class=\"cppd\">   * Lazy-loading values for a given key</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 320,
+    "code": "<span class=\"cppd\">   */</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "babb50a4f143c312df1ba45955d3d589ecb2845f",
+    "scmDate": "2013-05-29T14:27:38+0200"
+  },
+  {
+    "line": 321,
+    "code": "  <span class=\"k\">public </span>Iterable&lt;V&gt; <span class=\"sym-113 sym\">values</span>(Object <span class=\"sym-114 sym\">firstKey</span>) {",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 322,
+    "code": "    <span class=\"k\">try </span>{",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 323,
+    "code": "      <span class=\"sym-13 sym\">exchange</span>.clear();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 324,
+    "code": "      <span class=\"sym-13 sym\">exchange</span>.append(<span class=\"sym-114 sym\">firstKey</span>).append(<span class=\"sym-3 sym\">Key</span>.BEFORE);",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 325,
+    "code": "      <span class=\"sym-2 sym\">Exchange</span> <span class=\"sym-115 sym\">iteratorExchange</span> = <span class=\"k\">new</span> <span class=\"sym-2 sym\">Exchange</span>(<span class=\"sym-13 sym\">exchange</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 326,
+    "code": "      <span class=\"sym-4 sym\">KeyFilter</span> <span class=\"sym-116 sym\">filter</span> = <span class=\"k\">new</span> <span class=\"sym-4 sym\">KeyFilter</span>().append(<span class=\"sym-4 sym\">KeyFilter</span>.simpleTerm(<span class=\"sym-114 sym\">firstKey</span>));",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 327,
+    "code": "      <span class=\"k\">return</span> <span class=\"k\">new</span> <span class=\"sym-139 sym\">ValueIterable</span>&lt;V&gt;(<span class=\"sym-115 sym\">iteratorExchange</span>, <span class=\"sym-116 sym\">filter</span>);",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 328,
+    "code": "    } <span class=\"k\">catch </span>(Exception <span class=\"sym-117 sym\">e</span>) {",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "46395126b184c343df5471a147cdb48133f59f6f",
+    "scmDate": "2014-04-23T14:41:32+0200",
+    "lineHits": 0
+  },
+  {
+    "line": 329,
+    "code": "      <span class=\"k\">throw</span> <span class=\"sym-111 sym\">failToGetValues</span>(<span class=\"sym-117 sym\">e</span>);",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "904b462c56317b1fb5a616534bd58aa9c9097d0b",
+    "scmDate": "2014-06-20T14:13:01+0200",
+    "lineHits": 0
+  },
+  {
+    "line": 330,
+    "code": "    }",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "46395126b184c343df5471a147cdb48133f59f6f",
+    "scmDate": "2014-04-23T14:41:32+0200"
+  },
+  {
+    "line": 331,
+    "code": "  }",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "46395126b184c343df5471a147cdb48133f59f6f",
+    "scmDate": "2014-04-23T14:41:32+0200"
+  },
+  {
+    "line": 332,
+    "code": "",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "46395126b184c343df5471a147cdb48133f59f6f",
+    "scmDate": "2014-04-23T14:41:32+0200"
+  },
+  {
+    "line": 333,
+    "code": "  <span class=\"cppd\">/**</span>",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "46395126b184c343df5471a147cdb48133f59f6f",
+    "scmDate": "2014-04-23T14:41:32+0200"
+  },
+  {
+    "line": 334,
+    "code": "<span class=\"cppd\">   * Lazy-loading values</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "babb50a4f143c312df1ba45955d3d589ecb2845f",
+    "scmDate": "2013-05-29T14:27:38+0200"
+  },
+  {
+    "line": 335,
+    "code": "<span class=\"cppd\">   */</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "babb50a4f143c312df1ba45955d3d589ecb2845f",
+    "scmDate": "2013-05-29T14:27:38+0200"
+  },
+  {
+    "line": 336,
+    "code": "  <span class=\"k\">public </span>Iterable&lt;V&gt; <span class=\"sym-118 sym\">values</span>() {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 337,
+    "code": "    <span class=\"k\">try </span>{",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 338,
+    "code": "      <span class=\"sym-13 sym\">exchange</span>.clear().append(<span class=\"sym-3 sym\">Key</span>.BEFORE);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 339,
+    "code": "      <span class=\"sym-2 sym\">Exchange</span> <span class=\"sym-119 sym\">iteratorExchange</span> = <span class=\"k\">new</span> <span class=\"sym-2 sym\">Exchange</span>(<span class=\"sym-13 sym\">exchange</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 340,
+    "code": "      <span class=\"sym-4 sym\">KeyFilter</span> <span class=\"sym-120 sym\">filter</span> = <span class=\"k\">new</span> <span class=\"sym-4 sym\">KeyFilter</span>().append(<span class=\"sym-4 sym\">KeyFilter</span>.ALL);",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 341,
+    "code": "      <span class=\"k\">return</span> <span class=\"k\">new</span> <span class=\"sym-139 sym\">ValueIterable</span>&lt;V&gt;(<span class=\"sym-119 sym\">iteratorExchange</span>, <span class=\"sym-120 sym\">filter</span>);",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 342,
+    "code": "    } <span class=\"k\">catch </span>(Exception <span class=\"sym-121 sym\">e</span>) {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200",
+    "lineHits": 0
+  },
+  {
+    "line": 343,
+    "code": "      <span class=\"k\">throw</span> <span class=\"sym-111 sym\">failToGetValues</span>(<span class=\"sym-121 sym\">e</span>);",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "904b462c56317b1fb5a616534bd58aa9c9097d0b",
+    "scmDate": "2014-06-20T14:13:01+0200",
+    "lineHits": 0
+  },
+  {
+    "line": 344,
+    "code": "    }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 345,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 346,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200"
+  },
+  {
+    "line": 347,
+    "code": "  <span class=\"k\">public </span>Iterable&lt;<span class=\"sym-177 sym\">Entry</span>&lt;V&gt;&gt; <span class=\"sym-122 sym\">entries</span>() {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 348,
+    "code": "    <span class=\"sym-13 sym\">exchange</span>.clear().to(<span class=\"sym-3 sym\">Key</span>.BEFORE);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 349,
+    "code": "    <span class=\"sym-4 sym\">KeyFilter</span> <span class=\"sym-123 sym\">filter</span> = <span class=\"k\">new</span> <span class=\"sym-4 sym\">KeyFilter</span>().append(<span class=\"sym-4 sym\">KeyFilter</span>.ALL);",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 350,
+    "code": "    <span class=\"k\">return</span> <span class=\"k\">new</span> <span class=\"sym-156 sym\">EntryIterable</span>&lt;V&gt;(<span class=\"k\">new</span> <span class=\"sym-2 sym\">Exchange</span>(<span class=\"sym-13 sym\">exchange</span>), <span class=\"sym-123 sym\">filter</span>);",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 351,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200"
+  },
+  {
+    "line": 352,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200"
+  },
+  {
+    "line": 353,
+    "code": "  <span class=\"k\">public </span>Iterable&lt;<span class=\"sym-177 sym\">Entry</span>&lt;V&gt;&gt; <span class=\"sym-124 sym\">entries</span>(Object <span class=\"sym-125 sym\">firstKey</span>) {",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 354,
+    "code": "    <span class=\"sym-13 sym\">exchange</span>.clear().append(<span class=\"sym-125 sym\">firstKey</span>).append(<span class=\"sym-3 sym\">Key</span>.BEFORE);",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 355,
+    "code": "    <span class=\"sym-4 sym\">KeyFilter</span> <span class=\"sym-126 sym\">filter</span> = <span class=\"k\">new</span> <span class=\"sym-4 sym\">KeyFilter</span>().append(<span class=\"sym-4 sym\">KeyFilter</span>.simpleTerm(<span class=\"sym-125 sym\">firstKey</span>));",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 356,
+    "code": "    <span class=\"k\">return</span> <span class=\"k\">new</span> <span class=\"sym-156 sym\">EntryIterable</span>&lt;V&gt;(<span class=\"k\">new</span> <span class=\"sym-2 sym\">Exchange</span>(<span class=\"sym-13 sym\">exchange</span>), <span class=\"sym-126 sym\">filter</span>);",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 357,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 358,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 359,
+    "code": "  <span class=\"k\">private </span><span class=\"k\">void </span><span class=\"sym-127 sym\">resetKey</span>(Object <span class=\"sym-128 sym\">key</span>) {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 360,
+    "code": "    <span class=\"sym-13 sym\">exchange</span>.clear();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 361,
+    "code": "    <span class=\"sym-13 sym\">exchange</span>.append(<span class=\"sym-128 sym\">key</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 362,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 363,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 364,
+    "code": "  <span class=\"k\">private </span><span class=\"k\">void </span><span class=\"sym-129 sym\">resetKey</span>(Object <span class=\"sym-130 sym\">first</span>, Object <span class=\"sym-131 sym\">second</span>) {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 365,
+    "code": "    <span class=\"sym-13 sym\">exchange</span>.clear();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 366,
+    "code": "    <span class=\"sym-13 sym\">exchange</span>.append(<span class=\"sym-130 sym\">first</span>).append(<span class=\"sym-131 sym\">second</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 367,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 368,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 369,
+    "code": "  <span class=\"k\">private </span><span class=\"k\">void </span><span class=\"sym-132 sym\">resetKey</span>(Object <span class=\"sym-133 sym\">first</span>, Object <span class=\"sym-134 sym\">second</span>, Object <span class=\"sym-135 sym\">third</span>) {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 370,
+    "code": "    <span class=\"sym-13 sym\">exchange</span>.clear();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 371,
+    "code": "    <span class=\"sym-13 sym\">exchange</span>.append(<span class=\"sym-133 sym\">first</span>).append(<span class=\"sym-134 sym\">second</span>).append(<span class=\"sym-135 sym\">third</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 372,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 373,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 374,
+    "code": "  <span class=\"k\">private </span><span class=\"k\">void </span><span class=\"sym-136 sym\">resetKey</span>(Object[] <span class=\"sym-137 sym\">keys</span>) {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 375,
+    "code": "    <span class=\"sym-13 sym\">exchange</span>.clear();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 0
+  },
+  {
+    "line": 376,
+    "code": "    <span class=\"k\">for</span> (Object <span class=\"sym-138 sym\">o</span> : <span class=\"sym-137 sym\">keys</span>) {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 0,
+    "conditions": 2,
+    "coveredConditions": 0
+  },
+  {
+    "line": 377,
+    "code": "      <span class=\"sym-13 sym\">exchange</span>.append(<span class=\"sym-138 sym\">o</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 0
+  },
+  {
+    "line": 378,
+    "code": "    }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 379,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200",
+    "lineHits": 0
+  },
+  {
+    "line": 380,
+    "code": "",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "7b301db8c7e3000ff2a04fce5534e45e7d973a1f",
+    "scmDate": "2014-04-25T11:17:09+0200"
+  },
+  {
+    "line": 381,
+    "code": "  <span class=\"cppd\">//</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "babb50a4f143c312df1ba45955d3d589ecb2845f",
+    "scmDate": "2013-05-29T14:27:38+0200"
+  },
+  {
+    "line": 382,
+    "code": "  <span class=\"cppd\">// LAZY ITERATORS AND ITERABLES</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "babb50a4f143c312df1ba45955d3d589ecb2845f",
+    "scmDate": "2013-05-29T14:27:38+0200"
+  },
+  {
+    "line": 383,
+    "code": "  <span class=\"cppd\">//</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "babb50a4f143c312df1ba45955d3d589ecb2845f",
+    "scmDate": "2013-05-29T14:27:38+0200"
+  },
+  {
+    "line": 384,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "babb50a4f143c312df1ba45955d3d589ecb2845f",
+    "scmDate": "2013-05-29T14:27:38+0200"
+  },
+  {
+    "line": 385,
+    "code": "  <span class=\"k\">private </span><span class=\"k\">static </span><span class=\"k\">class</span> <span class=\"sym-139 sym\">ValueIterable</span>&lt;T&gt; <span class=\"k\">implements</span> Iterable&lt;T&gt; {",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "6074164392edd3db2dfdfd21d05cd56c19e2b0e6",
+    "scmDate": "2014-07-25T16:31:45+0200"
+  },
+  {
+    "line": 386,
+    "code": "    <span class=\"k\">private </span><span class=\"k\">final </span><span class=\"sym-8 sym\">Iterator</span>&lt;T&gt; <span class=\"sym-140 sym\">iterator</span>;",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "babb50a4f143c312df1ba45955d3d589ecb2845f",
+    "scmDate": "2013-05-29T14:27:38+0200"
+  },
+  {
+    "line": 387,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "babb50a4f143c312df1ba45955d3d589ecb2845f",
+    "scmDate": "2013-05-29T14:27:38+0200"
+  },
+  {
+    "line": 388,
+    "code": "    <span class=\"k\">private </span><span class=\"sym-141 sym\">ValueIterable</span>(<span class=\"sym-2 sym\">Exchange</span> <span class=\"sym-142 sym\">exchange</span>, <span class=\"sym-4 sym\">KeyFilter</span> <span class=\"sym-143 sym\">keyFilter</span>) {",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 389,
+    "code": "      <span class=\"k\">this</span>.<span class=\"sym-140 sym\">iterator</span> = <span class=\"k\">new</span> <span class=\"sym-145 sym\">ValueIterator</span>&lt;T&gt;(<span class=\"sym-142 sym\">exchange</span>, <span class=\"sym-143 sym\">keyFilter</span>);",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 390,
+    "code": "    }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "babb50a4f143c312df1ba45955d3d589ecb2845f",
+    "scmDate": "2013-05-29T14:27:38+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 391,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "babb50a4f143c312df1ba45955d3d589ecb2845f",
+    "scmDate": "2013-05-29T14:27:38+0200"
+  },
+  {
+    "line": 392,
+    "code": "    <span class=\"a\">@Override</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "babb50a4f143c312df1ba45955d3d589ecb2845f",
+    "scmDate": "2013-05-29T14:27:38+0200"
+  },
+  {
+    "line": 393,
+    "code": "<span class=\"a\">    </span><span class=\"k\">public </span><span class=\"sym-8 sym\">Iterator</span>&lt;T&gt; <span class=\"sym-144 sym\">iterator</span>() {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "babb50a4f143c312df1ba45955d3d589ecb2845f",
+    "scmDate": "2013-05-29T14:27:38+0200"
+  },
+  {
+    "line": 394,
+    "code": "      <span class=\"k\">return</span> <span class=\"sym-140 sym\">iterator</span>;",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "babb50a4f143c312df1ba45955d3d589ecb2845f",
+    "scmDate": "2013-05-29T14:27:38+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 395,
+    "code": "    }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "babb50a4f143c312df1ba45955d3d589ecb2845f",
+    "scmDate": "2013-05-29T14:27:38+0200"
+  },
+  {
+    "line": 396,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "babb50a4f143c312df1ba45955d3d589ecb2845f",
+    "scmDate": "2013-05-29T14:27:38+0200"
+  },
+  {
+    "line": 397,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "babb50a4f143c312df1ba45955d3d589ecb2845f",
+    "scmDate": "2013-05-29T14:27:38+0200"
+  },
+  {
+    "line": 398,
+    "code": "  <span class=\"k\">private </span><span class=\"k\">static </span><span class=\"k\">class</span> <span class=\"sym-145 sym\">ValueIterator</span>&lt;T&gt; <span class=\"k\">implements</span> <span class=\"sym-8 sym\">Iterator</span>&lt;T&gt; {",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "6074164392edd3db2dfdfd21d05cd56c19e2b0e6",
+    "scmDate": "2014-07-25T16:31:45+0200"
+  },
+  {
+    "line": 399,
+    "code": "    <span class=\"k\">private </span><span class=\"k\">final </span><span class=\"sym-2 sym\">Exchange</span> <span class=\"sym-146 sym\">exchange</span>;",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "babb50a4f143c312df1ba45955d3d589ecb2845f",
+    "scmDate": "2013-05-29T14:27:38+0200"
+  },
+  {
+    "line": 400,
+    "code": "    <span class=\"k\">private </span><span class=\"k\">final </span><span class=\"sym-4 sym\">KeyFilter</span> <span class=\"sym-147 sym\">keyFilter</span>;",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 401,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "babb50a4f143c312df1ba45955d3d589ecb2845f",
+    "scmDate": "2013-05-29T14:27:38+0200"
+  },
+  {
+    "line": 402,
+    "code": "    <span class=\"k\">private </span><span class=\"sym-148 sym\">ValueIterator</span>(<span class=\"sym-2 sym\">Exchange</span> <span class=\"sym-149 sym\">exchange</span>, <span class=\"sym-4 sym\">KeyFilter</span> <span class=\"sym-150 sym\">keyFilter</span>) {",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 403,
+    "code": "      <span class=\"k\">this</span>.<span class=\"sym-146 sym\">exchange</span> = <span class=\"sym-149 sym\">exchange</span>;",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "babb50a4f143c312df1ba45955d3d589ecb2845f",
+    "scmDate": "2013-05-29T14:27:38+0200",
+    "lineHits": 1,
+    "duplicated": true
+  },
+  {
+    "line": 404,
+    "code": "      <span class=\"k\">this</span>.<span class=\"sym-147 sym\">keyFilter</span> = <span class=\"sym-150 sym\">keyFilter</span>;",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200",
+    "lineHits": 1,
+    "duplicated": true
+  },
+  {
+    "line": 405,
+    "code": "    }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "babb50a4f143c312df1ba45955d3d589ecb2845f",
+    "scmDate": "2013-05-29T14:27:38+0200",
+    "lineHits": 1,
+    "duplicated": true
+  },
+  {
+    "line": 406,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "babb50a4f143c312df1ba45955d3d589ecb2845f",
+    "scmDate": "2013-05-29T14:27:38+0200",
+    "duplicated": true
+  },
+  {
+    "line": 407,
+    "code": "    <span class=\"a\">@Override</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "babb50a4f143c312df1ba45955d3d589ecb2845f",
+    "scmDate": "2013-05-29T14:27:38+0200",
+    "duplicated": true
+  },
+  {
+    "line": 408,
+    "code": "<span class=\"a\">    </span><span class=\"k\">public </span><span class=\"k\">boolean </span><span class=\"sym-151 sym\">hasNext</span>() {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "babb50a4f143c312df1ba45955d3d589ecb2845f",
+    "scmDate": "2013-05-29T14:27:38+0200",
+    "duplicated": true
+  },
+  {
+    "line": 409,
+    "code": "      <span class=\"k\">try </span>{",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "babb50a4f143c312df1ba45955d3d589ecb2845f",
+    "scmDate": "2013-05-29T14:27:38+0200",
+    "duplicated": true
+  },
+  {
+    "line": 410,
+    "code": "        <span class=\"k\">return</span> <span class=\"sym-146 sym\">exchange</span>.hasNext(<span class=\"sym-147 sym\">keyFilter</span>);",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200",
+    "lineHits": 1,
+    "duplicated": true
+  },
+  {
+    "line": 411,
+    "code": "      } <span class=\"k\">catch </span>(<span class=\"sym-5 sym\">PersistitException</span> <span class=\"sym-152 sym\">e</span>) {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "babb50a4f143c312df1ba45955d3d589ecb2845f",
+    "scmDate": "2013-05-29T14:27:38+0200",
+    "lineHits": 0,
+    "duplicated": true
+  },
+  {
+    "line": 412,
+    "code": "        <span class=\"k\">throw</span> <span class=\"k\">new</span> IllegalStateException(<span class=\"sym-152 sym\">e</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "babb50a4f143c312df1ba45955d3d589ecb2845f",
+    "scmDate": "2013-05-29T14:27:38+0200",
+    "lineHits": 0,
+    "duplicated": true
+  },
+  {
+    "line": 413,
+    "code": "      }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "babb50a4f143c312df1ba45955d3d589ecb2845f",
+    "scmDate": "2013-05-29T14:27:38+0200",
+    "duplicated": true
+  },
+  {
+    "line": 414,
+    "code": "    }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "babb50a4f143c312df1ba45955d3d589ecb2845f",
+    "scmDate": "2013-05-29T14:27:38+0200",
+    "duplicated": true
+  },
+  {
+    "line": 415,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "babb50a4f143c312df1ba45955d3d589ecb2845f",
+    "scmDate": "2013-05-29T14:27:38+0200",
+    "duplicated": true
+  },
+  {
+    "line": 416,
+    "code": "    <span class=\"a\">@SuppressWarnings</span>(<span class=\"s\">\"unchecked\"</span>)",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200",
+    "duplicated": true
+  },
+  {
+    "line": 417,
+    "code": "    <span class=\"a\">@Override</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "babb50a4f143c312df1ba45955d3d589ecb2845f",
+    "scmDate": "2013-05-29T14:27:38+0200",
+    "duplicated": true
+  },
+  {
+    "line": 418,
+    "code": "<span class=\"a\">    </span><span class=\"k\">public </span>T <span class=\"sym-153 sym\">next</span>() {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "babb50a4f143c312df1ba45955d3d589ecb2845f",
+    "scmDate": "2013-05-29T14:27:38+0200"
+  },
+  {
+    "line": 419,
+    "code": "      <span class=\"k\">try </span>{",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 420,
+    "code": "        <span class=\"sym-146 sym\">exchange</span>.next(<span class=\"sym-147 sym\">keyFilter</span>);",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 421,
+    "code": "      } <span class=\"k\">catch </span>(<span class=\"sym-5 sym\">PersistitException</span> <span class=\"sym-154 sym\">e</span>) {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 0
+  },
+  {
+    "line": 422,
+    "code": "        <span class=\"k\">throw</span> <span class=\"k\">new</span> IllegalStateException(<span class=\"sym-154 sym\">e</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 0
+  },
+  {
+    "line": 423,
+    "code": "      }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 424,
+    "code": "      <span class=\"k\">if </span>(<span class=\"sym-146 sym\">exchange</span>.getValue().isDefined()) {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "babb50a4f143c312df1ba45955d3d589ecb2845f",
+    "scmDate": "2013-05-29T14:27:38+0200",
+    "lineHits": 1,
+    "conditions": 2,
+    "coveredConditions": 1
+  },
+  {
+    "line": 425,
+    "code": "        <span class=\"k\">return</span> (T) <span class=\"sym-146 sym\">exchange</span>.getValue().get();",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 426,
+    "code": "      }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "babb50a4f143c312df1ba45955d3d589ecb2845f",
+    "scmDate": "2013-05-29T14:27:38+0200"
+  },
+  {
+    "line": 427,
+    "code": "      <span class=\"k\">throw</span> <span class=\"k\">new</span> <span class=\"sym-9 sym\">NoSuchElementException</span>();",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200",
+    "lineHits": 0
+  },
+  {
+    "line": 428,
+    "code": "    }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "babb50a4f143c312df1ba45955d3d589ecb2845f",
+    "scmDate": "2013-05-29T14:27:38+0200"
+  },
+  {
+    "line": 429,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "babb50a4f143c312df1ba45955d3d589ecb2845f",
+    "scmDate": "2013-05-29T14:27:38+0200"
+  },
+  {
+    "line": 430,
+    "code": "    <span class=\"a\">@Override</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "babb50a4f143c312df1ba45955d3d589ecb2845f",
+    "scmDate": "2013-05-29T14:27:38+0200"
+  },
+  {
+    "line": 431,
+    "code": "<span class=\"a\">    </span><span class=\"k\">public </span><span class=\"k\">void </span><span class=\"sym-155 sym\">remove</span>() {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "babb50a4f143c312df1ba45955d3d589ecb2845f",
+    "scmDate": "2013-05-29T14:27:38+0200"
+  },
+  {
+    "line": 432,
+    "code": "      <span class=\"k\">throw</span> <span class=\"k\">new</span> UnsupportedOperationException(<span class=\"s\">\"Removing an item is not supported\"</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "34cce8e330192c56a159a856ebd8072d38299087",
+    "scmDate": "2014-02-24T14:21:50+0100",
+    "lineHits": 0
+  },
+  {
+    "line": 433,
+    "code": "    }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 434,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 435,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 436,
+    "code": "  <span class=\"k\">private </span><span class=\"k\">static </span><span class=\"k\">class</span> <span class=\"sym-156 sym\">EntryIterable</span>&lt;T&gt; <span class=\"k\">implements</span> Iterable&lt;<span class=\"sym-177 sym\">Entry</span>&lt;T&gt;&gt; {",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "6074164392edd3db2dfdfd21d05cd56c19e2b0e6",
+    "scmDate": "2014-07-25T16:31:45+0200"
+  },
+  {
+    "line": 437,
+    "code": "    <span class=\"k\">private </span><span class=\"k\">final </span><span class=\"sym-162 sym\">EntryIterator</span>&lt;T&gt; <span class=\"sym-157 sym\">it</span>;",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200"
+  },
+  {
+    "line": 438,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200"
+  },
+  {
+    "line": 439,
+    "code": "    <span class=\"k\">private </span><span class=\"sym-158 sym\">EntryIterable</span>(<span class=\"sym-2 sym\">Exchange</span> <span class=\"sym-159 sym\">exchange</span>, <span class=\"sym-4 sym\">KeyFilter</span> <span class=\"sym-160 sym\">keyFilter</span>) {",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 440,
+    "code": "      <span class=\"sym-157 sym\">it</span> = <span class=\"k\">new</span> <span class=\"sym-162 sym\">EntryIterator</span>&lt;T&gt;(<span class=\"sym-159 sym\">exchange</span>, <span class=\"sym-160 sym\">keyFilter</span>);",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 441,
+    "code": "    }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 442,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200"
+  },
+  {
+    "line": 443,
+    "code": "    <span class=\"a\">@Override</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200"
+  },
+  {
+    "line": 444,
+    "code": "<span class=\"a\">    </span><span class=\"k\">public </span><span class=\"sym-8 sym\">Iterator</span>&lt;<span class=\"sym-177 sym\">Entry</span>&lt;T&gt;&gt; <span class=\"sym-161 sym\">iterator</span>() {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200"
+  },
+  {
+    "line": 445,
+    "code": "      <span class=\"k\">return</span> <span class=\"sym-157 sym\">it</span>;",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 446,
+    "code": "    }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200"
+  },
+  {
+    "line": 447,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200"
+  },
+  {
+    "line": 448,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200"
+  },
+  {
+    "line": 449,
+    "code": "  <span class=\"k\">private </span><span class=\"k\">static </span><span class=\"k\">class</span> <span class=\"sym-162 sym\">EntryIterator</span>&lt;T&gt; <span class=\"k\">implements</span> <span class=\"sym-8 sym\">Iterator</span>&lt;<span class=\"sym-177 sym\">Entry</span>&lt;T&gt;&gt; {",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "6074164392edd3db2dfdfd21d05cd56c19e2b0e6",
+    "scmDate": "2014-07-25T16:31:45+0200"
+  },
+  {
+    "line": 450,
+    "code": "    <span class=\"k\">private </span><span class=\"k\">final </span><span class=\"sym-2 sym\">Exchange</span> <span class=\"sym-163 sym\">exchange</span>;",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200"
+  },
+  {
+    "line": 451,
+    "code": "    <span class=\"k\">private </span><span class=\"k\">final </span><span class=\"sym-4 sym\">KeyFilter</span> <span class=\"sym-164 sym\">keyFilter</span>;",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 452,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200"
+  },
+  {
+    "line": 453,
+    "code": "    <span class=\"k\">private </span><span class=\"sym-165 sym\">EntryIterator</span>(<span class=\"sym-2 sym\">Exchange</span> <span class=\"sym-166 sym\">exchange</span>, <span class=\"sym-4 sym\">KeyFilter</span> <span class=\"sym-167 sym\">keyFilter</span>) {",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 454,
+    "code": "      <span class=\"k\">this</span>.<span class=\"sym-163 sym\">exchange</span> = <span class=\"sym-166 sym\">exchange</span>;",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200",
+    "lineHits": 1,
+    "duplicated": true
+  },
+  {
+    "line": 455,
+    "code": "      <span class=\"k\">this</span>.<span class=\"sym-164 sym\">keyFilter</span> = <span class=\"sym-167 sym\">keyFilter</span>;",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200",
+    "lineHits": 1,
+    "duplicated": true
+  },
+  {
+    "line": 456,
+    "code": "    }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200",
+    "lineHits": 1,
+    "duplicated": true
+  },
+  {
+    "line": 457,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200",
+    "duplicated": true
+  },
+  {
+    "line": 458,
+    "code": "    <span class=\"a\">@Override</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200",
+    "duplicated": true
+  },
+  {
+    "line": 459,
+    "code": "<span class=\"a\">    </span><span class=\"k\">public </span><span class=\"k\">boolean </span><span class=\"sym-168 sym\">hasNext</span>() {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200",
+    "duplicated": true
+  },
+  {
+    "line": 460,
+    "code": "      <span class=\"k\">try </span>{",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200",
+    "duplicated": true
+  },
+  {
+    "line": 461,
+    "code": "        <span class=\"k\">return</span> <span class=\"sym-163 sym\">exchange</span>.hasNext(<span class=\"sym-164 sym\">keyFilter</span>);",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200",
+    "lineHits": 1,
+    "duplicated": true
+  },
+  {
+    "line": 462,
+    "code": "      } <span class=\"k\">catch </span>(<span class=\"sym-5 sym\">PersistitException</span> <span class=\"sym-169 sym\">e</span>) {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200",
+    "lineHits": 0,
+    "duplicated": true
+  },
+  {
+    "line": 463,
+    "code": "        <span class=\"k\">throw</span> <span class=\"k\">new</span> IllegalStateException(<span class=\"sym-169 sym\">e</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200",
+    "lineHits": 0,
+    "duplicated": true
+  },
+  {
+    "line": 464,
+    "code": "      }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200",
+    "duplicated": true
+  },
+  {
+    "line": 465,
+    "code": "    }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200",
+    "duplicated": true
+  },
+  {
+    "line": 466,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200",
+    "duplicated": true
+  },
+  {
+    "line": 467,
+    "code": "    <span class=\"a\">@SuppressWarnings</span>(<span class=\"s\">\"unchecked\"</span>)",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200",
+    "duplicated": true
+  },
+  {
+    "line": 468,
+    "code": "    <span class=\"a\">@Override</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200",
+    "duplicated": true
+  },
+  {
+    "line": 469,
+    "code": "<span class=\"a\">    </span><span class=\"k\">public </span><span class=\"sym-177 sym\">Entry</span>&lt;T&gt; <span class=\"sym-170 sym\">next</span>() {",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 470,
+    "code": "      <span class=\"k\">try </span>{",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 471,
+    "code": "        <span class=\"sym-163 sym\">exchange</span>.next(<span class=\"sym-164 sym\">keyFilter</span>);",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 472,
+    "code": "      } <span class=\"k\">catch </span>(<span class=\"sym-5 sym\">PersistitException</span> <span class=\"sym-171 sym\">e</span>) {",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200",
+    "lineHits": 0
+  },
+  {
+    "line": 473,
+    "code": "        <span class=\"k\">throw</span> <span class=\"k\">new</span> IllegalStateException(<span class=\"sym-171 sym\">e</span>);",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200",
+    "lineHits": 0
+  },
+  {
+    "line": 474,
+    "code": "      }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 475,
+    "code": "      <span class=\"k\">if </span>(<span class=\"sym-163 sym\">exchange</span>.getValue().isDefined()) {",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200",
+    "lineHits": 1,
+    "conditions": 2,
+    "coveredConditions": 1
+  },
+  {
+    "line": 476,
+    "code": "        T <span class=\"sym-172 sym\">value</span> = (T) <span class=\"sym-163 sym\">exchange</span>.getValue().get();",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 477,
+    "code": "        <span class=\"sym-3 sym\">Key</span> <span class=\"sym-173 sym\">key</span> = <span class=\"sym-163 sym\">exchange</span>.getKey();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 478,
+    "code": "        Object[] <span class=\"sym-174 sym\">array</span> = <span class=\"k\">new</span> Object[<span class=\"sym-173 sym\">key</span>.getDepth()];",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 479,
+    "code": "        <span class=\"k\">for</span> (<span class=\"k\">int </span><span class=\"sym-175 sym\">i</span> = <span class=\"c\">0</span>; <span class=\"sym-175 sym\">i</span> &lt; <span class=\"sym-173 sym\">key</span>.getDepth(); <span class=\"sym-175 sym\">i</span>++) {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1,
+    "conditions": 2,
+    "coveredConditions": 2
+  },
+  {
+    "line": 480,
+    "code": "          <span class=\"sym-174 sym\">array</span>[<span class=\"sym-175 sym\">i</span>] = <span class=\"sym-173 sym\">key</span>.indexTo(<span class=\"sym-175 sym\">i</span> - <span class=\"sym-173 sym\">key</span>.getDepth()).decode();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 481,
+    "code": "        }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 482,
+    "code": "        <span class=\"k\">return</span> <span class=\"k\">new</span> <span class=\"sym-177 sym\">Entry</span>&lt;T&gt;(<span class=\"sym-174 sym\">array</span>, <span class=\"sym-172 sym\">value</span>);",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 483,
+    "code": "      }",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 484,
+    "code": "      <span class=\"k\">throw</span> <span class=\"k\">new</span> <span class=\"sym-9 sym\">NoSuchElementException</span>();",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200",
+    "lineHits": 0
+  },
+  {
+    "line": 485,
+    "code": "    }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200"
+  },
+  {
+    "line": 486,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200"
+  },
+  {
+    "line": 487,
+    "code": "    <span class=\"a\">@Override</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200"
+  },
+  {
+    "line": 488,
+    "code": "<span class=\"a\">    </span><span class=\"k\">public </span><span class=\"k\">void </span><span class=\"sym-176 sym\">remove</span>() {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200"
+  },
+  {
+    "line": 489,
+    "code": "      <span class=\"k\">throw</span> <span class=\"k\">new</span> UnsupportedOperationException(<span class=\"s\">\"Removing an item is not supported\"</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "34cce8e330192c56a159a856ebd8072d38299087",
+    "scmDate": "2014-02-24T14:21:50+0100",
+    "lineHits": 0
+  },
+  {
+    "line": 490,
+    "code": "    }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200"
+  },
+  {
+    "line": 491,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200"
+  },
+  {
+    "line": 492,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200"
+  },
+  {
+    "line": 493,
+    "code": "  <span class=\"k\">public </span><span class=\"k\">static </span><span class=\"k\">class</span> <span class=\"sym-177 sym\">Entry</span>&lt;V&gt; {",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "6074164392edd3db2dfdfd21d05cd56c19e2b0e6",
+    "scmDate": "2014-07-25T16:31:45+0200"
+  },
+  {
+    "line": 494,
+    "code": "    <span class=\"k\">private </span><span class=\"k\">final </span>Object[] <span class=\"sym-178 sym\">key</span>;",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 495,
+    "code": "    <span class=\"k\">private </span><span class=\"k\">final </span>V <span class=\"sym-179 sym\">value</span>;",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 496,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200"
+  },
+  {
+    "line": 497,
+    "code": "    <span class=\"sym-180 sym\">Entry</span>(Object[] <span class=\"sym-181 sym\">key</span>, V <span class=\"sym-182 sym\">value</span>) {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100",
+    "lineHits": 1
+  },
+  {
+    "line": 498,
+    "code": "      <span class=\"k\">this</span>.<span class=\"sym-178 sym\">key</span> = <span class=\"sym-181 sym\">key</span>;",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 499,
+    "code": "      <span class=\"k\">this</span>.<span class=\"sym-179 sym\">value</span> = <span class=\"sym-182 sym\">value</span>;",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 500,
+    "code": "    }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 501,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200"
+  },
+  {
+    "line": 502,
+    "code": "    <span class=\"k\">public </span>Object[] <span class=\"sym-183 sym\">key</span>() {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 503,
+    "code": "      <span class=\"k\">return</span> <span class=\"sym-178 sym\">key</span>;",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 504,
+    "code": "    }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200"
+  },
+  {
+    "line": 505,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200"
+  },
+  {
+    "line": 506,
+    "code": "    <span class=\"a\">@<span class=\"sym-7 sym\">CheckForNull</span></span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200"
+  },
+  {
+    "line": 507,
+    "code": "<span class=\"a\">    </span><span class=\"k\">public </span>V <span class=\"sym-184 sym\">value</span>() {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 508,
+    "code": "      <span class=\"k\">return</span> <span class=\"sym-179 sym\">value</span>;",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200",
+    "lineHits": 1
+  },
+  {
+    "line": 509,
+    "code": "    }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200"
+  },
+  {
+    "line": 510,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200"
+  },
+  {
+    "line": 511,
+    "code": "    <span class=\"a\">@Override</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200"
+  },
+  {
+    "line": 512,
+    "code": "<span class=\"a\">    </span><span class=\"k\">public </span>String <span class=\"sym-185 sym\">toString</span>() {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200"
+  },
+  {
+    "line": 513,
+    "code": "      <span class=\"k\">return</span> <span class=\"sym-6 sym\">ToStringBuilder</span>.reflectionToString(<span class=\"k\">this</span>);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200",
+    "lineHits": 0
+  },
+  {
+    "line": 514,
+    "code": "    }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200"
+  },
+  {
+    "line": 515,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200"
+  },
+  {
+    "line": 516,
+    "code": "",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "43fc31f75a2de06b23faefb0d2bbf1dd97290232",
+    "scmDate": "2014-05-05T16:43:19+0200"
+  },
+  {
+    "line": 517,
+    "code": "}",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 518,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  }
+]}

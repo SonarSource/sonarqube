@@ -1,4 +1,0 @@
-{"key": "com.sonarsource.it.samples:sample-with-tests:src/test/java/sample/SampleTest.java", "path": "src/test/java/sample/SampleTest.java", "name": "SampleTest.java", "longName": "src/test/java/sample/SampleTest.java", "q": "UTS", "project": "com.sonarsource.it.samples:sample-with-tests", "projectName": "Sonar :: Integration Tests :: Sample with tests", "fav": false, "canMarkAsFavourite": false, "canBulkChange": false, "canCreateManualIssue": false, "periods": [], "severities": [], "rules": [], "measures": {
-  "fTests": "2",
-  "fIssues": "0"
-}}

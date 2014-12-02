@@ -93,6 +93,7 @@ module.exports = (grunt) ->
             '<%= pkg.assets %>js/widgets/histogram.js'
             '<%= pkg.assets %>js/widgets/word-cloud.js'
             '<%= pkg.assets %>js/widgets/treemap.js'
+            '<%= pkg.assets %>js/graphics/pie-chart.js'
             '<%= pkg.assets %>js/top-search.js'
             '<%= pkg.assets %>js/sortable.js'
             '<%= pkg.assets %>js/common/inputs.js'
@@ -127,6 +128,7 @@ module.exports = (grunt) ->
             '<%= pkg.assets %>js/widgets/histogram.js'
             '<%= pkg.assets %>js/widgets/word-cloud.js'
             '<%= pkg.assets %>js/widgets/treemap.js'
+            '<%= pkg.assets %>js/graphics/pie-chart.js'
             '<%= pkg.assets %>js/top-search.js'
             '<%= pkg.assets %>js/sortable.js'
             '<%= pkg.assets %>js/common/inputs.js'
@@ -192,17 +194,13 @@ module.exports = (grunt) ->
         name: 'drilldown/app'
         out: '<%= pkg.assets %>build/js/drilldown/app.js'
 
-      dashboardFile: options:
-        name: 'dashboard/file-app'
-        out: '<%= pkg.assets %>build/js/dashboard/file-app.js'
-
       dashboard: options:
         name: 'dashboard/app'
         out: '<%= pkg.assets %>build/js/dashboard/app.js'
 
-      componentViewer: options:
-        name: 'component-viewer/app'
-        out: '<%= pkg.assets %>build/js/component-viewer/app.js'
+      sourceViewer: options:
+        name: 'source-viewer/app'
+        out: '<%= pkg.assets %>build/js/source-viewer/app.js'
 
       design: options:
         name: 'design/app'
@@ -315,6 +313,13 @@ module.exports = (grunt) ->
           'fail-fast': true
           port: '<%= grunt.option("port") %>'
         src: ['<%= pkg.sources %>js/tests/e2e/tests/<%= grunt.option("spec") %>-spec.js']
+      testfile:
+        options:
+          test: true
+          verbose: true
+          'fail-fast': true
+          port: '<%= grunt.option("port") %>'
+        src: ['<%= grunt.option("file") %>']
 
 
     uglify:
@@ -395,6 +400,9 @@ module.exports = (grunt) ->
 
   grunt.registerTask 'single',
       ['dev', 'express:test', 'casper:single']
+
+  grunt.registerTask 'testfile',
+      ['dev', 'express:test', 'casper:testfile']
 
   # tasks used by Maven build (see pom.xml)
   grunt.registerTask 'maven-build-skip-tests-true',

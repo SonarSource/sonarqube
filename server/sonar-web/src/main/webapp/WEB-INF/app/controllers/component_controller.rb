@@ -22,12 +22,30 @@ class ComponentController < ApplicationController
   SECTION=Navigation::SECTION_RESOURCE
 
   def index
+    load_resource()
+    @line = params[:line]
+
     if request.xhr?
       render :action => 'index'
     else
       # popup mode, title will always be displayed
       params[:layout] = 'false'
       render :action => 'index'
+    end
+  end
+
+  private
+
+  def load_resource
+    if params[:id]
+      @resource=Project.by_key(params[:id])
+      return project_not_found unless @resource
+      @resource=@resource.permanent_resource
+
+      @snapshot=@resource.last_snapshot
+      return project_not_analyzed unless @snapshot
+
+      access_denied unless has_role?(:user, @resource)
     end
   end
 

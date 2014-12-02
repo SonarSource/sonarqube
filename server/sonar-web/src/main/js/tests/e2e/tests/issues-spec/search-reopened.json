@@ -1,0 +1,485 @@
+{
+  "total": 4,
+  "p": 1,
+  "ps": 50,
+  "projects": [
+    {
+      "uuid": "06a742ea-5c55-4c7e-a2b4-8747c163cb40",
+      "key": "org.codehaus.sonar-plugins:sonar-issues-report-plugin",
+      "id": 17637,
+      "qualifier": "TRK",
+      "name": "Sonar :: Issues Report :: Plugin",
+      "longName": "Sonar :: Issues Report :: Plugin"
+    },
+    {
+      "uuid": "69e57151-be0d-4157-adff-c06741d88879",
+      "key": "org.codehaus.sonar:sonar",
+      "id": 2865,
+      "qualifier": "TRK",
+      "name": "SonarQube",
+      "longName": "SonarQube"
+    },
+    {
+      "uuid": "963cefe8-9128-475f-8d39-636685195e43",
+      "key": "com.sonarsource.rpg:rpg",
+      "id": 27165,
+      "qualifier": "TRK",
+      "name": "SonarSource :: RPG",
+      "longName": "SonarSource :: RPG"
+    }
+  ],
+  "components": [
+    {
+      "uuid": "f62c3080-6e75-4940-ae95-7dae743bcac3",
+      "key": "org.codehaus.sonar:sonar-server:src/main/java/org/sonar/server/search/request/ProxySearchScrollRequestBuilder.java",
+      "id": 35659,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "ProxySearchScrollRequestBuilder.java",
+      "longName": "src/main/java/org/sonar/server/search/request/ProxySearchScrollRequestBuilder.java",
+      "path": "src/main/java/org/sonar/server/search/request/ProxySearchScrollRequestBuilder.java",
+      "projectId": 2865,
+      "subProjectId": 2872
+    },
+    {
+      "uuid": "69e57151-be0d-4157-adff-c06741d88879",
+      "key": "org.codehaus.sonar:sonar",
+      "id": 2865,
+      "enabled": true,
+      "qualifier": "TRK",
+      "name": "SonarQube",
+      "longName": "SonarQube"
+    },
+    {
+      "uuid": "0160edec-b7ca-49a1-93ca-a6ea2c38ed21",
+      "key": "org.codehaus.sonar-plugins:sonar-issues-report-plugin:src/main/java/org/sonar/issuesreport/IssuesReportPlugin.java",
+      "id": 17639,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "IssuesReportPlugin.java",
+      "longName": "src/main/java/org/sonar/issuesreport/IssuesReportPlugin.java",
+      "path": "src/main/java/org/sonar/issuesreport/IssuesReportPlugin.java",
+      "projectId": 17637,
+      "subProjectId": 17637
+    },
+    {
+      "uuid": "6acccd14-18f8-436e-9a20-1d2d1f91295b",
+      "key": "com.sonarsource.rpg:rpg-analyzer:src/main/java/com/sonar/rpg/parser/Parser.java",
+      "id": 27173,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "Parser.java",
+      "longName": "src/main/java/com/sonar/rpg/parser/Parser.java",
+      "path": "src/main/java/com/sonar/rpg/parser/Parser.java",
+      "projectId": 27165,
+      "subProjectId": 27166
+    },
+    {
+      "uuid": "06a742ea-5c55-4c7e-a2b4-8747c163cb40",
+      "key": "org.codehaus.sonar-plugins:sonar-issues-report-plugin",
+      "id": 17637,
+      "enabled": true,
+      "qualifier": "TRK",
+      "name": "Sonar :: Issues Report :: Plugin",
+      "longName": "Sonar :: Issues Report :: Plugin"
+    },
+    {
+      "uuid": "98662175-0f52-4f83-b0e9-1e9444320b5b",
+      "key": "org.codehaus.sonar-plugins:sonar-issues-report-plugin:src/main/java/org/sonar/issuesreport/ReportJob.java",
+      "id": 17640,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "ReportJob.java",
+      "longName": "src/main/java/org/sonar/issuesreport/ReportJob.java",
+      "path": "src/main/java/org/sonar/issuesreport/ReportJob.java",
+      "projectId": 17637,
+      "subProjectId": 17637
+    },
+    {
+      "uuid": "a6b74bc6-94b9-431f-b7fd-524553d42405",
+      "key": "com.sonarsource.rpg:rpg-analyzer",
+      "id": 27166,
+      "enabled": true,
+      "qualifier": "BRC",
+      "name": "SonarSource :: RPG :: Analyzer",
+      "longName": "SonarSource :: RPG :: Analyzer",
+      "path": "rpg-analyzer",
+      "projectId": 27165,
+      "subProjectId": 27165
+    },
+    {
+      "uuid": "e1f6f8bd-6b5f-4e2d-b936-4abffc9e4264",
+      "key": "org.codehaus.sonar:sonar-server",
+      "id": 2872,
+      "enabled": true,
+      "qualifier": "BRC",
+      "name": "SonarQube :: Server",
+      "longName": "SonarQube :: Server",
+      "path": "sonar-server",
+      "projectId": 2865,
+      "subProjectId": 2865
+    },
+    {
+      "uuid": "963cefe8-9128-475f-8d39-636685195e43",
+      "key": "com.sonarsource.rpg:rpg",
+      "id": 27165,
+      "enabled": true,
+      "qualifier": "TRK",
+      "name": "SonarSource :: RPG",
+      "longName": "SonarSource :: RPG"
+    }
+  ],
+  "issues": [
+    {
+      "key": "80f1562f-9f64-48a9-a6bb-1dcd2ebf444a",
+      "component": "org.codehaus.sonar-plugins:sonar-issues-report-plugin:src/main/java/org/sonar/issuesreport/IssuesReportPlugin.java",
+      "componentId": 17639,
+      "project": "org.codehaus.sonar-plugins:sonar-issues-report-plugin",
+      "rule": "squid:S1161",
+      "status": "REOPENED",
+      "severity": "MINOR",
+      "message": "Add the \"@Override\" annotation above this method signature",
+      "line": 61,
+      "debt": "5min",
+      "assignee": "julien.henry",
+      "author": "julien.henry@sonarsource.com",
+      "creationDate": "2014-10-09T23:03:12+0200",
+      "updateDate": "2014-11-24T08:11:19+0100",
+      "fUpdateAge": "14 days",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "confirm",
+        "resolve",
+        "falsepositive"
+      ],
+      "assigneeName": "Julien Henry"
+    },
+    {
+      "key": "9eae5201-96c7-4e78-a407-8d58479c98a3",
+      "component": "org.codehaus.sonar-plugins:sonar-issues-report-plugin:src/main/java/org/sonar/issuesreport/ReportJob.java",
+      "componentId": 17640,
+      "project": "org.codehaus.sonar-plugins:sonar-issues-report-plugin",
+      "rule": "squid:S1161",
+      "status": "REOPENED",
+      "severity": "MAJOR",
+      "message": "Add the \"@Override\" annotation above this method signature",
+      "line": 39,
+      "debt": "5min",
+      "assignee": "julien.henry",
+      "author": "julien.henry@sonarsource.com",
+      "creationDate": "2014-10-09T23:03:12+0200",
+      "updateDate": "2014-11-18T08:25:31+0100",
+      "fUpdateAge": "20 days",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "confirm",
+        "resolve",
+        "falsepositive"
+      ],
+      "assigneeName": "Julien Henry"
+    },
+    {
+      "key": "50bfc04f-6137-457a-a967-f6b1b7345365",
+      "component": "org.codehaus.sonar:sonar-server:src/main/java/org/sonar/server/search/request/ProxySearchScrollRequestBuilder.java",
+      "componentId": 35659,
+      "project": "org.codehaus.sonar:sonar",
+      "subProject": "org.codehaus.sonar:sonar-server",
+      "rule": "common-java:InsufficientBranchCoverage",
+      "status": "REOPENED",
+      "severity": "MAJOR",
+      "message": "1 more branches need to be covered by unit tests to reach the minimum threshold of 65.0% branch coverage.",
+      "debt": "10min",
+      "assignee": "julien.lancelot",
+      "creationDate": "2014-11-04T14:51:27+0100",
+      "updateDate": "2014-11-10T23:29:27+0100",
+      "fUpdateAge": "27 days",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "confirm",
+        "resolve",
+        "falsepositive"
+      ],
+      "assigneeName": "Julien Lancelot"
+    },
+    {
+      "key": "7012d6fc-e663-4032-aba6-70c4522453b4",
+      "component": "com.sonarsource.rpg:rpg-analyzer:src/main/java/com/sonar/rpg/parser/Parser.java",
+      "componentId": 27173,
+      "project": "com.sonarsource.rpg:rpg",
+      "subProject": "com.sonarsource.rpg:rpg-analyzer",
+      "rule": "squid:S1994",
+      "status": "REOPENED",
+      "severity": "MAJOR",
+      "message": "This loop's stop condition tests \"isEndOfFile()\" but the incrementer updates \"lineNumber\".",
+      "line": 69,
+      "debt": "20min",
+      "assignee": "pierre-yves.nicolas",
+      "author": "pierre-yves.nicolas@sonarsource.com",
+      "creationDate": "2014-10-09T23:05:10+0200",
+      "updateDate": "2014-10-31T10:33:08+0100",
+      "fUpdateAge": "about a month",
+      "comments": [
+        {
+          "key": "9d2b1d6e-9c9c-4ff2-bc55-af622922c4f0",
+          "login": "evgeny.mandrikov",
+          "userName": "Evgeny Mandrikov",
+          "htmlText": "Severity changed from &quot;critical&quot; to &quot;major&quot;, because this is a new Java rule.<br/>Also message looks suspicious. Nico, could you please take a look?",
+          "markdown": "Severity changed from \"critical\" to \"major\", because this is a new Java rule.\nAlso message looks suspicious. Nico, could you please take a look?",
+          "updatable": false,
+          "createdAt": "2014-10-10T15:49:23+0200"
+        },
+        {
+          "key": "583033bd-c0be-4865-ba86-f1773c712bba",
+          "login": "nicolas.peru",
+          "userName": "Nicolas Peru",
+          "htmlText": "message has been improved in <a href=\"https://github.com/SonarSource/sonar-java/commit/d1e4fa74ada69039958dbff8a94c776fd6be6639\" target=\"_blank\">https://github.com/SonarSource/sonar-java/commit/d1e4fa74ada69039958dbff8a94c776fd6be6639</a>",
+          "markdown": "message has been improved in https://github.com/SonarSource/sonar-java/commit/d1e4fa74ada69039958dbff8a94c776fd6be6639",
+          "updatable": false,
+          "createdAt": "2014-10-13T17:38:52+0200"
+        }
+      ],
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "confirm",
+        "resolve",
+        "falsepositive"
+      ],
+      "assigneeName": "Pierre-Yves Nicolas"
+    }
+  ],
+  "rules": [
+    {
+      "key": "squid:S1994",
+      "name": "\"for\" loop incrementers should modify the variable being tested in the loop's stop condition",
+      "lang": "java",
+      "desc": "<p>It is almost always an error when a <code>for</code> loop's stop condition and incrementer don't act on the same variable. Even when it is not, it could confuse future maintainers of the code, and should be avoided.</p>\n\n<h2>Noncompliant Code Example</h2>\n<pre>\nfor (i = 0; i < 10; j++) {  // Noncompliant\n  // ...\n}\n</pre>\n\n<h2>Compliant Solution</h2>\n<pre>\nfor (i = 0; i < 10; i++) {\n  // ...\n}\n</pre>",
+      "status": "REMOVED",
+      "langName": "Java"
+    },
+    {
+      "key": "common-java:InsufficientBranchCoverage",
+      "name": "Insufficient branch coverage by unit tests",
+      "lang": "java",
+      "desc": "<p>An issue is created on a file as soon as the branch coverage on this file is less than the required threshold.It gives the number of branches to be covered in order to reach the required threshold.</p>",
+      "status": "READY",
+      "langName": "Java"
+    },
+    {
+      "key": "squid:S1161",
+      "name": "\"@Override\" annotation should be used on any method overriding (since Java 5) or implementing (since Java 6) another one",
+      "lang": "java",
+      "desc": "<p>Using the <code>@Override</code> annotation is useful for two reasons :</p>\n<ul>\n  <li>It elicits a warning from the compiler if the annotated method doesn't actually override anything, as in the case of a misspelling.</li>\n  <li>It improves the readability of the source code by making it obvious that methods are overridden.</li>\n</ul>\n<h2>Noncompliant Code Example</h2>\n<pre>\nclass ParentClass {\n  public boolean doSomething(){...}\n}\nclass FirstChildClass extends ParentClass {\n  public boolean doSomething(){...}  //Non-Compliant\n}\n</pre>\n\n<h2>Compliant Solution</h2>\n<pre>\nclass ParentClass {\n  public boolean doSomething(){...}\n}\nclass FirstChildClass extends ParentClass {\n  @Override\n  public boolean doSomething(){...}  //Compliant\n}\n</pre>",
+      "status": "REMOVED",
+      "langName": "Java"
+    }
+  ],
+  "users": [
+    {
+      "login": "julien.lancelot",
+      "name": "Julien Lancelot",
+      "active": true,
+      "email": "julien.lancelot@sonarsource.com"
+    },
+    {
+      "login": "pierre-yves.nicolas",
+      "name": "Pierre-Yves Nicolas",
+      "active": true,
+      "email": "pierre-yves.nicolas@sonarsource.com"
+    },
+    {
+      "login": "admin",
+      "name": "Admin Admin",
+      "active": true,
+      "email": "admin@sonarsource.com"
+    },
+    {
+      "login": "nicolas.peru",
+      "name": "Nicolas Peru",
+      "active": true,
+      "email": "nicolas.peru@sonarsource.com"
+    },
+    {
+      "login": "julien.henry",
+      "name": "Julien Henry",
+      "active": true,
+      "email": "julien.henry@sonarsource.com"
+    },
+    {
+      "login": "evgeny.mandrikov",
+      "name": "Evgeny Mandrikov",
+      "active": true,
+      "email": "evgeny.mandrikov@sonarsource.com"
+    }
+  ],
+  "actionPlans": [
+    {
+      "key": "1b9e7e52-ff58-40c1-80bf-f68429a3275e",
+      "name": "5.0",
+      "status": "OPEN",
+      "project": "org.codehaus.sonar:sonar",
+      "userLogin": "fabrice.bellingard",
+      "createdAt": "2014-09-01T17:14:55+0200",
+      "fCreatedAt": "Sep 1, 2014 5:14 PM",
+      "updatedAt": "2014-09-01T17:14:55+0200",
+      "fUpdatedAt": "Sep 1, 2014 5:14 PM"
+    },
+    {
+      "key": "151b796f-c5e1-40c9-89c0-ca391e8a31c0",
+      "name": "CPP 3.3",
+      "status": "OPEN",
+      "project": "com.sonarsource.cpp:cpp",
+      "userLogin": "eric.hartmann",
+      "createdAt": "2014-10-27T15:15:34+0100",
+      "fCreatedAt": "Oct 27, 2014 3:15 PM",
+      "updatedAt": "2014-10-27T15:15:34+0100",
+      "fUpdatedAt": "Oct 27, 2014 3:15 PM"
+    },
+    {
+      "key": "6f967cd5-687b-49ac-b4e3-b8d392374557",
+      "name": "4.5",
+      "status": "CLOSED",
+      "project": "org.codehaus.sonar:sonar",
+      "userLogin": "freddy.mallet",
+      "createdAt": "2014-07-01T21:22:52+0200",
+      "fCreatedAt": "Jul 1, 2014 9:22 PM",
+      "updatedAt": "2014-09-10T15:44:24+0200",
+      "fUpdatedAt": "Sep 10, 2014 3:44 PM"
+    }
+  ],
+  "languages": [
+    {
+      "key": "js",
+      "name": "JavaScript"
+    },
+    {
+      "key": "java",
+      "name": "Java"
+    }
+  ],
+  "maxResultsReached": false,
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 50,
+    "total": 4,
+    "fTotal": "4",
+    "pages": 1
+  },
+  "facets": [
+    {
+      "property": "severities",
+      "values": [
+        {
+          "val": "MAJOR",
+          "count": 3
+        },
+        {
+          "val": "MINOR",
+          "count": 1
+        },
+        {
+          "val": "INFO",
+          "count": 0
+        },
+        {
+          "val": "CRITICAL",
+          "count": 0
+        },
+        {
+          "val": "BLOCKER",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "property": "statuses",
+      "values": [
+        {
+          "val": "CONFIRMED",
+          "count": 4583
+        },
+        {
+          "val": "OPEN",
+          "count": 324
+        },
+        {
+          "val": "REOPENED",
+          "count": 4
+        },
+        {
+          "val": "RESOLVED",
+          "count": 0
+        },
+        {
+          "val": "CLOSED",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "property": "resolutions",
+      "values": [
+        {
+          "val": "",
+          "count": 4
+        },
+        {
+          "val": "FALSE-POSITIVE",
+          "count": 0
+        },
+        {
+          "val": "FIXED",
+          "count": 0
+        },
+        {
+          "val": "REMOVED",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "property": "actionPlans",
+      "values": [
+        {
+          "val": "1b9e7e52-ff58-40c1-80bf-f68429a3275e",
+          "count": 4
+        },
+        {
+          "val": "151b796f-c5e1-40c9-89c0-ca391e8a31c0",
+          "count": 2
+        },
+        {
+          "val": "6f967cd5-687b-49ac-b4e3-b8d392374557",
+          "count": 1
+        },
+        {
+          "val": "",
+          "count": 4
+        }
+      ]
+    }
+  ]
+}

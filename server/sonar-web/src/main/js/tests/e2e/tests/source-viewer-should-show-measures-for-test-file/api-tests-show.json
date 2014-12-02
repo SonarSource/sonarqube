@@ -1,0 +1,27 @@
+{"tests": [
+  {
+    "name": "testOK",
+    "status": "OK",
+    "durationInMs": 9,
+    "coveredLines": 3
+  },
+  {
+    "name": "testERROR",
+    "status": "ERROR",
+    "durationInMs": 8,
+    "coveredLines": 4,
+    "stackTrace": "stacktrace error"
+  },
+  {
+    "name": "testFAILURE",
+    "status": "FAILURE",
+    "durationInMs": 7,
+    "coveredLines": 5,
+    "message": "message failure",
+    "stackTrace": "stacktrace failure"
+  },
+  {
+    "name": "testSKIPPED",
+    "status": "SKIPPED"
+  }
+]}

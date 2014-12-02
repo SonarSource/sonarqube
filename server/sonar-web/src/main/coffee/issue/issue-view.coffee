@@ -64,6 +64,7 @@ define [
 
 
     onRender: ->
+      @$el.attr 'data-key', @model.get('key')
 
 
     resetIssue: (options, p) ->

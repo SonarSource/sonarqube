@@ -1,0 +1,1808 @@
+{"sources": [
+  {
+    "line": 1,
+    "code": "/*",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "108dc916996e3075eb21c6ae1bbc7c9a24f09ab0",
+    "scmDate": "2013-04-16T13:24:54+0200"
+  },
+  {
+    "line": 2,
+    "code": " * SonarQube, open source software quality management tool.",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b1436788cfc71b23cc3e3c15400a6c630c914bec",
+    "scmDate": "2013-04-21T11:58:14+0200"
+  },
+  {
+    "line": 3,
+    "code": " * Copyright (C) 2008-2014 SonarSource",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "57ae3026c36ae3b0b71756d6161124b1ae594c53",
+    "scmDate": "2014-03-11T17:52:41+0100"
+  },
+  {
+    "line": 4,
+    "code": " * mailto:contact AT sonarsource DOT com",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "108dc916996e3075eb21c6ae1bbc7c9a24f09ab0",
+    "scmDate": "2013-04-16T13:24:54+0200"
+  },
+  {
+    "line": 5,
+    "code": " *",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "108dc916996e3075eb21c6ae1bbc7c9a24f09ab0",
+    "scmDate": "2013-04-16T13:24:54+0200"
+  },
+  {
+    "line": 6,
+    "code": " * SonarQube is free software; you can redistribute it and/or",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b1436788cfc71b23cc3e3c15400a6c630c914bec",
+    "scmDate": "2013-04-21T11:58:14+0200"
+  },
+  {
+    "line": 7,
+    "code": " * modify it under the terms of the GNU Lesser General Public",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "108dc916996e3075eb21c6ae1bbc7c9a24f09ab0",
+    "scmDate": "2013-04-16T13:24:54+0200"
+  },
+  {
+    "line": 8,
+    "code": " * License as published by the Free Software Foundation; either",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "108dc916996e3075eb21c6ae1bbc7c9a24f09ab0",
+    "scmDate": "2013-04-16T13:24:54+0200"
+  },
+  {
+    "line": 9,
+    "code": " * version 3 of the License, or (at your option) any later version.",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "108dc916996e3075eb21c6ae1bbc7c9a24f09ab0",
+    "scmDate": "2013-04-16T13:24:54+0200"
+  },
+  {
+    "line": 10,
+    "code": " *",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "108dc916996e3075eb21c6ae1bbc7c9a24f09ab0",
+    "scmDate": "2013-04-16T13:24:54+0200"
+  },
+  {
+    "line": 11,
+    "code": " * SonarQube is distributed in the hope that it will be useful,",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b1436788cfc71b23cc3e3c15400a6c630c914bec",
+    "scmDate": "2013-04-21T11:58:14+0200"
+  },
+  {
+    "line": 12,
+    "code": " * but WITHOUT ANY WARRANTY; without even the implied warranty of",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "108dc916996e3075eb21c6ae1bbc7c9a24f09ab0",
+    "scmDate": "2013-04-16T13:24:54+0200"
+  },
+  {
+    "line": 13,
+    "code": " * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "108dc916996e3075eb21c6ae1bbc7c9a24f09ab0",
+    "scmDate": "2013-04-16T13:24:54+0200"
+  },
+  {
+    "line": 14,
+    "code": " * Lesser General Public License for more details.",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "108dc916996e3075eb21c6ae1bbc7c9a24f09ab0",
+    "scmDate": "2013-04-16T13:24:54+0200"
+  },
+  {
+    "line": 15,
+    "code": " *",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "108dc916996e3075eb21c6ae1bbc7c9a24f09ab0",
+    "scmDate": "2013-04-16T13:24:54+0200"
+  },
+  {
+    "line": 16,
+    "code": " * You should have received a copy of the GNU Lesser General Public License",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "ce63bd4c293fe7a1fa066d73860bbaf4e1f5a608",
+    "scmDate": "2013-04-22T09:37:03+0200"
+  },
+  {
+    "line": 17,
+    "code": " * along with this program; if not, write to the Free Software Foundation,",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "ce63bd4c293fe7a1fa066d73860bbaf4e1f5a608",
+    "scmDate": "2013-04-22T09:37:03+0200"
+  },
+  {
+    "line": 18,
+    "code": " * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "ce63bd4c293fe7a1fa066d73860bbaf4e1f5a608",
+    "scmDate": "2013-04-22T09:37:03+0200"
+  },
+  {
+    "line": 19,
+    "code": " */",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "108dc916996e3075eb21c6ae1bbc7c9a24f09ab0",
+    "scmDate": "2013-04-16T13:24:54+0200"
+  },
+  {
+    "line": 20,
+    "code": "package org.sonar.batch.index;",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "108dc916996e3075eb21c6ae1bbc7c9a24f09ab0",
+    "scmDate": "2013-04-16T13:24:54+0200"
+  },
+  {
+    "line": 21,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "108dc916996e3075eb21c6ae1bbc7c9a24f09ab0",
+    "scmDate": "2013-04-16T13:24:54+0200"
+  },
+  {
+    "line": 22,
+    "code": "import com.google.common.collect.Iterables;",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200"
+  },
+  {
+    "line": 23,
+    "code": "import org.junit.After;",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 24,
+    "code": "import org.junit.Before;",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 25,
+    "code": "import org.junit.Rule;",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 26,
+    "code": "import org.junit.Test;",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "108dc916996e3075eb21c6ae1bbc7c9a24f09ab0",
+    "scmDate": "2013-04-16T13:24:54+0200"
+  },
+  {
+    "line": 27,
+    "code": "import org.junit.rules.TemporaryFolder;",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "18a4c15b060d1b56f08826bf6006d08eaf2625ec",
+    "scmDate": "2013-10-15T17:14:44+0200"
+  },
+  {
+    "line": 28,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "108dc916996e3075eb21c6ae1bbc7c9a24f09ab0",
+    "scmDate": "2013-04-16T13:24:54+0200"
+  },
+  {
+    "line": 29,
+    "code": "import static org.fest.assertions.Assertions.assertThat;",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 30,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "108dc916996e3075eb21c6ae1bbc7c9a24f09ab0",
+    "scmDate": "2013-04-16T13:24:54+0200"
+  },
+  {
+    "line": 31,
+    "code": "public class CacheTest {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 32,
+    "code": "",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "18a4c15b060d1b56f08826bf6006d08eaf2625ec",
+    "scmDate": "2013-10-15T17:14:44+0200"
+  },
+  {
+    "line": 33,
+    "code": "  @Rule",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 34,
+    "code": "  public TemporaryFolder temp = new TemporaryFolder();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 35,
+    "code": "",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "18a4c15b060d1b56f08826bf6006d08eaf2625ec",
+    "scmDate": "2013-10-15T17:14:44+0200"
+  },
+  {
+    "line": 36,
+    "code": "  Caches caches;",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "18a4c15b060d1b56f08826bf6006d08eaf2625ec",
+    "scmDate": "2013-10-15T17:14:44+0200"
+  },
+  {
+    "line": 37,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 38,
+    "code": "  @Before",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 39,
+    "code": "  public void start() throws Exception {",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "18a4c15b060d1b56f08826bf6006d08eaf2625ec",
+    "scmDate": "2013-10-15T17:14:44+0200"
+  },
+  {
+    "line": 40,
+    "code": "    caches = CachesTest.createCacheOnTemp(temp);",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "18a4c15b060d1b56f08826bf6006d08eaf2625ec",
+    "scmDate": "2013-10-15T17:14:44+0200"
+  },
+  {
+    "line": 41,
+    "code": "    caches.start();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 42,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "108dc916996e3075eb21c6ae1bbc7c9a24f09ab0",
+    "scmDate": "2013-04-16T13:24:54+0200"
+  },
+  {
+    "line": 43,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "108dc916996e3075eb21c6ae1bbc7c9a24f09ab0",
+    "scmDate": "2013-04-16T13:24:54+0200"
+  },
+  {
+    "line": 44,
+    "code": "  @After",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 45,
+    "code": "  public void stop() {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 46,
+    "code": "    caches.stop();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 47,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 48,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 49,
+    "code": "  @Test",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 50,
+    "code": "  public void one_part_key() throws Exception {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 51,
+    "code": "    Cache&lt;String&gt; cache = caches.createCache(\"capitals\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 52,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 53,
+    "code": "    assertThat(cache.get(\"france\")).isNull();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 54,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 55,
+    "code": "    cache.put(\"france\", \"paris\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 56,
+    "code": "    cache.put(\"italy\", \"rome\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 57,
+    "code": "    assertThat(cache.get(\"france\")).isEqualTo(\"paris\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 58,
+    "code": "    assertThat(cache.keySet()).containsOnly(\"france\", \"italy\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 59,
+    "code": "    assertThat(cache.keySet(\"france\")).isEmpty();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 60,
+    "code": "    assertThat(cache.values()).containsOnly(\"paris\", \"rome\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 61,
+    "code": "    assertThat(cache.containsKey(\"france\")).isTrue();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 62,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 63,
+    "code": "    Cache.Entry[] entries = Iterables.toArray(cache.entries(), Cache.Entry.class);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "db81d934752174207268c49658963ba98665794b",
+    "scmDate": "2014-02-20T07:35:27+0100"
+  },
+  {
+    "line": 64,
+    "code": "    assertThat(entries).hasSize(2);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 65,
+    "code": "    assertThat(entries[0].key()[0]).isEqualTo(\"france\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 66,
+    "code": "    assertThat(entries[0].value()).isEqualTo(\"paris\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 67,
+    "code": "    assertThat(entries[1].key()[0]).isEqualTo(\"italy\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 68,
+    "code": "    assertThat(entries[1].value()).isEqualTo(\"rome\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 69,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 70,
+    "code": "    cache.remove(\"france\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 71,
+    "code": "    assertThat(cache.get(\"france\")).isNull();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 72,
+    "code": "    assertThat(cache.get(\"italy\")).isEqualTo(\"rome\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 73,
+    "code": "    assertThat(cache.keySet()).containsOnly(\"italy\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 74,
+    "code": "    assertThat(cache.keySet(\"france\")).isEmpty();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 75,
+    "code": "    assertThat(cache.containsKey(\"france\")).isFalse();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 76,
+    "code": "    assertThat(cache.containsKey(\"italy\")).isTrue();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 77,
+    "code": "    assertThat(cache.values()).containsOnly(\"rome\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 78,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 79,
+    "code": "    cache.clear();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 80,
+    "code": "    assertThat(cache.values()).isEmpty();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 81,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 82,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 83,
+    "code": "  @Test",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 84,
+    "code": "  public void test_key_being_prefix_of_another_key() throws Exception {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "2a37a23b0ff74cd69a3a4c9053f3a2331b234097",
+    "scmDate": "2013-05-31T12:42:59+0200"
+  },
+  {
+    "line": 85,
+    "code": "    Cache&lt;String&gt; cache = caches.createCache(\"components\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 86,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "2a37a23b0ff74cd69a3a4c9053f3a2331b234097",
+    "scmDate": "2013-05-31T12:42:59+0200"
+  },
+  {
+    "line": 87,
+    "code": "    cache.put(\"struts-el:org.apache.strutsel.taglib.html.ELButtonTag\", \"the Tag\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "2a37a23b0ff74cd69a3a4c9053f3a2331b234097",
+    "scmDate": "2013-05-31T12:42:59+0200"
+  },
+  {
+    "line": 88,
+    "code": "    cache.put(\"struts-el:org.apache.strutsel.taglib.html.ELButtonTagBeanInfo\", \"the BeanInfo\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "2a37a23b0ff74cd69a3a4c9053f3a2331b234097",
+    "scmDate": "2013-05-31T12:42:59+0200"
+  },
+  {
+    "line": 89,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "2a37a23b0ff74cd69a3a4c9053f3a2331b234097",
+    "scmDate": "2013-05-31T12:42:59+0200"
+  },
+  {
+    "line": 90,
+    "code": "    assertThat(cache.get(\"struts-el:org.apache.strutsel.taglib.html.ELButtonTag\")).isEqualTo(\"the Tag\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "2a37a23b0ff74cd69a3a4c9053f3a2331b234097",
+    "scmDate": "2013-05-31T12:42:59+0200"
+  },
+  {
+    "line": 91,
+    "code": "    assertThat(cache.get(\"struts-el:org.apache.strutsel.taglib.html.ELButtonTagBeanInfo\")).isEqualTo(\"the BeanInfo\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "2a37a23b0ff74cd69a3a4c9053f3a2331b234097",
+    "scmDate": "2013-05-31T12:42:59+0200"
+  },
+  {
+    "line": 92,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "2a37a23b0ff74cd69a3a4c9053f3a2331b234097",
+    "scmDate": "2013-05-31T12:42:59+0200"
+  },
+  {
+    "line": 93,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "2a37a23b0ff74cd69a3a4c9053f3a2331b234097",
+    "scmDate": "2013-05-31T12:42:59+0200"
+  },
+  {
+    "line": 94,
+    "code": "  @Test",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "2a37a23b0ff74cd69a3a4c9053f3a2331b234097",
+    "scmDate": "2013-05-31T12:42:59+0200"
+  },
+  {
+    "line": 95,
+    "code": "  public void two_parts_key() throws Exception {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 96,
+    "code": "    Cache&lt;String&gt; cache = caches.createCache(\"capitals\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 97,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 98,
+    "code": "    assertThat(cache.get(\"europe\", \"france\")).isNull();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 99,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 100,
+    "code": "    cache.put(\"europe\", \"france\", \"paris\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 101,
+    "code": "    cache.put(\"europe\", \"italy\", \"rome\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 102,
+    "code": "    cache.put(\"asia\", \"china\", \"pekin\");",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 103,
+    "code": "    assertThat(cache.get(\"europe\")).isNull();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 104,
+    "code": "    assertThat(cache.get(\"europe\", \"france\")).isEqualTo(\"paris\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 105,
+    "code": "    assertThat(cache.get(\"europe\", \"italy\")).isEqualTo(\"rome\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 106,
+    "code": "    assertThat(cache.get(\"europe\")).isNull();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 107,
+    "code": "    assertThat(cache.keySet(\"europe\")).containsOnly(\"france\", \"italy\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 108,
+    "code": "    assertThat(cache.keySet()).containsOnly(\"europe\", \"asia\");",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 109,
+    "code": "    assertThat(cache.containsKey(\"europe\")).isFalse();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 110,
+    "code": "    assertThat(cache.containsKey(\"europe\", \"france\")).isTrue();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 111,
+    "code": "    assertThat(cache.containsKey(\"europe\", \"spain\")).isFalse();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 112,
+    "code": "    assertThat(cache.values()).containsOnly(\"paris\", \"rome\", \"pekin\");",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 113,
+    "code": "    assertThat(cache.values(\"america\")).isEmpty();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 114,
+    "code": "    assertThat(cache.values(\"europe\")).containsOnly(\"paris\", \"rome\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 115,
+    "code": "    assertThat(cache.values(\"oceania\")).isEmpty();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 116,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 117,
+    "code": "    Cache.Entry[] allEntries = Iterables.toArray(cache.entries(), Cache.Entry.class);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "db81d934752174207268c49658963ba98665794b",
+    "scmDate": "2014-02-20T07:35:27+0100"
+  },
+  {
+    "line": 118,
+    "code": "    assertThat(allEntries).hasSize(3);",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 119,
+    "code": "    assertThat(allEntries[0].key()).isEqualTo(new String[] {\"asia\", \"china\"});",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 120,
+    "code": "    assertThat(allEntries[0].value()).isEqualTo(\"pekin\");",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 121,
+    "code": "    assertThat(allEntries[1].key()).isEqualTo(new String[] {\"europe\", \"france\"});",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 122,
+    "code": "    assertThat(allEntries[1].value()).isEqualTo(\"paris\");",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 123,
+    "code": "    assertThat(allEntries[2].key()).isEqualTo(new String[] {\"europe\", \"italy\"});",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 124,
+    "code": "    assertThat(allEntries[2].value()).isEqualTo(\"rome\");",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 125,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 126,
+    "code": "    Cache.Entry[] subEntries = Iterables.toArray(cache.entries(\"europe\"), Cache.Entry.class);",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 127,
+    "code": "    assertThat(subEntries).hasSize(2);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 128,
+    "code": "    assertThat(subEntries[0].key()).isEqualTo(new String[] {\"europe\", \"france\"});",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 129,
+    "code": "    assertThat(subEntries[0].value()).isEqualTo(\"paris\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 130,
+    "code": "    assertThat(subEntries[1].key()).isEqualTo(new String[] {\"europe\", \"italy\"});",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 131,
+    "code": "    assertThat(subEntries[1].value()).isEqualTo(\"rome\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 132,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 133,
+    "code": "    cache.remove(\"europe\", \"france\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 134,
+    "code": "    assertThat(cache.values()).containsOnly(\"rome\", \"pekin\");",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 135,
+    "code": "    assertThat(cache.get(\"europe\", \"france\")).isNull();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 136,
+    "code": "    assertThat(cache.get(\"europe\", \"italy\")).isEqualTo(\"rome\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 137,
+    "code": "    assertThat(cache.containsKey(\"europe\", \"france\")).isFalse();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 138,
+    "code": "    assertThat(cache.keySet(\"europe\")).containsOnly(\"italy\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 139,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 140,
+    "code": "    cache.clear(\"america\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 141,
+    "code": "    assertThat(cache.keySet()).containsOnly(\"europe\", \"asia\");",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 142,
+    "code": "    cache.clear();",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 143,
+    "code": "    assertThat(cache.keySet()).isEmpty();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 144,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 145,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 146,
+    "code": "  @Test",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 147,
+    "code": "  public void three_parts_key() throws Exception {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 148,
+    "code": "    Cache&lt;String&gt; cache = caches.createCache(\"places\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 149,
+    "code": "    assertThat(cache.get(\"europe\", \"france\", \"paris\")).isNull();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 150,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 151,
+    "code": "    cache.put(\"europe\", \"france\", \"paris\", \"eiffel tower\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 152,
+    "code": "    cache.put(\"europe\", \"france\", \"annecy\", \"lake\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 153,
+    "code": "    cache.put(\"europe\", \"france\", \"poitiers\", \"notre dame\");",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 154,
+    "code": "    cache.put(\"europe\", \"italy\", \"rome\", \"colosseum\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 155,
+    "code": "    cache.put(\"europe2\", \"ukrania\", \"kiev\", \"dunno\");",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 156,
+    "code": "    cache.put(\"asia\", \"china\", \"pekin\", \"great wall\");",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 157,
+    "code": "    cache.put(\"america\", \"us\", \"new york\", \"empire state building\");",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 158,
+    "code": "    assertThat(cache.get(\"europe\")).isNull();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 159,
+    "code": "    assertThat(cache.get(\"europe\", \"france\")).isNull();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 160,
+    "code": "    assertThat(cache.get(\"europe\", \"france\", \"paris\")).isEqualTo(\"eiffel tower\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 161,
+    "code": "    assertThat(cache.get(\"europe\", \"france\", \"annecy\")).isEqualTo(\"lake\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 162,
+    "code": "    assertThat(cache.get(\"europe\", \"italy\", \"rome\")).isEqualTo(\"colosseum\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 163,
+    "code": "    assertThat(cache.keySet()).containsOnly(\"europe\", \"asia\", \"america\", \"europe2\");",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 164,
+    "code": "    assertThat(cache.keySet(\"europe\")).containsOnly(\"france\", \"italy\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 165,
+    "code": "    assertThat(cache.keySet(\"europe\", \"france\")).containsOnly(\"annecy\", \"paris\", \"poitiers\");",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 166,
+    "code": "    assertThat(cache.containsKey(\"europe\")).isFalse();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 167,
+    "code": "    assertThat(cache.containsKey(\"europe\", \"france\")).isFalse();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 168,
+    "code": "    assertThat(cache.containsKey(\"europe\", \"france\", \"annecy\")).isTrue();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 169,
+    "code": "    assertThat(cache.containsKey(\"europe\", \"france\", \"biarritz\")).isFalse();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 170,
+    "code": "    assertThat(cache.values()).containsOnly(\"eiffel tower\", \"lake\", \"colosseum\", \"notre dame\", \"great wall\", \"empire state building\", \"dunno\");",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 171,
+    "code": "    assertThat(cache.values(\"europe\")).containsOnly(\"eiffel tower\", \"lake\", \"colosseum\", \"notre dame\");",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 172,
+    "code": "    assertThat(cache.values(\"europe\", \"france\")).containsOnly(\"eiffel tower\", \"lake\", \"notre dame\");",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 173,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 174,
+    "code": "    Cache.Entry[] allEntries = Iterables.toArray(cache.entries(), Cache.Entry.class);",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "db81d934752174207268c49658963ba98665794b",
+    "scmDate": "2014-02-20T07:35:27+0100"
+  },
+  {
+    "line": 175,
+    "code": "    assertThat(allEntries).hasSize(7);",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 176,
+    "code": "    assertThat(allEntries[0].key()).isEqualTo(new String[] {\"america\", \"us\", \"new york\"});",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 177,
+    "code": "    assertThat(allEntries[0].value()).isEqualTo(\"empire state building\");",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 178,
+    "code": "    assertThat(allEntries[1].key()).isEqualTo(new String[] {\"asia\", \"china\", \"pekin\"});",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 179,
+    "code": "    assertThat(allEntries[1].value()).isEqualTo(\"great wall\");",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 180,
+    "code": "    assertThat(allEntries[2].key()).isEqualTo(new String[] {\"europe\", \"france\", \"annecy\"});",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 181,
+    "code": "    assertThat(allEntries[2].value()).isEqualTo(\"lake\");",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 182,
+    "code": "    assertThat(allEntries[3].key()).isEqualTo(new String[] {\"europe\", \"france\", \"paris\"});",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 183,
+    "code": "    assertThat(allEntries[3].value()).isEqualTo(\"eiffel tower\");",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 184,
+    "code": "    assertThat(allEntries[4].key()).isEqualTo(new String[] {\"europe\", \"france\", \"poitiers\"});",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 185,
+    "code": "    assertThat(allEntries[4].value()).isEqualTo(\"notre dame\");",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 186,
+    "code": "    assertThat(allEntries[5].key()).isEqualTo(new String[] {\"europe\", \"italy\", \"rome\"});",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 187,
+    "code": "    assertThat(allEntries[5].value()).isEqualTo(\"colosseum\");",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 188,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 189,
+    "code": "    Cache.Entry[] subEntries = Iterables.toArray(cache.entries(\"europe\"), Cache.Entry.class);",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 190,
+    "code": "    assertThat(subEntries).hasSize(4);",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 191,
+    "code": "    assertThat(subEntries[0].key()).isEqualTo(new String[] {\"europe\", \"france\", \"annecy\"});",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 192,
+    "code": "    assertThat(subEntries[0].value()).isEqualTo(\"lake\");",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 193,
+    "code": "    assertThat(subEntries[1].key()).isEqualTo(new String[] {\"europe\", \"france\", \"paris\"});",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 194,
+    "code": "    assertThat(subEntries[1].value()).isEqualTo(\"eiffel tower\");",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 195,
+    "code": "    assertThat(subEntries[2].key()).isEqualTo(new String[] {\"europe\", \"france\", \"poitiers\"});",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 196,
+    "code": "    assertThat(subEntries[2].value()).isEqualTo(\"notre dame\");",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 197,
+    "code": "    assertThat(subEntries[3].key()).isEqualTo(new String[] {\"europe\", \"italy\", \"rome\"});",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 198,
+    "code": "    assertThat(subEntries[3].value()).isEqualTo(\"colosseum\");",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 199,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 200,
+    "code": "    cache.remove(\"europe\", \"france\", \"annecy\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 201,
+    "code": "    assertThat(cache.values()).containsOnly(\"eiffel tower\", \"colosseum\", \"notre dame\", \"great wall\", \"empire state building\", \"dunno\");",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 202,
+    "code": "    assertThat(cache.values(\"europe\")).containsOnly(\"eiffel tower\", \"colosseum\", \"notre dame\");",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 203,
+    "code": "    assertThat(cache.values(\"europe\", \"france\")).containsOnly(\"eiffel tower\", \"notre dame\");",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 204,
+    "code": "    assertThat(cache.get(\"europe\", \"france\", \"annecy\")).isNull();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 205,
+    "code": "    assertThat(cache.get(\"europe\", \"italy\", \"rome\")).isEqualTo(\"colosseum\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 206,
+    "code": "    assertThat(cache.containsKey(\"europe\", \"france\")).isFalse();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 207,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 208,
+    "code": "    cache.clear(\"europe\", \"italy\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 209,
+    "code": "    assertThat(cache.values()).containsOnly(\"eiffel tower\", \"notre dame\", \"great wall\", \"empire state building\", \"dunno\");",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 210,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 211,
+    "code": "    cache.clear(\"europe\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 212,
+    "code": "    assertThat(cache.values()).containsOnly(\"great wall\", \"empire state building\", \"dunno\");",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 213,
+    "code": "",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 214,
+    "code": "    cache.clear();",
+    "scmAuthor": "julien.henry@sonarsource.com",
+    "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
+    "scmDate": "2014-05-01T00:00:12+0200"
+  },
+  {
+    "line": 215,
+    "code": "    assertThat(cache.values()).isEmpty();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 216,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 217,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 218,
+    "code": "  @Test",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 219,
+    "code": "  public void remove_versus_clear() throws Exception {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 220,
+    "code": "    Cache&lt;String&gt; cache = caches.createCache(\"capitals\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 221,
+    "code": "    cache.put(\"europe\", \"france\", \"paris\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 222,
+    "code": "    cache.put(\"europe\", \"italy\", \"rome\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 223,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 224,
+    "code": "    // remove(\"europe\") does not remove sub-keys",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 225,
+    "code": "    cache.remove(\"europe\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 226,
+    "code": "    assertThat(cache.values()).containsOnly(\"paris\", \"rome\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 227,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 228,
+    "code": "    // clear(\"europe\") removes sub-keys",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 229,
+    "code": "    cache.clear(\"europe\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 230,
+    "code": "    assertThat(cache.values()).isEmpty();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 231,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 232,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 233,
+    "code": "  @Test",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 234,
+    "code": "  public void empty_cache() throws Exception {",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 235,
+    "code": "    Cache&lt;String&gt; cache = caches.createCache(\"empty\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 236,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 237,
+    "code": "    assertThat(cache.get(\"foo\")).isNull();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 238,
+    "code": "    assertThat(cache.get(\"foo\", \"bar\")).isNull();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 239,
+    "code": "    assertThat(cache.get(\"foo\", \"bar\", \"baz\")).isNull();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 240,
+    "code": "    assertThat(cache.keySet()).isEmpty();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 241,
+    "code": "    assertThat(cache.keySet(\"foo\")).isEmpty();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 242,
+    "code": "    assertThat(cache.containsKey(\"foo\")).isFalse();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 243,
+    "code": "    assertThat(cache.containsKey(\"foo\", \"bar\")).isFalse();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 244,
+    "code": "    assertThat(cache.containsKey(\"foo\", \"bar\", \"baz\")).isFalse();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 245,
+    "code": "    assertThat(cache.values()).isEmpty();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 246,
+    "code": "    assertThat(cache.values(\"foo\")).isEmpty();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 247,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 248,
+    "code": "    // do not fail",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 249,
+    "code": "    cache.remove(\"foo\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 250,
+    "code": "    cache.remove(\"foo\", \"bar\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 251,
+    "code": "    cache.remove(\"foo\", \"bar\", \"baz\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 252,
+    "code": "    cache.clear(\"foo\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 253,
+    "code": "    cache.clear(\"foo\", \"bar\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 254,
+    "code": "    cache.clear(\"foo\", \"bar\", \"baz\");",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "e486fe02a0a38d3d9fb70690f7870c77e2265254",
+    "scmDate": "2014-02-20T07:23:08+0100"
+  },
+  {
+    "line": 255,
+    "code": "    cache.clear();",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 256,
+    "code": "  }",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b5eb47872b34aa9d017dca62abfe49b2fd7af61b",
+    "scmDate": "2013-04-17T10:35:23+0200"
+  },
+  {
+    "line": 257,
+    "code": "}",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "108dc916996e3075eb21c6ae1bbc7c9a24f09ab0",
+    "scmDate": "2013-04-16T13:24:54+0200"
+  },
+  {
+    "line": 258,
+    "code": "",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "108dc916996e3075eb21c6ae1bbc7c9a24f09ab0",
+    "scmDate": "2013-04-16T13:24:54+0200"
+  }
+]}

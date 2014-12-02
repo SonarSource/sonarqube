@@ -25,18 +25,16 @@ define [
     events: ->
       _.extend super,
         'click .js-close-component-viewer': 'closeComponentViewer'
-        'click .sym': 'highlightUsages'
         'click .code-issue': 'selectIssue'
 
 
     initialize: (options) ->
       super
-      @listenTo @, 'loaded', @onLoaded
       @listenTo options.app.state, 'change:selectedIndex', @select
 
 
     onLoaded: ->
-      @bindScrollEvents()
+      super
       @bindShortcuts()
       if @baseIssue?
         @scrollToLine @baseIssue.get 'line'
@@ -166,6 +164,10 @@ define [
         @addIssuesPerLineMeta @issues
 
 
+    renderIssues: ->
+      @issues.forEach @renderIssue, @
+
+
     renderIssue: (issue) ->
       issueView = new IssueView
         el: '#issue-' + issue.get('key')
@@ -189,11 +191,3 @@ define [
 
     closeComponentViewer: ->
       @options.app.controller.closeComponentViewer()
-
-
-    highlightUsages: (e) ->
-      highlighted = $(e.currentTarget).is '.highlighted'
-      key = e.currentTarget.className.split(/\s+/)[0]
-      @$('.sym.highlighted').removeClass 'highlighted'
-      @$(".sym.#{key}").addClass 'highlighted' unless highlighted
-

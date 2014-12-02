@@ -1,5 +1,14 @@
 <% content_for :script do %>
-  <script data-main="<%= ApplicationController.root_context -%>/js/component-viewer/app" src="<%= ApplicationController.root_context -%>/js/require.js"></script>
+  <script data-main="<%= ApplicationController.root_context -%>/js/source-viewer/app" src="<%= ApplicationController.root_context -%>/js/require.js"></script>
 <% end %>
 
-<div id="component-viewer"></div>
+<div id="source-viewer"></div>
+
+<script type="text/javascript">
+  window.file = {
+    uuid: '<%= @resource.uuid -%>',
+    key: '<%= @resource.key -%>'
+    <% if @line %>,line: <%= @line -%><% end %>
+  };
+</script>
+

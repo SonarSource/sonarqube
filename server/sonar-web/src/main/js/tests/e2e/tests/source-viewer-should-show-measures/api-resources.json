@@ -1,0 +1,256 @@
+[
+  {
+    "id": 36129,
+    "key": "test:fake-project-for-tests:src/main/java/foo/Simplest.java",
+    "name": "Simplest.java",
+    "scope": "FIL",
+    "qualifier": "FIL",
+    "date": "2014-12-09T10:58:44+0100",
+    "creationDate": "2014-12-09T10:47:35+0100",
+    "lname": "src/main/java/foo/Simplest.java",
+    "lang": "java",
+    "msr": [
+      {
+        "key": "accessors",
+        "val": 1,
+        "frmt_val": "accessors"
+      },
+      {
+        "key": "classes",
+        "val": 1,
+        "frmt_val": "classes"
+      },
+      {
+        "key": "functions",
+        "val": 1,
+        "frmt_val": "functions"
+      },
+      {
+        "key": "statements",
+        "val": 1,
+        "frmt_val": "statements"
+      },
+      {
+        "key": "ncloc",
+        "val": 1,
+        "frmt_val": "ncloc"
+      },
+      {
+        "key": "lines",
+        "val": 1,
+        "frmt_val": "lines"
+      },
+      {
+        "key": "generated_ncloc",
+        "val": 1,
+        "frmt_val": "generated_ncloc"
+      },
+      {
+        "key": "generated_lines",
+        "val": 1,
+        "frmt_val": "generated_lines"
+      },
+      {
+        "key": "complexity",
+        "val": 1,
+        "frmt_val": "complexity"
+      },
+      {
+        "key": "function_complexity",
+        "val": 1,
+        "frmt_val": "function_complexity"
+      },
+      {
+        "key": "comment_lines",
+        "val": 1,
+        "frmt_val": "comment_lines"
+      },
+      {
+        "key": "comment_lines_density",
+        "val": 1,
+        "frmt_val": "comment_lines_density"
+      },
+      {
+        "key": "public_api",
+        "val": 1,
+        "frmt_val": "public_api"
+      },
+      {
+        "key": "public_undocumented_api",
+        "val": 1,
+        "frmt_val": "public_undocumented_api"
+      },
+      {
+        "key": "public_documented_api_density",
+        "val": 1,
+        "frmt_val": "public_documented_api_density"
+      },
+      {
+        "key": "coverage",
+        "val": 1,
+        "frmt_val": "coverage"
+      },
+      {
+        "key": "line_coverage",
+        "val": 1,
+        "frmt_val": "line_coverage"
+      },
+      {
+        "key": "lines_to_cover",
+        "val": 1,
+        "frmt_val": "lines_to_cover"
+      },
+      {
+        "key": "uncovered_lines",
+        "val": 1,
+        "frmt_val": "uncovered_lines"
+      },
+      {
+        "key": "branch_coverage",
+        "val": 1,
+        "frmt_val": "branch_coverage"
+      },
+      {
+        "key": "conditions_to_cover",
+        "val": 1,
+        "frmt_val": "conditions_to_cover"
+      },
+      {
+        "key": "uncovered_conditions",
+        "val": 1,
+        "frmt_val": "uncovered_conditions"
+      },
+      {
+        "key": "it_coverage",
+        "val": 1,
+        "frmt_val": "it_coverage"
+      },
+      {
+        "key": "it_line_coverage",
+        "val": 1,
+        "frmt_val": "it_line_coverage"
+      },
+      {
+        "key": "it_lines_to_cover",
+        "val": 1,
+        "frmt_val": "it_lines_to_cover"
+      },
+      {
+        "key": "it_uncovered_lines",
+        "val": 1,
+        "frmt_val": "it_uncovered_lines"
+      },
+      {
+        "key": "it_branch_coverage",
+        "val": 1,
+        "frmt_val": "it_branch_coverage"
+      },
+      {
+        "key": "it_conditions_to_cover",
+        "val": 1,
+        "frmt_val": "it_conditions_to_cover"
+      },
+      {
+        "key": "it_uncovered_conditions",
+        "val": 1,
+        "frmt_val": "it_uncovered_conditions"
+      },
+      {
+        "key": "overall_coverage",
+        "val": 1,
+        "frmt_val": "overall_coverage"
+      },
+      {
+        "key": "overall_line_coverage",
+        "val": 1,
+        "frmt_val": "overall_line_coverage"
+      },
+      {
+        "key": "overall_lines_to_cover",
+        "val": 1,
+        "frmt_val": "overall_lines_to_cover"
+      },
+      {
+        "key": "overall_uncovered_lines",
+        "val": 1,
+        "frmt_val": "overall_uncovered_lines"
+      },
+      {
+        "key": "overall_branch_coverage",
+        "val": 1,
+        "frmt_val": "overall_branch_coverage"
+      },
+      {
+        "key": "overall_conditions_to_cover",
+        "val": 1,
+        "frmt_val": "overall_conditions_to_cover"
+      },
+      {
+        "key": "overall_uncovered_conditions",
+        "val": 1,
+        "frmt_val": "overall_uncovered_conditions"
+      },
+      {
+        "key": "violations",
+        "val": 1,
+        "frmt_val": "violations"
+      },
+      {
+        "key": "sqale_index",
+        "val": 1,
+        "frmt_val": "sqale_index"
+      },
+      {
+        "key": "sqale_rating",
+        "val": 1,
+        "frmt_val": "sqale_rating"
+      },
+      {
+        "key": "sqale_debt_ratio",
+        "val": 1,
+        "frmt_val": "sqale_debt_ratio"
+      },
+      {
+        "key": "blocker_violations",
+        "val": 1,
+        "frmt_val": "blocker_violations"
+      },
+      {
+        "key": "critical_violations",
+        "val": 1,
+        "frmt_val": "critical_violations"
+      },
+      {
+        "key": "major_violations",
+        "val": 1,
+        "frmt_val": "major_violations"
+      },
+      {
+        "key": "minor_violations",
+        "val": 1,
+        "frmt_val": "minor_violations"
+      },
+      {
+        "key": "info_violations",
+        "val": 1,
+        "frmt_val": "info_violations"
+      },
+      {
+        "key": "duplicated_lines_density",
+        "val": 1,
+        "frmt_val": "duplicated_lines_density"
+      },
+      {
+        "key": "duplicated_blocks",
+        "val": 1,
+        "frmt_val": "duplicated_blocks"
+      },
+      {
+        "key": "duplicated_lines",
+        "val": 1,
+        "frmt_val": "duplicated_lines"
+      }
+
+    ]
+  }
+]

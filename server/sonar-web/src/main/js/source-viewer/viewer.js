@@ -6,10 +6,12 @@ define([
       'issue/models/issue',
       'issue/collections/issues',
       'issue/issue-view',
+      'source-viewer/header',
       'source-viewer/popups/scm-popup',
       'source-viewer/popups/coverage-popup',
       'source-viewer/popups/duplication-popup',
-      'source-viewer/popups/line-actions-popup'
+      'source-viewer/popups/line-actions-popup',
+      'common/handlebars-extensions'
     ],
     function (Backbone,
               Marionette,
@@ -18,6 +20,7 @@ define([
               Issue,
               Issues,
               IssueView,
+              HeaderView,
               SCMPopupView,
               CoveragePopupView,
               DuplicationPopupView,
@@ -26,13 +29,17 @@ define([
       var $ = jQuery,
           HIGHLIGHTED_ROW_CLASS = 'source-line-highlighted';
 
-      return Marionette.ItemView.extend({
-        className: 'source',
+      return Marionette.Layout.extend({
+        className: 'source-viewer',
         template: Templates['source-viewer'],
 
         ISSUES_LIMIT: 100,
         LINES_LIMIT: 1000,
         LINES_AROUND: 500,
+
+        regions: {
+          headerRegion: '.source-viewer-header'
+        },
 
         ui: {
           sourceBeforeSpinner: '.js-component-viewer-source-before',
@@ -41,13 +48,14 @@ define([
 
         events: function () {
           return {
+            'click .sym': 'highlightUsages',
             'click .source-line-scm': 'showSCMPopup',
             'click .source-line-covered': 'showCoveragePopup',
             'click .source-line-partially-covered': 'showCoveragePopup',
             'click .source-line-uncovered': 'showCoveragePopup',
             'click .source-line-duplications': 'showDuplications',
             'click .source-line-duplications-extra': 'showDuplicationPopup',
-            'click .source-line-number[data-line-number]': 'highlightLine'
+            'click .source-line-number[data-line-number]': 'onLineNumberClick'
           };
         },
 
@@ -60,10 +68,19 @@ define([
           this.loadSourceBeforeThrottled = _.throttle(this.loadSourceBefore, 1000);
           this.loadSourceAfterThrottled = _.throttle(this.loadSourceAfter, 1000);
           this.scrollTimer = null;
+          this.listenTo(this, 'loaded', this.onLoaded);
+        },
+
+        renderHeader: function () {
+          this.headerRegion.show(new HeaderView({ model: this.model }));
         },
 
         onRender: function () {
+          this.renderHeader();
           this.renderIssues();
+          if (this.model.has('filterLinesFunc')) {
+            this.filterLines(this.model.get('filterLinesFunc'));
+          }
         },
 
         onClose: function () {
@@ -71,6 +88,10 @@ define([
             return view.close();
           });
           this.issueViews = [];
+        },
+
+        onLoaded: function () {
+          this.bindScrollEvents();
         },
 
         open: function (id, key) {
@@ -105,6 +126,7 @@ define([
               options = { key: this.model.key() };
           return $.get(url, options).done(function (data) {
             that.model.set(data);
+            that.model.set({ isUnitTest: data.q === 'UTS' });
           });
         },
 
@@ -228,29 +250,26 @@ define([
         },
 
         renderIssues: function () {
-          this.issues.forEach(this.renderIssue, this);
+          this.$('.issue-list').addClass('hidden');
         },
 
         renderIssue: function (issue) {
-          var issueView = new IssueView({
-            el: '#issue-' + issue.get('key'),
-            model: issue
-          });
-          this.issueViews.push(issueView);
-          issueView.render();
+          // do nothing
         },
 
         addIssue: function (issue) {
           var line = issue.get('line') || 0,
-              code = this.$('.source-line-code[data-line-number=' + line + ']'),
-              issueList = code.find('.issue-list');
-          if (issueList.length === 0) {
-            issueList = $('<div class="issue-list"></div>');
-            code.append(issueList);
-            code.addClass('has-issues');
+              code = this.$('.source-line-code[data-line-number=' + line + ']');
+          code.addClass('has-issues');
+        },
+
+        highlightUsages: function (e) {
+          var highlighted = $(e.currentTarget).is('.highlighted'),
+              key = e.currentTarget.className.split(/\s+/)[0];
+          this.$('.sym.highlighted').removeClass('highlighted');
+          if (!highlighted) {
+            this.$('.sym.' + key).addClass('highlighted');
           }
-          issueList.append('<div class="issue" id="issue-' + issue.id + '"></div>');
-          this.renderIssue(issue);
         },
 
         showSCMPopup: function (e) {
@@ -331,14 +350,27 @@ define([
           popup.render();
         },
 
-        highlightLine: function (e) {
+        onLineNumberClick: function (e) {
           var row = $(e.currentTarget).closest('.source-line'),
+              line = row.data('line-number'),
               highlighted = row.is('.' + HIGHLIGHTED_ROW_CLASS);
-          this.$('.' + HIGHLIGHTED_ROW_CLASS).removeClass(HIGHLIGHTED_ROW_CLASS);
           if (!highlighted) {
-            row.addClass(HIGHLIGHTED_ROW_CLASS);
+            this.highlightLine(line);
             this.showLineActionsPopup(e);
+          } else {
+            this.removeHighlighting();
           }
+        },
+
+        removeHighlighting: function () {
+          this.$('.' + HIGHLIGHTED_ROW_CLASS).removeClass(HIGHLIGHTED_ROW_CLASS);
+        },
+
+        highlightLine: function (line) {
+          var row = this.$('.source-line[data-line-number=' + line + ']');
+          this.removeHighlighting();
+          row.addClass(HIGHLIGHTED_ROW_CLASS);
+          return this;
         },
 
         bindScrollEvents: function () {
@@ -374,6 +406,21 @@ define([
           if (this.model.get('hasSourceAfter') && (pPosition + p.height() >= this.ui.sourceAfterSpinner.offset().top)) {
             return this.loadSourceAfterThrottled();
           }
+        },
+
+        scrollToLine: function (line) {
+          var row = this.$('.source-line[data-line-number=' + line + ']');
+          if (row.length > 0) {
+            var p = this.$el.scrollParent();
+            if (p.is(document)) {
+              p = $(window);
+            }
+            var pTopOffset = p.offset() != null ? p.offset().top : 0,
+                pHeight = p.height(),
+                goal = row.offset().top - pHeight / 3 - pTopOffset;
+            p.scrollTop(goal);
+          }
+          return this;
         },
 
         loadSourceBefore: function () {
@@ -442,6 +489,30 @@ define([
               that.bindScrollEvents();
             }
           });
+        },
+
+        filterLines: function (func) {
+          var lines = this.model.get('source'),
+              $lines = this.$('.source-line');
+          this.model.set('filterLinesFunc', func);
+          lines.forEach(function (line, idx) {
+            var $line = $($lines[idx]);
+            $line.toggleClass('source-line-shadowed', !func(line));
+          });
+        },
+
+        filterLinesByPeriod: function (periodId) {
+          var periods = this.model.get('periods'),
+              period = _.find(periods, function (candidate) {
+                return candidate[0] === periodId;
+              });
+          if (period) {
+            var sinceDate = moment(period[2]).toDate();
+            this.filterLines(function (line) {
+              var scmDate = moment(line.scmDate).toDate();
+              return scmDate >= sinceDate;
+            });
+          }
         }
       });
 

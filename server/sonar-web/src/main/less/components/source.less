@@ -1,11 +1,12 @@
 @import (reference) "../mixins";
 @import (reference) "../variables";
+@import (reference) "../ui";
 
 @lineHeight: 18px;
 @lineWithIssuesBackground: #ffeaea;
 @duplicationColor: #f3ca8e;
 
-.source {
+.source-viewer {
   width: 100%;
   border: 1px solid @barBorderColor;
   .box-sizing(border-box);
@@ -50,18 +51,24 @@
   }
 }
 
+.source-line-shadowed {
+  .source-line-code {
+    opacity: 0.4;
+  }
+}
+
 .source-line-expand {
   .source-line-code {
     background: url(../images/gray-stripes.png) repeat;
   }
 }
 
-.source pre {
+.source-viewer pre {
   height: @lineHeight;
   padding: 0;
 }
 
-.source pre,
+.source-viewer pre,
 .source-meta {
   line-height: @lineHeight;
   font-family: @monoFontFamily;
@@ -172,4 +179,166 @@
 .source-line-duplicated {
   background-color: @duplicationColor !important;
   cursor: pointer;
+}
+
+
+// Header
+
+.source-viewer-header {
+  .clearfix;
+  position: relative;
+  padding: 2px 10px 4px;
+  border-bottom: 1px solid @barBorderColor;
+  background-color: @barBackgroundColor;
+}
+
+.source-viewer-header-bar + .source-viewer-header-bar {
+  border-top: 1px solid @barBorderColor;
+}
+
+.source-viewer-header-component {
+  float: left;
+  line-height: 20px;
+}
+
+.source-viewer-header-component-project {
+  color: #777;
+  font-size: @smallFontSize;
+}
+
+.source-viewer-header-component-name {
+  font-weight: 500;
+}
+
+.source-viewer-header-favorite {
+  position: relative;
+  top: -2px;
+  margin-left: 4px;
+  .link-no-underline;
+}
+
+.source-viewer-header-measures {
+  float: right;
+}
+
+.source-viewer-header-measures-scope {
+  position: relative;
+  float: left;
+}
+
+.source-viewer-header-measure {
+  display: inline-block;
+  vertical-align: middle;
+  padding: 3px 0;
+  font-size: @baseFontSize;
+
+  .rating {
+    font-size: 18px;
+  }
+}
+
+.source-viewer-header-measure + .source-viewer-header-measure {
+  margin-left: 25px;
+}
+
+.source-viewer-header-measure-label {
+  display: block;
+  margin-top: 4px;
+  line-height: @smallFontSize;
+  color: #777;
+  font-size: @smallFontSize;
+}
+
+.source-viewer-header-measure-value {
+  display: block;
+  line-height: 18px;
+  color: @baseFontColor;
+  font-size: 18px;
+  font-weight: 300;
+}
+
+.source-viewer-header-measure-issues {
+  width: 45px;
+}
+
+.source-viewer-header-measure-issue {
+  min-width: 1px;
+  height: 6px;
+
+  &.s-blocker { background-color: @severityBlockerColor; }
+  &.s-critical { background-color: @severityCriticalColor; }
+  &.s-major { background-color: @severityMajorColor; }
+  &.s-minor { background-color: @severityMinorColor; }
+  &.s-info { background-color: @severityInfoColor; }
+}
+
+.source-viewer-header-measure-issue + .source-viewer-header-measure-issue {
+  margin-top: 1px;
+}
+
+.source-viewer-header-actions {
+  float: right;
+  display: block;
+  margin-left: 25px;
+  padding: 13px 5px;
+}
+
+.source-viewer-header-more-actions {
+  position: absolute;
+  z-index: 100;
+  right: -1px;
+  top: 100%;
+  padding: 10px;
+  border: 1px solid @barBorderColor;
+  background-color: @white;
+  line-height: 1.8;
+}
+
+.source-viewer-measures {
+  width: 1080px;
+  margin: 0 auto;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.source-viewer-measures-section {
+  vertical-align: top;
+  width: 25%;
+  padding: 0 15px;
+}
+
+//.source-viewer-measures-section + .source-viewer-measures-section {
+//  border-left: 1px solid @barBorderColor;
+//}
+
+.source-viewer-tests-list {
+  width: 100%;
+  font-size: @baseFontSize;
+
+  .subtitle {
+    font-size: @smallFontSize;
+  }
+}
+
+.source-viewer-test-status,
+.source-viewer-test-duration,
+.source-viewer-test-covered-lines {
+  width: 1px;
+}
+
+.source-viewer-test-status,
+.source-viewer-test-duration,
+.source-viewer-test-covered-lines,
+.source-viewer-test-covered-name {
+  vertical-align: middle;
+  padding: 3px;
+}
+
+.source-viewer-test-name {
+  padding-left: 10px;
+  word-break: break-all;
+}
+
+.source-viewer-test-covered-lines {
+  text-align: right;
 }

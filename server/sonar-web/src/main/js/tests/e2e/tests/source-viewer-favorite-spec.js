@@ -1,23 +1,26 @@
+/* global casper:false */
+
 var lib = require('../lib'),
-    testName = lib.testName('Component Viewer');
+    testName = lib.testName('Source Viewer');
 
 lib.initMessages();
-lib.changeWorkingDirectory('component-viewer-spec');
+lib.changeWorkingDirectory('source-viewer-spec');
 
 
 casper.test.begin(testName('Mark as Favorite'), function (test) {
   casper
-      .start(lib.buildUrl('component-viewer#component=component'), function () {
+      .start(lib.buildUrl('source-viewer'), function () {
         lib.setDefaultViewport();
         lib.mockRequest('/api/l10n/index', '{}');
         lib.mockRequest('/api/favourites', '{}', { type: 'POST' });
         lib.mockRequest('/api/favourites/*', '{}', { type: 'DELETE' });
         lib.mockRequestFromFile('/api/components/app', 'app.json');
-        lib.mockRequestFromFile('/api/sources/show', 'source.json');
+        lib.mockRequestFromFile('/api/sources/lines', 'lines.json');
+        lib.mockRequestFromFile('/api/issues/search', 'issues.json');
       })
 
       .then(function () {
-        casper.waitForSelector('.component-viewer-source .source-line');
+        casper.waitForSelector('.source-line');
       })
 
       .then(function () {
@@ -41,15 +44,16 @@ casper.test.begin(testName('Mark as Favorite'), function (test) {
 
 casper.test.begin(testName('Don\'t Show Favorite If Not Logged In'), function (test) {
   casper
-      .start(lib.buildUrl('component-viewer#component=component'), function () {
+      .start(lib.buildUrl('source-viewer'), function () {
         lib.setDefaultViewport();
         lib.mockRequest('/api/l10n/index', '{}');
         lib.mockRequestFromFile('/api/components/app', 'app-not-logged-in.json');
-        lib.mockRequestFromFile('/api/sources/show', 'source.json');
+        lib.mockRequestFromFile('/api/sources/lines', 'lines.json');
+        lib.mockRequestFromFile('/api/issues/search', 'issues.json');
       })
 
       .then(function () {
-        casper.waitForSelector('.component-viewer-source .source-line');
+        casper.waitForSelector('.source-line');
       })
 
       .then(function () {

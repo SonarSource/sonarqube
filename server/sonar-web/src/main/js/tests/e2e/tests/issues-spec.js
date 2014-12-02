@@ -1,3 +1,5 @@
+/* globals casper: false */
+
 var lib = require('../lib'),
     testName = lib.testName('Issues');
 
@@ -154,6 +156,99 @@ casper.test.begin(testName('Issue Box', 'Transitions'), function (test) {
       .then(function () {
         casper.waitForSelector('.issue.selected [data-transition=reopen]', function () {
           test.assertExists('.issue.selected [data-transition=reopen]');
+        });
+      })
+
+      .run(function () {
+        test.done();
+      });
+});
+
+
+casper.test.begin(testName('File-Level Issues'), function (test) {
+  var issueKey = '200d4a8b-9666-4e70-9953-7bab57933f97',
+      issueSelector = '.issue[data-key="' + issueKey + '"]';
+
+  casper
+      .start(lib.buildUrl('issues'), function () {
+        lib.setDefaultViewport();
+
+        lib.mockRequest('/api/l10n/index', '{}');
+        lib.mockRequestFromFile('/api/issue_filters/app', 'app.json');
+        lib.mockRequestFromFile('/api/issues/search', 'file-level/search.json');
+        lib.mockRequestFromFile('/api/components/app', 'file-level/components-app.json');
+        lib.mockRequestFromFile('/api/sources/lines', 'file-level/lines.json');
+      })
+
+      .then(function () {
+        casper.waitForSelector(issueSelector, function () {
+          casper.click(issueSelector + ' .js-issue-navigate');
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('.source-viewer ' + issueSelector, function () {
+          test.assertSelectorContains('.source-viewer ' + issueSelector, '1 duplicated blocks of code');
+        });
+      })
+
+      .run(function () {
+        test.done();
+      });
+});
+
+
+casper.test.begin(testName('Status Facet'), function (test) {
+  casper
+      .start(lib.buildUrl('issues'), function () {
+        lib.setDefaultViewport();
+
+        lib.mockRequest('/api/l10n/index', '{}');
+        lib.mockRequestFromFile('/api/issue_filters/app', 'app.json');
+        lib.mockRequestFromFile('/api/issues/search', 'search-reopened.json', { data: { statuses: 'REOPENED' } });
+        lib.mockRequestFromFile('/api/issues/search', 'search.json');
+      })
+
+      .then(function () {
+        casper.waitForSelector('.facet[data-value=REOPENED]', function () {
+          casper.click('.facet[data-value=REOPENED]');
+        });
+      })
+
+      .then(function () {
+        lib.waitForElementCount('.issue', 4, function () {
+          test.assertElementCount('.issue .icon-status-reopened', 4);
+        });
+      })
+
+      .run(function () {
+        test.done();
+      });
+});
+
+
+casper.test.begin(testName('Bulk Change'), function (test) {
+  casper
+      .start(lib.buildUrl('issues'), function () {
+        lib.setDefaultViewport();
+
+        lib.mockRequest('/api/l10n/index', '{}');
+        lib.mockRequestFromFile('/api/issue_filters/app', 'app.json');
+        lib.mockRequestFromFile('/api/issues/search', 'search.json');
+        lib.mockRequest('/issues/bulk_change_form?resolved=false',
+            '<div id="bulk-change-form">bulk change form</div>', { contentType: 'text/plain' });
+      })
+
+      .then(function () {
+        casper.waitForSelector('.issue', function () {
+          casper.waitForSelector('#issues-bulk-change');
+        });
+      })
+
+      .then(function () {
+        casper.click('#issues-bulk-change');
+        casper.waitForSelector('#bulk-change-form', function () {
+          test.assertSelectorContains('#bulk-change-form', 'bulk change form');
         });
       })
 

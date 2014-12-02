@@ -86,7 +86,7 @@
                 <%= qualifier_icon(resource) -%>&nbsp;
                 <% if resource.source_code? %>
                   <a href="#" title="<%= h resource.name(true) -%>" data-key="<%= resource.key -%>"
-                     class="js-drilldown-link"><%= h resource.name(false) %></a>
+                     data-uuid="<%= resource.uuid -%>" class="js-drilldown-link"><%= h resource.name(false) %></a>
                 <% else %>
                   <%= link_to(h(resource.name), params.merge({:only_path => true, :rids => (selected ? rids-[resource.id] : rids+[resource.id])})) -%>
                 <% end %>
@@ -128,6 +128,6 @@
   };
 </script>
 
-<div id="accordion-panel"/>
+<div id="source-viewer"></div>
 
 <%= render :partial => 'footer' -%>

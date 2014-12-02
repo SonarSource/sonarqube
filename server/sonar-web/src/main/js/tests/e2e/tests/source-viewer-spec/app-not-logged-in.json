@@ -1,21 +1,19 @@
-{
-  "key": "org.codehaus.sonar:sonar-batch:src/main/java/org/sonar/batch/index/Cache.java",
+{"key": "org.codehaus.sonar:sonar-batch:src/main/java/org/sonar/batch/index/Cache.java",
   "path": "src/main/java/org/sonar/batch/index/Cache.java",
   "name": "Cache.java",
   "longName": "src/main/java/org/sonar/batch/index/Cache.java",
-  "q": "FIL",
-  "subProject": "org.codehaus.sonar:sonar-batch",
+  "q": "FIL", "subProject": "org.codehaus.sonar:sonar-batch",
   "subProjectName": "SonarQube :: Batch",
   "project": "org.codehaus.sonar:sonar",
   "projectName": "SonarQube",
   "fav": false,
-  "canMarkAsFavourite": true,
-  "canBulkChange": true,
-  "canCreateManualIssue": true,
+  "canMarkAsFavourite": false,
+  "canBulkChange": false,
+  "canCreateManualIssue": false,
   "periods": [
-    [1, "since previous analysis (2014 Jul 08)", "2014-07-08T23:17:21+0200"],
-    [2, "over 365 days (2013 Jul 10)", "2013-07-10T00:41:28+0200"],
-    [3, "since previous version (4.4 - 2014 Jul 02)", "2014-07-02T15:39:51+0200"]
+    [1, "since previous analysis (2014 Dec 01)", "2014-12-01T18:51:13+0100"],
+    [2, "over 365 days (2013 Dec 01)", "2013-12-01T00:40:31+0100"],
+    [3, "since previous version (4.5 - 2014 Sep 03)", "2014-09-03T23:16:52+0200"]
   ],
   "severities": [
     ["MINOR", "Minor", 1],
@@ -28,15 +26,16 @@
     ["squid:S1135", "TODO tags should be handled", 4]
   ],
   "measures": {
-    "fNcloc": "379",
+    "fNcloc": "378",
     "fCoverage": "74.3%",
     "fDuplicationDensity": "5.8%",
-    "fDebt": "3h 30min",
+    "fDebt": "2h 10min",
+    "fSqaleRating": "A",
+    "fSqaleDebtRatio": "1.1%",
     "fIssues": "6",
     "fMinorIssues": "1",
     "fMajorIssues": "1",
-    "fInfoIssues": "4",
-    "fSqaleRating": "A"
+    "fInfoIssues": "4"
   },
   "tabs": ["scm", "coverage", "duplications"],
   "manual_rules": [
@@ -60,5 +59,4 @@
       "key": "manual:sql_pitfalls",
       "name": "SQL Pitfall"
     }
-  ]
-}
+  ]}

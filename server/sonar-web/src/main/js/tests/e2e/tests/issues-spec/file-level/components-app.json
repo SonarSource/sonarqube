@@ -1,0 +1,124 @@
+{
+  "key": "org.codehaus.sonar:sonar-plugin-api:src/main/java/org/sonar/api/measures/Measure.java",
+  "path": "src/main/java/org/sonar/api/measures/Measure.java",
+  "name": "Measure.java",
+  "longName": "src/main/java/org/sonar/api/measures/Measure.java",
+  "q": "FIL",
+  "subProject": "org.codehaus.sonar:sonar-plugin-api",
+  "subProjectName": "SonarQube :: Plugin API",
+  "project": "org.codehaus.sonar:sonar",
+  "projectName": "SonarQube",
+  "fav": false,
+  "canMarkAsFavourite": false,
+  "canBulkChange": false,
+  "canCreateManualIssue": false,
+  "periods": [
+    [
+      1,
+      "since previous analysis (2014 Dec 01)",
+      "2014-12-01T18:51:13+0100"
+    ],
+    [
+      2,
+      "over 365 days (2013 Dec 01)",
+      "2013-12-01T00:40:31+0100"
+    ],
+    [
+      3,
+      "since previous version (4.5 - 2014 Sep 03)",
+      "2014-09-03T23:16:52+0200"
+    ]
+  ],
+  "severities": [
+    [
+      "MAJOR",
+      "Major",
+      10
+    ],
+    [
+      "INFO",
+      "Info",
+      3
+    ]
+  ],
+  "rules": [
+    [
+      "common-java:DuplicatedBlocks",
+      "Duplicated blocks",
+      1
+    ],
+    [
+      "squid:S1698",
+      "Objects should be compared with \"equals()\"",
+      1
+    ],
+    [
+      "squid:MethodCyclomaticComplexity",
+      "Methods should not be too complex",
+      3
+    ],
+    [
+      "squid:S1142",
+      "Methods should not contain too many return statements",
+      2
+    ],
+    [
+      "squid:S1067",
+      "Expressions should not be too complex",
+      1
+    ],
+    [
+      "squid:S1151",
+      "Switch cases should not have too many lines",
+      1
+    ],
+    [
+      "common-java:InsufficientBranchCoverage",
+      "Insufficient branch coverage by unit tests",
+      1
+    ],
+    [
+      "squid:S1133",
+      "Deprecated code should be removed eventually",
+      3
+    ]
+  ],
+  "measures": {
+    "fNcloc": "396",
+    "fCoverage": "65.0%",
+    "fDuplicationDensity": "2.6%",
+    "fDebt": "5h 42min",
+    "fSqaleRating": "A",
+    "fSqaleDebtRatio": "2.9%",
+    "fIssues": "13",
+    "fMajorIssues": "10",
+    "fInfoIssues": "3"
+  },
+  "tabs": [
+    "scm",
+    "coverage",
+    "duplications"
+  ],
+  "manual_rules": [
+    {
+      "key": "manual:api",
+      "name": "API"
+    },
+    {
+      "key": "manual:design",
+      "name": "Design"
+    },
+    {
+      "key": "manual:error_handling",
+      "name": "Error handling"
+    },
+    {
+      "key": "manual:performance",
+      "name": "Performance"
+    },
+    {
+      "key": "manual:sql_pitfalls",
+      "name": "SQL Pitfall"
+    }
+  ]
+}
