@@ -30,7 +30,7 @@
         </td>
       {{/each}}
 
-      <td class="source-line-code code" data-line-number="{{line}}">
+      <td class="source-line-code code {{#notEmpty issues}}has-issues{{/notEmpty}}" data-line-number="{{line}}">
         {{#notNull code}}
           <pre>{{#if code}}{{{code}}}{{else}}&nbsp;{{/if}}</pre>
         {{/notNull}}
