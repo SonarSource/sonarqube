@@ -247,6 +247,7 @@ define([
           if (issueList.length === 0) {
             issueList = $('<div class="issue-list"></div>');
             code.append(issueList);
+            code.addClass('has-issues');
           }
           issueList.append('<div class="issue" id="issue-' + issue.id + '"></div>');
           this.renderIssue(issue);
