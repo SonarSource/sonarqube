@@ -25,6 +25,7 @@ import org.sonar.api.resources.Scopes;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.purge.IdUuidPair;
 import org.sonar.core.purge.PurgeDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
@@ -51,7 +52,7 @@ public class ComponentCleanerService implements ServerComponent {
       if (!Scopes.PROJECT.equals(project.scope())) {
         throw new IllegalArgumentException("Only projects can be deleted");
       }
-      purgeDao.deleteResourceTree(project.getId());
+      purgeDao.deleteResourceTree(new IdUuidPair(project.getId(), project.uuid()));
       dbSession.commit();
 
       deleteFromIndices(project.uuid());

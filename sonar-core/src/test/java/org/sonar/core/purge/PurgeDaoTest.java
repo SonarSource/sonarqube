@@ -39,6 +39,15 @@ public class PurgeDaoTest extends AbstractDaoTestCase {
 
   PurgeDao dao;
 
+  private static PurgeableSnapshotDto getById(List<PurgeableSnapshotDto> snapshots, long id) {
+    for (PurgeableSnapshotDto snapshot : snapshots) {
+      if (snapshot.getSnapshotId() == id) {
+        return snapshot;
+      }
+    }
+    return null;
+  }
+
   @Before
   public void createDao() {
     system2 = mock(System2.class);
@@ -55,10 +64,17 @@ public class PurgeDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void shouldPurgeProject() {
+  public void should_purge_project() {
     setupData("shouldPurgeProject");
     dao.purge(new PurgeConfiguration(1L, new String[0], 30));
     checkTables("shouldPurgeProject", "projects", "snapshots");
+  }
+
+  @Test
+  public void delete_file_sources_of_disabled_resources() {
+    setupData("delete_file_sources_of_disabled_resources");
+    dao.purge(new PurgeConfiguration(1L, new String[0], 30, system2));
+    checkTables("delete_file_sources_of_disabled_resources", "file_sources");
   }
 
   @Test
@@ -96,20 +112,11 @@ public class PurgeDaoTest extends AbstractDaoTestCase {
     assertThat(getById(snapshots, 5L).hasEvents()).isTrue();
   }
 
-  private static PurgeableSnapshotDto getById(List<PurgeableSnapshotDto> snapshots, long id) {
-    for (PurgeableSnapshotDto snapshot : snapshots) {
-      if (snapshot.getSnapshotId() == id) {
-        return snapshot;
-      }
-    }
-    return null;
-  }
-
   @Test
-  public void shouldDeleteProject() {
+  public void should_delete_project_and_associated_data() {
     setupData("shouldDeleteProject");
-    dao.deleteResourceTree(1L);
-    assertEmptyTables("projects", "snapshots", "action_plans", "issues", "issue_changes");
+    dao.deleteResourceTree(new IdUuidPair(1L, "A"));
+    assertEmptyTables("projects", "snapshots", "action_plans", "issues", "issue_changes", "file_sources");
   }
 
   @Test

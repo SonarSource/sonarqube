@@ -279,4 +279,10 @@ class PurgeCommands {
     profiler.stop();
   }
 
+  public void deleteFileSources(String rootUuid) {
+    profiler.start("deleteFileSources (file_sources)");
+    purgeMapper.deleteFileSourcesByProjectUuid(rootUuid);
+    session.commit();
+    profiler.stop();
+  }
 }

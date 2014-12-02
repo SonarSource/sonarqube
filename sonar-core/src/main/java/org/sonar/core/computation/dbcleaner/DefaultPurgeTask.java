@@ -28,10 +28,12 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.TimeUtils;
 import org.sonar.core.computation.dbcleaner.period.DefaultPeriodCleaner;
+import org.sonar.core.purge.IdUuidPair;
 import org.sonar.core.purge.PurgeConfiguration;
 import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.purge.PurgeProfiler;
 import org.sonar.core.resource.ResourceDao;
+import org.sonar.core.resource.ResourceDto;
 import org.sonar.plugins.dbcleaner.api.PurgeTask;
 
 import static org.sonar.core.purge.PurgeConfiguration.newDefaultPurgeConfiguration;
@@ -57,7 +59,8 @@ public class DefaultPurgeTask implements PurgeTask {
 
   @Override
   public DefaultPurgeTask delete(long resourceId) {
-    purgeDao.deleteResourceTree(resourceId);
+    ResourceDto project = resourceDao.getResource(resourceId);
+    purgeDao.deleteResourceTree(new IdUuidPair(project.getId(), project.getUuid()));
     return this;
   }
 

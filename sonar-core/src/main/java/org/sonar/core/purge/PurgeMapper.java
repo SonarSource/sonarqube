@@ -103,4 +103,8 @@ public interface PurgeMapper {
   void deleteOldClosedIssueChanges(@Param("rootProjectId") long rootProjectId, @Nullable @Param("toDate") Date toDate);
 
   void deleteOldClosedIssues(@Param("rootProjectId") long rootProjectId, @Nullable @Param("toDate") Date toDate);
+
+  void deleteFileSourcesByProjectUuid(String rootProjectUuid);
+
+  void deleteFileSourcesByUuid(String fileUuid);
 }

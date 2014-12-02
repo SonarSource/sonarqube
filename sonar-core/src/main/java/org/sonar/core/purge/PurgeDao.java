@@ -41,11 +41,11 @@ import java.util.List;
  * @since 2.14
  */
 public class PurgeDao {
+  private static final Logger LOG = LoggerFactory.getLogger(PurgeDao.class);
   private final MyBatis mybatis;
   private final ResourceDao resourceDao;
-  private static final Logger LOG = LoggerFactory.getLogger(PurgeDao.class);
-  private PurgeProfiler profiler;
   private final System2 system2;
+  private PurgeProfiler profiler;
 
   public PurgeDao(MyBatis mybatis, ResourceDao resourceDao, PurgeProfiler profiler, System2 system2) {
     this.mybatis = mybatis;
@@ -134,9 +134,9 @@ public class PurgeDao {
     session.select("org.sonar.core.purge.PurgeMapper.selectResourceIdsToDisable", project.getId(), new ResultHandler() {
       @Override
       public void handleResult(ResultContext resultContext) {
-        Long resourceId = (Long) resultContext.getResultObject();
-        if (resourceId != null) {
-          disableResource(resourceId, purgeMapper);
+        IdUuidPair resourceIdUuid = (IdUuidPair) resultContext.getResultObject();
+        if (resourceIdUuid.getId() != null) {
+          disableResource(resourceIdUuid, purgeMapper);
         }
       }
     });
@@ -162,15 +162,20 @@ public class PurgeDao {
     return result;
   }
 
-  public PurgeDao deleteResourceTree(long rootProjectId) {
+  public PurgeDao deleteResourceTree(IdUuidPair rootIdUuid) {
     final DbSession session = mybatis.openSession(true);
     final PurgeMapper mapper = session.getMapper(PurgeMapper.class);
     try {
-      deleteProject(rootProjectId, mapper, new PurgeCommands(session, profiler));
+      deleteProject(rootIdUuid.getId(), mapper, new PurgeCommands(session, profiler));
+      deleteFileSources(rootIdUuid.getUuid(), new PurgeCommands(session, profiler));
       return this;
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  private void deleteFileSources(String rootUuid, PurgeCommands commands) {
+    commands.deleteFileSources(rootUuid);
   }
 
   private void deleteProject(long rootProjectId, PurgeMapper mapper, PurgeCommands commands) {
@@ -183,9 +188,11 @@ public class PurgeDao {
     commands.deleteResources(resourceIds);
   }
 
-  private void disableResource(long resourceId, PurgeMapper mapper) {
+  private void disableResource(IdUuidPair resourceIdUuid, PurgeMapper mapper) {
+    long resourceId = resourceIdUuid.getId();
     mapper.deleteResourceIndex(Arrays.asList(resourceId));
     mapper.setSnapshotIsLastToFalse(resourceId);
+    mapper.deleteFileSourcesByUuid(resourceIdUuid.getUuid());
     mapper.disableResource(resourceId);
     mapper.resolveResourceIssuesNotAlreadyResolved(resourceId, new Date(system2.now()));
   }

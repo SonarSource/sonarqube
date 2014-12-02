@@ -30,6 +30,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.core.computation.dbcleaner.period.DefaultPeriodCleaner;
+import org.sonar.core.purge.IdUuidPair;
 import org.sonar.core.purge.PurgeConfiguration;
 import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.purge.PurgeProfiler;
@@ -139,8 +140,10 @@ public class DefaultPurgeTaskTest {
 
   @Test
   public void call_dao_delete_when_deleting() throws Exception {
+    when(resourceDao.getResource(123L)).thenReturn(new ResourceDto().setId(123L).setUuid("A"));
+
     sut.delete(123L);
 
-    verify(purgeDao, times(1)).deleteResourceTree(123L);
+    verify(purgeDao, times(1)).deleteResourceTree(any(IdUuidPair.class));
   }
 }
