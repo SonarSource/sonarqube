@@ -185,6 +185,17 @@ public class FeedFileSourcesTest {
         "(12, 6, ?)");
       overallCoveredCondStmt.setBytes(1, "1=4".getBytes(Charsets.UTF_8));
       overallCoveredCondStmt.executeUpdate();
+
+      PreparedStatement duplicationDataStmt = connection.prepareStatement("insert into project_measures " +
+        "(metric_id, snapshot_id, " + columnName + ") " +
+        "values " +
+        "(13, 6, ?)");
+      duplicationDataStmt
+        .setBytes(
+          1,
+          "<duplications><g><b s=\"1\" l=\"1\" r=\"MyProject:src/main/xoo/prj/MyFile.xoo\"/><b s=\"2\" l=\"1\" r=\"MyProject:src/main/xoo/prj/MyFile.xoo\"/><b s=\"3\" l=\"1\" r=\"MyProject:src/main/xoo/prj/AnotherFile.xoo\"/></g></duplications>"
+            .getBytes(Charsets.UTF_8));
+      duplicationDataStmt.executeUpdate();
     } finally {
       DbUtils.commitAndCloseQuietly(connection);
     }

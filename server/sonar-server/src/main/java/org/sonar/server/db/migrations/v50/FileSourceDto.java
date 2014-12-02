@@ -20,14 +20,28 @@
 package org.sonar.server.db.migrations.v50;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableList;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
+import org.codehaus.stax2.XMLInputFactory2;
+import org.codehaus.staxmate.SMInputFactory;
+import org.codehaus.staxmate.in.SMHierarchicCursor;
+import org.codehaus.staxmate.in.SMInputCursor;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.KeyValueFormat;
+import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.text.CsvWriter;
+
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
+import java.io.StringReader;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import static com.google.common.base.Charsets.UTF_8;
@@ -50,11 +64,12 @@ class FileSourceDto {
   private final Map<Integer, String> overallHits;
   private final Map<Integer, String> overallConditions;
   private final Map<Integer, String> overallCoveredConditions;
+  private final List<List<Block>> duplicationGroups;
 
   FileSourceDto(String source, String revisions, String authors, String dates,
     String utHits, String utConditions, String utCoveredConditions,
     String itHits, String itConditions, String itCoveredConditions,
-    String overallHits, String overallConditions, String overallCoveredConditions) {
+    String overallHits, String overallConditions, String overallCoveredConditions, String duplicationData) {
     sourceSplitter = Splitter.onPattern("\r?\n|\r").split(source).iterator();
     this.revisions = KeyValueFormat.parseIntString(revisions);
     this.authors = KeyValueFormat.parseIntString(authors);
@@ -68,12 +83,13 @@ class FileSourceDto {
     this.overallHits = KeyValueFormat.parseIntString(overallHits);
     this.overallConditions = KeyValueFormat.parseIntString(overallConditions);
     this.overallCoveredConditions = KeyValueFormat.parseIntString(overallCoveredConditions);
+    this.duplicationGroups = StringUtils.isNotBlank(duplicationData) ? parseDuplicationData(duplicationData) : Collections.<List<Block>>emptyList();
   }
 
   String[] getSourceData() {
     String highlighting = "";
     String symbolRefs = "";
-    String duplications = "";
+    Map<Integer, String> duplicationsPerLine = computeDuplicationsPerLine(duplicationGroups);
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     int line = 0;
     String sourceLine = null;
@@ -87,7 +103,7 @@ class FileSourceDto {
         utHits.get(line), utConditions.get(line), utCoveredConditions.get(line),
         itHits.get(line), itConditions.get(line), itCoveredConditions.get(line),
         overallHits.get(line), overallConditions.get(line), overallCoveredConditions.get(line),
-        highlighting, symbolRefs, duplications, sourceLine);
+        highlighting, symbolRefs, duplicationsPerLine.get(line), sourceLine);
     }
     csv.close();
     return new String[] {new String(output.toByteArray(), UTF_8), lineHashes.toString()};
@@ -99,6 +115,100 @@ class FileSourceDto {
       return "";
     }
     return DigestUtils.md5Hex(reducedLine);
+  }
+
+  private Map<Integer, String> computeDuplicationsPerLine(List<List<Block>> duplicationGroups) {
+    Map<Integer, String> result = new HashMap<Integer, String>();
+    if (duplicationGroups.isEmpty()) {
+      return result;
+    }
+    Map<Integer, StringBuilder> dupPerLine = new HashMap<Integer, StringBuilder>();
+    int blockId = 1;
+    for (List<Block> group : duplicationGroups) {
+      Block originBlock = group.get(0);
+      addBlock(blockId, originBlock, dupPerLine);
+      blockId++;
+      for (int i = 1; i < group.size(); i++) {
+        Block duplicate = group.get(i);
+        if (duplicate.resourceKey.equals(originBlock.resourceKey)) {
+          addBlock(blockId, duplicate, dupPerLine);
+          blockId++;
+        }
+      }
+    }
+    for (Map.Entry<Integer, StringBuilder> entry : dupPerLine.entrySet()) {
+      result.put(entry.getKey(), entry.getValue().toString());
+    }
+    return result;
+  }
+
+  private void addBlock(int blockId, Block block, Map<Integer, StringBuilder> dupPerLine) {
+    int currentLine = block.start;
+    for (int i = 0; i < block.length; i++) {
+      if (dupPerLine.get(currentLine) == null) {
+        dupPerLine.put(currentLine, new StringBuilder());
+      }
+      if (dupPerLine.get(currentLine).length() > 0) {
+        dupPerLine.get(currentLine).append(',');
+      }
+      dupPerLine.get(currentLine).append(blockId);
+      currentLine++;
+    }
+
+  }
+
+  /**
+   * Parses data of {@link CoreMetrics#DUPLICATIONS_DATA}.
+   */
+  private static List<List<Block>> parseDuplicationData(String data) {
+    try {
+      ImmutableList.Builder<List<Block>> groups = ImmutableList.builder();
+      StringReader reader = new StringReader(data);
+      SMInputFactory inputFactory = initStax();
+      SMHierarchicCursor rootC = inputFactory.rootElementCursor(reader);
+      // <duplications>
+      rootC.advance();
+      SMInputCursor groupsCursor = rootC.childElementCursor("g");
+      while (groupsCursor.getNext() != null) {
+        // <g>
+        SMInputCursor blocksCursor = groupsCursor.childElementCursor("b");
+        ImmutableList.Builder<Block> group = ImmutableList.builder();
+        while (blocksCursor.getNext() != null) {
+          // <b>
+          String resourceKey = blocksCursor.getAttrValue("r");
+          int firstLine = getAttrIntValue(blocksCursor, "s");
+          int numberOfLines = getAttrIntValue(blocksCursor, "l");
+
+          group.add(new Block(resourceKey, firstLine, numberOfLines));
+        }
+        groups.add(group.build());
+      }
+      return groups.build();
+    } catch (XMLStreamException e) {
+      throw new SonarException(e.getMessage(), e);
+    }
+  }
+
+  private static int getAttrIntValue(SMInputCursor cursor, String attrName) throws XMLStreamException {
+    return cursor.getAttrIntValue(cursor.findAttrIndex(null, attrName));
+  }
+
+  private static SMInputFactory initStax() {
+    XMLInputFactory xmlFactory = XMLInputFactory2.newInstance();
+    return new SMInputFactory(xmlFactory);
+  }
+
+  private static class Block {
+
+    final String resourceKey;
+    final int start;
+    final int length;
+
+    public Block(String resourceKey, int s, int l) {
+      this.resourceKey = resourceKey;
+      this.start = s;
+      this.length = l;
+    }
   }
 
 }

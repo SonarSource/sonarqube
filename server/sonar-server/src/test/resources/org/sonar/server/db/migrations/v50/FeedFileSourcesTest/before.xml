@@ -24,6 +24,8 @@
     user_managed="false" enabled="true" origin="JAV" worst_value="[null]" best_value="[null]" optimized_best_value="[null]" hidden="[false]" delete_historical_data="false" />
   <metrics id="12" name="overall_covered_conditions_by_line" description="[null]" direction="0" domain="Tests" short_name="Covered conditions by line" qualitative="false" val_type="DATA"
     user_managed="false" enabled="true" origin="JAV" worst_value="[null]" best_value="[null]" optimized_best_value="[null]" hidden="[false]" delete_historical_data="false" />
+  <metrics id="13" name="duplications_data" description="[null]" direction="0" domain="Duplications" short_name="Duplication data" qualitative="false" val_type="DATA"
+    user_managed="false" enabled="true" origin="JAV" worst_value="[null]" best_value="[null]" optimized_best_value="[null]" hidden="[false]" delete_historical_data="false" />
 
   <projects id="1" uuid="uuid-MyProject" kee="MyProject" scope="PRJ" qualifier="TRK" />
   <projects id="2" uuid="uuid-prj" kee="MyProject:src/main/xoo/prj" scope="DIR" qualifier="DIR" />

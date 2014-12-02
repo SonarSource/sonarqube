@@ -22,9 +22,11 @@ package org.sonar.server.db.migrations.v50;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Database;
-import org.sonar.server.db.migrations.*;
+import org.sonar.server.db.migrations.BaseDataChange;
+import org.sonar.server.db.migrations.MassUpdate;
 import org.sonar.server.db.migrations.Select.Row;
 import org.sonar.server.db.migrations.Select.RowReader;
+import org.sonar.server.db.migrations.SqlStatement;
 
 import javax.annotation.Nullable;
 
@@ -92,7 +94,11 @@ public class FeedFileSources extends BaseDataChange {
 
     // overall_cover_cond_by_line
     "m12.text_value, " +
-    "m12.measure_data  " +
+    "m12.measure_data,  " +
+
+    // duplication_data
+    "m13.text_value, " +
+    "m13.measure_data  " +
 
     "FROM snapshots s " +
     "JOIN snapshot_sources ss " +
@@ -125,6 +131,8 @@ public class FeedFileSources extends BaseDataChange {
     "ON m11.snapshot_id = s.id AND m11.metric_id = ? " +
     "LEFT JOIN project_measures m12 " +
     "ON m12.snapshot_id = s.id AND m12.metric_id = ? " +
+    "LEFT JOIN project_measures m13 " +
+    "ON m13.snapshot_id = s.id AND m13.metric_id = ? " +
     "WHERE " +
     "f.enabled = ? " +
     "AND f.scope = 'FIL' " +
@@ -167,6 +175,8 @@ public class FeedFileSources extends BaseDataChange {
       byte[] longOverallCond = row.getBytes(26);
       byte[] shortOverallCovCond = row.getBytes(27);
       byte[] longOverallCovCond = row.getBytes(28);
+      byte[] shortDuplicationData = row.getBytes(29);
+      byte[] longDuplicationData = row.getBytes(30);
 
       String[] sourceData = new FileSourceDto(source,
         ofNullableBytes(shortRevisions, longRevisions),
@@ -180,7 +190,8 @@ public class FeedFileSources extends BaseDataChange {
         ofNullableBytes(shortItCovCond, longItCovCond),
         ofNullableBytes(shortOverallHits, longOverallHits),
         ofNullableBytes(shortOverallCond, longOverallCond),
-        ofNullableBytes(shortOverallCovCond, longOverallCovCond)
+        ofNullableBytes(shortOverallCovCond, longOverallCovCond),
+        ofNullableBytes(shortDuplicationData, longDuplicationData)
         ).getSourceData();
 
       update.setString(1, projectUuid)
@@ -237,6 +248,7 @@ public class FeedFileSources extends BaseDataChange {
     Long overallCoverageHitsByLineMetricId = context.prepareSelect("SELECT id FROM metrics WHERE name = 'overall_coverage_line_hits_data'").get(simpleLongReader);
     Long overallConditionsByLineMetricId = context.prepareSelect("SELECT id FROM metrics WHERE name = 'overall_conditions_by_line'").get(simpleLongReader);
     Long overallCoveredConditionsByLineMetricId = context.prepareSelect("SELECT id FROM metrics WHERE name = 'overall_covered_conditions_by_line'").get(simpleLongReader);
+    Long duplicationDataMetricId = context.prepareSelect("SELECT id FROM metrics WHERE name = 'duplications_data'").get(simpleLongReader);
 
     MassUpdate massUpdate = context.prepareMassUpdate();
     massUpdate.select(SELECT_FILES_AND_MEASURES_SQL)
@@ -253,7 +265,8 @@ public class FeedFileSources extends BaseDataChange {
       .setLong(11, zeroIfNull(overallCoverageHitsByLineMetricId))
       .setLong(12, zeroIfNull(overallConditionsByLineMetricId))
       .setLong(13, zeroIfNull(overallCoveredConditionsByLineMetricId))
-      .setBoolean(14, true);
+      .setLong(14, zeroIfNull(duplicationDataMetricId))
+      .setBoolean(15, true);
 
     massUpdate.update("INSERT INTO file_sources" +
       "(project_uuid, file_uuid, created_at, updated_at, data, line_hashes, data_hash)" +
