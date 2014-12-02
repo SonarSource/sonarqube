@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch;
 
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
@@ -97,7 +98,9 @@ public abstract class SonarIndex implements DirectedGraphAccessor<Resource, Depe
    * @return source code associated with a specified resource, <code>null</code> if not available 
    * (for example if resource is not a file)
    * @since 2.9
+   * @deprecated since 5.0 sources are no more stored in SQ as a single blob. Use {@link InputFile#file()} to read file content from disk.
    */
+  @Deprecated
   @CheckForNull
   public abstract String getSource(Resource resource);
 

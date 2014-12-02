@@ -29,19 +29,19 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.measure.db.MeasureKey;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.source.db.SnapshotSourceDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.measure.persistence.MeasureDao;
+import org.sonar.server.source.index.SourceLineDoc;
 import org.sonar.server.source.index.SourceLineIndex;
 import org.sonar.server.user.MockUserSession;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -58,70 +58,60 @@ public class SourceServiceTest {
   HtmlSourceDecorator sourceDecorator;
 
   @Mock
-  SnapshotSourceDao snapshotSourceDao;
-
-  @Mock
-  DeprecatedSourceDecorator deprecatedSourceDecorator;
-
-  @Mock
   MeasureDao measureDao;
 
   @Mock
   SourceLineIndex sourceLineIndex;
 
   static final String PROJECT_KEY = "org.sonar.sample";
-  static final String COMPONENT_KEY = "org.sonar.sample:Sample";
+  static final String COMPONENT_UUID = "abc123";
 
   SourceService service;
-
 
   @Before
   public void setUp() throws Exception {
     DbClient dbClient = mock(DbClient.class);
     when(dbClient.openSession(false)).thenReturn(session);
     when(dbClient.measureDao()).thenReturn(measureDao);
-    service = new SourceService(dbClient, sourceDecorator, snapshotSourceDao, deprecatedSourceDecorator, sourceLineIndex);
+    service = new SourceService(dbClient, sourceDecorator, sourceLineIndex);
   }
 
   @Test
   public void get_html_lines() throws Exception {
-    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
+    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_UUID);
+    when(sourceLineIndex.getLines(COMPONENT_UUID, 1, Integer.MAX_VALUE)).thenReturn(
+      Arrays.asList(new SourceLineDoc().setSource("source").setHighlighting("highlight").setSymbols("symbols")));
 
-    service.getLinesAsHtml(COMPONENT_KEY);
+    service.getLinesAsHtml(COMPONENT_UUID, null, null);
 
-    verify(sourceDecorator).getDecoratedSourceAsHtml(COMPONENT_KEY, (Integer) null, (Integer) null);
+    verify(sourceDecorator).getDecoratedSourceAsHtml("source", "highlight", "symbols");
   }
 
   @Test
   public void get_block_of_lines() throws Exception {
-    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
+    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_UUID);
 
-    service.getLinesAsHtml(COMPONENT_KEY, 1, 2);
+    when(sourceLineIndex.getLines(COMPONENT_UUID, 1, Integer.MAX_VALUE)).thenReturn(
+      Arrays.asList(new SourceLineDoc().setSource("source").setHighlighting("highlight").setSymbols("symbols"),
+        new SourceLineDoc().setSource("source2").setHighlighting("highlight2").setSymbols("symbols2")));
 
-    verify(sourceDecorator).getDecoratedSourceAsHtml(COMPONENT_KEY, 1, 2);
-  }
+    service.getLinesAsHtml(COMPONENT_UUID, null, null);
 
-  @Test
-  public void get_lines_from_deprecated_source_decorator_when_no_data_from_new_decorator() throws Exception {
-    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
-    when(sourceDecorator.getDecoratedSourceAsHtml(eq(COMPONENT_KEY), anyInt(), anyInt())).thenReturn(null);
-
-    service.getLinesAsHtml(COMPONENT_KEY, 1, 2);
-
-    verify(deprecatedSourceDecorator).getSourceAsHtml(COMPONENT_KEY, 1, 2);
+    verify(sourceDecorator).getDecoratedSourceAsHtml("source", "highlight", "symbols");
+    verify(sourceDecorator).getDecoratedSourceAsHtml("source2", "highlight2", "symbols2");
   }
 
   @Test
   public void get_scm_author_data() throws Exception {
-    service.getScmAuthorData(COMPONENT_KEY);
-    verify(measureDao).getNullableByKey(session, MeasureKey.of(COMPONENT_KEY, CoreMetrics.SCM_AUTHORS_BY_LINE_KEY));
+    service.getScmAuthorData(COMPONENT_UUID);
+    verify(measureDao).getNullableByKey(session, MeasureKey.of(COMPONENT_UUID, CoreMetrics.SCM_AUTHORS_BY_LINE_KEY));
   }
 
   @Test
   public void fail_to_get_scm_author_data_if_no_permission() throws Exception {
     MockUserSession.set().setLogin("johh");
     try {
-      service.getScmAuthorData(COMPONENT_KEY);
+      service.getScmAuthorData(COMPONENT_UUID);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(ForbiddenException.class);
@@ -131,43 +121,35 @@ public class SourceServiceTest {
 
   @Test
   public void not_get_scm_author_data_if_no_data() throws Exception {
-    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
+    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_UUID);
     when(measureDao.getNullableByKey(eq(session), any(MeasureKey.class))).thenReturn(null);
-    assertThat(service.getScmAuthorData(COMPONENT_KEY)).isNull();
+    assertThat(service.getScmAuthorData(COMPONENT_UUID)).isNull();
   }
 
   @Test
   public void get_scm_date_data() throws Exception {
-    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
-    service.getScmDateData(COMPONENT_KEY);
-    verify(measureDao).getNullableByKey(session, MeasureKey.of(COMPONENT_KEY, CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY));
+    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_UUID);
+    service.getScmDateData(COMPONENT_UUID);
+    verify(measureDao).getNullableByKey(session, MeasureKey.of(COMPONENT_UUID, CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY));
   }
 
   @Test
   public void not_get_scm_date_data_if_no_data() throws Exception {
-    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
+    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_UUID);
     when(measureDao.getNullableByKey(eq(session), any(MeasureKey.class))).thenReturn(null);
-    assertThat(service.getScmDateData(COMPONENT_KEY)).isNull();
+    assertThat(service.getScmDateData(COMPONENT_UUID)).isNull();
   }
 
   @Test
   public void getLinesAsTxt() throws Exception {
-    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
+    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_UUID);
+    when(sourceLineIndex.getLines(COMPONENT_UUID, 1, Integer.MAX_VALUE)).thenReturn(
+      Arrays.asList(
+        new SourceLineDoc().setSource("line1"),
+        new SourceLineDoc().setSource("line2")));
 
-    when(snapshotSourceDao.selectSnapshotSourceByComponentKey(COMPONENT_KEY, session)).thenReturn("line1\nline2");
-
-    List<String> result = service.getLinesAsTxt(session, COMPONENT_KEY);
+    List<String> result = service.getLinesAsTxt(COMPONENT_UUID, null, null);
     assertThat(result).contains("line1", "line2");
-  }
-
-  @Test
-  public void getLinesAsTxt_returns_null_when_no_sources() throws Exception {
-    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
-
-    when(snapshotSourceDao.selectSnapshotSourceByComponentKey(COMPONENT_KEY, session)).thenReturn(null);
-
-    List<String> result = service.getLinesAsTxt(session, COMPONENT_KEY);
-    assertThat(result).isNull();
   }
 
 }

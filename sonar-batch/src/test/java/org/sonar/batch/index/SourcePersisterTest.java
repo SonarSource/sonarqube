@@ -49,7 +49,6 @@ import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.source.SnapshotDataTypes;
 import org.sonar.core.source.db.FileSourceDao;
 import org.sonar.core.source.db.FileSourceDto;
-import org.sonar.core.source.db.SnapshotSourceDao;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -94,20 +93,13 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     when(measureCache.byMetric(anyString(), anyString())).thenReturn(Collections.<org.sonar.api.measures.Measure>emptyList());
     componentDataCache = mock(ComponentDataCache.class);
     duplicationCache = mock(DuplicationCache.class);
-    sourcePersister = new SourcePersister(resourcePersister, new SnapshotSourceDao(getMyBatis()), inputPathCache,
+    sourcePersister = new SourcePersister(resourcePersister, inputPathCache,
       getMyBatis(), measureCache, componentDataCache, projectTree, system2,
       resourceCache, mock(CodeColorizers.class), duplicationCache);
     Project project = new Project(PROJECT_KEY);
     project.setUuid("projectUuid");
     when(projectTree.getRootProject()).thenReturn(project);
     basedir = temp.newFolder();
-  }
-
-  @Test
-  public void shouldSaveSource() {
-    setupData("shouldSaveSource");
-    sourcePersister.saveSource(new File("org/foo/Bar.java"), "this is the file content", DateUtils.parseDateTime("2014-10-31T16:44:02+0100"));
-    checkTables("shouldSaveSource", "snapshot_sources");
   }
 
   @Test

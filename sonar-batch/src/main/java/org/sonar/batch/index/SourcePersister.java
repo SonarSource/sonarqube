@@ -32,10 +32,8 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
 import org.sonar.api.batch.sensor.duplication.DuplicationGroup.Block;
 import org.sonar.api.batch.sensor.symbol.Symbol;
-import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
-import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.text.CsvWriter;
@@ -52,8 +50,6 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.source.SnapshotDataTypes;
 import org.sonar.core.source.db.FileSourceDto;
 import org.sonar.core.source.db.FileSourceMapper;
-import org.sonar.core.source.db.SnapshotSourceDao;
-import org.sonar.core.source.db.SnapshotSourceDto;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -74,7 +70,6 @@ public class SourcePersister implements ScanPersister {
 
   private static final String BOM = "\uFEFF";
   private final ResourcePersister resourcePersister;
-  private final SnapshotSourceDao sourceDao;
   private final InputPathCache inputPathCache;
   private final MyBatis mybatis;
   private final MeasureCache measureCache;
@@ -85,11 +80,10 @@ public class SourcePersister implements ScanPersister {
   private CodeColorizers codeColorizers;
   private DuplicationCache duplicationCache;
 
-  public SourcePersister(ResourcePersister resourcePersister, SnapshotSourceDao sourceDao, InputPathCache inputPathCache,
+  public SourcePersister(ResourcePersister resourcePersister, InputPathCache inputPathCache,
     MyBatis mybatis, MeasureCache measureCache, ComponentDataCache componentDataCache, ProjectTree projectTree, System2 system2,
     ResourceCache resourceCache, CodeColorizers codeColorizers, DuplicationCache duplicationCache) {
     this.resourcePersister = resourcePersister;
-    this.sourceDao = sourceDao;
     this.inputPathCache = inputPathCache;
     this.mybatis = mybatis;
     this.measureCache = measureCache;
@@ -99,24 +93,6 @@ public class SourcePersister implements ScanPersister {
     this.resourceCache = resourceCache;
     this.codeColorizers = codeColorizers;
     this.duplicationCache = duplicationCache;
-  }
-
-  public void saveSource(Resource resource, String source, Date updatedAt) {
-    Snapshot snapshot = resourcePersister.getSnapshotOrFail(resource);
-    SnapshotSourceDto dto = new SnapshotSourceDto();
-    dto.setSnapshotId(snapshot.getId().longValue());
-    dto.setData(source);
-    dto.setUpdatedAt(updatedAt);
-    sourceDao.insert(dto);
-  }
-
-  @CheckForNull
-  public String getSource(Resource resource) {
-    Snapshot snapshot = resourcePersister.getSnapshot(resource);
-    if (snapshot != null && snapshot.getId() != null) {
-      return sourceDao.selectSnapshotSource(snapshot.getId());
-    }
-    return null;
   }
 
   @Override

@@ -21,70 +21,78 @@ package org.sonar.server.source.ws;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.server.exceptions.NotFoundException;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.core.component.ComponentDto;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.server.component.ComponentTesting;
+import org.sonar.server.component.db.ComponentDao;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.source.SourceService;
 import org.sonar.server.ws.WsTester;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@RunWith(MockitoJUnitRunner.class)
 public class ShowActionTest {
 
   SourceService sourceService = mock(SourceService.class);
 
   WsTester tester;
 
+  @Mock
+  DbClient dbClient;
+
+  @Mock
+  DbSession session;
+
+  @Mock
+  ComponentDao componentDao;
+
+  ComponentDto project = ComponentTesting.newProjectDto();
+  ComponentDto file = ComponentTesting.newFileDto(project);
+
   @Before
   public void setUp() throws Exception {
-    tester = new WsTester(new SourcesWs(new ShowAction(sourceService), mock(RawAction.class), new ScmAction(sourceService, mock(ScmWriter.class)), mock(LinesAction.class),
+    when(dbClient.componentDao()).thenReturn(componentDao);
+    when(dbClient.openSession(false)).thenReturn(session);
+    tester = new WsTester(new SourcesWs(new ShowAction(sourceService, dbClient), mock(RawAction.class), new ScmAction(sourceService, mock(ScmWriter.class)),
+      mock(LinesAction.class),
       mock(HashAction.class)));
   }
 
   @Test
   public void show_source() throws Exception {
-    String componentKey = "src/Foo.java";
-    when(sourceService.getLinesAsHtml(eq(componentKey), anyInt(), anyInt())).thenReturn(newArrayList(
+    String fileKey = "src/Foo.java";
+    when(componentDao.getByKey(session, fileKey)).thenReturn(file);
+    when(sourceService.getLinesAsHtml(eq(file.uuid()), anyInt(), anyInt())).thenReturn(newArrayList(
       "/*",
       " * Header",
       " */",
       "",
       "public class <span class=\"sym-31 sym\">HelloWorld</span> {",
       "}"
-    ));
+      ));
 
-    WsTester.TestRequest request = tester.newGetRequest("api/sources", "show").setParam("key", componentKey);
+    WsTester.TestRequest request = tester.newGetRequest("api/sources", "show").setParam("key", fileKey);
     request.execute().assertJson(getClass(), "show_source.json");
-  }
-
-  @Test
-  public void fail_to_show_source_if_no_source_found() throws Exception {
-    String componentKey = "src/Foo.java";
-    when(sourceService.getLinesAsHtml(anyString(), anyInt(), anyInt())).thenReturn(null);
-
-    try {
-      WsTester.TestRequest request = tester.newGetRequest("api/sources", "show").setParam("key", componentKey);
-      request.execute();
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(NotFoundException.class);
-    }
   }
 
   @Test
   public void show_source_with_from_and_to_params() throws Exception {
     String fileKey = "src/Foo.java";
-    when(sourceService.getLinesAsHtml(fileKey, 3, 5)).thenReturn(newArrayList(
+    when(componentDao.getByKey(session, fileKey)).thenReturn(file);
+    when(sourceService.getLinesAsHtml(file.uuid(), 3, 5)).thenReturn(newArrayList(
       " */",
       "",
       "public class <span class=\"sym-31 sym\">HelloWorld</span> {"
-    ));
+      ));
     WsTester.TestRequest request = tester
       .newGetRequest("api/sources", "show")
       .setParam("key", fileKey)
@@ -96,18 +104,19 @@ public class ShowActionTest {
   @Test
   public void show_source_accept_from_less_than_one() throws Exception {
     String fileKey = "src/Foo.java";
-    when(sourceService.getLinesAsHtml(fileKey, 1, 5)).thenReturn(newArrayList(
+    when(componentDao.getByKey(session, fileKey)).thenReturn(file);
+    when(sourceService.getLinesAsHtml(file.uuid(), 1, 5)).thenReturn(newArrayList(
       " */",
       "",
       "public class <span class=\"sym-31 sym\">HelloWorld</span> {"
-    ));
+      ));
     WsTester.TestRequest request = tester
       .newGetRequest("api/sources", "show")
       .setParam("key", fileKey)
       .setParam("from", "0")
       .setParam("to", "5");
     request.execute();
-    verify(sourceService).getLinesAsHtml(fileKey, 1, 5);
+    verify(sourceService).getLinesAsHtml(file.uuid(), 1, 5);
   }
 
 }

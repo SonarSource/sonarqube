@@ -67,11 +67,6 @@ public final class DefaultPersistenceManager implements PersistenceManager {
   }
 
   @Override
-  public String getSource(Resource resource) {
-    return sourcePersister.getSource(resource);
-  }
-
-  @Override
   public void saveDependency(Project project, Dependency dependency, Dependency parentDependency) {
     if (ResourceUtils.isPersistable(dependency.getFrom()) && ResourceUtils.isPersistable(dependency.getTo())) {
       dependencyPersister.saveDependency(project, dependency, parentDependency);

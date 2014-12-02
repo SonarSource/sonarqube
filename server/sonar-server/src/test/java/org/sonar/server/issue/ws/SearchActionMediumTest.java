@@ -32,13 +32,14 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.component.SnapshotDto;
-import org.sonar.core.issue.db.*;
+import org.sonar.core.issue.db.ActionPlanDao;
+import org.sonar.core.issue.db.ActionPlanDto;
+import org.sonar.core.issue.db.IssueChangeDao;
+import org.sonar.core.issue.db.IssueChangeDto;
+import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
-import org.sonar.core.source.db.SnapshotSourceDao;
-import org.sonar.core.source.db.SnapshotSourceDto;
 import org.sonar.core.user.UserDto;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.SnapshotTesting;
@@ -100,25 +101,11 @@ public class SearchActionMediumTest {
       .setKey("MyComponent")
       .setParentProjectId(project.getId());
     db.componentDao().insert(session, file);
-    SnapshotDto snapshot = db.snapshotDao().insert(session, SnapshotTesting.createForComponent(file, project));
-    SnapshotSourceDto snapshotSource = new SnapshotSourceDto().setSnapshotId(snapshot.getId()).setData("First Line\n"
-      + "Second Line\n"
-      + "Third Line\n"
-      + "Fourth Line\n"
-      + "Fifth Line\n");
-    tester.get(SnapshotSourceDao.class).insert(snapshotSource);
 
     otherFile = ComponentTesting.newFileDto(project).setUuid("FEDC")
       .setKey("OtherComponent")
       .setParentProjectId(project.getId());
     db.componentDao().insert(session, otherFile);
-    snapshot = db.snapshotDao().insert(session, SnapshotTesting.createForComponent(otherFile, project));
-    snapshotSource = new SnapshotSourceDto().setSnapshotId(snapshot.getId()).setData("First Line\n"
-      + "Second Line\n"
-      + "Third Line\n"
-      + "Fourth Line\n"
-      + "Fifth Line\n");
-    tester.get(SnapshotSourceDao.class).insert(snapshotSource);
 
     UserDto john = new UserDto().setLogin("john").setName("John").setEmail("john@email.com");
     db.userDao().insert(session, john);
@@ -384,9 +371,9 @@ public class SearchActionMediumTest {
     session.commit();
 
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
-        .setParam(IssueFilterParameters.COMPONENTS, file.getKey())
-        .setParam(IssueFilterParameters.IGNORE_PAGING, "true")
-        .execute();
+      .setParam(IssueFilterParameters.COMPONENTS, file.getKey())
+      .setParam(IssueFilterParameters.IGNORE_PAGING, "true")
+      .execute();
     result.assertJson(this.getClass(), "ignore_paging_with_one_component.json", false);
   }
 
@@ -399,9 +386,9 @@ public class SearchActionMediumTest {
     session.commit();
 
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
-        .setParam(IssueFilterParameters.COMPONENTS, file.getKey() + "," + otherFile.getKey())
-        .setParam(IssueFilterParameters.IGNORE_PAGING, "true")
-        .execute();
+      .setParam(IssueFilterParameters.COMPONENTS, file.getKey() + "," + otherFile.getKey())
+      .setParam(IssueFilterParameters.IGNORE_PAGING, "true")
+      .execute();
     result.assertJson(this.getClass(), "apply_paging_with_multiple_components.json", false);
   }
 
@@ -416,7 +403,6 @@ public class SearchActionMediumTest {
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).setParam(IssueFilterParameters.COMPONENTS, file.getKey()).execute();
     result.assertJson(this.getClass(), "apply_paging_with_one_component.json", false);
   }
-
 
   @Test
   public void components_contains_sub_projects() throws Exception {

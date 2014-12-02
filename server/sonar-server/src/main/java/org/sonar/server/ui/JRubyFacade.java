@@ -30,7 +30,11 @@ import org.sonar.api.platform.PluginRepository;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
-import org.sonar.api.web.*;
+import org.sonar.api.web.Footer;
+import org.sonar.api.web.NavigationSection;
+import org.sonar.api.web.Page;
+import org.sonar.api.web.RubyRailsWebservice;
+import org.sonar.api.web.Widget;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.resource.ResourceIndexerDao;
@@ -44,9 +48,12 @@ import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.ServerIdGenerator;
 import org.sonar.server.platform.ServerSettings;
 import org.sonar.server.platform.SettingsChangeNotifier;
-import org.sonar.server.plugins.*;
+import org.sonar.server.plugins.InstalledPluginReferentialFactory;
+import org.sonar.server.plugins.PluginDownloader;
+import org.sonar.server.plugins.ServerPluginJarsInstaller;
+import org.sonar.server.plugins.ServerPluginRepository;
+import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.rule.RuleRepositories;
-import org.sonar.server.source.CodeColorizers;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.updatecenter.common.PluginReferential;
 import org.sonar.updatecenter.common.UpdateCenter;
@@ -174,16 +181,6 @@ public final class JRubyFacade {
 
   public Collection<PluginMetadata> getPluginsMetadata() {
     return get(PluginRepository.class).getMetadata();
-  }
-
-  // SYNTAX HIGHLIGHTING ------------------------------------------------------
-  public String colorizeCode(String code, String language) {
-    try {
-      return get(CodeColorizers.class).toHtml(code, language);
-    } catch (Exception e) {
-      LoggerFactory.getLogger(getClass()).error("Can not highlight the code, language= " + language, e);
-      return code;
-    }
   }
 
   public List<ViewProxy<Widget>> getWidgets(String resourceScope, String resourceQualifier, String resourceLanguage, Object[] availableMeasures) {

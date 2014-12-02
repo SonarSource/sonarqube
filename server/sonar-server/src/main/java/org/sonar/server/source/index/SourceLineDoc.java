@@ -29,6 +29,7 @@ import javax.annotation.Nullable;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 public class SourceLineDoc extends BaseDoc {
@@ -37,28 +38,36 @@ public class SourceLineDoc extends BaseDoc {
     super(fields);
   }
 
+  // For testing purpose
+  public SourceLineDoc() {
+    this(new HashMap<String, Object>());
+  }
+
   public String projectUuid() {
     return getField(SourceLineIndexDefinition.FIELD_PROJECT_UUID);
   }
 
-  public void setProjectUuid(String projectUuid) {
+  public SourceLineDoc setProjectUuid(String projectUuid) {
     setField(SourceLineIndexDefinition.FIELD_PROJECT_UUID, projectUuid);
+    return this;
   }
 
   public String fileUuid() {
     return getField(SourceLineIndexDefinition.FIELD_FILE_UUID);
   }
 
-  public void setFileUuid(String fileUuid) {
+  public SourceLineDoc setFileUuid(String fileUuid) {
     setField(SourceLineIndexDefinition.FIELD_FILE_UUID, fileUuid);
+    return this;
   }
 
   public int line() {
-    return ((Number)getField(SourceLineIndexDefinition.FIELD_LINE)).intValue();
+    return ((Number) getField(SourceLineIndexDefinition.FIELD_LINE)).intValue();
   }
 
-  public void setLine(int line) {
+  public SourceLineDoc setLine(int line) {
     setField(SourceLineIndexDefinition.FIELD_LINE, line);
+    return this;
   }
 
   @CheckForNull
@@ -66,8 +75,9 @@ public class SourceLineDoc extends BaseDoc {
     return getNullableField(SourceLineIndexDefinition.FIELD_SCM_REVISION);
   }
 
-  public void setScmRevision(String scmRevision) {
+  public SourceLineDoc setScmRevision(String scmRevision) {
     setField(SourceLineIndexDefinition.FIELD_SCM_REVISION, scmRevision);
+    return this;
   }
 
   @CheckForNull
@@ -75,8 +85,9 @@ public class SourceLineDoc extends BaseDoc {
     return getNullableField(SourceLineIndexDefinition.FIELD_SCM_AUTHOR);
   }
 
-  public void setScmAuthor(String scmAuthor) {
+  public SourceLineDoc setScmAuthor(String scmAuthor) {
     setField(SourceLineIndexDefinition.FIELD_SCM_AUTHOR, scmAuthor);
+    return this;
   }
 
   @CheckForNull
@@ -84,8 +95,9 @@ public class SourceLineDoc extends BaseDoc {
     return IndexUtils.parseDateTime(this.<String>getNullableField(SourceLineIndexDefinition.FIELD_SCM_DATE));
   }
 
-  public void setScmDate(@Nullable Date scmDate) {
+  public SourceLineDoc setScmDate(@Nullable Date scmDate) {
     setField(SourceLineIndexDefinition.FIELD_SCM_DATE, scmDate);
+    return this;
   }
 
   @CheckForNull
@@ -93,24 +105,27 @@ public class SourceLineDoc extends BaseDoc {
     return getNullableField(SourceLineIndexDefinition.FIELD_HIGHLIGHTING);
   }
 
-  public void setHighlighting(String s) {
+  public SourceLineDoc setHighlighting(String s) {
     setField(SourceLineIndexDefinition.FIELD_HIGHLIGHTING, s);
+    return this;
   }
 
   public String source() {
     return getField(SourceLineIndexDefinition.FIELD_SOURCE);
   }
 
-  public void setSource(String source) {
+  public SourceLineDoc setSource(String source) {
     setField(SourceLineIndexDefinition.FIELD_SOURCE, source);
+    return this;
   }
 
   public Date updateDate() {
     return getFieldAsDate(BaseNormalizer.UPDATED_AT_FIELD);
   }
 
-  public void setUpdateDate(Date updatedAt) {
+  public SourceLineDoc setUpdateDate(Date updatedAt) {
     setField(BaseNormalizer.UPDATED_AT_FIELD, updatedAt);
+    return this;
   }
 
   public String key() {
@@ -123,8 +138,9 @@ public class SourceLineDoc extends BaseDoc {
     return lineHits == null ? null : lineHits.intValue();
   }
 
-  public void setUtLineHits(@Nullable Integer lineHits) {
+  public SourceLineDoc setUtLineHits(@Nullable Integer lineHits) {
     setField(SourceLineIndexDefinition.FIELD_UT_LINE_HITS, lineHits);
+    return this;
   }
 
   @CheckForNull
@@ -133,8 +149,9 @@ public class SourceLineDoc extends BaseDoc {
     return conditions == null ? null : conditions.intValue();
   }
 
-  public void setUtConditions(@Nullable Integer conditions) {
+  public SourceLineDoc setUtConditions(@Nullable Integer conditions) {
     setField(SourceLineIndexDefinition.FIELD_UT_CONDITIONS, conditions);
+    return this;
   }
 
   @CheckForNull
@@ -143,8 +160,9 @@ public class SourceLineDoc extends BaseDoc {
     return coveredConditions == null ? null : coveredConditions.intValue();
   }
 
-  public void setUtCoveredConditions(@Nullable Integer coveredConditions) {
+  public SourceLineDoc setUtCoveredConditions(@Nullable Integer coveredConditions) {
     setField(SourceLineIndexDefinition.FIELD_UT_COVERED_CONDITIONS, coveredConditions);
+    return this;
   }
 
   @CheckForNull
@@ -153,8 +171,9 @@ public class SourceLineDoc extends BaseDoc {
     return lineHits == null ? null : lineHits.intValue();
   }
 
-  public void setItLineHits(@Nullable Integer lineHits) {
+  public SourceLineDoc setItLineHits(@Nullable Integer lineHits) {
     setField(SourceLineIndexDefinition.FIELD_IT_LINE_HITS, lineHits);
+    return this;
   }
 
   @CheckForNull
@@ -163,18 +182,20 @@ public class SourceLineDoc extends BaseDoc {
     return conditions == null ? null : conditions.intValue();
   }
 
-  public void setItConditions(@Nullable Integer conditions) {
+  public SourceLineDoc setItConditions(@Nullable Integer conditions) {
     setField(SourceLineIndexDefinition.FIELD_IT_CONDITIONS, conditions);
+    return this;
   }
 
   @CheckForNull
   public Integer itCoveredConditions() {
-    Number coveredConditions = (Number)getNullableField(SourceLineIndexDefinition.FIELD_IT_COVERED_CONDITIONS);
+    Number coveredConditions = (Number) getNullableField(SourceLineIndexDefinition.FIELD_IT_COVERED_CONDITIONS);
     return coveredConditions == null ? null : coveredConditions.intValue();
   }
 
-  public void setItCoveredConditions(@Nullable Integer coveredConditions) {
+  public SourceLineDoc setItCoveredConditions(@Nullable Integer coveredConditions) {
     setField(SourceLineIndexDefinition.FIELD_IT_COVERED_CONDITIONS, coveredConditions);
+    return this;
   }
 
   @CheckForNull
@@ -183,8 +204,9 @@ public class SourceLineDoc extends BaseDoc {
     return lineHits == null ? null : lineHits.intValue();
   }
 
-  public void setOverallLineHits(@Nullable Integer lineHits) {
+  public SourceLineDoc setOverallLineHits(@Nullable Integer lineHits) {
     setField(SourceLineIndexDefinition.FIELD_OVERALL_LINE_HITS, lineHits);
+    return this;
   }
 
   @CheckForNull
@@ -193,8 +215,9 @@ public class SourceLineDoc extends BaseDoc {
     return conditions == null ? null : conditions.intValue();
   }
 
-  public void setOverallConditions(@Nullable Integer conditions) {
+  public SourceLineDoc setOverallConditions(@Nullable Integer conditions) {
     setField(SourceLineIndexDefinition.FIELD_OVERALL_CONDITIONS, conditions);
+    return this;
   }
 
   @CheckForNull
@@ -203,8 +226,9 @@ public class SourceLineDoc extends BaseDoc {
     return coveredConditions == null ? null : coveredConditions.intValue();
   }
 
-  public void setOverallCoveredConditions(@Nullable Integer coveredConditions) {
+  public SourceLineDoc setOverallCoveredConditions(@Nullable Integer coveredConditions) {
     setField(SourceLineIndexDefinition.FIELD_OVERALL_COVERED_CONDITIONS, coveredConditions);
+    return this;
   }
 
   @CheckForNull
@@ -212,8 +236,9 @@ public class SourceLineDoc extends BaseDoc {
     return getNullableField(SourceLineIndexDefinition.FIELD_SYMBOLS);
   }
 
-  public void setSymbols(@Nullable String s) {
+  public SourceLineDoc setSymbols(@Nullable String s) {
     setField(SourceLineIndexDefinition.FIELD_SYMBOLS, s);
+    return this;
   }
 
   public Collection<Integer> duplications() {
@@ -221,7 +246,8 @@ public class SourceLineDoc extends BaseDoc {
     return duplications == null ? ImmutableList.<Integer>of() : duplications;
   }
 
-  public void setDuplications(@Nullable Collection<Integer> dups) {
+  public SourceLineDoc setDuplications(@Nullable Collection<Integer> dups) {
     setField(SourceLineIndexDefinition.FIELD_DUPLICATIONS, dups == null ? ImmutableList.<Integer>of() : dups);
+    return this;
   }
 }

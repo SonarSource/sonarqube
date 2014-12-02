@@ -20,7 +20,7 @@
 
 package org.sonar.server.source;
 
-import com.google.common.base.Splitter;
+import org.apache.commons.lang.ObjectUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.measures.CoreMetrics;
@@ -29,7 +29,6 @@ import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.core.measure.db.MeasureKey;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.source.db.SnapshotSourceDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.index.SourceLineDoc;
 import org.sonar.server.source.index.SourceLineIndex;
@@ -40,66 +39,40 @@ import javax.annotation.Nullable;
 
 import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
-
 public class SourceService implements ServerComponent {
 
   private final DbClient dbClient;
   private final HtmlSourceDecorator sourceDecorator;
-  private final SnapshotSourceDao snapshotSourceDao;
   private final SourceLineIndex sourceLineIndex;
 
-  /**
-   * Old service to colorize code
-   */
-  private final DeprecatedSourceDecorator deprecatedSourceDecorator;
-
-  public SourceService(DbClient dbClient, HtmlSourceDecorator sourceDecorator, SnapshotSourceDao snapshotSourceDao, DeprecatedSourceDecorator deprecatedSourceDecorator,
-      SourceLineIndex sourceLineIndex) {
+  public SourceService(DbClient dbClient, HtmlSourceDecorator sourceDecorator, SourceLineIndex sourceLineIndex) {
     this.dbClient = dbClient;
     this.sourceDecorator = sourceDecorator;
-    this.snapshotSourceDao = snapshotSourceDao;
-    this.deprecatedSourceDecorator = deprecatedSourceDecorator;
     this.sourceLineIndex = sourceLineIndex;
-  }
-
-  @CheckForNull
-  public List<String> getLinesAsHtml(String fileKey) {
-    return getLinesAsHtml(fileKey, null, null);
-  }
-
-  @CheckForNull
-  public List<String> getLinesAsHtml(String fileKey, @Nullable Integer from, @Nullable Integer to) {
-    checkPermission(fileKey);
-
-    List<String> decoratedSource = sourceDecorator.getDecoratedSourceAsHtml(fileKey, from, to);
-    if (decoratedSource != null) {
-      return decoratedSource;
-    }
-    return deprecatedSourceDecorator.getSourceAsHtml(fileKey, from, to);
-  }
-
-  /**
-   * Raw lines of source file. Returns <code>null</code> if the file does not exist
-   */
-  @CheckForNull
-  public List<String> getLinesAsTxt(DbSession session, String fileKey) {
-    checkPermission(fileKey);
-
-    String source = snapshotSourceDao.selectSnapshotSourceByComponentKey(fileKey, session);
-    if (source != null) {
-      return newArrayList(Splitter.onPattern("\r?\n|\r").split(source));
-    }
-    return null;
   }
 
   /**
    * Raw lines of source file.
    */
-  public List<String> getLinesAsTxt(String fileUuid) {
+  public List<String> getLinesAsTxt(String fileUuid, @Nullable Integer fromParam, @Nullable Integer toParam) {
+    int from = (Integer) ObjectUtils.defaultIfNull(fromParam, 1);
+    int to = (Integer) ObjectUtils.defaultIfNull(toParam, Integer.MAX_VALUE);
     List<String> lines = Lists.newArrayList();
-    for (SourceLineDoc lineDoc: sourceLineIndex.getLines(fileUuid, 1, Integer.MAX_VALUE)) {
+    for (SourceLineDoc lineDoc : sourceLineIndex.getLines(fileUuid, from, to)) {
       lines.add(lineDoc.source());
+    }
+    return lines;
+  }
+
+  /**
+   * Decorated lines of source file.
+   */
+  public List<String> getLinesAsHtml(String fileUuid, @Nullable Integer fromParam, @Nullable Integer toParam) {
+    int from = (Integer) ObjectUtils.defaultIfNull(fromParam, 1);
+    int to = (Integer) ObjectUtils.defaultIfNull(toParam, Integer.MAX_VALUE);
+    List<String> lines = Lists.newArrayList();
+    for (SourceLineDoc lineDoc : sourceLineIndex.getLines(fileUuid, from, to)) {
+      lines.add(sourceDecorator.getDecoratedSourceAsHtml(lineDoc.source(), lineDoc.highlighting(), lineDoc.symbols()));
     }
     return lines;
   }

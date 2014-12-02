@@ -30,13 +30,11 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.source.SourceService;
 import org.sonar.server.ws.WsTester;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -73,7 +71,7 @@ public class RawActionTest {
     String fileKey = "src/Foo.java";
     when(componentDao.getByKey(session, fileKey)).thenReturn(file);
 
-    when(sourceService.getLinesAsTxt(session, fileKey)).thenReturn(newArrayList(
+    when(sourceService.getLinesAsTxt(file.uuid(), null, null)).thenReturn(newArrayList(
       "public class HelloWorld {",
       "}"
       ));
@@ -81,20 +79,5 @@ public class RawActionTest {
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "raw").setParam("key", fileKey);
     String result = request.execute().outputAsString();
     assertThat(result).isEqualTo("public class HelloWorld {\n}\n");
-  }
-
-  @Test
-  public void fail_to_get_txt_when_no_source() throws Exception {
-    String fileKey = "src/Foo.java";
-    when(componentDao.getByKey(session, fileKey)).thenReturn(file);
-    when(sourceService.getLinesAsTxt(session, fileKey)).thenReturn(null);
-
-    WsTester.TestRequest request = tester.newGetRequest("api/sources", "raw").setParam("key", fileKey);
-    try {
-      request.execute();
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(NotFoundException.class).hasMessage("File 'src/Foo.java' does not exist");
-    }
   }
 }

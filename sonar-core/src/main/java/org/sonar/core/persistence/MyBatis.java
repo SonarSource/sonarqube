@@ -73,7 +73,6 @@ import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.source.db.FileSourceMapper;
 import org.sonar.core.source.db.SnapshotDataDto;
 import org.sonar.core.source.db.SnapshotDataMapper;
-import org.sonar.core.source.db.SnapshotSourceMapper;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.core.technicaldebt.db.CharacteristicMapper;
 import org.sonar.core.technicaldebt.db.RequirementMigrationDto;
@@ -193,7 +192,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
       LoadedTemplateMapper.class, MeasureFilterMapper.class, Migration44Mapper.class, PermissionTemplateMapper.class, PropertiesMapper.class, PurgeMapper.class,
       ResourceKeyUpdaterMapper.class, ResourceIndexerMapper.class, ResourceSnapshotMapper.class, RoleMapper.class, RuleMapper.class,
       SchemaMigrationMapper.class, SemaphoreMapper.class, UserMapper.class, GroupMapper.class, WidgetMapper.class, WidgetPropertyMapper.class,
-      org.sonar.api.database.model.MeasureMapper.class, SnapshotDataMapper.class, SnapshotSourceMapper.class, FileSourceMapper.class, ActionPlanMapper.class,
+      org.sonar.api.database.model.MeasureMapper.class, SnapshotDataMapper.class, FileSourceMapper.class, ActionPlanMapper.class,
       ActionPlanStatsMapper.class,
       NotificationQueueMapper.class, CharacteristicMapper.class,
       GroupMembershipMapper.class, QualityProfileMapper.class, ActiveRuleMapper.class,

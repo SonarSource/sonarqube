@@ -22,6 +22,7 @@ package org.sonar.batch.index;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -60,6 +61,7 @@ import org.sonar.core.component.ScanGraph;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -475,8 +477,19 @@ public class DefaultIndex extends SonarIndex {
   }
 
   @Override
-  public String getSource(Resource resource) {
-    return persistence.getSource(resource);
+  public String getSource(Resource reference) {
+    Resource resource = getResource(reference);
+    if (resource instanceof File) {
+      File file = (File) resource;
+      Project module = (Project) file.getParent().getParent();
+      ProjectDefinition def = projectTree.getProjectDefinition(module);
+      try {
+        return FileUtils.readFileToString(new java.io.File(def.getBaseDir(), file.getPath()));
+      } catch (IOException e) {
+        throw new IllegalStateException("Unable to read file content " + reference, e);
+      }
+    }
+    return null;
   }
 
   /**

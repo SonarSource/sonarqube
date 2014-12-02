@@ -34,7 +34,7 @@ import static org.mockito.Mockito.mock;
 
 public class SourcesWsTest {
 
-  ShowAction showAction = new ShowAction(mock(SourceService.class));
+  ShowAction showAction = new ShowAction(mock(SourceService.class), mock(DbClient.class));
   RawAction rawAction = new RawAction(mock(DbClient.class), mock(SourceService.class));
   ScmAction scmAction = new ScmAction(mock(SourceService.class), new ScmWriter());
   LinesAction linesAction = new LinesAction(mock(SourceLineIndex.class), mock(HtmlSourceDecorator.class));

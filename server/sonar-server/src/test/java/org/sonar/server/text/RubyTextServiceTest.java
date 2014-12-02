@@ -20,22 +20,21 @@
 package org.sonar.server.text;
 
 import org.junit.Test;
-import org.sonar.server.source.HtmlSourceDecorator;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class RubyTextServiceTest {
 
   MacroInterpreter macroInterpreter = mock(MacroInterpreter.class);
-  HtmlSourceDecorator sourceDecorator = mock(HtmlSourceDecorator.class);
-  RubyTextService text = new RubyTextService(macroInterpreter, sourceDecorator);
+  RubyTextService text = new RubyTextService(macroInterpreter);
 
   @Test
   public void interpretMacros() throws Exception {
     text.interpretMacros("text with macros");
     verify(macroInterpreter, times(1)).interpret("text with macros");
-    verifyZeroInteractions(sourceDecorator);
   }
 
   @Test
@@ -48,12 +47,5 @@ public class RubyTextServiceTest {
   public void should_escape_markdown_input() throws Exception {
     String html = text.markdownToHtml("a > b");
     assertThat(html).isEqualTo("a &gt; b");
-  }
-
-  @Test
-  public void highlightedSourceLines() throws Exception {
-    text.highlightedSourceLines(123L);
-    verify(sourceDecorator, times(1)).getDecoratedSourceAsHtml(123L);
-    verifyZeroInteractions(macroInterpreter);
   }
 }

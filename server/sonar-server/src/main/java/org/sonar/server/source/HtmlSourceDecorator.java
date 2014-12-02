@@ -21,13 +21,9 @@ package org.sonar.server.source;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
-import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.source.SnapshotDataTypes;
-import org.sonar.core.source.db.SnapshotDataDao;
 import org.sonar.core.source.db.SnapshotDataDto;
-import org.sonar.core.source.db.SnapshotSourceDao;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -38,44 +34,6 @@ import java.util.List;
 public class HtmlSourceDecorator implements ServerComponent {
 
   private static final String SINGLE_LINE_SYMBOLS = "single_line_symbols";
-
-  private final MyBatis mybatis;
-
-  private final SnapshotSourceDao snapshotSourceDao;
-  private final SnapshotDataDao snapshotDataDao;
-
-  public HtmlSourceDecorator(MyBatis mybatis, SnapshotSourceDao snapshotSourceDao, SnapshotDataDao snapshotDataDao) {
-    this.mybatis = mybatis;
-    this.snapshotSourceDao = snapshotSourceDao;
-    this.snapshotDataDao = snapshotDataDao;
-  }
-
-  @CheckForNull
-  public List<String> getDecoratedSourceAsHtml(String componentKey, @Nullable Integer from, @Nullable Integer to) {
-    SqlSession session = mybatis.openSession(false);
-    try {
-      Collection<SnapshotDataDto> snapshotDataEntries = snapshotDataDao.selectSnapshotDataByComponentKey(componentKey, highlightingDataTypes(), session);
-      if (!snapshotDataEntries.isEmpty()) {
-        String snapshotSource = snapshotSourceDao.selectSnapshotSourceByComponentKey(componentKey, session);
-        return decorate(snapshotSource, snapshotDataEntries, from, to);
-      }
-      return null;
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  @CheckForNull
-  public List<String> getDecoratedSourceAsHtml(long snapshotId) {
-    Collection<SnapshotDataDto> snapshotDataEntries = snapshotDataDao.selectSnapshotData(snapshotId, highlightingDataTypes());
-    if (!snapshotDataEntries.isEmpty()) {
-      String snapshotSource = snapshotSourceDao.selectSnapshotSource(snapshotId);
-      if (snapshotSource != null) {
-        return decorate(snapshotSource, snapshotDataEntries, null, null);
-      }
-    }
-    return null;
-  }
 
   @CheckForNull
   public String getDecoratedSourceAsHtml(@Nullable String sourceLine, @Nullable String highlighting, @Nullable String symbols) {
@@ -116,11 +74,6 @@ public class HtmlSourceDecorator implements ServerComponent {
       return textDecorator.decorateTextWithHtml(snapshotSource, decorationDataHolder, from, to);
     }
     return null;
-  }
-
-  private List<String> highlightingDataTypes() {
-    return Lists.newArrayList(SnapshotDataTypes.SYNTAX_HIGHLIGHTING,
-      SnapshotDataTypes.SYMBOL_HIGHLIGHTING);
   }
 
   private void loadSnapshotData(DecorationDataHolder dataHolder, SnapshotDataDto entry) {

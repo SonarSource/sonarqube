@@ -26,6 +26,9 @@ import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.core.component.ComponentDto;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.source.SourceService;
 
@@ -34,9 +37,11 @@ import java.util.List;
 public class ShowAction implements RequestHandler {
 
   private final SourceService sourceService;
+  private final DbClient dbClient;
 
-  public ShowAction(SourceService sourceService) {
+  public ShowAction(SourceService sourceService, DbClient dbClient) {
     this.sourceService = sourceService;
+    this.dbClient = dbClient;
   }
 
   void define(WebService.NewController controller) {
@@ -75,15 +80,22 @@ public class ShowAction implements RequestHandler {
     int from = Math.max(request.mandatoryParamAsInt("from"), 1);
     int to = (Integer) ObjectUtils.defaultIfNull(request.paramAsInt("to"), Integer.MAX_VALUE);
 
-    List<String> sourceHtml = sourceService.getLinesAsHtml(fileKey, from, to);
-    if (sourceHtml == null) {
-      throw new NotFoundException("File '" + fileKey + "' has no sources");
+    DbSession session = dbClient.openSession(false);
+    try {
+      ComponentDto componentDto = dbClient.componentDao().getByKey(session, fileKey);
+      List<String> linesHtml = sourceService.getLinesAsHtml(componentDto.uuid(), from, to);
+      if (linesHtml == null) {
+        throw new NotFoundException("File '" + fileKey + "' does not exist");
+      }
+
+      JsonWriter json = response.newJsonWriter().beginObject();
+      writeSource(linesHtml, from, json);
+
+      json.endObject().close();
+    } finally {
+      session.close();
     }
 
-    JsonWriter json = response.newJsonWriter().beginObject();
-    writeSource(sourceHtml, from, json);
-
-    json.endObject().close();
   }
 
   private void writeSource(List<String> lines, int from, JsonWriter json) {

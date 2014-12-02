@@ -21,9 +21,6 @@ package org.sonar.server.text;
 
 import org.sonar.api.ServerComponent;
 import org.sonar.markdown.Markdown;
-import org.sonar.server.source.HtmlSourceDecorator;
-
-import java.util.List;
 
 /**
  * @since 3.6
@@ -31,11 +28,9 @@ import java.util.List;
 public class RubyTextService implements ServerComponent {
 
   private final MacroInterpreter macroInterpreter;
-  private final HtmlSourceDecorator sourceDecorator;
 
-  public RubyTextService(MacroInterpreter macroInterpreter, HtmlSourceDecorator sourceDecorator) {
+  public RubyTextService(MacroInterpreter macroInterpreter) {
     this.macroInterpreter = macroInterpreter;
-    this.sourceDecorator = sourceDecorator;
   }
 
   // TODO add ruby example
@@ -46,10 +41,5 @@ public class RubyTextService implements ServerComponent {
   // TODO add ruby example
   public String markdownToHtml(String markdown) {
     return Markdown.convertToHtml(markdown);
-  }
-
-  // TODO add ruby example
-  public List<String> highlightedSourceLines(long snapshotId) {
-    return sourceDecorator.getDecoratedSourceAsHtml(snapshotId);
   }
 }

@@ -27,9 +27,9 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.source.SourceService;
 
 import java.io.IOException;
@@ -64,11 +64,8 @@ public class RawAction implements RequestHandler {
     String fileKey = request.mandatoryParam("key");
     DbSession session = dbClient.openSession(false);
     try {
-      dbClient.componentDao().getByKey(session, fileKey);
-      List<String> lines = sourceService.getLinesAsTxt(session, fileKey);
-      if (lines == null) {
-        throw new NotFoundException("File '" + fileKey + "' does not exist");
-      }
+      ComponentDto componentDto = dbClient.componentDao().getByKey(session, fileKey);
+      List<String> lines = sourceService.getLinesAsTxt(componentDto.uuid(), null, null);
       IOUtils.writeLines(lines, "\n", response.stream().output(), Charsets.UTF_8);
     } catch (IOException e) {
       throw new IllegalStateException("Fail to write raw source of file " + fileKey, e);
