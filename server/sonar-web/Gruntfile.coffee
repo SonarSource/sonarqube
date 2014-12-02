@@ -313,6 +313,7 @@ module.exports = (grunt) ->
           test: true
           verbose: true
           'fail-fast': true
+          port: '<%= grunt.option("port") %>'
         src: ['<%= pkg.sources %>js/tests/e2e/tests/<%= grunt.option("spec") %>-spec.js']
 
 
@@ -379,43 +380,25 @@ module.exports = (grunt) ->
 
 
   # Define tasks
-  grunt.registerTask 'dev', ['clean:css', 'clean:js',
-                             'less:dev',
-                             'coffee:build', 'handlebars:build', 'copy:js',
-                             'concat:dev']
+  grunt.registerTask 'dev',
+      ['clean:css', 'clean:js', 'less:dev', 'coffee:build', 'handlebars:build', 'copy:js', 'concat:dev']
 
+  grunt.registerTask 'build',
+      ['clean:css', 'clean:js', 'less:build', 'cssUrlRewrite:build', 'coffee:build', 'handlebars:build', 'copy:js',
+       'concat:build', 'requirejs', 'clean:js', 'copy:build', 'copy:requirejs', 'uglify:build', 'clean:build']
 
-  grunt.registerTask 'default', [
-                                'clean:css', 'clean:js',
-                                 'less:build', 'cssUrlRewrite:build'
-                                 'coffee:build', 'handlebars:build', 'copy:js',
-                                 'concat:build',
-                                 'requirejs', 'clean:js', 'copy:build', 'copy:requirejs', 'uglify:build',
-                                 'clean:build']
+  grunt.registerTask 'default',
+      ['build']
 
-  grunt.registerTask 'test', ['clean:js', 'coffee:build', 'handlebars:build', 'copy:js', 'concat:dev',
-                              'express:test', 'casper:test']
+  grunt.registerTask 'test',
+      ['dev', 'express:test', 'casper:test']
 
-  grunt.registerTask 'single', ['clean:js', 'coffee:build', 'handlebars:build', 'copy:js', 'concat:dev',
-                            'express:test', 'casper:single']
+  grunt.registerTask 'single',
+      ['dev', 'express:test', 'casper:single']
 
+  # tasks used by Maven build (see pom.xml)
+  grunt.registerTask 'maven-build-skip-tests-true',
+      ['build']
 
-  # task used by Maven build (see pom.xml).
-  grunt.registerTask 'maven-build-skip-tests-true', [
-                                  'clean:css', 'clean:js',
-                                   'less:build', 'cssUrlRewrite:build'
-                                   'coffee:build', 'handlebars:build', 'copy:js',
-                                   'concat:build',
-                                   'requirejs', 'clean:js', 'copy:build', 'copy:requirejs', 'uglify:build',
-                                   'clean:build']
-
-  grunt.registerTask 'maven-build-skip-tests-false', [
-                                   'clean:js', 'coffee:build', 'handlebars:build', 'copy:js', 'concat:dev',
-                                   'express:test', 'casper:test',
-
-                                   'clean:css', 'clean:js',
-                                   'less:build', 'cssUrlRewrite:build'
-                                   'coffee:build', 'handlebars:build', 'copy:js',
-                                   'concat:build',
-                                   'requirejs', 'clean:js', 'copy:build', 'copy:requirejs', 'uglify:build',
-                                   'clean:build']
+  grunt.registerTask 'maven-build-skip-tests-false',
+      ['test', 'build']
