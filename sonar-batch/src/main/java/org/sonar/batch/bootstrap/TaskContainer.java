@@ -76,6 +76,8 @@ public class TaskContainer extends ComponentContainer {
 
   void installCoreTasks() {
     add(new TaskProperties(taskProperties, getParent().getComponentByType(BootstrapProperties.class).property(CoreProperties.ENCRYPTION_SECRET_KEY_PATH)));
+    // Release memory
+    taskProperties.clear();
     add(
       ScanTask.DEFINITION, ScanTask.class,
       ListTask.DEFINITION, ListTask.class,

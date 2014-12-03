@@ -342,9 +342,9 @@ public class ProjectReactorBuilderTest {
 
   @Test
   public void shouldFailIfMandatoryPropertiesAreNotPresent() {
-    Properties props = new Properties();
-    props.setProperty("foo1", "bla");
-    props.setProperty("foo4", "bla");
+    Map<String, String> props = new HashMap<String, String>();
+    props.put("foo1", "bla");
+    props.put("foo4", "bla");
 
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("You must define the following mandatory properties for 'Unknown': foo2, foo3");
@@ -354,9 +354,9 @@ public class ProjectReactorBuilderTest {
 
   @Test
   public void shouldFailIfMandatoryPropertiesAreNotPresentButWithProjectKey() {
-    Properties props = new Properties();
-    props.setProperty("foo1", "bla");
-    props.setProperty("sonar.projectKey", "my-project");
+    Map<String, String> props = new HashMap<String, String>();
+    props.put("foo1", "bla");
+    props.put("sonar.projectKey", "my-project");
 
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("You must define the following mandatory properties for 'my-project': foo2, foo3");
@@ -366,9 +366,9 @@ public class ProjectReactorBuilderTest {
 
   @Test
   public void shouldNotFailIfMandatoryPropertiesArePresent() {
-    Properties props = new Properties();
-    props.setProperty("foo1", "bla");
-    props.setProperty("foo4", "bla");
+    Map<String, String> props = new HashMap<String, String>();
+    props.put("foo1", "bla");
+    props.put("foo4", "bla");
 
     ProjectReactorBuilder.checkMandatoryProperties(props, new String[] {"foo1"});
 
@@ -411,25 +411,25 @@ public class ProjectReactorBuilderTest {
     int i = (int) Math.random() * 10;
     String s1 = "value" + i;
     String s2 = "value" + i;
-    Properties parentProps = new Properties();
-    parentProps.setProperty("toBeMergeProps", "fooParent");
-    parentProps.setProperty("existingChildProp", "barParent");
-    parentProps.setProperty("duplicatedProp", s1);
-    parentProps.setProperty("sonar.projectDescription", "Desc from Parent");
+    Map<String, String> parentProps = new HashMap<String, String>();
+    parentProps.put("toBeMergeProps", "fooParent");
+    parentProps.put("existingChildProp", "barParent");
+    parentProps.put("duplicatedProp", s1);
+    parentProps.put("sonar.projectDescription", "Desc from Parent");
 
-    Properties childProps = new Properties();
-    childProps.setProperty("existingChildProp", "barChild");
-    childProps.setProperty("otherProp", "tutuChild");
-    childProps.setProperty("duplicatedProp", s2);
+    Map<String, String> childProps = new HashMap<String, String>();
+    childProps.put("existingChildProp", "barChild");
+    childProps.put("otherProp", "tutuChild");
+    childProps.put("duplicatedProp", s2);
 
     ProjectReactorBuilder.mergeParentProperties(childProps, parentProps);
 
     assertThat(childProps).hasSize(4);
-    assertThat(childProps.getProperty("toBeMergeProps")).isEqualTo("fooParent");
-    assertThat(childProps.getProperty("existingChildProp")).isEqualTo("barChild");
-    assertThat(childProps.getProperty("otherProp")).isEqualTo("tutuChild");
-    assertThat(childProps.getProperty("sonar.projectDescription")).isNull();
-    assertThat(childProps.getProperty("duplicatedProp")).isSameAs(parentProps.getProperty("duplicatedProp"));
+    assertThat(childProps.get("toBeMergeProps")).isEqualTo("fooParent");
+    assertThat(childProps.get("existingChildProp")).isEqualTo("barChild");
+    assertThat(childProps.get("otherProp")).isEqualTo("tutuChild");
+    assertThat(childProps.get("sonar.projectDescription")).isNull();
+    assertThat(childProps.get("duplicatedProp")).isSameAs(parentProps.get("duplicatedProp"));
   }
 
   @Test
@@ -493,18 +493,18 @@ public class ProjectReactorBuilderTest {
 
   @Test
   public void shouldSetModuleKeyIfNotPresent() {
-    Properties props = new Properties();
+    Map<String, String> props = new HashMap<String, String>();
     props.put("sonar.projectVersion", "1.0");
 
     // should be set
     ProjectReactorBuilder.setModuleKeyAndNameIfNotDefined(props, "foo", "parent");
-    assertThat(props.getProperty("sonar.moduleKey")).isEqualTo("parent:foo");
-    assertThat(props.getProperty("sonar.projectName")).isEqualTo("foo");
+    assertThat(props.get("sonar.moduleKey")).isEqualTo("parent:foo");
+    assertThat(props.get("sonar.projectName")).isEqualTo("foo");
 
     // but not this 2nd time
     ProjectReactorBuilder.setModuleKeyAndNameIfNotDefined(props, "bar", "parent");
-    assertThat(props.getProperty("sonar.moduleKey")).isEqualTo("parent:foo");
-    assertThat(props.getProperty("sonar.projectName")).isEqualTo("foo");
+    assertThat(props.get("sonar.moduleKey")).isEqualTo("parent:foo");
+    assertThat(props.get("sonar.projectName")).isEqualTo("foo");
   }
 
   @Test
@@ -542,7 +542,7 @@ public class ProjectReactorBuilderTest {
 
   @Test
   public void shouldGetList() {
-    Properties props = new Properties();
+    Map<String, String> props = new HashMap<String, String>();
 
     props.put("prop", "  foo  ,  bar  , \n\ntoto,tutu");
     assertThat(ProjectReactorBuilder.getListFromProperty(props, "prop")).containsOnly("foo", "bar", "toto", "tutu");
@@ -551,7 +551,7 @@ public class ProjectReactorBuilderTest {
   @Test
   public void shouldGetListFromFile() throws IOException {
     String filePath = "shouldGetList/foo.properties";
-    Properties props = loadPropsFromFile(filePath);
+    Map<String, String> props = loadPropsFromFile(filePath);
 
     assertThat(ProjectReactorBuilder.getListFromProperty(props, "prop")).containsOnly("foo", "bar", "toto", "tutu");
   }
@@ -565,7 +565,7 @@ public class ProjectReactorBuilderTest {
     assertThat(buildDir.getName()).isEqualTo("build");
   }
 
-  private Properties loadPropsFromFile(String filePath) throws IOException {
+  private Map<String, String> loadPropsFromFile(String filePath) throws IOException {
     Properties props = new Properties();
     FileInputStream fileInputStream = null;
     try {
@@ -574,7 +574,11 @@ public class ProjectReactorBuilderTest {
     } finally {
       IOUtils.closeQuietly(fileInputStream);
     }
-    return props;
+    Map<String, String> result = new HashMap<String, String>();
+    for (Map.Entry<Object, Object> entry : props.entrySet()) {
+      result.put(entry.getKey().toString(), entry.getValue().toString());
+    }
+    return result;
   }
 
 }

@@ -53,20 +53,6 @@ public class ProjectDefinitionTest {
     assertThat(def.getVersion(), is("2.0-SNAPSHOT"));
   }
 
-  /**
-   * Compatibility with Ant task.
-   */
-  @Test
-  public void shouldNotCloneProperties() {
-    Properties props = new Properties();
-
-    ProjectDefinition def = ProjectDefinition.create(props);
-    assertThat(def.getKey(), nullValue());
-
-    props.setProperty(CoreProperties.PROJECT_KEY_PROPERTY, "mykey");
-    assertThat(def.getKey(), is("mykey"));
-  }
-
   @Test
   public void shouldSetOptionalFields() {
     ProjectDefinition def = ProjectDefinition.create();

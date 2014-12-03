@@ -220,6 +220,9 @@ public class ModuleScanContainer extends ComponentContainer {
       getComponentByType(ModuleIssues.class));
 
     getComponentByType(PhaseExecutor.class).execute(module);
+
+    // Free memory since module settings are no more used
+    module.setSettings(null);
   }
 
 }

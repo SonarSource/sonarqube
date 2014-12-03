@@ -24,6 +24,7 @@ import org.sonar.batch.bootstrap.TaskProperties;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
@@ -43,10 +44,10 @@ public class DeprecatedProjectReactorBuilder extends ProjectReactorBuilder {
   }
 
   @Override
-  protected ProjectDefinition loadChildProject(ProjectDefinition parentProject, Properties moduleProps, String moduleId) {
+  protected ProjectDefinition loadChildProject(ProjectDefinition parentProject, Map<String, String> moduleProps, String moduleId) {
     final File baseDir;
     if (moduleProps.containsKey(PROPERTY_PROJECT_BASEDIR)) {
-      baseDir = resolvePath(parentProject.getBaseDir(), moduleProps.getProperty(PROPERTY_PROJECT_BASEDIR));
+      baseDir = resolvePath(parentProject.getBaseDir(), moduleProps.get(PROPERTY_PROJECT_BASEDIR));
       setProjectBaseDir(baseDir, moduleProps, moduleId);
       try {
         if (!parentProject.getBaseDir().getCanonicalFile().equals(baseDir.getCanonicalFile())) {
@@ -69,7 +70,7 @@ public class DeprecatedProjectReactorBuilder extends ProjectReactorBuilder {
     checkMandatoryProperties(moduleProps, MANDATORY_PROPERTIES_FOR_CHILD);
     validateDirectories(moduleProps, baseDir, moduleId);
 
-    mergeParentProperties(moduleProps, parentProject.getProperties());
+    mergeParentProperties(moduleProps, parentProject.properties());
 
     return defineRootProject(moduleProps, parentProject);
   }
@@ -77,16 +78,16 @@ public class DeprecatedProjectReactorBuilder extends ProjectReactorBuilder {
   /**
    * @return baseDir
    */
-  private File loadPropsFile(ProjectDefinition parentProject, Properties moduleProps, String moduleId) {
-    File propertyFile = resolvePath(parentProject.getBaseDir(), moduleProps.getProperty(PROPERTY_PROJECT_CONFIG_FILE));
+  private File loadPropsFile(ProjectDefinition parentProject, Map<String, String> moduleProps, String moduleId) {
+    File propertyFile = resolvePath(parentProject.getBaseDir(), moduleProps.get(PROPERTY_PROJECT_CONFIG_FILE));
     if (propertyFile.isFile()) {
       Properties propsFromFile = toProperties(propertyFile);
       for (Entry<Object, Object> entry : propsFromFile.entrySet()) {
-        moduleProps.put(entry.getKey(), entry.getValue());
+        moduleProps.put(entry.getKey().toString(), entry.getValue().toString());
       }
       File baseDir = null;
       if (moduleProps.containsKey(PROPERTY_PROJECT_BASEDIR)) {
-        baseDir = resolvePath(propertyFile.getParentFile(), moduleProps.getProperty(PROPERTY_PROJECT_BASEDIR));
+        baseDir = resolvePath(propertyFile.getParentFile(), moduleProps.get(PROPERTY_PROJECT_BASEDIR));
       } else {
         baseDir = propertyFile.getParentFile();
       }
@@ -97,15 +98,15 @@ public class DeprecatedProjectReactorBuilder extends ProjectReactorBuilder {
     }
   }
 
-  private void tryToFindAndLoadPropsFile(File baseDir, Properties moduleProps, String moduleId) {
+  private void tryToFindAndLoadPropsFile(File baseDir, Map<String, String> moduleProps, String moduleId) {
     File propertyFile = new File(baseDir, "sonar-project.properties");
     if (propertyFile.isFile()) {
       Properties propsFromFile = toProperties(propertyFile);
       for (Entry<Object, Object> entry : propsFromFile.entrySet()) {
-        moduleProps.put(entry.getKey(), entry.getValue());
+        moduleProps.put(entry.getKey().toString(), entry.getValue().toString());
       }
       if (moduleProps.containsKey(PROPERTY_PROJECT_BASEDIR)) {
-        File overwrittenBaseDir = resolvePath(propertyFile.getParentFile(), moduleProps.getProperty(PROPERTY_PROJECT_BASEDIR));
+        File overwrittenBaseDir = resolvePath(propertyFile.getParentFile(), moduleProps.get(PROPERTY_PROJECT_BASEDIR));
         setProjectBaseDir(overwrittenBaseDir, moduleProps, moduleId);
       }
     }

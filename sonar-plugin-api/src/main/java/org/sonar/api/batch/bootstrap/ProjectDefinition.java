@@ -20,6 +20,7 @@
 package org.sonar.api.batch.bootstrap;
 
 import com.google.common.collect.Lists;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 
@@ -27,7 +28,10 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 
 /**
@@ -77,13 +81,19 @@ public class ProjectDefinition {
   private static final char SEPARATOR = ',';
 
   private File baseDir, workDir, buildDir;
-  private Properties properties = new Properties();
+  private Map<String, String> properties = new HashMap<String, String>();
   private ProjectDefinition parent = null;
   private List<ProjectDefinition> subProjects = Lists.newArrayList();
   private List<Object> containerExtensions = Lists.newArrayList();
 
-  private ProjectDefinition(Properties p) {
+  private ProjectDefinition(Map<String, String> p) {
     this.properties = p;
+  }
+
+  private ProjectDefinition(Properties p) {
+    for (Entry<Object, Object> entry : p.entrySet()) {
+      this.properties.put(entry.getKey().toString(), entry.getValue().toString());
+    }
   }
 
   /**
@@ -130,7 +140,19 @@ public class ProjectDefinition {
     return buildDir;
   }
 
+  /**
+   * @deprecated since 5.0 use {@link #properties()}
+   */
+  @Deprecated
   public Properties getProperties() {
+    Properties result = new Properties();
+    for (Map.Entry<String, String> entry : properties.entrySet()) {
+      result.setProperty(entry.getKey(), entry.getValue());
+    }
+    return result;
+  }
+
+  public Map<String, String> properties() {
     return properties;
   }
 
@@ -138,46 +160,54 @@ public class ProjectDefinition {
    * Copies specified properties into this object.
    *
    * @since 2.12
+   * @deprecated since 5.0 use {@link #setProperties(Map)}
    */
   public ProjectDefinition setProperties(Properties properties) {
+    for (Entry<Object, Object> entry : properties.entrySet()) {
+      this.properties.put(entry.getKey().toString(), entry.getValue().toString());
+    }
+    return this;
+  }
+
+  public ProjectDefinition setProperties(Map<String, String> properties) {
     this.properties.putAll(properties);
     return this;
   }
 
   public ProjectDefinition setProperty(String key, String value) {
-    properties.setProperty(key, value);
+    properties.put(key, value);
     return this;
   }
 
   public ProjectDefinition setKey(String key) {
-    properties.setProperty(CoreProperties.PROJECT_KEY_PROPERTY, key);
+    properties.put(CoreProperties.PROJECT_KEY_PROPERTY, key);
     return this;
   }
 
   public ProjectDefinition setVersion(String s) {
-    properties.setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, StringUtils.defaultString(s));
+    properties.put(CoreProperties.PROJECT_VERSION_PROPERTY, StringUtils.defaultString(s));
     return this;
   }
 
   public ProjectDefinition setName(String s) {
-    properties.setProperty(CoreProperties.PROJECT_NAME_PROPERTY, StringUtils.defaultString(s));
+    properties.put(CoreProperties.PROJECT_NAME_PROPERTY, StringUtils.defaultString(s));
     return this;
   }
 
   public ProjectDefinition setDescription(String s) {
-    properties.setProperty(CoreProperties.PROJECT_DESCRIPTION_PROPERTY, StringUtils.defaultString(s));
+    properties.put(CoreProperties.PROJECT_DESCRIPTION_PROPERTY, StringUtils.defaultString(s));
     return this;
   }
 
   public String getKey() {
-    return properties.getProperty(CoreProperties.PROJECT_KEY_PROPERTY);
+    return properties.get(CoreProperties.PROJECT_KEY_PROPERTY);
   }
 
   /**
    * @since 4.5
    */
   public String getKeyWithBranch() {
-    String branch = properties.getProperty(CoreProperties.PROJECT_BRANCH_PROPERTY);
+    String branch = properties.get(CoreProperties.PROJECT_BRANCH_PROPERTY);
     String projectKey = getKey();
     if (StringUtils.isNotBlank(branch)) {
       projectKey = String.format("%s:%s", projectKey, branch);
@@ -186,11 +216,11 @@ public class ProjectDefinition {
   }
 
   public String getVersion() {
-    return properties.getProperty(CoreProperties.PROJECT_VERSION_PROPERTY);
+    return properties.get(CoreProperties.PROJECT_VERSION_PROPERTY);
   }
 
   public String getName() {
-    String name = properties.getProperty(CoreProperties.PROJECT_NAME_PROPERTY);
+    String name = properties.get(CoreProperties.PROJECT_NAME_PROPERTY);
     if (StringUtils.isBlank(name)) {
       name = "Unnamed - " + getKey();
     }
@@ -198,11 +228,11 @@ public class ProjectDefinition {
   }
 
   public String getDescription() {
-    return properties.getProperty(CoreProperties.PROJECT_DESCRIPTION_PROPERTY);
+    return properties.get(CoreProperties.PROJECT_DESCRIPTION_PROPERTY);
   }
 
   private void appendProperty(String key, String value) {
-    String current = properties.getProperty(key, "");
+    String current = (String) ObjectUtils.defaultIfNull(properties.get(key), "");
     if (StringUtils.isBlank(current)) {
       properties.put(key, value);
     } else {
@@ -214,7 +244,7 @@ public class ProjectDefinition {
    * @return Source files and folders.
    */
   public List<String> sources() {
-    String sources = properties.getProperty(SOURCES_PROPERTY, "");
+    String sources = (String) ObjectUtils.defaultIfNull(properties.get(SOURCES_PROPERTY), "");
     return trim(StringUtils.split(sources, SEPARATOR));
   }
 
@@ -341,7 +371,7 @@ public class ProjectDefinition {
   }
 
   public List<String> tests() {
-    String sources = properties.getProperty(TESTS_PROPERTY, "");
+    String sources = (String) ObjectUtils.defaultIfNull(properties.get(TESTS_PROPERTY), "");
     return trim(StringUtils.split(sources, SEPARATOR));
   }
 
@@ -476,7 +506,7 @@ public class ProjectDefinition {
    */
   @Deprecated
   public List<String> getBinaries() {
-    String sources = properties.getProperty(BINARIES_PROPERTY, "");
+    String sources = (String) ObjectUtils.defaultIfNull(properties.get(BINARIES_PROPERTY), "");
     return trim(StringUtils.split(sources, SEPARATOR));
   }
 
@@ -504,7 +534,7 @@ public class ProjectDefinition {
    */
   @Deprecated
   public List<String> getLibraries() {
-    String sources = properties.getProperty(LIBRARIES_PROPERTY, "");
+    String sources = (String) ObjectUtils.defaultIfNull(properties.get(LIBRARIES_PROPERTY), "");
     return trim(StringUtils.split(sources, SEPARATOR));
   }
 

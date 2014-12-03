@@ -26,6 +26,7 @@ import org.apache.commons.io.filefilter.AndFileFilter;
 import org.apache.commons.io.filefilter.FileFileFilter;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,28 +110,26 @@ public class ProjectReactorBuilder {
   }
 
   public ProjectReactor execute() {
-    Properties allProperties = new Properties();
-    allProperties.putAll(taskProps.properties());
-    Map<String, Properties> propertiesByModuleId = extractPropertiesByModule("", allProperties);
+    Map<String, Map<String, String>> propertiesByModuleId = extractPropertiesByModule("", taskProps.properties());
     ProjectDefinition rootProject = defineRootProject(propertiesByModuleId.get(""), null);
     rootProjectWorkDir = rootProject.getWorkDir();
     defineChildren(rootProject, propertiesByModuleId);
     cleanAndCheckProjectDefinitions(rootProject);
     // Optimization remove all children properties from taskProps
     taskProps.properties().clear();
-    for (Map.Entry<Object, Object> entry : propertiesByModuleId.get("").entrySet()) {
+    for (Map.Entry<String, String> entry : propertiesByModuleId.get("").entrySet()) {
       taskProps.properties().put((String) entry.getKey(), (String) entry.getValue());
     }
     return new ProjectReactor(rootProject);
   }
 
-  private Map<String, Properties> extractPropertiesByModule(String currentModuleId, Properties parentProperties) {
-    Properties allProperties = new Properties();
+  private Map<String, Map<String, String>> extractPropertiesByModule(String currentModuleId, Map<String, String> parentProperties) {
+    Map<String, String> allProperties = new HashMap<String, String>();
     allProperties.putAll(parentProperties);
-    Properties currentModuleProperties = new Properties();
+    Map<String, String> currentModuleProperties = new HashMap<String, String>();
     String prefix = !currentModuleId.isEmpty() ? currentModuleId + "." : "";
     // By default all properties starting with module prefix belong to current module
-    for (Map.Entry<Object, Object> entry : allProperties.entrySet()) {
+    for (Map.Entry<String, String> entry : allProperties.entrySet()) {
       String key = (String) entry.getKey();
       int prefixLength = prefix.length();
       if (key.startsWith(prefix)) {
@@ -139,7 +138,7 @@ public class ProjectReactorBuilder {
       }
     }
     String[] moduleIds = getListFromProperty(currentModuleProperties, PROPERTY_MODULES);
-    Map<String, Properties> result = new HashMap<String, Properties>();
+    Map<String, Map<String, String>> result = new HashMap<String, Map<String, String>>();
     for (String moduleId : moduleIds) {
       result.putAll(extractPropertiesByModule(moduleId, currentModuleProperties));
     }
@@ -147,14 +146,14 @@ public class ProjectReactorBuilder {
     return result;
   }
 
-  protected ProjectDefinition defineRootProject(Properties rootProperties, @Nullable ProjectDefinition parent) {
+  protected ProjectDefinition defineRootProject(Map<String, String> rootProperties, @Nullable ProjectDefinition parent) {
     if (rootProperties.containsKey(PROPERTY_MODULES)) {
       checkMandatoryProperties(rootProperties, MANDATORY_PROPERTIES_FOR_MULTIMODULE_PROJECT);
     } else {
       checkMandatoryProperties(rootProperties, MANDATORY_PROPERTIES_FOR_SIMPLE_PROJECT);
     }
-    File baseDir = new File(rootProperties.getProperty(PROPERTY_PROJECT_BASEDIR));
-    final String projectKey = rootProperties.getProperty(CoreProperties.PROJECT_KEY_PROPERTY);
+    File baseDir = new File(rootProperties.get(PROPERTY_PROJECT_BASEDIR));
+    final String projectKey = rootProperties.get(CoreProperties.PROJECT_KEY_PROPERTY);
     File workDir;
     if (parent == null) {
       validateDirectories(rootProperties, baseDir, projectKey);
@@ -184,10 +183,10 @@ public class ProjectReactorBuilder {
   }
 
   @VisibleForTesting
-  protected File initModuleWorkDir(File moduleBaseDir, Properties moduleProperties) {
-    String workDir = moduleProperties.getProperty(CoreProperties.WORKING_DIRECTORY);
+  protected File initModuleWorkDir(File moduleBaseDir, Map<String, String> moduleProperties) {
+    String workDir = moduleProperties.get(CoreProperties.WORKING_DIRECTORY);
     if (StringUtils.isBlank(workDir)) {
-      String cleanKey = StringUtils.deleteWhitespace(moduleProperties.getProperty(CoreProperties.PROJECT_KEY_PROPERTY));
+      String cleanKey = StringUtils.deleteWhitespace(moduleProperties.get(CoreProperties.PROJECT_KEY_PROPERTY));
       cleanKey = StringUtils.replace(cleanKey, ":", "_");
       return new File(rootProjectWorkDir, cleanKey);
     }
@@ -200,8 +199,8 @@ public class ProjectReactorBuilder {
   }
 
   @CheckForNull
-  private File initModuleBuildDir(File moduleBaseDir, Properties moduleProperties) {
-    String buildDir = moduleProperties.getProperty(PROPERTY_PROJECT_BUILDDIR);
+  private File initModuleBuildDir(File moduleBaseDir, Map<String, String> moduleProperties) {
+    String buildDir = moduleProperties.get(PROPERTY_PROJECT_BUILDDIR);
     if (StringUtils.isBlank(buildDir)) {
       return null;
     }
@@ -213,11 +212,11 @@ public class ProjectReactorBuilder {
     return new File(moduleBaseDir, customBuildDir.getPath());
   }
 
-  private void defineChildren(ProjectDefinition parentProject, Map<String, Properties> propertiesByModuleId) {
-    Properties parentProps = parentProject.getProperties();
+  private void defineChildren(ProjectDefinition parentProject, Map<String, Map<String, String>> propertiesByModuleId) {
+    Map<String, String> parentProps = parentProject.properties();
     if (parentProps.containsKey(PROPERTY_MODULES)) {
       for (String moduleId : getListFromProperty(parentProps, PROPERTY_MODULES)) {
-        Properties moduleProps = propertiesByModuleId.get(moduleId);
+        Map<String, String> moduleProps = propertiesByModuleId.get(moduleId);
         ProjectDefinition childProject = loadChildProject(parentProject, moduleProps, moduleId);
         // check the uniqueness of the child key
         checkUniquenessOfChildKey(childProject, parentProject);
@@ -229,10 +228,10 @@ public class ProjectReactorBuilder {
     }
   }
 
-  protected ProjectDefinition loadChildProject(ProjectDefinition parentProject, Properties moduleProps, String moduleId) {
+  protected ProjectDefinition loadChildProject(ProjectDefinition parentProject, Map<String, String> moduleProps, String moduleId) {
     final File baseDir;
     if (moduleProps.containsKey(PROPERTY_PROJECT_BASEDIR)) {
-      baseDir = resolvePath(parentProject.getBaseDir(), moduleProps.getProperty(PROPERTY_PROJECT_BASEDIR));
+      baseDir = resolvePath(parentProject.getBaseDir(), moduleProps.get(PROPERTY_PROJECT_BASEDIR));
       setProjectBaseDir(baseDir, moduleProps, moduleId);
     } else {
       baseDir = new File(parentProject.getBaseDir(), moduleId);
@@ -245,7 +244,7 @@ public class ProjectReactorBuilder {
     checkMandatoryProperties(moduleProps, MANDATORY_PROPERTIES_FOR_CHILD);
     validateDirectories(moduleProps, baseDir, moduleId);
 
-    mergeParentProperties(moduleProps, parentProject.getProperties());
+    mergeParentProperties(moduleProps, parentProject.properties());
 
     return defineRootProject(moduleProps, parentProject);
   }
@@ -270,12 +269,12 @@ public class ProjectReactorBuilder {
   }
 
   @VisibleForTesting
-  protected static void setModuleKeyAndNameIfNotDefined(Properties childProps, String moduleId, String parentKey) {
+  protected static void setModuleKeyAndNameIfNotDefined(Map<String, String> childProps, String moduleId, String parentKey) {
     if (!childProps.containsKey(MODULE_KEY_PROPERTY)) {
       if (!childProps.containsKey(CoreProperties.PROJECT_KEY_PROPERTY)) {
         childProps.put(MODULE_KEY_PROPERTY, parentKey + ":" + moduleId);
       } else {
-        String childKey = childProps.getProperty(CoreProperties.PROJECT_KEY_PROPERTY);
+        String childKey = childProps.get(CoreProperties.PROJECT_KEY_PROPERTY);
         childProps.put(MODULE_KEY_PROPERTY, parentKey + ":" + childKey);
       }
     }
@@ -283,7 +282,7 @@ public class ProjectReactorBuilder {
       childProps.put(CoreProperties.PROJECT_NAME_PROPERTY, moduleId);
     }
     // For backward compatibility with ProjectDefinition
-    childProps.put(CoreProperties.PROJECT_KEY_PROPERTY, childProps.getProperty(MODULE_KEY_PROPERTY));
+    childProps.put(CoreProperties.PROJECT_KEY_PROPERTY, childProps.get(MODULE_KEY_PROPERTY));
   }
 
   @VisibleForTesting
@@ -295,7 +294,7 @@ public class ProjectReactorBuilder {
     }
   }
 
-  protected static void setProjectBaseDir(File baseDir, Properties childProps, String moduleId) {
+  protected static void setProjectBaseDir(File baseDir, Map<String, String> childProps, String moduleId) {
     if (!baseDir.isDirectory()) {
       throw new IllegalStateException("The base directory of the module '" + moduleId + "' does not exist: " + baseDir.getAbsolutePath());
     }
@@ -303,7 +302,7 @@ public class ProjectReactorBuilder {
   }
 
   @VisibleForTesting
-  protected static void checkMandatoryProperties(Properties props, String[] mandatoryProps) {
+  protected static void checkMandatoryProperties(Map<String, String> props, String[] mandatoryProps) {
     StringBuilder missing = new StringBuilder();
     for (String mandatoryProperty : mandatoryProps) {
       if (!props.containsKey(mandatoryProperty)) {
@@ -313,13 +312,13 @@ public class ProjectReactorBuilder {
         missing.append(mandatoryProperty);
       }
     }
-    String moduleKey = StringUtils.defaultIfBlank(props.getProperty(MODULE_KEY_PROPERTY), props.getProperty(CoreProperties.PROJECT_KEY_PROPERTY));
+    String moduleKey = StringUtils.defaultIfBlank(props.get(MODULE_KEY_PROPERTY), props.get(CoreProperties.PROJECT_KEY_PROPERTY));
     if (missing.length() != 0) {
       throw new IllegalStateException("You must define the following mandatory properties for '" + (moduleKey == null ? "Unknown" : moduleKey) + "': " + missing);
     }
   }
 
-  protected static void validateDirectories(Properties props, File baseDir, String projectId) {
+  protected static void validateDirectories(Map<String, String> props, File baseDir, String projectId) {
     if (!props.containsKey(PROPERTY_MODULES)) {
       // SONARPLUGINS-2285 Not an aggregator project so we can validate that paths are correct if defined
 
@@ -358,7 +357,7 @@ public class ProjectReactorBuilder {
 
   @VisibleForTesting
   protected static void cleanAndCheckModuleProperties(ProjectDefinition project) {
-    Properties properties = project.getProperties();
+    Map<String, String> properties = project.properties();
 
     // We need to check the existence of source directories
     String[] sourcePaths = getListFromProperty(properties, PROPERTY_SOURCES);
@@ -377,7 +376,7 @@ public class ProjectReactorBuilder {
 
   @VisibleForTesting
   protected static void cleanAndCheckAggregatorProjectProperties(ProjectDefinition project) {
-    Properties properties = project.getProperties();
+    Map<String, String> properties = project.properties();
 
     // SONARPLUGINS-2295
     String[] sourceDirs = getListFromProperty(properties, PROPERTY_SOURCES);
@@ -398,8 +397,8 @@ public class ProjectReactorBuilder {
   }
 
   @VisibleForTesting
-  protected static void mergeParentProperties(Properties childProps, Properties parentProps) {
-    for (Map.Entry<Object, Object> entry : parentProps.entrySet()) {
+  protected static void mergeParentProperties(Map<String, String> childProps, Map<String, String> parentProps) {
+    for (Map.Entry<String, String> entry : parentProps.entrySet()) {
       String key = (String) entry.getKey();
       if ((!childProps.containsKey(key) || childProps.get(key).equals(entry.getValue()))
         && !NON_HERITED_PROPERTIES_FOR_CHILD.contains(key)) {
@@ -479,8 +478,8 @@ public class ProjectReactorBuilder {
    * This works even if they are separated by whitespace characters (space char, EOL, ...)
    *
    */
-  static String[] getListFromProperty(Properties properties, String key) {
-    return StringUtils.stripAll(StringUtils.split(properties.getProperty(key, ""), ','));
+  static String[] getListFromProperty(Map<String, String> properties, String key) {
+    return (String[]) ObjectUtils.defaultIfNull(StringUtils.stripAll(StringUtils.split(properties.get(key), ',')), new String[0]);
   }
 
 }
