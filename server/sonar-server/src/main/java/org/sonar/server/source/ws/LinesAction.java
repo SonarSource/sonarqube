@@ -27,10 +27,14 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.api.web.UserRole;
+import org.sonar.core.component.ComponentDto;
+import org.sonar.server.component.ComponentService;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.source.HtmlSourceDecorator;
 import org.sonar.server.source.index.SourceLineDoc;
 import org.sonar.server.source.index.SourceLineIndex;
+import org.sonar.server.user.UserSession;
 
 import java.util.Date;
 import java.util.List;
@@ -39,10 +43,12 @@ public class LinesAction implements RequestHandler {
 
   private final SourceLineIndex sourceLineIndex;
   private final HtmlSourceDecorator htmlSourceDecorator;
+  private final ComponentService componentService;
 
-  public LinesAction(SourceLineIndex sourceLineIndex, HtmlSourceDecorator htmlSourceDecorator) {
+  public LinesAction(SourceLineIndex sourceLineIndex, HtmlSourceDecorator htmlSourceDecorator, ComponentService componentService) {
     this.sourceLineIndex = sourceLineIndex;
     this.htmlSourceDecorator = htmlSourceDecorator;
+    this.componentService = componentService;
   }
 
   void define(WebService.NewController controller) {
@@ -82,6 +88,9 @@ public class LinesAction implements RequestHandler {
   @Override
   public void handle(Request request, Response response) {
     String fileUuid = request.mandatoryParam("uuid");
+    ComponentDto component = componentService.getByUuid(fileUuid);
+    UserSession.get().checkComponentPermission(UserRole.CODEVIEWER, component.key());
+
     int from = Math.max(request.mandatoryParamAsInt("from"), 1);
     int to = (Integer) ObjectUtils.defaultIfNull(request.paramAsInt("to"), Integer.MAX_VALUE);
 

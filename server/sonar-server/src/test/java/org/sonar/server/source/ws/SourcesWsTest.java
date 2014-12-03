@@ -23,6 +23,7 @@ package org.sonar.server.source.ws;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.source.db.FileSourceDao;
+import org.sonar.server.component.ComponentService;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.HtmlSourceDecorator;
 import org.sonar.server.source.SourceService;
@@ -37,7 +38,7 @@ public class SourcesWsTest {
   ShowAction showAction = new ShowAction(mock(SourceService.class), mock(DbClient.class));
   RawAction rawAction = new RawAction(mock(DbClient.class), mock(SourceService.class));
   ScmAction scmAction = new ScmAction(mock(SourceService.class), new ScmWriter());
-  LinesAction linesAction = new LinesAction(mock(SourceLineIndex.class), mock(HtmlSourceDecorator.class));
+  LinesAction linesAction = new LinesAction(mock(SourceLineIndex.class), mock(HtmlSourceDecorator.class), mock(ComponentService.class));
   HashAction hashAction = new HashAction(mock(DbClient.class), mock(FileSourceDao.class));
   WsTester tester = new WsTester(new SourcesWs(showAction, rawAction, scmAction, linesAction, hashAction));
 

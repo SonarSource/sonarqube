@@ -31,12 +31,17 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
+import org.sonar.api.web.UserRole;
+import org.sonar.core.component.ComponentDto;
+import org.sonar.server.component.ComponentService;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.search.BaseNormalizer;
 import org.sonar.server.source.HtmlSourceDecorator;
 import org.sonar.server.source.index.SourceLineDoc;
 import org.sonar.server.source.index.SourceLineIndex;
 import org.sonar.server.source.index.SourceLineIndexDefinition;
+import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
 
 import java.util.Date;
@@ -60,6 +65,9 @@ public class LinesActionTest {
   @Mock
   HtmlSourceDecorator htmlSourceDecorator;
 
+  @Mock
+  ComponentService componentService;
+
   WsTester tester;
 
   @Before
@@ -69,7 +77,7 @@ public class LinesActionTest {
         mock(ShowAction.class),
         mock(RawAction.class),
         mock(ScmAction.class),
-        new LinesAction(sourceLineIndex, htmlSourceDecorator),
+        new LinesAction(sourceLineIndex, htmlSourceDecorator, componentService),
         mock(HashAction.class)
       )
     );
@@ -142,6 +150,10 @@ public class LinesActionTest {
       line3
     ));
 
+    String componentKey = "componentKey";
+    when(componentService.getByUuid(componentUuid)).thenReturn(new ComponentDto().setKey(componentKey));
+    MockUserSession.set().setLogin("login").addComponentPermission(UserRole.CODEVIEWER, "polop", componentKey);
+
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "lines").setParam("uuid", componentUuid);
     // Using non-strict match b/c of dates
     request.execute().assertJson(getClass(), "show_source.json", false);
@@ -149,11 +161,15 @@ public class LinesActionTest {
 
   @Test
   public void fail_to_show_source_if_no_source_found() throws Exception {
-    String componentKey = "src/Foo.java";
+    String componentUuid = "abcd";
     when(sourceLineIndex.getLines(anyString(), anyInt(), anyInt())).thenReturn(Lists.<SourceLineDoc>newArrayList());
 
+    String componentKey = "componentKey";
+    when(componentService.getByUuid(componentUuid)).thenReturn(new ComponentDto().setKey(componentKey));
+    MockUserSession.set().setLogin("login").addComponentPermission(UserRole.CODEVIEWER, "polop", componentKey);
+
     try {
-      WsTester.TestRequest request = tester.newGetRequest("api/sources", "lines").setParam("uuid", componentKey);
+      WsTester.TestRequest request = tester.newGetRequest("api/sources", "lines").setParam("uuid", componentUuid);
       request.execute();
       fail();
     } catch (Exception e) {
@@ -163,7 +179,7 @@ public class LinesActionTest {
 
   @Test
   public void show_source_with_from_and_to_params() throws Exception {
-    String fileKey = "src/Foo.java";
+    String fileUuid = "efgh";
     Map<String, Object> fieldMap = Maps.newHashMap();
     fieldMap.put(SourceLineIndexDefinition.FIELD_PROJECT_UUID, "abcd");
     fieldMap.put(SourceLineIndexDefinition.FIELD_FILE_UUID, "efgh");
@@ -179,14 +195,32 @@ public class LinesActionTest {
     fieldMap.put(SourceLineIndexDefinition.FIELD_OVERALL_COVERED_CONDITIONS, null);
     fieldMap.put(SourceLineIndexDefinition.FIELD_DUPLICATIONS, null);
     fieldMap.put(BaseNormalizer.UPDATED_AT_FIELD, new Date());
-    when(sourceLineIndex.getLines(fileKey, 3, 3)).thenReturn(newArrayList(
+
+    String componentKey = "componentKey";
+    when(componentService.getByUuid(fileUuid)).thenReturn(new ComponentDto().setKey(componentKey));
+    MockUserSession.set().setLogin("login").addComponentPermission(UserRole.CODEVIEWER, "polop", componentKey);
+
+    when(sourceLineIndex.getLines(fileUuid, 3, 3)).thenReturn(newArrayList(
       new SourceLineDoc(fieldMap)
     ));
     WsTester.TestRequest request = tester
       .newGetRequest("api/sources", "lines")
-      .setParam("uuid", fileKey)
+      .setParam("uuid", fileUuid)
       .setParam("from", "3")
       .setParam("to", "3");
     request.execute().assertJson(getClass(), "show_source_with_params_from_and_to.json");
+  }
+
+  @Test(expected = ForbiddenException.class)
+  public void should_check_permission() throws Exception {
+    String fileUuid = "efgh";
+
+    String componentKey = "componentKey";
+    when(componentService.getByUuid(fileUuid)).thenReturn(new ComponentDto().setKey(componentKey));
+    MockUserSession.set().setLogin("login");
+
+    tester.newGetRequest("api/sources", "lines")
+      .setParam("uuid", fileUuid)
+      .execute();
   }
 }
