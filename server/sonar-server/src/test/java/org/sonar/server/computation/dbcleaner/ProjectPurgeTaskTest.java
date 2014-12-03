@@ -25,11 +25,12 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
-import org.sonar.server.computation.dbcleaner.period.DefaultPeriodCleaner;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.purge.PurgeConfiguration;
 import org.sonar.core.purge.PurgeDao;
+import org.sonar.core.purge.PurgeListener;
 import org.sonar.core.purge.PurgeProfiler;
+import org.sonar.server.computation.dbcleaner.period.DefaultPeriodCleaner;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
@@ -41,14 +42,16 @@ public class ProjectPurgeTaskTest {
   private PurgeDao dao;
   private PurgeProfiler profiler;
   private DefaultPeriodCleaner periodCleaner;
+  private PurgeListener purgeListener;
 
   @Before
   public void before() throws Exception {
     this.dao = mock(PurgeDao.class);
     this.profiler = mock(PurgeProfiler.class);
     this.periodCleaner = mock(DefaultPeriodCleaner.class);
+    this.purgeListener = mock(PurgeListener.class);
 
-    this.sut = new ProjectPurgeTask(dao, periodCleaner, profiler);
+    this.sut = new ProjectPurgeTask(dao, periodCleaner, profiler, purgeListener);
   }
 
   @Test
@@ -73,11 +76,11 @@ public class ProjectPurgeTaskTest {
 
   @Test
   public void if_dao_purge_fails_it_should_not_interrupt_program_execution() throws Exception {
-    doThrow(RuntimeException.class).when(dao).purge(any(DbSession.class), any(PurgeConfiguration.class));
+    doThrow(RuntimeException.class).when(dao).purge(any(DbSession.class), any(PurgeConfiguration.class), any(PurgeListener.class));
 
     sut.purge(mock(DbSession.class), mock(PurgeConfiguration.class), mock(Settings.class));
 
-    verify(dao, times(1)).purge(any(DbSession.class), any(PurgeConfiguration.class));
+    verify(dao, times(1)).purge(any(DbSession.class), any(PurgeConfiguration.class), any(PurgeListener.class));
   }
 
   @Test

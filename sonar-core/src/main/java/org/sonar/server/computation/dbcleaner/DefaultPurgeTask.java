@@ -27,14 +27,11 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.TimeUtils;
-import org.sonar.server.computation.dbcleaner.period.DefaultPeriodCleaner;
-import org.sonar.core.purge.IdUuidPair;
-import org.sonar.core.purge.PurgeConfiguration;
-import org.sonar.core.purge.PurgeDao;
-import org.sonar.core.purge.PurgeProfiler;
+import org.sonar.core.purge.*;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.plugins.dbcleaner.api.PurgeTask;
+import org.sonar.server.computation.dbcleaner.period.DefaultPeriodCleaner;
 
 import static org.sonar.core.purge.PurgeConfiguration.newDefaultPurgeConfiguration;
 
@@ -98,7 +95,7 @@ public class DefaultPurgeTask implements PurgeTask {
 
   private void doPurge(long resourceId) {
     try {
-      purgeDao.purge(newPurgeConfigurationOnResource(resourceId));
+      purgeDao.purge(newPurgeConfigurationOnResource(resourceId), PurgeListener.EMPTY);
     } catch (Exception e) {
       // purge errors must no fail the report analysis
       LOG.error("Fail to purge data [id=" + resourceId + "]", e);

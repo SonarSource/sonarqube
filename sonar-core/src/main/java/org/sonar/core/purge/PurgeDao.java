@@ -54,10 +54,10 @@ public class PurgeDao {
     this.system2 = system2;
   }
 
-  public PurgeDao purge(PurgeConfiguration conf) {
+  public PurgeDao purge(PurgeConfiguration conf, PurgeListener purgeListener) {
     DbSession session = mybatis.openSession(true);
     try {
-      purge(session, conf);
+      purge(session, conf, purgeListener);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
@@ -65,7 +65,7 @@ public class PurgeDao {
     return this;
   }
 
-  public void purge(DbSession session, PurgeConfiguration conf) {
+  public void purge(DbSession session, PurgeConfiguration conf, PurgeListener purgeListener) {
     PurgeMapper mapper = session.getMapper(PurgeMapper.class);
     PurgeCommands commands = new PurgeCommands(session, mapper, profiler);
     List<ResourceDto> projects = getProjects(conf.rootProjectId(), session);
@@ -75,7 +75,7 @@ public class PurgeDao {
       purge(project, conf.scopesWithoutHistoricalData(), commands);
     }
     for (ResourceDto project : projects) {
-      disableOrphanResources(project, session, mapper);
+      disableOrphanResources(project, session, mapper, purgeListener);
     }
     deleteOldClosedIssues(conf, mapper);
   }
@@ -130,13 +130,14 @@ public class PurgeDao {
     }
   }
 
-  private void disableOrphanResources(final ResourceDto project, final SqlSession session, final PurgeMapper purgeMapper) {
+  private void disableOrphanResources(final ResourceDto project, final SqlSession session, final PurgeMapper purgeMapper, final PurgeListener purgeListener) {
     session.select("org.sonar.core.purge.PurgeMapper.selectResourceIdsToDisable", project.getId(), new ResultHandler() {
       @Override
       public void handleResult(ResultContext resultContext) {
         IdUuidPair resourceIdUuid = (IdUuidPair) resultContext.getResultObject();
         if (resourceIdUuid.getId() != null) {
           disableResource(resourceIdUuid, purgeMapper);
+          purgeListener.onComponentDisabling(resourceIdUuid.getUuid());
         }
       }
     });

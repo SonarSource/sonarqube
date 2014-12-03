@@ -68,35 +68,35 @@ public class PurgeDaoTest extends AbstractDaoTestCase {
   @Test
   public void shouldDeleteAbortedBuilds() {
     setupData("shouldDeleteAbortedBuilds");
-    sut.purge(new PurgeConfiguration(1L, new String[0], 30));
+    sut.purge(new PurgeConfiguration(1L, new String[0], 30), PurgeListener.EMPTY);
     checkTables("shouldDeleteAbortedBuilds", "snapshots");
   }
 
   @Test
   public void should_purge_project() {
     setupData("shouldPurgeProject");
-    sut.purge(new PurgeConfiguration(1L, new String[0], 30));
+    sut.purge(new PurgeConfiguration(1L, new String[0], 30), PurgeListener.EMPTY);
     checkTables("shouldPurgeProject", "projects", "snapshots");
   }
 
   @Test
   public void delete_file_sources_of_disabled_resources() {
     setupData("delete_file_sources_of_disabled_resources");
-    sut.purge(new PurgeConfiguration(1L, new String[0], 30, system2));
+    sut.purge(new PurgeConfiguration(1L, new String[0], 30, system2), PurgeListener.EMPTY);
     checkTables("delete_file_sources_of_disabled_resources", "file_sources");
   }
 
   @Test
   public void shouldDeleteHistoricalDataOfDirectoriesAndFiles() {
     setupData("shouldDeleteHistoricalDataOfDirectoriesAndFiles");
-    sut.purge(new PurgeConfiguration(1L, new String[] {Scopes.DIRECTORY, Scopes.FILE}, 30));
+    sut.purge(new PurgeConfiguration(1L, new String[] {Scopes.DIRECTORY, Scopes.FILE}, 30), PurgeListener.EMPTY);
     checkTables("shouldDeleteHistoricalDataOfDirectoriesAndFiles", "projects", "snapshots");
   }
 
   @Test
   public void disable_resources_without_last_snapshot() {
     setupData("disable_resources_without_last_snapshot");
-    sut.purge(new PurgeConfiguration(1L, new String[0], 30, system2));
+    sut.purge(new PurgeConfiguration(1L, new String[0], 30, system2), PurgeListener.EMPTY);
     checkTables("disable_resources_without_last_snapshot", "projects", "snapshots", "issues");
   }
 
@@ -131,14 +131,14 @@ public class PurgeDaoTest extends AbstractDaoTestCase {
   @Test
   public void should_delete_old_closed_issues() {
     setupData("should_delete_old_closed_issues");
-    sut.purge(new PurgeConfiguration(1L, new String[0], 30));
+    sut.purge(new PurgeConfiguration(1L, new String[0], 30), PurgeListener.EMPTY);
     checkTables("should_delete_old_closed_issues", "issues", "issue_changes");
   }
 
   @Test
   public void should_delete_all_closed_issues() {
     setupData("should_delete_all_closed_issues");
-    sut.purge(new PurgeConfiguration(1L, new String[0], 0));
+    sut.purge(new PurgeConfiguration(1L, new String[0], 0), PurgeListener.EMPTY);
     checkTables("should_delete_all_closed_issues", "issues", "issue_changes");
   }
 

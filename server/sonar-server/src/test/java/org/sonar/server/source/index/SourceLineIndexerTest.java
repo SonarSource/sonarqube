@@ -22,7 +22,6 @@ package org.sonar.server.source.index;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterators;
-import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -118,12 +117,12 @@ public class SourceLineIndexerTest {
   }
 
   @Test
-  public void delete_file_uuids() throws Exception {
+  public void delete_file_uuid() throws Exception {
     addSource("line2.json");
     addSource("line3.json");
     addSource("line2_other_file.json");
 
-    indexer.deleteByFiles(Lists.newArrayList("efgh"));
+    indexer.deleteByFile("efgh");
 
     List<SearchHit> hits = getDocuments();
     Map<String, Object> document = hits.get(0).getSource();

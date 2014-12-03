@@ -26,24 +26,27 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.TimeUtils;
-import org.sonar.server.computation.dbcleaner.period.DefaultPeriodCleaner;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.purge.PurgeConfiguration;
 import org.sonar.core.purge.PurgeDao;
+import org.sonar.core.purge.PurgeListener;
 import org.sonar.core.purge.PurgeProfiler;
+import org.sonar.server.computation.dbcleaner.period.DefaultPeriodCleaner;
 
 import java.util.List;
 
 public class ProjectPurgeTask implements ServerComponent {
   private static final Logger LOG = LoggerFactory.getLogger(ProjectPurgeTask.class);
   private final PurgeProfiler profiler;
+  private final PurgeListener purgeListener;
   private final PurgeDao purgeDao;
   private final DefaultPeriodCleaner periodCleaner;
 
-  public ProjectPurgeTask(PurgeDao purgeDao, DefaultPeriodCleaner periodCleaner, PurgeProfiler profiler) {
+  public ProjectPurgeTask(PurgeDao purgeDao, DefaultPeriodCleaner periodCleaner, PurgeProfiler profiler, PurgeListener purgeListener) {
     this.purgeDao = purgeDao;
     this.periodCleaner = periodCleaner;
     this.profiler = profiler;
+    this.purgeListener = purgeListener;
   }
 
   public ProjectPurgeTask purge(DbSession session, PurgeConfiguration configuration, Settings settings) {
@@ -71,7 +74,7 @@ public class ProjectPurgeTask implements ServerComponent {
 
   private void doPurge(DbSession session, PurgeConfiguration configuration) {
     try {
-      purgeDao.purge(session, configuration);
+      purgeDao.purge(session, configuration, purgeListener);
     } catch (Exception e) {
       // purge errors must no fail the report analysis
       LOG.error("Fail to purge data [id=" + configuration.rootProjectId() + "]", e);

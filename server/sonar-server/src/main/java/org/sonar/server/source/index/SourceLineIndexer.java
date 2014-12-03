@@ -30,7 +30,6 @@ import org.sonar.server.es.EsClient;
 
 import java.sql.Connection;
 import java.util.Iterator;
-import java.util.List;
 
 import static org.sonar.server.source.index.SourceLineIndexDefinition.FIELD_FILE_UUID;
 import static org.sonar.server.source.index.SourceLineIndexDefinition.FIELD_PROJECT_UUID;
@@ -96,16 +95,16 @@ public class SourceLineIndexer extends BaseIndexer {
   private void deleteLinesFromFileAbove(String fileUuid, int lastLine) {
     esClient.prepareDeleteByQuery(SourceLineIndexDefinition.INDEX)
       .setTypes(SourceLineIndexDefinition.TYPE)
-      .setQuery(QueryBuilders.boolQuery()
-        .must(QueryBuilders.termQuery(FIELD_FILE_UUID, fileUuid))
-        .must(QueryBuilders.rangeQuery(SourceLineIndexDefinition.FIELD_LINE).gt(lastLine))
-      ).get();
+      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), FilterBuilders.boolFilter()
+        .must(FilterBuilders.termFilter(FIELD_FILE_UUID, fileUuid).cache(false))
+        .must(FilterBuilders.rangeFilter(SourceLineIndexDefinition.FIELD_LINE).gt(lastLine).cache(false))
+        )).get();
   }
 
-  public void deleteByFiles(List<String> uuids) {
+  public void deleteByFile(String fileUuid) {
     esClient.prepareDeleteByQuery(SourceLineIndexDefinition.INDEX)
       .setTypes(SourceLineIndexDefinition.TYPE)
-      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), FilterBuilders.termsFilter(FIELD_FILE_UUID, uuids).cache(false)))
+      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), FilterBuilders.termFilter(FIELD_FILE_UUID, fileUuid).cache(false)))
       .get();
   }
 

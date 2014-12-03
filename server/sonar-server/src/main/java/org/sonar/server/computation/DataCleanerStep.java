@@ -23,14 +23,12 @@ package org.sonar.server.computation;
 import org.sonar.api.config.Settings;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
-import org.sonar.server.computation.dbcleaner.ProjectPurgeTask;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.purge.PurgeConfiguration;
+import org.sonar.server.computation.dbcleaner.ProjectPurgeTask;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.properties.ProjectSettingsFactory;
 import org.sonar.server.source.index.SourceLineIndexer;
-
-import java.util.List;
 
 import static org.sonar.core.purge.PurgeConfiguration.newDefaultPurgeConfiguration;
 
@@ -54,12 +52,10 @@ public class DataCleanerStep implements ComputationStep {
     Settings settings = projectSettingsFactory.newProjectSettings(session, projectId);
     PurgeConfiguration purgeConfiguration = newDefaultPurgeConfiguration(settings, projectId);
 
-    List<String> fileUuidsToDisable = purgeTask.findUuidsToDisable(session, projectId);
     purgeTask.purge(session, purgeConfiguration, settings);
 
     if (purgeConfiguration.maxLiveDateOfClosedIssues() != null) {
       issueIndex.deleteClosedIssuesOfProjectBefore(project.uuid(), purgeConfiguration.maxLiveDateOfClosedIssues());
-      sourceLineIndexer.deleteByFiles(fileUuidsToDisable);
     }
   }
 
