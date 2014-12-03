@@ -24,12 +24,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.source.db.FileSourceDao;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -76,6 +79,7 @@ public class HashActionTest {
     String hashes = "polop\n"
       + "\n"
       + "pilip";
+    MockUserSession.set().setLogin("polop").addComponentPermission(UserRole.CODEVIEWER, "palap", componentKey);
     when(componentDao.getByKey(any(DbSession.class), eq(componentKey))).thenReturn(component);
     when(fileSourceDao.selectLineHashes(eq(uuid), any(DbSession.class))).thenReturn(hashes);
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "hash").setParam("key", componentKey);
@@ -87,6 +91,7 @@ public class HashActionTest {
     String componentKey = "project:src/File.xoo";
     String uuid = "polop";
     ComponentDto component = new ComponentDto().setUuid(uuid);
+    MockUserSession.set().setLogin("polop").addComponentPermission(UserRole.CODEVIEWER, "palap", componentKey);
     when(componentDao.getByKey(any(DbSession.class), eq(componentKey))).thenReturn(component);
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "hash").setParam("key", componentKey);
     request.execute().assertNoContent();
@@ -95,6 +100,7 @@ public class HashActionTest {
   @Test
   public void fail_to_show_hashes_if_file_does_not_exist() throws Exception {
     String componentKey = "project:src/File.xoo";
+    MockUserSession.set().setLogin("polop").addComponentPermission(UserRole.CODEVIEWER, "palap", componentKey);
     when(componentDao.getByKey(any(DbSession.class), eq(componentKey))).thenThrow(NotFoundException.class);
     try {
       WsTester.TestRequest request = tester.newGetRequest("api/sources", "hash").setParam("key", componentKey);
@@ -103,5 +109,15 @@ public class HashActionTest {
     } catch (Exception e) {
       assertThat(e).isInstanceOf(NotFoundException.class);
     }
+  }
+
+  @Test(expected = ForbiddenException.class)
+  public void fail_on_missing_permission() throws Exception {
+    String componentKey = "project:src/File.xoo";
+    String uuid = "polop";
+    ComponentDto component = new ComponentDto().setUuid(uuid);
+    MockUserSession.set().setLogin("polop");
+    when(componentDao.getByKey(any(DbSession.class), eq(componentKey))).thenReturn(component);
+    tester.newGetRequest("api/sources", "hash").setParam("key", componentKey).execute();
   }
 }
