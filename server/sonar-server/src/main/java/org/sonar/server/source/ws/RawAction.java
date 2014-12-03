@@ -27,10 +27,12 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.SourceService;
+import org.sonar.server.user.UserSession;
 
 import java.io.IOException;
 import java.util.List;
@@ -62,6 +64,7 @@ public class RawAction implements RequestHandler {
   @Override
   public void handle(Request request, Response response) {
     String fileKey = request.mandatoryParam("key");
+    UserSession.get().checkComponentPermission(UserRole.CODEVIEWER, fileKey);
     DbSession session = dbClient.openSession(false);
     try {
       ComponentDto componentDto = dbClient.componentDao().getByKey(session, fileKey);

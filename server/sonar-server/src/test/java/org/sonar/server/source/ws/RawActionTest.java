@@ -25,12 +25,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.source.SourceService;
+import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -69,6 +72,7 @@ public class RawActionTest {
   @Test
   public void get_txt() throws Exception {
     String fileKey = "src/Foo.java";
+    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
     when(componentDao.getByKey(session, fileKey)).thenReturn(file);
 
     when(sourceService.getLinesAsTxt(file.uuid(), null, null)).thenReturn(newArrayList(
@@ -79,5 +83,11 @@ public class RawActionTest {
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "raw").setParam("key", fileKey);
     String result = request.execute().outputAsString();
     assertThat(result).isEqualTo("public class HelloWorld {\n}\n");
+  }
+
+  @Test(expected = ForbiddenException.class)
+  public void requires_code_viewer_permission() throws Exception {
+    MockUserSession.set();
+    tester.newGetRequest("api/sources", "raw").setParam("key", "any").execute();
   }
 }
