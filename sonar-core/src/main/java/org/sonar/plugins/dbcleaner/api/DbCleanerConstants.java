@@ -23,5 +23,5 @@ package org.sonar.plugins.dbcleaner.api;
  * @deprecated (is used by the plugin views only. Will rely on the implementation when views analysis views moved on the server side)
  */
 @Deprecated
-public interface DbCleanerConstants extends org.sonar.core.computation.dbcleaner.DbCleanerConstants {
+public interface DbCleanerConstants extends org.sonar.server.computation.dbcleaner.DbCleanerConstants {
 }

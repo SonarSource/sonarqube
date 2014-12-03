@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.computation.dbcleaner.period;
+package org.sonar.server.computation.dbcleaner.period;
 
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.core.computation.dbcleaner.DbCleanerTestUtils;
+import org.sonar.server.computation.dbcleaner.DbCleanerTestUtils;
 import org.sonar.core.purge.PurgeableSnapshotDto;
 
 import java.util.Arrays;

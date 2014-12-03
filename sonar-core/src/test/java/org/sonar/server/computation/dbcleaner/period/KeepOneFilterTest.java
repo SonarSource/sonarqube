@@ -18,13 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.computation.dbcleaner.period;
+package org.sonar.server.computation.dbcleaner.period;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.purge.PurgeableSnapshotDto;
+import org.sonar.server.computation.dbcleaner.DbCleanerTestUtils;
 
 import javax.annotation.Nullable;
 
@@ -34,7 +35,6 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.sonar.core.computation.dbcleaner.DbCleanerTestUtils.createSnapshotWithDate;
 
 public class KeepOneFilterTest {
 
@@ -52,12 +52,12 @@ public class KeepOneFilterTest {
     Filter filter = new KeepOneFilter(DateUtils.parseDate("2011-03-25"), DateUtils.parseDate("2011-08-25"), Calendar.MONTH, "month");
 
     List<PurgeableSnapshotDto> toDelete = filter.filter(Arrays.<PurgeableSnapshotDto>asList(
-      createSnapshotWithDate(1L, "2010-01-01"), // out of scope -> keep
-      createSnapshotWithDate(2L, "2011-05-01"), // may -> keep
-      createSnapshotWithDate(3L, "2011-05-02"), // may -> to be deleted
-      createSnapshotWithDate(4L, "2011-05-19"), // may -> to be deleted
-      createSnapshotWithDate(5L, "2011-06-01"), // june -> keep
-      createSnapshotWithDate(6L, "2012-01-01") // out of scope -> keep
+      DbCleanerTestUtils.createSnapshotWithDate(1L, "2010-01-01"), // out of scope -> keep
+      DbCleanerTestUtils.createSnapshotWithDate(2L, "2011-05-01"), // may -> keep
+      DbCleanerTestUtils.createSnapshotWithDate(3L, "2011-05-02"), // may -> to be deleted
+      DbCleanerTestUtils.createSnapshotWithDate(4L, "2011-05-19"), // may -> to be deleted
+      DbCleanerTestUtils.createSnapshotWithDate(5L, "2011-06-01"), // june -> keep
+      DbCleanerTestUtils.createSnapshotWithDate(6L, "2012-01-01") // out of scope -> keep
       ));
 
     assertThat(toDelete).hasSize(2);
@@ -72,10 +72,10 @@ public class KeepOneFilterTest {
     Filter filter = new KeepOneFilter(DateUtils.parseDate("2011-03-25"), DateUtils.parseDate("2011-08-25"), Calendar.MONTH, "month");
 
     List<PurgeableSnapshotDto> toDelete = filter.filter(Arrays.<PurgeableSnapshotDto>asList(
-      createSnapshotWithDate(1L, "2011-05-01"), // to be deleted
-      createSnapshotWithDate(2L, "2011-05-02").setLast(true),
-      createSnapshotWithDate(3L, "2011-05-19").setHasEvents(true).setLast(false),
-      createSnapshotWithDate(4L, "2011-05-23") // to be deleted
+      DbCleanerTestUtils.createSnapshotWithDate(1L, "2011-05-01"), // to be deleted
+      DbCleanerTestUtils.createSnapshotWithDate(2L, "2011-05-02").setLast(true),
+      DbCleanerTestUtils.createSnapshotWithDate(3L, "2011-05-19").setHasEvents(true).setLast(false),
+      DbCleanerTestUtils.createSnapshotWithDate(4L, "2011-05-23") // to be deleted
       ));
 
     assertThat(toDelete).hasSize(2);
@@ -87,9 +87,9 @@ public class KeepOneFilterTest {
 
   @Test
   public void test_isDeletable() {
-    assertThat(KeepOneFilter.isDeletable(createSnapshotWithDate(1L, "2011-05-01"))).isTrue();
-    assertThat(KeepOneFilter.isDeletable(createSnapshotWithDate(1L, "2011-05-01").setLast(true))).isFalse();
-    assertThat(KeepOneFilter.isDeletable(createSnapshotWithDate(1L, "2011-05-01").setHasEvents(true))).isFalse();
+    assertThat(KeepOneFilter.isDeletable(DbCleanerTestUtils.createSnapshotWithDate(1L, "2011-05-01"))).isTrue();
+    assertThat(KeepOneFilter.isDeletable(DbCleanerTestUtils.createSnapshotWithDate(1L, "2011-05-01").setLast(true))).isFalse();
+    assertThat(KeepOneFilter.isDeletable(DbCleanerTestUtils.createSnapshotWithDate(1L, "2011-05-01").setHasEvents(true))).isFalse();
   }
 
 }

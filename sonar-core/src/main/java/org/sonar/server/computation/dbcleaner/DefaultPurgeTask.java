@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.computation.dbcleaner;
+package org.sonar.server.computation.dbcleaner;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
@@ -27,7 +27,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.TimeUtils;
-import org.sonar.core.computation.dbcleaner.period.DefaultPeriodCleaner;
+import org.sonar.server.computation.dbcleaner.period.DefaultPeriodCleaner;
 import org.sonar.core.purge.IdUuidPair;
 import org.sonar.core.purge.PurgeConfiguration;
 import org.sonar.core.purge.PurgeDao;

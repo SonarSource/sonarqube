@@ -23,7 +23,7 @@ package org.sonar.server.computation;
 import org.sonar.api.config.Settings;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
-import org.sonar.core.computation.dbcleaner.ProjectPurgeTask;
+import org.sonar.server.computation.dbcleaner.ProjectPurgeTask;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.purge.PurgeConfiguration;
 import org.sonar.server.issue.index.IssueIndex;

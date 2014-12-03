@@ -32,8 +32,8 @@ import org.sonar.batch.maven.MavenProjectBuilder;
 import org.sonar.batch.maven.MavenProjectConverter;
 import org.sonar.batch.scm.ScmConfiguration;
 import org.sonar.batch.scm.ScmSensor;
-import org.sonar.core.computation.dbcleaner.DefaultPurgeTask;
-import org.sonar.core.computation.dbcleaner.period.DefaultPeriodCleaner;
+import org.sonar.server.computation.dbcleaner.DefaultPurgeTask;
+import org.sonar.server.computation.dbcleaner.period.DefaultPeriodCleaner;
 import org.sonar.core.config.CorePropertyDefinitions;
 
 import java.util.Collection;

@@ -18,7 +18,36 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-@ParametersAreNonnullByDefault
-package org.sonar.core.computation.dbcleaner;
+package org.sonar.server.computation.dbcleaner.period;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import com.google.common.collect.Lists;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.DateUtils;
+import org.sonar.core.purge.PurgeableSnapshotDto;
+
+import java.util.Date;
+import java.util.List;
+
+class DeleteAllFilter implements Filter {
+  private final Date before;
+
+  public DeleteAllFilter(Date before) {
+    this.before = before;
+  }
+
+  @Override
+  public List<PurgeableSnapshotDto> filter(List<PurgeableSnapshotDto> history) {
+    List<PurgeableSnapshotDto> result = Lists.newArrayList();
+    for (PurgeableSnapshotDto snapshot : history) {
+      if (snapshot.getDate().before(before)) {
+        result.add(snapshot);
+      }
+    }
+    return result;
+  }
+
+  @Override
+  public void log() {
+    LoggerFactory.getLogger(getClass()).info("-> Delete data prior to: " + DateUtils.formatDate(before));
+  }
+}

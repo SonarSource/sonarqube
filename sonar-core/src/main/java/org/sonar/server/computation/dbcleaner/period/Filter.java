@@ -18,17 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.computation.dbcleaner;
+package org.sonar.server.computation.dbcleaner.period;
 
-public interface DbCleanerConstants {
+import org.sonar.core.purge.PurgeableSnapshotDto;
 
-  String PLUGIN_KEY = "dbcleaner";
-  String PLUGIN_NAME = "DbCleaner";
-  String PROPERTY_CLEAN_DIRECTORY = "sonar.dbcleaner.cleanDirectory";
+import java.util.List;
 
-  String HOURS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_DAY = "sonar.dbcleaner.hoursBeforeKeepingOnlyOneSnapshotByDay";
-  String WEEKS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_WEEK = "sonar.dbcleaner.weeksBeforeKeepingOnlyOneSnapshotByWeek";
-  String WEEKS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_MONTH = "sonar.dbcleaner.weeksBeforeKeepingOnlyOneSnapshotByMonth";
-  String WEEKS_BEFORE_DELETING_ALL_SNAPSHOTS = "sonar.dbcleaner.weeksBeforeDeletingAllSnapshots";
-  String DAYS_BEFORE_DELETING_CLOSED_ISSUES = "sonar.dbcleaner.daysBeforeDeletingClosedIssues";
+interface Filter {
+  List<PurgeableSnapshotDto> filter(List<PurgeableSnapshotDto> snapshots);
+
+  void log();
 }

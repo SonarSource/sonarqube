@@ -24,7 +24,7 @@ import com.google.common.collect.Lists;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.core.computation.dbcleaner.DataCleanerProperties;
+import org.sonar.server.computation.dbcleaner.DataCleanerProperties;
 
 import java.util.List;
 

@@ -18,11 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.computation.dbcleaner.period;
+package org.sonar.server.computation.dbcleaner.period;
 
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.purge.PurgeableSnapshotDto;
+import org.sonar.server.computation.dbcleaner.DbCleanerTestUtils;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -31,8 +32,6 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.sonar.core.computation.dbcleaner.DbCleanerTestUtils.createSnapshotWithDate;
-import static org.sonar.core.computation.dbcleaner.DbCleanerTestUtils.createSnapshotWithDateTime;
 
 public class IntervalTest {
   static int calendarField(Interval interval, int field) {
@@ -49,15 +48,15 @@ public class IntervalTest {
   @Test
   public void shouldGroupByIntervals() {
     List<PurgeableSnapshotDto> snapshots = Arrays.asList(
-      createSnapshotWithDate(1L, "2011-04-03"),
+      DbCleanerTestUtils.createSnapshotWithDate(1L, "2011-04-03"),
 
-      createSnapshotWithDate(2L, "2011-05-01"),
-      createSnapshotWithDate(3L, "2011-05-19"),
+      DbCleanerTestUtils.createSnapshotWithDate(2L, "2011-05-01"),
+      DbCleanerTestUtils.createSnapshotWithDate(3L, "2011-05-19"),
 
-      createSnapshotWithDate(4L, "2011-06-02"),
-      createSnapshotWithDate(5L, "2011-06-20"),
+      DbCleanerTestUtils.createSnapshotWithDate(4L, "2011-06-02"),
+      DbCleanerTestUtils.createSnapshotWithDate(5L, "2011-06-20"),
 
-      createSnapshotWithDate(6L, "2012-06-29") // out of scope
+      DbCleanerTestUtils.createSnapshotWithDate(6L, "2012-06-29") // out of scope
       );
 
     List<Interval> intervals = Interval.group(snapshots, DateUtils.parseDate("2010-01-01"), DateUtils.parseDate("2011-12-31"), Calendar.MONTH);
@@ -76,8 +75,8 @@ public class IntervalTest {
   @Test
   public void shouldNotJoinMonthsOfDifferentYears() {
     List<PurgeableSnapshotDto> snapshots = Arrays.asList(
-      createSnapshotWithDate(1L, "2010-04-03"),
-      createSnapshotWithDate(2L, "2011-04-13")
+      DbCleanerTestUtils.createSnapshotWithDate(1L, "2010-04-03"),
+      DbCleanerTestUtils.createSnapshotWithDate(2L, "2011-04-13")
       );
 
     List<Interval> intervals = Interval.group(snapshots, DateUtils.parseDate("2010-01-01"), DateUtils.parseDate("2011-12-31"), Calendar.MONTH);
@@ -95,9 +94,9 @@ public class IntervalTest {
   @Test
   public void shouldIgnoreTimeWhenGroupingByIntervals() {
     List<PurgeableSnapshotDto> snapshots = Arrays.asList(
-      createSnapshotWithDateTime(1L, "2011-05-25T16:16:48+0100"),
-      createSnapshotWithDateTime(2L, "2012-01-26T16:16:48+0100"),
-      createSnapshotWithDateTime(3L, "2012-01-27T16:16:48+0100")
+      DbCleanerTestUtils.createSnapshotWithDateTime(1L, "2011-05-25T16:16:48+0100"),
+      DbCleanerTestUtils.createSnapshotWithDateTime(2L, "2012-01-26T16:16:48+0100"),
+      DbCleanerTestUtils.createSnapshotWithDateTime(3L, "2012-01-27T16:16:48+0100")
       );
 
     List<Interval> intervals = Interval.group(snapshots, DateUtils.parseDate("2011-05-25"), DateUtils.parseDate("2012-01-26"), Calendar.MONTH);
