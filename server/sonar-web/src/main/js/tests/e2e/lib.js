@@ -62,6 +62,7 @@ exports.mockRequest = mockRequest;
 
 exports.mockRequestFromFile = function (url, fileName, options) {
   var response = fs.read(fileName);
+  console.log('mock request "' + url + '" from file "' + fs.workingDirectory + fs.separator + fileName + '"');
   return mockRequest(url, response, options);
 };
 
