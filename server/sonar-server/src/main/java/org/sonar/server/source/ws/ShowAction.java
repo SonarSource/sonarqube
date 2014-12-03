@@ -26,11 +26,13 @@ import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.source.SourceService;
+import org.sonar.server.user.UserSession;
 
 import java.util.List;
 
@@ -77,6 +79,8 @@ public class ShowAction implements RequestHandler {
   @Override
   public void handle(Request request, Response response) {
     String fileKey = request.mandatoryParam("key");
+    UserSession.get().checkComponentPermission(UserRole.CODEVIEWER, fileKey);
+
     int from = Math.max(request.mandatoryParamAsInt("from"), 1);
     int to = (Integer) ObjectUtils.defaultIfNull(request.paramAsInt("to"), Integer.MAX_VALUE);
 

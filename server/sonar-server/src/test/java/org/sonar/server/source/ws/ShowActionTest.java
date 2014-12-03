@@ -24,12 +24,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.source.SourceService;
+import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -70,6 +73,7 @@ public class ShowActionTest {
   @Test
   public void show_source() throws Exception {
     String fileKey = "src/Foo.java";
+    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
     when(componentDao.getByKey(session, fileKey)).thenReturn(file);
     when(sourceService.getLinesAsHtml(eq(file.uuid()), anyInt(), anyInt())).thenReturn(newArrayList(
       "/*",
@@ -87,6 +91,7 @@ public class ShowActionTest {
   @Test
   public void show_source_with_from_and_to_params() throws Exception {
     String fileKey = "src/Foo.java";
+    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
     when(componentDao.getByKey(session, fileKey)).thenReturn(file);
     when(sourceService.getLinesAsHtml(file.uuid(), 3, 5)).thenReturn(newArrayList(
       " */",
@@ -104,6 +109,7 @@ public class ShowActionTest {
   @Test
   public void show_source_accept_from_less_than_one() throws Exception {
     String fileKey = "src/Foo.java";
+    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
     when(componentDao.getByKey(session, fileKey)).thenReturn(file);
     when(sourceService.getLinesAsHtml(file.uuid(), 1, 5)).thenReturn(newArrayList(
       " */",
@@ -119,4 +125,10 @@ public class ShowActionTest {
     verify(sourceService).getLinesAsHtml(file.uuid(), 1, 5);
   }
 
+  @Test(expected = ForbiddenException.class)
+  public void require_code_viewer() throws Exception {
+    String fileKey = "src/Foo.java";
+    MockUserSession.set();
+    tester.newGetRequest("api/sources", "show").setParam("key", fileKey).execute();
+  }
 }
