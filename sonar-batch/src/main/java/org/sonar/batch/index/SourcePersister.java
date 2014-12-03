@@ -26,6 +26,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -54,19 +56,19 @@ import org.sonar.core.source.db.FileSourceMapper;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.StringWriter;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static com.google.common.base.Charsets.UTF_8;
-
 public class SourcePersister implements ScanPersister {
+
+  private static final Logger LOG = LoggerFactory.getLogger(SourcePersister.class);
 
   private static final String BOM = "\uFEFF";
   private final ResourcePersister resourcePersister;
@@ -129,6 +131,7 @@ public class SourcePersister implements ScanPersister {
 
   private void persist(DbSession session, FileSourceMapper mapper, InputPath inputPath, Map<String, FileSourceDto> fileSourceDtoByFileUuid) {
     DefaultInputFile inputFile = (DefaultInputFile) inputPath;
+    LOG.debug("Processing {}", inputFile.absolutePath());
     org.sonar.api.resources.File file = (org.sonar.api.resources.File) resourceCache.get(inputFile.key());
     String fileUuid = file.getUuid();
     FileSourceDto previous = fileSourceDtoByFileUuid.get(fileUuid);
@@ -207,8 +210,8 @@ public class SourcePersister implements ScanPersister {
     String[] symbolReferencesPerLine = computeSymbolReferencesPerLine(file, loadSymbolReferences(file));
     String[] duplicationsPerLine = computeDuplicationsPerLine(file, duplicationCache.byComponent(file.key()));
 
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    CsvWriter csv = CsvWriter.of(new OutputStreamWriter(output, UTF_8));
+    StringWriter writer = new StringWriter(file.lines() * 16);
+    CsvWriter csv = CsvWriter.of(writer);
     for (int lineIdx = 1; lineIdx <= file.lines(); lineIdx++) {
       csv.values(revisionsByLine.get(lineIdx), authorsByLine.get(lineIdx), datesByLine.get(lineIdx),
         utHitsByLine.get(lineIdx), utCondByLine.get(lineIdx), utCoveredCondByLine.get(lineIdx),
@@ -216,9 +219,26 @@ public class SourcePersister implements ScanPersister {
         overallHitsByLine.get(lineIdx), overallCondByLine.get(lineIdx), overallCoveredCondByLine.get(lineIdx),
         highlightingPerLine[lineIdx - 1], symbolReferencesPerLine[lineIdx - 1], duplicationsPerLine[lineIdx - 1],
         CharMatcher.anyOf(BOM).removeFrom(lines.get(lineIdx - 1)));
+      // Free memory
+      revisionsByLine.remove(lineIdx);
+      authorsByLine.remove(lineIdx);
+      datesByLine.remove(lineIdx);
+      utHitsByLine.remove(lineIdx);
+      utCondByLine.remove(lineIdx);
+      utCoveredCondByLine.remove(lineIdx);
+      itHitsByLine.remove(lineIdx);
+      itCondByLine.remove(lineIdx);
+      itCoveredCondByLine.remove(lineIdx);
+      overallHitsByLine.remove(lineIdx);
+      overallCondByLine.remove(lineIdx);
+      overallCoveredCondByLine.remove(lineIdx);
+      highlightingPerLine[lineIdx - 1] = null;
+      symbolReferencesPerLine[lineIdx - 1] = null;
+      duplicationsPerLine[lineIdx - 1] = null;
+      lines.set(lineIdx - 1, null);
     }
     csv.close();
-    return StringUtils.defaultIfEmpty(new String(output.toByteArray(), UTF_8), null);
+    return StringUtils.defaultIfEmpty(writer.toString(), null);
   }
 
   private String[] computeDuplicationsPerLine(DefaultInputFile file, List<DuplicationGroup> duplicationGroups) {
@@ -226,20 +246,29 @@ public class SourcePersister implements ScanPersister {
     if (duplicationGroups == null) {
       return result;
     }
+    List<DuplicationGroup> groups = new LinkedList<DuplicationGroup>(duplicationGroups);
     StringBuilder[] dupPerLine = new StringBuilder[file.lines()];
     int blockId = 1;
-    for (DuplicationGroup group : duplicationGroups) {
+    for (Iterator<DuplicationGroup> it = groups.iterator(); it.hasNext();) {
+      DuplicationGroup group = it.next();
       addBlock(blockId, group.originBlock(), dupPerLine);
       blockId++;
-      for (Block dups : group.duplicates()) {
+      for (Iterator<Block> dupsIt = group.duplicates().iterator(); dupsIt.hasNext();) {
+        Block dups = dupsIt.next();
         if (dups.resourceKey().equals(file.key())) {
           addBlock(blockId, dups, dupPerLine);
           blockId++;
         }
+        // Save memory
+        dupsIt.remove();
       }
+      // Save memory
+      it.remove();
     }
     for (int i = 0; i < file.lines(); i++) {
       result[i] = dupPerLine[i] != null ? dupPerLine[i].toString() : null;
+      // Save memory
+      dupPerLine[i] = null;
     }
     return result;
   }

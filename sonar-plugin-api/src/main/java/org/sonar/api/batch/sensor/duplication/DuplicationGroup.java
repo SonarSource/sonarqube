@@ -26,7 +26,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.batch.sensor.SensorContext;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -102,7 +102,7 @@ public class DuplicationGroup {
   }
 
   private final Block originBlock;
-  private List<Block> duplicates = new ArrayList<DuplicationGroup.Block>();
+  private List<Block> duplicates = new LinkedList<DuplicationGroup.Block>();
 
   /**
    * For unit test and internal use only.
