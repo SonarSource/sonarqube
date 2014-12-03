@@ -396,8 +396,10 @@ define([
               source: source,
               hasSourceBefore: data.sources.length === that.LINES_AROUND
             });
-            that.model.addDuplications(that.model.get('duplications'));
-            that.model.addMeta(that.model.get('duplicationsParsed'));
+            if (that.model.has('duplications')) {
+              that.model.addDuplications(that.model.get('duplications'));
+              that.model.addMeta(that.model.get('duplicationsParsed'));
+            }
             that.render();
             that.scrollToLine(firstLine);
             if (that.model.get('hasSourceBefore') || that.model.get('hasSourceAfter')) {
@@ -423,8 +425,10 @@ define([
               source: source,
               hasSourceAfter: data.sources.length === that.LINES_AROUND
             });
-            that.model.addDuplications(that.model.get('duplications'));
-            that.model.addMeta(that.model.get('duplicationsParsed'));
+            if (that.model.has('duplications')) {
+              that.model.addDuplications(that.model.get('duplications'));
+              that.model.addMeta(that.model.get('duplicationsParsed'));
+            }
             that.render();
             if (that.model.get('hasSourceBefore') || that.model.get('hasSourceAfter')) {
               that.bindScrollEvents();
