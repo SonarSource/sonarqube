@@ -32,6 +32,8 @@ import org.sonar.core.purge.PurgeConfiguration;
 import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.purge.PurgeProfiler;
 
+import java.util.List;
+
 public class ProjectPurgeTask implements ServerComponent {
   private static final Logger LOG = LoggerFactory.getLogger(ProjectPurgeTask.class);
   private final PurgeProfiler profiler;
@@ -74,5 +76,9 @@ public class ProjectPurgeTask implements ServerComponent {
       // purge errors must no fail the report analysis
       LOG.error("Fail to purge data [id=" + configuration.rootProjectId() + "]", e);
     }
+  }
+
+  public List<String> findUuidsToDisable(DbSession session, Long projectId) {
+    return purgeDao.selectPurgeableFiles(session, projectId);
   }
 }

@@ -31,6 +31,7 @@ import org.sonar.core.purge.PurgeConfiguration;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.properties.ProjectSettings;
 import org.sonar.server.properties.ProjectSettingsFactory;
+import org.sonar.server.source.index.SourceLineIndexer;
 
 import java.util.Date;
 
@@ -44,6 +45,7 @@ public class DataCleanerStepTest {
   private DataCleanerStep sut;
   private ProjectPurgeTask purgeTask;
   private IssueIndex issueIndex;
+  private SourceLineIndexer sourceLineIndexer;
   private Settings settings;
   private ProjectSettingsFactory projectSettingsFactory;
 
@@ -51,12 +53,13 @@ public class DataCleanerStepTest {
   public void before() {
     this.purgeTask = mock(ProjectPurgeTask.class);
     this.issueIndex = mock(IssueIndex.class);
+    this.sourceLineIndexer = mock(SourceLineIndexer.class);
     this.settings = mock(ProjectSettings.class);
     this.projectSettingsFactory = mock(ProjectSettingsFactory.class);
     when(projectSettingsFactory.newProjectSettings(any(DbSession.class), anyLong())).thenReturn(settings);
     when(settings.getInt(any(String.class))).thenReturn(123);
 
-    this.sut = new DataCleanerStep(projectSettingsFactory, purgeTask, issueIndex);
+    this.sut = new DataCleanerStep(projectSettingsFactory, purgeTask, issueIndex, sourceLineIndexer);
   }
 
   @Test

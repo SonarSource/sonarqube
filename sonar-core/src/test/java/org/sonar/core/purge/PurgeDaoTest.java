@@ -19,12 +19,15 @@
  */
 package org.sonar.core.purge;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.AbstractDaoTestCase;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
 
 import java.util.List;
@@ -35,9 +38,9 @@ import static org.mockito.Mockito.when;
 
 public class PurgeDaoTest extends AbstractDaoTestCase {
 
-  System2 system2;
-
-  PurgeDao dao;
+  private PurgeDao sut;
+  private System2 system2;
+  private DbSession dbSession;
 
   private static PurgeableSnapshotDto getById(List<PurgeableSnapshotDto> snapshots, long id) {
     for (PurgeableSnapshotDto snapshot : snapshots) {
@@ -49,59 +52,65 @@ public class PurgeDaoTest extends AbstractDaoTestCase {
   }
 
   @Before
-  public void createDao() {
+  public void before() {
     system2 = mock(System2.class);
     when(system2.now()).thenReturn(DateUtils.parseDate("2014-04-09").getTime());
+    dbSession = getMyBatis().openSession(false);
 
-    dao = new PurgeDao(getMyBatis(), new ResourceDao(getMyBatis(), system2), new PurgeProfiler(), system2);
+    sut = new PurgeDao(getMyBatis(), new ResourceDao(getMyBatis(), system2), new PurgeProfiler(), system2);
+  }
+
+  @After
+  public void after() {
+    MyBatis.closeQuietly(dbSession);
   }
 
   @Test
   public void shouldDeleteAbortedBuilds() {
     setupData("shouldDeleteAbortedBuilds");
-    dao.purge(new PurgeConfiguration(1L, new String[0], 30));
+    sut.purge(new PurgeConfiguration(1L, new String[0], 30));
     checkTables("shouldDeleteAbortedBuilds", "snapshots");
   }
 
   @Test
   public void should_purge_project() {
     setupData("shouldPurgeProject");
-    dao.purge(new PurgeConfiguration(1L, new String[0], 30));
+    sut.purge(new PurgeConfiguration(1L, new String[0], 30));
     checkTables("shouldPurgeProject", "projects", "snapshots");
   }
 
   @Test
   public void delete_file_sources_of_disabled_resources() {
     setupData("delete_file_sources_of_disabled_resources");
-    dao.purge(new PurgeConfiguration(1L, new String[0], 30, system2));
+    sut.purge(new PurgeConfiguration(1L, new String[0], 30, system2));
     checkTables("delete_file_sources_of_disabled_resources", "file_sources");
   }
 
   @Test
   public void shouldDeleteHistoricalDataOfDirectoriesAndFiles() {
     setupData("shouldDeleteHistoricalDataOfDirectoriesAndFiles");
-    dao.purge(new PurgeConfiguration(1L, new String[] {Scopes.DIRECTORY, Scopes.FILE}, 30));
+    sut.purge(new PurgeConfiguration(1L, new String[] {Scopes.DIRECTORY, Scopes.FILE}, 30));
     checkTables("shouldDeleteHistoricalDataOfDirectoriesAndFiles", "projects", "snapshots");
   }
 
   @Test
   public void disable_resources_without_last_snapshot() {
     setupData("disable_resources_without_last_snapshot");
-    dao.purge(new PurgeConfiguration(1L, new String[0], 30, system2));
+    sut.purge(new PurgeConfiguration(1L, new String[0], 30, system2));
     checkTables("disable_resources_without_last_snapshot", "projects", "snapshots", "issues");
   }
 
   @Test
   public void shouldDeleteSnapshots() {
     setupData("shouldDeleteSnapshots");
-    dao.deleteSnapshots(PurgeSnapshotQuery.create().setIslast(false).setResourceId(1L));
+    sut.deleteSnapshots(PurgeSnapshotQuery.create().setIslast(false).setResourceId(1L));
     checkTables("shouldDeleteSnapshots", "snapshots");
   }
 
   @Test
   public void shouldSelectPurgeableSnapshots() {
     setupData("shouldSelectPurgeableSnapshots");
-    List<PurgeableSnapshotDto> snapshots = dao.selectPurgeableSnapshots(1L);
+    List<PurgeableSnapshotDto> snapshots = sut.selectPurgeableSnapshots(1L);
 
     assertThat(snapshots).hasSize(3);
     assertThat(getById(snapshots, 1L).isLast()).isTrue();
@@ -115,21 +124,30 @@ public class PurgeDaoTest extends AbstractDaoTestCase {
   @Test
   public void should_delete_project_and_associated_data() {
     setupData("shouldDeleteProject");
-    dao.deleteResourceTree(new IdUuidPair(1L, "A"));
+    sut.deleteResourceTree(new IdUuidPair(1L, "A"));
     assertEmptyTables("projects", "snapshots", "action_plans", "issues", "issue_changes", "file_sources");
   }
 
   @Test
   public void should_delete_old_closed_issues() {
     setupData("should_delete_old_closed_issues");
-    dao.purge(new PurgeConfiguration(1L, new String[0], 30));
+    sut.purge(new PurgeConfiguration(1L, new String[0], 30));
     checkTables("should_delete_old_closed_issues", "issues", "issue_changes");
   }
 
   @Test
   public void should_delete_all_closed_issues() {
     setupData("should_delete_all_closed_issues");
-    dao.purge(new PurgeConfiguration(1L, new String[0], 0));
+    sut.purge(new PurgeConfiguration(1L, new String[0], 0));
     checkTables("should_delete_all_closed_issues", "issues", "issue_changes");
+  }
+
+  @Test
+  public void select_purgeable_file_uuids_and_only_them() {
+    setupData("select_purgeable_file_uuids");
+
+    List<String> uuids = sut.selectPurgeableFiles(dbSession, 1L);
+
+    assertThat(uuids).containsOnly("GHIJ");
   }
 }

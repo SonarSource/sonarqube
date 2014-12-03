@@ -19,8 +19,8 @@
  */
 package org.sonar.server.source.index;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.elasticsearch.action.update.UpdateRequest;
+import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
@@ -30,6 +30,10 @@ import org.sonar.server.es.EsClient;
 
 import java.sql.Connection;
 import java.util.Iterator;
+import java.util.List;
+
+import static org.sonar.server.source.index.SourceLineIndexDefinition.FIELD_FILE_UUID;
+import static org.sonar.server.source.index.SourceLineIndexDefinition.FIELD_PROJECT_UUID;
 
 public class SourceLineIndexer extends BaseIndexer {
 
@@ -93,8 +97,22 @@ public class SourceLineIndexer extends BaseIndexer {
     esClient.prepareDeleteByQuery(SourceLineIndexDefinition.INDEX)
       .setTypes(SourceLineIndexDefinition.TYPE)
       .setQuery(QueryBuilders.boolQuery()
-        .must(QueryBuilders.termQuery(SourceLineIndexDefinition.FIELD_FILE_UUID, fileUuid))
+        .must(QueryBuilders.termQuery(FIELD_FILE_UUID, fileUuid))
         .must(QueryBuilders.rangeQuery(SourceLineIndexDefinition.FIELD_LINE).gt(lastLine))
       ).get();
+  }
+
+  public void deleteByFiles(List<String> uuids) {
+    esClient.prepareDeleteByQuery(SourceLineIndexDefinition.INDEX)
+      .setTypes(SourceLineIndexDefinition.TYPE)
+      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), FilterBuilders.termsFilter(FIELD_FILE_UUID, uuids).cache(false)))
+      .get();
+  }
+
+  public void deleteByProject(String projectUuid) {
+    esClient.prepareDeleteByQuery(SourceLineIndexDefinition.INDEX)
+      .setTypes(SourceLineIndexDefinition.TYPE)
+      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), FilterBuilders.termFilter(FIELD_PROJECT_UUID, projectUuid).cache(false)))
+      .get();
   }
 }

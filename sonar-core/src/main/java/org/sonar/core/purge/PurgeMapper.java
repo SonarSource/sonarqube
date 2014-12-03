@@ -107,4 +107,6 @@ public interface PurgeMapper {
   void deleteFileSourcesByProjectUuid(String rootProjectUuid);
 
   void deleteFileSourcesByUuid(String fileUuid);
+
+  List<String> selectPurgeableFileUuids(Long projectId);
 }

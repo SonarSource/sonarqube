@@ -45,7 +45,7 @@ public class PurgeDao {
   private final MyBatis mybatis;
   private final ResourceDao resourceDao;
   private final System2 system2;
-  private PurgeProfiler profiler;
+  private final PurgeProfiler profiler;
 
   public PurgeDao(MyBatis mybatis, ResourceDao resourceDao, PurgeProfiler profiler, System2 system2) {
     this.mybatis = mybatis;
@@ -222,4 +222,8 @@ public class PurgeDao {
     return projects;
   }
 
+  public List<String> selectPurgeableFiles(DbSession dbSession, Long projectId) {
+    PurgeMapper mapper = dbSession.getMapper(PurgeMapper.class);
+    return mapper.selectPurgeableFileUuids(projectId);
+  }
 }

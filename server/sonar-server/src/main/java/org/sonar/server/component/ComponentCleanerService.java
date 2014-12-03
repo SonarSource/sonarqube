@@ -30,6 +30,7 @@ import org.sonar.core.purge.PurgeDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueIndexer;
+import org.sonar.server.source.index.SourceLineIndexer;
 
 public class ComponentCleanerService implements ServerComponent {
 
@@ -37,12 +38,14 @@ public class ComponentCleanerService implements ServerComponent {
   private final PurgeDao purgeDao;
   private final IssueAuthorizationIndexer issueAuthorizationIndexer;
   private final IssueIndexer issueIndexer;
+  private final SourceLineIndexer sourceLineIndexer;
 
-  public ComponentCleanerService(DbClient dbClient, PurgeDao purgeDao, IssueAuthorizationIndexer issueAuthorizationIndexer, IssueIndexer issueIndexer) {
+  public ComponentCleanerService(DbClient dbClient, PurgeDao purgeDao, IssueAuthorizationIndexer issueAuthorizationIndexer, IssueIndexer issueIndexer, SourceLineIndexer sourceLineIndexer) {
     this.dbClient = dbClient;
     this.purgeDao = purgeDao;
     this.issueAuthorizationIndexer = issueAuthorizationIndexer;
     this.issueIndexer = issueIndexer;
+    this.sourceLineIndexer = sourceLineIndexer;
   }
 
   public void delete(String projectKey) {
@@ -65,6 +68,7 @@ public class ComponentCleanerService implements ServerComponent {
     // optimization : index issues is refreshed once at the end
     issueAuthorizationIndexer.deleteProject(projectUuid, false);
     issueIndexer.deleteProject(projectUuid, true);
+    sourceLineIndexer.deleteByProject(projectUuid);
   }
 
 }

@@ -1,0 +1,86 @@
+<dataset>
+
+  <!-- the project -->
+  <projects id="1" enabled="[true]" root_id="[null]" uuid="ABCD" project_uuid="ABCD" module_uuid="[null]"
+            module_uuid_path="[null]" created_at="[null]"
+            long_name="[null]" scope="PRJ" qualifier="TRK" kee="project" name="project"
+            description="[null]" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]"
+            deprecated_kee="[null]" authorization_updated_at="[null]"/>
+
+  <!-- the directory -->
+  <projects id="2" enabled="[true]" root_id="1" uuid="EFGH" project_uuid="ABCD" module_uuid="ABCD"
+            module_uuid_path="[null]" created_at="[null]"
+            long_name="[null]" scope="DIR" qualifier="DIR" kee="project:my/dir" name="my/dir"
+            description="[null]" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]"
+            deprecated_kee="[null]" authorization_updated_at="[null]"/>
+
+  <!-- the files -->
+  <projects id="3" enabled="[true]" root_id="1" uuid="GHIJ" project_uuid="ABCD" module_uuid="ABCD"
+            module_uuid_path="ABCD" created_at="[null]"
+            long_name="[null]" scope="FIL" qualifier="FIL" kee="project:my/dir/File.java" name="my/dir/File.java"
+            description="[null]" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]"
+            deprecated_kee="[null]" authorization_updated_at="[null]"/>
+  <projects id="4" enabled="[true]" root_id="1" uuid="KLMN" project_uuid="ABCD" module_uuid="ABCD"
+            module_uuid_path="ABCD" created_at="[null]"
+            long_name="[null]" scope="FIL" qualifier="FIL" kee="project:my/dir/File.java"
+            name="my/dir/File.java"
+            description="[null]" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]"
+            deprecated_kee="[null]" authorization_updated_at="[null]"/>
+  <!-- the file has already been disabled. It should not be selected -->
+  <projects id="5" enabled="[false]" root_id="1" uuid="OPQR" project_uuid="ABCD" module_uuid="ABCD"
+            module_uuid_path="ABCD" created_at="[null]"
+            long_name="[null]" scope="FIL" qualifier="FIL" kee="project:my/dir/File.java"
+            name="my/dir/File.java"
+            description="[null]" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]"
+            deprecated_kee="[null]" authorization_updated_at="[null]"/>
+
+  <snapshots id="1"
+             project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
+             status="P" islast="[true]" purge_status="[null]"
+             period1_mode="[null]" period1_param="[null]" period1_date="[null]"
+             period2_mode="[null]" period2_param="[null]" period2_date="[null]"
+             period3_mode="[null]" period3_param="[null]" period3_date="[null]"
+             period4_mode="[null]" period4_param="[null]" period4_date="[null]"
+             period5_mode="[null]" period5_param="[null]" period5_date="[null]"
+             depth="[null]" scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00"
+             build_date="2008-12-02 13:58:00.00" version="[null]" path="[null]"/>
+
+  <snapshots id="2"
+             project_id="2" parent_snapshot_id="1" root_project_id="1" root_snapshot_id="1"
+             status="P" islast="[true]" purge_status="[null]"
+             period1_mode="[null]" period1_param="[null]" period1_date="[null]"
+             period2_mode="[null]" period2_param="[null]" period2_date="[null]"
+             period3_mode="[null]" period3_param="[null]" period3_date="[null]"
+             period4_mode="[null]" period4_param="[null]" period4_date="[null]"
+             period5_mode="[null]" period5_param="[null]" period5_date="[null]"
+             depth="[null]" scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00"
+             build_date="2008-12-02 13:58:00.00" version="[null]" path="[null]"/>
+
+  <!-- isLast is false -->
+  <snapshots id="3"
+             project_id="3" parent_snapshot_id="2" root_project_id="1" root_snapshot_id="1"
+             status="P" islast="[false]" purge_status="[null]"
+             period1_mode="[null]" period1_param="[null]" period1_date="[null]"
+             period2_mode="[null]" period2_param="[null]" period2_date="[null]"
+             period3_mode="[null]" period3_param="[null]" period3_date="[null]"
+             period4_mode="[null]" period4_param="[null]" period4_date="[null]"
+             period5_mode="[null]" period5_param="[null]" period5_date="[null]"
+             depth="[null]" scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00"
+             build_date="2008-12-02 13:58:00.00" version="[null]" path="[null]"/>
+
+  <snapshots id="4"
+             project_id="4" parent_snapshot_id="2" root_project_id="1" root_snapshot_id="1"
+             status="P" islast="[true]" purge_status="[null]"
+             period1_mode="[null]" period1_param="[null]" period1_date="[null]"
+             period2_mode="[null]" period2_param="[null]" period2_date="[null]"
+             period3_mode="[null]" period3_param="[null]" period3_date="[null]"
+             period4_mode="[null]" period4_param="[null]" period4_date="[null]"
+             period5_mode="[null]" period5_param="[null]" period5_date="[null]"
+             depth="[null]" scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00"
+             build_date="2008-12-02 13:58:00.00" version="[null]" path="[null]"/>
+
+  <file_sources id="1" project_uuid="ABCD" file_uuid="GHIJ" data="[null]" line_hashes="[null]" data_hash="321654987"
+                created_at="123456789" updated_at="123456789"/>
+  <file_sources id="2" project_uuid="ABCD" file_uuid="KLMN" data="[null]" line_hashes="[null]" data_hash="321654988"
+                created_at="123456789" updated_at="123456789"/>
+</dataset>

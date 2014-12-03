@@ -78,6 +78,12 @@
     and not exists(select s.project_id from snapshots s where s.islast=${_true} and s.project_id=p.id)
   </select>
 
+  <select id="selectPurgeableFileUuids" resultType="string" parameterType="long">
+    select p.uuid from projects p
+    where (p.id=#{id} or p.root_id=#{id}) and p.enabled=${_true} and p.scope='FIL'
+    and not exists(select s.project_id from snapshots s where s.islast=${_true} and s.project_id=p.id)
+  </select>
+
   <select id="selectMetricIdsWithoutHistoricalData" resultType="long">
     select id from metrics where delete_historical_data=${_true}
   </select>
