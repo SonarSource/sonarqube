@@ -991,11 +991,14 @@ module ApplicationHelper
 
   def url_for_issues(params)
     url = ApplicationController.root_context + '/issues/search#'
-    params.each do |key, value|
+    params.each_with_index do |(key, value), index|
       if key == 'filter'
         key = 'id'
       end
-      url += key.to_s + '=' + value.to_s + '|'
+      url += key.to_s + '=' + value.to_s
+      if index < params.size - 1
+        url += '|'
+      end
     end
     url
   end
