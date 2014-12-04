@@ -116,14 +116,14 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
 
   @Test
   public void should_process_open_issues() throws Exception {
-    Resource file = new File("Action.java").setEffectiveKey("struts:Action.java").setId(123);
+    Resource file = File.create("Action.java").setEffectiveKey("struts:Action.java").setId(123);
     final DefaultIssue issue = new DefaultIssue();
 
     // INPUT : one issue, no open issues during previous scan, no filtering
     when(issueCache.byComponent("struts:Action.java")).thenReturn(Arrays.asList(issue));
     List<IssueDto> dbIssues = Collections.emptyList();
     when(initialOpenIssues.selectAndRemoveIssues("struts:Action.java")).thenReturn(dbIssues);
-
+    when(inputPathCache.getFile("foo", "Action.java")).thenReturn(mock(DefaultInputFile.class));
     decorator.doDecorate(file);
 
     // Apply filters, track, apply transitions, notify extensions then update cache
@@ -142,7 +142,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
   @Test
   public void should_register_unmatched_issues_as_end_of_life() throws Exception {
     // "Unmatched" issues existed in previous scan but not in current one -> they have to be closed
-    Resource file = new File("Action.java").setEffectiveKey("struts:Action.java").setId(123);
+    Resource file = File.create("Action.java").setEffectiveKey("struts:Action.java").setId(123);
 
     // INPUT : one issue existing during previous scan
     IssueDto unmatchedIssue = new IssueDto().setKee("ABCDE").setResolution(null).setStatus("OPEN").setRuleKey("squid", "AvoidCycle");
@@ -151,6 +151,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
     trackingResult.addUnmatched(unmatchedIssue);
 
     when(tracking.track(isA(SourceHashHolder.class), anyCollection(), anyCollection())).thenReturn(trackingResult);
+    when(inputPathCache.getFile("foo", "Action.java")).thenReturn(mock(DefaultInputFile.class));
 
     decorator.doDecorate(file);
 

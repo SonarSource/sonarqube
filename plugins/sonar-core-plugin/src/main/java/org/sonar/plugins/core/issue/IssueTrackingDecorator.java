@@ -129,6 +129,9 @@ public class IssueTrackingDecorator implements Decorator {
     if (ResourceUtils.isFile(resource)) {
       File sonarFile = (File) resource;
       InputFile file = inputPathCache.getFile(project.getEffectiveKey(), sonarFile.getPath());
+      if (file == null) {
+        throw new IllegalStateException("Resource " + resource + " was not found in InputPath cache");
+      }
       sourceHashHolder = new SourceHashHolder((DefaultInputFile) file, lastLineHashes);
     }
 

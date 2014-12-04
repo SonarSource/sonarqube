@@ -39,7 +39,7 @@ public class LastLineHashes implements BatchComponent {
 
   public String[] getLineHashes(String fileKey) {
     String hashesFromWs = loadHashesFromWs(fileKey);
-    return hashesFromWs != null ? Iterators.toArray(Splitter.on('\n').split(hashesFromWs).iterator(), String.class) : null;
+    return Iterators.toArray(Splitter.on('\n').split(hashesFromWs).iterator(), String.class);
   }
 
   private String loadHashesFromWs(String fileKey) {

@@ -30,6 +30,7 @@ import org.sonar.api.BatchExtension;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.issue.db.IssueDto;
+import org.sonar.plugins.core.issue.tracking.FileHashes;
 import org.sonar.plugins.core.issue.tracking.IssueTrackingBlocksRecognizer;
 import org.sonar.plugins.core.issue.tracking.RollingFileHashes;
 
@@ -63,14 +64,15 @@ public class IssueTracking implements BatchExtension {
       return;
     }
     for (DefaultIssue issue : issues) {
-      if (issue.line() != null) {
-        issue.setChecksum(sourceHashHolder.getHashedSource().getHash(issue.line()));
+      Integer line = issue.line();
+      if (line != null) {
+        issue.setChecksum(sourceHashHolder.getHashedSource().getHash(line));
       }
     }
   }
 
   @VisibleForTesting
-  void mapIssues(Collection<DefaultIssue> newIssues, @Nullable Collection<IssueDto> lastIssues, SourceHashHolder sourceHashHolder, IssueTrackingResult result) {
+  void mapIssues(Collection<DefaultIssue> newIssues, @Nullable Collection<IssueDto> lastIssues, @Nullable SourceHashHolder sourceHashHolder, IssueTrackingResult result) {
     boolean hasLastScan = false;
 
     if (lastIssues != null) {
@@ -81,7 +83,7 @@ public class IssueTracking implements BatchExtension {
     // If each new issue matches an old one we can stop the matching mechanism
     if (result.matched().size() != newIssues.size()) {
       if (sourceHashHolder != null && sourceHashHolder.getHashedReference() != null && hasLastScan) {
-        mapNewissues(sourceHashHolder, newIssues, result);
+        mapNewissues(sourceHashHolder.getHashedReference(), sourceHashHolder.getHashedSource(), newIssues, result);
       }
       mapIssuesOnSameRule(newIssues, result);
     }
@@ -108,12 +110,12 @@ public class IssueTracking implements BatchExtension {
     }
   }
 
-  private void mapNewissues(SourceHashHolder sourceHashHolder, Collection<DefaultIssue> newIssues, IssueTrackingResult result) {
+  private void mapNewissues(FileHashes hashedReference, FileHashes hashedSource, Collection<DefaultIssue> newIssues, IssueTrackingResult result) {
 
-    IssueTrackingBlocksRecognizer rec = new IssueTrackingBlocksRecognizer(sourceHashHolder.getHashedReference(), sourceHashHolder.getHashedSource());
+    IssueTrackingBlocksRecognizer rec = new IssueTrackingBlocksRecognizer(hashedReference, hashedSource);
 
-    RollingFileHashes a = RollingFileHashes.create(sourceHashHolder.getHashedReference(), 5);
-    RollingFileHashes b = RollingFileHashes.create(sourceHashHolder.getHashedSource(), 5);
+    RollingFileHashes a = RollingFileHashes.create(hashedReference, 5);
+    RollingFileHashes b = RollingFileHashes.create(hashedSource, 5);
 
     Multimap<Integer, DefaultIssue> newIssuesByLines = newIssuesByLines(newIssues, rec, result);
     Multimap<Integer, IssueDto> lastIssuesByLines = lastIssuesByLines(result.unmatched(), rec);
