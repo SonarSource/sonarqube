@@ -69,6 +69,7 @@ public class RawAction implements RequestHandler {
     try {
       ComponentDto componentDto = dbClient.componentDao().getByKey(session, fileKey);
       List<String> lines = sourceService.getLinesAsTxt(componentDto.uuid(), null, null);
+      response.stream().setMediaType("text/plain");
       IOUtils.writeLines(lines, "\n", response.stream().output(), Charsets.UTF_8);
     } catch (IOException e) {
       throw new IllegalStateException("Fail to write raw source of file " + fileKey, e);
