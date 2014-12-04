@@ -35,17 +35,13 @@ class CreateFileSources < ActiveRecord::Migration
     end
 
     if dialect()=='mysql'
-      ActiveRecord::Base.connection.execute("alter table file_sources modify data longtext")
+      ActiveRecord::Base.connection.execute('alter table file_sources modify data longtext')
     end
 
-    add_index "file_sources", "file_uuid", :unique => true, :name => "file_sources_file_uuid_uniq"
+    add_index 'file_sources', 'file_uuid', :unique => true, :name => 'file_sources_file_uuid'
 
-    ["project_uuid", "updated_at"].each do |column|
-      begin
-        add_index "file_sources", column, :name => "file_sources_" + column
-      rescue
-        # ignore
-      end
+    ['project_uuid', 'updated_at'].each do |column|
+      add_index 'file_sources', column, :name => 'file_sources_' + column
     end
 
   end
