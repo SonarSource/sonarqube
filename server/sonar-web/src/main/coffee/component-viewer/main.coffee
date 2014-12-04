@@ -40,7 +40,7 @@ define [
 
   API_COMPONENT = "#{baseUrl}/api/components/app"
   API_SOURCES = "#{baseUrl}/api/sources/show"
-  API_RAW_SOURCES = "#{baseUrl}/api/sources"
+  API_RAW_SOURCES = "#{baseUrl}/api/sources/raw"
   API_MEASURES = "#{baseUrl}/api/resources"
   API_TESTS = "#{baseUrl}/api/tests/show"
 
@@ -347,7 +347,7 @@ define [
 
     showRawSources: ->
       key = encodeURIComponent @component.get 'key'
-      url = "#{API_RAW_SOURCES}?resource=#{key}&format=txt"
+      url = "#{API_RAW_SOURCES}?key=#{key}"
       location.href = url
 
 
