@@ -158,7 +158,7 @@ public class SearchActionMediumTest {
       .setReporter("fabrice")
       .setActionPlanKey("AP-ABCD")
       .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
-      .setIssueUpdateDate(DateUtils.parseDate("2014-12-04"));
+      .setIssueUpdateDate(DateUtils.parseDate("2017-12-04"));
     db.issueDao().insert(session, issue);
     session.commit();
 
@@ -176,7 +176,7 @@ public class SearchActionMediumTest {
       .setStatus("OPEN").setResolution("OPEN")
       .setSeverity("MAJOR")
       .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
-      .setIssueUpdateDate(DateUtils.parseDate("2014-12-04"));
+      .setIssueUpdateDate(DateUtils.parseDate("2017-12-04"));
     db.issueDao().insert(session, issue);
 
     ComponentDto project2 = ComponentTesting.newProjectDto().setUuid("DBCA").setProjectUuid("DBCA")
@@ -200,7 +200,7 @@ public class SearchActionMediumTest {
       .setStatus("OPEN").setResolution("OPEN")
       .setSeverity("MAJOR")
       .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
-      .setIssueUpdateDate(DateUtils.parseDate("2014-12-04"));
+      .setIssueUpdateDate(DateUtils.parseDate("2017-12-04"));
     db.issueDao().insert(session, issue2);
 
     session.commit();
@@ -312,7 +312,7 @@ public class SearchActionMediumTest {
       .setStatus("OPEN").setResolution("OPEN")
       .setSeverity("MAJOR")
       .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
-      .setIssueUpdateDate(DateUtils.parseDate("2014-12-04"));
+      .setIssueUpdateDate(DateUtils.parseDate("2017-12-04"));
     db.issueDao().insert(session, issue);
     session.commit();
 
@@ -436,7 +436,7 @@ public class SearchActionMediumTest {
   public void display_facets() throws Exception {
     IssueDto issue = IssueTesting.newDto(rule, file, project)
       .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
-      .setIssueUpdateDate(DateUtils.parseDate("2014-12-04"))
+      .setIssueUpdateDate(DateUtils.parseDate("2017-12-04"))
       .setDebt(10L)
       .setStatus("OPEN")
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
@@ -455,7 +455,7 @@ public class SearchActionMediumTest {
   public void hide_rules() throws Exception {
     IssueDto issue = IssueTesting.newDto(rule, file, project)
       .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
-      .setIssueUpdateDate(DateUtils.parseDate("2014-12-04"))
+      .setIssueUpdateDate(DateUtils.parseDate("2017-12-04"))
       .setDebt(10L)
       .setStatus("OPEN")
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
