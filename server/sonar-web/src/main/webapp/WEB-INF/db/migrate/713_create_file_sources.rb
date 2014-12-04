@@ -30,7 +30,7 @@ class CreateFileSources < ActiveRecord::Migration
       t.column :data,         :text,     :null => true
       t.column :line_hashes,  :text,     :null => true
       t.column :data_hash,    :string,   :limit => 50, :null => true
-      t.column :created_at,   :big_integer, :null => false 
+      t.column :created_at,   :big_integer, :null => false
       t.column :updated_at,   :big_integer, :null => false
     end
 
@@ -38,7 +38,9 @@ class CreateFileSources < ActiveRecord::Migration
       ActiveRecord::Base.connection.execute("alter table file_sources modify data longtext")
     end
 
-    ["project_uuid", "file_uuid", "updated_at"].each do |column|
+    add_index "file_sources", "file_uuid", :unique => true, :name => "file_sources_file_uuid_uniq"
+
+    ["project_uuid", "updated_at"].each do |column|
       begin
         add_index "file_sources", column, :name => "file_sources_" + column
       rescue

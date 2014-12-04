@@ -74,6 +74,11 @@ public class FeedFileSourcesTest {
       "values " +
       "(6, 'class Foo {\r\n  // Empty\r\n}\r\n', '2014-10-31 16:44:02.000')");
 
+    db.executeUpdateSql("insert into snapshot_sources " +
+      "(snapshot_id, data, updated_at) " +
+      "values " +
+      "(7, '', '2014-10-31 16:44:02.000')");
+
     migration.execute();
 
     db.assertDbUnit(getClass(), "after.xml", "file_sources");
@@ -101,6 +106,11 @@ public class FeedFileSourcesTest {
         "values " +
         "(6, 'class Foo {\r\n  // Empty\r\n}\r\n', '2014-10-31 16:44:02.000')")
         .executeUpdate();
+
+      db.executeUpdateSql("insert into snapshot_sources " +
+        "(snapshot_id, data, updated_at) " +
+        "values " +
+        "(7, '', '2014-10-31 16:44:02.000')");
 
       PreparedStatement revisionStmt = connection.prepareStatement("insert into project_measures " +
         "(metric_id, snapshot_id, " + columnName + ") " +

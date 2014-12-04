@@ -107,6 +107,8 @@ public class FeedFileSources extends BaseDataChange {
     "ON s.root_project_id = p.id " +
     "JOIN projects f " +
     "ON s.project_id = f.id " +
+    "LEFT JOIN file_sources fs " +
+    "ON fs.file_uuid = f.uuid " +
     "LEFT JOIN project_measures m1 " +
     "ON m1.snapshot_id = s.id AND m1.metric_id = ? " +
     "LEFT JOIN project_measures m2 " +
@@ -136,7 +138,8 @@ public class FeedFileSources extends BaseDataChange {
     "WHERE " +
     "f.enabled = ? " +
     "AND f.scope = 'FIL' " +
-    "AND p.scope = 'PRJ' AND p.qualifier = 'TRK' ";
+    "AND p.scope = 'PRJ' AND p.qualifier = 'TRK' " +
+    "AND fs.file_uuid IS NULL";
 
   private static final class FileSourceBuilder implements MassUpdate.Handler {
     private final Date now;
