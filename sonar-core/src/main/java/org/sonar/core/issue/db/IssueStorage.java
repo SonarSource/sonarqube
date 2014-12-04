@@ -30,7 +30,6 @@ import org.sonar.core.persistence.BatchSession;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 
-import java.util.Date;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -59,28 +58,32 @@ public abstract class IssueStorage {
   }
 
   public void save(DbSession session, DefaultIssue issue) {
-    save(session, newArrayList(issue));
+    doSave(session, newArrayList(issue));
   }
 
   public void save(Iterable<DefaultIssue> issues) {
     DbSession session = mybatis.openSession(true);
     try {
-      save(session, issues);
-      session.commit();
+      doSave(session, issues);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  private void save(DbSession session, Iterable<DefaultIssue> issues) {
+  private void doSave(DbSession session, Iterable<DefaultIssue> issues) {
     // Batch session can not be used for updates. It does not return the number of updated rows,
     // required for detecting conflicts.
-    Date now = new Date();
+    long now = System.currentTimeMillis();
     List<DefaultIssue> toBeUpdated = batchInsert(session, issues, now);
     update(toBeUpdated, now);
+    doAfterSave();
   }
 
-  private List<DefaultIssue> batchInsert(DbSession session, Iterable<DefaultIssue> issues, Date now) {
+  protected void doAfterSave() {
+    // overridden on server-side to index ES
+  }
+
+  private List<DefaultIssue> batchInsert(DbSession session, Iterable<DefaultIssue> issues, long now) {
     List<DefaultIssue> toBeUpdated = newArrayList();
     int count = 0;
     IssueChangeMapper issueChangeMapper = session.getMapper(IssueChangeMapper.class);
@@ -96,12 +99,13 @@ public abstract class IssueStorage {
         toBeUpdated.add(issue);
       }
     }
+    session.commit();
     return toBeUpdated;
   }
 
-  protected abstract void doInsert(DbSession batchSession, Date now, DefaultIssue issue);
+  protected abstract void doInsert(DbSession batchSession, long now, DefaultIssue issue);
 
-  private void update(List<DefaultIssue> toBeUpdated, Date now) {
+  private void update(List<DefaultIssue> toBeUpdated, long now) {
     if (!toBeUpdated.isEmpty()) {
       DbSession session = mybatis.openSession(false);
       try {
@@ -117,7 +121,7 @@ public abstract class IssueStorage {
     }
   }
 
-  protected abstract void doUpdate(DbSession batchSession, Date now, DefaultIssue issue);
+  protected abstract void doUpdate(DbSession batchSession, long now, DefaultIssue issue);
 
   private void insertChanges(IssueChangeMapper mapper, DefaultIssue issue) {
     for (IssueComment comment : issue.comments()) {

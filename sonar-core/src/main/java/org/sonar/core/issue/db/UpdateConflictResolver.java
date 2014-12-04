@@ -24,8 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.issue.internal.DefaultIssue;
 
-import java.util.Date;
-
 /**
  * See https://jira.codehaus.org/browse/SONAR-4309
  *
@@ -41,7 +39,7 @@ public class UpdateConflictResolver {
     IssueDto dbIssue = mapper.selectByKey(issue.key());
     if (dbIssue != null) {
       mergeFields(dbIssue, issue);
-      mapper.update(IssueDto.toDtoForUpdate(issue, dbIssue.getProjectId(), new Date()));
+      mapper.update(IssueDto.toDtoForUpdate(issue, dbIssue.getProjectId(), System.currentTimeMillis()));
     }
   }
 

@@ -60,7 +60,7 @@ public interface PurgeMapper {
 
   void disableResource(long resourceId);
 
-  void resolveResourceIssuesNotAlreadyResolved(@Param("resourceId") long resourceId, @Param("date") Date date);
+  void resolveResourceIssuesNotAlreadyResolved(@Param("resourceId") long resourceId, @Param("date") Date date, @Param("dateAsLong") Long dateAsLong);
 
   void deleteResourceIndex(@Param("resourceIds") List<Long> resourceIds);
 

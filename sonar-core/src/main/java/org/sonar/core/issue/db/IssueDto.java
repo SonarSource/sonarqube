@@ -30,7 +30,6 @@ import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.internal.Uuids;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.persistence.Dto;
 import org.sonar.core.rule.RuleDto;
 
 import javax.annotation.CheckForNull;
@@ -42,7 +41,7 @@ import java.util.Date;
 /**
  * @since 3.6
  */
-public final class IssueDto extends Dto<String> implements Serializable {
+public final class IssueDto implements Serializable {
 
   private Long id;
   private String kee;
@@ -63,6 +62,8 @@ public final class IssueDto extends Dto<String> implements Serializable {
   private String authorLogin;
   private String actionPlanKey;
   private String issueAttributes;
+  private long createdAt;
+  private long updatedAt;
 
   // functional dates
   private Date issueCreationDate;
@@ -72,7 +73,7 @@ public final class IssueDto extends Dto<String> implements Serializable {
   /**
    * Temporary date used only during scan
    */
-  private Date selectedAt;
+  private Long selectedAt;
 
   // joins
   private String ruleKey;
@@ -86,7 +87,6 @@ public final class IssueDto extends Dto<String> implements Serializable {
   private String projectUuid;
   private String filePath;
 
-  @Override
   public String getKey() {
     return getKee();
   }
@@ -308,15 +308,27 @@ public final class IssueDto extends Dto<String> implements Serializable {
     return this;
   }
 
-  @Override
-  public IssueDto setCreatedAt(Date createdAt) {
-    super.setCreatedAt(createdAt);
+  public long getCreatedAt() {
+    return createdAt;
+  }
+
+  /**
+   * Technical date
+   */
+  public IssueDto setCreatedAt(long createdAt) {
+    this.createdAt = createdAt;
     return this;
   }
 
-  @Override
-  public IssueDto setUpdatedAt(@Nullable Date updatedAt) {
-    super.setUpdatedAt(updatedAt);
+  public long getUpdatedAt() {
+    return updatedAt;
+  }
+
+  /**
+   * Technical date
+   */
+  public IssueDto setUpdatedAt(long updatedAt) {
+    this.updatedAt = updatedAt;
     return this;
   }
 
@@ -355,11 +367,11 @@ public final class IssueDto extends Dto<String> implements Serializable {
     return ruleRepo;
   }
 
-  public RuleKey getRuleKey(){
+  public RuleKey getRuleKey() {
     return RuleKey.of(ruleRepo, ruleKey);
   }
 
-  public String getLanguage(){
+  public String getLanguage() {
     return language;
   }
 
@@ -401,11 +413,11 @@ public final class IssueDto extends Dto<String> implements Serializable {
   }
 
   @CheckForNull
-  public Date getSelectedAt() {
+  public Long getSelectedAt() {
     return selectedAt;
   }
 
-  public IssueDto setSelectedAt(@Nullable Date d) {
+  public IssueDto setSelectedAt(@Nullable Long d) {
     this.selectedAt = d;
     return this;
   }
@@ -518,7 +530,7 @@ public final class IssueDto extends Dto<String> implements Serializable {
   /**
    * On batch side, component keys and uuid are useless
    */
-  public static IssueDto toDtoForBatchInsert(DefaultIssue issue, Long componentId, Long rootComponentId, Integer ruleId, Date now) {
+  public static IssueDto toDtoForBatchInsert(DefaultIssue issue, Long componentId, Long rootComponentId, Integer ruleId, long now) {
     return new IssueDto()
       .setKee(issue.key())
       .setLine(issue.line())
@@ -550,6 +562,8 @@ public final class IssueDto extends Dto<String> implements Serializable {
       .setIssueCloseDate(issue.closeDate())
       .setIssueUpdateDate(issue.updateDate())
       .setSelectedAt(issue.selectedAt())
+
+      // technical dates
       .setCreatedAt(now)
       .setUpdatedAt(now);
   }
@@ -557,13 +571,13 @@ public final class IssueDto extends Dto<String> implements Serializable {
   /**
    * On server side, we need component keys and uuid
    */
-  public static IssueDto toDtoForServerInsert(DefaultIssue issue, ComponentDto component, ComponentDto project, Integer ruleId, Date now) {
+  public static IssueDto toDtoForServerInsert(DefaultIssue issue, ComponentDto component, ComponentDto project, Integer ruleId, long now) {
     return toDtoForBatchInsert(issue, component.getId(), project.getId(), ruleId, now)
       .setComponent(component)
       .setProject(project);
   }
 
-  public static IssueDto toDtoForUpdate(DefaultIssue issue, Long rootComponentId, Date now) {
+  public static IssueDto toDtoForUpdate(DefaultIssue issue, Long rootComponentId, long now) {
     // Invariant fields, like key and rule, can't be updated
     return new IssueDto()
       .setKee(issue.key())
@@ -593,6 +607,8 @@ public final class IssueDto extends Dto<String> implements Serializable {
       .setIssueCloseDate(issue.closeDate())
       .setIssueUpdateDate(issue.updateDate())
       .setSelectedAt(issue.selectedAt())
+
+      // technical date
       .setUpdatedAt(now);
   }
 

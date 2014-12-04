@@ -48,6 +48,7 @@ import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.IssueTesting;
 import org.sonar.server.issue.db.IssueDao;
 import org.sonar.server.issue.filter.IssueFilterParameters;
+import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.rule.RuleTesting;
@@ -161,6 +162,7 @@ public class SearchActionMediumTest {
       .setIssueUpdateDate(DateUtils.parseDate("2017-12-04"));
     db.issueDao().insert(session, issue);
     session.commit();
+    tester.get(IssueIndexer.class).indexAll();
 
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).execute();
     // TODO date assertion is complex to test, and components id are not predictable, that's why strict boolean is set to false
@@ -202,8 +204,8 @@ public class SearchActionMediumTest {
       .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
       .setIssueUpdateDate(DateUtils.parseDate("2017-12-04"));
     db.issueDao().insert(session, issue2);
-
     session.commit();
+    tester.get(IssueIndexer.class).indexAll();
 
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).execute();
     result.assertJson(this.getClass(), "issues_on_different_projects.json", false);
@@ -231,6 +233,7 @@ public class SearchActionMediumTest {
         .setUserLogin("fabrice")
         .setCreatedAt(DateUtils.parseDate("2014-09-10")));
     session.commit();
+    tester.get(IssueIndexer.class).indexAll();
 
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).execute();
     result.assertJson(this.getClass(), "issue_with_comment.json", false);
@@ -255,6 +258,7 @@ public class SearchActionMediumTest {
       .setActionPlanKey("AP-ABCD");
     db.issueDao().insert(session, issue);
     session.commit();
+    tester.get(IssueIndexer.class).indexAll();
 
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).execute();
     result.assertJson(this.getClass(), "issue_with_action_plan.json", false);
@@ -267,6 +271,7 @@ public class SearchActionMediumTest {
       .setIssueAttributes(KeyValueFormat.format(ImmutableMap.of("jira-issue-key", "SONAR-1234")));
     db.issueDao().insert(session, issue);
     session.commit();
+    tester.get(IssueIndexer.class).indexAll();
 
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).execute();
     result.assertJson(this.getClass(), "issue_with_attributes.json", false);
@@ -292,6 +297,7 @@ public class SearchActionMediumTest {
       .setActionPlanKey("AP-ABCD");
     db.issueDao().insert(session, issue);
     session.commit();
+    tester.get(IssueIndexer.class).indexAll();
 
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam("extra_fields", "actions,transitions,assigneeName,reporterName,actionPlanName").execute();
@@ -315,6 +321,7 @@ public class SearchActionMediumTest {
       .setIssueUpdateDate(DateUtils.parseDate("2017-12-04"));
     db.issueDao().insert(session, issue);
     session.commit();
+    tester.get(IssueIndexer.class).indexAll();
 
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).execute();
     result.assertJson(this.getClass(), "issue_linked_on_removed_file.json", false);
@@ -325,6 +332,7 @@ public class SearchActionMediumTest {
     IssueDto issue = IssueTesting.newDto(rule, file, project);
     db.issueDao().insert(session, issue);
     session.commit();
+    tester.get(IssueIndexer.class).indexAll();
 
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).execute();
     assertThat(result.outputAsString()).contains("\"componentId\":" + file.getId() + ",");
@@ -334,6 +342,7 @@ public class SearchActionMediumTest {
   public void search_by_project_uuid() throws Exception {
     db.issueDao().insert(session, IssueTesting.newDto(rule, file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2"));
     session.commit();
+    tester.get(IssueIndexer.class).indexAll();
 
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.PROJECT_UUIDS, project.uuid())
@@ -350,6 +359,7 @@ public class SearchActionMediumTest {
   public void search_by_component_uuid() throws Exception {
     db.issueDao().insert(session, IssueTesting.newDto(rule, file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2"));
     session.commit();
+    tester.get(IssueIndexer.class).indexAll();
 
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, file.uuid())
@@ -369,6 +379,7 @@ public class SearchActionMediumTest {
       tester.get(IssueDao.class).insert(session, issue);
     }
     session.commit();
+    tester.get(IssueIndexer.class).indexAll();
 
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENTS, file.getKey())
@@ -384,6 +395,7 @@ public class SearchActionMediumTest {
       tester.get(IssueDao.class).insert(session, issue);
     }
     session.commit();
+    tester.get(IssueIndexer.class).indexAll();
 
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENTS, file.getKey() + "," + otherFile.getKey())
@@ -399,6 +411,7 @@ public class SearchActionMediumTest {
       tester.get(IssueDao.class).insert(session, issue);
     }
     session.commit();
+    tester.get(IssueIndexer.class).indexAll();
 
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).setParam(IssueFilterParameters.COMPONENTS, file.getKey()).execute();
     result.assertJson(this.getClass(), "apply_paging_with_one_component.json", false);
@@ -427,6 +440,7 @@ public class SearchActionMediumTest {
     IssueDto issue = IssueTesting.newDto(rule, file, project);
     db.issueDao().insert(session, issue);
     session.commit();
+    tester.get(IssueIndexer.class).indexAll();
 
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).execute();
     result.assertJson(this.getClass(), "components_contains_sub_projects.json", false);
@@ -443,6 +457,7 @@ public class SearchActionMediumTest {
       .setSeverity("MAJOR");
     db.issueDao().insert(session, issue);
     session.commit();
+    tester.get(IssueIndexer.class).indexAll();
 
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam("resolved", "false")
@@ -462,6 +477,7 @@ public class SearchActionMediumTest {
       .setSeverity("MAJOR");
     db.issueDao().insert(session, issue);
     session.commit();
+    tester.get(IssueIndexer.class).indexAll();
 
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).setParam(IssueFilterParameters.HIDE_RULES, "true").execute();
     result.assertJson(this.getClass(), "hide_rules.json", false);
@@ -473,6 +489,7 @@ public class SearchActionMediumTest {
     db.issueDao().insert(session, IssueTesting.newDto(rule, file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2").setIssueUpdateDate(DateUtils.parseDate("2014-11-01")));
     db.issueDao().insert(session, IssueTesting.newDto(rule, file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac3").setIssueUpdateDate(DateUtils.parseDate("2014-11-03")));
     session.commit();
+    tester.get(IssueIndexer.class).indexAll();
 
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam("sort", IssueQuery.SORT_BY_UPDATE_DATE)
@@ -488,6 +505,7 @@ public class SearchActionMediumTest {
       tester.get(IssueDao.class).insert(session, issue);
     }
     session.commit();
+    tester.get(IssueIndexer.class).indexAll();
 
     WsTester.TestRequest request = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION);
     request.setParam(SearchAction.PARAM_PAGE, "2");
@@ -504,6 +522,7 @@ public class SearchActionMediumTest {
       tester.get(IssueDao.class).insert(session, issue);
     }
     session.commit();
+    tester.get(IssueIndexer.class).indexAll();
 
     WsTester.TestRequest request = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION);
     request.setParam(SearchAction.PARAM_PAGE, "1");
@@ -520,6 +539,7 @@ public class SearchActionMediumTest {
       tester.get(IssueDao.class).insert(session, issue);
     }
     session.commit();
+    tester.get(IssueIndexer.class).indexAll();
 
     WsTester.TestRequest request = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION);
     request.setParam(IssueFilterParameters.PAGE_INDEX, "2");

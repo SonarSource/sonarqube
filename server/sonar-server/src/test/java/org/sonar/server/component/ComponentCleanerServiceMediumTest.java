@@ -37,6 +37,7 @@ import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.IssueTesting;
 import org.sonar.server.issue.db.IssueDao;
 import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.rule.RuleTesting;
@@ -115,6 +116,7 @@ public class ComponentCleanerServiceMediumTest {
 
     tester.get(IssueDao.class).insert(session, IssueTesting.newDto(rule, file, project));
     session.commit();
+    tester.get(IssueIndexer.class).indexAll();
 
     assertThat(tester.get(IssueIndex.class).countAll()).isEqualTo(1);
 

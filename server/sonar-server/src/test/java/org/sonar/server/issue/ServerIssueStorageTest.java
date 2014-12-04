@@ -39,11 +39,14 @@ import org.sonar.core.resource.ResourceDao;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.db.IssueDao;
+import org.sonar.server.issue.index.IssueIndexer;
 
 import java.util.Collection;
 import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ServerIssueStorageTest extends AbstractDaoTestCase {
 
@@ -54,13 +57,15 @@ public class ServerIssueStorageTest extends AbstractDaoTestCase {
 
   @Before
   public void setupDbClient() {
+    System2 system = mock(System2.class);
+    when(system.now()).thenReturn(2000000000L);
     dbClient = new DbClient(getDatabase(), getMyBatis(),
-      new ComponentDao(System2.INSTANCE),
-      new IssueDao(System2.INSTANCE),
-      new ResourceDao(getMyBatis(), System2.INSTANCE));
+      new ComponentDao(system),
+      new IssueDao(getMyBatis()),
+      new ResourceDao(getMyBatis(), system));
     session = dbClient.openSession(false);
 
-    storage = new ServerIssueStorage(getMyBatis(), new FakeRuleFinder(), dbClient);
+    storage = new ServerIssueStorage(getMyBatis(), new FakeRuleFinder(), dbClient, mock(IssueIndexer.class));
   }
 
   @After

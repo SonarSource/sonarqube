@@ -44,8 +44,21 @@ public class IssueIndexer extends BaseIndexer {
 
   @Override
   protected long doIndex(long lastUpdatedAt) {
-    final BulkIndexer bulk = createBulkIndexer(lastUpdatedAt == 0L);
+    return doIndex(createBulkIndexer(false), lastUpdatedAt);
+  }
 
+  public void indexAll() {
+    doIndex(createBulkIndexer(true), 0L);
+  }
+
+  /**
+   * For benchmarks
+   */
+  public void index(Iterator<IssueDoc> issues) {
+    doIndex(createBulkIndexer(false), issues);
+  }
+
+  private long doIndex(BulkIndexer bulk, long lastUpdatedAt) {
     DbSession dbSession = dbClient.openSession(false);
     Connection dbConnection = dbSession.getConnection();
     long maxDate;
@@ -61,12 +74,7 @@ public class IssueIndexer extends BaseIndexer {
     }
   }
 
-  public void index(Iterator<IssueDoc> issues) {
-    final BulkIndexer bulk = createBulkIndexer(false);
-    doIndex(bulk, issues);
-  }
-
-  long doIndex(BulkIndexer bulk, Iterator<IssueDoc> issues) {
+  private long doIndex(BulkIndexer bulk, Iterator<IssueDoc> issues) {
     bulk.start();
     long maxDate = 0L;
     while (issues.hasNext()) {

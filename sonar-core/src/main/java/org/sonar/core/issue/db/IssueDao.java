@@ -47,10 +47,9 @@ public class IssueDao implements BatchComponent, ServerComponent {
 
   @CheckForNull
   public IssueDto selectByKey(String key) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
-      IssueMapper mapper = session.getMapper(IssueMapper.class);
-      return mapper.selectByKey(key);
+      return mapper(session).selectByKey(key);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -68,11 +67,16 @@ public class IssueDao implements BatchComponent, ServerComponent {
 
   // TODO replace by aggregation in IssueIndex
   public List<RuleDto> findRulesByComponent(String componentKey, @Nullable Date createdAtOrAfter, DbSession session) {
-    return session.getMapper(IssueMapper.class).findRulesByComponent(componentKey, createdAtOrAfter);
+    return mapper(session).findRulesByComponent(componentKey, createdAtOrAfter);
   }
 
   // TODO replace by aggregation in IssueIndex
   public List<String> findSeveritiesByComponent(String componentKey, @Nullable Date createdAtOrAfter, DbSession session) {
-    return session.getMapper(IssueMapper.class).findSeveritiesByComponent(componentKey, createdAtOrAfter);
+    return mapper(session).findSeveritiesByComponent(componentKey, createdAtOrAfter);
   }
+
+  protected IssueMapper mapper(DbSession session) {
+    return session.getMapper(IssueMapper.class);
+  }
+
 }

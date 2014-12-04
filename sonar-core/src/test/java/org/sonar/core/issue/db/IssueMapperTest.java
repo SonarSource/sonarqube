@@ -69,8 +69,8 @@ public class IssueMapperTest extends AbstractDaoTestCase {
     dto.setIssueCreationDate(DateUtils.parseDate("2013-05-18"));
     dto.setIssueUpdateDate(DateUtils.parseDate("2013-05-19"));
     dto.setIssueCloseDate(DateUtils.parseDate("2013-05-20"));
-    dto.setCreatedAt(DateUtils.parseDate("2013-05-21"));
-    dto.setUpdatedAt(DateUtils.parseDate("2013-05-22"));
+    dto.setCreatedAt(1400000000000L);
+    dto.setUpdatedAt(1500000000000L);
 
     mapper.insert(dto);
     session.commit();
@@ -104,8 +104,8 @@ public class IssueMapperTest extends AbstractDaoTestCase {
     dto.setIssueCreationDate(DateUtils.parseDate("2013-05-18"));
     dto.setIssueUpdateDate(DateUtils.parseDate("2013-05-19"));
     dto.setIssueCloseDate(DateUtils.parseDate("2013-05-20"));
-    dto.setCreatedAt(DateUtils.parseDate("2013-05-21"));
-    dto.setUpdatedAt(DateUtils.parseDate("2013-05-22"));
+    dto.setCreatedAt(1400000000000L);
+    dto.setUpdatedAt(1500000000000L);
 
     mapper.update(dto);
     session.commit();
@@ -138,11 +138,11 @@ public class IssueMapperTest extends AbstractDaoTestCase {
     dto.setIssueCreationDate(DateUtils.parseDate("2013-05-18"));
     dto.setIssueUpdateDate(DateUtils.parseDate("2013-05-19"));
     dto.setIssueCloseDate(DateUtils.parseDate("2013-05-20"));
-    dto.setCreatedAt(DateUtils.parseDate("2013-05-21"));
-    dto.setUpdatedAt(DateUtils.parseDate("2013-05-22"));
+    dto.setCreatedAt(1400000000000L);
+    dto.setUpdatedAt(1500000000000L);
 
     // selected after last update -> ok
-    dto.setSelectedAt(DateUtils.parseDate("2015-01-01"));
+    dto.setSelectedAt(1500000000000L);
 
     int count = mapper.updateIfBeforeSelectedDate(dto);
     assertThat(count).isEqualTo(1);
@@ -176,11 +176,11 @@ public class IssueMapperTest extends AbstractDaoTestCase {
     dto.setIssueCreationDate(DateUtils.parseDate("2013-05-18"));
     dto.setIssueUpdateDate(DateUtils.parseDate("2013-05-19"));
     dto.setIssueCloseDate(DateUtils.parseDate("2013-05-20"));
-    dto.setCreatedAt(DateUtils.parseDate("2013-05-21"));
-    dto.setUpdatedAt(DateUtils.parseDate("2013-05-22"));
+    dto.setCreatedAt(1400000000000L);
+    dto.setUpdatedAt(1460000000000L);
 
     // selected before last update -> ko
-    dto.setSelectedAt(DateUtils.parseDate("2009-01-01"));
+    dto.setSelectedAt(1400000000000L);
 
     int count = mapper.updateIfBeforeSelectedDate(dto);
     assertThat(count).isEqualTo(0);

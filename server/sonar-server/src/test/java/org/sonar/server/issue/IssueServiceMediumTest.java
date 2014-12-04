@@ -49,6 +49,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.db.IssueDao;
 import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.rule.RuleTesting;
@@ -59,7 +60,6 @@ import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -122,11 +122,16 @@ public class IssueServiceMediumTest {
     session.close();
   }
 
+  private void index() {
+    tester.get(IssueIndexer.class).indexAll();
+  }
+
   @Test
   public void get_by_key() throws Exception {
     IssueDto issue = newIssue();
     tester.get(IssueDao.class).insert(session, issue);
     session.commit();
+    index();
 
     assertThat(service.getByKey(issue.getKey())).isNotNull();
   }
@@ -137,6 +142,7 @@ public class IssueServiceMediumTest {
     IssueDto issue2 = newIssue().setActionPlanKey("P2").setResolution("NONE");
     tester.get(IssueDao.class).insert(session, issue1, issue2);
     session.commit();
+    index();
 
     org.sonar.server.search.Result<Issue> result = service.search(IssueQuery.builder().build(), new QueryContext());
     assertThat(result.getHits()).hasSize(2);
@@ -158,6 +164,7 @@ public class IssueServiceMediumTest {
     IssueDto issue = newIssue().setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_FALSE_POSITIVE);
     tester.get(IssueDao.class).insert(session, issue);
     session.commit();
+    index();
 
     List<Transition> result = service.listTransitions(issue.getKey());
     assertThat(result).hasSize(1);
@@ -169,8 +176,9 @@ public class IssueServiceMediumTest {
     IssueDto issue = newIssue().setStatus(Issue.STATUS_OPEN);
     tester.get(IssueDao.class).insert(session, issue);
     session.commit();
+    index();
 
-    assertThat(db.issueDao().getByKey(session, issue.getKey())).isNotNull();
+    assertThat(db.issueDao().selectByKey(session, issue.getKey())).isNotNull();
     IssueTesting.assertIsEquivalent(issue, (IssueDoc) indexClient.get(IssueIndex.class).getByKey(issue.getKey()));
 
     assertThat(indexClient.get(IssueIndex.class).getByKey(issue.getKey()).status()).isEqualTo(Issue.STATUS_OPEN);
@@ -188,6 +196,7 @@ public class IssueServiceMediumTest {
     UserDto user = new UserDto().setLogin("perceval").setName("Perceval");
     db.userDao().insert(session, user);
     session.commit();
+    index();
 
     assertThat(indexClient.get(IssueIndex.class).getByKey(issue.getKey()).assignee()).isNull();
 
@@ -197,13 +206,14 @@ public class IssueServiceMediumTest {
   }
 
   @Test
-  public void un_assign() {
+  public void unassign() {
     IssueDto issue = newIssue().setAssignee("perceval");
     tester.get(IssueDao.class).insert(session, issue);
 
     UserDto user = new UserDto().setLogin("perceval").setName("Perceval");
     db.userDao().insert(session, user);
     session.commit();
+    index();
 
     assertThat(indexClient.get(IssueIndex.class).getByKey(issue.getKey()).assignee()).isEqualTo("perceval");
 
@@ -217,6 +227,7 @@ public class IssueServiceMediumTest {
     IssueDto issue = newIssue();
     tester.get(IssueDao.class).insert(session, issue);
     session.commit();
+    index();
 
     try {
       service.assign(issue.getKey(), "unknown");
@@ -234,6 +245,7 @@ public class IssueServiceMediumTest {
     String actionPlanKey = "EFGH";
     db.actionPlanDao().save(new ActionPlanDto().setKey(actionPlanKey).setProjectId(project.getId()));
     session.commit();
+    index();
 
     assertThat(indexClient.get(IssueIndex.class).getByKey(issue.getKey()).actionPlanKey()).isNull();
 
@@ -250,6 +262,7 @@ public class IssueServiceMediumTest {
     IssueDto issue = newIssue().setActionPlanKey(actionPlanKey);
     tester.get(IssueDao.class).insert(session, issue);
     session.commit();
+    index();
 
     assertThat(indexClient.get(IssueIndex.class).getByKey(issue.getKey()).actionPlanKey()).isEqualTo(actionPlanKey);
 
@@ -262,6 +275,7 @@ public class IssueServiceMediumTest {
   public void fail_plan_if_action_plan_not_found() {
     tester.get(IssueDao.class).insert(session, newIssue());
     session.commit();
+    index();
 
     try {
       service.plan("ABCD", "unknown");
@@ -276,6 +290,7 @@ public class IssueServiceMediumTest {
     IssueDto issue = newIssue().setSeverity(Severity.BLOCKER);
     tester.get(IssueDao.class).insert(session, issue);
     session.commit();
+    index();
 
     assertThat(indexClient.get(IssueIndex.class).getByKey(issue.getKey()).severity()).isEqualTo(Severity.BLOCKER);
 
@@ -387,6 +402,7 @@ public class IssueServiceMediumTest {
     IssueDto issue = newIssue();
     tester.get(IssueDao.class).insert(session, issue);
     session.commit();
+    index();
 
     List<Issue> result = service.search(IssueQuery.builder().build(), new QueryContext()).getHits();
     assertThat(result).hasSize(1);
@@ -400,6 +416,7 @@ public class IssueServiceMediumTest {
       IssueTesting.newDto(rule, file, project),
       IssueTesting.newDto(rule, file, project).setAssignee("steph"));
     session.commit();
+    index();
 
     Map<String, Long> results = service.findIssueAssignees(IssueQuery.builder().build());
 

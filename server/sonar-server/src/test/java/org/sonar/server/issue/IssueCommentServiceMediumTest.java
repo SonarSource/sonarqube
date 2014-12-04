@@ -33,7 +33,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.component.ComponentTesting;
@@ -42,6 +41,7 @@ import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.component.db.SnapshotDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.db.IssueDao;
+import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.rule.RuleTesting;
@@ -50,7 +50,6 @@ import org.sonar.server.search.IndexClient;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 
-import java.util.Date;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -108,6 +107,7 @@ public class IssueCommentServiceMediumTest {
     IssueDto issue = IssueTesting.newDto(rule, file, project);
     tester.get(IssueDao.class).insert(session, issue);
     session.commit();
+    tester.get(IssueIndexer.class).indexAll();
 
     service.addComment(issue.getKey(), "my comment", MockUserSession.get());
 
@@ -124,6 +124,7 @@ public class IssueCommentServiceMediumTest {
     IssueDto issue = IssueTesting.newDto(removedRule, file, project).setStatus(Issue.STATUS_CLOSED).setResolution(Issue.RESOLUTION_REMOVED);
     tester.get(IssueDao.class).insert(session, issue);
     session.commit();
+    tester.get(IssueIndexer.class).indexAll();
 
     service.addComment(issue.getKey(), "my comment", MockUserSession.get());
 

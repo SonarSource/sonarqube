@@ -45,7 +45,6 @@ import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.Severity;
-import org.sonar.core.issue.db.IssueDto;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.filter.IssueFilterParameters;
 import org.sonar.server.search.BaseIndex;
@@ -59,7 +58,6 @@ import org.sonar.server.search.StickyFacetBuilder;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.Nullable;
-
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -68,7 +66,7 @@ import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
+public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
 
   private static final String FACET_SUFFIX_MISSING = "_missing";
 
@@ -76,8 +74,8 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
 
   private ListMultimap<String, IndexField> sortColumns = ArrayListMultimap.create();
 
-  public IssueIndex(IssueNormalizer normalizer, SearchClient client) {
-    super(IndexDefinition.ISSUES, normalizer, client);
+  public IssueIndex(SearchClient client) {
+    super(IndexDefinition.ISSUES, null, client);
 
     sortColumns.put(IssueQuery.SORT_BY_ASSIGNEE, IssueNormalizer.IssueField.ASSIGNEE);
     sortColumns.put(IssueQuery.SORT_BY_STATUS, IssueNormalizer.IssueField.STATUS);
@@ -124,15 +122,6 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
       return result.getHits().get(0);
     }
     return null;
-  }
-
-  @Override
-  protected FilterBuilder getLastSynchronizationBuilder(Map<String, String> params) {
-    String projectUuid = params.get(IssueNormalizer.IssueField.PROJECT.field());
-    if (projectUuid != null) {
-      return FilterBuilders.boolFilter().must(FilterBuilders.termsFilter(IssueNormalizer.IssueField.PROJECT.field(), projectUuid));
-    }
-    return super.getLastSynchronizationBuilder(params);
   }
 
   public List<FacetValue> listAssignees(IssueQuery query) {

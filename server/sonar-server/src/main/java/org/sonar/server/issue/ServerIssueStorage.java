@@ -28,8 +28,7 @@ import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.db.DbClient;
-
-import java.util.Date;
+import org.sonar.server.issue.index.IssueIndexer;
 
 /**
  * @since 3.6
@@ -37,14 +36,16 @@ import java.util.Date;
 public class ServerIssueStorage extends IssueStorage implements ServerComponent {
 
   private final DbClient dbClient;
+  private final IssueIndexer indexer;
 
-  public ServerIssueStorage(MyBatis mybatis, RuleFinder ruleFinder, DbClient dbClient) {
+  public ServerIssueStorage(MyBatis mybatis, RuleFinder ruleFinder, DbClient dbClient, IssueIndexer indexer) {
     super(mybatis, ruleFinder);
     this.dbClient = dbClient;
+    this.indexer = indexer;
   }
 
   @Override
-  protected void doInsert(DbSession session, Date now, DefaultIssue issue) {
+  protected void doInsert(DbSession session, long now, DefaultIssue issue) {
     ComponentDto component = component(session, issue);
     ComponentDto project = project(session, issue);
     int ruleId = ruleId(issue);
@@ -54,10 +55,15 @@ public class ServerIssueStorage extends IssueStorage implements ServerComponent 
   }
 
   @Override
-  protected void doUpdate(DbSession session, Date now, DefaultIssue issue) {
+  protected void doUpdate(DbSession session, long now, DefaultIssue issue) {
     IssueDto dto = IssueDto.toDtoForUpdate(issue, project(session, issue).getId(), now);
 
     dbClient.issueDao().update(session, dto);
+  }
+
+  @Override
+  protected void doAfterSave() {
+    indexer.index();
   }
 
   protected ComponentDto component(DbSession session, DefaultIssue issue) {

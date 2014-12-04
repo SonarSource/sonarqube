@@ -44,6 +44,23 @@ public class ComponentTesting {
       .setEnabled(true);
   }
 
+  public static ComponentDto newFileDto(ComponentDto module, String fileUuid) {
+    return new ComponentDto()
+      .setUuid(fileUuid)
+      .setProjectUuid(module.projectUuid())
+      .setModuleUuid(module.uuid())
+      .setModuleUuidPath(module.moduleUuidPath() == null ? module.uuid() : module.moduleUuidPath() + "." + module.uuid())
+      .setKey("KEY_" + fileUuid)
+      .setName("NAME_" + fileUuid)
+      .setLongName("LONG_NAME_" + fileUuid)
+      .setParentProjectId(module.getId())
+      .setScope(Scopes.FILE)
+      .setQualifier(Qualifiers.FILE)
+      .setPath("src/main/xoo/org/sonar/samples/File.xoo")
+      .setLanguage("xoo")
+      .setEnabled(true);
+  }
+
   public static ComponentDto newModuleDto(ComponentDto subProjectOrProject) {
     return new ComponentDto()
       .setUuid(Uuids.create())
@@ -77,4 +94,18 @@ public class ComponentTesting {
       .setEnabled(true);
   }
 
+  public static ComponentDto newProjectDto(String uuid) {
+    return new ComponentDto()
+      .setUuid(uuid)
+      .setProjectUuid(uuid)
+      .setKey("KEY_" + uuid)
+      .setName("NAME_" + uuid)
+      .setLongName("LONG_NAME_" + uuid)
+      .setParentProjectId(null)
+      .setScope(Scopes.PROJECT)
+      .setQualifier(Qualifiers.PROJECT)
+      .setPath(null)
+      .setLanguage(null)
+      .setEnabled(true);
+  }
 }

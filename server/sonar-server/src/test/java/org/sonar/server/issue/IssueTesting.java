@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue;
 
+import com.google.common.collect.Maps;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
@@ -29,6 +30,7 @@ import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.issue.index.IssueDoc;
+import org.sonar.server.rule.RuleTesting;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -53,7 +55,39 @@ public class IssueTesting {
       .setSeverity(Severity.MAJOR)
       .setDebt(10L)
       .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
-      .setIssueUpdateDate(DateUtils.parseDate("2014-12-04"));
+      .setIssueUpdateDate(DateUtils.parseDate("2014-12-04"))
+      .setCreatedAt(1400000000000L)
+      .setUpdatedAt(1400000000000L);
+  }
+
+  public static IssueDoc newDoc() {
+    IssueDoc doc = new IssueDoc(Maps.<String, Object>newHashMap());
+    doc.setKey("ABC");
+    doc.setRuleKey(RuleTesting.XOO_X1.toString());
+    doc.setActionPlanKey(null);
+    doc.setReporter(null);
+    doc.setAssignee("steve");
+    doc.setAuthorLogin("roger");
+    doc.setLanguage("xoo");
+    doc.setComponentUuid("FILE_1");
+    doc.setEffortToFix(3.14);
+    doc.setFilePath("src/Foo.xoo");
+    doc.setMessage("the message");
+    doc.setModuleUuid("MODULE_1");
+    doc.setModuleUuidPath("MODULE_1");
+    doc.setProjectUuid("PROJECT_1");
+    doc.setLine(42);
+    doc.setAttributes(null);
+    doc.setStatus(Issue.STATUS_OPEN);
+    doc.setResolution(null);
+    doc.setSeverity(Severity.MAJOR);
+    doc.setDebt(10L);
+    doc.setFuncCreationDate(DateUtils.parseDate("2014-09-04"));
+    doc.setFuncUpdateDate(DateUtils.parseDate("2014-12-04"));
+    doc.setFuncCloseDate(null);
+    doc.setTechnicalCreationDate(DateUtils.parseDate("2014-09-04"));
+    doc.setTechnicalUpdateDate(DateUtils.parseDate("2014-12-04"));
+    return doc;
   }
 
   public static void assertIsEquivalent(IssueDto dto, IssueDoc issue) {

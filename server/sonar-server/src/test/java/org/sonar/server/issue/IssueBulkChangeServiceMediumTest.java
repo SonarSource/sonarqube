@@ -32,7 +32,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.user.UserDto;
@@ -42,6 +41,7 @@ import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.component.db.SnapshotDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.db.IssueDao;
+import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.rule.RuleTesting;
@@ -50,7 +50,6 @@ import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -115,6 +114,7 @@ public class IssueBulkChangeServiceMediumTest {
     IssueDto issue2 = IssueTesting.newDto(rule, file, project).setAssignee("simon");
     tester.get(IssueDao.class).insert(session, issue1, issue2);
     session.commit();
+    tester.get(IssueIndexer.class).indexAll();
 
     Map<String, Object> properties = newHashMap();
     properties.put("issues", issue1.getKey() + "," + issue2.getKey());
@@ -136,6 +136,7 @@ public class IssueBulkChangeServiceMediumTest {
       issueKeys.add(issue.getKey());
     }
     session.commit();
+    tester.get(IssueIndexer.class).indexAll();
 
     Map<String, Object> properties = newHashMap();
     properties.put("issues", Joiner.on(",").join(issueKeys));

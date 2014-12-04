@@ -109,7 +109,7 @@ public class DefaultIssue implements Issue {
   private boolean sendNotifications = false;
 
   // Date when issue was loaded from db (only when isNew=false)
-  private Date selectedAt;
+  private Long selectedAt;
 
   @Override
   public String key() {
@@ -548,11 +548,11 @@ public class DefaultIssue implements Issue {
   }
 
   @CheckForNull
-  public Date selectedAt() {
+  public Long selectedAt() {
     return selectedAt;
   }
 
-  public DefaultIssue setSelectedAt(@Nullable Date d) {
+  public DefaultIssue setSelectedAt(@Nullable Long d) {
     this.selectedAt = d;
     return this;
   }

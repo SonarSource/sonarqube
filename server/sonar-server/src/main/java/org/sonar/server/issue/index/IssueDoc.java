@@ -52,11 +52,11 @@ public class IssueDoc extends BaseDoc implements Issue {
 
   @Override
   public String componentUuid() {
-    return getField(IssueNormalizer.IssueField.COMPONENT.field());
+    return getField(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID);
   }
 
   public String moduleUuid() {
-    return getField(IssueNormalizer.IssueField.MODULE.field());
+    return getField(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID);
   }
 
   @Override
@@ -66,79 +66,85 @@ public class IssueDoc extends BaseDoc implements Issue {
 
   @Override
   public String projectUuid() {
-    return getField(IssueNormalizer.IssueField.PROJECT.field());
+    return getField(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID);
   }
 
   @Override
   public RuleKey ruleKey() {
-    return RuleKey.parse((String) getField(IssueNormalizer.IssueField.RULE_KEY.field()));
+    return RuleKey.parse((String) getField(IssueIndexDefinition.FIELD_ISSUE_RULE_KEY));
   }
 
   @Override
   public String language() {
-    return getField(IssueNormalizer.IssueField.LANGUAGE.field());
+    return getField(IssueIndexDefinition.FIELD_ISSUE_LANGUAGE);
   }
 
   @Override
   public String severity() {
-    return getField(IssueNormalizer.IssueField.SEVERITY.field());
+    return getField(IssueIndexDefinition.FIELD_ISSUE_SEVERITY);
   }
 
   @Override
   @CheckForNull
   public String message() {
-    return getNullableField(IssueNormalizer.IssueField.MESSAGE.field());
+    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_MESSAGE);
   }
 
   @Override
   @CheckForNull
   public Integer line() {
-    return getNullableField(IssueNormalizer.IssueField.LINE.field());
+    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_LINE);
   }
 
   @Override
   @CheckForNull
   public Double effortToFix() {
-    return getNullableField(IssueNormalizer.IssueField.EFFORT.field());
+    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_EFFORT);
   }
 
   @Override
   public String status() {
-    return getField(IssueNormalizer.IssueField.STATUS.field());
+    return getField(IssueIndexDefinition.FIELD_ISSUE_STATUS);
   }
 
   @Override
   @CheckForNull
   public String resolution() {
-    return getNullableField(IssueNormalizer.IssueField.RESOLUTION.field());
+    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION);
   }
 
   @Override
   @CheckForNull
   public String reporter() {
-    return getNullableField(IssueNormalizer.IssueField.REPORTER.field());
+    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_REPORTER);
   }
 
   @Override
   @CheckForNull
   public String assignee() {
-    return getNullableField(IssueNormalizer.IssueField.ASSIGNEE.field());
+    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE);
   }
 
+  /**
+   * Functional date
+   */
   @Override
   public Date creationDate() {
-    return getFieldAsDate(IssueNormalizer.IssueField.ISSUE_CREATED_AT.field());
+    return getFieldAsDate(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT);
   }
 
+  /**
+   * Functional date
+   */
   @Override
   public Date updateDate() {
-    return getFieldAsDate(IssueNormalizer.IssueField.ISSUE_UPDATED_AT.field());
+    return getFieldAsDate(IssueIndexDefinition.FIELD_ISSUE_FUNC_UPDATED_AT);
   }
 
   @Override
   @CheckForNull
   public Date closeDate() {
-    return getNullableFieldAsDate(IssueNormalizer.IssueField.ISSUE_CLOSE_DATE.field());
+    return getNullableFieldAsDate(IssueIndexDefinition.FIELD_ISSUE_FUNC_CLOSED_AT);
   }
 
   @Override
@@ -149,7 +155,7 @@ public class IssueDoc extends BaseDoc implements Issue {
 
   @Override
   public Map<String, String> attributes() {
-    String data = getNullableField(IssueNormalizer.IssueField.ATTRIBUTES.field());
+    String data = getNullableField(IssueIndexDefinition.FIELD_ISSUE_ATTRIBUTES);
     if (data == null) {
       return Collections.emptyMap();
     } else {
@@ -160,13 +166,13 @@ public class IssueDoc extends BaseDoc implements Issue {
   @Override
   @CheckForNull
   public String authorLogin() {
-    return getNullableField(IssueNormalizer.IssueField.AUTHOR_LOGIN.field());
+    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_AUTHOR_LOGIN);
   }
 
   @Override
   @CheckForNull
   public String actionPlanKey() {
-    return getNullableField(IssueNormalizer.IssueField.ACTION_PLAN.field());
+    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_ACTION_PLAN);
   }
 
   @Override
@@ -182,13 +188,13 @@ public class IssueDoc extends BaseDoc implements Issue {
   @Override
   @CheckForNull
   public Duration debt() {
-    Number debt = getNullableField(IssueNormalizer.IssueField.DEBT.field());
+    Number debt = getNullableField(IssueIndexDefinition.FIELD_ISSUE_DEBT);
     return (debt != null) ? Duration.create(debt.longValue()) : null;
   }
 
   @CheckForNull
   public String filePath() {
-    return getNullableField(IssueNormalizer.IssueField.FILE_PATH.field());
+    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_FILE_PATH);
   }
 
   public void setKey(@Nullable String s) {
@@ -248,20 +254,20 @@ public class IssueDoc extends BaseDoc implements Issue {
     setField(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE, s);
   }
 
-  public void setCreationDate(@Nullable Date d) {
-    setField(IssueIndexDefinition.FIELD_ISSUE_CREATED_AT, d);
+  public void setTechnicalCreationDate(@Nullable Date d) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_TECHNICAL_CREATED_AT, d);
   }
 
-  public void setUpdateDate(@Nullable Date d) {
-    setField(IssueIndexDefinition.FIELD_ISSUE_UPDATED_AT, d);
+  public void setFuncUpdateDate(@Nullable Date d) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_FUNC_UPDATED_AT, d);
   }
 
   public void setFuncCreationDate(@Nullable Date d) {
     setField(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT, d);
   }
 
-  public void setFuncUpdateDate(@Nullable Date d) {
-    setField(IssueIndexDefinition.FIELD_ISSUE_FUNC_UPDATED_AT, d);
+  public void setTechnicalUpdateDate(@Nullable Date d) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_TECHNICAL_UPDATED_AT, d);
   }
 
   public void setFuncCloseDate(@Nullable Date d) {

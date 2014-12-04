@@ -251,7 +251,7 @@ public class IssueStorageTest extends AbstractDaoTestCase {
     }
 
     @Override
-    protected void doInsert(DbSession session, Date now, DefaultIssue issue) {
+    protected void doInsert(DbSession session, long now, DefaultIssue issue) {
       int ruleId = ruleId(issue);
       IssueDto dto = IssueDto.toDtoForBatchInsert(issue, 100l, 10l, ruleId, now);
 
@@ -259,7 +259,7 @@ public class IssueStorageTest extends AbstractDaoTestCase {
     }
 
     @Override
-    protected void doUpdate(DbSession session, Date now, DefaultIssue issue) {
+    protected void doUpdate(DbSession session, long now, DefaultIssue issue) {
       IssueDto dto = IssueDto.toDtoForUpdate(issue, 10l, now);
       session.getMapper(IssueMapper.class).update(dto);
     }
@@ -277,7 +277,7 @@ public class IssueStorageTest extends AbstractDaoTestCase {
     }
 
     @Override
-    protected void doInsert(DbSession session, Date now, DefaultIssue issue) {
+    protected void doInsert(DbSession session, long now, DefaultIssue issue) {
       int ruleId = ruleId(issue);
       IssueDto dto = IssueDto.toDtoForServerInsert(issue, component, project, ruleId, now);
 
@@ -285,7 +285,7 @@ public class IssueStorageTest extends AbstractDaoTestCase {
     }
 
     @Override
-    protected void doUpdate(DbSession session, Date now, DefaultIssue issue) {
+    protected void doUpdate(DbSession session, long now, DefaultIssue issue) {
       IssueDto dto = IssueDto.toDtoForUpdate(issue, 10l, now);
       session.getMapper(IssueMapper.class).update(dto);
     }

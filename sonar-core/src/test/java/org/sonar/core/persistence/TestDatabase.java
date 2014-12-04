@@ -47,7 +47,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
 import org.sonar.core.cluster.NullQueue;
-import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.config.Logback;
 import org.sonar.core.persistence.dialect.Dialect;
 
@@ -80,17 +79,11 @@ public class TestDatabase extends ExternalResource {
   private DatabaseCommands commands;
   private IDatabaseTester tester;
   private MyBatis myBatis;
-  private WorkQueue queue = new NullQueue();
   private String schemaPath = null;
 
   public TestDatabase schema(Class baseClass, String filename) {
     String path = StringUtils.replaceChars(baseClass.getCanonicalName(), '.', '/');
     schemaPath = path + "/" + filename;
-    return this;
-  }
-
-  public TestDatabase setQueue(WorkQueue queue) {
-    this.queue = queue;
     return this;
   }
 
@@ -124,7 +117,7 @@ public class TestDatabase extends ExternalResource {
     commands = DatabaseCommands.forDialect(db.getDialect());
     tester = new DataSourceDatabaseTester(db.getDataSource());
 
-    myBatis = new MyBatis(db, new Logback(), queue);
+    myBatis = new MyBatis(db, new Logback(), new NullQueue());
     myBatis.start();
 
     truncateTables();
@@ -197,7 +190,6 @@ public class TestDatabase extends ExternalResource {
       DbUtils.closeQuietly(connection, stmt, rs);
     }
   }
-
 
   public void prepareDbUnit(Class testClass, String... testNames) {
     InputStream[] streams = new InputStream[testNames.length];

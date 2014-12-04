@@ -195,7 +195,7 @@ public class PurgeDao {
     mapper.setSnapshotIsLastToFalse(resourceId);
     mapper.deleteFileSourcesByUuid(resourceIdUuid.getUuid());
     mapper.disableResource(resourceId);
-    mapper.resolveResourceIssuesNotAlreadyResolved(resourceId, new Date(system2.now()));
+    mapper.resolveResourceIssuesNotAlreadyResolved(resourceId, new Date(system2.now()), system2.now());
   }
 
   public PurgeDao deleteSnapshots(PurgeSnapshotQuery query) {

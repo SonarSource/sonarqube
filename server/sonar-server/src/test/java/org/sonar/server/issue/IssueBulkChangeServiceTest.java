@@ -114,7 +114,7 @@ public class IssueBulkChangeServiceTest {
     org.sonar.server.search.Result<Issue> result = mock(org.sonar.server.search.Result.class);
     when(result.getHits()).thenReturn(newArrayList((Issue) issue));
     when(issueService.search(any(IssueQuery.class), any(QueryContext.class))).thenReturn(result);
-    when(issueDao.getByKeys(dbSession, newArrayList(issue.key()))).thenReturn(newArrayList(issueDto));
+    when(issueDao.selectByKeys(dbSession, newArrayList(issue.key()))).thenReturn(newArrayList(issueDto));
 
     actions = newArrayList();
     service = new IssueBulkChangeService(dbClient, issueService, issueStorage, ruleFinder, issueNotifications, actions, mock(PreviewCache.class));
@@ -189,7 +189,7 @@ public class IssueBulkChangeServiceTest {
     org.sonar.server.search.Result<Issue> resultIssues = mock(org.sonar.server.search.Result.class);
     when(resultIssues.getHits()).thenReturn(Lists.<Issue>newArrayList(issueDto1.toDefaultIssue(), issueDto2.toDefaultIssue()));
     when(issueService.search(any(IssueQuery.class), any(QueryContext.class))).thenReturn(resultIssues);
-    when(issueDao.getByKeys(dbSession, newArrayList("ABCD", "EFGH"))).thenReturn(newArrayList(issueDto1, issueDto2));
+    when(issueDao.selectByKeys(dbSession, newArrayList("ABCD", "EFGH"))).thenReturn(newArrayList(issueDto1, issueDto2));
 
     Map<String, Object> properties = newHashMap();
     properties.put("issues", "ABCD,EFGH");

@@ -19,72 +19,58 @@
  */
 package org.sonar.server.issue.db;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
-import org.sonar.api.utils.System2;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.db.IssueMapper;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.server.db.BaseDao;
-import org.sonar.server.issue.index.IssueNormalizer;
-import org.sonar.server.search.IndexDefinition;
+import org.sonar.core.persistence.MyBatis;
+import org.sonar.server.exceptions.NotFoundException;
 
-import javax.annotation.Nullable;
+import javax.annotation.CheckForNull;
 
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
-public class IssueDao extends BaseDao<IssueMapper, IssueDto, String> implements DaoComponent {
+public class IssueDao extends org.sonar.core.issue.db.IssueDao implements DaoComponent {
 
-  public IssueDao() {
-    this(System2.INSTANCE);
+  public IssueDao(MyBatis mybatis) {
+    super(mybatis);
   }
 
-  @VisibleForTesting
-  public IssueDao(System2 system) {
-    super(IndexDefinition.ISSUES, IssueMapper.class, system);
-  }
-
-  @Override
-  protected IssueDto doGetNullableByKey(DbSession session, String key) {
+  @CheckForNull
+  public IssueDto selectNullableByKey(DbSession session, String key) {
     return mapper(session).selectByKey(key);
   }
 
-  @Override
-  protected List<IssueDto> doGetByKeys(DbSession session, Collection<String> keys) {
-    return mapper(session).selectByKeys(keys);
+  public IssueDto selectByKey(DbSession session, String key) {
+    IssueDto issue = selectNullableByKey(session, key);
+    if (issue == null) {
+      throw new NotFoundException(String.format("Key '%s' not found", key));
+    }
+    return issue;
   }
 
   public List<IssueDto> findByActionPlan(DbSession session, String actionPlan) {
     return mapper(session).selectByActionPlan(actionPlan);
   }
 
-  @Override
-  protected IssueDto doUpdate(DbSession session, IssueDto issue) {
-    mapper(session).update(issue);
-    return issue;
+  public List<IssueDto> selectByKeys(DbSession session, Collection<String> keys) {
+    return mapper(session).selectByKeys(keys);
   }
 
-  @Override
-  protected IssueDto doInsert(DbSession session, IssueDto issue) {
-    Preconditions.checkNotNull(issue.getKey(), "Cannot insert Issue with empty key!");
-    Preconditions.checkNotNull(issue.getComponentId(), "Cannot insert Issue with no Component!");
-    mapper(session).insert(issue);
-    return issue;
+  public void insert(DbSession session, IssueDto dto) {
+    mapper(session).insert(dto);
   }
 
-  @Override
-  protected String getSynchronizationStatementName() {
-    return "selectAfterDate";
+  public void insert(DbSession session, IssueDto dto, IssueDto... others) {
+    IssueMapper mapper = mapper(session);
+    mapper.insert(dto);
+    for (IssueDto other : others) {
+      mapper.insert(other);
+    }
   }
 
-  @Override
-  protected Map<String, Object> getSynchronizationParams(@Nullable Date date, Map<String, String> params) {
-    Map<String, Object> finalParams = super.getSynchronizationParams(date, params);
-    finalParams.put(IssueNormalizer.IssueField.PROJECT.field(), params.get(IssueNormalizer.IssueField.PROJECT.field()));
-    return finalParams;
+  public void update(DbSession session, IssueDto dto) {
+    mapper(session).update(dto);
   }
 }

@@ -130,7 +130,7 @@ public class IssueBulkChangeService {
 
     DbSession session = dbClient.openSession(false);
     try {
-      List<IssueDto> issueDtos = dbClient.issueDao().getByKeys(session, authorizedIssueKeys);
+      List<IssueDto> issueDtos = dbClient.issueDao().selectByKeys(session, authorizedIssueKeys);
       return newArrayList(Iterables.transform(issueDtos, new Function<IssueDto, Issue>() {
         @Override
         public Issue apply(@Nullable IssueDto input) {

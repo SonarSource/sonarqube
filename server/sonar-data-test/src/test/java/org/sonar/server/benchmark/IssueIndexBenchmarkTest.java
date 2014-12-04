@@ -164,8 +164,8 @@ public class IssueIndexBenchmarkTest {
       issue.setAssignee(users.next());
       issue.setAuthorLogin(users.next());
       issue.setLine(RandomUtils.nextInt());
-      issue.setCreationDate(new Date());
-      issue.setUpdateDate(new Date());
+      issue.setTechnicalCreationDate(new Date());
+      issue.setTechnicalUpdateDate(new Date());
       issue.setFuncUpdateDate(new Date());
       issue.setFuncCreationDate(new Date());
       issue.setFuncCloseDate(null);

@@ -22,8 +22,8 @@
       issue_creation_date="[null]"
       issue_update_date="[null]"
       issue_close_date="[null]"
-      created_at="[null]"
-      updated_at="2013-06-01"
+      created_at="1400000000000"
+      updated_at="1450000000000"
       action_plan_key="[null]"
       />
 </dataset>

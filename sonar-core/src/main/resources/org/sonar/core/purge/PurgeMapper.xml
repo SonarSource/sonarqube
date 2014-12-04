@@ -177,7 +177,7 @@
   </update>
 
   <update id="resolveResourceIssuesNotAlreadyResolved" parameterType="map">
-    UPDATE issues SET status='CLOSED',resolution='REMOVED',updated_at=#{date},issue_close_date=#{date},
+    UPDATE issues SET status='CLOSED',resolution='REMOVED',updated_at=#{dateAsLong},issue_close_date=#{date},
     issue_update_date=#{date}
     WHERE component_id=#{resourceId} AND resolution IS NULL
   </update>

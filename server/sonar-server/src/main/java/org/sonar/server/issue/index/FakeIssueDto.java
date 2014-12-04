@@ -17,32 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.issue.db;
+package org.sonar.server.issue.index;
 
-import org.apache.ibatis.annotations.Param;
-import org.sonar.core.rule.RuleDto;
+import org.sonar.core.persistence.Dto;
 
-import javax.annotation.Nullable;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-
-public interface IssueMapper {
-
-  IssueDto selectByKey(String key);
-
-  List<IssueDto> selectByKeys(Collection<String> keys);
-
-  List<IssueDto> selectByActionPlan(String actionPlan);
-
-  List<RuleDto> findRulesByComponent(@Param("componentKey") String componentKey, @Nullable @Param("createdAt") Date createdAtOrAfter);
-
-  List<String> findSeveritiesByComponent(@Param("componentKey") String componentKey, @Nullable @Param("createdAt") Date createdAtOrAfter);
-
-  void insert(IssueDto issue);
-
-  int update(IssueDto issue);
-
-  int updateIfBeforeSelectedDate(IssueDto issue);
-
+public class FakeIssueDto extends Dto<String> {
+  @Override
+  public String getKey() {
+    throw new UnsupportedOperationException();
+  }
 }

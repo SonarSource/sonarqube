@@ -19,7 +19,6 @@
  */
 package org.sonar.server.issue.db;
 
-import com.google.common.collect.ImmutableMap;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,12 +31,11 @@ import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.rule.RuleTesting;
 
-import java.util.Date;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class IssueDaoTest extends AbstractDaoTestCase {
 
@@ -49,7 +47,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   public void before() throws Exception {
     this.session = getMyBatis().openSession(false);
     this.system2 = mock(System2.class);
-    this.dao = new IssueDao(system2);
+    this.dao = new IssueDao(getMyBatis());
   }
 
   @After
@@ -61,7 +59,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   public void get_by_key() {
     setupData("shared", "get_by_key");
 
-    IssueDto issue = dao.getByKey(session, "ABCDE");
+    IssueDto issue = dao.selectByKey(session, "ABCDE");
     assertThat(issue.getKee()).isEqualTo("ABCDE");
     assertThat(issue.getId()).isEqualTo(100L);
     assertThat(issue.getComponentId()).isEqualTo(401);
@@ -83,8 +81,8 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(issue.getIssueCreationDate()).isNotNull();
     assertThat(issue.getIssueUpdateDate()).isNotNull();
     assertThat(issue.getIssueCloseDate()).isNotNull();
-    assertThat(issue.getCreatedAt()).isNotNull();
-    assertThat(issue.getUpdatedAt()).isNotNull();
+    assertThat(issue.getCreatedAt()).isEqualTo(1400000000000L);
+    assertThat(issue.getUpdatedAt()).isEqualTo(1450000000000L);
     assertThat(issue.getRuleRepo()).isEqualTo("squid");
     assertThat(issue.getRule()).isEqualTo("AvoidCycle");
     assertThat(issue.getComponentKey()).isEqualTo("Action.java");
@@ -95,37 +93,8 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   public void get_by_keys() {
     setupData("shared", "get_by_key");
 
-    List<IssueDto> issues = dao.getByKeys(session, "ABCDE");
+    List<IssueDto> issues = dao.selectByKeys(session, Arrays.asList("ABCDE"));
     assertThat(issues).hasSize(1);
-
-    IssueDto issue = issues.get(0);
-    assertThat(issue.getKee()).isEqualTo("ABCDE");
-    assertThat(issue.getId()).isEqualTo(100L);
-    assertThat(issue.getComponentId()).isEqualTo(401);
-    assertThat(issue.getProjectId()).isEqualTo(399);
-    assertThat(issue.getRuleId()).isEqualTo(500);
-    assertThat(issue.getLanguage()).isEqualTo("java");
-    assertThat(issue.getSeverity()).isEqualTo("BLOCKER");
-    assertThat(issue.isManualSeverity()).isFalse();
-    assertThat(issue.getMessage()).isNull();
-    assertThat(issue.getLine()).isEqualTo(200);
-    assertThat(issue.getEffortToFix()).isEqualTo(4.2);
-    assertThat(issue.getStatus()).isEqualTo("OPEN");
-    assertThat(issue.getResolution()).isEqualTo("FIXED");
-    assertThat(issue.getChecksum()).isEqualTo("XXX");
-    assertThat(issue.getAuthorLogin()).isEqualTo("karadoc");
-    assertThat(issue.getReporter()).isEqualTo("arthur");
-    assertThat(issue.getAssignee()).isEqualTo("perceval");
-    assertThat(issue.getIssueAttributes()).isEqualTo("JIRA=FOO-1234");
-    assertThat(issue.getIssueCreationDate()).isNotNull();
-    assertThat(issue.getIssueUpdateDate()).isNotNull();
-    assertThat(issue.getIssueCloseDate()).isNotNull();
-    assertThat(issue.getCreatedAt()).isNotNull();
-    assertThat(issue.getUpdatedAt()).isNotNull();
-    assertThat(issue.getRuleRepo()).isEqualTo("squid");
-    assertThat(issue.getRule()).isEqualTo("AvoidCycle");
-    assertThat(issue.getComponentKey()).isEqualTo("Action.java");
-    assertThat(issue.getProjectKey()).isEqualTo("struts");
   }
 
   @Test
@@ -166,27 +135,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void find_after_dates() throws Exception {
-    setupData("shared", "some_issues");
-
-    Date t0 = new Date(0);
-    assertThat(dao.findAfterDate(session, t0)).hasSize(3);
-
-    Date t2014 = DateUtils.parseDate("2014-01-01");
-    assertThat(dao.findAfterDate(session, t2014)).hasSize(1);
-  }
-
-  @Test
-  public void find_after_dates_with_project() throws Exception {
-    setupData("shared", "find_after_dates_with_project");
-
-    assertThat(dao.findAfterDate(session, DateUtils.parseDate("2014-01-01"), ImmutableMap.of("project", "ABCD"))).hasSize(1);
-  }
-
-  @Test
   public void insert() throws Exception {
-    when(system2.now()).thenReturn(DateUtils.parseDate("2013-05-22").getTime());
-
     IssueDto dto = new IssueDto();
     dto.setComponent(new ComponentDto().setKey("struts:Action").setId(123L));
     dto.setProject(new ComponentDto().setKey("struts").setId(100L));
@@ -209,8 +158,8 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     dto.setIssueCreationDate(DateUtils.parseDate("2013-05-18"));
     dto.setIssueUpdateDate(DateUtils.parseDate("2013-05-19"));
     dto.setIssueCloseDate(DateUtils.parseDate("2013-05-20"));
-    dto.setCreatedAt(DateUtils.parseDate("2013-05-21"));
-    dto.setUpdatedAt(DateUtils.parseDate("2013-05-22"));
+    dto.setCreatedAt(1400000000000L);
+    dto.setUpdatedAt(1450000000000L);
 
     dao.insert(session, dto);
     session.commit();
@@ -220,8 +169,6 @@ public class IssueDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void update() throws Exception {
-    when(system2.now()).thenReturn(DateUtils.parseDate("2013-05-22").getTime());
-
     setupData("update");
 
     IssueDto dto = new IssueDto();
@@ -246,8 +193,8 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     dto.setIssueCreationDate(DateUtils.parseDate("2013-05-18"));
     dto.setIssueUpdateDate(DateUtils.parseDate("2013-05-19"));
     dto.setIssueCloseDate(DateUtils.parseDate("2013-05-20"));
-    dto.setCreatedAt(DateUtils.parseDate("2013-05-21"));
-    dto.setUpdatedAt(DateUtils.parseDate("2013-05-22"));
+    dto.setCreatedAt(1400000000000L);
+    dto.setUpdatedAt(1450000000000L);
 
     dao.update(session, dto);
     session.commit();

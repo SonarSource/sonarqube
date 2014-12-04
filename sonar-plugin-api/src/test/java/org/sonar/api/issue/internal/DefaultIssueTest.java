@@ -68,7 +68,7 @@ public class DefaultIssueTest {
       .setCreationDate(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-19"))
       .setUpdateDate(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-20"))
       .setCloseDate(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-21"))
-      .setSelectedAt(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-22"))
+      .setSelectedAt(1400000000000L)
     ;
 
     assertThat(issue.key()).isEqualTo("ABCD");
@@ -98,7 +98,7 @@ public class DefaultIssueTest {
     assertThat(issue.creationDate()).isEqualTo(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-19"));
     assertThat(issue.updateDate()).isEqualTo(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-20"));
     assertThat(issue.closeDate()).isEqualTo(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-21"));
-    assertThat(issue.selectedAt()).isEqualTo(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-22"));
+    assertThat(issue.selectedAt()).isEqualTo(1400000000000L);
   }
 
   @Test

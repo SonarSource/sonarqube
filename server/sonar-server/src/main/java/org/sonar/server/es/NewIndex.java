@@ -136,18 +136,24 @@ public class NewIndex {
     }
 
     /**
-     * Create a inner-field named "sort" with analyzer "sortable"
+     * Create an inner-field named "sort" with analyzer "sortable"
      */
     public StringFieldBuilder enableSorting() {
       this.sortable = true;
       return this;
     }
 
+    /**
+     * Create an inner-field named "words" with analyzer "words"
+     */
     public StringFieldBuilder enableWordSearch() {
       this.wordSearch = true;
       return this;
     }
 
+    /**
+     * Create a inner-field named "grams" with analyzer "grams"
+     */
     public StringFieldBuilder enableGramSearch() {
       this.gramSearch = true;
       return this;

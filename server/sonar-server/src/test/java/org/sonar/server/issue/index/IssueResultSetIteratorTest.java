@@ -24,12 +24,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.TestDatabase;
 import org.sonar.server.db.DbClient;
 
 import java.sql.Connection;
-import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -80,8 +78,7 @@ public class IssueResultSetIteratorTest {
   @Test
   public void select_after_date() throws Exception {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
-    Date date = DateUtils.parseDate("2014-01-01");
-    IssueResultSetIterator it = IssueResultSetIterator.create(client, connection, date.getTime());
+    IssueResultSetIterator it = IssueResultSetIterator.create(client, connection, 1420000000000L);
 
     assertThat(it.hasNext()).isTrue();
     IssueDoc issue = it.next();

@@ -71,7 +71,8 @@ public interface DatabaseMigrations {
     PopulateProjectsUuidColumnsMigration.class,
     ReplaceIssueFiltersProjectKeyByUuid.class,
     FeedSnapshotSourcesUpdatedAt.class,
-    FeedFileSources.class
+    FeedFileSources.class,
+    FeedIssueLongDates.class
   );
 
 }

@@ -27,21 +27,16 @@ import org.junit.Test;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.issue.IssueTesting;
-import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
-import org.sonar.server.search.IndexDefinition;
-import org.sonar.server.search.SearchClient;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 
@@ -113,9 +108,6 @@ public class ComponentServiceMediumTest {
     ComponentDto file = ComponentTesting.newFileDto(project).setKey("sample:root:src/File.xoo");
     tester.get(ComponentDao.class).insert(session, file);
 
-    IssueDto issue = IssueTesting.newDto(rule, file, project);
-    db.issueDao().insert(session, issue);
-
     session.commit();
 
     MockUserSession.set().setLogin("john").addComponentPermission(UserRole.ADMIN, project.key(), project.key());
@@ -130,13 +122,6 @@ public class ComponentServiceMediumTest {
     assertThat(service.getNullableByKey(file.key())).isNull();
     assertThat(service.getNullableByKey("sample2:root:src/File.xoo")).isNotNull();
 
-    // Check issues are still here
-    assertThat(tester.get(IssueIndex.class).getNullableByKey(issue.getKey()).componentUuid()).isEqualTo(file.uuid());
-    assertThat(tester.get(IssueIndex.class).getNullableByKey(issue.getKey()).projectUuid()).isEqualTo(project.uuid());
-
-    // Check that no new issue has been added
-    assertThat(tester.get(SearchClient.class).prepareCount(IndexDefinition.ISSUES.getIndexName()).setTypes(IndexDefinition.ISSUES.getIndexType()).get().getCount()).isEqualTo(1);
-
     // Check dry run cache have been updated
     assertThat(db.propertiesDao().selectProjectProperties("sample2:root", session)).hasSize(1);
   }
@@ -148,9 +133,6 @@ public class ComponentServiceMediumTest {
 
     ComponentDto file = ComponentTesting.newFileDto(module).setKey("sample:root:module:src/File.xoo");
     tester.get(ComponentDao.class).insert(session, file);
-
-    IssueDto issue = IssueTesting.newDto(rule, file, project);
-    db.issueDao().insert(session, issue);
 
     session.commit();
 
@@ -168,10 +150,6 @@ public class ComponentServiceMediumTest {
     // Check file key has been updated
     assertThat(service.getNullableByKey(file.key())).isNull();
     assertThat(service.getNullableByKey("sample:root2:module:src/File.xoo")).isNotNull();
-
-    // Check issues are still here
-    assertThat(tester.get(IssueIndex.class).getNullableByKey(issue.getKey()).componentUuid()).isEqualTo(file.uuid());
-    assertThat(tester.get(IssueIndex.class).getNullableByKey(issue.getKey()).projectUuid()).isEqualTo(project.uuid());
 
     // Check dry run cache have been updated -> on a module it's the project cache that is updated
     assertThat(db.propertiesDao().selectProjectProperties(project.key(), session)).hasSize(1);
@@ -252,9 +230,6 @@ public class ComponentServiceMediumTest {
     ComponentDto file = ComponentTesting.newFileDto(module).setKey("sample:root:module:src/File.xoo");
     tester.get(ComponentDao.class).insert(session, file);
 
-    IssueDto issue = IssueTesting.newDto(rule, file, project);
-    db.issueDao().insert(session, issue);
-
     session.commit();
 
     MockUserSession.set().setLogin("john").addProjectPermissions(UserRole.ADMIN, project.key());
@@ -272,13 +247,6 @@ public class ComponentServiceMediumTest {
     // Check file key has been updated
     assertThat(service.getNullableByKey(file.key())).isNull();
     assertThat(service.getNullableByKey("sample2:root:module:src/File.xoo")).isNotNull();
-
-    // Check issues are still here
-    assertThat(tester.get(IssueIndex.class).getNullableByKey(issue.getKey()).componentUuid()).isEqualTo(file.uuid());
-    assertThat(tester.get(IssueIndex.class).getNullableByKey(issue.getKey()).projectUuid()).isEqualTo(project.uuid());
-
-    // Check that no new issue has been added
-    assertThat(tester.get(SearchClient.class).prepareCount(IndexDefinition.ISSUES.getIndexName()).setTypes(IndexDefinition.ISSUES.getIndexType()).get().getCount()).isEqualTo(1);
 
     // Check dry run cache have been updated
     assertThat(db.propertiesDao().selectProjectProperties("sample2:root", session)).hasSize(1);

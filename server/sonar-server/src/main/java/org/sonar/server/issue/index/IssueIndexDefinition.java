@@ -25,7 +25,6 @@ import org.sonar.api.config.Settings;
 import org.sonar.process.ProcessConstants;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.NewIndex;
-import org.sonar.server.search.BaseNormalizer;
 
 /**
  * Definition of ES index "issues", including settings and fields.
@@ -40,19 +39,31 @@ public class IssueIndexDefinition implements IndexDefinition {
   public static final String FIELD_AUTHORIZATION_PROJECT_UUID = "project";
   public static final String FIELD_AUTHORIZATION_GROUPS = "groups";
   public static final String FIELD_AUTHORIZATION_USERS = "users";
-  public static final String FIELD_AUTHORIZATION_UPDATED_AT = BaseNormalizer.UPDATED_AT_FIELD;
+  public static final String FIELD_AUTHORIZATION_UPDATED_AT = "updatedAt";
 
   public static final String FIELD_ISSUE_ACTION_PLAN = "actionPlan";
   public static final String FIELD_ISSUE_ASSIGNEE = "assignee";
   public static final String FIELD_ISSUE_ATTRIBUTES = "attributes";
   public static final String FIELD_ISSUE_AUTHOR_LOGIN = "authorLogin";
   public static final String FIELD_ISSUE_COMPONENT_UUID = "component";
-  public static final String FIELD_ISSUE_CREATED_AT = "createdAt";
+  /**
+   * Technical date
+   */
+  public static final String FIELD_ISSUE_TECHNICAL_CREATED_AT = "createdAt";
   public static final String FIELD_ISSUE_DEBT = "debt";
   public static final String FIELD_ISSUE_EFFORT = "effort";
   public static final String FIELD_ISSUE_FILE_PATH = "filePath";
+  /**
+   * Functional date
+   */
   public static final String FIELD_ISSUE_FUNC_CREATED_AT = "issueCreatedAt";
+  /**
+   * Functional date
+   */
   public static final String FIELD_ISSUE_FUNC_UPDATED_AT = "issueUpdatedAt";
+  /**
+   * Functional date
+   */
   public static final String FIELD_ISSUE_FUNC_CLOSED_AT = "issueClosedAt";
   public static final String FIELD_ISSUE_KEY = "key";
   public static final String FIELD_ISSUE_LANGUAGE = "language";
@@ -67,7 +78,10 @@ public class IssueIndexDefinition implements IndexDefinition {
   public static final String FIELD_ISSUE_SEVERITY = "severity";
   public static final String FIELD_ISSUE_SEVERITY_VALUE = "severityValue";
   public static final String FIELD_ISSUE_STATUS = "status";
-  public static final String FIELD_ISSUE_UPDATED_AT = "updatedAt";
+  /**
+   * Technical date
+   */
+  public static final String FIELD_ISSUE_TECHNICAL_UPDATED_AT = "updatedAt";
 
   private final Settings settings;
 
@@ -131,7 +145,7 @@ public class IssueIndexDefinition implements IndexDefinition {
     // TODO do we really sort by status ? If yes, then we should sort by "int value", but not by string key
     issueMapping.stringFieldBuilder(FIELD_ISSUE_STATUS).enableSorting().build();
     // TODO is createdAt required ?
-    issueMapping.createDateTimeField(FIELD_ISSUE_CREATED_AT);
-    issueMapping.createDateTimeField(FIELD_ISSUE_UPDATED_AT);
+    issueMapping.createDateTimeField(FIELD_ISSUE_TECHNICAL_CREATED_AT);
+    issueMapping.createDateTimeField(FIELD_ISSUE_TECHNICAL_UPDATED_AT);
   }
 }

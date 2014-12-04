@@ -20,9 +20,11 @@
 package org.sonar.server.issue.index;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterators;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
@@ -49,11 +51,9 @@ import org.sonar.server.issue.IssueTesting;
 import org.sonar.server.issue.db.IssueDao;
 import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.permission.PermissionChange;
-import org.sonar.server.platform.BackendCleanup;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.FacetValue;
-import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
@@ -65,6 +65,7 @@ import java.util.List;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 
+@Ignore
 public class IssueIndexMediumTest {
 
   @ClassRule
@@ -73,9 +74,8 @@ public class IssueIndexMediumTest {
   DbClient db;
   DbSession session;
   IssueIndex index;
-
-  RuleDto rule;
-  ComponentDto project;
+  RuleDto rule = RuleTesting.newXooX1();
+  ComponentDto project = ComponentTesting.newProjectDto("P1");
   ComponentDto file;
 
   @Before
@@ -85,13 +85,9 @@ public class IssueIndexMediumTest {
     session = db.openSession(false);
     index = tester.get(IssueIndex.class);
 
-    rule = RuleTesting.newXooX1();
     tester.get(RuleDao.class).insert(session, rule);
-
-    project = ComponentTesting.newProjectDto();
     tester.get(ComponentDao.class).insert(session, project);
-
-    file = ComponentTesting.newFileDto(project);
+    file = ComponentTesting.newFileDto(project, "F1");
     tester.get(ComponentDao.class).insert(session, file);
     session.commit();
 
@@ -112,18 +108,19 @@ public class IssueIndexMediumTest {
 
   @Test
   public void get_by_key() throws Exception {
-    IssueDto issue = IssueTesting.newDto(rule, file, project);
-    db.issueDao().insert(session, issue);
-    session.commit();
+    IssueDoc issue = IssueTesting.newDoc();
+    tester.get(IssueIndexer.class).index(Iterators.singletonIterator(issue));
 
-    Issue result = index.getByKey(issue.getKey());
-    IssueTesting.assertIsEquivalent(issue, (IssueDoc) result);
+    Issue loaded = index.getByKey(issue.key());
+    assertThat(loaded).isNotNull();
+
   }
 
   @Test
   public void get_by_key_with_attributes() throws Exception {
     IssueDto issue = IssueTesting.newDto(rule, file, project);
-    db.issueDao().insert(session, issue).setIssueAttributes(KeyValueFormat.format(ImmutableMap.of("jira-issue-key", "SONAR-1234")));
+    issue.setIssueAttributes(KeyValueFormat.format(ImmutableMap.of("jira-issue-key", "SONAR-1234")));
+    db.issueDao().insert(session, issue);
     session.commit();
 
     Issue result = index.getByKey(issue.getKey());
@@ -615,8 +612,8 @@ public class IssueIndexMediumTest {
     session.commit();
     MockUserSession.set().setLogin("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     tester.get(InternalPermissionService.class).addPermission(new PermissionChange().setComponentKey(project1.getKey()).setGroup(userGroup.getName()).setPermission(UserRole.USER));
-    tester.get(InternalPermissionService.class).addPermission(new PermissionChange().setComponentKey(project2.getKey()).setGroup(adminGroup.getName()).setPermission(UserRole.USER));
-
+    tester.get(InternalPermissionService.class)
+      .addPermission(new PermissionChange().setComponentKey(project2.getKey()).setGroup(adminGroup.getName()).setPermission(UserRole.USER));
     db.issueDao().insert(session,
       IssueTesting.newDto(rule, file1, project1),
       IssueTesting.newDto(rule, file2, project2),
@@ -654,7 +651,6 @@ public class IssueIndexMediumTest {
     ComponentDto file3 = ComponentTesting.newFileDto(project1).setKey("file3");
 
     tester.get(ComponentDao.class).insert(session, project1, project2, project3, file1, file2, file3);
-
 
     // project1 can be seen by john and project2 by max. project3 cannot be seen by anyone
     UserDto john = new UserDto().setLogin("john").setName("john").setActive(true);
@@ -720,96 +716,6 @@ public class IssueIndexMediumTest {
 
     MockUserSession.set().setLogin("john").setUserGroups("sonar-users");
     assertThat(index.search(query.build(), new QueryContext()).getHits()).hasSize(1);
-  }
-
-  @Test
-  public void synchronize_issue() throws Exception {
-    IssueDto issue = IssueTesting.newDto(rule, file, project);
-    tester.get(IssueDao.class).insert(session, issue);
-    session.commit();
-
-    // 0 Assert that all issues are both in ES and DB
-    assertThat(db.issueDao().findAfterDate(session, new Date(0))).hasSize(1);
-    assertThat(index.countAll()).isEqualTo(1);
-
-    // Clear issue index in order to simulate these issues have been inserted without being indexed in E/S (from a previous version of SQ or
-    // from batch)
-    tester.get(BackendCleanup.class).clearIndex(IndexDefinition.ISSUES);
-    tester.clearIndexes();
-    assertThat(index.countAll()).isEqualTo(0);
-
-    DbSession newSession = db.openSession(true);
-    try {
-      db.issueDao().synchronizeAfter(newSession, index.getLastSynchronization());
-      newSession.commit();
-
-    } finally {
-      newSession.close();
-    }
-
-    assertThat(index.countAll()).isEqualTo(1);
-  }
-
-  @Test
-  public void synchronize_all_issues() throws Exception {
-    IssueDto issue = IssueTesting.newDto(rule, file, project);
-    tester.get(IssueDao.class).insert(session, issue);
-    session.commit();
-
-    // 0 Assert that all issues are both in ES and DB
-    assertThat(db.issueDao().findAfterDate(session, new Date(0))).hasSize(1);
-    assertThat(index.countAll()).isEqualTo(1);
-
-    // Clear issue index in order to simulate these issues have been inserted without being indexed in E/S (from a previous version of SQ or
-    // from batch)
-    tester.get(BackendCleanup.class).clearIndex(IndexDefinition.ISSUES);
-    tester.clearIndexes();
-    assertThat(index.countAll()).isEqualTo(0);
-
-    DbSession newSession = db.openSession(true);
-    try {
-      db.issueDao().synchronizeAfter(newSession);
-      newSession.commit();
-
-    } finally {
-      newSession.close();
-    }
-
-    assertThat(index.countAll()).isEqualTo(1);
-  }
-
-  @Test
-  public void synchronize_a_lot_of_issues() throws Exception {
-    Integer numberOfIssues = 1000;
-
-    List<String> issueKeys = newArrayList();
-    for (int i = 0; i < numberOfIssues; i++) {
-      IssueDto issue = IssueTesting.newDto(rule, file, project);
-      tester.get(IssueDao.class).insert(session, issue);
-      issueKeys.add(issue.getKey());
-    }
-    session.commit();
-
-    // 0 Assert that all issues are both in ES and DB
-    assertThat(db.issueDao().findAfterDate(session, new Date(0))).hasSize(numberOfIssues);
-    assertThat(index.countAll()).isEqualTo(numberOfIssues);
-
-    // Clear issue index in order to simulate these issues have been inserted without being indexed in E/S (from a previous version of SQ or
-    // from batch)
-    tester.get(BackendCleanup.class).clearIndex(IndexDefinition.ISSUES);
-    tester.clearIndexes();
-    assertThat(index.countAll()).isEqualTo(0);
-
-    DbSession newSession = db.openSession(true);
-    try {
-      db.issueDao().synchronizeAfter(newSession, index.getLastSynchronization());
-      newSession.commit();
-
-    } finally {
-      newSession.close();
-    }
-
-    assertThat(index.countAll()).isEqualTo(numberOfIssues);
   }
 
   @Test

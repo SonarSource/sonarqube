@@ -20,49 +20,31 @@
 
 package org.sonar.server.computation;
 
-import com.google.common.collect.ImmutableMap;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.server.db.DbClient;
-import org.sonar.server.issue.index.IssueIndex;
-import org.sonar.server.issue.index.IssueNormalizer;
-import org.sonar.server.search.IndexClient;
-
-import java.util.Date;
+import org.sonar.server.issue.index.IssueAuthorizationIndexer;
+import org.sonar.server.issue.index.IssueIndexer;
 
 public class IndexProjectIssuesStep implements ComputationStep {
 
-  private final DbClient dbClient;
-  private final IndexClient index;
 
-  public IndexProjectIssuesStep(DbClient dbClient, IndexClient index) {
-    this.dbClient = dbClient;
-    this.index = index;
+  private final IssueAuthorizationIndexer authorizationIndexer;
+  private final IssueIndexer indexer;
+
+  public IndexProjectIssuesStep(IssueAuthorizationIndexer authorizationIndexer, IssueIndexer indexer) {
+    this.authorizationIndexer = authorizationIndexer;
+    this.indexer = indexer;
   }
 
   @Override
   public void execute(DbSession session, AnalysisReportDto report, ComponentDto project) {
-    indexProjectIssues(session, project);
+    authorizationIndexer.index();
+    indexer.index();
   }
 
   @Override
   public String getDescription() {
     return "Update issues index";
-  }
-
-  private void indexProjectIssues(DbSession session, ComponentDto project) {
-    dbClient.issueDao().synchronizeAfter(session,
-      getLastIndexSynchronizationDate(project),
-      parameters(project));
-    session.commit();
-  }
-
-  private ImmutableMap<String, String> parameters(ComponentDto project) {
-    return ImmutableMap.of(IssueNormalizer.IssueField.PROJECT.field(), project.uuid());
-  }
-
-  private Date getLastIndexSynchronizationDate(ComponentDto project) {
-    return index.get(IssueIndex.class).getLastSynchronization(parameters(project));
   }
 }

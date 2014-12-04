@@ -63,7 +63,7 @@ public class InitialOpenIssuesSensor implements Sensor {
       @Override
       public void handleResult(ResultContext rc) {
         IssueDto dto = (IssueDto) rc.getResultObject();
-        dto.setSelectedAt(now);
+        dto.setSelectedAt(now.getTime());
         initialOpenIssuesStack.addIssue(dto);
       }
     });

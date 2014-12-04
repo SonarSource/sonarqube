@@ -65,7 +65,7 @@ public class ComponentCleanerService implements ServerComponent {
   }
 
   private void deleteFromIndices(String projectUuid) {
-    // optimization : index issues is refreshed once at the end
+    // optimization : index "issues" is refreshed once at the end
     issueAuthorizationIndexer.deleteProject(projectUuid, false);
     issueIndexer.deleteProject(projectUuid, true);
     sourceLineIndexer.deleteByProject(projectUuid);

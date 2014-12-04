@@ -30,7 +30,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.Date;
 
 /**
@@ -85,7 +84,7 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
       String sql = afterDate > 0L ? SQL_AFTER_DATE : SQL_ALL;
       PreparedStatement stmt = dbClient.newScrollingSelectStatement(connection, sql);
       if (afterDate > 0L) {
-        stmt.setTimestamp(1, new Timestamp(afterDate));
+        stmt.setLong(1, afterDate);
       }
       return new IssueResultSetIterator(stmt);
     } catch (SQLException e) {
@@ -107,8 +106,8 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
     // all the keys must be present, even if value is null
     doc.setKey(key);
     doc.setProjectUuid(projectUuid);
-    doc.setUpdateDate(SqlUtil.getDate(rs, 3));
-    doc.setCreationDate(new Date(rs.getTimestamp(4).getTime()));
+    doc.setTechnicalUpdateDate(new Date(rs.getLong(3)));
+    doc.setTechnicalCreationDate(new Date(rs.getLong(4)));
     doc.setActionPlanKey(rs.getString(5));
     doc.setAssignee(rs.getString(6));
     doc.setEffortToFix(SqlUtil.getDouble(rs, 7));

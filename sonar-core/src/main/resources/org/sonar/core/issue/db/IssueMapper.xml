@@ -141,23 +141,6 @@
     where i.kee=#{kee}
   </select>
 
-  <select id="selectAfterDate" resultType="Issue" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
-    select
-    <include refid="issueColumns"/>
-    from issues i
-    inner join rules r on r.id=i.rule_id
-    inner join projects p on p.id=i.component_id
-    inner join projects root on root.id=i.root_component_id
-    <where>
-      <if test="date != null">
-        AND (i.updated_at IS NULL or i.updated_at &gt;= #{date})
-      </if>
-      <if test="project != null">
-        AND root.uuid = #{project}
-      </if>
-    </where>
-  </select>
-
   <select id="selectNonClosedIssuesByModule" parameterType="int" resultType="Issue">
     select
     i.id,

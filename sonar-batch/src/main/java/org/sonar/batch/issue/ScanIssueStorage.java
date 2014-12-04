@@ -37,8 +37,6 @@ import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
 
-import java.util.Date;
-
 public class ScanIssueStorage extends IssueStorage implements BatchComponent {
 
   private final SnapshotCache snapshotCache;
@@ -54,7 +52,7 @@ public class ScanIssueStorage extends IssueStorage implements BatchComponent {
   }
 
   @Override
-  protected void doInsert(DbSession session, Date now, DefaultIssue issue) {
+  protected void doInsert(DbSession session, long now, DefaultIssue issue) {
     IssueMapper issueMapper = session.getMapper(IssueMapper.class);
     long componentId = componentId(issue);
     long projectId = projectId();
@@ -64,7 +62,7 @@ public class ScanIssueStorage extends IssueStorage implements BatchComponent {
   }
 
   @Override
-  protected void doUpdate(DbSession session, Date now, DefaultIssue issue) {
+  protected void doUpdate(DbSession session, long now, DefaultIssue issue) {
     IssueMapper issueMapper = session.getMapper(IssueMapper.class);
     IssueDto dto = IssueDto.toDtoForUpdate(issue, projectId(), now);
     if (Issue.STATUS_CLOSED.equals(issue.status()) || issue.selectedAt() == null) {

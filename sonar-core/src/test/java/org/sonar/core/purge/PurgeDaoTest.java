@@ -23,7 +23,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.resources.Scopes;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
@@ -54,12 +53,11 @@ public class PurgeDaoTest extends AbstractDaoTestCase {
   @Before
   public void before() {
     system2 = mock(System2.class);
-    when(system2.now()).thenReturn(DateUtils.parseDate("2014-04-09").getTime());
+    when(system2.now()).thenReturn(1450000000000L);
     dbSession = getMyBatis().openSession(false);
 
     sut = new PurgeDao(getMyBatis(), new ResourceDao(getMyBatis(), system2), new PurgeProfiler(), system2);
   }
-
   @After
   public void after() {
     MyBatis.closeQuietly(dbSession);
@@ -97,7 +95,7 @@ public class PurgeDaoTest extends AbstractDaoTestCase {
   public void disable_resources_without_last_snapshot() {
     setupData("disable_resources_without_last_snapshot");
     sut.purge(new PurgeConfiguration(1L, new String[0], 30, system2), PurgeListener.EMPTY);
-    checkTables("disable_resources_without_last_snapshot", "projects", "snapshots", "issues");
+    checkTables("disable_resources_without_last_snapshot", new String[]{"issue_close_date", "issue_update_date"}, "projects", "snapshots", "issues");
   }
 
   @Test

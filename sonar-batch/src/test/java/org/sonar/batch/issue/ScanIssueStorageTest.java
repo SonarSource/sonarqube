@@ -206,8 +206,8 @@ public class ScanIssueStorageTest extends AbstractDaoTestCase {
       .setRuleKey(RuleKey.of("squid", "AvoidCycles"))
       .setComponentKey("struts:Action")
 
-        // issue in database has been updated in 2013, after the loading by scan
-      .setSelectedAt(DateUtils.parseDate("2005-01-01"))
+        // issue in database has been updated in 2015, after the loading by scan
+      .setSelectedAt(1400000000000L)
 
         // fields to be updated
       .setLine(444)

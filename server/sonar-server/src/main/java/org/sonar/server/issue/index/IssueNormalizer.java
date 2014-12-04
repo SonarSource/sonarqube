@@ -19,27 +19,24 @@
  */
 package org.sonar.server.issue.index;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import org.elasticsearch.action.update.UpdateRequest;
-import org.sonar.api.rule.Severity;
-import org.sonar.core.issue.db.IssueDto;
+import org.sonar.core.persistence.Dto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.search.BaseNormalizer;
 import org.sonar.server.search.IndexField;
 import org.sonar.server.search.Indexable;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import static com.google.common.collect.Maps.newHashMap;
-
-public class IssueNormalizer extends BaseNormalizer<IssueDto, String> {
+public class IssueNormalizer extends BaseNormalizer {
 
   public IssueNormalizer(DbClient db) {
     super(db);
+  }
+
+  @Override
+  public List<UpdateRequest> normalize(Dto dto) {
+    throw new UnsupportedOperationException();
   }
 
   public static final class IssueField extends Indexable {
@@ -72,60 +69,6 @@ public class IssueNormalizer extends BaseNormalizer<IssueDto, String> {
     public static final IndexField LANGUAGE = add(IndexField.Type.STRING, "language");
     public static final IndexField RULE_KEY = add(IndexField.Type.STRING, "ruleKey");
     public static final IndexField FILE_PATH = addSortable(IndexField.Type.STRING, "filePath");
-
-    public static final Set<IndexField> ALL_FIELDS = ImmutableSet.of(KEY, CREATED_AT, UPDATED_AT, PROJECT, COMPONENT,
-      MODULE, MODULE_PATH, ACTION_PLAN, ASSIGNEE, ATTRIBUTES, AUTHOR_LOGIN, DEBT, EFFORT, ISSUE_CREATED_AT,
-      ISSUE_UPDATED_AT, ISSUE_CLOSE_DATE, LINE, MESSAGE, RESOLUTION, REPORTER, STATUS, SEVERITY, SEVERITY_VALUE,
-      LANGUAGE, RULE_KEY, FILE_PATH);
   }
 
-  @Override
-  public List<UpdateRequest> normalize(IssueDto dto) {
-    Map<String, Object> update = newHashMap();
-
-    Preconditions.checkNotNull(dto.getProjectUuid(), "Project uuid is null on issue %s", dto.getKey());
-    Preconditions.checkNotNull(dto.getComponentUuid(), "Component uuid is null on issue %s", dto.getKey());
-
-    update.put("_parent", dto.getProjectUuid());
-    update.put(IssueField.KEY.field(), dto.getKey());
-    update.put(IssueField.UPDATED_AT.field(), dto.getUpdatedAt());
-    update.put(IssueField.CREATED_AT.field(), dto.getCreatedAt());
-
-    update.put(IssueField.PROJECT.field(), dto.getProjectUuid());
-    update.put(IssueField.COMPONENT.field(), dto.getComponentUuid());
-    update.put(IssueField.MODULE.field(), dto.getModuleUuid());
-    update.put(IssueField.MODULE_PATH.field(), dto.getModuleUuidPath());
-
-    update.put(IssueField.ACTION_PLAN.field(), dto.getActionPlanKey());
-    update.put(IssueField.ATTRIBUTES.field(), dto.getIssueAttributes());
-    update.put(IssueField.ASSIGNEE.field(), dto.getAssignee());
-    update.put(IssueField.AUTHOR_LOGIN.field(), dto.getAuthorLogin());
-    update.put(IssueField.ISSUE_CLOSE_DATE.field(), dto.getIssueCloseDate());
-    update.put(IssueField.ISSUE_CREATED_AT.field(), dto.getIssueCreationDate());
-    update.put(IssueField.ISSUE_UPDATED_AT.field(), dto.getIssueUpdateDate());
-    update.put(IssueField.EFFORT.field(), dto.getEffortToFix());
-    update.put(IssueField.RESOLUTION.field(), dto.getResolution());
-    update.put(IssueField.LINE.field(), dto.getLine());
-    update.put(IssueField.MESSAGE.field(), dto.getMessage());
-    update.put(IssueField.REPORTER.field(), dto.getReporter());
-    update.put(IssueField.STATUS.field(), dto.getStatus());
-    update.put(IssueField.SEVERITY.field(), dto.getSeverity());
-    update.put(IssueField.SEVERITY_VALUE.field(), Severity.ALL.indexOf(dto.getSeverity()));
-    update.put(IssueField.DEBT.field(), dto.getDebt());
-    update.put(IssueField.LANGUAGE.field(), dto.getLanguage());
-    update.put(IssueField.RULE_KEY.field(), dto.getRuleKey().toString());
-    update.put(IssueField.FILE_PATH.field(), dto.getFilePath());
-
-    /** Upsert elements */
-    Map<String, Object> upsert = getUpsertFor(IssueField.ALL_FIELDS, update);
-    upsert.put(IssueField.KEY.field(), dto.getKey());
-
-    return ImmutableList.of(
-      new UpdateRequest()
-        .id(dto.getKey())
-        .routing(dto.getProjectUuid())
-        .parent(dto.getProjectUuid())
-        .doc(update)
-        .upsert(upsert));
-  }
 }
