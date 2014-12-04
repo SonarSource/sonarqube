@@ -76,8 +76,6 @@ public class TaskContainer extends ComponentContainer {
 
   void installCoreTasks() {
     add(new TaskProperties(taskProperties, getParent().getComponentByType(BootstrapProperties.class).property(CoreProperties.ENCRYPTION_SECRET_KEY_PATH)));
-    // Release memory
-    taskProperties.clear();
     add(
       ScanTask.DEFINITION, ScanTask.class,
       ListTask.DEFINITION, ListTask.class,
@@ -118,6 +116,8 @@ public class TaskContainer extends ComponentContainer {
   public void doAfterStart() {
     // default value is declared in CorePlugin
     String taskKey = StringUtils.defaultIfEmpty(taskProperties.get(CoreProperties.TASK), CoreProperties.SCAN_TASK);
+    // Release memory
+    taskProperties.clear();
 
     TaskDefinition def = getComponentByType(Tasks.class).definition(taskKey);
     if (def == null) {
