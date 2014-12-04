@@ -34,18 +34,16 @@ import java.sql.SQLException;
 
 public class BackendCleanup implements ServerComponent {
 
-  private final SearchClient searchClient;
-  private final MyBatis myBatis;
-
   private static final String[] INSPECTION_TABLES = {
     "action_plans", "authors", "dependencies", "duplications_index", "events", "graphs", "issues", "issue_changes", "manual_measures",
     "notifications", "project_links", "project_measures", "projects", "resource_index",
-    "semaphores", "snapshot_sources", "snapshots", "snapshot_data"
+    "semaphores", "snapshot_sources", "snapshots", "snapshot_data", "file_sources"
   };
-
   private static final String[] RESOURCE_RELATED_TABLES = {
     "group_roles", "user_roles", "properties"
   };
+  private final SearchClient searchClient;
+  private final MyBatis myBatis;
 
   public BackendCleanup(SearchClient searchClient, MyBatis myBatis) {
     this.searchClient = searchClient;
@@ -138,7 +136,7 @@ public class BackendCleanup implements ServerComponent {
     }
   }
 
-  private void deleteManualRules(Connection connection){
+  private void deleteManualRules(Connection connection) {
     try {
       connection.prepareStatement("DELETE FROM rules WHERE rules.plugin_name='manual'").execute();
       // commit is useless on some databases
@@ -151,9 +149,9 @@ public class BackendCleanup implements ServerComponent {
   /**
    * Completely remove a index with all types
    */
-  public void clearIndex(IndexDefinition indexDefinition){
+  public void clearIndex(IndexDefinition indexDefinition) {
     searchClient.prepareDeleteByQuery(searchClient.prepareState().get()
-      .getState().getMetaData().concreteIndices(new String[]{indexDefinition.getIndexName()}))
+      .getState().getMetaData().concreteIndices(new String[] {indexDefinition.getIndexName()}))
       .setQuery(QueryBuilders.matchAllQuery())
       .get();
   }
@@ -161,9 +159,9 @@ public class BackendCleanup implements ServerComponent {
   /**
    * Remove only the type of an index
    */
-  public void clearIndexType(IndexDefinition indexDefinition){
+  public void clearIndexType(IndexDefinition indexDefinition) {
     searchClient.prepareDeleteByQuery(searchClient.prepareState().get()
-      .getState().getMetaData().concreteIndices(new String[]{indexDefinition.getIndexName()})).setTypes(indexDefinition.getIndexType())
+      .getState().getMetaData().concreteIndices(new String[] {indexDefinition.getIndexName()})).setTypes(indexDefinition.getIndexType())
       .setQuery(QueryBuilders.matchAllQuery())
       .get();
   }
