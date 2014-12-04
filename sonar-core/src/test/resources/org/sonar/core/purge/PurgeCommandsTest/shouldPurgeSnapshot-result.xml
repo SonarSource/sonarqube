@@ -16,9 +16,8 @@ Note that measures, events and reviews are not deleted.
              period3_mode="[null]" period3_param="[null]" period3_date="[null]"
              period4_mode="[null]" period4_param="[null]" period4_date="[null]"
              period5_mode="[null]" period5_param="[null]" period5_date="[null]"
-             depth="[null]" scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00" build_date="2008-12-02 13:58:00.00" version="[null]" path="[null]"/>
-
-  <!--<snapshot_sources ID="1" SNAPSHOT_ID="1" DATA="foo"/>-->
+             depth="[null]" scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00"
+             build_date="2008-12-02 13:58:00.00" version="[null]" path="[null]"/>
 
   <!--switched_off="[null]" permanent_id="[null]" RULE_ID="1" FAILURE_LEVEL="2"-->
   <!--MESSAGE="msg1" LINE="[null]" COST="[null]"-->
@@ -26,10 +25,13 @@ Note that measures, events and reviews are not deleted.
   <!--checksum="[null]" person_id="[null]"/>-->
 
   <project_measures ID="1" project_id="1" SNAPSHOT_ID="1" RULE_ID="[null]" characteristic_id="[null]"
-                    url="[null]" variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]" variation_value_4="[null]"
-                    variation_value_5="[null]" rule_priority="[null]" alert_text="[null]" VALUE="10.0" METRIC_ID="1" rules_category_id="[null]"
+                    url="[null]" variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]"
+                    variation_value_4="[null]"
+                    variation_value_5="[null]" rule_priority="[null]" alert_text="[null]" VALUE="10.0" METRIC_ID="1"
+                    rules_category_id="[null]"
                     person_id="[null]"
-                    text_value="[null]" tendency="[null]" measure_date="[null]" alert_status="[null]" description="[null]" measure_data="[null]"/>
+                    text_value="[null]" tendency="[null]" measure_date="[null]" alert_status="[null]"
+                    description="[null]" measure_data="[null]"/>
 
   <!--<dependencies id="1" from_resource_id="1" from_snapshot_id="1" to_resource_id="2" to_snapshot_id="2"-->
   <!--parent_dependency_id="[null]" project_snapshot_id="[null]"-->
@@ -40,7 +42,8 @@ Note that measures, events and reviews are not deleted.
   <!--dep_usage="USES" dep_weight="1" from_scope="LIB" to_scope="PRJ"/>-->
 
   <events id="1" resource_id="1" snapshot_id="1"
-          category="VERSION" description="[null]" name="Version 1.0" event_date="2008-12-02 13:58:00.00" created_at="[null]"
+          category="VERSION" description="[null]" name="Version 1.0" event_date="2008-12-02 13:58:00.00"
+          created_at="[null]"
           event_data="[null]"/>
 
   <!--<duplications_index id="1" project_snapshot_id="1" snapshot_id="1"-->
@@ -56,15 +59,18 @@ Note that measures, events and reviews are not deleted.
              period3_mode="[null]" period3_param="[null]" period3_date="[null]"
              period4_mode="[null]" period4_param="[null]" period4_date="[null]"
              period5_mode="[null]" period5_param="[null]" period5_date="[null]"
-             depth="[null]" scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00" build_date="2008-12-02 13:58:00.00" version="[null]" path="[null]"/>
+             depth="[null]" scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00"
+             build_date="2008-12-02 13:58:00.00" version="[null]" path="[null]"/>
 
-  <snapshot_sources ID="2" SNAPSHOT_ID="2" DATA="foo" UPDATED_AT="[null]"/>
 
   <project_measures ID="2" project_id="2" SNAPSHOT_ID="2" RULE_ID="[null]" characteristic_id="[null]"
-                    url="[null]" variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]" variation_value_4="[null]"
-                    variation_value_5="[null]" rule_priority="[null]" alert_text="[null]" VALUE="10.0" METRIC_ID="1" rules_category_id="[null]"
+                    url="[null]" variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]"
+                    variation_value_4="[null]"
+                    variation_value_5="[null]" rule_priority="[null]" alert_text="[null]" VALUE="10.0" METRIC_ID="1"
+                    rules_category_id="[null]"
                     person_id="[null]"
-                    text_value="[null]" tendency="[null]" measure_date="[null]" alert_status="[null]" description="[null]" measure_data="[null]"/>
+                    text_value="[null]" tendency="[null]" measure_date="[null]" alert_status="[null]"
+                    description="[null]" measure_data="[null]"/>
 
   <dependencies id="3" from_resource_id="33" from_snapshot_id="33" to_resource_id="44" to_snapshot_id="44"
                 parent_dependency_id="[null]" project_snapshot_id="[null]"
@@ -75,12 +81,14 @@ Note that measures, events and reviews are not deleted.
                 dep_usage="USES" dep_weight="1" from_scope="LIB" to_scope="PRJ"/>
 
   <events id="2" resource_id="2" snapshot_id="2"
-          category="VERSION" description="[null]" name="Version 1.0" event_date="2008-12-02 13:58:00.00" created_at="[null]"
+          category="VERSION" description="[null]" name="Version 1.0" event_date="2008-12-02 13:58:00.00"
+          created_at="[null]"
           event_data="[null]"/>
 
   <duplications_index id="2" project_snapshot_id="2" snapshot_id="2"
                       hash="bb" index_in_file="0" start_line="0" end_line="0"/>
 
-  <snapshot_data id="2" resource_id="5" snapshot_id="5" snapshot_data="0,10,k" data_type="highlight_syntax" created_at="[null]" updated_at="[null]" />
+  <snapshot_data id="2" resource_id="5" snapshot_id="5" snapshot_data="0,10,k" data_type="highlight_syntax"
+                 created_at="[null]" updated_at="[null]"/>
 
 </dataset>

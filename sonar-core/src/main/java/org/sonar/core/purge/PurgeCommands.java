@@ -180,8 +180,6 @@ class PurgeCommands {
     session.commit();
     profiler.stop();
 
-    deleteSnapshotSources(snapshotIdsPartition);
-
     deleteSnapshotGraphs(snapshotIdsPartition);
 
     deleteSnapshotData(snapshotIdsPartition);
@@ -206,8 +204,6 @@ class PurgeCommands {
     deleteSnapshotDependencies(snapshotIdsPartition);
 
     deleteSnapshotDuplications(snapshotIdsPartition);
-
-    deleteSnapshotSources(snapshotIdsPartition);
 
     deleteSnapshotGraphs(snapshotIdsPartition);
 
@@ -242,15 +238,6 @@ class PurgeCommands {
     profiler.start("deleteSnapshotGraphs (graphs)");
     for (List<Long> partSnapshotIds : snapshotIdsPartition) {
       purgeMapper.deleteSnapshotGraphs(partSnapshotIds);
-    }
-    session.commit();
-    profiler.stop();
-  }
-
-  private void deleteSnapshotSources(final List<List<Long>> snapshotIdsPartition) {
-    profiler.start("deleteSnapshotSource (snapshot_sources)");
-    for (List<Long> partSnapshotIds : snapshotIdsPartition) {
-      purgeMapper.deleteSnapshotSource(partSnapshotIds);
     }
     session.commit();
     profiler.stop();

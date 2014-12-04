@@ -8,10 +8,10 @@
              period3_mode="[null]" period3_param="[null]" period3_date="[null]"
              period4_mode="[null]" period4_param="[null]" period4_date="[null]"
              period5_mode="[null]" period5_param="[null]" period5_date="[null]"
-             depth="[null]" scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00" build_date="2008-12-02 13:58:00.00"
+             depth="[null]" scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00"
+             build_date="2008-12-02 13:58:00.00"
              version="[null]" path="[null]"/>
 
-  <snapshot_sources ID="1" SNAPSHOT_ID="1" DATA="foo"/>
   <project_measures ID="1" characteristic_id="[null]" url="[null]" variation_value_1="[null]" variation_value_2="[null]"
                     variation_value_3="[null]" variation_value_4="[null]"
                     variation_value_5="[null]"
@@ -26,11 +26,13 @@
                 dep_usage="USES" dep_weight="1" from_scope="PRJ" to_scope="LIB"/>
   <events id="1" name="Version 1.0" resource_id="1" snapshot_id="1" category="VERSION" description="[null]"
           event_date="2008-12-02 13:58:00.00" created_at="[null]" event_data="[null]"/>
-  <duplications_index id="1" project_snapshot_id="1" snapshot_id="1" hash="bb" index_in_file="0" start_line="0" end_line="0"/>
-  <snapshot_data id="1" resource_id="1" snapshot_id="1" snapshot_data="0,10,k" data_type="highlight_syntax" created_at="[null]" updated_at="[null]" />
+  <duplications_index id="1" project_snapshot_id="1" snapshot_id="1" hash="bb" index_in_file="0" start_line="0"
+                      end_line="0"/>
+  <snapshot_data id="1" resource_id="1" snapshot_id="1" snapshot_data="0,10,k" data_type="highlight_syntax"
+                 created_at="[null]" updated_at="[null]"/>
 
 
-    <!-- snapshot to remove, id 5 on resource 5-->
+  <!-- snapshot to remove, id 5 on resource 5-->
   <snapshots id="5" project_id="5" parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]"
              status="P" islast="[true]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
@@ -38,10 +40,10 @@
              period3_mode="[null]" period3_param="[null]" period3_date="[null]"
              period4_mode="[null]" period4_param="[null]" period4_date="[null]"
              period5_mode="[null]" period5_param="[null]" period5_date="[null]"
-             depth="[null]" scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00" build_date="2008-12-02 13:58:00.00"
+             depth="[null]" scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00"
+             build_date="2008-12-02 13:58:00.00"
              version="[null]" path="[null]"/>
 
-  <snapshot_sources ID="2" SNAPSHOT_ID="5" DATA="foo"/>
   <project_measures ID="2" characteristic_id="[null]" url="[null]" variation_value_1="[null]" variation_value_2="[null]"
                     variation_value_3="[null]" variation_value_4="[null]"
                     variation_value_5="[null]"
@@ -59,8 +61,10 @@
                 dep_usage="USES" dep_weight="1" from_scope="PRJ" to_scope="LIB"/>
   <events id="2" name="Version 1.0" resource_id="5" snapshot_id="5" category="VERSION" description="[null]"
           event_date="2008-12-02 13:58:00.00" created_at="[null]" event_data="[null]"/>
-  <duplications_index id="2" project_snapshot_id="5" snapshot_id="5" hash="bb" index_in_file="0" start_line="0" end_line="0"/>
-  <snapshot_data id="2" resource_id="5" snapshot_id="5" snapshot_data="0,10,k" data_type="highlight_syntax" created_at="[null]" updated_at="[null]" />
+  <duplications_index id="2" project_snapshot_id="5" snapshot_id="5" hash="bb" index_in_file="0" start_line="0"
+                      end_line="0"/>
+  <snapshot_data id="2" resource_id="5" snapshot_id="5" snapshot_data="0,10,k" data_type="highlight_syntax"
+                 created_at="[null]" updated_at="[null]"/>
 
 
 </dataset>
