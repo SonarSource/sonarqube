@@ -21,7 +21,6 @@ package org.sonar.server.es;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
-
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.admin.indices.settings.get.GetSettingsResponse;
 import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsRequestBuilder;
@@ -30,12 +29,10 @@ import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
 import org.picocontainer.Startable;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.server.util.ProgressTask;
+import org.sonar.server.util.ProgressLogger;
 
 import java.util.Map;
-import java.util.Timer;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -60,12 +57,14 @@ public class BulkIndexer implements Startable {
   private Map<String, Object> largeInitialSettings = null;
 
   private final AtomicLong counter = new AtomicLong(0L);
-  private final ProgressTask progressTask = new ProgressTask(counter, LoggerFactory.getLogger("BulkIndex")).setRowPluralName("requests");
-  private final Timer timer = new Timer("Bulk index progress");
+  private final ProgressLogger progress;
 
   public BulkIndexer(EsClient client, String indexName) {
     this.client = client;
     this.indexName = indexName;
+    this.progress = new ProgressLogger(String.format("Progress[BulkIndexer[%s]]", indexName), counter,
+      LoggerFactory.getLogger(BulkIndexer.class))
+      .setPluralLabel("requests");
   }
 
   /**
@@ -117,7 +116,8 @@ public class BulkIndexer implements Startable {
       updateSettings(bulkSettings);
     }
     bulkRequest = client.prepareBulk();
-    timer.schedule(progressTask, ProgressTask.PERIOD_MS, ProgressTask.PERIOD_MS);
+    counter.set(0L);
+    progress.start();
   }
 
   public void add(ActionRequest request) {
@@ -135,11 +135,7 @@ public class BulkIndexer implements Startable {
       executeBulk(bulkRequest);
     }
 
-    // Log final advancement and reset counter
-    progressTask.log();
-    counter.set(0L);
-    timer.cancel();
-    timer.purge();
+    progress.stop();
 
     if (refresh) {
       client.prepareRefresh(indexName).get();

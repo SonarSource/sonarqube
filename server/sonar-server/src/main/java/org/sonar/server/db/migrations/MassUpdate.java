@@ -19,13 +19,11 @@
  */
 package org.sonar.server.db.migrations;
 
-import org.slf4j.LoggerFactory;
 import org.sonar.core.persistence.Database;
-import org.sonar.server.util.ProgressTask;
+import org.sonar.server.util.ProgressLogger;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Timer;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class MassUpdate {
@@ -42,7 +40,7 @@ public class MassUpdate {
   private final Database db;
   private final Connection readConnection, writeConnection;
   private final AtomicLong counter = new AtomicLong(0L);
-  private final ProgressTask progressTask = new ProgressTask(counter, LoggerFactory.getLogger("DbMigration"));
+  private final ProgressLogger progress = ProgressLogger.create(getClass(), counter);
 
   private Select select;
   private Upsert update;
@@ -64,7 +62,7 @@ public class MassUpdate {
   }
 
   public MassUpdate rowPluralName(String s) {
-    this.progressTask.setRowPluralName(s);
+    this.progress.setPluralLabel(s);
     return this;
   }
 
@@ -73,8 +71,7 @@ public class MassUpdate {
       throw new IllegalStateException("SELECT or UPDATE requests are not defined");
     }
 
-    Timer timer = new Timer("Db Migration Progress");
-    timer.schedule(progressTask, ProgressTask.PERIOD_MS, ProgressTask.PERIOD_MS);
+    progress.start();
     try {
       select.scroll(new Select.RowHandler() {
         @Override
@@ -90,11 +87,10 @@ public class MassUpdate {
       }
       update.close();
 
-      // log the total number of process rows
-      progressTask.log();
+      // log the total number of processed rows
+      progress.log();
     } finally {
-      timer.cancel();
-      timer.purge();
+      progress.stop();
     }
   }
 

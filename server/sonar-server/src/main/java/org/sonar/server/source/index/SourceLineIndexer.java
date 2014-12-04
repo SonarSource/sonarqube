@@ -104,14 +104,16 @@ public class SourceLineIndexer extends BaseIndexer {
   public void deleteByFile(String fileUuid) {
     esClient.prepareDeleteByQuery(SourceLineIndexDefinition.INDEX)
       .setTypes(SourceLineIndexDefinition.TYPE)
-      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), FilterBuilders.termFilter(FIELD_FILE_UUID, fileUuid).cache(false)))
+      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
+        FilterBuilders.termFilter(FIELD_FILE_UUID, fileUuid).cache(false)))
       .get();
   }
 
   public void deleteByProject(String projectUuid) {
     esClient.prepareDeleteByQuery(SourceLineIndexDefinition.INDEX)
       .setTypes(SourceLineIndexDefinition.TYPE)
-      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), FilterBuilders.termFilter(FIELD_PROJECT_UUID, projectUuid).cache(false)))
+      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
+        FilterBuilders.termFilter(FIELD_PROJECT_UUID, projectUuid).cache(false)))
       .get();
   }
 }

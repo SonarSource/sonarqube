@@ -24,8 +24,6 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
-
-import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.migration.v45.Migration45Mapper;
@@ -33,14 +31,13 @@ import org.sonar.core.persistence.migration.v45.Rule;
 import org.sonar.core.persistence.migration.v45.RuleParameter;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.db.migrations.DatabaseMigration;
-import org.sonar.server.util.ProgressTask;
+import org.sonar.server.util.ProgressLogger;
 
 import javax.annotation.Nullable;
 
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.Timer;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -56,7 +53,7 @@ public class AddMissingCustomRuleParametersMigration implements DatabaseMigratio
   private final System2 system;
 
   private final AtomicLong counter = new AtomicLong(0L);
-  private final ProgressTask progressTask = new ProgressTask(counter, LoggerFactory.getLogger("DbMigration"));
+  private final ProgressLogger progress = ProgressLogger.create(getClass(), counter);
 
   public AddMissingCustomRuleParametersMigration(DbClient db, System2 system) {
     this.db = db;
@@ -65,8 +62,7 @@ public class AddMissingCustomRuleParametersMigration implements DatabaseMigratio
 
   @Override
   public void execute() {
-    Timer timer = new Timer("Db Migration Progress");
-    timer.schedule(progressTask, ProgressTask.PERIOD_MS, ProgressTask.PERIOD_MS);
+    progress.start();
 
     DbSession session = db.openSession(false);
     try {
@@ -101,12 +97,10 @@ public class AddMissingCustomRuleParametersMigration implements DatabaseMigratio
       session.commit();
 
       // log the total number of process rows
-      progressTask.log();
+      progress.log();
     } finally {
       session.close();
-
-      timer.cancel();
-      timer.purge();
+      progress.stop();
     }
   }
 

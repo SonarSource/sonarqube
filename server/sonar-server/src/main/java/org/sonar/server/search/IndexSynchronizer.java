@@ -33,9 +33,6 @@ import org.sonar.server.source.index.SourceLineIndexer;
 
 import java.util.Date;
 
-/**
- * @since 4.4
- */
 public class IndexSynchronizer {
 
   private static final Logger LOG = LoggerFactory.getLogger(IndexSynchronizer.class);
@@ -56,34 +53,32 @@ public class IndexSynchronizer {
   }
 
   public void execute() {
-    /* synchronize all activeRules until we have mng tables in INDEX */
-    DbSession session = db.openSession(true);
+    DbSession session = db.openSession(false);
     try {
       synchronize(session, db.ruleDao(), index.get(RuleIndex.class));
       synchronize(session, db.activeRuleDao(), index.get(ActiveRuleIndex.class));
       synchronize(session, db.activityDao(), index.get(ActivityIndex.class));
-
-      LOG.info("Indexing issues");
-      issueAuthorizationIndexer.index();
-      issueIndexer.indexAll();
-
-      LOG.info("Indexing source files");
-      sourceLineIndexer.index();
-
       session.commit();
     } finally {
       session.close();
     }
+
+    LOG.info("Index issues");
+    issueAuthorizationIndexer.index();
+    issueIndexer.index();
+
+    LOG.info("Index source files");
+    sourceLineIndexer.index();
   }
 
   void synchronize(DbSession session, Dao dao, Index index) {
     long count = index.getIndexStat().getDocumentCount();
     Date lastSynch = index.getLastSynchronization();
     if (count <= 0) {
-      LOG.info("Initial indexing of {} records", index.getIndexType());
+      LOG.info("Index {}s", index.getIndexType());
       dao.synchronizeAfter(session);
     } else {
-      LOG.info("Synchronizing {} records for updates after {}", index.getIndexType(), lastSynch);
+      LOG.info("Index {}s for updates after {}", index.getIndexType(), lastSynch);
       dao.synchronizeAfter(session, lastSynch);
     }
   }
