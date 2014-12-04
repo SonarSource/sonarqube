@@ -36,7 +36,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.io.IOException;
-import java.io.StringReader;
+import java.io.Reader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -118,53 +118,51 @@ public class SourceLineResultSetIterator extends ResultSetIterator<SourceLineRes
     Date updatedDate = new Date(updatedAt);
     SourceFile result = new SourceFile(fileUuid, updatedAt);
 
-    String csv = rs.getString(4);
+    Reader csv = rs.getCharacterStream(4);
+    int line = 1;
+    CSVParser csvParser = null;
+    try {
+      csvParser = new CSVParser(csv, CSVFormat.DEFAULT);
 
-    if (StringUtils.isNotEmpty(csv)) {
-      int line = 1;
-      CSVParser csvParser = null;
-      try {
-        csvParser = new CSVParser(new StringReader(csv), CSVFormat.DEFAULT);
+      for (CSVRecord csvRecord : csvParser) {
+        SourceLineDoc doc = new SourceLineDoc(Maps.<String, Object>newHashMap());
 
-        for (CSVRecord csvRecord : csvParser) {
-          SourceLineDoc doc = new SourceLineDoc(Maps.<String, Object>newHashMapWithExpectedSize(9));
+        doc.setProjectUuid(projectUuid);
+        doc.setFileUuid(fileUuid);
+        doc.setLine(line);
+        doc.setUpdateDate(updatedDate);
+        doc.setScmRevision(csvRecord.get(0));
+        doc.setScmAuthor(csvRecord.get(1));
+        doc.setScmDate(DateUtils.parseDateTimeQuietly(csvRecord.get(2)));
+        // UT
+        doc.setUtLineHits(parseIntegerFromRecord(csvRecord, 3));
+        doc.setUtConditions(parseIntegerFromRecord(csvRecord, 4));
+        doc.setUtCoveredConditions(parseIntegerFromRecord(csvRecord, 5));
+        // IT
+        doc.setItLineHits(parseIntegerFromRecord(csvRecord, 6));
+        doc.setItConditions(parseIntegerFromRecord(csvRecord, 7));
+        doc.setItCoveredConditions(parseIntegerFromRecord(csvRecord, 8));
+        // OVERALL
+        doc.setOverallLineHits(parseIntegerFromRecord(csvRecord, 9));
+        doc.setOverallConditions(parseIntegerFromRecord(csvRecord, 10));
+        doc.setOverallCoveredConditions(parseIntegerFromRecord(csvRecord, 11));
+        doc.setHighlighting(csvRecord.get(12));
+        doc.setSymbols(csvRecord.get(13));
+        doc.setDuplications(parseDuplications(csvRecord.get(14)));
+        doc.setSource(csvRecord.get(csvRecord.size() - 1));
 
-          doc.setProjectUuid(projectUuid);
-          doc.setFileUuid(fileUuid);
-          doc.setLine(line);
-          doc.setUpdateDate(updatedDate);
-          doc.setScmRevision(csvRecord.get(0));
-          doc.setScmAuthor(csvRecord.get(1));
-          doc.setScmDate(DateUtils.parseDateTimeQuietly(csvRecord.get(2)));
-          // UT
-          doc.setUtLineHits(parseIntegerFromRecord(csvRecord, 3));
-          doc.setUtConditions(parseIntegerFromRecord(csvRecord, 4));
-          doc.setUtCoveredConditions(parseIntegerFromRecord(csvRecord, 5));
-          // IT
-          doc.setItLineHits(parseIntegerFromRecord(csvRecord, 6));
-          doc.setItConditions(parseIntegerFromRecord(csvRecord, 7));
-          doc.setItCoveredConditions(parseIntegerFromRecord(csvRecord, 8));
-          // OVERALL
-          doc.setOverallLineHits(parseIntegerFromRecord(csvRecord, 9));
-          doc.setOverallConditions(parseIntegerFromRecord(csvRecord, 10));
-          doc.setOverallCoveredConditions(parseIntegerFromRecord(csvRecord, 11));
-          doc.setHighlighting(csvRecord.get(12));
-          doc.setSymbols(csvRecord.get(13));
-          doc.setDuplications(parseDuplications(csvRecord.get(14)));
-          doc.setSource(csvRecord.get(csvRecord.size() - 1));
+        result.addLine(doc);
 
-          result.addLine(doc);
-
-          line++;
-        }
-      } catch (IOException ioError) {
-        throw new IllegalStateException("Impossible to open stream for file_sources.data with file_uuid " + fileUuid, ioError);
-      } catch (ArrayIndexOutOfBoundsException lineError) {
-        throw new IllegalStateException(
-          String.format("Impossible to parse source line data, stuck at line %d", line), lineError);
-      } finally {
-        IOUtils.closeQuietly(csvParser);
+        line++;
       }
+    } catch (IOException ioError) {
+      throw new IllegalStateException("Impossible to open stream for file_sources.data with file_uuid " + fileUuid, ioError);
+    } catch (ArrayIndexOutOfBoundsException lineError) {
+      throw new IllegalStateException(
+        String.format("Impossible to parse source line data, stuck at line %d", line), lineError);
+    } finally {
+      IOUtils.closeQuietly(csv);
+      IOUtils.closeQuietly(csvParser);
     }
 
     return result;
@@ -174,7 +172,7 @@ public class SourceLineResultSetIterator extends ResultSetIterator<SourceLineRes
     List<Integer> dups = Lists.newArrayList();
     if (duplications != null && !duplications.isEmpty()) {
       String[] dupsStrings = duplications.split(",");
-      for (String dup: dupsStrings) {
+      for (String dup : dupsStrings) {
         dups.add(NumberUtils.toInt(dup, -1));
       }
     }
