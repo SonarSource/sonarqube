@@ -22,8 +22,10 @@ package org.sonar.server.db.migrations.v50;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.internal.Uuids;
 import org.sonar.core.persistence.DbSession;
@@ -31,7 +33,7 @@ import org.sonar.core.persistence.migration.v50.Component;
 import org.sonar.core.persistence.migration.v50.Migration50Mapper;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.db.migrations.DatabaseMigration;
-import org.sonar.server.db.migrations.MassUpdate;
+import org.sonar.server.util.ProgressTask;
 
 import java.util.List;
 import java.util.Map;
@@ -50,7 +52,7 @@ public class PopulateProjectsUuidColumnsMigration implements DatabaseMigration {
 
   private final DbClient db;
   private final AtomicLong counter = new AtomicLong(0L);
-  private final MassUpdate.ProgressTask progressTask = new MassUpdate.ProgressTask(counter);
+  private final ProgressTask progressTask = new ProgressTask(counter, LoggerFactory.getLogger("DbMigration"));
 
   public PopulateProjectsUuidColumnsMigration(DbClient db) {
     this.db = db;
@@ -59,7 +61,7 @@ public class PopulateProjectsUuidColumnsMigration implements DatabaseMigration {
   @Override
   public void execute() {
     Timer timer = new Timer("Db Migration Progress");
-    timer.schedule(progressTask, MassUpdate.ProgressTask.PERIOD_MS, MassUpdate.ProgressTask.PERIOD_MS);
+    timer.schedule(progressTask, ProgressTask.PERIOD_MS, ProgressTask.PERIOD_MS);
 
     final DbSession readSession = db.openSession(false);
     final DbSession writeSession = db.openSession(true);

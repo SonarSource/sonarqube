@@ -21,6 +21,7 @@ package org.sonar.server.es;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.admin.indices.settings.get.GetSettingsResponse;
 import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsRequestBuilder;
@@ -29,8 +30,13 @@ import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
 import org.picocontainer.Startable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.server.util.ProgressTask;
 
 import java.util.Map;
+import java.util.Timer;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Helper to bulk requests in an efficient way :
@@ -52,6 +58,10 @@ public class BulkIndexer implements Startable {
   private long flushByteSize = FLUSH_BYTE_SIZE;
   private BulkRequestBuilder bulkRequest = null;
   private Map<String, Object> largeInitialSettings = null;
+
+  private final AtomicLong counter = new AtomicLong(0L);
+  private final ProgressTask progressTask = new ProgressTask(counter, LoggerFactory.getLogger("BulkIndex")).setRowPluralName("requests");
+  private final Timer timer = new Timer("Bulk index progress");
 
   public BulkIndexer(EsClient client, String indexName) {
     this.client = client;
@@ -107,10 +117,12 @@ public class BulkIndexer implements Startable {
       updateSettings(bulkSettings);
     }
     bulkRequest = client.prepareBulk();
+    timer.schedule(progressTask, ProgressTask.PERIOD_MS, ProgressTask.PERIOD_MS);
   }
 
   public void add(ActionRequest request) {
     bulkRequest.request().add(request);
+    counter.getAndIncrement();
     if (bulkRequest.request().estimatedSizeInBytes() >= flushByteSize) {
       executeBulk(bulkRequest);
       bulkRequest = client.prepareBulk();
@@ -122,6 +134,13 @@ public class BulkIndexer implements Startable {
     if (bulkRequest.numberOfActions() > 0) {
       executeBulk(bulkRequest);
     }
+
+    // Log final advancement and reset counter
+    progressTask.log();
+    counter.set(0L);
+    timer.cancel();
+    timer.purge();
+
     if (refresh) {
       client.prepareRefresh(indexName).get();
     }

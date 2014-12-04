@@ -24,6 +24,8 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
+
+import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.migration.v45.Migration45Mapper;
@@ -31,7 +33,7 @@ import org.sonar.core.persistence.migration.v45.Rule;
 import org.sonar.core.persistence.migration.v45.RuleParameter;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.db.migrations.DatabaseMigration;
-import org.sonar.server.db.migrations.MassUpdate;
+import org.sonar.server.util.ProgressTask;
 
 import javax.annotation.Nullable;
 
@@ -54,7 +56,7 @@ public class AddMissingCustomRuleParametersMigration implements DatabaseMigratio
   private final System2 system;
 
   private final AtomicLong counter = new AtomicLong(0L);
-  private final MassUpdate.ProgressTask progressTask = new MassUpdate.ProgressTask(counter);
+  private final ProgressTask progressTask = new ProgressTask(counter, LoggerFactory.getLogger("DbMigration"));
 
   public AddMissingCustomRuleParametersMigration(DbClient db, System2 system) {
     this.db = db;
@@ -64,7 +66,7 @@ public class AddMissingCustomRuleParametersMigration implements DatabaseMigratio
   @Override
   public void execute() {
     Timer timer = new Timer("Db Migration Progress");
-    timer.schedule(progressTask, MassUpdate.ProgressTask.PERIOD_MS, MassUpdate.ProgressTask.PERIOD_MS);
+    timer.schedule(progressTask, ProgressTask.PERIOD_MS, ProgressTask.PERIOD_MS);
 
     DbSession session = db.openSession(false);
     try {

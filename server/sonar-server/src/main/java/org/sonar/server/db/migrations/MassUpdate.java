@@ -19,14 +19,13 @@
  */
 package org.sonar.server.db.migrations;
 
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.core.persistence.Database;
+import org.sonar.server.util.ProgressTask;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class MassUpdate {
@@ -43,7 +42,7 @@ public class MassUpdate {
   private final Database db;
   private final Connection readConnection, writeConnection;
   private final AtomicLong counter = new AtomicLong(0L);
-  private final ProgressTask progressTask = new ProgressTask(counter);
+  private final ProgressTask progressTask = new ProgressTask(counter, LoggerFactory.getLogger("DbMigration"));
 
   private Select select;
   private Upsert update;
@@ -96,30 +95,6 @@ public class MassUpdate {
     } finally {
       timer.cancel();
       timer.purge();
-    }
-  }
-
-  public static class ProgressTask extends TimerTask {
-    private static final Logger LOGGER = LoggerFactory.getLogger("DbMigration");
-    public static final long PERIOD_MS = 60000L;
-    private final AtomicLong counter;
-    private String rowName = "rows";
-
-    public ProgressTask(AtomicLong counter) {
-      this.counter = counter;
-    }
-
-    void setRowPluralName(String s) {
-      this.rowName = s;
-    }
-
-    @Override
-    public void run() {
-      log();
-    }
-
-    public void log() {
-      LOGGER.info(String.format("%d %s processed", counter.get(), rowName));
     }
   }
 
