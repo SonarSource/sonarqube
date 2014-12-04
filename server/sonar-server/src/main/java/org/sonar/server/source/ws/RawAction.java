@@ -49,7 +49,7 @@ public class RawAction implements RequestHandler {
 
   void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("raw")
-      .setDescription("Get source code as plain text. Require Code viewer permission on file")
+      .setDescription("Get source code as plain text. Require See Source Code permission on file")
       .setSince("5.0")
       .setResponseExample(Resources.getResource(getClass(), "example-raw.txt"))
       .setHandler(this);

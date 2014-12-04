@@ -53,7 +53,7 @@ public class LinesAction implements RequestHandler {
 
   void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("lines")
-      .setDescription("Show source code with line oriented info. Require Browse permission on file's project<br/>" +
+      .setDescription("Show source code with line oriented info. Require See Source Code permission on file's project<br/>" +
         "Each element of the result array is an object which contains:" +
         "<ol>" +
         "<li>Line number</li>" +

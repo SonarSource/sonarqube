@@ -48,7 +48,7 @@ public class ShowAction implements RequestHandler {
 
   void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("show")
-      .setDescription("Get source code. Require Browse permission on file's project<br/>" +
+      .setDescription("Get source code. Require See Source Code permission on file's project<br/>" +
         "Each element of the result array is composed of:" +
         "<ol>" +
         "<li>Line number</li>" +

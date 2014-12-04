@@ -46,7 +46,7 @@ public class HashAction implements RequestHandler {
 
   void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("hash")
-      .setDescription("Show line line hashes for a given file. Require Browse permission on file's project<br/>")
+      .setDescription("Show line line hashes for a given file. Require See Source Code permission on file's project<br/>")
       .setSince("5.0")
       .setInternal(true)
       .setResponseExample(Resources.getResource(getClass(), "example-hash.txt"))
