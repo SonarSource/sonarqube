@@ -32,6 +32,7 @@ import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
 import org.picocontainer.Startable;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.server.util.ProgressLogger;
 
@@ -66,8 +67,7 @@ public class BulkIndexer implements Startable {
   public BulkIndexer(EsClient client, String indexName) {
     this.client = client;
     this.indexName = indexName;
-    this.progress = new ProgressLogger(String.format("Progress[BulkIndexer[%s]]", indexName), counter,
-      LoggerFactory.getLogger(BulkIndexer.class))
+    this.progress = new ProgressLogger(String.format("Progress[BulkIndexer[%s]]", indexName), counter, LOGGER)
       .setPluralLabel("requests");
   }
 
