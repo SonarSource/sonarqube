@@ -33,7 +33,6 @@ class Snapshot < ActiveRecord::Base
   has_many :person_measures, :class_name => 'ProjectMeasure', :conditions => 'rule_id IS NULL AND characteristic_id IS NULL AND person_id IS NOT NULL'
 
   has_many :events, :dependent => :destroy, :order => 'event_date DESC'
-  has_one :source, :class_name => 'SnapshotSource', :dependent => :destroy
 
   STATUS_UNPROCESSED = 'U'
   STATUS_PROCESSED = 'P'
