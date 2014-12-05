@@ -20,12 +20,8 @@
 package org.sonar.api.web;
 
 import com.google.common.base.Objects;
-<<<<<<< HEAD
 import org.sonar.api.source.Highlightable;
 import org.sonar.api.task.TaskExtension;
-=======
-import org.sonar.api.ServerExtension;
->>>>>>> origin/branch-4.5
 import org.sonar.colorizer.Tokenizer;
 
 import java.util.List;
