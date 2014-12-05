@@ -38,7 +38,7 @@ public class ProgressLoggerTest {
     ProgressLogger progress = new ProgressLogger("ProgressLoggerTest", counter, logger);
     progress.setPeriodMs(1L);
     progress.start();
-    Thread.sleep(20L);
+    Thread.sleep(50L);
     progress.stop();
     verify(logger, atLeast(1)).info("42 rows processed");
 
