@@ -56,8 +56,11 @@ public class DefaultPurgeTask implements PurgeTask {
 
   @Override
   public DefaultPurgeTask delete(long resourceId) {
-    ResourceDto project = resourceDao.getResource(resourceId);
-    purgeDao.deleteResourceTree(new IdUuidPair(project.getId(), project.getUuid()));
+    ResourceDto resource = resourceDao.getResource(resourceId);
+    if (resource != null) {
+      purgeDao.deleteResourceTree(new IdUuidPair(resource.getId(), resource.getUuid()));
+    }
+
     return this;
   }
 
