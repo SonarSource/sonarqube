@@ -24,10 +24,7 @@ import org.sonar.api.resources.Resource;
 
 /**
  * @since 1.10
- * @deprecated since 4.5.2. Starting from SQ 5.x aggregation/computation of data will be mostly done on server side.
- * As a result Decoration on batch side will be dropped at some point.
  */
-@Deprecated
 public interface Decorator extends BatchExtension, CheckProject {
 
   /**
