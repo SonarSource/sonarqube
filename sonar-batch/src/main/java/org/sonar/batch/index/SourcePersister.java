@@ -71,7 +71,6 @@ public class SourcePersister implements ScanPersister {
   private static final Logger LOG = LoggerFactory.getLogger(SourcePersister.class);
 
   private static final String BOM = "\uFEFF";
-  private final ResourcePersister resourcePersister;
   private final InputPathCache inputPathCache;
   private final MyBatis mybatis;
   private final MeasureCache measureCache;
@@ -82,10 +81,9 @@ public class SourcePersister implements ScanPersister {
   private CodeColorizers codeColorizers;
   private DuplicationCache duplicationCache;
 
-  public SourcePersister(ResourcePersister resourcePersister, InputPathCache inputPathCache,
+  public SourcePersister(InputPathCache inputPathCache,
     MyBatis mybatis, MeasureCache measureCache, ComponentDataCache componentDataCache, ProjectTree projectTree, System2 system2,
     ResourceCache resourceCache, CodeColorizers codeColorizers, DuplicationCache duplicationCache) {
-    this.resourcePersister = resourcePersister;
     this.inputPathCache = inputPathCache;
     this.mybatis = mybatis;
     this.measureCache = measureCache;

@@ -115,8 +115,7 @@ public class ProjectReactorBuilder {
     rootProjectWorkDir = rootProject.getWorkDir();
     defineChildren(rootProject, propertiesByModuleId);
     cleanAndCheckProjectDefinitions(rootProject);
-    // Optimization remove all children properties from taskProps
-    taskProps.properties().clear();
+    // Since task properties are now empty we should add root module properties
     for (Map.Entry<String, String> entry : propertiesByModuleId.get("").entrySet()) {
       taskProps.properties().put((String) entry.getKey(), (String) entry.getValue());
     }
@@ -157,7 +156,7 @@ public class ProjectReactorBuilder {
     File workDir;
     if (parent == null) {
       validateDirectories(rootProperties, baseDir, projectKey);
-      workDir = initRootProjectWorkDir(baseDir);
+      workDir = initRootProjectWorkDir(baseDir, rootProperties);
     } else {
       workDir = initModuleWorkDir(baseDir, rootProperties);
     }
@@ -169,8 +168,8 @@ public class ProjectReactorBuilder {
   }
 
   @VisibleForTesting
-  protected File initRootProjectWorkDir(File baseDir) {
-    String workDir = taskProps.property(CoreProperties.WORKING_DIRECTORY);
+  protected File initRootProjectWorkDir(File baseDir, Map<String, String> rootProperties) {
+    String workDir = rootProperties.get(CoreProperties.WORKING_DIRECTORY);
     if (StringUtils.isBlank(workDir)) {
       return new File(baseDir, CoreProperties.WORKING_DIRECTORY_DEFAULT_VALUE);
     }

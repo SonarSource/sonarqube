@@ -34,7 +34,6 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.ProjectTree;
@@ -56,7 +55,6 @@ import java.util.Collections;
 import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -81,10 +79,8 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
 
   @Before
   public void before() throws IOException {
-    ResourcePersister resourcePersister = mock(ResourcePersister.class);
     Snapshot snapshot = new Snapshot();
     snapshot.setId(1000);
-    when(resourcePersister.getSnapshotOrFail(any(Resource.class))).thenReturn(snapshot);
     inputPathCache = mock(InputPathCache.class);
     resourceCache = mock(ResourceCache.class);
     projectTree = mock(ProjectTree.class);
@@ -93,7 +89,7 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     when(measureCache.byMetric(anyString(), anyString())).thenReturn(Collections.<org.sonar.api.measures.Measure>emptyList());
     componentDataCache = mock(ComponentDataCache.class);
     duplicationCache = mock(DuplicationCache.class);
-    sourcePersister = new SourcePersister(resourcePersister, inputPathCache,
+    sourcePersister = new SourcePersister(inputPathCache,
       getMyBatis(), measureCache, componentDataCache, projectTree, system2,
       resourceCache, mock(CodeColorizers.class), duplicationCache);
     Project project = new Project(PROJECT_KEY);

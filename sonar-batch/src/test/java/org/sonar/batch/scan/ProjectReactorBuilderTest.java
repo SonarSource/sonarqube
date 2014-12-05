@@ -437,7 +437,7 @@ public class ProjectReactorBuilderTest {
     ProjectReactorBuilder builder = new ProjectReactorBuilder(new TaskProperties(Maps.<String, String>newHashMap(), null));
     File baseDir = new File("target/tmp/baseDir");
 
-    File workDir = builder.initRootProjectWorkDir(baseDir);
+    File workDir = builder.initRootProjectWorkDir(baseDir, Maps.<String, String>newHashMap());
 
     assertThat(workDir).isEqualTo(new File(baseDir, ".sonar"));
   }
@@ -449,7 +449,7 @@ public class ProjectReactorBuilderTest {
     ProjectReactorBuilder builder = new ProjectReactorBuilder(new TaskProperties(props, null));
     File baseDir = new File("target/tmp/baseDir");
 
-    File workDir = builder.initRootProjectWorkDir(baseDir);
+    File workDir = builder.initRootProjectWorkDir(baseDir, props);
 
     assertThat(workDir).isEqualTo(new File(baseDir, ".foo"));
   }
@@ -461,7 +461,7 @@ public class ProjectReactorBuilderTest {
     ProjectReactorBuilder builder = new ProjectReactorBuilder(new TaskProperties(props, null));
     File baseDir = new File("target/tmp/baseDir");
 
-    File workDir = builder.initRootProjectWorkDir(baseDir);
+    File workDir = builder.initRootProjectWorkDir(baseDir, props);
 
     assertThat(workDir).isEqualTo(new File("src").getAbsoluteFile());
   }
