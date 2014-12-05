@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 
-class IndexHash {
+class IndexDefinitionHash {
 
   private static final char DELIMITER = ',';
 
@@ -41,7 +41,7 @@ class IndexHash {
     for (Map map : maps) {
       appendMap(sb, map);
     }
-    return DigestUtils.sha1Hex(sb.toString());
+    return DigestUtils.sha256Hex(sb.toString());
   }
 
   private void appendObject(StringBuilder sb, Object value) {

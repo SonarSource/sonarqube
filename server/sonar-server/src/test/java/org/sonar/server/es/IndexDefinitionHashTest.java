@@ -25,19 +25,19 @@ import java.util.Arrays;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class IndexHashTest {
+public class IndexDefinitionHashTest {
 
   @Test
   public void of() throws Exception {
     IndexRegistry.Index indexV1 = new IndexRegistry.Index(createIndex());
-    String hashV1 = new IndexHash().of(indexV1);
+    String hashV1 = new IndexDefinitionHash().of(indexV1);
     assertThat(hashV1).isNotEmpty();
     // always the same
-    assertThat(hashV1).isEqualTo(new IndexHash().of(indexV1));
+    assertThat(hashV1).isEqualTo(new IndexDefinitionHash().of(indexV1));
 
     NewIndex newIndexV2 = createIndex();
     newIndexV2.getTypes().get("fake").createIntegerField("max");
-    String hashV2 = new IndexHash().of(new IndexRegistry.Index(newIndexV2));
+    String hashV2 = new IndexDefinitionHash().of(new IndexRegistry.Index(newIndexV2));
     assertThat(hashV2).isNotEmpty().isNotEqualTo(hashV1);
   }
 

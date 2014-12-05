@@ -77,7 +77,7 @@ public class IndexCreator implements ServerComponent, Startable {
     LOGGER.info(String.format("Create index %s", index.getName()));
     ImmutableSettings.Builder settings = ImmutableSettings.builder();
     settings.put(index.getSettings());
-    settings.put(SETTING_HASH, new IndexHash().of(index));
+    settings.put(SETTING_HASH, new IndexDefinitionHash().of(index));
     CreateIndexResponse indexResponse = client
       .prepareCreate(index.getName())
       .setSettings(settings)
@@ -110,7 +110,7 @@ public class IndexCreator implements ServerComponent, Startable {
     boolean toBeDeleted = false;
     String hash = client.nativeClient().admin().indices().prepareGetSettings(index.getName()).get().getSetting(index.getName(), "index." + SETTING_HASH);
     if (hash != null) {
-      String defHash = new IndexHash().of(index);
+      String defHash = new IndexDefinitionHash().of(index);
       toBeDeleted = !StringUtils.equals(hash, defHash);
     }
     return toBeDeleted;
