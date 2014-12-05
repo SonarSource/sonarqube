@@ -27,6 +27,7 @@ import com.google.common.collect.Maps;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,6 +63,9 @@ public class IssueIndexBenchmarkTest {
   @ClassRule
   public static ServerTester tester = new ServerTester();
 
+  @Rule
+  public Benchmark benchmark = new Benchmark();
+
   @Test
   public void benchmark() throws Exception {
     // initialization - feed issues/issueAuthorization with projects and hardcoded users
@@ -88,6 +92,9 @@ public class IssueIndexBenchmarkTest {
     indexer.index(authorizations);
     long period = System.currentTimeMillis() - start;
     LOGGER.info(String.format("%d authorizations indexed in %d ms (%d docs/second)", PROJECTS, period, 1000 * PROJECTS / period));
+
+    // big range as absolute value is quite slow
+    benchmark.expectBetween("Time to index issue authorizations", period, 200L, 500L);
   }
 
   private void benchmarkIssueIndexing() {
@@ -103,7 +110,11 @@ public class IssueIndexBenchmarkTest {
     timer.cancel();
     long period = System.currentTimeMillis() - start;
     LOGGER.info(String.format("%d issues indexed in %d ms (%d docs/second)", issues.count.get(), period, 1000 * issues.count.get() / period));
-    LOGGER.info(String.format("Index disk: " + FileUtils.byteCountToDisplaySize(FileUtils.sizeOfDirectory(tester.getEsServerHolder().getHomeDir()))));
+    benchmark.expectBetween("Time to index issues", period, 350000L, 430000L);
+
+    long dirSize = FileUtils.sizeOfDirectory(tester.getEsServerHolder().getHomeDir());
+    LOGGER.info(String.format("ES disk: " + FileUtils.byteCountToDisplaySize(dirSize)));
+    benchmark.expectBetween("ES disk size (b)", dirSize, 385000000L, 395000000L);
   }
 
   private void benchmarkQueries() {

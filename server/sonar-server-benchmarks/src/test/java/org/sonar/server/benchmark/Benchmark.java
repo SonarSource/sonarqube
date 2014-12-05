@@ -19,7 +19,10 @@
  */
 package org.sonar.server.benchmark;
 
-public class BenchmarkAssertions {
+import org.hamcrest.Matchers;
+import org.junit.rules.ErrorCollector;
+
+public class Benchmark extends ErrorCollector {
 
   private static final boolean ENABLED = "true".equals(System.getProperty("enableBenchmarkAssertions"));
 
@@ -27,6 +30,18 @@ public class BenchmarkAssertions {
     if (ENABLED) {
       System.out.println("Assertions are calibrated for a dedicated benchmark environment. " +
         "They can be disabled by setting the property -DenableBenchmarkAssertions=false.");
+    }
+  }
+
+  public void expectBetween(String label, long val, long min, long max) {
+    if (ENABLED) {
+      checkThat(label, val, Matchers.allOf(Matchers.greaterThan(min), Matchers.lessThan(max)));
+    }
+  }
+
+  public void expectLessThanOrEqualTo(String label, long val, long max) {
+    if (ENABLED) {
+      checkThat(label, val, Matchers.lessThan(max));
     }
   }
 
