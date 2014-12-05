@@ -33,6 +33,8 @@ define [
 
 
     attachCloseEvents: ->
+      key 'escape', => @close()
+
       $('body').on 'click.bubble-popup', =>
         $('body').off 'click.bubble-popup'
         @close()
