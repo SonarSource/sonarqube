@@ -26,7 +26,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.math.RandomUtils;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -60,8 +59,8 @@ public class IssueIndexBenchmarkTest {
   final static int FILES_PER_PROJECT = 100;
   final static int ISSUES_PER_FILE = 100;
 
-  @ClassRule
-  public static ServerTester tester = new ServerTester();
+  @Rule
+  public ServerTester tester = new ServerTester();
 
   @Rule
   public Benchmark benchmark = new Benchmark();
@@ -113,8 +112,8 @@ public class IssueIndexBenchmarkTest {
     benchmark.expectBetween("Time to index issues", period, 350000L, 430000L);
 
     long dirSize = FileUtils.sizeOfDirectory(tester.getEsServerHolder().getHomeDir());
-    LOGGER.info(String.format("ES disk: " + FileUtils.byteCountToDisplaySize(dirSize)));
-    benchmark.expectBetween("ES disk size (b)", dirSize, 385000000L, 395000000L);
+    LOGGER.info(String.format("ES dir: " + FileUtils.byteCountToDisplaySize(dirSize)));
+    benchmark.expectBetween("ES dir size (b)", dirSize, 385L * FileUtils.ONE_MB, 400L * FileUtils.ONE_MB);
   }
 
   private void benchmarkQueries() {

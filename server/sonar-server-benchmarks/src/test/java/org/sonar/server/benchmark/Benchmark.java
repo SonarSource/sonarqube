@@ -28,7 +28,7 @@ public class Benchmark extends ErrorCollector {
 
   static {
     if (ENABLED) {
-      System.out.println("Assertions are calibrated for a dedicated benchmark environment. " +
+      System.out.println("Assertions are calibrated for SonarSource dedicated box. " +
         "They can be disabled by setting the property -DenableBenchmarkAssertions=false.");
     }
   }

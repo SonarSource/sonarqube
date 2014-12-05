@@ -24,6 +24,7 @@ import com.google.common.collect.Maps;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,8 +48,11 @@ public class SourceIndexBenchmarkTest {
   final static long FILES = 10000L;
   static final int LINES_PER_FILE = 200;
 
-  @ClassRule
-  public static ServerTester tester = new ServerTester();
+  @Rule
+  public ServerTester tester = new ServerTester();
+
+  @Rule
+  public Benchmark benchmark = new Benchmark();
 
   @Test
   public void benchmark() throws Exception {
@@ -73,10 +77,12 @@ public class SourceIndexBenchmarkTest {
 
     timer.cancel();
     long period = end - start;
-    long nbDocs = files.count.get() * LINES_PER_FILE;
-    LOGGER.info(String.format("%d files indexed in %d ms (%d docs/second)", nbDocs, period, 1000 * nbDocs / period));
-    LOGGER.info(String.format("Index disk: " + FileUtils.byteCountToDisplaySize(FileUtils.sizeOfDirectory(tester.getEsServerHolder().getHomeDir()))));
+    long nbLines = files.count.get() * LINES_PER_FILE;
+    LOGGER.info(String.format("%d lines indexed in %d ms (%d docs/second)", nbLines, period, nbLines / period));
 
+    long dirSize = FileUtils.sizeOfDirectory(tester.getEsServerHolder().getHomeDir());
+    LOGGER.info(String.format("ES dir: " + FileUtils.byteCountToDisplaySize(dirSize)));
+    benchmark.expectBetween("ES dir size (b)", dirSize, 73L * FileUtils.ONE_MB, 80L * FileUtils.ONE_MB);
   }
 
   private void benchmarkQueries() {
