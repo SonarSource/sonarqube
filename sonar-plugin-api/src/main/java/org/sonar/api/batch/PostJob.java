@@ -30,10 +30,7 @@ import org.sonar.api.resources.Project;
  * </p>
  *
  * @since 1.10
- * @deprecated since 4.5.2. Starting from SQ 5.0 a big part of project analysis will be processed asynchnonously on server side. As
- * a result batch analysis will ends very quickly and probably before analysis results are persisted in SQ server referentials.
  */
-@Deprecated
 public interface PostJob extends BatchExtension {
 
   void executeOn(Project project, SensorContext context);
