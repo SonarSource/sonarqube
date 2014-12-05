@@ -57,6 +57,7 @@ import org.sonar.server.search.SearchClient;
 import org.sonar.server.search.StickyFacetBuilder;
 import org.sonar.server.user.UserSession;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Date;
@@ -139,14 +140,14 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
     } else {
       esSearch.setQuery(esQuery);
     }
-    esSearch.addAggregation(AggregationBuilders.terms(IssueNormalizer.IssueField.ASSIGNEE.field())
+    esSearch.addAggregation(AggregationBuilders.terms(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE)
       .size(Integer.MAX_VALUE)
-      .field(IssueNormalizer.IssueField.ASSIGNEE.field()));
+      .field(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE));
     esSearch.addAggregation(AggregationBuilders.missing("notAssigned")
-      .field(IssueNormalizer.IssueField.ASSIGNEE.field()));
+      .field(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE));
 
     SearchResponse response = esSearch.get();
-    Terms aggregation = (Terms) response.getAggregations().getAsMap().get(IssueNormalizer.IssueField.ASSIGNEE.field());
+    Terms aggregation = (Terms) response.getAggregations().getAsMap().get(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE);
     List<FacetValue> facetValues = newArrayList();
     for (Terms.Bucket value : aggregation.getBuckets()) {
       facetValues.add(new FacetValue(value.getKey(), value.getDocCount()));
@@ -204,14 +205,14 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
   public void deleteByProjectUuid(String uuid) {
     QueryBuilder queryBuilder = QueryBuilders.filteredQuery(
       QueryBuilders.matchAllQuery(),
-      FilterBuilders.boolFilter().must(FilterBuilders.termsFilter(IssueNormalizer.IssueField.PROJECT.field(), uuid))
+      FilterBuilders.boolFilter().must(FilterBuilders.termsFilter(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, uuid))
       );
 
     getClient().prepareDeleteByQuery(getIndexName()).setQuery(queryBuilder).get();
   }
 
   public void deleteClosedIssuesOfProjectBefore(String uuid, Date beforeDate) {
-    FilterBuilder projectFilter = FilterBuilders.boolFilter().must(FilterBuilders.termsFilter(IssueNormalizer.IssueField.PROJECT.field(), uuid));
+    FilterBuilder projectFilter = FilterBuilders.boolFilter().must(FilterBuilders.termsFilter(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, uuid));
     FilterBuilder dateFilter = FilterBuilders.rangeFilter(IssueNormalizer.IssueField.ISSUE_CLOSE_DATE.field()).lt(beforeDate.getTime());
     QueryBuilder queryBuilder = QueryBuilders.filteredQuery(
       QueryBuilders.matchAllQuery(),
@@ -231,40 +232,40 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
     // Issue is assigned Filter
     String isAssigned = "__isAssigned";
     if (BooleanUtils.isTrue(query.assigned())) {
-      filters.put(isAssigned, FilterBuilders.existsFilter(IssueNormalizer.IssueField.ASSIGNEE.field()));
+      filters.put(isAssigned, FilterBuilders.existsFilter(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE));
     } else if (BooleanUtils.isFalse(query.assigned())) {
-      filters.put(isAssigned, FilterBuilders.missingFilter(IssueNormalizer.IssueField.ASSIGNEE.field()));
+      filters.put(isAssigned, FilterBuilders.missingFilter(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE));
     }
 
     // Issue is planned Filter
     String isPlanned = "__isPlanned";
     if (BooleanUtils.isTrue(query.planned())) {
-      filters.put(isPlanned, FilterBuilders.existsFilter(IssueNormalizer.IssueField.ACTION_PLAN.field()));
+      filters.put(isPlanned, FilterBuilders.existsFilter(IssueIndexDefinition.FIELD_ISSUE_ACTION_PLAN));
     } else if (BooleanUtils.isFalse(query.planned())) {
-      filters.put(isPlanned, FilterBuilders.missingFilter(IssueNormalizer.IssueField.ACTION_PLAN.field()));
+      filters.put(isPlanned, FilterBuilders.missingFilter(IssueIndexDefinition.FIELD_ISSUE_ACTION_PLAN));
     }
 
     // Issue is Resolved Filter
     String isResolved = "__isResolved";
     if (BooleanUtils.isTrue(query.resolved())) {
-      filters.put(isResolved, FilterBuilders.existsFilter(IssueNormalizer.IssueField.RESOLUTION.field()));
+      filters.put(isResolved, FilterBuilders.existsFilter(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION));
     } else if (BooleanUtils.isFalse(query.resolved())) {
-      filters.put(isResolved, FilterBuilders.missingFilter(IssueNormalizer.IssueField.RESOLUTION.field()));
+      filters.put(isResolved, FilterBuilders.missingFilter(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION));
     }
 
     // Field Filters
-    filters.put(IssueNormalizer.IssueField.KEY.field(), matchFilter(IssueNormalizer.IssueField.KEY, query.issueKeys()));
-    filters.put(IssueNormalizer.IssueField.ACTION_PLAN.field(), matchFilter(IssueNormalizer.IssueField.ACTION_PLAN, query.actionPlans()));
-    filters.put(IssueNormalizer.IssueField.ASSIGNEE.field(), matchFilter(IssueNormalizer.IssueField.ASSIGNEE, query.assignees()));
-    filters.put(IssueNormalizer.IssueField.MODULE_PATH.field(), matchFilter(IssueNormalizer.IssueField.MODULE_PATH, query.componentRootUuids()));
-    filters.put(IssueNormalizer.IssueField.COMPONENT.field(), matchFilter(IssueNormalizer.IssueField.COMPONENT, query.componentUuids()));
-    filters.put(IssueNormalizer.IssueField.PROJECT.field(), matchFilter(IssueNormalizer.IssueField.PROJECT, query.projectUuids()));
-    filters.put(IssueNormalizer.IssueField.LANGUAGE.field(), matchFilter(IssueNormalizer.IssueField.LANGUAGE, query.languages()));
-    filters.put(IssueNormalizer.IssueField.RESOLUTION.field(), matchFilter(IssueNormalizer.IssueField.RESOLUTION, query.resolutions()));
-    filters.put(IssueNormalizer.IssueField.REPORTER.field(), matchFilter(IssueNormalizer.IssueField.REPORTER, query.reporters()));
-    filters.put(IssueNormalizer.IssueField.RULE_KEY.field(), matchFilter(IssueNormalizer.IssueField.RULE_KEY, query.rules()));
-    filters.put(IssueNormalizer.IssueField.SEVERITY.field(), matchFilter(IssueNormalizer.IssueField.SEVERITY, query.severities()));
-    filters.put(IssueNormalizer.IssueField.STATUS.field(), matchFilter(IssueNormalizer.IssueField.STATUS, query.statuses()));
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_KEY, matchFilter(IssueIndexDefinition.FIELD_ISSUE_KEY, query.issueKeys()));
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_ACTION_PLAN, matchFilter(IssueIndexDefinition.FIELD_ISSUE_ACTION_PLAN, query.actionPlans()));
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE, matchFilter(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE, query.assignees()));
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_MODULE_PATH, matchFilter(IssueIndexDefinition.FIELD_ISSUE_MODULE_PATH, query.componentRootUuids()));
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, matchFilter(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, query.componentUuids()));
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, matchFilter(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, query.projectUuids()));
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_LANGUAGE, matchFilter(IssueIndexDefinition.FIELD_ISSUE_LANGUAGE, query.languages()));
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION, matchFilter(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION, query.resolutions()));
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_REPORTER, matchFilter(IssueIndexDefinition.FIELD_ISSUE_REPORTER, query.reporters()));
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_RULE_KEY, matchFilter(IssueIndexDefinition.FIELD_ISSUE_RULE_KEY, query.rules()));
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_SEVERITY, matchFilter(IssueIndexDefinition.FIELD_ISSUE_SEVERITY, query.severities()));
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_STATUS, matchFilter(IssueIndexDefinition.FIELD_ISSUE_STATUS, query.statuses()));
 
     addDatesFilter(filters, query);
 
@@ -294,18 +295,18 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
     Date createdAfter = query.createdAfter();
     if (createdAfter != null) {
       filters.put("__createdAfter", FilterBuilders
-        .rangeFilter(IssueNormalizer.IssueField.ISSUE_CREATED_AT.field())
+        .rangeFilter(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT)
         .gte(createdAfter));
     }
     Date createdBefore = query.createdBefore();
     if (createdBefore != null) {
       filters.put("__createdBefore", FilterBuilders
-        .rangeFilter(IssueNormalizer.IssueField.ISSUE_CREATED_AT.field())
+        .rangeFilter(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT)
         .lte(createdBefore));
     }
     Date createdAt = query.createdAt();
     if (createdAt != null) {
-      filters.put("__createdAt", FilterBuilders.termFilter(IssueNormalizer.IssueField.ISSUE_CREATED_AT.field(), createdAt));
+      filters.put("__createdAt", FilterBuilders.termFilter(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT, createdAt));
     }
   }
 
@@ -329,13 +330,13 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
         IssueFilterParameters.REPORTERS, IssueNormalizer.IssueField.REPORTER.field());
 
       if (options.facets().contains(IssueFilterParameters.RESOLUTIONS)) {
-        esSearch.addAggregation(getResolutionFacet(query, options, filters, esQuery));
+        esSearch.addAggregation(getResolutionFacet(filters, esQuery));
       }
       if (options.facets().contains(IssueFilterParameters.ASSIGNEES)) {
-        esSearch.addAggregation(getAssigneesFacet(query, options, filters, esQuery));
+        esSearch.addAggregation(getAssigneesFacet(query, filters, esQuery));
       }
       if (options.facets().contains(IssueFilterParameters.ACTION_PLANS)) {
-        esSearch.addAggregation(getActionPlansFacet(query, options, filters, esQuery));
+        esSearch.addAggregation(getActionPlansFacet(query, filters, esQuery));
       }
     }
   }
@@ -347,7 +348,7 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
     }
   }
 
-  private AggregationBuilder getAssigneesFacet(IssueQuery query, QueryContext options, Map<String, FilterBuilder> filters, QueryBuilder esQuery) {
+  private AggregationBuilder getAssigneesFacet(IssueQuery query, Map<String, FilterBuilder> filters, QueryBuilder esQuery) {
     String fieldName = IssueNormalizer.IssueField.ASSIGNEE.field();
     String facetName = IssueFilterParameters.ASSIGNEES;
 
@@ -378,7 +379,7 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
       .subAggregation(facetTopAggregation);
   }
 
-  private AggregationBuilder getResolutionFacet(IssueQuery query, QueryContext options, Map<String, FilterBuilder> filters, QueryBuilder esQuery) {
+  private AggregationBuilder getResolutionFacet(Map<String, FilterBuilder> filters, QueryBuilder esQuery) {
     String fieldName = IssueNormalizer.IssueField.RESOLUTION.field();
     String facetName = IssueFilterParameters.RESOLUTIONS;
 
@@ -403,7 +404,7 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
       .subAggregation(facetTopAggregation);
   }
 
-  private AggregationBuilder getActionPlansFacet(IssueQuery query, QueryContext options, Map<String, FilterBuilder> filters, QueryBuilder esQuery) {
+  private AggregationBuilder getActionPlansFacet(IssueQuery query, Map<String, FilterBuilder> filters, QueryBuilder esQuery) {
     String fieldName = IssueNormalizer.IssueField.ACTION_PLAN.field();
     String facetName = IssueFilterParameters.ACTION_PLANS;
 
@@ -465,9 +466,10 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
     esSearch.setSize(options.getLimit());
   }
 
-  private FilterBuilder matchFilter(IndexField field, @Nullable Collection<?> values) {
+  @CheckForNull
+  private FilterBuilder matchFilter(String field, @Nullable Collection<?> values) {
     if (values != null && !values.isEmpty()) {
-      return FilterBuilders.termsFilter(field.field(), values);
+      return FilterBuilders.termsFilter(field, values);
     } else {
       return null;
     }
