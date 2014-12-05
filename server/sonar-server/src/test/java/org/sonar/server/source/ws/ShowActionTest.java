@@ -67,7 +67,8 @@ public class ShowActionTest {
     when(dbClient.openSession(false)).thenReturn(session);
     tester = new WsTester(new SourcesWs(new ShowAction(sourceService, dbClient), mock(RawAction.class), new ScmAction(sourceService, mock(ScmWriter.class)),
       mock(LinesAction.class),
-      mock(HashAction.class)));
+      mock(HashAction.class),
+      mock(IndexAction.class)));
   }
 
   @Test

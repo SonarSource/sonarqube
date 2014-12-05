@@ -29,13 +29,15 @@ public class SourcesWs implements WebService {
   private final RawAction rawAction;
   private final ScmAction scmAction;
   private final HashAction hashAction;
+  private final IndexAction indexAction;
 
-  public SourcesWs(ShowAction showAction, RawAction rawAction, ScmAction scmAction, LinesAction show2Action, HashAction hashAction) {
+  public SourcesWs(ShowAction showAction, RawAction rawAction, ScmAction scmAction, LinesAction show2Action, HashAction hashAction, IndexAction indexAction) {
     this.showAction = showAction;
     this.show2Action = show2Action;
     this.rawAction = rawAction;
     this.scmAction = scmAction;
     this.hashAction = hashAction;
+    this.indexAction = indexAction;
   }
 
   @Override
@@ -48,6 +50,7 @@ public class SourcesWs implements WebService {
     rawAction.define(controller);
     scmAction.define(controller);
     hashAction.define(controller);
+    indexAction.define(controller);
     controller.done();
   }
 }

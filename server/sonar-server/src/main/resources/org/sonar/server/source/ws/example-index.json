@@ -1,0 +1,17 @@
+[
+    {
+        "48": "  void define(WebService.NewController controller) {",
+        "49": "    WebService.NewAction action = controller.createAction(\"raw\")",
+        "50": "      .setDescription(\"Get source code as plain text. Require Code viewer permission on file\")",
+        "51": "      .setSince(\"5.0\")",
+        "52": "      .setResponseExample(Resources.getResource(getClass(), \"example-raw.txt\"))",
+        "53": "      .setHandler(this);",
+        "54": "",
+        "55": "    action",
+        "56": "      .createParam(\"key\")",
+        "57": "      .setRequired(true)",
+        "58": "      .setDescription(\"File key\")",
+        "59": "      .setExampleValue(\"my_project:/src/foo/Bar.php\");",
+        "60": "  }"
+    }
+]

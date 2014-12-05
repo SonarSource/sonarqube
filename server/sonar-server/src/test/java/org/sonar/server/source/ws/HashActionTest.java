@@ -66,7 +66,8 @@ public class HashActionTest {
         mock(RawAction.class),
         mock(ScmAction.class),
         mock(LinesAction.class),
-        new HashAction(dbClient, fileSourceDao)
+        new HashAction(dbClient, fileSourceDao),
+        mock(IndexAction.class)
       )
     );
   }

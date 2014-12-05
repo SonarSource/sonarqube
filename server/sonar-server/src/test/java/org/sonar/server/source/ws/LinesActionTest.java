@@ -78,7 +78,8 @@ public class LinesActionTest {
         mock(RawAction.class),
         mock(ScmAction.class),
         new LinesAction(sourceLineIndex, htmlSourceDecorator, componentService),
-        mock(HashAction.class)
+        mock(HashAction.class),
+        mock(IndexAction.class)
       )
     );
     when(htmlSourceDecorator.getDecoratedSourceAsHtml(anyString(), anyString(), anyString())).thenAnswer(new Answer<String>() {

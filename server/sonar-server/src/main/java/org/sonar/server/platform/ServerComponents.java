@@ -545,6 +545,7 @@ class ServerComponents {
     pico.addSingleton(HashAction.class);
     pico.addSingleton(ScmWriter.class);
     pico.addSingleton(RawAction.class);
+    pico.addSingleton(IndexAction.class);
     pico.addSingleton(ScmAction.class);
     pico.addSingleton(SourceLineIndexDefinition.class);
     pico.addSingleton(SourceLineIndex.class);

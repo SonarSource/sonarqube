@@ -40,7 +40,8 @@ public class SourcesWsTest {
   ScmAction scmAction = new ScmAction(mock(SourceService.class), new ScmWriter());
   LinesAction linesAction = new LinesAction(mock(SourceLineIndex.class), mock(HtmlSourceDecorator.class), mock(ComponentService.class));
   HashAction hashAction = new HashAction(mock(DbClient.class), mock(FileSourceDao.class));
-  WsTester tester = new WsTester(new SourcesWs(showAction, rawAction, scmAction, linesAction, hashAction));
+  IndexAction indexAction = new IndexAction(mock(DbClient.class), mock(SourceService.class));
+  WsTester tester = new WsTester(new SourcesWs(showAction, rawAction, scmAction, linesAction, hashAction, indexAction));
 
   @Test
   public void define_ws() throws Exception {
@@ -48,7 +49,7 @@ public class SourcesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.since()).isEqualTo("4.2");
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(5);
+    assertThat(controller.actions()).hasSize(6);
 
     WebService.Action show = controller.action("show");
     assertThat(show).isNotNull();
@@ -74,13 +75,13 @@ public class SourcesWsTest {
     assertThat(scm.responseExampleAsString()).isNotEmpty();
     assertThat(scm.params()).hasSize(4);
 
-    WebService.Action index = controller.action("lines");
-    assertThat(index).isNotNull();
-    assertThat(index.handler()).isSameAs(linesAction);
-    assertThat(index.since()).isEqualTo("5.0");
-    assertThat(index.isInternal()).isTrue();
-    assertThat(index.responseExampleAsString()).isNotEmpty();
-    assertThat(index.params()).hasSize(3);
+    WebService.Action lines = controller.action("lines");
+    assertThat(lines).isNotNull();
+    assertThat(lines.handler()).isSameAs(linesAction);
+    assertThat(lines.since()).isEqualTo("5.0");
+    assertThat(lines.isInternal()).isTrue();
+    assertThat(lines.responseExampleAsString()).isNotEmpty();
+    assertThat(lines.params()).hasSize(3);
 
     WebService.Action hash = controller.action("hash");
     assertThat(hash).isNotNull();
@@ -89,5 +90,14 @@ public class SourcesWsTest {
     assertThat(hash.isInternal()).isTrue();
     assertThat(hash.responseExampleAsString()).isNotEmpty();
     assertThat(hash.params()).hasSize(1);
+
+    WebService.Action index = controller.action("index");
+    assertThat(index).isNotNull();
+    assertThat(index.handler()).isSameAs(indexAction);
+    assertThat(index.since()).isEqualTo("5.0");
+    assertThat(index.isInternal()).isTrue();
+    assertThat(index.responseExampleAsString()).isNotEmpty();
+    assertThat(index.params()).hasSize(3);
+
   }
 }

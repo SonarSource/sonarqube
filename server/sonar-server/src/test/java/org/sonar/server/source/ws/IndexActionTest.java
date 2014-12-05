@@ -32,17 +32,18 @@ import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.source.SourceService;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class RawActionTest {
+public class IndexActionTest {
 
   @Mock
   DbClient dbClient;
@@ -65,29 +66,58 @@ public class RawActionTest {
   public void setUp() throws Exception {
     when(dbClient.componentDao()).thenReturn(componentDao);
     when(dbClient.openSession(false)).thenReturn(session);
-    tester = new WsTester(new SourcesWs(mock(ShowAction.class), new RawAction(dbClient, sourceService), mock(ScmAction.class), mock(LinesAction.class),
-      mock(HashAction.class), mock(IndexAction.class)));
+    tester = new WsTester(new SourcesWs(mock(ShowAction.class), mock(RawAction.class), mock(ScmAction.class), mock(LinesAction.class),
+      mock(HashAction.class), new IndexAction(dbClient, sourceService)));
   }
 
   @Test
-  public void get_txt() throws Exception {
+  public void get_json() throws Exception {
     String fileKey = "src/Foo.java";
     MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
     when(componentDao.getByKey(session, fileKey)).thenReturn(file);
 
-    when(sourceService.getLinesAsTxt(file.uuid(), null, null)).thenReturn(newArrayList(
+    when(sourceService.getLinesAsTxt(file.uuid(), 1, null)).thenReturn(newArrayList(
       "public class HelloWorld {",
       "}"
       ));
 
-    WsTester.TestRequest request = tester.newGetRequest("api/sources", "raw").setParam("key", fileKey);
-    String result = request.execute().outputAsString();
-    assertThat(result).isEqualTo("public class HelloWorld {\n}\n");
+    WsTester.TestRequest request = tester.newGetRequest("api/sources", "index").setParam("resource", fileKey);
+    request.execute().assertJson(this.getClass(), "index-result.json");
+  }
+
+  @Test
+  public void limit_range() throws Exception {
+    String fileKey = "src/Foo.java";
+    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
+    when(componentDao.getByKey(session, fileKey)).thenReturn(file);
+
+    when(sourceService.getLinesAsTxt(file.uuid(), 1, 2)).thenReturn(newArrayList(
+      "public class HelloWorld {",
+      "}"
+      ));
+
+    WsTester.TestRequest request = tester.newGetRequest("api/sources", "index")
+      .setParam("resource", fileKey).setParam("from", "1").setParam("to", "3");
+    request.execute().assertJson(this.getClass(), "index-result.json");
   }
 
   @Test(expected = ForbiddenException.class)
   public void requires_code_viewer_permission() throws Exception {
     MockUserSession.set();
-    tester.newGetRequest("api/sources", "raw").setParam("key", "any").execute();
+    tester.newGetRequest("api/sources", "index").setParam("resource", "any").execute();
+  }
+
+  @Test
+  public void close_db_session() throws Exception {
+    String fileKey = "src/Foo.java";
+    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
+    when(componentDao.getByKey(session, fileKey)).thenThrow(new NotFoundException());
+
+    WsTester.TestRequest request = tester.newGetRequest("api/sources", "index").setParam("resource", fileKey);
+    try {
+      request.execute();
+    } catch(NotFoundException nfe) {
+      verify(session).close();
+    }
   }
 }
