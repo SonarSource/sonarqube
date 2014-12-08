@@ -21,6 +21,7 @@ define [
   TRANSFORM = {
     'resolved': 'resolutions'
     'assigned': 'assignees'
+    'planned': 'actionPlans'
     'createdAt': 'creationDate'
     'createdBefore': 'creationDate'
     'createdAfter': 'creationDate'
