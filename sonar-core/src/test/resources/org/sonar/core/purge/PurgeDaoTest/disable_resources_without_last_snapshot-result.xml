@@ -62,7 +62,7 @@ What has been changed :
           issue_close_date="2014-04-09"
           resolution="REMOVED" line="200" severity="BLOCKER" reporter="perceval" assignee="arthur" rule_id="500" manual_severity="[false]"
           message="[null]" action_plan_key="[null]" effort_to_fix="[null]" technical_debt="[null]" issue_attributes="[null]" checksum="[null]" author_login="[null]"
-          updated_at="1450000000000" issue_creation_date="2013-04-16" issue_update_date="2014-04-09" created_at="1450000000000"/>
+          updated_at="1450000000000" issue_creation_date="2013-04-16" issue_update_date="2014-04-09" created_at="1450000000000" tags="[null]"/>
 
   <!-- Open issue on directory -->
   <issues id="2" kee="ISSUE-2"
@@ -72,7 +72,7 @@ What has been changed :
           issue_close_date="2014-04-09"
           resolution="REMOVED" line="[null]" severity="BLOCKER" reporter="perceval" assignee="arthur" rule_id="500" manual_severity="[false]"
           message="[null]" action_plan_key="[null]" effort_to_fix="[null]" technical_debt="[null]" issue_attributes="[null]" checksum="[null]" author_login="[null]"
-          updated_at="1450000000000" issue_creation_date="2013-04-16" issue_update_date="2014-04-09" created_at="1450000000000"/>
+          updated_at="1450000000000" issue_creation_date="2013-04-16" issue_update_date="2014-04-09" created_at="1450000000000" tags="[null]"/>
 
   <!-- Open issue on project -->
   <issues id="3" kee="ISSUE-3"
@@ -82,7 +82,7 @@ What has been changed :
           issue_close_date="2014-04-09"
           resolution="REMOVED" line="[null]" severity="BLOCKER" reporter="perceval" assignee="arthur" rule_id="500" manual_severity="[false]"
           message="[null]" action_plan_key="[null]" effort_to_fix="[null]" technical_debt="[null]" issue_attributes="[null]" checksum="[null]" author_login="[null]"
-          updated_at="1450000000000" issue_creation_date="2013-04-16" issue_update_date="2014-04-09" created_at="1450000000000"/>
+          updated_at="1450000000000" issue_creation_date="2013-04-16" issue_update_date="2014-04-09" created_at="1450000000000" tags="[null]"/>
 
   <!-- Resolved issue on file -> not to be updated -->
   <issues id="4" kee="ISSUE-4"
@@ -92,6 +92,6 @@ What has been changed :
           issue_close_date="2015-12-08"
           resolution="FIXED" line="200" severity="BLOCKER" reporter="perceval" assignee="arthur" rule_id="500" manual_severity="[false]"
           message="[null]" action_plan_key="[null]" effort_to_fix="[null]" technical_debt="[null]" issue_attributes="[null]" checksum="[null]" author_login="[null]"
-          updated_at="1450000000000" issue_creation_date="2013-04-16" issue_update_date="2014-04-08" created_at="1450000000000"/>
+          updated_at="1450000000000" issue_creation_date="2013-04-16" issue_update_date="2014-04-08" created_at="1450000000000" tags="[null]"/>
 
 </dataset>

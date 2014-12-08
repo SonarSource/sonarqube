@@ -49,7 +49,7 @@
           root_component_id="1"
           status="OPEN"
           issue_close_date="[null]"
-          resolution="[null]" line="200" severity="BLOCKER" reporter="perceval" assignee="arthur" rule_id="500" manual_severity="[false]"
+          resolution="[null]" line="200" severity="BLOCKER" reporter="perceval" assignee="arthur" rule_id="500" manual_severity="[false]" tags="[null]"
           message="[null]" action_plan_key="[null]" effort_to_fix="[null]" technical_debt="[null]" issue_attributes="[null]" checksum="[null]" author_login="[null]"
           updated_at="[null]" issue_creation_date="2013-04-16" issue_update_date="2013-04-16" created_at="1400000000000"/>
   <issue_changes id="3" kee="[null]" issue_key="ISSUE-3" created_at="[null]" updated_at="[null]" user_login="admin" change_type="comment" change_data="abc" issue_change_creation_date="[null]"/>
@@ -60,7 +60,7 @@
           root_component_id="1"
           status="OPEN"
           issue_close_date="[null]"
-          resolution="[null]" line="200" severity="BLOCKER" reporter="perceval" assignee="arthur" rule_id="500" manual_severity="[false]"
+          resolution="[null]" line="200" severity="BLOCKER" reporter="perceval" assignee="arthur" rule_id="500" manual_severity="[false]" tags="[null]"
           message="[null]" action_plan_key="[null]" effort_to_fix="[null]" technical_debt="[null]" issue_attributes="[null]" checksum="[null]" author_login="[null]"
           updated_at="[null]" issue_creation_date="2013-04-16" issue_update_date="2013-04-16" created_at="1400000000000"/>
   <issue_changes id="4" kee="[null]" issue_key="ISSUE-4" created_at="[null]" updated_at="[null]" user_login="admin" change_type="comment" change_data="abc" issue_change_creation_date="[null]"/>

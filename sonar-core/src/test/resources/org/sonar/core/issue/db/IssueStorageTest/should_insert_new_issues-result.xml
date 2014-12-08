@@ -14,6 +14,7 @@
       updated_at="[null]"
       reporter="emmerik"
       issue_attributes="foo=bar"
+      tags="[null]"
       action_plan_key="[null]"
       issue_creation_date="2013-05-18"
       issue_update_date="2013-05-18"

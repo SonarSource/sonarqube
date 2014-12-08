@@ -23,6 +23,7 @@
           rule_id="200"
           reporter="[null]"
           issue_attributes="JIRA=http://jira.com"
+          tags="[null]"
           action_plan_key="[null]"
           created_at="1400000000000"
           updated_at="1400000000000"
