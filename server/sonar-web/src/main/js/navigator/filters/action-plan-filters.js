@@ -15,6 +15,11 @@ define([
 
 
     onChangeProjectFilter: function() {
+      var that = this;
+      _.each(that.model.get('choices'), function(v, k) {
+        that.choices.add(new Backbone.Model({ id: k, text: v }));
+      });
+
       var projects = this.projectFilter.get('value');
       if (_.isArray(projects) && projects.length === 1) {
         return this.fetchActionPlans(projects[0]);
