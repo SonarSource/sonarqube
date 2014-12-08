@@ -60,3 +60,4 @@ define [
         file: files[fileRef]
         tests: testSet
       testFiles: testFiles
+      row: @options.row

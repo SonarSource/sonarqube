@@ -43,6 +43,7 @@ define [
 
       'click .source-line-covered': 'showCoveragePopup'
       'click .source-line-partially-covered': 'showCoveragePopup'
+      'click .source-line-uncovered': 'showCoveragePopup'
 
       'click .source-line-duplications-extra': 'showDuplicationPopup'
 
@@ -208,11 +209,13 @@ define [
       e.stopPropagation()
       $('body').click()
       line = $(e.currentTarget).closest('.source-line').data 'line-number'
+      row = _.findWhere @options.main.source.get('formattedSource'), lineNumber: line
       $.get API_COVERAGE_TESTS, key: @options.main.component.get('key'), line: line, (data) =>
         popup = new CoveragePopupView
           model: new Backbone.Model data
           triggerEl: $(e.currentTarget)
           main: @options.main
+          row: row
         popup.render()
 
 
