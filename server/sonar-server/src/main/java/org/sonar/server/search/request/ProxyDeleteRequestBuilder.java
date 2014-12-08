@@ -19,7 +19,6 @@
  */
 package org.sonar.server.search.request;
 
-import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.delete.DeleteRequestBuilder;
 import org.elasticsearch.action.delete.DeleteResponse;
@@ -38,7 +37,7 @@ public class ProxyDeleteRequestBuilder extends DeleteRequestBuilder {
   }
 
   @Override
-  public DeleteResponse get() throws ElasticsearchException {
+  public DeleteResponse get() {
     StopWatch fullProfile = profiling.start("delete", Profiling.Level.FULL);
     try {
       return super.execute().actionGet();
@@ -52,12 +51,12 @@ public class ProxyDeleteRequestBuilder extends DeleteRequestBuilder {
   }
 
   @Override
-  public DeleteResponse get(TimeValue timeout) throws ElasticsearchException {
+  public DeleteResponse get(TimeValue timeout) {
     throw new UnsupportedOperationException("Not yet implemented");
   }
 
   @Override
-  public DeleteResponse get(String timeout) throws ElasticsearchException {
+  public DeleteResponse get(String timeout) {
     throw new UnsupportedOperationException("Not yet implemented");
   }
 
