@@ -55,7 +55,7 @@ public class ProjectSettings extends Settings {
 
     addProperties(projectReferentials.settings(reactor.getRoot().getKeyWithBranch()));
 
-    addProperties(reactor.getRoot().getProperties());
+    addProperties(reactor.getRoot().properties());
   }
 
   @Override

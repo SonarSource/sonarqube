@@ -40,6 +40,7 @@ import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.java.api.JavaUtils;
 
 import javax.annotation.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -190,7 +191,7 @@ public class MavenProjectConverter implements TaskExtension {
   }
 
   private static void setPropertyIfNotAlreadyExists(ProjectDefinition definition, String propertyKey, String propertyValue) {
-    if (StringUtils.isBlank(definition.getProperties().getProperty(propertyKey))) {
+    if (StringUtils.isBlank(definition.properties().get(propertyKey))) {
       definition.setProperty(propertyKey, StringUtils.defaultString(propertyValue));
     }
   }

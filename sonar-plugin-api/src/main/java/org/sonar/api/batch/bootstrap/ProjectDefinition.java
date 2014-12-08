@@ -86,10 +86,6 @@ public class ProjectDefinition {
   private List<ProjectDefinition> subProjects = Lists.newArrayList();
   private List<Object> containerExtensions = Lists.newArrayList();
 
-  private ProjectDefinition(Map<String, String> p) {
-    this.properties = p;
-  }
-
   private ProjectDefinition(Properties p) {
     for (Entry<Object, Object> entry : p.entrySet()) {
       this.properties.put(entry.getKey().toString(), entry.getValue().toString());
@@ -162,6 +158,7 @@ public class ProjectDefinition {
    * @since 2.12
    * @deprecated since 5.0 use {@link #setProperties(Map)}
    */
+  @Deprecated
   public ProjectDefinition setProperties(Properties properties) {
     for (Entry<Object, Object> entry : properties.entrySet()) {
       this.properties.put(entry.getKey().toString(), entry.getValue().toString());

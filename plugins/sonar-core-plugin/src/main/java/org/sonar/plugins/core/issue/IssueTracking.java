@@ -82,8 +82,11 @@ public class IssueTracking implements BatchExtension {
 
     // If each new issue matches an old one we can stop the matching mechanism
     if (result.matched().size() != newIssues.size()) {
-      if (sourceHashHolder != null && sourceHashHolder.getHashedReference() != null && hasLastScan) {
-        mapNewissues(sourceHashHolder.getHashedReference(), sourceHashHolder.getHashedSource(), newIssues, result);
+      if (sourceHashHolder != null && hasLastScan) {
+        FileHashes hashedReference = sourceHashHolder.getHashedReference();
+        if (hashedReference != null) {
+          mapNewissues(hashedReference, sourceHashHolder.getHashedSource(), newIssues, result);
+        }
       }
       mapIssuesOnSameRule(newIssues, result);
     }
