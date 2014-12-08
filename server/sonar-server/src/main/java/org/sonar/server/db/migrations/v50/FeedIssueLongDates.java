@@ -53,8 +53,16 @@ public class FeedIssueLongDates extends BaseDataChange {
         Date createdAt = row.getDate(2);
         Date updatedAt = row.getDate(3);
 
-        update.setLong(1, Math.min(now, createdAt.getTime()));
-        update.setLong(2, Math.min(now, updatedAt.getTime()));
+        if (createdAt == null) {
+          update.setLong(1, now);
+        } else {
+          update.setLong(1, Math.min(now, createdAt.getTime()));
+        }
+        if (updatedAt == null) {
+          update.setLong(2, now);
+        } else {
+          update.setLong(2, Math.min(now, updatedAt.getTime()));
+        }
         update.setLong(3, id);
         return true;
       }

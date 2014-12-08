@@ -48,4 +48,27 @@
           UPDATED_AT_MS="1500000000000"
     />
 
+  <issues id="3" kee="MISSINGDATES" resolution="OPEN" status="OPEN" severity="BLOCKER" manual_severity="[false]"
+          assignee="[null]"
+          author_login="[null]"
+          checksum="[null]"
+          effort_to_fix="[null]"
+          technical_debt="10"
+          message="[null]"
+          line="5000"
+          component_id="100"
+          root_component_id="10"
+          rule_id="200"
+          reporter="emmerik"
+          issue_attributes="foo=bar"
+          action_plan_key="[null]"
+          issue_creation_date="[null]"
+          issue_update_date="[null]"
+          issue_close_date="[null]"
+          created_at="2014-05-12"
+          updated_at="2014-05-13"
+          CREATED_AT_MS="[null]"
+          UPDATED_AT_MS="[null]"
+    />
+
 </dataset>
