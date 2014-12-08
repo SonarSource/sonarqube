@@ -254,10 +254,6 @@ public class IssueDoc extends BaseDoc implements Issue {
     setField(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE, s);
   }
 
-  public void setTechnicalCreationDate(@Nullable Date d) {
-    setField(IssueIndexDefinition.FIELD_ISSUE_TECHNICAL_CREATED_AT, d);
-  }
-
   public void setFuncUpdateDate(@Nullable Date d) {
     setField(IssueIndexDefinition.FIELD_ISSUE_FUNC_UPDATED_AT, d);
   }

@@ -41,8 +41,8 @@ public class IssueAuthorizationDao {
   public static final class Dto {
     private final String projectUuid;
     private final long updatedAt;
-    private List<String> users = Lists.newArrayList();
-    private List<String> groups = Lists.newArrayList();
+    private final List<String> users = Lists.newArrayList();
+    private final List<String> groups = Lists.newArrayList();
 
     public Dto(String projectUuid, long updatedAt) {
       this.projectUuid = projectUuid;
@@ -71,10 +71,6 @@ public class IssueAuthorizationDao {
 
     public List<String> getGroups() {
       return groups;
-    }
-
-    boolean hasNoGroupsNorUsers() {
-      return users.isEmpty() && groups.isEmpty();
     }
   }
 

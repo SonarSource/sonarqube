@@ -52,6 +52,7 @@ public class BulkIndexer implements Startable {
   private static final Logger LOGGER = LoggerFactory.getLogger(BulkIndexer.class);
   private static final long FLUSH_BYTE_SIZE = new ByteSizeValue(5, ByteSizeUnit.MB).bytes();
   private static final String REFRESH_INTERVAL_SETTING = "index.refresh_interval";
+  private static final String ALREADY_STARTED_MESSAGE = "Bulk indexing is already started";
 
   private final EsClient client;
   private final String indexName;
@@ -77,13 +78,13 @@ public class BulkIndexer implements Startable {
    */
 
   public BulkIndexer setLarge(boolean b) {
-    Preconditions.checkState(bulkRequest == null, "Bulk indexing is already started");
+    Preconditions.checkState(bulkRequest == null, ALREADY_STARTED_MESSAGE);
     this.large = b;
     return this;
   }
 
   public BulkIndexer setRefresh(boolean b) {
-    Preconditions.checkState(bulkRequest == null, "Bulk indexing is already started");
+    Preconditions.checkState(bulkRequest == null, ALREADY_STARTED_MESSAGE);
     this.refresh = b;
     return this;
   }
@@ -99,7 +100,7 @@ public class BulkIndexer implements Startable {
 
   @Override
   public void start() {
-    Preconditions.checkState(bulkRequest == null, "Bulk indexing is already started");
+    Preconditions.checkState(bulkRequest == null, ALREADY_STARTED_MESSAGE);
     if (large) {
       largeInitialSettings = Maps.newHashMap();
       Map<String, Object> bulkSettings = Maps.newHashMap();

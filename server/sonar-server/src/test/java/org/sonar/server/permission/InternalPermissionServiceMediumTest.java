@@ -21,6 +21,8 @@
 package org.sonar.server.permission;
 
 import com.google.common.collect.Maps;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.search.SearchHit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -40,6 +42,7 @@ import org.sonar.server.user.MockUserSession;
 
 import javax.annotation.Nullable;
 
+import java.util.Collection;
 import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -136,7 +139,15 @@ public class InternalPermissionServiceMediumTest {
     assertThat(tester.get(RoleDao.class).selectUserPermissions(session, user.getLogin(), project.getId())).isEmpty();
 
     // Check index of issue authorizations
-    assertThat(countIssueAuthorizationDocs()).isEqualTo(0);
+    SearchResponse docs = getAllIndexDocs();
+    assertThat(docs.getHits().getTotalHits()).isEqualTo(1L);
+    SearchHit doc = docs.getHits().getAt(0);
+    assertThat((Collection) doc.sourceAsMap().get(IssueIndexDefinition.FIELD_AUTHORIZATION_USERS)).hasSize(0);
+    assertThat((Collection) doc.sourceAsMap().get(IssueIndexDefinition.FIELD_AUTHORIZATION_GROUPS)).hasSize(0);
+  }
+
+  private SearchResponse getAllIndexDocs() {
+    return tester.get(EsClient.class).prepareSearch(IssueIndexDefinition.INDEX).setTypes(IssueIndexDefinition.TYPE_AUTHORIZATION).get();
   }
 
   @Test
@@ -163,7 +174,12 @@ public class InternalPermissionServiceMediumTest {
     service.removePermission(change);
     session.commit();
     assertThat(tester.get(RoleDao.class).selectGroupPermissions(session, group.getName(), project.getId())).hasSize(0);
-    assertThat(countIssueAuthorizationDocs()).isEqualTo(0);
+
+    SearchResponse docs = getAllIndexDocs();
+    assertThat(docs.getHits().getTotalHits()).isEqualTo(1L);
+    SearchHit doc = docs.getHits().getAt(0);
+    assertThat((Collection) doc.sourceAsMap().get(IssueIndexDefinition.FIELD_AUTHORIZATION_USERS)).hasSize(0);
+    assertThat((Collection) doc.sourceAsMap().get(IssueIndexDefinition.FIELD_AUTHORIZATION_GROUPS)).hasSize(0);
   }
 
   private Map<String, Object> params(@Nullable String login, @Nullable String group, @Nullable String component, String permission) {

@@ -85,7 +85,6 @@ public class IssueTesting {
     doc.setFuncCreationDate(DateUtils.parseDate("2014-09-04"));
     doc.setFuncUpdateDate(DateUtils.parseDate("2014-12-04"));
     doc.setFuncCloseDate(null);
-    doc.setTechnicalCreationDate(DateUtils.parseDate("2014-09-04"));
     doc.setTechnicalUpdateDate(DateUtils.parseDate("2014-12-04"));
     return doc;
   }

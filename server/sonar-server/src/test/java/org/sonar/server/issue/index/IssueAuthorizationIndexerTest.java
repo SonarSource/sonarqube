@@ -91,7 +91,10 @@ public class IssueAuthorizationIndexerTest {
     authorization = new IssueAuthorizationDao.Dto("ABC", System.currentTimeMillis());
     indexer.index(Arrays.asList(authorization));
 
-    assertThat(esTester.countDocuments("issues", "authorization")).isZero();
+    List<SearchHit> docs = esTester.getDocuments("issues", "authorization");
+    assertThat(docs).hasSize(1);
+    assertThat((Collection)docs.get(0).sourceAsMap().get(IssueIndexDefinition.FIELD_AUTHORIZATION_USERS)).hasSize(0);
+    assertThat((Collection)docs.get(0).sourceAsMap().get(IssueIndexDefinition.FIELD_AUTHORIZATION_GROUPS)).hasSize(0);
   }
 
   private IssueAuthorizationIndexer createIndexer() {

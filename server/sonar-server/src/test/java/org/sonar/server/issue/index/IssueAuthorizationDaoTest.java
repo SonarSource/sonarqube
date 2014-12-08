@@ -64,13 +64,11 @@ public class IssueAuthorizationDaoTest {
     IssueAuthorizationDao.Dto abc = Iterables.find(dtos, new ProjectPredicate("ABC"));
     assertThat(abc.getGroups()).containsOnly("Anyone", "devs");
     assertThat(abc.getUsers()).containsOnly("user1");
-    assertThat(abc.hasNoGroupsNorUsers()).isFalse();
     assertThat(abc.getUpdatedAt()).isNotNull();
 
     IssueAuthorizationDao.Dto def = Iterables.find(dtos, new ProjectPredicate("DEF"));
     assertThat(def.getGroups()).containsOnly("Anyone");
     assertThat(def.getUsers()).containsOnly("user1", "user2");
-    assertThat(def.hasNoGroupsNorUsers()).isFalse();
     assertThat(def.getUpdatedAt()).isNotNull();
   }
 
@@ -96,7 +94,6 @@ public class IssueAuthorizationDaoTest {
 
     assertThat(dtos).hasSize(1);
     IssueAuthorizationDao.Dto abc = Iterables.find(dtos, new ProjectPredicate("ABC"));
-    assertThat(abc.hasNoGroupsNorUsers()).isTrue();
     assertThat(abc.getGroups()).isEmpty();
     assertThat(abc.getUsers()).isEmpty();
     assertThat(abc.getUpdatedAt()).isNotNull();

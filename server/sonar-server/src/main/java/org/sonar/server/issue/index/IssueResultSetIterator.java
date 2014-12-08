@@ -43,16 +43,15 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
     "i.kee",
     "root.uuid",
     "i.updated_at",
-    "i.created_at",
     "i.action_plan_key",
     "i.assignee",
     "i.effort_to_fix",
     "i.issue_attributes",
     "i.line",
     "i.message",
+    "i.resolution",
 
     // column 11
-    "i.resolution",
     "i.severity",
     "i.status",
     "i.technical_debt",
@@ -62,9 +61,9 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
     "i.issue_creation_date",
     "i.issue_update_date",
     "r.plugin_name",
+    "r.plugin_rule_key",
 
     // column 21
-    "r.plugin_rule_key",
     "r.language",
     "p.uuid",
     "p.module_uuid",
@@ -107,30 +106,29 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
     doc.setKey(key);
     doc.setProjectUuid(projectUuid);
     doc.setTechnicalUpdateDate(new Date(rs.getLong(3)));
-    doc.setTechnicalCreationDate(new Date(rs.getLong(4)));
-    doc.setActionPlanKey(rs.getString(5));
-    doc.setAssignee(rs.getString(6));
-    doc.setEffortToFix(SqlUtil.getDouble(rs, 7));
-    doc.setAttributes(rs.getString(8));
-    doc.setLine(SqlUtil.getInt(rs, 9));
-    doc.setMessage(rs.getString(10));
-    doc.setResolution(rs.getString(11));
-    doc.setSeverity(rs.getString(12));
-    doc.setStatus(rs.getString(13));
-    doc.setDebt(SqlUtil.getLong(rs, 14));
-    doc.setReporter(rs.getString(15));
-    doc.setAuthorLogin(rs.getString(16));
-    doc.setFuncCloseDate(SqlUtil.getDate(rs, 17));
-    doc.setFuncCreationDate(SqlUtil.getDate(rs, 18));
-    doc.setFuncUpdateDate(SqlUtil.getDate(rs, 19));
-    String ruleRepo = rs.getString(20);
-    String ruleKey = rs.getString(21);
+    doc.setActionPlanKey(rs.getString(4));
+    doc.setAssignee(rs.getString(5));
+    doc.setEffortToFix(SqlUtil.getDouble(rs, 6));
+    doc.setAttributes(rs.getString(7));
+    doc.setLine(SqlUtil.getInt(rs, 8));
+    doc.setMessage(rs.getString(9));
+    doc.setResolution(rs.getString(10));
+    doc.setSeverity(rs.getString(11));
+    doc.setStatus(rs.getString(12));
+    doc.setDebt(SqlUtil.getLong(rs, 13));
+    doc.setReporter(rs.getString(14));
+    doc.setAuthorLogin(rs.getString(15));
+    doc.setFuncCloseDate(SqlUtil.getDate(rs, 16));
+    doc.setFuncCreationDate(SqlUtil.getDate(rs, 17));
+    doc.setFuncUpdateDate(SqlUtil.getDate(rs, 18));
+    String ruleRepo = rs.getString(19);
+    String ruleKey = rs.getString(20);
     doc.setRuleKey(RuleKey.of(ruleRepo, ruleKey).toString());
-    doc.setLanguage(rs.getString(22));
-    doc.setComponentUuid(rs.getString(23));
-    doc.setModuleUuid(rs.getString(24));
-    doc.setModuleUuidPath(rs.getString(25));
-    doc.setFilePath(rs.getString(26));
+    doc.setLanguage(rs.getString(21));
+    doc.setComponentUuid(rs.getString(22));
+    doc.setModuleUuid(rs.getString(23));
+    doc.setModuleUuidPath(rs.getString(24));
+    doc.setFilePath(rs.getString(25));
     return doc;
   }
 }

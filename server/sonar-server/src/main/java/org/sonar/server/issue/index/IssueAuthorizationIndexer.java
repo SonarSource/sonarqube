@@ -23,7 +23,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.dbutils.DbUtils;
 import org.elasticsearch.action.ActionRequest;
-import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
@@ -97,22 +96,15 @@ public class IssueAuthorizationIndexer extends BaseIndexer {
 
   private ActionRequest newUpdateRequest(IssueAuthorizationDao.Dto dto) {
     ActionRequest request;
-    if (dto.hasNoGroupsNorUsers()) {
-      // project still exists but there are no permissions
-      // TODO do we really need to delete the document ? Pushing empty groups/users should be enough
-      request = new DeleteRequest(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION, dto.getProjectUuid())
-        .routing(dto.getProjectUuid());
-    } else {
-      Map<String, Object> doc = ImmutableMap.of(
-        IssueIndexDefinition.FIELD_AUTHORIZATION_PROJECT_UUID, dto.getProjectUuid(),
-        IssueIndexDefinition.FIELD_AUTHORIZATION_GROUPS, dto.getGroups(),
-        IssueIndexDefinition.FIELD_AUTHORIZATION_USERS, dto.getUsers(),
-        IssueIndexDefinition.FIELD_AUTHORIZATION_UPDATED_AT, new Date(dto.getUpdatedAt()));
-      request = new UpdateRequest(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION, dto.getProjectUuid())
-        .routing(dto.getProjectUuid())
-        .doc(doc)
-        .upsert(doc);
-    }
+    Map<String, Object> doc = ImmutableMap.of(
+      IssueIndexDefinition.FIELD_AUTHORIZATION_PROJECT_UUID, dto.getProjectUuid(),
+      IssueIndexDefinition.FIELD_AUTHORIZATION_GROUPS, dto.getGroups(),
+      IssueIndexDefinition.FIELD_AUTHORIZATION_USERS, dto.getUsers(),
+      IssueIndexDefinition.FIELD_AUTHORIZATION_UPDATED_AT, new Date(dto.getUpdatedAt()));
+    request = new UpdateRequest(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION, dto.getProjectUuid())
+      .routing(dto.getProjectUuid())
+      .doc(doc)
+      .upsert(doc);
     return request;
   }
 }

@@ -69,7 +69,6 @@ public abstract class ResultSetIterator<E> implements Iterator<E>, Closeable {
     try {
       return read(rs);
     } catch (SQLException e) {
-      // TODO add SQL request to context
       throw new IllegalStateException("Fail to read result set row", e);
     }
   }

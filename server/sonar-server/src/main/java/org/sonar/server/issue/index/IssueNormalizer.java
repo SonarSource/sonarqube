@@ -42,7 +42,6 @@ public class IssueNormalizer extends BaseNormalizer {
   public static final class IssueField extends Indexable {
 
     public static final IndexField KEY = addSortable(IndexField.Type.STRING, "key");
-    public static final IndexField CREATED_AT = add(IndexField.Type.DATE, "createdAt");
     public static final IndexField UPDATED_AT = add(IndexField.Type.DATE, "updatedAt");
 
     public static final IndexField PROJECT = addSortable(IndexField.Type.STRING, "project");

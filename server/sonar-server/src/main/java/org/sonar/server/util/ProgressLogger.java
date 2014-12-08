@@ -86,7 +86,7 @@ public class ProgressLogger {
   }
 
   public void log() {
-    task.run();
+    task.log();
   }
 
   private static class LoggerTimerTask extends TimerTask {
@@ -101,6 +101,10 @@ public class ProgressLogger {
 
     @Override
     public void run() {
+      log();
+    }
+
+    private void log() {
       logger.info(String.format("%d %s processed", counter.get(), pluralLabel));
     }
   }

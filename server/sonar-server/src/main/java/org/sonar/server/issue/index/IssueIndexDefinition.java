@@ -46,10 +46,6 @@ public class IssueIndexDefinition implements IndexDefinition {
   public static final String FIELD_ISSUE_ATTRIBUTES = "attributes";
   public static final String FIELD_ISSUE_AUTHOR_LOGIN = "authorLogin";
   public static final String FIELD_ISSUE_COMPONENT_UUID = "component";
-  /**
-   * Technical date
-   */
-  public static final String FIELD_ISSUE_TECHNICAL_CREATED_AT = "createdAt";
   public static final String FIELD_ISSUE_DEBT = "debt";
   public static final String FIELD_ISSUE_EFFORT = "effort";
   public static final String FIELD_ISSUE_FILE_PATH = "filePath";
@@ -115,11 +111,9 @@ public class IssueIndexDefinition implements IndexDefinition {
     issueMapping.setAttribute("_parent", ImmutableMap.of("type", TYPE_AUTHORIZATION));
     issueMapping.setAttribute("_routing", ImmutableMap.of("required", true, "path", FIELD_ISSUE_PROJECT_UUID));
     issueMapping.stringFieldBuilder(FIELD_ISSUE_ACTION_PLAN).build();
-    // TODO do we really sort by assignee ?
     issueMapping.stringFieldBuilder(FIELD_ISSUE_ASSIGNEE).enableSorting().build();
     issueMapping.stringFieldBuilder(FIELD_ISSUE_ATTRIBUTES).build();
     issueMapping.stringFieldBuilder(FIELD_ISSUE_AUTHOR_LOGIN).build();
-    // TODO rename into componentUuid ? or restrict to fileUuid ?
     issueMapping.stringFieldBuilder(FIELD_ISSUE_COMPONENT_UUID).build();
     issueMapping.createLongField(FIELD_ISSUE_DEBT);
     issueMapping.createDoubleField(FIELD_ISSUE_EFFORT);
@@ -133,19 +127,13 @@ public class IssueIndexDefinition implements IndexDefinition {
     issueMapping.stringFieldBuilder(FIELD_ISSUE_MESSAGE).build();
     issueMapping.stringFieldBuilder(FIELD_ISSUE_MODULE_UUID).build();
     issueMapping.createUuidPathField(FIELD_ISSUE_MODULE_PATH);
-    // TODO do we need to sort by project ?
-    // TODO rename into projectUuid ?
     issueMapping.stringFieldBuilder(FIELD_ISSUE_PROJECT_UUID).enableSorting().build();
     issueMapping.stringFieldBuilder(FIELD_ISSUE_REPORTER).build();
     issueMapping.stringFieldBuilder(FIELD_ISSUE_RESOLUTION).build();
     issueMapping.stringFieldBuilder(FIELD_ISSUE_RULE_KEY).build();
     issueMapping.stringFieldBuilder(FIELD_ISSUE_SEVERITY).build();
-    // TODO do we need to sort by severity ?
     issueMapping.createByteField(FIELD_ISSUE_SEVERITY_VALUE);
-    // TODO do we really sort by status ? If yes, then we should sort by "int value", but not by string key
     issueMapping.stringFieldBuilder(FIELD_ISSUE_STATUS).enableSorting().build();
-    // TODO is createdAt required ?
-    issueMapping.createDateTimeField(FIELD_ISSUE_TECHNICAL_CREATED_AT);
     issueMapping.createDateTimeField(FIELD_ISSUE_TECHNICAL_UPDATED_AT);
   }
 }
