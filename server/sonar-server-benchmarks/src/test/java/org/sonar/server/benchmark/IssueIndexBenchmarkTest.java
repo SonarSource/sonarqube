@@ -113,7 +113,7 @@ public class IssueIndexBenchmarkTest {
 
     long dirSize = FileUtils.sizeOfDirectory(tester.getEsServerHolder().getHomeDir());
     LOGGER.info(String.format("ES dir: " + FileUtils.byteCountToDisplaySize(dirSize)));
-    benchmark.expectBetween("ES dir size (b)", dirSize, 385L * FileUtils.ONE_MB, 400L * FileUtils.ONE_MB);
+    benchmark.expectBetween("ES dir size (b)", dirSize, 385L * FileUtils.ONE_MB, 420L * FileUtils.ONE_MB);
   }
 
   private void benchmarkQueries() {
