@@ -93,7 +93,7 @@ public class IssueIndexBenchmarkTest {
     LOGGER.info(String.format("%d authorizations indexed in %d ms (%d docs/second)", PROJECTS, period, 1000 * PROJECTS / period));
 
     // big range as absolute value is quite slow
-    benchmark.expectBetween("Time to index issue authorizations", period, 200L, 500L);
+    benchmark.expectBetween("Time to index issue authorizations", period, 10L, 500L);
   }
 
   private void benchmarkIssueIndexing() {
@@ -174,7 +174,6 @@ public class IssueIndexBenchmarkTest {
       issue.setAssignee(users.next());
       issue.setAuthorLogin(users.next());
       issue.setLine(RandomUtils.nextInt());
-      issue.setTechnicalCreationDate(new Date());
       issue.setTechnicalUpdateDate(new Date());
       issue.setFuncUpdateDate(new Date());
       issue.setFuncCreationDate(new Date());
