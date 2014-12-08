@@ -28,8 +28,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.server.es.EsClient;
 import org.sonar.server.source.index.SourceLineDoc;
 import org.sonar.server.source.index.SourceLineIndex;
+import org.sonar.server.source.index.SourceLineIndexDefinition;
 import org.sonar.server.source.index.SourceLineIndexer;
 import org.sonar.server.source.index.SourceLineResultSetIterator;
 import org.sonar.server.tester.ServerTester;
@@ -80,6 +82,8 @@ public class SourceIndexBenchmarkTest {
     long nbLines = files.count.get() * LINES_PER_FILE;
     LOGGER.info(String.format("%d lines indexed in %d ms (%d docs/second)", nbLines, period, nbLines / period));
 
+    // be sure that physical files do not evolve during estimation of size
+    tester.get(EsClient.class).prepareOptimize(SourceLineIndexDefinition.INDEX).get();
     long dirSize = FileUtils.sizeOfDirectory(tester.getEsServerHolder().getHomeDir());
     LOGGER.info(String.format("ES dir: " + FileUtils.byteCountToDisplaySize(dirSize)));
     benchmark.expectBetween("ES dir size (b)", dirSize, 80L * FileUtils.ONE_MB, 100L * FileUtils.ONE_MB);

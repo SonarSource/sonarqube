@@ -149,11 +149,7 @@ public class BulkIndexer implements Startable {
       // optimize lucene segments and revert index settings
       // Optimization must be done before re-applying replicas:
       // http://www.elasticsearch.org/blog/performance-considerations-elasticsearch-indexing/
-      // TODO do not use nativeClient, else request is not profiled
-      client.nativeClient().admin().indices().prepareOptimize(indexName)
-        .setMaxNumSegments(1)
-        .setWaitForMerge(true)
-        .get();
+      client.prepareOptimize(indexName).get();
 
       updateSettings(largeInitialSettings);
     }

@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.internal.Uuids;
+import org.sonar.server.es.EsClient;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.index.IssueAuthorizationDao;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
@@ -55,7 +56,7 @@ public class IssueIndexBenchmarkTest {
 
   private static final Logger LOGGER = LoggerFactory.getLogger("benchmarkIssues");
 
-  final static int PROJECTS = 100;
+  final static int PROJECTS = 1;
   final static int FILES_PER_PROJECT = 100;
   final static int ISSUES_PER_FILE = 100;
 
@@ -111,6 +112,8 @@ public class IssueIndexBenchmarkTest {
     LOGGER.info(String.format("%d issues indexed in %d ms (%d docs/second)", issues.count.get(), period, 1000 * issues.count.get() / period));
     benchmark.expectBetween("Time to index issues", period, 350000L, 430000L);
 
+    // be sure that physical files do not evolve during estimation of size
+    tester.get(EsClient.class).prepareOptimize("issues").get();
     long dirSize = FileUtils.sizeOfDirectory(tester.getEsServerHolder().getHomeDir());
     LOGGER.info(String.format("ES dir: " + FileUtils.byteCountToDisplaySize(dirSize)));
     benchmark.expectBetween("ES dir size (b)", dirSize, 385L * FileUtils.ONE_MB, 420L * FileUtils.ONE_MB);

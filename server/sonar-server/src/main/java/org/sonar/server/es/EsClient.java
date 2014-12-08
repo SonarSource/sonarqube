@@ -29,6 +29,7 @@ import org.elasticsearch.action.admin.indices.create.CreateIndexRequestBuilder;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequestBuilder;
 import org.elasticsearch.action.admin.indices.flush.FlushRequestBuilder;
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequestBuilder;
+import org.elasticsearch.action.admin.indices.optimize.OptimizeRequestBuilder;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequestBuilder;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsRequestBuilder;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
@@ -184,6 +185,14 @@ public class EsClient implements Startable {
   public IndexRequestBuilder prepareIndex(String index, String type) {
     return new ProxyIndexRequestBuilder(client, profiling).setIndex(index).setType(type);
   }
+
+  public OptimizeRequestBuilder prepareOptimize(String indexName) {
+    // TODO add proxy for profiling
+    return nativeClient().admin().indices().prepareOptimize(indexName)
+      .setMaxNumSegments(1)
+      .setWaitForMerge(true);
+  }
+
 
   public long getLastUpdatedAt(String indexName, String typeName) {
     SearchRequestBuilder request = prepareSearch(indexName)

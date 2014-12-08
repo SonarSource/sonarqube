@@ -21,6 +21,7 @@ package org.sonar.server.benchmark;
 
 import org.hamcrest.Matchers;
 import org.junit.rules.ErrorCollector;
+import org.slf4j.LoggerFactory;
 
 public class Benchmark extends ErrorCollector {
 
@@ -28,7 +29,7 @@ public class Benchmark extends ErrorCollector {
 
   static {
     if (ENABLED) {
-      System.out.println("Assertions are calibrated for SonarSource dedicated box. " +
+      LoggerFactory.getLogger(Benchmark.class).warn("Assertions are calibrated for SonarSource dedicated box. " +
         "They can be disabled by setting the property -DenableBenchmarkAssertions=false.");
     }
   }
