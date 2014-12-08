@@ -127,7 +127,7 @@ public class WorkDuration implements Serializable {
       workingDays += nbAdditionalDays;
       workingHours = hours - (nbAdditionalDays * hoursInDay);
     }
-    return workingDays * DAY_POSITION_IN_LONG + workingHours * HOUR_POSITION_IN_LONG + minutes * MINUTE_POSITION_IN_LONG;
+    return 1L * workingDays * DAY_POSITION_IN_LONG + workingHours * HOUR_POSITION_IN_LONG + minutes * MINUTE_POSITION_IN_LONG;
   }
 
   public long toMinutes() {
