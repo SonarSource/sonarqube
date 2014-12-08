@@ -195,7 +195,7 @@ public class MeasureFilterFactoryTest {
   public void alert_level_condition() {
     MeasureFilterFactory factory = new MeasureFilterFactory(newMetricFinder(), system);
     Map<String, Object> props = ImmutableMap.<String, Object>of(
-      "alertLevels", Arrays.asList("error", "warn")
+      "alertLevels", Arrays.asList("error", "warn", "unknown")
     );
     MeasureFilter filter = factory.create(props);
 
