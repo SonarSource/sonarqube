@@ -28,7 +28,6 @@ import javax.annotation.CheckForNull;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Random;
 import java.util.zip.ZipEntry;
 
 /**
@@ -133,23 +132,11 @@ public class FileCache {
   }
 
   private File newTempFile() {
-    String baseName = System.currentTimeMillis() + "-";
-    Random random = new Random();
-    for (int counter = 0; counter < TEMP_FILE_ATTEMPTS; counter++) {
-      try {
-        String filename = baseName + random.nextInt(1000);
-        File tempFile = new File(tmpDir, filename);
-        if (tempFile.createNewFile()) {
-          return tempFile;
-        }
-      } catch (IOException e) {
-        // ignore except the last try
-        if (counter == TEMP_FILE_ATTEMPTS - 1) {
-          throw new IllegalStateException("Fail to create temp file", e);
-        }
-      }
+    try {
+      return File.createTempFile("fileCache", null, tmpDir);
+    } catch (IOException e) {
+      throw new IllegalStateException("Fail to create temp file in " + tmpDir, e);
     }
-    throw new IllegalStateException("Fail to create temporary file in " + tmpDir);
   }
 
   private File createTempDir() {
