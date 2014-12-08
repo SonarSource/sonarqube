@@ -21,19 +21,14 @@ package org.sonar.plugins.scm.git;
 
 import org.sonar.api.batch.scm.BlameCommand;
 import org.sonar.api.batch.scm.ScmProvider;
-import org.sonar.api.config.Settings;
 
 import java.io.File;
 
 public class GitScmProvider extends ScmProvider {
 
-  private final GitBlameCommand blameCommand;
   private final JGitBlameCommand jgitBlameCommand;
-  private final Settings settings;
 
-  public GitScmProvider(Settings settings, GitBlameCommand blameCommand, JGitBlameCommand jgitBlameCommand) {
-    this.settings = settings;
-    this.blameCommand = blameCommand;
+  public GitScmProvider(JGitBlameCommand jgitBlameCommand) {
     this.jgitBlameCommand = jgitBlameCommand;
   }
 
@@ -49,13 +44,6 @@ public class GitScmProvider extends ScmProvider {
 
   @Override
   public BlameCommand blameCommand() {
-    String implem = settings.getString(GitPlugin.GIT_IMPLEMENTATION_PROP_KEY);
-    if (GitPlugin.EXE.equals(implem)) {
-      return this.blameCommand;
-    } else if (GitPlugin.JGIT.equals(implem)) {
-      return this.jgitBlameCommand;
-    } else {
-      throw new IllegalArgumentException("Illegal value for " + GitPlugin.GIT_IMPLEMENTATION_PROP_KEY + ": " + implem);
-    }
+    return this.jgitBlameCommand;
   }
 }

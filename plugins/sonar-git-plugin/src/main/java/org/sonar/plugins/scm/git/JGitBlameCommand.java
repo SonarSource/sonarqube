@@ -62,9 +62,7 @@ public class JGitBlameCommand extends BlameCommand {
       List<Future<Void>> tasks = submitTasks(input, output, git, gitBaseDir, executorService);
       waitForTaskToComplete(tasks);
     } finally {
-      if (repo != null) {
-        repo.close();
-      }
+      repo.close();
     }
   }
 

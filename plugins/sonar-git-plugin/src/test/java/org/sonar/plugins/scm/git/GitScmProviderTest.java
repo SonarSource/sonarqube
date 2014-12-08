@@ -23,8 +23,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.api.config.Settings;
 import org.sonar.api.scan.filesystem.PathResolver;
 
 import java.io.File;
@@ -41,38 +39,25 @@ public class GitScmProviderTest {
 
   @Test
   public void sanityCheck() {
-    assertThat(new GitScmProvider(null, null, null).key()).isEqualTo("git");
+    assertThat(new GitScmProvider(null).key()).isEqualTo("git");
   }
 
   @Test
-  public void selectImplem() {
-    GitBlameCommand blameCommand = new GitBlameCommand();
+  public void returnImplem() {
     JGitBlameCommand jblameCommand = new JGitBlameCommand(new PathResolver());
-    Settings settings = new Settings(new PropertyDefinitions(new GitPlugin().getExtensions()));
-    GitScmProvider gitScmProvider = new GitScmProvider(settings, blameCommand, jblameCommand);
+    GitScmProvider gitScmProvider = new GitScmProvider(jblameCommand);
 
     assertThat(gitScmProvider.blameCommand()).isEqualTo(jblameCommand);
-
-    settings.setProperty(GitPlugin.GIT_IMPLEMENTATION_PROP_KEY, GitPlugin.EXE);
-    assertThat(gitScmProvider.blameCommand()).isEqualTo(blameCommand);
-
-    settings.setProperty(GitPlugin.GIT_IMPLEMENTATION_PROP_KEY, GitPlugin.JGIT);
-    assertThat(gitScmProvider.blameCommand()).isEqualTo(jblameCommand);
-
-    settings.setProperty(GitPlugin.GIT_IMPLEMENTATION_PROP_KEY, "foo");
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Illegal value for " + GitPlugin.GIT_IMPLEMENTATION_PROP_KEY + ": foo");
-    gitScmProvider.blameCommand();
   }
 
   @Test
   public void testAutodetection() throws IOException {
     File baseDirEmpty = temp.newFolder();
-    assertThat(new GitScmProvider(null, null, null).supports(baseDirEmpty)).isFalse();
+    assertThat(new GitScmProvider(null).supports(baseDirEmpty)).isFalse();
 
     File gitBaseDir = temp.newFolder();
     new File(gitBaseDir, ".git").mkdir();
-    assertThat(new GitScmProvider(null, null, null).supports(gitBaseDir)).isTrue();
+    assertThat(new GitScmProvider(null).supports(gitBaseDir)).isTrue();
   }
 
 }
