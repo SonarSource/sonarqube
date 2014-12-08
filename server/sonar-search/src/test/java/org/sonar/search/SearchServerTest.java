@@ -88,47 +88,6 @@ public class SearchServerTest {
     }
   }
 
-  @Test
-  public void slave_success_replication() throws Exception {
-    Props props = new Props(new Properties());
-    props.set(ProcessConstants.SEARCH_PORT, String.valueOf(port));
-    props.set(ProcessConstants.CLUSTER_ACTIVATE, "true");
-    props.set(ProcessConstants.CLUSTER_MASTER, "true");
-    props.set(ProcessConstants.CLUSTER_NODE_NAME, "MASTER");
-    props.set(ProcessConstants.CLUSTER_NAME, CLUSTER_NAME);
-    props.set(ProcessConstants.PATH_HOME, temp.newFolder().getAbsolutePath());
-    searchServer = new SearchServer(props);
-    assertThat(searchServer).isNotNull();
-
-    searchServer.start();
-    assertThat(searchServer.isReady()).isTrue();
-
-    client = getSearchClient();
-    client.admin().indices().prepareCreate("test").get();
-
-    // start a slave
-    props = new Props(new Properties());
-    props.set(ProcessConstants.CLUSTER_ACTIVATE, "true");
-    props.set(ProcessConstants.CLUSTER_MASTER_HOST, "localhost:" + port);
-    props.set(ProcessConstants.CLUSTER_NAME, CLUSTER_NAME);
-    props.set(ProcessConstants.CLUSTER_NODE_NAME, "SLAVE");
-    props.set(ProcessConstants.SEARCH_PORT, String.valueOf(NetworkUtils.freePort()));
-    props.set(ProcessConstants.PATH_HOME, temp.newFolder().getAbsolutePath());
-    SearchServer slaveServer = new SearchServer(props);
-    assertThat(slaveServer).isNotNull();
-
-    slaveServer.start();
-    assertThat(slaveServer.isReady()).isTrue();
-
-    assertThat(client.admin().cluster().prepareClusterStats().get()
-      .getNodesStats().getCounts().getTotal()).isEqualTo(2);
-
-    searchServer.stop();
-    slaveServer.stop();
-    searchServer.awaitStop();
-    slaveServer.awaitStop();
-  }
-
   private Client getSearchClient() {
     Settings settings = ImmutableSettings.settingsBuilder()
       .put("cluster.name", CLUSTER_NAME).build();
