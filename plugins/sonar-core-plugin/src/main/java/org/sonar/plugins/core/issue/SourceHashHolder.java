@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.core.issue;
 
+import com.google.common.collect.ImmutableSet;
 import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.batch.scan.LastLineHashes;
@@ -68,6 +69,11 @@ public class SourceHashHolder {
   }
 
   public Collection<Integer> getNewLinesMatching(Integer originLine) {
-    return getHashedSource().getLinesForHash(getHashedReference().getHash(originLine));
+    FileHashes reference = getHashedReference();
+    if (reference == null) {
+      return ImmutableSet.of();
+    } else {
+      return getHashedSource().getLinesForHash(reference.getHash(originLine));
+    }
   }
 }
