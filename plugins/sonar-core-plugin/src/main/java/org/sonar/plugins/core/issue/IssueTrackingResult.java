@@ -98,8 +98,7 @@ class IssueTrackingResult {
 
   private Integer lineNotNull(IssueDto i) {
     Integer line = i.getLine();
-    Integer lineNotNull = line != null ? line : 0;
-    return lineNotNull;
+    return line != null ? line : 0;
   }
 
   void setMatch(DefaultIssue issue, IssueDto matching) {

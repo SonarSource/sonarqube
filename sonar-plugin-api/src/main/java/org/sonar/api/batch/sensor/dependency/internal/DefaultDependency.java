@@ -34,7 +34,6 @@ public class DefaultDependency extends DefaultStorable implements Dependency {
   private InputFile from;
   private InputFile to;
   private int weight = 1;
-  private boolean saved = false;
 
   public DefaultDependency() {
     super(null);
