@@ -31,7 +31,7 @@ import org.sonar.server.search.SearchClient;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 
-public class ProxyCreateIndexRequestBuilderText {
+public class ProxyCreateIndexRequestBuilderTest {
 
   Profiling profiling = new Profiling(new Settings().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.FULL.name()));
   SearchClient searchClient = new SearchClient(new Settings(), profiling);

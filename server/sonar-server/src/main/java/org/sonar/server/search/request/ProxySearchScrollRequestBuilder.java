@@ -39,7 +39,7 @@ public class ProxySearchScrollRequestBuilder extends SearchScrollRequestBuilder 
 
   @Override
   public SearchResponse get() {
-    StopWatch fullProfile = profiling.start("search", Profiling.Level.FULL);
+    StopWatch fullProfile = profiling.start("search scroll", Profiling.Level.FULL);
     try {
       return super.execute().actionGet();
     } catch (Exception e) {
