@@ -119,6 +119,10 @@ public class SourceLineResultSetIterator extends ResultSetIterator<SourceLineRes
     SourceFile result = new SourceFile(fileUuid, updatedAt);
 
     Reader csv = rs.getCharacterStream(4);
+    if (csv == null) {
+      return result;
+    }
+
     int line = 1;
     CSVParser csvParser = null;
     try {

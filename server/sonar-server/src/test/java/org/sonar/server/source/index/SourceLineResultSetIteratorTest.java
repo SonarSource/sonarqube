@@ -111,6 +111,18 @@ public class SourceLineResultSetIteratorTest {
   }
 
   @Test
+  public void parse_null_file() throws Exception {
+    db.prepareDbUnit(getClass(), "null-file.xml");
+
+    SourceLineResultSetIterator iterator = SourceLineResultSetIterator.create(dbClient, connection, 0L);
+    assertThat(iterator.hasNext()).isTrue();
+    SourceLineResultSetIterator.SourceFile file = iterator.next();
+    assertThat(file.getFileUuid()).isEqualTo("uuid-MyFile.xoo");
+    assertThat(file.getLines()).isEmpty();
+    iterator.close();
+  }
+
+  @Test
   public void should_fail_on_bad_csv() throws Exception {
     db.prepareDbUnit(getClass(), "shared.xml");
     PreparedStatement stmt = connection.prepareStatement("UPDATE file_sources SET data = ? WHERE id=1");
