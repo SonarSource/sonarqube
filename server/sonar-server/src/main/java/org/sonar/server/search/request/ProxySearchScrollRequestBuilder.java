@@ -45,7 +45,7 @@ public class ProxySearchScrollRequestBuilder extends SearchScrollRequestBuilder 
     } catch (Exception e) {
       throw new IllegalStateException(String.format("Fail to execute %s", toString()), e);
     } finally {
-        if (profiling.isProfilingEnabled(Profiling.Level.BASIC)) {
+      if (profiling.isProfilingEnabled(Profiling.Level.BASIC)) {
         fullProfile.stop("%s", toString());
       }
     }

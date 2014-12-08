@@ -107,7 +107,7 @@ public class ShowAction implements RequestHandler {
     for (int i = 0; i < lines.size(); i++) {
       String line = lines.get(i);
       json.beginArray();
-      json.value(i + from);
+      json.value(1L * i + from);
       json.value(line);
       json.endArray();
     }
