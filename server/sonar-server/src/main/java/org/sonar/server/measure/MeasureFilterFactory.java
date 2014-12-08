@@ -123,7 +123,7 @@ public class MeasureFilterFactory implements ServerComponent {
     }
   }
 
-  private List<String> sortFieldLabels() {
+  private List<String> sortFieldLabels(){
     return newArrayList(Iterables.transform(Arrays.asList(MeasureFilterSort.Field.values()), new Function<MeasureFilterSort.Field, String>() {
       @Override
       public String apply(@Nullable MeasureFilterSort.Field input) {
@@ -155,23 +155,22 @@ public class MeasureFilterFactory implements ServerComponent {
     if (alertLevels == null || alertLevels.isEmpty()) {
       return null;
     }
-    final List<String> availableLevels = Lists.transform(Arrays.asList(Metric.Level.values()), new Function<Metric.Level, String>() {
-      @Override
-      public String apply(@Nullable Metric.Level input) {
-        return input != null ? input.name() : null;
-      }
-    });
-
+    MeasureFilterCondition condition = null;
+    String metricKey = CoreMetrics.ALERT_STATUS_KEY;
+    String op = "in";
     List<String> alertLevelsUppercase = Lists.transform(alertLevels, new Function<String, String>() {
       @Override
       public String apply(@Nullable String input) {
-        return input != null && availableLevels.contains(input.toUpperCase()) ? input.toUpperCase() : null;
+        return input != null ? input.toUpperCase() : "";
       }
     });
-    String val = "('" + Joiner.on("', '").skipNulls().join(alertLevelsUppercase) + "')";
-    Metric metric = metricFinder.findByKey(CoreMetrics.ALERT_STATUS_KEY);
-    MeasureFilterCondition.Operator operator = MeasureFilterCondition.Operator.fromCode("in");
-    return new MeasureFilterCondition(metric, operator, val);
+    String val = "('" + Joiner.on("', '").join(alertLevelsUppercase) + "')";
+    if (!Strings.isNullOrEmpty(metricKey) && !Strings.isNullOrEmpty(op) && !Strings.isNullOrEmpty(val)) {
+      Metric metric = metricFinder.findByKey(metricKey);
+      MeasureFilterCondition.Operator operator = MeasureFilterCondition.Operator.fromCode(op);
+      condition = new MeasureFilterCondition(metric, operator, val);
+    }
+    return condition;
   }
 
   private List<String> toList(@Nullable Object obj) {
