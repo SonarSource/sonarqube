@@ -24,8 +24,6 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.FilePredicate;
@@ -52,8 +50,6 @@ import java.util.Map;
  * @since 3.5
  */
 public class DefaultModuleFileSystem extends DefaultFileSystem implements ModuleFileSystem {
-
-  private static final Logger LOG = LoggerFactory.getLogger(DefaultModuleFileSystem.class);
 
   private final String moduleKey;
   private final FileIndexer indexer;
