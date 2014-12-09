@@ -49,6 +49,7 @@ public class IssueFilterParameters {
   public static final String REPORTERS = "reporters";
   public static final String ASSIGNEES = "assignees";
   public static final String LANGUAGES = "languages";
+  public static final String TAGS = "tags";
   public static final String ASSIGNED = "assigned";
   public static final String PLANNED = "planned";
   public static final String HIDE_RULES = "hideRules";
@@ -61,7 +62,7 @@ public class IssueFilterParameters {
   public static final String ASC = "asc";
   public static final String IGNORE_PAGING = "ignorePaging";
 
-  public static final List<String> ALL = ImmutableList.of(ISSUES, SEVERITIES, STATUSES, RESOLUTIONS, RESOLVED, COMPONENTS, COMPONENT_ROOTS, RULES, ACTION_PLANS, REPORTERS,
+  public static final List<String> ALL = ImmutableList.of(ISSUES, SEVERITIES, STATUSES, RESOLUTIONS, RESOLVED, COMPONENTS, COMPONENT_ROOTS, RULES, ACTION_PLANS, REPORTERS, TAGS,
     ASSIGNEES, LANGUAGES, ASSIGNED, PLANNED, HIDE_RULES, CREATED_AT, CREATED_AFTER, CREATED_BEFORE, PAGE_SIZE, PAGE_INDEX, SORT, ASC, COMPONENT_UUIDS, COMPONENT_ROOT_UUIDS,
     PROJECTS, PROJECT_UUIDS, IGNORE_PAGING);
 

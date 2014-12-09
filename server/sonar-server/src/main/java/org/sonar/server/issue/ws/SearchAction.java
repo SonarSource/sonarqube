@@ -64,7 +64,13 @@ import org.sonar.server.user.UserSession;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -167,6 +173,9 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
     action.createParam(IssueFilterParameters.RULES)
       .setDescription("Comma-separated list of coding rule keys. Format is <repository>:<rule>")
       .setExampleValue("squid:AvoidCycles");
+    action.createParam(IssueFilterParameters.TAGS)
+      .setDescription("Comma-separated list of tags.")
+      .setExampleValue("security,convention");
     action.createParam(IssueFilterParameters.HIDE_RULES)
       .setDescription("To not return rules")
       .setDefaultValue(false)
@@ -250,7 +259,8 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       IssueFilterParameters.ASSIGNEES,
       IssueFilterParameters.REPORTERS,
       IssueFilterParameters.COMPONENT_UUIDS,
-      IssueFilterParameters.LANGUAGES
+      IssueFilterParameters.LANGUAGES,
+      IssueFilterParameters.TAGS,
     });
   }
 
@@ -373,6 +383,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
     addMandatoryFacetValues(results, IssueFilterParameters.REPORTERS, request.paramAsStrings(IssueFilterParameters.REPORTERS));
     addMandatoryFacetValues(results, IssueFilterParameters.RULES, request.paramAsStrings(IssueFilterParameters.RULES));
     addMandatoryFacetValues(results, IssueFilterParameters.LANGUAGES, request.paramAsStrings(IssueFilterParameters.LANGUAGES));
+    addMandatoryFacetValues(results, IssueFilterParameters.TAGS, request.paramAsStrings(IssueFilterParameters.TAGS));
     List<String> actionPlans = Lists.newArrayList("");
     List<String> actionPlansFromRequest = request.paramAsStrings(IssueFilterParameters.ACTION_PLANS);
     if (actionPlansFromRequest != null) {
@@ -511,6 +522,15 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
         // TODO Remove as part of Front-end rework on Issue Domain
         .prop("fUpdateAge", formatAgeDate(updateDate))
         .prop("closeDate", isoDate(issue.closeDate()));
+
+      Collection<String> tags = ((IssueDoc) issue).tags();
+      if (tags != null && !tags.isEmpty()) {
+        json.name("tags").beginArray();
+        for (String tag: tags) {
+          json.value(tag);
+        }
+        json.endArray();
+      }
 
       writeIssueComments(commentsByIssues.get(issue.key()), usersByLogin, json);
       writeIssueAttributes(issue, json);

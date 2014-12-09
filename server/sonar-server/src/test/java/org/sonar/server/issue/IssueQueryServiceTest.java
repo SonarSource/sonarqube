@@ -75,6 +75,7 @@ public class IssueQueryServiceTest {
     map.put("reporters", newArrayList("marilyn"));
     map.put("assignees", newArrayList("joanna"));
     map.put("languages", newArrayList("xoo"));
+    map.put("tags", newArrayList("tag1", "tag2"));
     map.put("assigned", true);
     map.put("planned", true);
     map.put("hideRules", true);
@@ -98,6 +99,7 @@ public class IssueQueryServiceTest {
     assertThat(query.reporters()).containsOnly("marilyn");
     assertThat(query.assignees()).containsOnly("joanna");
     assertThat(query.languages()).containsOnly("xoo");
+    assertThat(query.tags()).containsOnly("tag1", "tag2");
     assertThat(query.assigned()).isTrue();
     assertThat(query.planned()).isTrue();
     assertThat(query.hideRules()).isTrue();

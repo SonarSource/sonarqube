@@ -252,6 +252,7 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
     filters.put(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, matchFilter(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, query.componentUuids()));
     filters.put(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, matchFilter(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, query.projectUuids()));
     filters.put(IssueIndexDefinition.FIELD_ISSUE_LANGUAGE, matchFilter(IssueIndexDefinition.FIELD_ISSUE_LANGUAGE, query.languages()));
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_TAGS, matchFilter(IssueIndexDefinition.FIELD_ISSUE_TAGS, query.tags()));
     filters.put(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION, matchFilter(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION, query.resolutions()));
     filters.put(IssueIndexDefinition.FIELD_ISSUE_REPORTER, matchFilter(IssueIndexDefinition.FIELD_ISSUE_REPORTER, query.reporters()));
     filters.put(IssueIndexDefinition.FIELD_ISSUE_RULE_KEY, matchFilter(IssueIndexDefinition.FIELD_ISSUE_RULE_KEY, query.rules()));
@@ -315,6 +316,8 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
         IssueFilterParameters.PROJECT_UUIDS, IssueNormalizer.IssueField.PROJECT.field(), query.projectUuids().toArray());
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
         IssueFilterParameters.LANGUAGES, IssueNormalizer.IssueField.LANGUAGE.field(), query.languages().toArray());
+      addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
+        IssueFilterParameters.TAGS, IssueNormalizer.IssueField.TAGS.field(), query.tags().toArray());
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
         IssueFilterParameters.RULES, IssueNormalizer.IssueField.RULE_KEY.field(), query.rules().toArray());
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,

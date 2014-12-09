@@ -66,6 +66,7 @@ public class IssueNormalizer extends BaseNormalizer {
     public static final IndexField SEVERITY = add(IndexField.Type.STRING, "severity");
     public static final IndexField SEVERITY_VALUE = addSortable(IndexField.Type.INTEGER, "severityValue");
     public static final IndexField LANGUAGE = add(IndexField.Type.STRING, "language");
+    public static final IndexField TAGS = add(IndexField.Type.STRING, "tags");
     public static final IndexField RULE_KEY = add(IndexField.Type.STRING, "ruleKey");
     public static final IndexField FILE_PATH = addSortable(IndexField.Type.STRING, "filePath");
   }
