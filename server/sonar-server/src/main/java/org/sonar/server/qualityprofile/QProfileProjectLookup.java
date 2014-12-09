@@ -61,9 +61,9 @@ public class QProfileProjectLookup implements ServerComponent {
       UserSession userSession = UserSession.get();
       List<Component> result = Lists.newArrayList();
       Collection<String> authorizedProjectKeys = db.authorizationDao().selectAuthorizedRootProjectsKeys(userSession.userId(), UserRole.USER);
-      for (String key : componentsByKeys.keySet()) {
-        if (authorizedProjectKeys.contains(key)) {
-          result.add(componentsByKeys.get(key));
+      for (Map.Entry<String, Component> entry : componentsByKeys.entrySet()) {
+        if (authorizedProjectKeys.contains(entry.getKey())) {
+          result.add(entry.getValue());
         }
       }
 

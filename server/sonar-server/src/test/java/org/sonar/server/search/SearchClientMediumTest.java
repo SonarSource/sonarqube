@@ -52,30 +52,6 @@ public class SearchClientMediumTest {
   }
 
   @Test
-  public void prepare_index_is_not_yet_implemented() throws Exception {
-    try {
-      searchClient.prepareIndex();
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
-    }
-
-    try {
-      searchClient.prepareIndex("index", "type");
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
-    }
-
-    try {
-      searchClient.prepareIndex("index", "type", "id");
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
-    }
-  }
-
-  @Test
   public void prepare_update_is_not_yet_implemented() throws Exception {
     try {
       searchClient.prepareUpdate();

@@ -20,6 +20,8 @@
 
 package org.sonar.server.search;
 
+import org.sonar.server.search.request.ProxyIndexRequestBuilder;
+
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequestBuilder;
@@ -209,27 +211,27 @@ public class SearchClient extends TransportClient implements Startable {
     return new ProxyDeleteByQueryRequestBuilder(this, profiling).setIndices(indices);
   }
 
+  @Override
+  public IndexRequestBuilder prepareIndex() {
+    return new ProxyIndexRequestBuilder(this, profiling);
+  }
+
+  @Override
+  public IndexRequestBuilder prepareIndex(String index, String type) {
+    return new ProxyIndexRequestBuilder(this, profiling).setIndex(index).setType(type);
+  }
+
+  @Override
+  public IndexRequestBuilder prepareIndex(String index, String type, @Nullable String id) {
+    return new ProxyIndexRequestBuilder(this, profiling).setIndex(index).setType(type).setId(id);
+  }
+
   // ****************************************************************************************************************
   // Not yet implemented methods
   // ****************************************************************************************************************
 
   @Override
   public MultiSearchRequestBuilder prepareMultiSearch() {
-    throw throwNotYetImplemented();
-  }
-
-  @Override
-  public IndexRequestBuilder prepareIndex() {
-    throw throwNotYetImplemented();
-  }
-
-  @Override
-  public IndexRequestBuilder prepareIndex(String index, String type) {
-    throw throwNotYetImplemented();
-  }
-
-  @Override
-  public IndexRequestBuilder prepareIndex(String index, String type, @Nullable String id) {
     throw throwNotYetImplemented();
   }
 

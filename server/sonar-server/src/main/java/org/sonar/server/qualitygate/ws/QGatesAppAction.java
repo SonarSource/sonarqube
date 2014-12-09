@@ -70,7 +70,7 @@ public class QGatesAppAction implements RequestHandler {
   private void addPeriods(JsonWriter writer) {
     writer.name("periods").beginArray();
     for (int i=0; i < 3; i ++) {
-      writer.beginObject().prop("key", i + 1).prop("text", periods.label(i + 1)).endObject();
+      writer.beginObject().prop("key", (long) i + 1).prop("text", periods.label(i + 1)).endObject();
     }
     addProjectPeriod(4, writer);
     addProjectPeriod(5, writer);

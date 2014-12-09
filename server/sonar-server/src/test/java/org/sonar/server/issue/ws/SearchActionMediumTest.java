@@ -467,6 +467,28 @@ public class SearchActionMediumTest {
   }
 
   @Test
+  public void display_zero_valued_facets_for_selected_items() throws Exception {
+    IssueDto issue = IssueTesting.newDto(rule, file, project)
+      .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
+      .setIssueUpdateDate(DateUtils.parseDate("2017-12-04"))
+      .setDebt(10L)
+      .setStatus("OPEN")
+      .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
+      .setSeverity("MAJOR");
+    db.issueDao().insert(session, issue);
+    session.commit();
+    tester.get(IssueIndexer.class).indexAll();
+
+    WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+      .setParam("resolved", "false")
+      .setParam("severities", "MAJOR,MINOR")
+      .setParam("languages", "xoo,polop,palap")
+      .setParam(SearchAction.PARAM_FACETS, "statuses,severities,resolutions,projectUuids,rules,componentUuids,assignees,languages,actionPlans")
+      .execute();
+    result.assertJson(this.getClass(), "display_zero_facets.json", false);
+  }
+
+  @Test
   public void hide_rules() throws Exception {
     IssueDto issue = IssueTesting.newDto(rule, file, project)
       .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))

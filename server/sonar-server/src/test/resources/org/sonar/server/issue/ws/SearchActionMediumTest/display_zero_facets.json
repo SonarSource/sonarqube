@@ -1,0 +1,152 @@
+{
+  "issues": [
+    {
+      "key": "82fd47d4-b650-4037-80bc-7b112bd4eac2",
+      "component": "MyComponent",
+      "project": "MyProject",
+      "rule": "xoo:x1",
+      "status": "OPEN",
+      "severity": "MAJOR",
+      "debt": "10min",
+      "fUpdateAge": "less than a minute"
+    }
+  ],
+  "facets": [
+    {
+      "property": "statuses",
+      "values": [
+        {
+          "val": "OPEN",
+          "count": 1
+        },
+        {
+          "val": "CONFIRMED",
+          "count": 0
+        },
+        {
+          "val": "REOPENED",
+          "count": 0
+        },
+        {
+          "val": "RESOLVED",
+          "count": 0
+        },
+        {
+          "val": "CLOSED",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "property": "severities",
+      "values": [
+        {
+          "val": "INFO",
+          "count": 0
+        },
+        {
+          "val": "MINOR",
+          "count": 0
+        },
+        {
+          "val": "MAJOR",
+          "count": 1
+        },
+        {
+          "val": "CRITICAL",
+          "count": 0
+        },
+        {
+          "val": "BLOCKER",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "property": "resolutions",
+      "values": [
+        {
+          "val": "",
+          "count": 1
+        },
+        {
+          "val": "FALSE-POSITIVE",
+          "count": 0
+        },
+        {
+          "val": "FIXED",
+          "count": 0
+        },
+        {
+          "val": "REMOVED",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "property": "projectUuids",
+      "values": [
+        {
+          "val": "ABCD",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "property": "rules",
+      "values": [
+        {
+          "val": "xoo:x1",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "property": "componentUuids",
+      "values": [
+        {
+          "val": "BCDE",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "property": "assignees",
+      "values": [
+        {
+          "val": "",
+          "count": 1
+        },
+        {
+          "val": "john",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "property": "languages",
+      "values": [
+        {
+          "val": "xoo",
+          "count": 1
+        },
+        {
+          "val": "polop",
+          "count": 0
+        },
+        {
+          "val": "palap",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "property": "actionPlans",
+      "values": [
+        {
+          "val": "",
+          "count": 1
+        }
+      ]
+    }
+  ]}
