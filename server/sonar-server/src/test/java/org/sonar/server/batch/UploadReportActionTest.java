@@ -45,7 +45,7 @@ public class UploadReportActionTest {
     analysisTaskLauncher = mock(AnalysisReportTaskLauncher.class);
     queue = mock(AnalysisReportQueue.class);
 
-    sut = new UploadReportAction(queue, computationService, analysisTaskLauncher);
+    sut = new UploadReportAction(queue, analysisTaskLauncher);
   }
 
   @Test

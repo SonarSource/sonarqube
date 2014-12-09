@@ -26,7 +26,6 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.computation.AnalysisReportQueue;
 import org.sonar.server.computation.AnalysisReportTaskLauncher;
-import org.sonar.server.computation.ComputationService;
 
 public class UploadReportAction implements RequestHandler {
 
@@ -36,12 +35,10 @@ public class UploadReportAction implements RequestHandler {
   static final String PARAM_SNAPSHOT = "snapshot";
 
   private final AnalysisReportQueue analysisReportQueue;
-  private final ComputationService computationService;
   private final AnalysisReportTaskLauncher analysisTaskLauncher;
 
-  public UploadReportAction(AnalysisReportQueue analysisReportQueue, ComputationService computationService, AnalysisReportTaskLauncher analysisTaskLauncher) {
+  public UploadReportAction(AnalysisReportQueue analysisReportQueue, AnalysisReportTaskLauncher analysisTaskLauncher) {
     this.analysisReportQueue = analysisReportQueue;
-    this.computationService = computationService;
     this.analysisTaskLauncher = analysisTaskLauncher;
   }
 
