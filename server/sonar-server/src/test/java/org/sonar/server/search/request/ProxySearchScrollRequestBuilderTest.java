@@ -20,14 +20,11 @@
 
 package org.sonar.server.search.request;
 
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.unit.TimeValue;
 import org.junit.After;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.core.profiling.Profiling;
-import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.SearchClient;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -35,7 +32,7 @@ import static org.fest.assertions.Fail.fail;
 
 public class ProxySearchScrollRequestBuilderTest {
 
-  Profiling profiling = new Profiling(new Settings().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.FULL.name()));
+  Profiling profiling = new Profiling(new Settings().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.NONE.name()));
   SearchClient searchClient = new SearchClient(new Settings(), profiling);
 
   @After
@@ -46,17 +43,13 @@ public class ProxySearchScrollRequestBuilderTest {
   @Test
   public void search_scroll() {
     try {
-      SearchResponse search = searchClient.prepareSearch(IndexDefinition.RULE.getIndexName())
-        .setSearchType(SearchType.SCAN)
-        .setScroll(TimeValue.timeValueSeconds(3L))
-        .get();
-      searchClient.prepareSearchScroll(search.getScrollId()).get();
+      searchClient.prepareSearchScroll("scrollId").get();
 
       // expected to fail because elasticsearch is not correctly configured, but that does not matter
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class);
-      assertThat(e.getMessage()).contains("Fail to execute ES search request '{}' on indices '[rules]'");
+      assertThat(e.getMessage()).contains("Fail to execute ES search scroll request for scroll id 'null'");
     }
   }
 
@@ -65,17 +58,13 @@ public class ProxySearchScrollRequestBuilderTest {
     Profiling profiling = new Profiling(new Settings().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.BASIC.name()));
     SearchClient searchClient = new SearchClient(new Settings(), profiling);
     try {
-      SearchResponse search = searchClient.prepareSearch(IndexDefinition.RULE.getIndexName())
-        .setSearchType(SearchType.SCAN)
-        .setScroll(TimeValue.timeValueSeconds(3L))
-        .get();
-      searchClient.prepareSearchScroll(search.getScrollId()).get();
+      searchClient.prepareSearchScroll("scrollId").get();
 
       // expected to fail because elasticsearch is not correctly configured, but that does not matter
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class);
-      assertThat(e.getMessage()).contains("Fail to execute ES search request '{}' on indices '[rules]'");
+      assertThat(e.getMessage()).contains("Fail to execute ES search scroll request for scroll id 'null'");
     }
     searchClient.stop();
   }

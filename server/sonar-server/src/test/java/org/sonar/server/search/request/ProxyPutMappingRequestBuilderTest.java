@@ -38,7 +38,7 @@ import static org.fest.assertions.Fail.fail;
 
 public class ProxyPutMappingRequestBuilderTest {
 
-  Profiling profiling = new Profiling(new Settings().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.FULL.name()));
+  Profiling profiling = new Profiling(new Settings().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.NONE.name()));
   SearchClient searchClient = new SearchClient(new Settings(), profiling);
 
   @After
