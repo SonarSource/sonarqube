@@ -133,6 +133,10 @@ public class ProcessEntryPointTest {
 
     // emulate signal to shutdown process
     entryPoint.getShutdownHook().start();
+
+    // hack to prevent JUnit JVM to fail when executing the shutdown hook a second time
+    Runtime.getRuntime().removeShutdownHook(entryPoint.getShutdownHook());
+
     while (process.getState() != State.STOPPED) {
       Thread.sleep(10L);
     }
