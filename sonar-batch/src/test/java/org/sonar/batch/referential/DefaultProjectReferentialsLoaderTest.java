@@ -54,12 +54,12 @@ public class DefaultProjectReferentialsLoaderTest {
     loader = spy(loader);
     doReturn(null).when(loader).lastSnapshotCreationDate(anyString());
     when(serverClient.request(anyString())).thenReturn("{}");
-    reactor = new ProjectReactor(ProjectDefinition.create().setKey("foo"));
     taskProperties = new TaskProperties(Maps.<String, String>newHashMap(), "");
   }
 
   @Test
   public void passPreviewParameter() {
+    reactor = new ProjectReactor(ProjectDefinition.create().setKey("foo"));
     when(analysisMode.isPreview()).thenReturn(false);
     loader.load(reactor, taskProperties);
     verify(serverClient).request("/batch/project?key=foo&preview=false");
@@ -70,10 +70,18 @@ public class DefaultProjectReferentialsLoaderTest {
   }
 
   @Test
-  public void passProfileParameter() {
-    taskProperties.properties().put(ModuleQProfiles.SONAR_PROFILE_PROP, "my-profile");
+  public void passAndEncodeProjectKeyParameter() {
+    reactor = new ProjectReactor(ProjectDefinition.create().setKey("foo bàr"));
     loader.load(reactor, taskProperties);
-    verify(serverClient).request("/batch/project?key=foo&profile=my-profile&preview=false");
+    verify(serverClient).request("/batch/project?key=foo+b%C3%A0r&preview=false");
+  }
+
+  @Test
+  public void passAndEncodeProfileParameter() {
+    reactor = new ProjectReactor(ProjectDefinition.create().setKey("foo"));
+    taskProperties.properties().put(ModuleQProfiles.SONAR_PROFILE_PROP, "my-profile#2");
+    loader.load(reactor, taskProperties);
+    verify(serverClient).request("/batch/project?key=foo&profile=my-profile%232&preview=false");
   }
 
 }

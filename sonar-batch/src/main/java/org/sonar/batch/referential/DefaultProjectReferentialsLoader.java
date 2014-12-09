@@ -74,7 +74,7 @@ public class DefaultProjectReferentialsLoader implements ProjectReferentialsLoad
   @Override
   public ProjectReferentials load(ProjectReactor reactor, TaskProperties taskProperties) {
     String projectKey = reactor.getRoot().getKeyWithBranch();
-    String url = BATCH_PROJECT_URL + "?key=" + projectKey;
+    String url = BATCH_PROJECT_URL + "?key=" + ServerClient.encodeForUrl(projectKey);
     if (taskProperties.properties().containsKey(ModuleQProfiles.SONAR_PROFILE_PROP)) {
       LOG.warn("Ability to set quality profile from command line using '" + ModuleQProfiles.SONAR_PROFILE_PROP
         + "' is deprecated and will be dropped in a future SonarQube version. Please configure quality profile used by your project on SonarQube server.");
