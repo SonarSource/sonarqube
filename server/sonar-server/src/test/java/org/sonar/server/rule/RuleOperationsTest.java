@@ -28,7 +28,6 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
@@ -74,7 +73,7 @@ public class RuleOperationsTest {
     when(dbClient.openSession(false)).thenReturn(session);
     when(dbClient.ruleDao()).thenReturn(ruleDao);
     when(dbClient.debtCharacteristicDao()).thenReturn(characteristicDao);
-    operations = new RuleOperations(dbClient, System2.INSTANCE);
+    operations = new RuleOperations(dbClient);
   }
 
   @Test

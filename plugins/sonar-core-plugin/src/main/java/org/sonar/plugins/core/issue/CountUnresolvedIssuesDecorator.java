@@ -20,45 +20,24 @@
 package org.sonar.plugins.core.issue;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.HashMultiset;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multiset;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import org.apache.commons.lang.time.DateUtils;
-import org.sonar.api.batch.Decorator;
-import org.sonar.api.batch.DecoratorBarriers;
-import org.sonar.api.batch.DecoratorContext;
-import org.sonar.api.batch.DependedUpon;
-import org.sonar.api.batch.DependsUpon;
+import org.sonar.api.batch.*;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Measure;
-import org.sonar.api.measures.MeasureUtils;
-import org.sonar.api.measures.MeasuresFilters;
-import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.RuleMeasure;
+import org.sonar.api.measures.*;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.batch.components.Period;
 import org.sonar.batch.components.TimeMachineConfiguration;
 
 import javax.annotation.Nullable;
 
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Computes metrics related to number of issues.
@@ -69,12 +48,10 @@ import java.util.Set;
 public class CountUnresolvedIssuesDecorator implements Decorator {
 
   private final ResourcePerspectives perspectives;
-  private final RuleFinder rulefinder;
   private final TimeMachineConfiguration timeMachineConfiguration;
 
-  public CountUnresolvedIssuesDecorator(ResourcePerspectives perspectives, RuleFinder rulefinder, TimeMachineConfiguration timeMachineConfiguration) {
+  public CountUnresolvedIssuesDecorator(ResourcePerspectives perspectives, TimeMachineConfiguration timeMachineConfiguration) {
     this.perspectives = perspectives;
-    this.rulefinder = rulefinder;
     this.timeMachineConfiguration = timeMachineConfiguration;
   }
 

@@ -20,14 +20,12 @@
 
 package org.sonar.server.rule;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
-import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
@@ -48,18 +46,10 @@ import javax.annotation.Nullable;
 public class RuleOperations implements ServerComponent {
 
   private final DbClient dbClient;
-  private final System2 system;
 
   public RuleOperations(DbClient dbClient) {
-    this(dbClient, System2.INSTANCE);
-  }
-
-  @VisibleForTesting
-  RuleOperations(DbClient dbClient, System2 system) {
     this.dbClient = dbClient;
-    this.system = system;
   }
-
 
   public void updateRule(RuleChange ruleChange, UserSession userSession) {
     checkPermission(userSession);
@@ -80,7 +70,8 @@ public class RuleOperations implements ServerComponent {
         }
       }
 
-      boolean needUpdate = updateRule(ruleDto, subCharacteristic, ruleChange.debtRemediationFunction(), ruleChange.debtRemediationCoefficient(), ruleChange.debtRemediationOffset(),
+      boolean needUpdate = updateRule(ruleDto, subCharacteristic, ruleChange.debtRemediationFunction(), ruleChange.debtRemediationCoefficient(),
+        ruleChange.debtRemediationOffset(),
         session);
       if (needUpdate) {
         session.commit();
@@ -93,7 +84,7 @@ public class RuleOperations implements ServerComponent {
   }
 
   public boolean updateRule(RuleDto ruleDto, @Nullable CharacteristicDto newSubCharacteristic, @Nullable String newFunction,
-                            @Nullable String newCoefficient, @Nullable String newOffset, DbSession session) {
+    @Nullable String newCoefficient, @Nullable String newOffset, DbSession session) {
     boolean needUpdate = false;
 
     // A sub-characteristic and a remediation function is given -> update rule debt
@@ -121,7 +112,8 @@ public class RuleOperations implements ServerComponent {
     } else {
       // Rule characteristic is not already disabled -> update it
       if (ruleDto.getSubCharacteristicId() == null || !RuleDto.DISABLED_CHARACTERISTIC_ID.equals(ruleDto.getSubCharacteristicId())) {
-        // If default characteristic is not defined, set the overridden characteristic to null in order to be able to track debt plugin update
+        // If default characteristic is not defined, set the overridden characteristic to null in order to be able to track debt plugin
+        // update
         ruleDto.setSubCharacteristicId(ruleDto.getDefaultSubCharacteristicId() != null ? RuleDto.DISABLED_CHARACTERISTIC_ID : null);
         ruleDto.setRemediationFunction(null);
         ruleDto.setRemediationCoefficient(null);
@@ -137,20 +129,20 @@ public class RuleOperations implements ServerComponent {
   }
 
   private static boolean isRuleDebtSameAsDefaultValues(RuleDto ruleDto, CharacteristicDto newSubCharacteristic, @Nullable String newFunction,
-                                                       @Nullable String newCoefficient, @Nullable String newOffset) {
+    @Nullable String newCoefficient, @Nullable String newOffset) {
     return newSubCharacteristic.getId().equals(ruleDto.getDefaultSubCharacteristicId()) &&
       isSameRemediationFunction(newFunction, newCoefficient, newOffset, ruleDto.getDefaultRemediationFunction(), ruleDto.getDefaultRemediationCoefficient(),
         ruleDto.getDefaultRemediationOffset());
   }
 
   private static boolean isRuleDebtSameAsOverriddenValues(RuleDto ruleDto, CharacteristicDto newSubCharacteristic, @Nullable String newFunction,
-                                                          @Nullable String newCoefficient, @Nullable String newOffset) {
+    @Nullable String newCoefficient, @Nullable String newOffset) {
     return newSubCharacteristic.getId().equals(ruleDto.getSubCharacteristicId())
       && isSameRemediationFunction(newFunction, newCoefficient, newOffset, ruleDto.getRemediationFunction(), ruleDto.getRemediationCoefficient(), ruleDto.getRemediationOffset());
   }
 
   private static boolean isSameRemediationFunction(@Nullable String newFunction, @Nullable String newCoefficient, @Nullable String newOffset,
-                                                   String oldFunction, @Nullable String oldCoefficient, @Nullable String oldOffset) {
+    String oldFunction, @Nullable String oldCoefficient, @Nullable String oldOffset) {
     return new EqualsBuilder()
       .append(oldFunction, newFunction)
       .append(oldCoefficient, newCoefficient)

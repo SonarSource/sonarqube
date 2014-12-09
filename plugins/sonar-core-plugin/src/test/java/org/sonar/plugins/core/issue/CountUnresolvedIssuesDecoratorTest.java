@@ -31,18 +31,13 @@ import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Measure;
-import org.sonar.api.measures.MeasuresFilter;
-import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.RuleMeasure;
+import org.sonar.api.measures.*;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.test.IsRuleMeasure;
 import org.sonar.batch.components.Period;
@@ -59,18 +54,12 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyDouble;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class CountUnresolvedIssuesDecoratorTest {
 
   CountUnresolvedIssuesDecorator decorator;
   TimeMachineConfiguration timeMachineConfiguration;
-  RuleFinder ruleFinder;
   Issuable issuable;
   DecoratorContext context;
   Resource resource;
@@ -90,11 +79,6 @@ public class CountUnresolvedIssuesDecoratorTest {
     ruleA1 = Rule.create().setRepositoryKey("ruleA1").setKey("ruleA1").setName("nameA1");
     ruleA2 = Rule.create().setRepositoryKey("ruleA2").setKey("ruleA2").setName("nameA2");
     ruleB1 = Rule.create().setRepositoryKey("ruleB1").setKey("ruleB1").setName("nameB1");
-
-    ruleFinder = mock(RuleFinder.class);
-    when(ruleFinder.findByKey(ruleA1.ruleKey())).thenReturn(ruleA1);
-    when(ruleFinder.findByKey(ruleA2.ruleKey())).thenReturn(ruleA2);
-    when(ruleFinder.findByKey(ruleB1.ruleKey())).thenReturn(ruleB1);
 
     rightNow = new Date();
     tenDaysAgo = DateUtils.addDays(rightNow, -10);
@@ -116,7 +100,7 @@ public class CountUnresolvedIssuesDecoratorTest {
     issuable = mock(Issuable.class);
     ResourcePerspectives perspectives = mock(ResourcePerspectives.class);
     when(perspectives.as(Issuable.class, resource)).thenReturn(issuable);
-    decorator = new CountUnresolvedIssuesDecorator(perspectives, ruleFinder, timeMachineConfiguration);
+    decorator = new CountUnresolvedIssuesDecorator(perspectives, timeMachineConfiguration);
   }
 
   @Test
@@ -139,7 +123,7 @@ public class CountUnresolvedIssuesDecoratorTest {
   public void should_do_nothing_when_issuable_is_null() {
     ResourcePerspectives perspectives = mock(ResourcePerspectives.class);
     when(perspectives.as(Issuable.class, resource)).thenReturn(null);
-    CountUnresolvedIssuesDecorator decorator = new CountUnresolvedIssuesDecorator(perspectives, ruleFinder, timeMachineConfiguration);
+    CountUnresolvedIssuesDecorator decorator = new CountUnresolvedIssuesDecorator(perspectives, timeMachineConfiguration);
 
     decorator.decorate(resource, context);
 
