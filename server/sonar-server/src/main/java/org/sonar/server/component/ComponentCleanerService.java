@@ -40,7 +40,8 @@ public class ComponentCleanerService implements ServerComponent {
   private final IssueIndexer issueIndexer;
   private final SourceLineIndexer sourceLineIndexer;
 
-  public ComponentCleanerService(DbClient dbClient, PurgeDao purgeDao, IssueAuthorizationIndexer issueAuthorizationIndexer, IssueIndexer issueIndexer, SourceLineIndexer sourceLineIndexer) {
+  public ComponentCleanerService(DbClient dbClient, PurgeDao purgeDao, IssueAuthorizationIndexer issueAuthorizationIndexer, IssueIndexer issueIndexer,
+    SourceLineIndexer sourceLineIndexer) {
     this.dbClient = dbClient;
     this.purgeDao = purgeDao;
     this.issueAuthorizationIndexer = issueAuthorizationIndexer;

@@ -30,14 +30,13 @@ import org.sonar.core.component.SnapshotDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.computation.db.AnalysisReportDto.Status;
 import org.sonar.server.computation.dbcleaner.DbCleanerConstants;
-import org.sonar.server.computation.dbcleaner.ProjectPurgeTask;
+import org.sonar.server.computation.dbcleaner.ProjectCleaner;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.SnapshotTesting;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.properties.ProjectSettingsFactory;
 import org.sonar.server.search.IndexClient;
 import org.sonar.server.source.index.SourceLineIndexer;
@@ -58,7 +57,7 @@ public class DataCleanerStepMediumTest {
   private IndexClient indexClient;
   private SourceLineIndexer sourceLineIndexer;
   private ProjectSettingsFactory projectSettingsFactory;
-  private ProjectPurgeTask purgeTask;
+  private ProjectCleaner purgeTask;
 
   @Before
   public void before() throws Exception {
@@ -67,10 +66,10 @@ public class DataCleanerStepMediumTest {
 
     this.indexClient = tester.get(IndexClient.class);
     this.projectSettingsFactory = tester.get(ProjectSettingsFactory.class);
-    this.purgeTask = tester.get(ProjectPurgeTask.class);
+    this.purgeTask = tester.get(ProjectCleaner.class);
     this.sourceLineIndexer = tester.get(SourceLineIndexer.class);
 
-    this.sut = new DataCleanerStep(projectSettingsFactory, purgeTask, indexClient.get(IssueIndex.class), sourceLineIndexer);
+    this.sut = new DataCleanerStep(purgeTask);
   }
 
   @After

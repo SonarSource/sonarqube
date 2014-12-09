@@ -27,40 +27,65 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.TimeUtils;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.purge.PurgeConfiguration;
-import org.sonar.core.purge.PurgeDao;
-import org.sonar.core.purge.PurgeListener;
-import org.sonar.core.purge.PurgeProfiler;
+import org.sonar.core.purge.*;
 import org.sonar.server.computation.dbcleaner.period.DefaultPeriodCleaner;
+import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.properties.ProjectSettingsFactory;
+import org.sonar.server.search.IndexClient;
 
-import java.util.List;
+import java.util.Date;
 
-public class ProjectPurgeTask implements ServerComponent {
-  private static final Logger LOG = LoggerFactory.getLogger(ProjectPurgeTask.class);
+import static org.sonar.core.purge.PurgeConfiguration.newDefaultPurgeConfiguration;
+
+public class ProjectCleaner implements ServerComponent {
+  private static final Logger LOG = LoggerFactory.getLogger(ProjectCleaner.class);
+
   private final PurgeProfiler profiler;
   private final PurgeListener purgeListener;
   private final PurgeDao purgeDao;
   private final DefaultPeriodCleaner periodCleaner;
+  private final ProjectSettingsFactory projectSettingsFactory;
+  private final IndexClient indexClient;
 
-  public ProjectPurgeTask(PurgeDao purgeDao, DefaultPeriodCleaner periodCleaner, PurgeProfiler profiler, PurgeListener purgeListener) {
+  public ProjectCleaner(PurgeDao purgeDao, DefaultPeriodCleaner periodCleaner, PurgeProfiler profiler, PurgeListener purgeListener,
+    ProjectSettingsFactory projectSettingsFactory, IndexClient indexClient) {
     this.purgeDao = purgeDao;
     this.periodCleaner = periodCleaner;
     this.profiler = profiler;
     this.purgeListener = purgeListener;
+    this.projectSettingsFactory = projectSettingsFactory;
+    this.indexClient = indexClient;
   }
 
-  public ProjectPurgeTask purge(DbSession session, PurgeConfiguration configuration, Settings settings) {
+  public ProjectCleaner purge(DbSession session, IdUuidPair idUuidPair) {
     long start = System.currentTimeMillis();
     profiler.reset();
+
+    Settings settings = projectSettingsFactory.newProjectSettings(session, idUuidPair.getId());
+    PurgeConfiguration configuration = newDefaultPurgeConfiguration(settings, idUuidPair.getId());
+
     cleanHistoricalData(session, configuration.rootProjectId(), settings);
     doPurge(session, configuration);
+
+    deleteIndexedIssuesBefore(idUuidPair.getUuid(), configuration.maxLiveDateOfClosedIssues());
+
+    logProfiling(start, settings);
+    return this;
+  }
+
+  private void deleteIndexedIssuesBefore(String uuid, Date lastDateWithClosedIssues) {
+    if (lastDateWithClosedIssues != null) {
+      indexClient.get(IssueIndex.class).deleteClosedIssuesOfProjectBefore(uuid, lastDateWithClosedIssues);
+    }
+  }
+
+  private void logProfiling(long start, Settings settings) {
     if (settings.getBoolean(CoreProperties.PROFILING_LOG_PROPERTY)) {
       long duration = System.currentTimeMillis() - start;
       LOG.info("\n -------- Profiling for purge: " + TimeUtils.formatDuration(duration) + " --------\n");
       profiler.dump(duration, LOG);
       LOG.info("\n -------- End of profiling for purge --------\n");
     }
-    return this;
   }
 
   private void cleanHistoricalData(DbSession session, long resourceId, Settings settings) {
@@ -79,9 +104,5 @@ public class ProjectPurgeTask implements ServerComponent {
       // purge errors must no fail the report analysis
       LOG.error("Fail to purge data [id=" + configuration.rootProjectId() + "]", e);
     }
-  }
-
-  public List<String> findUuidsToDisable(DbSession session, Long projectId) {
-    return purgeDao.selectPurgeableFiles(session, projectId);
   }
 }

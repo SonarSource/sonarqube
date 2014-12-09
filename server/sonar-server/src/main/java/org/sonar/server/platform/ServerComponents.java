@@ -89,7 +89,7 @@ import org.sonar.server.computation.*;
 import org.sonar.server.computation.db.AnalysisReportDao;
 import org.sonar.server.computation.dbcleaner.DefaultPurgeTask;
 import org.sonar.server.computation.dbcleaner.IndexPurgeListener;
-import org.sonar.server.computation.dbcleaner.ProjectPurgeTask;
+import org.sonar.server.computation.dbcleaner.ProjectCleaner;
 import org.sonar.server.computation.dbcleaner.period.DefaultPeriodCleaner;
 import org.sonar.server.computation.ws.*;
 import org.sonar.server.config.ws.PropertiesWs;
@@ -619,7 +619,7 @@ class ServerComponents {
     pico.addSingleton(AnalysisReportHistorySearchAction.class);
     pico.addSingleton(DefaultPeriodCleaner.class);
     pico.addSingleton(DefaultPurgeTask.class);
-    pico.addSingleton(ProjectPurgeTask.class);
+    pico.addSingleton(ProjectCleaner.class);
     pico.addSingleton(ProjectSettingsFactory.class);
     pico.addSingleton(IndexPurgeListener.class);
 

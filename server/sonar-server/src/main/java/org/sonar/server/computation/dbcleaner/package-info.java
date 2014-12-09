@@ -18,28 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.computation;
+@ParametersAreNonnullByDefault
+package org.sonar.server.computation.dbcleaner;
 
-import org.sonar.core.component.ComponentDto;
-import org.sonar.core.computation.db.AnalysisReportDto;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.purge.IdUuidPair;
-import org.sonar.server.computation.dbcleaner.ProjectCleaner;
-
-public class DataCleanerStep implements ComputationStep {
-  private final ProjectCleaner projectCleaner;
-
-  public DataCleanerStep(ProjectCleaner projectCleaner) {
-    this.projectCleaner = projectCleaner;
-  }
-
-  @Override
-  public void execute(DbSession session, AnalysisReportDto report, ComponentDto project) {
-    projectCleaner.purge(session, new IdUuidPair(project.getId(), project.uuid()));
-  }
-
-  @Override
-  public String getDescription() {
-    return "Purge database";
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

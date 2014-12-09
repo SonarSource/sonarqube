@@ -26,23 +26,29 @@ import org.slf4j.Logger;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.purge.PurgeConfiguration;
-import org.sonar.core.purge.PurgeDao;
-import org.sonar.core.purge.PurgeListener;
-import org.sonar.core.purge.PurgeProfiler;
+import org.sonar.core.purge.*;
 import org.sonar.server.computation.dbcleaner.period.DefaultPeriodCleaner;
+import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.properties.ProjectSettingsFactory;
+import org.sonar.server.search.IndexClient;
+
+import java.util.Date;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.*;
 
-public class ProjectPurgeTaskTest {
+public class ProjectCleanerTest {
 
-  private ProjectPurgeTask sut;
+  private ProjectCleaner sut;
   private PurgeDao dao;
   private PurgeProfiler profiler;
   private DefaultPeriodCleaner periodCleaner;
   private PurgeListener purgeListener;
+  private ProjectSettingsFactory projectSettingsFactory;
+  private IndexClient indexClient;
+  private IssueIndex issueIndex;
+  private Settings settings;
 
   @Before
   public void before() throws Exception {
@@ -50,45 +56,71 @@ public class ProjectPurgeTaskTest {
     this.profiler = mock(PurgeProfiler.class);
     this.periodCleaner = mock(DefaultPeriodCleaner.class);
     this.purgeListener = mock(PurgeListener.class);
+    this.settings = mock(Settings.class);
+    this.projectSettingsFactory = mock(ProjectSettingsFactory.class);
+    when(projectSettingsFactory.newProjectSettings(any(DbSession.class), any(Long.class))).thenReturn(settings);
 
-    this.sut = new ProjectPurgeTask(dao, periodCleaner, profiler, purgeListener);
+    this.issueIndex = mock(IssueIndex.class);
+    this.indexClient = mock(IndexClient.class);
+    when(indexClient.get(IssueIndex.class)).thenReturn(issueIndex);
+
+    this.sut = new ProjectCleaner(dao, periodCleaner, profiler, purgeListener, projectSettingsFactory, indexClient);
   }
 
   @Test
   public void no_profiling_when_property_is_false() throws Exception {
-    Settings settings = mock(Settings.class);
     when(settings.getBoolean(CoreProperties.PROFILING_LOG_PROPERTY)).thenReturn(false);
+    when(projectSettingsFactory.newProjectSettings(any(DbSession.class), any(Long.class))).thenReturn(settings);
 
-    sut.purge(mock(DbSession.class), mock(PurgeConfiguration.class), settings);
+    sut.purge(mock(DbSession.class), mock(IdUuidPair.class));
 
     verify(profiler, never()).dump(anyLong(), any(Logger.class));
   }
 
   @Test
+  public void no_indexing_when_no_issue_to_delete() throws Exception {
+    when(projectSettingsFactory.newProjectSettings(any(DbSession.class), any(Long.class))).thenReturn(settings);
+
+    sut.purge(mock(DbSession.class), mock(IdUuidPair.class));
+
+    verify(indexClient, never()).get(IssueIndex.class);
+  }
+
+  @Test
   public void profiling_when_property_is_true() throws Exception {
-    Settings settings = mock(Settings.class);
     when(settings.getBoolean(CoreProperties.PROFILING_LOG_PROPERTY)).thenReturn(true);
 
-    sut.purge(mock(DbSession.class), mock(PurgeConfiguration.class), settings);
+    sut.purge(mock(DbSession.class), mock(IdUuidPair.class));
 
-    verify(profiler, times(1)).dump(anyLong(), any(Logger.class));
+    verify(profiler).dump(anyLong(), any(Logger.class));
+  }
+
+  @Test
+  public void call_period_cleaner_index_client_and_purge_dao() throws Exception {
+    when(settings.getInt(DbCleanerConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES)).thenReturn(5);
+
+    sut.purge(mock(DbSession.class), mock(IdUuidPair.class));
+
+    verify(periodCleaner).clean(any(DbSession.class), any(Long.class), any(Settings.class));
+    verify(dao).purge(any(DbSession.class), any(PurgeConfiguration.class), any(PurgeListener.class));
+    verify(issueIndex).deleteClosedIssuesOfProjectBefore(any(String.class), any(Date.class));
   }
 
   @Test
   public void if_dao_purge_fails_it_should_not_interrupt_program_execution() throws Exception {
     doThrow(RuntimeException.class).when(dao).purge(any(DbSession.class), any(PurgeConfiguration.class), any(PurgeListener.class));
 
-    sut.purge(mock(DbSession.class), mock(PurgeConfiguration.class), mock(Settings.class));
+    sut.purge(mock(DbSession.class), mock(IdUuidPair.class));
 
-    verify(dao, times(1)).purge(any(DbSession.class), any(PurgeConfiguration.class), any(PurgeListener.class));
+    verify(dao).purge(any(DbSession.class), any(PurgeConfiguration.class), any(PurgeListener.class));
   }
 
   @Test
   public void if_profiler_cleaning_fails_it_should_not_interrupt_program_execution() throws Exception {
     doThrow(RuntimeException.class).when(periodCleaner).clean(any(DbSession.class), anyLong(), any(Settings.class));
 
-    sut.purge(mock(DbSession.class), mock(PurgeConfiguration.class), mock(Settings.class));
+    sut.purge(mock(DbSession.class), mock(IdUuidPair.class));
 
-    verify(periodCleaner, times(1)).clean(any(DbSession.class), anyLong(), any(Settings.class));
+    verify(periodCleaner).clean(any(DbSession.class), anyLong(), any(Settings.class));
   }
 }

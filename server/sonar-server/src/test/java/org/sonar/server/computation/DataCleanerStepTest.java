@@ -22,55 +22,37 @@ package org.sonar.server.computation;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
-import org.sonar.server.computation.dbcleaner.ProjectPurgeTask;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.purge.PurgeConfiguration;
-import org.sonar.server.issue.index.IssueIndex;
-import org.sonar.server.properties.ProjectSettings;
-import org.sonar.server.properties.ProjectSettingsFactory;
-import org.sonar.server.source.index.SourceLineIndexer;
-
-import java.util.Date;
+import org.sonar.core.purge.IdUuidPair;
+import org.sonar.server.computation.dbcleaner.ProjectCleaner;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DataCleanerStepTest {
 
   private DataCleanerStep sut;
-  private ProjectPurgeTask purgeTask;
-  private IssueIndex issueIndex;
-  private SourceLineIndexer sourceLineIndexer;
-  private Settings settings;
-  private ProjectSettingsFactory projectSettingsFactory;
+  private ProjectCleaner projectCleaner;
 
   @Before
   public void before() {
-    this.purgeTask = mock(ProjectPurgeTask.class);
-    this.issueIndex = mock(IssueIndex.class);
-    this.sourceLineIndexer = mock(SourceLineIndexer.class);
-    this.settings = mock(ProjectSettings.class);
-    this.projectSettingsFactory = mock(ProjectSettingsFactory.class);
-    when(projectSettingsFactory.newProjectSettings(any(DbSession.class), anyLong())).thenReturn(settings);
-    when(settings.getInt(any(String.class))).thenReturn(123);
+    this.projectCleaner = mock(ProjectCleaner.class);
 
-    this.sut = new DataCleanerStep(projectSettingsFactory, purgeTask, issueIndex, sourceLineIndexer);
+    this.sut = new DataCleanerStep(projectCleaner);
   }
 
   @Test
   public void call_purge_method_of_the_purge_task() {
-    AnalysisReportDto report = mock(AnalysisReportDto.class);
     ComponentDto project = mock(ComponentDto.class);
+    when(project.getId()).thenReturn(123L);
+    when(project.uuid()).thenReturn("UUID-1234");
 
-    sut.execute(mock(DbSession.class), report, project);
+    sut.execute(mock(DbSession.class), mock(AnalysisReportDto.class), project);
 
-    verify(projectSettingsFactory).newProjectSettings(any(DbSession.class), anyLong());
-    verify(purgeTask).purge(any(DbSession.class), any(PurgeConfiguration.class), any(Settings.class));
-    verify(issueIndex).deleteClosedIssuesOfProjectBefore(anyString(), any(Date.class));
+    verify(projectCleaner).purge(any(DbSession.class), any(IdUuidPair.class));
   }
 }
