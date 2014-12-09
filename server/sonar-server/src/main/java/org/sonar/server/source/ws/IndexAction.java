@@ -87,7 +87,7 @@ public class IndexAction implements RequestHandler {
         json.prop(lineCounter.toString(), line);
         lineCounter ++;
       }
-      json.endObject().endArray().close();;
+      json.endObject().endArray().close();
     } finally {
       session.close();
     }
