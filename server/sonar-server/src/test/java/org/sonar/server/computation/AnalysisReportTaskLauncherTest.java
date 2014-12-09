@@ -24,6 +24,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.DisableOnDebug;
+import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.sonar.api.platform.Server;
 
@@ -34,7 +36,7 @@ import static org.mockito.Mockito.*;
 public class AnalysisReportTaskLauncherTest {
 
   @Rule
-  public Timeout timeout = new Timeout(5000);
+  public TestRule timeout = new DisableOnDebug(Timeout.seconds(5));
 
   private AnalysisReportTaskLauncher sut;
   private ComputationService service;

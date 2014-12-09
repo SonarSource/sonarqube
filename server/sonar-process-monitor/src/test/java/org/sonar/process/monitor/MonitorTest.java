@@ -74,7 +74,7 @@ public class MonitorTest {
    * Safeguard
    */
   @Rule
-  public Timeout globalTimeout = new Timeout(30000);
+  public Timeout globalTimeout = Timeout.seconds(30);
 
   /**
    * Temporary directory is used to interact with monitored processes, which write in it.

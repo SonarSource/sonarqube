@@ -22,7 +22,9 @@ package org.sonar.process;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TemporaryFolder;
+import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.sonar.process.Lifecycle.State;
 import org.sonar.process.test.StandardProcess;
@@ -42,7 +44,7 @@ public class ProcessEntryPointTest {
    * Safeguard
    */
   @Rule
-  public Timeout timeout = new Timeout(10000);
+  public TestRule timeout = new DisableOnDebug(Timeout.seconds(10));
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();

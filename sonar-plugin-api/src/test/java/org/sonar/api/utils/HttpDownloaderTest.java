@@ -26,8 +26,10 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.DisableOnDebug;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.simpleframework.http.Request;
 import org.simpleframework.http.Response;
@@ -64,7 +66,7 @@ public class HttpDownloaderTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Rule
-  public Timeout timeout = new Timeout(2000);
+  public TestRule timeout = new DisableOnDebug(Timeout.seconds(2));
 
   private static SocketConnection socketConnection;
   private static String baseUrl;

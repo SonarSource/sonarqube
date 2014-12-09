@@ -29,7 +29,9 @@ import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TemporaryFolder;
+import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.sonar.process.NetworkUtils;
 import org.sonar.process.ProcessConstants;
@@ -48,7 +50,7 @@ public class SearchServerTest {
   Client client;
 
   @Rule
-  public Timeout timeout = new Timeout(60000);
+  public TestRule timeout = new DisableOnDebug(Timeout.seconds(60));
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
