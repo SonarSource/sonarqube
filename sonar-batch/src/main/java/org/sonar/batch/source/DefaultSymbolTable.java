@@ -77,7 +77,7 @@ public class DefaultSymbolTable implements Symbolizable.SymbolTable {
         throw new UnsupportedOperationException("Cannot add reference to a symbol in another file");
       }
       if (fromOffset >= symbol.getDeclarationStartOffset() && fromOffset < symbol.getDeclarationEndOffset()) {
-        throw new UnsupportedOperationException("Cannot add reference (" + fromOffset + ") overlapping " + symbol);
+        throw new UnsupportedOperationException("Cannot add reference (" + fromOffset + ") overlapping " + symbol + " in " + componentKey);
       }
       referencesBySymbol.get(symbol).add(fromOffset);
     }

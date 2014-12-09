@@ -59,22 +59,20 @@ public class FileIndexer implements BatchComponent {
   private static final IOFileFilter FILE_FILTER = HiddenFileFilter.VISIBLE;
 
   private final List<InputFileFilter> filters;
-  private final InputPathCache fileCache;
   private final boolean isAggregator;
   private final ExclusionFilters exclusionFilters;
   private final InputFileBuilderFactory inputFileBuilderFactory;
 
   public FileIndexer(List<InputFileFilter> filters, ExclusionFilters exclusionFilters, InputFileBuilderFactory inputFileBuilderFactory,
-    InputPathCache cache, ProjectDefinition def) {
-    this(filters, exclusionFilters, inputFileBuilderFactory, cache, !def.getSubProjects().isEmpty());
+    ProjectDefinition def) {
+    this(filters, exclusionFilters, inputFileBuilderFactory, !def.getSubProjects().isEmpty());
   }
 
   private FileIndexer(List<InputFileFilter> filters, ExclusionFilters exclusionFilters, InputFileBuilderFactory inputFileBuilderFactory,
-    InputPathCache cache, boolean isAggregator) {
+    boolean isAggregator) {
     this.filters = filters;
     this.exclusionFilters = exclusionFilters;
     this.inputFileBuilderFactory = inputFileBuilderFactory;
-    this.fileCache = cache;
     this.isAggregator = isAggregator;
   }
 

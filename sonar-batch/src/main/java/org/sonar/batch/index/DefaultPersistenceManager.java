@@ -34,15 +34,13 @@ import java.util.List;
 public final class DefaultPersistenceManager implements PersistenceManager {
 
   private ResourcePersister resourcePersister;
-  private SourcePersister sourcePersister;
   private DependencyPersister dependencyPersister;
   private LinkPersister linkPersister;
   private EventPersister eventPersister;
 
-  public DefaultPersistenceManager(ResourcePersister resourcePersister, SourcePersister sourcePersister,
+  public DefaultPersistenceManager(ResourcePersister resourcePersister,
     DependencyPersister dependencyPersister, LinkPersister linkPersister, EventPersister eventPersister) {
     this.resourcePersister = resourcePersister;
-    this.sourcePersister = sourcePersister;
     this.dependencyPersister = dependencyPersister;
     this.linkPersister = linkPersister;
     this.eventPersister = eventPersister;
