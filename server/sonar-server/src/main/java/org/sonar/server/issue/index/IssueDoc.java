@@ -29,6 +29,8 @@ import org.sonar.server.search.BaseDoc;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -292,5 +294,14 @@ public class IssueDoc extends BaseDoc implements Issue {
 
   public void setModuleUuidPath(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_MODULE_PATH, s);
+  }
+
+  @CheckForNull
+  public Collection<String> tags() {
+	  return getNullableField(IssueIndexDefinition.FIELD_ISSUE_TAGS);
+  }
+
+  public void setTags(@Nullable Collection<String> tags) {
+	  setField(IssueIndexDefinition.FIELD_ISSUE_TAGS, tags);
   }
 }

@@ -74,6 +74,7 @@ public class IssueIndexDefinition implements IndexDefinition {
   public static final String FIELD_ISSUE_SEVERITY = "severity";
   public static final String FIELD_ISSUE_SEVERITY_VALUE = "severityValue";
   public static final String FIELD_ISSUE_STATUS = "status";
+  public static final String FIELD_ISSUE_TAGS = "tags";
   /**
    * Technical date
    */
@@ -134,6 +135,7 @@ public class IssueIndexDefinition implements IndexDefinition {
     issueMapping.stringFieldBuilder(FIELD_ISSUE_SEVERITY).build();
     issueMapping.createByteField(FIELD_ISSUE_SEVERITY_VALUE);
     issueMapping.stringFieldBuilder(FIELD_ISSUE_STATUS).enableSorting().build();
+    issueMapping.stringFieldBuilder(FIELD_ISSUE_TAGS).build();
     issueMapping.createDateTimeField(FIELD_ISSUE_TECHNICAL_UPDATED_AT);
   }
 }

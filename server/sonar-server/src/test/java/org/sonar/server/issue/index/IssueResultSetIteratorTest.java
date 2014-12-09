@@ -61,6 +61,7 @@ public class IssueResultSetIteratorTest {
     assertThat(issue.assignee()).isNotEmpty();
     assertThat(issue.componentUuid()).isNotEmpty();
     assertThat(issue.projectUuid()).isNotEmpty();
+    assertThat(issue.tags()).containsOnly("tag1", "tag2", "tag3");
     assertThat(issue.debt().toMinutes()).isGreaterThan(0L);
 
     assertThat(it.hasNext()).isTrue();
@@ -69,6 +70,7 @@ public class IssueResultSetIteratorTest {
     assertThat(issue.assignee()).isNotEmpty();
     assertThat(issue.componentUuid()).isNotEmpty();
     assertThat(issue.projectUuid()).isNotEmpty();
+    assertThat(issue.tags()).isEmpty();
     assertThat(issue.debt().toMinutes()).isGreaterThan(0L);
 
     assertThat(it.hasNext()).isFalse();

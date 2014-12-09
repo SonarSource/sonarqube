@@ -19,18 +19,21 @@
  */
 package org.sonar.server.issue.index;
 
-import com.google.common.collect.Maps;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Date;
+
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.db.ResultSetIterator;
 import org.sonar.server.db.migrations.SqlUtil;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Date;
+import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
 
 /**
  * Scrolls over table ISSUES and reads documents to populate
@@ -68,7 +71,8 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
     "p.uuid",
     "p.module_uuid",
     "p.module_uuid_path",
-    "p.path"
+    "p.path",
+    "i.tags"
   };
 
   private static final String SQL_ALL = "select " + StringUtils.join(FIELDS, ",") + " from issues i " +
@@ -77,6 +81,8 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
     "inner join projects root on root.id=i.root_component_id";
 
   private static final String SQL_AFTER_DATE = SQL_ALL + " where i.updated_at>?";
+
+  private static final Splitter TAGS_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
 
   static IssueResultSetIterator create(DbClient dbClient, Connection connection, long afterDate) {
     try {
@@ -129,6 +135,8 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
     doc.setModuleUuid(rs.getString(23));
     doc.setModuleUuidPath(rs.getString(24));
     doc.setFilePath(rs.getString(25));
+    String tags = rs.getString(26);
+    doc.setTags(ImmutableList.copyOf(TAGS_SPLITTER.split(tags == null ? "" : tags)));
     return doc;
   }
 }
