@@ -104,7 +104,26 @@ public class IssueWorkflow implements BatchComponent, ServerComponent, Startable
         .from(Issue.STATUS_CONFIRMED).to(Issue.STATUS_RESOLVED)
         .functions(new SetResolution(Issue.RESOLUTION_FALSE_POSITIVE), SetAssignee.UNASSIGN)
         .requiredProjectPermission(UserRole.ISSUE_ADMIN)
-        .build());
+        .build())
+
+      // resolve as muted
+      .transition(Transition.builder(DefaultTransitions.MUTE)
+        .from(Issue.STATUS_OPEN).to(Issue.STATUS_RESOLVED)
+        .functions(new SetResolution(Issue.RESOLUTION_MUTED), SetAssignee.UNASSIGN)
+        .requiredProjectPermission(UserRole.ISSUE_ADMIN)
+        .build())
+      .transition(Transition.builder(DefaultTransitions.MUTE)
+        .from(Issue.STATUS_REOPENED).to(Issue.STATUS_RESOLVED)
+        .functions(new SetResolution(Issue.RESOLUTION_MUTED), SetAssignee.UNASSIGN)
+        .requiredProjectPermission(UserRole.ISSUE_ADMIN)
+        .build())
+      .transition(Transition.builder(DefaultTransitions.MUTE)
+          .from(Issue.STATUS_CONFIRMED).to(Issue.STATUS_RESOLVED)
+          .functions(new SetResolution(Issue.RESOLUTION_MUTED), SetAssignee.UNASSIGN)
+          .requiredProjectPermission(UserRole.ISSUE_ADMIN)
+          .build()
+      );
+
   }
 
   private void buildAutomaticTransitions(StateMachine.Builder builder) {
@@ -143,11 +162,11 @@ public class IssueWorkflow implements BatchComponent, ServerComponent, Startable
         // Reopen issues that are marked as resolved but that are still alive.
         // Manual issues are kept resolved.
       .transition(Transition.builder("automaticreopen")
-        .from(Issue.STATUS_RESOLVED).to(Issue.STATUS_REOPENED)
-        .conditions(new IsEndOfLife(false), new HasResolution(Issue.RESOLUTION_FIXED), new IsManual(false))
-        .functions(new SetResolution(null), new SetCloseDate(false))
-        .automatic()
-        .build()
+          .from(Issue.STATUS_RESOLVED).to(Issue.STATUS_REOPENED)
+          .conditions(new IsEndOfLife(false), new HasResolution(Issue.RESOLUTION_FIXED), new IsManual(false))
+          .functions(new SetResolution(null), new SetCloseDate(false))
+          .automatic()
+          .build()
       );
   }
 

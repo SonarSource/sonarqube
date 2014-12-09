@@ -36,7 +36,12 @@ public interface DefaultTransitions {
   String CLOSE = "close";
 
   /**
+   * @since 5.1
+   */
+  String MUTE = "mute";
+
+  /**
    * @since 4.4
    */
-  List<String> ALL = ImmutableList.of(CONFIRM, UNCONFIRM, REOPEN, RESOLVE, FALSE_POSITIVE, CLOSE);
+  List<String> ALL = ImmutableList.of(CONFIRM, UNCONFIRM, REOPEN, RESOLVE, FALSE_POSITIVE, MUTE, CLOSE);
 }

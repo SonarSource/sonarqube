@@ -80,6 +80,10 @@
         {
           "val": "REMOVED",
           "count": 0
+        },
+        {
+          "val": "MUTED",
+          "count": 0
         }
       ]
     },

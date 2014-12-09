@@ -47,7 +47,7 @@ public class IssueWorkflowTest {
   IssueWorkflow workflow = new IssueWorkflow(new FunctionExecutor(updater), updater);
 
   @Test
-  public void should_init_state_machine() throws Exception {
+  public void init_state_machine() throws Exception {
     assertThat(workflow.machine()).isNull();
     workflow.start();
     assertThat(workflow.machine()).isNotNull();
@@ -60,54 +60,50 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void should_list_statuses() throws Exception {
+  public void list_statuses() throws Exception {
     workflow.start();
     // order is important for UI
     assertThat(workflow.statusKeys()).containsSequence(Issue.STATUS_OPEN, Issue.STATUS_CONFIRMED, Issue.STATUS_REOPENED, Issue.STATUS_RESOLVED, Issue.STATUS_CLOSED);
   }
 
   @Test
-  public void should_list_out_transitions_from_status_open() throws Exception {
+  public void list_out_transitions_from_status_open() throws Exception {
     workflow.start();
 
     DefaultIssue issue = new DefaultIssue().setStatus(Issue.STATUS_OPEN);
     List<Transition> transitions = workflow.outTransitions(issue);
-    assertThat(transitions).hasSize(3);
-    assertThat(keys(transitions)).containsOnly("confirm", "falsepositive", "resolve");
+    assertThat(keys(transitions)).containsOnly("confirm", "falsepositive", "resolve", "mute");
   }
 
   @Test
-  public void should_list_out_transitions_from_status_confirmed() throws Exception {
+  public void list_out_transitions_from_status_confirmed() throws Exception {
     workflow.start();
 
     DefaultIssue issue = new DefaultIssue().setStatus(Issue.STATUS_CONFIRMED);
     List<Transition> transitions = workflow.outTransitions(issue);
-    assertThat(transitions).hasSize(3);
-    assertThat(keys(transitions)).containsOnly("unconfirm", "falsepositive", "resolve");
+    assertThat(keys(transitions)).containsOnly("unconfirm", "falsepositive", "resolve", "mute");
   }
 
   @Test
-  public void should_list_out_transitions_from_status_resolved() throws Exception {
+  public void list_out_transitions_from_status_resolved() throws Exception {
     workflow.start();
 
     DefaultIssue issue = new DefaultIssue().setStatus(Issue.STATUS_RESOLVED);
     List<Transition> transitions = workflow.outTransitions(issue);
-    assertThat(transitions).hasSize(1);
     assertThat(keys(transitions)).containsOnly("reopen");
   }
 
   @Test
-  public void should_list_out_transitions_from_status_reopen() throws Exception {
+  public void list_out_transitions_from_status_reopen() throws Exception {
     workflow.start();
 
     DefaultIssue issue = new DefaultIssue().setStatus(Issue.STATUS_REOPENED);
     List<Transition> transitions = workflow.outTransitions(issue);
-    assertThat(transitions).hasSize(3);
-    assertThat(keys(transitions)).containsOnly("confirm", "resolve", "falsepositive");
+    assertThat(keys(transitions)).containsOnly("confirm", "mute", "resolve", "falsepositive", "mute");
   }
 
   @Test
-  public void should_list_no_out_transition_from_status_closed() throws Exception {
+  public void list_no_out_transition_from_status_closed() throws Exception {
     workflow.start();
 
     DefaultIssue issue = new DefaultIssue().setStatus(Issue.STATUS_CLOSED);
@@ -116,7 +112,7 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void should_list_out_transitions_from_status_closed_on_manual_issue() throws Exception {
+  public void list_out_transitions_from_status_closed_on_manual_issue() throws Exception {
     workflow.start();
 
     // Manual issue because of reporter
@@ -127,12 +123,11 @@ public class IssueWorkflowTest {
       .setReporter("simon");
 
     List<Transition> transitions = workflow.outTransitions(issue);
-    assertThat(transitions).hasSize(1);
     assertThat(keys(transitions)).containsOnly("reopen");
   }
 
   @Test
-  public void should_fail_if_unknown_status_when_listing_transitions() throws Exception {
+  public void fail_if_unknown_status_when_listing_transitions() throws Exception {
     workflow.start();
 
     DefaultIssue issue = new DefaultIssue().setStatus("xxx");
@@ -146,7 +141,7 @@ public class IssueWorkflowTest {
 
 
   @Test
-  public void should_do_automatic_transition() throws Exception {
+  public void do_automatic_transition() throws Exception {
     workflow.start();
 
     DefaultIssue issue = new DefaultIssue()
@@ -164,7 +159,7 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void should_close_open_dead_issue() throws Exception {
+  public void close_open_dead_issue() throws Exception {
     workflow.start();
 
     DefaultIssue issue = new DefaultIssue()
@@ -182,7 +177,7 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void should_close_reopened_dead_issue() throws Exception {
+  public void close_reopened_dead_issue() throws Exception {
     workflow.start();
 
     DefaultIssue issue = new DefaultIssue()
@@ -200,7 +195,7 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void should_close_confirmed_dead_issue() throws Exception {
+  public void close_confirmed_dead_issue() throws Exception {
     workflow.start();
 
     DefaultIssue issue = new DefaultIssue()
@@ -219,7 +214,7 @@ public class IssueWorkflowTest {
 
 
   @Test
-  public void should_fail_if_unknown_status_on_automatic_trans() throws Exception {
+  public void fail_if_unknown_status_on_automatic_trans() throws Exception {
     workflow.start();
 
     DefaultIssue issue = new DefaultIssue()
@@ -237,7 +232,7 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void should_flag_as_false_positive() throws Exception {
+  public void flag_as_false_positive() throws Exception {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setStatus(Issue.STATUS_OPEN)
@@ -255,7 +250,25 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void manual_issues_should_be_resolved_then_closed() throws Exception {
+  public void mute() throws Exception {
+    DefaultIssue issue = new DefaultIssue()
+      .setKey("ABCDE")
+      .setStatus(Issue.STATUS_OPEN)
+      .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
+      .setAssignee("morgan");
+
+    workflow.start();
+    workflow.doTransition(issue, DefaultTransitions.MUTE, IssueChangeContext.createScan(new Date()));
+
+    assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_MUTED);
+    assertThat(issue.status()).isEqualTo(Issue.STATUS_RESOLVED);
+
+    // should remove assignee
+    assertThat(issue.assignee()).isNull();
+  }
+
+  @Test
+  public void manual_issues_be_resolved_then_closed() throws Exception {
     // Manual issue because of reporter
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
@@ -268,7 +281,8 @@ public class IssueWorkflowTest {
     assertThat(workflow.outTransitions(issue)).containsOnly(
       Transition.create("confirm", "OPEN", "CONFIRMED"),
       Transition.create("resolve", "OPEN", "RESOLVED"),
-      Transition.create("falsepositive", "OPEN", "RESOLVED")
+      Transition.create("falsepositive", "OPEN", "RESOLVED"),
+      Transition.create("mute", "OPEN", "RESOLVED")
     );
 
     workflow.doTransition(issue, "resolve", mock(IssueChangeContext.class));
@@ -285,7 +299,7 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void manual_issues_should_be_confirmed_then_kept_open() throws Exception {
+  public void manual_issues_be_confirmed_then_kept_open() throws Exception {
     // Manual issue because of reporter
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
@@ -298,7 +312,8 @@ public class IssueWorkflowTest {
     assertThat(workflow.outTransitions(issue)).containsOnly(
       Transition.create("confirm", "OPEN", "CONFIRMED"),
       Transition.create("resolve", "OPEN", "RESOLVED"),
-      Transition.create("falsepositive", "OPEN", "RESOLVED")
+      Transition.create("falsepositive", "OPEN", "RESOLVED"),
+      Transition.create("mute", "OPEN", "RESOLVED")
     );
 
     workflow.doTransition(issue, "confirm", mock(IssueChangeContext.class));
@@ -308,7 +323,8 @@ public class IssueWorkflowTest {
     assertThat(workflow.outTransitions(issue)).containsOnly(
       Transition.create("unconfirm", "CONFIRMED", "REOPENED"),
       Transition.create("resolve", "CONFIRMED", "RESOLVED"),
-      Transition.create("falsepositive", "CONFIRMED", "RESOLVED")
+      Transition.create("falsepositive", "CONFIRMED", "RESOLVED"),
+      Transition.create("mute", "CONFIRMED", "RESOLVED")
     );
 
     // keep confirmed and unresolved
@@ -323,7 +339,7 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void manual_issue_on_removed_rule_should_be_closed() throws Exception {
+  public void manual_issue_on_removed_rule_be_closed() throws Exception {
     // Manual issue because of reporter
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
@@ -341,7 +357,7 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void manual_issue_on_removed_component_should_be_closed() throws Exception {
+  public void manual_issue_on_removed_component_be_closed() throws Exception {
     // Manual issue because of reporter
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")

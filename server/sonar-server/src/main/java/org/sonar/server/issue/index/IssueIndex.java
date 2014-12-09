@@ -202,15 +202,6 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
     return esFilter;
   }
 
-  public void deleteByProjectUuid(String uuid) {
-    QueryBuilder queryBuilder = QueryBuilders.filteredQuery(
-      QueryBuilders.matchAllQuery(),
-      FilterBuilders.boolFilter().must(FilterBuilders.termsFilter(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, uuid))
-      );
-
-    getClient().prepareDeleteByQuery(getIndexName()).setQuery(queryBuilder).get();
-  }
-
   public void deleteClosedIssuesOfProjectBefore(String uuid, Date beforeDate) {
     FilterBuilder projectFilter = FilterBuilders.boolFilter().must(FilterBuilders.termsFilter(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, uuid));
     FilterBuilder dateFilter = FilterBuilders.rangeFilter(IssueNormalizer.IssueField.ISSUE_CLOSE_DATE.field()).lt(beforeDate.getTime());
