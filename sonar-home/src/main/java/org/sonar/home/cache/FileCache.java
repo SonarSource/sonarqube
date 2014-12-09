@@ -37,7 +37,6 @@ import java.util.zip.ZipEntry;
  */
 public class FileCache {
 
-  private static final int TEMP_FILE_ATTEMPTS = 1000;
   /** Maximum loop count when creating temp directories. */
   private static final int TEMP_DIR_ATTEMPTS = 10000;
 
