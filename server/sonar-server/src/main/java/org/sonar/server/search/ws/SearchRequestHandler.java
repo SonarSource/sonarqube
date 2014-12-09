@@ -166,8 +166,6 @@ public abstract class SearchRequestHandler<QUERY, DOMAIN> implements RequestHand
   private void addZeroFacetsForSelectedItems(Request request, String facetName, Set<String> itemsFromFacets, JsonWriter json) {
     List<String> requestParams = request.paramAsStrings(facetName);
     if (requestParams != null) {
-      System.out.println(requestParams);
-      System.out.println(itemsFromFacets);
       for (String param: requestParams) {
         if (!itemsFromFacets.contains(param)) {
           json.beginObject();
