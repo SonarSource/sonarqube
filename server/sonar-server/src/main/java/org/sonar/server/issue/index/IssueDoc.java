@@ -298,10 +298,10 @@ public class IssueDoc extends BaseDoc implements Issue {
 
   @CheckForNull
   public Collection<String> tags() {
-	  return getNullableField(IssueIndexDefinition.FIELD_ISSUE_TAGS);
+    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_TAGS);
   }
 
   public void setTags(@Nullable Collection<String> tags) {
-	  setField(IssueIndexDefinition.FIELD_ISSUE_TAGS, tags);
+    setField(IssueIndexDefinition.FIELD_ISSUE_TAGS, tags);
   }
 }

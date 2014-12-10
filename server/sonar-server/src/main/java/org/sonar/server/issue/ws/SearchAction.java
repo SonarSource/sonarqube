@@ -523,15 +523,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
         .prop("fUpdateAge", formatAgeDate(updateDate))
         .prop("closeDate", isoDate(issue.closeDate()));
 
-      Collection<String> tags = ((IssueDoc) issue).tags();
-      if (tags != null && !tags.isEmpty()) {
-        json.name("tags").beginArray();
-        for (String tag: tags) {
-          json.value(tag);
-        }
-        json.endArray();
-      }
-
+      writeTags(issue, json);
       writeIssueComments(commentsByIssues.get(issue.key()), usersByLogin, json);
       writeIssueAttributes(issue, json);
       writeIssueExtraFields(issue, project != null ? project.getKey() : null, usersByLogin, actionPlanByKeys, extraFields, json);
@@ -539,6 +531,17 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
     }
 
     json.endArray();
+  }
+
+  private void writeTags(Issue issue, JsonWriter json) {
+    Collection<String> tags = ((IssueDoc) issue).tags();
+    if (tags != null && !tags.isEmpty()) {
+      json.name("tags").beginArray();
+      for (String tag: tags) {
+        json.value(tag);
+      }
+      json.endArray();
+    }
   }
 
   private void writeIssueComments(Collection<DefaultIssueComment> issueComments, Map<String, User> usersByLogin, JsonWriter json) {
