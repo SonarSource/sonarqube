@@ -19,7 +19,7 @@
   padding-bottom: @bottomPadding;
   border: 1px solid transparent;
   border-left-width: 3px;
-  background-color: #ffeaea;
+  background-color: @issueBackgroundColor;
 }
 
 .issue-list,
@@ -28,11 +28,11 @@
 }
 
 .issue.selected {
-  border-color: desaturate(darken(#ffeaea, 40%), 30%) !important;
+  border-color: @issueBorderColor !important;
 }
 
 .issue + .issue {
-  border-top: 1px solid @barBorderColor;
+  margin-top: 5px;
 }
 
 .issue.selected + .issue {

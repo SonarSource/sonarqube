@@ -12,7 +12,8 @@ define [
 
   $ = jQuery
 
-  TOP_OFFSET = 72
+  TOP_OFFSET = 43
+  COMPONENT_HEIGHT = 29
   BOTTOM_OFFSET = 10
 
 
@@ -124,14 +125,16 @@ define [
       selectedIssue = @collection.at @options.app.state.get 'selectedIndex'
       return unless selectedIssue?
       selectedIssueView = @children.findByModel selectedIssue
-      viewTop = selectedIssueView.$el.offset().top
-      viewBottom = viewTop + selectedIssueView.$el.outerHeight()
+      viewTop = selectedIssueView.$el.offset().top - TOP_OFFSET
+      if selectedIssueView.$el.prev().is('.issues-workspace-list-component')
+        viewTop -= COMPONENT_HEIGHT
+      viewBottom = selectedIssueView.$el.offset().top + selectedIssueView.$el.outerHeight() + BOTTOM_OFFSET
       windowTop = $(window).scrollTop()
       windowBottom = windowTop + $(window).height()
       if viewTop < windowTop
-        $(window).scrollTop viewTop - TOP_OFFSET
+        $(window).scrollTop viewTop
       if viewBottom > windowBottom
-        $(window).scrollTop $(window).scrollTop() - windowBottom + viewBottom + BOTTOM_OFFSET
+        $(window).scrollTop $(window).scrollTop() - windowBottom + viewBottom
 
 
     appendHtml: (compositeView, itemView, index) ->

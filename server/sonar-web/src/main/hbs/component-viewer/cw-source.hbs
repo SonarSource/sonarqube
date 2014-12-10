@@ -54,7 +54,7 @@
               <td class="source-meta {{#if scm}}source-line-scm{{/if}}">
                 {{#if scm}}
                   {{#ifSCMChanged ../../../../source ../../../lineNumber}}
-                    <div class="source-line-scm-inner" title="{{scm.author}}&#013;{{dt scm.date}}" data-author="{{scm.author}}"></div>
+                    <div class="source-line-scm-inner" data-author="{{scm.author}}"></div>
                   {{/ifSCMChanged}}
                 {{/if}}
               </td>
