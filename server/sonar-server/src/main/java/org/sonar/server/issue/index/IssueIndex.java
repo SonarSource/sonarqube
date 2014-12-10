@@ -19,8 +19,10 @@
  */
 package org.sonar.server.issue.index;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -40,6 +42,9 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.missing.InternalMissing;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms.Order;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
@@ -59,6 +64,7 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -467,5 +473,27 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
     } else {
       return null;
     }
+  }
+
+  public Collection<String> listTagsMatching(String query, int pageSize) {
+    SearchRequestBuilder count = getClient().prepareSearch(IssueIndexDefinition.INDEX)
+      .setTypes(IssueIndexDefinition.TYPE_ISSUE)
+      .setQuery(QueryBuilders.matchAllQuery());
+    TermsBuilder aggreg = AggregationBuilders.terms("_ref")
+      .field(IssueIndexDefinition.FIELD_ISSUE_TAGS)
+      .size(pageSize)
+      .order(Order.term(true))
+      .minDocCount(1L);
+    if (query != null) {
+      aggreg.include(".*" + query + ".*");
+    }
+    Terms result = count.addAggregation(aggreg).get().getAggregations().get("_ref");
+
+    return Collections2.transform(result.getBuckets(), new Function<Bucket, String>() {
+      @Override
+      public String apply(Bucket bucket) {
+        return bucket.getKey();
+      }
+    });
   }
 }

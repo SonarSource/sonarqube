@@ -344,4 +344,8 @@ public class IssueService implements ServerComponent {
   private void verifyLoggedIn() {
     UserSession.get().checkLoggedIn();
   }
+
+  public Collection<String> listTags(@Nullable String query, int pageSize) {
+    return indexClient.get(IssueIndex.class).listTagsMatching(query, pageSize);
+  }
 }

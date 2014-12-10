@@ -502,6 +502,7 @@ class ServerComponents {
     pico.addSingleton(IssuesWs.class);
     pico.addSingleton(IssueShowAction.class);
     pico.addSingleton(org.sonar.server.issue.ws.SearchAction.class);
+    pico.addSingleton(org.sonar.server.issue.ws.TagsAction.class);
     pico.addSingleton(IssueService.class);
     pico.addSingleton(IssueActionsWriter.class);
     pico.addSingleton(IssueQueryService.class);
