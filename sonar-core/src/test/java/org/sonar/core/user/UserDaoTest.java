@@ -27,7 +27,10 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -166,12 +169,22 @@ public class UserDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void insert_user() {
-    Date date = DateUtils.parseDate("2014-06-20");
+    Long date = DateUtils.parseDate("2014-06-20").getTime();
 
     UserDto userDto = new UserDto().setId(1L).setLogin("john").setName("John").setEmail("jo@hn.com").setCreatedAt(date).setUpdatedAt(date);
     dao.insert(session, userDto);
+    session.commit();
 
-    checkTables("insert");
+    UserDto user = dao.selectActiveUserByLogin("john");
+    assertThat(user).isNotNull();
+    assertThat(user.getId()).isNotNull();
+    assertThat(user.getLogin()).isEqualTo("john");
+    assertThat(user.getName()).isEqualTo("John");
+    assertThat(user.getEmail()).isEqualTo("jo@hn.com");
+    assertThat(user.getCreatedAt()).isEqualTo(date);
+    assertThat(user.getUpdatedAt()).isEqualTo(date);
+
+    // checkTables("insert", new String[] {"id"}, "users");
   }
 
   @Test

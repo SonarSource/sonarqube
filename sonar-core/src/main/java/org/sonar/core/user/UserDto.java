@@ -20,7 +20,6 @@
 package org.sonar.core.user;
 
 import javax.annotation.Nullable;
-import java.util.Date;
 
 /**
  * @since 3.2
@@ -30,8 +29,8 @@ public class UserDto {
   private String login;
   private String name;
   private String email;
-  private Date createdAt;
-  private Date updatedAt;
+  private Long createdAt;
+  private Long updatedAt;
   private boolean active = true;
 
   public Long getId() {
@@ -70,20 +69,20 @@ public class UserDto {
     return this;
   }
 
-  public Date getCreatedAt() {
+  public Long getCreatedAt() {
     return createdAt;
   }
 
-  public UserDto setCreatedAt(Date createdAt) {
+  public UserDto setCreatedAt(Long createdAt) {
     this.createdAt = createdAt;
     return this;
   }
 
-  public Date getUpdatedAt() {
+  public Long getUpdatedAt() {
     return updatedAt;
   }
 
-  public UserDto setUpdatedAt(Date updatedAt) {
+  public UserDto setUpdatedAt(Long updatedAt) {
     this.updatedAt = updatedAt;
     return this;
   }

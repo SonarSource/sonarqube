@@ -63,6 +63,22 @@ class User < ActiveRecord::Base
   # anything else you want your user to change should be added here.
   attr_accessible :login, :email, :name, :password, :password_confirmation
 
+  ####
+  # As now dates are saved in long they should be no more automatically managed by Rails
+  ###
+
+  def record_timestamps
+    false
+  end
+
+  def before_create
+    self.created_at = java.lang.System.currentTimeMillis
+    self.updated_at = java.lang.System.currentTimeMillis
+  end
+
+  def before_save
+    self.updated_at = java.lang.System.currentTimeMillis
+  end
 
   def email=(value)
     write_attribute :email, (value && value.downcase)

@@ -36,8 +36,6 @@ import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 
-import java.util.Date;
-
 import static org.fest.assertions.Assertions.assertThat;
 
 public class QProfileProjectOperationsMediumTest {
@@ -136,7 +134,7 @@ public class QProfileProjectOperationsMediumTest {
     db.componentDao().insert(dbSession, project2);
 
     // Create a user having user permission on the two projects and the global quality profile admin permission
-    UserDto user = new UserDto().setLogin("john").setName("John").setEmail("jo@hn.com").setCreatedAt(new Date()).setUpdatedAt(new Date());
+    UserDto user = new UserDto().setLogin("john").setName("John").setEmail("jo@hn.com").setCreatedAt(System.currentTimeMillis()).setUpdatedAt(System.currentTimeMillis());
     db.userDao().insert(dbSession, user);
     tester.get(PermissionFacade.class).insertUserPermission(project1.getId(), user.getId(), UserRole.USER, dbSession);
     tester.get(PermissionFacade.class).insertUserPermission(project2.getId(), user.getId(), UserRole.USER, dbSession);

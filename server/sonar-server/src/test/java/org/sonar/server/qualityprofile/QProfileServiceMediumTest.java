@@ -55,7 +55,6 @@ import org.sonar.server.user.MockUserSession;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -181,7 +180,7 @@ public class QProfileServiceMediumTest {
   public void search_qprofile_activity() throws InterruptedException {
     MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN).setLogin("david");
 
-    UserDto user = new UserDto().setLogin("david").setName("David").setEmail("dav@id.com").setCreatedAt(new Date()).setUpdatedAt(new Date());
+    UserDto user = new UserDto().setLogin("david").setName("David").setEmail("dav@id.com").setCreatedAt(System.currentTimeMillis()).setUpdatedAt(System.currentTimeMillis());
     db.userDao().insert(dbSession, user);
 
     // We need an actual rule in DB to test RuleName in Activity

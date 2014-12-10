@@ -66,6 +66,7 @@ class PluginRealm
       user = User.find_active_by_login(username)
       # SONAR-4950 Use a transaction to prevent multiple insertion of same groups
       User.transaction do
+        user.updated_at = Java::JavaLang::System.java_class.currentTimeMillis()
         user.save(false)
       end
       result = user if user && user.authenticated?(password)
@@ -122,13 +123,16 @@ class PluginRealm
     username=details.getName() if username.blank? && details
     user = User.find_by_login(username)
 
+    now = java.lang.System.currentTimeMillis
+
     # SONAR-4950 Use a transaction to prevent multiple insertion of same groups
     User.transaction do
       if !user
         # No such user in Sonar database
         return nil if !Api::Utils.java_facade.getSettings().getBoolean('sonar.authenticator.createUsers')
         # Automatically create a user in the sonar db if authentication has been successfully done
-        user = User.new(:login => username, :name => username, :email => '')
+        user = User.new(:login => username, :name => username, :email => '', :created_at => now, :updated_at => now)
+
         if details
           user.name = details.getName()
           user.email = details.getEmail()
@@ -147,8 +151,8 @@ class PluginRealm
           user.email = details.getEmail()
         end
 
-        # Force the update of updated_ad in order to execute an SQL update to block other session
-        user.updated_at = Time.now
+        # Force the update of updated_at in order to execute an SQL update to block other session
+        user.updated_at = now
       end
       if @save_password
         user.password = password

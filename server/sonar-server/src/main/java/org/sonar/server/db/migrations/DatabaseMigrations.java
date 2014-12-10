@@ -31,6 +31,7 @@ import org.sonar.server.db.migrations.v451.AddMissingCustomRuleParametersMigrati
 import org.sonar.server.db.migrations.v451.DeleteUnescapedActivities;
 import org.sonar.server.db.migrations.v50.*;
 import org.sonar.server.db.migrations.v51.FeedIssueTags;
+import org.sonar.server.db.migrations.v51.FeedUsersLongDates;
 
 import java.util.List;
 
@@ -76,7 +77,8 @@ public interface DatabaseMigrations {
     FeedIssueLongDates.class,
 
     // 5.1
-    FeedIssueTags.class
+    FeedIssueTags.class,
+    FeedUsersLongDates.class
   );
 
 }

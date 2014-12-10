@@ -30,6 +30,7 @@ class UsersController < ApplicationController
     @errors = []
     user = User.find_by_login(params[:user][:login])
     if user && !user.active
+      user.updated_at = Java::JavaLang::System.java_class.currentTimeMillis()
       if user.update_attributes(params[:user])
         # case user: exist,inactive,no errors when update BUT TO REACTIVATE
         @user = user
