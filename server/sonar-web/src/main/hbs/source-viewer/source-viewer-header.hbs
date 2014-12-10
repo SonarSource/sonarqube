@@ -58,7 +58,9 @@
     </div>
     {{#if measures.fIssues}}
       <div class="source-viewer-header-measure">
-        <span class="source-viewer-header-measure-value">{{measures.fIssues}}</span>
+        <span class="source-viewer-header-measure-value">
+          <a target="_blank" href="{{link '/issues/search#resolved=false|componentUuids=' uuid}}">{{measures.fIssues}}</a>
+        </span>
         <span class="source-viewer-header-measure-label">{{t 'metric.violations.name'}}</span>
       </div>
     {{/if}}

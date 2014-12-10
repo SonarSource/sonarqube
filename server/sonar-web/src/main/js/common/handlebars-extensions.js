@@ -28,7 +28,8 @@ define(['handlebars'], function (Handlebars) {
     console.log.apply(console, args);
   });
 
-  Handlebars.registerHelper('link', function(url) {
+  Handlebars.registerHelper('link', function() {
+    var url = Array.prototype.slice.call(arguments, 0, -1).join('');
     return baseUrl + url;
   });
 
