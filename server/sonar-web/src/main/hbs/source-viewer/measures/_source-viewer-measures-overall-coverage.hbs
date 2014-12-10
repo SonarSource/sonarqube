@@ -1,0 +1,85 @@
+{{#notNull measures.overall_coverage}}
+  <div class="measures">
+    <div class="measures-chart">
+      <span class="js-pie-chart"
+            data-value="{{measures.overall_coverage_raw}}"
+            data-max="100"
+            data-color="#85bb43"
+            data-size="70"></span>
+    </div>
+    <div class="measures-list">
+      <div class="measure measure-big" data-metric="overall_coverage">
+        <span class="measure-name">{{t 'metric.coverage.name'}}</span>
+        <span class="measure-value">{{measures.overall_coverage}}</span>
+      </div>
+    </div>
+  </div>
+{{/notNull}}
+
+{{#notNull measures.overall_line_coverage}}
+  <div class="measures">
+    <div class="measures-chart">
+      <span class="js-pie-chart"
+            data-value="{{measures.overall_line_coverage_raw}}"
+            data-max="100"
+            data-color="#85bb43"
+            data-base-color="#d4333f"
+            data-size="40"></span>
+    </div>
+    <div class="measures-list">
+      <div class="measure-container">
+        <div class="measure" data-metric="overall_line_coverage">
+          <span class="measure-name">{{t 'metric.line_coverage.name'}}</span>
+          <span class="measure-value">{{measures.overall_line_coverage}}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="measures">
+    <div class="measures-list">
+      <div class="measure measure-one-line" data-metric="overall_lines_to_cover">
+        <span class="measure-name">{{t 'metric.lines_to_cover.name'}}</span>
+        <span class="measure-value">{{measures.overall_lines_to_cover}}</span>
+      </div>
+      <div class="measure measure-one-line" data-metric="overall_uncovered_lines">
+        <span class="measure-name">{{t 'metric.uncovered_lines.name'}}</span>
+        <span class="measure-value">{{measures.overall_uncovered_lines}}</span>
+      </div>
+    </div>
+  </div>
+{{/notNull}}
+
+{{#notNull measures.overall_branch_coverage}}
+  <div class="measures">
+    <div class="measures-chart">
+      <span class="js-pie-chart"
+            data-value="{{measures.overall_branch_coverage_raw}}"
+            data-max="100"
+            data-color="#85bb43"
+            data-base-color="#d4333f"
+            data-size="40"></span>
+    </div>
+    <div class="measures-list">
+      <div class="measure-container">
+        <div class="measure" data-metric="overall_branch_coverage">
+          <span class="measure-name">{{t 'metric.branch_coverage.name'}}</span>
+          <span class="measure-value">{{measures.overall_branch_coverage}}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="measures">
+    <div class="measures-list">
+      <div class="measure measure-one-line" data-metric="overall_conditions_to_cover">
+        <span class="measure-name">{{t 'metric.conditions_to_cover.name'}}</span>
+        <span class="measure-value">{{measures.overall_conditions_to_cover}}</span>
+      </div>
+      <div class="measure measure-one-line" data-metric="overall_uncovered_conditions">
+        <span class="measure-name">{{t 'metric.uncovered_conditions.name'}}</span>
+        <span class="measure-value">{{measures.overall_uncovered_conditions}}</span>
+      </div>
+    </div>
+  </div>
+{{/notNull}}

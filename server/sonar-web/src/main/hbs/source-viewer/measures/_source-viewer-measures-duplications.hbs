@@ -1,0 +1,32 @@
+<td class="source-viewer-measures-section">
+  {{#notNull measures.duplicated_lines_density}}
+    <div class="measures">
+      <div class="measures-chart">
+            <span class="js-pie-chart"
+                  data-value="{{measures.duplicated_lines_density_raw}}"
+                  data-max="100"
+                  data-size="70"
+                  data-color="#f3ca8e"></span>
+      </div>
+      <div class="measures-list">
+        <div class="measure measure-big" data-metric="duplicated_lines_density">
+          <span class="measure-name">Duplications</span>
+          <span class="measure-value">{{measures.duplicated_lines_density}}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="measures">
+      <div class="measures-list">
+        <div class="measure measure-one-line" data-metric="duplicated_blocks">
+          <span class="measure-name">{{t 'metric.duplicated_blocks.name'}}</span>
+          <span class="measure-value">{{measures.duplicated_blocks}}</span>
+        </div>
+        <div class="measure measure-one-line" data-metric="duplicated_lines">
+          <span class="measure-name">{{t 'metric.duplicated_lines.name'}}</span>
+          <span class="measure-value">{{measures.duplicated_lines}}</span>
+        </div>
+      </div>
+    </div>
+  {{/notNull}}
+</td>

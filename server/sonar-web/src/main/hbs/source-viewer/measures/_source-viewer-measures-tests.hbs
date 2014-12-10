@@ -1,0 +1,107 @@
+<td class="source-viewer-measures-section">
+  <div class="measures">
+    <div class="measures-list">
+      <div class="measure measure-big" data-metric="tests">
+        <span class="measure-name">{{t 'metric.tests.name'}}</span>
+        <span class="measure-value">{{measures.tests}}</span>
+      </div>
+      {{#notNull measures.test_success_density}}
+        <div class="measure measure-one-line" data-metric="test_success_density">
+          <span class="measure-name">{{t 'metric.test_success_density.name'}}</span>
+          <span class="measure-value">{{measures.test_success_density}}</span>
+        </div>
+      {{/notNull}}
+      {{#notNull measures.test_failures}}
+        <div class="measure measure-one-line" data-metric="test_failures">
+          <span class="measure-name">{{t 'metric.test_failures.name'}}</span>
+          <span class="measure-value">{{measures.test_failures}}</span>
+        </div>
+      {{/notNull}}
+      {{#notNull measures.test_errors}}
+        <div class="measure measure-one-line" data-metric="test_errors">
+          <span class="measure-name">{{t 'metric.test_errors.name'}}</span>
+          <span class="measure-value">{{measures.test_errors}}</span>
+        </div>
+      {{/notNull}}
+      {{#notNull measures.skipped_tests}}
+        <div class="measure measure-one-line" data-metric="skipped_tests">
+          <span class="measure-name">{{t 'metric.skipped_tests.name'}}</span>
+          <span class="measure-value">{{measures.skipped_tests}}</span>
+        </div>
+      {{/notNull}}
+      {{#notNull measures.test_execution_time}}
+        <div class="measure measure-one-line" data-metric="test_execution_time">
+          <span class="measure-name">{{t 'metric.test_execution_time.name'}}</span>
+          <span class="measure-value">{{measures.test_execution_time}}</span>
+        </div>
+      {{/notNull}}
+    </div>
+  </div>
+
+  <div class="measures">
+    <table class="source-viewer-tests-list">
+      <tr>
+        <td class="source-viewer-test-status subtitle" colspan="3">
+          {{t 'component_viewer.measure_section.unit_tests'}}<br>
+          {{t 'component_viewer.tests.ordered_by'}}
+          <a class="js-sort-tests-by-duration {{#eq testSorting 'duration'}}active-link{{/eq}}">
+            {{t 'component_viewer.tests.duration'}}</a>
+          /
+          <a class="js-sort-tests-by-name {{#eq testSorting 'name'}}active-link{{/eq}}">
+            {{t 'component_viewer.tests.test_name'}}</a>
+          /
+          <a class="js-sort-tests-by-status {{#eq testSorting 'status'}}active-link{{/eq}}">
+            {{t 'component_viewer.tests.status'}}</a>
+        </td>
+        <td class="source-viewer-test-covered-lines subtitle">{{t 'component_viewer.covered_lines'}}</td>
+      </tr>
+      {{#each tests}}
+        <tr>
+          {{#eq status 'SKIPPED'}}
+            <td class="source-viewer-test-status subtitle">{{testStatusIcon status}}</td>
+            <td class="source-viewer-test-duration subtitle"></td>
+            <td class="source-viewer-test-name">{{name}}</td>
+            <td class="source-viewer-test-covered-lines subtitle"></td>
+          {{else}}
+            {{#ifTestData this}}
+              <td class="source-viewer-test-status subtitle">{{testStatusIcon status}}</td>
+              <td class="source-viewer-test-duration subtitle">{{durationInMs}}ms</td>
+              <td class="source-viewer-test-name"><a class="js-show-test" data-name="{{name}}">{{name}}</a></td>
+              <td class="source-viewer-test-covered-lines subtitle">{{coveredLines}}</td>
+            {{else}}
+              <td class="source-viewer-test-status subtitle">{{testStatusIcon status}}</td>
+              <td class="source-viewer-test-duration subtitle">{{durationInMs}}ms</td>
+              <td class="source-viewer-test-name">{{name}}</td>
+            {{/ifTestData}}
+          {{/eq}}
+        </tr>
+      {{/each}}
+    </table>
+  </div>
+</td>
+
+<td class="source-viewer-measures-section">
+  {{#if selectedTest}}
+    {{#notEq selectedTest.status 'ERROR'}}
+      {{#notEq selectedTest.status 'FAILURE'}}
+        <div class="bubble-popup-title">{{t 'component_viewer.transition.covers'}}</div>
+        {{#each coveredFiles}}
+          <div class="bubble-popup-section">
+            <a target="_blank" href="{{dashboardUrl key}}" title="{{longName}}">{{longName}}</a>
+            <span class="subtitle">{{tp 'component_viewer.x_lines_are_covered' coveredLines}}</span>
+          </div>
+        {{else}}
+          {{t 'none'}}
+        {{/each}}
+      {{/notEq}}
+    {{/notEq}}
+
+    {{#notEq selectedTest.status 'OK'}}
+      <div class="bubble-popup-title">{{t 'component_viewer.details'}}</div>
+      {{#if selectedTest.message}}
+        <pre>{{selectedTest.message}}</pre>
+      {{/if}}
+      <pre>{{selectedTest.stackTrace}}</pre>
+    {{/notEq}}
+  {{/if}}
+</td>
