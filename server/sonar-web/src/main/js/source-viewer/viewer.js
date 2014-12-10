@@ -68,11 +68,15 @@ define([
           this.loadSourceBeforeThrottled = _.throttle(this.loadSourceBefore, 1000);
           this.loadSourceAfterThrottled = _.throttle(this.loadSourceAfter, 1000);
           this.scrollTimer = null;
+          this.highlightedLine = null;
           this.listenTo(this, 'loaded', this.onLoaded);
         },
 
         renderHeader: function () {
-          this.headerRegion.show(new HeaderView({model: this.model}));
+          this.headerRegion.show(new HeaderView({
+            viewer: this,
+            model: this.model
+          }));
         },
 
         onRender: function () {
@@ -376,12 +380,14 @@ define([
         },
 
         removeHighlighting: function () {
+          this.highlightedLine = null;
           this.$('.' + HIGHLIGHTED_ROW_CLASS).removeClass(HIGHLIGHTED_ROW_CLASS);
         },
 
         highlightLine: function (line) {
           var row = this.$('.source-line[data-line-number=' + line + ']');
           this.removeHighlighting();
+          this.highlightedLine = line;
           row.addClass(HIGHLIGHTED_ROW_CLASS);
           return this;
         },

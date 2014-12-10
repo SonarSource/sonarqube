@@ -52,9 +52,12 @@ define([
     },
 
     getPermalink: function () {
-      //TODO Line permalink
       var query = 'id=' + encodeURIComponent(this.model.get('key')),
           windowParams = 'resizable=1,scrollbars=1,status=1';
+      console.log(this.options.viewer);
+      if (this.options.viewer.highlightedLine) {
+        query = query + '&line=' + this.options.viewer.highlightedLine;
+      }
       window.open(baseUrl + '/component/index?' + query, this.model.get('name'), windowParams);
     },
 
