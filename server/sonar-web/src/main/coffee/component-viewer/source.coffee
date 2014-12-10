@@ -1,6 +1,7 @@
 define [
   'backbone.marionette'
   'templates/component-viewer'
+  'source-viewer/popups/scm-popup'
   'component-viewer/coverage-popup'
   'component-viewer/duplication-popup'
   'component-viewer/time-changes-popup'
@@ -11,6 +12,7 @@ define [
 ], (
   Marionette
   Templates
+  SCMPopupView
   CoveragePopupView
   DuplicationPopupView
   TimeChangesPopupView
@@ -40,6 +42,8 @@ define [
       'click .sym': 'highlightUsages'
 
       'click .js-line-actions': 'highlightLine'
+
+      'click .source-line-scm': 'showSCMPopup'
 
       'click .source-line-covered': 'showCoveragePopup'
       'click .source-line-partially-covered': 'showCoveragePopup'
@@ -203,6 +207,19 @@ define [
     toggleMeasures: (e) ->
       row = $(e.currentTarget).closest '.component-viewer-header'
       row.toggleClass 'component-viewer-header-full'
+
+
+    showSCMPopup: (e) ->
+      e.stopPropagation()
+      $('body').click()
+      line = +$(e.currentTarget).closest('[data-line-number]').data 'line-number'
+      row = _.findWhere @options.main.source.get('formattedSource'), lineNumber: line
+      popup = new SCMPopupView
+        triggerEl: $(e.currentTarget)
+        model: new Backbone.Model
+          scmAuthor: row.scm.author
+          scmDate: row.scm.date
+      popup.render()
 
 
     showCoveragePopup: (e) ->

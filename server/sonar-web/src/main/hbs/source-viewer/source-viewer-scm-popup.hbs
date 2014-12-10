@@ -5,9 +5,11 @@
   <div class="bubble-popup-section">
     {{dt scmDate}}
   </div>
-  <div class="bubble-popup-section">
-    {{scmRevision}}
-  </div>
+  {{#if scmRevision}}
+    <div class="bubble-popup-section">
+      {{scmRevision}}
+    </div>
+  {{/if}}
 </div>
 
 <div class="bubble-popup-arrow"></div>
