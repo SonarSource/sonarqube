@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.Uuids;
 import org.sonar.core.persistence.DbSession;
@@ -32,11 +33,13 @@ import org.sonar.core.persistence.TestDatabase;
 import org.sonar.server.db.fake.FakeDao;
 import org.sonar.server.db.fake.FakeDto;
 import org.sonar.server.db.fake.FakeMapper;
+import org.sonar.test.DbTests;
 
 import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
 
+@Category(DbTests.class)
 public class BaseDaoTest {
 
   @ClassRule

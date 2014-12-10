@@ -22,9 +22,11 @@ package org.sonar.server.db.migrations;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.BatchSession;
 import org.sonar.core.persistence.TestDatabase;
+import org.sonar.test.DbTests;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -34,6 +36,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 
+@Category(DbTests.class)
 public class BaseDataChangeTest extends AbstractDaoTestCase {
 
   @ClassRule

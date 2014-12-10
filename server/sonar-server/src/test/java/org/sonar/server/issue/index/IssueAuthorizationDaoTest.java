@@ -26,14 +26,17 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.core.persistence.TestDatabase;
 import org.sonar.server.db.DbClient;
+import org.sonar.test.DbTests;
 
 import java.sql.Connection;
 import java.util.Collection;
 
 import static org.fest.assertions.Assertions.assertThat;
 
+@Category(DbTests.class)
 public class IssueAuthorizationDaoTest {
 
   @Rule

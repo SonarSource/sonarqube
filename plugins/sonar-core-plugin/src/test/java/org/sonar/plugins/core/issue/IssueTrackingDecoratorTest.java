@@ -45,7 +45,6 @@ import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.db.IssueChangeDto;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.workflow.IssueWorkflow;
-import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.java.api.JavaClass;
 
 import java.util.Arrays;
@@ -61,15 +60,9 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.RETURNS_MOCKS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
-public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
+public class IssueTrackingDecoratorTest {
 
   IssueTrackingDecorator decorator;
   IssueCache issueCache = mock(IssueCache.class, RETURNS_MOCKS);

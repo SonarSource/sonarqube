@@ -487,6 +487,7 @@
           <systemPropertyVariables>
             <java.io.tmpdir>${project.build.directory}</java.io.tmpdir>
           </systemPropertyVariables>
+          <groups>${junitGroups}</groups>
         </configuration>
       </plugin>
       <plugin>
@@ -1447,6 +1448,7 @@
       </activation>
       <properties>
         <skipWebTests>true</skipWebTests>
+        <junitGroups>org.sonar.test.DbTests</junitGroups>
       </properties>
       <dependencies>
         <dependency>

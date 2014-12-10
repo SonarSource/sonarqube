@@ -22,10 +22,12 @@ package org.sonar.server.issue.index;
 import org.elasticsearch.search.SearchHit;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.api.config.Settings;
 import org.sonar.core.persistence.TestDatabase;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
+import org.sonar.test.DbTests;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -33,6 +35,7 @@ import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 
+@Category(DbTests.class)
 public class IssueAuthorizationIndexerTest {
 
   @Rule

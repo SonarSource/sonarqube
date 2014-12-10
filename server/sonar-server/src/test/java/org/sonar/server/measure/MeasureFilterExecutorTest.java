@@ -22,6 +22,7 @@ package org.sonar.server.measure;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.utils.DateUtils;
@@ -29,6 +30,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.component.SnapshotDto;
 import org.sonar.core.persistence.TestDatabase;
 import org.sonar.core.resource.ResourceDao;
+import org.sonar.test.DbTests;
 
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -37,6 +39,7 @@ import java.util.List;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 
+@Category(DbTests.class)
 public class MeasureFilterExecutorTest {
 
   private static final long JAVA_PROJECT_ID = 1L;

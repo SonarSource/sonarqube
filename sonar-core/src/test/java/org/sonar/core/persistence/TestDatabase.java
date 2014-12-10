@@ -70,6 +70,9 @@ import static org.junit.Assert.fail;
  * This class should be call using @ClassRule in order to create the schema once (ft @Rule is used
  * the schema will be recreated before each test).
  * Data will be truncated each time you call prepareDbUnit().
+ * <p/>
+ * File using <code>TestDatabase</code> must be annotated with {@link org.sonar.test.DbTests} so
+ * that they can be executed on all supported DBs.
  */
 public class TestDatabase extends ExternalResource {
 

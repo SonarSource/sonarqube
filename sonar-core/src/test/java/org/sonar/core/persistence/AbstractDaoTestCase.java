@@ -43,12 +43,14 @@ import org.dbunit.operation.DatabaseOperation;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
 import org.sonar.core.cluster.NullQueue;
 import org.sonar.core.config.Logback;
 import org.sonar.core.persistence.dialect.MySql;
+import org.sonar.test.DbTests;
 
 import java.io.File;
 import java.io.IOException;
@@ -63,6 +65,7 @@ import java.util.Properties;
 
 import static org.junit.Assert.fail;
 
+@Category(DbTests.class)
 public abstract class AbstractDaoTestCase {
 
   private static final Logger LOG = LoggerFactory.getLogger(AbstractDaoTestCase.class);

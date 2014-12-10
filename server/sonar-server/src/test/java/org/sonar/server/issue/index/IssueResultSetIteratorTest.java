@@ -20,26 +20,23 @@
 package org.sonar.server.issue.index;
 
 import com.google.common.base.Function;
-import com.google.common.base.Functions;
 import com.google.common.collect.Maps;
-import org.apache.commons.collections.ComparatorUtils;
-import com.google.common.collect.Lists;
 import org.apache.commons.dbutils.DbUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.core.persistence.TestDatabase;
 import org.sonar.server.db.DbClient;
+import org.sonar.test.DbTests;
 
 import java.sql.Connection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 
+@Category(DbTests.class)
 public class IssueResultSetIteratorTest {
 
   @Rule

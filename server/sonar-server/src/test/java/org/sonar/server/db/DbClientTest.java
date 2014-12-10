@@ -21,6 +21,7 @@ package org.sonar.server.db;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
@@ -28,9 +29,11 @@ import org.sonar.core.persistence.TestDatabase;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.server.qualityprofile.db.ActiveRuleDao;
 import org.sonar.server.rule.db.RuleDao;
+import org.sonar.test.DbTests;
 
 import static org.fest.assertions.Assertions.assertThat;
 
+@Category(DbTests.class)
 public class DbClientTest {
 
   @Rule

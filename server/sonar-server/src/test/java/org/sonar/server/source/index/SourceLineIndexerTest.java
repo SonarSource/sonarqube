@@ -32,12 +32,14 @@ import org.fest.assertions.MapAssert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.TestDatabase;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.search.BaseNormalizer;
+import org.sonar.test.DbTests;
 import org.sonar.test.TestUtils;
 
 import java.io.FileInputStream;
@@ -48,6 +50,7 @@ import java.util.Map;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.sonar.server.source.index.SourceLineIndexDefinition.*;
 
+@Category(DbTests.class)
 public class SourceLineIndexerTest {
 
   @Rule

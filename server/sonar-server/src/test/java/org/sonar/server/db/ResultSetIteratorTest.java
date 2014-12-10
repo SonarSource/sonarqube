@@ -24,7 +24,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.core.persistence.TestDatabase;
+import org.sonar.test.DbTests;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -34,6 +36,7 @@ import java.sql.SQLException;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 
+@Category(DbTests.class)
 public class ResultSetIteratorTest {
 
   @Rule

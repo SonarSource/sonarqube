@@ -22,6 +22,7 @@ package org.sonar.server.startup;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -32,10 +33,12 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.rule.db.RuleDao;
+import org.sonar.test.DbTests;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+@Category(DbTests.class)
 @RunWith(MockitoJUnitRunner.class)
 public class CopyRequirementsFromCharacteristicsToRulesTest {
 

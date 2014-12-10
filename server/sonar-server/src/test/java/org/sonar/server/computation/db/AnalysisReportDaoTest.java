@@ -24,12 +24,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.persistence.TestDatabase;
+import org.sonar.test.DbTests;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -41,6 +43,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.core.computation.db.AnalysisReportDto.Status.PENDING;
 import static org.sonar.core.computation.db.AnalysisReportDto.Status.WORKING;
 
+@Category(DbTests.class)
 public class AnalysisReportDaoTest {
   private static final String DEFAULT_PROJECT_KEY = "123456789-987654321";
   private static final long DEFAULT_SNAPSHOT_ID = 123L;
