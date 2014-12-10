@@ -22,11 +22,6 @@ casper.test.begin(testName('Coverage Filters'), function (test) {
 
       .then(function () {
         casper.click('.js-header-tab-coverage');
-        casper.waitForSelector('.js-filter-lines-to-cover');
-      })
-
-      .then(function () {
-        casper.click('.js-filter-lines-to-cover');
         casper.waitForSelector('.source-line-covered', function () {
           test.assertElementCount('.source-line-covered', 142);
           test.assertElementCount('.source-line-uncovered', 50);
