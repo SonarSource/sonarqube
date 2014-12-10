@@ -91,8 +91,7 @@ define [
       selected = @options.app.state.get 'selectedIndex'
       selectedIssue = @options.app.issues.at selected
       if selectedIssue.get('component') == @model.get('key')
-        selectedKey = selectedIssue.get 'key'
-        @scrollToIssue selectedKey
+        @scrollToLine selectedIssue.get('line')
       else
         @unbindShortcuts()
         @options.app.controller.showComponentViewer selectedIssue
