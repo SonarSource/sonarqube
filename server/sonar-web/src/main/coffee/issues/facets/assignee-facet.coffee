@@ -64,6 +64,14 @@ define [
       @options.app.state.updateFilter obj
 
 
+    sortValues: (values) ->
+      # put "unassigned" first
+      _.sortBy values, (v) ->
+        x = if v.val == '' then -999999 else -v.count
+        console.log v.val, x
+        x
+
+
     serializeData: ->
       _.extend super,
-        values: @getValuesWithLabels()
+        values: @sortValues @getValuesWithLabels()
