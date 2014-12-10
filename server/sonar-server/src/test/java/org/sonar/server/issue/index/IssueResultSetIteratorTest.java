@@ -19,6 +19,11 @@
  */
 package org.sonar.server.issue.index;
 
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
+import com.google.common.collect.Maps;
+import org.apache.commons.collections.ComparatorUtils;
+import com.google.common.collect.Lists;
 import org.apache.commons.dbutils.DbUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -28,6 +33,10 @@ import org.sonar.core.persistence.TestDatabase;
 import org.sonar.server.db.DbClient;
 
 import java.sql.Connection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -54,27 +63,32 @@ public class IssueResultSetIteratorTest {
   public void iterator_over_issues() throws Exception {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
     IssueResultSetIterator it = IssueResultSetIterator.create(client, connection, 0L);
+    Map<String, IssueDoc> issuesByKey = Maps.uniqueIndex(it, new Function<IssueDoc, String>() {
+      @Override
+      public String apply(IssueDoc issue) {
+        return issue.key();
+      }
+    });
+    it.close();
 
-    assertThat(it.hasNext()).isTrue();
-    IssueDoc issue = it.next();
-    assertThat(issue.key()).isNotEmpty();
-    assertThat(issue.assignee()).isNotEmpty();
-    assertThat(issue.componentUuid()).isNotEmpty();
-    assertThat(issue.projectUuid()).isNotEmpty();
+    assertThat(issuesByKey).hasSize(2);
+
+    IssueDoc issue = issuesByKey.get("ABC");
+    assertThat(issue.key()).isEqualTo("ABC");
+    assertThat(issue.assignee()).isEqualTo("guy1");
+    assertThat(issue.componentUuid()).isEqualTo("FILE1");
+    assertThat(issue.projectUuid()).isEqualTo("PROJECT1");
     assertThat(issue.tags()).containsOnly("tag1", "tag2", "tag3");
     assertThat(issue.debt().toMinutes()).isGreaterThan(0L);
 
-    assertThat(it.hasNext()).isTrue();
-    issue = it.next();
-    assertThat(issue.key()).isNotEmpty();
-    assertThat(issue.assignee()).isNotEmpty();
-    assertThat(issue.componentUuid()).isNotEmpty();
-    assertThat(issue.projectUuid()).isNotEmpty();
+    issue = issuesByKey.get("DEF");
+    assertThat(issue.key()).isEqualTo("DEF");
+    assertThat(issue.assignee()).isEqualTo("guy2");
+    assertThat(issue.componentUuid()).isEqualTo("FILE1");
+    assertThat(issue.projectUuid()).isEqualTo("PROJECT1");
     assertThat(issue.tags()).isEmpty();
     assertThat(issue.debt().toMinutes()).isGreaterThan(0L);
 
-    assertThat(it.hasNext()).isFalse();
-    it.close();
   }
 
   @Test
