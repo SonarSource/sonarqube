@@ -10,7 +10,9 @@ define([
         hasSource: false,
         hasCoverage: false,
         hasDuplications: false,
-        hasSCM: false
+        hasSCM: false,
+
+        canSeeCode: true
       };
     },
 

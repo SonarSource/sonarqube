@@ -72,7 +72,7 @@ define([
         },
 
         renderHeader: function () {
-          this.headerRegion.show(new HeaderView({ model: this.model }));
+          this.headerRegion.show(new HeaderView({model: this.model}));
         },
 
         onRender: function () {
@@ -102,18 +102,22 @@ define([
                   that.trigger('loaded');
                 });
               };
-          this.model.clear();
-          this.model.set({
-            uuid: id,
-            key: key
-          });
+          this.model
+              .clear()
+              .set(_.result(this.model, 'defaults'))
+              .set({
+                uuid: id,
+                key: key
+              });
           this.requestComponent().done(function () {
             that.requestSource()
                 .done(finalize)
                 .fail(function () {
-                  that.model.set({ source: [
-                    { line: 0 }
-                  ] });
+                  that.model.set({
+                    source: [
+                      {line: 0}
+                    ]
+                  });
                   finalize();
                 });
           });
@@ -123,10 +127,10 @@ define([
         requestComponent: function () {
           var that = this,
               url = baseUrl + '/api/components/app',
-              options = { key: this.model.key() };
+              options = {key: this.model.key()};
           return $.get(url, options).done(function (data) {
             that.model.set(data);
-            that.model.set({ isUnitTest: data.q === 'UTS' });
+            that.model.set({isUnitTest: data.q === 'UTS'});
           });
         },
 
@@ -154,14 +158,14 @@ define([
         requestSource: function () {
           var that = this,
               url = baseUrl + '/api/sources/lines',
-              options = _.extend({ uuid: this.model.id }, this.linesLimit());
-          return $.get(url, options, function (data) {
+              options = _.extend({uuid: this.model.id}, this.linesLimit());
+          return $.get(url, options).done(function (data) {
             var source = (data.sources || []).slice(0);
             if (source.length === 0 || (source.length > 0 && _.first(source).line === 1)) {
-              source.unshift({ line: 0 });
+              source.unshift({line: 0});
             }
             source = source.map(function (row) {
-              return _.extend(row, { coverageStatus: that.getCoverageStatus(row) });
+              return _.extend(row, {coverageStatus: that.getCoverageStatus(row)});
             });
             var firstLine = _.first(source).line,
                 linesRequested = options.to - options.from + 1;
@@ -170,13 +174,22 @@ define([
               hasSourceBefore: firstLine > 1,
               hasSourceAfter: data.sources.length === linesRequested
             });
+          }).fail(function (request) {
+            if (request.status === 403) {
+              that.model.set({
+                source: [],
+                hasSourceBefore: false,
+                hasSourceAfter: false,
+                canSeeCode: false
+              });
+            }
           });
         },
 
         requestDuplications: function () {
           var that = this,
               url = baseUrl + '/api/duplications/show',
-              options = { key: this.model.key() };
+              options = {key: this.model.key()};
           return $.get(url, options, function (data) {
             var hasDuplications = (data != null) && (data.duplications != null),
                 duplications = [];
@@ -276,7 +289,7 @@ define([
           e.stopPropagation();
           $('body').click();
           var line = +$(e.currentTarget).data('line-number'),
-              row = _.findWhere(this.model.get('source'), { line: line }),
+              row = _.findWhere(this.model.get('source'), {line: line}),
               popup = new SCMPopupView({
                 triggerEl: $(e.currentTarget),
                 model: new Backbone.Model(row)
@@ -289,7 +302,7 @@ define([
           $('body').click();
           var r = window.process.addBackgroundProcess(),
               line = $(e.currentTarget).data('line-number'),
-              row = _.findWhere(this.model.get('source'), { line: line }),
+              row = _.findWhere(this.model.get('source'), {line: line}),
               url = baseUrl + '/api/tests/test_cases',
               options = {
                 key: this.model.key(),
@@ -437,7 +450,7 @@ define([
           return $.get(url, options).done(function (data) {
             source = (data.sources || []).concat(source);
             if (source.length === 0 || (source.length > 0 && _.first(source).line === 1)) {
-              source.unshift({ line: 0 });
+              source.unshift({line: 0});
             }
             that.model.set({
               source: source,

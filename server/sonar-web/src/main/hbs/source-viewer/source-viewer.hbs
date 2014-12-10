@@ -1,54 +1,62 @@
 <div class="source-viewer-header"></div>
 
-{{#if hasSourceBefore}}
-  <i class="spinner js-component-viewer-source-before"></i>
-{{/if}}
+{{#if canSeeCode}}
 
-<table class="source-table">
-  {{#each source}}
-    <tr class="source-line {{#eq line 0}}{{#empty issues}}hidden{{/empty}}{{/eq}}" {{#if line}}data-line-number="{{line}}"{{/if}}>
-      <td class="source-meta source-line-number" {{#if line}}data-line-number="{{line}}"{{/if}}></td>
+  {{#if hasSourceBefore}}
+    <i class="spinner js-component-viewer-source-before"></i>
+  {{/if}}
 
-      <td class="source-meta source-line-scm" {{#if line}}data-line-number="{{line}}"{{/if}}>
-        {{#ifSCMChanged2 ../source line}}
-          <div class="source-line-scm-inner" data-author="{{scmAuthor}}"></div>
-        {{/ifSCMChanged2}}
-      </td>
+  <table class="source-table">
+    {{#each source}}
+      <tr class="source-line {{#eq line 0}}{{#empty issues}}hidden{{/empty}}{{/eq}}" {{#if line}}data-line-number="{{line}}"{{/if}}>
+        <td class="source-meta source-line-number" {{#if line}}data-line-number="{{line}}"{{/if}}></td>
 
-      <td class="source-meta source-line-coverage {{#notNull coverageStatus}}source-line-{{coverageStatus}}{{/notNull}}"
-          data-line-number="{{line}}">
-        <div class="source-line-bar"></div>
-      </td>
+        <td class="source-meta source-line-scm" {{#if line}}data-line-number="{{line}}"{{/if}}>
+          {{#ifSCMChanged2 ../source line}}
+            <div class="source-line-scm-inner" data-author="{{scmAuthor}}"></div>
+          {{/ifSCMChanged2}}
+        </td>
 
-      <td class="source-meta source-line-duplications {{#if duplicated}}source-line-duplicated{{/if}}"
-          title="{{t 'source_viewer.expand_duplications'}}">
-        <div class="source-line-bar"></div>
-      </td>
-
-      {{#each duplications}}
-        <td class="source-meta source-line-duplications-extra {{#if this}}source-line-duplicated{{/if}}"
-            data-index="{{this}}" data-line-number="{{line}}">
+        <td class="source-meta source-line-coverage {{#notNull coverageStatus}}source-line-{{coverageStatus}}{{/notNull}}"
+            data-line-number="{{line}}">
           <div class="source-line-bar"></div>
         </td>
-      {{/each}}
 
-      <td class="source-line-code code {{#notEmpty issues}}has-issues{{/notEmpty}}" data-line-number="{{line}}">
-        {{#notNull code}}
-          <pre>{{#if code}}{{{code}}}{{else}}&nbsp;{{/if}}</pre>
-        {{/notNull}}
+        <td class="source-meta source-line-duplications {{#if duplicated}}source-line-duplicated{{/if}}"
+            title="{{t 'source_viewer.expand_duplications'}}">
+          <div class="source-line-bar"></div>
+        </td>
 
-        {{#notEmpty issues}}
-          <div class="issue-list">
-            {{#each issues}}
-              <div class="issue" id="issue-{{key}}"></div>
-            {{/each}}
-          </div>
-        {{/notEmpty}}
-      </td>
-    </tr>
-  {{/each}}
-</table>
+        {{#each duplications}}
+          <td class="source-meta source-line-duplications-extra {{#if this}}source-line-duplicated{{/if}}"
+              data-index="{{this}}" data-line-number="{{line}}">
+            <div class="source-line-bar"></div>
+          </td>
+        {{/each}}
 
-{{#if hasSourceAfter}}
-  <i class="spinner js-component-viewer-source-after"></i>
+        <td class="source-line-code code {{#notEmpty issues}}has-issues{{/notEmpty}}" data-line-number="{{line}}">
+          {{#notNull code}}
+            <pre>{{#if code}}{{{code}}}{{else}}&nbsp;{{/if}}</pre>
+          {{/notNull}}
+
+          {{#notEmpty issues}}
+            <div class="issue-list">
+              {{#each issues}}
+                <div class="issue" id="issue-{{key}}"></div>
+              {{/each}}
+            </div>
+          {{/notEmpty}}
+        </td>
+      </tr>
+    {{/each}}
+  </table>
+
+  {{#if hasSourceAfter}}
+    <i class="spinner js-component-viewer-source-after"></i>
+  {{/if}}
+
+{{else}}
+
+  <div class="message-error">{{t 'code_viewer.no_source_code_displayed_due_to_security'}}</div>
+
 {{/if}}

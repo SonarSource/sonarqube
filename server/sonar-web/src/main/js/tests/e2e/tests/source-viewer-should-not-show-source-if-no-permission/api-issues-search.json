@@ -1,0 +1,234 @@
+{
+  "total": 5,
+  "p": 1,
+  "ps": 100,
+  "projects": [
+    {
+      "uuid": "e07e9bed-f45d-4538-a5e8-77031c1ecae7",
+      "key": "test:fake-project-for-tests",
+      "id": 36125,
+      "qualifier": "TRK",
+      "name": "Fake Project for Tests",
+      "longName": "Fake Project for Tests"
+    }
+  ],
+  "components": [
+    {
+      "uuid": "b4248001-df0c-436a-8acd-a152809b8a23",
+      "key": "test:fake-project-for-tests:src/main/java/foo/Simplest.java",
+      "id": 36129,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "Simplest.java",
+      "longName": "src/main/java/foo/Simplest.java",
+      "path": "src/main/java/foo/Simplest.java",
+      "projectId": 36125,
+      "subProjectId": 36125
+    },
+    {
+      "uuid": "e07e9bed-f45d-4538-a5e8-77031c1ecae7",
+      "key": "test:fake-project-for-tests",
+      "id": 36125,
+      "enabled": true,
+      "qualifier": "TRK",
+      "name": "Fake Project for Tests",
+      "longName": "Fake Project for Tests"
+    }
+  ],
+  "issues": [
+    {
+      "key": "91b13078-6f69-4b51-ab0f-8fd0bc391532",
+      "component": "test:fake-project-for-tests:src/main/java/foo/Simplest.java",
+      "componentId": 36129,
+      "project": "test:fake-project-for-tests",
+      "rule": "squid:S00105",
+      "status": "OPEN",
+      "severity": "MINOR",
+      "message": "Replace all tab characters in this file by sequences of white-spaces.",
+      "debt": "2min",
+      "creationDate": "2014-12-09T10:47:33+0100",
+      "updateDate": "2014-12-09T10:47:33+0100",
+      "fUpdateAge": "3 hours",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "confirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "c18ae6fa-fac7-46b5-bd71-feef7906b05a",
+      "component": "test:fake-project-for-tests:src/main/java/foo/Simplest.java",
+      "componentId": 36129,
+      "project": "test:fake-project-for-tests",
+      "rule": "squid:S1118",
+      "status": "OPEN",
+      "severity": "MAJOR",
+      "message": "Add a private constructor to hide the implicit public one.",
+      "line": 6,
+      "debt": "30min",
+      "creationDate": "2014-12-09T10:47:33+0100",
+      "updateDate": "2014-12-09T10:47:33+0100",
+      "fUpdateAge": "3 hours",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "confirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "816282ec-0ca9-4d03-b8bc-22b515496fe4",
+      "component": "test:fake-project-for-tests:src/main/java/foo/Simplest.java",
+      "componentId": 36129,
+      "project": "test:fake-project-for-tests",
+      "rule": "squid:IndentationCheck",
+      "status": "OPEN",
+      "severity": "MAJOR",
+      "message": "Make this line start at column 3.",
+      "line": 8,
+      "debt": "1min",
+      "creationDate": "2014-12-09T10:47:33+0100",
+      "updateDate": "2014-12-09T10:47:33+0100",
+      "fUpdateAge": "3 hours",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "confirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "0229497b-a613-48f3-83ed-2b98983e5e60",
+      "component": "test:fake-project-for-tests:src/main/java/foo/Simplest.java",
+      "componentId": 36129,
+      "project": "test:fake-project-for-tests",
+      "rule": "squid:IndentationCheck",
+      "status": "OPEN",
+      "severity": "MAJOR",
+      "message": "Make this line start at column 5.",
+      "line": 10,
+      "debt": "1min",
+      "creationDate": "2014-12-09T10:47:33+0100",
+      "updateDate": "2014-12-09T10:47:33+0100",
+      "fUpdateAge": "3 hours",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "confirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "896ccfe0-bb85-4155-be1f-1aaece716539",
+      "component": "test:fake-project-for-tests:src/main/java/foo/Simplest.java",
+      "componentId": 36129,
+      "project": "test:fake-project-for-tests",
+      "rule": "squid:S106",
+      "status": "OPEN",
+      "severity": "MAJOR",
+      "message": "Replace this usage of System.out or System.err by a logger.",
+      "line": 12,
+      "debt": "10min",
+      "creationDate": "2014-12-09T10:47:33+0100",
+      "updateDate": "2014-12-09T10:47:33+0100",
+      "fUpdateAge": "3 hours",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "confirm",
+        "resolve",
+        "falsepositive"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "key": "squid:IndentationCheck",
+      "name": "Source code should be correctly indented",
+      "lang": "java",
+      "desc": "<p>\nProper indentation is a simple and effective way to improve the code's readability.\nConsistent indentation among developers also reduces the differences that are committed to source control systems, making code reviews easier.\n</p>\n\n<p>The following code illustrates this rule with an indentation level of 2:</p>\n\n<pre>\nclass Foo {\n  public int a; // Compliant\npublic int b;   // Non-Compliant\n}\n</pre>",
+      "status": "READY",
+      "langName": "Java"
+    },
+    {
+      "key": "squid:S1118",
+      "name": "Utility classes should not have a public constructor",
+      "lang": "java",
+      "desc": "<p>\nUtility classes, which are a collection of static members, are not meant to be instantiated.\nThey should therefore not have public constructors.\n</p>\n\n<p>\nJava adds an implicit public constructor to every class which does not define at least one explicitly.\nHence, at least one non-public constructor should be defined.\n</p>\n\n<p>The following code:</p>\n\n<pre>\nclass StringUtils { // Non-Compliant\n\n  public static String concatenate(String s1, String s2) {\n    return s1 + s2;\n  }\n\n}\n</pre>\n\n<p>should be refactored into:</p>\n\n<pre>\nclass StringUtils { // Compliant\n\n  private StringUtils() {\n  }\n\n  public static String concatenate(String s1, String s2) {\n    return s1 + s2;\n  }\n\n}\n</pre>",
+      "status": "READY",
+      "langName": "Java"
+    },
+    {
+      "key": "squid:S00105",
+      "name": "Tabulation characters should not be used",
+      "lang": "java",
+      "desc": "<p>\nDevelopers should not need to configure the tab width of their text editors in order to be able to read source code.\nSo the use of tabulation character must be banned.\n</p>",
+      "status": "READY",
+      "langName": "Java"
+    },
+    {
+      "key": "squid:S106",
+      "name": "System.out and System.err should not be used as loggers",
+      "lang": "java",
+      "desc": "<p>Two important requirements must be fulfilled when logging messages:</p>\n\n<ul>\n  <li>The user must be able to easily retrieve the logs.</li>\n  <li>The format of all messages must be uniform to enable users to easily browse them.</li>\n</ul>\n\n<p>\nIf a program directly writes to the standard output, there is absolutely no way to comply with these requirements.\nThat's why defining and using a dedicated logger is highly recommended.\n</p>\n\n<p>\nThe following code snippet illustrates this rule:\n</p>\n\n<pre>\nSystem.out.println(\"My Message\");  // Non-Compliant\n\nlogger.log(\"My Message\");          // Compliant\n</pre>",
+      "status": "READY",
+      "langName": "Java"
+    }
+  ],
+  "users": [
+    {
+      "login": "admin",
+      "name": "Admin Admin",
+      "active": true,
+      "email": "admin@sonarsource.com"
+    }
+  ],
+  "languages": [
+    {
+      "key": "js",
+      "name": "JavaScript"
+    },
+    {
+      "key": "java",
+      "name": "Java"
+    }
+  ],
+  "maxResultsReached": false,
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 100,
+    "total": 5,
+    "fTotal": "5",
+    "pages": 1
+  }
+}
