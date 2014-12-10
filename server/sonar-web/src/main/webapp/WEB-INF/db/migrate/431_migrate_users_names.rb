@@ -33,7 +33,8 @@ class MigrateUsersNames < ActiveRecord::Migration
     User.find(:all).each do |user|
       if user.name.blank?
         user.name = user.login
-        user.save!
+        user.updated_at = Time.now
+        user.send(:update_without_callbacks)
       end
     end
 

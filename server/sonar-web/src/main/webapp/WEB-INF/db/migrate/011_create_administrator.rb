@@ -21,8 +21,10 @@ class CreateAdministrator < ActiveRecord::Migration
 
   def self.up
     # Do not use faux model here : the password must be encrypted
-    User.create(:login => 'admin', :name => 'Administrator', :email => '', :password => 'admin',
-      :password_confirmation => 'admin')
+    u = User.new(:login => 'admin', :name => 'Administrator', :email => '', :password => 'admin', :password_confirmation => 'admin',
+                 :created_at => Time.now, :updated_at => Time.now)
+    # Skip before_create as it populate dates columns with a long value (see migrations 752 to 754)
+    u.send(:create_without_callbacks)
   end
 
 end

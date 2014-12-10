@@ -29,7 +29,8 @@ class AddActiveFieldOnUsers < ActiveRecord::Migration
     User.reset_column_information
     User.find(:all).each do |user|
       user.active = true
-      user.save
+      user.updated_at = Time.now
+      user.send(:update_without_callbacks)
     end
   end
 

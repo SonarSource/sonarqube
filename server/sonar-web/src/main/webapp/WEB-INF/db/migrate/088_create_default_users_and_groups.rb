@@ -32,7 +32,8 @@ class CreateDefaultUsersAndGroups < ActiveRecord::Migration
 
     admin=User.find_by_login('admin')
     admin.groups<<administrators
-  	admin.save!       	 
+    admin.updated_at = Time.now
+    admin.send(:update_without_callbacks)
   end
 
   def self.create_users
@@ -41,6 +42,7 @@ class CreateDefaultUsersAndGroups < ActiveRecord::Migration
     # The user 'admin' is considered as a user
     admin=User.find_by_login('admin')
     admin.groups<<users
-    admin.save!
+    admin.updated_at = Time.now
+    admin.send(:update_without_callbacks)
   end
 end
