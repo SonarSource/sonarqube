@@ -66,7 +66,7 @@ class PluginRealm
       user = User.find_active_by_login(username)
       # SONAR-4950 Use a transaction to prevent multiple insertion of same groups
       User.transaction do
-        user.updated_at = Java::JavaLang::System.java_class.currentTimeMillis()
+        user.updated_at = java.lang.System.currentTimeMillis
         user.save(false)
       end
       result = user if user && user.authenticated?(password)
