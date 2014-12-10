@@ -253,7 +253,7 @@ define([
           this.$('.issue-list').addClass('hidden');
         },
 
-        renderIssue: function (issue) {
+        renderIssue: function () {
           // do nothing
         },
 

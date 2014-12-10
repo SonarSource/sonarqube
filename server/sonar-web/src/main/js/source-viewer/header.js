@@ -46,7 +46,7 @@ define([
 
     showMoreActions: function (e) {
       e.stopPropagation();
-      $('body').click()
+      $('body').click();
       var view = new MoreActionsView({ parent: this });
       view.render().$el.appendTo(this.$el);
     },

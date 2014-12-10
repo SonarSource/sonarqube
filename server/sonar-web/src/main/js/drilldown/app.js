@@ -21,7 +21,7 @@ requirejs.config({
 
 requirejs([
   'backbone.marionette',
-  'source-viewer/viewer',
+  'source-viewer/viewer'
 ], function (Marionette, SourceViewer) {
 
   var $ = jQuery,
