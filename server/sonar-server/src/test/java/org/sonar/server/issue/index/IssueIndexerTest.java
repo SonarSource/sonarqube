@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.config.Settings;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.core.persistence.TestDatabase;
+import org.sonar.core.persistence.DbTester;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.test.DbTests;
@@ -38,7 +38,7 @@ import static org.fest.assertions.Assertions.assertThat;
 public class IssueIndexerTest {
 
   @Rule
-  public TestDatabase dbTester = new TestDatabase();
+  public DbTester dbTester = new DbTester();
 
   @Rule
   public EsTester esTester = new EsTester().addDefinitions(new IssueIndexDefinition(new Settings()));

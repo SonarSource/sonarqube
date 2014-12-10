@@ -28,7 +28,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.core.persistence.TestDatabase;
+import org.sonar.core.persistence.DbTester;
 
 import static org.mockito.Mockito.when;
 
@@ -36,7 +36,7 @@ import static org.mockito.Mockito.when;
 public class NotResolvedIssuesOnRemovedComponentsMigrationTest {
 
   @ClassRule
-  public static TestDatabase db = new TestDatabase().schema(NotResolvedIssuesOnRemovedComponentsMigrationTest.class, "schema.sql");
+  public static DbTester db = new DbTester().schema(NotResolvedIssuesOnRemovedComponentsMigrationTest.class, "schema.sql");
 
   @Mock
   System2 system2;

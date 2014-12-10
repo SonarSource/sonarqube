@@ -25,7 +25,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.sonar.core.persistence.TestDatabase;
+import org.sonar.core.persistence.DbTester;
 import org.sonar.test.DbTests;
 
 import java.sql.Connection;
@@ -40,7 +40,7 @@ import static org.fest.assertions.Fail.fail;
 public class ResultSetIteratorTest {
 
   @Rule
-  public TestDatabase dbTester = new TestDatabase().schema(ResultSetIteratorTest.class, "schema.sql");
+  public DbTester dbTester = new DbTester().schema(ResultSetIteratorTest.class, "schema.sql");
 
   Connection connection = null;
 

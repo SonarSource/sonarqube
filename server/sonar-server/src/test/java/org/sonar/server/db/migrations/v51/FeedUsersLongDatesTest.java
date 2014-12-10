@@ -23,7 +23,7 @@ package org.sonar.server.db.migrations.v51;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
-import org.sonar.core.persistence.TestDatabase;
+import org.sonar.core.persistence.DbTester;
 import org.sonar.server.db.migrations.DatabaseMigration;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -33,7 +33,7 @@ import static org.mockito.Mockito.when;
 public class FeedUsersLongDatesTest {
 
   @ClassRule
-  public static TestDatabase db = new TestDatabase().schema(FeedUsersLongDatesTest.class, "schema.sql");
+  public static DbTester db = new DbTester().schema(FeedUsersLongDatesTest.class, "schema.sql");
 
   @Test
   public void execute() throws Exception {

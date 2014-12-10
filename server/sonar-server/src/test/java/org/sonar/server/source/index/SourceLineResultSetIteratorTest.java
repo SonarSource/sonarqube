@@ -24,7 +24,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.sonar.core.persistence.TestDatabase;
+import org.sonar.core.persistence.DbTester;
 import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
 
@@ -38,7 +38,7 @@ import static org.fest.assertions.Fail.fail;
 public class SourceLineResultSetIteratorTest {
 
   @ClassRule
-  public static TestDatabase db = new TestDatabase().schema(SourceLineResultSetIteratorTest.class, "schema.sql");
+  public static DbTester db = new DbTester().schema(SourceLineResultSetIteratorTest.class, "schema.sql");
 
   DbClient dbClient;
 

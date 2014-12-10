@@ -24,7 +24,7 @@ import org.apache.commons.dbutils.DbUtils;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
-import org.sonar.core.persistence.TestDatabase;
+import org.sonar.core.persistence.DbTester;
 import org.sonar.server.db.migrations.DatabaseMigration;
 
 import java.sql.PreparedStatement;
@@ -38,7 +38,7 @@ import static org.mockito.Mockito.when;
 public class FeedUsersScmAccountsTest {
 
   @ClassRule
-  public static TestDatabase db = new TestDatabase().schema(FeedUsersScmAccountsTest.class, "schema.sql");
+  public static DbTester db = new DbTester().schema(FeedUsersScmAccountsTest.class, "schema.sql");
 
   @Test
   public void execute() throws Exception {

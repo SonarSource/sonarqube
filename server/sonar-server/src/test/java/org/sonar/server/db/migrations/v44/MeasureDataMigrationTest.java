@@ -25,13 +25,13 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.core.persistence.TestDatabase;
+import org.sonar.core.persistence.DbTester;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MeasureDataMigrationTest {
 
   @ClassRule
-  public static TestDatabase db = new TestDatabase().schema(MeasureDataMigrationTest.class, "schema.sql");
+  public static DbTester db = new DbTester().schema(MeasureDataMigrationTest.class, "schema.sql");
 
   MeasureDataMigration migration;
 

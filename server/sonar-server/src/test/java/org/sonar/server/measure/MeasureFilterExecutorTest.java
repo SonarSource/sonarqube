@@ -28,7 +28,7 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.component.SnapshotDto;
-import org.sonar.core.persistence.TestDatabase;
+import org.sonar.core.persistence.DbTester;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.test.DbTests;
 
@@ -59,7 +59,7 @@ public class MeasureFilterExecutorTest {
   private MeasureFilterExecutor executor;
 
   @ClassRule
-  public static TestDatabase db = new TestDatabase();
+  public static DbTester db = new DbTester();
 
   @Before
   public void before() {

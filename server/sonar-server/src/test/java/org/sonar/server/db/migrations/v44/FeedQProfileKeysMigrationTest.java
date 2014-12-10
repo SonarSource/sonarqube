@@ -23,7 +23,7 @@ package org.sonar.server.db.migrations.v44;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
-import org.sonar.core.persistence.TestDatabase;
+import org.sonar.core.persistence.DbTester;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 
@@ -33,7 +33,7 @@ import static org.mockito.Mockito.mock;
 public class FeedQProfileKeysMigrationTest {
 
   @ClassRule
-  public static TestDatabase db = new TestDatabase().schema(FeedQProfileKeysMigrationTest.class, "schema.sql");
+  public static DbTester db = new DbTester().schema(FeedQProfileKeysMigrationTest.class, "schema.sql");
 
   @Test
   public void feed_keys() throws Exception {

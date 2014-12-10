@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.BatchSession;
-import org.sonar.core.persistence.TestDatabase;
+import org.sonar.core.persistence.DbTester;
 import org.sonar.test.DbTests;
 
 import java.sql.SQLException;
@@ -40,7 +40,7 @@ import static org.fest.assertions.Fail.fail;
 public class BaseDataChangeTest extends AbstractDaoTestCase {
 
   @ClassRule
-  public static TestDatabase db = new TestDatabase().schema(BaseDataChangeTest.class, "schema.sql");
+  public static DbTester db = new DbTester().schema(BaseDataChangeTest.class, "schema.sql");
 
   @Before
   public void setUp() throws Exception {

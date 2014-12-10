@@ -30,7 +30,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.persistence.TestDatabase;
+import org.sonar.core.persistence.DbTester;
 import org.sonar.test.DbTests;
 
 import java.util.Date;
@@ -49,7 +49,7 @@ public class AnalysisReportDaoTest {
   private static final long DEFAULT_SNAPSHOT_ID = 123L;
 
   @Rule
-  public TestDatabase db = new TestDatabase();
+  public DbTester db = new DbTester();
   private AnalysisReportDao sut;
   private DbSession session;
   private System2 system2;

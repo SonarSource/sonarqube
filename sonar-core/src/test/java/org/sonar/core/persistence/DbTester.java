@@ -41,7 +41,7 @@ import org.dbunit.dataset.ReplacementDataSet;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
 import org.dbunit.ext.mssql.InsertIdentityOperation;
 import org.dbunit.operation.DatabaseOperation;
-import org.junit.internal.AssumptionViolatedException;
+import org.junit.AssumptionViolatedException;
 import org.junit.rules.ExternalResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,12 +71,12 @@ import static org.junit.Assert.fail;
  * the schema will be recreated before each test).
  * Data will be truncated each time you call prepareDbUnit().
  * <p/>
- * File using <code>TestDatabase</code> must be annotated with {@link org.sonar.test.DbTests} so
- * that they can be executed on all supported DBs.
+ * File using {@link org.sonar.core.persistence.DbTester} must be annotated with {@link org.sonar.test.DbTests} so
+ * that they can be executed on all supported DBs (Oracle, MySQL, ...).
  */
-public class TestDatabase extends ExternalResource {
+public class DbTester extends ExternalResource {
 
-  private static final Logger LOG = LoggerFactory.getLogger(TestDatabase.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DbTester.class);
 
   private Database db;
   private DatabaseCommands commands;
@@ -84,7 +84,7 @@ public class TestDatabase extends ExternalResource {
   private MyBatis myBatis;
   private String schemaPath = null;
 
-  public TestDatabase schema(Class baseClass, String filename) {
+  public DbTester schema(Class baseClass, String filename) {
     String path = StringUtils.replaceChars(baseClass.getCanonicalName(), '.', '/');
     schemaPath = path + "/" + filename;
     return this;
@@ -147,10 +147,6 @@ public class TestDatabase extends ExternalResource {
 
   public Dialect dialect() {
     return db.getDialect();
-  }
-
-  public DatabaseCommands commands() {
-    return commands;
   }
 
   public MyBatis myBatis() {

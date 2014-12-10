@@ -27,7 +27,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.core.persistence.TestDatabase;
+import org.sonar.core.persistence.DbTester;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -39,7 +39,7 @@ import static org.mockito.Mockito.when;
 public class FeedFileSourcesTest {
 
   @ClassRule
-  public static TestDatabase db = new TestDatabase().schema(FeedFileSourcesTest.class, "schema.sql");
+  public static DbTester db = new DbTester().schema(FeedFileSourcesTest.class, "schema.sql");
 
   FeedFileSources migration;
 

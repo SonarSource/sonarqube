@@ -28,7 +28,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.core.persistence.TestDatabase;
+import org.sonar.core.persistence.DbTester;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 
@@ -38,7 +38,7 @@ import static org.mockito.Mockito.when;
 public class ConvertIssueDebtToMinutesMigrationTest {
 
   @ClassRule
-  public static TestDatabase db = new TestDatabase().schema(ConvertIssueDebtToMinutesMigrationTest.class, "schema.sql");
+  public static DbTester db = new DbTester().schema(ConvertIssueDebtToMinutesMigrationTest.class, "schema.sql");
 
   @Mock
   System2 system2;

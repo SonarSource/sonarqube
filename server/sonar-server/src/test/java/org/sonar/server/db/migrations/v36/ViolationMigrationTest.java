@@ -22,14 +22,14 @@ package org.sonar.server.db.migrations.v36;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
-import org.sonar.core.persistence.TestDatabase;
+import org.sonar.core.persistence.DbTester;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public class ViolationMigrationTest {
 
   @ClassRule
-  public static TestDatabase db = new TestDatabase().schema(ViolationMigrationTest.class, "schema.sql");
+  public static DbTester db = new DbTester().schema(ViolationMigrationTest.class, "schema.sql");
 
   @Test
   public void migrate_violations() throws Exception {

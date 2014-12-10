@@ -29,7 +29,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.Uuids;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.persistence.TestDatabase;
+import org.sonar.core.persistence.DbTester;
 import org.sonar.server.db.fake.FakeDao;
 import org.sonar.server.db.fake.FakeDto;
 import org.sonar.server.db.fake.FakeMapper;
@@ -43,7 +43,7 @@ import static org.fest.assertions.Assertions.assertThat;
 public class BaseDaoTest {
 
   @ClassRule
-  public static TestDatabase db = new TestDatabase()
+  public static DbTester db = new DbTester()
     .schema(BaseDaoTest.class, "schema.sql");
 
   private static final String DTO_ALIAS = "fake";

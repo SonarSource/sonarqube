@@ -24,7 +24,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.core.persistence.TestDatabase;
+import org.sonar.core.persistence.DbTester;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.db.migrations.DatabaseMigration;
 
@@ -34,7 +34,7 @@ import static org.mockito.Mockito.when;
 public class AddMissingCustomRuleParametersMigrationTest {
 
   @ClassRule
-  public static TestDatabase db = new TestDatabase().schema(AddMissingCustomRuleParametersMigrationTest.class, "schema.sql");
+  public static DbTester db = new DbTester().schema(AddMissingCustomRuleParametersMigrationTest.class, "schema.sql");
 
   DatabaseMigration migration;
   System2 system = mock(System2.class);

@@ -25,7 +25,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.core.UtcDateUtils;
-import org.sonar.core.persistence.TestDatabase;
+import org.sonar.core.persistence.DbTester;
 import org.sonar.server.db.DbClient;
 
 import static org.mockito.Mockito.mock;
@@ -34,7 +34,7 @@ import static org.mockito.Mockito.when;
 public class FeedQProfileDatesMigrationTest {
 
   @ClassRule
-  public static TestDatabase db = new TestDatabase().schema(FeedQProfileDatesMigrationTest.class, "schema.sql");
+  public static DbTester db = new DbTester().schema(FeedQProfileDatesMigrationTest.class, "schema.sql");
 
   FeedQProfileDatesMigration migration;
 

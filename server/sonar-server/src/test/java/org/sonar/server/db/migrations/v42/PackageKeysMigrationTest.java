@@ -21,13 +21,13 @@ package org.sonar.server.db.migrations.v42;
 
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.core.persistence.TestDatabase;
+import org.sonar.core.persistence.DbTester;
 import org.sonar.server.db.migrations.DatabaseMigration;
 
 public class PackageKeysMigrationTest {
 
   @ClassRule
-  public static TestDatabase db = new TestDatabase().schema(PackageKeysMigrationTest.class, "schema.sql");
+  public static DbTester db = new DbTester().schema(PackageKeysMigrationTest.class, "schema.sql");
 
   DatabaseMigration migration = new PackageKeysMigration(db.database());
 

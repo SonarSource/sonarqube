@@ -26,7 +26,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.TestDatabase;
+import org.sonar.core.persistence.DbTester;
 import org.sonar.core.persistence.migration.v50.Component;
 import org.sonar.core.persistence.migration.v50.Migration50Mapper;
 import org.sonar.server.db.DbClient;
@@ -37,7 +37,7 @@ import static org.fest.assertions.Assertions.assertThat;
 public class PopulateProjectsUuidColumnsMigrationTest {
 
   @ClassRule
-  public static TestDatabase db = new TestDatabase().schema(PopulateProjectsUuidColumnsMigrationTest.class, "schema.sql");
+  public static DbTester db = new DbTester().schema(PopulateProjectsUuidColumnsMigrationTest.class, "schema.sql");
 
   DbSession session;
 

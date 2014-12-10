@@ -30,7 +30,7 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.activity.db.ActivityDto;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.TestDatabase;
+import org.sonar.core.persistence.DbTester;
 import org.sonar.server.activity.db.ActivityDao;
 import org.sonar.server.db.DbClient;
 
@@ -43,7 +43,7 @@ import static org.mockito.Mockito.when;
 public class ChangeLogMigrationTest {
 
   @ClassRule
-  public static TestDatabase db = new TestDatabase().schema(ChangeLogMigrationTest.class, "schema.sql");
+  public static DbTester db = new DbTester().schema(ChangeLogMigrationTest.class, "schema.sql");
 
   @Mock
   System2 system2;

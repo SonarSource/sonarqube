@@ -27,7 +27,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.sonar.core.persistence.TestDatabase;
+import org.sonar.core.persistence.DbTester;
 import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
 
@@ -40,7 +40,7 @@ import static org.fest.assertions.Assertions.assertThat;
 public class IssueResultSetIteratorTest {
 
   @Rule
-  public TestDatabase dbTester = new TestDatabase();
+  public DbTester dbTester = new DbTester();
 
   DbClient client;
   Connection connection;

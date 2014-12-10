@@ -30,7 +30,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.persistence.TestDatabase;
+import org.sonar.core.persistence.DbTester;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.SnapshotDao;
 import org.sonar.test.DbTests;
@@ -41,7 +41,7 @@ import static org.mockito.Mockito.when;
 @Category(DbTests.class)
 public class SwitchSnapshotStepTest {
   @Rule
-  public TestDatabase db = new TestDatabase();
+  public DbTester db = new DbTester();
 
   private DbSession session;
   private SwitchSnapshotStep sut;

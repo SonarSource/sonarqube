@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.core.persistence.TestDatabase;
+import org.sonar.core.persistence.DbTester;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 
@@ -36,7 +36,7 @@ import static org.mockito.Mockito.when;
 public class DevelopmentCostMeasuresMigrationTest {
 
   @ClassRule
-  public static TestDatabase db = new TestDatabase().schema(DevelopmentCostMeasuresMigrationTest.class, "schema.sql");
+  public static DbTester db = new DbTester().schema(DevelopmentCostMeasuresMigrationTest.class, "schema.sql");
 
   @Mock
   PropertiesDao propertiesDao;
