@@ -52,6 +52,6 @@ public class ViolationMigrationTest {
   }
 
   private void assertMigrationEnded() {
-    assertThat(db.count("select count(id) from rule_failures")).isEqualTo(0);
+    assertThat(db.countRowsOfTable("rule_failures")).isEqualTo(0);
   }
 }

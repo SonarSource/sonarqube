@@ -19,6 +19,7 @@
  */
 package org.sonar.core.persistence;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.dbutils.DbUtils;
@@ -169,7 +170,22 @@ public class DbTester extends ExternalResource {
     }
   }
 
-  public int count(String sql) {
+  /**
+   * Returns the number of rows in the table. Example:
+   * <pre>int issues = countTable("issues")</pre>
+   */
+  public int countRowsOfTable(String tableName) {
+    Preconditions.checkArgument(StringUtils.containsNone(tableName, " "), "Parameter must be the name of a table. Got " + tableName);
+    return countSql("select count(*) from " + tableName);
+  }
+
+  /**
+   * Executes a SQL request starting with "SELECT COUNT(something) FROM", for example:
+   * <pre>int OpenIssues = countSql("select count('id') from issues where status is not null")</pre>
+   */
+  public int countSql(String sql) {
+    Preconditions.checkArgument(StringUtils.contains(sql, "count("),
+      "Parameter must be a SQL request containing 'count(x)' function. Got " + sql);
     Connection connection = null;
     PreparedStatement stmt = null;
     ResultSet rs = null;

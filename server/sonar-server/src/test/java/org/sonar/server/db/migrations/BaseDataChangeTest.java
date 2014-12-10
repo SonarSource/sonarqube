@@ -238,7 +238,7 @@ public class BaseDataChangeTest extends AbstractDaoTestCase {
       }
     }.execute();
 
-    assertThat(db.count("select count(id) from persons")).isEqualTo(count);
+    assertThat(db.countRowsOfTable("persons")).isEqualTo(count);
   }
 
   @Test

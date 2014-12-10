@@ -50,7 +50,7 @@ public class FeedUsersScmAccountsTest {
     migration.execute();
 
     // Cannot use db.assertDbUnit with users table as there's a conflict with the h2 users table
-    assertThat(db.count("select count(*) from users where updated_at='3000000000000'")).isEqualTo(3);
+    assertThat(db.countSql("select count(*) from users where updated_at='3000000000000'")).isEqualTo(3);
     assertThat(getScmAccountsFromUsers(1)).contains("user1,user1@mail.com");
     assertThat(getScmAccountsFromUsers(3)).contains("user3");
     assertThat(getScmAccountsFromUsers(4)).contains("user4,\"user4,@mail.com\"");
