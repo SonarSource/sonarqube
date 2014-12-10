@@ -32,6 +32,7 @@ import org.sonar.server.db.migrations.v451.DeleteUnescapedActivities;
 import org.sonar.server.db.migrations.v50.*;
 import org.sonar.server.db.migrations.v51.FeedIssueTags;
 import org.sonar.server.db.migrations.v51.FeedUsersLongDates;
+import org.sonar.server.db.migrations.v51.FeedUsersScmAccounts;
 
 import java.util.List;
 
@@ -78,7 +79,8 @@ public interface DatabaseMigrations {
 
     // 5.1
     FeedIssueTags.class,
-    FeedUsersLongDates.class
-  );
+    FeedUsersLongDates.class,
+    FeedUsersScmAccounts.class
+    );
 
 }
