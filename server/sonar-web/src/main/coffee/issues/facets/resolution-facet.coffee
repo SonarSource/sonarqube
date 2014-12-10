@@ -37,6 +37,6 @@ define [
 
 
     sortValues: (values) ->
-      order = ['', 'FIXED', 'FALSE-POSITIVE', 'REMOVED']
+      order = ['', 'FIXED', 'FALSE-POSITIVE', 'MUTED', 'REMOVED']
       _.sortBy values, (v) -> order.indexOf v.val
 
