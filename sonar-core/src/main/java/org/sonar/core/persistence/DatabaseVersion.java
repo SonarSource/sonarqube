@@ -33,7 +33,7 @@ import java.util.List;
  */
 public class DatabaseVersion implements BatchComponent, ServerComponent {
 
-  public static final int LAST_VERSION = 756;
+  public static final int LAST_VERSION = 755;
 
   /**
    * List of all the tables.n
