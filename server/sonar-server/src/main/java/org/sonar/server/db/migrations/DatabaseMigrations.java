@@ -72,7 +72,8 @@ public interface DatabaseMigrations {
     ReplaceIssueFiltersProjectKeyByUuid.class,
     FeedSnapshotSourcesUpdatedAt.class,
     FeedFileSources.class,
-    FeedIssueLongDates.class
+    FeedIssueLongDates.class,
+    RemoveSortFieldFromIssueFiltersMigration.class
   );
 
 }
