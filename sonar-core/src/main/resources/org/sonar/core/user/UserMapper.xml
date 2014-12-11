@@ -98,7 +98,7 @@
   </delete>
 
   <update id="deactivateUser" parameterType="long">
-    UPDATE users SET active=${_false} WHERE id=#{id}
+    UPDATE users SET active=${_false}, updated_at=#{now} WHERE id=#{id}
   </update>
 
   <insert id="insert" parameterType="User" keyColumn="id" useGeneratedKeys="true" keyProperty="id">

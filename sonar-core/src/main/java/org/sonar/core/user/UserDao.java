@@ -24,6 +24,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.user.UserQuery;
+import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
@@ -38,9 +39,11 @@ import java.util.List;
 public class UserDao implements BatchComponent, ServerComponent, DaoComponent {
 
   private final MyBatis mybatis;
+  private final System2 system2;
 
-  public UserDao(MyBatis mybatis) {
+  public UserDao(MyBatis mybatis, System2 system2) {
     this.mybatis = mybatis;
+    this.system2 = system2;
   }
 
   public UserDto getUser(long userId) {
@@ -136,7 +139,7 @@ public class UserDao implements BatchComponent, ServerComponent, DaoComponent {
       mapper.deleteUserMeasureFilterFavourites(dto.getId());
       mapper.deleteUserProperties(dto.getId());
       mapper.deleteUserRoles(dto.getId());
-      mapper.deactivateUser(dto.getId());
+      mapper.deactivateUser(dto.getId(), system2.now());
       session.commit();
       return true;
 

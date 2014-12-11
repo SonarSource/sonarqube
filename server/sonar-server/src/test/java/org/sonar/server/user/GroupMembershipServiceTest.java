@@ -23,6 +23,7 @@ package org.sonar.server.user;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.user.GroupMembership;
 import org.sonar.core.user.GroupMembershipDao;
@@ -44,7 +45,7 @@ public class GroupMembershipServiceTest extends AbstractDaoTestCase {
   @Before
   public void before() throws Exception {
     GroupMembershipDao membershipDao = new GroupMembershipDao(getMyBatis());
-    UserDao userDao = new UserDao(getMyBatis());
+    UserDao userDao = new UserDao(getMyBatis(), System2.INSTANCE);
     GroupMembershipFinder finder = new GroupMembershipFinder(userDao, membershipDao);
     service = new GroupMembershipService(finder);
   }
@@ -110,7 +111,7 @@ public class GroupMembershipServiceTest extends AbstractDaoTestCase {
       "selected", "all",
       "page", 1,
       "pageSize", 2
-    ));
+      ));
     List<GroupMembership> result = queryResult.groups();
     assertThat(result).hasSize(2);
     assertThat(queryResult.hasMoreResults()).isTrue();
@@ -125,7 +126,7 @@ public class GroupMembershipServiceTest extends AbstractDaoTestCase {
       "selected", "all",
       "page", 3,
       "pageSize", 1
-    ));
+      ));
     List<GroupMembership> result = queryResult.groups();
     assertThat(result).hasSize(1);
     assertThat(queryResult.hasMoreResults()).isFalse();

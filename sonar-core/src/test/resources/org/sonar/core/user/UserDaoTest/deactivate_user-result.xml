@@ -1,6 +1,6 @@
 <dataset>
   <!-- deactivated -->
-  <users id="100" login="marius" name="Marius" email="marius@lesbronzes.fr" created_at="1418215735482" updated_at="1418215735485" active="[false]"/>
+  <users id="100" login="marius" name="Marius" email="marius@lesbronzes.fr" created_at="1418215735482" updated_at="1500000000000" active="[false]"/>
 
   <!-- deleted
   <dashboards id="1" user_id="100" NAME="[null]" COLUMN_LAYOUT="[null]" CREATED_AT="[null]" DESCRIPTION="[null]" IS_GLOBAL="[false]" SHARED="[false]" UPDATED_AT="[null]"/>

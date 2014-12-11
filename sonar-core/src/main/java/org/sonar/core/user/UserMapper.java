@@ -64,6 +64,6 @@ public interface UserMapper {
 
   void deleteUserRoles(long userId);
 
-  void deactivateUser(long userId);
+  void deactivateUser(@Param("id") long userId, @Param("now") long now);
 
 }

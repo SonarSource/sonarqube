@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.user.UserQuery;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
 
@@ -33,17 +34,22 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class UserDaoTest extends AbstractDaoTestCase {
 
   UserDao dao;
+
+  System2 system2;
 
   DbSession session;
 
   @Before
   public void setUp() {
     session = getMyBatis().openSession(false);
-    dao = new UserDao(getMyBatis());
+    system2 = mock(System2.class);
+    dao = new UserDao(getMyBatis(), system2);
   }
 
   @After
@@ -191,10 +197,18 @@ public class UserDaoTest extends AbstractDaoTestCase {
   public void deactivate_user() {
     setupData("deactivate_user");
 
+    when(system2.now()).thenReturn(1500000000000L);
+
     String login = "marius";
     boolean deactivated = dao.deactivateUserByLogin(login);
     assertThat(deactivated).isTrue();
+
     assertThat(dao.selectActiveUserByLogin(login)).isNull();
+
+    UserDto userDto = dao.getUser(100);
+    assertThat(userDto.isActive()).isFalse();
+    assertThat(userDto.getUpdatedAt()).isEqualTo(1500000000000L);
+
     checkTables("deactivate_user",
       "dashboards", "active_dashboards", "groups_users", "issue_filters",
       "issue_filter_favourites", "measure_filters", "measure_filter_favourites",
