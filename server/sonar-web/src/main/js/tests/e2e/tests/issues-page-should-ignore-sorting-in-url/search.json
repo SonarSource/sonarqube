@@ -1,0 +1,819 @@
+{
+  "total": 4623,
+  "p": 1,
+  "ps": 50,
+  "projects": [
+    {
+      "uuid": "015c6451-1709-4360-b4fa-e4508e13082d",
+      "key": "org.codehaus.sonar-plugins.xml:xml",
+      "id": 17156,
+      "qualifier": "TRK",
+      "name": "XML",
+      "longName": "XML"
+    },
+    {
+      "uuid": "071bdfec-a244-444d-877e-772a68973e18",
+      "key": "com.sonarsource.plugins.vb:vb",
+      "id": 28554,
+      "qualifier": "TRK",
+      "name": "SonarSource :: Visual Basic",
+      "longName": "SonarSource :: Visual Basic"
+    }
+  ],
+  "components": [
+    {
+      "uuid": "367350ce-00c7-461b-8348-c64138515ef9",
+      "key": "com.sonarsource.plugins.vb:vb-checks:src/main/java/com/sonar/vb/checks/UnusedPrivateVariableCheck.java",
+      "id": 29801,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "UnusedPrivateVariableCheck.java",
+      "longName": "src/main/java/com/sonar/vb/checks/UnusedPrivateVariableCheck.java",
+      "path": "src/main/java/com/sonar/vb/checks/UnusedPrivateVariableCheck.java",
+      "projectId": 28554,
+      "subProjectId": 29689
+    },
+    {
+      "uuid": "2c39c99e-6c3e-4635-a673-fbd876eb2107",
+      "key": "org.codehaus.sonar-plugins.xml:xml-squid:src/main/java/org/sonar/xml/CDataDocTokenizer.java",
+      "id": 19130,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "CDataDocTokenizer.java",
+      "longName": "src/main/java/org/sonar/xml/CDataDocTokenizer.java",
+      "path": "src/main/java/org/sonar/xml/CDataDocTokenizer.java",
+      "projectId": 17156,
+      "subProjectId": 17157
+    },
+    {
+      "uuid": "729bcb00-97b2-432d-b36e-06174e0bea26",
+      "key": "org.codehaus.sonar-plugins.xml:xml-squid:src/main/java/org/sonar/xml/XmlStartElementTokenizer.java",
+      "id": 19132,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "XmlStartElementTokenizer.java",
+      "longName": "src/main/java/org/sonar/xml/XmlStartElementTokenizer.java",
+      "path": "src/main/java/org/sonar/xml/XmlStartElementTokenizer.java",
+      "projectId": 17156,
+      "subProjectId": 17157
+    },
+    {
+      "uuid": "e1cf7541-9f52-4c9c-864e-85257b6126da",
+      "key": "org.codehaus.sonar-plugins.xml:xml-squid:src/main/java/org/sonar/xml/api",
+      "id": 26175,
+      "enabled": true,
+      "qualifier": "DIR",
+      "name": "src/main/java/org/sonar/xml/api",
+      "longName": "src/main/java/org/sonar/xml/api",
+      "path": "src/main/java/org/sonar/xml/api",
+      "projectId": 17156,
+      "subProjectId": 17157
+    },
+    {
+      "uuid": "23eaa59a-36dd-484d-9cb3-af9ddac0943f",
+      "key": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml/parsers/AbstractParser.java",
+      "id": 17191,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "AbstractParser.java",
+      "longName": "src/main/java/org/sonar/plugins/xml/parsers/AbstractParser.java",
+      "path": "src/main/java/org/sonar/plugins/xml/parsers/AbstractParser.java",
+      "projectId": 17156,
+      "subProjectId": 17158
+    },
+    {
+      "uuid": "730a7d9f-f280-48dd-9a09-de210f5db607",
+      "key": "org.codehaus.sonar-plugins.xml:xml-squid:src/main/java/org/sonar/xml",
+      "id": 26174,
+      "enabled": true,
+      "qualifier": "DIR",
+      "name": "src/main/java/org/sonar/xml",
+      "longName": "src/main/java/org/sonar/xml",
+      "path": "src/main/java/org/sonar/xml",
+      "projectId": 17156,
+      "subProjectId": 17157
+    },
+    {
+      "uuid": "45d36e11-d9ed-4157-8a2c-916d2e131af7",
+      "key": "org.codehaus.sonar-plugins.xml:sslr-xml-toolkit",
+      "id": 17257,
+      "enabled": true,
+      "qualifier": "BRC",
+      "name": "XML :: SSLR Toolkit",
+      "longName": "XML :: SSLR Toolkit",
+      "path": "sslr-xml-toolkit",
+      "projectId": 17156,
+      "subProjectId": 17156
+    },
+    {
+      "uuid": "e3ac3a3e-ac1b-4e3a-8e38-039e06a2ca38",
+      "key": "com.sonarsource.plugins.vb:vb-squid:src/main/java/com/sonar/vb/LineContinuationChannel.java",
+      "id": 28613,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "LineContinuationChannel.java",
+      "longName": "src/main/java/com/sonar/vb/LineContinuationChannel.java",
+      "path": "src/main/java/com/sonar/vb/LineContinuationChannel.java",
+      "projectId": 28554,
+      "subProjectId": 28555
+    },
+    {
+      "uuid": "7428200d-ce03-464d-a099-593092cd0291",
+      "key": "com.sonarsource.plugins.vb:vb-checks:src/main/java/com/sonar/vb/checks/TrailingCommentCheck.java",
+      "id": 29769,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "TrailingCommentCheck.java",
+      "longName": "src/main/java/com/sonar/vb/checks/TrailingCommentCheck.java",
+      "path": "src/main/java/com/sonar/vb/checks/TrailingCommentCheck.java",
+      "projectId": 28554,
+      "subProjectId": 29689
+    },
+    {
+      "uuid": "966aa6fd-9463-422c-b785-208ad519e4ea",
+      "key": "com.sonarsource.plugins.vb:vb-squid:src/main/java/com/sonar/vb/ProgressAstScanner.java",
+      "id": 28614,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "ProgressAstScanner.java",
+      "longName": "src/main/java/com/sonar/vb/ProgressAstScanner.java",
+      "path": "src/main/java/com/sonar/vb/ProgressAstScanner.java",
+      "projectId": 28554,
+      "subProjectId": 28555
+    },
+    {
+      "uuid": "c236560b-b257-4f34-bb7b-3977d178e1ff",
+      "key": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml/checks/AbstractXmlCheck.java",
+      "id": 17168,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "AbstractXmlCheck.java",
+      "longName": "src/main/java/org/sonar/plugins/xml/checks/AbstractXmlCheck.java",
+      "path": "src/main/java/org/sonar/plugins/xml/checks/AbstractXmlCheck.java",
+      "projectId": 17156,
+      "subProjectId": 17158
+    },
+    {
+      "uuid": "26f2099c-664b-424a-b815-c017eb2165b1",
+      "key": "com.sonarsource.plugins.vb:vb-checks:src/main/java/com/sonar/vb/checks",
+      "id": 29690,
+      "enabled": true,
+      "qualifier": "DIR",
+      "name": "src/main/java/com/sonar/vb/checks",
+      "longName": "src/main/java/com/sonar/vb/checks",
+      "path": "src/main/java/com/sonar/vb/checks",
+      "projectId": 28554,
+      "subProjectId": 29689
+    },
+    {
+      "uuid": "4adacc63-7447-4bb1-95ae-1cc5102e8335",
+      "key": "com.sonarsource.plugins.vb:vb-checks",
+      "id": 29689,
+      "enabled": true,
+      "qualifier": "BRC",
+      "name": "SonarSource :: Visual Basic :: Checks",
+      "longName": "SonarSource :: Visual Basic :: Checks",
+      "path": "vb-checks",
+      "projectId": 28554,
+      "subProjectId": 28554
+    },
+    {
+      "uuid": "fa92c266-befe-460c-8bad-1ff13b918ec5",
+      "key": "com.sonarsource.plugins.vb:vb-squid:src/main/java/com/sonar/vb",
+      "id": 28611,
+      "enabled": true,
+      "qualifier": "DIR",
+      "name": "src/main/java/com/sonar/vb",
+      "longName": "src/main/java/com/sonar/vb",
+      "path": "src/main/java/com/sonar/vb",
+      "projectId": 28554,
+      "subProjectId": 28555
+    },
+    {
+      "uuid": "e92b1510-91c3-4479-8714-44fa3a139f7c",
+      "key": "com.sonarsource.plugins.vb:sonar-vb-plugin",
+      "id": 28610,
+      "enabled": true,
+      "qualifier": "BRC",
+      "name": "SonarSource :: Visual Basic :: Sonar Plugin",
+      "longName": "SonarSource :: Visual Basic :: Sonar Plugin",
+      "path": "sonar-vb-plugin",
+      "projectId": 28554,
+      "subProjectId": 28554
+    },
+    {
+      "uuid": "1f609143-c6a4-4f76-ac38-370d349feaf7",
+      "key": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml/schemas",
+      "id": 26182,
+      "enabled": true,
+      "qualifier": "DIR",
+      "name": "src/main/java/org/sonar/plugins/xml/schemas",
+      "longName": "src/main/java/org/sonar/plugins/xml/schemas",
+      "path": "src/main/java/org/sonar/plugins/xml/schemas",
+      "projectId": 17156,
+      "subProjectId": 17158
+    },
+    {
+      "uuid": "7abb4d57-160a-41ba-927f-b53603e843b8",
+      "key": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml/schemas/SchemaResolver.java",
+      "id": 17178,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "SchemaResolver.java",
+      "longName": "src/main/java/org/sonar/plugins/xml/schemas/SchemaResolver.java",
+      "path": "src/main/java/org/sonar/plugins/xml/schemas/SchemaResolver.java",
+      "projectId": 17156,
+      "subProjectId": 17158
+    },
+    {
+      "uuid": "c960a7a1-e078-47de-8a31-167b0f774002",
+      "key": "org.codehaus.sonar-plugins.xml:sslr-xml-toolkit:src/main/java/org/sonar/xml/toolkit",
+      "id": 26183,
+      "enabled": true,
+      "qualifier": "DIR",
+      "name": "src/main/java/org/sonar/xml/toolkit",
+      "longName": "src/main/java/org/sonar/xml/toolkit",
+      "path": "src/main/java/org/sonar/xml/toolkit",
+      "projectId": 17156,
+      "subProjectId": 17257
+    },
+    {
+      "uuid": "7d14bd3e-33b7-4b0f-ade5-cf6cef0085b9",
+      "key": "com.sonarsource.plugins.vb:vb-squid",
+      "id": 28555,
+      "enabled": true,
+      "qualifier": "BRC",
+      "name": "SonarSource :: Visual Basic :: Squid",
+      "longName": "SonarSource :: Visual Basic :: Squid",
+      "path": "vb-squid",
+      "projectId": 28554,
+      "subProjectId": 28554
+    },
+    {
+      "uuid": "d9716626-0952-4ec7-a8fb-2760ba3256a3",
+      "key": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml/parsers",
+      "id": 26180,
+      "enabled": true,
+      "qualifier": "DIR",
+      "name": "src/main/java/org/sonar/plugins/xml/parsers",
+      "longName": "src/main/java/org/sonar/plugins/xml/parsers",
+      "path": "src/main/java/org/sonar/plugins/xml/parsers",
+      "projectId": 17156,
+      "subProjectId": 17158
+    },
+    {
+      "uuid": "071bdfec-a244-444d-877e-772a68973e18",
+      "key": "com.sonarsource.plugins.vb:vb",
+      "id": 28554,
+      "enabled": true,
+      "qualifier": "TRK",
+      "name": "SonarSource :: Visual Basic",
+      "longName": "SonarSource :: Visual Basic"
+    },
+    {
+      "uuid": "99d31cea-6b8f-4fb6-ba87-c86ce8d339cf",
+      "key": "com.sonarsource.plugins.vb:vb-squid:src/main/java/com/sonar/vb/api",
+      "id": 28622,
+      "enabled": true,
+      "qualifier": "DIR",
+      "name": "src/main/java/com/sonar/vb/api",
+      "longName": "src/main/java/com/sonar/vb/api",
+      "path": "src/main/java/com/sonar/vb/api",
+      "projectId": 28554,
+      "subProjectId": 28555
+    },
+    {
+      "uuid": "26facc1b-fd2b-4fe4-a543-65e9ec692360",
+      "key": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml/rules",
+      "id": 26181,
+      "enabled": true,
+      "qualifier": "DIR",
+      "name": "src/main/java/org/sonar/plugins/xml/rules",
+      "longName": "src/main/java/org/sonar/plugins/xml/rules",
+      "path": "src/main/java/org/sonar/plugins/xml/rules",
+      "projectId": 17156,
+      "subProjectId": 17158
+    },
+    {
+      "uuid": "d789993b-c5fe-414b-9164-33871fd3c3c2",
+      "key": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml/checks",
+      "id": 26178,
+      "enabled": true,
+      "qualifier": "DIR",
+      "name": "src/main/java/org/sonar/plugins/xml/checks",
+      "longName": "src/main/java/org/sonar/plugins/xml/checks",
+      "path": "src/main/java/org/sonar/plugins/xml/checks",
+      "projectId": 17156,
+      "subProjectId": 17158
+    },
+    {
+      "uuid": "91715de9-47ed-4837-a51b-4dcead30a71c",
+      "key": "com.sonarsource.plugins.vb:sonar-vb-plugin:src/main/java/com/sonar/vb/plugin",
+      "id": 28952,
+      "enabled": true,
+      "qualifier": "DIR",
+      "name": "src/main/java/com/sonar/vb/plugin",
+      "longName": "src/main/java/com/sonar/vb/plugin",
+      "path": "src/main/java/com/sonar/vb/plugin",
+      "projectId": 28554,
+      "subProjectId": 28610
+    },
+    {
+      "uuid": "3c338bdb-39c9-4cb8-9b13-2e08358047d6",
+      "key": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml/language",
+      "id": 26179,
+      "enabled": true,
+      "qualifier": "DIR",
+      "name": "src/main/java/org/sonar/plugins/xml/language",
+      "longName": "src/main/java/org/sonar/plugins/xml/language",
+      "path": "src/main/java/org/sonar/plugins/xml/language",
+      "projectId": 17156,
+      "subProjectId": 17158
+    },
+    {
+      "uuid": "639e257b-d3fb-4d10-b94a-31079b71532d",
+      "key": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml",
+      "id": 26177,
+      "enabled": true,
+      "qualifier": "DIR",
+      "name": "src/main/java/org/sonar/plugins/xml",
+      "longName": "src/main/java/org/sonar/plugins/xml",
+      "path": "src/main/java/org/sonar/plugins/xml",
+      "projectId": 17156,
+      "subProjectId": 17158
+    },
+    {
+      "uuid": "08bafb36-5990-4f10-821c-534dc451d297",
+      "key": "com.sonarsource.plugins.vb:vb-checks:src/main/java/com/sonar/vb/checks/NumberedLineProcessor.java",
+      "id": 29907,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "NumberedLineProcessor.java",
+      "longName": "src/main/java/com/sonar/vb/checks/NumberedLineProcessor.java",
+      "path": "src/main/java/com/sonar/vb/checks/NumberedLineProcessor.java",
+      "projectId": 28554,
+      "subProjectId": 29689
+    },
+    {
+      "uuid": "e3bb947b-9385-4972-8367-f69beb488d21",
+      "key": "com.sonarsource.plugins.vb:vb-squid:src/main/java/com/sonar/vb/metrics/LinesOfCodeVisitor.java",
+      "id": 28629,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "LinesOfCodeVisitor.java",
+      "longName": "src/main/java/com/sonar/vb/metrics/LinesOfCodeVisitor.java",
+      "path": "src/main/java/com/sonar/vb/metrics/LinesOfCodeVisitor.java",
+      "projectId": 28554,
+      "subProjectId": 28555
+    },
+    {
+      "uuid": "dd9c314f-0c19-498d-9e16-67ef0b49486e",
+      "key": "com.sonarsource.plugins.vb:sonar-vb-plugin:src/main/java/com/sonar/vb/colorizer",
+      "id": 28932,
+      "enabled": true,
+      "qualifier": "DIR",
+      "name": "src/main/java/com/sonar/vb/colorizer",
+      "longName": "src/main/java/com/sonar/vb/colorizer",
+      "path": "src/main/java/com/sonar/vb/colorizer",
+      "projectId": 28554,
+      "subProjectId": 28610
+    },
+    {
+      "uuid": "9d771010-5d4f-49ed-9f70-ff131189610d",
+      "key": "com.sonarsource.plugins.vb:vb-squid:src/main/java/com/sonar/vb/pp",
+      "id": 28630,
+      "enabled": true,
+      "qualifier": "DIR",
+      "name": "src/main/java/com/sonar/vb/pp",
+      "longName": "src/main/java/com/sonar/vb/pp",
+      "path": "src/main/java/com/sonar/vb/pp",
+      "projectId": 28554,
+      "subProjectId": 28555
+    },
+    {
+      "uuid": "8597e351-39d2-4b17-8422-00409d21bccd",
+      "key": "com.sonarsource.plugins.vb:sonar-vb-plugin:src/main/java/com/sonar/vb/cpd",
+      "id": 28935,
+      "enabled": true,
+      "qualifier": "DIR",
+      "name": "src/main/java/com/sonar/vb/cpd",
+      "longName": "src/main/java/com/sonar/vb/cpd",
+      "path": "src/main/java/com/sonar/vb/cpd",
+      "projectId": 28554,
+      "subProjectId": 28610
+    },
+    {
+      "uuid": "9d44133a-d633-48b4-a54b-800df905a1fd",
+      "key": "com.sonarsource.plugins.vb:vb-squid:src/main/java/com/sonar/vb/pp/EmptyLinesRemovalPreprocessor.java",
+      "id": 28631,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "EmptyLinesRemovalPreprocessor.java",
+      "longName": "src/main/java/com/sonar/vb/pp/EmptyLinesRemovalPreprocessor.java",
+      "path": "src/main/java/com/sonar/vb/pp/EmptyLinesRemovalPreprocessor.java",
+      "projectId": 28554,
+      "subProjectId": 28555
+    },
+    {
+      "uuid": "b6d552ca-aabe-499b-9c72-18247177ae68",
+      "key": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin",
+      "id": 17158,
+      "enabled": true,
+      "qualifier": "BRC",
+      "name": "XML :: SonarQube Plugin",
+      "longName": "XML :: SonarQube Plugin",
+      "path": "sonar-xml-plugin",
+      "projectId": 17156,
+      "subProjectId": 17156
+    },
+    {
+      "uuid": "2e9ae8fd-fa5c-48a4-a0f6-1eaba1c38a2f",
+      "key": "com.sonarsource.plugins.vb:sonar-vb-plugin:src/main/java/com/sonar/vb/batch",
+      "id": 28928,
+      "enabled": true,
+      "qualifier": "DIR",
+      "name": "src/main/java/com/sonar/vb/batch",
+      "longName": "src/main/java/com/sonar/vb/batch",
+      "path": "src/main/java/com/sonar/vb/batch",
+      "projectId": 28554,
+      "subProjectId": 28610
+    },
+    {
+      "uuid": "015c6451-1709-4360-b4fa-e4508e13082d",
+      "key": "org.codehaus.sonar-plugins.xml:xml",
+      "id": 17156,
+      "enabled": true,
+      "qualifier": "TRK",
+      "name": "XML",
+      "longName": "XML"
+    },
+    {
+      "uuid": "1bb3f177-d173-469e-a178-6ae8078bd765",
+      "key": "com.sonarsource.plugins.vb:vb-squid:src/main/java/com/sonar/vb/metrics",
+      "id": 28626,
+      "enabled": true,
+      "qualifier": "DIR",
+      "name": "src/main/java/com/sonar/vb/metrics",
+      "longName": "src/main/java/com/sonar/vb/metrics",
+      "path": "src/main/java/com/sonar/vb/metrics",
+      "projectId": 28554,
+      "subProjectId": 28555
+    },
+    {
+      "uuid": "216ebdfc-9fc9-4c06-9f14-859d051fae69",
+      "key": "org.codehaus.sonar-plugins.xml:xml-squid",
+      "id": 17157,
+      "enabled": true,
+      "qualifier": "BRC",
+      "name": "XML :: Squid",
+      "longName": "XML :: Squid",
+      "path": "xml-squid",
+      "projectId": 17156,
+      "subProjectId": 17156
+    },
+    {
+      "uuid": "aad717d1-12f5-48c0-9273-0c9aac102467",
+      "key": "com.sonarsource.plugins.vb:vb-squid:src/main/java/com/sonar/vb/metrics/CommentsVisitor.java",
+      "id": 28627,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "CommentsVisitor.java",
+      "longName": "src/main/java/com/sonar/vb/metrics/CommentsVisitor.java",
+      "path": "src/main/java/com/sonar/vb/metrics/CommentsVisitor.java",
+      "projectId": 28554,
+      "subProjectId": 28555
+    },
+    {
+      "uuid": "53ecdff7-a6af-4cc9-b30c-7656a33cf732",
+      "key": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml/checks/XPathCheck.java",
+      "id": 17162,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "XPathCheck.java",
+      "longName": "src/main/java/org/sonar/plugins/xml/checks/XPathCheck.java",
+      "path": "src/main/java/org/sonar/plugins/xml/checks/XPathCheck.java",
+      "projectId": 17156,
+      "subProjectId": 17158
+    },
+    {
+      "uuid": "d8f590fb-5a56-49a9-991c-4c9d4ec5a7fe",
+      "key": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml/checks/IndentCheck.java",
+      "id": 17163,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "IndentCheck.java",
+      "longName": "src/main/java/org/sonar/plugins/xml/checks/IndentCheck.java",
+      "path": "src/main/java/org/sonar/plugins/xml/checks/IndentCheck.java",
+      "projectId": 17156,
+      "subProjectId": 17158
+    },
+    {
+      "uuid": "7d79ad61-0f0a-449a-bdce-fd544c8d8d27",
+      "key": "org.codehaus.sonar-plugins.xml:xml-squid:src/main/java/org/sonar/xml/api/XmlGrammar.java",
+      "id": 17160,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "XmlGrammar.java",
+      "longName": "src/main/java/org/sonar/xml/api/XmlGrammar.java",
+      "path": "src/main/java/org/sonar/xml/api/XmlGrammar.java",
+      "projectId": 17156,
+      "subProjectId": 17157
+    },
+    {
+      "uuid": "be763c66-8400-432d-9e84-bc2e9d6e164c",
+      "key": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml/checks/NewlineCheck.java",
+      "id": 17166,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "NewlineCheck.java",
+      "longName": "src/main/java/org/sonar/plugins/xml/checks/NewlineCheck.java",
+      "path": "src/main/java/org/sonar/plugins/xml/checks/NewlineCheck.java",
+      "projectId": 17156,
+      "subProjectId": 17158
+    },
+    {
+      "uuid": "c2c82fc7-073f-449e-bb18-ebbf60ceb1d9",
+      "key": "com.sonarsource.plugins.vb:sonar-vb-plugin:src/main/java/com/sonar/vb/cpd/VbCpdTokenizer.java",
+      "id": 28937,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "VbCpdTokenizer.java",
+      "longName": "src/main/java/com/sonar/vb/cpd/VbCpdTokenizer.java",
+      "path": "src/main/java/com/sonar/vb/cpd/VbCpdTokenizer.java",
+      "projectId": 28554,
+      "subProjectId": 28610
+    },
+    {
+      "uuid": "bc2e055a-eb0a-4ba6-8c06-8390bdb2c08a",
+      "key": "com.sonarsource.plugins.vb:vb-checks:src/main/java/com/sonar/vb/checks/ExpressionComplexityCheck.java",
+      "id": 29783,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "ExpressionComplexityCheck.java",
+      "longName": "src/main/java/com/sonar/vb/checks/ExpressionComplexityCheck.java",
+      "path": "src/main/java/com/sonar/vb/checks/ExpressionComplexityCheck.java",
+      "projectId": 28554,
+      "subProjectId": 29689
+    },
+    {
+      "uuid": "7bbe651e-5b83-4002-9fa9-79397693d529",
+      "key": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml/checks/XmlSchemaCheck.java",
+      "id": 17164,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "XmlSchemaCheck.java",
+      "longName": "src/main/java/org/sonar/plugins/xml/checks/XmlSchemaCheck.java",
+      "path": "src/main/java/org/sonar/plugins/xml/checks/XmlSchemaCheck.java",
+      "projectId": 17156,
+      "subProjectId": 17158
+    },
+    {
+      "uuid": "2dc0e6d7-09b9-4f99-a25e-acf288b26581",
+      "key": "com.sonarsource.plugins.vb:sonar-vb-plugin:src/main/java/com/sonar/vb/foundation",
+      "id": 28938,
+      "enabled": true,
+      "qualifier": "DIR",
+      "name": "src/main/java/com/sonar/vb/foundation",
+      "longName": "src/main/java/com/sonar/vb/foundation",
+      "path": "src/main/java/com/sonar/vb/foundation",
+      "projectId": 28554,
+      "subProjectId": 28610
+    }
+  ],
+  "issues": [
+    {
+      "key": "b32333fe-7efd-4bc8-a72b-bad90361af1a",
+      "component": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml/checks/IndentCheck.java",
+      "componentId": 17163,
+      "project": "org.codehaus.sonar-plugins.xml:xml",
+      "rule": "squid:S1151",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "Reduce this switch case number of lines from 26 to at most 5, for example by extracting code into methods.",
+      "line": 54,
+      "debt": "10min",
+      "author": "Evgeny Mandrikov",
+      "creationDate": "2013-08-11T00:06:49+0200",
+      "updateDate": "2013-10-23T15:15:05+0200",
+      "fUpdateAge": "about a year",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "2174148b-6be9-4213-8f57-c63576904e9e",
+      "component": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml/checks/IndentCheck.java",
+      "componentId": 17163,
+      "project": "org.codehaus.sonar-plugins.xml:xml",
+      "rule": "squid:S134",
+      "status": "CONFIRMED",
+      "severity": "MINOR",
+      "message": "Refactor this code to not nest more than 4 if/for/while/switch/try statements.",
+      "line": 59,
+      "debt": "20min",
+      "author": "mandrikov@gmail.com",
+      "creationDate": "2013-10-18T23:46:56+0200",
+      "updateDate": "2013-12-18T23:52:20+0100",
+      "fUpdateAge": "10 months",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "key": "squid:S1698",
+      "name": "Objects should be compared with \"equals()\"",
+      "desc": "<p>Using the equality (<code>==</code>) and inequality (<code>!=</code>) operators to compare two objects does not check to see if they have the same values. Rather it checks to see if both object references point to exactly the same object in memory. The vast majority of the time, this is not what you want to do. Use the .equals() method to compare the values of two objects or to compare a string object to a string literal.</p>\n\n<h2>Noncompliant Code Sample</h2>\n<pre>\nString str1 = \"blue\";\nString str2 = \"blue\";\nString str3 = str1;\n\nif (str1 == str2)\n{\n  System.out.println(\"they're both 'blue'\"); // this doesn't print because the objects are different\n}\n\nif (str1 == \"blue\")\n{\n  System.out.println(\"they're both 'blue'\"); // this doesn't print because the objects are different\n}\n\nif (str1 == str3)\n{\n  System.out.println(\"they're the same object\"); // this prints\n}\n</pre>\n\n<h2>Compliant Solution</h2>\n<pre>\nString str1 = \"blue\";\nString str2 = \"blue\";\nString str3 = str1;\n\nif (str1.equals(str2))\n{\n  System.out.println(\"they're both 'blue'\"); // this prints\n}\n\nif (str1.equals(\"blue\"))\n{\n  System.out.println(\"they're both 'blue'\"); // this prints\n}\n\nif (str1 == str3)\n{\n  System.out.println(\"they're the same object\"); // this still prints, but it's probably not what you meant to do\n}\n</pre>",
+      "status": "READY"
+    },
+    {
+      "key": "squid:S1142",
+      "name": "Methods should not contain too many return statements",
+      "desc": "<p>\nHaving too many return statements in a method increases the method's essential complexity because the flow of execution is broken each time a return statement is encountered.\nThis makes it harder to read and understand the logic of the method.\n</p>\n\n<p>\nThe following code snippet illustrates this rule with the default threshold of 3:\n</p>\n\n<pre>\npublic boolean myMethod() { // Non-Compliant as there are 4 return statements\n  if (condition1) {\n    return true;\n  } else {\n    if (condition2) {\n      return false;\n    } else {\n      return true;\n    }\n  }\n  return false;\n}\n</pre>",
+      "status": "READY"
+    },
+    {
+      "key": "squid:S1694",
+      "name": "An abstract class should have both abstract and concrete methods",
+      "desc": "<p>The purpose of an abstract class is to provide some heritable behaviors while also defining methods which must be implemented by sub-classes.</p>\n\n<p>A class with no abstract methods that was made abstract purely to prevent instantiation should be converted to a concrete class (i.e. remove the <code>abstract</code> keyword) with a private constructor.</p>\n\n<p>A class with only abstract methods and no inheritable behavior should be converted to an interface.</p>\n\n<h2>Noncompliant Code Sample</h2>\n<pre>\npublic abstract class Animal {\n  abstract void move();\n  abstract void feed();\n}\n\npublic abstract class Color {\n  private int red = 0;\n  private int green = 0;\n  private int blue = 0;\n\n  public int getRed(){\n    return red;\n  }\n}\n</pre>\n\n<h2>Compliant Solution</h2>\n<pre>\npublic interface Animal {\n  void move();\n  void feed();\n}\n\npublic class Color {\n  private int red = 0;\n  private int green = 0;\n  private int blue = 0;\n\n  private Color (){\n  }\n\n  public int getRed() {\n    return red;\n  }\n}\n\npublic abstract class Lamp {\n\n  private boolean switchLamp=false;\n  public abstract void glow();\n\n  public void flipSwitch() {\n    switchLamp = !switchLamp;\n    if (switchLamp) {\n       glow();\n    }\n  }\n}\n</pre>",
+      "status": "READY"
+    },
+    {
+      "key": "squid:S1151",
+      "name": "Switch cases should not have too many lines",
+      "desc": "<p>Switch cases should remain small to keep the overall switch compact and readable.</p>\n\n<p>The following code snippet illustrates this rule with the default threshold of 5:</p>\n\n<pre>\nswitch (myVariable) {\n  case 0:                     // Compliant - 5 lines till following case\n    System.out.println(\"\");\n    System.out.println(\"\");\n    System.out.println(\"\");\n    break;\n  default:                    // Non-Compliant - 6 lines till switch end\n    System.out.println(\"\");\n    System.out.println(\"\");\n    System.out.println(\"\");\n    System.out.println(\"\");\n    break;\n}\n</pre>",
+      "status": "READY"
+    },
+    {
+      "key": "squid:S1643",
+      "name": "Strings should not be concatenated using '+' in a loop",
+      "desc": "<p>Strings are immutable objects in Java, so concatenation doesn't simply add the new String to the end of the existing string. Instead, in each loop iteration, the first String is converted to an intermediate object type, the second string is appended, and then the intermediate object is converted back to a String. Further, performance of these intermediate operations degrades as the String gets longer. Therefore, the use of StringBuilder is preferred.</p>\n\n<h2>Noncompliant Code Example</h2>\n<pre>\nString str = \"\";\nfor (int i = 0; i < arrayOfStrings.length ; ++i) {\n  str = str + arrayOfStrings[i];\n}\n</pre>\n\n<h2>Compliant Solution</h2>\n<pre>\nStringBuilder bld = new StringBuilder();\nfor (int i = 0; i < arrayOfStrings.length; ++i) {\n  bld.append(arrayOfStrings[i]);\n}\nString str = bld.toString();\n</pre>",
+      "status": "READY"
+    },
+    {
+      "key": "squid:S134",
+      "name": "Control flow statements \"if\", \"for\", \"while\", \"switch\" and \"try\" should not be nested too deeply",
+      "desc": "<p>\nNested <code>if</code>, <code>for</code>, <code>while</code> and <code>try</code> statements is a key ingredient for making what's known as \"Spaghetti code\".\nSuch code is hard to read, refactor and therefore maintain.\n</p>\n\n<h2>Noncompliant Code Example</h2>\n\n<p>The following code snippet illustrates this rule with the default threshold of 3.</p>\n\n<pre>\npublic void process() {\n  if (condition1) {                  // Compliant - depth = 1\n    /* ... */\n    if (condition2) {                // Compliant - depth = 2\n      /* ... */\n      for(int i = 0; i < 10; i++) {  // Compliant - depth = 3, not exceeding the limit\n        /* ... */\n        if (condition4) {            // Non-Compliant - depth = 4\n          if (condition5) {          // Depth = 5, exceeding the limit, but issues are only reported on depth = 4\n            /* ... */\n          }\n          return;\n        }\n      }\n    }\n  }\n}\n</pre>",
+      "status": "READY"
+    },
+    {
+      "key": "common-java:DuplicatedBlocks",
+      "name": "Duplicated blocks",
+      "desc": "<p>An issue is created on a file as soon as there is a block of duplicated code on this file. It gives the number of blocks in the file.</p>",
+      "status": "READY"
+    },
+    {
+      "key": "squid:RightCurlyBraceSameLineAsNextBlockCheck",
+      "name": "Right curly brace and next \"else\", \"catch\" and \"finally\" keywords should be located on the same line",
+      "desc": "<p>\nSharing some coding conventions is a key point to make it possible for a team to efficiently collaborate.\nThis rule make it mandatory to place closing curly braces on the same line that next <code>else</code>, <code>catch</code> or <code>finally</code> keywords.\n</p>\n\n<p>\nThe following code snippet illustrates this rule:\n</p>\n\n<pre>\npublic void myMethod() {\n  if(something) {\n    executeTask();\n  } else if (somethingElse) {          // Compliant\n    doSomethingElse();\n  }\n  else {                               // Non-Compliant\n     generateError();\n  }\n\n  try {\n    generateOrder();\n  } catch (Exception e) {              // Compliant\n    log(e);\n  }\n  finally {                            // Non-Compliant\n    closeConnection();\n  }\n}\n</pre>",
+      "status": "READY"
+    },
+    {
+      "key": "squid:MethodCyclomaticComplexity",
+      "name": "Methods should not be too complex",
+      "desc": "<p>The Cyclomatic Complexity is measured by the number of\n\t(&amp;&amp;, ||) operators and (if, while, do, for, ?:, catch, switch,\n\tcase, return, throw) statements in the body of a class plus one for\n\teach constructor, method (but not getter/setter), static initializer,\n\tor instance initializer in the class. The last return stament in\n\tmethod, if exists, is not taken into account.</p>\n<p>\n\tEven when the Cyclomatic Complexity of a class is very high, this\n\tcomplexity might be well distributed among all methods. Nevertheless,\n\tmost of the time, a very complex class is a class which breaks the <a\n\t\thref=\"http://en.wikipedia.org/wiki/Single_responsibility_principle\">Single\n\t\tResponsibility Principle</a> and which should be re-factored to be split\n\tin several classes.\n</p>",
+      "status": "READY"
+    },
+    {
+      "key": "squid:S1192",
+      "name": "String literals should not be duplicated",
+      "desc": "<p>\n  Duplicated string literals make the process of refactoring error-prone, since you must be sure to update all occurrences.\n  On the other hand, constants can be referenced from many places, but only need to be updated in a single place.\n</p>\n\n<h2>Non Compliant Code Example</h2>\n\n<pre>\npublic void run() {\n  prepare(\"action1\");                              // Non-Compliant - \"action1\" is duplicated 3 times\n  execute(\"action1\");\n  release(\"action1\");\n}\n\n@SuppressWarning(\"all\")                            // Compliant - annotations are excluded\nprivate void method1() { /* ... */ }\n@SuppressWarning(\"all\")\nprivate void method2() { /* ... */ }\n\npublic String method3(String a) {\n  System.out.println(\"'\" + a + \"'\");               // Compliant - literal \"'\" has less than 5 characters and is excluded\n  return \"\";                                       // Compliant - literal \"\" has less than 5 characters and is excluded\n}\n</pre>\n\n<h2>Compliant Code Example</h2>\n\n<pre>\nprivate static final String ACTION_1 = \"action1\";  // Compliant\n\npublic void run() {\n  prepare(ACTION_1);                               // Compliant\n  execute(ACTION_1);\n  release(ACTION_1);\n}\n</pre>\n\n<h2>Exceptions</h2>\n<p>To prevent generating some false-positives, literals having less than 5 characters are excluded.</p>",
+      "status": "READY"
+    },
+    {
+      "key": "squid:S138",
+      "name": "Methods should not have too many lines",
+      "desc": "<p>\nA method that grows too large tends to aggregate too many responsibilities.\nSuch methods inevitably become harder to understand and therefore harder to maintain.\n</p>\n\n<p>\nAbove a specific threshold, it is strongly advised to refactor into smaller methods which focus on well-defined tasks.\nThose smaller methods will not only be easier to understand, but also probably easier to test.\n</p>",
+      "status": "READY"
+    },
+    {
+      "key": "squid:S1067",
+      "name": "Expressions should not be too complex",
+      "desc": "<p>\nThe complexity of an expression is defined by the number of <code>&&</code>, <code>||</code> and <code>condition ? ifTrue : ifFalse</code> operators it contains.\nA single expression's complexity should not become too high to keep the code readable.\n</p>\n\n<p>The following code, with a maximum complexity of 3:</p>\n\n<pre>\nif (condition1 && condition2 && condition3 && condition4) { /* ... */ }  // Non-Compliant\n</pre>\n\n<p>could be refactored into something like:</p>\n\n<pre>\nif (relevantMethodName1() && relevantMethodName2()) { /* ... */ }        // Compliant\n\n/* ... */\n\nprivate boolean relevantMethodName1() {\n  return condition1 && condition2;\n}\n\nprivate boolean relevantMethodName2() {\n  return condition3 && condition4;\n}\n</pre>",
+      "status": "READY"
+    },
+    {
+      "key": "common-java:InsufficientBranchCoverage",
+      "name": "Insufficient branch coverage by unit tests",
+      "desc": "<p>An issue is created on a file as soon as the branch coverage on this file is less than the required threshold.It gives the number of branches to be covered in order to reach the required threshold.</p>",
+      "status": "READY"
+    },
+    {
+      "key": "squid:S1228",
+      "name": "Packages should have a javadoc file 'package-info.java'",
+      "desc": "<p>Each package in a Java project should include a <code>package-info.java</code> file. The purpose of this file is to document the Java package using javadoc and declare package annotations.</p>\n\n<h2>Compliant Solution</h2>\n<pre>\n/**\n* This package has non null parameters and is documented.\n**/\n@ParametersAreNonnullByDefault\npackage org.foo.bar;\n</pre>",
+      "status": "REMOVED"
+    }
+  ],
+  "users": [],
+  "languages": [
+    {
+      "key": "js",
+      "name": "JavaScript"
+    },
+    {
+      "key": "java",
+      "name": "Java"
+    }
+  ],
+  "maxResultsReached": false,
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 50,
+    "total": 4623,
+    "fTotal": "4,623",
+    "pages": 93
+  },
+  "facets": [
+    {
+      "property": "severities",
+      "values": [
+        {
+          "val": "MAJOR",
+          "count": 3214
+        },
+        {
+          "val": "INFO",
+          "count": 930
+        },
+        {
+          "val": "MINOR",
+          "count": 436
+        },
+        {
+          "val": "CRITICAL",
+          "count": 43
+        },
+        {
+          "val": "BLOCKER",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "property": "statuses",
+      "values": [
+        {
+          "val": "CONFIRMED",
+          "count": 4123
+        },
+        {
+          "val": "OPEN",
+          "count": 499
+        },
+        {
+          "val": "REOPENED",
+          "count": 1
+        },
+        {
+          "val": "CLOSED",
+          "count": 0
+        },
+        {
+          "val": "RESOLVED",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "property": "resolutions",
+      "values": [
+        {
+          "val": "",
+          "count": 4623
+        },
+        {
+          "val": "FIXED",
+          "count": 39744
+        },
+        {
+          "val": "REMOVED",
+          "count": 14385
+        },
+        {
+          "val": "FALSE-POSITIVE",
+          "count": 724
+        }
+      ]
+    }
+  ]
+}
