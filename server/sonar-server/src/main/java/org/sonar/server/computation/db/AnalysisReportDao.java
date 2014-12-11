@@ -26,6 +26,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.computation.db.AnalysisReportMapper;
 import org.sonar.core.persistence.DaoComponent;
+import org.sonar.core.persistence.DatabaseUtils;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.BaseDao;
 
@@ -125,26 +126,29 @@ public class AnalysisReportDao extends BaseDao<AnalysisReportMapper, AnalysisRep
   @Override
   protected AnalysisReportDto doInsert(DbSession session, AnalysisReportDto report) {
     Connection connection = session.getConnection();
+    PreparedStatement ps = null;
     try {
-      PreparedStatement preparedStatement = connection.prepareStatement(INSERT_QUERY);
+      ps = connection.prepareStatement(INSERT_QUERY);
       // (project_key, snapshot_id, report_status, report_data, created_at, updated_at, started_at, finished_at)
-      preparedStatement.setString(1, report.getProjectKey());
-      preparedStatement.setLong(2, report.getSnapshotId());
-      preparedStatement.setString(3, report.getStatus().toString());
+      ps.setString(1, report.getProjectKey());
+      ps.setLong(2, report.getSnapshotId());
+      ps.setString(3, report.getStatus().toString());
       InputStreamReader inputStreamReader = null;
       if (report.getData() != null) {
         inputStreamReader = new InputStreamReader(report.getData(), Charsets.UTF_8);
       }
-      preparedStatement.setCharacterStream(4, inputStreamReader);
-      preparedStatement.setTimestamp(5, dateToTimestamp(report.getCreatedAt()));
-      preparedStatement.setTimestamp(6, dateToTimestamp(report.getUpdatedAt()));
-      preparedStatement.setTimestamp(7, dateToTimestamp(report.getStartedAt()));
-      preparedStatement.setTimestamp(8, dateToTimestamp(report.getFinishedAt()));
+      ps.setCharacterStream(4, inputStreamReader);
+      ps.setTimestamp(5, dateToTimestamp(report.getCreatedAt()));
+      ps.setTimestamp(6, dateToTimestamp(report.getUpdatedAt()));
+      ps.setTimestamp(7, dateToTimestamp(report.getStartedAt()));
+      ps.setTimestamp(8, dateToTimestamp(report.getFinishedAt()));
 
-      preparedStatement.executeUpdate();
+      ps.executeUpdate();
       connection.commit();
     } catch (SQLException e) {
-      e.printStackTrace();
+      throw new IllegalStateException(String.format("Failed to insert %s in the database", report), e);
+    } finally {
+      DatabaseUtils.closeQuietly(ps);
     }
 
     return report;
