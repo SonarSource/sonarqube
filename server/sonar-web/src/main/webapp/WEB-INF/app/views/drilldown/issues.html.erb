@@ -5,7 +5,7 @@
         resourceQualifier: '<%= @resource.qualifier -%>',
         rule: <% if @rule %>'<%= @rule.key -%>'<% else %>null<% end %>,
         severity: <% if @severity %>'<%= @severity -%>'<% else %>null<% end %>,
-        period: <% if @period %><%= @period -%><% else %>null<% end %>
+        periodDate: <% if @period %>'<%= @snapshot.period_datetime(@period) -%>'<% else %>null<% end %>
       },
       url = baseUrl + '/issues/search#resolved=false|';
   if (config.resourceQualifier === 'TRK') {
@@ -20,8 +20,9 @@
   if (config.severity) {
     url = url + '|severities=' + config.severity;
   }
-//  if (config.period) {
-//    url = url + '|createdAfter=' + config.period;
-//  }
+  if (config.periodDate) {
+    var createdAfter = moment(config.periodDate).format('YYYY-MM-DD');
+    url = url + '|createdAfter=' + createdAfter;
+  }
   window.location = url;
 </script>
