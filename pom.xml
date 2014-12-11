@@ -52,7 +52,7 @@
     <repository>
       <id>codehaus-nexus-staging</id>
       <name>Codehaus Release Repository</name>
-      <url>https://nexus.codehaus.org/queue/local/staging/deploy/maven2/</url>
+      <url>https://nexus.codehaus.org/service/local/staging/deploy/maven2/</url>
     </repository>
     <snapshotRepository>
       <id>sonar-snapshots</id>
