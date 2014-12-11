@@ -30,13 +30,11 @@ class ProjectController < ApplicationController
   end
 
   def delete_form
-    access_denied unless (is_admin?(@project))
     @project = get_current_project(params[:id])
     render :partial => 'delete_form'
   end
 
   def delete
-    access_denied unless (is_admin?(@project))
     @project = get_current_project(params[:id])
 
     # Ask the resource deletion manager to start the migration
@@ -68,7 +66,7 @@ class ProjectController < ApplicationController
     deletion_manager = ResourceDeletionManager.instance
 
     if deletion_manager.currently_deleting_resources? ||
-      (!deletion_manager.currently_deleting_resources? && deletion_manager.deletion_failures_occured?)
+        (!deletion_manager.currently_deleting_resources? && deletion_manager.deletion_failures_occured?)
       # display the same page again and again
       # => implicit render "pending_deletion.html.erb"
     else
@@ -229,7 +227,7 @@ class ProjectController < ApplicationController
 
     @snapshot=@project.last_snapshot
     @snapshots = Snapshot.all(:conditions => ["status='P' AND project_id=?", @project.id],
-                               :include => 'events', :order => 'snapshots.created_at DESC')
+                              :include => 'events', :order => 'snapshots.created_at DESC')
   end
 
   def delete_snapshot_history
@@ -257,7 +255,7 @@ class ProjectController < ApplicationController
   def set_links
     project = get_current_project(params[:project_id])
 
-    project.custom_links.each {|link| link.delete}
+    project.custom_links.each { |link| link.delete }
 
     params.each_pair do |param_key, value|
       if (param_key.starts_with?('name_'))
