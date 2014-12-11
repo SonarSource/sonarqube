@@ -19,7 +19,7 @@
  */
 package org.sonar.server.issue.ws;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableSet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,55 +35,50 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class IssueTagsActionTest {
+public class SetTagsActionTest {
 
   @Mock
   private IssueService service;
 
-  private TagsAction tagsAction;
+  private SetTagsAction setTagsAction;
 
   private WsTester tester;
 
   @Before
   public void setUp() {
-    tagsAction = new TagsAction(service);
+    setTagsAction = new SetTagsAction(service);
     tester = new WsTester(
       new IssuesWs(new IssueShowAction(null, null, null, null, null, null, null, null, null, null, null),
         new SearchAction(null, null, null, null, null, null, null, null, null, null,null),
-        tagsAction, new SetTagsAction(null)));
+        new TagsAction(null), setTagsAction));
   }
 
   @Test
   public void should_define() throws Exception {
-    Action action = tester.controller("api/issues").action("tags");
+    Action action = tester.controller("api/issues").action("set_tags");
     assertThat(action.description()).isNotEmpty();
-    assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.isPost()).isFalse();
+    assertThat(action.responseExampleAsString()).isNull();
+    assertThat(action.isPost()).isTrue();
     assertThat(action.isInternal()).isFalse();
-    assertThat(action.handler()).isEqualTo(tagsAction);
+    assertThat(action.handler()).isEqualTo(setTagsAction);
     assertThat(action.params()).hasSize(2);
 
-    Param query = action.param("q");
-    assertThat(query.isRequired()).isFalse();
+    Param query = action.param("key");
+    assertThat(query.isRequired()).isTrue();
     assertThat(query.description()).isNotEmpty();
     assertThat(query.exampleValue()).isNotEmpty();
-    Param pageSize = action.param("ps");
+    Param pageSize = action.param("tags");
     assertThat(pageSize.isRequired()).isTrue();
-    assertThat(pageSize.defaultValue()).isEqualTo("10");
+    assertThat(pageSize.defaultValue()).isEqualTo("");
     assertThat(pageSize.description()).isNotEmpty();
     assertThat(pageSize.exampleValue()).isNotEmpty();
   }
 
   @Test
-  public void should_return_empty_list() throws Exception {
-    tester.newGetRequest("api/issues", "tags").execute().assertJson("{tags:[]}");
-  }
-
-  @Test
-  public void should_return_tag_list() throws Exception {
-    when(service.listTags("polop", 5)).thenReturn(Lists.newArrayList("tag1", "tag2", "tag3", "tag4", "tag5"));
-    tester.newGetRequest("api/issues", "tags").setParam("q", "polop").setParam("ps", "5").execute()
-      .assertJson("{tags:[\"tag1\", \"tag2\", \"tag3\", \"tag4\", \"tag5\"]}");
-    verify(service).listTags("polop", 5);
+  public void should_set_tags() throws Exception {
+    when(service.setTags("polop", ImmutableSet.of("palap"))).thenReturn(ImmutableSet.of("palap"));
+    tester.newPostRequest("api/issues", "set_tags").setParam("key", "polop").setParam("tags", "palap").execute()
+      .assertJson("{\"tags\":[\"palap\"]}");
+    verify(service).setTags("polop", ImmutableSet.of("palap"));
   }
 }

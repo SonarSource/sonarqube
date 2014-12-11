@@ -19,7 +19,9 @@
  */
 package org.sonar.server.issue;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multiset;
+import com.google.common.collect.Sets;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -432,5 +434,56 @@ public class IssueServiceMediumTest {
 
   private IssueDto newIssue() {
     return IssueTesting.newDto(rule, file, project);
+  }
+
+  @Test
+  public void list_tags() {
+    db.issueDao().insert(session,
+      IssueTesting.newDto(rule, file, project).setTags(ImmutableSet.of("convention", "java8", "bug")),
+      IssueTesting.newDto(rule, file, project).setTags(ImmutableSet.of("convention", "bug")),
+      IssueTesting.newDto(rule, file, project),
+      IssueTesting.newDto(rule, file, project).setTags(ImmutableSet.of("convention")));
+    session.commit();
+    index();
+
+    assertThat(service.listTags(null, 5)).containsOnly("convention", "java8", "bug");
+    assertThat(service.listTags(null, 2)).containsOnly("bug", "convention");
+    assertThat(service.listTags("vent", 5)).containsOnly("convention");
+    assertThat(service.listTags(null, 1)).containsOnly("bug");
+    assertThat(service.listTags(null, Integer.MAX_VALUE)).containsOnly("convention", "java8", "bug");
+  }
+
+  @Test
+  public void set_tags() {
+    IssueDto issue = newIssue();
+    tester.get(IssueDao.class).insert(session, issue);
+
+    session.commit();
+    index();
+
+    assertThat(indexClient.get(IssueIndex.class).getByKey(issue.getKey()).tags()).isEmpty();
+
+    // Tags are lowercased
+    service.setTags(issue.getKey(), ImmutableSet.of("bug", "Convention"));
+    assertThat(indexClient.get(IssueIndex.class).getByKey(issue.getKey()).tags()).containsOnly("bug", "convention");
+
+    // nulls and empty tags are ignored
+    service.setTags(issue.getKey(), Sets.newHashSet("security", null, "", "convention"));
+    assertThat(indexClient.get(IssueIndex.class).getByKey(issue.getKey()).tags()).containsOnly("security", "convention");
+
+    // tag validation
+    try {
+      service.setTags(issue.getKey(), ImmutableSet.of("pol op"));
+    } catch (Exception exception) {
+      assertThat(exception).isInstanceOf(IllegalArgumentException.class);
+    }
+    assertThat(indexClient.get(IssueIndex.class).getByKey(issue.getKey()).tags()).containsOnly("security", "convention");
+
+    // unchanged tags
+    service.setTags(issue.getKey(), ImmutableSet.of("convention", "security"));
+    assertThat(indexClient.get(IssueIndex.class).getByKey(issue.getKey()).tags()).containsOnly("security", "convention");
+
+    service.setTags(issue.getKey(), ImmutableSet.<String>of());
+    assertThat(indexClient.get(IssueIndex.class).getByKey(issue.getKey()).tags()).isEmpty();
   }
 }

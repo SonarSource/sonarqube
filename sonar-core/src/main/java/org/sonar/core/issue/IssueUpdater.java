@@ -19,7 +19,12 @@
  */
 package org.sonar.core.issue;
 
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.BatchComponent;
@@ -28,12 +33,14 @@ import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.issue.internal.IssueChangeContext;
+import org.sonar.api.server.rule.RuleTagFormat;
 import org.sonar.api.user.User;
 import org.sonar.api.utils.Duration;
 
 import javax.annotation.Nullable;
 
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 
 /**
@@ -49,6 +56,9 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
   public static final String AUTHOR = "author";
   public static final String ACTION_PLAN = "actionPlan";
   public static final String TECHNICAL_DEBT = "technicalDebt";
+  public static final String TAGS = "tags";
+
+  private static final Joiner CHANGELOG_TAG_JOINER = Joiner.on(" ").skipNulls();
 
   public boolean setSeverity(DefaultIssue issue, String severity, IssueChangeContext context) {
     if (issue.manualSeverity()) {
@@ -261,6 +271,36 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
     String currentProjectKey = issue.projectKey();
     issue.setProjectKey(previousKey);
     return setProject(issue, currentProjectKey, context);
+  }
+
+  public boolean setTags(DefaultIssue issue, Collection<String> tags, IssueChangeContext context) {
+    Collection<String> newTags = Collections2.transform(
+      Collections2.filter(tags, new Predicate<String>() {
+        @Override
+        public boolean apply(String tag) {
+          return tag != null && !tag.isEmpty();
+        }
+      }), new Function<String, String>() {
+        @Override
+        public String apply(String tag) {
+          String lowerCaseTag = tag.toLowerCase();
+          RuleTagFormat.validate(lowerCaseTag);
+          return lowerCaseTag;
+        }
+      });
+
+    Collection<String> oldTags = issue.tags();
+    if (!CollectionUtils.isEqualCollection(oldTags, newTags)) {
+      issue.setFieldChange(context, TAGS,
+        oldTags.isEmpty() ? null : CHANGELOG_TAG_JOINER.join(oldTags),
+        newTags.isEmpty() ? null : CHANGELOG_TAG_JOINER.join(newTags));
+      issue.setTags(newTags);
+      issue.setUpdateDate(context.date());
+      issue.setChanged(true);
+      issue.setSendNotifications(true);
+      return true;
+    }
+    return false;
   }
 
 }

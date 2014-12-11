@@ -45,11 +45,13 @@ public class IssuesWs implements WebService {
   private final IssueShowAction showAction;
   private final SearchAction esSearchAction;
   private final TagsAction tagsAction;
+  private final SetTagsAction setTagsAction;
 
-  public IssuesWs(IssueShowAction showAction, SearchAction searchAction, TagsAction tagsAction) {
+  public IssuesWs(IssueShowAction showAction, SearchAction searchAction, TagsAction tagsAction, SetTagsAction setTagsAction) {
     this.showAction = showAction;
     this.esSearchAction = searchAction;
     this.tagsAction = tagsAction;
+    this.setTagsAction = setTagsAction;
   }
 
   @Override
@@ -61,6 +63,7 @@ public class IssuesWs implements WebService {
     showAction.define(controller);
     esSearchAction.define(controller);
     tagsAction.define(controller);
+    setTagsAction.define(controller);
 
     defineChangelogAction(controller);
     defineAssignAction(controller);

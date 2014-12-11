@@ -59,7 +59,12 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.Maps.newLinkedHashMap;
 
@@ -347,5 +352,22 @@ public class IssueService implements ServerComponent {
 
   public Collection<String> listTags(@Nullable String query, int pageSize) {
     return indexClient.get(IssueIndex.class).listTagsMatching(query, pageSize);
+  }
+
+  public Collection<String> setTags(String issueKey, Collection<String> tags) {
+    verifyLoggedIn();
+
+    DbSession session = dbClient.openSession(false);
+    try {
+      DefaultIssue issue = getByKeyForUpdate(session, issueKey).toDefaultIssue();
+      IssueChangeContext context = IssueChangeContext.createUser(new Date(), UserSession.get().login());
+      if (issueUpdater.setTags(issue, tags, context)) {
+        saveIssue(session, issue, context, null);
+      }
+      return issue.tags();
+
+    } finally {
+      session.close();
+    }
   }
 }

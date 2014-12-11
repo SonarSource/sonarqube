@@ -26,6 +26,7 @@ import org.sonar.api.utils.Duration;
 import javax.annotation.CheckForNull;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -201,4 +202,9 @@ public interface Issue extends Serializable {
    * @since 5.0
    */
   String componentUuid();
+
+  /**
+   * @since 5.1
+   */
+  Collection<String> tags();
 }

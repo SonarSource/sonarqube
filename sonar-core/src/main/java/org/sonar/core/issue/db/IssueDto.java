@@ -19,8 +19,11 @@
  */
 package org.sonar.core.issue.db;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableSet;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.issue.internal.DefaultIssue;
@@ -36,12 +39,17 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Date;
 
 /**
  * @since 3.6
  */
 public final class IssueDto implements Serializable {
+
+  private static final char TAGS_SEPARATOR = ',';
+  private static final Joiner TAGS_JOINER = Joiner.on(TAGS_SEPARATOR).skipNulls();
+  private static final Splitter TAGS_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
 
   private Long id;
   private String kee;
@@ -86,6 +94,7 @@ public final class IssueDto implements Serializable {
   private String projectKey;
   private String projectUuid;
   private String filePath;
+  private String tags;
 
   public String getKey() {
     return getKee();
@@ -522,6 +531,28 @@ public final class IssueDto implements Serializable {
     return this;
   }
 
+  public Collection<String> getTags() {
+    return ImmutableSet.copyOf(TAGS_SPLITTER.split(tags == null ? "" : tags));
+  }
+
+  public IssueDto setTags(Collection<String> tags) {
+    if (tags.isEmpty()) {
+      this.tags = null;
+    } else {
+      this.tags = TAGS_JOINER.join(tags);
+    }
+    return this;
+  }
+
+  public String getTagsString() {
+    return tags;
+  }
+
+  public IssueDto setTagsString(String tags) {
+    this.tags = tags;
+    return this;
+  }
+
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
@@ -546,6 +577,7 @@ public final class IssueDto implements Serializable {
       .setAssignee(issue.assignee())
       .setRuleId(ruleId)
       .setRuleKey(issue.ruleKey().repository(), issue.ruleKey().rule())
+      .setTags(issue.tags())
       .setComponentUuid(issue.componentUuid())
       .setComponentId(componentId)
       .setComponentKey(issue.componentKey())
@@ -596,6 +628,7 @@ public final class IssueDto implements Serializable {
       .setIssueAttributes(KeyValueFormat.format(issue.attributes()))
       .setAuthorLogin(issue.authorLogin())
       .setRuleKey(issue.ruleKey().repository(), issue.ruleKey().rule())
+      .setTags(issue.tags())
       .setComponentUuid(issue.componentUuid())
       .setComponentKey(issue.componentKey())
       .setModuleUuid(issue.moduleUuid())
@@ -634,6 +667,7 @@ public final class IssueDto implements Serializable {
     issue.setProjectKey(projectKey);
     issue.setManualSeverity(manualSeverity);
     issue.setRuleKey(getRuleKey());
+    issue.setTags(getTags());
     issue.setLanguage(language);
     issue.setActionPlanKey(actionPlanKey);
     issue.setAuthorLogin(authorLogin);

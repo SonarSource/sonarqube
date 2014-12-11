@@ -23,6 +23,7 @@
     i.reporter as reporter,
     i.assignee as assignee,
     i.author_login as authorLogin,
+    i.tags as tagsString,
     i.issue_attributes as issueAttributes,
     i.issue_creation_date as issueCreationDate,
     i.issue_update_date as issueUpdateDate,
@@ -68,11 +69,11 @@
 
   <insert id="insert" parameterType="Issue" useGeneratedKeys="false" keyProperty="id">
     INSERT INTO issues (kee, component_id, root_component_id, rule_id, action_plan_key, severity, manual_severity,
-    message, line, effort_to_fix, technical_debt, status,
+    message, line, effort_to_fix, technical_debt, status, tags,
     resolution, checksum, reporter, assignee, author_login, issue_attributes, issue_creation_date, issue_update_date,
     issue_close_date, created_at, updated_at)
     VALUES (#{kee}, #{componentId}, #{projectId}, #{ruleId}, #{actionPlanKey}, #{severity}, #{manualSeverity},
-    #{message}, #{line}, #{effortToFix}, #{debt}, #{status},
+    #{message}, #{line}, #{effortToFix}, #{debt}, #{status}, #{tagsString},
     #{resolution}, #{checksum}, #{reporter}, #{assignee}, #{authorLogin}, #{issueAttributes}, #{issueCreationDate},
     #{issueUpdateDate}, #{issueCloseDate}, #{createdAt}, #{updatedAt})
   </insert>
@@ -95,6 +96,7 @@
     reporter=#{reporter},
     assignee=#{assignee},
     author_login=#{authorLogin},
+    tags=#{tagsString},
     root_component_id=#{projectId},
     issue_attributes=#{issueAttributes},
     issue_creation_date=#{issueCreationDate},
@@ -122,6 +124,7 @@
     reporter=#{reporter},
     assignee=#{assignee},
     author_login=#{authorLogin},
+    tags=#{tagsString},
     root_component_id=#{projectId},
     issue_attributes=#{issueAttributes},
     issue_creation_date=#{issueCreationDate},
@@ -161,6 +164,7 @@
     i.reporter as reporter,
     i.assignee as assignee,
     i.author_login as authorLogin,
+    i.tags as tagsString,
     i.issue_attributes as issueAttributes,
     i.issue_creation_date as issueCreationDate,
     i.issue_update_date as issueUpdateDate,

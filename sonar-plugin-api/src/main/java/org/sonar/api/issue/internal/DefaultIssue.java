@@ -24,6 +24,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -39,7 +40,13 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -79,6 +86,7 @@ public class DefaultIssue implements Issue {
   private String authorLogin = null;
   private String actionPlanKey;
   private List<IssueComment> comments = null;
+  private Set<String> tags = null;
 
   // FUNCTIONAL DATES
   private Date creationDate;
@@ -582,4 +590,17 @@ public class DefaultIssue implements Issue {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 
+  @Override
+  public Collection<String> tags() {
+    if (tags == null) {
+      return ImmutableSet.of();
+    } else {
+      return ImmutableSet.copyOf(tags);
+    }
+  }
+
+  public DefaultIssue setTags(Collection<String> tags) {
+    this.tags = ImmutableSet.copyOf(tags);
+    return this;
+  }
 }
