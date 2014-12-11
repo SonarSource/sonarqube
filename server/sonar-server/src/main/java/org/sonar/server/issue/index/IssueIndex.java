@@ -475,7 +475,7 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
     }
   }
 
-  public Collection<String> listTagsMatching(String query, int pageSize) {
+  public Collection<String> listTagsMatching(@Nullable String query, int pageSize) {
     SearchRequestBuilder count = getClient().prepareSearch(IssueIndexDefinition.INDEX)
       .setTypes(IssueIndexDefinition.TYPE_ISSUE)
       .setQuery(QueryBuilders.matchAllQuery());
