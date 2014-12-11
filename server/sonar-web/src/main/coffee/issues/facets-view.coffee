@@ -8,6 +8,7 @@ define [
   'issues/facets/module-facet'
   'issues/facets/assignee-facet'
   'issues/facets/rule-facet'
+  'issues/facets/tag-facet'
   'issues/facets/resolution-facet'
   'issues/facets/creation-date-facet'
   'issues/facets/action-plan-facet'
@@ -23,6 +24,7 @@ define [
   ModuleFacet
   AssigneeFacet
   RuleFacet
+  TagFacet
   ResolutionFacet
   CreationDateFacet
   ActionPlanFacet
@@ -45,6 +47,7 @@ define [
         when 'projectUuids' then ProjectFacet
         when 'componentRootUuids' then ModuleFacet
         when 'rules' then RuleFacet
+        when 'tags' then TagFacet
         when 'actionPlans' then ActionPlanFacet
         when 'componentUuids' then ComponentFacet
         when 'reporters' then ReporterFacet

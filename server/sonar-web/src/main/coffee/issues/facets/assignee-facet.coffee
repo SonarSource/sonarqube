@@ -68,7 +68,6 @@ define [
       # put "unassigned" first
       _.sortBy values, (v) ->
         x = if v.val == '' then -999999 else -v.count
-        console.log v.val, x
         x
 
 
