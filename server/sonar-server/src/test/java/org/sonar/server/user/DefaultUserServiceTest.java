@@ -39,20 +39,21 @@ import static org.mockito.Mockito.*;
 
 public class DefaultUserServiceTest {
 
+  UserService userService = mock(UserService.class);
   UserFinder finder = mock(UserFinder.class);
   UserDao dao = mock(UserDao.class);
-  DefaultUserService service = new DefaultUserService(finder, dao);
+  DefaultUserService service = new DefaultUserService(userService, finder, dao);
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void parse_query() throws Exception {
-    service.find(ImmutableMap.<String, Object> of(
-        "logins", "simon,loic",
-        "includeDeactivated", "true",
-        "s", "sim"
-        ));
+    service.find(ImmutableMap.<String, Object>of(
+      "logins", "simon,loic",
+      "includeDeactivated", "true",
+      "s", "sim"
+      ));
 
     verify(finder, times(1)).find(argThat(new ArgumentMatcher<UserQuery>() {
       @Override
@@ -67,7 +68,7 @@ public class DefaultUserServiceTest {
 
   @Test
   public void test_empty_query() throws Exception {
-    service.find(Maps.<String, Object> newHashMap());
+    service.find(Maps.<String, Object>newHashMap());
 
     verify(finder, times(1)).find(argThat(new ArgumentMatcher<UserQuery>() {
       @Override
@@ -106,6 +107,7 @@ public class DefaultUserServiceTest {
     MockUserSession.set().setLogin("simon").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     service.deactivate("julien");
     verify(dao).deactivateUserByLogin("julien");
+    verify(userService).index();
   }
 
   @Test
@@ -118,5 +120,11 @@ public class DefaultUserServiceTest {
       assertThat(e).hasMessage("Login is missing");
       verifyZeroInteractions(dao);
     }
+  }
+
+  @Test
+  public void index() throws Exception {
+    service.index();
+    verify(userService).index();
   }
 }
