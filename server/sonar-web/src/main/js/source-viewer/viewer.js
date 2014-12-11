@@ -35,6 +35,7 @@ define([
 
         ISSUES_LIMIT: 100,
         LINES_LIMIT: 1000,
+        TOTAL_LINES_LIMIT: 3000,
         LINES_AROUND: 500,
 
         regions: {
@@ -101,9 +102,11 @@ define([
 
         open: function (id, key) {
           var that = this,
+              r = window.process.addBackgroundProcess(),
               finalize = function () {
                 that.requestIssues().done(function () {
                   that.render();
+                  window.process.finishBackgroundProcess(r);
                   that.trigger('loaded');
                 });
               };
@@ -237,11 +240,10 @@ define([
                   resolved: false,
                   s: 'FILE_LINE',
                   asc: true,
-                  ps: 999999
+                  ignorePaging: true
                 }
               };
           return this.issues.fetch(options).done(function () {
-            that.issues.reset(that.limitIssues(that.issues));
             that.addIssuesPerLineMeta(that.issues);
           });
         },
@@ -472,6 +474,35 @@ define([
           return this;
         },
 
+        scrollToFirstLine: function (line) {
+          var row = this.$('.source-line[data-line-number=' + line + ']');
+          if (row.length > 0) {
+            var p = this.$el.scrollParent();
+            if (p.is(document)) {
+              p = $(window);
+            }
+            var pTopOffset = p.offset() != null ? p.offset().top : 0,
+                goal = row.offset().top - pTopOffset;
+            p.scrollTop(goal);
+          }
+          return this;
+        },
+
+        scrollToLastLine: function (line) {
+          var row = this.$('.source-line[data-line-number=' + line + ']');
+          if (row.length > 0) {
+            var p = this.$el.scrollParent();
+            if (p.is(document)) {
+              p = $(window);
+            }
+            var pTopOffset = p.offset() != null ? p.offset().top : 0,
+                pHeight = p.height(),
+                goal = row.offset().top - pTopOffset - pHeight + row.height();
+            p.scrollTop(goal);
+          }
+          return this;
+        },
+
         loadSourceBefore: function () {
           this.unbindScrollEvents();
           var that = this,
@@ -485,19 +516,25 @@ define([
               };
           return $.get(url, options).done(function (data) {
             source = (data.sources || []).concat(source);
+            console.log(source.length);
+            if (source.length > that.TOTAL_LINES_LIMIT + 1) {
+              source = source.slice(0, that.TOTAL_LINES_LIMIT);
+              that.model.set({ hasSourceAfter: true });
+            }
             if (source.length === 0 || (source.length > 0 && _.first(source).line === 1)) {
               source.unshift({line: 0});
             }
             that.model.set({
               source: source,
-              hasSourceBefore: data.sources.length === that.LINES_AROUND
+              hasSourceBefore: (data.sources.length === that.LINES_AROUND) && (_.first(source).line > 0)
             });
+            that.addIssuesPerLineMeta(that.issues);
             if (that.model.has('duplications')) {
               that.model.addDuplications(that.model.get('duplications'));
               that.model.addMeta(that.model.get('duplicationsParsed'));
             }
             that.render();
-            that.scrollToLine(firstLine);
+            that.scrollToFirstLine(firstLine);
             if (that.model.get('hasSourceBefore') || that.model.get('hasSourceAfter')) {
               that.bindScrollEvents();
             }
@@ -517,15 +554,21 @@ define([
               };
           return $.get(url, options).done(function (data) {
             source = source.concat(data.sources);
+            if (source.length > that.TOTAL_LINES_LIMIT + 1) {
+              source = source.slice(source.length - that.TOTAL_LINES_LIMIT);
+              that.model.set({ hasSourceBefore: true });
+            }
             that.model.set({
               source: source,
               hasSourceAfter: data.sources.length === that.LINES_AROUND
             });
+            that.addIssuesPerLineMeta(that.issues);
             if (that.model.has('duplications')) {
               that.model.addDuplications(that.model.get('duplications'));
               that.model.addMeta(that.model.get('duplicationsParsed'));
             }
             that.render();
+            that.scrollToLastLine(lastLine);
             if (that.model.get('hasSourceBefore') || that.model.get('hasSourceAfter')) {
               that.bindScrollEvents();
             }
