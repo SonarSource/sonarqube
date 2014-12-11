@@ -32,7 +32,6 @@ class Navigation
   SECTION_RESOURCE_CONFIGURATION = Navigation.new('resource_configuration', true)
   SECTION_SESSION = Navigation.new('session', true)
   SECTION_ISSUES = Navigation.new('issues', false)
-  SECTION_ISSUES2 = Navigation.new('issues2', false)
   SECTION_MEASURES = Navigation.new('measures', false)
   SECTION_QUALITY_PROFILES = Navigation.new('quality_profiles', false)
   SECTION_QUALITY_GATES = Navigation.new('quality_gates', false)
