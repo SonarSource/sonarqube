@@ -170,8 +170,11 @@ public class MeasureFilterFactory implements ServerComponent {
     });
     String val = "('" + Joiner.on("', '").skipNulls().join(alertLevelsUppercase) + "')";
     Metric metric = metricFinder.findByKey(CoreMetrics.ALERT_STATUS_KEY);
-    MeasureFilterCondition.Operator operator = MeasureFilterCondition.Operator.fromCode("in");
-    return new MeasureFilterCondition(metric, operator, val);
+    if (metric != null) {
+      MeasureFilterCondition.Operator operator = MeasureFilterCondition.Operator.fromCode("in");
+      return new MeasureFilterCondition(metric, operator, val);
+    }
+    return null;
   }
 
   private List<String> toList(@Nullable Object obj) {

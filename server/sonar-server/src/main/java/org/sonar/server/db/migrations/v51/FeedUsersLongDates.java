@@ -40,33 +40,40 @@ public class FeedUsersLongDates extends BaseDataChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    final long now = system.now();
-
     MassUpdate massUpdate = context.prepareMassUpdate();
     massUpdate.select("SELECT u.id, u.created_at, u.updated_at FROM users u WHERE created_at_ms IS NULL");
     massUpdate.update("UPDATE users SET created_at_ms=?, updated_at_ms=? WHERE id=?");
     massUpdate.rowPluralName("users");
-    massUpdate.execute(new MassUpdate.Handler() {
-      @Override
-      public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
-        Long id = row.getLong(1);
-        Date createdAt = row.getDate(2);
-        Date updatedAt = row.getDate(3);
+    massUpdate.execute(new RowHandler(system.now()));
+  }
 
-        if (createdAt == null) {
-          update.setLong(1, now);
-        } else {
-          update.setLong(1, Math.min(now, createdAt.getTime()));
-        }
-        if (updatedAt == null) {
-          update.setLong(2, now);
-        } else {
-          update.setLong(2, Math.min(now, updatedAt.getTime()));
-        }
-        update.setLong(3, id);
-        return true;
+  private static class RowHandler implements MassUpdate.Handler {
+
+    private final long now;
+
+    private RowHandler(long now) {
+      this.now = now;
+    }
+
+    @Override
+    public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
+      Long id = row.getLong(1);
+      Date createdAt = row.getDate(2);
+      Date updatedAt = row.getDate(3);
+
+      if (createdAt == null) {
+        update.setLong(1, now);
+      } else {
+        update.setLong(1, Math.min(now, createdAt.getTime()));
       }
-    });
+      if (updatedAt == null) {
+        update.setLong(2, now);
+      } else {
+        update.setLong(2, Math.min(now, updatedAt.getTime()));
+      }
+      update.setLong(3, id);
+      return true;
+    }
   }
 
 }

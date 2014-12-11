@@ -35,7 +35,6 @@ import javax.annotation.Nullable;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 
-import java.io.Serializable;
 import java.io.StringReader;
 import java.util.Collections;
 import java.util.Comparator;
@@ -104,7 +103,7 @@ public class DuplicationsParser implements ServerComponent {
   }
 
   @VisibleForTesting
-  static class DuplicationComparator implements Comparator<Duplication>, Serializable {
+  static class DuplicationComparator implements Comparator<Duplication> {
 
     private final ComponentDto component;
 
@@ -146,7 +145,7 @@ public class DuplicationsParser implements ServerComponent {
     }
   }
 
-  private static class BlockComparator implements Comparator<Block>, Serializable {
+  private static class BlockComparator implements Comparator<Block> {
     @Override
     public int compare(@Nullable Block b1,
       @Nullable Block b2) {
