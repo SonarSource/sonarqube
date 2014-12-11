@@ -29,7 +29,7 @@ public abstract class BaseDataChange implements DataChange, DatabaseMigration {
 
   private final Database db;
 
-  protected BaseDataChange(Database db) {
+  public BaseDataChange(Database db) {
     this.db = db;
   }
 

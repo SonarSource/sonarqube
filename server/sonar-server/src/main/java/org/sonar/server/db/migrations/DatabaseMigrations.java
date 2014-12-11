@@ -75,10 +75,10 @@ public interface DatabaseMigrations {
     FeedSnapshotSourcesUpdatedAt.class,
     FeedFileSources.class,
     FeedIssueLongDates.class,
+    RemoveSortFieldFromIssueFiltersMigration.class,
 
     // 5.1
     FeedIssueTags.class,
     FeedUsersLongDates.class
     );
-
 }
