@@ -26,7 +26,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.server.computation.AnalysisReportQueue;
 import org.sonar.server.computation.AnalysisReportTaskLauncher;
-import org.sonar.server.computation.ComputationService;
 
 import static org.mockito.Mockito.*;
 
@@ -35,13 +34,11 @@ public class UploadReportActionTest {
   private static final String DEFAULT_PROJECT_KEY = "123456789-987654321";
   private UploadReportAction sut;
 
-  private ComputationService computationService;
   private AnalysisReportTaskLauncher analysisTaskLauncher;
   private AnalysisReportQueue queue;
 
   @Before
   public void before() {
-    computationService = mock(ComputationService.class);
     analysisTaskLauncher = mock(AnalysisReportTaskLauncher.class);
     queue = mock(AnalysisReportQueue.class);
 
@@ -57,7 +54,7 @@ public class UploadReportActionTest {
 
     sut.handle(request, response);
 
-    verify(queue).add(DEFAULT_PROJECT_KEY, 123L);
+    verify(queue).add(DEFAULT_PROJECT_KEY, 123L, null);
     verify(analysisTaskLauncher).startAnalysisTaskNow();
   }
 

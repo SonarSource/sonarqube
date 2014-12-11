@@ -21,6 +21,7 @@
 package org.sonar.server.computation.db;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Charsets;
 import org.sonar.api.utils.System2;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.computation.db.AnalysisReportMapper;
@@ -30,6 +31,11 @@ import org.sonar.server.db.BaseDao;
 
 import javax.annotation.CheckForNull;
 
+import java.io.InputStreamReader;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +45,10 @@ import static org.sonar.core.computation.db.AnalysisReportDto.Status.PENDING;
 import static org.sonar.core.computation.db.AnalysisReportDto.Status.WORKING;
 
 public class AnalysisReportDao extends BaseDao<AnalysisReportMapper, AnalysisReportDto, String> implements DaoComponent {
+
+  private static final String INSERT_QUERY = "insert into analysis_reports\n" +
+    "    (project_key, snapshot_id, report_status, report_data, created_at, updated_at, started_at, finished_at)\n" +
+    "    values (?, ?, ?, ?, ?, ?, ?, ?)";
 
   private System2 system2;
 
@@ -114,13 +124,48 @@ public class AnalysisReportDao extends BaseDao<AnalysisReportMapper, AnalysisRep
 
   @Override
   protected AnalysisReportDto doInsert(DbSession session, AnalysisReportDto report) {
-    mapper(session).insert(report);
+    Connection connection = session.getConnection();
+    try {
+      PreparedStatement preparedStatement = connection.prepareStatement(INSERT_QUERY);
+      // (project_key, snapshot_id, report_status, report_data, created_at, updated_at, started_at, finished_at)
+      preparedStatement.setString(1, report.getProjectKey());
+      preparedStatement.setLong(2, report.getSnapshotId());
+      preparedStatement.setString(3, report.getStatus().toString());
+      InputStreamReader inputStreamReader = null;
+      if (report.getData() != null) {
+        inputStreamReader = new InputStreamReader(report.getData(), Charsets.UTF_8);
+      }
+      preparedStatement.setCharacterStream(4, inputStreamReader);
+      preparedStatement.setTimestamp(5, dateToTimestamp(report.getCreatedAt()));
+      preparedStatement.setTimestamp(6, dateToTimestamp(report.getUpdatedAt()));
+      preparedStatement.setTimestamp(7, dateToTimestamp(report.getStartedAt()));
+      preparedStatement.setTimestamp(8, dateToTimestamp(report.getFinishedAt()));
+
+      preparedStatement.executeUpdate();
+      connection.commit();
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+
     return report;
+  }
+
+  private Timestamp dateToTimestamp(Date date) {
+    if (date == null) {
+      return null;
+    }
+
+    return new Timestamp(date.getTime());
   }
 
   @Override
   protected String getSynchronizationStatementName() {
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public AnalysisReportDto insert(DbSession session, AnalysisReportDto item) {
+    return super.insert(session, item);
   }
 
   @Override

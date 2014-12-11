@@ -25,8 +25,6 @@ import java.util.Date;
 import java.util.List;
 
 public interface AnalysisReportMapper {
-  void insert(AnalysisReportDto report);
-
   List<AnalysisReportDto> selectByProjectKey(String projectKey);
 
   List<AnalysisReportDto> selectNextAvailableReport(@Param("availableStatus") AnalysisReportDto.Status availableStatus, @Param("busyStatus") AnalysisReportDto.Status busyStatus);

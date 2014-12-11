@@ -24,8 +24,6 @@ import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
@@ -37,19 +35,13 @@ import org.sonar.server.exceptions.Errors;
 import org.sonar.server.exceptions.Message;
 import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.user.MockUserSession;
-import org.sonar.server.user.UserSession;
 
 import javax.annotation.Nullable;
-
 import java.io.IOException;
 import java.util.Locale;
 import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -242,7 +234,7 @@ public class WebServiceEngineTest {
 
     assertThat(response.stream().outputAsString()).isEqualTo(
       "{\"errors\":[{\"msg\":\"reason #0\"}]}"
-    );
+      );
     assertThat(response.stream().httpStatus()).isEqualTo(400);
     assertThat(response.stream().mediaType()).isEqualTo(MimeTypes.JSON);
   }

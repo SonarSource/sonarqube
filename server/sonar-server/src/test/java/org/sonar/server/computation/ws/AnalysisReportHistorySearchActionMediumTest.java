@@ -20,6 +20,7 @@
 
 package org.sonar.server.computation.ws;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -52,6 +53,7 @@ import static org.fest.assertions.Assertions.assertThat;
 public class AnalysisReportHistorySearchActionMediumTest {
   private static final String DEFAULT_PROJECT_KEY = "DefaultProjectKey";
   private static final String DEFAULT_PROJECT_NAME = "DefaultProjectName";
+  private static final String DEFAULT_REPORT_DATA = "default-project";
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
@@ -90,9 +92,9 @@ public class AnalysisReportHistorySearchActionMediumTest {
   @Test
   public void add_and_try_to_retrieve_activities() throws Exception {
     insertPermissionsForProject(DEFAULT_PROJECT_KEY);
-    queue.add(DEFAULT_PROJECT_KEY, 123L);
-    queue.add(DEFAULT_PROJECT_KEY, 123L);
-    queue.add(DEFAULT_PROJECT_KEY, 123L);
+    queue.add(DEFAULT_PROJECT_KEY, 123L, IOUtils.toInputStream(DEFAULT_REPORT_DATA));
+    queue.add(DEFAULT_PROJECT_KEY, 123L, IOUtils.toInputStream(DEFAULT_REPORT_DATA));
+    queue.add(DEFAULT_PROJECT_KEY, 123L, IOUtils.toInputStream(DEFAULT_REPORT_DATA));
 
     List<AnalysisReportDto> reports = queue.all();
     ComponentDto project = ComponentTesting.newProjectDto()
@@ -129,7 +131,7 @@ public class AnalysisReportHistorySearchActionMediumTest {
   @Test(expected = ForbiddenException.class)
   public void user_rights_is_not_enough_throw_ForbiddenException() throws Exception {
     insertPermissionsForProject(DEFAULT_PROJECT_KEY);
-    queue.add(DEFAULT_PROJECT_KEY, 123L);
+    queue.add(DEFAULT_PROJECT_KEY, 123L, IOUtils.toInputStream(DEFAULT_REPORT_DATA));
 
     AnalysisReportDto report = queue.all().get(0);
     report.succeed();

@@ -68,7 +68,7 @@ public class UploadReportAction implements RequestHandler {
     String projectKey = request.mandatoryParam(PARAM_PROJECT_KEY);
     String snapshotId = request.mandatoryParam(PARAM_SNAPSHOT);
 
-    analysisReportQueue.add(projectKey, Long.valueOf(snapshotId));
+    analysisReportQueue.add(projectKey, Long.valueOf(snapshotId), null);
 
     analysisTaskLauncher.startAnalysisTaskNow();
   }

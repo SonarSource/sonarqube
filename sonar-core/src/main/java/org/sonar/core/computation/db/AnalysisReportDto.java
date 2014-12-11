@@ -25,6 +25,7 @@ import org.sonar.core.persistence.Dto;
 
 import javax.annotation.Nullable;
 
+import java.io.InputStream;
 import java.util.Date;
 
 public class AnalysisReportDto extends Dto<String> {
@@ -32,7 +33,7 @@ public class AnalysisReportDto extends Dto<String> {
   private Long id;
   private String projectKey;
   private Status status;
-  private String data;
+  private InputStream data;
   private Long snapshotId;
   private Date startedAt;
   private Date finishedAt;
@@ -75,11 +76,11 @@ public class AnalysisReportDto extends Dto<String> {
     this.status = Status.SUCCESS;
   }
 
-  public String getData() {
+  public InputStream getData() {
     return data;
   }
 
-  public AnalysisReportDto setData(@Nullable String data) {
+  public AnalysisReportDto setData(@Nullable InputStream data) {
     this.data = data;
     return this;
   }

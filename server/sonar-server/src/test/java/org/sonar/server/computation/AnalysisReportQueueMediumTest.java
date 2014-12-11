@@ -20,6 +20,7 @@
 
 package org.sonar.server.computation;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -38,6 +39,7 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 
+import java.io.InputStream;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -83,7 +85,7 @@ public class AnalysisReportQueueMediumTest {
   @Test
   public void create_analysis_report_and_retrieve_it() {
     insertPermissionsForProject(DEFAULT_PROJECT_KEY);
-    sut.add(DEFAULT_PROJECT_KEY, 123L);
+    sut.add(DEFAULT_PROJECT_KEY, 123L, defaultReportData());
 
     List<AnalysisReportDto> reports = sut.findByProjectKey(DEFAULT_PROJECT_KEY);
     AnalysisReportDto report = reports.get(0);
@@ -112,9 +114,9 @@ public class AnalysisReportQueueMediumTest {
     insertPermissionsForProject("2");
     insertPermissionsForProject("3");
 
-    sut.add(DEFAULT_PROJECT_KEY, 123L);
-    sut.add("2", 123L);
-    sut.add("3", 123L);
+    sut.add(DEFAULT_PROJECT_KEY, 123L, defaultReportData());
+    sut.add("2", 123L, defaultReportData());
+    sut.add("3", 123L, defaultReportData());
 
     AnalysisReportDto firstBookedReport = sut.bookNextAvailable();
     AnalysisReportDto secondBookedReport = sut.bookNextAvailable();
@@ -138,9 +140,9 @@ public class AnalysisReportQueueMediumTest {
   public void all() {
     insertPermissionsForProject(DEFAULT_PROJECT_KEY);
 
-    sut.add(DEFAULT_PROJECT_KEY, 123L);
-    sut.add(DEFAULT_PROJECT_KEY, 123L);
-    sut.add(DEFAULT_PROJECT_KEY, 123L);
+    sut.add(DEFAULT_PROJECT_KEY, 123L, defaultReportData());
+    sut.add(DEFAULT_PROJECT_KEY, 123L, defaultReportData());
+    sut.add(DEFAULT_PROJECT_KEY, 123L, defaultReportData());
 
     List<AnalysisReportDto> reports = sut.all();
 
@@ -150,7 +152,7 @@ public class AnalysisReportQueueMediumTest {
   @Test
   public void remove_remove_from_queue() {
     insertPermissionsForProject(DEFAULT_PROJECT_KEY);
-    sut.add(DEFAULT_PROJECT_KEY, 123L);
+    sut.add(DEFAULT_PROJECT_KEY, 123L, defaultReportData());
     AnalysisReportDto report = sut.bookNextAvailable();
     report.setStatus(SUCCESS);
 
@@ -168,7 +170,10 @@ public class AnalysisReportQueueMediumTest {
 
     MockUserSession.set().setLogin("gandalf").addProjectPermissions(UserRole.USER, project.key());
 
-    sut.add(project.getKey(), 123L);
+    sut.add(project.getKey(), 123L, defaultReportData());
   }
 
+  private InputStream defaultReportData() {
+    return IOUtils.toInputStream("default-project");
+  }
 }

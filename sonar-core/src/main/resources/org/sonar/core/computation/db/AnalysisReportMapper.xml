@@ -14,14 +14,6 @@
     ar.finished_at as finishedAt
   </sql>
 
-  <insert id="insert" parameterType="AnalysisReport" useGeneratedKeys="true">
-    insert into analysis_reports
-    (project_key, snapshot_id, report_status, report_data, created_at, updated_at, started_at,
-    finished_at)
-    values (#{projectKey}, #{snapshotId}, #{status}, #{data}, #{createdAt}, #{updatedAt}, #{startedAt},
-    #{finishedAt})
-  </insert>
-
   <update id="cleanWithUpdateAllToPendingStatus" parameterType="map">
     update analysis_reports
     set report_status=#{status}, updated_at=#{updatedAt}

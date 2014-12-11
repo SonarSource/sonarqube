@@ -32,6 +32,7 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 
+import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
 
@@ -49,14 +50,16 @@ public class AnalysisReportQueue implements ServerComponent {
     this.system2 = system2;
   }
 
-  public AnalysisReportDto add(String projectKey, Long snapshotId) {
+  public AnalysisReportDto add(String projectKey, Long snapshotId, InputStream file) {
     UserSession.get().checkGlobalPermission(GlobalPermissions.SCAN_EXECUTION);
 
-    AnalysisReportDto report = newPendingAnalysisReport(projectKey).setSnapshotId(snapshotId);
+    AnalysisReportDto report = newPendingAnalysisReport(projectKey)
+      .setSnapshotId(snapshotId)
+      .setData(file);
     DbSession session = dbClient.openSession(false);
     try {
       checkThatProjectExistsInDatabase(projectKey, session);
-      return insertInDatabase(report, session);
+      return insertInDb(report, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -72,7 +75,7 @@ public class AnalysisReportQueue implements ServerComponent {
     dbClient.componentDao().getByKey(session, projectKey);
   }
 
-  private AnalysisReportDto insertInDatabase(AnalysisReportDto reportTemplate, DbSession session) {
+  private AnalysisReportDto insertInDb(AnalysisReportDto reportTemplate, DbSession session) {
     AnalysisReportDto report = dao.insert(session, reportTemplate);
     session.commit();
 

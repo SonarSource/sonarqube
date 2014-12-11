@@ -20,6 +20,7 @@
 
 package org.sonar.server.computation.db;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -69,24 +70,29 @@ public class AnalysisReportDaoTest {
   }
 
   @Test
-  public void insert_multiple_reports() {
+  public void insert_multiple_reports() throws Exception {
     db.prepareDbUnit(getClass(), "empty.xml");
 
-    AnalysisReportDto report = new AnalysisReportDto()
+    AnalysisReportDto report1 = newDefaultAnalysisReport();
+    AnalysisReportDto report2 = newDefaultAnalysisReport();
+
+    sut.insert(session, report1);
+    sut.insert(session, report2);
+    session.commit();
+
+    db.assertDbUnit(getClass(), "insert-result.xml", "analysis_reports");
+  }
+
+  private AnalysisReportDto newDefaultAnalysisReport() {
+    return new AnalysisReportDto()
       .setProjectKey(DEFAULT_PROJECT_KEY)
       .setSnapshotId(DEFAULT_SNAPSHOT_ID)
-      .setData("data-project")
+      .setData(IOUtils.toInputStream("data-project"))
       .setStatus(PENDING)
       .setStartedAt(DateUtils.parseDate("2014-09-25"))
       .setFinishedAt(DateUtils.parseDate("2014-09-27"))
       .setCreatedAt(DateUtils.parseDate("2014-09-24"))
       .setUpdatedAt(DateUtils.parseDate("2014-09-25"));
-
-    sut.insert(session, report);
-    sut.insert(session, report);
-    session.commit();
-
-    db.assertDbUnit(getClass(), "insert-result.xml", "analysis_reports");
   }
 
   @Test
