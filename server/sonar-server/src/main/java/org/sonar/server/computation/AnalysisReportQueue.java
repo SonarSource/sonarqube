@@ -31,6 +31,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.io.InputStream;
 import java.util.Date;
@@ -50,7 +51,7 @@ public class AnalysisReportQueue implements ServerComponent {
     this.system2 = system2;
   }
 
-  public AnalysisReportDto add(String projectKey, Long snapshotId, InputStream file) {
+  public AnalysisReportDto add(String projectKey, Long snapshotId, @Nullable InputStream file) {
     UserSession.get().checkGlobalPermission(GlobalPermissions.SCAN_EXECUTION);
 
     AnalysisReportDto report = newPendingAnalysisReport(projectKey)

@@ -62,9 +62,9 @@ public class UploadReportActionMediumTest {
 
   @Test
   public void define() throws Exception {
-    WebService.Action restoreProfiles = controller.action(UploadReportAction.UPLOAD_REPORT_ACTION);
+    WebService.Action action = controller.action(UploadReportAction.UPLOAD_REPORT_ACTION);
 
-    assertThat(restoreProfiles).isNotNull();
-    assertThat(restoreProfiles.params()).hasSize(2);
+    assertThat(action).isNotNull();
+    assertThat(action.params()).hasSize(3);
   }
 }

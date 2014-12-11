@@ -20,9 +20,12 @@
 package org.sonar.api.server.ws.internal;
 
 import com.google.common.collect.Maps;
+import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ws.Request;
 
 import javax.annotation.Nullable;
+
+import java.io.InputStream;
 import java.util.Map;
 
 /**
@@ -42,6 +45,11 @@ public class SimpleGetRequest extends Request {
   @Override
   public String param(String key) {
     return params.get(key);
+  }
+
+  @Override
+  public InputStream paramAsInputStream(String key) {
+    return IOUtils.toInputStream(param(key));
   }
 
   public SimpleGetRequest setParam(String key, @Nullable String value) {

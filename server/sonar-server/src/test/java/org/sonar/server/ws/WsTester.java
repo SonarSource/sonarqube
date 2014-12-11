@@ -34,6 +34,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
@@ -76,6 +77,13 @@ public class WsTester {
     @Override
     protected String readParam(String key) {
       return params.get(key);
+    }
+
+    @Override
+    protected InputStream readInputStreamParam(String key) {
+      String param = readParam(key);
+
+      return param == null ? null : IOUtils.toInputStream(param);
     }
 
     public Result execute() throws Exception {

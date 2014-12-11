@@ -20,12 +20,15 @@
 
 package org.sonar.server.batch;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.server.computation.AnalysisReportQueue;
 import org.sonar.server.computation.AnalysisReportTaskLauncher;
+
+import java.io.InputStream;
 
 import static org.mockito.Mockito.*;
 
@@ -46,15 +49,18 @@ public class UploadReportActionTest {
   }
 
   @Test
-  public void verify_that_computation_service_is_called() throws Exception {
+  public void add_element_to_queue_and_launch_analysis_task() throws Exception {
     Response response = mock(Response.class);
     Request request = mock(Request.class);
+
     when(request.mandatoryParam(UploadReportAction.PARAM_PROJECT_KEY)).thenReturn(DEFAULT_PROJECT_KEY);
     when(request.mandatoryParam(UploadReportAction.PARAM_SNAPSHOT)).thenReturn("123");
+    InputStream reportData = IOUtils.toInputStream("report-data");
+    when(request.paramAsInputStream(UploadReportAction.PARAM_REPORT_DATA)).thenReturn(reportData);
 
     sut.handle(request, response);
 
-    verify(queue).add(DEFAULT_PROJECT_KEY, 123L, null);
+    verify(queue).add(DEFAULT_PROJECT_KEY, 123L, reportData);
     verify(analysisTaskLauncher).startAnalysisTaskNow();
   }
 

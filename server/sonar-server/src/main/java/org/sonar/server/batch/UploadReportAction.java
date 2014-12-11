@@ -27,12 +27,15 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.server.computation.AnalysisReportQueue;
 import org.sonar.server.computation.AnalysisReportTaskLauncher;
 
+import java.io.InputStream;
+
 public class UploadReportAction implements RequestHandler {
 
   public static final String UPLOAD_REPORT_ACTION = "upload_report";
 
   static final String PARAM_PROJECT_KEY = "project";
   static final String PARAM_SNAPSHOT = "snapshot";
+  static final String PARAM_REPORT_DATA = "report";
 
   private final AnalysisReportQueue analysisReportQueue;
   private final AnalysisReportTaskLauncher analysisTaskLauncher;
@@ -61,14 +64,20 @@ public class UploadReportAction implements RequestHandler {
       .setRequired(true)
       .setDescription("Snapshot id")
       .setExampleValue("123");
+
+    action
+      .createParam(PARAM_REPORT_DATA)
+      .setRequired(false)
+      .setDescription("Report file");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     String projectKey = request.mandatoryParam(PARAM_PROJECT_KEY);
     String snapshotId = request.mandatoryParam(PARAM_SNAPSHOT);
+    InputStream report = request.paramAsInputStream(PARAM_REPORT_DATA);
 
-    analysisReportQueue.add(projectKey, Long.valueOf(snapshotId), null);
+    analysisReportQueue.add(projectKey, Long.valueOf(snapshotId), report);
 
     analysisTaskLauncher.startAnalysisTaskNow();
   }

@@ -19,17 +19,20 @@
  */
 package org.sonar.server.ws;
 
+import org.jruby.RubyFile;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
 
 import javax.servlet.http.HttpServletRequest;
+
+import java.io.InputStream;
 import java.util.Map;
 
 public class ServletRequest extends ValidatingRequest {
 
   private final HttpServletRequest source;
-  private final Map<String, String> params;
+  private final Map<String, Object> params;
 
-  public ServletRequest(HttpServletRequest source, Map<String, String> params) {
+  public ServletRequest(HttpServletRequest source, Map<String, Object> params) {
     this.source = source;
     this.params = params;
   }
@@ -43,9 +46,20 @@ public class ServletRequest extends ValidatingRequest {
   protected String readParam(String key) {
     String value = source.getParameter(key);
     if (value == null) {
-      value = params.get(key);
+      Object string = params.get(key);
+      if (string != null && string instanceof String) {
+        value = (String) string;
+      }
     }
     return value;
   }
 
+  @Override
+  protected InputStream readInputStreamParam(String key) {
+    Object file = params.get(key);
+    if (file != null && file instanceof RubyFile) {
+      return ((RubyFile) file).getInStream();
+    }
+    return null;
+  }
 }

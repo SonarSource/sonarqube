@@ -22,7 +22,11 @@ package org.sonar.core.persistence;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import java.sql.*;
+
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
  * @since 2.13
@@ -60,17 +64,6 @@ public final class DatabaseUtils {
         rs.close();
       } catch (SQLException e) {
         LoggerFactory.getLogger(DatabaseUtils.class).warn("Fail to close result set", e);
-        // ignore
-      }
-    }
-  }
-
-  public static void closeQuietly(@Nullable PreparedStatement ps) {
-    if (ps != null) {
-      try {
-        ps.close();
-      } catch (SQLException e) {
-        LoggerFactory.getLogger(DatabaseUtils.class).warn("Fail to close prepared statement", e);
         // ignore
       }
     }

@@ -20,6 +20,7 @@
 package org.sonar.api.server.ws;
 
 import com.google.common.collect.Maps;
+import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.rule.RuleStatus;
@@ -29,6 +30,7 @@ import org.sonar.api.utils.SonarException;
 
 import javax.annotation.Nullable;
 
+import java.io.InputStream;
 import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -56,6 +58,13 @@ public class RequestTest {
     @Override
     protected String readParam(String key) {
       return params.get(key);
+    }
+
+    @Override
+    protected InputStream readInputStreamParam(String key) {
+      String param = readParam(key);
+
+      return param == null ? null : IOUtils.toInputStream(param);
     }
   }
 
@@ -245,5 +254,12 @@ public class RequestTest {
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Value of parameter 'has_possible_values' (not_possible) must be one of: [foo, bar]");
     }
+  }
+
+  @Test
+  public void param_as_input_stream() throws Exception {
+    assertThat(request.paramAsInputStream("a_string")).isNull();
+    assertThat(IOUtils.toString(request.setParam("a_string", "").paramAsInputStream("a_string"))).isEmpty();
+    assertThat(IOUtils.toString(request.setParam("a_string", "foo").paramAsInputStream("a_string"))).isEqualTo("foo");
   }
 }

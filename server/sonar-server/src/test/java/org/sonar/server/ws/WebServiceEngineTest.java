@@ -37,7 +37,9 @@ import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.user.MockUserSession;
 
 import javax.annotation.Nullable;
+
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Locale;
 import java.util.Map;
 
@@ -63,6 +65,13 @@ public class WebServiceEngineTest {
     @Override
     protected String readParam(String key) {
       return params.get(key);
+    }
+
+    @Override
+    protected InputStream readInputStreamParam(String key) {
+      String param = readParam(key);
+
+      return param == null ? null : IOUtils.toInputStream(param);
     }
 
     public SimpleRequest setParams(Map<String, String> m) {

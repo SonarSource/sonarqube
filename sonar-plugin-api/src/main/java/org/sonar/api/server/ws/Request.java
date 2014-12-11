@@ -26,6 +26,8 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.SonarException;
 
 import javax.annotation.CheckForNull;
+
+import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
 
@@ -107,6 +109,9 @@ public abstract class Request {
   @CheckForNull
   public abstract String param(String key);
 
+  @CheckForNull
+  public abstract InputStream paramAsInputStream(String key);
+
   /**
    * @deprecated to be dropped in 4.4. Default values are declared in ws metadata
    */
@@ -145,7 +150,6 @@ public abstract class Request {
     String s = param(key);
     return s == null ? defaultValue : Long.parseLong(s);
   }
-
 
   @CheckForNull
   public Boolean paramAsBoolean(String key) {
@@ -191,7 +195,7 @@ public abstract class Request {
     if (s != null) {
       try {
         return DateUtils.parseDateTime(s);
-      } catch(SonarException notDateTime) {
+      } catch (SonarException notDateTime) {
         try {
           return DateUtils.parseDate(s);
         } catch (SonarException notDateEither) {

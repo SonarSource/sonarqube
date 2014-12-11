@@ -29,6 +29,7 @@ import org.sonar.api.server.ws.WebService;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
 
@@ -51,6 +52,12 @@ public abstract class ValidatingRequest extends Request {
   @CheckForNull
   public String param(String key) {
     return param(key, true);
+  }
+
+  @Override
+  @CheckForNull
+  public InputStream paramAsInputStream(String key) {
+    return readInputStreamParam(key);
   }
 
   @CheckForNull
@@ -113,6 +120,9 @@ public abstract class ValidatingRequest extends Request {
 
   @CheckForNull
   protected abstract String readParam(String key);
+
+  @CheckForNull
+  protected abstract InputStream readInputStreamParam(String key);
 
   private void validate(String value, WebService.Param definition) {
     Set<String> possibleValues = definition.possibleValues();
