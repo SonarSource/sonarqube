@@ -22,6 +22,7 @@
 
 .source-line:hover {
   .source-line-number,
+  .source-line-issues,
   .source-line-coverage,
   .source-line-duplications,
   .source-line-duplications-extra,
@@ -38,6 +39,7 @@
 .source-line-highlighted,
 .source-line-highlighted:hover {
   .source-line-number,
+  .source-line-issues,
   .source-line-coverage,
   .source-line-duplications,
   .source-line-duplications-extra,
@@ -85,6 +87,11 @@
     background-size: 4px;
     background-position: bottom;
   }
+
+  .issue-list {
+    margin-left: -10px;
+    margin-right: -10px;
+  }
 }
 
 .source-meta {
@@ -111,6 +118,11 @@
   &:before {
     content: attr(data-line-number);
   }
+}
+
+.source-line-issues {
+  padding: 0 2px;
+  background-color: @barBackgroundColor;
 }
 
 .source-line-coverage {
@@ -159,6 +171,10 @@
 .source-line-bar {
   width: 5px;
   height: @lineHeight;
+}
+
+.source-line-with-issues {
+  cursor: pointer;
 }
 
 .source-line-covered {

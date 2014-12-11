@@ -34,6 +34,13 @@
           </td>
         {{/each}}
 
+        <td class="source-meta source-line-issues {{#notEmpty issues}}source-line-with-issues{{/notEmpty}}"
+            data-line-number="{{line}}">
+          {{#withFirst issues}}
+            {{severityIcon severity}}
+          {{/withFirst}}
+        </td>
+
         <td class="source-line-code code {{#notEmpty issues}}has-issues{{/notEmpty}}" data-line-number="{{line}}">
           {{#notNull code}}
             <pre>{{#if code}}{{{code}}}{{else}}&nbsp;{{/if}}</pre>

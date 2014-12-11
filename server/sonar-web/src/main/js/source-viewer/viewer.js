@@ -55,6 +55,7 @@ define([
             'click .source-line-uncovered': 'showCoveragePopup',
             'click .source-line-duplications': 'showDuplications',
             'click .source-line-duplications-extra': 'showDuplicationPopup',
+            'click .source-line-with-issues': 'onLineIssuesClick',
             'click .source-line-number[data-line-number]': 'onLineNumberClick'
           };
         },
@@ -235,7 +236,8 @@ define([
                   extra_fields: 'actions,transitions,assigneeName,actionPlanName',
                   resolved: false,
                   s: 'FILE_LINE',
-                  asc: true
+                  asc: true,
+                  ps: 999999
                 }
               };
           return this.issues.fetch(options).done(function () {
@@ -270,14 +272,37 @@ define([
           this.$('.issue-list').addClass('hidden');
         },
 
-        renderIssue: function () {
-          // do nothing
+        renderIssue: function (issue) {
+          var issueView = new IssueView({
+            el: '#issue-' + issue.get('key'),
+            model: issue
+          });
+          this.issueViews.push(issueView);
+          issueView.render();
         },
 
         addIssue: function (issue) {
           var line = issue.get('line') || 0,
-              code = this.$('.source-line-code[data-line-number=' + line + ']');
+              code = this.$('.source-line-code[data-line-number=' + line + ']'),
+              issueBox = '<div class="issue" id="issue-' + issue.get('key') + '" data-key="' + issue.get('key') + '">';
           code.addClass('has-issues');
+          var issueList = code.find('.issue-list');
+          if (issueList.length === 0) {
+            code.append('<div class="issue-list"></div>');
+            issueList = code.find('.issue-list');
+          }
+          issueList
+              .append(issueBox)
+              .removeClass('hidden');
+          this.renderIssue(issue);
+        },
+
+        showIssuesForLine: function (line) {
+          this.$('.source-line-code[data-line-number="' + line + '"]').find('.issue-list').removeClass('hidden');
+          var issues = this.issues.filter(function (issue) {
+            return (issue.get('line') === line) || (!issue.get('line') && !line);
+          });
+          issues.forEach(this.renderIssue, this);
         },
 
         highlightUsages: function (e) {
@@ -348,6 +373,11 @@ define([
             collection: new Backbone.Collection(blocks)
           });
           popup.render();
+        },
+
+        onLineIssuesClick: function (e) {
+          var line = $(e.currentTarget).data('line-number');
+          this.showIssuesForLine(line);
         },
 
         showLineActionsPopup: function (e) {

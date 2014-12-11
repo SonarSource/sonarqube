@@ -165,6 +165,7 @@ define [
 
     renderIssues: ->
       @issues.forEach @renderIssue, @
+      @$('.source-line-issues').addClass('hidden');
 
 
     renderIssue: (issue) ->
