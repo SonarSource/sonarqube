@@ -32,6 +32,7 @@ import org.sonar.server.db.BaseDao;
 
 import javax.annotation.CheckForNull;
 
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -134,10 +135,12 @@ public class AnalysisReportDao extends BaseDao<AnalysisReportMapper, AnalysisRep
       ps.setLong(2, report.getSnapshotId());
       ps.setString(3, report.getStatus().toString());
       InputStreamReader inputStreamReader = null;
+      int streamSizeEstimate = Integer.MAX_VALUE;
       if (report.getData() != null) {
         inputStreamReader = new InputStreamReader(report.getData(), Charsets.UTF_8);
+        streamSizeEstimate = report.getData().available();
       }
-      ps.setCharacterStream(4, inputStreamReader);
+      ps.setCharacterStream(4, inputStreamReader, streamSizeEstimate);
       ps.setTimestamp(5, dateToTimestamp(report.getCreatedAt()));
       ps.setTimestamp(6, dateToTimestamp(report.getUpdatedAt()));
       ps.setTimestamp(7, dateToTimestamp(report.getStartedAt()));
@@ -147,6 +150,8 @@ public class AnalysisReportDao extends BaseDao<AnalysisReportMapper, AnalysisRep
       connection.commit();
     } catch (SQLException e) {
       throw new IllegalStateException(String.format("Failed to insert %s in the database", report), e);
+    } catch (IOException e) {
+      throw new IllegalStateException(String.format("Failed to read report data of %s", report), e);
     } finally {
       DatabaseUtils.closeQuietly(ps);
     }
