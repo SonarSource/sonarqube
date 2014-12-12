@@ -1,5 +1,17 @@
 <div class="issue-message">{{message}}</div>
 
+<div class="issue-tags">
+  <i class="icon-tags"></i>
+  <span class="issue-meta">{{#if tags}}{{join tags ', '}}{{else}}{{t 'coding_rules.no_tags'}}{{/if}}</span>
+  {{#inArray actions "set_tags"}}<span class="issue-meta issue-tag-edit">
+    <input class="issue-tag-input" type="text" value="{{#if tags}}{{join tags ','}}{{/if}}">
+    <div class="button-group">
+      <button class="issue-tag-edit-done">{{t 'Done'}}</button>
+    </div>
+    <a class="issue-tag-edit-cancel">{{t 'cancel'}}</a>
+  </li>{{/inArray}}
+</div>
+
 <div class="issue-meta-list">
   <div class="issue-meta">
     {{#inArray actions "set_severity"}}

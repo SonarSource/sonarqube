@@ -76,7 +76,7 @@ public class IssueActionsWriterTest {
     testActions(issue,
       "{\"actions\": " +
         "[" +
-        "\"comment\", \"assign\", \"assign_to_me\", \"plan\", \"set_severity\"\n" +
+        "\"comment\", \"assign\", \"set_tags\", \"assign_to_me\", \"plan\", \"set_severity\"\n" +
         "]}");
   }
 
@@ -96,7 +96,7 @@ public class IssueActionsWriterTest {
     testActions(issue,
       "{\"actions\": " +
         "[" +
-        "\"comment\", \"assign\", \"assign_to_me\", \"plan\", \"link-to-jira\"\n" +
+        "\"comment\", \"assign\", \"set_tags\", \"assign_to_me\", \"plan\", \"link-to-jira\"\n" +
         "]}");
   }
 
@@ -146,7 +146,7 @@ public class IssueActionsWriterTest {
     testActions(issue,
       "{\"actions\": " +
         "[" +
-        "\"comment\", \"assign\", \"plan\"\n" +
+        "\"comment\", \"assign\", \"set_tags\", \"plan\"\n" +
         "]}");
   }
 

@@ -69,6 +69,7 @@ public class IssueActionsWriter implements ServerComponent {
       actions.add("comment");
       if (issue.resolution() == null) {
         actions.add("assign");
+        actions.add("set_tags");
         if (!login.equals(issue.assignee())) {
           actions.add("assign_to_me");
         }

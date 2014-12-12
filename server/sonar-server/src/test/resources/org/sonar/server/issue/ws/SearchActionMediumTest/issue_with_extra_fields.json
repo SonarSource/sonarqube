@@ -9,7 +9,7 @@
       "actionPlan": "AP-ABCD",
       "actionPlanName": "1.0",
       "actions": [
-        "comment", "assign", "assign_to_me", "plan"
+        "comment", "assign", "set_tags", "assign_to_me", "plan"
       ],
       "transitions": [
         "confirm", "resolve"
