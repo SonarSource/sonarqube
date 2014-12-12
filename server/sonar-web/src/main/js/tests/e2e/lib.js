@@ -9,7 +9,15 @@ var BASE_URL = 'http://localhost:' + getPort() + '/pages/',
     WINDOW_HEIGHT = 800;
 
 
-exports.initMessages = function () {
+exports.capture = function (fileName) {
+  if (!fileName) {
+    fileName = 'screenshot.png';
+  }
+  casper.capture(fileName, { top: 0, left: 0, width: WINDOW_WIDTH, height: WINDOW_HEIGHT });
+};
+
+
+exports.initMessages = function (testName) {
   // Dump log messages
   casper.removeAllListeners('remote.message');
   if (casper.cli.get('verbose')) {
@@ -25,6 +33,16 @@ exports.initMessages = function () {
       this.echo('Error: ' + msg, 'ERROR');
     });
   }
+
+  casper.on('step.error', function () {
+    var fileName = (testName || 'screenshot') + '.png';
+    exports.capture(fileName);
+  });
+
+  casper.on('waitFor.timeout', function () {
+    var fileName = (testName || 'screenshot') + '.png';
+    exports.capture(fileName);
+  });
 };
 
 
@@ -61,7 +79,6 @@ exports.mockRequest = mockRequest;
 
 
 exports.mockRequestFromFile = function (url, fileName, options) {
-  console.log('mock request "' + url + '" from file "' + fs.workingDirectory + fs.separator + fileName + '"');
   var response = fs.read(fileName);
   return mockRequest(url, response, options);
 };
@@ -88,14 +105,6 @@ exports.buildUrl = function (urlTail) {
 
 exports.setDefaultViewport = function () {
   casper.viewport(WINDOW_WIDTH, WINDOW_HEIGHT);
-};
-
-
-exports.capture = function (fileName) {
-  if (!fileName) {
-    fileName = 'screenshot.png';
-  }
-  casper.capture(fileName, { top: 0, left: 0, width: WINDOW_WIDTH, height: WINDOW_HEIGHT });
 };
 
 

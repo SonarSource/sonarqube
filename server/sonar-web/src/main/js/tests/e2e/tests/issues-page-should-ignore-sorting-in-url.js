@@ -2,7 +2,7 @@ var lib = require('../lib'),
     testName = lib.testName('Issues');
 
 
-lib.initMessages();
+lib.initMessages('issues-page-should-ignore-sorting-in-url');
 lib.changeWorkingDirectory('issues-page-should-ignore-sorting-in-url');
 
 
@@ -18,7 +18,7 @@ casper.test.begin('issues-page-should-ignore-sorting-in-url', function (test) {
       })
 
       .then(function () {
-        casper.waitForSelector('.facet[data-value=BLOCKER]');
+        casper.waitForSelector('.facet[data-value=BLOCKER1]');
       })
 
       .then(function () {
