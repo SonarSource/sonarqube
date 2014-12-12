@@ -311,16 +311,39 @@
 }
 
 .source-viewer-measures {
+  .clearfix;
   width: 1080px;
   margin: 0 auto;
-  border-collapse: collapse;
-  table-layout: fixed;
+  background-color: @barBackgroundColor;
+}
+
+.source-viewer-measures + .source-viewer-measures {
+  margin-top: 40px;
 }
 
 .source-viewer-measures-section {
-  vertical-align: top;
-  width: 25%;
-  padding: 0 15px;
+  float: left;
+  width: 270px;
+  margin: -20px 0;
+}
+
+.source-viewer-measures-section-big {
+  width: 540px;
+}
+
+.source-viewer-measures-section-full {
+  width: 100%;
+}
+
+.source-viewer-measures-card {
+  margin: 20px 10px;
+  padding: 10px;
+  border: 1px solid @barBorderColor;
+  background-color: #fff;
+}
+
+.source-viewer-measures-card-overflow {
+  overflow: auto;
 }
 
 //.source-viewer-measures-section + .source-viewer-measures-section {

@@ -1,113 +1,29 @@
-<td class="source-viewer-measures-section">
-  <div class="measures">
-    <div class="measures-chart">
-        <span class="js-pie-chart"
-              data-value="{{measures.ncloc}}"
-              data-max="{{measures.lines}}"
-              data-size="70"></span>
+<div class="measures">
+  <div class="measures-list">
+    <div class="measure measure-one-line" data-metric="lines">
+      <span class="measure-name">{{t 'metric.lines.name'}}</span>
+      <span class="measure-value">{{measures.lines}}</span>
     </div>
-    <div class="measures-list">
-      <div class="measure measure-big" data-metric="ncloc">
-        <span class="measure-name">{{t 'metric.ncloc.name'}}</span>
-        <span class="measure-value">{{measures.ncloc}}</span>
-      </div>
-      <div class="measure measure-one-line" data-metric="lines">
-        <span class="measure-name">{{t 'metric.lines.name'}}</span>
-        <span class="measure-value">{{measures.lines}}</span>
-      </div>
+    <div class="measure measure-one-line" data-metric="ncloc">
+      <span class="measure-name">{{t 'metric.ncloc.name'}}</span>
+      <span class="measure-value">{{measures.ncloc}}</span>
+    </div>
+    <div class="measure measure-one-line" data-metric="comment_lines">
+      <span class="measure-name">Comments</span>
+      <span class="measure-value">{{measures.comment_lines_density}} / {{measures.comment_lines}}</span>
     </div>
   </div>
+</div>
 
-  {{#any measures.generated_ncloc measures.generated_lines}}
-    <div class="measures">
-      <div class="measures-list">
-        {{#if measures.generated_ncloc}}
-          <div class="measure measure-one-line" data-metric="generated_ncloc">
-            <span class="measure-name">{{t 'metric.generated_ncloc.name'}}</span>
-            <span class="measure-value">{{measures.generated_ncloc}}</span>
-          </div>
-        {{/if}}
-        {{#if measures.generated_lines}}
-          <div class="measure measure-one-line" data-metric="generated_lines">
-            <span class="measure-name">{{t 'metric.generated_lines.name'}}</span>
-            <span class="measure-value">{{measures.generated_lines}}</span>
-          </div>
-        {{/if}}
-      </div>
+<div class="measures">
+  <div class="measures-list">
+    <div class="measure measure-one-line" data-metric="complexity">
+      <span class="measure-name">{{t 'metric.complexity.name'}}</span>
+      <span class="measure-value">{{measures.complexity}}</span>
     </div>
-  {{/any}}
-
-  <div class="measures measures-duplex">
-    <div class="measures-list">
-      <div class="measure measure-one-line" data-metric="classes">
-        <span class="measure-name">{{t 'metric.classes.name'}}</span>
-        <span class="measure-value">{{measures.classes}}</span>
-      </div>
-      <div class="measure measure-one-line" data-metric="functions">
-        <span class="measure-name">{{t 'metric.functions.name'}}</span>
-        <span class="measure-value">{{measures.functions}}</span>
-      </div>
-    </div>
-    <div class="measures-list">
-      <div class="measure measure-one-line" data-metric="accessors">
-        <span class="measure-name">{{t 'metric.accessors.name'}}</span>
-        <span class="measure-value">{{measures.accessors}}</span>
-      </div>
-      <div class="measure measure-one-line" data-metric="statements">
-        <span class="measure-name">{{t 'metric.statements.name'}}</span>
-        <span class="measure-value">{{measures.statements}}</span>
-      </div>
+    <div class="measure measure-one-line" data-metric="function_complexity">
+      <span class="measure-name">{{t 'metric.function_complexity.name'}}</span>
+      <span class="measure-value">{{measures.function_complexity}}</span>
     </div>
   </div>
-
-  <div class="measures">
-    <div class="measures-chart">
-        <span class="js-pie-chart"
-              data-value="{{measures.comment_lines_density_raw}}"
-              data-max="100"
-              data-size="40"></span>
-    </div>
-    <div class="measures-list">
-      <div class="measure-container">
-        <div class="measure measure-one-line" data-metric="comment_lines_density">
-          <span class="measure-name">Comments</span>
-          <span class="measure-value">{{measures.comment_lines_density}}</span>
-        </div>
-        <div class="measure measure-one-line" data-metric="comment_lines">
-          <span class="measure-name">{{t 'metric.comment_lines.name'}}</span>
-          <span class="measure-value">{{measures.comment_lines}}</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="measures">
-    <div class="measures-list">
-      <div class="measure measure-one-line" data-metric="public_api">
-        <span class="measure-name">{{t 'metric.public_api.name'}}</span>
-        <span class="measure-value">{{measures.public_api}}</span>
-      </div>
-      <div class="measure measure-one-line" data-metric="public_documented_api_density">
-        <span class="measure-name">{{t 'metric.public_documented_api_density.name'}}</span>
-        <span class="measure-value">{{measures.public_documented_api_density}}</span>
-      </div>
-      <div class="measure measure-one-line" data-metric="public_undocumented_api">
-        <span class="measure-name">{{t 'metric.public_undocumented_api.name'}}</span>
-        <span class="measure-value">{{measures.public_undocumented_api}}</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="measures">
-    <div class="measures-list">
-      <div class="measure measure-one-line" data-metric="complexity">
-        <span class="measure-name">{{t 'metric.complexity.name'}}</span>
-        <span class="measure-value">{{measures.complexity}}</span>
-      </div>
-      <div class="measure measure-one-line" data-metric="function_complexity">
-        <span class="measure-name">{{t 'metric.function_complexity.name'}}</span>
-        <span class="measure-value">{{measures.function_complexity}}</span>
-      </div>
-    </div>
-  </div>
-</td>
+</div>

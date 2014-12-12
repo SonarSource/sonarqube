@@ -48,12 +48,7 @@ define([
         'violations',
         'sqale_index',
         'sqale_debt_ratio',
-        'sqale_rating',
-        'blocker_violations',
-        'critical_violations',
-        'major_violations',
-        'minor_violations',
-        'info_violations'
+        'sqale_rating'
       ],
       DUPLICATIONS_METRIC_LIST = [
         'duplicated_lines_density',
@@ -72,6 +67,7 @@ define([
 
 
   return Overlay.extend({
+    className: 'overlay-popup overlay-popup-gray',
     template: Templates['source-viewer-measures'],
 
     events: function () {
@@ -90,18 +86,21 @@ define([
 
     show: function () {
       var that = this,
-          requests = [this.requestMeasures()];
+          p = window.process.addBackgroundProcess(),
+          requests = [this.requestMeasures(), this.requestIssues()];
       if (this.model.get('isUnitTest')) {
         requests.push(this.requestTests());
       }
       $.when.apply($, requests).done(function () {
         that.render();
+        window.process.finishBackgroundProcess(p);
+      }).fail(function () {
+        window.process.failBackgroundProcess(p);
       });
     },
 
     requestMeasures: function () {
       var that = this,
-          p = window.process.addBackgroundProcess(),
           url = baseUrl + '/api/resources',
           options = {
             resource: this.model.key(),
@@ -112,6 +111,7 @@ define([
                 DUPLICATIONS_METRIC_LIST,
                 TESTS_METRIC_LIST
             ).join()
+            //metrics: 'true'
           };
       return $.get(url, options).done(function (data) {
         var measuresList = data[0].msr || [],
@@ -120,10 +120,52 @@ define([
           measures[m.key] = m.frmt_val || m.data;
           measures[m.key + '_raw'] = m.val;
         });
+        if (measures.lines_to_cover && measures.uncovered_lines) {
+          measures.covered_lines = measures.lines_to_cover - measures.uncovered_lines;
+        }
+        if (measures.conditions_to_cover && measures.uncovered_conditions) {
+          measures.covered_conditions = measures.conditions_to_cover - measures.uncovered_conditions;
+        }
+        if (measures.it_lines_to_cover && measures.it_uncovered_lines) {
+          measures.it_covered_lines = measures.it_lines_to_cover - measures.it_uncovered_lines;
+        }
+        if (measures.it_conditions_to_cover && measures.it_uncovered_conditions) {
+          measures.it_covered_conditions = measures.it_conditions_to_cover - measures.it_uncovered_conditions;
+        }
         that.model.set({ measures: measures });
-        window.process.finishBackgroundProcess(p);
-      }).fail(function () {
-        window.process.failBackgroundProcess(p);
+      });
+    },
+
+    requestIssues: function () {
+      var that = this,
+          url = baseUrl + '/api/issues/search',
+          options = {
+            componentUuids: this.model.id,
+            resolved: false,
+            ps: 1,
+            facets: 'severities,tags'
+          };
+      return $.get(url, options).done(function (data) {
+        var issuesFacets = {};
+        data.facets.forEach(function(facet) {
+          issuesFacets[facet.property] = facet.values;
+        });
+        var severityOrder = ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO'],
+            maxCountBySeverity = _.max(issuesFacets.severities, function (s) {
+              return s.count;
+            }).count,
+            maxCountByTag = _.max(issuesFacets.tags, function (s) {
+              return s.count;
+            }).count;
+        issuesFacets.severities = _.sortBy(issuesFacets.severities, function (s) {
+          return severityOrder.indexOf(s.val);
+        });
+        that.model.set({
+          issuesFacets: issuesFacets,
+          issuesCount: data.total,
+          maxCountBySeverity: maxCountBySeverity,
+          maxCountByTag: maxCountByTag
+        });
       });
     },
 

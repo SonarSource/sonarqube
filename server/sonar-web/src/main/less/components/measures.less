@@ -4,7 +4,7 @@
 
 
 .measures {
-  font-size: 0;
+
 }
 
 .measures + .measures {
@@ -14,9 +14,14 @@
 }
 
 .measures-duplex {
+  font-size: 0;
+  .justify;
+
   .measures-list {
+    display: inline-block;
     vertical-align: top;
-    width: 50%;
+    width: 40%;
+    font-size: @baseFontSize;
   }
 }
 
@@ -32,22 +37,17 @@
   }
 }
 
-.measures-list {
-  display: inline-block;
-  vertical-align: middle;
-  font-size: @baseFontSize;
-}
-
 .measure {
   line-height: 1.3333333333333;
 }
 
 .measure + .measure {
-  margin-top: 6px;
+
 }
 
 .measure-name {
   display: block;
+  font-size: @baseFontSize;
 }
 
 .measure-value {
@@ -56,7 +56,37 @@
   font-weight: 300;
 }
 
+.measure-bar {
+  display: inline-block;
+  width: 60px;
+}
+
+.measure-bar-inner {
+  display: block;
+  min-width: 1px;
+  height: 5px;
+  background-color: #c0c0c0;
+}
+.measure-bar-inner-BLOCKER {
+  background-color: @severityBlockerColor;
+}
+.measure-bar-inner-CRITICAL {
+  background-color: @severityCriticalColor;
+}
+.measure-bar-inner-MAJOR {
+  background-color: @severityMajorColor;
+}
+.measure-bar-inner-MINOR {
+  background-color: @severityMinorColor;
+}
+.measure-bar-inner-INFO {
+  background-color: @severityInfoColor;
+}
+
 .measure-big {
+  display: inline-block;
+  vertical-align: middle;
+
   .measure-name {
     font-size: 16px;
     font-weight: 300;
@@ -66,15 +96,41 @@
     font-size: 22px;
     font-weight: 300;
   }
-}
 
-.measure-one-line {
-  .measure-name {
-    display: inline;
-
-    &:after {
-      content: ":";
-    }
+  .rating {
+    font-size: 22px;
   }
 }
 
+.measure-big + .measure-big {
+  margin-left: 20px;
+}
+
+.measure-one-line {
+  .justify;
+
+  .measure-name {
+    display: inline-block;
+  }
+
+  .measure-value {
+    display: inline-block;
+    text-align: right;
+  }
+}
+
+.measure-with-bar {
+  font-size: 0;
+
+  .measure-name {
+    width: 40%;
+  }
+
+  .measure-value {
+    width: 20%;
+  }
+
+  .measure-bar {
+    width: 30%;
+  }
+}

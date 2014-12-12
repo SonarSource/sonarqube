@@ -87,8 +87,11 @@ define(['handlebars'], function (Handlebars) {
     );
   });
 
-  Handlebars.registerHelper('default', function(value, defaultValue) {
-    return value != null ? value : defaultValue;
+  Handlebars.registerHelper('default', function() {
+    var args = Array.prototype.slice.call(arguments, 0, -1);
+    return args.reduce(function(prev, current) {
+      return prev != null ? prev : current;
+    }, null);
   });
 
   Handlebars.registerHelper('show', function() {

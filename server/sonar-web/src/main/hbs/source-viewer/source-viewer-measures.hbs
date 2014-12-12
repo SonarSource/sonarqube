@@ -1,31 +1,38 @@
-<table class="source-viewer-measures">
-  <tr>
-    {{#unless isUnitTest}}
-      {{> '_source-viewer-measures-lines'}}
-    {{/unless}}
+<div class="source-viewer-measures">
 
-    {{> '_source-viewer-measures-issues'}}
-
-    {{#unless isUnitTest}}
-      <td class="source-viewer-measures-section">
-        {{> '_source-viewer-measures-overall-coverage'}}
-
-        {{#all measures.coverage measures.it_coverage}}
-          {{> '_source-viewer-measures-ut-coverage'}}
-          {{> '_source-viewer-measures-it-coverage'}}
-        {{/all}}
-      </td>
-    {{/unless}}
-
-    {{#if isUnitTest}}
-      {{> '_source-viewer-measures-tests'}}
-    {{/if}}
-
-    {{#unless isUnitTest}}
+  {{#unless isUnitTest}}
+    <div class="source-viewer-measures-section">
+      <div class="source-viewer-measures-card">
+        {{> '_source-viewer-measures-lines'}}
+      </div>
       {{> '_source-viewer-measures-duplications'}}
-    {{/unless}}
-  </tr>
-</table>
+    </div>
+
+    <div class="source-viewer-measures-section">
+      {{> '_source-viewer-measures-issues'}}
+    </div>
+
+    <div class="source-viewer-measures-section source-viewer-measures-section-big">
+      <div class="source-viewer-measures-card">
+        {{> '_source-viewer-measures-coverage'}}
+      </div>
+    </div>
+  {{else}}
+    <div class="source-viewer-measures-section">
+      {{> '_source-viewer-measures-tests'}}
+    </div>
+    <div class="source-viewer-measures-section">
+      {{> '_source-viewer-measures-issues'}}
+    </div>
+  {{/unless}}
+
+</div>
+
+{{#if isUnitTest}}
+  <div class="source-viewer-measures">
+    {{> '_source-viewer-measures-test-cases'}}
+  </div>
+{{/if}}
 
 <div class="modal-foot">
   <a class="overlay-popup-close" title="{{t 'close'}}">{{t 'close'}}</a>

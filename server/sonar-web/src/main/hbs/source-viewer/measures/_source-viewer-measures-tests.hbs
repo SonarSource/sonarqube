@@ -1,4 +1,4 @@
-<td class="source-viewer-measures-section">
+<div class="source-viewer-measures-card">
   <div class="measures">
     <div class="measures-list">
       <div class="measure measure-big" data-metric="tests">
@@ -37,71 +37,4 @@
       {{/notNull}}
     </div>
   </div>
-
-  <div class="measures">
-    <table class="source-viewer-tests-list">
-      <tr>
-        <td class="source-viewer-test-status subtitle" colspan="3">
-          {{t 'component_viewer.measure_section.unit_tests'}}<br>
-          {{t 'component_viewer.tests.ordered_by'}}
-          <a class="js-sort-tests-by-duration {{#eq testSorting 'duration'}}active-link{{/eq}}">
-            {{t 'component_viewer.tests.duration'}}</a>
-          /
-          <a class="js-sort-tests-by-name {{#eq testSorting 'name'}}active-link{{/eq}}">
-            {{t 'component_viewer.tests.test_name'}}</a>
-          /
-          <a class="js-sort-tests-by-status {{#eq testSorting 'status'}}active-link{{/eq}}">
-            {{t 'component_viewer.tests.status'}}</a>
-        </td>
-        <td class="source-viewer-test-covered-lines subtitle">{{t 'component_viewer.covered_lines'}}</td>
-      </tr>
-      {{#each tests}}
-        <tr>
-          {{#eq status 'SKIPPED'}}
-            <td class="source-viewer-test-status subtitle">{{testStatusIcon status}}</td>
-            <td class="source-viewer-test-duration subtitle"></td>
-            <td class="source-viewer-test-name">{{name}}</td>
-            <td class="source-viewer-test-covered-lines subtitle"></td>
-          {{else}}
-            {{#ifTestData this}}
-              <td class="source-viewer-test-status subtitle">{{testStatusIcon status}}</td>
-              <td class="source-viewer-test-duration subtitle">{{durationInMs}}ms</td>
-              <td class="source-viewer-test-name"><a class="js-show-test" data-name="{{name}}">{{name}}</a></td>
-              <td class="source-viewer-test-covered-lines subtitle">{{coveredLines}}</td>
-            {{else}}
-              <td class="source-viewer-test-status subtitle">{{testStatusIcon status}}</td>
-              <td class="source-viewer-test-duration subtitle">{{durationInMs}}ms</td>
-              <td class="source-viewer-test-name">{{name}}</td>
-            {{/ifTestData}}
-          {{/eq}}
-        </tr>
-      {{/each}}
-    </table>
-  </div>
-</td>
-
-<td class="source-viewer-measures-section">
-  {{#if selectedTest}}
-    {{#notEq selectedTest.status 'ERROR'}}
-      {{#notEq selectedTest.status 'FAILURE'}}
-        <div class="bubble-popup-title">{{t 'component_viewer.transition.covers'}}</div>
-        {{#each coveredFiles}}
-          <div class="bubble-popup-section">
-            <a target="_blank" href="{{dashboardUrl key}}" title="{{longName}}">{{longName}}</a>
-            <span class="subtitle">{{tp 'component_viewer.x_lines_are_covered' coveredLines}}</span>
-          </div>
-        {{else}}
-          {{t 'none'}}
-        {{/each}}
-      {{/notEq}}
-    {{/notEq}}
-
-    {{#notEq selectedTest.status 'OK'}}
-      <div class="bubble-popup-title">{{t 'component_viewer.details'}}</div>
-      {{#if selectedTest.message}}
-        <pre>{{selectedTest.message}}</pre>
-      {{/if}}
-      <pre>{{selectedTest.stackTrace}}</pre>
-    {{/notEq}}
-  {{/if}}
-</td>
+</div>

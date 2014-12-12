@@ -1,61 +1,49 @@
-<td class="source-viewer-measures-section">
-  {{#notNull measures.fDebt}}
+<div class="source-viewer-measures-card">
     <div class="measures">
-      {{#notNull measures.fSqaleRating}}
-        <div class="measures-chart" data-metric="sqale_rating">
+      {{#if measures.sqale_rating}}
+        <div class="measure measure-big" data-metric="sqale_rating">
           <span class="rating rating-{{measures.sqale_rating}}">{{measures.sqale_rating}}</span>
         </div>
-      {{/notNull}}
-      <div class="measures-list">
-        <div class="measure measure-big" data-metric="sqale_index">
-          <span class="measure-name">{{t 'metric.sqale_index.short_name'}}</span>
-          <span class="measure-value">{{measures.sqale_index}}</span>
-        </div>
+      {{/if}}
+      <div class="measure measure-big" data-metric="sqale_index">
+        <span class="measure-value">{{default measures.sqale_index 0}}</span>
+        <span class="measure-name">{{t 'metric.sqale_index.short_name'}}</span>
+      </div>
+      <div class="measure measure-big" data-metric="violations">
+        <span class="measure-value">{{default issuesCount 0}}</span>
+        <span class="measure-name">{{t 'metric.violations.name'}}</span>
       </div>
     </div>
-  {{/notNull}}
-  <div class="measures measures-duplex">
-    <div class="measures-list">
-      <div class="measure measure-one-line" data-metric="violations">
-        <span class="measure-name">Issues</span>
-        <span class="measure-value">{{measures.violations}}</span>
+
+  {{#if issuesCount}}
+    <div class="measures">
+      <div class="measures-list">
+        {{#each issuesFacets.severities}}
+          <div class="measure measure-one-line measure-with-bar">
+            <span class="measure-name">{{severity val}}</span>
+            <span class="measure-value">{{count}}</span>
+            <span class="measure-bar">
+              <span class="measure-bar-inner measure-bar-inner-{{val}}"
+                    style="width: {{percent count ../maxCountBySeverity}}"></span>
+            </span>
+          </div>
+        {{/each}}
       </div>
     </div>
-    {{#notNull measures.fSqaleDebtRatio}}
+
+    <div class="measures">
       <div class="measures-list">
-        <div class="measure measure-one-line" data-metric="sqale_debt_ratio">
-          <span class="measure-name">{{t 'metric.sqale_debt_ratio.short_name'}}</span>
-          <span class="measure-value">{{measures.sqale_debt_ratio}}</span>
-        </div>
-      </div>
-    {{/notNull}}
-  </div>
-  {{#gt measures.fIssues 0}}
-    <div class="measures measures-duplex">
-      <div class="measures-list">
-        <div class="measure measure-one-line" data-metric="blocker_violations">
-          <span class="measure-name">{{severityIcon 'BLOCKER'}}&nbsp;{{t 'severity.BLOCKER'}}</span>
-          <span class="measure-value">{{default measures.blocker_violations 0}}</span>
-        </div>
-        <div class="measure measure-one-line" data-metric="critical_violations">
-          <span class="measure-name">{{severityIcon 'CRITICAL'}}&nbsp;{{t 'severity.CRITICAL'}}</span>
-          <span class="measure-value">{{default measures.critical_violations 0}}</span>
-        </div>
-        <div class="measure measure-one-line" data-metric="major_violations">
-          <span class="measure-name">{{severityIcon 'MAJOR'}}&nbsp;{{t 'severity.MAJOR'}}</span>
-          <span class="measure-value">{{default measures.major_violations 0}}</span>
-        </div>
-      </div>
-      <div class="measures-list">
-        <div class="measure measure-one-line" data-metric="minor_violations">
-          <span class="measure-name">{{severityIcon 'MINOR'}}&nbsp;{{t 'severity.MINOR'}}</span>
-          <span class="measure-value">{{default measures.minor_violations 0}}</span>
-        </div>
-        <div class="measure measure-one-line" data-metric="info_violations">
-          <span class="measure-name">{{severityIcon 'INFO'}}&nbsp;{{t 'severity.INFO'}}</span>
-          <span class="measure-value">{{default measures.info_violations 0}}</span>
-        </div>
+        {{#each issuesFacets.tags}}
+          <div class="measure measure-one-line measure-with-bar">
+            <span class="measure-name">{{val}}</span>
+            <span class="measure-value">{{count}}</span>
+            <span class="measure-bar">
+              <span class="measure-bar-inner"
+                    style="width: {{percent count ../maxCountByTag}}"></span>
+            </span>
+          </div>
+        {{/each}}
       </div>
     </div>
-  {{/gt}}
-</td>
+  {{/if}}
+</div>
