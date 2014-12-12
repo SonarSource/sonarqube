@@ -42,8 +42,9 @@ module Authentication
       # refresh token (keeping same expires_at) if it exists
       def refresh_token
         if remember_token?
-          self.remember_token = self.class.make_token 
-          save(false)      
+          self.remember_token = self.class.make_token
+          # Skip before_update as it populate dates columns with a long value (see migrations 752 to 754)
+          send(:update_without_callbacks)
         end
       end
 
