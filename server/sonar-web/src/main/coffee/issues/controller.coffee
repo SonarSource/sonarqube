@@ -168,6 +168,9 @@ define [
         tokens = t.split('=')
         if tokens[0] && tokens[1]?
           q[tokens[0]] = decodeURIComponent tokens[1]
+      # Do not allow to modify the sorting
+      delete q.asc
+      delete q.s
       q
 
 
