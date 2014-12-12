@@ -24,6 +24,7 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.index.SnapshotCache;
@@ -36,6 +37,10 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class ScanIssueStorage extends IssueStorage implements BatchComponent {
 
@@ -56,8 +61,12 @@ public class ScanIssueStorage extends IssueStorage implements BatchComponent {
     IssueMapper issueMapper = session.getMapper(IssueMapper.class);
     long componentId = componentId(issue);
     long projectId = projectId();
-    int ruleId = ruleId(issue);
-    IssueDto dto = IssueDto.toDtoForBatchInsert(issue, componentId, projectId, ruleId, now);
+    Rule rule = rule(issue);
+    List<String> allTags = new ArrayList<String>();
+    allTags.addAll(Arrays.asList(rule.getTags()));
+    allTags.addAll(Arrays.asList(rule.getSystemTags()));
+    issue.setTags(allTags);
+    IssueDto dto = IssueDto.toDtoForBatchInsert(issue, componentId, projectId, rule.getId(), now);
     issueMapper.insert(dto);
   }
 
@@ -93,7 +102,6 @@ public class ScanIssueStorage extends IssueStorage implements BatchComponent {
     }
     return resourceDto.getId();
   }
-
 
   @VisibleForTesting
   long projectId() {

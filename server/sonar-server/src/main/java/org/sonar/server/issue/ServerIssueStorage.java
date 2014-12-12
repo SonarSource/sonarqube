@@ -48,7 +48,7 @@ public class ServerIssueStorage extends IssueStorage implements ServerComponent 
   protected void doInsert(DbSession session, long now, DefaultIssue issue) {
     ComponentDto component = component(session, issue);
     ComponentDto project = project(session, issue);
-    int ruleId = ruleId(issue);
+    int ruleId = rule(issue).getId();
     IssueDto dto = IssueDto.toDtoForServerInsert(issue, component, project, ruleId, now);
 
     dbClient.issueDao().insert(session, dto);

@@ -85,7 +85,7 @@ public class IssueStorageTest extends AbstractDaoTestCase {
 
     saver.save(issue);
 
-    checkTables("should_insert_new_issues", new String[]{"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
+    checkTables("should_insert_new_issues", new String[] {"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
   }
 
   @Test
@@ -119,7 +119,7 @@ public class IssueStorageTest extends AbstractDaoTestCase {
     saver.save(session, issue);
     session.commit();
 
-    checkTables("should_insert_new_issues", new String[]{"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
+    checkTables("should_insert_new_issues", new String[] {"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
   }
 
   @Test
@@ -155,7 +155,7 @@ public class IssueStorageTest extends AbstractDaoTestCase {
     saver.save(session, issue);
     session.commit();
 
-    checkTables("should_insert_new_issues", new String[]{"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
+    checkTables("should_insert_new_issues", new String[] {"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
   }
 
   @Test
@@ -174,7 +174,7 @@ public class IssueStorageTest extends AbstractDaoTestCase {
       .setNew(false)
       .setChanged(true)
 
-        // updated fields
+      // updated fields
       .setLine(5000)
       .setDebt(Duration.create(10L))
       .setChecksum("FFFFF")
@@ -191,13 +191,13 @@ public class IssueStorageTest extends AbstractDaoTestCase {
       .setUpdateDate(date)
       .setCloseDate(date)
 
-        // unmodifiable fields
+      // unmodifiable fields
       .setRuleKey(RuleKey.of("xxx", "unknown"))
       .setComponentKey("not:a:component");
 
     saver.save(issue);
 
-    checkTables("should_update_issues", new String[]{"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
+    checkTables("should_update_issues", new String[] {"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
   }
 
   @Test
@@ -218,7 +218,7 @@ public class IssueStorageTest extends AbstractDaoTestCase {
       .setNew(false)
       .setChanged(true)
 
-        // updated fields
+      // updated fields
       .setLine(5000)
       .setDebt(Duration.create(10L))
       .setChecksum("FFFFF")
@@ -235,13 +235,13 @@ public class IssueStorageTest extends AbstractDaoTestCase {
       .setUpdateDate(date)
       .setCloseDate(date)
 
-        // unmodifiable fields
+      // unmodifiable fields
       .setRuleKey(RuleKey.of("xxx", "unknown"))
       .setComponentKey("not:a:component");
 
     saver.save(issue);
 
-    checkTables("should_update_issues", new String[]{"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
+    checkTables("should_update_issues", new String[] {"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
   }
 
   static class FakeBatchSaver extends IssueStorage {
@@ -252,7 +252,7 @@ public class IssueStorageTest extends AbstractDaoTestCase {
 
     @Override
     protected void doInsert(DbSession session, long now, DefaultIssue issue) {
-      int ruleId = ruleId(issue);
+      int ruleId = rule(issue).getId();
       IssueDto dto = IssueDto.toDtoForBatchInsert(issue, 100l, 10l, ruleId, now);
 
       session.getMapper(IssueMapper.class).insert(dto);
@@ -266,7 +266,7 @@ public class IssueStorageTest extends AbstractDaoTestCase {
   }
 
   static class FakeServerSaver extends IssueStorage {
-    
+
     private final ComponentDto component;
     private final ComponentDto project;
 
@@ -278,7 +278,7 @@ public class IssueStorageTest extends AbstractDaoTestCase {
 
     @Override
     protected void doInsert(DbSession session, long now, DefaultIssue issue) {
-      int ruleId = ruleId(issue);
+      int ruleId = rule(issue).getId();
       IssueDto dto = IssueDto.toDtoForServerInsert(issue, component, project, ruleId, now);
 
       session.getMapper(IssueMapper.class).insert(dto);

@@ -160,7 +160,11 @@ public class Rule {
   @Transient
   private String subCharacteristicKey;
 
-  private transient String[] tags = DEFAULT_TAGS;
+  @Column(name = "tags", updatable = false, nullable = true, length = 4000)
+  private String tags;
+
+  @Column(name = "system_tags", updatable = false, nullable = true, length = 4000)
+  private String systemTags;
 
   /**
    * @deprecated since 2.3. Use the factory method {@link #create()}
@@ -454,15 +458,22 @@ public class Rule {
    * For definition of rule only
    */
   public String[] getTags() {
-    return tags;
+    return tags == null ? new String[0] : StringUtils.split(tags, ',');
   }
 
   /**
    * For definition of rule only
    */
   public Rule setTags(String[] tags) {
-    this.tags = tags;
+    this.tags = tags == null ? null : StringUtils.join(tags, ',');
     return this;
+  }
+
+  /**
+   * For internal use
+   */
+  public String[] getSystemTags() {
+    return systemTags == null ? new String[0] : StringUtils.split(systemTags, ',');
   }
 
   /**
