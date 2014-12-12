@@ -25,6 +25,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Iterator;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -55,4 +56,11 @@ public class ZipUtilsTest {
     assertThat(toDir.list()).hasSize(3);
   }
 
+  @Test
+  public void should_unzip_stream_file() throws Exception {
+    InputStream zip = getClass().getResource("/org/sonar/api/utils/ZipUtilsTest/shouldUnzipFile.zip").openStream();
+    File toDir = new File("target/tmp/shouldUnzipStreamFile/");
+    ZipUtils.unzip(zip, toDir);
+    assertThat(toDir.list()).hasSize(3);
+  }
 }

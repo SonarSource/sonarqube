@@ -22,16 +22,11 @@ package org.sonar.api.utils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 /**
@@ -60,6 +55,49 @@ public final class ZipUtils {
     return toDir;
   }
 
+  public static File unzip(InputStream zip, File toDir) throws IOException {
+    unzip(zip, toDir, new ZipEntryFilter() {
+      @Override
+      public boolean accept(ZipEntry entry) {
+        return true;
+      }
+    });
+    return toDir;
+  }
+
+  public static File unzip(InputStream stream, File toDir, ZipEntryFilter filter) throws IOException {
+    if (!toDir.exists()) {
+      FileUtils.forceMkdir(toDir);
+    }
+
+    ZipInputStream zipStream = new ZipInputStream(stream);
+    try {
+      ZipEntry entry;
+      while ((entry = zipStream.getNextEntry()) != null) {
+        if (filter.accept(entry)) {
+          File to = new File(toDir, entry.getName());
+          if (entry.isDirectory()) {
+            throwExceptionIfDirectoryIsNotCreatable(to);
+          } else {
+            File parent = to.getParentFile();
+            throwExceptionIfDirectoryIsNotCreatable(parent);
+            copy(zipStream, to);
+          }
+        }
+      }
+      return toDir;
+
+    } finally {
+      zipStream.close();
+    }
+  }
+
+  private static void throwExceptionIfDirectoryIsNotCreatable(File to) throws IOException {
+    if (to != null && !to.exists() && !to.mkdirs()) {
+      throw new IOException(ERROR_CREATING_DIRECTORY + to);
+    }
+  }
+
   public static File unzip(File zip, File toDir, ZipEntryFilter filter) throws IOException {
     if (!toDir.exists()) {
       FileUtils.forceMkdir(toDir);
@@ -73,15 +111,10 @@ public final class ZipUtils {
         if (filter.accept(entry)) {
           File to = new File(toDir, entry.getName());
           if (entry.isDirectory()) {
-            if (!to.exists() && !to.mkdirs()) {
-              throw new IOException(ERROR_CREATING_DIRECTORY + to);
-            }
+            throwExceptionIfDirectoryIsNotCreatable(to);
           } else {
             File parent = to.getParentFile();
-            if (parent != null && !parent.exists() && !parent.mkdirs()) {
-              throw new IOException(ERROR_CREATING_DIRECTORY + parent);
-            }
-
+            throwExceptionIfDirectoryIsNotCreatable(parent);
             copy(zipFile, entry, to);
           }
         }
@@ -90,6 +123,16 @@ public final class ZipUtils {
 
     } finally {
       zipFile.close();
+    }
+  }
+
+  private static void copy(ZipInputStream zipStream, File to) throws IOException {
+    FileOutputStream fos = null;
+    try {
+      fos = new FileOutputStream(to);
+      IOUtils.copy(zipStream, fos);
+    } finally {
+      IOUtils.closeQuietly(fos);
     }
   }
 
@@ -120,8 +163,8 @@ public final class ZipUtils {
   }
 
   private static void doZip(String entryName, InputStream in, ZipOutputStream out) throws IOException {
-    ZipEntry zentry = new ZipEntry(entryName);
-    out.putNextEntry(zentry);
+    ZipEntry entry = new ZipEntry(entryName);
+    out.putNextEntry(entry);
     IOUtils.copy(in, out);
     out.closeEntry();
   }
@@ -129,8 +172,8 @@ public final class ZipUtils {
   private static void doZip(String entryName, File file, ZipOutputStream out) throws IOException {
     if (file.isDirectory()) {
       entryName += '/';
-      ZipEntry zentry = new ZipEntry(entryName);
-      out.putNextEntry(zentry);
+      ZipEntry entry = new ZipEntry(entryName);
+      out.putNextEntry(entry);
       out.closeEntry();
       File[] files = file.listFiles();
       for (int i = 0, len = files.length; i < len; i++) {

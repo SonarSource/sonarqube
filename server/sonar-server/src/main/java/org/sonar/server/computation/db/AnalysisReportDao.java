@@ -21,7 +21,10 @@
 package org.sonar.server.computation.db;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.apache.commons.io.IOUtils;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.TempFolder;
+import org.sonar.api.utils.ZipUtils;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.computation.db.AnalysisReportMapper;
 import org.sonar.core.persistence.DaoComponent;
@@ -31,13 +34,10 @@ import org.sonar.server.db.BaseDao;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -51,17 +51,20 @@ public class AnalysisReportDao extends BaseDao<AnalysisReportMapper, AnalysisRep
   private static final String INSERT_QUERY = "insert into analysis_reports\n" +
     "    (project_key, snapshot_id, report_status, report_data, created_at, updated_at, started_at, finished_at)\n" +
     "    values (?, ?, ?, ?, ?, ?, ?, ?)";
+  private static final String SELECT_REPORT_DATA = "select report_data from analysis_reports where id=?";
 
   private System2 system2;
+  private final TempFolder tempFolder;
 
-  public AnalysisReportDao() {
-    this(System2.INSTANCE);
+  public AnalysisReportDao(TempFolder tempFolder) {
+    this(System2.INSTANCE, tempFolder);
   }
 
   @VisibleForTesting
-  public AnalysisReportDao(System2 system2) {
+  public AnalysisReportDao(System2 system2, TempFolder tempFolder) {
     super(AnalysisReportMapper.class, system2);
     this.system2 = system2;
+    this.tempFolder = tempFolder;
   }
 
   /**
@@ -134,7 +137,7 @@ public class AnalysisReportDao extends BaseDao<AnalysisReportMapper, AnalysisRep
       ps.setString(1, report.getProjectKey());
       ps.setLong(2, report.getSnapshotId());
       ps.setString(3, report.getStatus().toString());
-      setReportDataStream(ps, 4, report.getData());
+      setDataStream(ps, 4, report.getData());
       ps.setTimestamp(5, dateToTimestamp(report.getCreatedAt()));
       ps.setTimestamp(6, dateToTimestamp(report.getUpdatedAt()));
       ps.setTimestamp(7, dateToTimestamp(report.getStartedAt()));
@@ -153,12 +156,41 @@ public class AnalysisReportDao extends BaseDao<AnalysisReportMapper, AnalysisRep
     return report;
   }
 
-  private void setReportDataStream(PreparedStatement ps, int parameterIndex, @Nullable InputStream reportDataStream) throws IOException, SQLException {
+  private void setDataStream(PreparedStatement ps, int parameterIndex, @Nullable InputStream reportDataStream) throws IOException, SQLException {
     int streamSizeEstimate = 1;
     if (reportDataStream != null) {
       streamSizeEstimate = reportDataStream.available();
     }
     ps.setBinaryStream(parameterIndex, reportDataStream, streamSizeEstimate);
+  }
+
+  public String getUncompressedReport(DbSession session, long id) {
+    Connection connection = session.getConnection();
+    InputStream reportDataStream = null;
+    PreparedStatement ps = null;
+
+    try {
+      ps = connection.prepareStatement(SELECT_REPORT_DATA);
+      ps.setLong(1, id);
+
+      ResultSet rs = ps.executeQuery();
+      if (rs.next()) {
+        reportDataStream = rs.getBinaryStream(1);
+        File directory = tempFolder.newDir();
+        ZipUtils.unzip(reportDataStream, directory);
+
+        return directory.getAbsolutePath();
+      }
+    } catch (SQLException e) {
+      throw new IllegalStateException(String.format("Failed to read report '%d' in the database", id), e);
+    } catch (IOException e) {
+      throw new IllegalStateException(String.format("Failed to decompress report '%d'", id), e);
+    } finally {
+      IOUtils.closeQuietly(reportDataStream);
+      DatabaseUtils.closeQuietly(ps);
+    }
+
+    return "";
   }
 
   private Timestamp dateToTimestamp(Date date) {

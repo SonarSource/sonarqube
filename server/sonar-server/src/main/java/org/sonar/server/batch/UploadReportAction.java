@@ -20,6 +20,7 @@
 
 package org.sonar.server.batch;
 
+import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
@@ -77,8 +78,11 @@ public class UploadReportAction implements RequestHandler {
     String snapshotId = request.mandatoryParam(PARAM_SNAPSHOT);
     InputStream reportData = request.paramAsInputStream(PARAM_REPORT_DATA);
 
-    analysisReportQueue.add(projectKey, Long.valueOf(snapshotId), reportData);
-
-    analysisTaskLauncher.startAnalysisTaskNow();
+    try {
+      analysisReportQueue.add(projectKey, Long.valueOf(snapshotId), reportData);
+      analysisTaskLauncher.startAnalysisTaskNow();
+    } finally {
+      IOUtils.closeQuietly(reportData);
+    }
   }
 }
