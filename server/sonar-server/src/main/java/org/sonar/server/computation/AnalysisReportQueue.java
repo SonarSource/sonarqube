@@ -51,12 +51,12 @@ public class AnalysisReportQueue implements ServerComponent {
     this.system2 = system2;
   }
 
-  public AnalysisReportDto add(String projectKey, Long snapshotId, @Nullable InputStream file) {
+  public AnalysisReportDto add(String projectKey, Long snapshotId, @Nullable InputStream reportData) {
     UserSession.get().checkGlobalPermission(GlobalPermissions.SCAN_EXECUTION);
 
     AnalysisReportDto report = newPendingAnalysisReport(projectKey)
       .setSnapshotId(snapshotId)
-      .setData(file);
+      .setData(reportData);
     DbSession session = dbClient.openSession(false);
     try {
       checkThatProjectExistsInDatabase(projectKey, session);

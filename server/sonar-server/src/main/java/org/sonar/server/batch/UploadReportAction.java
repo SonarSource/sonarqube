@@ -75,9 +75,9 @@ public class UploadReportAction implements RequestHandler {
   public void handle(Request request, Response response) throws Exception {
     String projectKey = request.mandatoryParam(PARAM_PROJECT_KEY);
     String snapshotId = request.mandatoryParam(PARAM_SNAPSHOT);
-    InputStream report = request.paramAsInputStream(PARAM_REPORT_DATA);
+    InputStream reportData = request.paramAsInputStream(PARAM_REPORT_DATA);
 
-    analysisReportQueue.add(projectKey, Long.valueOf(snapshotId), report);
+    analysisReportQueue.add(projectKey, Long.valueOf(snapshotId), reportData);
 
     analysisTaskLauncher.startAnalysisTaskNow();
   }

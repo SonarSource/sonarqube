@@ -21,7 +21,6 @@
 package org.sonar.server.computation.db;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Charsets;
 import org.sonar.api.utils.System2;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.computation.db.AnalysisReportMapper;
@@ -31,9 +30,10 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.BaseDao;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -134,13 +134,7 @@ public class AnalysisReportDao extends BaseDao<AnalysisReportMapper, AnalysisRep
       ps.setString(1, report.getProjectKey());
       ps.setLong(2, report.getSnapshotId());
       ps.setString(3, report.getStatus().toString());
-      InputStreamReader inputStreamReader = null;
-      int streamSizeEstimate = Integer.MAX_VALUE;
-      if (report.getData() != null) {
-        inputStreamReader = new InputStreamReader(report.getData(), Charsets.UTF_8);
-        streamSizeEstimate = report.getData().available();
-      }
-      ps.setCharacterStream(4, inputStreamReader, streamSizeEstimate);
+      setReportDataStream(ps, 4, report.getData());
       ps.setTimestamp(5, dateToTimestamp(report.getCreatedAt()));
       ps.setTimestamp(6, dateToTimestamp(report.getUpdatedAt()));
       ps.setTimestamp(7, dateToTimestamp(report.getStartedAt()));
@@ -159,6 +153,14 @@ public class AnalysisReportDao extends BaseDao<AnalysisReportMapper, AnalysisRep
     return report;
   }
 
+  private void setReportDataStream(PreparedStatement ps, int parameterIndex, @Nullable InputStream reportDataStream) throws IOException, SQLException {
+    int streamSizeEstimate = 1;
+    if (reportDataStream != null) {
+      streamSizeEstimate = reportDataStream.available();
+    }
+    ps.setBinaryStream(parameterIndex, reportDataStream, streamSizeEstimate);
+  }
+
   private Timestamp dateToTimestamp(Date date) {
     if (date == null) {
       return null;
@@ -170,11 +172,6 @@ public class AnalysisReportDao extends BaseDao<AnalysisReportMapper, AnalysisRep
   @Override
   protected String getSynchronizationStatementName() {
     throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public AnalysisReportDto insert(DbSession session, AnalysisReportDto item) {
-    return super.insert(session, item);
   }
 
   @Override

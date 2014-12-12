@@ -30,10 +30,15 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.persistence.DbTester;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.test.DbTests;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -83,11 +88,36 @@ public class AnalysisReportDaoTest {
     db.assertDbUnit(getClass(), "insert-result.xml", "analysis_reports");
   }
 
+  @Test
+  public void insert_report_data() throws Exception {
+    db.prepareDbUnit(getClass(), "empty.xml");
+    AnalysisReportDto report = newDefaultAnalysisReport()
+      .setData(org.apache.commons.io.IOUtils.toInputStream("default-project"));
+
+    sut.insert(session, report);
+
+    assertThatReportDataIsEqualTo("default-project");
+  }
+
+  private void assertThatReportDataIsEqualTo(String reportData) throws SQLException, IOException {
+    PreparedStatement ps = session.getConnection().prepareStatement("select report_data from analysis_reports");
+    ResultSet rs = ps.executeQuery();
+    rs.next();
+    InputStream reportDataStream = rs.getBinaryStream(1);
+    assertThat(IOUtils.toString(reportDataStream)).isEqualTo(reportData);
+  }
+
+  @Test
+  public void getBytesArePersisted() throws Exception {
+    System.out.println("default-project".getBytes());
+
+  }
+
   private AnalysisReportDto newDefaultAnalysisReport() {
     return new AnalysisReportDto()
       .setProjectKey(DEFAULT_PROJECT_KEY)
       .setSnapshotId(DEFAULT_SNAPSHOT_ID)
-      .setData(IOUtils.toInputStream("data-project"))
+      .setData(null)
       .setStatus(PENDING)
       .setStartedAt(DateUtils.parseDate("2014-09-25"))
       .setFinishedAt(DateUtils.parseDate("2014-09-27"))
