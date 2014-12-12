@@ -71,11 +71,11 @@ public class PopulateProjectsUuidColumnsMigration implements DatabaseMigration {
           migrateDisabledComponents(readSession, writeSession, project, uuidByComponentId);
         }
       });
-      writeSession.commit();
-      readSession.commit();
+      writeSession.commit(true);
+      readSession.commit(true);
 
       migrateComponentsWithoutUuid(readSession, writeSession);
-      writeSession.commit();
+      writeSession.commit(true);
 
       // log the total number of process rows
       progress.log();
