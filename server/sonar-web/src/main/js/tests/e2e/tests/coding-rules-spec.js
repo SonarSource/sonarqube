@@ -37,7 +37,7 @@ casper.test.begin(testName('Readonly Tests'), function suite(test) {
 
 
       casper.click('.navigator-filter-more-criteria');
-      casper.waitUntilVisible('.navigator-filter-details.active', function checkTagsAreOrdered() {
+      casper.waitForSelector('.navigator-filter-details.active', function checkTagsAreOrdered() {
         casper.click('.navigator-filter-details.active label[data-property="tags"]');
         test.assertSelectorHasText('.navigator-filter[data-property="tags"] option:nth-child(1)', 'brain-overload');
         test.assertSelectorHasText('.navigator-filter[data-property="tags"] option:nth-child(11)', 'unused');
