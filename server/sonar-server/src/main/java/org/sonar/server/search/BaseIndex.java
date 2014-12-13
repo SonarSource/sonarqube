@@ -148,7 +148,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   protected void initializeIndex() {
     String index = this.getIndexName();
 
-    IndicesExistsResponse indexExistsResponse = client.prepareExists(index).get();
+    IndicesExistsResponse indexExistsResponse = client.prepareIndicesExist(index).get();
     try {
 
       if (!indexExistsResponse.isExists()) {

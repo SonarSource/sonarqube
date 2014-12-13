@@ -28,6 +28,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 
+/**
+ * Hash of index definition is stored in the index itself in order to detect changes of mappings
+ * between SonarQube versions. In this case, contrary to database tables, indices are dropped
+ * and re-populated from scratch. There's no attempt to migrate existing data.
+ */
 class IndexDefinitionHash {
 
   private static final char DELIMITER = ',';

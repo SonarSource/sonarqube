@@ -19,7 +19,10 @@
  */
 package org.sonar.server.es;
 
+import com.google.common.collect.ImmutableMap;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
+
+import java.util.Map;
 
 public class FakeIndexDefinition implements IndexDefinition {
 
@@ -40,5 +43,9 @@ public class FakeIndexDefinition implements IndexDefinition {
     index.getSettings().put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, replicas);
     NewIndex.NewIndexType type = index.createType(TYPE);
     type.createIntegerField(INT_FIELD);
+  }
+
+  public static Map<String,Object> newDoc(int value) {
+    return ImmutableMap.<String,Object>of(INT_FIELD, value);
   }
 }

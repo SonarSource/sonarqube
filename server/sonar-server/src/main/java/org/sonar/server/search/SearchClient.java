@@ -20,11 +20,8 @@
 
 package org.sonar.server.search;
 
-import org.sonar.server.search.request.ProxyIndexRequestBuilder;
-
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequestBuilder;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsRequestBuilder;
 import org.elasticsearch.action.admin.cluster.state.ClusterStateRequestBuilder;
@@ -66,24 +63,23 @@ import org.sonar.api.config.Settings;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.process.LoopbackAddress;
 import org.sonar.process.ProcessConstants;
-import org.sonar.server.search.request.ProxyBulkRequestBuilder;
-import org.sonar.server.search.request.ProxyClusterHealthRequestBuilder;
-import org.sonar.server.search.request.ProxyClusterStateRequestBuilder;
-import org.sonar.server.search.request.ProxyClusterStatsRequestBuilder;
-import org.sonar.server.search.request.ProxyCountRequestBuilder;
-import org.sonar.server.search.request.ProxyCreateIndexRequestBuilder;
-import org.sonar.server.search.request.ProxyDeleteByQueryRequestBuilder;
-import org.sonar.server.search.request.ProxyDeleteRequestBuilder;
-import org.sonar.server.search.request.ProxyFlushRequestBuilder;
-import org.sonar.server.search.request.ProxyGetRequestBuilder;
-import org.sonar.server.search.request.ProxyIndicesExistsRequestBuilder;
-import org.sonar.server.search.request.ProxyIndicesStatsRequestBuilder;
-import org.sonar.server.search.request.ProxyMultiGetRequestBuilder;
-import org.sonar.server.search.request.ProxyNodesStatsRequestBuilder;
-import org.sonar.server.search.request.ProxyPutMappingRequestBuilder;
-import org.sonar.server.search.request.ProxyRefreshRequestBuilder;
-import org.sonar.server.search.request.ProxySearchRequestBuilder;
-import org.sonar.server.search.request.ProxySearchScrollRequestBuilder;
+import org.sonar.server.es.request.ProxyBulkRequestBuilder;
+import org.sonar.server.es.request.ProxyClusterStateRequestBuilder;
+import org.sonar.server.es.request.ProxyClusterStatsRequestBuilder;
+import org.sonar.server.es.request.ProxyCountRequestBuilder;
+import org.sonar.server.es.request.ProxyCreateIndexRequestBuilder;
+import org.sonar.server.es.request.ProxyDeleteByQueryRequestBuilder;
+import org.sonar.server.es.request.ProxyDeleteRequestBuilder;
+import org.sonar.server.es.request.ProxyFlushRequestBuilder;
+import org.sonar.server.es.request.ProxyGetRequestBuilder;
+import org.sonar.server.es.request.ProxyIndicesExistsRequestBuilder;
+import org.sonar.server.es.request.ProxyIndicesStatsRequestBuilder;
+import org.sonar.server.es.request.ProxyMultiGetRequestBuilder;
+import org.sonar.server.es.request.ProxyNodesStatsRequestBuilder;
+import org.sonar.server.es.request.ProxyPutMappingRequestBuilder;
+import org.sonar.server.es.request.ProxyRefreshRequestBuilder;
+import org.sonar.server.es.request.ProxySearchRequestBuilder;
+import org.sonar.server.es.request.ProxySearchScrollRequestBuilder;
 
 /**
  * ElasticSearch Node used to connect to index.
@@ -155,11 +151,7 @@ public class SearchClient extends TransportClient implements Startable {
     return new ProxyClusterStateRequestBuilder(this, profiling);
   }
 
-  public ClusterHealthRequestBuilder prepareHealth(String... indices) {
-    return new ProxyClusterHealthRequestBuilder(this, profiling).setIndices(indices);
-  }
-
-  public IndicesExistsRequestBuilder prepareExists(String... indices) {
+  public IndicesExistsRequestBuilder prepareIndicesExist(String... indices) {
     return new ProxyIndicesExistsRequestBuilder(this, profiling, indices);
   }
 
@@ -187,11 +179,6 @@ public class SearchClient extends TransportClient implements Startable {
   }
 
   @Override
-  public GetRequestBuilder prepareGet(String index, String type, String id) {
-    return new ProxyGetRequestBuilder(this, profiling).setIndex(index).setType(type).setId(id);
-  }
-
-  @Override
   public MultiGetRequestBuilder prepareMultiGet() {
     return new ProxyMultiGetRequestBuilder(this, profiling);
   }
@@ -211,24 +198,29 @@ public class SearchClient extends TransportClient implements Startable {
     return new ProxyDeleteByQueryRequestBuilder(this, profiling).setIndices(indices);
   }
 
+  // ****************************************************************************************************************
+  // Not yet implemented methods
+  // ****************************************************************************************************************
+
+  @Override
+  public GetRequestBuilder prepareGet(String index, String type, String id) {
+    throw throwNotYetImplemented();
+  }
+
   @Override
   public IndexRequestBuilder prepareIndex() {
-    return new ProxyIndexRequestBuilder(this, profiling);
+    throw throwNotYetImplemented();
   }
 
   @Override
   public IndexRequestBuilder prepareIndex(String index, String type) {
-    return new ProxyIndexRequestBuilder(this, profiling).setIndex(index).setType(type);
+    throw throwNotYetImplemented();
   }
 
   @Override
   public IndexRequestBuilder prepareIndex(String index, String type, @Nullable String id) {
-    return new ProxyIndexRequestBuilder(this, profiling).setIndex(index).setType(type).setId(id);
+    throw throwNotYetImplemented();
   }
-
-  // ****************************************************************************************************************
-  // Not yet implemented methods
-  // ****************************************************************************************************************
 
   @Override
   public MultiSearchRequestBuilder prepareMultiSearch() {

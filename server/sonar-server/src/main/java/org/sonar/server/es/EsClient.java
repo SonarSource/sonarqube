@@ -50,25 +50,25 @@ import org.picocontainer.Startable;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.server.search.ClusterHealth;
 import org.sonar.server.search.SearchClient;
-import org.sonar.server.search.request.ProxyBulkRequestBuilder;
-import org.sonar.server.search.request.ProxyClusterHealthRequestBuilder;
-import org.sonar.server.search.request.ProxyClusterStateRequestBuilder;
-import org.sonar.server.search.request.ProxyClusterStatsRequestBuilder;
-import org.sonar.server.search.request.ProxyCountRequestBuilder;
-import org.sonar.server.search.request.ProxyCreateIndexRequestBuilder;
-import org.sonar.server.search.request.ProxyDeleteByQueryRequestBuilder;
-import org.sonar.server.search.request.ProxyDeleteRequestBuilder;
-import org.sonar.server.search.request.ProxyFlushRequestBuilder;
-import org.sonar.server.search.request.ProxyGetRequestBuilder;
-import org.sonar.server.search.request.ProxyIndexRequestBuilder;
-import org.sonar.server.search.request.ProxyIndicesExistsRequestBuilder;
-import org.sonar.server.search.request.ProxyIndicesStatsRequestBuilder;
-import org.sonar.server.search.request.ProxyMultiGetRequestBuilder;
-import org.sonar.server.search.request.ProxyNodesStatsRequestBuilder;
-import org.sonar.server.search.request.ProxyPutMappingRequestBuilder;
-import org.sonar.server.search.request.ProxyRefreshRequestBuilder;
-import org.sonar.server.search.request.ProxySearchRequestBuilder;
-import org.sonar.server.search.request.ProxySearchScrollRequestBuilder;
+import org.sonar.server.es.request.ProxyBulkRequestBuilder;
+import org.sonar.server.es.request.ProxyClusterHealthRequestBuilder;
+import org.sonar.server.es.request.ProxyClusterStateRequestBuilder;
+import org.sonar.server.es.request.ProxyClusterStatsRequestBuilder;
+import org.sonar.server.es.request.ProxyCountRequestBuilder;
+import org.sonar.server.es.request.ProxyCreateIndexRequestBuilder;
+import org.sonar.server.es.request.ProxyDeleteByQueryRequestBuilder;
+import org.sonar.server.es.request.ProxyDeleteRequestBuilder;
+import org.sonar.server.es.request.ProxyFlushRequestBuilder;
+import org.sonar.server.es.request.ProxyGetRequestBuilder;
+import org.sonar.server.es.request.ProxyIndexRequestBuilder;
+import org.sonar.server.es.request.ProxyIndicesExistsRequestBuilder;
+import org.sonar.server.es.request.ProxyIndicesStatsRequestBuilder;
+import org.sonar.server.es.request.ProxyMultiGetRequestBuilder;
+import org.sonar.server.es.request.ProxyNodesStatsRequestBuilder;
+import org.sonar.server.es.request.ProxyPutMappingRequestBuilder;
+import org.sonar.server.es.request.ProxyRefreshRequestBuilder;
+import org.sonar.server.es.request.ProxySearchRequestBuilder;
+import org.sonar.server.es.request.ProxySearchScrollRequestBuilder;
 
 /**
  * Facade to connect to Elasticsearch node. Handles correctly errors (logging + exceptions
@@ -134,7 +134,7 @@ public class EsClient implements Startable {
     prepareHealth().setWaitForEvents(Priority.LANGUID).setWaitForStatus(status).get();
   }
 
-  public IndicesExistsRequestBuilder prepareExists(String... indices) {
+  public IndicesExistsRequestBuilder prepareIndicesExist(String... indices) {
     return new ProxyIndicesExistsRequestBuilder(client, profiling, indices);
   }
 
@@ -177,6 +177,7 @@ public class EsClient implements Startable {
   public DeleteRequestBuilder prepareDelete(String index, String type, String id) {
     return new ProxyDeleteRequestBuilder(profiling, client, index).setType(type).setId(id);
   }
+
 
   public DeleteByQueryRequestBuilder prepareDeleteByQuery(String... indices) {
     return new ProxyDeleteByQueryRequestBuilder(client, profiling).setIndices(indices);
