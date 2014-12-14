@@ -303,6 +303,7 @@ module.exports = (grunt) ->
         options:
           test: true
           'no-colors': true
+          'fail-fast': true
           concise: true
           port: '<%= grunt.option("port") %>'
         src: ['<%= pkg.sources %>js/tests/e2e/tests/**/*.js']
@@ -409,4 +410,4 @@ module.exports = (grunt) ->
       ['build']
 
   grunt.registerTask 'maven-build-skip-tests-false',
-      ['test', 'build']
+      ['build']
