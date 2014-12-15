@@ -48,8 +48,6 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.metrics.max.Max;
 import org.picocontainer.Startable;
 import org.sonar.core.profiling.Profiling;
-import org.sonar.server.search.ClusterHealth;
-import org.sonar.server.search.SearchClient;
 import org.sonar.server.es.request.ProxyBulkRequestBuilder;
 import org.sonar.server.es.request.ProxyClusterHealthRequestBuilder;
 import org.sonar.server.es.request.ProxyClusterStateRequestBuilder;
@@ -69,6 +67,8 @@ import org.sonar.server.es.request.ProxyPutMappingRequestBuilder;
 import org.sonar.server.es.request.ProxyRefreshRequestBuilder;
 import org.sonar.server.es.request.ProxySearchRequestBuilder;
 import org.sonar.server.es.request.ProxySearchScrollRequestBuilder;
+import org.sonar.server.search.ClusterHealth;
+import org.sonar.server.search.SearchClient;
 
 /**
  * Facade to connect to Elasticsearch node. Handles correctly errors (logging + exceptions

@@ -40,6 +40,7 @@ import org.sonar.process.Props;
 import java.util.Properties;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 
 public class SearchServerTest {
 
@@ -84,9 +85,10 @@ public class SearchServerTest {
     searchServer.awaitStop();
     searchServer = null;
     try {
-      assertThat(client.admin().cluster().prepareClusterStats().get().getStatus()).isNotEqualTo(ClusterHealthStatus.GREEN);
+      client.admin().cluster().prepareClusterStats().get();
+      fail();
     } catch (NoNodeAvailableException exception) {
-      assertThat(exception.getMessage()).isEqualTo("No node available");
+      // ok
     }
   }
 
