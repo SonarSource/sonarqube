@@ -164,6 +164,9 @@ class PluginRealm
       user
     end
     Internal.users_api.index()
+
+    # Return user
+    user
   end
 
   def synchronize_groups(user)
