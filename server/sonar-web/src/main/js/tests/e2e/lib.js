@@ -10,17 +10,19 @@ var BASE_URL = 'http://localhost:' + getPort() + '/pages/',
 
 
 exports.initMessages = function () {
-  // Dump log messages
-  casper.removeAllListeners('remote.message');
-  casper.on('remote.message', function(message) {
-    this.echo('Log: '+ message, 'LOG');
-  });
+  if (casper.cli.options.verbose) {
+    // Dump log messages
+    casper.removeAllListeners('remote.message');
+    casper.on('remote.message', function (message) {
+      this.echo('Log: ' + message, 'LOG');
+    });
 
-  // Dump uncaught errors
-  casper.removeAllListeners('page.error');
-  casper.on('page.error', function(msg) {
-    this.echo('Error: ' + msg, 'ERROR');
-  });
+    // Dump uncaught errors
+    casper.removeAllListeners('page.error');
+    casper.on('page.error', function (msg) {
+      this.echo('Error: ' + msg, 'ERROR');
+    });
+  }
 };
 
 

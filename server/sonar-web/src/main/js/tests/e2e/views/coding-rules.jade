@@ -1,7 +1,9 @@
 extends ./layouts/main
 
 block header
-  script(data-main='/js/coding-rules/app', src='../js/require.js')
+  script(src='../js/require.js')
+  script.
+    window.waitForMocks('/js/coding-rules/app.js');
 
 block body
   #content

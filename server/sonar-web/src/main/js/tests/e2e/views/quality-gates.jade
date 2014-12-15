@@ -2,6 +2,9 @@ extends ./layouts/main
 
 block header
   script(data-main='/js/quality-gate/app', src='../js/require.js')
+  script(src='../js/require.js')
+  script.
+    window.waitForMocks('/js/quality-gate/app.js');
 
 block body
   #content

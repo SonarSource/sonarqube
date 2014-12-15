@@ -410,4 +410,4 @@ module.exports = (grunt) ->
       ['build']
 
   grunt.registerTask 'maven-build-skip-tests-false',
-      ['build']
+      ['test', 'build']

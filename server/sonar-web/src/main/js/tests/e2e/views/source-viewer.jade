@@ -1,7 +1,9 @@
 extends ./layouts/main
 
 block header
-  script(data-main='/js/source-viewer/app', src='../js/require.js')
+  script(src='../js/require.js')
+  script.
+    window.waitForMocks('/js/source-viewer/app.js');
 
 block body
   #source-viewer

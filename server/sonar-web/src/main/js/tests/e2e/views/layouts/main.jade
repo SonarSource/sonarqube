@@ -12,6 +12,14 @@ html
       jQuery.mockjaxSettings.responseTime = 50;
       jQuery.mockjaxSettings.throwUnmocked = true;
       $j(document).ready(function () { $j('.open-modal').modal(); });
+      window.waitForMocks = function (app) {
+        var x = setInterval(function () {
+          jQuery.get('/api/l10n/index').done(function () {
+            clearInterval(x);
+            require([app]);
+          });
+        }, 500);
+      }
     block header
   body
     #body
