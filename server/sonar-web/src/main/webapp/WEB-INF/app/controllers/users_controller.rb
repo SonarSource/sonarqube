@@ -46,7 +46,6 @@ class UsersController < ApplicationController
       user=prepare_user
       if user.save
         # case user: don't exist, no errors when create
-        Internal.users_api.index()
         user.notify_creation_handlers
         flash[:notice] = 'User is created.'
         render :text => 'ok', :status => 200
@@ -140,7 +139,6 @@ class UsersController < ApplicationController
       @errors = 'Login can not be changed.'
       render :partial => 'users/edit_form', :status => 400
     elsif user.update_attributes(params[:user])
-      Internal.users_api.index()
       flash[:notice] = 'User was successfully updated.'
       render :text => 'ok', :status => 200
     else
@@ -153,7 +151,6 @@ class UsersController < ApplicationController
     user = User.find_by_login(params[:user][:login])
     if user
       user.reactivate!(java_facade.getSettings().getString('sonar.defaultGroup'))
-      Internal.users_api.index()
       user.notify_creation_handlers
       flash[:notice] = 'User was successfully reactivated.'
       render :text => 'ok', :status => 200

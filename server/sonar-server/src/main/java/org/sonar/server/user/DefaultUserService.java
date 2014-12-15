@@ -36,13 +36,10 @@ import java.util.List;
 import java.util.Map;
 
 public class DefaultUserService implements RubyUserService {
-
-  private final UserService userService;
   private final UserFinder finder;
   private final UserDao dao;
 
-  public DefaultUserService(UserService userService, UserFinder finder, UserDao dao) {
-    this.userService = userService;
+  public DefaultUserService(UserFinder finder, UserDao dao) {
     this.finder = finder;
     this.dao = dao;
   }
@@ -79,10 +76,5 @@ public class DefaultUserService implements RubyUserService {
       throw new BadRequestException("Self-deactivation is not possible");
     }
     dao.deactivateUserByLogin(login);
-    userService.index();
-  }
-
-  public void index() {
-    userService.index();
   }
 }

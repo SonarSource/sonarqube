@@ -163,7 +163,6 @@ class PluginRealm
       user.notify_creation_handlers
       user
     end
-    Internal.users_api.index()
   end
 
   def synchronize_groups(user)
