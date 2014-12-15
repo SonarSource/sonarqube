@@ -19,16 +19,10 @@
  */
 package org.sonar.api.test;
 
-import org.sonar.api.batch.sensor.SensorContext;
-
 import javax.annotation.Nullable;
 
 import java.util.List;
 
-/**
- * @deprecated since 5.0 use {@link SensorContext#testPlanBuilder(org.sonar.api.batch.fs.InputFile)}
- */
-@Deprecated
 public interface MutableTestCase extends TestCase {
   MutableTestCase setStatus(@Nullable Status s);
 

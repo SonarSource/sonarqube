@@ -19,17 +19,12 @@
  */
 package org.sonar.api.test;
 
-import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.component.Perspective;
 
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 
-/**
- * @deprecated since 5.0 use {@link SensorContext#testPlanBuilder(org.sonar.api.batch.fs.InputFile)}
- */
-@Deprecated
 public interface Testable extends Perspective {
 
   List<TestCase> testCases();
