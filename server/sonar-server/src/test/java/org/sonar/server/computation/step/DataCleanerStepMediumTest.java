@@ -36,11 +36,9 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.SnapshotTesting;
+import org.sonar.server.computation.AnalysisReportService;
 import org.sonar.server.computation.ComputeEngineContext;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.properties.ProjectSettingsFactory;
-import org.sonar.server.search.IndexClient;
-import org.sonar.server.source.index.SourceLineIndexer;
 import org.sonar.server.tester.ServerTester;
 
 import java.util.Date;
@@ -55,22 +53,18 @@ public class DataCleanerStepMediumTest {
   private DataCleanerStep sut;
   private DbClient dbClient;
   private DbSession dbSession;
-  private IndexClient indexClient;
-  private SourceLineIndexer sourceLineIndexer;
-  private ProjectSettingsFactory projectSettingsFactory;
   private ProjectCleaner purgeTask;
+  private AnalysisReportService reportService;
 
   @Before
   public void before() throws Exception {
     this.dbClient = tester.get(DbClient.class);
     this.dbSession = dbClient.openSession(false);
 
-    this.indexClient = tester.get(IndexClient.class);
-    this.projectSettingsFactory = tester.get(ProjectSettingsFactory.class);
     this.purgeTask = tester.get(ProjectCleaner.class);
-    this.sourceLineIndexer = tester.get(SourceLineIndexer.class);
+    this.reportService = tester.get(AnalysisReportService.class);
 
-    this.sut = new DataCleanerStep(purgeTask);
+    this.sut = new DataCleanerStep(purgeTask, reportService);
   }
 
   @After

@@ -27,6 +27,7 @@ import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.computation.dbcleaner.ProjectCleaner;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.purge.IdUuidPair;
+import org.sonar.server.computation.AnalysisReportService;
 import org.sonar.server.computation.ComputeEngineContext;
 
 import static org.mockito.Matchers.any;
@@ -36,12 +37,14 @@ public class DataCleanerStepTest {
 
   private DataCleanerStep sut;
   private ProjectCleaner projectCleaner;
+  private AnalysisReportService reportService;
 
   @Before
   public void before() {
     this.projectCleaner = mock(ProjectCleaner.class);
+    this.reportService = mock(AnalysisReportService.class);
 
-    this.sut = new DataCleanerStep(projectCleaner);
+    this.sut = new DataCleanerStep(projectCleaner, reportService);
   }
 
   @Test
@@ -54,5 +57,6 @@ public class DataCleanerStepTest {
     sut.execute(mock(DbSession.class), context);
 
     verify(projectCleaner).purge(any(DbSession.class), any(IdUuidPair.class));
+    // verify(reportService).clean(any(File.class));
   }
 }

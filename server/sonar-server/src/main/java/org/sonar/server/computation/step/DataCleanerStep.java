@@ -20,21 +20,25 @@
 
 package org.sonar.server.computation.step;
 
+import org.sonar.core.computation.dbcleaner.ProjectCleaner;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.purge.IdUuidPair;
-import org.sonar.core.computation.dbcleaner.ProjectCleaner;
+import org.sonar.server.computation.AnalysisReportService;
 import org.sonar.server.computation.ComputeEngineContext;
 
 public class DataCleanerStep implements ComputationStep {
   private final ProjectCleaner projectCleaner;
+  private final AnalysisReportService reportService;
 
-  public DataCleanerStep(ProjectCleaner projectCleaner) {
+  public DataCleanerStep(ProjectCleaner projectCleaner, AnalysisReportService reportService) {
     this.projectCleaner = projectCleaner;
+    this.reportService = reportService;
   }
 
   @Override
   public void execute(DbSession session, ComputeEngineContext context) {
     projectCleaner.purge(session, new IdUuidPair(context.getProject().getId(), context.getProject().uuid()));
+    // reportService.clean(context.getReportDirectory());
   }
 
   @Override

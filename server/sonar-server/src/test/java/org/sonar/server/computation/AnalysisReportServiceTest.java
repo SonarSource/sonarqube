@@ -20,11 +20,17 @@
 
 package org.sonar.server.computation;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.Test;
+import org.sonar.core.component.ComponentDto;
+import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.computation.db.AnalysisReportDao;
 import org.sonar.server.db.DbClient;
 
+import java.io.File;
+
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -38,9 +44,30 @@ public class AnalysisReportServiceTest {
     AnalysisReportDao dao = mock(AnalysisReportDao.class);
     when(dbClient.analysisReportDao()).thenReturn(dao);
     sut = new AnalysisReportService(dbClient);
+    ComputeEngineContext context = new ComputeEngineContext(mock(AnalysisReportDto.class), mock(ComponentDto.class));
 
-    sut.decompress(mock(DbSession.class), , 123L);
+    sut.decompress(mock(DbSession.class), context);
 
-    verify(dao).getDecompressedReport(any(DbSession.class), eq(123L));
+    verify(dao).getDecompressedReport(any(DbSession.class), anyLong());
+  }
+
+  @Test
+  public void clean_null_directory_does_not_throw_any_exception() throws Exception {
+    sut = new AnalysisReportService(mock(DbClient.class));
+
+    sut.clean(null);
+  }
+
+  @Test
+  public void clean_temp_folder() throws Exception {
+    sut = new AnalysisReportService(mock(DbClient.class));
+    File origin = new File(getClass().getResource("/org/sonar/server/computation/AnalysisReportServiceTest/fake-report-folder").getFile());
+    File destination = new File("target/tmp/report-folder-to-delete");
+    FileUtils.copyDirectory(origin, destination);
+    assertThat(destination.exists()).isTrue();
+
+    sut.clean(destination);
+
+    assertThat(destination.exists()).isFalse();
   }
 }

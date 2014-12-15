@@ -20,12 +20,21 @@
 
 package org.sonar.server.computation;
 
+import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.ServerComponent;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
 
-public class AnalysisReportService {
+import javax.annotation.Nullable;
 
+import java.io.File;
+import java.io.IOException;
+
+public class AnalysisReportService implements ServerComponent {
+  private static final Logger LOG = LoggerFactory.getLogger(AnalysisReportService.class);
   private final DbClient dbClient;
 
   public AnalysisReportService(DbClient dbClient) {
@@ -36,5 +45,17 @@ public class AnalysisReportService {
     ComponentDto project = context.getProject();
 
     context.setReportDirectory(dbClient.analysisReportDao().getDecompressedReport(session, project.getId()));
+  }
+
+  public void clean(@Nullable File directory) {
+    if (directory == null) {
+      return;
+    }
+
+    try {
+      FileUtils.deleteDirectory(directory);
+    } catch (IOException e) {
+      LOG.warn(String.format("Failed to delete directory '%s'", directory.getPath()), e);
+    }
   }
 }

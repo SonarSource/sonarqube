@@ -39,12 +39,11 @@ public class DigestReportStepTest {
   @Test
   public void call_service_method() throws Exception {
     AnalysisReportService service = mock(AnalysisReportService.class);
-    AnalysisReportDto report = AnalysisReportDto.newForTests(123L);
     sut = new DigestReportStep(service);
-    ComputeEngineContext context = new ComputeEngineContext(report, mock(ComponentDto.class));
+    ComputeEngineContext context = new ComputeEngineContext(mock(AnalysisReportDto.class), mock(ComponentDto.class));
 
     sut.execute(mock(DbSession.class), context);
 
-    verify(service).decompress(any(DbSession.class), , eq(123L));
+    verify(service).decompress(any(DbSession.class), eq(context));
   }
 }

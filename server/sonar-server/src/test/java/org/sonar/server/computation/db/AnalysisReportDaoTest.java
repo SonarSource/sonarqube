@@ -297,7 +297,7 @@ public class AnalysisReportDaoTest {
   }
 
   @Test
-  public void insert_and_then_retrieve_report_data_with_uncompressed_files_medium_test() throws Exception {
+  public void insert_and_then_retrieve_report_data_with_decompressed_files_medium_test() throws Exception {
     // ARRANGE
     db.prepareDbUnit(getClass(), "empty.xml");
     AnalysisReportDto report = newDefaultAnalysisReport();
