@@ -179,10 +179,6 @@ class SearchSettings {
     Set<String> marvels = new TreeSet<String>();
     marvels.addAll(Arrays.asList(StringUtils.split(props.value(PROP_MARVEL_HOSTS, ""), ",")));
 
-    // Enable marvel's index creation
-    builder.put("action.auto_create_index", ".marvel-*");
-    // Only marvel on sq's indices
-    builder.put("marvel.agent.indices", "issues,logs,rules");
     // If we're collecting indexing data send them to the Marvel host(s)
     if (!marvels.isEmpty()) {
       String hosts = StringUtils.join(marvels, ",");
