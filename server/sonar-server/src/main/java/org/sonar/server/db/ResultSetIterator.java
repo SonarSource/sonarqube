@@ -31,7 +31,14 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * {@link java.util.Iterator} applied to {@link java.sql.ResultSet}
+ * Forward-only {@link java.util.Iterator} over a {@link java.sql.ResultSet}. Rows are
+ * lazily loaded. The underlying ResultSet must be closed by calling the method
+ * {@link #close()}
+ * <p/>
+ * As a safeguard, the ResultSet is automatically closed after the last element has
+ * been retrieved via {@link #next()} or {@link #hasNext()} is called (which will return false).
+ * This automagic behavior is not enough to remove explicit calls to {@link #close()}
+ * from caller methods. Errors raised before end of traversal must still be handled.
  */
 public abstract class ResultSetIterator<E> implements Iterator<E>, Closeable {
 
@@ -40,6 +47,7 @@ public abstract class ResultSetIterator<E> implements Iterator<E>, Closeable {
 
   private volatile boolean didNext = false;
   private volatile boolean hasNext = false;
+  private volatile boolean closed = false;
 
   public ResultSetIterator(PreparedStatement stmt) throws SQLException {
     this.stmt = stmt;
@@ -53,10 +61,15 @@ public abstract class ResultSetIterator<E> implements Iterator<E>, Closeable {
 
   @Override
   public boolean hasNext() {
+    if (closed) {
+      return false;
+    }
     if (!didNext) {
       hasNext = doNextQuietly();
       if (hasNext) {
         didNext = true;
+      } else {
+        close();
       }
     }
     return hasNext;
@@ -66,6 +79,7 @@ public abstract class ResultSetIterator<E> implements Iterator<E>, Closeable {
   @CheckForNull
   public E next() {
     if (!hasNext()) {
+      close();
       throw new NoSuchElementException();
     }
     try {
@@ -74,6 +88,9 @@ public abstract class ResultSetIterator<E> implements Iterator<E>, Closeable {
       throw new IllegalStateException("Fail to read result set row", e);
     } finally {
       hasNext = doNextQuietly();
+      if (!hasNext) {
+        close();
+      }
     }
   }
 
@@ -84,6 +101,7 @@ public abstract class ResultSetIterator<E> implements Iterator<E>, Closeable {
 
   @Override
   public void close() {
+    closed = true;
     DbUtils.closeQuietly(rs);
     DbUtils.closeQuietly(stmt);
   }
