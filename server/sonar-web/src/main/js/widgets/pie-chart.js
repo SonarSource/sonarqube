@@ -191,7 +191,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     // Configure sectors
     this.sectors = this.plotWrap.selectAll('.arc')
         .data(this.pie(this.components()));
-    console.log(this.components());
 
     this.sectors
         .enter()
