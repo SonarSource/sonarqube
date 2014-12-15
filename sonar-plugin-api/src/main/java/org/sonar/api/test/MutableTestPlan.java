@@ -19,13 +19,8 @@
  */
 package org.sonar.api.test;
 
-import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.component.MutablePerspective;
 
-/**
- * @deprecated since 5.0 use {@link SensorContext#testPlanBuilder(org.sonar.api.batch.fs.InputFile)}
- */
-@Deprecated
 public interface MutableTestPlan extends TestPlan<MutableTestCase>, MutablePerspective {
 
   MutableTestCase addTestCase(String name);
