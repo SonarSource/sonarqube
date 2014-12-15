@@ -28,6 +28,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * {@link java.util.Iterator} applied to {@link java.sql.ResultSet}
@@ -37,8 +38,8 @@ public abstract class ResultSetIterator<E> implements Iterator<E>, Closeable {
   private final ResultSet rs;
   private final PreparedStatement stmt;
 
-  private boolean didNext = false;
-  private boolean hasNext = false;
+  private volatile boolean didNext = false;
+  private volatile boolean hasNext = false;
 
   public ResultSetIterator(PreparedStatement stmt) throws SQLException {
     this.stmt = stmt;
@@ -54,7 +55,9 @@ public abstract class ResultSetIterator<E> implements Iterator<E>, Closeable {
   public boolean hasNext() {
     if (!didNext) {
       hasNext = doNextQuietly();
-      didNext = true;
+      if (hasNext) {
+        didNext = true;
+      }
     }
     return hasNext;
   }
@@ -62,14 +65,15 @@ public abstract class ResultSetIterator<E> implements Iterator<E>, Closeable {
   @Override
   @CheckForNull
   public E next() {
-    if (!didNext) {
-      doNextQuietly();
+    if (!hasNext()) {
+      throw new NoSuchElementException();
     }
-    didNext = false;
     try {
       return read(rs);
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to read result set row", e);
+    } finally {
+      hasNext = doNextQuietly();
     }
   }
 

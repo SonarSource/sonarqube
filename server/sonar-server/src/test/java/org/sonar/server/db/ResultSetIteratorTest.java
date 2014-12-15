@@ -32,6 +32,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.NoSuchElementException;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -74,6 +75,13 @@ public class ResultSetIteratorTest {
     assertThat(iterator.next()).isEqualTo(30);
     assertThat(iterator.hasNext()).isFalse();
 
+    try {
+      iterator.next();
+      fail();
+    } catch (NoSuchElementException e) {
+      // ok
+    }
+
     iterator.close();
     // statement is closed by ResultSetIterator
     assertThat(stmt.isClosed()).isTrue();
@@ -115,6 +123,7 @@ public class ResultSetIteratorTest {
       iterator.remove();
       fail();
     } catch (UnsupportedOperationException ok) {
+      // ok
     }
 
     iterator.close();
