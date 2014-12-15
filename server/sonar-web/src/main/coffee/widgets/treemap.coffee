@@ -135,7 +135,12 @@ class Treemap extends window.SonarWidgets.BaseWidget
 
 
   getRatingColorScale: ->
-    color = d3.scale.ordinal().domain([1, 2, 3, 4, 5]).range @colors5r
+    domain = [1, 2, 3, 4, 5]
+    if @components().length > 0
+      colorMetricSample = @colorMetric.value _.first @components()
+      if typeof colorMetricSample == 'string'
+        domain = ['A', 'B', 'C', 'D', 'E']
+    color = d3.scale.ordinal().domain(domain).range @colors5r
     color
 
 
