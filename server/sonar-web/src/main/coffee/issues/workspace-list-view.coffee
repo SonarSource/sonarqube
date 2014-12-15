@@ -89,6 +89,7 @@ define [
 
       key 'c', 'list', -> doTransition 'confirm'
       key 'c', 'list', -> doTransition 'unconfirm'
+      key 'u', 'list', -> doTransition 'mute'
       key 'r', 'list', -> doTransition 'resolve'
       key 'r', 'list', -> doTransition 'reopen'
       key 'f', 'list', -> doTransition 'falsepositive'

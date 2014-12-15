@@ -64,7 +64,8 @@ define [
         false
 
       key 'c', 'componentViewer', -> doTransition 'confirm'
-      key 'u', 'componentViewer', -> doTransition 'unconfirm'
+      key 'c', 'componentViewer', -> doTransition 'unconfirm'
+      key 'u', 'componentViewer', -> doTransition 'mute'
       key 'r', 'componentViewer', -> doTransition 'resolve'
       key 'r', 'componentViewer', -> doTransition 'reopen'
       key 'f', 'componentViewer', -> doTransition 'falsepositive'
