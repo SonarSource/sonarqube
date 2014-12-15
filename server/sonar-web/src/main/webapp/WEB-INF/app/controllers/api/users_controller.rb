@@ -82,6 +82,7 @@ class Api::UsersController < Api::ApiController
         user.save!
         user.notify_creation_handlers
       end
+      Internal.users_api.index()
       hash = user.to_hash
       respond_to do |format|
         format.json { render :json => jsonp(hash) }
@@ -115,6 +116,7 @@ class Api::UsersController < Api::ApiController
     if user.nil?
       render_bad_request("Could not find user with login #{params[:login]}")
     elsif user.update_attributes!(params)
+      Internal.users_api.index()
       hash = user.to_hash
       respond_to do |format|
         format.json { render :json => jsonp(hash) }
