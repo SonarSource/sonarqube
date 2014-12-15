@@ -21,9 +21,8 @@ class CreateAdministrator < ActiveRecord::Migration
 
   def self.up
     # Create the admin user with 'admin' password
-    ActiveRecord::Base.connection.execute("insert into users(login, name, email, crypted_password, salt, created_at, updated_at, remember_token, remember_token_expires_at) "+
-      "values ('admin', 'Administrator', '', 'a373a0e667abb2604c1fd571eb4ad47fe8cc0878', '48bc4b0d93179b5103fd3885ea9119498e9d161b', "+
-                                              "'#{Time.now.strftime("%Y-%m-%d %H:%M:%S")}', '#{Time.now.strftime("%Y-%m-%d %H:%M:%S")}', null, null);")
+    # created_at and updated_at columns will be fed by FeedUsersLongDates migration
+    ActiveRecord::Base.connection.execute("insert into users(login, name, email, crypted_password, salt, created_at, updated_at, remember_token, remember_token_expires_at) values ('admin', 'Administrator', '', 'a373a0e667abb2604c1fd571eb4ad47fe8cc0878', '48bc4b0d93179b5103fd3885ea9119498e9d161b', null, null, null, null)")
   end
 
 end
