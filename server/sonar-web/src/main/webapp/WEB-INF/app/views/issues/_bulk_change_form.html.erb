@@ -80,6 +80,7 @@
         </div>
         <% end %>
       <% end %>
+
       <div class="modal-field">
         <label for="severity">
           <%= message('issue.set_severity') -%>
@@ -89,6 +90,17 @@
                          {:id => 'severity'}) -%>
         <span style="float:right" class="note">(<%= message('issue_bulk_change.x_issues', :params => unresolved_issues_user_can_admin.to_s) -%>)</span>
       </div>
+
+      <div class="modal-field">
+        <label for="add_tags">
+          <%= message('issue.add_tags') -%>
+        </label>
+        <input id="add-tags-action" name="actions[]" type="checkbox" value="add_tags"/>
+
+        <%# TODO Here, select2 box with tags to add %>
+        <span style="float:right" class="note">(<%= message('issue_bulk_change.x_issues', :params => unresolved_issues_user_can_admin.to_s) -%>)</span>
+      </div>
+
       <% end %>
 
       <% if transitions_by_issues.size > 0 %>

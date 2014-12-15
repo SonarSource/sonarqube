@@ -262,18 +262,19 @@ class Api::IssuesController < Api::ApiController
   #
   # -- Mandatory parameters
   # 'issues' is the list of issue keys
-  # 'actions' the list of action to execute (expected at least one). Available actions are : assign,set_severity,plan,do_transition
+  # 'actions' the list of action to execute (expected at least one). Available actions are : assign,set_severity,plan,do_transition,add_tags
   #
   # -- Optional parameters
   # 'assign.assignee' to assign all issues to a user or un-assign.
   # 'set_severity.severity' to change the severity of all issues.
   # 'plan.plan' to plan all issues to an action plan or unlink.
   # 'do_transition.transition' to execute a transition on all issues.
+  # 'add_tags.tags' to add tags on all issues.
   # 'comment' to add a comment on all issues.
   # 'sendNotifications' to send notification for each modified issue (default is 'false')
   #
   # -- Example
-  # curl -X POST -v -u admin:admin 'http://localhost:9000/api/issues/bulk_change?issues=4a2881e7-825e-4140-a154-01f420c43d11,4a2881e7-825e-4140-a154-01f420c43d30&actions=assign,plan&assign.assignee=simon&plan.plan=3.7'
+  # curl -X POST -v -u admin:admin 'http://localhost:9000/api/issues/bulk_change?issues=4a2881e7-825e-4140-a154-01f420c43d11,4a2881e7-825e-4140-a154-01f420c43d30&actions=assign,plan,add_tags&assign.assignee=simon&plan.plan=3.7&add_tags.tags=design,convention'
   #
   def bulk_change
     verify_post_request

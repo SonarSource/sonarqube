@@ -19,6 +19,8 @@
  */
 package org.sonar.server.platform;
 
+import org.sonar.server.issue.AddTagsAction;
+
 import com.google.common.collect.Lists;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.issue.action.Actions;
@@ -537,6 +539,7 @@ class ServerComponents {
     pico.addSingleton(SetSeverityAction.class);
     pico.addSingleton(CommentAction.class);
     pico.addSingleton(TransitionAction.class);
+    pico.addSingleton(AddTagsAction.class);
 
     // technical debt
     pico.addSingleton(DebtModelService.class);
