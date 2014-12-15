@@ -23,9 +23,14 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.database.BaseIdentifiable;
 import org.sonar.api.database.model.Snapshot;
 
-import java.util.Date;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
-import javax.persistence.*;
+import java.util.Date;
 
 /**
  * @since 1.10
@@ -69,29 +74,6 @@ public class Event extends BaseIdentifiable {
     this.name = name;
     this.description = description;
     this.category = category;
-  }
-
-  /**
-   * @deprecated in 2.5
-   */
-  @Deprecated
-  public Event(String name, String description, String category, Date date, Integer resourceId) {
-    this.name = name;
-    this.description = description;
-    this.category = category;
-    this.date = date;
-    this.resourceId = resourceId;
-  }
-
-  /**
-   * @deprecated in 2.5
-   */
-  @Deprecated
-  public Event(String name, String description, String category, Snapshot snapshot) {
-    this.name = name;
-    this.description = description;
-    this.category = category;
-    setSnapshot(snapshot);
   }
 
   public String getName() {
@@ -174,11 +156,11 @@ public class Event extends BaseIdentifiable {
   @Override
   public String toString() {
     return new ToStringBuilder(this)
-        .append("name", name)
-        .append("categ", category)
-        .append("date", date)
-        .append("snapshot", snapshot)
-        .append("resource", resourceId)
-        .toString();
+      .append("name", name)
+      .append("categ", category)
+      .append("date", date)
+      .append("snapshot", snapshot)
+      .append("resource", resourceId)
+      .toString();
   }
 }

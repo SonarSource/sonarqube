@@ -17,30 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.phases;
+package org.sonar.batch.report;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
-import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.platform.Server;
 import org.sonar.api.resources.Project;
+import org.sonar.api.utils.TempFolder;
 import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.bootstrap.ServerClient;
+import org.sonar.batch.index.ResourceCache;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.contains;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
+public class PublishReportJobTest extends AbstractDbUnitTestCase {
 
   private AnalysisMode mode;
+
+  ResourceCache resourceCache = mock(ResourceCache.class);
 
   @Before
   public void setUp() {
@@ -52,7 +52,7 @@ public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.SERVER_BASE_URL, "http://myserver/");
     Project project = new Project("struts");
-    UpdateStatusJob job = new UpdateStatusJob(settings, mock(ServerClient.class), project, mock(Snapshot.class), mode);
+    PublishReportJob job = new PublishReportJob(settings, mock(ServerClient.class), mock(Server.class), project, mode, mock(TempFolder.class), mock(ResourceCache.class));
 
     Logger logger = mock(Logger.class);
     job.logSuccess(logger);
@@ -66,7 +66,7 @@ public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
     Settings settings = new Settings();
     when(mode.isPreview()).thenReturn(true);
     Project project = new Project("struts");
-    UpdateStatusJob job = new UpdateStatusJob(settings, mock(ServerClient.class), project, mock(Snapshot.class), mode);
+    PublishReportJob job = new PublishReportJob(settings, mock(ServerClient.class), mock(Server.class), project, mode, mock(TempFolder.class), mock(ResourceCache.class));
 
     Logger logger = mock(Logger.class);
     job.logSuccess(logger);
@@ -74,26 +74,4 @@ public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
     verify(logger).info("ANALYSIS SUCCESSFUL");
   }
 
-  @Test
-  public void should_publish_results_for_regular_analysis() throws Exception {
-    Settings settings = new Settings();
-    Project project = new Project("struts");
-    ServerClient serverClient = mock(ServerClient.class);
-    UpdateStatusJob job = new UpdateStatusJob(settings, serverClient, project, mock(Snapshot.class), mode);
-
-    job.uploadReport();
-    verify(serverClient).request(contains("/batch/upload_report"), eq("POST"));
-  }
-
-  @Test
-  public void should_not_publish_results_for_preview_analysis() throws Exception {
-    Settings settings = new Settings();
-    when(mode.isPreview()).thenReturn(true);
-    Project project = new Project("struts");
-    ServerClient serverClient = mock(ServerClient.class);
-    UpdateStatusJob job = new UpdateStatusJob(settings, serverClient, project, mock(Snapshot.class), mode);
-
-    job.uploadReport();
-    verify(serverClient, never()).request(anyString());
-  }
 }

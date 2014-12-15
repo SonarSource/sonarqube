@@ -123,6 +123,10 @@
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.github.kevinsawicki</groupId>
+      <artifactId>http-request</artifactId>
+    </dependency>
 
     <!-- unit tests -->
     <dependency>

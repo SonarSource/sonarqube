@@ -28,6 +28,7 @@ import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.issue.internal.IssueChangeContext;
+import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
@@ -37,7 +38,8 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.ProjectTree;
-import org.sonar.batch.index.SnapshotCache;
+import org.sonar.batch.index.BatchResource;
+import org.sonar.batch.index.ResourceCache;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.resource.ResourceDao;
 
@@ -52,7 +54,7 @@ import static org.mockito.Mockito.when;
 public class ScanIssueStorageTest extends AbstractDaoTestCase {
 
   @Mock
-  SnapshotCache snapshotCache;
+  ResourceCache resourceCache;
 
   @Mock
   ProjectTree projectTree;
@@ -61,12 +63,12 @@ public class ScanIssueStorageTest extends AbstractDaoTestCase {
 
   @Before
   public void setUp() throws Exception {
-    storage = new ScanIssueStorage(getMyBatis(), new FakeRuleFinder(), snapshotCache, new ResourceDao(getMyBatis(), System2.INSTANCE), projectTree);
+    storage = new ScanIssueStorage(getMyBatis(), new FakeRuleFinder(), resourceCache, new ResourceDao(getMyBatis(), System2.INSTANCE), projectTree);
   }
 
   @Test
   public void should_load_component_id_from_cache() throws Exception {
-    when(snapshotCache.get("struts:Action.java")).thenReturn(new Snapshot().setResourceId(123));
+    when(resourceCache.get("struts:Action.java")).thenReturn(new BatchResource(1, File.create("Action.java").setId(123), new Snapshot(), null));
 
     long componentId = storage.componentId(new DefaultIssue().setComponentKey("struts:Action.java"));
 
@@ -76,7 +78,7 @@ public class ScanIssueStorageTest extends AbstractDaoTestCase {
   @Test
   public void should_load_component_id_from_db() throws Exception {
     setupData("should_load_component_id_from_db");
-    when(snapshotCache.get("struts:Action.java")).thenReturn(null);
+    when(resourceCache.get("struts:Action.java")).thenReturn(null);
 
     long componentId = storage.componentId(new DefaultIssue().setComponentKey("struts:Action.java"));
 
@@ -86,7 +88,7 @@ public class ScanIssueStorageTest extends AbstractDaoTestCase {
   @Test
   public void should_fail_to_load_component_id_if_unknown_component() throws Exception {
     setupData("should_fail_to_load_component_id_if_unknown_component");
-    when(snapshotCache.get("struts:Action.java")).thenReturn(null);
+    when(resourceCache.get("struts:Action.java")).thenReturn(null);
 
     try {
       storage.componentId(new DefaultIssue().setComponentKey("struts:Action.java"));
@@ -139,7 +141,7 @@ public class ScanIssueStorageTest extends AbstractDaoTestCase {
 
     storage.save(issue);
 
-    checkTables("should_insert_new_issues", new String[]{"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
+    checkTables("should_insert_new_issues", new String[] {"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
   }
 
   @Test
@@ -162,7 +164,7 @@ public class ScanIssueStorageTest extends AbstractDaoTestCase {
       .setNew(false)
       .setChanged(true)
 
-        // updated fields
+      // updated fields
       .setLine(5000)
       .setDebt(Duration.create(10L))
       .setChecksum("FFFFF")
@@ -179,13 +181,13 @@ public class ScanIssueStorageTest extends AbstractDaoTestCase {
       .setUpdateDate(date)
       .setCloseDate(date)
 
-        // unmodifiable fields
+      // unmodifiable fields
       .setRuleKey(RuleKey.of("xxx", "unknown"))
       .setComponentKey("not:a:component");
 
     storage.save(issue);
 
-    checkTables("should_update_issues", new String[]{"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
+    checkTables("should_update_issues", new String[] {"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
   }
 
   @Test
@@ -206,23 +208,23 @@ public class ScanIssueStorageTest extends AbstractDaoTestCase {
       .setRuleKey(RuleKey.of("squid", "AvoidCycles"))
       .setComponentKey("struts:Action")
 
-        // issue in database has been updated in 2015, after the loading by scan
+      // issue in database has been updated in 2015, after the loading by scan
       .setSelectedAt(1400000000000L)
 
-        // fields to be updated
+      // fields to be updated
       .setLine(444)
       .setSeverity("BLOCKER")
       .setChecksum("FFFFF")
       .setAttribute("JIRA", "http://jira.com")
 
-        // fields overridden by end-user -> do not save
+      // fields overridden by end-user -> do not save
       .setAssignee("looser")
       .setResolution(null)
       .setStatus("REOPEN");
 
     storage.save(issue);
 
-    checkTables("should_resolve_conflicts_on_updates", new String[]{"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues");
+    checkTables("should_resolve_conflicts_on_updates", new String[] {"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues");
   }
 
   static class FakeRuleFinder implements RuleFinder {

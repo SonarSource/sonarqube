@@ -19,41 +19,23 @@
  */
 package org.sonar.batch.index;
 
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 public interface ResourcePersister {
 
-  Snapshot saveProject(Project project, @Nullable Project parent);
+  void saveProject(Project project, @Nullable Project parent);
 
   /**
-   * Persist a resource in database. Returns null if the resource must not be persisted (scope lower than file)
+   * Persist a resource in database.
    */
-  Snapshot saveResource(Project project, Resource resource, @Nullable Resource parent);
+  BatchResource saveResource(Project project, Resource resource, @Nullable Resource parent);
 
   /**
-   * Persist a resource in database. Returns null if the resource must not be persisted (scope lower than file)
+   * Persist a resource in database.
    */
-  Snapshot saveResource(Project project, Resource resource);
+  BatchResource saveResource(Project project, Resource resource);
 
-  @CheckForNull
-  Snapshot getSnapshot(Resource resource);
-
-  Snapshot getSnapshotOrFail(Resource resource);
-
-  Snapshot getSnapshotOrFail(InputFile resource);
-
-  /**
-   * The current snapshot which is flagged as "last", different than the current analysis.
-   * @param onlyOlder true if the result must be anterior to the snapshot parameter
-   */
-  @CheckForNull
-  Snapshot getLastSnapshot(Snapshot snapshot, boolean onlyOlder);
-
-  void clear();
 }

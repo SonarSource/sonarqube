@@ -38,6 +38,7 @@ import org.sonar.batch.duplication.BlockCache;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.Caches;
 import org.sonar.batch.index.ComponentDataCache;
+import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.languages.DefaultLanguagesReferential;
 import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
 import org.sonar.batch.referential.DefaultProjectReferentialsLoader;
@@ -95,6 +96,7 @@ public class ProjectScanContainer extends ComponentContainer {
       new ProjectReferentialsProvider(),
       ProjectSettings.class,
       Caches.class,
+      ResourceCache.class,
 
       // lang
       Languages.class,

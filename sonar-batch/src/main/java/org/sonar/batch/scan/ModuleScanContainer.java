@@ -46,7 +46,6 @@ import org.sonar.batch.debt.SqaleRatingDecorator;
 import org.sonar.batch.debt.SqaleRatingSettings;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
-import org.sonar.batch.index.ResourcePersister;
 import org.sonar.batch.issue.IssuableFactory;
 import org.sonar.batch.issue.IssueFilters;
 import org.sonar.batch.issue.ModuleIssues;
@@ -62,6 +61,8 @@ import org.sonar.batch.phases.PhasesTimeProfiler;
 import org.sonar.batch.qualitygate.GenerateQualityGateEvents;
 import org.sonar.batch.qualitygate.QualityGateProvider;
 import org.sonar.batch.qualitygate.QualityGateVerifier;
+import org.sonar.batch.report.IssuesPublisher;
+import org.sonar.batch.report.ResourcesPublisher;
 import org.sonar.batch.rule.ActiveRulesProvider;
 import org.sonar.batch.rule.ModuleQProfiles;
 import org.sonar.batch.rule.QProfileDecorator;
@@ -119,6 +120,8 @@ public class ModuleScanContainer extends ComponentContainer {
       PhaseExecutor.class,
       PhasesTimeProfiler.class,
       PhaseExecutor.getPhaseClasses(),
+      ResourcesPublisher.class,
+      IssuesPublisher.class,
       moduleDefinition.getContainerExtensions(),
 
       // file system
@@ -141,9 +144,6 @@ public class ModuleScanContainer extends ComponentContainer {
       QProfileVerifier.class,
 
       AnalyzerOptimizer.class,
-
-      // the Snapshot component will be removed when asynchronous measures are improved (required for AsynchronousMeasureSensor)
-      getComponentByType(ResourcePersister.class).getSnapshot(module),
 
       TimeMachineConfiguration.class,
       DefaultSensorContext.class,

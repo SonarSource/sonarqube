@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.protocol.input;
 
-import com.google.gson.Gson;
+import org.sonar.batch.protocol.GsonHelper;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -63,11 +63,11 @@ public class GlobalReferentials {
   }
 
   public String toJson() {
-    return new Gson().toJson(this);
+    return GsonHelper.create().toJson(this);
   }
 
   public static GlobalReferentials fromJson(String json) {
-    return new Gson().fromJson(json, GlobalReferentials.class);
+    return GsonHelper.create().fromJson(json, GlobalReferentials.class);
   }
 
 }

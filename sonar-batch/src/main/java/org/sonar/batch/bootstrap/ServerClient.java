@@ -132,18 +132,18 @@ public class ServerClient implements BatchComponent {
     return new IllegalStateException(String.format("Fail to execute request [code=%s, url=%s]", he.getResponseCode(), he.getUri()), he);
   }
 
-  private String getMessageWhenNotAuthorized() {
+  public String getMessageWhenNotAuthorized() {
     if (Strings.isNullOrEmpty(getLogin()) && Strings.isNullOrEmpty(getPassword())) {
       return "Not authorized. Analyzing this project requires to be authenticated. Please provide the values of the properties %s and %s.";
     }
     return "Not authorized. Please check the properties %s and %s.";
   }
 
-  private String getLogin() {
+  public String getLogin() {
     return props.property(CoreProperties.LOGIN);
   }
 
-  private String getPassword() {
+  public String getPassword() {
     return props.property(CoreProperties.PASSWORD);
   }
 
@@ -155,4 +155,5 @@ public class ServerClient implements BatchComponent {
       throw new IllegalStateException("Encoding not supported", e);
     }
   }
+
 }

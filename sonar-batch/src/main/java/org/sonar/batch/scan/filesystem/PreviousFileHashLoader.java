@@ -22,9 +22,11 @@ package org.sonar.batch.scan.filesystem;
 import com.google.common.collect.Maps;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.resources.Project;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.components.PastSnapshot;
 import org.sonar.batch.components.PastSnapshotFinder;
+import org.sonar.batch.index.ResourceCache;
 import org.sonar.core.source.SnapshotDataTypes;
 import org.sonar.core.source.db.SnapshotDataDao;
 import org.sonar.core.source.db.SnapshotDataDto;
@@ -37,10 +39,12 @@ public class PreviousFileHashLoader implements BatchComponent {
 
   private final SnapshotDataDao dao;
   private final PastSnapshotFinder pastSnapshotFinder;
-  private final Snapshot snapshot;
+  private final Project project;
+  private final ResourceCache resourceCache;
 
-  public PreviousFileHashLoader(Snapshot snapshot, SnapshotDataDao dao, PastSnapshotFinder pastSnapshotFinder) {
-    this.snapshot = snapshot;
+  public PreviousFileHashLoader(Project project, ResourceCache resourceCache, SnapshotDataDao dao, PastSnapshotFinder pastSnapshotFinder) {
+    this.project = project;
+    this.resourceCache = resourceCache;
     this.dao = dao;
     this.pastSnapshotFinder = pastSnapshotFinder;
   }
@@ -49,6 +53,7 @@ public class PreviousFileHashLoader implements BatchComponent {
    * Extract hash of the files parsed during the previous analysis
    */
   public Map<String, String> hashByRelativePath() {
+    Snapshot snapshot = resourceCache.get(project.getEffectiveKey()).snapshot();
     Map<String, String> map = Maps.newHashMap();
     PastSnapshot pastSnapshot = pastSnapshotFinder.findPreviousAnalysis(snapshot);
     if (pastSnapshot.isRelatedToSnapshot()) {

@@ -19,8 +19,7 @@
  */
 package org.sonar.batch.protocol.input;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import org.sonar.batch.protocol.GsonHelper;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -114,13 +113,11 @@ public class ProjectReferentials {
   }
 
   public String toJson() {
-    Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").create();
-    return gson.toJson(this);
+    return GsonHelper.create().toJson(this);
   }
 
   public static ProjectReferentials fromJson(String json) {
-    Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").create();
-    return gson.fromJson(json, ProjectReferentials.class);
+    return GsonHelper.create().fromJson(json, ProjectReferentials.class);
   }
 
 }

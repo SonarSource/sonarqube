@@ -25,6 +25,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.resources.Project;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.source.SnapshotDataTypes;
 import org.sonar.core.source.db.SnapshotDataDao;
@@ -34,12 +35,13 @@ public class FileHashesPersisterTest extends AbstractDaoTestCase {
   @ClassRule
   public static TemporaryFolder temp = new TemporaryFolder();
 
-  SnapshotCache snapshots = new SnapshotCache();
+  ResourceCache resourceCache;
   ComponentDataCache data;
   Caches caches;
 
   @Before
   public void start() throws Exception {
+    resourceCache = new ResourceCache();
     caches = CachesTest.createCacheOnTemp(temp);
     caches.start();
   }
@@ -55,13 +57,13 @@ public class FileHashesPersisterTest extends AbstractDaoTestCase {
     Snapshot snapshot = new Snapshot();
     snapshot.setId(100);
     snapshot.setResourceId(200);
-    snapshots.put("myProject", snapshot);
+    resourceCache.add(new Project("myProject").setId(200), snapshot);
 
     data = new ComponentDataCache(caches);
     data.setStringData("myProject", SnapshotDataTypes.FILE_HASHES, "org/struts/Action.java=123ABC");
 
     SnapshotDataDao dataDao = new SnapshotDataDao(getMyBatis());
-    FileHashesPersister persister = new FileHashesPersister(data, snapshots, dataDao, getMyBatis());
+    FileHashesPersister persister = new FileHashesPersister(data, resourceCache, dataDao, getMyBatis());
     persister.persist();
 
     checkTables("should_persist_component_data", new String[] {"id", "created_at", "updated_at"}, "snapshot_data");

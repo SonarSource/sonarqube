@@ -36,7 +36,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.batch.index.PersistenceManager;
+import org.sonar.batch.index.EventPersister;
 import org.sonar.core.UtcDateUtils;
 
 import javax.annotation.CheckForNull;
@@ -49,12 +49,12 @@ public class QProfileEventsDecorator implements Decorator {
 
   private final TimeMachine timeMachine;
   private final Languages languages;
-  private final PersistenceManager persistenceManager;
+  private final EventPersister eventPersister;
 
-  public QProfileEventsDecorator(TimeMachine timeMachine, Languages languages, PersistenceManager pm) {
+  public QProfileEventsDecorator(TimeMachine timeMachine, Languages languages, EventPersister eventPersister) {
     this.timeMachine = timeMachine;
     this.languages = languages;
-    this.persistenceManager = pm;
+    this.eventPersister = eventPersister;
   }
 
   @DependsUpon
@@ -123,7 +123,7 @@ public class QProfileEventsDecorator implements Decorator {
       "from", UtcDateUtils.formatDateTime(fixDate(from)),
       "to", UtcDateUtils.formatDateTime(fixDate(profile.getRulesUpdatedAt()))));
     event.setData(data);
-    persistenceManager.saveEvent(context.getResource(), event);
+    eventPersister.saveEvent(context.getResource(), event);
   }
 
   /**

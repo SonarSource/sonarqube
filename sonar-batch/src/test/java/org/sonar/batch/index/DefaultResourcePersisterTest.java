@@ -53,9 +53,6 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -69,12 +66,13 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  Project singleProject, singleCopyProject, multiModuleProject, moduleA, moduleB, moduleB1, existingProject;
-  SnapshotCache snapshotCache = mock(SnapshotCache.class);
-  ResourceCache resourceCache = mock(ResourceCache.class);
+  private Project singleProject, singleCopyProject, multiModuleProject, moduleA, moduleB, moduleB1, existingProject;
+  private ResourceCache resourceCache;
 
   @Before
   public void before() throws ParseException {
+    resourceCache = new ResourceCache();
+
     SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
     singleProject = newProject("foo", "java");
     singleProject.setName("Foo").setDescription("some description").setAnalysisDate(format.parse("25/12/2010"));
@@ -108,7 +106,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
   public void shouldSaveNewProject() {
     setupData("shared");
 
-    ResourcePersister persister = new DefaultResourcePersister(getSession(), mock(ResourcePermissions.class), snapshotCache, resourceCache);
+    ResourcePersister persister = new DefaultResourcePersister(getSession(), mock(ResourcePermissions.class), resourceCache);
     persister.saveProject(singleProject, null);
 
     checkTables("shouldSaveNewProject", new String[] {"build_date", "created_at", "authorization_updated_at", "uuid", "project_uuid", "module_uuid", "module_uuid_path"},
@@ -134,7 +132,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
   public void shouldSaveCopyProject() {
     setupData("shared");
 
-    ResourcePersister persister = new DefaultResourcePersister(getSession(), mock(ResourcePermissions.class), snapshotCache, resourceCache);
+    ResourcePersister persister = new DefaultResourcePersister(getSession(), mock(ResourcePermissions.class), resourceCache);
     persister.saveProject(singleCopyProject, null);
 
     checkTables("shouldSaveCopyProject", new String[] {"build_date", "created_at", "authorization_updated_at", "uuid", "project_uuid", "module_uuid", "module_uuid_path"},
@@ -157,7 +155,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
   public void shouldSaveNewMultiModulesProject() {
     setupData("shared");
 
-    ResourcePersister persister = new DefaultResourcePersister(getSession(), mock(ResourcePermissions.class), snapshotCache, resourceCache);
+    ResourcePersister persister = new DefaultResourcePersister(getSession(), mock(ResourcePermissions.class), resourceCache);
     persister.saveProject(multiModuleProject, null);
     persister.saveProject(moduleA, multiModuleProject);
     persister.saveProject(moduleB, multiModuleProject);
@@ -221,7 +219,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
 
     java.io.File baseDir = temp.newFolder();
 
-    ResourcePersister persister = new DefaultResourcePersister(getSession(), mock(ResourcePermissions.class), snapshotCache, resourceCache);
+    ResourcePersister persister = new DefaultResourcePersister(getSession(), mock(ResourcePermissions.class), resourceCache);
 
     ProjectTree projectTree = mock(ProjectTree.class);
     when(projectTree.getRootProject()).thenReturn(multiModuleProject);
@@ -230,8 +228,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     when(projectTree.getProjectDefinition(moduleB)).thenReturn(ProjectDefinition.create().setBaseDir(new java.io.File(baseDir, "moduleB")));
     when(projectTree.getProjectDefinition(moduleB1)).thenReturn(ProjectDefinition.create().setBaseDir(new java.io.File(baseDir, "moduleB/moduleB1")));
 
-    PersistenceManager persistenceManager = new DefaultPersistenceManager(persister, null, null, null);
-    DefaultIndex index = new DefaultIndex(persistenceManager, projectTree, mock(MetricFinder.class), mock(ScanGraph.class), mock(DeprecatedViolations.class),
+    DefaultIndex index = new DefaultIndex(persister, null, null, null, projectTree, mock(MetricFinder.class), mock(ScanGraph.class), mock(DeprecatedViolations.class),
       mock(ResourceKeyMigration.class),
       mock(MeasureCache.class));
 
@@ -300,7 +297,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
   public void shouldSaveNewDirectory() {
     setupData("shared");
 
-    ResourcePersister persister = new DefaultResourcePersister(getSession(), mock(ResourcePermissions.class), snapshotCache, resourceCache);
+    ResourcePersister persister = new DefaultResourcePersister(getSession(), mock(ResourcePermissions.class), resourceCache);
     persister.saveProject(singleProject, null);
     persister.saveResource(singleProject,
       Directory.create("src/main/java/org/foo", "org.foo").setEffectiveKey("foo:src/main/java/org/foo"));
@@ -337,7 +334,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
   public void shouldSaveNewLibrary() {
     setupData("shared");
 
-    ResourcePersister persister = new DefaultResourcePersister(getSession(), mock(ResourcePermissions.class), snapshotCache, resourceCache);
+    ResourcePersister persister = new DefaultResourcePersister(getSession(), mock(ResourcePermissions.class), resourceCache);
     persister.saveProject(singleProject, null);
     persister.saveResource(singleProject, new Library("junit:junit", "4.8.2").setEffectiveKey("junit:junit"));
     persister.saveResource(singleProject, new Library("junit:junit", "4.8.2").setEffectiveKey("junit:junit"));// do nothing, already saved
@@ -362,26 +359,10 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void shouldClearResourcesExceptProjects() {
-    setupData("shared");
-
-    DefaultResourcePersister persister = new DefaultResourcePersister(getSession(), mock(ResourcePermissions.class), snapshotCache, resourceCache);
-    persister.saveProject(multiModuleProject, null);
-    persister.saveProject(moduleA, multiModuleProject);
-    persister.saveResource(moduleA, new Directory("org/foo").setEffectiveKey("a:org/foo"));
-    persister.saveResource(moduleA, new File("org/foo/MyClass.java").setEffectiveKey("a:org/foo/MyClass.java"));
-    persister.clear();
-
-    assertThat(persister.getSnapshotsByResource().size(), is(2));
-    assertThat(persister.getSnapshotsByResource().get(multiModuleProject), notNullValue());
-    assertThat(persister.getSnapshotsByResource().get(moduleA), notNullValue());
-  }
-
-  @Test
   public void shouldUpdateExistingResource() {
     setupData("shouldUpdateExistingResource");
 
-    ResourcePersister persister = new DefaultResourcePersister(getSession(), mock(ResourcePermissions.class), snapshotCache, resourceCache);
+    ResourcePersister persister = new DefaultResourcePersister(getSession(), mock(ResourcePermissions.class), resourceCache);
     singleProject.setName("new name");
     singleProject.setDescription("new description");
     persister.saveProject(singleProject, null);
@@ -394,7 +375,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
   public void shouldRemoveRootIndexIfResourceIsProject() {
     setupData("shouldRemoveRootIndexIfResourceIsProject");
 
-    ResourcePersister persister = new DefaultResourcePersister(getSession(), mock(ResourcePermissions.class), snapshotCache, resourceCache);
+    ResourcePersister persister = new DefaultResourcePersister(getSession(), mock(ResourcePermissions.class), resourceCache);
     persister.saveProject(singleProject, null);
 
     checkTables("shouldRemoveRootIndexIfResourceIsProject", new String[] {"build_date", "created_at", "authorization_updated_at"}, "projects", "snapshots");
@@ -407,7 +388,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     ResourcePermissions permissions = mock(ResourcePermissions.class);
     when(permissions.hasRoles(singleProject)).thenReturn(false);
 
-    ResourcePersister persister = new DefaultResourcePersister(getSession(), permissions, snapshotCache, resourceCache);
+    ResourcePersister persister = new DefaultResourcePersister(getSession(), permissions, resourceCache);
     persister.saveProject(singleProject, null);
 
     verify(permissions).grantDefaultRoles(singleProject);
@@ -420,7 +401,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     ResourcePermissions permissions = mock(ResourcePermissions.class);
     when(permissions.hasRoles(singleProject)).thenReturn(true);
 
-    ResourcePersister persister = new DefaultResourcePersister(getSession(), permissions, snapshotCache, resourceCache);
+    ResourcePersister persister = new DefaultResourcePersister(getSession(), permissions, resourceCache);
     persister.saveProject(singleProject, null);
 
     verify(permissions, never()).grantDefaultRoles(singleProject);

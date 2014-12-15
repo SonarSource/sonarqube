@@ -17,35 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.index;
+@ParametersAreNonnullByDefault
+package org.sonar.batch.protocol.output.issue;
 
-import org.sonar.api.batch.Event;
-import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.design.Dependency;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.ProjectLink;
-import org.sonar.api.resources.Resource;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-import javax.annotation.Nullable;
-
-import java.util.List;
-
-public interface PersistenceManager {
-  void clear();
-
-  void saveProject(Project project, @Nullable Project parent);
-
-  Snapshot saveResource(Project project, Resource resource, @Nullable Resource parent);
-
-  void saveDependency(Project project, Dependency dependency, Dependency parentDependency);
-
-  void saveLink(Project project, ProjectLink link);
-
-  void deleteLink(Project project, String key);
-
-  List<Event> getEvents(Resource resource);
-
-  void deleteEvent(Event event);
-
-  void saveEvent(Resource resource, Event event);
-}

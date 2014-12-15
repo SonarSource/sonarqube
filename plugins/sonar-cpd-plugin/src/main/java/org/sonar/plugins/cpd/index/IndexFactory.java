@@ -26,9 +26,10 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
+import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.bootstrap.AnalysisMode;
-import org.sonar.batch.index.ResourcePersister;
+import org.sonar.batch.index.ResourceCache;
 import org.sonar.core.duplication.DuplicationDao;
 
 import javax.annotation.Nullable;
@@ -38,27 +39,29 @@ public class IndexFactory implements BatchComponent {
   private static final Logger LOG = LoggerFactory.getLogger(IndexFactory.class);
 
   private final Settings settings;
-  private final ResourcePersister resourcePersister;
   private final DuplicationDao dao;
   private final AnalysisMode mode;
+  private final DatabaseSession session;
+  private final ResourceCache resourceCache;
 
-  public IndexFactory(AnalysisMode mode, Settings settings, @Nullable ResourcePersister resourcePersister, @Nullable DuplicationDao dao) {
+  public IndexFactory(AnalysisMode mode, Settings settings, @Nullable DuplicationDao dao, @Nullable DatabaseSession session, ResourceCache resourceCache) {
     this.mode = mode;
     this.settings = settings;
-    this.resourcePersister = resourcePersister;
     this.dao = dao;
+    this.session = session;
+    this.resourceCache = resourceCache;
   }
 
   /**
    * Used by new sensor mode
    */
-  public IndexFactory(AnalysisMode mode, Settings settings) {
-    this(mode, settings, null, null);
+  public IndexFactory(AnalysisMode mode, Settings settings, ResourceCache resourceCache) {
+    this(mode, settings, null, null, resourceCache);
   }
 
   public SonarDuplicationsIndex create(@Nullable Project project, String languageKey) {
-    if (verifyCrossProject(project, LOG) && dao != null && resourcePersister != null) {
-      return new SonarDuplicationsIndex(new DbDuplicationsIndex(resourcePersister, project, dao, languageKey));
+    if (verifyCrossProject(project, LOG) && dao != null && session != null) {
+      return new SonarDuplicationsIndex(new DbDuplicationsIndex(project, dao, languageKey, session, resourceCache));
     }
     return new SonarDuplicationsIndex();
   }

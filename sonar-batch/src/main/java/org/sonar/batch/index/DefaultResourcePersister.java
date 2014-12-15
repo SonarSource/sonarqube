@@ -19,14 +19,11 @@
  */
 package org.sonar.batch.index;
 
-import com.google.common.collect.Maps;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.resources.File;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Library;
 import org.sonar.api.resources.Project;
@@ -38,15 +35,12 @@ import org.sonar.api.security.ResourcePermissions;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.internal.Uuids;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.Query;
 
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 public final class DefaultResourcePersister implements ResourcePersister {
 
@@ -57,37 +51,26 @@ public final class DefaultResourcePersister implements ResourcePersister {
   private static final String QUALIFIER = "qualifier";
 
   private final DatabaseSession session;
-  private final Map<Resource, Snapshot> snapshotsByResource = Maps.newHashMap();
   private final ResourcePermissions permissions;
-  private final SnapshotCache snapshotCache;
   private final ResourceCache resourceCache;
 
-  public DefaultResourcePersister(DatabaseSession session, ResourcePermissions permissions, SnapshotCache snapshotCache, ResourceCache resourceCache) {
+  public DefaultResourcePersister(DatabaseSession session, ResourcePermissions permissions, ResourceCache resourceCache) {
     this.session = session;
     this.permissions = permissions;
-    this.snapshotCache = snapshotCache;
     this.resourceCache = resourceCache;
   }
 
   @Override
-  public Snapshot saveProject(Project project, @Nullable Project parent) {
-    Snapshot snapshot = snapshotsByResource.get(project);
-    if (snapshot == null) {
-      snapshot = persistProject(project, parent);
+  public void saveProject(Project project, @Nullable Project parent) {
+    BatchResource batchResource = resourceCache.get(project.getEffectiveKey());
+    if (batchResource == null) {
+      Snapshot snapshot = persistProject(project, parent);
       addToCache(project, snapshot);
     }
-    return snapshot;
   }
 
-  private void addToCache(Resource resource, Snapshot snapshot) {
-    if (snapshot != null) {
-      snapshotsByResource.put(resource, snapshot);
-      resourceCache.add(resource);
-      if (!(resource instanceof Library)) {
-        // Maven libraries can have the same effective key than a project so we can't cache by effectiveKey
-        snapshotCache.put(resource.getEffectiveKey(), snapshot);
-      }
-    }
+  private BatchResource addToCache(Resource resource, Snapshot snapshot) {
+    return resourceCache.add(resource, snapshot);
   }
 
   private Snapshot persistProject(Project project, @Nullable Project parent) {
@@ -108,7 +91,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
     Snapshot parentSnapshot = null;
     if (parent != null) {
       // assume that the parent project has already been saved
-      parentSnapshot = snapshotsByResource.get(project.getParent());
+      parentSnapshot = resourceCache.get(project.getParent().getEffectiveKey()).snapshot();
       model.setRootId((Integer) ObjectUtils.defaultIfNull(parentSnapshot.getRootProjectId(), parentSnapshot.getResourceId()));
     } else {
       model.setRootId(null);
@@ -132,49 +115,18 @@ public final class DefaultResourcePersister implements ResourcePersister {
   }
 
   @Override
-  @CheckForNull
-  public Snapshot getSnapshot(@Nullable Resource reference) {
-    return snapshotsByResource.get(reference);
-  }
-
-  @Override
-  public Snapshot getSnapshotOrFail(Resource resource) {
-    Snapshot snapshot = getSnapshot(resource);
-    if (snapshot == null) {
-      throw new ResourceNotPersistedException(resource);
-    }
-    return snapshot;
-  }
-
-  @Override
-  public Snapshot getSnapshotOrFail(InputFile inputFile) {
-    return getSnapshotOrFail(fromInputFile(inputFile));
-  }
-
-  private Resource fromInputFile(InputFile inputFile) {
-    return File.create(inputFile.relativePath());
-  }
-
-  /**
-   * just for unit tests
-   */
-  Map<Resource, Snapshot> getSnapshotsByResource() {
-    return snapshotsByResource;
-  }
-
-  @Override
-  public Snapshot saveResource(Project project, Resource resource) {
+  public BatchResource saveResource(Project project, Resource resource) {
     return saveResource(project, resource, null);
   }
 
   @Override
-  public Snapshot saveResource(Project project, Resource resource, @Nullable Resource parent) {
-    Snapshot snapshot = snapshotsByResource.get(resource);
-    if (snapshot == null) {
-      snapshot = persist(project, resource, parent);
-      addToCache(resource, snapshot);
+  public BatchResource saveResource(Project project, Resource resource, @Nullable Resource parent) {
+    BatchResource batchResource = resourceCache.get(resource.getEffectiveKey());
+    if (batchResource == null || ResourceUtils.isLibrary(resource)) {
+      Snapshot s = persist(project, resource, parent);
+      batchResource = addToCache(resource, s);
     }
-    return snapshot;
+    return batchResource;
   }
 
   private Snapshot persist(Project project, Resource resource, @Nullable Resource parent) {
@@ -237,47 +189,26 @@ public final class DefaultResourcePersister implements ResourcePersister {
    * Everything except project and library
    */
   private Snapshot persistFileOrDirectory(Project project, Resource resource, @Nullable Resource parentReference) {
-    Snapshot moduleSnapshot = snapshotsByResource.get(project);
-    Integer moduleId = moduleSnapshot.getResourceId();
+    BatchResource moduleResource = resourceCache.get(project.getEffectiveKey());
+    Integer moduleId = moduleResource.resource().getId();
     ResourceModel model = findOrCreateModel(resource, parentReference != null ? parentReference : project);
     model.setRootId(moduleId);
     model = session.save(model);
     resource.setId(model.getId());
     resource.setUuid(model.getUuid());
 
-    Snapshot parentSnapshot = (Snapshot) ObjectUtils.defaultIfNull(getSnapshot(parentReference), moduleSnapshot);
+    Snapshot parentSnapshot;
+    if (parentReference != null) {
+      parentSnapshot = resourceCache.get(parentReference.getEffectiveKey()).snapshot();
+    } else {
+      parentSnapshot = moduleResource.snapshot();
+    }
+
     Snapshot snapshot = new Snapshot(model, parentSnapshot);
     snapshot.setBuildDate(new Date());
     snapshot = session.save(snapshot);
     session.commit();
     return snapshot;
-  }
-
-  @Override
-  @CheckForNull
-  public Snapshot getLastSnapshot(Snapshot snapshot, boolean onlyOlder) {
-    String hql = "SELECT s FROM " + Snapshot.class.getSimpleName() + " s WHERE s.last=:last AND s.resourceId=:resourceId";
-    if (onlyOlder) {
-      hql += " AND s.createdAt<:date";
-    }
-    Query query = session.createQuery(hql);
-    query.setParameter(LAST, true);
-    query.setParameter(RESOURCE_ID, snapshot.getResourceId());
-    if (onlyOlder) {
-      query.setParameter("date", snapshot.getCreatedAt());
-    }
-    return session.getSingleResult(query, null);
-  }
-
-  @Override
-  public void clear() {
-    // we keep cache of projects
-    for (Iterator<Map.Entry<Resource, Snapshot>> it = snapshotsByResource.entrySet().iterator(); it.hasNext();) {
-      Map.Entry<Resource, Snapshot> entry = it.next();
-      if (!ResourceUtils.isSet(entry.getKey())) {
-        it.remove();
-      }
-    }
   }
 
   private ResourceModel findOrCreateModel(Resource resource, @Nullable Resource parentResource) {

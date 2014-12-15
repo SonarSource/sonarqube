@@ -38,6 +38,7 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
+import org.sonar.batch.index.ResourceCache;
 import org.sonar.core.qualitygate.db.QualityGateConditionDto;
 import org.sonar.core.timemachine.Periods;
 
@@ -59,14 +60,14 @@ public class QualityGateVerifier implements Decorator {
 
   private QualityGate qualityGate;
 
-  private Snapshot snapshot;
   private Periods periods;
   private I18n i18n;
   private Durations durations;
+  private ResourceCache resourceCache;
 
-  public QualityGateVerifier(QualityGate qualityGate, Snapshot snapshot, Periods periods, I18n i18n, Durations durations) {
+  public QualityGateVerifier(QualityGate qualityGate, ResourceCache resourceCache, Periods periods, I18n i18n, Durations durations) {
     this.qualityGate = qualityGate;
-    this.snapshot = snapshot;
+    this.resourceCache = resourceCache;
     this.periods = periods;
     this.i18n = i18n;
     this.durations = durations;
@@ -99,11 +100,11 @@ public class QualityGateVerifier implements Decorator {
   @Override
   public void decorate(Resource resource, DecoratorContext context) {
     if (ResourceUtils.isRootProject(resource)) {
-      checkProjectConditions(context);
+      checkProjectConditions(resource, context);
     }
   }
 
-  private void checkProjectConditions(DecoratorContext context) {
+  private void checkProjectConditions(Resource project, DecoratorContext context) {
     Metric.Level globalLevel = Metric.Level.OK;
     QualityGateDetails details = new QualityGateDetails();
     List<String> labels = Lists.newArrayList();
@@ -114,7 +115,7 @@ public class QualityGateVerifier implements Decorator {
         Metric.Level level = ConditionUtils.getLevel(condition, measure);
 
         measure.setAlertStatus(level);
-        String text = getText(condition, level);
+        String text = getText(project, condition, level);
         if (!StringUtils.isBlank(text)) {
           measure.setAlertText(text);
           labels.add(text);
@@ -144,14 +145,14 @@ public class QualityGateVerifier implements Decorator {
 
   }
 
-  private String getText(ResolvedCondition condition, Metric.Level level) {
+  private String getText(Resource project, ResolvedCondition condition, Metric.Level level) {
     if (level == Metric.Level.OK) {
       return null;
     }
-    return getAlertLabel(condition, level);
+    return getAlertLabel(project, condition, level);
   }
 
-  private String getAlertLabel(ResolvedCondition condition, Metric.Level level) {
+  private String getAlertLabel(Resource project, ResolvedCondition condition, Metric.Level level) {
     Integer alertPeriod = condition.period();
     String metric = i18n.message(Locale.ENGLISH, "metric." + condition.metricKey() + ".name", condition.metric().getName());
 
@@ -168,6 +169,7 @@ public class QualityGateVerifier implements Decorator {
       .append(alertValue(condition, level));
 
     if (alertPeriod != null) {
+      Snapshot snapshot = resourceCache.get(project.getEffectiveKey()).snapshot();
       stringBuilder.append(" ").append(periods.label(snapshot, alertPeriod));
     }
 

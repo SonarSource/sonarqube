@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.index;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -30,7 +31,6 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Event;
 import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
@@ -76,7 +76,7 @@ public class DefaultIndex extends SonarIndex {
 
   private static final Logger LOG = LoggerFactory.getLogger(DefaultIndex.class);
 
-  private PersistenceManager persistence;
+  private ResourcePersister resourcePersister;
   private MetricFinder metricFinder;
   private final ScanGraph graph;
 
@@ -91,12 +91,18 @@ public class DefaultIndex extends SonarIndex {
   private final DeprecatedViolations deprecatedViolations;
   private ModuleIssues moduleIssues;
   private final MeasureCache measureCache;
+  private final ResourceKeyMigration migration;
+  private final DependencyPersister dependencyPersister;
+  private final LinkPersister linkPersister;
+  private final EventPersister eventPersister;
 
-  private ResourceKeyMigration migration;
-
-  public DefaultIndex(PersistenceManager persistence, ProjectTree projectTree, MetricFinder metricFinder,
+  public DefaultIndex(ResourcePersister resourcePersister, DependencyPersister dependencyPersister,
+    LinkPersister linkPersister, EventPersister eventPersister, ProjectTree projectTree, MetricFinder metricFinder,
     ScanGraph graph, DeprecatedViolations deprecatedViolations, ResourceKeyMigration migration, MeasureCache measureCache) {
-    this.persistence = persistence;
+    this.resourcePersister = resourcePersister;
+    this.dependencyPersister = dependencyPersister;
+    this.linkPersister = linkPersister;
+    this.eventPersister = eventPersister;
     this.projectTree = projectTree;
     this.metricFinder = metricFinder;
     this.graph = graph;
@@ -116,7 +122,7 @@ public class DefaultIndex extends SonarIndex {
     Bucket bucket = new Bucket(rootProject);
     addBucket(rootProject, bucket);
     migration.checkIfMigrationNeeded(rootProject);
-    persistence.saveProject(rootProject, null);
+    resourcePersister.saveProject(rootProject, null);
     currentProject = rootProject;
 
     for (Project module : rootProject.getModules()) {
@@ -247,7 +253,13 @@ public class DefaultIndex extends SonarIndex {
 
   @Override
   public Dependency addDependency(Dependency dependency) {
-    Dependency existingDep = getEdge(dependency.getFrom(), dependency.getTo());
+    // Reload resources
+    Resource from = getResource(dependency.getFrom());
+    Preconditions.checkArgument(from != null, dependency.getFrom() + " is not indexed");
+    Resource to = getResource(dependency.getTo());
+    Preconditions.checkArgument(to != null, dependency.getTo() + " is not indexed");
+
+    Dependency existingDep = getEdge(from, to);
     if (existingDep != null) {
       return existingDep;
     }
@@ -258,7 +270,7 @@ public class DefaultIndex extends SonarIndex {
     }
 
     if (registerDependency(dependency)) {
-      persistence.saveDependency(currentProject, dependency, parentDependency);
+      dependencyPersister.saveDependency(currentProject, from, to, dependency, parentDependency);
     }
     return dependency;
   }
@@ -439,12 +451,12 @@ public class DefaultIndex extends SonarIndex {
 
   @Override
   public void addLink(ProjectLink link) {
-    persistence.saveLink(currentProject, link);
+    linkPersister.saveLink(currentProject, link);
   }
 
   @Override
   public void deleteLink(String key) {
-    persistence.deleteLink(currentProject, key);
+    linkPersister.deleteLink(currentProject, key);
   }
 
   //
@@ -458,12 +470,16 @@ public class DefaultIndex extends SonarIndex {
   @Override
   public List<Event> getEvents(Resource resource) {
     // currently events are not cached in memory
-    return persistence.getEvents(resource);
+    Resource reload = getResource(resource);
+    if (reload == null) {
+      return Collections.emptyList();
+    }
+    return eventPersister.getEvents(reload);
   }
 
   @Override
   public void deleteEvent(Event event) {
-    persistence.deleteEvent(event);
+    eventPersister.deleteEvent(event);
   }
 
   @Override
@@ -472,7 +488,7 @@ public class DefaultIndex extends SonarIndex {
     event.setDate(date);
     event.setCreatedAt(new Date());
 
-    persistence.saveEvent(resource, event);
+    eventPersister.saveEvent(resource, event);
     return null;
   }
 
@@ -579,9 +595,9 @@ public class DefaultIndex extends SonarIndex {
     addBucket(resource, bucket);
 
     Resource parentResource = parentBucket != null ? parentBucket.getResource() : null;
-    Snapshot snapshot = persistence.saveResource(currentProject, resource, parentResource);
+    BatchResource batchResource = resourcePersister.saveResource(currentProject, resource, parentResource);
     if (ResourceUtils.isPersistable(resource) && !Qualifiers.LIBRARY.equals(resource.getQualifier())) {
-      graph.addComponent(resource, snapshot);
+      graph.addComponent(resource, batchResource.snapshotId());
     }
 
     return bucket;

@@ -25,7 +25,7 @@ import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 
 @MappedSuperclass
-public class BaseIdentifiable {
+public class BaseIdentifiable<G> {
 
   @Id
   @Column(name = "id")
@@ -36,7 +36,8 @@ public class BaseIdentifiable {
     return id;
   }
 
-  public void setId(Integer id) {
+  public G setId(Integer id) {
     this.id = id;
+    return (G) this;
   }
 }

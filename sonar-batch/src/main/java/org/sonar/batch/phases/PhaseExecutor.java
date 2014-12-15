@@ -28,9 +28,9 @@ import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.events.BatchStepEvent;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
-import org.sonar.batch.index.PersistenceManager;
 import org.sonar.batch.index.ScanPersister;
 import org.sonar.batch.issue.ignore.scanner.IssueExclusionsLoader;
+import org.sonar.batch.report.PublishReportJob;
 import org.sonar.batch.rule.QProfileVerifier;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.batch.scan.filesystem.FileSystemLogger;
@@ -50,8 +50,7 @@ public final class PhaseExecutor {
   private final PostJobsExecutor postJobsExecutor;
   private final InitializersExecutor initializersExecutor;
   private final SensorsExecutor sensorsExecutor;
-  private final UpdateStatusJob updateStatusJob;
-  private final PersistenceManager persistenceManager;
+  private final PublishReportJob publishReportJob;
   private final SensorContext sensorContext;
   private final DefaultIndex index;
   private final ProjectInitializer pi;
@@ -66,8 +65,8 @@ public final class PhaseExecutor {
   public PhaseExecutor(Phases phases, DecoratorsExecutor decoratorsExecutor,
     MavenPluginsConfigurator mavenPluginsConfigurator, InitializersExecutor initializersExecutor,
     PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
-    PersistenceManager persistenceManager, SensorContext sensorContext, DefaultIndex index,
-    EventBus eventBus, UpdateStatusJob updateStatusJob, ProjectInitializer pi,
+    SensorContext sensorContext, DefaultIndex index,
+    EventBus eventBus, PublishReportJob publishReportJob, ProjectInitializer pi,
     ScanPersister[] persisters, FileSystemLogger fsLogger, JsonReport jsonReport, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
     IssueExclusionsLoader issueExclusionsLoader, AnalysisMode analysisMode) {
     this.phases = phases;
@@ -76,11 +75,10 @@ public final class PhaseExecutor {
     this.postJobsExecutor = postJobsExecutor;
     this.initializersExecutor = initializersExecutor;
     this.sensorsExecutor = sensorsExecutor;
-    this.persistenceManager = persistenceManager;
     this.sensorContext = sensorContext;
     this.index = index;
     this.eventBus = eventBus;
-    this.updateStatusJob = updateStatusJob;
+    this.publishReportJob = publishReportJob;
     this.pi = pi;
     this.persisters = persisters;
     this.fsLogger = fsLogger;
@@ -94,7 +92,7 @@ public final class PhaseExecutor {
   public static Collection<Class> getPhaseClasses() {
     return Lists.<Class>newArrayList(DecoratorsExecutor.class, MavenPluginsConfigurator.class,
       PostJobsExecutor.class, SensorsExecutor.class,
-      InitializersExecutor.class, ProjectInitializer.class, UpdateStatusJob.class);
+      InitializersExecutor.class, ProjectInitializer.class, PublishReportJob.class);
   }
 
   /**
@@ -130,7 +128,7 @@ public final class PhaseExecutor {
       jsonReport.execute();
 
       executePersisters();
-      updateStatusJob();
+      publishReportJob();
       if (phases.isEnabled(Phases.Phase.POSTJOB)) {
         postJobsExecutor.execute(sensorContext);
       }
@@ -168,13 +166,11 @@ public final class PhaseExecutor {
     }
   }
 
-  private void updateStatusJob() {
-    if (updateStatusJob != null) {
-      String stepName = "Update status job";
-      eventBus.fireEvent(new BatchStepEvent(stepName, true));
-      this.updateStatusJob.execute();
-      eventBus.fireEvent(new BatchStepEvent(stepName, false));
-    }
+  private void publishReportJob() {
+    String stepName = "Publish report";
+    eventBus.fireEvent(new BatchStepEvent(stepName, true));
+    this.publishReportJob.execute();
+    eventBus.fireEvent(new BatchStepEvent(stepName, false));
   }
 
   private void executeInitializersPhase() {
@@ -195,7 +191,6 @@ public final class PhaseExecutor {
   private void cleanMemory() {
     String cleanMemory = "Clean memory";
     eventBus.fireEvent(new BatchStepEvent(cleanMemory, true));
-    persistenceManager.clear();
     index.clear();
     eventBus.fireEvent(new BatchStepEvent(cleanMemory, false));
   }

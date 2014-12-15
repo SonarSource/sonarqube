@@ -21,22 +21,21 @@ package org.sonar.batch.index;
 
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
-import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectLink;
 
 public final class LinkPersister {
   private DatabaseSession session;
-  private ResourcePersister resourcePersister;
+  private ResourceCache resourceCache;
 
-  public LinkPersister(DatabaseSession session, ResourcePersister resourcePersister) {
+  public LinkPersister(DatabaseSession session, ResourceCache resourcePersister) {
     this.session = session;
-    this.resourcePersister = resourcePersister;
+    this.resourceCache = resourcePersister;
   }
 
   public void saveLink(Project project, ProjectLink link) {
-    Snapshot snapshot = resourcePersister.getSnapshotOrFail(project);
-    ResourceModel projectDao = session.reattach(ResourceModel.class, snapshot.getResourceId());
+    BatchResource batchResource = resourceCache.get(project.getEffectiveKey());
+    ResourceModel projectDao = session.reattach(ResourceModel.class, batchResource.resource().getId());
     ProjectLink dbLink = projectDao.getProjectLink(link.getKey());
     if (dbLink == null) {
       link.setResource(projectDao);
@@ -52,9 +51,9 @@ public final class LinkPersister {
   }
 
   public void deleteLink(Project project, String linkKey) {
-    Snapshot snapshot = resourcePersister.getSnapshot(project);
-    if (snapshot != null) {
-      ResourceModel model = session.reattach(ResourceModel.class, snapshot.getResourceId());
+    BatchResource batchResource = resourceCache.get(project.getEffectiveKey());
+    if (batchResource != null) {
+      ResourceModel model = session.reattach(ResourceModel.class, batchResource.resource().getId());
       ProjectLink dbLink = model.getProjectLink(linkKey);
       if (dbLink != null) {
         session.remove(dbLink);

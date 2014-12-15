@@ -51,7 +51,7 @@ import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.batch.index.PersistenceManager;
+import org.sonar.batch.index.EventPersister;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -59,10 +59,13 @@ import java.util.Date;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
-import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class QProfileEventsDecoratorTest {
 
@@ -74,8 +77,8 @@ public class QProfileEventsDecoratorTest {
   DecoratorContext decoratorContext = mock(DecoratorContext.class);
   TimeMachine timeMachine = mock(TimeMachine.class);
   Languages languages = mock(Languages.class);
-  PersistenceManager persistenceManager = mock(PersistenceManager.class);
-  QProfileEventsDecorator decorator = new QProfileEventsDecorator(timeMachine, languages, persistenceManager);
+  EventPersister eventPersister = mock(EventPersister.class);
+  QProfileEventsDecorator decorator = new QProfileEventsDecorator(timeMachine, languages, eventPersister);
 
   @Test
   public void basic_tests() {
@@ -112,7 +115,7 @@ public class QProfileEventsDecoratorTest {
 
     decorator.decorate(project, decoratorContext);
 
-    verify(persistenceManager).saveEvent(any(Resource.class), argThat(new BaseMatcher<Event>() {
+    verify(eventPersister).saveEvent(any(Resource.class), argThat(new BaseMatcher<Event>() {
       @Override
       public void describeTo(Description description) {
       }

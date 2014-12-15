@@ -21,9 +21,11 @@ package org.sonar.plugins.core.timemachine;
 
 import org.junit.Test;
 import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.resources.Project;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.batch.components.PastSnapshot;
 import org.sonar.batch.components.TimeMachineConfiguration;
+import org.sonar.batch.index.ResourceCache;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.util.Arrays;
@@ -45,8 +47,13 @@ public class TimeMachineConfigurationPersisterTest extends AbstractDbUnitTestCas
     when(timeMachineConfiguration.getProjectPastSnapshots()).thenReturn(Arrays.asList(vs1, vs3));
     Snapshot projectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1000);
 
-    TimeMachineConfigurationPersister persister = new TimeMachineConfigurationPersister(timeMachineConfiguration, projectSnapshot, getSession());
-    persister.persistConfiguration();
+    ResourceCache resourceCache = new ResourceCache();
+    Project project = new Project("foo");
+    resourceCache.add(project, projectSnapshot);
+
+    TimeMachineConfigurationPersister persister = new TimeMachineConfigurationPersister(timeMachineConfiguration, resourceCache, getSession());
+
+    persister.persistConfiguration(project);
 
     checkTables("shouldSaveConfigurationInSnapshotsTable", "snapshots");
   }

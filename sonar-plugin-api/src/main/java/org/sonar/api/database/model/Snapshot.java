@@ -40,7 +40,7 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "snapshots")
-public class Snapshot extends BaseIdentifiable implements Serializable {
+public class Snapshot extends BaseIdentifiable<Snapshot> implements Serializable {
 
   /**
    * This status is set on the snapshot at the beginning of the batch
@@ -161,10 +161,10 @@ public class Snapshot extends BaseIdentifiable implements Serializable {
       this.createdAt = parent.getCreatedAt();
       this.depth = parent.getDepth() + 1;
       this.path = new StringBuilder()
-          .append(parent.getPath())
-          .append(parent.getId())
-          .append(".")
-          .toString();
+        .append(parent.getPath())
+        .append(parent.getId())
+        .append(".")
+        .toString();
     }
     this.rootProjectId = guessRootProjectId(resource, parent);
   }
@@ -702,17 +702,17 @@ public class Snapshot extends BaseIdentifiable implements Serializable {
     }
     Snapshot other = (Snapshot) obj;
     return new EqualsBuilder()
-        .append(resourceId, other.getResourceId())
-        .append(createdAt, other.getCreatedAt())
-        .isEquals();
+      .append(resourceId, other.getResourceId())
+      .append(createdAt, other.getCreatedAt())
+      .isEquals();
   }
 
   @Override
   public int hashCode() {
     return new HashCodeBuilder(17, 37)
-        .append(resourceId)
-        .append(createdAt)
-        .toHashCode();
+      .append(resourceId)
+      .append(createdAt)
+      .toHashCode();
   }
 
   @Override

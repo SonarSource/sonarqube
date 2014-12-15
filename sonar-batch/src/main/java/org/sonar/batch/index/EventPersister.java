@@ -21,27 +21,21 @@ package org.sonar.batch.index;
 
 import org.sonar.api.batch.Event;
 import org.sonar.api.database.DatabaseSession;
-import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Resource;
 
-import java.util.Collections;
 import java.util.List;
 
-public final class EventPersister {
+public class EventPersister {
   private DatabaseSession session;
-  private ResourcePersister resourcePersister;
+  private ResourceCache resourceCache;
 
-  public EventPersister(DatabaseSession session, ResourcePersister resourcePersister) {
+  public EventPersister(DatabaseSession session, ResourceCache resourceCache) {
     this.session = session;
-    this.resourcePersister = resourcePersister;
+    this.resourceCache = resourceCache;
   }
 
   public List<Event> getEvents(Resource resource) {
-    Snapshot snapshot = resourcePersister.getSnapshot(resource);
-    if (snapshot == null) {
-      return Collections.emptyList();
-    }
-    return session.getResults(Event.class, "resourceId", snapshot.getResourceId());
+    return session.getResults(Event.class, "resourceId", resource.getId());
   }
 
   public void deleteEvent(Event event) {
@@ -50,11 +44,11 @@ public final class EventPersister {
   }
 
   public void saveEvent(Resource resource, Event event) {
-    Snapshot snapshot = resourcePersister.getSnapshotOrFail(resource);
+    BatchResource batchResource = resourceCache.get(resource.getEffectiveKey());
     if (event.getDate() == null) {
-      event.setSnapshot(snapshot);
+      event.setSnapshot(batchResource.snapshot());
     } else {
-      event.setResourceId(snapshot.getResourceId());
+      event.setResourceId(batchResource.resource().getId());
     }
     session.save(event);
     session.commit();

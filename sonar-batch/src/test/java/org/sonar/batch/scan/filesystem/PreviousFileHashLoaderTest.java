@@ -19,13 +19,16 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.resources.Project;
 import org.sonar.batch.components.PastSnapshot;
 import org.sonar.batch.components.PastSnapshotFinder;
+import org.sonar.batch.index.ResourceCache;
 import org.sonar.core.source.SnapshotDataTypes;
 import org.sonar.core.source.db.SnapshotDataDao;
 import org.sonar.core.source.db.SnapshotDataDto;
@@ -46,10 +49,19 @@ public class PreviousFileHashLoaderTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  PastSnapshotFinder pastSnapshotFinder = mock(PastSnapshotFinder.class);
-  Snapshot snapshot = mock(Snapshot.class);
-  SnapshotDataDao snapshotDataDao = mock(SnapshotDataDao.class);
-  PreviousFileHashLoader loader = new PreviousFileHashLoader(snapshot, snapshotDataDao, pastSnapshotFinder);
+  private PastSnapshotFinder pastSnapshotFinder = mock(PastSnapshotFinder.class);
+  private Snapshot snapshot = mock(Snapshot.class);
+  private SnapshotDataDao snapshotDataDao = mock(SnapshotDataDao.class);
+  private Project project = new Project("foo");
+  private ResourceCache resourceCache;
+  private PreviousFileHashLoader loader;
+
+  @Before
+  public void prepare() {
+    resourceCache = new ResourceCache();
+    resourceCache.add(project, snapshot);
+    loader = new PreviousFileHashLoader(project, resourceCache, snapshotDataDao, pastSnapshotFinder);
+  }
 
   @Test
   public void should_return_null_if_no_previous_snapshot() throws Exception {

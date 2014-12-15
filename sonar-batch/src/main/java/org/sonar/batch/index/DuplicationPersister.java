@@ -22,11 +22,9 @@ package org.sonar.batch.index;
 import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
 import org.sonar.api.database.model.MeasureMapper;
 import org.sonar.api.database.model.MeasureModel;
-import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.PersistenceMode;
-import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.duplication.DuplicationUtils;
@@ -39,17 +37,14 @@ import java.util.List;
 public final class DuplicationPersister implements ScanPersister {
   private final MyBatis mybatis;
   private final RuleFinder ruleFinder;
-  private final SnapshotCache snapshotCache;
   private final ResourceCache resourceCache;
   private final DuplicationCache duplicationCache;
   private final org.sonar.api.measures.MetricFinder metricFinder;
 
-  public DuplicationPersister(MyBatis mybatis, RuleFinder ruleFinder,
-    SnapshotCache snapshotCache, ResourceCache resourceCache,
+  public DuplicationPersister(MyBatis mybatis, RuleFinder ruleFinder, ResourceCache resourceCache,
     DuplicationCache duplicationCache, org.sonar.api.measures.MetricFinder metricFinder) {
     this.mybatis = mybatis;
     this.ruleFinder = ruleFinder;
-    this.snapshotCache = snapshotCache;
     this.resourceCache = resourceCache;
     this.duplicationCache = duplicationCache;
     this.metricFinder = metricFinder;
@@ -65,11 +60,10 @@ public final class DuplicationPersister implements ScanPersister {
       for (Entry<List<DuplicationGroup>> entry : duplicationCache.entries()) {
         String effectiveKey = entry.key()[0].toString();
         Measure measure = new Measure(duplicationMetricWithId, DuplicationUtils.toXml(entry.value())).setPersistenceMode(PersistenceMode.DATABASE);
-        Resource resource = resourceCache.get(effectiveKey);
+        BatchResource batchResource = resourceCache.get(effectiveKey);
 
-        if (MeasurePersister.shouldPersistMeasure(resource, measure)) {
-          Snapshot snapshot = snapshotCache.get(effectiveKey);
-          MeasureModel measureModel = MeasurePersister.model(measure, ruleFinder).setSnapshotId(snapshot.getId());
+        if (MeasurePersister.shouldPersistMeasure(batchResource.resource(), measure)) {
+          MeasureModel measureModel = MeasurePersister.model(measure, ruleFinder).setSnapshotId(batchResource.snapshotId());
           mapper.insert(measureModel);
           session.commit();
         }

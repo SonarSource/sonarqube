@@ -24,9 +24,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
+import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.bootstrap.AnalysisMode;
-import org.sonar.batch.index.ResourcePersister;
+import org.sonar.batch.index.ResourceCache;
 import org.sonar.core.duplication.DuplicationDao;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -47,7 +48,7 @@ public class IndexFactoryTest {
     project = new Project("foo");
     settings = new Settings();
     analysisMode = mock(AnalysisMode.class);
-    factory = new IndexFactory(analysisMode, settings, mock(ResourcePersister.class), mock(DuplicationDao.class));
+    factory = new IndexFactory(analysisMode, settings, mock(DuplicationDao.class), mock(DatabaseSession.class), new ResourceCache());
     logger = mock(Logger.class);
   }
 

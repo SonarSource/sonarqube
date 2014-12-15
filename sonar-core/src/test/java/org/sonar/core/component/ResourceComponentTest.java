@@ -50,6 +50,7 @@ public class ResourceComponentTest {
   public void db_ids_should_be_set() {
     Snapshot snapshot = new Snapshot();
     snapshot.setId(123);
+    file.setId(456);
     snapshot.setResourceId(456);
     ResourceComponent component = new ResourceComponent(file, snapshot);
 

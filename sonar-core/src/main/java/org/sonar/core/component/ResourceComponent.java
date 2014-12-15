@@ -37,6 +37,10 @@ public class ResourceComponent implements Component {
   private Long resourceId;
 
   public ResourceComponent(Resource resource, @Nullable Snapshot snapshot) {
+    this(resource, snapshot != null ? snapshot.getId() : null);
+  }
+
+  public ResourceComponent(Resource resource, @Nullable Integer snapshotId) {
     this.key = resource.getEffectiveKey();
     this.path = resource.getPath();
     if (Strings.isNullOrEmpty(key)) {
@@ -46,14 +50,14 @@ public class ResourceComponent implements Component {
     this.longName = resource.getLongName();
     this.qualifier = resource.getQualifier();
     this.scope = resource.getScope();
-    if (snapshot != null && snapshot.getId() != null) {
-      this.snapshotId = snapshot.getId().longValue();
-      this.resourceId = snapshot.getResourceId().longValue();
+    if (snapshotId != null) {
+      this.snapshotId = snapshotId.longValue();
+      this.resourceId = resource.getId().longValue();
     }
   }
 
   public ResourceComponent(Resource resource) {
-    this(resource, null);
+    this(resource, (Integer) null);
   }
 
   @Override

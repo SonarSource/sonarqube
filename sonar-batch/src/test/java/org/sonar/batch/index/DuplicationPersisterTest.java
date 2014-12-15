@@ -48,7 +48,6 @@ public class DuplicationPersisterTest extends AbstractDaoTestCase {
   RuleFinder ruleFinder = mock(RuleFinder.class);
   File aFile = new File("org/foo/Bar.java");
   Snapshot fileSnapshot = snapshot(FILE_SNAPSHOT_ID);
-  SnapshotCache snapshotCache;
 
   private DuplicationCache duplicationCache;
 
@@ -56,15 +55,16 @@ public class DuplicationPersisterTest extends AbstractDaoTestCase {
   public void mockResourcePersister() {
     duplicationCache = mock(DuplicationCache.class);
 
-    snapshotCache = mock(SnapshotCache.class);
     ResourceCache resourceCache = mock(ResourceCache.class);
-    when(snapshotCache.get("foo:org/foo/Bar.java")).thenReturn(fileSnapshot);
-    when(resourceCache.get("foo:org/foo/Bar.java")).thenReturn(aFile);
+    BatchResource batchResource = mock(BatchResource.class);
+    when(batchResource.resource()).thenReturn(aFile);
+    when(batchResource.snapshotId()).thenReturn(FILE_SNAPSHOT_ID);
+    when(resourceCache.get("foo:org/foo/Bar.java")).thenReturn(batchResource);
 
     MetricFinder metricFinder = mock(MetricFinder.class);
     when(metricFinder.findByKey(CoreMetrics.DUPLICATIONS_DATA_KEY)).thenReturn(CoreMetrics.DUPLICATIONS_DATA.setId(2));
 
-    duplicationPersister = new DuplicationPersister(getMyBatis(), ruleFinder, snapshotCache, resourceCache, duplicationCache, metricFinder);
+    duplicationPersister = new DuplicationPersister(getMyBatis(), ruleFinder, resourceCache, duplicationCache, metricFinder);
   }
 
   @Test

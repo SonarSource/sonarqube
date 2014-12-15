@@ -39,6 +39,7 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.test.IsMeasure;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
+import org.sonar.batch.index.ResourceCache;
 import org.sonar.core.qualitygate.db.QualityGateConditionDto;
 import org.sonar.core.timemachine.Periods;
 
@@ -69,6 +70,7 @@ public class QualityGateVerifierTest {
   Periods periods;
   I18n i18n;
   Durations durations;
+  private ResourceCache resourceCache;
 
   @Before
   public void before() {
@@ -89,8 +91,13 @@ public class QualityGateVerifierTest {
     snapshot = mock(Snapshot.class);
     qualityGate = mock(QualityGate.class);
     when(qualityGate.isEnabled()).thenReturn(true);
-    verifier = new QualityGateVerifier(qualityGate, snapshot, periods, i18n, durations);
+
     project = new Project("foo");
+
+    resourceCache = new ResourceCache();
+    resourceCache.add(project, snapshot);
+
+    verifier = new QualityGateVerifier(qualityGate, resourceCache, periods, i18n, durations);
   }
 
   @Test

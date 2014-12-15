@@ -46,18 +46,16 @@ import org.sonar.batch.duplication.BlockCache;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.Caches;
 import org.sonar.batch.index.ComponentDataCache;
-import org.sonar.batch.index.FileHashesPersister;
 import org.sonar.batch.index.DefaultIndex;
-import org.sonar.batch.index.DefaultPersistenceManager;
 import org.sonar.batch.index.DefaultResourcePersister;
 import org.sonar.batch.index.DependencyPersister;
 import org.sonar.batch.index.DuplicationPersister;
 import org.sonar.batch.index.EventPersister;
+import org.sonar.batch.index.FileHashesPersister;
 import org.sonar.batch.index.LinkPersister;
 import org.sonar.batch.index.MeasurePersister;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.index.ResourceKeyMigration;
-import org.sonar.batch.index.SnapshotCache;
 import org.sonar.batch.index.SourcePersister;
 import org.sonar.batch.issue.DefaultProjectIssues;
 import org.sonar.batch.issue.DeprecatedViolations;
@@ -133,7 +131,6 @@ public class ProjectScanContainer extends ComponentContainer {
     add(
       new ProjectReferentialsProvider(),
       DefaultResourceCreationLock.class,
-      DefaultPersistenceManager.class,
       DependencyPersister.class,
       EventPersister.class,
       LinkPersister.class,
@@ -151,7 +148,6 @@ public class ProjectScanContainer extends ComponentContainer {
       ProjectLock.class,
       LastLineHashes.class,
       Caches.class,
-      SnapshotCache.class,
       ResourceCache.class,
       ComponentDataCache.class,
       FileHashesPersister.class,

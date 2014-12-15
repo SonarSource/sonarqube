@@ -25,7 +25,6 @@ import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.tg.TinkerGraph;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.component.Component;
-import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Resource;
 import org.sonar.core.graph.BeanGraph;
 import org.sonar.core.graph.BeanIterable;
@@ -59,8 +58,8 @@ public class ScanGraph extends BeanGraph implements BatchComponent {
     return vertex != null ? wrapComponent(vertex) : null;
   }
 
-  public ComponentVertex addComponent(Resource resource, @Nullable Snapshot snapshot) {
-    return addComponent(new ResourceComponent(resource, snapshot));
+  public ComponentVertex addComponent(Resource resource, @Nullable Integer snapshotId) {
+    return addComponent(new ResourceComponent(resource, snapshotId));
   }
 
   public Iterable<ComponentVertex> getComponents() {

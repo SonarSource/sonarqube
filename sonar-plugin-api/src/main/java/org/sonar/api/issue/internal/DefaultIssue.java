@@ -547,7 +547,6 @@ public class DefaultIssue implements Issue {
   }
 
   @Override
-  @SuppressWarnings("unchcked")
   public List<IssueComment> comments() {
     if (comments == null) {
       return Collections.emptyList();

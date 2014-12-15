@@ -22,7 +22,6 @@ package org.sonar.batch.index;
 import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.database.model.MeasureMapper;
 import org.sonar.api.database.model.MeasureModel;
-import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.RuleMeasure;
 import org.sonar.api.resources.Resource;
@@ -42,15 +41,13 @@ public final class MeasurePersister implements ScanPersister {
   private final MyBatis mybatis;
   private final RuleFinder ruleFinder;
   private final MeasureCache measureCache;
-  private final SnapshotCache snapshotCache;
   private final ResourceCache resourceCache;
 
   public MeasurePersister(MyBatis mybatis, RuleFinder ruleFinder,
-    MeasureCache measureCache, SnapshotCache snapshotCache, ResourceCache resourceCache) {
+    MeasureCache measureCache, ResourceCache resourceCache) {
     this.mybatis = mybatis;
     this.ruleFinder = ruleFinder;
     this.measureCache = measureCache;
-    this.snapshotCache = snapshotCache;
     this.resourceCache = resourceCache;
   }
 
@@ -63,11 +60,10 @@ public final class MeasurePersister implements ScanPersister {
       for (Entry<Measure> entry : measureCache.entries()) {
         String effectiveKey = entry.key()[0].toString();
         Measure measure = entry.value();
-        Resource resource = resourceCache.get(effectiveKey);
+        BatchResource batchResource = resourceCache.get(effectiveKey);
 
-        if (shouldPersistMeasure(resource, measure)) {
-          Snapshot snapshot = snapshotCache.get(effectiveKey);
-          MeasureModel measureModel = model(measure, ruleFinder).setSnapshotId(snapshot.getId());
+        if (shouldPersistMeasure(batchResource.resource(), measure)) {
+          MeasureModel measureModel = model(measure, ruleFinder).setSnapshotId(batchResource.snapshotId());
           mapper.insert(measureModel);
         }
       }

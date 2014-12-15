@@ -59,7 +59,7 @@ public class DeprecatedViolations implements BatchComponent {
 
   public Violation toViolation(DefaultIssue issue) {
     Rule rule = ruleFinder.findByKey(issue.ruleKey());
-    Resource resource = resourceCache.get(issue.componentKey());
+    Resource resource = resourceCache.get(issue.componentKey()).resource();
     Violation violation = new Violation(rule, resource);
     violation.setNew(issue.isNew());
     violation.setChecksum(issue.checksum());

@@ -17,33 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.index;
+@ParametersAreNonnullByDefault
+package org.sonar.batch.protocol.output.resource;
 
-import com.google.common.collect.Maps;
-import org.sonar.api.BatchComponent;
-import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.resources.Library;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-import java.util.Map;
-import java.util.Set;
-
-/**
- * Does not contains snapshots of {@link Library} as effectiveKey can be the same than a project.
- */
-public class SnapshotCache implements BatchComponent {
-  // snapshots by component key
-  private final Map<String, Snapshot> snapshots = Maps.newHashMap();
-
-  public Snapshot get(String componentKey) {
-    return snapshots.get(componentKey);
-  }
-
-  public SnapshotCache put(String componentKey, Snapshot snapshot) {
-    snapshots.put(componentKey, snapshot);
-    return this;
-  }
-
-  public Set<Map.Entry<String, Snapshot>> snapshots() {
-    return snapshots.entrySet();
-  }
-}

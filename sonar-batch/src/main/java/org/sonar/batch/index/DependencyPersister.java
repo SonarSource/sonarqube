@@ -20,38 +20,38 @@
 package org.sonar.batch.index;
 
 import org.sonar.api.database.DatabaseSession;
-import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.design.DependencyDto;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
 
 public final class DependencyPersister {
 
-  private ResourcePersister resourcePersister;
+  private ResourceCache resourceCache;
   private DatabaseSession session;
 
-  public DependencyPersister(ResourcePersister resourcePersister, DatabaseSession session) {
-    this.resourcePersister = resourcePersister;
+  public DependencyPersister(ResourceCache resourceCache, DatabaseSession session) {
+    this.resourceCache = resourceCache;
     this.session = session;
   }
 
-  public void saveDependency(Project project, Dependency dependency, Dependency parentDependency) {
-    Snapshot fromSnapshot = resourcePersister.saveResource(project, dependency.getFrom());
-    Snapshot toSnapshot = resourcePersister.saveResource(project, dependency.getTo());
-    Snapshot projectSnapshot = resourcePersister.getSnapshotOrFail(project);
+  public void saveDependency(Project project, Resource from, Resource to, Dependency dependency, Dependency parentDependency) {
+    BatchResource fromResource = resourceCache.get(from);
+    BatchResource toResource = resourceCache.get(to);
+    BatchResource projectResource = resourceCache.get(project);
 
     DependencyDto model = new DependencyDto();
-    model.setProjectSnapshotId(projectSnapshot.getId());
+    model.setProjectSnapshotId(projectResource.snapshotId());
     model.setUsage(dependency.getUsage());
     model.setWeight(dependency.getWeight());
 
-    model.setFromResourceId(fromSnapshot.getResourceId());
-    model.setFromScope(fromSnapshot.getScope());
-    model.setFromSnapshotId(fromSnapshot.getId());
+    model.setFromResourceId(fromResource.resource().getId());
+    model.setFromScope(fromResource.resource().getScope());
+    model.setFromSnapshotId(fromResource.snapshotId());
 
-    model.setToResourceId(toSnapshot.getResourceId());
-    model.setToSnapshotId(toSnapshot.getId());
-    model.setToScope(toSnapshot.getScope());
+    model.setToResourceId(toResource.resource().getId());
+    model.setToScope(toResource.resource().getScope());
+    model.setToSnapshotId(toResource.snapshotId());
 
     if (parentDependency != null) {
       // assume that it has been previously saved

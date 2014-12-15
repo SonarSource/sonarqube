@@ -32,6 +32,7 @@ import org.sonar.api.measures.RuleMeasure;
 import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
@@ -61,23 +62,20 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
   Project project = new Project("foo");
   Directory aDirectory = new Directory("org/foo");
   File aFile = new File("org/foo/Bar.java");
-  Snapshot projectSnapshot = snapshot(PROJECT_SNAPSHOT_ID);
-  Snapshot packageSnapshot = snapshot(PACKAGE_SNAPSHOT_ID);
-  SnapshotCache snapshotCache;
+  BatchResource projectResource = batchResource(project, PROJECT_SNAPSHOT_ID);
+  BatchResource dirResource = batchResource(aDirectory, PACKAGE_SNAPSHOT_ID);
+  BatchResource fileResource = batchResource(aFile, FILE_SNAPSHOT_ID);
   MeasureCache measureCache;
 
   @Before
   public void mockResourcePersister() {
-    snapshotCache = mock(SnapshotCache.class);
     measureCache = mock(MeasureCache.class);
     ResourceCache resourceCache = mock(ResourceCache.class);
-    when(snapshotCache.get("foo")).thenReturn(projectSnapshot);
-    when(snapshotCache.get("foo:org/foo")).thenReturn(packageSnapshot);
-    when(resourceCache.get("foo")).thenReturn(project);
-    when(resourceCache.get("foo:org/foo/Bar.java")).thenReturn(aFile);
-    when(resourceCache.get("foo:org/foo")).thenReturn(aDirectory);
+    when(resourceCache.get("foo")).thenReturn(projectResource);
+    when(resourceCache.get("foo:org/foo/Bar.java")).thenReturn(fileResource);
+    when(resourceCache.get("foo:org/foo")).thenReturn(dirResource);
 
-    measurePersister = new MeasurePersister(getMyBatis(), ruleFinder, measureCache, snapshotCache, resourceCache);
+    measurePersister = new MeasurePersister(getMyBatis(), ruleFinder, measureCache, resourceCache);
   }
 
   @Test
@@ -193,10 +191,10 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
     assertThat(MeasurePersister.shouldPersistMeasure(aFile, duplicatedLines)).isFalse();
   }
 
-  private static Snapshot snapshot(int id) {
+  private static BatchResource batchResource(Resource resource, int id) {
     Snapshot snapshot = mock(Snapshot.class);
     when(snapshot.getId()).thenReturn(id);
-    return snapshot;
+    return new BatchResource(1, resource, snapshot, null);
   }
 
   private static Metric ncloc() {

@@ -22,13 +22,17 @@ package org.sonar.plugins.cpd.index;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
-import org.sonar.batch.index.ResourcePersister;
+import org.sonar.batch.index.ResourceCache;
 import org.sonar.core.duplication.DuplicationDao;
 import org.sonar.core.duplication.DuplicationUnitDto;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
+
+import javax.persistence.Query;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -37,28 +41,39 @@ import java.util.Map;
 
 public class DbDuplicationsIndex {
 
+  private static final String RESOURCE_ID = "resourceId";
+  private static final String LAST = "last";
+
   private final Map<ByteArray, Collection<Block>> cache = Maps.newHashMap();
 
-  private final ResourcePersister resourcePersister;
   private final int currentProjectSnapshotId;
   private final Integer lastSnapshotId;
   private final String languageKey;
+  private final DuplicationDao dao;
+  private final DatabaseSession session;
+  private final ResourceCache resourceCache;
 
-  private DuplicationDao dao;
-
-  public DbDuplicationsIndex(ResourcePersister resourcePersister, Project currentProject, DuplicationDao dao,
-                             String language) {
+  public DbDuplicationsIndex(Project currentProject, DuplicationDao dao,
+    String language, DatabaseSession session, ResourceCache resourceCache) {
     this.dao = dao;
-    this.resourcePersister = resourcePersister;
-    Snapshot currentSnapshot = resourcePersister.getSnapshotOrFail(currentProject);
-    Snapshot lastSnapshot = resourcePersister.getLastSnapshot(currentSnapshot, false);
-    this.currentProjectSnapshotId = currentSnapshot.getId();
+    this.session = session;
+    this.resourceCache = resourceCache;
+    Snapshot lastSnapshot = getLastSnapshot(currentProject.getId());
+    this.currentProjectSnapshotId = resourceCache.get(currentProject.getEffectiveKey()).snapshotId();
     this.lastSnapshotId = lastSnapshot == null ? null : lastSnapshot.getId();
     this.languageKey = language;
   }
 
+  private Snapshot getLastSnapshot(int resourceId) {
+    String hql = "SELECT s FROM " + Snapshot.class.getSimpleName() + " s WHERE s.last=:last AND s.resourceId=:resourceId";
+    Query query = session.createQuery(hql);
+    query.setParameter(LAST, true);
+    query.setParameter(RESOURCE_ID, resourceId);
+    return session.getSingleResult(query, null);
+  }
+
   int getSnapshotIdFor(InputFile inputFile) {
-    return resourcePersister.getSnapshotOrFail(inputFile).getId();
+    return resourceCache.get(((DefaultInputFile) inputFile).key()).snapshotId();
   }
 
   public void prepareCache(InputFile inputFile) {

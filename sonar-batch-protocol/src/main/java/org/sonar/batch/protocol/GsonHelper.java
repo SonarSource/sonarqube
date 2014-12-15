@@ -17,24 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.index;
+package org.sonar.batch.protocol;
 
-import org.junit.Test;
-import org.sonar.api.database.model.Snapshot;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+public class GsonHelper {
 
-public class SnapshotCacheTest {
-
-  Snapshot snapshot = mock(Snapshot.class);
-
-  @Test
-  public void should_cache_snapshots() throws Exception {
-    SnapshotCache cache = new SnapshotCache();
-    String componentKey = "org.apache.struts:struts-core";
-    cache.put(componentKey, snapshot);
-    assertThat(cache.get(componentKey)).isSameAs(snapshot);
-    assertThat(cache.get("other")).isNull();
+  private GsonHelper() {
+    // Utility class
   }
+
+  public static Gson create() {
+    return new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").setPrettyPrinting().create();
+  }
+
 }

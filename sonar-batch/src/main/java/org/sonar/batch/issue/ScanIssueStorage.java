@@ -21,13 +21,13 @@ package org.sonar.batch.issue;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.BatchComponent;
-import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.batch.ProjectTree;
-import org.sonar.batch.index.SnapshotCache;
+import org.sonar.batch.index.BatchResource;
+import org.sonar.batch.index.ResourceCache;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.db.IssueMapper;
 import org.sonar.core.issue.db.IssueStorage;
@@ -44,14 +44,14 @@ import java.util.List;
 
 public class ScanIssueStorage extends IssueStorage implements BatchComponent {
 
-  private final SnapshotCache snapshotCache;
+  private final ResourceCache resourceCache;
   private final ResourceDao resourceDao;
   private final ProjectTree projectTree;
   private final UpdateConflictResolver conflictResolver = new UpdateConflictResolver();
 
-  public ScanIssueStorage(MyBatis mybatis, RuleFinder ruleFinder, SnapshotCache snapshotCache, ResourceDao resourceDao, ProjectTree projectTree) {
+  public ScanIssueStorage(MyBatis mybatis, RuleFinder ruleFinder, ResourceCache resourceCache, ResourceDao resourceDao, ProjectTree projectTree) {
     super(mybatis, ruleFinder);
-    this.snapshotCache = snapshotCache;
+    this.resourceCache = resourceCache;
     this.resourceDao = resourceDao;
     this.projectTree = projectTree;
   }
@@ -90,9 +90,9 @@ public class ScanIssueStorage extends IssueStorage implements BatchComponent {
 
   @VisibleForTesting
   long componentId(DefaultIssue issue) {
-    Snapshot snapshot = snapshotCache.get(issue.componentKey());
-    if (snapshot != null) {
-      return snapshot.getResourceId();
+    BatchResource resource = resourceCache.get(issue.componentKey());
+    if (resource != null) {
+      return resource.resource().getId();
     }
 
     // Load from db when component does not exist in cache (deleted file for example)

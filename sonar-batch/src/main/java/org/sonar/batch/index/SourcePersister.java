@@ -130,7 +130,7 @@ public class SourcePersister implements ScanPersister {
   private void persist(DbSession session, FileSourceMapper mapper, InputPath inputPath, Map<String, FileSourceDto> fileSourceDtoByFileUuid) {
     DefaultInputFile inputFile = (DefaultInputFile) inputPath;
     LOG.debug("Processing {}", inputFile.absolutePath());
-    org.sonar.api.resources.File file = (org.sonar.api.resources.File) resourceCache.get(inputFile.key());
+    org.sonar.api.resources.File file = (org.sonar.api.resources.File) resourceCache.get(inputFile.key()).resource();
     String fileUuid = file.getUuid();
     FileSourceDto previous = fileSourceDtoByFileUuid.get(fileUuid);
     String newData = getSourceData(inputFile);
