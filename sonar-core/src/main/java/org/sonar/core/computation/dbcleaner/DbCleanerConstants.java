@@ -17,30 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.source;
 
-import org.sonar.core.component.ComponentDto;
-import org.sonar.core.computation.db.AnalysisReportDto;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.server.computation.step.ComputationStep;
-import org.sonar.server.source.index.SourceLineIndexer;
+package org.sonar.core.computation.dbcleaner;
 
-public class IndexSourceLinesStep implements ComputationStep {
+public interface DbCleanerConstants {
 
-  private final SourceLineIndexer indexer;
+  String PLUGIN_KEY = "dbcleaner";
+  String PLUGIN_NAME = "DbCleaner";
+  String PROPERTY_CLEAN_DIRECTORY = "sonar.dbcleaner.cleanDirectory";
 
-  public IndexSourceLinesStep(SourceLineIndexer indexer) {
-    this.indexer = indexer;
-  }
-
-  @Override
-  public void execute(DbSession session, AnalysisReportDto report, ComponentDto project) {
-    indexer.index();
-  }
-
-  @Override
-  public String getDescription() {
-    return "Put source code into search index";
-  }
-
+  String HOURS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_DAY = "sonar.dbcleaner.hoursBeforeKeepingOnlyOneSnapshotByDay";
+  String WEEKS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_WEEK = "sonar.dbcleaner.weeksBeforeKeepingOnlyOneSnapshotByWeek";
+  String WEEKS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_MONTH = "sonar.dbcleaner.weeksBeforeKeepingOnlyOneSnapshotByMonth";
+  String WEEKS_BEFORE_DELETING_ALL_SNAPSHOTS = "sonar.dbcleaner.weeksBeforeDeletingAllSnapshots";
+  String DAYS_BEFORE_DELETING_CLOSED_ISSUES = "sonar.dbcleaner.daysBeforeDeletingClosedIssues";
 }

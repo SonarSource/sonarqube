@@ -32,6 +32,8 @@ import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.activity.ActivityService;
+import org.sonar.server.computation.step.ComputationStep;
+import org.sonar.server.computation.step.ComputationStepRegistry;
 import org.sonar.server.db.DbClient;
 
 import java.util.Date;

@@ -24,7 +24,7 @@ import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
-import org.sonar.server.computation.dbcleaner.DbCleanerConstants;
+import org.sonar.core.computation.dbcleaner.DbCleanerConstants;
 
 import javax.annotation.CheckForNull;
 

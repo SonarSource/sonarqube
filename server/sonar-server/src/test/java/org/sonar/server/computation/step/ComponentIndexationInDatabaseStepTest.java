@@ -17,30 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.source;
 
+package org.sonar.server.computation.step;
+
+import org.junit.Before;
+import org.junit.Test;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.server.computation.step.ComputationStep;
-import org.sonar.server.source.index.SourceLineIndexer;
+import org.sonar.core.resource.ResourceIndexerDao;
 
-public class IndexSourceLinesStep implements ComputationStep {
+import static org.mockito.Mockito.*;
 
-  private final SourceLineIndexer indexer;
+public class ComponentIndexationInDatabaseStepTest {
 
-  public IndexSourceLinesStep(SourceLineIndexer indexer) {
-    this.indexer = indexer;
+  private ComponentIndexationInDatabaseStep sut;
+  private ResourceIndexerDao resourceIndexerDao;
+
+  @Before
+  public void before() {
+    this.resourceIndexerDao = mock(ResourceIndexerDao.class);
+    this.sut = new ComponentIndexationInDatabaseStep(resourceIndexerDao);
   }
 
-  @Override
-  public void execute(DbSession session, AnalysisReportDto report, ComponentDto project) {
-    indexer.index();
-  }
+  @Test
+  public void call_indexProject_of_dao() {
+    ComponentDto project = mock(ComponentDto.class);
+    when(project.getId()).thenReturn(123L);
 
-  @Override
-  public String getDescription() {
-    return "Put source code into search index";
+    DbSession session = mock(DbSession.class);
+    sut.execute(session, mock(AnalysisReportDto.class), project);
+
+    verify(resourceIndexerDao).indexProject(123, session);
   }
 
 }

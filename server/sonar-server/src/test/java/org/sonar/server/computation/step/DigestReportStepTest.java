@@ -17,30 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.source;
 
+package org.sonar.server.computation.step;
+
+import org.junit.Test;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.server.computation.step.ComputationStep;
-import org.sonar.server.source.index.SourceLineIndexer;
+import org.sonar.server.computation.AnalysisReportService;
 
-public class IndexSourceLinesStep implements ComputationStep {
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
-  private final SourceLineIndexer indexer;
+public class DigestReportStepTest {
 
-  public IndexSourceLinesStep(SourceLineIndexer indexer) {
-    this.indexer = indexer;
+  private DigestReportStep sut;
+
+  @Test
+  public void call_service_method() throws Exception {
+    AnalysisReportService service = mock(AnalysisReportService.class);
+    AnalysisReportDto report = AnalysisReportDto.newForTests(123L);
+    sut = new DigestReportStep(service);
+
+    sut.execute(mock(DbSession.class), report, mock(ComponentDto.class));
+
+    verify(service).decompress(any(DbSession.class), eq(123L));
   }
-
-  @Override
-  public void execute(DbSession session, AnalysisReportDto report, ComponentDto project) {
-    indexer.index();
-  }
-
-  @Override
-  public String getDescription() {
-    return "Put source code into search index";
-  }
-
 }

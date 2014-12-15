@@ -17,30 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.source;
 
-import org.sonar.core.component.ComponentDto;
-import org.sonar.core.computation.db.AnalysisReportDto;
+package org.sonar.server.computation;
+
+import org.junit.Test;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.server.computation.step.ComputationStep;
-import org.sonar.server.source.index.SourceLineIndexer;
+import org.sonar.server.computation.db.AnalysisReportDao;
+import org.sonar.server.db.DbClient;
 
-public class IndexSourceLinesStep implements ComputationStep {
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
-  private final SourceLineIndexer indexer;
+public class AnalysisReportServiceTest {
+  private AnalysisReportService sut;
+  private AnalysisReportDao dao;
 
-  public IndexSourceLinesStep(SourceLineIndexer indexer) {
-    this.indexer = indexer;
+  @Test
+  public void call_dao_to_decompress_report() throws Exception {
+    DbClient dbClient = mock(DbClient.class);
+    AnalysisReportDao dao = mock(AnalysisReportDao.class);
+    when(dbClient.analysisReportDao()).thenReturn(dao);
+    sut = new AnalysisReportService(dbClient);
+
+    sut.decompress(mock(DbSession.class), 123L);
+
+    verify(dao).getDecompressedReport(any(DbSession.class), eq(123L));
   }
-
-  @Override
-  public void execute(DbSession session, AnalysisReportDto report, ComponentDto project) {
-    indexer.index();
-  }
-
-  @Override
-  public String getDescription() {
-    return "Put source code into search index";
-  }
-
 }

@@ -17,30 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.source;
 
-import org.sonar.core.component.ComponentDto;
-import org.sonar.core.computation.db.AnalysisReportDto;
+package org.sonar.server.computation;
+
 import org.sonar.core.persistence.DbSession;
-import org.sonar.server.computation.step.ComputationStep;
-import org.sonar.server.source.index.SourceLineIndexer;
+import org.sonar.server.db.DbClient;
 
-public class IndexSourceLinesStep implements ComputationStep {
+import java.io.File;
 
-  private final SourceLineIndexer indexer;
+public class AnalysisReportService {
 
-  public IndexSourceLinesStep(SourceLineIndexer indexer) {
-    this.indexer = indexer;
+  private final DbClient dbClient;
+
+  public AnalysisReportService(DbClient dbClient) {
+    this.dbClient = dbClient;
   }
 
-  @Override
-  public void execute(DbSession session, AnalysisReportDto report, ComponentDto project) {
-    indexer.index();
+  public File decompress(DbSession session, long id) {
+    return dbClient.analysisReportDao().getDecompressedReport(session, id);
   }
-
-  @Override
-  public String getDescription() {
-    return "Put source code into search index";
-  }
-
 }

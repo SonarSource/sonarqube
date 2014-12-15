@@ -17,30 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.source;
 
-import org.sonar.core.component.ComponentDto;
-import org.sonar.core.computation.db.AnalysisReportDto;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.server.computation.step.ComputationStep;
-import org.sonar.server.source.index.SourceLineIndexer;
+package org.sonar.core.computation.dbcleaner.period;
 
-public class IndexSourceLinesStep implements ComputationStep {
+import org.junit.Test;
+import org.sonar.api.utils.DateUtils;
+import org.sonar.core.computation.dbcleaner.DbCleanerTestUtils;
+import org.sonar.core.purge.PurgeableSnapshotDto;
 
-  private final SourceLineIndexer indexer;
+import java.util.Arrays;
+import java.util.List;
 
-  public IndexSourceLinesStep(SourceLineIndexer indexer) {
-    this.indexer = indexer;
+import static org.fest.assertions.Assertions.assertThat;
+
+public class DeleteAllFilterTest {
+
+  @Test
+  public void shouldDeleteAllSnapshotsPriorToDate() {
+    Filter filter = new DeleteAllFilter(DateUtils.parseDate("2011-12-25"));
+
+    List<PurgeableSnapshotDto> toDelete = filter.filter(Arrays.asList(
+      DbCleanerTestUtils.createSnapshotWithDate(1L, "2010-01-01"),
+      DbCleanerTestUtils.createSnapshotWithDate(2L, "2010-12-25"),
+      DbCleanerTestUtils.createSnapshotWithDate(3L, "2012-01-01")
+      ));
+
+    assertThat(toDelete).onProperty("snapshotId").containsOnly(1L, 2L);
   }
-
-  @Override
-  public void execute(DbSession session, AnalysisReportDto report, ComponentDto project) {
-    indexer.index();
-  }
-
-  @Override
-  public String getDescription() {
-    return "Put source code into search index";
-  }
-
 }

@@ -17,30 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.source;
+
+package org.sonar.server.computation.step;
 
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.server.computation.step.ComputationStep;
-import org.sonar.server.source.index.SourceLineIndexer;
+import org.sonar.core.purge.IdUuidPair;
+import org.sonar.core.computation.dbcleaner.ProjectCleaner;
 
-public class IndexSourceLinesStep implements ComputationStep {
+public class DataCleanerStep implements ComputationStep {
+  private final ProjectCleaner projectCleaner;
 
-  private final SourceLineIndexer indexer;
-
-  public IndexSourceLinesStep(SourceLineIndexer indexer) {
-    this.indexer = indexer;
+  public DataCleanerStep(ProjectCleaner projectCleaner) {
+    this.projectCleaner = projectCleaner;
   }
 
   @Override
   public void execute(DbSession session, AnalysisReportDto report, ComponentDto project) {
-    indexer.index();
+    projectCleaner.purge(session, new IdUuidPair(project.getId(), project.uuid()));
   }
 
   @Override
   public String getDescription() {
-    return "Put source code into search index";
+    return "Purge database";
   }
-
 }

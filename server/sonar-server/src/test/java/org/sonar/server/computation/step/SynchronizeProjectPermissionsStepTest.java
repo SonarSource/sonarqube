@@ -17,30 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.source;
+package org.sonar.server.computation.step;
 
-import org.sonar.core.component.ComponentDto;
-import org.sonar.core.computation.db.AnalysisReportDto;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.server.computation.step.ComputationStep;
-import org.sonar.server.source.index.SourceLineIndexer;
+import org.junit.Test;
+import org.sonar.server.computation.step.SynchronizeProjectPermissionsStep;
+import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 
-public class IndexSourceLinesStep implements ComputationStep {
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
-  private final SourceLineIndexer indexer;
+public class SynchronizeProjectPermissionsStepTest {
 
-  public IndexSourceLinesStep(SourceLineIndexer indexer) {
-    this.indexer = indexer;
+  @Test
+  public void index_issue_permissions() throws Exception {
+    IssueAuthorizationIndexer indexer = mock(IssueAuthorizationIndexer.class);
+    new SynchronizeProjectPermissionsStep(indexer).execute(null, null, null);
+    verify(indexer).index();
   }
-
-  @Override
-  public void execute(DbSession session, AnalysisReportDto report, ComponentDto project) {
-    indexer.index();
-  }
-
-  @Override
-  public String getDescription() {
-    return "Put source code into search index";
-  }
-
 }

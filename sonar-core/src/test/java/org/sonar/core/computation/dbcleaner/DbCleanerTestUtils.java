@@ -17,30 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.source;
 
-import org.sonar.core.component.ComponentDto;
-import org.sonar.core.computation.db.AnalysisReportDto;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.server.computation.step.ComputationStep;
-import org.sonar.server.source.index.SourceLineIndexer;
+package org.sonar.core.computation.dbcleaner;
 
-public class IndexSourceLinesStep implements ComputationStep {
+import org.sonar.api.utils.DateUtils;
+import org.sonar.core.purge.PurgeableSnapshotDto;
 
-  private final SourceLineIndexer indexer;
+public final class DbCleanerTestUtils {
 
-  public IndexSourceLinesStep(SourceLineIndexer indexer) {
-    this.indexer = indexer;
+  private DbCleanerTestUtils() {
   }
 
-  @Override
-  public void execute(DbSession session, AnalysisReportDto report, ComponentDto project) {
-    indexer.index();
+  public static PurgeableSnapshotDto createSnapshotWithDate(long snapshotId, String date) {
+    PurgeableSnapshotDto snapshot = new PurgeableSnapshotDto();
+    snapshot.setSnapshotId(snapshotId);
+    snapshot.setDate(DateUtils.parseDate(date));
+    return snapshot;
   }
 
-  @Override
-  public String getDescription() {
-    return "Put source code into search index";
+  public static PurgeableSnapshotDto createSnapshotWithDateTime(long snapshotId, String datetime) {
+    PurgeableSnapshotDto snapshot = new PurgeableSnapshotDto();
+    snapshot.setSnapshotId(snapshotId);
+    snapshot.setDate(DateUtils.parseDateTime(datetime));
+    return snapshot;
   }
 
 }

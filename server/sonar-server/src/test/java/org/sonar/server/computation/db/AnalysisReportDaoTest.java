@@ -298,7 +298,7 @@ public class AnalysisReportDaoTest {
 
   @Test
   public void insert_and_then_retrieve_report_data_with_uncompressed_files_medium_test() throws Exception {
-    //ARRANGE
+    // ARRANGE
     db.prepareDbUnit(getClass(), "empty.xml");
     AnalysisReportDto report = newDefaultAnalysisReport();
     InputStream zip = getClass().getResource("/org/sonar/server/computation/db/AnalysisReportDaoTest/zip.zip").openStream();
@@ -310,10 +310,10 @@ public class AnalysisReportDaoTest {
     session.commit();
     IOUtils.closeQuietly(zip);
 
-    //ACT
-    sut.getUncompressedReport(session, 1L);
+    // ACT
+    sut.getDecompressedReport(session, 1L);
 
-    //ASSERT
+    // ASSERT
     assertThat(toDir.list()).hasSize(3);
   }
 
@@ -333,7 +333,7 @@ public class AnalysisReportDaoTest {
   }
 
   private AnalysisReportDto newDefaultAnalysisReport() {
-    return new AnalysisReportDto()
+    return AnalysisReportDto.newForTests(1L)
       .setProjectKey(DEFAULT_PROJECT_KEY)
       .setSnapshotId(DEFAULT_SNAPSHOT_ID)
       .setData(null)

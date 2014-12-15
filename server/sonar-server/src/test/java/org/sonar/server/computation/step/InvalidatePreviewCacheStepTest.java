@@ -17,30 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.source;
 
+package org.sonar.server.computation.step;
+
+import org.junit.Before;
+import org.junit.Test;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.server.computation.step.ComputationStep;
-import org.sonar.server.source.index.SourceLineIndexer;
+import org.sonar.core.properties.PropertiesDao;
+import org.sonar.core.properties.PropertyDto;
+import org.sonar.server.computation.step.InvalidatePreviewCacheStep;
 
-public class IndexSourceLinesStep implements ComputationStep {
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
-  private final SourceLineIndexer indexer;
+public class InvalidatePreviewCacheStepTest {
+  private InvalidatePreviewCacheStep sut;
+  private PropertiesDao propertiesDao;
 
-  public IndexSourceLinesStep(SourceLineIndexer indexer) {
-    this.indexer = indexer;
+  @Before
+  public void before() {
+    this.propertiesDao = mock(PropertiesDao.class);
+    this.sut = new InvalidatePreviewCacheStep(propertiesDao);
   }
 
-  @Override
-  public void execute(DbSession session, AnalysisReportDto report, ComponentDto project) {
-    indexer.index();
-  }
+  @Test
+  public void update_property_calling_propertiesDao() {
+    DbSession session = mock(DbSession.class);
+    sut.execute(session, mock(AnalysisReportDto.class), mock(ComponentDto.class));
 
-  @Override
-  public String getDescription() {
-    return "Put source code into search index";
+    verify(propertiesDao).setProperty(any(PropertyDto.class), eq(session));
   }
-
 }

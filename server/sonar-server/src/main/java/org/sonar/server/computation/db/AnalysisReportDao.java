@@ -34,6 +34,7 @@ import org.sonar.server.db.BaseDao;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,9 +53,8 @@ public class AnalysisReportDao extends BaseDao<AnalysisReportMapper, AnalysisRep
     "    (project_key, snapshot_id, report_status, report_data, created_at, updated_at, started_at, finished_at)\n" +
     "    values (?, ?, ?, ?, ?, ?, ?, ?)";
   private static final String SELECT_REPORT_DATA = "select report_data from analysis_reports where id=?";
-
-  private System2 system2;
   private final TempFolder tempFolder;
+  private System2 system2;
 
   public AnalysisReportDao(TempFolder tempFolder) {
     this(System2.INSTANCE, tempFolder);
@@ -164,10 +164,11 @@ public class AnalysisReportDao extends BaseDao<AnalysisReportMapper, AnalysisRep
     ps.setBinaryStream(parameterIndex, reportDataStream, streamSizeEstimate);
   }
 
-  public String getUncompressedReport(DbSession session, long id) {
+  public File getDecompressedReport(DbSession session, long id) {
     Connection connection = session.getConnection();
     InputStream reportDataStream = null;
     PreparedStatement ps = null;
+    File directory = null;
 
     try {
       ps = connection.prepareStatement(SELECT_REPORT_DATA);
@@ -176,10 +177,8 @@ public class AnalysisReportDao extends BaseDao<AnalysisReportMapper, AnalysisRep
       ResultSet rs = ps.executeQuery();
       if (rs.next()) {
         reportDataStream = rs.getBinaryStream(1);
-        File directory = tempFolder.newDir();
+        directory = tempFolder.newDir();
         ZipUtils.unzip(reportDataStream, directory);
-
-        return directory.getAbsolutePath();
       }
     } catch (SQLException e) {
       throw new IllegalStateException(String.format("Failed to read report '%d' in the database", id), e);
@@ -190,7 +189,7 @@ public class AnalysisReportDao extends BaseDao<AnalysisReportMapper, AnalysisRep
       DatabaseUtils.closeQuietly(ps);
     }
 
-    return "";
+    return directory;
   }
 
   private Timestamp dateToTimestamp(Date date) {

@@ -37,6 +37,10 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
 import org.sonar.api.utils.internal.TempFolderCleaner;
 import org.sonar.core.component.SnapshotPerspectives;
+import org.sonar.core.computation.dbcleaner.DefaultPurgeTask;
+import org.sonar.core.computation.dbcleaner.IndexPurgeListener;
+import org.sonar.core.computation.dbcleaner.ProjectCleaner;
+import org.sonar.core.computation.dbcleaner.period.DefaultPeriodCleaner;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.config.Logback;
 import org.sonar.core.i18n.DefaultI18n;
@@ -87,11 +91,11 @@ import org.sonar.server.component.db.SnapshotDao;
 import org.sonar.server.component.ws.*;
 import org.sonar.server.computation.*;
 import org.sonar.server.computation.db.AnalysisReportDao;
-import org.sonar.server.computation.dbcleaner.DefaultPurgeTask;
-import org.sonar.server.computation.dbcleaner.IndexPurgeListener;
-import org.sonar.server.computation.dbcleaner.ProjectCleaner;
-import org.sonar.server.computation.dbcleaner.period.DefaultPeriodCleaner;
-import org.sonar.server.computation.ws.*;
+import org.sonar.server.computation.step.*;
+import org.sonar.server.computation.ws.ActiveAnalysisReportsAction;
+import org.sonar.server.computation.ws.AnalysisReportHistorySearchAction;
+import org.sonar.server.computation.ws.AnalysisReportWebService;
+import org.sonar.server.computation.ws.IsAnalysisReportQueueEmptyAction;
 import org.sonar.server.config.ws.PropertiesWs;
 import org.sonar.server.dashboard.db.DashboardDao;
 import org.sonar.server.dashboard.db.WidgetDao;
@@ -558,7 +562,6 @@ class ServerComponents {
     pico.addSingleton(SourceLineIndexDefinition.class);
     pico.addSingleton(SourceLineIndex.class);
     pico.addSingleton(SourceLineIndexer.class);
-    pico.addSingleton(IndexSourceLinesStep.class);
 
     // Duplications
     pico.addSingleton(DuplicationsParser.class);
@@ -609,16 +612,15 @@ class ServerComponents {
     pico.addSingleton(ComputationService.class);
     pico.addSingleton(ComputationStepRegistry.class);
     pico.addSingletons(Lists.newArrayList(
+      DigestReportStep.class,
       SynchronizeProjectPermissionsStep.class,
       IndexProjectIssuesStep.class,
+      IndexSourceLinesStep.class,
       SwitchSnapshotStep.class,
       InvalidatePreviewCacheStep.class,
       ComponentIndexationInDatabaseStep.class,
       DataCleanerStep.class));
-    pico.addSingletons(Lists.newArrayList(
-      DigestAnalysisReportStep.class,
-      ExperimentalAnalysisReportAction.class,
-      ExperimentalAnalysisReportWebService.class));
+    pico.addSingleton(AnalysisReportService.class);
     pico.addSingleton(AnalysisReportQueue.class);
     pico.addSingleton(AnalysisReportTaskLauncher.class);
     pico.addSingleton(AnalysisReportWebService.class);

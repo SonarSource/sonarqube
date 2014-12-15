@@ -30,6 +30,8 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.server.activity.ActivityService;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
+import org.sonar.server.computation.step.ComputationStep;
+import org.sonar.server.computation.step.ComputationStepRegistry;
 import org.sonar.server.db.DbClient;
 
 import static org.mockito.Matchers.any;

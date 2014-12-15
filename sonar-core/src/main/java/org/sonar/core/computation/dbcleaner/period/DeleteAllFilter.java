@@ -17,30 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.source;
 
-import org.sonar.core.component.ComponentDto;
-import org.sonar.core.computation.db.AnalysisReportDto;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.server.computation.step.ComputationStep;
-import org.sonar.server.source.index.SourceLineIndexer;
+package org.sonar.core.computation.dbcleaner.period;
 
-public class IndexSourceLinesStep implements ComputationStep {
+import com.google.common.collect.Lists;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.DateUtils;
+import org.sonar.core.purge.PurgeableSnapshotDto;
 
-  private final SourceLineIndexer indexer;
+import java.util.Date;
+import java.util.List;
 
-  public IndexSourceLinesStep(SourceLineIndexer indexer) {
-    this.indexer = indexer;
+class DeleteAllFilter implements Filter {
+  private final Date before;
+
+  public DeleteAllFilter(Date before) {
+    this.before = before;
   }
 
   @Override
-  public void execute(DbSession session, AnalysisReportDto report, ComponentDto project) {
-    indexer.index();
+  public List<PurgeableSnapshotDto> filter(List<PurgeableSnapshotDto> history) {
+    List<PurgeableSnapshotDto> result = Lists.newArrayList();
+    for (PurgeableSnapshotDto snapshot : history) {
+      if (snapshot.getDate().before(before)) {
+        result.add(snapshot);
+      }
+    }
+    return result;
   }
 
   @Override
-  public String getDescription() {
-    return "Put source code into search index";
+  public void log() {
+    LoggerFactory.getLogger(getClass()).info("-> Delete data prior to: " + DateUtils.formatDate(before));
   }
-
 }

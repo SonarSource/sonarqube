@@ -17,30 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.source;
 
+package org.sonar.server.computation.step;
+
+import org.junit.Before;
+import org.junit.Test;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.server.computation.step.ComputationStep;
-import org.sonar.server.source.index.SourceLineIndexer;
+import org.sonar.core.purge.IdUuidPair;
+import org.sonar.core.computation.dbcleaner.ProjectCleaner;
 
-public class IndexSourceLinesStep implements ComputationStep {
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-  private final SourceLineIndexer indexer;
+public class DataCleanerStepTest {
 
-  public IndexSourceLinesStep(SourceLineIndexer indexer) {
-    this.indexer = indexer;
+  private DataCleanerStep sut;
+  private ProjectCleaner projectCleaner;
+
+  @Before
+  public void before() {
+    this.projectCleaner = mock(ProjectCleaner.class);
+
+    this.sut = new DataCleanerStep(projectCleaner);
   }
 
-  @Override
-  public void execute(DbSession session, AnalysisReportDto report, ComponentDto project) {
-    indexer.index();
-  }
+  @Test
+  public void call_purge_method_of_the_purge_task() {
+    ComponentDto project = mock(ComponentDto.class);
+    when(project.getId()).thenReturn(123L);
+    when(project.uuid()).thenReturn("UUID-1234");
 
-  @Override
-  public String getDescription() {
-    return "Put source code into search index";
-  }
+    sut.execute(mock(DbSession.class), mock(AnalysisReportDto.class), project);
 
+    verify(projectCleaner).purge(any(DbSession.class), any(IdUuidPair.class));
+  }
 }
