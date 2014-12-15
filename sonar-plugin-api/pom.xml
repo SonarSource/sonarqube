@@ -205,6 +205,12 @@
   <profiles>
     <profile>
       <id>clirr</id>
+      <activation>
+        <property>
+          <name>clirr</name>
+          <value>true</value>
+        </property>
+      </activation>
       <build>
         <plugins>
           <plugin>
