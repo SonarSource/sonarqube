@@ -201,5 +201,36 @@
       </resource>
     </resources>
   </build>
+  
+  <profiles>
+    <profile>
+      <id>clirr</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>clirr-maven-plugin</artifactId>
+            <configuration>
+              <comparisonVersion>4.5.1</comparisonVersion>
+              <textOutputFile>${project.build.directory}/clirr-report.txt</textOutputFile>
+              <linkXRef>false</linkXRef>
+              <failOnError>false</failOnError>
+              <excludes>
+                <exclude>**/internal/**</exclude>
+              </excludes>
+            </configuration>
+            <executions>
+              <execution>
+                <id>clirr</id>
+                <goals>
+                  <goal>check-no-fork</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
 </project>
