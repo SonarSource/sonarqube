@@ -20,10 +20,9 @@
 
 package org.sonar.server.computation.step;
 
-import org.sonar.core.component.ComponentDto;
-import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.resource.ResourceIndexerDao;
+import org.sonar.server.computation.ComputeEngineContext;
 
 public class ComponentIndexationInDatabaseStep implements ComputationStep {
   private final ResourceIndexerDao resourceIndexerDao;
@@ -33,8 +32,8 @@ public class ComponentIndexationInDatabaseStep implements ComputationStep {
   }
 
   @Override
-  public void execute(DbSession session, AnalysisReportDto report, ComponentDto project) {
-    resourceIndexerDao.indexProject(project.getId().intValue(), session);
+  public void execute(DbSession session, ComputeEngineContext context) {
+    resourceIndexerDao.indexProject(context.getProject().getId().intValue(), session);
   }
 
   @Override

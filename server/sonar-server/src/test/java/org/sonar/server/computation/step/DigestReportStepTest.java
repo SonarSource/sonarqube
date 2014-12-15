@@ -25,6 +25,7 @@ import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.computation.AnalysisReportService;
+import org.sonar.server.computation.ComputeEngineContext;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -40,9 +41,10 @@ public class DigestReportStepTest {
     AnalysisReportService service = mock(AnalysisReportService.class);
     AnalysisReportDto report = AnalysisReportDto.newForTests(123L);
     sut = new DigestReportStep(service);
+    ComputeEngineContext context = new ComputeEngineContext(report, mock(ComponentDto.class));
 
-    sut.execute(mock(DbSession.class), report, mock(ComponentDto.class));
+    sut.execute(mock(DbSession.class), context);
 
-    verify(service).decompress(any(DbSession.class), eq(123L));
+    verify(service).decompress(any(DbSession.class), , eq(123L));
   }
 }

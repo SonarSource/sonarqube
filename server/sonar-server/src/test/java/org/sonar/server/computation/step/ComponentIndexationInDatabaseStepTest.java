@@ -26,6 +26,7 @@ import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.resource.ResourceIndexerDao;
+import org.sonar.server.computation.ComputeEngineContext;
 
 import static org.mockito.Mockito.*;
 
@@ -44,9 +45,10 @@ public class ComponentIndexationInDatabaseStepTest {
   public void call_indexProject_of_dao() {
     ComponentDto project = mock(ComponentDto.class);
     when(project.getId()).thenReturn(123L);
-
     DbSession session = mock(DbSession.class);
-    sut.execute(session, mock(AnalysisReportDto.class), project);
+    ComputeEngineContext context = new ComputeEngineContext(mock(AnalysisReportDto.class), project);
+
+    sut.execute(session, context);
 
     verify(resourceIndexerDao).indexProject(123, session);
   }

@@ -36,6 +36,7 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.SnapshotTesting;
+import org.sonar.server.computation.ComputeEngineContext;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.properties.ProjectSettingsFactory;
 import org.sonar.server.search.IndexClient;
@@ -103,9 +104,10 @@ public class DataCleanerStepMediumTest {
 
     dbClient.propertiesDao().setProperty(new PropertyDto().setKey(DbCleanerConstants.WEEKS_BEFORE_DELETING_ALL_SNAPSHOTS).setValue("52"));
     dbSession.commit();
+    ComputeEngineContext context = new ComputeEngineContext(report, project);
 
     // ACT
-    sut.execute(dbSession, report, project);
+    sut.execute(dbSession, context);
     dbSession.commit();
 
     // ASSERT
@@ -142,9 +144,10 @@ public class DataCleanerStepMediumTest {
     dbClient.propertiesDao().setProperty(new PropertyDto().setKey(DbCleanerConstants.WEEKS_BEFORE_DELETING_ALL_SNAPSHOTS).setValue("4"));
     dbClient.propertiesDao().setProperty(new PropertyDto().setKey(DbCleanerConstants.WEEKS_BEFORE_DELETING_ALL_SNAPSHOTS).setValue("1").setResourceId(project.getId()));
     dbSession.commit();
+    ComputeEngineContext context = new ComputeEngineContext(report, project);
 
     // ACT
-    sut.execute(dbSession, report, project);
+    sut.execute(dbSession, context);
     dbSession.commit();
 
     // ASSERT

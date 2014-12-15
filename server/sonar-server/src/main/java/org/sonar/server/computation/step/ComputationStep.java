@@ -21,13 +21,12 @@
 package org.sonar.server.computation.step;
 
 import org.sonar.api.ServerComponent;
-import org.sonar.core.component.ComponentDto;
-import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.server.computation.ComputeEngineContext;
 
 public interface ComputationStep extends ServerComponent {
 
-  void execute(DbSession session, AnalysisReportDto report, ComponentDto project);
+  void execute(DbSession session, ComputeEngineContext context);
 
   String getDescription();
 }

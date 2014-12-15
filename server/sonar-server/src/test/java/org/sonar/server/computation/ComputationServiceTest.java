@@ -24,7 +24,6 @@ import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
-import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.activity.ActivityService;
@@ -70,8 +69,8 @@ public class ComputationServiceTest {
 
     InOrder order = inOrder(firstStep, secondStep, thirdStep);
 
-    order.verify(firstStep).execute(any(DbSession.class), any(AnalysisReportDto.class), any(ComponentDto.class));
-    order.verify(secondStep).execute(any(DbSession.class), any(AnalysisReportDto.class), any(ComponentDto.class));
-    order.verify(thirdStep).execute(any(DbSession.class), any(AnalysisReportDto.class), any(ComponentDto.class));
+    order.verify(firstStep).execute(any(DbSession.class), any(ComputeEngineContext.class));
+    order.verify(secondStep).execute(any(DbSession.class), any(ComputeEngineContext.class));
+    order.verify(thirdStep).execute(any(DbSession.class), any(ComputeEngineContext.class));
   }
 }

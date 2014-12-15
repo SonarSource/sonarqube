@@ -24,14 +24,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
+import org.sonar.core.computation.dbcleaner.ProjectCleaner;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.purge.IdUuidPair;
-import org.sonar.core.computation.dbcleaner.ProjectCleaner;
+import org.sonar.server.computation.ComputeEngineContext;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class DataCleanerStepTest {
 
@@ -50,8 +49,9 @@ public class DataCleanerStepTest {
     ComponentDto project = mock(ComponentDto.class);
     when(project.getId()).thenReturn(123L);
     when(project.uuid()).thenReturn("UUID-1234");
+    ComputeEngineContext context = new ComputeEngineContext(mock(AnalysisReportDto.class), project);
 
-    sut.execute(mock(DbSession.class), mock(AnalysisReportDto.class), project);
+    sut.execute(mock(DbSession.class), context);
 
     verify(projectCleaner).purge(any(DbSession.class), any(IdUuidPair.class));
   }

@@ -63,12 +63,13 @@ public class ComputationService implements ServerComponent {
     DbSession session = dbClient.openSession(true);
 
     ComponentDto project = findProject(report, session);
+    ComputeEngineContext context = new ComputeEngineContext(report, project);
 
     try {
       report.succeed();
       for (ComputationStep step : stepRegistry.steps()) {
         TimeProfiler stepProfiler = new TimeProfiler(LOG).start(step.getDescription());
-        step.execute(session, report, project);
+        step.execute(session, context);
         session.commit();
         stepProfiler.stop();
       }

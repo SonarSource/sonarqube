@@ -39,7 +39,7 @@ public class AnalysisReportServiceTest {
     when(dbClient.analysisReportDao()).thenReturn(dao);
     sut = new AnalysisReportService(dbClient);
 
-    sut.decompress(mock(DbSession.class), 123L);
+    sut.decompress(mock(DbSession.class), , 123L);
 
     verify(dao).getDecompressedReport(any(DbSession.class), eq(123L));
   }

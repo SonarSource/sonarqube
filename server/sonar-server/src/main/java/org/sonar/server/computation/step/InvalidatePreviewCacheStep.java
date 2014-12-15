@@ -21,11 +21,11 @@
 package org.sonar.server.computation.step;
 
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
+import org.sonar.server.computation.ComputeEngineContext;
 
 public class InvalidatePreviewCacheStep implements ComputationStep {
   private final PropertiesDao propertiesDao;
@@ -35,8 +35,8 @@ public class InvalidatePreviewCacheStep implements ComputationStep {
   }
 
   @Override
-  public void execute(DbSession session, AnalysisReportDto report, ComponentDto project) {
-    propertiesDao.setProperty(newProjectPreviewCacheProperty(project), session);
+  public void execute(DbSession session, ComputeEngineContext context) {
+    propertiesDao.setProperty(newProjectPreviewCacheProperty(context.getProject()), session);
   }
 
   private PropertyDto newProjectPreviewCacheProperty(ComponentDto project) {

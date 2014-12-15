@@ -20,10 +20,9 @@
 
 package org.sonar.server.computation.step;
 
-import org.sonar.core.component.ComponentDto;
-import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.computation.AnalysisReportService;
+import org.sonar.server.computation.ComputeEngineContext;
 
 public class DigestReportStep implements ComputationStep {
   private final AnalysisReportService reportService;
@@ -33,8 +32,8 @@ public class DigestReportStep implements ComputationStep {
   }
 
   @Override
-  public void execute(DbSession session, AnalysisReportDto report, ComponentDto project) {
-    reportService.decompress(session, report.getId());
+  public void execute(DbSession session, ComputeEngineContext context) {
+    reportService.decompress(session, context);
   }
 
   @Override

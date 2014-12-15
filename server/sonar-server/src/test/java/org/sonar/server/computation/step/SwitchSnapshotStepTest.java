@@ -29,11 +29,11 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.persistence.DbTester;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.SnapshotDao;
-import org.sonar.server.computation.step.SwitchSnapshotStep;
+import org.sonar.server.computation.ComputeEngineContext;
 import org.sonar.test.DbTests;
 
 import static org.mockito.Mockito.mock;
@@ -64,8 +64,9 @@ public class SwitchSnapshotStepTest {
   @Test
   public void one_switch_with_a_snapshot_and_his_children() {
     db.prepareDbUnit(getClass(), "snapshots.xml");
+    ComputeEngineContext context = new ComputeEngineContext(AnalysisReportDto.newForTests(1L).setSnapshotId(1L), ComponentTesting.newProjectDto());
 
-    sut.execute(session, AnalysisReportDto.newForTests(1L).setSnapshotId(1L), ComponentTesting.newProjectDto());
+    sut.execute(session, context);
     session.commit();
 
     db.assertDbUnit(getClass(), "snapshots-result.xml", "snapshots");
@@ -74,7 +75,8 @@ public class SwitchSnapshotStepTest {
   @Test(expected = IllegalStateException.class)
   public void throw_IllegalStateException_when_not_finding_snapshot() {
     db.prepareDbUnit(getClass(), "empty.xml");
+    ComputeEngineContext context = new ComputeEngineContext(AnalysisReportDto.newForTests(1L).setSnapshotId(1L), ComponentTesting.newProjectDto());
 
-    sut.execute(session, AnalysisReportDto.newForTests(1L).setSnapshotId(1L), ComponentTesting.newProjectDto());
+    sut.execute(session, context);
   }
 }

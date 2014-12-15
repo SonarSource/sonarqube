@@ -19,9 +19,8 @@
  */
 package org.sonar.server.source;
 
-import org.sonar.core.component.ComponentDto;
-import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.server.computation.ComputeEngineContext;
 import org.sonar.server.computation.step.ComputationStep;
 import org.sonar.server.source.index.SourceLineIndexer;
 
@@ -34,7 +33,7 @@ public class IndexSourceLinesStep implements ComputationStep {
   }
 
   @Override
-  public void execute(DbSession session, AnalysisReportDto report, ComponentDto project) {
+  public void execute(DbSession session, ComputeEngineContext context) {
     indexer.index();
   }
 

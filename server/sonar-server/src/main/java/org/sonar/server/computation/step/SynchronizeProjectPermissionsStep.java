@@ -20,9 +20,8 @@
 
 package org.sonar.server.computation.step;
 
-import org.sonar.core.component.ComponentDto;
-import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.server.computation.ComputeEngineContext;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 
 public class SynchronizeProjectPermissionsStep implements ComputationStep {
@@ -34,7 +33,7 @@ public class SynchronizeProjectPermissionsStep implements ComputationStep {
   }
 
   @Override
-  public void execute(DbSession session, AnalysisReportDto report, ComponentDto project) {
+  public void execute(DbSession session, ComputeEngineContext context) {
     indexer.index();
   }
 

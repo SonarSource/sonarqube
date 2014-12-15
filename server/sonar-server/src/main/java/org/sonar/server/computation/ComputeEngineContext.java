@@ -21,20 +21,34 @@
 package org.sonar.server.computation;
 
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.server.db.DbClient;
+import org.sonar.core.computation.db.AnalysisReportDto;
 
-public class AnalysisReportService {
+import java.io.File;
 
-  private final DbClient dbClient;
+public class ComputeEngineContext {
 
-  public AnalysisReportService(DbClient dbClient) {
-    this.dbClient = dbClient;
+  private final AnalysisReportDto reportDto;
+  private final ComponentDto project;
+  private File reportDirectory;
+
+  public ComputeEngineContext(AnalysisReportDto reportDto, ComponentDto project) {
+    this.reportDto = reportDto;
+    this.project = project;
   }
 
-  public void decompress(DbSession session, ComputeEngineContext context) {
-    ComponentDto project = context.getProject();
+  public AnalysisReportDto getReportDto() {
+    return reportDto;
+  }
 
-    context.setReportDirectory(dbClient.analysisReportDao().getDecompressedReport(session, project.getId()));
+  public ComponentDto getProject() {
+    return project;
+  }
+
+  public File getReportDirectory() {
+    return reportDirectory;
+  }
+
+  public void setReportDirectory(File reportDirectory) {
+    this.reportDirectory = reportDirectory;
   }
 }

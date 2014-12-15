@@ -20,7 +20,6 @@
 package org.sonar.server.computation.step;
 
 import org.junit.Test;
-import org.sonar.server.computation.step.SynchronizeProjectPermissionsStep;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 
 import static org.mockito.Mockito.mock;
@@ -31,7 +30,7 @@ public class SynchronizeProjectPermissionsStepTest {
   @Test
   public void index_issue_permissions() throws Exception {
     IssueAuthorizationIndexer indexer = mock(IssueAuthorizationIndexer.class);
-    new SynchronizeProjectPermissionsStep(indexer).execute(null, null, null);
+    new SynchronizeProjectPermissionsStep(indexer).execute(null, null);
     verify(indexer).index();
   }
 }
