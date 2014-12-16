@@ -136,9 +136,8 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
     QueryContext queryContext = new QueryContext().setPage(1, 0);
 
     SearchRequestBuilder esSearch = getClient()
-      .prepareSearch(this.getIndexName())
-      .setTypes(this.getIndexType())
-      .setIndices(this.getIndexName());
+      .prepareSearch(IssueIndexDefinition.INDEX)
+      .setTypes(IssueIndexDefinition.TYPE_ISSUE);
 
     QueryBuilder esQuery = QueryBuilders.matchAllQuery();
     BoolFilterBuilder esFilter = getFilter(query, queryContext);
@@ -166,9 +165,8 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
 
   public Result<Issue> search(IssueQuery query, QueryContext options) {
     SearchRequestBuilder esSearch = getClient()
-      .prepareSearch(this.getIndexName())
-      .setTypes(this.getIndexType())
-      .setIndices(this.getIndexName());
+      .prepareSearch(IssueIndexDefinition.INDEX)
+      .setTypes(IssueIndexDefinition.TYPE_ISSUE);
 
     if (options.isScroll()) {
       esSearch.setSearchType(SearchType.SCAN);
@@ -217,7 +215,7 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
       FilterBuilders.andFilter(projectFilter, dateFilter)
       );
 
-    getClient().prepareDeleteByQuery(getIndexName()).setQuery(queryBuilder).get();
+    getClient().prepareDeleteByQuery(IssueIndexDefinition.INDEX).setQuery(queryBuilder).get();
   }
 
   /* Build main filter (match based) */
