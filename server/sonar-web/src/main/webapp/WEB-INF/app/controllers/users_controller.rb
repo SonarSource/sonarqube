@@ -52,7 +52,6 @@ class UsersController < ApplicationController
         render :text => 'ok', :status => 200
       else
         # case user: don't exist, WITH ERRORS when create
-        # case user: exist and ACTIVE, whith or without errors when create
         @user = user
         user.errors.full_messages.each { |msg| @errors<<msg }
         render :partial => 'users/create_form', :status => 400

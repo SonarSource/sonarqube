@@ -29,6 +29,9 @@ import java.util.List;
 public interface UserMapper {
 
   @CheckForNull
+  UserDto selectByLogin(String login);
+
+  @CheckForNull
   UserDto selectUser(long userId);
 
   /**
@@ -45,6 +48,8 @@ public interface UserMapper {
   GroupDto selectGroupByName(String name);
 
   void insert(UserDto userDto);
+
+  void update(UserDto userDto);
 
   void removeUserFromGroups(long userId);
 

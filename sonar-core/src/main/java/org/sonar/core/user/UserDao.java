@@ -117,6 +117,11 @@ public class UserDao implements BatchComponent, ServerComponent, DaoComponent {
     return dto;
   }
 
+  public UserDto update(SqlSession session, UserDto dto) {
+    session.getMapper(UserMapper.class).update(dto);
+    return dto;
+  }
+
   /**
    * Deactivate a user and drops all his preferences.
    * @return false if the user does not exist, true if the existing user has been deactivated
@@ -152,6 +157,8 @@ public class UserDao implements BatchComponent, ServerComponent, DaoComponent {
    * Search for group by name.
    *
    * @return the group, null if group not found
+   *
+   * TODO should be moved to GroupDao
    */
   @CheckForNull
   public GroupDto selectGroupByName(String name, DbSession session) {
@@ -159,6 +166,9 @@ public class UserDao implements BatchComponent, ServerComponent, DaoComponent {
     return mapper.selectGroupByName(name);
   }
 
+  /**
+   * TODO should be moved to GroupDao
+   */
   @CheckForNull
   public GroupDto selectGroupByName(String name) {
     DbSession session = mybatis.openSession(false);

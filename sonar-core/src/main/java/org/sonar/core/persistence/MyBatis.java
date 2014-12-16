@@ -154,6 +154,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "SchemaMigration", SchemaMigrationDto.class);
     loadAlias(conf, "User", UserDto.class);
     loadAlias(conf, "UserRole", UserRoleDto.class);
+    loadAlias(conf, "UserGroup", UserGroupDto.class);
     loadAlias(conf, "Widget", WidgetDto.class);
     loadAlias(conf, "WidgetProperty", WidgetPropertyDto.class);
     loadAlias(conf, "MeasureModel", MeasureModel.class);
@@ -191,7 +192,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
       IssueMapper.class, IssueChangeMapper.class, IssueFilterMapper.class, IssueFilterFavouriteMapper.class,
       LoadedTemplateMapper.class, MeasureFilterMapper.class, Migration44Mapper.class, PermissionTemplateMapper.class, PropertiesMapper.class, PurgeMapper.class,
       ResourceKeyUpdaterMapper.class, ResourceIndexerMapper.class, ResourceSnapshotMapper.class, RoleMapper.class, RuleMapper.class,
-      SchemaMigrationMapper.class, SemaphoreMapper.class, UserMapper.class, GroupMapper.class, WidgetMapper.class, WidgetPropertyMapper.class,
+      SchemaMigrationMapper.class, SemaphoreMapper.class, UserMapper.class, GroupMapper.class, UserGroupMapper.class, WidgetMapper.class, WidgetPropertyMapper.class,
       org.sonar.api.database.model.MeasureMapper.class, SnapshotDataMapper.class, FileSourceMapper.class, ActionPlanMapper.class,
       ActionPlanStatsMapper.class,
       NotificationQueueMapper.class, CharacteristicMapper.class,

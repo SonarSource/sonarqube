@@ -25,6 +25,7 @@ import org.sonar.server.exceptions.BadRequestException;
 public class Validation {
 
   public static final String CANT_BE_EMPTY_MESSAGE = "errors.cant_be_empty";
+  public static final String IS_TOO_SHORT_MESSAGE = "errors.is_too_short";
   public static final String IS_TOO_LONG_MESSAGE = "errors.is_too_long";
   public static final String IS_ALREADY_USED_MESSAGE = "errors.is_already_used";
 

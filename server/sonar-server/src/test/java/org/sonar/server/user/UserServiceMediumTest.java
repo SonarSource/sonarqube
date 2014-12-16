@@ -24,14 +24,19 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.sonar.api.CoreProperties;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.core.user.GroupDto;
 import org.sonar.core.user.UserDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsClient;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.ServerTester;
+import org.sonar.server.user.db.UserDao;
 import org.sonar.server.user.index.UserIndexDefinition;
-import org.sonar.server.user.index.UserIndexer;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class UserServiceMediumTest {
@@ -43,7 +48,7 @@ public class UserServiceMediumTest {
   DbClient dbClient;
   DbSession session;
 
-  UserIndexer indexer;
+  UserService service;
 
   @Before
   public void setUp() throws Exception {
@@ -51,12 +56,44 @@ public class UserServiceMediumTest {
     dbClient = tester.get(DbClient.class);
     esClient = tester.get(EsClient.class);
     session = dbClient.openSession(false);
-    indexer = tester.get(UserIndexer.class);
+    service = tester.get(UserService.class);
   }
 
   @After
   public void after() {
     session.close();
+  }
+
+  @Test
+  public void create_user() throws Exception {
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    GroupDto userGroup = new GroupDto().setName(CoreProperties.CORE_DEFAULT_GROUP_DEFAULT_VALUE);
+    dbClient.groupDao().insert(session, userGroup);
+    session.commit();
+
+    service.create(NewUser.create()
+      .setLogin("user")
+      .setName("User")
+      .setEmail("user@mail.com")
+      .setPassword("password")
+      .setPasswordConfirmation("password")
+      .setScmAccounts(newArrayList("u1", "u_1")));
+
+    assertThat(tester.get(UserDao.class).selectNullableByLogin(session, "user")).isNotNull();
+    assertThat(esClient.prepareGet(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, "user").get().isExists()).isTrue();
+  }
+
+  @Test(expected = ForbiddenException.class)
+  public void fail_to_create_user_without_sys_admin_permission() throws Exception {
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.DASHBOARD_SHARING);
+
+    service.create(NewUser.create()
+      .setLogin("user")
+      .setName("User")
+      .setEmail("user@mail.com")
+      .setPassword("password")
+      .setPasswordConfirmation("password")
+      .setScmAccounts(newArrayList("u1", "u_1")));
   }
 
   @Test
@@ -66,7 +103,7 @@ public class UserServiceMediumTest {
     session.commit();
     assertThat(esClient.prepareGet(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, "user").get().isExists()).isFalse();
 
-    indexer.index();
+    service.index();
     assertThat(esClient.prepareGet(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, "user").get().isExists()).isTrue();
   }
 

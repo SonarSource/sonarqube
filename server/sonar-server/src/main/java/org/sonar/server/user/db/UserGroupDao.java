@@ -18,35 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.user;
+package org.sonar.server.user.db;
 
-import org.sonar.api.ServerComponent;
-import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.server.user.index.UserIndexer;
+import org.sonar.core.persistence.DaoComponent;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.user.UserGroupDto;
+import org.sonar.core.user.UserGroupMapper;
 
-public class UserService implements ServerComponent {
+public class UserGroupDao implements DaoComponent {
 
-  private final UserIndexer userIndexer;
-  private final UserCreator userCreator;
-
-  public UserService(UserIndexer userIndexer, UserCreator userCreator) {
-    this.userIndexer = userIndexer;
-    this.userCreator = userCreator;
+  public UserGroupDto insert(DbSession session, UserGroupDto dto) {
+    mapper(session).insert(dto);
+    return dto;
   }
 
-  public void create(NewUser newUser) {
-    checkPermission();
-    userCreator.create(newUser);
-    userIndexer.index();
-  }
-
-  public void index() {
-    userIndexer.index();
-  }
-
-  private void checkPermission() {
-    UserSession userSession = UserSession.get();
-    userSession.checkLoggedIn();
-    userSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+  protected UserGroupMapper mapper(DbSession session) {
+    return session.getMapper(UserGroupMapper.class);
   }
 }

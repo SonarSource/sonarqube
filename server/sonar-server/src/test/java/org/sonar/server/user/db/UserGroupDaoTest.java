@@ -18,35 +18,41 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.user;
+package org.sonar.server.user.db;
 
-import org.sonar.api.ServerComponent;
-import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.server.user.index.UserIndexer;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.DbTester;
+import org.sonar.core.user.UserGroupDto;
 
-public class UserService implements ServerComponent {
+public class UserGroupDaoTest {
 
-  private final UserIndexer userIndexer;
-  private final UserCreator userCreator;
+  @Rule
+  public DbTester db = new DbTester();
 
-  public UserService(UserIndexer userIndexer, UserCreator userCreator) {
-    this.userIndexer = userIndexer;
-    this.userCreator = userCreator;
+  private UserGroupDao dao;
+  private DbSession session;
+
+  @Before
+  public void before() throws Exception {
+    this.session = db.myBatis().openSession(false);
+    this.dao = new UserGroupDao();
   }
 
-  public void create(NewUser newUser) {
-    checkPermission();
-    userCreator.create(newUser);
-    userIndexer.index();
+  @After
+  public void after() {
+    this.session.close();
   }
 
-  public void index() {
-    userIndexer.index();
-  }
+  @Test
+  public void insert() {
+    UserGroupDto userGroupDto = new UserGroupDto().setUserId(1L).setGroupId(2L);
+    dao.insert(session, userGroupDto);
+    session.commit();
 
-  private void checkPermission() {
-    UserSession userSession = UserSession.get();
-    userSession.checkLoggedIn();
-    userSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    db.assertDbUnit(getClass(), "insert-result.xml", "groups_users");
   }
 }

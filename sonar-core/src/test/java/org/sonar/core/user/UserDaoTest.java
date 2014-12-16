@@ -88,7 +88,7 @@ public class UserDaoTest extends AbstractDaoTestCase {
   @Test
   public void selectUsersByLogins_empty_logins() throws Exception {
     // no need to access db
-    Collection<UserDto> users = dao.selectUsersByLogins(Collections.<String> emptyList());
+    Collection<UserDto> users = dao.selectUsersByLogins(Collections.<String>emptyList());
     assertThat(users).isEmpty();
   }
 
@@ -177,7 +177,17 @@ public class UserDaoTest extends AbstractDaoTestCase {
   public void insert_user() {
     Long date = DateUtils.parseDate("2014-06-20").getTime();
 
-    UserDto userDto = new UserDto().setId(1L).setLogin("john").setName("John").setEmail("jo@hn.com").setCreatedAt(date).setUpdatedAt(date);
+    UserDto userDto = new UserDto()
+      .setId(1L)
+      .setLogin("john")
+      .setName("John")
+      .setEmail("jo@hn.com")
+      .setScmAccounts("jo.hn,john2")
+      .setActive(true)
+      .setSalt("1234")
+      .setCryptedPassword("abcd")
+      .setCreatedAt(date)
+      .setUpdatedAt(date);
     dao.insert(session, userDto);
     session.commit();
 
@@ -187,10 +197,45 @@ public class UserDaoTest extends AbstractDaoTestCase {
     assertThat(user.getLogin()).isEqualTo("john");
     assertThat(user.getName()).isEqualTo("John");
     assertThat(user.getEmail()).isEqualTo("jo@hn.com");
+    assertThat(user.isActive()).isTrue();
+    assertThat(user.getScmAccounts()).isEqualTo("jo.hn,john2");
+    assertThat(user.getSalt()).isEqualTo("1234");
+    assertThat(user.getCryptedPassword()).isEqualTo("abcd");
     assertThat(user.getCreatedAt()).isEqualTo(date);
     assertThat(user.getUpdatedAt()).isEqualTo(date);
+  }
 
-    // checkTables("insert", new String[] {"id"}, "users");
+  @Test
+  public void update_user() {
+    setupData("update_user");
+
+    Long date = DateUtils.parseDate("2014-06-21").getTime();
+
+    UserDto userDto = new UserDto()
+      .setId(1L)
+      .setLogin("john")
+      .setName("John Doo")
+      .setEmail("jodoo@hn.com")
+      .setScmAccounts("jo.hn,john2,johndoo")
+      .setActive(false)
+      .setSalt("12345")
+      .setCryptedPassword("abcde")
+      .setUpdatedAt(date);
+    dao.update(session, userDto);
+    session.commit();
+
+    UserDto user = dao.getUser(1);
+    assertThat(user).isNotNull();
+    assertThat(user.getId()).isEqualTo(1L);
+    assertThat(user.getLogin()).isEqualTo("john");
+    assertThat(user.getName()).isEqualTo("John Doo");
+    assertThat(user.getEmail()).isEqualTo("jodoo@hn.com");
+    assertThat(user.isActive()).isFalse();
+    assertThat(user.getScmAccounts()).isEqualTo("jo.hn,john2,johndoo");
+    assertThat(user.getSalt()).isEqualTo("12345");
+    assertThat(user.getCryptedPassword()).isEqualTo("abcde");
+    assertThat(user.getCreatedAt()).isEqualTo(1418215735482L);
+    assertThat(user.getUpdatedAt()).isEqualTo(date);
   }
 
   @Test

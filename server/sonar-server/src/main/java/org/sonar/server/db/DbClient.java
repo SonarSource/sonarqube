@@ -32,7 +32,6 @@ import org.sonar.core.source.db.FileSourceDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.user.AuthorizationDao;
-import org.sonar.core.user.UserDao;
 import org.sonar.server.activity.db.ActivityDao;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.component.db.SnapshotDao;
@@ -46,6 +45,7 @@ import org.sonar.server.measure.persistence.MetricDao;
 import org.sonar.server.qualityprofile.db.ActiveRuleDao;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.user.db.GroupDao;
+import org.sonar.server.user.db.UserDao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

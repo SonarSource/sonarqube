@@ -19,6 +19,7 @@
  */
 package org.sonar.core.user;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 /**
@@ -29,9 +30,12 @@ public class UserDto {
   private String login;
   private String name;
   private String email;
+  private boolean active = true;
+  private String scmAccounts;
+  private String cryptedPassword;
+  private String salt;
   private Long createdAt;
   private Long updatedAt;
-  private boolean active = true;
 
   public Long getId() {
     return id;
@@ -60,12 +64,49 @@ public class UserDto {
     return this;
   }
 
+  @CheckForNull
   public String getEmail() {
     return email;
   }
 
   public UserDto setEmail(@Nullable String email) {
     this.email = email;
+    return this;
+  }
+
+  public boolean isActive() {
+    return active;
+  }
+
+  public UserDto setActive(boolean b) {
+    this.active = b;
+    return this;
+  }
+
+  public String getScmAccounts() {
+    return scmAccounts;
+  }
+
+  public UserDto setScmAccounts(String scmAccounts) {
+    this.scmAccounts = scmAccounts;
+    return this;
+  }
+
+  public String getCryptedPassword() {
+    return cryptedPassword;
+  }
+
+  public UserDto setCryptedPassword(String cryptedPassword) {
+    this.cryptedPassword = cryptedPassword;
+    return this;
+  }
+
+  public String getSalt() {
+    return salt;
+  }
+
+  public UserDto setSalt(String salt) {
+    this.salt = salt;
     return this;
   }
 
@@ -84,15 +125,6 @@ public class UserDto {
 
   public UserDto setUpdatedAt(Long updatedAt) {
     this.updatedAt = updatedAt;
-    return this;
-  }
-
-  public boolean isActive() {
-    return active;
-  }
-
-  public UserDto setActive(boolean b) {
-    this.active = b;
     return this;
   }
 

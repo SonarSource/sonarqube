@@ -20,33 +20,16 @@
 
 package org.sonar.server.user;
 
-import org.sonar.api.ServerComponent;
-import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.server.user.index.UserIndexer;
+public class ReactivationException extends RuntimeException {
 
-public class UserService implements ServerComponent {
+  private String login;
 
-  private final UserIndexer userIndexer;
-  private final UserCreator userCreator;
-
-  public UserService(UserIndexer userIndexer, UserCreator userCreator) {
-    this.userIndexer = userIndexer;
-    this.userCreator = userCreator;
+  public ReactivationException(String message, String login) {
+    super(message);
+    this.login = login;
   }
 
-  public void create(NewUser newUser) {
-    checkPermission();
-    userCreator.create(newUser);
-    userIndexer.index();
-  }
-
-  public void index() {
-    userIndexer.index();
-  }
-
-  private void checkPermission() {
-    UserSession userSession = UserSession.get();
-    userSession.checkLoggedIn();
-    userSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+  public String login() {
+    return login;
   }
 }

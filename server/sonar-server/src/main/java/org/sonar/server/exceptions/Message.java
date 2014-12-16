@@ -22,6 +22,8 @@ package org.sonar.server.exceptions;
 import com.google.common.base.Objects;
 import org.apache.commons.lang.StringUtils;
 
+import java.util.Arrays;
+
 public class Message {
 
   private final String key;
@@ -42,6 +44,35 @@ public class Message {
 
   public static Message of(String l10nKey, Object... l10nParams) {
     return new Message(StringUtils.defaultString(l10nKey), l10nParams);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    Message message = (Message) o;
+
+    if (!key.equals(message.key)) {
+      return false;
+    }
+    // Probably incorrect - comparing Object[] arrays with Arrays.equals
+    if (!Arrays.equals(params, message.params)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = key.hashCode();
+    result = 31 * result + (params != null ? Arrays.hashCode(params) : 0);
+    return result;
   }
 
   @Override
