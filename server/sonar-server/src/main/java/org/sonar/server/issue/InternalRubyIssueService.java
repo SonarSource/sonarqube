@@ -648,4 +648,8 @@ public class InternalRubyIssueService implements ServerComponent {
     return context;
   }
 
+  public Collection<String> listTags() {
+    return issueService.listTags(null, 0);
+  }
+
 }

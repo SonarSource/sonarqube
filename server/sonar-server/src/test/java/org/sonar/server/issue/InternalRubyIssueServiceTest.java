@@ -21,6 +21,7 @@
 package org.sonar.server.issue;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,7 +57,10 @@ import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class InternalRubyIssueServiceTest {
@@ -697,6 +701,13 @@ public class InternalRubyIssueServiceTest {
     context = InternalRubyIssueService.toContext(Maps.<String, Object>newHashMap());
     assertThat(context.getLimit()).isEqualTo(100);
     assertThat(context.getPage()).isEqualTo(1);
+  }
+
+  @Test
+  public void list_tags() throws Exception {
+    ImmutableSet<String> tags = ImmutableSet.of("tag1", "tag2", "tag3");
+    when(issueService.listTags(null, 0)).thenReturn(tags);
+    assertThat(service.listTags()).isEqualTo(tags);
   }
 
   private void checkBadRequestException(Exception e, String key, Object... params) {

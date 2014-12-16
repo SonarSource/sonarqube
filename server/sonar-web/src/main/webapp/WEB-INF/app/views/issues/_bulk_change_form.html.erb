@@ -97,8 +97,8 @@
         </label>
         <input id="add-tags-action" name="actions[]" type="checkbox" value="add_tags"/>
 
-        <%# TODO Here, select2 box with tags to add %>
-        <span style="float:right" class="note">(<%= message('issue_bulk_change.x_issues', :params => unresolved_issues_user_can_admin.to_s) -%>)</span>
+        <input id="add_tags" name="add_tags.tags" type="text"/>
+        <span style="float:right" class="note">(<%= message('issue_bulk_change.x_issues', :params => unresolved_issues.to_s) -%>)</span>
       </div>
 
       <% end %>
@@ -170,4 +170,6 @@
   $j('#assignee').click(function() { check('assign-action'); });
   $j('#plan').click(function() { check('plan-action'); });
   $j('#severity').click(function() { check('set-severity-action'); });
+  $j('#add_tags').select2({tags: [ '<%= @tags.join("', '") -%>' ], width: '250px' });
+  $j('#add_tags').click(function() { check('add-tags-action'); });
 </script>

@@ -140,6 +140,7 @@ class IssuesController < ApplicationController
     end
 
     @projectUuids = Set.new(@issues.map {|issue| issue.projectUuid()})
+    @tags = Internal.issues.listTags()
 
     render :partial => 'issues/bulk_change_form'
   end

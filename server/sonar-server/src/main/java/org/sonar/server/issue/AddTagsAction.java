@@ -67,7 +67,7 @@ public class AddTagsAction extends Action implements ServerComponent {
 
   private Set<String> parseTags(Map<String, Object> properties) {
     Set<String> result = Sets.newHashSet();
-    String tagsString = (String) properties.get("add_tags.tags");
+    String tagsString = (String) properties.get("tags");
     if (!Strings.isNullOrEmpty(tagsString)) {
       for(String tag: TAGS_SPLITTER.split(tagsString)) {
         RuleTagFormat.validate(tag);

@@ -20,12 +20,12 @@
 
 package org.sonar.server.issue;
 
-import org.mockito.Matchers;
 import com.google.common.collect.ImmutableSet;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.Matchers;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.core.issue.IssueUpdater;
@@ -58,7 +58,7 @@ public class AddTagsActionTest {
   @SuppressWarnings("unchecked")
   public void should_execute() {
     Map<String, Object> properties = newHashMap();
-    properties.put("add_tags.tags", "tag2,tag3");
+    properties.put("tags", "tag2,tag3");
 
     DefaultIssue issue = mock(DefaultIssue.class);
     when(issue.tags()).thenReturn(ImmutableSet.of("tag1", "tag3"));
@@ -78,7 +78,7 @@ public class AddTagsActionTest {
     throwable.expectMessage("Tag 'th ag' is invalid. Rule tags accept only the characters: a-z, 0-9, '+', '-', '#', '.'");
 
     Map<String, Object> properties = newHashMap();
-    properties.put("add_tags.tags", "th ag");
+    properties.put("tags", "th ag");
 
     DefaultIssue issue = mock(DefaultIssue.class);
     when(issue.tags()).thenReturn(ImmutableSet.of("tag1", "tag3"));
