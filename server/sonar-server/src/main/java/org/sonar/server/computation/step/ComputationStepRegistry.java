@@ -40,7 +40,8 @@ public class ComputationStepRegistry implements ServerComponent {
   public List<ComputationStep> steps() {
     List<ComputationStep> steps = Lists.newArrayList();
     // project & views
-    steps.add(pico.getComponentByType(DigestReportStep.class));
+    // FIXME this step must be fixed before being reactivated
+//    steps.add(pico.getComponentByType(DigestReportStep.class));
     // project only
     steps.add(pico.getComponentByType(SynchronizeProjectPermissionsStep.class));
     // project & views
