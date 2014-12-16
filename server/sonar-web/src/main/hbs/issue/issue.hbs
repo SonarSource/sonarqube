@@ -3,7 +3,7 @@
 <div class="issue-tags">
   <span class="issue-tag-list {{#inArray actions "set_tags"}}issue-tags-change{{/inArray}}">
     <i class="icon-tags"></i>
-    <span class="issue-meta">{{#if tags}}{{join tags ', '}}{{else}}{{t 'coding_rules.no_tags'}}{{/if}}</span>
+    <span class="issue-meta">{{#if tags}}{{join tags ', '}}{{else}}{{t 'issue.no_tag'}}{{/if}}</span>
   </span>
   {{#inArray actions "set_tags"}}<span class="issue-meta issue-tag-edit">
     <input class="issue-tag-input" type="text" value="{{#if tags}}{{join tags ','}}{{/if}}">
@@ -11,7 +11,7 @@
       <button class="issue-tag-edit-done">{{t 'Done'}}</button>
     </div>
     <a class="issue-tag-edit-cancel">{{t 'cancel'}}</a>
-  </li>{{/inArray}}
+  </span>{{/inArray}}
 </div>
 
 <div class="issue-meta-list">
