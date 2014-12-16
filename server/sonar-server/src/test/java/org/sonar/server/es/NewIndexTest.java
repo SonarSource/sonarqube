@@ -70,15 +70,15 @@ public class NewIndexTest {
     assertThat(mapping.getAttributes().get("dynamic")).isEqualTo("true");
     assertThat(mapping).isNotNull();
     assertThat(mapping.getProperty("foo_field")).isInstanceOf(Map.class);
-    assertThat((Map)mapping.getProperty("foo_field")).includes(MapAssert.entry("type", "string"));
-    assertThat((Map)mapping.getProperty("byte_field")).isNotEmpty();
-    assertThat((Map)mapping.getProperty("double_field")).isNotEmpty();
-    assertThat((Map)mapping.getProperty("dt_field")).isNotEmpty();
-    assertThat((Map)mapping.getProperty("int_field")).includes(MapAssert.entry("type", "integer"));
-    assertThat((Map)mapping.getProperty("long_field")).isNotEmpty();
-    assertThat((Map)mapping.getProperty("short_field")).isNotEmpty();
-    assertThat((Map)mapping.getProperty("uuid_path_field")).isNotEmpty();
-    assertThat((Map)mapping.getProperty("unknown")).isNull();
+    assertThat((Map) mapping.getProperty("foo_field")).includes(MapAssert.entry("type", "string"));
+    assertThat((Map) mapping.getProperty("byte_field")).isNotEmpty();
+    assertThat((Map) mapping.getProperty("double_field")).isNotEmpty();
+    assertThat((Map) mapping.getProperty("dt_field")).isNotEmpty();
+    assertThat((Map) mapping.getProperty("int_field")).includes(MapAssert.entry("type", "integer"));
+    assertThat((Map) mapping.getProperty("long_field")).isNotEmpty();
+    assertThat((Map) mapping.getProperty("short_field")).isNotEmpty();
+    assertThat((Map) mapping.getProperty("uuid_path_field")).isNotEmpty();
+    assertThat((Map) mapping.getProperty("unknown")).isNull();
   }
 
   @Test
@@ -100,6 +100,31 @@ public class NewIndexTest {
     props = (Map) mapping.getProperty("all_capabilities_field");
     assertThat(props.get("type")).isEqualTo("multi_field");
     // no need to test values, it's not the scope of this test
-    assertThat((Map)props.get("fields")).isNotEmpty();
+    assertThat((Map) props.get("fields")).isNotEmpty();
+  }
+
+  @Test
+  public void string_doc_values() throws Exception {
+    NewIndex index = new NewIndex("issues");
+    NewIndex.NewIndexType mapping = index.createType("issue");
+    mapping.stringFieldBuilder("the_doc_value").docValues().build();
+
+    Map<String, Object> props = (Map) mapping.getProperty("the_doc_value");
+    assertThat(props.get("type")).isEqualTo("string");
+    assertThat(props.get("index")).isEqualTo("not_analyzed");
+    assertThat(props.get("doc_values")).isEqualTo(Boolean.TRUE);
+    assertThat(props.get("fields")).isNull();
+  }
+
+  @Test
+  public void analyzed_strings_must_not_be_doc_values() throws Exception {
+    NewIndex index = new NewIndex("issues");
+    NewIndex.NewIndexType mapping = index.createType("issue");
+    try {
+      mapping.stringFieldBuilder("the_doc_value").enableGramSearch().docValues().build();
+      fail();
+    } catch (IllegalStateException e) {
+      assertThat(e).hasMessage("Doc values are not supported on analyzed strings");
+    }
   }
 }

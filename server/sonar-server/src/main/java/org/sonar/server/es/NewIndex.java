@@ -121,18 +121,18 @@ public class NewIndex {
    * Helper to define a string field in mapping of index type
    */
   public static class StringFieldBuilder {
-    private static final ImmutableMap NOT_ANALYZED = ImmutableSortedMap.of(
-      "type", "string",
-      "index", "not_analyzed",
-      "omit_norms", "true");
-
     private final NewIndexType indexType;
     private final String fieldName;
-    private boolean sortable = false, wordSearch = false, gramSearch = false;
+    private boolean sortable = false, wordSearch = false, gramSearch = false, docValues = false;
 
     private StringFieldBuilder(NewIndexType indexType, String fieldName) {
       this.indexType = indexType;
       this.fieldName = fieldName;
+    }
+
+    public StringFieldBuilder docValues() {
+      this.docValues = true;
+      return this;
     }
 
     /**
@@ -160,6 +160,7 @@ public class NewIndex {
     }
 
     public void build() {
+      validate();
       Map<String, Object> hash = new TreeMap<String, Object>();
       if (wordSearch || sortable || gramSearch) {
         hash.put("type", "multi_field");
@@ -185,13 +186,27 @@ public class NewIndex {
             "index_analyzer", "index_grams",
             "search_analyzer", "search_grams"));
         }
-        multiFields.put(fieldName, NOT_ANALYZED);
+        multiFields.put(fieldName, ImmutableMap.of(
+          "type", "string",
+          "index", "not_analyzed",
+          "omit_norms", "true",
+          "doc_values", docValues));
         hash.put("fields", multiFields);
       } else {
-        hash.putAll(NOT_ANALYZED);
+        hash.putAll(ImmutableMap.of(
+          "type", "string",
+          "index", "not_analyzed",
+          "omit_norms", "true",
+          "doc_values", docValues));
       }
 
       indexType.setProperty(fieldName, hash);
+    }
+
+    private void validate() {
+      if (docValues && (gramSearch || wordSearch || sortable)) {
+        throw new IllegalStateException("Doc values are not supported on analyzed strings");
+      }
     }
   }
 
