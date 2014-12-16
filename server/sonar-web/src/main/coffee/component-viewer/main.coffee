@@ -133,6 +133,8 @@ define [
 
       width = @elementToFit.width()
       height = @elementToFit.height()
+      return if width == 0 || height == 0
+
       availableWidth = width - workspace.outerWidth(true) - 20
       availableHeight = height - @$(@headerRegion.$el).outerHeight(true)
 
