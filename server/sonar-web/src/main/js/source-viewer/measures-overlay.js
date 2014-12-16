@@ -67,7 +67,7 @@ define([
 
 
   return Overlay.extend({
-    className: 'overlay-popup overlay-popup-gray',
+    className: 'overlay-popup source-viewer-measures-overlay',
     template: Templates['source-viewer-measures'],
 
     events: function () {
