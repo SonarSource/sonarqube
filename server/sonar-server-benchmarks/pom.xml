@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.codehaus.sonar</groupId>
     <artifactId>server</artifactId>
-    <version>5.0-RC3</version>
+    <version>5.0-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>
   <artifactId>sonar-server-benchmarks</artifactId>
