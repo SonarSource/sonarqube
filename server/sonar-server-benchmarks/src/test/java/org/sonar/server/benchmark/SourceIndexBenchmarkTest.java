@@ -80,7 +80,9 @@ public class SourceIndexBenchmarkTest {
     timer.cancel();
     long period = end - start;
     long nbLines = files.count.get() * LINES_PER_FILE;
-    LOGGER.info(String.format("%d lines indexed in %d ms (%d docs/second)", nbLines, period, nbLines / period));
+    long throughputPerSecond = 1000L * nbLines / period;
+    LOGGER.info(String.format("%d lines indexed in %d ms (%d docs/second)", nbLines, period, throughputPerSecond));
+    benchmark.expectBetween("Throughput to index source lines", throughputPerSecond, 400L, 500L);
 
     // be sure that physical files do not evolve during estimation of size
     tester.get(EsClient.class).prepareOptimize(SourceLineIndexDefinition.INDEX).get();

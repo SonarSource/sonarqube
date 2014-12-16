@@ -91,7 +91,8 @@ public class IssueIndexBenchmarkTest {
     long start = System.currentTimeMillis();
     indexer.index(authorizations);
     long period = System.currentTimeMillis() - start;
-    LOGGER.info(String.format("%d authorizations indexed in %d ms (%d docs/second)", PROJECTS, period, 1000 * PROJECTS / period));
+    long throughputPerSecond = 1000L * PROJECTS / period;
+    LOGGER.info(String.format("%d authorizations indexed in %d ms (%d docs/second)", PROJECTS, period, throughputPerSecond));
 
     // big range as absolute value is quite slow
     benchmark.expectBetween("Time to index issue authorizations", period, 10L, 500L);
@@ -109,8 +110,9 @@ public class IssueIndexBenchmarkTest {
 
     timer.cancel();
     long period = System.currentTimeMillis() - start;
-    LOGGER.info(String.format("%d issues indexed in %d ms (%d docs/second)", issues.count.get(), period, 1000 * issues.count.get() / period));
-    benchmark.expectBetween("Time to index issues", period, 350000L, 430000L);
+    long throughputPerSecond = 1000 * issues.count.get() / period;
+    LOGGER.info(String.format("%d issues indexed in %d ms (%d docs/second)", issues.count.get(), period, throughputPerSecond));
+    benchmark.expectBetween("Throughput to index issues", throughputPerSecond, 2400L, 2600L);
 
     // be sure that physical files do not evolve during estimation of size
     tester.get(EsClient.class).prepareOptimize("issues").get();
