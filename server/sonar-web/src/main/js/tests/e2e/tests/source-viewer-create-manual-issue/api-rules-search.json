@@ -1,0 +1,27 @@
+{
+  "total": 5,
+  "p": 1,
+  "ps": 999999,
+  "rules": [
+    {
+      "key": "manual:api",
+      "name": "API"
+    },
+    {
+      "key": "manual:design",
+      "name": "Design"
+    },
+    {
+      "key": "manual:error_handling",
+      "name": "Error handling"
+    },
+    {
+      "key": "manual:performance",
+      "name": "Performance"
+    },
+    {
+      "key": "manual:sql_pitfalls",
+      "name": "SQL Pitfall"
+    }
+  ]
+}

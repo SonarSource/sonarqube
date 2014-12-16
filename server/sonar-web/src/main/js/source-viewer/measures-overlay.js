@@ -151,7 +151,6 @@ define([
             metrics: domain[1]
           };
         });
-        console.log(metrics);
         that.model.set({
           measures: measures,
           measuresToDisplay: metrics

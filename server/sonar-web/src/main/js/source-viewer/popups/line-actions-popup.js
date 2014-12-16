@@ -28,8 +28,7 @@ define([
           component = this.model.key(),
           manualIssueView = new ManualIssueView({
             line: line,
-            component: component,
-            rules: this.model.get('manual_rules')
+            component: component
           });
       manualIssueView.render().$el.appendTo(this.options.row.find('.source-line-code'));
       manualIssueView.on('add', function (issue) {

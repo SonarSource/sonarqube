@@ -1,0 +1,200 @@
+{"total": 6, "p": 1, "ps": 100, "projects": [
+  {
+    "uuid": "69e57151-be0d-4157-adff-c06741d88879",
+    "key": "org.codehaus.sonar:sonar",
+    "id": 2865,
+    "qualifier": "TRK",
+    "name": "SonarQube",
+    "longName": "SonarQube"
+  }
+], "components": [
+  {
+    "uuid": "83379565-7af3-4047-8d1a-ed42b10309b0",
+    "key": "org.codehaus.sonar:sonar-batch",
+    "id": 1624,
+    "enabled": true,
+    "qualifier": "BRC",
+    "name": "SonarQube :: Batch",
+    "longName": "SonarQube :: Batch",
+    "path": "sonar-batch",
+    "projectId": 2865,
+    "subProjectId": 2865
+  },
+  {
+    "uuid": "69e57151-be0d-4157-adff-c06741d88879",
+    "key": "org.codehaus.sonar:sonar",
+    "id": 2865,
+    "enabled": true,
+    "qualifier": "TRK",
+    "name": "SonarQube",
+    "longName": "SonarQube"
+  },
+  {
+    "uuid": "b9615992-2458-4d54-a22f-b91ee7ba5bc5",
+    "key": "org.codehaus.sonar:sonar-batch:src/main/java/org/sonar/batch/index/Cache.java",
+    "id": 19983,
+    "enabled": true,
+    "qualifier": "FIL",
+    "name": "Cache.java",
+    "longName": "src/main/java/org/sonar/batch/index/Cache.java",
+    "path": "src/main/java/org/sonar/batch/index/Cache.java",
+    "projectId": 2865,
+    "subProjectId": 1624
+  }
+], "issues": [
+  {
+    "key": "20002ec7-b647-44da-bdf5-4d9fbf4b7c58",
+    "component": "org.codehaus.sonar:sonar-batch:src/main/java/org/sonar/batch/index/Cache.java",
+    "componentId": 19983,
+    "project": "org.codehaus.sonar:sonar",
+    "subProject": "org.codehaus.sonar:sonar-batch",
+    "rule": "common-java:DuplicatedBlocks",
+    "status": "CONFIRMED",
+    "severity": "MAJOR",
+    "message": "2 duplicated blocks of code.",
+    "debt": "2h",
+    "creationDate": "2014-05-01T23:38:31+0200",
+    "updateDate": "2014-07-01T17:48:47+0200",
+    "fUpdateAge": "5 months",
+    "actions": ["comment", "assign", "assign_to_me", "plan", "set_severity"],
+    "transitions": ["unconfirm", "resolve", "falsepositive"]
+  },
+  {
+    "key": "71a26f48-a90d-4a76-a745-4f6e6e8b1773",
+    "component": "org.codehaus.sonar:sonar-batch:src/main/java/org/sonar/batch/index/Cache.java",
+    "componentId": 19983,
+    "project": "org.codehaus.sonar:sonar",
+    "subProject": "org.codehaus.sonar:sonar-batch",
+    "rule": "squid:S1135",
+    "status": "CONFIRMED",
+    "severity": "INFO",
+    "message": "Complete the task associated to this TODO comment.",
+    "line": 125,
+    "author": "simon.brandhof@gmail.com",
+    "creationDate": "2013-10-10T23:51:33+0200",
+    "updateDate": "2014-07-29T23:15:18+0200",
+    "fUpdateAge": "4 months",
+    "actions": ["comment", "assign", "assign_to_me", "plan", "set_severity"],
+    "transitions": ["unconfirm", "resolve", "falsepositive"]
+  },
+  {
+    "key": "75419c88-0e3c-4311-aa47-fe5731e67558",
+    "component": "org.codehaus.sonar:sonar-batch:src/main/java/org/sonar/batch/index/Cache.java",
+    "componentId": 19983,
+    "project": "org.codehaus.sonar:sonar",
+    "subProject": "org.codehaus.sonar:sonar-batch",
+    "rule": "squid:S1135",
+    "status": "CONFIRMED",
+    "severity": "INFO",
+    "message": "Complete the task associated to this TODO comment.",
+    "line": 155,
+    "author": "simon.brandhof@gmail.com",
+    "creationDate": "2013-10-10T23:51:33+0200",
+    "updateDate": "2014-07-29T23:15:18+0200",
+    "fUpdateAge": "4 months",
+    "actions": ["comment", "assign", "assign_to_me", "plan", "set_severity"],
+    "transitions": ["unconfirm", "resolve", "falsepositive"]
+  },
+  {
+    "key": "01461208-6c1e-4cdf-9f27-b7afa78e76ec",
+    "component": "org.codehaus.sonar:sonar-batch:src/main/java/org/sonar/batch/index/Cache.java",
+    "componentId": 19983,
+    "project": "org.codehaus.sonar:sonar",
+    "subProject": "org.codehaus.sonar:sonar-batch",
+    "rule": "squid:S1135",
+    "status": "CONFIRMED",
+    "severity": "INFO",
+    "message": "Complete the task associated to this TODO comment.",
+    "line": 184,
+    "author": "simon.brandhof@gmail.com",
+    "creationDate": "2013-10-10T23:51:33+0200",
+    "updateDate": "2014-07-29T23:15:18+0200",
+    "fUpdateAge": "4 months",
+    "actions": ["comment", "assign", "assign_to_me", "plan", "set_severity"],
+    "transitions": ["unconfirm", "resolve", "falsepositive"]
+  },
+  {
+    "key": "e4de6481-7bfb-460a-8b3c-24459f9561d3",
+    "component": "org.codehaus.sonar:sonar-batch:src/main/java/org/sonar/batch/index/Cache.java",
+    "componentId": 19983,
+    "project": "org.codehaus.sonar:sonar",
+    "subProject": "org.codehaus.sonar:sonar-batch",
+    "rule": "squid:S1135",
+    "status": "CONFIRMED",
+    "severity": "INFO",
+    "message": "Complete the task associated to this TODO comment.",
+    "line": 239,
+    "author": "Simon Brandhof",
+    "creationDate": "2013-08-09T16:04:33+0200",
+    "updateDate": "2014-07-29T23:15:18+0200",
+    "fUpdateAge": "4 months",
+    "actions": ["comment", "assign", "assign_to_me", "plan", "set_severity"],
+    "transitions": ["unconfirm", "resolve", "falsepositive"]
+  },
+  {
+    "key": "59fc17f7-c977-4cb6-8f04-fbe88e4b9186",
+    "component": "org.codehaus.sonar:sonar-batch:src/main/java/org/sonar/batch/index/Cache.java",
+    "componentId": 19983,
+    "project": "org.codehaus.sonar:sonar",
+    "subProject": "org.codehaus.sonar:sonar-batch",
+    "rule": "squid:S1192",
+    "status": "CONFIRMED",
+    "severity": "MINOR",
+    "message": "Define a constant instead of duplicating this literal \"Fail to get keys from cache \" 3 times.",
+    "line": 257,
+    "debt": "10min",
+    "author": "simon.brandhof@gmail.com",
+    "creationDate": "2014-02-20T07:48:16+0100",
+    "updateDate": "2014-02-24T16:57:34+0100",
+    "fUpdateAge": "9 months",
+    "actions": ["comment", "assign", "assign_to_me", "plan", "set_severity"],
+    "transitions": ["unconfirm", "resolve", "falsepositive"]
+  }
+], "rules": [
+  {
+    "key": "common-java:DuplicatedBlocks",
+    "name": "Duplicated blocks",
+    "lang": "java",
+    "desc": "<p>An issue is created on a file as soon as there is a block of duplicated code on this file. It gives the number of blocks in the file.</p>",
+    "status": "READY",
+    "langName": "Java"
+  },
+  {
+    "key": "squid:S1192",
+    "name": "String literals should not be duplicated",
+    "lang": "java",
+    "desc": "<p>\n  Duplicated string literals make the process of refactoring error-prone, since you must be sure to update all occurrences.\n  On the other hand, constants can be referenced from many places, but only need to be updated in a single place.\n</p>\n\n<h2>Non Compliant Code Example</h2>\n\n<pre>\npublic void run() {\n  prepare(\"action1\");                              // Non-Compliant - \"action1\" is duplicated 3 times\n  execute(\"action1\");\n  release(\"action1\");\n}\n\n@SuppressWarning(\"all\")                            // Compliant - annotations are excluded\nprivate void method1() { /* ... */ }\n@SuppressWarning(\"all\")\nprivate void method2() { /* ... */ }\n\npublic String method3(String a) {\n  System.out.println(\"'\" + a + \"'\");               // Compliant - literal \"'\" has less than 5 characters and is excluded\n  return \"\";                                       // Compliant - literal \"\" has less than 5 characters and is excluded\n}\n</pre>\n\n<h2>Compliant Code Example</h2>\n\n<pre>\nprivate static final String ACTION_1 = \"action1\";  // Compliant\n\npublic void run() {\n  prepare(ACTION_1);                               // Compliant\n  execute(ACTION_1);\n  release(ACTION_1);\n}\n</pre>\n\n<h2>Exceptions</h2>\n<p>To prevent generating some false-positives, literals having less than 5 characters are excluded.</p>",
+    "status": "READY",
+    "langName": "Java"
+  },
+  {
+    "key": "squid:S1135",
+    "name": "TODO tags should be handled",
+    "lang": "java",
+    "desc": "<p>\n<code>TODO</code> tags are commonly used to mark places where some more code is required, but which the developer wants to implement later.\nSometimes the developer will not have the time or will simply forget to get back to that tag.\nThis rule is meant to track those tags, and ensure that they do not go unnoticed.\n</p>\n\n<p>The following code illustrates this rule:</p>\n\n<pre>\nvoid doSomething() {\n  // TODO\n}\n</pre>",
+    "status": "READY",
+    "langName": "Java"
+  }
+], "users": [
+  {
+    "login": "admin",
+    "name": "Admin Admin",
+    "active": true,
+    "email": "admin@sonarsource.com"
+  }
+], "languages": [
+  {
+    "key": "js",
+    "name": "JavaScript"
+  },
+  {
+    "key": "java",
+    "name": "Java"
+  }
+], "maxResultsReached": false, "paging": {
+  "pageIndex": 1,
+  "pageSize": 100,
+  "total": 6,
+  "fTotal": "6",
+  "pages": 1
+}}

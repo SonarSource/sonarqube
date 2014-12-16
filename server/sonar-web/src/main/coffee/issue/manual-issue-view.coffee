@@ -20,12 +20,19 @@ define [
       'click .js-cancel': 'cancel'
 
 
+    initialize: ->
+      @rules = []
+      $.get("#{baseUrl}/api/rules/search?repositories=manual&f=name&ps=999999").done (data) =>
+        @rules = data.rules
+        @render()
+
+
     onRender: ->
       @delegateEvents()
       @$('[name=rule]').select2
         width: '250px'
         minimumResultsForSearch: 10
-      @$('[name=rule]').select2 'open'
+      @$('[name=rule]').select2 'open' if @rules.length > 0
       if key?
         @key = key.getScope()
         key.setScope ''
@@ -61,7 +68,6 @@ define [
       $.post API_ADD_MANUAL_ISSUE, data
         .done (r) =>
           r = JSON.parse(r) if typeof r == 'string'
-          console.log r
           @addIssue r.issue.key
         .fail (r) =>
           @hideSpinner()
@@ -88,4 +94,4 @@ define [
       _.extend super,
         line: @options.line
         component: @options.component
-        rules: _.sortBy @options.rules, 'name'
+        rules: _.sortBy @rules, 'name'
