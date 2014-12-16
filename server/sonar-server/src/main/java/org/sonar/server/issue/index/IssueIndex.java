@@ -21,9 +21,7 @@ package org.sonar.server.issue.index;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Collections2;
-import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.BooleanUtils;
@@ -45,17 +43,14 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms.Order;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
-import org.elasticsearch.search.sort.FieldSortBuilder;
-import org.elasticsearch.search.sort.SortBuilders;
-import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.Severity;
+import org.sonar.server.es.Sorting;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.filter.IssueFilterParameters;
 import org.sonar.server.search.BaseIndex;
 import org.sonar.server.search.FacetValue;
 import org.sonar.server.search.IndexDefinition;
-import org.sonar.server.search.IndexField;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 import org.sonar.server.search.SearchClient;
@@ -79,21 +74,27 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
 
   private static final int DEFAULT_ISSUE_FACET_SIZE = 5;
 
-  private ListMultimap<String, IndexField> sortColumns = ArrayListMultimap.create();
+  private final Sorting sorting;
 
   public IssueIndex(SearchClient client) {
     super(IndexDefinition.ISSUES, null, client);
 
-    sortColumns.put(IssueQuery.SORT_BY_ASSIGNEE, IssueNormalizer.IssueField.ASSIGNEE);
-    sortColumns.put(IssueQuery.SORT_BY_STATUS, IssueNormalizer.IssueField.STATUS);
-    sortColumns.put(IssueQuery.SORT_BY_SEVERITY, IssueNormalizer.IssueField.SEVERITY_VALUE);
-    sortColumns.put(IssueQuery.SORT_BY_CREATION_DATE, IssueNormalizer.IssueField.ISSUE_CREATED_AT);
-    sortColumns.put(IssueQuery.SORT_BY_UPDATE_DATE, IssueNormalizer.IssueField.ISSUE_UPDATED_AT);
-    sortColumns.put(IssueQuery.SORT_BY_CLOSE_DATE, IssueNormalizer.IssueField.ISSUE_CLOSE_DATE);
-    sortColumns.put(IssueQuery.SORT_BY_FILE_LINE, IssueNormalizer.IssueField.PROJECT);
-    sortColumns.put(IssueQuery.SORT_BY_FILE_LINE, IssueNormalizer.IssueField.FILE_PATH);
-    sortColumns.put(IssueQuery.SORT_BY_FILE_LINE, IssueNormalizer.IssueField.LINE);
-    sortColumns.put(IssueQuery.SORT_BY_FILE_LINE, IssueNormalizer.IssueField.KEY);
+    sorting = new Sorting();
+    sorting.add(IssueQuery.SORT_BY_ASSIGNEE, IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE);
+    sorting.add(IssueQuery.SORT_BY_STATUS, IssueIndexDefinition.FIELD_ISSUE_STATUS);
+    sorting.add(IssueQuery.SORT_BY_SEVERITY, IssueIndexDefinition.FIELD_ISSUE_SEVERITY_VALUE);
+    sorting.add(IssueQuery.SORT_BY_CREATION_DATE, IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT);
+    sorting.add(IssueQuery.SORT_BY_UPDATE_DATE, IssueIndexDefinition.FIELD_ISSUE_FUNC_UPDATED_AT);
+    sorting.add(IssueQuery.SORT_BY_CLOSE_DATE, IssueIndexDefinition.FIELD_ISSUE_FUNC_CLOSED_AT);
+    sorting.add(IssueQuery.SORT_BY_FILE_LINE, IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID);
+    sorting.add(IssueQuery.SORT_BY_FILE_LINE, IssueIndexDefinition.FIELD_ISSUE_FILE_PATH);
+    sorting.add(IssueQuery.SORT_BY_FILE_LINE, IssueIndexDefinition.FIELD_ISSUE_LINE);
+    sorting.add(IssueQuery.SORT_BY_FILE_LINE, IssueIndexDefinition.FIELD_ISSUE_SEVERITY_VALUE).reverse();
+    sorting.add(IssueQuery.SORT_BY_FILE_LINE, IssueIndexDefinition.FIELD_ISSUE_KEY);
+
+    // by default order by updated date and issue key (in order to be deterministic when same ms)
+    sorting.addDefault(IssueIndexDefinition.FIELD_ISSUE_FUNC_UPDATED_AT).reverse();
+    sorting.addDefault(IssueIndexDefinition.FIELD_ISSUE_KEY);
   }
 
   @Override
@@ -429,36 +430,14 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
       .subAggregation(facetTopAggregation);
   }
 
-  private void setSorting(IssueQuery query, SearchRequestBuilder esSearch) {
+  private void setSorting(IssueQuery query, SearchRequestBuilder esRequest) {
     String sortField = query.sort();
     if (sortField != null) {
-      Boolean asc = query.asc();
-      List<IndexField> fields = toIndexFields(sortField);
-      for (IndexField field : fields) {
-        FieldSortBuilder sortBuilder = SortBuilders.fieldSort(field.sortField());
-        // line is optional. When missing, it means zero.
-        if (asc != null && asc) {
-          sortBuilder.missing("_first");
-          sortBuilder.order(SortOrder.ASC);
-        } else {
-          sortBuilder.missing("_last");
-          sortBuilder.order(SortOrder.DESC);
-        }
-        esSearch.addSort(sortBuilder);
-      }
+      boolean asc = BooleanUtils.isTrue(query.asc());
+      sorting.fill(esRequest, sortField, asc);
     } else {
-      esSearch.addSort(IssueNormalizer.IssueField.ISSUE_UPDATED_AT.sortField(), SortOrder.DESC);
-      // deterministic sort when exactly the same updated_at (same millisecond)
-      esSearch.addSort(IssueNormalizer.IssueField.KEY.sortField(), SortOrder.ASC);
+      sorting.fillDefault(esRequest);
     }
-  }
-
-  private List<IndexField> toIndexFields(String sort) {
-    List<IndexField> fields = sortColumns.get(sort);
-    if (fields != null) {
-      return fields;
-    }
-    throw new IllegalStateException("Unknown sort field : " + sort);
   }
 
   protected void setPagination(QueryContext options, SearchRequestBuilder esSearch) {
