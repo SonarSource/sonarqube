@@ -270,6 +270,7 @@ class Api::IssuesController < Api::ApiController
   # 'plan.plan' to plan all issues to an action plan or unlink.
   # 'do_transition.transition' to execute a transition on all issues.
   # 'add_tags.tags' to add tags on all issues.
+  # 'remove_tags.tags' to remove tags on all issues.
   # 'comment' to add a comment on all issues.
   # 'sendNotifications' to send notification for each modified issue (default is 'false')
   #
