@@ -184,6 +184,7 @@ import org.sonar.server.user.*;
 import org.sonar.server.user.db.GroupDao;
 import org.sonar.server.user.db.UserDao;
 import org.sonar.server.user.db.UserGroupDao;
+import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.user.ws.FavoritesWs;
@@ -468,10 +469,12 @@ class ServerComponents {
     pico.addSingleton(DefaultUserFinder.class);
     pico.addSingleton(DefaultUserService.class);
     pico.addSingleton(UsersWs.class);
+    pico.addSingleton(org.sonar.server.user.ws.CreateAction.class);
     pico.addSingleton(FavoritesWs.class);
     pico.addSingleton(UserPropertiesWs.class);
     pico.addSingleton(UserIndexDefinition.class);
     pico.addSingleton(UserIndexer.class);
+    pico.addSingleton(UserIndex.class);
     pico.addSingleton(UserService.class);
     pico.addSingleton(UserCreator.class);
 

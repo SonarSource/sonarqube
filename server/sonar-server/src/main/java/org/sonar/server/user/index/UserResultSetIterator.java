@@ -36,7 +36,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Iterator;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -106,8 +105,8 @@ class UserResultSetIterator extends ResultSetIterator<UserDoc> {
       reader = new StringReader(csv);
       csvParser = new CSVParser(reader, CSVFormat.DEFAULT);
       for (CSVRecord csvRecord : csvParser) {
-        for (Iterator<String> iter = csvRecord.iterator(); iter.hasNext();) {
-          result.add(iter.next());
+        for (String aCsvRecord : csvRecord) {
+          result.add(aCsvRecord);
         }
       }
       return result;

@@ -58,6 +58,7 @@ public class UserIndexerTest {
     List<UserDoc> docs = esTester.getDocuments("users", "user", UserDoc.class);
     assertThat(docs).hasSize(1);
     UserDoc doc = docs.get(0);
+    assertThat(doc.login()).isEqualTo("user1");
     assertThat(doc.name()).isEqualTo("User1");
     assertThat(doc.email()).isEqualTo("user1@mail.com");
     assertThat(doc.active()).isTrue();

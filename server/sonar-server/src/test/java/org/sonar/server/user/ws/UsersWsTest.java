@@ -24,9 +24,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.server.user.UserService;
 import org.sonar.server.ws.WsTester;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class UsersWsTest {
 
@@ -34,7 +36,7 @@ public class UsersWsTest {
 
   @Before
   public void setUp() throws Exception {
-    WsTester tester = new WsTester(new UsersWs());
+    WsTester tester = new WsTester(new UsersWs(new CreateAction(mock(UserService.class))));
     controller = tester.controller("api/users");
   }
 
@@ -61,7 +63,6 @@ public class UsersWsTest {
     WebService.Action action = controller.action("create");
     assertThat(action).isNotNull();
     assertThat(action.isPost()).isTrue();
-    assertThat(action.handler()).isInstanceOf(RailsHandler.class);
     assertThat(action.params()).hasSize(6);
   }
 

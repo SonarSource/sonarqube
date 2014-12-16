@@ -97,6 +97,42 @@ public class UserServiceMediumTest {
   }
 
   @Test
+  public void get_nullable_by_login() throws Exception {
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    GroupDto userGroup = new GroupDto().setName(CoreProperties.CORE_DEFAULT_GROUP_DEFAULT_VALUE);
+    dbClient.groupDao().insert(session, userGroup);
+    session.commit();
+
+    service.create(NewUser.create()
+      .setLogin("user")
+      .setName("User")
+      .setEmail("user@mail.com")
+      .setPassword("password")
+      .setPasswordConfirmation("password")
+      .setScmAccounts(newArrayList("u1", "u_1")));
+
+    assertThat(service.getNullableByLogin("user")).isNotNull();
+  }
+
+  @Test
+  public void get_by_login() throws Exception {
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    GroupDto userGroup = new GroupDto().setName(CoreProperties.CORE_DEFAULT_GROUP_DEFAULT_VALUE);
+    dbClient.groupDao().insert(session, userGroup);
+    session.commit();
+
+    service.create(NewUser.create()
+      .setLogin("user")
+      .setName("User")
+      .setEmail("user@mail.com")
+      .setPassword("password")
+      .setPasswordConfirmation("password")
+      .setScmAccounts(newArrayList("u1", "u_1")));
+
+    assertThat(service.getByLogin("user")).isNotNull();
+  }
+
+  @Test
   public void index() throws Exception {
     UserDto userDto = new UserDto().setLogin("user").setEmail("user@mail.com").setCreatedAt(System.currentTimeMillis()).setUpdatedAt(System.currentTimeMillis());
     dbClient.userDao().insert(session, userDto);
