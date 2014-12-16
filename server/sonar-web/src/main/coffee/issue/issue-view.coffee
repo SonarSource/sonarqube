@@ -48,6 +48,15 @@ define [
       'change': 'render'
 
 
+    ui:
+      tagsChange: '.issue-tags-change'
+      tagInput: '.issue-tag-input'
+      tagsEdit: '.issue-tag-edit'
+      tagsEditDone: '.issue-tag-edit-done'
+      tagsEditCancel: '.issue-tag-edit-cancel'
+      tagsList: '.issue-tag-list'
+
+
     events: ->
       'click .js-issue-comment': 'comment'
       'click .js-issue-comment-edit': 'editComment'
@@ -61,9 +70,13 @@ define [
       'click .js-issue-show-changelog': 'showChangeLog'
       'click .js-issue-more': 'showMoreActions'
       'click .js-issue-rule': 'showRule'
+      'click @ui.tagsChange': 'changeTags'
+      'click @ui.tagsEditDone': 'editDone'
+      'click @ui.tagsEditCancel': 'cancelEdit'
 
 
     onRender: ->
+      @ui.tagsEdit.hide()
       @$el.attr 'data-key', @model.get('key')
 
 
@@ -253,6 +266,52 @@ define [
         ruleOverlay = new RuleOverlay
           model: new Backbone.Model r.rule
         ruleOverlay.render()
+
+
+    changeTags: ->
+      jQuery.ajax
+        url: "#{baseUrl}/api/issues/tags?ps=0"
+      .done (r) =>
+        if @ui.tagInput.select2
+          # Prevent synchronization issue with navigation
+          @ui.tagInput.select2
+            tags: (_.difference r.tags, @model.get 'tags')
+            width: '300px'
+        if @ui.tagsEdit.show
+          @ui.tagsEdit.show()
+        if @ui.tagsList.hide
+          @ui.tagsList.hide()
+        @tagsBuffer = @ui.tagInput.select2 'val'
+        key.setScope 'tags'
+        key 'escape', 'tags', => @cancelEdit()
+
+
+    cancelEdit: ->
+      key.unbind 'escape', 'tags'
+      if @ui.tagsList.show
+        @ui.tagsList.show()
+      if @ui.tagInput.select2
+        @ui.tagInput.select2 'val', @tagsBuffer
+        @ui.tagInput.select2 'close'
+      if @ui.tagsEdit.hide
+        @ui.tagsEdit.hide()
+
+
+    editDone: ->
+      _tags = @model.get 'tags'
+      tags = @ui.tagInput.val()
+      return if _tags == tags
+      p = window.process.addBackgroundProcess()
+      @model.set 'tags', tags.split(',')
+      $.post "#{baseUrl}/api/issues/set_tags", key: @model.get 'key', tags: tags
+      .done =>
+        window.process.finishBackgroundProcess p
+        @cancelEdit()
+      .fail =>
+        @model.set 'tags', _tags
+        window.process.failBackgroundProcess p
+      .always =>
+        @render()
 
 
     serializeData: ->
