@@ -92,7 +92,7 @@
 
   <insert id="insert" parameterType="Characteristic" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO characteristics (kee, name, parent_id, characteristic_order, enabled, created_at, updated_at)
-    VALUES (#{kee}, #{name}, #{parentId}, #{characteristicOrder}, #{enabled}, #{createdAt}, #{updatedAt})
+    VALUES (#{kee,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{parentId,jdbcType=INTEGER}, #{characteristicOrder,jdbcType=INTEGER}, #{enabled,jdbcType=BOOLEAN}, #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP})
   </insert>
 
   <update id="update" parameterType="Characteristic" >

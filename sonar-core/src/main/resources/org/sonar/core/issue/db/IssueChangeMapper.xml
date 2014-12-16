@@ -18,7 +18,7 @@
 
   <insert id="insert" parameterType="IssueChange" useGeneratedKeys="false" keyProperty="id" >
     INSERT INTO issue_changes (kee, issue_key, user_login, change_type, change_data, created_at, updated_at, issue_change_creation_date)
-    VALUES (#{kee}, #{issueKey}, #{userLogin}, #{changeType}, #{changeData}, #{createdAt}, #{updatedAt}, #{issueChangeCreationDate})
+    VALUES (#{kee,jdbcType=VARCHAR}, #{issueKey,jdbcType=VARCHAR}, #{userLogin,jdbcType=VARCHAR}, #{changeType,jdbcType=VARCHAR}, #{changeData,jdbcType=VARCHAR}, #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP}, #{issueChangeCreationDate,jdbcType=TIMESTAMP})
   </insert>
 
   <delete id="delete" parameterType="string" >
