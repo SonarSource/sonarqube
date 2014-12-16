@@ -99,24 +99,34 @@ define([
       });
     },
 
+    getMetrics: function () {
+      var metrics = '',
+          url = baseUrl + '/api/metrics';
+      $.ajax({
+        url: url,
+        async: false
+      }).done(function (data) {
+        metrics = _.filter(data, function (metric) {
+          return !metric.hidden && metric.val_type !== 'DATA';
+        });
+      });
+      return metrics;
+    },
+
     requestMeasures: function () {
       var that = this,
           url = baseUrl + '/api/resources',
+          metrics = this.getMetrics(),
           options = {
             resource: this.model.key(),
-            metrics: [].concat(
-                SOURCE_METRIC_LIST,
-                COVERAGE_METRIC_LIST,
-                ISSUES_METRIC_LIST,
-                DUPLICATIONS_METRIC_LIST,
-                TESTS_METRIC_LIST
-            ).join()
-            //metrics: 'true'
+            metrics: _.pluck(metrics, 'key').join()
           };
       return $.get(url, options).done(function (data) {
         var measuresList = data[0].msr || [],
             measures = that.model.get('measures') || {};
         measuresList.forEach(function (m) {
+          var metric = _.findWhere(metrics, {key: m.key});
+          metric.value = m.frmt_val || m.data;
           measures[m.key] = m.frmt_val || m.data;
           measures[m.key + '_raw'] = m.val;
         });
@@ -132,7 +142,20 @@ define([
         if (measures.it_conditions_to_cover && measures.it_uncovered_conditions) {
           measures.it_covered_conditions = measures.it_conditions_to_cover - measures.it_uncovered_conditions;
         }
-        that.model.set({ measures: measures });
+        metrics = _.filter(metrics, function (metric) {
+              return metric.value != null;
+            });
+        metrics = _.map(_.pairs(_.groupBy(metrics, 'domain')), function (domain) {
+          return {
+            name: domain[0],
+            metrics: domain[1]
+          };
+        });
+        console.log(metrics);
+        that.model.set({
+          measures: measures,
+          measuresToDisplay: metrics
+        });
       });
     },
 
@@ -147,7 +170,7 @@ define([
           };
       return $.get(url, options).done(function (data) {
         var issuesFacets = {};
-        data.facets.forEach(function(facet) {
+        data.facets.forEach(function (facet) {
           issuesFacets[facet.property] = facet.values;
         });
         var severityOrder = ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO'],
@@ -172,9 +195,9 @@ define([
     requestTests: function () {
       var that = this,
           url = baseUrl + '/api/tests/show',
-          options = { key: this.model.key() };
+          options = {key: this.model.key()};
       return $.get(url, options).done(function (data) {
-        that.model.set({ tests: data.tests });
+        that.model.set({tests: data.tests});
         that.sortTests('name');
         that.testSorting = 'name';
       });
@@ -183,7 +206,7 @@ define([
     sortTests: function (condition) {
       var tests = this.model.get('tests');
       if (_.isArray(tests)) {
-        this.model.set({ tests: _.sortBy(tests, condition) });
+        this.model.set({tests: _.sortBy(tests, condition)});
       }
     },
 
@@ -215,7 +238,7 @@ define([
           };
       return $.get(url, options).done(function (data) {
         that.coveredFiles = data.files;
-        that.selectedTest = _.findWhere(that.model.get('tests'), { name: name });
+        that.selectedTest = _.findWhere(that.model.get('tests'), {name: name});
         that.render();
       });
     },

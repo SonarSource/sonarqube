@@ -43,9 +43,9 @@
   </div>
 </div>
 
-<div class="source-viewer-measures-section source-viewer-measures-section-big">
-  <div class="source-viewer-measures-card source-viewer-measures-card-overflow">
-    {{#if selectedTest}}
+{{#if selectedTest}}
+  <div class="source-viewer-measures-section source-viewer-measures-section-full">
+    <div class="source-viewer-measures-card source-viewer-measures-card-overflow">
       {{#notEq selectedTest.status 'ERROR'}}
         {{#notEq selectedTest.status 'FAILURE'}}
           <div class="bubble-popup-title">{{t 'component_viewer.transition.covers'}}</div>
@@ -67,6 +67,6 @@
         {{/if}}
         <pre>{{selectedTest.stackTrace}}</pre>
       {{/notEq}}
-    {{/if}}
+    </div>
   </div>
-</div>
+{{/if}}

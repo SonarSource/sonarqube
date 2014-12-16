@@ -132,6 +132,26 @@ define(['handlebars'], function (Handlebars) {
     return ret;
   });
 
+  Handlebars.registerHelper('eachEven', function (context, options) {
+    var ret = '';
+    context.forEach(function (d, i) {
+      if (i % 2 === 0) {
+        ret += options.fn(d);
+      }
+    });
+    return ret;
+  });
+
+  Handlebars.registerHelper('eachOdd', function (context, options) {
+    var ret = '';
+    context.forEach(function (d, i) {
+      if (i % 2 === 1) {
+        ret += options.fn(d);
+      }
+    });
+    return ret;
+  });
+
   Handlebars.registerHelper('eq', function(v1, v2, options) {
     // use `==` instead of `===` to ignore types
     return v1 == v2 ? options.fn(this) : options.inverse(this);

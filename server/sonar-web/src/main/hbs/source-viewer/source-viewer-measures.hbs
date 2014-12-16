@@ -21,18 +21,14 @@
     <div class="source-viewer-measures-section">
       {{> '_source-viewer-measures-tests'}}
     </div>
-    <div class="source-viewer-measures-section">
-      {{> '_source-viewer-measures-issues'}}
-    </div>
+    {{> '_source-viewer-measures-test-cases'}}
   {{/unless}}
 
 </div>
 
-{{#if isUnitTest}}
-  <div class="source-viewer-measures">
-    {{> '_source-viewer-measures-test-cases'}}
-  </div>
-{{/if}}
+<div class="source-viewer-measures">
+  {{> '_source-viewer-measures-all'}}
+</div>
 
 <div class="modal-foot">
   <a class="overlay-popup-close" title="{{t 'close'}}">{{t 'close'}}</a>
