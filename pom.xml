@@ -1259,7 +1259,7 @@
                     <requireJavaVersion>
                       <message>To release this project JDK ${jdk.min.version} is required.
                       </message>
-                      <version>[1.7)</version>
+                      <version>[1.7,)</version>
                     </requireJavaVersion>
                   </rules>
                 </configuration>
