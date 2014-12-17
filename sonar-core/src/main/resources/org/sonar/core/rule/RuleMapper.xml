@@ -146,12 +146,12 @@
   <insert id="batchInsert" parameterType="Rule" useGeneratedKeys="false">
     insert into rules
     <include refid="insertColumns"/>
-    values (#{ruleKey}, #{repositoryKey}, #{description}, #{descriptionFormat}, #{status}, #{name}, #{configKey},
-    #{severity}, #{isTemplate}, #{language}, #{templateId},
-    #{subCharacteristicId}, #{defaultSubCharacteristicId}, #{remediationFunction}, #{defaultRemediationFunction},
-    #{remediationCoefficient}, #{defaultRemediationCoefficient}, #{remediationOffset}, #{defaultRemediationOffset},
+    values (#{ruleKey,jdbcType=VARCHAR}, #{repositoryKey,jdbcType=VARCHAR}, #{description,jdbcType=CLOB}, #{descriptionFormat,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{configKey,jdbcType=VARCHAR},
+    #{severity,jdbcType=INTEGER}, #{isTemplate,jdbcType=BOOLEAN}, #{language,jdbcType=VARCHAR}, #{templateId,jdbcType=INTEGER},
+    #{subCharacteristicId,jdbcType=INTEGER}, #{defaultSubCharacteristicId,jdbcType=INTEGER}, #{remediationFunction,jdbcType=VARCHAR}, #{defaultRemediationFunction,jdbcType=VARCHAR},
+    #{remediationCoefficient,jdbcType=VARCHAR}, #{defaultRemediationCoefficient,jdbcType=VARCHAR}, #{remediationOffset,jdbcType=VARCHAR}, #{defaultRemediationOffset,jdbcType=VARCHAR},
     #{effortToFixDescription}, #{tagsField}, #{systemTagsField}, #{noteData}, #{noteUserLogin}, #{noteCreatedAt},
-    #{noteUpdatedAt}, #{createdAt}, #{updatedAt})
+    #{noteUpdatedAt,jdbcType=TIMESTAMP}, #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP})
   </insert>
 
   <delete id="deleteParams" parameterType="Integer">

@@ -18,7 +18,7 @@
   
   <insert id="insert" parameterType="org.sonar.core.source.db.FileSourceDto" useGeneratedKeys="false">
     insert into file_sources (project_uuid, file_uuid, created_at, updated_at, data, line_hashes, data_hash) 
-    values (#{projectUuid}, #{fileUuid}, #{createdAt}, #{updatedAt}, #{data}, #{lineHashes}, #{dataHash})
+    values (#{projectUuid,jdbcType=VARCHAR}, #{fileUuid,jdbcType=VARCHAR}, #{createdAt,jdbcType=BIGINT}, #{updatedAt,jdbcType=BIGINT}, #{data,jdbcType=CLOB}, #{lineHashes,jdbcType=CLOB}, #{dataHash,jdbcType=VARCHAR})
   </insert>
   
   <update id="update" parameterType="org.sonar.core.source.db.FileSourceDto" useGeneratedKeys="false">

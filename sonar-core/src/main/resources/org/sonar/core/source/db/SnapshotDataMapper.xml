@@ -30,7 +30,7 @@
     insert into snapshot_data
     (resource_id, snapshot_id, snapshot_data, data_type, created_at, updated_at)
     values (
-    #{resourceId}, #{snapshotId}, #{data}, #{dataType}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+    #{resourceId,jdbcType=INTEGER}, #{snapshotId,jdbcType=INTEGER}, #{data,jdbcType=CLOB}, #{dataType,jdbcType=VARCHAR}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
   </insert>
 </mapper>
 
