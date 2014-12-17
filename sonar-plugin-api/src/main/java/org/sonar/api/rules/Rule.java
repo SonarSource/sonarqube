@@ -85,11 +85,6 @@ public class Rule {
    */
   private static final Set<String> STATUS_LIST = ImmutableSet.of(STATUS_READY, STATUS_BETA, STATUS_DEPRECATED, STATUS_REMOVED);
 
-  /**
-   * @since 4.2
-   */
-  private static final String[] DEFAULT_TAGS = new String[0];
-
   @Id
   @Column(name = "id")
   @GeneratedValue

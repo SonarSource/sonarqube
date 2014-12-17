@@ -101,6 +101,17 @@ public class RuleTest {
     assertThat(rule.getStatus()).isEqualTo(Rule.STATUS_READY);
   }
 
+  @Test
+  public void testTags() {
+    Rule rule = Rule.create();
+    assertThat(rule.getTags()).isEmpty();
+    assertThat(rule.getSystemTags()).isEmpty();
+
+    rule.setTags(new String[] {"tag1", "tag2"});
+    assertThat(rule.getTags()).containsOnly("tag1", "tag2");
+    assertThat(rule.getSystemTags()).isEmpty();
+  }
+
   private List<String> getExamplesContainingNewLineCharacter() {
     return Arrays.asList("te\nst", "te\ns\nt", "te\rst", "te\n\rst", "te\r\nst");
   }
