@@ -98,6 +98,7 @@ define [
       key 'p', 'list', -> doAction 'plan'
       key 'i', 'list', -> doAction 'set-severity'
       key 'o', 'list', -> doAction 'comment'
+      key 't', 'list', -> doAction 'edit-tags'
 
 
     loadMore: ->
@@ -156,5 +157,3 @@ define [
     closeChildren: ->
       super
       @$('.issues-workspace-list-component').remove()
-
-

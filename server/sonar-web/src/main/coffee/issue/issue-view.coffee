@@ -49,7 +49,7 @@ define [
 
 
     ui:
-      tagsChange: '.issue-tags-change'
+      tagsChange: '.js-issue-edit-tags'
       tagInput: '.issue-tag-input'
       tagsEdit: '.issue-tag-edit'
       tagsEditDone: '.issue-tag-edit-done'
@@ -269,9 +269,11 @@ define [
 
 
     changeTags: ->
+      p = window.process.addBackgroundProcess()
       jQuery.ajax
         url: "#{baseUrl}/api/issues/tags?ps=0"
       .done (r) =>
+        window.process.finishBackgroundProcess p
         if @ui.tagInput.select2
           # Prevent synchronization issue with navigation
           @ui.tagInput.select2
@@ -282,12 +284,21 @@ define [
         if @ui.tagsList.hide
           @ui.tagsList.hide()
         @tagsBuffer = @ui.tagInput.select2 'val'
+
+        keyScope = key.getScope()
+        if keyScope != 'tags'
+          @previousKeyScope = keyScope
         key.setScope 'tags'
         key 'escape', 'tags', => @cancelEdit()
 
+        @ui.tagInput.select2 'focus'
+      .fail =>
+        window.process.failBackgroundProcess p
+
 
     cancelEdit: ->
-      key.unbind 'escape', 'tags'
+      @resetKeyScope()
+
       if @ui.tagsList.show
         @ui.tagsList.show()
       if @ui.tagInput.select2
@@ -298,12 +309,15 @@ define [
 
 
     editDone: ->
+      @resetKeyScope()
+
       _tags = @model.get 'tags'
       tags = @ui.tagInput.val()
-      return if _tags == tags
+      splitTags = if tags then tags.split(',') else null
+
       p = window.process.addBackgroundProcess()
-      @model.set 'tags', tags.split(',')
-      $.post "#{baseUrl}/api/issues/set_tags", key: @model.get 'key', tags: tags
+      @model.set 'tags', splitTags
+      $.post "#{baseUrl}/api/issues/set_tags", key: @model.get('key'), tags: tags
       .done =>
         window.process.finishBackgroundProcess p
         @cancelEdit()
@@ -312,6 +326,13 @@ define [
         window.process.failBackgroundProcess p
       .always =>
         @render()
+
+
+    resetKeyScope: ->
+      key.unbind 'escape', 'tags'
+      if @previousKeyScope
+        key.setScope @previousKeyScope
+        @previousKeyScope = null
 
 
     serializeData: ->

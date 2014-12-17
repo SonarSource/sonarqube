@@ -1,7 +1,7 @@
 <div class="issue-message">{{message}}</div>
 
 <div class="issue-tags">
-  <span class="issue-tag-list {{#inArray actions "set_tags"}}issue-tags-change{{/inArray}}">
+  <span class="issue-tag-list {{#inArray actions "set_tags"}}js-issue-edit-tags{{/inArray}}">
     <i class="icon-tags"></i>
     <span class="issue-meta">{{#if tags}}{{join tags ', '}}{{else}}{{t 'issue.no_tag'}}{{/if}}</span>
   </span>
