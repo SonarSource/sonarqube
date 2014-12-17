@@ -26,12 +26,14 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.TimeUtils;
+import org.sonar.core.computation.dbcleaner.period.DefaultPeriodCleaner;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.purge.*;
-import org.sonar.core.computation.dbcleaner.period.DefaultPeriodCleaner;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.properties.ProjectSettingsFactory;
 import org.sonar.server.search.IndexClient;
+
+import javax.annotation.Nullable;
 
 import java.util.Date;
 
@@ -73,7 +75,7 @@ public class ProjectCleaner implements ServerComponent {
     return this;
   }
 
-  private void deleteIndexedIssuesBefore(String uuid, Date lastDateWithClosedIssues) {
+  private void deleteIndexedIssuesBefore(String uuid, @Nullable Date lastDateWithClosedIssues) {
     if (lastDateWithClosedIssues != null) {
       indexClient.get(IssueIndex.class).deleteClosedIssuesOfProjectBefore(uuid, lastDateWithClosedIssues);
     }

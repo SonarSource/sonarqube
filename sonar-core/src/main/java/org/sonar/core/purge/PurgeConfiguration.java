@@ -71,6 +71,7 @@ public class PurgeConfiguration {
   }
 
   @VisibleForTesting
+  @CheckForNull
   Date maxLiveDateOfClosedIssues(Date now) {
     if (maxAgeInDaysOfClosedIssues > 0) {
       return DateUtils.addDays(now, -maxAgeInDaysOfClosedIssues);
