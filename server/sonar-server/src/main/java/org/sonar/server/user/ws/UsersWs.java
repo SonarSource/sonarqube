@@ -39,7 +39,8 @@ public class UsersWs implements WebService {
       .setDescription("Users management");
 
     defineSearchAction(controller);
-    createAction.define(controller);
+//    createAction.define(controller);
+    defineCreateAction(controller);
     defineUpdateAction(controller);
     defineDeactivateAction(controller);
 
@@ -64,6 +65,41 @@ public class UsersWs implements WebService {
 
     RailsHandler.addFormatParam(action);
   }
+
+  private void defineCreateAction(NewController controller) {
+    NewAction action = controller.createAction("create")
+      .setDescription("Create a user. Requires Administer System permission")
+      .setSince("3.7")
+      .setPost(true)
+      .setHandler(RailsHandler.INSTANCE);
+
+    action.createParam("login")
+      .setDescription("User login")
+      .setRequired(true)
+      .setExampleValue("myuser");
+
+    action.createParam("password")
+      .setDescription("User password")
+      .setRequired(true)
+      .setExampleValue("mypassword");
+
+    action.createParam("password_confirmation")
+      .setDescription("Must be the same value as \"password\"")
+      .setRequired(true)
+      .setExampleValue("mypassword");
+
+    action.createParam("name")
+      .setDescription("User name")
+      .setRequired(true)
+      .setExampleValue("My Name");
+
+    action.createParam("email")
+      .setDescription("User email")
+      .setExampleValue("myname@email.com");
+
+    RailsHandler.addFormatParam(action);
+  }
+
 
   private void defineUpdateAction(NewController controller) {
     NewAction action = controller.createAction("update")
