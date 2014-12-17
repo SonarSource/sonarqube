@@ -73,6 +73,7 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
   private static final String FACET_SUFFIX_MISSING = "_missing";
 
   private static final int DEFAULT_ISSUE_FACET_SIZE = 5;
+  private static final int TAGS_FACET_SIZE = 10;
 
   private final Sorting sorting;
 
@@ -322,11 +323,13 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
         IssueFilterParameters.LANGUAGES, IssueNormalizer.IssueField.LANGUAGE.field(), query.languages().toArray());
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
-        IssueFilterParameters.TAGS, IssueNormalizer.IssueField.TAGS.field(), query.tags().toArray());
-      addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
         IssueFilterParameters.RULES, IssueNormalizer.IssueField.RULE_KEY.field(), query.rules().toArray());
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
         IssueFilterParameters.REPORTERS, IssueNormalizer.IssueField.REPORTER.field());
+
+      if (options.facets().contains(IssueFilterParameters.TAGS)) {
+        esSearch.addAggregation(stickyFacetBuilder.buildStickyFacet(IssueNormalizer.IssueField.TAGS.field(), IssueFilterParameters.TAGS, TAGS_FACET_SIZE, query.tags().toArray()));
+      }
 
       if (options.facets().contains(IssueFilterParameters.RESOLUTIONS)) {
         esSearch.addAggregation(getResolutionFacet(filters, esQuery));
