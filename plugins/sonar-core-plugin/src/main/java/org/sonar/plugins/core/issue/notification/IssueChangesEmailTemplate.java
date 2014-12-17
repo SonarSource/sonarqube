@@ -81,7 +81,7 @@ public class IssueChangesEmailTemplate extends EmailTemplate {
     appendField(sb, "Status", notif.getFieldValue("old.status"), notif.getFieldValue("new.status"));
     appendField(sb, "Message", notif.getFieldValue("old.message"), notif.getFieldValue("new.message"));
     appendField(sb, "Author", notif.getFieldValue("old.author"), notif.getFieldValue("new.author"));
-    appendFieldWithoutHistory(sb, "Action Plan", notif.getFieldValue("old.actionPlan"), notif.getFieldValue("new.actionPlan")) ;
+    appendFieldWithoutHistory(sb, "Action Plan", notif.getFieldValue("old.actionPlan"), notif.getFieldValue("new.actionPlan"));
   }
 
   private void appendHeader(Notification notif, StringBuilder sb) {
@@ -92,9 +92,7 @@ public class IssueChangesEmailTemplate extends EmailTemplate {
 
   private void appendFooter(StringBuilder sb, Notification notification) {
     String issueKey = notification.getFieldValue("key");
-    String componentKey = notification.getFieldValue("componentKey");
-    sb.append("See it in SonarQube: ").append(settings.getServerBaseURL()).append("/component/index#component=").append(componentKey)
-      .append("&currentIssue=").append(issueKey).append(NEW_LINE);
+    sb.append("See it in SonarQube: ").append(settings.getServerBaseURL()).append("/issues/search#issues=").append(issueKey).append(NEW_LINE);
   }
 
   private void appendLine(StringBuilder sb, @Nullable String line) {
