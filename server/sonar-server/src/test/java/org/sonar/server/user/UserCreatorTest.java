@@ -126,6 +126,20 @@ public class UserCreatorTest {
   }
 
   @Test
+  public void create_user_with_minimum_fields() throws Exception {
+    when(system2.now()).thenReturn(1418215735482L);
+    createDefaultGroup();
+
+    userCreator.create(NewUser.create()
+      .setLogin("user")
+      .setName("User")
+      .setPassword("password")
+      .setPasswordConfirmation("password"));
+
+    assertThat(userDao.selectNullableByLogin(session, "user")).isNotNull();
+  }
+
+  @Test
   public void fail_to_create_user_if_login_already_exists() throws Exception {
     db.prepareDbUnit(getClass(), "fail_to_create_user_if_already_exists.xml");
 

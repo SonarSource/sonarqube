@@ -49,9 +49,8 @@ public class UserDoc extends BaseDoc {
     return (Boolean) getField(UserIndexDefinition.FIELD_ACTIVE);
   }
 
-  @Nullable
   public List<String> scmAccounts() {
-    return (List<String>) getNullableField(UserIndexDefinition.FIELD_SCM_ACCOUNTS);
+    return (List<String>) getField(UserIndexDefinition.FIELD_SCM_ACCOUNTS);
   }
 
   public long createdAt() {

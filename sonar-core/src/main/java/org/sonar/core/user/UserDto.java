@@ -83,11 +83,12 @@ public class UserDto {
     return this;
   }
 
+  @CheckForNull
   public String getScmAccounts() {
     return scmAccounts;
   }
 
-  public UserDto setScmAccounts(String scmAccounts) {
+  public UserDto setScmAccounts(@Nullable String scmAccounts) {
     this.scmAccounts = scmAccounts;
     return this;
   }

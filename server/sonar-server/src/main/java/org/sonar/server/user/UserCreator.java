@@ -40,6 +40,7 @@ import org.sonar.server.exceptions.Message;
 import org.sonar.server.user.db.UserGroupDao;
 import org.sonar.server.util.Validation;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.io.StringWriter;
@@ -51,11 +52,11 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public class UserCreator {
 
-  private static final String LOGIN = "Login";
-  private static final String PASSWORD_CONFIRMATION = "Password confirmation";
-  private static final String PASSWORD = "Password";
-  private static final String NAME = "Name";
-  private static final String EMAIL = "Email";
+  private static final String LOGIN_PARAM = "Login";
+  private static final String PASSWORD_CONFIRMATION_PARAM = "Password confirmation";
+  private static final String PASSWORD_PARAM = "Password";
+  private static final String NAME_PARAM = "Name";
+  private static final String EMAIL_PARAM = "Email";
 
   private final NewUserNotifier newUserNotifier;
   private final Settings settings;
@@ -95,9 +96,7 @@ public class UserCreator {
 
     validateLogin(newUser.login(), messages);
     validateName(newUser.name(), messages);
-    if (newUser.email().length() >= 100) {
-      messages.add(Message.of(Validation.IS_TOO_LONG_MESSAGE, EMAIL, 100));
-    }
+    validateEmail(newUser.email(), messages);
     validatePassword(newUser, messages);
 
     if (!messages.isEmpty()) {
@@ -107,30 +106,36 @@ public class UserCreator {
 
   private static void validateLogin(@Nullable String login, List<Message> messages) {
     if (Strings.isNullOrEmpty(login)) {
-      messages.add(Message.of(Validation.CANT_BE_EMPTY_MESSAGE, LOGIN));
+      messages.add(Message.of(Validation.CANT_BE_EMPTY_MESSAGE, LOGIN_PARAM));
     } else if (!login.matches("\\A\\w[\\w\\.\\-_@\\s]+\\z")) {
       messages.add(Message.of("user.bad_login"));
     } else if (login.length() <= 2) {
-      messages.add(Message.of(Validation.IS_TOO_SHORT_MESSAGE, LOGIN, 2));
+      messages.add(Message.of(Validation.IS_TOO_SHORT_MESSAGE, LOGIN_PARAM, 2));
     } else if (login.length() >= 255) {
-      messages.add(Message.of(Validation.IS_TOO_LONG_MESSAGE, LOGIN, 255));
+      messages.add(Message.of(Validation.IS_TOO_LONG_MESSAGE, LOGIN_PARAM, 255));
     }
   }
 
   private static void validateName(@Nullable String name, List<Message> messages) {
     if (Strings.isNullOrEmpty(name)) {
-      messages.add(Message.of(Validation.CANT_BE_EMPTY_MESSAGE, NAME));
+      messages.add(Message.of(Validation.CANT_BE_EMPTY_MESSAGE, NAME_PARAM));
     } else if (name.length() >= 200) {
-      messages.add(Message.of(Validation.IS_TOO_LONG_MESSAGE, NAME, 200));
+      messages.add(Message.of(Validation.IS_TOO_LONG_MESSAGE, NAME_PARAM, 200));
+    }
+  }
+
+  private static void validateEmail(@Nullable String email, List<Message> messages) {
+    if (!Strings.isNullOrEmpty(email) && email.length() >= 100) {
+      messages.add(Message.of(Validation.IS_TOO_LONG_MESSAGE, EMAIL_PARAM, 100));
     }
   }
 
   private static void validatePassword(NewUser newUser, List<Message> messages) {
     if (Strings.isNullOrEmpty(newUser.password())) {
-      messages.add(Message.of(Validation.CANT_BE_EMPTY_MESSAGE, PASSWORD));
+      messages.add(Message.of(Validation.CANT_BE_EMPTY_MESSAGE, PASSWORD_PARAM));
     }
     if (Strings.isNullOrEmpty(newUser.passwordConfirmation())) {
-      messages.add(Message.of(Validation.CANT_BE_EMPTY_MESSAGE, PASSWORD_CONFIRMATION));
+      messages.add(Message.of(Validation.CANT_BE_EMPTY_MESSAGE, PASSWORD_CONFIRMATION_PARAM));
     }
 
     if (!Strings.isNullOrEmpty(newUser.password()) && !Strings.isNullOrEmpty(newUser.passwordConfirmation())
@@ -182,13 +187,18 @@ public class UserCreator {
     userDto.setCryptedPassword(DigestUtils.sha1Hex("--" + saltHex + "--" + newUser.password() + "--"));
   }
 
+  @CheckForNull
   private static String convertScmAccountsToCsv(NewUser newUser) {
-    int size = newUser.scmAccounts().size();
-    StringWriter writer = new StringWriter(size);
-    CsvWriter csv = CsvWriter.of(writer);
-    csv.values(newUser.scmAccounts().toArray(new String[size]));
-    csv.close();
-    return writer.toString();
+    List<String> scmAccounts = newUser.scmAccounts();
+    if (scmAccounts != null) {
+      int size = newUser.scmAccounts().size();
+      StringWriter writer = new StringWriter(size);
+      CsvWriter csv = CsvWriter.of(writer);
+      csv.values(newUser.scmAccounts().toArray(new String[size]));
+      csv.close();
+      return writer.toString();
+    }
+    return null;
   }
 
   private void notifyNewUser(NewUser newUser) {
