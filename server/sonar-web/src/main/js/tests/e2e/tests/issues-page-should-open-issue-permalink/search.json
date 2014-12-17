@@ -1,0 +1,98 @@
+{
+  "total": 1,
+  "p": 1,
+  "ps": 1,
+  "projects": [
+    {
+      "uuid": "06a742ea-5c55-4c7e-a2b4-8747c163cb40",
+      "key": "org.codehaus.sonar-plugins:sonar-issues-report-plugin",
+      "id": 17637,
+      "qualifier": "TRK",
+      "name": "Sonar :: Issues Report :: Plugin",
+      "longName": "Sonar :: Issues Report :: Plugin"
+    }
+  ],
+  "components": [
+    {
+      "uuid": "0160edec-b7ca-49a1-93ca-a6ea2c38ed21",
+      "key": "org.codehaus.sonar-plugins:sonar-issues-report-plugin:src/main/java/org/sonar/issuesreport/IssuesReportPlugin.java",
+      "id": 17639,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "IssuesReportPlugin.java",
+      "longName": "src/main/java/org/sonar/issuesreport/IssuesReportPlugin.java",
+      "path": "src/main/java/org/sonar/issuesreport/IssuesReportPlugin.java",
+      "projectId": 17637,
+      "subProjectId": 17637
+    },
+    {
+      "uuid": "06a742ea-5c55-4c7e-a2b4-8747c163cb40",
+      "key": "org.codehaus.sonar-plugins:sonar-issues-report-plugin",
+      "id": 17637,
+      "enabled": true,
+      "qualifier": "TRK",
+      "name": "Sonar :: Issues Report :: Plugin",
+      "longName": "Sonar :: Issues Report :: Plugin"
+    }
+  ],
+  "issues": [
+    {
+      "key": "some-issue-key",
+      "component": "org.codehaus.sonar-plugins:sonar-issues-report-plugin:src/main/java/org/sonar/issuesreport/IssuesReportPlugin.java",
+      "componentId": 17639,
+      "project": "org.codehaus.sonar-plugins:sonar-issues-report-plugin",
+      "rule": "squid:S1161",
+      "status": "REOPENED",
+      "severity": "MINOR",
+      "message": "Add the \"@Override\" annotation above this method signature",
+      "line": 61,
+      "debt": "5min",
+      "author": "julien.henry@sonarsource.com",
+      "creationDate": "2014-10-09T23:03:12+0200",
+      "updateDate": "2014-12-15T17:40:45+0100",
+      "fUpdateAge": "a day"
+    }
+  ],
+  "rules": [
+    {
+      "key": "squid:S1161",
+      "name": "",
+      "lang": "java",
+      "desc": "",
+      "status": "READY",
+      "langName": "Java"
+    }
+  ],
+  "users": [
+    {
+      "login": "admin",
+      "name": "Admin Admin",
+      "active": true,
+      "email": "admin@sonarsource.com"
+    }
+  ],
+  "languages": [
+    {
+      "key": "js",
+      "name": "JavaScript"
+    },
+    {
+      "key": "java",
+      "name": "Java"
+    }
+  ],
+  "maxResultsReached": false,
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 1,
+    "total": 1,
+    "fTotal": "1",
+    "pages": 1
+  },
+  "facets": [
+    {
+      "property": "tags",
+      "values": []
+    }
+  ]
+}

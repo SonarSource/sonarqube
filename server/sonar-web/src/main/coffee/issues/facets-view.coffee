@@ -15,6 +15,7 @@ define [
   'issues/facets/component-facet'
   'issues/facets/reporter-facet'
   'issues/facets/language-facet'
+  'issues/facets/issue-key-facet'
 ], (
   Marionette
   BaseFacet
@@ -31,6 +32,7 @@ define [
   ComponentFacet
   ReporterFacet
   LanguageFacet
+  IssueKeyFacet
 ) ->
 
   class extends Marionette.CollectionView
@@ -52,6 +54,7 @@ define [
         when 'componentUuids' then ComponentFacet
         when 'reporters' then ReporterFacet
         when 'languages' then LanguageFacet
+        when 'issues' then IssueKeyFacet
         else BaseFacet
 
 

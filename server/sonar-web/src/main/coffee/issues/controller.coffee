@@ -14,7 +14,7 @@ define [
   EXTRA_FIELDS = 'actions,transitions,assigneeName,reporterName,actionPlanName'
   PAGE_SIZE = 50
   ALL_FACETS = ['severities', 'statuses', 'resolutions', 'projectUuids', 'componentRootUuids', 'componentUuids', 'assignees', 'reporters', 'rules',
-                'tags', 'languages', 'actionPlans', 'creationDate']
+                'tags', 'languages', 'actionPlans', 'creationDate', 'issues']
   FACET_DATA_FIELDS = ['components', 'projects', 'users', 'rules', 'actionPlans', 'languages']
   FACETS_FROM_SERVER = ['severities', 'statuses', 'resolutions', 'actionPlans', 'projectUuids', 'rules', 'tags'
                         'assignees', 'reporters', 'componentUuids', 'languages']

@@ -336,7 +336,6 @@ define [
 
 
     serializeData: ->
-      componentKey = encodeURIComponent @model.get 'component'
       issueKey = encodeURIComponent @model.get 'key'
       _.extend super,
-        permalink: "#{baseUrl}/component/index#component=#{componentKey}&currentIssue=#{issueKey}"
+        permalink: "#{baseUrl}/issues/search#issues=#{issueKey}"
