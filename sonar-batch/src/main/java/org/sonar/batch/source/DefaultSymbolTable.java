@@ -28,16 +28,18 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class DefaultSymbolTable implements Symbolizable.SymbolTable {
 
-  private Map<Symbol, List<Integer>> referencesBySymbol;
+  private Map<Symbol, Set<Integer>> referencesBySymbol;
 
-  private DefaultSymbolTable(Map<Symbol, List<Integer>> referencesBySymbol) {
+  private DefaultSymbolTable(Map<Symbol, Set<Integer>> referencesBySymbol) {
     this.referencesBySymbol = referencesBySymbol;
   }
 
-  public Map<Symbol, List<Integer>> getReferencesBySymbol() {
+  public Map<Symbol, Set<Integer>> getReferencesBySymbol() {
     return referencesBySymbol;
   }
 
@@ -57,7 +59,7 @@ public class DefaultSymbolTable implements Symbolizable.SymbolTable {
 
   public static class Builder implements Symbolizable.SymbolTableBuilder {
 
-    private final Map<Symbol, List<Integer>> referencesBySymbol = new LinkedHashMap<Symbol, List<Integer>>();
+    private final Map<Symbol, Set<Integer>> referencesBySymbol = new LinkedHashMap<Symbol, Set<Integer>>();
     private final String componentKey;
 
     public Builder(String componentKey) {
@@ -67,7 +69,7 @@ public class DefaultSymbolTable implements Symbolizable.SymbolTable {
     @Override
     public Symbol newSymbol(int fromOffset, int toOffset) {
       Symbol symbol = new DefaultSymbol(fromOffset, toOffset);
-      referencesBySymbol.put(symbol, new ArrayList<Integer>());
+      referencesBySymbol.put(symbol, new TreeSet<Integer>());
       return symbol;
     }
 

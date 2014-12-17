@@ -362,6 +362,25 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     assertThat(symbolsPerLine).containsOnly("1,2,1;0,2,2", "0,1,1;0,2,2", "4,5,1;0,2,2");
   }
 
+  @Test
+  public void verifyDeclarationOrderOfSymbolHasNoImpact() {
+    DefaultInputFile file = new DefaultInputFile(PROJECT_KEY, "src/foo.java")
+      .setLines(3)
+      .setOriginalLineOffsets(new long[] {0, 4, 7});
+
+    DefaultSymbolTableBuilder symbolBuilder = new DefaultSymbolTableBuilder(PROJECT_KEY + ":" + "src/foo.java", null);
+    org.sonar.api.batch.sensor.symbol.Symbol s2 = symbolBuilder.newSymbol(4, 6);
+    symbolBuilder.newReference(s2, 7);
+    symbolBuilder.newReference(s2, 0);
+    org.sonar.api.batch.sensor.symbol.Symbol s1 = symbolBuilder.newSymbol(1, 2);
+    symbolBuilder.newReference(s1, 11);
+    symbolBuilder.newReference(s1, 4);
+
+    String[] symbolsPerLine = sourcePersister.computeSymbolReferencesPerLine(file, symbolBuilder.build());
+
+    assertThat(symbolsPerLine).containsOnly("1,2,1;0,2,2", "0,1,1;0,2,2", "4,5,1;0,2,2");
+  }
+
   private void mockResourceCache(String relativePathEmpty, String projectKey, String uuid) {
     File sonarFile = File.create(relativePathEmpty);
     sonarFile.setUuid(uuid);
