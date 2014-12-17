@@ -82,7 +82,7 @@ define [
         @options.app.controller.selectNextIssue()
         false
 
-      key 'right', 'list', =>
+      key 'right,return', 'list', =>
         selectedIssue = @collection.at @options.app.state.get 'selectedIndex'
         @options.app.controller.showComponentViewer selectedIssue
         return false
