@@ -80,8 +80,17 @@ exports.clearRequestMock = function (mockId) {
 };
 
 
+function patchWithTimestamp(url) {
+  var t = Date.now(),
+      hashStart = url.indexOf('#'),
+      hash =  hashStart !== -1 ? url.substr(hashStart) : '',
+      base = hashStart !== -1 ? url.substr(0, hashStart) : url;
+  return base + '?' + t + hash;
+}
+
+
 exports.buildUrl = function (urlTail) {
-  return BASE_URL + urlTail;
+  return patchWithTimestamp(BASE_URL + urlTail);
 };
 
 
