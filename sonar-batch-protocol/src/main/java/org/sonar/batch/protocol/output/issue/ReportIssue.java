@@ -25,7 +25,7 @@ import java.util.Date;
 
 public class ReportIssue {
 
-  private long resourceBatchId;
+  private Long resourceBatchId;
   private boolean isNew;
   private String ruleKey;
   private String ruleRepo;
@@ -60,12 +60,12 @@ public class ReportIssue {
     return key;
   }
 
-  public ReportIssue setResourceBatchId(long resourceBatchId) {
+  public ReportIssue setResourceBatchId(@Nullable Long resourceBatchId) {
     this.resourceBatchId = resourceBatchId;
     return this;
   }
 
-  public long resourceBatchId() {
+  public Long resourceBatchId() {
     return resourceBatchId;
   }
 

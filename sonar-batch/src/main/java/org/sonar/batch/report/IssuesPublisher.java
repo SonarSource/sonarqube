@@ -24,6 +24,7 @@ import com.google.gson.stream.JsonWriter;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.utils.KeyValueFormat;
+import org.sonar.batch.index.BatchResource;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.protocol.GsonHelper;
@@ -64,10 +65,10 @@ public class IssuesPublisher implements ReportPublisher {
   }
 
   private ReportIssue toReportIssue(DefaultIssue issue) {
-    long componentBatchId = resourceCache.get(issue.componentKey()).batchId();
+    BatchResource batchResource = resourceCache.get(issue.componentKey());
     return new ReportIssue()
       .setKey(issue.key())
-      .setResourceBatchId(componentBatchId)
+      .setResourceBatchId(batchResource != null ? batchResource.batchId() : null)
       .setNew(issue.isNew())
       .setLine(issue.line())
       .setMessage(issue.message())
