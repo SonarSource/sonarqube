@@ -21,12 +21,15 @@ package org.sonar.server.db.migrations.v51;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Maps;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Database;
-import org.sonar.server.db.migrations.*;
+import org.sonar.server.db.migrations.BaseDataChange;
+import org.sonar.server.db.migrations.MassUpdate;
 import org.sonar.server.db.migrations.MassUpdate.Handler;
 import org.sonar.server.db.migrations.Select.Row;
 import org.sonar.server.db.migrations.Select.RowHandler;
+import org.sonar.server.db.migrations.SqlStatement;
 
 import java.sql.SQLException;
 import java.util.Map;
@@ -54,7 +57,9 @@ public class FeedIssueTags extends BaseDataChange {
       @Override
       public void handle(Row row) throws SQLException {
         Integer id = row.getInt(1);
-        tagsByRuleId.put(id, TAG_JOINER.join(row.getString(2), row.getString(3)));
+        tagsByRuleId.put(id, StringUtils.trimToNull(TAG_JOINER.join(
+          StringUtils.trimToNull(row.getString(2)),
+          StringUtils.trimToNull(row.getString(3)))));
       }
     });
 

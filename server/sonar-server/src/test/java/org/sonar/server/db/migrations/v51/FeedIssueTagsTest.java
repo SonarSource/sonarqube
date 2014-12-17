@@ -60,5 +60,6 @@ public class FeedIssueTagsTest {
   public void migrate_with_rule_tags() throws Exception {
     db.prepareDbUnit(this.getClass(), "before.xml");
     migration.execute();
+    db.assertDbUnit(this.getClass(), "after-result.xml", "issues");
   }
 }
