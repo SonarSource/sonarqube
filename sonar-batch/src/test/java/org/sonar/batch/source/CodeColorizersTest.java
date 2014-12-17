@@ -41,7 +41,8 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class CodeColorizersTest {
 
-  private static final String HIGHLIGHTING = "0,4,cppd;5,11,cppd;12,15,cppd;16,19,k;29,37,k;65,69,k;85,93,cd;98,102,k;112,114,s;120,124,k";
+  private static final String HIGHLIGHTING_JS = "0,4,cppd;5,11,cppd;12,15,cppd;16,19,k;29,37,k;65,69,k;85,93,cd;98,102,k;112,114,s;120,124,k";
+  private static final String HIGHLIGHTING_JAVA = "0,4,j;5,11,j;12,15,j;16,22,k;23,28,k;43,50,k;51,54,k;67,78,a;81,87,k;88,92,k;97,100,k;142,146,k;162,170,cd";
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
@@ -53,7 +54,7 @@ public class CodeColorizersTest {
 
     SyntaxHighlightingData syntaxHighlighting = codeColorizers.toSyntaxHighlighting(jsFile, "UTF-8", "js");
 
-    assertThat(syntaxHighlighting.writeString()).isEqualTo(HIGHLIGHTING);
+    assertThat(syntaxHighlighting.writeString()).isEqualTo(HIGHLIGHTING_JS);
 
   }
 
@@ -68,7 +69,18 @@ public class CodeColorizersTest {
 
     SyntaxHighlightingData syntaxHighlighting = codeColorizers.toSyntaxHighlighting(fileWithBom, "UTF-8", "js");
 
-    assertThat(syntaxHighlighting.writeString()).isEqualTo(HIGHLIGHTING);
+    assertThat(syntaxHighlighting.writeString()).isEqualTo(HIGHLIGHTING_JS);
+  }
+
+  @Test
+  public void shouldSupportJavaIfNotProvidedByJavaPluginForBackwardCompatibility() throws Exception {
+    CodeColorizers codeColorizers = new CodeColorizers(Arrays.<CodeColorizerFormat>asList());
+
+    File javaFile = new File(this.getClass().getResource("CodeColorizersTest/Person.java").toURI());
+
+    SyntaxHighlightingData syntaxHighlighting = codeColorizers.toSyntaxHighlighting(javaFile, "UTF-8", "java");
+
+    assertThat(syntaxHighlighting.writeString()).isEqualTo(HIGHLIGHTING_JAVA);
 
   }
 

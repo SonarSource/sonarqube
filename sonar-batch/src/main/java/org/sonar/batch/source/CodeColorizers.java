@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.web.CodeColorizerFormat;
 import org.sonar.batch.highlighting.SyntaxHighlightingData;
+import org.sonar.colorizer.CodeColorizer;
 import org.sonar.colorizer.Tokenizer;
 
 import javax.annotation.CheckForNull;
@@ -71,7 +72,13 @@ public class CodeColorizers implements BatchComponent {
     CodeColorizerFormat format = byLang.get(language);
     List<Tokenizer> tokenizers;
     if (format == null) {
-      return null;
+      // Workaround for Java test code since Java plugin only provides highlighting for main source and no colorizer
+      // TODO can be dropped when Java plugin embed its own CodeColorizerFormat of (better) provides highlighting for tests
+      if ("java".equals(language)) {
+        tokenizers = CodeColorizer.Format.JAVA.getTokenizers();
+      } else {
+        return null;
+      }
     } else {
       tokenizers = format.getTokenizers();
     }
