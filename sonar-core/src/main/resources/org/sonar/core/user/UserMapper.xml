@@ -114,7 +114,7 @@
     VALUES (#{login}, #{name}, #{email}, #{active}, #{scmAccounts}, #{salt}, #{cryptedPassword}, #{createdAt}, #{updatedAt})
   </insert>
 
-  <insert id="update" parameterType="User">
+  <insert id="update" parameterType="User" useGeneratedKeys="false">
     UPDATE users set name=#{name}, email=#{email}, active=#{active}, scm_accounts=#{scmAccounts}, salt=#{salt}, crypted_password=#{cryptedPassword}, updated_at=#{updatedAt}
     WHERE login = #{login}
   </insert>
