@@ -1099,6 +1099,15 @@
         <artifactId>tomcat-embed-logging-juli</artifactId>
         <version>${tomcat.version}</version>
       </dependency>
+
+      <!-- Using scope=provided to exclude from all transitive dependencies -->
+      <dependency>
+        <groupId>xml-apis</groupId>
+        <artifactId>xml-apis</artifactId>
+        <version>1.4.01</version>
+        <scope>provided</scope>
+      </dependency>
+
     </dependencies>
   </dependencyManagement>
 
