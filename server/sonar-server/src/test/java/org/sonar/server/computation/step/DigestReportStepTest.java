@@ -44,6 +44,6 @@ public class DigestReportStepTest {
 
     sut.execute(mock(DbSession.class), context);
 
-    verify(service).decompress(any(DbSession.class), eq(context));
+    verify(service).digest(any(DbSession.class), eq(context));
   }
 }

@@ -20,6 +20,7 @@
 
 package org.sonar.server.computation;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,9 +42,16 @@ public class AnalysisReportService implements ServerComponent {
     this.dbClient = dbClient;
   }
 
-  public void decompress(DbSession session, ComputeEngineContext context) {
+  public void digest(DbSession session, ComputeEngineContext context) {
+    decompress(session, context);
+  }
+
+  @VisibleForTesting
+  void decompress(DbSession session, ComputeEngineContext context) {
     AnalysisReportDto report = context.getReportDto();
-    context.setReportDirectory(dbClient.analysisReportDao().getDecompressedReport(session, report.getId()));
+
+    File decompressedDirectory = dbClient.analysisReportDao().getDecompressedReport(session, report.getId());
+    context.setReportDirectory(decompressedDirectory);
   }
 
   public void clean(@Nullable File directory) {

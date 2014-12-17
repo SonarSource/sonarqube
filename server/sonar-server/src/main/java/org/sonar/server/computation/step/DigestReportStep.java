@@ -33,7 +33,7 @@ public class DigestReportStep implements ComputationStep {
 
   @Override
   public void execute(DbSession session, ComputeEngineContext context) {
-    reportService.decompress(session, context);
+    reportService.digest(session, context);
   }
 
   @Override

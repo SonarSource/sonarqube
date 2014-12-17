@@ -36,7 +36,6 @@ import static org.mockito.Mockito.*;
 
 public class AnalysisReportServiceTest {
   private AnalysisReportService sut;
-  private AnalysisReportDao dao;
 
   @Test
   public void call_dao_to_decompress_report() throws Exception {
