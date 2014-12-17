@@ -20,7 +20,7 @@ define([
 
     goToFile: function (e) {
       var key = $(e.currentTarget).data('key'),
-          url = baseUrl + '/component/index#component=' + encodeURIComponent(key) + '&tab=tests',
+          url = baseUrl + '/component/index?id=' + encodeURIComponent(key),
           windowParams = 'resizable=1,scrollbars=1,status=1';
       window.open(url, key, windowParams);
     },

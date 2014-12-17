@@ -16,8 +16,7 @@ define([
     goToFile: function (e) {
       var key = $(e.currentTarget).data('key'),
           line = $(e.currentTarget).data('line'),
-          url = baseUrl + '/component/index#component=' + encodeURIComponent(key) +
-              '&settings=duplications' + (line ? ('&line=' + line) : ''),
+          url = baseUrl + '/component/index?id=' + encodeURIComponent(key) + (line ? ('&line=' + line) : ''),
           windowParams = 'resizable=1,scrollbars=1,status=1';
       window.open(url, key, windowParams);
     },
