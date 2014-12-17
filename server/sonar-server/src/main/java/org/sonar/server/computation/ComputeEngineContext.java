@@ -23,6 +23,8 @@ package org.sonar.server.computation;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 
+import javax.annotation.Nullable;
+
 import java.io.File;
 
 public class ComputeEngineContext {
@@ -48,7 +50,7 @@ public class ComputeEngineContext {
     return reportDirectory;
   }
 
-  public void setReportDirectory(File reportDirectory) {
+  public void setReportDirectory(@Nullable File reportDirectory) {
     this.reportDirectory = reportDirectory;
   }
 }

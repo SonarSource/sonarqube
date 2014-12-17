@@ -164,6 +164,7 @@ public class AnalysisReportDao extends BaseDao<AnalysisReportMapper, AnalysisRep
     ps.setBinaryStream(parameterIndex, reportDataStream, streamSizeEstimate);
   }
 
+  @CheckForNull
   public File getDecompressedReport(DbSession session, long id) {
     Connection connection = session.getConnection();
     InputStream reportDataStream = null;
@@ -177,8 +178,10 @@ public class AnalysisReportDao extends BaseDao<AnalysisReportMapper, AnalysisRep
       ResultSet rs = ps.executeQuery();
       if (rs.next()) {
         reportDataStream = rs.getBinaryStream(1);
-        directory = tempFolder.newDir();
-        ZipUtils.unzip(reportDataStream, directory);
+        if (reportDataStream != null) {
+          directory = tempFolder.newDir();
+          ZipUtils.unzip(reportDataStream, directory);
+        }
       }
     } catch (SQLException e) {
       throw new IllegalStateException(String.format("Failed to read report '%d' in the database", id), e);

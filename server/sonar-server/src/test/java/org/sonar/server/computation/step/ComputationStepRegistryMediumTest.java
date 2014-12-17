@@ -59,7 +59,7 @@ public class ComputationStepRegistryMediumTest {
   @Test
   public void steps_returned_in_the_right_order() throws Exception {
     List<Class<? extends ComputationStep>> wishStepsClasses = Lists.newArrayList(
-//      DigestReportStep.class,
+      DigestReportStep.class,
       SynchronizeProjectPermissionsStep.class,
       SwitchSnapshotStep.class,
       InvalidatePreviewCacheStep.class,
