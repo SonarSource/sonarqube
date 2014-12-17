@@ -131,6 +131,7 @@ public class IssueIndexBenchmarkTest {
       .assigned(true)
       .build());
     // TODO test facets
+    // TODO assertions
   }
 
   private void benchmarkQuery(String label, IssueQuery query) {

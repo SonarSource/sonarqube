@@ -42,12 +42,19 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static org.fest.assertions.Assertions.assertThat;
 
+/**
+ * Performance tests of the Elasticsearch index sourcelines
+ * <ul>
+ *   <li>throughput of indexing of documents</li>
+ *   <li>size of ES data directory</li>
+ *   <li>time to request index</li>
+ * </ul>
+ */
 public class SourceIndexBenchmarkTest {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger("benchmarkSources");
-
-  final static long FILES = 10000L;
-  static final int LINES_PER_FILE = 200;
+  private static final Logger LOGGER = LoggerFactory.getLogger("benchmarkSourceIndexing");
+  private static final long FILES = 10000L;
+  private static final int LINES_PER_FILE = 200;
 
   @Rule
   public ServerTester tester = new ServerTester();
@@ -99,6 +106,7 @@ public class SourceIndexBenchmarkTest {
       assertThat(result).hasSize(131);
       LOGGER.info("Request: {} docs in {} ms", result.size(), end - start);
     }
+    // TODO assertions
   }
 
   private static class SourceIterator implements Iterator<SourceLineResultSetIterator.SourceFile> {

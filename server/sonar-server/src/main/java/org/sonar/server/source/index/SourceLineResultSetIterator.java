@@ -89,7 +89,7 @@ public class SourceLineResultSetIterator extends ResultSetIterator<SourceLineRes
 
   private static final String SQL_AFTER_DATE = SQL_ALL + " where updated_at>?";
 
-  static SourceLineResultSetIterator create(DbClient dbClient, Connection connection, long afterDate) {
+  public static SourceLineResultSetIterator create(DbClient dbClient, Connection connection, long afterDate) {
     try {
       String sql = afterDate > 0L ? SQL_AFTER_DATE : SQL_ALL;
       // rows are big, so they are scrolled once at a time (one row in memory at a time)
@@ -152,6 +152,7 @@ public class SourceLineResultSetIterator extends ResultSetIterator<SourceLineRes
         doc.setOverallCoveredConditions(parseIntegerFromRecord(csvRecord, 11));
         doc.setHighlighting(csvRecord.get(12));
         doc.setSymbols(csvRecord.get(13));
+
         doc.setDuplications(parseDuplications(csvRecord.get(14)));
         doc.setSource(csvRecord.get(csvRecord.size() - 1));
 

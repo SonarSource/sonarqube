@@ -18,6 +18,13 @@
   <dependencies>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-core</artifactId>
+      <type>test-jar</type>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-server</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
@@ -43,6 +50,11 @@
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-testing-harness</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.dbunit</groupId>
+      <artifactId>dbunit</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
