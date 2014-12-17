@@ -23,7 +23,6 @@ package org.sonar.server.benchmark;
 import com.google.common.collect.Maps;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -82,7 +81,7 @@ public class SourceIndexBenchmarkTest {
     long nbLines = files.count.get() * LINES_PER_FILE;
     long throughputPerSecond = 1000L * nbLines / period;
     LOGGER.info(String.format("%d lines indexed in %d ms (%d docs/second)", nbLines, period, throughputPerSecond));
-    benchmark.expectBetween("Throughput to index source lines", throughputPerSecond, 4300L, 4600L);
+    benchmark.expectBetween("Throughput to index source lines", throughputPerSecond, 6000L, 6400L);
 
     // be sure that physical files do not evolve during estimation of size
     tester.get(EsClient.class).prepareOptimize(SourceLineIndexDefinition.INDEX).get();
