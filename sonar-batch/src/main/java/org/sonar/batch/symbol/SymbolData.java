@@ -24,21 +24,21 @@ import org.sonar.api.batch.sensor.symbol.Symbol;
 import org.sonar.batch.index.Data;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class SymbolData implements Data {
 
   public static final String FIELD_SEPARATOR = ",";
   public static final String SYMBOL_SEPARATOR = ";";
 
-  private final Map<org.sonar.api.source.Symbol, List<Integer>> referencesBySymbol;
+  private final Map<org.sonar.api.source.Symbol, Set<Integer>> referencesBySymbol;
 
-  public SymbolData(Map<org.sonar.api.source.Symbol, List<Integer>> referencesBySymbol) {
+  public SymbolData(Map<org.sonar.api.source.Symbol, Set<Integer>> referencesBySymbol) {
     this.referencesBySymbol = referencesBySymbol;
   }
 
-  public Map<org.sonar.api.source.Symbol, List<Integer>> referencesBySymbol() {
+  public Map<org.sonar.api.source.Symbol, Set<Integer>> referencesBySymbol() {
     return referencesBySymbol;
   }
 

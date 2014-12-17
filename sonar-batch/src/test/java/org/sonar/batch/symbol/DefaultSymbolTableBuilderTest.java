@@ -30,8 +30,8 @@ import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.core.source.SnapshotDataTypes;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
@@ -58,7 +58,7 @@ public class DefaultSymbolTableBuilderTest {
     ArgumentCaptor<SymbolData> argCaptor = ArgumentCaptor.forClass(SymbolData.class);
     verify(componentDataCache).setData(eq("foo"), eq(SnapshotDataTypes.SYMBOL_HIGHLIGHTING), argCaptor.capture());
 
-    Map<org.sonar.api.source.Symbol, List<Integer>> referencesBySymbol = argCaptor.getValue().referencesBySymbol();
+    Map<org.sonar.api.source.Symbol, Set<Integer>> referencesBySymbol = argCaptor.getValue().referencesBySymbol();
 
     assertThat(new ArrayList<Symbol>(referencesBySymbol.keySet())).containsExactly(firstSymbol, secondSymbol, thirdSymbol);
     assertThat(new ArrayList<Integer>(referencesBySymbol.get(firstSymbol))).containsExactly(32);

@@ -27,17 +27,17 @@ import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.core.source.SnapshotDataTypes;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class DefaultSymbolTableBuilder implements SymbolTableBuilder {
 
   private final String componentKey;
   private final ComponentDataCache cache;
-  private final Map<org.sonar.api.source.Symbol, List<Integer>> referencesBySymbol = new LinkedHashMap<org.sonar.api.source.Symbol, List<Integer>>();
+  private final Map<org.sonar.api.source.Symbol, Set<Integer>> referencesBySymbol = new LinkedHashMap<org.sonar.api.source.Symbol, Set<Integer>>();
 
   public DefaultSymbolTableBuilder(String componentKey, ComponentDataCache cache) {
     this.componentKey = componentKey;
@@ -47,7 +47,7 @@ public class DefaultSymbolTableBuilder implements SymbolTableBuilder {
   @Override
   public Symbol newSymbol(int fromOffset, int toOffset) {
     org.sonar.api.source.Symbol symbol = new DefaultSymbol(fromOffset, toOffset);
-    referencesBySymbol.put(symbol, new ArrayList<Integer>());
+    referencesBySymbol.put(symbol, new TreeSet<Integer>());
     return symbol;
   }
 

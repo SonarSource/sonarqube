@@ -80,6 +80,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * Main utility class for writing batch medium tests.
@@ -406,7 +407,7 @@ public class BatchMediumTester {
      * @param symbolEndOffset 0-based end offset for the symbol in file
      */
     @CheckForNull
-    public List<Integer> symbolReferencesFor(InputFile file, int symbolStartOffset, int symbolEndOffset) {
+    public Set<Integer> symbolReferencesFor(InputFile file, int symbolStartOffset, int symbolEndOffset) {
       SymbolData data = symbolTablePerFile.get(file);
       if (data == null) {
         return null;

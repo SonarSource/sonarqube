@@ -58,7 +58,9 @@ import javax.annotation.Nullable;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -330,7 +332,15 @@ public class SourcePersister implements ScanPersister {
     StringBuilder[] symbolRefsPerLine = new StringBuilder[file.lines()];
     long[] originalLineOffsets = file.originalLineOffsets();
     int symbolId = 1;
-    for (Symbol symbol : symbolRefs.referencesBySymbol().keySet()) {
+    List<Symbol> symbols = new ArrayList<Symbol>(symbolRefs.referencesBySymbol().keySet());
+    // Sort symbols to avoid false variation that would lead to an unnecessary update
+    Collections.sort(symbols, new Comparator<Symbol>() {
+      @Override
+      public int compare(Symbol o1, Symbol o2) {
+        return o1.getDeclarationStartOffset() - o2.getDeclarationStartOffset();
+      }
+    });
+    for (Symbol symbol : symbols) {
       int declarationStartOffset = symbol.getDeclarationStartOffset();
       int declarationEndOffset = symbol.getDeclarationEndOffset();
       int length = declarationEndOffset - declarationStartOffset;
