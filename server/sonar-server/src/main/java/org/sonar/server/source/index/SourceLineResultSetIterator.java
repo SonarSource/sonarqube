@@ -43,6 +43,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
+import java.util.StringTokenizer;
 
 /**
  * Scroll over table FILE_SOURCES and directly parse CSV field required to
@@ -139,17 +140,17 @@ public class SourceLineResultSetIterator extends ResultSetIterator<SourceLineRes
         doc.setScmAuthor(csvRecord.get(1));
         doc.setScmDate(DateUtils.parseDateTimeQuietly(csvRecord.get(2)));
         // UT
-        doc.setUtLineHits(parseIntegerFromRecord(csvRecord, 3));
-        doc.setUtConditions(parseIntegerFromRecord(csvRecord, 4));
-        doc.setUtCoveredConditions(parseIntegerFromRecord(csvRecord, 5));
+        doc.setUtLineHits(parseIntegerFromRecord(csvRecord.get(3)));
+        doc.setUtConditions(parseIntegerFromRecord(csvRecord.get(4)));
+        doc.setUtCoveredConditions(parseIntegerFromRecord(csvRecord.get(5)));
         // IT
-        doc.setItLineHits(parseIntegerFromRecord(csvRecord, 6));
-        doc.setItConditions(parseIntegerFromRecord(csvRecord, 7));
-        doc.setItCoveredConditions(parseIntegerFromRecord(csvRecord, 8));
+        doc.setItLineHits(parseIntegerFromRecord(csvRecord.get(6)));
+        doc.setItConditions(parseIntegerFromRecord(csvRecord.get(7)));
+        doc.setItCoveredConditions(parseIntegerFromRecord(csvRecord.get(8)));
         // OVERALL
-        doc.setOverallLineHits(parseIntegerFromRecord(csvRecord, 9));
-        doc.setOverallConditions(parseIntegerFromRecord(csvRecord, 10));
-        doc.setOverallCoveredConditions(parseIntegerFromRecord(csvRecord, 11));
+        doc.setOverallLineHits(parseIntegerFromRecord(csvRecord.get(9)));
+        doc.setOverallConditions(parseIntegerFromRecord(csvRecord.get(10)));
+        doc.setOverallCoveredConditions(parseIntegerFromRecord(csvRecord.get(11)));
         doc.setHighlighting(csvRecord.get(12));
         doc.setSymbols(csvRecord.get(13));
 
@@ -175,22 +176,21 @@ public class SourceLineResultSetIterator extends ResultSetIterator<SourceLineRes
 
   private List<Integer> parseDuplications(@Nullable String duplications) {
     List<Integer> dups = Lists.newArrayList();
-    if (duplications != null && !duplications.isEmpty()) {
-      String[] dupsStrings = duplications.split(",");
-      for (String dup : dupsStrings) {
-        dups.add(NumberUtils.toInt(dup, -1));
+    if (StringUtils.isNotEmpty(duplications)) {
+      StringTokenizer tokenizer = new StringTokenizer(duplications, ",", false);
+      while (tokenizer.hasMoreTokens()) {
+        dups.add(NumberUtils.toInt(tokenizer.nextToken(), -1));
       }
     }
     return dups;
   }
 
   @CheckForNull
-  private Integer parseIntegerFromRecord(CSVRecord record, int column) {
-    String cellValue = record.get(column);
+  private Integer parseIntegerFromRecord(@Nullable String cellValue) {
     if (cellValue == null || cellValue.isEmpty()) {
       return null;
     } else {
-      return NumberUtils.createInteger(cellValue);
+      return Integer.parseInt(cellValue);
     }
   }
 }
