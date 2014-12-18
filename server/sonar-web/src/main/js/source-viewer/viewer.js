@@ -66,6 +66,7 @@ define([
             this.model = new Source();
           }
           this.issues = new Issues();
+          this.listenTo(this.issues, 'change:severity', this.onIssuesSeverityChange);
           this.issueViews = [];
           this.loadSourceBeforeThrottled = _.throttle(this.loadSourceBefore, 1000);
           this.loadSourceAfterThrottled = _.throttle(this.loadSourceAfter, 1000);
@@ -248,8 +249,16 @@ define([
           });
         },
 
+        _sortBySeverity: function (issues) {
+          var order = ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO'];
+          return _.sortBy(issues, function (issue) {
+            return order.indexOf(issue.severity);
+          });
+        },
+
         addIssuesPerLineMeta: function (issues) {
-          var lines = {};
+          var that = this,
+              lines = {};
           issues.forEach(function (issue) {
             var line = issue.get('line') || 0;
             if (!_.isArray(lines[line])) {
@@ -260,7 +269,7 @@ define([
           var issuesPerLine = _.pairs(lines).map(function (line) {
             return {
               line: +line[0],
-              issues: line[1]
+              issues: that._sortBySeverity(line[1])
             };
           });
           this.model.addMeta(issuesPerLine);
@@ -305,6 +314,17 @@ define([
             return (issue.get('line') === line) || (!issue.get('line') && !line);
           });
           issues.forEach(this.renderIssue, this);
+        },
+
+        onIssuesSeverityChange: function () {
+          var that = this;
+          this.addIssuesPerLineMeta(this.issues);
+          this.$('.source-line-with-issues').each(function () {
+            var line = +$(this).data('line-number'),
+                row = _.findWhere(that.model.get('source'), { line: line }),
+                issue = _.first(row.issues);
+            $(this).html('<i class="icon-severity-' + issue.severity.toLowerCase() + '"></i>');
+          });
         },
 
         highlightUsages: function (e) {
@@ -379,7 +399,11 @@ define([
 
         onLineIssuesClick: function (e) {
           var line = $(e.currentTarget).data('line-number');
-          this.showIssuesForLine(line);
+          if ($(e.currentTarget).parent().find('.issue-list').is('.hidden')) {
+            this.showIssuesForLine(line);
+          } else {
+            $(e.currentTarget).parent().find('.issue-list').addClass('hidden');
+          }
         },
 
         showLineActionsPopup: function (e) {

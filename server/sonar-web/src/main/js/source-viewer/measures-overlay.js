@@ -22,6 +22,14 @@ define([
     onRender: function () {
       Overlay.prototype.onRender.apply(this, arguments);
       this.$('.js-pie-chart').pieChart();
+      if (this.selectedTest != null) {
+        this.scrollToTest();
+      }
+    },
+
+    scrollToTest: function () {
+      var position = this.$('.js-selected-test').offset().top - this.$el.offset().top - 50;
+      this.$el.scrollTop(position);
     },
 
     show: function () {
@@ -49,6 +57,7 @@ define([
         metrics = _.filter(data, function (metric) {
           return !metric.hidden && metric.val_type !== 'DATA';
         });
+        metrics = _.sortBy(metrics, 'name');
       });
       return metrics;
     },
@@ -180,6 +189,7 @@ define([
 
     showTest: function (e) {
       var that = this,
+          p = window.process.addBackgroundProcess(),
           name = $(e.currentTarget).data('name'),
           url = baseUrl + '/api/tests/covered_files',
           options = {
@@ -190,6 +200,7 @@ define([
         that.coveredFiles = data.files;
         that.selectedTest = _.findWhere(that.model.get('tests'), {name: name});
         that.render();
+        window.process.finishBackgroundProcess(p);
       });
     },
 

@@ -54,8 +54,10 @@
 }
 
 .source-line-shadowed {
-  .source-line-code {
-    opacity: 0.4;
+  opacity: 0.4;
+
+  .source-meta {
+    border-color: transparent !important;
   }
 }
 
@@ -334,10 +336,18 @@
 .source-viewer-measures {
   .clearfix;
   background-color: @barBackgroundColor;
+
+  .bubble-popup-section {
+    width: 100%;
+  }
 }
 
 .source-viewer-measures + .source-viewer-measures {
   margin-top: 40px;
+}
+
+.source-viewer-measures-secondary .source-viewer-measures-card {
+  background-color: fade(#fff, 60%);
 }
 
 .source-viewer-measures-section {
