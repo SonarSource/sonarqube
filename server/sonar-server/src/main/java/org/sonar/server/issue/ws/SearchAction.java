@@ -124,6 +124,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       .setSince("3.6")
       .setResponseExample(Resources.getResource(this.getClass(), "example-search.json"));
 
+    addComponentRelatedParams(action);
     action.createParam(IssueFilterParameters.ISSUES)
       .setDescription("Comma-separated list of issue keys")
       .setExampleValue("5bccd6e8-f525-43a2-8d76-fcb13dde79ef");
@@ -142,34 +143,6 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
     action.createParam(IssueFilterParameters.RESOLVED)
       .setDescription("To match resolved or unresolved issues")
       .setBooleanPossibleValues();
-    action.createParam(IssueFilterParameters.COMPONENTS)
-      .setDescription("To retrieve issues associated to a specific list of components (comma-separated list of component keys). " +
-        "Note that if you set the value to a project key, only issues associated to this project are retrieved. " +
-        "Issues associated to its sub-components (such as files, packages, etc.) are not retrieved. See also componentRoots. " +
-        "If this parameter is set, componentUuids must not be set.")
-      .setExampleValue("org.apache.struts:struts:org.apache.struts.Action");
-    action.createParam(IssueFilterParameters.PROJECTS)
-      .setDescription("To retrieve issues associated to a specific list of projects (comma-separated list of project keys). " +
-        "If this parameter is set, projectUuids must not be set.")
-      .setExampleValue("org.apache.struts:struts:org.apache.struts.Action");
-    action.createParam(IssueFilterParameters.COMPONENT_ROOTS)
-      .setDescription("To retrieve issues associated to a specific list of components and their sub-components (comma-separated list of component keys). " +
-        "Views are not supported. If this parameter is set, componentRootUuids must not be set.")
-      .setExampleValue("org.apache.struts:struts");
-    action.createParam(IssueFilterParameters.COMPONENT_UUIDS)
-      .setDescription("To retrieve issues associated to a specific list of components (comma-separated list of component UUIDs). " +
-        "Note that if you set the value to a project UUID, only issues associated to this project are retrieved. " +
-        "Issues associated to its sub-components (such as files, packages, etc.) are not retrieved. See also componentRootUuids. " +
-        "If this parameter is set, components must not be set.")
-      .setExampleValue("584a89f2-8037-4f7b-b82c-8b45d2d63fb2");
-    action.createParam(IssueFilterParameters.COMPONENT_ROOT_UUIDS)
-      .setDescription("To retrieve issues associated to a specific list of components and their sub-components (comma-separated list of component UUIDs). " +
-        "Views are not supported. If this parameter is set, componentRoots must not be set.")
-      .setExampleValue("7d8749e8-3070-4903-9188-bdd82933bb92");
-    action.createParam(IssueFilterParameters.PROJECT_UUIDS)
-      .setDescription("To retrieve issues associated to a specific list of projects (comma-separated list of project UUIDs). " +
-        "Views are not supported. If this parameter is set, projects must not be set.")
-      .setExampleValue("7d8749e8-3070-4903-9188-bdd82933bb92");
     action.createParam(IssueFilterParameters.RULES)
       .setDescription("Comma-separated list of coding rule keys. Format is <repository>:<rule>")
       .setExampleValue("squid:AvoidCycles");
@@ -224,6 +197,59 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       .setDefaultValue("false");
     action.createParam("format")
       .setDescription("Only json format is available. This parameter is kept only for backward compatibility and shouldn't be used anymore");
+  }
+
+  private void addComponentRelatedParams(WebService.NewAction action) {
+    action.createParam(IssueFilterParameters.COMPONENT_KEYS)
+      .setDescription("To retrieve issues associated to a specific list of components (comma-separated list of component keys). " +
+        "A component can be a project, module, directory or file." +
+        "If this parameter is set, componentUuids must not be set.")
+      .setDeprecatedKey(IssueFilterParameters.COMPONENTS)
+      .setExampleValue("org.apache.struts:struts:org.apache.struts.Action");
+    action.createParam(IssueFilterParameters.COMPONENTS)
+      .setDescription("Deprecated since 5.1. See componentKeys.");
+    action.createParam(IssueFilterParameters.COMPONENT_UUIDS)
+      .setDescription("To retrieve issues associated to a specific list of components (comma-separated list of component UUIDs). " +
+        "This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter." +
+        "A component can be a project, module, directory or file." +
+        "If this parameter is set, componentKeys must not be set.")
+      .setExampleValue("584a89f2-8037-4f7b-b82c-8b45d2d63fb2");
+
+    action.createParam(IssueFilterParameters.PROJECTS)
+      .setDescription("Deprecated since 5.1. See projectKeys");
+    action.createParam(IssueFilterParameters.PROJECT_KEYS)
+      .setDescription("To retrieve issues associated to a specific list of projects (comma-separated list of project keys). " +
+        "This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter." +
+        "If this parameter is set, projectUuids must not be set.")
+      .setDeprecatedKey(IssueFilterParameters.PROJECTS)
+      .setExampleValue("org.apache.struts:struts:org.apache.struts.Action");
+    action.createParam(IssueFilterParameters.PROJECT_UUIDS)
+      .setDescription("To retrieve issues associated to a specific list of projects (comma-separated list of project UUIDs). " +
+        "This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter." +
+        "Views are not supported. If this parameter is set, projectKeys must not be set.")
+      .setExampleValue("7d8749e8-3070-4903-9188-bdd82933bb92");
+
+    action.createParam(IssueFilterParameters.COMPONENT_ROOTS)
+      .setDescription("Deprecated since 5.1. See moduleKeys.");
+    action.createParam(IssueFilterParameters.COMPONENT_ROOT_UUIDS)
+      .setDescription("Deprecated since 5.1. See moduleUuids.");
+    action.createParam(IssueFilterParameters.MODULE_KEYS)
+      .setDescription("To retrieve issues associated to a specific list of modules (comma-separated list of module keys). " +
+        "This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter." +
+        "Views are not supported. If this parameter is set, componentRootUuids must not be set.")
+      .setDeprecatedKey(IssueFilterParameters.COMPONENT_ROOTS)
+      .setExampleValue("org.apache.struts:struts");
+    action.createParam(IssueFilterParameters.MODULE_UUIDS)
+      .setDescription("To retrieve issues associated to a specific list of components and their sub-components (comma-separated list of component UUIDs). " +
+        "This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter." +
+        "Views are not supported. If this parameter is set, moduleKeys must not be set.")
+      .setDeprecatedKey(IssueFilterParameters.COMPONENT_ROOT_UUIDS)
+      .setExampleValue("7d8749e8-3070-4903-9188-bdd82933bb92");
+
+    action.createParam(IssueFilterParameters.ON_COMPONENT_ONLY)
+      .setDescription("Return only issues at the component's level, not on its descendants (modules, directories, files, etc.)")
+      .setBooleanPossibleValues()
+      .setDefaultValue("false");
   }
 
   @Override

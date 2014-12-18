@@ -20,6 +20,8 @@
 
 package org.sonar.server.issue;
 
+import org.apache.commons.lang.ObjectUtils;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Splitter;
@@ -77,11 +79,37 @@ public class IssueQueryService implements ServerComponent {
         .createdAfter(RubyUtils.toDate(params.get(IssueFilterParameters.CREATED_AFTER)))
         .createdBefore(RubyUtils.toDate(params.get(IssueFilterParameters.CREATED_BEFORE)));
       addProjectUuids(builder, session,
-        RubyUtils.toStrings(params.get(IssueFilterParameters.PROJECT_UUIDS)), RubyUtils.toStrings(params.get(IssueFilterParameters.PROJECTS)));
+        RubyUtils.toStrings(params.get(IssueFilterParameters.PROJECT_UUIDS)),
+        RubyUtils.toStrings(
+          ObjectUtils.defaultIfNull(
+            params.get(IssueFilterParameters.PROJECT_KEYS),
+            params.get(IssueFilterParameters.PROJECTS)
+          )
+        )
+      );
       addComponentUuids(builder, session,
-        RubyUtils.toStrings(params.get(IssueFilterParameters.COMPONENT_UUIDS)), RubyUtils.toStrings(params.get(IssueFilterParameters.COMPONENTS)));
+        RubyUtils.toStrings(params.get(IssueFilterParameters.COMPONENT_UUIDS)),
+        RubyUtils.toStrings(
+          ObjectUtils.defaultIfNull(
+            params.get(IssueFilterParameters.COMPONENT_KEYS),
+            params.get(IssueFilterParameters.COMPONENTS)
+          )
+        )
+      );
       addComponentRootUuids(builder, session,
-        RubyUtils.toStrings(params.get(IssueFilterParameters.COMPONENT_ROOT_UUIDS)), RubyUtils.toStrings(params.get(IssueFilterParameters.COMPONENT_ROOTS)));
+        RubyUtils.toStrings(
+          ObjectUtils.defaultIfNull(
+            params.get(IssueFilterParameters.MODULE_UUIDS),
+            params.get(IssueFilterParameters.COMPONENT_ROOT_UUIDS)
+          )
+        ),
+        RubyUtils.toStrings(
+          ObjectUtils.defaultIfNull(
+            params.get(IssueFilterParameters.MODULE_KEYS),
+            params.get(IssueFilterParameters.COMPONENT_ROOTS)
+          )
+        )
+      );
       String sort = (String) params.get(IssueFilterParameters.SORT);
       if (!Strings.isNullOrEmpty(sort)) {
         builder.sort(sort);
@@ -120,11 +148,11 @@ public class IssueQueryService implements ServerComponent {
         .createdBefore(request.paramAsDateTime(IssueFilterParameters.CREATED_BEFORE))
         .ignorePaging(request.paramAsBoolean(IssueFilterParameters.IGNORE_PAGING));
       addProjectUuids(builder, session,
-        request.paramAsStrings(IssueFilterParameters.PROJECT_UUIDS), request.paramAsStrings(IssueFilterParameters.PROJECTS));
+        request.paramAsStrings(IssueFilterParameters.PROJECT_UUIDS), request.paramAsStrings(IssueFilterParameters.PROJECT_KEYS));
       addComponentUuids(builder, session,
-        request.paramAsStrings(IssueFilterParameters.COMPONENT_UUIDS), request.paramAsStrings(IssueFilterParameters.COMPONENTS));
+        request.paramAsStrings(IssueFilterParameters.COMPONENT_UUIDS), request.paramAsStrings(IssueFilterParameters.COMPONENT_KEYS));
       addComponentRootUuids(builder, session,
-        request.paramAsStrings(IssueFilterParameters.COMPONENT_ROOT_UUIDS), request.paramAsStrings(IssueFilterParameters.COMPONENT_ROOTS));
+        request.paramAsStrings(IssueFilterParameters.MODULE_UUIDS), request.paramAsStrings(IssueFilterParameters.MODULE_KEYS));
       String sort = request.param(SearchRequestHandler.PARAM_SORT);
       if (!Strings.isNullOrEmpty(sort)) {
         builder.sort(sort);
