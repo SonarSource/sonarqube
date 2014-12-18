@@ -1,0 +1,27 @@
+<dataset>
+  <issues id="1" kee="ABCDE" resolution="OPEN" status="OPEN" severity="BLOCKER" manual_severity="[false]"
+      assignee="[null]"
+      author_login="[null]"
+      checksum="[null]"
+      effort_to_fix="[null]"
+      technical_debt="10"
+      message="[null]"
+      line="5000"
+      component_id="100"
+      root_component_id="10"
+      rule_id="200"
+      created_at="[null]"
+      updated_at="[null]"
+      reporter="emmerik"
+      issue_attributes="foo=bar"
+      tags="[null]"
+      action_plan_key="[null]"
+      issue_creation_date="2013-05-18"
+      issue_update_date="2013-05-18"
+      issue_close_date="2013-05-18"
+      />
+
+  <issue_changes id="1" kee="FGHIJ" issue_key="ABCDE" change_type="comment" user_login="emmerik" change_data="the comment"
+                 created_at="[null]" updated_at="[null]" issue_change_creation_date="[null]" />
+
+</dataset>

@@ -28,11 +28,7 @@ import org.sonar.core.persistence.AbstractDaoTestCase;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class IssuePersisterTest extends AbstractDaoTestCase {
 
@@ -53,10 +49,10 @@ public class IssuePersisterTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_persist_all_issues() throws Exception {
+  public void should_not_persist_issues_anymore() throws Exception {
     persister.persist();
 
-    verify(storage, times(1)).save(issues);
+    verify(storage, never()).save(issues);
   }
 
   @Test

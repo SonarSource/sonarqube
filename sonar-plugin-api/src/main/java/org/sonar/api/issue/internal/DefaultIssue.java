@@ -40,14 +40,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.io.Serializable;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -510,6 +503,12 @@ public class DefaultIssue implements Issue {
       }
       currentChange.setDiff(field, oldValue, newValue);
     }
+    addChange(currentChange);
+    return this;
+  }
+
+  public DefaultIssue setCurrentChange(FieldDiffs currentChange) {
+    this.currentChange = currentChange;
     addChange(currentChange);
     return this;
   }

@@ -49,6 +49,6 @@ public class IssuePersister implements ScanPersister {
       return;
     }
     Iterable<DefaultIssue> issues = issueCache.all();
-    storage.save(issues);
+    // storage.save(issues);
   }
 }

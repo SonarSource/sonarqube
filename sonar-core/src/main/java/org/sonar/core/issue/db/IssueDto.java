@@ -571,8 +571,8 @@ public final class IssueDto implements Serializable {
       .setResolution(issue.resolution())
       .setStatus(issue.status())
       .setSeverity(issue.severity())
-      .setChecksum(issue.checksum())
       .setManualSeverity(issue.manualSeverity())
+      .setChecksum(issue.checksum())
       .setReporter(issue.reporter())
       .setAssignee(issue.assignee())
       .setRuleId(ruleId)
@@ -595,7 +595,7 @@ public final class IssueDto implements Serializable {
       .setIssueUpdateDate(issue.updateDate())
       .setSelectedAt(issue.selectedAt())
 
-      // technical dates
+        // technical dates
       .setCreatedAt(now)
       .setUpdatedAt(now);
   }

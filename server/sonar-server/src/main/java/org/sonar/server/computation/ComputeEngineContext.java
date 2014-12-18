@@ -20,18 +20,25 @@
 
 package org.sonar.server.computation;
 
+import com.google.common.annotations.VisibleForTesting;
+import org.sonar.batch.protocol.output.resource.ReportComponent;
+import org.sonar.batch.protocol.output.resource.ReportComponents;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ComputeEngineContext {
 
   private final AnalysisReportDto reportDto;
   private final ComponentDto project;
   private File reportDirectory;
+  private Map<Long, ReportComponent> components = new HashMap<>();
 
   public ComputeEngineContext(AnalysisReportDto reportDto, ComponentDto project) {
     this.reportDto = reportDto;
@@ -52,5 +59,26 @@ public class ComputeEngineContext {
 
   public void setReportDirectory(@Nullable File reportDirectory) {
     this.reportDirectory = reportDirectory;
+  }
+
+  public void addResources(ReportComponents reportComponents) {
+    addResource(reportComponents.root());
+  }
+
+  @CheckForNull
+  public ReportComponent getComponentByBatchId(Long batchId) {
+    return components.get(batchId);
+  }
+
+  @VisibleForTesting
+  Map<Long, ReportComponent> getComponents() {
+    return components;
+  }
+
+  private void addResource(ReportComponent resource) {
+    this.components.put(resource.batchId(), resource);
+    for (ReportComponent childResource : resource.children()) {
+      addResource(childResource);
+    }
   }
 }
