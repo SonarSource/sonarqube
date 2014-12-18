@@ -157,32 +157,50 @@ define([
           options = {key: this.model.key()};
       return $.get(url, options).done(function (data) {
         that.model.set({tests: data.tests});
-        that.sortTests('name');
-        that.testSorting = 'name';
+        that.sortTests(function (test) {
+          return test.status + '_______' + test.name;
+        });
+        that.testSorting = 'status';
+        that.testAsc = true;
       });
     },
 
     sortTests: function (condition) {
       var tests = this.model.get('tests');
       if (_.isArray(tests)) {
-        this.model.set({tests: _.sortBy(tests, condition)});
+        tests = _.sortBy(tests, condition);
+        if (!this.testAsc) {
+          tests.reverse();
+        }
+        this.model.set({ tests: tests });
       }
     },
 
     sortTestsByDuration: function () {
+      if (this.testSorting === 'duration') {
+        this.testAsc = !this.testAsc;
+      }
       this.sortTests('durationInMs');
       this.testSorting = 'duration';
       this.render();
     },
 
     sortTestsByName: function () {
+      if (this.testSorting === 'name') {
+        this.testAsc = !this.testAsc;
+      }
       this.sortTests('name');
       this.testSorting = 'name';
       this.render();
     },
 
     sortTestsByStatus: function () {
-      this.sortTests('status');
+      if (this.testSorting === 'status') {
+        this.testAsc = !this.testAsc;
+      }
+      this.sortTests(function (test) {
+        return test.status + '_______' + test.name;
+      });
       this.testSorting = 'status';
       this.render();
     },
