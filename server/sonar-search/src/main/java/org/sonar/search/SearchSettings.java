@@ -137,7 +137,9 @@ class SearchSettings {
       builder.put("http.enabled", false);
     } else {
       LOGGER.warn(String.format(
-        "Elasticsearch HTTP connector is enabled on port %d. MUST NOT BE USED INTO PRODUCTION", httpPort));
+        "Elasticsearch HTTP connector is enabled on port %d. MUST NOT BE USED FOR PRODUCTION", httpPort));
+      // see https://github.com/lmenezes/elasticsearch-kopf/issues/195
+      builder.put("http.cors.enabled", true);
       builder.put("http.enabled", true);
       builder.put("http.host", "127.0.0.1");
       builder.put("http.port", httpPort);
