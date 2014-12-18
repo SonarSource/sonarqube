@@ -20,8 +20,10 @@
 
 package org.sonar.server.issue;
 
-import org.apache.commons.lang.ObjectUtils;
+import com.google.common.collect.Lists;
 
+import org.sonar.server.component.ComponentService;
+import org.apache.commons.lang.ObjectUtils;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Splitter;
@@ -52,9 +54,11 @@ import static com.google.common.collect.Lists.newArrayList;
 public class IssueQueryService implements ServerComponent {
 
   private final DbClient dbClient;
+  private final ComponentService componentService;
 
-  public IssueQueryService(DbClient dbClient) {
+  public IssueQueryService(DbClient dbClient, ComponentService componentService) {
     this.dbClient = dbClient;
+    this.componentService = componentService;
   }
 
   public IssueQuery createFromMap(Map<String, Object> params) {
@@ -199,16 +203,12 @@ public class IssueQueryService implements ServerComponent {
   }
 
   private Collection<String> componentUuids(DbSession session, @Nullable Collection<String> componentKeys) {
-    Collection<String> componentUuids = newArrayList();
-    if (componentKeys != null) {
-      for (ComponentDto component : dbClient.componentDao().getByKeys(session, componentKeys)) {
-        componentUuids.add(component.uuid());
-      }
-      // If unknown components are given, if no components are set then all issues will be return,
-      // then we add this hack in order to return no issue in this case.
-      if (!componentKeys.isEmpty() && componentUuids.isEmpty()) {
-        componentUuids.add("<UNKNOWN>");
-      }
+    Collection<String> componentUuids = Lists.newArrayList();
+    componentUuids.addAll(componentService.componentUuids(session, componentKeys, true));
+    // If unknown components are given, but no components are found, then all issues will be returned,
+    // so we add this hack in order to return no issue in this case.
+    if (componentKeys != null && !componentKeys.isEmpty() && componentUuids.isEmpty()) {
+      componentUuids.add("<UNKNOWN>");
     }
     return componentUuids;
   }

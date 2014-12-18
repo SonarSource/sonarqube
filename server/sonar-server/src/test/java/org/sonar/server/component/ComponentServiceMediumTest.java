@@ -20,6 +20,10 @@
 
 package org.sonar.server.component;
 
+import org.sonar.server.exceptions.NotFoundException;
+
+import org.fest.assertions.Fail;
+import com.google.common.collect.Lists;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -40,6 +44,7 @@ import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 
+import java.util.Arrays;
 import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -277,4 +282,39 @@ public class ComponentServiceMediumTest {
     service.bulkUpdateKey("sample:root", "sample", "sample2");
   }
 
+  @Test
+  public void should_return_project_uuids() throws Exception {
+    String moduleKey = "sample:root:module";
+    ComponentDto module = ComponentTesting.newModuleDto(project).setKey(moduleKey);
+    tester.get(ComponentDao.class).insert(session, module);
+    String fileKey = "sample:root:module:Foo.xoo";
+    ComponentDto file = ComponentTesting.newFileDto(module).setKey(fileKey);
+    tester.get(ComponentDao.class).insert(session, file);
+    session.commit();
+
+    assertThat(service.componentUuids(Arrays.asList(moduleKey, fileKey))).hasSize(2);
+    assertThat(service.componentUuids(null)).isEmpty();
+    assertThat(service.componentUuids(Arrays.<String>asList())).isEmpty();
+  }
+
+  @Test
+  public void should_fail_on_components_not_found() throws Exception {
+    String moduleKey = "sample:root:module";
+    String fileKey = "sample:root:module:Foo.xoo";
+
+    try {
+      service.componentUuids(Arrays.asList(moduleKey, fileKey));
+      Fail.fail("Should throw NotFoundException");
+    } catch(NotFoundException notFound) {
+      assertThat(notFound.getMessage()).contains(moduleKey).contains(fileKey);
+    }
+  }
+
+  @Test
+  public void should_fail_silently_on_components_not_found_if_told_so() throws Exception {
+    String moduleKey = "sample:root:module";
+    String fileKey = "sample:root:module:Foo.xoo";
+
+    assertThat(service.componentUuids(session, Arrays.asList(moduleKey, fileKey), true)).isEmpty();
+  }
 }

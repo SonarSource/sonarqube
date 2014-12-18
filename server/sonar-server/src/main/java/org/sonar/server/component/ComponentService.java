@@ -20,6 +20,13 @@
 
 package org.sonar.server.component;
 
+import com.google.common.base.Joiner;
+
+import org.apache.commons.collections.CollectionUtils;
+import com.google.common.base.Function;
+import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
@@ -30,8 +37,13 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 public class ComponentService implements ServerComponent {
 
@@ -131,4 +143,35 @@ public class ComponentService implements ServerComponent {
     }
   }
 
+  public Collection<String> componentUuids(@Nullable Collection<String> componentKeys) {
+    DbSession session = dbClient.openSession(false);
+    try {
+      return componentUuids(session, componentKeys, false);
+    } finally {
+      session.close();
+    }
+  }
+
+  public Collection<String> componentUuids(DbSession session, @Nullable Collection<String> componentKeys, boolean ignoreMissingComponents) {
+    Collection<String> componentUuids = newArrayList();
+    if (componentKeys != null && !componentKeys.isEmpty()) {
+      List<ComponentDto> components = dbClient.componentDao().getByKeys(session, componentKeys);
+
+      if (!ignoreMissingComponents && components.size() < componentKeys.size()) {
+        Collection<String> foundKeys = Collections2.transform(components, new Function<ComponentDto, String>() {
+          @Override
+          public String apply(ComponentDto component) {
+            return component.key();
+          }
+        });
+        throw new NotFoundException("The following component keys do not match any component:\n" +
+          Joiner.on('\n').join(CollectionUtils.subtract(componentKeys, foundKeys)));
+      }
+
+      for (ComponentDto component : components) {
+        componentUuids.add(component.uuid());
+      }
+    }
+    return componentUuids;
+  }
 }

@@ -24,14 +24,20 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.server.component.ComponentService;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -39,6 +45,8 @@ import static com.google.common.collect.Maps.newHashMap;
 import static java.util.Arrays.asList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -53,13 +61,25 @@ public class IssueQueryServiceTest {
   @Mock
   ComponentDao componentDao;
 
+  @Mock
+  ComponentService componentService;
+
   IssueQueryService issueQueryService;
 
   @Before
   public void setUp() throws Exception {
     when(dbClient.openSession(false)).thenReturn(session);
     when(dbClient.componentDao()).thenReturn(componentDao);
-    issueQueryService = new IssueQueryService(dbClient);
+
+    when(componentService.componentUuids(any(DbSession.class), any(Collection.class), eq(true))).thenAnswer(new Answer<Collection<String>>() {
+      @Override
+      public Collection<String> answer(InvocationOnMock invocation) throws Throwable {
+        Collection<String> componentKeys = (Collection<String>) invocation.getArguments()[1];
+        return componentKeys == null ? Arrays.<String>asList() : componentKeys;
+      }
+    });
+
+    issueQueryService = new IssueQueryService(dbClient, componentService);
   }
 
   @Test
@@ -70,8 +90,10 @@ public class IssueQueryServiceTest {
     map.put("statuses", newArrayList("CLOSED"));
     map.put("resolutions", newArrayList("FALSE-POSITIVE"));
     map.put("resolved", true);
-    map.put("components", newArrayList("org.apache"));
-    map.put("componentRoots", newArrayList("org.sonar"));
+    ArrayList<String> componentKeys = newArrayList("org.apache");
+    map.put("components", componentKeys);
+    ArrayList<String> moduleKeys = newArrayList("org.sonar");
+    map.put("componentRoots", moduleKeys);
     map.put("reporters", newArrayList("marilyn"));
     map.put("assignees", newArrayList("joanna"));
     map.put("languages", newArrayList("xoo"));
@@ -84,9 +106,9 @@ public class IssueQueryServiceTest {
     map.put("rules", "squid:AvoidCycle,findbugs:NullReference");
     map.put("sort", "CREATION_DATE");
     map.put("asc", true);
-    
-    when(componentDao.getByKeys(session, newArrayList("org.apache"))).thenReturn(newArrayList(new ComponentDto().setUuid("ABCD")));
-    when(componentDao.getByKeys(session, newArrayList("org.sonar"))).thenReturn(newArrayList(new ComponentDto().setUuid("BCDE")));
+
+    when(componentService.componentUuids(session, componentKeys, true)).thenReturn(newArrayList("ABCD"));
+    when(componentService.componentUuids(session, moduleKeys, true)).thenReturn(newArrayList("BCDE"));
 
     IssueQuery query = issueQueryService.createFromMap(map);
     assertThat(query.issueKeys()).containsOnly("ABCDE1234");
@@ -113,7 +135,10 @@ public class IssueQueryServiceTest {
   @Test
   public void add_unknown_when_no_component_found() {
     Map<String, Object> map = newHashMap();
-    map.put("components", newArrayList("unknown"));
+    ArrayList<String> componentKeys = newArrayList("unknown");
+    map.put("components", componentKeys);
+
+    when(componentService.componentUuids(any(DbSession.class), eq(componentKeys), eq(true))).thenReturn(Arrays.<String>asList());
 
     IssueQuery query = issueQueryService.createFromMap(map);
     assertThat(query.componentUuids()).containsOnly("<UNKNOWN>");
@@ -131,7 +156,8 @@ public class IssueQueryServiceTest {
   @Test
   public void fail_if_components_and_components_uuid_params_are_set_at_the_same_time() {
     Map<String, Object> map = newHashMap();
-    map.put("components", newArrayList("org.apache"));
+    ArrayList<String> componentKeys = newArrayList("org.apache");
+    map.put("components", componentKeys);
     map.put("componentUuids", newArrayList("ABCD"));
 
     try {
