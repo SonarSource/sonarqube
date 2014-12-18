@@ -23,11 +23,11 @@ import org.sonar.batch.protocol.GsonHelper;
 
 import java.util.Date;
 
-public class ReportResources {
+public class ReportComponents {
 
   private Date analysisDate;
 
-  private ReportResource root;
+  private ReportComponent root;
 
   public void setAnalysisDate(Date analysisDate) {
     this.analysisDate = analysisDate;
@@ -37,12 +37,12 @@ public class ReportResources {
     return analysisDate;
   }
 
-  public ReportResources setRoot(ReportResource r) {
+  public ReportComponents setRoot(ReportComponent r) {
     this.root = r;
     return this;
   }
 
-  public ReportResource root() {
+  public ReportComponent root() {
     return root;
   }
 
@@ -50,8 +50,8 @@ public class ReportResources {
     return GsonHelper.create().toJson(this);
   }
 
-  public static ReportResources fromJson(String json) {
-    return GsonHelper.create().fromJson(json, ReportResources.class);
+  public static ReportComponents fromJson(String json) {
+    return GsonHelper.create().fromJson(json, ReportComponents.class);
   }
 
 }

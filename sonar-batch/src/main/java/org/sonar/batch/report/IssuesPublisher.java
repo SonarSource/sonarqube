@@ -68,7 +68,7 @@ public class IssuesPublisher implements ReportPublisher {
     BatchResource batchResource = resourceCache.get(issue.componentKey());
     return new ReportIssue()
       .setKey(issue.key())
-      .setResourceBatchId(batchResource != null ? batchResource.batchId() : null)
+      .setComponentBatchId(batchResource != null ? batchResource.batchId() : null)
       .setNew(issue.isNew())
       .setLine(issue.line())
       .setMessage(issue.message())

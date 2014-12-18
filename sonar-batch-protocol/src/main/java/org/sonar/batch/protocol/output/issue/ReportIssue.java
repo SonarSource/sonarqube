@@ -25,18 +25,20 @@ import java.util.Date;
 
 public class ReportIssue {
 
-  private Long resourceBatchId;
-  private boolean isNew;
+  private Long componentBatchId;
   private String ruleKey;
   private String ruleRepo;
-  private String key;
   private Integer line;
   private String message;
   private Double effortToFix;
+  private String severity;
+
+  // Temporary fields that should be removed when aggregation/issue tracking is done by computation
+  private boolean isNew;
+  private String key;
   private Long debtInMinutes;
   private String resolution;
   private String status;
-  private String severity;
   private String checksum;
   private boolean manualSeverity;
   private String reporter;
@@ -60,13 +62,13 @@ public class ReportIssue {
     return key;
   }
 
-  public ReportIssue setResourceBatchId(@Nullable Long resourceBatchId) {
-    this.resourceBatchId = resourceBatchId;
+  public ReportIssue setComponentBatchId(@Nullable Long resourceBatchId) {
+    this.componentBatchId = resourceBatchId;
     return this;
   }
 
-  public Long resourceBatchId() {
-    return resourceBatchId;
+  public Long componentBatchId() {
+    return componentBatchId;
   }
 
   public ReportIssue setNew(boolean isNew) {

@@ -50,7 +50,7 @@ public class ReportIssueTest {
       .setNew(true)
       .setReporter("reporter")
       .setResolution("resolution")
-      .setResourceBatchId(4L)
+      .setComponentBatchId(4L)
       .setRuleKey("repo", "rule")
       .setSelectedAt(234L)
       .setSeverity("severity")
@@ -75,7 +75,7 @@ public class ReportIssueTest {
     assertThat(issue.isNew()).isTrue();
     assertThat(issue.reporter()).isEqualTo("reporter");
     assertThat(issue.resolution()).isEqualTo("resolution");
-    assertThat(issue.resourceBatchId()).isEqualTo(4L);
+    assertThat(issue.componentBatchId()).isEqualTo(4L);
     assertThat(issue.ruleRepo()).isEqualTo("repo");
     assertThat(issue.ruleKey()).isEqualTo("rule");
     assertThat(issue.selectedAt()).isEqualTo(234L);

@@ -22,7 +22,7 @@ package org.sonar.batch.protocol.output.resource;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class ReportResource {
+public class ReportComponent {
 
   public enum Type {
     PRJ,
@@ -38,9 +38,9 @@ public class ReportResource {
   private String name;
   private Type type;
 
-  private Collection<ReportResource> children = new ArrayList<ReportResource>();
+  private Collection<ReportComponent> children = new ArrayList<ReportComponent>();
 
-  public ReportResource setBatchId(long batchId) {
+  public ReportComponent setBatchId(long batchId) {
     this.batchId = batchId;
     return this;
   }
@@ -49,7 +49,7 @@ public class ReportResource {
     return batchId;
   }
 
-  public ReportResource setId(int id) {
+  public ReportComponent setId(int id) {
     this.id = id;
     return this;
   }
@@ -58,7 +58,7 @@ public class ReportResource {
     return id;
   }
 
-  public ReportResource setSnapshotId(int snapshotId) {
+  public ReportComponent setSnapshotId(int snapshotId) {
     this.snapshotId = snapshotId;
     return this;
   }
@@ -67,7 +67,7 @@ public class ReportResource {
     return snapshotId;
   }
 
-  public ReportResource setPath(String path) {
+  public ReportComponent setPath(String path) {
     this.path = path;
     return this;
   }
@@ -76,7 +76,7 @@ public class ReportResource {
     return path;
   }
 
-  public ReportResource setName(String name) {
+  public ReportComponent setName(String name) {
     this.name = name;
     return this;
   }
@@ -85,7 +85,7 @@ public class ReportResource {
     return name;
   }
 
-  public ReportResource setType(Type type) {
+  public ReportComponent setType(Type type) {
     this.type = type;
     return this;
   }
@@ -94,12 +94,12 @@ public class ReportResource {
     return type;
   }
 
-  public ReportResource addChild(ReportResource child) {
+  public ReportComponent addChild(ReportComponent child) {
     this.children.add(child);
     return this;
   }
 
-  public Collection<ReportResource> children() {
+  public Collection<ReportComponent> children() {
     return children;
   }
 

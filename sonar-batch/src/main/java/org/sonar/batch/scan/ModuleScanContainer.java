@@ -62,7 +62,7 @@ import org.sonar.batch.qualitygate.GenerateQualityGateEvents;
 import org.sonar.batch.qualitygate.QualityGateProvider;
 import org.sonar.batch.qualitygate.QualityGateVerifier;
 import org.sonar.batch.report.IssuesPublisher;
-import org.sonar.batch.report.ResourcesPublisher;
+import org.sonar.batch.report.ComponentsPublisher;
 import org.sonar.batch.rule.ActiveRulesProvider;
 import org.sonar.batch.rule.ModuleQProfiles;
 import org.sonar.batch.rule.QProfileDecorator;
@@ -120,7 +120,7 @@ public class ModuleScanContainer extends ComponentContainer {
       PhaseExecutor.class,
       PhasesTimeProfiler.class,
       PhaseExecutor.getPhaseClasses(),
-      ResourcesPublisher.class,
+      ComponentsPublisher.class,
       IssuesPublisher.class,
       moduleDefinition.getContainerExtensions(),
 

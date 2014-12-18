@@ -25,35 +25,34 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.batch.index.BatchResource;
 import org.sonar.batch.index.ResourceCache;
-import org.sonar.batch.protocol.output.resource.ReportResource;
-import org.sonar.batch.protocol.output.resource.ReportResource.Type;
-import org.sonar.batch.protocol.output.resource.ReportResources;
+import org.sonar.batch.protocol.output.resource.ReportComponent;
+import org.sonar.batch.protocol.output.resource.ReportComponents;
 
 import java.io.File;
 import java.io.IOException;
 
-public class ResourcesPublisher implements ReportPublisher {
+public class ComponentsPublisher implements ReportPublisher {
 
   private final ResourceCache resourceCache;
   private final ProjectReactor reactor;
 
-  public ResourcesPublisher(ProjectReactor reactor, ResourceCache resourceCache) {
+  public ComponentsPublisher(ProjectReactor reactor, ResourceCache resourceCache) {
     this.reactor = reactor;
     this.resourceCache = resourceCache;
   }
 
   @Override
   public void export(File reportDir) throws IOException {
-    ReportResources resources = new ReportResources();
+    ReportComponents components = new ReportComponents();
     BatchResource rootProject = resourceCache.get(reactor.getRoot().getKeyWithBranch());
-    resources.setRoot(buildResourceForReport(rootProject));
+    components.setRoot(buildResourceForReport(rootProject));
     File resourcesFile = new File(reportDir, "resources.json");
-    FileUtils.write(resourcesFile, resources.toJson());
+    FileUtils.write(resourcesFile, components.toJson());
   }
 
-  private ReportResource buildResourceForReport(BatchResource batchResource) {
+  private ReportComponent buildResourceForReport(BatchResource batchResource) {
     Resource r = batchResource.resource();
-    ReportResource result = new ReportResource()
+    ReportComponent result = new ReportComponent()
       .setBatchId(batchResource.batchId())
       .setSnapshotId(batchResource.snapshotId())
       .setId(r.getId())
@@ -66,15 +65,15 @@ public class ResourcesPublisher implements ReportPublisher {
     return result;
   }
 
-  private Type getType(Resource r) {
+  private ReportComponent.Type getType(Resource r) {
     if (ResourceUtils.isFile(r)) {
-      return ReportResource.Type.FIL;
+      return ReportComponent.Type.FIL;
     } else if (ResourceUtils.isDirectory(r)) {
-      return ReportResource.Type.DIR;
+      return ReportComponent.Type.DIR;
     } else if (ResourceUtils.isModuleProject(r)) {
-      return ReportResource.Type.MOD;
+      return ReportComponent.Type.MOD;
     } else if (ResourceUtils.isRootProject(r)) {
-      return ReportResource.Type.PRJ;
+      return ReportComponent.Type.PRJ;
     }
     throw new IllegalArgumentException("Unknow resource type: " + r);
   }

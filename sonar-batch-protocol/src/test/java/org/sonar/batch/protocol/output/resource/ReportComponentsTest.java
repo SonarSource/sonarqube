@@ -22,27 +22,27 @@ package org.sonar.batch.protocol.output.resource;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
-import org.sonar.batch.protocol.output.resource.ReportResource.Type;
+import org.sonar.batch.protocol.output.resource.ReportComponent.Type;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class ReportResourcesTest {
+public class ReportComponentsTest {
 
   @Test
   public void to_json() throws Exception {
-    ReportResources res = new ReportResources();
+    ReportComponents res = new ReportComponents();
     Date d = new SimpleDateFormat("dd/MM/yyyy").parse("12/12/2012");
     res.setAnalysisDate(d);
-    ReportResource root = new ReportResource()
+    ReportComponent root = new ReportComponent()
       .setBatchId(1)
       .setId(11)
       .setName("Root project")
       .setSnapshotId(111)
       .setType(Type.PRJ);
-    ReportResource module = new ReportResource()
+    ReportComponent module = new ReportComponent()
       .setBatchId(2)
       .setId(22)
       .setName("Module")
@@ -50,7 +50,7 @@ public class ReportResourcesTest {
       .setPath("module1")
       .setType(Type.MOD);
     root.addChild(module);
-    ReportResource dir = new ReportResource()
+    ReportComponent dir = new ReportComponent()
       .setBatchId(3)
       .setId(33)
       .setName("src")
@@ -58,7 +58,7 @@ public class ReportResourcesTest {
       .setPath("src")
       .setType(Type.DIR);
     module.addChild(dir);
-    ReportResource file = new ReportResource()
+    ReportComponent file = new ReportComponent()
       .setBatchId(4)
       .setId(44)
       .setName("Foo.java")
@@ -76,12 +76,12 @@ public class ReportResourcesTest {
 
   @Test
   public void from_json() throws Exception {
-    ReportResources res = ReportResources
+    ReportComponents res = ReportComponents
       .fromJson(
       IOUtils.toString(this.getClass().getResourceAsStream("ReportResourceTest/expected.json"), "UTF-8"));
 
     assertThat(res.analysisDate()).isEqualTo(new SimpleDateFormat("dd/MM/yyyy").parse("12/12/2012"));
-    ReportResource root = res.root();
+    ReportComponent root = res.root();
     assertThat(root.batchId()).isEqualTo(1);
     assertThat(root.id()).isEqualTo(11);
     assertThat(root.name()).isEqualTo("Root project");
