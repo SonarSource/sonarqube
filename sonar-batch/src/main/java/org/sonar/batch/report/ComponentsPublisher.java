@@ -46,7 +46,7 @@ public class ComponentsPublisher implements ReportPublisher {
     ReportComponents components = new ReportComponents();
     BatchResource rootProject = resourceCache.get(reactor.getRoot().getKeyWithBranch());
     components.setRoot(buildResourceForReport(rootProject));
-    File resourcesFile = new File(reportDir, "resources.json");
+    File resourcesFile = new File(reportDir, "components.json");
     FileUtils.write(resourcesFile, components.toJson());
   }
 
