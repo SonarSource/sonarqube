@@ -27,6 +27,7 @@ import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.SonarException;
 
 import javax.annotation.Nullable;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.List;
@@ -1884,13 +1885,14 @@ public final class CoreMetrics {
   // --------------------------------------------------------------------------------------------------------------------
   //
   // SCM
-  // These metrics are computed by the SCM Activity plugin, since version 1.2 and introduced here since version 2.7.
   //
   // --------------------------------------------------------------------------------------------------------------------
 
   /**
    * @since 2.7
+   * @deprecated since 5.0 SCM data will no more be stored as measures
    */
+  @Deprecated
   public static final String SCM_AUTHORS_BY_LINE_KEY = "authors_by_line";
 
   /**
@@ -1899,14 +1901,18 @@ public final class CoreMetrics {
    * @see org.sonar.api.utils.KeyValueFormat#formatIntString(java.util.Map)
    * @see org.sonar.api.utils.KeyValueFormat#parseIntString(String)
    * @since 2.7
+   * @deprecated since 5.0 SCM data will no more be stored as measures
    */
+  @Deprecated
   public static final Metric<String> SCM_AUTHORS_BY_LINE = new Metric.Builder(SCM_AUTHORS_BY_LINE_KEY, "Authors by line", Metric.ValueType.DATA)
     .setDomain(DOMAIN_SCM)
     .create();
 
   /**
    * @since 2.7
+   * @deprecated since 5.0 SCM data will no more be stored as measures
    */
+  @Deprecated
   public static final String SCM_REVISIONS_BY_LINE_KEY = "revisions_by_line";
 
   /**
@@ -1915,14 +1921,18 @@ public final class CoreMetrics {
    * @see org.sonar.api.utils.KeyValueFormat#formatIntString(java.util.Map)
    * @see org.sonar.api.utils.KeyValueFormat#parseIntString(String)
    * @since 2.7
+   * @deprecated since 5.0 SCM data will no more be stored as measures
    */
+  @Deprecated
   public static final Metric<String> SCM_REVISIONS_BY_LINE = new Metric.Builder(SCM_REVISIONS_BY_LINE_KEY, "Revisions by line", Metric.ValueType.DATA)
     .setDomain(DOMAIN_SCM)
     .create();
 
   /**
    * @since 2.7
+   * @deprecated since 5.0 SCM data will no more be stored as measures
    */
+  @Deprecated
   public static final String SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY = "last_commit_datetimes_by_line";
 
   /**
@@ -1931,12 +1941,13 @@ public final class CoreMetrics {
    * @see org.sonar.api.utils.KeyValueFormat#formatIntDateTime(java.util.Map)
    * @see org.sonar.api.utils.KeyValueFormat#parseIntDateTime(String)
    * @since 2.7
+   * @deprecated since 5.0 SCM data will no more be stored as measures
    */
+  @Deprecated
   public static final Metric<String> SCM_LAST_COMMIT_DATETIMES_BY_LINE = new Metric.Builder(SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY, "Last commit dates by line",
     Metric.ValueType.DATA)
     .setDomain(DOMAIN_SCM)
     .create();
-
 
   // --------------------------------------------------------------------------------------------------------------------
   //
