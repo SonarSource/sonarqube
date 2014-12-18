@@ -1,0 +1,15 @@
+<div class="coding-rule-inner">
+  <div class="coding-rule-title">
+    <a class="js-rule link-no-underline">{{name}}</a>
+  </div>
+  <div class="coding-rule-meta">
+    <a class="js-lang link-no-underline" data-lang="{{lang}}">{{langName}}</a>
+    {{#notEmpty sysTags}}
+      &nbsp;&nbsp;&nbsp;
+      <i class="icon-tags"></i>
+      {{#each sysTags}}
+        <a class="js-tag link-no-underline" data-tag="{{this}}">{{this}}</a>
+      {{/each}}
+    {{/notEmpty}}
+  </div>
+</div>

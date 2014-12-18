@@ -1,10 +1,10 @@
 define [
-  'backbone.marionette'
+  'components/navigator/workspace-list-view'
   'templates/issues'
   'issues/workspace-list-item-view'
   'issues/workspace-list-empty-view'
 ], (
-  Marionette
+  WorkspaceListView
   Templates
   IssueView
   EmptyView
@@ -17,48 +17,12 @@ define [
   BOTTOM_OFFSET = 10
 
 
-  class extends Marionette.CompositeView
+  class extends WorkspaceListView
     template: Templates['issues-workspace-list']
     componentTemplate: Templates['issues-workspace-list-component']
     itemView: IssueView
-    itemViewContainer: '.js-issues-list'
+    itemViewContainer: '.js-list'
     emptyView: EmptyView
-
-
-    ui:
-      loadMore: '.js-issues-more'
-
-
-    itemViewOptions: ->
-      app: @options.app
-
-
-    collectionEvents:
-      'reset': 'scrollToTop'
-
-
-    initialize: ->
-      @loadMoreThrottled = _.throttle @loadMore, 1000, { trailing: false }
-      @listenTo @options.app.state, 'change:maxResultsReached', @toggleLoadMore
-      @listenTo @options.app.state, 'change:selectedIndex', @scrollToIssue
-      @bindShortcuts()
-
-
-    onClose: ->
-      @unbindScrollEvents()
-      @unbindShortcuts()
-
-
-    toggleLoadMore: ->
-      @ui.loadMore.toggle !@options.app.state.get 'maxResultsReached'
-
-
-    bindScrollEvents: ->
-      $(window).on 'scroll.issues-workspace-list', (=> @onScroll())
-
-
-    unbindScrollEvents: ->
-      $(window).off 'scroll.issues-workspace-list'
 
 
     bindShortcuts: ->
@@ -74,13 +38,7 @@ define [
         selectedIssueView = @children.findByModel selectedIssue
         selectedIssueView.$(".js-issue-#{action}").click()
 
-      key 'up', 'list', =>
-        @options.app.controller.selectPreviousIssue()
-        false
-
-      key 'down', 'list', =>
-        @options.app.controller.selectNextIssue()
-        false
+      super
 
       key 'right,return', 'list', =>
         selectedIssue = @collection.at @options.app.state.get 'selectedIndex'
@@ -101,29 +59,7 @@ define [
       key 't', 'list', -> doAction 'edit-tags'
 
 
-    loadMore: ->
-      unless @options.app.state.get 'maxResultsReached'
-        @unbindScrollEvents()
-        @options.app.controller.fetchNextPage().done => @bindScrollEvents()
-
-
-    disablePointerEvents: ->
-      clearTimeout @scrollTimer
-      $('body').addClass 'disabled-pointer-events'
-      @scrollTimer = setTimeout (-> $('body').removeClass 'disabled-pointer-events'), 250
-
-
-    onScroll: ->
-      @disablePointerEvents()
-      if $(window).scrollTop() + $(window).height() >= @ui.loadMore.offset().top
-        @loadMoreThrottled()
-
-
-    scrollToTop: ->
-      @$el.scrollParent().scrollTop 0
-
-
-    scrollToIssue: ->
+    scrollTo: ->
       selectedIssue = @collection.at @options.app.state.get 'selectedIndex'
       return unless selectedIssue?
       selectedIssueView = @children.findByModel selectedIssue

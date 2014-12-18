@@ -12,7 +12,7 @@ define [
       languages = @options.app.state.get('query').languages
       if languages?
         url += "&languages=#{languages}"
-      @$('.js-issues-custom-value').select2
+      @$('.js-custom-value').select2
         placeholder: 'Search...'
         minimumInputLength: 2
         allowClear: false

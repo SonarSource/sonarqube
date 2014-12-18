@@ -1,8 +1,8 @@
 {{> '_issues-facet-header'}}
 
-<div class="issues-facet-list">
+<div class="search-navigator-facet-list">
   {{#each values}}
-    <a class="facet issues-facet js-issues-facet" data-value="{{val}}" title="{{default label val}}">
+    <a class="facet search-navigator-facet js-facet" data-value="{{val}}" title="{{default label val}}">
       <span class="facet-name">{{default label val}}</span>
       <span class="facet-stat">{{count}}</span>
     </a>

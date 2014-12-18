@@ -13,7 +13,7 @@ define [
 
     events: ->
       _.extend super,
-        'change .js-issues-custom-value': 'addCustomValue'
+        'change .js-custom-value': 'addCustomValue'
 
 
     getUrl: ->
@@ -42,7 +42,7 @@ define [
 
     addCustomValue: ->
       property = @model.get 'property'
-      customValue = @$('.js-issues-custom-value').select2 'val'
+      customValue = @$('.js-custom-value').select2 'val'
       value = @getValue()
       value += ',' if value.length > 0
       value += customValue

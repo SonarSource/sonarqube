@@ -14,13 +14,13 @@ define [
 
 
     events:
-      'click .js-issues-toggle-filters': 'toggleFilters'
-      'click .js-issues-filter': 'applyFilter'
-      'click #issues-new-search': 'newSearch'
-      'click #issues-filter-save-as': 'saveAs'
-      'click #issues-filter-save': 'save'
-      'click #issues-filter-copy': 'copy'
-      'click #issues-filter-edit': 'edit'
+      'click .js-toggle-filters': 'toggleFilters'
+      'click .js-filter': 'applyFilter'
+      'click .js-new-search': 'newSearch'
+      'click .js-filter-save-as': 'saveAs'
+      'click .js-filter-save': 'save'
+      'click .js-filter-copy': 'copy'
+      'click .js-filter-edit': 'edit'
 
 
     initialize: (options) ->
@@ -35,15 +35,15 @@ define [
 
 
     onRender: ->
-      @$el.toggleClass 'issues-filters-selected', @options.app.state.has('filter')
+      @$el.toggleClass 'search-navigator-filters-selected', @options.app.state.has('filter')
 
 
     toggleFilters: (e) ->
       e.stopPropagation()
-      @$('.issues-filters-list').toggle()
+      @$('.search-navigator-filters-list').toggle()
       $('body').on 'click.issues-filters', =>
         $('body').off 'click.issues-filters'
-        @$('.issues-filters-list').hide()
+        @$('.search-navigator-filters-list').hide()
 
 
     applyFilter: (e) ->

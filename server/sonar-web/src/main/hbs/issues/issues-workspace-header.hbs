@@ -13,13 +13,13 @@
 </div>
 
 
-<div class="issues-header-actions">
+<div class="search-navigator-header-actions">
   {{#notNull state.total}}
-    <div class="issues-header-pagination">
+    <div class="search-navigator-header-pagination">
       {{#gt state.total 0}}
-        <a class="js-issues-prev icon-prev" title="{{t 'paging_previous'}}"></a>
+        <a class="js-prev icon-prev" title="{{t 'paging_previous'}}"></a>
         <span class="current">{{sum state.selectedIndex 1}} / <span id="issues-total">{{state.total}}</span></span>
-        <a class="js-issues-next icon-next" title="{{t 'paging_next'}}"></a>
+        <a class="js-next icon-next" title="{{t 'paging_next'}}"></a>
       {{else}}
         <span class="current">0 / <span id="issues-total">0</span></span>
       {{/gt}}
@@ -27,10 +27,10 @@
   {{/notNull}}
 
 
-  <div class="issues-header-buttons button-group">
-    <button id="issues-reload">{{t 'reload'}}</button>
+  <div class="search-navigator-header-buttons button-group">
+    <button id="issues-reload" class="js-reload">{{t 'reload'}}</button>
     {{#if state.canBulkChange}}
-      <button id="issues-bulk-change">{{t 'bulk_change'}}</button>
+      <button id="issues-bulk-change" class="js-bulk-change">{{t 'bulk_change'}}</button>
     {{/if}}
   </div>
 </div>

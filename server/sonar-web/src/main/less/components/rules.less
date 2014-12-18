@@ -1,0 +1,59 @@
+@import (reference) "../variables";
+@import (reference) "../mixins";
+@import (reference) "../ui";
+
+@leftPadding: 10px;
+@rightPadding: 10px;
+@topPadding: 8px;
+@bottomPadding: 8px;
+@lineHeight: @baseFontSize * 1.5;
+
+.coding-rule {
+  padding: @topPadding @rightPadding @bottomPadding @topPadding;
+  border: 1px solid transparent;
+  background-color: #fff;
+
+  &.selected {
+    border-color: @blue !important;
+  }
+}
+
+.coding-rule + .coding-rule {
+  border-top-color: @barBorderColor;
+}
+
+.coding-rule.selected + .coding-rule {
+  border-top-color: transparent;
+}
+
+.coding-rule-inner {
+  .justify;
+  margin-bottom: -16px;
+}
+
+.coding-rule-title {
+  display: inline-block;
+  vertical-align: baseline;
+  line-height: @lineHeight;
+  font-size: @baseFontSize;
+}
+
+.coding-rule-meta {
+  display: inline-block;
+  vertical-align: baseline;
+  line-height: @lineHeight;
+  font-size: @smallFontSize;
+
+  .icon-tags:before {
+    color: @secondFontColor;
+    font-size: @smallFontSize;
+  }
+
+  .js-tag:after {
+    content: ",";
+  }
+
+  .js-tag:last-child:after {
+    content: "";
+  }
+}

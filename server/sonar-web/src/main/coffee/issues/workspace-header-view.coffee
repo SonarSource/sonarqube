@@ -1,36 +1,29 @@
 define [
-  'backbone.marionette'
+  'components/navigator/workspace-header-view'
   'templates/issues'
 ], (
-  Marionette
+  WorkspaceHeaderView
   Templates
 ) ->
 
   $ = jQuery
 
 
-  class extends Marionette.ItemView
+  class extends WorkspaceHeaderView
     template: Templates['issues-workspace-header']
 
 
-    collectionEvents:
-      'all': 'render'
+    events: ->
+      _.extend super,
+        'click .js-back': 'returnToList'
 
 
-    events:
-      'click .js-back': 'returnToList'
-      'click #issues-bulk-change': 'bulkChange'
-      'click #issues-reload': 'reloadIssues'
-      'click .js-issues-next': 'selectNextIssue'
-      'click .js-issues-prev': 'selectPrevIssue'
-
-
-    initialize: (options) ->
-      @listenTo options.app.state, 'change', @render
+    initialize: ->
+      super
       @_onBulkIssues = window.onBulkIssues
       window.onBulkIssues = =>
         $('#modal').dialog 'close'
-        @options.app.controller.fetchIssues()
+        @options.app.controller.fetchList()
 
 
     onClose: ->
@@ -45,21 +38,3 @@ define [
       query = @options.app.controller.getQuery '&'
       url = "#{baseUrl}/issues/bulk_change_form?#{query}"
       openModalWindow url, {}
-
-
-    reloadIssues: ->
-      @options.app.controller.fetchIssues()
-
-
-    selectNextIssue: ->
-      @options.app.controller.selectNextIssue()
-
-
-    selectPrevIssue: ->
-      @options.app.controller.selectPreviousIssue()
-
-
-    serializeData: ->
-      _.extend super,
-        state: @options.app.state.toJSON()
-

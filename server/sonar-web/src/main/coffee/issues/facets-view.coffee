@@ -1,5 +1,5 @@
 define [
-  'backbone.marionette'
+  'components/navigator/facets-view'
 
   'issues/facets/base-facet'
   'issues/facets/severity-facet'
@@ -17,7 +17,8 @@ define [
   'issues/facets/language-facet'
   'issues/facets/issue-key-facet'
 ], (
-  Marionette
+  FacetsView
+
   BaseFacet
   SeverityFacet
   StatusFacet
@@ -35,9 +36,7 @@ define [
   IssueKeyFacet
 ) ->
 
-  class extends Marionette.CollectionView
-    className: 'issues-facets-list'
-
+  class extends FacetsView
 
     getItemView: (model) ->
       switch model.get 'property'
@@ -56,17 +55,3 @@ define [
         when 'languages' then LanguageFacet
         when 'issues' then IssueKeyFacet
         else BaseFacet
-
-
-    itemViewOptions: ->
-      app: @options.app
-
-
-    collectionEvents: ->
-      'change:enabled': 'updateState'
-
-
-    updateState: ->
-      enabledFacets = @collection.filter (model) -> model.get('enabled')
-      enabledFacetIds = enabledFacets.map (model) -> model.id
-      @options.app.state.set facets: enabledFacetIds

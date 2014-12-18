@@ -12,7 +12,7 @@ define [
       tags = @options.app.state.get('query').tags
       if tags?
         url += "&tags=#{tags}"
-      @$('.js-issues-custom-value').select2
+      @$('.js-custom-value').select2
         placeholder: 'Search...'
         minimumInputLength: 0
         allowClear: false

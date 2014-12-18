@@ -21,7 +21,7 @@ define [
       super
       value = @options.app.state.get('query')['assigned']
       if value? && (!value || value == 'false')
-        @$('.js-issues-facet').filter("[data-unassigned]").addClass 'active'
+        @$('.js-facet').filter("[data-unassigned]").addClass 'active'
 
 
     toggleFacet: (e) ->
@@ -54,7 +54,7 @@ define [
 
     addCustomValue: ->
       property = @model.get 'property'
-      customValue = @$('.js-issues-custom-value').select2 'val'
+      customValue = @$('.js-custom-value').select2 'val'
       value = @getValue()
       value += ',' if value.length > 0
       value += customValue

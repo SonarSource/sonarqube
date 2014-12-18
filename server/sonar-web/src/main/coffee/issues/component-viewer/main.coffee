@@ -52,11 +52,11 @@ define [
         selectedIssueView.find(".js-issue-#{action}").click()
 
       key 'up', 'componentViewer', =>
-        @options.app.controller.selectPreviousIssue()
+        @options.app.controller.selectPrev()
         false
 
       key 'down', 'componentViewer', =>
-        @options.app.controller.selectNextIssue()
+        @options.app.controller.selectNext()
         false
 
       key 'left', 'componentViewer', =>
@@ -88,7 +88,7 @@ define [
 
     select: ->
       selected = @options.app.state.get 'selectedIndex'
-      selectedIssue = @options.app.issues.at selected
+      selectedIssue = @options.app.list.at selected
       if selectedIssue.get('component') == @model.get('key')
         @scrollToIssue selectedIssue.get('key')
       else
@@ -99,7 +99,7 @@ define [
     getSelectedIssueEl: ->
       selected = @options.app.state.get 'selectedIndex'
       return null unless selected?
-      selectedIssue = @options.app.issues.at selected
+      selectedIssue = @options.app.list.at selected
       return null unless selectedIssue?
       selectedIssueView = @$("#issue-#{selectedIssue.get('key')}")
       if selectedIssueView.length > 0 then selectedIssueView else null
@@ -108,7 +108,7 @@ define [
     selectIssue: (e) ->
       key = $(e.currentTarget).data 'issue-key'
       issue = @issues.find (issue) -> issue.get('key') == key
-      index = @options.app.issues.indexOf issue
+      index = @options.app.list.indexOf issue
       @options.app.state.set selectedIndex: index
 
 
@@ -120,7 +120,7 @@ define [
       else
         @unbindShortcuts()
         selected = @options.app.state.get 'selectedIndex'
-        selectedIssue = @options.app.issues.at selected
+        selectedIssue = @options.app.list.at selected
         @options.app.controller.showComponentViewer selectedIssue
 
 
@@ -149,11 +149,11 @@ define [
 
 
     requestIssues: ->
-      if @options.app.issues.last().get('component') == @model.get('key')
+      if @options.app.list.last().get('component') == @model.get('key')
         r = @options.app.controller.fetchNextPage()
       else r = $.Deferred().resolve().promise()
       r.done =>
-        @issues.reset @options.app.issues.filter (issue) => issue.get('component') == @model.key()
+        @issues.reset @options.app.list.filter (issue) => issue.get('component') == @model.key()
         @issues.reset @limitIssues @issues
         @addIssuesPerLineMeta @issues
 
@@ -174,7 +174,7 @@ define [
 
     addNextIssuesPage: ->
       componentKey = @model.get 'key'
-      @issues.add @options.app.issues.filter (issue) => issue.get('component') == componentKey
+      @issues.add @options.app.list.filter (issue) => issue.get('component') == componentKey
 
 
     scrollToLine: (line) ->

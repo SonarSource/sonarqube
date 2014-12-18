@@ -5,7 +5,7 @@ define [
 ) ->
 
   class extends Marionette.ItemView
-    className: 'issues-no-results'
+    className: 'search-navigator-no-results'
 
 
     template: ->

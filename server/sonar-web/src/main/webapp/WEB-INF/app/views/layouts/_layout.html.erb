@@ -22,7 +22,10 @@
           <a href="<%= ApplicationController.root_context -%>/issues/index" class="<%= 'selected' if selected_section==Navigation::SECTION_ISSUES -%>"><%= message('issues.page') -%></a>
         </li>
         <li>
-          <a href="<%= ApplicationController.root_context -%>/coding_rules" class="<%= 'selected' if selected_section==Navigation::SECTION_CODING_RULES -%>"><%= message('coding_rules.page') -%></a>
+          <a href="<%= ApplicationController.root_context -%>/coding_rules" class="<%= 'selected' if selected_section==Navigation::SECTION_CODING_RULES -%>">NEW <%= message('coding_rules.page') -%></a>
+        </li>
+        <li>
+            <a href="<%= ApplicationController.root_context -%>/coding_rules_old" class="<%= 'selected' if selected_section==Navigation::SECTION_CODING_RULES_OLD -%>"><%= message('coding_rules.page') -%></a>
         </li>
         <li>
           <a href="<%= ApplicationController.root_context -%>/profiles" class="<%= 'selected' if selected_section==Navigation::SECTION_QUALITY_PROFILES -%>"><%= message('quality_profiles.page') -%></a>

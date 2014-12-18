@@ -1,0 +1,30 @@
+<div class="search-navigator-header-component">
+  {{#if state.rule}}
+    <a class="js-back">{{t 'coding_rules.return_to_list'}}</a>
+  {{else}}
+    &nbsp;
+  {{/if}}
+</div>
+
+
+<div class="search-navigator-header-actions">
+  {{#notNull state.total}}
+    <div class="search-navigator-header-pagination">
+      {{#gt state.total 0}}
+        <a class="js-prev icon-prev" title="{{t 'paging_previous'}}"></a>
+        <span class="current">{{sum state.selectedIndex 1}} / <span id="coding-rules-total">{{state.total}}</span></span>
+        <a class="js-next icon-next" title="{{t 'paging_next'}}"></a>
+      {{else}}
+        <span class="current">0 / <span id="coding-rules-total">0</span></span>
+      {{/gt}}
+    </div>
+  {{/notNull}}
+
+
+  <div class="search-navigator-header-buttons button-group">
+    <button class="js-reload">{{t 'reload'}}</button>
+    {{#if state.canBulkChange}}
+      <button class="js-bulk-change">{{t 'bulk_change'}}</button>
+    {{/if}}
+  </div>
+</div>

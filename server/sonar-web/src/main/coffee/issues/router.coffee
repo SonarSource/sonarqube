@@ -1,21 +1,18 @@
 define [
-  'backbone'
+  'components/navigator/router'
 ], (
-  Backbone
+  Router
 ) ->
 
-  class extends Backbone.Router
-    routeSeparator: '|'
-
+  class extends Router
     routes:
       '': 'emptyQuery'
       ':query': 'index'
 
 
     initialize: (options) ->
-      @options = options
-      @listenTo @options.app.state, 'change:query', @updateRoute
-      @listenTo @options.app.state, 'change:filter', @updateRoute
+      super
+      @listenTo options.app.state, 'change:filter', @updateRoute
 
 
     emptyQuery: ->
@@ -36,9 +33,3 @@ define [
             @options.app.controller.applyFilter filter
       else
         @options.app.state.setQuery query
-
-
-    updateRoute: ->
-      route = @options.app.controller.getRoute()
-      @navigate route
-

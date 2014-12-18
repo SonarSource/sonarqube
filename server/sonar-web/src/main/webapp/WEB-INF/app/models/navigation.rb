@@ -36,4 +36,5 @@ class Navigation
   SECTION_QUALITY_PROFILES = Navigation.new('quality_profiles', false)
   SECTION_QUALITY_GATES = Navigation.new('quality_gates', false)
   SECTION_CODING_RULES = Navigation.new('coding_rules', false)
+  SECTION_CODING_RULES_OLD = Navigation.new('coding_rules_old', false)
 end

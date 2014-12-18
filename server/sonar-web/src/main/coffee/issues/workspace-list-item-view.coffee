@@ -14,13 +14,14 @@ define [
 
 
     initialize: (options) ->
+      super
       @listenTo options.app.state, 'change:selectedIndex', @select
 
 
     onRender: ->
       super
-      @$el.addClass 'issue-navigate-right'
       @select()
+      @$el.addClass 'issue-navigate-right'
 
 
     select: ->

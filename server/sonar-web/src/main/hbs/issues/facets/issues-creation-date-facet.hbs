@@ -2,13 +2,13 @@
 
 {{#if createdAt}}
   <input type="hidden" name="createdAt">
-  <div class="issues-facet-container">
+  <div class="search-navigator-facet-container">
     {{dt createdAt}} ({{fromNow createdAt}})
   </div>
 {{else}}
-  <div class="issues-facet-container justify">
-    <input type="text" class="issues-facet-input" name="createdAfter" placeholder="From">
+  <div class="search-navigator-facet-container justify">
+    <input type="text" class="search-navigator-facet-input" name="createdAfter" placeholder="From">
     to
-    <input type="text" class="issues-facet-input" name="createdBefore" placeholder="To">
+    <input type="text" class="search-navigator-facet-input" name="createdBefore" placeholder="To">
   </div>
 {{/if}}

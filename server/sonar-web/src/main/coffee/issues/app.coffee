@@ -22,7 +22,7 @@ requirejs [
   'issues/models/state'
   'issues/layout'
   'issues/models/issues'
-  'issues/models/facets'
+  'components/navigator/models/facets'
   'issues/models/filters'
 
   'issues/controller'
@@ -70,7 +70,7 @@ requirejs [
 
   App.addInitializer ->
     @state = new State()
-    @issues = new Issues()
+    @list = new Issues()
     @facets = new Facets()
     @filters = new Filters()
 
@@ -82,7 +82,7 @@ requirejs [
   App.addInitializer ->
     @issuesView = new WorkspaceListView
       app: @
-      collection: @issues
+      collection: @list
     @layout.workspaceListRegion.show @issuesView
     @issuesView.bindScrollEvents()
 
@@ -90,7 +90,7 @@ requirejs [
   App.addInitializer ->
     @workspaceHeaderView = new WorkspaceHeaderView
       app: @
-      collection: @issues
+      collection: @list
     @layout.workspaceHeaderRegion.show @workspaceHeaderView
 
 

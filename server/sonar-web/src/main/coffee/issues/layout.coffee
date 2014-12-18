@@ -15,10 +15,10 @@ define [
 
 
     regions:
-      filtersRegion: '.issues-filters'
-      facetsRegion: '.issues-facets'
-      workspaceHeaderRegion: '.issues-workspace-header'
-      workspaceListRegion: '.issues-workspace-list'
+      filtersRegion: '.search-navigator-filters'
+      facetsRegion: '.search-navigator-facets'
+      workspaceHeaderRegion: '.search-navigator-workspace-header'
+      workspaceListRegion: '.search-navigator-workspace-list'
       workspaceComponentViewerRegion: '.issues-workspace-component-viewer'
 
 
@@ -31,13 +31,13 @@ define [
 
 
     onRender: ->
-      @$('.issues-side').isolatedScroll()
+      @$('.search-navigator-side').isolatedScroll()
 
 
     onScroll: ->
       scrollTop = $(window).scrollTop()
-      $('.issues').toggleClass 'sticky', scrollTop >= @topOffset
-      @$('.issues-side').css top: Math.max(0, Math.min(@topOffset - scrollTop, @topOffset))
+      $('.search-navigator').toggleClass 'sticky', scrollTop >= @topOffset
+      @$('.search-navigator-side').css top: Math.max(0, Math.min(@topOffset - scrollTop, @topOffset))
 
 
     showSpinner: (region) ->

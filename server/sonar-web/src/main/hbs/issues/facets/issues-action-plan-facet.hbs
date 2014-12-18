@@ -1,15 +1,15 @@
 {{> '_issues-facet-header'}}
 
-<div class="issues-facet-list">
+<div class="search-navigator-facet-list">
   {{#each values}}
     {{#eq val ''}}
       {{! unplanned }}
-      <a class="facet issues-facet js-issues-facet" data-unplanned title="{{t 'issue.unplanned'}}">
+      <a class="facet search-navigator-facet js-facet" data-unplanned title="{{t 'issue.unplanned'}}">
         <span class="facet-name">{{t 'issue.unplanned'}}</span>
         <span class="facet-stat">{{count}}</span>
       </a>
     {{else}}
-      <a class="facet issues-facet js-issues-facet" data-value="{{val}}" title="{{label}}">
+      <a class="facet search-navigator-facet js-facet" data-value="{{val}}" title="{{label}}">
         <span class="facet-name">{{label}}</span>
         <span class="facet-stat">{{count}}</span>
       </a>

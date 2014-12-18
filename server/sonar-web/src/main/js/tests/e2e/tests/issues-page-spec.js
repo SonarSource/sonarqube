@@ -44,16 +44,16 @@ casper.test.begin(testName('Base'), function (test) {
           test.assertSelectorContains('.issue', '1 more branches need to be covered by unit tests to reach');
 
           // Filters
-          test.assertExists('.js-issues-toggle-filters');
-          test.assertExists('#issues-new-search');
-          test.assertExists('#issues-filter-save-as');
+          test.assertExists('.js-toggle-filters');
+          test.assertExists('.js-new-search');
+          test.assertExists('.js-filter-save-as');
 
           // Workspace header
           test.assertSelectorContains('#issues-total', '4623');
-          test.assertExists('.js-issues-prev');
-          test.assertExists('.js-issues-next');
-          test.assertExists('#issues-reload');
-          test.assertExists('#issues-bulk-change');
+          test.assertExists('.js-prev');
+          test.assertExists('.js-next');
+          test.assertExists('.js-reload');
+          test.assertExists('.js-bulk-change');
         });
       })
 

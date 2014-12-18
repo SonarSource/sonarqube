@@ -19,7 +19,7 @@ define [
 
 
     onRender: ->
-      @$el.toggleClass 'issues-facet-box-collapsed', !@model.get('enabled')
+      @$el.toggleClass 'search-navigator-facet-box-collapsed', !@model.get('enabled')
 
       @$('input').datepicker
         dateFormat: 'yy-mm-dd'

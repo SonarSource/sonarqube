@@ -17,7 +17,7 @@ define [
       super
       value = @options.app.state.get('query')['planned']
       if value? && (!value || value == 'false')
-        @$('.js-issues-facet').filter("[data-unplanned]").addClass 'active'
+        @$('.js-facet').filter("[data-unplanned]").addClass 'active'
 
 
     toggleFacet: (e) ->

@@ -18,7 +18,7 @@ define [
 
       value = @options.app.state.get('query')['resolved']
       if value? && (!value || value == 'false')
-        @$('.js-issues-facet').filter("[data-unresolved]").addClass 'active'
+        @$('.js-facet').filter("[data-unresolved]").addClass 'active'
 
 
     toggleFacet: (e) ->
