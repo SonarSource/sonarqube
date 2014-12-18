@@ -82,7 +82,7 @@ public class DefaultUserService implements RubyUserService {
     userService.index();
   }
 
-  public void create(Map<String, Object> params) {
+  public boolean create(Map<String, Object> params) {
     NewUser newUser = NewUser.create()
       .setLogin((String) params.get("login"))
       .setName((String) params.get("name"))
@@ -90,16 +90,24 @@ public class DefaultUserService implements RubyUserService {
       .setScmAccounts((RubyUtils.toStrings(params.get("scm_accounts"))))
       .setPassword((String) params.get("password"))
       .setPasswordConfirmation((String) params.get("password_confirmation"));
-    userService.create(newUser);
+    return userService.create(newUser);
   }
 
   public void update(Map<String, Object> params) {
-    UpdateUser updateUser = UpdateUser.create((String) params.get("login"))
-      .setName((String) params.get("name"))
-      .setEmail((String) params.get("email"))
-      .setScmAccounts((RubyUtils.toStrings(params.get("scm_accounts"))))
-      .setPassword((String) params.get("password"))
-      .setPasswordConfirmation((String) params.get("password_confirmation"));
+    UpdateUser updateUser = UpdateUser.create((String) params.get("login"));
+    if (params.containsKey("name")) {
+      updateUser.setName((String) params.get("name"));
+    }
+    if (params.containsKey("email")) {
+      updateUser.setEmail((String) params.get("email"));
+    }
+    if (params.containsKey("scm_accounts")) {
+      updateUser.setScmAccounts((RubyUtils.toStrings(params.get("scm_accounts"))));
+    }
+    if (params.containsKey("password")) {
+      updateUser.setPassword((String) params.get("password"));
+      updateUser.setPasswordConfirmation((String) params.get("password_confirmation"));
+    }
     userService.update(updateUser);
   }
 

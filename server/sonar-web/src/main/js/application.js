@@ -90,7 +90,7 @@ Treemap.prototype.load = function () {
   $j.ajax({
     type: 'GET',
     url: baseUrl + '/treemap/index?html_id=' + this.id + '&size_metric=' + this.sizeMetric +
-      '&color_metric=' + this.colorMetric + '&resource=' + context.rid,
+        '&color_metric=' + this.colorMetric + '&resource=' + context.rid,
     dataType: 'html',
     success: function (data) {
       if (data.length > 1) {
@@ -133,12 +133,12 @@ Treemap.prototype.initNodes = function () {
       return false;
     });
     $j(this).on('click', function () {
-        var source = $j(this);
-        var rid = source.attr('rid');
-        var context = new TreemapContext(rid, source.text());
-        self.breadcrumb.push(context);
-        self.load();
-      }
+          var source = $j(this);
+          var rid = source.attr('rid');
+          var context = new TreemapContext(rid, source.text());
+          self.breadcrumb.push(context);
+          self.load();
+        }
     );
   });
 };
@@ -149,35 +149,35 @@ function openModalWindow(url, options) {
   if (!$dialog.length) {
     $dialog = $j('<div id="modal" class="ui-widget-overlay ui-front"></div>').appendTo('body');
   }
-  $j.get(url,function (html) {
+  $j.get(url, function (html) {
     $dialog.removeClass('ui-widget-overlay');
     $dialog.html(html);
     $dialog
-      .dialog({
-        dialogClass: 'no-close',
-        width: width,
-        draggable: false,
-        autoOpen: false,
-        modal: true,
-        minHeight: 50,
-        resizable: false,
-        title: null,
-        close: function () {
-          $j('#modal').remove();
-        }
-      });
+        .dialog({
+          dialogClass: 'no-close',
+          width: width,
+          draggable: false,
+          autoOpen: false,
+          modal: true,
+          minHeight: 50,
+          resizable: false,
+          title: null,
+          close: function () {
+            $j('#modal').remove();
+          }
+        });
     $dialog.dialog('open');
   }).fail(function () {
-      alert('Server error. Please contact your administrator.');
-    }).always(function () {
-      $dialog.removeClass('ui-widget-overlay');
-    });
+    alert('Server error. Please contact your administrator.');
+  }).always(function () {
+    $dialog.removeClass('ui-widget-overlay');
+  });
   return false;
 }
 
 (function ($j) {
   $j.fn.extend({
-    openModal: function() {
+    openModal: function () {
       return this.each(function () {
         var obj = $j(this);
         var url = obj.attr('modal-url') || obj.attr('href');
@@ -215,7 +215,7 @@ function openModalWindow(url, options) {
                 // Re activate submit button
                 $j('input[type=submit]', obj).removeAttr('disabled');
                 errorElt.show();
-                errorElt.html(xhr.responseText);
+                errorElt.html($j("<div/>").html(xhr.responseText).text());
               } else {
                 // otherwise replace modal window by the returned text
                 $j('#modal').html(xhr.responseText);
@@ -246,17 +246,17 @@ function supportsHTML5Storage() {
 
 function openAccordionItem(url) {
   return $j.ajax({
-      url: url
-      }).fail(function (jqXHR, textStatus) {
-        var error = 'Server error. Please contact your administrator. The status of the error is : ' +
-          jqXHR.status + ', textStatus is : ' + textStatus;
-        console.log(error);
-        $j('#accordion-panel').append($j('<div class="error">').append(error));
-      }).done(function (html) {
-          var panel = $j('#accordion-panel');
-          panel.html(html);
-            panel.scrollIntoView(false);
-      });
+    url: url
+  }).fail(function (jqXHR, textStatus) {
+    var error = 'Server error. Please contact your administrator. The status of the error is : ' +
+        jqXHR.status + ', textStatus is : ' + textStatus;
+    console.log(error);
+    $j('#accordion-panel').append($j('<div class="error">').append(error));
+  }).done(function (html) {
+    var panel = $j('#accordion-panel');
+    panel.html(html);
+    panel.scrollIntoView(false);
+  });
 }
 
 
@@ -311,12 +311,12 @@ function showDropdownMenuOnElement(elt) {
 //******************* HANDLING OF DROPDOWN MENUS [END] ******************* //
 
 function openPopup(url, popupId) {
-  window.open(url,popupId,'height=800,width=900,scrollbars=1,resizable=1');
+  window.open(url, popupId, 'height=800,width=900,scrollbars=1,resizable=1');
   return false;
 }
 
 
-jQuery(function() {
+jQuery(function () {
 
   // Initialize top search
   jQuery('#searchInput').topSearch({
@@ -327,7 +327,7 @@ jQuery(function() {
 
 
   // Process login link in order to add the anchor
-  jQuery('#login-link').on('click', function(e) {
+  jQuery('#login-link').on('click', function (e) {
     e.preventDefault();
     var href = jQuery(this).prop('href'),
         hash = window.location.hash;
@@ -339,11 +339,11 @@ jQuery(function() {
 
 
   // Define global shortcuts
-  key('s', function() {
+  key('s', function () {
     jQuery('#searchInput').focus().on('keydown', function (e) {
-       if (e.keyCode === 27) {
-         jQuery('#searchInput').blur();
-       }
+      if (e.keyCode === 27) {
+        jQuery('#searchInput').blur();
+      }
     });
     return false;
   });

@@ -27,35 +27,15 @@ class UsersController < ApplicationController
   def create
     return unless request.post?
     cookies.delete :auth_token
-    @errors = []
-    user = User.find_by_login(params[:user][:login])
-    if user && !user.active
-      if user.update_attributes(params[:user])
-        # case user: exist,inactive,no errors when update BUT TO REACTIVATE
-        @user = user
-        user.errors.full_messages.each { |msg| @errors<<msg }
-        render :partial => 'users/reactivate_form', :status => 400
-      else
-        # case user: exist,inactive, WITH ERRORS when update
-        @user = user
-        @user.id = nil
-        user.errors.full_messages.each { |msg| @errors<<msg }
-        render :partial => 'users/create_form', :status => 400
-      end
-    else
-      user=prepare_user
-      if user.save
-        # case user: don't exist, no errors when create
-        Internal.users_api.index()
-        user.notify_creation_handlers
+
+    call_backend do
+      isUserReactivated = Internal.users_api.create(params[:user])
+      if !isUserReactivated
         flash[:notice] = 'User is created.'
-        render :text => 'ok', :status => 200
       else
-        # case user: don't exist, WITH ERRORS when create
-        @user = user
-        user.errors.full_messages.each { |msg| @errors<<msg }
-        render :partial => 'users/create_form', :status => 400
+        flash[:notice] = Api::Utils.message('user.reactivated', :params => params[:user][:login])
       end
+      render :text => 'ok', :status => 200
     end
   end
 
@@ -92,15 +72,6 @@ class UsersController < ApplicationController
     render :partial => 'users/create_form'
   end
 
-  def reactivate_form
-    if params[:id]
-      @user = User.find(params[:id])
-    else
-      @user = User.new
-    end
-    render :partial => 'users/reactivate_form'
-  end
-
   def new
     render :action => 'new', :layout => 'nonav'
   end
@@ -132,33 +103,10 @@ class UsersController < ApplicationController
   end
 
   def update
-    user = User.find(params[:id])
-    @user = user
-    @errors = []
-    if user.login!=params[:user][:login]
-      @errors = 'Login can not be changed.'
-      render :partial => 'users/edit_form', :status => 400
-    elsif user.update_attributes(params[:user])
-      Internal.users_api.index()
+    call_backend do
+      Internal.users_api.update(params[:user])
       flash[:notice] = 'User was successfully updated.'
       render :text => 'ok', :status => 200
-    else
-      @errors = user.errors.full_messages.join("<br/>\n")
-      render :partial => 'users/edit_form', :status => 400
-    end
-  end
-
-  def reactivate
-    user = User.find_by_login(params[:user][:login])
-    if user
-      user.reactivate!(java_facade.getSettings().getString('sonar.defaultGroup'))
-      Internal.users_api.index()
-      user.notify_creation_handlers
-      flash[:notice] = 'User was successfully reactivated.'
-      render :text => 'ok', :status => 200
-    else
-      flash[:error] = "A user with login #{params[:user][:login]} does not exist."
-      render :text => 'login unknown', :status => 200
     end
   end
 

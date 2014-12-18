@@ -154,6 +154,9 @@ public class DefaultUserServiceTest {
     params.put("name", "John");
     params.put("email", "john@email.com");
     params.put("scm_accounts", newArrayList("jn"));
+    params.put("password", "1234");
+    params.put("password_confirmation", "1234");
+
     service.update(params);
 
     ArgumentCaptor<UpdateUser> userCaptor = ArgumentCaptor.forClass(UpdateUser.class);
@@ -162,6 +165,69 @@ public class DefaultUserServiceTest {
     assertThat(userCaptor.getValue().name()).isEqualTo("John");
     assertThat(userCaptor.getValue().email()).isEqualTo("john@email.com");
     assertThat(userCaptor.getValue().scmAccounts()).containsOnly("jn");
+    assertThat(userCaptor.getValue().password()).isEqualTo("1234");
+    assertThat(userCaptor.getValue().passwordConfirmation()).isEqualTo("1234");
+  }
+
+  @Test
+  public void update_only_name() throws Exception {
+    Map<String, Object> params = newHashMap();
+    params.put("login", "john");
+    params.put("name", "John");
+    service.update(params);
+
+    ArgumentCaptor<UpdateUser> userCaptor = ArgumentCaptor.forClass(UpdateUser.class);
+    verify(userService).update(userCaptor.capture());
+    assertThat(userCaptor.getValue().isNameChanged()).isTrue();
+    assertThat(userCaptor.getValue().isEmailChanged()).isFalse();
+    assertThat(userCaptor.getValue().isScmAccountsChanged()).isFalse();
+    assertThat(userCaptor.getValue().isPasswordChanged()).isFalse();
+  }
+
+  @Test
+  public void update_only_email() throws Exception {
+    Map<String, Object> params = newHashMap();
+    params.put("login", "john");
+    params.put("email", "john@email.com");
+    service.update(params);
+
+    ArgumentCaptor<UpdateUser> userCaptor = ArgumentCaptor.forClass(UpdateUser.class);
+    verify(userService).update(userCaptor.capture());
+    assertThat(userCaptor.getValue().isNameChanged()).isFalse();
+    assertThat(userCaptor.getValue().isEmailChanged()).isTrue();
+    assertThat(userCaptor.getValue().isScmAccountsChanged()).isFalse();
+    assertThat(userCaptor.getValue().isPasswordChanged()).isFalse();
+  }
+
+  @Test
+  public void update_only_scm_accounts() throws Exception {
+    Map<String, Object> params = newHashMap();
+    params.put("login", "john");
+    params.put("scm_accounts", newArrayList("jn"));
+    service.update(params);
+
+    ArgumentCaptor<UpdateUser> userCaptor = ArgumentCaptor.forClass(UpdateUser.class);
+    verify(userService).update(userCaptor.capture());
+    assertThat(userCaptor.getValue().isNameChanged()).isFalse();
+    assertThat(userCaptor.getValue().isEmailChanged()).isFalse();
+    assertThat(userCaptor.getValue().isScmAccountsChanged()).isTrue();
+    assertThat(userCaptor.getValue().isPasswordChanged()).isFalse();
+  }
+
+  @Test
+  public void update_only_password() throws Exception {
+    Map<String, Object> params = newHashMap();
+    params.put("login", "john");
+    params.put("password", "1234");
+    params.put("password_confirmation", "1234");
+    service.update(params);
+
+    ArgumentCaptor<UpdateUser> userCaptor = ArgumentCaptor.forClass(UpdateUser.class);
+    verify(userService).update(userCaptor.capture());
+    assertThat(userCaptor.getValue().isNameChanged()).isFalse();
+    assertThat(userCaptor.getValue().isEmailChanged()).isFalse();
+    assertThat(userCaptor.getValue().isScmAccountsChanged()).isFalse();
+    assertThat(userCaptor.getValue().isPasswordChanged()).isTrue();
   }
 
   @Test

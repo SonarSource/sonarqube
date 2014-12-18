@@ -4,13 +4,7 @@
           <h2>Edit user: <%= h @user.login -%></h2>
       </div>
       <div class="modal-body">
-        <% if @errors
-             @errors.each do |error|
-        %>
-            <p class="error"><%= h error -%></p>
-          <% end
-             end
-          %>
+        <div class="modal-error"></div>
         <div class="modal-field">
           <% if @user.id %>
             <%= f.hidden_field :login %>
