@@ -35,6 +35,7 @@ import org.sonar.batch.index.CachesTest;
 
 import javax.annotation.Nullable;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -63,11 +64,12 @@ public class IssueCacheTest {
     IssueCache cache = new IssueCache(caches);
     DefaultIssue issue1 = new DefaultIssue().setKey("111").setComponentKey("org.struts.Action");
     DefaultIssue issue2 = new DefaultIssue().setKey("222").setComponentKey("org.struts.Action");
-    DefaultIssue issue3 = new DefaultIssue().setKey("333").setComponentKey("org.struts.Filter");
+    DefaultIssue issue3 = new DefaultIssue().setKey("333").setComponentKey("org.struts.Filter").setTags(Arrays.asList("foo", "bar"));
     cache.put(issue1).put(issue2).put(issue3);
 
     assertThat(issueKeys(cache.byComponent("org.struts.Action"))).containsOnly("111", "222");
     assertThat(issueKeys(cache.byComponent("org.struts.Filter"))).containsOnly("333");
+    assertThat(cache.byComponent("org.struts.Filter").iterator().next().tags()).containsOnly("foo", "bar");
   }
 
   @Test

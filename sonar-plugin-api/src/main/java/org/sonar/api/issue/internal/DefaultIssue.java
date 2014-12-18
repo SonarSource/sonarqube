@@ -44,6 +44,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -599,7 +600,7 @@ public class DefaultIssue implements Issue {
   }
 
   public DefaultIssue setTags(Collection<String> tags) {
-    this.tags = ImmutableSet.copyOf(tags);
+    this.tags = new LinkedHashSet<String>(tags);
     return this;
   }
 }

@@ -177,6 +177,7 @@ public class IssueTrackingDecorator implements Decorator {
       issue.setStatus(ref.getStatus());
       issue.setAssignee(ref.getAssignee());
       issue.setAuthorLogin(ref.getAuthorLogin());
+      issue.setTags(ref.getTags());
 
       if (ref.getIssueAttributes() != null) {
         issue.setAttributes(KeyValueFormat.parse(ref.getIssueAttributes()));
