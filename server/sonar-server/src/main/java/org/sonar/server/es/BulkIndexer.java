@@ -136,11 +136,13 @@ public class BulkIndexer implements Startable {
 
   @Override
   public void stop() {
-    if (bulkRequest.numberOfActions() > 0) {
-      executeBulk(bulkRequest);
+    try {
+      if (bulkRequest.numberOfActions() > 0) {
+        executeBulk(bulkRequest);
+      }
+    } finally {
+      progress.stop();
     }
-
-    progress.stop();
 
     if (refresh) {
       client.prepareRefresh(indexName).get();
