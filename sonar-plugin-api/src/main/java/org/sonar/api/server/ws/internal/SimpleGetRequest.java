@@ -43,6 +43,11 @@ public class SimpleGetRequest extends Request {
   }
 
   @Override
+  public boolean hasParam(String key) {
+    return params.keySet().contains(key);
+  }
+
+  @Override
   public String param(String key) {
     return params.get(key);
   }

@@ -43,6 +43,11 @@ public class ServletRequest extends ValidatingRequest {
   }
 
   @Override
+  public boolean hasParam(String key) {
+    return source.getParameterMap().containsKey(key) || params.keySet().contains(key);
+  }
+
+  @Override
   protected String readParam(String key) {
     String value = source.getParameter(key);
     if (value == null) {

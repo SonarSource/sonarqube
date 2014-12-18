@@ -33,7 +33,6 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.ServerTester;
-import org.sonar.server.user.db.UserDao;
 import org.sonar.server.user.index.UserIndexDefinition;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -71,7 +70,7 @@ public class UserServiceMediumTest {
     dbClient.groupDao().insert(session, userGroup);
     session.commit();
 
-    service.create(NewUser.create()
+    boolean result = service.create(NewUser.create()
       .setLogin("user")
       .setName("User")
       .setEmail("user@mail.com")
@@ -79,7 +78,8 @@ public class UserServiceMediumTest {
       .setPasswordConfirmation("password")
       .setScmAccounts(newArrayList("u1", "u_1")));
 
-    assertThat(tester.get(UserDao.class).selectNullableByLogin(session, "user")).isNotNull();
+    assertThat(result).isFalse();
+    assertThat(dbClient.userDao().selectNullableByLogin(session, "user")).isNotNull();
     assertThat(esClient.prepareGet(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, "user").get().isExists()).isTrue();
   }
 
@@ -94,6 +94,43 @@ public class UserServiceMediumTest {
       .setPassword("password")
       .setPasswordConfirmation("password")
       .setScmAccounts(newArrayList("u1", "u_1")));
+  }
+
+  @Test
+  public void update_user() throws Exception {
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+
+    dbClient.userDao().insert(session, new UserDto()
+      .setLogin("marius")
+      .setName("Marius")
+      .setEmail("marius@mail.com")
+      .setCryptedPassword("1234")
+      .setSalt("abcd")
+      .setCreatedAt(1000L)
+      );
+    GroupDto userGroup = new GroupDto().setName(CoreProperties.CORE_DEFAULT_GROUP_DEFAULT_VALUE);
+    dbClient.groupDao().insert(session, userGroup);
+    session.commit();
+
+    service.update(UpdateUser.create("marius")
+      .setName("Marius2")
+      .setEmail("marius2@mail.com"));
+
+    UserDto userDto = dbClient.userDao().selectNullableByLogin(session, "marius");
+    assertThat(userDto.getName()).isEqualTo("Marius2");
+    assertThat(userDto.getEmail()).isEqualTo("marius2@mail.com");
+  }
+
+  @Test(expected = ForbiddenException.class)
+  public void fail_to_update_user_without_sys_admin_permission() throws Exception {
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.DASHBOARD_SHARING);
+
+    service.update(UpdateUser.create("marius")
+      .setName("Marius2")
+      .setEmail("marius2@mail.com")
+      .setPassword("password2")
+      .setPasswordConfirmation("password2")
+      .setScmAccounts(newArrayList("ma2")));
   }
 
   @Test

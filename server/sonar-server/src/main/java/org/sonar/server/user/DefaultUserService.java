@@ -82,6 +82,27 @@ public class DefaultUserService implements RubyUserService {
     userService.index();
   }
 
+  public void create(Map<String, Object> params) {
+    NewUser newUser = NewUser.create()
+      .setLogin((String) params.get("login"))
+      .setName((String) params.get("name"))
+      .setEmail((String) params.get("email"))
+      .setScmAccounts((RubyUtils.toStrings(params.get("scm_accounts"))))
+      .setPassword((String) params.get("password"))
+      .setPasswordConfirmation((String) params.get("password_confirmation"));
+    userService.create(newUser);
+  }
+
+  public void update(Map<String, Object> params) {
+    UpdateUser updateUser = UpdateUser.create((String) params.get("login"))
+      .setName((String) params.get("name"))
+      .setEmail((String) params.get("email"))
+      .setScmAccounts((RubyUtils.toStrings(params.get("scm_accounts"))))
+      .setPassword((String) params.get("password"))
+      .setPasswordConfirmation((String) params.get("password_confirmation"));
+    userService.update(updateUser);
+  }
+
   public void index() {
     userService.index();
   }

@@ -24,7 +24,10 @@ import com.google.common.collect.Maps;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.user.UserFinder;
 import org.sonar.api.user.UserQuery;
 import org.sonar.core.permission.GlobalPermissions;
@@ -32,11 +35,16 @@ import org.sonar.core.user.UserDao;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 
+import java.util.Map;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.*;
 
+@RunWith(MockitoJUnitRunner.class)
 public class DefaultUserServiceTest {
 
   UserService userService = mock(UserService.class);
@@ -120,6 +128,40 @@ public class DefaultUserServiceTest {
       assertThat(e).hasMessage("Login is missing");
       verifyZeroInteractions(dao);
     }
+  }
+
+  @Test
+  public void create() throws Exception {
+    Map<String, Object> params = newHashMap();
+    params.put("login", "john");
+    params.put("name", "John");
+    params.put("email", "john@email.com");
+    params.put("scm_accounts", newArrayList("jn"));
+    service.create(params);
+
+    ArgumentCaptor<NewUser> newUserCaptor = ArgumentCaptor.forClass(NewUser.class);
+    verify(userService).create(newUserCaptor.capture());
+    assertThat(newUserCaptor.getValue().login()).isEqualTo("john");
+    assertThat(newUserCaptor.getValue().name()).isEqualTo("John");
+    assertThat(newUserCaptor.getValue().email()).isEqualTo("john@email.com");
+    assertThat(newUserCaptor.getValue().scmAccounts()).containsOnly("jn");
+  }
+
+  @Test
+  public void update() throws Exception {
+    Map<String, Object> params = newHashMap();
+    params.put("login", "john");
+    params.put("name", "John");
+    params.put("email", "john@email.com");
+    params.put("scm_accounts", newArrayList("jn"));
+    service.update(params);
+
+    ArgumentCaptor<UpdateUser> userCaptor = ArgumentCaptor.forClass(UpdateUser.class);
+    verify(userService).update(userCaptor.capture());
+    assertThat(userCaptor.getValue().login()).isEqualTo("john");
+    assertThat(userCaptor.getValue().name()).isEqualTo("John");
+    assertThat(userCaptor.getValue().email()).isEqualTo("john@email.com");
+    assertThat(userCaptor.getValue().scmAccounts()).containsOnly("jn");
   }
 
   @Test

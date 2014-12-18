@@ -20,12 +20,14 @@
 
 package org.sonar.server.user;
 
+import com.google.common.base.Preconditions;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.util.List;
 
-public class NewUser {
+public class UpdateUser {
 
   private String login;
   private String name;
@@ -35,27 +37,25 @@ public class NewUser {
   private String password;
   private String passwordConfirmation;
 
-  private NewUser() {
+  boolean isNameChanged, isEmailChanged, isScmAccountsChanged, isPasswordChanged;
+
+  private UpdateUser(String login) {
     // No direct call to this constructor
-  }
-
-  public NewUser setLogin(@Nullable String login) {
     this.login = login;
-    return this;
   }
 
-  @Nullable
   public String login() {
     return login;
   }
 
-  @Nullable
+  @CheckForNull
   public String name() {
     return name;
   }
 
-  public NewUser setName(@Nullable String name) {
+  public UpdateUser setName(@Nullable String name) {
     this.name = name;
+    isNameChanged = true;
     return this;
   }
 
@@ -64,42 +64,63 @@ public class NewUser {
     return email;
   }
 
-  public NewUser setEmail(@Nullable String email) {
+  public UpdateUser setEmail(@Nullable String email) {
     this.email = email;
+    isEmailChanged = true;
     return this;
   }
 
-  @Nullable
+  @CheckForNull
   public List<String> scmAccounts() {
     return scmAccounts;
   }
 
-  public NewUser setScmAccounts(@Nullable List<String> scmAccounts) {
+  public UpdateUser setScmAccounts(@Nullable List<String> scmAccounts) {
     this.scmAccounts = scmAccounts;
+    isScmAccountsChanged = true;
     return this;
   }
 
-  @Nullable
+  @CheckForNull
   public String password() {
     return password;
   }
 
-  public NewUser setPassword(String password) {
+  public UpdateUser setPassword(@Nullable String password) {
     this.password = password;
+    isPasswordChanged = true;
     return this;
   }
 
-  @Nullable
+  @CheckForNull
   public String passwordConfirmation() {
     return passwordConfirmation;
   }
 
-  public NewUser setPasswordConfirmation(@Nullable String passwordConfirmation) {
+  public UpdateUser setPasswordConfirmation(@Nullable String passwordConfirmation) {
     this.passwordConfirmation = passwordConfirmation;
+    isPasswordChanged = true;
     return this;
   }
 
-  public static NewUser create() {
-    return new NewUser();
+  public boolean isNameChanged() {
+    return isNameChanged;
+  }
+
+  public boolean isEmailChanged() {
+    return isEmailChanged;
+  }
+
+  public boolean isScmAccountsChanged() {
+    return isScmAccountsChanged;
+  }
+
+  public boolean isPasswordChanged() {
+    return isPasswordChanged;
+  }
+
+  public static UpdateUser create(String login) {
+    Preconditions.checkNotNull(login);
+    return new UpdateUser(login);
   }
 }

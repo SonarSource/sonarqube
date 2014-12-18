@@ -22,6 +22,7 @@ package org.sonar.server.user.ws;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.user.UserService;
@@ -36,7 +37,7 @@ public class UsersWsTest {
 
   @Before
   public void setUp() throws Exception {
-    WsTester tester = new WsTester(new UsersWs(new CreateAction(mock(UserService.class))));
+    WsTester tester = new WsTester(new UsersWs(new CreateAction(mock(UserService.class), mock(I18n.class)), new UpdateAction(mock(UserService.class))));
     controller = tester.controller("api/users");
   }
 
@@ -63,7 +64,7 @@ public class UsersWsTest {
     WebService.Action action = controller.action("create");
     assertThat(action).isNotNull();
     assertThat(action.isPost()).isTrue();
-    assertThat(action.params()).hasSize(7);
+    assertThat(action.params()).hasSize(6);
   }
 
   @Test
@@ -71,8 +72,7 @@ public class UsersWsTest {
     WebService.Action action = controller.action("update");
     assertThat(action).isNotNull();
     assertThat(action.isPost()).isTrue();
-    assertThat(action.handler()).isInstanceOf(RailsHandler.class);
-    assertThat(action.params()).hasSize(4);
+    assertThat(action.params()).hasSize(6);
   }
 
   @Test

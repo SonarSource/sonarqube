@@ -27,20 +27,23 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.NewUser;
-import org.sonar.server.user.ReactivationException;
 import org.sonar.server.user.UserService;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.ws.WsTester;
 
+import java.util.Locale;
 import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CreateActionTest {
@@ -52,12 +55,15 @@ public class CreateActionTest {
   @Mock
   UserService service;
 
+  @Mock
+  I18n i18n;
+
   @Captor
   ArgumentCaptor<NewUser> newUserCaptor;
 
   @Before
   public void setUp() throws Exception {
-    tester = new WsTester(new UsersWs(new CreateAction(service)));
+    tester = new WsTester(new UsersWs(new CreateAction(service, i18n), new UpdateAction(service)));
     controller = tester.controller("api/users");
   }
 
@@ -89,13 +95,10 @@ public class CreateActionTest {
     assertThat(newUserCaptor.getValue().scmAccounts()).containsOnly("jn");
     assertThat(newUserCaptor.getValue().password()).isEqualTo("1234");
     assertThat(newUserCaptor.getValue().passwordConfirmation()).isEqualTo("1234");
-    assertThat(newUserCaptor.getValue().isPreventReactivation()).isFalse();
   }
 
   @Test
-  public void return_409_when_reactive_exception() throws Exception {
-    doThrow(new ReactivationException("Already exists", "john")).when(service).create(any(NewUser.class));
-
+  public void reactivate_user() throws Exception {
     Map<String, Object> userDocMap = newHashMap();
     userDocMap.put("login", "john");
     userDocMap.put("name", "John");
@@ -105,15 +108,19 @@ public class CreateActionTest {
     userDocMap.put("createdAt", 15000L);
     userDocMap.put("updatedAt", 15000L);
     when(service.getByLogin("john")).thenReturn(new UserDoc(userDocMap));
+    when(service.create(any(NewUser.class))).thenReturn(true);
+
+    MockUserSession.set().setLogin("julien").setLocale(Locale.FRENCH);
+    when(i18n.message(Locale.FRENCH, "user.reactivated", "user.reactivated", "john")).thenReturn("The user 'john' has been reactivated.");
 
     tester.newPostRequest("api/users", "create")
       .setParam("login", "john")
-      .setParam("name", "John2")
-      .setParam("email", "john2@email.com")
-      .setParam("scm_accounts", "jn2")
-      .setParam("password", "12345")
-      .setParam("password_confirmation", "12345").execute()
-      .assertStatus(409)
-      .assertJson(getClass(), "return_409_when_reactive_exception.json");
+      .setParam("name", "John")
+      .setParam("email", "john@email.com")
+      .setParam("scm_accounts", "jn")
+      .setParam("password", "1234")
+      .setParam("password_confirmation", "1234").execute()
+      .assertJson(getClass(), "reactivate_user.json");
   }
+
 }

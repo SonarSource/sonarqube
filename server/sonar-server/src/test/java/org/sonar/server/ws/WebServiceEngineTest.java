@@ -63,6 +63,11 @@ public class WebServiceEngineTest {
     }
 
     @Override
+    public boolean hasParam(String key) {
+      return params.keySet().contains(key);
+    }
+
+    @Override
     protected String readParam(String key) {
       return params.get(key);
     }

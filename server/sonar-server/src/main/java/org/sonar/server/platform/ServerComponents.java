@@ -470,13 +470,14 @@ class ServerComponents {
     pico.addSingleton(DefaultUserService.class);
     pico.addSingleton(UsersWs.class);
     pico.addSingleton(org.sonar.server.user.ws.CreateAction.class);
+    pico.addSingleton(org.sonar.server.user.ws.UpdateAction.class);
     pico.addSingleton(FavoritesWs.class);
     pico.addSingleton(UserPropertiesWs.class);
     pico.addSingleton(UserIndexDefinition.class);
     pico.addSingleton(UserIndexer.class);
     pico.addSingleton(UserIndex.class);
     pico.addSingleton(UserService.class);
-    pico.addSingleton(UserCreator.class);
+    pico.addSingleton(UserUpdater.class);
 
     // groups
     pico.addSingleton(GroupMembershipService.class);

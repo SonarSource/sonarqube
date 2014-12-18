@@ -43,6 +43,11 @@ public abstract class Request {
   public abstract String method();
 
   /**
+   * Return true of the parameter is set.
+   */
+  public abstract boolean hasParam(String key);
+
+  /**
    * Returns a non-null value. To be used when parameter is required or has a default value.
    *
    * @throws java.lang.IllegalArgumentException is value is null or blank

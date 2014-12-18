@@ -32,17 +32,24 @@ public class UserService implements ServerComponent {
 
   private final UserIndexer userIndexer;
   private final UserIndex userIndex;
-  private final UserCreator userCreator;
+  private final UserUpdater userUpdater;
 
-  public UserService(UserIndexer userIndexer, UserIndex userIndex, UserCreator userCreator) {
+  public UserService(UserIndexer userIndexer, UserIndex userIndex, UserUpdater userUpdater) {
     this.userIndexer = userIndexer;
     this.userIndex = userIndex;
-    this.userCreator = userCreator;
+    this.userUpdater = userUpdater;
   }
 
-  public void create(NewUser newUser) {
+  public boolean create(NewUser newUser) {
     checkPermission();
-    userCreator.create(newUser);
+    boolean result = userUpdater.create(newUser);
+    userIndexer.index();
+    return result;
+  }
+
+  public void update(UpdateUser updateUser) {
+    checkPermission();
+    userUpdater.update(updateUser);
     userIndexer.index();
   }
 

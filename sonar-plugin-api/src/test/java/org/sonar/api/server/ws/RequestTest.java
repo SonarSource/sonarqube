@@ -48,6 +48,11 @@ public class RequestTest {
       return "GET";
     }
 
+    @Override
+    public boolean hasParam(String key) {
+      return params.keySet().contains(key);
+    }
+
     public SimpleRequest setParam(String key, @Nullable String value) {
       if (value != null) {
         params.put(key, value);
@@ -111,6 +116,14 @@ public class RequestTest {
     WebService.Context context = new WebService.Context();
     new SimpleWebService().define(context);
     request.setAction(context.controller("my_controller").action("my_action"));
+  }
+
+  @Test
+  public void has_param() throws Exception {
+    request.setParam("a_required_string", "foo");
+
+    assertThat(request.hasParam("a_required_string")).isTrue();
+    assertThat(request.hasParam("unknown")).isFalse();
   }
 
   @Test

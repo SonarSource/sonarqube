@@ -44,6 +44,7 @@ import org.sonar.core.user.UserDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Message;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.db.GroupDao;
 import org.sonar.server.user.db.UserDao;
 import org.sonar.server.user.db.UserGroupDao;
@@ -58,7 +59,7 @@ import static org.mockito.Mockito.when;
 
 @Category(DbTests.class)
 @RunWith(MockitoJUnitRunner.class)
-public class UserCreatorTest {
+public class UserUpdaterTest {
 
   @Rule
   public DbTester db = new DbTester();
@@ -78,7 +79,7 @@ public class UserCreatorTest {
   GroupMembershipFinder groupMembershipFinder;
   DbSession session;
 
-  UserCreator userCreator;
+  UserUpdater userUpdater;
 
   @Before
   public void setUp() throws Exception {
@@ -90,7 +91,7 @@ public class UserCreatorTest {
     GroupMembershipDao groupMembershipDao = new GroupMembershipDao(db.myBatis());
     groupMembershipFinder = new GroupMembershipFinder(userDao, groupMembershipDao);
 
-    userCreator = new UserCreator(newUserNotifier, settings, userGroupDao, new DbClient(db.database(), db.myBatis(), userDao, groupDao), system2);
+    userUpdater = new UserUpdater(newUserNotifier, settings, userGroupDao, new DbClient(db.database(), db.myBatis(), userDao, groupDao), system2);
   }
 
   @After
@@ -103,7 +104,7 @@ public class UserCreatorTest {
     when(system2.now()).thenReturn(1418215735482L);
     createDefaultGroup();
 
-    userCreator.create(NewUser.create()
+    boolean result = userUpdater.create(NewUser.create()
       .setLogin("user")
       .setName("User")
       .setEmail("user@mail.com")
@@ -123,6 +124,7 @@ public class UserCreatorTest {
     assertThat(dto.getCryptedPassword()).isNotNull();
     assertThat(dto.getCreatedAt()).isEqualTo(1418215735482L);
     assertThat(dto.getUpdatedAt()).isEqualTo(1418215735482L);
+    assertThat(result).isFalse();
   }
 
   @Test
@@ -130,7 +132,7 @@ public class UserCreatorTest {
     when(system2.now()).thenReturn(1418215735482L);
     createDefaultGroup();
 
-    userCreator.create(NewUser.create()
+    userUpdater.create(NewUser.create()
       .setLogin("user")
       .setName("User")
       .setPassword("password")
@@ -140,44 +142,9 @@ public class UserCreatorTest {
   }
 
   @Test
-  public void fail_to_create_user_if_login_already_exists() throws Exception {
-    db.prepareDbUnit(getClass(), "fail_to_create_user_if_already_exists.xml");
-
-    try {
-      userCreator.create(NewUser.create()
-        .setLogin("marius")
-        .setName("Marius")
-        .setEmail("marius@mail.com")
-        .setPassword("password")
-        .setPasswordConfirmation("password"));
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("A user with the login 'marius' already exists");
-    }
-  }
-
-  @Test
-  public void fail_to_create_user_if_login_already_exists_but_inactive() throws Exception {
-    db.prepareDbUnit(getClass(), "fail_to_create_user_if_already_exists_but_inactive.xml");
-
-    try {
-      userCreator.create(NewUser.create()
-        .setLogin("marius")
-        .setName("Marius")
-        .setEmail("marius@mail.com")
-        .setPassword("password")
-        .setPasswordConfirmation("password")
-        .setPreventReactivation(true));
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(ReactivationException.class).hasMessage("A disabled user with the login 'marius' already exists");
-    }
-  }
-
-  @Test
   public void fail_to_create_user_with_missing_login() throws Exception {
     try {
-      userCreator.create(NewUser.create()
+      userUpdater.create(NewUser.create()
         .setLogin(null)
         .setName("Marius")
         .setEmail("marius@mail.com")
@@ -192,7 +159,7 @@ public class UserCreatorTest {
   @Test
   public void fail_to_create_user_with_invalid_login() throws Exception {
     try {
-      userCreator.create(NewUser.create()
+      userUpdater.create(NewUser.create()
         .setLogin("/marius/")
         .setName("Marius")
         .setEmail("marius@mail.com")
@@ -207,7 +174,7 @@ public class UserCreatorTest {
   @Test
   public void fail_to_create_user_with_too_short_login() throws Exception {
     try {
-      userCreator.create(NewUser.create()
+      userUpdater.create(NewUser.create()
         .setLogin("ma")
         .setName("Marius")
         .setEmail("marius@mail.com")
@@ -222,7 +189,7 @@ public class UserCreatorTest {
   @Test
   public void fail_to_create_user_with_too_long_login() throws Exception {
     try {
-      userCreator.create(NewUser.create()
+      userUpdater.create(NewUser.create()
         .setLogin(Strings.repeat("m", 256))
         .setName("Marius")
         .setEmail("marius@mail.com")
@@ -237,7 +204,7 @@ public class UserCreatorTest {
   @Test
   public void fail_to_create_user_with_missing_name() throws Exception {
     try {
-      userCreator.create(NewUser.create()
+      userUpdater.create(NewUser.create()
         .setLogin("marius")
         .setName(null)
         .setEmail("marius@mail.com")
@@ -252,7 +219,7 @@ public class UserCreatorTest {
   @Test
   public void fail_to_create_user_with_too_long_name() throws Exception {
     try {
-      userCreator.create(NewUser.create()
+      userUpdater.create(NewUser.create()
         .setLogin("marius")
         .setName(Strings.repeat("m", 201))
         .setEmail("marius@mail.com")
@@ -267,7 +234,7 @@ public class UserCreatorTest {
   @Test
   public void fail_to_create_user_with_too_long_email() throws Exception {
     try {
-      userCreator.create(NewUser.create()
+      userUpdater.create(NewUser.create()
         .setLogin("marius")
         .setName("Marius")
         .setEmail(Strings.repeat("m", 101))
@@ -282,7 +249,7 @@ public class UserCreatorTest {
   @Test
   public void fail_to_create_user_with_missing_password() throws Exception {
     try {
-      userCreator.create(NewUser.create()
+      userUpdater.create(NewUser.create()
         .setLogin("marius")
         .setName("Marius")
         .setEmail("marius@mail.com")
@@ -290,14 +257,14 @@ public class UserCreatorTest {
         .setPasswordConfirmation("password"));
       fail();
     } catch (BadRequestException e) {
-      assertThat(e.errors().messages()).containsOnly(Message.of(Validation.CANT_BE_EMPTY_MESSAGE, "Password"));
+      assertThat(e.errors().messages()).contains(Message.of(Validation.CANT_BE_EMPTY_MESSAGE, "Password"));
     }
   }
 
   @Test
   public void fail_to_create_user_with_missing_password_confirmation() throws Exception {
     try {
-      userCreator.create(NewUser.create()
+      userUpdater.create(NewUser.create()
         .setLogin("marius")
         .setName("Marius")
         .setEmail("marius@mail.com")
@@ -305,14 +272,14 @@ public class UserCreatorTest {
         .setPasswordConfirmation(null));
       fail();
     } catch (BadRequestException e) {
-      assertThat(e.errors().messages()).containsOnly(Message.of(Validation.CANT_BE_EMPTY_MESSAGE, "Password confirmation"));
+      assertThat(e.errors().messages()).contains(Message.of(Validation.CANT_BE_EMPTY_MESSAGE, "Password confirmation"));
     }
   }
 
   @Test
   public void fail_to_create_user_with_password_not_matching_password_confirmation() throws Exception {
     try {
-      userCreator.create(NewUser.create()
+      userUpdater.create(NewUser.create()
         .setLogin("marius")
         .setName("Marius")
         .setEmail("marius@mail.com")
@@ -327,7 +294,7 @@ public class UserCreatorTest {
   @Test
   public void fail_to_create_user_with_many_errors() throws Exception {
     try {
-      userCreator.create(NewUser.create()
+      userUpdater.create(NewUser.create()
         .setLogin("")
         .setName("")
         .setEmail("marius@mail.com")
@@ -343,7 +310,7 @@ public class UserCreatorTest {
   public void notify_new_user() throws Exception {
     createDefaultGroup();
 
-    userCreator.create(NewUser.create()
+    userUpdater.create(NewUser.create()
       .setLogin("user")
       .setName("User")
       .setEmail("user@mail.com")
@@ -361,7 +328,7 @@ public class UserCreatorTest {
   public void associate_default_groups_when_creating_user() throws Exception {
     createDefaultGroup();
 
-    userCreator.create(NewUser.create()
+    userUpdater.create(NewUser.create()
       .setLogin("user")
       .setName("User")
       .setEmail("user@mail.com")
@@ -380,7 +347,7 @@ public class UserCreatorTest {
     settings.setProperty(CoreProperties.CORE_DEFAULT_GROUP, (String) null);
 
     try {
-      userCreator.create(NewUser.create()
+      userUpdater.create(NewUser.create()
         .setLogin("user")
         .setName("User")
         .setEmail("user@mail.com")
@@ -393,29 +360,49 @@ public class UserCreatorTest {
   }
 
   @Test
-  public void reactivate_user() throws Exception {
+  public void reactivate_user_when_creating_user_with_existing_login() throws Exception {
     db.prepareDbUnit(getClass(), "reactivate_user.xml");
     when(system2.now()).thenReturn(1418215735486L);
     createDefaultGroup();
 
-    userCreator.create(NewUser.create()
+    boolean result = userUpdater.create(NewUser.create()
       .setLogin("marius")
       .setName("Marius2")
       .setEmail("marius2@mail.com")
       .setPassword("password2")
-      .setPasswordConfirmation("password2")
-      .setPreventReactivation(false));
+      .setPasswordConfirmation("password2"));
+    session.commit();
 
     UserDto dto = userDao.selectNullableByLogin(session, "marius");
     assertThat(dto.isActive()).isTrue();
-    assertThat(dto.getName()).isEqualTo("Marius");
-    assertThat(dto.getEmail()).isEqualTo("marius@lesbronzes.fr");
-    assertThat(dto.getScmAccounts()).contains("ma,marius33");
+    assertThat(dto.getName()).isEqualTo("Marius2");
+    assertThat(dto.getEmail()).isEqualTo("marius2@mail.com");
+    assertThat(dto.getScmAccounts()).isNull();
 
-    assertThat(dto.getSalt()).isEqualTo("79bd6a8e79fb8c76ac8b121cc7e8e11ad1af8365");
-    assertThat(dto.getCryptedPassword()).isEqualTo("650d2261c98361e2f67f90ce5c65a95e7d8ea2fg");
+    assertThat(dto.getSalt()).isNotEqualTo("79bd6a8e79fb8c76ac8b121cc7e8e11ad1af8365");
+    assertThat(dto.getCryptedPassword()).isNotEqualTo("650d2261c98361e2f67f90ce5c65a95e7d8ea2fg");
     assertThat(dto.getCreatedAt()).isEqualTo(1418215735482L);
     assertThat(dto.getUpdatedAt()).isEqualTo(1418215735486L);
+
+    assertThat(result).isTrue();
+  }
+
+  @Test
+  public void fail_to_reactivate_user_if_not_disabled() throws Exception {
+    db.prepareDbUnit(getClass(), "fail_to_reactivate_user_if_not_disabled.xml");
+    createDefaultGroup();
+
+    try {
+      userUpdater.create(NewUser.create()
+        .setLogin("marius")
+        .setName("Marius2")
+        .setEmail("marius2@mail.com")
+        .setPassword("password2")
+        .setPasswordConfirmation("password2"));
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("An active user with login 'marius' already exists");
+    }
   }
 
   @Test
@@ -423,18 +410,160 @@ public class UserCreatorTest {
     db.prepareDbUnit(getClass(), "associate_default_groups_when_reactivating_user.xml");
     createDefaultGroup();
 
-    userCreator.create(NewUser.create()
+    userUpdater.create(NewUser.create()
       .setLogin("marius")
       .setName("Marius2")
       .setEmail("marius2@mail.com")
       .setPassword("password2")
-      .setPasswordConfirmation("password2")
-      .setPreventReactivation(false));
+      .setPasswordConfirmation("password2"));
+    session.commit();
 
     GroupMembershipFinder.Membership membership = groupMembershipFinder.find(GroupMembershipQuery.builder().login("marius").groupSearch("sonar-users").build());
     assertThat(membership.groups()).hasSize(1);
     assertThat(membership.groups().get(0).name()).isEqualTo("sonar-users");
     assertThat(membership.groups().get(0).isMember()).isTrue();
+  }
+
+  @Test
+  public void update_user() throws Exception {
+    db.prepareDbUnit(getClass(), "update_user.xml");
+    when(system2.now()).thenReturn(1418215735486L);
+    createDefaultGroup();
+
+    userUpdater.update(UpdateUser.create("marius")
+      .setName("Marius2")
+      .setEmail("marius2@mail.com")
+      .setPassword("password2")
+      .setPasswordConfirmation("password2")
+      .setScmAccounts(newArrayList("ma2")));
+    session.commit();
+    session.clearCache();
+
+    UserDto dto = userDao.selectNullableByLogin(session, "marius");
+    assertThat(dto.isActive()).isTrue();
+    assertThat(dto.getName()).isEqualTo("Marius2");
+    assertThat(dto.getEmail()).isEqualTo("marius2@mail.com");
+    assertThat(dto.getScmAccounts()).contains("ma2");
+
+    assertThat(dto.getSalt()).isNotEqualTo("79bd6a8e79fb8c76ac8b121cc7e8e11ad1af8365");
+    assertThat(dto.getCryptedPassword()).isNotEqualTo("650d2261c98361e2f67f90ce5c65a95e7d8ea2fg");
+    assertThat(dto.getCreatedAt()).isEqualTo(1418215735482L);
+    assertThat(dto.getUpdatedAt()).isEqualTo(1418215735486L);
+  }
+
+  @Test
+  public void update_only_user_name() throws Exception {
+    db.prepareDbUnit(getClass(), "update_user.xml");
+    createDefaultGroup();
+
+    userUpdater.update(UpdateUser.create("marius")
+      .setName("Marius2"));
+    session.commit();
+    session.clearCache();
+
+    UserDto dto = userDao.selectNullableByLogin(session, "marius");
+    assertThat(dto.getName()).isEqualTo("Marius2");
+
+    // Following fields has not changed
+    assertThat(dto.getEmail()).isEqualTo("marius@lesbronzes.fr");
+    assertThat(dto.getScmAccounts()).contains("ma,marius33");
+    assertThat(dto.getSalt()).isEqualTo("79bd6a8e79fb8c76ac8b121cc7e8e11ad1af8365");
+    assertThat(dto.getCryptedPassword()).isEqualTo("650d2261c98361e2f67f90ce5c65a95e7d8ea2fg");
+  }
+
+  @Test
+  public void update_only_user_email() throws Exception {
+    db.prepareDbUnit(getClass(), "update_user.xml");
+    createDefaultGroup();
+
+    userUpdater.update(UpdateUser.create("marius")
+      .setEmail("marius2@mail.com"));
+    session.commit();
+    session.clearCache();
+
+    UserDto dto = userDao.selectNullableByLogin(session, "marius");
+    assertThat(dto.getEmail()).isEqualTo("marius2@mail.com");
+
+    // Following fields has not changed
+    assertThat(dto.getName()).isEqualTo("Marius");
+    assertThat(dto.getScmAccounts()).contains("ma,marius33");
+    assertThat(dto.getSalt()).isEqualTo("79bd6a8e79fb8c76ac8b121cc7e8e11ad1af8365");
+    assertThat(dto.getCryptedPassword()).isEqualTo("650d2261c98361e2f67f90ce5c65a95e7d8ea2fg");
+  }
+
+  @Test
+  public void update_only_scm_accounts_email() throws Exception {
+    db.prepareDbUnit(getClass(), "update_user.xml");
+    createDefaultGroup();
+
+    userUpdater.update(UpdateUser.create("marius")
+      .setScmAccounts(newArrayList("ma2")));
+    session.commit();
+    session.clearCache();
+
+    UserDto dto = userDao.selectNullableByLogin(session, "marius");
+    assertThat(dto.getScmAccounts()).contains("ma2");
+
+    // Following fields has not changed
+    assertThat(dto.getName()).isEqualTo("Marius");
+    assertThat(dto.getEmail()).isEqualTo("marius@lesbronzes.fr");
+    assertThat(dto.getSalt()).isEqualTo("79bd6a8e79fb8c76ac8b121cc7e8e11ad1af8365");
+    assertThat(dto.getCryptedPassword()).isEqualTo("650d2261c98361e2f67f90ce5c65a95e7d8ea2fg");
+  }
+
+  @Test
+  public void update_only_user_password() throws Exception {
+    db.prepareDbUnit(getClass(), "update_user.xml");
+    createDefaultGroup();
+
+    userUpdater.update(UpdateUser.create("marius")
+      .setPassword("password2")
+      .setPasswordConfirmation("password2"));
+    session.commit();
+    session.clearCache();
+
+    UserDto dto = userDao.selectNullableByLogin(session, "marius");
+    assertThat(dto.getSalt()).isNotEqualTo("79bd6a8e79fb8c76ac8b121cc7e8e11ad1af8365");
+    assertThat(dto.getCryptedPassword()).isNotEqualTo("650d2261c98361e2f67f90ce5c65a95e7d8ea2fg");
+
+    // Following fields has not changed
+    assertThat(dto.getName()).isEqualTo("Marius");
+    assertThat(dto.getScmAccounts()).contains("ma,marius33");
+    assertThat(dto.getEmail()).isEqualTo("marius@lesbronzes.fr");
+  }
+
+  @Test
+  public void associate_default_groups_when_updating_user() throws Exception {
+    db.prepareDbUnit(getClass(), "associate_default_groups_when_updating_user.xml");
+    createDefaultGroup();
+
+    userUpdater.update(UpdateUser.create("marius")
+      .setName("Marius2")
+      .setEmail("marius2@mail.com")
+      .setPassword("password2")
+      .setPasswordConfirmation("password2")
+      .setScmAccounts(newArrayList("ma2")));
+    session.commit();
+
+    GroupMembershipFinder.Membership membership = groupMembershipFinder.find(GroupMembershipQuery.builder().login("marius").groupSearch("sonar-users").build());
+    assertThat(membership.groups()).hasSize(1);
+    assertThat(membership.groups().get(0).name()).isEqualTo("sonar-users");
+    assertThat(membership.groups().get(0).isMember()).isTrue();
+  }
+
+  @Test
+  public void fail_to_update_unknown_user() throws Exception {
+    try {
+      userUpdater.update(UpdateUser.create("marius")
+        .setName("Marius2")
+        .setEmail("marius2@mail.com")
+        .setPassword("password2")
+        .setPasswordConfirmation("password2")
+        .setScmAccounts(newArrayList("ma2")));
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(NotFoundException.class).hasMessage("User 'marius' does not exists");
+    }
   }
 
   private void createDefaultGroup() {

@@ -62,6 +62,11 @@ public class WsTester {
       return method;
     }
 
+    @Override
+    public boolean hasParam(String key) {
+      return params.keySet().contains(key);
+    }
+
     public TestRequest setParams(Map<String, String> m) {
       this.params = m;
       return this;
@@ -148,7 +153,6 @@ public class WsTester {
       return stream;
     }
 
-
     @Override
     public Response noContent() {
       stream().setStatus(HttpURLConnection.HTTP_NO_CONTENT);
@@ -156,7 +160,6 @@ public class WsTester {
       return this;
     }
   }
-
 
   public static class Result {
     private final TestResponse response;

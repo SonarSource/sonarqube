@@ -34,4 +34,14 @@ public class SimpleGetRequestTest {
     assertThat(request.param("foo")).isEqualTo("bar");
     assertThat(request.param("unknown")).isNull();
   }
+
+  @Test
+  public void has_param() throws Exception {
+    SimpleGetRequest request = new SimpleGetRequest();
+    assertThat(request.method()).isEqualTo("GET");
+
+    request.setParam("foo", "bar");
+    assertThat(request.hasParam("foo")).isTrue();
+    assertThat(request.hasParam("unknown")).isFalse();
+  }
 }

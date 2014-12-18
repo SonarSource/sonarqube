@@ -27,9 +27,11 @@ import org.sonar.api.server.ws.WebService;
 public class UsersWs implements WebService {
 
   private final CreateAction createAction;
+  private final UpdateAction updateAction;
 
-  public UsersWs(CreateAction createAction) {
+  public UsersWs(CreateAction createAction, UpdateAction updateAction) {
     this.createAction = createAction;
+    this.updateAction = updateAction;
   }
 
   @Override
@@ -40,7 +42,7 @@ public class UsersWs implements WebService {
 
     defineSearchAction(controller);
     createAction.define(controller);
-    defineUpdateAction(controller);
+    updateAction.define(controller);
     defineDeactivateAction(controller);
 
     controller.done();
@@ -61,29 +63,6 @@ public class UsersWs implements WebService {
     action.createParam("logins")
       .setDescription("Comma-separated list of user logins")
       .setExampleValue("admin,sbrandhof");
-
-    RailsHandler.addFormatParam(action);
-  }
-
-  private void defineUpdateAction(NewController controller) {
-    NewAction action = controller.createAction("update")
-      .setDescription("Update a user. Requires Administer System permission")
-      .setSince("3.7")
-      .setPost(true)
-      .setHandler(RailsHandler.INSTANCE);
-
-    action.createParam("login")
-      .setDescription("User login")
-      .setRequired(true)
-      .setExampleValue("myuser");
-
-    action.createParam("name")
-      .setDescription("User name")
-      .setExampleValue("My New Name");
-
-    action.createParam("email")
-      .setDescription("User email")
-      .setExampleValue("mynewname@email.com");
 
     RailsHandler.addFormatParam(action);
   }

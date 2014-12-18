@@ -20,18 +20,16 @@
 
 package org.sonar.server.user.ws;
 
-import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.server.user.NewUser;
+import org.sonar.server.user.UpdateUser;
 import org.sonar.server.user.UserService;
-import org.sonar.server.user.UserSession;
 import org.sonar.server.user.index.UserDoc;
 
-public class CreateAction implements RequestHandler {
+public class UpdateAction implements RequestHandler {
 
   private static final String PARAM_LOGIN = "login";
   private static final String PARAM_PASSWORD = "password";
@@ -41,16 +39,14 @@ public class CreateAction implements RequestHandler {
   private static final String PARAM_SCM_ACCOUNTS = "scm_accounts";
 
   private final UserService service;
-  private final I18n i18n;
 
-  public CreateAction(UserService service, I18n i18n) {
+  public UpdateAction(UserService service) {
     this.service = service;
-    this.i18n = i18n;
   }
 
   void define(WebService.NewController controller) {
-    WebService.NewAction action = controller.createAction("create")
-      .setDescription("Create a user. Requires Administer System permission")
+    WebService.NewAction action = controller.createAction("update")
+      .setDescription("Update a user. Requires Administer System permission")
       .setSince("3.7")
       .setPost(true)
       .setHandler(this);
@@ -87,25 +83,31 @@ public class CreateAction implements RequestHandler {
   @Override
   public void handle(Request request, Response response) throws Exception {
     String login = request.mandatoryParam(PARAM_LOGIN);
-    NewUser newUser = NewUser.create()
-      .setLogin(login)
-      .setName(request.mandatoryParam(PARAM_NAME))
-      .setEmail(request.param(PARAM_EMAIL))
-      .setScmAccounts(request.paramAsStrings(PARAM_SCM_ACCOUNTS))
-      .setPassword(request.mandatoryParam(PARAM_PASSWORD))
-      .setPasswordConfirmation(request.mandatoryParam(PARAM_PASSWORD_CONFIRMATION));
+    UpdateUser updateUser = UpdateUser.create(login);
+    if (request.hasParam(PARAM_NAME)) {
+      updateUser.setName(request.mandatoryParam(PARAM_NAME));
+    }
+    if (request.hasParam(PARAM_EMAIL)) {
+      updateUser.setEmail(request.param(PARAM_EMAIL));
+    }
+    if (request.hasParam(PARAM_SCM_ACCOUNTS)) {
+      updateUser.setScmAccounts(request.paramAsStrings(PARAM_SCM_ACCOUNTS));
+    }
+    if (request.hasParam(PARAM_PASSWORD)) {
+      updateUser.setPassword(request.mandatoryParam(PARAM_PASSWORD));
+    }
+    if (request.hasParam(PARAM_PASSWORD_CONFIRMATION)) {
+      updateUser.setPasswordConfirmation(request.mandatoryParam(PARAM_PASSWORD_CONFIRMATION));
+    }
 
-    boolean isUserReactivated = service.create(newUser);
-    writeResponse(response, login, isUserReactivated);
+    service.update(updateUser);
+    writeResponse(response, login);
   }
 
-  private void writeResponse(Response response, String login, boolean isUserReactivated) {
+  private void writeResponse(Response response, String login) {
     UserDoc user = service.getByLogin(login);
     JsonWriter json = response.newJsonWriter().beginObject();
     writeUser(json, user);
-    if (isUserReactivated) {
-      writeReactivationMessage(json, login);
-    }
     json.endObject().close();
   }
 
@@ -117,14 +119,5 @@ public class CreateAction implements RequestHandler {
       .prop("active", user.active())
       .name("scmAccounts").beginArray().values(user.scmAccounts()).endArray()
       .endObject();
-  }
-
-  private void writeReactivationMessage(JsonWriter json, String login) {
-    json.name("infos").beginArray();
-    json.beginObject();
-    String text = i18n.message(UserSession.get().locale(), "user.reactivated", "user.reactivated", login);
-    json.prop("msg", text);
-    json.endObject();
-    json.endArray();
   }
 }
