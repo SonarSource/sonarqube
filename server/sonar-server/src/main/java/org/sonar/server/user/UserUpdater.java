@@ -198,12 +198,12 @@ public class UserUpdater implements ServerComponent {
   private static void validateLoginFormat(@Nullable String login, List<Message> messages) {
     checkNotEmptyParam(login, LOGIN_PARAM, messages);
     if (!Strings.isNullOrEmpty(login)) {
-      if (!login.matches("\\A\\w[\\w\\.\\-_@\\s]+\\z")) {
-        messages.add(Message.of("user.bad_login"));
-      } else if (login.length() <= 2) {
+      if (login.length() <= 2) {
         messages.add(Message.of(Validation.IS_TOO_SHORT_MESSAGE, LOGIN_PARAM, 2));
       } else if (login.length() >= 255) {
         messages.add(Message.of(Validation.IS_TOO_LONG_MESSAGE, LOGIN_PARAM, 255));
+      } else if (!login.matches("\\A\\w[\\w\\.\\-_@\\s]+\\z")) {
+        messages.add(Message.of("user.bad_login"));
       }
     }
   }
