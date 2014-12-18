@@ -74,6 +74,7 @@
             -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:CMSInitiatingOccupancyFraction=75
             -XX:+UseCMSInitiatingOccupancyOnly -XX:+HeapDumpOnOutOfMemoryError
           </argLine>
+          <reuseForks>false</reuseForks>
         </configuration>
       </plugin>
     </plugins>

@@ -44,7 +44,7 @@ public class SourceDbBenchmarkTest {
 
   public static final Logger LOGGER = LoggerFactory.getLogger("benchmarkSourceDbScrolling");
   // files are 3'220 lines long
-  public static final int NUMBER_OF_FILES = 10000;
+  public static final int NUMBER_OF_FILES = 1000;
   public static final String PROJECT_UUID = Uuids.create();
 
   @Rule

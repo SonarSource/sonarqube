@@ -53,8 +53,8 @@ import static org.fest.assertions.Assertions.assertThat;
 public class SourceIndexBenchmarkTest {
 
   private static final Logger LOGGER = LoggerFactory.getLogger("benchmarkSourceIndexing");
-  private static final long FILES = 10000L;
-  private static final int LINES_PER_FILE = 200;
+  private static final long FILES = 1000L;
+  private static final int LINES_PER_FILE = 3220;
 
   @Rule
   public ServerTester tester = new ServerTester();
