@@ -31,4 +31,4 @@ define [
     serializeData: ->
       _.extend super,
         state: @options.app.state.toJSON()
-        total: @collection.paging.total || 0
+        total: @collection.paging.total || @collection.length
