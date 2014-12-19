@@ -142,6 +142,18 @@ public class RegisterQualityProfilesMediumTest {
   }
 
   @Test
+  public void do_not_register_profile_if_missing_language() throws Exception {
+    // xoo language is not installed
+    tester = new ServerTester().addComponents(XooRulesDefinition.class, XooProfileDefinition.class);
+    tester.start();
+    dbSession = dbClient().openSession(false);
+
+    // Check Profile in DB
+    QualityProfileDao qualityProfileDao = dbClient().qualityProfileDao();
+    assertThat(qualityProfileDao.findAll(dbSession)).hasSize(0);
+  }
+
+  @Test
   public void fail_if_two_definitions_are_marked_as_default_on_the_same_language() throws Exception {
     tester = new ServerTester().addXoo().addComponents(new SimpleProfileDefinition("one", true), new SimpleProfileDefinition("two", true));
 

@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.ActiveRuleParam;
 import org.sonar.api.utils.TimeProfiler;
@@ -62,24 +63,26 @@ public class RegisterQualityProfiles implements ServerComponent {
   private final DbClient dbClient;
   private final QProfileFactory profileFactory;
   private final RuleActivator ruleActivator;
+  private final Languages languages;
 
   /**
    * To be kept when no ProfileDefinition are injected
    */
   public RegisterQualityProfiles(PersistentSettings settings, BuiltInProfiles builtInProfiles,
-    DbClient dbClient, QProfileFactory profileFactory, RuleActivator ruleActivator) {
-    this(settings, builtInProfiles, dbClient, profileFactory, ruleActivator, Collections.<ProfileDefinition>emptyList());
+                                 DbClient dbClient, QProfileFactory profileFactory, RuleActivator ruleActivator, Languages languages) {
+    this(settings, builtInProfiles, dbClient, profileFactory, ruleActivator, Collections.<ProfileDefinition>emptyList(), languages);
   }
 
   public RegisterQualityProfiles(PersistentSettings settings, BuiltInProfiles builtInProfiles,
-    DbClient dbClient, QProfileFactory profileFactory, RuleActivator ruleActivator,
-    List<ProfileDefinition> definitions) {
+                                 DbClient dbClient, QProfileFactory profileFactory, RuleActivator ruleActivator,
+                                 List<ProfileDefinition> definitions, Languages languages) {
     this.settings = settings;
     this.builtInProfiles = builtInProfiles;
     this.dbClient = dbClient;
     this.profileFactory = profileFactory;
     this.ruleActivator = ruleActivator;
     this.definitions = definitions;
+    this.languages = languages;
   }
 
   public void start() {
@@ -90,19 +93,19 @@ public class RegisterQualityProfiles implements ServerComponent {
       ListMultimap<String, RulesProfile> profilesByLanguage = profilesByLanguage();
       for (String language : profilesByLanguage.keySet()) {
         List<RulesProfile> defs = profilesByLanguage.get(language);
-        verifyLanguage(language, defs);
-
-        for (Map.Entry<String, Collection<RulesProfile>> entry : profilesByName(defs).entrySet()) {
-          String name = entry.getKey();
-          QProfileName profileName = new QProfileName(language, name);
-          if (shouldRegister(profileName, session)) {
-            register(profileName, entry.getValue(), session);
-            session.commit();
+        if (verifyLanguage(language, defs)) {
+          for (Map.Entry<String, Collection<RulesProfile>> entry : profilesByName(defs).entrySet()) {
+            String name = entry.getKey();
+            QProfileName profileName = new QProfileName(language, name);
+            if (shouldRegister(profileName, session)) {
+              register(profileName, entry.getValue(), session);
+              session.commit();
+            }
+            builtInProfiles.put(language, name);
           }
-          builtInProfiles.put(language, name);
+          setDefault(language, defs, session);
+          session.commit();
         }
-        setDefault(language, defs, session);
-        session.commit();
       }
 
     } finally {
@@ -111,15 +114,20 @@ public class RegisterQualityProfiles implements ServerComponent {
     }
   }
 
-  private static void verifyLanguage(String language, List<RulesProfile> profiles) {
-    if (profiles.isEmpty()) {
-      LOGGER.warn("No Quality Profile defined for language: " + language);
+  private boolean verifyLanguage(String language, List<RulesProfile> profiles) {
+    if (languages.get(language) == null) {
+      LOGGER.info(String.format("Language %s is not installed, related Quality profiles are ignored", language));
+      // profiles relate to a language which is not installed
+      return false;
     }
-
+    if (profiles.isEmpty()) {
+      LOGGER.warn(String.format("No Quality profiles defined for language: %s", language));
+    }
     Set<String> defaultProfileNames = defaultProfileNames(profiles);
     if (defaultProfileNames.size() > 1) {
-      throw new IllegalStateException("Several Quality profiles are flagged as default for the language " + language + ": " + defaultProfileNames);
+      throw new IllegalStateException(String.format("Several Quality profiles are flagged as default for the language %s: %s", language, defaultProfileNames));
     }
+    return true;
   }
 
   private void register(QProfileName name, Collection<RulesProfile> profiles, DbSession session) {
@@ -160,7 +168,7 @@ public class RegisterQualityProfiles implements ServerComponent {
     }
 
     if (!upToDate) {
-      String defaultProfileName = defaultProfileName(profileDefs);
+      String defaultProfileName = nameOfDefaultProfile(profileDefs);
       LOGGER.info("Set default " + language + " profile: " + defaultProfileName);
       settings.saveProperty(propertyKey, defaultProfileName);
     }
@@ -191,7 +199,7 @@ public class RegisterQualityProfiles implements ServerComponent {
     }).asMap();
   }
 
-  private static String defaultProfileName(List<RulesProfile> profiles) {
+  private static String nameOfDefaultProfile(List<RulesProfile> profiles) {
     String defaultName = null;
     boolean hasSonarWay = false;
 
@@ -221,6 +229,7 @@ public class RegisterQualityProfiles implements ServerComponent {
   }
 
   private boolean shouldRegister(QProfileName key, DbSession session) {
+    // check if the profile was already registered in the past
     return dbClient.loadedTemplateDao()
       .countByTypeAndKey(LoadedTemplateDto.QUALITY_PROFILE_TYPE, templateKey(key), session) == 0;
   }
