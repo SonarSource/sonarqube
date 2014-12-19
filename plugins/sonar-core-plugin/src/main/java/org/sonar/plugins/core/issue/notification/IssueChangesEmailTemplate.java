@@ -82,6 +82,15 @@ public class IssueChangesEmailTemplate extends EmailTemplate {
     appendField(sb, "Message", notif.getFieldValue("old.message"), notif.getFieldValue("new.message"));
     appendField(sb, "Author", notif.getFieldValue("old.author"), notif.getFieldValue("new.author"));
     appendFieldWithoutHistory(sb, "Action Plan", notif.getFieldValue("old.actionPlan"), notif.getFieldValue("new.actionPlan"));
+    appendField(sb, "Tags", formatTagChange(notif.getFieldValue("old.tags")), formatTagChange(notif.getFieldValue("new.tags")));
+  }
+
+  private static String formatTagChange(String tags) {
+    if (tags == null) {
+      return null;
+    } else {
+      return "[" + tags + "]";
+    }
   }
 
   private void appendHeader(Notification notif, StringBuilder sb) {

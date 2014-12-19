@@ -124,7 +124,8 @@ public class IssueChangesEmailTemplateTest {
       .setFieldValue("old.assignee", "simon")
       .setFieldValue("new.assignee", "louis")
       .setFieldValue("new.resolution", "FALSE-POSITIVE")
-      .setFieldValue("new.status", "RESOLVED");
+      .setFieldValue("new.status", "RESOLVED")
+      .setFieldValue("new.tags", "bug performance");
 
     EmailMessage email = template.format(notification);
     assertThat(email.getMessageId()).isEqualTo("issue-changes/ABCDE");
