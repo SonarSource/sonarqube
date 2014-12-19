@@ -20,20 +20,18 @@
 
 package org.sonar.server.issue;
 
-import com.google.common.collect.Lists;
-
-import org.sonar.server.component.ComponentService;
-import org.apache.commons.lang.ObjectUtils;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import org.apache.commons.lang.ObjectUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ws.Request;
-import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.server.component.ComponentService;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.filter.IssueFilterParameters;
 import org.sonar.server.search.ws.SearchRequestHandler;
@@ -88,32 +86,29 @@ public class IssueQueryService implements ServerComponent {
           ObjectUtils.defaultIfNull(
             params.get(IssueFilterParameters.PROJECT_KEYS),
             params.get(IssueFilterParameters.PROJECTS)
-          )
-        )
-      );
+            )
+          ));
       addComponentUuids(builder, session,
         RubyUtils.toStrings(params.get(IssueFilterParameters.COMPONENT_UUIDS)),
         RubyUtils.toStrings(
           ObjectUtils.defaultIfNull(
             params.get(IssueFilterParameters.COMPONENT_KEYS),
             params.get(IssueFilterParameters.COMPONENTS)
-          )
-        )
-      );
+            )
+          ));
       addComponentRootUuids(builder, session,
         RubyUtils.toStrings(
           ObjectUtils.defaultIfNull(
             params.get(IssueFilterParameters.MODULE_UUIDS),
             params.get(IssueFilterParameters.COMPONENT_ROOT_UUIDS)
-          )
-        ),
+            )
+          ),
         RubyUtils.toStrings(
           ObjectUtils.defaultIfNull(
             params.get(IssueFilterParameters.MODULE_KEYS),
             params.get(IssueFilterParameters.COMPONENT_ROOTS)
-          )
-        )
-      );
+            )
+          ));
       String sort = (String) params.get(IssueFilterParameters.SORT);
       if (!Strings.isNullOrEmpty(sort)) {
         builder.sort(sort);

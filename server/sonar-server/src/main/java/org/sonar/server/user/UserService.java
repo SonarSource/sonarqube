@@ -53,7 +53,6 @@ public class UserService implements ServerComponent {
     userIndexer.index();
   }
 
-  @CheckForNull
   public UserDoc getByLogin(String login) {
     return userIndex.getByLogin(login);
   }

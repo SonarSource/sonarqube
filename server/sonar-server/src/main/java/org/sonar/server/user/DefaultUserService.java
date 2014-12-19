@@ -80,7 +80,7 @@ public class DefaultUserService implements RubyUserService {
       .setLogin((String) params.get("login"))
       .setName((String) params.get("name"))
       .setEmail((String) params.get("email"))
-      .setScmAccounts((RubyUtils.toStrings(params.get("scm_accounts"))))
+      .setScmAccounts(RubyUtils.toStrings(params.get("scm_accounts")))
       .setPassword((String) params.get("password"))
       .setPasswordConfirmation((String) params.get("password_confirmation"));
     return userService.create(newUser);
@@ -95,7 +95,7 @@ public class DefaultUserService implements RubyUserService {
       updateUser.setEmail((String) params.get("email"));
     }
     if (params.containsKey("scm_accounts")) {
-      updateUser.setScmAccounts((RubyUtils.toStrings(params.get("scm_accounts"))));
+      updateUser.setScmAccounts(RubyUtils.toStrings(params.get("scm_accounts")));
     }
     if (params.containsKey("password")) {
       updateUser.setPassword((String) params.get("password"));

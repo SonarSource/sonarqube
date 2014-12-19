@@ -111,7 +111,7 @@ class UserResultSetIterator extends ResultSetIterator<UserDoc> {
       }
       return result;
     } catch (IOException e) {
-      throw new IllegalStateException(String.format("Fail to read scm accounts for user '%s'", login));
+      throw new IllegalStateException(String.format("Fail to read scm accounts for user '%s'", login), e);
     } finally {
       IOUtils.closeQuietly(reader);
       IOUtils.closeQuietly(csvParser);

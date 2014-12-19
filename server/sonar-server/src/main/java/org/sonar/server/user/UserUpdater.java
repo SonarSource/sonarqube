@@ -217,10 +217,8 @@ public class UserUpdater implements ServerComponent {
   }
 
   private static void validateEmailFormat(@Nullable String email, List<Message> messages) {
-    if (email != null) {
-      if (email.length() >= 100) {
-        messages.add(Message.of(Validation.IS_TOO_LONG_MESSAGE, EMAIL_PARAM, 100));
-      }
+    if (email != null && email.length() >= 100) {
+      messages.add(Message.of(Validation.IS_TOO_LONG_MESSAGE, EMAIL_PARAM, 100));
     }
   }
 
