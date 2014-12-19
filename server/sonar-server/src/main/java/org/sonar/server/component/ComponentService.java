@@ -20,13 +20,10 @@
 
 package org.sonar.server.component;
 
+import com.google.common.base.Function;
 import com.google.common.base.Joiner;
-
-import org.apache.commons.collections.CollectionUtils;
-import com.google.common.base.Function;
-import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
-import org.sonar.server.exceptions.NotFoundException;
+import org.apache.commons.collections.CollectionUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
@@ -34,6 +31,7 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.resource.ResourceKeyUpdaterDao;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;

@@ -39,6 +39,7 @@ public class ProxyIndexRequestBuilderTest {
 
   @Test
   public void index_with_index_type_and_id() {
+    esTester.setProfilingLevel(Profiling.Level.FULL);
     IndexResponse response = esTester.client().prepareIndex(FakeIndexDefinition.INDEX, FakeIndexDefinition.TYPE)
       .setSource(FakeIndexDefinition.newDoc(42))
       .get();
@@ -57,6 +58,20 @@ public class ProxyIndexRequestBuilderTest {
 
   @Test
   public void fail_if_bad_query() throws Exception {
+    esTester.setProfilingLevel(Profiling.Level.FULL);
+    IndexRequestBuilder requestBuilder = esTester.client().prepareIndex("unknownIndex", "unknownType");
+    try {
+      requestBuilder.get();
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalStateException.class);
+      assertThat(e.getMessage()).contains("Fail to execute ES index request for key 'null' on index 'unknownIndex' on type 'unknownType'");
+    }
+  }
+
+  @Test
+  public void fail_if_bad_query_with_basic_profiling() throws Exception {
+    esTester.setProfilingLevel(Profiling.Level.BASIC);
     IndexRequestBuilder requestBuilder = esTester.client().prepareIndex("unknownIndex", "unknownType");
     try {
       requestBuilder.get();
@@ -69,6 +84,7 @@ public class ProxyIndexRequestBuilderTest {
 
   @Test
   public void get_with_string_timeout_is_not_yet_implemented() throws Exception {
+    esTester.setProfilingLevel(Profiling.Level.FULL);
     try {
       esTester.client().prepareIndex(FakeIndexDefinition.INDEX, FakeIndexDefinition.TYPE).get("1");
       fail();
@@ -79,6 +95,7 @@ public class ProxyIndexRequestBuilderTest {
 
   @Test
   public void get_with_time_value_timeout_is_not_yet_implemented() throws Exception {
+    esTester.setProfilingLevel(Profiling.Level.FULL);
     try {
       esTester.client().prepareIndex(FakeIndexDefinition.INDEX, FakeIndexDefinition.TYPE).get(TimeValue.timeValueMinutes(1));
       fail();
@@ -89,6 +106,7 @@ public class ProxyIndexRequestBuilderTest {
 
   @Test
   public void do_not_support_execute_method() throws Exception {
+    esTester.setProfilingLevel(Profiling.Level.FULL);
     try {
       esTester.client().prepareIndex(FakeIndexDefinition.INDEX, FakeIndexDefinition.TYPE).execute();
       fail();

@@ -28,6 +28,7 @@ import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.rule.RuleDto;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -128,4 +129,26 @@ public class IssueDtoTest {
     assertThat(dto.getLanguage()).isEqualTo("xoo");
   }
 
+  @Test
+  public void set_tags() {
+    IssueDto dto = new IssueDto();
+    assertThat(dto.getTags()).isEmpty();
+    assertThat(dto.getTagsString()).isNull();
+
+    dto.setTags(Arrays.asList("tag1", "tag2", "tag3"));
+    assertThat(dto.getTags()).containsOnly("tag1", "tag2", "tag3");
+    assertThat(dto.getTagsString()).isEqualTo("tag1,tag2,tag3");
+
+    dto.setTags(Arrays.<String>asList());
+    assertThat(dto.getTags()).isEmpty();
+
+    dto.setTagsString("tag1, tag2 ,,tag3");
+    assertThat(dto.getTags()).containsOnly("tag1", "tag2", "tag3");
+
+    dto.setTagsString(null);
+    assertThat(dto.getTags()).isEmpty();
+
+    dto.setTagsString("");
+    assertThat(dto.getTags()).isEmpty();
+  }
 }

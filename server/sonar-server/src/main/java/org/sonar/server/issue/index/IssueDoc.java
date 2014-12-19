@@ -296,6 +296,7 @@ public class IssueDoc extends BaseDoc implements Issue {
     setField(IssueIndexDefinition.FIELD_ISSUE_MODULE_PATH, s);
   }
 
+  @Override
   @CheckForNull
   public Collection<String> tags() {
     return getNullableField(IssueIndexDefinition.FIELD_ISSUE_TAGS);

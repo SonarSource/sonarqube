@@ -78,6 +78,7 @@ import static com.google.common.collect.Sets.newHashSet;
 
 public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
 
+
   public static final String SEARCH_ACTION = "search";
 
   private static final String ACTIONS_EXTRA_FIELD = "actions";
@@ -87,6 +88,8 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
   private static final String ACTION_PLAN_NAME_EXTRA_FIELD = "actionPlanName";
 
   private static final String EXTRA_FIELDS_PARAM = "extra_fields";
+
+  private static final String INTERNAL_PARAMETER_DISCLAIMER = "This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter.";
 
   private final IssueChangeDao issueChangeDao;
   private final IssueService service;
@@ -210,7 +213,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       .setDescription("Deprecated since 5.1. See componentKeys.");
     action.createParam(IssueFilterParameters.COMPONENT_UUIDS)
       .setDescription("To retrieve issues associated to a specific list of components (comma-separated list of component UUIDs). " +
-        "This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter." +
+        INTERNAL_PARAMETER_DISCLAIMER +
         "A component can be a project, module, directory or file." +
         "If this parameter is set, componentKeys must not be set.")
       .setExampleValue("584a89f2-8037-4f7b-b82c-8b45d2d63fb2");
@@ -219,13 +222,13 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       .setDescription("Deprecated since 5.1. See projectKeys");
     action.createParam(IssueFilterParameters.PROJECT_KEYS)
       .setDescription("To retrieve issues associated to a specific list of projects (comma-separated list of project keys). " +
-        "This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter." +
+        INTERNAL_PARAMETER_DISCLAIMER +
         "If this parameter is set, projectUuids must not be set.")
       .setDeprecatedKey(IssueFilterParameters.PROJECTS)
       .setExampleValue("org.apache.struts:struts:org.apache.struts.Action");
     action.createParam(IssueFilterParameters.PROJECT_UUIDS)
       .setDescription("To retrieve issues associated to a specific list of projects (comma-separated list of project UUIDs). " +
-        "This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter." +
+        INTERNAL_PARAMETER_DISCLAIMER +
         "Views are not supported. If this parameter is set, projectKeys must not be set.")
       .setExampleValue("7d8749e8-3070-4903-9188-bdd82933bb92");
 
@@ -235,13 +238,13 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       .setDescription("Deprecated since 5.1. See moduleUuids.");
     action.createParam(IssueFilterParameters.MODULE_KEYS)
       .setDescription("To retrieve issues associated to a specific list of modules (comma-separated list of module keys). " +
-        "This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter." +
+        INTERNAL_PARAMETER_DISCLAIMER +
         "Views are not supported. If this parameter is set, componentRootUuids must not be set.")
       .setDeprecatedKey(IssueFilterParameters.COMPONENT_ROOTS)
       .setExampleValue("org.apache.struts:struts");
     action.createParam(IssueFilterParameters.MODULE_UUIDS)
       .setDescription("To retrieve issues associated to a specific list of components and their sub-components (comma-separated list of component UUIDs). " +
-        "This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter." +
+        INTERNAL_PARAMETER_DISCLAIMER +
         "Views are not supported. If this parameter is set, moduleKeys must not be set.")
       .setDeprecatedKey(IssueFilterParameters.COMPONENT_ROOT_UUIDS)
       .setExampleValue("7d8749e8-3070-4903-9188-bdd82933bb92");
