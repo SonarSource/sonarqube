@@ -565,6 +565,72 @@ public class ProjectReactorBuilderTest {
     assertThat(buildDir.getName()).isEqualTo("build");
   }
 
+  @Test
+  public void doNotMixPropertiesWhenModuleKeyIsPrefixOfAnother() throws IOException {
+    ProjectDefinition rootProject = loadProjectDefinition("multi-module-definitions-same-prefix");
+
+    // CHECK ROOT
+    assertThat(rootProject.getKey()).isEqualTo("com.foo.project");
+    assertThat(rootProject.getName()).isEqualTo("Foo Project");
+    assertThat(rootProject.getVersion()).isEqualTo("1.0-SNAPSHOT");
+    assertThat(rootProject.getDescription()).isEqualTo("Description of Foo Project");
+    // root project must not contain some properties - even if they are defined in the root properties file
+    assertThat(rootProject.getSourceDirs().contains("sources")).isFalse();
+    assertThat(rootProject.getTestDirs().contains("tests")).isFalse();
+    assertThat(rootProject.getBinaries().contains("target/classes")).isFalse();
+    // and module properties must have been cleaned
+    assertThat(rootProject.getProperties().getProperty("module1.sonar.projectKey")).isNull();
+    assertThat(rootProject.getProperties().getProperty("module2.sonar.projectKey")).isNull();
+    // Check baseDir and workDir
+    assertThat(rootProject.getBaseDir().getCanonicalFile())
+      .isEqualTo(TestUtils.getResource(this.getClass(), "multi-module-definitions-same-prefix"));
+    assertThat(rootProject.getWorkDir().getCanonicalFile())
+      .isEqualTo(new File(TestUtils.getResource(this.getClass(), "multi-module-definitions-same-prefix"), ".sonar"));
+
+    // CHECK MODULES
+    List<ProjectDefinition> modules = rootProject.getSubProjects();
+    assertThat(modules.size()).isEqualTo(2);
+
+    // Module 1
+    ProjectDefinition module1 = modules.get(0);
+    assertThat(module1.getBaseDir().getCanonicalFile()).isEqualTo(TestUtils.getResource(this.getClass(), "multi-module-definitions-same-prefix/module1"));
+    assertThat(module1.getKey()).isEqualTo("com.foo.project:module1");
+    assertThat(module1.getName()).isEqualTo("module1");
+    assertThat(module1.getVersion()).isEqualTo("1.0-SNAPSHOT");
+    // Description should not be inherited from parent if not set
+    assertThat(module1.getDescription()).isNull();
+    assertThat(module1.getSourceDirs()).contains("sources");
+    assertThat(module1.getTestDirs()).contains("tests");
+    assertThat(module1.getBinaries()).contains("target/classes");
+    // and module properties must have been cleaned
+    assertThat(module1.getProperties().getProperty("module1.sonar.projectKey")).isNull();
+    assertThat(module1.getProperties().getProperty("module2.sonar.projectKey")).isNull();
+    // Check baseDir and workDir
+    assertThat(module1.getBaseDir().getCanonicalFile())
+      .isEqualTo(TestUtils.getResource(this.getClass(), "multi-module-definitions-same-prefix/module1"));
+    assertThat(module1.getWorkDir().getCanonicalFile())
+      .isEqualTo(new File(TestUtils.getResource(this.getClass(), "multi-module-definitions-same-prefix"), ".sonar/com.foo.project_module1"));
+
+    // Module 1 Feature
+    ProjectDefinition module1Feature = modules.get(1);
+    assertThat(module1Feature.getBaseDir().getCanonicalFile()).isEqualTo(TestUtils.getResource(this.getClass(), "multi-module-definitions-same-prefix/module1.feature"));
+    assertThat(module1Feature.getKey()).isEqualTo("com.foo.project:com.foo.project.module1.feature");
+    assertThat(module1Feature.getName()).isEqualTo("Foo Module 1 Feature");
+    assertThat(module1Feature.getVersion()).isEqualTo("1.0-SNAPSHOT");
+    assertThat(module1Feature.getDescription()).isEqualTo("Description of Module 1 Feature");
+    assertThat(module1Feature.getSourceDirs()).contains("src");
+    assertThat(module1Feature.getTestDirs()).contains("tests");
+    assertThat(module1Feature.getBinaries()).contains("target/classes");
+    // and module properties must have been cleaned
+    assertThat(module1Feature.getProperties().getProperty("module1.sonar.projectKey")).isNull();
+    assertThat(module1Feature.getProperties().getProperty("module2.sonar.projectKey")).isNull();
+    // Check baseDir and workDir
+    assertThat(module1Feature.getBaseDir().getCanonicalFile())
+      .isEqualTo(TestUtils.getResource(this.getClass(), "multi-module-definitions-same-prefix/module1.feature"));
+    assertThat(module1Feature.getWorkDir().getCanonicalFile())
+      .isEqualTo(new File(TestUtils.getResource(this.getClass(), "multi-module-definitions-same-prefix"), ".sonar/com.foo.project_com.foo.project.module1.feature"));
+  }
+
   private Map<String, String> loadPropsFromFile(String filePath) throws IOException {
     Properties props = new Properties();
     FileInputStream fileInputStream = null;

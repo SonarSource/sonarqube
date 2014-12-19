@@ -44,6 +44,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -136,7 +138,10 @@ public class ProjectReactorBuilder {
         parentProperties.remove(key);
       }
     }
-    String[] moduleIds = getListFromProperty(currentModuleProperties, PROPERTY_MODULES);
+    List<String> moduleIds = new ArrayList<String>(Arrays.asList(getListFromProperty(currentModuleProperties, PROPERTY_MODULES)));
+    // Sort module by reverse lexicographic order to avoid issue when one module id is a prefix of another one
+    Collections.sort(moduleIds);
+    Collections.reverse(moduleIds);
     Map<String, Map<String, String>> result = new HashMap<String, Map<String, String>>();
     for (String moduleId : moduleIds) {
       result.putAll(extractPropertiesByModule(moduleId, currentModuleProperties));

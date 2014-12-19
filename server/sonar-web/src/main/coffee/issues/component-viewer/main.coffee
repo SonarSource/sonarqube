@@ -90,7 +90,7 @@ define [
       selected = @options.app.state.get 'selectedIndex'
       selectedIssue = @options.app.issues.at selected
       if selectedIssue.get('component') == @model.get('key')
-        @scrollToLine selectedIssue.get('line')
+        @scrollToIssue selectedIssue.get('key')
       else
         @unbindShortcuts()
         @options.app.controller.showComponentViewer selectedIssue
@@ -115,14 +115,8 @@ define [
     scrollToIssue: (key) ->
       el = @$("#issue-#{key}")
       if el.length > 0
-        viewTop = el.offset().top
-        viewBottom = viewTop + el.outerHeight()
-        windowTop = $(window).scrollTop()
-        windowBottom = windowTop + $(window).height()
-        if viewTop < windowTop
-          $(window).scrollTop viewTop - TOP_OFFSET
-        if viewBottom > windowBottom
-          $(window).scrollTop $(window).scrollTop() - windowBottom + viewBottom + BOTTOM_OFFSET
+        line = el.closest('[data-line-number]').data 'line-number'
+        this.scrollToLine line
       else
         @unbindShortcuts()
         selected = @options.app.state.get 'selectedIndex'
