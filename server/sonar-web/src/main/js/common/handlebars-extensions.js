@@ -21,7 +21,7 @@ define(['handlebars'], function (Handlebars) {
     return Handlebars.compile(jQuery(templateSelector).html() || '');
   };
 
-  var defaultActions = ['comment', 'assign', 'assign_to_me', 'plan', 'set_severity'];
+  var defaultActions = ['comment', 'assign', 'assign_to_me', 'plan', 'set_severity', 'set_tags'];
 
   Handlebars.registerHelper('log', function() {
     var args = Array.prototype.slice.call(arguments, 0, -1);
