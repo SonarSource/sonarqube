@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.protocol.output.resource;
 
+import javax.annotation.CheckForNull;
+
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -28,7 +30,9 @@ public class ReportComponent {
     PRJ,
     MOD,
     DIR,
-    FIL
+    FIL,
+    VIEW,
+    SUBVIEW
   }
 
   private long batchId;
@@ -37,6 +41,9 @@ public class ReportComponent {
   private String path;
   private String name;
   private Type type;
+  // Only for files
+  private Boolean isTest;
+  private String languageKey;
 
   private Collection<ReportComponent> children = new ArrayList<ReportComponent>();
 
@@ -92,6 +99,28 @@ public class ReportComponent {
 
   public Type type() {
     return type;
+  }
+
+  public ReportComponent setTest(Boolean isTest) {
+    this.isTest = isTest;
+    return this;
+  }
+
+  /**
+   * @return null when not a file
+   */
+  @CheckForNull
+  public Boolean isTest() {
+    return isTest;
+  }
+
+  public ReportComponent setLanguageKey(String languageKey) {
+    this.languageKey = languageKey;
+    return this;
+  }
+
+  public String languageKey() {
+    return languageKey;
   }
 
   public ReportComponent addChild(ReportComponent child) {

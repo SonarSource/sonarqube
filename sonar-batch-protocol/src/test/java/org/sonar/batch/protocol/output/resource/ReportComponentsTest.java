@@ -64,7 +64,9 @@ public class ReportComponentsTest {
       .setName("Foo.java")
       .setSnapshotId(444)
       .setPath("Foo.java")
-      .setType(Type.FIL);
+      .setType(Type.FIL)
+      .setTest(true)
+      .setLanguageKey("java");
     dir.addChild(file);
     res.setRoot(root);
 
@@ -89,6 +91,8 @@ public class ReportComponentsTest {
     assertThat(root.path()).isNull();
     assertThat(root.type()).isEqualTo(Type.PRJ);
     assertThat(root.children()).hasSize(1);
+    assertThat(root.isTest()).isNull();
+    assertThat(root.languageKey()).isNull();
 
   }
 }

@@ -49,7 +49,7 @@ public class TimeMachineConfigurationPersisterTest extends AbstractDbUnitTestCas
 
     ResourceCache resourceCache = new ResourceCache();
     Project project = new Project("foo");
-    resourceCache.add(project, projectSnapshot);
+    resourceCache.add(project, null, projectSnapshot);
 
     TimeMachineConfigurationPersister persister = new TimeMachineConfigurationPersister(timeMachineConfiguration, resourceCache, getSession());
 

@@ -111,7 +111,7 @@ public class PublishReportJob implements BatchComponent {
     request.trustAllHosts();
     request.header("User-Agent", String.format("SonarQube %s", server.getVersion()));
     request.basic(serverClient.getLogin(), serverClient.getPassword());
-    request.part("report", report);
+    request.part("report", null, "application/octet-stream", report);
     if (!request.ok()) {
       int responseCode = request.code();
       if (responseCode == 401) {

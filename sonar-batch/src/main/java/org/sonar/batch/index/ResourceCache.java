@@ -28,6 +28,7 @@ import org.sonar.api.resources.Library;
 import org.sonar.api.resources.Resource;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.util.Collection;
 import java.util.Map;
@@ -52,10 +53,9 @@ public class ResourceCache implements BatchComponent {
     }
   }
 
-  public BatchResource add(Resource resource, Snapshot s) {
+  public BatchResource add(Resource resource, @Nullable Resource parentResource, Snapshot s) {
     String componentKey = resource.getEffectiveKey();
     Preconditions.checkState(!Strings.isNullOrEmpty(componentKey), "Missing resource effective key");
-    Resource parentResource = resource.getParent();
     BatchResource parent = parentResource != null ? get(parentResource.getEffectiveKey()) : null;
     BatchResource batchResource = new BatchResource((long) resources.size() + 1, resource, s, parent);
     if (!(resource instanceof Library)) {

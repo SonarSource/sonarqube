@@ -65,12 +65,12 @@ public final class DefaultResourcePersister implements ResourcePersister {
     BatchResource batchResource = resourceCache.get(project.getEffectiveKey());
     if (batchResource == null) {
       Snapshot snapshot = persistProject(project, parent);
-      addToCache(project, snapshot);
+      addToCache(project, project.getParent(), snapshot);
     }
   }
 
-  private BatchResource addToCache(Resource resource, Snapshot snapshot) {
-    return resourceCache.add(resource, snapshot);
+  private BatchResource addToCache(Resource resource, @Nullable Resource parent, Snapshot snapshot) {
+    return resourceCache.add(resource, parent, snapshot);
   }
 
   private Snapshot persistProject(Project project, @Nullable Project parent) {
@@ -124,7 +124,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
     BatchResource batchResource = resourceCache.get(resource.getEffectiveKey());
     if (batchResource == null || ResourceUtils.isLibrary(resource)) {
       Snapshot s = persist(project, resource, parent);
-      batchResource = addToCache(resource, s);
+      batchResource = addToCache(resource, parent, s);
     }
     return batchResource;
   }

@@ -33,7 +33,7 @@ public class ResourceCacheTest {
     ResourceCache cache = new ResourceCache();
     String componentKey = "struts:src/org/struts/Action.java";
     Resource resource = new File("org/struts/Action.java").setEffectiveKey(componentKey);
-    cache.add(resource, new Snapshot());
+    cache.add(resource, null, new Snapshot());
 
     assertThat(cache.get(componentKey).resource()).isSameAs(resource);
     assertThat(cache.get("other")).isNull();
@@ -44,7 +44,7 @@ public class ResourceCacheTest {
     ResourceCache cache = new ResourceCache();
     Resource resource = new File("org/struts/Action.java").setEffectiveKey(null);
     try {
-      cache.add(resource, new Snapshot());
+      cache.add(resource, null, new Snapshot());
       fail();
     } catch (IllegalStateException e) {
       // success

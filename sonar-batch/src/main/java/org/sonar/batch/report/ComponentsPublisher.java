@@ -21,6 +21,7 @@ package org.sonar.batch.report;
 
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.batch.index.BatchResource;
@@ -46,6 +47,7 @@ public class ComponentsPublisher implements ReportPublisher {
     ReportComponents components = new ReportComponents();
     BatchResource rootProject = resourceCache.get(reactor.getRoot().getKeyWithBranch());
     components.setRoot(buildResourceForReport(rootProject));
+    components.setAnalysisDate(((Project) rootProject.resource()).getAnalysisDate());
     File resourcesFile = new File(reportDir, "components.json");
     FileUtils.write(resourcesFile, components.toJson());
   }
@@ -56,13 +58,28 @@ public class ComponentsPublisher implements ReportPublisher {
       .setBatchId(batchResource.batchId())
       .setSnapshotId(batchResource.snapshotId())
       .setId(r.getId())
-      .setName(r.getName())
+      .setName(getName(r))
       .setPath(r.getPath())
-      .setType(getType(r));
+      .setType(getType(r))
+      .setLanguageKey(getLanguageKey(r))
+      .setTest(isTest(r));
     for (BatchResource child : batchResource.children()) {
       result.addChild(buildResourceForReport(child));
     }
     return result;
+  }
+
+  private Boolean isTest(Resource r) {
+    return ResourceUtils.isFile(r) ? ResourceUtils.isUnitTestClass(r) : null;
+  }
+
+  private String getLanguageKey(Resource r) {
+    return ResourceUtils.isFile(r) ? r.getLanguage().getKey() : null;
+  }
+
+  private String getName(Resource r) {
+    // Don't return name for directories and files since it can be guessed from the path
+    return (ResourceUtils.isFile(r) || ResourceUtils.isDirectory(r)) ? null : r.getName();
   }
 
   private ReportComponent.Type getType(Resource r) {
@@ -74,6 +91,10 @@ public class ComponentsPublisher implements ReportPublisher {
       return ReportComponent.Type.MOD;
     } else if (ResourceUtils.isRootProject(r)) {
       return ReportComponent.Type.PRJ;
+    } else if (ResourceUtils.isView(r)) {
+      return ReportComponent.Type.VIEW;
+    } else if (ResourceUtils.isSubview(r)) {
+      return ReportComponent.Type.SUBVIEW;
     }
     throw new IllegalArgumentException("Unknow resource type: " + r);
   }

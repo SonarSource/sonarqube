@@ -26,6 +26,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.component.Component;
 import org.sonar.api.config.Settings;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.util.ArrayList;
@@ -323,6 +324,7 @@ public class Project extends Resource implements Component {
     return false;
   }
 
+  @CheckForNull
   @Override
   public Project getParent() {
     return parent;

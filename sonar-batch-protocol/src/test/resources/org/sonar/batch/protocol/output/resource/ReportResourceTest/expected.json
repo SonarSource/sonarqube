@@ -30,6 +30,8 @@
                 "path": "Foo.java",
                 "name": "Foo.java",
                 "type": "FIL",
+                "languageKey": "java",
+                "isTest": true,
                 "children": []
               }
             ]

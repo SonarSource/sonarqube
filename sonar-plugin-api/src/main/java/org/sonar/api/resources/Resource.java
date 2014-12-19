@@ -214,11 +214,12 @@ public abstract class Resource implements Serializable {
   public abstract String getQualifier();
 
   /**
-   * The parent is used to build the resources tree, for example for relations between classes, packages and projects.
+   * The parent is used to build the resources tree, for example for relations between files, directories and projects.
    * <p>
-   * Return null if the parent is the project.
+   * Return null if the parent is the current project (or module in case of multi-module).
    * </p>
    */
+  @CheckForNull
   public abstract Resource getParent();
 
   /**
