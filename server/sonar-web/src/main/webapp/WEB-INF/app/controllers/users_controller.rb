@@ -63,12 +63,7 @@ class UsersController < ApplicationController
   end
 
   def create_form
-    if params[:id]
-      # TODO is it really used ?
-      @user = User.find(params[:id])
-    else
-      @user = User.new
-    end
+    @user = User.new
     render :partial => 'users/create_form'
   end
 
@@ -77,8 +72,10 @@ class UsersController < ApplicationController
   end
 
   def edit_form
-    @user = User.find(params[:id])
-    render :partial => 'users/edit_form', :status => 200
+    call_backend do
+      @user = Internal.users_api.getByLogin(params[:id])
+      render :partial => 'users/edit_form', :status => 200
+    end
   end
 
 

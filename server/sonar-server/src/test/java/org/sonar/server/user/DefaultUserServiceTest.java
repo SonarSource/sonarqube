@@ -231,6 +231,12 @@ public class DefaultUserServiceTest {
   }
 
   @Test
+  public void get_by_login() throws Exception {
+    service.getByLogin("john");
+    verify(userService).getNullableByLogin("john");
+  }
+
+  @Test
   public void index() throws Exception {
     service.index();
     verify(userService).index();

@@ -142,6 +142,21 @@ public class UserUpdaterTest {
   }
 
   @Test
+  public void create_user_with_scm_accounts_containing_blank_entry() throws Exception {
+    when(system2.now()).thenReturn(1418215735482L);
+    createDefaultGroup();
+
+    userUpdater.create(NewUser.create()
+      .setLogin("user")
+      .setName("User")
+      .setPassword("password")
+      .setPasswordConfirmation("password")
+      .setScmAccounts(newArrayList("u1", "", null)));
+
+    assertThat(userDao.selectNullableByLogin(session, "user").getScmAccounts()).doesNotContain(",");
+  }
+
+  @Test
   public void fail_to_create_user_with_missing_login() throws Exception {
     try {
       userUpdater.create(NewUser.create()

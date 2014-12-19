@@ -28,6 +28,7 @@ import org.sonar.api.user.UserQuery;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.user.UserDao;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.util.RubyUtils;
 
 import javax.annotation.CheckForNull;
@@ -69,17 +70,9 @@ public class DefaultUserService implements RubyUserService {
     return builder.build();
   }
 
-  public void deactivate(String login) {
-    if (Strings.isNullOrEmpty(login)) {
-      throw new BadRequestException("Login is missing");
-    }
-    UserSession userSession = UserSession.get();
-    userSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
-    if (Objects.equal(userSession.login(), login)) {
-      throw new BadRequestException("Self-deactivation is not possible");
-    }
-    dao.deactivateUserByLogin(login);
-    userService.index();
+  @CheckForNull
+  public UserDoc getByLogin(String login) {
+    return userService.getNullableByLogin(login);
   }
 
   public boolean create(Map<String, Object> params) {
@@ -109,6 +102,19 @@ public class DefaultUserService implements RubyUserService {
       updateUser.setPasswordConfirmation((String) params.get("password_confirmation"));
     }
     userService.update(updateUser);
+  }
+
+  public void deactivate(String login) {
+    if (Strings.isNullOrEmpty(login)) {
+      throw new BadRequestException("Login is missing");
+    }
+    UserSession userSession = UserSession.get();
+    userSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    if (Objects.equal(userSession.login(), login)) {
+      throw new BadRequestException("Self-deactivation is not possible");
+    }
+    dao.deactivateUserByLogin(login);
+    userService.index();
   }
 
   public void index() {

@@ -47,6 +47,7 @@ import javax.annotation.Nullable;
 
 import java.io.StringWriter;
 import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -257,6 +258,7 @@ public class UserUpdater implements ServerComponent {
   @CheckForNull
   private static String convertScmAccountsToCsv(@Nullable List<String> scmAccounts) {
     if (scmAccounts != null) {
+      scmAccounts.removeAll(Arrays.asList(null, ""));
       int size = scmAccounts.size();
       StringWriter writer = new StringWriter(size);
       CsvWriter csv = CsvWriter.of(writer);
