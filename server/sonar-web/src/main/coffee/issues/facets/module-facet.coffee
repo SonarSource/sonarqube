@@ -12,7 +12,7 @@ define [
 
 
     getValues: ->
-      componentRoots = @options.app.state.get('query').componentRootUuids
+      componentRoots = @options.app.state.get('query').moduleUuids
       componentRoots = '' unless typeof componentRoots == typeof ''
       if componentRoots.length > 0
         componentRoots = componentRoots.split ','

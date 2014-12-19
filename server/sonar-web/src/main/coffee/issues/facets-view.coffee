@@ -47,7 +47,7 @@ define [
         when 'resolutions' then ResolutionFacet
         when 'creationDate' then CreationDateFacet
         when 'projectUuids' then ProjectFacet
-        when 'componentRootUuids' then ModuleFacet
+        when 'moduleUuids' then ModuleFacet
         when 'rules' then RuleFacet
         when 'tags' then TagFacet
         when 'actionPlans' then ActionPlanFacet
