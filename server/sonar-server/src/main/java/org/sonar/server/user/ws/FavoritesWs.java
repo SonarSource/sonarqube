@@ -38,7 +38,7 @@ public class FavoritesWs implements WebService {
 
   private void defineIndexAction(NewController controller) {
     controller.createAction("index")
-      .setDescription("Documentation of this web service is available <a href=\"http://docs.codehaus.org/x/3ICYDg\">here</a>")
+      .setDescription("Documentation of this web service is available <a href=\"http://docs.sonarqube.org/x/3ICYDg\">here</a>")
       .setSince("2.6")
       .setHandler(RailsHandler.INSTANCE);
   }
