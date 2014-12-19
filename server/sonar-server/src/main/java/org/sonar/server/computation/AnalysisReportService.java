@@ -24,7 +24,7 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
-import org.sonar.core.component.ComponentDto;
+import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
 
@@ -42,9 +42,8 @@ public class AnalysisReportService implements ServerComponent {
   }
 
   public void decompress(DbSession session, ComputeEngineContext context) {
-    ComponentDto project = context.getProject();
-
-    context.setReportDirectory(dbClient.analysisReportDao().getDecompressedReport(session, project.getId()));
+    AnalysisReportDto report = context.getReportDto();
+    context.setReportDirectory(dbClient.analysisReportDao().getDecompressedReport(session, report.getId()));
   }
 
   public void clean(@Nullable File directory) {
