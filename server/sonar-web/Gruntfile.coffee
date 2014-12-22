@@ -179,8 +179,8 @@ module.exports = (grunt) ->
         out: '<%= pkg.assets %>build/js/coding-rules-old/app.js'
 
       issues: options:
-        name: 'issues/app'
-        out: '<%= pkg.assets %>build/js/issues/app.js'
+        name: 'issues/app-new'
+        out: '<%= pkg.assets %>build/js/issues/app-new.js'
 
       measures: options:
         name: 'measures/app'
