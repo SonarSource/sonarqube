@@ -1,6 +1,7 @@
 @import (reference) "mixins";
 @import (reference) "variables";
 @import (reference) "ui";
+@import (reference) "components/typography";
 
 /*
  * SonarQube, open source software quality management tool.
@@ -1723,26 +1724,15 @@ ul.bullet li {
 
 
 /* API for Rule and Property Descriptions  */
-.rule-desc h2 {
-  margin-top: 16px;
-  font-size: 16px;
-  line-height: 1.5;
-  color: @baseFontColor;
+.rule-desc {
+  .formatted;
 }
 
-.rule-desc h3 {
-  margin-top: 16px;
-  font-size: 12px;
-  line-height: 1.5;
-  color: @baseFontColor;
-  font-weight: bold;
-}
-
-.rule-desc p, .property p {
+.property p {
   margin-top: 10px;
 }
 
-.rule-desc pre, .property pre, .bubble-popup pre, .coding-rules-detail-parameter pre {
+.property pre, .bubble-popup pre, .coding-rules-detail-parameter pre {
   display: inline-block;
   min-width: 100%;
   margin: 10px 0 !important;
@@ -1753,38 +1743,21 @@ ul.bullet li {
   font-family: @monoFontFamily;
 }
 
-.rule-desc blockquote, .property blockquote, .bubble-popup blockquote, .coding-rules-detail-parameter blockquote {
+.property blockquote, .bubble-popup blockquote, .coding-rules-detail-parameter blockquote {
   margin-top: 10px;
   padding: 10px;
 }
 
-.rule-desc ul, .property ul {
+.property ul {
   list-style-type: disc;
   list-style-position: inside;
   margin: 10px;
 }
 
-.rule-desc ol, .property ol {
+.property ol {
   list-style-type: decimal;
   list-style-position: inside;
   margin: 10px;
-}
-
-.rule-table {
-  margin-top: 10px;
-  overflow-x: auto;
-  border-collapse: collapse;
-}
-.rule-table th {
-  background: none no-repeat scroll right center #EFEFEF;
-  border: 1px solid #DDD;
-  padding: 5px 10px;
-  font-weight: bold;
-}
-.rule-table td {
-  background: none no-repeat scroll right center transparent;
-  border: 1px solid #DDD;
-  padding: 5px 10px;
 }
 /* End of API for Rule Descriptions */
 
