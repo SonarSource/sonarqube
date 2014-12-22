@@ -44,6 +44,32 @@ class SettingsController < ApplicationController
     render :partial => 'settings/properties'
   end
 
+  def update_password_form
+    @key = params[:key]
+    @component_id = params[:component_id]
+    render :partial => 'settings/update_password_form'
+  end
+
+  def update_password
+    property_key = params[:key]
+    component_id = params[:component_id]
+    not_found('Property key should be set') unless property_key
+    component_id = !component_id.blank? ? component_id : nil
+    password = params[:password]
+
+    property = Property.by_key(property_key, component_id)
+    if property
+      if !password.blank?
+        property.text_value = password
+        property.save
+      else
+        property.delete
+      end
+    end
+    Property.setGlobalProperty(property_key, password, component_id, nil)
+    render :text => 'ok', :status => 200
+  end
+
   private
 
   def update_properties(resource_id)
@@ -63,7 +89,7 @@ class SettingsController < ApplicationController
       max = (Time.now.to_f * 100000).to_i
       set_keys.each_with_index do |v, index|
         if v.blank?
-          max += 1;
+          max += 1
           set_keys[index] = max.to_s
         end
       end
@@ -80,7 +106,15 @@ class SettingsController < ApplicationController
     set_keys.reject! { |set_key| set_key.blank? || (auto_generate && set_key_values[set_key].values.all?(&:blank?)) }
 
     Property.transaction do
-      Property.with_key_prefix(key + '.').with_resource(resource_id).delete_all
+      # Delete only property sets that are no more existing
+      condition = ''
+      set_keys.each {|set_key| condition += "prop_key NOT LIKE ('#{key + '.' + set_key + '.%'}') AND "}
+      if resource_id
+        condition += 'resource_id=' + resource_id
+      else
+        condition += 'resource_id IS NULL'
+      end
+      Property.delete_all(condition)
 
       update_property(key, set_keys, resource_id)
       set_keys.each do |set_key|

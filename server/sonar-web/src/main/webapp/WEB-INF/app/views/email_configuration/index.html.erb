@@ -32,7 +32,13 @@
     <tr class="property">
       <th><label for="smtp_password"><h3><%= message('email_configuration.smtp_password') -%></h3></label></th>
       <td>
-        <%= password_field_tag 'smtp_password', @smtp_password, {:autocomplete => 'off'}  %>
+        <% if @smtp_password.blank? %>
+          <input type="password" name="smtp_password" id="smtp_password">
+        <% else %>
+          <span class="marginright10">**********</span>
+          <a id="update-smtp-password" href="<%=ApplicationController.root_context-%>/settings/update_password_form?key=<%= Api::Utils.java_facade.getComponentByClassname('emailnotifications', 'org.sonar.api.config.EmailSettings').class::SMTP_PASSWORD.to_s %>"
+             class="open-modal link-action">Edit</a>
+        <% end %>
         <p class="marginbottom10"><%= message('email_configuration.smtp_password.description') -%></p>
       </td>
     </tr>

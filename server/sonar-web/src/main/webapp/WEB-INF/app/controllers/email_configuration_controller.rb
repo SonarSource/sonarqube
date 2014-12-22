@@ -23,27 +23,30 @@ class EmailConfigurationController < ApplicationController
   before_filter :admin_required
 
   def index
-  @smtp_host = Property.value(configuration::SMTP_HOST, nil, configuration::SMTP_HOST_DEFAULT)
-  @smtp_port = Property.value(configuration::SMTP_PORT, nil, configuration::SMTP_PORT_DEFAULT)
-  @smtp_secure_connection = Property.value(configuration::SMTP_SECURE_CONNECTION, nil, configuration::SMTP_SECURE_CONNECTION)
-  @smtp_username = Property.value(configuration::SMTP_USERNAME, nil, configuration::SMTP_USERNAME_DEFAULT)
-  @smtp_password = Property.value(configuration::SMTP_PASSWORD, nil, configuration::SMTP_PASSWORD_DEFAULT)
-  @email_from = Property.value(configuration::FROM, nil, configuration::FROM_DEFAULT)
-  @email_prefix = Property.value(configuration::PREFIX, nil, configuration::PREFIX_DEFAULT)
-  @server_base_url = Property.value(properties::SERVER_BASE_URL, nil, properties::SERVER_BASE_URL_DEFAULT_VALUE)
-  params[:layout]='false'
+    @smtp_host = Property.value(configuration::SMTP_HOST, nil, configuration::SMTP_HOST_DEFAULT)
+    @smtp_port = Property.value(configuration::SMTP_PORT, nil, configuration::SMTP_PORT_DEFAULT)
+    @smtp_secure_connection = Property.value(configuration::SMTP_SECURE_CONNECTION, nil, configuration::SMTP_SECURE_CONNECTION)
+    @smtp_username = Property.value(configuration::SMTP_USERNAME, nil, configuration::SMTP_USERNAME_DEFAULT)
+    @smtp_password = Property.value(configuration::SMTP_PASSWORD, nil, configuration::SMTP_PASSWORD_DEFAULT)
+    @email_from = Property.value(configuration::FROM, nil, configuration::FROM_DEFAULT)
+    @email_prefix = Property.value(configuration::PREFIX, nil, configuration::PREFIX_DEFAULT)
+    @server_base_url = Property.value(properties::SERVER_BASE_URL, nil, properties::SERVER_BASE_URL_DEFAULT_VALUE)
+    params[:layout]='false'
   end
 
   def save
-  Property.set(configuration::SMTP_HOST, params[:smtp_host])
-  Property.set(configuration::SMTP_PORT, params[:smtp_port])
-  Property.set(configuration::SMTP_SECURE_CONNECTION, params[:smtp_secure_connection])
-  Property.set(configuration::SMTP_USERNAME, params[:smtp_username])
-  Property.set(configuration::SMTP_PASSWORD, params[:smtp_password])
-  Property.set(configuration::FROM, params[:email_from])
-  Property.set(configuration::PREFIX, params[:email_prefix])
-  flash[:notice] = message('email_configuration.settings_saved')
-  redirect_to :action => 'index'
+    Property.set(configuration::SMTP_HOST, params[:smtp_host])
+    Property.set(configuration::SMTP_PORT, params[:smtp_port])
+    Property.set(configuration::SMTP_SECURE_CONNECTION, params[:smtp_secure_connection])
+    Property.set(configuration::SMTP_USERNAME, params[:smtp_username])
+    # Password can only be set when empty, the update will be done by the edit modal window
+    if !params[:smtp_password].blank?
+      Property.set(configuration::SMTP_PASSWORD, params[:smtp_password])
+    end
+    Property.set(configuration::FROM, params[:email_from])
+    Property.set(configuration::PREFIX, params[:email_prefix])
+    flash[:notice] = message('email_configuration.settings_saved')
+    redirect_to :action => 'index'
   end
 
   def send_test_email
@@ -66,7 +69,7 @@ class EmailConfigurationController < ApplicationController
   private
 
   def configuration
-  java_facade.getComponentByClassname('emailnotifications', 'org.sonar.api.config.EmailSettings').class
+    java_facade.getComponentByClassname('emailnotifications', 'org.sonar.api.config.EmailSettings').class
   end
 
   def properties
