@@ -57,9 +57,10 @@
 .coding-rules-detail-header,
 .coding-rules-detail-title {
   position: relative;
-  margin-bottom: @navigatorPadding;
+  margin: 1em 0;
   line-height: 1.5;
-  font-weight: bold;
+  font-size: @bigFontSize;
+  font-weight: 400;
 }
 
 .coding-rules-detail-header {
@@ -70,8 +71,7 @@
 
 .coding-rules-detail-title {
   display: inline-block;
-  margin-top: 3 * @navigatorPadding;
-  text-transform: uppercase;
+  margin-top: 2em;
 }
 
 .coding-rules-detail-permalink {
@@ -227,28 +227,24 @@
 }
 
 .coding-rules-detail-parameters {
+  width: 100%;
   margin: @navigatorPadding 0 @navigatorPadding * 2;
 }
 
 .coding-rules-detail-parameter {
-  margin: @navigatorPadding 0;
+
 }
 
 .coding-rules-detail-parameter-name {
-  display: block;
-  margin-left: 2 * @navigatorPadding;
+  width: 1px;
+  vertical-align: top;
+  padding: 5px 10px 5px 0;
   font-weight: bold;
-  cursor: pointer;
 }
 
 .coding-rules-detail-parameter-description {
-  display: inline-block;
-  text-overflow: ellipsis;
   vertical-align: top;
-  max-width: 75%;
-  margin-left: 2 * @navigatorPadding;
-  padding: @navigatorPadding;
-  .box-sizing(border-box);
+  padding: 5px 5px;
 
   .subtitle {
     margin-top: @navigatorPadding;
@@ -278,44 +274,43 @@
 }
 
 .coding-rules-detail-quality-profiles {
-  font-size: 0;
-}
+  line-height: 22px;
 
-.coding-rules-detail-quality-profile {
-  margin-left: 2 * @navigatorPadding;
-}
+  td {
+    border-top: 1px solid @barBorderColor;
+  }
 
-.coding-rules-detail-quality-profile + .coding-rules-detail-quality-profile {
-  margin-top: @navigatorPadding;
-  padding-top: @navigatorPadding;
-  border-top: 1px solid @navigatorBorderLightColor;
+  tr:first-child td {
+    border-top: none;
+  }
 }
 
 .coding-rules-detail-quality-profile-name {
   vertical-align: top;
-  width: 15%;
+  width: 1px;
+  padding: 8px 5px 8px 0;
   font-weight: bold;
   white-space: nowrap;
-  padding-right: 5px;
 }
 
 .coding-rules-detail-quality-profile-severity {
   vertical-align: top;
-  width: 10%;
+  width: 1px;
+  padding: 8px 5px;
+  white-space: nowrap;
 }
 
 .coding-rules-detail-quality-profile-parameters {
   vertical-align: top;
-}
-
-.coding-rules-detail-quality-profile-parameter + .coding-rules-detail-quality-profile-parameter {
-  margin-top: 8px;
+  padding: 8px 5px;
 }
 
 .coding-rules-detail-quality-profile-actions {
   vertical-align: top;
-  width: 25%;
+  width: 1px;
+  padding: 8px 0 8px 5px;
   text-align: right;
+  white-space: nowrap;
 }
 
 .coding-rules-detail-quality-profile-inheritance {

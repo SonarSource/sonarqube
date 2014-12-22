@@ -14,6 +14,12 @@ define([
       this.forEach(function (rule, index) {
         rule.set({ index: index });
       });
+    },
+
+    addExtraAttributes: function (languages, repositories) {
+      this.models.forEach(function (model) {
+        model.addExtraAttributes(languages, repositories);
+      });
     }
   });
 

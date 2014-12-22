@@ -39,6 +39,7 @@ define([
           that.app.list.add(rules);
         }
         that.app.list.setIndex();
+        that.app.list.addExtraAttributes(that.app.languages, that.app.repositories);
         that.app.facets.reset(that._allFacets());
         that.app.facets.add(r.facets, { merge: true });
         that.enableFacets(that._enabledFacets());
@@ -74,26 +75,30 @@ define([
     },
 
     getRuleDetails: function (rule) {
-      var url = baseUrl + '/api/rules/show',
+      var that = this,
+          url = baseUrl + '/api/rules/show',
           options = {
             key: rule.id,
             actives: true
           };
       return $.get(url, options).done(function (data) {
         rule.set(data.rule);
+        rule.addExtraAttributes(that.app.languages, that.app.repositories);
       });
     },
 
     showDetails: function (rule) {
-      var that = this;
+      var that = this,
+          ruleModel = typeof rule === 'string' ? new Backbone.Model({ key: rule }) : rule;
       this.app.layout.workspaceDetailsRegion.reset();
-      this.getRuleDetails(rule).done(function () {
+      this.getRuleDetails(ruleModel).done(function (data) {
         key.setScope('details');
         that.app.workspaceListView.unbindScrollEvents();
-        that.app.state.set({ rule: rule });
+        that.app.state.set({ rule: ruleModel });
         that.app.workspaceDetailsView = new RuleDetailsView({
           app: that.app,
-          model: rule
+          model: ruleModel,
+          actives: data.actives
         });
         that.app.layout.workspaceDetailsRegion.show(that.app.workspaceDetailsView);
         that.app.layout.showDetails();

@@ -1,0 +1,19 @@
+<div class="coding-rules-detail-quality-profiles-section">
+  <h3 class="coding-rules-detail-title">{{t 'coding_rules.quality_profiles'}}</h3>
+
+  {{#if canWrite}}
+    {{#unless isTemplate}}
+      <div class="button-group coding-rules-detail-quality-profiles-activation">
+        <button id="coding-rules-quality-profile-activate">{{t 'coding_rules.activate'}}</button>
+      </div>
+    {{/unless}}
+  {{/if}}
+
+  {{#if isTemplate}}
+    <div class="coding-rules-detail-quality-profiles-template-caption warning">
+      {{t 'coding_rules.quality_profiles.template_caption'}}
+    </div>
+  {{/if}}
+
+  <table id="coding-rules-detail-quality-profiles" class="coding-rules-detail-quality-profiles width100"></table>
+</div>
