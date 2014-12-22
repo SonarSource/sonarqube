@@ -32,7 +32,8 @@
     <tr class="property">
       <th><label for="smtp_password"><h3><%= message('email_configuration.smtp_password') -%></h3></label></th>
       <td>
-        <%= password_field_tag 'smtp_password', @smtp_password, {:autocomplete => 'off'}  %>
+        <% value = Property::EXISTING_PASSWORD unless @smtp_password.blank? %>
+        <%= password_field_tag 'smtp_password', value, {:autocomplete => 'off'}  %>
         <p class="marginbottom10"><%= message('email_configuration.smtp_password.description') -%></p>
       </td>
     </tr>
