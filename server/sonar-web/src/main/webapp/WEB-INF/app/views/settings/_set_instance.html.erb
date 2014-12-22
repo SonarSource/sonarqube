@@ -12,9 +12,12 @@
       <% value = Property.value(key, resource_id) -%>
       <% errors << (render "settings/error", :key => key) -%>
     <% end -%>
-    <% name = field == key_field ? "property_sets[#{property.key}][]" : "#{property.key}[#{field.key}][]" %>
-    <td><%= render "settings/type_#{field.type}", :property => field, :field => field, :value => value, :name => name, :property_key => key,
-                   :id => "input_#{h field.key}", :size => field.indicativeSize -%></td>
+
+    <% if field == key_field -%>
+      <td><%= render "settings/type_#{field.type}", :property => field, :field => field, :value => value, :name => "property_sets[#{property.key}][]", :id => "input_#{h field.key}", :size => field.indicativeSize -%></td>
+    <% else -%>
+      <td><%= render "settings/type_#{field.type}", :property => field, :field => field, :value => value, :name => "#{property.key}[#{field.key}][]", :id => "input_#{h field.key}", :size => field.indicativeSize -%></td>
+    <% end -%>
   <% end -%>
 
   <td style="width: 60px;">
