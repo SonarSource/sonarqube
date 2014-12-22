@@ -21,6 +21,7 @@
 package org.sonar.server.computation.db;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.io.ByteStreams;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.TempFolder;
@@ -137,7 +138,7 @@ public class AnalysisReportDao extends BaseDao<AnalysisReportMapper, AnalysisRep
       ps.setString(1, report.getProjectKey());
       ps.setLong(2, report.getSnapshotId());
       ps.setString(3, report.getStatus().toString());
-      setDataStream(ps, 4, report.getData());
+      setData(ps, 4, report.getData());
       ps.setTimestamp(5, dateToTimestamp(report.getCreatedAt()));
       ps.setTimestamp(6, dateToTimestamp(report.getUpdatedAt()));
       ps.setTimestamp(7, dateToTimestamp(report.getStartedAt()));
@@ -156,12 +157,12 @@ public class AnalysisReportDao extends BaseDao<AnalysisReportMapper, AnalysisRep
     return report;
   }
 
-  private void setDataStream(PreparedStatement ps, int parameterIndex, @Nullable InputStream reportDataStream) throws IOException, SQLException {
-    int streamSizeEstimate = 1;
-    if (reportDataStream != null) {
-      streamSizeEstimate = reportDataStream.available();
+  private void setData(PreparedStatement ps, int parameterIndex, @Nullable InputStream reportDataStream) throws IOException, SQLException {
+    if (reportDataStream == null) {
+      ps.setBytes(parameterIndex, null);
+    } else {
+      ps.setBytes(parameterIndex, ByteStreams.toByteArray(reportDataStream));
     }
-    ps.setBinaryStream(parameterIndex, reportDataStream, streamSizeEstimate);
   }
 
   @CheckForNull

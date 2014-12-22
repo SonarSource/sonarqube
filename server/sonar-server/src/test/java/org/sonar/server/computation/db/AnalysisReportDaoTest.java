@@ -36,11 +36,7 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.test.DbTests;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -93,22 +89,12 @@ public class AnalysisReportDaoTest {
   }
 
   @Test
-  public void insert_report_data() throws Exception {
+  public void insert_report_data_do_not_throw_exception() throws Exception {
     db.prepareDbUnit(getClass(), "empty.xml");
     AnalysisReportDto report = newDefaultAnalysisReport()
-      .setData(IOUtils.toInputStream("default-project"));
+      .setData(getClass().getResource("/org/sonar/server/computation/db/AnalysisReportDaoTest/zip.zip").openStream());
 
     sut.insert(session, report);
-
-    assertThatReportDataIsEqualTo("default-project");
-  }
-
-  private void assertThatReportDataIsEqualTo(String reportData) throws SQLException, IOException {
-    PreparedStatement ps = session.getConnection().prepareStatement("select report_data from analysis_reports");
-    ResultSet rs = ps.executeQuery();
-    rs.next();
-    InputStream reportDataStream = rs.getBinaryStream(1);
-    assertThat(IOUtils.toString(reportDataStream)).isEqualTo(reportData);
   }
 
   @Test
