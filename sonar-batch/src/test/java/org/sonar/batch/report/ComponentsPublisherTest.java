@@ -28,9 +28,7 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.resources.Directory;
-import org.sonar.api.resources.Java;
-import org.sonar.api.resources.Project;
+import org.sonar.api.resources.*;
 import org.sonar.batch.index.ResourceCache;
 
 import java.io.File;
@@ -74,11 +72,82 @@ public class ComponentsPublisherTest {
     File exportDir = temp.newFolder();
     publisher.export(exportDir);
 
-    System.out.println(FileUtils.readFileToString(new File(exportDir, "components.json")));
-
     JSONAssert
       .assertEquals(
         IOUtils.toString(this.getClass().getResourceAsStream("ComponentsPublisherTest/expected.json"), "UTF-8"),
         FileUtils.readFileToString(new File(exportDir, "components.json")), true);
   }
+
+  @Test
+  public void testComponentPublisher_containing_file_without_language() throws Exception {
+    ProjectReactor reactor = new ProjectReactor(ProjectDefinition.create().setKey("ALL_PROJECT"));
+    ResourceCache resourceCache = new ResourceCache();
+    ComponentsPublisher publisher = new ComponentsPublisher(reactor, resourceCache);
+
+    View view = new View("ALL_PROJECT");
+    view.setId(1);
+    view.setAnalysisDate(new SimpleDateFormat("dd/MM/yyyy").parse("12/12/2012"));
+    resourceCache.add(view, null, new Snapshot().setId(11));
+
+    org.sonar.api.resources.File mainFile = org.sonar.api.resources.File.create("ALL_PROJECTsample", "ALL_PROJECTsample", null, false);
+    mainFile.setEffectiveKey("ALL_PROJECTsample");
+    mainFile.setId(2);
+    resourceCache.add(mainFile, view, new Snapshot().setId(12));
+
+    File exportDir = temp.newFolder();
+    publisher.export(exportDir);
+
+    JSONAssert
+      .assertEquals(
+        IOUtils.toString(this.getClass().getResourceAsStream("ComponentsPublisherTest/testComponentPublisher_containing_file_without_language.json"), "UTF-8"),
+        FileUtils.readFileToString(new File(exportDir, "components.json")), true);
+  }
+
+  private static class View extends Project {
+
+    private View(String key) {
+      super(key);
+    }
+
+    @Override
+    public String getName() {
+      return "All Projects";
+    }
+
+    @Override
+    public String getLongName() {
+      return null;
+    }
+
+    @Override
+    public String getDescription() {
+      return null;
+    }
+
+    @Override
+    public Language getLanguage() {
+      return null;
+    }
+
+    @Override
+    public String getScope() {
+      return Scopes.PROJECT;
+    }
+
+    @Override
+    public String getQualifier() {
+      return Qualifiers.VIEW;
+    }
+
+    @Override
+    public Project getParent() {
+      return null;
+    }
+
+    @Override
+    public boolean matchFilePattern(String antPattern) {
+      return false;
+    }
+  }
+
 }

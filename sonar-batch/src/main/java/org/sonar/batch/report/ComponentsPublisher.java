@@ -21,6 +21,7 @@ package org.sonar.batch.report;
 
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
@@ -28,6 +29,8 @@ import org.sonar.batch.index.BatchResource;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.protocol.output.resource.ReportComponent;
 import org.sonar.batch.protocol.output.resource.ReportComponents;
+
+import javax.annotation.CheckForNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -73,8 +76,10 @@ public class ComponentsPublisher implements ReportPublisher {
     return ResourceUtils.isFile(r) ? ResourceUtils.isUnitTestClass(r) : null;
   }
 
+  @CheckForNull
   private String getLanguageKey(Resource r) {
-    return ResourceUtils.isFile(r) ? r.getLanguage().getKey() : null;
+    Language language = r.getLanguage();
+    return ResourceUtils.isFile(r) && language != null ? language.getKey() : null;
   }
 
   private String getName(Resource r) {

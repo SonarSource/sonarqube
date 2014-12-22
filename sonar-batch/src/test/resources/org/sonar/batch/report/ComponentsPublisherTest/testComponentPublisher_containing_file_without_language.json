@@ -1,0 +1,21 @@
+{
+  "analysisDate": "2012-12-12T00:00:00+0100",
+  "root": {
+    "batchId": 1,
+    "id": 1,
+    "snapshotId": 11,
+    "name": "All Projects",
+    "type": "VIEW",
+    "children": [
+      {
+        "batchId": 2,
+        "id": 2,
+        "snapshotId": 12,
+        "path": "ALL_PROJECTsample",
+        "type": "FIL",
+        "isTest": false,
+        "children": []
+      }
+    ]
+  }
+}
