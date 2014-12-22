@@ -38,8 +38,8 @@
             <td class="left" nowrap id="metric_key_<%= metric.key -%>"><span class="note"><%= metric.key -%></span></td>
             <td class="left" nowrap id="metric_name_<%= metric.key -%>"><%= h metric.short_name -%></td>
             <td class="left" id="metric_desc_<%= metric.key -%>"><%= h metric.description -%></td>
-            <td class="left" id="metric_domain_<%= metric.key -%>"><%= metric.domain -%></td>
-            <td class="left" id="metric_type_name<%= metric.key -%>"><%= metric.value_type_name -%></td>
+            <td class="left" id="metric_domain_<%= metric.key -%>"><%= h metric.domain -%></td>
+            <td class="left" id="metric_type_name<%= metric.key -%>"><%= h metric.value_type_name -%></td>
             <td class="right thin nowrap">
             <% if is_admin? %>
              <a id="edit_<%= metric.key.parameterize -%>" href="<%=ApplicationController.root_context-%>/metrics/edit_form/<%= metric.id -%>" id="edit_<%= h(metric.short_name)-%>" class="open-modal link-action">Edit</a>&nbsp;
