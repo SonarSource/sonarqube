@@ -80,7 +80,15 @@ class SettingsController < ApplicationController
     set_keys.reject! { |set_key| set_key.blank? || (auto_generate && set_key_values[set_key].values.all?(&:blank?)) }
 
     Property.transaction do
-      Property.with_key_prefix(key + '.').with_resource(resource_id).delete_all
+      # Delete only property sets that are no more existing
+      condition = "prop_key LIKE '" + key + ".%' AND "
+      set_keys.each {|set_key| condition += "prop_key NOT LIKE ('#{key + '.' + set_key + '.%'}') AND "}
+      if resource_id
+        condition += 'resource_id=' + resource_id
+      else
+        condition += 'resource_id IS NULL'
+      end
+      Property.delete_all(condition)
 
       update_property(key, set_keys, resource_id)
       set_keys.each do |set_key|

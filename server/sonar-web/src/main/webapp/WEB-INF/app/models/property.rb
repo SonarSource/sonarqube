@@ -29,6 +29,8 @@ class Property < ActiveRecord::Base
   named_scope :with_resources, :conditions => 'resource_id is not null'
   named_scope :with_users, :conditions => 'user_id is not null'
 
+  EXISTING_PASSWORD = '{{*******************}}'
+
   def key
     prop_key
   end
@@ -94,6 +96,9 @@ class Property < ActiveRecord::Base
     text_value = value.to_s if defined? value
     text_value = nil if text_value.blank?
 
+    # Load Java property definition
+    property_def = field_property_def(key) || property_def(key)
+
     if text_value.blank?
       return Property.clear(key, resource_id)
     end
@@ -103,8 +108,11 @@ class Property < ActiveRecord::Base
       return prop
     end
 
-    unless prop
+    if !prop
       prop = Property.new(:prop_key => key, :resource_id => resource_id, :user_id => user_id)
+      # Do not update password that wasn't updated
+    elsif property_def.type().to_s == PropertyType::TYPE_PASSWORD && text_value == EXISTING_PASSWORD
+      text_value = prop.text_value
     end
 
     prop.text_value = text_value
@@ -139,22 +147,11 @@ class Property < ActiveRecord::Base
   end
 
   def java_definition
-    @java_definition ||=
-      begin
-        Api::Utils.java_facade.propertyDefinitions.get(key)
-      end
+    @java_definition ||= Property.property_def(key)
   end
 
   def java_field_definition
-    @java_field_definition ||=
-      begin
-        if /(.*)\..*\.(.*)/.match(key)
-          property_definition = Api::Utils.java_facade.propertyDefinitions.get(Regexp.last_match(1))
-          if property_definition
-            property_definition.fields.find { |field| field.key == Regexp.last_match(2) }
-          end
-        end
-      end
+    @java_field_definition ||= Property.field_property_def(key)
   end
 
   def validation_error_message
@@ -173,11 +170,11 @@ class Property < ActiveRecord::Base
     array.map { |v| v.gsub(',', '%2C') }.join(',')
   end
 
-  private
-
   def self.setGlobalProperty(key, value, resource_id, user_id)
     Api::Utils.java_facade.setGlobalProperty(key, value) unless (resource_id || user_id)
   end
+
+  private
 
   def self.all(key, resource_id=nil, user_id=nil)
     Property.with_key(key).with_resource(resource_id).with_user(user_id)
@@ -205,4 +202,22 @@ class Property < ActiveRecord::Base
       errors.add_to_base(validation_result.errorKey) unless validation_result.isValid()
     end
   end
+
+  def self.property_def(key)
+    begin
+      Api::Utils.java_facade.propertyDefinitions.get(key)
+    end
+  end
+
+  def self.field_property_def(key)
+    begin
+      if /(.*)\..*\.(.*)/.match(key)
+        property_definition = Api::Utils.java_facade.propertyDefinitions.get(Regexp.last_match(1))
+        if property_definition
+          property_definition.fields.find { |field| field.key == Regexp.last_match(2) }
+        end
+      end
+    end
+  end
+
 end
