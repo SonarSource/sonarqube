@@ -51,9 +51,7 @@ public class AddMissingCustomRuleParametersMigration implements DatabaseMigratio
 
   private final DbClient db;
   private final System2 system;
-
   private final AtomicLong counter = new AtomicLong(0L);
-  private final ProgressLogger progress = ProgressLogger.create(getClass(), counter);
 
   public AddMissingCustomRuleParametersMigration(DbClient db, System2 system) {
     this.db = db;
@@ -62,6 +60,7 @@ public class AddMissingCustomRuleParametersMigration implements DatabaseMigratio
 
   @Override
   public void execute() {
+    ProgressLogger progress = ProgressLogger.create(getClass(), counter);
     progress.start();
 
     DbSession session = db.openSession(false);

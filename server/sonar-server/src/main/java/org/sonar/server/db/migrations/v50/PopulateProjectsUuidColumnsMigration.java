@@ -49,7 +49,6 @@ public class PopulateProjectsUuidColumnsMigration implements DatabaseMigration {
 
   private final DbClient db;
   private final AtomicLong counter = new AtomicLong(0L);
-  private final ProgressLogger progress = ProgressLogger.create(getClass(), counter);
 
   public PopulateProjectsUuidColumnsMigration(DbClient db) {
     this.db = db;
@@ -57,6 +56,7 @@ public class PopulateProjectsUuidColumnsMigration implements DatabaseMigration {
 
   @Override
   public void execute() {
+    ProgressLogger progress = ProgressLogger.create(getClass(), counter);
     progress.start();
 
     final DbSession readSession = db.openSession(false);
