@@ -22,10 +22,13 @@ package org.sonar.server.source;
 
 import com.google.common.collect.Lists;
 import org.apache.ibatis.session.SqlSession;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.core.persistence.AbstractDaoTestCase;
-import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.source.db.SnapshotDataDao;
 import org.sonar.core.source.db.SnapshotSourceDao;
 
@@ -34,8 +37,10 @@ import java.util.List;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
+@RunWith(MockitoJUnitRunner.class)
 public class HtmlSourceDecoratorTest extends AbstractDaoTestCase {
 
+  DbSession session;
 
   HtmlSourceDecorator sourceDecorator;
 
@@ -43,9 +48,16 @@ public class HtmlSourceDecoratorTest extends AbstractDaoTestCase {
   public void setUpDatasets() {
     setupData("shared");
 
+    session = getMyBatis().openSession(false);
+
     SnapshotSourceDao snapshotSourceDao = new SnapshotSourceDao(getMyBatis());
     SnapshotDataDao snapshotDataDao = new SnapshotDataDao(getMyBatis());
-    sourceDecorator = new HtmlSourceDecorator(getMyBatis(), snapshotSourceDao, snapshotDataDao);
+    sourceDecorator = new HtmlSourceDecorator(snapshotSourceDao, snapshotDataDao);
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    session.close();
   }
 
   @Test
@@ -64,7 +76,10 @@ public class HtmlSourceDecoratorTest extends AbstractDaoTestCase {
 
   @Test
   public void highlight_syntax_with_html_from_component() throws Exception {
-    List<String> decoratedSource = sourceDecorator.getDecoratedSourceAsHtml("org.apache.struts:struts:Dispatcher", null, null);
+    List<String> decoratedSource = sourceDecorator.getDecoratedSourceAsHtml(session,
+      "org.apache.struts:struts:Dispatcher",
+      "/*\n * Header\n */\n\npublic class HelloWorld {\n}",
+      null, null);
 
     assertThat(decoratedSource).containsExactly(
       "<span class=\"cppd\">/*</span>",
@@ -78,9 +93,16 @@ public class HtmlSourceDecoratorTest extends AbstractDaoTestCase {
 
   @Test
   public void highlight_syntax_with_html_from_component_on_given_lines() throws Exception {
-    assertThat(sourceDecorator.getDecoratedSourceAsHtml("org.apache.struts:struts:Dispatcher", null, 2)).hasSize(2);
-    assertThat(sourceDecorator.getDecoratedSourceAsHtml("org.apache.struts:struts:Dispatcher", 2, null)).hasSize(5);
-    assertThat(sourceDecorator.getDecoratedSourceAsHtml("org.apache.struts:struts:Dispatcher", 1, 2)).hasSize(2);
+    assertThat(sourceDecorator.getDecoratedSourceAsHtml(session,
+      "org.apache.struts:struts:Dispatcher",
+      "/*\n * Header\n */\n\npublic class HelloWorld {\n}",
+      null, 2)).hasSize(2);
+    assertThat(sourceDecorator.getDecoratedSourceAsHtml(session,
+      "org.apache.struts:struts:Dispatcher",
+      "/*\n * Header\n */\n\npublic class HelloWorld {\n}", 2, null)).hasSize(5);
+    assertThat(sourceDecorator.getDecoratedSourceAsHtml(session,
+      "org.apache.struts:struts:Dispatcher",
+      "/*\n * Header\n */\n\npublic class HelloWorld {\n}", 1, 2)).hasSize(2);
   }
 
   @Test
@@ -99,7 +121,9 @@ public class HtmlSourceDecoratorTest extends AbstractDaoTestCase {
 
   @Test
   public void mark_symbols_with_html_from_component() throws Exception {
-    List<String> decoratedSource = sourceDecorator.getDecoratedSourceAsHtml("org.apache.struts:struts:VelocityManager", null, null);
+    List<String> decoratedSource = sourceDecorator.getDecoratedSourceAsHtml(session,
+      "org.apache.struts:struts:VelocityManager",
+      "/*\n * Header\n */\n\npublic class HelloWorld {\n}", null, null);
 
     assertThat(decoratedSource).containsExactly(
       "/*",
@@ -132,7 +156,10 @@ public class HtmlSourceDecoratorTest extends AbstractDaoTestCase {
 
   @Test
   public void decorate_source_with_multiple_decoration_strategies_from_component() throws Exception {
-    List<String> decoratedSource = sourceDecorator.getDecoratedSourceAsHtml("org.apache.struts:struts:DebuggingInterceptor", null, null);
+    List<String> decoratedSource = sourceDecorator.getDecoratedSourceAsHtml(session,
+      "org.apache.struts:struts:DebuggingInterceptor",
+      "/*\n * Header\n */\n\npublic class HelloWorld {\n  public void foo() {\n  }\n  public void bar() {\n    foo();\n  }\n}",
+      null, null);
 
     assertThat(decoratedSource).containsExactly(
       "<span class=\"cppd\">/*</span>",
@@ -154,7 +181,7 @@ public class HtmlSourceDecoratorTest extends AbstractDaoTestCase {
     SnapshotSourceDao snapshotSourceDao = mock(SnapshotSourceDao.class);
     SnapshotDataDao snapshotDataDao = mock(SnapshotDataDao.class);
 
-    HtmlSourceDecorator sourceDecorator = new HtmlSourceDecorator(mock(MyBatis.class), snapshotSourceDao, snapshotDataDao);
+    HtmlSourceDecorator sourceDecorator = new HtmlSourceDecorator(snapshotSourceDao, snapshotDataDao);
 
     sourceDecorator.getDecoratedSourceAsHtml(14L);
 
@@ -167,9 +194,12 @@ public class HtmlSourceDecoratorTest extends AbstractDaoTestCase {
     SnapshotSourceDao snapshotSourceDao = mock(SnapshotSourceDao.class);
     SnapshotDataDao snapshotDataDao = mock(SnapshotDataDao.class);
 
-    HtmlSourceDecorator sourceDecorator = new HtmlSourceDecorator(mock(MyBatis.class), snapshotSourceDao, snapshotDataDao);
+    HtmlSourceDecorator sourceDecorator = new HtmlSourceDecorator(snapshotSourceDao, snapshotDataDao);
 
-    sourceDecorator.getDecoratedSourceAsHtml("org.apache.struts:struts:DebuggingInterceptor", null, null);
+    sourceDecorator.getDecoratedSourceAsHtml(session,
+      "org.apache.struts:struts:DebuggingInterceptor",
+      "/*\n * Header\n */\n\npublic class HelloWorld {\n  public void foo() {\n  }\n  public void bar() {\n    foo();\n  }\n}",
+      null, null);
 
     verify(snapshotDataDao, times(1)).selectSnapshotDataByComponentKey(eq("org.apache.struts:struts:DebuggingInterceptor"), eq(Lists.newArrayList("highlight_syntax", "symbol")),
       any(SqlSession.class));

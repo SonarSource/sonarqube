@@ -20,24 +20,31 @@
 
 package org.sonar.server.source;
 
+import com.google.common.base.Splitter;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.core.measure.db.MeasureKey;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.source.db.SnapshotSourceDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import java.util.Collections;
 import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 public class SourceService implements ServerComponent {
 
   private final DbClient dbClient;
+  private final SnapshotSourceDao snapshotSourceDao;
   private final HtmlSourceDecorator sourceDecorator;
 
   /**
@@ -45,8 +52,9 @@ public class SourceService implements ServerComponent {
    */
   private final DeprecatedSourceDecorator deprecatedSourceDecorator;
 
-  public SourceService(DbClient dbClient, HtmlSourceDecorator sourceDecorator, DeprecatedSourceDecorator deprecatedSourceDecorator) {
+  public SourceService(DbClient dbClient, SnapshotSourceDao snapshotSourceDao, HtmlSourceDecorator sourceDecorator, DeprecatedSourceDecorator deprecatedSourceDecorator) {
     this.dbClient = dbClient;
+    this.snapshotSourceDao = snapshotSourceDao;
     this.sourceDecorator = sourceDecorator;
     this.deprecatedSourceDecorator = deprecatedSourceDecorator;
   }
@@ -58,13 +66,26 @@ public class SourceService implements ServerComponent {
 
   @CheckForNull
   public List<String> getLinesAsHtml(String fileKey, @Nullable Integer from, @Nullable Integer to) {
-    checkPermission(fileKey);
+    DbSession session = dbClient.openSession(false);
+    try {
+      ComponentDto component = dbClient.componentDao().getByKey(session, fileKey);
+      checkPermission(fileKey);
+      String source = snapshotSourceDao.selectSnapshotSourceByComponentKey(fileKey, session);
+      if (source != null) {
+        if (sizeBiggerThan3000Lines(source)) {
+          return getLinesAsTxt(source);
+        }
 
-    List<String> decoratedSource = sourceDecorator.getDecoratedSourceAsHtml(fileKey, from, to);
-    if (decoratedSource != null) {
-      return decoratedSource;
+        List<String> decoratedSource = sourceDecorator.getDecoratedSourceAsHtml(session, fileKey, source, from, to);
+        if (decoratedSource != null) {
+          return decoratedSource;
+        }
+        return deprecatedSourceDecorator.getSourceAsHtml(component, source, from, to);
+      }
+      return null;
+    } finally {
+      MyBatis.closeQuietly(session);
     }
-    return deprecatedSourceDecorator.getSourceAsHtml(fileKey, from, to);
   }
 
   @CheckForNull
@@ -95,6 +116,17 @@ public class SourceService implements ServerComponent {
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  private static boolean sizeBiggerThan3000Lines (String source){
+    return source.length() > 120000;
+  }
+
+  private static List<String> getLinesAsTxt(@Nullable String source) {
+    if (source != null) {
+      return newArrayList(Splitter.onPattern("\r?\n|\r").split(source));
+    }
+    return Collections.emptyList();
   }
 
 }

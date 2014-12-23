@@ -23,7 +23,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
-import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.source.SnapshotDataTypes;
 import org.sonar.core.source.db.SnapshotDataDao;
 import org.sonar.core.source.db.SnapshotDataDto;
@@ -37,32 +36,26 @@ import java.util.List;
 
 public class HtmlSourceDecorator implements ServerComponent {
 
-  private final MyBatis mybatis;
-
   private final SnapshotSourceDao snapshotSourceDao;
   private final SnapshotDataDao snapshotDataDao;
 
-  public HtmlSourceDecorator(MyBatis mybatis, SnapshotSourceDao snapshotSourceDao, SnapshotDataDao snapshotDataDao) {
-    this.mybatis = mybatis;
+  public HtmlSourceDecorator(SnapshotSourceDao snapshotSourceDao, SnapshotDataDao snapshotDataDao) {
     this.snapshotSourceDao = snapshotSourceDao;
     this.snapshotDataDao = snapshotDataDao;
   }
 
   @CheckForNull
-  public List<String> getDecoratedSourceAsHtml(String componentKey, @Nullable Integer from, @Nullable Integer to) {
-    SqlSession session = mybatis.openSession(false);
-    try {
-      Collection<SnapshotDataDto> snapshotDataEntries = snapshotDataDao.selectSnapshotDataByComponentKey(componentKey, highlightingDataTypes(), session);
-      if (!snapshotDataEntries.isEmpty()) {
-        String snapshotSource = snapshotSourceDao.selectSnapshotSourceByComponentKey(componentKey, session);
-        return decorate(snapshotSource, snapshotDataEntries, from, to);
-      }
-      return null;
-    } finally {
-      MyBatis.closeQuietly(session);
+  public List<String> getDecoratedSourceAsHtml(SqlSession session, String componentKey, String snapshotSource, @Nullable Integer from, @Nullable Integer to) {
+    Collection<SnapshotDataDto> snapshotDataEntries = snapshotDataDao.selectSnapshotDataByComponentKey(componentKey, highlightingDataTypes(), session);
+    if (!snapshotDataEntries.isEmpty()) {
+      return decorate(snapshotSource, snapshotDataEntries, from, to);
     }
+    return null;
   }
 
+  /**
+   * Only used on rails side to display source in issue viewer (display 10 lines, so no need to return only source code if more than 3000 lines)
+   */
   @CheckForNull
   public List<String> getDecoratedSourceAsHtml(long snapshotId) {
     Collection<SnapshotDataDto> snapshotDataEntries = snapshotDataDao.selectSnapshotData(snapshotId, highlightingDataTypes());

@@ -21,14 +21,8 @@
 package org.sonar.server.source;
 
 import com.google.common.base.Splitter;
-import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
-import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.resource.ResourceDao;
-import org.sonar.core.resource.ResourceDto;
-import org.sonar.core.resource.ResourceQuery;
-import org.sonar.core.source.db.SnapshotSourceDao;
-import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.core.component.ComponentDto;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -42,40 +36,19 @@ import static com.google.common.collect.Lists.newArrayList;
  */
 public class DeprecatedSourceDecorator implements ServerComponent {
 
-  private final MyBatis mybatis;
-  private final ResourceDao resourceDao;
   private final CodeColorizers codeColorizers;
-  private final SnapshotSourceDao snapshotSourceDao;
 
-  public DeprecatedSourceDecorator(MyBatis mybatis, ResourceDao resourceDao, CodeColorizers codeColorizers, SnapshotSourceDao snapshotSourceDao) {
-    this.mybatis = mybatis;
-    this.resourceDao = resourceDao;
+  public DeprecatedSourceDecorator(CodeColorizers codeColorizers) {
     this.codeColorizers = codeColorizers;
-    this.snapshotSourceDao = snapshotSourceDao;
   }
 
   @CheckForNull
-  public List<String> getSourceAsHtml(String componentKey) {
-    return getSourceAsHtml(componentKey, null, null);
+  public List<String> getSourceAsHtml(ComponentDto component, String source) {
+    return getSourceAsHtml(component, source, null, null);
   }
 
-  @CheckForNull
-  public List<String> getSourceAsHtml(String componentKey, @Nullable Integer from, @Nullable Integer to) {
-    SqlSession session = mybatis.openSession(false);
-    try {
-      ResourceDto component = resourceDao.getResource(ResourceQuery.create().setKey(componentKey), session);
-      if (component == null) {
-        throw new NotFoundException("The component '" + componentKey + "' does not exists.");
-      }
-      String source = snapshotSourceDao.selectSnapshotSourceByComponentKey(componentKey, session);
-      if (source != null) {
-        return splitSourceByLine(source, component.getLanguage(), from, to);
-      } else {
-        return null;
-      }
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
+  public List<String> getSourceAsHtml(ComponentDto component, String source, @Nullable Integer from, @Nullable Integer to) {
+    return splitSourceByLine(source, component.language(), from, to);
   }
 
   private List<String> splitSourceByLine(String source, String language, @Nullable Integer from, @Nullable Integer to) {

@@ -20,6 +20,7 @@
 
 package org.sonar.server.source;
 
+import com.google.common.base.Strings;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,12 +28,17 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.measure.db.MeasureKey;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.core.source.db.SnapshotSourceDao;
+import org.sonar.server.component.persistence.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.measure.persistence.MeasureDao;
 import org.sonar.server.user.MockUserSession;
+
+import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -51,7 +57,17 @@ public class SourceServiceTest {
   DeprecatedSourceDecorator deprecatedSourceDecorator;
 
   @Mock
+  SnapshotSourceDao snapshotSourceDao;
+
+  @Mock
   MeasureDao measureDao;
+
+  @Mock
+  ComponentDao componentDao;
+
+  ComponentDto componentDto;
+
+  String source = "public class HelloWorld";
 
   static final String PROJECT_KEY = "org.sonar.sample";
   static final String COMPONENT_KEY = "org.sonar.sample:Sample";
@@ -63,35 +79,41 @@ public class SourceServiceTest {
     DbClient dbClient = mock(DbClient.class);
     when(dbClient.openSession(false)).thenReturn(session);
     when(dbClient.measureDao()).thenReturn(measureDao);
-    service = new SourceService(dbClient, sourceDecorator, deprecatedSourceDecorator);
+    when(dbClient.componentDao()).thenReturn(componentDao);
+    componentDto = new ComponentDto().setKey(COMPONENT_KEY).setId(1L);
+    when(componentDao.getByKey(session , COMPONENT_KEY)).thenReturn(componentDto);
+    service = new SourceService(dbClient, snapshotSourceDao, sourceDecorator, deprecatedSourceDecorator);
   }
 
   @Test
   public void get_lines() throws Exception {
     MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
+    when(snapshotSourceDao.selectSnapshotSourceByComponentKey(COMPONENT_KEY, session)).thenReturn(source);
 
     service.getLinesAsHtml(COMPONENT_KEY);
 
-    verify(sourceDecorator).getDecoratedSourceAsHtml(COMPONENT_KEY, null, null);
+    verify(sourceDecorator).getDecoratedSourceAsHtml(session, COMPONENT_KEY, source, null, null);
   }
 
   @Test
   public void get_block_of_lines() throws Exception {
     MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
+    when(snapshotSourceDao.selectSnapshotSourceByComponentKey(COMPONENT_KEY, session)).thenReturn(source);
 
     service.getLinesAsHtml(COMPONENT_KEY, 1, 2);
 
-    verify(sourceDecorator).getDecoratedSourceAsHtml(COMPONENT_KEY, 1, 2);
+    verify(sourceDecorator).getDecoratedSourceAsHtml(session, COMPONENT_KEY, source, 1, 2);
   }
 
   @Test
   public void get_lines_from_deprecated_source_decorator_when_no_data_from_new_decorator() throws Exception {
     MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
-    when(sourceDecorator.getDecoratedSourceAsHtml(eq(COMPONENT_KEY), anyInt(), anyInt())).thenReturn(null);
+    when(snapshotSourceDao.selectSnapshotSourceByComponentKey(COMPONENT_KEY, session)).thenReturn(source);
+    when(sourceDecorator.getDecoratedSourceAsHtml(eq(session), eq(COMPONENT_KEY), eq(source), anyInt(), anyInt())).thenReturn(null);
 
     service.getLinesAsHtml(COMPONENT_KEY, 1, 2);
 
-    verify(deprecatedSourceDecorator).getSourceAsHtml(COMPONENT_KEY, 1, 2);
+    verify(deprecatedSourceDecorator).getSourceAsHtml(componentDto, source, 1, 2);
   }
 
   @Test
@@ -133,4 +155,28 @@ public class SourceServiceTest {
     assertThat(service.getScmDateData(COMPONENT_KEY)).isNull();
   }
 
+  @Test
+  public void return_null_if_no_source() throws Exception {
+    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
+    when(snapshotSourceDao.selectSnapshotSourceByComponentKey(COMPONENT_KEY, session)).thenReturn(null);
+
+    assertThat(service.getLinesAsHtml(COMPONENT_KEY, 1, 2)).isNull();
+
+    verifyZeroInteractions(sourceDecorator);
+    verifyZeroInteractions(deprecatedSourceDecorator);
+  }
+
+  @Test
+  public void return_txt_when_source_is_too_big() throws Exception {
+    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
+
+    when(snapshotSourceDao.selectSnapshotSourceByComponentKey(COMPONENT_KEY, session)).thenReturn(Strings.repeat("a\n", 130000));
+
+    List<String> lines = service.getLinesAsHtml(COMPONENT_KEY);
+    assertThat(lines).isNotEmpty();
+    assertThat(lines.size()).isGreaterThan(3000);
+
+    verifyZeroInteractions(sourceDecorator);
+    verifyZeroInteractions(deprecatedSourceDecorator);
+  }
 }

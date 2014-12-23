@@ -25,122 +25,67 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.resource.ResourceDao;
-import org.sonar.core.resource.ResourceDto;
-import org.sonar.core.resource.ResourceQuery;
-import org.sonar.core.source.db.SnapshotSourceDao;
-import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.core.component.ComponentDto;
 
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DeprecatedSourceDecoratorTest {
 
   @Mock
-  MyBatis mybatis;
-
-  @Mock
-  DbSession session;
-
-  @Mock
-  ResourceDao resourceDao;
-
-  @Mock
   CodeColorizers codeColorizers;
-
-  @Mock
-  SnapshotSourceDao snapshotSourceDao;
 
   DeprecatedSourceDecorator sourceDecorator;
 
   @Before
   public void setUp() throws Exception {
-    when(mybatis.openSession(false)).thenReturn(session);
-    sourceDecorator = new DeprecatedSourceDecorator(mybatis, resourceDao, codeColorizers, snapshotSourceDao);
+    sourceDecorator = new DeprecatedSourceDecorator(codeColorizers);
   }
 
   @Test
   public void get_source_as_html() throws Exception {
-    String componentKey = "org.sonar.sample:Sample";
     String source = "line 1\nline 2\nline 3\n";
     String htmlSource = "<span>line 1</span>\n<span>line 2</span>\n";
 
-    when(resourceDao.getResource(any(ResourceQuery.class), eq(session))).thenReturn(new ResourceDto().setKey(componentKey).setLanguage("java"));
-    when(snapshotSourceDao.selectSnapshotSourceByComponentKey(componentKey, session)).thenReturn(source);
     when(codeColorizers.toHtml(source, "java")).thenReturn(htmlSource);
 
-    List<String> result = sourceDecorator.getSourceAsHtml(componentKey);
+    List<String> result = sourceDecorator.getSourceAsHtml(new ComponentDto().setLanguage("java"), source);
     assertThat(result).containsExactly("<span>line 1</span>", "<span>line 2</span>", "");
   }
 
   @Test
-  public void return_null_if_no_source_code_on_component() throws Exception {
-    String componentKey = "org.sonar.sample:Sample";
-    when(resourceDao.getResource(any(ResourceQuery.class), eq(session))).thenReturn(new ResourceDto().setKey(componentKey).setLanguage("java"));
-    when(snapshotSourceDao.selectSnapshotSourceByComponentKey(componentKey, session)).thenReturn(null);
-
-    assertThat(sourceDecorator.getSourceAsHtml(componentKey)).isNull();
-  }
-
-  @Test
-  public void fail_to_get_source_as_html_on_unknown_component() throws Exception {
-    String componentKey = "org.sonar.sample:Sample";
-    when(resourceDao.getResource(any(ResourceQuery.class), eq(session))).thenReturn(null);
-    try {
-      sourceDecorator.getSourceAsHtml(componentKey);
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(NotFoundException.class);
-    }
-  }
-
-  @Test
   public void get_source_as_html_with_from_and_to_params() throws Exception {
-    String componentKey = "org.sonar.sample:Sample";
     String source = "line 1\nline 2\nline 3\n";
     String htmlSource = "<span>line 1</span>\n<span>line 2</span>\n<span>line 3</span>\n";
 
-    when(resourceDao.getResource(any(ResourceQuery.class), eq(session))).thenReturn(new ResourceDto().setKey(componentKey).setLanguage("java"));
-    when(snapshotSourceDao.selectSnapshotSourceByComponentKey(componentKey, session)).thenReturn(source);
     when(codeColorizers.toHtml(source, "java")).thenReturn(htmlSource);
 
-    List<String> result = sourceDecorator.getSourceAsHtml(componentKey, 2, 3);
+    List<String> result = sourceDecorator.getSourceAsHtml(new ComponentDto().setLanguage("java"), source, 2, 3);
     assertThat(result).containsExactly("<span>line 2</span>", "<span>line 3</span>");
   }
 
   @Test
   public void get_source_as_html_with_from_param() throws Exception {
-    String componentKey = "org.sonar.sample:Sample";
     String source = "line 1\nline 2\nline 3\n";
     String htmlSource = "<span>line 1</span>\n<span>line 2</span>\n<span>line 3</span>\n";
 
-    when(resourceDao.getResource(any(ResourceQuery.class), eq(session))).thenReturn(new ResourceDto().setKey(componentKey).setLanguage("java"));
-    when(snapshotSourceDao.selectSnapshotSourceByComponentKey(componentKey, session)).thenReturn(source);
     when(codeColorizers.toHtml(source, "java")).thenReturn(htmlSource);
 
-    List<String> result = sourceDecorator.getSourceAsHtml(componentKey, 2, null);
+    List<String> result = sourceDecorator.getSourceAsHtml(new ComponentDto().setLanguage("java"), source, 2, null);
     assertThat(result).containsExactly("<span>line 2</span>", "<span>line 3</span>", "");
   }
 
   @Test
   public void get_source_as_html_with_to_param() throws Exception {
-    String componentKey = "org.sonar.sample:Sample";
     String source = "line 1\nline 2\nline 3\n";
     String htmlSource = "<span>line 1</span>\n<span>line 2</span>\n<span>line 3</span>\n";
 
-    when(resourceDao.getResource(any(ResourceQuery.class), eq(session))).thenReturn(new ResourceDto().setKey(componentKey).setLanguage("java"));
-    when(snapshotSourceDao.selectSnapshotSourceByComponentKey(componentKey, session)).thenReturn(source);
     when(codeColorizers.toHtml(source, "java")).thenReturn(htmlSource);
 
-    List<String> result = sourceDecorator.getSourceAsHtml(componentKey, null, 3);
+    List<String> result = sourceDecorator.getSourceAsHtml(new ComponentDto().setLanguage("java"), source, null, 3);
     assertThat(result).containsExactly("<span>line 1</span>", "<span>line 2</span>", "<span>line 3</span>");
   }
 }
