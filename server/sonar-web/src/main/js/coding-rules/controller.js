@@ -17,7 +17,9 @@ define([
         p: this.app.state.get('page'),
         ps: this.pageSize,
         facets: true,
-        f: this.ruleFields.join()
+        f: this.ruleFields.join(),
+        s: 'name',
+        asc: true
       };
     },
 
