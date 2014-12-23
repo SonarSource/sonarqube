@@ -74,4 +74,12 @@ public class SourceLineIndex implements ServerComponent {
 
     return lines;
   }
+
+  public long countLines(String fileUuid) {
+    return esClient.prepareCount(SourceLineIndexDefinition.INDEX)
+      .setTypes(SourceLineIndexDefinition.TYPE)
+      .setQuery(QueryBuilders.boolQuery()
+        .must(QueryBuilders.termQuery(SourceLineIndexDefinition.FIELD_FILE_UUID, fileUuid)))
+      .get().getCount();
+  }
 }
