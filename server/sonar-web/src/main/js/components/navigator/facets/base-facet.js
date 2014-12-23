@@ -22,6 +22,7 @@ define([
 
     onRender: function () {
       this.$el.toggleClass('search-navigator-facet-box-collapsed', !this.model.get('enabled'));
+      this.$el.attr('data-property', this.model.get('property'));
       var that = this,
           property = this.model.get('property'),
           value = this.options.app.state.get('query')[property];

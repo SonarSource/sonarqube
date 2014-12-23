@@ -6,7 +6,8 @@ define([
   var $ = jQuery;
 
   return Controller.extend({
-    allFacets: ['languages', 'repositories', 'tags', 'qprofile', 'debt_characteristics', 'severities', 'statuses'],
+    allFacets: ['languages', 'repositories', 'tags', 'qprofile', 'debt_characteristics', 'severities', 'statuses',
+                'available_since'],
     facetsFromServer: ['languages', 'repositories', 'tags'],
     pageSize: 200,
     ruleFields: ['name', 'lang', 'langName', 'sysTags', 'tags'],

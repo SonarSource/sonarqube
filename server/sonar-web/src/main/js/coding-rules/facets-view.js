@@ -6,7 +6,8 @@ define([
   'coding-rules/facets/quality-profile-facet',
   'coding-rules/facets/characteristic-facet',
   'coding-rules/facets/severity-facet',
-  'coding-rules/facets/status-facet'
+  'coding-rules/facets/status-facet',
+  'coding-rules/facets/available-since-facet'
 ],
     function (FacetsView,
               BaseFacet,
@@ -15,7 +16,8 @@ define([
               QualityProfileFacet,
               CharacteristicFacet,
               SeverityFacet,
-              StatusFacet) {
+              StatusFacet,
+              AvailableSinceFacet) {
 
       return FacetsView.extend({
 
@@ -33,6 +35,8 @@ define([
               return SeverityFacet;
             case 'statuses':
               return StatusFacet;
+            case 'available_since':
+              return AvailableSinceFacet;
             default:
               return BaseFacet;
           }
