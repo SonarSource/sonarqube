@@ -40,6 +40,7 @@ define([
         model: this.model,
         collection: new Backbone.Collection(this.getQualityProfiles())
       }));
+      this.$el.scrollParent().scrollTop(30);
     },
 
     onClose: function () {
