@@ -53,10 +53,6 @@ public class AddMissingCustomRuleParametersMigration implements DatabaseMigratio
   private final DbClient db;
   private final System2 system;
 
-  private final AtomicLong counter = new AtomicLong(0L);
-  private final MassUpdate.ProgressTask progressTask = new MassUpdate.ProgressTask(counter);
-
-
   public AddMissingCustomRuleParametersMigration(DbClient db, System2 system) {
     this.db = db;
     this.system = system;
@@ -64,6 +60,9 @@ public class AddMissingCustomRuleParametersMigration implements DatabaseMigratio
 
   @Override
   public void execute() {
+    AtomicLong counter = new AtomicLong(0L);
+    MassUpdate.ProgressTask progressTask = new MassUpdate.ProgressTask(counter);
+
     Timer timer = new Timer("Db Migration Progress");
     timer.schedule(progressTask, MassUpdate.ProgressTask.PERIOD_MS, MassUpdate.ProgressTask.PERIOD_MS);
 
