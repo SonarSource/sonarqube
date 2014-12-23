@@ -6,137 +6,12 @@ lib.initMessages();
 lib.changeWorkingDirectory('coding-rules-spec');
 
 
-casper.test.begin(testName('Readonly Tests'), function suite(test) {
-
-  var appId = null;
-  var showId = null;
-
-  casper.start(lib.buildUrl('coding-rules'), function() {
-    lib.mockRequest('/api/l10n/index', '{}');
-    lib.mockRequestFromFile('/api/rules/app', 'app.json');
-    lib.mockRequestFromFile('/api/rules/tags', 'tags.json');
-    lib.mockRequestFromFile('/api/rules/search', 'search_initial.json');
-    showId = lib.mockRequestFromFile('/api/rules/show', 'show_x1.json');
-  });
-
-
-  casper.waitWhileSelector("div#coding-rules-page-loader", function checkInitialPageLoad() {
-
-    casper.waitForSelector('.navigator-header', function checkHeader() {
-      test.assertExists('.navigator-header h1');
-      test.assertExists('button#coding-rules-new-search');
-      test.assertDoesntExist('button#coding-rules-create-rule');
-    });
-
-
-    casper.waitForSelector('.navigator-filters', function checkDefaultFilters() {
-      test.assertVisible('input[type="text"].query-filter-input');
-      test.assertElementCount('.navigator-filter', 15);
-      test.assertElementCount('.navigator-filter-optional', 12 /* Only query, qProfile and 'More' are visible by default */);
-      test.assertVisible('button.navigator-filter-submit');
-
-
-      casper.click('.navigator-filter-more-criteria');
-      casper.waitForSelector('.navigator-filter-details.active', function checkTagsAreOrdered() {
-        casper.click('.navigator-filter-details.active label[data-property="tags"]');
-        test.assertSelectorHasText('.navigator-filter[data-property="tags"] option:nth-child(1)', 'brain-overload');
-        test.assertSelectorHasText('.navigator-filter[data-property="tags"] option:nth-child(11)', 'unused');
-        casper.click('.navigator-filter.active>.navigator-filter-disable');
-      });
-
-      // Check repositories are sorted by name, then language
-      test.assertSelectorHasText('#filter-repositories li:nth-child(1) span:nth-child(1)', 'Common SonarQube');
-      test.assertSelectorHasText('#filter-repositories li:nth-child(1) span:nth-child(2)', 'CoffeeScript');
-      test.assertSelectorHasText('#filter-repositories li:nth-child(2) span:nth-child(1)', 'Common SonarQube');
-      test.assertSelectorHasText('#filter-repositories li:nth-child(2) span:nth-child(2)', 'Java');
-      test.assertSelectorHasText('#filter-repositories li:nth-child(3) span:nth-child(1)', 'Manual Rules');
-      test.assertSelectorHasText('#filter-repositories li:nth-child(3) span:nth-child(2)', 'None');
-      test.assertSelectorHasText('#filter-repositories li:nth-child(4) span:nth-child(1)', 'SonarQube');
-      test.assertSelectorHasText('#filter-repositories li:nth-child(4) span:nth-child(2)', 'CoffeeScript');
-      test.assertSelectorHasText('#filter-repositories li:nth-child(5) span:nth-child(1)', 'SonarQube');
-      test.assertSelectorHasText('#filter-repositories li:nth-child(5) span:nth-child(2)', 'Java');
-      test.assertSelectorHasText('#filter-repositories li:nth-child(6) span:nth-child(1)', 'SonarQube');
-      test.assertSelectorHasText('#filter-repositories li:nth-child(6) span:nth-child(2)', 'Xoo');
-    });
-
-
-    casper.waitForSelector('div.navigator-facets-list-item:nth-child(2)', function checkFacets() {
-      test.assertSelectorHasText('div.navigator-facets-list-item:nth-child(2) a:nth-child(1)', 'Java SonarQube');
-      test.assertSelectorHasText('div.navigator-facets-list-item:nth-child(2) a:nth-child(2)', 'Java Common SonarQube');
-      test.assertSelectorHasText('div.navigator-facets-list-item:nth-child(2) a:nth-child(3)', 'CoffeeScript SonarQube');
-      test.assertSelectorHasText('div.navigator-facets-list-item:nth-child(2) a:nth-child(4)', 'CoffeeScript Common SonarQube');
-      test.assertSelectorHasText('div.navigator-facets-list-item:nth-child(2) a:nth-child(5)', 'Xoo SonarQube');
-    });
-
-
-    casper.waitForSelector('li.active', function checkResultsList() {
-      test.assertElementCount('ol.navigator-results-list li', 10);
-      test.assertElementCount('li.active', 1);
-      test.assertSelectorHasText('ol.navigator-results-list li.active', 'Xoo');
-      test.assertSelectorHasText('ol.navigator-results-list li.active', 'No empty line');
-      test.assertSelectorHasText('ol.navigator-results-list li.active', 'BETA');
-    });
-
-
-    casper.waitForSelector('h3.coding-rules-detail-header', function showFirstRule() {
-      test.assertSelectorHasText('h3.coding-rules-detail-header', 'No empty line');
-      test.assertSelectorHasText('.navigator-details .subtitle', 'squid-xoo:x1');
-      test.assertSelectorHasText('.coding-rules-detail-property:nth-child(1)', 'severity.MINOR');
-      test.assertSelectorHasText('.coding-rules-detail-property:nth-child(2)', 'BETA');
-      test.assertSelectorHasText('.coding-rules-detail-property:nth-child(3)', 'convention, pitfall');
-      test.assertSelectorHasText('.coding-rules-detail-property:nth-child(4)', 'Testability > Integration level testability');
-      test.assertSelectorHasText('.coding-rules-detail-property:nth-child(6)', 'SonarQube (Xoo)');
-
-
-      casper.click('.coding-rules-subcharacteristic');
-      casper.waitForSelector('.coding-rules-debt-popup', function checkDebtPopup() {
-        test.assertElementCount('ul.bubble-popup-list li', 3);
-        test.assertSelectorHasText('.bubble-popup-list li:nth-child(1)', 'LINEAR_OFFSET');
-        test.assertSelectorHasText('.bubble-popup-list li:nth-child(2)', '1h');
-        test.assertSelectorHasText('.bubble-popup-list li:nth-child(3)', '30min');
-      });
-
-
-      test.assertDoesntExist('button#coding-rules-detail-extend-description');
-
-
-      casper.then(function checkParameters() {
-        test.assertElementCount('.coding-rules-detail-parameter', 3);
-        test.assertVisible('.coding-rules-detail-parameter-description[data-key=acceptWhitespace]');
-        test.assertSelectorHasText('.coding-rules-detail-parameter-description[data-key=acceptWhitespace]', 'Accept whitespace');
-        casper.click('.coding-rules-detail-parameter:nth-child(1) .coding-rules-detail-parameter-name');
-        test.assertNotVisible('.coding-rules-detail-parameter-description[data-key=acceptWhitespace]');
-        casper.click('.coding-rules-detail-parameter:nth-child(1) .coding-rules-detail-parameter-name');
-        test.assertVisible('.coding-rules-detail-parameter-description[data-key=acceptWhitespace]');
-      });
-    });
-  });
-
-  casper.then(function showDeprecated() {
-    lib.clearRequestMock(showId);
-    showId = lib.mockRequestFromFile('/api/rules/show', 'show_deprecated.json');
-
-    casper.click('div[name="squid:S0001"]');
-
-    casper.waitWhileSelector('.navigator-details i.spinner');
-    casper.waitForSelector('h3.coding-rules-detail-header', function() {
-      test.assertSelectorHasText('h3.coding-rules-detail-header', 'Deprecated rule');
-    });
-
-  });
-
-  casper.run(function() {
-    test.done();
-  });
-});
-
-
 casper.test.begin(testName('Admin Tests'), function suite(test) {
 
   var showId = null;
   var updateId = null;
 
-  casper.start(lib.buildUrl('coding-rules'), function() {
+  casper.start(lib.buildUrl('coding-rules-old'), function() {
     lib.mockRequest('/api/l10n/index', '{}');
     lib.mockRequestFromFile('/api/rules/app', 'app_admin.json');
     lib.mockRequestFromFile('/api/rules/tags', 'tags.json');
@@ -186,7 +61,7 @@ casper.test.begin(testName('Activation Tests'), function suite(test) {
   var showId = null;
   var activateId = null;
 
-  casper.start(lib.buildUrl('coding-rules#rule_key=squid-xoo:x1'), function() {
+  casper.start(lib.buildUrl('coding-rules-old#rule_key=squid-xoo:x1'), function() {
     lib.clearRequestMocks();
     lib.mockRequest('/api/l10n/index', '{}');
     lib.mockRequestFromFile('/api/rules/app', 'app_admin.json');
@@ -296,7 +171,7 @@ casper.test.begin(testName('Activation Tests'), function suite(test) {
 
 casper.test.begin(testName('Tag Navigation Test'), function suite(test) {
 
-  casper.start(lib.buildUrl('coding-rules#tags=polop,bug,pilip,unused,palap'), function() {
+  casper.start(lib.buildUrl('coding-rules-old#tags=polop,bug,pilip,unused,palap'), function() {
     lib.clearRequestMocks();
     lib.mockRequest('/api/l10n/index', '{}');
     lib.mockRequestFromFile('/api/rules/app', 'app_admin.json');

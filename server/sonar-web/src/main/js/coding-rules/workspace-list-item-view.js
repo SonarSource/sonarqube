@@ -22,6 +22,12 @@ define([
 
     openRule: function () {
       this.options.app.controller.showDetails(this.model);
+    },
+
+    serializeData: function () {
+      return _.extend(WorkspaceListItemView.prototype.serializeData.apply(this, arguments), {
+        tags: _.union(this.model.get('sysTags'), this.model.get('tags'))
+      });
     }
   });
 
