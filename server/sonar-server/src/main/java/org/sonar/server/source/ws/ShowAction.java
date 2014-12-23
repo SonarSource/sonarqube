@@ -30,7 +30,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.source.SourceService;
 import org.sonar.server.user.UserSession;
 
@@ -79,7 +78,6 @@ public class ShowAction implements RequestHandler {
   @Override
   public void handle(Request request, Response response) {
     String fileKey = request.mandatoryParam("key");
-    UserSession.get().checkComponentPermission(UserRole.CODEVIEWER, fileKey);
 
     int from = Math.max(request.mandatoryParamAsInt("from"), 1);
     int to = (Integer) ObjectUtils.defaultIfNull(request.paramAsInt("to"), Integer.MAX_VALUE);
@@ -87,11 +85,18 @@ public class ShowAction implements RequestHandler {
     DbSession session = dbClient.openSession(false);
     try {
       ComponentDto componentDto = dbClient.componentDao().getByKey(session, fileKey);
-      List<String> linesHtml = sourceService.getLinesAsHtml(componentDto.uuid(), from, to);
-      if (linesHtml == null) {
-        throw new NotFoundException("File '" + fileKey + "' does not exist");
-      }
+      UserSession.get().checkComponentPermission(UserRole.CODEVIEWER, fileKey);
 
+      long linesSize = sourceService.countLines(componentDto.uuid());
+      int size = to - from;
+      boolean disableHighlighting = size > 3000 && linesSize > 3000 ;
+
+      List<String> linesHtml;
+      if (!disableHighlighting) {
+        linesHtml = sourceService.getLinesAsHtml(componentDto.uuid(), from, to);
+      } else {
+        linesHtml = sourceService.getLinesAsTxt(componentDto.uuid(), from, to);
+      }
       JsonWriter json = response.newJsonWriter().beginObject();
       writeSource(linesHtml, from, json);
 
@@ -99,7 +104,6 @@ public class ShowAction implements RequestHandler {
     } finally {
       session.close();
     }
-
   }
 
   private void writeSource(List<String> lines, int from, JsonWriter json) {

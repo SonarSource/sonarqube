@@ -31,6 +31,8 @@ import java.util.List;
 
 public class SourceLineIndex implements ServerComponent {
 
+  private static final int MAX_RESULT = 500000;
+
   private final EsClient esClient;
 
   public SourceLineIndex(EsClient esClient) {
@@ -41,6 +43,8 @@ public class SourceLineIndex implements ServerComponent {
    * Get lines of code for file with UUID <code>fileUuid</code> with line numbers
    * between <code>from</code> and <code>to</code> (both inclusive). Line numbers
    * start at 1.
+   * The max number of returned lines will be 500000.
+   *
    * @param fileUuid the UUID of the file for which to get source code
    * @param from starting line; must be strictly positive
    * @param to ending line; must be greater than or equal to <code>to</code>
@@ -49,20 +53,33 @@ public class SourceLineIndex implements ServerComponent {
     Preconditions.checkArgument(from > 0, "Minimum value for 'from' is 1");
     Preconditions.checkArgument(to >= from, "'to' must be larger than or equal to 'from'");
     List<SourceLineDoc> lines = Lists.newArrayList();
+    int size = 1 + to - from;
+    if (size > MAX_RESULT) {
+      size = MAX_RESULT;
+    }
+    int toLimited = size + from - 1;
 
     for (SearchHit hit: esClient.prepareSearch(SourceLineIndexDefinition.INDEX)
       .setTypes(SourceLineIndexDefinition.TYPE)
-      .setSize(1 + to - from)
+      .setSize(size)
       .setQuery(QueryBuilders.boolQuery()
         .must(QueryBuilders.termQuery(SourceLineIndexDefinition.FIELD_FILE_UUID, fileUuid))
         .must(QueryBuilders.rangeQuery(SourceLineIndexDefinition.FIELD_LINE)
           .gte(from)
-          .lte(to)))
+          .lte(toLimited)))
       .addSort(SourceLineIndexDefinition.FIELD_LINE, SortOrder.ASC)
       .get().getHits().getHits()) {
       lines.add(new SourceLineDoc(hit.sourceAsMap()));
     }
 
     return lines;
+  }
+
+  public long countLines(String fileUuid) {
+    return esClient.prepareCount(SourceLineIndexDefinition.INDEX)
+      .setTypes(SourceLineIndexDefinition.TYPE)
+      .setQuery(QueryBuilders.boolQuery()
+        .must(QueryBuilders.termQuery(SourceLineIndexDefinition.FIELD_FILE_UUID, fileUuid)))
+      .get().getCount();
   }
 }

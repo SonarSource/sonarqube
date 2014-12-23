@@ -38,9 +38,7 @@ import org.sonar.server.ws.WsTester;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ShowActionTest {
@@ -76,6 +74,7 @@ public class ShowActionTest {
     String fileKey = "src/Foo.java";
     MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
     when(componentDao.getByKey(session, fileKey)).thenReturn(file);
+    when(sourceService.countLines(file.uuid())).thenReturn(6L);
     when(sourceService.getLinesAsHtml(eq(file.uuid()), anyInt(), anyInt())).thenReturn(newArrayList(
       "/*",
       " * Header",
@@ -94,6 +93,7 @@ public class ShowActionTest {
     String fileKey = "src/Foo.java";
     MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
     when(componentDao.getByKey(session, fileKey)).thenReturn(file);
+    when(sourceService.countLines(file.uuid())).thenReturn(6L);
     when(sourceService.getLinesAsHtml(file.uuid(), 3, 5)).thenReturn(newArrayList(
       " */",
       "",
@@ -112,6 +112,7 @@ public class ShowActionTest {
     String fileKey = "src/Foo.java";
     MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
     when(componentDao.getByKey(session, fileKey)).thenReturn(file);
+    when(sourceService.countLines(file.uuid())).thenReturn(6L);
     when(sourceService.getLinesAsHtml(file.uuid(), 1, 5)).thenReturn(newArrayList(
       " */",
       "",
@@ -124,6 +125,72 @@ public class ShowActionTest {
       .setParam("to", "5");
     request.execute();
     verify(sourceService).getLinesAsHtml(file.uuid(), 1, 5);
+  }
+
+  @Test
+  public void disable_highlighting_when_lines_greater_than_3000_without_from_and_to_params() throws Exception {
+    String fileKey = "src/Foo.java";
+    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
+    when(componentDao.getByKey(session, fileKey)).thenReturn(file);
+    when(sourceService.countLines(file.uuid())).thenReturn(5000L);
+    WsTester.TestRequest request = tester
+      .newGetRequest("api/sources", "show")
+      .setParam("key", fileKey);
+    request.execute();
+
+    verify(sourceService).getLinesAsTxt(eq(file.uuid()), anyInt(), anyInt());
+    verify(sourceService, never()).getLinesAsHtml(eq(file.uuid()), anyInt(), anyInt());
+  }
+
+  @Test
+  public void disable_highlighting_when_lines_greater_than_3000_with_from_and_to_params() throws Exception {
+    String fileKey = "src/Foo.java";
+    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
+    when(componentDao.getByKey(session, fileKey)).thenReturn(file);
+    when(sourceService.countLines(file.uuid())).thenReturn(5000L);
+    WsTester.TestRequest request = tester
+      .newGetRequest("api/sources", "show")
+      .setParam("key", fileKey)
+      .setParam("from", "1000")
+      .setParam("to", "5000");
+    request.execute();
+
+    verify(sourceService).getLinesAsTxt(eq(file.uuid()), anyInt(), anyInt());
+    verify(sourceService, never()).getLinesAsHtml(eq(file.uuid()), anyInt(), anyInt());
+  }
+
+  @Test
+  public void not_disable_highlighting_when_lines_smaller_than_3000_but_to_minus_to_greater_than_3000() throws Exception {
+    String fileKey = "src/Foo.java";
+    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
+    when(componentDao.getByKey(session, fileKey)).thenReturn(file);
+    when(sourceService.countLines(file.uuid())).thenReturn(1000L);
+    WsTester.TestRequest request = tester
+      .newGetRequest("api/sources", "show")
+      .setParam("key", fileKey)
+      .setParam("from", "1000")
+      .setParam("to", "5000");
+    request.execute();
+
+    verify(sourceService, never()).getLinesAsTxt(eq(file.uuid()), anyInt(), anyInt());
+    verify(sourceService).getLinesAsHtml(eq(file.uuid()), anyInt(), anyInt());
+  }
+
+  @Test
+  public void not_disable_highlighting_when_lines_greater_than_3000_but_to_minus_to_smaller_than_3000() throws Exception {
+    String fileKey = "src/Foo.java";
+    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
+    when(componentDao.getByKey(session, fileKey)).thenReturn(file);
+    when(sourceService.countLines(file.uuid())).thenReturn(5000L);
+    WsTester.TestRequest request = tester
+      .newGetRequest("api/sources", "show")
+      .setParam("key", fileKey)
+      .setParam("from", "1")
+      .setParam("to", "10");
+    request.execute();
+
+    verify(sourceService, never()).getLinesAsTxt(eq(file.uuid()), anyInt(), anyInt());
+    verify(sourceService).getLinesAsHtml(eq(file.uuid()), anyInt(), anyInt());
   }
 
   @Test(expected = ForbiddenException.class)
