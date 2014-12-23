@@ -32,9 +32,7 @@
     </li>
   {{/if}}
 
-  {{#if subCharacteristic}}
-    <li class="coding-rules-detail-property coding-rules-subcharacteristic">{{subCharacteristic}}</li>
-  {{/if}}
+
 
   <li class="coding-rules-detail-property">{{t 'coding_rules.available_since'}} {{d createdAt}}</li>
 
@@ -52,3 +50,33 @@
     </li>
   {{/if}}
 </ul>
+
+{{#if subCharacteristic}}
+  <ul class="coding-rules-detail-properties">
+    <li class="coding-rules-detail-property">{{subCharacteristic}}</li>
+
+    {{#if debtRemFnType}}
+      <li class="coding-rules-detail-property">
+        <span title="{{t 'coding_rules.remediation_function'}}">
+          {{t 'coding_rules.remediation_function' debtRemFnType}}
+        </span>
+      </li>
+    {{/if}}
+
+    {{#if debtRemFnCoeff}}
+      <li class="coding-rules-detail-property">
+        <span title="{{t 'coding_rules.remediation_function.coeff'}}">
+          {{debtRemFnCoeff}}
+        </span>
+      </li>
+    {{/if}}
+
+    {{#if debtRemFnOffset}}
+      <li class="coding-rules-detail-property">
+        <span title="{{#eq debtRemFnType 'CONSTANT_ISSUE'}}{{t 'coding_rules.remediation_function.constant'}}{{else}}{{t 'coding_rules.remediation_function.offset'}}{{/eq}}">
+          {{debtRemFnOffset}}
+        </span>
+      </li>
+    {{/if}}
+  </ul>
+{{/if}}

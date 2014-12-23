@@ -6,7 +6,7 @@ lib.initMessages();
 lib.changeWorkingDirectory('coding-rules-page-should-show-details');
 
 
-casper.test.begin('coding-rules-page-should-show-details', 17, function (test) {
+casper.test.begin('coding-rules-page-should-show-details', 20, function (test) {
   casper
       .start(lib.buildUrl('coding-rules'), function () {
         lib.setDefaultViewport();
@@ -36,6 +36,9 @@ casper.test.begin('coding-rules-page-should-show-details', 17, function (test) {
         test.assertSelectorContains('.coding-rules-detail-properties', 'error-handling');
         test.assertSelectorContains('.coding-rules-detail-properties', '2013');
         test.assertSelectorContains('.coding-rules-detail-properties', 'SonarQube (Java)');
+        test.assertSelectorContains('.coding-rules-detail-properties', 'Reliability > Exception handling');
+        test.assertSelectorContains('.coding-rules-detail-properties', 'LINEAR');
+        test.assertSelectorContains('.coding-rules-detail-properties', '20min');
 
         test.assertSelectorContains('.coding-rules-detail-description', 'is the superclass of all errors and');
         test.assertSelectorContains('.coding-rules-detail-description', 'its subclasses should be caught.');
