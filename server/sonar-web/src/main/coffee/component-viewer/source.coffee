@@ -24,7 +24,6 @@ define [
   $ = jQuery
 
   API_COVERAGE_TESTS = "#{baseUrl}/api/tests/test_cases"
-  LINES_LIMIT = 3000
   ISSUES_LIMIT = 100
 
 
@@ -104,7 +103,6 @@ define [
         $(expand).insertBefore rows.first()
 
       lines = _.size @model.get 'source'
-      lines = Math.min lines, LINES_LIMIT
       lastShown = rows.last().data('line-number')
       if lastShown < lines
         expand = @expandTemplate
@@ -311,17 +309,16 @@ define [
       source.forEach (sourceLine) =>
         show = false
         line = sourceLine.lineNumber
-        if line <= LINES_LIMIT
-          @showBlocks.forEach (block) ->
-            show = true if block.from <= line && block.to >= line
-          _.extend sourceLine, show: show
+        @showBlocks.forEach (block) ->
+          show = true if block.from <= line && block.to >= line
+        _.extend sourceLine, show: show
       source
 
 
     prepareSource: ->
       source = @model.get 'formattedSource'
       if source?
-        _.first @augmentWithShow(source), LINES_LIMIT
+        @augmentWithShow(source)
 
 
     getStatColumnsCount: ->
@@ -359,6 +356,4 @@ define [
       showZeroLine: @showZeroLine()
       issuesLimit: ISSUES_LIMIT
       issuesLimitReached: @model.get('activeIssues')?.length > ISSUES_LIMIT
-      linesLimit: LINES_LIMIT
-      linesLimitReached: _.size(@model.get 'source') > LINES_LIMIT
       baseDuplications: @getBaseDuplications()
