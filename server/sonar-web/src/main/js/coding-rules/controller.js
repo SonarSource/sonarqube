@@ -10,7 +10,7 @@ define([
                 'available_since'],
     facetsFromServer: ['languages', 'repositories', 'tags'],
     pageSize: 200,
-    ruleFields: ['name', 'lang', 'langName', 'sysTags', 'tags'],
+    ruleFields: ['name', 'lang', 'langName', 'sysTags', 'tags', 'status'],
 
 
     _searchParameters: function () {

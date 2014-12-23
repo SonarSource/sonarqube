@@ -3,6 +3,10 @@
     <a class="js-rule link-no-underline">{{name}}</a>
   </div>
   <div class="coding-rule-meta">
+    {{#notEq status 'READY'}}
+      {{status}}
+      &nbsp;&nbsp;&nbsp;
+    {{/notEq}}
     <a class="js-lang link-no-underline" data-lang="{{lang}}">{{langName}}</a>
     {{#notEmpty tags}}
       &nbsp;&nbsp;&nbsp;
