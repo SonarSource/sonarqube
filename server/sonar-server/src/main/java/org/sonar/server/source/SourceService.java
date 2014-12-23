@@ -77,10 +77,6 @@ public class SourceService implements ServerComponent {
     return lines;
   }
 
-  public long countLines(String fileUuid){
-    return sourceLineIndex.countLines(fileUuid);
-  }
-
   @CheckForNull
   public String getScmAuthorData(String fileKey) {
     checkPermission(fileKey);

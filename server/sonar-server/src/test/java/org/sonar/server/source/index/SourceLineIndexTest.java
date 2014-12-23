@@ -63,17 +63,4 @@ public class SourceLineIndexTest {
   public void should_reject_to_less_than_from() {
     index.getLines("polop", 2, 1);
   }
-
-  @Test
-  public void count_lines() throws Exception {
-    es.putDocuments(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE,
-      this.getClass(),
-      "file1_line1.json",
-      "file1_line2.json",
-      "file2_line1.json",
-      "file2_line2.json",
-      "file2_line3.json");
-    assertThat(index.countLines("file1")).isEqualTo(2);
-    assertThat(index.countLines("file2")).isEqualTo(3);
-  }
 }
