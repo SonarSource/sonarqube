@@ -85,7 +85,7 @@ define [
         p = predicate
         predicate = (issue) =>
           creationDate = new Date moment(issue.creationDate).format()
-          (creationDate >= period.get('sinceDate')) && p issue
+          (creationDate > period.get('sinceDate')) && p issue
 
       if requestIssues && !@state.get 'hasIssues'
         @requestIssues(@key).done => @_filterByIssues(predicate)

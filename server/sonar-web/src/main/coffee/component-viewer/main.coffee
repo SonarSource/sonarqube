@@ -190,8 +190,7 @@ define [
           @periods.reset [{label: t('none')}]
           data.periods.forEach (p) =>
             d = moment p[2]
-            date = new Date d.get('year'), d.get('month'), d.get('date')
-            p = @periods.add key: p[0], label: p[1], sinceDate: date
+            p = @periods.add key: p[0], label: p[1], sinceDate: d.toDate()
 
 
     requestMeasures: (key, period = null) ->
