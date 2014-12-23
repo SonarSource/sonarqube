@@ -1,0 +1,32 @@
+{
+  "rule": {
+    "key": "squid:S1181",
+    "repo": "squid",
+    "name": "Throwable and Error classes should not be caught",
+    "createdAt": "2013-08-09T14:40:54+0200",
+    "severity": "BLOCKER",
+    "status": "READY",
+    "internalKey": "S1181",
+    "isTemplate": false,
+    "tags": [],
+    "sysTags": [
+      "error-handling"
+    ],
+    "lang": "java",
+    "langName": "Java",
+    "htmlDesc": "<p>\n<code>Throwable</code> is the superclass of all errors and exceptions in Java.\n<code>Error</code> is the superclass of all errors which are not meant to be caught by applications.\n</p>\n\n<p>\nCatching either <code>Throwable</code> or <code>Error</code> will also catch <code>OutOfMemoryError</code> or <code>InternalError</code> from which an application should not attempt to recover.\n</p>\n\n<p>Only <code>Exception</code> and its subclasses should be caught.</p>\n\n<h2>Noncompliant Code Example</h2>\n\n<pre>\ntry { /* ... */ } catch (Throwable t) { /* ... */ }\ntry { /* ... */ } catch (Error e) { /* ... */ } \n</pre>\n\n<h2>Compliant Solution</h2>\n\n<pre>\ntry { /* ... */ } catch (Exception e) { /* ... */ }  \ntry { /* ... */ } catch (RuntimeException e) { /* ... */ }  \ntry { /* ... */ } catch (MyException e) { /* ... */ }  \n</pre>",
+    "defaultDebtChar": "RELIABILITY",
+    "defaultDebtSubChar": "EXCEPTION_HANDLING",
+    "debtChar": "RELIABILITY",
+    "debtSubChar": "EXCEPTION_HANDLING",
+    "debtCharName": "Reliability",
+    "debtSubCharName": "Exception handling",
+    "defaultDebtRemFnType": "CONSTANT_ISSUE",
+    "defaultDebtRemFnOffset": "20min",
+    "debtOverloaded": true,
+    "debtRemFnType": "LINEAR",
+    "debtRemFnCoeff": "20min",
+    "params": []
+  },
+  "actives": []
+}

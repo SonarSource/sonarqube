@@ -46,7 +46,8 @@ define([
       });
     },
 
-    activate: function () {
+    activate: function (e) {
+      e.preventDefault();
       var that = this,
           p = window.process.addBackgroundProcess(),
           profileKey = this.ui.qualityProfileSelect.val(),
