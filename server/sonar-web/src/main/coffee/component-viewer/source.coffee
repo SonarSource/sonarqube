@@ -313,4 +313,3 @@ define [
       showZeroLine: @showZeroLine()
       issuesLimit: ISSUES_LIMIT
       issuesLimitReached: @model.get('activeIssues')?.length > ISSUES_LIMIT
-      baseDuplications: @getBaseDuplications()
