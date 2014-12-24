@@ -13,7 +13,7 @@
 
   <properties>
     <!-- self-analysis -->
-    <sonar.sources>src/main/js</sonar.sources>
+    <sonar.sources>src/main/js,src/main/coffee,src/main/hbs,src/main/less</sonar.sources>
     <sonar.exclusions>src/main/js/third-party/**/*,src/main/js/require.js,src/main/js/tests/**/*</sonar.exclusions>
   </properties>
 
