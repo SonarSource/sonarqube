@@ -6,6 +6,7 @@ define([
 
   return Marionette.ItemView.extend({
     className: 'search-navigator-facet-box',
+    forbiddenClassName: 'search-navigator-facet-box-forbidden',
 
     modelEvents: function () {
       return {
@@ -37,7 +38,9 @@ define([
     },
 
     toggle: function () {
-      this.options.app.controller.toggleFacet(this.model.id);
+      if (!this.isForbidden()) {
+        this.options.app.controller.toggleFacet(this.model.id);
+      }
     },
 
     getValue: function () {
@@ -59,6 +62,19 @@ define([
           obj = {};
       obj[property] = null;
       this.options.app.state.updateFilter(obj);
+    },
+
+    forbid: function () {
+      this.options.app.controller.disableFacet(this.model.id);
+      this.$el.addClass(this.forbiddenClassName);
+    },
+
+    allow: function () {
+      this.$el.removeClass(this.forbiddenClassName);
+    },
+
+    isForbidden: function () {
+      return this.$el.hasClass(this.forbiddenClassName);
     },
 
     sortValues: function (values) {

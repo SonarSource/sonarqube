@@ -7,7 +7,8 @@ define([
   'coding-rules/facets/characteristic-facet',
   'coding-rules/facets/severity-facet',
   'coding-rules/facets/status-facet',
-  'coding-rules/facets/available-since-facet'
+  'coding-rules/facets/available-since-facet',
+  'coding-rules/facets/inheritance-facet'
 ],
     function (FacetsView,
               BaseFacet,
@@ -17,7 +18,8 @@ define([
               CharacteristicFacet,
               SeverityFacet,
               StatusFacet,
-              AvailableSinceFacet) {
+              AvailableSinceFacet,
+              InheritanceFacet) {
 
       return FacetsView.extend({
 
@@ -37,6 +39,8 @@ define([
               return StatusFacet;
             case 'available_since':
               return AvailableSinceFacet;
+            case 'inheritance':
+              return InheritanceFacet;
             default:
               return BaseFacet;
           }
