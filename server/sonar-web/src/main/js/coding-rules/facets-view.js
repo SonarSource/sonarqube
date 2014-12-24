@@ -1,6 +1,7 @@
 define([
   'components/navigator/facets-view',
   'coding-rules/facets/base-facet',
+  'coding-rules/facets/query-facet',
   'coding-rules/facets/language-facet',
   'coding-rules/facets/repository-facet',
   'coding-rules/facets/quality-profile-facet',
@@ -13,6 +14,7 @@ define([
 ],
     function (FacetsView,
               BaseFacet,
+              QueryFacet,
               LanguageFacet,
               RepositoryFacet,
               QualityProfileFacet,
@@ -27,6 +29,8 @@ define([
 
         getItemView: function (model) {
           switch (model.get('property')) {
+            case 'q':
+              return QueryFacet;
             case 'languages':
               return LanguageFacet;
             case 'repositories':
