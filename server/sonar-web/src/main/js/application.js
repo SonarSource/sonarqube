@@ -215,7 +215,7 @@ function openModalWindow(url, options) {
                 // Re activate submit button
                 $j('input[type=submit]', obj).removeAttr('disabled');
                 errorElt.show();
-                errorElt.html($j("<div/>").html(xhr.responseText).text());
+                errorElt.html($j('<div/>').html(xhr.responseText).text());
               } else {
                 // otherwise replace modal window by the returned text
                 $j('#modal').html(xhr.responseText);

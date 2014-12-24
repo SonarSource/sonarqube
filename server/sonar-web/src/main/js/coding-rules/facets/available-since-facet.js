@@ -29,7 +29,7 @@ define([
     applyFacet: function() {
       var obj = {},
           property = this.model.get('property');
-      obj[property] = this.$('input').val()
+      obj[property] = this.$('input').val();
       this.options.app.state.updateFilter(obj);
     },
 
