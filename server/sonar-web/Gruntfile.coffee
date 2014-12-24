@@ -174,6 +174,10 @@ module.exports = (grunt) ->
         name: 'coding-rules/app'
         out: '<%= pkg.assets %>build/js/coding-rules/app.js'
 
+      codingRulesShow: options:
+        name: 'coding-rules/app'
+        out: '<%= pkg.assets %>build/js/coding-rules/show-app.js'
+
       codingRulesOld: options:
         name: 'coding-rules-old/app'
         out: '<%= pkg.assets %>build/js/coding-rules-old/app.js'

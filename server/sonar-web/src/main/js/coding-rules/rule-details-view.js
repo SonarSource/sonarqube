@@ -9,6 +9,7 @@ define([
 ], function (Backbone, Marionette, Templates, MetaView, DescView, ParamView, ProfilesView) {
 
   return Marionette.Layout.extend({
+    className: 'coding-rule-details',
     template: Templates['coding-rules-rule-details'],
 
     regions: {

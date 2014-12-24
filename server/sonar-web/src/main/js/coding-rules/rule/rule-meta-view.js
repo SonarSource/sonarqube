@@ -78,7 +78,8 @@ define([
       return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
         canWrite: this.options.app.canWrite,
         subCharacteristic: this.options.app.getSubCharacteristicName(this.model.get('debtSubChar')),
-        allTags: _.union(this.model.get('sysTags'), this.model.get('tags'))
+        allTags: _.union(this.model.get('sysTags'), this.model.get('tags')),
+        permalink: baseUrl + '/coding_rules/show?key=' + encodeURIComponent(this.model.id)
       });
     }
   });
