@@ -8,7 +8,8 @@ define([
   'coding-rules/facets/severity-facet',
   'coding-rules/facets/status-facet',
   'coding-rules/facets/available-since-facet',
-  'coding-rules/facets/inheritance-facet'
+  'coding-rules/facets/inheritance-facet',
+  'coding-rules/facets/active-severity-facet'
 ],
     function (FacetsView,
               BaseFacet,
@@ -19,7 +20,8 @@ define([
               SeverityFacet,
               StatusFacet,
               AvailableSinceFacet,
-              InheritanceFacet) {
+              InheritanceFacet,
+              ActiveSeverityFacet) {
 
       return FacetsView.extend({
 
@@ -41,6 +43,8 @@ define([
               return AvailableSinceFacet;
             case 'inheritance':
               return InheritanceFacet;
+            case 'active_severities':
+              return ActiveSeverityFacet;
             default:
               return BaseFacet;
           }
