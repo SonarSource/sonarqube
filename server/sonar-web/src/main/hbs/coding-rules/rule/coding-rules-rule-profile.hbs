@@ -15,7 +15,9 @@
 
 {{#if severity}}
   <td class="coding-rules-detail-quality-profile-severity">
-    {{severityIcon severity}} {{t "severity" severity}}
+    <span data-toggle="tooltip" data-placement="bottom" title="Activation severity">
+      {{severityIcon severity}} {{t "severity" severity}}
+    </span>
     {{#if parent}}{{#notEq severity parent.severity}}
       <div class="coding-rules-detail-quality-profile-inheritance">
         {{t 'coding_rules.original'}}&nbsp;{{t 'severity' parent.severity}}

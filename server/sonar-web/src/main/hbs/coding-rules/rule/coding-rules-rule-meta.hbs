@@ -1,20 +1,26 @@
 <h3 class="coding-rules-detail-header">
   {{name}}
-  <a class="coding-rules-detail-permalink icon-link" target="_blank" href="{{permalink}}"></a>
+  <a class="coding-rules-detail-permalink icon-link" target="_blank" href="{{permalink}}"
+     data-toggle="tooltip" data-placement="left" title="Rule permalink"></a>
 </h3>
 
 <span class="subtitle">{{key}}</span>
 
 <ul class="coding-rules-detail-properties">
   {{#unless isManual}}
-    <li class="coding-rules-detail-property">{{severityIcon severity}}&nbsp;{{t "severity" severity}}</li>
+    <li class="coding-rules-detail-property"
+        data-toggle="tooltip" data-placement="bottom" title="Default rule severity">
+      {{severityIcon severity}}&nbsp;{{t "severity" severity}}
+    </li>
   {{/unless}}
 
   {{#notEq status 'READY'}}
-    <li class="coding-rules-detail-property">{{status}}</li>
+    <li class="coding-rules-detail-property"
+        data-toggle="tooltip" data-placement="bottom" title="Rule status">{{status}}</li>
   {{/notEq}}
 
-  <li class="coding-rules-detail-property coding-rules-detail-tag-list {{#if canWrite}}coding-rules-detail-tags-change{{/if}}">
+  <li class="coding-rules-detail-property coding-rules-detail-tag-list {{#if canWrite}}coding-rules-detail-tags-change{{/if}}"
+      data-toggle="tooltip" data-placement="bottom" title="Rule tags">
     <i class="icon-tags"></i>
     <span>{{#if allTags}}{{join allTags ', '}}{{else}}{{t 'coding_rules.no_tags'}}{{/if}}</span>
   </li>
@@ -36,7 +42,10 @@
 
   <li class="coding-rules-detail-property">{{t 'coding_rules.available_since'}} {{d createdAt}}</li>
 
-  <li class="coding-rules-detail-property">{{default repo.name repo}}{{#unless isManual}} ({{langName}}){{/unless}}</li>
+  <li class="coding-rules-detail-property"
+      data-toggle="tooltip" data-placement="bottom" title="Rule repository (language)">
+    {{default repo.name repo}}{{#unless isManual}} ({{langName}}){{/unless}}
+  </li>
 
   {{#if isTemplate}}
     <li class="coding-rules-detail-property"
@@ -53,29 +62,30 @@
 
 {{#if subCharacteristic}}
   <ul class="coding-rules-detail-properties">
-    <li class="coding-rules-detail-property">{{subCharacteristic}}</li>
+    <li class="coding-rules-detail-property"
+        data-toggle="tooltip" data-placement="bottom" title="Rule characteristic">
+      {{subCharacteristic}}
+    </li>
 
     {{#if debtRemFnType}}
-      <li class="coding-rules-detail-property">
-        <span title="{{t 'coding_rules.remediation_function'}}">
-          {{t 'coding_rules.remediation_function' debtRemFnType}}
-        </span>
+      <li class="coding-rules-detail-property"
+          data-toggle="tooltip" data-placement="bottom" title="{{t 'coding_rules.remediation_function'}}">
+        {{t 'coding_rules.remediation_function' debtRemFnType}}
       </li>
     {{/if}}
 
     {{#if debtRemFnCoeff}}
-      <li class="coding-rules-detail-property">
-        <span title="{{t 'coding_rules.remediation_function.coeff'}}">
-          {{debtRemFnCoeff}}
-        </span>
+      <li class="coding-rules-detail-property"
+          data-toggle="tooltip" data-placement="bottom" title="{{t 'coding_rules.remediation_function.coeff'}}">
+        {{debtRemFnCoeff}}
       </li>
     {{/if}}
 
     {{#if debtRemFnOffset}}
-      <li class="coding-rules-detail-property">
-        <span title="{{#eq debtRemFnType 'CONSTANT_ISSUE'}}{{t 'coding_rules.remediation_function.constant'}}{{else}}{{t 'coding_rules.remediation_function.offset'}}{{/eq}}">
-          {{debtRemFnOffset}}
-        </span>
+      <li class="coding-rules-detail-property"
+          data-toggle="tooltip" data-placement="bottom"
+          title="{{#eq debtRemFnType 'CONSTANT_ISSUE'}}{{t 'coding_rules.remediation_function.constant'}}{{else}}{{t 'coding_rules.remediation_function.offset'}}{{/eq}}">
+        {{debtRemFnOffset}}
       </li>
     {{/if}}
   </ul>

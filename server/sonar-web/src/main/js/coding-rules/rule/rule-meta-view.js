@@ -25,6 +25,12 @@ define([
       'click @ui.tagsEditCancel': 'cancelEdit'
     },
 
+    onRender: function () {
+      this.$('[data-toggle="tooltip"]').tooltip({
+        container: 'body'
+      });
+    },
+
     requestTags: function () {
       var url = baseUrl + '/api/rules/tags';
       return jQuery.get(url);

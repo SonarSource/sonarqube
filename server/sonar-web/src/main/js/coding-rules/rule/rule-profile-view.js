@@ -24,6 +24,12 @@ define([
       'click @ui.deactivate': 'deactivate'
     },
 
+    onRender: function () {
+      this.$('[data-toggle="tooltip"]').tooltip({
+        container: 'body'
+      });
+    },
+
     change: function () {
       new ProfileActivationView({
         model: this.model,
