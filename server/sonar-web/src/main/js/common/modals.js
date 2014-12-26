@@ -6,6 +6,7 @@ define(['backbone.marionette'], function (Marionette) {
   return Marionette.ItemView.extend({
     className: 'modal',
     overlayClassName: 'modal-overlay',
+    htmlClassName: 'modal-open',
 
     events: function () {
       return {
@@ -16,6 +17,7 @@ define(['backbone.marionette'], function (Marionette) {
     onRender: function () {
       var that = this;
       this.$el.detach().appendTo($('body'));
+      $('html').addClass(this.htmlClassName);
       this.renderOverlay();
       this.keyScope = key.getScope();
       key.setScope('modal');
@@ -23,9 +25,19 @@ define(['backbone.marionette'], function (Marionette) {
         that.close();
         return false;
       });
+      this.show();
+    },
+
+    show: function () {
+      var that = this;
+      setTimeout(function () {
+        that.$el.addClass('in');
+        $('.' + that.overlayClassName).addClass('in');
+      }, 0);
     },
 
     onClose: function () {
+      $('html').removeClass(this.htmlClassName);
       this.removeOverlay();
       key.deleteScope('modal');
       key.setScope(this.keyScope);

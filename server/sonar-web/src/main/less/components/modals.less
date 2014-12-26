@@ -1,16 +1,33 @@
 .modal {
   position: fixed;
   z-index: 9000;
-  top: 15%;
+  top: 0;
   left: 50%;
   margin-left: -270px;
   width: 540px;
   background-color: #fff;
+  opacity: 0;
+  .trans;
+}
+
+.modal.in {
+  top: 15%;
+  opacity: 1;
 }
 
 .modal-overlay {
   position: fixed;
   z-index: 8999;
   top: 0; bottom: 0; left: 0; right: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.7);
+  opacity: 0;
+  .trans;
+}
+
+.modal-overlay.in {
+  opacity: 1;
+}
+
+.modal-open {
+  overflow: hidden;
 }
