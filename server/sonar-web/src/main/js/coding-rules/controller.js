@@ -1,7 +1,8 @@
 define([
     'components/navigator/controller',
+    'coding-rules/models/rule',
     'coding-rules/rule-details-view'
-], function (Controller, RuleDetailsView) {
+], function (Controller, Rule, RuleDetailsView) {
 
   var $ = jQuery;
 
@@ -92,7 +93,7 @@ define([
 
     showDetails: function (rule) {
       var that = this,
-          ruleModel = typeof rule === 'string' ? new Backbone.Model({ key: rule }) : rule;
+          ruleModel = typeof rule === 'string' ? new Rule({ key: rule }) : rule;
       this.app.layout.workspaceDetailsRegion.reset();
       this.getRuleDetails(ruleModel).done(function (data) {
         key.setScope('details');

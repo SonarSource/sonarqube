@@ -1,0 +1,37 @@
+{
+  "rule": {
+    "key": "squid:ArchitecturalConstraint",
+    "repo": "squid",
+    "name": "Architectural constraint",
+    "createdAt": "2013-03-27T09:52:40+0100",
+    "severity": "MAJOR",
+    "status": "READY",
+    "internalKey": "ArchitecturalConstraint",
+    "isTemplate": true,
+    "tags": [],
+    "sysTags": [],
+    "lang": "java",
+    "langName": "Java",
+    "htmlDesc": "<p>A source code comply to an architectural model when it fully\n\tadheres to a set of architectural constraints. A constraint allows to\n\tdeny references between classes by pattern.</p>\n<p>You can for instance use this rule to :</p>\n<ul>\n\t<li>forbid access to **.web.** from **.dao.** classes</li>\n\t<li>forbid access to java.util.Vector, java.util.Hashtable and\n\t\tjava.util.Enumeration from any classes</li>\n\t<li>forbid access to java.sql.** from **.ui.** and **.web.**\n\t\tclasses</li>\n</ul>",
+    "debtChar": "CHANGEABILITY",
+    "debtSubChar": "ARCHITECTURE_CHANGEABILITY",
+    "debtCharName": "Changeability",
+    "debtSubCharName": "Architecture related changeability",
+    "debtOverloaded": true,
+    "debtRemFnType": "LINEAR",
+    "debtRemFnCoeff": "3h",
+    "params": [
+      {
+        "key": "fromClasses",
+        "htmlDesc": "Optional. If this property is not defined, all classes should adhere to this constraint. Ex : *<em>.web.</em>*",
+        "type": "STRING"
+      },
+      {
+        "key": "toClasses",
+        "htmlDesc": "Mandatory. Ex : java.util.Vector, java.util.Hashtable, java.util.Enumeration",
+        "type": "STRING"
+      }
+    ]
+  },
+  "actives": []
+}

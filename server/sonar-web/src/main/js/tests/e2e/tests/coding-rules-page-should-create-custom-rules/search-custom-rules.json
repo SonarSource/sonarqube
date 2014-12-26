@@ -1,0 +1,26 @@
+{
+  "total": 1,
+  "p": 1,
+  "ps": 10,
+  "rules": [
+    {
+      "key": "squid:Do_not_use_org_h2_util_StringUtils",
+      "name": "Do not use org.h2.util.StringUtils",
+      "severity": "MAJOR",
+      "params": [
+        {
+          "key": "fromClasses",
+          "htmlDesc": "Optional. If this property is not defined, all classes should adhere to this constraint. Ex : *<em>.web.</em>*",
+          "type": "STRING",
+          "defaultValue": ""
+        },
+        {
+          "key": "toClasses",
+          "htmlDesc": "Mandatory. Ex : java.util.Vector, java.util.Hashtable, java.util.Enumeration",
+          "type": "STRING",
+          "defaultValue": "org.h2.util.StringUtils"
+        }
+      ]
+    }
+  ]
+}

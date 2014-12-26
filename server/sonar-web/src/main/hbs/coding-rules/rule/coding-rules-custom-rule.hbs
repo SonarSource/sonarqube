@@ -7,10 +7,12 @@
 </td>
 
 <td class="coding-rules-detail-list-parameters">
-  {{#each parameters}}
-    <div class="coding-rules-detail-list-parameter">
-      <span class="key">{{key}}</span><span class="sep">:&nbsp;</span><span class="value" title="{{value}}">{{value}}</span>
-    </div>
+  {{#each params}}
+    {{#if defaultValue}}
+      <div class="coding-rules-detail-list-parameter">
+        <span class="key">{{key}}</span><span class="sep">:&nbsp;</span><span class="value" title="{{value}}">{{defaultValue}}</span>
+      </div>
+    {{/if}}
   {{/each}}
   &nbsp;
 </td>
