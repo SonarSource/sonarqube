@@ -277,7 +277,9 @@
   margin-top: 3 * @navigatorPadding;
 }
 
-.coding-rules-detail-quality-profiles {
+.coding-rules-detail-quality-profiles,
+.coding-rules-detail-list {
+  width: 100%;
   line-height: 22px;
 
   td {
@@ -289,27 +291,31 @@
   }
 }
 
-.coding-rules-detail-quality-profile-name {
+.coding-rules-detail-quality-profile-name,
+.coding-rules-detail-list-name {
   vertical-align: top;
   width: 1px;
   padding: 8px 5px 8px 0;
-  font-weight: bold;
+  font-weight: 500;
   white-space: nowrap;
 }
 
-.coding-rules-detail-quality-profile-severity {
+.coding-rules-detail-quality-profile-severity,
+.coding-rules-detail-list-severity {
   vertical-align: top;
   width: 1px;
   padding: 8px 5px;
   white-space: nowrap;
 }
 
-.coding-rules-detail-quality-profile-parameters {
+.coding-rules-detail-quality-profile-parameters,
+.coding-rules-detail-list-parameters {
   vertical-align: top;
   padding: 8px 5px;
 }
 
-.coding-rules-detail-quality-profile-actions {
+.coding-rules-detail-quality-profile-actions,
+.coding-rules-detail-list-actions {
   vertical-align: top;
   width: 1px;
   padding: 8px 0 8px 5px;
@@ -373,35 +379,9 @@ input.coding-rules-name-key {
   width: 30em;
 }
 
-[id=coding-rules-detail-custom-rules] {
-  padding-left: 2 * @navigatorPadding;
-}
-
 textarea.coding-rules-markdown-description {
   width: 100%;
   margin-bottom: 4px;
-}
-
-.coding-rules-detail-custom-rule + .coding-rules-detail-custom-rule {
-  margin-top: @navigatorPadding;
-  padding-top: @navigatorPadding;
-  border-top: 1px solid @navigatorBorderLightColor;
-}
-
-.coding-rules-detail-custom-rule td {
-  padding: @navigatorPadding;
-}
-
-.coding-rules-detail-custom-rule-name {
-  font-weight: bold;
-}
-
-.coding-rules-detail-custom-rule-key {
-  display:inline-block;
-  max-width: 460px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .coding-rules-modal .property {

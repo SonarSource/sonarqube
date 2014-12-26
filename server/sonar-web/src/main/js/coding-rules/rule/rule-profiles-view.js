@@ -25,6 +25,22 @@ define([
       'click #coding-rules-quality-profile-activate': 'activate'
     },
 
+    onRender: function () {
+      var isManual = (this.options.app.manualRepository().key === this.model.get('repo')),
+          qualityProfilesVisible = !isManual;
+
+      if (qualityProfilesVisible) {
+        if (this.model.get('isTemplate')) {
+          qualityProfilesVisible = !_.isEmpty(this.options.actives);
+        }
+        else {
+          qualityProfilesVisible = (this.options.app.canWrite || !_.isEmpty(this.options.actives));
+        }
+      }
+
+      this.$el.toggleClass('hidden', !qualityProfilesVisible);
+    },
+
     activate: function () {
       new ProfileActivationView({
         rule: this.model,

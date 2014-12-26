@@ -15,17 +15,5 @@
   </div>
 {{/if}}
 
-{{#if isTemplate}}
-  <div class="coding-rules-detail-custom-rules-section">
-    <h3 class="coding-rules-detail-title">{{t 'coding_rules.custom_rules'}}</h3>
-
-    {{#if canWrite}}
-      <div class="button-group coding-rules-detail-quality-profiles-activation">
-        <button id="coding-rules-custom-rules-create">{{t 'coding_rules.create'}}</button>
-      </div>
-    {{/if}}
-    <div id="coding-rules-detail-custom-rules"></div>
-  </div>
-{{/if}}
-
+<div class="js-rule-custom-rules"></div>
 <div class="js-rule-profiles"></div>

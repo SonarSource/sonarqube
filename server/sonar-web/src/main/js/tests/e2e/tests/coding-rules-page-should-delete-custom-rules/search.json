@@ -1,0 +1,36 @@
+{
+  "total": 1,
+  "p": 1,
+  "ps": 200,
+  "rules": [
+    {
+      "key": "squid:ArchitecturalConstraint",
+      "name": "Architectural constraint",
+      "lang": "java",
+      "langName": "Java",
+      "sysTags": [],
+      "tags": [],
+      "status": "READY"
+    }
+  ],
+  "facets": [
+    {
+      "property": "languages",
+      "values": [
+        {
+          "val": "java",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "property": "repositories",
+      "values": [
+        {
+          "val": "squid",
+          "count": 1
+        }
+      ]
+    }
+  ]
+}

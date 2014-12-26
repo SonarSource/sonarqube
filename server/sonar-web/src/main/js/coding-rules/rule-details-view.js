@@ -2,11 +2,15 @@ define([
   'backbone',
   'backbone.marionette',
   'templates/coding-rules',
+  'coding-rules/models/rules',
   'coding-rules/rule/rule-meta-view',
   'coding-rules/rule/rule-description-view',
   'coding-rules/rule/rule-parameters-view',
-  'coding-rules/rule/rule-profiles-view'
-], function (Backbone, Marionette, Templates, MetaView, DescView, ParamView, ProfilesView) {
+  'coding-rules/rule/rule-profiles-view',
+  'coding-rules/rule/custom-rules-view'
+], function (Backbone, Marionette, Templates, Rules, MetaView, DescView, ParamView, ProfilesView, CustomRulesView) {
+
+  var $ = jQuery;
 
   return Marionette.Layout.extend({
     className: 'coding-rule-details',
@@ -16,11 +20,16 @@ define([
       metaRegion: '.js-rule-meta',
       descRegion: '.js-rule-description',
       paramRegion: '.js-rule-parameters',
-      profilesRegion: '.js-rule-profiles'
+      profilesRegion: '.js-rule-profiles',
+      customRulesRegion: '.js-rule-custom-rules'
     },
 
     initialize: function () {
       this.bindShortcuts();
+      this.customRules = new Rules();
+      if (this.model.get('isTemplate')) {
+        this.fetchCustomRules();
+      }
     },
 
     onRender: function () {
@@ -41,11 +50,28 @@ define([
         model: this.model,
         collection: new Backbone.Collection(this.getQualityProfiles())
       }));
+      this.customRulesRegion.show(new CustomRulesView({
+        app: this.options.app,
+        model: this.model,
+        collection: this.customRules
+      }));
       this.$el.scrollParent().scrollTop(30);
     },
 
     onClose: function () {
       this.unbindShortcuts();
+    },
+
+    fetchCustomRules: function () {
+      var that = this,
+          url = baseUrl + '/api/rules/search',
+          options = {
+            template_key: this.model.get('key'),
+            f: 'name,severity,params'
+          };
+      return $.get(url, options).done(function (data) {
+        that.customRules.reset(data.rules);
+      });
     },
 
     getQualityProfiles: function () {
