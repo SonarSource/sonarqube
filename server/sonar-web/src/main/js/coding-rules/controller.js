@@ -31,6 +31,8 @@ define([
         this.app.state.set({ selectedIndex: 0, page: 1 }, { silent: true });
       }
 
+      this.hideDetails();
+
       var that = this,
           url = baseUrl + '/api/rules/search',
           options = _.extend(this._searchParameters(), this.app.state.get('query')),
