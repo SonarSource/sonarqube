@@ -1,27 +1,29 @@
 define([
-  'common/modals',
+  'common/modal-form',
   'templates/coding-rules'
-], function (Modal, Templates) {
+], function (ModalFormView, Templates) {
 
   var $ = jQuery;
 
-  return Modal.extend({
+  return ModalFormView.extend({
     template: Templates['coding-rules-custom-rule-creation'],
 
-    ui: {
-      customRuleCreationKey: '#coding-rules-custom-rule-creation-key',
-      customRuleCreationName: '#coding-rules-custom-rule-creation-name',
-      customRuleCreationHtmlDescription: '#coding-rules-custom-rule-creation-html-description',
-      customRuleCreationSeverity: '#coding-rules-custom-rule-creation-severity',
-      customRuleCreationStatus: '#coding-rules-custom-rule-creation-status',
-      customRuleCreationParameters: '[name]',
-      customRuleCreationCreate: '#coding-rules-custom-rule-creation-create',
-      customRuleCreationReactivate: '#coding-rules-custom-rule-creation-reactivate',
-      modalFoot: '.modal-foot'
+    ui: function () {
+      return _.extend(ModalFormView.prototype.ui.apply(this, arguments), {
+        customRuleCreationKey: '#coding-rules-custom-rule-creation-key',
+            customRuleCreationName: '#coding-rules-custom-rule-creation-name',
+          customRuleCreationHtmlDescription: '#coding-rules-custom-rule-creation-html-description',
+          customRuleCreationSeverity: '#coding-rules-custom-rule-creation-severity',
+          customRuleCreationStatus: '#coding-rules-custom-rule-creation-status',
+          customRuleCreationParameters: '[name]',
+          customRuleCreationCreate: '#coding-rules-custom-rule-creation-create',
+          customRuleCreationReactivate: '#coding-rules-custom-rule-creation-reactivate',
+          modalFoot: '.modal-foot'
+      });
     },
 
     events: function () {
-      return _.extend(Modal.prototype.events.apply(this, arguments), {
+      return _.extend(ModalFormView.prototype.events.apply(this, arguments), {
         'input @ui.customRuleCreationName': 'generateKey',
         'keydown @ui.customRuleCreationName': 'generateKey',
         'keyup @ui.customRuleCreationName': 'generateKey',
@@ -52,7 +54,7 @@ define([
     },
 
     onRender: function () {
-      Modal.prototype.onRender.apply(this, arguments);
+      ModalFormView.prototype.onRender.apply(this, arguments);
 
       this.keyModifiedByUser = false;
 
@@ -148,8 +150,7 @@ define([
           that.$('.modal-warning').show();
           that.ui.modalFoot.html(Templates['coding-rules-custom-rule-reactivation']());
         } else {
-          jQuery.ajaxSettings.error(jqXHR, textStatus, errorThrown);
-          that.ui.modalFoot.html(origFooter);
+          that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
         }
       });
     },
@@ -171,7 +172,7 @@ define([
         };
       });
 
-      return _.extend(Modal.prototype.serializeData.apply(this, arguments), {
+      return _.extend(ModalFormView.prototype.serializeData.apply(this, arguments), {
         change: this.model && this.model.has('key'),
         params: params,
         severities: ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO'],
