@@ -31,10 +31,10 @@ define([
 
       if (qualityProfilesVisible) {
         if (this.model.get('isTemplate')) {
-          qualityProfilesVisible = !_.isEmpty(this.options.actives);
+          qualityProfilesVisible = this.collection.length > 0;
         }
         else {
-          qualityProfilesVisible = (this.options.app.canWrite || !_.isEmpty(this.options.actives));
+          qualityProfilesVisible = (this.options.app.canWrite || this.collection.length > 0);
         }
       }
 
