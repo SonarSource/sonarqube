@@ -25,7 +25,7 @@ define [
 
 
     prepareSearch: ->
-      @$('.js-issues-custom-value').select2
+      @$('.js-custom-value').select2
         placeholder: 'Search...'
         minimumInputLength: 2
         allowClear: false
