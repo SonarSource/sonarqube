@@ -26,7 +26,7 @@ define([
     },
 
     onRender: function () {
-      var isManual = (this.options.app.manualRepository().key === this.model.get('repo')),
+      var isManual = this.model.get('isManual'),
           qualityProfilesVisible = !isManual;
 
       if (qualityProfilesVisible) {

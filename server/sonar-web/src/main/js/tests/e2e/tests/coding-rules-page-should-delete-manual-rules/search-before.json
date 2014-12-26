@@ -1,0 +1,25 @@
+{
+  "total": 1,
+  "p": 1,
+  "ps": 200,
+  "rules": [
+    {
+      "key": "manual:Manual_Rule",
+      "name": "Manual Rule",
+      "sysTags": [],
+      "tags": [],
+      "status": "READY"
+    }
+  ],
+  "facets": [
+    {
+      "property": "repositories",
+      "values": [
+        {
+          "val": "manual",
+          "count": 1
+        }
+      ]
+    }
+  ]
+}

@@ -8,11 +8,12 @@ define([
     addExtraAttributes: function (languages, repositories) {
       var langName = languages[this.get('lang')] || this.get('lang'),
           repo = _.findWhere(repositories, { key: this.get('repo') }) || this.get('repo'),
+          repoName = repo != null ? repo.name : repo,
           isManual = this.get('repo') === 'manual',
           isCustom = this.has('templateKey');
       this.set({
         langName: langName,
-        repo: repo,
+        repoName: repoName,
         isManual: isManual,
         isCustom: isCustom
       });

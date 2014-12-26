@@ -6,11 +6,11 @@
   <div class="coding-rules-detail-description">
     <div class="button-group">
       {{#if isManual}}
-        <button id="coding-rules-detail-manual-rule-change">{{t 'edit'}}</button>
+        <button class="js-edit-manual" id="coding-rules-detail-manual-rule-change">{{t 'edit'}}</button>
       {{else}}
-        <button id="coding-rules-detail-custom-rule-change">{{t 'edit'}}</button>
+        <button class="js-edit-custom" id="coding-rules-detail-custom-rule-change">{{t 'edit'}}</button>
       {{/if}}
-      <button id="coding-rules-detail-rule-delete" class="button-red">{{t 'delete'}}</button>
+      <button class="js-delete" id="coding-rules-detail-rule-delete" class="button-red">{{t 'delete'}}</button>
     </div>
   </div>
 {{/if}}

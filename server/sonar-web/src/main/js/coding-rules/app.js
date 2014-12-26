@@ -114,7 +114,7 @@ requirejs([
       App.manualRepository = function () {
         return {
           key: 'manual',
-          name: t('coding_rules.manual_rules'),
+          name: t('coding_rules.manual_rule'),
           language: 'none'
         };
       };

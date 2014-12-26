@@ -1,0 +1,17 @@
+{
+  "rule": {
+    "key": "manual:Manual_Rule",
+    "repo": "manual",
+    "name": "Manual Rule",
+    "createdAt": "2015-01-05T10:02:11+0100",
+    "status": "READY",
+    "isTemplate": false,
+    "tags": [],
+    "sysTags": [],
+    "htmlDesc": "Manual Rule Description",
+    "mdDesc": "Manual Rule Description",
+    "debtOverloaded": false,
+    "params": []
+  },
+  "actives": []
+}
