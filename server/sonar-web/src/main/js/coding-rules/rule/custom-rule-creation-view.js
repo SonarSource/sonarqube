@@ -11,14 +11,14 @@ define([
     ui: function () {
       return _.extend(ModalFormView.prototype.ui.apply(this, arguments), {
         customRuleCreationKey: '#coding-rules-custom-rule-creation-key',
-            customRuleCreationName: '#coding-rules-custom-rule-creation-name',
-          customRuleCreationHtmlDescription: '#coding-rules-custom-rule-creation-html-description',
-          customRuleCreationSeverity: '#coding-rules-custom-rule-creation-severity',
-          customRuleCreationStatus: '#coding-rules-custom-rule-creation-status',
-          customRuleCreationParameters: '[name]',
-          customRuleCreationCreate: '#coding-rules-custom-rule-creation-create',
-          customRuleCreationReactivate: '#coding-rules-custom-rule-creation-reactivate',
-          modalFoot: '.modal-foot'
+        customRuleCreationName: '#coding-rules-custom-rule-creation-name',
+        customRuleCreationHtmlDescription: '#coding-rules-custom-rule-creation-html-description',
+        customRuleCreationSeverity: '#coding-rules-custom-rule-creation-severity',
+        customRuleCreationStatus: '#coding-rules-custom-rule-creation-status',
+        customRuleCreationParameters: '[name]',
+        customRuleCreationCreate: '#coding-rules-custom-rule-creation-create',
+        customRuleCreationReactivate: '#coding-rules-custom-rule-creation-reactivate',
+        modalFoot: '.modal-foot'
       });
     },
 
@@ -39,11 +39,9 @@ define([
     },
 
     generateKey: function () {
-      if (!this.keyModifiedByUser) {
-        if (this.ui.customRuleCreationKey) {
-          var generatedKey = this.ui.customRuleCreationName.val().latinize().replace(/[^A-Za-z0-9]/g, '_');
-          this.ui.customRuleCreationKey.val(generatedKey);
-        }
+      if (!this.keyModifiedByUser && this.ui.customRuleCreationKey) {
+        var generatedKey = this.ui.customRuleCreationName.val().latinize().replace(/[^A-Za-z0-9]/g, '_');
+        this.ui.customRuleCreationKey.val(generatedKey);
       }
     },
 
@@ -139,12 +137,11 @@ define([
       this.$('.modal-error').hide();
       this.$('.modal-warning').hide();
       var that = this,
-          origFooter = this.ui.modalFoot.html(),
           url = baseUrl + '/api/rules/' + action;
       return $.post(url, options).done(function () {
         that.options.app.controller.showDetails(that.options.templateRule);
         that.close();
-      }).fail(function (jqXHR, textStatus, errorThrown) {
+      }).fail(function (jqXHR) {
         if (jqXHR.status === 409) {
           that.existingRule = jqXHR.responseJSON.rule;
           that.$('.modal-warning').show();
