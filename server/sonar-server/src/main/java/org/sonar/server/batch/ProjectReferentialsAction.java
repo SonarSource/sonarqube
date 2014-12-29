@@ -20,41 +20,13 @@
 
 package org.sonar.server.batch;
 
-import com.google.common.collect.Maps;
 import org.apache.commons.io.IOUtils;
-import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.batch.protocol.input.ProjectReferentials;
-import org.sonar.core.UtcDateUtils;
-import org.sonar.core.component.ComponentDto;
-import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.properties.PropertiesDao;
-import org.sonar.core.properties.PropertyDto;
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.server.db.DbClient;
-import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.plugins.MimeTypes;
-import org.sonar.server.qualityprofile.ActiveRule;
-import org.sonar.server.qualityprofile.QProfileFactory;
-import org.sonar.server.qualityprofile.QProfileLoader;
-import org.sonar.server.rule.Rule;
-import org.sonar.server.rule.RuleService;
-import org.sonar.server.user.UserSession;
-
-import javax.annotation.Nullable;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
 
 public class ProjectReferentialsAction implements RequestHandler {
 
@@ -62,21 +34,10 @@ public class ProjectReferentialsAction implements RequestHandler {
   private static final String PARAM_PROFILE = "profile";
   private static final String PARAM_PREVIEW = "preview";
 
-  private final DbClient dbClient;
-  private final PropertiesDao propertiesDao;
-  private final QProfileFactory qProfileFactory;
-  private final QProfileLoader qProfileLoader;
-  private final RuleService ruleService;
-  private final Languages languages;
+  private final ProjectReferentialsLoader projectReferentialsLoader;
 
-  public ProjectReferentialsAction(DbClient dbClient, PropertiesDao propertiesDao, QProfileFactory qProfileFactory, QProfileLoader qProfileLoader,
-    RuleService ruleService, Languages languages) {
-    this.dbClient = dbClient;
-    this.propertiesDao = propertiesDao;
-    this.qProfileFactory = qProfileFactory;
-    this.qProfileLoader = qProfileLoader;
-    this.ruleService = ruleService;
-    this.languages = languages;
+  public ProjectReferentialsAction(ProjectReferentialsLoader projectReferentialsLoader) {
+    this.projectReferentialsLoader = projectReferentialsLoader;
   }
 
   void define(WebService.NewController controller) {
@@ -106,162 +67,11 @@ public class ProjectReferentialsAction implements RequestHandler {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    boolean hasScanPerm = UserSession.get().hasGlobalPermission(GlobalPermissions.SCAN_EXECUTION);
-    boolean preview = request.mandatoryParamAsBoolean(PARAM_PREVIEW);
-    checkPermission(preview);
-
-    DbSession session = dbClient.openSession(false);
-    try {
-      ProjectReferentials ref = new ProjectReferentials();
-
-      String projectOrModuleKey = request.mandatoryParam(PARAM_KEY);
-      String profileName = request.param(PARAM_PROFILE);
-
-      String projectKey = null;
-      ComponentDto module = dbClient.componentDao().getNullableByKey(session, projectOrModuleKey);
-      // Current project can be null when analysing a new project
-      if (module != null) {
-        ComponentDto project = dbClient.componentDao().getNullableRootProjectByKey(projectOrModuleKey, session);
-        // Can be null if the given project is a provisioned one
-        if (project != null) {
-          if (!project.key().equals(module.key())) {
-            addSettings(ref, module.getKey(), getSettingsFromParents(module.key(), hasScanPerm, session));
-          }
-          projectKey = project.key();
-          addSettingsToChildrenModules(ref, projectOrModuleKey, Maps.<String, String>newHashMap(), hasScanPerm, session);
-        } else {
-          // Add settings of the provisioned project
-          addSettings(ref, projectOrModuleKey, getPropertiesMap(propertiesDao.selectProjectProperties(projectOrModuleKey, session), hasScanPerm));
-          projectKey = projectOrModuleKey;
-        }
-      }
-
-      addProfiles(ref, projectKey, profileName, session);
-      addActiveRules(ref);
-
-      response.stream().setMediaType(MimeTypes.JSON);
-      IOUtils.write(ref.toJson(), response.stream().output());
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
+    ProjectReferentials ref = projectReferentialsLoader.load(ProjectReferentialsQuery.create()
+      .setModuleKey(request.mandatoryParam(PARAM_KEY))
+      .setProfileName(request.param(PARAM_PROFILE))
+      .setPreview(request.mandatoryParamAsBoolean(PARAM_PREVIEW)));
+    response.stream().setMediaType(MimeTypes.JSON);
+    IOUtils.write(ref.toJson(), response.stream().output());
   }
-
-  private Map<String, String> getSettingsFromParents(String moduleKey, boolean hasScanPerm, DbSession session) {
-    List<ComponentDto> parents = newArrayList();
-    aggregateParentModules(moduleKey, parents, session);
-    Collections.reverse(parents);
-
-    Map<String, String> parentProperties = newHashMap();
-    for (ComponentDto parent : parents) {
-      parentProperties.putAll(getPropertiesMap(propertiesDao.selectProjectProperties(parent.key(), session), hasScanPerm));
-    }
-    return parentProperties;
-  }
-
-  private void aggregateParentModules(String component, List<ComponentDto> parents, DbSession session){
-    ComponentDto parent = dbClient.componentDao().getParentModuleByKey(component, session);
-    if (parent != null) {
-      parents.add(parent);
-      aggregateParentModules(parent.key(), parents, session);
-    }
-  }
-
-  private void addSettingsToChildrenModules(ProjectReferentials ref, String projectKey, Map<String, String> parentProperties, boolean hasScanPerm, DbSession session) {
-    Map<String, String> currentParentProperties = newHashMap();
-    currentParentProperties.putAll(parentProperties);
-    currentParentProperties.putAll(getPropertiesMap(propertiesDao.selectProjectProperties(projectKey, session), hasScanPerm));
-    addSettings(ref, projectKey, currentParentProperties);
-
-    for (ComponentDto module : dbClient.componentDao().findModulesByProject(projectKey, session)) {
-      addSettings(ref, module.key(), currentParentProperties);
-      addSettingsToChildrenModules(ref, module.key(), currentParentProperties, hasScanPerm, session);
-    }
-  }
-
-  private void addSettings(ProjectReferentials ref, String module, Map<String, String> properties) {
-    if (!properties.isEmpty()) {
-      ref.addSettings(module, properties);
-    }
-  }
-
-  private Map<String, String> getPropertiesMap(List<PropertyDto> propertyDtos, boolean hasScanPerm) {
-    Map<String, String> properties = newHashMap();
-    for (PropertyDto propertyDto : propertyDtos) {
-      String key = propertyDto.getKey();
-      String value = propertyDto.getValue();
-      if (isPropertyAllowed(key, hasScanPerm)) {
-        properties.put(key, value);
-      }
-    }
-    return properties;
-  }
-
-  private static boolean isPropertyAllowed(String key, boolean hasScanPerm) {
-    return !key.contains(".secured") || hasScanPerm;
-  }
-
-  private void addProfiles(ProjectReferentials ref, @Nullable String projectKey, @Nullable String profileName, DbSession session) {
-    for (Language language : languages.all()) {
-      String languageKey = language.getKey();
-      QualityProfileDto qualityProfileDto = getProfile(languageKey, projectKey, profileName, session);
-      ref.addQProfile(new org.sonar.batch.protocol.input.QProfile(
-        qualityProfileDto.getKey(),
-        qualityProfileDto.getName(),
-        qualityProfileDto.getLanguage(),
-        UtcDateUtils.parseDateTime(qualityProfileDto.getRulesUpdatedAt())));
-    }
-  }
-
-  /**
-   * First try to find a quality profile matching the given name (if provided) and current language
-   * If no profile found, try to find the quality profile set on the project (if provided)
-   * If still no profile found, try to find the default profile of the language
-   *
-   * Never return null because a default profile should always be set on ech language
-   */
-  private QualityProfileDto getProfile(String languageKey, @Nullable String projectKey, @Nullable String profileName, DbSession session) {
-    QualityProfileDto qualityProfileDto = profileName != null ? qProfileFactory.getByNameAndLanguage(session, profileName, languageKey) : null;
-    if (qualityProfileDto == null && projectKey != null) {
-      qualityProfileDto = qProfileFactory.getByProjectAndLanguage(session, projectKey, languageKey);
-    }
-    qualityProfileDto = qualityProfileDto != null ? qualityProfileDto : qProfileFactory.getDefault(session, languageKey);
-    if (qualityProfileDto != null) {
-      return qualityProfileDto;
-    } else {
-      throw new IllegalStateException(String.format("No quality profile can been found on language '%s' for project '%s'", languageKey, projectKey));
-    }
-  }
-
-  private void addActiveRules(ProjectReferentials ref) {
-    for (org.sonar.batch.protocol.input.QProfile qProfile : ref.qProfiles()) {
-      for (ActiveRule activeRule : qProfileLoader.findActiveRulesByProfile(qProfile.key())) {
-        Rule rule = ruleService.getNonNullByKey(activeRule.key().ruleKey());
-        org.sonar.batch.protocol.input.ActiveRule inputActiveRule = new org.sonar.batch.protocol.input.ActiveRule(
-          activeRule.key().ruleKey().repository(),
-          activeRule.key().ruleKey().rule(),
-          rule.name(),
-          activeRule.severity(),
-          rule.internalKey(),
-          qProfile.language());
-        for (Map.Entry<String, String> entry : activeRule.params().entrySet()) {
-          inputActiveRule.addParam(entry.getKey(), entry.getValue());
-        }
-        ref.addActiveRule(inputActiveRule);
-      }
-    }
-  }
-
-  private void checkPermission(boolean preview){
-    UserSession userSession = UserSession.get();
-    boolean hasScanPerm = userSession.hasGlobalPermission(GlobalPermissions.SCAN_EXECUTION);
-    boolean hasPreviewPerm = userSession.hasGlobalPermission(GlobalPermissions.DRY_RUN_EXECUTION);
-    if (!hasPreviewPerm && !hasScanPerm) {
-      throw new ForbiddenException("You're not authorized to execute any SonarQube analysis. Please contact your SonarQube administrator.");
-    }
-    if (!preview && !hasScanPerm) {
-      throw new ForbiddenException("You're only authorized to execute a local (dry run) SonarQube analysis without pushing the results to the SonarQube server. " +
-        "Please contact your SonarQube administrator.");
-    }
-  }
-
 }

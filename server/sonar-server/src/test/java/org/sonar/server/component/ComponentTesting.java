@@ -62,14 +62,15 @@ public class ComponentTesting {
   }
 
   public static ComponentDto newModuleDto(ComponentDto subProjectOrProject) {
+    String uuid = Uuids.create();
     return new ComponentDto()
       .setUuid(Uuids.create())
       .setProjectUuid(subProjectOrProject.projectUuid())
       .setModuleUuid(subProjectOrProject.uuid())
       .setModuleUuidPath(subProjectOrProject.moduleUuidPath() == null ? subProjectOrProject.uuid() : subProjectOrProject.moduleUuidPath() + "." + subProjectOrProject.uuid())
-      .setKey("module")
-      .setName("Module")
-      .setLongName("Module")
+      .setKey("KEY_" + uuid)
+      .setName("NAME_" + uuid)
+      .setLongName("LONG_NAME_" + uuid)
       .setParentProjectId(subProjectOrProject.getId())
       .setScope(Scopes.PROJECT)
       .setQualifier(Qualifiers.MODULE)

@@ -31,6 +31,7 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.component.SnapshotDto;
 import org.sonar.core.issue.db.ActionPlanDto;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.workflow.Transition;
@@ -94,11 +95,12 @@ public class IssueServiceMediumTest {
 
     project = ComponentTesting.newProjectDto();
     tester.get(ComponentDao.class).insert(session, project);
-    tester.get(SnapshotDao.class).insert(session, SnapshotTesting.createForProject(project));
+    SnapshotDto projectSnapshot = SnapshotTesting.createForProject(project);
+    tester.get(SnapshotDao.class).insert(session, projectSnapshot);
 
     file = ComponentTesting.newFileDto(project);
     tester.get(ComponentDao.class).insert(session, file);
-    tester.get(SnapshotDao.class).insert(session, SnapshotTesting.createForComponent(file, project));
+    tester.get(SnapshotDao.class).insert(session, SnapshotTesting.createForComponent(file, project, projectSnapshot));
 
 
     // workaround for the test to have sufficient privileges

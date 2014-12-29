@@ -27,12 +27,18 @@ import org.sonar.core.component.SnapshotDto;
 public class SnapshotTesting {
 
   /**
-   * When project is null, that means that the component is a project
+   * Can be used for modules and files
    */
-  public static SnapshotDto createForComponent(ComponentDto component, ComponentDto project) {
+  public static SnapshotDto createForComponent(ComponentDto component, ComponentDto parentProject, SnapshotDto parentSnapshot) {
+    Long parentRootId = parentSnapshot.getRootId();
     return new SnapshotDto()
       .setResourceId(component.getId())
-      .setRootProjectId(project.getId())
+      .setRootProjectId(parentSnapshot.getRootProjectId())
+      .setRootId(parentRootId != null ? parentRootId : parentSnapshot.getId())
+      .setStatus(SnapshotDto.STATUS_PROCESSED)
+      .setQualifier(component.qualifier())
+      .setScope(component.scope())
+      .setParentId(parentSnapshot.getId())
       .setLast(true);
   }
 
