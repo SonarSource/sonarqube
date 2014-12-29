@@ -146,8 +146,10 @@ public class AnalysisReportDao extends BaseDao<AnalysisReportMapper, AnalysisRep
 
       ps.executeUpdate();
       connection.commit();
-    } catch (SQLException | IOException e) {
+    } catch (SQLException e) {
       throw new IllegalStateException(String.format("Failed to insert %s in the database", report), e);
+    } catch (IOException e) {
+      throw new IllegalStateException(String.format("Failed to read report data of %s", report), e);
     } finally {
       DatabaseUtils.closeQuietly(ps);
     }

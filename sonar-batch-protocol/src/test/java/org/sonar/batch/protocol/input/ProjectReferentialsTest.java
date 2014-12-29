@@ -53,6 +53,7 @@ public class ProjectReferentialsTest {
     ref.addFileData("foo", "src/main/java/Foo.java", new FileData("xyz", "1=12345,2=3456", "1=345,2=345", "1=henryju,2=gaudin"));
     ref.addFileData("foo", "src/main/java/Foo2.java", new FileData("xyz", "1=12345,2=3456", "1=345,2=345", "1=henryju,2=gaudin"));
 
+    System.out.println(ref.toJson());
     JSONAssert
       .assertEquals(
         "{timestamp:10,"

@@ -38,7 +38,7 @@ public class DataCleanerStep implements ComputationStep {
   @Override
   public void execute(DbSession session, ComputeEngineContext context) {
     projectCleaner.purge(session, new IdUuidPair(context.getProject().getId(), context.getProject().uuid()));
-    // reportService.deleteDirectory(context.getReportDirectory());
+    // reportService.clean(context.getReportDirectory());
   }
 
   @Override
