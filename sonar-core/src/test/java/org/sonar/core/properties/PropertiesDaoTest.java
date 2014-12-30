@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.core.properties;
 
 import com.google.common.collect.ImmutableMap;
@@ -150,6 +151,22 @@ public class PropertiesDaoTest extends AbstractDaoTestCase {
     assertThat(properties.size(), is(2));
     assertThat(properties).onProperty("key").containsOnly("struts.one", "user.two");
     assertThat(properties).onProperty("value").containsOnly("one", "two");
+  }
+
+  @Test
+  public void select_children_module_properties() throws Exception {
+    setupData("select_children_module_properties");
+
+    List<PropertyDto> properties = dao.findChildrenModuleProperties("org.struts:struts", session);
+    assertThat(properties.size(), is(3));
+    assertThat(properties).onProperty("key").containsOnly("core.one", "core.two", "data.one");
+    assertThat(properties).onProperty("value").containsOnly("one", "two");
+
+    properties = dao.findChildrenModuleProperties("org.struts:struts-core", session);
+    assertThat(properties.size(), is(1));
+    assertThat(properties).onProperty("key").containsOnly("data.one");
+
+    assertThat(dao.findChildrenModuleProperties("org.struts:struts-data", session).size(), is(0));
   }
 
   @Test

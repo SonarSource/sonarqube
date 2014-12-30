@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.core.properties;
 
 import com.google.common.base.Preconditions;
@@ -119,6 +120,10 @@ public class PropertiesDao implements BatchComponent, ServerComponent, DaoCompon
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  public List<PropertyDto> findChildrenModuleProperties(String moduleKey, SqlSession session) {
+    return session.getMapper(PropertiesMapper.class).selectChildrenModuleProperties(moduleKey);
   }
 
   public PropertyDto selectProjectProperty(long resourceId, String propertyKey) {

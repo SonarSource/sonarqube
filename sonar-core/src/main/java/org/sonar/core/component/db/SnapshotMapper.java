@@ -43,6 +43,8 @@ public interface SnapshotMapper {
 
   List<SnapshotDto> selectSnapshotAndChildrenOfScope(@Param(value = "snapshot") Long resourceId, @Param(value = "scope") String scope);
 
+  List<SnapshotDto> selectChildrenModulesFromModule(@Param(value = "moduleKey") String moduleKey);
+
   int updateSnapshotAndChildrenLastFlagAndStatus(@Param(value = "root") Long rootId, @Param(value = "pathRootId") Long pathRootId,
     @Param(value = "path") String path, @Param(value = "isLast") boolean isLast, @Param(value = "status") String status);
 

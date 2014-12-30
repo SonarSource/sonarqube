@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.core.component.db;
 
 import org.apache.ibatis.annotations.Param;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.component.ProjectRefentialsComponentDto;
 
 import javax.annotation.CheckForNull;
 
@@ -72,11 +74,15 @@ public interface ComponentMapper {
    * Warning, projectId are always null
    */
   List<ComponentDto> findByUuids(@Param("uuids") Collection<String> uuids);
-
   /**
    * Return all project (PRJ/TRK) uuids
    */
   List<String> findProjectUuids();
+
+  /**
+   * Return all modules children (not returning itself) from a module key
+   */
+  List<ProjectRefentialsComponentDto> findChildrenModulesFromModule(@Param("moduleKey") String moduleKey);
 
   long countById(long id);
 

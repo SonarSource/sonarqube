@@ -24,6 +24,8 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.SnapshotDto;
 
+import java.util.Date;
+
 public class SnapshotTesting {
 
   /**
@@ -39,7 +41,9 @@ public class SnapshotTesting {
       .setQualifier(component.qualifier())
       .setScope(component.scope())
       .setParentId(parentSnapshot.getId())
-      .setLast(true);
+      .setPath(parentSnapshot.getPath() == null ? Long.toString(parentSnapshot.getId()) + "." : parentSnapshot.getPath() + Long.toString(parentSnapshot.getId()) + ".")
+      .setLast(true)
+      .setBuildDate(new Date());
   }
 
   public static SnapshotDto createForProject(ComponentDto project) {
@@ -49,7 +53,9 @@ public class SnapshotTesting {
       .setStatus(SnapshotDto.STATUS_PROCESSED)
       .setQualifier(project.qualifier())
       .setScope(project.scope())
-      .setLast(true);
+      .setPath("")
+      .setLast(true)
+      .setBuildDate(new Date());
   }
 
   public static SnapshotDto defaultSnapshot() {
