@@ -30,6 +30,7 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.component.SnapshotDto;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
@@ -84,11 +85,12 @@ public class IssueBulkChangeServiceMediumTest {
 
     project = ComponentTesting.newProjectDto().setKey("MyProject");
     tester.get(ComponentDao.class).insert(session, project);
-    tester.get(SnapshotDao.class).insert(session, SnapshotTesting.createForProject(project));
+    SnapshotDto projectSnapshot = SnapshotTesting.createForProject(project);
+    tester.get(SnapshotDao.class).insert(session, projectSnapshot);
 
     file = ComponentTesting.newFileDto(project).setKey("MyComponent");
     tester.get(ComponentDao.class).insert(session, file);
-    tester.get(SnapshotDao.class).insert(session, SnapshotTesting.createForComponent(file, project));
+    tester.get(SnapshotDao.class).insert(session, SnapshotTesting.createForComponent(file, project, projectSnapshot));
 
     // project can be seen by anyone
     session.commit();

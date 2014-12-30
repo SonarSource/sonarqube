@@ -21,6 +21,11 @@
       }
     }
   ],
-  "settingsByModule": {},
+  "settingsByModule": {
+    "org.codehaus.sonar:sonar": {
+      "sonar.jira.project.key": "SONAR",
+      "sonar.jira.login.secured": "john"
+    }
+  },
   "fileDataByModuleAndPath": {}
 }

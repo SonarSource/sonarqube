@@ -24,16 +24,26 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.SnapshotDto;
 
+import java.util.Date;
+
 public class SnapshotTesting {
 
   /**
-   * When project is null, that means that the component is a project
+   * Can be used for modules and files
    */
-  public static SnapshotDto createForComponent(ComponentDto component, ComponentDto project) {
+  public static SnapshotDto createForComponent(ComponentDto component, ComponentDto parentProject, SnapshotDto parentSnapshot) {
+    Long parentRootId = parentSnapshot.getRootId();
     return new SnapshotDto()
       .setResourceId(component.getId())
-      .setRootProjectId(project.getId())
-      .setLast(true);
+      .setRootProjectId(parentSnapshot.getRootProjectId())
+      .setRootId(parentRootId != null ? parentRootId : parentSnapshot.getId())
+      .setStatus(SnapshotDto.STATUS_PROCESSED)
+      .setQualifier(component.qualifier())
+      .setScope(component.scope())
+      .setParentId(parentSnapshot.getId())
+      .setPath(parentSnapshot.getPath() == null ? Long.toString(parentSnapshot.getId()) + "." : parentSnapshot.getPath() + Long.toString(parentSnapshot.getId()) + ".")
+      .setLast(true)
+      .setBuildDate(new Date());
   }
 
   public static SnapshotDto createForProject(ComponentDto project) {
@@ -43,7 +53,9 @@ public class SnapshotTesting {
       .setStatus(SnapshotDto.STATUS_PROCESSED)
       .setQualifier(project.qualifier())
       .setScope(project.scope())
-      .setLast(true);
+      .setPath("")
+      .setLast(true)
+      .setBuildDate(new Date());
   }
 
   public static SnapshotDto defaultSnapshot() {

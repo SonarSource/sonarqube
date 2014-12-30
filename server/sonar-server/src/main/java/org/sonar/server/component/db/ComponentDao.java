@@ -17,12 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.component.db;
 
 import com.google.common.collect.Lists;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.System2;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.component.ProjectRefentialsComponentDto;
 import org.sonar.core.component.db.ComponentMapper;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
@@ -111,6 +113,10 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
       return Collections.emptyList();
     }
     return mapper(session).findSubProjectsByComponentUuids(keys);
+  }
+
+  public List<ProjectRefentialsComponentDto> findChildrenModulesFromModule(DbSession session, String moduleKey) {
+    return mapper(session).findChildrenModulesFromModule(moduleKey);
   }
 
   public List<ComponentDto> getByUuids(DbSession session, Collection<String> uuids) {

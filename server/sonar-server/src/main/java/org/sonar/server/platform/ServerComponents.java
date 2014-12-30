@@ -354,6 +354,7 @@ class ServerComponents {
     pico.addSingleton(BatchIndex.class);
     pico.addSingleton(GlobalReferentialsAction.class);
     pico.addSingleton(ProjectReferentialsAction.class);
+    pico.addSingleton(ProjectReferentialsLoader.class);
     pico.addSingleton(UploadReportAction.class);
     pico.addSingleton(BatchWs.class);
 

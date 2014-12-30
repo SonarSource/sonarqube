@@ -32,11 +32,8 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.issue.db.ActionPlanDao;
-import org.sonar.core.issue.db.ActionPlanDto;
-import org.sonar.core.issue.db.IssueChangeDao;
-import org.sonar.core.issue.db.IssueChangeDto;
-import org.sonar.core.issue.db.IssueDto;
+import org.sonar.core.component.SnapshotDto;
+import org.sonar.core.issue.db.*;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
@@ -421,7 +418,8 @@ public class SearchActionMediumTest {
   public void components_contains_sub_projects() throws Exception {
     ComponentDto project = ComponentTesting.newProjectDto().setKey("ProjectHavingModule");
     db.componentDao().insert(session, project);
-    db.snapshotDao().insert(session, SnapshotTesting.createForProject(project));
+    SnapshotDto projectSnapshot = SnapshotTesting.createForProject(project);
+    db.snapshotDao().insert(session, projectSnapshot);
     session.commit();
 
     // project can be seen by anyone
@@ -431,11 +429,11 @@ public class SearchActionMediumTest {
       .setScope("PRJ")
       .setParentProjectId(project.getId());
     db.componentDao().insert(session, module);
-    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(module, project));
+    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(module, project, projectSnapshot));
 
     ComponentDto file = ComponentTesting.newFileDto(module).setKey("FileLinkedToModule");
     db.componentDao().insert(session, file);
-    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(file, project));
+    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(file, project, projectSnapshot));
 
     IssueDto issue = IssueTesting.newDto(rule, file, project);
     db.issueDao().insert(session, issue);

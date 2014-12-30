@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.component.SnapshotDto;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
@@ -75,11 +76,12 @@ public class BackendCleanupMediumTest {
 
     project = ComponentTesting.newProjectDto().setKey("MyProject");
     tester.get(ComponentDao.class).insert(session, project);
-    db.snapshotDao().insert(session, SnapshotTesting.createForProject(project));
+    SnapshotDto projectSnapshot = SnapshotTesting.createForProject(project);
+    db.snapshotDao().insert(session, projectSnapshot);
 
     file = ComponentTesting.newFileDto(project).setKey("MyComponent");
     tester.get(ComponentDao.class).insert(session, file);
-    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(file, project));
+    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(file, project, projectSnapshot));
     session.commit();
     // project can be seen by anyone
     MockUserSession.set().setLogin("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
