@@ -129,6 +129,7 @@ class Connectors {
     Connector connector = new Connector(protocol);
     connector.setURIEncoding("UTF-8");
     connector.setProperty("address", props.value("sonar.web.host", "0.0.0.0"));
+    connector.setProperty("socket.soReuseAddress", "true");
     configurePool(props, connector, scheme);
     configureCompression(connector);
     return connector;

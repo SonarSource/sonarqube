@@ -21,6 +21,8 @@ package org.sonar.process;
 
 import org.apache.commons.io.IOUtils;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 
 public class NetworkUtils {
@@ -33,14 +35,18 @@ public class NetworkUtils {
    * Get an unused port
    */
   public static int freePort() {
-    ServerSocket s = null;
-    try {
-      s = new ServerSocket(0);
-      return s.getLocalPort();
-    } catch (Exception e) {
-      throw new IllegalStateException("Can not find an open network port", e);
+    ServerSocket socket = null;
+    try  {
+      socket = new ServerSocket();
+      socket.setReuseAddress(true);
+      socket.bind(new InetSocketAddress(0));
+      return socket.getLocalPort();
+
+    } catch (IOException e) {
+      throw new IllegalStateException("Can not find a free network port", e);
+
     } finally {
-      IOUtils.closeQuietly(s);
+      IOUtils.closeQuietly(socket);
     }
   }
 }
