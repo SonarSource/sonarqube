@@ -108,6 +108,10 @@ public class PropertiesDao implements BatchComponent, ServerComponent, DaoCompon
     }
   }
 
+  public List<PropertyDto> findChildrenModuleProperties(String moduleKey, SqlSession session) {
+    return session.getMapper(PropertiesMapper.class).selectChildrenModuleProperties(moduleKey);
+  }
+
   public PropertyDto selectProjectProperty(long resourceId, String propertyKey) {
     SqlSession session = mybatis.openSession(false);
     PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);

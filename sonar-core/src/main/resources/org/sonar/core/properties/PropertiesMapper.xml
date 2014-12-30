@@ -46,6 +46,14 @@
     <foreach item="propKey" index="index" collection="propKeys" open="(" separator="," close=")">#{propKey}</foreach>
   </select>
 
+  <select id="selectChildrenModuleProperties" parameterType="String" resultType="Property">
+    SELECT prop.id as id, prop.prop_key as "key", prop.text_value as value, prop.resource_id as resourceId, prop.user_id as userId
+    FROM properties prop
+    INNER JOIN (<include refid="org.sonar.core.component.db.SnapshotMapper.selectChildrenModulesFromModuleQuery" />) snapshotModules on snapshotModules.resourceId=prop.resource_id
+    INNER JOIN projects p on p.id = prop.resource_id
+    WHERE prop.user_id IS NULL
+  </select>
+
   <select id="selectByKey" parameterType="map" resultType="Property">
     select p.id as id, p.prop_key as "key", p.text_value as value, p.resource_id as resourceId, p.user_id as userId
     from properties p

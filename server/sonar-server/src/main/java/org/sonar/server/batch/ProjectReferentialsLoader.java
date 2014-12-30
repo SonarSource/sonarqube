@@ -20,7 +20,9 @@
 
 package org.sonar.server.batch;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
@@ -28,6 +30,7 @@ import org.sonar.batch.protocol.input.ProjectReferentials;
 import org.sonar.core.UtcDateUtils;
 import org.sonar.core.component.AuthorizedComponentDto;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.component.ProjectRefentialsComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
@@ -75,22 +78,31 @@ public class ProjectReferentialsLoader implements ServerComponent {
     DbSession session = dbClient.openSession(false);
     try {
       ProjectReferentials ref = new ProjectReferentials();
-      String projectKey = null;
+      String projectKey = query.getModuleKey();
       AuthorizedComponentDto module = dbClient.componentDao().getNullableAuthorizedComponentByKey(query.getModuleKey(), session);
       // Current project/module can be null when analysing a new project
       if (module != null) {
         ComponentDto project = dbClient.componentDao().getNullableRootProjectByKey(query.getModuleKey(), session);
+
         // Can be null if the given project is a provisioned one
         if (project != null) {
           if (!project.key().equals(module.key())) {
             addSettings(ref, module.getKey(), getSettingsFromParents(module.key(), hasScanPerm, session));
+            projectKey = project.key();
           }
-          projectKey = project.key();
-          addSettingsToChildrenModules(ref, query.getModuleKey(), Maps.<String, String>newHashMap(), hasScanPerm, session);
+
+          List<PropertyDto> moduleSettings = dbClient.propertiesDao().selectProjectProperties(query.getModuleKey(), session);
+          List<ProjectRefentialsComponentDto> moduleChildren = dbClient.componentDao().findChildrenModulesFromModule(session, query.getModuleKey());
+          List<PropertyDto> moduleChildrenSettings = newArrayList();
+          if (!moduleChildren.isEmpty()) {
+            moduleChildrenSettings = dbClient.propertiesDao().findChildrenModuleProperties(query.getModuleKey(), session);
+          }
+          TreeModuleSettings treeModuleSettings = new TreeModuleSettings(moduleChildren, moduleChildrenSettings, module, moduleSettings);
+
+          addSettingsToChildrenModules(ref, query.getModuleKey(), Maps.<String, String>newHashMap(), treeModuleSettings, hasScanPerm, session);
         } else {
           // Add settings of the provisioned project
           addSettings(ref, query.getModuleKey(), getPropertiesMap(dbClient.propertiesDao().selectProjectProperties(query.getModuleKey(), session), hasScanPerm));
-          projectKey = query.getModuleKey();
         }
       }
 
@@ -122,15 +134,16 @@ public class ProjectReferentialsLoader implements ServerComponent {
     }
   }
 
-  private void addSettingsToChildrenModules(ProjectReferentials ref, String projectKey, Map<String, String> parentProperties, boolean hasScanPerm, DbSession session) {
+  private void addSettingsToChildrenModules(ProjectReferentials ref, String moduleKey, Map<String, String> parentProperties, TreeModuleSettings treeModuleSettings,
+                                            boolean hasScanPerm, DbSession session) {
     Map<String, String> currentParentProperties = newHashMap();
     currentParentProperties.putAll(parentProperties);
-    currentParentProperties.putAll(getPropertiesMap(dbClient.propertiesDao().selectProjectProperties(projectKey, session), hasScanPerm));
-    addSettings(ref, projectKey, currentParentProperties);
+    currentParentProperties.putAll(getPropertiesMap(treeModuleSettings.findModuleSettings(moduleKey), hasScanPerm));
+    addSettings(ref, moduleKey, currentParentProperties);
 
-    for (ComponentDto module : dbClient.componentDao().findModulesByProject(projectKey, session)) {
-      addSettings(ref, module.key(), currentParentProperties);
-      addSettingsToChildrenModules(ref, module.key(), currentParentProperties, hasScanPerm, session);
+    for (ComponentDto childModule : treeModuleSettings.findChildrenModule(moduleKey)) {
+      addSettings(ref, childModule.getKey(), currentParentProperties);
+      addSettingsToChildrenModules(ref, childModule.getKey(), currentParentProperties, treeModuleSettings, hasScanPerm, session);
     }
   }
 
@@ -140,7 +153,7 @@ public class ProjectReferentialsLoader implements ServerComponent {
     }
   }
 
-  private Map<String, String> getPropertiesMap(List<PropertyDto> propertyDtos, boolean hasScanPerm) {
+  private Map<String, String> getPropertiesMap(List<? extends PropertyDto> propertyDtos, boolean hasScanPerm) {
     Map<String, String> properties = newHashMap();
     for (PropertyDto propertyDto : propertyDtos) {
       String key = propertyDto.getKey();
@@ -218,5 +231,44 @@ public class ProjectReferentialsLoader implements ServerComponent {
       throw new ForbiddenException("You're only authorized to execute a local (dry run) SonarQube analysis without pushing the results to the SonarQube server. " +
         "Please contact your SonarQube administrator.");
     }
+  }
+
+  private static class TreeModuleSettings {
+
+    private Map<String, Long> moduleIdsByKey;
+    private Multimap<Long, PropertyDto> propertiesByModuleId;
+    private Multimap<String, ProjectRefentialsComponentDto> moduleChildrenByModuleKey;
+
+    private TreeModuleSettings(List<ProjectRefentialsComponentDto> moduleChildren, List<PropertyDto> moduleChildrenSettings, AuthorizedComponentDto module, List<PropertyDto> moduleSettings) {
+      propertiesByModuleId = ArrayListMultimap.create();
+      for (PropertyDto settings : moduleChildrenSettings) {
+        propertiesByModuleId.put(settings.getResourceId(), settings);
+      }
+      propertiesByModuleId.putAll(module.getId(), moduleSettings);
+      moduleIdsByKey = newHashMap();
+      for (ProjectRefentialsComponentDto componentDto : moduleChildren) {
+        moduleIdsByKey.put(componentDto.key(), componentDto.getId());
+      }
+      moduleIdsByKey.put(module.key(), module.getId());
+      moduleChildrenByModuleKey = ArrayListMultimap.create();
+      for (ProjectRefentialsComponentDto componentDto : moduleChildren) {
+        String parentModuleKey = componentDto.getParentModuleKey();
+        if (parentModuleKey != null) {
+          moduleChildrenByModuleKey.put(parentModuleKey, componentDto);
+        } else {
+          moduleChildrenByModuleKey.put(module.key(), componentDto);
+        }
+      }
+    }
+
+    private  List<PropertyDto> findModuleSettings(String moduleKey) {
+      Long moduleId = moduleIdsByKey.get(moduleKey);
+      return newArrayList(propertiesByModuleId.get(moduleId));
+    }
+
+    private List<? extends ComponentDto> findChildrenModule(String moduleKey) {
+      return newArrayList(moduleChildrenByModuleKey.get(moduleKey));
+    }
+
   }
 }

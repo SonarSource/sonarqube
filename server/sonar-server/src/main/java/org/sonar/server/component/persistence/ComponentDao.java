@@ -23,6 +23,7 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.System2;
 import org.sonar.core.component.AuthorizedComponentDto;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.component.ProjectRefentialsComponentDto;
 import org.sonar.core.component.db.ComponentMapper;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
@@ -30,6 +31,7 @@ import org.sonar.server.db.BaseDao;
 import org.sonar.server.exceptions.NotFoundException;
 
 import javax.annotation.CheckForNull;
+
 import java.util.List;
 
 /**
@@ -82,6 +84,10 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
 
   public List<ComponentDto> findModulesByProject(String projectKey, DbSession session) {
     return mapper(session).findModulesByProject(projectKey);
+  }
+
+  public List<ProjectRefentialsComponentDto> findChildrenModulesFromModule(DbSession session, String moduleKey) {
+    return mapper(session).findChildrenModulesFromModule(moduleKey);
   }
 
   @CheckForNull

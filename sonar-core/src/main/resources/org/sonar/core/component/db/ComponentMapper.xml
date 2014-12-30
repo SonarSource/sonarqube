@@ -101,6 +101,15 @@
     </where>
   </select>
 
+  <select id="findChildrenModulesFromModule" parameterType="String" resultType="ProjectRefentialsComponent">
+    SELECT <include refid="componentColumns"/>, parent.kee as parentModuleKey
+    FROM projects p
+    INNER JOIN snapshots s ON s.project_id=p.id AND s.islast=${_true}
+    INNER JOIN (<include refid="org.sonar.core.component.db.SnapshotMapper.selectChildrenModulesFromModuleQuery" />) snapshotModules on snapshotModules.resourceId=p.id
+    LEFT OUTER JOIN snapshots parent_snapshot on parent_snapshot.id = snapshotModules.parentId
+    LEFT OUTER JOIN projects parent on parent.id = parent_snapshot.project_id
+  </select>
+
   <sql id="insertColumns">
     (kee, name, long_name, qualifier, scope, language, root_id, path, created_at)
   </sql>

@@ -41,6 +41,8 @@ public interface PropertiesMapper {
 
   List<PropertyDto> selectByQuery(@Param("query") PropertyQuery query);
 
+  List<PropertyDto> selectChildrenModuleProperties(@Param("moduleKey") String moduleKey);
+
   void update(PropertyDto property);
 
   void insert(PropertyDto property);

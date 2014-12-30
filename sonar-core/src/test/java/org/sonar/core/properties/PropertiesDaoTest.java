@@ -144,6 +144,22 @@ public class PropertiesDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void select_children_module_properties() throws Exception {
+    setupData("select_children_module_properties");
+
+    List<PropertyDto> properties = dao.findChildrenModuleProperties("org.struts:struts", session);
+    assertThat(properties.size(), is(3));
+    assertThat(properties).onProperty("key").containsOnly("core.one", "core.two", "data.one");
+    assertThat(properties).onProperty("value").containsOnly("one", "two");
+
+    properties = dao.findChildrenModuleProperties("org.struts:struts-core", session);
+    assertThat(properties.size(), is(1));
+    assertThat(properties).onProperty("key").containsOnly("data.one");
+
+    assertThat(dao.findChildrenModuleProperties("org.struts:struts-data", session).size(), is(0));
+  }
+
+  @Test
   public void selectProjectProperty() {
     setupData("selectProjectProperties");
     PropertyDto property = dao.selectProjectProperty(11L, "commonslang.one");

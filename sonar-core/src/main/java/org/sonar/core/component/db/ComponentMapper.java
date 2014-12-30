@@ -22,6 +22,7 @@ package org.sonar.core.component.db;
 import org.apache.ibatis.annotations.Param;
 import org.sonar.core.component.AuthorizedComponentDto;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.component.ProjectRefentialsComponentDto;
 
 import javax.annotation.CheckForNull;
 
@@ -48,6 +49,11 @@ public interface ComponentMapper {
    * Return direct modules from a project/module
    */
   List<ComponentDto> findModulesByProject(@Param("projectKey") String projectKey);
+
+  /**
+   * Return all modules children (not returning itself) from a module key
+   */
+  List<ProjectRefentialsComponentDto> findChildrenModulesFromModule(@Param("moduleKey") String moduleKey);
 
   long countById(long id);
 
