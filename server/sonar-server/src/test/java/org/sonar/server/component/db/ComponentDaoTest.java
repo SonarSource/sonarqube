@@ -27,7 +27,6 @@ import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.component.ProjectRefentialsComponentDto;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.exceptions.NotFoundException;
@@ -336,16 +335,14 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
     setupData("multi-modules");
 
     // From root project
-    List<ProjectRefentialsComponentDto> modules = dao.findChildrenModulesFromModule(session, "org.struts:struts");
+    List<ComponentDto> modules = dao.findChildrenModulesFromModule(session, "org.struts:struts");
     assertThat(modules).hasSize(2);
     assertThat(modules).onProperty("id").containsOnly(2L, 3L);
-    assertThat(modules).onProperty("parentModuleKey").containsOnly("org.struts:struts", "org.struts:struts-core");
 
     // From module
     modules = dao.findChildrenModulesFromModule(session, "org.struts:struts-core");
     assertThat(modules).hasSize(1);
     assertThat(modules).onProperty("id").containsOnly(3L);
-    assertThat(modules).onProperty("parentModuleKey").containsOnly("org.struts:struts-core");
 
     // From sub module
     modules = dao.findChildrenModulesFromModule(session, "org.struts:struts-data");
