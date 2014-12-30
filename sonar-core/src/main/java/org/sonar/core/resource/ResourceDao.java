@@ -25,6 +25,7 @@ import com.google.common.collect.Lists;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.component.Component;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.component.SnapshotDto;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
@@ -203,7 +204,7 @@ public class ResourceDao implements DaoComponent {
    * Return the root project of a component.
    * Will return the component itself if it's already the root project
    * Can return null if the component does not exists.
-   *
+   * <p/>
    * The implementation should rather use a new column already containing the root project, see https://jira.codehaus.org/browse/SONAR-5188.
    */
   @CheckForNull
@@ -243,7 +244,7 @@ public class ResourceDao implements DaoComponent {
    * Return the root project of a component.
    * Will return the component itself if it's already the root project
    * Can return null if the component that does exists.
-   *
+   * <p/>
    * The implementation should rather use a new column already containing the root project, see https://jira.codehaus.org/browse/SONAR-5188.
    */
   @CheckForNull

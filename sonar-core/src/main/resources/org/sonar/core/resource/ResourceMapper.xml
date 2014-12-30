@@ -36,7 +36,7 @@
     <id property="id" column="id"/>
     <result property="parentId" column="parent_snapshot_id"/>
     <result property="rootId" column="root_snapshot_id"/>
-    <result property="date" column="created_at"/>
+    <result property="createdAt" column="created_at"/>
     <result property="buildDate" column="build_date"/>
     <result property="resourceId" column="project_id"/>
     <result property="status" column="status"/>

@@ -17,11 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.resource;
+package org.sonar.core.component;
+
+import org.sonar.core.persistence.Dto;
 
 import java.util.Date;
 
-public final class SnapshotDto {
+public final class SnapshotDto extends Dto<Long> {
+
+  /**
+   * This status is set on the snapshot at the beginning of the batch
+   */
+  public static final String STATUS_UNPROCESSED = "U";
+  public static final String STATUS_PROCESSED = "P";
 
   private static final String INDEX_SHOULD_BE_IN_RANGE_FROM_1_TO_5 = "Index should be in range from 1 to 5";
 
@@ -30,10 +38,9 @@ public final class SnapshotDto {
   private Long rootId;
   private Long rootProjectId;
 
-  private Date date;
   private Date buildDate;
   private Long resourceId;
-  private String status;
+  private String status = STATUS_UNPROCESSED;
   private Integer purgeStatus;
   private Boolean last;
   private String scope;
@@ -84,15 +91,6 @@ public final class SnapshotDto {
 
   public SnapshotDto setRootId(Long rootId) {
     this.rootId = rootId;
-    return this;
-  }
-
-  public Date getDate() {
-    return date;
-  }
-
-  public SnapshotDto setDate(Date date) {
-    this.date = date;
     return this;
   }
 
@@ -315,4 +313,24 @@ public final class SnapshotDto {
     }
   }
 
+  @Override
+  public Long getKey() {
+    return id;
+  }
+
+  @Override
+  public SnapshotDto setCreatedAt(Date datetime) {
+    super.setCreatedAt(datetime);
+    return this;
+  }
+
+  @Override
+  public SnapshotDto setUpdatedAt(Date datetime) {
+    super.setUpdatedAt(datetime);
+    return this;
+  }
+
+  public Long getRootIdOrSelf() {
+    return getRootId() == null ? getId() : getRootId();
+  }
 }

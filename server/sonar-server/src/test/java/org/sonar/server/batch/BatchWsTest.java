@@ -28,12 +28,8 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.resources.Languages;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.qualityprofile.QProfileFactory;
-import org.sonar.server.qualityprofile.QProfileLoader;
-import org.sonar.server.rule.RuleService;
 import org.sonar.server.ws.WsTester;
 
 import java.io.File;
@@ -61,7 +57,7 @@ public class BatchWsTest {
   public void before() throws IOException {
     tester = new WsTester(new BatchWs(batchIndex,
       new GlobalReferentialsAction(mock(DbClient.class), mock(PropertiesDao.class)),
-      new ProjectReferentialsAction(mock(DbClient.class), mock(PropertiesDao.class), mock(QProfileFactory.class), mock(QProfileLoader.class), mock(RuleService.class), mock(Languages.class))));
+      new ProjectReferentialsAction(mock(ProjectReferentialsLoader.class))));
   }
 
   @Test
