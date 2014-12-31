@@ -28,7 +28,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.component.SnapshotDto;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.server.component.SnapshotTesting;
 
 import java.util.Date;
 import java.util.List;
@@ -36,7 +35,6 @@ import java.util.List;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.server.component.SnapshotTesting.defaultSnapshot;
 
 public class SnapshotDaoTest extends AbstractDaoTestCase {
 
@@ -236,7 +234,7 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void is_last_snapshot_when_no_previous_snapshot() {
-    SnapshotDto snapshot = SnapshotTesting.defaultSnapshot();
+    SnapshotDto snapshot = defaultSnapshot();
 
     boolean isLast = sut.isLast(snapshot, null);
 
@@ -248,8 +246,8 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
     Date today = new Date();
     Date yesterday = DateUtils.addDays(today, -1);
 
-    SnapshotDto snapshot = SnapshotTesting.defaultSnapshot().setCreatedAt(today);
-    SnapshotDto previousLastSnapshot = SnapshotTesting.defaultSnapshot().setCreatedAt(yesterday);
+    SnapshotDto snapshot = defaultSnapshot().setCreatedAt(today);
+    SnapshotDto previousLastSnapshot = defaultSnapshot().setCreatedAt(yesterday);
 
     boolean isLast = sut.isLast(snapshot, previousLastSnapshot);
 
@@ -261,11 +259,43 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
     Date today = new Date();
     Date yesterday = DateUtils.addDays(today, -1);
 
-    SnapshotDto snapshot = SnapshotTesting.defaultSnapshot().setCreatedAt(yesterday);
-    SnapshotDto previousLastSnapshot = SnapshotTesting.defaultSnapshot().setCreatedAt(today);
+    SnapshotDto snapshot = defaultSnapshot().setCreatedAt(yesterday);
+    SnapshotDto previousLastSnapshot = defaultSnapshot().setCreatedAt(today);
 
     boolean isLast = sut.isLast(snapshot, previousLastSnapshot);
 
     assertThat(isLast).isFalse();
+  }
+
+  private static SnapshotDto defaultSnapshot() {
+    return new SnapshotDto()
+      .setResourceId(3L)
+      .setRootProjectId(1L)
+      .setParentId(2L)
+      .setRootId(1L)
+      .setStatus("P")
+      .setLast(true)
+      .setPurgeStatus(1)
+      .setDepth(1)
+      .setScope("DIR")
+      .setQualifier("PAC")
+      .setVersion("2.1-SNAPSHOT")
+      .setPath("1.2.")
+      .setPeriodMode(1, "days1")
+      .setPeriodMode(2, "days2")
+      .setPeriodMode(3, "days3")
+      .setPeriodMode(4, "days4")
+      .setPeriodMode(5, "days5")
+      .setPeriodParam(1, "30")
+      .setPeriodParam(2, "31")
+      .setPeriodParam(3, "32")
+      .setPeriodParam(4, "33")
+      .setPeriodParam(5, "34")
+      .setPeriodDate(1, DateUtils.parseDate("2011-09-24"))
+      .setPeriodDate(2, DateUtils.parseDate("2011-09-25"))
+      .setPeriodDate(3, DateUtils.parseDate("2011-09-26"))
+      .setPeriodDate(4, DateUtils.parseDate("2011-09-27"))
+      .setPeriodDate(5, DateUtils.parseDate("2011-09-28"))
+      .setBuildDate(DateUtils.parseDate("2011-09-29"));
   }
 }

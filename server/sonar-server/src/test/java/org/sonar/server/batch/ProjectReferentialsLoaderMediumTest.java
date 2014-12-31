@@ -150,7 +150,7 @@ public class ProjectReferentialsLoaderMediumTest {
 
     ComponentDto module = ComponentTesting.newModuleDto(project);
     tester.get(DbClient.class).componentDao().insert(dbSession, module);
-    tester.get(DbClient.class).snapshotDao().insert(dbSession, SnapshotTesting.createForComponent(module, project, projectSnapshot));
+    tester.get(DbClient.class).snapshotDao().insert(dbSession, SnapshotTesting.createForComponent(module, projectSnapshot));
 
     // Module properties
     tester.get(DbClient.class).propertiesDao().setProperty(
@@ -190,7 +190,7 @@ public class ProjectReferentialsLoaderMediumTest {
 
     ComponentDto module = ComponentTesting.newModuleDto(project);
     tester.get(DbClient.class).componentDao().insert(dbSession, module);
-    tester.get(DbClient.class).snapshotDao().insert(dbSession, SnapshotTesting.createForComponent(module, project, projectSnapshot));
+    tester.get(DbClient.class).snapshotDao().insert(dbSession, SnapshotTesting.createForComponent(module, projectSnapshot));
 
     // No property on module -> should have the same as project
 
@@ -225,7 +225,7 @@ public class ProjectReferentialsLoaderMediumTest {
 
     ComponentDto module = ComponentTesting.newModuleDto(project);
     tester.get(DbClient.class).componentDao().insert(dbSession, module);
-    SnapshotDto moduleSnapshot = SnapshotTesting.createForComponent(module, project, projectSnapshot);
+    SnapshotDto moduleSnapshot = SnapshotTesting.createForComponent(module, projectSnapshot);
     tester.get(DbClient.class).snapshotDao().insert(dbSession, moduleSnapshot);
 
     // Module properties
@@ -236,7 +236,7 @@ public class ProjectReferentialsLoaderMediumTest {
 
     ComponentDto subModule = ComponentTesting.newModuleDto(module);
     tester.get(DbClient.class).componentDao().insert(dbSession, subModule);
-    tester.get(DbClient.class).snapshotDao().insert(dbSession, SnapshotTesting.createForComponent(subModule, module, moduleSnapshot));
+    tester.get(DbClient.class).snapshotDao().insert(dbSession, SnapshotTesting.createForComponent(subModule, moduleSnapshot));
 
     // Sub module properties
     tester.get(DbClient.class).propertiesDao().setProperty(
@@ -277,7 +277,7 @@ public class ProjectReferentialsLoaderMediumTest {
 
     ComponentDto module1 = ComponentTesting.newModuleDto(project);
     tester.get(DbClient.class).componentDao().insert(dbSession, module1);
-    tester.get(DbClient.class).snapshotDao().insert(dbSession, SnapshotTesting.createForComponent(module1, project, projectSnapshot));
+    tester.get(DbClient.class).snapshotDao().insert(dbSession, SnapshotTesting.createForComponent(module1, projectSnapshot));
 
     // Module 1 properties
     tester.get(DbClient.class).propertiesDao().setProperty(new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR-SERVER").setResourceId(module1.getId()), dbSession);
@@ -286,7 +286,7 @@ public class ProjectReferentialsLoaderMediumTest {
 
     ComponentDto module2 = ComponentTesting.newModuleDto(project);
     tester.get(DbClient.class).componentDao().insert(dbSession, module2);
-    tester.get(DbClient.class).snapshotDao().insert(dbSession, SnapshotTesting.createForComponent(module2, project, projectSnapshot));
+    tester.get(DbClient.class).snapshotDao().insert(dbSession, SnapshotTesting.createForComponent(module2, projectSnapshot));
 
     // Module 2 property
     tester.get(DbClient.class).propertiesDao().setProperty(new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR-APPLICATION").setResourceId(module2.getId()), dbSession);
@@ -344,13 +344,13 @@ public class ProjectReferentialsLoaderMediumTest {
 
     ComponentDto module = ComponentTesting.newModuleDto(project);
     tester.get(DbClient.class).componentDao().insert(dbSession, module);
-    SnapshotDto moduleSnapshot = SnapshotTesting.createForComponent(module, project, projectSnapshot);
+    SnapshotDto moduleSnapshot = SnapshotTesting.createForComponent(module, projectSnapshot);
     tester.get(DbClient.class).snapshotDao().insert(dbSession, moduleSnapshot);
     // No module properties
 
     ComponentDto subModule = ComponentTesting.newModuleDto(module);
     tester.get(DbClient.class).componentDao().insert(dbSession, subModule);
-    tester.get(DbClient.class).snapshotDao().insert(dbSession, SnapshotTesting.createForComponent(subModule, module, moduleSnapshot));
+    tester.get(DbClient.class).snapshotDao().insert(dbSession, SnapshotTesting.createForComponent(subModule, moduleSnapshot));
 
     // Sub module properties
     tester.get(DbClient.class).propertiesDao().setProperty(new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR").setResourceId(subModule.getId()), dbSession);
@@ -384,7 +384,7 @@ public class ProjectReferentialsLoaderMediumTest {
 
     ComponentDto module = ComponentTesting.newModuleDto(project);
     tester.get(DbClient.class).componentDao().insert(dbSession, module);
-    SnapshotDto moduleSnapshot = SnapshotTesting.createForComponent(module, project, projectSnapshot);
+    SnapshotDto moduleSnapshot = SnapshotTesting.createForComponent(module, projectSnapshot);
     tester.get(DbClient.class).snapshotDao().insert(dbSession, moduleSnapshot);
 
     // Module property
@@ -392,7 +392,7 @@ public class ProjectReferentialsLoaderMediumTest {
 
     ComponentDto subModule = ComponentTesting.newModuleDto(module);
     tester.get(DbClient.class).componentDao().insert(dbSession, subModule);
-    tester.get(DbClient.class).snapshotDao().insert(dbSession, SnapshotTesting.createForComponent(subModule, module, moduleSnapshot));
+    tester.get(DbClient.class).snapshotDao().insert(dbSession, SnapshotTesting.createForComponent(subModule, moduleSnapshot));
 
     // Sub module properties
     tester.get(DbClient.class).propertiesDao().setProperty(new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java").setResourceId(subModule.getId()), dbSession);
@@ -426,13 +426,13 @@ public class ProjectReferentialsLoaderMediumTest {
 
     ComponentDto module = ComponentTesting.newModuleDto(project);
     tester.get(DbClient.class).componentDao().insert(dbSession, module);
-    SnapshotDto moduleSnapshot = SnapshotTesting.createForComponent(module, project, projectSnapshot);
+    SnapshotDto moduleSnapshot = SnapshotTesting.createForComponent(module, projectSnapshot);
     tester.get(DbClient.class).snapshotDao().insert(dbSession, moduleSnapshot);
     // No module property
 
     ComponentDto subModule = ComponentTesting.newModuleDto(module);
     tester.get(DbClient.class).componentDao().insert(dbSession, subModule);
-    tester.get(DbClient.class).snapshotDao().insert(dbSession, SnapshotTesting.createForComponent(subModule, module, moduleSnapshot));
+    tester.get(DbClient.class).snapshotDao().insert(dbSession, SnapshotTesting.createForComponent(subModule, moduleSnapshot));
     // No sub module property
 
     dbSession.commit();
@@ -463,7 +463,7 @@ public class ProjectReferentialsLoaderMediumTest {
 
     ComponentDto module = ComponentTesting.newModuleDto(project);
     tester.get(DbClient.class).componentDao().insert(dbSession, module);
-    SnapshotDto moduleSnapshot = SnapshotTesting.createForComponent(module, project, projectSnapshot);
+    SnapshotDto moduleSnapshot = SnapshotTesting.createForComponent(module, projectSnapshot);
     tester.get(DbClient.class).snapshotDao().insert(dbSession, moduleSnapshot);
 
     // Module property
@@ -471,7 +471,7 @@ public class ProjectReferentialsLoaderMediumTest {
 
     ComponentDto subModule = ComponentTesting.newModuleDto(module);
     tester.get(DbClient.class).componentDao().insert(dbSession, subModule);
-    tester.get(DbClient.class).snapshotDao().insert(dbSession, SnapshotTesting.createForComponent(subModule, module, moduleSnapshot));
+    tester.get(DbClient.class).snapshotDao().insert(dbSession, SnapshotTesting.createForComponent(subModule, moduleSnapshot));
     // No sub module property
 
     dbSession.commit();

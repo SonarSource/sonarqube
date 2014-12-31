@@ -20,7 +20,6 @@
 
 package org.sonar.server.component;
 
-import org.sonar.api.utils.DateUtils;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.SnapshotDto;
 
@@ -31,7 +30,7 @@ public class SnapshotTesting {
   /**
    * Can be used for modules and files
    */
-  public static SnapshotDto createForComponent(ComponentDto component, ComponentDto parentProject, SnapshotDto parentSnapshot) {
+  public static SnapshotDto createForComponent(ComponentDto component, SnapshotDto parentSnapshot) {
     Long parentRootId = parentSnapshot.getRootId();
     return new SnapshotDto()
       .setResourceId(component.getId())
@@ -58,35 +57,4 @@ public class SnapshotTesting {
       .setBuildDate(new Date());
   }
 
-  public static SnapshotDto defaultSnapshot() {
-    return new SnapshotDto()
-      .setResourceId(3L)
-      .setRootProjectId(1L)
-      .setParentId(2L)
-      .setRootId(1L)
-      .setStatus("P")
-      .setLast(true)
-      .setPurgeStatus(1)
-      .setDepth(1)
-      .setScope("DIR")
-      .setQualifier("PAC")
-      .setVersion("2.1-SNAPSHOT")
-      .setPath("1.2.")
-      .setPeriodMode(1, "days1")
-      .setPeriodMode(2, "days2")
-      .setPeriodMode(3, "days3")
-      .setPeriodMode(4, "days4")
-      .setPeriodMode(5, "days5")
-      .setPeriodParam(1, "30")
-      .setPeriodParam(2, "31")
-      .setPeriodParam(3, "32")
-      .setPeriodParam(4, "33")
-      .setPeriodParam(5, "34")
-      .setPeriodDate(1, DateUtils.parseDate("2011-09-24"))
-      .setPeriodDate(2, DateUtils.parseDate("2011-09-25"))
-      .setPeriodDate(3, DateUtils.parseDate("2011-09-26"))
-      .setPeriodDate(4, DateUtils.parseDate("2011-09-27"))
-      .setPeriodDate(5, DateUtils.parseDate("2011-09-28"))
-      .setBuildDate(DateUtils.parseDate("2011-09-29"));
-  }
 }

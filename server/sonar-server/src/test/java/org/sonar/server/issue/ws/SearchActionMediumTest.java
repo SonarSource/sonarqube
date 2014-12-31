@@ -429,11 +429,11 @@ public class SearchActionMediumTest {
       .setScope("PRJ")
       .setParentProjectId(project.getId());
     db.componentDao().insert(session, module);
-    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(module, project, projectSnapshot));
+    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(module, projectSnapshot));
 
     ComponentDto file = ComponentTesting.newFileDto(module).setKey("FileLinkedToModule");
     db.componentDao().insert(session, file);
-    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(file, project, projectSnapshot));
+    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(file, projectSnapshot));
 
     IssueDto issue = IssueTesting.newDto(rule, file, project);
     db.issueDao().insert(session, issue);

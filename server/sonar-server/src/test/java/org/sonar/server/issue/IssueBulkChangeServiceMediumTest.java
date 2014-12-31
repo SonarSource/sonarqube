@@ -90,7 +90,7 @@ public class IssueBulkChangeServiceMediumTest {
 
     file = ComponentTesting.newFileDto(project).setKey("MyComponent");
     tester.get(ComponentDao.class).insert(session, file);
-    tester.get(SnapshotDao.class).insert(session, SnapshotTesting.createForComponent(file, project, projectSnapshot));
+    tester.get(SnapshotDao.class).insert(session, SnapshotTesting.createForComponent(file, projectSnapshot));
 
     // project can be seen by anyone
     session.commit();
