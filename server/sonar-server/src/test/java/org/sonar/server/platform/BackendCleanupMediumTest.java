@@ -81,7 +81,7 @@ public class BackendCleanupMediumTest {
 
     file = ComponentTesting.newFileDto(project).setKey("MyComponent");
     tester.get(ComponentDao.class).insert(session, file);
-    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(file, project, projectSnapshot));
+    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(file, projectSnapshot));
     session.commit();
     // project can be seen by anyone
     MockUserSession.set().setLogin("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
