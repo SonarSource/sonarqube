@@ -1,8 +1,9 @@
 define([
   'components/navigator/workspace-list-view',
+  'templates/coding-rules',
   'coding-rules/workspace-list-item-view',
-  'templates/coding-rules'
-], function (WorkspaceListView, WorkspaceListItemView, Templates) {
+  'coding-rules/workspace-list-empty-view'
+], function (WorkspaceListView, Templates, WorkspaceListItemView, WorkspaceListEmptyView) {
 
   var $ = jQuery;
 
@@ -10,6 +11,7 @@ define([
     template: Templates['coding-rules-workspace-list'],
     itemView: WorkspaceListItemView,
     itemViewContainer: '.js-list',
+    emptyView: WorkspaceListEmptyView,
 
     events: function () {
       return {
