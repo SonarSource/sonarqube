@@ -43,6 +43,8 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public class SourceService implements ServerComponent {
 
+  private static final int THREE_THOUSAND_LINES_SIZE = 3000 * 20;
+
   private final DbClient dbClient;
   private final SnapshotSourceDao snapshotSourceDao;
   private final HtmlSourceDecorator sourceDecorator;
@@ -119,7 +121,7 @@ public class SourceService implements ServerComponent {
   }
 
   private static boolean sizeBiggerThan3000Lines (String source){
-    return source.length() > 120000;
+    return source.length() > THREE_THOUSAND_LINES_SIZE;
   }
 
   private static List<String> getLinesAsTxt(@Nullable String source) {

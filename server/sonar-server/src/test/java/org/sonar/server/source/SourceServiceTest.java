@@ -170,7 +170,7 @@ public class SourceServiceTest {
   public void return_txt_when_source_is_too_big() throws Exception {
     MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
 
-    when(snapshotSourceDao.selectSnapshotSourceByComponentKey(COMPONENT_KEY, session)).thenReturn(Strings.repeat("a\n", 130000));
+    when(snapshotSourceDao.selectSnapshotSourceByComponentKey(COMPONENT_KEY, session)).thenReturn(Strings.repeat("a\n", 70000));
 
     List<String> lines = service.getLinesAsHtml(COMPONENT_KEY);
     assertThat(lines).isNotEmpty();
