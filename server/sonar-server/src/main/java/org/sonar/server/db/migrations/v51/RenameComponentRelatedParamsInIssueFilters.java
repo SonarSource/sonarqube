@@ -35,6 +35,8 @@ import java.util.List;
 public class RenameComponentRelatedParamsInIssueFilters extends BaseDataChange {
 
   private static final char FIELD_SEPARATOR = '|';
+  private static final String LIKE_PREFIX = "data like '%";
+  private static final String LIKE_SUFFIX = "%' or ";
   private static final String COMPONENTS = "components=";
   private static final String PROJECTS = "projects=";
   private static final String COMPONENT_ROOTS = "componentRoots=";
@@ -52,35 +54,43 @@ public class RenameComponentRelatedParamsInIssueFilters extends BaseDataChange {
     final Date now = new Date(system.now());
     MassUpdate massUpdate = context.prepareMassUpdate();
     massUpdate.select("select id,data from issue_filters where " +
-      "data like '%" + COMPONENTS + "%' or " +
-      "data like '%" + PROJECTS + "%' or " +
-      "data like '%" + COMPONENT_ROOTS + "%' or " +
-      "data like '%" + COMPONENT_ROOT_UUIDS + "%'");
+      LIKE_PREFIX + COMPONENTS + LIKE_SUFFIX +
+      LIKE_PREFIX + PROJECTS + LIKE_SUFFIX +
+      LIKE_PREFIX + COMPONENT_ROOTS + LIKE_SUFFIX +
+      LIKE_PREFIX + COMPONENT_ROOT_UUIDS + "%'");
     massUpdate.update("update issue_filters set data=?, updated_at=? where id=?");
     massUpdate.rowPluralName("issue filters");
-    massUpdate.execute(new MassUpdate.Handler() {
-      @Override
-      public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
-        String data = row.getString(2);
-        String[] fields = StringUtils.split(data, FIELD_SEPARATOR);
+    massUpdate.execute(new RenameComponentRelatedParamsHandler(now));
+  }
 
-        List<String> fieldsToKeep = Lists.newArrayList();
-        for (String field : fields) {
-          if (field.startsWith(COMPONENTS) || field.startsWith(PROJECTS) || field.startsWith(COMPONENT_ROOTS) || field.startsWith(COMPONENT_ROOT_UUIDS)) {
-            fieldsToKeep.add(
-              field.replace(COMPONENTS, "componentKeys=")
-                .replace(PROJECTS, "projectKeys=")
-                .replace(COMPONENT_ROOTS, "moduleKeys=")
-                .replace(COMPONENT_ROOT_UUIDS, "moduleUuids="));
-          } else {
-            fieldsToKeep.add(field);
-          }
+  private static final class RenameComponentRelatedParamsHandler implements MassUpdate.Handler {
+    private final Date now;
+
+    private RenameComponentRelatedParamsHandler(Date now) {
+      this.now = now;
+    }
+
+    @Override
+    public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
+      String data = row.getString(2);
+      String[] fields = StringUtils.split(data, FIELD_SEPARATOR);
+
+      List<String> fieldsToKeep = Lists.newArrayList();
+      for (String field : fields) {
+        if (field.startsWith(COMPONENTS) || field.startsWith(PROJECTS) || field.startsWith(COMPONENT_ROOTS) || field.startsWith(COMPONENT_ROOT_UUIDS)) {
+          fieldsToKeep.add(
+            field.replace(COMPONENTS, "componentKeys=")
+              .replace(PROJECTS, "projectKeys=")
+              .replace(COMPONENT_ROOTS, "moduleKeys=")
+              .replace(COMPONENT_ROOT_UUIDS, "moduleUuids="));
+        } else {
+          fieldsToKeep.add(field);
         }
-        update.setString(1, StringUtils.join(fieldsToKeep, FIELD_SEPARATOR));
-        update.setDate(2, now);
-        update.setLong(3, row.getLong(1));
-        return true;
       }
-    });
+      update.setString(1, StringUtils.join(fieldsToKeep, FIELD_SEPARATOR));
+      update.setDate(2, now);
+      update.setLong(3, row.getLong(1));
+      return true;
+    }
   }
 }
