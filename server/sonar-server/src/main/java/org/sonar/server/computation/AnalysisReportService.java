@@ -86,8 +86,9 @@ public class AnalysisReportService implements ServerComponent {
     AnalysisReportDto report = context.getReportDto();
 
     File decompressedDirectory = dbClient.analysisReportDao().getDecompressedReport(session, report.getId());
+    String path = decompressedDirectory == null ? "no path" : decompressedDirectory.getAbsolutePath();
     context.setReportDirectory(decompressedDirectory);
-    LOG.info(String.format("report decompressed at '%s'", decompressedDirectory.getAbsolutePath()));
+    LOG.info(String.format("report decompressed at '%s'", path));
   }
 
   @VisibleForTesting
@@ -126,7 +127,7 @@ public class AnalysisReportService implements ServerComponent {
     ReportComponent component = context.getComponentByBatchId(issue.componentBatchId());
     DefaultIssue defaultIssue = new DefaultIssue();
     defaultIssue.setKey(issue.key());
-    defaultIssue.setComponentId(Long.valueOf(component.id()));
+    defaultIssue.setComponentId((long) component.id());
     defaultIssue.setRuleKey(RuleKey.of(issue.ruleRepo(), issue.ruleKey()));
     defaultIssue.setSeverity(issue.severity());
     defaultIssue.setManualSeverity(issue.isManualSeverity());
