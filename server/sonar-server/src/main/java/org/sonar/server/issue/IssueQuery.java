@@ -66,6 +66,7 @@ public class IssueQuery {
   private final Collection<String> assignees;
   private final Collection<String> languages;
   private final Collection<String> tags;
+  private final Boolean onComponentOnly;
   private final Boolean assigned;
   private final Boolean planned;
   private final Boolean resolved;
@@ -91,6 +92,7 @@ public class IssueQuery {
     this.assignees = defaultCollection(builder.assignees);
     this.languages = defaultCollection(builder.languages);
     this.tags = defaultCollection(builder.tags);
+    this.onComponentOnly = builder.onComponentOnly;
     this.assigned = builder.assigned;
     this.planned = builder.planned;
     this.resolved = builder.resolved;
@@ -153,6 +155,11 @@ public class IssueQuery {
 
   public Collection<String> tags() {
     return tags;
+  }
+
+  @CheckForNull
+  public Boolean onComponentOnly() {
+    return onComponentOnly;
   }
 
   @CheckForNull
@@ -231,6 +238,7 @@ public class IssueQuery {
     private Collection<String> assignees;
     private Collection<String> languages;
     private Collection<String> tags;
+    private Boolean onComponentOnly = false;
     private Boolean assigned = null;
     private Boolean planned = null;
     private Boolean resolved = null;
@@ -307,6 +315,15 @@ public class IssueQuery {
 
     public Builder tags(@Nullable Collection<String> t) {
       this.tags = t;
+      return this;
+    }
+
+    /**
+     * If true, it will return only issues on the passed component(s)
+     * If false, it will return all issues on the passed component(s) and their descendants
+     */
+    public Builder onComponentOnly(@Nullable Boolean b) {
+      this.onComponentOnly = b;
       return this;
     }
 

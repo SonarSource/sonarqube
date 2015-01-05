@@ -29,7 +29,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.component.ComponentService;
 import org.sonar.server.component.db.ComponentDao;
@@ -98,6 +97,7 @@ public class IssueQueryServiceTest {
     map.put("assignees", newArrayList("joanna"));
     map.put("languages", newArrayList("xoo"));
     map.put("tags", newArrayList("tag1", "tag2"));
+    map.put("onComponentOnly", true);
     map.put("assigned", true);
     map.put("planned", true);
     map.put("hideRules", true);
@@ -122,6 +122,7 @@ public class IssueQueryServiceTest {
     assertThat(query.assignees()).containsOnly("joanna");
     assertThat(query.languages()).containsOnly("xoo");
     assertThat(query.tags()).containsOnly("tag1", "tag2");
+    assertThat(query.onComponentOnly()).isTrue();
     assertThat(query.assigned()).isTrue();
     assertThat(query.planned()).isTrue();
     assertThat(query.hideRules()).isTrue();
