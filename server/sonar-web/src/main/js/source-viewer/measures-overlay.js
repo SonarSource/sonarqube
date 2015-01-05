@@ -9,6 +9,7 @@ define([
   return Overlay.extend({
     className: 'overlay-popup source-viewer-measures-overlay',
     template: Templates['source-viewer-measures'],
+    testsOrder: ['ERROR', 'FAILURE', 'OK', 'SKIPPED'],
 
     events: function () {
       return _.extend(Overlay.prototype.events.apply(this, arguments), {
@@ -105,7 +106,7 @@ define([
         var measuresList = data[0].msr || [],
             measures = that.model.get('measures') || {};
         measuresList.forEach(function (m) {
-          var metric = _.findWhere(metrics, {key: m.key});
+          var metric = _.findWhere(metrics, { key: m.key });
           metric.value = m.frmt_val || m.data;
           measures[m.key] = m.frmt_val || m.data;
           measures[m.key + '_raw'] = m.val;
@@ -154,14 +155,14 @@ define([
     requestTests: function () {
       var that = this,
           url = baseUrl + '/api/tests/show',
-          options = {key: this.model.key()};
+          options = { key: this.model.key() };
       return $.get(url, options).done(function (data) {
-        that.model.set({tests: data.tests});
-        that.sortTests(function (test) {
-          return test.status + '_______' + test.name;
-        });
+        that.model.set({ tests: data.tests });
         that.testSorting = 'status';
         that.testAsc = true;
+        that.sortTests(function (test) {
+          return '' + that.testsOrder.indexOf(test.status) + '_______' + test.name;
+        });
       });
     },
 
@@ -195,11 +196,12 @@ define([
     },
 
     sortTestsByStatus: function () {
+      var that = this;
       if (this.testSorting === 'status') {
         this.testAsc = !this.testAsc;
       }
       this.sortTests(function (test) {
-        return test.status + '_______' + test.name;
+        return '' + that.testsOrder.indexOf(test.status) + '_______' + test.name;
       });
       this.testSorting = 'status';
       this.render();
@@ -216,7 +218,7 @@ define([
           };
       return $.get(url, options).done(function (data) {
         that.coveredFiles = data.files;
-        that.selectedTest = _.findWhere(that.model.get('tests'), {name: name});
+        that.selectedTest = _.findWhere(that.model.get('tests'), { name: name });
         that.render();
         window.process.finishBackgroundProcess(p);
       });
