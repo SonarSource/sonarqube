@@ -204,7 +204,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
 
   private void addComponentRelatedParams(WebService.NewAction action) {
     action.createParam(IssueFilterParameters.COMPONENT_KEYS)
-      .setDescription("To retrieve issues associated to a specific list of components (comma-separated list of component keys). " +
+      .setDescription("To retrieve issues associated to a specific list of components and their sub-components (comma-separated list of component keys). " +
         "A component can be a project, module, directory or file." +
         "If this parameter is set, componentUuids must not be set.")
       .setDeprecatedKey(IssueFilterParameters.COMPONENTS)
@@ -212,7 +212,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
     action.createParam(IssueFilterParameters.COMPONENTS)
       .setDescription("Deprecated since 5.1. See componentKeys.");
     action.createParam(IssueFilterParameters.COMPONENT_UUIDS)
-      .setDescription("To retrieve issues associated to a specific list of components (comma-separated list of component UUIDs). " +
+      .setDescription("To retrieve issues associated to a specific list of components and their sub-components (comma-separated list of component UUIDs). " +
         INTERNAL_PARAMETER_DISCLAIMER +
         "A component can be a project, module, directory or file." +
         "If this parameter is set, componentKeys must not be set.")
@@ -243,7 +243,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       .setDeprecatedKey(IssueFilterParameters.COMPONENT_ROOTS)
       .setExampleValue("org.apache.struts:struts");
     action.createParam(IssueFilterParameters.MODULE_UUIDS)
-      .setDescription("To retrieve issues associated to a specific list of components and their sub-components (comma-separated list of component UUIDs). " +
+      .setDescription("To retrieve issues associated to a specific list of modules (comma-separated list of module UUIDs). " +
         INTERNAL_PARAMETER_DISCLAIMER +
         "Views are not supported. If this parameter is set, moduleKeys must not be set.")
       .setDeprecatedKey(IssueFilterParameters.COMPONENT_ROOT_UUIDS)
