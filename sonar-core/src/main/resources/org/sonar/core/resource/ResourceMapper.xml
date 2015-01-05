@@ -209,9 +209,10 @@
 
   <insert id="insert" parameterType="Resource" keyColumn="id" useGeneratedKeys="true" keyProperty="id" >
     insert into projects
-    (uuid, project_uuid, name, long_name, description, scope, qualifier, kee, deprecated_kee, path, language, root_id, copy_resource_id, person_id, enabled, authorization_updated_at, created_at)
+    (uuid, project_uuid, module_uuid, module_uuid_path, name, long_name, description, scope, qualifier, kee, deprecated_kee, path, language, root_id, copy_resource_id, person_id,
+    enabled, authorization_updated_at, created_at)
     values (
-    #{uuid}, #{projectUuid}, #{name}, #{longName}, #{description}, #{scope}, #{qualifier},
+    #{uuid}, #{projectUuid}, #{moduleUuid}, #{moduleUuidPath}, #{name}, #{longName}, #{description}, #{scope}, #{qualifier},
     #{key}, #{deprecatedKey}, #{path}, #{language}, #{rootId}, #{copyResourceId},
     #{personId}, #{enabled}, #{authorizationUpdatedAt}, #{createdAt}
     )

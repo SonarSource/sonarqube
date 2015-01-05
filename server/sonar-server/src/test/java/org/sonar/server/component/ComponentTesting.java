@@ -54,7 +54,7 @@ public class ComponentTesting {
       .setUuid(Uuids.create())
       .setProjectUuid(subProjectOrProject.projectUuid())
       .setModuleUuid(subProjectOrProject.uuid())
-      .setModuleUuidPath(subProjectOrProject.moduleUuidPath() == null ? subProjectOrProject.uuid() + "." : subProjectOrProject.moduleUuidPath() + subProjectOrProject.uuid() + ".")
+      .setModuleUuidPath(subProjectOrProject.moduleUuidPath() == null ? subProjectOrProject.uuid() : subProjectOrProject.moduleUuidPath() + "." + subProjectOrProject.uuid())
       .setKey("KEY_" + uuid)
       .setName("NAME_" + uuid)
       .setLongName("LONG_NAME_" + uuid)
