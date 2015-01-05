@@ -8,7 +8,7 @@ define([
 
   return Controller.extend({
     allFacets: ['q', 'languages', 'repositories', 'tags', 'qprofile', 'debt_characteristics', 'severities', 'statuses',
-                'available_since', 'inheritance', 'active_severities'],
+                'available_since', 'inheritance', 'active_severities', 'is_template'],
     facetsFromServer: ['languages', 'repositories', 'tags'],
     pageSize: 200,
     ruleFields: ['name', 'lang', 'langName', 'sysTags', 'tags', 'status'],

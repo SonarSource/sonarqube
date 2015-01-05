@@ -10,7 +10,8 @@ define([
       'coding-rules/facets/status-facet',
       'coding-rules/facets/available-since-facet',
       'coding-rules/facets/inheritance-facet',
-      'coding-rules/facets/active-severity-facet'
+      'coding-rules/facets/active-severity-facet',
+      'coding-rules/facets/template-facet'
     ],
     function (FacetsView,
               BaseFacet,
@@ -23,7 +24,8 @@ define([
               StatusFacet,
               AvailableSinceFacet,
               InheritanceFacet,
-              ActiveSeverityFacet) {
+              ActiveSeverityFacet,
+              TemplateFacet) {
 
       var viewsMapping = {
         q: QueryFacet,
@@ -35,7 +37,8 @@ define([
         statuses: StatusFacet,
         available_since: AvailableSinceFacet,
         inheritance: InheritanceFacet,
-        active_severities: ActiveSeverityFacet
+        active_severities: ActiveSeverityFacet,
+        is_template: TemplateFacet
       };
 
       return FacetsView.extend({
