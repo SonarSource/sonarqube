@@ -57,6 +57,6 @@ public class DataCleanerStepTest {
     sut.execute(mock(DbSession.class), context);
 
     verify(projectCleaner).purge(any(DbSession.class), any(IdUuidPair.class));
-    // verify(reportService).clean(any(File.class));
+    // verify(reportService).deleteDirectory(any(File.class));
   }
 }

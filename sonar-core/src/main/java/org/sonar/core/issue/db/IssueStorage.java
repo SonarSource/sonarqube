@@ -74,7 +74,7 @@ public abstract class IssueStorage {
     // Batch session can not be used for updates. It does not return the number of updated rows,
     // required for detecting conflicts.
     long now = System.currentTimeMillis();
-    List<DefaultIssue> toBeUpdated = batchInsert(session, issues, now);
+    List<DefaultIssue> toBeUpdated = batchInsertAndReturnIssuesToUpdate(session, issues, now);
     update(toBeUpdated, now);
     doAfterSave();
   }
@@ -83,7 +83,7 @@ public abstract class IssueStorage {
     // overridden on server-side to index ES
   }
 
-  private List<DefaultIssue> batchInsert(DbSession session, Iterable<DefaultIssue> issues, long now) {
+  private List<DefaultIssue> batchInsertAndReturnIssuesToUpdate(DbSession session, Iterable<DefaultIssue> issues, long now) {
     List<DefaultIssue> toBeUpdated = newArrayList();
     int count = 0;
     IssueChangeMapper issueChangeMapper = session.getMapper(IssueChangeMapper.class);

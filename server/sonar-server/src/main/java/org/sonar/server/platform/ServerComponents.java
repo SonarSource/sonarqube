@@ -644,6 +644,7 @@ class ServerComponents {
     pico.addSingleton(ProjectCleaner.class);
     pico.addSingleton(ProjectSettingsFactory.class);
     pico.addSingleton(IndexPurgeListener.class);
+    pico.addSingleton(ComputeEngineIssueStorageFactory.class);
 
     for (Object components : level4AddedComponents) {
       pico.addSingleton(components);
