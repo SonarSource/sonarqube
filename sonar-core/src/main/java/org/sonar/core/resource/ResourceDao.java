@@ -158,6 +158,7 @@ public class ResourceDao implements DaoComponent {
             String uuid = Uuids.create();
             resource.setUuid(uuid);
             resource.setProjectUuid(uuid);
+            resource.setModuleUuidPath("");
           }
           resource.setCreatedAt(now);
           resource.setAuthorizationUpdatedAt(now.getTime());

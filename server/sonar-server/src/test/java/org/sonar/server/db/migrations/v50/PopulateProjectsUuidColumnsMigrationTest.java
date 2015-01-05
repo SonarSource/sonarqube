@@ -73,7 +73,7 @@ public class PopulateProjectsUuidColumnsMigrationTest {
     assertThat(root.getUuid()).isNotNull();
     assertThat(root.getProjectUuid()).isEqualTo(root.getUuid());
     assertThat(root.getModuleUuid()).isNull();
-    assertThat(root.getModuleUuidPath()).isNull();
+    assertThat(root.getModuleUuidPath()).isEmpty();
 
     Component module = mapper.selectComponentByKey("org.struts:struts-core");
     assertThat(module.getUuid()).isNotNull();
@@ -114,7 +114,7 @@ public class PopulateProjectsUuidColumnsMigrationTest {
     assertThat(root.getUuid()).isEqualTo("ABCD");
     assertThat(root.getProjectUuid()).isEqualTo("ABCD");
     assertThat(root.getModuleUuid()).isNull();
-    assertThat(root.getModuleUuidPath()).isNull();
+    assertThat(root.getModuleUuidPath()).isEmpty();
 
     Component module = mapper.selectComponentByKey("org.struts:struts-core");
     assertThat(module.getUuid()).isEqualTo("BCDE");
@@ -162,28 +162,28 @@ public class PopulateProjectsUuidColumnsMigrationTest {
     assertThat(module.getProjectUuid()).isEqualTo(root.getUuid());
     // Module and module path will always be null for removed components
     assertThat(module.getModuleUuid()).isNull();
-    assertThat(module.getModuleUuidPath()).isNull();
+    assertThat(module.getModuleUuidPath()).isEmpty();
 
     Component subModule = mapper.selectComponentByKey("org.struts:struts-db");
     assertThat(subModule.getUuid()).isNotNull();
     assertThat(subModule.getProjectUuid()).isEqualTo(root.getUuid());
     // Module and module path will always be null for removed components
     assertThat(subModule.getModuleUuid()).isNull();
-    assertThat(subModule.getModuleUuidPath()).isNull();
+    assertThat(subModule.getModuleUuidPath()).isEmpty();
 
     Component directory = mapper.selectComponentByKey("org.struts:struts-core:src/org/struts");
     assertThat(directory.getUuid()).isNotNull();
     assertThat(directory.getProjectUuid()).isEqualTo(root.getUuid());
     // Module and module path will always be null for removed components
     assertThat(directory.getModuleUuid()).isNull();
-    assertThat(directory.getModuleUuidPath()).isNull();
+    assertThat(directory.getModuleUuidPath()).isEmpty();
 
     Component file = mapper.selectComponentByKey("org.struts:struts-core:src/org/struts/RequestContext.java");
     assertThat(file.getUuid()).isNotNull();
     assertThat(file.getProjectUuid()).isEqualTo(root.getUuid());
     // Module and module path will always be null for removed components
     assertThat(file.getModuleUuid()).isNull();
-    assertThat(file.getModuleUuidPath()).isNull();
+    assertThat(file.getModuleUuidPath()).isEmpty();
   }
 
   @Test
@@ -197,7 +197,7 @@ public class PopulateProjectsUuidColumnsMigrationTest {
     assertThat(root.getUuid()).isNotNull();
     assertThat(root.getProjectUuid()).isEqualTo(root.getUuid());
     assertThat(root.getModuleUuid()).isNull();
-    assertThat(root.getModuleUuidPath()).isNull();
+    assertThat(root.getModuleUuidPath()).isEmpty();
   }
 
   @Test
@@ -211,7 +211,7 @@ public class PopulateProjectsUuidColumnsMigrationTest {
     assertThat(root.getUuid()).isNotNull();
     assertThat(root.getProjectUuid()).isEqualTo(root.getUuid());
     assertThat(root.getModuleUuid()).isNull();
-    assertThat(root.getModuleUuidPath()).isNull();
+    assertThat(root.getModuleUuidPath()).isEmpty();
   }
 
   @Test
@@ -225,7 +225,7 @@ public class PopulateProjectsUuidColumnsMigrationTest {
     assertThat(view.getUuid()).isNotNull();
     assertThat(view.getProjectUuid()).isEqualTo(view.getUuid());
     assertThat(view.getModuleUuid()).isNull();
-    assertThat(view.getModuleUuidPath()).isNull();
+    assertThat(view.getModuleUuidPath()).isEmpty();
 
     Component subView = mapper.selectComponentByKey("subView");
     assertThat(subView.getUuid()).isNotNull();
@@ -251,7 +251,7 @@ public class PopulateProjectsUuidColumnsMigrationTest {
     assertThat(dev.getUuid()).isNotNull();
     assertThat(dev.getProjectUuid()).isEqualTo(dev.getUuid());
     assertThat(dev.getModuleUuid()).isNull();
-    assertThat(dev.getModuleUuidPath()).isNull();
+    assertThat(dev.getModuleUuidPath()).isEmpty();
 
     Component techDev = mapper.selectComponentByKey("DEV:developer@company.net:org.struts:struts");
     assertThat(techDev.getUuid()).isNotNull();
@@ -272,21 +272,21 @@ public class PopulateProjectsUuidColumnsMigrationTest {
     assertThat(root.getUuid()).isNotNull();
     assertThat(root.getProjectUuid()).isEqualTo(root.getUuid());
     assertThat(root.getModuleUuid()).isNull();
-    assertThat(root.getModuleUuidPath()).isNull();
+    assertThat(root.getModuleUuidPath()).isEmpty();
 
     // Module with a snapshot having no islast=true
     Component module = mapper.selectComponentByKey("org.struts:struts-core");
     assertThat(module.getUuid()).isNotNull();
     assertThat(module.getProjectUuid()).isEqualTo(module.getUuid());
     assertThat(module.getModuleUuid()).isNull();
-    assertThat(module.getModuleUuidPath()).isNull();
+    assertThat(module.getModuleUuidPath()).isEmpty();
 
     // File linked on a no more existing project
-     Component file = mapper.selectComponentByKey("org.struts:struts-core:src/org/struts/RequestContext.java");
+    Component file = mapper.selectComponentByKey("org.struts:struts-core:src/org/struts/RequestContext.java");
     assertThat(file.getUuid()).isNotNull();
     assertThat(file.getProjectUuid()).isEqualTo(file.getUuid());
     assertThat(file.getModuleUuid()).isNull();
-    assertThat(file.getModuleUuidPath()).isNull();
+    assertThat(file.getModuleUuidPath()).isEmpty();
   }
 
 }

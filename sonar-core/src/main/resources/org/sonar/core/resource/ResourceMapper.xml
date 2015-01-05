@@ -209,9 +209,11 @@
 
   <insert id="insert" parameterType="Resource" keyColumn="id" useGeneratedKeys="true" keyProperty="id" >
     insert into projects
-    (uuid, project_uuid, name, long_name, description, scope, qualifier, kee, deprecated_kee, path, language, root_id, copy_resource_id, person_id, enabled, authorization_updated_at, created_at)
+    (uuid, project_uuid, module_uuid, module_uuid_path, name, long_name, description, scope, qualifier, kee, deprecated_kee, path, language, root_id, copy_resource_id, person_id,
+    enabled, authorization_updated_at, created_at)
     values (
-    #{uuid,jdbcType=VARCHAR}, #{projectUuid,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{longName,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{scope,jdbcType=VARCHAR}, #{qualifier,jdbcType=VARCHAR},
+    #{uuid,jdbcType=VARCHAR}, #{projectUuid,jdbcType=VARCHAR}, #{moduleUuid,jdbcType=VARCHAR}, #{moduleUuidPath,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},
+    #{longName,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{scope,jdbcType=VARCHAR}, #{qualifier,jdbcType=VARCHAR},
     #{key,jdbcType=VARCHAR}, #{deprecatedKey,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR}, #{language,jdbcType=VARCHAR}, #{rootId,jdbcType=INTEGER}, #{copyResourceId,jdbcType=INTEGER},
     #{personId,jdbcType=INTEGER}, #{enabled,jdbcType=BOOLEAN}, #{authorizationUpdatedAt,jdbcType=BIGINT}, #{createdAt,jdbcType=TIMESTAMP}
     )

@@ -99,6 +99,7 @@ public class PopulateProjectsUuidColumnsMigration implements DatabaseMigration {
       if (component.getUuid() == null) {
         component.setUuid(getOrCreateUuid(component, uuidByComponentId));
         component.setProjectUuid(getOrCreateUuid(project, uuidByComponentId));
+        component.setModuleUuidPath("");
         componentsToMigrate.add(component);
       }
     }
@@ -115,6 +116,7 @@ public class PopulateProjectsUuidColumnsMigration implements DatabaseMigration {
     for (Component component : readSession.getMapper(Migration50Mapper.class).selectDisabledDirectComponentChildrenForProjects(project.getId())) {
       component.setUuid(getOrCreateUuid(component, uuidByComponentId));
       component.setProjectUuid(projectUuid);
+      component.setModuleUuidPath("");
 
       writeSession.getMapper(Migration50Mapper.class).updateComponentUuids(component);
       counter.getAndIncrement();
@@ -122,6 +124,7 @@ public class PopulateProjectsUuidColumnsMigration implements DatabaseMigration {
     for (Component component : readSession.getMapper(Migration50Mapper.class).selectDisabledNoneDirectComponentChildrenForProjects(project.getId())) {
       component.setUuid(getOrCreateUuid(component, uuidByComponentId));
       component.setProjectUuid(projectUuid);
+      component.setModuleUuidPath("");
 
       writeSession.getMapper(Migration50Mapper.class).updateComponentUuids(component);
       counter.getAndIncrement();
@@ -159,6 +162,7 @@ public class PopulateProjectsUuidColumnsMigration implements DatabaseMigration {
       String uuid = Uuids.create();
       component.setUuid(uuid);
       component.setProjectUuid(uuid);
+      component.setModuleUuidPath("");
 
       writeSession.getMapper(Migration50Mapper.class).updateComponentUuids(component);
       counter.getAndIncrement();
