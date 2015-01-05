@@ -117,7 +117,7 @@ public class IssueQueryServiceTest {
     assertThat(query.resolutions()).containsOnly("FALSE-POSITIVE");
     assertThat(query.resolved()).isTrue();
     assertThat(query.componentUuids()).containsOnly("ABCD");
-    assertThat(query.componentRootUuids()).containsOnly("BCDE");
+    assertThat(query.moduleUuids()).containsOnly("BCDE");
     assertThat(query.reporters()).containsOnly("marilyn");
     assertThat(query.assignees()).containsOnly("joanna");
     assertThat(query.languages()).containsOnly("xoo");

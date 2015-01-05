@@ -176,41 +176,52 @@ public class IssueIndexMediumTest {
   }
 
   @Test
-  public void filter_by_component_roots() throws Exception {
+  public void filter_by_modules() throws Exception {
     ComponentDto module = ComponentTesting.newModuleDto(project);
     ComponentDto subModule = ComponentTesting.newModuleDto(module);
     ComponentDto file = ComponentTesting.newFileDto(subModule);
     tester.get(ComponentDao.class).insert(session, module, subModule, file);
 
     db.issueDao().insert(session,
+      IssueTesting.newDto(rule, module, project),
+      IssueTesting.newDto(rule, subModule, project),
       IssueTesting.newDto(rule, file, project));
     session.commit();
     index();
 
-    assertThat(index.search(IssueQuery.builder().componentRootUuids(newArrayList(file.uuid())).build(), new QueryContext()).getHits()).isEmpty();
-    assertThat(index.search(IssueQuery.builder().componentRootUuids(newArrayList(module.uuid())).build(), new QueryContext()).getHits()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().componentRootUuids(newArrayList(subModule.uuid())).build(), new QueryContext()).getHits()).hasSize(1);
-    // TODO assertThat(index.search(IssueQuery.builder().componentRootUuids(newArrayList(project.uuid())).build(), new
-    // QueryContext()).getHits()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().componentRootUuids(newArrayList("unknown")).build(), new QueryContext()).getHits()).isEmpty();
+    assertThat(index.search(IssueQuery.builder().moduleUuids(newArrayList(file.uuid())).build(), new QueryContext()).getHits()).isEmpty();
+    assertThat(index.search(IssueQuery.builder().moduleUuids(newArrayList(module.uuid())).build(), new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().moduleUuids(newArrayList(subModule.uuid())).build(), new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().moduleUuids(newArrayList(project.uuid())).build(), new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().moduleUuids(newArrayList("unknown")).build(), new QueryContext()).getHits()).isEmpty();
   }
 
   @Test
   public void filter_by_components() throws Exception {
+    ComponentDto module = ComponentTesting.newModuleDto(project);
+    ComponentDto subModule = ComponentTesting.newModuleDto(module);
     ComponentDto file1 = ComponentTesting.newFileDto(project);
-    ComponentDto file2 = ComponentTesting.newFileDto(project);
-    tester.get(ComponentDao.class).insert(session, file1, file2);
+    ComponentDto file2 = ComponentTesting.newFileDto(module);
+    ComponentDto file3 = ComponentTesting.newFileDto(subModule);
+    tester.get(ComponentDao.class).insert(session, module, subModule, file1, file2, file3);
 
     db.issueDao().insert(session,
+      IssueTesting.newDto(rule, project, project),
       IssueTesting.newDto(rule, file1, project),
-      IssueTesting.newDto(rule, file2, project));
+      IssueTesting.newDto(rule, module, project),
+      IssueTesting.newDto(rule, file2, project),
+      IssueTesting.newDto(rule, subModule, project),
+      IssueTesting.newDto(rule, file3, project));
     session.commit();
     index();
 
-    assertThat(index.search(IssueQuery.builder().componentUuids(newArrayList(file1.uuid(), file2.uuid())).build(), new QueryContext()).getHits()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder().componentUuids(newArrayList(file1.uuid(), file2.uuid(), file3.uuid())).build(), new QueryContext()).getHits()).hasSize(3);
     assertThat(index.search(IssueQuery.builder().componentUuids(newArrayList(file1.uuid())).build(), new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().componentUuids(newArrayList(subModule.uuid())).build(), new QueryContext()).getHits()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder().componentUuids(newArrayList(subModule.uuid())).onComponentOnly(true).build(), new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().componentUuids(newArrayList(module.uuid())).build(), new QueryContext()).getHits()).hasSize(4);
+    assertThat(index.search(IssueQuery.builder().componentUuids(newArrayList(module.uuid())).onComponentOnly(true).build(), new QueryContext()).getHits()).hasSize(1);
     assertThat(index.search(IssueQuery.builder().componentUuids(newArrayList("unknown")).build(), new QueryContext()).getHits()).isEmpty();
-    assertThat(index.search(IssueQuery.builder().componentUuids(newArrayList(project.uuid())).build(), new QueryContext()).getHits()).isEmpty();
   }
 
   @Test
@@ -663,7 +674,7 @@ public class IssueIndexMediumTest {
     assertThat(index.search(query.build(), new QueryContext()).getHits()).hasSize(0);
 
     MockUserSession.set().setUserGroups("sonar-users", "sonar-admins");
-    assertThat(index.search(query.componentRootUuids(newArrayList(project3.key())).build(), new QueryContext()).getHits()).hasSize(0);
+    assertThat(index.search(query.moduleUuids(newArrayList(project3.key())).build(), new QueryContext()).getHits()).hasSize(0);
   }
 
   @Test
@@ -711,7 +722,7 @@ public class IssueIndexMediumTest {
     assertThat(index.search(query.build(), new QueryContext()).getHits()).hasSize(0);
 
     MockUserSession.set().setLogin("john");
-    assertThat(index.search(query.componentRootUuids(newArrayList(project3.key())).build(), new QueryContext()).getHits()).hasSize(0);
+    assertThat(index.search(query.moduleUuids(newArrayList(project3.key())).build(), new QueryContext()).getHits()).hasSize(0);
   }
 
   @Test

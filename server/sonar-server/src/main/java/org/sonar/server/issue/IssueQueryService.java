@@ -193,9 +193,9 @@ public class IssueQueryService implements ServerComponent {
       if (componentRoots != null) {
         throw new IllegalArgumentException("componentRoots and componentRootUuids cannot be set simultaneously");
       }
-      builder.componentRootUuids(componentRootUuids);
+      builder.moduleUuids(componentRootUuids);
     } else {
-      builder.componentRootUuids(componentUuids(session, componentRoots));
+      builder.moduleUuids(componentUuids(session, componentRoots));
     }
   }
 

@@ -40,7 +40,7 @@ public class IssueQueryTest {
       .statuses(Lists.newArrayList(Issue.STATUS_RESOLVED))
       .resolutions(newArrayList(Issue.RESOLUTION_FALSE_POSITIVE))
       .componentUuids(newArrayList("org/struts/Action.java"))
-      .componentRootUuids(newArrayList("org.struts:core"))
+      .moduleUuids(newArrayList("org.struts:core"))
       .rules(newArrayList(RuleKey.of("squid", "AvoidCycle")))
       .actionPlans(newArrayList("AP1", "AP2"))
       .reporters(newArrayList("crunky"))
@@ -62,7 +62,7 @@ public class IssueQueryTest {
     assertThat(query.statuses()).containsOnly(Issue.STATUS_RESOLVED);
     assertThat(query.resolutions()).containsOnly(Issue.RESOLUTION_FALSE_POSITIVE);
     assertThat(query.componentUuids()).containsOnly("org/struts/Action.java");
-    assertThat(query.componentRootUuids()).containsOnly("org.struts:core");
+    assertThat(query.moduleUuids()).containsOnly("org.struts:core");
     assertThat(query.reporters()).containsOnly("crunky");
     assertThat(query.assignees()).containsOnly("gargantua");
     assertThat(query.languages()).containsOnly("xoo");
@@ -111,7 +111,7 @@ public class IssueQueryTest {
     IssueQuery query = IssueQuery.builder()
       .issueKeys(null)
       .componentUuids(null)
-      .componentRootUuids(null)
+      .moduleUuids(null)
       .statuses(null)
       .actionPlans(null)
       .assignees(null)
@@ -124,7 +124,7 @@ public class IssueQueryTest {
       .build();
     assertThat(query.issueKeys()).isEmpty();
     assertThat(query.componentUuids()).isEmpty();
-    assertThat(query.componentRootUuids()).isEmpty();
+    assertThat(query.moduleUuids()).isEmpty();
     assertThat(query.statuses()).isEmpty();
     assertThat(query.actionPlans()).isEmpty();
     assertThat(query.assignees()).isEmpty();
@@ -141,7 +141,7 @@ public class IssueQueryTest {
     IssueQuery query = IssueQuery.builder().build();
     assertThat(query.issueKeys()).isEmpty();
     assertThat(query.componentUuids()).isEmpty();
-    assertThat(query.componentRootUuids()).isEmpty();
+    assertThat(query.moduleUuids()).isEmpty();
     assertThat(query.statuses()).isEmpty();
     assertThat(query.actionPlans()).isEmpty();
     assertThat(query.assignees()).isEmpty();

@@ -24,6 +24,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.apache.commons.lang.BooleanUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -254,9 +255,9 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
     filters.put(IssueIndexDefinition.FIELD_ISSUE_KEY, matchFilter(IssueIndexDefinition.FIELD_ISSUE_KEY, query.issueKeys()));
     filters.put(IssueIndexDefinition.FIELD_ISSUE_ACTION_PLAN, matchFilter(IssueIndexDefinition.FIELD_ISSUE_ACTION_PLAN, query.actionPlans()));
     filters.put(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE, matchFilter(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE, query.assignees()));
-    filters.put(IssueIndexDefinition.FIELD_ISSUE_MODULE_PATH, matchFilter(IssueIndexDefinition.FIELD_ISSUE_MODULE_PATH, query.componentRootUuids()));
-    filters.put(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, matchFilter(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, query.componentUuids()));
-    filters.put(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, matchFilter(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, query.projectUuids()));
+
+    addComponentRelatedFilters(query, filters);
+
     filters.put(IssueIndexDefinition.FIELD_ISSUE_LANGUAGE, matchFilter(IssueIndexDefinition.FIELD_ISSUE_LANGUAGE, query.languages()));
     filters.put(IssueIndexDefinition.FIELD_ISSUE_TAGS, matchFilter(IssueIndexDefinition.FIELD_ISSUE_TAGS, query.tags()));
     filters.put(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION, matchFilter(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION, query.resolutions()));
@@ -268,6 +269,33 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
     addDatesFilter(filters, query);
 
     return filters;
+  }
+
+  private void addComponentRelatedFilters(IssueQuery query, Map<String, FilterBuilder> filters) {
+    if (query.onComponentOnly()) {
+      Set<String> allComponents = Sets.newHashSet();
+      allComponents.addAll(query.projectUuids());
+      allComponents.addAll(query.moduleUuids());
+      allComponents.addAll(query.componentUuids());
+      filters.put(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, matchFilter(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, allComponents));
+    } else {
+      filters.put(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, matchFilter(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, query.projectUuids()));
+      filters.put(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, matchFilter(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, query.moduleUuids()));
+
+      FilterBuilder componentFilter = matchFilter(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, query.componentUuids());
+      FilterBuilder modulePathFilter = matchFilter(IssueIndexDefinition.FIELD_ISSUE_MODULE_PATH, query.componentUuids());
+      BoolFilterBuilder compositeFilter = null;
+      if (componentFilter != null || modulePathFilter != null) {
+        compositeFilter = FilterBuilders.boolFilter();
+        if (componentFilter != null) {
+          compositeFilter.should(componentFilter);
+        }
+        if (modulePathFilter != null) {
+          compositeFilter.should(modulePathFilter);
+        }
+      }
+      filters.put(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, compositeFilter);
+    }
   }
 
   private FilterBuilder getAuthorizationFilter(QueryContext options) {

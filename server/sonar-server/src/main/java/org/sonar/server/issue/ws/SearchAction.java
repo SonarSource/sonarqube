@@ -445,6 +445,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
     collectParameterValues(request, IssueFilterParameters.PROJECT_UUIDS, projectUuids);
     collectFacetKeys(result, IssueFilterParameters.COMPONENT_UUIDS, componentUuids);
     collectParameterValues(request, IssueFilterParameters.COMPONENT_UUIDS, componentUuids);
+    collectParameterValues(request, IssueFilterParameters.MODULE_UUIDS, componentUuids);
     collectParameterValues(request, IssueFilterParameters.COMPONENT_ROOT_UUIDS, componentUuids);
     collectFacetKeys(result, IssueFilterParameters.ASSIGNEES, userLogins);
     collectParameterValues(request, IssueFilterParameters.ASSIGNEES, userLogins);
