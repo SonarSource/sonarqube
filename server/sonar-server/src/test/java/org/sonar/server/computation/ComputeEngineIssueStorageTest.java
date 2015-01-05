@@ -20,6 +20,7 @@
 
 package org.sonar.server.computation;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.issue.internal.DefaultIssue;
@@ -36,6 +37,7 @@ import org.sonar.batch.protocol.output.resource.ReportComponent;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.db.IssueDao;
@@ -71,6 +73,11 @@ public class ComputeEngineIssueStorageTest extends AbstractDaoTestCase {
     project = new ComponentDto();
 
     sut = new ComputeEngineIssueStorage(getMyBatis(), dbClient, new FakeRuleFinder(), project);
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    MyBatis.closeQuietly(dbSession);
   }
 
   @Test
