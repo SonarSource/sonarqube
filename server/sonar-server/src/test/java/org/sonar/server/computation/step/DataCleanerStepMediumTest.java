@@ -36,7 +36,6 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.SnapshotTesting;
-import org.sonar.server.computation.AnalysisReportService;
 import org.sonar.server.computation.ComputeEngineContext;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.tester.ServerTester;
@@ -54,7 +53,6 @@ public class DataCleanerStepMediumTest {
   private DbClient dbClient;
   private DbSession dbSession;
   private ProjectCleaner purgeTask;
-  private AnalysisReportService reportService;
 
   @Before
   public void before() throws Exception {
@@ -62,9 +60,8 @@ public class DataCleanerStepMediumTest {
     this.dbSession = dbClient.openSession(false);
 
     this.purgeTask = tester.get(ProjectCleaner.class);
-    this.reportService = tester.get(AnalysisReportService.class);
 
-    this.sut = new DataCleanerStep(purgeTask, reportService);
+    this.sut = new DataCleanerStep(purgeTask);
   }
 
   @After

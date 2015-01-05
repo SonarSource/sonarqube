@@ -64,7 +64,7 @@ public class AnalysisReportService implements ServerComponent {
   public void digest(DbSession session, ComputeEngineContext context) {
     decompress(session, context);
     loadResources(context);
-    saveIssues(context);
+    // saveIssues(context);
   }
 
   @VisibleForTesting
@@ -87,6 +87,7 @@ public class AnalysisReportService implements ServerComponent {
 
     File decompressedDirectory = dbClient.analysisReportDao().getDecompressedReport(session, report.getId());
     context.setReportDirectory(decompressedDirectory);
+    LOG.info(String.format("report decompressed at '%s'", decompressedDirectory.getAbsolutePath()));
   }
 
   @VisibleForTesting

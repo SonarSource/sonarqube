@@ -60,6 +60,7 @@ public class AnalysisReportServiceTest {
   @Test
   public void call_dao_to_decompress_report() throws Exception {
     AnalysisReportDao dao = mock(AnalysisReportDao.class);
+    when(dao.getDecompressedReport(any(DbSession.class), anyLong())).thenReturn(mock(File.class));
     when(dbClient.analysisReportDao()).thenReturn(dao);
     AnalysisReportDto report = AnalysisReportDto.newForTests(123L);
     ComputeEngineContext context = new ComputeEngineContext(report, mock(ComponentDto.class));

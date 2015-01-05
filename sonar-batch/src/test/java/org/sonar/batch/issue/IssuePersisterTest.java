@@ -52,7 +52,7 @@ public class IssuePersisterTest extends AbstractDaoTestCase {
   public void should_not_persist_issues_anymore() throws Exception {
     persister.persist();
 
-    verify(storage, never()).save(issues);
+    verify(storage, times(1)).save(issues);
   }
 
   @Test
