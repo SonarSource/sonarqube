@@ -26,11 +26,7 @@ import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.Durations;
-import org.sonar.core.timemachine.Periods;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.issue.IssueService;
-import org.sonar.server.rule.RuleService;
-import org.sonar.server.ui.Views;
 import org.sonar.server.ws.WsTester;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -42,8 +38,7 @@ public class ComponentsWsTest {
 
   @Before
   public void setUp() throws Exception {
-    WsTester tester = new WsTester(new ComponentsWs(new ComponentAppAction(mock(DbClient.class), mock(IssueService.class), mock(Views.class),
-      mock(RuleService.class), mock(Periods.class), mock(Durations.class), mock(I18n.class))));
+    WsTester tester = new WsTester(new ComponentsWs(new ComponentAppAction(mock(DbClient.class), mock(Durations.class), mock(I18n.class))));
     controller = tester.controller("api/components");
   }
 
@@ -73,7 +68,6 @@ public class ComponentsWsTest {
     assertThat(action.isInternal()).isTrue();
     assertThat(action.isPost()).isFalse();
     assertThat(action.handler()).isNotNull();
-    assertThat(action.responseExampleAsString()).isNotEmpty();
     assertThat(action.params()).hasSize(2);
   }
 

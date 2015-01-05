@@ -20,11 +20,7 @@
 
 package org.sonar.server.component.ws;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Multiset;
-import com.google.common.io.Resources;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.BooleanUtils;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
@@ -32,38 +28,22 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.api.web.NavigationSection;
-import org.sonar.api.web.Page;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.component.SnapshotDto;
 import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.properties.PropertyQuery;
-import org.sonar.core.timemachine.Periods;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.issue.IssueService;
-import org.sonar.server.issue.RulesAggregation;
-import org.sonar.server.rule.Rule;
-import org.sonar.server.rule.RuleService;
-import org.sonar.server.rule.index.RuleDoc;
-import org.sonar.server.rule.index.RuleQuery;
-import org.sonar.server.search.QueryContext;
-import org.sonar.server.search.Result;
-import org.sonar.server.ui.ViewProxy;
-import org.sonar.server.ui.Views;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -72,24 +52,18 @@ import static com.google.common.collect.Maps.newHashMap;
 
 public class ComponentAppAction implements RequestHandler {
 
-  private static final String PARAM_KEY = "key";
+  private static final String PARAM_UUID = "uuid";
   private static final String PARAM_PERIOD = "period";
+  private static final List<String> METRIC_KEYS = newArrayList(CoreMetrics.LINES_KEY, CoreMetrics.COVERAGE_KEY, CoreMetrics.IT_COVERAGE_KEY, CoreMetrics.OVERALL_COVERAGE_KEY,
+    CoreMetrics.DUPLICATED_LINES_DENSITY_KEY, CoreMetrics.TECHNICAL_DEBT_KEY, CoreMetrics.SQALE_RATING_KEY, CoreMetrics.SQALE_DEBT_RATIO_KEY);
 
   private final DbClient dbClient;
 
-  private final IssueService issueService;
-  private final Views views;
-  private final RuleService ruleService;
-  private final Periods periods;
   private final Durations durations;
   private final I18n i18n;
 
-  public ComponentAppAction(DbClient dbClient, IssueService issueService, Views views, RuleService ruleService, Periods periods, Durations durations, I18n i18n) {
+  public ComponentAppAction(DbClient dbClient, Durations durations, I18n i18n) {
     this.dbClient = dbClient;
-    this.issueService = issueService;
-    this.views = views;
-    this.ruleService = ruleService;
-    this.periods = periods;
     this.durations = durations;
     this.i18n = i18n;
   }
@@ -99,14 +73,13 @@ public class ComponentAppAction implements RequestHandler {
       .setDescription("Coverage data required for rendering the component viewer")
       .setSince("4.4")
       .setInternal(true)
-      .setHandler(this)
-      .setResponseExample(Resources.getResource(this.getClass(), "components-example-app.json"));
+      .setHandler(this);
 
     action
-      .createParam(PARAM_KEY)
+      .createParam(PARAM_UUID)
       .setRequired(true)
-      .setDescription("File key")
-      .setExampleValue("org.codehaus.sonar:sonar-plugin-api:src/main/java/org/sonar/api/Plugin.java");
+      .setDescription("Component UUID")
+      .setExampleValue("d6d9e1e5-5e13-44fa-ab82-3ec29efa8935");
 
     action
       .createParam(PARAM_PERIOD)
@@ -116,7 +89,7 @@ public class ComponentAppAction implements RequestHandler {
 
   @Override
   public void handle(Request request, Response response) {
-    String fileKey = request.mandatoryParam(PARAM_KEY);
+    String componentUuid = request.mandatoryParam(PARAM_UUID);
     UserSession userSession = UserSession.get();
 
     JsonWriter json = response.newJsonWriter();
@@ -124,28 +97,17 @@ public class ComponentAppAction implements RequestHandler {
 
     DbSession session = dbClient.openSession(false);
     try {
-      ComponentDto component = dbClient.componentDao().getNullableByKey(session, fileKey);
+      ComponentDto component = dbClient.componentDao().getNullableByUuid(session, componentUuid);
       if (component == null) {
-        throw new NotFoundException(String.format("Component '%s' does not exist", fileKey));
+        throw new NotFoundException(String.format("Component '%s' does not exist", componentUuid));
       }
-      userSession.checkComponentPermission(UserRole.USER, fileKey);
+      userSession.checkComponentPermission(UserRole.USER, component.getKey());
 
-      List<Period> periodList = periods(component.projectUuid(), session);
-      Integer periodIndex = request.paramAsInt(PARAM_PERIOD);
-      Date periodDate = periodDate(periodIndex, periodList);
-
-      RulesAggregation rulesAggregation = issueService.findRulesByComponent(component.key(), periodDate, session);
-      Multiset<String> severitiesAggregation = issueService.findSeveritiesByComponent(component.key(), periodDate, session);
       Map<String, MeasureDto> measuresByMetricKey = measuresByMetricKey(component, session);
-
       appendComponent(json, component, userSession, session);
       appendPermissions(json, component, userSession);
-      appendPeriods(json, periodList);
-      appendIssuesAggregation(json, rulesAggregation, severitiesAggregation);
-      appendMeasures(json, measuresByMetricKey, severitiesAggregation, periodIndex);
-      appendTabs(json, measuresByMetricKey);
-      appendExtensions(json, component, userSession);
-      appendManualRules(json);
+      appendMeasures(json, measuresByMetricKey);
+
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -164,7 +126,7 @@ public class ComponentAppAction implements RequestHandler {
       );
     boolean isFavourite = propertyDtos.size() == 1;
 
-    json.prop("key", component.key());
+    json.prop("uuid", component.uuid());
     json.prop("path", component.path());
     json.prop("name", component.name());
     json.prop("longName", component.longName());
@@ -175,8 +137,6 @@ public class ComponentAppAction implements RequestHandler {
 
     // Do not display parent project if parent project and project are the same
     boolean displayParentProject = parentProject != null && !parentProject.getId().equals(project.getId());
-
-    // TODO WS should return parentProject and parentProjectName instead of sub
     json.prop("subProject", displayParentProject ? parentProject.key() : null);
     json.prop("subProjectName", displayParentProject ? parentProject.longName() : null);
     json.prop("project", project.key());
@@ -185,50 +145,21 @@ public class ComponentAppAction implements RequestHandler {
     json.prop("fav", isFavourite);
   }
 
-  private void appendTabs(JsonWriter json, Map<String, MeasureDto> measuresByMetricKey) {
-    List<String> tabs = newArrayList();
-    if (measuresByMetricKey.get(CoreMetrics.SCM_AUTHORS_BY_LINE_KEY) != null) {
-      tabs.add("scm");
-    }
-    if (hasCoverage(measuresByMetricKey)) {
-      tabs.add("coverage");
-    }
-    if (measuresByMetricKey.get(CoreMetrics.DUPLICATED_LINES_KEY) != null) {
-      tabs.add("duplications");
-    }
-    if (!tabs.isEmpty()) {
-      json.name("tabs").beginArray().values(tabs).endArray();
-    }
-  }
-
-  private boolean hasCoverage(Map<String, MeasureDto> measuresByMetricKey) {
-    return measuresByMetricKey.get(CoreMetrics.OVERALL_COVERAGE_KEY) != null
-      || measuresByMetricKey.get(CoreMetrics.IT_COVERAGE_KEY) != null
-      || measuresByMetricKey.get(CoreMetrics.COVERAGE_KEY) != null;
-  }
-
   private void appendPermissions(JsonWriter json, ComponentDto component, UserSession userSession) {
     boolean hasBrowsePermission = userSession.hasComponentPermission(UserRole.USER, component.key());
     json.prop("canMarkAsFavourite", userSession.isLoggedIn() && hasBrowsePermission);
-    json.prop("canBulkChange", userSession.isLoggedIn());
     json.prop("canCreateManualIssue", userSession.isLoggedIn() && hasBrowsePermission);
   }
 
-  private void appendMeasures(JsonWriter json, Map<String, MeasureDto> measuresByMetricKey, Multiset<String> severitiesAggregation, Integer periodIndex) {
+  private void appendMeasures(JsonWriter json, Map<String, MeasureDto> measuresByMetricKey) {
     json.name("measures").beginObject();
-
-    json.prop("fNcloc", formatMeasureOrVariation(measuresByMetricKey.get(CoreMetrics.NCLOC_KEY), periodIndex));
-    json.prop("fCoverage", formatMeasureOrVariation(coverageMeasure(measuresByMetricKey), periodIndex));
-    json.prop("fDuplicationDensity", formatMeasureOrVariation(measuresByMetricKey.get(CoreMetrics.DUPLICATED_LINES_DENSITY_KEY), periodIndex));
-    json.prop("fDebt", formatMeasureOrVariation(measuresByMetricKey.get(CoreMetrics.TECHNICAL_DEBT_KEY), periodIndex));
-    json.prop("fSqaleRating", formatMeasureOrVariation(measuresByMetricKey.get(CoreMetrics.SQALE_RATING_KEY), periodIndex));
-    json.prop("fSqaleDebtRatio", formatMeasureOrVariation(measuresByMetricKey.get(CoreMetrics.SQALE_DEBT_RATIO_KEY), periodIndex));
-    json.prop("fTests", formatMeasureOrVariation(measuresByMetricKey.get(CoreMetrics.TESTS_KEY), periodIndex));
-
-    json.prop("fIssues", i18n.formatInteger(UserSession.get().locale(), severitiesAggregation.size()));
-    for (String severity : severitiesAggregation.elementSet()) {
-      json.prop("f" + StringUtils.capitalize(severity.toLowerCase()) + "Issues", i18n.formatInteger(UserSession.get().locale(), severitiesAggregation.count(severity)));
-    }
+    json.prop("lines", formatMeasure(measuresByMetricKey.get(CoreMetrics.LINES_KEY)));
+    json.prop("coverage", formatMeasure(coverageMeasure(measuresByMetricKey)));
+    json.prop("duplicationDensity", formatMeasure(measuresByMetricKey.get(CoreMetrics.DUPLICATED_LINES_DENSITY_KEY)));
+    json.prop("issues", formatMeasure(measuresByMetricKey.get(CoreMetrics.OPEN_ISSUES_KEY)));
+    json.prop("debt", formatMeasure(measuresByMetricKey.get(CoreMetrics.TECHNICAL_DEBT_KEY)));
+    json.prop("sqaleRating", formatMeasure(measuresByMetricKey.get(CoreMetrics.SQALE_RATING_KEY)));
+    json.prop("debtRatio", formatMeasure(measuresByMetricKey.get(CoreMetrics.SQALE_DEBT_RATIO_KEY)));
     json.endObject();
   }
 
@@ -245,134 +176,13 @@ public class ComponentAppAction implements RequestHandler {
     }
   }
 
-  private void appendPeriods(JsonWriter json, List<Period> periodList) {
-    json.name("periods").beginArray();
-    for (Period period : periodList) {
-      Date periodDate = period.date();
-      json.beginArray()
-        .value(period.index())
-        .value(period.label())
-        .value(periodDate != null ? DateUtils.formatDateTime(periodDate) : null)
-        .endArray();
-    }
-    json.endArray();
-  }
-
-  private void appendIssuesAggregation(JsonWriter json, RulesAggregation rulesAggregation, Multiset<String> severitiesAggregation) {
-    json.name("severities").beginArray();
-    for (String severity : severitiesAggregation.elementSet()) {
-      json.beginArray()
-        .value(severity)
-        .value(i18n.message(UserSession.get().locale(), "severity." + severity, null))
-        .value(severitiesAggregation.count(severity))
-        .endArray();
-    }
-    json.endArray();
-
-    json.name("rules").beginArray();
-    for (RulesAggregation.Rule rule : rulesAggregation.rules()) {
-      json.beginArray()
-        .value(rule.ruleKey().toString())
-        .value(rule.name())
-        .value(rulesAggregation.countRule(rule))
-        .endArray();
-    }
-    json.endArray();
-  }
-
-  private void appendManualRules(JsonWriter json) {
-    Result<Rule> result = ruleService.search(new RuleQuery().setRepositories(newArrayList(RuleDoc.MANUAL_REPOSITORY)), new QueryContext().setMaxLimit());
-    if (result != null && !result.getHits().isEmpty()) {
-      List<Rule> manualRules = result.getHits();
-      json.name("manual_rules").beginArray();
-      for (Rule manualRule : manualRules) {
-        json.beginObject()
-          .prop("key", manualRule.key().toString())
-          .prop("name", manualRule.name())
-          .endObject();
-      }
-      json.endArray();
-    }
-  }
-
-  private void appendExtensions(JsonWriter json, ComponentDto component, UserSession userSession) {
-    List<ViewProxy<Page>> extensionPages = views.getPages(NavigationSection.RESOURCE_TAB, component.scope(), component.qualifier(), component.language(), null);
-    Map<String, String> extensions = extensions(extensionPages, component, userSession);
-    if (!extensions.isEmpty()) {
-      json.name("extensions").beginArray();
-      for (Map.Entry<String, String> entry : extensions.entrySet()) {
-        json.beginArray().value(entry.getKey()).value(entry.getValue()).endArray();
-      }
-      json.endArray();
-    }
-  }
-
-  private Map<String, String> extensions(List<ViewProxy<Page>> extensions, ComponentDto component, UserSession userSession) {
-    Map<String, String> result = newHashMap();
-    List<String> providedExtensions = newArrayList("tests_viewer", "coverage", "duplications", "issues", "source");
-    for (ViewProxy<Page> page : extensions) {
-      if (!providedExtensions.contains(page.getId())) {
-        addExtension(page, result, component, userSession);
-      }
-    }
-    return result;
-  }
-
-  private void addExtension(ViewProxy<Page> page, Map<String, String> result, ComponentDto component, UserSession userSession) {
-    if (page.getUserRoles().length == 0) {
-      result.put(page.getId(), page.getTitle());
-    } else {
-      for (String userRole : page.getUserRoles()) {
-        if (userSession.hasComponentPermission(userRole, component.key())) {
-          result.put(page.getId(), page.getTitle());
-        }
-      }
-    }
-  }
-
-  private List<Period> periods(String projectUuid, DbSession session) {
-    List<Period> periodList = newArrayList();
-    SnapshotDto snapshotDto = dbClient.resourceDao().getLastSnapshotByResourceUuid(projectUuid, session);
-    if (snapshotDto != null) {
-      for (int i = 1; i <= 5; i++) {
-        String mode = snapshotDto.getPeriodMode(i);
-        if (mode != null) {
-          Date periodDate = snapshotDto.getPeriodDate(i);
-          String label = periods.label(mode, snapshotDto.getPeriodModeParameter(i), periodDate);
-          if (label != null) {
-            periodList.add(new Period(i, label, periodDate));
-          }
-        }
-      }
-    }
-    return periodList;
-  }
-
   private Map<String, MeasureDto> measuresByMetricKey(ComponentDto component, DbSession session) {
     Map<String, MeasureDto> measuresByMetricKey = newHashMap();
     String fileKey = component.getKey();
-    for (MeasureDto measureDto : dbClient.measureDao().findByComponentKeyAndMetricKeys(fileKey,
-      newArrayList(CoreMetrics.NCLOC_KEY, CoreMetrics.COVERAGE_KEY, CoreMetrics.IT_COVERAGE_KEY, CoreMetrics.OVERALL_COVERAGE_KEY,
-        CoreMetrics.DUPLICATED_LINES_KEY, CoreMetrics.DUPLICATED_LINES_DENSITY_KEY, CoreMetrics.TECHNICAL_DEBT_KEY, CoreMetrics.TESTS_KEY,
-        CoreMetrics.SCM_AUTHORS_BY_LINE_KEY, CoreMetrics.SQALE_RATING_KEY, CoreMetrics.SQALE_DEBT_RATIO_KEY),
-      session)) {
+    for (MeasureDto measureDto : dbClient.measureDao().findByComponentKeyAndMetricKeys(fileKey, METRIC_KEYS, session)) {
       measuresByMetricKey.put(measureDto.getKey().metricKey(), measureDto);
     }
     return measuresByMetricKey;
-  }
-
-  @CheckForNull
-  private Date periodDate(@Nullable final Integer periodIndex, List<Period> periodList) {
-    if (periodIndex != null) {
-      Period period = Iterables.find(periodList, new Predicate<Period>() {
-        @Override
-        public boolean apply(@Nullable Period input) {
-          return input != null && periodIndex.equals(input.index());
-        }
-      }, null);
-      return period != null ? period.date() : null;
-    }
-    return null;
   }
 
   @CheckForNull
@@ -384,22 +194,15 @@ public class ComponentAppAction implements RequestHandler {
   }
 
   @CheckForNull
-  private String formatMeasureOrVariation(@Nullable MeasureDto measure, @Nullable Integer periodIndex) {
-    if (periodIndex == null) {
-      return formatMeasure(measure);
-    } else {
-      return formatVariation(measure, periodIndex);
-    }
-  }
-
-  @CheckForNull
   private String formatMeasure(@Nullable MeasureDto measure) {
     if (measure != null) {
       Metric metric = CoreMetrics.getMetric(measure.getKey().metricKey());
       Metric.ValueType metricType = metric.getType();
       Double value = measure.getValue();
       String data = measure.getData();
-
+      if (BooleanUtils.isTrue(metric.isOptimizedBestValue()) && value == null) {
+        value = metric.getBestValue();
+      }
       if (metricType.equals(Metric.ValueType.FLOAT) && value != null) {
         return i18n.formatDouble(UserSession.get().locale(), value);
       }
@@ -418,51 +221,4 @@ public class ComponentAppAction implements RequestHandler {
     }
     return null;
   }
-
-  @CheckForNull
-  private String formatVariation(@Nullable MeasureDto measure, Integer periodIndex) {
-    if (measure != null) {
-      Double variation = measure.getVariation(periodIndex);
-      if (variation != null) {
-        Metric metric = CoreMetrics.getMetric(measure.getKey().metricKey());
-        Metric.ValueType metricType = metric.getType();
-        if (metricType.equals(Metric.ValueType.FLOAT) || metricType.equals(Metric.ValueType.PERCENT)) {
-          return i18n.formatDouble(UserSession.get().locale(), variation);
-        }
-        if (metricType.equals(Metric.ValueType.INT)) {
-          return i18n.formatInteger(UserSession.get().locale(), variation.intValue());
-        }
-        if (metricType.equals(Metric.ValueType.WORK_DUR)) {
-          return durations.format(UserSession.get().locale(), durations.create(variation.longValue()), Durations.DurationFormat.SHORT);
-        }
-      }
-    }
-    return null;
-  }
-
-  protected static class Period {
-    Integer index;
-    String label;
-    Date date;
-
-    protected Period(Integer index, String label, @Nullable Date date) {
-      this.index = index;
-      this.label = label;
-      this.date = date;
-    }
-
-    public Integer index() {
-      return index;
-    }
-
-    public String label() {
-      return label;
-    }
-
-    @CheckForNull
-    public Date date() {
-      return date;
-    }
-  }
-
 }
