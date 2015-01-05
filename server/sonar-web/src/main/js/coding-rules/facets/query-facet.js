@@ -13,6 +13,7 @@ define([
     events: function () {
       return _.extend(BaseFacet.prototype.events.apply(this, arguments), {
         'change input': 'applyFacet',
+        'keydown input': 'onKeydown',
         'keyup input': 'applyFacetDebounced'
       });
     },
@@ -34,6 +35,13 @@ define([
           property = this.model.get('property');
       obj[property] = this.$('input').val();
       this.options.app.state.updateFilter(obj);
+    },
+
+    onKeydown: function (e) {
+      // escape
+      if (e.keyCode === 27) {
+        this.$('input').blur();
+      }
     }
   });
 
