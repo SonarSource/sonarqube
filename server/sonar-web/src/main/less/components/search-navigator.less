@@ -83,7 +83,7 @@
   .box-sizing(border-box);
   background-color: @barBackgroundColor;
   white-space: normal;
-  overflow-x: hidden;
+  overflow: hidden;
 
   .facet-name {
     white-space: nowrap;
@@ -109,6 +109,10 @@
 
   &.active .facet-stat:before {
     background-image: linear-gradient(to right, fade(@lightBlue, 0%), @lightBlue 75%);
+  }
+
+  &.active .facet-toggle {
+    display: inline;
   }
 }
 
