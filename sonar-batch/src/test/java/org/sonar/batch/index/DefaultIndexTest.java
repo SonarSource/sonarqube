@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.index;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -69,6 +70,8 @@ public class DefaultIndexTest {
   Project moduleB;
   Project moduleB1;
 
+  private java.io.File baseDir;
+
   @Before
   public void createIndex() throws IOException {
     deprecatedViolations = mock(DeprecatedViolations.class);
@@ -82,7 +85,7 @@ public class DefaultIndexTest {
       mock(ResourceKeyMigration.class),
       mock(MeasureCache.class));
 
-    java.io.File baseDir = temp.newFolder();
+    baseDir = temp.newFolder();
     project = new Project("project");
     when(projectTree.getProjectDefinition(project)).thenReturn(ProjectDefinition.create().setBaseDir(baseDir));
     moduleA = new Project("moduleA").setParent(project);
@@ -132,6 +135,19 @@ public class DefaultIndexTest {
     assertThat(index.isExcluded(fileRef)).isFalse();
     assertThat(index.getChildren(fileRef)).isEmpty();
     assertThat(index.getParent(fileRef)).isInstanceOf(Directory.class);
+  }
+
+  @Test
+  public void shouldGetSource() throws Exception {
+    Directory directory = Directory.create("src/org/foo", "org/foo");
+    File file = File.create("src/org/foo/Bar.java", "org/foo/Bar.java", Java.INSTANCE, false);
+    FileUtils.write(new java.io.File(baseDir, "src/org/foo/Bar.java"), "Foo bar");
+
+    assertThat(index.index(directory)).isTrue();
+    assertThat(index.index(file, directory)).isTrue();
+
+    File fileRef = File.create("src/org/foo/Bar.java", "org/foo/Bar.java", null, false);
+    assertThat(index.getSource(fileRef)).isEqualTo("Foo bar");
   }
 
   @Test

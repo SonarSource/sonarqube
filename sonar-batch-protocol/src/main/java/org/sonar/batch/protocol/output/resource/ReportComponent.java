@@ -20,6 +20,7 @@
 package org.sonar.batch.protocol.output.resource;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -83,11 +84,15 @@ public class ReportComponent {
     return path;
   }
 
-  public ReportComponent setName(String name) {
+  public ReportComponent setName(@Nullable String name) {
     this.name = name;
     return this;
   }
 
+  /**
+   * @return null for files and directories since it is the same as the path
+   */
+  @CheckForNull
   public String name() {
     return name;
   }
@@ -101,7 +106,7 @@ public class ReportComponent {
     return type;
   }
 
-  public ReportComponent setTest(Boolean isTest) {
+  public ReportComponent setTest(@Nullable Boolean isTest) {
     this.isTest = isTest;
     return this;
   }
@@ -114,11 +119,15 @@ public class ReportComponent {
     return isTest;
   }
 
-  public ReportComponent setLanguageKey(String languageKey) {
+  public ReportComponent setLanguageKey(@Nullable String languageKey) {
     this.languageKey = languageKey;
     return this;
   }
 
+  /**
+   * @return null when not a file
+   */
+  @CheckForNull
   public String languageKey() {
     return languageKey;
   }

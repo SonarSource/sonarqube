@@ -497,7 +497,7 @@ public class DefaultIndex extends SonarIndex {
     Resource resource = getResource(reference);
     if (resource instanceof File) {
       File file = (File) resource;
-      Project module = (Project) file.getParent().getParent();
+      Project module = currentProject;
       ProjectDefinition def = projectTree.getProjectDefinition(module);
       try {
         return FileUtils.readFileToString(new java.io.File(def.getBaseDir(), file.getPath()));

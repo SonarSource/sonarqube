@@ -72,6 +72,7 @@ public class ComponentsPublisher implements ReportPublisher {
     return result;
   }
 
+  @CheckForNull
   private Boolean isTest(Resource r) {
     return ResourceUtils.isFile(r) ? ResourceUtils.isUnitTestClass(r) : null;
   }
@@ -82,6 +83,7 @@ public class ComponentsPublisher implements ReportPublisher {
     return ResourceUtils.isFile(r) && language != null ? language.getKey() : null;
   }
 
+  @CheckForNull
   private String getName(Resource r) {
     // Don't return name for directories and files since it can be guessed from the path
     return (ResourceUtils.isFile(r) || ResourceUtils.isDirectory(r)) ? null : r.getName();
