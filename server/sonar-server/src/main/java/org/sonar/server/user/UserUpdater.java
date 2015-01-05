@@ -20,6 +20,7 @@
 
 package org.sonar.server.user;
 
+import com.google.common.base.CharMatcher;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
@@ -76,8 +77,7 @@ public class UserUpdater implements ServerComponent {
   }
 
   /**
-   * Retuen true if the user has been reactivated
-   * @return
+   * Return true if the user has been reactivated
    */
   public boolean create(NewUser newUser) {
     UserDto userDto = createNewUserDto(newUser);
@@ -256,13 +256,19 @@ public class UserUpdater implements ServerComponent {
   @CheckForNull
   private static String convertScmAccountsToCsv(@Nullable List<String> scmAccounts) {
     if (scmAccounts != null) {
+      // Remove empty characters
       scmAccounts.removeAll(Arrays.asList(null, ""));
+      // Add one empty character at the begin and at the end of the list to be able to generate a coma at the begin and at the end of the
+      // text
+      scmAccounts.add(0, "");
+      scmAccounts.add("");
       int size = scmAccounts.size();
       StringWriter writer = new StringWriter(size);
       CsvWriter csv = CsvWriter.of(writer);
       csv.values(scmAccounts.toArray(new String[size]));
       csv.close();
-      return writer.toString();
+      // Remove useless line break added by CsvWriter at this end of the text
+      return CharMatcher.BREAKING_WHITESPACE.removeFrom(writer.toString());
     }
     return null;
   }

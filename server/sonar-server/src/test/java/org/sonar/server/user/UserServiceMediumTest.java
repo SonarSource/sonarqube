@@ -33,6 +33,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.ServerTester;
+import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndexDefinition;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -79,8 +80,27 @@ public class UserServiceMediumTest {
       .setScmAccounts(newArrayList("u1", "u_1")));
 
     assertThat(result).isFalse();
-    assertThat(dbClient.userDao().selectNullableByLogin(session, "user")).isNotNull();
-    assertThat(esClient.prepareGet(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, "user").get().isExists()).isTrue();
+
+    UserDto userDto = dbClient.userDao().selectNullableByLogin(session, "user");
+    assertThat(userDto).isNotNull();
+    assertThat(userDto.getId()).isNotNull();
+    assertThat(userDto.getLogin()).isEqualTo("user");
+    assertThat(userDto.getName()).isEqualTo("User");
+    assertThat(userDto.getEmail()).isEqualTo("user@mail.com");
+    assertThat(userDto.getCryptedPassword()).isNotNull();
+    assertThat(userDto.getSalt()).isNotNull();
+    assertThat(userDto.getScmAccounts()).contains(",u1,u_1,");
+    assertThat(userDto.getCreatedAt()).isNotNull();
+    assertThat(userDto.getUpdatedAt()).isNotNull();
+
+    UserDoc userDoc = service.getNullableByLogin("user");
+    assertThat(userDoc).isNotNull();
+    assertThat(userDoc.login()).isEqualTo("user");
+    assertThat(userDoc.name()).isEqualTo("User");
+    assertThat(userDoc.email()).isEqualTo("user@mail.com");
+    assertThat(userDoc.scmAccounts()).containsOnly("u1", "u_1");
+    assertThat(userDoc.createdAt()).isNotNull();
+    assertThat(userDoc.updatedAt()).isNotNull();
   }
 
   @Test(expected = ForbiddenException.class)

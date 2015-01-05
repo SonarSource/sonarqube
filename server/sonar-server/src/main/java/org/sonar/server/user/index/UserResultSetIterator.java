@@ -19,6 +19,7 @@
  */
 package org.sonar.server.user.index;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -106,7 +107,9 @@ class UserResultSetIterator extends ResultSetIterator<UserDoc> {
       csvParser = new CSVParser(reader, CSVFormat.DEFAULT);
       for (CSVRecord csvRecord : csvParser) {
         for (String aCsvRecord : csvRecord) {
-          result.add(aCsvRecord);
+          if (!Strings.isNullOrEmpty(aCsvRecord)) {
+            result.add(aCsvRecord);
+          }
         }
       }
       return result;

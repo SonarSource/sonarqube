@@ -182,7 +182,7 @@ public class UserDaoTest extends AbstractDaoTestCase {
       .setLogin("john")
       .setName("John")
       .setEmail("jo@hn.com")
-      .setScmAccounts("jo.hn,john2")
+      .setScmAccounts(",jo.hn,john2,")
       .setActive(true)
       .setSalt("1234")
       .setCryptedPassword("abcd")
@@ -198,7 +198,7 @@ public class UserDaoTest extends AbstractDaoTestCase {
     assertThat(user.getName()).isEqualTo("John");
     assertThat(user.getEmail()).isEqualTo("jo@hn.com");
     assertThat(user.isActive()).isTrue();
-    assertThat(user.getScmAccounts()).isEqualTo("jo.hn,john2");
+    assertThat(user.getScmAccounts()).isEqualTo(",jo.hn,john2,");
     assertThat(user.getSalt()).isEqualTo("1234");
     assertThat(user.getCryptedPassword()).isEqualTo("abcd");
     assertThat(user.getCreatedAt()).isEqualTo(date);
@@ -216,7 +216,7 @@ public class UserDaoTest extends AbstractDaoTestCase {
       .setLogin("john")
       .setName("John Doo")
       .setEmail("jodoo@hn.com")
-      .setScmAccounts("jo.hn,john2,johndoo")
+      .setScmAccounts(",jo.hn,john2,johndoo,")
       .setActive(false)
       .setSalt("12345")
       .setCryptedPassword("abcde")
@@ -231,7 +231,7 @@ public class UserDaoTest extends AbstractDaoTestCase {
     assertThat(user.getName()).isEqualTo("John Doo");
     assertThat(user.getEmail()).isEqualTo("jodoo@hn.com");
     assertThat(user.isActive()).isFalse();
-    assertThat(user.getScmAccounts()).isEqualTo("jo.hn,john2,johndoo");
+    assertThat(user.getScmAccounts()).isEqualTo(",jo.hn,john2,johndoo,");
     assertThat(user.getSalt()).isEqualTo("12345");
     assertThat(user.getCryptedPassword()).isEqualTo("abcde");
     assertThat(user.getCreatedAt()).isEqualTo(1418215735482L);
