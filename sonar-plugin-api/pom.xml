@@ -211,6 +211,9 @@
           <value>true</value>
         </property>
       </activation>
+      <properties>
+        <clirr.reportPath>${project.build.directory}/clirr-report.txt</clirr.reportPath>
+      </properties>
       <build>
         <plugins>
           <plugin>
