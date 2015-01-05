@@ -49,7 +49,7 @@ public final class SquidUtils {
   }
 
   private static UnsupportedOperationException unsupported() {
-    return new UnsupportedOperationException("Not supported since v4.2. See http://docs.codehaus.org/display/SONAR/API+Changes");
+    return new UnsupportedOperationException("Not supported since v4.2. See http://docs.sonarqube.org/display/SONAR/API+Changes");
   }
 
   /**

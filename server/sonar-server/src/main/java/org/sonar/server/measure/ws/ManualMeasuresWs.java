@@ -38,7 +38,7 @@ public class ManualMeasuresWs implements WebService {
 
   private void defineIndexAction(NewController controller) {
     controller.createAction("index")
-      .setDescription("Documentation of this web service is available <a href=\"http://docs.codehaus.org/x/0oCYDg\">here</a>")
+      .setDescription("Documentation of this web service is available <a href=\"http://docs.sonarqube.org/x/0oCYDg\">here</a>")
       .setSince("2.10")
       .setHandler(RailsHandler.INSTANCE);
   }

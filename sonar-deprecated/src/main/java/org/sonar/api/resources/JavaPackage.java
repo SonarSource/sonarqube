@@ -83,6 +83,6 @@ public class JavaPackage extends Resource {
   }
 
   private static UnsupportedOperationException unsupported() {
-    throw new UnsupportedOperationException("Not supported since v4.2. See http://docs.codehaus.org/display/SONAR/API+Changes");
+    throw new UnsupportedOperationException("Not supported since v4.2. See http://docs.sonarqube.org/display/SONAR/API+Changes");
   }
 }

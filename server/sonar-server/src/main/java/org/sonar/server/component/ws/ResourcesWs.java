@@ -50,7 +50,7 @@ public class ResourcesWs implements WebService {
       .setExampleValue("org.codehaus.sonar:sonar");
 
     action.createParam("metrics")
-      .setDescription("Comma-separated list of <a href=\"http://docs.codehaus.org/display/SONAR/Metric+definitions\">metric keys/ids</a>. " +
+      .setDescription("Comma-separated list of <a href=\"http://docs.sonarqube.org/display/SONAR/Metric+definitions\">metric keys/ids</a>. " +
         "Load measures on selected metrics. If only one metric is set, then measures are ordered by value")
       .setExampleValue("lines,blocker_violations");
 

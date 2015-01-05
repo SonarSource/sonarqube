@@ -29,7 +29,7 @@ import java.util.List;
  *
  * @since 1.10
  * @deprecated since 4.2 use {@link org.sonar.api.resources.File}. See
- * http://docs.codehaus.org/display/SONAR/API+Changes for more details
+ * http://docs.sonarqube.org/display/SONAR/API+Changes for more details
  */
 @Deprecated
 public class JavaFile extends Resource {
@@ -115,7 +115,7 @@ public class JavaFile extends Resource {
   }
 
   private static UnsupportedOperationException unsupported() {
-    throw new UnsupportedOperationException("Not supported since v4.2. See http://docs.codehaus.org/display/SONAR/API+Changes");
+    throw new UnsupportedOperationException("Not supported since v4.2. See http://docs.sonarqube.org/display/SONAR/API+Changes");
   }
 
 }
