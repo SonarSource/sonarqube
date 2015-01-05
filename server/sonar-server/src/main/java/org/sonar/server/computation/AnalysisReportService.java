@@ -64,7 +64,7 @@ public class AnalysisReportService implements ServerComponent {
   public void digest(DbSession session, ComputeEngineContext context) {
     decompress(session, context);
     loadResources(context);
-    // saveIssues(context);
+    saveIssues(context);
   }
 
   @VisibleForTesting
@@ -122,10 +122,9 @@ public class AnalysisReportService implements ServerComponent {
   }
 
   private DefaultIssue toIssue(ComputeEngineContext context, ReportIssue issue) {
-    ReportComponent component = context.getComponentByBatchId(issue.componentBatchId());
     DefaultIssue defaultIssue = new DefaultIssue();
     defaultIssue.setKey(issue.key());
-    defaultIssue.setComponentId((long) component.id());
+    setComponentId(defaultIssue, context.getComponentByBatchId(issue.componentBatchId()));
     defaultIssue.setRuleKey(RuleKey.of(issue.ruleRepo(), issue.ruleKey()));
     defaultIssue.setSeverity(issue.severity());
     defaultIssue.setManualSeverity(issue.isManualSeverity());
@@ -149,6 +148,13 @@ public class AnalysisReportService implements ServerComponent {
     defaultIssue.setNew(issue.isNew());
     defaultIssue.setSelectedAt(issue.selectedAt());
     return defaultIssue;
+  }
+
+  private DefaultIssue setComponentId(DefaultIssue issue, ReportComponent component) {
+    if (component != null) {
+      issue.setComponentId((long) component.id());
+    }
+    return issue;
   }
 
   private DefaultIssue setDebt(DefaultIssue issue, Long debt) {
