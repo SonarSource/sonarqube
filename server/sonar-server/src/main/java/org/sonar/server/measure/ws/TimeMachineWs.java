@@ -50,7 +50,7 @@ public class TimeMachineWs implements WebService {
       .setExampleValue("org.codehaus.sonar:sonar");
 
     action.createParam("metrics")
-      .setDescription("Comma-separated list of <a href=\"http://docs.codehaus.org/display/SONAR/Metric+definitions\">metric keys/ids</a>")
+      .setDescription("Comma-separated list of <a href=\"http://redirect.sonarsource.com/doc/metric-definitions.html\">metric keys/ids</a>")
       .setRequired(true)
       .setExampleValue("coverage,violations");
 

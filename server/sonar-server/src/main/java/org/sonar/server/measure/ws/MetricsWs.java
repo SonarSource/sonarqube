@@ -38,7 +38,7 @@ public class MetricsWs implements WebService {
 
   private void defineIndexAction(NewController controller) {
     controller.createAction("index")
-      .setDescription("Documentation of this web service is available <a href=\"http://docs.codehaus.org/x/04CYDg\">here</a>")
+      .setDescription("Documentation of this web service is available <a href=\"http://redirect.sonarsource.com/doc/old-web-service-api.html\">here</a>")
       .setSince("2.6")
       .setHandler(RailsHandler.INSTANCE);
   }

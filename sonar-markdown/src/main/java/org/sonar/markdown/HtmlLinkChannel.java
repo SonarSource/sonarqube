@@ -27,8 +27,8 @@ import java.util.regex.Pattern;
 /**
  * Markdown interprets text in brackets followed by text in parentheses to generate documented links.
  *
- * E.g., the input [See documentation](http://docs.codehaus.org/display/SONAR) will produce
- * {@literal<a href="http://docs.codehaus.org/display/SONAR">}See documentation{@literal</a>}
+ * E.g., the input [See documentation](http://docs.sonarqube.org/display/SONAR) will produce
+ * {@literal<a href="http://docs.sonarqube.org/display/SONAR">}See documentation{@literal</a>}
  */
 class HtmlLinkChannel extends RegexChannel<MarkdownOutput> {
 

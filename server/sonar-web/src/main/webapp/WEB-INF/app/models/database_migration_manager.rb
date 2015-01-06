@@ -58,7 +58,7 @@ class DatabaseMigrationManager
         @message = "Migration required."
       else
         @status = MIGRATION_FAILED
-        @message = "Upgrade is not supported. Please use a <a href=\"http://docs.codehaus.org/display/SONAR/Requirements\">production-ready database</a>."
+        @message = "Upgrade is not supported. Please use a <a href=\"http://redirect.sonarsource.com/doc/requirements.html\">production-ready database</a>."
       end
     end
   end

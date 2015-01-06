@@ -71,7 +71,7 @@
                       <ol class="bulletpoints">
                         <li>Stop SonarQube</li>
                         <li><%= link_to 'Download', release.getDownloadUrl(), :class => 'external' -%> and install
-                          SonarQube <%= release.getVersion() -%> after having carefully read the <a href="http://docs.codehaus.org/display/SONAR/Upgrading" class="external">upgrade guide</a>.
+                          SonarQube <%= release.getVersion() -%> after having carefully read the <a href="http://redirect.sonarsource.com/doc/upgrading.html" class="external">upgrade guide</a>.
                         </li>
                         <% update.getIncompatiblePlugins().each do |incompatible_plugin| %>
                         <li>
@@ -92,7 +92,7 @@
 
                     <% else %>
                       <%= link_to 'Download', release.getDownloadUrl(), :class => 'external' -%> and install
-                      SonarQube <%= release.getVersion() -%> after having carefully read the <a href="http://docs.codehaus.org/display/SONAR/Upgrading" class="external">upgrade guide</a>.
+                      SonarQube <%= release.getVersion() -%> after having carefully read the <a href="http://redirect.sonarsource.com/doc/upgrading.html" class="external">upgrade guide</a>.
                     <% end %>
                   </td>
                 </tr>

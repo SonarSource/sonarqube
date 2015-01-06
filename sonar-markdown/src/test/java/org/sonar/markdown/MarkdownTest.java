@@ -33,8 +33,8 @@ public class MarkdownTest {
 
   @Test
   public void shouldDecorateDocumentedLink() {
-    assertThat(Markdown.convertToHtml("For more details, please [check online documentation](http://docs.codehaus.org/display/SONAR)."))
-        .isEqualTo("For more details, please <a href=\"http://docs.codehaus.org/display/SONAR\" target=\"_blank\">check online documentation</a>.");
+    assertThat(Markdown.convertToHtml("For more details, please [check online documentation](http://docs.sonarqube.org/display/SONAR)."))
+        .isEqualTo("For more details, please <a href=\"http://docs.sonarqube.org/display/SONAR\" target=\"_blank\">check online documentation</a>.");
   }
 
 
