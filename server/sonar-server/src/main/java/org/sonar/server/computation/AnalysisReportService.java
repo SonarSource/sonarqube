@@ -86,9 +86,7 @@ public class AnalysisReportService implements ServerComponent {
     AnalysisReportDto report = context.getReportDto();
 
     File decompressedDirectory = dbClient.analysisReportDao().getDecompressedReport(session, report.getId());
-    String path = decompressedDirectory == null ? "no path" : decompressedDirectory.getAbsolutePath();
     context.setReportDirectory(decompressedDirectory);
-    LOG.info(String.format("report decompressed at '%s'", path));
   }
 
   @VisibleForTesting
