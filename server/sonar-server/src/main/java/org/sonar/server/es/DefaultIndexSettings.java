@@ -87,7 +87,7 @@ class DefaultIndexSettings {
       .put("index.analysis.tokenizer.dot_tokenizer.type", "pattern")
       .put("index.analysis.tokenizer.dot_tokenizer.pattern", "\\.")
       .put("index.analysis.analyzer.uuid_analyzer.type", "custom")
-      .putArray("index.analysis.analyzer.uuid_analyzer.filter", "trim", "lowercase")
+      .putArray("index.analysis.analyzer.uuid_analyzer.filter", "trim")
       .put("index.analysis.analyzer.uuid_analyzer.tokenizer", "dot_tokenizer");
 
   }

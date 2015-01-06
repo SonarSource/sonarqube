@@ -284,15 +284,15 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
 
       FilterBuilder componentFilter = matchFilter(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, query.componentUuids());
       FilterBuilder modulePathFilter = matchFilter(IssueIndexDefinition.FIELD_ISSUE_MODULE_PATH, query.componentUuids());
-      BoolFilterBuilder compositeFilter = null;
-      if (componentFilter != null || modulePathFilter != null) {
-        compositeFilter = FilterBuilders.boolFilter();
-        if (componentFilter != null) {
-          compositeFilter.should(componentFilter);
-        }
+      FilterBuilder compositeFilter = null;
+      if (componentFilter != null) {
         if (modulePathFilter != null) {
-          compositeFilter.should(modulePathFilter);
+          compositeFilter = FilterBuilders.orFilter(componentFilter, modulePathFilter);
+        } else {
+          compositeFilter = componentFilter;
         }
+      } else if (modulePathFilter != null) {
+        compositeFilter = modulePathFilter;
       }
       filters.put(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, compositeFilter);
     }
