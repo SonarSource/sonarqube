@@ -66,8 +66,9 @@ public class IssueQuery {
     return addParam("components", components);
   }
 
-  public IssueQuery componentRoots(String... componentRoots) {
-    return addParam("componentRoots", componentRoots);
+  public IssueQuery onComponentOnly(boolean onComponentOnly) {
+    params.put("onComponentOnly", onComponentOnly);
+    return this;
   }
 
   public IssueQuery rules(String... s) {

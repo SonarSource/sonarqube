@@ -43,7 +43,7 @@ public class IssueQueryTest {
       .assigned(true)
       .planned(true)
       .components("Action.java", "Filter.java")
-      .componentRoots("struts")
+      .onComponentOnly(true)
       .resolutions("FIXED", "FALSE-POSITIVE")
       .resolved(true)
       .hideRules(true)
@@ -67,7 +67,7 @@ public class IssueQueryTest {
     assertThat(query.urlParams()).includes(entry("assigned", true));
     assertThat(query.urlParams()).includes(entry("planned", true));
     assertThat(query.urlParams()).includes(entry("components", "Action.java,Filter.java"));
-    assertThat(query.urlParams()).includes(entry("componentRoots", "struts"));
+    assertThat(query.urlParams()).includes(entry("onComponentOnly", true));
     assertThat(query.urlParams()).includes(entry("rules", "squid:AvoidCycle"));
     assertThat(query.urlParams()).includes(entry("actionPlans", "ABC"));
     assertThat(query.urlParams()).includes(entry("resolutions", "FIXED,FALSE-POSITIVE"));
