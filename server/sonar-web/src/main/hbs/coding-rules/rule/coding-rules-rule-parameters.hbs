@@ -8,15 +8,17 @@
         {{#if ../../templateKey}}
           <div class="subtitle">
             {{#if defaultValue }}
-              <span class="value">{{defaultValue}}</span>
+              <span class="coding-rules-detail-parameter-value">{{defaultValue}}</span>
             {{else}}
               {{t 'coding_rules.parameter.empty'}}
             {{/if}}
           </div>
         {{else}}
           {{#if defaultValue}}
-            <div class="subtitle">{{t 'coding_rules.parameters.default_value'}} <span
-                class="value">{{defaultValue}}</span></div>
+            <div class="subtitle">
+              {{t 'coding_rules.parameters.default_value'}}<br>
+              <span class="coding-rules-detail-parameter-value">{{defaultValue}}</span>
+            </div>
           {{/if}}
         {{/if}}
       </td>
