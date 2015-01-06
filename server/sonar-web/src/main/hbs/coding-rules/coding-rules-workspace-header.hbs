@@ -12,7 +12,8 @@
     <div class="search-navigator-header-pagination">
       {{#gt state.total 0}}
         <a class="js-prev icon-prev" title="{{t 'paging_previous'}}"></a>
-        <span class="current">{{sum state.selectedIndex 1}} / <span id="coding-rules-total">{{state.total}}</span></span>
+        <span class="current">{{sum state.selectedIndex 1}} / <span
+            id="coding-rules-total">{{state.total}}</span></span>
         <a class="js-next icon-next" title="{{t 'paging_next'}}"></a>
       {{else}}
         <span class="current">0 / <span id="coding-rules-total">0</span></span>
@@ -20,11 +21,9 @@
     </div>
   {{/notNull}}
 
-
-  <div class="search-navigator-header-buttons button-group">
-    <button class="js-reload">{{t 'reload'}}</button>
-    {{#if state.canBulkChange}}
+  {{#if canWrite}}
+    <div class="search-navigator-header-buttons button-group">
       <button class="js-bulk-change">{{t 'bulk_change'}}</button>
-    {{/if}}
-  </div>
+    </div>
+  {{/if}}
 </div>
