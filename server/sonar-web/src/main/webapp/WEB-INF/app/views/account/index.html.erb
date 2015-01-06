@@ -27,6 +27,10 @@
         <td><b><%= message('my_profile.groups') -%>:</b></td>
         <td id="groups"><%= current_user.groups.sort.map(&:name).join(', ') %></td>
       </tr>
+      <tr>
+        <td><b><%= message('my_profile.scm_accounts') -%>:</b></td>
+        <td id="groups"><%= current_user.scm_accounts.split(',').reject { |c| c.empty? }.join(', ') %></td>
+      </tr>
     </table>
   </div>
 
