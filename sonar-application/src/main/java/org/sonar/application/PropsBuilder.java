@@ -19,15 +19,17 @@
  */
 package org.sonar.application;
 
+import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.sonar.process.ConfigurationUtils;
 import org.sonar.process.ProcessConstants;
 import org.sonar.process.Props;
 
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URISyntaxException;
 import java.util.Properties;
 
@@ -84,11 +86,8 @@ class PropsBuilder {
     Properties p = new Properties();
     File propsFile = new File(homeDir, "conf/sonar.properties");
     if (propsFile.exists()) {
-      FileReader reader = new FileReader(propsFile);
-      try {
+      try (Reader reader = new InputStreamReader(new FileInputStream(propsFile), Charsets.UTF_8)) {
         p.load(reader);
-      } finally {
-        IOUtils.closeQuietly(reader);
       }
     }
     return p;

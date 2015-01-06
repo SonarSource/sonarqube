@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.scan.maven;
 
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.Charsets;
 import org.apache.maven.project.MavenProject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,8 +30,10 @@ import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;
 
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 
 public class MavenPluginsConfigurator implements BatchComponent {
 
@@ -61,15 +63,11 @@ public class MavenPluginsConfigurator implements BatchComponent {
     MavenProject pom = project.getPom();
     if (pom != null) {
       File targetPom = new File(project.getFileSystem().getSonarWorkingDirectory(), "sonar-pom.xml");
-      FileWriter fileWriter = null;
-      try {
-        fileWriter = new FileWriter(targetPom, false);
+      try (Writer fileWriter = new OutputStreamWriter(new FileOutputStream(targetPom, false), Charsets.UTF_8)) {
         pom.writeModel(fileWriter);
 
       } catch (IOException e) {
         throw new IllegalStateException("Can not save pom to " + targetPom, e);
-      } finally {
-        IOUtils.closeQuietly(fileWriter);
       }
     }
   }

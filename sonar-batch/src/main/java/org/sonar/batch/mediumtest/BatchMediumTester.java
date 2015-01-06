@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.mediumtest;
 
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.Charsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarPlugin;
@@ -69,9 +69,10 @@ import org.sonar.core.plugins.RemotePlugin;
 import org.sonar.core.source.SnapshotDataTypes;
 
 import javax.annotation.CheckForNull;
-
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -176,16 +177,10 @@ public class BatchMediumTester {
 
   public TaskBuilder newScanTask(File sonarProps) {
     Properties prop = new Properties();
-    FileReader reader = null;
-    try {
-      reader = new FileReader(sonarProps);
+    try (Reader reader = new InputStreamReader(new FileInputStream(sonarProps), Charsets.UTF_8)) {
       prop.load(reader);
     } catch (Exception e) {
       throw new IllegalStateException("Unable to read configuration file", e);
-    } finally {
-      if (reader != null) {
-        IOUtils.closeQuietly(reader);
-      }
     }
     TaskBuilder builder = new TaskBuilder(this);
     builder.property("sonar.task", "scan");
@@ -197,7 +192,7 @@ public class BatchMediumTester {
   }
 
   public static class TaskBuilder {
-    private final Map<String, String> taskProperties = new HashMap<String, String>();
+    private final Map<String, String> taskProperties = new HashMap<>();
     private BatchMediumTester tester;
 
     public TaskBuilder(BatchMediumTester tester) {

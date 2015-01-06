@@ -24,10 +24,8 @@ import org.apache.commons.io.IOUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
@@ -76,7 +74,7 @@ public class BundleSynchronizedMatcher extends BaseMatcher<String> {
       // And fail only if there are missing keys
       return missingKeys.isEmpty();
     } catch (IOException e) {
-      fail("An error occured while reading the bundles: " + e.getMessage());
+      fail("An error occurred while reading the bundles: " + e.getMessage());
       return false;
     } finally {
       IOUtils.closeQuietly(bundleInputStream);
@@ -123,19 +121,15 @@ public class BundleSynchronizedMatcher extends BaseMatcher<String> {
       dumpFile.delete();
     }
     dumpFile.getParentFile().mkdirs();
-    Writer writer = null;
-    try {
-      writer = new OutputStreamWriter(new FileOutputStream(dumpFile), Charsets.UTF_8);
+    try (Writer writer = new OutputStreamWriter(new FileOutputStream(dumpFile), Charsets.UTF_8)) {
       writer.write(details);
     } catch (IOException e) {
       throw new IllegalStateException("Unable to write the report to 'target/l10n/" + bundleName + ".report.txt'", e);
-    } finally {
-      IOUtils.closeQuietly(writer);
     }
   }
 
   protected static SortedMap<String, String> retrieveMissingTranslations(InputStream bundle, InputStream referenceBundle) throws IOException {
-    SortedMap<String, String> missingKeys = new TreeMap();
+    SortedMap<String, String> missingKeys = new TreeMap<>();
 
     Properties bundleProps = loadProperties(bundle);
     Properties referenceProperties = loadProperties(referenceBundle);

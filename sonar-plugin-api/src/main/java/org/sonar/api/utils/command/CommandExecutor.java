@@ -19,9 +19,12 @@
  */
 package org.sonar.api.utils.command;
 
+import com.google.common.base.Charsets;
 import com.google.common.io.Closeables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nullable;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -137,7 +140,7 @@ public class CommandExecutor {
     return execute(command, new DefaultConsumer(), new DefaultConsumer(), timeoutMilliseconds);
   }
 
-  private void closeStreams(Process process) {
+  private void closeStreams(@Nullable Process process) {
     if (process != null) {
       Closeables.closeQuietly(process.getInputStream());
       Closeables.closeQuietly(process.getInputStream());
@@ -146,7 +149,7 @@ public class CommandExecutor {
     }
   }
 
-  private void waitUntilFinish(StreamGobbler thread) {
+  private void waitUntilFinish(@Nullable StreamGobbler thread) {
     if (thread != null) {
       try {
         thread.join();
@@ -169,19 +172,13 @@ public class CommandExecutor {
 
     @Override
     public void run() {
-      InputStreamReader isr = new InputStreamReader(is);
-      BufferedReader br = new BufferedReader(isr);
-      try {
+      try (BufferedReader br = new BufferedReader(new InputStreamReader(is, Charsets.UTF_8))) {
         String line;
         while ((line = br.readLine()) != null) {
           consumeLine(line);
         }
       } catch (IOException ioe) {
         exception = ioe;
-
-      } finally {
-        Closeables.closeQuietly(br);
-        Closeables.closeQuietly(isr);
       }
     }
 

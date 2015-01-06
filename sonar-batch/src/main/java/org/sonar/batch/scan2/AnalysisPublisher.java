@@ -19,8 +19,8 @@
  */
 package org.sonar.batch.scan2;
 
+import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
@@ -35,8 +35,10 @@ import org.sonar.api.utils.ZipUtils;
 import org.sonar.api.utils.text.JsonWriter;
 
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.Properties;
 
 public final class AnalysisPublisher {
@@ -94,9 +96,7 @@ public final class AnalysisPublisher {
 
   private void exportIssues(File exportDir) {
     File issuesFile = new File(exportDir, "issues.json");
-    FileWriter issueWriter = null;
-    try {
-      issueWriter = new FileWriter(issuesFile);
+    try (Writer issueWriter = new OutputStreamWriter(new FileOutputStream(issuesFile), Charsets.UTF_8)) {
       JsonWriter jsonWriter = JsonWriter.of(issueWriter);
       jsonWriter
         .beginObject().name("issues")
@@ -123,16 +123,12 @@ public final class AnalysisPublisher {
         .close();
     } catch (IOException e) {
       throw unableToExport(e);
-    } finally {
-      IOUtils.closeQuietly(issueWriter);
     }
   }
 
   private void exportMeasures(File exportDir) {
     File measuresFile = new File(exportDir, "measures.json");
-    FileWriter measureWriter = null;
-    try {
-      measureWriter = new FileWriter(measuresFile);
+    try (Writer measureWriter = new OutputStreamWriter(new FileOutputStream(measuresFile), Charsets.UTF_8)) {
       JsonWriter jsonWriter = JsonWriter.of(measureWriter);
       jsonWriter
         .beginObject().name("measures")
@@ -152,8 +148,6 @@ public final class AnalysisPublisher {
         .close();
     } catch (IOException e) {
       throw unableToExport(e);
-    } finally {
-      IOUtils.closeQuietly(measureWriter);
     }
   }
 
@@ -173,14 +167,10 @@ public final class AnalysisPublisher {
     File propsFile = new File(exportDir, "analysis.properties");
     Properties props = new Properties();
     props.putAll(settings.getProperties());
-    FileWriter writer = null;
-    try {
-      writer = new FileWriter(propsFile);
+    try (Writer writer = new OutputStreamWriter(new FileOutputStream(propsFile), Charsets.UTF_8)) {
       props.store(writer, "SonarQube batch");
     } catch (IOException e) {
       throw unableToExport(e);
-    } finally {
-      IOUtils.closeQuietly(writer);
     }
   }
 

@@ -31,7 +31,6 @@ import org.sonar.api.resources.Language;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.web.Footer;
-import org.sonar.api.web.NavigationSection;
 import org.sonar.api.web.Page;
 import org.sonar.api.web.RubyRailsWebservice;
 import org.sonar.api.web.Widget;
