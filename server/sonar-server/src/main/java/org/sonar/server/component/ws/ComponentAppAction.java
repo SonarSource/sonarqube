@@ -128,6 +128,7 @@ public class ComponentAppAction implements RequestHandler {
       );
     boolean isFavourite = propertyDtos.size() == 1;
 
+    json.prop("key", component.key());
     json.prop("uuid", component.uuid());
     json.prop("path", component.path());
     json.prop("name", component.name());

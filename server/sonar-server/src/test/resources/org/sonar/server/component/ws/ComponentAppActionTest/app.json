@@ -1,4 +1,5 @@
 {
+  "key": "org.codehaus.sonar:sonar-plugin-api:src/main/java/org/sonar/api/Plugin.java",
   "uuid": "ABCDE",
   "path": "src/main/java/org/sonar/api/Plugin.java",
   "name": "Plugin.java",
