@@ -12,6 +12,11 @@
   <packaging>jar</packaging>
 
   <name>SonarQube :: Plugin API</name>
+  
+  <properties>
+    <sonar.clirr.reportPath>${project.build.directory}/clirr-report.txt</sonar.clirr.reportPath>
+  </properties>
+  
   <dependencies>
     <dependency>
       <groupId>com.google.code.gson</groupId>
@@ -211,9 +216,6 @@
           <value>true</value>
         </property>
       </activation>
-      <properties>
-        <sonar.clirr.reportPath>${project.build.directory}/clirr-report.txt</sonar.clirr.reportPath>
-      </properties>
       <build>
         <plugins>
           <plugin>
