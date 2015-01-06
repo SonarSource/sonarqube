@@ -212,7 +212,7 @@
         </property>
       </activation>
       <properties>
-        <clirr.reportPath>${project.build.directory}/clirr-report.txt</clirr.reportPath>
+        <sonar.clirr.reportPath>${project.build.directory}/clirr-report.txt</sonar.clirr.reportPath>
       </properties>
       <build>
         <plugins>
