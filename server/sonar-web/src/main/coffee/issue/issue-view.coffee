@@ -291,6 +291,11 @@ define [
         key.setScope 'tags'
         key 'escape', 'tags', => @cancelEdit()
 
+        @$('.select2-input').keyup((event) =>
+          if (event.which == 27)
+            @cancelEdit()
+        )
+
         @ui.tagInput.select2 'focus'
       .fail =>
         window.process.failBackgroundProcess p
