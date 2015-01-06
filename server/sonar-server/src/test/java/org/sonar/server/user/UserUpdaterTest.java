@@ -322,6 +322,56 @@ public class UserUpdaterTest {
   }
 
   @Test
+  public void fail_to_create_user_when_scm_account_is_already_used() throws Exception {
+    db.prepareDbUnit(getClass(), "fail_to_create_user_when_scm_account_is_already_used.xml");
+
+    try {
+      userUpdater.create(NewUser.create()
+        .setLogin("marius")
+        .setName("Marius2")
+        .setEmail("marius2@mail.com")
+        .setPassword("password2")
+        .setPasswordConfirmation("password2")
+        .setScmAccounts(newArrayList("jo")));
+      fail();
+    } catch (BadRequestException e) {
+      assertThat(e.errors().messages()).containsOnly(Message.of("user.scm_account_already_used", "jo", "John", "john"));
+    }
+  }
+
+  @Test
+  public void fail_to_create_user_when_scm_account_is_user_login() throws Exception {
+    try {
+      userUpdater.create(NewUser.create()
+        .setLogin("marius")
+        .setName("Marius2")
+        .setEmail("marius2@mail.com")
+        .setPassword("password2")
+        .setPasswordConfirmation("password2")
+        .setScmAccounts(newArrayList("marius")));
+      fail();
+    } catch (BadRequestException e) {
+      assertThat(e.errors().messages()).containsOnly(Message.of("user.login_or_email_used_as_scm_account"));
+    }
+  }
+
+  @Test
+  public void fail_to_create_user_when_scm_account_is_user_email() throws Exception {
+    try {
+      userUpdater.create(NewUser.create()
+        .setLogin("marius")
+        .setName("Marius2")
+        .setEmail("marius2@mail.com")
+        .setPassword("password2")
+        .setPasswordConfirmation("password2")
+        .setScmAccounts(newArrayList("marius2@mail.com")));
+      fail();
+    } catch (BadRequestException e) {
+      assertThat(e.errors().messages()).containsOnly(Message.of("user.login_or_email_used_as_scm_account"));
+    }
+  }
+
+  @Test
   public void notify_new_user() throws Exception {
     createDefaultGroup();
 
@@ -467,6 +517,24 @@ public class UserUpdaterTest {
   }
 
   @Test
+  public void update_user_with_scm_accounts_containing_blank_entry() throws Exception {
+    db.prepareDbUnit(getClass(), "update_user.xml");
+    createDefaultGroup();
+
+    userUpdater.update(UpdateUser.create("marius")
+      .setName("Marius2")
+      .setEmail("marius2@mail.com")
+      .setPassword("password2")
+      .setPasswordConfirmation("password2")
+      .setScmAccounts(newArrayList("ma2", "", null)));
+    session.commit();
+    session.clearCache();
+
+    UserDto dto = userDao.selectNullableByLogin(session, "marius");
+    assertThat(dto.getScmAccounts()).isEqualTo(",ma2,");
+  }
+
+  @Test
   public void update_only_user_name() throws Exception {
     db.prepareDbUnit(getClass(), "update_user.xml");
     createDefaultGroup();
@@ -592,6 +660,67 @@ public class UserUpdaterTest {
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(NotFoundException.class).hasMessage("User 'marius' does not exists");
+    }
+  }
+
+  @Test
+  public void fail_to_update_user_when_scm_account_is_already_used() throws Exception {
+    db.prepareDbUnit(getClass(), "fail_to_update_user_when_scm_account_is_already_used.xml");
+    createDefaultGroup();
+
+    try {
+      userUpdater.update(UpdateUser.create("marius")
+        .setName("Marius2")
+        .setEmail("marius2@mail.com")
+        .setPassword("password2")
+        .setPasswordConfirmation("password2")
+        .setScmAccounts(newArrayList("jo")));
+      fail();
+    } catch (BadRequestException e) {
+      assertThat(e.errors().messages()).containsOnly(Message.of("user.scm_account_already_used", "jo", "John", "john"));
+    }
+  }
+
+  @Test
+  public void fail_to_update_user_when_scm_account_is_user_login() throws Exception {
+    db.prepareDbUnit(getClass(), "update_user.xml");
+    createDefaultGroup();
+
+    try {
+      userUpdater.update(UpdateUser.create("marius")
+        .setScmAccounts(newArrayList("marius")));
+      fail();
+    } catch (BadRequestException e) {
+      assertThat(e.errors().messages()).containsOnly(Message.of("user.login_or_email_used_as_scm_account"));
+    }
+  }
+
+  @Test
+  public void fail_to_update_user_when_scm_account_is_existing_user_email() throws Exception {
+    db.prepareDbUnit(getClass(), "update_user.xml");
+    createDefaultGroup();
+
+    try {
+      userUpdater.update(UpdateUser.create("marius")
+        .setScmAccounts(newArrayList("marius@lesbronzes.fr")));
+      fail();
+    } catch (BadRequestException e) {
+      assertThat(e.errors().messages()).containsOnly(Message.of("user.login_or_email_used_as_scm_account"));
+    }
+  }
+
+  @Test
+  public void fail_to_update_user_when_scm_account_is_new_user_email() throws Exception {
+    db.prepareDbUnit(getClass(), "update_user.xml");
+    createDefaultGroup();
+
+    try {
+      userUpdater.update(UpdateUser.create("marius")
+        .setEmail("marius@newmail.com")
+        .setScmAccounts(newArrayList("marius@newmail.com")));
+      fail();
+    } catch (BadRequestException e) {
+      assertThat(e.errors().messages()).containsOnly(Message.of("user.login_or_email_used_as_scm_account"));
     }
   }
 

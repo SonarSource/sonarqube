@@ -72,6 +72,18 @@ public class UserDaoTest {
   }
 
   @Test
+  public void select_nullable_by_scm_account() {
+    db.prepareDbUnit(getClass(), "select_nullable_by_scm_account.xml");
+
+    assertThat(dao.selectNullableByScmAccountOrLoginOrName(session, "ma").getLogin()).isEqualTo("marius");
+    assertThat(dao.selectNullableByScmAccountOrLoginOrName(session, "marius").getLogin()).isEqualTo("marius");
+    assertThat(dao.selectNullableByScmAccountOrLoginOrName(session, "marius@lesbronzes.fr").getLogin()).isEqualTo("marius");
+
+    assertThat(dao.selectNullableByScmAccountOrLoginOrName(session, "m")).isNull();
+    assertThat(dao.selectNullableByScmAccountOrLoginOrName(session, "unknown")).isNull();
+  }
+
+  @Test
   public void select_by_login_with_unknown_login() {
     try {
       dao.selectByLogin(session, "unknown");

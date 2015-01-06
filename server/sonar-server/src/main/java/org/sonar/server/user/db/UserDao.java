@@ -49,6 +49,11 @@ public class UserDao extends org.sonar.core.user.UserDao implements DaoComponent
     return user;
   }
 
+  @CheckForNull
+  public UserDto selectNullableByScmAccountOrLoginOrName(DbSession session, String scmAccount) {
+    return mapper(session).selectNullableByScmAccountOrLoginOrName(scmAccount);
+  }
+
   protected UserMapper mapper(DbSession session) {
     return session.getMapper(UserMapper.class);
   }

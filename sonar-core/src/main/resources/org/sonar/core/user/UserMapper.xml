@@ -19,19 +19,43 @@
   <select id="selectByLogin" parameterType="String" resultType="User">
     SELECT
     <include refid="userColumns"/>
-    FROM users u WHERE u.login=#{login}
+    FROM users u
+    WHERE u.login=#{login}
+  </select>
+
+  <select id="selectNullableByScmAccountOrLoginOrName" parameterType="String" resultType="User">
+    SELECT
+    <include refid="userColumns"/>
+    FROM users u
+    WHERE
+    u.login=#{scmAccount}
+    OR u.email=#{scmAccount}
+    OR
+    <choose>
+      <when test="_databaseId == 'mssql'">
+        u.scm_accounts LIKE '%,' + #{scmAccount} + ',%'
+      </when>
+      <when test="_databaseId == 'mysql'">
+        u.scm_accounts LIKE concat('%,', #{scmAccount}, ',%')
+      </when>
+      <otherwise>
+        u.scm_accounts LIKE '%,' || #{scmAccount} || ',%'
+      </otherwise>
+    </choose>
   </select>
 
   <select id="selectUser" parameterType="long" resultType="User">
     SELECT
     <include refid="userColumns"/>
-    FROM users u WHERE u.id=#{id}
+    FROM users u
+    WHERE u.id=#{id}
   </select>
 
   <select id="selectUserByLogin" parameterType="string" resultType="User">
     SELECT
     <include refid="userColumns"/>
-    FROM users u WHERE u.login=#{id} AND u.active=${_true}
+    FROM users u
+    WHERE u.login=#{id} AND u.active=${_true}
   </select>
 
   <select id="selectUsersByLogins" parameterType="map" resultType="User">

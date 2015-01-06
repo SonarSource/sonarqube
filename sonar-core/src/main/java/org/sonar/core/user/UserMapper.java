@@ -32,6 +32,9 @@ public interface UserMapper {
   UserDto selectByLogin(String login);
 
   @CheckForNull
+  UserDto selectNullableByScmAccountOrLoginOrName(String scmAccount);
+
+  @CheckForNull
   UserDto selectUser(long userId);
 
   /**

@@ -80,11 +80,11 @@ public class UserUpdater implements ServerComponent {
    * Return true if the user has been reactivated
    */
   public boolean create(NewUser newUser) {
-    UserDto userDto = createNewUserDto(newUser);
     boolean isUserReactivated = false;
 
     DbSession dbSession = dbClient.openSession(false);
     try {
+      UserDto userDto = createNewUserDto(dbSession, newUser);
       String login = userDto.getLogin();
       UserDto existingUser = dbClient.userDao().selectNullableByLogin(dbSession, login);
       if (existingUser == null) {
@@ -99,7 +99,7 @@ public class UserUpdater implements ServerComponent {
           .setScmAccounts(newUser.scmAccounts())
           .setPassword(newUser.password())
           .setPasswordConfirmation(newUser.passwordConfirmation());
-        updateUserDto(updateUser, existingUser);
+        updateUserDto(dbSession, updateUser, existingUser);
         updateUser(dbSession, existingUser);
         isUserReactivated = true;
       }
@@ -116,7 +116,7 @@ public class UserUpdater implements ServerComponent {
     try {
       UserDto user = dbClient.userDao().selectNullableByLogin(dbSession, updateUser.login());
       if (user != null) {
-        updateUserDto(updateUser, user);
+        updateUserDto(dbSession, updateUser, user);
         updateUser(dbSession, user);
       } else {
         throw new NotFoundException(String.format("User '%s' does not exists", updateUser.login()));
@@ -128,7 +128,7 @@ public class UserUpdater implements ServerComponent {
     }
   }
 
-  private static UserDto createNewUserDto(NewUser newUser) {
+  private UserDto createNewUserDto(DbSession dbSession, NewUser newUser) {
     UserDto userDto = new UserDto();
     List<Message> messages = newArrayList();
 
@@ -151,7 +151,9 @@ public class UserUpdater implements ServerComponent {
     validatePasswords(password, passwordConfirmation, messages);
     setEncryptedPassWord(password, userDto);
 
-    userDto.setScmAccounts(convertScmAccountsToCsv(newUser.scmAccounts()));
+    List<String> scmAccounts = sanitizeScmAccounts(newUser.scmAccounts());
+    validateScmAccounts(dbSession, scmAccounts, login, email, messages);
+    userDto.setScmAccounts(convertScmAccountsToCsv(scmAccounts));
 
     if (!messages.isEmpty()) {
       throw new BadRequestException(messages);
@@ -159,7 +161,7 @@ public class UserUpdater implements ServerComponent {
     return userDto;
   }
 
-  private static void updateUserDto(UpdateUser updateUser, UserDto userDto) {
+  private void updateUserDto(DbSession dbSession, UpdateUser updateUser, UserDto userDto) {
     List<Message> messages = newArrayList();
 
     String name = updateUser.name();
@@ -182,7 +184,9 @@ public class UserUpdater implements ServerComponent {
     }
 
     if (updateUser.isScmAccountsChanged()) {
-      userDto.setScmAccounts(convertScmAccountsToCsv(updateUser.scmAccounts()));
+      List<String> scmAccounts = sanitizeScmAccounts(updateUser.scmAccounts());
+      validateScmAccounts(dbSession, scmAccounts, userDto.getLogin(), email != null ? email : userDto.getEmail(), messages);
+      userDto.setScmAccounts(convertScmAccountsToCsv(scmAccounts));
     }
 
     if (!messages.isEmpty()) {
@@ -230,6 +234,30 @@ public class UserUpdater implements ServerComponent {
     }
   }
 
+  private void validateScmAccounts(DbSession dbSession, @Nullable List<String> scmAccounts, @Nullable String login, @Nullable String email, List<Message> messages) {
+    if (scmAccounts != null) {
+      for (String scmAccount : scmAccounts) {
+        if (scmAccount.equals(login) || scmAccount.equals(email)) {
+          messages.add(Message.of("user.login_or_email_used_as_scm_account"));
+        } else {
+          UserDto matchingUser = dbClient.userDao().selectNullableByScmAccountOrLoginOrName(dbSession, scmAccount);
+          if (matchingUser != null) {
+            messages.add(Message.of("user.scm_account_already_used", scmAccount, matchingUser.getName(), matchingUser.getLogin()));
+          }
+        }
+      }
+    }
+  }
+
+  @CheckForNull
+  private static List<String> sanitizeScmAccounts(@Nullable List<String> scmAccounts) {
+    if (scmAccounts != null) {
+      scmAccounts.removeAll(Arrays.asList(null, ""));
+      return scmAccounts;
+    }
+    return null;
+  }
+
   private void saveUser(DbSession dbSession, UserDto userDto) {
     long now = system2.now();
     userDto.setActive(true).setCreatedAt(now).setUpdatedAt(now);
@@ -256,8 +284,6 @@ public class UserUpdater implements ServerComponent {
   @CheckForNull
   private static String convertScmAccountsToCsv(@Nullable List<String> scmAccounts) {
     if (scmAccounts != null) {
-      // Remove empty characters
-      scmAccounts.removeAll(Arrays.asList(null, ""));
       // Add one empty character at the begin and at the end of the list to be able to generate a coma at the begin and at the end of the
       // text
       scmAccounts.add(0, "");
