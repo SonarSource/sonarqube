@@ -21,15 +21,16 @@
 package org.sonar.process;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.Charsets;
 
 final class Base64Cipher implements Cipher {
   @Override
   public String encrypt(String clearText) {
-    return new String(Base64.encodeBase64(clearText.getBytes()));
+    return Base64.encodeBase64String(clearText.getBytes());
   }
 
   @Override
   public String decrypt(String encryptedText) {
-    return new String(Base64.decodeBase64(encryptedText));
+    return new String(Base64.decodeBase64(encryptedText), Charsets.UTF_8);
   }
 }

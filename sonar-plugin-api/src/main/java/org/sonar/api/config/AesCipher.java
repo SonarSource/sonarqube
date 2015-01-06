@@ -22,6 +22,7 @@ package org.sonar.api.config;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Throwables;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
@@ -56,7 +57,7 @@ final class AesCipher extends Cipher {
     try {
       javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(CRYPTO_KEY);
       cipher.init(javax.crypto.Cipher.ENCRYPT_MODE, loadSecretFile());
-      return new String(Base64.encodeBase64(cipher.doFinal(clearText.getBytes("UTF-8"))));
+      return Base64.encodeBase64String(cipher.doFinal(clearText.getBytes("UTF-8")));
     } catch (Exception e) {
       throw Throwables.propagate(e);
     }
@@ -68,7 +69,7 @@ final class AesCipher extends Cipher {
       javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(CRYPTO_KEY);
       cipher.init(javax.crypto.Cipher.DECRYPT_MODE, loadSecretFile());
       byte[] cipherData = cipher.doFinal(Base64.decodeBase64(StringUtils.trim(encryptedText)));
-      return new String(cipherData);
+      return new String(cipherData, Charsets.UTF_8);
     } catch (Exception e) {
       throw Throwables.propagate(e);
     }
@@ -112,7 +113,7 @@ final class AesCipher extends Cipher {
       KeyGenerator keyGen = KeyGenerator.getInstance(CRYPTO_KEY);
       keyGen.init(KEY_SIZE_IN_BITS, new SecureRandom());
       SecretKey secretKey = keyGen.generateKey();
-      return new String(Base64.encodeBase64(secretKey.getEncoded()));
+      return Base64.encodeBase64String(secretKey.getEncoded());
 
     } catch (Exception e) {
       throw new IllegalStateException("Fail to generate secret key", e);

@@ -301,7 +301,7 @@ public interface RulesDefinition extends ServerExtension {
   /**
    * Instantiated by core but not by plugins
    */
-  class Context {
+  public class Context {
     private final Map<String, Repository> repositoriesByKey = Maps.newHashMap();
     private final ListMultimap<String, ExtendedRepository> extendedRepositoriesByKey = ArrayListMultimap.create();
 

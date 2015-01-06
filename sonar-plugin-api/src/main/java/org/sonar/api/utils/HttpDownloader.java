@@ -29,6 +29,7 @@ import com.google.common.io.CharStreams;
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.LoggerFactory;
@@ -279,7 +280,7 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
         // allow both GZip and Deflate (ZLib) encodings
         connection.setRequestProperty("Accept-Encoding", "gzip");
         if (!Strings.isNullOrEmpty(login)) {
-          String encoded = new String(Base64.encodeBase64((login + ":" + password).getBytes()));
+          String encoded = Base64.encodeBase64String((login + ":" + password).getBytes(Charsets.UTF_8));
           connection.setRequestProperty("Authorization", "Basic " + encoded);
         }
         connection.setConnectTimeout(TIMEOUT_MILLISECONDS);

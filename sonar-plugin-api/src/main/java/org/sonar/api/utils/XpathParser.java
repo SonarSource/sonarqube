@@ -28,6 +28,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import javax.annotation.Nullable;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -64,7 +65,7 @@ public class XpathParser {
   private Document doc = null;
   private DocumentBuilder builder;
   private XPath xpath;
-  private Map<String, XPathExpression> compiledExprs = new HashMap<String, XPathExpression>();
+  private Map<String, XPathExpression> compiledExprs = new HashMap<>();
 
   public XpathParser() {
     DocumentBuilderFactory bf = DocumentBuilderFactory.newInstance();
@@ -88,7 +89,7 @@ public class XpathParser {
     }
   }
 
-  public void parse(File file) {
+  public void parse(@Nullable File file) {
     if (file == null || !file.exists()) {
       throw new XmlParserException("File not found : " + file);
     }

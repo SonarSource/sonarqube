@@ -22,6 +22,7 @@ package org.sonar.api.config;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.DateUtils;
@@ -115,7 +116,7 @@ public final class License {
   }
 
   public static License readBase64(String base64) {
-    return readPlainText(new String(Base64.decodeBase64(base64.getBytes())));
+    return readPlainText(new String(Base64.decodeBase64(base64.getBytes(Charsets.UTF_8)), Charsets.UTF_8));
   }
 
   @VisibleForTesting
