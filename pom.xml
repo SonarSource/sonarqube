@@ -24,6 +24,8 @@
     <module>sonar-home</module>
     <module>sonar-java-api</module>
     <module>sonar-markdown</module>
+    <module>sonar-maven-plugin</module>
+    <module>sonar-maven3-plugin</module>
     <module>sonar-plugin-api</module>
     <module>server</module>
     <module>sonar-testing-harness</module>
