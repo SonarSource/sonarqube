@@ -37,11 +37,13 @@ public @interface NavigationSection {
   String RESOURCE = "resource";
 
   /**
+   * Support removed in 5.1. See https://jira.codehaus.org/browse/SONAR-6016.
    * @deprecated in 4.5, as it costs too much to maintain and update.
    * @see <a href="https://jira.codehaus.org/browse/SONAR-5321">SONAR-5321</a>
    */
   @Deprecated
   String RESOURCE_TAB = "resource_tab";
+
   String CONFIGURATION = "configuration";
 
   /**

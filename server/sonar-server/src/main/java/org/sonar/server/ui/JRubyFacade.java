@@ -199,18 +199,6 @@ public final class JRubyFacade {
     return get(Views.class).getPages(section, resourceScope, resourceQualifier, resourceLanguage, (String[]) availableMeasures);
   }
 
-  public List<ViewProxy<Page>> getResourceTabs() {
-    return get(Views.class).getPages(NavigationSection.RESOURCE_TAB, null, null, null, null);
-  }
-
-  public List<ViewProxy<Page>> getResourceTabs(String scope, String qualifier, String language, Object[] availableMeasures) {
-    return get(Views.class).getPages(NavigationSection.RESOURCE_TAB, scope, qualifier, language, (String[]) availableMeasures);
-  }
-
-  public List<ViewProxy<Page>> getResourceTabsForMetric(String scope, String qualifier, String language, Object[] availableMeasures, String metric) {
-    return get(Views.class).getPagesForMetric(NavigationSection.RESOURCE_TAB, scope, qualifier, language, (String[]) availableMeasures, metric);
-  }
-
   public ViewProxy<Page> getPage(String id) {
     return get(Views.class).getPage(id);
   }

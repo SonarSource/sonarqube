@@ -172,15 +172,7 @@ class DrilldownController < ApplicationController
   end
 
   def display_metric_viewers?(resource, metric_key)
-    return true if resource.file?
-    java_facade.getResourceTabsForMetric(resource.scope, resource.qualifier, resource.language, resource.last_snapshot.metric_keys.to_java(:string), metric_key).each do |tab|
-      tab.getUserRoles().each do |role|
-        if has_role?(role, resource)
-          return true
-        end
-      end
-    end
-    false
+    return resource.file?
   end
 
   def display_violation_viewers?(snapshot)
