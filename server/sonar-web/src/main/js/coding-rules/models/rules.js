@@ -16,9 +16,9 @@ define([
       });
     },
 
-    addExtraAttributes: function (languages, repositories) {
+    addExtraAttributes: function (repositories) {
       this.models.forEach(function (model) {
-        model.addExtraAttributes(languages, repositories);
+        model.addExtraAttributes(repositories);
       });
     }
   });

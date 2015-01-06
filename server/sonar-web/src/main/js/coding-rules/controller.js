@@ -89,7 +89,7 @@ define([
           };
       return $.get(url, options).done(function (data) {
         rule.set(data.rule);
-        rule.addExtraAttributes(that.app.languages, that.app.repositories);
+        rule.addExtraAttributes(that.app.repositories);
       });
     },
 
