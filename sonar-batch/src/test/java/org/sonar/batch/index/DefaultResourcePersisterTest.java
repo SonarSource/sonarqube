@@ -122,7 +122,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
       assertThat(newProject.uuid()).isNotNull();
       assertThat(newProject.projectUuid()).isEqualTo(newProject.uuid());
       assertThat(newProject.moduleUuid()).isNull();
-      assertThat(newProject.moduleUuidPath()).isEqualTo("");
+      assertThat(newProject.moduleUuidPath()).isEmpty();
       // SONAR-3636 : created_at must be fed when inserting a new entry in the 'projects' table
       assertThat(newProject.getCreatedAt()).isNotNull();
     } finally {
@@ -147,7 +147,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
       assertThat(newProject.uuid()).isNotNull();
       assertThat(newProject.projectUuid()).isEqualTo(newProject.uuid());
       assertThat(newProject.moduleUuid()).isNull();
-      assertThat(newProject.moduleUuidPath()).isEqualTo("");
+      assertThat(newProject.moduleUuidPath()).isEmpty();
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -183,7 +183,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
       assertThat(root.uuid()).isNotNull();
       assertThat(root.projectUuid()).isEqualTo(root.uuid());
       assertThat(root.moduleUuid()).isNull();
-      assertThat(root.moduleUuidPath()).isEqualTo("");
+      assertThat(root.moduleUuidPath()).isEmpty();
       ComponentDto a = session.getMapper(ComponentMapper.class).selectByKey("a");
       assertThat(a.uuid()).isNotNull();
       assertThat(a.projectUuid()).isEqualTo(root.uuid());
@@ -262,7 +262,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
       assertThat(root.uuid()).isNotNull();
       assertThat(root.projectUuid()).isEqualTo(root.uuid());
       assertThat(root.moduleUuid()).isNull();
-      assertThat(root.moduleUuidPath()).isEqualTo("");
+      assertThat(root.moduleUuidPath()).isEmpty();
       ComponentDto a = session.getMapper(ComponentMapper.class).selectByKey("a");
       System.out.println("A: " + a.uuid());
       assertThat(a.uuid()).isNotNull();
@@ -355,7 +355,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
       assertThat(newLib.uuid()).isNotNull();
       assertThat(newLib.projectUuid()).isEqualTo(newLib.uuid());
       assertThat(newLib.moduleUuid()).isNull();
-      assertThat(newLib.moduleUuidPath()).isEqualTo("");
+      assertThat(newLib.moduleUuidPath()).isEmpty();
     } finally {
       MyBatis.closeQuietly(session);
     }
