@@ -152,7 +152,7 @@ public class UserUpdater implements ServerComponent {
     setEncryptedPassWord(password, userDto);
 
     List<String> scmAccounts = sanitizeScmAccounts(newUser.scmAccounts());
-    validateScmAccounts(dbSession, scmAccounts, login, email, messages);
+    validateScmAccounts(dbSession, scmAccounts, login, email, null, messages);
     userDto.setScmAccounts(convertScmAccountsToCsv(scmAccounts));
 
     if (!messages.isEmpty()) {
@@ -185,7 +185,7 @@ public class UserUpdater implements ServerComponent {
 
     if (updateUser.isScmAccountsChanged()) {
       List<String> scmAccounts = sanitizeScmAccounts(updateUser.scmAccounts());
-      validateScmAccounts(dbSession, scmAccounts, userDto.getLogin(), email != null ? email : userDto.getEmail(), messages);
+      validateScmAccounts(dbSession, scmAccounts, userDto.getLogin(), email != null ? email : userDto.getEmail(), userDto, messages);
       userDto.setScmAccounts(convertScmAccountsToCsv(scmAccounts));
     }
 
@@ -234,7 +234,8 @@ public class UserUpdater implements ServerComponent {
     }
   }
 
-  private void validateScmAccounts(DbSession dbSession, @Nullable List<String> scmAccounts, @Nullable String login, @Nullable String email, List<Message> messages) {
+  private void validateScmAccounts(DbSession dbSession, @Nullable List<String> scmAccounts, @Nullable String login, @Nullable String email, @Nullable UserDto existingUser,
+    List<Message> messages) {
     if (scmAccounts != null) {
       for (String scmAccount : scmAccounts) {
         if (scmAccount.equals(login) || scmAccount.equals(email)) {
@@ -242,7 +243,9 @@ public class UserUpdater implements ServerComponent {
         } else {
           UserDto matchingUser = dbClient.userDao().selectNullableByScmAccountOrLoginOrName(dbSession, scmAccount);
           if (matchingUser != null) {
-            messages.add(Message.of("user.scm_account_already_used", scmAccount, matchingUser.getName(), matchingUser.getLogin()));
+            if (existingUser == null || !matchingUser.getId().equals(existingUser.getId())) {
+              messages.add(Message.of("user.scm_account_already_used", scmAccount, matchingUser.getName(), matchingUser.getLogin()));
+            }
           }
         }
       }

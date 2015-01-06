@@ -595,6 +595,20 @@ public class UserUpdaterTest {
   }
 
   @Test
+  public void update_scm_accounts_with_same_values() throws Exception {
+    db.prepareDbUnit(getClass(), "update_user.xml");
+    createDefaultGroup();
+
+    userUpdater.update(UpdateUser.create("marius")
+      .setScmAccounts(newArrayList("ma", "marius33")));
+    session.commit();
+    session.clearCache();
+
+    UserDto dto = userDao.selectNullableByLogin(session, "marius");
+    assertThat(dto.getScmAccounts()).isEqualTo(",ma,marius33,");
+  }
+
+  @Test
   public void remove_scm_accounts() throws Exception {
     db.prepareDbUnit(getClass(), "update_user.xml");
     createDefaultGroup();
