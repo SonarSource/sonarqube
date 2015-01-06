@@ -29,7 +29,7 @@
       </tr>
       <tr>
         <td><b><%= message('my_profile.scm_accounts') -%>:</b></td>
-        <td id="groups"><%= current_user.scm_accounts.split(',').reject { |c| c.empty? }.join(', ') %></td>
+        <td id="groups"><%= current_user.scm_accounts.split(',').reject { |c| c.empty? }.join(', ') if current_user.scm_accounts %></td>
       </tr>
     </table>
   </div>
