@@ -43,7 +43,6 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.db.UserGroupDao;
 import org.sonar.server.util.Validation;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.io.StringWriter;
@@ -151,9 +150,12 @@ public class UserUpdater implements ServerComponent {
     validatePasswords(password, passwordConfirmation, messages);
     setEncryptedPassWord(password, userDto);
 
-    List<String> scmAccounts = sanitizeScmAccounts(newUser.scmAccounts());
-    validateScmAccounts(dbSession, scmAccounts, login, email, null, messages);
-    userDto.setScmAccounts(convertScmAccountsToCsv(scmAccounts));
+    List<String> scmAccounts = newUser.scmAccounts();
+    if (scmAccounts != null && !scmAccounts.isEmpty()) {
+      scmAccounts = sanitizeScmAccounts(scmAccounts);
+      validateScmAccounts(dbSession, scmAccounts, login, email, null, messages);
+      userDto.setScmAccounts(convertScmAccountsToCsv(scmAccounts));
+    }
 
     if (!messages.isEmpty()) {
       throw new BadRequestException(messages);
@@ -184,9 +186,14 @@ public class UserUpdater implements ServerComponent {
     }
 
     if (updateUser.isScmAccountsChanged()) {
-      List<String> scmAccounts = sanitizeScmAccounts(updateUser.scmAccounts());
-      validateScmAccounts(dbSession, scmAccounts, userDto.getLogin(), email != null ? email : userDto.getEmail(), userDto, messages);
-      userDto.setScmAccounts(convertScmAccountsToCsv(scmAccounts));
+      List<String> scmAccounts = updateUser.scmAccounts();
+      if (scmAccounts != null && !scmAccounts.isEmpty()) {
+        scmAccounts = sanitizeScmAccounts(updateUser.scmAccounts());
+        validateScmAccounts(dbSession, scmAccounts, userDto.getLogin(), email != null ? email : userDto.getEmail(), userDto, messages);
+        userDto.setScmAccounts(convertScmAccountsToCsv(scmAccounts));
+      } else {
+        userDto.setScmAccounts(null);
+      }
     }
 
     if (!messages.isEmpty()) {
@@ -234,31 +241,23 @@ public class UserUpdater implements ServerComponent {
     }
   }
 
-  private void validateScmAccounts(DbSession dbSession, @Nullable List<String> scmAccounts, @Nullable String login, @Nullable String email, @Nullable UserDto existingUser,
+  private void validateScmAccounts(DbSession dbSession, List<String> scmAccounts, @Nullable String login, @Nullable String email, @Nullable UserDto existingUser,
     List<Message> messages) {
-    if (scmAccounts != null) {
-      for (String scmAccount : scmAccounts) {
-        if (scmAccount.equals(login) || scmAccount.equals(email)) {
-          messages.add(Message.of("user.login_or_email_used_as_scm_account"));
-        } else {
-          UserDto matchingUser = dbClient.userDao().selectNullableByScmAccountOrLoginOrName(dbSession, scmAccount);
-          if (matchingUser != null) {
-            if (existingUser == null || !matchingUser.getId().equals(existingUser.getId())) {
-              messages.add(Message.of("user.scm_account_already_used", scmAccount, matchingUser.getName(), matchingUser.getLogin()));
-            }
-          }
+    for (String scmAccount : scmAccounts) {
+      if (scmAccount.equals(login) || scmAccount.equals(email)) {
+        messages.add(Message.of("user.login_or_email_used_as_scm_account"));
+      } else {
+        UserDto matchingUser = dbClient.userDao().selectNullableByScmAccountOrLoginOrName(dbSession, scmAccount);
+        if (matchingUser != null && (existingUser == null || !matchingUser.getId().equals(existingUser.getId()))) {
+          messages.add(Message.of("user.scm_account_already_used", scmAccount, matchingUser.getName(), matchingUser.getLogin()));
         }
       }
     }
   }
 
-  @CheckForNull
-  private static List<String> sanitizeScmAccounts(@Nullable List<String> scmAccounts) {
-    if (scmAccounts != null) {
-      scmAccounts.removeAll(Arrays.asList(null, ""));
-      return scmAccounts;
-    }
-    return null;
+  private static List<String> sanitizeScmAccounts(List<String> scmAccounts) {
+    scmAccounts.removeAll(Arrays.asList(null, ""));
+    return scmAccounts;
   }
 
   private void saveUser(DbSession dbSession, UserDto userDto) {
@@ -284,22 +283,18 @@ public class UserUpdater implements ServerComponent {
     userDto.setCryptedPassword(DigestUtils.sha1Hex("--" + saltHex + "--" + password + "--"));
   }
 
-  @CheckForNull
-  private static String convertScmAccountsToCsv(@Nullable List<String> scmAccounts) {
-    if (scmAccounts != null) {
-      // Add one empty character at the begin and at the end of the list to be able to generate a coma at the begin and at the end of the
-      // text
-      scmAccounts.add(0, "");
-      scmAccounts.add("");
-      int size = scmAccounts.size();
-      StringWriter writer = new StringWriter(size);
-      CsvWriter csv = CsvWriter.of(writer);
-      csv.values(scmAccounts.toArray(new String[size]));
-      csv.close();
-      // Remove useless line break added by CsvWriter at this end of the text
-      return CharMatcher.BREAKING_WHITESPACE.removeFrom(writer.toString());
-    }
-    return null;
+  private static String convertScmAccountsToCsv(List<String> scmAccounts) {
+    // Add one empty character at the begin and at the end of the list to be able to generate a coma at the begin and at the end of the
+    // text
+    scmAccounts.add(0, "");
+    scmAccounts.add("");
+    int size = scmAccounts.size();
+    StringWriter writer = new StringWriter(size);
+    CsvWriter csv = CsvWriter.of(writer);
+    csv.values(scmAccounts.toArray(new String[size]));
+    csv.close();
+    // Remove useless line break added by CsvWriter at this end of the text
+    return CharMatcher.BREAKING_WHITESPACE.removeFrom(writer.toString());
   }
 
   private void notifyNewUser(String login, String name, String email) {

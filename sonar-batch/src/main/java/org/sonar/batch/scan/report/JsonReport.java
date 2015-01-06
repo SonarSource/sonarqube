@@ -20,6 +20,7 @@
 package org.sonar.batch.scan.report;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Charsets;
 import com.google.common.io.Closeables;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -48,11 +49,7 @@ import org.sonar.batch.events.EventBus;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.scan.filesystem.InputPathCache;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -105,7 +102,7 @@ public class JsonReport implements BatchComponent {
     LOG.info("Export results to " + exportFile.getAbsolutePath());
     Writer output = null;
     try {
-      output = new BufferedWriter(new FileWriter(exportFile));
+      output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(exportFile), Charsets.UTF_8));
       writeJson(output);
 
     } catch (IOException e) {

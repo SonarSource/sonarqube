@@ -76,7 +76,6 @@ public class JsonReportTest {
   RuleFinder ruleFinder = mock(RuleFinder.class);
   Settings settings = new Settings();
   IssueCache issueCache = mock(IssueCache.class);
-  private AnalysisMode mode;
   private UserFinder userFinder;
 
   @Before
@@ -84,7 +83,7 @@ public class JsonReportTest {
     SIMPLE_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT+02:00"));
     when(resource.getEffectiveKey()).thenReturn("Action.java");
     when(server.getVersion()).thenReturn("3.6");
-    mode = mock(AnalysisMode.class);
+    AnalysisMode mode = mock(AnalysisMode.class);
     when(mode.isPreview()).thenReturn(true);
     userFinder = mock(UserFinder.class);
     DefaultInputDir inputDir = new DefaultInputDir("struts", "src/main/java/org/apache/struts");
