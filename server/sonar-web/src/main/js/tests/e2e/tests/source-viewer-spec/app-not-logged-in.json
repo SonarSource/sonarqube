@@ -1,62 +1,23 @@
-{"key": "org.codehaus.sonar:sonar-batch:src/main/java/org/sonar/batch/index/Cache.java",
+{
+  "uuid": "12345",
   "path": "src/main/java/org/sonar/batch/index/Cache.java",
   "name": "Cache.java",
   "longName": "src/main/java/org/sonar/batch/index/Cache.java",
-  "q": "FIL", "subProject": "org.codehaus.sonar:sonar-batch",
+  "q": "FIL",
+  "subProject": "org.codehaus.sonar:sonar-batch",
   "subProjectName": "SonarQube :: Batch",
   "project": "org.codehaus.sonar:sonar",
   "projectName": "SonarQube",
   "fav": false,
   "canMarkAsFavourite": false,
-  "canBulkChange": false,
   "canCreateManualIssue": false,
-  "periods": [
-    [1, "since previous analysis (2014 Dec 01)", "2014-12-01T18:51:13+0100"],
-    [2, "over 365 days (2013 Dec 01)", "2013-12-01T00:40:31+0100"],
-    [3, "since previous version (4.5 - 2014 Sep 03)", "2014-09-03T23:16:52+0200"]
-  ],
-  "severities": [
-    ["MINOR", "Minor", 1],
-    ["MAJOR", "Major", 1],
-    ["INFO", "Info", 4]
-  ],
-  "rules": [
-    ["common-java:DuplicatedBlocks", "Duplicated blocks", 1],
-    ["squid:S1192", "String literals should not be duplicated", 1],
-    ["squid:S1135", "TODO tags should be handled", 4]
-  ],
   "measures": {
-    "fNcloc": "378",
-    "fCoverage": "74.3%",
-    "fDuplicationDensity": "5.8%",
-    "fDebt": "2h 10min",
-    "fSqaleRating": "A",
-    "fSqaleDebtRatio": "1.1%",
-    "fIssues": "6",
-    "fMinorIssues": "1",
-    "fMajorIssues": "1",
-    "fInfoIssues": "4"
-  },
-  "tabs": ["scm", "coverage", "duplications"],
-  "manual_rules": [
-    {
-      "key": "manual:api",
-      "name": "API"
-    },
-    {
-      "key": "manual:design",
-      "name": "Design"
-    },
-    {
-      "key": "manual:error_handling",
-      "name": "Error handling"
-    },
-    {
-      "key": "manual:performance",
-      "name": "Performance"
-    },
-    {
-      "key": "manual:sql_pitfalls",
-      "name": "SQL Pitfall"
-    }
-  ]}
+    "lines": "378",
+    "coverage": "74.3%",
+    "duplicationDensity": "5.8%",
+    "debt": "2h 10min",
+    "sqaleRating": "A",
+    "debtRatio": "1.1%",
+    "issues": "6"
+  }
+}

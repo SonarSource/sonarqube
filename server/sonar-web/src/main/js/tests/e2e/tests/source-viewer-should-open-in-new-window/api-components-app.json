@@ -1,5 +1,5 @@
 {
-  "key": "test:fake-project-for-tests:src/main/java/foo/Simplest.java",
+  "uuid": "12345",
   "path": "src/main/java/foo/Simplest.java",
   "name": "Simplest.java",
   "longName": "src/main/java/foo/Simplest.java",
@@ -8,88 +8,13 @@
   "projectName": "Fake Project for Tests",
   "fav": false,
   "canMarkAsFavourite": true,
-  "canBulkChange": true,
   "canCreateManualIssue": true,
-  "periods": [
-    [
-      1,
-      "since previous analysis (2014 Dec 09)",
-      "2014-12-09T10:47:33+0100"
-    ],
-    [
-      2,
-      "over 365 days (2014 Dec 09)",
-      "2014-12-09T10:47:33+0100"
-    ]
-  ],
-  "severities": [
-    [
-      "MINOR",
-      "Minor",
-      1
-    ],
-    [
-      "MAJOR",
-      "Major",
-      4
-    ]
-  ],
-  "rules": [
-    [
-      "squid:IndentationCheck",
-      "Source code should be correctly indented",
-      2
-    ],
-    [
-      "squid:S1118",
-      "Utility classes should not have a public constructor",
-      1
-    ],
-    [
-      "squid:S00105",
-      "Tabulation characters should not be used",
-      1
-    ],
-    [
-      "squid:S106",
-      "System.out and System.err should not be used as loggers",
-      1
-    ]
-  ],
   "measures": {
-    "fNcloc": "8",
-    "fCoverage": "75.0%",
-    "fDebt": "44min",
-    "fSqaleRating": "C",
-    "fSqaleDebtRatio": "18.3%",
-    "fIssues": "5",
-    "fMinorIssues": "1",
-    "fMajorIssues": "4"
-  },
-  "tabs": [
-    "scm",
-    "coverage"
-  ],
-  "manual_rules": [
-    {
-      "key": "manual:api",
-      "name": "API"
-    },
-    {
-      "key": "manual:design",
-      "name": "Design"
-    },
-    {
-      "key": "manual:error_handling",
-      "name": "Error handling"
-    },
-    {
-      "key": "manual:performance",
-      "name": "Performance"
-    },
-    {
-      "key": "manual:sql_pitfalls",
-      "name": "SQL Pitfall"
-    }
-  ]
+    "lines": "8",
+    "coverage": "75.0%",
+    "debt": "44min",
+    "sqaleRating": "C",
+    "debtRatio": "18.3%",
+    "issues": "5"
+  }
 }
