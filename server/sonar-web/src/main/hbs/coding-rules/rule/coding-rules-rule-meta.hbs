@@ -74,7 +74,8 @@
 
     {{#if debtRemFnCoeff}}
       <li class="coding-rules-detail-property"
-          data-toggle="tooltip" data-placement="bottom" title="{{t 'coding_rules.remediation_function.coeff'}}">
+          data-toggle="tooltip" data-placement="bottom"
+          title="{{#if effortToFixDescription}}{{effortToFixDescription}}{{else}}{{t 'coding_rules.remediation_function.coeff'}}{{/if}}">
         {{debtRemFnCoeff}}
       </li>
     {{/if}}
