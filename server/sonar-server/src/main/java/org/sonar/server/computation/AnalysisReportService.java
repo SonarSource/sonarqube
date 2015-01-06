@@ -46,6 +46,7 @@ import javax.annotation.Nullable;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class AnalysisReportService implements ServerComponent {
@@ -132,6 +133,7 @@ public class AnalysisReportService implements ServerComponent {
     defaultIssue.setLine(issue.line());
     defaultIssue.setEffortToFix(issue.effortToFix());
     setDebt(defaultIssue, issue.debt());
+    setFieldDiffs(defaultIssue, issue.diffFields(), context.getAnalysisDate());
     defaultIssue.setStatus(issue.status());
     defaultIssue.setResolution(issue.resolution());
     defaultIssue.setReporter(issue.reporter());
@@ -143,11 +145,18 @@ public class AnalysisReportService implements ServerComponent {
     defaultIssue.setCreationDate(issue.creationDate());
     defaultIssue.setUpdateDate(issue.updateDate());
     defaultIssue.setCloseDate(issue.closeDate());
-    defaultIssue.setCurrentChange(FieldDiffs.parse(issue.diffFields()));
     defaultIssue.setChanged(issue.isChanged());
     defaultIssue.setNew(issue.isNew());
     defaultIssue.setSelectedAt(issue.selectedAt());
     return defaultIssue;
+  }
+
+  private DefaultIssue setFieldDiffs(DefaultIssue issue, String diffFields, Date analysisDate) {
+    FieldDiffs fieldDiffs = FieldDiffs.parse(diffFields);
+    fieldDiffs.setCreationDate(analysisDate);
+    issue.setCurrentChange(fieldDiffs);
+
+    return issue;
   }
 
   private DefaultIssue setComponentId(DefaultIssue issue, ReportComponent component) {

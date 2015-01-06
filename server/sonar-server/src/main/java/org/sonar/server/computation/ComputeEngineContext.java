@@ -30,6 +30,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.io.File;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,6 +40,7 @@ public class ComputeEngineContext {
   private final ComponentDto project;
   private File reportDirectory;
   private Map<Long, ReportComponent> components = new HashMap<>();
+  private Date analysisDate;
 
   public ComputeEngineContext(AnalysisReportDto reportDto, ComponentDto project) {
     this.reportDto = reportDto;
@@ -62,6 +64,7 @@ public class ComputeEngineContext {
   }
 
   public void addResources(ReportComponents reportComponents) {
+    analysisDate = reportComponents.analysisDate();
     addResource(reportComponents.root());
   }
 
@@ -80,5 +83,10 @@ public class ComputeEngineContext {
     for (ReportComponent childResource : resource.children()) {
       addResource(childResource);
     }
+  }
+
+  @CheckForNull
+  public Date getAnalysisDate() {
+    return analysisDate;
   }
 }
