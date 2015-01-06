@@ -180,10 +180,6 @@ module.exports = (grunt) ->
         name: 'coding-rules/show-app'
         out: '<%= pkg.assets %>build/js/coding-rules/show-app.js'
 
-      codingRulesOld: options:
-        name: 'coding-rules-old/app'
-        out: '<%= pkg.assets %>build/js/coding-rules-old/app.js'
-
       issues: options:
         name: 'issues/app-new'
         out: '<%= pkg.assets %>build/js/issues/app-new.js'
@@ -246,10 +242,6 @@ module.exports = (grunt) ->
           '<%= pkg.assets %>js/templates/coding-rules.js': [
             '<%= pkg.sources %>hbs/common/**/*.hbs'
             '<%= pkg.sources %>hbs/coding-rules/**/*.hbs'
-          ]
-          '<%= pkg.assets %>js/templates/coding-rules-old.js': [
-            '<%= pkg.sources %>hbs/common/**/*.hbs'
-            '<%= pkg.sources %>hbs/coding-rules-old/**/*.hbs'
           ]
           '<%= pkg.assets %>js/templates/quality-gates.js': [
             '<%= pkg.sources %>hbs/quality-gates/**/*.hbs'
