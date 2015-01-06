@@ -16,6 +16,7 @@ casper.test.begin('coding-rules-page-should-activate-profile', 5, function (test
         lib.mockRequestFromFile('/api/rules/search', 'search.json');
         this.showMock = lib.mockRequestFromFile('/api/rules/show', 'show.json');
         lib.mockRequest('/api/qualityprofiles/activate_rule', '{}');
+        lib.mockRequest('/api/issues/search', '{}');
       })
 
       .then(function () {

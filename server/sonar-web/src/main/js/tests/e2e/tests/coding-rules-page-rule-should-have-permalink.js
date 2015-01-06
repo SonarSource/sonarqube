@@ -15,6 +15,7 @@ casper.test.begin('coding-rules-page-rule-permalink', 1, function (test) {
         lib.mockRequestFromFile('/api/rules/app', 'app.json');
         lib.mockRequestFromFile('/api/rules/search', 'search.json');
         lib.mockRequestFromFile('/api/rules/show', 'show.json');
+        lib.mockRequest('/api/issues/search', '{}');
       })
 
       .then(function () {

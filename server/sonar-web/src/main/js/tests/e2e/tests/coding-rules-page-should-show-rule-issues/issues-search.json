@@ -1,0 +1,51 @@
+{
+  "total": 7,
+  "p": 1,
+  "ps": 1,
+  "projects": [
+    {
+      "uuid": "3b22f38e-ad68-4792-9791-1435584a686c",
+      "key": "org.codehaus.sonar.runner:sonar-runner",
+      "id": 17226,
+      "qualifier": "TRK",
+      "name": "SonarQube Runner",
+      "longName": "SonarQube Runner"
+    },
+    {
+      "uuid": "69e57151-be0d-4157-adff-c06741d88879",
+      "key": "org.codehaus.sonar:sonar",
+      "id": 2865,
+      "qualifier": "TRK",
+      "name": "SonarQube",
+      "longName": "SonarQube"
+    }
+  ],
+  "components": [],
+  "issues": [],
+  "rules": [],
+  "users": [],
+  "languages": [],
+  "maxResultsReached": false,
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 1,
+    "total": 7,
+    "fTotal": "7",
+    "pages": 7
+  },
+  "facets": [
+    {
+      "property": "projectUuids",
+      "values": [
+        {
+          "val": "69e57151-be0d-4157-adff-c06741d88879",
+          "count": 2
+        },
+        {
+          "val": "3b22f38e-ad68-4792-9791-1435584a686c",
+          "count": 1
+        }
+      ]
+    }
+  ]
+}

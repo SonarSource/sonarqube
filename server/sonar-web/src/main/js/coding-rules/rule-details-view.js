@@ -8,7 +8,8 @@ define([
   'coding-rules/rule/rule-parameters-view',
   'coding-rules/rule/rule-profiles-view',
   'coding-rules/rule/custom-rules-view',
-  'coding-rules/rule/manual-rule-creation-view'
+  'coding-rules/rule/manual-rule-creation-view',
+  'coding-rules/rule/rule-issues-view'
 ],
     function (Backbone,
               Marionette,
@@ -19,7 +20,8 @@ define([
               ParamView,
               ProfilesView,
               CustomRulesView,
-              ManualRuleCreationView) {
+              ManualRuleCreationView,
+              IssuesView) {
 
       var $ = jQuery;
 
@@ -32,7 +34,8 @@ define([
           descRegion: '.js-rule-description',
           paramRegion: '.js-rule-parameters',
           profilesRegion: '.js-rule-profiles',
-          customRulesRegion: '.js-rule-custom-rules'
+          customRulesRegion: '.js-rule-custom-rules',
+          issuesRegion: '.js-rule-issues'
         },
 
         events: {
@@ -70,6 +73,10 @@ define([
             app: this.options.app,
             model: this.model,
             collection: this.customRules
+          }));
+          this.issuesRegion.show(new IssuesView({
+            app: this.options.app,
+            model: this.model
           }));
           this.$el.scrollParent().scrollTop(30);
         },

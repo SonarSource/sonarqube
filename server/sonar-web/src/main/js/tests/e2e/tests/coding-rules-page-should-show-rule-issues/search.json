@@ -1,0 +1,47 @@
+{
+  "total": 1,
+  "p": 1,
+  "ps": 200,
+  "rules": [
+    {
+      "key": "squid:S2096",
+      "name": "\"main\" should not \"throw\" anything",
+      "lang": "java",
+      "langName": "Java",
+      "sysTags": [
+        "bug"
+      ],
+      "tags": [],
+      "status": "READY"
+    }
+  ],
+  "facets": [
+    {
+      "property": "tags",
+      "values": [
+        {
+          "val": "bug",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "property": "languages",
+      "values": [
+        {
+          "val": "java",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "property": "repositories",
+      "values": [
+        {
+          "val": "squid",
+          "count": 1
+        }
+      ]
+    }
+  ]
+}

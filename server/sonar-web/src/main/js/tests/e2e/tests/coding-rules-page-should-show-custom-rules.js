@@ -17,6 +17,7 @@ casper.test.begin('coding-rules-page-should-show-custom-rules', 3, function (tes
             { data: { template_key: 'squid:ArchitecturalConstraint' } });
         lib.mockRequestFromFile('/api/rules/search', 'search.json');
         lib.mockRequestFromFile('/api/rules/show', 'show.json');
+        lib.mockRequest('/api/issues/search', '{}');
       })
 
       .then(function () {

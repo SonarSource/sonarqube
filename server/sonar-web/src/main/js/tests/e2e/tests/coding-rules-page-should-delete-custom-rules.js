@@ -18,6 +18,7 @@ casper.test.begin('coding-rules-page-should-delete-custom-rules', 2, function (t
         lib.mockRequestFromFile('/api/rules/search', 'search.json');
         lib.mockRequestFromFile('/api/rules/show', 'show.json');
         lib.mockRequest('/api/rules/delete', '{}');
+        lib.mockRequest('/api/issues/search', '{}');
       })
 
       .then(function () {

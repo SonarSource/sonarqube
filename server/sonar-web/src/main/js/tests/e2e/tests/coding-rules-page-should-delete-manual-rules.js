@@ -16,6 +16,7 @@ casper.test.begin('coding-rules-page-should-delete-manual-rules', 1, function (t
         this.searchMock = lib.mockRequestFromFile('/api/rules/search', 'search-before.json');
         lib.mockRequestFromFile('/api/rules/show', 'show.json');
         lib.mockRequest('/api/rules/delete', '{}');
+        lib.mockRequest('/api/issues/search', '{}');
       })
 
       .then(function () {
