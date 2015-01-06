@@ -1,5 +1,6 @@
 {
   "uuid": "12345",
+  "key": "org.codehaus.sonar:sonar-batch:src/main/java/org/sonar/batch/index/Simplest.java",
   "path": "src/main/java/foo/Simplest.java",
   "name": "Simplest.java",
   "longName": "src/main/java/foo/Simplest.java",

@@ -1,5 +1,6 @@
 {
   "uuid": "12345",
+  "key": "org.codehaus.sonar:sonar-batch:src/main/java/org/sonar/batch/index/CacheTest.java",
   "path": "src/test/java/org/sonar/batch/index/CacheTest.java",
   "name": "CacheTest.java",
   "longName": "src/test/java/org/sonar/batch/index/CacheTest.java",
