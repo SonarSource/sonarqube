@@ -34,11 +34,10 @@ requirejs([
   App.addInitializer(function () {
     $('.js-drilldown-link').on('click', function (e) {
       e.preventDefault();
-      var key = $(e.currentTarget).data('key'),
-          uuid = $(e.currentTarget).data('uuid'),
+      var uuid = $(e.currentTarget).data('uuid'),
           viewer = new SourceViewer();
       App.viewerRegion.show(viewer);
-      viewer.open(uuid, key);
+      viewer.open(uuid);
       if (typeof window.drilldown.period === 'number') {
         viewer.on('loaded', function () {
           viewer.filterLinesByPeriod(window.drilldown.period);

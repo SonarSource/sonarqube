@@ -34,7 +34,7 @@ requirejs([
   App.addInitializer(function () {
     var viewer = new SourceViewer();
     App.viewerRegion.show(viewer);
-    viewer.open(window.file.uuid, window.file.key);
+    viewer.open(window.file.uuid);
     if (typeof window.file.line === 'number') {
       viewer.on('loaded', function () {
         viewer

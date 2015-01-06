@@ -101,7 +101,7 @@ define([
           this.bindScrollEvents();
         },
 
-        open: function (id, key) {
+        open: function (id) {
           var that = this,
               r = window.process.addBackgroundProcess(),
               finalize = function () {
@@ -114,10 +114,7 @@ define([
           this.model
               .clear()
               .set(_.result(this.model, 'defaults'))
-              .set({
-                uuid: id,
-                key: key
-              });
+              .set({ uuid: id });
           this.requestComponent().done(function () {
             that.requestSource()
                 .done(finalize)
