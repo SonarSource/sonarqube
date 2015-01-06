@@ -19,31 +19,31 @@
  */
 package org.sonar.core.issue;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
+import com.google.common.collect.HashMultiset;
+import com.google.common.collect.Multiset;
 import org.sonar.api.issue.Issue;
 
 public class IssuesBySeverity {
 
-  private Multimap<String, Issue> issuesBySeverity = ArrayListMultimap.create();
+  private final Multiset<String> issuesBySeverity;
 
   public IssuesBySeverity() {
-    this.issuesBySeverity = ArrayListMultimap.create();
+    issuesBySeverity = HashMultiset.create();
   }
 
   public void add(Issue issue) {
-    issuesBySeverity.put(issue.severity(), issue);
+    issuesBySeverity.add(issue.severity());
   }
 
   public int issues(String severity) {
-    return issuesBySeverity.get(severity).size();
+    return issuesBySeverity.count(severity);
   }
 
   public int size() {
-    return issuesBySeverity.values().size();
+    return issuesBySeverity.size();
   }
 
   public boolean isEmpty() {
-    return issuesBySeverity.values().isEmpty();
+    return issuesBySeverity.isEmpty();
   }
 }

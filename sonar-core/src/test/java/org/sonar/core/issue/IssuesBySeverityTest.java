@@ -26,27 +26,43 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class IssuesBySeverityTest {
 
+  IssuesBySeverity sut;
+
   @Test
-  public void add_issue(){
-    IssuesBySeverity issuesBySeverity = new IssuesBySeverity();
-    issuesBySeverity.add(new DefaultIssue().setSeverity("MINOR"));
-    assertThat(issuesBySeverity.size()).isEqualTo(1);
+  public void add_issue() {
+    sut = new IssuesBySeverity();
+
+    sut.add(new DefaultIssue().setSeverity("MINOR"));
+
+    assertThat(sut.isEmpty()).isFalse();
+    assertThat(sut.size()).isEqualTo(1);
   }
 
   @Test
-  public void get_issues_by_severity(){
-    IssuesBySeverity issuesBySeverity = new IssuesBySeverity();
-    issuesBySeverity.add(new DefaultIssue().setSeverity("MINOR"));
-    issuesBySeverity.add(new DefaultIssue().setSeverity("MINOR"));
-    issuesBySeverity.add(new DefaultIssue().setSeverity("MAJOR"));
-    assertThat(issuesBySeverity.issues("MINOR")).isEqualTo(2);
-    assertThat(issuesBySeverity.issues("MAJOR")).isEqualTo(1);
+  public void get_issues_by_severity() {
+    sut = new IssuesBySeverity();
+
+    sut.add(new DefaultIssue().setSeverity("MINOR"));
+    sut.add(new DefaultIssue().setSeverity("MINOR"));
+    sut.add(new DefaultIssue().setSeverity("MAJOR"));
+
+    assertThat(sut.issues("MINOR")).isEqualTo(2);
+    assertThat(sut.issues("MAJOR")).isEqualTo(1);
   }
 
   @Test
-  public void get_zero_issues_on_empty_severity(){
-    IssuesBySeverity issuesBySeverity = new IssuesBySeverity();
-    issuesBySeverity.add(new DefaultIssue().setSeverity("MAJOR"));
-    assertThat(issuesBySeverity.issues("MINOR")).isEqualTo(0);
+  public void get_zero_issues_on_empty_severity() {
+    sut = new IssuesBySeverity();
+
+    sut.add(new DefaultIssue().setSeverity("MAJOR"));
+
+    assertThat(sut.issues("MINOR")).isEqualTo(0);
+  }
+
+  @Test
+  public void is_empty() throws Exception {
+    sut = new IssuesBySeverity();
+
+    assertThat(sut.isEmpty()).isTrue();
   }
 }
