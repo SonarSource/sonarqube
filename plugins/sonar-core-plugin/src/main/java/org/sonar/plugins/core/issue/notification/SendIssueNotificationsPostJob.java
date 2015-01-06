@@ -58,22 +58,41 @@ public class SendIssueNotificationsPostJob implements PostJob {
   private void sendNotifications(Project project) {
     IssuesBySeverity newIssues = new IssuesBySeverity();
     IssueChangeContext context = IssueChangeContext.createScan(project.getAnalysisDate());
-    Map<DefaultIssue, Rule> shouldSentNotification = new LinkedHashMap<DefaultIssue, Rule>();
+    Map<DefaultIssue, Rule> changedIssuesRuleMap = new LinkedHashMap<>();
     for (DefaultIssue issue : issueCache.all()) {
-      if (issue.isNew() && issue.resolution() == null) {
+      if (isNew(issue)) {
         newIssues.add(issue);
-      }
-      if (!issue.isNew() && issue.isChanged() && issue.mustSendNotifications()) {
-        Rule rule = ruleFinder.findByKey(issue.ruleKey());
-        // TODO warning - rules with status REMOVED are currently ignored, but should not
-        if (rule != null) {
-          shouldSentNotification.put(issue, rule);
-        }
+      } else if (hasChangedAndNeedNotification(issue)) {
+        addIssueToMap(issue, changedIssuesRuleMap);
       }
     }
-    if (!shouldSentNotification.isEmpty()) {
-      notifications.sendChanges(shouldSentNotification, context, project, null, null);
+    sendChangedIssues(project, context, changedIssuesRuleMap);
+    sendNewIssues(project, newIssues);
+  }
+
+  private void addIssueToMap(DefaultIssue issue, Map<DefaultIssue, Rule> changedIssuesRuleMap) {
+    Rule rule = ruleFinder.findByKey(issue.ruleKey());
+    // TODO warning - rules with status REMOVED are currently ignored, but should not
+    if (rule != null) {
+      changedIssuesRuleMap.put(issue, rule);
     }
+  }
+
+  private boolean isNew(DefaultIssue issue) {
+    return issue.isNew() && issue.resolution() == null;
+  }
+
+  private boolean hasChangedAndNeedNotification(DefaultIssue issue) {
+    return !issue.isNew() && issue.isChanged() && issue.mustSendNotifications();
+  }
+
+  private void sendChangedIssues(Project project, IssueChangeContext context, Map<DefaultIssue, Rule> changedIssuesRuleMap) {
+    if (!changedIssuesRuleMap.isEmpty()) {
+      notifications.sendChanges(changedIssuesRuleMap, context, project, null, null);
+    }
+  }
+
+  private void sendNewIssues(Project project, IssuesBySeverity newIssues) {
     if (!newIssues.isEmpty()) {
       notifications.sendNewIssues(project, newIssues);
     }
