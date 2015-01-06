@@ -272,7 +272,7 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
   }
 
   private void addComponentRelatedFilters(IssueQuery query, Map<String, FilterBuilder> filters) {
-    if (query.onComponentOnly()) {
+    if (BooleanUtils.isTrue(query.onComponentOnly())) {
       Set<String> allComponents = Sets.newHashSet();
       allComponents.addAll(query.projectUuids());
       allComponents.addAll(query.moduleUuids());
