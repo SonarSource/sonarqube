@@ -6,11 +6,7 @@
 
    issues_search_options = {}
    issues_search_options['resolved'] = 'false'
-   if @project.qualifier == 'TRK'
-    issues_search_options['projectUuids'] = @project.uuid
-   else
-     issues_search_options['componentRootUuids'] = @project.uuid
-   end
+   issues_search_options['componentUuids'] = @project.uuid
 %>
 <table width="100%">
   <tr>

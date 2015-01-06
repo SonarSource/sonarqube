@@ -71,11 +71,7 @@
                    search_options = {}
                    search_options['actionPlans'] = plan.key
                    search_options['resolved'] = false
-                   if @project.qualifier == 'TRK'
-                     search_options['projectUuids'] = @project.uuid
-                   else
-                     search_options['componentRootUuids'] = @project.uuid
-                   end
+                   search_options['componentUuids'] = @project.uuid
                 %>
               <a href="<%= url_for_issues(search_options) -%>"
                  title="<%= message('widget.action_plans.x_unresolved_issues', :params => unresolved_issues_size.to_s) -%>"><%= unresolved_issues_size -%></a>

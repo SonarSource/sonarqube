@@ -1,11 +1,7 @@
 <%
     options = {}
     options['resolved'] = 'false'
-    if @project.qualifier == 'TRK'
-      options['projectUuids'] = @project.uuid
-    else
-      options['componentRootUuids'] = @project.uuid
-    end
+    options['componentUuids'] = @project.uuid
     if @dashboard_configuration.selected_period?
       options['createdAfter'] = Api::Utils.format_datetime(@dashboard_configuration.from_datetime)
       options['createdBefore'] = Api::Utils.format_datetime(DateTime.now)
