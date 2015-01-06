@@ -54,8 +54,10 @@ public class ComponentAppAction implements RequestHandler {
 
   private static final String PARAM_UUID = "uuid";
   private static final String PARAM_PERIOD = "period";
-  private static final List<String> METRIC_KEYS = newArrayList(CoreMetrics.LINES_KEY, CoreMetrics.COVERAGE_KEY, CoreMetrics.IT_COVERAGE_KEY, CoreMetrics.OVERALL_COVERAGE_KEY,
-    CoreMetrics.DUPLICATED_LINES_DENSITY_KEY, CoreMetrics.TECHNICAL_DEBT_KEY, CoreMetrics.SQALE_RATING_KEY, CoreMetrics.SQALE_DEBT_RATIO_KEY);
+  private static final List<String> METRIC_KEYS = newArrayList(CoreMetrics.LINES_KEY, CoreMetrics.VIOLATIONS_KEY,
+    CoreMetrics.COVERAGE_KEY, CoreMetrics.IT_COVERAGE_KEY, CoreMetrics.OVERALL_COVERAGE_KEY,
+    CoreMetrics.DUPLICATED_LINES_DENSITY_KEY, CoreMetrics.TESTS_KEY,
+    CoreMetrics.TECHNICAL_DEBT_KEY, CoreMetrics.SQALE_RATING_KEY, CoreMetrics.SQALE_DEBT_RATIO_KEY);
 
   private final DbClient dbClient;
 
@@ -156,7 +158,8 @@ public class ComponentAppAction implements RequestHandler {
     json.prop("lines", formatMeasure(measuresByMetricKey.get(CoreMetrics.LINES_KEY)));
     json.prop("coverage", formatMeasure(coverageMeasure(measuresByMetricKey)));
     json.prop("duplicationDensity", formatMeasure(measuresByMetricKey.get(CoreMetrics.DUPLICATED_LINES_DENSITY_KEY)));
-    json.prop("issues", formatMeasure(measuresByMetricKey.get(CoreMetrics.OPEN_ISSUES_KEY)));
+    json.prop("issues", formatMeasure(measuresByMetricKey.get(CoreMetrics.VIOLATIONS_KEY)));
+    json.prop("tests", formatMeasure(measuresByMetricKey.get(CoreMetrics.TESTS_KEY)));
     json.prop("debt", formatMeasure(measuresByMetricKey.get(CoreMetrics.TECHNICAL_DEBT_KEY)));
     json.prop("sqaleRating", formatMeasure(measuresByMetricKey.get(CoreMetrics.SQALE_RATING_KEY)));
     json.prop("debtRatio", formatMeasure(measuresByMetricKey.get(CoreMetrics.SQALE_DEBT_RATIO_KEY)));
