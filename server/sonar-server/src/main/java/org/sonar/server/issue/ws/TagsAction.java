@@ -53,7 +53,6 @@ public class TagsAction implements RequestHandler {
     action.createParam("ps")
       .setDescription("The size of the list to return")
       .setExampleValue("25")
-      .setRequired(true)
       .setDefaultValue("10");
   }
 

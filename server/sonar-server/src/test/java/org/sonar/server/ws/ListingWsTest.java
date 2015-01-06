@@ -108,7 +108,7 @@ public class ListingWsTest {
       create
         .createParam("severity")
         .setDescription("Severity")
-        .setRequired(true)
+        .setRequired(false)
         .setPossibleValues("BLOCKER", "INFO")
         .setExampleValue("INFO")
         .setDefaultValue("BLOCKER");

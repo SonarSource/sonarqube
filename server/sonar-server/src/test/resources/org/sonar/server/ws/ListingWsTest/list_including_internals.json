@@ -19,7 +19,7 @@
           {
             "key": "severity",
             "description": "Severity",
-            "required": true,
+            "required": false,
             "defaultValue": "BLOCKER",
             "exampleValue": "INFO",
             "possibleValues": ["BLOCKER", "INFO"]

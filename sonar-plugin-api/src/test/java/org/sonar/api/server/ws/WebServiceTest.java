@@ -329,6 +329,25 @@ public class WebServiceTest {
   }
 
   @Test
+  public void fail_if_required_param_has_default_value() {
+    try {
+      new WebService() {
+        @Override
+        public void define(Context context) {
+          NewController controller = context.createController("api/rule");
+          NewAction action = controller.createAction("create").setHandler(mock(RequestHandler.class));
+          action.createParam("key").setRequired(true).setDefaultValue("abc");
+          controller.done();
+        }
+      }.define(context);
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("Default value must not be set on parameter 'api/rule/create?key' as it's marked as required");
+    }
+  }
+
+
+  @Test
   public void fail_if_duplicated_action_parameters() {
     try {
       new WebService() {

@@ -68,7 +68,7 @@ public class IssueTagsActionTest {
     assertThat(query.description()).isNotEmpty();
     assertThat(query.exampleValue()).isNotEmpty();
     Param pageSize = action.param("ps");
-    assertThat(pageSize.isRequired()).isTrue();
+    assertThat(pageSize.isRequired()).isFalse();
     assertThat(pageSize.defaultValue()).isEqualTo("10");
     assertThat(pageSize.description()).isNotEmpty();
     assertThat(pageSize.exampleValue()).isNotEmpty();

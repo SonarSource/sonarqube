@@ -61,13 +61,11 @@ public class IndexAction implements RequestHandler {
 
     action
       .createParam("from")
-      .setRequired(true)
       .setDefaultValue(1)
       .setDescription("First line");
 
     action
       .createParam("to")
-      .setRequired(false)
       .setDescription("Last line (excluded). If not specified, all lines are returned until end of file");
   }
 
@@ -77,19 +75,16 @@ public class IndexAction implements RequestHandler {
     UserSession.get().checkComponentPermission(UserRole.CODEVIEWER, fileKey);
     Integer from = request.mandatoryParamAsInt("from");
     Integer to = request.paramAsInt("to");
-    DbSession session = dbClient.openSession(false);
-    try {
+    try (DbSession session = dbClient.openSession(false)) {
       ComponentDto componentDto = dbClient.componentDao().getByKey(session, fileKey);
       List<String> lines = sourceService.getLinesAsTxt(componentDto.uuid(), from, to == null ? null : to - 1);
       JsonWriter json = response.newJsonWriter().beginArray().beginObject();
       Integer lineCounter = from;
-      for (String line: lines) {
+      for (String line : lines) {
         json.prop(lineCounter.toString(), line);
-        lineCounter ++;
+        lineCounter++;
       }
       json.endObject().endArray().close();
-    } finally {
-      session.close();
     }
   }
 }

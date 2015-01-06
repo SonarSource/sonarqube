@@ -68,8 +68,8 @@ public class SetTagsActionTest {
     assertThat(query.description()).isNotEmpty();
     assertThat(query.exampleValue()).isNotEmpty();
     Param pageSize = action.param("tags");
-    assertThat(pageSize.isRequired()).isTrue();
-    assertThat(pageSize.defaultValue()).isEqualTo("");
+    assertThat(pageSize.isRequired()).isFalse();
+    assertThat(pageSize.defaultValue()).isNull();
     assertThat(pageSize.description()).isNotEmpty();
     assertThat(pageSize.exampleValue()).isNotEmpty();
   }

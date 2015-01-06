@@ -61,8 +61,7 @@ public class HashAction implements RequestHandler {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    DbSession session = dbClient.openSession(false);
-    try {
+    try (DbSession session = dbClient.openSession(false)) {
       String componentKey = request.mandatoryParam("key");
       UserSession.get().checkComponentPermission(UserRole.CODEVIEWER, componentKey);
       ComponentDto component = dbClient.componentDao().getByKey(session, componentKey);
@@ -70,12 +69,10 @@ public class HashAction implements RequestHandler {
       if (lineHashes == null) {
         response.noContent();
       } else {
-        OutputStream output = response.stream().setMediaType("text/plain").output();
-        output.write(lineHashes.getBytes(Charsets.UTF_8));
-        output.close();
+        try (OutputStream output = response.stream().setMediaType("text/plain").output()) {
+          output.write(lineHashes.getBytes(Charsets.UTF_8));
+        }
       }
-    } finally {
-      session.close();
     }
   }
 }

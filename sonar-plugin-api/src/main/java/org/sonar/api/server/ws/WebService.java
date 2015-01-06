@@ -349,7 +349,7 @@ public interface WebService extends ServerExtension {
 
       ImmutableMap.Builder<String, Param> paramsBuilder = ImmutableMap.builder();
       for (NewParam newParam : newAction.newParams.values()) {
-        paramsBuilder.put(newParam.key, new Param(newParam));
+        paramsBuilder.put(newParam.key, new Param(this, newParam));
       }
       this.params = paramsBuilder.build();
     }
@@ -535,7 +535,7 @@ public interface WebService extends ServerExtension {
     private final boolean required;
     private final Set<String> possibleValues;
 
-    public Param(NewParam newParam) {
+    public Param(Action action, NewParam newParam) {
       this.key = newParam.key;
       this.deprecatedKey = newParam.deprecatedKey;
       this.description = newParam.description;
@@ -543,6 +543,9 @@ public interface WebService extends ServerExtension {
       this.defaultValue = newParam.defaultValue;
       this.required = newParam.required;
       this.possibleValues = newParam.possibleValues;
+      if (required && defaultValue != null) {
+        throw new IllegalArgumentException(String.format("Default value must not be set on parameter '%s?%s' as it's marked as required", action, key));
+      }
     }
 
     public String key() {

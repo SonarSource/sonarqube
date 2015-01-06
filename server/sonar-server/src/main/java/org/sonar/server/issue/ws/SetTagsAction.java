@@ -20,6 +20,7 @@
 package org.sonar.server.issue.ws;
 
 import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
@@ -56,16 +57,14 @@ public class SetTagsAction implements RequestHandler {
       .setExampleValue("5bccd6e8-f525-43a2-8d76-fcb13dde79ef")
       .setRequired(true);
     action.createParam("tags")
-      .setDescription("A comma separated list of tags")
-      .setExampleValue("security,cwe,misra-c")
-      .setRequired(true)
-      .setDefaultValue("");
+      .setDescription("Comma-separated list of tags. All tags are removed if parameter is empty or not set.")
+      .setExampleValue("security,cwe,misra-c");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     String key = request.mandatoryParam("key");
-    String tags = request.mandatoryParam("tags");
+    String tags = Strings.nullToEmpty(request.param("tags"));
     Collection<String> resultTags = service.setTags(key, ImmutableSet.copyOf(WS_TAGS_SPLITTER.split(tags)));
     JsonWriter json = response.newJsonWriter().beginObject().name("tags").beginArray();
     for (String tag : resultTags) {

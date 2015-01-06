@@ -25,15 +25,15 @@ import org.sonar.api.server.ws.WebService;
 public class SourcesWs implements WebService {
 
   private final ShowAction showAction;
-  private final LinesAction show2Action;
+  private final LinesAction linesAction;
   private final RawAction rawAction;
   private final ScmAction scmAction;
   private final HashAction hashAction;
   private final IndexAction indexAction;
 
-  public SourcesWs(ShowAction showAction, RawAction rawAction, ScmAction scmAction, LinesAction show2Action, HashAction hashAction, IndexAction indexAction) {
+  public SourcesWs(ShowAction showAction, RawAction rawAction, ScmAction scmAction, LinesAction linesAction, HashAction hashAction, IndexAction indexAction) {
     this.showAction = showAction;
-    this.show2Action = show2Action;
+    this.linesAction = linesAction;
     this.rawAction = rawAction;
     this.scmAction = scmAction;
     this.hashAction = hashAction;
@@ -46,7 +46,7 @@ public class SourcesWs implements WebService {
       .setSince("4.2")
       .setDescription("Display sources information");
     showAction.define(controller);
-    show2Action.define(controller);
+    linesAction.define(controller);
     rawAction.define(controller);
     scmAction.define(controller);
     hashAction.define(controller);
