@@ -269,15 +269,16 @@ public final class DefaultResourcePersister implements ResourcePersister {
       if (Scopes.isProject(parentResource)) {
         model.setModuleUuid(parentResource.getUuid());
         String parentModuleUuidPath = parentModel.getModuleUuidPath();
-        model.setModuleUuidPath(parentModuleUuidPath != null ? parentModuleUuidPath + "." + parentModel.getUuid() : parentModel.getUuid());
+        model.setModuleUuidPath(StringUtils.isNotBlank(parentModuleUuidPath) ? parentModuleUuidPath + "." + parentModel.getUuid() : parentModel.getUuid());
       } else {
         model.setModuleUuid(parentModel.getModuleUuid());
         String parentModuleUuidPath = parentModel.getModuleUuidPath();
-        model.setModuleUuidPath(parentModuleUuidPath != null ? parentModuleUuidPath : parentModel.getUuid());
+        model.setModuleUuidPath(StringUtils.isNotBlank(parentModuleUuidPath) ? parentModuleUuidPath : parentModel.getUuid());
       }
     } else {
       // Root module && libraries
       model.setProjectUuid(model.getUuid());
+      model.setModuleUuidPath("");
     }
   }
 
