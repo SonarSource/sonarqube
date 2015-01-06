@@ -246,9 +246,6 @@ module.exports = (grunt) ->
           '<%= pkg.assets %>js/templates/quality-gates.js': [
             '<%= pkg.sources %>hbs/quality-gates/**/*.hbs'
           ]
-          '<%= pkg.assets %>js/templates/component-viewer.js': [
-            '<%= pkg.sources %>hbs/component-viewer/**/*.hbs'
-          ]
           '<%= pkg.assets %>js/templates/source-viewer.js': [
             '<%= pkg.sources %>hbs/source-viewer/**/*.hbs'
           ]

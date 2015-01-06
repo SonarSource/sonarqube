@@ -394,28 +394,6 @@ define(['handlebars'], function (Handlebars) {
     return message;
   });
 
-  Handlebars.registerHelper('componentViewerHeaderLink', function(value, label, cl, hash) {
-    var name = '_cw-header-link';
-    if (value != null) {
-      var ps = Handlebars.partials;
-      if (typeof ps[name] !== 'function') {
-        ps[name] = Handlebars.compile(ps[name]);
-      }
-      return ps[name]({ value: value, label: label, cl: cl}, hash);
-    }
-  });
-
-  Handlebars.registerHelper('componentViewerHeaderItem', function(value, label, hash) {
-    var name = '_cw-header-item';
-    if (value != null) {
-      var ps = Handlebars.partials;
-      if (typeof ps[name] !== 'function') {
-        ps[name] = Handlebars.compile(ps[name]);
-      }
-      return ps[name]({ value: value, label: label}, hash);
-    }
-  });
-
   Handlebars.registerHelper('ifMeasureShouldBeShown', function(measure, period, options) {
     if (measure != null || period != null) {
       return options.fn(this);

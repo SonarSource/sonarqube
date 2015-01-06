@@ -1,6 +1,6 @@
 define([
   'backbone.marionette',
-  'templates/component-viewer',
+  'templates/source-viewer',
   'common/popup'
 ], function (Marionette, Templates, Popup) {
 
