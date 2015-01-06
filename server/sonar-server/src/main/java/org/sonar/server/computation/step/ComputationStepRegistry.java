@@ -51,6 +51,8 @@ public class ComputationStepRegistry implements ServerComponent {
     steps.add(pico.getComponentByType(ComponentIndexationInDatabaseStep.class));
     // project & views
     steps.add(pico.getComponentByType(DataCleanerStep.class));
+    // project & views
+    steps.add(pico.getComponentByType(CleanReportStep.class));
     // project only
     steps.add(pico.getComponentByType(IndexProjectIssuesStep.class));
     // project only
