@@ -31,6 +31,7 @@ import org.sonar.server.platform.DefaultServerFileSystem;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 
 /**
  * @since 2.11
@@ -51,7 +52,7 @@ public final class GeneratePluginIndex {
 
   void writeIndex(File indexFile) throws IOException {
     FileUtils.forceMkdir(indexFile.getParentFile());
-    FileWriter writer = new FileWriter(indexFile, false);
+    Writer writer = new FileWriter(indexFile, false);
     try {
       for (PluginMetadata metadata : repository.getMetadata()) {
         writer.append(RemotePlugin.create((DefaultPluginMetadata) metadata).marshal());

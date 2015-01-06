@@ -19,6 +19,7 @@
  */
 package org.sonar.server.ws;
 
+import com.google.common.base.Charsets;
 import org.picocontainer.Startable;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
@@ -120,7 +121,7 @@ public class WebServiceEngine implements ServerComponent, Startable {
     stream.reset();
     stream.setStatus(status);
     stream.setMediaType(MimeTypes.JSON);
-    JsonWriter json = JsonWriter.of(new OutputStreamWriter(stream.output()));
+    JsonWriter json = JsonWriter.of(new OutputStreamWriter(stream.output(), Charsets.UTF_8));
 
     try {
       json.beginObject();

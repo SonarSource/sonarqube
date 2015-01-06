@@ -19,6 +19,7 @@
  */
 package org.sonar.api.utils;
 
+import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +43,7 @@ import javax.xml.xpath.XPathFactory;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -96,7 +98,7 @@ public class XpathParser {
 
     BufferedReader buffer = null;
     try {
-      buffer = new BufferedReader(new FileReader(file));
+      buffer = new BufferedReader(new InputStreamReader(new FileInputStream(file), Charsets.UTF_8));
       parse(buffer);
 
     } catch (IOException e) {
@@ -110,7 +112,7 @@ public class XpathParser {
   public void parse(InputStream stream) {
     BufferedReader buffer = null;
     try {
-      buffer = new BufferedReader(new InputStreamReader(stream));
+      buffer = new BufferedReader(new InputStreamReader(stream, Charsets.UTF_8));
       parse(buffer);
 
     } catch (IOException e) {
@@ -127,14 +129,12 @@ public class XpathParser {
 
   public void parse(String xml) {
     try {
-      xml = fixUnicodeChar(xml);
-      doc = builder.parse(new ByteArrayInputStream(xml.getBytes()));
+      String fixedXml = fixUnicodeChar(xml);
+      doc = builder.parse(new ByteArrayInputStream(fixedXml.getBytes(Charsets.UTF_8)));
       XPathFactory factory = XPathFactory.newInstance();
       xpath = factory.newXPath();
 
-    } catch (SAXException e) {
-      throw new XmlParserException(CAN_NOT_PARSE_XML + xml, e);
-    } catch (IOException e) {
+    } catch (IOException | SAXException e) {
       throw new XmlParserException(CAN_NOT_PARSE_XML + xml, e);
     }
   }

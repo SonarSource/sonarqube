@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile;
 
+import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -87,14 +88,14 @@ public class QProfileCopier implements ServerComponent {
     }
     if (fromProfile.getName().equals(toProfileName.getName())) {
       throw new IllegalArgumentException(String.format("Source and target profiles are equal: %s",
-        fromProfile.getName(), toProfileName.getName()));
+        fromProfile.getName()));
     }
   }
 
   private void backup(String profileKey, File backupFile) {
     Writer writer = null;
     try {
-      writer = new OutputStreamWriter(FileUtils.openOutputStream(backupFile));
+      writer = new OutputStreamWriter(FileUtils.openOutputStream(backupFile), Charsets.UTF_8);
       backuper.backup(profileKey, writer);
     } catch (IOException e) {
       throw new IllegalStateException("Fail to open temporary backup file: " + backupFile, e);
@@ -106,7 +107,7 @@ public class QProfileCopier implements ServerComponent {
   private void restore(File backupFile, QProfileName profileName) {
     Reader reader = null;
     try {
-      reader = new InputStreamReader(FileUtils.openInputStream(backupFile));
+      reader = new InputStreamReader(FileUtils.openInputStream(backupFile), Charsets.UTF_8);
       backuper.restore(reader, profileName);
     } catch (IOException e) {
       throw new IllegalStateException("Fail to create temporary backup file: " + backupFile, e);

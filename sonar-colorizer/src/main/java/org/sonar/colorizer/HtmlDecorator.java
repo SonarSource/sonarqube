@@ -21,6 +21,7 @@ package org.sonar.colorizer;
 
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Closeables;
+import org.apache.commons.io.Charsets;
 import org.sonar.channel.CodeReader;
 
 import java.io.IOException;
@@ -98,7 +99,7 @@ public class HtmlDecorator extends Tokenizer {
     InputStream input = null;
     try {
       input = HtmlRenderer.class.getResourceAsStream(CSS_PATH);
-      return new String(ByteStreams.toByteArray(input));
+      return new String(ByteStreams.toByteArray(input), Charsets.UTF_8);
 
     } catch (IOException e) {
       throw new SynhtaxHighlightingException("SonarQube Colorizer CSS file not found: " + CSS_PATH, e);
