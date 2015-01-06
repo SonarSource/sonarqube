@@ -13,8 +13,8 @@
     </div>
   </div>
 
-  <div class="measures measures-duplex">
-    {{#any measures.covered_lines measures.lines_to_cover measures.covered_conditions measures.conditions_to_cover}}
+  {{#any measures.covered_lines measures.lines_to_cover measures.covered_conditions measures.conditions_to_cover}}
+    <div class="measures">
       <div class="measures-list">
         <div class="measure measure-one-line">
           <span class="measure-name">Covered by Unit Tests</span>
@@ -30,9 +30,11 @@
           </div>
         {{/if}}
       </div>
-    {{/any}}
+    </div>
+  {{/any}}
 
-    {{#any measures.it_covered_lines measures.it_lines_to_cover measures.it_covered_conditions measures.it_conditions_to_cover}}
+  {{#any measures.it_covered_lines measures.it_lines_to_cover measures.it_covered_conditions measures.it_conditions_to_cover}}
+    <div class="measures">
       <div class="measures-list">
         <div class="measure measure-one-line">
           <span class="measure-name">Covered by Integration Tests</span>
@@ -48,6 +50,6 @@
           </div>
         {{/if}}
       </div>
-    {{/any}}
-  </div>
+    </div>
+  {{/any}}
 {{/any}}

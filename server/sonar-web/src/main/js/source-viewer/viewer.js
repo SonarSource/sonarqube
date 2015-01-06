@@ -136,7 +136,7 @@ define([
         requestComponent: function () {
           var that = this,
               url = baseUrl + '/api/components/app',
-              options = {key: this.model.key()};
+              options = { uuid: this.model.id };
           return $.get(url, options).done(function (data) {
             that.model.set(data);
             that.model.set({isUnitTest: data.q === 'UTS'});

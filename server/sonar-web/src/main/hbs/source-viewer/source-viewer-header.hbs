@@ -31,53 +31,56 @@
   <div class="source-viewer-header-measures">
     {{#if isUnitTest}}
       <div class="source-viewer-header-measure">
-        <span class="source-viewer-header-measure-value">{{measures.fTests}}</span>
+        <span class="source-viewer-header-measure-value">{{measures.tests}}</span>
         <span class="source-viewer-header-measure-label">{{t 'metric.tests.name'}}</span>
       </div>
     {{/if}}
 
     {{#unless isUnitTest}}
       <div class="source-viewer-header-measure">
-        <span class="source-viewer-header-measure-value">{{default measures.fLines '–'}}</span>
+        <span class="source-viewer-header-measure-value">{{default measures.lines}}</span>
         <span class="source-viewer-header-measure-label">{{t 'metric.lines.name'}}</span>
       </div>
     {{/unless}}
 
-    {{#if measures.fSqaleRating}}
+    {{#notNull measures.sqaleRating}}
       <div class="source-viewer-header-measure">
-        <span class="rating rating-{{measures.fSqaleRating}}"
-              {{#if measures.fSqaleDebtRatio}}title="{{t 'metric.sqale_debt_ratio.name'}}: {{measures.fSqaleDebtRatio}}"{{/if}}>
-          {{measures.fSqaleRating}}
+        <span class="rating rating-{{measures.sqaleRating}}"
+              {{#if measures.debtRatio}}title="{{t 'metric.sqale_debt_ratio.name'}}: {{measures.debtRatio}}"{{/if}}>
+          {{measures.sqaleRating}}
         </span>
       </div>
-    {{/if}}
+    {{/notNull}}
 
-    <div class="source-viewer-header-measure">
-      <span class="source-viewer-header-measure-value">{{default measures.fDebt '0'}}</span>
-      <span class="source-viewer-header-measure-label">{{t 'component_viewer.header.debt'}}</span>
-    </div>
-    {{#if measures.fIssues}}
+    {{#notNull measures.debt}}
+      <div class="source-viewer-header-measure">
+        <span class="source-viewer-header-measure-value">{{default measures.debt}}</span>
+        <span class="source-viewer-header-measure-label">{{t 'component_viewer.header.debt'}}</span>
+      </div>
+    {{/notNull}}
+
+    {{#notNull measures.issues}}
       <div class="source-viewer-header-measure">
         <span class="source-viewer-header-measure-value">
-          <a target="_blank" href="{{link '/issues/search#resolved=false|componentUuids=' uuid}}">{{measures.fIssues}}</a>
+          <a target="_blank" href="{{link '/issues/search#resolved=false|componentUuids=' uuid}}">{{measures.issues}}</a>
         </span>
         <span class="source-viewer-header-measure-label">{{t 'metric.violations.name'}}</span>
       </div>
-    {{/if}}
+    {{/notNull}}
 
-    {{#inArray tabs 'coverage'}}
+    {{#notNull measures.coverage}}
       <div class="source-viewer-header-measure">
-        <span class="source-viewer-header-measure-value">{{default measures.fCoverage '–'}}</span>
+        <span class="source-viewer-header-measure-value">{{default measures.coverage}}</span>
         <span class="source-viewer-header-measure-label">{{t 'metric.coverage.name'}}</span>
       </div>
-    {{/inArray}}
+    {{/notNull}}
 
-    {{#inArray tabs 'duplications'}}
+    {{#notNull measures.duplicationDensity}}
       <div class="source-viewer-header-measure">
-        <span class="source-viewer-header-measure-value">{{default measures.fDuplicationDensity '–'}}</span>
+        <span class="source-viewer-header-measure-value">{{default measures.duplicationDensity}}</span>
         <span class="source-viewer-header-measure-label">{{t 'duplications'}}</span>
       </div>
-    {{/inArray}}
+    {{/notNull}}
 
   </div>
 {{/unless}}

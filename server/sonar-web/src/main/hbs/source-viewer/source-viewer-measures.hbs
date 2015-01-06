@@ -31,17 +31,20 @@
       <div class="source-viewer-measures-card">
         {{> '_source-viewer-measures-lines'}}
       </div>
-      {{> '_source-viewer-measures-duplications'}}
     </div>
 
     <div class="source-viewer-measures-section">
       {{> '_source-viewer-measures-issues'}}
     </div>
 
-    <div class="source-viewer-measures-section source-viewer-measures-section-big">
+    <div class="source-viewer-measures-section">
       <div class="source-viewer-measures-card">
         {{> '_source-viewer-measures-coverage'}}
       </div>
+    </div>
+
+    <div class="source-viewer-measures-section">
+      {{> '_source-viewer-measures-duplications'}}
     </div>
   {{else}}
     <div class="source-viewer-measures-section">
