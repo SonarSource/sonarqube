@@ -55,6 +55,13 @@ define([
       return activation === 'true' || activation === true;
     },
 
+    disable: function () {
+      var obj = { activation: null },
+          property = this.model.get('property');
+      obj[property] = null;
+      this.options.app.state.updateFilter(obj);
+    },
+
     serializeData: function () {
       return _.extend(BaseFacet.prototype.serializeData.apply(this, arguments), {
         values: this.getValues(),
