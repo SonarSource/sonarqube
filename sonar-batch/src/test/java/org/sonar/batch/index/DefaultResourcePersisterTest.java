@@ -27,9 +27,9 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Library;
@@ -218,7 +218,8 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     when(projectTree.getProjectDefinition(moduleB)).thenReturn(ProjectDefinition.create().setBaseDir(new java.io.File(baseDir, "moduleB")));
     when(projectTree.getProjectDefinition(moduleB1)).thenReturn(ProjectDefinition.create().setBaseDir(new java.io.File(baseDir, "moduleB/moduleB1")));
 
-    DefaultIndex index = new DefaultIndex(persister, null, null, null, projectTree, mock(MetricFinder.class), mock(ScanGraph.class), mock(DeprecatedViolations.class),
+    DefaultIndex index = new DefaultIndex(persister, null, null, null, projectTree, mock(MetricFinder.class), mock(ScanGraph.class),
+      mock(DeprecatedViolations.class),
       mock(ResourceKeyMigration.class),
       mock(MeasureCache.class));
 

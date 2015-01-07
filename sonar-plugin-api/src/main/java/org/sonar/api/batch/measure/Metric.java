@@ -19,15 +19,11 @@
  */
 package org.sonar.api.batch.measure;
 
-import com.google.common.annotations.Beta;
-
 import java.io.Serializable;
 
 /**
- * Experimental - do not use
  * @since 4.4
  */
-@Beta
 public interface Metric<G extends Serializable> {
 
   String key();

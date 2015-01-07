@@ -24,6 +24,8 @@ import org.sonar.api.database.model.MeasureMapper;
 import org.sonar.api.database.model.MeasureModel;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.batch.duplication.DuplicationCache;
@@ -39,10 +41,10 @@ public final class DuplicationPersister implements ScanPersister {
   private final RuleFinder ruleFinder;
   private final ResourceCache resourceCache;
   private final DuplicationCache duplicationCache;
-  private final org.sonar.api.measures.MetricFinder metricFinder;
+  private final MetricFinder metricFinder;
 
   public DuplicationPersister(MyBatis mybatis, RuleFinder ruleFinder, ResourceCache resourceCache,
-    DuplicationCache duplicationCache, org.sonar.api.measures.MetricFinder metricFinder) {
+    DuplicationCache duplicationCache, MetricFinder metricFinder) {
     this.mybatis = mybatis;
     this.ruleFinder = ruleFinder;
     this.resourceCache = resourceCache;
@@ -55,14 +57,14 @@ public final class DuplicationPersister implements ScanPersister {
     // Don't use batch insert for duplications since keeping all data in memory can produce OOM
     try (DbSession session = mybatis.openSession(false)) {
       MeasureMapper mapper = session.getMapper(MeasureMapper.class);
-      org.sonar.api.measures.Metric duplicationMetricWithId = metricFinder.findByKey(CoreMetrics.DUPLICATIONS_DATA_KEY);
+      Metric duplicationMetricWithId = metricFinder.findByKey(CoreMetrics.DUPLICATIONS_DATA_KEY);
       for (Entry<List<DuplicationGroup>> entry : duplicationCache.entries()) {
         String effectiveKey = entry.key()[0].toString();
         Measure measure = new Measure(duplicationMetricWithId, DuplicationUtils.toXml(entry.value())).setPersistenceMode(PersistenceMode.DATABASE);
         BatchResource batchResource = resourceCache.get(effectiveKey);
 
         if (MeasurePersister.shouldPersistMeasure(batchResource.resource(), measure)) {
-          MeasureModel measureModel = MeasurePersister.model(measure, ruleFinder).setSnapshotId(batchResource.snapshotId());
+          MeasureModel measureModel = MeasurePersister.model(measure, ruleFinder, metricFinder).setSnapshotId(batchResource.snapshotId());
           mapper.insert(measureModel);
           session.commit();
         }

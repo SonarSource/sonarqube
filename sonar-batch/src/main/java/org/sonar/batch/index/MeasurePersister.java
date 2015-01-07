@@ -23,6 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.database.model.MeasureMapper;
 import org.sonar.api.database.model.MeasureModel;
 import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.measures.RuleMeasure;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
@@ -42,11 +43,13 @@ public final class MeasurePersister implements ScanPersister {
   private final RuleFinder ruleFinder;
   private final MeasureCache measureCache;
   private final ResourceCache resourceCache;
+  private final MetricFinder metricFinder;
 
-  public MeasurePersister(MyBatis mybatis, RuleFinder ruleFinder,
+  public MeasurePersister(MyBatis mybatis, RuleFinder ruleFinder, MetricFinder metricFinder,
     MeasureCache measureCache, ResourceCache resourceCache) {
     this.mybatis = mybatis;
     this.ruleFinder = ruleFinder;
+    this.metricFinder = metricFinder;
     this.measureCache = measureCache;
     this.resourceCache = resourceCache;
   }
@@ -62,7 +65,7 @@ public final class MeasurePersister implements ScanPersister {
         BatchResource batchResource = resourceCache.get(effectiveKey);
 
         if (shouldPersistMeasure(batchResource.resource(), measure)) {
-          MeasureModel measureModel = model(measure, ruleFinder).setSnapshotId(batchResource.snapshotId());
+          MeasureModel measureModel = model(measure, ruleFinder, metricFinder).setSnapshotId(batchResource.snapshotId());
           mapper.insert(measureModel);
         }
       }
@@ -91,10 +94,9 @@ public final class MeasurePersister implements ScanPersister {
       || isNotEmpty;
   }
 
-  static MeasureModel model(Measure measure, RuleFinder ruleFinder) {
+  static MeasureModel model(Measure measure, RuleFinder ruleFinder, MetricFinder metricFinder) {
     MeasureModel model = new MeasureModel();
-    // we assume that the index has updated the metric
-    model.setMetricId(measure.getMetric().getId());
+    model.setMetricId(metricFinder.findByKey(measure.getMetricKey()).getId());
     model.setDescription(measure.getDescription());
     model.setData(measure.getData());
     model.setAlertStatus(measure.getAlertStatus());

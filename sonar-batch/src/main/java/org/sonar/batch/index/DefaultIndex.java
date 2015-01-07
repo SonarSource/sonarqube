@@ -31,12 +31,11 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Event;
 import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.measures.MeasuresFilters;
-import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
@@ -219,7 +218,7 @@ public class DefaultIndex extends SonarIndex {
   public Measure addMeasure(Resource resource, Measure measure) {
     Bucket bucket = getBucket(resource);
     if (bucket != null) {
-      Metric metric = metricFinder.findByKey(measure.getMetricKey());
+      org.sonar.api.batch.measure.Metric metric = metricFinder.findByKey(measure.getMetricKey());
       if (metric == null) {
         throw new SonarException("Unknown metric: " + measure.getMetricKey());
       }
@@ -227,7 +226,6 @@ public class DefaultIndex extends SonarIndex {
         LOG.debug("Metric " + metric.key() + " is an internal metric computed by SonarQube. Please update your plugin.");
         return measure;
       }
-      measure.setMetric(metric);
       if (measureCache.contains(resource, measure)) {
         throw new SonarException("Can not add the same measure twice on " + resource + ": " + measure);
       }

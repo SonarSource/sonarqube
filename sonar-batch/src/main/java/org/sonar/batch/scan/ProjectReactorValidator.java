@@ -46,9 +46,13 @@ public class ProjectReactorValidator {
   private final Settings settings;
   private final ResourceDao resourceDao;
 
-  public ProjectReactorValidator(Settings settings, ResourceDao resourceDao) {
+  public ProjectReactorValidator(Settings settings, @Nullable ResourceDao resourceDao) {
     this.settings = settings;
     this.resourceDao = resourceDao;
+  }
+
+  public ProjectReactorValidator(Settings settings) {
+    this(settings, null);
   }
 
   public void validate(ProjectReactor reactor) {
@@ -72,10 +76,12 @@ public class ProjectReactorValidator {
   }
 
   private void preventAutomaticProjectCreationIfNeeded(ProjectReactor reactor) {
-    if (settings.getBoolean(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION)) {
-      String projectKey = reactor.getRoot().getKeyWithBranch();
-      if (resourceDao.findByKey(projectKey) == null) {
-        throw new SonarException(String.format("Unable to scan non-existing project \"%s\"", projectKey));
+    if (resourceDao != null) {
+      if (settings.getBoolean(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION)) {
+        String projectKey = reactor.getRoot().getKeyWithBranch();
+        if (resourceDao.findByKey(projectKey) == null) {
+          throw new SonarException(String.format("Unable to scan non-existing project \"%s\"", projectKey));
+        }
       }
     }
   }
@@ -84,7 +90,7 @@ public class ProjectReactorValidator {
     if (!ComponentKeys.isValidModuleKey(moduleDef.getKey())) {
       validationMessages.add(String.format("\"%s\" is not a valid project or module key. "
         + "Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.", moduleDef.getKey()));
-    } else if (isSubProject(moduleDef)) {
+    } else if (resourceDao != null && isSubProject(moduleDef)) {
       // SONAR-4692 Validate root project is the same than previous analysis to avoid module with same key in different projects
       String moduleKey = ComponentKeys.createKey(moduleDef.getKey(), branch);
       ResourceDto rootInDB = resourceDao.getRootProjectByComponentKey(moduleKey);

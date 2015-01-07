@@ -35,6 +35,8 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.System2;
 
+import javax.annotation.Nullable;
+
 import java.util.Date;
 
 public class ProjectConfigurator implements BatchComponent {
@@ -45,10 +47,14 @@ public class ProjectConfigurator implements BatchComponent {
   private Settings settings;
   private final System2 system2;
 
-  public ProjectConfigurator(DatabaseSession databaseSession, Settings settings, System2 system2) {
+  public ProjectConfigurator(@Nullable DatabaseSession databaseSession, Settings settings, System2 system2) {
     this.databaseSession = databaseSession;
     this.settings = settings;
     this.system2 = system2;
+  }
+
+  public ProjectConfigurator(Settings settings, System2 system2) {
+    this(null, settings, system2);
   }
 
   public Project create(ProjectDefinition definition) {
@@ -84,15 +90,17 @@ public class ProjectConfigurator implements BatchComponent {
   }
 
   private void checkCurrentAnalysisIsTheLatestOne(String projectKey, Date analysisDate) {
-    ResourceModel persistedProject = databaseSession.getSingleResult(ResourceModel.class, "key", projectKey, "enabled", true);
-    if (persistedProject != null) {
-      Snapshot lastSnapshot = databaseSession.getSingleResult(Snapshot.class, "resourceId", persistedProject.getId(), "last", true);
-      if (lastSnapshot != null && !lastSnapshot.getCreatedAt().before(analysisDate)) {
-        throw new IllegalArgumentException(
-          "'sonar.projectDate' property cannot be older than the date of the last known quality snapshot on this project. Value: '" +
-            settings.getString(CoreProperties.PROJECT_DATE_PROPERTY) + "'. " +
-            "Latest quality snapshot: '" + DateUtils.formatDateTime(lastSnapshot.getCreatedAt())
-            + "'. This property may only be used to rebuild the past in a chronological order.");
+    if (databaseSession != null) {
+      ResourceModel persistedProject = databaseSession.getSingleResult(ResourceModel.class, "key", projectKey, "enabled", true);
+      if (persistedProject != null) {
+        Snapshot lastSnapshot = databaseSession.getSingleResult(Snapshot.class, "resourceId", persistedProject.getId(), "last", true);
+        if (lastSnapshot != null && !lastSnapshot.getCreatedAt().before(analysisDate)) {
+          throw new IllegalArgumentException(
+            "'sonar.projectDate' property cannot be older than the date of the last known quality snapshot on this project. Value: '" +
+              settings.getString(CoreProperties.PROJECT_DATE_PROPERTY) + "'. " +
+              "Latest quality snapshot: '" + DateUtils.formatDateTime(lastSnapshot.getCreatedAt())
+              + "'. This property may only be used to rebuild the past in a chronological order.");
+        }
       }
     }
   }

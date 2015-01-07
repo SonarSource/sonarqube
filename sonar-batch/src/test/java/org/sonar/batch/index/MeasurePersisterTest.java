@@ -27,6 +27,7 @@ import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.measures.RuleMeasure;
 import org.sonar.api.resources.Directory;
@@ -75,7 +76,13 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
     when(resourceCache.get("foo:org/foo/Bar.java")).thenReturn(fileResource);
     when(resourceCache.get("foo:org/foo")).thenReturn(dirResource);
 
-    measurePersister = new MeasurePersister(getMyBatis(), ruleFinder, measureCache, resourceCache);
+    MetricFinder metricFinder = mock(MetricFinder.class);
+    Metric ncloc = ncloc();
+    Metric coverage = coverage();
+    when(metricFinder.findByKey(ncloc.getKey())).thenReturn(ncloc);
+    when(metricFinder.findByKey(coverage.getKey())).thenReturn(coverage);
+
+    measurePersister = new MeasurePersister(getMyBatis(), ruleFinder, metricFinder, measureCache, resourceCache);
   }
 
   @Test
