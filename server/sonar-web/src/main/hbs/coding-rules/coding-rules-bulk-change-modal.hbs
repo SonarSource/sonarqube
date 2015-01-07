@@ -23,7 +23,7 @@
           {{qualityProfileName}}{{#notEq action 'change-severity'}} — {{t 'are_you_sure'}}{{/notEq}}
         </h3>
       {{else}}
-        <select id="coding-rules-bulk-change-profile">
+        <select id="coding-rules-bulk-change-profile" multiple>
           {{#each availableQualityProfiles}}
             <option value="{{key}}">{{name}} - {{language}}</option>
           {{/each}}

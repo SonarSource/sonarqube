@@ -348,6 +348,18 @@ input[type=button] {
   color: #fff;
 }
 
+.message-notice + .message-notice,
+.message-notice + .message-alert,
+.message-notice + .message-error,
+.message-alert + .message-notice,
+.message-alert + .message-alert,
+.message-alert + .message-error,
+.message-error + .message-notice,
+.message-error + .message-alert,
+.message-error + .message-error {
+  margin-top: 5px;
+}
+
 
 
 /*

@@ -14,14 +14,18 @@ define([
       });
     },
 
-    showSuccessMessage: function (succeeded) {
-      var message = tp('coding_rules.bulk_change.success', succeeded);
-      this.ui.messagesContainer.html('<div class="message-notice">' + message + '</div>');
+    showSuccessMessage: function (profile, succeeded) {
+      var profileBase = _.findWhere(this.options.app.qualityProfiles, { key: profile }),
+          profileName = profileBase != null ? profileBase.name : profile,
+          message = tp('coding_rules.bulk_change.success', profileName, succeeded);
+      this.ui.messagesContainer.append('<div class="message-notice">' + message + '</div>');
     },
 
-    showWarnMessage: function (succeeded, failed) {
-      var message = tp('coding_rules.bulk_change.warning', succeeded, failed);
-      this.ui.messagesContainer.html('<div class="message-alert">' + message + '</div>');
+    showWarnMessage: function (profile, succeeded, failed) {
+      var profileBase = _.findWhere(this.options.app.qualityProfiles, { key: profile }),
+          profileName = profileBase != null ? profileBase.name : profile,
+          message = tp('coding_rules.bulk_change.warning', profileName, succeeded, failed);
+      this.ui.messagesContainer.append('<div class="message-alert">' + message + '</div>');
     },
 
     onRender: function () {
@@ -37,16 +41,20 @@ define([
       var that = this,
           p = window.process.addBackgroundProcess(),
           url = baseUrl + '/api/qualityprofiles/' + this.options.action + '_rules',
-          options = _.extend({}, this.options.app.state.get('query'), {
-            wsAction: this.options.action,
-            profile_key: this.$('#coding-rules-bulk-change-profile').val() || this.options.param
+          options = _.extend({}, this.options.app.state.get('query'), { wsAction: this.options.action }),
+          profiles = this.$('#coding-rules-bulk-change-profile').val() || [this.options.param],
+          requests = profiles.map(function (profile) {
+            var opts = _.extend({}, options, { profile_key: profile });
+            return $.post(url, opts).done(function (r) {
+              if (r.failed) {
+                that.showWarnMessage(profile, r.succeeded, r.failed);
+              } else {
+                that.showSuccessMessage(profile, r.succeeded);
+              }
+            });
           });
-      $.post(url, options).done(function (r) {
-        if (r.failed) {
-          that.showWarnMessage(r.succeeded, r.failed);
-        } else {
-          that.showSuccessMessage(r.succeeded, r.failed);
-        }
+      this.ui.messagesContainer.empty();
+      $.when.apply($, requests).done(function () {
         that.$(that.ui.codingRulesSubmitBulkChange.selector).hide();
         window.process.finishBackgroundProcess(p);
       }).fail(function () {
