@@ -60,8 +60,6 @@ import org.sonar.batch.index.SourcePersister;
 import org.sonar.batch.issue.DefaultProjectIssues;
 import org.sonar.batch.issue.DeprecatedViolations;
 import org.sonar.batch.issue.IssueCache;
-import org.sonar.batch.issue.IssuePersister;
-import org.sonar.batch.issue.ScanIssueStorage;
 import org.sonar.batch.languages.DefaultLanguagesReferential;
 import org.sonar.batch.phases.GraphPersister;
 import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
@@ -163,8 +161,6 @@ public class ProjectScanContainer extends ComponentContainer {
       IssueWorkflow.class,
       DeprecatedViolations.class,
       IssueCache.class,
-      ScanIssueStorage.class,
-      IssuePersister.class,
       IssueNotifications.class,
       DefaultProjectIssues.class,
       IssueChangelogDebtCalculator.class,
