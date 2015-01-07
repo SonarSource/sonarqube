@@ -9,8 +9,6 @@
    if search_options['filter']
      results = Internal.issues.execute(search_options['filter'].to_i, search_options)
    else
-     search_options['sort'] = 'FILE_LINE'
-     search_options['asc'] = 'false'
      results = Internal.issues.execute(search_options)
    end
    issues = results.issues()
@@ -54,7 +52,7 @@
       <tr class="<%= cycle 'even', 'odd', :name => ('issues-widget-list-' + widget_id) -%>">
         <td><i class="icon-severity-<%= issue.severity.downcase -%>"></i></td>
         <td>
-          <a class="rule-modal" href="#" onclick="return openModalWindow('<%= url_for :controller => 'issue', :action => 'show', :id => issue.key, :modal => true -%>', {'width': 800})">
+          <a class="js-issue-link" href="<%= url_for_issues(search_options.merge({:issues => issue.key}).except('pageSize', 'pageIndex', 'table_limit', 'widget_id')) -%>">
             <%= h truncate(issue.message, :length => 100) -%></a>
           <% if last_comment && last_comment.userLogin() %>
             <div class="comment-excerpt">
