@@ -1,0 +1,44 @@
+<%
+  containerId = 'issue-tag-cloud' + widget.id.to_s
+  maxItems = widget_properties['maxItems'].to_i
+
+  if current_user && has_role?(:user, @project)
+    search_options = {}
+    if @project
+      search_options['componentUuids'] = @project.uuid
+    end
+    search_options['resolved'] = 'false'
+
+    title = message('widget.issue_tag_cloud.name')
+%>
+
+<div class="histogram-widget" id="<%= containerId %>">
+  <!--[if lte IE 8 ]> <h3><%= message('widget.unsupported_browser_warning') -%></h3> <![endif]-->
+</div>
+
+<!--[if (gte IE 9)|!(IE)]><!-->
+<script>
+  (function () {
+    var query = [
+          'componentUuid=<%= @project.uuid() -%>',
+          'ps=<%= maxItems -%>'
+        ].join('&'),
+        widget = new SonarWidgets.Widget();
+
+    widget
+      .type('TagCloud')
+      .source(baseUrl + '/api/issues/component_tags?' + query)
+      .options({
+        maxItemsReachedMessage: '<%= message("widget.measure_filter_histogram.max_items_reached", :params => [maxItems]) -%>',
+        baseUrl: baseUrl + '/issues/search/#componentUuids=<%= @project.uuid() -%>',
+        noData: '<%= message('no_data') -%>'
+      })
+      .render('#<%= containerId -%>');
+
+    autoResize(500, function() {
+      widget.update('#<%= containerId -%>');
+    });
+  })();
+</script>
+<!--<![endif]-->
+<% end %>

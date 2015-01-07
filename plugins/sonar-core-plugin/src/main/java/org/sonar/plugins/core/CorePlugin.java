@@ -98,6 +98,7 @@ import org.sonar.plugins.core.widgets.WelcomeWidget;
 import org.sonar.plugins.core.widgets.issues.ActionPlansWidget;
 import org.sonar.plugins.core.widgets.issues.FalsePositiveIssuesWidget;
 import org.sonar.plugins.core.widgets.issues.IssueFilterWidget;
+import org.sonar.plugins.core.widgets.issues.IssueTagCloudWidget;
 import org.sonar.plugins.core.widgets.issues.IssuesWidget;
 import org.sonar.plugins.core.widgets.issues.MyUnresolvedIssuesWidget;
 import org.sonar.plugins.core.widgets.issues.UnresolvedIssuesPerAssigneeWidget;
@@ -343,6 +344,7 @@ public final class CorePlugin extends SonarPlugin {
       UnresolvedIssuesPerAssigneeWidget.class,
       UnresolvedIssuesStatusesWidget.class,
       IssueFilterWidget.class,
+      IssueTagCloudWidget.class,
       org.sonar.api.issue.NoSonarFilter.class,
 
       // issue notifications
