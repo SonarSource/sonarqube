@@ -44,8 +44,7 @@ public class FileHashesPersister implements ScanPersister {
 
   @Override
   public void persist() {
-    DbSession session = mybatis.openSession(true);
-    try {
+    try (DbSession session = mybatis.openSession(true)) {
       for (BatchResource batchResource : resourceCache.all()) {
         String componentKey = batchResource.resource().getEffectiveKey();
         String fileHashesdata = data.getStringData(componentKey, SnapshotDataTypes.FILE_HASHES);
@@ -59,8 +58,6 @@ public class FileHashesPersister implements ScanPersister {
         }
       }
       session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
     }
   }
 }

@@ -21,7 +21,6 @@ package org.sonar.batch.scan;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.AndFileFilter;
 import org.apache.commons.io.filefilter.FileFileFilter;
 import org.apache.commons.io.filefilter.IOFileFilter;
@@ -256,14 +255,10 @@ public class ProjectReactorBuilder {
   @VisibleForTesting
   protected static Properties toProperties(File propertyFile) {
     Properties propsFromFile = new Properties();
-    FileInputStream fileInputStream = null;
-    try {
-      fileInputStream = new FileInputStream(propertyFile);
+    try (FileInputStream fileInputStream = new FileInputStream(propertyFile)) {
       propsFromFile.load(fileInputStream);
     } catch (IOException e) {
       throw new IllegalStateException("Impossible to read the property file: " + propertyFile.getAbsolutePath(), e);
-    } finally {
-      IOUtils.closeQuietly(fileInputStream);
     }
     // Trim properties
     for (String propKey : propsFromFile.stringPropertyNames()) {

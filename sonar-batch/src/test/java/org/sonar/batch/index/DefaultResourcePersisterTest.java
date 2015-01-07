@@ -42,7 +42,6 @@ import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.ScanGraph;
 import org.sonar.core.component.db.ComponentMapper;
-import org.sonar.core.persistence.MyBatis;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import javax.persistence.Query;
@@ -114,8 +113,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
 
     // Need to enable snapshot to make resource visible using ComponentMapper
     enableSnapshot(1001);
-    SqlSession session = getMyBatis().openSession(false);
-    try {
+    try (SqlSession session = getMyBatis().openSession(false)) {
       ComponentDto newProject = session.getMapper(ComponentMapper.class).selectByKey("foo");
       assertThat(newProject.uuid()).isNotNull();
       assertThat(newProject.projectUuid()).isEqualTo(newProject.uuid());
@@ -123,8 +121,6 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
       assertThat(newProject.moduleUuidPath()).isEmpty();
       // SONAR-3636 : created_at must be fed when inserting a new entry in the 'projects' table
       assertThat(newProject.getCreatedAt()).isNotNull();
-    } finally {
-      MyBatis.closeQuietly(session);
     }
   }
 
@@ -139,15 +135,12 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
       "projects", "snapshots");
     // Need to enable snapshot to make resource visible using ComponentMapper
     enableSnapshot(1001);
-    SqlSession session = getMyBatis().openSession(false);
-    try {
+    try (SqlSession session = getMyBatis().openSession(false)) {
       ComponentDto newProject = session.getMapper(ComponentMapper.class).selectByKey("foo");
       assertThat(newProject.uuid()).isNotNull();
       assertThat(newProject.projectUuid()).isEqualTo(newProject.uuid());
       assertThat(newProject.moduleUuid()).isNull();
       assertThat(newProject.moduleUuidPath()).isEmpty();
-    } finally {
-      MyBatis.closeQuietly(session);
     }
   }
 
@@ -175,8 +168,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     enableSnapshot(1004);
     enableSnapshot(1005);
     enableSnapshot(1006);
-    SqlSession session = getMyBatis().openSession(false);
-    try {
+    try (SqlSession session = getMyBatis().openSession(false)) {
       ComponentDto root = session.getMapper(ComponentMapper.class).selectByKey("root");
       assertThat(root.uuid()).isNotNull();
       assertThat(root.projectUuid()).isEqualTo(root.uuid());
@@ -207,8 +199,6 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
       assertThat(fileComp.projectUuid()).isEqualTo(root.uuid());
       assertThat(fileComp.moduleUuid()).isEqualTo(b1.uuid());
       assertThat(fileComp.moduleUuidPath()).isEqualTo(root.uuid() + "." + b.uuid() + "." + b1.uuid());
-    } finally {
-      MyBatis.closeQuietly(session);
     }
   }
 
@@ -252,8 +242,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     enableSnapshot(1004);
     enableSnapshot(1005);
     enableSnapshot(1006);
-    SqlSession session = getMyBatis().openSession(false);
-    try {
+    try (SqlSession session = getMyBatis().openSession(false)) {
       ComponentDto root = session.getMapper(ComponentMapper.class).selectByKey("root");
       System.out.println("Root: " + root.uuid());
       assertThat(root.uuid()).isNotNull();
@@ -288,8 +277,6 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
       assertThat(fileComp.projectUuid()).isEqualTo(root.uuid());
       assertThat(fileComp.moduleUuid()).isEqualTo(b1.uuid());
       assertThat(fileComp.moduleUuidPath()).isEqualTo(root.uuid() + "." + b.uuid() + "." + b1.uuid());
-    } finally {
-      MyBatis.closeQuietly(session);
     }
   }
 
@@ -308,16 +295,13 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     // Need to enable snapshot to make resource visible using ComponentMapper
     enableSnapshot(1001);
     enableSnapshot(1002);
-    SqlSession session = getMyBatis().openSession(false);
-    try {
+    try (SqlSession session = getMyBatis().openSession(false)) {
       ComponentDto newProject = session.getMapper(ComponentMapper.class).selectByKey("foo");
       ComponentDto newDir = session.getMapper(ComponentMapper.class).selectByKey("foo:src/main/java/org/foo");
       assertThat(newDir.uuid()).isNotNull();
       assertThat(newDir.projectUuid()).isEqualTo(newProject.uuid());
       assertThat(newDir.moduleUuid()).isEqualTo(newProject.uuid());
       assertThat(newDir.moduleUuidPath()).isEqualTo(newProject.uuid());
-    } finally {
-      MyBatis.closeQuietly(session);
     }
   }
 
@@ -345,16 +329,13 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
 
     // Need to enable snapshot to make resource visible using ComponentMapper
     enableSnapshot(1002);
-    SqlSession session = getMyBatis().openSession(false);
-    try {
+    try (SqlSession session = getMyBatis().openSession(false)) {
       // FIXME selectByKey returns duplicates for libraries because of the join on snapshots table
       ComponentDto newLib = session.getMapper(ComponentMapper.class).findByKeys(Arrays.asList("junit:junit")).get(0);
       assertThat(newLib.uuid()).isNotNull();
       assertThat(newLib.projectUuid()).isEqualTo(newLib.uuid());
       assertThat(newLib.moduleUuid()).isNull();
       assertThat(newLib.moduleUuidPath()).isEmpty();
-    } finally {
-      MyBatis.closeQuietly(session);
     }
   }
 

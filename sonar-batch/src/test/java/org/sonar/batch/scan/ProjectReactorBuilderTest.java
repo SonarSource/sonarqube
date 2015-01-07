@@ -20,7 +20,6 @@
 package org.sonar.batch.scan;
 
 import com.google.common.collect.Maps;
-import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -633,12 +632,8 @@ public class ProjectReactorBuilderTest {
 
   private Map<String, String> loadPropsFromFile(String filePath) throws IOException {
     Properties props = new Properties();
-    FileInputStream fileInputStream = null;
-    try {
-      fileInputStream = new FileInputStream(TestUtils.getResource(this.getClass(), filePath));
+    try (FileInputStream fileInputStream = new FileInputStream(TestUtils.getResource(this.getClass(), filePath))) {
       props.load(fileInputStream);
-    } finally {
-      IOUtils.closeQuietly(fileInputStream);
     }
     Map<String, String> result = new HashMap<String, String>();
     for (Map.Entry<Object, Object> entry : props.entrySet()) {

@@ -53,8 +53,7 @@ public final class MeasurePersister implements ScanPersister {
 
   @Override
   public void persist() {
-    DbSession session = mybatis.openSession(true);
-    try {
+    try (DbSession session = mybatis.openSession(true)) {
       MeasureMapper mapper = session.getMapper(MeasureMapper.class);
 
       for (Entry<Measure> entry : measureCache.entries()) {
@@ -71,8 +70,6 @@ public final class MeasurePersister implements ScanPersister {
       session.commit();
     } catch (Exception e) {
       throw new IllegalStateException("Unable to save some measures", e);
-    } finally {
-      MyBatis.closeQuietly(session);
     }
   }
 

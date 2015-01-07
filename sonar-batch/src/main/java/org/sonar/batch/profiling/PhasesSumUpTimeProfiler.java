@@ -21,7 +21,6 @@ package org.sonar.batch.profiling;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
-import com.google.common.io.Closeables;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -150,16 +149,12 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
   }
 
   private void dumpToFile(Properties props, String fileName) {
-    FileOutputStream fos = null;
     File file = new File(out, fileName);
-    try {
-      fos = new FileOutputStream(file);
+    try (FileOutputStream fos = new FileOutputStream(file)) {
       props.store(fos, "SonarQube");
       println("Profiling data stored in " + file.getAbsolutePath());
     } catch (Exception e) {
       throw new IllegalStateException("Unable to store profiler output: " + file, e);
-    } finally {
-      Closeables.closeQuietly(fos);
     }
   }
 

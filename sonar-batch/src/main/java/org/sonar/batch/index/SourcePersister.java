@@ -100,8 +100,7 @@ public class SourcePersister implements ScanPersister {
   @Override
   public void persist() {
     // Don't use batch insert for file_sources since keeping all data in memory can produce OOM for big files
-    DbSession session = mybatis.openSession(false);
-    try {
+    try (DbSession session = mybatis.openSession(false)) {
 
       final Map<String, FileSourceDto> fileSourceDtoByFileUuid = new HashMap<String, FileSourceDto>();
 
@@ -123,8 +122,6 @@ public class SourcePersister implements ScanPersister {
       }
     } catch (Exception e) {
       throw new IllegalStateException("Unable to save file sources", e);
-    } finally {
-      MyBatis.closeQuietly(session);
     }
 
   }

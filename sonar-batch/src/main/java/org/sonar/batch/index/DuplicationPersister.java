@@ -53,8 +53,7 @@ public final class DuplicationPersister implements ScanPersister {
   @Override
   public void persist() {
     // Don't use batch insert for duplications since keeping all data in memory can produce OOM
-    DbSession session = mybatis.openSession(false);
-    try {
+    try (DbSession session = mybatis.openSession(false)) {
       MeasureMapper mapper = session.getMapper(MeasureMapper.class);
       org.sonar.api.measures.Metric duplicationMetricWithId = metricFinder.findByKey(CoreMetrics.DUPLICATIONS_DATA_KEY);
       for (Entry<List<DuplicationGroup>> entry : duplicationCache.entries()) {
@@ -70,8 +69,6 @@ public final class DuplicationPersister implements ScanPersister {
       }
     } catch (Exception e) {
       throw new IllegalStateException("Unable to save some measures", e);
-    } finally {
-      MyBatis.closeQuietly(session);
     }
   }
 

@@ -20,7 +20,6 @@
 package org.sonar.batch.phases;
 
 import com.tinkerpop.blueprints.Graph;
-import org.apache.commons.io.IOUtils;
 import org.sonar.api.component.Perspective;
 import org.sonar.batch.index.ScanPersister;
 import org.sonar.core.component.ComponentVertex;
@@ -35,6 +34,7 @@ import org.sonar.core.graph.jdbc.GraphDtoMapper;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 
+import java.io.IOException;
 import java.io.StringWriter;
 
 public class GraphPersister implements ScanPersister {
@@ -76,7 +76,7 @@ public class GraphPersister implements ScanPersister {
   }
 
   private void serializePerspectiveData(GraphDtoMapper mapper, ComponentVertex component, Long snapshotId,
-                                        GraphPerspectiveBuilder builder) {
+    GraphPerspectiveBuilder builder) {
     Graph subGraph = SubGraph.extract(component.element(), builder.path());
     String data = write(subGraph);
     mapper.insert(new GraphDto()
@@ -87,16 +87,15 @@ public class GraphPersister implements ScanPersister {
       .setResourceId((Long) component.element().getProperty("rid"))
       .setSnapshotId(snapshotId)
       .setRootVertexId(component.element().getId().toString())
-    );
+      );
   }
 
   private String write(Graph graph) {
-    StringWriter output = new StringWriter();
-    try {
+    try (StringWriter output = new StringWriter()) {
       new GraphsonWriter().write(graph, output, GraphsonMode.EXTENDED);
       return output.toString();
-    } finally {
-      IOUtils.closeQuietly(output);
+    } catch (IOException e) {
+      throw new IllegalStateException("Unable to write graph", e);
     }
   }
 }

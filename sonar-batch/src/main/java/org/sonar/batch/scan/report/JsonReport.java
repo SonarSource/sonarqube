@@ -21,7 +21,6 @@ package org.sonar.batch.scan.report;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Charsets;
-import com.google.common.io.Closeables;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +48,12 @@ import org.sonar.batch.events.EventBus;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.scan.filesystem.InputPathCache;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -100,15 +104,11 @@ public class JsonReport implements BatchComponent {
     File exportFile = new File(fileSystem.workDir(), settings.getString("sonar.report.export.path"));
 
     LOG.info("Export results to " + exportFile.getAbsolutePath());
-    Writer output = null;
-    try {
-      output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(exportFile), Charsets.UTF_8));
+    try (Writer output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(exportFile), Charsets.UTF_8))) {
       writeJson(output);
 
     } catch (IOException e) {
       throw new IllegalStateException("Unable to write report results in file " + exportFile.getAbsolutePath(), e);
-    } finally {
-      Closeables.closeQuietly(output);
     }
   }
 

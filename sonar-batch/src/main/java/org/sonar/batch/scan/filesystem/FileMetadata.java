@@ -23,7 +23,6 @@ import com.google.common.base.Charsets;
 import com.google.common.primitives.Longs;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.IOUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -53,16 +52,14 @@ class FileMetadata {
    * Maximum performance is needed.
    */
   Metadata read(File file, Charset encoding) {
-    Reader reader = null;
     long currentOriginalOffset = 0;
     List<Long> originalLineOffsets = new ArrayList<Long>();
     List<Object> lineHashes = new ArrayList<Object>();
     int lines = 0;
     char c = (char) -1;
-    try {
+    try (Reader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), encoding))) {
       MessageDigest globalMd5Digest = DigestUtils.getMd5Digest();
       MessageDigest lineMd5Digest = DigestUtils.getMd5Digest();
-      reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), encoding));
       int i = reader.read();
       boolean afterCR = false;
       // First offset of first line is always 0
@@ -113,8 +110,6 @@ class FileMetadata {
 
     } catch (IOException e) {
       throw new IllegalStateException(String.format("Fail to read file '%s' with encoding '%s'", file.getAbsolutePath(), encoding), e);
-    } finally {
-      IOUtils.closeQuietly(reader);
     }
   }
 
