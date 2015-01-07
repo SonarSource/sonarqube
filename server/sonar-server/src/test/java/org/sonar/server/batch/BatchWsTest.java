@@ -29,8 +29,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.core.properties.PropertiesDao;
-import org.sonar.server.computation.AnalysisReportQueue;
-import org.sonar.server.computation.AnalysisReportTaskLauncher;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.ws.WsTester;
 
@@ -59,8 +57,7 @@ public class BatchWsTest {
   public void before() throws IOException {
     tester = new WsTester(new BatchWs(batchIndex,
       new GlobalReferentialsAction(mock(DbClient.class), mock(PropertiesDao.class)),
-      new ProjectReferentialsAction(mock(ProjectReferentialsLoader.class)),
-      new UploadReportAction(mock(AnalysisReportQueue.class), mock(AnalysisReportTaskLauncher.class))));
+      new ProjectReferentialsAction(mock(ProjectReferentialsLoader.class))));
   }
 
   @Test

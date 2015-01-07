@@ -44,7 +44,7 @@ public class ProjectReferentialsActionTest {
   @Before
   public void setUp() throws Exception {
     tester = new WsTester(new BatchWs(mock(BatchIndex.class), mock(GlobalReferentialsAction.class),
-      new ProjectReferentialsAction(projectReferentialsLoader), mock(UploadReportAction.class)));
+      new ProjectReferentialsAction(projectReferentialsLoader)));
   }
 
   @Test

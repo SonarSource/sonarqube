@@ -18,24 +18,26 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.batch;
+package org.sonar.server.computation.ws;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.server.computation.AnalysisReportQueue;
 import org.sonar.server.computation.AnalysisReportTaskLauncher;
 
 import java.io.InputStream;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-public class UploadReportActionTest {
+public class SubmitReportWsActionTest {
 
   private static final String DEFAULT_PROJECT_KEY = "123456789-987654321";
-  private UploadReportAction sut;
+  private SubmitReportWsAction sut;
 
   private AnalysisReportTaskLauncher analysisTaskLauncher;
   private AnalysisReportQueue queue;
@@ -45,7 +47,19 @@ public class UploadReportActionTest {
     analysisTaskLauncher = mock(AnalysisReportTaskLauncher.class);
     queue = mock(AnalysisReportQueue.class);
 
-    sut = new UploadReportAction(queue, analysisTaskLauncher);
+    sut = new SubmitReportWsAction(queue, analysisTaskLauncher);
+  }
+
+  @Test
+  public void define_metadata() throws Exception {
+    WebService.Context context = new WebService.Context();
+    WebService.NewController controller = context.createController("api/computation");
+    sut.define(controller);
+    controller.done();
+
+    WebService.Action action = context.controller("api/computation").action("submit_report");
+    assertThat(action).isNotNull();
+    assertThat(action.params()).hasSize(3);
   }
 
   @Test
@@ -53,10 +67,10 @@ public class UploadReportActionTest {
     Response response = mock(Response.class);
     Request request = mock(Request.class);
 
-    when(request.mandatoryParam(UploadReportAction.PARAM_PROJECT_KEY)).thenReturn(DEFAULT_PROJECT_KEY);
-    when(request.mandatoryParam(UploadReportAction.PARAM_SNAPSHOT)).thenReturn("123");
+    when(request.mandatoryParam(SubmitReportWsAction.PARAM_PROJECT_KEY)).thenReturn(DEFAULT_PROJECT_KEY);
+    when(request.mandatoryParamAsLong(SubmitReportWsAction.PARAM_SNAPSHOT)).thenReturn(123L);
     InputStream reportData = IOUtils.toInputStream("report-data");
-    when(request.paramAsInputStream(UploadReportAction.PARAM_REPORT_DATA)).thenReturn(reportData);
+    when(request.paramAsInputStream(SubmitReportWsAction.PARAM_REPORT_DATA)).thenReturn(reportData);
 
     sut.handle(request, response);
 

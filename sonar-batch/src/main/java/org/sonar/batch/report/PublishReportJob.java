@@ -102,7 +102,7 @@ public class PublishReportJob implements BatchComponent {
     URL url;
     try {
       int snapshotId = resourceCache.get(project.getEffectiveKey()).snapshotId();
-      url = new URL(serverClient.getURL() + "/batch/upload_report?project=" + project.getEffectiveKey() + "&snapshot=" + snapshotId);
+      url = new URL(serverClient.getURL() + "/api/analysis_reports/submit_report?projectKey=" + project.getEffectiveKey() + "&snapshot=" + snapshotId);
     } catch (MalformedURLException e) {
       throw new IllegalArgumentException("Invalid URL", e);
     }

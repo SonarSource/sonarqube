@@ -96,6 +96,7 @@ import org.sonar.server.computation.ws.QueueWsAction;
 import org.sonar.server.computation.ws.HistoryWsAction;
 import org.sonar.server.computation.ws.ComputationWebService;
 import org.sonar.server.computation.ws.IsQueueEmptyWsAction;
+import org.sonar.server.computation.ws.SubmitReportWsAction;
 import org.sonar.server.config.ws.PropertiesWs;
 import org.sonar.server.dashboard.db.DashboardDao;
 import org.sonar.server.dashboard.db.WidgetDao;
@@ -355,7 +356,7 @@ class ServerComponents {
     pico.addSingleton(GlobalReferentialsAction.class);
     pico.addSingleton(ProjectReferentialsAction.class);
     pico.addSingleton(ProjectReferentialsLoader.class);
-    pico.addSingleton(UploadReportAction.class);
+    pico.addSingleton(SubmitReportWsAction.class);
     pico.addSingleton(BatchWs.class);
 
     // update center

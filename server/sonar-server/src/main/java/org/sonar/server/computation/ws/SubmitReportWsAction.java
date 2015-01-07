@@ -18,9 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.batch;
+package org.sonar.server.computation.ws;
 
-import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
@@ -30,26 +29,25 @@ import org.sonar.server.computation.AnalysisReportTaskLauncher;
 
 import java.io.InputStream;
 
-public class UploadReportAction implements RequestHandler {
+public class SubmitReportWsAction implements ComputationWsAction, RequestHandler {
 
-  public static final String UPLOAD_REPORT_ACTION = "upload_report";
+  public static final String ACTION = "submit_report";
+  public static final String PARAM_PROJECT_KEY = "projectKey";
+  public static final String PARAM_SNAPSHOT = "snapshot";
+  public static final String PARAM_REPORT_DATA = "report";
 
-  static final String PARAM_PROJECT_KEY = "project";
-  static final String PARAM_SNAPSHOT = "snapshot";
-  static final String PARAM_REPORT_DATA = "report";
+  private final AnalysisReportQueue queue;
+  private final AnalysisReportTaskLauncher taskLauncher;
 
-  private final AnalysisReportQueue analysisReportQueue;
-  private final AnalysisReportTaskLauncher analysisTaskLauncher;
-
-  public UploadReportAction(AnalysisReportQueue analysisReportQueue, AnalysisReportTaskLauncher analysisTaskLauncher) {
-    this.analysisReportQueue = analysisReportQueue;
-    this.analysisTaskLauncher = analysisTaskLauncher;
+  public SubmitReportWsAction(AnalysisReportQueue queue, AnalysisReportTaskLauncher taskLauncher) {
+    this.queue = queue;
+    this.taskLauncher = taskLauncher;
   }
 
-  void define(WebService.NewController controller) {
-    WebService.NewAction action = controller.createAction(UPLOAD_REPORT_ACTION)
-      .setDescription("Update analysis report")
-      .setSince("5.0")
+  @Override
+  public void define(WebService.NewController controller) {
+    WebService.NewAction action = controller.createAction(ACTION)
+      .setDescription("Submit an analysis report to the queue. Report is integrated asynchronously.")
       .setPost(true)
       .setInternal(true)
       .setHandler(this);
@@ -63,26 +61,22 @@ public class UploadReportAction implements RequestHandler {
     action
       .createParam(PARAM_SNAPSHOT)
       .setRequired(true)
-      .setDescription("Snapshot id")
+      .setDescription("Snapshot ID")
       .setExampleValue("123");
 
     action
       .createParam(PARAM_REPORT_DATA)
       .setRequired(false)
-      .setDescription("Report file");
+      .setDescription("Report file. Format is not an API, it changes among SonarQube versions.");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     String projectKey = request.mandatoryParam(PARAM_PROJECT_KEY);
-    String snapshotId = request.mandatoryParam(PARAM_SNAPSHOT);
-    InputStream reportData = request.paramAsInputStream(PARAM_REPORT_DATA);
-
-    try {
-      analysisReportQueue.add(projectKey, Long.valueOf(snapshotId), reportData);
-      analysisTaskLauncher.startAnalysisTaskNow();
-    } finally {
-      IOUtils.closeQuietly(reportData);
+    long snapshotId = request.mandatoryParamAsLong(PARAM_SNAPSHOT);
+    try (InputStream reportData = request.paramAsInputStream(PARAM_REPORT_DATA)) {
+      queue.add(projectKey, snapshotId, reportData);
+      taskLauncher.startAnalysisTaskNow();
     }
   }
 }
