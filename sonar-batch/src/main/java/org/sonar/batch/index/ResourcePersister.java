@@ -74,9 +74,17 @@ public final class ResourcePersister implements ScanPersister {
     }
 
     for (BatchResource lib : resourceCache.allLibraries()) {
-      Snapshot s = persistLibrary(projectTree.getRootProject().getAnalysisDate(), (Library) lib.resource());
-      lib.setSnapshot(s);
+      if (lib.snapshot() != null) {
+        // already persisted
+        continue;
+      }
+      persistLibrary(lib);
     }
+  }
+
+  private void persistLibrary(BatchResource lib) {
+    Snapshot s = persistLibrary(projectTree.getRootProject().getAnalysisDate(), (Library) lib.resource());
+    lib.setSnapshot(s);
   }
 
   private void persist(BatchResource batchResource) {

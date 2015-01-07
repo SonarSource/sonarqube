@@ -29,6 +29,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.resources.Library;
 import org.sonar.api.resources.Project;
+import org.sonar.batch.index.ResourcePersister;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -47,7 +48,7 @@ public class MavenDependenciesSensorTest {
   public void prepare() {
     settings = new Settings();
     sonarIndex = mock(SonarIndex.class);
-    sensor = new MavenDependenciesSensor(settings, sonarIndex);
+    sensor = new MavenDependenciesSensor(settings, sonarIndex, mock(ResourcePersister.class));
     sensorContext = mock(SensorContext.class);
     when(sensorContext.getResource(any(Library.class))).thenAnswer(new Answer<Library>() {
       public Library answer(InvocationOnMock invocation) throws Throwable {

@@ -54,6 +54,7 @@ import org.sonar.api.resources.Library;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.SonarException;
+import org.sonar.batch.index.ResourcePersister;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -67,16 +68,17 @@ public class MavenDependenciesSensor implements Sensor {
 
   private static final Logger LOG = LoggerFactory.getLogger(MavenDependenciesSensor.class);
 
-  private ArtifactRepository localRepository;
-  private ArtifactFactory artifactFactory;
-  private ArtifactMetadataSource artifactMetadataSource;
-  private ArtifactCollector artifactCollector;
-  private DependencyTreeBuilder treeBuilder;
-  private SonarIndex index;
-  private Settings settings;
+  private final ArtifactRepository localRepository;
+  private final ArtifactFactory artifactFactory;
+  private final ArtifactMetadataSource artifactMetadataSource;
+  private final ArtifactCollector artifactCollector;
+  private final DependencyTreeBuilder treeBuilder;
+  private final SonarIndex index;
+  private final Settings settings;
+  private final ResourcePersister resourcePersister;
 
   public MavenDependenciesSensor(Settings settings, ArtifactRepository localRepository, ArtifactFactory artifactFactory, ArtifactMetadataSource artifactMetadataSource,
-    ArtifactCollector artifactCollector, DependencyTreeBuilder treeBuilder, SonarIndex index) {
+    ArtifactCollector artifactCollector, DependencyTreeBuilder treeBuilder, SonarIndex index, ResourcePersister resourcePersister) {
     this.settings = settings;
     this.localRepository = localRepository;
     this.artifactFactory = artifactFactory;
@@ -84,14 +86,14 @@ public class MavenDependenciesSensor implements Sensor {
     this.artifactCollector = artifactCollector;
     this.index = index;
     this.treeBuilder = treeBuilder;
+    this.resourcePersister = resourcePersister;
   }
 
   /**
    * Used with SQ Maven plugin 2.5+
    */
-  public MavenDependenciesSensor(Settings settings, SonarIndex index) {
-    this.settings = settings;
-    this.index = index;
+  public MavenDependenciesSensor(Settings settings, SonarIndex index, ResourcePersister resourcePersister) {
+    this(settings, null, null, null, null, null, index, resourcePersister);
   }
 
   @Override
