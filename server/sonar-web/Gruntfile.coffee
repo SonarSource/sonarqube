@@ -104,7 +104,6 @@ module.exports = (grunt) ->
             '<%= pkg.assets %>js/application.js'
             '<%= pkg.assets %>js/csv.js'
             '<%= pkg.assets %>js/dashboard.js'
-            '<%= pkg.assets %>js/issue.js'
             '<%= pkg.assets %>js/recent-history.js'
           ]
       build:
@@ -140,7 +139,6 @@ module.exports = (grunt) ->
             '<%= pkg.assets %>js/application.js'
             '<%= pkg.assets %>js/csv.js'
             '<%= pkg.assets %>js/dashboard.js'
-            '<%= pkg.assets %>js/issue.js'
             '<%= pkg.assets %>js/recent-history.js'
           ]
 

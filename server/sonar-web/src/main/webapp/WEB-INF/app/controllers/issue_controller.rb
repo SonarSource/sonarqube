@@ -22,45 +22,6 @@ require 'set'
 
 class IssueController < ApplicationController
 
-  # GET /issue/show/<key>
-  # This URL is used by the Eclipse Plugin
-  #
-  # ==== Optional parameters
-  # 'layout' is false to remove sidebar and headers. Default value is true.
-  #
-  # ==== Example
-  # GET /issue/show/151f6853-58a1-4950-95e3-9866f8be3e35?layout=false
-  #
-  def show
-    require_parameters :id
-    init_issue(params[:id])
-
-    if params[:modal]
-      render :partial => 'issue/show_modal'
-    elsif request.xhr?
-      if params[:only_detail]
-        # used when canceling edition of comment -> see issue.js#refreshIssue()
-        render :partial => 'issue/issue', :locals => {:issue => @issue}
-      else
-        render :partial => 'issue/show'
-      end
-    else
-      render :action => 'show'
-    end
-
-  end
-
-  # Form used for: assign, comment, transition, change severity and plan
-  def action_form
-    verify_ajax_request
-    require_parameters :id, :issue
-
-    @issue = Internal.issues.getIssueByKey(params[:issue])
-
-    action_type = params[:id]
-    render :partial => "issue/#{action_type}_form"
-  end
-
   def do_action
     verify_ajax_request
     verify_post_request
@@ -97,16 +58,6 @@ class IssueController < ApplicationController
 
   end
 
-  # Form used to edit comment
-  def edit_comment_form
-    verify_ajax_request
-    require_parameters :id
-
-    @comment = Internal.issues.findComment(params[:id])
-
-    render :partial => 'issue/edit_comment_form'
-  end
-
   # Edit and save an existing comment
   def edit_comment
     verify_ajax_request
@@ -135,13 +86,6 @@ class IssueController < ApplicationController
 
     init_issue(comment.issueKey)
     render :partial => 'issue/issue', :locals => {:issue => @issue}
-  end
-
-  # Form used to create a manual issue
-  def create_form
-    verify_ajax_request
-    require_parameters :component
-    render :partial => 'issue/create_form'
   end
 
   # Create a manual issue
