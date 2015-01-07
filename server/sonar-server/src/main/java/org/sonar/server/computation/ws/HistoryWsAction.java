@@ -38,7 +38,7 @@ import org.sonar.server.user.UserSession;
 import java.util.Arrays;
 import java.util.Map;
 
-public class AnalysisReportHistorySearchAction implements RequestHandler {
+public class HistoryWsAction implements ComputationWsAction, RequestHandler {
 
   public static final String PARAM_TYPE = "type";
 
@@ -47,12 +47,13 @@ public class AnalysisReportHistorySearchAction implements RequestHandler {
   private final ActivityService logService;
   private final ActivityMapping mapping;
 
-  public AnalysisReportHistorySearchAction(ActivityService logService, ActivityMapping mapping) {
+  public HistoryWsAction(ActivityService logService, ActivityMapping mapping) {
     this.logService = logService;
     this.mapping = mapping;
   }
 
-  void define(WebService.NewController controller) {
+  @Override
+  public void define(WebService.NewController controller) {
     WebService.NewAction action = controller
       .createAction(SEARCH_ACTION)
       .setDescription("Search for activities")

@@ -17,9 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
-@ParametersAreNonnullByDefault
 package org.sonar.server.computation.ws;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.sonar.api.server.ws.WebService;
 
+/**
+ * Used by {@link ComputationWebService} to
+ * loop over all its actions
+ */
+interface ComputationWsAction {
+  void define(WebService.NewController controller);
+}

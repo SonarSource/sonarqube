@@ -35,7 +35,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.computation.db.AnalysisReportDto.Status.PENDING;
 
-public class ActiveAnalysisReportsActionTest {
+public class QueueWsActionTest {
 
   WsTester tester;
   private AnalysisReportQueue queue;
@@ -43,8 +43,7 @@ public class ActiveAnalysisReportsActionTest {
   @Before
   public void setup() throws Exception {
     queue = mock(AnalysisReportQueue.class);
-    tester = new WsTester(new AnalysisReportWebService(new ActiveAnalysisReportsAction(queue), new IsAnalysisReportQueueEmptyAction(queue),
-      mock(AnalysisReportHistorySearchAction.class)));
+    tester = new WsTester(new ComputationWebService(new QueueWsAction(queue)));
   }
 
   @Test
@@ -60,12 +59,12 @@ public class ActiveAnalysisReportsActionTest {
     List<AnalysisReportDto> reports = Lists.newArrayList(report);
     when(queue.all()).thenReturn(reports);
 
-    WsTester.TestRequest request = tester.newGetRequest(AnalysisReportWebService.API_ENDPOINT, "active");
+    WsTester.TestRequest request = tester.newGetRequest(ComputationWebService.API_ENDPOINT, "active");
     request.execute().assertJson(getClass(), "list_active_reports.json", false);
   }
 
   @Test
   public void define() throws Exception {
-    assertThat(tester.controller(AnalysisReportWebService.API_ENDPOINT).action("active")).isNotNull();
+    assertThat(tester.controller(ComputationWebService.API_ENDPOINT).action("active")).isNotNull();
   }
 }

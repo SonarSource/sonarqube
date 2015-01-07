@@ -22,18 +22,21 @@ package org.sonar.server.computation.ws;
 
 import org.sonar.api.server.ws.WebService;
 
-public class AnalysisReportWebService implements WebService {
+/**
+ * Web service to interact with the "computation" stack :
+ * <ul>
+ *   <li>queue of analysis reports to be integrated</li>
+ *   <li>consolidation and aggregation of analysis measures</li>
+ *   <li>persistence in datastores (database/elasticsearch)</li>
+ * </ul>
+ */
+public class ComputationWebService implements WebService {
   public static final String API_ENDPOINT = "api/analysis_reports";
 
-  private final ActiveAnalysisReportsAction activeAnalysisReportsAction;
-  private final IsAnalysisReportQueueEmptyAction isAnalysisReportQueueEmptyAction;
-  private final AnalysisReportHistorySearchAction historySearchAction;
+  private final ComputationWsAction[] actions;
 
-  public AnalysisReportWebService(ActiveAnalysisReportsAction activeReports, IsAnalysisReportQueueEmptyAction isAnalysisReportQueueEmptyAction,
-    AnalysisReportHistorySearchAction historySearchAction) {
-    this.activeAnalysisReportsAction = activeReports;
-    this.isAnalysisReportQueueEmptyAction = isAnalysisReportQueueEmptyAction;
-    this.historySearchAction = historySearchAction;
+  public ComputationWebService(ComputationWsAction... actions) {
+    this.actions = actions;
   }
 
   @Override
@@ -41,11 +44,9 @@ public class AnalysisReportWebService implements WebService {
     NewController controller = context
       .createController(API_ENDPOINT)
       .setDescription("Analysis reports processed");
-
-    activeAnalysisReportsAction.define(controller);
-    isAnalysisReportQueueEmptyAction.define(controller);
-    historySearchAction.define(controller);
-
+    for (ComputationWsAction action : actions) {
+      action.define(controller);
+    }
     controller.done();
   }
 }

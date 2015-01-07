@@ -33,11 +33,21 @@ import java.util.List;
 /**
  * @since 5.0
  */
-public class ActiveAnalysisReportsAction implements RequestHandler {
+public class QueueWsAction implements ComputationWsAction, RequestHandler {
   private final AnalysisReportQueue queue;
 
-  public ActiveAnalysisReportsAction(AnalysisReportQueue queue) {
+  public QueueWsAction(AnalysisReportQueue queue) {
     this.queue = queue;
+  }
+
+  @Override
+  public void define(WebService.NewController controller) {
+    controller
+      .createAction("active")
+      .setDescription("List all the active analysis reports")
+      .setSince("5.0")
+      .setInternal(true)
+      .setHandler(this);
   }
 
   @Override
@@ -54,7 +64,9 @@ public class ActiveAnalysisReportsAction implements RequestHandler {
     json.name("reports").beginArray();
     for (AnalysisReportDto report : reports) {
       json.beginObject();
+      // TODO naming consistency -> rename id to key
       json.prop("id", report.getId());
+      // TODO rename to projectKey
       json.prop("project", report.getProjectKey());
       json.prop("projectName", report.getProjectKey());
       json.propDateTime("startedAt", report.getStartedAt());
@@ -64,15 +76,6 @@ public class ActiveAnalysisReportsAction implements RequestHandler {
       json.endObject();
     }
     json.endArray();
-  }
-
-  void define(WebService.NewController controller) {
-    controller
-      .createAction("active")
-      .setDescription("List all the active analysis reports")
-      .setSince("5.0")
-      .setInternal(true)
-      .setHandler(this);
   }
 
 }

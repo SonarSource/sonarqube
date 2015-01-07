@@ -39,7 +39,6 @@ import org.sonar.server.activity.ActivityService;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.computation.AnalysisReportLog;
 import org.sonar.server.computation.AnalysisReportQueue;
-import org.sonar.server.computation.ComputationService;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.ServerTester;
@@ -50,7 +49,10 @@ import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class AnalysisReportHistorySearchActionMediumTest {
+/**
+ * TODO replace this medium test by a small test
+ */
+public class HistoryWsActionMediumTest {
   private static final String DEFAULT_PROJECT_KEY = "DefaultProjectKey";
   private static final String DEFAULT_PROJECT_NAME = "DefaultProjectName";
   private static final String DEFAULT_REPORT_DATA = "default-project";
@@ -63,7 +65,6 @@ public class AnalysisReportHistorySearchActionMediumTest {
   private WsTester wsTester;
   private AnalysisReportQueue queue;
   private MockUserSession userSession;
-  private ComputationService computationService;
   private ActivityService activityService;
 
   @Before
@@ -108,7 +109,7 @@ public class AnalysisReportHistorySearchActionMediumTest {
     session.commit();
     userSession.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
-    WsTester.TestRequest request = wsTester.newGetRequest(AnalysisReportWebService.API_ENDPOINT, AnalysisReportHistorySearchAction.SEARCH_ACTION);
+    WsTester.TestRequest request = wsTester.newGetRequest(ComputationWebService.API_ENDPOINT, HistoryWsAction.SEARCH_ACTION);
     WsTester.Result result = request.execute();
 
     assertThat(result).isNotNull();
@@ -138,7 +139,7 @@ public class AnalysisReportHistorySearchActionMediumTest {
     queue.remove(report);
     userSession.setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
 
-    WsTester.TestRequest sut = wsTester.newGetRequest(AnalysisReportWebService.API_ENDPOINT, AnalysisReportHistorySearchAction.SEARCH_ACTION);
+    WsTester.TestRequest sut = wsTester.newGetRequest(ComputationWebService.API_ENDPOINT, HistoryWsAction.SEARCH_ACTION);
     sut.execute();
   }
 }

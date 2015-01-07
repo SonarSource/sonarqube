@@ -20,36 +20,30 @@
 
 package org.sonar.server.computation.ws;
 
-import org.apache.commons.io.IOUtils;
-import org.sonar.api.server.ws.Request;
+import org.junit.Test;
 import org.sonar.api.server.ws.RequestHandler;
-import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.computation.db.AnalysisReportDto;
-import org.sonar.server.computation.AnalysisReportQueue;
 
-import java.util.List;
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
-public class IsAnalysisReportQueueEmptyAction implements RequestHandler {
-  private final AnalysisReportQueue queue;
+public class ComputationWebServiceTest {
 
-  public IsAnalysisReportQueueEmptyAction(AnalysisReportQueue queue) {
-    this.queue = queue;
-  }
+  @Test
+  public void define() throws Exception {
+    ComputationWebService ws = new ComputationWebService(new ComputationWsAction() {
+      @Override
+      public void define(WebService.NewController controller) {
+        WebService.NewAction upload = controller.createAction("upload");
+        upload.setHandler(mock(RequestHandler.class));
+      }
+    });
+    WebService.Context context = new WebService.Context();
+    ws.define(context);
 
-  void define(WebService.NewController controller) {
-    controller
-      .createAction("is_queue_empty")
-      .setDescription("Check is the analysis report queue is empty")
-      .setInternal(true)
-      .setHandler(this);
-  }
-
-  @Override
-  public void handle(Request request, Response response) throws Exception {
-    List<AnalysisReportDto> reports = queue.all();
-    boolean isQueueEmpty = reports.isEmpty();
-
-    IOUtils.write(String.valueOf(isQueueEmpty), response.stream().output());
+    WebService.Controller controller = context.controller("api/analysis_reports");
+    assertThat(controller).isNotNull();
+    assertThat(controller.description()).isNotEmpty();
+    assertThat(controller.actions()).hasSize(1);
   }
 }

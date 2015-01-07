@@ -20,33 +20,37 @@
 
 package org.sonar.server.computation.ws;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.commons.io.IOUtils;
+import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.RequestHandler;
+import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.activity.ActivityService;
-import org.sonar.server.activity.ws.ActivityMapping;
+import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.server.computation.AnalysisReportQueue;
-import org.sonar.server.ws.WsTester;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+import java.util.List;
 
-public class AnalysisReportWebServiceTest {
+public class IsQueueEmptyWsAction implements ComputationWsAction, RequestHandler {
+  private final AnalysisReportQueue queue;
 
-  private WsTester tester;
-
-  @Before
-  public void setUp() throws Exception {
-    this.tester = new WsTester(new AnalysisReportWebService(new ActiveAnalysisReportsAction(mock(AnalysisReportQueue.class)), new IsAnalysisReportQueueEmptyAction(
-      mock(AnalysisReportQueue.class)), new AnalysisReportHistorySearchAction(mock(ActivityService.class), mock(ActivityMapping.class))));
+  public IsQueueEmptyWsAction(AnalysisReportQueue queue) {
+    this.queue = queue;
   }
 
-  @Test
-  public void define() throws Exception {
-    WebService.Controller controller = tester.controller(AnalysisReportWebService.API_ENDPOINT);
+  @Override
+  public void define(WebService.NewController controller) {
+    controller
+      .createAction("is_queue_empty")
+      .setDescription("Check if the analysis report queue is empty")
+      .setInternal(true)
+      .setHandler(this);
+  }
 
-    assertThat(controller).isNotNull();
-    assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(3);
+  @Override
+  public void handle(Request request, Response response) throws Exception {
+    List<AnalysisReportDto> reports = queue.all();
+    boolean isQueueEmpty = reports.isEmpty();
+
+    IOUtils.write(String.valueOf(isQueueEmpty), response.stream().output());
   }
 }
