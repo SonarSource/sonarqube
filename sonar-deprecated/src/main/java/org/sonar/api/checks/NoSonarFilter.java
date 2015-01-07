@@ -22,9 +22,9 @@ package org.sonar.api.checks;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.batch.IssueFilterChain;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.rules.Violation;
-import org.sonar.api.rules.ViolationFilter;
 
 import java.util.Map;
 import java.util.Set;
@@ -34,9 +34,9 @@ import java.util.Set;
  * @deprecated in 3.6. Replaced by {@link org.sonar.api.issue.NoSonarFilter}
  */
 @Deprecated
-public class NoSonarFilter implements ViolationFilter {
+public class NoSonarFilter implements org.sonar.api.issue.batch.IssueFilter {
 
-  private final Map<Resource, Set<Integer>> noSonarLinesByResource = Maps.newHashMap();
+  private final Map<String, Set<Integer>> noSonarLinesByKey = Maps.newHashMap();
   private SensorContext context;
 
   public NoSonarFilter(SensorContext context) {
@@ -48,21 +48,24 @@ public class NoSonarFilter implements ViolationFilter {
       // Reload resource to handle backward compatibility of resource keys
       Resource resource = context.getResource(model);
       if (resource != null) {
-        noSonarLinesByResource.put(resource, noSonarLines);
+        noSonarLinesByKey.put(resource.getEffectiveKey(), noSonarLines);
       }
     }
   }
 
   @Override
-  public boolean isIgnored(Violation violation) {
-    boolean ignored = false;
-    if (violation.getResource() != null && violation.getLineId() != null) {
-      Set<Integer> noSonarLines = noSonarLinesByResource.get(violation.getResource());
-      ignored = noSonarLines != null && noSonarLines.contains(violation.getLineId());
-      if (ignored && violation.getRule() != null && StringUtils.containsIgnoreCase(violation.getRule().getKey(), "nosonar")) {
-        ignored = false;
+  public boolean accept(Issue issue, IssueFilterChain chain) {
+    boolean accepted = true;
+    if (issue.line() != null) {
+      Set<Integer> noSonarLines = noSonarLinesByKey.get(issue.componentKey());
+      accepted = noSonarLines == null || !noSonarLines.contains(issue.line());
+      if (!accepted && StringUtils.containsIgnoreCase(issue.ruleKey().rule(), "nosonar")) {
+        accepted = true;
       }
     }
-    return ignored;
+    if (accepted) {
+      accepted = chain.accept(issue);
+    }
+    return accepted;
   }
 }

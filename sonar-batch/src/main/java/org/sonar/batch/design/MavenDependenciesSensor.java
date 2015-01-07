@@ -253,12 +253,13 @@ public class MavenDependenciesSensor implements Sensor {
     context.saveDependency(dependency);
   }
 
-  protected static Resource toResource(final Project project, Artifact artifact, SensorContext context) {
+  protected Resource toResource(final Project project, Artifact artifact, SensorContext context) {
     Project depWithBranch = Project.createFromMavenIds(artifact.getGroupId(), artifact.getArtifactId(), project.getBranch());
     Resource result = context.getResource(depWithBranch);
     if (result == null || !((Project) result).getAnalysisVersion().equals(artifact.getBaseVersion())) {
       Library lib = Library.createFromMavenIds(artifact.getGroupId(), artifact.getArtifactId(), artifact.getBaseVersion());
-      context.saveResource(lib);
+      index.addResource(lib);
+      resourcePersister.persist();
       result = context.getResource(lib);
     }
     return result;

@@ -45,7 +45,7 @@ import javax.persistence.Query;
 import java.util.Date;
 import java.util.List;
 
-public final class ResourcePersister implements ScanPersister {
+public class ResourcePersister implements ScanPersister {
 
   private static final String RESOURCE_ID = "resourceId";
   private static final String LAST = "last";

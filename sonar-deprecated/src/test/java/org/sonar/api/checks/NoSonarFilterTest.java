@@ -22,14 +22,16 @@ package org.sonar.api.checks;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.batch.IssueFilterChain;
 import org.sonar.api.resources.File;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.Violation;
+import org.sonar.api.rule.RuleKey;
 
 import java.util.HashSet;
 import java.util.Set;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -38,10 +40,13 @@ public class NoSonarFilterTest {
   private SensorContext sensorContext = mock(SensorContext.class);
   NoSonarFilter filter = new NoSonarFilter(sensorContext);
   private File javaFile;
+  IssueFilterChain chain = mock(IssueFilterChain.class);
 
   @Before
   public void prepare() {
+    when(chain.accept(isA(Issue.class))).thenReturn(true);
     javaFile = new File("org.foo.Bar");
+    javaFile.setEffectiveKey("struts:org.apache.Action");
     when(sensorContext.getResource(javaFile)).thenReturn(javaFile);
   }
 
@@ -52,17 +57,18 @@ public class NoSonarFilterTest {
     noSonarLines.add(55);
     filter.addResource(javaFile, noSonarLines);
 
+    Issue issue = mock(Issue.class);
+    when(issue.componentKey()).thenReturn("struts:org.apache.Action");
+    when(issue.ruleKey()).thenReturn(RuleKey.of("squid", "Foo"));
+
     // violation on class
-    assertThat(filter.isIgnored(new Violation(null, javaFile))).isFalse();
+    assertThat(filter.accept(issue, chain)).isTrue();
 
     // violation on lines
-    assertThat(filter.isIgnored(new Violation(null, javaFile).setLineId(30))).isFalse();
-    assertThat(filter.isIgnored(new Violation(null, javaFile).setLineId(31))).isTrue();
-  }
-
-  @Test
-  public void doNotIgnoreWhenNotFoundInSquid() {
-    assertThat(filter.isIgnored(new Violation(null, javaFile).setLineId(30))).isFalse();
+    when(issue.line()).thenReturn(30);
+    assertThat(filter.accept(issue, chain)).isTrue();
+    when(issue.line()).thenReturn(31);
+    assertThat(filter.accept(issue, chain)).isFalse();
   }
 
   @Test
@@ -73,8 +79,12 @@ public class NoSonarFilterTest {
     noSonarLines.add(31);
     filter.addResource(javaFile, noSonarLines);
 
-    Rule noSonarRule = new Rule("squid", "NoSonarCheck");
-    assertThat(filter.isIgnored(new Violation(noSonarRule, javaFile).setLineId(31))).isFalse();
+    Issue issue = mock(Issue.class);
+    when(issue.componentKey()).thenReturn("struts:org.apache.Action");
+    when(issue.ruleKey()).thenReturn(RuleKey.of("squid", "NoSonarCheck"));
+
+    when(issue.line()).thenReturn(31);
+    assertThat(filter.accept(issue, chain)).isTrue();
 
   }
 }
