@@ -35,6 +35,7 @@ import org.sonar.batch.DefaultFileLinesContextFactory;
 import org.sonar.batch.DefaultResourceCreationLock;
 import org.sonar.batch.ProjectConfigurator;
 import org.sonar.batch.ProjectTree;
+import org.sonar.batch.bootstrap.BootstrapProperties;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.ExtensionMatcher;
 import org.sonar.batch.bootstrap.ExtensionUtils;
@@ -47,7 +48,6 @@ import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.Caches;
 import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.batch.index.DefaultIndex;
-import org.sonar.batch.index.ResourcePersister;
 import org.sonar.batch.index.DependencyPersister;
 import org.sonar.batch.index.DuplicationPersister;
 import org.sonar.batch.index.EventPersister;
@@ -56,9 +56,9 @@ import org.sonar.batch.index.LinkPersister;
 import org.sonar.batch.index.MeasurePersister;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.index.ResourceKeyMigration;
+import org.sonar.batch.index.ResourcePersister;
 import org.sonar.batch.index.SourcePersister;
 import org.sonar.batch.issue.DefaultProjectIssues;
-import org.sonar.batch.issue.DeprecatedViolations;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.languages.DefaultLanguagesReferential;
 import org.sonar.batch.phases.GraphPersister;
@@ -86,14 +86,20 @@ import org.sonar.core.test.TestablePerspectiveLoader;
 import org.sonar.core.user.DefaultUserFinder;
 
 public class ProjectScanContainer extends ComponentContainer {
+  private boolean sensorMode;
+
   public ProjectScanContainer(ComponentContainer taskContainer) {
     super(taskContainer);
+    sensorMode = CoreProperties.ANALYSIS_MODE_SENSOR.equals(taskContainer.getComponentByType(BootstrapProperties.class).property(CoreProperties.ANALYSIS_MODE));
   }
 
   @Override
   protected void doBeforeStart() {
     projectBootstrap();
     addBatchComponents();
+    if (!sensorMode) {
+      addDataBaseComponents();
+    }
     fixMavenExecutor();
     addBatchExtensions();
     Settings settings = getComponentByType(Settings.class);
@@ -129,13 +135,6 @@ public class ProjectScanContainer extends ComponentContainer {
     add(
       new ProjectReferentialsProvider(),
       DefaultResourceCreationLock.class,
-      DependencyPersister.class,
-      EventPersister.class,
-      LinkPersister.class,
-      MeasurePersister.class,
-      DuplicationPersister.class,
-      ResourcePersister.class,
-      SourcePersister.class,
       CodeColorizers.class,
       DefaultNotificationManager.class,
       MetricProvider.class,
@@ -159,7 +158,6 @@ public class ProjectScanContainer extends ComponentContainer {
       IssueUpdater.class,
       FunctionExecutor.class,
       IssueWorkflow.class,
-      DeprecatedViolations.class,
       IssueCache.class,
       IssueNotifications.class,
       DefaultProjectIssues.class,
@@ -197,6 +195,17 @@ public class ProjectScanContainer extends ComponentContainer {
       DuplicationCache.class,
 
       ProjectSettings.class);
+  }
+
+  private void addDataBaseComponents() {
+    add(
+      DependencyPersister.class,
+      EventPersister.class,
+      LinkPersister.class,
+      MeasurePersister.class,
+      DuplicationPersister.class,
+      ResourcePersister.class,
+      SourcePersister.class);
   }
 
   private void fixMavenExecutor() {

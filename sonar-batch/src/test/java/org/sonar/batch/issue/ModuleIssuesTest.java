@@ -46,7 +46,6 @@ import java.util.Date;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -147,7 +146,7 @@ public class ModuleIssuesTest {
       .setKey("ABCDE")
       .setRuleKey(SQUID_RULE_KEY)
       .setSeverity(Severity.CRITICAL);
-    when(filters.accept(issue, null)).thenReturn(true);
+    when(filters.accept(issue)).thenReturn(true);
 
     boolean added = moduleIssues.initAndAddIssue(issue);
 
@@ -168,7 +167,7 @@ public class ModuleIssuesTest {
     when(project.getAnalysisDate()).thenReturn(analysisDate);
 
     DefaultIssue issue = new DefaultIssue().setRuleKey(SQUID_RULE_KEY).setSeverity(null);
-    when(filters.accept(issue, null)).thenReturn(true);
+    when(filters.accept(issue)).thenReturn(true);
     moduleIssues.initAndAddIssue(issue);
 
     ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
@@ -191,7 +190,7 @@ public class ModuleIssuesTest {
       .setRuleKey(SQUID_RULE_KEY)
       .setSeverity(Severity.CRITICAL)
       .setMessage("");
-    when(filters.accept(issue, null)).thenReturn(true);
+    when(filters.accept(issue)).thenReturn(true);
 
     boolean added = moduleIssues.initAndAddIssue(issue);
 
@@ -214,7 +213,7 @@ public class ModuleIssuesTest {
     violation.setSeverity(RulePriority.CRITICAL);
     violation.setMessage("the message");
 
-    when(filters.accept(any(DefaultIssue.class), eq(violation))).thenReturn(true);
+    when(filters.accept(any(DefaultIssue.class))).thenReturn(true);
 
     boolean added = moduleIssues.initAndAddViolation(violation);
     assertThat(added).isTrue();
@@ -242,7 +241,7 @@ public class ModuleIssuesTest {
       .setRuleKey(SQUID_RULE_KEY)
       .setSeverity(Severity.CRITICAL);
 
-    when(filters.accept(issue, null)).thenReturn(false);
+    when(filters.accept(issue)).thenReturn(false);
 
     boolean added = moduleIssues.initAndAddIssue(issue);
 
@@ -268,7 +267,7 @@ public class ModuleIssuesTest {
       .setSeverity(Severity.CRITICAL)
       .setEffortToFix(2d);
 
-    when(filters.accept(issue, null)).thenReturn(true);
+    when(filters.accept(issue)).thenReturn(true);
     moduleIssues.initAndAddIssue(issue);
 
     ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
@@ -294,7 +293,7 @@ public class ModuleIssuesTest {
       .setSeverity(Severity.CRITICAL)
       .setEffortToFix(2d);
 
-    when(filters.accept(issue, null)).thenReturn(true);
+    when(filters.accept(issue)).thenReturn(true);
     moduleIssues.initAndAddIssue(issue);
 
     ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
@@ -320,7 +319,7 @@ public class ModuleIssuesTest {
       .setSeverity(Severity.CRITICAL)
       .setEffortToFix(null);
 
-    when(filters.accept(issue, null)).thenReturn(true);
+    when(filters.accept(issue)).thenReturn(true);
     moduleIssues.initAndAddIssue(issue);
 
     ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
@@ -343,7 +342,7 @@ public class ModuleIssuesTest {
       .setSeverity(Severity.CRITICAL)
       .setEffortToFix(2d);
 
-    when(filters.accept(issue, null)).thenReturn(true);
+    when(filters.accept(issue)).thenReturn(true);
 
     try {
       moduleIssues.initAndAddIssue(issue);

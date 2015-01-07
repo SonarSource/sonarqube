@@ -142,7 +142,7 @@ public class DefaultSensorContext extends BaseSensorContext {
 
     updateIssue((DefaultIssue) issue, activeRule);
 
-    if (!issueFilters.accept(SensorContextAdapter.toDefaultIssue(def.getKey(), resourceKey, issue), null)) {
+    if (!issueFilters.accept(SensorContextAdapter.toDefaultIssue(def.getKey(), resourceKey, issue))) {
       LOG.debug("Issue {} was excluded by some filters.", issue);
       return;
     }

@@ -49,7 +49,7 @@ public class Violation {
   /**
    * Creates of a violation from a rule. Will need to define the resource later on
    *
-   * @deprecated since 2.3. Use the factory method create()
+   * @deprecated since 2.3. Use the factory method {@link #create(ActiveRule, Resource)}
    */
   @Deprecated
   public Violation(Rule rule) {

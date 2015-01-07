@@ -38,18 +38,13 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
-import org.sonar.api.rules.Violation;
-import org.sonar.api.violations.ViolationQuery;
 import org.sonar.batch.ProjectTree;
-import org.sonar.batch.issue.DeprecatedViolations;
 import org.sonar.batch.issue.ModuleIssues;
 import org.sonar.batch.scan.measure.MeasureCache;
 
 import java.io.IOException;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -59,7 +54,6 @@ public class DefaultIndexTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   DefaultIndex index = null;
-  DeprecatedViolations deprecatedViolations;
   Rule rule;
   RuleFinder ruleFinder;
   Project project;
@@ -71,14 +65,13 @@ public class DefaultIndexTest {
 
   @Before
   public void createIndex() throws IOException {
-    deprecatedViolations = mock(DeprecatedViolations.class);
     MetricFinder metricFinder = mock(MetricFinder.class);
     when(metricFinder.findByKey("ncloc")).thenReturn(CoreMetrics.NCLOC);
     ruleFinder = mock(RuleFinder.class);
 
     ProjectTree projectTree = mock(ProjectTree.class);
     ResourceCache resourceCache = new ResourceCache();
-    index = new DefaultIndex(resourceCache, null, null, null, projectTree, metricFinder, deprecatedViolations,
+    index = new DefaultIndex(resourceCache, null, null, null, projectTree, metricFinder,
       mock(ResourceKeyMigration.class),
       mock(MeasureCache.class));
 
@@ -179,96 +172,12 @@ public class DefaultIndexTest {
     assertThat(index.getMeasures(dir, MeasuresFilters.metric("ncloc"))).isNull();
   }
 
-  /**
-   * See http://jira.codehaus.org/browse/SONAR-2107
-   */
-  @Test
-  public void shouldNotFailWhenSavingViolationOnNullRule() {
-    File file = File.create("src/org/foo/Bar.java", "org/foo/Bar.java", null, false);
-    Violation violation = Violation.create((Rule) null, file);
-    index.addViolation(violation);
-
-    assertThat(index.getViolations(file)).isEmpty();
-  }
-
-  /**
-   * See https://jira.codehaus.org/browse/SONAR-3583
-   */
-  @Test
-  public void should_ignore_violation_on_unknown_rules() {
-    Rule ruleWithoutID = Rule.create("repoKey", "ruleKey", "Rule");
-
-    File file = File.create("src/org/foo/Bar.java", "org/foo/Bar.java", null, false);
-    Violation violation = Violation.create(ruleWithoutID, file);
-    index.addViolation(violation);
-
-    assertThat(index.getViolations(file)).isEmpty();
-  }
-
-  @Test
-  public void should_get_violation() {
-    Rule rule = Rule.create("repoKey", "ruleKey", "Rule");
-    File file = File.create("src/org/foo/Bar.java", "org/foo/Bar.java", null, false);
-    Violation violation = Violation.create(rule, file);
-    when(deprecatedViolations.get(anyString())).thenReturn(newArrayList(violation));
-
-    index.index(file);
-    index.addViolation(violation);
-
-    assertThat(index.getViolations(file)).hasSize(1);
-  }
-
-  @Test
-  public void should_not_save_violation_if_resource_not_indexed() {
-    Rule rule = Rule.create("repoKey", "ruleKey", "Rule");
-    File file = File.create("src/org/foo/Bar.java", "org/foo/Bar.java", null, false);
-    Violation violation = Violation.create(rule, file);
-    when(deprecatedViolations.get(anyString())).thenReturn(newArrayList(violation));
-
-    index.addViolation(violation);
-
-    assertThat(index.getViolations(file)).hasSize(0);
-  }
-
-  @Test
-  public void should_get_filtered_violation_with_off_switch_mode() {
-    Rule rule = Rule.create("repoKey", "ruleKey", "Rule");
-    File file = File.create("src/org/foo/Bar.java", "org/foo/Bar.java", null, false);
-    Violation violation = Violation.create(rule, file).setSwitchedOff(true);
-
-    when(deprecatedViolations.get(anyString())).thenReturn(newArrayList(violation));
-
-    index.index(file);
-    index.addViolation(violation);
-
-    assertThat(index.getViolations(ViolationQuery.create().forResource(file).setSwitchMode(ViolationQuery.SwitchMode.OFF))).hasSize(1);
-  }
-
-  @Test
-  public void should_get_filtered_violation_with_on_switch_mode() {
-    Rule rule = Rule.create("repoKey", "ruleKey", "Rule");
-    File file = File.create("src/org/foo/Bar.java", "org/foo/Bar.java", null, false);
-    Violation violation = Violation.create(rule, file).setSwitchedOff(false);
-
-    when(deprecatedViolations.get(anyString())).thenReturn(newArrayList(violation));
-
-    index.index(file);
-    index.addViolation(violation);
-
-    assertThat(index.getViolations(ViolationQuery.create().forResource(file).setSwitchMode(ViolationQuery.SwitchMode.ON))).hasSize(1);
-  }
-
   @Test
   public void shouldComputePathOfIndexedModules() {
     assertThat(index.getResource(project).getPath()).isNull();
     assertThat(index.getResource(moduleA).getPath()).isEqualTo("moduleA");
     assertThat(index.getResource(moduleB).getPath()).isEqualTo("moduleB");
     assertThat(index.getResource(moduleB1).getPath()).isEqualTo("moduleB1");
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testGetViolationsWithQueryWithNoResource() {
-    index.getViolations(ViolationQuery.create());
   }
 
 }

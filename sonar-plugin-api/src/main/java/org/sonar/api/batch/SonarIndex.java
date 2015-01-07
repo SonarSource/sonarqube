@@ -27,7 +27,6 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectLink;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
-import org.sonar.api.violations.ViolationQuery;
 import org.sonar.graph.DirectedGraphAccessor;
 
 import javax.annotation.CheckForNull;
@@ -122,32 +121,6 @@ public abstract class SonarIndex implements DirectedGraphAccessor<Resource, Depe
 
   @CheckForNull
   public abstract <M> M getMeasures(Resource resource, MeasuresFilter<M> filter);
-
-  /**
-   * Returns the violations that match the {@link ViolationQuery} parameters.
-   *
-   * @since 2.8
-   * @param violationQuery
-   *          the request parameters specified as a {@link ViolationQuery}
-   * @return the list of violations that match those parameters
-   * @deprecated in 3.6
-   */
-  @Deprecated
-  public abstract List<Violation> getViolations(ViolationQuery violationQuery);
-
-  /**
-   * Returns all the active (= non switched-off) violations found on the given resource. Equivalent to
-   * {@link #getViolations(ViolationQuery)} called with <code>ViolationQuery.create().forResource(resource).ignoreSwitchedOff(true)</code>
-   * as a parameter.
-   *
-   * @since 2.7
-   * @return the list of violations
-   * @deprecated in 3.6
-   */
-  @Deprecated
-  public final List<Violation> getViolations(Resource resource) {
-    return getViolations(ViolationQuery.create().forResource(resource));
-  }
 
   /**
    * @since 2.5

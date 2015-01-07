@@ -62,13 +62,9 @@ public class ModuleIssues {
     this(activeRules, rules, cache, null, filters);
   }
 
-  public boolean initAndAddIssue(DefaultIssue issue) {
-    return initAndAddIssue(issue, null);
-  }
-
   public boolean initAndAddViolation(Violation violation) {
     DefaultIssue issue = newIssue(violation);
-    return initAndAddIssue(issue, violation);
+    return initAndAddIssue(issue);
   }
 
   private DefaultIssue newIssue(Violation violation) {
@@ -84,7 +80,7 @@ public class ModuleIssues {
       .build();
   }
 
-  private boolean initAndAddIssue(DefaultIssue issue, @Nullable Violation violation) {
+  public boolean initAndAddIssue(DefaultIssue issue) {
     RuleKey ruleKey = issue.ruleKey();
     Rule rule = rules.find(ruleKey);
     validateRule(issue, rule);
@@ -94,7 +90,7 @@ public class ModuleIssues {
       return false;
     }
     updateIssue(issue, rule, activeRule);
-    if (filters.accept(issue, violation)) {
+    if (filters.accept(issue)) {
       cache.put(issue);
       return true;
     }

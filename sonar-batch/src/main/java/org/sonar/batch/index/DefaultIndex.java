@@ -48,9 +48,7 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.SonarException;
-import org.sonar.api.violations.ViolationQuery;
 import org.sonar.batch.ProjectTree;
-import org.sonar.batch.issue.DeprecatedViolations;
 import org.sonar.batch.issue.ModuleIssues;
 import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.batch.scan2.DefaultSensorContext;
@@ -85,7 +83,6 @@ public class DefaultIndex extends SonarIndex {
   private Map<Resource, Map<Resource, Dependency>> outgoingDependenciesByResource = Maps.newLinkedHashMap();
   private Map<Resource, Map<Resource, Dependency>> incomingDependenciesByResource = Maps.newLinkedHashMap();
   private ProjectTree projectTree;
-  private final DeprecatedViolations deprecatedViolations;
   private ModuleIssues moduleIssues;
   private final MeasureCache measureCache;
   private final ResourceKeyMigration migration;
@@ -95,14 +92,24 @@ public class DefaultIndex extends SonarIndex {
 
   public DefaultIndex(ResourceCache resourceCache, DependencyPersister dependencyPersister,
     LinkPersister linkPersister, EventPersister eventPersister, ProjectTree projectTree, MetricFinder metricFinder,
-    DeprecatedViolations deprecatedViolations, ResourceKeyMigration migration, MeasureCache measureCache) {
+    ResourceKeyMigration migration, MeasureCache measureCache) {
     this.resourceCache = resourceCache;
     this.dependencyPersister = dependencyPersister;
     this.linkPersister = linkPersister;
     this.eventPersister = eventPersister;
     this.projectTree = projectTree;
     this.metricFinder = metricFinder;
-    this.deprecatedViolations = deprecatedViolations;
+    this.migration = migration;
+    this.measureCache = measureCache;
+  }
+
+  public DefaultIndex(ResourceCache resourceCache, ProjectTree projectTree, MetricFinder metricFinder, ResourceKeyMigration migration, MeasureCache measureCache) {
+    this.resourceCache = resourceCache;
+    this.dependencyPersister = null;
+    this.linkPersister = null;
+    this.eventPersister = null;
+    this.projectTree = projectTree;
+    this.metricFinder = metricFinder;
     this.migration = migration;
     this.measureCache = measureCache;
   }
@@ -264,7 +271,7 @@ public class DefaultIndex extends SonarIndex {
       addDependency(parentDependency);
     }
 
-    if (registerDependency(dependency)) {
+    if (registerDependency(dependency) && dependencyPersister != null) {
       dependencyPersister.saveDependency(currentProject, from, to, dependency, parentDependency);
     }
     return dependency;
@@ -361,51 +368,6 @@ public class DefaultIndex extends SonarIndex {
   //
   //
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public List<Violation> getViolations(ViolationQuery violationQuery) {
-    Resource resource = violationQuery.getResource();
-    if (resource == null) {
-      throw new IllegalArgumentException("A resource must be set on the ViolationQuery in order to search for violations.");
-    }
-
-    if (!Scopes.isHigherThanOrEquals(resource, Scopes.FILE)) {
-      return Collections.emptyList();
-    }
-
-    Bucket bucket = buckets.get(resource);
-    if (bucket == null) {
-      return Collections.emptyList();
-    }
-
-    List<Violation> violations = deprecatedViolations.get(bucket.getResource().getEffectiveKey());
-    if (violationQuery.getSwitchMode() == ViolationQuery.SwitchMode.BOTH) {
-      return violations;
-    }
-
-    List<Violation> filteredViolations = Lists.newArrayList();
-    for (Violation violation : violations) {
-      if (isFiltered(violation, violationQuery.getSwitchMode())) {
-        filteredViolations.add(violation);
-      }
-    }
-    return filteredViolations;
-  }
-
-  private static boolean isFiltered(Violation violation, ViolationQuery.SwitchMode mode) {
-    return mode == ViolationQuery.SwitchMode.BOTH || isSwitchOff(violation, mode) || isSwitchOn(violation, mode);
-  }
-
-  private static boolean isSwitchOff(Violation violation, ViolationQuery.SwitchMode mode) {
-    return mode == ViolationQuery.SwitchMode.OFF && violation.isSwitchedOff();
-  }
-
-  private static boolean isSwitchOn(Violation violation, ViolationQuery.SwitchMode mode) {
-    return mode == ViolationQuery.SwitchMode.ON && !violation.isSwitchedOff();
-  }
-
   @Override
   public void addViolation(Violation violation, boolean force) {
     Resource resource = violation.getResource();
@@ -446,12 +408,16 @@ public class DefaultIndex extends SonarIndex {
 
   @Override
   public void addLink(ProjectLink link) {
-    linkPersister.saveLink(currentProject, link);
+    if (linkPersister != null) {
+      linkPersister.saveLink(currentProject, link);
+    }
   }
 
   @Override
   public void deleteLink(String key) {
-    linkPersister.deleteLink(currentProject, key);
+    if (linkPersister != null) {
+      linkPersister.deleteLink(currentProject, key);
+    }
   }
 
   //
@@ -469,12 +435,17 @@ public class DefaultIndex extends SonarIndex {
     if (reload == null) {
       return Collections.emptyList();
     }
+    if (eventPersister == null) {
+      throw new UnsupportedOperationException("Event are not available in preview mode");
+    }
     return eventPersister.getEvents(reload);
   }
 
   @Override
   public void deleteEvent(Event event) {
-    eventPersister.deleteEvent(event);
+    if (eventPersister != null) {
+      eventPersister.deleteEvent(event);
+    }
   }
 
   @Override
@@ -483,7 +454,9 @@ public class DefaultIndex extends SonarIndex {
     event.setDate(date);
     event.setCreatedAt(new Date());
 
-    eventPersister.saveEvent(resource, event);
+    if (eventPersister != null) {
+      eventPersister.saveEvent(resource, event);
+    }
     return null;
   }
 

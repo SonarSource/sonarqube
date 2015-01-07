@@ -26,7 +26,6 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
-import org.sonar.api.violations.ViolationQuery;
 
 import java.util.Collection;
 import java.util.Date;
@@ -100,27 +99,6 @@ public interface DecoratorContext {
   Collection<Dependency> getOutgoingDependencies();
 
   // RULES
-
-  /**
-   * Returns the violations that match the {@link ViolationQuery} parameters.
-   * 
-   * @since 2.8
-   * @param violationQuery
-   *          the request parameters specified as a {@link ViolationQuery}
-   * @return the list of violations that match those parameters
-   * @deprecated in 3.6, replaced by {@link org.sonar.api.issue.Issuable}
-   */
-  @Deprecated
-  List<Violation> getViolations(ViolationQuery violationQuery);
-
-  /**
-   * Returns all the active (= non switched-off) violations found on the current resource.
-   * 
-   * @return the list of violations
-   * @deprecated in 3.6, replaced by {@link org.sonar.api.issue.Issuable}
-   */
-  @Deprecated
-  List<Violation> getViolations();
 
   /**
    * Save a coding rule violation. The decorator which calls this method must be depended upon BatchBarriers.END_OF_VIOLATIONS_GENERATION.

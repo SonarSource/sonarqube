@@ -37,7 +37,6 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.security.ResourcePermissions;
 import org.sonar.batch.ProjectTree;
-import org.sonar.batch.issue.DeprecatedViolations;
 import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.ScanGraph;
@@ -223,7 +222,6 @@ public class ResourcePersisterTest extends AbstractDbUnitTestCase {
     when(projectTree.getProjectDefinition(moduleB1)).thenReturn(ProjectDefinition.create().setBaseDir(new java.io.File(baseDir, "moduleB/moduleB1")));
 
     DefaultIndex index = new DefaultIndex(resourceCache, null, null, null, projectTree, mock(MetricFinder.class),
-      mock(DeprecatedViolations.class),
       mock(ResourceKeyMigration.class),
       mock(MeasureCache.class));
 

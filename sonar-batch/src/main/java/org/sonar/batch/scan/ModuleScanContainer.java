@@ -33,7 +33,6 @@ import org.sonar.batch.DefaultSensorContext;
 import org.sonar.batch.DefaultTimeMachine;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.ResourceFilters;
-import org.sonar.batch.ViolationFilters;
 import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.ExtensionMatcher;
@@ -61,8 +60,8 @@ import org.sonar.batch.phases.PhasesTimeProfiler;
 import org.sonar.batch.qualitygate.GenerateQualityGateEvents;
 import org.sonar.batch.qualitygate.QualityGateProvider;
 import org.sonar.batch.qualitygate.QualityGateVerifier;
-import org.sonar.batch.report.IssuesPublisher;
 import org.sonar.batch.report.ComponentsPublisher;
+import org.sonar.batch.report.IssuesPublisher;
 import org.sonar.batch.rule.ActiveRulesProvider;
 import org.sonar.batch.rule.ModuleQProfiles;
 import org.sonar.batch.rule.QProfileDecorator;
@@ -150,7 +149,6 @@ public class ModuleScanContainer extends ComponentContainer {
       SensorContextAdapter.class,
       BatchExtensionDictionnary.class,
       DefaultTimeMachine.class,
-      ViolationFilters.class,
       IssueFilters.class,
       MeasurementFilters.class,
       ResourceFilters.class,

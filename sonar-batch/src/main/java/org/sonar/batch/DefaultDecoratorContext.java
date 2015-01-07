@@ -37,7 +37,6 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.SonarException;
-import org.sonar.api.violations.ViolationQuery;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.duplication.DuplicationUtils;
 import org.sonar.batch.scan.measure.MeasureCache;
@@ -205,22 +204,6 @@ public class DefaultDecoratorContext implements DecoratorContext {
     checkReadOnly(SAVE_MEASURE_METHOD);
     saveMeasure(new Measure(metric, value));
     return this;
-  }
-
-  /**
-  * {@inheritDoc}
-  */
-  @Override
-  public List<Violation> getViolations(ViolationQuery violationQuery) {
-    return sonarIndex.getViolations(violationQuery);
-  }
-
-  /**
-  * {@inheritDoc}
-  */
-  @Override
-  public List<Violation> getViolations() {
-    return sonarIndex.getViolations(resource);
   }
 
   @Override
