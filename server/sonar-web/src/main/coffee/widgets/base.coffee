@@ -63,8 +63,8 @@ class BaseWidget
 
   tooltip: (d) ->
     title = d.longName
-    title += "\n#{@colorMetric.name}: #{@colorMetric.formattedValue d}" if @colorMetric.value(d)?
-    title += "\n#{@sizeMetric.name}: #{@sizeMetric.formattedValue d}" if @sizeMetric.value(d)?
+    title += "\n#{@colorMetric.name}: #{@colorMetric.formattedValue d}" if @colorMetric and @colorMetric.value(d)?
+    title += "\n#{@sizeMetric.name}: #{@sizeMetric.formattedValue d}" if @sizeMetric and @sizeMetric.value(d)?
     title
 
 
