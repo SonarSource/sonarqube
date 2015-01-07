@@ -26,10 +26,6 @@ define [
       $(window).off 'scroll.issues-layout'
 
 
-    onRender: ->
-      @$('.search-navigator-side').isolatedScroll()
-
-
     onScroll: ->
       scrollTop = $(window).scrollTop()
       $('.search-navigator').toggleClass 'sticky', scrollTop >= @topOffset

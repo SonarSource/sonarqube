@@ -184,6 +184,7 @@ a {
 input[type=text],
 input[type=password],
 input[type=email],
+input[type=search],
 textarea {
   border: 1px solid @darkGrey;
   .box-sizing(border-box);
@@ -203,9 +204,14 @@ textarea {
 
 input[type=text],
 input[type=password],
-input[type=email] {
-  height: 22px;
+input[type=email],
+input[type=search] {
+  height: @formControlHeight;
   padding: 0 3px;
+}
+
+input[type=search] {
+  -webkit-appearance: none;
 }
 
 textarea {
@@ -218,7 +224,7 @@ input[type=submit],
 input[type=button] {
   display: inline-block;
   vertical-align: baseline;
-  height: 22px;
+  height: @formControlHeight;
   margin: 0 1px;
   padding: 0 10px;
 
@@ -264,7 +270,7 @@ input[type=button] {
   }
 }
 
-.button { line-height: 22px; }
+.button { line-height: @formControlHeight; }
 
 .button-red {
   &:hover, &:focus {
@@ -419,7 +425,7 @@ input[type=button] {
   max-width: 900px;
   margin-left: -150px;
   padding: 0 10px;
-  line-height: 22px;
+  line-height: @formControlHeight;
   background-color: #f0e8ac;
   border-radius: 0 0 3px 3px;
   text-align: center;
@@ -457,4 +463,22 @@ input[type=button] {
   font-size: @baseFontSize;
   font-weight: 500;
   text-align: center;
+}
+
+
+.nav {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nav > li {
+  position: relative;
+  display: block;
+}
+
+.nav > li > a {
+  position: relative;
+  display: block;
+  padding: 10px 15px;
 }

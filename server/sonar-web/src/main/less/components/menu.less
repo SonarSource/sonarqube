@@ -1,0 +1,53 @@
+@import (reference) "../mixins";
+@import (reference) "../variables";
+@import (reference) "../ui";
+
+.menu {
+  min-width: 160px;
+  padding: 5px 0;
+  list-style: none;
+  font-size: @smallFontSize;
+  text-align: left;
+  background-color: #fff;
+  background-clip: padding-box;
+
+  > li > a,
+  > li > span {
+    display: block;
+    padding: 3px 20px;
+    line-height: 1.5;
+    clear: both;
+    font-weight: normal;
+    .text-ellipsis;
+  }
+
+  > li > a {
+    color: @baseFontColor;
+  }
+
+  .divider {
+    height: 1px;
+    margin: 9px 0;
+    overflow: hidden;
+    background-color: @barBorderColor;
+  }
+}
+
+
+.menu > li > a {
+  &:hover, &:focus {
+    text-decoration: none;
+    color: @baseFontColor;
+    background-color: @lightBlue;
+  }
+}
+
+
+.menu > .active > a {
+  &, &:hover, &:focus {
+    color: @baseFontColor;
+    text-decoration: none;
+    outline: 0;
+    background-color: @lightBlue;
+  }
+}

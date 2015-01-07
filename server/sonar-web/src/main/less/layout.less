@@ -2,83 +2,17 @@
 @import (reference) "variables";
 @import (reference) "ui";
 
-@media print {
-  /* ------------------- PRINT ------------------- */
-  html, body {
-    font-size: 8pt;
-  }
-
-  a, a:link, a:visited {
-    text-decoration: none;
-    border-bottom: 0;
-  }
-
-  .noprint {
-    display: none !important;
-  }
-
-  .print {
-    display: inline;
-    position: static;
-    left: 0;
-  }
-
-  #hd, #sidebar, #crumbs {
-    display: none;
-  }
-
-  .with_sidebar, .wo_sidebar {
-    padding: 0 !important;
-    margin: 0;
-  }
-
-  #content {
-    margin-left: 0 !important;
-  }
-
-  .widget thead, .widget tfoot {
-    // Fix for phantomjs bug about wrapping tables
-    display: table-row-group;
-  }
-}
-
-@media screen {
-  .print {
-    display: none;
-  }
-}
-
-body, a {
-  color: #444;
-}
-
-/* LAYOUT */
-#container {
-  height: auto !important;
-  min-width: 940px;
-  min-height: 500px;
-}
-
 #hd {
-  color: #FFF;
-  background: #262626;
-  padding: 0 10px;
-  height: 30px;
-  line-height: 30px;
-  font-size: 93%;
-  margin: 0;
   position: relative;
-}
-
-#hd #nav-left > ul > li {
-  height: 30px;
+  background: @darkColor;
+  height: 40px;
+  line-height: 40px;
+  color: @lightColor;
 }
 
 #hd a {
   color: #fff;
   .link-no-underline;
-
-  &.selected, &:hover, &:focus { color: @blue; }
 }
 
 #nav-left {
@@ -97,12 +31,28 @@ body, a {
 
 #nav-left > ul > li {
   float: left;
-  padding: 0 20px 0 0;
+}
+
+#nav-left > ul > li > a {
+  display: block;
+  height: 40px;
+  padding: 0 10px;
+  .box-sizing(border-box);
+}
+
+#nav-left > ul > li > a:hover,
+#nav-left > ul > li > a:focus,
+#nav-left > ul > li > a.selected {
+  background-color: #000;
+}
+
+#nav-left > ul > li > a.selected {
+  color: @blue !important;
 }
 
 #nav-left > ul > li > a,
 #nav > ul > li > a {
-  font-size: @smallFontSize;
+  font-size: @baseFontSize;
   font-weight: 300;
   letter-spacing: 0.05em;
 }
@@ -187,6 +137,7 @@ body, a {
 
 #body {
   position: relative;
+  padding-top: 10px;
 }
 
 .with_sidebar {
@@ -199,13 +150,7 @@ body, a {
 }
 
 #sidebar {
-  position: absolute;
-  top: 0; left: 10px;
-  width: 150px;
-
-  &.sticky {
-    position: fixed;
-  }
+  margin-bottom: 10px;
 }
 
 ul.sidebar {
@@ -215,6 +160,7 @@ ul.sidebar {
 }
 
 ul.sidebar li {
+  display: inline-block;
   list-style-type: none;
   padding: 3px 10px;
 }
@@ -268,7 +214,7 @@ ul.sidebar select, ul.sidebar input {
 }
 
 .page {
-  padding: 10px;
+  padding: 10px 0;
 }
 .page-split-left {
   min-width: 200px;
@@ -307,4 +253,50 @@ ul.sidebar select, ul.sidebar input {
 
 .nolayout {
   padding: 10px;
+}
+
+@media print {
+  /* ------------------- PRINT ------------------- */
+  html, body {
+    font-size: 8pt;
+  }
+
+  a, a:link, a:visited {
+    text-decoration: none;
+    border-bottom: 0;
+  }
+
+  .noprint {
+    display: none !important;
+  }
+
+  .print {
+    display: inline;
+    position: static;
+    left: 0;
+  }
+
+  #hd, #sidebar, #crumbs {
+    display: none;
+  }
+
+  .with_sidebar, .wo_sidebar {
+    padding: 0 !important;
+    margin: 0;
+  }
+
+  #content {
+    margin-left: 0 !important;
+  }
+
+  .widget thead, .widget tfoot {
+    // Fix for phantomjs bug about wrapping tables
+    display: table-row-group;
+  }
+}
+
+@media screen {
+  .print {
+    display: none;
+  }
 }

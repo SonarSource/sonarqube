@@ -62,14 +62,14 @@
 
 
   window.requestMessages = function() {
-    var currentLocale = (navigator.language || navigator.userLanguage).replace('-', '_');
-    var cachedLocale = localStorage.getItem('l10n.locale');
+    var currentLocale = window.pageLang,
+        cachedLocale = localStorage.getItem('l10n.locale');
     if (cachedLocale !== currentLocale) {
       localStorage.removeItem('l10n.timestamp');
     }
 
-    var bundleTimestamp = localStorage.getItem('l10n.timestamp');
-    var params = {};
+    var bundleTimestamp = localStorage.getItem('l10n.timestamp'),
+        params = { locale: currentLocale };
     if (bundleTimestamp !== null) {
       params.ts = bundleTimestamp;
     }

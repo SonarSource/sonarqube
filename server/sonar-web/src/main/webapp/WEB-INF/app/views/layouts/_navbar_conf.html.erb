@@ -1,0 +1,29 @@
+<%
+   selected_section = controller.class::SECTION if defined?(controller.class::SECTION)
+   if selected_section==Navigation::SECTION_RESOURCE && !@project && !@resource
+     selected_section = Navigation::SECTION_HOME
+   end
+   @project=@resource unless @project || selected_section==Navigation::SECTION_HOME
+   period_param = "period=#{u(params[:period])}" if params[:period]
+   displayed_resource = @resource || @project
+   display_only_root = @issue
+   resource_id=displayed_resource ? (displayed_resource.is_a?(Fixnum) ? displayed_resource : displayed_resource.permanent_id) : nil
+%>
+
+<% if selected_section==Navigation::SECTION_RESOURCE %>
+  <%= render :partial => 'layouts/navbar_conf_project' %>
+<% elsif selected_section==Navigation::SECTION_CONFIGURATION %>
+  <%= render :partial => 'layouts/navbar_conf_settings' %>
+<% else %>
+  <%= render :partial => 'layouts/navbar_conf_global' %>
+<% end %>
+
+
+<script>
+  var navbarQualifiers = [
+    <% Project.root_qualifiers.sort.each do |qualifier| %>
+    '<%= qualifier -%>',
+    <% end %>
+  ];
+  window.SS.isUserAdmin = <%= current_user && is_admin? ? 'true' : 'false' -%>;
+</script>

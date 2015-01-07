@@ -1,0 +1,54 @@
+@import (reference) "mixins";
+@import (reference) "variables";
+@import (reference) "ui";
+
+@pageWidth: 1020px;
+@containerWidth: 980px;
+@sideWidth: 200px;
+@sideMargin: 10px;
+
+html {
+  overflow-y: scroll;
+}
+
+body {
+  min-width: @pageWidth;
+}
+
+.container {
+  width: @containerWidth;
+  margin: 0 auto;
+  .box-sizing(border-box);
+}
+
+.container-one-third {
+  width: @containerWidth / 3;
+}
+
+.container-two-thirds {
+  width: @containerWidth / 3 * 2;
+}
+
+.container-one-half {
+  width: @containerWidth / 2;
+}
+
+.container-side {
+  width: @sideWidth;
+  .box-sizing(border-box);
+}
+
+.container-side-left {
+  float: left;
+  padding-right: @sideMargin;
+}
+
+.container-side-right {
+  float: right;
+  padding-left: @sideMargin;
+}
+
+.container-main {
+  float: left;
+  width: @containerWidth - @sideWidth;
+}

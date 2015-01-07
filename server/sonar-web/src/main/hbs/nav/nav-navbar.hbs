@@ -1,0 +1,87 @@
+<div class="container">
+  <div class="navbar-header">
+    <a class="navbar-brand navbar-logo" href="/">
+      {{#notEq space 'global'}}
+        <i class="navbar-back-arrow icon-arrow-left"></i>
+      {{/notEq}}
+      {{> '_nav-logo'}}
+    </a>
+    {{#eq space 'project'}}
+      <div class="navbar-brand" title="{{projectName}}">
+        {{#if navbarCanFavoriteProject}}
+          <a class="js-favorite navbar-favorite {{#if projectFavorite}}icon-favorite{{else}}icon-not-favorite{{/if}}"
+             title="{{#if projectFavorite}}{{t 'click_to_remove_from_favorites'}}{{else}}{{t 'click_to_add_to_favorites'}}{{/if}}">
+          </a>
+        {{/if}}
+        {{projectName}}
+      </div>
+    {{/eq}}
+    {{#eq space 'settings'}}
+      <div class="navbar-brand" title="{{t 'layout.settings'}}">
+        {{t 'layout.settings'}}
+      </div>
+    {{/eq}}
+  </div>
+
+  <ul class="nav navbar-nav">
+    {{#each items}}
+      {{#notEmpty menu}}
+        <li class="dropdown {{#if active}}active{{/if}}">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            {{> '_nav-navbar-label'}}&nbsp;<i class="icon-dropdown"></i>
+          </a>
+          <ul class="dropdown-menu">
+            {{#each menu}}
+              <li {{#if active}}class="active"{{/if}}>
+                <a href="{{link url}}">
+                  {{> '_nav-navbar-label'}}
+                </a>
+              </li>
+            {{/each}}
+          </ul>
+        </li>
+      {{else}}
+        <li {{#if active}}class="active"{{/if}}>
+          <a href="{{link url}}">
+            {{> '_nav-navbar-label'}}
+          </a>
+        </li>
+      {{/notEmpty}}
+    {{/each}}
+  </ul>
+
+  <ul class="nav navbar-nav navbar-right">
+    <li class="dropdown js-search-dropdown">
+      <a class="dropdown-toggle js-search-dropdown-toggle" data-toggle="dropdown" href="#">
+        <i class="icon-search navbar-icon"></i>&nbsp;<span class="icon-dropdown"></span>
+      </a>
+      <div class="js-search-region dropdown-menu dropdown-menu-right"></div>
+    </li>
+    {{#if user}}
+      <li class="dropdown">
+        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+          {{userName}}&nbsp;<span class="icon-dropdown"></span>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-right">
+          <li>
+            <a href="{{link '/account/index'}}">{{t 'layout.user_panel.my_profile'}}</a>
+          </li>
+          <li>
+            <a href="{{link '/sessions/logout'}}"
+               onclick="if (sonarRecentHistory) { sonarRecentHistory.clear(); }">{{t 'layout.logout'}}</a>
+          </li>
+        </ul>
+      </li>
+    {{else}}
+      <li>
+        <a class="js-login" href="{{link '/sessions/new'}}">{{t 'layout.login'}}</a>
+      </li>
+    {{/if}}
+    {{#if isUserAdmin}}
+      <li>
+        <a href="{{link '/settings/index'}}"><i class="icon-settings navbar-icon"></i></a>
+      </li>
+    {{/if}}
+  </ul>
+
+</div>

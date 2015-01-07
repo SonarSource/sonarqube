@@ -1,0 +1,166 @@
+<%
+   @project=@resource unless @project || selected_section==Navigation::SECTION_HOME
+   period_param = "period=#{u(params[:period])}" if params[:period]
+   displayed_resource = @resource || @project
+   display_only_root = @issue
+   resource_id=displayed_resource ? (displayed_resource.is_a?(Fixnum) ? displayed_resource : displayed_resource.permanent_id) : nil
+%>
+
+
+<script>
+  var navbarSpace = 'project',
+      navbarProject = '<%= @project.root_project().name -%>',
+      navbarProjectId = '<%= @project.root_project().id -%>',
+      navbarCanFavoriteProject = <%= logged_in? && displayed_resource && !display_only_root ? 'true' : 'false' -%>,
+      navbarProjectFavorite = <%= logged_in? && current_user.favourite?(resource_id) ? 'true' : 'false' -%>,
+      navbarItems = [
+        {
+          label: 'layout.dashboards',
+          active: <%= @dashboard && controller.controller_path=='dashboard' ? "true" : "false" -%>,
+          menu: [
+            <% ActiveDashboard.user_dashboards(current_user, false).each do |active_dashboard| %>
+            {
+              url: '/dashboard/index?id=<%= @project.key -%>&did=<%= active_dashboard.dashboard_id -%><%= "&"+period_param if period_param -%>',
+              labelLocalized: '<%= h active_dashboard.dashboard.name(true) -%>',
+              active: <%= @dashboard && controller.controller_path=='dashboard' && active_dashboard.dashboard_id==@dashboard.id ? "true" : "false" -%>
+            },
+            <% end %>
+          ]
+        },
+        <% if @snapshot %>
+        {
+          url: '/components/index/<%= @project.id -%>',
+          label: 'components.page',
+          active: <%= request.request_uri.include?('/components/index') ? "true" : "false" -%>
+        },
+        {
+          url: '/drilldown/issues/<%= @project.id -%><%= "?"+period_param if period_param -%>',
+          label: 'issues.page',
+          active: <%= request.request_uri.include?('/drilldown/issues') ? "true" : "false" -%>
+        },
+        <% if (has_role?(:admin, displayed_resource) || profiles_administrator?) && !displayed_resource.entity? %>
+        <% is_admin = has_role?(:admin, @project) %>
+        {
+          labelLocalized: 'Settings',
+          active: false,
+          menu: [
+            <% if (is_admin && controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'configurable')) %>
+            {
+              url: '/project/settings/<%= @project.id -%>',
+              label: 'project_settings.page',
+              active: false
+            },
+            <% end %>
+            <% if (@project.project?) %>
+            {
+              url: '/project/profile/<%= @project.id -%>',
+              label: 'project_quality_profiles.page',
+              active: false
+            },
+            <% end %>
+            <% if (@project.project?) %>
+            {
+              url: '/project/qualitygate/<%= @project.id -%>',
+              label: 'project_quality_gate.page',
+              active: false
+            },
+            <% end %>
+            <% if is_admin %>
+            {
+              url: '/manual_measures/index/<%= @project.id -%>',
+              label: 'manual_measures.page',
+              active: false
+            },
+            <% end %>
+            <% if (is_admin && @project.project?) %>
+            {
+              url: '/action_plans/index/<%= @project.id -%>',
+              label: 'action_plans.page',
+              active: false
+            },
+            <% end %>
+            <% if (is_admin && @project.project?) %>
+            {
+              url: '/project/links/<%= @project.id -%>',
+              label: 'project_links.page',
+              active: false
+            },
+            <% end %>
+            <% if is_admin && controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'hasRolePolicy') %>
+            {
+              url: '/project_roles/index/<%= @project.id -%>',
+              label: 'permissions.page',
+              active: false
+            },
+            <% end %>
+            <% if is_admin && controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'modifiable_history') %>
+            {
+              url: '/project/history/<%= @project.id -%>',
+              label: 'project_history.page',
+              active: false
+            },
+            <% end %>
+            <% if is_admin && controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'updatable_key') %>
+            {
+              url: '/project/key/<%= @project.id -%>',
+              label: 'update_key.page',
+              active: false
+            },
+            <% end %>
+            <% if is_admin && controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'deletable') %>
+            {
+              url: '/project/deletion/<%= @project.id -%>',
+              label: 'deletion.page',
+              active: false
+            },
+            <% end %>
+            <% if is_admin
+                controller.java_facade.getPages(Navigation::SECTION_RESOURCE_CONFIGURATION.key, @project.scope, @project.qualifier, @project.language, nil).each do |page|
+                  page_url = "#{page.getId()}?resource=#{@project.id}"
+            %>
+            {
+              url: '<%= page_url -%>',
+              labelLocalized: '<%= h message(page.getId() + '.page', :default => page.getTitle()) -%>',
+              active: false
+            },
+            <%   end
+               end %>
+          ]
+        },
+        <% end %>
+        <% end %>
+        {
+          label: 'more',
+          active: false,
+          menu: [
+            <% project_metrics = @project.last_snapshot.metric_keys.to_java(:string) if @project.last_snapshot
+               controller.java_facade.getPages(Navigation::SECTION_RESOURCE.key, @project.scope, @project.qualifier, @project.language, project_metrics).each do |page|
+                 page_url = (page.isController() ? "#{page.getId()}?id=#{@project.id}" : "/plugins/resource/#{@project.id}?page=#{page.getId()}")
+            %>
+            {
+              url: '<%= page_url -%>',
+              labelLocalized: '<%= h message(page.getId() + '.page', :default => page.getTitle()) -%>',
+              active: <%= request.request_uri.include?(page_url) ? "true" : "false" -%>
+            },
+            <% end %>
+            {
+              url: '/design/index/<%= @project.key -%>',
+              label: 'design.page',
+              active: <%= request.request_uri.include?('/design/index') ? "true" : "false" -%>
+            },
+            {
+              url: '/libraries/index/<%= @project.key -%>',
+              label: 'libraries.page',
+              active: <%= request.request_uri.include?('/libraries/index') ? "true" : "false" -%>
+            },
+            <% if controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'comparable') %>
+            {
+              url: '/comparison/index?resource=<%= @project.key -%>',
+              label: 'comparison.page',
+              active: <%= request.request_uri.include?('/comparison/index') ? "true" : "false" -%>
+            }
+            <% end %>
+          ]
+        }
+      ];
+</script>

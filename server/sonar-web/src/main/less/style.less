@@ -1971,54 +1971,6 @@ table.nowrap td.small, td.nowrap.small, th.nowrap.small {
   cursor: pointer;
 }
 
-.dropdown {
-  cursor: pointer;
-  display: inline-block;
-  text-decoration: none !important;
-  /* zoom and *display = ie7 hack for display:inline-block */
-  zoom: 1;
-  *display: inline;
-}
-
-.dropdown-menu {
-  background-clip: padding-box;
-  background-color: #FFFFFF;
-  border: 1px solid #DDD;
-  box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.5);
-  float: left;
-  margin: 0;
-  max-width: 220px;
-  min-width: 160px;
-  padding: 0;
-  position: absolute;
-  z-index: 1000;
-}
-
-.dropdown-menu h2 {
-  padding: 0 8px;
-  font-size: 100%;
-  font-weight: bold;
-}
-
-.dropdown-menu li {
-  list-style-type: none !important;
-  line-height: 24px;
-  height: 24px;
-  padding: 0 8px;
-  cursor: pointer !important;
-  float: none !important;
-}
-
-.dropdown-menu li:hover {
-  background-color: @lightBlue !important;
-}
-
-.dropdown-menu a {
-  text-decoration: none !important;
-  border-bottom: none !important;
-  color: @baseFontColor !important;
-}
-
 .form-key-cell {
   padding: 2px 8px 4px 10px;
   text-align: right;
@@ -2405,7 +2357,7 @@ div.rule-title {
 
 .sonar-d3 .plot .arc:hover,
 .sonar-d3 .plot .arc.hover {
-  opacity: 1;
+  fill: #4f9ed3;
 }
 
 .sonar-d3 .plot .line {
@@ -2570,10 +2522,10 @@ text.max-results-reached-message {
   top: 5px; right: 5px;
   line-height: @iconSmallFontSize;
   color: #fff;
-  opacity: 0.5;
+  fill: #fff;
   .link-no-underline;
 
-  &:hover { opacity: 1; }
+  &:hover { fill: #4f9ed3; }
 }
 
 .sonar-d3 .treemap-link i,
@@ -2759,3 +2711,69 @@ text.max-results-reached-message {
   }
 }
 
+
+
+.sq-logo {
+  .sq-logo-arc {
+    fill: @blue;
+  }
+
+  .sq-logo-letter {
+    fill: #fff;
+  }
+
+  &:not(.sq-logo-small):hover {
+    .sq-logo-arc1 {
+      .animation(sq-logo-arc1-animation 0.75s infinite);
+    }
+    .sq-logo-arc2 {
+      .animation(sq-logo-arc2-animation 0.75s infinite);
+    }
+    .sq-logo-arc3 {
+      .animation(sq-logo-arc3-animation 0.75s infinite);
+    }
+  }
+}
+
+.sq-logo-small {
+  .sq-logo-arc {
+    fill: #fff;
+  }
+}
+
+@-webkit-keyframes sq-logo-arc1-animation {
+  0%   { fill: #4f9ed3; }
+  33%   { fill: #b5c8d3; }
+  67%   { fill: #4f9ed3; }
+  100%   { fill: #4f9ed3; }
+}
+@-webkit-keyframes sq-logo-arc2-animation {
+  0%   { fill: #4f9ed3; }
+  33%   { fill: #4f9ed3; }
+  67%   { fill: #b5c8d3; }
+  100%   { fill: #4f9ed3; }
+}
+@-webkit-keyframes sq-logo-arc3-animation {
+  0%   { fill: #4f9ed3; }
+  33%   { fill: #4f9ed3; }
+  67%   { fill: #4f9ed3; }
+  100%   { fill: #b5c8d3; }
+}
+@keyframes sq-logo-arc1-animation {
+  0%   { fill: #4f9ed3; }
+  33%   { fill: #b5c8d3; }
+  67%   { fill: #4f9ed3; }
+  100%   { fill: #4f9ed3; }
+}
+@keyframes sq-logo-arc2-animation {
+  0%   { fill: #4f9ed3; }
+  33%   { fill: #4f9ed3; }
+  67%   { fill: #b5c8d3; }
+  100%   { fill: #4f9ed3; }
+}
+@keyframes sq-logo-arc3-animation {
+  0%   { fill: #4f9ed3; }
+  33%   { fill: #4f9ed3; }
+  67%   { fill: #4f9ed3; }
+  100%   { fill: #b5c8d3; }
+}

@@ -1,0 +1,109 @@
+<%
+   selected_section = controller.class::SECTION if defined?(controller.class::SECTION)
+   if selected_section==Navigation::SECTION_RESOURCE && !@project && !@resource
+     selected_section = Navigation::SECTION_HOME
+   end
+%>
+
+<script>
+  var navbarSpace = 'settings',
+      navbarItems = [
+        {
+          label: 'sidebar.project_settings',
+          active: false,
+          menu: [
+            {
+              url: '/settings/index',
+              label: 'settings.page',
+              active: <%= request.request_uri.include?('/settings') ? 'true' : 'false' -%>
+            },
+            {
+              url: '/metrics/index',
+              label: 'manual_metrics.page',
+              active: <%= request.request_uri.include?('/metrics') ? 'true' : 'false' -%>
+            },
+            {
+              url: '/admin_dashboards/index',
+              label: 'default_dashboards.page',
+              active: <%= request.request_uri.include?('/admin_dashboards') ? 'true' : 'false' -%>
+            },
+            <% controller.java_facade.getPages(Navigation::SECTION_CONFIGURATION.key, nil, nil, nil, nil).each do |page|
+                        page_url = (page.isController() ? page.getId() : "/plugins/configuration/#{page.getId()}")
+                      %>
+            {
+              url: '<%= page_url -%>',
+              labelLocalized: '<%= h message(page.getId() + '.page', :default => page.getTitle()) %>',
+              active: <%= request.request_uri.include?(page_url) ? 'true' : 'false' -%>
+            }
+            <% end %>
+          ]
+        },
+        {
+          label: 'sidebar.security',
+          active: false,
+          menu: [
+            {
+              url: '/users/index',
+              label: 'users.page',
+              active: <%= request.request_uri.include?('/users') ? 'true' : 'false' -%>
+            },
+            {
+              url: '/groups/index',
+              label: 'user_groups.page',
+              active: <%= request.request_uri.include?('/groups') ? 'true' : 'false' -%>
+            },
+            {
+              url: '/roles/global',
+              label: 'global_permissions.page',
+              active: <%= request.request_uri.include?('/roles/global') ? 'true' : 'false' -%>
+            },
+            {
+              url: '/roles/projects',
+              label: 'roles.page',
+              active: <%= request.request_uri.include?('/roles/projects') ? 'true' : 'false' -%>
+            },
+            {
+              url: '/admin_dashboards/index',
+              label: 'default_dashboards.page',
+              active: <%= request.request_uri.include?('/admin_dashboards') ? 'true' : 'false' -%>
+            }
+          ]
+        },
+        {
+          label: 'sidebar.system',
+          active: false,
+          menu: [
+            <% if has_role?("provisioning") %>
+            {
+              url: '/provisioning/index',
+              label: 'provisioning.page',
+              active: <%= request.request_uri.include?('/provisioning') ? 'true' : 'false' -%>
+            },
+            <% end %>
+            {
+              url: '/bulk_deletion/index',
+              label: 'bulk_deletion.page',
+              active: <%= request.request_uri.include?('/bulk_deletion') ? 'true' : 'false' -%>
+            },
+            <% update_center_activated = controller.java_facade.getSettings().getBoolean('sonar.updatecenter.activate')
+                         if update_center_activated %>
+            {
+              url: '/updatecenter/index',
+              label: 'update_center.page',
+              active: <%= request.request_uri.include?('/updatecenter') ? 'true' : 'false' -%>
+            },
+            <% end %>
+            {
+              url: '/system/index',
+              label: 'system_info.page',
+              active: <%= request.request_uri.include?('/system') ? 'true' : 'false' -%>
+            },
+            {
+              url: '/analysis_reports/index',
+              label: 'analysis_reports.page',
+              active: <%= request.request_uri.include?('/analysis_reports') ? 'true' : 'false' -%>
+            }
+          ]
+        }
+      ];
+</script>

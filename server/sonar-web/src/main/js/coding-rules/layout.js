@@ -27,10 +27,6 @@ define([
       $(window).off('scroll.search-navigator-layout');
     },
 
-    onRender: function () {
-      this.$('.search-navigator-side').isolatedScroll();
-    },
-
     onScroll: function () {
       var scrollTop = $(window).scrollTop();
       $('.search-navigator').toggleClass('sticky', scrollTop >= this.topOffset);

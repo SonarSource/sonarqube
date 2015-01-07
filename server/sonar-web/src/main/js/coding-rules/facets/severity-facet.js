@@ -5,7 +5,7 @@ define([
 
   return BaseFacet.extend({
     template: Templates['coding-rules-severity-facet'],
-    severities: ['BLOCKER', 'MINOR', 'CRITICAL', 'INFO', 'MAJOR'],
+    severities: ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO'],
 
     sortValues: function (values) {
       var order = this.severities;

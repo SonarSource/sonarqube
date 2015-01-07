@@ -2,41 +2,38 @@
 @import (reference) "../mixins";
 @import (reference) "../ui";
 
-@sideWidth: 300px;
+@sideWidth: 180px;
 
 .search-navigator {
+  .clearfix;
 
-  &.sticky {
-
-    .search-navigator-workspace-header {
-      position: fixed;
-      z-index: 4;
-      top: 0;
-      left: @sideWidth;
-      right: 0;
-    }
-
-    .search-navigator-workspace-list,
-    .search-navigator-workspace-details {
-      padding-top: 22px + 5px + 5px + 1px + 10px;
-    }
-
-    .search-navigator-side {
-      position: fixed;
-      z-index: 4;
-      top: 0;
-      bottom: 0;
-      overflow-y: auto;
-    }
-
-  }
+//  &.sticky {
+//
+//    .search-navigator-workspace-header {
+//      position: fixed;
+//      z-index: 4;
+//      top: 0;
+//      left: @sideWidth;
+//      right: 0;
+//    }
+//
+//    .search-navigator-workspace-list,
+//    .search-navigator-workspace-details {
+//      padding-top: 22px + 5px + 5px + 1px + 10px;
+//    }
+//
+//    .search-navigator-side {
+//      position: fixed;
+//      z-index: 4;
+//      top: 0;
+//      bottom: 0;
+//      overflow-y: auto;
+//    }
+//
+//  }
 }
 
 .search-navigator-side {
-  position: fixed;
-  z-index: 100;
-  width: @sideWidth;
-  top: 30px; left: 0; bottom: 0;
   .box-sizing(border-box);
   background-color: @barBorderColor;
   overflow-x: hidden;
@@ -117,11 +114,6 @@
 }
 
 .search-navigator-facet-half {
-  width: 45%;
-
-  &:nth-child(odd) {
-    margin-right: 10%;
-  }
 }
 
 .search-navigator-facet-header {
@@ -181,7 +173,7 @@
 }
 
 .search-navigator-facet-input {
-  width: @sideWidth * 0.4;
+  width: 100%;
 }
 
 .search-navigator-filters {
@@ -258,7 +250,7 @@
 }
 
 .search-navigator-workspace {
-  padding-left: @sideWidth;
+
 }
 
 .search-navigator-workspace-header {
@@ -266,8 +258,6 @@
   margin-bottom: 10px;
   padding: 5px 0;
   line-height: 22px;
-  border-bottom: 1px solid @barBorderColor;
-  background-color: @barBackgroundColor;
   font-size: @smallFontSize;
 
   .button-group,
@@ -287,7 +277,6 @@
   top: 0;
   right: 0;
   padding: 5px 10px;
-  background-color: @barBackgroundColor;
   font-size: 0;
   white-space: nowrap;
 
@@ -296,7 +285,7 @@
     position: absolute;
     top: 0; bottom: 0; right: 100%;
     width: 10px;
-    background-image: linear-gradient(to right, fade(@barBackgroundColor, 0%), @barBackgroundColor 75%);
+    background-image: linear-gradient(to right, fade(#fff, 0%), #fff 75%);
   }
 }
 
@@ -312,11 +301,7 @@
 }
 
 .search-navigator-workspace-list {
-  padding: 0 5px;
 
-  .issue {
-    max-width: none;
-  }
 }
 
 .search-navigator-workspace-details {

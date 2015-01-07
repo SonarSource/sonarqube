@@ -21,13 +21,13 @@ function toggleFav(resourceId, elt) {
     }});
 }
 
-function dashboardParameters() {
+function dashboardParameters (urlHasSomething) {
   var queryString = window.location.search;
-  var parameters = '';
+  var parameters = [];
 
   var matchDashboard = queryString.match(/did=\d+/);
   if (matchDashboard && $j('#is-project-dashboard').length === 1) {
-    parameters += (matchDashboard[0] + '&');
+    parameters.push(matchDashboard[0]);
   }
 
   var matchPeriod = queryString.match(/period=\d+/);
@@ -35,14 +35,15 @@ function dashboardParameters() {
     // If we have a match for period, check that it is not project-specific
     var period = parseInt(/period=(\d+)/.exec(queryString)[1]);
     if (period <= 3) {
-      parameters += matchPeriod[0] + '&';
+      parameters.push(matchPeriod[0]);
     }
   }
 
-  if (parameters !== '') {
-    parameters = '?' + parameters;
+  var query = parameters.join('&');
+  if (query !== '') {
+    query = (urlHasSomething ? '&' : '?') + query;
   }
-  return parameters;
+  return query;
 }
 
 
@@ -340,11 +341,7 @@ jQuery(function () {
 
   // Define global shortcuts
   key('s', function () {
-    jQuery('#searchInput').focus().on('keydown', function (e) {
-      if (e.keyCode === 27) {
-        jQuery('#searchInput').blur();
-      }
-    });
+    jQuery('.js-search-dropdown-toggle').dropdown('toggle');
     return false;
   });
 });
