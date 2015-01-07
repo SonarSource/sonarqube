@@ -370,4 +370,8 @@ public class IssueService implements ServerComponent {
       session.close();
     }
   }
+
+  public Map<String, Long> listTagsForComponent(String componentUuid, int pageSize) {
+    return indexClient.get(IssueIndex.class).listTagsForComponent(componentUuid, pageSize);
+  }
 }

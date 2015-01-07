@@ -68,6 +68,7 @@ import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
+import static org.fest.assertions.MapAssert.entry;
 
 public class IssueServiceMediumTest {
 
@@ -487,5 +488,20 @@ public class IssueServiceMediumTest {
 
     service.setTags(issue.getKey(), ImmutableSet.<String>of());
     assertThat(indexClient.get(IssueIndex.class).getByKey(issue.getKey()).tags()).isEmpty();
+  }
+
+  @Test
+  public void list_component_tags() {
+    db.issueDao().insert(session,
+      IssueTesting.newDto(rule, file, project).setTags(ImmutableSet.of("convention", "java8", "bug")),
+      IssueTesting.newDto(rule, file, project).setTags(ImmutableSet.of("convention", "bug")),
+      IssueTesting.newDto(rule, file, project),
+      IssueTesting.newDto(rule, file, project).setTags(ImmutableSet.of("convention")));
+    session.commit();
+    index();
+
+    assertThat(service.listTagsForComponent(project.uuid(), 5)).includes(entry("convention", 3L), entry("bug", 2L), entry("java8", 1L));
+    assertThat(service.listTagsForComponent(project.uuid(), 2)).includes(entry("convention", 3L), entry("bug", 2L)).excludes(entry("java8", 1L));
+    assertThat(service.listTagsForComponent("other", 10)).isEmpty();
   }
 }

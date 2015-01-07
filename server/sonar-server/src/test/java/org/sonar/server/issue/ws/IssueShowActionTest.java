@@ -150,7 +150,7 @@ public class IssueShowActionTest {
       new SearchAction(mock(DbClient.class), mock(IssueChangeDao.class), mock(IssueService.class), mock(IssueActionsWriter.class), mock(IssueQueryService.class),
         mock(RuleService.class),
         mock(ActionPlanService.class), mock(UserFinder.class), mock(I18n.class), mock(Durations.class), mock(Languages.class)),
-      new TagsAction(null), new SetTagsAction(null)
+      new TagsAction(null), new SetTagsAction(null), new ComponentTagsAction(null)
       ));
   }
 

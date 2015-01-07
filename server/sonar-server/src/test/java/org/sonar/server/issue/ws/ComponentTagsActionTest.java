@@ -19,7 +19,7 @@
  */
 package org.sonar.server.issue.ws;
 
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,55 +30,69 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.ws.WsTester;
 
+import java.util.Map;
+
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SetTagsActionTest {
+public class ComponentTagsActionTest {
 
   @Mock
   private IssueService service;
 
-  private SetTagsAction setTagsAction;
+  private ComponentTagsAction componentTagsAction;
 
   private WsTester tester;
 
   @Before
   public void setUp() {
-    setTagsAction = new SetTagsAction(service);
+    componentTagsAction = new ComponentTagsAction(service);
     tester = new WsTester(
       new IssuesWs(new IssueShowAction(null, null, null, null, null, null, null, null, null, null, null),
         new SearchAction(null, null, null, null, null, null, null, null, null, null,null),
-        new TagsAction(null), setTagsAction, new ComponentTagsAction(null)));
+        new TagsAction(null), new SetTagsAction(null), componentTagsAction));
   }
 
   @Test
   public void should_define() throws Exception {
-    Action action = tester.controller("api/issues").action("set_tags");
+    Action action = tester.controller("api/issues").action("component_tags");
     assertThat(action.description()).isNotEmpty();
-    assertThat(action.responseExampleAsString()).isNull();
-    assertThat(action.isPost()).isTrue();
-    assertThat(action.isInternal()).isFalse();
-    assertThat(action.handler()).isEqualTo(setTagsAction);
+    assertThat(action.responseExampleAsString()).isNotEmpty();
+    assertThat(action.isPost()).isFalse();
+    assertThat(action.isInternal()).isTrue();
+    assertThat(action.handler()).isEqualTo(componentTagsAction);
     assertThat(action.params()).hasSize(2);
 
-    Param query = action.param("key");
+    Param query = action.param("componentUuid");
     assertThat(query.isRequired()).isTrue();
     assertThat(query.description()).isNotEmpty();
     assertThat(query.exampleValue()).isNotEmpty();
-    Param pageSize = action.param("tags");
+    Param pageSize = action.param("ps");
     assertThat(pageSize.isRequired()).isFalse();
-    assertThat(pageSize.defaultValue()).isNull();
+    assertThat(pageSize.defaultValue()).isEqualTo("10");
     assertThat(pageSize.description()).isNotEmpty();
     assertThat(pageSize.exampleValue()).isNotEmpty();
   }
 
   @Test
-  public void should_set_tags() throws Exception {
-    when(service.setTags("polop", ImmutableSet.of("palap"))).thenReturn(ImmutableSet.of("palap"));
-    tester.newPostRequest("api/issues", "set_tags").setParam("key", "polop").setParam("tags", "palap").execute()
-      .assertJson("{\"tags\":[\"palap\"]}");
-    verify(service).setTags("polop", ImmutableSet.of("palap"));
+  public void should_return_empty_list() throws Exception {
+    tester.newGetRequest("api/issues", "component_tags").setParam("componentUuid", "polop").execute().assertJson("{tags:[]}");
+  }
+
+  @Test
+  public void should_return_tag_list() throws Exception {
+    Map<String, Long> tags = ImmutableMap.<String, Long>builder()
+      .put("convention", 2771L)
+      .put("brain-overload", 998L)
+      .put("cwe", 89L)
+      .put("bug", 32L)
+      .put("cert", 2L)
+      .build();
+    when(service.listTagsForComponent("polop", 5)).thenReturn(tags);
+    tester.newGetRequest("api/issues", "component_tags").setParam("componentUuid", "polop").setParam("ps", "5").execute()
+      .assertJson(getClass(), "component-tags.json");
+    verify(service).listTagsForComponent("polop", 5);
   }
 }

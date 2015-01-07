@@ -61,6 +61,7 @@ import org.sonar.server.user.UserSession;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -272,30 +273,36 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
   }
 
   private void addComponentRelatedFilters(IssueQuery query, Map<String, FilterBuilder> filters) {
+    Collection<String> componentUuids = query.componentUuids();
     if (BooleanUtils.isTrue(query.onComponentOnly())) {
       Set<String> allComponents = Sets.newHashSet();
       allComponents.addAll(query.projectUuids());
       allComponents.addAll(query.moduleUuids());
-      allComponents.addAll(query.componentUuids());
+      allComponents.addAll(componentUuids);
       filters.put(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, matchFilter(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, allComponents));
     } else {
       filters.put(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, matchFilter(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, query.projectUuids()));
       filters.put(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, matchFilter(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, query.moduleUuids()));
 
-      FilterBuilder componentFilter = matchFilter(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, query.componentUuids());
-      FilterBuilder modulePathFilter = matchFilter(IssueIndexDefinition.FIELD_ISSUE_MODULE_PATH, query.componentUuids());
-      FilterBuilder compositeFilter = null;
-      if (componentFilter != null) {
-        if (modulePathFilter != null) {
-          compositeFilter = FilterBuilders.orFilter(componentFilter, modulePathFilter);
-        } else {
-          compositeFilter = componentFilter;
-        }
-      } else if (modulePathFilter != null) {
-        compositeFilter = modulePathFilter;
-      }
+      FilterBuilder compositeFilter = componentFilter(componentUuids);
       filters.put(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, compositeFilter);
     }
+  }
+
+  private FilterBuilder componentFilter(Collection<String> componentUuids) {
+    FilterBuilder componentFilter = matchFilter(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, componentUuids);
+    FilterBuilder modulePathFilter = matchFilter(IssueIndexDefinition.FIELD_ISSUE_MODULE_PATH, componentUuids);
+    FilterBuilder compositeFilter = null;
+    if (componentFilter != null) {
+      if (modulePathFilter != null) {
+        compositeFilter = FilterBuilders.orFilter(componentFilter, modulePathFilter);
+      } else {
+        compositeFilter = componentFilter;
+      }
+    } else if (modulePathFilter != null) {
+      compositeFilter = modulePathFilter;
+    }
+    return compositeFilter;
   }
 
   private FilterBuilder getAuthorizationFilter(QueryContext options) {
@@ -503,5 +510,26 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
         return bucket.getKey();
       }
     });
+  }
+
+  public Map<String, Long> listTagsForComponent(String componentUuid, int pageSize) {
+    SearchRequestBuilder count = getClient().prepareSearch(IssueIndexDefinition.INDEX)
+      .setTypes(IssueIndexDefinition.TYPE_ISSUE)
+      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
+        FilterBuilders.boolFilter()
+          .must(getAuthorizationFilter(new QueryContext()))
+          .must(componentFilter(Arrays.asList(componentUuid)))));
+    TermsBuilder aggreg = AggregationBuilders.terms("_ref")
+      .field(IssueIndexDefinition.FIELD_ISSUE_TAGS)
+      .size(pageSize)
+      .order(Order.count(false))
+      .minDocCount(1L);
+    Terms result = count.addAggregation(aggreg).get().getAggregations().get("_ref");
+
+    Map<String, Long> map = Maps.newHashMap();
+    for (Bucket bucket: result.getBuckets()) {
+      map.put(bucket.getKey(), bucket.getDocCount());
+    }
+    return map;
   }
 }

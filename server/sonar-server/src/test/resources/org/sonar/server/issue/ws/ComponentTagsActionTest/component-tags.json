@@ -1,0 +1,9 @@
+{
+  tags: [
+    { key: "convention", value: 2771 },
+    { key: "brain-overload", value: 998 },
+    { key: "cwe", value: 89 },
+    { key: "bug", value: 32 },
+    { key: "cert", value: 2 }
+  ]
+}

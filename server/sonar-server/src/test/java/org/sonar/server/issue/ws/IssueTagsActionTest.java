@@ -50,7 +50,7 @@ public class IssueTagsActionTest {
     tester = new WsTester(
       new IssuesWs(new IssueShowAction(null, null, null, null, null, null, null, null, null, null, null),
         new SearchAction(null, null, null, null, null, null, null, null, null, null,null),
-        tagsAction, new SetTagsAction(null)));
+        tagsAction, new SetTagsAction(null), new ComponentTagsAction(null)));
   }
 
   @Test
