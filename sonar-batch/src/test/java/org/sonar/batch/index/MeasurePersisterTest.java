@@ -201,7 +201,7 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
   private static BatchResource batchResource(Resource resource, int id) {
     Snapshot snapshot = mock(Snapshot.class);
     when(snapshot.getId()).thenReturn(id);
-    return new BatchResource(1, resource, snapshot, null);
+    return new BatchResource(1, resource, null).setSnapshot(snapshot);
   }
 
   private static Metric ncloc() {

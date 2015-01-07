@@ -32,14 +32,13 @@ public class BatchResource {
 
   private final long batchId;
   private final Resource r;
-  private final Snapshot s;
+  private Snapshot s;
   private final BatchResource parent;
   private final Collection<BatchResource> children = new ArrayList<BatchResource>();
 
-  public BatchResource(long batchId, Resource r, Snapshot s, @Nullable BatchResource parent) {
+  public BatchResource(long batchId, Resource r, @Nullable BatchResource parent) {
     this.batchId = batchId;
     this.r = r;
-    this.s = s;
     this.parent = parent;
     if (parent != null) {
       parent.children.add(this);
@@ -52,6 +51,11 @@ public class BatchResource {
 
   public Resource resource() {
     return r;
+  }
+
+  public BatchResource setSnapshot(Snapshot snapshot) {
+    this.s = snapshot;
+    return this;
   }
 
   public int snapshotId() {

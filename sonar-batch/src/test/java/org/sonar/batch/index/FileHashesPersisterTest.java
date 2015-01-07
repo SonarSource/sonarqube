@@ -57,7 +57,7 @@ public class FileHashesPersisterTest extends AbstractDaoTestCase {
     Snapshot snapshot = new Snapshot();
     snapshot.setId(100);
     snapshot.setResourceId(200);
-    resourceCache.add(new Project("myProject").setId(200), null, snapshot);
+    resourceCache.add(new Project("myProject").setId(200), null).setSnapshot(snapshot);
 
     data = new ComponentDataCache(caches);
     data.setStringData("myProject", SnapshotDataTypes.FILE_HASHES, "org/struts/Action.java=123ABC");

@@ -23,7 +23,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import org.sonar.api.BatchComponent;
-import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Library;
 import org.sonar.api.resources.Resource;
 
@@ -35,9 +34,9 @@ import java.util.Map;
 
 public class ResourceCache implements BatchComponent {
   // resource by component key
-  private final Map<String, BatchResource> resources = Maps.newHashMap();
+  private final Map<String, BatchResource> resources = Maps.newLinkedHashMap();
   // dedicated cache for libraries
-  private final Map<Library, BatchResource> libraries = Maps.newHashMap();
+  private final Map<Library, BatchResource> libraries = Maps.newLinkedHashMap();
 
   @CheckForNull
   public BatchResource get(String componentKey) {
@@ -53,11 +52,11 @@ public class ResourceCache implements BatchComponent {
     }
   }
 
-  public BatchResource add(Resource resource, @Nullable Resource parentResource, Snapshot s) {
+  public BatchResource add(Resource resource, @Nullable Resource parentResource) {
     String componentKey = resource.getEffectiveKey();
     Preconditions.checkState(!Strings.isNullOrEmpty(componentKey), "Missing resource effective key");
     BatchResource parent = parentResource != null ? get(parentResource.getEffectiveKey()) : null;
-    BatchResource batchResource = new BatchResource((long) resources.size() + 1, resource, s, parent);
+    BatchResource batchResource = new BatchResource((long) resources.size() + 1, resource, parent);
     if (!(resource instanceof Library)) {
       // Libraries can have the same effective key than a project so we can't cache by effectiveKey
       resources.put(componentKey, batchResource);
@@ -69,5 +68,9 @@ public class ResourceCache implements BatchComponent {
 
   public Collection<BatchResource> all() {
     return resources.values();
+  }
+
+  public Collection<BatchResource> allLibraries() {
+    return libraries.values();
   }
 }

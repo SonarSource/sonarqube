@@ -59,7 +59,7 @@ public class PreviousFileHashLoaderTest {
   @Before
   public void prepare() {
     resourceCache = new ResourceCache();
-    resourceCache.add(project, null, snapshot);
+    resourceCache.add(project, null).setSnapshot(snapshot);
     loader = new PreviousFileHashLoader(project, resourceCache, snapshotDataDao, pastSnapshotFinder);
   }
 

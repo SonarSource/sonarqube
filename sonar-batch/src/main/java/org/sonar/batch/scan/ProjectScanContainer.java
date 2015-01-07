@@ -47,7 +47,7 @@ import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.Caches;
 import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.batch.index.DefaultIndex;
-import org.sonar.batch.index.DefaultResourcePersister;
+import org.sonar.batch.index.ResourcePersister;
 import org.sonar.batch.index.DependencyPersister;
 import org.sonar.batch.index.DuplicationPersister;
 import org.sonar.batch.index.EventPersister;
@@ -134,7 +134,7 @@ public class ProjectScanContainer extends ComponentContainer {
       LinkPersister.class,
       MeasurePersister.class,
       DuplicationPersister.class,
-      DefaultResourcePersister.class,
+      ResourcePersister.class,
       SourcePersister.class,
       CodeColorizers.class,
       DefaultNotificationManager.class,

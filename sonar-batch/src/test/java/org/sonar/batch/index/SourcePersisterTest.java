@@ -384,7 +384,7 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
   private void mockResourceCache(String relativePathEmpty, String projectKey, String uuid) {
     File sonarFile = File.create(relativePathEmpty);
     sonarFile.setUuid(uuid);
-    when(resourceCache.get(projectKey + ":" + relativePathEmpty)).thenReturn(new BatchResource(1, sonarFile, new Snapshot(), null));
+    when(resourceCache.get(projectKey + ":" + relativePathEmpty)).thenReturn(new BatchResource(1, sonarFile, null));
   }
 
   private byte[] md5(String string) {

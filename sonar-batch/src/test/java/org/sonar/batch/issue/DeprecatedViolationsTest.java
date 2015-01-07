@@ -20,7 +20,6 @@
 package org.sonar.batch.issue;
 
 import org.junit.Test;
-import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
@@ -50,7 +49,7 @@ public class DeprecatedViolationsTest {
   public void test_toViolation() throws Exception {
     RuleKey ruleKey = RuleKey.of("squid", "AvoidCycles");
     when(ruleFinder.findByKey(ruleKey)).thenReturn(new Rule("squid", "AvoidCycles"));
-    when(resourceCache.get("org.apache:struts")).thenReturn(new BatchResource(1, new Project("org.apache:struts"), new Snapshot(), null));
+    when(resourceCache.get("org.apache:struts")).thenReturn(new BatchResource(1, new Project("org.apache:struts"), null));
 
     DefaultIssue issue = newIssue(ruleKey);
 
@@ -80,7 +79,7 @@ public class DeprecatedViolationsTest {
   public void test_get() throws Exception {
     RuleKey ruleKey = RuleKey.of("squid", "AvoidCycles");
     when(ruleFinder.findByKey(ruleKey)).thenReturn(new Rule("squid", "AvoidCycles"));
-    when(resourceCache.get("org.apache:struts")).thenReturn(new BatchResource(1, new Project("org.apache:struts"), new Snapshot(), null));
+    when(resourceCache.get("org.apache:struts")).thenReturn(new BatchResource(1, new Project("org.apache:struts"), null));
     when(issueCache.byComponent("org.apache:struts")).thenReturn(Arrays.asList(newIssue(ruleKey)));
 
     List<Violation> violations = deprecatedViolations.get("org.apache:struts");

@@ -20,7 +20,6 @@
 package org.sonar.batch.index;
 
 import org.junit.Test;
-import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Resource;
 
@@ -33,7 +32,7 @@ public class ResourceCacheTest {
     ResourceCache cache = new ResourceCache();
     String componentKey = "struts:src/org/struts/Action.java";
     Resource resource = new File("org/struts/Action.java").setEffectiveKey(componentKey);
-    cache.add(resource, null, new Snapshot());
+    cache.add(resource, null);
 
     assertThat(cache.get(componentKey).resource()).isSameAs(resource);
     assertThat(cache.get("other")).isNull();
@@ -44,7 +43,7 @@ public class ResourceCacheTest {
     ResourceCache cache = new ResourceCache();
     Resource resource = new File("org/struts/Action.java").setEffectiveKey(null);
     try {
-      cache.add(resource, null, new Snapshot());
+      cache.add(resource, null);
       fail();
     } catch (IllegalStateException e) {
       // success

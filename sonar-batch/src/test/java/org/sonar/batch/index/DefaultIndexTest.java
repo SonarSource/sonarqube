@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.measure.MetricFinder;
-import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilters;
@@ -45,13 +44,11 @@ import org.sonar.batch.ProjectTree;
 import org.sonar.batch.issue.DeprecatedViolations;
 import org.sonar.batch.issue.ModuleIssues;
 import org.sonar.batch.scan.measure.MeasureCache;
-import org.sonar.core.component.ScanGraph;
 
 import java.io.IOException;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -80,8 +77,8 @@ public class DefaultIndexTest {
     ruleFinder = mock(RuleFinder.class);
 
     ProjectTree projectTree = mock(ProjectTree.class);
-    ResourcePersister resourcePersister = mock(ResourcePersister.class);
-    index = new DefaultIndex(resourcePersister, null, null, null, projectTree, metricFinder, mock(ScanGraph.class), deprecatedViolations,
+    ResourceCache resourceCache = new ResourceCache();
+    index = new DefaultIndex(resourceCache, null, null, null, projectTree, metricFinder, deprecatedViolations,
       mock(ResourceKeyMigration.class),
       mock(MeasureCache.class));
 
@@ -94,9 +91,6 @@ public class DefaultIndexTest {
     when(projectTree.getProjectDefinition(moduleB)).thenReturn(ProjectDefinition.create().setBaseDir(new java.io.File(baseDir, "moduleB")));
     moduleB1 = new Project("moduleB1").setParent(moduleB);
     when(projectTree.getProjectDefinition(moduleB1)).thenReturn(ProjectDefinition.create().setBaseDir(new java.io.File(baseDir, "moduleB/moduleB1")));
-
-    when(resourcePersister.saveResource(any(Project.class), any(Resource.class), any(Resource.class))).thenReturn(
-      new BatchResource(1, mock(Resource.class), new Snapshot().setId(1), null));
 
     RulesProfile rulesProfile = RulesProfile.create();
     rule = Rule.create("repoKey", "ruleKey", "Rule");

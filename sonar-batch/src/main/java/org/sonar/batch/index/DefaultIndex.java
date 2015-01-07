@@ -55,7 +55,6 @@ import org.sonar.batch.issue.ModuleIssues;
 import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.batch.scan2.DefaultSensorContext;
 import org.sonar.core.component.ComponentKeys;
-import org.sonar.core.component.ScanGraph;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -75,9 +74,8 @@ public class DefaultIndex extends SonarIndex {
 
   private static final Logger LOG = LoggerFactory.getLogger(DefaultIndex.class);
 
-  private ResourcePersister resourcePersister;
-  private MetricFinder metricFinder;
-  private final ScanGraph graph;
+  private final ResourceCache resourceCache;
+  private final MetricFinder metricFinder;
 
   // caches
   private Project currentProject;
@@ -95,16 +93,15 @@ public class DefaultIndex extends SonarIndex {
   private final LinkPersister linkPersister;
   private final EventPersister eventPersister;
 
-  public DefaultIndex(ResourcePersister resourcePersister, DependencyPersister dependencyPersister,
+  public DefaultIndex(ResourceCache resourceCache, DependencyPersister dependencyPersister,
     LinkPersister linkPersister, EventPersister eventPersister, ProjectTree projectTree, MetricFinder metricFinder,
-    ScanGraph graph, DeprecatedViolations deprecatedViolations, ResourceKeyMigration migration, MeasureCache measureCache) {
-    this.resourcePersister = resourcePersister;
+    DeprecatedViolations deprecatedViolations, ResourceKeyMigration migration, MeasureCache measureCache) {
+    this.resourceCache = resourceCache;
     this.dependencyPersister = dependencyPersister;
     this.linkPersister = linkPersister;
     this.eventPersister = eventPersister;
     this.projectTree = projectTree;
     this.metricFinder = metricFinder;
-    this.graph = graph;
     this.deprecatedViolations = deprecatedViolations;
     this.migration = migration;
     this.measureCache = measureCache;
@@ -121,7 +118,7 @@ public class DefaultIndex extends SonarIndex {
     Bucket bucket = new Bucket(rootProject);
     addBucket(rootProject, bucket);
     migration.checkIfMigrationNeeded(rootProject);
-    resourcePersister.saveProject(rootProject, null);
+    resourceCache.add(rootProject, null);
     currentProject = rootProject;
 
     for (Project module : rootProject.getModules()) {
@@ -593,10 +590,7 @@ public class DefaultIndex extends SonarIndex {
     addBucket(resource, bucket);
 
     Resource parentResource = parentBucket != null ? parentBucket.getResource() : null;
-    BatchResource batchResource = resourcePersister.saveResource(currentProject, resource, parentResource);
-    if (ResourceUtils.isPersistable(resource) && !Qualifiers.LIBRARY.equals(resource.getQualifier())) {
-      graph.addComponent(resource, batchResource.snapshotId());
-    }
+    resourceCache.add(resource, parentResource);
 
     return bucket;
   }

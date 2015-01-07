@@ -28,7 +28,12 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.resources.*;
+import org.sonar.api.resources.Directory;
+import org.sonar.api.resources.Java;
+import org.sonar.api.resources.Language;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Scopes;
 import org.sonar.batch.index.ResourceCache;
 
 import java.io.File;
@@ -47,27 +52,27 @@ public class ComponentsPublisherTest {
 
     Project root = new Project("foo").setName("Root project").setAnalysisDate(new SimpleDateFormat("dd/MM/yyyy").parse("12/12/2012"));
     root.setId(1);
-    resourceCache.add(root, null, new Snapshot().setId(11));
+    resourceCache.add(root, null).setSnapshot(new Snapshot().setId(11));
     Project module1 = new Project("module1").setName("Module1");
     module1.setParent(root);
     module1.setId(2);
-    resourceCache.add(module1, root, new Snapshot().setId(12));
+    resourceCache.add(module1, root).setSnapshot(new Snapshot().setId(12));
     Directory dir1 = Directory.create("src");
     dir1.setEffectiveKey("foo:src");
     dir1.setId(3);
-    resourceCache.add(dir1, module1, new Snapshot().setId(13));
+    resourceCache.add(dir1, module1).setSnapshot(new Snapshot().setId(13));
     org.sonar.api.resources.File mainFile = org.sonar.api.resources.File.create("src/Foo.java", "Foo.java", Java.INSTANCE, false);
     mainFile.setEffectiveKey("foo:src/Foo.java");
     mainFile.setId(4);
-    resourceCache.add(mainFile, dir1, new Snapshot().setId(14));
+    resourceCache.add(mainFile, dir1).setSnapshot(new Snapshot().setId(14));
     Directory dir2 = Directory.create("test");
     dir2.setEffectiveKey("foo:test");
     dir2.setId(5);
-    resourceCache.add(dir2, module1, new Snapshot().setId(15));
+    resourceCache.add(dir2, module1).setSnapshot(new Snapshot().setId(15));
     org.sonar.api.resources.File testFile = org.sonar.api.resources.File.create("test/FooTest.java", "FooTest.java", Java.INSTANCE, true);
     testFile.setEffectiveKey("foo:test/FooTest.java");
     testFile.setId(6);
-    resourceCache.add(testFile, dir2, new Snapshot().setId(16));
+    resourceCache.add(testFile, dir2).setSnapshot(new Snapshot().setId(16));
 
     File exportDir = temp.newFolder();
     publisher.export(exportDir);
@@ -87,12 +92,12 @@ public class ComponentsPublisherTest {
     View view = new View("ALL_PROJECT");
     view.setId(1);
     view.setAnalysisDate(new SimpleDateFormat("dd/MM/yyyy").parse("12/12/2012"));
-    resourceCache.add(view, null, new Snapshot().setId(11));
+    resourceCache.add(view, null).setSnapshot(new Snapshot().setId(11));
 
     org.sonar.api.resources.File mainFile = org.sonar.api.resources.File.create("ALL_PROJECTsample", "ALL_PROJECTsample", null, false);
     mainFile.setEffectiveKey("ALL_PROJECTsample");
     mainFile.setId(2);
-    resourceCache.add(mainFile, view, new Snapshot().setId(12));
+    resourceCache.add(mainFile, view).setSnapshot(new Snapshot().setId(12));
 
     File exportDir = temp.newFolder();
     publisher.export(exportDir);

@@ -29,6 +29,7 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.batch.index.ResourceKeyMigration;
+import org.sonar.batch.index.ResourcePersister;
 import org.sonar.batch.util.DeprecatedKeyUtils;
 
 /**
@@ -42,15 +43,27 @@ public class ComponentIndexer implements BatchComponent {
   private final SonarIndex sonarIndex;
   private final ResourceKeyMigration migration;
   private final Project module;
+  private final ResourcePersister resourcePersister;
 
-  public ComponentIndexer(Project module, Languages languages, SonarIndex sonarIndex, ResourceKeyMigration migration) {
+  public ComponentIndexer(Project module, Languages languages, SonarIndex sonarIndex, ResourceKeyMigration migration,
+    ResourcePersister resourcePersister) {
     this.module = module;
     this.languages = languages;
     this.sonarIndex = sonarIndex;
     this.migration = migration;
+    this.resourcePersister = resourcePersister;
+  }
+
+  public ComponentIndexer(Project module, Languages languages, SonarIndex sonarIndex, ResourceKeyMigration migration) {
+    this(module, languages, sonarIndex, migration, null);
   }
 
   public void execute(FileSystem fs) {
+    if (resourcePersister != null) {
+      // Force persistence of module structure in order to know if project should be migrated
+      resourcePersister.persist();
+    }
+
     migration.migrateIfNeeded(module, fs);
 
     for (InputFile inputFile : fs.inputFiles(fs.predicates().all())) {
@@ -67,6 +80,11 @@ public class ComponentIndexer implements BatchComponent {
         sonarFile.setDeprecatedKey(pathFromSourceDir);
       }
       sonarIndex.index(sonarFile);
+    }
+
+    if (resourcePersister != null) {
+      // Persist all files in order to have snapshot availables
+      resourcePersister.persist();
     }
   }
 

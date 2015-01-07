@@ -95,7 +95,7 @@ public class QualityGateVerifierTest {
     project = new Project("foo");
 
     resourceCache = new ResourceCache();
-    resourceCache.add(project, null, snapshot);
+    resourceCache.add(project, null).setSnapshot(snapshot);
 
     verifier = new QualityGateVerifier(qualityGate, resourceCache, periods, i18n, durations);
   }
