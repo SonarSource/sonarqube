@@ -188,7 +188,7 @@ public class UserUpdater implements ServerComponent {
     if (updateUser.isScmAccountsChanged()) {
       List<String> scmAccounts = updateUser.scmAccounts();
       if (scmAccounts != null && !scmAccounts.isEmpty()) {
-        scmAccounts = sanitizeScmAccounts(updateUser.scmAccounts());
+        scmAccounts = sanitizeScmAccounts(scmAccounts);
         validateScmAccounts(dbSession, scmAccounts, userDto.getLogin(), email != null ? email : userDto.getEmail(), userDto, messages);
         userDto.setScmAccounts(convertScmAccountsToCsv(scmAccounts));
       } else {

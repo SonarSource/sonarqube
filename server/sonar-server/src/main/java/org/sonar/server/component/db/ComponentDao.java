@@ -150,7 +150,6 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
 
   @Override
   protected void doDeleteByKey(DbSession session, String key) {
-    // TODO shouldn't we need to also delete snapshots ?
     mapper(session).deleteByKey(key);
   }
 
