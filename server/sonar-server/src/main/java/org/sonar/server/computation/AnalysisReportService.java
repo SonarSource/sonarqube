@@ -72,14 +72,14 @@ public class AnalysisReportService implements ServerComponent {
   void loadResources(ComputeEngineContext context) {
     File file = new File(context.getReportDirectory(), "components.json");
 
-    try {
-      InputStream resourcesStream = new FileInputStream(file);
+    try (InputStream resourcesStream = new FileInputStream(file)) {
       String json = IOUtils.toString(resourcesStream);
       ReportComponents reportComponents = ReportComponents.fromJson(json);
       context.addResources(reportComponents);
     } catch (IOException e) {
       throw new IllegalStateException("Failed to read issues", e);
     }
+
   }
 
   @VisibleForTesting
@@ -97,9 +97,8 @@ public class AnalysisReportService implements ServerComponent {
     File issuesFile = new File(context.getReportDirectory(), "issues.json");
     List<DefaultIssue> issues = new ArrayList<>(MAX_ISSUES_SIZE);
 
-    try {
-      InputStream issuesStream = new FileInputStream(issuesFile);
-      JsonReader reader = new JsonReader(new InputStreamReader(issuesStream));
+    try (InputStream issuesStream = new FileInputStream(issuesFile);
+      JsonReader reader = new JsonReader(new InputStreamReader(issuesStream))) {
       reader.beginArray();
       while (reader.hasNext()) {
         ReportIssue reportIssue = gson.fromJson(reader, ReportIssue.class);
