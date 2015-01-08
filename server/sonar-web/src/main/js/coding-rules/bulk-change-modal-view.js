@@ -38,23 +38,30 @@ define([
 
     onFormSubmit: function () {
       ModalFormView.prototype.onFormSubmit.apply(this, arguments);
+      var url = baseUrl + '/api/qualityprofiles/' + this.options.action + '_rules',
+          options = _.extend({}, this.options.app.state.get('query'), { wsAction: this.options.action }),
+          profiles = this.$('#coding-rules-bulk-change-profile').val() || [this.options.param];
+      this.ui.messagesContainer.empty();
+      this.sendRequests(url, options, profiles);
+    },
+
+    sendRequests: function (url, options, profiles) {
       var that = this,
           p = window.process.addBackgroundProcess(),
-          url = baseUrl + '/api/qualityprofiles/' + this.options.action + '_rules',
-          options = _.extend({}, this.options.app.state.get('query'), { wsAction: this.options.action }),
-          profiles = this.$('#coding-rules-bulk-change-profile').val() || [this.options.param],
-          requests = profiles.map(function (profile) {
-            var opts = _.extend({}, options, { profile_key: profile });
-            return $.post(url, opts).done(function (r) {
-              if (r.failed) {
-                that.showWarnMessage(profile, r.succeeded, r.failed);
-              } else {
-                that.showSuccessMessage(profile, r.succeeded);
-              }
-            });
+          looper = $.Deferred().resolve();
+      profiles.forEach(function (profile) {
+        var opts = _.extend({}, options, { profile_key: profile });
+        looper = looper.then(function () {
+          return $.post(url, opts).done(function (r) {
+            if (r.failed) {
+              that.showWarnMessage(profile, r.succeeded, r.failed);
+            } else {
+              that.showSuccessMessage(profile, r.succeeded);
+            }
           });
-      this.ui.messagesContainer.empty();
-      $.when.apply($, requests).done(function () {
+        });
+      });
+      looper.done(function () {
         that.$(that.ui.codingRulesSubmitBulkChange.selector).hide();
         window.process.finishBackgroundProcess(p);
       }).fail(function () {
