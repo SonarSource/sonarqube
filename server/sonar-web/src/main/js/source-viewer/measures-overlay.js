@@ -16,7 +16,8 @@ define([
         'click .js-sort-tests-by-duration': 'sortTestsByDuration',
         'click .js-sort-tests-by-name': 'sortTestsByName',
         'click .js-sort-tests-by-status': 'sortTestsByStatus',
-        'click .js-show-test': 'showTest'
+        'click .js-show-test': 'showTest',
+        'click .js-show-all-measures': 'showAllMeasures'
       });
     },
 
@@ -222,6 +223,11 @@ define([
         that.render();
         window.process.finishBackgroundProcess(p);
       });
+    },
+
+    showAllMeasures: function () {
+      this.$('.js-all-measures').removeClass('hidden');
+      this.$('.js-show-all-measures').remove();
     },
 
     serializeData: function () {
