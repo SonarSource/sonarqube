@@ -31,7 +31,6 @@ casper.test.begin('coding-rules-page-available-since', 2, function (test) {
       })
 
       .then(function () {
-        lib.capture();
         casper.waitForSelectorTextChange('#coding-rules-total');
       })
 

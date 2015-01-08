@@ -46,7 +46,6 @@ casper.test.begin('coding-rules-page-quality-profile-facet', 6, function (test) 
         test.assertSelectorContains('#coding-rules-total', '408');
         test.assertExists('.js-facet[data-value="java-default-with-mojo-conventions-49307"] .js-inactive.facet-toggle-active');
         casper.click('[data-property="qprofile"] .js-facet-toggle');
-        lib.capture();
         casper.waitForSelectorTextChange('#coding-rules-total');
       })
 
