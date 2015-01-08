@@ -1,10 +1,6 @@
 define [
-  'backbone.marionette',
   'templates/quality-gates'
-], (
-  Marionette,
-  Templates
-) ->
+], ->
 
   class QualityGateDetailConditionsView extends Marionette.ItemView
     tagName: 'tr'

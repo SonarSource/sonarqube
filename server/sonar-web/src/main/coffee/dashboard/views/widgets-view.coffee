@@ -1,10 +1,8 @@
 define [
-  'backbone.marionette'
   'templates/dashboard'
   'dashboard/models/widget'
   'dashboard/views/widget-view'
 ], (
-  Marionette
   Templates
   Widget
   WidgetView

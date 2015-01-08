@@ -1,10 +1,6 @@
 define [
-  'backbone.marionette',
   'templates/quality-gates'
-], (
-  Marionette,
-  Templates
-) ->
+], ->
 
   class AppLayout extends Marionette.Layout
     className: 'navigator quality-gates-navigator'

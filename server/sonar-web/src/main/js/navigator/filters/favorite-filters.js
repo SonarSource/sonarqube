@@ -1,11 +1,8 @@
 define([
-  'backbone',
-  'backbone.marionette',
   'navigator/filters/base-filters',
   'navigator/filters/choice-filters',
-  'templates/navigator',
-  'common/handlebars-extensions'
-], function (Backbone, Marionette, BaseFilters, ChoiceFilters, Templates) {
+  'templates/navigator'
+], function (BaseFilters, ChoiceFilters) {
 
   var DetailsFavoriteFilterView = BaseFilters.DetailsFilterView.extend({
     template: Templates['favorite-details-filter'],

@@ -1,7 +1,6 @@
 define([
-  'backbone.marionette',
   'components/navigator/facets/base-facet'
-], function (Marionette, BaseFacet) {
+], function (BaseFacet) {
 
   return Marionette.CollectionView.extend({
     className: 'search-navigator-facets-list',

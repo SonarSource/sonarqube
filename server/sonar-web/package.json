@@ -12,7 +12,7 @@
     "grunt-contrib-coffee": "0.10.1",
     "grunt-contrib-concat": "0.4.0",
     "grunt-contrib-copy": "0.5.0",
-    "grunt-contrib-handlebars": "0.7.0",
+    "grunt-contrib-handlebars": "0.9.2",
     "grunt-contrib-jshint": "0.10.0",
     "grunt-contrib-less": "0.10.0",
     "grunt-contrib-requirejs": "0.4.3",

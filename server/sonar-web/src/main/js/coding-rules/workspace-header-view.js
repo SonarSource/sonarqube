@@ -1,8 +1,8 @@
 define([
   'components/navigator/workspace-header-view',
-  'templates/coding-rules',
-  'coding-rules/bulk-change-popup-view'
-], function (WorkspaceHeaderView, Templates, BulkChangePopup) {
+  'coding-rules/bulk-change-popup-view',
+  'templates/coding-rules'
+], function (WorkspaceHeaderView, BulkChangePopup) {
 
   var $ = jQuery;
 

@@ -1,7 +1,4 @@
 define([
-      'backbone',
-      'backbone.marionette',
-      'templates/source-viewer',
       'source-viewer/source',
       'issue/models/issue',
       'issue/collections/issues',
@@ -11,12 +8,9 @@ define([
       'source-viewer/popups/coverage-popup',
       'source-viewer/popups/duplication-popup',
       'source-viewer/popups/line-actions-popup',
-      'common/handlebars-extensions'
+      'templates/source-viewer'
     ],
-    function (Backbone,
-              Marionette,
-              Templates,
-              Source,
+    function (Source,
               Issue,
               Issues,
               IssueView,

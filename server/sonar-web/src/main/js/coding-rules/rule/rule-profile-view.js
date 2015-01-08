@@ -1,8 +1,7 @@
 define([
-  'backbone.marionette',
-  'templates/coding-rules',
-  'coding-rules/rule/profile-activation-view'
-], function (Marionette, Templates, ProfileActivationView) {
+  'coding-rules/rule/profile-activation-view',
+  'templates/coding-rules'
+], function (ProfileActivationView) {
 
   return Marionette.ItemView.extend({
     tagName: 'tr',

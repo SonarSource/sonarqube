@@ -1,7 +1,4 @@
 define [
-  'backbone.marionette'
-  'templates/issue'
-
   'issue/models/changelog'
   'issue/views/changelog-view'
 
@@ -16,10 +13,9 @@ define [
   'issue/views/more-actions-view'
   'issue/views/rule-overlay'
 
-], (
-  Marionette
-  Templates
+  'templates/issue'
 
+], (
   ChangeLog
   ChangeLogView
 

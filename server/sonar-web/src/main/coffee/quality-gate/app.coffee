@@ -1,39 +1,15 @@
 requirejs.config
   baseUrl: "#{baseUrl}/js"
 
-  paths:
-    'jquery': 'third-party/jquery'
-    'backbone': 'third-party/backbone'
-    'backbone.marionette': 'third-party/backbone.marionette'
-    'handlebars': 'third-party/handlebars'
-    'moment': 'third-party/moment'
-    'select-list': 'common/select-list'
-
-  shim:
-    'backbone.marionette':
-      deps: ['backbone']
-      exports: 'Marionette'
-    'backbone':
-      exports: 'Backbone'
-    'handlebars':
-      exports: 'Handlebars'
-    'moment':
-      exports: 'moment'
-    'select-list':
-      exports: 'SelectList'
-
 
 requirejs [
-  'backbone', 'backbone.marionette', 'handlebars',
   'quality-gate/collections/quality-gates',
   'quality-gate/views/quality-gate-sidebar-list-view',
   'quality-gate/views/quality-gate-actions-view',
   'quality-gate/views/quality-gate-edit-view',
   'quality-gate/router',
-  'quality-gate/layout',
-  'common/handlebars-extensions'
+  'quality-gate/layout'
 ], (
-  Backbone, Marionette, Handlebars,
   QualityGates,
   QualityGateSidebarListItemView,
   QualityGateActionsView,

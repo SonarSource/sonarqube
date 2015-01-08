@@ -1,10 +1,6 @@
 define [
-  'backbone.marionette',
   'templates/api-documentation'
-], (
-  Marionette,
-  Templates
-) ->
+], ->
 
   class AppLayout extends Marionette.Layout
     className: 'navigator api-documentation-navigator'

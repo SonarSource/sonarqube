@@ -1,10 +1,6 @@
 define [
-  'backbone.marionette',
   'templates/api-documentation'
-], (
-  Marionette,
-  Templates
-) ->
+], ->
 
   class ApiDocumentationActionResponseView extends Marionette.ItemView
     tagName: 'div'

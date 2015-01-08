@@ -1,8 +1,7 @@
 define([
-    'backbone.marionette',
-    'templates/coding-rules',
-    'coding-rules/rule/manual-rule-creation-view'
-], function (Marionette, Templates, ManualRuleCreationView) {
+    'coding-rules/rule/manual-rule-creation-view',
+    'templates/coding-rules'
+], function (ManualRuleCreationView) {
 
   return Marionette.ItemView.extend({
     template: Templates['coding-rules-filters'],

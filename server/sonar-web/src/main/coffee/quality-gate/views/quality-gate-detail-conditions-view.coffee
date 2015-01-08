@@ -1,12 +1,9 @@
 define [
-  'backbone.marionette',
-  'templates/quality-gates'
   'quality-gate/models/condition',
   'quality-gate/views/quality-gate-detail-condition-view',
   'quality-gate/views/quality-gate-detail-conditions-empty-view'
+  'templates/quality-gates'
 ], (
-  Marionette,
-  Templates
   Condition,
   QualityGateDetailConditionView,
   QualityGateDetailConditionsEmptyView,

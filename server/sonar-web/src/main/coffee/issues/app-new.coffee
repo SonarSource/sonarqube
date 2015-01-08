@@ -1,24 +1,8 @@
 requirejs.config
   baseUrl: "#{baseUrl}/js"
 
-  paths:
-    'backbone': 'third-party/backbone'
-    'backbone.marionette': 'third-party/backbone.marionette'
-    'handlebars': 'third-party/handlebars'
-
-  shim:
-    'backbone.marionette':
-      deps: ['backbone']
-      exports: 'Marionette'
-    'backbone':
-      exports: 'Backbone'
-    'handlebars':
-      exports: 'Handlebars'
-
 
 requirejs [
-  'backbone', 'backbone.marionette'
-
   'issues/models/state'
   'issues/layout'
   'issues/models/issues'
@@ -35,11 +19,7 @@ requirejs [
   'issues/filters-view'
 
   'issues/help-view'
-
-  'common/handlebars-extensions'
 ], (
-  Backbone, Marionette
-
   State
   Layout
   Issues

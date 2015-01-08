@@ -1,7 +1,7 @@
 define([
     'coding-rules/facets/base-facet',
     'templates/coding-rules'
-], function (BaseFacet, Templates) {
+], function (BaseFacet) {
 
   return BaseFacet.extend({
     template: Templates['coding-rules-severity-facet'],

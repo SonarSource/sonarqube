@@ -82,6 +82,7 @@
     "baseUrl": true,
     "key": true,
     "Backbone": true,
+    "Handlebars": true,
     "t": true,
     "tp": true,
     "moment": true,

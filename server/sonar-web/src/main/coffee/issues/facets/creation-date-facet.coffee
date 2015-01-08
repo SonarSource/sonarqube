@@ -3,7 +3,6 @@ define [
   'templates/issues'
 ], (
   BaseFacet
-  Templates
 ) ->
 
   $ = jQuery

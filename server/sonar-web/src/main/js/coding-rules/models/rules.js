@@ -1,7 +1,6 @@
 define([
-  'backbone',
   'coding-rules/models/rule'
-], function (Backbone, Rule) {
+], function (Rule) {
 
   return Backbone.Collection.extend({
     model: Rule,

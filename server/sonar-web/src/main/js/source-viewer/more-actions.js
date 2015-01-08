@@ -1,7 +1,6 @@
 define([
-  'backbone.marionette',
   'templates/source-viewer'
-], function (Marionette, Templates) {
+], function () {
 
   var $ = jQuery;
 

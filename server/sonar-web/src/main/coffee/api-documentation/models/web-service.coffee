@@ -1,8 +1,4 @@
-define [
-  'backbone'
-], (
-  Backbone
-) ->
+define ->
 
   class WebService extends Backbone.Model
     idAttribute: 'path'

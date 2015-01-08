@@ -1,8 +1,8 @@
 define([
     'common/popup',
-    'templates/coding-rules',
-    'coding-rules/bulk-change-modal-view'
-], function (PopupView, Templates, BulkChangeModalView) {
+    'coding-rules/bulk-change-modal-view',
+    'templates/coding-rules'
+], function (PopupView, BulkChangeModalView) {
 
   var $ = jQuery;
 

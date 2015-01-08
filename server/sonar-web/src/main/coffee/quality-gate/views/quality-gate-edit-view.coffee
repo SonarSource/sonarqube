@@ -1,10 +1,6 @@
 define [
-  'backbone.marionette',
   'templates/quality-gates'
-], (
-  Marionette,
-  Templates
-) ->
+], ->
 
   class QualityGateEditView extends Marionette.ItemView
     template: Templates['quality-gate-edit']

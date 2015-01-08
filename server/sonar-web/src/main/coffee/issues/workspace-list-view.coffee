@@ -1,11 +1,10 @@
 define [
   'components/navigator/workspace-list-view'
-  'templates/issues'
   'issues/workspace-list-item-view'
   'issues/workspace-list-empty-view'
+  'templates/issues'
 ], (
   WorkspaceListView
-  Templates
   IssueView
   EmptyView
 ) ->

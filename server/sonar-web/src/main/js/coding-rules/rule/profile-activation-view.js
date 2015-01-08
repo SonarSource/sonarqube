@@ -1,7 +1,7 @@
 define([
   'common/modals',
   'templates/coding-rules'
-], function (Modal, Templates) {
+], function (Modal) {
 
   var $ = jQuery;
 

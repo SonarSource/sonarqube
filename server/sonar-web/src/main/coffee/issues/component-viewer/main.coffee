@@ -1,14 +1,9 @@
 define [
-  'backbone'
-  'backbone.marionette'
-  'templates/issues'
   'source-viewer/viewer'
   'issues/models/issues'
   'issues/component-viewer/issue-view'
+  'templates/issues'
 ], (
-  Backbone
-  Marionette
-  Templates
   SourceViewer
   Issues
   IssueView

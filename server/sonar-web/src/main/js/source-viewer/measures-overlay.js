@@ -1,7 +1,7 @@
 define([
   'common/modals',
   'templates/source-viewer'
-], function (ModalView, Templates) {
+], function (ModalView) {
 
   var $ = jQuery;
 

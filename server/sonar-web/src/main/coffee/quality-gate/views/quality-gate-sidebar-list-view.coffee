@@ -1,9 +1,7 @@
 define [
-  'backbone.marionette',
   'quality-gate/views/quality-gate-sidebar-list-item-view',
   'quality-gate/views/quality-gate-sidebar-list-empty-view'
 ], (
-  Marionette,
   QualityGateSidebarListItemView,
   QualityGateSidebarListEmptyView,
 ) ->

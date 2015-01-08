@@ -1,8 +1,4 @@
-define [
-  'backbone'
-], (
-  Backbone
-) ->
+define ->
 
   class Issue extends Backbone.Model
     idAttribute: 'key'

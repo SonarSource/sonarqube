@@ -1,11 +1,7 @@
 define [
-  'backbone.marionette',
+  'common/select-list'
   'templates/quality-gates'
-  'select-list'
-], (
-  Marionette,
-  Templates
-) ->
+], ->
 
   class QualityGateDetailProjectsView extends Marionette.ItemView
     template: Templates['quality-gate-detail-projects']

@@ -1,6 +1,4 @@
-define([
-    'backbone.marionette'
-], function (Marionette) {
+define(function () {
 
   var $ = jQuery;
 

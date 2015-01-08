@@ -1,39 +1,13 @@
 requirejs.config({
-  baseUrl: baseUrl + '/js',
-
-  paths: {
-    'backbone': 'third-party/backbone',
-    'backbone.marionette': 'third-party/backbone.marionette',
-    'handlebars': 'third-party/handlebars'
-  },
-
-  shim: {
-    'backbone.marionette': {
-      deps: ['backbone'],
-      exports: 'Marionette'
-    },
-    'backbone': {
-      exports: 'Backbone'
-    },
-    'handlebars': {
-      exports: 'Handlebars'
-    }
-  }
+  baseUrl: baseUrl + '/js'
 });
 
 
 requirejs([
-  'backbone',
-  'backbone.marionette',
-
   'coding-rules/models/rule',
-  'coding-rules/rule-details-view',
-
-  'common/handlebars-extensions'
+  'coding-rules/rule-details-view'
 ],
-    function (Backbone,
-              Marionette,
-              Rule,
+    function (Rule,
               RuleDetailsView) {
 
       var $ = jQuery,

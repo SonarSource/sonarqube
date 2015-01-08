@@ -1,8 +1,7 @@
 define [
-  'templates/issue'
   'common/popup'
+  'templates/issue'
 ], (
-  Templates
   PopupView
 ) ->
 

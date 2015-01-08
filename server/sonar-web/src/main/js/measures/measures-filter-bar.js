@@ -1,7 +1,9 @@
-define(['navigator/filters/filter-bar', 'common/handlebars-extensions'], function (FilterBarView) {
+define(['navigator/filters/filter-bar'], function (FilterBarView) {
 
   return FilterBarView.extend({
-    template: getTemplate('#filter-bar-template')
+    template: function () {
+      return jQuery('#filter-bar-template').html();
+    }
   });
 
 });

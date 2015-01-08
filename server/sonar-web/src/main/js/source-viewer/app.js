@@ -1,29 +1,11 @@
 requirejs.config({
-  baseUrl: baseUrl + '/js',
-  paths: {
-    'backbone': 'third-party/backbone',
-    'backbone.marionette': 'third-party/backbone.marionette',
-    'handlebars': 'third-party/handlebars'
-  },
-  shim: {
-    'backbone.marionette': {
-      deps: ['backbone'],
-      exports: 'Marionette'
-    },
-    'backbone': {
-      exports: 'Backbone'
-    },
-    'handlebars': {
-      exports: 'Handlebars'
-    }
-  }
+  baseUrl: baseUrl + '/js'
 });
 
 requirejs([
-  'backbone.marionette',
   'source-viewer/viewer'
 
-], function (Marionette, SourceViewer) {
+], function (SourceViewer) {
 
   var App = new Marionette.Application();
 

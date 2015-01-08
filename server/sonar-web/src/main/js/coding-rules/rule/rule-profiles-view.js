@@ -1,9 +1,8 @@
 define([
-  'backbone.marionette',
-  'templates/coding-rules',
   'coding-rules/rule/rule-profile-view',
-  'coding-rules/rule/profile-activation-view'
-], function (Marionette, Templates, ProfileView, ProfileActivationView) {
+  'coding-rules/rule/profile-activation-view',
+  'templates/coding-rules'
+], function (ProfileView, ProfileActivationView) {
 
   return Marionette.CompositeView.extend({
     template: Templates['coding-rules-rule-profiles'],

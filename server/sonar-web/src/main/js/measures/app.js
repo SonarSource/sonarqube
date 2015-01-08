@@ -1,30 +1,9 @@
 requirejs.config({
-  baseUrl: baseUrl + '/js',
-
-  paths: {
-    'backbone': 'third-party/backbone',
-    'backbone.marionette': 'third-party/backbone.marionette',
-    'handlebars': 'third-party/handlebars'
-  },
-
-  shim: {
-    'backbone.marionette': {
-      deps: ['backbone'],
-      exports: 'Marionette'
-    },
-    'backbone': {
-      exports: 'Backbone'
-    },
-    'handlebars': {
-      exports: 'Handlebars'
-    }
-  }
-
+  baseUrl: baseUrl + '/js'
 });
 
 requirejs(
     [
-      'backbone', 'backbone.marionette',
       'measures/measures-filter-bar',
       'navigator/filters/base-filters',
       'navigator/filters/checkbox-filters',
@@ -35,7 +14,7 @@ requirejs(
       'navigator/filters/string-filters',
       'navigator/filters/metric-filters'
     ],
-    function (Backbone, Marionette, FilterBar, BaseFilters, CheckboxFilterView, ChoiceFilters, AjaxSelectFilters,
+    function (FilterBar, BaseFilters, CheckboxFilterView, ChoiceFilters, AjaxSelectFilters,
               FavoriteFilters, RangeFilters, StringFilterView, MetricFilterView) {
 
       var NavigatorApp = new Marionette.Application();

@@ -1,12 +1,10 @@
 define(
     [
-      'backbone.marionette',
       'navigator/filters/base-filters',
       'navigator/filters/more-criteria-filters',
-      'navigator/filters/favorite-filters',
-      'common/handlebars-extensions'
+      'navigator/filters/favorite-filters'
     ],
-    function (Marionette, BaseFilters) {
+    function (BaseFilters) {
 
       return Marionette.CompositeView.extend({
         itemViewContainer: '.navigator-filters-list',

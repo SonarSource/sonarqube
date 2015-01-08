@@ -1,10 +1,7 @@
 define [
-  'backbone.marionette',
-  'templates/quality-gates',
   'quality-gate/models/quality-gate'
+  'templates/quality-gates',
 ], (
-  Marionette,
-  Templates
   QualityGate
 ) ->
 

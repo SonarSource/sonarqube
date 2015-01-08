@@ -1,34 +1,12 @@
 requirejs.config
   baseUrl: "#{baseUrl}/js"
 
-  paths:
-    'jquery': 'third-party/jquery'
-    'backbone': 'third-party/backbone'
-    'backbone.marionette': 'third-party/backbone.marionette'
-    'handlebars': 'third-party/handlebars'
-    'moment': 'third-party/moment'
-
-  shim:
-    'backbone.marionette':
-      deps: ['backbone']
-      exports: 'Marionette'
-    'backbone':
-      exports: 'Backbone'
-    'handlebars':
-      exports: 'Handlebars'
-    'moment':
-      exports: 'moment'
-
-
 requirejs [
-  'backbone', 'backbone.marionette', 'handlebars',
   'api-documentation/collections/web-services',
   'api-documentation/views/api-documentation-list-view',
   'api-documentation/router',
-  'api-documentation/layout',
-  'common/handlebars-extensions'
+  'api-documentation/layout'
 ], (
-  Backbone, Marionette, Handlebars,
   WebServices,
   ApiDocumentationListView,
   ApiDocumentationRouter,

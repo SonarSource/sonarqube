@@ -1,9 +1,8 @@
 define([
-  'backbone.marionette',
-  'templates/source-viewer',
   'common/popup',
-  'issue/manual-issue-view'
-], function (Marionette, Templates, Popup, ManualIssueView) {
+  'issue/manual-issue-view',
+  'templates/source-viewer'
+], function (Popup, ManualIssueView) {
 
   return Popup.extend({
     template: Templates['source-viewer-line-options-popup'],

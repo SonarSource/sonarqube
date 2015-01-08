@@ -1,8 +1,4 @@
-define [
-  'backbone.marionette'
-], (
-  Marionette
-) ->
+define ->
 
   class extends Marionette.ItemView
     className: 'search-navigator-no-results'

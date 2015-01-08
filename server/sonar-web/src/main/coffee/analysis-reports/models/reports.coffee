@@ -1,8 +1,6 @@
 define [
-  'backbone'
   'analysis-reports/models/report'
 ], (
-  Backbone
   Report
 ) ->
 

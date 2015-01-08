@@ -1,8 +1,7 @@
 define [
-  'templates/issue'
   'issue/views/action-options-view'
+  'templates/issue'
 ], (
-  Templates
   ActionOptionsView
 ) ->
 

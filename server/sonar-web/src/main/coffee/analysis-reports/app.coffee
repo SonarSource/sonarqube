@@ -1,33 +1,14 @@
 requirejs.config
   baseUrl: "#{baseUrl}/js"
 
-  paths:
-    'backbone': 'third-party/backbone'
-    'backbone.marionette': 'third-party/backbone.marionette'
-    'handlebars': 'third-party/handlebars'
-
-  shim:
-    'backbone.marionette':
-      deps: ['backbone']
-      exports: 'Marionette'
-    'backbone':
-      exports: 'Backbone'
-    'handlebars':
-      exports: 'Handlebars'
-
 
 requirejs [
-  'backbone', 'backbone.marionette'
-
   'analysis-reports/router'
   'analysis-reports/layout'
   'analysis-reports/models/reports'
   'analysis-reports/views/reports-view'
   'analysis-reports/views/actions-view'
-
-  'common/handlebars-extensions'
 ], (
-  Backbone, Marionette
   Router
   Layout
   Reports

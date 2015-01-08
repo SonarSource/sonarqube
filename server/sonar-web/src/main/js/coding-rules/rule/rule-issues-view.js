@@ -1,7 +1,6 @@
 define([
-  'backbone.marionette',
   'templates/coding-rules'
-], function (Marionette, Templates) {
+], function () {
 
   var $ = jQuery;
 

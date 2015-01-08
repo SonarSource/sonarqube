@@ -1,9 +1,6 @@
 define([
-  'backbone',
-  'backbone.marionette',
-  'templates/navigator',
-  'common/handlebars-extensions'
-], function (Backbone, Marionette, Templates) {
+  'templates/navigator'
+], function () {
 
   var Filter = Backbone.Model.extend({
 

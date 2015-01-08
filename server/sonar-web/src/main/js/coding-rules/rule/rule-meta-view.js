@@ -1,7 +1,6 @@
 define([
-  'backbone.marionette',
   'templates/coding-rules'
-], function (Marionette, Templates) {
+], function () {
 
   return Marionette.ItemView.extend({
     template: Templates['coding-rules-rule-meta'],

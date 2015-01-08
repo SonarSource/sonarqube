@@ -1,8 +1,6 @@
 define [
-  'backbone'
   'issues/models/filter'
 ], (
-  Backbone
   Filter
 ) ->
 

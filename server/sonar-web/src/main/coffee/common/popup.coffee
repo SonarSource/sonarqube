@@ -1,8 +1,4 @@
-define [
-  'backbone.marionette'
-], (
-  Marionette
-) ->
+define ->
 
   $ = jQuery
 

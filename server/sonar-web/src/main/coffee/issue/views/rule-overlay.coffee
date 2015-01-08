@@ -3,7 +3,6 @@ define [
   'templates/issue'
 ], (
   ModalView
-  Templates
 ) ->
 
   class extends ModalView

@@ -1,8 +1,7 @@
 define([
   'navigator/filters/base-filters',
-  'templates/navigator',
-  'common/handlebars-extensions'
-], function (BaseFilters, Templates) {
+  'templates/navigator'
+], function (BaseFilters) {
 
   var DetailsMetricFilterView = BaseFilters.DetailsFilterView.extend({
     template: Templates['metric-filter'],

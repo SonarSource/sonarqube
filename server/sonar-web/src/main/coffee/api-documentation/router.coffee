@@ -1,9 +1,7 @@
 define [
-  'backbone',
   'api-documentation/collections/web-service-actions',
   'api-documentation/views/api-documentation-actions-list-view',
 ], (
-  Backbone,
   WebServiceActions,
   ApiDocumentationActionsListView
 ) ->

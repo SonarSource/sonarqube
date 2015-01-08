@@ -1,9 +1,7 @@
 define [
-  'backbone.marionette'
   'analysis-reports/views/report-view'
   'analysis-reports/views/reports-empty-view'
 ], (
-  Marionette
   ReportView
   EmptyView
 ) ->

@@ -1,10 +1,8 @@
 define([
-  'backbone',
   'navigator/filters/base-filters',
   'navigator/filters/choice-filters',
-  'templates/navigator',
-  'common/handlebars-extensions'
-], function (Backbone, BaseFilters, ChoiceFilters, Templates) {
+  'templates/navigator'
+], function (BaseFilters, ChoiceFilters) {
 
   var PAGE_SIZE = 100;
 
@@ -98,7 +96,7 @@ define([
 
   var AjaxSelectDetailsFilterView = ChoiceFilters.DetailsChoiceFilterView.extend({
     template: Templates['ajax-select-filter'],
-    listTemplate: getTemplate('#choice-filter-template'),
+    listTemplate: Templates['choice-filter-template'],
     searchKey: 's',
 
 

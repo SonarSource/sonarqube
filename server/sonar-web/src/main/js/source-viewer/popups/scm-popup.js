@@ -1,8 +1,7 @@
 define([
-  'backbone.marionette',
-  'templates/source-viewer',
-  'common/popup'
-], function (Marionette, Templates, Popup) {
+  'common/popup',
+  'templates/source-viewer'
+], function (Popup) {
 
   return Popup.extend({
     template: Templates['source-viewer-scm-popup'],

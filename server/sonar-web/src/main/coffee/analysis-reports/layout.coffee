@@ -1,13 +1,10 @@
 define [
-  'backbone.marionette',
   'templates/analysis-reports'
-], (
-  Marionette,
-  Templates
-) ->
+], ->
 
   class extends Marionette.Layout
     template: Templates['analysis-reports-layout']
+
 
 
     regions:

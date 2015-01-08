@@ -1,7 +1,7 @@
 define([
     'components/navigator/facets/base-facet',
     'templates/coding-rules'
-], function (BaseFacet, Templates) {
+], function (BaseFacet) {
 
   return BaseFacet.extend({
     className: 'search-navigator-facet-box',

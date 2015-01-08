@@ -1,10 +1,6 @@
 define [
-  'backbone.marionette'
   'templates/libraries'
-], (
-  Marionette,
-  Templates
-) ->
+], ->
 
   $ = jQuery
 

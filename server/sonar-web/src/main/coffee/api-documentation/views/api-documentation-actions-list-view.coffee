@@ -1,11 +1,8 @@
 define [
-  'backbone.marionette',
-  'templates/api-documentation'
-  'api-documentation/models/web-service-action',
+  'api-documentation/models/web-service-action'
   'api-documentation/views/api-documentation-action-view'
+  'templates/api-documentation'
 ], (
-  Marionette,
-  Templates
   WebServiceAction,
   ApiDocumentationActionView
 ) ->

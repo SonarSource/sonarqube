@@ -1,10 +1,6 @@
 define [
-  'backbone.marionette'
   'templates/issue'
-], (
-  Marionette
-  Templates
-) ->
+], ->
 
   $ = jQuery
   API_ISSUE = "#{baseUrl}/api/issues/show"

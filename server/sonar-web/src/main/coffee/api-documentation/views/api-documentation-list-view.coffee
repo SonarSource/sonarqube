@@ -1,8 +1,6 @@
 define [
-  'backbone.marionette',
   'api-documentation/views/api-documentation-web-service-view'
 ], (
-  Marionette,
   ApiDocumentationWebServiceView
 ) ->
 

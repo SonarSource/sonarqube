@@ -1,8 +1,7 @@
 define([
-  'backbone',
   'navigator/filters/base-filters',
   'navigator/filters/choice-filters'
-], function (Backbone, BaseFilters, ChoiceFilters) {
+], function (BaseFilters, ChoiceFilters) {
 
   return ChoiceFilters.ChoiceFilterView.extend({
 

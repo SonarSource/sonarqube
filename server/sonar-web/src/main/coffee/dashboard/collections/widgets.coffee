@@ -1,8 +1,6 @@
 define [
-  'backbone'
   'dashboard/models/widget'
 ], (
-  Backbone
   Widget
 ) ->
 

@@ -1,19 +1,8 @@
 requirejs.config({
-  baseUrl: baseUrl + '/js',
-
-  paths: {
-    'backbone': 'third-party/backbone'
-  },
-
-  shim: {
-    'backbone': {
-      exports: 'Backbone'
-    }
-  }
-
+  baseUrl: baseUrl + '/js'
 });
 
-requirejs(['backbone'], function (Backbone) {
+requirejs(function () {
 
   (function ($) {
 

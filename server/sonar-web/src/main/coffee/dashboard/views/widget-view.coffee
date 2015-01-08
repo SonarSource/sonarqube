@@ -1,8 +1,6 @@
 define [
-  'backbone.marionette'
   'templates/dashboard'
 ], (
-  Marionette
   Templates
 ) ->
 

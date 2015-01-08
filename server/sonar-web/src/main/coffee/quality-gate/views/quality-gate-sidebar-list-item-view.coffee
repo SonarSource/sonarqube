@@ -1,10 +1,6 @@
 define [
-  'backbone.marionette',
   'templates/quality-gates'
-], (
-  Marionette,
-  Templates
-) ->
+], ->
 
   class QualityGateSidebarListItemView extends Marionette.ItemView
     tagName: 'li'

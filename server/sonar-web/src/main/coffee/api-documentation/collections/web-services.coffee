@@ -1,8 +1,6 @@
 define [
-  'backbone',
   'api-documentation/models/web-service'
 ], (
-  Backbone,
   WebService
 ) ->
 

@@ -1,26 +1,4 @@
-/* jshint eqeqeq:false */
-
-requirejs.config({
-  paths: {
-    'handlebars': 'third-party/handlebars'
-  },
-
-  shim: {
-    'handlebars': {
-      exports: 'Handlebars'
-    }
-  }
-});
-
-define(['handlebars'], function (Handlebars) {
-
-  /*
-   * Shortcut for templates retrieving
-   */
-  window.getTemplate = function(templateSelector) {
-    return Handlebars.compile(jQuery(templateSelector).html() || '');
-  };
-
+(function () {
   var defaultActions = ['comment', 'assign', 'assign_to_me', 'plan', 'set_severity', 'set_tags'];
 
   Handlebars.registerHelper('log', function() {
@@ -453,4 +431,12 @@ define(['handlebars'], function (Handlebars) {
     return component.projectName + (component.subProjectName ? (' / ' + component.subProjectName) : '');
   });
 
-});
+  Handlebars.registerHelper('repeat', function (number, options) {
+    var ret = '';
+    for (var i = 0; i < number; i++) {
+      ret += options.fn(this);
+    }
+    return ret;
+  });
+
+})();

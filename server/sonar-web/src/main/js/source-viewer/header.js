@@ -1,9 +1,8 @@
 define([
-  'backbone.marionette',
-  'templates/source-viewer',
   'source-viewer/more-actions',
-  'source-viewer/measures-overlay'
-], function (Marionette, Templates, MoreActionsView, MeasuresOverlay) {
+  'source-viewer/measures-overlay',
+  'templates/source-viewer'
+], function (MoreActionsView, MeasuresOverlay) {
 
   var $ = jQuery,
       API_FAVORITE = baseUrl + '/api/favourites';

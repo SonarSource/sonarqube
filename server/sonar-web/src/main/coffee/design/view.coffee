@@ -1,11 +1,8 @@
 define [
-  'backbone.marionette',
   'design/info-view',
   'templates/design'
 ], (
-  Marionette,
   InfoView
-  Templates
 ) ->
 
   $ = jQuery

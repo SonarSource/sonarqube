@@ -1,31 +1,9 @@
 requirejs.config({
-  baseUrl: baseUrl + '/js',
-
-  paths: {
-    'backbone': 'third-party/backbone',
-    'backbone.marionette': 'third-party/backbone.marionette',
-    'handlebars': 'third-party/handlebars'
-  },
-
-  shim: {
-    'backbone.marionette': {
-      deps: ['backbone'],
-      exports: 'Marionette'
-    },
-    'backbone': {
-      exports: 'Backbone'
-    },
-    'handlebars': {
-      exports: 'Handlebars'
-    }
-  }
+  baseUrl: baseUrl + '/js'
 });
 
 
 requirejs([
-  'backbone',
-  'backbone.marionette',
-
   'coding-rules/models/state',
   'coding-rules/layout',
   'coding-rules/models/rules',
@@ -38,13 +16,9 @@ requirejs([
   'coding-rules//workspace-header-view',
 
   'coding-rules/facets-view',
-  'coding-rules/filters-view',
-
-  'common/handlebars-extensions'
+  'coding-rules/filters-view'
 ],
-    function (Backbone,
-              Marionette,
-              State,
+    function (State,
               Layout,
               Rules,
               Facets,

@@ -1,6 +1,4 @@
-define([
-    'backbone.marionette'
-], function (Marionette) {
+define(function () {
 
   return Marionette.ItemView.extend({
     className: 'search-navigator-no-results',

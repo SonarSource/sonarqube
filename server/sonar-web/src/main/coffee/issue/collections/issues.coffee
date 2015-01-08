@@ -1,8 +1,6 @@
 define [
-  'backbone'
   'issue/models/issue'
 ], (
-  Backbone
   Issue
 ) ->
 

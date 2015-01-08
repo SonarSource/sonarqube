@@ -1,7 +1,7 @@
 define([
   'components/navigator/workspace-list-item-view',
   'templates/coding-rules'
-], function (WorkspaceListItemView, Templates) {
+], function (WorkspaceListItemView) {
 
   return WorkspaceListItemView.extend({
     className: 'coding-rule',

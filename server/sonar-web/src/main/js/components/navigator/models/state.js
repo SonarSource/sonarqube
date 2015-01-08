@@ -1,6 +1,4 @@
-define([
-    'backbone'
-], function (Backbone) {
+define(function () {
 
   return Backbone.Model.extend({
     defaults: {

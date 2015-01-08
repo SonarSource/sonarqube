@@ -1,9 +1,9 @@
 define([
   'components/navigator/workspace-list-view',
-  'templates/coding-rules',
   'coding-rules/workspace-list-item-view',
-  'coding-rules/workspace-list-empty-view'
-], function (WorkspaceListView, Templates, WorkspaceListItemView, WorkspaceListEmptyView) {
+  'coding-rules/workspace-list-empty-view',
+  'templates/coding-rules'
+], function (WorkspaceListView, WorkspaceListItemView, WorkspaceListEmptyView) {
 
   var $ = jQuery;
 

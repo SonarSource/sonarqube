@@ -1,7 +1,7 @@
 define([
     'common/modal-form',
     'templates/coding-rules'
-], function (ModalFormView, Templates) {
+], function (ModalFormView) {
 
   var $ = jQuery;
 

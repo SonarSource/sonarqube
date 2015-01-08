@@ -1,9 +1,8 @@
 define([
-  'backbone.marionette',
-  'templates/coding-rules',
   'coding-rules/rule/custom-rule-view',
-  'coding-rules/rule/custom-rule-creation-view'
-], function (Marionette, Templates, CustomRuleView, CustomRuleCreationView) {
+  'coding-rules/rule/custom-rule-creation-view',
+  'templates/coding-rules'
+], function (CustomRuleView, CustomRuleCreationView) {
 
   return Marionette.CompositeView.extend({
     template: Templates['coding-rules-custom-rules'],

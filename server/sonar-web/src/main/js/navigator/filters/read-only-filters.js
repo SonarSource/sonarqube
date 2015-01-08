@@ -1,4 +1,4 @@
-define(['backbone', 'navigator/filters/base-filters'], function (Backbone, BaseFilters) {
+define(['navigator/filters/base-filters'], function (BaseFilters) {
 
   return BaseFilters.BaseFilterView.extend({
     className: 'navigator-filter navigator-filter-read-only',
