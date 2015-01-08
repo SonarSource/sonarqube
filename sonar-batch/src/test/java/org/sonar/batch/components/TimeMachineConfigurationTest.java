@@ -46,11 +46,12 @@ public class TimeMachineConfigurationTest extends AbstractDbUnitTestCase {
   public void get_project_past_snapshot() {
     Snapshot projectSnapshot = new Snapshot();
     projectSnapshot.setId(1010);
+    projectSnapshot.setResourceId(1);
     PastSnapshot projectPastSnapshot = new PastSnapshot("mode", new Date(), projectSnapshot);
 
     when(periodsDefinition.getRootProjectPastSnapshots()).thenReturn(newArrayList(projectPastSnapshot));
 
-    TimeMachineConfiguration timeMachineConfiguration = new TimeMachineConfiguration(getSession(), (Project) new Project("my:project").setId(1), periodsDefinition);
+    TimeMachineConfiguration timeMachineConfiguration = new TimeMachineConfiguration(getSession(), (Project) new Project("my:project"), periodsDefinition);
     assertThat(timeMachineConfiguration.periods()).hasSize(1);
     assertThat(timeMachineConfiguration.periods().get(0).getDate()).isNotNull();
     assertThat(timeMachineConfiguration.getProjectPastSnapshots()).hasSize(1);
@@ -61,11 +62,12 @@ public class TimeMachineConfigurationTest extends AbstractDbUnitTestCase {
   public void get_module_past_snapshot() {
     Snapshot projectSnapshot = new Snapshot();
     projectSnapshot.setId(1010);
+    projectSnapshot.setResourceId(2);
     PastSnapshot projectPastSnapshot = new PastSnapshot("mode", new Date(), projectSnapshot);
 
     when(periodsDefinition.getRootProjectPastSnapshots()).thenReturn(newArrayList(projectPastSnapshot));
 
-    TimeMachineConfiguration timeMachineConfiguration = new TimeMachineConfiguration(getSession(), (Project) new Project("my:module").setId(2), periodsDefinition);
+    TimeMachineConfiguration timeMachineConfiguration = new TimeMachineConfiguration(getSession(), (Project) new Project("my:module"), periodsDefinition);
     assertThat(timeMachineConfiguration.periods()).hasSize(1);
     assertThat(timeMachineConfiguration.periods().get(0).getDate()).isNotNull();
     assertThat(timeMachineConfiguration.getProjectPastSnapshots()).hasSize(1);
