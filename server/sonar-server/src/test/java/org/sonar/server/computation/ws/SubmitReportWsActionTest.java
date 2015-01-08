@@ -20,14 +20,13 @@
 
 package org.sonar.server.computation.ws;
 
-import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.server.computation.AnalysisReportQueue;
 import org.sonar.server.computation.AnalysisReportTaskLauncher;
+import org.sonar.server.ws.WsTester;
 
 import java.io.InputStream;
 
@@ -39,15 +38,16 @@ public class SubmitReportWsActionTest {
   private static final String DEFAULT_PROJECT_KEY = "123456789-987654321";
   private SubmitReportWsAction sut;
 
-  private AnalysisReportTaskLauncher analysisTaskLauncher;
+  private WsTester wsTester;
+  private AnalysisReportTaskLauncher taskLauncher;
   private AnalysisReportQueue queue;
 
   @Before
   public void before() {
-    analysisTaskLauncher = mock(AnalysisReportTaskLauncher.class);
+    taskLauncher = mock(AnalysisReportTaskLauncher.class);
     queue = mock(AnalysisReportQueue.class);
-
-    sut = new SubmitReportWsAction(queue, analysisTaskLauncher);
+    sut = new SubmitReportWsAction(queue, taskLauncher);
+    wsTester = new WsTester(new ComputationWebService(sut));
   }
 
   @Test
@@ -64,18 +64,30 @@ public class SubmitReportWsActionTest {
 
   @Test
   public void add_element_to_queue_and_launch_analysis_task() throws Exception {
-    Response response = mock(Response.class);
-    Request request = mock(Request.class);
+    AnalysisReportDto report = AnalysisReportDto.newForTests(123L);
+    when(queue.add(any(String.class), anyLong(), any(InputStream.class))).thenReturn(report);
 
-    when(request.mandatoryParam(SubmitReportWsAction.PARAM_PROJECT_KEY)).thenReturn(DEFAULT_PROJECT_KEY);
-    when(request.mandatoryParamAsLong(SubmitReportWsAction.PARAM_SNAPSHOT)).thenReturn(123L);
-    InputStream reportData = IOUtils.toInputStream("report-data");
-    when(request.paramAsInputStream(SubmitReportWsAction.PARAM_REPORT_DATA)).thenReturn(reportData);
+    WsTester.TestRequest request = wsTester
+      .newGetRequest(ComputationWebService.API_ENDPOINT, "submit_report")
+      .setParam(SubmitReportWsAction.PARAM_PROJECT_KEY, "789-123")
+      .setParam(SubmitReportWsAction.PARAM_SNAPSHOT, "456")
+      .setParam(SubmitReportWsAction.PARAM_REPORT_DATA, null);
+    request.execute();
 
-    sut.handle(request, response);
-
-    verify(queue).add(DEFAULT_PROJECT_KEY, 123L, reportData);
-    verify(analysisTaskLauncher).startAnalysisTaskNow();
+    verify(queue).add(eq("789-123"), eq(456L), any(InputStream.class));
+    verify(taskLauncher).startAnalysisTaskNow();
   }
 
+  @Test
+  public void return_report_key() throws Exception {
+    AnalysisReportDto report = AnalysisReportDto.newForTests(123L);
+    when(queue.add(any(String.class), anyLong(), any(InputStream.class))).thenReturn(report);
+
+    WsTester.TestRequest request = wsTester
+      .newPostRequest(ComputationWebService.API_ENDPOINT, "submit_report")
+      .setParam(SubmitReportWsAction.PARAM_PROJECT_KEY, "789")
+      .setParam(SubmitReportWsAction.PARAM_SNAPSHOT, "456")
+      .setParam(SubmitReportWsAction.PARAM_REPORT_DATA, null);
+    request.execute().assertJson(getClass(), "submit_report.json", false);
+  }
 }

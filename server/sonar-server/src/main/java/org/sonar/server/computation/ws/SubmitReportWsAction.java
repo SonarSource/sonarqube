@@ -24,6 +24,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.server.computation.AnalysisReportQueue;
 import org.sonar.server.computation.AnalysisReportTaskLauncher;
 
@@ -75,8 +76,13 @@ public class SubmitReportWsAction implements ComputationWsAction, RequestHandler
     String projectKey = request.mandatoryParam(PARAM_PROJECT_KEY);
     long snapshotId = request.mandatoryParamAsLong(PARAM_SNAPSHOT);
     try (InputStream reportData = request.paramAsInputStream(PARAM_REPORT_DATA)) {
-      queue.add(projectKey, snapshotId, reportData);
+      AnalysisReportDto report = queue.add(projectKey, snapshotId, reportData);
       taskLauncher.startAnalysisTaskNow();
+      response.newJsonWriter()
+        .beginObject()
+        .prop("key", report.getId())
+        .endObject()
+        .close();
     }
   }
 }

@@ -24,6 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.core.computation.db.AnalysisReportDto;
 
+import javax.annotation.CheckForNull;
+
 public class AnalysisReportTask implements Runnable {
   private static final Logger LOG = LoggerFactory.getLogger(AnalysisReportTask.class);
 
@@ -37,15 +39,29 @@ public class AnalysisReportTask implements Runnable {
 
   @Override
   public void run() {
-    AnalysisReportDto report = queue.bookNextAvailable();
+    AnalysisReportDto report = bookNextAvailableReport();
     if (report != null) {
-      try {
-        service.analyzeReport(report);
-      } catch (Exception exception) {
-        LOG.error(String.format("Analysis of report %s failed", report), exception);
-      } finally {
-        removeSilentlyFromQueue(report);
-      }
+      analyzeReport(report);
+    }
+  }
+
+  private void analyzeReport(AnalysisReportDto report) {
+    try {
+      service.analyzeReport(report);
+    } catch (Exception exception) {
+      LOG.error(String.format("Analysis of report %s failed", report), exception);
+    } finally {
+      removeSilentlyFromQueue(report);
+    }
+  }
+
+  @CheckForNull
+  private AnalysisReportDto bookNextAvailableReport() {
+    try {
+      return queue.bookNextAvailable();
+    } catch (Exception e) {
+      LOG.error("Booking next available analysis report failed", e);
+      return null;
     }
   }
 
