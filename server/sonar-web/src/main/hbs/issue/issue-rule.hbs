@@ -1,25 +1,27 @@
-<h3 class="coding-rules-detail-header">
-  {{name}}
-  <a class="coding-rules-detail-permalink" target="_blank" href="{{permalink}}">
-    <i class="icon-link"></i> {{t 'coding_rules.permalink'}}
-  </a>
-</h3>
+<div class="modal-container">
+  <h3 class="coding-rules-detail-header">
+    {{name}}
+    <a class="coding-rules-detail-permalink" target="_blank" href="{{permalink}}">
+      <i class="icon-link"></i> {{t 'coding_rules.permalink'}}
+    </a>
+  </h3>
 
-<span class="subtitle">{{key}}</span>
+  <span class="subtitle">{{key}}</span>
 
-<ul class="coding-rules-detail-properties">
-  <li class="coding-rules-detail-property coding-rules-detail-tag-list">
-    <i class="icon-tags"></i>
-    <span>{{#if allTags}}{{join allTags ', '}}{{else}}{{t 'coding_rules.no_tags'}}{{/if}}</span>
-  </li>
-  {{#if debtCharName}}
-    <li class="coding-rules-detail-property">{{debtCharName}}{{#if debtSubCharName}} > {{debtSubCharName}}{{/if}}</li>
-  {{/if}}
-</ul>
+  <ul class="coding-rules-detail-properties">
+    <li class="coding-rules-detail-property coding-rules-detail-tag-list">
+      <i class="icon-tags"></i>
+      <span>{{#if allTags}}{{join allTags ', '}}{{else}}{{t 'coding_rules.no_tags'}}{{/if}}</span>
+    </li>
+    {{#if debtCharName}}
+      <li class="coding-rules-detail-property">{{debtCharName}}{{#if debtSubCharName}} > {{debtSubCharName}}{{/if}}</li>
+    {{/if}}
+  </ul>
 
 
-<div class="coding-rules-detail-description rule-desc markdown">{{{htmlDesc}}}</div>
+  <div class="coding-rules-detail-description rule-desc markdown">{{{htmlDesc}}}</div>
+</div>
 
 <div class="modal-foot">
-  <a class="overlay-popup-close" title="{{t 'close'}}">{{t 'close'}}</a>
+  <a class="js-modal-close" title="{{t 'close'}}">{{t 'close'}}</a>
 </div>

@@ -265,6 +265,7 @@ define [
       $.get "#{baseUrl}/api/rules/show", key: ruleKey, (r) =>
         ruleOverlay = new RuleOverlay
           model: new Backbone.Model r.rule
+          large: true
         ruleOverlay.render()
 
 

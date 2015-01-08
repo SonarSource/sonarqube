@@ -68,8 +68,10 @@ define([
     },
 
     showMeasures: function () {
-      var overlay = new MeasuresOverlay({ model: this.model });
-      overlay.show();
+      new MeasuresOverlay({
+        model: this.model,
+        large: true
+      }).render();
     }
   });
 

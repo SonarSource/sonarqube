@@ -26,6 +26,9 @@ define(['backbone.marionette'], function (Marionette) {
         return false;
       });
       this.show();
+      if (!!this.options.large) {
+        this.$el.addClass('modal-large');
+      }
     },
 
     show: function () {

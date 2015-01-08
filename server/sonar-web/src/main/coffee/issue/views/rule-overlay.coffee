@@ -1,12 +1,12 @@
 define [
-  'common/overlay'
+  'common/modals'
   'templates/issue'
 ], (
-  Overlay
+  ModalView
   Templates
 ) ->
 
-  class extends Overlay
+  class extends ModalView
     template: Templates['issue-rule']
 
 

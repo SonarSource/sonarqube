@@ -15,6 +15,11 @@
   opacity: 1;
 }
 
+.modal-large {
+  width: 1080px;
+  margin-left: -540px;
+}
+
 .modal-overlay {
   position: fixed;
   z-index: 8999;
@@ -30,4 +35,12 @@
 
 .modal-open {
   overflow: hidden;
+}
+
+.modal-container {
+  max-height: 70vh;
+  padding: 10px;
+  .box-sizing(border-box);
+  overflow-x: hidden;
+  overflow-y: scroll;
 }

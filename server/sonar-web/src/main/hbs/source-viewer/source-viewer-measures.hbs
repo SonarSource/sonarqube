@@ -1,60 +1,62 @@
-<div class="source-viewer-header-component source-viewer-measures-component">
-  {{#unless removed}}
-    {{#if projectName}}
-      <div class="source-viewer-header-component-project">
-        {{qualifierIcon 'TRK'}}&nbsp;<a href="{{dashboardUrl project}}">{{projectName}}</a>
-        {{#if subProjectName}}
-          &nbsp;&nbsp;&nbsp;
-          {{qualifierIcon 'TRK'}}&nbsp;<a href="{{dashboardUrl subProject}}">{{subProjectName}}</a>
-        {{/if}}
+<div class="modal-container source-viewer-measures-modal">
+  <div class="source-viewer-header-component source-viewer-measures-component">
+    {{#unless removed}}
+      {{#if projectName}}
+        <div class="source-viewer-header-component-project">
+          {{qualifierIcon 'TRK'}}&nbsp;<a href="{{dashboardUrl project}}">{{projectName}}</a>
+          {{#if subProjectName}}
+            &nbsp;&nbsp;&nbsp;
+            {{qualifierIcon 'TRK'}}&nbsp;<a href="{{dashboardUrl subProject}}">{{subProjectName}}</a>
+          {{/if}}
+        </div>
+      {{/if}}
+
+      <div class="source-viewer-header-component-name">
+        {{qualifierIcon q}} {{default path longName}}
       </div>
-    {{/if}}
+    {{else}}
+      <div class="source-viewer-header-component-project removed">{{removedMessage}}</div>
+    {{/unless}}
+  </div>
 
-    <div class="source-viewer-header-component-name">
-      {{qualifierIcon q}} {{default path longName}}
-    </div>
-  {{else}}
-    <div class="source-viewer-header-component-project removed">{{removedMessage}}</div>
-  {{/unless}}
-</div>
-
-<div class="source-viewer-measures">
-  {{#unless isUnitTest}}
-    <div class="source-viewer-measures-section">
-      <div class="source-viewer-measures-card">
-        {{> '_source-viewer-measures-lines'}}
-      </div>
-    </div>
-
-    <div class="source-viewer-measures-section">
-      {{> '_source-viewer-measures-issues'}}
-    </div>
-
-    {{#any measures.coverage measures.it_coverage}}
+  <div class="source-viewer-measures">
+    {{#unless isUnitTest}}
       <div class="source-viewer-measures-section">
         <div class="source-viewer-measures-card">
-          {{> '_source-viewer-measures-coverage'}}
+          {{> '_source-viewer-measures-lines'}}
         </div>
       </div>
-    {{/any}}
 
-    <div class="source-viewer-measures-section">
-      {{> '_source-viewer-measures-duplications'}}
-    </div>
-  {{else}}
-    <div class="source-viewer-measures-section">
-      {{> '_source-viewer-measures-tests'}}
-    </div>
-    {{> '_source-viewer-measures-test-cases'}}
-  {{/unless}}
-</div>
+      <div class="source-viewer-measures-section">
+        {{> '_source-viewer-measures-issues'}}
+      </div>
 
-<a class="js-show-all-measures">{{t 'component_viewer.show_all_measures'}}</a>
+      {{#any measures.coverage measures.it_coverage}}
+        <div class="source-viewer-measures-section">
+          <div class="source-viewer-measures-card">
+            {{> '_source-viewer-measures-coverage'}}
+          </div>
+        </div>
+      {{/any}}
 
-<div class="source-viewer-measures source-viewer-measures-secondary js-all-measures hidden">
-  {{> '_source-viewer-measures-all'}}
+      <div class="source-viewer-measures-section">
+        {{> '_source-viewer-measures-duplications'}}
+      </div>
+    {{else}}
+      <div class="source-viewer-measures-section">
+        {{> '_source-viewer-measures-tests'}}
+      </div>
+      {{> '_source-viewer-measures-test-cases'}}
+    {{/unless}}
+  </div>
+
+  <a class="js-show-all-measures">{{t 'component_viewer.show_all_measures'}}</a>
+
+  <div class="source-viewer-measures source-viewer-measures-secondary js-all-measures hidden">
+    {{> '_source-viewer-measures-all'}}
+  </div>
 </div>
 
 <div class="modal-foot">
-  <a class="overlay-popup-close" title="{{t 'close'}}">{{t 'close'}}</a>
+  <a class="js-modal-close" title="{{t 'close'}}">{{t 'close'}}</a>
 </div>

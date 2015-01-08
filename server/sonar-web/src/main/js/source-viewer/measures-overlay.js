@@ -1,40 +1,16 @@
 define([
-  'common/overlay',
+  'common/modals',
   'templates/source-viewer'
-], function (Overlay, Templates) {
+], function (ModalView, Templates) {
 
   var $ = jQuery;
 
 
-  return Overlay.extend({
-    className: 'overlay-popup source-viewer-measures-overlay',
+  return ModalView.extend({
     template: Templates['source-viewer-measures'],
     testsOrder: ['ERROR', 'FAILURE', 'OK', 'SKIPPED'],
 
-    events: function () {
-      return _.extend(Overlay.prototype.events.apply(this, arguments), {
-        'click .js-sort-tests-by-duration': 'sortTestsByDuration',
-        'click .js-sort-tests-by-name': 'sortTestsByName',
-        'click .js-sort-tests-by-status': 'sortTestsByStatus',
-        'click .js-show-test': 'showTest',
-        'click .js-show-all-measures': 'showAllMeasures'
-      });
-    },
-
-    onRender: function () {
-      Overlay.prototype.onRender.apply(this, arguments);
-      this.$('.js-pie-chart').pieChart();
-      if (this.selectedTest != null) {
-        this.scrollToTest();
-      }
-    },
-
-    scrollToTest: function () {
-      var position = this.$('.js-selected-test').offset().top - this.$el.offset().top - 50;
-      this.$el.scrollTop(position);
-    },
-
-    show: function () {
+    initialize: function () {
       var that = this,
           p = window.process.addBackgroundProcess(),
           requests = [this.requestMeasures(), this.requestIssues()];
@@ -47,6 +23,29 @@ define([
       }).fail(function () {
         window.process.failBackgroundProcess(p);
       });
+    },
+
+    events: function () {
+      return _.extend(ModalView.prototype.events.apply(this, arguments), {
+        'click .js-sort-tests-by-duration': 'sortTestsByDuration',
+        'click .js-sort-tests-by-name': 'sortTestsByName',
+        'click .js-sort-tests-by-status': 'sortTestsByStatus',
+        'click .js-show-test': 'showTest',
+        'click .js-show-all-measures': 'showAllMeasures'
+      });
+    },
+
+    onRender: function () {
+      ModalView.prototype.onRender.apply(this, arguments);
+      this.$('.js-pie-chart').pieChart();
+      if (this.selectedTest != null) {
+        this.scrollToTest();
+      }
+    },
+
+    scrollToTest: function () {
+      var position = this.$('.js-selected-test').offset().top - this.$el.offset().top - 50;
+      this.$el.scrollTop(position);
     },
 
     getMetrics: function () {
@@ -231,7 +230,7 @@ define([
     },
 
     serializeData: function () {
-      return _.extend(Overlay.prototype.serializeData.apply(this, arguments), {
+      return _.extend(ModalView.prototype.serializeData.apply(this, arguments), {
         testSorting: this.testSorting,
         selectedTest: this.selectedTest,
         coveredFiles: this.coveredFiles || []
