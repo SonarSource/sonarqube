@@ -65,8 +65,15 @@ define [
           total: r.total
           maxResultsReached: r.p * r.ps >= r.total
         window.process.finishBackgroundProcess fetchIssuesProcess
+        if firstPage && @isIssuePermalink()
+          @showComponentViewer @options.app.list.first()
       .fail ->
         window.process.failBackgroundProcess fetchIssuesProcess
+
+
+    isIssuePermalink: ->
+      query = @options.app.state.get('query')
+      query.issues? && @options.app.list.length == 1
 
 
     fetchFilters: ->

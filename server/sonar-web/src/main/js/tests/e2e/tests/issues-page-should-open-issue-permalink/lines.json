@@ -1,0 +1,392 @@
+{
+  "sources": [
+    {
+      "line": 1,
+      "code": "<span class=\"cppd\">/*</span>",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "a0c83c815b2deeec585de6894a0b882db635410f",
+      "scmDate": "2013-02-19T18:45:35+0100"
+    },
+    {
+      "line": 2,
+      "code": "<span class=\"cppd\"> * Sonar :: Issues Report :: Plugin</span>",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "a0c83c815b2deeec585de6894a0b882db635410f",
+      "scmDate": "2013-02-19T18:45:35+0100"
+    },
+    {
+      "line": 3,
+      "code": "<span class=\"cppd\"> * Copyright (C) 2013 SonarSource</span>",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "a0c83c815b2deeec585de6894a0b882db635410f",
+      "scmDate": "2013-02-19T18:45:35+0100"
+    },
+    {
+      "line": 4,
+      "code": "<span class=\"cppd\"> * dev@sonar.codehaus.org</span>",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "a0c83c815b2deeec585de6894a0b882db635410f",
+      "scmDate": "2013-02-19T18:45:35+0100"
+    },
+    {
+      "line": 5,
+      "code": "<span class=\"cppd\"> *</span>",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "a0c83c815b2deeec585de6894a0b882db635410f",
+      "scmDate": "2013-02-19T18:45:35+0100"
+    },
+    {
+      "line": 6,
+      "code": "<span class=\"cppd\"> * This program is free software; you can redistribute it and/or</span>",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "a0c83c815b2deeec585de6894a0b882db635410f",
+      "scmDate": "2013-02-19T18:45:35+0100"
+    },
+    {
+      "line": 7,
+      "code": "<span class=\"cppd\"> * modify it under the terms of the GNU Lesser General Public</span>",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "a0c83c815b2deeec585de6894a0b882db635410f",
+      "scmDate": "2013-02-19T18:45:35+0100"
+    },
+    {
+      "line": 8,
+      "code": "<span class=\"cppd\"> * License as published by the Free Software Foundation; either</span>",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "a0c83c815b2deeec585de6894a0b882db635410f",
+      "scmDate": "2013-02-19T18:45:35+0100"
+    },
+    {
+      "line": 9,
+      "code": "<span class=\"cppd\"> * version 3 of the License, or (at your option) any later version.</span>",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "a0c83c815b2deeec585de6894a0b882db635410f",
+      "scmDate": "2013-02-19T18:45:35+0100"
+    },
+    {
+      "line": 10,
+      "code": "<span class=\"cppd\"> *</span>",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "a0c83c815b2deeec585de6894a0b882db635410f",
+      "scmDate": "2013-02-19T18:45:35+0100"
+    },
+    {
+      "line": 11,
+      "code": "<span class=\"cppd\"> * This program is distributed in the hope that it will be useful,</span>",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "a0c83c815b2deeec585de6894a0b882db635410f",
+      "scmDate": "2013-02-19T18:45:35+0100"
+    },
+    {
+      "line": 12,
+      "code": "<span class=\"cppd\"> * but WITHOUT ANY WARRANTY; without even the implied warranty of</span>",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "a0c83c815b2deeec585de6894a0b882db635410f",
+      "scmDate": "2013-02-19T18:45:35+0100"
+    },
+    {
+      "line": 13,
+      "code": "<span class=\"cppd\"> * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "a0c83c815b2deeec585de6894a0b882db635410f",
+      "scmDate": "2013-02-19T18:45:35+0100"
+    },
+    {
+      "line": 14,
+      "code": "<span class=\"cppd\"> * Lesser General Public License for more details.</span>",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "a0c83c815b2deeec585de6894a0b882db635410f",
+      "scmDate": "2013-02-19T18:45:35+0100"
+    },
+    {
+      "line": 15,
+      "code": "<span class=\"cppd\"> *</span>",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "a0c83c815b2deeec585de6894a0b882db635410f",
+      "scmDate": "2013-02-19T18:45:35+0100"
+    },
+    {
+      "line": 16,
+      "code": "<span class=\"cppd\"> * You should have received a copy of the GNU Lesser General Public</span>",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "a0c83c815b2deeec585de6894a0b882db635410f",
+      "scmDate": "2013-02-19T18:45:35+0100"
+    },
+    {
+      "line": 17,
+      "code": "<span class=\"cppd\"> * License along with this program; if not, write to the Free Software</span>",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "a0c83c815b2deeec585de6894a0b882db635410f",
+      "scmDate": "2013-02-19T18:45:35+0100"
+    },
+    {
+      "line": 18,
+      "code": "<span class=\"cppd\"> * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02</span>",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "a0c83c815b2deeec585de6894a0b882db635410f",
+      "scmDate": "2013-02-19T18:45:35+0100"
+    },
+    {
+      "line": 19,
+      "code": "<span class=\"cppd\"> */</span>",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "a0c83c815b2deeec585de6894a0b882db635410f",
+      "scmDate": "2013-02-19T18:45:35+0100"
+    },
+    {
+      "line": 20,
+      "code": "<span class=\"k\">package</span> org.sonar.issuesreport;",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "a0c83c815b2deeec585de6894a0b882db635410f",
+      "scmDate": "2013-02-19T18:45:35+0100"
+    },
+    {
+      "line": 21,
+      "code": "",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "a0c83c815b2deeec585de6894a0b882db635410f",
+      "scmDate": "2013-02-19T18:45:35+0100"
+    },
+    {
+      "line": 22,
+      "code": "<span class=\"k\">import </span>org.sonar.api.batch.<span class=\"sym-1 sym\">PostJob</span>;",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "a0c83c815b2deeec585de6894a0b882db635410f",
+      "scmDate": "2013-02-19T18:45:35+0100"
+    },
+    {
+      "line": 23,
+      "code": "<span class=\"k\">import </span>org.sonar.api.batch.<span class=\"sym-2 sym\">SensorContext</span>;",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "a0c83c815b2deeec585de6894a0b882db635410f",
+      "scmDate": "2013-02-19T18:45:35+0100"
+    },
+    {
+      "line": 24,
+      "code": "<span class=\"k\">import </span>org.sonar.api.resources.<span class=\"sym-3 sym\">Project</span>;",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "a0c83c815b2deeec585de6894a0b882db635410f",
+      "scmDate": "2013-02-19T18:45:35+0100"
+    },
+    {
+      "line": 25,
+      "code": "<span class=\"k\">import </span>org.sonar.issuesreport.printer.<span class=\"sym-4 sym\">ReportPrinter</span>;",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "bbbf5a70655725bd960e41626bcda3b0f85c82d9",
+      "scmDate": "2013-09-19T19:06:45+0200"
+    },
+    {
+      "line": 26,
+      "code": "<span class=\"k\">import </span>org.sonar.issuesreport.report.<span class=\"sym-5 sym\">IssuesReport</span>;",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "ed1e45b9f01b4d6bc704595ff42e6ecd6fb80dbe",
+      "scmDate": "2013-02-20T17:18:48+0100"
+    },
+    {
+      "line": 27,
+      "code": "<span class=\"k\">import </span>org.sonar.issuesreport.report.<span class=\"sym-6 sym\">IssuesReportBuilder</span>;",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "bbbf5a70655725bd960e41626bcda3b0f85c82d9",
+      "scmDate": "2013-09-19T19:06:45+0200"
+    },
+    {
+      "line": 28,
+      "code": "",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "a0c83c815b2deeec585de6894a0b882db635410f",
+      "scmDate": "2013-02-19T18:45:35+0100"
+    },
+    {
+      "line": 29,
+      "code": "<span class=\"k\">public </span><span class=\"k\">class</span> <span class=\"sym-7 sym\">ReportJob</span> <span class=\"k\">implements</span> <span class=\"sym-1 sym\">PostJob</span> {",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "a0c83c815b2deeec585de6894a0b882db635410f",
+      "scmDate": "2013-02-19T18:45:35+0100"
+    },
+    {
+      "line": 30,
+      "code": "",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "a0c83c815b2deeec585de6894a0b882db635410f",
+      "scmDate": "2013-02-19T18:45:35+0100"
+    },
+    {
+      "line": 31,
+      "code": "  <span class=\"k\">private </span><span class=\"sym-6 sym\">IssuesReportBuilder</span> <span class=\"sym-8 sym\">builder</span>;",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "bbbf5a70655725bd960e41626bcda3b0f85c82d9",
+      "scmDate": "2013-09-19T19:06:45+0200"
+    },
+    {
+      "line": 32,
+      "code": "  <span class=\"k\">private </span><span class=\"sym-4 sym\">ReportPrinter</span>[] <span class=\"sym-9 sym\">printers</span>;",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "bbbf5a70655725bd960e41626bcda3b0f85c82d9",
+      "scmDate": "2013-09-19T19:06:45+0200"
+    },
+    {
+      "line": 33,
+      "code": "",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "a0c83c815b2deeec585de6894a0b882db635410f",
+      "scmDate": "2013-02-19T18:45:35+0100"
+    },
+    {
+      "line": 34,
+      "code": "  <span class=\"k\">public </span><span class=\"sym-10 sym\">ReportJob</span>(<span class=\"sym-6 sym\">IssuesReportBuilder</span> <span class=\"sym-11 sym\">builder</span>, <span class=\"sym-4 sym\">ReportPrinter</span>[] <span class=\"sym-12 sym\">printers</span>) {",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "bbbf5a70655725bd960e41626bcda3b0f85c82d9",
+      "scmDate": "2013-09-19T19:06:45+0200",
+      "lineHits": 1
+    },
+    {
+      "line": 35,
+      "code": "    <span class=\"k\">this</span>.<span class=\"sym-8 sym\">builder</span> = <span class=\"sym-11 sym\">builder</span>;",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "bbbf5a70655725bd960e41626bcda3b0f85c82d9",
+      "scmDate": "2013-09-19T19:06:45+0200",
+      "lineHits": 1
+    },
+    {
+      "line": 36,
+      "code": "    <span class=\"k\">this</span>.<span class=\"sym-9 sym\">printers</span> = <span class=\"sym-12 sym\">printers</span>;",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "bbbf5a70655725bd960e41626bcda3b0f85c82d9",
+      "scmDate": "2013-09-19T19:06:45+0200",
+      "lineHits": 1
+    },
+    {
+      "line": 37,
+      "code": "  }",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "a0c83c815b2deeec585de6894a0b882db635410f",
+      "scmDate": "2013-02-19T18:45:35+0100",
+      "lineHits": 1
+    },
+    {
+      "line": 38,
+      "code": "",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "a0c83c815b2deeec585de6894a0b882db635410f",
+      "scmDate": "2013-02-19T18:45:35+0100"
+    },
+    {
+      "line": 39,
+      "code": "  <span class=\"k\">public </span><span class=\"k\">void </span><span class=\"sym-13 sym\">executeOn</span>(<span class=\"sym-3 sym\">Project</span> <span class=\"sym-14 sym\">project</span>, <span class=\"sym-2 sym\">SensorContext</span> <span class=\"sym-15 sym\">context</span>) {",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "a0c83c815b2deeec585de6894a0b882db635410f",
+      "scmDate": "2013-02-19T18:45:35+0100"
+    },
+    {
+      "line": 40,
+      "code": "    <span class=\"cppd\">// For performance only initialize IssuesReport if there is on Printer enabled</span>",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "bbbf5a70655725bd960e41626bcda3b0f85c82d9",
+      "scmDate": "2013-09-19T19:06:45+0200"
+    },
+    {
+      "line": 41,
+      "code": "    <span class=\"sym-5 sym\">IssuesReport</span> <span class=\"sym-16 sym\">report</span> = <span class=\"k\">null</span>;",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "bbbf5a70655725bd960e41626bcda3b0f85c82d9",
+      "scmDate": "2013-09-19T19:06:45+0200",
+      "lineHits": 1
+    },
+    {
+      "line": 42,
+      "code": "    <span class=\"k\">for</span> (<span class=\"sym-4 sym\">ReportPrinter</span> <span class=\"sym-17 sym\">printer</span> : <span class=\"sym-9 sym\">printers</span>) {",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "bbbf5a70655725bd960e41626bcda3b0f85c82d9",
+      "scmDate": "2013-09-19T19:06:45+0200",
+      "lineHits": 1,
+      "conditions": 2,
+      "coveredConditions": 2
+    },
+    {
+      "line": 43,
+      "code": "      <span class=\"k\">if </span>(<span class=\"sym-17 sym\">printer</span>.isEnabled()) {",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "bbbf5a70655725bd960e41626bcda3b0f85c82d9",
+      "scmDate": "2013-09-19T19:06:45+0200",
+      "lineHits": 1,
+      "conditions": 2,
+      "coveredConditions": 2
+    },
+    {
+      "line": 44,
+      "code": "        <span class=\"k\">if </span>(<span class=\"sym-16 sym\">report</span> == <span class=\"k\">null</span>) {",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "ed1e45b9f01b4d6bc704595ff42e6ecd6fb80dbe",
+      "scmDate": "2013-02-20T17:18:48+0100",
+      "lineHits": 1,
+      "conditions": 2,
+      "coveredConditions": 2
+    },
+    {
+      "line": 45,
+      "code": "          <span class=\"sym-16 sym\">report</span> = <span class=\"sym-8 sym\">builder</span>.buildReport(<span class=\"sym-14 sym\">project</span>);",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "bbbf5a70655725bd960e41626bcda3b0f85c82d9",
+      "scmDate": "2013-09-19T19:06:45+0200",
+      "lineHits": 1
+    },
+    {
+      "line": 46,
+      "code": "        }",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "ed1e45b9f01b4d6bc704595ff42e6ecd6fb80dbe",
+      "scmDate": "2013-02-20T17:18:48+0100"
+    },
+    {
+      "line": 47,
+      "code": "        <span class=\"sym-17 sym\">printer</span>.print(<span class=\"sym-16 sym\">report</span>);",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "bbbf5a70655725bd960e41626bcda3b0f85c82d9",
+      "scmDate": "2013-09-19T19:06:45+0200",
+      "lineHits": 1
+    },
+    {
+      "line": 48,
+      "code": "      }",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "bbbf5a70655725bd960e41626bcda3b0f85c82d9",
+      "scmDate": "2013-09-19T19:06:45+0200"
+    },
+    {
+      "line": 49,
+      "code": "    }",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "bbbf5a70655725bd960e41626bcda3b0f85c82d9",
+      "scmDate": "2013-09-19T19:06:45+0200"
+    },
+    {
+      "line": 50,
+      "code": "  }",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "ed1e45b9f01b4d6bc704595ff42e6ecd6fb80dbe",
+      "scmDate": "2013-02-20T17:18:48+0100",
+      "lineHits": 1
+    },
+    {
+      "line": 51,
+      "code": "",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "ed1e45b9f01b4d6bc704595ff42e6ecd6fb80dbe",
+      "scmDate": "2013-02-20T17:18:48+0100"
+    },
+    {
+      "line": 52,
+      "code": "}",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "a0c83c815b2deeec585de6894a0b882db635410f",
+      "scmDate": "2013-02-19T18:45:35+0100"
+    },
+    {
+      "line": 53,
+      "code": "",
+      "scmAuthor": "julien.henry@sonarsource.com",
+      "scmRevision": "a0c83c815b2deeec585de6894a0b882db635410f",
+      "scmDate": "2013-02-19T18:45:35+0100"
+    }
+  ]
+}

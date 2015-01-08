@@ -1,0 +1,21 @@
+{
+  "key": "org.codehaus.sonar-plugins:sonar-issues-report-plugin:src/main/java/org/sonar/issuesreport/ReportJob.java",
+  "uuid": "98662175-0f52-4f83-b0e9-1e9444320b5b",
+  "path": "src/main/java/org/sonar/issuesreport/ReportJob.java",
+  "name": "ReportJob.java",
+  "longName": "src/main/java/org/sonar/issuesreport/ReportJob.java",
+  "q": "FIL",
+  "project": "org.codehaus.sonar-plugins:sonar-issues-report-plugin",
+  "projectName": "Sonar :: Issues Report :: Plugin",
+  "fav": false,
+  "canMarkAsFavourite": true,
+  "canCreateManualIssue": true,
+  "measures": {
+    "lines": "53",
+    "coverage": "100.0%",
+    "issues": "1",
+    "debt": "5min",
+    "sqaleRating": "A",
+    "debtRatio": "0.6%"
+  }
+}
