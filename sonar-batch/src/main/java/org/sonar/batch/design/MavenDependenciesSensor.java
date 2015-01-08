@@ -238,7 +238,9 @@ public class MavenDependenciesSensor implements Sensor {
     Resource result = context.getResource(project);
     if (result == null || !((Project) result).getAnalysisVersion().equals(dependency.version())) {
       Library lib = new Library(project.getKey(), dependency.version());
-      context.saveResource(lib);
+      index.addResource(lib);
+      // Temporary hack since we need snapshot id to persist dependencies
+      resourcePersister.persist();
       result = context.getResource(lib);
     }
     return result;
@@ -259,6 +261,7 @@ public class MavenDependenciesSensor implements Sensor {
     if (result == null || !((Project) result).getAnalysisVersion().equals(artifact.getBaseVersion())) {
       Library lib = Library.createFromMavenIds(artifact.getGroupId(), artifact.getArtifactId(), artifact.getBaseVersion());
       index.addResource(lib);
+      // Temporary hack since we need snapshot id to persist dependencies
       resourcePersister.persist();
       result = context.getResource(lib);
     }

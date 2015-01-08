@@ -78,13 +78,13 @@ public class MavenDependenciesSensorTest {
     sensor.analyse(project, sensorContext);
 
     Library antlr = new Library("antlr:antlr", "2.7.2");
-    verify(sensorContext).saveResource(eq(antlr));
+    verify(sonarIndex).addResource(eq(antlr));
     Library commonsFU = new Library("commons-fileupload:commons-fileupload", "1.1.1");
-    verify(sensorContext).saveResource(eq(commonsFU));
+    verify(sonarIndex).addResource(eq(commonsFU));
     Library commonsIo = new Library("commons-io:commons-io", "1.1");
-    verify(sensorContext).saveResource(eq(commonsIo));
+    verify(sonarIndex).addResource(eq(commonsIo));
     Library junit = new Library("junit:junit", "3.8.1");
-    verify(sensorContext).saveResource(eq(junit));
+    verify(sonarIndex).addResource(eq(junit));
 
     verify(sensorContext).saveDependency(new Dependency(project, antlr).setUsage("compile").setWeight(1));
     verify(sensorContext).saveDependency(new Dependency(commonsFU, commonsIo).setUsage("compile").setWeight(1));
