@@ -614,18 +614,13 @@ define([
           });
         },
 
-        filterLinesByPeriod: function (periodId) {
-          var periods = this.model.get('periods'),
-              period = _.find(periods, function (candidate) {
-                return candidate[0] === periodId;
-              });
-          if (period) {
-            var sinceDate = moment(period[2]).toDate();
-            this.filterLines(function (line) {
-              var scmDate = moment(line.scmDate).toDate();
-              return scmDate >= sinceDate;
-            });
-          }
+        filterLinesByDate: function (date) {
+          var sinceDate = moment(date).toDate();
+          this.filterLines(function (line) {
+            var scmDate = moment(line.scmDate).toDate();
+            console.log(scmDate, sinceDate);
+            return scmDate >= sinceDate;
+          });
         }
       });
 

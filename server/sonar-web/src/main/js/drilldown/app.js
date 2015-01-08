@@ -38,9 +38,9 @@ requirejs([
           viewer = new SourceViewer();
       App.viewerRegion.show(viewer);
       viewer.open(uuid);
-      if (typeof window.drilldown.period === 'number') {
+      if (window.drilldown.period != null) {
         viewer.on('loaded', function () {
-          viewer.filterLinesByPeriod(window.drilldown.period);
+          viewer.filterLinesByDate(window.drilldown.period);
         });
       }
     });
