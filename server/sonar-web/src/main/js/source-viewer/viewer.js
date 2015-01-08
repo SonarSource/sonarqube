@@ -618,7 +618,6 @@ define([
           var sinceDate = moment(date).toDate();
           this.filterLines(function (line) {
             var scmDate = moment(line.scmDate).toDate();
-            console.log(scmDate, sinceDate);
             return scmDate >= sinceDate;
           });
         }

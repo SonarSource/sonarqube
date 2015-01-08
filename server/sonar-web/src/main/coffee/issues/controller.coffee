@@ -2,12 +2,10 @@ define [
   'components/navigator/controller'
 
   'issues/component-viewer/main'
-  'issues/component-viewer/state'
 ], (
   Controller
 
   ComponentViewer
-  ComponentViewerState
 ) ->
 
   $ = jQuery
