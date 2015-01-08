@@ -39,6 +39,23 @@
   border-top-color: transparent;
 }
 
+.issue-table {
+  width: 100%;
+
+  td {
+    vertical-align: top;
+  }
+}
+
+.issue-table + .issue-table {
+  margin-top: 5px;
+}
+
+.issue-table-meta-cell {
+  width: 1px;
+  white-space: nowrap;
+}
+
 .issue-message {
   padding-left: @leftPadding;
   padding-right: 90px + @rightPadding;
@@ -55,7 +72,6 @@
 
 .issue-tag-list {
   display: inline-block;
-  padding: 3px 0 0;
 
   .icon-tags {
     color: @secondFontColor;
@@ -101,9 +117,7 @@
 
 .issue-meta-list {
   .clearfix;
-  margin-top: 5px;
   padding-left: @leftPadding;
-  padding-right: @rightPadding;
   font-size: 0;
 }
 
