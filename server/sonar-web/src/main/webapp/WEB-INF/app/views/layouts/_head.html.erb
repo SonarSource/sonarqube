@@ -34,6 +34,8 @@
     var baseUrl = '<%= ApplicationController.root_context -%>';
     var $j = jQuery.noConflict();
     $j(document).ready(function () {$j('.open-modal').modal()});
+    moment.lang(window.pageLang);
+    numeral.language(window.pageLang);
   </script>
   <%= yield :script -%>
 </head>

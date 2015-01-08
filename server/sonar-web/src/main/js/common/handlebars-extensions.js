@@ -295,6 +295,14 @@ define(['handlebars'], function (Handlebars) {
     return moment(new Date()).diff(date, units);
   });
 
+  Handlebars.registerHelper('numberShort', function(number) {
+    if (number > 9999) {
+      return numeral(number).format('0.[0]a');
+    } else {
+      return number;
+    }
+  });
+
   Handlebars.registerHelper('pluginActions', function(actions, options) {
     var pluginActions = _.difference(actions, defaultActions);
     return pluginActions.reduce(function(prev, current) {

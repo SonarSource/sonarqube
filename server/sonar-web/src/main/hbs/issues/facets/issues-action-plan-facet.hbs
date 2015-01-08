@@ -6,12 +6,12 @@
       {{! unplanned }}
       <a class="facet search-navigator-facet js-facet" data-unplanned title="{{t 'issue.unplanned'}}">
         <span class="facet-name">{{t 'issue.unplanned'}}</span>
-        <span class="facet-stat">{{count}}</span>
+        <span class="facet-stat">{{numberShort count}}</span>
       </a>
     {{else}}
       <a class="facet search-navigator-facet js-facet" data-value="{{val}}" title="{{label}}">
         <span class="facet-name">{{label}}</span>
-        <span class="facet-stat">{{count}}</span>
+        <span class="facet-stat">{{numberShort count}}</span>
       </a>
     {{/eq}}
   {{/each}}

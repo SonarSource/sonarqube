@@ -85,6 +85,7 @@
     "t": true,
     "tp": true,
     "moment": true,
+    "numeral": true,
     "openPopup": true,
     "dashboardParameters": true,
     "getTemplate": true

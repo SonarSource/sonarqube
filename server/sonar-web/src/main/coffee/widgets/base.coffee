@@ -1,6 +1,3 @@
-moment.lang window.pageLang
-
-
 window.SonarWidgets ?= {}
 
 class BaseWidget

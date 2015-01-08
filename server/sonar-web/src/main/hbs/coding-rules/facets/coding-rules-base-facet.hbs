@@ -4,7 +4,7 @@
   {{#each values}}
     <a class="facet search-navigator-facet js-facet" data-value="{{val}}" title="{{default label val}}">
       <span class="facet-name">{{default label val}}{{#if extra}} <span class="subtitle">{{extra}}</span>{{/if}}</span>
-      <span class="facet-stat">{{count}}</span>
+      <span class="facet-stat">{{numberShort count}}</span>
     </a>
   {{/each}}
 </div>
