@@ -36,16 +36,16 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class IsQueueEmptyWsActionTest {
+public class IsQueueEmptyWebServiceTest {
 
-  IsQueueEmptyWsAction sut;
+  IsQueueEmptyWebService.IsQueueEmptyWsAction sut;
   AnalysisReportQueue queue;
   Response response;
 
   @Before
   public void before() throws Exception {
     queue = mock(AnalysisReportQueue.class);
-    sut = new IsQueueEmptyWsAction(queue);
+    sut = new IsQueueEmptyWebService.IsQueueEmptyWsAction(queue);
 
     response = mock(Response.class);
     when(response.stream()).thenReturn(new FakeStream());

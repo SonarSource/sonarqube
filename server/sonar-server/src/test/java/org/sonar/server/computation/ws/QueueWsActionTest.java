@@ -50,7 +50,7 @@ public class QueueWsActionTest {
   public void list_active_reports() throws Exception {
     AnalysisReportDto report = AnalysisReportDto
       .newForTests(1L)
-      .setProjectKey("project-name")
+      .setProjectKey("project-key")
       .setStatus(PENDING)
       .setData(null)
       .setCreatedAt(DateUtils.parseDateTime("2014-10-13T00:00:00+0200"))
@@ -59,12 +59,12 @@ public class QueueWsActionTest {
     List<AnalysisReportDto> reports = Lists.newArrayList(report);
     when(queue.all()).thenReturn(reports);
 
-    WsTester.TestRequest request = tester.newGetRequest(ComputationWebService.API_ENDPOINT, "active");
-    request.execute().assertJson(getClass(), "list_active_reports.json", false);
+    WsTester.TestRequest request = tester.newGetRequest(ComputationWebService.API_ENDPOINT, "queue");
+    request.execute().assertJson(getClass(), "list_queue_reports.json", false);
   }
 
   @Test
   public void define() throws Exception {
-    assertThat(tester.controller(ComputationWebService.API_ENDPOINT).action("active")).isNotNull();
+    assertThat(tester.controller(ComputationWebService.API_ENDPOINT).action("queue")).isNotNull();
   }
 }

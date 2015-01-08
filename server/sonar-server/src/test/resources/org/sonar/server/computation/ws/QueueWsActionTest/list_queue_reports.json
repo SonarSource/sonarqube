@@ -1,10 +1,10 @@
 {
   "reports": [
     {
-      "id": 1,
+      "key": 1,
       "status": "PENDING",
-      "projectName": "project-name",
-      "project": "project-name",
+      "projectName": "project-key",
+      "projectKey": "project-key",
       "submittedAt": "2014-10-13T00:00:00+0200",
       "startedAt": "2014-10-13T00:00:00+0200",
       "finishedAt": "2014-10-13T00:00:00+0200"

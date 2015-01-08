@@ -41,7 +41,7 @@ public class ComputationWebServiceTest {
     WebService.Context context = new WebService.Context();
     ws.define(context);
 
-    WebService.Controller controller = context.controller("api/analysis_reports");
+    WebService.Controller controller = context.controller("api/computation");
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();
     assertThat(controller.actions()).hasSize(1);

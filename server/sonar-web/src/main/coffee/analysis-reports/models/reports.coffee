@@ -21,12 +21,12 @@ define [
 
 
     fetchActive: ->
-      @fetch { url: "#{baseUrl}/api/analysis_reports/active" }, { reset: true }
+      @fetch { url: "#{baseUrl}/api/computation/queue" }, { reset: true }
 
 
     fetchHistory: (options = {  }) ->
       _.extend options,
-        url: "#{baseUrl}/api/analysis_reports/history"
+        url: "#{baseUrl}/api/computation/history"
       options.data = options.data || {}
       options.data.ps = 50
       @fetch options, { reset: true }

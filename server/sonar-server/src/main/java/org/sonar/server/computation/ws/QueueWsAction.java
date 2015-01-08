@@ -43,7 +43,7 @@ public class QueueWsAction implements ComputationWsAction, RequestHandler {
   @Override
   public void define(WebService.NewController controller) {
     controller
-      .createAction("active")
+      .createAction("queue")
       .setDescription("List all the active analysis reports")
       .setSince("5.0")
       .setInternal(true)
@@ -64,10 +64,8 @@ public class QueueWsAction implements ComputationWsAction, RequestHandler {
     json.name("reports").beginArray();
     for (AnalysisReportDto report : reports) {
       json.beginObject();
-      // TODO naming consistency -> rename id to key
-      json.prop("id", report.getId());
-      // TODO rename to projectKey
-      json.prop("project", report.getProjectKey());
+      json.prop("key", report.getId());
+      json.prop("projectKey", report.getProjectKey());
       json.prop("projectName", report.getProjectKey());
       json.propDateTime("startedAt", report.getStartedAt());
       json.propDateTime("finishedAt", report.getFinishedAt());

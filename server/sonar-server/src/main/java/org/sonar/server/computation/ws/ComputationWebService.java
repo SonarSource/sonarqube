@@ -31,7 +31,7 @@ import org.sonar.api.server.ws.WebService;
  * </ul>
  */
 public class ComputationWebService implements WebService {
-  public static final String API_ENDPOINT = "api/analysis_reports";
+  public static final String API_ENDPOINT = "api/computation";
 
   private final ComputationWsAction[] actions;
 

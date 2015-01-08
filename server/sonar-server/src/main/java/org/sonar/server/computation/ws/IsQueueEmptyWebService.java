@@ -30,27 +30,48 @@ import org.sonar.server.computation.AnalysisReportQueue;
 
 import java.util.List;
 
-public class IsQueueEmptyWsAction implements ComputationWsAction, RequestHandler {
-  private final AnalysisReportQueue queue;
+/**
+ * Internal WebService with one action
+ */
+public class IsQueueEmptyWebService implements WebService {
+  public static final String API_ENDPOINT = "api/analysis_reports";
 
-  public IsQueueEmptyWsAction(AnalysisReportQueue queue) {
-    this.queue = queue;
+  private final IsQueueEmptyWsAction action;
+
+  public IsQueueEmptyWebService(AnalysisReportQueue queue) {
+    this.action = new IsQueueEmptyWsAction(queue);
   }
 
   @Override
-  public void define(WebService.NewController controller) {
-    controller
-      .createAction("is_queue_empty")
-      .setDescription("Check if the analysis report queue is empty")
-      .setInternal(true)
-      .setHandler(this);
+  public void define(Context context) {
+    NewController controller = context
+      .createController(API_ENDPOINT)
+      .setDescription("Analysis reports processed");
+    action.define(controller);
+    controller.done();
   }
 
-  @Override
-  public void handle(Request request, Response response) throws Exception {
-    List<AnalysisReportDto> reports = queue.all();
-    boolean isQueueEmpty = reports.isEmpty();
+  static class IsQueueEmptyWsAction implements RequestHandler {
+    private final AnalysisReportQueue queue;
 
-    IOUtils.write(String.valueOf(isQueueEmpty), response.stream().output());
+    public IsQueueEmptyWsAction(AnalysisReportQueue queue) {
+      this.queue = queue;
+    }
+
+    public void define(WebService.NewController controller) {
+      controller
+        .createAction("is_queue_empty")
+        .setDescription("Check if the analysis report queue is empty")
+        .setInternal(true)
+        .setHandler(this);
+    }
+
+    @Override
+    public void handle(Request request, Response response) throws Exception {
+      List<AnalysisReportDto> reports = queue.all();
+      boolean isQueueEmpty = reports.isEmpty();
+
+      IOUtils.write(String.valueOf(isQueueEmpty), response.stream().output());
+    }
   }
 }
