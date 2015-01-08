@@ -180,6 +180,7 @@ define([
               hasSourceBefore: firstLine > 1,
               hasSourceAfter: data.sources.length === linesRequested
             });
+            that.model.checkIfHasDuplications();
           }).fail(function (request) {
             if (request.status === 403) {
               that.model.set({
@@ -537,7 +538,6 @@ define([
               };
           return $.get(url, options).done(function (data) {
             source = (data.sources || []).concat(source);
-            console.log(source.length);
             if (source.length > that.TOTAL_LINES_LIMIT + 1) {
               source = source.slice(0, that.TOTAL_LINES_LIMIT);
               that.model.set({ hasSourceAfter: true });
@@ -554,6 +554,7 @@ define([
               that.model.addDuplications(that.model.get('duplications'));
               that.model.addMeta(that.model.get('duplicationsParsed'));
             }
+            that.model.checkIfHasDuplications();
             that.render();
             that.scrollToFirstLine(firstLine);
             if (that.model.get('hasSourceBefore') || that.model.get('hasSourceAfter')) {
@@ -588,6 +589,7 @@ define([
               that.model.addDuplications(that.model.get('duplications'));
               that.model.addMeta(that.model.get('duplicationsParsed'));
             }
+            that.model.checkIfHasDuplications();
             that.render();
             that.scrollToLastLine(lastLine);
             if (that.model.get('hasSourceBefore') || that.model.get('hasSourceAfter')) {

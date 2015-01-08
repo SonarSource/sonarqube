@@ -58,6 +58,19 @@ define([
         });
       }
       this.set({ source: source });
+    },
+
+    checkIfHasDuplications: function () {
+      var hasDuplications = false,
+          source = this.get('source');
+      if (source != null) {
+        source.forEach(function (line) {
+          if (line.duplicated) {
+            hasDuplications = true;
+          }
+        });
+      }
+      this.set({ hasDuplications: hasDuplications });
     }
   });
 
