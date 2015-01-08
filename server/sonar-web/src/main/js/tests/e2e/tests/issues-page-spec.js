@@ -79,6 +79,8 @@ casper.test.begin(testName('Issue Box', 'Check Elements'), function (test) {
 
       .then(function () {
         test.assertSelectorContains('.issue.selected', "Add a 'package-info.java' file to document the");
+        test.assertExists('.issue.selected .issue-tags');
+        test.assertSelectorContains('.issue.selected .issue-tags', 'issue.no_tag');
         test.assertExists('.issue.selected .js-issue-set-severity');
         test.assertSelectorContains('.issue.selected .js-issue-set-severity', 'MAJOR');
         test.assertSelectorContains('.issue.selected', 'CONFIRMED');
@@ -93,6 +95,41 @@ casper.test.begin(testName('Issue Box', 'Check Elements'), function (test) {
         test.assertSelectorContains('.issue.selected', '20min');
         test.assertExists('.issue.selected .js-issue-comment');
         test.assertExists('.issue.selected .js-issue-show-changelog');
+      })
+
+      .run(function () {
+        test.done();
+      });
+});
+
+
+casper.test.begin(testName('Issue Box', 'Tags'), function (test) {
+  casper
+      .start(lib.buildUrl('issues'), function () {
+        lib.setDefaultViewport();
+
+        lib.mockRequest('/api/l10n/index', '{}');
+        lib.mockRequestFromFile('/api/issue_filters/app', 'app.json');
+        lib.mockRequestFromFile('/api/issues/search', 'search-with-tags.json');
+        this.showMock = lib.mockRequestFromFile('/api/issues/show*', 'show-with-tags.json');
+      })
+
+      .then(function () {
+        casper.waitForSelector('.issue.selected .issue-tags', function () {
+          test.assertSelectorContains('.issue.selected .issue-tags', 'security, cwe');
+          lib.mockRequestFromFile('/api/issues/tags*', 'tags.json');
+          casper.click('.issue.selected .issue-tag-list');
+
+          casper.waitForSelector('.issue.selected .select2-input', function () {
+            lib.mockRequestFromFile('/api/issues/set_tags', 'tags-modified.json');
+            casper.click('.issue.selected .issue-tag-edit-done');
+            casper.waitWhileVisible('.issue.selected .issue-tag-edit');
+            casper.waitUntilVisible('.issue.selected .issue-tag-list', function () {
+              // TODO Find a way to have this assertion work
+              // test.assertSelectorContains('.issue.selected .issue-tags .issue-tag-list', 'security, cwe, cert');
+            });
+          });
+        });
       })
 
       .run(function () {

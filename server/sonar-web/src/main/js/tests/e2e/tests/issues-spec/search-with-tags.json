@@ -1,0 +1,172 @@
+{
+  "total": 1,
+  "p": 1,
+  "ps": 50,
+  "projects": [
+    {
+      "uuid": "015c6451-1709-4360-b4fa-e4508e13082d",
+      "key": "org.codehaus.sonar-plugins.xml:xml",
+      "id": 17156,
+      "qualifier": "TRK",
+      "name": "XML",
+      "longName": "XML"
+    }
+  ],
+  "components": [
+    {
+      "uuid": "639e257b-d3fb-4d10-b94a-31079b71532d",
+      "key": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml",
+      "id": 26177,
+      "enabled": true,
+      "qualifier": "DIR",
+      "name": "src/main/java/org/sonar/plugins/xml",
+      "longName": "src/main/java/org/sonar/plugins/xml",
+      "path": "src/main/java/org/sonar/plugins/xml",
+      "projectId": 17156,
+      "subProjectId": 17158
+    },
+    {
+      "uuid": "015c6451-1709-4360-b4fa-e4508e13082d",
+      "key": "org.codehaus.sonar-plugins.xml:xml",
+      "id": 17156,
+      "enabled": true,
+      "qualifier": "TRK",
+      "name": "XML",
+      "longName": "XML"
+    }
+
+  ],
+  "issues": [
+    {
+      "key": "94357807-fcb4-40cc-9598-9a715f1eee6e",
+      "component": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml",
+      "componentId": 26177,
+      "project": "org.codehaus.sonar-plugins.xml:xml",
+      "rule": "squid:S1228",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "Add a 'package-info.java' file to document the 'src/main/java/org/sonar/plugins/xml' package",
+      "debt": "20min",
+      "creationDate": "2014-10-03T23:26:37+0200",
+      "updateDate": "2014-10-09T06:32:55+0200",
+      "fUpdateAge": "26 days",
+      "tags": [
+        "security",
+        "cwe"
+      ],
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity",
+        "set_tags"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "key": "squid:S1228",
+      "name": "Packages should have a javadoc file 'package-info.java'",
+      "desc": "<p>Each package in a Java project should include a <code>package-info.java</code> file. The purpose of this file is to document the Java package using javadoc and declare package annotations.</p>\n\n<h2>Compliant Solution</h2>\n<pre>\n/**\n* This package has non null parameters and is documented.\n**/\n@ParametersAreNonnullByDefault\npackage org.foo.bar;\n</pre>",
+      "status": "REMOVED"
+    }
+  ],
+  "users": [],
+  "languages": [
+    {
+      "key": "js",
+      "name": "JavaScript"
+    },
+    {
+      "key": "java",
+      "name": "Java"
+    }
+  ],
+  "maxResultsReached": false,
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 50,
+    "total": 1,
+    "fTotal": "1",
+    "pages": 1
+  },
+  "facets": [
+    {
+      "property": "severities",
+      "values": [
+        {
+          "val": "MAJOR",
+          "count": 1
+        },
+        {
+          "val": "INFO",
+          "count": 0
+        },
+        {
+          "val": "MINOR",
+          "count": 0
+        },
+        {
+          "val": "CRITICAL",
+          "count": 0
+        },
+        {
+          "val": "BLOCKER",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "property": "statuses",
+      "values": [
+        {
+          "val": "CONFIRMED",
+          "count": 1
+        },
+        {
+          "val": "OPEN",
+          "count": 0
+        },
+        {
+          "val": "REOPENED",
+          "count": 0
+        },
+        {
+          "val": "CLOSED",
+          "count": 0
+        },
+        {
+          "val": "RESOLVED",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "property": "resolutions",
+      "values": [
+        {
+          "val": "",
+          "count": 1
+        },
+        {
+          "val": "FIXED",
+          "count": 0
+        },
+        {
+          "val": "REMOVED",
+          "count": 0
+        },
+        {
+          "val": "FALSE-POSITIVE",
+          "count": 0
+        }
+      ]
+    }
+  ]
+}

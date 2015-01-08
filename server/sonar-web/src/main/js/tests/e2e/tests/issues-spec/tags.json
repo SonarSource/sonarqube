@@ -1,0 +1,24 @@
+{
+  "tags": [
+    "brain-overload",
+    "bug",
+    "cert",
+    "convention",
+    "cwe",
+    "design",
+    "error-handling",
+    "misra",
+    "misra-c",
+    "misra-c++",
+    "multithreading",
+    "obsolete",
+    "owasp-top10",
+    "performance",
+    "pitfall",
+    "sans-top25",
+    "sans-top25-2011",
+    "security",
+    "sql",
+    "unused"
+  ]
+}
