@@ -62,6 +62,7 @@ define([
         });
       });
       looper.done(function () {
+        that.options.app.controller.fetchList();
         that.$(that.ui.codingRulesSubmitBulkChange.selector).hide();
         window.process.finishBackgroundProcess(p);
       }).fail(function () {
