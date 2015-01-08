@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.mediumtest.fs;
 
+import org.sonar.batch.mediumtest.TaskResult;
+
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -32,7 +34,6 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.mediumtest.BatchMediumTester;
-import org.sonar.batch.mediumtest.BatchMediumTester.TaskResult;
 import org.sonar.xoo.XooPlugin;
 
 import java.io.File;

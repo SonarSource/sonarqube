@@ -64,7 +64,7 @@ public final class DuplicationPersister implements ScanPersister {
         BatchResource batchResource = resourceCache.get(effectiveKey);
 
         if (MeasurePersister.shouldPersistMeasure(batchResource.resource(), measure)) {
-          MeasureModel measureModel = MeasurePersister.model(measure, ruleFinder, metricFinder).setSnapshotId(batchResource.snapshotId());
+          MeasureModel measureModel = MeasurePersister.model(measure, ruleFinder).setSnapshotId(batchResource.snapshotId());
           mapper.insert(measureModel);
           session.commit();
         }

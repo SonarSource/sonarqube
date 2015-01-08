@@ -22,9 +22,9 @@ package org.sonar.batch.scan.measure;
 import com.persistit.Value;
 import com.persistit.encoding.CoderContext;
 import com.persistit.encoding.ValueCoder;
+import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.technicaldebt.batch.Characteristic;
 import org.sonar.api.technicaldebt.batch.Requirement;
@@ -81,11 +81,11 @@ class MeasureValueCoder implements ValueCoder {
   public Object get(Value value, Class clazz, CoderContext context) {
     Measure<?> m = new Measure();
     String metricKey = value.getString();
-    Metric metric = metricFinder.findByKey(metricKey);
+    org.sonar.api.batch.measure.Metric metric = metricFinder.findByKey(metricKey);
     if (metric == null) {
       throw new IllegalStateException("Unknow metric with key " + metricKey);
     }
-    m.setMetric(metric);
+    m.setMetric((org.sonar.api.measures.Metric) metric);
     m.setRawValue(value.isNull(true) ? null : value.getDouble());
     m.setData(value.getString());
     m.setDescription(value.getString());

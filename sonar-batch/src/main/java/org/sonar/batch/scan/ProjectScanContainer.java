@@ -61,6 +61,7 @@ import org.sonar.batch.index.SourcePersister;
 import org.sonar.batch.issue.DefaultProjectIssues;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.languages.DefaultLanguagesReferential;
+import org.sonar.batch.mediumtest.ScanTaskObservers;
 import org.sonar.batch.phases.GraphPersister;
 import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
 import org.sonar.batch.referential.ProjectReferentialsProvider;
@@ -140,9 +141,7 @@ public class ProjectScanContainer extends ComponentContainer {
       MetricProvider.class,
       ProjectConfigurator.class,
       DefaultIndex.class,
-      ResourceKeyMigration.class,
       DefaultFileLinesContextFactory.class,
-      ProjectLock.class,
       LastLineHashes.class,
       Caches.class,
       ResourceCache.class,
@@ -186,15 +185,13 @@ public class ProjectScanContainer extends ComponentContainer {
       // Measures
       MeasureCache.class,
 
-      // Rules
-      new RulesProvider(),
-      new DebtModelProvider(),
-
       // Duplications
       BlockCache.class,
       DuplicationCache.class,
 
-      ProjectSettings.class);
+      ProjectSettings.class,
+
+      ScanTaskObservers.class);
   }
 
   private void addDataBaseComponents() {
@@ -205,7 +202,14 @@ public class ProjectScanContainer extends ComponentContainer {
       MeasurePersister.class,
       DuplicationPersister.class,
       ResourcePersister.class,
-      SourcePersister.class);
+      SourcePersister.class,
+      ResourceKeyMigration.class,
+
+      // Rules
+      new RulesProvider(),
+      new DebtModelProvider(),
+
+      ProjectLock.class);
   }
 
   private void fixMavenExecutor() {
@@ -222,6 +226,9 @@ public class ProjectScanContainer extends ComponentContainer {
   protected void doAfterStart() {
     ProjectTree tree = getComponentByType(ProjectTree.class);
     scanRecursively(tree.getRootProject());
+    if (sensorMode) {
+      getComponentByType(ScanTaskObservers.class).notifyEndOfScanTask();
+    }
   }
 
   private void scanRecursively(Project module) {

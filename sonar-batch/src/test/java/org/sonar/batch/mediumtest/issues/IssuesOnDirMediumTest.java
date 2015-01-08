@@ -25,9 +25,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.batch.mediumtest.BatchMediumTester;
-import org.sonar.batch.mediumtest.BatchMediumTester.TaskResult;
+import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.batch.protocol.input.ActiveRule;
 import org.sonar.xoo.XooPlugin;
 
@@ -84,7 +83,7 @@ public class IssuesOnDirMediumTest {
       .start();
 
     assertThat(result.issues()).hasSize(2);
-    assertThat(result.issues().iterator().next().inputPath()).isEqualTo(new DefaultInputDir("com.foo.project", "src"));
+    assertThat(result.issues().iterator().next().componentKey()).isEqualTo("com.foo.project:src");
 
   }
 

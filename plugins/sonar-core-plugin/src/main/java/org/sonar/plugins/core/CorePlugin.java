@@ -345,7 +345,6 @@ public final class CorePlugin extends SonarPlugin {
       UnresolvedIssuesStatusesWidget.class,
       IssueFilterWidget.class,
       IssueTagCloudWidget.class,
-      org.sonar.api.issue.NoSonarFilter.class,
 
       // issue notifications
       SendIssueNotificationsPostJob.class,

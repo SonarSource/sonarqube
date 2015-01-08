@@ -31,7 +31,9 @@ import java.util.List;
  * because the Measure API still uses deprecated {@link org.sonar.api.technicaldebt.batch.Characteristic}.
  *
  * @since 4.3
+ * @deprecated since 5.1 debt model will soon be unavailable on batch side
  */
+@Deprecated
 public interface DebtModel {
 
   /**

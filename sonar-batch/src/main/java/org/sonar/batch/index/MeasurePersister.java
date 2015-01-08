@@ -64,8 +64,11 @@ public final class MeasurePersister implements ScanPersister {
         Measure measure = entry.value();
         BatchResource batchResource = resourceCache.get(effectiveKey);
 
+        // Reload Metric to have all Hibernate fields populated
+        measure.setMetric(metricFinder.findByKey(measure.getMetricKey()));
+
         if (shouldPersistMeasure(batchResource.resource(), measure)) {
-          MeasureModel measureModel = model(measure, ruleFinder, metricFinder).setSnapshotId(batchResource.snapshotId());
+          MeasureModel measureModel = model(measure, ruleFinder).setSnapshotId(batchResource.snapshotId());
           mapper.insert(measureModel);
         }
       }
@@ -94,9 +97,10 @@ public final class MeasurePersister implements ScanPersister {
       || isNotEmpty;
   }
 
-  static MeasureModel model(Measure measure, RuleFinder ruleFinder, MetricFinder metricFinder) {
+  static MeasureModel model(Measure measure, RuleFinder ruleFinder) {
     MeasureModel model = new MeasureModel();
-    model.setMetricId(metricFinder.findByKey(measure.getMetricKey()).getId());
+    // Assume Metric was reloaded
+    model.setMetricId(measure.getMetric().getId());
     model.setDescription(measure.getDescription());
     model.setData(measure.getData());
     model.setAlertStatus(measure.getAlertStatus());

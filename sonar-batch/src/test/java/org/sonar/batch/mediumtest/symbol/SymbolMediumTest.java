@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.mediumtest.symbol;
 
+import org.sonar.batch.mediumtest.TaskResult;
+
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -27,7 +29,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.batch.mediumtest.BatchMediumTester;
-import org.sonar.batch.mediumtest.BatchMediumTester.TaskResult;
 import org.sonar.xoo.XooPlugin;
 
 import java.io.File;

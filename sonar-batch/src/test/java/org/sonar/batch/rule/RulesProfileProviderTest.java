@@ -24,7 +24,6 @@ import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.RuleFinder;
 
 import java.util.Arrays;
 
@@ -37,7 +36,6 @@ public class RulesProfileProviderTest {
 
   ModuleQProfiles qProfiles = mock(ModuleQProfiles.class);
   ActiveRules activeRules = new ActiveRulesBuilder().build();
-  RuleFinder ruleFinder = mock(RuleFinder.class);
   Settings settings = new Settings();
   RulesProfileProvider provider = new RulesProfileProvider();
 
@@ -46,7 +44,7 @@ public class RulesProfileProviderTest {
     QProfile qProfile = new QProfile().setKey("java-sw").setName("Sonar way").setLanguage("java");
     when(qProfiles.findAll()).thenReturn(Arrays.asList(qProfile));
 
-    RulesProfile profile = provider.provide(qProfiles, activeRules, ruleFinder, settings);
+    RulesProfile profile = provider.provide(qProfiles, activeRules, settings);
 
     // merge of all profiles
     assertThat(profile).isNotNull().isInstanceOf(RulesProfileWrapper.class);
@@ -68,7 +66,7 @@ public class RulesProfileProviderTest {
     QProfile qProfile = new QProfile().setKey("java-sw").setName("Sonar way").setLanguage("java");
     when(qProfiles.findByLanguage("java")).thenReturn(qProfile);
 
-    RulesProfile profile = provider.provide(qProfiles, activeRules, ruleFinder, settings);
+    RulesProfile profile = provider.provide(qProfiles, activeRules, settings);
 
     // no merge, directly the old hibernate profile
     assertThat(profile).isNotNull();

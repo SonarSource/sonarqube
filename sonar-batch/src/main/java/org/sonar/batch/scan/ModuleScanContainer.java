@@ -22,6 +22,7 @@ package org.sonar.batch.scan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.rule.CheckFactory;
@@ -34,6 +35,7 @@ import org.sonar.batch.DefaultTimeMachine;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.ResourceFilters;
 import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
+import org.sonar.batch.bootstrap.BootstrapProperties;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.ExtensionMatcher;
 import org.sonar.batch.bootstrap.ExtensionUtils;
@@ -55,13 +57,21 @@ import org.sonar.batch.issue.ignore.pattern.IssueInclusionPatternInitializer;
 import org.sonar.batch.issue.ignore.scanner.IssueExclusionsLoader;
 import org.sonar.batch.issue.ignore.scanner.IssueExclusionsRegexpScanner;
 import org.sonar.batch.language.LanguageDistributionDecorator;
+import org.sonar.batch.phases.DecoratorsExecutor;
+import org.sonar.batch.phases.DefaultPhaseExecutor;
+import org.sonar.batch.phases.InitializersExecutor;
 import org.sonar.batch.phases.PhaseExecutor;
 import org.sonar.batch.phases.PhasesTimeProfiler;
+import org.sonar.batch.phases.PostJobsExecutor;
+import org.sonar.batch.phases.PreviewPhaseExecutor;
+import org.sonar.batch.phases.ProjectInitializer;
+import org.sonar.batch.phases.SensorsExecutor;
 import org.sonar.batch.qualitygate.GenerateQualityGateEvents;
 import org.sonar.batch.qualitygate.QualityGateProvider;
 import org.sonar.batch.qualitygate.QualityGateVerifier;
 import org.sonar.batch.report.ComponentsPublisher;
 import org.sonar.batch.report.IssuesPublisher;
+import org.sonar.batch.report.PublishReportJob;
 import org.sonar.batch.rule.ActiveRulesProvider;
 import org.sonar.batch.rule.ModuleQProfiles;
 import org.sonar.batch.rule.QProfileDecorator;
@@ -82,6 +92,7 @@ import org.sonar.batch.scan.filesystem.ModuleInputFileCache;
 import org.sonar.batch.scan.filesystem.PreviousFileHashLoader;
 import org.sonar.batch.scan.filesystem.ProjectFileSystemAdapter;
 import org.sonar.batch.scan.filesystem.StatusDetectionFactory;
+import org.sonar.batch.scan.maven.MavenPluginsConfigurator;
 import org.sonar.batch.scan.report.JsonReport;
 import org.sonar.batch.scan2.AnalyzerOptimizer;
 import org.sonar.core.component.ScanPerspectives;
@@ -90,16 +101,21 @@ import org.sonar.core.measure.MeasurementFilters;
 public class ModuleScanContainer extends ComponentContainer {
   private static final Logger LOG = LoggerFactory.getLogger(ModuleScanContainer.class);
   private final Project module;
+  private boolean sensorMode;
 
   public ModuleScanContainer(ProjectScanContainer parent, Project module) {
     super(parent);
     this.module = module;
+    this.sensorMode = CoreProperties.ANALYSIS_MODE_SENSOR.equals(parent.getComponentByType(BootstrapProperties.class).property(CoreProperties.ANALYSIS_MODE));
   }
 
   @Override
   protected void doBeforeStart() {
     LOG.info("-------------  Scan {}", module.getName());
     addCoreComponents();
+    if (!sensorMode) {
+      addDataBaseComponents();
+    }
     addExtensions();
   }
 
@@ -114,11 +130,21 @@ public class ModuleScanContainer extends ComponentContainer {
     ModuleSettings moduleSettings = getComponentByType(ModuleSettings.class);
     module.setSettings(moduleSettings);
 
+    if (!sensorMode) {
+      add(DefaultPhaseExecutor.class);
+    } else {
+      add(PreviewPhaseExecutor.class);
+    }
+
     add(
       EventBus.class,
-      PhaseExecutor.class,
       PhasesTimeProfiler.class,
-      PhaseExecutor.getPhaseClasses(),
+      MavenPluginsConfigurator.class,
+      PostJobsExecutor.class,
+      SensorsExecutor.class,
+      InitializersExecutor.class,
+      ProjectInitializer.class,
+      PublishReportJob.class,
       ComponentsPublisher.class,
       IssuesPublisher.class,
       moduleDefinition.getContainerExtensions(),
@@ -144,7 +170,6 @@ public class ModuleScanContainer extends ComponentContainer {
 
       AnalyzerOptimizer.class,
 
-      TimeMachineConfiguration.class,
       DefaultSensorContext.class,
       SensorContextAdapter.class,
       BatchExtensionDictionnary.class,
@@ -153,18 +178,12 @@ public class ModuleScanContainer extends ComponentContainer {
       MeasurementFilters.class,
       ResourceFilters.class,
 
-      // quality gates
-      new QualityGateProvider(),
-      QualityGateVerifier.class,
-      GenerateQualityGateEvents.class,
-
       // rules
       ModuleQProfiles.class,
       new ActiveRulesProvider(),
       new RulesProfileProvider(),
       QProfileSensor.class,
       QProfileDecorator.class,
-      QProfileEventsDecorator.class,
       CheckFactory.class,
 
       // report
@@ -173,6 +192,7 @@ public class ModuleScanContainer extends ComponentContainer {
       // issues
       IssuableFactory.class,
       ModuleIssues.class,
+      org.sonar.api.issue.NoSonarFilter.class,
 
       // issue exclusions
       IssueInclusionPatternInitializer.class,
@@ -181,6 +201,17 @@ public class ModuleScanContainer extends ComponentContainer {
       IssueExclusionsLoader.class,
       EnforceIssuesFilter.class,
       IgnoreIssuesFilter.class,
+
+      ScanPerspectives.class);
+  }
+
+  private void addDataBaseComponents() {
+    add(DecoratorsExecutor.class,
+
+      // quality gates
+      new QualityGateProvider(),
+      QualityGateVerifier.class,
+      GenerateQualityGateEvents.class,
 
       // language
       LanguageDistributionDecorator.class,
@@ -192,7 +223,10 @@ public class ModuleScanContainer extends ComponentContainer {
       SqaleRatingDecorator.class,
       SqaleRatingSettings.class,
 
-      ScanPerspectives.class);
+      QProfileEventsDecorator.class,
+
+      TimeMachineConfiguration.class);
+
   }
 
   private void addExtensions() {

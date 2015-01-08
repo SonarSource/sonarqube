@@ -25,6 +25,7 @@ import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
+import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.Issue;
@@ -40,7 +41,7 @@ import org.sonar.api.design.Dependency;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.measures.Formula;
-import org.sonar.api.measures.MetricFinder;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.measures.SumChildDistributionFormula;
 import org.sonar.api.resources.Directory;
@@ -74,7 +75,8 @@ public class SensorContextAdapter extends BaseSensorContext {
   private final ResourcePerspectives perspectives;
   private final SonarIndex sonarIndex;
 
-  public SensorContextAdapter(org.sonar.api.batch.SensorContext sensorContext, MetricFinder metricFinder, Project project, ResourcePerspectives perspectives,
+  public SensorContextAdapter(org.sonar.api.batch.SensorContext sensorContext, MetricFinder metricFinder, Project project,
+    ResourcePerspectives perspectives,
     Settings settings, FileSystem fs, ActiveRules activeRules, ComponentDataCache componentDataCache, BlockCache blockCache,
     DuplicationCache duplicationCache, SonarIndex sonarIndex) {
     super(settings, fs, activeRules, componentDataCache, blockCache, duplicationCache);
@@ -85,8 +87,8 @@ public class SensorContextAdapter extends BaseSensorContext {
     this.sonarIndex = sonarIndex;
   }
 
-  private org.sonar.api.measures.Metric findMetricOrFail(String metricKey) {
-    org.sonar.api.measures.Metric m = metricFinder.findByKey(metricKey);
+  private Metric findMetricOrFail(String metricKey) {
+    Metric m = (Metric) metricFinder.findByKey(metricKey);
     if (m == null) {
       throw new IllegalStateException("Unknow metric with key: " + metricKey);
     }

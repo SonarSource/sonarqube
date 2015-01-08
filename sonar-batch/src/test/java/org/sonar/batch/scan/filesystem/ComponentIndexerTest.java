@@ -35,7 +35,6 @@ import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.batch.index.ResourceKeyMigration;
 
 import java.io.File;
 import java.io.IOException;
@@ -90,7 +89,7 @@ public class ComponentIndexerTest {
   }
 
   private ComponentIndexer createIndexer(Languages languages) {
-    return new ComponentIndexer(project, languages, sonarIndex, mock(ResourceKeyMigration.class));
+    return new ComponentIndexer(project, languages, sonarIndex);
   }
 
   @Test

@@ -25,11 +25,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.Issue.Severity;
 import org.sonar.batch.mediumtest.BatchMediumTester;
-import org.sonar.batch.mediumtest.BatchMediumTester.TaskResult;
+import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.batch.protocol.input.ActiveRule;
 import org.sonar.xoo.XooPlugin;
 
@@ -92,7 +90,7 @@ public class IssuesMediumTest {
       .property("sonar.oneIssuePerLine.forceSeverity", "CRITICAL")
       .start();
 
-    assertThat(result.issues().iterator().next().overridenSeverity()).isEqualTo(Severity.CRITICAL);
+    assertThat(result.issues().iterator().next().severity()).isEqualTo(Severity.CRITICAL.name());
   }
 
   @Test
@@ -133,10 +131,10 @@ public class IssuesMediumTest {
     assertThat(result.issues()).hasSize(10);
 
     boolean foundIssueAtLine1 = false;
-    for (Issue issue : result.issues()) {
+    for (org.sonar.api.issue.Issue issue : result.issues()) {
       if (issue.line() == 1) {
         foundIssueAtLine1 = true;
-        assertThat(issue.inputPath()).isEqualTo(new DefaultInputFile("com.foo.project", "src/sample.xoo"));
+        assertThat(issue.componentKey()).isEqualTo("com.foo.project:src/sample.xoo");
         assertThat(issue.message()).isEqualTo("This issue is generated on each line");
         assertThat(issue.effortToFix()).isNull();
       }

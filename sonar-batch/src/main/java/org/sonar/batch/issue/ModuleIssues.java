@@ -47,12 +47,16 @@ public class ModuleIssues {
   private final Project project;
   private final IssueFilters filters;
 
-  public ModuleIssues(ActiveRules activeRules, Rules rules, IssueCache cache, @Nullable Project project, IssueFilters filters) {
+  public ModuleIssues(ActiveRules activeRules, @Nullable Rules rules, IssueCache cache, @Nullable Project project, IssueFilters filters) {
     this.activeRules = activeRules;
     this.rules = rules;
     this.cache = cache;
     this.project = project;
     this.filters = filters;
+  }
+
+  public ModuleIssues(ActiveRules activeRules, IssueCache cache, @Nullable Project project, IssueFilters filters) {
+    this(activeRules, null, cache, project, filters);
   }
 
   /** 
@@ -82,8 +86,11 @@ public class ModuleIssues {
 
   public boolean initAndAddIssue(DefaultIssue issue) {
     RuleKey ruleKey = issue.ruleKey();
-    Rule rule = rules.find(ruleKey);
-    validateRule(issue, rule);
+    Rule rule = null;
+    if (rules != null) {
+      rule = rules.find(ruleKey);
+      validateRule(issue, rule);
+    }
     ActiveRule activeRule = activeRules.find(ruleKey);
     if (activeRule == null) {
       // rule does not exist or is not enabled -> ignore the issue
@@ -107,8 +114,8 @@ public class ModuleIssues {
     }
   }
 
-  private void updateIssue(DefaultIssue issue, Rule rule, ActiveRule activeRule) {
-    if (Strings.isNullOrEmpty(issue.message())) {
+  private void updateIssue(DefaultIssue issue, @Nullable Rule rule, ActiveRule activeRule) {
+    if (rule != null && Strings.isNullOrEmpty(issue.message())) {
       issue.setMessage(rule.name());
     }
     if (project != null) {
@@ -118,9 +125,11 @@ public class ModuleIssues {
     if (issue.severity() == null) {
       issue.setSeverity(activeRule.severity());
     }
-    DebtRemediationFunction function = rule.debtRemediationFunction();
-    if (rule.debtSubCharacteristic() != null && function != null) {
-      issue.setDebt(calculateDebt(function, issue.effortToFix(), rule.key()));
+    if (rule != null) {
+      DebtRemediationFunction function = rule.debtRemediationFunction();
+      if (rule.debtSubCharacteristic() != null && function != null) {
+        issue.setDebt(calculateDebt(function, issue.effortToFix(), rule.key()));
+      }
     }
   }
 

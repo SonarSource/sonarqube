@@ -27,7 +27,6 @@ import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.maven.DependsUponMavenPlugin;
 import org.sonar.api.batch.maven.MavenPluginHandler;
-import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
@@ -45,17 +44,15 @@ public class SensorsExecutor implements BatchComponent {
   private Project module;
   private DefaultModuleFileSystem fs;
   private BatchExtensionDictionnary selector;
-  private final DatabaseSession session;
   private final SensorMatcher sensorMatcher;
 
   public SensorsExecutor(BatchExtensionDictionnary selector, Project project, DefaultModuleFileSystem fs, MavenPluginExecutor mavenExecutor, EventBus eventBus,
-    DatabaseSession session, SensorMatcher sensorMatcher) {
+    SensorMatcher sensorMatcher) {
     this.selector = selector;
     this.mavenExecutor = mavenExecutor;
     this.eventBus = eventBus;
     this.module = project;
     this.fs = fs;
-    this.session = session;
     this.sensorMatcher = sensorMatcher;
   }
 
@@ -64,9 +61,6 @@ public class SensorsExecutor implements BatchComponent {
     eventBus.fireEvent(new SensorsPhaseEvent(Lists.newArrayList(sensors), true));
 
     for (Sensor sensor : sensors) {
-      // SONAR-2965 In case the sensor takes too much time we close the session to not face a timeout
-      session.commitAndClose();
-
       executeSensor(context, sensor);
     }
 

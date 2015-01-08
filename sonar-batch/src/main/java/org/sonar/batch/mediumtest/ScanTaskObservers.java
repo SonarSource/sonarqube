@@ -17,13 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.phases;
+package org.sonar.batch.mediumtest;
 
-import org.sonar.api.resources.Project;
+import org.sonar.batch.scan.ProjectScanContainer;
 
-public interface PhaseExecutor {
-  /**
-   * Executed on each module
-   */
-  public void execute(Project module);
+public class ScanTaskObservers {
+
+  private ScanTaskObserver[] observers;
+  private ProjectScanContainer projectScanContainer;
+
+  public ScanTaskObservers(ProjectScanContainer projectScanContainer, ScanTaskObserver... observers) {
+    this.projectScanContainer = projectScanContainer;
+    this.observers = observers;
+  }
+
+  public ScanTaskObservers(ProjectScanContainer projectScanContainer) {
+    this(projectScanContainer, new ScanTaskObserver[0]);
+  }
+
+  public void notifyEndOfScanTask() {
+    for (ScanTaskObserver scanTaskObserver : observers) {
+      scanTaskObserver.scanTaskCompleted(projectScanContainer);
+    }
+  }
+
 }

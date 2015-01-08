@@ -21,8 +21,8 @@ package org.sonar.batch.scan.measure;
 
 import com.google.common.base.Preconditions;
 import org.sonar.api.BatchComponent;
+import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.measures.Measure;
-import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.measures.RuleMeasure;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.technicaldebt.batch.Characteristic;
@@ -45,6 +45,10 @@ public class MeasureCache implements BatchComponent {
 
   public Iterable<Entry<Measure>> entries() {
     return cache.entries();
+  }
+
+  public Iterable<Measure> all() {
+    return cache.values();
   }
 
   public Iterable<Measure> byResource(Resource r) {

@@ -32,6 +32,8 @@ import org.sonar.batch.index.ResourceKeyMigration;
 import org.sonar.batch.index.ResourcePersister;
 import org.sonar.batch.util.DeprecatedKeyUtils;
 
+import javax.annotation.Nullable;
+
 /**
  * Index all files/directories of the module in SQ database and importing source code.
  *
@@ -45,8 +47,8 @@ public class ComponentIndexer implements BatchComponent {
   private final Project module;
   private final ResourcePersister resourcePersister;
 
-  public ComponentIndexer(Project module, Languages languages, SonarIndex sonarIndex, ResourceKeyMigration migration,
-    ResourcePersister resourcePersister) {
+  public ComponentIndexer(Project module, Languages languages, SonarIndex sonarIndex, @Nullable ResourceKeyMigration migration,
+    @Nullable ResourcePersister resourcePersister) {
     this.module = module;
     this.languages = languages;
     this.sonarIndex = sonarIndex;
@@ -54,8 +56,8 @@ public class ComponentIndexer implements BatchComponent {
     this.resourcePersister = resourcePersister;
   }
 
-  public ComponentIndexer(Project module, Languages languages, SonarIndex sonarIndex, ResourceKeyMigration migration) {
-    this(module, languages, sonarIndex, migration, null);
+  public ComponentIndexer(Project module, Languages languages, SonarIndex sonarIndex) {
+    this(module, languages, sonarIndex, null, null);
   }
 
   public void execute(FileSystem fs) {
@@ -64,7 +66,9 @@ public class ComponentIndexer implements BatchComponent {
       resourcePersister.persist();
     }
 
-    migration.migrateIfNeeded(module, fs);
+    if (migration != null) {
+      migration.migrateIfNeeded(module, fs);
+    }
 
     for (InputFile inputFile : fs.inputFiles(fs.predicates().all())) {
       String languageKey = inputFile.language();
