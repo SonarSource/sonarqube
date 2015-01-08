@@ -20,11 +20,13 @@
 
 package org.sonar.server.computation;
 
+import org.sonar.batch.protocol.output.component.ReportComponent;
+
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import com.google.gson.Gson;
-import com.google.gson.stream.JsonReader;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
@@ -34,9 +36,8 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.protocol.GsonHelper;
+import org.sonar.batch.protocol.output.ReportHelper;
 import org.sonar.batch.protocol.output.issue.ReportIssue;
-import org.sonar.batch.protocol.output.resource.ReportComponent;
-import org.sonar.batch.protocol.output.resource.ReportComponents;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.core.persistence.DbSession;
@@ -44,10 +45,9 @@ import org.sonar.server.db.DbClient;
 
 import javax.annotation.Nullable;
 
-import java.io.*;
-import java.util.ArrayList;
+import java.io.File;
+import java.io.IOException;
 import java.util.Date;
-import java.util.List;
 
 public class AnalysisReportService implements ServerComponent {
   private static final Logger LOG = LoggerFactory.getLogger(AnalysisReportService.class);
@@ -64,22 +64,13 @@ public class AnalysisReportService implements ServerComponent {
 
   public void digest(DbSession session, ComputeEngineContext context) {
     decompress(session, context);
-    loadResources(context);
+    loadComponents(context);
     saveIssues(context);
   }
 
   @VisibleForTesting
-  void loadResources(ComputeEngineContext context) {
-    File file = new File(context.getReportDirectory(), "components.json");
-
-    try (InputStream resourcesStream = new FileInputStream(file)) {
-      String json = IOUtils.toString(resourcesStream);
-      ReportComponents reportComponents = ReportComponents.fromJson(json);
-      context.addResources(reportComponents);
-    } catch (IOException e) {
-      throw new IllegalStateException("Failed to read issues", e);
-    }
-
+  void loadComponents(ComputeEngineContext context) {
+    context.addResources(context.getReportHelper().getComponents());
   }
 
   @VisibleForTesting
@@ -87,38 +78,22 @@ public class AnalysisReportService implements ServerComponent {
     AnalysisReportDto report = context.getReportDto();
 
     File decompressedDirectory = dbClient.analysisReportDao().getDecompressedReport(session, report.getId());
-    context.setReportDirectory(decompressedDirectory);
+    context.setReportHelper(ReportHelper.create(decompressedDirectory));
   }
 
   @VisibleForTesting
-  void saveIssues(ComputeEngineContext context) {
+  void saveIssues(final ComputeEngineContext context) {
     IssueStorage issueStorage = issueStorageFactory.newComputeEngineIssueStorage(context.getProject());
 
-    File issuesFile = new File(context.getReportDirectory(), "issues.json");
-    List<DefaultIssue> issues = new ArrayList<>(MAX_ISSUES_SIZE);
-
-    try (InputStream issuesStream = new FileInputStream(issuesFile);
-      JsonReader reader = new JsonReader(new InputStreamReader(issuesStream))) {
-      reader.beginArray();
-      while (reader.hasNext()) {
-        ReportIssue reportIssue = gson.fromJson(reader, ReportIssue.class);
-        DefaultIssue defaultIssue = toIssue(context, reportIssue);
-        issues.add(defaultIssue);
-        if (shouldPersistIssues(issues, reader)) {
-          issueStorage.save(issues);
-          issues.clear();
+    for (ReportComponent component : context.getComponents().values()) {
+      Iterable<ReportIssue> reportIssues = context.getReportHelper().getIssues(component.batchId());
+      issueStorage.save(Iterables.transform(reportIssues, new Function<ReportIssue, DefaultIssue>() {
+        @Override
+        public DefaultIssue apply(ReportIssue input) {
+          return toIssue(context, input);
         }
-      }
-
-      reader.endArray();
-      reader.close();
-    } catch (IOException e) {
-      throw new IllegalStateException("Failed to read issues", e);
+      }));
     }
-  }
-
-  private boolean shouldPersistIssues(List<DefaultIssue> issues, JsonReader reader) throws IOException {
-    return issues.size() == MAX_ISSUES_SIZE || !reader.hasNext();
   }
 
   private DefaultIssue toIssue(ComputeEngineContext context, ReportIssue issue) {

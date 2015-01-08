@@ -19,23 +19,18 @@
  */
 package org.sonar.batch.report;
 
-import com.google.gson.Gson;
-import com.google.gson.stream.JsonWriter;
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.index.BatchResource;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.issue.IssueCache;
-import org.sonar.batch.protocol.GsonHelper;
+import org.sonar.batch.protocol.output.ReportHelper;
 import org.sonar.batch.protocol.output.issue.ReportIssue;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 
 public class IssuesPublisher implements ReportPublisher {
 
@@ -48,20 +43,16 @@ public class IssuesPublisher implements ReportPublisher {
   }
 
   @Override
-  public void export(File reportDir) throws IOException {
-    Gson gson = GsonHelper.create();
-    File issuesFile = new File(reportDir, "issues.json");
-    OutputStream out = new BufferedOutputStream(new FileOutputStream(issuesFile));
-
-    JsonWriter writer = new JsonWriter(new OutputStreamWriter(out, "UTF-8"));
-    writer.setIndent("  ");
-    writer.beginArray();
-    for (DefaultIssue issue : issueCache.all()) {
-      ReportIssue reportIssue = toReportIssue(issue);
-      gson.toJson(reportIssue, ReportIssue.class, writer);
+  public void export(ReportHelper reportHelper) throws IOException {
+    for (BatchResource resource : resourceCache.all()) {
+      Iterable<DefaultIssue> issues = issueCache.byComponent(resource.resource().getEffectiveKey());
+      reportHelper.saveIssues(resource.batchId(), Iterables.transform(issues, new Function<DefaultIssue, ReportIssue>() {
+        @Override
+        public ReportIssue apply(DefaultIssue input) {
+          return toReportIssue(input);
+        }
+      }));
     }
-    writer.endArray();
-    writer.close();
   }
 
   private ReportIssue toReportIssue(DefaultIssue issue) {

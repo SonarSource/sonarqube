@@ -20,6 +20,8 @@
 
 package org.sonar.server.computation;
 
+import org.sonar.batch.protocol.output.component.ReportComponent;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,7 +35,6 @@ import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.System2;
-import org.sonar.batch.protocol.output.resource.ReportComponent;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;

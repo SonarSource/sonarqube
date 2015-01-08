@@ -20,16 +20,17 @@
 
 package org.sonar.server.computation;
 
+import org.sonar.batch.protocol.output.component.ReportComponent;
+import org.sonar.batch.protocol.output.component.ReportComponents;
+
 import com.google.common.annotations.VisibleForTesting;
-import org.sonar.batch.protocol.output.resource.ReportComponent;
-import org.sonar.batch.protocol.output.resource.ReportComponents;
+import org.sonar.batch.protocol.output.ReportHelper;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,7 +39,7 @@ public class ComputeEngineContext {
 
   private final AnalysisReportDto reportDto;
   private final ComponentDto project;
-  private File reportDirectory;
+  private ReportHelper reportHelper;
   private Map<Long, ReportComponent> components = new HashMap<>();
   private Date analysisDate;
 
@@ -55,12 +56,12 @@ public class ComputeEngineContext {
     return project;
   }
 
-  public File getReportDirectory() {
-    return reportDirectory;
+  public ReportHelper getReportHelper() {
+    return reportHelper;
   }
 
-  public void setReportDirectory(@Nullable File reportDirectory) {
-    this.reportDirectory = reportDirectory;
+  public void setReportHelper(@Nullable ReportHelper reportHelper) {
+    this.reportHelper = reportHelper;
   }
 
   public void addResources(ReportComponents reportComponents) {

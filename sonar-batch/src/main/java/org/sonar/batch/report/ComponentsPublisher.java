@@ -19,7 +19,9 @@
  */
 package org.sonar.batch.report;
 
-import org.apache.commons.io.FileUtils;
+import org.sonar.batch.protocol.output.component.ReportComponent;
+import org.sonar.batch.protocol.output.component.ReportComponents;
+
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Project;
@@ -27,12 +29,10 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.batch.index.BatchResource;
 import org.sonar.batch.index.ResourceCache;
-import org.sonar.batch.protocol.output.resource.ReportComponent;
-import org.sonar.batch.protocol.output.resource.ReportComponents;
+import org.sonar.batch.protocol.output.ReportHelper;
 
 import javax.annotation.CheckForNull;
 
-import java.io.File;
 import java.io.IOException;
 
 public class ComponentsPublisher implements ReportPublisher {
@@ -46,13 +46,12 @@ public class ComponentsPublisher implements ReportPublisher {
   }
 
   @Override
-  public void export(File reportDir) throws IOException {
+  public void export(ReportHelper reportHelper) throws IOException {
     ReportComponents components = new ReportComponents();
     BatchResource rootProject = resourceCache.get(reactor.getRoot().getKeyWithBranch());
     components.setRoot(buildResourceForReport(rootProject));
     components.setAnalysisDate(((Project) rootProject.resource()).getAnalysisDate());
-    File resourcesFile = new File(reportDir, "components.json");
-    FileUtils.write(resourcesFile, components.toJson());
+    reportHelper.saveComponents(components);
   }
 
   private ReportComponent buildResourceForReport(BatchResource batchResource) {

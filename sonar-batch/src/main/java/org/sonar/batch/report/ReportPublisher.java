@@ -19,11 +19,12 @@
  */
 package org.sonar.batch.report;
 
-import java.io.File;
+import org.sonar.batch.protocol.output.ReportHelper;
+
 import java.io.IOException;
 
 public interface ReportPublisher {
 
-  void export(File reportDir) throws IOException;
+  void export(ReportHelper reportHelper) throws IOException;
 
 }

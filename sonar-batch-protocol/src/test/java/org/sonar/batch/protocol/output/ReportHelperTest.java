@@ -17,41 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
-package org.sonar.server.computation.step;
+package org.sonar.batch.protocol.output;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.batch.protocol.output.ReportHelper;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.server.computation.AnalysisReportService;
-import org.sonar.server.computation.ComputeEngineContext;
+import org.sonar.batch.protocol.output.component.ReportComponent;
+import org.sonar.batch.protocol.output.component.ReportComponents;
+import org.sonar.batch.protocol.output.issue.ReportIssue;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.fest.assertions.Assertions.assertThat;
 
-public class CleanReportStepTest {
+public class ReportHelperTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  CleanReportStep sut;
-
   @Test
-  public void call_delete_directory() throws Exception {
-    AnalysisReportService service = mock(AnalysisReportService.class);
-    sut = new CleanReportStep(service);
+  public void createAndRead() throws IOException {
+    ReportHelper helper = ReportHelper.create(temp.newFolder());
 
-    ComputeEngineContext context = mock(ComputeEngineContext.class);
-    when(context.getReportHelper()).thenReturn(ReportHelper.create(temp.newFolder()));
+    helper.saveComponents(new ReportComponents().setRoot(new ReportComponent().setBatchId(1L)));
 
-    sut.execute(mock(DbSession.class), context);
+    helper.saveIssues(1L, Arrays.asList(new ReportIssue().setRuleKey("foo", "bar")));
 
-    verify(service).deleteDirectory(any(File.class));
+    assertThat(new File(helper.reportRootDir(), "components.json")).exists();
+    assertThat(new File(helper.reportRootDir(), "1/issues-1.json")).exists();
+
+    assertThat(helper.getComponents().root().batchId()).isEqualTo(1L);
+    assertThat(helper.getIssues(1L)).hasSize(1);
   }
+
 }

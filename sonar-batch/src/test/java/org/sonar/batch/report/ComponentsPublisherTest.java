@@ -35,6 +35,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.protocol.output.ReportHelper;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -75,7 +76,8 @@ public class ComponentsPublisherTest {
     resourceCache.add(testFile, dir2).setSnapshot(new Snapshot().setId(16));
 
     File exportDir = temp.newFolder();
-    publisher.export(exportDir);
+    ReportHelper helper = ReportHelper.create(exportDir);
+    publisher.export(helper);
 
     JSONAssert
       .assertEquals(
@@ -100,7 +102,8 @@ public class ComponentsPublisherTest {
     resourceCache.add(mainFile, view).setSnapshot(new Snapshot().setId(12));
 
     File exportDir = temp.newFolder();
-    publisher.export(exportDir);
+    ReportHelper helper = ReportHelper.create(exportDir);
+    publisher.export(helper);
 
     JSONAssert
       .assertEquals(

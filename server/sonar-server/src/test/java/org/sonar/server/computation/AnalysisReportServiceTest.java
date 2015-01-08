@@ -20,13 +20,18 @@
 
 package org.sonar.server.computation;
 
+import org.sonar.batch.protocol.output.component.ReportComponent;
+import org.sonar.batch.protocol.output.component.ReportComponents;
+
 import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rules.RuleFinder;
-import org.sonar.batch.protocol.output.resource.ReportComponent;
+import org.sonar.batch.protocol.output.ReportHelper;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.issue.db.IssueStorage;
@@ -40,9 +45,16 @@ import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class AnalysisReportServiceTest {
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
   private AnalysisReportService sut;
 
   private IssueStorage issueStorage;
@@ -63,6 +75,8 @@ public class AnalysisReportServiceTest {
     when(dbClient.analysisReportDao()).thenReturn(dao);
     AnalysisReportDto report = AnalysisReportDto.newForTests(123L);
     ComputeEngineContext context = new ComputeEngineContext(report, mock(ComponentDto.class));
+
+    when(dao.getDecompressedReport(any(DbSession.class), eq(123L))).thenReturn(temp.newFile());
 
     sut.decompress(mock(DbSession.class), context);
 
@@ -87,11 +101,11 @@ public class AnalysisReportServiceTest {
   }
 
   @Test
-  public void load_resources() throws Exception {
+  public void load_components() throws Exception {
     ComputeEngineContext context = new ComputeEngineContext(mock(AnalysisReportDto.class), mock(ComponentDto.class));
-    context.setReportDirectory(new File(getClass().getResource("/org/sonar/server/computation/AnalysisReportServiceTest/report-folder").getFile()));
+    context.setReportHelper(ReportHelper.create(new File(getClass().getResource("/org/sonar/server/computation/AnalysisReportServiceTest/report-folder").getFile())));
 
-    sut.loadResources(context);
+    sut.loadComponents(context);
 
     assertThat(context.getComponents()).hasSize(4);
   }
@@ -99,7 +113,9 @@ public class AnalysisReportServiceTest {
   @Test
   public void save_issues() throws Exception {
     ComputeEngineContext context = new FakeComputeEngineContext();
-    context.setReportDirectory(new File(getClass().getResource("/org/sonar/server/computation/AnalysisReportServiceTest/report-folder").getFile()));
+    context.setReportHelper(ReportHelper.create(new File(getClass().getResource("/org/sonar/server/computation/AnalysisReportServiceTest/report-folder").getFile())));
+
+    context.addResources(new ReportComponents().setRoot(new ReportComponent().setBatchId(1)));
 
     sut.saveIssues(context);
 

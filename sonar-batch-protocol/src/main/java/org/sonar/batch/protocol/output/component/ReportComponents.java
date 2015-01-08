@@ -17,8 +17,41 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.batch.protocol.output.resource;
+package org.sonar.batch.protocol.output.component;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.sonar.batch.protocol.GsonHelper;
 
+import java.util.Date;
+
+public class ReportComponents {
+
+  private Date analysisDate;
+
+  private ReportComponent root;
+
+  public void setAnalysisDate(Date analysisDate) {
+    this.analysisDate = analysisDate;
+  }
+
+  public Date analysisDate() {
+    return analysisDate;
+  }
+
+  public ReportComponents setRoot(ReportComponent r) {
+    this.root = r;
+    return this;
+  }
+
+  public ReportComponent root() {
+    return root;
+  }
+
+  public String toJson() {
+    return GsonHelper.create().toJson(this);
+  }
+
+  public static ReportComponents fromJson(String json) {
+    return GsonHelper.create().fromJson(json, ReportComponents.class);
+  }
+
+}

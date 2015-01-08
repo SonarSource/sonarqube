@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.protocol.output.resource;
+package org.sonar.batch.protocol.output.component;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
-import org.sonar.batch.protocol.output.resource.ReportComponent.Type;
+import org.sonar.batch.protocol.output.component.ReportComponent.Type;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -72,7 +72,7 @@ public class ReportComponentsTest {
 
     JSONAssert
       .assertEquals(
-        IOUtils.toString(this.getClass().getResourceAsStream("ReportResourceTest/expected.json"), "UTF-8"),
+        IOUtils.toString(this.getClass().getResourceAsStream("ReportComponentsTest/expected.json"), "UTF-8"),
         res.toJson(), true);
   }
 
@@ -80,7 +80,7 @@ public class ReportComponentsTest {
   public void from_json() throws Exception {
     ReportComponents res = ReportComponents
       .fromJson(
-      IOUtils.toString(this.getClass().getResourceAsStream("ReportResourceTest/expected.json"), "UTF-8"));
+      IOUtils.toString(this.getClass().getResourceAsStream("ReportComponentsTest/expected.json"), "UTF-8"));
 
     assertThat(res.analysisDate()).isEqualTo(new SimpleDateFormat("dd/MM/yyyy").parse("12/12/2012"));
     ReportComponent root = res.root();

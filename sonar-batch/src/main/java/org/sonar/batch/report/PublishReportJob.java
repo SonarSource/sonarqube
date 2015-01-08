@@ -34,6 +34,7 @@ import org.sonar.api.utils.ZipUtils;
 import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.protocol.output.ReportHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -83,8 +84,9 @@ public class PublishReportJob implements BatchComponent {
   private File prepareReport() {
     try {
       File reportDir = temp.newDir("batch-report");
+      ReportHelper reportHelper = ReportHelper.create(reportDir);
       for (ReportPublisher publisher : publishers) {
-        publisher.export(reportDir);
+        publisher.export(reportHelper);
       }
 
       File reportZip = temp.newFile("batch-report", ".zip");
