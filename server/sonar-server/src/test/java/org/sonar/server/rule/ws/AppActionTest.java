@@ -35,7 +35,6 @@ import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.qualityprofile.QProfileLoader;
-import org.sonar.server.qualityprofile.QProfileService;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.rule.RuleRepositories;
 import org.sonar.server.user.MockUserSession;
@@ -70,7 +69,7 @@ public class AppActionTest {
   public void should_generate_app_init_info() throws Exception {
     AppAction app = new AppAction(languages, ruleRepositories, i18n, debtModel, profileLoader);
     WsTester tester = new WsTester(new RulesWebService(
-      mock(SearchAction.class), mock(ShowAction.class), mock(TagsAction.class), mock(CreateAction.class),
+      new SearchAction(null, null, null), mock(ShowAction.class), mock(TagsAction.class), mock(CreateAction.class),
       app, mock(UpdateAction.class), mock(DeleteAction.class)));
 
     MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);

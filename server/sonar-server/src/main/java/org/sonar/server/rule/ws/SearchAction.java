@@ -20,12 +20,11 @@
 package org.sonar.server.rule.ws;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.io.Resources;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
-import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.qualityprofile.ActiveRule;
@@ -37,6 +36,9 @@ import org.sonar.server.search.FacetValue;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 import org.sonar.server.search.ws.SearchOptions;
+import org.sonar.server.search.ws.SearchRequestHandler;
+
+import javax.annotation.CheckForNull;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -45,7 +47,7 @@ import java.util.Map;
 /**
  * @since 4.4
  */
-public class SearchAction implements RequestHandler {
+public class SearchAction extends SearchRequestHandler<RuleQuery, Rule> {
 
   public static final String PARAM_REPOSITORIES = "repositories";
   public static final String PARAM_KEY = "rule_key";
@@ -71,32 +73,35 @@ public class SearchAction implements RequestHandler {
   private final RuleMapping mapping;
 
   public SearchAction(RuleService service, ActiveRuleCompleter activeRuleCompleter, RuleMapping mapping) {
+    super(SEARCH_ACTION);
     this.ruleService = service;
     this.activeRuleCompleter = activeRuleCompleter;
     this.mapping = mapping;
   }
 
-  void define(WebService.NewController controller) {
-    WebService.NewAction action = controller
-      .createAction(SEARCH_ACTION)
-      .setDescription("Search for a collection of relevant rules matching a specified query")
+  @Override
+  protected void doDefinition(WebService.NewAction action) {
+    action.setDescription("Search for a collection of relevant rules matching a specified query")
       .setResponseExample(Resources.getResource(getClass(), "example-search.json"))
       .setSince("4.4")
       .setHandler(this);
 
-    // Generic search parameters
-    SearchOptions.defineFieldsParam(action,
-      ImmutableList.<String>builder().addAll(mapping.supportedFields()).add("actives").build());
-    SearchOptions.definePageParams(action);
-
     // Rule-specific search parameters
     defineRuleSearchParameters(action);
+  }
 
-    // Other parameters
-    action.createParam(PARAM_FACETS)
-      .setDescription("Compute predefined facets")
-      .setBooleanPossibleValues()
-      .setDefaultValue("false");
+  @Override
+  @CheckForNull
+  protected Collection<String> possibleFacets() {
+    return Arrays.asList(new String[] {
+      "languages",
+      "repositories",
+      "tags",
+      "characteristics",
+      "severities",
+      "statuses",
+      "true"
+    });
   }
 
   /**
@@ -209,30 +214,6 @@ public class SearchAction implements RequestHandler {
       .setDefaultValue(true);
   }
 
-  @Override
-  public void handle(Request request, Response response) {
-    RuleQuery query = createRuleQuery(ruleService.newRuleQuery(), request);
-    SearchOptions searchOptions = SearchOptions.create(request);
-    QueryContext queryContext = mapping.newQueryOptions(searchOptions);
-    Boolean facets = request.paramAsBoolean(PARAM_FACETS);
-    if (facets != null && facets) {
-      queryContext.addFacets(Arrays.asList("languages", "repositories", "tags"));
-    }
-
-    Result<Rule> results = ruleService.search(query, queryContext);
-
-    JsonWriter json = response.newJsonWriter().beginObject();
-    searchOptions.writeStatistics(json, results);
-    writeRules(results, json, searchOptions);
-    if (searchOptions.hasField("actives")) {
-      activeRuleCompleter.completeSearch(query, results.getHits(), json);
-    }
-    if (queryContext.isFacet()) {
-      writeFacets(results, json);
-    }
-    json.endObject().close();
-  }
-
   public static RuleQuery createRuleQuery(RuleQuery query, Request request) {
     query.setQueryText(request.param(SearchOptions.PARAM_TEXT_QUERY));
     query.setSeverities(request.paramAsStrings(PARAM_SEVERITIES));
@@ -259,10 +240,10 @@ public class SearchAction implements RequestHandler {
     return query;
   }
 
-  private void writeRules(Result<Rule> result, JsonWriter json, SearchOptions options) {
+  private void writeRules(Result<Rule> result, JsonWriter json, QueryContext context) {
     json.name("rules").beginArray();
     for (Rule rule : result.getHits()) {
-      mapping.write(rule, json, options);
+      mapping.write(rule, json, context);
     }
     json.endArray();
   }
@@ -282,5 +263,43 @@ public class SearchAction implements RequestHandler {
       json.endArray().endObject();
     }
     json.endArray();
+  }
+
+  @Override
+  protected QueryContext getQueryContext(Request request) {
+    // TODO Get rid of this horrible hack: fields on request are not the same as fields for ES search ! 1/2
+    return mapping.newQueryOptions(SearchOptions.create(request));
+  }
+
+  @Override
+  protected Result<Rule> doSearch(RuleQuery query, QueryContext context) {
+    return ruleService.search(query, context);
+  }
+
+  @Override
+  protected RuleQuery doQuery(Request request) {
+    return createRuleQuery(ruleService.newRuleQuery(), request);
+  }
+
+  @Override
+  protected void doContextResponse(Request request, QueryContext context, Result<Rule> result, JsonWriter json) {
+    // TODO Get rid of this horrible hack: fields on request are not the same as fields for ES search ! 2/2
+    QueryContext contextForResponse = super.getQueryContext(request);
+    writeRules(result, json, contextForResponse);
+    if (contextForResponse.getFieldsToReturn().contains("actives")) {
+      activeRuleCompleter.completeSearch(doQuery(request), result.getHits(), json);
+    }
+    if (contextForResponse.isFacet()) {
+      writeFacets(result, json);
+    }
+  }
+
+  @Override
+  protected Collection<String> possibleFields() {
+    Builder<String> builder = ImmutableList.<String>builder();
+    if (mapping != null) {
+      builder.addAll(mapping.supportedFields());
+    }
+    return builder.add("actives").build();
   }
 }

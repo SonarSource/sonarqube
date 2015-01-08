@@ -1,5 +1,5 @@
 {
-  "total": 2, "p": 1, "ps": 10,
+  "total": 2, "p": 1, "ps": 100,
   "rules": [
     {
       "key": "xoo:x2",
@@ -35,5 +35,4 @@
       "lang": "xoo",
       "params": []
     }
-  ],
-  "actives": {}}
+  ]}

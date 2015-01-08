@@ -79,14 +79,14 @@ public class SearchAction implements RequestHandler {
 
     JsonWriter json = response.newJsonWriter().beginObject();
     searchOptions.writeStatistics(json, results);
-    writeLogs(results, json, searchOptions);
+    writeLogs(results, json, queryContext);
     json.endObject().close();
   }
 
-  private void writeLogs(Result<Activity> result, JsonWriter json, SearchOptions options) {
+  private void writeLogs(Result<Activity> result, JsonWriter json, QueryContext context) {
     json.name("logs").beginArray();
     for (Activity log : result.getHits()) {
-      mapping.write(log, json, options);
+      mapping.write(log, json, context);
     }
     json.endArray();
   }

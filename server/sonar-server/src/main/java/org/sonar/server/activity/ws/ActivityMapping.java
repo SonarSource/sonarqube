@@ -23,8 +23,8 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.activity.Activity;
 import org.sonar.server.activity.index.ActivityDoc;
 import org.sonar.server.activity.index.ActivityNormalizer;
+import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.ws.BaseMapping;
-import org.sonar.server.search.ws.SearchOptions;
 
 import java.util.Map;
 
@@ -51,8 +51,8 @@ public class ActivityMapping extends BaseMapping<ActivityDoc, Object> {
     });
   }
 
-  public void write(Activity activity, JsonWriter writer, SearchOptions options) {
-    doWrite((ActivityDoc)activity, null, writer, options);
+  public void write(Activity activity, JsonWriter writer, QueryContext context) {
+    doWrite((ActivityDoc) activity, null, writer, context);
   }
 
 }

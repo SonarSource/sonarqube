@@ -42,7 +42,7 @@ public class DeleteActionTest {
 
   @Before
   public void setUp() throws Exception {
-    tester = new WsTester(new RulesWebService(mock(SearchAction.class), mock(ShowAction.class), mock(TagsAction.class), mock(CreateAction.class), mock(AppAction.class),
+    tester = new WsTester(new RulesWebService(new SearchAction(null, null, null), mock(ShowAction.class), mock(TagsAction.class), mock(CreateAction.class), mock(AppAction.class),
       mock(UpdateAction.class), new DeleteAction(ruleService)));
   }
 

@@ -30,8 +30,8 @@ import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleParam;
 import org.sonar.server.rule.index.RuleDoc;
 import org.sonar.server.rule.index.RuleNormalizer;
+import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.ws.BaseMapping;
-import org.sonar.server.search.ws.SearchOptions;
 import org.sonar.server.text.MacroInterpreter;
 
 import javax.annotation.CheckForNull;
@@ -164,43 +164,43 @@ public class RuleMapping extends BaseMapping<RuleDoc, RuleMappingContext> {
     });
   }
 
-  public void write(Rule rule, JsonWriter json, @Nullable SearchOptions options) {
+  public void write(Rule rule, JsonWriter json, @Nullable QueryContext queryContext) {
     RuleMappingContext context = new RuleMappingContext();
-    if (needDebtCharacteristicNames(options)) {
+    if (needDebtCharacteristicNames(queryContext)) {
       String debtCharacteristicKey = rule.debtCharacteristicKey();
       if (debtCharacteristicKey != null) {
         // load debt characteristics if requested
         context.add(debtModel.characteristicByKey(debtCharacteristicKey));
       }
     }
-    if (needDebtSubCharacteristicNames(options)) {
+    if (needDebtSubCharacteristicNames(queryContext)) {
       String debtSubCharacteristicKey = rule.debtSubCharacteristicKey();
       if (debtSubCharacteristicKey != null) {
         context.add(debtModel.characteristicByKey(debtSubCharacteristicKey));
       }
     }
-    doWrite((RuleDoc) rule, context, json, options);
+    doWrite((RuleDoc) rule, context, json, queryContext);
   }
 
-  public void write(Collection<Rule> rules, JsonWriter json, @Nullable SearchOptions options) {
+  public void write(Collection<Rule> rules, JsonWriter json, @Nullable QueryContext queryContext) {
     if (!rules.isEmpty()) {
       RuleMappingContext context = new RuleMappingContext();
-      if (needDebtCharacteristicNames(options) || needDebtSubCharacteristicNames(options)) {
+      if (needDebtCharacteristicNames(queryContext) || needDebtSubCharacteristicNames(queryContext)) {
         // load all debt characteristics
         context.addAll(debtModel.allCharacteristics());
       }
       for (Rule rule : rules) {
-        doWrite((RuleDoc) rule, context, json, options);
+        doWrite((RuleDoc) rule, context, json, queryContext);
       }
     }
   }
 
-  private boolean needDebtCharacteristicNames(@Nullable SearchOptions options) {
-    return options == null || options.hasField("debtCharName");
+  private boolean needDebtCharacteristicNames(@Nullable QueryContext context) {
+    return context == null || context.getFieldsToReturn().contains("debtCharName");
   }
 
-  private boolean needDebtSubCharacteristicNames(@Nullable SearchOptions options) {
-    return options == null || options.hasField("debtSubCharName");
+  private boolean needDebtSubCharacteristicNames(@Nullable QueryContext context) {
+    return context == null || context.getFieldsToReturn().contains("debtSubCharName");
   }
 
   private static class CharacteristicNameMapper extends IndexMapper<RuleDoc, RuleMappingContext> {

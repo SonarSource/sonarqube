@@ -1,4 +1,4 @@
-{"total": 1, "p": 1, "ps": 10, "rules": [
+{"total": 1, "p": 1, "ps": 100, "rules": [
   {
     "key": "xoo:x1",
     "sysTags": ["tag1"],

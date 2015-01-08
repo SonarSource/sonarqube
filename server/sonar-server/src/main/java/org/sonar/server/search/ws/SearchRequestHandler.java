@@ -120,7 +120,7 @@ public abstract class SearchRequestHandler<QUERY, DOMAIN> implements RequestHand
     json.endObject().close();
   }
 
-  private QueryContext getQueryContext(Request request) {
+  protected QueryContext getQueryContext(Request request) {
     int pageSize = request.mandatoryParamAsInt(PARAM_PAGE_SIZE);
     QueryContext queryContext = new QueryContext().addFieldsToReturn(request.paramAsStrings(PARAM_FIELDS));
     List<String> facets = request.paramAsStrings(PARAM_FACETS);

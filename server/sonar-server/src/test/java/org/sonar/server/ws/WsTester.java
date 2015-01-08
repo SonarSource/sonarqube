@@ -177,8 +177,12 @@ public class WsTester {
     }
 
     public Result assertJson(String expectedJson) throws Exception {
+      return assertJson(expectedJson, true);
+    }
+
+    public Result assertJson(String expectedJson, boolean strict) throws Exception {
       String json = outputAsString();
-      JSONAssert.assertEquals(expectedJson, json, true);
+      JSONAssert.assertEquals(expectedJson, json, strict);
       return this;
     }
 

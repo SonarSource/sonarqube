@@ -70,16 +70,16 @@ public abstract class BaseMapping<DOC extends BaseDoc, CTX> implements ServerCom
   /**
    * Write only requested document fields
    */
-  protected void doWrite(DOC doc, @Nullable CTX context, JsonWriter json, @Nullable SearchOptions options) {
+  protected void doWrite(DOC doc, @Nullable CTX context, JsonWriter json, @Nullable QueryContext queryContext) {
     json.beginObject();
     json.prop("key", doc.keyField());
-    if (options == null || options.fields() == null) {
+    if (queryContext == null || queryContext.getFieldsToReturn().isEmpty()) {
       // return all fields
       for (Mapper mapper : mappers.values()) {
         mapper.write(json, doc, context);
       }
     } else {
-      for (String optionField : options.fields()) {
+      for (String optionField : queryContext.getFieldsToReturn()) {
         for (Mapper mapper : mappers.get(optionField)) {
           mapper.write(json, doc, context);
         }

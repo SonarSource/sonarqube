@@ -135,7 +135,7 @@ public class RulesWebServiceMediumTest {
   public void search_no_rules() throws Exception {
     MockUserSession.set();
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
-
+    request.setParam(SearchOptions.PARAM_FIELDS, "actives");
     WsTester.Result result = request.execute();
 
     result.assertJson(this.getClass(), "search_no_rules.json");
@@ -150,14 +150,15 @@ public class RulesWebServiceMediumTest {
     MockUserSession.set();
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(SearchAction.PARAM_KEY, RuleTesting.XOO_X1.toString());
-    request.setParam(SearchOptions.PARAM_FIELDS, "");
+    request.setParam(SearchOptions.PARAM_FIELDS, "actives");
     WsTester.Result result = request.execute();
-    result.assertJson("{\"total\":1,\"p\":1,\"ps\":10,\"rules\":[{\"key\":\"xoo:x1\"}]}");
+    result.assertJson("{\"total\":1,\"p\":1,\"ps\":100,\"rules\":[{\"key\":\"xoo:x1\"}]}", false);
 
     request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(SearchAction.PARAM_KEY, RuleKey.of("xoo", "unknown").toString());
+    request.setParam(SearchOptions.PARAM_FIELDS, "actives");
     result = request.execute();
-    result.assertJson("{\"total\":0,\"p\":1,\"ps\":10,\"rules\":[],\"actives\":{}}");
+    result.assertJson("{\"total\":0,\"p\":1,\"ps\":100,\"rules\":[],\"actives\":{}}", false);
 
   }
 
@@ -319,7 +320,7 @@ public class RulesWebServiceMediumTest {
     request.setParam(SearchOptions.PARAM_FIELDS, "");
     WsTester.Result result = request.execute();
 
-    result.assertJson(this.getClass(), "search_active_rules.json");
+    result.assertJson(this.getClass(), "search_active_rules.json", false);
   }
 
   @Test
@@ -349,7 +350,7 @@ public class RulesWebServiceMediumTest {
     request.setParam(SearchAction.PARAM_QPROFILE, profile2.getKey());
     request.setParam(SearchOptions.PARAM_FIELDS, "");
     WsTester.Result result = request.execute();
-    result.assertJson(this.getClass(), "search_profile_active_rules.json");
+    result.assertJson(this.getClass(), "search_profile_active_rules.json", false);
   }
 
   @Test
@@ -467,7 +468,7 @@ public class RulesWebServiceMediumTest {
     request.setParam(SearchOptions.PARAM_ASCENDING, "true");
 
     WsTester.Result result = request.execute();
-    result.assertJson("{\"total\":3,\"p\":1,\"ps\":10,\"rules\":[{\"key\":\"xoo:x2\"},{\"key\":\"xoo:x1\"},{\"key\":\"xoo:x3\"}]}");
+    result.assertJson("{\"total\":3,\"p\":1,\"ps\":100,\"rules\":[{\"key\":\"xoo:x2\"},{\"key\":\"xoo:x1\"},{\"key\":\"xoo:x3\"}]}", false);
 
     // 2. Sort Name DESC
     request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
@@ -476,7 +477,7 @@ public class RulesWebServiceMediumTest {
     request.setParam(SearchOptions.PARAM_ASCENDING, "false");
 
     result = request.execute();
-    result.assertJson("{\"total\":3,\"p\":1,\"ps\":10,\"rules\":[{\"key\":\"xoo:x3\"},{\"key\":\"xoo:x1\"},{\"key\":\"xoo:x2\"}]}");
+    result.assertJson("{\"total\":3,\"p\":1,\"ps\":100,\"rules\":[{\"key\":\"xoo:x3\"},{\"key\":\"xoo:x1\"},{\"key\":\"xoo:x2\"}]}", false);
 
   }
 
@@ -496,7 +497,7 @@ public class RulesWebServiceMediumTest {
     request.setParam(SearchAction.PARAM_AVAILABLE_SINCE, DateUtils.formatDate(since));
     request.setParam(SearchOptions.PARAM_SORT, RuleNormalizer.RuleField.KEY.field());
     WsTester.Result result = request.execute();
-    result.assertJson("{\"total\":2,\"p\":1,\"ps\":10,\"rules\":[{\"key\":\"xoo:x1\"},{\"key\":\"xoo:x2\"}]}");
+    result.assertJson("{\"total\":2,\"p\":1,\"ps\":100,\"rules\":[{\"key\":\"xoo:x1\"},{\"key\":\"xoo:x2\"}]}", false);
 
     Calendar c = Calendar.getInstance();
     c.setTime(since);
@@ -508,7 +509,7 @@ public class RulesWebServiceMediumTest {
     request.setParam(SearchOptions.PARAM_FIELDS, "");
     request.setParam(SearchAction.PARAM_AVAILABLE_SINCE, DateUtils.formatDate(c.getTime()));
     result = request.execute();
-    result.assertJson("{\"total\":0,\"p\":1,\"ps\":10,\"rules\":[]}");
+    result.assertJson("{\"total\":0,\"p\":1,\"ps\":100,\"rules\":[]}");
   }
 
   private ActiveRuleDto newActiveRule(QualityProfileDto profile, RuleDto rule) {
