@@ -55,7 +55,7 @@ public class UpsertImpl extends BaseSqlStatement<Upsert> implements Upsert {
     return this;
   }
 
-  long getBatchCount() {
+  public long getBatchCount() {
     return batchCount;
   }
 

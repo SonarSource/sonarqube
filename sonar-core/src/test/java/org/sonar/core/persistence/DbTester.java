@@ -22,7 +22,6 @@ package org.sonar.core.persistence;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -57,14 +56,13 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
 import static org.junit.Assert.fail;
 
 /**
@@ -159,14 +157,10 @@ public class DbTester extends ExternalResource {
   }
 
   public void executeUpdateSql(String sql) {
-    Connection connection = null;
-    try {
-      connection = openConnection();
+    try (Connection connection = openConnection()) {
       new QueryRunner().update(connection, sql);
     } catch (Exception e) {
       throw new IllegalStateException("Fail to execute sql: " + sql);
-    } finally {
-      DbUtils.commitAndCloseQuietly(connection);
     }
   }
 
@@ -186,13 +180,10 @@ public class DbTester extends ExternalResource {
   public int countSql(String sql) {
     Preconditions.checkArgument(StringUtils.contains(sql, "count("),
       "Parameter must be a SQL request containing 'count(x)' function. Got " + sql);
-    Connection connection = null;
-    PreparedStatement stmt = null;
-    ResultSet rs = null;
-    try {
-      connection = openConnection();
-      stmt = connection.prepareStatement(sql);
-      rs = stmt.executeQuery();
+    try (
+      Connection connection = openConnection();
+      PreparedStatement stmt = connection.prepareStatement(sql);
+      ResultSet rs = stmt.executeQuery()) {
       if (rs.next()) {
         return rs.getInt(1);
       }
@@ -200,10 +191,42 @@ public class DbTester extends ExternalResource {
 
     } catch (Exception e) {
       throw new IllegalStateException("Fail to execute sql: " + sql);
-
-    } finally {
-      DbUtils.closeQuietly(connection, stmt, rs);
     }
+  }
+
+  public List<Map<String, Object>> select(String selectSql) {
+    try (
+      Connection connection = openConnection();
+      PreparedStatement stmt = connection.prepareStatement(selectSql);
+      ResultSet rs = stmt.executeQuery()) {
+      return getHashMap(rs);
+    } catch (Exception e) {
+      throw new IllegalStateException("Fail to execute sql: " + selectSql);
+    }
+  }
+
+  public Map<String, Object> selectFirst(String selectSql) {
+    List<Map<String, Object>> rows = select(selectSql);
+    if (rows.isEmpty()) {
+      throw new IllegalStateException("No results for " + selectSql);
+    } else if (rows.size() > 1) {
+      throw new IllegalStateException("Too many results for " + selectSql);
+    }
+    return rows.get(0);
+  }
+
+  private static List<Map<String, Object>> getHashMap(ResultSet resultSet) throws SQLException {
+    ResultSetMetaData metaData = resultSet.getMetaData();
+    int colCount = metaData.getColumnCount();
+    List<Map<String, Object>> rows = newArrayList();
+    while (resultSet.next()) {
+      Map<String, Object> columns = newHashMap();
+      for (int i = 1; i <= colCount; i++) {
+        columns.put(metaData.getColumnLabel(i), resultSet.getObject(i));
+      }
+      rows.add(columns);
+    }
+    return rows;
   }
 
   public void prepareDbUnit(Class testClass, String... testNames) {
