@@ -62,7 +62,10 @@
     {{#notNull measures.issues}}
       <div class="source-viewer-header-measure">
         <span class="source-viewer-header-measure-value">
-          <a target="_blank" href="{{link '/issues/search#resolved=false|componentUuids=' uuid}}">{{measures.issues}}</a>
+          <a class="source-viewer-header-external-link" target="_blank"
+             href="{{link '/issues/search#resolved=false|componentUuids=' uuid}}">
+            {{measures.issues}}&nbsp;<i class="icon-detach"></i>
+          </a>
         </span>
         <span class="source-viewer-header-measure-label">{{t 'metric.violations.name'}}</span>
       </div>

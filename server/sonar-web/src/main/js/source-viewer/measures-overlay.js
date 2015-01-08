@@ -17,6 +17,7 @@ define([
       if (this.model.get('isUnitTest')) {
         requests.push(this.requestTests());
       }
+      this.testsScroll = 0;
       $.when.apply($, requests).done(function () {
         that.render();
         window.process.finishBackgroundProcess(p);
@@ -38,14 +39,7 @@ define([
     onRender: function () {
       ModalView.prototype.onRender.apply(this, arguments);
       this.$('.js-pie-chart').pieChart();
-      if (this.selectedTest != null) {
-        this.scrollToTest();
-      }
-    },
-
-    scrollToTest: function () {
-      var position = this.$('.js-selected-test').offset().top - this.$el.offset().top - 50;
-      this.$el.scrollTop(position);
+      this.$('.js-test-list').scrollTop(this.testsScroll);
     },
 
     getMetrics: function () {
@@ -216,6 +210,7 @@ define([
             key: this.model.key(),
             test: name
           };
+      this.testsScroll = $(e.currentTarget).scrollParent().scrollTop();
       return $.get(url, options).done(function (data) {
         that.coveredFiles = data.files;
         that.selectedTest = _.findWhere(that.model.get('tests'), { name: name });

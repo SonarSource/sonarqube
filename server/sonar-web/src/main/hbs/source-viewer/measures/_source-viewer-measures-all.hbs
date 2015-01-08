@@ -1,40 +1,42 @@
-<div class="source-viewer-measures-section source-viewer-measures-section-big">
-  {{#eachEven measuresToDisplay}}
-    <div class="source-viewer-measures-card">
-      <div class="measures">
-        <div class="measures-list">
-          <div class="measure measure-one-line measure-big">
-            <span class="measure-name">{{name}}</span>
+{{#notEmpty measuresToDisplay}}
+  <div class="source-viewer-measures-section source-viewer-measures-section-big">
+    {{#eachEven measuresToDisplay}}
+      <div class="source-viewer-measures-card">
+        <div class="measures">
+          <div class="measures-list">
+            <div class="measure measure-one-line measure-big">
+              <span class="measure-name">{{name}}</span>
+            </div>
+            {{#each metrics}}
+                <div class="measure measure-one-line" data-metric="{{key}}">
+                  <span class="measure-name">{{name}}</span>
+                  <span class="measure-value">&nbsp;{{value}}</span>
+                </div>
+            {{/each}}
           </div>
-          {{#each metrics}}
+        </div>
+      </div>
+    {{/eachEven}}
+  </div>
+
+  <div class="source-viewer-measures-section source-viewer-measures-section-big">
+    {{#eachOdd measuresToDisplay}}
+      <div class="source-viewer-measures-card">
+        <div class="measures">
+          <div class="measures-list">
+            <div class="measure measure-one-line measure-big">
+              <span class="measure-name">{{name}}</span>
+            </div>
+            {{#each metrics}}
               <div class="measure measure-one-line" data-metric="{{key}}">
                 <span class="measure-name">{{name}}</span>
                 <span class="measure-value">&nbsp;{{value}}</span>
               </div>
-          {{/each}}
-        </div>
-      </div>
-    </div>
-  {{/eachEven}}
-</div>
-
-<div class="source-viewer-measures-section source-viewer-measures-section-big">
-  {{#eachOdd measuresToDisplay}}
-    <div class="source-viewer-measures-card">
-      <div class="measures">
-        <div class="measures-list">
-          <div class="measure measure-one-line measure-big">
-            <span class="measure-name">{{name}}</span>
+            {{/each}}
           </div>
-          {{#each metrics}}
-            <div class="measure measure-one-line" data-metric="{{key}}">
-              <span class="measure-name">{{name}}</span>
-              <span class="measure-value">&nbsp;{{value}}</span>
-            </div>
-          {{/each}}
         </div>
       </div>
-    </div>
-  {{/eachOdd}}
-</div>
+    {{/eachOdd}}
+  </div>
+{{/notEmpty}}
 

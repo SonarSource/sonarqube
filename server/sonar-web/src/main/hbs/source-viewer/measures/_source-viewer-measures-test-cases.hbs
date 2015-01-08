@@ -1,5 +1,5 @@
 <div class="source-viewer-measures-section source-viewer-measures-section-big">
-  <div class="source-viewer-measures-card">
+  <div class="source-viewer-measures-card source-viewer-measures-card-fixed-height js-test-list">
     <div class="measures">
       <table class="source-viewer-tests-list">
         <tr>
@@ -44,8 +44,8 @@
 </div>
 
 {{#if selectedTest}}
-  <div class="source-viewer-measures-section source-viewer-measures-section-full js-selected-test">
-    <div class="source-viewer-measures-card source-viewer-measures-card-overflow">
+  <div class="source-viewer-measures-section source-viewer-measures-section-big js-selected-test">
+    <div class="source-viewer-measures-card source-viewer-measures-card-fixed-height">
       {{#notEq selectedTest.status 'ERROR'}}
         {{#notEq selectedTest.status 'FAILURE'}}
           <div class="bubble-popup-title">{{t 'component_viewer.transition.covers'}}</div>

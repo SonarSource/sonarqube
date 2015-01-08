@@ -57,7 +57,7 @@
   opacity: 0.4;
 
   .source-meta {
-    border-color: transparent !important;
+    border-color: #f9f9f9 !important;
   }
 }
 
@@ -99,6 +99,7 @@
 .source-meta {
   vertical-align: top;
   width: 1px;
+  background-clip: padding-box;
   .user-select(none);
 }
 
@@ -275,23 +276,13 @@
   font-weight: 300;
 }
 
-.source-viewer-header-measure-issues {
-  width: 45px;
-}
+.source-viewer-header-external-link {
+  .link-no-underline;
 
-.source-viewer-header-measure-issue {
-  min-width: 1px;
-  height: 6px;
-
-  &.s-blocker { background-color: @severityBlockerColor; }
-  &.s-critical { background-color: @severityCriticalColor; }
-  &.s-major { background-color: @severityMajorColor; }
-  &.s-minor { background-color: @severityMinorColor; }
-  &.s-info { background-color: @severityInfoColor; }
-}
-
-.source-viewer-header-measure-issue + .source-viewer-header-measure-issue {
-  margin-top: 1px;
+  i {
+    position: relative;
+    top: -4px;
+  }
 }
 
 .source-viewer-header-actions {
@@ -384,6 +375,12 @@
 .source-viewer-measures-card-overflow {
   overflow: auto;
 }
+
+.source-viewer-measures-card-fixed-height {
+  max-height: 50vh;
+  overflow-y: scroll;
+}
+
 
 //.source-viewer-measures-section + .source-viewer-measures-section {
 //  border-left: 1px solid @barBorderColor;
