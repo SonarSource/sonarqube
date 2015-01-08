@@ -1,5 +1,6 @@
 module.exports = (grunt) ->
   pkg = grunt.file.readJSON('package.json')
+  expressPort = '<%= grunt.option("port") || 3000 %>'
 
   grunt.initConfig
     pkg: grunt.file.readJSON('package.json')
@@ -298,7 +299,7 @@ module.exports = (grunt) ->
       test:
         options:
           script: '<%= pkg.sources %>js/tests/e2e/server.js'
-          port: '<%= grunt.option("port") %>'
+          port: expressPort
       dev:
         options:
           background: false
@@ -312,21 +313,21 @@ module.exports = (grunt) ->
           'no-colors': true
           'fail-fast': true
           concise: true
-          port: '<%= grunt.option("port") %>'
+          port: expressPort
         src: ['<%= pkg.sources %>js/tests/e2e/tests/**/*.js']
       single:
         options:
           test: true
           verbose: true
           'fail-fast': true
-          port: '<%= grunt.option("port") %>'
+          port: expressPort
         src: ['<%= pkg.sources %>js/tests/e2e/tests/<%= grunt.option("spec") %>-spec.js']
       testfile:
         options:
           test: true
           verbose: true
           'fail-fast': true
-          port: '<%= grunt.option("port") %>'
+          port: expressPort
         src: ['<%= grunt.option("file") %>']
 
 
