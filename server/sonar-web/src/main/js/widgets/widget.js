@@ -47,7 +47,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         if (typeof(response.components) === 'undefined' || response.components.length > 0) {
           that.widget = new SonarWidgets[that.type()]();
           that.widget.metricsPriority(that.metricsPriority());
-          that.widget.options(that.options())
+          that.widget.options(that.options());
           that.widget.metrics(response.metrics);
           that.widget.components(response.components);
           if(typeof(that.widget.parseSource) === 'function') {
