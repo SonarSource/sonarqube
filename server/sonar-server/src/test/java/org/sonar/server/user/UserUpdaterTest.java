@@ -110,14 +110,14 @@ public class UserUpdaterTest {
       .setEmail("user@mail.com")
       .setPassword("password")
       .setPasswordConfirmation("password")
-      .setScmAccounts(newArrayList("u1", "u_1")));
+      .setScmAccounts(newArrayList("u1", "u_1", "User 1")));
 
     UserDto dto = userDao.selectNullableByLogin(session, "user");
     assertThat(dto.getId()).isNotNull();
     assertThat(dto.getLogin()).isEqualTo("user");
     assertThat(dto.getName()).isEqualTo("User");
     assertThat(dto.getEmail()).isEqualTo("user@mail.com");
-    assertThat(dto.getScmAccounts()).isEqualTo(",u1,u_1,");
+    assertThat(dto.getScmAccounts()).isEqualTo(",u1,u_1,User 1,");
     assertThat(dto.isActive()).isTrue();
 
     assertThat(dto.getSalt()).isNotNull();
@@ -138,11 +138,17 @@ public class UserUpdaterTest {
       .setPassword("password")
       .setPasswordConfirmation("password"));
 
-    assertThat(userDao.selectNullableByLogin(session, "user")).isNotNull();
+    UserDto dto = userDao.selectNullableByLogin(session, "user");
+    assertThat(dto.getId()).isNotNull();
+    assertThat(dto.getLogin()).isEqualTo("user");
+    assertThat(dto.getName()).isEqualTo("User");
+    assertThat(dto.getEmail()).isNull();
+    assertThat(dto.getScmAccounts()).isNull();
+    assertThat(dto.isActive()).isTrue();
   }
 
   @Test
-  public void create_user_with_scm_accounts_containing_blank_entry() throws Exception {
+  public void create_user_with_scm_accounts_containing_blank_or_null_entries() throws Exception {
     when(system2.now()).thenReturn(1418215735482L);
     createDefaultGroup();
 
@@ -152,6 +158,36 @@ public class UserUpdaterTest {
       .setPassword("password")
       .setPasswordConfirmation("password")
       .setScmAccounts(newArrayList("u1", "", null)));
+
+    assertThat(userDao.selectNullableByLogin(session, "user").getScmAccounts()).isEqualTo(",u1,");
+  }
+
+  @Test
+  public void create_user_with_scm_accounts_containing_one_blank_entry() throws Exception {
+    when(system2.now()).thenReturn(1418215735482L);
+    createDefaultGroup();
+
+    userUpdater.create(NewUser.create()
+      .setLogin("user")
+      .setName("User")
+      .setPassword("password")
+      .setPasswordConfirmation("password")
+      .setScmAccounts(newArrayList("")));
+
+    assertThat(userDao.selectNullableByLogin(session, "user").getScmAccounts()).isNull();
+  }
+
+  @Test
+  public void create_user_with_scm_accounts_containing_duplications() throws Exception {
+    when(system2.now()).thenReturn(1418215735482L);
+    createDefaultGroup();
+
+    userUpdater.create(NewUser.create()
+      .setLogin("user")
+      .setName("User")
+      .setPassword("password")
+      .setPasswordConfirmation("password")
+      .setScmAccounts(newArrayList("u1", "u1")));
 
     assertThat(userDao.selectNullableByLogin(session, "user").getScmAccounts()).isEqualTo(",u1,");
   }

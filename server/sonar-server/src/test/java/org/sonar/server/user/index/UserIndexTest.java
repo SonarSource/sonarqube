@@ -60,6 +60,14 @@ public class UserIndexTest {
   }
 
   @Test
+  public void get_nullable_by_login_should_be_case_sensitive() throws Exception {
+    esTester.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, this.getClass(), "get_nullable_by_login.json");
+
+    assertThat(index.getNullableByLogin("user1")).isNotNull();
+    assertThat(index.getNullableByLogin("User1")).isNull();
+  }
+
+  @Test
   public void get_by_login() throws Exception {
     esTester.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, this.getClass(), "get_nullable_by_login.json");
 

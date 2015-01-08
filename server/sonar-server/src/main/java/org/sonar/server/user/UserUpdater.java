@@ -43,6 +43,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.db.UserGroupDao;
 import org.sonar.server.util.Validation;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.io.StringWriter;
@@ -52,6 +53,7 @@ import java.util.List;
 import java.util.Random;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Sets.newLinkedHashSet;
 
 public class UserUpdater implements ServerComponent {
 
@@ -150,9 +152,8 @@ public class UserUpdater implements ServerComponent {
     validatePasswords(password, passwordConfirmation, messages);
     setEncryptedPassWord(password, userDto);
 
-    List<String> scmAccounts = newUser.scmAccounts();
+    List<String> scmAccounts = sanitizeScmAccounts(newUser.scmAccounts());
     if (scmAccounts != null && !scmAccounts.isEmpty()) {
-      scmAccounts = sanitizeScmAccounts(scmAccounts);
       validateScmAccounts(dbSession, scmAccounts, login, email, null, messages);
       userDto.setScmAccounts(convertScmAccountsToCsv(scmAccounts));
     }
@@ -186,9 +187,8 @@ public class UserUpdater implements ServerComponent {
     }
 
     if (updateUser.isScmAccountsChanged()) {
-      List<String> scmAccounts = updateUser.scmAccounts();
+      List<String> scmAccounts = sanitizeScmAccounts(updateUser.scmAccounts());
       if (scmAccounts != null && !scmAccounts.isEmpty()) {
-        scmAccounts = sanitizeScmAccounts(scmAccounts);
         validateScmAccounts(dbSession, scmAccounts, userDto.getLogin(), email != null ? email : userDto.getEmail(), userDto, messages);
         userDto.setScmAccounts(convertScmAccountsToCsv(scmAccounts));
       } else {
@@ -255,8 +255,11 @@ public class UserUpdater implements ServerComponent {
     }
   }
 
-  private static List<String> sanitizeScmAccounts(List<String> scmAccounts) {
-    scmAccounts.removeAll(Arrays.asList(null, ""));
+  @CheckForNull
+  private static List<String> sanitizeScmAccounts(@Nullable List<String> scmAccounts) {
+    if (scmAccounts != null) {
+      scmAccounts.removeAll(Arrays.asList(null, ""));
+    }
     return scmAccounts;
   }
 
@@ -284,17 +287,19 @@ public class UserUpdater implements ServerComponent {
   }
 
   private static String convertScmAccountsToCsv(List<String> scmAccounts) {
+    // Use a set to remove duplication, then use a list to add empty characters
+    List<String> uniqueScmAccounts = newArrayList(newLinkedHashSet(scmAccounts));
     // Add one empty character at the begin and at the end of the list to be able to generate a coma at the begin and at the end of the
     // text
-    scmAccounts.add(0, "");
-    scmAccounts.add("");
-    int size = scmAccounts.size();
+    uniqueScmAccounts.add(0, "");
+    uniqueScmAccounts.add("");
+    int size = uniqueScmAccounts.size();
     StringWriter writer = new StringWriter(size);
     CsvWriter csv = CsvWriter.of(writer);
-    csv.values(scmAccounts.toArray(new String[size]));
+    csv.values(uniqueScmAccounts.toArray(new String[size]));
     csv.close();
     // Remove useless line break added by CsvWriter at this end of the text
-    return CharMatcher.BREAKING_WHITESPACE.removeFrom(writer.toString());
+    return CharMatcher.JAVA_ISO_CONTROL.removeFrom(writer.toString());
   }
 
   private void notifyNewUser(String login, String name, String email) {
