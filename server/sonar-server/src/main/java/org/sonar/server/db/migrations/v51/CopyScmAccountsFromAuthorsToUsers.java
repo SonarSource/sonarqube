@@ -59,7 +59,7 @@ public class CopyScmAccountsFromAuthorsToUsers extends BaseDataChange {
     try {
       final Multimap<Long, String> authorsByPersonId = ArrayListMultimap.create();
       context.prepareSelect("SELECT a.person_id, a.login FROM authors a," +
-          "  (SELECT person_id, COUNT(*) AS nb FROM authors GROUP BY person_id HAVING COUNT(*) > 1) AS group_by_person" +
+        "  (SELECT person_id, COUNT(*) AS nb FROM authors GROUP BY person_id HAVING COUNT(*) > 1) group_by_person" +
           "     WHERE a.person_id = group_by_person.person_id "
       ).scroll(new Select.RowHandler() {
         @Override
