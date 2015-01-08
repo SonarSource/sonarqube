@@ -43,7 +43,7 @@ public class AnalysisReportLog implements ActivityLog {
   @Override
   public Map<String, String> getDetails() {
     return ImmutableMap.<String, String>builder()
-      .put("id", String.valueOf(report.getId()))
+      .put("key", String.valueOf(report.getId()))
       .put("projectKey", project.key())
       .put("projectName", project.name())
       .put("projectUuid", project.uuid())

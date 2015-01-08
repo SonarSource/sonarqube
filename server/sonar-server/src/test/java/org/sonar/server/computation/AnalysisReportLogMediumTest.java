@@ -83,7 +83,7 @@ public class AnalysisReportLogMediumTest {
     Activity activity = Iterables.getFirst(index.findAll().getHits(), null);
     assertThat(activity).isNotNull();
     Map<String, String> details = activity.details();
-    assertThat(details.get("id")).isEqualTo(String.valueOf(report.getId()));
+    assertThat(details.get("key")).isEqualTo(String.valueOf(report.getId()));
     assertThat(details.get("projectKey")).isEqualTo(project.key());
     assertThat(details.get("projectName")).isEqualTo(project.name());
     assertThat(details.get("projectUuid")).isEqualTo(project.uuid());
