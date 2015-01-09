@@ -518,6 +518,7 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
       .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
         FilterBuilders.boolFilter()
           .must(getAuthorizationFilter(new QueryContext()))
+          .must(FilterBuilders.missingFilter(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION))
           .must(componentFilter(Arrays.asList(componentUuid)))));
     TermsBuilder aggreg = AggregationBuilders.terms("_ref")
       .field(IssueIndexDefinition.FIELD_ISSUE_TAGS)

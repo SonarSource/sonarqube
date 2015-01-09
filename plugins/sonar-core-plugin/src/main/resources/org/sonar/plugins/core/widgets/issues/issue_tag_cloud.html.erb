@@ -14,6 +14,11 @@
 
 <div class="histogram-widget" id="<%= containerId %>">
   <!--[if lte IE 8 ]> <h3><%= message('widget.unsupported_browser_warning') -%></h3> <![endif]-->
+
+  <!--[if (gte IE 9)|!(IE)]><!-->
+  <h3 style="margin-bottom: 5px;"><%= title -%></h3>
+  <!--<![endif]-->
+
 </div>
 
 <!--[if (gte IE 9)|!(IE)]><!-->
@@ -30,7 +35,7 @@
       .source(baseUrl + '/api/issues/component_tags?' + query)
       .options({
         maxItemsReachedMessage: '<%= message("widget.measure_filter_histogram.max_items_reached", :params => [maxItems]) -%>',
-        baseUrl: baseUrl + '/issues/search/#componentUuids=<%= @project.uuid() -%>',
+        baseUrl: baseUrl + '/issues/search#resolved=false|componentUuids=<%= @project.uuid() -%>',
         noData: '<%= message('no_data') -%>'
       })
       .render('#<%= containerId -%>');

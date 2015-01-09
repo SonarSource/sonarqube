@@ -47,6 +47,10 @@ class TagCloud extends window.SonarWidgets.BaseWidget
     super
 
 
+  tooltip: (d) ->
+    "#{d.key} (#{d.value})"
+
+
   parseSource: (response) ->
     @tags(response.tags)
 

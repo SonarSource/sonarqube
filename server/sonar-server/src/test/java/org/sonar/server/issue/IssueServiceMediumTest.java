@@ -496,7 +496,9 @@ public class IssueServiceMediumTest {
       IssueTesting.newDto(rule, file, project).setTags(ImmutableSet.of("convention", "java8", "bug")),
       IssueTesting.newDto(rule, file, project).setTags(ImmutableSet.of("convention", "bug")),
       IssueTesting.newDto(rule, file, project),
+      IssueTesting.newDto(rule, file, project).setTags(ImmutableSet.of("convention", "java8", "bug")).setResolution(Issue.RESOLUTION_FIXED),
       IssueTesting.newDto(rule, file, project).setTags(ImmutableSet.of("convention")));
+
     session.commit();
     index();
 
