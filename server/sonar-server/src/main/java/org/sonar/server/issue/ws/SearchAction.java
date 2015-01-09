@@ -89,7 +89,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
 
   private static final String EXTRA_FIELDS_PARAM = "extra_fields";
 
-  private static final String INTERNAL_PARAMETER_DISCLAIMER = "This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter.";
+  private static final String INTERNAL_PARAMETER_DISCLAIMER = "This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter. ";
 
   private final IssueChangeDao issueChangeDao;
   private final IssueService service;
@@ -205,7 +205,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
   private void addComponentRelatedParams(WebService.NewAction action) {
     action.createParam(IssueFilterParameters.COMPONENT_KEYS)
       .setDescription("To retrieve issues associated to a specific list of components and their sub-components (comma-separated list of component keys). " +
-        "A component can be a project, module, directory or file." +
+        "A component can be a project, module, directory or file. " +
         "If this parameter is set, componentUuids must not be set.")
       .setDeprecatedKey(IssueFilterParameters.COMPONENTS)
       .setExampleValue("org.apache.struts:struts:org.apache.struts.Action");
@@ -214,7 +214,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
     action.createParam(IssueFilterParameters.COMPONENT_UUIDS)
       .setDescription("To retrieve issues associated to a specific list of components and their sub-components (comma-separated list of component UUIDs). " +
         INTERNAL_PARAMETER_DISCLAIMER +
-        "A component can be a project, module, directory or file." +
+        "A component can be a project, module, directory or file. " +
         "If this parameter is set, componentKeys must not be set.")
       .setExampleValue("584a89f2-8037-4f7b-b82c-8b45d2d63fb2");
 
