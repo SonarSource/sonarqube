@@ -143,7 +143,6 @@ public class CommandExecutor {
   private void closeStreams(@Nullable Process process) {
     if (process != null) {
       Closeables.closeQuietly(process.getInputStream());
-      Closeables.closeQuietly(process.getInputStream());
       Closeables.closeQuietly(process.getOutputStream());
       Closeables.closeQuietly(process.getErrorStream());
     }
