@@ -62,16 +62,15 @@ public class ComputationWorkerTest {
   @Test
   public void when_the_analysis_throws_an_exception_it_does_not_break_the_task() throws Exception {
     AnalysisReportDto report = AnalysisReportDto.newForTests(1L);
-    when(queue.bookNextAvailable()).thenReturn(report);
-    doThrow(IllegalStateException.class).when(service).analyzeReport(report);
+    when(queue.pop()).thenReturn(report);
+    doThrow(IllegalStateException.class).when(service).process(report);
 
     sut.run();
   }
 
   @Test
   public void when_the_queue_returns_an_exception_it_does_not_break_the_task() throws Exception {
-    AnalysisReportDto report = AnalysisReportDto.newForTests(1L);
-    when(queue.bookNextAvailable()).thenThrow(IllegalStateException.class);
+    when(queue.pop()).thenThrow(IllegalStateException.class);
 
     sut.run();
   }

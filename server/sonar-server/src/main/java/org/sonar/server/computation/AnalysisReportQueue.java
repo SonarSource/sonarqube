@@ -48,7 +48,10 @@ public class AnalysisReportQueue implements ServerComponent {
     this.system2 = system2;
   }
 
-  public AnalysisReportDto add(String projectKey, Long snapshotId, @Nullable InputStream reportData) {
+  /**
+   * Adds a report to the queue and returns the generated key
+   */
+  public String add(String projectKey, Long snapshotId, @Nullable InputStream reportData) {
     // TODO security must not be handled here
     UserSession.get().checkGlobalPermission(GlobalPermissions.SCAN_EXECUTION);
 
@@ -58,7 +61,7 @@ public class AnalysisReportQueue implements ServerComponent {
     DbSession session = dbClient.openSession(false);
     try {
       checkThatProjectExistsInDatabase(projectKey, session);
-      return insertInDb(report, session);
+      return insertInDb(report, session).getKey();
     } finally {
       MyBatis.closeQuietly(session);
     }

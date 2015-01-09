@@ -21,12 +21,13 @@
 package org.sonar.server.computation;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.sonar.batch.protocol.output.resource.ReportComponent;
-import org.sonar.batch.protocol.output.resource.ReportComponents;
+import org.sonar.batch.protocol.output.component.ReportComponent;
+import org.sonar.batch.protocol.output.component.ReportComponents;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 
 import javax.annotation.CheckForNull;
+
 import java.io.File;
 import java.util.Date;
 import java.util.HashMap;

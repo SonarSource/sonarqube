@@ -21,8 +21,8 @@
 package org.sonar.server.computation;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.gson.Gson;
-import com.google.gson.stream.JsonReader;
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -33,10 +33,10 @@ import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.batch.protocol.GsonHelper;
+import org.sonar.batch.protocol.output.ReportHelper;
+import org.sonar.batch.protocol.output.component.ReportComponent;
+import org.sonar.batch.protocol.output.component.ReportComponents;
 import org.sonar.batch.protocol.output.issue.ReportIssue;
-import org.sonar.batch.protocol.output.resource.ReportComponent;
-import org.sonar.batch.protocol.output.resource.ReportComponents;
 import org.sonar.core.issue.db.IssueStorage;
 
 import javax.annotation.Nullable;
@@ -45,21 +45,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 public class AnalysisReportService implements ServerComponent {
 
   private static final Logger LOG = LoggerFactory.getLogger(AnalysisReportService.class);
-  private static final int MAX_ISSUES_SIZE = 1000;
   private final ComputeEngineIssueStorageFactory issueStorageFactory;
-  private final Gson gson;
 
   public AnalysisReportService(ComputeEngineIssueStorageFactory issueStorageFactory) {
     this.issueStorageFactory = issueStorageFactory;
-    this.gson = GsonHelper.create();
   }
 
   public void digest(ComputationContext context) {
@@ -82,34 +76,30 @@ public class AnalysisReportService implements ServerComponent {
   }
 
   @VisibleForTesting
-  void saveIssues(ComputationContext context) {
+  void saveIssues(final ComputationContext context) {
     IssueStorage issueStorage = issueStorageFactory.newComputeEngineIssueStorage(context.getProject());
 
-    File issuesFile = new File(context.getReportDirectory(), "issues.json");
-    List<DefaultIssue> issues = new ArrayList<>(MAX_ISSUES_SIZE);
+    ReportHelper helper = ReportHelper.create(context.getReportDirectory());
 
-    try (InputStream issuesStream = new FileInputStream(issuesFile);
-         JsonReader reader = new JsonReader(new InputStreamReader(issuesStream))) {
-      reader.beginArray();
-      while (reader.hasNext()) {
-        ReportIssue reportIssue = gson.fromJson(reader, ReportIssue.class);
-        DefaultIssue defaultIssue = toIssue(context, reportIssue);
-        issues.add(defaultIssue);
-        if (shouldPersistIssues(issues, reader)) {
-          issueStorage.save(issues);
-          issues.clear();
-        }
-      }
+    ReportComponent root = helper.getComponents().root();
+    browseComponent(context, helper, issueStorage, root);
+  }
 
-      reader.endArray();
-      reader.close();
-    } catch (IOException e) {
-      throw new IllegalStateException("Failed to read issues", e);
+  private void browseComponent(ComputationContext context, ReportHelper helper, IssueStorage issueStorage, ReportComponent component) {
+    Iterable<ReportIssue> reportIssues = helper.getIssues(component.batchId());
+    saveIssues(context, issueStorage, reportIssues);
+    for (ReportComponent child : component.children()) {
+      browseComponent(context, helper, issueStorage, child);
     }
   }
 
-  private boolean shouldPersistIssues(List<DefaultIssue> issues, JsonReader reader) throws IOException {
-    return issues.size() == MAX_ISSUES_SIZE || !reader.hasNext();
+  private void saveIssues(final ComputationContext context, IssueStorage issueStorage, Iterable<ReportIssue> reportIssues) {
+    issueStorage.save(Iterables.transform(reportIssues, new Function<ReportIssue, DefaultIssue>() {
+      @Override
+      public DefaultIssue apply(ReportIssue input) {
+        return toIssue(context, input);
+      }
+    }));
   }
 
   private DefaultIssue toIssue(ComputationContext context, ReportIssue issue) {

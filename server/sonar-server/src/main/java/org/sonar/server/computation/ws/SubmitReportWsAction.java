@@ -24,7 +24,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.server.computation.AnalysisReportQueue;
 import org.sonar.server.computation.ComputationWorkerLauncher;
 
@@ -38,11 +37,11 @@ public class SubmitReportWsAction implements ComputationWsAction, RequestHandler
   public static final String PARAM_REPORT_DATA = "report";
 
   private final AnalysisReportQueue queue;
-  private final ComputationWorkerLauncher taskLauncher;
+  private final ComputationWorkerLauncher workerLauncher;
 
-  public SubmitReportWsAction(AnalysisReportQueue queue, ComputationWorkerLauncher taskLauncher) {
+  public SubmitReportWsAction(AnalysisReportQueue queue, ComputationWorkerLauncher workerLauncher) {
     this.queue = queue;
-    this.taskLauncher = taskLauncher;
+    this.workerLauncher = workerLauncher;
   }
 
   @Override
@@ -76,11 +75,11 @@ public class SubmitReportWsAction implements ComputationWsAction, RequestHandler
     String projectKey = request.mandatoryParam(PARAM_PROJECT_KEY);
     long snapshotId = request.mandatoryParamAsLong(PARAM_SNAPSHOT);
     try (InputStream reportData = request.paramAsInputStream(PARAM_REPORT_DATA)) {
-      AnalysisReportDto report = queue.add(projectKey, snapshotId, reportData);
-      taskLauncher.startAnalysisTaskNow();
+      String reportKey = queue.add(projectKey, snapshotId, reportData);
+      workerLauncher.startAnalysisTaskNow();
       response.newJsonWriter()
         .beginObject()
-        .prop("key", report.getId())
+        .prop("key", reportKey)
         .endObject()
         .close();
     }

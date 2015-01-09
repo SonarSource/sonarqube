@@ -40,7 +40,12 @@ public class ComputationWorker implements Runnable {
 
   @Override
   public void run() {
-    AnalysisReportDto report = queue.pop();
+    AnalysisReportDto report = null;
+    try {
+      report = queue.pop();
+    } catch (Exception e) {
+      LOG.error("Failed to pop the queue of analysis reports", e);
+    }
     if (report != null) {
       try {
         service.process(report);
