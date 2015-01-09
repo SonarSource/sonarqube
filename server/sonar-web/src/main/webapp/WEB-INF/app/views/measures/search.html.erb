@@ -1,5 +1,5 @@
 <% content_for :script do %>
-  <script data-main="<%= ApplicationController.root_context -%>/js/measures/app.js" src="<%= ApplicationController.root_context -%>/js/require.js"></script>
+  <script>require(['measures/app']);</script>
 <% end %>
 
 

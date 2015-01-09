@@ -1,5 +1,5 @@
 <% content_for :script do %>
-  <script data-main="<%= ApplicationController.root_context -%>/js/design/app" src="<%= ApplicationController.root_context -%>/js/require.js"></script>
+  <script>require(['design/app']);</script>
   <script>
     window.resourceKey = '<%= @resource.key -%>';
   </script>

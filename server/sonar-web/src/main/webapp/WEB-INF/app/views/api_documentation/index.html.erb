@@ -1,5 +1,5 @@
 <% content_for :script do %>
-  <script data-main="<%= ApplicationController.root_context -%>/js/api-documentation/app" src="<%= ApplicationController.root_context -%>/js/require.js"></script>
+  <script>require(['api-documentation/app']);</script>
 <% end %>
 
 <div id="api-documentation-page-loader" class="navigator-page-loader">

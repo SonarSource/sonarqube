@@ -1,5 +1,5 @@
 <% content_for :script do %>
-  <script data-main="<%= ApplicationController.root_context -%>/js/drilldown/app" src="<%= ApplicationController.root_context -%>/js/require.js"></script>
+  <script>require(['drilldown/app']);</script>
 <% end %>
 
 <%= render :partial => 'header' -%>

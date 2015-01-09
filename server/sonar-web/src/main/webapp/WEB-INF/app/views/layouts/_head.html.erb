@@ -37,6 +37,10 @@
     moment.lang(window.pageLang);
     numeral.language(window.pageLang);
   </script>
+  <script src="<%= ApplicationController.root_context -%>/js/require.js"></script>
+  <script>
+    requirejs.config({ baseUrl: baseUrl + '/js' });
+  </script>
   <%= yield :script -%>
 </head>
 <body>
