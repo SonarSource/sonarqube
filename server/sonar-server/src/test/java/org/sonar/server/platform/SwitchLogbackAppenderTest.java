@@ -28,7 +28,7 @@ import ch.qos.logback.core.read.ListAppender;
 import ch.qos.logback.core.status.Status;
 import ch.qos.logback.core.util.StatusPrinter;
 import org.junit.Test;
-import org.sonar.server.computation.AnalysisReportTaskLauncher;
+import org.sonar.server.computation.ComputationWorkerLauncher;
 
 import java.net.URL;
 
@@ -74,7 +74,7 @@ public class SwitchLogbackAppenderTest {
     configure(getClass().getResource("SwitchLogbackAppenderTest/valid-switch.xml"));
 
     String initialThreadName = Thread.currentThread().getName();
-    Thread.currentThread().setName(AnalysisReportTaskLauncher.ANALYSIS_REPORT_THREAD_NAME_PREFIX + "test");
+    Thread.currentThread().setName(ComputationWorkerLauncher.THREAD_NAME_PREFIX + "test");
     try {
       logger.info("hello");
       assertThat(analyisReports.list).hasSize(1);

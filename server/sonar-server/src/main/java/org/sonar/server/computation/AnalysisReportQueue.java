@@ -26,13 +26,11 @@ import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.server.computation.db.AnalysisReportDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
@@ -41,17 +39,17 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.core.computation.db.AnalysisReportDto.Status.PENDING;
 
 public class AnalysisReportQueue implements ServerComponent {
+
   private final DbClient dbClient;
-  private final AnalysisReportDao dao;
   private final System2 system2;
 
   public AnalysisReportQueue(DbClient dbClient, System2 system2) {
     this.dbClient = dbClient;
-    this.dao = dbClient.analysisReportDao();
     this.system2 = system2;
   }
 
   public AnalysisReportDto add(String projectKey, Long snapshotId, @Nullable InputStream reportData) {
+    // TODO security must not be handled here
     UserSession.get().checkGlobalPermission(GlobalPermissions.SCAN_EXECUTION);
 
     AnalysisReportDto report = newPendingAnalysisReport(projectKey)
@@ -77,7 +75,7 @@ public class AnalysisReportQueue implements ServerComponent {
   }
 
   private AnalysisReportDto insertInDb(AnalysisReportDto reportTemplate, DbSession session) {
-    AnalysisReportDto report = dao.insert(session, reportTemplate);
+    AnalysisReportDto report = dbClient.analysisReportDao().insert(session, reportTemplate);
     session.commit();
 
     return report;
@@ -87,32 +85,20 @@ public class AnalysisReportQueue implements ServerComponent {
     checkArgument(report.getStatus().isInFinalState());
 
     DbSession session = dbClient.openSession(false);
-
     try {
       report.setFinishedAt(new Date(system2.now()));
-      dao.delete(session, report);
+      dbClient.analysisReportDao().delete(session, report.getId());
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  /**
-   * @return a booked analysis report if one is available, null otherwise
-   */
   @CheckForNull
-  public synchronized AnalysisReportDto bookNextAvailable() {
+  public AnalysisReportDto pop() {
     DbSession session = dbClient.openSession(false);
     try {
-      AnalysisReportDto nextAvailableReport = dao.getNextAvailableReport(session);
-      if (nextAvailableReport == null) {
-        return null;
-      }
-
-      AnalysisReportDto report = dao.bookAnalysisReport(session, nextAvailableReport);
-      session.commit();
-
-      return report;
+      return dbClient.analysisReportDao().pop(session);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -121,16 +107,19 @@ public class AnalysisReportQueue implements ServerComponent {
   public List<AnalysisReportDto> findByProjectKey(String projectKey) {
     DbSession session = dbClient.openSession(false);
     try {
-      return dao.findByProjectKey(session, projectKey);
+      return dbClient.analysisReportDao().selectByProjectKey(session, projectKey);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
+  /**
+   * All the reports of the queue, whatever the status
+   */
   public List<AnalysisReportDto> all() {
     DbSession session = dbClient.openSession(false);
     try {
-      return dao.findAll(session);
+      return dbClient.analysisReportDao().selectAll(session);
     } finally {
       MyBatis.closeQuietly(session);
     }

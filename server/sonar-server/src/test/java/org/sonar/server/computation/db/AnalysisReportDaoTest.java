@@ -26,9 +26,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.TempFolder;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
@@ -37,8 +37,6 @@ import org.sonar.test.DbTests;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -49,24 +47,28 @@ import static org.sonar.core.computation.db.AnalysisReportDto.Status.WORKING;
 
 @Category(DbTests.class)
 public class AnalysisReportDaoTest {
+
   private static final String DEFAULT_PROJECT_KEY = "123456789-987654321";
   private static final long DEFAULT_SNAPSHOT_ID = 123L;
 
   @Rule
   public DbTester db = new DbTester();
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
   private AnalysisReportDao sut;
   private DbSession session;
   private System2 system2;
-  private TempFolder tempFolder;
 
   @Before
   public void before() {
     this.session = db.myBatis().openSession(false);
     this.system2 = mock(System2.class);
-    this.tempFolder = mock(TempFolder.class);
-    this.sut = new AnalysisReportDao(system2, tempFolder);
+    this.sut = new AnalysisReportDao(system2);
 
     when(system2.now()).thenReturn(DateUtils.parseDate("2014-09-26").getTime());
+    when(system2.newDate()).thenReturn(DateUtils.parseDate("2014-09-26"));
   }
 
   @After
@@ -98,10 +100,10 @@ public class AnalysisReportDaoTest {
   }
 
   @Test
-  public void update_all_to_status() {
+  public void resetAllToPendingStatus() {
     db.prepareDbUnit(getClass(), "update-all-to-status-pending.xml");
 
-    sut.cleanWithUpdateAllToPendingStatus(session);
+    sut.resetAllToPendingStatus(session);
     session.commit();
 
     db.assertDbUnit(getClass(), "update-all-to-status-pending-result.xml", "analysis_reports");
@@ -111,7 +113,7 @@ public class AnalysisReportDaoTest {
   public void truncate() {
     db.prepareDbUnit(getClass(), "any-analysis-reports.xml");
 
-    sut.cleanWithTruncate(session);
+    sut.truncate(session);
     session.commit();
 
     db.assertDbUnit(getClass(), "truncate-result.xml", "analysis_reports");
@@ -122,7 +124,7 @@ public class AnalysisReportDaoTest {
     db.prepareDbUnit(getClass(), "select.xml");
 
     final String projectKey = "123456789-987654321";
-    List<AnalysisReportDto> reports = sut.findByProjectKey(session, projectKey);
+    List<AnalysisReportDto> reports = sut.selectByProjectKey(session, projectKey);
     AnalysisReportDto report = reports.get(0);
 
     assertThat(reports).hasSize(1);
@@ -135,38 +137,26 @@ public class AnalysisReportDaoTest {
     db.prepareDbUnit(getClass(), "select.xml");
 
     final String projectKey = "987654321-123456789";
-    List<AnalysisReportDto> reports = sut.findByProjectKey(session, projectKey);
+    List<AnalysisReportDto> reports = sut.selectByProjectKey(session, projectKey);
 
     assertThat(reports).hasSize(2);
   }
 
   @Test
-  public void get_oldest_available_report() {
-    db.prepareDbUnit(getClass(), "select_oldest_available_report.xml");
+  public void pop_oldest_pending() {
+    db.prepareDbUnit(getClass(), "pop_oldest_pending.xml");
 
-    final String projectKey = "123456789-987654321";
-    AnalysisReportDto nextAvailableReport = sut.getNextAvailableReport(session);
+    AnalysisReportDto nextAvailableReport = sut.pop(session);
 
-    assertThat(nextAvailableReport.getId()).isEqualTo(2);
-    assertThat(nextAvailableReport.getProjectKey()).isEqualTo(projectKey);
+    assertThat(nextAvailableReport.getId()).isEqualTo(3);
+    assertThat(nextAvailableReport.getProjectKey()).isEqualTo("P2");
   }
 
   @Test
-  public void get_oldest_available_report_with_working_reports_older() {
-    db.prepareDbUnit(getClass(), "select_oldest_available_report_with_working_reports_older.xml");
+  public void pop_null_if_no_pending_reports() {
+    db.prepareDbUnit(getClass(), "pop_null_if_no_pending_reports.xml");
 
-    final String projectKey = "123456789-987654321";
-    AnalysisReportDto nextAvailableReport = sut.getNextAvailableReport(session);
-
-    assertThat(nextAvailableReport.getId()).isEqualTo(2);
-    assertThat(nextAvailableReport.getProjectKey()).isEqualTo(projectKey);
-  }
-
-  @Test
-  public void null_when_no_available_pending_report_because_working_report_on_the_same_project() {
-    db.prepareDbUnit(getClass(), "select-with-no-available-report.xml");
-
-    AnalysisReportDto nextAvailableReport = sut.getNextAvailableReport(session);
+    AnalysisReportDto nextAvailableReport = sut.pop(session);
 
     assertThat(nextAvailableReport).isNull();
   }
@@ -175,7 +165,7 @@ public class AnalysisReportDaoTest {
   public void getById_maps_all_the_fields_except_the_data() {
     db.prepareDbUnit(getClass(), "one_analysis_report.xml");
 
-    AnalysisReportDto report = sut.getById(session, 1L);
+    AnalysisReportDto report = sut.selectById(session, 1L);
 
     assertThat(report.getProjectKey()).isEqualTo(DEFAULT_PROJECT_KEY);
     assertThat(report.getCreatedAt()).isEqualTo(DateUtils.parseDate("2014-09-24"));
@@ -191,65 +181,16 @@ public class AnalysisReportDaoTest {
   public void getById_returns_null_when_id_not_found() {
     db.prepareDbUnit(getClass(), "select.xml");
 
-    AnalysisReportDto report = sut.getById(session, 4L);
+    AnalysisReportDto report = sut.selectById(session, 4L);
 
     assertThat(report).isNull();
-  }
-
-  @Test(expected = NullPointerException.class)
-  public void nullPointerExc_when_trying_to_book_a_report_without_id() {
-    sut.bookAnalysisReport(session, new AnalysisReportDto());
-  }
-
-  @Test
-  public void cannot_book_an_already_working_report_analysis() {
-    db.prepareDbUnit(getClass(), "one_busy_report_analysis.xml");
-
-    AnalysisReportDto report = newDefaultAnalysisReport();
-    AnalysisReportDto reportBooked = sut.bookAnalysisReport(session, report);
-
-    assertThat(reportBooked).isNull();
-  }
-
-  @Test
-  public void book_one_available_report_analysis() {
-    Date mockedNow = DateUtils.parseDate("2014-09-30");
-    when(system2.now()).thenReturn(mockedNow.getTime());
-    db.prepareDbUnit(getClass(), "one_available_analysis.xml");
-
-    AnalysisReportDto report = newDefaultAnalysisReport();
-    AnalysisReportDto reportBooked = sut.bookAnalysisReport(session, report);
-
-    assertThat(reportBooked.getId()).isEqualTo(1L);
-    assertThat(reportBooked.getStatus()).isEqualTo(WORKING);
-    assertThat(reportBooked.getStartedAt()).isEqualTo(mockedNow);
-  }
-
-  @Test
-  public void can_book_report_while_another_one_working_on_the_same_project() {
-    db.prepareDbUnit(getClass(), "one_available_analysis_but_another_busy_on_same_project.xml");
-
-    AnalysisReportDto report = newDefaultAnalysisReport();
-    AnalysisReportDto reportBooked = sut.bookAnalysisReport(session, report);
-
-    assertThat(reportBooked).isNotNull();
-  }
-
-  @Test
-  public void book_available_report_analysis_while_having_one_working_on_another_project() {
-    db.prepareDbUnit(getClass(), "book_available_report_analysis_while_having_one_working_on_another_project.xml");
-
-    AnalysisReportDto report = newDefaultAnalysisReport();
-    AnalysisReportDto reportBooked = sut.bookAnalysisReport(session, report);
-
-    assertThat(reportBooked.getId()).isEqualTo(1L);
   }
 
   @Test
   public void delete_one_analysis_report() {
     db.prepareDbUnit(getClass(), "one_analysis_report.xml");
 
-    sut.delete(session, newDefaultAnalysisReport());
+    sut.delete(session, 1);
     session.commit();
 
     db.assertDbUnit(getClass(), "truncate-result.xml", "analysis_reports");
@@ -259,7 +200,7 @@ public class AnalysisReportDaoTest {
   public void findAll_one_analysis_report() {
     db.prepareDbUnit(getClass(), "one_analysis_report.xml");
 
-    List<AnalysisReportDto> reports = sut.findAll(session);
+    List<AnalysisReportDto> reports = sut.selectAll(session);
 
     assertThat(reports).hasSize(1);
   }
@@ -268,7 +209,7 @@ public class AnalysisReportDaoTest {
   public void findAll_empty_table() {
     db.prepareDbUnit(getClass(), "empty.xml");
 
-    List<AnalysisReportDto> reports = sut.findAll(session);
+    List<AnalysisReportDto> reports = sut.selectAll(session);
 
     assertThat(reports).isEmpty();
   }
@@ -277,7 +218,7 @@ public class AnalysisReportDaoTest {
   public void findAll_three_analysis_reports() {
     db.prepareDbUnit(getClass(), "three_analysis_reports.xml");
 
-    List<AnalysisReportDto> reports = sut.findAll(session);
+    List<AnalysisReportDto> reports = sut.selectAll(session);
 
     assertThat(reports).hasSize(3);
   }
@@ -290,32 +231,16 @@ public class AnalysisReportDaoTest {
     InputStream zip = getClass().getResource("/org/sonar/server/computation/db/AnalysisReportDaoTest/zip.zip").openStream();
     report.setData(zip);
 
-    File toDir = new File("target/tmp/unzip-report-in-database/");
-    when(tempFolder.newDir()).thenReturn(toDir);
+    File toDir = temp.newFolder();
     sut.insert(session, report);
     session.commit();
     IOUtils.closeQuietly(zip);
 
     // ACT
-    sut.getDecompressedReport(session, 1L);
+    sut.selectAndDecompressToDir(session, 1L, toDir);
 
     // ASSERT
     assertThat(toDir.list()).hasSize(3);
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void doGetNullableByKey_is_not_implemented_yet() {
-    sut.doGetNullableByKey(session, "ANY_STRING");
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void getSynchronizationParams_is_not_implemented_yet() {
-    sut.getSynchronizationParams(new Date(), new HashMap<String, String>());
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void doUpdate_is_not_implemented_yet() {
-    sut.doUpdate(session, new AnalysisReportDto());
   }
 
   private AnalysisReportDto newDefaultAnalysisReport() {
@@ -323,10 +248,6 @@ public class AnalysisReportDaoTest {
       .setProjectKey(DEFAULT_PROJECT_KEY)
       .setSnapshotId(DEFAULT_SNAPSHOT_ID)
       .setData(null)
-      .setStatus(PENDING)
-      .setStartedAt(DateUtils.parseDate("2014-09-25"))
-      .setFinishedAt(DateUtils.parseDate("2014-09-27"))
-      .setCreatedAt(DateUtils.parseDate("2014-09-24"))
-      .setUpdatedAt(DateUtils.parseDate("2014-09-25"));
+      .setStatus(PENDING);
   }
 }

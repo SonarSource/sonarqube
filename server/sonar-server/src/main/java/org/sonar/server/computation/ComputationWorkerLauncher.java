@@ -23,8 +23,6 @@ package org.sonar.server.computation;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.picocontainer.Startable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.platform.Server;
 import org.sonar.api.platform.ServerStartHandler;
@@ -34,10 +32,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-public class AnalysisReportTaskLauncher implements Startable, ServerComponent, ServerStartHandler {
+public class ComputationWorkerLauncher implements Startable, ServerComponent, ServerStartHandler {
 
-  public static final String ANALYSIS_REPORT_THREAD_NAME_PREFIX = "ar-";
-  private static final Logger LOG = LoggerFactory.getLogger(AnalysisReportTaskLauncher.class);
+  public static final String THREAD_NAME_PREFIX = "computation-";
 
   private final ComputationService service;
   private final AnalysisReportQueue queue;
@@ -47,7 +44,7 @@ public class AnalysisReportTaskLauncher implements Startable, ServerComponent, S
   private final long delayForFirstStart;
   private final TimeUnit timeUnit;
 
-  public AnalysisReportTaskLauncher(ComputationService service, AnalysisReportQueue queue) {
+  public ComputationWorkerLauncher(ComputationService service, AnalysisReportQueue queue) {
     this.service = service;
     this.queue = queue;
     this.executorService = Executors.newSingleThreadScheduledExecutor(threadFactoryWithSpecificNameForLogging());
@@ -58,7 +55,7 @@ public class AnalysisReportTaskLauncher implements Startable, ServerComponent, S
   }
 
   @VisibleForTesting
-  AnalysisReportTaskLauncher(ComputationService service, AnalysisReportQueue queue, long delayForFirstStart, long delayBetweenTasks, TimeUnit timeUnit) {
+  ComputationWorkerLauncher(ComputationService service, AnalysisReportQueue queue, long delayForFirstStart, long delayBetweenTasks, TimeUnit timeUnit) {
     this.queue = queue;
     this.executorService = Executors.newSingleThreadScheduledExecutor(threadFactoryWithSpecificNameForLogging());
 
@@ -66,14 +63,6 @@ public class AnalysisReportTaskLauncher implements Startable, ServerComponent, S
     this.delayForFirstStart = delayForFirstStart;
     this.timeUnit = timeUnit;
     this.service = service;
-  }
-
-  /**
-   * @see org.sonar.server.platform.SwitchLogbackAppender
-   */
-  private ThreadFactory threadFactoryWithSpecificNameForLogging() {
-    return new ThreadFactoryBuilder()
-      .setNameFormat(ANALYSIS_REPORT_THREAD_NAME_PREFIX + "%d").setPriority(Thread.MIN_PRIORITY).build();
   }
 
   @Override
@@ -84,16 +73,22 @@ public class AnalysisReportTaskLauncher implements Startable, ServerComponent, S
   @Override
   public void stop() {
     executorService.shutdown();
-    LOG.info("AnalysisReportTaskLauncher gracefully stopped");
   }
 
   public void startAnalysisTaskNow() {
-    executorService.execute(new AnalysisReportTask(queue, service));
+    executorService.execute(new ComputationWorker(queue, service));
   }
 
   @Override
   public void onServerStart(Server server) {
-    executorService.scheduleAtFixedRate(new AnalysisReportTask(queue, service), delayForFirstStart, delayBetweenTasks, timeUnit);
-    LOG.info("AnalysisReportTaskLauncher started");
+    executorService.scheduleAtFixedRate(new ComputationWorker(queue, service), delayForFirstStart, delayBetweenTasks, timeUnit);
+  }
+
+  /**
+   * @see org.sonar.server.platform.SwitchLogbackAppender
+   */
+  private ThreadFactory threadFactoryWithSpecificNameForLogging() {
+    return new ThreadFactoryBuilder()
+      .setNameFormat(THREAD_NAME_PREFIX + "%d").setPriority(Thread.MIN_PRIORITY).build();
   }
 }

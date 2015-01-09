@@ -20,25 +20,27 @@
 
 package org.sonar.server.computation.step;
 
-import org.sonar.core.computation.dbcleaner.ProjectCleaner;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.purge.IdUuidPair;
-import org.sonar.server.computation.ComputeEngineContext;
+import org.sonar.core.resource.ResourceIndexerDao;
+import org.sonar.server.computation.ComputationContext;
 
-public class DataCleanerStep implements ComputationStep {
-  private final ProjectCleaner projectCleaner;
+/**
+ * Components are currently indexed in db table RESOURCE_INDEX, not in Elasticsearch
+ */
+public class IndexComponentsStep implements ComputationStep {
+  private final ResourceIndexerDao resourceIndexerDao;
 
-  public DataCleanerStep(ProjectCleaner projectCleaner) {
-    this.projectCleaner = projectCleaner;
+  public IndexComponentsStep(ResourceIndexerDao resourceIndexerDao) {
+    this.resourceIndexerDao = resourceIndexerDao;
   }
 
   @Override
-  public void execute(DbSession session, ComputeEngineContext context) {
-    projectCleaner.purge(session, new IdUuidPair(context.getProject().getId(), context.getProject().uuid()));
+  public void execute(DbSession session, ComputationContext context) {
+    resourceIndexerDao.indexProject(context.getProject().getId().intValue(), session);
   }
 
   @Override
   public String getDescription() {
-    return "Purge database";
+    return "Index components";
   }
 }

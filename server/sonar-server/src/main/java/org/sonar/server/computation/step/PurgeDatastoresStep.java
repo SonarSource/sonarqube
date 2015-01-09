@@ -20,24 +20,25 @@
 
 package org.sonar.server.computation.step;
 
+import org.sonar.core.computation.dbcleaner.ProjectCleaner;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.resource.ResourceIndexerDao;
-import org.sonar.server.computation.ComputeEngineContext;
+import org.sonar.core.purge.IdUuidPair;
+import org.sonar.server.computation.ComputationContext;
 
-public class ComponentIndexationInDatabaseStep implements ComputationStep {
-  private final ResourceIndexerDao resourceIndexerDao;
+public class PurgeDatastoresStep implements ComputationStep {
+  private final ProjectCleaner projectCleaner;
 
-  public ComponentIndexationInDatabaseStep(ResourceIndexerDao resourceIndexerDao) {
-    this.resourceIndexerDao = resourceIndexerDao;
+  public PurgeDatastoresStep(ProjectCleaner projectCleaner) {
+    this.projectCleaner = projectCleaner;
   }
 
   @Override
-  public void execute(DbSession session, ComputeEngineContext context) {
-    resourceIndexerDao.indexProject(context.getProject().getId().intValue(), session);
+  public void execute(DbSession session, ComputationContext context) {
+    projectCleaner.purge(session, new IdUuidPair(context.getProject().getId(), context.getProject().uuid()));
   }
 
   @Override
   public String getDescription() {
-    return "Index project in database";
+    return "Purge datastores";
   }
 }

@@ -20,7 +20,7 @@
 package org.sonar.server.source;
 
 import org.sonar.core.persistence.DbSession;
-import org.sonar.server.computation.ComputeEngineContext;
+import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.step.ComputationStep;
 import org.sonar.server.source.index.SourceLineIndexer;
 
@@ -33,7 +33,7 @@ public class IndexSourceLinesStep implements ComputationStep {
   }
 
   @Override
-  public void execute(DbSession session, ComputeEngineContext context) {
+  public void execute(DbSession session, ComputationContext context) {
     indexer.index();
   }
 

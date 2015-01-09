@@ -622,17 +622,16 @@ class ServerComponents {
     pico.addSingleton(ComputationStepRegistry.class);
     pico.addSingletons(Lists.newArrayList(
       DigestReportStep.class,
-      SynchronizeProjectPermissionsStep.class,
-      IndexProjectIssuesStep.class,
+      ApplyPermissionsStep.class,
+      IndexIssuesStep.class,
       IndexSourceLinesStep.class,
       SwitchSnapshotStep.class,
       InvalidatePreviewCacheStep.class,
-      ComponentIndexationInDatabaseStep.class,
-      DataCleanerStep.class,
-      CleanReportStep.class));
+      IndexComponentsStep.class,
+      PurgeDatastoresStep.class));
     pico.addSingleton(AnalysisReportService.class);
     pico.addSingleton(AnalysisReportQueue.class);
-    pico.addSingleton(AnalysisReportTaskLauncher.class);
+    pico.addSingleton(ComputationWorkerLauncher.class);
     pico.addSingleton(ComputationWebService.class);
     pico.addSingleton(IsQueueEmptyWebService.class);
     pico.addSingleton(QueueWsAction.class);
@@ -676,7 +675,7 @@ class ServerComponents {
     startupContainer.addSingleton(RegisterServletFilters.class);
     startupContainer.addSingleton(CleanPreviewAnalysisCache.class);
     startupContainer.addSingleton(CopyRequirementsFromCharacteristicsToRules.class);
-    startupContainer.addSingleton(AnalysisReportTaskCleaner.class);
+    startupContainer.addSingleton(AnalysisReportQueueCleaner.class);
 
     DoPrivileged.execute(new DoPrivileged.Task() {
       @Override

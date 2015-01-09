@@ -20,10 +20,7 @@
 
 package org.sonar.server.computation.step;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.sonar.batch.protocol.output.ReportHelper;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.computation.AnalysisReportService;
 import org.sonar.server.computation.ComputeEngineContext;
@@ -33,13 +30,8 @@ import java.io.File;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class CleanReportStepTest {
-
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
-
   CleanReportStep sut;
 
   @Test
@@ -47,10 +39,7 @@ public class CleanReportStepTest {
     AnalysisReportService service = mock(AnalysisReportService.class);
     sut = new CleanReportStep(service);
 
-    ComputeEngineContext context = mock(ComputeEngineContext.class);
-    when(context.getReportHelper()).thenReturn(ReportHelper.create(temp.newFolder()));
-
-    sut.execute(mock(DbSession.class), context);
+    sut.execute(mock(DbSession.class), mock(ComputeEngineContext.class));
 
     verify(service).deleteDirectory(any(File.class));
   }

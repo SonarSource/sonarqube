@@ -20,28 +20,30 @@
 
 package org.sonar.server.computation.step;
 
-import org.junit.Test;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.server.computation.ComputeEngineContext;
+import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueIndexer;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+public class IndexIssuesStep implements ComputationStep {
 
-public class IndexProjectIssuesStepTest {
 
-  IndexProjectIssuesStep sut;
+  private final IssueAuthorizationIndexer authorizationIndexer;
+  private final IssueIndexer indexer;
 
-  @Test
-  public void call_indexers() throws Exception {
-    IssueAuthorizationIndexer authorizationIndexer = mock(IssueAuthorizationIndexer.class);
-    IssueIndexer issueIndexer = mock(IssueIndexer.class);
-    sut = new IndexProjectIssuesStep(authorizationIndexer, issueIndexer);
+  public IndexIssuesStep(IssueAuthorizationIndexer authorizationIndexer, IssueIndexer indexer) {
+    this.authorizationIndexer = authorizationIndexer;
+    this.indexer = indexer;
+  }
 
-    sut.execute(mock(DbSession.class), mock(ComputeEngineContext.class));
+  @Override
+  public void execute(DbSession session, ComputationContext context) {
+    authorizationIndexer.index();
+    indexer.index();
+  }
 
-    verify(authorizationIndexer).index();
-    verify(issueIndexer).index();
+  @Override
+  public String getDescription() {
+    return "Index issues";
   }
 }

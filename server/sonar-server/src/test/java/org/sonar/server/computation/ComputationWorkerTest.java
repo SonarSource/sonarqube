@@ -27,9 +27,9 @@ import org.sonar.core.computation.db.AnalysisReportDto;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
-public class AnalysisReportTaskTest {
+public class ComputationWorkerTest {
 
-  private AnalysisReportTask sut;
+  private ComputationWorker sut;
   private ComputationService service;
   private AnalysisReportQueue queue;
 
@@ -37,26 +37,26 @@ public class AnalysisReportTaskTest {
   public void before() {
     this.service = mock(ComputationService.class);
     this.queue = mock(AnalysisReportQueue.class);
-    this.sut = new AnalysisReportTask(queue, service);
+    this.sut = new ComputationWorker(queue, service);
   }
 
   @Test
   public void call_findAndBook_and_no_call_to_analyze_if_no_report_found() {
     sut.run();
 
-    verify(queue).bookNextAvailable();
-    verify(service, never()).analyzeReport(any(AnalysisReportDto.class));
+    verify(queue).pop();
+    verify(service, never()).process(any(AnalysisReportDto.class));
   }
 
   @Test
   public void call_findAndBook_and_then_analyze_if_there_is_a_report() {
     AnalysisReportDto report = AnalysisReportDto.newForTests(1L);
-    when(queue.bookNextAvailable()).thenReturn(report);
+    when(queue.pop()).thenReturn(report);
 
     sut.run();
 
-    verify(queue).bookNextAvailable();
-    verify(service).analyzeReport(report);
+    verify(queue).pop();
+    verify(service).process(report);
   }
 
   @Test

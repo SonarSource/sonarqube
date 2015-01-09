@@ -21,10 +21,12 @@
 package org.sonar.server.computation;
 
 import com.google.common.base.Throwables;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.core.activity.Activity;
 import org.sonar.core.component.ComponentDto;
@@ -36,12 +38,13 @@ import org.sonar.server.computation.step.ComputationStep;
 import org.sonar.server.computation.step.ComputationStepRegistry;
 import org.sonar.server.db.DbClient;
 
-import java.util.Date;
-
-import static com.google.common.base.Preconditions.checkNotNull;
+import java.io.File;
 
 /**
- * since 5.0
+ * Could be merged with {@link org.sonar.server.computation.ComputationWorker}
+ * but it would need {@link org.sonar.server.computation.ComputationWorkerLauncher} to
+ * declare transitive dependencies as it directly instantiates this class, without
+ * using picocontainer.
  */
 public class ComputationService implements ServerComponent {
   private static final Logger LOG = LoggerFactory.getLogger(ComputationService.class);
@@ -49,35 +52,41 @@ public class ComputationService implements ServerComponent {
   private final DbClient dbClient;
   private final ComputationStepRegistry stepRegistry;
   private final ActivityService activityService;
+  private final TempFolder tempFolder;
 
-  public ComputationService(DbClient dbClient, ComputationStepRegistry stepRegistry, ActivityService activityService) {
+  public ComputationService(DbClient dbClient, ComputationStepRegistry stepRegistry, ActivityService activityService,
+                            TempFolder tempFolder) {
     this.dbClient = dbClient;
     this.stepRegistry = stepRegistry;
     this.activityService = activityService;
+    this.tempFolder = tempFolder;
   }
 
-  public void analyzeReport(AnalysisReportDto report) {
-    TimeProfiler profiler = new TimeProfiler(LOG).start(String.format("#%s - %s - Analysis report processing", report.getId(), report.getProjectKey()));
+  public void process(AnalysisReportDto report) {
+    TimeProfiler profiler = new TimeProfiler(LOG).start(String.format(
+      "#%s - %s - processing analysis report", report.getId(), report.getProjectKey()));
 
-    // Synchronization of a lot of data can only be done with a batch session for the moment
+    // Persistence of big amount of data can only be done with a batch session for the moment
     DbSession session = dbClient.openSession(true);
 
     ComponentDto project = findProject(report, session);
-    ComputeEngineContext context = new ComputeEngineContext(report, project);
-
+    File reportDir = tempFolder.newDir();
     try {
-      report.succeed();
+      ComputationContext context = new ComputationContext(report, project, reportDir);
+      dbClient.analysisReportDao().selectAndDecompressToDir(session, report.getId(), reportDir);
       for (ComputationStep step : stepRegistry.steps()) {
         TimeProfiler stepProfiler = new TimeProfiler(LOG).start(step.getDescription());
         step.execute(session, context);
-        session.commit();
         stepProfiler.stop();
       }
+      report.succeed();
 
-    } catch (Exception exception) {
+    } catch (Exception e) {
       report.fail();
-      Throwables.propagate(exception);
+      throw Throwables.propagate(e);
+
     } finally {
+      FileUtils.deleteQuietly(reportDir);
       logActivity(session, report, project);
       session.commit();
       MyBatis.closeQuietly(session);
@@ -86,11 +95,11 @@ public class ComputationService implements ServerComponent {
   }
 
   private ComponentDto findProject(AnalysisReportDto report, DbSession session) {
-    return checkNotNull(dbClient.componentDao().getByKey(session, report.getProjectKey()));
+    return dbClient.componentDao().getByKey(session, report.getProjectKey());
   }
 
   private void logActivity(DbSession session, AnalysisReportDto report, ComponentDto project) {
-    report.setFinishedAt(new Date(System2.INSTANCE.now()));
+    report.setFinishedAt(System2.INSTANCE.newDate());
     activityService.write(session, Activity.Type.ANALYSIS_REPORT, new AnalysisReportLog(report, project));
   }
 }

@@ -30,6 +30,14 @@ import java.util.Date;
 
 public class AnalysisReportDto extends Dto<String> {
 
+  public static enum Status {
+    PENDING, WORKING, SUCCESS, FAILED;
+
+    public boolean isInFinalState() {
+      return SUCCESS.equals(this) || FAILED.equals(this);
+    }
+  }
+
   private Long id;
   private String projectKey;
   private Status status;
@@ -37,10 +45,6 @@ public class AnalysisReportDto extends Dto<String> {
   private Long snapshotId;
   private Date startedAt;
   private Date finishedAt;
-
-  public AnalysisReportDto() {
-    super();
-  }
 
   @VisibleForTesting
   public static AnalysisReportDto newForTests(Long id) {
@@ -144,13 +148,5 @@ public class AnalysisReportDto extends Dto<String> {
   public AnalysisReportDto setCreatedAt(Date datetime) {
     super.setCreatedAt(datetime);
     return this;
-  }
-
-  public enum Status {
-    PENDING, WORKING, SUCCESS, FAILED;
-
-    public boolean isInFinalState() {
-      return SUCCESS.equals(this) || FAILED.equals(this);
-    }
   }
 }

@@ -24,14 +24,12 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.io.ByteStreams;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.ZipUtils;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.computation.db.AnalysisReportMapper;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DatabaseUtils;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.server.db.BaseDao;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -39,102 +37,89 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static org.sonar.core.computation.db.AnalysisReportDto.Status.PENDING;
 import static org.sonar.core.computation.db.AnalysisReportDto.Status.WORKING;
 
-public class AnalysisReportDao extends BaseDao<AnalysisReportMapper, AnalysisReportDto, String> implements DaoComponent {
+public class AnalysisReportDao implements DaoComponent {
 
-  private static final String INSERT_QUERY = "insert into analysis_reports\n" +
-    "    (project_key, snapshot_id, report_status, report_data, created_at, updated_at, started_at, finished_at)\n" +
-    "    values (?, ?, ?, ?, ?, ?, ?, ?)";
-  private static final String SELECT_REPORT_DATA = "select report_data from analysis_reports where id=?";
-  private final TempFolder tempFolder;
   private System2 system2;
 
-  public AnalysisReportDao(TempFolder tempFolder) {
-    this(System2.INSTANCE, tempFolder);
+  public AnalysisReportDao() {
+    this(System2.INSTANCE);
   }
 
   @VisibleForTesting
-  public AnalysisReportDao(System2 system2, TempFolder tempFolder) {
-    super(AnalysisReportMapper.class, system2);
+  AnalysisReportDao(System2 system2) {
     this.system2 = system2;
-    this.tempFolder = tempFolder;
   }
 
   /**
-   * startup task use only
+   * Update all rows with: STATUS='PENDING', STARTED_AT=NULL, UPDATED_AT={now}
    */
-  public void cleanWithUpdateAllToPendingStatus(DbSession session) {
-    mapper(session).cleanWithUpdateAllToPendingStatus(PENDING, new Date(system2.now()));
+  public void resetAllToPendingStatus(DbSession session) {
+    mapper(session).resetAllToPendingStatus(system2.newDate());
   }
 
-  /**
-   * startup task use only
-   */
-  public void cleanWithTruncate(DbSession session) {
-    mapper(session).cleanWithTruncate();
+  public void truncate(DbSession session) {
+    mapper(session).truncate();
   }
 
-  public List<AnalysisReportDto> findByProjectKey(DbSession session, String projectKey) {
+  public List<AnalysisReportDto> selectByProjectKey(DbSession session, String projectKey) {
     return mapper(session).selectByProjectKey(projectKey);
   }
 
-  public AnalysisReportDto getNextAvailableReport(DbSession session) {
-    List<AnalysisReportDto> reports = mapper(session).selectNextAvailableReport(PENDING, WORKING);
-
-    if (reports.isEmpty()) {
-      return null;
-    }
-
-    return reports.get(0);
-  }
-
   @VisibleForTesting
-  AnalysisReportDto getById(DbSession session, Long id) {
+  AnalysisReportDto selectById(DbSession session, long id) {
     return mapper(session).selectById(id);
   }
 
   @CheckForNull
-  public AnalysisReportDto bookAnalysisReport(DbSession session, AnalysisReportDto report) {
-    checkNotNull(report.getId());
+  public AnalysisReportDto pop(DbSession session) {
+    List<Long> reportIds = mapper(session).selectAvailables(PENDING, WORKING);
+    if (reportIds.isEmpty()) {
+      return null;
+    }
 
-    int nbOfReportBooked = mapper(session).updateWithBookingReport(report.getId(), new Date(system2.now()), PENDING, WORKING);
+    long reportId = reportIds.get(0);
+    return tryToPop(session, reportId);
+  }
 
+  @VisibleForTesting
+  AnalysisReportDto tryToPop(DbSession session, long reportId) {
+    AnalysisReportMapper mapper = mapper(session);
+    int nbOfReportBooked = mapper.updateWithBookingReport(reportId, system2.newDate(), PENDING, WORKING);
     if (nbOfReportBooked == 0) {
       return null;
     }
 
-    return mapper(session).selectById(report.getId());
+    AnalysisReportDto result = mapper.selectById(reportId);
+    session.commit();
+    return result;
   }
 
-  public List<AnalysisReportDto> findAll(DbSession session) {
+  public List<AnalysisReportDto> selectAll(DbSession session) {
     return mapper(session).selectAll();
   }
 
-  @Override
-  protected AnalysisReportDto doGetNullableByKey(DbSession session, String projectKey) {
-    throw new UnsupportedOperationException();
-  }
+  public AnalysisReportDto insert(DbSession session, AnalysisReportDto report) {
+    report.setCreatedAt(system2.newDate());
+    report.setUpdatedAt(system2.newDate());
 
-  @Override
-  protected AnalysisReportDto doUpdate(DbSession session, AnalysisReportDto report) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  protected AnalysisReportDto doInsert(DbSession session, AnalysisReportDto report) {
     Connection connection = session.getConnection();
     PreparedStatement ps = null;
     try {
-      ps = connection.prepareStatement(INSERT_QUERY);
-      // (project_key, snapshot_id, report_status, report_data, created_at, updated_at, started_at, finished_at)
+      ps = connection.prepareStatement(
+        "insert into analysis_reports " +
+          " (project_key, snapshot_id, report_status, report_data, created_at, updated_at, started_at, finished_at)" +
+          " values (?, ?, ?, ?, ?, ?, ?, ?)");
       ps.setString(1, report.getProjectKey());
       ps.setLong(2, report.getSnapshotId());
       ps.setString(3, report.getStatus().toString());
@@ -164,56 +149,45 @@ public class AnalysisReportDao extends BaseDao<AnalysisReportMapper, AnalysisRep
   }
 
   @CheckForNull
-  public File getDecompressedReport(DbSession session, long id) {
+  public void selectAndDecompressToDir(DbSession session, long id, File toDir) {
     Connection connection = session.getConnection();
-    InputStream reportDataStream = null;
+    InputStream stream = null;
     PreparedStatement ps = null;
-    File directory = null;
-
+    ResultSet rs;
     try {
-      ps = connection.prepareStatement(SELECT_REPORT_DATA);
+      ps = connection.prepareStatement("select report_data from analysis_reports where id=?");
       ps.setLong(1, id);
 
-      ResultSet rs = ps.executeQuery();
+      rs = ps.executeQuery();
       if (rs.next()) {
-        reportDataStream = rs.getBinaryStream(1);
-        if (reportDataStream != null) {
-          directory = tempFolder.newDir();
-          ZipUtils.unzip(reportDataStream, directory);
+        stream = rs.getBinaryStream(1);
+        if (stream != null) {
+          ZipUtils.unzip(stream, toDir);
         }
       }
+      // TODO what to do if id not found or no stream ?
     } catch (SQLException e) {
       throw new IllegalStateException(String.format("Failed to read report '%d' in the database", id), e);
     } catch (IOException e) {
       throw new IllegalStateException(String.format("Failed to decompress report '%d'", id), e);
     } finally {
-      IOUtils.closeQuietly(reportDataStream);
+      IOUtils.closeQuietly(stream);
       DatabaseUtils.closeQuietly(ps);
     }
-
-    return directory;
   }
 
-  private Timestamp dateToTimestamp(Date date) {
+  private Timestamp dateToTimestamp(@Nullable Date date) {
     if (date == null) {
       return null;
     }
-
     return new Timestamp(date.getTime());
   }
 
-  @Override
-  protected String getSynchronizationStatementName() {
-    throw new UnsupportedOperationException();
+  public void delete(DbSession session, long id) {
+    mapper(session).delete(id);
   }
 
-  @Override
-  protected Map<String, Object> getSynchronizationParams(Date date, Map<String, String> params) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  protected void doDeleteByKey(DbSession session, String id) {
-    mapper(session).delete(Long.valueOf(id));
+  private AnalysisReportMapper mapper(DbSession session) {
+    return session.getMapper(AnalysisReportMapper.class);
   }
 }

@@ -21,38 +21,43 @@
 package org.sonar.server.computation.step;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
-import org.sonar.core.computation.dbcleaner.ProjectCleaner;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.purge.IdUuidPair;
-import org.sonar.server.computation.ComputeEngineContext;
+import org.sonar.core.resource.ResourceIndexerDao;
+import org.sonar.server.computation.ComputationContext;
 
-import static org.mockito.Matchers.any;
+import java.io.IOException;
+
 import static org.mockito.Mockito.*;
 
-public class DataCleanerStepTest {
+public class IndexComponentsStepTest {
 
-  private DataCleanerStep sut;
-  private ProjectCleaner projectCleaner;
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
+  IndexComponentsStep sut;
+  ResourceIndexerDao resourceIndexerDao;
 
   @Before
   public void before() {
-    this.projectCleaner = mock(ProjectCleaner.class);
-
-    this.sut = new DataCleanerStep(projectCleaner);
+    this.resourceIndexerDao = mock(ResourceIndexerDao.class);
+    this.sut = new IndexComponentsStep(resourceIndexerDao);
   }
 
   @Test
-  public void call_purge_method_of_the_purge_task() {
+  public void call_indexProject_of_dao() throws IOException {
     ComponentDto project = mock(ComponentDto.class);
     when(project.getId()).thenReturn(123L);
-    when(project.uuid()).thenReturn("UUID-1234");
-    ComputeEngineContext context = new ComputeEngineContext(mock(AnalysisReportDto.class), project);
+    DbSession session = mock(DbSession.class);
+    ComputationContext context = new ComputationContext(mock(AnalysisReportDto.class), project, temp.newFolder());
 
-    sut.execute(mock(DbSession.class), context);
+    sut.execute(session, context);
 
-    verify(projectCleaner).purge(any(DbSession.class), any(IdUuidPair.class));
+    verify(resourceIndexerDao).indexProject(123, session);
   }
+
 }

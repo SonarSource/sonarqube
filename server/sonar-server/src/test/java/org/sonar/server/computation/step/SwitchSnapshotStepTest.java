@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.computation.db.AnalysisReportDto;
@@ -33,16 +34,22 @@ import org.sonar.core.persistence.DbTester;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.SnapshotDao;
-import org.sonar.server.computation.ComputeEngineContext;
+import org.sonar.server.computation.ComputationContext;
 import org.sonar.test.DbTests;
+
+import java.io.IOException;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @Category(DbTests.class)
 public class SwitchSnapshotStepTest {
+
   @Rule
   public DbTester db = new DbTester();
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
   private DbSession session;
   private SwitchSnapshotStep sut;
@@ -62,9 +69,10 @@ public class SwitchSnapshotStepTest {
   }
 
   @Test
-  public void one_switch_with_a_snapshot_and_his_children() {
+  public void one_switch_with_a_snapshot_and_his_children() throws IOException {
     db.prepareDbUnit(getClass(), "snapshots.xml");
-    ComputeEngineContext context = new ComputeEngineContext(AnalysisReportDto.newForTests(1L).setSnapshotId(1L), ComponentTesting.newProjectDto());
+    ComputationContext context = new ComputationContext(AnalysisReportDto.newForTests(1L).setSnapshotId(1L),
+      ComponentTesting.newProjectDto(), temp.newFolder());
 
     sut.execute(session, context);
     session.commit();
@@ -73,9 +81,10 @@ public class SwitchSnapshotStepTest {
   }
 
   @Test(expected = IllegalStateException.class)
-  public void throw_IllegalStateException_when_not_finding_snapshot() {
+  public void throw_IllegalStateException_when_not_finding_snapshot() throws IOException {
     db.prepareDbUnit(getClass(), "empty.xml");
-    ComputeEngineContext context = new ComputeEngineContext(AnalysisReportDto.newForTests(1L).setSnapshotId(1L), ComponentTesting.newProjectDto());
+    ComputationContext context = new ComputationContext(AnalysisReportDto.newForTests(1L).setSnapshotId(1L),
+      ComponentTesting.newProjectDto(), temp.newFolder());
 
     sut.execute(session, context);
   }

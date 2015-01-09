@@ -14,9 +14,9 @@
     ar.finished_at as finishedAt
   </sql>
 
-  <update id="cleanWithUpdateAllToPendingStatus" parameterType="map">
+  <update id="resetAllToPendingStatus" parameterType="map">
     update analysis_reports
-    set report_status=#{status}, updated_at=#{updatedAt}
+    set report_status='PENDING', updated_at=#{updatedAt}, started_at=NULL
   </update>
 
   <update id="updateWithBookingReport" parameterType="map">
@@ -26,7 +26,7 @@
     where id=#{id} and report_status=#{availableStatus}
   </update>
 
-  <delete id="cleanWithTruncate">
+  <delete id="truncate">
     truncate table analysis_reports
   </delete>
 
@@ -48,9 +48,9 @@
     where project_key = #{projectKey}
   </select>
 
-  <select id="selectNextAvailableReport" parameterType="map" resultType="AnalysisReport">
-    select
-    <include refid="reportColumns"/>
+  <!-- TODO optimize by restricting results to first row (LIMIT 1 on most dbs) -->
+  <select id="selectAvailables" parameterType="map" resultType="Long">
+    select ar.id
     from analysis_reports ar
     where ar.report_status=#{availableStatus}
     and not exists(

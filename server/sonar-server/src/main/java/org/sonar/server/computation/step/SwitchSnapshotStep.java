@@ -24,7 +24,7 @@ import org.sonar.core.component.SnapshotDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.component.db.SnapshotDao;
-import org.sonar.server.computation.ComputeEngineContext;
+import org.sonar.server.computation.ComputationContext;
 
 import java.util.List;
 
@@ -37,7 +37,7 @@ public class SwitchSnapshotStep implements ComputationStep {
   }
 
   @Override
-  public void execute(DbSession session, ComputeEngineContext context) {
+  public void execute(DbSession session, ComputationContext context) {
     disablePreviousSnapshot(session, context.getReportDto());
     enableCurrentSnapshot(session, context.getReportDto());
   }

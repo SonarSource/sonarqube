@@ -25,12 +25,12 @@ import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class SynchronizeProjectPermissionsStepTest {
+public class ApplyPermissionsStepTest {
 
   @Test
   public void index_issue_permissions() throws Exception {
     IssueAuthorizationIndexer indexer = mock(IssueAuthorizationIndexer.class);
-    new SynchronizeProjectPermissionsStep(indexer).execute(null, null);
+    new ApplyPermissionsStep(indexer).execute(null, null);
     verify(indexer).index();
   }
 }

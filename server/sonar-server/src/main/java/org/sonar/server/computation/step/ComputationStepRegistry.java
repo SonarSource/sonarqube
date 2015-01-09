@@ -20,44 +20,46 @@
 
 package org.sonar.server.computation.step;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.platform.ComponentContainer;
 import org.sonar.server.source.IndexSourceLinesStep;
 
 import java.util.List;
 
 public class ComputationStepRegistry implements ServerComponent {
 
-  private final ComponentContainer pico;
+  private final List<ComputationStep> steps;
 
-  public ComputationStepRegistry(ComponentContainer pico) {
-    this.pico = pico;
-
+  public ComputationStepRegistry(ComputationStep... s) {
+    this.steps = order(s,
+      DigestReportStep.class,
+      ApplyPermissionsStep.class,
+      SwitchSnapshotStep.class,
+      InvalidatePreviewCacheStep.class,
+      IndexComponentsStep.class,
+      PurgeDatastoresStep.class,
+      IndexIssuesStep.class,
+      IndexSourceLinesStep.class);
   }
 
   public List<ComputationStep> steps() {
-    List<ComputationStep> steps = Lists.newArrayList();
-    // project & views
-    steps.add(pico.getComponentByType(DigestReportStep.class));
-    // project only
-    steps.add(pico.getComponentByType(SynchronizeProjectPermissionsStep.class));
-    // project & views
-    steps.add(pico.getComponentByType(SwitchSnapshotStep.class));
-    // project only
-    steps.add(pico.getComponentByType(InvalidatePreviewCacheStep.class));
-    // project & views
-    steps.add(pico.getComponentByType(ComponentIndexationInDatabaseStep.class));
-    // project & views
-    steps.add(pico.getComponentByType(DataCleanerStep.class));
-    // project & views
-    steps.add(pico.getComponentByType(CleanReportStep.class));
-    // project only
-    steps.add(pico.getComponentByType(IndexProjectIssuesStep.class));
-    // project only
-    steps.add(pico.getComponentByType(IndexSourceLinesStep.class));
+    return steps;
+  }
 
-    return ImmutableList.copyOf(steps);
+  private List<ComputationStep> order(ComputationStep[] steps, Class<? extends ComputationStep>... classes) {
+    List<ComputationStep> result = Lists.newArrayList();
+    for (Class<? extends ComputationStep> clazz : classes) {
+      result.add(find(steps, clazz));
+    }
+    return result;
+  }
+
+  private static ComputationStep find(ComputationStep[] steps, Class<? extends ComputationStep> clazz) {
+    for (ComputationStep step : steps) {
+      if (clazz.isInstance(step)) {
+        return step;
+      }
+    }
+    throw new IllegalStateException("Component not found in picocontainer: " + clazz);
   }
 }

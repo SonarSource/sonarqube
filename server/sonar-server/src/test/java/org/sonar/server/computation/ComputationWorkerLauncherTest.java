@@ -33,12 +33,12 @@ import java.util.concurrent.TimeUnit;
 
 import static org.mockito.Mockito.*;
 
-public class AnalysisReportTaskLauncherTest {
+public class ComputationWorkerLauncherTest {
 
   @Rule
   public TestRule timeout = new DisableOnDebug(Timeout.seconds(5));
 
-  private AnalysisReportTaskLauncher sut;
+  private ComputationWorkerLauncher sut;
   private ComputationService service;
   private AnalysisReportQueue queue;
 
@@ -55,25 +55,25 @@ public class AnalysisReportTaskLauncherTest {
 
   @Test
   public void call_findAndBook_when_launching_a_recurrent_task() throws Exception {
-    sut = new AnalysisReportTaskLauncher(service, queue, 0, 1, TimeUnit.MILLISECONDS);
+    sut = new ComputationWorkerLauncher(service, queue, 0, 1, TimeUnit.MILLISECONDS);
 
     sut.onServerStart(mock(Server.class));
 
     sleep();
 
-    verify(queue, atLeastOnce()).bookNextAvailable();
+    verify(queue, atLeastOnce()).pop();
   }
 
   @Test
   public void call_findAndBook_when_executing_task_immediately() throws Exception {
-    sut = new AnalysisReportTaskLauncher(service, queue, 1, 1, TimeUnit.HOURS);
+    sut = new ComputationWorkerLauncher(service, queue, 1, 1, TimeUnit.HOURS);
     sut.start();
 
     sut.startAnalysisTaskNow();
 
     sleep();
 
-    verify(queue, atLeastOnce()).bookNextAvailable();
+    verify(queue, atLeastOnce()).pop();
   }
 
   private void sleep() throws InterruptedException {

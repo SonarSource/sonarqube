@@ -27,7 +27,7 @@ import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
-import org.sonar.server.computation.ComputeEngineContext;
+import org.sonar.server.computation.ComputationContext;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -45,9 +45,9 @@ public class InvalidatePreviewCacheStepTest {
   }
 
   @Test
-  public void update_property_calling_propertiesDao() {
+  public void update_property_to_invalidate_cache() {
     DbSession session = mock(DbSession.class);
-    ComputeEngineContext context = new ComputeEngineContext(mock(AnalysisReportDto.class), mock(ComponentDto.class));
+    ComputationContext context = new ComputationContext(mock(AnalysisReportDto.class), mock(ComponentDto.class), null);
 
     sut.execute(session, context);
 

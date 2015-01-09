@@ -36,7 +36,7 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.SnapshotTesting;
-import org.sonar.server.computation.ComputeEngineContext;
+import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.tester.ServerTester;
 
@@ -44,12 +44,12 @@ import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class DataCleanerStepMediumTest {
+public class PurgeDatastoresStepMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
 
-  private DataCleanerStep sut;
+  private PurgeDatastoresStep sut;
   private DbClient dbClient;
   private DbSession dbSession;
   private ProjectCleaner purgeTask;
@@ -61,7 +61,7 @@ public class DataCleanerStepMediumTest {
 
     this.purgeTask = tester.get(ProjectCleaner.class);
 
-    this.sut = new DataCleanerStep(purgeTask);
+    this.sut = new PurgeDatastoresStep(purgeTask);
   }
 
   @After
@@ -95,7 +95,7 @@ public class DataCleanerStepMediumTest {
 
     dbClient.propertiesDao().setProperty(new PropertyDto().setKey(DbCleanerConstants.WEEKS_BEFORE_DELETING_ALL_SNAPSHOTS).setValue("52"));
     dbSession.commit();
-    ComputeEngineContext context = new ComputeEngineContext(report, project);
+    ComputationContext context = new ComputationContext(report, project, null);
 
     // ACT
     sut.execute(dbSession, context);
@@ -135,7 +135,7 @@ public class DataCleanerStepMediumTest {
     dbClient.propertiesDao().setProperty(new PropertyDto().setKey(DbCleanerConstants.WEEKS_BEFORE_DELETING_ALL_SNAPSHOTS).setValue("4"));
     dbClient.propertiesDao().setProperty(new PropertyDto().setKey(DbCleanerConstants.WEEKS_BEFORE_DELETING_ALL_SNAPSHOTS).setValue("1").setResourceId(project.getId()));
     dbSession.commit();
-    ComputeEngineContext context = new ComputeEngineContext(report, project);
+    ComputationContext context = new ComputationContext(report, project, null);
 
     // ACT
     sut.execute(dbSession, context);

@@ -25,7 +25,7 @@ import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.AppenderBase;
 import ch.qos.logback.core.spi.AppenderAttachable;
 import ch.qos.logback.core.spi.AppenderAttachableImpl;
-import org.sonar.server.computation.AnalysisReportTaskLauncher;
+import org.sonar.server.computation.ComputationWorkerLauncher;
 
 import java.util.Iterator;
 
@@ -37,7 +37,7 @@ public class SwitchLogbackAppender extends AppenderBase<ILoggingEvent> implement
 
   @Override
   protected void append(ILoggingEvent event) {
-    if (Thread.currentThread().getName().startsWith(AnalysisReportTaskLauncher.ANALYSIS_REPORT_THREAD_NAME_PREFIX)) {
+    if (Thread.currentThread().getName().startsWith(ComputationWorkerLauncher.THREAD_NAME_PREFIX)) {
       analysisReports.doAppend(event);
       if (event.getLevel().isGreaterOrEqual(Level.WARN)) {
         console.doAppend(event);

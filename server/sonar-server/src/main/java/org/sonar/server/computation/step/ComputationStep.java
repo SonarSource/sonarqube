@@ -22,11 +22,11 @@ package org.sonar.server.computation.step;
 
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.server.computation.ComputeEngineContext;
+import org.sonar.server.computation.ComputationContext;
 
 public interface ComputationStep extends ServerComponent {
 
-  void execute(DbSession session, ComputeEngineContext context);
+  void execute(DbSession session, ComputationContext context);
 
   String getDescription();
 }

@@ -27,17 +27,13 @@ import java.util.List;
 public interface AnalysisReportMapper {
   List<AnalysisReportDto> selectByProjectKey(String projectKey);
 
-  List<AnalysisReportDto> selectNextAvailableReport(@Param("availableStatus") AnalysisReportDto.Status availableStatus, @Param("busyStatus") AnalysisReportDto.Status busyStatus);
+  List<Long> selectAvailables(
+    @Param("availableStatus") AnalysisReportDto.Status availableStatus,
+    @Param("busyStatus") AnalysisReportDto.Status busyStatus);
 
-  /**
-   * startup task use only
-   */
-  void cleanWithUpdateAllToPendingStatus(@Param("status") AnalysisReportDto.Status status, @Param("updatedAt") Date updatedAt);
+  void resetAllToPendingStatus(@Param("updatedAt") Date updatedAt);
 
-  /**
-   * startup task use only
-   */
-  void cleanWithTruncate();
+  void truncate();
 
   int update(AnalysisReportDto report);
 
@@ -45,9 +41,9 @@ public interface AnalysisReportMapper {
     @Param("availableStatus") AnalysisReportDto.Status availableStatus,
     @Param("busyStatus") AnalysisReportDto.Status busyStatus);
 
-  AnalysisReportDto selectById(Long id);
+  AnalysisReportDto selectById(long id);
 
-  void delete(Long id);
+  void delete(long id);
 
   List<AnalysisReportDto> selectAll();
 }

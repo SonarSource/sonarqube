@@ -28,25 +28,33 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.computation.db.AnalysisReportDao;
 import org.sonar.server.db.DbClient;
 
-public class AnalysisReportTaskCleaner implements Startable, ServerComponent {
+/**
+ * Clean-up queue of reports at server startup:
+ * <ul>
+ *   <li>remove all reports if server being upgraded to a new version (we assume that
+ *   format of reports is not forward-compatible)</li>
+ *   <li>reset reports that were in status WORKING while server stopped</li>
+ * </ul>
+ */
+public class AnalysisReportQueueCleaner implements Startable, ServerComponent {
+
   private final ServerUpgradeStatus serverUpgradeStatus;
   private final DbClient dbClient;
 
-  public AnalysisReportTaskCleaner(ServerUpgradeStatus serverUpgradeStatus, DbClient dbClient) {
+  public AnalysisReportQueueCleaner(ServerUpgradeStatus serverUpgradeStatus, DbClient dbClient) {
     this.serverUpgradeStatus = serverUpgradeStatus;
     this.dbClient = dbClient;
   }
 
   @Override
   public void start() {
-    DbSession session = dbClient.openSession(false);
     AnalysisReportDao dao = dbClient.analysisReportDao();
-
+    DbSession session = dbClient.openSession(false);
     try {
       if (serverUpgradeStatus.isUpgraded()) {
-        dao.cleanWithTruncate(session);
+        dao.truncate(session);
       } else {
-        dao.cleanWithUpdateAllToPendingStatus(session);
+        dao.resetAllToPendingStatus(session);
       }
 
       session.commit();

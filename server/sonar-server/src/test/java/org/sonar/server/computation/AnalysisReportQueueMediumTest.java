@@ -118,9 +118,9 @@ public class AnalysisReportQueueMediumTest {
     sut.add("2", 123L, defaultReportData());
     sut.add("3", 123L, defaultReportData());
 
-    AnalysisReportDto firstBookedReport = sut.bookNextAvailable();
-    AnalysisReportDto secondBookedReport = sut.bookNextAvailable();
-    AnalysisReportDto thirdBookedReport = sut.bookNextAvailable();
+    AnalysisReportDto firstBookedReport = sut.pop();
+    AnalysisReportDto secondBookedReport = sut.pop();
+    AnalysisReportDto thirdBookedReport = sut.pop();
 
     assertThat(firstBookedReport.getProjectKey()).isEqualTo(DEFAULT_PROJECT_KEY);
     assertThat(firstBookedReport.getStatus()).isEqualTo(WORKING);
@@ -131,7 +131,7 @@ public class AnalysisReportQueueMediumTest {
 
   @Test
   public void search_for_available_report_when_no_report_available() {
-    AnalysisReportDto nullAnalysisReport = sut.bookNextAvailable();
+    AnalysisReportDto nullAnalysisReport = sut.pop();
 
     assertThat(nullAnalysisReport).isNull();
   }
@@ -153,7 +153,7 @@ public class AnalysisReportQueueMediumTest {
   public void remove_remove_from_queue() {
     insertPermissionsForProject(DEFAULT_PROJECT_KEY);
     sut.add(DEFAULT_PROJECT_KEY, 123L, defaultReportData());
-    AnalysisReportDto report = sut.bookNextAvailable();
+    AnalysisReportDto report = sut.pop();
     report.setStatus(SUCCESS);
 
     sut.remove(report);

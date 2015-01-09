@@ -1,35 +1,38 @@
 <dataset>
   <analysis_reports
       id="1"
-      project_key="123456789-987654321"
-      snapshot_id="123"
+      project_key="P1"
+      project_name="Project1"
+      snapshot_id="1"
       report_data="data-project"
       report_status="WORKING"
       created_at="2014-09-24"
       updated_at="2014-09-24"
       started_at="2014-09-24"
-      finished_at="2014-09-24"
+      finished_at="[null]"
       />
   <analysis_reports
       id="2"
-      project_key="123456789-987654321"
+      project_key="P2"
+      project_name="Project2"
       snapshot_id="123"
       report_data="data-project"
       report_status="WORKING"
       created_at="2014-09-25"
       updated_at="2014-09-25"
       started_at="2014-09-24"
-      finished_at="2014-09-24"
+      finished_at="[null]"
       />
   <analysis_reports
       id="3"
-      project_key="123456789-987654321"
+      project_key="P1"
+      project_name="Project1"
       snapshot_id="123"
       report_data="data-project"
       report_status="PENDING"
       created_at="2014-09-26"
       updated_at="2014-09-26"
-      started_at="2014-09-24"
-      finished_at="2014-09-24"
+      started_at="[null]"
+      finished_at="[null]"
       />
 </dataset>

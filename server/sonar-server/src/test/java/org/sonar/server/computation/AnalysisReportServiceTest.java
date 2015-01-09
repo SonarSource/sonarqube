@@ -20,67 +20,38 @@
 
 package org.sonar.server.computation;
 
-import org.sonar.batch.protocol.output.component.ReportComponent;
-import org.sonar.batch.protocol.output.component.ReportComponents;
-
 import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rules.RuleFinder;
-import org.sonar.batch.protocol.output.ReportHelper;
+import org.sonar.batch.protocol.output.resource.ReportComponent;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.server.computation.db.AnalysisReportDao;
-import org.sonar.server.db.DbClient;
 
 import java.io.File;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class AnalysisReportServiceTest {
-
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
-
   private AnalysisReportService sut;
 
   private IssueStorage issueStorage;
-  private DbClient dbClient;
 
   @Before
   public void before() throws Exception {
-    dbClient = mock(DbClient.class);
     issueStorage = new FakeIssueStorage();
     ComputeEngineIssueStorageFactory issueStorageFactory = mock(ComputeEngineIssueStorageFactory.class);
     when(issueStorageFactory.newComputeEngineIssueStorage(any(ComponentDto.class))).thenReturn(issueStorage);
-    sut = new AnalysisReportService(dbClient, issueStorageFactory);
-  }
-
-  @Test
-  public void call_dao_to_decompress_report() throws Exception {
-    AnalysisReportDao dao = mock(AnalysisReportDao.class);
-    when(dbClient.analysisReportDao()).thenReturn(dao);
-    AnalysisReportDto report = AnalysisReportDto.newForTests(123L);
-    ComputeEngineContext context = new ComputeEngineContext(report, mock(ComponentDto.class));
-
-    when(dao.getDecompressedReport(any(DbSession.class), eq(123L))).thenReturn(temp.newFile());
-
-    sut.decompress(mock(DbSession.class), context);
-
-    verify(dao).getDecompressedReport(any(DbSession.class), eq(123L));
+    sut = new AnalysisReportService(issueStorageFactory);
   }
 
   @Test
@@ -101,21 +72,19 @@ public class AnalysisReportServiceTest {
   }
 
   @Test
-  public void load_components() throws Exception {
-    ComputeEngineContext context = new ComputeEngineContext(mock(AnalysisReportDto.class), mock(ComponentDto.class));
-    context.setReportHelper(ReportHelper.create(new File(getClass().getResource("/org/sonar/server/computation/AnalysisReportServiceTest/report-folder").getFile())));
+  public void load_resources() throws Exception {
+    File dir = new File(getClass().getResource("/org/sonar/server/computation/AnalysisReportServiceTest/report-folder").getFile());
+    ComputationContext context = new ComputationContext(mock(AnalysisReportDto.class), mock(ComponentDto.class), dir);
 
-    sut.loadComponents(context);
+    sut.loadResources(context);
 
     assertThat(context.getComponents()).hasSize(4);
   }
 
   @Test
   public void save_issues() throws Exception {
-    ComputeEngineContext context = new FakeComputeEngineContext();
-    context.setReportHelper(ReportHelper.create(new File(getClass().getResource("/org/sonar/server/computation/AnalysisReportServiceTest/report-folder").getFile())));
-
-    context.addResources(new ReportComponents().setRoot(new ReportComponent().setBatchId(1)));
+    File dir = new File(getClass().getResource("/org/sonar/server/computation/AnalysisReportServiceTest/report-folder").getFile());
+    ComputationContext context = new FakeComputationContext(dir);
 
     sut.saveIssues(context);
 
@@ -146,10 +115,10 @@ public class AnalysisReportServiceTest {
     }
   }
 
-  private static class FakeComputeEngineContext extends ComputeEngineContext {
+  private static class FakeComputationContext extends ComputationContext {
 
-    public FakeComputeEngineContext() {
-      super(mock(AnalysisReportDto.class), mock(ComponentDto.class));
+    public FakeComputationContext(File reportDir) {
+      super(mock(AnalysisReportDto.class), mock(ComponentDto.class), reportDir);
     }
 
     @Override

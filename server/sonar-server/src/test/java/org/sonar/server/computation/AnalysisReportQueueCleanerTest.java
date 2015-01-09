@@ -29,9 +29,9 @@ import org.sonar.server.db.DbClient;
 
 import static org.mockito.Mockito.*;
 
-public class AnalysisReportTaskCleanerTest {
+public class AnalysisReportQueueCleanerTest {
 
-  AnalysisReportTaskCleaner sut;
+  AnalysisReportQueueCleaner sut;
   ServerUpgradeStatus serverUpgradeStatus;
   DbClient dbClient;
   AnalysisReportDao analysisReportDao;
@@ -47,13 +47,13 @@ public class AnalysisReportTaskCleanerTest {
     when(dbClient.analysisReportDao()).thenReturn(analysisReportDao);
     when(dbClient.openSession(false)).thenReturn(session);
 
-    sut = new AnalysisReportTaskCleaner(serverUpgradeStatus, dbClient);
+    sut = new AnalysisReportQueueCleaner(serverUpgradeStatus, dbClient);
   }
 
   @Test
   public void start_must_call_dao_clean_update_to_pending_by_default() {
     sut.start();
-    verify(analysisReportDao).cleanWithUpdateAllToPendingStatus(any(DbSession.class));
+    verify(analysisReportDao).resetAllToPendingStatus(any(DbSession.class));
     sut.stop();
   }
 
@@ -61,7 +61,7 @@ public class AnalysisReportTaskCleanerTest {
   public void start_must_call_dao_truncate_when_upgrading() {
     when(serverUpgradeStatus.isUpgraded()).thenReturn(Boolean.TRUE);
     sut.start();
-    verify(analysisReportDao).cleanWithTruncate(any(DbSession.class));
+    verify(analysisReportDao).truncate(any(DbSession.class));
     sut.stop();
   }
 }

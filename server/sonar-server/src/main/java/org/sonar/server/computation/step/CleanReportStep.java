@@ -33,7 +33,7 @@ public class CleanReportStep implements ComputationStep {
 
   @Override
   public void execute(DbSession session, ComputeEngineContext context) {
-    reportService.deleteDirectory(context.getReportHelper().reportRootDir());
+    reportService.deleteDirectory(context.getReportDirectory());
   }
 
   @Override

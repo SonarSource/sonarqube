@@ -21,36 +21,46 @@
 package org.sonar.server.computation.step;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
+import org.sonar.core.computation.dbcleaner.ProjectCleaner;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.resource.ResourceIndexerDao;
-import org.sonar.server.computation.ComputeEngineContext;
+import org.sonar.core.purge.IdUuidPair;
+import org.sonar.server.computation.ComputationContext;
 
+import java.io.IOException;
+
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
-public class ComponentIndexationInDatabaseStepTest {
+public class PurgeDatastoresStepTest {
 
-  private ComponentIndexationInDatabaseStep sut;
-  private ResourceIndexerDao resourceIndexerDao;
+  PurgeDatastoresStep sut;
+  ProjectCleaner projectCleaner;
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
   @Before
   public void before() {
-    this.resourceIndexerDao = mock(ResourceIndexerDao.class);
-    this.sut = new ComponentIndexationInDatabaseStep(resourceIndexerDao);
+    this.projectCleaner = mock(ProjectCleaner.class);
+
+    this.sut = new PurgeDatastoresStep(projectCleaner);
   }
 
   @Test
-  public void call_indexProject_of_dao() {
+  public void call_purge_method_of_the_purge_task() throws IOException {
     ComponentDto project = mock(ComponentDto.class);
     when(project.getId()).thenReturn(123L);
-    DbSession session = mock(DbSession.class);
-    ComputeEngineContext context = new ComputeEngineContext(mock(AnalysisReportDto.class), project);
+    when(project.uuid()).thenReturn("UUID-1234");
+    ComputationContext context = new ComputationContext(mock(AnalysisReportDto.class), project,
+      temp.newFolder());
 
-    sut.execute(session, context);
+    sut.execute(mock(DbSession.class), context);
 
-    verify(resourceIndexerDao).indexProject(123, session);
+    verify(projectCleaner).purge(any(DbSession.class), any(IdUuidPair.class));
   }
-
 }

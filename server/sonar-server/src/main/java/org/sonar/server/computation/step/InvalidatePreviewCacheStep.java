@@ -20,12 +20,11 @@
 
 package org.sonar.server.computation.step;
 
-import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
-import org.sonar.server.computation.ComputeEngineContext;
+import org.sonar.server.computation.ComputationContext;
 
 public class InvalidatePreviewCacheStep implements ComputationStep {
   private final PropertiesDao propertiesDao;
@@ -35,15 +34,12 @@ public class InvalidatePreviewCacheStep implements ComputationStep {
   }
 
   @Override
-  public void execute(DbSession session, ComputeEngineContext context) {
-    propertiesDao.setProperty(newProjectPreviewCacheProperty(context.getProject()), session);
-  }
-
-  private PropertyDto newProjectPreviewCacheProperty(ComponentDto project) {
-    return new PropertyDto()
+  public void execute(DbSession session, ComputationContext context) {
+    PropertyDto property = new PropertyDto()
       .setKey(PreviewCache.SONAR_PREVIEW_CACHE_LAST_UPDATE_KEY)
-      .setResourceId(project.getId())
+      .setResourceId(context.getProject().getId())
       .setValue(String.valueOf(System.currentTimeMillis()));
+    propertiesDao.setProperty(property, session);
   }
 
   @Override
