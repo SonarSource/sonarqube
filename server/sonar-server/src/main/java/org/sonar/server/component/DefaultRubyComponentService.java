@@ -24,33 +24,28 @@ import org.sonar.api.component.Component;
 import org.sonar.api.component.RubyComponentService;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Scopes;
-import org.sonar.api.utils.internal.Uuids;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
-import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.util.RubyUtils;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 public class DefaultRubyComponentService implements RubyComponentService {
 
   private final ResourceDao resourceDao;
   private final DefaultComponentFinder finder;
-  private final ResourceIndexerDao resourceIndexerDao;
   private final ComponentService componentService;
   private final I18n i18n;
 
-  public DefaultRubyComponentService(ResourceDao resourceDao, DefaultComponentFinder finder, ResourceIndexerDao resourceIndexerDao, ComponentService componentService, I18n i18n) {
+  public DefaultRubyComponentService(ResourceDao resourceDao, DefaultComponentFinder finder, ComponentService componentService, I18n i18n) {
     this.resourceDao = resourceDao;
     this.finder = finder;
-    this.resourceIndexerDao = resourceIndexerDao;
     this.componentService = componentService;
     this.i18n = i18n;
   }
@@ -66,46 +61,26 @@ public class DefaultRubyComponentService implements RubyComponentService {
     return componentService.getNullableByUuid(uuid);
   }
 
+  /**
+   * Be careful when updating this method, it's used by the Views plugin
+   */
   @CheckForNull
-  public Long createComponent(String kee, String name, String qualifier) {
+  public Long createComponent(String key, String name, String qualifier) {
+    return createComponent(key, null, name, qualifier);
+  }
+
+  @CheckForNull
+  public Long createComponent(String key, @Nullable String branch, String name, @Nullable String qualifier) {
     // Sub view should not be created with provisioning. Will be fixed by http://jira.sonarsource.com/browse/VIEWS-296
     if (!Qualifiers.SUBVIEW.equals(qualifier)) {
-      ComponentDto component = (ComponentDto) resourceDao.findByKey(kee);
-      if (component != null) {
-        throw new BadRequestException(formatMessage("Could not create %s, key already exists: %s", qualifier, kee));
-      }
-      checkKeyFormat(qualifier, kee);
-
-      String uuid = Uuids.create();
-      resourceDao.insertOrUpdate(
-        new ResourceDto()
-          .setUuid(uuid)
-          .setProjectUuid(uuid)
-          .setKey(kee)
-          .setDeprecatedKey(kee)
-          .setName(name)
-          .setLongName(name)
-          .setScope(Scopes.PROJECT)
-          .setQualifier(qualifier)
-          .setCreatedAt(new Date()));
-      component = (ComponentDto) resourceDao.findByKey(kee);
+      String createdKey = componentService.create(NewComponent.create(key, name).setQualifier(qualifier).setBranch(branch));
+      ComponentDto component = (ComponentDto) resourceDao.findByKey(createdKey);
       if (component == null) {
-        throw new BadRequestException(String.format("Component not created: %s", kee));
+        throw new BadRequestException(String.format("Component not created: %s", createdKey));
       }
-      resourceIndexerDao.indexResource(component.getId());
       return component.getId();
     }
     return null;
-  }
-
-  public void updateComponent(Long id, String key, String name) {
-    ResourceDto resource = resourceDao.getResource(id);
-    if (resource == null) {
-      throw new NotFoundException();
-    }
-    checkKeyFormat(resource.getQualifier(), key);
-
-    resourceDao.insertOrUpdate(resource.setKey(key).setName(name));
   }
 
   public DefaultComponentQueryResult find(Map<String, Object> params) {
@@ -158,14 +133,4 @@ public class DefaultRubyComponentService implements RubyComponentService {
     return builder.build();
   }
 
-  private void checkKeyFormat(String qualifier, String kee) {
-    if (!ComponentKeys.isValidModuleKey(kee)) {
-      throw new BadRequestException(formatMessage("Malformed key for %s: %s. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.",
-        qualifier, kee));
-    }
-  }
-
-  private String formatMessage(String message, String qualifier, String key) {
-    return String.format(message, i18n.message(Locale.getDefault(), "qualifier." + qualifier, "Project"), key);
-  }
 }

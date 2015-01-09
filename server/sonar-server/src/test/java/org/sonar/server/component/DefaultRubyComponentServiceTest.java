@@ -26,13 +26,9 @@ import org.mockito.ArgumentCaptor;
 import org.sonar.api.component.Component;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Scopes;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.resource.ResourceDao;
-import org.sonar.core.resource.ResourceDto;
-import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.NotFoundException;
 
 import java.util.List;
 import java.util.Map;
@@ -48,7 +44,6 @@ public class DefaultRubyComponentServiceTest {
 
   ResourceDao resourceDao;
   DefaultComponentFinder finder;
-  ResourceIndexerDao resourceIndexerDao;
   ComponentService componentService;
   I18n i18n;
 
@@ -58,10 +53,9 @@ public class DefaultRubyComponentServiceTest {
   public void before() {
     resourceDao = mock(ResourceDao.class);
     finder = mock(DefaultComponentFinder.class);
-    resourceIndexerDao = mock(ResourceIndexerDao.class);
     componentService = mock(ComponentService.class);
     i18n = mock(I18n.class);
-    service = new DefaultRubyComponentService(resourceDao, finder, resourceIndexerDao, componentService, i18n);
+    service = new DefaultRubyComponentService(resourceDao, finder, componentService, i18n);
   }
 
   @Test
@@ -81,49 +75,35 @@ public class DefaultRubyComponentServiceTest {
   }
 
   @Test
-  public void create_component_and_index_it() {
+  public void create_component() {
     String componentKey = "new-project";
     String componentName = "New Project";
     String qualifier = Qualifiers.PROJECT;
-    long componentId = Long.MAX_VALUE;
-    ComponentDto component = mock(ComponentDto.class);
-    when(component.getId()).thenReturn(componentId);
-    when(resourceDao.findByKey(componentKey)).thenReturn(null).thenReturn(component);
+    when(resourceDao.findByKey(componentKey)).thenReturn(ComponentTesting.newProjectDto());
+    when(componentService.create(any(NewComponent.class))).thenReturn(componentKey);
 
     service.createComponent(componentKey, componentName, qualifier);
 
-    ArgumentCaptor<ResourceDto> resourceCaptor = ArgumentCaptor.forClass(ResourceDto.class);
-    verify(resourceDao).insertOrUpdate(resourceCaptor.capture());
-    ResourceDto created = resourceCaptor.getValue();
-    assertThat(created.getUuid()).isNotNull();
-    assertThat(created.getProjectUuid()).isEqualTo(created.getUuid());
-    assertThat(created.getKey()).isEqualTo(componentKey);
-    assertThat(created.getName()).isEqualTo(componentName);
-    assertThat(created.getLongName()).isEqualTo(componentName);
-    assertThat(created.getScope()).isEqualTo(Scopes.PROJECT);
-    assertThat(created.getQualifier()).isEqualTo(qualifier);
-    verify(resourceDao, times(2)).findByKey(componentKey);
-    verify(resourceIndexerDao).indexResource(componentId);
+    ArgumentCaptor<NewComponent> newComponentArgumentCaptor = ArgumentCaptor.forClass(NewComponent.class);
+    verify(componentService).create(newComponentArgumentCaptor.capture());
+    NewComponent newComponent = newComponentArgumentCaptor.getValue();
+    assertThat(newComponent.key()).isEqualTo(componentKey);
+    assertThat(newComponent.name()).isEqualTo(componentName);
+    assertThat(newComponent.branch()).isNull();
+    assertThat(newComponent.qualifier()).isEqualTo(Qualifiers.PROJECT);
   }
 
   @Test
   public void not_create_component_on_sub_views() {
-    String componentKey = "new-project";
-    String componentName = "New Project";
-    String qualifier = Qualifiers.SUBVIEW;
-    long componentId = Long.MAX_VALUE;
-    ComponentDto component = mock(ComponentDto.class);
-    when(component.getId()).thenReturn(componentId);
-    when(resourceDao.findByKey(componentKey)).thenReturn(null).thenReturn(component);
+    when(resourceDao.findByKey(anyString())).thenReturn(ComponentTesting.newProjectDto());
 
-    service.createComponent(componentKey, componentName, qualifier);
+    service.createComponent("new-project", "New Project", Qualifiers.SUBVIEW);
 
-    verify(resourceDao, never()).insertOrUpdate(any(ResourceDto.class));
-    verifyZeroInteractions(resourceIndexerDao);
+    verify(componentService, never()).create(any(NewComponent.class));
   }
 
   @Test(expected = BadRequestException.class)
-  public void should_thow_if_create_fails() {
+  public void should_throw_exception_if_create_fails() {
     String componentKey = "new-project";
     String componentName = "New Project";
     String qualifier = Qualifiers.PROJECT;
@@ -133,50 +113,8 @@ public class DefaultRubyComponentServiceTest {
   }
 
   @Test(expected = BadRequestException.class)
-  public void should_throw_if_component_already_exists() {
-    String componentKey = "new-project";
-    String componentName = "New Project";
-    String qualifier = Qualifiers.PROJECT;
-    when(resourceDao.findByKey(componentKey)).thenReturn(mock(ComponentDto.class));
-
-    service.createComponent(componentKey, componentName, qualifier);
-  }
-
-  @Test(expected = BadRequestException.class)
   public void should_throw_if_malformed_key1() {
     service.createComponent("1234", "New Project", Qualifiers.PROJECT);
-  }
-
-  @Test(expected = NotFoundException.class)
-  public void should_throw_if_updating_unknown_component() {
-    final long componentId = 1234l;
-    when(resourceDao.getResource(componentId)).thenReturn(null);
-    service.updateComponent(componentId, "key", "name");
-  }
-
-  @Test
-  public void should_update_component() {
-    final long componentId = 1234l;
-    final String newKey = "newKey";
-    final String newName = "newName";
-    ResourceDto resource = mock(ResourceDto.class);
-    when(resourceDao.getResource(componentId)).thenReturn(resource);
-    when(resource.setKey(newKey)).thenReturn(resource);
-    when(resource.setName(newName)).thenReturn(resource);
-    service.updateComponent(componentId, newKey, newName);
-    verify(resource).setKey(newKey);
-    verify(resource).setName(newName);
-    verify(resourceDao).insertOrUpdate(resource);
-  }
-
-  @Test(expected=BadRequestException.class)
-  public void should_throw_if_malformed_key_in_update() {
-    final long componentId = 1234l;
-    final String newKey = "new/key";
-    final String newName = "newName";
-    ResourceDto resource = mock(ResourceDto.class);
-    when(resourceDao.getResource(componentId)).thenReturn(resource);
-    service.updateComponent(componentId, newKey, newName);
   }
 
   @Test

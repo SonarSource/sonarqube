@@ -105,8 +105,8 @@ public final class ComponentKeys {
    *    </ul>
    *  </li>
    * </ul>
-   * @param keyCandidate
-   * @return <code>true</code> if <code>keyCandidate</code> can be used for a project/module
+   * @param branchCandidate
+   * @return <code>true</code> if <code>branchCandidate</code> can be used for a project/module
    */
   public static boolean isValidBranch(String branchCandidate) {
     return branchCandidate.matches(VALID_BRANCH_REGEXP);
