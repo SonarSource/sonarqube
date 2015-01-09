@@ -33,34 +33,23 @@ class ProvisioningController < ApplicationController
     ) { |p| p.key }
   end
 
-  def create_or_update
+  def create
     verify_post_request
-    access_denied unless has_role?("provisioning")
     @id = params[:id]
     @key = params[:key]
     @name = params[:name]
+    @branch = params[:branch]
 
     begin
       bad_request('provisioning.missing.key') if @key.blank?
       bad_request('provisioning.missing.name') if @name.blank?
 
-      if @id.nil? or @id.empty?
-        Internal.component_api.createComponent(@key, @name, 'TRK')
-        begin
-          Internal.permissions.applyDefaultPermissionTemplate(@key)
-        rescue
-          # Programmatic transaction rollback
-          Java::OrgSonarServerUi::JRubyFacade.getInstance().deleteResourceTree(@key)
-          raise
-        end
-      else
-        Internal.component_api.updateComponent(@id.to_i, @key, @name)
-      end
+      Internal.component_api.createComponent(@key, @branch, @name, nil)
 
       redirect_to :action => 'index'
     rescue Exception => e
       flash.now[:error]= Api::Utils.message(e.message)
-      render :partial => 'create_form', :id => @id, :key => @key, :name => @name, :status => 400
+      render :partial => 'create_form', :key => @key, :branch => @branch, :name => @name, :status => 400
     end
   end
 

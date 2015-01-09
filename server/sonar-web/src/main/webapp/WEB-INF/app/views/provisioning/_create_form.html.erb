@@ -1,8 +1,7 @@
-<form id="create-resource-form" method="post" action="<%= ApplicationController.root_context -%>/provisioning/create_or_update">
-  <input type="hidden" name="id" value="<%= @id -%>"/>
+<form id="create-resource-form" method="post" action="<%= ApplicationController.root_context -%>/provisioning/create">
   <fieldset>
     <div class="modal-head">
-      <h2><%= message((@id.nil? || @id.empty?) ? 'qualifiers.new.TRK' : 'qualifiers.update.TRK') -%></h2>
+      <h2><%= message('qualifiers.new.TRK') -%></h2>
     </div>
     <div class="modal-body">
       <% if flash.now[:error] %>
@@ -13,12 +12,16 @@
         <input id="key" name="key" value="<%= h @key -%>" type="text" size="50" maxlength="400" autofocus="autofocus"/>
       </div>
       <div class="modal-field">
+        <label for="branch"><%= h message('branch') -%></label>
+        <input id="branch" name="branch" value="<%= h @branch -%>" type="text" size="50" maxlength="400" autofocus="autofocus"/>
+      </div>
+      <div class="modal-field">
         <label for="name"><%= h message('name') -%> <em class="mandatory">*</em></label>
         <input id="name" name="name" value="<%= h @name -%>" type="text" size="50" maxlength="256" value=""/>
       </div>
     </div>
     <div class="modal-foot">
-      <input type="submit" value="<%= h message((@id.nil? || @id.empty?) ? 'qualifiers.create.TRK' : 'qualifiers.update.TRK') -%>" id="save-submit"/>
+      <input type="submit" value="<%= h message('qualifiers.create.TRK') -%>" id="save-submit"/>
       <a href="#" onclick="return closeModalWindow()" id="save-cancel"><%= h message('cancel') -%></a>
     </div>
   </fieldset>

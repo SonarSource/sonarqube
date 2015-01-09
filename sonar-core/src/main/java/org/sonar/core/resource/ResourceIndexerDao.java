@@ -132,22 +132,26 @@ public class ResourceIndexerDao {
   }
 
   public boolean indexResource(long id) {
-    boolean indexed = false;
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
-      ResourceIndexerMapper mapper = session.getMapper(ResourceIndexerMapper.class);
-      ResourceDto resource = mapper.selectResourceToIndex(id);
-      if (resource != null) {
-        Long rootId = resource.getRootId();
-        if (rootId == null) {
-          rootId = resource.getId();
-        }
-        indexed = indexResource(resource.getId(), resource.getName(), resource.getQualifier(), rootId, session, mapper);
-      }
-      return indexed;
+      return indexResource(session, id);
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  public boolean indexResource(DbSession session, long id) {
+    boolean indexed = false;
+    ResourceIndexerMapper mapper = session.getMapper(ResourceIndexerMapper.class);
+    ResourceDto resource = mapper.selectResourceToIndex(id);
+    if (resource != null) {
+      Long rootId = resource.getRootId();
+      if (rootId == null) {
+        rootId = resource.getId();
+      }
+      indexed = indexResource(resource.getId(), resource.getName(), resource.getQualifier(), rootId, session, mapper);
+    }
+    return indexed;
   }
 
   public boolean indexResource(int id, String name, String qualifier, int rootId) {

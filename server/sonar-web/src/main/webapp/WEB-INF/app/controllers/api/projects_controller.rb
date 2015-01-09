@@ -71,20 +71,16 @@ class Api::ProjectsController < Api::ApiController
   # POST /api/projects/create?key=<key>&name=<name>
   #
   # -- Example
-  # curl  -v -u admin:admin -X POST 'http://localhost:9000/api/projects/create?key=project1&name=Project%20One'
+  # curl  -v -u admin:admin -X POST 'http://localhost:9000/api/projects/create?key=project1&name=Project%20One&branch=origin/master'
   #
   # since 4.0
   #
   def create
     verify_post_request
     require_parameters :key, :name
-    access_denied unless has_role?("provisioning")
-    key = params[:key]
-    name = params[:name]
 
-    Internal.component_api.createComponent(key, name, 'TRK')
-    Internal.permissions.applyDefaultPermissionTemplate(key)
-    result = Project.by_key(key)
+    id = Internal.component_api.createComponent(params[:key], params[:branch], params[:name], nil)
+    result = Project.find(id.to_i)
 
     respond_to do |format|
       format.json { render :json => jsonp(to_json_hash(result)) }
