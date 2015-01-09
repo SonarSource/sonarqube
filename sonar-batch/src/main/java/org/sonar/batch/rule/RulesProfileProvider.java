@@ -81,6 +81,7 @@ public class RulesProfileProvider extends ProviderAdapter {
       ActiveRule deprecatedActiveRule = deprecatedProfile.activateRule(rule,
         RulePriority.valueOf(activeRule.severity()));
       for (Map.Entry<String, String> param : activeRule.params().entrySet()) {
+        rule.createParameter(param.getKey());
         deprecatedActiveRule.setParameter(param.getKey(), param.getValue());
       }
     }
