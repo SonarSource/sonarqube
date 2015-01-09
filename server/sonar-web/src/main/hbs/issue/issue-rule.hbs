@@ -17,8 +17,13 @@
   {{/if}}
 </ul>
 
-
 <div class="coding-rules-detail-description rule-desc markdown">{{{htmlDesc}}}</div>
+
+{{#if htmlNote}}
+  <div id="coding-rules-detail-description-extra">
+    <div class="rule-desc markdown">{{{htmlNote}}}</div>
+  </div>
+{{/if}}
 
 <div class="modal-foot">
   <a class="overlay-popup-close" title="{{t 'close'}}">{{t 'close'}}</a>
