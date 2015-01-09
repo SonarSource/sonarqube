@@ -113,7 +113,7 @@ public class SourceLineIndexerTest {
       MapAssert.entry(FIELD_SCM_AUTHOR, "polop"),
       MapAssert.entry(FIELD_SOURCE, "package org.sonar.server.source;"),
       MapAssert.entry(FIELD_DUPLICATIONS, duplications)
-      );
+    );
   }
 
   @Test
@@ -144,6 +144,43 @@ public class SourceLineIndexerTest {
     Map<String, Object> document = hits.get(0).getSource();
     assertThat(hits).hasSize(1);
     assertThat(document.get(FIELD_PROJECT_UUID)).isEqualTo("plmn");
+  }
+
+  @Test
+  public void index_source_lines_with_big_test_data() throws Exception {
+    Integer bigValue = Short.MAX_VALUE * 2;
+    SourceLineDoc line1 = new SourceLineDoc(ImmutableMap.<String, Object>builder()
+      .put(FIELD_PROJECT_UUID, "abcd")
+      .put(FIELD_FILE_UUID, "efgh")
+      .put(FIELD_LINE, 1)
+      .put(FIELD_SOURCE, "package org.sonar.server.source;")
+      .put(FIELD_UT_LINE_HITS, bigValue)
+      .put(FIELD_UT_CONDITIONS, bigValue)
+      .put(FIELD_UT_COVERED_CONDITIONS, bigValue)
+      .put(FIELD_IT_LINE_HITS, bigValue)
+      .put(FIELD_IT_CONDITIONS, bigValue)
+      .put(FIELD_IT_COVERED_CONDITIONS, bigValue)
+      .put(FIELD_OVERALL_LINE_HITS, bigValue)
+      .put(FIELD_OVERALL_CONDITIONS, bigValue)
+      .put(FIELD_OVERALL_COVERED_CONDITIONS, bigValue)
+      .put(BaseNormalizer.UPDATED_AT_FIELD, new Date())
+      .build());
+    SourceLineResultSetIterator.SourceFile file = new SourceLineResultSetIterator.SourceFile("efgh", System.currentTimeMillis());
+    file.addLine(line1);
+    indexer.index(Iterators.singletonIterator(file));
+
+    List<SearchHit> hits = getDocuments();
+    assertThat(hits).hasSize(1);
+    Map<String, Object> document = hits.get(0).getSource();
+    assertThat(document.get(FIELD_UT_LINE_HITS)).isEqualTo(bigValue);
+    assertThat(document.get(FIELD_UT_CONDITIONS)).isEqualTo(bigValue);
+    assertThat(document.get(FIELD_UT_COVERED_CONDITIONS)).isEqualTo(bigValue);
+    assertThat(document.get(FIELD_IT_LINE_HITS)).isEqualTo(bigValue);
+    assertThat(document.get(FIELD_IT_CONDITIONS)).isEqualTo(bigValue);
+    assertThat(document.get(FIELD_IT_COVERED_CONDITIONS)).isEqualTo(bigValue);
+    assertThat(document.get(FIELD_OVERALL_LINE_HITS)).isEqualTo(bigValue);
+    assertThat(document.get(FIELD_OVERALL_CONDITIONS)).isEqualTo(bigValue);
+    assertThat(document.get(FIELD_OVERALL_COVERED_CONDITIONS)).isEqualTo(bigValue);
   }
 
   private void addSource(String fileName) throws Exception {
