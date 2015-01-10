@@ -25,7 +25,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.WorkUnit;
 import org.sonar.api.utils.internal.WorkDuration;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DefaultCharacteristicTest {
 

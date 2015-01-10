@@ -36,7 +36,7 @@ import java.util.Date;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -336,13 +336,11 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
 
     // From root project
     List<ComponentDto> modules = dao.findChildrenModulesFromModule(session, "org.struts:struts");
-    assertThat(modules).hasSize(2);
-    assertThat(modules).onProperty("id").containsOnly(2L, 3L);
+    assertThat(modules).extracting("id").containsOnly(2L, 3L);
 
     // From module
     modules = dao.findChildrenModulesFromModule(session, "org.struts:struts-core");
-    assertThat(modules).hasSize(1);
-    assertThat(modules).onProperty("id").containsOnly(3L);
+    assertThat(modules).extracting("id").containsOnly(3L);
 
     // From sub module
     modules = dao.findChildrenModulesFromModule(session, "org.struts:struts-data");

@@ -24,7 +24,7 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.source.HtmlTextDecorator.CR_END_OF_LINE;
 import static org.sonar.server.source.HtmlTextDecorator.LF_END_OF_LINE;
 

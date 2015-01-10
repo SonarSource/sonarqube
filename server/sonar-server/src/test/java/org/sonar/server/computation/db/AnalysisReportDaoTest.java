@@ -39,7 +39,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.computation.db.AnalysisReportDto.Status.PENDING;

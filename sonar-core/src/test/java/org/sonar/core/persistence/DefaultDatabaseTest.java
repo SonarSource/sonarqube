@@ -26,7 +26,7 @@ import org.sonar.core.persistence.dialect.PostgreSql;
 
 import java.util.Properties;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 
 public class DefaultDatabaseTest {

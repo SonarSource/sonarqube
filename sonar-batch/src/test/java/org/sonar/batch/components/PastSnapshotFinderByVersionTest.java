@@ -24,7 +24,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PastSnapshotFinderByVersionTest extends AbstractDbUnitTestCase {
 

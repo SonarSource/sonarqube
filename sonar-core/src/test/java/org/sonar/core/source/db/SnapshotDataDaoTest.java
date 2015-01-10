@@ -27,7 +27,7 @@ import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.Collection;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SnapshotDataDaoTest extends AbstractDaoTestCase {
 
@@ -43,9 +43,9 @@ public class SnapshotDataDaoTest extends AbstractDaoTestCase {
   public void select_snapshot_data_by_snapshot_id() throws Exception {
     Collection<SnapshotDataDto> data = dao.selectSnapshotData(10L, Lists.newArrayList("highlight_syntax", "symbol"));
 
-    assertThat(data).onProperty("snapshotId").containsOnly(10L, 10L);
-    assertThat(data).onProperty("dataType").containsOnly("highlight_syntax", "symbol");
-    assertThat(data).onProperty("data").containsOnly("0,10,k;", "20,25,20,35,45;");
+    assertThat(data).extracting("snapshotId").containsOnly(10L, 10L);
+    assertThat(data).extracting("dataType").containsOnly("highlight_syntax", "symbol");
+    assertThat(data).extracting("data").containsOnly("0,10,k;", "20,25,20,35,45;");
   }
 
   @Test
@@ -63,9 +63,9 @@ public class SnapshotDataDaoTest extends AbstractDaoTestCase {
 
     Collection<SnapshotDataDto> serializedData = dao.selectSnapshotData(11L, Lists.newArrayList("highlight_syntax"));
 
-    assertThat(serializedData).onProperty("snapshotId").containsOnly(11L);
-    assertThat(serializedData).onProperty("dataType").containsOnly(dataType);
-    assertThat(serializedData).onProperty("data").containsOnly(data);
+    assertThat(serializedData).extracting("snapshotId").containsOnly(11L);
+    assertThat(serializedData).extracting("dataType").containsOnly(dataType);
+    assertThat(serializedData).extracting("data").containsOnly(data);
   }
 
   @Test
@@ -73,8 +73,8 @@ public class SnapshotDataDaoTest extends AbstractDaoTestCase {
     Collection<SnapshotDataDto> data = dao.selectSnapshotDataByComponentKey("org.apache.struts:struts:Dispatcher", Lists.newArrayList("highlight_syntax", "symbol"));
 
     assertThat(data).isNotEmpty();
-    assertThat(data).onProperty("snapshotId").containsOnly(10L, 10L);
-    assertThat(data).onProperty("dataType").containsOnly("highlight_syntax", "symbol");
-    assertThat(data).onProperty("data").containsOnly("0,10,k;", "20,25,20,35,45;");
+    assertThat(data).extracting("snapshotId").containsOnly(10L, 10L);
+    assertThat(data).extracting("dataType").containsOnly("highlight_syntax", "symbol");
+    assertThat(data).extracting("data").containsOnly("0,10,k;", "20,25,20,35,45;");
   }
 }

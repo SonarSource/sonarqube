@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Performance tests of the Elasticsearch index sourcelines

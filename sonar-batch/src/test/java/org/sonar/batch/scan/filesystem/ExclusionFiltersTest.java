@@ -30,7 +30,7 @@ import org.sonar.api.scan.filesystem.FileExclusions;
 
 import java.io.IOException;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ExclusionFiltersTest {
 

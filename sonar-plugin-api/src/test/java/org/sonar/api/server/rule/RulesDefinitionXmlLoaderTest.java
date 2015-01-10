@@ -29,7 +29,7 @@ import org.sonar.api.rule.Severity;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class RulesDefinitionXmlLoaderTest {
 

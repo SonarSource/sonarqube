@@ -22,7 +22,7 @@ package org.sonar.core.computation.dbcleaner;
 
 import org.junit.Test;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DataCleanerPropertiesTest {
 

@@ -52,8 +52,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 import static org.sonar.server.qualityprofile.QProfileTesting.*;
 
 public class RuleActivatorMediumTest {

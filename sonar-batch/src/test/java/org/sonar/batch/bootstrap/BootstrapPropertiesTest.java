@@ -24,8 +24,8 @@ import org.junit.Test;
 
 import java.util.Map;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.MapAssert.entry;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
 public class BootstrapPropertiesTest {
   @Test
@@ -34,7 +34,7 @@ public class BootstrapPropertiesTest {
     map.put("foo", "bar");
 
     BootstrapProperties wrapper = new BootstrapProperties(map);
-    assertThat(wrapper.properties()).hasSize(1).includes(entry("foo", "bar"));
+    assertThat(wrapper.properties()).containsOnly(entry("foo", "bar"));
     assertThat(wrapper.properties()).isNotSameAs(map);
 
     map.put("put", "after_copy");

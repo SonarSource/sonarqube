@@ -38,7 +38,7 @@ import java.sql.SQLException;
 import java.util.Timer;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SourceDbBenchmarkTest {
 

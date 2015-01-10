@@ -34,7 +34,7 @@ import java.util.Collection;
 import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CoreWidgetsTest {
 
@@ -83,7 +83,7 @@ public class CoreWidgetsTest {
   @Test
   public void should_be_registered_as_an_extension() {
     for (CoreWidget widget : widgets()) {
-      assertThat(new CorePlugin().getExtensions()).as("Widget not registered: " + widget.getClass()).contains(widget.getClass());
+      assertThat(new CorePlugin().getExtensions()).contains(widget.getClass());
     }
   }
 

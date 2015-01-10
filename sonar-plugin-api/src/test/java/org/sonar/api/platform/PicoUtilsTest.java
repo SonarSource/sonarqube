@@ -26,7 +26,7 @@ import org.picocontainer.PicoLifecycleException;
 
 import java.io.IOException;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 

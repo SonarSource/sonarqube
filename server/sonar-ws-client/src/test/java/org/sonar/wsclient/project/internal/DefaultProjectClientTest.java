@@ -27,8 +27,8 @@ import org.sonar.wsclient.project.NewProject;
 import org.sonar.wsclient.project.Project;
 import org.sonar.wsclient.project.ProjectClient;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.MapAssert.entry;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
 public class DefaultProjectClientTest {
 
@@ -45,10 +45,10 @@ public class DefaultProjectClientTest {
     Project result = client.create(NewProject.create().key("polop").name("Polop"));
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/projects/create");
-    assertThat(httpServer.requestParams()).includes(
+    assertThat(httpServer.requestParams()).contains(
       entry("key", "polop"),
       entry("name", "Polop")
-    );
+      );
     assertThat(result).isNotNull();
 
   }

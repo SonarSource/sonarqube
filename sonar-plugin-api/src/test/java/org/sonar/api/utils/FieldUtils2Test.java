@@ -29,7 +29,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class FieldUtils2Test {
 

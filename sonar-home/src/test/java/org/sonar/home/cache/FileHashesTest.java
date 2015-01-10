@@ -35,7 +35,7 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;

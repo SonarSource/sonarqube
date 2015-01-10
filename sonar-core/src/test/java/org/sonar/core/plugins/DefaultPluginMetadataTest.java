@@ -28,7 +28,7 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Ordering.natural;
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DefaultPluginMetadataTest {
 
@@ -106,7 +106,7 @@ public class DefaultPluginMetadataTest {
       .setName("PMD");
     List<DefaultPluginMetadata> plugins = Arrays.asList(pmd, checkstyle);
 
-    assertThat(natural().sortedCopy(plugins)).onProperty("key").containsExactly("checkstyle", "pmd");
+    assertThat(natural().sortedCopy(plugins)).extracting("key").containsExactly("checkstyle", "pmd");
   }
 
   @Test

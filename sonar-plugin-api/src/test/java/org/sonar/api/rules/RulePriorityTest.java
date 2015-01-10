@@ -22,7 +22,7 @@ package org.sonar.api.rules;
 import org.junit.Test;
 import org.sonar.check.Priority;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class RulePriorityTest {
 

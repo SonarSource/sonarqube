@@ -26,7 +26,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.source.Symbol;
 import org.sonar.api.source.Symbolizable;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DefaultSymbolTableTest {
 

@@ -32,8 +32,8 @@ import org.sonar.server.exceptions.NotFoundException;
 
 import java.util.List;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 
 /**
  * Use BbUnit tests because there's no IT on this feature for the moment

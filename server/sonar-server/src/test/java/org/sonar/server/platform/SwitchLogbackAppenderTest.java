@@ -32,7 +32,7 @@ import org.sonar.server.computation.ComputationWorkerLauncher;
 
 import java.net.URL;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SwitchLogbackAppenderTest {
 

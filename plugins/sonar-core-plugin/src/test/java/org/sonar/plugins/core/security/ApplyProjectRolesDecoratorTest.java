@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.sonar.api.resources.Project;
 import org.sonar.api.security.ResourcePermissions;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class ApplyProjectRolesDecoratorTest {

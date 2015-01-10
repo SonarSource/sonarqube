@@ -48,7 +48,7 @@ import org.sonar.batch.index.CachesTest;
 import java.util.Date;
 import java.util.Iterator;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

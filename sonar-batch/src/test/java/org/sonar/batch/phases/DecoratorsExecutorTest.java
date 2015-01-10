@@ -35,7 +35,7 @@ import org.sonar.batch.events.EventBus;
 import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.core.measure.MeasurementFilters;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;

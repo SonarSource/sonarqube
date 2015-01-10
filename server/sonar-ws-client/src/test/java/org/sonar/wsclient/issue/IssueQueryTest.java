@@ -24,8 +24,8 @@ import org.junit.Test;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.MapAssert.entry;
+import static org.assertj.core.api.Assertions.assertThat;
+
 
 public class IssueQueryTest {
   @Test
@@ -62,28 +62,28 @@ public class IssueQueryTest {
       .pageIndex(4);
 
     assertThat(query.urlParams()).hasSize(22);
-    assertThat(query.urlParams()).includes(entry("issues", "ABCDE,FGHIJ"));
-    assertThat(query.urlParams()).includes(entry("assignees", "arthur,perceval"));
-    assertThat(query.urlParams()).includes(entry("assigned", true));
-    assertThat(query.urlParams()).includes(entry("planned", true));
-    assertThat(query.urlParams()).includes(entry("components", "Action.java,Filter.java"));
-    assertThat(query.urlParams()).includes(entry("onComponentOnly", true));
-    assertThat(query.urlParams()).includes(entry("rules", "squid:AvoidCycle"));
-    assertThat(query.urlParams()).includes(entry("actionPlans", "ABC"));
-    assertThat(query.urlParams()).includes(entry("resolutions", "FIXED,FALSE-POSITIVE"));
-    assertThat(query.urlParams()).includes(entry("resolved", true));
-    assertThat(query.urlParams()).includes(entry("hideRules", true));
-    assertThat(query.urlParams()).includes(entry("statuses", "OPEN,CLOSED"));
-    assertThat(query.urlParams()).includes(entry("severities", "BLOCKER,INFO"));
-    assertThat(query.urlParams()).includes(entry("reporters", "login1,login2"));
-    assertThat(query.urlParams()).includes(entry("languages", "xoo,java"));
-    assertThat((String)query.urlParams().get("createdBefore")).startsWith("2015-12-13T05:59:50");
-    assertThat((String)query.urlParams().get("createdAfter")).startsWith("2012-01-23T13:40:50");
-    assertThat((String)query.urlParams().get("createdAt")).startsWith("2015-01-02T05:59:50");
-    assertThat(query.urlParams()).includes(entry("sort", "ASSIGNEE"));
-    assertThat(query.urlParams()).includes(entry("asc", false));
-    assertThat(query.urlParams()).includes(entry("pageSize", 5));
-    assertThat(query.urlParams()).includes(entry("pageIndex", 4));
+    assertThat(query.urlParams()).containsEntry("issues", "ABCDE,FGHIJ");
+    assertThat(query.urlParams()).containsEntry("assignees", "arthur,perceval");
+    assertThat(query.urlParams()).containsEntry("assigned", true);
+    assertThat(query.urlParams()).containsEntry("planned", true);
+    assertThat(query.urlParams()).containsEntry("components", "Action.java,Filter.java");
+    assertThat(query.urlParams()).containsEntry("onComponentOnly", true);
+    assertThat(query.urlParams()).containsEntry("rules", "squid:AvoidCycle");
+    assertThat(query.urlParams()).containsEntry("actionPlans", "ABC");
+    assertThat(query.urlParams()).containsEntry("resolutions", "FIXED,FALSE-POSITIVE");
+    assertThat(query.urlParams()).containsEntry("resolved", true);
+    assertThat(query.urlParams()).containsEntry("hideRules", true);
+    assertThat(query.urlParams()).containsEntry("statuses", "OPEN,CLOSED");
+    assertThat(query.urlParams()).containsEntry("severities", "BLOCKER,INFO");
+    assertThat(query.urlParams()).containsEntry("reporters", "login1,login2");
+    assertThat(query.urlParams()).containsEntry("languages", "xoo,java");
+    assertThat((String) query.urlParams().get("createdBefore")).startsWith("2015-12-13T05:59:50");
+    assertThat((String) query.urlParams().get("createdAfter")).startsWith("2012-01-23T13:40:50");
+    assertThat((String) query.urlParams().get("createdAt")).startsWith("2015-01-02T05:59:50");
+    assertThat(query.urlParams()).containsEntry("sort", "ASSIGNEE");
+    assertThat(query.urlParams()).containsEntry("asc", false);
+    assertThat(query.urlParams()).containsEntry("pageSize", 5);
+    assertThat(query.urlParams()).containsEntry("pageIndex", 4);
   }
 
   @Test

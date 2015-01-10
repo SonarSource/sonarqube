@@ -22,7 +22,7 @@ package org.sonar.duplications.token;
 import org.junit.Test;
 import org.sonar.channel.CodeReader;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
 

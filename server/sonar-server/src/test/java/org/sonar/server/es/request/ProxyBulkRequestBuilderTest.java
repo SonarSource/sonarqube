@@ -32,7 +32,7 @@ import org.sonar.core.profiling.Profiling;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.FakeIndexDefinition;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ProxyBulkRequestBuilderTest {
 

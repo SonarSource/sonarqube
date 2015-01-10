@@ -25,7 +25,7 @@ import org.sonar.api.web.Dashboard.Widget;
 import org.sonar.api.web.DashboardLayout;
 import org.sonar.plugins.core.CorePlugin;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ProjectTimeMachineDashboardTest {
   ProjectTimeMachineDashboard template = new ProjectTimeMachineDashboard();

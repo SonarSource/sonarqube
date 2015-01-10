@@ -27,8 +27,8 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.SonarException;
 
 import static java.util.Arrays.asList;
-import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 
 public class RubyUtilsTest {
 

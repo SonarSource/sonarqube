@@ -25,13 +25,19 @@ import org.junit.Test;
 import org.sonar.wsclient.MockHttpServerInterceptor;
 import org.sonar.wsclient.base.HttpException;
 import org.sonar.wsclient.internal.HttpRequestFactory;
-import org.sonar.wsclient.issue.*;
+import org.sonar.wsclient.issue.BulkChange;
+import org.sonar.wsclient.issue.BulkChangeQuery;
+import org.sonar.wsclient.issue.Issue;
+import org.sonar.wsclient.issue.IssueClient;
+import org.sonar.wsclient.issue.IssueComment;
+import org.sonar.wsclient.issue.IssueQuery;
+import org.sonar.wsclient.issue.Issues;
+import org.sonar.wsclient.issue.NewIssue;
 
 import java.util.List;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
-import static org.fest.assertions.MapAssert.entry;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 
 public class DefaultIssueClientTest {
 
@@ -77,10 +83,9 @@ public class DefaultIssueClientTest {
     Issue result = client.setSeverity("ABCDE", "BLOCKER");
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/set_severity");
-    assertThat(httpServer.requestParams()).includes(
-      entry("issue", "ABCDE"),
-      entry("severity", "BLOCKER")
-    );
+    assertThat(httpServer.requestParams())
+      .containsEntry("issue", "ABCDE")
+      .containsEntry("severity", "BLOCKER");
     assertThat(result).isNotNull();
   }
 
@@ -93,10 +98,9 @@ public class DefaultIssueClientTest {
     Issue result = client.assign("ABCDE", "emmerik");
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/assign");
-    assertThat(httpServer.requestParams()).includes(
-      entry("issue", "ABCDE"),
-      entry("assignee", "emmerik")
-    );
+    assertThat(httpServer.requestParams())
+      .containsEntry("issue", "ABCDE")
+      .containsEntry("assignee", "emmerik");
     assertThat(result).isNotNull();
   }
 
@@ -109,10 +113,9 @@ public class DefaultIssueClientTest {
     Issue result = client.assignToMe("ABCDE");
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/assign");
-    assertThat(httpServer.requestParams()).includes(
-      entry("issue", "ABCDE"),
-      entry("me", "true")
-    );
+    assertThat(httpServer.requestParams())
+      .containsEntry("issue", "ABCDE")
+      .containsEntry("me", "true");
     assertThat(result).isNotNull();
   }
 
@@ -125,9 +128,7 @@ public class DefaultIssueClientTest {
     Issue result = client.assign("ABCDE", null);
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/assign");
-    assertThat(httpServer.requestParams()).includes(
-      entry("issue", "ABCDE")
-    );
+    assertThat(httpServer.requestParams()).containsEntry("issue", "ABCDE");
     assertThat(result).isNotNull();
   }
 
@@ -140,10 +141,9 @@ public class DefaultIssueClientTest {
     Issue result = client.plan("ABCDE", "DEFGH");
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/plan");
-    assertThat(httpServer.requestParams()).includes(
-      entry("issue", "ABCDE"),
-      entry("plan", "DEFGH")
-    );
+    assertThat(httpServer.requestParams())
+      .containsEntry("issue", "ABCDE")
+      .containsEntry("plan", "DEFGH");
     assertThat(result).isNotNull();
   }
 
@@ -156,9 +156,7 @@ public class DefaultIssueClientTest {
     Issue result = client.plan("ABCDE", null);
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/plan");
-    assertThat(httpServer.requestParams()).includes(
-      entry("issue", "ABCDE")
-    );
+    assertThat(httpServer.requestParams()).containsEntry("issue", "ABCDE");
     assertThat(result).isNotNull();
   }
 
@@ -171,10 +169,9 @@ public class DefaultIssueClientTest {
     Issue result = client.create(NewIssue.create().component("Action.java").rule("squid:AvoidCycle"));
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/create");
-    assertThat(httpServer.requestParams()).includes(
-      entry("component", "Action.java"),
-      entry("rule", "squid:AvoidCycle")
-    );
+    assertThat(httpServer.requestParams())
+      .containsEntry("component", "Action.java")
+      .containsEntry("rule", "squid:AvoidCycle");
     assertThat(result).isNotNull();
   }
 
@@ -205,10 +202,9 @@ public class DefaultIssueClientTest {
     Issue result = client.doTransition("ABCDE", "resolve");
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/do_transition");
-    assertThat(httpServer.requestParams()).includes(
-      entry("issue", "ABCDE"),
-      entry("transition", "resolve")
-    );
+    assertThat(httpServer.requestParams())
+      .containsEntry("issue", "ABCDE")
+      .containsEntry("transition", "resolve");
     assertThat(result).isNotNull();
   }
 
@@ -221,10 +217,9 @@ public class DefaultIssueClientTest {
     IssueComment comment = client.addComment("ISSUE-1", "this is my comment");
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/add_comment");
-    assertThat(httpServer.requestParams()).includes(
-      entry("issue", "ISSUE-1"),
-      entry("text", "this is my comment")
-    );
+    assertThat(httpServer.requestParams())
+      .containsEntry("issue", "ISSUE-1")
+      .containsEntry("text", "this is my comment");
     assertThat(comment).isNotNull();
     assertThat(comment.key()).isEqualTo("COMMENT-123");
     assertThat(comment.htmlText()).isEqualTo("this is my comment");
@@ -259,10 +254,9 @@ public class DefaultIssueClientTest {
     Issue result = client.doAction("ABCDE", "tweet");
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/do_action");
-    assertThat(httpServer.requestParams()).includes(
-      entry("issue", "ABCDE"),
-      entry("actionKey", "tweet")
-    );
+    assertThat(httpServer.requestParams())
+      .containsEntry("issue", "ABCDE")
+      .containsEntry("actionKey", "tweet");
     assertThat(result).isNotNull();
   }
 
@@ -280,11 +274,10 @@ public class DefaultIssueClientTest {
     BulkChange result = client.bulkChange(query);
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/bulk_change");
-    assertThat(httpServer.requestParams()).includes(
-      entry("assign.assignee", "geoffrey"),
-      entry("issues", "ABCD,EFGH"),
-      entry("actions", "assign")
-    );
+    assertThat(httpServer.requestParams())
+      .containsEntry("assign.assignee", "geoffrey")
+      .containsEntry("issues", "ABCD,EFGH")
+      .containsEntry("actions", "assign");
     assertThat(result).isNotNull();
   }
 }

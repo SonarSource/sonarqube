@@ -33,7 +33,7 @@ import org.sonar.xoo.XooPlugin;
 import java.io.File;
 import java.io.IOException;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class IssuesOnDirMediumTest {
 

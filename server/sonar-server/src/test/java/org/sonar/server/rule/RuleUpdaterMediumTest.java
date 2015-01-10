@@ -54,8 +54,8 @@ import org.sonar.server.user.UserSession;
 
 import java.util.Set;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 
 public class RuleUpdaterMediumTest {
 

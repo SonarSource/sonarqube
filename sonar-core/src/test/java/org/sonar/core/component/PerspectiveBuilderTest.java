@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.sonar.api.component.Component;
 import org.sonar.api.component.Perspective;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PerspectiveBuilderTest {
   @Test

@@ -26,7 +26,7 @@ import org.sonar.api.component.Perspective;
 import org.sonar.api.source.Symbolizable;
 import org.sonar.batch.index.ComponentDataCache;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class SymbolizableBuilderTest {

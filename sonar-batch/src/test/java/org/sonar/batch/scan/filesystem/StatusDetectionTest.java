@@ -24,7 +24,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.batch.protocol.input.FileData;
 import org.sonar.batch.protocol.input.ProjectReferentials;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class StatusDetectionTest {
   @Test

@@ -21,8 +21,9 @@ package org.sonar.wsclient.issue;
 
 import org.junit.Test;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.MapAssert.entry;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
+
 
 public class NewIssueTest {
   @Test
@@ -41,7 +42,7 @@ public class NewIssueTest {
       .severity("BLOCKER")
       .attribute("JIRA", "FOO-123");
 
-    assertThat(newIssue.urlParams()).hasSize(7).includes(
+    assertThat(newIssue.urlParams()).hasSize(7).contains(
       entry("component", "Action.java"),
       entry("effortToFix", 4.2),
       entry("message", "the message"),
@@ -58,7 +59,7 @@ public class NewIssueTest {
       .component("Action.java")
       .rule("squid:AvoidCycle");
 
-    assertThat(newIssue.urlParams()).hasSize(2).includes(
+    assertThat(newIssue.urlParams()).containsOnly(
       entry("component", "Action.java"),
       entry("rule", "squid:AvoidCycle")
     );

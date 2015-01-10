@@ -27,7 +27,7 @@ import org.sonar.api.component.Perspective;
 import org.sonar.api.component.mock.MockSourceFile;
 import org.sonar.core.graph.BeanVertex;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

@@ -27,7 +27,7 @@ import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.SupportedEnvironment;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ExtensionUtilsTest {
 

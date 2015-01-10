@@ -31,7 +31,7 @@ import org.sonar.process.ProcessConstants;
 
 import java.io.File;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThat;
 
 public class ServerImplTest {

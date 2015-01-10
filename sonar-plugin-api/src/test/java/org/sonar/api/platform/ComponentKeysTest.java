@@ -22,7 +22,7 @@ package org.sonar.api.platform;
 import org.junit.Test;
 import org.slf4j.Logger;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.startsWith;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;

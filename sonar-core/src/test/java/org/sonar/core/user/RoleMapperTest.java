@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.MyBatis;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class RoleMapperTest extends AbstractDaoTestCase {
 

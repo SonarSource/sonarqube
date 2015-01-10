@@ -28,7 +28,7 @@ import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.ws.SearchOptions;
 import org.sonar.server.text.MacroInterpreter;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class RuleMappingTest {

@@ -23,7 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class GraphDaoTest extends AbstractDaoTestCase {
   private GraphDao dao;

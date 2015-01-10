@@ -19,13 +19,13 @@
  */
 package org.sonar.core.persistence.profiling;
 
-import org.fest.assertions.Fail;
 import org.junit.Test;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -48,7 +48,7 @@ public class InvocationUtilsTest {
 
     try {
       InvocationUtils.invokeQuietly(target, Connection.class.getMethod("prepareStatement", String.class), new Object[] { failSql });
-      Fail.fail();
+      fail();
     } catch (Throwable t) {
       assertThat(t).isInstanceOf(SQLException.class);
     }
@@ -62,7 +62,7 @@ public class InvocationUtilsTest {
 
     try {
       InvocationUtils.invokeQuietly(target, Object.class.getMethod("wait"), new Object[0]);
-      Fail.fail();
+      fail();
     } catch (Throwable t) {
       assertThat(t).isInstanceOf(IllegalStateException.class);
     }

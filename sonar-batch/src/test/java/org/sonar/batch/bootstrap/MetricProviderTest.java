@@ -27,7 +27,7 @@ import org.sonar.api.measures.Metrics;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class MetricProviderTest {
   @Test
@@ -36,7 +36,7 @@ public class MetricProviderTest {
     List<Metric> metrics = provider.provide();
 
     assertThat(metrics).hasSize(CoreMetrics.getMetrics().size());
-    assertThat(metrics).onProperty("key").contains("ncloc");
+    assertThat(metrics).extracting("key").contains("ncloc");
   }
 
   @Test
@@ -50,6 +50,6 @@ public class MetricProviderTest {
     List<Metric> metrics = provider.provide();
 
     assertThat(metrics.size()).isEqualTo(1 + CoreMetrics.getMetrics().size());
-    assertThat(metrics).onProperty("key").contains("custom");
+    assertThat(metrics).extracting("key").contains("custom");
   }
 }

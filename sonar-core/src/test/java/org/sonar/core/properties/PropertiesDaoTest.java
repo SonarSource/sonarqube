@@ -31,7 +31,7 @@ import org.sonar.core.persistence.DbSession;
 
 import java.util.List;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -149,8 +149,8 @@ public class PropertiesDaoTest extends AbstractDaoTestCase {
     List<PropertyDto> properties = dao.selectProjectProperties(10L);
 
     assertThat(properties.size(), is(2));
-    assertThat(properties).onProperty("key").containsOnly("struts.one", "user.two");
-    assertThat(properties).onProperty("value").containsOnly("one", "two");
+    assertThat(properties).extracting("key").containsOnly("struts.one", "user.two");
+    assertThat(properties).extracting("value").containsOnly("one", "two");
   }
 
   @Test
@@ -159,12 +159,12 @@ public class PropertiesDaoTest extends AbstractDaoTestCase {
 
     List<PropertyDto> properties = dao.findChildrenModuleProperties("org.struts:struts", session);
     assertThat(properties.size(), is(3));
-    assertThat(properties).onProperty("key").containsOnly("core.one", "core.two", "data.one");
-    assertThat(properties).onProperty("value").containsOnly("one", "two");
+    assertThat(properties).extracting("key").containsOnly("core.one", "core.two", "data.one");
+    assertThat(properties).extracting("value").containsOnly("one", "two");
 
     properties = dao.findChildrenModuleProperties("org.struts:struts-core", session);
     assertThat(properties.size(), is(1));
-    assertThat(properties).onProperty("key").containsOnly("data.one");
+    assertThat(properties).extracting("key").containsOnly("data.one");
 
     assertThat(dao.findChildrenModuleProperties("org.struts:struts-data", session).size(), is(0));
   }

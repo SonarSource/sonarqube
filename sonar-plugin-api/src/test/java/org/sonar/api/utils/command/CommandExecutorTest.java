@@ -32,7 +32,7 @@ import org.sonar.api.utils.System2;
 import java.io.File;
 import java.io.IOException;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 public class CommandExecutorTest {

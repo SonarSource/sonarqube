@@ -26,7 +26,7 @@ import org.sonar.core.permission.PermissionTemplateDto;
 import org.sonar.core.permission.PermissionTemplateGroupDto;
 import org.sonar.core.permission.PermissionTemplateUserDto;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PermissionTemplateTest {
 
@@ -56,13 +56,13 @@ public class PermissionTemplateTest {
     assertThat(permissionTemplate.getKey()).isEqualTo("key");
     assertThat(permissionTemplate.getDescription()).isEqualTo("description");
     assertThat(permissionTemplate.getUsersForPermission("unmatchedPermission")).isEmpty();
-    assertThat(permissionTemplate.getUsersForPermission("permission1")).onProperty("userName").containsOnly("user1", "user2");
-    assertThat(permissionTemplate.getUsersForPermission("permission1")).onProperty("userId").containsOnly(1L, 2L);
-    assertThat(permissionTemplate.getUsersForPermission("permission1")).onProperty("userLogin").containsOnly("login1", "login2");
-    assertThat(permissionTemplate.getUsersForPermission("permission2")).onProperty("userName").containsOnly("user1");
-    assertThat(permissionTemplate.getUsersForPermission("permission2")).onProperty("userId").containsOnly(1L);
-    assertThat(permissionTemplate.getUsersForPermission("permission2")).onProperty("userLogin").containsOnly("login1");
-    assertThat(permissionTemplate.getGroupsForPermission("permission3")).onProperty("groupName").containsOnly("group1", "group2", null);
-    assertThat(permissionTemplate.getGroupsForPermission("permission3")).onProperty("groupId").containsOnly(1L, 2L, null);
+    assertThat(permissionTemplate.getUsersForPermission("permission1")).extracting("userName").containsOnly("user1", "user2");
+    assertThat(permissionTemplate.getUsersForPermission("permission1")).extracting("userId").containsOnly(1L, 2L);
+    assertThat(permissionTemplate.getUsersForPermission("permission1")).extracting("userLogin").containsOnly("login1", "login2");
+    assertThat(permissionTemplate.getUsersForPermission("permission2")).extracting("userName").containsOnly("user1");
+    assertThat(permissionTemplate.getUsersForPermission("permission2")).extracting("userId").containsOnly(1L);
+    assertThat(permissionTemplate.getUsersForPermission("permission2")).extracting("userLogin").containsOnly("login1");
+    assertThat(permissionTemplate.getGroupsForPermission("permission3")).extracting("groupName").containsOnly("group1", "group2", null);
+    assertThat(permissionTemplate.getGroupsForPermission("permission3")).extracting("groupId").containsOnly(1L, 2L, null);
   }
 }

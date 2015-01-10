@@ -33,7 +33,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class PermissionTemplateDaoTest extends AbstractDaoTestCase {
@@ -104,14 +104,14 @@ public class PermissionTemplateDaoTest extends AbstractDaoTestCase {
     assertThat(permissionTemplate.getKee()).isEqualTo("my_template_20130102_030405");
     assertThat(permissionTemplate.getDescription()).isEqualTo("my description");
     assertThat(permissionTemplate.getUsersPermissions()).hasSize(3);
-    assertThat(permissionTemplate.getUsersPermissions()).onProperty("userId").containsOnly(1L, 2L, 1L);
-    assertThat(permissionTemplate.getUsersPermissions()).onProperty("userLogin").containsOnly("login1", "login2", "login2");
-    assertThat(permissionTemplate.getUsersPermissions()).onProperty("userName").containsOnly("user1", "user2", "user2");
-    assertThat(permissionTemplate.getUsersPermissions()).onProperty("permission").containsOnly("user_permission1", "user_permission1", "user_permission2");
+    assertThat(permissionTemplate.getUsersPermissions()).extracting("userId").containsOnly(1L, 2L, 1L);
+    assertThat(permissionTemplate.getUsersPermissions()).extracting("userLogin").containsOnly("login1", "login2", "login2");
+    assertThat(permissionTemplate.getUsersPermissions()).extracting("userName").containsOnly("user1", "user2", "user2");
+    assertThat(permissionTemplate.getUsersPermissions()).extracting("permission").containsOnly("user_permission1", "user_permission1", "user_permission2");
     assertThat(permissionTemplate.getGroupsPermissions()).hasSize(3);
-    assertThat(permissionTemplate.getGroupsPermissions()).onProperty("groupId").containsOnly(1L, 2L, null);
-    assertThat(permissionTemplate.getGroupsPermissions()).onProperty("groupName").containsOnly("group1", "group2", null);
-    assertThat(permissionTemplate.getGroupsPermissions()).onProperty("permission").containsOnly("group_permission1", "group_permission1", "group_permission2");
+    assertThat(permissionTemplate.getGroupsPermissions()).extracting("groupId").containsOnly(1L, 2L, null);
+    assertThat(permissionTemplate.getGroupsPermissions()).extracting("groupName").containsOnly("group1", "group2", null);
+    assertThat(permissionTemplate.getGroupsPermissions()).extracting("permission").containsOnly("group_permission1", "group_permission1", "group_permission2");
   }
 
   @Test
@@ -146,10 +146,10 @@ public class PermissionTemplateDaoTest extends AbstractDaoTestCase {
     List<PermissionTemplateDto> permissionTemplates = permissionTemplateDao.selectAllPermissionTemplates();
 
     assertThat(permissionTemplates).hasSize(3);
-    assertThat(permissionTemplates).onProperty("id").containsOnly(1L, 2L, 3L);
-    assertThat(permissionTemplates).onProperty("name").containsOnly("template1", "template2", "template3");
-    assertThat(permissionTemplates).onProperty("kee").containsOnly("template1_20130102_030405", "template2_20130102_030405", "template3_20130102_030405");
-    assertThat(permissionTemplates).onProperty("description").containsOnly("description1", "description2", "description3");
+    assertThat(permissionTemplates).extracting("id").containsOnly(1L, 2L, 3L);
+    assertThat(permissionTemplates).extracting("name").containsOnly("template1", "template2", "template3");
+    assertThat(permissionTemplates).extracting("kee").containsOnly("template1_20130102_030405", "template2_20130102_030405", "template3_20130102_030405");
+    assertThat(permissionTemplates).extracting("description").containsOnly("description1", "description2", "description3");
   }
 
   @Test

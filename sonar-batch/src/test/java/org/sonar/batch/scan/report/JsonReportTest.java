@@ -57,7 +57,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.TimeZone;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

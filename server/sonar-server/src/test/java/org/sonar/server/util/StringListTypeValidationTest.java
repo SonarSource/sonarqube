@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.sonar.server.exceptions.BadRequestException;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 public class StringListTypeValidationTest {

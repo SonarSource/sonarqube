@@ -27,7 +27,7 @@ import org.sonar.batch.scan.ProjectReactorBuilder;
 
 import java.util.Collections;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TaskContainerTest {
 

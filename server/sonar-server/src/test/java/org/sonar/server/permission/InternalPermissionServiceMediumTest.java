@@ -45,7 +45,7 @@ import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Map;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * New tests should be added in order to be able to remove InternalPermissionServiceTest

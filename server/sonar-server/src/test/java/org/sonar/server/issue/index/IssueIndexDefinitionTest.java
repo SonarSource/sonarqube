@@ -25,7 +25,7 @@ import org.sonar.process.ProcessConstants;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.NewIndex;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class IssueIndexDefinitionTest {
 

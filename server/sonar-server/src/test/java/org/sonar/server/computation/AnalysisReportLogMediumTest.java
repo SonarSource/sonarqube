@@ -38,7 +38,7 @@ import org.sonar.server.tester.ServerTester;
 
 import java.util.Map;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.activity.Activity.Type.ANALYSIS_REPORT;
 import static org.sonar.core.computation.db.AnalysisReportDto.Status.FAILED;
 

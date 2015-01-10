@@ -22,7 +22,7 @@ package org.sonar.api.server.rule;
 import org.junit.Test;
 import org.sonar.api.i18n.RuleI18n;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

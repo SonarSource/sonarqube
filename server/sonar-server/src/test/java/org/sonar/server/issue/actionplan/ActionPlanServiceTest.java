@@ -20,7 +20,6 @@
 
 package org.sonar.server.issue.actionplan;
 
-import org.fest.assertions.Fail;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,7 +34,12 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.ActionPlanStats;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.IssueUpdater;
-import org.sonar.core.issue.db.*;
+import org.sonar.core.issue.db.ActionPlanDao;
+import org.sonar.core.issue.db.ActionPlanDto;
+import org.sonar.core.issue.db.ActionPlanStatsDao;
+import org.sonar.core.issue.db.ActionPlanStatsDto;
+import org.sonar.core.issue.db.IssueDto;
+import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
@@ -49,7 +53,8 @@ import org.sonar.server.user.UserSession;
 import java.util.Collection;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
@@ -112,7 +117,7 @@ public class ActionPlanServiceTest {
 
     try {
       actionPlanService.create(actionPlan, unauthorizedUserSession);
-      Fail.fail();
+      fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(ForbiddenException.class);
     }
@@ -204,7 +209,7 @@ public class ActionPlanServiceTest {
 
     try {
       actionPlanService.findOpenByProjectKey(projectKey, unauthorizedUserSession);
-      Fail.fail();
+      fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(ForbiddenException.class);
     }

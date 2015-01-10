@@ -25,7 +25,7 @@ import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.SonarException;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CheckFactoryTest {
 

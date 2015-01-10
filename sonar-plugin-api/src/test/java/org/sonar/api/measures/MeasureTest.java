@@ -26,7 +26,7 @@ import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class MeasureTest {
 

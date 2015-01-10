@@ -22,8 +22,8 @@ package org.sonar.wsclient.unmarshallers;
 import org.junit.Test;
 import org.sonar.wsclient.services.Authentication;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 
 public class AuthenticationUnmarshallerTest extends UnmarshallerTestCase {
   @Test

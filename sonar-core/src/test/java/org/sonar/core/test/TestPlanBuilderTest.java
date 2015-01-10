@@ -25,7 +25,7 @@ import org.sonar.api.test.MutableTestPlan;
 import org.sonar.core.component.ComponentVertex;
 import org.sonar.core.component.ScanGraph;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestPlanBuilderTest {
   @Test

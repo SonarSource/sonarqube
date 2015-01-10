@@ -25,7 +25,7 @@ import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.core.source.SnapshotDataTypes;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;

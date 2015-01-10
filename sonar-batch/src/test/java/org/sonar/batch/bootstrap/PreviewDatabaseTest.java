@@ -35,7 +35,7 @@ import org.sonar.api.utils.TempFolder;
 import java.io.File;
 import java.net.SocketTimeoutException;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;

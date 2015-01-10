@@ -26,7 +26,7 @@ import org.sonar.api.batch.sensor.duplication.DuplicationGroup.Block;
 
 import java.util.List;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DefaultDuplicationBuilderTest {
 

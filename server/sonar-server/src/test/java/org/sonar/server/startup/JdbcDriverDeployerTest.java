@@ -30,7 +30,7 @@ import org.sonar.server.platform.DefaultServerFileSystem;
 
 import java.io.File;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -58,7 +58,7 @@ public class JdbcDriverDeployerTest {
 
     assertThat(deployedIndex).exists();
     assertThat(deployedFile).exists();
-    assertThat(deployedFile).hasSize(driver.length());
+    assertThat(deployedFile).hasContentEqualTo(driver);
 
     assertThat(Files.toString(deployedIndex, Charsets.UTF_8)).isEqualTo("my-driver.jar|02b97f7bc37b2b68fc847fcc3fc1c156");
   }

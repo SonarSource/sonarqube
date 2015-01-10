@@ -30,7 +30,7 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.batch.languages.DefaultLanguagesReferential;
 import org.sonar.batch.languages.LanguagesReferential;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class LanguageVerifierTest {
 

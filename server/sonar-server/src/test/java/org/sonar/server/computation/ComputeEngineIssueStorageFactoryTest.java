@@ -27,7 +27,7 @@ import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.db.DbClient;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class ComputeEngineIssueStorageFactoryTest {

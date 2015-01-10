@@ -21,7 +21,7 @@ package org.sonar.server.search;
 
 import org.junit.Test;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class FacetValueTest {
 

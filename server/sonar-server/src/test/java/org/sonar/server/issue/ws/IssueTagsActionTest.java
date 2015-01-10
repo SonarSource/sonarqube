@@ -30,7 +30,7 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.ws.WsTester;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 

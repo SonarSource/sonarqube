@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.protocol.input;
 
-import org.fest.assertions.MapAssert;
 import org.json.JSONException;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -28,7 +27,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ProjectReferentialsTest {
 
@@ -84,13 +83,13 @@ public class ProjectReferentialsTest {
     assertThat(activeRule.severity()).isEqualTo("MAJOR");
     assertThat(activeRule.internalKey()).isEqualTo("rule1");
     assertThat(activeRule.language()).isEqualTo("java");
-    assertThat(activeRule.params()).includes(MapAssert.entry("param1", "value1"));
+    assertThat(activeRule.params()).containsEntry("param1", "value1");
     assertThat(activeRule.param("param1")).isEqualTo("value1");
     QProfile qProfile = ref.qProfiles().iterator().next();
     assertThat(qProfile.key()).isEqualTo("squid-java");
     assertThat(qProfile.name()).isEqualTo("Java");
     assertThat(qProfile.rulesUpdatedAt()).isEqualTo(new SimpleDateFormat("dd/MM/yyyy").parse("14/03/1984"));
-    assertThat(ref.settings("foo")).includes(MapAssert.entry("prop", "value"));
+    assertThat(ref.settings("foo")).containsEntry("prop", "value");
 
     assertThat(ref.fileData("foo2", "src/main/java/Foo3.java")).isNull();
 

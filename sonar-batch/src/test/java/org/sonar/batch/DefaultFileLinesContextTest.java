@@ -31,7 +31,7 @@ import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.Scopes;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;

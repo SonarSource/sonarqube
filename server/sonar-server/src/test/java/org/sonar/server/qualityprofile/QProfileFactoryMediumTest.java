@@ -39,8 +39,8 @@ import org.sonar.server.search.IndexClient;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 import static org.sonar.server.qualityprofile.QProfileTesting.XOO_P1_KEY;
 import static org.sonar.server.qualityprofile.QProfileTesting.XOO_P2_KEY;
 import static org.sonar.server.qualityprofile.QProfileTesting.XOO_P3_KEY;

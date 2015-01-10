@@ -21,7 +21,7 @@
 package org.sonar.server.issue;
 
 import org.apache.commons.lang.time.DateUtils;
-import org.fest.assertions.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.sonar.core.issue.db.IssueDto;
 
@@ -29,7 +29,7 @@ import java.util.Date;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

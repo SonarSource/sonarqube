@@ -22,7 +22,7 @@ package org.sonar.api.resources;
 import org.junit.Test;
 import org.sonar.api.test.MavenTestUtils;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ProjectTest {
 

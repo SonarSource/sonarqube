@@ -26,7 +26,7 @@ import org.sonar.api.resources.Languages;
 import org.sonar.batch.languages.DefaultLanguagesReferential;
 import org.sonar.batch.languages.LanguagesReferential;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class LanguageDetectionFactoryTest {
   @Test

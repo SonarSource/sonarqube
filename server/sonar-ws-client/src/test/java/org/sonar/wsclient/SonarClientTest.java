@@ -19,7 +19,6 @@
  */
 package org.sonar.wsclient;
 
-import org.fest.assertions.MapAssert;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.wsclient.internal.HttpRequestFactory;
@@ -34,8 +33,8 @@ import org.sonar.wsclient.user.internal.DefaultUserClient;
 
 import java.util.Map;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -122,8 +121,8 @@ public class SonarClientTest {
     verify(requestFactory).get(eq("api/foo"), paramsCapture.capture());
     Map params = paramsCapture.getValue();
     assertThat(params).hasSize(2);
-    assertThat(params).includes(MapAssert.entry("key", "the_key"));
-    assertThat(params).includes(MapAssert.entry("max", 10));
+    assertThat(params).containsEntry("key", "the_key");
+    assertThat(params).containsEntry("max", 10);
   }
 
   @Test
@@ -137,7 +136,7 @@ public class SonarClientTest {
     verify(requestFactory).post(eq("api/foo"), paramsCapture.capture());
     Map params = paramsCapture.getValue();
     assertThat(params).hasSize(1);
-    assertThat(params).includes(MapAssert.entry("max", 10));
+    assertThat(params).containsEntry("max", 10);
   }
 
   @Test

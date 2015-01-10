@@ -24,7 +24,7 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.COMMENT;
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.CPP_DOC;
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.KEYWORD;

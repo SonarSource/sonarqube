@@ -28,7 +28,7 @@ import org.sonar.api.resources.Java;
 import org.sonar.batch.duplication.BlockCache;
 import org.sonar.plugins.cpd.index.IndexFactory;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class CpdSensorTest {

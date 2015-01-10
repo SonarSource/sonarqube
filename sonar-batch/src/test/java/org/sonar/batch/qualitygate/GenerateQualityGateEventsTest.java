@@ -40,7 +40,7 @@ import org.sonar.batch.qualitygate.QualityGate;
 import java.util.Arrays;
 import java.util.Date;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 

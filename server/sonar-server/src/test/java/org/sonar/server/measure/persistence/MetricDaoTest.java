@@ -27,7 +27,7 @@ import org.sonar.core.measure.db.MetricDto;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class MetricDaoTest extends AbstractDaoTestCase {
 

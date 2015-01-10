@@ -28,7 +28,7 @@ import org.sonar.core.purge.PurgeableSnapshotDto;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DeleteAllFilterTest {
 
@@ -42,6 +42,6 @@ public class DeleteAllFilterTest {
       DbCleanerTestUtils.createSnapshotWithDate(3L, "2012-01-01")
       ));
 
-    assertThat(toDelete).onProperty("snapshotId").containsOnly(1L, 2L);
+    assertThat(toDelete).extracting("snapshotId").containsOnly(1L, 2L);
   }
 }

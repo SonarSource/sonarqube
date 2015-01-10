@@ -29,8 +29,8 @@ import org.sonar.core.profiling.Profiling;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.SearchClient;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 
 public class ProxyRefreshRequestBuilderTest {
 

@@ -30,7 +30,7 @@ import org.sonar.test.DbTests;
 
 import java.util.List;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @Category(DbTests.class)
 public class UserIndexerTest {

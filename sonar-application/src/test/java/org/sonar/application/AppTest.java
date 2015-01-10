@@ -34,7 +34,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -87,7 +87,7 @@ public class AppTest {
     ArgumentCaptor<List<JavaCommand>> argument = ArgumentCaptor.forClass(listClass);
     verify(monitor).start(argument.capture());
 
-    assertThat(argument.getValue()).onProperty("key").containsOnly("search", "web");
+    assertThat(argument.getValue()).extracting("key").containsOnly("search", "web");
   }
 
   @Test
@@ -102,7 +102,7 @@ public class AppTest {
     ArgumentCaptor<List<JavaCommand>> argument = ArgumentCaptor.forClass(listClass);
     verify(monitor).start(argument.capture());
 
-    assertThat(argument.getValue()).onProperty("key").containsOnly("search");
+    assertThat(argument.getValue()).extracting("key").containsOnly("search");
   }
 
   @Test

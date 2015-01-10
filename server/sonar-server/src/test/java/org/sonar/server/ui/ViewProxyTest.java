@@ -37,7 +37,7 @@ import org.sonar.api.web.WidgetScope;
 import java.util.List;
 
 import static com.google.common.collect.Iterables.getOnlyElement;
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.greaterThan;

@@ -25,7 +25,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.rule.RuleTesting;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class RulesAggregationTest {
 

@@ -41,7 +41,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -71,7 +71,7 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
 
     List<ResourceDto> resources = dao.getDescendantProjects(1L);
 
-    assertThat(resources).onProperty("id").containsOnly(2L);
+    assertThat(resources).extracting("id").containsOnly(2L);
   }
 
   @Test
@@ -145,7 +145,7 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
     setupData("fixture");
 
     List<ResourceDto> resources = dao.getResources(ResourceQuery.create().setQualifiers(new String[] {"TRK", "BRC"}));
-    assertThat(resources).onProperty("qualifier").containsOnly("TRK", "BRC");
+    assertThat(resources).extracting("qualifier").containsOnly("TRK", "BRC");
 
     resources = dao.getResources(ResourceQuery.create().setQualifiers(new String[] {"XXX"}));
     assertThat(resources).isEmpty();

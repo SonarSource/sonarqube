@@ -27,7 +27,7 @@ import org.junit.Test;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class H2DatabaseTest {
   H2Database db = new H2Database("sonar2", true);

@@ -27,7 +27,7 @@ import org.sonar.api.utils.internal.WorkDuration;
 
 import java.text.SimpleDateFormat;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DefaultRequirementTest {
 

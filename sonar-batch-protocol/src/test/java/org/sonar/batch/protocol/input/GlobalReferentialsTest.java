@@ -19,12 +19,11 @@
  */
 package org.sonar.batch.protocol.input;
 
-import org.fest.assertions.MapAssert;
 import org.json.JSONException;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class GlobalReferentialsTest {
 
@@ -65,6 +64,6 @@ public class GlobalReferentialsTest {
     assertThat(metric.bestValue()).isEqualTo(1.0);
     assertThat(metric.isOptimizedBestValue()).isTrue();
 
-    assertThat(ref.globalSettings()).includes(MapAssert.entry("prop", "value"));
+    assertThat(ref.globalSettings()).containsEntry("prop", "value");
   }
 }

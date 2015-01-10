@@ -33,7 +33,7 @@ import org.sonar.server.activity.index.ActivityIndex;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.tester.ServerTester;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ActiveRuleChangeMediumTest {
 

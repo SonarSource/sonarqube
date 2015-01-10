@@ -28,7 +28,7 @@ import org.sonar.api.rule.Severity;
 import java.util.Date;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class IssueQueryTest {
 

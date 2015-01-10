@@ -22,7 +22,7 @@ package org.sonar.core.persistence.dialect;
 import org.junit.Test;
 import org.sonar.api.utils.MessageException;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DialectUtilsTest {
 

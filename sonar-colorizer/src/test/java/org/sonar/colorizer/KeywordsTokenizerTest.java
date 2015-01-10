@@ -19,7 +19,7 @@
  */
 package org.sonar.colorizer;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.colorizer.SyntaxHighlighterTestingHarness.highlight;
 
 import org.junit.Test;

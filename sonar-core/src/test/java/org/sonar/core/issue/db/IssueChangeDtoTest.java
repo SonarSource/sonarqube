@@ -26,7 +26,7 @@ import org.sonar.api.utils.DateUtils;
 
 import java.util.Date;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class IssueChangeDtoTest {
 

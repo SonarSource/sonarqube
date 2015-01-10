@@ -20,7 +20,7 @@
 
 package org.sonar.server.component;
 
-import org.fest.assertions.Fail;
+import org.assertj.core.api.Fail;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -45,8 +45,8 @@ import org.sonar.server.user.MockUserSession;
 import java.util.Arrays;
 import java.util.Map;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 
 public class ComponentServiceMediumTest {
 

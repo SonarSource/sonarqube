@@ -41,7 +41,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Map;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @since 4.2

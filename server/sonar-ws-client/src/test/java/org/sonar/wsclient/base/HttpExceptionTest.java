@@ -21,7 +21,7 @@ package org.sonar.wsclient.base;
 
 import org.junit.Test;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class HttpExceptionTest {
   @Test

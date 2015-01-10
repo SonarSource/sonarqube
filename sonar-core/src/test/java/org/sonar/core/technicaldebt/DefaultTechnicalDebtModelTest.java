@@ -27,7 +27,7 @@ import org.sonar.api.batch.debt.internal.DefaultDebtModel;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DefaultTechnicalDebtModelTest {
 

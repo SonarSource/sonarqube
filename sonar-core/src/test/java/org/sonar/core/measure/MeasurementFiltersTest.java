@@ -19,15 +19,13 @@
  */
 package org.sonar.core.measure;
 
-import org.fest.util.Arrays;
+import org.assertj.core.util.Arrays;
 import org.junit.Test;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.Resource;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 public class MeasurementFiltersTest {
 

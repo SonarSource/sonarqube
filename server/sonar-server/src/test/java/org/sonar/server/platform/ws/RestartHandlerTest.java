@@ -26,7 +26,7 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.ws.WsTester;
 
-import static org.fest.assertions.Fail.fail;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;

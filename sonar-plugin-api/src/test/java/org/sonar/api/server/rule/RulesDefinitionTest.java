@@ -26,8 +26,8 @@ import org.sonar.api.server.debt.DebtRemediationFunction;
 
 import java.net.URL;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 
 public class RulesDefinitionTest {
 

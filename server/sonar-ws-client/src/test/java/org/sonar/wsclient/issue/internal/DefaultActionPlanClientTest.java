@@ -35,9 +35,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
-import static org.fest.assertions.MapAssert.entry;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
+import static org.junit.Assert.fail;
 
 public class DefaultActionPlanClientTest {
 
@@ -88,12 +88,12 @@ public class DefaultActionPlanClientTest {
       NewActionPlan.create().name("Short term").project("org.sonar.Sample").description("Short term issues").deadLine(stringToDate("2014-01-01")));
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/action_plans/create");
-    assertThat(httpServer.requestParams()).includes(
+    assertThat(httpServer.requestParams()).contains(
       entry("project", "org.sonar.Sample"),
       entry("description", "Short term issues"),
       entry("name", "Short term"),
       entry("deadLine", "2014-01-01")
-    );
+      );
     assertThat(result).isNotNull();
   }
 
@@ -107,12 +107,12 @@ public class DefaultActionPlanClientTest {
       UpdateActionPlan.create().key("382f6f2e-ad9d-424a-b973-9b065e04348a").name("Short term").description("Short term issues").deadLine(stringToDate("2014-01-01")));
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/action_plans/update");
-    assertThat(httpServer.requestParams()).includes(
+    assertThat(httpServer.requestParams()).contains(
       entry("key", "382f6f2e-ad9d-424a-b973-9b065e04348a"),
       entry("description", "Short term issues"),
       entry("name", "Short term"),
       entry("deadLine", "2014-01-01")
-    );
+      );
     assertThat(result).isNotNull();
   }
 
@@ -124,9 +124,9 @@ public class DefaultActionPlanClientTest {
     client.delete("382f6f2e-ad9d-424a-b973-9b065e04348a");
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/action_plans/delete");
-    assertThat(httpServer.requestParams()).includes(
+    assertThat(httpServer.requestParams()).contains(
       entry("key", "382f6f2e-ad9d-424a-b973-9b065e04348a")
-    );
+      );
   }
 
   @Test
@@ -142,9 +142,9 @@ public class DefaultActionPlanClientTest {
       assertThat(e.status()).isEqualTo(500);
       assertThat(e.url()).startsWith("http://localhost");
       assertThat(e.url()).endsWith("/api/action_plans/delete");
-      assertThat(httpServer.requestParams()).includes(
+      assertThat(httpServer.requestParams()).contains(
         entry("key", "382f6f2e-ad9d-424a-b973-9b065e04348a")
-      );
+        );
     }
   }
 
@@ -157,9 +157,7 @@ public class DefaultActionPlanClientTest {
     ActionPlan result = client.open("382f6f2e-ad9d-424a-b973-9b065e04348a");
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/action_plans/open");
-    assertThat(httpServer.requestParams()).includes(
-      entry("key", "382f6f2e-ad9d-424a-b973-9b065e04348a")
-    );
+    assertThat(httpServer.requestParams()).containsEntry("key", "382f6f2e-ad9d-424a-b973-9b065e04348a");
     assertThat(result).isNotNull();
   }
 
@@ -172,9 +170,7 @@ public class DefaultActionPlanClientTest {
     ActionPlan result = client.close("382f6f2e-ad9d-424a-b973-9b065e04348a");
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/action_plans/close");
-    assertThat(httpServer.requestParams()).includes(
-      entry("key", "382f6f2e-ad9d-424a-b973-9b065e04348a")
-    );
+    assertThat(httpServer.requestParams()).containsEntry("key", "382f6f2e-ad9d-424a-b973-9b065e04348a");
     assertThat(result).isNotNull();
   }
 

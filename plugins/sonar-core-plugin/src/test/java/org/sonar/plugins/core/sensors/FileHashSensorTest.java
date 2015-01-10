@@ -34,7 +34,7 @@ import org.sonar.core.source.SnapshotDataTypes;
 
 import java.util.Collections;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;

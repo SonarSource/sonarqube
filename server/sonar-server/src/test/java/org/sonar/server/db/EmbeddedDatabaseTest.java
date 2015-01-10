@@ -33,7 +33,7 @@ import java.io.IOException;
 import java.sql.DriverManager;
 
 import static junit.framework.Assert.fail;
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class EmbeddedDatabaseTest {
 

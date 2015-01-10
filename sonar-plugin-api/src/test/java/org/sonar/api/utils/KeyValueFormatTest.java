@@ -25,7 +25,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.TreeMultiset;
 import org.apache.commons.collections.bag.TreeBag;
-import org.fest.assertions.MapAssert;
 import org.junit.Assert;
 import org.junit.Test;
 import org.sonar.api.rules.RulePriority;
@@ -36,7 +35,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 import static org.hamcrest.Matchers.is;
 
 public class KeyValueFormatTest {
@@ -172,11 +172,11 @@ public class KeyValueFormatTest {
     assertThat(KeyValueFormat.parseIntDate("1=2014-01-15")).hasSize(1);
     assertThat(KeyValueFormat.parseIntDateTime("1=2014-01-15T15:50:45+0100")).hasSize(1);
     assertThat(KeyValueFormat.parseIntDouble("1=3.14")).hasSize(1);
-    assertThat(KeyValueFormat.parseIntInt("1=10")).hasSize(1).includes(MapAssert.entry(1, 10));
-    assertThat(KeyValueFormat.parseIntString("1=one")).hasSize(1).includes(MapAssert.entry(1, "one"));
-    assertThat(KeyValueFormat.parseIntString("1=\"escaped\"")).hasSize(1).includes(MapAssert.entry(1, "escaped"));
-    assertThat(KeyValueFormat.parseStringInt("one=1")).hasSize(1).includes(MapAssert.entry("one", 1));
-    assertThat(KeyValueFormat.parseStringDouble("pi=3.14")).hasSize(1).includes(MapAssert.entry("pi", 3.14));
+    assertThat(KeyValueFormat.parseIntInt("1=10")).containsOnly(entry(1, 10));
+    assertThat(KeyValueFormat.parseIntString("1=one")).containsOnly(entry(1, "one"));
+    assertThat(KeyValueFormat.parseIntString("1=\"escaped\"")).containsOnly(entry(1, "escaped"));
+    assertThat(KeyValueFormat.parseStringInt("one=1")).containsOnly(entry("one", 1));
+    assertThat(KeyValueFormat.parseStringDouble("pi=3.14")).containsOnly(entry("pi", 3.14));
   }
 
   @Test

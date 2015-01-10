@@ -26,7 +26,7 @@ import org.mockito.MockitoAnnotations;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.notifications.NotificationDispatcherMetadata;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class NotificationCenterTest {
 

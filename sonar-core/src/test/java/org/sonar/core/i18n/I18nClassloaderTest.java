@@ -29,7 +29,7 @@ import org.sonar.api.platform.PluginRepository;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class I18nClassloaderTest {

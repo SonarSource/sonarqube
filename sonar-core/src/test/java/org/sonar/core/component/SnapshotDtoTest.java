@@ -23,7 +23,7 @@ package org.sonar.core.component;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SnapshotDtoTest {
 

@@ -33,7 +33,7 @@ import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.batch.index.Caches;
 import org.sonar.batch.index.CachesTest;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class InputPathCacheTest {
 

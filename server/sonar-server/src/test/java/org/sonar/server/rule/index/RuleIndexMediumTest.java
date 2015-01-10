@@ -63,8 +63,8 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 
 public class RuleIndexMediumTest {
 
@@ -1003,9 +1003,9 @@ public class RuleIndexMediumTest {
     // 1 Facet with no filters at all
     Map<String, Collection<FacetValue>> facets = index.search(new RuleQuery(), new QueryContext().addFacets(Arrays.asList("languages", "repositories", "tags"))).getFacets();
     assertThat(facets.keySet()).hasSize(3);
-    assertThat(facets.get(RuleIndex.FACET_LANGUAGES)).onProperty("key").containsOnly("cpp", "java", "cobol");
-    assertThat(facets.get(RuleIndex.FACET_REPOSITORIES)).onProperty("key").containsOnly("xoo", "foo");
-    assertThat(facets.get(RuleIndex.FACET_TAGS)).onProperty("key").containsOnly("systag1", "systag2", "T1", "T2", "T3", "T4");
+    assertThat(facets.get(RuleIndex.FACET_LANGUAGES)).extracting("key").containsOnly("cpp", "java", "cobol");
+    assertThat(facets.get(RuleIndex.FACET_REPOSITORIES)).extracting("key").containsOnly("xoo", "foo");
+    assertThat(facets.get(RuleIndex.FACET_TAGS)).extracting("key").containsOnly("systag1", "systag2", "T1", "T2", "T3", "T4");
 
     // 2 Facet with a language filter
     // -- lang facet should still have all language
@@ -1014,7 +1014,7 @@ public class RuleIndexMediumTest {
       , new QueryContext().addFacets(Arrays.asList("languages", "repositories", "tags")));
     assertThat(result.getHits()).hasSize(3);
     assertThat(result.getFacets()).hasSize(3);
-    assertThat(result.getFacets().get(RuleIndex.FACET_LANGUAGES)).onProperty("key").containsOnly("cpp", "java", "cobol");
+    assertThat(result.getFacets().get(RuleIndex.FACET_LANGUAGES)).extracting("key").containsOnly("cpp", "java", "cobol");
 
     // 3 facet with 2 filters
     // -- lang facet for tag T2
@@ -1026,9 +1026,9 @@ public class RuleIndexMediumTest {
       , new QueryContext().addFacets(Arrays.asList("languages", "repositories", "tags")));
     assertThat(result.getHits()).hasSize(1);
     assertThat(result.getFacets().keySet()).hasSize(3);
-    assertThat(result.getFacets().get(RuleIndex.FACET_LANGUAGES)).onProperty("key").containsOnly("cpp", "java");
-    assertThat(result.getFacets().get(RuleIndex.FACET_REPOSITORIES)).onProperty("key").containsOnly("foo");
-    assertThat(result.getFacets().get(RuleIndex.FACET_TAGS)).onProperty("key").containsOnly("systag1", "systag2", "T2", "T3");
+    assertThat(result.getFacets().get(RuleIndex.FACET_LANGUAGES)).extracting("key").containsOnly("cpp", "java");
+    assertThat(result.getFacets().get(RuleIndex.FACET_REPOSITORIES)).extracting("key").containsOnly("foo");
+    assertThat(result.getFacets().get(RuleIndex.FACET_TAGS)).extracting("key").containsOnly("systag1", "systag2", "T2", "T3");
 
     // 4 facet with 2 filters
     // -- lang facet for tag T2
@@ -1040,9 +1040,9 @@ public class RuleIndexMediumTest {
       , new QueryContext().addFacets(Arrays.asList("languages", "repositories", "tags")));
     assertThat(result.getHits()).hasSize(2);
     assertThat(result.getFacets().keySet()).hasSize(3);
-    assertThat(result.getFacets().get(RuleIndex.FACET_LANGUAGES)).onProperty("key").containsOnly("cpp", "java");
-    assertThat(result.getFacets().get(RuleIndex.FACET_REPOSITORIES)).onProperty("key").containsOnly("foo", "xoo");
-    assertThat(result.getFacets().get(RuleIndex.FACET_TAGS)).onProperty("key").containsOnly("systag1", "systag2", "T1", "T2", "T3");
+    assertThat(result.getFacets().get(RuleIndex.FACET_LANGUAGES)).extracting("key").containsOnly("cpp", "java");
+    assertThat(result.getFacets().get(RuleIndex.FACET_REPOSITORIES)).extracting("key").containsOnly("foo", "xoo");
+    assertThat(result.getFacets().get(RuleIndex.FACET_TAGS)).extracting("key").containsOnly("systag1", "systag2", "T1", "T2", "T3");
   }
 
   private static List<String> ruleKeys(List<Rule> rules) {

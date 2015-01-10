@@ -24,7 +24,7 @@ import org.sonar.api.web.PageDecoration;
 
 import java.util.Arrays;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class PageDecorationsTest {

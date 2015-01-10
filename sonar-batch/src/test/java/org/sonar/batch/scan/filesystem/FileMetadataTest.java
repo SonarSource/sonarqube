@@ -30,7 +30,7 @@ import java.io.File;
 
 import static org.apache.commons.codec.digest.DigestUtils.md5;
 import static org.apache.commons.codec.digest.DigestUtils.md5Hex;
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class FileMetadataTest {
 

@@ -66,9 +66,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
-import static org.fest.assertions.MapAssert.entry;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
+import static org.junit.Assert.fail;
+
 
 public class IssueServiceMediumTest {
 
@@ -502,8 +503,8 @@ public class IssueServiceMediumTest {
     session.commit();
     index();
 
-    assertThat(service.listTagsForComponent(project.uuid(), 5)).includes(entry("convention", 3L), entry("bug", 2L), entry("java8", 1L));
-    assertThat(service.listTagsForComponent(project.uuid(), 2)).includes(entry("convention", 3L), entry("bug", 2L)).excludes(entry("java8", 1L));
+    assertThat(service.listTagsForComponent(project.uuid(), 5)).contains(entry("convention", 3L), entry("bug", 2L), entry("java8", 1L));
+    assertThat(service.listTagsForComponent(project.uuid(), 2)).contains(entry("convention", 3L), entry("bug", 2L)).doesNotContainEntry("java8", 1L);
     assertThat(service.listTagsForComponent("other", 10)).isEmpty();
   }
 }

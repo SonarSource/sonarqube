@@ -27,8 +27,8 @@ import org.sonar.api.server.debt.DebtCharacteristic;
 
 import java.util.List;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 import static org.sonar.server.debt.DebtModelXMLExporter.DebtModel;
 
 public class DebtCharacteristicsXMLImporterTest {

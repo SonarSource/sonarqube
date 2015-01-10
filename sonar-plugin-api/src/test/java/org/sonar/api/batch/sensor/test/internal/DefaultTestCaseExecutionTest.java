@@ -27,7 +27,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.test.TestCaseExecution.Status;
 import org.sonar.api.batch.sensor.test.TestCaseExecution.Type;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DefaultTestCaseExecutionTest {
 

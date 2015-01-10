@@ -22,8 +22,7 @@ package org.sonar.wsclient.issue;
 
 import org.junit.Test;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.MapAssert.entry;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class BulkChangeQueryTest {
 
@@ -42,13 +41,12 @@ public class BulkChangeQueryTest {
       .comment("My bulk comment")
       .sendNotifications(false);
 
-    assertThat(query.urlParams()).hasSize(5).includes(
-      entry("issues", "ABCD,EFGH"),
-      entry("actions", "assign"),
-      entry("assign.assignee", "geoffrey"),
-      entry("comment", "My bulk comment"),
-      entry("sendNotifications", "false")
-      );
+    assertThat(query.urlParams()).hasSize(5)
+      .containsEntry("issues", "ABCD,EFGH")
+      .containsEntry("actions", "assign")
+      .containsEntry("assign.assignee", "geoffrey")
+      .containsEntry("comment", "My bulk comment")
+      .containsEntry("sendNotifications", "false");
   }
 
   @Test

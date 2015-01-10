@@ -34,7 +34,7 @@ import org.sonar.core.graph.BeanGraph;
 
 import java.util.Arrays;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DefaultTestCaseTest {
 

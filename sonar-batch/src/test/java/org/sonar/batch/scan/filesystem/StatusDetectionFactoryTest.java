@@ -22,7 +22,7 @@ package org.sonar.batch.scan.filesystem;
 import org.junit.Test;
 import org.sonar.batch.protocol.input.ProjectReferentials;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class StatusDetectionFactoryTest {

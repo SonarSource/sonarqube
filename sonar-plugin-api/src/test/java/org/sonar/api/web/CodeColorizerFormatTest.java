@@ -25,7 +25,7 @@ import java.util.List;
 import org.junit.Test;
 import org.sonar.colorizer.Tokenizer;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CodeColorizerFormatTest {
 

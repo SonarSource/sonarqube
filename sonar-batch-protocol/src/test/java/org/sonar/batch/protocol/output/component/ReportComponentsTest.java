@@ -27,7 +27,7 @@ import org.sonar.batch.protocol.output.component.ReportComponent.Type;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ReportComponentsTest {
 

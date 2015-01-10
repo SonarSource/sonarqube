@@ -27,8 +27,7 @@ import org.sonar.wsclient.MockHttpServerInterceptor;
 import org.sonar.wsclient.internal.HttpRequestFactory;
 import org.sonar.wsclient.permissions.internal.DefaultPermissionClient;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.MapAssert.entry;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DefaultPermissionClientTest {
 
@@ -52,10 +51,9 @@ public class DefaultPermissionClientTest {
     client.addPermission(params);
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/permissions/add");
-    assertThat(httpServer.requestParams()).includes(
-      entry("user", "daveloper"),
-      entry("permission", "admin")
-    );
+    assertThat(httpServer.requestParams())
+      .containsEntry("user", "daveloper")
+      .containsEntry("permission", "admin");
   }
 
   @Test
@@ -66,11 +64,10 @@ public class DefaultPermissionClientTest {
     client.addPermission(params);
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/permissions/add");
-    assertThat(httpServer.requestParams()).includes(
-      entry("user", "daveloper"),
-      entry("component", "org.sample.Sample"),
-      entry("permission", "admin")
-    );
+    assertThat(httpServer.requestParams())
+      .containsEntry("user", "daveloper")
+      .containsEntry("component", "org.sample.Sample")
+      .containsEntry("permission", "admin");
   }
 
   @Test
@@ -81,10 +78,9 @@ public class DefaultPermissionClientTest {
     client.addPermission(params);
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/permissions/add");
-    assertThat(httpServer.requestParams()).includes(
-      entry("group", "my_group"),
-      entry("permission", "admin")
-    );
+    assertThat(httpServer.requestParams())
+      .containsEntry("group", "my_group")
+      .containsEntry("permission", "admin");
   }
 
   @Test
@@ -95,11 +91,10 @@ public class DefaultPermissionClientTest {
     client.addPermission(params);
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/permissions/add");
-    assertThat(httpServer.requestParams()).includes(
-      entry("group", "my_group"),
-      entry("component", "org.sample.Sample"),
-      entry("permission", "admin")
-    );
+    assertThat(httpServer.requestParams())
+      .containsEntry("group", "my_group")
+      .containsEntry("component", "org.sample.Sample")
+      .containsEntry("permission", "admin");
   }
 
   @Test
@@ -110,10 +105,9 @@ public class DefaultPermissionClientTest {
     client.removePermission(params);
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/permissions/remove");
-    assertThat(httpServer.requestParams()).includes(
-      entry("user", "daveloper"),
-      entry("permission", "admin")
-    );
+    assertThat(httpServer.requestParams())
+      .containsEntry("user", "daveloper")
+      .containsEntry("permission", "admin");
   }
 
   @Test
@@ -124,11 +118,10 @@ public class DefaultPermissionClientTest {
     client.removePermission(params);
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/permissions/remove");
-    assertThat(httpServer.requestParams()).includes(
-      entry("user", "daveloper"),
-      entry("component", "org.sample.Sample"),
-      entry("permission", "admin")
-    );
+    assertThat(httpServer.requestParams())
+      .containsEntry("user", "daveloper")
+      .containsEntry("component", "org.sample.Sample")
+      .containsEntry("permission", "admin");
   }
 
   @Test
@@ -139,10 +132,9 @@ public class DefaultPermissionClientTest {
     client.removePermission(params);
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/permissions/remove");
-    assertThat(httpServer.requestParams()).includes(
-      entry("group", "my_group"),
-      entry("permission", "admin")
-    );
+    assertThat(httpServer.requestParams())
+      .containsEntry("group", "my_group")
+      .containsEntry("permission", "admin");
   }
 
   @Test
@@ -153,10 +145,9 @@ public class DefaultPermissionClientTest {
     client.removePermission(params);
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/permissions/remove");
-    assertThat(httpServer.requestParams()).includes(
-      entry("group", "my_group"),
-      entry("component", "org.sample.Sample"),
-      entry("permission", "admin")
-    );
+    assertThat(httpServer.requestParams())
+      .containsEntry("group", "my_group")
+      .containsEntry("component", "org.sample.Sample")
+      .containsEntry("permission", "admin");
   }
 }

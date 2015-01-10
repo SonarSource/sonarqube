@@ -47,7 +47,7 @@ import org.sonar.server.user.MockUserSession;
 
 import java.util.List;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -183,11 +183,11 @@ public class InternalPermissionTemplateServiceTest {
     PermissionTemplate permissionTemplate = service.selectPermissionTemplate("my template");
 
     assertThat(permissionTemplate.getUsersForPermission(GlobalPermissions.DASHBOARD_SHARING)).isEmpty();
-    assertThat(permissionTemplate.getUsersForPermission(GlobalPermissions.SCAN_EXECUTION)).onProperty("userName").containsOnly("user_scan", "user_scan_and_dry_run");
-    assertThat(permissionTemplate.getUsersForPermission(GlobalPermissions.DRY_RUN_EXECUTION)).onProperty("userName").containsOnly("user_dry_run", "user_scan_and_dry_run");
+    assertThat(permissionTemplate.getUsersForPermission(GlobalPermissions.SCAN_EXECUTION)).extracting("userName").containsOnly("user_scan", "user_scan_and_dry_run");
+    assertThat(permissionTemplate.getUsersForPermission(GlobalPermissions.DRY_RUN_EXECUTION)).extracting("userName").containsOnly("user_dry_run", "user_scan_and_dry_run");
     assertThat(permissionTemplate.getGroupsForPermission(GlobalPermissions.DASHBOARD_SHARING)).isEmpty();
-    assertThat(permissionTemplate.getGroupsForPermission(GlobalPermissions.SCAN_EXECUTION)).onProperty("groupName").containsOnly("scan_group");
-    assertThat(permissionTemplate.getGroupsForPermission(GlobalPermissions.SYSTEM_ADMIN)).onProperty("groupName").containsOnly("admin_group");
+    assertThat(permissionTemplate.getGroupsForPermission(GlobalPermissions.SCAN_EXECUTION)).extracting("groupName").containsOnly("scan_group");
+    assertThat(permissionTemplate.getGroupsForPermission(GlobalPermissions.SYSTEM_ADMIN)).extracting("groupName").containsOnly("admin_group");
   }
 
   @Test
@@ -201,9 +201,9 @@ public class InternalPermissionTemplateServiceTest {
     List<PermissionTemplate> templates = service.selectAllPermissionTemplates();
 
     assertThat(templates).hasSize(2);
-    assertThat(templates).onProperty("id").containsOnly(1L, 2L);
-    assertThat(templates).onProperty("name").containsOnly("template1", "template2");
-    assertThat(templates).onProperty("description").containsOnly("template1", "template2");
+    assertThat(templates).extracting("id").containsOnly(1L, 2L);
+    assertThat(templates).extracting("name").containsOnly("template1", "template2");
+    assertThat(templates).extracting("description").containsOnly("template1", "template2");
   }
 
   @Test
@@ -219,9 +219,9 @@ public class InternalPermissionTemplateServiceTest {
     List<PermissionTemplate> templates = service.selectAllPermissionTemplates("org.sample.Sample");
 
     assertThat(templates).hasSize(2);
-    assertThat(templates).onProperty("id").containsOnly(1L, 2L);
-    assertThat(templates).onProperty("name").containsOnly("template1", "template2");
-    assertThat(templates).onProperty("description").containsOnly("template1", "template2");
+    assertThat(templates).extracting("id").containsOnly(1L, 2L);
+    assertThat(templates).extracting("name").containsOnly("template1", "template2");
+    assertThat(templates).extracting("description").containsOnly("template1", "template2");
   }
 
   @Test

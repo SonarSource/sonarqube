@@ -36,7 +36,7 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.user.RoleDao;
 import org.sonar.core.user.UserDao;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DefaultResourcePermissionsTest extends AbstractDaoTestCase {
 

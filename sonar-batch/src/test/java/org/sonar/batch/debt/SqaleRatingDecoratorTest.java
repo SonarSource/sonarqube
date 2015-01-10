@@ -41,7 +41,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.test.IsMeasure;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;

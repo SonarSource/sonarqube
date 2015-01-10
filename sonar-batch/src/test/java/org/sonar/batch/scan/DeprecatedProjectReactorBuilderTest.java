@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DeprecatedProjectReactorBuilderTest {
 

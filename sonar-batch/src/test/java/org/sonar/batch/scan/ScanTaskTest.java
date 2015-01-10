@@ -30,7 +30,7 @@ import org.sonar.batch.bootstrap.TaskContainer;
 import org.sonar.batch.phases.Phases;
 import org.sonar.core.resource.ResourceDao;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class ScanTaskTest {

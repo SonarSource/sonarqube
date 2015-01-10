@@ -28,7 +28,6 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
-import org.fest.assertions.MapAssert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -47,7 +46,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 import static org.sonar.server.source.index.SourceLineIndexDefinition.*;
 
 @Category(DbTests.class)
@@ -107,16 +107,16 @@ public class SourceLineIndexerTest {
     assertThat(fileSearch.getHits().getTotalHits()).isEqualTo(1L);
     Map<String, Object> fields = fileSearch.getHits().getHits()[0].sourceAsMap();
     assertThat(fields).hasSize(9);
-    assertThat(fields).includes(
-      MapAssert.entry(FIELD_PROJECT_UUID, "abcd"),
-      MapAssert.entry(FIELD_FILE_UUID, "efgh"),
-      MapAssert.entry(FIELD_LINE, 1),
-      MapAssert.entry(FIELD_SCM_REVISION, "cafebabe"),
-      MapAssert.entry(FIELD_SCM_DATE, "2014-01-01T11:34:56.000Z"),
-      MapAssert.entry(FIELD_SCM_AUTHOR, "polop"),
-      MapAssert.entry(FIELD_SOURCE, "package org.sonar.server.source;"),
-      MapAssert.entry(FIELD_DUPLICATIONS, duplications)
-    );
+    assertThat(fields).contains(
+      entry(FIELD_PROJECT_UUID, "abcd"),
+      entry(FIELD_FILE_UUID, "efgh"),
+      entry(FIELD_LINE, 1),
+      entry(FIELD_SCM_REVISION, "cafebabe"),
+      entry(FIELD_SCM_DATE, "2014-01-01T11:34:56.000Z"),
+      entry(FIELD_SCM_AUTHOR, "polop"),
+      entry(FIELD_SOURCE, "package org.sonar.server.source;"),
+      entry(FIELD_DUPLICATIONS, duplications)
+      );
   }
 
   @Test

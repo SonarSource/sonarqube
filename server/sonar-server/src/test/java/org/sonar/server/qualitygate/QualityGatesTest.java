@@ -57,7 +57,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
@@ -301,14 +301,14 @@ public class QualityGatesTest {
     String operator = "LT";
     String warningThreshold = "90";
     when(dao.selectById(qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
-    Integer metricId = 10;
+    int metricId = 10;
     Metric coverage = Mockito.spy(CoreMetrics.COVERAGE);
     when(coverage.getId()).thenReturn(metricId);
     when(metricFinder.findByKey(metricKey)).thenReturn(coverage);
 
     QualityGateConditionDto newCondition = qGates.createCondition(qGateId, metricKey, operator, warningThreshold, null, null);
     assertThat(newCondition.getQualityGateId()).isEqualTo(qGateId);
-    assertThat(newCondition.getMetricId()).isEqualTo(metricId);
+    assertThat(newCondition.getMetricId()).isEqualTo((long)metricId);
     assertThat(newCondition.getOperator()).isEqualTo(operator);
     assertThat(newCondition.getWarningThreshold()).isEqualTo(warningThreshold);
     assertThat(newCondition.getErrorThreshold()).isNull();
@@ -323,7 +323,7 @@ public class QualityGatesTest {
     String operator = "LT";
     String errorThreshold = "80";
     when(dao.selectById(qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
-    Integer metricId = 10;
+    int metricId = 10;
     Metric newCoverage = Mockito.spy(CoreMetrics.NEW_COVERAGE);
     when(newCoverage.getId()).thenReturn(metricId);
     when(metricFinder.findByKey(metricKey)).thenReturn(newCoverage);
@@ -331,7 +331,7 @@ public class QualityGatesTest {
 
     QualityGateConditionDto newCondition = qGates.createCondition(qGateId, metricKey, operator, null, errorThreshold, period);
     assertThat(newCondition.getQualityGateId()).isEqualTo(qGateId);
-    assertThat(newCondition.getMetricId()).isEqualTo(metricId);
+    assertThat(newCondition.getMetricId()).isEqualTo((long)metricId);
     assertThat(newCondition.getMetricKey()).isEqualTo(metricKey);
     assertThat(newCondition.getOperator()).isEqualTo(operator);
     assertThat(newCondition.getWarningThreshold()).isNull();
@@ -437,7 +437,7 @@ public class QualityGatesTest {
     final QualityGateConditionDto condition = new QualityGateConditionDto().setId(condId)
       .setMetricId(666L).setOperator("GT").setWarningThreshold("123");
     when(conditionDao.selectById(condId)).thenReturn(condition);
-    Integer metricId = 10;
+    int metricId = 10;
     Metric newCoverage = Mockito.spy(CoreMetrics.NEW_COVERAGE);
     when(newCoverage.getId()).thenReturn(metricId);
     when(metricFinder.findByKey(metricKey)).thenReturn(newCoverage);
@@ -445,7 +445,7 @@ public class QualityGatesTest {
 
     assertThat(qGates.updateCondition(condId, metricKey, operator, null, errorThreshold, period)).isEqualTo(condition);
     assertThat(condition.getId()).isEqualTo(condId);
-    assertThat(condition.getMetricId()).isEqualTo(metricId);
+    assertThat(condition.getMetricId()).isEqualTo((long)metricId);
     assertThat(condition.getMetricKey()).isEqualTo(metricKey);
     assertThat(condition.getOperator()).isEqualTo(operator);
     assertThat(condition.getWarningThreshold()).isNull();

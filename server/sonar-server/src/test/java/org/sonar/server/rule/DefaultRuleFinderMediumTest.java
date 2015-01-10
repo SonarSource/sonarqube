@@ -19,7 +19,7 @@
  */
 package org.sonar.server.rule;
 
-import org.fest.assertions.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.*;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -33,7 +33,7 @@ import org.sonar.server.tester.ServerTester;
 import java.util.Collections;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @Deprecated
 public class DefaultRuleFinderMediumTest {
@@ -128,7 +128,7 @@ public class DefaultRuleFinderMediumTest {
     Assertions.assertThat(finder.findAll(RuleQuery.create().withRepositoryKey("checkstyle"))).hasSize(2);
 
     // find_all_enabled
-    Assertions.assertThat(finder.findAll(RuleQuery.create())).onProperty("id").containsOnly(1, 3, 4, 5);
+    Assertions.assertThat(finder.findAll(RuleQuery.create())).extracting("id").containsOnly(1, 3, 4, 5);
     Assertions.assertThat(finder.findAll(RuleQuery.create())).hasSize(4);
 
     // do_not_find_disabled_rules
@@ -167,7 +167,7 @@ public class DefaultRuleFinderMediumTest {
   @Test
   public void find_all_not_include_removed_rule() {
     // find rule with id 2 is REMOVED
-    Assertions.assertThat(finder.findAll(RuleQuery.create())).onProperty("id").containsOnly(1, 3, 4, 5);
+    Assertions.assertThat(finder.findAll(RuleQuery.create())).extracting("id").containsOnly(1, 3, 4, 5);
   }
 
   @Test

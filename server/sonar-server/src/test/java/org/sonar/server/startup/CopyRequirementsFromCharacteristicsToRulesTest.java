@@ -35,7 +35,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.test.DbTests;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @Category(DbTests.class)

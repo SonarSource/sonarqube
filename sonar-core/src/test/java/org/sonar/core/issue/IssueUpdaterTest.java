@@ -31,7 +31,7 @@ import org.sonar.core.user.DefaultUser;
 
 import java.util.Date;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.issue.IssueUpdater.*;
 
 public class IssueUpdaterTest {

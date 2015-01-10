@@ -39,7 +39,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PreviewDatabaseFactoryTest extends AbstractDaoTestCase {
   PreviewDatabaseFactory localDatabaseFactory;

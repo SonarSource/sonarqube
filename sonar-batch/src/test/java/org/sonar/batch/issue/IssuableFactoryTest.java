@@ -28,7 +28,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.batch.ProjectTree;
 import org.sonar.core.component.ResourceComponent;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class IssuableFactoryTest {

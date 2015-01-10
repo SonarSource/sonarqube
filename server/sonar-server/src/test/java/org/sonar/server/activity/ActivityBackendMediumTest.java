@@ -41,7 +41,7 @@ import org.sonar.server.tester.ServerTester;
 import java.util.Iterator;
 import java.util.Map;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ActivityBackendMediumTest {
 

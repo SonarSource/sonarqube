@@ -23,8 +23,8 @@ package org.sonar.api.server.debt;
 import org.junit.Test;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 
 public class DefaultDebtRemediationFunctionTest {
 

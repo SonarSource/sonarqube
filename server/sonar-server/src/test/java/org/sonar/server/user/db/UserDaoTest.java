@@ -30,8 +30,8 @@ import org.sonar.core.persistence.DbTester;
 import org.sonar.core.user.UserDto;
 import org.sonar.server.exceptions.NotFoundException;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
 public class UserDaoTest {

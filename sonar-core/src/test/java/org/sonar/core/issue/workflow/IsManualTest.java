@@ -22,7 +22,7 @@ package org.sonar.core.issue.workflow;
 import org.junit.Test;
 import org.sonar.api.issue.internal.DefaultIssue;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class IsManualTest {
   DefaultIssue issue = new DefaultIssue();

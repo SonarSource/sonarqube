@@ -32,7 +32,7 @@ import org.sonar.core.persistence.migration.v50.Migration50Mapper;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.db.migrations.DatabaseMigration;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PopulateProjectsUuidColumnsMigrationTest {
 

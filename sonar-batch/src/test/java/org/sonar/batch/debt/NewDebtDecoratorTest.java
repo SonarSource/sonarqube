@@ -50,7 +50,7 @@ import org.sonar.batch.debt.NewDebtDecorator;
 import java.util.Date;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.*;
 

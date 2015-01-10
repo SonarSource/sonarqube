@@ -31,7 +31,7 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.batch.IssueFilterChain;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.WildcardPattern;
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;

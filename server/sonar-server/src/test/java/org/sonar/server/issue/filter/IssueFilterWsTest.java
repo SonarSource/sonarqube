@@ -27,7 +27,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.ws.WsTester;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IssueFilterWsTest {

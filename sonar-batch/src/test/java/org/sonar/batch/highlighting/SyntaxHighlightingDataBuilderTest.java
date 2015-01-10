@@ -26,7 +26,7 @@ import org.junit.rules.ExpectedException;
 
 import java.util.Collection;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.COMMENT;
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.CPP_DOC;
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.KEYWORD;
@@ -59,9 +59,9 @@ public class SyntaxHighlightingDataBuilderTest {
 
   @Test
   public void should_order_by_start_then_end_offset() throws Exception {
-    assertThat(highlightingRules).onProperty("startPosition").containsOnly(0, 10, 12, 24, 24, 42);
-    assertThat(highlightingRules).onProperty("endPosition").containsOnly(10, 12, 20, 38, 65, 50);
-    assertThat(highlightingRules).onProperty("textType").containsOnly(COMMENT, KEYWORD, COMMENT, KEYWORD, CPP_DOC, KEYWORD);
+    assertThat(highlightingRules).extracting("startPosition").containsOnly(0, 10, 12, 24, 24, 42);
+    assertThat(highlightingRules).extracting("endPosition").containsOnly(10, 12, 20, 38, 65, 50);
+    assertThat(highlightingRules).extracting("textType").containsOnly(COMMENT, KEYWORD, COMMENT, KEYWORD, CPP_DOC, KEYWORD);
   }
 
   @Test

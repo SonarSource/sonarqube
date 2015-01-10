@@ -27,7 +27,7 @@ import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.List;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class GroupWithPermissionTemplateDaoTest extends AbstractDaoTestCase {
 

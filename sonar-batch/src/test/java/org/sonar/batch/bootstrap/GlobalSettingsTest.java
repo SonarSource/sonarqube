@@ -29,7 +29,7 @@ import org.sonar.batch.protocol.input.GlobalReferentials;
 
 import java.util.Collections;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class GlobalSettingsTest {

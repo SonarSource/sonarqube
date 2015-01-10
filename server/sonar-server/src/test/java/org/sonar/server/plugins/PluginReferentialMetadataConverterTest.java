@@ -25,7 +25,7 @@ import org.sonar.core.plugins.DefaultPluginMetadata;
 import org.sonar.updatecenter.common.PluginReferential;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

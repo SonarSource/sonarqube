@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.core.persistence.DbTester;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ViolationMigrationTest {
 

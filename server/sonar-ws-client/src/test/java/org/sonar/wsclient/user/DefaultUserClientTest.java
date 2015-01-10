@@ -29,8 +29,8 @@ import org.sonar.wsclient.user.internal.DefaultUserClient;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.MapAssert.entry;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
 public class DefaultUserClientTest {
 
@@ -61,7 +61,7 @@ public class DefaultUserClientTest {
     assertThat(simon.email()).isNull();
     assertThat(simon.active()).isTrue();
   }
-  
+
   @Test
   public void should_create_user() throws Exception {
     httpServer.stubResponseBody("{\"user\":{\"login\":\"daveloper\",\"name\":\"daveloper\",\"email\":null}}");
@@ -70,17 +70,17 @@ public class DefaultUserClientTest {
     User createdUser = client.create(params);
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/users/create");
-    assertThat(httpServer.requestParams()).includes(
+    assertThat(httpServer.requestParams()).contains(
       entry("login", "daveloper"),
       entry("password", "pass1"),
       entry("password_confirmation", "pass1")
-    );
+      );
     assertThat(createdUser).isNotNull();
     assertThat(createdUser.login()).isEqualTo("daveloper");
     assertThat(createdUser.name()).isEqualTo("daveloper");
     assertThat(createdUser.email()).isNull();
   }
-  
+
   @Test
   public void should_update_user() throws Exception {
     httpServer.stubResponseBody("{\"user\":{\"login\":\"daveloper\",\"name\":\"daveloper\",\"email\":\"new_email\"}}");
@@ -89,16 +89,16 @@ public class DefaultUserClientTest {
     User updatedUser = client.update(params);
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/users/update");
-    assertThat(httpServer.requestParams()).includes(
+    assertThat(httpServer.requestParams()).contains(
       entry("login", "daveloper"),
       entry("email", "new_email")
-    );
+      );
     assertThat(updatedUser).isNotNull();
     assertThat(updatedUser.login()).isEqualTo("daveloper");
     assertThat(updatedUser.name()).isEqualTo("daveloper");
     assertThat(updatedUser.email()).isEqualTo("new_email");
   }
-  
+
   @Test
   public void should_deactivate_user() throws Exception {
     httpServer.stubStatusCode(200);
@@ -106,9 +106,7 @@ public class DefaultUserClientTest {
     client.deactivate("daveloper");
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/users/deactivate");
-    assertThat(httpServer.requestParams()).includes(
-      entry("login", "daveloper")
-    );
+    assertThat(httpServer.requestParams()).containsEntry("login", "daveloper");
   }
 
   private void assertThatGetRequestUrlContains(String baseUrl, String... parameters) {

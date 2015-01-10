@@ -31,7 +31,7 @@ import org.sonar.core.i18n.DefaultI18n;
 
 import java.util.Locale;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.*;
 

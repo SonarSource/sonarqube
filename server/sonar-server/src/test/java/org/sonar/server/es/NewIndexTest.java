@@ -21,13 +21,12 @@ package org.sonar.server.es;
 
 import com.google.common.collect.ImmutableMap;
 import org.elasticsearch.common.settings.Settings;
-import org.fest.assertions.MapAssert;
 import org.junit.Test;
 
 import java.util.Map;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 
 public class NewIndexTest {
 
@@ -70,11 +69,11 @@ public class NewIndexTest {
     assertThat(mapping.getAttributes().get("dynamic")).isEqualTo("true");
     assertThat(mapping).isNotNull();
     assertThat(mapping.getProperty("foo_field")).isInstanceOf(Map.class);
-    assertThat((Map) mapping.getProperty("foo_field")).includes(MapAssert.entry("type", "string"));
+    assertThat((Map) mapping.getProperty("foo_field")).containsEntry("type", "string");
     assertThat((Map) mapping.getProperty("byte_field")).isNotEmpty();
     assertThat((Map) mapping.getProperty("double_field")).isNotEmpty();
     assertThat((Map) mapping.getProperty("dt_field")).isNotEmpty();
-    assertThat((Map) mapping.getProperty("int_field")).includes(MapAssert.entry("type", "integer"));
+    assertThat((Map) mapping.getProperty("int_field")).containsEntry("type", "integer");
     assertThat((Map) mapping.getProperty("long_field")).isNotEmpty();
     assertThat((Map) mapping.getProperty("short_field")).isNotEmpty();
     assertThat((Map) mapping.getProperty("uuid_path_field")).isNotEmpty();

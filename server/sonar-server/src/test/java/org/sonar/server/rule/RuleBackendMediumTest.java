@@ -44,7 +44,7 @@ import org.sonar.server.tester.ServerTester;
 import java.util.Collection;
 import java.util.List;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Test persistence in db and indexation in es (--> integration of DAOs and Indexes)

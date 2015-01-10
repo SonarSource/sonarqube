@@ -30,9 +30,9 @@ import org.sonar.api.utils.Duration;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
-import static org.fest.assertions.MapAssert.entry;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
 public class DefaultIssueTest {
@@ -68,8 +68,7 @@ public class DefaultIssueTest {
       .setCreationDate(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-19"))
       .setUpdateDate(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-20"))
       .setCloseDate(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-21"))
-      .setSelectedAt(1400000000000L)
-    ;
+      .setSelectedAt(1400000000000L);
 
     assertThat(issue.key()).isEqualTo("ABCD");
     assertThat(issue.componentKey()).isEqualTo("org.sample.Sample");
@@ -107,8 +106,7 @@ public class DefaultIssueTest {
       .setCreationDate(null)
       .setUpdateDate(null)
       .setCloseDate(null)
-      .setSelectedAt(null)
-    ;
+      .setSelectedAt(null);
 
     assertThat(issue.creationDate()).isNull();
     assertThat(issue.updateDate()).isNull();
@@ -133,12 +131,10 @@ public class DefaultIssueTest {
     assertThat(issue.attribute("1")).isEqualTo("one");
 
     issue.setAttributes(ImmutableMap.of("2", "two"));
-    assertThat(issue.attributes()).hasSize(2);
-    assertThat(issue.attributes()).includes(entry("1", "one"), entry("2", "two"));
+    assertThat(issue.attributes()).containsOnly(entry("1", "one"), entry("2", "two"));
 
     issue.setAttributes(null);
-    assertThat(issue.attributes()).hasSize(2);
-    assertThat(issue.attributes()).includes(entry("1", "one"), entry("2", "two"));
+    assertThat(issue.attributes()).containsOnly(entry("1", "one"), entry("2", "two"));
   }
 
   @Test

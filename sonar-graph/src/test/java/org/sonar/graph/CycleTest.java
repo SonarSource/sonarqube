@@ -24,7 +24,7 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CycleTest {
   static List<Edge> AB_BA = list(new StringEdge("A", "B"), new StringEdge("B", "A"));

@@ -19,14 +19,14 @@
  */
 package org.sonar.process;
 
-import org.fest.assertions.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 
-import static org.fest.assertions.Fail.fail;
+import static org.junit.Assert.fail;
 
 public class MinimumViableSystemTest {
 

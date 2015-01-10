@@ -46,7 +46,7 @@ import org.sonar.server.tester.ServerTester;
 import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class RegisterQualityProfilesMediumTest {
 

@@ -28,7 +28,7 @@ import org.sonar.core.persistence.AbstractDaoTestCase;
 import java.util.Arrays;
 import java.util.Collection;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class NotificationQueueDaoTest extends AbstractDaoTestCase {
 
@@ -78,7 +78,7 @@ public class NotificationQueueDaoTest extends AbstractDaoTestCase {
 
     Collection<NotificationQueueDto> result = dao.findOldest(3);
     assertThat(result).hasSize(3);
-    assertThat(result).onProperty("id").containsOnly(1L, 2L, 3L);
+    assertThat(result).extracting("id").containsOnly(1L, 2L, 3L);
 
     result = dao.findOldest(6);
     assertThat(result).hasSize(4);

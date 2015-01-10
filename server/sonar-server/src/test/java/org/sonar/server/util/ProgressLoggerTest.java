@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;

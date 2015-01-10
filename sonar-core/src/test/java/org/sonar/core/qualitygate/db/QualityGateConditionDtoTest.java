@@ -22,7 +22,7 @@ package org.sonar.core.qualitygate.db;
 import org.junit.Test;
 import org.sonar.api.measures.Metric.ValueType;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.measures.Metric.ValueType.*;
 import static org.sonar.core.qualitygate.db.QualityGateConditionDto.isOperatorAllowed;
 

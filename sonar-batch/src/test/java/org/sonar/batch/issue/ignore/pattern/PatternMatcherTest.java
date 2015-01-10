@@ -34,7 +34,7 @@ import org.sonar.api.rules.Rule;
 import java.io.IOException;
 import java.util.Set;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

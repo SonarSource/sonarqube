@@ -33,7 +33,7 @@ import org.sonar.core.profiling.Profiling;
 import java.io.ByteArrayInputStream;
 import java.sql.*;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

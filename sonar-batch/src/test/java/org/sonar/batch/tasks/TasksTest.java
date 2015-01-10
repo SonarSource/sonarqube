@@ -27,7 +27,7 @@ import org.sonar.api.task.TaskDefinition;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.scan.ScanTask;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TasksTest {
 

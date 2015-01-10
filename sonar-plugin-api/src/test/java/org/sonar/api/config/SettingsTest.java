@@ -20,7 +20,7 @@
 package org.sonar.api.config;
 
 import com.google.common.collect.ImmutableMap;
-import org.fest.assertions.Delta;
+import org.assertj.core.data.Offset;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,7 +32,7 @@ import org.sonar.api.utils.DateUtils;
 
 import java.util.Date;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SettingsTest {
 
@@ -161,8 +161,8 @@ public class SettingsTest {
     Settings settings = new Settings();
     settings.setProperty("from_double", 3.14159);
     settings.setProperty("from_string", "3.14159");
-    assertThat(settings.getDouble("from_double")).isEqualTo(3.14159, Delta.delta(0.00001));
-    assertThat(settings.getDouble("from_string")).isEqualTo(3.14159, Delta.delta(0.00001));
+    assertThat(settings.getDouble("from_double")).isEqualTo(3.14159, Offset.offset(0.00001));
+    assertThat(settings.getDouble("from_string")).isEqualTo(3.14159, Offset.offset(0.00001));
     assertThat(settings.getDouble("unknown")).isNull();
   }
 
@@ -171,8 +171,8 @@ public class SettingsTest {
     Settings settings = new Settings();
     settings.setProperty("from_float", 3.14159f);
     settings.setProperty("from_string", "3.14159");
-    assertThat(settings.getDouble("from_float")).isEqualTo(3.14159f, Delta.delta(0.00001));
-    assertThat(settings.getDouble("from_string")).isEqualTo(3.14159f, Delta.delta(0.00001));
+    assertThat(settings.getDouble("from_float")).isEqualTo(3.14159f, Offset.offset(0.00001));
+    assertThat(settings.getDouble("from_string")).isEqualTo(3.14159f, Offset.offset(0.00001));
     assertThat(settings.getDouble("unknown")).isNull();
   }
 

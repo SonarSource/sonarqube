@@ -26,8 +26,7 @@ import org.sonar.wsclient.MockHttpServerInterceptor;
 import org.sonar.wsclient.internal.HttpRequestFactory;
 import org.sonar.wsclient.qprofile.QProfileResult;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.MapAssert.entry;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DefaultQProfileClientTest {
 
@@ -44,9 +43,7 @@ public class DefaultQProfileClientTest {
     QProfileResult result = client.restoreDefault("java");
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/qualityprofiles/restore_default");
-    assertThat(httpServer.requestParams()).includes(
-      entry("language", "java")
-    );
+    assertThat(httpServer.requestParams()).containsEntry("language", "java");
     assertThat(result).isNotNull();
     assertThat(result.infos()).containsOnly("Some info");
     assertThat(result.warnings()).containsOnly("Some warnings");

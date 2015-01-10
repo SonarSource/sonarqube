@@ -23,7 +23,7 @@ package org.sonar.api.batch.debt;
 import org.junit.Test;
 import org.sonar.api.utils.Duration;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DebtRemediationFunctionTest {
 

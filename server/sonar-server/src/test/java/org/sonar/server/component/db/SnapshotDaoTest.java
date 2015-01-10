@@ -32,7 +32,7 @@ import org.sonar.core.persistence.DbSession;
 import java.util.Date;
 import java.util.List;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -180,7 +180,7 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
     List<SnapshotDto> snapshots = sut.findSnapshotAndChildrenOfProjectScope(session, defaultSnapshot().setId(1L));
 
     assertThat(snapshots).isNotEmpty();
-    assertThat(snapshots).onProperty("id").containsOnly(1L, 6L);
+    assertThat(snapshots).extracting("id").containsOnly(1L, 6L);
   }
 
   @Test
@@ -190,13 +190,13 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
     // From root project
     List<SnapshotDto> snapshots = sut.findChildrenModulesFromModule(session, "org.struts:struts");
     assertThat(snapshots).hasSize(2);
-    assertThat(snapshots).onProperty("id").containsOnly(2L, 3L);
-    assertThat(snapshots).onProperty("last").containsOnly(true);
+    assertThat(snapshots).extracting("id").containsOnly(2L, 3L);
+    assertThat(snapshots).extracting("last").containsOnly(true);
 
     // From module
     snapshots = sut.findChildrenModulesFromModule(session, "org.struts:struts-core");
     assertThat(snapshots).hasSize(1);
-    assertThat(snapshots).onProperty("id").containsOnly(3L);
+    assertThat(snapshots).extracting("id").containsOnly(3L);
 
     // From sub module
     snapshots = sut.findChildrenModulesFromModule(session, "org.struts:struts-data");
@@ -213,9 +213,9 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
 
     List<SnapshotDto> snapshots = sut.findSnapshotAndChildrenOfProjectScope(session, snapshot);
     assertThat(snapshots).hasSize(2);
-    assertThat(snapshots).onProperty("id").containsOnly(1L, 6L);
-    assertThat(snapshots).onProperty("last").containsOnly(false);
-    assertThat(snapshots).onProperty("status").containsOnly(SnapshotDto.STATUS_PROCESSED);
+    assertThat(snapshots).extracting("id").containsOnly(1L, 6L);
+    assertThat(snapshots).extracting("last").containsOnly(false);
+    assertThat(snapshots).extracting("status").containsOnly(SnapshotDto.STATUS_PROCESSED);
   }
 
   @Test
@@ -228,8 +228,8 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
 
     List<SnapshotDto> snapshots = sut.findSnapshotAndChildrenOfProjectScope(session, snapshot);
     assertThat(snapshots).hasSize(2);
-    assertThat(snapshots).onProperty("id").containsOnly(1L, 6L);
-    assertThat(snapshots).onProperty("last").containsOnly(false);
+    assertThat(snapshots).extracting("id").containsOnly(1L, 6L);
+    assertThat(snapshots).extracting("last").containsOnly(false);
   }
 
   @Test

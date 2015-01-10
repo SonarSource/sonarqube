@@ -23,14 +23,20 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.wsclient.MockHttpServerInterceptor;
 import org.sonar.wsclient.internal.HttpRequestFactory;
-import org.sonar.wsclient.qualitygate.*;
+import org.sonar.wsclient.qualitygate.NewCondition;
+import org.sonar.wsclient.qualitygate.QualityGate;
+import org.sonar.wsclient.qualitygate.QualityGateClient;
+import org.sonar.wsclient.qualitygate.QualityGateCondition;
+import org.sonar.wsclient.qualitygate.QualityGateDetails;
+import org.sonar.wsclient.qualitygate.QualityGates;
+import org.sonar.wsclient.qualitygate.UpdateCondition;
 
 import java.net.HttpURLConnection;
 import java.util.Collection;
 import java.util.Iterator;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.MapAssert.entry;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
 public class DefaultQualityGateClientTest {
 
@@ -47,9 +53,7 @@ public class DefaultQualityGateClientTest {
     QualityGate result = client.create("Ninth");
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/qualitygates/create");
-    assertThat(httpServer.requestParams()).includes(
-        entry("name", "Ninth")
-        );
+    assertThat(httpServer.requestParams()).containsEntry("name", "Ninth");
     assertThat(result).isNotNull();
     assertThat(result.id()).isEqualTo(666L);
     assertThat(result.name()).isEqualTo("Ninth");
@@ -60,7 +64,7 @@ public class DefaultQualityGateClientTest {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
 
     httpServer.stubResponseBody(
-        "{\"qualitygates\":[{\"id\":666,\"name\":\"Ninth\"},{\"id\":42,\"name\":\"Golden\"},{\"id\":43,\"name\":\"Star\"}],\"default\":42}");
+      "{\"qualitygates\":[{\"id\":666,\"name\":\"Ninth\"},{\"id\":42,\"name\":\"Golden\"},{\"id\":43,\"name\":\"Star\"}],\"default\":42}");
 
     QualityGateClient client = new DefaultQualityGateClient(requestFactory);
     QualityGates qGates = client.list();
@@ -76,7 +80,7 @@ public class DefaultQualityGateClientTest {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
 
     httpServer.stubResponseBody(
-        "{}");
+      "{}");
 
     QualityGateClient client = new DefaultQualityGateClient(requestFactory);
     QualityGates qGates = client.list();
@@ -97,10 +101,10 @@ public class DefaultQualityGateClientTest {
     QualityGate result = client.rename(666L, "Hell");
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/qualitygates/rename");
-    assertThat(httpServer.requestParams()).includes(
-        entry("id", "666"),
-        entry("name", "Hell")
-        );
+    assertThat(httpServer.requestParams()).contains(
+      entry("id", "666"),
+      entry("name", "Hell")
+      );
     assertThat(result).isNotNull();
   }
 
@@ -211,9 +215,7 @@ public class DefaultQualityGateClientTest {
     client.destroy(666L);
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/qualitygates/destroy");
-    assertThat(httpServer.requestParams()).includes(
-        entry("id", "666")
-        );
+    assertThat(httpServer.requestParams()).containsEntry("id", "666");
   }
 
   @Test
@@ -226,9 +228,7 @@ public class DefaultQualityGateClientTest {
     client.setDefault(666L);
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/qualitygates/set_as_default");
-    assertThat(httpServer.requestParams()).includes(
-        entry("id", "666")
-        );
+    assertThat(httpServer.requestParams()).containsEntry("id", "666");
   }
 
   @Test
@@ -255,14 +255,14 @@ public class DefaultQualityGateClientTest {
       .metricKey("new_coverage").operator("LT").warningThreshold("90").errorThreshold("80").period(3));
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/qualitygates/create_condition");
-    assertThat(httpServer.requestParams()).includes(
-        entry("gateId", "12345"),
-        entry("metric", "new_coverage"),
-        entry("op", "LT"),
-        entry("warning", "90"),
-        entry("error", "80"),
-        entry("period", "3")
-        );
+    assertThat(httpServer.requestParams()).contains(
+      entry("gateId", "12345"),
+      entry("metric", "new_coverage"),
+      entry("op", "LT"),
+      entry("warning", "90"),
+      entry("error", "80"),
+      entry("period", "3")
+      );
     assertThat(result).isNotNull();
     assertThat(result.id()).isEqualTo(42L);
   }
@@ -278,14 +278,14 @@ public class DefaultQualityGateClientTest {
       .metricKey("ncloc").operator("GT").warningThreshold("1000").errorThreshold("2000").period(1));
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/qualitygates/update_condition");
-    assertThat(httpServer.requestParams()).includes(
-        entry("id", "12345"),
-        entry("metric", "ncloc"),
-        entry("op", "GT"),
-        entry("warning", "1000"),
-        entry("error", "2000"),
-        entry("period", "1")
-        );
+    assertThat(httpServer.requestParams()).contains(
+      entry("id", "12345"),
+      entry("metric", "ncloc"),
+      entry("op", "GT"),
+      entry("warning", "1000"),
+      entry("error", "2000"),
+      entry("period", "1")
+      );
     assertThat(result).isNotNull();
     assertThat(result.id()).isEqualTo(12345L);
   }
@@ -297,12 +297,10 @@ public class DefaultQualityGateClientTest {
     httpServer.stubStatusCode(HttpURLConnection.HTTP_NO_CONTENT);
 
     QualityGateClient client = new DefaultQualityGateClient(requestFactory);
-    client.deleteCondition(666L);;
+    client.deleteCondition(666L);
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/qualitygates/delete_condition");
-    assertThat(httpServer.requestParams()).includes(
-        entry("id", "666")
-        );
+    assertThat(httpServer.requestParams()).containsEntry("id", "666");
   }
 
   @Test
@@ -315,10 +313,10 @@ public class DefaultQualityGateClientTest {
     client.selectProject(666L, 999L);
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/qualitygates/select");
-    assertThat(httpServer.requestParams()).includes(
-        entry("gateId", "666"),
-        entry("projectId", "999")
-        );
+    assertThat(httpServer.requestParams()).contains(
+      entry("gateId", "666"),
+      entry("projectId", "999")
+      );
   }
 
   @Test
@@ -331,9 +329,9 @@ public class DefaultQualityGateClientTest {
     client.deselectProject(666L, 999L);
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/qualitygates/deselect");
-    assertThat(httpServer.requestParams()).includes(
-        entry("gateId", "666"),
-        entry("projectId", "999")
-        );
+    assertThat(httpServer.requestParams()).contains(
+      entry("gateId", "666"),
+      entry("projectId", "999")
+      );
   }
 }

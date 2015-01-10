@@ -29,7 +29,7 @@ import org.sonar.api.utils.Durations;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.ws.WsTester;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class ComponentsWsTest {

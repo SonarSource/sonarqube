@@ -28,7 +28,7 @@ import org.sonar.api.source.Highlightable;
 import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.core.component.ResourceComponent;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class HighlightableBuilderTest {

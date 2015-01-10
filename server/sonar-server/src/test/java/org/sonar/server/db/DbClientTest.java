@@ -31,7 +31,7 @@ import org.sonar.server.qualityprofile.db.ActiveRuleDao;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.test.DbTests;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @Category(DbTests.class)
 public class DbClientTest {

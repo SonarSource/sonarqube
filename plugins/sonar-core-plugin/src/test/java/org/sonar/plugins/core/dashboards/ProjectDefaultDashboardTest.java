@@ -24,7 +24,7 @@ import org.sonar.api.web.Dashboard;
 import org.sonar.api.web.DashboardLayout;
 import org.sonar.plugins.core.CorePlugin;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ProjectDefaultDashboardTest {
   ProjectDefaultDashboard template = new ProjectDefaultDashboard();

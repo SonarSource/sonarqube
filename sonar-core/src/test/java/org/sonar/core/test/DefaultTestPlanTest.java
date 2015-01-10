@@ -27,7 +27,7 @@ import org.sonar.api.test.MutableTestCase;
 import org.sonar.api.test.TestPlan;
 import org.sonar.core.graph.BeanGraph;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DefaultTestPlanTest {
   @Rule
