@@ -88,7 +88,7 @@ public class DbClient implements ServerComponent {
     this.db = db;
     this.myBatis = myBatis;
 
-    Map<Class, DaoComponent> map = new IdentityHashMap<Class, DaoComponent>();
+    Map<Class, DaoComponent> map = new IdentityHashMap<>();
     for (DaoComponent daoComponent : daoComponents) {
       map.put(daoComponent.getClass(), daoComponent);
     }

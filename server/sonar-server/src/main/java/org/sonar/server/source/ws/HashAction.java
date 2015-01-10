@@ -28,7 +28,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.source.db.FileSourceDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
 
@@ -37,11 +36,9 @@ import java.io.OutputStream;
 public class HashAction implements RequestHandler {
 
   private final DbClient dbClient;
-  private final FileSourceDao fileSourceDao;
 
-  public HashAction(DbClient dbClient, FileSourceDao fileSourceDao) {
+  public HashAction(DbClient dbClient) {
     this.dbClient = dbClient;
-    this.fileSourceDao = fileSourceDao;
   }
 
   void define(WebService.NewController controller) {
@@ -65,7 +62,7 @@ public class HashAction implements RequestHandler {
       String componentKey = request.mandatoryParam("key");
       UserSession.get().checkComponentPermission(UserRole.CODEVIEWER, componentKey);
       ComponentDto component = dbClient.componentDao().getByKey(session, componentKey);
-      String lineHashes = fileSourceDao.selectLineHashes(component.uuid(), session);
+      String lineHashes = dbClient.fileSourceDao().selectLineHashes(component.uuid(), session);
       if (lineHashes == null) {
         response.noContent();
       } else {

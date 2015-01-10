@@ -22,12 +22,13 @@ package org.sonar.core.source.db;
 
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
+import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
 
-public class FileSourceDao implements BatchComponent, ServerComponent {
+public class FileSourceDao implements BatchComponent, ServerComponent, DaoComponent {
 
   private final MyBatis mybatis;
 

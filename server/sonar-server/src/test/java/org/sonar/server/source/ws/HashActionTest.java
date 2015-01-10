@@ -59,6 +59,7 @@ public class HashActionTest {
   @Before
   public void setUp() throws Exception {
     when(dbClient.componentDao()).thenReturn(componentDao);
+    when(dbClient.fileSourceDao()).thenReturn(fileSourceDao);
     when(dbClient.openSession(false)).thenReturn(mock(DbSession.class));
     tester = new WsTester(
       new SourcesWs(
@@ -66,10 +67,10 @@ public class HashActionTest {
         mock(RawAction.class),
         mock(ScmAction.class),
         mock(LinesAction.class),
-        new HashAction(dbClient, fileSourceDao),
+        new HashAction(dbClient),
         mock(IndexAction.class)
       )
-    );
+      );
   }
 
   @Test

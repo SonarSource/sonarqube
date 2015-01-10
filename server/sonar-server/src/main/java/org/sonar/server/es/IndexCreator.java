@@ -32,7 +32,7 @@ import org.sonar.api.ServerComponent;
 import java.util.Map;
 
 /**
- * Create registered indices in Elasticsearch.
+ * Creates/deletes all indices in Elasticsearch during server startup.
  */
 public class IndexCreator implements ServerComponent, Startable {
 

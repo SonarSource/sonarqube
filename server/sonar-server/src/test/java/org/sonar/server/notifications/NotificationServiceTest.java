@@ -27,19 +27,12 @@ import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.notifications.NotificationDispatcher;
 import org.sonar.core.notification.DefaultNotificationManager;
-import org.sonar.jpa.session.DatabaseSessionFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.same;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class NotificationServiceTest {
   private static String CREATOR_SIMON = "simon";
@@ -55,7 +48,7 @@ public class NotificationServiceTest {
 
   private NotificationService service;
 
-  private void setUpMocks(String creator, String assignee) {
+  private void setUpMocks() {
     when(emailChannel.getKey()).thenReturn("email");
     when(gtalkChannel.getKey()).thenReturn("gtalk");
     when(commentOnReviewAssignedToMe.getKey()).thenReturn("comment on review assigned to me");
@@ -64,7 +57,7 @@ public class NotificationServiceTest {
 
     Settings settings = new Settings().setProperty("sonar.notifications.delay", 1L);
 
-    service = new NotificationService(settings, manager, mock(DatabaseSessionFactory.class),
+    service = new NotificationService(settings, manager,
       new NotificationDispatcher[] {commentOnReviewAssignedToMe, commentOnReviewCreatedByMe});
   }
 
@@ -80,7 +73,7 @@ public class NotificationServiceTest {
    */
   @Test
   public void scenario1() {
-    setUpMocks(CREATOR_SIMON, ASSIGNEE_SIMON);
+    setUpMocks();
     doAnswer(addUser(ASSIGNEE_SIMON, emailChannel)).when(commentOnReviewAssignedToMe).dispatch(same(notification), any(NotificationDispatcher.Context.class));
     doAnswer(addUser(CREATOR_SIMON, emailChannel)).when(commentOnReviewCreatedByMe).dispatch(same(notification), any(NotificationDispatcher.Context.class));
 
@@ -104,7 +97,7 @@ public class NotificationServiceTest {
    */
   @Test
   public void scenario2() {
-    setUpMocks(CREATOR_EVGENY, ASSIGNEE_SIMON);
+    setUpMocks();
     doAnswer(addUser(ASSIGNEE_SIMON, emailChannel)).when(commentOnReviewAssignedToMe).dispatch(same(notification), any(NotificationDispatcher.Context.class));
     doAnswer(addUser(CREATOR_EVGENY, gtalkChannel)).when(commentOnReviewCreatedByMe).dispatch(same(notification), any(NotificationDispatcher.Context.class));
 
@@ -129,7 +122,7 @@ public class NotificationServiceTest {
    */
   @Test
   public void scenario3() {
-    setUpMocks(CREATOR_EVGENY, ASSIGNEE_SIMON);
+    setUpMocks();
     doAnswer(addUser(ASSIGNEE_SIMON, new NotificationChannel[] {emailChannel, gtalkChannel}))
       .when(commentOnReviewAssignedToMe).dispatch(same(notification), any(NotificationDispatcher.Context.class));
 
@@ -154,7 +147,7 @@ public class NotificationServiceTest {
    */
   @Test
   public void scenario4() {
-    setUpMocks(CREATOR_EVGENY, ASSIGNEE_SIMON);
+    setUpMocks();
 
     service.start();
     service.stop();
@@ -166,7 +159,7 @@ public class NotificationServiceTest {
   // SONAR-4548
   @Test
   public void shouldNotStopWhenException() {
-    setUpMocks(CREATOR_SIMON, ASSIGNEE_SIMON);
+    setUpMocks();
     when(manager.getFromQueue()).thenThrow(new RuntimeException("Unexpected exception")).thenReturn(notification).thenReturn(null);
     doAnswer(addUser(ASSIGNEE_SIMON, emailChannel)).when(commentOnReviewAssignedToMe).dispatch(same(notification), any(NotificationDispatcher.Context.class));
     doAnswer(addUser(CREATOR_SIMON, emailChannel)).when(commentOnReviewCreatedByMe).dispatch(same(notification), any(NotificationDispatcher.Context.class));
@@ -180,7 +173,7 @@ public class NotificationServiceTest {
 
   @Test
   public void shouldNotAddNullAsUser() {
-    setUpMocks(CREATOR_EVGENY, ASSIGNEE_SIMON);
+    setUpMocks();
     doAnswer(addUser(null, gtalkChannel)).when(commentOnReviewCreatedByMe).dispatch(same(notification), any(NotificationDispatcher.Context.class));
 
     service.start();
@@ -192,7 +185,7 @@ public class NotificationServiceTest {
 
   @Test
   public void shouldReturnDispatcherList() {
-    setUpMocks(CREATOR_SIMON, ASSIGNEE_SIMON);
+    setUpMocks();
 
     assertThat(service.getDispatchers()).containsOnly(commentOnReviewAssignedToMe, commentOnReviewCreatedByMe);
   }
@@ -201,13 +194,13 @@ public class NotificationServiceTest {
   public void shouldReturnNoDispatcher() {
     Settings settings = new Settings().setProperty("sonar.notifications.delay", 1L);
 
-    service = new NotificationService(settings, manager, mock(DatabaseSessionFactory.class));
+    service = new NotificationService(settings, manager);
     assertThat(service.getDispatchers()).hasSize(0);
   }
 
   @Test
   public void shouldLogEvery10Minutes() throws InterruptedException {
-    setUpMocks(CREATOR_EVGENY, ASSIGNEE_SIMON);
+    setUpMocks();
     // Emulate 2 notifications in DB
     when(manager.getFromQueue()).thenReturn(notification).thenReturn(notification).thenReturn(null);
     when(manager.count()).thenReturn(1L).thenReturn(0L);

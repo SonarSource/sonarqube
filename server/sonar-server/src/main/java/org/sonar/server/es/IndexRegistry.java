@@ -27,6 +27,9 @@ import org.sonar.api.ServerComponent;
 
 import java.util.Map;
 
+/**
+ * This class collects definitions of all Elasticsearch indices during server startup
+ */
 public class IndexRegistry implements ServerComponent, Startable {
 
   /**
