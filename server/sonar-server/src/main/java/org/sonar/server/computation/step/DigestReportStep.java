@@ -39,6 +39,6 @@ public class DigestReportStep implements ComputationStep {
 
   @Override
   public String getDescription() {
-    return "Decompress analysis report";
+    return "Digest analysis report";
   }
 }
