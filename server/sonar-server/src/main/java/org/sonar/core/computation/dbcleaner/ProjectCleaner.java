@@ -71,6 +71,7 @@ public class ProjectCleaner implements ServerComponent {
 
     deleteIndexedIssuesBefore(idUuidPair.getUuid(), configuration.maxLiveDateOfClosedIssues());
 
+    session.commit();
     logProfiling(start, settings);
     return this;
   }
