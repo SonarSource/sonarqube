@@ -42,9 +42,10 @@ public class NotificationQueueDao implements BatchComponent, ServerComponent {
 
   public void insert(List<NotificationQueueDto> dtos) {
     DbSession session = mybatis.openSession(true);
+    NotificationQueueMapper mapper = session.getMapper(NotificationQueueMapper.class);
     try {
       for (NotificationQueueDto dto : dtos) {
-        session.getMapper(NotificationQueueMapper.class).insert(dto);
+        mapper.insert(dto);
       }
       session.commit();
     } finally {
@@ -54,9 +55,10 @@ public class NotificationQueueDao implements BatchComponent, ServerComponent {
 
   public void delete(List<NotificationQueueDto> dtos) {
     DbSession session = mybatis.openSession(true);
+    NotificationQueueMapper mapper = session.getMapper(NotificationQueueMapper.class);
     try {
       for (NotificationQueueDto dto : dtos) {
-        session.getMapper(NotificationQueueMapper.class).delete(dto.getId());
+        mapper.delete(dto.getId());
       }
       session.commit();
     } finally {
