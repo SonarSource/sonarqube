@@ -21,7 +21,6 @@
 package org.sonar.server.computation;
 
 import com.google.common.collect.Lists;
-import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -53,23 +52,6 @@ public class AnalysisReportServiceTest {
     ComputeEngineIssueStorageFactory issueStorageFactory = mock(ComputeEngineIssueStorageFactory.class);
     when(issueStorageFactory.newComputeEngineIssueStorage(any(ComponentDto.class))).thenReturn(issueStorage);
     sut = new AnalysisReportService(issueStorageFactory);
-  }
-
-  @Test
-  public void clean_null_directory_does_not_throw_any_exception() throws Exception {
-    sut.deleteDirectory(null);
-  }
-
-  @Test
-  public void clean_temp_folder() throws Exception {
-    File origin = new File(getClass().getResource("/org/sonar/server/computation/AnalysisReportServiceTest/report-folder").getFile());
-    File destination = new File("target/tmp/report-folder-to-delete");
-    FileUtils.copyDirectory(origin, destination);
-    assertThat(destination.exists()).isTrue();
-
-    sut.deleteDirectory(destination);
-
-    assertThat(destination.exists()).isFalse();
   }
 
   @Test

@@ -23,7 +23,6 @@ package org.sonar.server.computation;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,8 +37,6 @@ import org.sonar.batch.protocol.output.component.ReportComponent;
 import org.sonar.batch.protocol.output.component.ReportComponents;
 import org.sonar.batch.protocol.output.issue.ReportIssue;
 import org.sonar.core.issue.db.IssueStorage;
-
-import javax.annotation.Nullable;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -152,17 +149,5 @@ public class AnalysisReportService implements ServerComponent {
     }
 
     return issue;
-  }
-
-  public void deleteDirectory(@Nullable File directory) {
-    if (directory == null) {
-      return;
-    }
-
-    try {
-      FileUtils.deleteDirectory(directory);
-    } catch (IOException e) {
-      LOG.warn(String.format("Failed to delete directory '%s'", directory.getPath()), e);
-    }
   }
 }
