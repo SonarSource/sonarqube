@@ -172,7 +172,7 @@ public class MavenDependenciesSensor implements Sensor {
         Type collectionType = new TypeToken<Collection<InputDependency>>() {
         }.getType();
         deps = gson.fromJson(depsAsJson, collectionType);
-        saveDependencies(project, deps, context);
+        saveDependencies(project, project, deps, context);
       } catch (Exception e) {
         throw new IllegalStateException("Unable to deserialize dependency information: " + depsAsJson, e);
       }
@@ -218,24 +218,24 @@ public class MavenDependenciesSensor implements Sensor {
     }
   }
 
-  private void saveDependencies(Resource from, Collection<InputDependency> deps, SensorContext context) {
+  private void saveDependencies(Project project, Resource from, Collection<InputDependency> deps, SensorContext context) {
     for (InputDependency inputDep : deps) {
-      Resource to = toResource(inputDep, context);
+      Resource to = toResource(project, inputDep, context);
       Dependency dependency = new Dependency(from, to);
       dependency.setUsage(inputDep.scope());
       dependency.setWeight(1);
       context.saveDependency(dependency);
       if (!inputDep.dependencies().isEmpty()) {
-        saveDependencies(to, inputDep.dependencies(), context);
+        saveDependencies(project, to, inputDep.dependencies(), context);
       }
     }
   }
 
-  private Resource toResource(InputDependency dependency, SensorContext context) {
-    Project project = new Project(dependency.key());
-    Resource result = context.getResource(project);
+  private Resource toResource(Project project, InputDependency dependency, SensorContext context) {
+    Project depProject = new Project(dependency.key(), project.getBranch(), dependency.key());
+    Resource result = context.getResource(depProject);
     if (result == null || !((Project) result).getAnalysisVersion().equals(dependency.version())) {
-      Library lib = new Library(project.getKey(), dependency.version());
+      Library lib = new Library(dependency.key(), dependency.version());
       context.saveResource(lib);
       result = context.getResource(lib);
     }
