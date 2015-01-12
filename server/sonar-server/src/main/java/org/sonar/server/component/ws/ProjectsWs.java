@@ -100,6 +100,11 @@ public class ProjectsWs implements WebService {
       .setRequired(true)
       .setExampleValue("SonarQube");
 
+    action.createParam("branch")
+      .setDescription("SCM Branch")
+      .setRequired(false)
+      .setExampleValue("branch-5.0");
+
     RailsHandler.addFormatParam(action);
   }
 
