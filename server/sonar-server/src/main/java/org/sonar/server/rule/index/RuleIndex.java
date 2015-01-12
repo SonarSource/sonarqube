@@ -339,17 +339,24 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
     StickyFacetBuilder stickyFacetBuilder = stickyFacetBuilder(queryBuilder, filters);
     if (options.facets().contains("languages") || options.facets().contains("true")) {
-      aggregations.put(FACET_LANGUAGES, // + "global",
-        stickyFacetBuilder.buildStickyFacet(RuleNormalizer.RuleField.LANGUAGE.field(), FACET_LANGUAGES, query.getLanguages() == null ? new String[0] : query.getLanguages().toArray()));
+      Collection<String> languages = query.getLanguages();
+      aggregations.put(FACET_LANGUAGES,
+        stickyFacetBuilder.buildStickyFacet(RuleNormalizer.RuleField.LANGUAGE.field(), FACET_LANGUAGES,
+          languages == null ? new String[0] : languages.toArray()));
     }
     if (options.facets().contains("tags") || options.facets().contains("true")) {
-      aggregations.put(FACET_TAGS, // + "global",
-        stickyFacetBuilder.buildStickyFacet(RuleNormalizer.RuleField.ALL_TAGS.field(), FACET_TAGS, query.getTags() == null ? new String[0] : query.getTags().toArray()));
+      Collection<String> tags = query.getTags();
+      aggregations.put(FACET_TAGS,
+        stickyFacetBuilder.buildStickyFacet(RuleNormalizer.RuleField.ALL_TAGS.field(), FACET_TAGS,
+          tags == null ? new String[0] : tags.toArray()));
     }
     if (options.facets().contains("repositories") || options.facets().contains("true")) {
-      aggregations.put(FACET_REPOSITORIES, // + "global",
-        stickyFacetBuilder.buildStickyFacet(RuleNormalizer.RuleField.REPOSITORY.field(), FACET_REPOSITORIES, query.getRepositories() == null ? new String[0] : query.getRepositories().toArray()));
+      Collection<String> repositories = query.getRepositories();
+      aggregations.put(FACET_REPOSITORIES,
+        stickyFacetBuilder.buildStickyFacet(RuleNormalizer.RuleField.REPOSITORY.field(), FACET_REPOSITORIES,
+          repositories == null ? new String[0] : repositories.toArray()));
     }
+
 
     return aggregations;
 

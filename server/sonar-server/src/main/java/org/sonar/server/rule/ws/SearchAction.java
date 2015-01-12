@@ -67,7 +67,7 @@ public class SearchAction extends SearchRequestHandler<RuleQuery, Rule> {
 
   public static final String SEARCH_ACTION = "search";
 
-  private static final Collection<String> DEFAULT_FACETS = ImmutableSet.of("languages", "repositories", "tags");
+  private static final Collection<String> DEFAULT_FACETS = ImmutableSet.of(PARAM_LANGUAGES, PARAM_REPOSITORIES, "tags");
 
   private final RuleService ruleService;
   private final ActiveRuleCompleter activeRuleCompleter;
@@ -95,8 +95,8 @@ public class SearchAction extends SearchRequestHandler<RuleQuery, Rule> {
   @CheckForNull
   protected Collection<String> possibleFacets() {
     return Arrays.asList(new String[] {
-      "languages",
-      "repositories",
+      PARAM_LANGUAGES,
+      PARAM_REPOSITORIES,
       "tags",
       "characteristics",
       "severities",
