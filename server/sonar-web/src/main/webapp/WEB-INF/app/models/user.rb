@@ -84,6 +84,15 @@ class User < ActiveRecord::Base
     write_attribute :email, (value && value.downcase)
   end
 
+  # SCM accounts should also contain login and email
+  def full_scm_accounts
+    new_scm_accounts = self.scm_accounts.split(',').reject { |c| c.empty? } if self.scm_accounts
+    new_scm_accounts = [] unless new_scm_accounts
+    new_scm_accounts << self.login
+    new_scm_accounts << self.email
+    new_scm_accounts
+  end
+
   def available_groups
     Group.all - self.groups
   end
