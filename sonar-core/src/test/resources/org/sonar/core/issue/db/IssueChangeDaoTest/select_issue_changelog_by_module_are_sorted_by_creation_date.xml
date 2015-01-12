@@ -35,9 +35,9 @@
       user_login="arthur"
       change_type="diff"
       change_data="severity=MAJOR|BLOCKER"
-      created_at="2013-04-18"
-      updated_at="2013-04-18"
-      issue_change_creation_date="2013-04-18"
+      created_at="1410386400000"
+      updated_at="1410386400000"
+      issue_change_creation_date="1410386400000"
       />
 
   <issue_changes
@@ -47,9 +47,9 @@
       user_login="arthur"
       change_type="diff"
       change_data="severity=MAJOR|BLOCKER"
-      created_at="2013-04-16"
-      updated_at="2013-04-16"
-      issue_change_creation_date="2013-04-16"
+      created_at="1410213600000"
+      updated_at="1410213600000"
+      issue_change_creation_date="1410213600000"
       />
 
   <issue_changes
@@ -59,9 +59,9 @@
       user_login="arthur"
       change_type="diff"
       change_data="actionPlan=1.0|1.1"
-      created_at="2013-04-17"
-      updated_at="2013-04-17"
-      issue_change_creation_date="2013-04-17"
+      created_at="1410300000000"
+      updated_at="1410300000000"
+      issue_change_creation_date="1410300000000"
       />
 
 </dataset>

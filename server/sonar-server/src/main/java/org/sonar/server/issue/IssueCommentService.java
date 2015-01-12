@@ -27,6 +27,7 @@ import org.sonar.api.issue.IssueComment;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.issue.internal.IssueChangeContext;
+import org.sonar.api.utils.System2;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.db.IssueChangeDao;
 import org.sonar.core.issue.db.IssueChangeDto;
@@ -143,7 +144,7 @@ public class IssueCommentService implements ServerComponent {
     issueService.getByKey(comment.issueKey());
 
     IssueChangeDto dto = IssueChangeDto.of(comment);
-    dto.setUpdatedAt(new Date());
+    dto.setUpdatedAt(System2.INSTANCE.now());
     dto.setChangeData(text);
     changeDao.update(dto);
 

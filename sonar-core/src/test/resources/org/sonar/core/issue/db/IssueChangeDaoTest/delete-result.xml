@@ -7,8 +7,8 @@
     user_login="arthur"
     change_type="comment"
     change_data="old comment"
-    created_at="2013-01-01"
-    updated_at="2013-01-01"
+    created_at="1356994800000"
+    updated_at="1356994800000"
     issue_change_creation_date="[null]"
     />
 
@@ -19,9 +19,9 @@
     user_login="arthur"
     change_type="diff"
     change_data="severity=MAJOR|BLOCKER"
-    created_at="2013-02-02"
-    updated_at="2013-02-02"
-    issue_change_creation_date="2013-02-02"
+    created_at="1359759600000"
+    updated_at="1359759600000"
+    issue_change_creation_date="1359759600000"
     />
 
   <!--
@@ -34,9 +34,9 @@
     user_login="arthur"
     change_type="comment"
     change_data="recent comment"
-    created_at="2013-05-05"
-    updated_at="2013-05-05"
-    issue_change_creation_date="2013-05-05"
+    created_at="1367704800000"
+    updated_at="1367704800000"
+    issue_change_creation_date="1367704800000"
     />
     -->
 </dataset>

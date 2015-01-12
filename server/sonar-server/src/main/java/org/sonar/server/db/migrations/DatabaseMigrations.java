@@ -30,10 +30,7 @@ import org.sonar.server.db.migrations.v45.DeleteMeasuresOnDeletedProfilesMigrati
 import org.sonar.server.db.migrations.v451.AddMissingCustomRuleParametersMigration;
 import org.sonar.server.db.migrations.v451.DeleteUnescapedActivities;
 import org.sonar.server.db.migrations.v50.*;
-import org.sonar.server.db.migrations.v51.CopyScmAccountsFromAuthorsToUsers;
-import org.sonar.server.db.migrations.v51.FeedIssueTags;
-import org.sonar.server.db.migrations.v51.FeedUsersLongDates;
-import org.sonar.server.db.migrations.v51.RenameComponentRelatedParamsInIssueFilters;
+import org.sonar.server.db.migrations.v51.*;
 
 import java.util.List;
 
@@ -83,6 +80,7 @@ public interface DatabaseMigrations {
     FeedIssueTags.class,
     FeedUsersLongDates.class,
     RenameComponentRelatedParamsInIssueFilters.class,
-    CopyScmAccountsFromAuthorsToUsers.class
-  );
+    CopyScmAccountsFromAuthorsToUsers.class,
+    FeedIssueChangesLongDates.class
+    );
 }

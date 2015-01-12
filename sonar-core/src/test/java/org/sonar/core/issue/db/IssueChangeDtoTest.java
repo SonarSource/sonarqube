@@ -23,8 +23,7 @@ import org.junit.Test;
 import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.utils.DateUtils;
-
-import java.util.Date;
+import org.sonar.api.utils.System2;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -57,7 +56,7 @@ public class IssueChangeDtoTest {
     assertThat(dto.getChangeType()).isEqualTo("diff");
     assertThat(dto.getCreatedAt()).isNotNull();
     assertThat(dto.getUpdatedAt()).isNotNull();
-    assertThat(dto.getIssueChangeCreationDate()).isEqualTo(DateUtils.parseDate("2014-01-03"));
+    assertThat(dto.getIssueChangeCreationDate()).isEqualTo(DateUtils.parseDate("2014-01-03").getTime());
     assertThat(dto.getIssueKey()).isEqualTo("ABCDE");
     assertThat(dto.getUserLogin()).isEqualTo("emmerik");
   }
@@ -69,8 +68,8 @@ public class IssueChangeDtoTest {
       .setUserLogin("emmerik")
       .setChangeData("Some text")
       .setIssueKey("ABCDE")
-      .setCreatedAt(new Date())
-      .setUpdatedAt(new Date());
+      .setCreatedAt(System2.INSTANCE.now())
+      .setUpdatedAt(System2.INSTANCE.now());
 
     DefaultIssueComment comment = changeDto.toComment();
     assertThat(comment.key()).isEqualTo("EFGH");
@@ -88,7 +87,7 @@ public class IssueChangeDtoTest {
       .setUserLogin("emmerik")
       .setChangeData("Some text")
       .setIssueKey("ABCDE")
-      .setIssueChangeCreationDate(new Date());
+      .setIssueChangeCreationDate(System2.INSTANCE.now());
 
     FieldDiffs diffs = changeDto.toFieldDiffs();
     assertThat(diffs.userLogin()).isEqualTo("emmerik");
@@ -103,7 +102,7 @@ public class IssueChangeDtoTest {
       .setUserLogin("emmerik")
       .setChangeData("Some text")
       .setIssueKey("ABCDE")
-      .setCreatedAt(new Date());
+      .setCreatedAt(System2.INSTANCE.now());
 
     FieldDiffs diffs = changeDto.toFieldDiffs();
     assertThat(diffs.userLogin()).isEqualTo("emmerik");

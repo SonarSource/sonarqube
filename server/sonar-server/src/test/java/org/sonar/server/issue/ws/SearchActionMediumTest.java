@@ -221,14 +221,14 @@ public class SearchActionMediumTest {
         .setChangeData("*My comment*")
         .setChangeType(IssueChangeDto.TYPE_COMMENT)
         .setUserLogin("john")
-        .setCreatedAt(DateUtils.parseDate("2014-09-09")));
+        .setCreatedAt(DateUtils.parseDate("2014-09-09").getTime()));
     tester.get(IssueChangeDao.class).insert(session,
       new IssueChangeDto().setIssueKey(issue.getKey())
         .setKey("COMMENT-ABCE")
         .setChangeData("Another comment")
         .setChangeType(IssueChangeDto.TYPE_COMMENT)
         .setUserLogin("fabrice")
-        .setCreatedAt(DateUtils.parseDate("2014-09-10")));
+        .setCreatedAt(DateUtils.parseDate("2014-09-10").getTime()));
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 

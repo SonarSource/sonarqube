@@ -68,7 +68,6 @@ public class IssueChangeDaoTest extends AbstractDaoTestCase {
     DefaultIssueComment first = comments.get(0);
     assertThat(first.markdownText()).isEqualTo("old comment");
 
-
     DefaultIssueComment second = comments.get(1);
     assertThat(second.userLogin()).isEqualTo("arthur");
     assertThat(second.key()).isEqualTo("FGHIJ");
@@ -81,8 +80,8 @@ public class IssueChangeDaoTest extends AbstractDaoTestCase {
 
     DbSession session = getMyBatis().openSession(false);
     List<String> hugeNbOfIssues = newArrayList();
-    for (int i=0; i<4500; i++) {
-      hugeNbOfIssues.add("ABCD"+i);
+    for (int i = 0; i < 4500; i++) {
+      hugeNbOfIssues.add("ABCD" + i);
     }
     List<DefaultIssueComment> comments = dao.selectCommentsByIssues(session, hugeNbOfIssues);
     MyBatis.closeQuietly(session);
@@ -192,9 +191,9 @@ public class IssueChangeDaoTest extends AbstractDaoTestCase {
       .setChangeData("Some text")
       .setChangeType("comment")
       .setIssueKey("ABCDE")
-      .setCreatedAt(DateUtils.parseDate("2014-09-09"))
-      .setUpdatedAt(DateUtils.parseDate("2014-09-10"))
-      .setIssueChangeCreationDate(DateUtils.parseDate("2014-09-11"));
+      .setCreatedAt(DateUtils.parseDate("2014-09-09").getTime())
+      .setUpdatedAt(DateUtils.parseDate("2014-09-10").getTime())
+      .setIssueChangeCreationDate(DateUtils.parseDate("2014-09-11").getTime());
 
     dao.insert(session, changeDto);
     session.commit();
@@ -211,7 +210,7 @@ public class IssueChangeDaoTest extends AbstractDaoTestCase {
 
     // Only the following fields can be updated:
     change.setChangeData("new comment");
-    change.setUpdatedAt(DateUtils.parseDate("2013-06-30"));
+    change.setUpdatedAt(DateUtils.parseDate("2013-06-30").getTime());
 
     assertThat(dao.update(change)).isTrue();
 
@@ -227,7 +226,7 @@ public class IssueChangeDaoTest extends AbstractDaoTestCase {
 
     // Only the following fields can be updated:
     change.setChangeData("new comment");
-    change.setUpdatedAt(DateUtils.parseDate("2013-06-30"));
+    change.setUpdatedAt(DateUtils.parseDate("2013-06-30").getTime());
 
     assertThat(dao.update(change)).isFalse();
   }

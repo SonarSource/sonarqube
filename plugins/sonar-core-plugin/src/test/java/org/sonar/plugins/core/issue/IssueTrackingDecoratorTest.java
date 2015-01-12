@@ -38,6 +38,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.Duration;
+import org.sonar.api.utils.System2;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.scan.LastLineHashes;
 import org.sonar.batch.scan.filesystem.InputPathCache;
@@ -538,10 +539,10 @@ public class IssueTrackingDecoratorTest {
 
   @Test
   public void merge_issue_changelog_with_previous_changelog() throws Exception {
-    when(initialOpenIssues.selectChangelog("ABCDE")).thenReturn(newArrayList(new IssueChangeDto().setIssueKey("ABCD")));
+    when(initialOpenIssues.selectChangelog("ABCDE")).thenReturn(newArrayList(new IssueChangeDto().setIssueKey("ABCD").setCreatedAt(System2.INSTANCE.now())));
 
     IssueDto previousIssue = new IssueDto().setKee("ABCDE").setResolution(null).setStatus("OPEN").setRuleKey("squid", "AvoidCycle")
-      .setLine(10).setMessage("Message").setEffortToFix(1.5).setDebt(1L);
+      .setLine(10).setMessage("Message").setEffortToFix(1.5).setDebt(1L).setCreatedAt(System2.INSTANCE.now());
     DefaultIssue issue = new DefaultIssue();
 
     IssueTrackingResult trackingResult = mock(IssueTrackingResult.class);
