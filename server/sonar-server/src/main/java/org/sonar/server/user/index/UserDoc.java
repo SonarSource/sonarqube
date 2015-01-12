@@ -19,6 +19,7 @@
  */
 package org.sonar.server.user.index;
 
+import org.sonar.api.user.User;
 import org.sonar.server.search.BaseDoc;
 
 import javax.annotation.Nullable;
@@ -26,7 +27,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
-public class UserDoc extends BaseDoc {
+public class UserDoc extends BaseDoc implements User {
 
   public UserDoc(Map<String, Object> fields) {
     super(fields);

@@ -24,6 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.exceptions.NotFoundException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -62,5 +63,48 @@ public class SourceLineIndexTest {
   @Test(expected = IllegalArgumentException.class)
   public void should_reject_to_less_than_from() {
     index.getLines("polop", 2, 1);
+  }
+
+  @Test
+  public void get_line() throws Exception {
+    es.putDocuments(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE,
+      this.getClass(),
+      "file1_line1.json",
+      "file1_line2.json"
+      );
+    assertThat(index.getLine("file1", 1)).isNotNull();
+    assertThat(index.getLine("file1", 2)).isNotNull();
+  }
+
+  @Test
+  public void fail_to_get_line_when_line_is_not_greater_than_0() throws Exception {
+    try {
+      index.getLine("file1", 0);
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Line should be greater than 0");
+    }
+  }
+
+  @Test
+  public void fail_to_get_line_on_unknown_line() throws Exception {
+    es.putDocuments(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE,
+      this.getClass(),
+      "file1_line1.json",
+      "file1_line2.json"
+      );
+    try {
+      index.getLine("file1", 1);
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(NotFoundException.class).hasMessage("No source found on line 5 for file 'file1'");
+    }
+  }
+
+  @Test
+  public void fail_to_get_line_on_unknown_file() throws Exception {
+    try {
+      index.getLine("file1", 1);
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(NotFoundException.class).hasMessage("No source found on line 1 for file 'file1'");
+    }
   }
 }

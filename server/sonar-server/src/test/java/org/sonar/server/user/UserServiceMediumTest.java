@@ -155,38 +155,23 @@ public class UserServiceMediumTest {
 
   @Test
   public void get_nullable_by_login() throws Exception {
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-    GroupDto userGroup = new GroupDto().setName(CoreProperties.CORE_DEFAULT_GROUP_DEFAULT_VALUE);
-    dbClient.groupDao().insert(session, userGroup);
-    session.commit();
-
-    service.create(NewUser.create()
-      .setLogin("user")
-      .setName("User")
-      .setEmail("user@mail.com")
-      .setPassword("password")
-      .setPasswordConfirmation("password")
-      .setScmAccounts(newArrayList("u1", "u_1")));
+    createSampleUser();
 
     assertThat(service.getNullableByLogin("user")).isNotNull();
   }
 
   @Test
   public void get_by_login() throws Exception {
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-    GroupDto userGroup = new GroupDto().setName(CoreProperties.CORE_DEFAULT_GROUP_DEFAULT_VALUE);
-    dbClient.groupDao().insert(session, userGroup);
-    session.commit();
-
-    service.create(NewUser.create()
-      .setLogin("user")
-      .setName("User")
-      .setEmail("user@mail.com")
-      .setPassword("password")
-      .setPasswordConfirmation("password")
-      .setScmAccounts(newArrayList("u1", "u_1")));
+    createSampleUser();
 
     assertThat(service.getByLogin("user")).isNotNull();
+  }
+
+  @Test
+  public void get_nullable_by_scm_account() throws Exception {
+    createSampleUser();
+
+    assertThat(service.getNullableByScmAccount("u1")).isNotNull();
   }
 
   @Test
@@ -198,6 +183,23 @@ public class UserServiceMediumTest {
 
     service.index();
     assertThat(esClient.prepareGet(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, "user").get().isExists()).isTrue();
+  }
+
+  private void createSampleUser() {
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    GroupDto userGroup = new GroupDto().setName(CoreProperties.CORE_DEFAULT_GROUP_DEFAULT_VALUE);
+    dbClient.groupDao().insert(session, userGroup);
+    session.commit();
+
+    service.create(NewUser.create()
+      .setLogin("user")
+      .setName("User")
+      .setEmail("user@mail.com")
+      .setPassword("password")
+      .setPasswordConfirmation("password")
+      .setScmAccounts(newArrayList("u1", "u_1")));
+
+    MockUserSession.set().setLogin("john");
   }
 
 }

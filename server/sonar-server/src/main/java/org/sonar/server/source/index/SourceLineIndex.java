@@ -21,11 +21,13 @@ package org.sonar.server.source.index;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.api.ServerComponent;
 import org.sonar.server.es.EsClient;
+import org.sonar.server.exceptions.NotFoundException;
 
 import java.util.List;
 
@@ -59,7 +61,7 @@ public class SourceLineIndex implements ServerComponent {
     }
     int toLimited = size + from - 1;
 
-    for (SearchHit hit: esClient.prepareSearch(SourceLineIndexDefinition.INDEX)
+    for (SearchHit hit : esClient.prepareSearch(SourceLineIndexDefinition.INDEX)
       .setTypes(SourceLineIndexDefinition.TYPE)
       .setSize(size)
       .setQuery(QueryBuilders.boolQuery()
@@ -73,5 +75,24 @@ public class SourceLineIndex implements ServerComponent {
     }
 
     return lines;
+  }
+
+  public SourceLineDoc getLine(String fileUuid, int line) {
+    Preconditions.checkArgument(line > 0, "Line should be greater than 0");
+    SearchRequestBuilder request = esClient.prepareSearch(SourceLineIndexDefinition.INDEX)
+      .setTypes(SourceLineIndexDefinition.TYPE)
+      .setSize(1)
+      .setQuery(QueryBuilders.boolQuery()
+        .must(QueryBuilders.termQuery(SourceLineIndexDefinition.FIELD_FILE_UUID, fileUuid))
+        .must(QueryBuilders.rangeQuery(SourceLineIndexDefinition.FIELD_LINE)
+          .gte(line)
+          .lte(line)))
+      .addSort(SourceLineIndexDefinition.FIELD_LINE, SortOrder.ASC);
+
+    SearchHit[] result = request.get().getHits().getHits();
+    if (result.length == 1) {
+      return new SourceLineDoc(result[0].sourceAsMap());
+    }
+    throw new NotFoundException(String.format("No source found on line %s for file '%s'", line, fileUuid));
   }
 }

@@ -22,6 +22,9 @@ package org.sonar.server.user.index;
 
 import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
+import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
 import org.sonar.api.ServerComponent;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.exceptions.NotFoundException;
@@ -44,6 +47,22 @@ public class UserIndex implements ServerComponent {
     GetResponse response = request.get();
     if (response.isExists()) {
       return new UserDoc(response.getSource());
+    }
+    return null;
+  }
+
+  @CheckForNull
+  public UserDoc getNullableByScmAccount(String scmAccount) {
+    SearchRequestBuilder request = esClient.prepareSearch(UserIndexDefinition.INDEX)
+      .setTypes(UserIndexDefinition.TYPE_USER)
+      .setQuery(QueryBuilders.boolQuery()
+        .should(QueryBuilders.termQuery(UserIndexDefinition.FIELD_LOGIN, scmAccount))
+        .should(QueryBuilders.termQuery(UserIndexDefinition.FIELD_EMAIL, scmAccount))
+        .should(QueryBuilders.termQuery(UserIndexDefinition.FIELD_SCM_ACCOUNTS, scmAccount)))
+      .setSize(1);
+    SearchHit[] result = request.get().getHits().getHits();
+    if (result.length == 1) {
+      return new UserDoc(result[0].sourceAsMap());
     }
     return null;
   }

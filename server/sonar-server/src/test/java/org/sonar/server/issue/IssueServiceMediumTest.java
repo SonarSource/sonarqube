@@ -19,13 +19,13 @@
  */
 package org.sonar.server.issue;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Multiset;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Settings;
 import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
@@ -33,19 +33,16 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.component.SnapshotDto;
 import org.sonar.core.issue.db.ActionPlanDto;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.workflow.Transition;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
+import org.sonar.core.user.GroupDto;
 import org.sonar.core.user.UserDto;
 import org.sonar.server.component.ComponentTesting;
-import org.sonar.server.component.SnapshotTesting;
 import org.sonar.server.component.db.ComponentDao;
-import org.sonar.server.component.db.SnapshotDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -57,19 +54,27 @@ import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
+import org.sonar.server.search.BaseNormalizer;
 import org.sonar.server.search.IndexClient;
 import org.sonar.server.search.QueryContext;
+import org.sonar.server.source.index.SourceLineDoc;
+import org.sonar.server.source.index.SourceLineIndexer;
+import org.sonar.server.source.index.SourceLineResultSetIterator;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
+import org.sonar.server.user.NewUser;
+import org.sonar.server.user.UserService;
+import org.sonar.server.user.db.GroupDao;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.junit.Assert.fail;
-
+import static org.sonar.server.source.index.SourceLineIndexDefinition.*;
 
 public class IssueServiceMediumTest {
 
@@ -81,11 +86,6 @@ public class IssueServiceMediumTest {
   DbSession session;
   IssueService service;
 
-  RuleDto rule;
-  ComponentDto project;
-  ComponentDto file;
-  UserDto connectedUser;
-
   @Before
   public void setUp() throws Exception {
     tester.clearDbAndIndexes();
@@ -93,34 +93,6 @@ public class IssueServiceMediumTest {
     indexClient = tester.get(IndexClient.class);
     session = db.openSession(false);
     service = tester.get(IssueService.class);
-
-    rule = RuleTesting.newXooX1();
-    tester.get(RuleDao.class).insert(session, rule);
-
-    project = ComponentTesting.newProjectDto();
-    tester.get(ComponentDao.class).insert(session, project);
-    SnapshotDto projectSnapshot = SnapshotTesting.createForProject(project);
-    tester.get(SnapshotDao.class).insert(session, projectSnapshot);
-
-    file = ComponentTesting.newFileDto(project);
-    tester.get(ComponentDao.class).insert(session, file);
-    tester.get(SnapshotDao.class).insert(session, SnapshotTesting.createForComponent(file, projectSnapshot));
-
-
-    // workaround for the test to have sufficient privileges
-    connectedUser = new UserDto().setLogin("gandalf").setName("Gandalf");
-    db.userDao().insert(session, connectedUser);
-    tester.get(PermissionFacade.class).insertUserPermission(project.getId(), connectedUser.getId(), UserRole.USER, session);
-    MockUserSession.set()
-      .setLogin(connectedUser.getLogin())
-      .setUserId(connectedUser.getId().intValue())
-      .setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN)
-      .addProjectPermissions(UserRole.USER, project.key())
-      .addProjectPermissions(UserRole.ISSUE_ADMIN, project.key());
-    session.commit();
-
-    // project can be seen by group "anyone"
-    tester.get(InternalPermissionService.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(UserRole.USER));
   }
 
   @After
@@ -134,21 +106,22 @@ public class IssueServiceMediumTest {
 
   @Test
   public void get_by_key() throws Exception {
-    IssueDto issue = newIssue();
-    tester.get(IssueDao.class).insert(session, issue);
-    session.commit();
-    index();
+    RuleDto rule = newRule();
+    ComponentDto project = newProject();
+    ComponentDto file = newFile(project);
+    IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project));
 
     assertThat(service.getByKey(issue.getKey())).isNotNull();
   }
 
   @Test
   public void can_facet() throws Exception {
-    IssueDto issue1 = newIssue().setActionPlanKey("P1");
-    IssueDto issue2 = newIssue().setActionPlanKey("P2").setResolution("NONE");
-    tester.get(IssueDao.class).insert(session, issue1, issue2);
-    session.commit();
-    index();
+    RuleDto rule = newRule();
+    ComponentDto project = newProject();
+    ComponentDto file = newFile(project);
+
+    saveIssue(IssueTesting.newDto(rule, file, project).setActionPlanKey("P1"));
+    saveIssue(IssueTesting.newDto(rule, file, project).setActionPlanKey("P2").setResolution("NONE"));
 
     org.sonar.server.search.Result<Issue> result = service.search(IssueQuery.builder().build(), new QueryContext());
     assertThat(result.getHits()).hasSize(2);
@@ -167,10 +140,10 @@ public class IssueServiceMediumTest {
 
   @Test
   public void list_transitions() {
-    IssueDto issue = newIssue().setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_FALSE_POSITIVE);
-    tester.get(IssueDao.class).insert(session, issue);
-    session.commit();
-    index();
+    RuleDto rule = newRule();
+    ComponentDto project = newProject();
+    ComponentDto file = newFile(project);
+    IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project).setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_FALSE_POSITIVE));
 
     List<Transition> result = service.listTransitions(issue.getKey());
     assertThat(result).hasSize(1);
@@ -179,13 +152,12 @@ public class IssueServiceMediumTest {
 
   @Test
   public void do_transition() {
-    IssueDto issue = newIssue().setStatus(Issue.STATUS_OPEN);
-    tester.get(IssueDao.class).insert(session, issue);
-    session.commit();
-    index();
+    RuleDto rule = newRule();
+    ComponentDto project = newProject();
+    ComponentDto file = newFile(project);
+    MockUserSession.set().setLogin("john");
 
-    assertThat(db.issueDao().selectByKey(session, issue.getKey())).isNotNull();
-    IssueTesting.assertIsEquivalent(issue, (IssueDoc) indexClient.get(IssueIndex.class).getByKey(issue.getKey()));
+    IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project).setStatus(Issue.STATUS_OPEN));
 
     assertThat(indexClient.get(IssueIndex.class).getByKey(issue.getKey()).status()).isEqualTo(Issue.STATUS_OPEN);
 
@@ -196,8 +168,12 @@ public class IssueServiceMediumTest {
 
   @Test
   public void assign() {
-    IssueDto issue = newIssue();
-    tester.get(IssueDao.class).insert(session, issue);
+    RuleDto rule = newRule();
+    ComponentDto project = newProject();
+    ComponentDto file = newFile(project);
+    MockUserSession.set().setLogin("john");
+
+    IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project));
 
     UserDto user = new UserDto().setLogin("perceval").setName("Perceval");
     db.userDao().insert(session, user);
@@ -213,8 +189,12 @@ public class IssueServiceMediumTest {
 
   @Test
   public void unassign() {
-    IssueDto issue = newIssue().setAssignee("perceval");
-    tester.get(IssueDao.class).insert(session, issue);
+    RuleDto rule = newRule();
+    ComponentDto project = newProject();
+    ComponentDto file = newFile(project);
+    MockUserSession.set().setLogin("john");
+
+    IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project).setAssignee("perceval"));
 
     UserDto user = new UserDto().setLogin("perceval").setName("Perceval");
     db.userDao().insert(session, user);
@@ -230,10 +210,12 @@ public class IssueServiceMediumTest {
 
   @Test
   public void fail_to_assign_on_unknown_user() {
-    IssueDto issue = newIssue();
-    tester.get(IssueDao.class).insert(session, issue);
-    session.commit();
-    index();
+    RuleDto rule = newRule();
+    ComponentDto project = newProject();
+    ComponentDto file = newFile(project);
+    MockUserSession.set().setLogin("john");
+
+    IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project));
 
     try {
       service.assign(issue.getKey(), "unknown");
@@ -245,8 +227,12 @@ public class IssueServiceMediumTest {
 
   @Test
   public void plan() {
-    IssueDto issue = newIssue();
-    tester.get(IssueDao.class).insert(session, issue);
+    RuleDto rule = newRule();
+    ComponentDto project = newProject();
+    ComponentDto file = newFile(project);
+    MockUserSession.set().setLogin("john").addProjectPermissions(UserRole.USER, project.key());
+
+    IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project));
 
     String actionPlanKey = "EFGH";
     db.actionPlanDao().save(new ActionPlanDto().setKey(actionPlanKey).setProjectId(project.getId()));
@@ -262,13 +248,14 @@ public class IssueServiceMediumTest {
 
   @Test
   public void un_plan() {
+    RuleDto rule = newRule();
+    ComponentDto project = newProject();
+    ComponentDto file = newFile(project);
+    MockUserSession.set().setLogin("john");
+
     String actionPlanKey = "EFGH";
     db.actionPlanDao().save(new ActionPlanDto().setKey(actionPlanKey).setProjectId(project.getId()));
-
-    IssueDto issue = newIssue().setActionPlanKey(actionPlanKey);
-    tester.get(IssueDao.class).insert(session, issue);
-    session.commit();
-    index();
+    IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project).setActionPlanKey(actionPlanKey));
 
     assertThat(indexClient.get(IssueIndex.class).getByKey(issue.getKey()).actionPlanKey()).isEqualTo(actionPlanKey);
 
@@ -279,12 +266,14 @@ public class IssueServiceMediumTest {
 
   @Test
   public void fail_plan_if_action_plan_not_found() {
-    tester.get(IssueDao.class).insert(session, newIssue());
-    session.commit();
-    index();
+    RuleDto rule = newRule();
+    ComponentDto project = newProject();
+    ComponentDto file = newFile(project);
+    MockUserSession.set().setLogin("john");
 
+    IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project));
     try {
-      service.plan("ABCD", "unknown");
+      service.plan(issue.getKey(), "unknown");
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(NotFoundException.class).hasMessage("Unknown action plan: unknown");
@@ -293,10 +282,12 @@ public class IssueServiceMediumTest {
 
   @Test
   public void set_severity() {
-    IssueDto issue = newIssue().setSeverity(Severity.BLOCKER);
-    tester.get(IssueDao.class).insert(session, issue);
-    session.commit();
-    index();
+    RuleDto rule = newRule();
+    ComponentDto project = newProject();
+    ComponentDto file = newFile(project);
+    MockUserSession.set().setLogin("john").addProjectPermissions(UserRole.ISSUE_ADMIN, project.key());
+
+    IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project).setSeverity(Severity.BLOCKER));
 
     assertThat(indexClient.get(IssueIndex.class).getByKey(issue.getKey()).severity()).isEqualTo(Severity.BLOCKER);
 
@@ -307,30 +298,65 @@ public class IssueServiceMediumTest {
 
   @Test
   public void create_manual_issue() {
+    ComponentDto project = newProject();
+    ComponentDto file = newFile(project);
+    MockUserSession.set().setLogin("john").addProjectPermissions(UserRole.USER, project.key());
+
     RuleDto manualRule = RuleTesting.newManualRule("manualRuleKey");
     tester.get(RuleDao.class).insert(session, manualRule);
     session.commit();
 
-    Issue result = service.createManualIssue(file.key(), manualRule.getKey(), 10, "Fix it", Severity.MINOR, 2d);
+    Issue result = service.createManualIssue(file.key(), manualRule.getKey(), null, "Fix it", Severity.MINOR, 2d);
 
     IssueDoc manualIssue = (IssueDoc) indexClient.get(IssueIndex.class).getByKey(result.key());
     assertThat(manualIssue.componentUuid()).isEqualTo(file.uuid());
     assertThat(manualIssue.projectUuid()).isEqualTo(project.uuid());
     assertThat(manualIssue.ruleKey()).isEqualTo(manualRule.getKey());
     assertThat(manualIssue.message()).isEqualTo("Fix it");
-    assertThat(manualIssue.line()).isEqualTo(10);
+    assertThat(manualIssue.line()).isNull();
     assertThat(manualIssue.severity()).isEqualTo(Severity.MINOR);
     assertThat(manualIssue.effortToFix()).isEqualTo(2d);
-    assertThat(manualIssue.reporter()).isEqualTo(connectedUser.getLogin());
+    assertThat(manualIssue.reporter()).isEqualTo("john");
   }
 
   @Test
-  public void create_manual_issue_with_major_severity_when_no_severity() {
+  public void create_manual_issue_on_line() {
+    ComponentDto project = newProject();
+    ComponentDto file = newFile(project);
+    newSourceLine(file, 1, "arthur");
+    createDefaultGroup();
+    newUser("arthur");
+    MockUserSession.set().setLogin("john").addProjectPermissions(UserRole.USER, project.key());
+
     RuleDto manualRule = RuleTesting.newManualRule("manualRuleKey");
     tester.get(RuleDao.class).insert(session, manualRule);
     session.commit();
 
-    Issue result = service.createManualIssue(file.key(), manualRule.getKey(), 10, "Fix it", null, 2d);
+    Issue result = service.createManualIssue(file.key(), manualRule.getKey(), 1, "Fix it", Severity.MINOR, 2d);
+
+    IssueDoc manualIssue = (IssueDoc) indexClient.get(IssueIndex.class).getByKey(result.key());
+    assertThat(manualIssue.componentUuid()).isEqualTo(file.uuid());
+    assertThat(manualIssue.projectUuid()).isEqualTo(project.uuid());
+    assertThat(manualIssue.ruleKey()).isEqualTo(manualRule.getKey());
+    assertThat(manualIssue.message()).isEqualTo("Fix it");
+    assertThat(manualIssue.line()).isEqualTo(1);
+    assertThat(manualIssue.severity()).isEqualTo(Severity.MINOR);
+    assertThat(manualIssue.effortToFix()).isEqualTo(2d);
+    assertThat(manualIssue.reporter()).isEqualTo("john");
+    assertThat(manualIssue.assignee()).isEqualTo("arthur");
+  }
+
+  @Test
+  public void create_manual_issue_with_major_severity_when_no_severity() {
+    ComponentDto project = newProject();
+    ComponentDto file = newFile(project);
+    MockUserSession.set().setLogin("john").addProjectPermissions(UserRole.USER, project.key());
+
+    RuleDto manualRule = RuleTesting.newManualRule("manualRuleKey");
+    tester.get(RuleDao.class).insert(session, manualRule);
+    session.commit();
+
+    Issue result = service.createManualIssue(file.key(), manualRule.getKey(), null, "Fix it", null, 2d);
 
     Issue manualIssue = indexClient.get(IssueIndex.class).getByKey(result.key());
     assertThat(manualIssue.severity()).isEqualTo(Severity.MAJOR);
@@ -338,20 +364,67 @@ public class IssueServiceMediumTest {
 
   @Test
   public void create_manual_issue_with_rule_name_when_no_message() {
+    ComponentDto project = newProject();
+    ComponentDto file = newFile(project);
+    MockUserSession.set().setLogin("john").addProjectPermissions(UserRole.USER, project.key());
+
     RuleDto manualRule = RuleTesting.newManualRule("manualRuleKey").setName("Manual rule name");
     tester.get(RuleDao.class).insert(session, manualRule);
     session.commit();
 
-    Issue result = service.createManualIssue(file.key(), manualRule.getKey(), 10, null, null, 2d);
+    Issue result = service.createManualIssue(file.key(), manualRule.getKey(), null, null, null, 2d);
 
     Issue manualIssue = indexClient.get(IssueIndex.class).getByKey(result.key());
     assertThat(manualIssue.message()).isEqualTo("Manual rule name");
   }
 
   @Test
+  public void create_manual_issue_without_assignee_when_scm_author_do_not_match_user() {
+    ComponentDto project = newProject();
+    ComponentDto file = newFile(project);
+    // Unknown SCM account
+    newSourceLine(file, 1, "unknown");
+    createDefaultGroup();
+    newUser("arthur");
+    MockUserSession.set().setLogin("john").addProjectPermissions(UserRole.USER, project.key());
+
+    RuleDto manualRule = RuleTesting.newManualRule("manualRuleKey");
+    tester.get(RuleDao.class).insert(session, manualRule);
+    session.commit();
+
+    Issue result = service.createManualIssue(file.key(), manualRule.getKey(), 1, "Fix it", Severity.MINOR, 2d);
+
+    IssueDoc manualIssue = (IssueDoc) indexClient.get(IssueIndex.class).getByKey(result.key());
+    assertThat(manualIssue.assignee()).isNull();
+  }
+
+  @Test
+  public void create_manual_issue_without_assignee_when_no_scm_author_on_line() {
+    ComponentDto project = newProject();
+    ComponentDto file = newFile(project);
+    // No author on line 1
+    newSourceLine(file, 1, "");
+    MockUserSession.set().setLogin("john").addProjectPermissions(UserRole.USER, project.key());
+
+    RuleDto manualRule = RuleTesting.newManualRule("manualRuleKey");
+    tester.get(RuleDao.class).insert(session, manualRule);
+    session.commit();
+
+    Issue result = service.createManualIssue(file.key(), manualRule.getKey(), 1, "Fix it", Severity.MINOR, 2d);
+
+    IssueDoc manualIssue = (IssueDoc) indexClient.get(IssueIndex.class).getByKey(result.key());
+    assertThat(manualIssue.assignee()).isNull();
+  }
+
+  @Test
   public void fail_create_manual_issue_on_not_manual_rule() {
+    RuleDto rule = newRule();
+    ComponentDto project = newProject();
+    ComponentDto file = newFile(project);
+    MockUserSession.set().setLogin("john").addProjectPermissions(UserRole.USER, project.key());
+
     try {
-      service.createManualIssue(file.key(), rule.getKey(), 10, "Fix it", null, 2d);
+      service.createManualIssue(file.key(), rule.getKey(), null, "Fix it", null, 2d);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Issues can be created only on rules marked as 'manual': xoo:x1");
@@ -360,17 +433,21 @@ public class IssueServiceMediumTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void fail_create_manual_issue_if_rule_does_not_exists() {
+    ComponentDto project = newProject();
+    ComponentDto file = newFile(project);
+    MockUserSession.set().setLogin("john").addProjectPermissions(UserRole.USER, project.key());
+
     service.createManualIssue(file.key(), RuleKey.of("rule", "unknown"), 10, "Fix it", null, 2d);
   }
 
   @Test(expected = ForbiddenException.class)
   public void fail_create_manual_issue_if_not_having_required_role() {
+    RuleDto rule = newRule();
+    ComponentDto project = newProject();
+    ComponentDto file = newFile(project);
+
     // User has not the 'user' role on the project
-    MockUserSession.set()
-      .setLogin(connectedUser.getLogin())
-      .setUserId(connectedUser.getId().intValue())
-      .setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN)
-      .addProjectPermissions(UserRole.CODEVIEWER, project.key());
+    MockUserSession.set().setLogin("john").addProjectPermissions(UserRole.CODEVIEWER, project.key());
 
     RuleDto manualRule = RuleTesting.newManualRule("manualRuleKey");
     tester.get(RuleDao.class).insert(session, manualRule);
@@ -381,10 +458,13 @@ public class IssueServiceMediumTest {
 
   @Test
   public void find_rules_by_component() throws Exception {
+    RuleDto rule = newRule();
+    ComponentDto project = newProject();
+    ComponentDto file = newFile(project);
+
     // 2 issues on the same rule
-    tester.get(IssueDao.class).insert(session, newIssue().setRule(rule));
-    tester.get(IssueDao.class).insert(session, newIssue().setRule(rule));
-    session.commit();
+    saveIssue(IssueTesting.newDto(rule, file, project));
+    saveIssue(IssueTesting.newDto(rule, file, project));
 
     RulesAggregation result = service.findRulesByComponent(file.key(), null, session);
     assertThat(result.rules()).hasSize(1);
@@ -392,10 +472,13 @@ public class IssueServiceMediumTest {
 
   @Test
   public void find_rules_by_severity() throws Exception {
-    tester.get(IssueDao.class).insert(session, newIssue().setSeverity(Severity.MAJOR));
-    tester.get(IssueDao.class).insert(session, newIssue().setSeverity(Severity.MAJOR));
-    tester.get(IssueDao.class).insert(session, newIssue().setSeverity(Severity.INFO));
-    session.commit();
+    RuleDto rule = newRule();
+    ComponentDto project = newProject();
+    ComponentDto file = newFile(project);
+
+    saveIssue(IssueTesting.newDto(rule, file, project).setSeverity(Severity.MAJOR));
+    saveIssue(IssueTesting.newDto(rule, file, project).setSeverity(Severity.MAJOR));
+    saveIssue(IssueTesting.newDto(rule, file, project).setSeverity(Severity.INFO));
 
     Multiset<String> result = service.findSeveritiesByComponent(file.key(), null, session);
     assertThat(result.count("MAJOR")).isEqualTo(2);
@@ -405,10 +488,10 @@ public class IssueServiceMediumTest {
 
   @Test
   public void search_issues() {
-    IssueDto issue = newIssue();
-    tester.get(IssueDao.class).insert(session, issue);
-    session.commit();
-    index();
+    RuleDto rule = newRule();
+    ComponentDto project = newProject();
+    ComponentDto file = newFile(project);
+    saveIssue(IssueTesting.newDto(rule, file, project));
 
     List<Issue> result = service.search(IssueQuery.builder().build(), new QueryContext()).getHits();
     assertThat(result).hasSize(1);
@@ -416,13 +499,13 @@ public class IssueServiceMediumTest {
 
   @Test
   public void find_issue_assignees() throws Exception {
-    db.issueDao().insert(session,
-      IssueTesting.newDto(rule, file, project).setAssignee("steph"),
-      IssueTesting.newDto(rule, file, project).setAssignee("simon"),
-      IssueTesting.newDto(rule, file, project),
-      IssueTesting.newDto(rule, file, project).setAssignee("steph"));
-    session.commit();
-    index();
+    RuleDto rule = newRule();
+    ComponentDto project = newProject();
+    ComponentDto file = newFile(project);
+    saveIssue(IssueTesting.newDto(rule, file, project).setAssignee("steph"));
+    saveIssue(IssueTesting.newDto(rule, file, project).setAssignee("simon"));
+    saveIssue(IssueTesting.newDto(rule, file, project));
+    saveIssue(IssueTesting.newDto(rule, file, project).setAssignee("steph"));
 
     Map<String, Long> results = service.findIssueAssignees(IssueQuery.builder().build());
 
@@ -436,19 +519,15 @@ public class IssueServiceMediumTest {
     assertThat(results.keySet().toArray()[2]).isNull();
   }
 
-  private IssueDto newIssue() {
-    return IssueTesting.newDto(rule, file, project);
-  }
-
   @Test
   public void list_tags() {
-    db.issueDao().insert(session,
-      IssueTesting.newDto(rule, file, project).setTags(ImmutableSet.of("convention", "java8", "bug")),
-      IssueTesting.newDto(rule, file, project).setTags(ImmutableSet.of("convention", "bug")),
-      IssueTesting.newDto(rule, file, project),
-      IssueTesting.newDto(rule, file, project).setTags(ImmutableSet.of("convention")));
-    session.commit();
-    index();
+    RuleDto rule = newRule();
+    ComponentDto project = newProject();
+    ComponentDto file = newFile(project);
+    saveIssue(IssueTesting.newDto(rule, file, project).setTags(ImmutableSet.of("convention", "java8", "bug")));
+    saveIssue(IssueTesting.newDto(rule, file, project).setTags(ImmutableSet.of("convention", "bug")));
+    saveIssue(IssueTesting.newDto(rule, file, project));
+    saveIssue(IssueTesting.newDto(rule, file, project).setTags(ImmutableSet.of("convention")));
 
     assertThat(service.listTags(null, 5)).containsOnly("convention", "java8", "bug");
     assertThat(service.listTags(null, 2)).containsOnly("bug", "convention");
@@ -459,11 +538,12 @@ public class IssueServiceMediumTest {
 
   @Test
   public void set_tags() {
-    IssueDto issue = newIssue();
-    tester.get(IssueDao.class).insert(session, issue);
+    RuleDto rule = newRule();
+    ComponentDto project = newProject();
+    ComponentDto file = newFile(project);
+    MockUserSession.set().setLogin("john");
 
-    session.commit();
-    index();
+    IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project));
 
     assertThat(indexClient.get(IssueIndex.class).getByKey(issue.getKey()).tags()).isEmpty();
 
@@ -493,18 +573,77 @@ public class IssueServiceMediumTest {
 
   @Test
   public void list_component_tags() {
-    db.issueDao().insert(session,
-      IssueTesting.newDto(rule, file, project).setTags(ImmutableSet.of("convention", "java8", "bug")),
-      IssueTesting.newDto(rule, file, project).setTags(ImmutableSet.of("convention", "bug")),
-      IssueTesting.newDto(rule, file, project),
-      IssueTesting.newDto(rule, file, project).setTags(ImmutableSet.of("convention", "java8", "bug")).setResolution(Issue.RESOLUTION_FIXED),
-      IssueTesting.newDto(rule, file, project).setTags(ImmutableSet.of("convention")));
-
-    session.commit();
-    index();
+    RuleDto rule = newRule();
+    ComponentDto project = newProject();
+    ComponentDto file = newFile(project);
+    saveIssue(IssueTesting.newDto(rule, file, project).setTags(ImmutableSet.of("convention", "java8", "bug")));
+    saveIssue(IssueTesting.newDto(rule, file, project).setTags(ImmutableSet.of("convention", "bug")));
+    saveIssue(IssueTesting.newDto(rule, file, project));
+    saveIssue(IssueTesting.newDto(rule, file, project).setTags(ImmutableSet.of("convention", "java8", "bug")).setResolution(Issue.RESOLUTION_FIXED));
+    saveIssue(IssueTesting.newDto(rule, file, project).setTags(ImmutableSet.of("convention")));
 
     assertThat(service.listTagsForComponent(project.uuid(), 5)).contains(entry("convention", 3L), entry("bug", 2L), entry("java8", 1L));
     assertThat(service.listTagsForComponent(project.uuid(), 2)).contains(entry("convention", 3L), entry("bug", 2L)).doesNotContainEntry("java8", 1L);
     assertThat(service.listTagsForComponent("other", 10)).isEmpty();
+  }
+
+  private RuleDto newRule() {
+    RuleDto rule = RuleTesting.newXooX1();
+    tester.get(RuleDao.class).insert(session, rule);
+    session.commit();
+    return rule;
+  }
+
+  private ComponentDto newProject() {
+    ComponentDto project = ComponentTesting.newProjectDto();
+    tester.get(ComponentDao.class).insert(session, project);
+
+    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.USER, project.key()).setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    session.commit();
+
+    // project can be seen by group "anyone"
+    tester.get(InternalPermissionService.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(UserRole.USER));
+    MockUserSession.set();
+
+    return project;
+  }
+
+  private ComponentDto newFile(ComponentDto project) {
+    ComponentDto file = ComponentTesting.newFileDto(project);
+    tester.get(ComponentDao.class).insert(session, file);
+    session.commit();
+    return file;
+  }
+
+  private IssueDto saveIssue(IssueDto issue) {
+    tester.get(IssueDao.class).insert(session, issue);
+    session.commit();
+    tester.get(IssueIndexer.class).indexAll();
+    return issue;
+  }
+
+  private void newSourceLine(ComponentDto file, int line, String scmAuthor) {
+    SourceLineDoc line1 = new SourceLineDoc(ImmutableMap.<String, Object>builder()
+      .put(FIELD_PROJECT_UUID, file.projectUuid())
+      .put(FIELD_FILE_UUID, file.uuid())
+      .put(FIELD_LINE, line)
+      .put(BaseNormalizer.UPDATED_AT_FIELD, new Date())
+      .put(FIELD_SCM_AUTHOR, scmAuthor)
+      .build());
+    SourceLineResultSetIterator.SourceFile sourceFile = new SourceLineResultSetIterator.SourceFile(file.uuid(), System.currentTimeMillis());
+    sourceFile.addLine(line1);
+    tester.get(SourceLineIndexer.class).index(Iterators.singletonIterator(sourceFile));
+  }
+
+  private void newUser(String login) {
+    MockUserSession.set().setLogin("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    tester.get(UserService.class).create(NewUser.create().setLogin(login).setName(login).setPassword("test").setPasswordConfirmation("test"));
+    MockUserSession.set();
+  }
+
+  private void createDefaultGroup() {
+    tester.get(Settings.class).setProperty(CoreProperties.CORE_DEFAULT_GROUP, "sonar-users");
+    tester.get(GroupDao.class).insert(session, new GroupDto().setName("sonar-users").setDescription("Sonar Users"));
+    session.commit();
   }
 }

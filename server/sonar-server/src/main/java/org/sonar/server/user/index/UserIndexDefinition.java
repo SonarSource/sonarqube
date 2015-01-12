@@ -62,13 +62,14 @@ public class UserIndexDefinition implements IndexDefinition {
     }
 
     // type "users"
-    NewIndex.NewIndexType issueMapping = index.createType(TYPE_USER);
-    issueMapping.setAttribute("_id", ImmutableMap.of("path", FIELD_LOGIN));
-    issueMapping.stringFieldBuilder(FIELD_NAME).build();
-    issueMapping.stringFieldBuilder(FIELD_EMAIL).enableSorting().build();
-    issueMapping.createDateTimeField(FIELD_CREATED_AT);
-    issueMapping.createDateTimeField(FIELD_UPDATED_AT);
-    issueMapping.createBooleanField(FIELD_ACTIVE);
-    issueMapping.stringFieldBuilder(FIELD_SCM_ACCOUNTS).build();
+    NewIndex.NewIndexType mapping = index.createType(TYPE_USER);
+    mapping.setAttribute("_id", ImmutableMap.of("path", FIELD_LOGIN));
+    mapping.stringFieldBuilder(FIELD_LOGIN).build();
+    mapping.stringFieldBuilder(FIELD_NAME).build();
+    mapping.stringFieldBuilder(FIELD_EMAIL).enableSorting().build();
+    mapping.createDateTimeField(FIELD_CREATED_AT);
+    mapping.createDateTimeField(FIELD_UPDATED_AT);
+    mapping.createBooleanField(FIELD_ACTIVE);
+    mapping.stringFieldBuilder(FIELD_SCM_ACCOUNTS).build();
   }
 }

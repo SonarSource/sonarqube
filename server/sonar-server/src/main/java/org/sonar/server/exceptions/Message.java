@@ -79,7 +79,7 @@ public class Message {
   public String toString() {
     return Objects.toStringHelper(this)
       .add("key", key)
-      .add("params", params)
+      .add("params", params != null ? Arrays.toString(params) : null)
       .toString();
   }
 }

@@ -44,7 +44,7 @@ public class UserIndexTest {
 
   @Test
   public void get_nullable_by_login() throws Exception {
-    esTester.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, this.getClass(), "get_nullable_by_login.json");
+    esTester.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, this.getClass(), "user1.json", "user2.json");
 
     UserDoc userDoc = index.getNullableByLogin("user1");
     assertThat(userDoc).isNotNull();
@@ -61,7 +61,7 @@ public class UserIndexTest {
 
   @Test
   public void get_nullable_by_login_should_be_case_sensitive() throws Exception {
-    esTester.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, this.getClass(), "get_nullable_by_login.json");
+    esTester.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, this.getClass(), "user1.json");
 
     assertThat(index.getNullableByLogin("user1")).isNotNull();
     assertThat(index.getNullableByLogin("User1")).isNull();
@@ -69,7 +69,7 @@ public class UserIndexTest {
 
   @Test
   public void get_by_login() throws Exception {
-    esTester.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, this.getClass(), "get_nullable_by_login.json");
+    esTester.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, this.getClass(), "user1.json", "user2.json");
 
     UserDoc userDoc = index.getByLogin("user1");
     assertThat(userDoc).isNotNull();
@@ -90,6 +90,17 @@ public class UserIndexTest {
     } catch (Exception e) {
       assertThat(e).isInstanceOf(NotFoundException.class).hasMessage("User 'unknown' not found");
     }
+  }
+
+  @Test
+  public void get_nullable_by_scm_account() throws Exception {
+    esTester.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, this.getClass(), "user1.json", "user2.json");
+
+    assertThat(index.getNullableByScmAccount("user_1").login()).isEqualTo("user1");
+    assertThat(index.getNullableByScmAccount("user1@mail.com").login()).isEqualTo("user1");
+    assertThat(index.getNullableByScmAccount("user1").login()).isEqualTo("user1");
+
+    assertThat(index.getNullableByScmAccount("unknown")).isNull();
   }
 
 }

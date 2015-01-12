@@ -28,6 +28,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.internal.Uuids;
 
 import javax.annotation.Nullable;
+
 import java.util.Map;
 
 public class DefaultIssueBuilder implements Issuable.IssueBuilder {
@@ -40,6 +41,7 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
   private String severity;
   private Double effortToFix;
   private String reporter;
+  private String assignee;
   private Map<String, String> attributes;
 
   public DefaultIssueBuilder() {
@@ -92,6 +94,11 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
     return this;
   }
 
+  public DefaultIssueBuilder assignee(@Nullable String s) {
+    this.assignee = s;
+    return this;
+  }
+
   @Override
   public DefaultIssueBuilder attribute(String key, @Nullable String value) {
     if (attributes == null) {
@@ -119,6 +126,7 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
     issue.setEffortToFix(effortToFix);
     issue.setLine(line);
     issue.setReporter(reporter);
+    issue.setAssignee(assignee);
     issue.setAttributes(attributes);
     issue.setResolution(null);
     issue.setStatus(Issue.STATUS_OPEN);

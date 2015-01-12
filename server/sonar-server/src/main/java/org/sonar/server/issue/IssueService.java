@@ -55,16 +55,16 @@ import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.search.FacetValue;
 import org.sonar.server.search.IndexClient;
 import org.sonar.server.search.QueryContext;
+import org.sonar.server.source.index.SourceLineDoc;
+import org.sonar.server.source.index.SourceLineIndex;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.user.index.UserDoc;
+import org.sonar.server.user.index.UserIndex;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.google.common.collect.Maps.newLinkedHashMap;
 
@@ -82,6 +82,8 @@ public class IssueService implements ServerComponent {
   private final IssueDao deprecatedIssueDao;
   private final UserFinder userFinder;
   private final PreviewCache dryRunCache;
+  private final UserIndex userIndex;
+  private final SourceLineIndex sourceLineIndex;
 
   public IssueService(DbClient dbClient, IndexClient indexClient,
     IssueWorkflow workflow,
@@ -92,7 +94,8 @@ public class IssueService implements ServerComponent {
     RuleFinder ruleFinder,
     IssueDao deprecatedIssueDao,
     UserFinder userFinder,
-    PreviewCache dryRunCache) {
+    PreviewCache dryRunCache,
+    UserIndex userIndex, SourceLineIndex sourceLineIndex) {
     this.dbClient = dbClient;
     this.indexClient = indexClient;
     this.workflow = workflow;
@@ -104,6 +107,8 @@ public class IssueService implements ServerComponent {
     this.deprecatedIssueDao = deprecatedIssueDao;
     this.userFinder = userFinder;
     this.dryRunCache = dryRunCache;
+    this.userIndex = userIndex;
+    this.sourceLineIndex = sourceLineIndex;
   }
 
   public List<String> listStatus() {
@@ -266,6 +271,7 @@ public class IssueService implements ServerComponent {
         .effortToFix(effortToFix)
         .ruleKey(ruleKey)
         .reporter(UserSession.get().login())
+        .assignee(findSourceLineUser(component.uuid(), line))
         .build();
 
       Date now = new Date();
@@ -373,5 +379,20 @@ public class IssueService implements ServerComponent {
 
   public Map<String, Long> listTagsForComponent(String componentUuid, int pageSize) {
     return indexClient.get(IssueIndex.class).listTagsForComponent(componentUuid, pageSize);
+  }
+
+  @CheckForNull
+  private String findSourceLineUser(String fileUuid, @Nullable Integer line) {
+    if (line != null) {
+      SourceLineDoc sourceLine = sourceLineIndex.getLine(fileUuid, line);
+      String scmAuthor = sourceLine.scmAuthor();
+      if (!Strings.isNullOrEmpty(scmAuthor)) {
+        UserDoc userDoc = userIndex.getNullableByScmAccount(scmAuthor);
+        if (userDoc != null) {
+          return userDoc.login();
+        }
+      }
+    }
+    return null;
   }
 }
