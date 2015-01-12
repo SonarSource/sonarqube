@@ -17,17 +17,17 @@ public class DefaultPhaseExecutorTest {
     ResourcePersister resourcePersister = new ResourcePersister(null, null, null, null, null);
     ScanPersister[] persisters = new ScanPersister[] {otherPersister, measurePersister, resourcePersister};
     DefaultPhaseExecutor executor = new DefaultPhaseExecutor(null, null, null, null, null, null,
-      null, null, null, null, null, persisters, null, null, null, null, null, null, null);
+      null, null, null, null, null, persisters, null, null, null, null, null, null, null, null);
     assertThat(executor.sortedPersisters()).containsSubsequence(resourcePersister, measurePersister);
 
     persisters = new ScanPersister[] {measurePersister, resourcePersister, otherPersister};
     executor = new DefaultPhaseExecutor(null, null, null, null, null, null,
-      null, null, null, null, null, persisters, null, null, null, null, null, null, null);
+      null, null, null, null, null, persisters, null, null, null, null, null, null, null, null);
     assertThat(executor.sortedPersisters()).containsSubsequence(resourcePersister, measurePersister);
 
     persisters = new ScanPersister[] {measurePersister, otherPersister, resourcePersister};
     executor = new DefaultPhaseExecutor(null, null, null, null, null, null,
-      null, null, null, null, null, persisters, null, null, null, null, null, null, null);
+      null, null, null, null, null, persisters, null, null, null, null, null, null, null, null);
     assertThat(executor.sortedPersisters()).containsSubsequence(resourcePersister, measurePersister);
   }
 

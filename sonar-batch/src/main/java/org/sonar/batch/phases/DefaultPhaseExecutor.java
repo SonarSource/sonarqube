@@ -28,6 +28,7 @@ import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.events.BatchStepEvent;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
+import org.sonar.batch.index.ResourcePersister;
 import org.sonar.batch.index.ScanPersister;
 import org.sonar.batch.issue.ignore.scanner.IssueExclusionsLoader;
 import org.sonar.batch.report.PublishReportJob;
@@ -66,6 +67,7 @@ public final class DefaultPhaseExecutor implements PhaseExecutor {
   private final IssueExclusionsLoader issueExclusionsLoader;
   private final AnalysisMode analysisMode;
   private final DatabaseSession session;
+  private final ResourcePersister resourcePersister;
 
   public DefaultPhaseExecutor(Phases phases, DecoratorsExecutor decoratorsExecutor,
     MavenPluginsConfigurator mavenPluginsConfigurator, InitializersExecutor initializersExecutor,
@@ -73,7 +75,7 @@ public final class DefaultPhaseExecutor implements PhaseExecutor {
     SensorContext sensorContext, DefaultIndex index,
     EventBus eventBus, PublishReportJob publishReportJob, ProjectInitializer pi,
     ScanPersister[] persisters, FileSystemLogger fsLogger, JsonReport jsonReport, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
-    IssueExclusionsLoader issueExclusionsLoader, AnalysisMode analysisMode, DatabaseSession session) {
+    IssueExclusionsLoader issueExclusionsLoader, AnalysisMode analysisMode, DatabaseSession session, ResourcePersister resourcePersister) {
     this.phases = phases;
     this.decoratorsExecutor = decoratorsExecutor;
     this.mavenPluginsConfigurator = mavenPluginsConfigurator;
@@ -93,6 +95,7 @@ public final class DefaultPhaseExecutor implements PhaseExecutor {
     this.issueExclusionsLoader = issueExclusionsLoader;
     this.analysisMode = analysisMode;
     this.session = session;
+    this.resourcePersister = resourcePersister;
   }
 
   /**
@@ -122,6 +125,9 @@ public final class DefaultPhaseExecutor implements PhaseExecutor {
       session.commitAndClose();
       sensorsExecutor.execute(sensorContext);
     }
+
+    // Special case for views. ProjectCountDecorator need resource id...
+    resourcePersister.persist();
 
     if (phases.isEnabled(Phases.Phase.DECORATOR)) {
       decoratorsExecutor.execute();
