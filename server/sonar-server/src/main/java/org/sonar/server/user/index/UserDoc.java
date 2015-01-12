@@ -33,19 +33,23 @@ public class UserDoc extends BaseDoc implements User {
     super(fields);
   }
 
+  @Override
   public String login() {
     return getField(UserIndexDefinition.FIELD_LOGIN);
   }
 
+  @Override
   public String name() {
     return getField(UserIndexDefinition.FIELD_NAME);
   }
 
+  @Override
   @Nullable
   public String email() {
     return getNullableField(UserIndexDefinition.FIELD_EMAIL);
   }
 
+  @Override
   public boolean active() {
     return (Boolean) getField(UserIndexDefinition.FIELD_ACTIVE);
   }
