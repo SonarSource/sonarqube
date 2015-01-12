@@ -19,7 +19,10 @@
  */
 package org.sonar.server.db.migrations.v51;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Database;
@@ -31,6 +34,7 @@ import org.sonar.server.db.migrations.SqlStatement;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
+import java.util.SortedSet;
 
 public class RenameComponentRelatedParamsInIssueFilters extends BaseDataChange {
 
@@ -38,6 +42,7 @@ public class RenameComponentRelatedParamsInIssueFilters extends BaseDataChange {
   private static final String LIKE_PREFIX = "data like '%";
   private static final String LIKE_SUFFIX = "%' or ";
   private static final String COMPONENTS = "components=";
+  private static final String COMPONENT_UUIDS = "componentUuids=";
   private static final String PROJECTS = "projects=";
   private static final String COMPONENT_ROOTS = "componentRoots=";
   private static final String COMPONENT_ROOT_UUIDS = "componentRootUuids=";
@@ -76,17 +81,28 @@ public class RenameComponentRelatedParamsInIssueFilters extends BaseDataChange {
       String[] fields = StringUtils.split(data, FIELD_SEPARATOR);
 
       List<String> fieldsToKeep = Lists.newArrayList();
+      SortedSet<String> components = Sets.newTreeSet();
+      SortedSet<String> componentUuids = Sets.newTreeSet();
+      Splitter componentSplitter = Splitter.on(",");
+      Joiner componentJoiner = Joiner.on(",");
       for (String field : fields) {
-        if (field.startsWith(COMPONENTS) || field.startsWith(PROJECTS) || field.startsWith(COMPONENT_ROOTS) || field.startsWith(COMPONENT_ROOT_UUIDS)) {
-          fieldsToKeep.add(
-            field.replace(COMPONENTS, "componentKeys=")
-              .replace(PROJECTS, "projectKeys=")
-              .replace(COMPONENT_ROOTS, "moduleKeys=")
-              .replace(COMPONENT_ROOT_UUIDS, "moduleUuids="));
+        if (field.startsWith(COMPONENTS) || field.startsWith(COMPONENT_ROOTS)) {
+          components.addAll(Lists.newArrayList(componentSplitter.split(field.substring(field.indexOf("=") + 1))));
+        } else if (field.startsWith(COMPONENT_UUIDS) || field.startsWith(COMPONENT_ROOT_UUIDS)) {
+          componentUuids.addAll(Lists.newArrayList(componentSplitter.split(field.substring(field.indexOf("=") + 1))));
+        } else if (field.startsWith(PROJECTS)) {
+          fieldsToKeep.add(field.replace(PROJECTS, "projectKeys="));
         } else {
           fieldsToKeep.add(field);
         }
       }
+      if (!components.isEmpty()) {
+        fieldsToKeep.add("componentKeys=" + componentJoiner.join(components));
+      }
+      if (!componentUuids.isEmpty()) {
+        fieldsToKeep.add("componentUuids=" + componentJoiner.join(componentUuids));
+      }
+
       update.setString(1, StringUtils.join(fieldsToKeep, FIELD_SEPARATOR));
       update.setDate(2, now);
       update.setLong(3, row.getLong(1));
