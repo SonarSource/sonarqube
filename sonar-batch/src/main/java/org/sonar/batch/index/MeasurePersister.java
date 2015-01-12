@@ -38,7 +38,7 @@ import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.Nullable;
 
-public final class MeasurePersister implements ScanPersister {
+public class MeasurePersister implements ScanPersister {
   private final MyBatis mybatis;
   private final RuleFinder ruleFinder;
   private final MeasureCache measureCache;

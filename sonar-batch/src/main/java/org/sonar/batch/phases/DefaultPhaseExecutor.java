@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.phases;
 
-import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.SensorContext;
@@ -37,6 +36,12 @@ import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.batch.scan.filesystem.FileSystemLogger;
 import org.sonar.batch.scan.maven.MavenPluginsConfigurator;
 import org.sonar.batch.scan.report.JsonReport;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public final class DefaultPhaseExecutor implements PhaseExecutor {
 
@@ -152,16 +157,29 @@ public final class DefaultPhaseExecutor implements PhaseExecutor {
   private void executePersisters() {
     if (!analysisMode.isPreview()) {
       LOGGER.info("Store results in database");
-      eventBus.fireEvent(new PersistersPhaseEvent(Lists.newArrayList(persisters), true));
-      for (ScanPersister persister : persisters) {
+      List<ScanPersister> sortedPersisters = sortedPersisters();
+      eventBus.fireEvent(new PersistersPhaseEvent(sortedPersisters, true));
+      for (ScanPersister persister : sortedPersisters) {
         LOGGER.debug("Execute {}", persister.getClass().getName());
         eventBus.fireEvent(new PersisterExecutionEvent(persister, true));
         persister.persist();
         eventBus.fireEvent(new PersisterExecutionEvent(persister, false));
       }
 
-      eventBus.fireEvent(new PersistersPhaseEvent(Lists.newArrayList(persisters), false));
+      eventBus.fireEvent(new PersistersPhaseEvent(sortedPersisters, false));
     }
+  }
+
+  List<ScanPersister> sortedPersisters() {
+    // Sort by reverse name so that ResourcePersister is executed before MeasurePersister
+    List<ScanPersister> sortedPersisters = new ArrayList<>(Arrays.asList(persisters));
+    Collections.sort(sortedPersisters, new Comparator<ScanPersister>() {
+      @Override
+      public int compare(ScanPersister o1, ScanPersister o2) {
+        return o2.getClass().getName().compareTo(o1.getClass().getName());
+      }
+    });
+    return sortedPersisters;
   }
 
   private void publishReportJob() {
