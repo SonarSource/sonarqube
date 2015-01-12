@@ -535,7 +535,7 @@ public interface WebService extends ServerExtension {
     private final boolean required;
     private final Set<String> possibleValues;
 
-    public Param(Action action, NewParam newParam) {
+    protected Param(Action action, NewParam newParam) {
       this.key = newParam.key;
       this.deprecatedKey = newParam.deprecatedKey;
       this.description = newParam.description;
