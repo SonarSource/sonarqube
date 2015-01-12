@@ -160,18 +160,19 @@ define [
 
 
     deleteComment: (e) ->
+      p = window.process.addBackgroundProcess()
       commentKey = $(e.target).closest('[data-comment-key]').data 'comment-key'
       confirmMsg = $(e.target).data 'confirm-msg'
 
       if confirm(confirmMsg)
-        @showActionSpinner()
         $.ajax
           type: "POST"
-          url: baseUrl + "/issue/delete_comment?id=" + commentKey
-        .done => @updateAfterAction true
+          url: baseUrl + "/api/issues/delete_comment?key=" + commentKey
+        .done =>
+          @updateAfterAction true
+          window.process.finishBackgroundProcess p
         .fail (r) =>
-          alert  _.pluck(r.responseJSON.errors, 'msg').join(' ')
-          @hideActionSpinner()
+          window.process.failBackgroundProcess p
 
 
     transition: (e) ->
