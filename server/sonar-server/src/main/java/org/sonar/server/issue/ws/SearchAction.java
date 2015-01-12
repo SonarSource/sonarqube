@@ -233,13 +233,13 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       .setExampleValue("7d8749e8-3070-4903-9188-bdd82933bb92");
 
     action.createParam(IssueFilterParameters.COMPONENT_ROOTS)
-      .setDescription("Deprecated since 5.1. See moduleKeys.");
+      .setDescription("Deprecated since 5.1. Use componentKeys instead, with onComponentOnly=false.");
     action.createParam(IssueFilterParameters.COMPONENT_ROOT_UUIDS)
-      .setDescription("Deprecated since 5.1. See moduleUuids.");
+      .setDescription("Deprecated since 5.1. Use componentUuids instead, with onComponentOnly=false.");
     action.createParam(IssueFilterParameters.MODULE_KEYS)
       .setDescription("To retrieve issues associated to a specific list of modules (comma-separated list of module keys). " +
         INTERNAL_PARAMETER_DISCLAIMER +
-        "Views are not supported. If this parameter is set, componentRootUuids must not be set.")
+        "Views are not supported. If this parameter is set, moduleUuids must not be set.")
       .setDeprecatedKey(IssueFilterParameters.COMPONENT_ROOTS)
       .setExampleValue("org.apache.struts:struts");
     action.createParam(IssueFilterParameters.MODULE_UUIDS)

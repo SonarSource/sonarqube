@@ -23,6 +23,7 @@ package org.sonar.server.issue;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -92,7 +93,7 @@ public class IssueQueryServiceTest {
     ArrayList<String> componentKeys = newArrayList("org.apache");
     map.put("components", componentKeys);
     ArrayList<String> moduleKeys = newArrayList("org.sonar");
-    map.put("componentRoots", moduleKeys);
+    map.put("moduleKeys", moduleKeys);
     map.put("reporters", newArrayList("marilyn"));
     map.put("assignees", newArrayList("joanna"));
     map.put("languages", newArrayList("xoo"));
@@ -107,8 +108,21 @@ public class IssueQueryServiceTest {
     map.put("sort", "CREATION_DATE");
     map.put("asc", true);
 
-    when(componentService.componentUuids(session, componentKeys, true)).thenReturn(newArrayList("ABCD"));
-    when(componentService.componentUuids(session, moduleKeys, true)).thenReturn(newArrayList("BCDE"));
+    when(componentService.componentUuids(eq(session), Matchers.anyCollection(), eq(true))).thenAnswer(new Answer<Collection<String>>() {
+      @Override
+      public Collection<String> answer(InvocationOnMock invocation) throws Throwable {
+        Collection<String> components = (Collection<String>) invocation.getArguments()[1];
+        if (components == null) {
+          return newArrayList();
+        }
+        if (components.contains("org.apache")) {
+          return newArrayList("ABCD");
+        } else if (components.contains("org.sonar")) {
+          return newArrayList("BCDE");
+        }
+        return newArrayList();
+      }
+    });
 
     IssueQuery query = issueQueryService.createFromMap(map);
     assertThat(query.issueKeys()).containsOnly("ABCDE1234");
@@ -139,7 +153,12 @@ public class IssueQueryServiceTest {
     ArrayList<String> componentKeys = newArrayList("unknown");
     map.put("components", componentKeys);
 
-    when(componentService.componentUuids(any(DbSession.class), eq(componentKeys), eq(true))).thenReturn(Arrays.<String>asList());
+    when(componentService.componentUuids(eq(session), Matchers.anyCollection(), eq(true))).thenAnswer(new Answer<Collection<String>>() {
+      @Override
+      public Collection<String> answer(InvocationOnMock invocation) throws Throwable {
+        return newArrayList();
+      }
+    });
 
     IssueQuery query = issueQueryService.createFromMap(map);
     assertThat(query.componentUuids()).containsOnly("<UNKNOWN>");
@@ -193,7 +212,7 @@ public class IssueQueryServiceTest {
       issueQueryService.createFromMap(map);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("componentRoots and componentRootUuids cannot be set simultaneously");
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("components and componentUuids cannot be set simultaneously");
     }
   }
 

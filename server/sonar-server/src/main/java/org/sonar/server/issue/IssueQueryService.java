@@ -26,6 +26,7 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.apache.commons.lang.ObjectUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
@@ -43,6 +44,7 @@ import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -96,20 +98,12 @@ public class IssueQueryService implements ServerComponent {
             params.get(IssueFilterParameters.COMPONENT_KEYS),
             params.get(IssueFilterParameters.COMPONENTS)
             )
-          ));
-      addComponentRootUuids(builder, session,
-        RubyUtils.toStrings(
-          ObjectUtils.defaultIfNull(
-            params.get(IssueFilterParameters.MODULE_UUIDS),
-            params.get(IssueFilterParameters.COMPONENT_ROOT_UUIDS)
-            )
           ),
-        RubyUtils.toStrings(
-          ObjectUtils.defaultIfNull(
-            params.get(IssueFilterParameters.MODULE_KEYS),
-            params.get(IssueFilterParameters.COMPONENT_ROOTS)
-            )
-          ));
+        RubyUtils.toStrings(params.get(IssueFilterParameters.COMPONENT_ROOT_UUIDS)),
+        RubyUtils.toStrings(params.get(IssueFilterParameters.COMPONENT_ROOTS)));
+      addModuleUuids(builder, session,
+        RubyUtils.toStrings(params.get(IssueFilterParameters.MODULE_UUIDS)),
+        RubyUtils.toStrings(params.get(IssueFilterParameters.MODULE_KEYS)));
       String sort = (String) params.get(IssueFilterParameters.SORT);
       if (!Strings.isNullOrEmpty(sort)) {
         builder.sort(sort);
@@ -151,8 +145,9 @@ public class IssueQueryService implements ServerComponent {
       addProjectUuids(builder, session,
         request.paramAsStrings(IssueFilterParameters.PROJECT_UUIDS), request.paramAsStrings(IssueFilterParameters.PROJECT_KEYS));
       addComponentUuids(builder, session,
-        request.paramAsStrings(IssueFilterParameters.COMPONENT_UUIDS), request.paramAsStrings(IssueFilterParameters.COMPONENT_KEYS));
-      addComponentRootUuids(builder, session,
+        request.paramAsStrings(IssueFilterParameters.COMPONENT_UUIDS), request.paramAsStrings(IssueFilterParameters.COMPONENT_KEYS),
+        request.paramAsStrings(IssueFilterParameters.COMPONENT_ROOT_UUIDS), request.paramAsStrings(IssueFilterParameters.COMPONENT_ROOTS));
+      addModuleUuids(builder, session,
         request.paramAsStrings(IssueFilterParameters.MODULE_UUIDS), request.paramAsStrings(IssueFilterParameters.MODULE_KEYS));
       String sort = request.param(SearchRequestHandler.PARAM_SORT);
       if (!Strings.isNullOrEmpty(sort)) {
@@ -177,18 +172,31 @@ public class IssueQueryService implements ServerComponent {
     }
   }
 
-  private void addComponentUuids(IssueQuery.Builder builder, DbSession session, @Nullable Collection<String> componentUuids, @Nullable Collection<String> components) {
-    if (componentUuids != null) {
-      if (components != null) {
+  private void addComponentUuids(IssueQuery.Builder builder, DbSession session,
+    @Nullable Collection<String> componentUuids, @Nullable Collection<String> components,
+    /*
+     * Since 5.1, search of issues is recursive by default (module + submodules),
+     * but "componentKeys" parameter already deprecates "components" parameter,
+     * so queries specifying "componentRoots" must be handled manually
+     */
+    @Nullable Collection<String> componentRootUuids, @Nullable Collection<String> componentRoots) {
+    if (componentUuids != null || componentRootUuids != null) {
+      if (components != null || componentRoots != null) {
         throw new IllegalArgumentException("components and componentUuids cannot be set simultaneously");
       }
-      builder.componentUuids(componentUuids);
+      Set<String> allComponentUuids = Sets.newHashSet();
+      allComponentUuids.addAll((Collection<String>) ObjectUtils.defaultIfNull(componentUuids, Sets.newHashSet()));
+      allComponentUuids.addAll((Collection<String>) ObjectUtils.defaultIfNull(componentRootUuids, Sets.newHashSet()));
+      builder.componentUuids(allComponentUuids);
     } else {
-      builder.componentUuids(componentUuids(session, components));
+      Set<String> allComponents = Sets.newHashSet();
+      allComponents.addAll((Collection<String>) ObjectUtils.defaultIfNull(components, Sets.newHashSet()));
+      allComponents.addAll((Collection<String>) ObjectUtils.defaultIfNull(componentRoots, Sets.newHashSet()));
+      builder.componentUuids(componentUuids(session, allComponents));
     }
   }
 
-  private void addComponentRootUuids(IssueQuery.Builder builder, DbSession session, @Nullable Collection<String> componentRootUuids, @Nullable Collection<String> componentRoots) {
+  private void addModuleUuids(IssueQuery.Builder builder, DbSession session, @Nullable Collection<String> componentRootUuids, @Nullable Collection<String> componentRoots) {
     if (componentRootUuids != null) {
       if (componentRoots != null) {
         throw new IllegalArgumentException("componentRoots and componentRootUuids cannot be set simultaneously");
