@@ -21,6 +21,7 @@
 package org.sonar.server.user;
 
 import com.google.common.base.CharMatcher;
+import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
@@ -247,9 +248,15 @@ public class UserUpdater implements ServerComponent {
       if (scmAccount.equals(login) || scmAccount.equals(email)) {
         messages.add(Message.of("user.login_or_email_used_as_scm_account"));
       } else {
-        UserDto matchingUser = dbClient.userDao().selectNullableByScmAccountOrLoginOrName(dbSession, scmAccount);
-        if (matchingUser != null && (existingUser == null || !matchingUser.getId().equals(existingUser.getId()))) {
-          messages.add(Message.of("user.scm_account_already_used", scmAccount, matchingUser.getName(), matchingUser.getLogin()));
+        List<UserDto> matchingUsers = dbClient.userDao().selectNullableByScmAccountOrLoginOrEmail(dbSession, scmAccount);
+        List<String> matchingUsersWithoutExistingUser = newArrayList();
+        for (UserDto matchingUser : matchingUsers) {
+          if (existingUser == null || !matchingUser.getId().equals(existingUser.getId())) {
+            matchingUsersWithoutExistingUser.add(matchingUser.getName() + " (" + matchingUser.getLogin() + ")");
+          }
+        }
+        if (!matchingUsersWithoutExistingUser.isEmpty()) {
+          messages.add(Message.of("user.scm_account_already_used", scmAccount, Joiner.on(", ").join(matchingUsersWithoutExistingUser)));
         }
       }
     }

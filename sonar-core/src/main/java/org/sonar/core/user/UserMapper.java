@@ -31,8 +31,12 @@ public interface UserMapper {
   @CheckForNull
   UserDto selectByLogin(String login);
 
+  /**
+   * Search for a user by SCM account, login or email.
+   * Can return multiple results if an email is used by many users (For instance, technical account can use the same email as a none technical account)
+   */
   @CheckForNull
-  UserDto selectNullableByScmAccountOrLoginOrName(String scmAccount);
+  List<UserDto> selectNullableByScmAccountOrLoginOrEmail(String scmAccountOrLoginOrEmail);
 
   @CheckForNull
   UserDto selectUser(long userId);

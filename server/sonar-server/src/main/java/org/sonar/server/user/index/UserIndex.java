@@ -59,7 +59,7 @@ public class UserIndex implements ServerComponent {
         .should(QueryBuilders.termQuery(UserIndexDefinition.FIELD_LOGIN, scmAccount))
         .should(QueryBuilders.termQuery(UserIndexDefinition.FIELD_EMAIL, scmAccount))
         .should(QueryBuilders.termQuery(UserIndexDefinition.FIELD_SCM_ACCOUNTS, scmAccount)))
-      .setSize(1);
+      .setSize(2);
     SearchHit[] result = request.get().getHits().getHits();
     if (result.length == 1) {
       return new UserDoc(result[0].sourceAsMap());

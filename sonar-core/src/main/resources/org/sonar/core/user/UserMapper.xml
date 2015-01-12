@@ -23,7 +23,7 @@
     WHERE u.login=#{login}
   </select>
 
-  <select id="selectNullableByScmAccountOrLoginOrName" parameterType="String" resultType="User">
+  <select id="selectNullableByScmAccountOrLoginOrEmail" parameterType="String" resultType="User">
     SELECT
     <include refid="userColumns"/>
     FROM users u

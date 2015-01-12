@@ -364,14 +364,32 @@ public class UserUpdaterTest {
     try {
       userUpdater.create(NewUser.create()
         .setLogin("marius")
-        .setName("Marius2")
-        .setEmail("marius2@mail.com")
-        .setPassword("password2")
-        .setPasswordConfirmation("password2")
+        .setName("Marius")
+        .setEmail("marius@mail.com")
+        .setPassword("password")
+        .setPasswordConfirmation("password")
         .setScmAccounts(newArrayList("jo")));
       fail();
     } catch (BadRequestException e) {
-      assertThat(e.errors().messages()).containsOnly(Message.of("user.scm_account_already_used", "jo", "John", "john"));
+      assertThat(e.errors().messages()).containsOnly(Message.of("user.scm_account_already_used", "jo", "John (john)"));
+    }
+  }
+
+  @Test
+  public void fail_to_create_user_when_scm_account_is_already_used_by_many_user() throws Exception {
+    db.prepareDbUnit(getClass(), "fail_to_create_user_when_scm_account_is_already_used_by_many_user.xml");
+
+    try {
+      userUpdater.create(NewUser.create()
+        .setLogin("marius")
+        .setName("Marius")
+        .setEmail("marius@mail.com")
+        .setPassword("password")
+        .setPasswordConfirmation("password")
+        .setScmAccounts(newArrayList("john@email.com")));
+      fail();
+    } catch (BadRequestException e) {
+      assertThat(e.errors().messages()).containsOnly(Message.of("user.scm_account_already_used", "john@email.com", "John (john), Technical account (technical-account)"));
     }
   }
 
@@ -727,7 +745,7 @@ public class UserUpdaterTest {
         .setScmAccounts(newArrayList("jo")));
       fail();
     } catch (BadRequestException e) {
-      assertThat(e.errors().messages()).containsOnly(Message.of("user.scm_account_already_used", "jo", "John", "john"));
+      assertThat(e.errors().messages()).containsOnly(Message.of("user.scm_account_already_used", "jo", "John (john)"));
     }
   }
 

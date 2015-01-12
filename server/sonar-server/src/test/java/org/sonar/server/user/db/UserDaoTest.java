@@ -30,6 +30,8 @@ import org.sonar.core.persistence.DbTester;
 import org.sonar.core.user.UserDto;
 import org.sonar.server.exceptions.NotFoundException;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
@@ -75,12 +77,35 @@ public class UserDaoTest {
   public void select_nullable_by_scm_account() {
     db.prepareDbUnit(getClass(), "select_nullable_by_scm_account.xml");
 
-    assertThat(dao.selectNullableByScmAccountOrLoginOrName(session, "ma").getLogin()).isEqualTo("marius");
-    assertThat(dao.selectNullableByScmAccountOrLoginOrName(session, "marius").getLogin()).isEqualTo("marius");
-    assertThat(dao.selectNullableByScmAccountOrLoginOrName(session, "marius@lesbronzes.fr").getLogin()).isEqualTo("marius");
+    List<UserDto> results = dao.selectNullableByScmAccountOrLoginOrEmail(session, "ma");
+    assertThat(results).hasSize(1);
+    assertThat(results.get(0).getLogin()).isEqualTo("marius");
 
-    assertThat(dao.selectNullableByScmAccountOrLoginOrName(session, "m")).isNull();
-    assertThat(dao.selectNullableByScmAccountOrLoginOrName(session, "unknown")).isNull();
+    results = dao.selectNullableByScmAccountOrLoginOrEmail(session, "marius");
+    assertThat(results).hasSize(1);
+    assertThat(results.get(0).getLogin()).isEqualTo("marius");
+
+    results = dao.selectNullableByScmAccountOrLoginOrEmail(session, "marius@lesbronzes.fr");
+    assertThat(results).hasSize(1);
+    assertThat(results.get(0).getLogin()).isEqualTo("marius");
+
+    results = dao.selectNullableByScmAccountOrLoginOrEmail(session, "marius@lesbronzes.fr");
+    assertThat(results).hasSize(1);
+    assertThat(results.get(0).getLogin()).isEqualTo("marius");
+
+    results = dao.selectNullableByScmAccountOrLoginOrEmail(session, "m");
+    assertThat(results).isEmpty();
+
+    results = dao.selectNullableByScmAccountOrLoginOrEmail(session, "unknown");
+    assertThat(results).isEmpty();
+  }
+
+  @Test
+  public void select_nullable_by_scm_account_return_many_results_when_same_email_is_used_by_many_users() {
+    db.prepareDbUnit(getClass(), "select_nullable_by_scm_account_return_many_results_when_same_email_is_used_by_many_users.xml");
+
+    List<UserDto> results = dao.selectNullableByScmAccountOrLoginOrEmail(session, "marius@lesbronzes.fr");
+    assertThat(results).hasSize(2);
   }
 
   @Test

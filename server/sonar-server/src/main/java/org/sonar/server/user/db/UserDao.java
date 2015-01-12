@@ -30,6 +30,8 @@ import org.sonar.server.exceptions.NotFoundException;
 
 import javax.annotation.CheckForNull;
 
+import java.util.List;
+
 public class UserDao extends org.sonar.core.user.UserDao implements DaoComponent {
 
   public UserDao(MyBatis mybatis, System2 system2) {
@@ -49,9 +51,8 @@ public class UserDao extends org.sonar.core.user.UserDao implements DaoComponent
     return user;
   }
 
-  @CheckForNull
-  public UserDto selectNullableByScmAccountOrLoginOrName(DbSession session, String scmAccount) {
-    return mapper(session).selectNullableByScmAccountOrLoginOrName(scmAccount);
+  public List<UserDto> selectNullableByScmAccountOrLoginOrEmail(DbSession session, String scmAccountOrLoginOrEmail) {
+    return mapper(session).selectNullableByScmAccountOrLoginOrEmail(scmAccountOrLoginOrEmail);
   }
 
   protected UserMapper mapper(DbSession session) {
