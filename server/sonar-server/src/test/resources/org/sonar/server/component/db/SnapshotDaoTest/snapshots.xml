@@ -41,7 +41,7 @@
              depth="1" scope="DIR" qualifier="PAC" created_at="2008-12-02" build_date="2011-09-29"
              version="2.1-SNAPSHOT" path="1.2."/>
 
-  <!-- PROJECT_ID = 3 – no last snapshot -->
+  <!-- PROJECT_ID = 3 - no last snapshot -->
   <snapshots id="5" project_id="3" parent_snapshot_id="2" root_project_id="1" root_snapshot_id="3"
              status="P" islast="[false]" purge_status="1"
              period1_mode="days1" period1_param="30" period1_date="2011-09-24"

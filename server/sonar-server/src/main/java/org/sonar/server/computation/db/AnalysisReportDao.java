@@ -37,12 +37,7 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.Date;
+import java.sql.*;
 import java.util.List;
 
 import static org.sonar.core.computation.db.AnalysisReportDto.Status.PENDING;
@@ -65,7 +60,7 @@ public class AnalysisReportDao implements DaoComponent {
    * Update all rows with: STATUS='PENDING', STARTED_AT=NULL, UPDATED_AT={now}
    */
   public void resetAllToPendingStatus(DbSession session) {
-    mapper(session).resetAllToPendingStatus(system2.newDate());
+    mapper(session).resetAllToPendingStatus(system2.now());
   }
 
   public void truncate(DbSession session) {
@@ -95,7 +90,7 @@ public class AnalysisReportDao implements DaoComponent {
   @VisibleForTesting
   AnalysisReportDto tryToPop(DbSession session, long reportId) {
     AnalysisReportMapper mapper = mapper(session);
-    int nbOfReportBooked = mapper.updateWithBookingReport(reportId, system2.newDate(), PENDING, WORKING);
+    int nbOfReportBooked = mapper.updateWithBookingReport(reportId, system2.now(), PENDING, WORKING);
     if (nbOfReportBooked == 0) {
       return null;
     }
@@ -110,8 +105,8 @@ public class AnalysisReportDao implements DaoComponent {
   }
 
   public AnalysisReportDto insert(DbSession session, AnalysisReportDto report) {
-    report.setCreatedAt(system2.newDate());
-    report.setUpdatedAt(system2.newDate());
+    report.setCreatedAt(system2.now());
+    report.setUpdatedAt(system2.now());
 
     Connection connection = session.getConnection();
     PreparedStatement ps = null;
@@ -124,10 +119,10 @@ public class AnalysisReportDao implements DaoComponent {
       ps.setLong(2, report.getSnapshotId());
       ps.setString(3, report.getStatus().toString());
       setData(ps, 4, report.getData());
-      ps.setTimestamp(5, dateToTimestamp(report.getCreatedAt()));
-      ps.setTimestamp(6, dateToTimestamp(report.getUpdatedAt()));
-      ps.setTimestamp(7, dateToTimestamp(report.getStartedAt()));
-      ps.setTimestamp(8, dateToTimestamp(report.getFinishedAt()));
+      ps.setLong(5, report.getCreatedAt());
+      setLong(ps, 6, report.getUpdatedAt());
+      setLong(ps, 7, report.getStartedAt());
+      setLong(ps, 8, report.getFinishedAt());
 
       ps.executeUpdate();
       connection.commit();
@@ -138,6 +133,14 @@ public class AnalysisReportDao implements DaoComponent {
     }
 
     return report;
+  }
+
+  private void setLong(PreparedStatement ps, int index, @Nullable Long time) throws SQLException {
+    if (time == null) {
+      ps.setNull(index, Types.BIGINT);
+    } else {
+      ps.setLong(index, time);
+    }
   }
 
   private void setData(PreparedStatement ps, int parameterIndex, @Nullable InputStream reportDataStream) throws IOException, SQLException {
@@ -174,13 +177,6 @@ public class AnalysisReportDao implements DaoComponent {
       IOUtils.closeQuietly(stream);
       DatabaseUtils.closeQuietly(ps);
     }
-  }
-
-  private Timestamp dateToTimestamp(@Nullable Date date) {
-    if (date == null) {
-      return null;
-    }
-    return new Timestamp(date.getTime());
   }
 
   public void delete(DbSession session, long id) {

@@ -20,7 +20,6 @@
 package org.sonar.api.utils;
 
 import javax.annotation.Nullable;
-
 import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -62,6 +61,10 @@ public final class DateUtils {
     }
 
     return THREAD_SAFE_DATETIME_FORMAT.format(date);
+  }
+
+  public static Date timeToDate(@Nullable Long time) {
+    return time == null ? null : new Date(time);
   }
 
   /**

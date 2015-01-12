@@ -32,7 +32,6 @@ import org.sonar.server.user.UserSession;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.io.InputStream;
-import java.util.Date;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -89,7 +88,7 @@ public class AnalysisReportQueue implements ServerComponent {
 
     DbSession session = dbClient.openSession(false);
     try {
-      report.setFinishedAt(new Date(system2.now()));
+      report.setFinishedAt(system2.now());
       dbClient.analysisReportDao().delete(session, report.getId());
       session.commit();
     } finally {

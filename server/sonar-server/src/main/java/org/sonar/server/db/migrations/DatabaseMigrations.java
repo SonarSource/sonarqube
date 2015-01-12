@@ -81,6 +81,7 @@ public interface DatabaseMigrations {
     FeedUsersLongDates.class,
     RenameComponentRelatedParamsInIssueFilters.class,
     CopyScmAccountsFromAuthorsToUsers.class,
-    FeedIssueChangesLongDates.class
+    FeedIssueChangesLongDates.class,
+    FeedAnalysisReportsLongDates.class
     );
 }

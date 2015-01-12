@@ -28,7 +28,7 @@
              period5_mode="days5" period5_param="34" period5_date="2011-09-28"
              depth="1" scope="DIR" qualifier="PAC" created_at="2008-12-03" build_date="2011-09-29"
              version="2.1-SNAPSHOT" path="1.2."/>
-  <!-- PROJECT_ID = 3 – no last snapshot -->
+  <!-- PROJECT_ID = 3 - no last snapshot -->
   <snapshots id="4" project_id="3" parent_snapshot_id="2" root_project_id="123" root_snapshot_id="1"
              status="U" islast="[false]" purge_status="1"
              period1_mode="days1" period1_param="30" period1_date="2011-09-24"
@@ -77,7 +77,7 @@
              period5_mode="days5" period5_param="34" period5_date="2011-09-28"
              depth="1" scope="DIR" qualifier="PAC" created_at="2008-12-02" build_date="2011-09-29"
              version="2.1-SNAPSHOT" path="1.2."/>
-  <!-- PROJECT_ID = 3 – no last snapshot -->
+  <!-- PROJECT_ID = 3 - no last snapshot -->
   <snapshots id="24" project_id="3" parent_snapshot_id="2" root_project_id="123" root_snapshot_id="21"
              status="P" islast="[true]" purge_status="1"
              period1_mode="days1" period1_param="30" period1_date="2011-09-24"
@@ -126,7 +126,7 @@
              period5_mode="days5" period5_param="34" period5_date="2011-09-28"
              depth="1" scope="DIR" qualifier="PAC" created_at="2008-12-01" build_date="2011-09-29"
              version="2.1-SNAPSHOT" path="1.2."/>
-  <!-- PROJECT_ID = 3 – no last snapshot -->
+  <!-- PROJECT_ID = 3 - no last snapshot -->
   <snapshots id="49" project_id="3" parent_snapshot_id="2" root_project_id="123" root_snapshot_id="46"
              status="P" islast="[false]" purge_status="1"
              period1_mode="days1" period1_param="30" period1_date="2011-09-24"

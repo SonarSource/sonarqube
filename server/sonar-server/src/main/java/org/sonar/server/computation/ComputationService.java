@@ -99,7 +99,7 @@ public class ComputationService implements ServerComponent {
   }
 
   private void logActivity(DbSession session, AnalysisReportDto report, ComponentDto project) {
-    report.setFinishedAt(System2.INSTANCE.newDate());
+    report.setFinishedAt(System2.INSTANCE.now());
     activityService.write(session, Activity.Type.ANALYSIS_REPORT, new AnalysisReportLog(report, project));
   }
 }

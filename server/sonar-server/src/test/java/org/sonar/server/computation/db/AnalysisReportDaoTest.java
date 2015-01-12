@@ -27,7 +27,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
@@ -42,6 +41,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.core.computation.db.AnalysisReportDto.Status.PENDING;
 import static org.sonar.core.computation.db.AnalysisReportDto.Status.WORKING;
 
@@ -67,8 +67,8 @@ public class AnalysisReportDaoTest {
     this.system2 = mock(System2.class);
     this.sut = new AnalysisReportDao(system2);
 
-    when(system2.now()).thenReturn(DateUtils.parseDate("2014-09-26").getTime());
-    when(system2.newDate()).thenReturn(DateUtils.parseDate("2014-09-26"));
+    when(system2.now()).thenReturn(parseDate("2014-09-26").getTime());
+    when(system2.newDate()).thenReturn(parseDate("2014-09-26"));
   }
 
   @After
@@ -168,10 +168,10 @@ public class AnalysisReportDaoTest {
     AnalysisReportDto report = sut.selectById(session, 1L);
 
     assertThat(report.getProjectKey()).isEqualTo(DEFAULT_PROJECT_KEY);
-    assertThat(report.getCreatedAt()).isEqualTo(DateUtils.parseDate("2014-09-24"));
-    assertThat(report.getUpdatedAt()).isEqualTo(DateUtils.parseDate("2014-09-25"));
-    assertThat(report.getStartedAt()).isEqualTo(DateUtils.parseDate("2014-09-26"));
-    assertThat(report.getFinishedAt()).isEqualTo(DateUtils.parseDate("2014-09-27"));
+    assertThat(report.getCreatedAt()).isEqualTo(parseDate("2014-09-24").getTime());
+    assertThat(report.getUpdatedAt()).isEqualTo(parseDate("2014-09-25").getTime());
+    assertThat(report.getStartedAt()).isEqualTo(parseDate("2014-09-26").getTime());
+    assertThat(report.getFinishedAt()).isEqualTo(parseDate("2014-09-27").getTime());
     assertThat(report.getStatus()).isEqualTo(WORKING);
     assertThat(report.getData()).isNull();
     assertThat(report.getKey()).isEqualTo("1");

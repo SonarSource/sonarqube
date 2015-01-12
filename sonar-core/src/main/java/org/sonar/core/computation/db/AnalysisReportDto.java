@@ -21,30 +21,22 @@ package org.sonar.core.computation.db;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
-import org.sonar.core.persistence.Dto;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.io.InputStream;
-import java.util.Date;
 
-public class AnalysisReportDto extends Dto<String> {
-
-  public static enum Status {
-    PENDING, WORKING, SUCCESS, FAILED;
-
-    public boolean isInFinalState() {
-      return SUCCESS.equals(this) || FAILED.equals(this);
-    }
-  }
-
+public class AnalysisReportDto {
   private Long id;
   private String projectKey;
   private Status status;
   private InputStream data;
   private Long snapshotId;
-  private Date startedAt;
-  private Date finishedAt;
+  private Long createdAt;
+  private Long updatedAt;
+  private Long startedAt;
+  private Long finishedAt;
 
   @VisibleForTesting
   public static AnalysisReportDto newForTests(Long id) {
@@ -89,7 +81,6 @@ public class AnalysisReportDto extends Dto<String> {
     return this;
   }
 
-  @Override
   public String getKey() {
     return String.valueOf(getId());
   }
@@ -120,33 +111,49 @@ public class AnalysisReportDto extends Dto<String> {
     return this;
   }
 
-  public Date getStartedAt() {
+  @CheckForNull
+  public Long getStartedAt() {
     return startedAt;
   }
 
-  public AnalysisReportDto setStartedAt(Date startedAt) {
+  public AnalysisReportDto setStartedAt(Long startedAt) {
     this.startedAt = startedAt;
     return this;
   }
 
-  public Date getFinishedAt() {
+  @CheckForNull
+  public Long getFinishedAt() {
     return finishedAt;
   }
 
-  public AnalysisReportDto setFinishedAt(Date finishedAt) {
+  public AnalysisReportDto setFinishedAt(Long finishedAt) {
     this.finishedAt = finishedAt;
     return this;
   }
 
-  @Override
-  public AnalysisReportDto setUpdatedAt(Date datetime) {
-    super.setUpdatedAt(datetime);
+  public Long getCreatedAt() {
+    return createdAt;
+  }
+
+  public AnalysisReportDto setCreatedAt(Long createdAt) {
+    this.createdAt = createdAt;
     return this;
   }
 
-  @Override
-  public AnalysisReportDto setCreatedAt(Date datetime) {
-    super.setCreatedAt(datetime);
+  public Long getUpdatedAt() {
+    return updatedAt;
+  }
+
+  public AnalysisReportDto setUpdatedAt(Long updatedAt) {
+    this.updatedAt = updatedAt;
     return this;
+  }
+
+  public static enum Status {
+    PENDING, WORKING, SUCCESS, FAILED;
+
+    public boolean isInFinalState() {
+      return SUCCESS.equals(this) || FAILED.equals(this);
+    }
   }
 }

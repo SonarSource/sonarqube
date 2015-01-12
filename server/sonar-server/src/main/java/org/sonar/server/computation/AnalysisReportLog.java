@@ -21,12 +21,14 @@
 package org.sonar.server.computation;
 
 import com.google.common.collect.ImmutableMap;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.core.activity.ActivityLog;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 
 import java.util.Map;
+
+import static org.sonar.api.utils.DateUtils.formatDateTimeNullSafe;
+import static org.sonar.api.utils.DateUtils.timeToDate;
 
 public class AnalysisReportLog implements ActivityLog {
 
@@ -48,9 +50,9 @@ public class AnalysisReportLog implements ActivityLog {
       .put("projectName", project.name())
       .put("projectUuid", project.uuid())
       .put("status", String.valueOf(report.getStatus()))
-      .put("submittedAt", DateUtils.formatDateTimeNullSafe(report.getCreatedAt()))
-      .put("startedAt", DateUtils.formatDateTimeNullSafe(report.getStartedAt()))
-      .put("finishedAt", DateUtils.formatDateTimeNullSafe(report.getFinishedAt()))
+      .put("submittedAt", formatDateTimeNullSafe(timeToDate(report.getCreatedAt())))
+      .put("startedAt", formatDateTimeNullSafe(timeToDate(report.getStartedAt())))
+      .put("finishedAt", formatDateTimeNullSafe(timeToDate(report.getFinishedAt())))
       .build();
   }
 

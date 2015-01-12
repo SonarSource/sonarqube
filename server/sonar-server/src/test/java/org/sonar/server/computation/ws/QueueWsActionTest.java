@@ -53,9 +53,9 @@ public class QueueWsActionTest {
       .setProjectKey("project-key")
       .setStatus(PENDING)
       .setData(null)
-      .setCreatedAt(DateUtils.parseDateTime("2014-10-13T00:00:00+0200"))
-      .setStartedAt(DateUtils.parseDateTime("2014-10-13T00:00:00+0200"))
-      .setFinishedAt(DateUtils.parseDateTime("2014-10-13T00:00:00+0200"));
+      .setCreatedAt(DateUtils.parseDateTime("2014-10-13T00:00:00+0200").getTime())
+      .setStartedAt(DateUtils.parseDateTime("2014-10-13T00:00:00+0200").getTime())
+      .setFinishedAt(DateUtils.parseDateTime("2014-10-13T00:00:00+0200").getTime());
     List<AnalysisReportDto> reports = Lists.newArrayList(report);
     when(queue.all()).thenReturn(reports);
 

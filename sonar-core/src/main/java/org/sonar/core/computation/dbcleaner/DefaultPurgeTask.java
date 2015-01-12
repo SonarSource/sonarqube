@@ -27,11 +27,11 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.TimeUtils;
+import org.sonar.core.computation.dbcleaner.period.DefaultPeriodCleaner;
 import org.sonar.core.purge.*;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.plugins.dbcleaner.api.PurgeTask;
-import org.sonar.core.computation.dbcleaner.period.DefaultPeriodCleaner;
 
 import static org.sonar.core.purge.PurgeConfiguration.newDefaultPurgeConfiguration;
 
@@ -91,7 +91,7 @@ public class DefaultPurgeTask implements PurgeTask {
     try {
       periodCleaner.clean(resourceId);
     } catch (Exception e) {
-      // purge errors must no fail the batch
+      // purge errors must not fail the batch
       LOG.error("Fail to clean historical data [id=" + resourceId + "]", e);
     }
   }
@@ -100,7 +100,7 @@ public class DefaultPurgeTask implements PurgeTask {
     try {
       purgeDao.purge(newPurgeConfigurationOnResource(resourceId), PurgeListener.EMPTY);
     } catch (Exception e) {
-      // purge errors must no fail the report analysis
+      // purge errors must not fail the report analysis
       LOG.error("Fail to purge data [id=" + resourceId + "]", e);
     }
   }

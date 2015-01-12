@@ -68,10 +68,10 @@ public class AnalysisReportLogMediumTest {
     AnalysisReportDto report = AnalysisReportDto.newForTests(1L)
       .setProjectKey("projectKey")
       .setStatus(FAILED)
-      .setCreatedAt(DateUtils.parseDate("2014-10-15"))
-      .setUpdatedAt(DateUtils.parseDate("2014-10-16"))
-      .setStartedAt(DateUtils.parseDate("2014-10-17"))
-      .setFinishedAt(DateUtils.parseDate("2014-10-18"));
+      .setCreatedAt(DateUtils.parseDate("2014-10-15").getTime())
+      .setUpdatedAt(DateUtils.parseDate("2014-10-16").getTime())
+      .setStartedAt(DateUtils.parseDate("2014-10-17").getTime())
+      .setFinishedAt(DateUtils.parseDate("2014-10-18").getTime());
     ComponentDto project = ComponentTesting.newProjectDto();
 
     service.write(dbSession, ANALYSIS_REPORT, new AnalysisReportLog(report, project));

@@ -21,7 +21,6 @@ package org.sonar.core.computation.db;
 
 import org.apache.ibatis.annotations.Param;
 
-import java.util.Date;
 import java.util.List;
 
 public interface AnalysisReportMapper {
@@ -31,13 +30,13 @@ public interface AnalysisReportMapper {
     @Param("availableStatus") AnalysisReportDto.Status availableStatus,
     @Param("busyStatus") AnalysisReportDto.Status busyStatus);
 
-  void resetAllToPendingStatus(@Param("updatedAt") Date updatedAt);
+  void resetAllToPendingStatus(@Param("updatedAt") long updatedAt);
 
   void truncate();
 
   int update(AnalysisReportDto report);
 
-  int updateWithBookingReport(@Param("id") Long id, @Param("startedAt") Date startedAt,
+  int updateWithBookingReport(@Param("id") Long id, @Param("startedAt") long startedAt,
     @Param("availableStatus") AnalysisReportDto.Status availableStatus,
     @Param("busyStatus") AnalysisReportDto.Status busyStatus);
 
