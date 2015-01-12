@@ -4,4 +4,19 @@
     "sysTags": ["tag1"],
     "tags": []
   }
+],
+"facets": [
+  {
+    "property": "tags",
+    "values": [
+      {
+        "val": "tag1",
+        "count": 1
+      },
+      {
+        "val": "tag2",
+        "count": 1
+      }
+    ]
+  }
 ]}

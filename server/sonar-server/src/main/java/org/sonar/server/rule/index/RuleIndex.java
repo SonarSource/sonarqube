@@ -27,7 +27,14 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchScrollRequestBuilder;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.query.BoolFilterBuilder;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.FilterBuilder;
+import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.MatchQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.SimpleQueryStringBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -41,11 +48,23 @@ import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
 import org.sonar.server.rule.Rule;
-import org.sonar.server.search.*;
+import org.sonar.server.search.BaseIndex;
+import org.sonar.server.search.IndexDefinition;
+import org.sonar.server.search.IndexField;
+import org.sonar.server.search.QueryContext;
+import org.sonar.server.search.Result;
+import org.sonar.server.search.SearchClient;
+import org.sonar.server.search.StickyFacetBuilder;
 
 import javax.annotation.CheckForNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -315,13 +334,22 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     return filters;
   }
 
-  protected Map<String, AggregationBuilder> getFacets(QueryBuilder query, Map<String, FilterBuilder> filters) {
+  protected Map<String, AggregationBuilder> getFacets(RuleQuery query, QueryContext options, QueryBuilder queryBuilder, Map<String, FilterBuilder> filters) {
     Map<String, AggregationBuilder> aggregations = new HashMap<String, AggregationBuilder>();
 
-    StickyFacetBuilder stickyFacetBuilder = stickyFacetBuilder(query, filters);
-    aggregations.put(FACET_LANGUAGES + "global", stickyFacetBuilder.buildStickyFacet(RuleNormalizer.RuleField.LANGUAGE.field(), FACET_LANGUAGES));
-    aggregations.put(FACET_TAGS + "global", stickyFacetBuilder.buildStickyFacet(RuleNormalizer.RuleField.ALL_TAGS.field(), FACET_TAGS));
-    aggregations.put(FACET_REPOSITORIES + "global", stickyFacetBuilder.buildStickyFacet(RuleNormalizer.RuleField.REPOSITORY.field(), FACET_REPOSITORIES));
+    StickyFacetBuilder stickyFacetBuilder = stickyFacetBuilder(queryBuilder, filters);
+    if (options.facets().contains("languages") || options.facets().contains("true")) {
+      aggregations.put(FACET_LANGUAGES, // + "global",
+        stickyFacetBuilder.buildStickyFacet(RuleNormalizer.RuleField.LANGUAGE.field(), FACET_LANGUAGES, query.getLanguages() == null ? new String[0] : query.getLanguages().toArray()));
+    }
+    if (options.facets().contains("tags") || options.facets().contains("true")) {
+      aggregations.put(FACET_TAGS, // + "global",
+        stickyFacetBuilder.buildStickyFacet(RuleNormalizer.RuleField.ALL_TAGS.field(), FACET_TAGS, query.getTags() == null ? new String[0] : query.getTags().toArray()));
+    }
+    if (options.facets().contains("repositories") || options.facets().contains("true")) {
+      aggregations.put(FACET_REPOSITORIES, // + "global",
+        stickyFacetBuilder.buildStickyFacet(RuleNormalizer.RuleField.REPOSITORY.field(), FACET_REPOSITORIES, query.getRepositories() == null ? new String[0] : query.getRepositories().toArray()));
+    }
 
     return aggregations;
 
@@ -342,7 +370,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     Map<String, FilterBuilder> filters = this.getFilters(query, options);
 
     if (options.isFacet()) {
-      for (AggregationBuilder aggregation : getFacets(qb, filters).values()) {
+      for (AggregationBuilder aggregation : getFacets(query, options, qb, filters).values()) {
         esSearch.addAggregation(aggregation);
       }
     }

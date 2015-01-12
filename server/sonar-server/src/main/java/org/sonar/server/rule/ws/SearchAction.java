@@ -21,6 +21,7 @@ package org.sonar.server.rule.ws;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -32,7 +33,6 @@ import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleService;
 import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.rule.index.RuleQuery;
-import org.sonar.server.search.FacetValue;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 import org.sonar.server.search.ws.SearchOptions;
@@ -42,7 +42,6 @@ import javax.annotation.CheckForNull;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Map;
 
 /**
  * @since 4.4
@@ -67,6 +66,8 @@ public class SearchAction extends SearchRequestHandler<RuleQuery, Rule> {
   public static final String PARAM_FACETS = "facets";
 
   public static final String SEARCH_ACTION = "search";
+
+  private static final Collection<String> DEFAULT_FACETS = ImmutableSet.of("languages", "repositories", "tags");
 
   private final RuleService ruleService;
   private final ActiveRuleCompleter activeRuleCompleter;
@@ -248,27 +249,20 @@ public class SearchAction extends SearchRequestHandler<RuleQuery, Rule> {
     json.endArray();
   }
 
-  private void writeFacets(Result<Rule> results, JsonWriter json) {
-    json.name("facets").beginArray();
-    for (Map.Entry<String, Collection<FacetValue>> facet : results.getFacets().entrySet()) {
-      json.beginObject();
-      json.prop("property", facet.getKey());
-      json.name("values").beginArray();
-      for (FacetValue facetValue : facet.getValue()) {
-        json.beginObject();
-        json.prop("val", facetValue.getKey());
-        json.prop("count", facetValue.getValue());
-        json.endObject();
-      }
-      json.endArray().endObject();
-    }
-    json.endArray();
-  }
-
   @Override
   protected QueryContext getQueryContext(Request request) {
     // TODO Get rid of this horrible hack: fields on request are not the same as fields for ES search ! 1/2
-    return mapping.newQueryOptions(SearchOptions.create(request));
+    QueryContext context = super.getQueryContext(request);
+    QueryContext searchQueryContext = mapping.newQueryOptions(SearchOptions.create(request))
+      .setLimit(context.getLimit())
+      .setOffset(context.getOffset())
+      .setScroll(context.isScroll());
+    if (context.facets().contains("true")) {
+      searchQueryContext.addFacets(DEFAULT_FACETS);
+    } else {
+      searchQueryContext.addFacets(context.facets());
+    }
+    return searchQueryContext;
   }
 
   @Override
@@ -288,9 +282,6 @@ public class SearchAction extends SearchRequestHandler<RuleQuery, Rule> {
     writeRules(result, json, contextForResponse);
     if (contextForResponse.getFieldsToReturn().contains("actives")) {
       activeRuleCompleter.completeSearch(doQuery(request), result.getHits(), json);
-    }
-    if (contextForResponse.isFacet()) {
-      writeFacets(result, json);
     }
   }
 

@@ -146,7 +146,7 @@ public class RuleIndexMediumTest {
     // Repositories Facet is preset
     result = index.search(query, new QueryContext().addFacets(Arrays.asList("repositories", "tags")));
     assertThat(result.getFacets()).isNotNull();
-    assertThat(result.getFacets()).hasSize(3);
+    assertThat(result.getFacets()).hasSize(2);
 
     // Verify the value of a given facet
     Collection<FacetValue> repoFacets = result.getFacetValues("repositories");

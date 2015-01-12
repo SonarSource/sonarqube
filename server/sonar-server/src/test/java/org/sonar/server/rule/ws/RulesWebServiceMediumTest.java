@@ -449,6 +449,7 @@ public class RulesWebServiceMediumTest {
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(SearchAction.PARAM_TAGS, "tag1");
     request.setParam(SearchOptions.PARAM_FIELDS, "sysTags, tags");
+    request.setParam(SearchAction.PARAM_FACETS, "tags");
     WsTester.Result result = request.execute();
     result.assertJson(this.getClass(), "filter_by_tags.json");
   }
