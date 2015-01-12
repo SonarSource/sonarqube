@@ -78,8 +78,9 @@ define [
 
     resetIssue: (options, p) ->
       key = @model.get 'key'
+      componentUuid = @model.get 'componentUuid'
       @model.clear silent: true
-      @model.set { key: key }, { silent: true }
+      @model.set { key: key, componentUuid: componentUuid }, { silent: true }
       @model.fetch(options)
       .done =>
         @trigger 'reset'
