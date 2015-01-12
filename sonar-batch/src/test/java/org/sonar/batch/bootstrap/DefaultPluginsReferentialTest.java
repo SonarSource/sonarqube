@@ -36,7 +36,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class PluginDownloaderTest {
+public class DefaultPluginsReferentialTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();

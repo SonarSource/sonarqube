@@ -147,7 +147,6 @@ public class ProjectScanContainer extends ComponentContainer {
       ResourceCache.class,
       ComponentDataCache.class,
       FileHashesPersister.class,
-      DefaultUserFinder.class,
 
       // file system
       InputPathCache.class,
@@ -176,9 +175,6 @@ public class ProjectScanContainer extends ComponentContainer {
       HighlightableBuilder.class,
       SymbolizableBuilder.class,
 
-      // technical debt
-      DefaultTechnicalDebtModel.class,
-
       // Differential periods
       PeriodsDefinition.class,
 
@@ -205,9 +201,14 @@ public class ProjectScanContainer extends ComponentContainer {
       SourcePersister.class,
       ResourceKeyMigration.class,
 
+      DefaultUserFinder.class,
+
       // Rules
       new RulesProvider(),
       new DebtModelProvider(),
+
+      // technical debt
+      DefaultTechnicalDebtModel.class,
 
       ProjectLock.class);
   }

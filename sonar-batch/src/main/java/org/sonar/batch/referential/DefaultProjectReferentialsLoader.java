@@ -71,6 +71,13 @@ public class DefaultProjectReferentialsLoader implements ProjectReferentialsLoad
     this.dao = dao;
   }
 
+  public DefaultProjectReferentialsLoader(ServerClient serverClient, AnalysisMode analysisMode) {
+    this.session = null;
+    this.serverClient = serverClient;
+    this.analysisMode = analysisMode;
+    this.dao = null;
+  }
+
   @Override
   public ProjectReferentials load(ProjectReactor reactor, TaskProperties taskProperties) {
     String projectKey = reactor.getRoot().getKeyWithBranch();
@@ -83,29 +90,31 @@ public class DefaultProjectReferentialsLoader implements ProjectReferentialsLoad
     url += "&preview=" + analysisMode.isPreview();
     ProjectReferentials ref = ProjectReferentials.fromJson(serverClient.request(url));
 
-    for (ProjectDefinition module : reactor.getProjects()) {
+    if (session != null) {
+      for (ProjectDefinition module : reactor.getProjects()) {
 
-      for (Map.Entry<String, String> hashByPaths : hashByRelativePath(module.getKeyWithBranch()).entrySet()) {
-        String path = hashByPaths.getKey();
-        String hash = hashByPaths.getValue();
-        String lastCommits = null;
-        String revisions = null;
-        String authors = null;
-        List<Object[]> measuresByKey = query(projectKey + ":" + path, CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY, CoreMetrics.SCM_REVISIONS_BY_LINE_KEY,
-          CoreMetrics.SCM_AUTHORS_BY_LINE_KEY);
-        for (Object[] measureByKey : measuresByKey) {
-          if (measureByKey[0].equals(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY)) {
-            lastCommits = ((MeasureModel) measureByKey[1]).getData(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE);
-          } else if (measureByKey[0].equals(CoreMetrics.SCM_REVISIONS_BY_LINE_KEY)) {
-            revisions = ((MeasureModel) measureByKey[1]).getData(CoreMetrics.SCM_REVISIONS_BY_LINE);
-          } else if (measureByKey[0].equals(CoreMetrics.SCM_AUTHORS_BY_LINE_KEY)) {
-            authors = ((MeasureModel) measureByKey[1]).getData(CoreMetrics.SCM_AUTHORS_BY_LINE);
+        for (Map.Entry<String, String> hashByPaths : hashByRelativePath(module.getKeyWithBranch()).entrySet()) {
+          String path = hashByPaths.getKey();
+          String hash = hashByPaths.getValue();
+          String lastCommits = null;
+          String revisions = null;
+          String authors = null;
+          List<Object[]> measuresByKey = query(projectKey + ":" + path, CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY, CoreMetrics.SCM_REVISIONS_BY_LINE_KEY,
+            CoreMetrics.SCM_AUTHORS_BY_LINE_KEY);
+          for (Object[] measureByKey : measuresByKey) {
+            if (measureByKey[0].equals(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY)) {
+              lastCommits = ((MeasureModel) measureByKey[1]).getData(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE);
+            } else if (measureByKey[0].equals(CoreMetrics.SCM_REVISIONS_BY_LINE_KEY)) {
+              revisions = ((MeasureModel) measureByKey[1]).getData(CoreMetrics.SCM_REVISIONS_BY_LINE);
+            } else if (measureByKey[0].equals(CoreMetrics.SCM_AUTHORS_BY_LINE_KEY)) {
+              authors = ((MeasureModel) measureByKey[1]).getData(CoreMetrics.SCM_AUTHORS_BY_LINE);
+            }
           }
+          ref.addFileData(module.getKeyWithBranch(), path, new FileData(hash, lastCommits, revisions, authors));
         }
-        ref.addFileData(module.getKeyWithBranch(), path, new FileData(hash, lastCommits, revisions, authors));
       }
+      ref.setLastAnalysisDate(lastSnapshotCreationDate(projectKey));
     }
-    ref.setLastAnalysisDate(lastSnapshotCreationDate(projectKey));
     return ref;
   }
 

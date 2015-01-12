@@ -32,6 +32,7 @@ import org.sonar.batch.rule.QProfileVerifier;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.batch.scan.filesystem.FileSystemLogger;
 import org.sonar.batch.scan.maven.MavenPluginsConfigurator;
+import org.sonar.batch.scan.report.JsonReport;
 
 public final class PreviewPhaseExecutor implements PhaseExecutor {
 
@@ -50,12 +51,13 @@ public final class PreviewPhaseExecutor implements PhaseExecutor {
   private final QProfileVerifier profileVerifier;
   private final IssueExclusionsLoader issueExclusionsLoader;
   private final AnalysisMode analysisMode;
+  private final JsonReport jsonReport;
 
   public PreviewPhaseExecutor(Phases phases,
     MavenPluginsConfigurator mavenPluginsConfigurator, InitializersExecutor initializersExecutor,
     SensorsExecutor sensorsExecutor,
     SensorContext sensorContext, DefaultIndex index,
-    EventBus eventBus, ProjectInitializer pi, FileSystemLogger fsLogger, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
+    EventBus eventBus, ProjectInitializer pi, FileSystemLogger fsLogger, JsonReport jsonReport, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
     IssueExclusionsLoader issueExclusionsLoader, AnalysisMode analysisMode) {
     this.phases = phases;
     this.mavenPluginsConfigurator = mavenPluginsConfigurator;
@@ -66,6 +68,7 @@ public final class PreviewPhaseExecutor implements PhaseExecutor {
     this.eventBus = eventBus;
     this.pi = pi;
     this.fsLogger = fsLogger;
+    this.jsonReport = jsonReport;
     this.fs = fs;
     this.profileVerifier = profileVerifier;
     this.issueExclusionsLoader = issueExclusionsLoader;
@@ -96,6 +99,10 @@ public final class PreviewPhaseExecutor implements PhaseExecutor {
       initIssueExclusions();
 
       sensorsExecutor.execute(sensorContext);
+    }
+
+    if (module.isRoot()) {
+      jsonReport.execute();
     }
 
     cleanMemory();

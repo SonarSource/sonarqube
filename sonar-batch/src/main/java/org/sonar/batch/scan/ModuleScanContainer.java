@@ -26,6 +26,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.rule.CheckFactory;
+import org.sonar.api.checks.NoSonarFilter;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileExclusions;
@@ -78,6 +79,7 @@ import org.sonar.batch.rule.QProfileDecorator;
 import org.sonar.batch.rule.QProfileEventsDecorator;
 import org.sonar.batch.rule.QProfileSensor;
 import org.sonar.batch.rule.QProfileVerifier;
+import org.sonar.batch.rule.RuleFinderCompatibility;
 import org.sonar.batch.rule.RulesProfileProvider;
 import org.sonar.batch.scan.filesystem.ComponentIndexer;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
@@ -133,7 +135,8 @@ public class ModuleScanContainer extends ComponentContainer {
     if (!sensorMode) {
       add(DefaultPhaseExecutor.class);
     } else {
-      add(PreviewPhaseExecutor.class);
+      add(RuleFinderCompatibility.class,
+        PreviewPhaseExecutor.class);
     }
 
     add(
@@ -201,6 +204,7 @@ public class ModuleScanContainer extends ComponentContainer {
       IssueExclusionsLoader.class,
       EnforceIssuesFilter.class,
       IgnoreIssuesFilter.class,
+      NoSonarFilter.class,
 
       ScanPerspectives.class);
   }

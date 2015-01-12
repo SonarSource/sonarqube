@@ -25,7 +25,6 @@ import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
 import org.sonar.api.SonarPlugin;
-import org.sonar.api.checks.NoSonarFilter;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.plugins.core.charts.DistributionAreaChart;
 import org.sonar.plugins.core.charts.DistributionBarChart;
@@ -373,7 +372,6 @@ public final class CorePlugin extends SonarPlugin {
       CoverageMeasurementFilter.class,
       ApplyProjectRolesDecorator.class,
       CommentDensityDecorator.class,
-      NoSonarFilter.class,
       DirectoriesDecorator.class,
       FilesDecorator.class,
       ManualMeasureDecorator.class,

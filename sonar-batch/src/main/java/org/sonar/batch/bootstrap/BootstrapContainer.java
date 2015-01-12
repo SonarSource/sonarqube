@@ -83,6 +83,7 @@ public class BootstrapContainer extends ComponentContainer {
       addDatabaseComponents();
       addCoreComponents();
     }
+
   }
 
   private void addBootstrapComponents() {

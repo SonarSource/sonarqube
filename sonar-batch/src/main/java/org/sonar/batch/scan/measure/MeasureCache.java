@@ -43,6 +43,11 @@ public class MeasureCache implements BatchComponent {
     cache = caches.createCache("measures");
   }
 
+  public MeasureCache(Caches caches, MetricFinder metricFinder) {
+    caches.registerValueCoder(Measure.class, new MeasureValueCoder(metricFinder, null));
+    cache = caches.createCache("measures");
+  }
+
   public Iterable<Entry<Measure>> entries() {
     return cache.entries();
   }

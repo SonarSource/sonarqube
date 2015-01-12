@@ -32,6 +32,8 @@ import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
+import org.sonar.api.batch.rule.ActiveRules;
+import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
@@ -39,8 +41,6 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.batch.bootstrap.AnalysisMode;
@@ -73,7 +73,7 @@ public class JsonReportTest {
   Resource resource = mock(Resource.class);
   DefaultFileSystem fs = new DefaultFileSystem();
   Server server = mock(Server.class);
-  RuleFinder ruleFinder = mock(RuleFinder.class);
+  ActiveRules activeRules = mock(ActiveRules.class);
   Settings settings = new Settings();
   IssueCache issueCache = mock(IssueCache.class);
   private UserFinder userFinder;
@@ -96,7 +96,10 @@ public class JsonReportTest {
     moduleA.setParent(rootModule).setPath("core");
     Project moduleB = new Project("struts-ui");
     moduleB.setParent(rootModule).setPath("ui");
-    jsonReport = new JsonReport(settings, fs, server, ruleFinder, issueCache, mock(EventBus.class),
+    activeRules = new ActiveRulesBuilder()
+      .create(RuleKey.of("squid", "AvoidCycles")).setName("Avoid Cycles").activate()
+      .build();
+    jsonReport = new JsonReport(settings, fs, server, activeRules, issueCache, mock(EventBus.class),
       mode, userFinder, rootModule, fileCache);
   }
 
@@ -117,7 +120,6 @@ public class JsonReportTest {
       .setCreationDate(SIMPLE_DATE_FORMAT.parse("2013-04-24"))
       .setUpdateDate(SIMPLE_DATE_FORMAT.parse("2013-04-25"))
       .setNew(false);
-    when(ruleFinder.findByKey(RuleKey.of("squid", "AvoidCycles"))).thenReturn(new Rule().setName("Avoid Cycles"));
     when(jsonReport.getIssues()).thenReturn(Lists.newArrayList(issue));
     DefaultUser user1 = new DefaultUser().setLogin("julien").setName("Julien");
     DefaultUser user2 = new DefaultUser().setLogin("simon").setName("Simon");
@@ -143,7 +145,6 @@ public class JsonReportTest {
       .setUpdateDate(SIMPLE_DATE_FORMAT.parse("2013-04-25"))
       .setCloseDate(SIMPLE_DATE_FORMAT.parse("2013-04-26"))
       .setNew(false);
-    when(ruleFinder.findByKey(ruleKey)).thenReturn(Rule.create(ruleKey.repository(), ruleKey.rule()).setName("Avoid Cycles"));
     when(jsonReport.getIssues()).thenReturn(Lists.newArrayList(issue));
 
     StringWriter writer = new StringWriter();
@@ -169,8 +170,6 @@ public class JsonReportTest {
     File workDir = temporaryFolder.newFolder("sonar");
     fs.setWorkDir(workDir);
 
-    Rule rule = Rule.create("squid", "AvoidCycles").setName("Avoid Cycles");
-    when(ruleFinder.findByKey(RuleKey.of("squid", "AvoidCycles"))).thenReturn(rule);
     when(jsonReport.getIssues()).thenReturn(Collections.<DefaultIssue>emptyList());
 
     settings.setProperty("sonar.report.export.path", "output.json");

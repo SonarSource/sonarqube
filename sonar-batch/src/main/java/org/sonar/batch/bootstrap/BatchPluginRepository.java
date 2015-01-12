@@ -134,8 +134,10 @@ public class BatchPluginRepository implements PluginRepository {
   static class PluginFilter {
     private static final String PROPERTY_IS_DEPRECATED_MSG = "Property {0} is deprecated. Please use {1} instead.";
     Set<String> whites = newHashSet(), blacks = newHashSet();
+    private AnalysisMode mode;
 
     PluginFilter(Settings settings, AnalysisMode mode) {
+      this.mode = mode;
       if (settings.hasKey(CoreProperties.BATCH_INCLUDE_PLUGINS)) {
         whites.addAll(Arrays.asList(settings.getStringArray(CoreProperties.BATCH_INCLUDE_PLUGINS)));
       }
@@ -177,7 +179,7 @@ public class BatchPluginRepository implements PluginRepository {
 
     boolean accepts(String pluginKey) {
       if (CORE_PLUGIN.equals(pluginKey)) {
-        return true;
+        return !mode.isSensorMode();
       }
 
       List<String> mergeList = newArrayList(blacks);

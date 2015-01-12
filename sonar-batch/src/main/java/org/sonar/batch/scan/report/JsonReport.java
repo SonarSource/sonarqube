@@ -31,13 +31,13 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.rule.ActiveRules;
+import org.sonar.api.batch.rule.internal.DefaultActiveRule;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.platform.Server;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.api.utils.SonarException;
@@ -55,6 +55,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -70,7 +71,7 @@ public class JsonReport implements BatchComponent {
   private final Settings settings;
   private final FileSystem fileSystem;
   private final Server server;
-  private final RuleFinder ruleFinder;
+  private final ActiveRules activeRules;
   private final IssueCache issueCache;
   private final EventBus eventBus;
   private final AnalysisMode analysisMode;
@@ -78,12 +79,12 @@ public class JsonReport implements BatchComponent {
   private final InputPathCache fileCache;
   private final Project rootModule;
 
-  public JsonReport(Settings settings, FileSystem fileSystem, Server server, RuleFinder ruleFinder, IssueCache issueCache,
+  public JsonReport(Settings settings, FileSystem fileSystem, Server server, ActiveRules activeRules, IssueCache issueCache,
     EventBus eventBus, AnalysisMode analysisMode, UserFinder userFinder, Project rootModule, InputPathCache fileCache) {
     this.settings = settings;
     this.fileSystem = fileSystem;
     this.server = server;
-    this.ruleFinder = ruleFinder;
+    this.activeRules = activeRules;
     this.issueCache = issueCache;
     this.eventBus = eventBus;
     this.analysisMode = analysisMode;
@@ -92,16 +93,31 @@ public class JsonReport implements BatchComponent {
     this.fileCache = fileCache;
   }
 
+  public JsonReport(Settings settings, FileSystem fileSystem, Server server, ActiveRules activeRules, IssueCache issueCache,
+    EventBus eventBus, AnalysisMode analysisMode, Project rootModule, InputPathCache fileCache) {
+    this.settings = settings;
+    this.fileSystem = fileSystem;
+    this.server = server;
+    this.activeRules = activeRules;
+    this.issueCache = issueCache;
+    this.eventBus = eventBus;
+    this.analysisMode = analysisMode;
+    this.userFinder = null;
+    this.rootModule = rootModule;
+    this.fileCache = fileCache;
+  }
+
   public void execute() {
-    if (analysisMode.isPreview()) {
+    String exportPath = settings.getString("sonar.report.export.path");
+    if (exportPath != null && (analysisMode.isPreview() || analysisMode.isSensorMode())) {
       eventBus.fireEvent(new BatchStepEvent("JSON report", true));
-      exportResults();
+      exportResults(exportPath);
       eventBus.fireEvent(new BatchStepEvent("JSON report", false));
     }
   }
 
-  private void exportResults() {
-    File exportFile = new File(fileSystem.workDir(), settings.getString("sonar.report.export.path"));
+  private void exportResults(String exportPath) {
+    File exportFile = new File(fileSystem.workDir(), exportPath);
 
     LOG.info("Export results to " + exportFile.getAbsolutePath());
     try (Writer output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(exportFile), Charsets.UTF_8))) {
@@ -124,7 +140,7 @@ public class JsonReport implements BatchComponent {
       writeJsonIssues(json, ruleKeys, userLogins);
       writeJsonComponents(json);
       writeJsonRules(json, ruleKeys);
-      List<User> users = userFinder.findByLogins(new ArrayList<String>(userLogins));
+      List<User> users = userFinder != null ? userFinder.findByLogins(new ArrayList<String>(userLogins)) : Collections.<User>emptyList();
       writeUsers(json, users);
       json.endObject().close();
 
@@ -235,8 +251,8 @@ public class JsonReport implements BatchComponent {
   }
 
   private String getRuleName(RuleKey ruleKey) {
-    Rule rule = ruleFinder.findByKey(ruleKey);
-    return rule != null ? rule.getName() : null;
+    DefaultActiveRule rule = (DefaultActiveRule) activeRules.find(ruleKey);
+    return rule != null ? rule.name() : null;
   }
 
   @VisibleForTesting

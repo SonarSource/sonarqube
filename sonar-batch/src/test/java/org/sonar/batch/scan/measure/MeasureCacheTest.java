@@ -66,6 +66,8 @@ public class MeasureCacheTest {
 
   private TechnicalDebtModel techDebtModel;
 
+  private MeasureCache cache;
+
   @Before
   public void start() throws Exception {
     caches = CachesTest.createCacheOnTemp(temp);
@@ -73,6 +75,7 @@ public class MeasureCacheTest {
     metricFinder = mock(MetricFinder.class);
     when(metricFinder.findByKey(CoreMetrics.NCLOC_KEY)).thenReturn(CoreMetrics.NCLOC);
     techDebtModel = mock(TechnicalDebtModel.class);
+    cache = new MeasureCache(caches, metricFinder, techDebtModel);
   }
 
   @After
@@ -82,7 +85,6 @@ public class MeasureCacheTest {
 
   @Test
   public void should_add_measure() throws Exception {
-    MeasureCache cache = new MeasureCache(caches, metricFinder, techDebtModel);
     Project p = new Project("struts");
 
     assertThat(cache.entries()).hasSize(0);
@@ -113,7 +115,6 @@ public class MeasureCacheTest {
 
   @Test
   public void should_add_measure_with_big_data() throws Exception {
-    MeasureCache cache = new MeasureCache(caches, metricFinder, techDebtModel);
     Project p = new Project("struts");
 
     assertThat(cache.entries()).hasSize(0);
@@ -153,7 +154,6 @@ public class MeasureCacheTest {
    */
   @Test
   public void should_add_measure_with_too_big_data_for_persistit_pre_patch() throws Exception {
-    MeasureCache cache = new MeasureCache(caches, metricFinder, techDebtModel);
     Project p = new Project("struts");
 
     assertThat(cache.entries()).hasSize(0);
@@ -189,7 +189,6 @@ public class MeasureCacheTest {
 
   @Test
   public void should_add_measure_with_too_big_data_for_persistit() throws Exception {
-    MeasureCache cache = new MeasureCache(caches, metricFinder, techDebtModel);
     Project p = new Project("struts");
 
     assertThat(cache.entries()).hasSize(0);
@@ -212,7 +211,6 @@ public class MeasureCacheTest {
 
   @Test
   public void should_add_measure_with_same_metric() throws Exception {
-    MeasureCache cache = new MeasureCache(caches, metricFinder, techDebtModel);
     Project p = new Project("struts");
 
     assertThat(cache.entries()).hasSize(0);
@@ -234,7 +232,6 @@ public class MeasureCacheTest {
 
   @Test
   public void should_get_measures() throws Exception {
-    MeasureCache cache = new MeasureCache(caches, metricFinder, techDebtModel);
     Project p = new Project("struts");
     Resource dir = new Directory("foo/bar").setEffectiveKey("struts:foo/bar");
     Resource file1 = new File("foo/bar/File1.txt").setEffectiveKey("struts:foo/bar/File1.txt");
@@ -274,7 +271,6 @@ public class MeasureCacheTest {
 
   @Test
   public void test_measure_coder() throws Exception {
-    MeasureCache cache = new MeasureCache(caches, metricFinder, techDebtModel);
     Resource file1 = new File("foo/bar/File1.txt").setEffectiveKey("struts:foo/bar/File1.txt");
 
     Measure measure = new Measure(CoreMetrics.NCLOC, 1.786, 5);
