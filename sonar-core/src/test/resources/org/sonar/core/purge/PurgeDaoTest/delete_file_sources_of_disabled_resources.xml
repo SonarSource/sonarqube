@@ -73,7 +73,7 @@
              build_date="2008-12-02 13:58:00.00" version="[null]" path="[null]"/>
 
   <file_sources id="1" project_uuid="ABCD" file_uuid="GHIJ" data="[null]" line_hashes="[null]" data_hash="321654987"
-                created_at="123456789" updated_at="123456789"/>
+                created_at="123456789" updated_at="123456789" src_hash="12345"/>
   <file_sources id="2" project_uuid="ABCD" file_uuid="KLMN" data="[null]" line_hashes="[null]" data_hash="321654988"
-                created_at="123456789" updated_at="123456789"/>
+                created_at="123456789" updated_at="123456789" src_hash="123456"/>
 </dataset>

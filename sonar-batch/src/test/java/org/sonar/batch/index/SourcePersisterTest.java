@@ -127,6 +127,7 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     FileUtils.write(sameFile, "changed\ncontent");
     DefaultInputFile inputFileNew = new DefaultInputFile(PROJECT_KEY, relativePathSame).setLines(2)
       .setAbsolutePath(sameFile.getAbsolutePath())
+      .setHash("123456")
       .setLineHashes(new byte[][] {md5("changed"), md5("content")});
     when(inputPathCache.all()).thenReturn(Arrays.<InputPath>asList(inputFileNew));
 
@@ -141,6 +142,7 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
       ",,,,,,,,,,,,,,,changed\r\n,,,,,,,,,,,,,,,content\r\n");
     assertThat(fileSourceDto.getLineHashes()).isEqualTo(md5Hex("changed") + "\n" + md5Hex("content"));
     assertThat(fileSourceDto.getDataHash()).isEqualTo("d1a4dd62422639f665a8d80b37c59f8d");
+    assertThat(fileSourceDto.getSrcHash()).isEqualTo("123456");
   }
 
   @Test
@@ -151,6 +153,7 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     String relativePathEmpty = "src/empty.java";
     DefaultInputFile inputFileEmpty = new DefaultInputFile(PROJECT_KEY, relativePathEmpty)
       .setLines(0)
+      .setHash("")
       .setLineHashes(new byte[][] {});
     when(inputPathCache.all()).thenReturn(Arrays.<InputPath>asList(inputFileEmpty));
 

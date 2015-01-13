@@ -31,6 +31,7 @@ public class FileSourceDto {
   private String data;
   private String lineHashes;
   private String dataHash;
+  private String srcHash;
 
   public Long getId() {
     return id;
@@ -85,6 +86,15 @@ public class FileSourceDto {
 
   public FileSourceDto setDataHash(String dataHash) {
     this.dataHash = dataHash;
+    return this;
+  }
+
+  public String getSrcHash() {
+    return srcHash;
+  }
+
+  public FileSourceDto setSrcHash(String srcHash) {
+    this.srcHash = srcHash;
     return this;
   }
 

@@ -141,6 +141,7 @@ public class SourcePersister implements ScanPersister {
         .setFileUuid(fileUuid)
         .setData(newData)
         .setDataHash(newDataHash)
+        .setSrcHash(inputFile.hash())
         .setLineHashes(lineHashesAsMd5Hex(inputFile))
         .setCreatedAt(now.getTime())
         .setUpdatedAt(now.getTime());
@@ -152,6 +153,7 @@ public class SourcePersister implements ScanPersister {
           .setData(newData)
           .setLineHashes(lineHashesAsMd5Hex(inputFile))
           .setDataHash(newDataHash)
+          .setSrcHash(inputFile.hash())
           .setUpdatedAt(now.getTime());
         mapper.update(previous);
         session.commit();

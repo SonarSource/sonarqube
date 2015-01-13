@@ -70,6 +70,7 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
     dao.insert(new FileSourceDto().setProjectUuid("prj").setFileUuid("file").setData("bla bla")
       .setDataHash("hash2")
       .setLineHashes("foo\nbar")
+      .setSrcHash("hache")
       .setCreatedAt(DateUtils.parseDateTime("2014-10-31T16:44:02+0100").getTime())
       .setUpdatedAt(DateUtils.parseDateTime("2014-10-31T16:44:02+0100").getTime()));
 
@@ -81,6 +82,7 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
     dao.update(new FileSourceDto().setId(101L).setProjectUuid("prj").setFileUuid("file")
       .setData("updated data")
       .setDataHash("hash2")
+      .setSrcHash("123456")
       .setLineHashes("foo2\nbar2")
       .setUpdatedAt(DateUtils.parseDateTime("2014-10-31T16:44:02+0100").getTime()));
 

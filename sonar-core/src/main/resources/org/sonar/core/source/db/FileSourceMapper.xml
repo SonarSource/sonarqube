@@ -5,7 +5,7 @@
 <mapper namespace="org.sonar.core.source.db.FileSourceMapper">
 
   <select id="select" parameterType="string" resultType="org.sonar.core.source.db.FileSourceDto">
-    SELECT id, project_uuid as projectUuid, file_uuid as fileUuid, created_at as createdAt, updated_at as updatedAt, data, line_hashes as lineHashes, data_hash as dataHash
+    SELECT id, project_uuid as projectUuid, file_uuid as fileUuid, created_at as createdAt, updated_at as updatedAt, data, line_hashes as lineHashes, data_hash as dataHash, src_hash as srcHash
     FROM file_sources
     WHERE file_uuid = #{fileUuid}
   </select>
@@ -17,8 +17,8 @@
   </select>
   
   <insert id="insert" parameterType="org.sonar.core.source.db.FileSourceDto" useGeneratedKeys="false">
-    insert into file_sources (project_uuid, file_uuid, created_at, updated_at, data, line_hashes, data_hash) 
-    values (#{projectUuid,jdbcType=VARCHAR}, #{fileUuid,jdbcType=VARCHAR}, #{createdAt,jdbcType=BIGINT}, #{updatedAt,jdbcType=BIGINT}, #{data,jdbcType=CLOB}, #{lineHashes,jdbcType=CLOB}, #{dataHash,jdbcType=VARCHAR})
+    insert into file_sources (project_uuid, file_uuid, created_at, updated_at, data, line_hashes, data_hash, src_hash) 
+    values (#{projectUuid,jdbcType=VARCHAR}, #{fileUuid,jdbcType=VARCHAR}, #{createdAt,jdbcType=BIGINT}, #{updatedAt,jdbcType=BIGINT}, #{data,jdbcType=CLOB}, #{lineHashes,jdbcType=CLOB}, #{dataHash,jdbcType=VARCHAR}, #{srcHash,jdbcType=VARCHAR})
   </insert>
   
   <update id="update" parameterType="org.sonar.core.source.db.FileSourceDto" useGeneratedKeys="false">
@@ -26,7 +26,8 @@
       updated_at = #{updatedAt},
       data = #{data},
       line_hashes = #{lineHashes},
-      data_hash = #{dataHash}
+      data_hash = #{dataHash},
+      src_hash = #{srcHash}
     where id = #{id}
   </update>
 
