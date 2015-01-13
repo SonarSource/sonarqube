@@ -49,8 +49,8 @@ public class ProjectReferentialsTest {
     ref.addActiveRule(activeRule);
     ref.setLastAnalysisDate(new SimpleDateFormat("dd/MM/yyyy").parse("31/10/2014"));
     ref.setTimestamp(10);
-    ref.addFileData("foo", "src/main/java/Foo.java", new FileData("xyz", "1=12345,2=3456", "1=345,2=345", "1=henryju,2=gaudin"));
-    ref.addFileData("foo", "src/main/java/Foo2.java", new FileData("xyz", "1=12345,2=3456", "1=345,2=345", "1=henryju,2=gaudin"));
+    ref.addFileData("foo", "src/main/java/Foo.java", new FileData("xyz", true, "1=12345,2=3456", "1=345,2=345", "1=henryju,2=gaudin"));
+    ref.addFileData("foo", "src/main/java/Foo2.java", new FileData("xyz", false, "1=12345,2=3456", "1=345,2=345", "1=henryju,2=gaudin"));
 
     JSONAssert
       .assertEquals(
@@ -58,8 +58,8 @@ public class ProjectReferentialsTest {
           + "qprofilesByLanguage:{java:{key:\"squid-java\",name:Java,language:java,rulesUpdatedAt:\"1984-03-14T00:00:00+0100\"}},"
           + "activeRules:[{repositoryKey:repo,ruleKey:rule,name:Rule,severity:MAJOR,internalKey:rule,language:java,params:{param1:value1}}],"
           + "settingsByModule:{foo:{prop1:value1,prop2:value2,prop:value}},"
-          + "fileDataByModuleAndPath:{foo:{\"src/main/java/Foo.java\":{hash:xyz,scmLastCommitDatetimesByLine:\"1\u003d12345,2\u003d3456\",scmRevisionsByLine:\"1\u003d345,2\u003d345\",scmAuthorsByLine:\"1\u003dhenryju,2\u003dgaudin\"},"
-          + "\"src/main/java/Foo2.java\":{hash:xyz,scmLastCommitDatetimesByLine:\"1\u003d12345,2\u003d3456\",scmRevisionsByLine:\"1\u003d345,2\u003d345\",scmAuthorsByLine:\"1\u003dhenryju,2\u003dgaudin\"}}},"
+          + "fileDataByModuleAndPath:{foo:{\"src/main/java/Foo.java\":{hash:xyz,needBlame:true,scmLastCommitDatetimesByLine:\"1\u003d12345,2\u003d3456\",scmRevisionsByLine:\"1\u003d345,2\u003d345\",scmAuthorsByLine:\"1\u003dhenryju,2\u003dgaudin\"},"
+          + "\"src/main/java/Foo2.java\":{hash:xyz,needBlame:false,scmLastCommitDatetimesByLine:\"1\u003d12345,2\u003d3456\",scmRevisionsByLine:\"1\u003d345,2\u003d345\",scmAuthorsByLine:\"1\u003dhenryju,2\u003dgaudin\"}}},"
           + "lastAnalysisDate:\"2014-10-31T00:00:00+0100\"}",
         ref.toJson(), true);
   }
@@ -71,7 +71,7 @@ public class ProjectReferentialsTest {
         + "qprofilesByLanguage:{java:{key:\"squid-java\",name:Java,language:java,rulesUpdatedAt:\"1984-03-14T00:00:00+0100\"}},"
         + "activeRules:[{repositoryKey:repo,ruleKey:rule,name:Rule,severity:MAJOR,internalKey:rule1,language:java,params:{param1:value1}}],"
         + "settingsByModule:{foo:{prop:value}},"
-        + "fileDataByModuleAndPath:{foo:{\"src/main/java/Foo.java\":{hash:xyz,scmLastCommitDatetimesByLine:\"1\u003d12345,2\u003d3456\",scmRevisionsByLine:\"1\u003d345,2\u003d345\",scmAuthorsByLine:\"1\u003dhenryju,2\u003dgaudin\"}}},"
+        + "fileDataByModuleAndPath:{foo:{\"src/main/java/Foo.java\":{hash:xyz,needBlame:true,scmLastCommitDatetimesByLine:\"1\u003d12345,2\u003d3456\",scmRevisionsByLine:\"1\u003d345,2\u003d345\",scmAuthorsByLine:\"1\u003dhenryju,2\u003dgaudin\"}}},"
         + "lastAnalysisDate:\"2014-10-31T00:00:00+0100\"}");
 
     assertThat(ref.timestamp()).isEqualTo(1);
@@ -94,6 +94,7 @@ public class ProjectReferentialsTest {
     assertThat(ref.fileData("foo2", "src/main/java/Foo3.java")).isNull();
 
     assertThat(ref.fileData("foo", "src/main/java/Foo.java").hash()).isEqualTo("xyz");
+    assertThat(ref.fileData("foo", "src/main/java/Foo.java").needBlame()).isTrue();
     assertThat(ref.fileData("foo", "src/main/java/Foo.java").scmAuthorsByLine()).isEqualTo("1=henryju,2=gaudin");
     assertThat(ref.fileData("foo", "src/main/java/Foo.java").scmLastCommitDatetimesByLine()).isEqualTo("1=12345,2=3456");
     assertThat(ref.fileData("foo", "src/main/java/Foo.java").scmRevisionsByLine()).isEqualTo("1=345,2=345");

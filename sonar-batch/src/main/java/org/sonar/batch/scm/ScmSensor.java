@@ -95,15 +95,18 @@ public final class ScmSensor implements Sensor {
     FileData fileData = projectReferentials.fileData(projectDefinition.getKeyWithBranch(), f.relativePath());
 
     if (f.status() == Status.SAME && fileData != null) {
-      String scmAuthorsByLine = fileData.scmAuthorsByLine();
-      String scmLastCommitDatetimesByLine = fileData.scmLastCommitDatetimesByLine();
-      String scmRevisionsByLine = fileData.scmRevisionsByLine();
-      if (scmAuthorsByLine != null
-        && scmLastCommitDatetimesByLine != null
-        && scmRevisionsByLine != null) {
-        saveMeasures(context, f, scmAuthorsByLine, scmLastCommitDatetimesByLine, scmRevisionsByLine);
-      } else {
+      if (fileData.needBlame()) {
         filesToBlame.add(f);
+      } else {
+        // Copy previous measures
+        String scmAuthorsByLine = fileData.scmAuthorsByLine();
+        String scmLastCommitDatetimesByLine = fileData.scmLastCommitDatetimesByLine();
+        String scmRevisionsByLine = fileData.scmRevisionsByLine();
+        if (scmAuthorsByLine != null
+          && scmLastCommitDatetimesByLine != null
+          && scmRevisionsByLine != null) {
+          saveMeasures(context, f, scmAuthorsByLine, scmLastCommitDatetimesByLine, scmRevisionsByLine);
+        }
       }
     } else {
       filesToBlame.add(f);
