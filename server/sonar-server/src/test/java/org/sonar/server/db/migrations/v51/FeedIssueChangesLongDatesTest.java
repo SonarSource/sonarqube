@@ -48,6 +48,6 @@ public class FeedIssueChangesLongDatesTest {
 
     int countWithAllDateFieldsNull = db
       .countSql("select count(*) from issue_changes where created_at_ms is not null and updated_at_ms is not null and issue_change_creation_date_ms is not null");
-    assertThat(countWithAllDateFieldsNull).isEqualTo(1);
+    assertThat(countWithAllDateFieldsNull).isEqualTo(2);
   }
 }

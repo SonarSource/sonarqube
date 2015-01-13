@@ -44,7 +44,7 @@ public class FeedIssueChangesLongDates extends BaseDataChange {
     final long now = system.now();
 
     MassUpdate massUpdate = context.prepareMassUpdate();
-    massUpdate.select("SELECT i.created_at, i.updated_at, i.issue_change_creation_date_ms, i.id FROM issue_changes i WHERE created_at_ms IS NULL");
+    massUpdate.select("SELECT i.created_at, i.updated_at, i.issue_change_creation_date, i.id FROM issue_changes i WHERE created_at_ms IS NULL");
     massUpdate.update("UPDATE issue_changes SET created_at_ms=?, updated_at_ms=?, issue_change_creation_date_ms=? WHERE id=?");
     massUpdate.rowPluralName("issue_changes");
     massUpdate.execute(new MassUpdate.Handler() {
