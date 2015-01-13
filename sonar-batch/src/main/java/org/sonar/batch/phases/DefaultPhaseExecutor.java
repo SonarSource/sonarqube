@@ -126,7 +126,7 @@ public final class DefaultPhaseExecutor implements PhaseExecutor {
       sensorsExecutor.execute(sensorContext);
     }
 
-    // Special case for views. ProjectCountDecorator need resource id...
+    // Special case for views.
     resourcePersister.persist();
 
     if (phases.isEnabled(Phases.Phase.DECORATOR)) {

@@ -116,9 +116,6 @@ public class ResourcePersister implements ScanPersister {
   }
 
   private Snapshot persistProject(Project project, @Nullable Project parent) {
-    // temporary hack
-    project.setEffectiveKey(project.getKey());
-
     ResourceModel model = findOrCreateModel(project, parent);
     // Used by ResourceKeyMigration in order to know that a project has already being migrated
     model.setDeprecatedKey(project.getKey());

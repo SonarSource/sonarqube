@@ -560,7 +560,11 @@ public class DefaultIndex extends SonarIndex {
       return null;
     }
 
-    resource.setEffectiveKey(ComponentKeys.createEffectiveKey(currentProject, resource));
+    if (ResourceUtils.isProject(resource) || /* For technical projects */ResourceUtils.isRootProject(resource)) {
+      resource.setEffectiveKey(resource.getKey());
+    } else {
+      resource.setEffectiveKey(ComponentKeys.createEffectiveKey(currentProject, resource));
+    }
     bucket = new Bucket(resource).setParent(parentBucket);
     addBucket(resource, bucket);
 
