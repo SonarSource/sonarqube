@@ -42,6 +42,7 @@ import org.sonar.core.properties.PropertyQuery;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.measure.persistence.MeasureDao;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
@@ -51,13 +52,12 @@ import java.util.Locale;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ComponentAppActionTest {
@@ -91,8 +91,6 @@ public class ComponentAppActionTest {
 
   WsTester tester;
 
-  ComponentDto project;
-
   @Before
   public void setUp() throws Exception {
     DbClient dbClient = mock(DbClient.class);
@@ -100,13 +98,6 @@ public class ComponentAppActionTest {
     when(dbClient.componentDao()).thenReturn(componentDao);
     when(dbClient.propertiesDao()).thenReturn(propertiesDao);
     when(dbClient.measureDao()).thenReturn(measureDao);
-
-    project = ComponentTesting.newProjectDto()
-      .setId(1L)
-      .setName("SonarQube")
-      .setUuid(PROJECT_UUID)
-      .setLongName("SonarQube")
-      .setKey("org.codehaus.sonar:sonar");
 
     when(measureDao.findByComponentKeyAndMetricKeys(anyString(), anyListOf(String.class), eq(session))).thenReturn(measures);
 
@@ -116,6 +107,7 @@ public class ComponentAppActionTest {
   @Test
   public void app() throws Exception {
     MockUserSession.set().setLogin("john").addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
+    ComponentDto project = newProject();
 
     ComponentDto file = ComponentTesting.newFileDto(project)
       .setId(10L)
@@ -138,7 +130,8 @@ public class ComponentAppActionTest {
   @Test
   public void app_with_measures() throws Exception {
     MockUserSession.set().addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
-    addComponent();
+    ComponentDto project = newProject();
+    newComponent(project);
 
     addMeasure(CoreMetrics.LINES_KEY, 200);
     addMeasure(CoreMetrics.COVERAGE_KEY, 95.4);
@@ -160,7 +153,8 @@ public class ComponentAppActionTest {
   @Test
   public void app_with_overall_measure() throws Exception {
     MockUserSession.set().addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
-    addComponent();
+    ComponentDto project = newProject();
+    newComponent(project);
 
     addMeasure(CoreMetrics.OVERALL_COVERAGE_KEY, 90.1);
     addMeasure(CoreMetrics.COVERAGE_KEY, 95.4);
@@ -173,7 +167,8 @@ public class ComponentAppActionTest {
   @Test
   public void app_with_ut_measure() throws Exception {
     MockUserSession.set().addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
-    addComponent();
+    ComponentDto project = newProject();
+    newComponent(project);
 
     addMeasure(CoreMetrics.COVERAGE_KEY, 95.4);
     addMeasure(CoreMetrics.IT_COVERAGE_KEY, 85.2);
@@ -185,7 +180,8 @@ public class ComponentAppActionTest {
   @Test
   public void app_with_it_measure() throws Exception {
     MockUserSession.set().addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
-    addComponent();
+    ComponentDto project = newProject();
+    newComponent(project);
 
     addMeasure(CoreMetrics.IT_COVERAGE_KEY, 85.2);
 
@@ -193,7 +189,29 @@ public class ComponentAppActionTest {
     request.execute().assertJson(getClass(), "app_with_it_measure.json");
   }
 
-  private ComponentDto addComponent() {
+  @Test
+  public void fail_on_unknown_component() throws Exception {
+    MockUserSession.set().setLogin("john").addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
+    when(componentDao.getNullableByUuid(session, COMPONENT_UUID)).thenReturn(null);
+
+    try {
+      tester.newGetRequest("api/components", "app").setParam("uuid", COMPONENT_UUID).execute();
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(NotFoundException.class).hasMessage("Component 'ABCDE' does not exist");
+    }
+  }
+
+  private ComponentDto newProject() {
+    return ComponentTesting.newProjectDto()
+      .setId(1L)
+      .setName("SonarQube")
+      .setUuid(PROJECT_UUID)
+      .setLongName("SonarQube")
+      .setKey("org.codehaus.sonar:sonar");
+  }
+
+  private ComponentDto newComponent(ComponentDto project) {
     ComponentDto file = ComponentTesting.newFileDto(project)
       .setId(10L)
       .setQualifier("FIL")

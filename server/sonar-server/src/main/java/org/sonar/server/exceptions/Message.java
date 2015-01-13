@@ -22,6 +22,9 @@ package org.sonar.server.exceptions;
 import com.google.common.base.Objects;
 import org.apache.commons.lang.StringUtils;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import java.util.Arrays;
 
 public class Message {
@@ -29,7 +32,7 @@ public class Message {
   private final String key;
   private final Object[] params;
 
-  private Message(String key, Object[] params) {
+  private Message(String key, @Nullable Object[] params) {
     this.key = key;
     this.params = params;
   }
@@ -38,6 +41,7 @@ public class Message {
     return key;
   }
 
+  @CheckForNull
   public Object[] getParams() {
     return params;
   }

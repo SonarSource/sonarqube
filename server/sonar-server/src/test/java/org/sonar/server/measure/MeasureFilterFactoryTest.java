@@ -132,7 +132,7 @@ public class MeasureFilterFactoryTest {
     Map<String, Object> props = ImmutableMap.<String, Object>of(
       "fromDate", "2012-01-25",
       "toDate", "2012-02-18"
-    );
+      );
     MeasureFilter filter = factory.create(props);
 
     assertThat(DateUtils.formatDate(filter.getFromDate())).isEqualTo("2012-01-25");
@@ -148,7 +148,7 @@ public class MeasureFilterFactoryTest {
     Map<String, Object> props = ImmutableMap.<String, Object>of(
       "ageMaxDays", "3",
       "ageMinDays", "1"
-    );
+      );
     MeasureFilter filter = factory.create(props);
     assertThat(DateUtils.formatDate(filter.getFromDate())).isEqualTo("2013-05-15");
     assertThat(DateUtils.formatDate(filter.getToDate())).isEqualTo("2013-05-17");
@@ -161,7 +161,7 @@ public class MeasureFilterFactoryTest {
       "c1_metric", "complexity",
       "c1_op", "gte",
       "c1_val", "3.14"
-    );
+      );
     MeasureFilter filter = factory.create(props);
 
     List<MeasureFilterCondition> conditions = filter.getMeasureConditions();
@@ -180,7 +180,7 @@ public class MeasureFilterFactoryTest {
       "c1_op", "gte",
       "c1_val", "3.14",
       "c1_period", "3"
-    );
+      );
     MeasureFilter filter = factory.create(props);
 
     List<MeasureFilterCondition> conditions = filter.getMeasureConditions();
@@ -194,10 +194,9 @@ public class MeasureFilterFactoryTest {
   @Test
   public void alert_level_condition() {
     MeasureFilterFactory factory = new MeasureFilterFactory(newMetricFinder(), system);
-    Map<String, Object> props = ImmutableMap.<String, Object>of(
+    MeasureFilter filter = factory.create(ImmutableMap.<String, Object>of(
       "alertLevels", Arrays.asList("error", "warn", "unknown")
-    );
-    MeasureFilter filter = factory.create(props);
+      ));
 
     List<MeasureFilterCondition> conditions = filter.getMeasureConditions();
     assertThat(conditions).hasSize(1);
@@ -209,11 +208,22 @@ public class MeasureFilterFactoryTest {
   }
 
   @Test
+  public void alert_level_condition_with_no_alert_status_metric() {
+    MeasureFilterFactory factory = new MeasureFilterFactory(mock(MetricFinder.class), system);
+    MeasureFilter filter = factory.create(ImmutableMap.<String, Object>of(
+      "alertLevels", Arrays.asList("error", "warn", "unknown")
+      ));
+
+    List<MeasureFilterCondition> conditions = filter.getMeasureConditions();
+    assertThat(conditions).isEmpty();
+  }
+
+  @Test
   public void name_conditions() {
     MeasureFilterFactory factory = new MeasureFilterFactory(newMetricFinder(), system);
     Map<String, Object> props = ImmutableMap.<String, Object>of(
       "nameSearch", "SonarQube"
-    );
+      );
     MeasureFilter filter = factory.create(props);
 
     assertThat(filter.getResourceName()).isEqualTo("SonarQube");
@@ -223,8 +233,8 @@ public class MeasureFilterFactoryTest {
   public void not_fail_when_name_conditions_contains_array() {
     MeasureFilterFactory factory = new MeasureFilterFactory(newMetricFinder(), system);
     Map<String, Object> props = ImmutableMap.<String, Object>of(
-      "nameSearch", new String[]{"sonar", "qube"}
-    );
+      "nameSearch", new String[] {"sonar", "qube"}
+      );
     MeasureFilter filter = factory.create(props);
 
     assertThat(filter.getResourceName()).isEqualTo("sonar,qube");
@@ -235,7 +245,7 @@ public class MeasureFilterFactoryTest {
     MeasureFilterFactory factory = new MeasureFilterFactory(newMetricFinder(), system);
     Map<String, Object> props = ImmutableMap.<String, Object>of(
       "nameSearch", newArrayList("sonar", "qube")
-    );
+      );
     MeasureFilter filter = factory.create(props);
 
     assertThat(filter.getResourceName()).isEqualTo("sonar,qube");
@@ -247,7 +257,7 @@ public class MeasureFilterFactoryTest {
     Map<String, Object> props = ImmutableMap.<String, Object>of(
       "c1_op", "gte",
       "c1_val", "3.14"
-    );
+      );
     MeasureFilter filter = factory.create(props);
 
     List<MeasureFilterCondition> conditions = filter.getMeasureConditions();

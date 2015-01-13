@@ -21,16 +21,12 @@
 package org.sonar.server.user.index;
 
 import org.apache.commons.dbutils.DbUtils;
-import org.elasticsearch.action.get.GetRequestBuilder;
-import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
-
-import javax.annotation.CheckForNull;
 
 import java.sql.Connection;
 import java.util.Iterator;
@@ -73,21 +69,6 @@ public class UserIndexer extends BaseIndexer {
     }
     bulk.stop();
     return maxUpdatedAt;
-  }
-
-  @CheckForNull
-  public UserDoc getNullableByKey(String login) {
-    GetRequestBuilder request = esClient.prepareGet()
-      .setType(UserIndexDefinition.INDEX)
-      .setIndex(UserIndexDefinition.TYPE_USER)
-      .setId(login)
-      .setFetchSource(true)
-      .setRouting(login);
-    GetResponse response = request.get();
-    if (response.isExists()) {
-      return new UserDoc(response.getSource());
-    }
-    return null;
   }
 
   private UpdateRequest newUpsertRequest(UserDoc user) {
