@@ -19,6 +19,8 @@
  */
 package org.sonar.server.search.ws;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
@@ -30,10 +32,12 @@ import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public abstract class SearchRequestHandler<QUERY, DOMAIN> implements RequestHandler {
@@ -172,6 +176,22 @@ public abstract class SearchRequestHandler<QUERY, DOMAIN> implements RequestHand
           json.prop("val", param);
           json.prop("count", 0);
           json.endObject();
+        }
+      }
+    }
+  }
+
+  protected void addMandatoryFacetValues(Result<?> results, String facetName, @Nullable List<String> mandatoryValues) {
+    Collection<FacetValue> facetValues = results.getFacetValues(facetName);
+    if (facetValues != null) {
+      Map<String, Long> valuesByItem = Maps.newHashMap();
+      for (FacetValue value : facetValues) {
+        valuesByItem.put(value.getKey(), value.getValue());
+      }
+      List<String> valuesToAdd = mandatoryValues == null ? Lists.<String>newArrayList() : mandatoryValues;
+      for (String item : valuesToAdd) {
+        if (!valuesByItem.containsKey(item)) {
+          facetValues.add(new FacetValue(item, 0));
         }
       }
     }

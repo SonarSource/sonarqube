@@ -19,7 +19,10 @@
  */
 package org.sonar.server.rule.index;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableList;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -44,6 +47,7 @@ import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
@@ -59,6 +63,7 @@ import org.sonar.server.search.StickyFacetBuilder;
 import javax.annotation.CheckForNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -73,6 +78,17 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
   public static final String FACET_LANGUAGES = "languages";
   public static final String FACET_TAGS = "tags";
   public static final String FACET_REPOSITORIES = "repositories";
+  public static final String FACET_SEVERITIES = "severities";
+  public static final String FACET_STATUSES = "statuses";
+  public static final String FACET_DEBT_CHARACTERISTICS = "debt_characteristics";
+  public static final String FACET_OLD_DEFAULT = "true";
+
+  public static final List<String> ALL_STATUSES = ImmutableList.copyOf(Collections2.transform(Arrays.asList(RuleStatus.values()), new Function<RuleStatus, String>() {
+    @Override
+    public String apply(RuleStatus input) {
+      return input.toString();
+    }
+  }));
 
   public RuleIndex(RuleNormalizer normalizer, SearchClient client) {
     super(IndexDefinition.RULE, normalizer, client);
@@ -336,30 +352,44 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
   protected Map<String, AggregationBuilder> getFacets(RuleQuery query, QueryContext options, QueryBuilder queryBuilder, Map<String, FilterBuilder> filters) {
     Map<String, AggregationBuilder> aggregations = new HashMap<String, AggregationBuilder>();
-
     StickyFacetBuilder stickyFacetBuilder = stickyFacetBuilder(queryBuilder, filters);
-    if (options.facets().contains("languages") || options.facets().contains("true")) {
+
+    addDefaultFacets(query, options, queryBuilder, filters, aggregations, stickyFacetBuilder);
+
+    if (options.facets().contains(FACET_STATUSES)) {
+      aggregations.put(FACET_STATUSES,
+        stickyFacetBuilder.buildStickyFacet(RuleNormalizer.RuleField.STATUS.field(), FACET_STATUSES, ALL_STATUSES.toArray()));
+    }
+
+    if (options.facets().contains(FACET_SEVERITIES)) {
+      aggregations.put(FACET_SEVERITIES,
+        stickyFacetBuilder.buildStickyFacet(RuleNormalizer.RuleField.SEVERITY.field(), FACET_SEVERITIES, Severity.ALL.toArray()));
+    }
+
+    return aggregations;
+
+  }
+
+  protected void addDefaultFacets(RuleQuery query, QueryContext options, QueryBuilder queryBuilder, Map<String, FilterBuilder> filters,
+    Map<String, AggregationBuilder> aggregations, StickyFacetBuilder stickyFacetBuilder) {
+    if (options.facets().contains(FACET_LANGUAGES) || options.facets().contains(FACET_OLD_DEFAULT)) {
       Collection<String> languages = query.getLanguages();
       aggregations.put(FACET_LANGUAGES,
         stickyFacetBuilder.buildStickyFacet(RuleNormalizer.RuleField.LANGUAGE.field(), FACET_LANGUAGES,
           languages == null ? new String[0] : languages.toArray()));
     }
-    if (options.facets().contains("tags") || options.facets().contains("true")) {
+    if (options.facets().contains(FACET_TAGS) || options.facets().contains(FACET_OLD_DEFAULT)) {
       Collection<String> tags = query.getTags();
       aggregations.put(FACET_TAGS,
         stickyFacetBuilder.buildStickyFacet(RuleNormalizer.RuleField.ALL_TAGS.field(), FACET_TAGS,
           tags == null ? new String[0] : tags.toArray()));
     }
-    if (options.facets().contains("repositories") || options.facets().contains("true")) {
+    if (options.facets().contains("repositories") || options.facets().contains(FACET_OLD_DEFAULT)) {
       Collection<String> repositories = query.getRepositories();
       aggregations.put(FACET_REPOSITORIES,
         stickyFacetBuilder.buildStickyFacet(RuleNormalizer.RuleField.REPOSITORY.field(), FACET_REPOSITORIES,
           repositories == null ? new String[0] : repositories.toArray()));
     }
-
-
-    return aggregations;
-
   }
 
   public Result<Rule> search(RuleQuery query, QueryContext options) {

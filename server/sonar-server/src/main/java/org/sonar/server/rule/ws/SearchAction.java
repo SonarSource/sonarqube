@@ -31,6 +31,7 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleService;
+import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.QueryContext;
@@ -95,13 +96,13 @@ public class SearchAction extends SearchRequestHandler<RuleQuery, Rule> {
   @CheckForNull
   protected Collection<String> possibleFacets() {
     return Arrays.asList(new String[] {
-      PARAM_LANGUAGES,
-      PARAM_REPOSITORIES,
-      "tags",
-      "characteristics",
-      "severities",
-      "statuses",
-      "true"
+      RuleIndex.FACET_LANGUAGES,
+      RuleIndex.FACET_REPOSITORIES,
+      RuleIndex.FACET_TAGS,
+      RuleIndex.FACET_DEBT_CHARACTERISTICS,
+      RuleIndex.FACET_SEVERITIES,
+      RuleIndex.FACET_STATUSES,
+      RuleIndex.FACET_OLD_DEFAULT
     });
   }
 
@@ -257,7 +258,7 @@ public class SearchAction extends SearchRequestHandler<RuleQuery, Rule> {
       .setLimit(context.getLimit())
       .setOffset(context.getOffset())
       .setScroll(context.isScroll());
-    if (context.facets().contains("true")) {
+    if (context.facets().contains(RuleIndex.FACET_OLD_DEFAULT)) {
       searchQueryContext.addFacets(DEFAULT_FACETS);
     } else {
       searchQueryContext.addFacets(context.facets());
@@ -292,5 +293,12 @@ public class SearchAction extends SearchRequestHandler<RuleQuery, Rule> {
       builder.addAll(mapping.supportedFields());
     }
     return builder.add("actives").build();
+  }
+
+  @Override
+  protected void writeFacets(Request request, QueryContext context, Result<?> results, JsonWriter json) {
+    addMandatoryFacetValues(results, RuleIndex.FACET_STATUSES, RuleIndex.ALL_STATUSES);
+    addMandatoryFacetValues(results, RuleIndex.FACET_SEVERITIES, Severity.ALL);
+    super.writeFacets(request, context, results, json);
   }
 }

@@ -1,0 +1,25 @@
+{"total": 0, "p": 1, "ps": 100, "rules": [],
+"facets": [
+  {
+    "property": "severities",
+    "values": [
+      {
+        "val": "BLOCKER",
+        "count": 0
+      },{
+        "val": "CRITICAL",
+        "count": 0
+      },{
+        "val": "MAJOR",
+        "count": 0
+      },{
+        "val": "MINOR",
+        "count": 0
+      },
+      {
+        "val": "INFO",
+        "count": 0
+      }
+    ]
+  }
+]}

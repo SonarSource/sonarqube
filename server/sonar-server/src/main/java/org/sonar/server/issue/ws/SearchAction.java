@@ -21,7 +21,6 @@ package org.sonar.server.issue.ws;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.io.Resources;
 import org.apache.commons.lang.BooleanUtils;
@@ -420,22 +419,6 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
     addMandatoryFacetValues(results, IssueFilterParameters.COMPONENT_UUIDS, request.paramAsStrings(IssueFilterParameters.COMPONENT_UUIDS));
 
     super.writeFacets(request, context, results, json);
-  }
-
-  private void addMandatoryFacetValues(Result<?> results, String facetName, @Nullable List<String> mandatoryValues) {
-    Collection<FacetValue> facetValues = results.getFacetValues(facetName);
-    if (facetValues != null) {
-      Map<String, Long> valuesByItem = Maps.newHashMap();
-      for (FacetValue value : facetValues) {
-        valuesByItem.put(value.getKey(), value.getValue());
-      }
-      List<String> valuesToAdd = mandatoryValues == null ? Lists.<String>newArrayList() : mandatoryValues;
-      for (String item : valuesToAdd) {
-        if (!valuesByItem.containsKey(item)) {
-          facetValues.add(new FacetValue(item, 0));
-        }
-      }
-    }
   }
 
   private void collectFacetsData(Request request, Result<Issue> result, Set<String> projectUuids, Set<String> componentUuids, List<String> userLogins, Set<String> actionPlanKeys) {

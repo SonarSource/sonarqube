@@ -455,6 +455,20 @@ public class RulesWebServiceMediumTest {
   }
 
   @Test
+  public void severities_facet_should_have_all_severities() throws Exception {
+    WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
+    request.setParam(SearchAction.PARAM_FACETS, "severities");
+    request.execute().assertJson(this.getClass(), "severities_facet.json", false);
+  }
+
+  @Test
+  public void statuses_facet_should_have_all_statuses() throws Exception {
+    WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
+    request.setParam(SearchAction.PARAM_FACETS, "statuses");
+    request.execute().assertJson(this.getClass(), "statuses_facet.json", false);
+  }
+
+  @Test
   public void sort_by_name() throws Exception {
     ruleDao.insert(session, RuleTesting.newXooX1().setName("Dodgy - Consider returning a zero length array rather than null "));
     ruleDao.insert(session, RuleTesting.newXooX2().setName("Bad practice - Creates an empty zip file entry"));
