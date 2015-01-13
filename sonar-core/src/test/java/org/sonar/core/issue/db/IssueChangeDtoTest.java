@@ -22,10 +22,10 @@ package org.sonar.core.issue.db;
 import org.junit.Test;
 import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.issue.internal.FieldDiffs;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.utils.DateUtils.parseDate;
 
 public class IssueChangeDtoTest {
 
@@ -39,8 +39,19 @@ public class IssueChangeDtoTest {
     assertThat(dto.getChangeType()).isEqualTo("comment");
     assertThat(dto.getCreatedAt()).isNotNull();
     assertThat(dto.getUpdatedAt()).isNotNull();
+    assertThat(dto.getIssueChangeCreationDate()).isNotNull();
     assertThat(dto.getIssueKey()).isEqualTo("ABCDE");
     assertThat(dto.getUserLogin()).isEqualTo("emmerik");
+  }
+
+  @Test
+  public void create_from_comment_with_created_at() throws Exception {
+    DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
+    comment.setCreatedAt(parseDate("2015-01-13"));
+
+    IssueChangeDto dto = IssueChangeDto.of(comment);
+
+    assertThat(dto.getIssueChangeCreationDate()).isEqualTo(parseDate("2015-01-13").getTime());
   }
 
   @Test
@@ -48,7 +59,6 @@ public class IssueChangeDtoTest {
     FieldDiffs diffs = new FieldDiffs();
     diffs.setDiff("severity", "INFO", "BLOCKER");
     diffs.setUserLogin("emmerik");
-    diffs.setCreationDate(DateUtils.parseDate("2014-01-03"));
 
     IssueChangeDto dto = IssueChangeDto.of("ABCDE", diffs);
 
@@ -56,9 +66,21 @@ public class IssueChangeDtoTest {
     assertThat(dto.getChangeType()).isEqualTo("diff");
     assertThat(dto.getCreatedAt()).isNotNull();
     assertThat(dto.getUpdatedAt()).isNotNull();
-    assertThat(dto.getIssueChangeCreationDate()).isEqualTo(DateUtils.parseDate("2014-01-03").getTime());
+    assertThat(dto.getIssueChangeCreationDate()).isNull();
     assertThat(dto.getIssueKey()).isEqualTo("ABCDE");
     assertThat(dto.getUserLogin()).isEqualTo("emmerik");
+  }
+
+  @Test
+  public void create_from_diff_with_created_at() throws Exception {
+    FieldDiffs diffs = new FieldDiffs();
+    diffs.setDiff("severity", "INFO", "BLOCKER");
+    diffs.setUserLogin("emmerik");
+    diffs.setCreationDate(parseDate("2015-01-13"));
+
+    IssueChangeDto dto = IssueChangeDto.of("ABCDE", diffs);
+
+    assertThat(dto.getIssueChangeCreationDate()).isEqualTo(parseDate("2015-01-13").getTime());
   }
 
   @Test

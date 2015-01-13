@@ -57,21 +57,13 @@ public class FeedIssueChangesLongDates extends BaseDataChange {
 
         updateColumn(update, 1, createdAt);
         updateColumn(update, 2, updatedAt);
-        if (functionalCreatedAt == null) {
-          update.setLong(3, null);
-        } else {
-          update.setLong(3, functionalCreatedAt.getTime());
-        }
+        update.setLong(3, functionalCreatedAt == null ? null : functionalCreatedAt.getTime());
         update.setLong(4, id);
         return true;
       }
 
       private void updateColumn(SqlStatement update, int position, Date time) throws SQLException {
-        if (time == null) {
-          update.setLong(position, now);
-        } else {
-          update.setLong(position, Math.min(now, time.getTime()));
-        }
+        update.setLong(position, time == null ? now : Math.min(now, time.getTime()));
       }
     });
   }

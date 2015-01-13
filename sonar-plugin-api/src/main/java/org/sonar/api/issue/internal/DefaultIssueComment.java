@@ -24,6 +24,7 @@ import org.sonar.api.utils.internal.Uuids;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -40,6 +41,18 @@ public class DefaultIssueComment implements Serializable, IssueComment {
   private String key;
   private String markdownText;
   private boolean isNew;
+
+  public static DefaultIssueComment create(String issueKey, @Nullable String login, String markdownText) {
+    DefaultIssueComment comment = new DefaultIssueComment();
+    comment.setIssueKey(issueKey);
+    comment.setKey(Uuids.create());
+    Date now = new Date();
+    comment.setUserLogin(login);
+    comment.setMarkdownText(markdownText);
+    comment.setCreatedAt(now).setUpdatedAt(now);
+    comment.setNew(true);
+    return comment;
+  }
 
   @Override
   public String markdownText() {
@@ -100,7 +113,7 @@ public class DefaultIssueComment implements Serializable, IssueComment {
     return updatedAt;
   }
 
-  public DefaultIssueComment setUpdatedAt(Date updatedAt) {
+  public DefaultIssueComment setUpdatedAt(@Nullable Date updatedAt) {
     this.updatedAt = updatedAt;
     return this;
   }
@@ -112,17 +125,5 @@ public class DefaultIssueComment implements Serializable, IssueComment {
   public DefaultIssueComment setNew(boolean b) {
     isNew = b;
     return this;
-  }
-
-  public static DefaultIssueComment create(String issueKey, @Nullable String login, String markdownText) {
-    DefaultIssueComment comment = new DefaultIssueComment();
-    comment.setIssueKey(issueKey);
-    comment.setKey(Uuids.create());
-    Date now = new Date();
-    comment.setUserLogin(login);
-    comment.setMarkdownText(markdownText);
-    comment.setCreatedAt(now).setUpdatedAt(now);
-    comment.setNew(true);
-    return comment;
   }
 }
