@@ -112,7 +112,7 @@ public class IssueIndexBenchmarkTest {
     long period = System.currentTimeMillis() - start;
     long throughputPerSecond = 1000 * issues.count.get() / period;
     LOGGER.info(String.format("%d issues indexed in %d ms (%d docs/second)", issues.count.get(), period, throughputPerSecond));
-    benchmark.expectBetween("Throughput to index issues", throughputPerSecond, 3200, 3600);
+    benchmark.expectBetween("Throughput to index issues", throughputPerSecond, 3000, 3400);
 
     // be sure that physical files do not evolve during estimation of size
     tester.get(EsClient.class).prepareOptimize("issues").get();
