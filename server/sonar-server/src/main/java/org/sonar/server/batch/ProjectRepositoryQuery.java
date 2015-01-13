@@ -23,13 +23,13 @@ package org.sonar.server.batch;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-public class ProjectReferentialsQuery {
+public class ProjectRepositoryQuery {
 
   private String projectOrModuleKey;
   private String profileName;
   private boolean preview;
 
-  private ProjectReferentialsQuery() {
+  private ProjectRepositoryQuery() {
     // No direct call
   }
 
@@ -37,7 +37,7 @@ public class ProjectReferentialsQuery {
     return preview;
   }
 
-  public ProjectReferentialsQuery setPreview(boolean preview) {
+  public ProjectRepositoryQuery setPreview(boolean preview) {
     this.preview = preview;
     return this;
   }
@@ -47,7 +47,7 @@ public class ProjectReferentialsQuery {
     return profileName;
   }
 
-  public ProjectReferentialsQuery setProfileName(@Nullable String profileName) {
+  public ProjectRepositoryQuery setProfileName(@Nullable String profileName) {
     this.profileName = profileName;
     return this;
   }
@@ -56,12 +56,12 @@ public class ProjectReferentialsQuery {
     return projectOrModuleKey;
   }
 
-  public ProjectReferentialsQuery setModuleKey(String projectOrModuleKey) {
+  public ProjectRepositoryQuery setModuleKey(String projectOrModuleKey) {
     this.projectOrModuleKey = projectOrModuleKey;
     return this;
   }
 
-  public static ProjectReferentialsQuery create(){
-    return new ProjectReferentialsQuery();
+  public static ProjectRepositoryQuery create() {
+    return new ProjectRepositoryQuery();
   }
 }

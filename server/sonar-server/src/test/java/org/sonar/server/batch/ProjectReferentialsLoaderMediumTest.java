@@ -67,13 +67,13 @@ public class ProjectReferentialsLoaderMediumTest {
 
   DbSession dbSession;
 
-  ProjectReferentialsLoader loader;
+  ProjectRepositoryLoader loader;
 
   @Before
   public void before() {
     tester.clearDbAndIndexes();
     dbSession = tester.get(DbClient.class).openSession(false);
-    loader = tester.get(ProjectReferentialsLoader.class);
+    loader = tester.get(ProjectRepositoryLoader.class);
   }
 
   @After
@@ -99,12 +99,12 @@ public class ProjectReferentialsLoaderMediumTest {
       dbSession);
     dbSession.commit();
 
-    ProjectReferentials ref = loader.load(ProjectReferentialsQuery.create().setModuleKey(project.key()));
+    ProjectReferentials ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
     Map<String, String> projectSettings = ref.settings(project.key());
     assertThat(projectSettings).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR",
       "sonar.jira.login.secured", "john"
-    ));
+      ));
   }
 
   @Test
@@ -125,11 +125,11 @@ public class ProjectReferentialsLoaderMediumTest {
       dbSession);
     dbSession.commit();
 
-    ProjectReferentials ref = loader.load(ProjectReferentialsQuery.create().setModuleKey(project.key()).setPreview(true));
+    ProjectReferentials ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()).setPreview(true));
     Map<String, String> projectSettings = ref.settings(project.key());
     assertThat(projectSettings).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR"
-    ));
+      ));
   }
 
   @Test
@@ -160,16 +160,16 @@ public class ProjectReferentialsLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectReferentials ref = loader.load(ProjectReferentialsQuery.create().setModuleKey(project.key()));
+    ProjectReferentials ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
     assertThat(ref.settings(project.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR",
       "sonar.jira.login.secured", "john"
-    ));
+      ));
     assertThat(ref.settings(module.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR-SERVER",
       "sonar.jira.login.secured", "john",
       "sonar.coverage.exclusions", "**/*.java"
-    ));
+      ));
   }
 
   @Test
@@ -196,15 +196,15 @@ public class ProjectReferentialsLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectReferentials ref = loader.load(ProjectReferentialsQuery.create().setModuleKey(project.key()));
+    ProjectReferentials ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
     assertThat(ref.settings(project.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR",
       "sonar.jira.login.secured", "john"
-    ));
+      ));
     assertThat(ref.settings(module.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR",
       "sonar.jira.login.secured", "john"
-    ));
+      ));
   }
 
   @Test
@@ -244,21 +244,21 @@ public class ProjectReferentialsLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectReferentials ref = loader.load(ProjectReferentialsQuery.create().setModuleKey(project.key()));
+    ProjectReferentials ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
     assertThat(ref.settings(project.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR",
       "sonar.jira.login.secured", "john"
-    ));
+      ));
     assertThat(ref.settings(module.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR-SERVER",
       "sonar.jira.login.secured", "john",
       "sonar.coverage.exclusions", "**/*.java"
-    ));
+      ));
     assertThat(ref.settings(subModule.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR-SERVER-DAO",
       "sonar.jira.login.secured", "john",
       "sonar.coverage.exclusions", "**/*.java"
-    ));
+      ));
   }
 
   @Test
@@ -289,24 +289,25 @@ public class ProjectReferentialsLoaderMediumTest {
     tester.get(DbClient.class).snapshotDao().insert(dbSession, SnapshotTesting.createForComponent(module2, projectSnapshot));
 
     // Module 2 property
-    tester.get(DbClient.class).propertiesDao().setProperty(new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR-APPLICATION").setResourceId(module2.getId()), dbSession);
+    tester.get(DbClient.class).propertiesDao()
+      .setProperty(new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR-APPLICATION").setResourceId(module2.getId()), dbSession);
 
     dbSession.commit();
 
-    ProjectReferentials ref = loader.load(ProjectReferentialsQuery.create().setModuleKey(project.key()));
+    ProjectReferentials ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
     assertThat(ref.settings(project.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR",
       "sonar.jira.login.secured", "john"
-    ));
+      ));
     assertThat(ref.settings(module1.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR-SERVER",
       "sonar.jira.login.secured", "john",
       "sonar.coverage.exclusions", "**/*.java"
-    ));
+      ));
     assertThat(ref.settings(module2.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR-APPLICATION",
       "sonar.jira.login.secured", "john"
-    ));
+      ));
   }
 
   @Test
@@ -324,11 +325,11 @@ public class ProjectReferentialsLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectReferentials ref = loader.load(ProjectReferentialsQuery.create().setModuleKey(project.key()));
+    ProjectReferentials ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
     assertThat(ref.settings(project.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR",
       "sonar.jira.login.secured", "john"
-    ));
+      ));
   }
 
   @Test
@@ -359,14 +360,14 @@ public class ProjectReferentialsLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectReferentials ref = loader.load(ProjectReferentialsQuery.create().setModuleKey(subModule.key()));
+    ProjectReferentials ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(subModule.key()));
     assertThat(ref.settings(project.key())).isEmpty();
     assertThat(ref.settings(module.key())).isEmpty();
     assertThat(ref.settings(subModule.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR",
       "sonar.jira.login.secured", "john",
       "sonar.coverage.exclusions", "**/*.java"
-    ));
+      ));
   }
 
   @Test
@@ -399,14 +400,14 @@ public class ProjectReferentialsLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectReferentials ref = loader.load(ProjectReferentialsQuery.create().setModuleKey(subModule.key()));
+    ProjectReferentials ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(subModule.key()));
     assertThat(ref.settings(project.key())).isEmpty();
     assertThat(ref.settings(module.key())).isEmpty();
     assertThat(ref.settings(subModule.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR",
       "sonar.jira.login.secured", "john",
       "sonar.coverage.exclusions", "**/*.java"
-    ));
+      ));
   }
 
   @Test
@@ -437,14 +438,14 @@ public class ProjectReferentialsLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectReferentials ref = loader.load(ProjectReferentialsQuery.create().setModuleKey(subModule.key()));
+    ProjectReferentials ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(subModule.key()));
     assertThat(ref.settings(project.key())).isEmpty();
     assertThat(ref.settings(module.key())).isEmpty();
     assertThat(ref.settings(subModule.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR",
       "sonar.jira.login.secured", "john",
       "sonar.coverage.exclusions", "**/*.java"
-    ));
+      ));
   }
 
   @Test
@@ -476,14 +477,14 @@ public class ProjectReferentialsLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectReferentials ref = loader.load(ProjectReferentialsQuery.create().setModuleKey(subModule.key()));
+    ProjectReferentials ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(subModule.key()));
     assertThat(ref.settings(project.key())).isEmpty();
     assertThat(ref.settings(module.key())).isEmpty();
     assertThat(ref.settings(subModule.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR-SERVER",
       "sonar.jira.login.secured", "john",
       "sonar.coverage.exclusions", "**/*.java"
-    ));
+      ));
   }
 
   @Test
@@ -495,13 +496,14 @@ public class ProjectReferentialsLoaderMediumTest {
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
     tester.get(DbClient.class).snapshotDao().insert(dbSession, SnapshotTesting.createForProject(project));
 
-    QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(DateUtils.formatDateTime(ruleUpdatedAt));
+    QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(
+      DateUtils.formatDateTime(ruleUpdatedAt));
     tester.get(DbClient.class).qualityProfileDao().insert(dbSession, profileDto);
     tester.get(DbClient.class).propertiesDao().setProperty(new PropertyDto().setKey("sonar.profile.xoo").setValue("SonarQube way").setResourceId(project.getId()), dbSession);
 
     dbSession.commit();
 
-    ProjectReferentials ref = loader.load(ProjectReferentialsQuery.create().setModuleKey(project.key()));
+    ProjectReferentials ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
     List<QProfile> profiles = newArrayList(ref.qProfiles());
     assertThat(profiles).hasSize(1);
     assertThat(profiles.get(0).key()).isEqualTo("abcd");
@@ -519,13 +521,14 @@ public class ProjectReferentialsLoaderMediumTest {
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
     tester.get(DbClient.class).snapshotDao().insert(dbSession, SnapshotTesting.createForProject(project));
 
-    QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(DateUtils.formatDateTime(ruleUpdatedAt));
+    QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(
+      DateUtils.formatDateTime(ruleUpdatedAt));
     tester.get(DbClient.class).qualityProfileDao().insert(dbSession, profileDto);
     tester.get(DbClient.class).propertiesDao().setProperty(new PropertyDto().setKey("sonar.profile.xoo").setValue("SonarQube way"), dbSession);
 
     dbSession.commit();
 
-    ProjectReferentials ref = loader.load(ProjectReferentialsQuery.create().setModuleKey(project.key()));
+    ProjectReferentials ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
     List<QProfile> profiles = newArrayList(ref.qProfiles());
     assertThat(profiles).hasSize(1);
     assertThat(profiles.get(0).key()).isEqualTo("abcd");
@@ -543,13 +546,14 @@ public class ProjectReferentialsLoaderMediumTest {
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
     tester.get(DbClient.class).snapshotDao().insert(dbSession, SnapshotTesting.createForProject(project));
 
-    QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(DateUtils.formatDateTime(ruleUpdatedAt));
+    QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(
+      DateUtils.formatDateTime(ruleUpdatedAt));
     tester.get(DbClient.class).qualityProfileDao().insert(dbSession, profileDto);
     tester.get(DbClient.class).propertiesDao().setProperty(new PropertyDto().setKey("sonar.profile.xoo").setValue("SonarQube way"), dbSession);
 
     dbSession.commit();
 
-    ProjectReferentials ref = loader.load(ProjectReferentialsQuery.create().setModuleKey(project.key()).setProfileName("SonarQube way"));
+    ProjectReferentials ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()).setProfileName("SonarQube way"));
     List<QProfile> profiles = newArrayList(ref.qProfiles());
     assertThat(profiles).hasSize(1);
     assertThat(profiles.get(0).key()).isEqualTo("abcd");
@@ -563,13 +567,14 @@ public class ProjectReferentialsLoaderMediumTest {
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     Date ruleUpdatedAt = DateUtils.parseDateTime("2014-01-14T13:00:00+0100");
 
-    QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(DateUtils.formatDateTime(ruleUpdatedAt));
+    QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(
+      DateUtils.formatDateTime(ruleUpdatedAt));
     tester.get(DbClient.class).qualityProfileDao().insert(dbSession, profileDto);
     tester.get(DbClient.class).propertiesDao().setProperty(new PropertyDto().setKey("sonar.profile.xoo").setValue("SonarQube way"), dbSession);
 
     dbSession.commit();
 
-    ProjectReferentials ref = loader.load(ProjectReferentialsQuery.create().setModuleKey("project"));
+    ProjectReferentials ref = loader.load(ProjectRepositoryQuery.create().setModuleKey("project"));
     List<QProfile> profiles = newArrayList(ref.qProfiles());
     assertThat(profiles).hasSize(1);
     assertThat(profiles.get(0).key()).isEqualTo("abcd");
@@ -577,7 +582,6 @@ public class ProjectReferentialsLoaderMediumTest {
     assertThat(profiles.get(0).language()).isEqualTo("xoo");
     assertThat(profiles.get(0).rulesUpdatedAt()).isEqualTo(ruleUpdatedAt);
   }
-
 
   @Test
   public void return_provisioned_project_profile() throws Exception {
@@ -588,13 +592,14 @@ public class ProjectReferentialsLoaderMediumTest {
     ComponentDto project = ComponentTesting.newProjectDto();
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
 
-    QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(DateUtils.formatDateTime(ruleUpdatedAt));
+    QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(
+      DateUtils.formatDateTime(ruleUpdatedAt));
     tester.get(DbClient.class).qualityProfileDao().insert(dbSession, profileDto);
     tester.get(DbClient.class).propertiesDao().setProperty(new PropertyDto().setKey("sonar.profile.xoo").setValue("SonarQube way").setResourceId(project.getId()), dbSession);
 
     dbSession.commit();
 
-    ProjectReferentials ref = loader.load(ProjectReferentialsQuery.create().setModuleKey(project.key()));
+    ProjectReferentials ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
     List<QProfile> profiles = newArrayList(ref.qProfiles());
     assertThat(profiles).hasSize(1);
     assertThat(profiles.get(0).key()).isEqualTo("abcd");
@@ -612,7 +617,7 @@ public class ProjectReferentialsLoaderMediumTest {
     dbSession.commit();
 
     try {
-      loader.load(ProjectReferentialsQuery.create().setModuleKey(project.key()));
+      loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("No quality profile can been found on language 'xoo' for project 'org.codehaus.sonar:sonar'");
@@ -628,7 +633,8 @@ public class ProjectReferentialsLoaderMediumTest {
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
     tester.get(DbClient.class).snapshotDao().insert(dbSession, SnapshotTesting.createForProject(project));
 
-    QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(DateUtils.formatDateTime(ruleUpdatedAt));
+    QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(
+      DateUtils.formatDateTime(ruleUpdatedAt));
     tester.get(DbClient.class).qualityProfileDao().insert(dbSession, profileDto);
     tester.get(DbClient.class).propertiesDao().setProperty(new PropertyDto().setKey("sonar.profile.xoo").setValue("SonarQube way"), dbSession);
 
@@ -645,7 +651,7 @@ public class ProjectReferentialsLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectReferentials ref = loader.load(ProjectReferentialsQuery.create().setModuleKey(project.key()));
+    ProjectReferentials ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
     List<ActiveRule> activeRules = newArrayList(ref.activeRules());
     assertThat(activeRules).hasSize(1);
     assertThat(activeRules.get(0).repositoryKey()).isEqualTo("squid");
@@ -667,7 +673,7 @@ public class ProjectReferentialsLoaderMediumTest {
     dbSession.commit();
 
     try {
-      loader.load(ProjectReferentialsQuery.create().setModuleKey(project.key()));
+      loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(ForbiddenException.class).hasMessage("You're not authorized to execute any SonarQube analysis. Please contact your SonarQube administrator.");
@@ -683,7 +689,7 @@ public class ProjectReferentialsLoaderMediumTest {
     dbSession.commit();
 
     try {
-      loader.load(ProjectReferentialsQuery.create().setModuleKey(project.key()).setPreview(false));
+      loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()).setPreview(false));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(ForbiddenException.class).hasMessage(
@@ -693,7 +699,8 @@ public class ProjectReferentialsLoaderMediumTest {
   }
 
   private void addDefaultProfile() {
-    QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(DateUtils.formatDateTime(new Date()));
+    QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(
+      DateUtils.formatDateTime(new Date()));
     tester.get(DbClient.class).qualityProfileDao().insert(dbSession, profileDto);
     tester.get(DbClient.class).propertiesDao().setProperty(new PropertyDto().setKey("sonar.profile.xoo").setValue("SonarQube way"), dbSession);
   }

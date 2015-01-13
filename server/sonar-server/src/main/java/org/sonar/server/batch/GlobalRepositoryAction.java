@@ -36,12 +36,12 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.user.UserSession;
 
-public class GlobalReferentialsAction implements RequestHandler {
+public class GlobalRepositoryAction implements RequestHandler {
 
   private final DbClient dbClient;
   private final PropertiesDao propertiesDao;
 
-  public GlobalReferentialsAction(DbClient dbClient, PropertiesDao propertiesDao) {
+  public GlobalRepositoryAction(DbClient dbClient, PropertiesDao propertiesDao) {
     this.dbClient = dbClient;
     this.propertiesDao = propertiesDao;
   }

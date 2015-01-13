@@ -40,7 +40,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class GlobalReferentialsActionTest {
+public class GlobalRepositoryActionTest {
 
   @Mock
   DbSession session;
@@ -59,7 +59,7 @@ public class GlobalReferentialsActionTest {
     when(dbClient.openSession(false)).thenReturn(session);
     when(dbClient.metricDao()).thenReturn(metricDao);
 
-    tester = new WsTester(new BatchWs(mock(BatchIndex.class), new GlobalReferentialsAction(dbClient, propertiesDao), mock(ProjectReferentialsAction.class)));
+    tester = new WsTester(new BatchWs(mock(BatchIndex.class), new GlobalRepositoryAction(dbClient, propertiesDao), mock(ProjectRepositoryAction.class)));
   }
 
   @Test
@@ -67,8 +67,8 @@ public class GlobalReferentialsActionTest {
     when(metricDao.findEnabled(session)).thenReturn(newArrayList(
       MetricDto.createFor("coverage").setDescription("Coverage by unit tests").setValueType("PERCENT").setQualitative(true)
         .setWorstValue(0d).setBestValue(100d).setOptimizedBestValue(false).setDirection(1).setEnabled(true)
-    ));    
-    
+      ));
+
     WsTester.TestRequest request = tester.newGetRequest("batch", "global");
     request.execute().assertJson(getClass(), "return_global_referentials.json");
   }
@@ -81,7 +81,7 @@ public class GlobalReferentialsActionTest {
       new PropertyDto().setKey("foo").setValue("bar"),
       new PropertyDto().setKey("foo.secured").setValue("1234"),
       new PropertyDto().setKey("foo.license.secured").setValue("5678")
-    ));
+      ));
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "global");
     request.execute().assertJson(getClass(), "return_global_settings.json");
@@ -95,7 +95,7 @@ public class GlobalReferentialsActionTest {
       new PropertyDto().setKey("foo").setValue("bar"),
       new PropertyDto().setKey("foo.secured").setValue("1234"),
       new PropertyDto().setKey("foo.license.secured").setValue("5678")
-    ));
+      ));
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "global");
     request.execute().assertJson(getClass(), "return_only_license_settings_without_scan_but_with_preview_permission.json");
@@ -109,7 +109,7 @@ public class GlobalReferentialsActionTest {
       new PropertyDto().setKey("foo").setValue("bar"),
       new PropertyDto().setKey("foo.secured").setValue("1234"),
       new PropertyDto().setKey("foo.license.secured").setValue("5678")
-    ));
+      ));
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "global");
     request.execute().assertJson(getClass(), "return_no_secured_settings_without_scan_and_preview_permission.json");

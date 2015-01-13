@@ -28,21 +28,21 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.batch.protocol.input.ProjectReferentials;
 import org.sonar.server.plugins.MimeTypes;
 
-public class ProjectReferentialsAction implements RequestHandler {
+public class ProjectRepositoryAction implements RequestHandler {
 
   private static final String PARAM_KEY = "key";
   private static final String PARAM_PROFILE = "profile";
   private static final String PARAM_PREVIEW = "preview";
 
-  private final ProjectReferentialsLoader projectReferentialsLoader;
+  private final ProjectRepositoryLoader projectReferentialsLoader;
 
-  public ProjectReferentialsAction(ProjectReferentialsLoader projectReferentialsLoader) {
+  public ProjectRepositoryAction(ProjectRepositoryLoader projectReferentialsLoader) {
     this.projectReferentialsLoader = projectReferentialsLoader;
   }
 
   void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("project")
-      .setDescription("Return project referentials")
+      .setDescription("Return project repository")
       .setSince("4.5")
       .setInternal(true)
       .setHandler(this);
@@ -67,7 +67,7 @@ public class ProjectReferentialsAction implements RequestHandler {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    ProjectReferentials ref = projectReferentialsLoader.load(ProjectReferentialsQuery.create()
+    ProjectReferentials ref = projectReferentialsLoader.load(ProjectRepositoryQuery.create()
       .setModuleKey(request.mandatoryParam(PARAM_KEY))
       .setProfileName(request.param(PARAM_PROFILE))
       .setPreview(request.mandatoryParamAsBoolean(PARAM_PREVIEW)));

@@ -52,7 +52,7 @@ import java.util.Map;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 
-public class ProjectReferentialsLoader implements ServerComponent {
+public class ProjectRepositoryLoader implements ServerComponent {
 
   private final DbClient dbClient;
   private final QProfileFactory qProfileFactory;
@@ -60,8 +60,8 @@ public class ProjectReferentialsLoader implements ServerComponent {
   private final RuleService ruleService;
   private final Languages languages;
 
-  public ProjectReferentialsLoader(DbClient dbClient, QProfileFactory qProfileFactory, QProfileLoader qProfileLoader, RuleService ruleService,
-                                   Languages languages) {
+  public ProjectRepositoryLoader(DbClient dbClient, QProfileFactory qProfileFactory, QProfileLoader qProfileLoader, RuleService ruleService,
+    Languages languages) {
     this.dbClient = dbClient;
     this.qProfileFactory = qProfileFactory;
     this.qProfileLoader = qProfileLoader;
@@ -69,7 +69,7 @@ public class ProjectReferentialsLoader implements ServerComponent {
     this.languages = languages;
   }
 
-  public ProjectReferentials load(ProjectReferentialsQuery query) {
+  public ProjectReferentials load(ProjectRepositoryQuery query) {
     boolean hasScanPerm = UserSession.get().hasGlobalPermission(GlobalPermissions.SCAN_EXECUTION);
     checkPermission(query.isPreview());
 

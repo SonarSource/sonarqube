@@ -348,9 +348,9 @@ class ServerComponents {
 
     // batch
     pico.addSingleton(BatchIndex.class);
-    pico.addSingleton(GlobalReferentialsAction.class);
-    pico.addSingleton(ProjectReferentialsAction.class);
-    pico.addSingleton(ProjectReferentialsLoader.class);
+    pico.addSingleton(GlobalRepositoryAction.class);
+    pico.addSingleton(ProjectRepositoryAction.class);
+    pico.addSingleton(ProjectRepositoryLoader.class);
     pico.addSingleton(SubmitReportWsAction.class);
     pico.addSingleton(BatchWs.class);
 
