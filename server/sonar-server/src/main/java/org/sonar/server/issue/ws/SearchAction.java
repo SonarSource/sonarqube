@@ -240,13 +240,11 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       .setDescription("To retrieve issues associated to a specific list of modules (comma-separated list of module keys). " +
         INTERNAL_PARAMETER_DISCLAIMER +
         "Views are not supported. If this parameter is set, moduleUuids must not be set.")
-      .setDeprecatedKey(IssueFilterParameters.COMPONENT_ROOTS)
       .setExampleValue("org.apache.struts:struts");
     action.createParam(IssueFilterParameters.MODULE_UUIDS)
       .setDescription("To retrieve issues associated to a specific list of modules (comma-separated list of module UUIDs). " +
         INTERNAL_PARAMETER_DISCLAIMER +
         "Views are not supported. If this parameter is set, moduleKeys must not be set.")
-      .setDeprecatedKey(IssueFilterParameters.COMPONENT_ROOT_UUIDS)
       .setExampleValue("7d8749e8-3070-4903-9188-bdd82933bb92");
 
     action.createParam(IssueFilterParameters.ON_COMPONENT_ONLY)
