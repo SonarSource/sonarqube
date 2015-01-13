@@ -60,7 +60,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
-public class ProjectReferentialsLoaderMediumTest {
+public class ProjectRepositoryLoaderMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester().addXoo();

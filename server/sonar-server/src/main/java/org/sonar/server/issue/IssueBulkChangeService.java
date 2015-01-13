@@ -82,7 +82,7 @@ public class IssueBulkChangeService {
     IssueBulkChangeResult result = new IssueBulkChangeResult();
 
     List<Issue> issues = getByKeysForUpdate(issueBulkChangeQuery.issues());
-    Referentials referentials = new Referentials(issues);
+    Repository repository = new Repository(issues);
 
     List<Action> bulkActions = getActionsToApply(issueBulkChangeQuery, issues, userSession);
     IssueChangeContext issueChangeContext = IssueChangeContext.createUser(new Date(), userSession.login());
@@ -102,9 +102,9 @@ public class IssueBulkChangeService {
           String projectKey = issue.projectKey();
           if (projectKey != null) {
             issueNotifications.sendChanges((DefaultIssue) issue, issueChangeContext,
-              referentials.rule(issue.ruleKey()),
-              referentials.project(projectKey),
-              referentials.component(issue.componentKey()));
+              repository.rule(issue.ruleKey()),
+              repository.project(projectKey),
+              repository.component(issue.componentKey()));
           }
         }
         concernedProjects.add(issue.projectKey());
@@ -200,13 +200,13 @@ public class IssueBulkChangeService {
     }
   }
 
-  private class Referentials {
+  private class Repository {
 
     private final Map<RuleKey, Rule> rules = newHashMap();
     private final Map<String, ComponentDto> components = newHashMap();
     private final Map<String, ComponentDto> projects = newHashMap();
 
-    public Referentials(List<Issue> issues) {
+    public Repository(List<Issue> issues) {
       Set<RuleKey> ruleKeys = newHashSet();
       Set<String> componentKeys = newHashSet();
       Set<String> projectKeys = newHashSet();
