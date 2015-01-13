@@ -24,8 +24,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.FieldDiffs;
@@ -46,7 +44,6 @@ import java.util.Date;
 
 public class AnalysisReportService implements ServerComponent {
 
-  private static final Logger LOG = LoggerFactory.getLogger(AnalysisReportService.class);
   private final ComputeEngineIssueStorageFactory issueStorageFactory;
 
   public AnalysisReportService(ComputeEngineIssueStorageFactory issueStorageFactory) {
@@ -69,7 +66,6 @@ public class AnalysisReportService implements ServerComponent {
     } catch (IOException e) {
       throw new IllegalStateException("Failed to read issues", e);
     }
-
   }
 
   @VisibleForTesting

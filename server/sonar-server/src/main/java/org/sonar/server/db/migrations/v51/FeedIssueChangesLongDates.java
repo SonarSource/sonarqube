@@ -55,15 +55,11 @@ public class FeedIssueChangesLongDates extends BaseDataChange {
         Date functionalCreatedAt = row.getDate(3);
         Long id = row.getLong(4);
 
-        updateColumn(update, 1, createdAt);
-        updateColumn(update, 2, updatedAt);
+        update.setLong(1, createdAt == null ? now : Math.min(now, createdAt.getTime()));
+        update.setLong(2, updatedAt == null ? now : Math.min(now, updatedAt.getTime()));
         update.setLong(3, functionalCreatedAt == null ? null : functionalCreatedAt.getTime());
         update.setLong(4, id);
         return true;
-      }
-
-      private void updateColumn(SqlStatement update, int position, Date time) throws SQLException {
-        update.setLong(position, time == null ? now : Math.min(now, time.getTime()));
       }
     });
   }

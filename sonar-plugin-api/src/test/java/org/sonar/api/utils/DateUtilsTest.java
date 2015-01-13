@@ -20,6 +20,7 @@
 package org.sonar.api.utils;
 
 import com.google.common.collect.Lists;
+import org.assertj.core.api.Assertions;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -27,10 +28,8 @@ import org.junit.rules.ExpectedException;
 import java.util.Date;
 import java.util.List;
 
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.*;
 
 public class DateUtilsTest {
@@ -98,6 +97,20 @@ public class DateUtilsTest {
   public void shouldFormatDateTime() {
     assertThat(DateUtils.formatDateTime(new Date()), startsWith("20"));
     assertThat(DateUtils.formatDateTime(new Date()).length(), greaterThan(20));
+  }
+
+  @Test
+  public void format_date_time_null_safe() throws Exception {
+    Assertions.assertThat(DateUtils.formatDateTimeNullSafe(new Date())).startsWith("20");
+    Assertions.assertThat(DateUtils.formatDateTimeNullSafe(new Date()).length()).isGreaterThan(20);
+    Assertions.assertThat(DateUtils.formatDateTimeNullSafe(null)).isEmpty();
+  }
+
+  @Test
+  public void time_to_date() throws Exception {
+    Date date = new Date();
+    Assertions.assertThat(DateUtils.timeToDate(date.getTime())).isEqualTo(date);
+    Assertions.assertThat(DateUtils.timeToDate(null)).isNull();
   }
 
   /**
