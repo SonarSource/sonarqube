@@ -46,8 +46,8 @@ public class ActionPlanDto {
   private Date createdAt;
   private Date updatedAt;
 
-  // joins
-  private transient String projectKey;
+  // return by joins
+  private String projectKey;
 
   public Long getId() {
     return id;

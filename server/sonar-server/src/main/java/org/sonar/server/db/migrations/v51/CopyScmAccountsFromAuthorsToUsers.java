@@ -113,9 +113,12 @@ public class CopyScmAccountsFromAuthorsToUsers extends BaseDataChange {
     }
     Select select = context.prepareSelect(sql.toString());
     select.setBoolean(1, true);
-    int currentIndex = 2;
+    int currentIndex = 1;
     for (String author : authors) {
-      select.setString(currentIndex++, author).setString(currentIndex++, author);
+      currentIndex++;
+      select.setString(currentIndex, author);
+      currentIndex++;
+      select.setString(currentIndex, author);
     }
 
     select.scroll(new Select.RowHandler() {

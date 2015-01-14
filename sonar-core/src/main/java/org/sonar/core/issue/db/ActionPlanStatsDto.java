@@ -43,8 +43,8 @@ public class ActionPlanStatsDto {
   private Date updatedAt;
   private int totalIssues;
   private int unresolvedIssues;
-  // joins
-  private transient String projectKey;
+  // return by joins
+  private String projectKey;
 
   public Integer getId() {
     return id;

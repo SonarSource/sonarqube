@@ -104,6 +104,7 @@ public class DuplicationsParser implements ServerComponent {
 
   @VisibleForTesting
   static class DuplicationComparator implements Comparator<Duplication> {
+    private static final long serialVersionUID = 1;
 
     private final ComponentDto component;
 
@@ -146,6 +147,8 @@ public class DuplicationsParser implements ServerComponent {
   }
 
   private static class BlockComparator implements Comparator<Block> {
+    private static final long serialVersionUID = 1;
+
     @Override
     public int compare(@Nullable Block b1,
       @Nullable Block b2) {

@@ -22,7 +22,6 @@ package org.sonar.server.component;
 import com.google.common.base.Strings;
 import org.sonar.api.component.Component;
 import org.sonar.api.component.RubyComponentService;
-import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.resource.ResourceDao;
@@ -41,13 +40,11 @@ public class DefaultRubyComponentService implements RubyComponentService {
   private final ResourceDao resourceDao;
   private final DefaultComponentFinder finder;
   private final ComponentService componentService;
-  private final I18n i18n;
 
-  public DefaultRubyComponentService(ResourceDao resourceDao, DefaultComponentFinder finder, ComponentService componentService, I18n i18n) {
+  public DefaultRubyComponentService(ResourceDao resourceDao, DefaultComponentFinder finder, ComponentService componentService) {
     this.resourceDao = resourceDao;
     this.finder = finder;
     this.componentService = componentService;
-    this.i18n = i18n;
   }
 
   @Override
