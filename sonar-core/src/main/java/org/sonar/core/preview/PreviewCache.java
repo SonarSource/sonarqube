@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.api.utils.SonarException;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.persistence.PreviewDatabaseFactory;
 import org.sonar.core.properties.PropertiesDao;
@@ -207,11 +208,21 @@ public class PreviewCache implements ServerExtension {
   }
 
   public void reportResourceModification(String resourceKey) {
-    ResourceDto rootProject = resourceDao.getRootProjectByComponentKey(resourceKey);
+    DbSession session = mybatis.openSession(false);
+    try {
+      reportResourceModification(session, resourceKey);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void reportResourceModification(DbSession session, String resourceKey) {
+    ResourceDto rootProject = resourceDao.getRootProjectByComponentKey(session, resourceKey);
     if (rootProject == null) {
       throw new SonarException("Unable to find root project for component with [key=" + resourceKey + "]");
     }
     propertiesDao.setProperty(new PropertyDto().setKey(SONAR_PREVIEW_CACHE_LAST_UPDATE_KEY).setResourceId(rootProject.getId())
-      .setValue(String.valueOf(System.currentTimeMillis())));
+      .setValue(String.valueOf(System.currentTimeMillis())), session);
   }
 }

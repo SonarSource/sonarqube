@@ -87,27 +87,30 @@ public class ResourceKeyUpdaterDao {
     return result;
   }
 
+  public void bulkUpdateKey(DbSession session, long projectId, String stringToReplace, String replacementString) {
+    ResourceKeyUpdaterMapper mapper = session.getMapper(ResourceKeyUpdaterMapper.class);
+    // must SELECT first everything
+    Set<ResourceDto> modules = collectAllModules(projectId, stringToReplace, mapper);
+    checkNewNameOfAllModules(modules, stringToReplace, replacementString, mapper);
+    Map<ResourceDto, List<ResourceDto>> allResourcesByModuleMap = Maps.newHashMap();
+    for (ResourceDto module : modules) {
+      allResourcesByModuleMap.put(module, mapper.selectProjectResources(module.getId()));
+    }
+
+    // and then proceed with the batch UPDATE at once
+    for (ResourceDto module : modules) {
+      String oldModuleKey = module.getKey();
+      String newModuleKey = computeNewKey(module, stringToReplace, replacementString);
+      Collection<ResourceDto> resources = Lists.newArrayList(module);
+      resources.addAll(allResourcesByModuleMap.get(module));
+      runBatchUpdateForAllResources(resources, oldModuleKey, newModuleKey, mapper);
+    }
+  }
+
   public void bulkUpdateKey(long projectId, String stringToReplace, String replacementString) {
     DbSession session = mybatis.openSession(true);
-    ResourceKeyUpdaterMapper mapper = session.getMapper(ResourceKeyUpdaterMapper.class);
     try {
-      // must SELECT first everything
-      Set<ResourceDto> modules = collectAllModules(projectId, stringToReplace, mapper);
-      checkNewNameOfAllModules(modules, stringToReplace, replacementString, mapper);
-      Map<ResourceDto, List<ResourceDto>> allResourcesByModuleMap = Maps.newHashMap();
-      for (ResourceDto module : modules) {
-        allResourcesByModuleMap.put(module, mapper.selectProjectResources(module.getId()));
-      }
-
-      // and then proceed with the batch UPDATE at once
-      for (ResourceDto module : modules) {
-        String oldModuleKey = module.getKey();
-        String newModuleKey = computeNewKey(module, stringToReplace, replacementString);
-        Collection<ResourceDto> resources = Lists.newArrayList(module);
-        resources.addAll(allResourcesByModuleMap.get(module));
-        runBatchUpdateForAllResources(resources, oldModuleKey, newModuleKey, mapper);
-      }
-
+      bulkUpdateKey(session, projectId, stringToReplace, replacementString);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);

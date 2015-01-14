@@ -45,10 +45,7 @@ import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class PreviewCacheTest {
 
@@ -226,7 +223,7 @@ public class PreviewCacheTest {
 
   @Test
   public void test_report_resource_modification() {
-    when(resourceDao.getRootProjectByComponentKey("foo")).thenReturn(new ResourceDto().setId(456L));
+    when(resourceDao.getRootProjectByComponentKey(session, "foo")).thenReturn(new ResourceDto().setId(456L));
 
     dryRunCache.reportResourceModification("foo");
 
@@ -234,6 +231,6 @@ public class PreviewCacheTest {
       new PropertyDto()
         .setKey(PreviewCache.SONAR_PREVIEW_CACHE_LAST_UPDATE_KEY)
         .setValue(anyString())
-        .setResourceId(456L));
+        .setResourceId(456L), eq(session));
   }
 }

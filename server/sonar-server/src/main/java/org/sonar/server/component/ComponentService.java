@@ -138,15 +138,14 @@ public class ComponentService implements ServerComponent {
   public void bulkUpdateKey(String projectKey, String stringToReplace, String replacementString) {
     UserSession.get().checkProjectPermission(UserRole.ADMIN, projectKey);
 
-    DbSession session = dbClient.openSession(false);
+    // Open a batch session
+    DbSession session = dbClient.openSession(true);
     try {
       ComponentDto project = getByKey(session, projectKey);
-
-      resourceKeyUpdaterDao.bulkUpdateKey(project.getId(), stringToReplace, replacementString);
-      session.commit();
+      resourceKeyUpdaterDao.bulkUpdateKey(session, project.getId(), stringToReplace, replacementString);
 
       ComponentDto newProject = dbClient.componentDao().getById(project.getId(), session);
-      previewCache.reportResourceModification(newProject.key());
+      previewCache.reportResourceModification(session, newProject.key());
 
       session.commit();
     } finally {
