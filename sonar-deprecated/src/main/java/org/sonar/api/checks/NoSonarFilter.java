@@ -21,7 +21,7 @@ package org.sonar.api.checks;
 
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.batch.IssueFilterChain;
 import org.sonar.api.resources.Resource;
@@ -37,16 +37,16 @@ import java.util.Set;
 public class NoSonarFilter implements org.sonar.api.issue.batch.IssueFilter {
 
   private final Map<String, Set<Integer>> noSonarLinesByKey = Maps.newHashMap();
-  private SensorContext context;
+  private SonarIndex sonarIndex;
 
-  public NoSonarFilter(SensorContext context) {
-    this.context = context;
+  public NoSonarFilter(SonarIndex sonarIndex) {
+    this.sonarIndex = sonarIndex;
   }
 
   public void addResource(Resource model, Set<Integer> noSonarLines) {
     if (model != null && noSonarLines != null) {
       // Reload resource to handle backward compatibility of resource keys
-      Resource resource = context.getResource(model);
+      Resource resource = sonarIndex.getResource(model);
       if (resource != null) {
         noSonarLinesByKey.put(resource.getEffectiveKey(), noSonarLines);
       }

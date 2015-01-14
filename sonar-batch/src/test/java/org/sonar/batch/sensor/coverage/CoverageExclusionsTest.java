@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.sensors;
+package org.sonar.batch.sensor.coverage;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -33,16 +33,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class CoverageMeasurementFilterTest {
+public class CoverageExclusionsTest {
 
   private Settings settings;
 
-  private CoverageMeasurementFilter filter;
+  private CoverageExclusions filter;
 
   @Before
   public void createFilter() {
     settings = new Settings(new PropertyDefinitions(ExclusionProperties.all()));
-    filter = new CoverageMeasurementFilter(settings, new CoverageDecorator(), new LineCoverageDecorator(), new BranchCoverageDecorator());
+    filter = new CoverageExclusions(settings);
   }
 
   @Test

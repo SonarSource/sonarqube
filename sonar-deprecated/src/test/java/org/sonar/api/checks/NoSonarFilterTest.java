@@ -21,7 +21,7 @@ package org.sonar.api.checks;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.batch.IssueFilterChain;
 import org.sonar.api.resources.File;
@@ -37,8 +37,8 @@ import static org.mockito.Mockito.when;
 
 public class NoSonarFilterTest {
 
-  private SensorContext sensorContext = mock(SensorContext.class);
-  NoSonarFilter filter = new NoSonarFilter(sensorContext);
+  private SonarIndex sonarIndex = mock(SonarIndex.class);
+  NoSonarFilter filter = new NoSonarFilter(sonarIndex);
   private File javaFile;
   IssueFilterChain chain = mock(IssueFilterChain.class);
 
@@ -47,7 +47,7 @@ public class NoSonarFilterTest {
     when(chain.accept(isA(Issue.class))).thenReturn(true);
     javaFile = new File("org.foo.Bar");
     javaFile.setEffectiveKey("struts:org.apache.Action");
-    when(sensorContext.getResource(javaFile)).thenReturn(javaFile);
+    when(sonarIndex.getResource(javaFile)).thenReturn(javaFile);
   }
 
   @Test

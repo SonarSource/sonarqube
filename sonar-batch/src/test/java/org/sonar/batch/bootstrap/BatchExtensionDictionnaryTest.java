@@ -22,10 +22,10 @@ package org.sonar.batch.bootstrap;
 import org.junit.Test;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.Sensor;
-import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.scan2.AnalyzerOptimizer;
+import org.sonar.batch.sensor.DefaultSensorContext;
 
 import java.util.Collection;
 
@@ -41,7 +41,7 @@ public class BatchExtensionDictionnaryTest {
     for (BatchExtension extension : extensions) {
       iocContainer.addSingleton(extension);
     }
-    return new BatchExtensionDictionnary(iocContainer, mock(SensorContext.class), mock(AnalyzerOptimizer.class));
+    return new BatchExtensionDictionnary(iocContainer, mock(DefaultSensorContext.class), mock(AnalyzerOptimizer.class));
   }
 
   @Test

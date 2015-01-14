@@ -27,20 +27,11 @@ import javax.annotation.CheckForNull;
 import java.io.Serializable;
 
 /**
- * Builder to create new Measure.
- * @since 5.0
+ * Measure on File, Directory or Project.
+ * Should not be implemented by client.
+ * @since 5.1
  */
 public interface Measure<G extends Serializable> {
-
-  /**
-   * The file the measure belongs to.
-   */
-  Measure<G> onFile(InputFile file);
-
-  /**
-   * Tell that the measure is global to the project.
-   */
-  Measure<G> onProject();
 
   /**
    * The file the measure belong to.
@@ -50,11 +41,6 @@ public interface Measure<G extends Serializable> {
   InputFile inputFile();
 
   /**
-   * Set the metric this measure belong to.
-   */
-  Measure<G> forMetric(Metric<G> metric);
-
-  /**
    * The metric this measure belong to.
    */
   Metric<G> metric();
@@ -62,16 +48,6 @@ public interface Measure<G extends Serializable> {
   /**
    * Value of the measure.
    */
-  Measure<G> withValue(G value);
-
-  /**
-   * Value of the measure.
-   */
   G value();
-
-  /**
-   * Save the measure. It is not permitted so save several measures of the same metric on the same file/project.
-   */
-  void save();
 
 }

@@ -31,7 +31,7 @@ import org.sonar.api.BatchExtension;
  * For example the Cobertura Sensor parses Cobertura report and saves the first-level of measures on files.
  * </p>
  *
- * @since 5.0
+ * @since 5.1
  */
 public interface Sensor extends BatchExtension {
 

@@ -37,19 +37,16 @@ public final class ModuleScanExecutor {
   private final QProfileVerifier profileVerifier;
   private final IssueExclusionsLoader issueExclusionsLoader;
 
-  private AnalysisPublisher analyzisPublisher;
-
   public ModuleScanExecutor(SensorsExecutor analyzersExecutor,
     SensorContext analyzerContext,
     FileSystemLogger fsLogger, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
-    IssueExclusionsLoader issueExclusionsLoader, AnalysisPublisher analyzisPublisher) {
+    IssueExclusionsLoader issueExclusionsLoader) {
     this.analyzersExecutor = analyzersExecutor;
     this.analyzerContext = analyzerContext;
     this.fsLogger = fsLogger;
     this.fs = fs;
     this.profileVerifier = profileVerifier;
     this.issueExclusionsLoader = issueExclusionsLoader;
-    this.analyzisPublisher = analyzisPublisher;
   }
 
   public static Collection<Class> getPhaseClasses() {
@@ -72,9 +69,6 @@ public final class ModuleScanExecutor {
     issueExclusionsLoader.execute();
 
     analyzersExecutor.execute(analyzerContext);
-
-    // Export results
-    analyzisPublisher.execute();
 
   }
 }

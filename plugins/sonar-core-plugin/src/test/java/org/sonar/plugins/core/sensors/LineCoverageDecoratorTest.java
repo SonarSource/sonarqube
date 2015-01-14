@@ -24,15 +24,12 @@ import org.junit.Test;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
-import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Scopes;
 
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.anyDouble;
-import static org.mockito.Mockito.eq;
+import static org.mockito.Matchers.anyDouble;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -49,9 +46,8 @@ public class LineCoverageDecoratorTest {
 
   @Test
   public void should_depend_on_coverage_metrics() {
-    List<Metric> metrics = decorator.dependsUponMetrics();
-
-    assertThat(metrics).containsOnly(CoreMetrics.UNCOVERED_LINES, CoreMetrics.LINES_TO_COVER, CoreMetrics.NEW_UNCOVERED_LINES, CoreMetrics.NEW_LINES_TO_COVER);
+    assertThat(decorator.dependsUponMetrics()).containsOnly(CoreMetrics.UNCOVERED_LINES, CoreMetrics.LINES_TO_COVER, CoreMetrics.NEW_UNCOVERED_LINES,
+      CoreMetrics.NEW_LINES_TO_COVER);
   }
 
   @Test

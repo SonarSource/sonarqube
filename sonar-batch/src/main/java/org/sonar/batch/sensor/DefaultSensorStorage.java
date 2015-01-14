@@ -17,17 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.scan;
+package org.sonar.batch.sensor;
 
-import org.sonar.api.batch.Sensor;
-import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.rule.ActiveRules;
-import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.SensorStorage;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.Issue.Severity;
 import org.sonar.api.batch.sensor.measure.Measure;
@@ -58,33 +56,28 @@ import org.sonar.api.test.Testable;
 import org.sonar.batch.duplication.BlockCache;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.ComponentDataCache;
-import org.sonar.batch.scan2.BaseSensorContext;
+import org.sonar.batch.index.DefaultIndex;
+import org.sonar.batch.sensor.coverage.CoverageExclusions;
 import org.sonar.core.component.ComponentKeys;
 
-/**
- * Implements {@link SensorContext} but forward everything to {@link org.sonar.api.batch.SensorContext} for backward compatibility.
- * Will be dropped once old {@link Sensor} API is dropped.
- *
- */
-public class SensorContextAdapter extends BaseSensorContext {
+public class DefaultSensorStorage implements SensorStorage {
 
   private static final String USES = "USES";
-  private final org.sonar.api.batch.SensorContext sensorContext;
   private final MetricFinder metricFinder;
   private final Project project;
   private final ResourcePerspectives perspectives;
-  private final SonarIndex sonarIndex;
+  private final DefaultIndex sonarIndex;
+  private final CoverageExclusions coverageExclusions;
 
-  public SensorContextAdapter(org.sonar.api.batch.SensorContext sensorContext, MetricFinder metricFinder, Project project,
+  public DefaultSensorStorage(MetricFinder metricFinder, Project project,
     ResourcePerspectives perspectives,
     Settings settings, FileSystem fs, ActiveRules activeRules, ComponentDataCache componentDataCache, BlockCache blockCache,
-    DuplicationCache duplicationCache, SonarIndex sonarIndex) {
-    super(settings, fs, activeRules, componentDataCache, blockCache, duplicationCache);
-    this.sensorContext = sensorContext;
+    DuplicationCache duplicationCache, DefaultIndex sonarIndex, CoverageExclusions coverageExclusions) {
     this.metricFinder = metricFinder;
     this.project = project;
     this.perspectives = perspectives;
     this.sonarIndex = sonarIndex;
+    this.coverageExclusions = coverageExclusions;
   }
 
   private Metric findMetricOrFail(String metricKey) {
@@ -109,9 +102,12 @@ public class SensorContextAdapter extends BaseSensorContext {
         && !Scopes.isHigherThanOrEquals(Scopes.FILE, ((SumChildDistributionFormula) formula).getMinimumScopeToPersist())) {
         measureToSave.setPersistenceMode(PersistenceMode.MEMORY);
       }
-      sensorContext.saveMeasure(newMeasure.inputFile(), measureToSave);
+      File sonarFile = getFile(newMeasure.inputFile());
+      if (coverageExclusions.accept(sonarFile, measureToSave)) {
+        sonarIndex.addMeasure(sonarFile, measureToSave);
+      }
     } else {
-      sensorContext.saveMeasure(measureToSave);
+      sonarIndex.addMeasure(project, measureToSave);
     }
   }
 
@@ -214,7 +210,7 @@ public class SensorContextAdapter extends BaseSensorContext {
     File testRes = File.create(testFile.relativePath());
     testRes.setQualifier(Qualifiers.UNIT_TEST_FILE);
     // Reload
-    testRes = sensorContext.getResource(testRes);
+    testRes = sonarIndex.getResource(testRes);
     if (testRes == null) {
       throw new IllegalArgumentException("Provided input file is not indexed or not a test file: " + testFile);
     }
@@ -224,7 +220,7 @@ public class SensorContextAdapter extends BaseSensorContext {
   private File getMainResource(InputFile mainFile) {
     File mainRes = File.create(mainFile.relativePath());
     // Reload
-    mainRes = sensorContext.getResource(mainRes);
+    mainRes = sonarIndex.getResource(mainRes);
     if (mainRes == null) {
       throw new IllegalArgumentException("Provided input file is not indexed or not a main file: " + mainRes);
     }
@@ -255,13 +251,12 @@ public class SensorContextAdapter extends BaseSensorContext {
         parentDep.setWeight(parentDep.getWeight() + 1);
       } else {
         parentDep = new Dependency(fromParent, toParent).setUsage(USES).setWeight(1);
-        parentDep = sensorContext.saveDependency(parentDep);
+        parentDep = sonarIndex.addDependency(parentDep);
       }
     }
-    sensorContext.saveDependency(new Dependency(fromResource, toResource)
+    sonarIndex.addDependency(new Dependency(fromResource, toResource)
       .setUsage(USES)
       .setWeight(dep.weight())
       .setParent(parentDep));
   }
-
 }

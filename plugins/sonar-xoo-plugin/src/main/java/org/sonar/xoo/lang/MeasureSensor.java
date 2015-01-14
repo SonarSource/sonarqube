@@ -28,8 +28,7 @@ import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
-import org.sonar.api.batch.sensor.measure.Measure;
-import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.batch.sensor.measure.NewMeasure;
 import org.sonar.xoo.Xoo;
 
 import java.io.File;
@@ -88,7 +87,7 @@ public class MeasureSensor implements Sensor {
     if (metric == null) {
       throw new IllegalStateException("Unknow metric with key: " + metricKey);
     }
-    Measure<Serializable> newMeasure = context.newMeasure()
+    NewMeasure<Serializable> newMeasure = context.newMeasure()
       .forMetric(metric)
       .onFile(xooFile);
     if (Boolean.class.equals(metric.valueType())) {
@@ -111,9 +110,7 @@ public class MeasureSensor implements Sensor {
   public void describe(SensorDescriptor descriptor) {
     descriptor
       .name("Xoo Measure Sensor")
-      .provides(CoreMetrics.LINES)
-      .onlyOnLanguages(Xoo.KEY)
-      .onOnFileType(InputFile.Type.MAIN, InputFile.Type.TEST);
+      .onlyOnLanguages(Xoo.KEY);
   }
 
   @Override

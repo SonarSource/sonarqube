@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.sensors;
+package org.sonar.batch.sensor.coverage;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
@@ -27,41 +27,37 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.WildcardPattern;
-import org.sonar.core.measure.MeasurementFilter;
 
 import java.util.Collection;
 import java.util.Iterator;
 
-public class CoverageMeasurementFilter implements MeasurementFilter {
+public class CoverageExclusions {
 
-  private static final Logger LOG = LoggerFactory.getLogger(CoverageMeasurementFilter.class);
+  private static final Logger LOG = LoggerFactory.getLogger(CoverageExclusions.class);
 
   private final Settings settings;
   private final ImmutableSet<Metric> coverageMetrics;
   private Collection<WildcardPattern> resourcePatterns;
 
-  public CoverageMeasurementFilter(Settings settings,
-    CoverageDecorator coverageDecorator,
-    LineCoverageDecorator lineCoverageDecorator,
-    BranchCoverageDecorator branchCoverageDecorator) {
+  public CoverageExclusions(Settings settings) {
     this.settings = settings;
     this.coverageMetrics = ImmutableSet.<Metric>builder()
-      .addAll(coverageDecorator.generatedMetrics())
-      .addAll(coverageDecorator.usedMetrics())
-      .addAll(lineCoverageDecorator.generatedMetrics())
-      .addAll(lineCoverageDecorator.dependsUponMetrics())
-      .addAll(branchCoverageDecorator.generatedMetrics())
-      .addAll(branchCoverageDecorator.dependsUponMetrics())
+      .add(CoreMetrics.COVERAGE)
+      .addAll(CoverageConstants.COVERAGE_METRICS)
+      .add(CoreMetrics.LINE_COVERAGE)
+      .addAll(CoverageConstants.LINE_COVERAGE_METRICS)
+      .add(CoreMetrics.BRANCH_COVERAGE)
+      .addAll(CoverageConstants.BRANCH_COVERAGE_METRICS)
       .build();
 
     initPatterns();
   }
 
-  @Override
   public boolean accept(Resource resource, Measure measure) {
     if (isCoverageMetric(measure.getMetric())) {
       return !hasMatchingPattern(resource);

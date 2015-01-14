@@ -36,8 +36,7 @@ public class OneIssueOnDirPerFileSensor implements Sensor {
     descriptor
       .name("One Issue On Dir Per File")
       .onlyOnLanguages(Xoo.KEY)
-      .createIssuesForRuleRepositories(XooRulesDefinition.XOO_REPOSITORY)
-      .onOnFileType(InputFile.Type.MAIN, InputFile.Type.TEST);
+      .createIssuesForRuleRepositories(XooRulesDefinition.XOO_REPOSITORY);
   }
 
   @Override

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.scan2;
+package org.sonar.batch.sensor;
 
 import com.google.common.base.Preconditions;
 import org.sonar.api.batch.fs.FileSystem;
@@ -35,7 +35,7 @@ import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplicationBuilder
 import org.sonar.api.batch.sensor.highlighting.HighlightingBuilder;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
-import org.sonar.api.batch.sensor.measure.Measure;
+import org.sonar.api.batch.sensor.measure.NewMeasure;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.batch.sensor.symbol.SymbolTableBuilder;
 import org.sonar.api.batch.sensor.test.Coverage;
@@ -50,7 +50,6 @@ import org.sonar.batch.duplication.DefaultTokenBuilder;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.highlighting.DefaultHighlightingBuilder;
 import org.sonar.batch.index.ComponentDataCache;
-import org.sonar.batch.scan.SensorContextAdapter;
 import org.sonar.batch.symbol.DefaultSymbolTableBuilder;
 import org.sonar.duplications.internal.pmd.PmdBlockChunker;
 
@@ -58,11 +57,11 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * Common bits between {@link DefaultSensorContext} and {@link SensorContextAdapter}
+ * Common bits between {@link ExperimentalSensorStorage} and {@link SensorContextAdapter}
  * @author julien
  *
  */
-public abstract class BaseSensorContext implements SensorContext, SensorStorage {
+public class DefaultSensorContext implements SensorContext {
 
   private final Settings settings;
   private final FileSystem fs;
@@ -70,15 +69,17 @@ public abstract class BaseSensorContext implements SensorContext, SensorStorage 
   private final ComponentDataCache componentDataCache;
   private final BlockCache blockCache;
   private final DuplicationCache duplicationCache;
+  private final SensorStorage sensorStorage;
 
-  protected BaseSensorContext(Settings settings, FileSystem fs, ActiveRules activeRules, ComponentDataCache componentDataCache,
-    BlockCache blockCache, DuplicationCache duplicationCache) {
+  public DefaultSensorContext(Settings settings, FileSystem fs, ActiveRules activeRules, ComponentDataCache componentDataCache,
+    BlockCache blockCache, DuplicationCache duplicationCache, SensorStorage sensorStorage) {
     this.settings = settings;
     this.fs = fs;
     this.activeRules = activeRules;
     this.componentDataCache = componentDataCache;
     this.blockCache = blockCache;
     this.duplicationCache = duplicationCache;
+    this.sensorStorage = sensorStorage;
   }
 
   @Override
@@ -97,13 +98,13 @@ public abstract class BaseSensorContext implements SensorContext, SensorStorage 
   }
 
   @Override
-  public <G extends Serializable> Measure<G> newMeasure() {
-    return (Measure<G>) new DefaultMeasure(this);
+  public <G extends Serializable> NewMeasure<G> newMeasure() {
+    return new DefaultMeasure(sensorStorage);
   }
 
   @Override
   public Issue newIssue() {
-    return new DefaultIssue(this);
+    return new DefaultIssue(sensorStorage);
   }
 
   @Override
@@ -158,22 +159,22 @@ public abstract class BaseSensorContext implements SensorContext, SensorStorage 
 
   @Override
   public Coverage newCoverage() {
-    return new DefaultCoverage(this);
+    return new DefaultCoverage(sensorStorage);
   }
 
   @Override
   public TestCaseExecution newTestCaseExecution() {
-    return new DefaultTestCaseExecution(this);
+    return new DefaultTestCaseExecution(sensorStorage);
   }
 
   @Override
   public TestCaseCoverage newTestCaseCoverage() {
-    return new DefaultTestCaseCoverage(this);
+    return new DefaultTestCaseCoverage(sensorStorage);
   }
 
   @Override
   public Dependency newDependency() {
-    return new DefaultDependency(this);
+    return new DefaultDependency(sensorStorage);
   }
 
 }

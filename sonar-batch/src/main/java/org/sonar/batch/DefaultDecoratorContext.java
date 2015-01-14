@@ -40,7 +40,7 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.duplication.DuplicationUtils;
 import org.sonar.batch.scan.measure.MeasureCache;
-import org.sonar.core.measure.MeasurementFilters;
+import org.sonar.batch.sensor.coverage.CoverageExclusions;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -54,7 +54,6 @@ public class DefaultDecoratorContext implements DecoratorContext {
   private static final String SAVE_MEASURE_METHOD = "saveMeasure";
   private SonarIndex sonarIndex;
   private Resource resource;
-  private MeasurementFilters measurementFilters;
   private boolean readOnly = false;
 
   private List<DecoratorContext> childrenContexts;
@@ -63,18 +62,19 @@ public class DefaultDecoratorContext implements DecoratorContext {
   private MeasureCache measureCache;
   private MetricFinder metricFinder;
   private final DuplicationCache duplicationCache;
+  private final CoverageExclusions coverageFilter;
 
   public DefaultDecoratorContext(Resource resource,
     SonarIndex index,
     List<DecoratorContext> childrenContexts,
-    MeasurementFilters measurementFilters, MeasureCache measureCache, MetricFinder metricFinder, DuplicationCache duplicationCache) {
+    MeasureCache measureCache, MetricFinder metricFinder, DuplicationCache duplicationCache, CoverageExclusions coverageFilter) {
     this.sonarIndex = index;
     this.resource = resource;
     this.childrenContexts = childrenContexts;
-    this.measurementFilters = measurementFilters;
     this.measureCache = measureCache;
     this.metricFinder = metricFinder;
     this.duplicationCache = duplicationCache;
+    this.coverageFilter = coverageFilter;
   }
 
   public void init() {
@@ -178,7 +178,7 @@ public class DefaultDecoratorContext implements DecoratorContext {
       throw new SonarException("Unknown metric: " + measure.getMetricKey());
     }
     measure.setMetric(metric);
-    if (measurementFilters.accept(resource, measure)) {
+    if (coverageFilter.accept(resource, measure)) {
       List<Measure> metricMeasures = measuresByMetric.get(measure.getMetricKey());
 
       boolean add = true;

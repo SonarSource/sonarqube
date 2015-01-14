@@ -19,21 +19,19 @@
  */
 package org.sonar.plugins.core.sensors;
 
-import com.google.common.collect.ImmutableList;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.MeasureUtils;
 import org.sonar.api.measures.Metric;
+import org.sonar.batch.sensor.coverage.CoverageConstants;
 
 import java.util.Collection;
 
 public final class CoverageDecorator extends AbstractCoverageDecorator {
   @DependsUpon
   public Collection<Metric> usedMetrics() {
-    return ImmutableList.<Metric>of(CoreMetrics.LINES_TO_COVER, CoreMetrics.UNCOVERED_LINES, CoreMetrics.NEW_LINES_TO_COVER,
-      CoreMetrics.NEW_UNCOVERED_LINES, CoreMetrics.CONDITIONS_TO_COVER, CoreMetrics.UNCOVERED_CONDITIONS,
-      CoreMetrics.NEW_CONDITIONS_TO_COVER, CoreMetrics.NEW_UNCOVERED_CONDITIONS);
+    return CoverageConstants.COVERAGE_METRICS;
   }
 
   @Override

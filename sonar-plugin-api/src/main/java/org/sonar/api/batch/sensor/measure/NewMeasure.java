@@ -17,8 +17,43 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.core.measure;
+package org.sonar.api.batch.sensor.measure;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.measure.Metric;
 
+import java.io.Serializable;
+
+/**
+ * Builder to create new Measure.
+ * Should not be implemented by client.
+ * @since 5.1
+ */
+public interface NewMeasure<G extends Serializable> {
+
+  /**
+   * The file the measure belongs to.
+   */
+  NewMeasure<G> onFile(InputFile file);
+
+  /**
+   * Tell that the measure is global to the project.
+   */
+  NewMeasure<G> onProject();
+
+  /**
+   * Set the metric this measure belong to.
+   */
+  NewMeasure<G> forMetric(Metric<G> metric);
+
+  /**
+   * Value of the measure.
+   */
+  NewMeasure<G> withValue(G value);
+
+  /**
+   * Save the measure. It is not permitted so save several measures of the same metric on the same file/project.
+   */
+  void save();
+
+}

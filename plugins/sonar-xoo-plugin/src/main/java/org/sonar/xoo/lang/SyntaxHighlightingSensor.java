@@ -85,8 +85,7 @@ public class SyntaxHighlightingSensor implements Sensor {
   public void describe(SensorDescriptor descriptor) {
     descriptor
       .name("Xoo Highlighting Sensor")
-      .onlyOnLanguages(Xoo.KEY)
-      .onOnFileType(InputFile.Type.MAIN, InputFile.Type.TEST);
+      .onlyOnLanguages(Xoo.KEY);
   }
 
   @Override

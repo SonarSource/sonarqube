@@ -25,9 +25,13 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Event;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.SonarIndex;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
+import org.sonar.api.batch.rule.ActiveRules;
+import org.sonar.api.batch.sensor.SensorStorage;
+import org.sonar.api.config.Settings;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
@@ -40,7 +44,11 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.SonarException;
-import org.sonar.core.measure.MeasurementFilters;
+import org.sonar.batch.duplication.BlockCache;
+import org.sonar.batch.duplication.DuplicationCache;
+import org.sonar.batch.index.ComponentDataCache;
+import org.sonar.batch.sensor.DefaultSensorContext;
+import org.sonar.batch.sensor.coverage.CoverageExclusions;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -48,18 +56,21 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-public class DefaultSensorContext implements SensorContext {
+public class DeprecatedSensorContext extends DefaultSensorContext implements SensorContext {
 
-  private static final Logger LOG = LoggerFactory.getLogger(DefaultSensorContext.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DeprecatedSensorContext.class);
 
-  private SonarIndex index;
-  private Project project;
-  private MeasurementFilters filters;
+  private final SonarIndex index;
+  private final Project project;
+  private final CoverageExclusions coverageFilter;
 
-  public DefaultSensorContext(SonarIndex index, Project project, MeasurementFilters filters) {
+  public DeprecatedSensorContext(SonarIndex index, Project project, Settings settings, FileSystem fs, ActiveRules activeRules,
+    ComponentDataCache componentDataCache, CoverageExclusions coverageFilter,
+    BlockCache blockCache, DuplicationCache duplicationCache, SensorStorage sensorStorage) {
+    super(settings, fs, activeRules, componentDataCache, blockCache, duplicationCache, sensorStorage);
     this.index = index;
     this.project = project;
-    this.filters = filters;
+    this.coverageFilter = coverageFilter;
   }
 
   public Project getProject() {
@@ -173,8 +184,9 @@ public class DefaultSensorContext implements SensorContext {
 
   @Override
   public Measure saveMeasure(Resource resource, Measure measure) {
-    if (filters.accept(resource, measure)) {
-      return index.addMeasure(resourceOrProject(resource), measure);
+    Resource resourceOrProject = resourceOrProject(resource);
+    if (coverageFilter.accept(resourceOrProject, measure)) {
+      return index.addMeasure(resourceOrProject, measure);
     } else {
       return measure;
     }

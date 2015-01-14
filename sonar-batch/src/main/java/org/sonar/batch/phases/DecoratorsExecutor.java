@@ -35,7 +35,7 @@ import org.sonar.batch.DefaultDecoratorContext;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.scan.measure.MeasureCache;
-import org.sonar.core.measure.MeasurementFilters;
+import org.sonar.batch.sensor.coverage.CoverageExclusions;
 
 import java.util.Collection;
 import java.util.List;
@@ -46,13 +46,13 @@ public class DecoratorsExecutor implements BatchComponent {
   private SonarIndex index;
   private EventBus eventBus;
   private Project project;
-  private MeasurementFilters measurementFilters;
+  private CoverageExclusions coverageFilter;
   private MeasureCache measureCache;
   private MetricFinder metricFinder;
   private final DuplicationCache duplicationCache;
 
   public DecoratorsExecutor(BatchExtensionDictionnary batchExtDictionnary,
-    Project project, SonarIndex index, EventBus eventBus, MeasurementFilters measurementFilters, MeasureCache measureCache, MetricFinder metricFinder,
+    Project project, SonarIndex index, EventBus eventBus, CoverageExclusions coverageFilter, MeasureCache measureCache, MetricFinder metricFinder,
     DuplicationCache duplicationCache) {
     this.measureCache = measureCache;
     this.metricFinder = metricFinder;
@@ -61,7 +61,7 @@ public class DecoratorsExecutor implements BatchComponent {
     this.index = index;
     this.eventBus = eventBus;
     this.project = project;
-    this.measurementFilters = measurementFilters;
+    this.coverageFilter = coverageFilter;
   }
 
   public void execute() {
@@ -79,7 +79,7 @@ public class DecoratorsExecutor implements BatchComponent {
       childrenContexts.add(childContext.end());
     }
 
-    DefaultDecoratorContext context = new DefaultDecoratorContext(resource, index, childrenContexts, measurementFilters, measureCache, metricFinder, duplicationCache);
+    DefaultDecoratorContext context = new DefaultDecoratorContext(resource, index, childrenContexts, measureCache, metricFinder, duplicationCache, coverageFilter);
     context.init();
     if (executeDecorators) {
       for (Decorator decorator : decorators) {

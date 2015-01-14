@@ -27,13 +27,14 @@ import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.sensor.SensorStorage;
 import org.sonar.api.batch.sensor.internal.DefaultStorable;
 import org.sonar.api.batch.sensor.measure.Measure;
+import org.sonar.api.batch.sensor.measure.NewMeasure;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.io.Serializable;
 
-public class DefaultMeasure<G extends Serializable> extends DefaultStorable implements Measure<G> {
+public class DefaultMeasure<G extends Serializable> extends DefaultStorable implements Measure<G>, NewMeasure<G> {
 
   private boolean onProject = false;
   private InputFile file;
@@ -102,7 +103,7 @@ public class DefaultMeasure<G extends Serializable> extends DefaultStorable impl
     Preconditions.checkNotNull(this.value, "Measure value can't be null");
     Preconditions.checkNotNull(this.metric, "Measure metric can't be null");
     Preconditions.checkState(this.metric.valueType().equals(this.value.getClass()), "Measure value should be of type " + this.metric.valueType());
-    storage.store((Measure<Serializable>) this);
+    storage.store(this);
   }
 
   @Override

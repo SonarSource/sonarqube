@@ -29,6 +29,7 @@ import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.scan.SensorWrapper;
 import org.sonar.batch.scan2.AnalyzerOptimizer;
+import org.sonar.batch.sensor.DefaultSensorContext;
 
 import javax.annotation.Nullable;
 
@@ -43,7 +44,7 @@ public class BatchExtensionDictionnary extends org.sonar.api.batch.BatchExtensio
   private SensorContext context;
   private AnalyzerOptimizer analyzerOptimizer;
 
-  public BatchExtensionDictionnary(ComponentContainer componentContainer, SensorContext context, AnalyzerOptimizer analyzerOptimizer) {
+  public BatchExtensionDictionnary(ComponentContainer componentContainer, DefaultSensorContext context, AnalyzerOptimizer analyzerOptimizer) {
     super(componentContainer);
     this.context = context;
     this.analyzerOptimizer = analyzerOptimizer;

@@ -29,7 +29,9 @@ import java.util.List;
 
 /**
  * @since 2.5
+ * @deprecated since 5.1 use {@link org.sonar.api.batch.measure.MetricFinder} on batch side
  */
+@Deprecated
 public interface MetricFinder extends TaskComponent, ServerComponent {
 
   @CheckForNull

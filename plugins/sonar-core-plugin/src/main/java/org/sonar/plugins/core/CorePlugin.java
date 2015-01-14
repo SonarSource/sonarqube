@@ -52,7 +52,6 @@ import org.sonar.plugins.core.security.ApplyProjectRolesDecorator;
 import org.sonar.plugins.core.sensors.BranchCoverageDecorator;
 import org.sonar.plugins.core.sensors.CommentDensityDecorator;
 import org.sonar.plugins.core.sensors.CoverageDecorator;
-import org.sonar.plugins.core.sensors.CoverageMeasurementFilter;
 import org.sonar.plugins.core.sensors.DirectoriesDecorator;
 import org.sonar.plugins.core.sensors.FileHashSensor;
 import org.sonar.plugins.core.sensors.FilesDecorator;
@@ -369,7 +368,6 @@ public final class CorePlugin extends SonarPlugin {
       OverallLineCoverageDecorator.class,
       OverallCoverageDecorator.class,
       OverallBranchCoverageDecorator.class,
-      CoverageMeasurementFilter.class,
       ApplyProjectRolesDecorator.class,
       CommentDensityDecorator.class,
       DirectoriesDecorator.class,

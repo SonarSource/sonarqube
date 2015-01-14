@@ -27,6 +27,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.xoo.XooPlugin;
@@ -80,15 +83,15 @@ public class ScmMediumTest {
 
     assertThat(result.measures()).hasSize(5);
 
-    // assertThat(result.measures()).contains(new DefaultMeasure<Integer>()
-    // .forMetric(CoreMetrics.LINES)
-    // .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
-    // .withValue(5));
-    //
-    // assertThat(result.measures()).contains(new DefaultMeasure<String>()
-    // .forMetric(CoreMetrics.SCM_AUTHORS_BY_LINE)
-    // .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
-    // .withValue("1=;2=julien;3=julien;4=julien;5=simon"));
+    assertThat(result.measures()).contains(new DefaultMeasure<Integer>()
+      .forMetric(CoreMetrics.LINES)
+      .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
+      .withValue(5));
+
+    assertThat(result.measures()).contains(new DefaultMeasure<String>()
+      .forMetric(CoreMetrics.SCM_AUTHORS_BY_LINE)
+      .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
+      .withValue("1=;2=julien;3=julien;4=julien;5=simon"));
   }
 
   @Test
@@ -136,15 +139,15 @@ public class ScmMediumTest {
 
     assertThat(result.measures()).hasSize(5);
 
-    // assertThat(result.measures()).contains(new DefaultMeasure<Integer>()
-    // .forMetric(CoreMetrics.LINES)
-    // .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
-    // .withValue(5));
-    //
-    // assertThat(result.measures()).contains(new DefaultMeasure<String>()
-    // .forMetric(CoreMetrics.SCM_AUTHORS_BY_LINE)
-    // .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
-    // .withValue("1=;2=julien;3=julien;4=julien;5=simon"));
+    assertThat(result.measures()).contains(new DefaultMeasure<Integer>()
+      .forMetric(CoreMetrics.LINES)
+      .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
+      .withValue(5));
+
+    assertThat(result.measures()).contains(new DefaultMeasure<String>()
+      .forMetric(CoreMetrics.SCM_AUTHORS_BY_LINE)
+      .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
+      .withValue("1=;2=julien;3=julien;4=julien;5=simon"));
   }
 
   @Test
@@ -167,15 +170,15 @@ public class ScmMediumTest {
 
     assertThat(result.measures()).hasSize(5);
 
-    // assertThat(result.measures()).contains(new DefaultMeasure<Integer>()
-    // .forMetric(CoreMetrics.LINES)
-    // .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
-    // .withValue(5));
-    //
-    // assertThat(result.measures()).contains(new DefaultMeasure<String>()
-    // .forMetric(CoreMetrics.SCM_AUTHORS_BY_LINE)
-    // .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
-    // .withValue("1=;2=julien;3=julien;4=julien;5=simon"));
+    assertThat(result.measures()).contains(new DefaultMeasure<Integer>()
+      .forMetric(CoreMetrics.LINES)
+      .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
+      .withValue(5));
+
+    assertThat(result.measures()).contains(new DefaultMeasure<String>()
+      .forMetric(CoreMetrics.SCM_AUTHORS_BY_LINE)
+      .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
+      .withValue("1=;2=julien;3=julien;4=julien;5=simon"));
   }
 
   private File prepareProject() throws IOException {

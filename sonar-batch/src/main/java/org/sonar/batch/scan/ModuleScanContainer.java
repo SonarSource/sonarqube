@@ -31,8 +31,8 @@ import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileExclusions;
 import org.sonar.batch.DefaultProjectClasspath;
-import org.sonar.batch.DefaultSensorContext;
 import org.sonar.batch.DefaultTimeMachine;
+import org.sonar.batch.DeprecatedSensorContext;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.ResourceFilters;
 import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
@@ -97,8 +97,10 @@ import org.sonar.batch.scan.filesystem.StatusDetectionFactory;
 import org.sonar.batch.scan.maven.MavenPluginsConfigurator;
 import org.sonar.batch.scan.report.JsonReport;
 import org.sonar.batch.scan2.AnalyzerOptimizer;
+import org.sonar.batch.sensor.DefaultSensorContext;
+import org.sonar.batch.sensor.DefaultSensorStorage;
+import org.sonar.batch.sensor.coverage.CoverageExclusions;
 import org.sonar.core.component.ScanPerspectives;
-import org.sonar.core.measure.MeasurementFilters;
 
 public class ModuleScanContainer extends ComponentContainer {
   private static final Logger LOG = LoggerFactory.getLogger(ModuleScanContainer.class);
@@ -174,11 +176,12 @@ public class ModuleScanContainer extends ComponentContainer {
       AnalyzerOptimizer.class,
 
       DefaultSensorContext.class,
-      SensorContextAdapter.class,
+      DefaultSensorStorage.class,
+      DeprecatedSensorContext.class,
       BatchExtensionDictionnary.class,
       DefaultTimeMachine.class,
       IssueFilters.class,
-      MeasurementFilters.class,
+      CoverageExclusions.class,
       ResourceFilters.class,
 
       // rules

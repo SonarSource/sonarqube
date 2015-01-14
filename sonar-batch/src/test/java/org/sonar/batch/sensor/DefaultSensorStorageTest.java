@@ -17,15 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.scan;
+package org.sonar.batch.sensor;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
-import org.sonar.api.batch.SensorContext;
-import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
@@ -45,6 +43,7 @@ import org.sonar.api.design.Dependency;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.File;
@@ -54,27 +53,29 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.duplication.BlockCache;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.ComponentDataCache;
+import org.sonar.batch.index.DefaultIndex;
+import org.sonar.batch.sensor.coverage.CoverageExclusions;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class SensorContextAdapterTest {
+public class DefaultSensorStorageTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
   private ActiveRules activeRules;
   private DefaultFileSystem fs;
-  private SensorContextAdapter adaptor;
-  private SensorContext sensorContext;
+  private DefaultSensorStorage sensorStorage;
   private Settings settings;
   private ResourcePerspectives resourcePerspectives;
   private Project project;
-  private SonarIndex sonarIndex;
+  private DefaultIndex sonarIndex;
 
   @Before
   public void prepare() {
@@ -83,25 +84,16 @@ public class SensorContextAdapterTest {
     MetricFinder metricFinder = mock(MetricFinder.class);
     when(metricFinder.findByKey(CoreMetrics.NCLOC_KEY)).thenReturn(CoreMetrics.NCLOC);
     when(metricFinder.findByKey(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION_KEY)).thenReturn(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION);
-    sensorContext = mock(SensorContext.class);
     settings = new Settings();
     resourcePerspectives = mock(ResourcePerspectives.class);
     ComponentDataCache componentDataCache = mock(ComponentDataCache.class);
     BlockCache blockCache = mock(BlockCache.class);
     project = new Project("myProject");
-    sonarIndex = mock(SonarIndex.class);
-    adaptor = new SensorContextAdapter(sensorContext, metricFinder, project,
-      resourcePerspectives, settings, fs, activeRules, componentDataCache, blockCache, mock(DuplicationCache.class), sonarIndex);
-  }
-
-  @Test
-  public void shouldProvideComponents() {
-    assertThat(adaptor.activeRules()).isEqualTo(activeRules);
-    assertThat(adaptor.fileSystem()).isEqualTo(fs);
-    assertThat(adaptor.settings()).isEqualTo(settings);
-
-    assertThat(adaptor.newIssue()).isNotNull();
-    assertThat(adaptor.newMeasure()).isNotNull();
+    sonarIndex = mock(DefaultIndex.class);
+    CoverageExclusions coverageExclusions = mock(CoverageExclusions.class);
+    when(coverageExclusions.accept(any(Resource.class), any(Measure.class))).thenReturn(true);
+    sensorStorage = new DefaultSensorStorage(metricFinder, project,
+      resourcePerspectives, settings, fs, activeRules, componentDataCache, blockCache, mock(DuplicationCache.class), sonarIndex, coverageExclusions);
   }
 
   @Test
@@ -111,7 +103,7 @@ public class SensorContextAdapterTest {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Unknow metric with key: lines");
 
-    adaptor.store(new DefaultMeasure()
+    sensorStorage.store(new DefaultMeasure()
       .onFile(file)
       .forMetric(CoreMetrics.LINES)
       .withValue(10));
@@ -122,9 +114,10 @@ public class SensorContextAdapterTest {
     InputFile file = new DefaultInputFile("foo", "src/Foo.php");
 
     ArgumentCaptor<org.sonar.api.measures.Measure> argumentCaptor = ArgumentCaptor.forClass(org.sonar.api.measures.Measure.class);
-    when(sensorContext.saveMeasure(eq(file), argumentCaptor.capture())).thenReturn(null);
-
-    adaptor.store(new DefaultMeasure()
+    File sonarFile = File.create("src/Foo.php");
+    when(sonarIndex.addMeasure(eq(sonarFile), argumentCaptor.capture())).thenReturn(null);
+    when(sonarIndex.getResource(sonarFile)).thenReturn(sonarFile);
+    sensorStorage.store(new DefaultMeasure()
       .onFile(file)
       .forMetric(CoreMetrics.NCLOC)
       .withValue(10));
@@ -141,9 +134,13 @@ public class SensorContextAdapterTest {
     InputFile file = new DefaultInputFile("foo", "src/Foo.php");
 
     ArgumentCaptor<org.sonar.api.measures.Measure> argumentCaptor = ArgumentCaptor.forClass(org.sonar.api.measures.Measure.class);
-    when(sensorContext.saveMeasure(eq(file), argumentCaptor.capture())).thenReturn(null);
+    File sonarFile = File.create("src/Foo.php");
 
-    adaptor.store(new DefaultMeasure()
+    when(sonarIndex.addMeasure(eq(sonarFile), argumentCaptor.capture())).thenReturn(null);
+
+    when(sonarIndex.getResource(sonarFile)).thenReturn(sonarFile);
+
+    sensorStorage.store(new DefaultMeasure()
       .onFile(file)
       .forMetric(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION)
       .withValue("foo"));
@@ -159,9 +156,9 @@ public class SensorContextAdapterTest {
   public void shouldSaveProjectMeasureToSensorContext() {
 
     ArgumentCaptor<org.sonar.api.measures.Measure> argumentCaptor = ArgumentCaptor.forClass(org.sonar.api.measures.Measure.class);
-    when(sensorContext.saveMeasure(argumentCaptor.capture())).thenReturn(null);
+    when(sonarIndex.addMeasure(eq(project), argumentCaptor.capture())).thenReturn(null);
 
-    adaptor.store(new DefaultMeasure()
+    sensorStorage.store(new DefaultMeasure()
       .onProject()
       .forMetric(CoreMetrics.NCLOC)
       .withValue(10));
@@ -182,7 +179,7 @@ public class SensorContextAdapterTest {
 
     when(issuable.addIssue(argumentCaptor.capture())).thenReturn(true);
 
-    adaptor.store(new DefaultIssue()
+    sensorStorage.store(new DefaultIssue()
       .onFile(file)
       .ruleKey(RuleKey.of("foo", "bar"))
       .message("Foo")
@@ -208,7 +205,7 @@ public class SensorContextAdapterTest {
 
     when(issuable.addIssue(argumentCaptor.capture())).thenReturn(true);
 
-    adaptor.store(new DefaultIssue()
+    sensorStorage.store(new DefaultIssue()
       .onDir(dir)
       .ruleKey(RuleKey.of("foo", "bar"))
       .message("Foo")
@@ -231,7 +228,7 @@ public class SensorContextAdapterTest {
 
     when(issuable.addIssue(argumentCaptor.capture())).thenReturn(true);
 
-    adaptor.store(new DefaultIssue()
+    sensorStorage.store(new DefaultIssue()
       .onProject()
       .ruleKey(RuleKey.of("foo", "bar"))
       .message("Foo")
@@ -251,17 +248,17 @@ public class SensorContextAdapterTest {
 
     File foo = File.create("src/Foo.java");
     File bar = File.create("src/Bar.java");
-    when(sensorContext.getResource(foo)).thenReturn(foo);
-    when(sensorContext.getResource(bar)).thenReturn(bar);
+    when(sonarIndex.getResource(foo)).thenReturn(foo);
+    when(sonarIndex.getResource(bar)).thenReturn(bar);
 
-    adaptor.store(new DefaultDependency()
+    sensorStorage.store(new DefaultDependency()
       .from(new DefaultInputFile("foo", "src/Foo.java").setType(Type.MAIN))
       .to(new DefaultInputFile("foo", "src/Bar.java").setType(Type.MAIN))
       .weight(3));
 
     ArgumentCaptor<Dependency> argumentCaptor = ArgumentCaptor.forClass(Dependency.class);
 
-    verify(sensorContext).saveDependency(argumentCaptor.capture());
+    verify(sonarIndex).addDependency(argumentCaptor.capture());
     assertThat(argumentCaptor.getValue().getFrom()).isEqualTo(foo);
     assertThat(argumentCaptor.getValue().getTo()).isEqualTo(bar);
     assertThat(argumentCaptor.getValue().getWeight()).isEqualTo(3);
@@ -273,14 +270,14 @@ public class SensorContextAdapterTest {
 
     File foo = File.create("src/Foo.java");
     File bar = File.create("src/Bar.java");
-    when(sensorContext.getResource(foo)).thenReturn(foo);
-    when(sensorContext.getResource(bar)).thenReturn(bar);
+    when(sonarIndex.getResource(foo)).thenReturn(foo);
+    when(sonarIndex.getResource(bar)).thenReturn(bar);
     when(sonarIndex.getEdge(foo, bar)).thenReturn(new Dependency(foo, bar));
 
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Dependency between [moduleKey=foo, relative=src/Foo.java, abs=null] and [moduleKey=foo, relative=src/Bar.java, abs=null] was already saved.");
 
-    adaptor.store(new DefaultDependency()
+    sensorStorage.store(new DefaultDependency()
       .from(new DefaultInputFile("foo", "src/Foo.java").setType(Type.MAIN))
       .to(new DefaultInputFile("foo", "src/Bar.java").setType(Type.MAIN))
       .weight(3));
@@ -291,17 +288,17 @@ public class SensorContextAdapterTest {
 
     File foo = File.create("src1/Foo.java");
     File bar = File.create("src2/Bar.java");
-    when(sensorContext.getResource(foo)).thenReturn(foo);
-    when(sensorContext.getResource(bar)).thenReturn(bar);
+    when(sonarIndex.getResource(foo)).thenReturn(foo);
+    when(sonarIndex.getResource(bar)).thenReturn(bar);
 
-    adaptor.store(new DefaultDependency()
+    sensorStorage.store(new DefaultDependency()
       .from(new DefaultInputFile("foo", "src1/Foo.java").setType(Type.MAIN))
       .to(new DefaultInputFile("foo", "src2/Bar.java").setType(Type.MAIN))
       .weight(3));
 
     ArgumentCaptor<Dependency> argumentCaptor = ArgumentCaptor.forClass(Dependency.class);
 
-    verify(sensorContext, times(2)).saveDependency(argumentCaptor.capture());
+    verify(sonarIndex, times(2)).addDependency(argumentCaptor.capture());
     assertThat(argumentCaptor.getAllValues()).hasSize(2);
     Dependency value1 = argumentCaptor.getAllValues().get(0);
     assertThat(value1.getFrom()).isEqualTo(Directory.create("src1"));
@@ -323,19 +320,19 @@ public class SensorContextAdapterTest {
     File bar = File.create("src2/Bar.java");
     Directory src1 = Directory.create("src1");
     Directory src2 = Directory.create("src2");
-    when(sensorContext.getResource(foo)).thenReturn(foo);
-    when(sensorContext.getResource(bar)).thenReturn(bar);
+    when(sonarIndex.getResource(foo)).thenReturn(foo);
+    when(sonarIndex.getResource(bar)).thenReturn(bar);
     Dependency parentDep = new Dependency(src1, src2).setWeight(4);
     when(sonarIndex.getEdge(src1, src2)).thenReturn(parentDep);
 
-    adaptor.store(new DefaultDependency()
+    sensorStorage.store(new DefaultDependency()
       .from(new DefaultInputFile("foo", "src1/Foo.java").setType(Type.MAIN))
       .to(new DefaultInputFile("foo", "src2/Bar.java").setType(Type.MAIN))
       .weight(3));
 
     ArgumentCaptor<Dependency> argumentCaptor = ArgumentCaptor.forClass(Dependency.class);
 
-    verify(sensorContext).saveDependency(argumentCaptor.capture());
+    verify(sonarIndex).addDependency(argumentCaptor.capture());
 
     assertThat(parentDep.getWeight()).isEqualTo(5);
 

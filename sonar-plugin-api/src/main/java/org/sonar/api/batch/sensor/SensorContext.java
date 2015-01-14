@@ -29,6 +29,7 @@ import org.sonar.api.batch.sensor.duplication.DuplicationTokenBuilder;
 import org.sonar.api.batch.sensor.highlighting.HighlightingBuilder;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.measure.Measure;
+import org.sonar.api.batch.sensor.measure.NewMeasure;
 import org.sonar.api.batch.sensor.symbol.SymbolTableBuilder;
 import org.sonar.api.batch.sensor.test.Coverage;
 import org.sonar.api.batch.sensor.test.TestCaseCoverage;
@@ -40,7 +41,7 @@ import java.util.List;
 
 /**
  * See {@link Sensor#execute(SensorContext)}
- * @since 5.0
+ * @since 5.1
  */
 public interface SensorContext {
 
@@ -62,9 +63,9 @@ public interface SensorContext {
   // ----------- MEASURES --------------
 
   /**
-   * Fluent builder to create a new {@link Measure}. Don't forget to call {@link Measure#save()} once all parameters are provided.
+   * Fluent builder to create a new {@link Measure}. Don't forget to call {@link NewMeasure#save()} once all parameters are provided.
    */
-  <G extends Serializable> Measure<G> newMeasure();
+  <G extends Serializable> NewMeasure<G> newMeasure();
 
   // ----------- ISSUES --------------
 

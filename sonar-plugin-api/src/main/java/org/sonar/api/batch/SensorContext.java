@@ -40,7 +40,7 @@ import java.util.Set;
 /**
  * @since 1.10
  */
-public interface SensorContext {
+public interface SensorContext extends org.sonar.api.batch.sensor.SensorContext {
 
   /**
    * Indexes a resource as a direct child of project. This method does nothing and returns true if the resource already indexed.

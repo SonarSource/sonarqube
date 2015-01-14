@@ -17,25 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.measure;
-
-import org.sonar.api.BatchExtension;
-
-import org.sonar.api.resources.Resource;
-import org.sonar.api.measures.Measure;
-
-/**
- * Allows to define filter {@link Measure}s when they are saved on {@link Resource}s
- * @since 4.0
- *
- */
-public interface MeasurementFilter extends BatchExtension {
-
-  /**
-   *
-   * @param resource
-   * @param measure
-   * @return <code>true</code> if the given measure can be saved for the given resource
-   */
-  boolean accept(Resource resource, Measure measure);
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.batch.sensor;

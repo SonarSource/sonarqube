@@ -31,8 +31,10 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Event;
 import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.design.Dependency;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.measures.MeasuresFilters;
@@ -51,7 +53,6 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.issue.ModuleIssues;
 import org.sonar.batch.scan.measure.MeasureCache;
-import org.sonar.batch.scan2.DefaultSensorContext;
 import org.sonar.core.component.ComponentKeys;
 
 import javax.annotation.CheckForNull;
@@ -59,6 +60,7 @@ import javax.annotation.Nullable;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -71,6 +73,31 @@ import java.util.Set;
 public class DefaultIndex extends SonarIndex {
 
   private static final Logger LOG = LoggerFactory.getLogger(DefaultIndex.class);
+
+  private static final List<Metric> INTERNAL_METRICS = Arrays.<Metric>asList(
+    // Computed by DsmDecorator
+    CoreMetrics.DEPENDENCY_MATRIX,
+    CoreMetrics.DIRECTORY_CYCLES,
+    CoreMetrics.DIRECTORY_EDGES_WEIGHT,
+    CoreMetrics.DIRECTORY_FEEDBACK_EDGES,
+    CoreMetrics.DIRECTORY_TANGLE_INDEX,
+    CoreMetrics.DIRECTORY_TANGLES,
+    CoreMetrics.FILE_CYCLES,
+    CoreMetrics.FILE_EDGES_WEIGHT,
+    CoreMetrics.FILE_FEEDBACK_EDGES,
+    CoreMetrics.FILE_TANGLE_INDEX,
+    CoreMetrics.FILE_TANGLES,
+    // Computed by ScmActivitySensor
+    CoreMetrics.SCM_AUTHORS_BY_LINE,
+    CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE,
+    CoreMetrics.SCM_REVISIONS_BY_LINE,
+    // Computed by core duplication plugin
+    CoreMetrics.DUPLICATIONS_DATA,
+    CoreMetrics.DUPLICATION_LINES_DATA,
+    CoreMetrics.DUPLICATED_FILES,
+    CoreMetrics.DUPLICATED_LINES,
+    CoreMetrics.DUPLICATED_BLOCKS
+    );
 
   private final ResourceCache resourceCache;
   private final MetricFinder metricFinder;
@@ -228,7 +255,7 @@ public class DefaultIndex extends SonarIndex {
       if (metric == null) {
         throw new SonarException("Unknown metric: " + measure.getMetricKey());
       }
-      if (!isTechnicalProjectCopy(resource) && !measure.isFromCore() && DefaultSensorContext.INTERNAL_METRICS.contains(metric)) {
+      if (!isTechnicalProjectCopy(resource) && !measure.isFromCore() && INTERNAL_METRICS.contains(metric)) {
         LOG.debug("Metric " + metric.key() + " is an internal metric computed by SonarQube. Please update your plugin.");
         return measure;
       }

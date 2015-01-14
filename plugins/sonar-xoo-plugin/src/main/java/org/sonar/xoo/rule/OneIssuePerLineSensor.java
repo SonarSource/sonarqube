@@ -24,7 +24,6 @@ import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.issue.Issue.Severity;
-import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.xoo.Xoo;
 
@@ -38,10 +37,8 @@ public class OneIssuePerLineSensor implements Sensor {
   public void describe(SensorDescriptor descriptor) {
     descriptor
       .name("One Issue Per Line")
-      .dependsOn(CoreMetrics.LINES)
       .onlyOnLanguages(Xoo.KEY)
-      .createIssuesForRuleRepositories(XooRulesDefinition.XOO_REPOSITORY)
-      .onOnFileType(InputFile.Type.MAIN, InputFile.Type.TEST);
+      .createIssuesForRuleRepositories(XooRulesDefinition.XOO_REPOSITORY);
   }
 
   @Override
