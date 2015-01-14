@@ -99,7 +99,7 @@ define([
 
     resetResultsToDefault: function () {
       var recentHistory = JSON.parse(localStorage.getItem('sonar_recent_history')),
-          history = recentHistory.map(function (historyItem) {
+          history = (recentHistory || []).map(function (historyItem) {
             return {
               url: baseUrl + '/dashboard/index?id=' + encodeURIComponent(historyItem.key) + dashboardParameters(true),
               name: historyItem.name,
