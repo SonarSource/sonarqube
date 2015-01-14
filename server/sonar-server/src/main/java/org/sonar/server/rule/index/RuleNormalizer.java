@@ -38,7 +38,11 @@ import org.sonar.server.search.BaseNormalizer;
 import org.sonar.server.search.IndexField;
 import org.sonar.server.search.Indexable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
@@ -80,16 +84,23 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     public static final IndexField INTERNAL_KEY = add(IndexField.Type.STRING, "internalKey");
     public static final IndexField IS_TEMPLATE = add(IndexField.Type.BOOLEAN, "isTemplate");
     public static final IndexField TEMPLATE_KEY = add(IndexField.Type.STRING, "templateKey");
+
+    public static final IndexField DEFAULT_CHARACTERISTIC = add(IndexField.Type.STRING, "_debtChar");
+    public static final IndexField DEFAULT_SUB_CHARACTERISTIC = add(IndexField.Type.STRING, "_debtSubChar");
     public static final IndexField DEFAULT_DEBT_FUNCTION_TYPE = add(IndexField.Type.STRING, "_debtRemFnType");
     public static final IndexField DEFAULT_DEBT_FUNCTION_COEFFICIENT = add(IndexField.Type.STRING, "_debtRemFnCoefficient");
     public static final IndexField DEFAULT_DEBT_FUNCTION_OFFSET = add(IndexField.Type.STRING, "_debtRemFnOffset");
+
+    public static final IndexField CHARACTERISTIC = add(IndexField.Type.STRING, "debtChar");
+    public static final IndexField SUB_CHARACTERISTIC = add(IndexField.Type.STRING, "debtSubChar");
     public static final IndexField DEBT_FUNCTION_TYPE = add(IndexField.Type.STRING, "debtRemFnType");
     public static final IndexField DEBT_FUNCTION_COEFFICIENT = add(IndexField.Type.STRING, "debtRemFnCoefficient");
     public static final IndexField DEBT_FUNCTION_OFFSET = add(IndexField.Type.STRING, "debtRemFnOffset");
-    public static final IndexField DEFAULT_CHARACTERISTIC = add(IndexField.Type.STRING, "_debtChar");
-    public static final IndexField DEFAULT_SUB_CHARACTERISTIC = add(IndexField.Type.STRING, "_debtSubChar");
-    public static final IndexField CHARACTERISTIC = add(IndexField.Type.STRING, "debtChar");
-    public static final IndexField SUB_CHARACTERISTIC = add(IndexField.Type.STRING, "debtSubChar");
+
+    public static final IndexField CHARACTERISTIC_OVERLOADED = add(IndexField.Type.BOOLEAN, "debtCharOverloaded");
+    public static final IndexField SUB_CHARACTERISTIC_OVERLOADED = add(IndexField.Type.BOOLEAN, "debtSubCharOverloaded");
+    public static final IndexField DEBT_FUNCTION_TYPE_OVERLOADED = add(IndexField.Type.BOOLEAN, "debtRemFnTypeOverloaded");
+
     public static final IndexField NOTE = add(IndexField.Type.TEXT, "markdownNote");
     public static final IndexField NOTE_LOGIN = add(IndexField.Type.STRING, "noteLogin");
     public static final IndexField NOTE_CREATED_AT = add(IndexField.Type.DATE, "noteCreatedAt");
@@ -102,6 +113,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
       LANGUAGE, TAGS, SYSTEM_TAGS, INTERNAL_KEY, IS_TEMPLATE, TEMPLATE_KEY, DEFAULT_DEBT_FUNCTION_TYPE,
       DEFAULT_DEBT_FUNCTION_COEFFICIENT, DEFAULT_DEBT_FUNCTION_OFFSET, DEBT_FUNCTION_TYPE, DEBT_FUNCTION_COEFFICIENT,
       DEBT_FUNCTION_OFFSET, DEFAULT_CHARACTERISTIC, DEFAULT_SUB_CHARACTERISTIC, CHARACTERISTIC, SUB_CHARACTERISTIC,
+      DEBT_FUNCTION_TYPE_OVERLOADED, CHARACTERISTIC_OVERLOADED, SUB_CHARACTERISTIC_OVERLOADED,
       NOTE, NOTE_LOGIN, NOTE_CREATED_AT, NOTE_UPDATED_AT, ALL_TAGS, PARAMS);
 
     /**
@@ -187,6 +199,9 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
       update.put(RuleField.DEFAULT_CHARACTERISTIC.field(), null);
       update.put(RuleField.DEFAULT_SUB_CHARACTERISTIC.field(), null);
 
+      String defaultCharacteristicKey = null;
+      String defaultSubCharacteristicKey = null;
+
       Integer defaultSubCharacteristicId = rule.getDefaultSubCharacteristicId();
       if (defaultSubCharacteristicId != null) {
         CharacteristicDto subCharacteristic = db.debtCharacteristicDao().selectById(defaultSubCharacteristicId, session);
@@ -195,8 +210,10 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
           if (characteristicId != null) {
             CharacteristicDto characteristic = db.debtCharacteristicDao().selectById(characteristicId);
             if (characteristic != null) {
-              update.put(RuleField.DEFAULT_CHARACTERISTIC.field(), characteristic.getKey());
-              update.put(RuleField.DEFAULT_SUB_CHARACTERISTIC.field(), subCharacteristic.getKey());
+              defaultCharacteristicKey = characteristic.getKey();
+              update.put(RuleField.DEFAULT_CHARACTERISTIC.field(), defaultCharacteristicKey);
+              defaultSubCharacteristicKey = subCharacteristic.getKey();
+              update.put(RuleField.DEFAULT_SUB_CHARACTERISTIC.field(), defaultSubCharacteristicKey);
             }
           }
         }
@@ -220,9 +237,13 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
             }
           }
         }
+        update.put(RuleField.CHARACTERISTIC_OVERLOADED.field(), true);
+        update.put(RuleField.SUB_CHARACTERISTIC_OVERLOADED.field(), true);
       } else {
-        update.put(RuleField.CHARACTERISTIC.field(), null);
-        update.put(RuleField.SUB_CHARACTERISTIC.field(), null);
+        update.put(RuleField.CHARACTERISTIC.field(), defaultCharacteristicKey);
+        update.put(RuleField.SUB_CHARACTERISTIC.field(), defaultSubCharacteristicKey);
+        update.put(RuleField.CHARACTERISTIC_OVERLOADED.field(), false);
+        update.put(RuleField.SUB_CHARACTERISTIC_OVERLOADED.field(), false);
       }
 
       if (rule.getDefaultRemediationFunction() != null) {
@@ -239,10 +260,12 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
         update.put(RuleField.DEBT_FUNCTION_TYPE.field(), rule.getRemediationFunction());
         update.put(RuleField.DEBT_FUNCTION_COEFFICIENT.field(), rule.getRemediationCoefficient());
         update.put(RuleField.DEBT_FUNCTION_OFFSET.field(), rule.getRemediationOffset());
+        update.put(RuleField.DEBT_FUNCTION_TYPE_OVERLOADED.field(), true);
       } else {
-        update.put(RuleField.DEBT_FUNCTION_TYPE.field(), null);
-        update.put(RuleField.DEBT_FUNCTION_COEFFICIENT.field(), null);
-        update.put(RuleField.DEBT_FUNCTION_OFFSET.field(), null);
+        update.put(RuleField.DEBT_FUNCTION_TYPE.field(), rule.getDefaultRemediationFunction());
+        update.put(RuleField.DEBT_FUNCTION_COEFFICIENT.field(), rule.getDefaultRemediationCoefficient());
+        update.put(RuleField.DEBT_FUNCTION_OFFSET.field(), rule.getDefaultRemediationOffset());
+        update.put(RuleField.DEBT_FUNCTION_TYPE_OVERLOADED.field(), false);
       }
 
       update.put(RuleField.TAGS.field(), rule.getTags());

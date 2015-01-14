@@ -87,10 +87,7 @@ public class RuleMappingTest {
     assertThat(queryContext.getFieldsToReturn()).containsOnly(
       RuleNormalizer.RuleField.DEBT_FUNCTION_COEFFICIENT.field(),
       RuleNormalizer.RuleField.DEBT_FUNCTION_OFFSET.field(),
-      RuleNormalizer.RuleField.DEBT_FUNCTION_TYPE.field(),
-      RuleNormalizer.RuleField.DEFAULT_DEBT_FUNCTION_COEFFICIENT.field(),
-      RuleNormalizer.RuleField.DEFAULT_DEBT_FUNCTION_OFFSET.field(),
-      RuleNormalizer.RuleField.DEFAULT_DEBT_FUNCTION_TYPE.field());
+      RuleNormalizer.RuleField.DEBT_FUNCTION_TYPE.field());
   }
 
   @Test
@@ -115,7 +112,21 @@ public class RuleMappingTest {
     QueryContext queryContext = mapping.newQueryOptions(SearchOptions.create(request));
 
     assertThat(queryContext.getFieldsToReturn()).containsOnly(
-      RuleNormalizer.RuleField.CHARACTERISTIC.field(),
-      RuleNormalizer.RuleField.DEFAULT_CHARACTERISTIC.field());
+      RuleNormalizer.RuleField.CHARACTERISTIC.field());
+  }
+
+  @Test
+  public void toQueryOptions_debt_overloaded() throws Exception {
+    RuleMapping mapping = new RuleMapping(languages, macroInterpreter, debtModel);
+    SimpleGetRequest request = new SimpleGetRequest();
+    request.setParam("p", "1");
+    request.setParam("ps", "10");
+    request.setParam("f", "debtOverloaded");
+    QueryContext queryContext = mapping.newQueryOptions(SearchOptions.create(request));
+
+    assertThat(queryContext.getFieldsToReturn()).containsOnly(
+      RuleNormalizer.RuleField.CHARACTERISTIC_OVERLOADED.field(),
+      RuleNormalizer.RuleField.SUB_CHARACTERISTIC_OVERLOADED.field(),
+      RuleNormalizer.RuleField.DEBT_FUNCTION_TYPE_OVERLOADED.field());
   }
 }

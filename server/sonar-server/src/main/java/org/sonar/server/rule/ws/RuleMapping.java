@@ -106,10 +106,8 @@ public class RuleMapping extends BaseMapping<RuleDoc, RuleMappingContext> {
     map("defaultDebtChar", new IndexStringMapper("defaultDebtChar", RuleNormalizer.RuleField.DEFAULT_CHARACTERISTIC.field()));
     map("defaultDebtSubChar", new IndexStringMapper("defaultDebtSubChar", RuleNormalizer.RuleField.DEFAULT_SUB_CHARACTERISTIC.field()));
 
-    map("debtChar", new IndexStringMapper("debtChar", RuleNormalizer.RuleField.CHARACTERISTIC.field(),
-      RuleNormalizer.RuleField.DEFAULT_CHARACTERISTIC.field()));
-    map("debtSubChar", new IndexStringMapper("debtSubChar", RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field(),
-      RuleNormalizer.RuleField.DEFAULT_SUB_CHARACTERISTIC.field()));
+    map("debtChar", new IndexStringMapper("debtChar", RuleNormalizer.RuleField.CHARACTERISTIC.field()));
+    map("debtSubChar", new IndexStringMapper("debtSubChar", RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field()));
 
     map("debtCharName", new CharacteristicNameMapper());
     map("debtSubCharName", new SubCharacteristicNameMapper());
@@ -120,12 +118,9 @@ public class RuleMapping extends BaseMapping<RuleDoc, RuleMappingContext> {
     map("effortToFixDescription", RuleNormalizer.RuleField.FIX_DESCRIPTION.field());
     map("debtOverloaded", new OverriddenMapper());
 
-    map("debtRemFn", new EffectiveDebtRemFn("debtRemFnType", RuleNormalizer.RuleField.DEBT_FUNCTION_TYPE.field(),
-      RuleNormalizer.RuleField.DEFAULT_DEBT_FUNCTION_TYPE.field()));
-    map("debtRemFn", new EffectiveDebtRemFn("debtRemFnCoeff", RuleNormalizer.RuleField.DEBT_FUNCTION_COEFFICIENT.field(),
-      RuleNormalizer.RuleField.DEFAULT_DEBT_FUNCTION_COEFFICIENT.field()));
-    map("debtRemFn", new EffectiveDebtRemFn("debtRemFnOffset", RuleNormalizer.RuleField.DEBT_FUNCTION_OFFSET.field(),
-      RuleNormalizer.RuleField.DEFAULT_DEBT_FUNCTION_OFFSET.field()));
+    map("debtRemFn", new IndexStringMapper("debtRemFnType", RuleNormalizer.RuleField.DEBT_FUNCTION_TYPE.field()));
+    map("debtRemFn", new IndexStringMapper("debtRemFnCoeff", RuleNormalizer.RuleField.DEBT_FUNCTION_COEFFICIENT.field()));
+    map("debtRemFn", new IndexStringMapper("debtRemFnOffset", RuleNormalizer.RuleField.DEBT_FUNCTION_OFFSET.field()));
   }
 
   public static class EffectiveDebtRemFn extends IndexStringMapper<RuleDoc,RuleMappingContext> {
@@ -205,7 +200,7 @@ public class RuleMapping extends BaseMapping<RuleDoc, RuleMappingContext> {
 
   private static class CharacteristicNameMapper extends IndexMapper<RuleDoc, RuleMappingContext> {
     private CharacteristicNameMapper() {
-      super(RuleNormalizer.RuleField.CHARACTERISTIC.field(), RuleNormalizer.RuleField.DEFAULT_CHARACTERISTIC.field());
+      super(RuleNormalizer.RuleField.CHARACTERISTIC.field());
     }
 
     @Override
@@ -216,7 +211,7 @@ public class RuleMapping extends BaseMapping<RuleDoc, RuleMappingContext> {
 
   private static class SubCharacteristicNameMapper extends IndexMapper<RuleDoc, RuleMappingContext> {
     private SubCharacteristicNameMapper() {
-      super(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field(), RuleNormalizer.RuleField.DEFAULT_SUB_CHARACTERISTIC.field());
+      super(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field());
     }
 
     @Override
@@ -225,7 +220,12 @@ public class RuleMapping extends BaseMapping<RuleDoc, RuleMappingContext> {
     }
   }
 
-  private static class OverriddenMapper implements Mapper<RuleDoc, RuleMappingContext> {
+  private static class OverriddenMapper extends IndexMapper<RuleDoc, RuleMappingContext> {
+    private OverriddenMapper() {
+      super(RuleNormalizer.RuleField.CHARACTERISTIC_OVERLOADED.field(),
+        RuleNormalizer.RuleField.SUB_CHARACTERISTIC_OVERLOADED.field(),
+        RuleNormalizer.RuleField.DEBT_FUNCTION_TYPE_OVERLOADED.field());
+    }
     @Override
     public void write(JsonWriter json, RuleDoc rule, RuleMappingContext context) {
       json.prop("debtOverloaded", rule.debtOverloaded());

@@ -21,6 +21,7 @@ package org.sonar.server.rule.index;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -183,9 +184,9 @@ public class RuleDoc extends BaseDoc implements Rule {
 
   @Override
   public boolean debtOverloaded() {
-    return getNullableField(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field()) != null ||
-      getNullableField(RuleNormalizer.RuleField.CHARACTERISTIC.field()) != null ||
-      getNullableField(RuleNormalizer.RuleField.DEBT_FUNCTION_TYPE.field()) != null;
+    return BooleanUtils.isTrue(isDebtCharacteristicOverridden()) ||
+      BooleanUtils.isTrue(isDebtSubCharacteristicOverridden()) ||
+      BooleanUtils.isTrue(isDebtRemediationFunctionOverridden());
   }
 
   @Override
@@ -203,33 +204,23 @@ public class RuleDoc extends BaseDoc implements Rule {
   @Override
   @CheckForNull
   public String debtCharacteristicKey() {
-    String field = RuleNormalizer.RuleField.CHARACTERISTIC.field();
-    String value = (String) getNullableField(field);
-    if (value != null) {
-      if (value.isEmpty()) {
-        return null;
-      } else {
-        return value;
-      }
-    } else {
-      return defaultDebtCharacteristicKey();
-    }
+    return (String) getNullableField(RuleNormalizer.RuleField.CHARACTERISTIC.field());
   }
 
   @Override
   @CheckForNull
   public String debtSubCharacteristicKey() {
-    String field = RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field();
-    String value = (String) getNullableField(field);
-    if (value != null) {
-      if (value.isEmpty()) {
-        return null;
-      } else {
-        return value;
-      }
-    } else {
-      return defaultDebtSubCharacteristicKey();
-    }
+    return (String) getNullableField(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field());
+  }
+
+  @CheckForNull
+  public Boolean isDebtCharacteristicOverridden() {
+    return (Boolean) getNullableField(RuleNormalizer.RuleField.CHARACTERISTIC_OVERLOADED.field());
+  }
+
+  @CheckForNull
+  public Boolean isDebtSubCharacteristicOverridden() {
+    return (Boolean) getNullableField(RuleNormalizer.RuleField.SUB_CHARACTERISTIC_OVERLOADED.field());
   }
 
   @Override
@@ -240,7 +231,7 @@ public class RuleDoc extends BaseDoc implements Rule {
     }
     final String function = getNullableField(RuleNormalizer.RuleField.DEBT_FUNCTION_TYPE.field());
     if (function == null || function.isEmpty()) {
-      return defaultDebtRemediationFunction();
+      return null;
     } else {
       return new DebtRemediationFunction() {
         @Override
@@ -285,6 +276,11 @@ public class RuleDoc extends BaseDoc implements Rule {
         }
       };
     }
+  }
+
+  @CheckForNull
+  public Boolean isDebtRemediationFunctionOverridden() {
+    return (Boolean) getNullableField(RuleNormalizer.RuleField.DEBT_FUNCTION_TYPE_OVERLOADED.field());
   }
 
   @Override

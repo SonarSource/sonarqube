@@ -268,17 +268,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
               FilterBuilders.orFilter(
                 FilterBuilders.termsFilter(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field(), debtCharacteristics),
                 FilterBuilders.termsFilter(RuleNormalizer.RuleField.CHARACTERISTIC.field(), debtCharacteristics))
-              ),
-
-            // Match only when NOT NONE (not overridden)
-            FilterBuilders.andFilter(
-              FilterBuilders.orFilter(
-                FilterBuilders.termsFilter(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field(), ""),
-                FilterBuilders.notFilter(FilterBuilders.existsFilter(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field()))),
-              FilterBuilders.orFilter(
-                FilterBuilders.termsFilter(RuleNormalizer.RuleField.DEFAULT_SUB_CHARACTERISTIC.field(), debtCharacteristics),
-                FilterBuilders.termsFilter(RuleNormalizer.RuleField.DEFAULT_CHARACTERISTIC.field(), debtCharacteristics)))
-            )
+              ))
           ));
     }
 
