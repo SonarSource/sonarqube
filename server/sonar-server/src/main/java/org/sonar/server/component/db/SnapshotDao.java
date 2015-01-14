@@ -66,13 +66,6 @@ public class SnapshotDao extends BaseDao<SnapshotMapper, SnapshotDto, Long> impl
     return mapper(session).selectSnapshotAndChildrenOfScope(snapshot.getId(), Scopes.PROJECT);
   }
 
-  /**
-   * Return all snapshots children (not returning itself) from a module key
-   */
-  public List<SnapshotDto> findChildrenModulesFromModule(DbSession session, String moduleKey) {
-    return mapper(session).selectChildrenModulesFromModule(moduleKey, Scopes.PROJECT);
-  }
-
   public int updateSnapshotAndChildrenLastFlagAndStatus(DbSession session, SnapshotDto snapshot, boolean isLast, String status) {
     Long rootId = snapshot.getId();
     String path = snapshot.getPath() + snapshot.getId() + ".%";

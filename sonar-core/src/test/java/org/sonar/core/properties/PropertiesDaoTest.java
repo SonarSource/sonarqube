@@ -158,15 +158,19 @@ public class PropertiesDaoTest extends AbstractDaoTestCase {
     setupData("select_children_module_properties");
 
     List<PropertyDto> properties = dao.findChildrenModuleProperties("org.struts:struts", session);
-    assertThat(properties.size(), is(3));
-    assertThat(properties).extracting("key").containsOnly("core.one", "core.two", "data.one");
+    assertThat(properties.size(), is(4));
+    assertThat(properties).extracting("key").containsOnly("struts.one", "core.one", "core.two", "data.one");
     assertThat(properties).extracting("value").containsOnly("one", "two");
 
     properties = dao.findChildrenModuleProperties("org.struts:struts-core", session);
+    assertThat(properties.size(), is(3));
+    assertThat(properties).extracting("key").containsOnly("core.one", "core.two", "data.one");
+
+    properties = dao.findChildrenModuleProperties("org.struts:struts-data", session);
     assertThat(properties.size(), is(1));
     assertThat(properties).extracting("key").containsOnly("data.one");
 
-    assertThat(dao.findChildrenModuleProperties("org.struts:struts-data", session).size(), is(0));
+    assertThat(dao.findChildrenModuleProperties("unknown", session).size(), is(0));
   }
 
   @Test

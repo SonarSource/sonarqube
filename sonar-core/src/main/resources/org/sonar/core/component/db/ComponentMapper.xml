@@ -135,20 +135,37 @@
   <select id="findChildrenModulesFromModule" parameterType="map" resultType="Component">
     SELECT <include refid="componentColumns"/>
     FROM projects p
-    INNER JOIN (<include refid="org.sonar.core.component.db.SnapshotMapper.selectChildrenModulesFromModuleQuery"/>) snapshotModules ON snapshotModules.resourceId=p.id
-    <where>
-      AND p.enabled=${_true}
-    </where>
+    <include refid="childrenModuleQuery"/>
   </select>
+
+  <sql id="childrenModuleQuery">
+    INNER JOIN projects root_project ON root_project.uuid = p.project_uuid AND root_project.enabled = TRUE
+    INNER JOIN projects module ON module.project_uuid = root_project.uuid AND module.enabled = TRUE AND module.kee = #{moduleKey}
+    <where>
+      p.enabled = ${_true}
+      AND p.scope = #{scope}
+      AND (p.uuid = module.uuid OR p.project_uuid = module.uuid
+      OR
+      <choose>
+        <when test="_databaseId == 'mssql'">
+          p.module_uuid_path LIKE module.module_uuid_path + '.' + module.uuid + '%'
+        </when>
+        <when test="_databaseId == 'mysql'">
+          p.module_uuid_path LIKE concat(module.module_uuid_path, '.', module.uuid, '%')
+        </when>
+        <otherwise>
+          p.module_uuid_path LIKE module.module_uuid_path || '.' || module.uuid || '%'
+        </otherwise>
+      </choose>
+      )
+    </where>
+  </sql>
 
   <select id="findFilesFromModule" parameterType="map" resultType="FilePathWithHash">
     SELECT p.uuid, p.path, p.module_uuid as moduleUuid, fs.src_hash as srcHash
     FROM projects p
-    INNER JOIN (<include refid="org.sonar.core.component.db.SnapshotMapper.selectChildrenModulesFromModuleQuery"/>) snapshotModules ON snapshotModules.resourceId=p.id
     INNER JOIN file_sources fs ON fs.file_uuid=p.uuid
-    <where>
-      AND p.enabled=${_true}
-    </where>
+    <include refid="childrenModuleQuery"/>
   </select>
 
   <select id="findProjectUuids" resultType="String">

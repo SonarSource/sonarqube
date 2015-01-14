@@ -184,26 +184,6 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void find_children_modules() {
-    setupData("modules");
-
-    // From root project
-    List<SnapshotDto> snapshots = sut.findChildrenModulesFromModule(session, "org.struts:struts");
-    assertThat(snapshots).hasSize(2);
-    assertThat(snapshots).extracting("id").containsOnly(2L, 3L);
-    assertThat(snapshots).extracting("last").containsOnly(true);
-
-    // From module
-    snapshots = sut.findChildrenModulesFromModule(session, "org.struts:struts-core");
-    assertThat(snapshots).hasSize(1);
-    assertThat(snapshots).extracting("id").containsOnly(3L);
-
-    // From sub module
-    snapshots = sut.findChildrenModulesFromModule(session, "org.struts:struts-data");
-    assertThat(snapshots).isEmpty();
-  }
-
-  @Test
   public void set_snapshot_and_children_to_false_and_status_processed() {
     setupData("snapshots");
     SnapshotDto snapshot = defaultSnapshot().setId(1L);

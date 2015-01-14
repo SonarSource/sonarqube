@@ -81,7 +81,7 @@ public interface ComponentMapper {
   List<String> findProjectUuids();
 
   /**
-   * Return all modules children (not returning itself) from a module key
+   * Return all modules children (including itself) from a module key
    */
   List<ComponentDto> findChildrenModulesFromModule(@Param("moduleKey") String moduleKey, @Param(value = "scope") String scope);
 

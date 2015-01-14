@@ -1,9 +1,5 @@
 <dataset>
 
-  <!-- Struts projects is authorized for all user -->
-  <group_roles id="1" group_id="[null]" resource_id="1" role="user"/>
-
-
   <!-- root project -->
   <projects id="1" root_id="[null]" scope="PRJ" qualifier="TRK" kee="org.struts:struts" name="Struts"
             uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path="[null]"

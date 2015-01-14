@@ -90,7 +90,6 @@ public class ProjectRepositoryLoaderMediumTest {
 
     ComponentDto project = ComponentTesting.newProjectDto();
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
-    tester.get(DbClient.class).snapshotDao().insert(dbSession, SnapshotTesting.createForProject(project));
     addDefaultProfile();
 
     // Project properties
@@ -116,7 +115,6 @@ public class ProjectRepositoryLoaderMediumTest {
 
     ComponentDto project = ComponentTesting.newProjectDto();
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
-    tester.get(DbClient.class).snapshotDao().insert(dbSession, SnapshotTesting.createForProject(project));
     addDefaultProfile();
 
     // Project properties
@@ -141,8 +139,6 @@ public class ProjectRepositoryLoaderMediumTest {
 
     ComponentDto project = ComponentTesting.newProjectDto();
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
-    SnapshotDto projectSnapshot = SnapshotTesting.createForProject(project);
-    tester.get(DbClient.class).snapshotDao().insert(dbSession, projectSnapshot);
     addDefaultProfile();
 
     // Project properties
@@ -153,7 +149,6 @@ public class ProjectRepositoryLoaderMediumTest {
 
     ComponentDto module = ComponentTesting.newModuleDto(project);
     tester.get(DbClient.class).componentDao().insert(dbSession, module);
-    tester.get(DbClient.class).snapshotDao().insert(dbSession, SnapshotTesting.createForComponent(module, projectSnapshot));
 
     // Module properties
     tester.get(DbClient.class).propertiesDao().setProperty(
@@ -181,8 +176,6 @@ public class ProjectRepositoryLoaderMediumTest {
 
     ComponentDto project = ComponentTesting.newProjectDto();
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
-    SnapshotDto projectSnapshot = SnapshotTesting.createForProject(project);
-    tester.get(DbClient.class).snapshotDao().insert(dbSession, projectSnapshot);
     addDefaultProfile();
 
     // Project properties
@@ -193,7 +186,6 @@ public class ProjectRepositoryLoaderMediumTest {
 
     ComponentDto module = ComponentTesting.newModuleDto(project);
     tester.get(DbClient.class).componentDao().insert(dbSession, module);
-    tester.get(DbClient.class).snapshotDao().insert(dbSession, SnapshotTesting.createForComponent(module, projectSnapshot));
 
     // No property on module -> should have the same as project
 
@@ -216,8 +208,6 @@ public class ProjectRepositoryLoaderMediumTest {
 
     ComponentDto project = ComponentTesting.newProjectDto();
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
-    SnapshotDto projectSnapshot = SnapshotTesting.createForProject(project);
-    tester.get(DbClient.class).snapshotDao().insert(dbSession, projectSnapshot);
     addDefaultProfile();
 
     // Project properties
@@ -228,8 +218,6 @@ public class ProjectRepositoryLoaderMediumTest {
 
     ComponentDto module = ComponentTesting.newModuleDto(project);
     tester.get(DbClient.class).componentDao().insert(dbSession, module);
-    SnapshotDto moduleSnapshot = SnapshotTesting.createForComponent(module, projectSnapshot);
-    tester.get(DbClient.class).snapshotDao().insert(dbSession, moduleSnapshot);
 
     // Module properties
     tester.get(DbClient.class).propertiesDao().setProperty(
@@ -239,7 +227,6 @@ public class ProjectRepositoryLoaderMediumTest {
 
     ComponentDto subModule = ComponentTesting.newModuleDto(module);
     tester.get(DbClient.class).componentDao().insert(dbSession, subModule);
-    tester.get(DbClient.class).snapshotDao().insert(dbSession, SnapshotTesting.createForComponent(subModule, moduleSnapshot));
 
     // Sub module properties
     tester.get(DbClient.class).propertiesDao().setProperty(
@@ -270,8 +257,6 @@ public class ProjectRepositoryLoaderMediumTest {
 
     ComponentDto project = ComponentTesting.newProjectDto();
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
-    SnapshotDto projectSnapshot = SnapshotTesting.createForProject(project);
-    tester.get(DbClient.class).snapshotDao().insert(dbSession, projectSnapshot);
     addDefaultProfile();
 
     // Project properties
@@ -280,7 +265,6 @@ public class ProjectRepositoryLoaderMediumTest {
 
     ComponentDto module1 = ComponentTesting.newModuleDto(project);
     tester.get(DbClient.class).componentDao().insert(dbSession, module1);
-    tester.get(DbClient.class).snapshotDao().insert(dbSession, SnapshotTesting.createForComponent(module1, projectSnapshot));
 
     // Module 1 properties
     tester.get(DbClient.class).propertiesDao().setProperty(new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR-SERVER").setResourceId(module1.getId()), dbSession);
@@ -289,7 +273,6 @@ public class ProjectRepositoryLoaderMediumTest {
 
     ComponentDto module2 = ComponentTesting.newModuleDto(project);
     tester.get(DbClient.class).componentDao().insert(dbSession, module2);
-    tester.get(DbClient.class).snapshotDao().insert(dbSession, SnapshotTesting.createForComponent(module2, projectSnapshot));
 
     // Module 2 property
     tester.get(DbClient.class).propertiesDao()
@@ -341,20 +324,15 @@ public class ProjectRepositoryLoaderMediumTest {
 
     ComponentDto project = ComponentTesting.newProjectDto();
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
-    SnapshotDto projectSnapshot = SnapshotTesting.createForProject(project);
-    tester.get(DbClient.class).snapshotDao().insert(dbSession, projectSnapshot);
     addDefaultProfile();
     // No project properties
 
     ComponentDto module = ComponentTesting.newModuleDto(project);
     tester.get(DbClient.class).componentDao().insert(dbSession, module);
-    SnapshotDto moduleSnapshot = SnapshotTesting.createForComponent(module, projectSnapshot);
-    tester.get(DbClient.class).snapshotDao().insert(dbSession, moduleSnapshot);
     // No module properties
 
     ComponentDto subModule = ComponentTesting.newModuleDto(module);
     tester.get(DbClient.class).componentDao().insert(dbSession, subModule);
-    tester.get(DbClient.class).snapshotDao().insert(dbSession, SnapshotTesting.createForComponent(subModule, moduleSnapshot));
 
     // Sub module properties
     tester.get(DbClient.class).propertiesDao().setProperty(new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR").setResourceId(subModule.getId()), dbSession);
@@ -497,7 +475,6 @@ public class ProjectRepositoryLoaderMediumTest {
 
     ComponentDto project = ComponentTesting.newProjectDto();
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
-    tester.get(DbClient.class).snapshotDao().insert(dbSession, SnapshotTesting.createForProject(project));
 
     QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(
       DateUtils.formatDateTime(ruleUpdatedAt));
@@ -522,7 +499,6 @@ public class ProjectRepositoryLoaderMediumTest {
 
     ComponentDto project = ComponentTesting.newProjectDto();
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
-    tester.get(DbClient.class).snapshotDao().insert(dbSession, SnapshotTesting.createForProject(project));
 
     QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(
       DateUtils.formatDateTime(ruleUpdatedAt));
@@ -547,7 +523,6 @@ public class ProjectRepositoryLoaderMediumTest {
 
     ComponentDto project = ComponentTesting.newProjectDto();
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
-    tester.get(DbClient.class).snapshotDao().insert(dbSession, SnapshotTesting.createForProject(project));
 
     QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(
       DateUtils.formatDateTime(ruleUpdatedAt));
@@ -634,7 +609,6 @@ public class ProjectRepositoryLoaderMediumTest {
 
     ComponentDto project = ComponentTesting.newProjectDto();
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
-    tester.get(DbClient.class).snapshotDao().insert(dbSession, SnapshotTesting.createForProject(project));
 
     QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(
       DateUtils.formatDateTime(ruleUpdatedAt));
@@ -702,28 +676,16 @@ public class ProjectRepositoryLoaderMediumTest {
   }
 
   @Test
-  public void add_file_data() throws Exception {
+  public void add_file_data_on_single_project() throws Exception {
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
 
     ComponentDto project = ComponentTesting.newProjectDto();
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
-    SnapshotDto projectSnapshot = SnapshotTesting.createForProject(project);
-    tester.get(DbClient.class).snapshotDao().insert(dbSession, projectSnapshot);
     addDefaultProfile();
 
     ComponentDto file = ComponentTesting.newFileDto(project, "file");
     tester.get(DbClient.class).componentDao().insert(dbSession, file);
-    tester.get(DbClient.class).snapshotDao().insert(dbSession, SnapshotTesting.createForComponent(file, projectSnapshot));
-    tester.get(FileSourceDao.class).insert(new FileSourceDto()
-      .setFileUuid(file.uuid())
-      .setProjectUuid(project.uuid())
-      .setData(",,,,,,,,,,,,,,,unchanged&#13;&#10;,,,,,,,,,,,,,,,content&#13;&#10;")
-      .setDataHash("0263047cd758c68c27683625f072f010")
-      .setLineHashes("8d7b3d6b83c0a517eac07e1aac94b773")
-      .setCreatedAt(new Date().getTime())
-      .setUpdatedAt(new Date().getTime())
-      .setSrcHash("123456")
-      );
+    tester.get(FileSourceDao.class).insert(newFileSourceDto(file).setSrcHash("123456"));
 
     dbSession.commit();
 
@@ -733,11 +695,51 @@ public class ProjectRepositoryLoaderMediumTest {
     assertThat(fileData.hash()).isEqualTo("123456");
   }
 
+  @Test
+  public void add_file_data_on_multi_modules() throws Exception {
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+
+    ComponentDto project = ComponentTesting.newProjectDto();
+    tester.get(DbClient.class).componentDao().insert(dbSession, project);
+    addDefaultProfile();
+
+    // File on project
+    ComponentDto projectFile = ComponentTesting.newFileDto(project, "projectFile");
+    tester.get(DbClient.class).componentDao().insert(dbSession, projectFile);
+    tester.get(FileSourceDao.class).insert(newFileSourceDto(projectFile).setSrcHash("123456"));
+
+    ComponentDto module = ComponentTesting.newModuleDto(project);
+    tester.get(DbClient.class).componentDao().insert(dbSession, module);
+
+    // File on module
+    ComponentDto moduleFile = ComponentTesting.newFileDto(module, "moduleFile");
+    tester.get(DbClient.class).componentDao().insert(dbSession, moduleFile);
+    tester.get(FileSourceDao.class).insert(newFileSourceDto(moduleFile).setSrcHash("789456"));
+
+    dbSession.commit();
+
+    ProjectReferentials ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
+    assertThat(ref.fileData(project.key(), projectFile.path()).hash()).isEqualTo("123456");
+    assertThat(ref.fileData(module.key(), moduleFile.path()).hash()).isEqualTo("789456");
+  }
+
   private void addDefaultProfile() {
     QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(
       DateUtils.formatDateTime(new Date()));
     tester.get(DbClient.class).qualityProfileDao().insert(dbSession, profileDto);
     tester.get(DbClient.class).propertiesDao().setProperty(new PropertyDto().setKey("sonar.profile.xoo").setValue("SonarQube way"), dbSession);
+  }
+
+  private FileSourceDto newFileSourceDto(ComponentDto file) {
+    return new FileSourceDto()
+      .setFileUuid(file.uuid())
+      .setProjectUuid(file.projectUuid())
+      .setData(",,,,,,,,,,,,,,,unchanged&#13;&#10;,,,,,,,,,,,,,,,content&#13;&#10;")
+      .setDataHash("0263047cd758c68c27683625f072f010")
+      .setLineHashes("8d7b3d6b83c0a517eac07e1aac94b773")
+      .setCreatedAt(new Date().getTime())
+      .setUpdatedAt(new Date().getTime())
+      .setSrcHash("123456");
   }
 
 }

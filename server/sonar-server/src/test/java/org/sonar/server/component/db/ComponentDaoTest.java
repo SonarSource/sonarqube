@@ -337,43 +337,49 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
 
     // From root project
     List<ComponentDto> modules = dao.findChildrenModulesFromModule(session, "org.struts:struts");
-    assertThat(modules).extracting("uuid").containsOnly("EFGH", "FGHI");
+    assertThat(modules).extracting("uuid").containsOnly("ABCD", "EFGH", "FGHI");
 
     // From module
     modules = dao.findChildrenModulesFromModule(session, "org.struts:struts-core");
-    assertThat(modules).extracting("uuid").containsOnly("FGHI");
+    assertThat(modules).extracting("uuid").containsOnly("EFGH", "FGHI");
 
     // From sub module
     modules = dao.findChildrenModulesFromModule(session, "org.struts:struts-data");
-    assertThat(modules).isEmpty();
+    assertThat(modules).extracting("uuid").containsOnly("FGHI");
+
+    // Folder
+    assertThat(dao.findChildrenModulesFromModule(session, "org.struts:struts-core:src/org/struts")).isEmpty();
+    assertThat(dao.findChildrenModulesFromModule(session, "unknown")).isEmpty();
   }
 
   @Test
-  public void findFilesFromModule() throws Exception {
-    setupData("multi-modules", "files_hashes");
+  public void find_files_from_module() throws Exception {
+    setupData("find_files_from_module");
 
     // From root project
     List<FilePathWithHashDto> files = dao.findFilesFromModule(session, "org.struts:struts");
-    assertThat(files).extracting("uuid").containsOnly("HIJK");
-    assertThat(files).extracting("moduleUuid").containsOnly("FGHI");
-    assertThat(files).extracting("srcHash").containsOnly("123456");
-    assertThat(files).extracting("path").containsOnly("src/org/struts/RequestContext.java");
+    assertThat(files).extracting("uuid").containsOnly("EFGHI", "HIJK");
+    assertThat(files).extracting("moduleUuid").containsOnly("EFGH", "FGHI");
+    assertThat(files).extracting("srcHash").containsOnly("srcEFGHI", "srcHIJK");
+    assertThat(files).extracting("path").containsOnly("src/org/struts/pom.xml", "src/org/struts/RequestContext.java");
 
     // From module
     files = dao.findFilesFromModule(session, "org.struts:struts-core");
-    assertThat(files).extracting("uuid").containsOnly("HIJK");
-    assertThat(files).extracting("moduleUuid").containsOnly("FGHI");
-    assertThat(files).extracting("srcHash").containsOnly("123456");
-    assertThat(files).extracting("path").containsOnly("src/org/struts/RequestContext.java");
+    assertThat(files).extracting("uuid").containsOnly("EFGHI", "HIJK");
+    assertThat(files).extracting("moduleUuid").containsOnly("EFGH", "FGHI");
+    assertThat(files).extracting("srcHash").containsOnly("srcEFGHI", "srcHIJK");
+    assertThat(files).extracting("path").containsOnly("src/org/struts/pom.xml", "src/org/struts/RequestContext.java");
 
     // From sub module
     files = dao.findFilesFromModule(session, "org.struts:struts-data");
     assertThat(files).extracting("uuid").containsOnly("HIJK");
     assertThat(files).extracting("moduleUuid").containsOnly("FGHI");
-    assertThat(files).extracting("srcHash").containsOnly("123456");
+    assertThat(files).extracting("srcHash").containsOnly("srcHIJK");
     assertThat(files).extracting("path").containsOnly("src/org/struts/RequestContext.java");
 
-    // From unknown
+    // From directory
+    assertThat(dao.findFilesFromModule(session, "org.struts:struts-core:src/org/struts")).isEmpty();
+
     assertThat(dao.findFilesFromModule(session, "unknown")).isEmpty();
   }
 

@@ -68,33 +68,6 @@
     AND (s.id = #{snapshot} or s.root_snapshot_id = #{snapshot})
   </select>
 
-  <select id="selectChildrenModulesFromModule" parameterType="map" resultType="Snapshot">
-    <include refid="selectChildrenModulesFromModuleQuery" />
-  </select>
-
-  <sql id="selectChildrenModulesFromModuleQuery">
-    SELECT <include refid="org.sonar.core.component.db.SnapshotMapper.snapshotColumns"/>
-    FROM snapshots s
-    INNER JOIN snapshots root_snapshot ON root_snapshot.id = s.root_snapshot_id AND root_snapshot.islast = ${_true}
-    INNER JOIN snapshots current_snapshot ON current_snapshot.root_project_id = root_snapshot.project_id AND s.islast = ${_true}
-    INNER JOIN projects module ON module.id = current_snapshot.project_id AND module.enabled = ${_true} AND module.kee = #{moduleKey}
-    <where>
-      AND s.islast = ${_true}
-      AND s.scope = #{scope}
-      AND <choose>
-      <when test="_databaseId == 'mssql'">
-        s.path LIKE current_snapshot.path + CAST(current_snapshot.id AS varchar(15)) + '.%'
-      </when>
-      <when test="_databaseId == 'mysql'">
-        s.path LIKE concat(current_snapshot.path, current_snapshot.id, '.%')
-      </when>
-      <otherwise>
-        s.path LIKE current_snapshot.path || current_snapshot.id || '.%'
-      </otherwise>
-    </choose>
-    </where>
-  </sql>
-
   <sql id="insertColumns">
     (parent_snapshot_id, root_snapshot_id, root_project_id, project_id, created_at, build_date, status, purge_status,
     islast, scope, qualifier, version, path, depth,

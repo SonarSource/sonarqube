@@ -92,16 +92,11 @@ public class ProjectRepositoryLoader implements ServerComponent {
           }
 
           List<ComponentDto> moduleChildren = dbClient.componentDao().findChildrenModulesFromModule(session, query.getModuleKey());
-          moduleChildren.add(module);
           Map<String, String> moduleUuidsByKey = moduleUuidsByKey(module, moduleChildren);
           Map<String, Long> moduleIdsByKey = moduleIdsByKey(module, moduleChildren);
 
-          List<PropertyDto> moduleSettings = dbClient.propertiesDao().selectProjectProperties(query.getModuleKey(), session);
-          List<PropertyDto> moduleChildrenSettings = newArrayList();
-          if (!moduleChildren.isEmpty()) {
-            moduleChildrenSettings = dbClient.propertiesDao().findChildrenModuleProperties(query.getModuleKey(), session);
-          }
-          TreeModuleSettings treeModuleSettings = new TreeModuleSettings(moduleUuidsByKey, moduleIdsByKey, moduleChildren, moduleChildrenSettings, module, moduleSettings);
+          List<PropertyDto> moduleChildrenSettings = dbClient.propertiesDao().findChildrenModuleProperties(query.getModuleKey(), session);
+          TreeModuleSettings treeModuleSettings = new TreeModuleSettings(moduleUuidsByKey, moduleIdsByKey, moduleChildren, moduleChildrenSettings, module);
 
           addSettingsToChildrenModules(ref, query.getModuleKey(), Maps.<String, String>newHashMap(), treeModuleSettings, hasScanPerm, session);
           addFileData(session, ref, moduleChildren, module.key());
@@ -274,7 +269,7 @@ public class ProjectRepositoryLoader implements ServerComponent {
     private Multimap<String, ComponentDto> moduleChildrenByModuleUuid;
 
     private TreeModuleSettings(Map<String, String> moduleUuidsByKey, Map<String, Long> moduleIdsByKey, List<ComponentDto> moduleChildren,
-      List<PropertyDto> moduleChildrenSettings, ComponentDto module, List<PropertyDto> moduleSettings) {
+      List<PropertyDto> moduleChildrenSettings, ComponentDto module) {
       this.moduleIdsByKey = moduleIdsByKey;
       this.moduleUuidsByKey = moduleUuidsByKey;
       propertiesByModuleId = ArrayListMultimap.create();
@@ -283,7 +278,6 @@ public class ProjectRepositoryLoader implements ServerComponent {
       for (PropertyDto settings : moduleChildrenSettings) {
         propertiesByModuleId.put(settings.getResourceId(), settings);
       }
-      propertiesByModuleId.putAll(module.getId(), moduleSettings);
 
       for (ComponentDto componentDto : moduleChildren) {
         String moduleUuid = componentDto.moduleUuid();
