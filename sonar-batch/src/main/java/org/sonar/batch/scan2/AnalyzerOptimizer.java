@@ -24,9 +24,9 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
+import org.sonar.api.config.Settings;
 
 public class AnalyzerOptimizer implements BatchComponent {
 
@@ -34,10 +34,12 @@ public class AnalyzerOptimizer implements BatchComponent {
 
   private final FileSystem fs;
   private final ActiveRules activeRules;
+  private final Settings settings;
 
-  public AnalyzerOptimizer(FileSystem fs, ActiveRules activeRules) {
+  public AnalyzerOptimizer(FileSystem fs, ActiveRules activeRules, Settings settings) {
     this.fs = fs;
     this.activeRules = activeRules;
+    this.settings = settings;
   }
 
   /**
@@ -51,6 +53,21 @@ public class AnalyzerOptimizer implements BatchComponent {
     if (!activeRulesCondition(descriptor)) {
       LOG.debug("'{}' skipped because there is no related rule activated in the quality profile", descriptor.name());
       return false;
+    }
+    if (!settingsCondition(descriptor)) {
+      LOG.debug("'{}' skipped because one of the required properties is missing", descriptor.name());
+      return false;
+    }
+    return true;
+  }
+
+  private boolean settingsCondition(DefaultSensorDescriptor descriptor) {
+    if (!descriptor.properties().isEmpty()) {
+      for (String propertyKey : descriptor.properties()) {
+        if (!settings.hasKey(propertyKey)) {
+          return false;
+        }
+      }
     }
     return true;
   }
@@ -68,15 +85,10 @@ public class AnalyzerOptimizer implements BatchComponent {
   }
 
   private boolean fsCondition(DefaultSensorDescriptor descriptor) {
-    if (!descriptor.languages().isEmpty() || !descriptor.types().isEmpty()) {
+    if (!descriptor.languages().isEmpty() || descriptor.type() != null) {
       FilePredicate langPredicate = descriptor.languages().isEmpty() ? fs.predicates().all() : fs.predicates().hasLanguages(descriptor.languages());
 
-      FilePredicate typePredicate = descriptor.types().isEmpty() ? fs.predicates().all() : fs.predicates().none();
-      for (InputFile.Type type : descriptor.types()) {
-        typePredicate = fs.predicates().or(
-          typePredicate,
-          fs.predicates().hasType(type));
-      }
+      FilePredicate typePredicate = descriptor.type() == null ? fs.predicates().all() : fs.predicates().hasType(descriptor.type());
       return fs.hasFiles(fs.predicates().and(langPredicate, typePredicate));
     }
     return true;

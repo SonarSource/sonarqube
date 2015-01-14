@@ -20,50 +20,63 @@
 package org.sonar.api.batch.sensor;
 
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.measure.Metric;
 
 /**
- * Describe what an {@link Sensor} is doing. Information may be used by the platform
+ * Describe what a {@link Sensor} is doing. Information may be used by the platform
  * to log interesting information or perform some optimization.
  * See {@link Sensor#describe(SensorDescriptor)}
- * @since 5.0
+ * @since 5.1
  */
 public interface SensorDescriptor {
 
   /**
-   * Name of the {@link Sensor}. Will be displayed in logs.
+   * Displayable name of the {@link Sensor}. Will be displayed in logs.
    */
-  SensorDescriptor name(String name);
+  SensorDescriptor name(String sensorName);
 
   /**
-   * List {@link Metric} this {@link Sensor} depends on. Will be used to execute sensors in correct order.
-   */
-  SensorDescriptor dependsOn(Metric<?>... metrics);
-
-  /**
-   * List {@link Metric} this {@link Sensor} provides. Will be used to execute sensors in correct order.
-   */
-  SensorDescriptor provides(Metric<?>... metrics);
-
-  /**
-   * List languages this {@link Sensor} work on. May be used by the platform to skip execution of the {@link Sensor} when
+   * Language this {@link Sensor} work on. Used by the platform to skip execution of the {@link Sensor} when
    * no file for given languages are present in the project.
-   * If no language is provided then it will be executed for all languages.
+   * Default is to execute sensor for all languages.
    */
-  SensorDescriptor workOnLanguages(String... languageKeys);
+  SensorDescriptor onlyOnLanguage(String languageKey);
 
   /**
-   * List {@link InputFile.Type} this {@link Sensor} work on. May be used by the platform to skip execution of the {@link Sensor} when
-   * no file for given type are present in the project.
-   * If you don't call this method then it means sensor is working on all input file types.
+   * List languages this {@link Sensor} work on. Used by the platform to skip execution of the {@link Sensor} when
+   * no file for given languages are present in the project.
+   * Default is to execute sensor for all languages.
    */
-  SensorDescriptor workOnFileTypes(InputFile.Type... types);
+  SensorDescriptor onlyOnLanguages(String... languageKeys);
 
   /**
-   * List {@link InputFile.Type} this {@link Sensor} work on. May be used by the platform to skip execution of the {@link Sensor} when
+   * {@link InputFile.Type} this {@link Sensor} work on. Used by the platform to skip execution of the {@link Sensor} when
    * no file for given type are present in the project.
-   * If not type is provided then it will be executed for all types.
+   * Default is to execute sensor whatever are the available file types.
+   */
+  SensorDescriptor onlyOnFileType(InputFile.Type type);
+
+  /**
+   * Rule repository this {@link Sensor} create issues for. Used by the platform to skip execution of the {@link Sensor} when
+   * no rule is activated for the given repository.
+   */
+  SensorDescriptor createIssuesForRuleRepository(String... repositoryKey);
+
+  /**
+   * List rule repositories this {@link Sensor} create issues for. Used by the platform to skip execution of the {@link Sensor} when
+   * no rule is activated for the given repositories.
    */
   SensorDescriptor createIssuesForRuleRepositories(String... repositoryKeys);
+
+  /**
+   * Property this {@link Sensor} depends on. Used by the platform to skip execution of the {@link Sensor} when
+   * property is not set.
+   */
+  SensorDescriptor requireProperty(String... propertyKey);
+
+  /**
+   * List properties this {@link Sensor} depends on. Used by the platform to skip execution of the {@link Sensor} when
+   * property is not set.
+   */
+  SensorDescriptor requireProperties(String... propertyKeys);
 
 }

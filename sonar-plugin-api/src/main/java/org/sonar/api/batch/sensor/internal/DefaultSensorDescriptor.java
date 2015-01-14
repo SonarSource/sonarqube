@@ -19,10 +19,10 @@
  */
 package org.sonar.api.batch.sensor.internal;
 
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.measure.Metric;
+import javax.annotation.Nullable;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -30,34 +30,30 @@ import java.util.Collection;
 public class DefaultSensorDescriptor implements SensorDescriptor {
 
   private String name;
-  private Metric<?>[] dependsOn = new Metric<?>[0];
-  private Metric<?>[] provides = new Metric<?>[0];
   private String[] languages = new String[0];
-  private InputFile.Type[] types = new InputFile.Type[0];
+  private InputFile.Type type = null;
   private String[] ruleRepositories = new String[0];
+  private String[] properties = new String[0];
 
   public String name() {
     return name;
-  }
-
-  public Metric[] dependsOn() {
-    return dependsOn;
-  }
-
-  public Metric[] provides() {
-    return provides;
   }
 
   public Collection<String> languages() {
     return Arrays.asList(languages);
   }
 
-  public Collection<InputFile.Type> types() {
-    return Arrays.asList(types);
+  @Nullable
+  public InputFile.Type type() {
+    return type;
   }
 
   public Collection<String> ruleRepositories() {
     return Arrays.asList(ruleRepositories);
+  }
+
+  public Collection<String> properties() {
+    return Arrays.asList(properties);
   }
 
   @Override
@@ -67,32 +63,41 @@ public class DefaultSensorDescriptor implements SensorDescriptor {
   }
 
   @Override
-  public DefaultSensorDescriptor dependsOn(Metric<?>... metrics) {
-    this.dependsOn = metrics;
-    return this;
+  public DefaultSensorDescriptor onlyOnLanguage(String languageKey) {
+    return onlyOnLanguages(languageKey);
   }
 
   @Override
-  public DefaultSensorDescriptor provides(Metric<?>... metrics) {
-    this.provides = metrics;
-    return this;
-  }
-
-  @Override
-  public DefaultSensorDescriptor workOnLanguages(String... languageKeys) {
+  public DefaultSensorDescriptor onlyOnLanguages(String... languageKeys) {
     this.languages = languageKeys;
     return this;
   }
 
   @Override
-  public DefaultSensorDescriptor workOnFileTypes(InputFile.Type... types) {
-    this.types = types;
+  public DefaultSensorDescriptor onlyOnFileType(InputFile.Type type) {
+    this.type = type;
     return this;
+  }
+
+  @Override
+  public DefaultSensorDescriptor createIssuesForRuleRepository(String... repositoryKey) {
+    return createIssuesForRuleRepositories(repositoryKey);
   }
 
   @Override
   public DefaultSensorDescriptor createIssuesForRuleRepositories(String... repositoryKeys) {
     this.ruleRepositories = repositoryKeys;
+    return this;
+  }
+
+  @Override
+  public DefaultSensorDescriptor requireProperty(String... propertyKey) {
+    return requireProperties(propertyKey);
+  }
+
+  @Override
+  public DefaultSensorDescriptor requireProperties(String... propertyKeys) {
+    this.properties = propertyKeys;
     return this;
   }
 

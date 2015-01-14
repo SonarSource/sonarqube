@@ -21,17 +21,11 @@ package org.sonar.batch.scan;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.DependedUpon;
-import org.sonar.api.batch.DependsUpon;
-import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.scan2.AnalyzerOptimizer;
-
-import java.util.Arrays;
-import java.util.List;
 
 public class SensorWrapper implements org.sonar.api.batch.Sensor {
 
@@ -52,16 +46,6 @@ public class SensorWrapper implements org.sonar.api.batch.Sensor {
 
   public Sensor wrappedSensor() {
     return wrappedSensor;
-  }
-
-  @DependedUpon
-  public List<Metric> provides() {
-    return Arrays.asList(descriptor.provides());
-  }
-
-  @DependsUpon
-  public List<Metric> depends() {
-    return Arrays.asList(descriptor.dependsOn());
   }
 
   @Override

@@ -61,8 +61,8 @@ public class XooTokenizerSensor implements Sensor {
   public void describe(SensorDescriptor descriptor) {
     descriptor
       .name("Xoo Tokenizer Sensor")
-      .workOnLanguages(Xoo.KEY)
-      .workOnFileTypes(InputFile.Type.MAIN);
+      .onlyOnLanguages(Xoo.KEY)
+      .onlyOnFileType(InputFile.Type.MAIN);
   }
 
   @Override

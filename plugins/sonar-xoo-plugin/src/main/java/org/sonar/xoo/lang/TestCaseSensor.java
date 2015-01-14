@@ -97,8 +97,8 @@ public class TestCaseSensor implements Sensor {
   public void describe(SensorDescriptor descriptor) {
     descriptor
       .name("Xoo TestPlan Sensor")
-      .workOnLanguages(Xoo.KEY)
-      .workOnFileTypes(InputFile.Type.TEST);
+      .onlyOnLanguages(Xoo.KEY)
+      .onlyOnFileType(InputFile.Type.TEST);
   }
 
   @Override

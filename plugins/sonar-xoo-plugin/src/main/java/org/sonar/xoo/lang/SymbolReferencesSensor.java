@@ -87,8 +87,8 @@ public class SymbolReferencesSensor implements Sensor {
   public void describe(SensorDescriptor descriptor) {
     descriptor
       .name("Xoo Symbol Reference Sensor")
-      .workOnLanguages(Xoo.KEY)
-      .workOnFileTypes(InputFile.Type.MAIN, InputFile.Type.TEST);
+      .onlyOnLanguages(Xoo.KEY)
+      .onOnFileType(InputFile.Type.MAIN, InputFile.Type.TEST);
   }
 
   @Override

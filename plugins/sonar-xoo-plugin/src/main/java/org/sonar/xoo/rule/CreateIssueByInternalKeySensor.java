@@ -34,9 +34,9 @@ public class CreateIssueByInternalKeySensor implements Sensor {
   public void describe(SensorDescriptor descriptor) {
     descriptor
       .name("CreateIssueByInternalKeySensor")
-      .workOnLanguages(Xoo.KEY)
+      .onlyOnLanguages(Xoo.KEY)
       .createIssuesForRuleRepositories(XooRulesDefinition.XOO_REPOSITORY)
-      .workOnFileTypes(InputFile.Type.MAIN, InputFile.Type.TEST);
+      .onOnFileType(InputFile.Type.MAIN, InputFile.Type.TEST);
   }
 
   @Override

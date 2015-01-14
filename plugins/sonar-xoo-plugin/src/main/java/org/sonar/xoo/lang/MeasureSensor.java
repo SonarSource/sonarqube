@@ -112,8 +112,8 @@ public class MeasureSensor implements Sensor {
     descriptor
       .name("Xoo Measure Sensor")
       .provides(CoreMetrics.LINES)
-      .workOnLanguages(Xoo.KEY)
-      .workOnFileTypes(InputFile.Type.MAIN, InputFile.Type.TEST);
+      .onlyOnLanguages(Xoo.KEY)
+      .onOnFileType(InputFile.Type.MAIN, InputFile.Type.TEST);
   }
 
   @Override

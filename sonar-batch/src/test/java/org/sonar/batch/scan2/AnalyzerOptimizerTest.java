@@ -29,6 +29,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
+import org.sonar.api.config.Settings;
 import org.sonar.api.rule.RuleKey;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,9 +42,12 @@ public class AnalyzerOptimizerTest {
   public ExpectedException thrown = ExpectedException.none();
   private AnalyzerOptimizer optimizer;
 
+  private Settings settings;
+
   @Before
   public void prepare() {
-    optimizer = new AnalyzerOptimizer(fs, new ActiveRulesBuilder().build());
+    settings = new Settings();
+    optimizer = new AnalyzerOptimizer(fs, new ActiveRulesBuilder().build(), settings);
   }
 
   @Test
@@ -56,7 +60,7 @@ public class AnalyzerOptimizerTest {
   @Test
   public void should_optimize_on_language() throws Exception {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor()
-      .workOnLanguages("java", "php");
+      .onlyOnLanguages("java", "php");
     assertThat(optimizer.shouldExecute(descriptor)).isFalse();
 
     fs.add(new DefaultInputFile("foo", "src/Foo.java").setLanguage("java"));
@@ -66,7 +70,7 @@ public class AnalyzerOptimizerTest {
   @Test
   public void should_optimize_on_type() throws Exception {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor()
-      .workOnFileTypes(InputFile.Type.MAIN);
+      .onlyOnFileType(InputFile.Type.MAIN);
     assertThat(optimizer.shouldExecute(descriptor)).isFalse();
 
     fs.add(new DefaultInputFile("foo", "tests/FooTest.java").setType(InputFile.Type.TEST));
@@ -79,8 +83,8 @@ public class AnalyzerOptimizerTest {
   @Test
   public void should_optimize_on_both_type_and_language() throws Exception {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor()
-      .workOnLanguages("java", "php")
-      .workOnFileTypes(InputFile.Type.MAIN);
+      .onlyOnLanguages("java", "php")
+      .onlyOnFileType(InputFile.Type.MAIN);
     assertThat(optimizer.shouldExecute(descriptor)).isFalse();
 
     fs.add(new DefaultInputFile("foo", "tests/FooTest.java").setLanguage("java").setType(InputFile.Type.TEST));
@@ -101,7 +105,7 @@ public class AnalyzerOptimizerTest {
       .create(RuleKey.of("repo1", "foo"))
       .activate()
       .build();
-    optimizer = new AnalyzerOptimizer(fs, activeRules);
+    optimizer = new AnalyzerOptimizer(fs, activeRules, settings);
 
     assertThat(optimizer.shouldExecute(descriptor)).isFalse();
 
@@ -111,7 +115,17 @@ public class AnalyzerOptimizerTest {
       .create(RuleKey.of("squid", "rule"))
       .activate()
       .build();
-    optimizer = new AnalyzerOptimizer(fs, activeRules);
+    optimizer = new AnalyzerOptimizer(fs, activeRules, settings);
+    assertThat(optimizer.shouldExecute(descriptor)).isTrue();
+  }
+
+  @Test
+  public void should_optimize_on_settings() throws Exception {
+    DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor()
+      .requireProperty("sonar.foo.reportPath");
+    assertThat(optimizer.shouldExecute(descriptor)).isFalse();
+
+    settings.setProperty("sonar.foo.reportPath", "foo");
     assertThat(optimizer.shouldExecute(descriptor)).isTrue();
   }
 }

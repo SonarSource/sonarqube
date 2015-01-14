@@ -19,11 +19,9 @@
  */
 package org.sonar.api.batch.sensor.internal;
 
-import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
-
 import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.measures.CoreMetrics;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DefaultSensorDescriptorTest {
@@ -33,16 +31,16 @@ public class DefaultSensorDescriptorTest {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
     descriptor
       .name("Foo")
-      .dependsOn(CoreMetrics.NCLOC)
-      .provides(CoreMetrics.BLOCKER_VIOLATIONS)
-      .workOnLanguages("java", "php")
-      .workOnFileTypes(InputFile.Type.MAIN);
+      .onlyOnLanguage("java")
+      .onlyOnFileType(InputFile.Type.MAIN)
+      .requireProperty("sonar.foo.reportPath")
+      .createIssuesForRuleRepository("squid-java");
 
     assertThat(descriptor.name()).isEqualTo("Foo");
-    assertThat(descriptor.dependsOn()).containsOnly(CoreMetrics.NCLOC);
-    assertThat(descriptor.provides()).containsOnly(CoreMetrics.BLOCKER_VIOLATIONS);
-    assertThat(descriptor.languages()).containsOnly("java", "php");
-    assertThat(descriptor.types()).containsOnly(InputFile.Type.MAIN);
+    assertThat(descriptor.languages()).containsOnly("java");
+    assertThat(descriptor.type()).isEqualTo(InputFile.Type.MAIN);
+    assertThat(descriptor.properties()).containsOnly("sonar.foo.reportPath");
+    assertThat(descriptor.ruleRepositories()).containsOnly("squid-java");
   }
 
 }

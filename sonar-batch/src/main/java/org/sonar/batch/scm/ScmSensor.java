@@ -59,11 +59,7 @@ public final class ScmSensor implements Sensor {
 
   @Override
   public void describe(SensorDescriptor descriptor) {
-    descriptor
-      .name("SCM Sensor")
-      .provides(CoreMetrics.SCM_AUTHORS_BY_LINE,
-        CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE,
-        CoreMetrics.SCM_REVISIONS_BY_LINE);
+    descriptor.name("SCM Sensor");
   }
 
   @Override

@@ -91,8 +91,8 @@ public class DependencySensor implements Sensor {
   public void describe(SensorDescriptor descriptor) {
     descriptor
       .name("Xoo Dependency Sensor")
-      .workOnLanguages(Xoo.KEY)
-      .workOnFileTypes(InputFile.Type.MAIN);
+      .onlyOnLanguages(Xoo.KEY)
+      .onlyOnFileType(InputFile.Type.MAIN);
   }
 
   @Override

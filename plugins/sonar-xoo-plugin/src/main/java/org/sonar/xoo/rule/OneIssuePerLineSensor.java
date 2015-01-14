@@ -39,9 +39,9 @@ public class OneIssuePerLineSensor implements Sensor {
     descriptor
       .name("One Issue Per Line")
       .dependsOn(CoreMetrics.LINES)
-      .workOnLanguages(Xoo.KEY)
+      .onlyOnLanguages(Xoo.KEY)
       .createIssuesForRuleRepositories(XooRulesDefinition.XOO_REPOSITORY)
-      .workOnFileTypes(InputFile.Type.MAIN, InputFile.Type.TEST);
+      .onOnFileType(InputFile.Type.MAIN, InputFile.Type.TEST);
   }
 
   @Override

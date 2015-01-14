@@ -98,8 +98,8 @@ public class CoveragePerTestSensor implements Sensor {
   public void describe(SensorDescriptor descriptor) {
     descriptor
       .name("Xoo Coverage Per Test Sensor")
-      .workOnLanguages(Xoo.KEY)
-      .workOnFileTypes(InputFile.Type.TEST);
+      .onlyOnLanguages(Xoo.KEY)
+      .onlyOnFileType(InputFile.Type.TEST);
   }
 
   @Override
