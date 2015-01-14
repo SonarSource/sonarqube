@@ -22,6 +22,7 @@ package org.sonar.core.component.db;
 
 import org.apache.ibatis.annotations.Param;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.component.FilePathWithHashDto;
 
 import javax.annotation.CheckForNull;
 
@@ -73,6 +74,7 @@ public interface ComponentMapper {
    * Warning, projectId are always null
    */
   List<ComponentDto> findByUuids(@Param("uuids") Collection<String> uuids);
+
   /**
    * Return all project (PRJ/TRK) uuids
    */
@@ -81,7 +83,12 @@ public interface ComponentMapper {
   /**
    * Return all modules children (not returning itself) from a module key
    */
-  List<ComponentDto> findChildrenModulesFromModule(@Param("moduleKey") String moduleKey);
+  List<ComponentDto> findChildrenModulesFromModule(@Param("moduleKey") String moduleKey, @Param(value = "scope") String scope);
+
+  /**
+   * Return all files children from a module key
+   */
+  List<FilePathWithHashDto> findFilesFromModule(@Param("moduleKey") String moduleKey, @Param(value = "scope") String scope);
 
   long countById(long id);
 

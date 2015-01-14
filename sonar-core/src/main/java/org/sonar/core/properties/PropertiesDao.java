@@ -26,6 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.resources.Scopes;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
@@ -123,7 +124,7 @@ public class PropertiesDao implements BatchComponent, ServerComponent, DaoCompon
   }
 
   public List<PropertyDto> findChildrenModuleProperties(String moduleKey, SqlSession session) {
-    return session.getMapper(PropertiesMapper.class).selectChildrenModuleProperties(moduleKey);
+    return session.getMapper(PropertiesMapper.class).selectChildrenModuleProperties(moduleKey, Scopes.PROJECT);
   }
 
   public PropertyDto selectProjectProperty(long resourceId, String propertyKey) {

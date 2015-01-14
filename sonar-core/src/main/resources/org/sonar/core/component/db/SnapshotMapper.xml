@@ -80,7 +80,7 @@
     INNER JOIN projects module ON module.id = current_snapshot.project_id AND module.enabled = ${_true} AND module.kee = #{moduleKey}
     <where>
       AND s.islast = ${_true}
-      AND s.scope = 'PRJ'
+      AND s.scope = #{scope}
       AND <choose>
       <when test="_databaseId == 'mssql'">
         s.path LIKE current_snapshot.path + CAST(current_snapshot.id AS varchar(15)) + '.%'

@@ -22,8 +22,10 @@ package org.sonar.server.component.db;
 
 import com.google.common.collect.Lists;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.component.FilePathWithHashDto;
 import org.sonar.core.component.db.ComponentMapper;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
@@ -115,7 +117,11 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
   }
 
   public List<ComponentDto> findChildrenModulesFromModule(DbSession session, String moduleKey) {
-    return mapper(session).findChildrenModulesFromModule(moduleKey);
+    return mapper(session).findChildrenModulesFromModule(moduleKey, Scopes.PROJECT);
+  }
+
+  public List<FilePathWithHashDto> findFilesFromModule(DbSession session, String moduleKey) {
+    return mapper(session).findFilesFromModule(moduleKey, Scopes.FILE);
   }
 
   public List<ComponentDto> getByUuids(DbSession session, Collection<String> uuids) {

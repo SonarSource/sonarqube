@@ -70,7 +70,7 @@ public class SnapshotDao extends BaseDao<SnapshotMapper, SnapshotDto, Long> impl
    * Return all snapshots children (not returning itself) from a module key
    */
   public List<SnapshotDto> findChildrenModulesFromModule(DbSession session, String moduleKey) {
-    return mapper(session).selectChildrenModulesFromModule(moduleKey);
+    return mapper(session).selectChildrenModulesFromModule(moduleKey, Scopes.PROJECT);
   }
 
   public int updateSnapshotAndChildrenLastFlagAndStatus(DbSession session, SnapshotDto snapshot, boolean isLast, String status) {

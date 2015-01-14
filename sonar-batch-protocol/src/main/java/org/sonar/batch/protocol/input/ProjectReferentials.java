@@ -24,12 +24,7 @@ import org.sonar.batch.protocol.GsonHelper;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Container for all project data going from server to batch.
@@ -44,15 +39,15 @@ public class ProjectReferentials {
   private Map<String, Map<String, FileData>> fileDataByModuleAndPath = new HashMap<String, Map<String, FileData>>();
   private Date lastAnalysisDate;
 
-  public Map<String, String> settings(String projectKey) {
-    return settingsByModule.containsKey(projectKey) ? settingsByModule.get(projectKey) : Collections.<String, String>emptyMap();
+  public Map<String, String> settings(String moduleKey) {
+    return settingsByModule.containsKey(moduleKey) ? settingsByModule.get(moduleKey) : Collections.<String, String>emptyMap();
   }
 
-  public ProjectReferentials addSettings(String projectKey, Map<String, String> settings) {
-    Map<String, String> existingSettings = settingsByModule.get(projectKey);
+  public ProjectReferentials addSettings(String moduleKey, Map<String, String> settings) {
+    Map<String, String> existingSettings = settingsByModule.get(moduleKey);
     if (existingSettings == null) {
-      existingSettings = new HashMap<String, String>();
-      settingsByModule.put(projectKey, existingSettings);
+      existingSettings = new HashMap<>();
+      settingsByModule.put(moduleKey, existingSettings);
     }
     existingSettings.putAll(settings);
     return this;
@@ -76,15 +71,15 @@ public class ProjectReferentials {
     return this;
   }
 
-  public Map<String, FileData> fileDataByPath(String projectKey) {
-    return fileDataByModuleAndPath.containsKey(projectKey) ? fileDataByModuleAndPath.get(projectKey) : Collections.<String, FileData>emptyMap();
+  public Map<String, FileData> fileDataByPath(String moduleKey) {
+    return fileDataByModuleAndPath.containsKey(moduleKey) ? fileDataByModuleAndPath.get(moduleKey) : Collections.<String, FileData>emptyMap();
   }
 
-  public ProjectReferentials addFileData(String projectKey, String path, FileData fileData) {
-    Map<String, FileData> existingFileDataByPath = fileDataByModuleAndPath.get(projectKey);
+  public ProjectReferentials addFileData(String moduleKey, String path, FileData fileData) {
+    Map<String, FileData> existingFileDataByPath = fileDataByModuleAndPath.get(moduleKey);
     if (existingFileDataByPath == null) {
-      existingFileDataByPath = new HashMap<String, FileData>();
-      fileDataByModuleAndPath.put(projectKey, existingFileDataByPath);
+      existingFileDataByPath = new HashMap<>();
+      fileDataByModuleAndPath.put(moduleKey, existingFileDataByPath);
     }
     existingFileDataByPath.put(path, fileData);
     return this;

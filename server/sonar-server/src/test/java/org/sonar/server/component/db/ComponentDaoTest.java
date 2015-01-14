@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.component.FilePathWithHashDto;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.exceptions.NotFoundException;
@@ -336,15 +337,44 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
 
     // From root project
     List<ComponentDto> modules = dao.findChildrenModulesFromModule(session, "org.struts:struts");
-    assertThat(modules).extracting("id").containsOnly(2L, 3L);
+    assertThat(modules).extracting("uuid").containsOnly("EFGH", "FGHI");
 
     // From module
     modules = dao.findChildrenModulesFromModule(session, "org.struts:struts-core");
-    assertThat(modules).extracting("id").containsOnly(3L);
+    assertThat(modules).extracting("uuid").containsOnly("FGHI");
 
     // From sub module
     modules = dao.findChildrenModulesFromModule(session, "org.struts:struts-data");
     assertThat(modules).isEmpty();
+  }
+
+  @Test
+  public void findFilesFromModule() throws Exception {
+    setupData("multi-modules", "files_hashes");
+
+    // From root project
+    List<FilePathWithHashDto> files = dao.findFilesFromModule(session, "org.struts:struts");
+    assertThat(files).extracting("uuid").containsOnly("HIJK");
+    assertThat(files).extracting("moduleUuid").containsOnly("FGHI");
+    assertThat(files).extracting("srcHash").containsOnly("123456");
+    assertThat(files).extracting("path").containsOnly("src/org/struts/RequestContext.java");
+
+    // From module
+    files = dao.findFilesFromModule(session, "org.struts:struts-core");
+    assertThat(files).extracting("uuid").containsOnly("HIJK");
+    assertThat(files).extracting("moduleUuid").containsOnly("FGHI");
+    assertThat(files).extracting("srcHash").containsOnly("123456");
+    assertThat(files).extracting("path").containsOnly("src/org/struts/RequestContext.java");
+
+    // From sub module
+    files = dao.findFilesFromModule(session, "org.struts:struts-data");
+    assertThat(files).extracting("uuid").containsOnly("HIJK");
+    assertThat(files).extracting("moduleUuid").containsOnly("FGHI");
+    assertThat(files).extracting("srcHash").containsOnly("123456");
+    assertThat(files).extracting("path").containsOnly("src/org/struts/RequestContext.java");
+
+    // From unknown
+    assertThat(dao.findFilesFromModule(session, "unknown")).isEmpty();
   }
 
   @Test

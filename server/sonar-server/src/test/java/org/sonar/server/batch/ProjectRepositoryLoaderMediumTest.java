@@ -30,6 +30,7 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.batch.protocol.input.ActiveRule;
+import org.sonar.batch.protocol.input.FileData;
 import org.sonar.batch.protocol.input.ProjectReferentials;
 import org.sonar.batch.protocol.input.QProfile;
 import org.sonar.core.component.ComponentDto;
@@ -40,6 +41,8 @@ import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
+import org.sonar.core.source.db.FileSourceDao;
+import org.sonar.core.source.db.FileSourceDto;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.SnapshotTesting;
 import org.sonar.server.db.DbClient;
@@ -696,6 +699,38 @@ public class ProjectRepositoryLoaderMediumTest {
         "You're only authorized to execute a local (dry run) SonarQube analysis without pushing the results to the SonarQube server. " +
           "Please contact your SonarQube administrator.");
     }
+  }
+
+  @Test
+  public void add_file_data() throws Exception {
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+
+    ComponentDto project = ComponentTesting.newProjectDto();
+    tester.get(DbClient.class).componentDao().insert(dbSession, project);
+    SnapshotDto projectSnapshot = SnapshotTesting.createForProject(project);
+    tester.get(DbClient.class).snapshotDao().insert(dbSession, projectSnapshot);
+    addDefaultProfile();
+
+    ComponentDto file = ComponentTesting.newFileDto(project, "file");
+    tester.get(DbClient.class).componentDao().insert(dbSession, file);
+    tester.get(DbClient.class).snapshotDao().insert(dbSession, SnapshotTesting.createForComponent(file, projectSnapshot));
+    tester.get(FileSourceDao.class).insert(new FileSourceDto()
+      .setFileUuid(file.uuid())
+      .setProjectUuid(project.uuid())
+      .setData(",,,,,,,,,,,,,,,unchanged&#13;&#10;,,,,,,,,,,,,,,,content&#13;&#10;")
+      .setDataHash("0263047cd758c68c27683625f072f010")
+      .setLineHashes("8d7b3d6b83c0a517eac07e1aac94b773")
+      .setCreatedAt(new Date().getTime())
+      .setUpdatedAt(new Date().getTime())
+      .setSrcHash("123456")
+      );
+
+    dbSession.commit();
+
+    ProjectReferentials ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
+    assertThat(ref.fileDataByPath(project.key())).hasSize(1);
+    FileData fileData = ref.fileData(project.key(), file.path());
+    assertThat(fileData.hash()).isEqualTo("123456");
   }
 
   private void addDefaultProfile() {

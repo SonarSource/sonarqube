@@ -26,9 +26,11 @@ import com.google.common.collect.Multimap;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
+import org.sonar.batch.protocol.input.FileData;
 import org.sonar.batch.protocol.input.ProjectReferentials;
 import org.sonar.core.UtcDateUtils;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.component.FilePathWithHashDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
@@ -89,15 +91,20 @@ public class ProjectRepositoryLoader implements ServerComponent {
             projectKey = project.key();
           }
 
-          List<PropertyDto> moduleSettings = dbClient.propertiesDao().selectProjectProperties(query.getModuleKey(), session);
           List<ComponentDto> moduleChildren = dbClient.componentDao().findChildrenModulesFromModule(session, query.getModuleKey());
+          moduleChildren.add(module);
+          Map<String, String> moduleUuidsByKey = moduleUuidsByKey(module, moduleChildren);
+          Map<String, Long> moduleIdsByKey = moduleIdsByKey(module, moduleChildren);
+
+          List<PropertyDto> moduleSettings = dbClient.propertiesDao().selectProjectProperties(query.getModuleKey(), session);
           List<PropertyDto> moduleChildrenSettings = newArrayList();
           if (!moduleChildren.isEmpty()) {
             moduleChildrenSettings = dbClient.propertiesDao().findChildrenModuleProperties(query.getModuleKey(), session);
           }
-          TreeModuleSettings treeModuleSettings = new TreeModuleSettings(moduleChildren, moduleChildrenSettings, module, moduleSettings);
+          TreeModuleSettings treeModuleSettings = new TreeModuleSettings(moduleUuidsByKey, moduleIdsByKey, moduleChildren, moduleChildrenSettings, module, moduleSettings);
 
           addSettingsToChildrenModules(ref, query.getModuleKey(), Maps.<String, String>newHashMap(), treeModuleSettings, hasScanPerm, session);
+          addFileData(session, ref, moduleChildren, module.key());
         } else {
           // Add settings of the provisioned project
           addSettings(ref, query.getModuleKey(), getPropertiesMap(dbClient.propertiesDao().selectProjectProperties(query.getModuleKey(), session), hasScanPerm));
@@ -218,6 +225,18 @@ public class ProjectRepositoryLoader implements ServerComponent {
     }
   }
 
+  private void addFileData(DbSession session, ProjectReferentials ref, List<ComponentDto> moduleChildren, String moduleKey) {
+    Map<String, String> moduleKeysByUuid = newHashMap();
+    for (ComponentDto module : moduleChildren) {
+      moduleKeysByUuid.put(module.uuid(), module.key());
+    }
+
+    for (FilePathWithHashDto file : dbClient.componentDao().findFilesFromModule(session, moduleKey)) {
+      FileData fileData = new FileData(file.getSrcHash(), false, null, null, null);
+      ref.addFileData(moduleKeysByUuid.get(file.getModuleUuid()), file.getPath(), fileData);
+    }
+  }
+
   private void checkPermission(boolean preview) {
     UserSession userSession = UserSession.get();
     boolean hasScanPerm = userSession.hasGlobalPermission(GlobalPermissions.SCAN_EXECUTION);
@@ -231,6 +250,22 @@ public class ProjectRepositoryLoader implements ServerComponent {
     }
   }
 
+  private Map<String, String> moduleUuidsByKey(ComponentDto module, List<ComponentDto> moduleChildren) {
+    Map<String, String> moduleUuidsByKey = newHashMap();
+    for (ComponentDto componentDto : moduleChildren) {
+      moduleUuidsByKey.put(componentDto.key(), componentDto.uuid());
+    }
+    return moduleUuidsByKey;
+  }
+
+  private Map<String, Long> moduleIdsByKey(ComponentDto module, List<ComponentDto> moduleChildren) {
+    Map<String, Long> moduleIdsByKey = newHashMap();
+    for (ComponentDto componentDto : moduleChildren) {
+      moduleIdsByKey.put(componentDto.key(), componentDto.getId());
+    }
+    return moduleIdsByKey;
+  }
+
   private static class TreeModuleSettings {
 
     private Map<String, Long> moduleIdsByKey;
@@ -238,10 +273,11 @@ public class ProjectRepositoryLoader implements ServerComponent {
     private Multimap<Long, PropertyDto> propertiesByModuleId;
     private Multimap<String, ComponentDto> moduleChildrenByModuleUuid;
 
-    private TreeModuleSettings(List<ComponentDto> moduleChildren, List<PropertyDto> moduleChildrenSettings, ComponentDto module, List<PropertyDto> moduleSettings) {
+    private TreeModuleSettings(Map<String, String> moduleUuidsByKey, Map<String, Long> moduleIdsByKey, List<ComponentDto> moduleChildren,
+      List<PropertyDto> moduleChildrenSettings, ComponentDto module, List<PropertyDto> moduleSettings) {
+      this.moduleIdsByKey = moduleIdsByKey;
+      this.moduleUuidsByKey = moduleUuidsByKey;
       propertiesByModuleId = ArrayListMultimap.create();
-      moduleIdsByKey = newHashMap();
-      moduleUuidsByKey = newHashMap();
       moduleChildrenByModuleUuid = ArrayListMultimap.create();
 
       for (PropertyDto settings : moduleChildrenSettings) {
@@ -249,26 +285,20 @@ public class ProjectRepositoryLoader implements ServerComponent {
       }
       propertiesByModuleId.putAll(module.getId(), moduleSettings);
 
-      moduleIdsByKey.put(module.key(), module.getId());
-      moduleUuidsByKey.put(module.key(), module.uuid());
       for (ComponentDto componentDto : moduleChildren) {
-        moduleIdsByKey.put(componentDto.key(), componentDto.getId());
-        moduleUuidsByKey.put(componentDto.key(), componentDto.uuid());
         String moduleUuid = componentDto.moduleUuid();
         if (moduleUuid != null) {
           moduleChildrenByModuleUuid.put(moduleUuid, componentDto);
-        } else {
-          moduleChildrenByModuleUuid.put(module.uuid(), componentDto);
         }
       }
     }
 
-    private  List<PropertyDto> findModuleSettings(String moduleKey) {
+    List<PropertyDto> findModuleSettings(String moduleKey) {
       Long moduleId = moduleIdsByKey.get(moduleKey);
       return newArrayList(propertiesByModuleId.get(moduleId));
     }
 
-    private List<ComponentDto> findChildrenModule(String moduleKey) {
+    List<ComponentDto> findChildrenModule(String moduleKey) {
       String moduleUuid = moduleUuidsByKey.get(moduleKey);
       return newArrayList(moduleChildrenByModuleUuid.get(moduleUuid));
     }

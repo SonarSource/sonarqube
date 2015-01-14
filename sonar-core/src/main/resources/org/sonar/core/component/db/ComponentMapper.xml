@@ -132,10 +132,23 @@
     </where>
   </select>
 
-  <select id="findChildrenModulesFromModule" parameterType="String" resultType="Component">
+  <select id="findChildrenModulesFromModule" parameterType="map" resultType="Component">
     SELECT <include refid="componentColumns"/>
     FROM projects p
-    INNER JOIN (<include refid="org.sonar.core.component.db.SnapshotMapper.selectChildrenModulesFromModuleQuery" />) snapshotModules on snapshotModules.resourceId=p.id
+    INNER JOIN (<include refid="org.sonar.core.component.db.SnapshotMapper.selectChildrenModulesFromModuleQuery"/>) snapshotModules ON snapshotModules.resourceId=p.id
+    <where>
+      AND p.enabled=${_true}
+    </where>
+  </select>
+
+  <select id="findFilesFromModule" parameterType="map" resultType="FilePathWithHash">
+    SELECT p.uuid, p.path, p.module_uuid as moduleUuid, fs.src_hash as srcHash
+    FROM projects p
+    INNER JOIN (<include refid="org.sonar.core.component.db.SnapshotMapper.selectChildrenModulesFromModuleQuery"/>) snapshotModules ON snapshotModules.resourceId=p.id
+    INNER JOIN file_sources fs ON fs.file_uuid=p.uuid
+    <where>
+      AND p.enabled=${_true}
+    </where>
   </select>
 
   <select id="findProjectUuids" resultType="String">
