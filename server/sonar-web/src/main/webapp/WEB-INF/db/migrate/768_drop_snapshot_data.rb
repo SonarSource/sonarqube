@@ -25,7 +25,8 @@
 class DropSnapshotData < ActiveRecord::Migration
 
   def self.up
-    remove_index :snapshot_data, :name => 'snapshot_data_resource_id'
+    remove_index :snapshot_data, :name => 'snapshot_data_snapshot_id'
+    remove_index :snapshot_data, :name => 'snap_data_resource_id'
     drop_table :snapshot_data
   end
 
