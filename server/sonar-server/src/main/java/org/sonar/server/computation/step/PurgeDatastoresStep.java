@@ -22,19 +22,30 @@ package org.sonar.server.computation.step;
 
 import org.sonar.core.computation.dbcleaner.ProjectCleaner;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.purge.IdUuidPair;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.db.DbClient;
 
 public class PurgeDatastoresStep implements ComputationStep {
-  private final ProjectCleaner projectCleaner;
 
-  public PurgeDatastoresStep(ProjectCleaner projectCleaner) {
+  private final ProjectCleaner projectCleaner;
+  private final DbClient dbClient;
+
+  public PurgeDatastoresStep(DbClient dbClient, ProjectCleaner projectCleaner) {
     this.projectCleaner = projectCleaner;
+    this.dbClient = dbClient;
   }
 
   @Override
-  public void execute(DbSession session, ComputationContext context) {
-    projectCleaner.purge(session, new IdUuidPair(context.getProject().getId(), context.getProject().uuid()));
+  public void execute(ComputationContext context) {
+    DbSession session = dbClient.openSession(true);
+    try {
+      projectCleaner.purge(session, new IdUuidPair(context.getProject().getId(), context.getProject().uuid()));
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 
   @Override

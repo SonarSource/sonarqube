@@ -25,7 +25,7 @@ import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.computation.AnalysisReportQueue;
-import org.sonar.server.computation.ComputationWorkerLauncher;
+import org.sonar.server.computation.ComputationThreadLauncher;
 
 import java.io.InputStream;
 
@@ -37,9 +37,9 @@ public class SubmitReportWsAction implements ComputationWsAction, RequestHandler
   public static final String PARAM_REPORT_DATA = "report";
 
   private final AnalysisReportQueue queue;
-  private final ComputationWorkerLauncher workerLauncher;
+  private final ComputationThreadLauncher workerLauncher;
 
-  public SubmitReportWsAction(AnalysisReportQueue queue, ComputationWorkerLauncher workerLauncher) {
+  public SubmitReportWsAction(AnalysisReportQueue queue, ComputationThreadLauncher workerLauncher) {
     this.queue = queue;
     this.workerLauncher = workerLauncher;
   }

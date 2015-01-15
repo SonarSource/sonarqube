@@ -24,7 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.computation.AnalysisReportQueue;
-import org.sonar.server.computation.ComputationWorkerLauncher;
+import org.sonar.server.computation.ComputationThreadLauncher;
 import org.sonar.server.ws.WsTester;
 
 import java.io.InputStream;
@@ -38,7 +38,7 @@ public class SubmitReportWsActionTest {
   private SubmitReportWsAction sut;
 
   private WsTester wsTester;
-  private ComputationWorkerLauncher workerLauncher = mock(ComputationWorkerLauncher.class);
+  private ComputationThreadLauncher workerLauncher = mock(ComputationThreadLauncher.class);
   private AnalysisReportQueue queue;
 
   @Before

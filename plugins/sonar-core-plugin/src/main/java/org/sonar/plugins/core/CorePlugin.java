@@ -39,12 +39,6 @@ import org.sonar.plugins.core.issue.InitialOpenIssuesStack;
 import org.sonar.plugins.core.issue.IssueHandlers;
 import org.sonar.plugins.core.issue.IssueTracking;
 import org.sonar.plugins.core.issue.IssueTrackingDecorator;
-import org.sonar.plugins.core.issue.notification.ChangesOnMyIssueNotificationDispatcher;
-import org.sonar.plugins.core.issue.notification.IssueChangesEmailTemplate;
-import org.sonar.plugins.core.issue.notification.NewFalsePositiveNotificationDispatcher;
-import org.sonar.plugins.core.issue.notification.NewIssuesEmailTemplate;
-import org.sonar.plugins.core.issue.notification.NewIssuesNotificationDispatcher;
-import org.sonar.plugins.core.issue.notification.SendIssueNotificationsPostJob;
 import org.sonar.plugins.core.measurefilters.MyFavouritesFilter;
 import org.sonar.plugins.core.measurefilters.ProjectFilter;
 import org.sonar.plugins.core.notifications.alerts.NewAlerts;
@@ -352,17 +346,6 @@ public final class CorePlugin extends SonarPlugin {
       UnresolvedIssuesStatusesWidget.class,
       IssueFilterWidget.class,
       IssueTagCloudWidget.class,
-
-      // issue notifications
-      SendIssueNotificationsPostJob.class,
-      NewIssuesEmailTemplate.class,
-      IssueChangesEmailTemplate.class,
-      ChangesOnMyIssueNotificationDispatcher.class,
-      ChangesOnMyIssueNotificationDispatcher.newMetadata(),
-      NewIssuesNotificationDispatcher.class,
-      NewIssuesNotificationDispatcher.newMetadata(),
-      NewFalsePositiveNotificationDispatcher.class,
-      NewFalsePositiveNotificationDispatcher.newMetadata(),
 
       // batch
       ProjectLinksSensor.class,

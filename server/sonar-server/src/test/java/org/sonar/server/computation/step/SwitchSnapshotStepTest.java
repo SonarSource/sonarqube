@@ -20,7 +20,6 @@
 
 package org.sonar.server.computation.step;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,12 +28,11 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.computation.db.AnalysisReportDto;
-import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
-import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.SnapshotDao;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
 
 import java.io.IOException;
@@ -51,21 +49,13 @@ public class SwitchSnapshotStepTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  private DbSession session;
   private SwitchSnapshotStep sut;
 
   @Before
   public void before() {
-    this.session = db.myBatis().openSession(false);
-
     System2 system2 = mock(System2.class);
     when(system2.now()).thenReturn(DateUtils.parseDate("2011-09-29").getTime());
-    this.sut = new SwitchSnapshotStep(new SnapshotDao(system2));
-  }
-
-  @After
-  public void after() {
-    MyBatis.closeQuietly(session);
+    this.sut = new SwitchSnapshotStep(new DbClient(db.database(), db.myBatis(), new SnapshotDao(system2)));
   }
 
   @Test
@@ -74,8 +64,7 @@ public class SwitchSnapshotStepTest {
     ComputationContext context = new ComputationContext(AnalysisReportDto.newForTests(1L).setSnapshotId(1L),
       ComponentTesting.newProjectDto(), temp.newFolder());
 
-    sut.execute(session, context);
-    session.commit();
+    sut.execute(context);
 
     db.assertDbUnit(getClass(), "snapshots-result.xml", "snapshots");
   }
@@ -86,6 +75,6 @@ public class SwitchSnapshotStepTest {
     ComputationContext context = new ComputationContext(AnalysisReportDto.newForTests(1L).setSnapshotId(1L),
       ComponentTesting.newProjectDto(), temp.newFolder());
 
-    sut.execute(session, context);
+    sut.execute(context);
   }
 }

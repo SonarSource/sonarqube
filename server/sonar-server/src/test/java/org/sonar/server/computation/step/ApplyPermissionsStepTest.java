@@ -30,7 +30,7 @@ public class ApplyPermissionsStepTest {
   @Test
   public void index_issue_permissions() throws Exception {
     IssueAuthorizationIndexer indexer = mock(IssueAuthorizationIndexer.class);
-    new ApplyPermissionsStep(indexer).execute(null, null);
+    new ApplyPermissionsStep(indexer).execute(null);
     verify(indexer).index();
   }
 }

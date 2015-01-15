@@ -24,7 +24,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import org.apache.commons.io.IOUtils;
-import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.rule.RuleKey;
@@ -34,7 +33,7 @@ import org.sonar.batch.protocol.output.ReportHelper;
 import org.sonar.batch.protocol.output.component.ReportComponent;
 import org.sonar.batch.protocol.output.component.ReportComponents;
 import org.sonar.batch.protocol.output.issue.ReportIssue;
-import org.sonar.core.issue.db.IssueStorage;
+import org.sonar.server.computation.issue.IssueComputation;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -42,21 +41,21 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 
-public class AnalysisReportService implements ServerComponent {
+public class AnalysisReportService {
 
-  private final ComputeEngineIssueStorageFactory issueStorageFactory;
+  private final IssueComputation issueComputation;
 
-  public AnalysisReportService(ComputeEngineIssueStorageFactory issueStorageFactory) {
-    this.issueStorageFactory = issueStorageFactory;
+  public AnalysisReportService(IssueComputation issueComputation) {
+    this.issueComputation = issueComputation;
   }
 
   public void digest(ComputationContext context) {
-    loadResources(context);
-    saveIssues(context);
+    initComponents(context);
+    parseReport(context);
   }
 
   @VisibleForTesting
-  void loadResources(ComputationContext context) {
+  void initComponents(ComputationContext context) {
     File file = new File(context.getReportDirectory(), "components.json");
 
     try (InputStream resourcesStream = new FileInputStream(file)) {
@@ -68,26 +67,23 @@ public class AnalysisReportService implements ServerComponent {
     }
   }
 
-  @VisibleForTesting
-  void saveIssues(final ComputationContext context) {
-    IssueStorage issueStorage = issueStorageFactory.newComputeEngineIssueStorage(context.getProject());
-
+  private void parseReport(ComputationContext context) {
     ReportHelper helper = ReportHelper.create(context.getReportDirectory());
-
     ReportComponent root = helper.getComponents().root();
-    browseComponent(context, helper, issueStorage, root);
+    browseComponent(context, helper, root);
+    issueComputation.afterReportProcessing();
   }
 
-  private void browseComponent(ComputationContext context, ReportHelper helper, IssueStorage issueStorage, ReportComponent component) {
+  private void browseComponent(ComputationContext context, ReportHelper helper, ReportComponent component) {
     Iterable<ReportIssue> reportIssues = helper.getIssues(component.batchId());
-    saveIssues(context, issueStorage, reportIssues);
+    browseComponentIssues(context, reportIssues);
     for (ReportComponent child : component.children()) {
-      browseComponent(context, helper, issueStorage, child);
+      browseComponent(context, helper, child);
     }
   }
 
-  private void saveIssues(final ComputationContext context, IssueStorage issueStorage, Iterable<ReportIssue> reportIssues) {
-    issueStorage.save(Iterables.transform(reportIssues, new Function<ReportIssue, DefaultIssue>() {
+  private void browseComponentIssues(final ComputationContext context, Iterable<ReportIssue> reportIssues) {
+    issueComputation.processComponentIssues(Iterables.transform(reportIssues, new Function<ReportIssue, DefaultIssue>() {
       @Override
       public DefaultIssue apply(ReportIssue input) {
         return toIssue(context, input);
@@ -104,6 +100,8 @@ public class AnalysisReportService implements ServerComponent {
     defaultIssue.setManualSeverity(issue.isManualSeverity());
     defaultIssue.setMessage(issue.message());
     defaultIssue.setLine(issue.line());
+    defaultIssue.setProjectUuid(context.getProject().uuid());
+    defaultIssue.setProjectKey(context.getProject().key());
     defaultIssue.setEffortToFix(issue.effortToFix());
     setDebt(defaultIssue, issue.debt());
     setFieldDiffs(defaultIssue, issue.diffFields(), context.getAnalysisDate());

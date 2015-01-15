@@ -561,7 +561,7 @@ public final class IssueDto implements Serializable {
   /**
    * On batch side, component keys and uuid are useless
    */
-  public static IssueDto toDtoForBatchInsert(DefaultIssue issue, Long componentId, Long rootComponentId, Integer ruleId, long now) {
+  public static IssueDto toDtoForBatchInsert(DefaultIssue issue, long componentId, long projectId, int ruleId, long now) {
     return new IssueDto()
       .setKee(issue.key())
       .setLine(issue.line())
@@ -585,7 +585,7 @@ public final class IssueDto implements Serializable {
       .setModuleUuidPath(issue.moduleUuidPath())
       .setComponentUuid(issue.componentUuid())
       .setProjectUuid(issue.projectUuid())
-      .setProjectId(rootComponentId)
+      .setProjectId(projectId)
       .setProjectKey(issue.projectKey())
       .setActionPlanKey(issue.actionPlanKey())
       .setIssueAttributes(KeyValueFormat.format(issue.attributes()))

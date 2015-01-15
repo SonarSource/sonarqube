@@ -85,4 +85,5 @@ public class ComputationContext {
   public Date getAnalysisDate() {
     return analysisDate;
   }
+
 }

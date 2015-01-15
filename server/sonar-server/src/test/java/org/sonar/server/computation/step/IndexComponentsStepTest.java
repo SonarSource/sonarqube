@@ -26,7 +26,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
-import org.sonar.core.persistence.DbSession;
 import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.server.computation.ComputationContext;
 
@@ -52,12 +51,11 @@ public class IndexComponentsStepTest {
   public void call_indexProject_of_dao() throws IOException {
     ComponentDto project = mock(ComponentDto.class);
     when(project.getId()).thenReturn(123L);
-    DbSession session = mock(DbSession.class);
     ComputationContext context = new ComputationContext(mock(AnalysisReportDto.class), project, temp.newFolder());
 
-    sut.execute(session, context);
+    sut.execute(context);
 
-    verify(resourceIndexerDao).indexProject(123, session);
+    verify(resourceIndexerDao).indexProject(123L);
   }
 
 }

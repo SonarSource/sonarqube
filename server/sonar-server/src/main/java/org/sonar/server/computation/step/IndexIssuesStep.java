@@ -20,13 +20,11 @@
 
 package org.sonar.server.computation.step;
 
-import org.sonar.core.persistence.DbSession;
 import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueIndexer;
 
 public class IndexIssuesStep implements ComputationStep {
-
 
   private final IssueAuthorizationIndexer authorizationIndexer;
   private final IssueIndexer indexer;
@@ -37,7 +35,7 @@ public class IndexIssuesStep implements ComputationStep {
   }
 
   @Override
-  public void execute(DbSession session, ComputationContext context) {
+  public void execute(ComputationContext context) {
     authorizationIndexer.index();
     indexer.index();
   }

@@ -20,13 +20,14 @@
 
 package org.sonar.server.computation.step;
 
-import org.sonar.api.ServerComponent;
-import org.sonar.core.persistence.DbSession;
 import org.sonar.server.computation.ComputationContext;
 
-public interface ComputationStep extends ServerComponent {
+/**
+ * Implementations must be declared into {@link org.sonar.server.computation.step.ComputationSteps#orderedStepClasses()}
+ */
+public interface ComputationStep {
 
-  void execute(DbSession session, ComputationContext context);
+  void execute(ComputationContext context);
 
   String getDescription();
 }

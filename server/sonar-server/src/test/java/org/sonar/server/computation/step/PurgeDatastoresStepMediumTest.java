@@ -61,7 +61,7 @@ public class PurgeDatastoresStepMediumTest {
 
     this.purgeTask = tester.get(ProjectCleaner.class);
 
-    this.sut = new PurgeDatastoresStep(purgeTask);
+    this.sut = new PurgeDatastoresStep(dbClient, purgeTask);
   }
 
   @After
@@ -98,8 +98,7 @@ public class PurgeDatastoresStepMediumTest {
     ComputationContext context = new ComputationContext(report, project, null);
 
     // ACT
-    sut.execute(dbSession, context);
-    dbSession.commit();
+    sut.execute(context);
 
     // ASSERT
     assertThat(dbClient.snapshotDao().getNullableByKey(dbSession, snapshot.getId())).isNotNull();
@@ -138,7 +137,7 @@ public class PurgeDatastoresStepMediumTest {
     ComputationContext context = new ComputationContext(report, project, null);
 
     // ACT
-    sut.execute(dbSession, context);
+    sut.execute(context);
     dbSession.commit();
 
     // ASSERT

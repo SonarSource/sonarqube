@@ -31,7 +31,7 @@ import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.issue.IssueNotifications;
+import org.sonar.server.issue.notification.IssueNotifications;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.core.persistence.DbSession;
@@ -101,10 +101,11 @@ public class IssueBulkChangeService {
         if (issueBulkChangeQuery.sendNotifications()) {
           String projectKey = issue.projectKey();
           if (projectKey != null) {
-            issueNotifications.sendChanges((DefaultIssue) issue, issueChangeContext,
-              repository.rule(issue.ruleKey()),
+            Rule rule = repository.rule(issue.ruleKey());
+            issueNotifications.sendChanges((DefaultIssue) issue, issueChangeContext.login(),
+              rule != null ? rule.getName() : null,
               repository.project(projectKey),
-              repository.component(issue.componentKey()));
+              repository.component(issue.componentKey()), null, false);
           }
         }
         concernedProjects.add(issue.projectKey());

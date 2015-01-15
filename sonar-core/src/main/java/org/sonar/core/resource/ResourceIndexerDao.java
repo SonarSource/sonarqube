@@ -50,7 +50,7 @@ public class ResourceIndexerDao {
   /**
    * This method is reentrant. It can be executed even if the project is already indexed.
    */
-  public ResourceIndexerDao indexProject(final int rootProjectId) {
+  public ResourceIndexerDao indexProject(final long rootProjectId) {
     DbSession session = mybatis.openSession(true);
     try {
       indexProject(rootProjectId, session);
@@ -62,7 +62,7 @@ public class ResourceIndexerDao {
     }
   }
 
-  public void indexProject(final int rootProjectId, DbSession session) {
+  public void indexProject(final long rootProjectId, DbSession session) {
     ResourceIndexerMapper mapper = session.getMapper(ResourceIndexerMapper.class);
     doIndexProject(rootProjectId, session, mapper);
   }
@@ -89,7 +89,7 @@ public class ResourceIndexerDao {
     }
   }
 
-  private void doIndexProject(int rootProjectId, SqlSession session, final ResourceIndexerMapper mapper) {
+  private void doIndexProject(long rootProjectId, SqlSession session, final ResourceIndexerMapper mapper) {
     // non indexed resources
     ResourceIndexerQuery query = ResourceIndexerQuery.create()
       .setNonIndexedOnly(true)

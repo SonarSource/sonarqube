@@ -35,29 +35,24 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.activity.ActivityService;
 import org.sonar.server.computation.step.ComputationStep;
-import org.sonar.server.computation.step.ComputationStepRegistry;
+import org.sonar.server.computation.step.ComputationSteps;
 import org.sonar.server.db.DbClient;
 
 import java.io.File;
 
-/**
- * Could be merged with {@link org.sonar.server.computation.ComputationWorker}
- * but it would need {@link org.sonar.server.computation.ComputationWorkerLauncher} to
- * declare transitive dependencies as it directly instantiates this class, without
- * using picocontainer.
- */
 public class ComputationService implements ServerComponent {
+
   private static final Logger LOG = LoggerFactory.getLogger(ComputationService.class);
 
   private final DbClient dbClient;
-  private final ComputationStepRegistry stepRegistry;
+  private final ComputationSteps steps;
   private final ActivityService activityService;
   private final TempFolder tempFolder;
 
-  public ComputationService(DbClient dbClient, ComputationStepRegistry stepRegistry, ActivityService activityService,
-                            TempFolder tempFolder) {
+  public ComputationService(DbClient dbClient, ComputationSteps steps, ActivityService activityService,
+    TempFolder tempFolder) {
     this.dbClient = dbClient;
-    this.stepRegistry = stepRegistry;
+    this.steps = steps;
     this.activityService = activityService;
     this.tempFolder = tempFolder;
   }
@@ -66,17 +61,14 @@ public class ComputationService implements ServerComponent {
     TimeProfiler profiler = new TimeProfiler(LOG).start(String.format(
       "#%s - %s - processing analysis report", report.getId(), report.getProjectKey()));
 
-    // Persistence of big amount of data can only be done with a batch session for the moment
-    DbSession session = dbClient.openSession(true);
-
-    ComponentDto project = findProject(report, session);
+    ComponentDto project = loadProject(report);
     File reportDir = tempFolder.newDir();
     try {
       ComputationContext context = new ComputationContext(report, project, reportDir);
-      dbClient.analysisReportDao().selectAndDecompressToDir(session, report.getId(), reportDir);
-      for (ComputationStep step : stepRegistry.steps()) {
+      decompressReport(report, reportDir);
+      for (ComputationStep step : steps.orderedSteps()) {
         TimeProfiler stepProfiler = new TimeProfiler(LOG).start(step.getDescription());
-        step.execute(session, context);
+        step.execute(context);
         stepProfiler.stop();
       }
       report.succeed();
@@ -87,19 +79,36 @@ public class ComputationService implements ServerComponent {
 
     } finally {
       FileUtils.deleteQuietly(reportDir);
-      logActivity(session, report, project);
-      session.commit();
-      MyBatis.closeQuietly(session);
+      logActivity(report, project);
       profiler.stop();
     }
   }
 
-  private ComponentDto findProject(AnalysisReportDto report, DbSession session) {
-    return dbClient.componentDao().getByKey(session, report.getProjectKey());
+  private ComponentDto loadProject(AnalysisReportDto report) {
+    DbSession session = dbClient.openSession(false);
+    try {
+      return dbClient.componentDao().getByKey(session, report.getProjectKey());
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 
-  private void logActivity(DbSession session, AnalysisReportDto report, ComponentDto project) {
-    report.setFinishedAt(System2.INSTANCE.now());
-    activityService.write(session, Activity.Type.ANALYSIS_REPORT, new AnalysisReportLog(report, project));
+  private void logActivity(AnalysisReportDto report, ComponentDto project) {
+    DbSession session = dbClient.openSession(false);
+    try {
+      report.setFinishedAt(System2.INSTANCE.now());
+      activityService.write(session, Activity.Type.ANALYSIS_REPORT, new AnalysisReportLog(report, project));
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  private void decompressReport(AnalysisReportDto report, File toDir) {
+    DbSession session = dbClient.openSession(false);
+    try {
+      dbClient.analysisReportDao().selectAndDecompressToDir(session, report.getId(), toDir);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 }

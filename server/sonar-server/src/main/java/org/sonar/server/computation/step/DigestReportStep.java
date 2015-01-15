@@ -20,7 +20,6 @@
 
 package org.sonar.server.computation.step;
 
-import org.sonar.core.persistence.DbSession;
 import org.sonar.server.computation.AnalysisReportService;
 import org.sonar.server.computation.ComputationContext;
 
@@ -33,7 +32,7 @@ public class DigestReportStep implements ComputationStep {
   }
 
   @Override
-  public void execute(DbSession session, ComputationContext context) {
+  public void execute(ComputationContext context) {
     reportService.digest(context);
   }
 

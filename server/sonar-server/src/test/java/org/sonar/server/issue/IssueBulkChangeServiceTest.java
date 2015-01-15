@@ -26,12 +26,10 @@ import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.condition.Condition;
 import org.sonar.api.issue.internal.DefaultIssue;
-import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.rules.Rule;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.issue.IssueNotifications;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.core.persistence.DbSession;
@@ -41,6 +39,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.issue.db.IssueDao;
+import org.sonar.server.issue.notification.IssueNotifications;
 import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.search.QueryContext;
@@ -59,6 +58,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.*;
 
 public class IssueBulkChangeServiceTest {
@@ -90,7 +90,7 @@ public class IssueBulkChangeServiceTest {
     when(dbClient.componentDao()).thenReturn(componentDao);
     when(dbClient.issueDao()).thenReturn(issueDao);
 
-    rule = Rule.create("repo", "key");
+    rule = Rule.create("repo", "key").setName("the rule name");
     when(ruleFinder.findByKeys(newHashSet(rule.ruleKey()))).thenReturn(newArrayList(rule));
 
     project = new ComponentDto()
@@ -135,7 +135,7 @@ public class IssueBulkChangeServiceTest {
 
     verify(issueStorage).save(eq(issue));
     verifyNoMoreInteractions(issueStorage);
-    verify(issueNotifications).sendChanges(eq(issue), any(IssueChangeContext.class), eq(rule), eq(project), eq(file));
+    verify(issueNotifications).sendChanges(eq(issue), anyString(), eq("the rule name"), eq(project), eq(file), eq((String)null), eq(false));
     verifyNoMoreInteractions(issueNotifications);
   }
 
@@ -239,7 +239,7 @@ public class IssueBulkChangeServiceTest {
 
     verify(issueStorage, times(1)).save(eq(issue));
     verifyNoMoreInteractions(issueStorage);
-    verify(issueNotifications).sendChanges(eq(issue), any(IssueChangeContext.class), eq(rule), eq(project), eq(file));
+    verify(issueNotifications).sendChanges(eq(issue), anyString(), eq("the rule name"), eq(project), eq(file), eq((String)null), eq(false));
     verifyNoMoreInteractions(issueNotifications);
   }
 

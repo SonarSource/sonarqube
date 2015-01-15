@@ -599,7 +599,7 @@ public class DefaultIssue implements Issue {
   }
 
   public DefaultIssue setTags(Collection<String> tags) {
-    this.tags = new LinkedHashSet<String>(tags);
+    this.tags = new LinkedHashSet<>(tags);
     return this;
   }
 }

@@ -160,8 +160,7 @@ public class NotificationService implements ServerComponent, Startable {
     return System.currentTimeMillis();
   }
 
-  private void deliver(Notification notification) {
-    LOG.debug("Delivering notification " + notification);
+  public void deliver(Notification notification) {
     final SetMultimap<String, NotificationChannel> recipients = HashMultimap.create();
     for (NotificationDispatcher dispatcher : dispatchers) {
       NotificationDispatcher.Context context = new NotificationDispatcher.Context() {

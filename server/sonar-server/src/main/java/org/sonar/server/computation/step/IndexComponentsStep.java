@@ -20,7 +20,6 @@
 
 package org.sonar.server.computation.step;
 
-import org.sonar.core.persistence.DbSession;
 import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.server.computation.ComputationContext;
 
@@ -35,8 +34,8 @@ public class IndexComponentsStep implements ComputationStep {
   }
 
   @Override
-  public void execute(DbSession session, ComputationContext context) {
-    resourceIndexerDao.indexProject(context.getProject().getId().intValue(), session);
+  public void execute(ComputationContext context) {
+    resourceIndexerDao.indexProject(context.getProject().getId());
   }
 
   @Override

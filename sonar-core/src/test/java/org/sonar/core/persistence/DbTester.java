@@ -98,8 +98,8 @@ public class DbTester extends ExternalResource {
     for (String key : settings.getKeysStartingWith("sonar.jdbc")) {
       LOG.info(key + ": " + settings.getString(key));
     }
-    boolean hasDialect = settings.hasKey("sonar.jdbc.dialect");
-    if (hasDialect) {
+    String dialect = settings.getString("sonar.jdbc.dialect");
+    if (dialect != null && !"h2".equals(dialect)) {
       db = new DefaultDatabase(settings);
     } else {
       db = new H2Database("h2Tests" + DigestUtils.md5Hex(StringUtils.defaultString(schemaPath)), schemaPath == null);

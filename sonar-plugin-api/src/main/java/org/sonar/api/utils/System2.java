@@ -125,4 +125,16 @@ public class System2 implements BatchComponent, ServerComponent {
   public Date newDate() {
     return new Date();
   }
+
+  /**
+   * Closes the object and throws an {@link java.lang.IllegalStateException} on error.
+   * @since 5.1
+   */
+  public void close(AutoCloseable closeable) {
+    try {
+      closeable.close();
+    } catch (Exception e) {
+      throw new IllegalStateException("Fail to close " + closeable, e);
+    }
+  }
 }

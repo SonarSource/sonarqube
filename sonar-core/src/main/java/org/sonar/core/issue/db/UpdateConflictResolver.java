@@ -25,9 +25,8 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.issue.internal.DefaultIssue;
 
 /**
+ * Support concurrent modifications on issues made by analysis and users at the same time
  * See https://jira.codehaus.org/browse/SONAR-4309
- *
- * @since 3.6
  */
 public class UpdateConflictResolver {
 

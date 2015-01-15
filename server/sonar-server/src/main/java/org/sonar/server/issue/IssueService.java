@@ -38,7 +38,7 @@ import org.sonar.api.user.UserFinder;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.DefaultIssueBuilder;
-import org.sonar.core.issue.IssueNotifications;
+import org.sonar.server.issue.notification.IssueNotifications;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.db.IssueDao;
 import org.sonar.core.issue.db.IssueDto;
@@ -332,11 +332,12 @@ public class IssueService implements ServerComponent {
       throw new IllegalStateException(String.format("Issue '%s' has no project key", issue.key()));
     }
     issueStorage.save(session, issue);
-    issueNotifications.sendChanges(issue, context,
-      getNullableRuleByKey(issue.ruleKey()),
+    Rule rule = getNullableRuleByKey(issue.ruleKey());
+    issueNotifications.sendChanges(issue, context.login(),
+      rule != null ? rule.getName() : null,
       dbClient.componentDao().getByKey(session, projectKey),
       dbClient.componentDao().getNullableByKey(session, issue.componentKey()),
-      comment);
+      comment, false);
     dryRunCache.reportResourceModification(issue.componentKey());
   }
 

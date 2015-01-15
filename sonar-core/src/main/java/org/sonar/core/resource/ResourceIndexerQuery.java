@@ -20,7 +20,7 @@
 package org.sonar.core.resource;
 
 final class ResourceIndexerQuery {
-  private Integer rootProjectId = null;
+  private long rootProjectId;
   private String[] scopes = null;
   private String[] qualifiers = null;
   private boolean nonIndexedOnly=false;
@@ -50,11 +50,11 @@ final class ResourceIndexerQuery {
     return this;
   }
 
-  public Integer getRootProjectId() {
+  public long getRootProjectId() {
     return rootProjectId;
   }
 
-  public ResourceIndexerQuery setRootProjectId(Integer i) {
+  public ResourceIndexerQuery setRootProjectId(long i) {
     this.rootProjectId = i;
     return this;
   }

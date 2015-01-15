@@ -73,7 +73,6 @@ import org.sonar.batch.source.CodeColorizers;
 import org.sonar.batch.source.HighlightableBuilder;
 import org.sonar.batch.source.SymbolizableBuilder;
 import org.sonar.core.component.ScanGraph;
-import org.sonar.core.issue.IssueNotifications;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.workflow.FunctionExecutor;
 import org.sonar.core.issue.workflow.IssueWorkflow;
@@ -154,7 +153,6 @@ public class ProjectScanContainer extends ComponentContainer {
       FunctionExecutor.class,
       IssueWorkflow.class,
       IssueCache.class,
-      IssueNotifications.class,
       DefaultProjectIssues.class,
       IssueChangelogDebtCalculator.class,
 

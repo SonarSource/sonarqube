@@ -23,23 +23,30 @@ package org.sonar.server.computation.step;
 import org.sonar.core.component.SnapshotDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.component.db.SnapshotDao;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.db.DbClient;
 
 import java.util.List;
 
 public class SwitchSnapshotStep implements ComputationStep {
 
-  private SnapshotDao dao;
+  private final DbClient dbClient;
 
-  public SwitchSnapshotStep(SnapshotDao dao) {
-    this.dao = dao;
+  public SwitchSnapshotStep(DbClient dbClient) {
+    this.dbClient = dbClient;
   }
 
   @Override
-  public void execute(DbSession session, ComputationContext context) {
-    disablePreviousSnapshot(session, context.getReportDto());
-    enableCurrentSnapshot(session, context.getReportDto());
+  public void execute(ComputationContext context) {
+    DbSession session = dbClient.openSession(true);
+    try {
+      disablePreviousSnapshot(session, context.getReportDto());
+      enableCurrentSnapshot(session, context.getReportDto());
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 
   @Override
@@ -51,22 +58,23 @@ public class SwitchSnapshotStep implements ComputationStep {
     SnapshotDto referenceSnapshot;
 
     try {
-      referenceSnapshot = dao.getByKey(session, report.getSnapshotId());
+      referenceSnapshot = dbClient.snapshotDao().getByKey(session, report.getSnapshotId());
     } catch (Exception exception) {
       throw new IllegalStateException(String.format("Unexpected error while trying to retrieve snapshot of analysis %s", report), exception);
     }
 
-    List<SnapshotDto> snapshots = dao.findSnapshotAndChildrenOfProjectScope(session, referenceSnapshot);
+    List<SnapshotDto> snapshots = dbClient.snapshotDao().findSnapshotAndChildrenOfProjectScope(session, referenceSnapshot);
     for (SnapshotDto snapshot : snapshots) {
-      SnapshotDto previousLastSnapshot = dao.getLastSnapshot(session, snapshot);
+      SnapshotDto previousLastSnapshot = dbClient.snapshotDao().getLastSnapshot(session, snapshot);
       if (previousLastSnapshot != null) {
-        dao.updateSnapshotAndChildrenLastFlag(session, previousLastSnapshot, false);
+        dbClient.snapshotDao().updateSnapshotAndChildrenLastFlag(session, previousLastSnapshot, false);
         session.commit();
       }
     }
   }
 
   private void enableCurrentSnapshot(DbSession session, AnalysisReportDto report) {
+    SnapshotDao dao = dbClient.snapshotDao();
     SnapshotDto snapshot = dao.getByKey(session, report.getSnapshotId());
     SnapshotDto previousLastSnapshot = dao.getLastSnapshot(session, snapshot);
 

@@ -22,6 +22,8 @@ package org.sonar.api.utils;
 import org.apache.commons.lang.SystemUtils;
 import org.junit.Test;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
 
@@ -85,5 +87,36 @@ public class System2Test {
   public void testPrintln() throws Exception {
     // well, how to assert that ? Adding a System3 dependency to System2 ? :-)
     System2.INSTANCE.println("foo");
+  }
+
+  @Test
+  public void close() throws Exception {
+    class MyCloseable implements Closeable {
+      boolean isClosed = false;
+      @Override
+      public void close() throws IOException {
+        isClosed = true;
+      }
+    }
+
+    MyCloseable closeable = new MyCloseable();
+    System2.INSTANCE.close(closeable);
+    assertThat(closeable.isClosed).isTrue();
+  }
+
+  @Test
+  public void close_throws_exception_on_error() throws Exception {
+    Closeable closeable = new Closeable() {
+      @Override
+      public void close() throws IOException {
+        throw new IOException("expected");
+      }
+    };
+    try {
+      System2.INSTANCE.close(closeable);
+      fail();
+    } catch (IllegalStateException e) {
+      assertThat(e.getCause().getMessage()).isEqualTo("expected");
+    }
   }
 }

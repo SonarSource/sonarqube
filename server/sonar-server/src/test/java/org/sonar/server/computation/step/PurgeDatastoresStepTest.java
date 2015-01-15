@@ -24,12 +24,14 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.Mockito;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.computation.dbcleaner.ProjectCleaner;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.purge.IdUuidPair;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.db.DbClient;
 
 import java.io.IOException;
 
@@ -48,7 +50,7 @@ public class PurgeDatastoresStepTest {
   public void before() {
     this.projectCleaner = mock(ProjectCleaner.class);
 
-    this.sut = new PurgeDatastoresStep(projectCleaner);
+    this.sut = new PurgeDatastoresStep(mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS), projectCleaner);
   }
 
   @Test
@@ -59,7 +61,7 @@ public class PurgeDatastoresStepTest {
     ComputationContext context = new ComputationContext(mock(AnalysisReportDto.class), project,
       temp.newFolder());
 
-    sut.execute(mock(DbSession.class), context);
+    sut.execute(context);
 
     verify(projectCleaner).purge(any(DbSession.class), any(IdUuidPair.class));
   }

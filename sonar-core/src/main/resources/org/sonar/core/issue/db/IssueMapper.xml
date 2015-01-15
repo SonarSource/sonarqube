@@ -72,7 +72,7 @@
     message, line, effort_to_fix, technical_debt, status, tags,
     resolution, checksum, reporter, assignee, author_login, issue_attributes, issue_creation_date, issue_update_date,
     issue_close_date, created_at, updated_at)
-    VALUES (#{kee,jdbcType=VARCHAR}, #{componentId,jdbcType=INTEGER}, #{projectId,jdbcType=INTEGER}, #{ruleId,jdbcType=INTEGER}, #{actionPlanKey,jdbcType=VARCHAR}, #{severity,jdbcType=VARCHAR}, #{manualSeverity,jdbcType=BOOLEAN},
+    VALUES (#{kee,jdbcType=VARCHAR}, #{componentId,jdbcType=BIGINT}, #{projectId,jdbcType=BIGINT}, #{ruleId,jdbcType=INTEGER}, #{actionPlanKey,jdbcType=VARCHAR}, #{severity,jdbcType=VARCHAR}, #{manualSeverity,jdbcType=BOOLEAN},
     #{message,jdbcType=VARCHAR}, #{line,jdbcType=INTEGER}, #{effortToFix,jdbcType=DOUBLE}, #{debt,jdbcType=INTEGER}, #{status,jdbcType=VARCHAR}, #{tagsString,jdbcType=VARCHAR},
     #{resolution,jdbcType=VARCHAR}, #{checksum,jdbcType=VARCHAR}, #{reporter,jdbcType=VARCHAR}, #{assignee,jdbcType=VARCHAR}, #{authorLogin,jdbcType=VARCHAR}, #{issueAttributes,jdbcType=VARCHAR}, #{issueCreationDate,jdbcType=TIMESTAMP},
     #{issueUpdateDate,jdbcType=TIMESTAMP}, #{issueCloseDate,jdbcType=TIMESTAMP}, #{createdAt,jdbcType=BIGINT}, #{updatedAt,jdbcType=BIGINT})
