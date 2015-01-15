@@ -139,7 +139,7 @@
   </select>
 
   <sql id="childrenModuleQuery">
-    INNER JOIN projects root_project ON root_project.uuid = p.project_uuid AND root_project.enabled = TRUE
+    INNER JOIN projects root_project ON root_project.uuid = p.project_uuid AND root_project.enabled = ${_true}
     INNER JOIN projects module ON module.project_uuid = root_project.uuid AND module.enabled = ${_true} AND module.kee = #{moduleKey}
     <where>
       p.enabled = ${_true}
