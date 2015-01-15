@@ -3,7 +3,7 @@
 @import (reference) "ui";
 
 @navbarBackground: #262626;
-@navbarProjectBackground: @blue;
+@navbarProjectBackground: @navbarBackground;
 @navbarSettingsBackground: #591500;
 
 @navbarHeight: 36px;
@@ -189,8 +189,12 @@
     background-color: darken(@navbarProjectBackground, 10%);
   }
 
-  .sq-logo .sq-logo-arc {
-    fill: #fff;
+  .sq-logo {
+    margin-left: -78px;
+  }
+
+  .sq-logo .sq-logo-letter {
+    display: none;
   }
 }
 
@@ -207,5 +211,13 @@
   .navbar-nav > .active > a,
   .navbar-nav > .dropdown.open > a {
     background-color: darken(@navbarSettingsBackground, 10%);
+  }
+
+  .sq-logo {
+    margin-left: -78px;
+  }
+
+  .sq-logo .sq-logo-letter {
+    display: none;
   }
 }

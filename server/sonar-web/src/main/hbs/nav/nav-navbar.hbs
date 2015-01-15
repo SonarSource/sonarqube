@@ -48,12 +48,6 @@
   </ul>
 
   <ul class="nav navbar-nav navbar-right">
-    <li class="dropdown js-search-dropdown">
-      <a class="dropdown-toggle js-search-dropdown-toggle" data-toggle="dropdown" href="#">
-        <i class="icon-search navbar-icon"></i>&nbsp;<span class="icon-dropdown"></span>
-      </a>
-      <div class="js-search-region dropdown-menu dropdown-menu-right"></div>
-    </li>
     {{#if user}}
       <li class="dropdown">
         <a class="dropdown-toggle" data-toggle="dropdown" href="#">
@@ -74,6 +68,12 @@
         <a class="js-login" href="{{link '/sessions/new'}}">{{t 'layout.login'}}</a>
       </li>
     {{/if}}
+    <li class="dropdown js-search-dropdown">
+      <a class="dropdown-toggle js-search-dropdown-toggle" data-toggle="dropdown" href="#">
+        <i class="icon-search navbar-icon"></i>&nbsp;<span class="icon-dropdown"></span>
+      </a>
+      <div class="js-search-region dropdown-menu dropdown-menu-right"></div>
+    </li>
     {{#if isUserAdmin}}
       <li>
         <a href="{{link '/settings/index'}}"><i class="icon-settings navbar-icon"></i></a>
