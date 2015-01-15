@@ -126,7 +126,7 @@ public class ResourcePersisterTest extends AbstractDbUnitTestCase {
       assertThat(newProject.uuid()).isNotNull();
       assertThat(newProject.projectUuid()).isEqualTo(newProject.uuid());
       assertThat(newProject.moduleUuid()).isNull();
-      assertThat(newProject.moduleUuidPath()).isEmpty();
+      assertThat(newProject.moduleUuidPath()).isEqualTo(".");
       // SONAR-3636 : created_at must be fed when inserting a new entry in the 'projects' table
       assertThat(newProject.getCreatedAt()).isNotNull();
     }
@@ -147,7 +147,7 @@ public class ResourcePersisterTest extends AbstractDbUnitTestCase {
       assertThat(newProject.uuid()).isNotNull();
       assertThat(newProject.projectUuid()).isEqualTo(newProject.uuid());
       assertThat(newProject.moduleUuid()).isNull();
-      assertThat(newProject.moduleUuidPath()).isEmpty();
+      assertThat(newProject.moduleUuidPath()).isEqualTo(".");
     }
   }
 
@@ -179,32 +179,32 @@ public class ResourcePersisterTest extends AbstractDbUnitTestCase {
       assertThat(root.uuid()).isNotNull();
       assertThat(root.projectUuid()).isEqualTo(root.uuid());
       assertThat(root.moduleUuid()).isNull();
-      assertThat(root.moduleUuidPath()).isEmpty();
+      assertThat(root.moduleUuidPath()).isEqualTo(".");
       ComponentDto a = session.getMapper(ComponentMapper.class).selectByKey("a");
       assertThat(a.uuid()).isNotNull();
       assertThat(a.projectUuid()).isEqualTo(root.uuid());
       assertThat(a.moduleUuid()).isEqualTo(root.uuid());
-      assertThat(a.moduleUuidPath()).isEqualTo(root.uuid());
+      assertThat(a.moduleUuidPath()).isEqualTo("." + root.uuid() + ".");
       ComponentDto b = session.getMapper(ComponentMapper.class).selectByKey("b");
       assertThat(b.uuid()).isNotNull();
       assertThat(b.projectUuid()).isEqualTo(root.uuid());
       assertThat(b.moduleUuid()).isEqualTo(root.uuid());
-      assertThat(b.moduleUuidPath()).isEqualTo(root.uuid());
+      assertThat(b.moduleUuidPath()).isEqualTo("." + root.uuid() + ".");
       ComponentDto b1 = session.getMapper(ComponentMapper.class).selectByKey("b1");
       assertThat(b1.uuid()).isNotNull();
       assertThat(b1.projectUuid()).isEqualTo(root.uuid());
       assertThat(b1.moduleUuid()).isEqualTo(b.uuid());
-      assertThat(b1.moduleUuidPath()).isEqualTo(root.uuid() + "." + b.uuid());
+      assertThat(b1.moduleUuidPath()).isEqualTo("." + root.uuid() + "." + b.uuid() + ".");
       ComponentDto dir = session.getMapper(ComponentMapper.class).selectByKey("b1:src/main/java/org");
       assertThat(dir.uuid()).isNotNull();
       assertThat(dir.projectUuid()).isEqualTo(root.uuid());
       assertThat(dir.moduleUuid()).isEqualTo(b1.uuid());
-      assertThat(dir.moduleUuidPath()).isEqualTo(root.uuid() + "." + b.uuid() + "." + b1.uuid());
+      assertThat(dir.moduleUuidPath()).isEqualTo("." + root.uuid() + "." + b.uuid() + "." + b1.uuid() + ".");
       ComponentDto fileComp = session.getMapper(ComponentMapper.class).selectByKey("b1:src/main/java/org/Foo.java");
       assertThat(fileComp.uuid()).isNotNull();
       assertThat(fileComp.projectUuid()).isEqualTo(root.uuid());
       assertThat(fileComp.moduleUuid()).isEqualTo(b1.uuid());
-      assertThat(fileComp.moduleUuidPath()).isEqualTo(root.uuid() + "." + b.uuid() + "." + b1.uuid());
+      assertThat(fileComp.moduleUuidPath()).isEqualTo("." + root.uuid() + "." + b.uuid() + "." + b1.uuid() + ".");
     }
   }
 
@@ -253,35 +253,35 @@ public class ResourcePersisterTest extends AbstractDbUnitTestCase {
       assertThat(root.uuid()).isNotNull();
       assertThat(root.projectUuid()).isEqualTo(root.uuid());
       assertThat(root.moduleUuid()).isNull();
-      assertThat(root.moduleUuidPath()).isEmpty();
+      assertThat(root.moduleUuidPath()).isEqualTo(".");
       ComponentDto a = session.getMapper(ComponentMapper.class).selectByKey("a");
       System.out.println("A: " + a.uuid());
       assertThat(a.uuid()).isNotNull();
       assertThat(a.projectUuid()).isEqualTo(root.uuid());
       assertThat(a.moduleUuid()).isEqualTo(root.uuid());
-      assertThat(a.moduleUuidPath()).isEqualTo(root.uuid());
+      assertThat(a.moduleUuidPath()).isEqualTo("." + root.uuid() + ".");
       ComponentDto b = session.getMapper(ComponentMapper.class).selectByKey("b");
       System.out.println("B: " + b.uuid());
       assertThat(b.uuid()).isNotNull();
       assertThat(b.projectUuid()).isEqualTo(root.uuid());
       assertThat(b.moduleUuid()).isEqualTo(root.uuid());
-      assertThat(b.moduleUuidPath()).isEqualTo(root.uuid());
+      assertThat(b.moduleUuidPath()).isEqualTo("." + root.uuid() + ".");
       ComponentDto b1 = session.getMapper(ComponentMapper.class).selectByKey("b1");
       System.out.println("B1: " + b1.uuid());
       assertThat(b1.uuid()).isNotNull();
       assertThat(b1.projectUuid()).isEqualTo(root.uuid());
       assertThat(b1.moduleUuid()).isEqualTo(b.uuid());
-      assertThat(b1.moduleUuidPath()).isEqualTo(root.uuid() + "." + b.uuid());
+      assertThat(b1.moduleUuidPath()).isEqualTo("." + root.uuid() + "." + b.uuid() + ".");
       ComponentDto dir = session.getMapper(ComponentMapper.class).selectByKey("b1:src/main/java/org");
       assertThat(dir.uuid()).isNotNull();
       assertThat(dir.projectUuid()).isEqualTo(root.uuid());
       assertThat(dir.moduleUuid()).isEqualTo(b1.uuid());
-      assertThat(dir.moduleUuidPath()).isEqualTo(root.uuid() + "." + b.uuid() + "." + b1.uuid());
+      assertThat(dir.moduleUuidPath()).isEqualTo("." + root.uuid() + "." + b.uuid() + "." + b1.uuid() + ".");
       ComponentDto fileComp = session.getMapper(ComponentMapper.class).selectByKey("b1:src/main/java/org/Foo.java");
       assertThat(fileComp.uuid()).isNotNull();
       assertThat(fileComp.projectUuid()).isEqualTo(root.uuid());
       assertThat(fileComp.moduleUuid()).isEqualTo(b1.uuid());
-      assertThat(fileComp.moduleUuidPath()).isEqualTo(root.uuid() + "." + b.uuid() + "." + b1.uuid());
+      assertThat(fileComp.moduleUuidPath()).isEqualTo("." + root.uuid() + "." + b.uuid() + "." + b1.uuid() + ".");
     }
   }
 
@@ -304,7 +304,7 @@ public class ResourcePersisterTest extends AbstractDbUnitTestCase {
       assertThat(newDir.uuid()).isNotNull();
       assertThat(newDir.projectUuid()).isEqualTo(newProject.uuid());
       assertThat(newDir.moduleUuid()).isEqualTo(newProject.uuid());
-      assertThat(newDir.moduleUuidPath()).isEqualTo(newProject.uuid());
+      assertThat(newDir.moduleUuidPath()).isEqualTo("." + newProject.uuid() + ".");
     }
   }
 
@@ -338,7 +338,7 @@ public class ResourcePersisterTest extends AbstractDbUnitTestCase {
       assertThat(newLib.uuid()).isNotNull();
       assertThat(newLib.projectUuid()).isEqualTo(newLib.uuid());
       assertThat(newLib.moduleUuid()).isNull();
-      assertThat(newLib.moduleUuidPath()).isEmpty();
+      assertThat(newLib.moduleUuidPath()).isEqualTo(".");
     }
   }
 

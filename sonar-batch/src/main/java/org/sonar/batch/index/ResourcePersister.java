@@ -24,7 +24,13 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.resources.*;
+import org.sonar.api.resources.Language;
+import org.sonar.api.resources.Library;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.ResourceUtils;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.security.ResourcePermissions;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.internal.Uuids;
@@ -279,25 +285,20 @@ public class ResourcePersister implements ScanPersister {
     }
     if (parentResource != null) {
       ResourceModel parentModel = session.getSingleResult(ResourceModel.class, "id", parentResource.getId());
-      // FIXME ProjectUUid should never be null but empty (or now ".")
-      if (parentModel.getProjectUuid() != null) {
-        model.setProjectUuid(parentModel.getProjectUuid());
-      } else {
-        model.setProjectUuid(parentModel.getUuid());
-      }
+      model.setProjectUuid(parentModel.getProjectUuid());
       if (Scopes.isProject(parentResource)) {
         model.setModuleUuid(parentResource.getUuid());
         String parentModuleUuidPath = parentModel.getModuleUuidPath();
-        model.setModuleUuidPath(StringUtils.isNotBlank(parentModuleUuidPath) ? parentModuleUuidPath + "." + parentModel.getUuid() : parentModel.getUuid());
+        model.setModuleUuidPath(parentModuleUuidPath + parentModel.getUuid() + ".");
       } else {
         model.setModuleUuid(parentModel.getModuleUuid());
         String parentModuleUuidPath = parentModel.getModuleUuidPath();
-        model.setModuleUuidPath(StringUtils.isNotBlank(parentModuleUuidPath) ? parentModuleUuidPath : parentModel.getUuid());
+        model.setModuleUuidPath(parentModuleUuidPath);
       }
     } else {
       // Root module && libraries
       model.setProjectUuid(model.getUuid());
-      model.setModuleUuidPath("");
+      model.setModuleUuidPath(".");
     }
   }
 
