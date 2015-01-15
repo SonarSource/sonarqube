@@ -19,6 +19,8 @@
  */
 package org.sonar.api.batch.fs;
 
+import javax.annotation.CheckForNull;
+
 import java.io.File;
 
 /**
@@ -70,9 +72,9 @@ public interface InputFile extends InputPath {
   File file();
 
   /**
-   * Language, for example "java" or "php". It's automatically guessed if it is not
-   * set in project settings.
+   * Language, for example "java" or "php". Can be null if indexation of all files is enabled and no language claims to support the file.
    */
+  @CheckForNull
   String language();
 
   /**

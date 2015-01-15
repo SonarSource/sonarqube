@@ -270,6 +270,16 @@ import java.util.List;
     project = true,
     global = false,
     category = CoreProperties.CATEGORY_SCM
+  ),
+  @Property(
+    key = CoreProperties.INDEX_ALL_FILES_KEY,
+    defaultValue = "false",
+    name = "Index all files",
+    description = "Should all files be indexed even if there is no matching language plugin installed.",
+    module = false,
+    project = true,
+    global = true,
+    category = CoreProperties.CATEGORY_GENERAL
   )
 })
 public final class CorePlugin extends SonarPlugin {

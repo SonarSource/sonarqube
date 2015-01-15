@@ -135,29 +135,33 @@ public class SourcePersister implements ScanPersister {
     String newData = getSourceData(inputFile);
     String newDataHash = newData != null ? DigestUtils.md5Hex(newData) : "0";
     Date now = system2.newDate();
-    if (previous == null) {
-      FileSourceDto newFileSource = new FileSourceDto()
-        .setProjectUuid(projectTree.getRootProject().getUuid())
-        .setFileUuid(fileUuid)
-        .setData(newData)
-        .setDataHash(newDataHash)
-        .setSrcHash(inputFile.hash())
-        .setLineHashes(lineHashesAsMd5Hex(inputFile))
-        .setCreatedAt(now.getTime())
-        .setUpdatedAt(now.getTime());
-      mapper.insert(newFileSource);
-      session.commit();
-    } else {
-      if (!newDataHash.equals(previous.getDataHash())) {
-        previous
+    try {
+      if (previous == null) {
+        FileSourceDto newFileSource = new FileSourceDto()
+          .setProjectUuid(projectTree.getRootProject().getUuid())
+          .setFileUuid(fileUuid)
           .setData(newData)
-          .setLineHashes(lineHashesAsMd5Hex(inputFile))
           .setDataHash(newDataHash)
           .setSrcHash(inputFile.hash())
+          .setLineHashes(lineHashesAsMd5Hex(inputFile))
+          .setCreatedAt(now.getTime())
           .setUpdatedAt(now.getTime());
-        mapper.update(previous);
+        mapper.insert(newFileSource);
         session.commit();
+      } else {
+        if (!newDataHash.equals(previous.getDataHash())) {
+          previous
+            .setData(newData)
+            .setLineHashes(lineHashesAsMd5Hex(inputFile))
+            .setDataHash(newDataHash)
+            .setSrcHash(inputFile.hash())
+            .setUpdatedAt(now.getTime());
+          mapper.update(previous);
+          session.commit();
+        }
       }
+    } catch (Exception e) {
+      throw new IllegalStateException("Unable to save file sources for " + inputPath.absolutePath(), e);
     }
   }
 

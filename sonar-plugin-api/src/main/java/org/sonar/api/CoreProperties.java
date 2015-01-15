@@ -552,4 +552,9 @@ public interface CoreProperties {
    * @since 5.0
    */
   String SCM_PROVIDER_KEY = "sonar.scm.provider";
+
+  /**
+   * @since 5.1
+   */
+  String INDEX_ALL_FILES_KEY = "sonar.index_all_files";
 }

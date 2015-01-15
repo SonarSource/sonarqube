@@ -21,6 +21,7 @@ package org.sonar.batch.scan.filesystem;
 
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.config.Settings;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.batch.bootstrap.AnalysisMode;
 
@@ -31,22 +32,24 @@ public class InputFileBuilderFactory implements BatchComponent {
   private final LanguageDetectionFactory langDetectionFactory;
   private final StatusDetectionFactory statusDetectionFactory;
   private final AnalysisMode analysisMode;
+  private final Settings settings;
 
   public InputFileBuilderFactory(ProjectDefinition def, PathResolver pathResolver, LanguageDetectionFactory langDetectionFactory,
-    StatusDetectionFactory statusDetectionFactory, AnalysisMode analysisMode) {
-    this(def.getKeyWithBranch(), pathResolver, langDetectionFactory, statusDetectionFactory, analysisMode);
+    StatusDetectionFactory statusDetectionFactory, AnalysisMode analysisMode, Settings settings) {
+    this(def.getKeyWithBranch(), pathResolver, langDetectionFactory, statusDetectionFactory, analysisMode, settings);
   }
 
   private InputFileBuilderFactory(String effectiveKey, PathResolver pathResolver, LanguageDetectionFactory langDetectionFactory,
-    StatusDetectionFactory statusDetectionFactory, AnalysisMode analysisMode) {
+    StatusDetectionFactory statusDetectionFactory, AnalysisMode analysisMode, Settings settings) {
     this.moduleKey = effectiveKey;
     this.pathResolver = pathResolver;
     this.langDetectionFactory = langDetectionFactory;
     this.statusDetectionFactory = statusDetectionFactory;
     this.analysisMode = analysisMode;
+    this.settings = settings;
   }
 
   InputFileBuilder create(DefaultModuleFileSystem fs) {
-    return new InputFileBuilder(moduleKey, pathResolver, langDetectionFactory.create(), statusDetectionFactory.create(), fs, analysisMode);
+    return new InputFileBuilder(moduleKey, pathResolver, langDetectionFactory.create(), statusDetectionFactory.create(), fs, analysisMode, settings);
   }
 }

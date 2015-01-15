@@ -22,9 +22,11 @@ package org.sonar.batch.scan.filesystem;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
+import org.sonar.api.config.Settings;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.util.DeprecatedKeyUtils;
@@ -44,15 +46,17 @@ class InputFileBuilder {
   private final StatusDetection statusDetection;
   private final DefaultModuleFileSystem fs;
   private final AnalysisMode analysisMode;
+  private final Settings settings;
 
   InputFileBuilder(String moduleKey, PathResolver pathResolver, LanguageDetection langDetection,
-    StatusDetection statusDetection, DefaultModuleFileSystem fs, AnalysisMode analysisMode) {
+    StatusDetection statusDetection, DefaultModuleFileSystem fs, AnalysisMode analysisMode, Settings settings) {
     this.moduleKey = moduleKey;
     this.pathResolver = pathResolver;
     this.langDetection = langDetection;
     this.statusDetection = statusDetection;
     this.fs = fs;
     this.analysisMode = analysisMode;
+    this.settings = settings;
   }
 
   String moduleKey() {
@@ -98,7 +102,7 @@ class InputFileBuilder {
     inputFile.setEncoding(fs.encoding().name());
 
     String lang = langDetection.language(inputFile);
-    if (lang == null) {
+    if (lang == null && !settings.getBoolean(CoreProperties.INDEX_ALL_FILES_KEY)) {
       return null;
     }
     inputFile.setLanguage(lang);

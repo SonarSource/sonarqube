@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.mediumtest.fs;
 
-import org.sonar.batch.mediumtest.TaskResult;
-
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -34,6 +32,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.mediumtest.BatchMediumTester;
+import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.xoo.XooPlugin;
 
 import java.io.File;
@@ -203,6 +202,30 @@ public class FileSystemMediumTest {
 
       assertThat(result.inputFiles()).hasSize(3);
     }
+  }
+
+  @Test
+  public void indexAnyFile() throws IOException {
+    File srcDir = new File(baseDir, "src");
+    srcDir.mkdir();
+
+    File xooFile = new File(srcDir, "sample.xoo");
+    FileUtils.write(xooFile, "Sample xoo\ncontent");
+
+    File otherFile = new File(srcDir, "sample.other");
+    FileUtils.write(otherFile, "Sample other\ncontent");
+
+    TaskResult result = tester.newTask()
+      .properties(builder
+        .put("sonar.sources", "src")
+        .put("sonar.index_all_files", "true")
+        .build())
+      .start();
+
+    assertThat(result.inputFiles()).hasSize(2);
+    assertThat(result.inputFile("src/sample.other").type()).isEqualTo(InputFile.Type.MAIN);
+    assertThat(result.inputFile("src/sample.other").relativePath()).isEqualTo("src/sample.other");
+    assertThat(result.inputFile("src/sample.other").language()).isNull();
   }
 
 }
