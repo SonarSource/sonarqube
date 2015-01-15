@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.scan2;
 
+import org.sonar.batch.sensor.AnalyzerOptimizer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;

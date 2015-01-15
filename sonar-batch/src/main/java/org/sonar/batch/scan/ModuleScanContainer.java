@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.scan;
 
+import org.sonar.batch.sensor.AnalyzerOptimizer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
@@ -95,7 +97,6 @@ import org.sonar.batch.scan.filesystem.ProjectFileSystemAdapter;
 import org.sonar.batch.scan.filesystem.StatusDetectionFactory;
 import org.sonar.batch.scan.maven.MavenPluginsConfigurator;
 import org.sonar.batch.scan.report.JsonReport;
-import org.sonar.batch.scan2.AnalyzerOptimizer;
 import org.sonar.batch.sensor.DefaultSensorContext;
 import org.sonar.batch.sensor.DefaultSensorStorage;
 import org.sonar.batch.sensor.coverage.CoverageExclusions;

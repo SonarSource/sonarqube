@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.sonar.batch.sensor.AnalyzerOptimizer;
+
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.ClassUtils;
 import org.sonar.api.batch.CheckProject;
@@ -28,7 +30,6 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.scan.SensorWrapper;
-import org.sonar.batch.scan2.AnalyzerOptimizer;
 import org.sonar.batch.sensor.DefaultSensorContext;
 
 import javax.annotation.Nullable;
