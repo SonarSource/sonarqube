@@ -3,8 +3,8 @@
 @import (reference) "ui";
 
 @navbarBackground: #262626;
-@navbarProjectBackground: #565656;
-@navbarSettingsBackground: #78674d;
+@navbarProjectBackground: @blue;
+@navbarSettingsBackground: #591500;
 
 @navbarHeight: 36px;
 @navbarLineHeight: 20px;
@@ -30,7 +30,6 @@
 
 .navbar {
   .clearfix;
-  border-bottom: 3px solid @blue;
 }
 
 .navbar-fade {
@@ -82,16 +81,6 @@
   @topPadding: (@navbarHeight - 25) / 2;
   padding-top: @topPadding !important;
   padding-bottom: @topPadding !important;
-}
-
-.navbar-back-arrow {
-  position: absolute;
-  top: 13px;
-  left: 0;
-
-  &:before {
-    font-size: 18px;
-  }
 }
 
 .navbar-nav {
@@ -198,6 +187,10 @@
   .navbar-nav > .active > a,
   .navbar-nav > .dropdown.open > a {
     background-color: darken(@navbarProjectBackground, 10%);
+  }
+
+  .sq-logo .sq-logo-arc {
+    fill: #fff;
   }
 }
 
