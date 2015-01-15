@@ -103,8 +103,8 @@ public class CpdMediumTest {
 
     assertThat(result.inputFiles()).hasSize(2);
 
-    // 4 measures per file + quality profile measure
-    assertThat(result.measures()).hasSize(9);
+    // 5 measures per file + quality profile measure
+    assertThat(result.measures()).hasSize(11);
 
     InputFile inputFile1 = result.inputFile("src/sample1.xoo");
     InputFile inputFile2 = result.inputFile("src/sample2.xoo");
@@ -151,8 +151,8 @@ public class CpdMediumTest {
         .build())
       .start();
 
-    // 4 measures per file + QP measure
-    assertThat(result.measures()).hasSize(5);
+    // 5 measures per file + QP measure
+    assertThat(result.measures()).hasSize(6);
 
     InputFile inputFile = result.inputFile("src/sample.xoo");
     // One clone group

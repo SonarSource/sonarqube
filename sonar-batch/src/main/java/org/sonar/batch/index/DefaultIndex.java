@@ -87,7 +87,7 @@ public class DefaultIndex extends SonarIndex {
     CoreMetrics.FILE_FEEDBACK_EDGES,
     CoreMetrics.FILE_TANGLE_INDEX,
     CoreMetrics.FILE_TANGLES,
-    // Computed by ScmActivitySensor
+    // Computed by ScmSensor
     CoreMetrics.SCM_AUTHORS_BY_LINE,
     CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE,
     CoreMetrics.SCM_REVISIONS_BY_LINE,
@@ -96,7 +96,9 @@ public class DefaultIndex extends SonarIndex {
     CoreMetrics.DUPLICATION_LINES_DATA,
     CoreMetrics.DUPLICATED_FILES,
     CoreMetrics.DUPLICATED_LINES,
-    CoreMetrics.DUPLICATED_BLOCKS
+    CoreMetrics.DUPLICATED_BLOCKS,
+    // Computed by LinesSensor
+    CoreMetrics.LINES
     );
 
   private final ResourceCache resourceCache;
@@ -256,7 +258,7 @@ public class DefaultIndex extends SonarIndex {
         throw new SonarException("Unknown metric: " + measure.getMetricKey());
       }
       if (!isTechnicalProjectCopy(resource) && !measure.isFromCore() && INTERNAL_METRICS.contains(metric)) {
-        LOG.debug("Metric " + metric.key() + " is an internal metric computed by SonarQube. Please update your plugin.");
+        LOG.debug("Metric " + metric.key() + " is an internal metric computed by SonarQube. Provided value is ignored.");
         return measure;
       }
       if (measureCache.contains(resource, measure)) {

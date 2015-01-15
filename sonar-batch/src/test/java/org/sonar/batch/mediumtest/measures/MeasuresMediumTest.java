@@ -66,7 +66,7 @@ public class MeasuresMediumTest {
       .newScanTask(new File(projectDir, "sonar-project.properties"))
       .start();
 
-    assertThat(result.measures()).hasSize(14);
+    assertThat(result.measures()).hasSize(13);
   }
 
   @Test
@@ -98,7 +98,47 @@ public class MeasuresMediumTest {
     assertThat(result.measures()).contains(new DefaultMeasure<Integer>()
       .forMetric(CoreMetrics.LINES)
       .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
-      .withValue(20));
+      .withValue(2));
+
+  }
+
+  @Test
+  public void computeLinesOnAllFiles() throws IOException {
+
+    File baseDir = temp.newFolder();
+    File srcDir = new File(baseDir, "src");
+    srcDir.mkdir();
+
+    File xooFile = new File(srcDir, "sample.xoo");
+    FileUtils.write(xooFile, "Sample xoo\ncontent");
+
+    File otherFile = new File(srcDir, "sample.other");
+    FileUtils.write(otherFile, "Sample other\ncontent\n");
+
+    TaskResult result = tester.newTask()
+      .properties(ImmutableMap.<String, String>builder()
+        .put("sonar.task", "scan")
+        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+        .put("sonar.projectKey", "com.foo.project")
+        .put("sonar.projectName", "Foo Project")
+        .put("sonar.projectVersion", "1.0-SNAPSHOT")
+        .put("sonar.projectDescription", "Description of Foo Project")
+        .put("sonar.sources", "src")
+        .put("sonar.index_all_files", "true")
+        .build())
+      .start();
+
+    // QP + 2 x lines
+    assertThat(result.measures()).hasSize(3);
+
+    assertThat(result.measures()).contains(new DefaultMeasure<Integer>()
+      .forMetric(CoreMetrics.LINES)
+      .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
+      .withValue(2));
+    assertThat(result.measures()).contains(new DefaultMeasure<Integer>()
+      .forMetric(CoreMetrics.LINES)
+      .onFile(new DefaultInputFile("com.foo.project", "src/sample.other"))
+      .withValue(3));
 
   }
 

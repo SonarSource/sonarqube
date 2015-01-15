@@ -56,6 +56,9 @@ public final class CoreMetrics {
    */
   public static String DOMAIN_TECHNICAL_DEBT = "Technical Debt";
 
+  /**
+   * Computed by the platform since SQ 5.1
+   */
   public static final String LINES_KEY = "lines";
   public static final Metric<Integer> LINES = new Metric.Builder(LINES_KEY, "Lines", Metric.ValueType.INT)
     .setDescription("Lines")
