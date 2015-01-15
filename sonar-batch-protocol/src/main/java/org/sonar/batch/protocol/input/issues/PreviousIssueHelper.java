@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 public class PreviousIssueHelper {
 
@@ -47,7 +48,6 @@ public class PreviousIssueHelper {
   }
 
   public <G> void streamIssues(Writer out, Iterable<G> issues, Function<G, PreviousIssue> converter) {
-    Gson gson = GsonHelper.create();
     try {
       JsonWriter writer = new JsonWriter(out);
       writer.setIndent("  ");
@@ -101,6 +101,13 @@ public class PreviousIssueHelper {
 
     @Override
     public PreviousIssue next() {
+      try {
+        if (!jsonreader.hasNext()) {
+          throw new NoSuchElementException();
+        }
+      } catch (IOException e) {
+        throw new IllegalStateException("Unable to iterate over JSON file ", e);
+      }
       return gson.fromJson(jsonreader, PreviousIssue.class);
     }
 

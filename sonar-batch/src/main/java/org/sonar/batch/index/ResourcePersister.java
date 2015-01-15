@@ -93,10 +93,14 @@ public class ResourcePersister implements ScanPersister {
       return;
     }
     BatchResource parentBatchResource = batchResource.parent();
+    Snapshot s;
     if (parentBatchResource != null) {
       persist(parentBatchResource);
+      s = persist(findModule(parentBatchResource), batchResource.resource(), parentBatchResource.resource());
+    } else {
+      // Root project
+      s = persistProject((Project) batchResource.resource(), null);
     }
-    Snapshot s = persist(findParentModule(batchResource), batchResource.resource(), parentBatchResource != null ? parentBatchResource.resource() : null);
     batchResource.setSnapshot(s);
     if (ResourceUtils.isPersistable(batchResource.resource())) {
       graph.addComponent(batchResource.resource(), batchResource.snapshotId());
@@ -104,15 +108,12 @@ public class ResourcePersister implements ScanPersister {
   }
 
   @CheckForNull
-  private Project findParentModule(BatchResource batchResource) {
-    if (batchResource != null && batchResource.parent() != null) {
-      if (batchResource.parent().resource() instanceof Project) {
-        return (Project) batchResource.parent().resource();
-      } else {
-        return findParentModule(batchResource.parent());
-      }
+  private Project findModule(BatchResource batchResource) {
+    if (batchResource.resource() instanceof Project) {
+      return (Project) batchResource.resource();
+    } else {
+      return findModule(batchResource.parent());
     }
-    return null;
   }
 
   private Snapshot persistProject(Project project, @Nullable Project parent) {
@@ -158,10 +159,6 @@ public class ResourcePersister implements ScanPersister {
     if (resource instanceof Project) {
       // should not occur, please use the method saveProject()
       snapshot = persistProject((Project) resource, (Project) parent);
-
-    } else if (resource instanceof Library) {
-      snapshot = persistLibrary(project.getAnalysisDate(), (Library) resource);
-
     } else {
       snapshot = persistFileOrDirectory(project, resource, parent);
     }
@@ -169,7 +166,7 @@ public class ResourcePersister implements ScanPersister {
     return snapshot;
   }
 
-  private Snapshot persistLibrary(Date analysisDate, Library library) {
+  Snapshot persistLibrary(Date analysisDate, Library library) {
     ResourceModel model = findOrCreateModel(library, null);
     model = session.save(model);
     // TODO to be removed

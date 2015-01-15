@@ -23,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
-import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.events.BatchStepEvent;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
@@ -36,7 +35,7 @@ import org.sonar.batch.scan.report.JsonReport;
 
 public final class PreviewPhaseExecutor implements PhaseExecutor {
 
-  public static final Logger LOGGER = LoggerFactory.getLogger(PreviewPhaseExecutor.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(PreviewPhaseExecutor.class);
 
   private final EventBus eventBus;
   private final Phases phases;
@@ -50,7 +49,6 @@ public final class PreviewPhaseExecutor implements PhaseExecutor {
   private final DefaultModuleFileSystem fs;
   private final QProfileVerifier profileVerifier;
   private final IssueExclusionsLoader issueExclusionsLoader;
-  private final AnalysisMode analysisMode;
   private final JsonReport jsonReport;
 
   public PreviewPhaseExecutor(Phases phases,
@@ -58,7 +56,7 @@ public final class PreviewPhaseExecutor implements PhaseExecutor {
     SensorsExecutor sensorsExecutor,
     SensorContext sensorContext, DefaultIndex index,
     EventBus eventBus, ProjectInitializer pi, FileSystemLogger fsLogger, JsonReport jsonReport, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
-    IssueExclusionsLoader issueExclusionsLoader, AnalysisMode analysisMode) {
+    IssueExclusionsLoader issueExclusionsLoader) {
     this.phases = phases;
     this.mavenPluginsConfigurator = mavenPluginsConfigurator;
     this.initializersExecutor = initializersExecutor;
@@ -72,7 +70,6 @@ public final class PreviewPhaseExecutor implements PhaseExecutor {
     this.fs = fs;
     this.profileVerifier = profileVerifier;
     this.issueExclusionsLoader = issueExclusionsLoader;
-    this.analysisMode = analysisMode;
   }
 
   /**

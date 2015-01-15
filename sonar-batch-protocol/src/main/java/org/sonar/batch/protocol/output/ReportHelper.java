@@ -19,14 +19,14 @@
  */
 package org.sonar.batch.protocol.output;
 
-import org.sonar.batch.protocol.output.component.ReportComponents;
-
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.sonar.batch.protocol.GsonHelper;
+import org.sonar.batch.protocol.output.component.ReportComponents;
 import org.sonar.batch.protocol.output.issue.ReportIssue;
 
 import java.io.BufferedInputStream;
@@ -39,6 +39,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 public class ReportHelper {
 
@@ -71,7 +72,6 @@ public class ReportHelper {
   }
 
   public void saveIssues(long componentBatchId, Iterable<ReportIssue> issues) {
-    Gson gson = GsonHelper.create();
     File issuesFile = getIssuesFile(componentBatchId);
     try (OutputStreamWriter out = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(issuesFile)), "UTF-8")) {
 
@@ -127,7 +127,7 @@ public class ReportHelper {
 
     public ReportIssueIterator(File issuesFile) {
       try {
-        reader = new JsonReader(new InputStreamReader(new BufferedInputStream(new FileInputStream(issuesFile))));
+        reader = new JsonReader(new InputStreamReader(new BufferedInputStream(new FileInputStream(issuesFile)), Charsets.UTF_8));
         reader.beginArray();
       } catch (IOException e) {
         throw new IllegalStateException("Unable to read " + issuesFile, e);
@@ -151,6 +151,13 @@ public class ReportHelper {
 
     @Override
     public ReportIssue next() {
+      try {
+        if (!reader.hasNext()) {
+          throw new NoSuchElementException();
+        }
+      } catch (IOException e) {
+        throw new IllegalStateException("Unable to iterate over JSON file ", e);
+      }
       return gson.fromJson(reader, ReportIssue.class);
     }
 

@@ -95,14 +95,15 @@ public class DefaultSensorStorage implements SensorStorage {
     org.sonar.api.measures.Measure measureToSave = new org.sonar.api.measures.Measure(m);
     setValueAccordingToMetricType(newMeasure, m, measureToSave);
     measureToSave.setFromCore(measure.isFromCore());
-    if (newMeasure.inputFile() != null) {
+    InputFile inputFile = newMeasure.inputFile();
+    if (inputFile != null) {
       Formula formula = newMeasure.metric() instanceof org.sonar.api.measures.Metric ?
         ((org.sonar.api.measures.Metric) newMeasure.metric()).getFormula() : null;
       if (formula instanceof SumChildDistributionFormula
         && !Scopes.isHigherThanOrEquals(Scopes.FILE, ((SumChildDistributionFormula) formula).getMinimumScopeToPersist())) {
         measureToSave.setPersistenceMode(PersistenceMode.MEMORY);
       }
-      File sonarFile = getFile(newMeasure.inputFile());
+      File sonarFile = getFile(inputFile);
       if (coverageExclusions.accept(sonarFile, measureToSave)) {
         sonarIndex.addMeasure(sonarFile, measureToSave);
       }

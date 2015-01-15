@@ -76,12 +76,10 @@ public class ProjectReactorValidator {
   }
 
   private void preventAutomaticProjectCreationIfNeeded(ProjectReactor reactor) {
-    if (resourceDao != null) {
-      if (settings.getBoolean(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION)) {
-        String projectKey = reactor.getRoot().getKeyWithBranch();
-        if (resourceDao.findByKey(projectKey) == null) {
-          throw new SonarException(String.format("Unable to scan non-existing project \"%s\"", projectKey));
-        }
+    if (resourceDao != null && settings.getBoolean(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION)) {
+      String projectKey = reactor.getRoot().getKeyWithBranch();
+      if (resourceDao.findByKey(projectKey) == null) {
+        throw new SonarException(String.format("Unable to scan non-existing project \"%s\"", projectKey));
       }
     }
   }

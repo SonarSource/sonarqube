@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 
 import javax.annotation.CheckForNull;
@@ -39,15 +38,13 @@ public class TimeMachineConfiguration implements BatchExtension {
   private static final Logger LOG = LoggerFactory.getLogger(TimeMachineConfiguration.class);
 
   private final DatabaseSession session;
-  private Project project;
   private final PeriodsDefinition periodsDefinition;
 
   private List<Period> periods;
   private List<PastSnapshot> modulePastSnapshots;
 
-  public TimeMachineConfiguration(DatabaseSession session, Project project, PeriodsDefinition periodsDefinition) {
+  public TimeMachineConfiguration(DatabaseSession session, PeriodsDefinition periodsDefinition) {
     this.session = session;
-    this.project = project;
     this.periodsDefinition = periodsDefinition;
     initModulePastSnapshots();
   }

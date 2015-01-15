@@ -46,7 +46,7 @@ import java.util.List;
 
 public final class DefaultPhaseExecutor implements PhaseExecutor {
 
-  public static final Logger LOGGER = LoggerFactory.getLogger(DefaultPhaseExecutor.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(DefaultPhaseExecutor.class);
 
   private final EventBus eventBus;
   private final Phases phases;

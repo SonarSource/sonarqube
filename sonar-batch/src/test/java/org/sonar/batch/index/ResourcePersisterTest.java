@@ -322,10 +322,12 @@ public class ResourcePersisterTest extends AbstractDbUnitTestCase {
     setupData("shared");
 
     persister.persist(null, singleProject, null);
-    persister.persist(singleProject, new Library("junit:junit", "4.8.2").setEffectiveKey("junit:junit"), null);
-    persister.persist(singleProject, new Library("junit:junit", "4.8.2").setEffectiveKey("junit:junit"), null);// do nothing, already
-                                                                                                               // saved
-    persister.persist(singleProject, new Library("junit:junit", "3.2").setEffectiveKey("junit:junit"), null);
+    persister.persistLibrary(singleProject.getAnalysisDate(), (Library) new Library("junit:junit", "4.8.2").setEffectiveKey("junit:junit"));
+    persister.persistLibrary(singleProject.getAnalysisDate(), (Library) new Library("junit:junit", "4.8.2").setEffectiveKey("junit:junit"));// do
+    // nothing,
+    // already
+    // saved
+    persister.persistLibrary(singleProject.getAnalysisDate(), (Library) new Library("junit:junit", "3.2").setEffectiveKey("junit:junit"));
 
     checkTables("shouldSaveNewLibrary", new String[] {"build_date", "created_at", "authorization_updated_at", "uuid", "project_uuid", "module_uuid", "module_uuid_path"},
       "projects", "snapshots");

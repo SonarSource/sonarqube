@@ -37,7 +37,7 @@ class MeasureValueCoder implements ValueCoder {
   private final MetricFinder metricFinder;
   private final TechnicalDebtModel techDebtModel;
 
-  public MeasureValueCoder(MetricFinder metricFinder, TechnicalDebtModel techDebtModel) {
+  public MeasureValueCoder(MetricFinder metricFinder, @Nullable TechnicalDebtModel techDebtModel) {
     this.metricFinder = metricFinder;
     this.techDebtModel = techDebtModel;
   }

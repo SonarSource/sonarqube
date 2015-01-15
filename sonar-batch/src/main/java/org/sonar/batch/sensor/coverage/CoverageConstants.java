@@ -27,6 +27,9 @@ import java.util.Collection;
 
 public class CoverageConstants {
 
+  private CoverageConstants() {
+  }
+
   public static final Collection<Metric> COVERAGE_METRICS = ImmutableList.<Metric>of(CoreMetrics.LINES_TO_COVER, CoreMetrics.UNCOVERED_LINES, CoreMetrics.NEW_LINES_TO_COVER,
     CoreMetrics.NEW_UNCOVERED_LINES, CoreMetrics.CONDITIONS_TO_COVER, CoreMetrics.UNCOVERED_CONDITIONS,
     CoreMetrics.NEW_CONDITIONS_TO_COVER, CoreMetrics.NEW_UNCOVERED_CONDITIONS);
