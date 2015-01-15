@@ -652,4 +652,8 @@ public class InternalRubyIssueService implements ServerComponent {
     return issueService.listTags(null, 0);
   }
 
+  public Map<String, Long> listTagsForComponent(String componentUuid, int pageSize) {
+    return issueService.listTagsForComponent(componentUuid, pageSize);
+  }
+
 }

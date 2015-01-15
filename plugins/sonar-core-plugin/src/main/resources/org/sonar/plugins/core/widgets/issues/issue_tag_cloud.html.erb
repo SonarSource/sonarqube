@@ -2,7 +2,7 @@
   containerId = 'issue-tag-cloud' + widget.id.to_s
   maxItems = widget_properties['maxItems'].to_i
 
-  if current_user && has_role?(:user, @project)
+  if current_user && has_role?(:user, @project) && !Internal.issues.listTagsForComponent(@project.uuid, maxItems).isEmpty()
     search_options = {}
     if @project
       search_options['componentUuids'] = @project.uuid

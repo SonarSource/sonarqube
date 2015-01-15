@@ -12,20 +12,21 @@ class TagCloud extends window.SonarWidgets.BaseWidget
 
 
   renderWords: ->
-    words = @wordContainer.selectAll('.cloud-word').data @tags()
+    window.requestMessages().done =>
+      words = @wordContainer.selectAll('.cloud-word').data @tags()
 
-    wordsEnter = words.enter().append('a').classed 'cloud-word', true
-    wordsEnter.text (d) -> d.key
-    wordsEnter.attr 'href', (d) =>
-      url = @options().baseUrl + '|tags=' + d.key
-      url
-    wordsEnter.attr 'title', (d) => @tooltip d
+      wordsEnter = words.enter().append('a').classed 'cloud-word', true
+      wordsEnter.text (d) -> d.key
+      wordsEnter.attr 'href', (d) =>
+        url = @options().baseUrl + '|tags=' + d.key
+        url
+      wordsEnter.attr 'title', (d) => @tooltip d
 
-    words.style 'font-size', (d) =>
-      "#{@size d.value}px"
+      words.style 'font-size', (d) =>
+        "#{@size d.value}px"
 
-    words.sort (a, b) =>
-      if a.key.toLowerCase() > b.key.toLowerCase() then 1 else -1
+      words.sort (a, b) =>
+        if a.key.toLowerCase() > b.key.toLowerCase() then 1 else -1
 
 
   render: (container) ->
@@ -48,7 +49,9 @@ class TagCloud extends window.SonarWidgets.BaseWidget
 
 
   tooltip: (d) ->
-    "#{d.key} (#{d.value})"
+    suffixKey = if d.value == 1 then 'issue' else 'issues'
+    suffix = t(suffixKey)
+    "#{d.value} " + suffix
 
 
   parseSource: (response) ->
