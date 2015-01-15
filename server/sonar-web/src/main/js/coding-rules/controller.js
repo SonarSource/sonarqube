@@ -18,7 +18,7 @@ define([
       return {
         p: this.app.state.get('page'),
         ps: this.pageSize,
-        facets: true,
+        facets: this._facetsFromServer().join(),
         f: this.ruleFields.join(),
         s: 'name',
         asc: true
@@ -64,7 +64,7 @@ define([
     requestFacet: function (id) {
       var url = baseUrl + '/api/rules/search',
           facet = this.app.facets.get(id),
-          options = _.extend({ facets: true, ps: 1 }, this.app.state.get('query'));
+          options = _.extend({ facets: id, ps: 1 }, this.app.state.get('query'));
       return $.get(url, options).done(function (r) {
         var facetData = _.findWhere(r.facets, { property: id });
         if (facetData) {
