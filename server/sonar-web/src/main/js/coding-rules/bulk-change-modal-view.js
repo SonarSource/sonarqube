@@ -71,7 +71,15 @@ define([
     },
 
     getAvailableQualityProfiles: function () {
-      return this.options.app.qualityProfiles;
+      var queryLanguages = this.options.app.state.get('query').languages,
+          languages = queryLanguages.length > 0 ? queryLanguages.split(',') : [],
+          profiles = this.options.app.qualityProfiles;
+      if (languages.length > 0) {
+        profiles = _.filter(profiles, function (profile) {
+          return languages.indexOf(profile.lang) !== -1;
+        });
+      }
+      return profiles;
     },
 
     serializeData: function () {
