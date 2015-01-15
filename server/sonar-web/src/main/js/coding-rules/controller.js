@@ -15,11 +15,16 @@ define([
 
 
     _searchParameters: function () {
+      var fields = this.ruleFields.slice(),
+          profile = this.app.state.get('query').qprofile;
+      if (profile != null) {
+        fields.push('actives');
+      }
       return {
         p: this.app.state.get('page'),
         ps: this.pageSize,
         facets: this._facetsFromServer().join(),
-        f: this.ruleFields.join(),
+        f: fields.join(),
         s: 'name',
         asc: true
       };

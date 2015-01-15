@@ -1,19 +1,71 @@
-<div class="coding-rule-inner">
-  <div class="coding-rule-title">
-    <a class="js-rule link-no-underline">{{name}}</a>
-  </div>
-  <div class="coding-rule-meta">
-    {{#notEq status 'READY'}}
-      {{status}}
-      &nbsp;&nbsp;&nbsp;
-    {{/notEq}}
-    <a class="js-lang link-no-underline" data-lang="{{lang}}">{{langName}}</a>
-    {{#notEmpty tags}}
-      &nbsp;&nbsp;&nbsp;
-      <i class="icon-tags"></i>
-      {{#each tags}}
-        <a class="js-tag link-no-underline" data-tag="{{this}}">{{this}}</a>
-      {{/each}}
-    {{/notEmpty}}
-  </div>
-</div>
+<table class="coding-rule-table">
+  <tr>
+    {{#if activeProfile}}
+      {{#if activeProfile.severity}}
+        <td class="coding-rule-table-meta-cell coding-rule-activation">
+          {{severityIcon activeProfile.severity}}
+          {{#eq activeProfile.inherit 'OVERRIDES'}}
+            <i class="icon-inheritance"
+               title="{{tp 'coding_rules.overrides' activeProfile.name activeProfile.parent.name}}"></i>
+          {{/eq}}
+          {{#eq activeProfile.inherit 'INHERITED'}}
+            <i class="icon-inheritance"
+               title="{{tp 'coding_rules.inherits' activeProfile.name activeProfile.parent.name}}"></i>
+          {{/eq}}
+        </td>
+      {{/if}}
+    {{/if}}
+
+    <td>
+      <div class="coding-rule-title">
+        <a class="js-rule link-no-underline">{{name}}</a>
+      </div>
+    </td>
+
+    <td class="coding-rule-table-meta-cell">
+      <div class="coding-rule-meta">
+        {{#notEq status 'READY'}}
+          {{status}}
+          &nbsp;&nbsp;&nbsp;
+        {{/notEq}}
+        <a class="js-lang link-no-underline" data-lang="{{lang}}">{{langName}}</a>
+        {{#notEmpty tags}}
+          &nbsp;&nbsp;&nbsp;
+          <i class="icon-tags"></i>
+          {{#each tags}}
+            <a class="js-tag link-no-underline" data-tag="{{this}}">{{this}}</a>
+          {{/each}}
+        {{/notEmpty}}
+      </div>
+    </td>
+
+    {{#if activeProfile}}
+      {{#if canWrite}}
+        <td class="coding-rule-table-meta-cell coding-rule-activation-actions">
+          <div class="button-group">
+            {{#if activeProfile.severity}}
+              {{#unless activeProfile.isTemplate}}
+                <button class="coding-rules-detail-quality-profile-change">{{t 'change_verb'}}</button>
+              {{/unless}}
+              {{#if activeProfile.parent}}
+                {{#eq activeProfile.inherit 'OVERRIDES'}}
+                  <button class="coding-rules-detail-quality-profile-revert button-red">
+                    {{t 'coding_rules.revert_to_parent_definition'}}
+                  </button>
+                {{/eq}}
+              {{else}}
+                <button class="coding-rules-detail-quality-profile-deactivate button-red">
+                  {{t 'coding_rules.deactivate'}}
+                </button>
+              {{/if}}
+            {{else}}
+              <button class="coding-rules-detail-quality-profile-activate">
+                {{t 'coding_rules.activate'}}
+              </button>
+            {{/if}}
+          </div>
+        </td>
+      {{/if}}
+    {{/if}}
+  </tr>
+</table>

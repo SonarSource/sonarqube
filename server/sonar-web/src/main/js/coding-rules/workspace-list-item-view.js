@@ -25,8 +25,16 @@ define([
     },
 
     serializeData: function () {
+      var activeProfiles = this.model.get('activeProfiles'),
+          activeProfile = _.isArray(activeProfiles) && activeProfiles.length === 1 ? activeProfiles[0] : null,
+          selectedProfile = this.options.app.state.get('query').qprofile;
+      if (selectedProfile != null && activeProfile == null) {
+        activeProfile = selectedProfile;
+      }
       return _.extend(WorkspaceListItemView.prototype.serializeData.apply(this, arguments), {
-        tags: _.union(this.model.get('sysTags'), this.model.get('tags'))
+        tags: _.union(this.model.get('sysTags'), this.model.get('tags')),
+        canWrite: this.options.app.canWrite,
+        activeProfile: activeProfile
       });
     }
   });

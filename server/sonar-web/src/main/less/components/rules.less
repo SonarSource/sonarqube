@@ -26,21 +26,30 @@
   border-top-color: transparent;
 }
 
-.coding-rule-inner {
-  .justify;
-  margin-bottom: -16px;
+.coding-rule-table {
+  width: 100%;
+
+  td {
+    vertical-align: top;
+  }
+}
+
+.coding-rule-table + .coding-rule-table {
+  margin-top: 5px;
+}
+
+.coding-rule-table-meta-cell {
+  width: 1px;
+  white-space: nowrap;
 }
 
 .coding-rule-title {
-  display: inline-block;
-  vertical-align: baseline;
   line-height: @lineHeight;
   font-size: @baseFontSize;
 }
 
 .coding-rule-meta {
-  display: inline-block;
-  vertical-align: baseline;
+  padding-left: 30px;
   line-height: @lineHeight;
   font-size: @smallFontSize;
 
@@ -56,6 +65,15 @@
   .js-tag:last-child:after {
     content: "";
   }
+}
+
+.coding-rule-activation {
+  width: 40px;
+  line-height: @lineHeight;
+}
+
+.coding-rule-activation-actions {
+  padding-left: 20px;
 }
 
 .coding-rule-section > div {
