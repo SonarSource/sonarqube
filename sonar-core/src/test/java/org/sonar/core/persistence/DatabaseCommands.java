@@ -63,6 +63,10 @@ public abstract class DatabaseCommands {
 
   abstract List<String> resetPrimaryKey(String table, int minSequenceValue);
 
+  String getTruncateCommand(String table) {
+    return "TRUNCATE TABLE " + table;
+  }
+
   public static DatabaseCommands forDialect(Dialect dialect) {
     DatabaseCommands command = ImmutableMap.of(
       org.sonar.core.persistence.dialect.H2.ID, H2,
@@ -96,6 +100,11 @@ public abstract class DatabaseCommands {
         "DROP SEQUENCE " + sequence,
         "CREATE SEQUENCE " + sequence + " INCREMENT BY 1 MINVALUE 1 START WITH " + minSequenceValue);
     }
+
+    @Override
+    String getTruncateCommand(String table) {
+      return "TRUNCATE TABLE " + table + " REUSE STORAGE";
+    }
   };
 
   private static final DatabaseCommands MSSQL = new DatabaseCommands(new MsSqlDataTypeFactory()) {
@@ -128,7 +137,7 @@ public abstract class DatabaseCommands {
       statement = connection.createStatement();
       for (String table : DatabaseVersion.TABLES) {
         try {
-          statement.executeUpdate("TRUNCATE TABLE " + table);
+          statement.executeUpdate(getTruncateCommand(table));
           connection.commit();
         } catch (Exception e) {
           // ignore
