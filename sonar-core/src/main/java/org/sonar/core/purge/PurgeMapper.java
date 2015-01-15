@@ -50,8 +50,6 @@ public interface PurgeMapper {
 
   void deleteSnapshotGraphs(@Param("snapshotIds") List<Long> snapshotIds);
 
-  void deleteSnapshotData(@Param("snapshotIds") List<Long> snapshotIds);
-
   List<Long> selectMetricIdsWithoutHistoricalData();
 
   void deleteSnapshotWastedMeasures(@Param("snapshotIds") List<Long> snapshotIds, @Param("mids") List<Long> metricIds);

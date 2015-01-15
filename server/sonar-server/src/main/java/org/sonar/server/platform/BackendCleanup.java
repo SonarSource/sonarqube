@@ -37,7 +37,7 @@ public class BackendCleanup implements ServerComponent {
   private static final String[] INSPECTION_TABLES = {
     "action_plans", "authors", "dependencies", "duplications_index", "events", "graphs", "issues", "issue_changes", "manual_measures",
     "notifications", "project_links", "project_measures", "projects", "resource_index",
-    "semaphores", "snapshots", "snapshot_data", "file_sources"
+    "semaphores", "snapshots", "file_sources"
   };
   private static final String[] RESOURCE_RELATED_TABLES = {
     "group_roles", "user_roles", "properties"

@@ -29,7 +29,4 @@
           event_date="2008-12-02 13:58:00.00" created_at="[null]" event_data="[null]"/>
   <duplications_index id="1" project_snapshot_id="1" snapshot_id="1" hash="bb" index_in_file="0" start_line="0"
                       end_line="0"/>
-  <snapshot_data id="1" resource_id="1" snapshot_id="1" snapshot_data="0,10,k" data_type="highlight_syntax"
-                 created_at="[null]" updated_at="[null]"/>
-
 </dataset>

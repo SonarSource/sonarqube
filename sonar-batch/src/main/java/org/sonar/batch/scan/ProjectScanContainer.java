@@ -51,7 +51,6 @@ import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.DependencyPersister;
 import org.sonar.batch.index.DuplicationPersister;
 import org.sonar.batch.index.EventPersister;
-import org.sonar.batch.index.FileHashesPersister;
 import org.sonar.batch.index.LinkPersister;
 import org.sonar.batch.index.MeasurePersister;
 import org.sonar.batch.index.ResourceCache;
@@ -146,7 +145,6 @@ public class ProjectScanContainer extends ComponentContainer {
       Caches.class,
       ResourceCache.class,
       ComponentDataCache.class,
-      FileHashesPersister.class,
 
       // file system
       InputPathCache.class,

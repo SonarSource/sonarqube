@@ -24,10 +24,4 @@ public interface SnapshotDataTypes {
 
   String SYNTAX_HIGHLIGHTING = "highlight_syntax";
   String SYMBOL_HIGHLIGHTING = "symbol";
-
-  /**
-   * Key-values [relative path, hash] of all files. Stored on modules.
-   * @since 4.0
-   */
-  String FILE_HASHES = "file_hashes";
 }

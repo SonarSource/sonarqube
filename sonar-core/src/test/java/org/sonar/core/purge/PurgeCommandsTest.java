@@ -52,8 +52,7 @@ public class PurgeCommandsTest extends AbstractDaoTestCase {
     } finally {
       MyBatis.closeQuietly(session);
     }
-    checkTables("shouldDeleteSnapshot",
-      "snapshots", "project_measures", "duplications_index", "events", "dependencies", "snapshot_data");
+    checkTables("shouldDeleteSnapshot", "snapshots", "project_measures", "duplications_index", "events", "dependencies");
   }
 
   /**
@@ -84,7 +83,7 @@ public class PurgeCommandsTest extends AbstractDaoTestCase {
       MyBatis.closeQuietly(session);
     }
     checkTables("shouldPurgeSnapshot",
-      "snapshots", "project_measures", "duplications_index", "events", "dependencies", "snapshot_data");
+      "snapshots", "project_measures", "duplications_index", "events", "dependencies");
   }
 
   @Test

@@ -32,6 +32,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.core.profiling.Profiling;
 
 import javax.sql.DataSource;
+
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
@@ -110,8 +111,7 @@ public class PreviewDatabaseFactoryTest extends AbstractDaoTestCase {
     dataSource = createDatabase(database);
     assertThat(countRows("issues")).isEqualTo(1);
     assertThat(countRows("projects")).isEqualTo(4);
-    assertThat(countRows("snapshots")).isEqualTo(4);
-    assertThat(countRows("snapshot_data")).isEqualTo(2);
+    assertThat(countRows("snapshots")).isEqualTo(2);
     assertThat(countRows("project_measures")).isEqualTo(4);
   }
 

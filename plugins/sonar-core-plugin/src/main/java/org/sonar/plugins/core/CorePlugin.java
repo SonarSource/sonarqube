@@ -53,7 +53,6 @@ import org.sonar.plugins.core.sensors.BranchCoverageDecorator;
 import org.sonar.plugins.core.sensors.CommentDensityDecorator;
 import org.sonar.plugins.core.sensors.CoverageDecorator;
 import org.sonar.plugins.core.sensors.DirectoriesDecorator;
-import org.sonar.plugins.core.sensors.FileHashSensor;
 import org.sonar.plugins.core.sensors.FilesDecorator;
 import org.sonar.plugins.core.sensors.ItBranchCoverageDecorator;
 import org.sonar.plugins.core.sensors.ItCoverageDecorator;
@@ -373,7 +372,6 @@ public final class CorePlugin extends SonarPlugin {
       DirectoriesDecorator.class,
       FilesDecorator.class,
       ManualMeasureDecorator.class,
-      FileHashSensor.class,
 
       // time machine
       TendencyDecorator.class,

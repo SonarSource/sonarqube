@@ -91,7 +91,6 @@ import org.sonar.batch.scan.filesystem.InputFileBuilderFactory;
 import org.sonar.batch.scan.filesystem.LanguageDetectionFactory;
 import org.sonar.batch.scan.filesystem.ModuleFileSystemInitializer;
 import org.sonar.batch.scan.filesystem.ModuleInputFileCache;
-import org.sonar.batch.scan.filesystem.PreviousFileHashLoader;
 import org.sonar.batch.scan.filesystem.ProjectFileSystemAdapter;
 import org.sonar.batch.scan.filesystem.StatusDetectionFactory;
 import org.sonar.batch.scan.maven.MavenPluginsConfigurator;
@@ -162,7 +161,6 @@ public class ModuleScanContainer extends ComponentContainer {
       InputFileBuilderFactory.class,
       StatusDetectionFactory.class,
       LanguageDetectionFactory.class,
-      PreviousFileHashLoader.class,
       FileIndexer.class,
       ComponentIndexer.class,
       LanguageVerifier.class,

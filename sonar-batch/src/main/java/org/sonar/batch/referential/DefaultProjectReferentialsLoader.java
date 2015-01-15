@@ -31,26 +31,22 @@ import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.bootstrap.TaskProperties;
 import org.sonar.batch.protocol.input.FileData;
 import org.sonar.batch.protocol.input.ProjectReferentials;
 import org.sonar.batch.rule.ModuleQProfiles;
-import org.sonar.core.source.SnapshotDataTypes;
-import org.sonar.core.source.db.SnapshotDataDao;
-import org.sonar.core.source.db.SnapshotDataDto;
 
 import javax.annotation.CheckForNull;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public class DefaultProjectReferentialsLoader implements ProjectReferentialsLoader {
 
@@ -60,22 +56,18 @@ public class DefaultProjectReferentialsLoader implements ProjectReferentialsLoad
 
   private final ServerClient serverClient;
   private final AnalysisMode analysisMode;
-  private final SnapshotDataDao dao;
   private final DatabaseSession session;
 
-  public DefaultProjectReferentialsLoader(DatabaseSession session, ServerClient serverClient, AnalysisMode analysisMode,
-    SnapshotDataDao dao) {
+  public DefaultProjectReferentialsLoader(DatabaseSession session, ServerClient serverClient, AnalysisMode analysisMode) {
     this.session = session;
     this.serverClient = serverClient;
     this.analysisMode = analysisMode;
-    this.dao = dao;
   }
 
   public DefaultProjectReferentialsLoader(ServerClient serverClient, AnalysisMode analysisMode) {
     this.session = null;
     this.serverClient = serverClient;
     this.analysisMode = analysisMode;
-    this.dao = null;
   }
 
   @Override
@@ -93,9 +85,9 @@ public class DefaultProjectReferentialsLoader implements ProjectReferentialsLoad
     if (session != null) {
       for (ProjectDefinition module : reactor.getProjects()) {
 
-        for (Map.Entry<String, String> hashByPaths : hashByRelativePath(module.getKeyWithBranch()).entrySet()) {
-          String path = hashByPaths.getKey();
-          String hash = hashByPaths.getValue();
+        for (Entry<String, FileData> fileDataByPaths : ref.fileDataByPath(module.getKeyWithBranch()).entrySet()) {
+          String path = fileDataByPaths.getKey();
+          FileData fileData = fileDataByPaths.getValue();
           String lastCommits = null;
           String revisions = null;
           String authors = null;
@@ -110,26 +102,12 @@ public class DefaultProjectReferentialsLoader implements ProjectReferentialsLoad
               authors = ((MeasureModel) measureByKey[1]).getData(CoreMetrics.SCM_AUTHORS_BY_LINE);
             }
           }
-          ref.addFileData(module.getKeyWithBranch(), path, new FileData(hash, authors == null, lastCommits, revisions, authors));
+          ref.addFileData(module.getKeyWithBranch(), path, new FileData(fileData.hash(), authors == null, lastCommits, revisions, authors));
         }
       }
       ref.setLastAnalysisDate(lastSnapshotCreationDate(projectKey));
     }
     return ref;
-  }
-
-  public Map<String, String> hashByRelativePath(String projectKey) {
-    Map<String, String> map = Maps.newHashMap();
-    Collection<SnapshotDataDto> selectSnapshotData = dao.selectSnapshotDataByComponentKey(
-      projectKey,
-      Arrays.asList(SnapshotDataTypes.FILE_HASHES)
-      );
-    if (!selectSnapshotData.isEmpty()) {
-      SnapshotDataDto snapshotDataDto = selectSnapshotData.iterator().next();
-      String data = snapshotDataDto.getData();
-      map = KeyValueFormat.parse(data);
-    }
-    return map;
   }
 
   public List<Object[]> query(String resourceKey, String... metricKeys) {
