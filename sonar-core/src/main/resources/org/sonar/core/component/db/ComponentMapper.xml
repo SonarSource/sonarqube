@@ -144,17 +144,16 @@
     <where>
       p.enabled = ${_true}
       AND p.scope = #{scope}
-      AND (p.uuid = module.uuid OR p.project_uuid = module.uuid
-      OR
+      AND (p.uuid = module.uuid OR
       <choose>
         <when test="_databaseId == 'mssql'">
-          p.module_uuid_path LIKE module.module_uuid_path + '.' + module.uuid + '%'
+          p.module_uuid_path LIKE module.module_uuid_path + module.uuid + '.%'
         </when>
         <when test="_databaseId == 'mysql'">
-          p.module_uuid_path LIKE concat(module.module_uuid_path, '.', module.uuid, '%')
+          p.module_uuid_path LIKE concat(module.module_uuid_path, module.uuid, '.%')
         </when>
         <otherwise>
-          p.module_uuid_path LIKE module.module_uuid_path || '.' || module.uuid || '%'
+          p.module_uuid_path LIKE module.module_uuid_path || module.uuid || '.%'
         </otherwise>
       </choose>
       )

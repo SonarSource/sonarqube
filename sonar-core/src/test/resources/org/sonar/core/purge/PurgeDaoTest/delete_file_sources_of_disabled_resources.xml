@@ -2,26 +2,26 @@
 
   <!-- the project -->
   <projects id="1" enabled="[true]" root_id="[null]" uuid="ABCD" project_uuid="ABCD" module_uuid="[null]"
-            module_uuid_path="[null]" created_at="[null]"
+            module_uuid_path="." created_at="[null]"
             long_name="[null]" scope="PRJ" qualifier="TRK" kee="project" name="project"
             description="[null]" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]"
             deprecated_kee="[null]" authorization_updated_at="[null]"/>
 
   <!-- the directory -->
   <projects id="2" enabled="[true]" root_id="1" uuid="EFGH" project_uuid="ABCD" module_uuid="ABCD"
-            module_uuid_path="[null]" created_at="[null]"
+            module_uuid_path="." created_at="[null]"
             long_name="[null]" scope="DIR" qualifier="DIR" kee="project:my/dir" name="my/dir"
             description="[null]" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]"
             deprecated_kee="[null]" authorization_updated_at="[null]"/>
 
   <!-- the files -->
   <projects id="3" enabled="[true]" root_id="1" uuid="GHIJ" project_uuid="ABCD" module_uuid="ABCD"
-            module_uuid_path="ABCD" created_at="[null]"
+            module_uuid_path=".ABCD." created_at="[null]"
             long_name="[null]" scope="FIL" qualifier="FIL" kee="project:my/dir/File.java" name="my/dir/File.java"
             description="[null]" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]"
             deprecated_kee="[null]" authorization_updated_at="[null]"/>
   <projects id="4" enabled="[true]" root_id="1" uuid="KLMN" project_uuid="ABCD" module_uuid="ABCD"
-            module_uuid_path="ABCD" created_at="[null]"
+            module_uuid_path=".ABCD." created_at="[null]"
             long_name="[null]" scope="FIL" qualifier="FIL" kee="project:my/dir/DeletedFile.java"
             name="my/dir/DeletedFile.java"
             description="[null]" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]"

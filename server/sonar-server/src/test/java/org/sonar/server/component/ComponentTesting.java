@@ -25,6 +25,8 @@ import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.internal.Uuids;
 import org.sonar.core.component.ComponentDto;
 
+import static org.sonar.core.component.ComponentDto.MODULE_UUID_PATH_SEP;
+
 public class ComponentTesting {
 
   public static ComponentDto newFileDto(ComponentDto subProjectOrProject) {
@@ -36,7 +38,7 @@ public class ComponentTesting {
       .setUuid(fileUuid)
       .setProjectUuid(module.projectUuid())
       .setModuleUuid(module.uuid())
-      .setModuleUuidPath(module.moduleUuidPath() == null ? module.uuid() : module.moduleUuidPath() + "." + module.uuid())
+      .setModuleUuidPath(module.moduleUuidPath() + module.uuid() + MODULE_UUID_PATH_SEP)
       .setKey("KEY_" + fileUuid)
       .setName("NAME_" + fileUuid)
       .setLongName("LONG_NAME_" + fileUuid)
@@ -54,7 +56,7 @@ public class ComponentTesting {
       .setUuid(Uuids.create())
       .setProjectUuid(subProjectOrProject.projectUuid())
       .setModuleUuid(subProjectOrProject.uuid())
-      .setModuleUuidPath(subProjectOrProject.moduleUuidPath() == null ? subProjectOrProject.uuid() : subProjectOrProject.moduleUuidPath() + "." + subProjectOrProject.uuid())
+      .setModuleUuidPath(subProjectOrProject.moduleUuidPath() + subProjectOrProject.uuid() + MODULE_UUID_PATH_SEP)
       .setKey("KEY_" + uuid)
       .setName("NAME_" + uuid)
       .setLongName("LONG_NAME_" + uuid)
@@ -74,6 +76,7 @@ public class ComponentTesting {
     return new ComponentDto()
       .setUuid(uuid)
       .setProjectUuid(uuid)
+      .setModuleUuidPath(MODULE_UUID_PATH_SEP)
       .setKey("KEY_" + uuid)
       .setName("NAME_" + uuid)
       .setLongName("LONG_NAME_" + uuid)

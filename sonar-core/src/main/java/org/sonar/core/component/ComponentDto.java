@@ -29,6 +29,8 @@ import java.util.Date;
 
 public class ComponentDto extends Dto<String> implements Component {
 
+  public static final String MODULE_UUID_PATH_SEP = ".";
+
   private Long id;
   private String uuid;
   private String kee;

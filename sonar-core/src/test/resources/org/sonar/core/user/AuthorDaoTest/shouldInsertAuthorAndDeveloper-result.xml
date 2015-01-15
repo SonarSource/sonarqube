@@ -1,4 +1,4 @@
 <dataset>
-  <projects id="1" name="developer@company.net" qualifier="DEV" uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path="[null]"/>
+  <projects id="1" name="developer@company.net" qualifier="DEV" uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path="."/>
   <authors id="1" person_id="1" login="developer@company.net" />
 </dataset>

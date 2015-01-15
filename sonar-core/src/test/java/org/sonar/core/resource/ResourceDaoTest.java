@@ -121,7 +121,7 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
     assertThat(file.getUuid()).isEqualTo("DEFG");
     assertThat(file.getProjectUuid()).isEqualTo("ABCD");
     assertThat(file.getModuleUuid()).isEqualTo("BCDE");
-    assertThat(file.getModuleUuidPath()).isEqualTo("ABCD.BCDE");
+    assertThat(file.getModuleUuidPath()).isEqualTo(".ABCD.BCDE.");
   }
 
   @Test
@@ -251,12 +251,12 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
     setupData("insert");
 
     ResourceDto file1 = new ResourceDto()
-      .setUuid("ABCD").setProjectUuid("EFGH").setModuleUuid("EFGH").setModuleUuidPath("EFGH")
+      .setUuid("ABCD").setProjectUuid("EFGH").setModuleUuid("EFGH").setModuleUuidPath(".EFGH.")
       .setKey("org.struts:struts:/src/main/java/org/struts/Action.java")
       .setDeprecatedKey("org.struts:struts:org.struts.Action").setScope(Scopes.FILE).setQualifier(Qualifiers.FILE)
       .setLanguage("java").setName("Action").setLongName("org.struts.Action").setPath("/foo/bar");
     ResourceDto file2 = new ResourceDto()
-      .setUuid("BCDE").setProjectUuid("FGHI").setModuleUuid("FGHI").setModuleUuidPath("FGHI")
+      .setUuid("BCDE").setProjectUuid("FGHI").setModuleUuid("FGHI").setModuleUuidPath(".FGHI.")
       .setKey("org.struts:struts:/src/main/java/org/struts/Filter.java")
       .setDeprecatedKey("org.struts:struts:org.struts.Filter").setScope(Scopes.FILE).setQualifier(Qualifiers.FILE)
       .setLanguage("java").setName("Filter").setLongName("org.struts.Filter");

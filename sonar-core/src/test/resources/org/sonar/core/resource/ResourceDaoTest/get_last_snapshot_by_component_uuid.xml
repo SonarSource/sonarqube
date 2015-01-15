@@ -6,7 +6,7 @@
 
   <!-- root project -->
   <projects id="1" root_id="[null]" scope="PRJ" qualifier="TRK" kee="org.struts:struts" name="Struts"
-            uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path="[null]"
+            uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path="."
             description="the description" long_name="Apache Struts"
             enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]" authorization_updated_at="[null]"/>
   <snapshots id="1" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
@@ -30,7 +30,7 @@
 
   <!-- module -->
   <projects id="2" root_id="1" kee="org.struts:struts-core" name="Struts Core"
-            uuid="EFGH" project_uuid="ABCD" module_uuid="[null]" module_uuid_path="ABCD."
+            uuid="EFGH" project_uuid="ABCD" module_uuid="[null]" module_uuid_path=".ABCD."
             scope="PRJ" qualifier="BRC" long_name="Struts Core"
             description="[null]" enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" authorization_updated_at="[null]"/>
   <snapshots id="2" project_id="2" parent_snapshot_id="1" root_project_id="1" root_snapshot_id="1"
@@ -45,7 +45,7 @@
 
   <!-- directory -->
   <projects long_name="org.struts" id="3" scope="DIR" qualifier="DIR" kee="org.struts:struts-core:src/org/struts"
-            uuid="GHIJ" project_uuid="ABCD" module_uuid="EFGH" module_uuid_path="ABCD.EFGH."
+            uuid="GHIJ" project_uuid="ABCD" module_uuid="EFGH" module_uuid_path=".ABCD.EFGH."
               name="src/org/struts" root_id="2"
               description="[null]"
               enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" path="src/org/struts" authorization_updated_at="[null]"/>
@@ -61,7 +61,7 @@
 
   <!-- file -->
   <projects long_name="org.struts.RequestContext" id="4" scope="FIL" qualifier="FIL" kee="org.struts:struts-core:src/org/struts/RequestContext.java"
-            uuid="KLMN" project_uuid="ABCD" module_uuid="EFGH" module_uuid_path="ABCD.EFGH."
+            uuid="KLMN" project_uuid="ABCD" module_uuid="EFGH" module_uuid_path=".ABCD.EFGH."
             name="RequestContext.java" root_id="2"
             description="[null]"
             enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" path="src/org/struts/RequestContext.java" authorization_updated_at="[null]"/>

@@ -22,6 +22,7 @@ package org.sonar.core.user;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
@@ -76,6 +77,10 @@ public class AuthorDao implements BatchComponent, ServerComponent {
   public void insertAuthorAndDeveloper(String login, ResourceDto resourceDto) {
     SqlSession session = mybatis.openSession(false);
     try {
+      // Hack in order to set "." on DEV
+      if (resourceDto.getModuleUuidPath() == null || resourceDto.getModuleUuidPath().isEmpty()) {
+        resourceDto.setModuleUuidPath(ComponentDto.MODULE_UUID_PATH_SEP);
+      }
       resourceDao.insertUsingExistingSession(resourceDto, session);
       insertAuthor(login, resourceDto.getId(), session);
       session.commit();

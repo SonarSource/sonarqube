@@ -1,12 +1,12 @@
 <dataset>
 
-  <projects id="1" uuid="ABC" project_uuid="ABC" module_uuid="[null]" module_uuid_path="[null]"
+  <projects id="1" uuid="ABC" project_uuid="ABC" module_uuid="[null]" module_uuid_path="."
             root_id="[null]" scope="PRJ" qualifier="TRK" kee="org.struts:struts" name="Struts"
             description="the description" long_name="Apache Struts"
             enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]"
             authorization_updated_at="1000000000"/>
 
-  <projects id="2" uuid="DEF" project_uuid="DEF" module_uuid="[null]" module_uuid_path="[null]"
+  <projects id="2" uuid="DEF" project_uuid="DEF" module_uuid="[null]" module_uuid_path="."
             root_id="[null]" scope="PRJ" qualifier="TRK" kee="org.sonar.sample" name="Sample"
             description="the description" long_name="Sample"
             enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]"

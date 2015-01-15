@@ -2,7 +2,7 @@
 
   <!-- view -->
   <projects id="1" kee="view" name="View" long_name="View" scope="PRJ" qualifier="VW" root_id="[null]" description="[null]"
-            uuid="[null]" project_uuid="[null]" module_uuid="[null]" module_uuid_path=""
+            uuid="[null]" project_uuid="[null]" module_uuid="[null]" module_uuid_path="[null]"
             enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]" deprecated_kee="[null]"
             created_at="2014-09-01" />
   <snapshots id="1" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
@@ -17,7 +17,7 @@
 
   <!-- sub view -->
   <projects id="2" kee="subView" name="Sub View" long_name="Sub View" scope="PRJ" qualifier="SVW" root_id="1" description="[null]"
-            uuid="[null]" project_uuid="[null]" module_uuid="[null]" module_uuid_path=""
+            uuid="[null]" project_uuid="[null]" module_uuid="[null]" module_uuid_path="[null]"
             enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]" deprecated_kee="[null]"
             created_at="2014-09-01" />
   <snapshots id="2" project_id="2" parent_snapshot_id="1" root_project_id="1" root_snapshot_id="1"
@@ -32,7 +32,7 @@
 
   <!-- technical project -->
   <projects id="3" root_id="1" scope="FIL" qualifier="TRK" kee="vieworg.struts:struts" name="Struts"
-            uuid="[null]" project_uuid="[null]" module_uuid="[null]" module_uuid_path=""
+            uuid="[null]" project_uuid="[null]" module_uuid="[null]" module_uuid_path="[null]"
             description="the description" long_name="Apache Struts"
             enabled="[true]" language="[null]" copy_resource_id="10" person_id="[null]" path="[null]" deprecated_kee="[null]"
             created_at="2014-06-18" />

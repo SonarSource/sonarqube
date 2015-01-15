@@ -79,7 +79,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(issue.getComponentKey()).isEqualTo("Action.java");
     assertThat(issue.getComponentId()).isEqualTo(401);
     assertThat(issue.getModuleUuid()).isEqualTo("BCDE");
-    assertThat(issue.getModuleUuidPath()).isEqualTo("ABCD.BCDE.");
+    assertThat(issue.getModuleUuidPath()).isEqualTo(".ABCD.BCDE.");
     assertThat(issue.getProjectKey()).isEqualTo("struts"); // ABCD
     assertThat(issue.getProjectUuid()).isEqualTo("ABCD"); // null
     assertThat(issue.getProjectId()).isEqualTo(399);

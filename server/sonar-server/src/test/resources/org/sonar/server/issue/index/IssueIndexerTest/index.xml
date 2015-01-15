@@ -3,9 +3,9 @@
          plugin_config_key="[null]" plugin_name="squid"/>
 
   <projects id="10" scope="PRJ" qualifier="TRK" kee="the_project" name="TheProject"
-            uuid="THE_PROJECT" module_uuid="[null]" module_uuid_path="[null]"/>
+            uuid="THE_PROJECT" module_uuid="[null]" module_uuid_path="."/>
   <projects id="11" scope="FIL" qualifier="FIL" kee="abcde" name="TheFile"
-            uuid="THE_FILE" module_uuid="THE_PROJECT" module_uuid_path="[null]"/>
+            uuid="THE_FILE" module_uuid="THE_PROJECT" module_uuid_path="."/>
 
   <issues id="1"
           kee="ABCDE"
