@@ -288,6 +288,37 @@ public class ComponentContainerTest {
     assertThat(component.stopped).isTrue();
   }
 
+  /**
+   * Method close() must be called even if the methods start() or stop()
+   * are not defined.
+   */
+  @Test
+  public void should_close_components_without_lifecycle() throws Exception {
+    ComponentContainer container = new ComponentContainer();
+    CloseableComponent component = new CloseableComponent();
+    container.add(component);
+
+    container.execute();
+
+    assertThat(component.isClosed).isTrue();
+  }
+
+  /**
+   * Method close() must be executed after stop()
+   */
+  @Test
+  public void should_close_components_with_lifecycle() throws Exception {
+    ComponentContainer container = new ComponentContainer();
+    StartableCloseableComponent component = new StartableCloseableComponent();
+    container.add(component);
+
+    container.execute();
+
+    assertThat(component.isStopped).isTrue();
+    assertThat(component.isClosed).isTrue();
+    assertThat(component.isClosedAfterStop).isTrue();
+  }
+
   public static class StartableComponent {
     public boolean started = false, stopped = false;
 
@@ -331,6 +362,29 @@ public class ComponentContainerTest {
   public static class SimpleComponentProvider extends ProviderAdapter {
     public SimpleComponent provide() {
       return new SimpleComponent();
+    }
+  }
+
+  public static class CloseableComponent implements AutoCloseable {
+    public boolean isClosed = false;
+
+    @Override
+    public void close() throws Exception {
+      isClosed = true;
+    }
+  }
+
+  public static class StartableCloseableComponent implements AutoCloseable {
+    public boolean isClosed = false, isStopped = false, isClosedAfterStop = false;
+
+    public void stop() {
+      isStopped = true;
+    }
+
+    @Override
+    public void close() throws Exception {
+      isClosed = true;
+      isClosedAfterStop = isStopped;
     }
   }
 }

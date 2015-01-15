@@ -32,7 +32,6 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.config.PropertyDefinitions;
 
 import javax.annotation.Nullable;
-
 import java.util.Collection;
 import java.util.List;
 
@@ -122,6 +121,7 @@ public class ComponentContainer implements BatchComponent, ServerComponent {
   public ComponentContainer stopComponents(boolean swallowException) {
     try {
       pico.stop();
+      pico.dispose();
 
     } catch (RuntimeException e) {
       if (!swallowException) {
@@ -230,7 +230,7 @@ public class ComponentContainer implements BatchComponent, ServerComponent {
   }
 
   static MutablePicoContainer createPicoContainer() {
-    ReflectionLifecycleStrategy lifecycleStrategy = new ReflectionLifecycleStrategy(new NullComponentMonitor(), "start", "stop", "dispose");
+    ReflectionLifecycleStrategy lifecycleStrategy = new ReflectionLifecycleStrategy(new NullComponentMonitor(), "start", "stop", "close");
     return new DefaultPicoContainer(new OptInCaching(), lifecycleStrategy, null);
   }
 
