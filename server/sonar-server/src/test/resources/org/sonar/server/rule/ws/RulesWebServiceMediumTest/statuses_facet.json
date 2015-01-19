@@ -12,9 +12,6 @@
       },{
         "val": "READY",
         "count": 0
-      },{
-        "val": "REMOVED",
-        "count": 0
       }
     ]
   }

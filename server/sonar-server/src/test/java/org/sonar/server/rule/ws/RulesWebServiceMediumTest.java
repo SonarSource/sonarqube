@@ -273,6 +273,43 @@ public class RulesWebServiceMediumTest {
   }
 
   @Test
+  public void debt_characteristics_is_sticky_facet() throws Exception {
+    insertDebtCharacteristics(session);
+
+    ruleDao.insert(session, RuleTesting.newXooX1()
+      .setDefaultSubCharacteristicId(hardReliabilityId)
+      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+      .setDefaultRemediationCoefficient("1h")
+      .setDefaultRemediationOffset("15min")
+
+      .setSubCharacteristicId(null)
+      .setRemediationFunction(null)
+      .setRemediationCoefficient(null)
+      .setRemediationOffset(null)
+      );
+    ruleDao.insert(session, RuleTesting.newXooX2()
+      .setDefaultSubCharacteristicId(hardReliabilityId)
+      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+      .setDefaultRemediationCoefficient("1h")
+      .setDefaultRemediationOffset("15min")
+
+      .setSubCharacteristicId(softReliabilityId)
+      .setRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+      .setRemediationCoefficient("30min")
+      .setRemediationOffset("5min")
+      );
+    session.commit();
+
+    MockUserSession.set();
+    WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
+    request.setParam(SearchOptions.PARAM_FIELDS, "debtChar,debtCharName,debtSubChar,debtSubCharName,debtRemFn,debtOverloaded,defaultDebtChar,defaultDebtSubChar,defaultDebtRemFn");
+    request.setParam("debt_characteristics", "SOFT_RELIABILITY");
+    request.setParam(SearchAction.PARAM_FACETS, "debt_characteristics");
+    WsTester.Result result = request.execute();
+    result.assertJson(this.getClass(), "search_debt_rules_sticky.json");
+  }
+
+  @Test
   public void search_template_rules() throws Exception {
     RuleDto templateRule = RuleTesting.newXooX1().setIsTemplate(true);
     ruleDao.insert(session, templateRule);
@@ -463,7 +500,7 @@ public class RulesWebServiceMediumTest {
   }
 
   @Test
-  public void statuses_facet_should_have_all_statuses() throws Exception {
+  public void statuses_facet_should_have_all_statuses_except_removed() throws Exception {
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(SearchAction.PARAM_FACETS, "statuses");
     request.execute().assertJson(this.getClass(), "statuses_facet.json", false);

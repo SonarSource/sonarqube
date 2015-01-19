@@ -22,6 +22,7 @@ package org.sonar.server.rule.index;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.collections.CollectionUtils;
@@ -85,12 +86,22 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
   public static final String FACET_DEBT_CHARACTERISTICS = "debt_characteristics";
   public static final String FACET_OLD_DEFAULT = "true";
 
-  public static final List<String> ALL_STATUSES = ImmutableList.copyOf(Collections2.transform(Arrays.asList(RuleStatus.values()), new Function<RuleStatus, String>() {
-    @Override
-    public String apply(RuleStatus input) {
-      return input.toString();
-    }
-  }));
+  public static final List<String> ALL_STATUSES_EXCEPT_REMOVED = ImmutableList.copyOf(
+    Collections2.filter(
+      Collections2.transform(
+        Arrays.asList(RuleStatus.values()),
+        new Function<RuleStatus, String>() {
+          @Override
+          public String apply(RuleStatus input) {
+            return input.toString();
+          }
+        }),
+      new Predicate<String>() {
+        @Override
+        public boolean apply(String input) {
+          return !RuleStatus.REMOVED.toString().equals(input);
+        }
+      }));
 
   public RuleIndex(RuleNormalizer normalizer, SearchClient client) {
     super(IndexDefinition.RULE, normalizer, client);
@@ -348,23 +359,45 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
     addDefaultFacets(query, options, queryBuilder, filters, aggregations, stickyFacetBuilder);
 
-    if (options.facets().contains(FACET_STATUSES)) {
-      aggregations.put(FACET_STATUSES,
-        stickyFacetBuilder.buildStickyFacet(RuleNormalizer.RuleField.STATUS.field(), FACET_STATUSES, ALL_STATUSES.toArray()));
-    }
+    addStatusFacetIfNeeded(query, options, aggregations, stickyFacetBuilder);
 
     if (options.facets().contains(FACET_SEVERITIES)) {
       aggregations.put(FACET_SEVERITIES,
         stickyFacetBuilder.buildStickyFacet(RuleNormalizer.RuleField.SEVERITY.field(), FACET_SEVERITIES, Severity.ALL.toArray()));
     }
 
+    addCharacteristicsFacetIfNeeded(query, options, aggregations, stickyFacetBuilder);
+
+    return aggregations;
+
+  }
+
+  private void addStatusFacetIfNeeded(RuleQuery query, QueryContext options, Map<String, AggregationBuilder> aggregations, StickyFacetBuilder stickyFacetBuilder) {
+    if (options.facets().contains(FACET_STATUSES)) {
+      Collection<RuleStatus> statusesFromQuery = query.getStatuses();
+      Object[] selectedStatuses = statusesFromQuery == null ? new Object[0] : statusesFromQuery.toArray();
+
+      AggregationBuilder statuses = AggregationBuilders.filter(FACET_STATUSES + "__top")
+        .filter(stickyFacetBuilder.getStickyFacetFilter(RuleNormalizer.RuleField.STATUS.field())
+          .mustNot(FilterBuilders.termFilter(RuleNormalizer.RuleField.STATUS.field(), RuleStatus.REMOVED.toString())))
+        .subAggregation(
+          AggregationBuilders.terms(FACET_STATUSES + "__values").field(RuleNormalizer.RuleField.STATUS.field()))
+        .subAggregation(
+          AggregationBuilders.terms(FACET_STATUSES + "__selected").field(RuleNormalizer.RuleField.STATUS.field())
+            .include(Joiner.on('|').join(selectedStatuses)));
+
+      aggregations.put(FACET_STATUSES, statuses);
+    }
+  }
+
+  private void addCharacteristicsFacetIfNeeded(RuleQuery query, QueryContext options, Map<String, AggregationBuilder> aggregations, StickyFacetBuilder stickyFacetBuilder) {
     if (options.facets().contains(FACET_DEBT_CHARACTERISTICS)) {
       int characsSize = 10;
       int subCharacsSize = 300;
       Collection<String> characsFromQuery = query.getDebtCharacteristics();
       Object[] selectedChars = characsFromQuery == null ? new Object[0] : characsFromQuery.toArray();
       AggregationBuilder debtChar = AggregationBuilders.filter(FACET_DEBT_CHARACTERISTICS + "__chars")
-        .filter(stickyFacetBuilder.getStickyFacetFilter(RuleNormalizer.RuleField.CHARACTERISTIC.field()))
+        .filter(stickyFacetBuilder.getStickyFacetFilter("debtCharacteristics"))
         .subAggregation(
           AggregationBuilders.terms(FACET_DEBT_CHARACTERISTICS + "__chars_top").field(RuleNormalizer.RuleField.CHARACTERISTIC.field())
             .size(characsSize))
@@ -373,7 +406,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
             .include(Joiner.on('|').join(selectedChars))
             .size(characsSize));
       AggregationBuilder debtSubChar = AggregationBuilders.filter(FACET_DEBT_CHARACTERISTICS + "__subchars")
-        .filter(stickyFacetBuilder.getStickyFacetFilter(RuleNormalizer.RuleField.CHARACTERISTIC.field()))
+        .filter(stickyFacetBuilder.getStickyFacetFilter("debtCharacteristics"))
         .subAggregation(
           AggregationBuilders.terms(FACET_DEBT_CHARACTERISTICS + "__subchars_top").field(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field())
             .size(subCharacsSize))
@@ -386,9 +419,6 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
         .subAggregation(debtSubChar);
       aggregations.put(FACET_DEBT_CHARACTERISTICS, debtCharTopLevel);
     }
-
-    return aggregations;
-
   }
 
   protected void addDefaultFacets(RuleQuery query, QueryContext options, QueryBuilder queryBuilder, Map<String, FilterBuilder> filters,

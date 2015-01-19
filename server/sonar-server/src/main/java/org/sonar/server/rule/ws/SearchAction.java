@@ -297,7 +297,7 @@ public class SearchAction extends SearchRequestHandler<RuleQuery, Rule> {
 
   @Override
   protected void writeFacets(Request request, QueryContext context, Result<?> results, JsonWriter json) {
-    addMandatoryFacetValues(results, RuleIndex.FACET_STATUSES, RuleIndex.ALL_STATUSES);
+    addMandatoryFacetValues(results, RuleIndex.FACET_STATUSES, RuleIndex.ALL_STATUSES_EXCEPT_REMOVED);
     addMandatoryFacetValues(results, RuleIndex.FACET_SEVERITIES, Severity.ALL);
     super.writeFacets(request, context, results, json);
   }
