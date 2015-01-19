@@ -14,6 +14,7 @@ define [
 
     events: ->
       _.extend super,
+        'click .js-new-search': 'newSearch'
         'click .js-back': 'returnToList'
 
 
@@ -27,6 +28,10 @@ define [
 
     onClose: ->
       window.onBulkIssues = @_onBulkIssues
+
+
+    newSearch: ->
+      @options.app.controller.newSearch()
 
 
     returnToList: ->
