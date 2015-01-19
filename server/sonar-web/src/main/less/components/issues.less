@@ -24,7 +24,8 @@
 
 .issue-list,
 .issue {
-  max-width: 920px;
+  width: 780px;
+  .box-sizing(border-box);
 }
 
 .issue.selected {
@@ -62,6 +63,8 @@
   line-height: 1.5;
   font-size: @baseFontSize;
   font-weight: 500;
+  word-break: break-all;
+  word-break: break-word;
 }
 
 .issue-tags {

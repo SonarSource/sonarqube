@@ -73,7 +73,6 @@ define([
             app: this.options.app,
             model: this.model
           }));
-          this.$el.scrollParent().scrollTop(30);
         },
 
         onClose: function () {
