@@ -10,7 +10,7 @@
              title="{{#if projectFavorite}}{{t 'click_to_remove_from_favorites'}}{{else}}{{t 'click_to_add_to_favorites'}}{{/if}}">
           </a>
         {{/if}}
-        {{projectName}}
+        <a href="{{dashboardUrl projectKey}}">{{projectName}}</a>
       </div>
     {{/eq}}
     {{#eq space 'settings'}}

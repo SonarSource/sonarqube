@@ -23,6 +23,7 @@ define([
     initialize: function () {
       $(window).on('scroll.nav-layout', this.onScroll);
       this.projectName = window.navbarProject;
+      this.projectKey = window.navbarProjectKey;
       this.isProjectFavorite = window.navbarProjectFavorite;
     },
 
@@ -86,6 +87,7 @@ define([
         space: window.navbarSpace,
 
         projectName: this.projectName,
+        projectKey: this.projectKey,
         projectFavorite: this.isProjectFavorite,
         navbarCanFavoriteProject: window.navbarCanFavoriteProject
       });
