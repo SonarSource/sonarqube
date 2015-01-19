@@ -12,18 +12,6 @@ define([
       return _.sortBy(values, function (v) {
         return order.indexOf(v.val);
       });
-    },
-
-    getValues: function () {
-      return this.severities.map(function (s) {
-        return { val: s };
-      });
-    },
-
-    serializeData: function () {
-      return _.extend(BaseFacet.prototype.serializeData.apply(this, arguments), {
-        values: this.sortValues(this.getValues())
-      });
     }
   });
 

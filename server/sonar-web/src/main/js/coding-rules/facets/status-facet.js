@@ -3,13 +3,20 @@ define([
 ], function (BaseFacet) {
 
   return BaseFacet.extend({
+    statuses: ['READY', 'DEPRECATED', 'BETA'],
 
     getValues: function () {
-      return ['BETA', 'DEPRECATED', 'READY'].map(function (s) {
-        return {
-          label: t('rules.status', s.toLowerCase()),
-          val: s
-        };
+      var values = this.model.getValues();
+      var x = values.map(function (value) {
+        return _.extend(value, { label: t('rules.status', value.val.toLowerCase()) });
+      });
+      return x;
+    },
+
+    sortValues: function (values) {
+      var order = this.statuses;
+      return _.sortBy(values, function (v) {
+        return order.indexOf(v.val);
       });
     },
 

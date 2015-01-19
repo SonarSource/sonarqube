@@ -7,13 +7,21 @@ define([
   return BaseFacet.extend({
 
     getValues: function () {
-      var values = _.map(this.options.app.characteristics, function (value, key) {
-        return {
-          label: value,
-          val: key
-        };
+      var values = this.model.getValues(),
+          characteristics = this.options.app.characteristics;
+      return values.map(function (value) {
+        var label = characteristics[value.val];
+        if (value.val === 'NONE') {
+          label = t('coding_rules.noncharacterized');
+        }
+        return _.extend(value, { label: label });
       });
-      return _.sortBy(values, 'label');
+    },
+
+    sortValues: function (values) {
+      return _.sortBy(values, function (v) {
+        return v.val === 'NONE' ? -999999 : -v.count;
+      });
     },
 
     toggleFacet: function (e) {
@@ -29,7 +37,7 @@ define([
 
     serializeData: function () {
       return _.extend(BaseFacet.prototype.serializeData.apply(this, arguments), {
-        values: this.getValues()
+        values: this.sortValues(this.getValues())
       });
     }
   });
