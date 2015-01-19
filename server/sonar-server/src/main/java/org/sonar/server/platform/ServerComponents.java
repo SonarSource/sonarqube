@@ -352,7 +352,6 @@ class ServerComponents {
     pico.addSingleton(ProjectRepositoryAction.class);
     pico.addSingleton(ProjectRepositoryLoader.class);
     pico.addSingleton(SubmitReportWsAction.class);
-    pico.addSingleton(IssuesSearchService.class);
     pico.addSingleton(IssuesAction.class);
     pico.addSingleton(BatchWs.class);
 
