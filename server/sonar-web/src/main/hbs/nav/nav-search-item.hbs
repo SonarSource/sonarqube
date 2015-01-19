@@ -2,5 +2,15 @@
   {{#if extra}}
     <span class="navbar-search-extra subtitle">{{extra}}</span>
   {{/if}}
-  {{#if q}}{{qualifierIcon q}}&nbsp;{{/if}}{{name}}
+  {{#if q}}{{qualifierIcon q}}{{/if}}
+  {{#if subtitle}}
+    {{title}}
+    <br>
+    {{#if extra}}
+      <span class="navbar-search-extra subtitle">&nbsp;</span>
+    {{/if}}
+    <span class="subtitle">{{subtitle}}</span>
+  {{else}}
+    {{name}}
+  {{/if}}
 </a>

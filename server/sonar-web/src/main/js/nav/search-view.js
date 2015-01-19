@@ -115,31 +115,29 @@ define([
       this.results.reset(history.concat(qualifiers));
     },
 
-    open: function () {
-      this.$el.addClass('open');
-    },
-
-    disableOpen: function () {
-      this.$el.removeClass('open');
-    },
-
     search: function (q) {
       if (q.length < 2) {
         this.resetResultsToDefault();
-        this.disableOpen();
         return;
       }
       var that = this,
           url = baseUrl + '/api/components/suggestions',
           options = { s: q },
           p = window.process.addBackgroundProcess();
-      this.open();
       return $.get(url, options).done(function (r) {
         var collection = [];
         r.results.forEach(function (domain) {
           domain.items.forEach(function (item, index) {
+            var title = item.name,
+                subtitle = null;
+            if (domain.q === 'FIL' || domain.q === 'UTS') {
+              subtitle = title.substr(0, title.lastIndexOf('/') - 1);
+              title = title.substr(title.lastIndexOf('/') + 1);
+            }
             collection.push(_.extend(item, {
               q: domain.q,
+              title: title,
+              subtitle: subtitle,
               extra: index === 0 ? domain.name : ' ',
               url: baseUrl + '/dashboard/index?id=' + encodeURIComponent(item.key) + dashboardParameters(true)
             }));
