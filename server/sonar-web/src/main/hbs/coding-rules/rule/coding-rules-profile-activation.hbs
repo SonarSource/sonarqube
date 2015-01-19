@@ -10,61 +10,65 @@
   <div class="modal-body modal-body-select2">
     <div class="modal-error"></div>
 
-    <table>
-      <tr class="property">
-        <th><h3>{{t 'coding_rules.quality_profile'}}</h3></th>
-        <td>
-          {{#if key}}
-            {{name}}
-          {{else}}
-            <select id="coding-rules-quality-profile-activation-select">
-              {{#each qualityProfiles}}
-                <option value="{{key}}">{{name}}</option>
-              {{/each}}
-            </select>
-          {{/if}}
-        </td>
-      </tr>
-      <tr class="property">
-        <th><h3>{{t 'severity'}}</h3></th>
-        <td>
-          <select id="coding-rules-quality-profile-activation-severity">
-            {{#each severities}}
-              <option value="{{this}}">{{t 'severity' this}}</option>
-            {{/each}}
-          </select>
-        </td>
-      </tr>
-      {{#if isCustomRule}}
-      <tr class="property">
-        <td colspan="2" class="note">{{t 'coding_rules.custom_rule.activation_notice'}}</td>
-      {{else}}
-      {{#each params}}
+    {{#notEmpty qualityProfiles}}
+      <table>
         <tr class="property">
-          <th><h3>{{key}}</h3></th>
+          <th><h3>{{t 'coding_rules.quality_profile'}}</h3></th>
           <td>
-            {{#eq type 'TEXT'}}
-              <textarea class="width100" rows="3" name="{{key}}" placeholder="{{defaultValue}}">{{value}}</textarea>
+            {{#if key}}
+              {{name}}
             {{else}}
-              {{#eq type 'BOOLEAN'}}
-              <select name="{{key}}" value="{{value}}">
-                <option value="{{defaultValue}}">{{t 'default'}} ({{t defaultValue}})</option>
-                <option value="true"{{#eq value 'true'}} selected="selected"{{/eq}}>{{t 'true'}}</option>
-                <option value="false"{{#eq value 'false'}} selected="selected"{{/eq}}>{{t 'false'}}</option>
+              <select id="coding-rules-quality-profile-activation-select">
+                {{#each qualityProfiles}}
+                  <option value="{{key}}">{{name}}</option>
+                {{/each}}
               </select>
-              {{else}}
-              <input type="text" name="{{key}}" value="{{value}}" placeholder="{{defaultValue}}">
-              {{/eq}}
-            {{/eq}}
-            <div class="note">{{{htmlDesc}}}</div>
-            {{#if extra}}
-              <div class="note">{{extra}}</div>
             {{/if}}
           </td>
         </tr>
-      {{/each}}
-      {{/if}}
-    </table>
+        <tr class="property">
+          <th><h3>{{t 'severity'}}</h3></th>
+          <td>
+            <select id="coding-rules-quality-profile-activation-severity">
+              {{#each severities}}
+                <option value="{{this}}">{{t 'severity' this}}</option>
+              {{/each}}
+            </select>
+          </td>
+        </tr>
+        {{#if isCustomRule}}
+        <tr class="property">
+          <td colspan="2" class="note">{{t 'coding_rules.custom_rule.activation_notice'}}</td>
+        {{else}}
+        {{#each params}}
+          <tr class="property">
+            <th><h3>{{key}}</h3></th>
+            <td>
+              {{#eq type 'TEXT'}}
+                <textarea class="width100" rows="3" name="{{key}}" placeholder="{{defaultValue}}">{{value}}</textarea>
+              {{else}}
+                {{#eq type 'BOOLEAN'}}
+                <select name="{{key}}" value="{{value}}">
+                  <option value="{{defaultValue}}">{{t 'default'}} ({{t defaultValue}})</option>
+                  <option value="true"{{#eq value 'true'}} selected="selected"{{/eq}}>{{t 'true'}}</option>
+                  <option value="false"{{#eq value 'false'}} selected="selected"{{/eq}}>{{t 'false'}}</option>
+                </select>
+                {{else}}
+                <input type="text" name="{{key}}" value="{{value}}" placeholder="{{defaultValue}}">
+                {{/eq}}
+              {{/eq}}
+              <div class="note">{{{htmlDesc}}}</div>
+              {{#if extra}}
+                <div class="note">{{extra}}</div>
+              {{/if}}
+            </td>
+          </tr>
+        {{/each}}
+        {{/if}}
+      </table>
+    {{else}}
+      <div class="message-notice">{{t 'coding_rules.active_in_all_profiles'}}</div>
+    {{/notEmpty}}
   </div>
 
   <div class="modal-foot">

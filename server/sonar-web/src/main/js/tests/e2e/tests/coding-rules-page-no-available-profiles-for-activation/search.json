@@ -1,0 +1,171 @@
+{
+  "total": 10,
+  "p": 1,
+  "ps": 200,
+  "rules": [
+    {
+      "key": "squid:S1181",
+      "name": "Throwable and Error classes should not be caught",
+      "lang": "java",
+      "langName": "Java",
+      "sysTags": [
+        "error-handling"
+      ],
+      "tags": []
+    },
+    {
+      "key": "squid:S1849",
+      "name": "\"Iterator.hasNext()\" should not call \"Iterator.next()\"",
+      "lang": "java",
+      "langName": "Java",
+      "sysTags": [
+        "bug"
+      ],
+      "tags": []
+    },
+    {
+      "key": "squid:S1844",
+      "name": "\"Object.wait(...)\" should never be called on objects that implement \"java.util.concurrent.locks.Condition\"",
+      "lang": "java",
+      "langName": "Java",
+      "sysTags": [
+        "bug",
+        "pitfall"
+      ],
+      "tags": []
+    },
+    {
+      "key": "squid:S2258",
+      "name": "\"javax.crypto.NullCipher\" should not be used for anything other than testing",
+      "lang": "java",
+      "langName": "Java",
+      "sysTags": [
+        "cwe",
+        "owasp-top10",
+        "security"
+      ],
+      "tags": []
+    },
+    {
+      "key": "squid:S2251",
+      "name": "A \"for\" loop update clause should move the counter in the right direction",
+      "lang": "java",
+      "langName": "Java",
+      "sysTags": [
+        "bug"
+      ],
+      "tags": []
+    },
+    {
+      "key": "squid:ObjectFinalizeOverridenCallsSuperFinalizeCheck",
+      "name": "super.finalize() should be called at the end of Object.finalize() implementations",
+      "lang": "java",
+      "langName": "Java",
+      "sysTags": [
+        "bug"
+      ],
+      "tags": []
+    },
+    {
+      "key": "squid:S1143",
+      "name": "Return statements should not occur in finally blocks",
+      "lang": "java",
+      "langName": "Java",
+      "sysTags": [
+        "bug"
+      ],
+      "tags": []
+    },
+    {
+      "key": "squid:S1206",
+      "name": "\"equals(Object obj)\" and \"hashCode()\" should be overridden in pairs",
+      "lang": "java",
+      "langName": "Java",
+      "sysTags": [
+        "bug"
+      ],
+      "tags": []
+    },
+    {
+      "key": "squid:S1451",
+      "name": "Copyright and license headers should be defined in all source files",
+      "lang": "java",
+      "langName": "Java",
+      "sysTags": [
+        "convention"
+      ],
+      "tags": []
+    },
+    {
+      "key": "squid:S1697",
+      "name": "Short-circuit logic should be used to prevent null pointer dereferences in conditionals",
+      "lang": "java",
+      "langName": "Java",
+      "sysTags": [
+        "bug"
+      ],
+      "tags": []
+    }
+  ],
+  "facets": [
+    {
+      "property": "tags",
+      "values": [
+        {
+          "val": "bug",
+          "count": 7
+        },
+        {
+          "val": "convention",
+          "count": 1
+        },
+        {
+          "val": "cwe",
+          "count": 1
+        },
+        {
+          "val": "error-handling",
+          "count": 1
+        },
+        {
+          "val": "owasp-top10",
+          "count": 1
+        },
+        {
+          "val": "pitfall",
+          "count": 1
+        },
+        {
+          "val": "security",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "property": "languages",
+      "values": [
+        {
+          "val": "java",
+          "count": 10
+        },
+        {
+          "val": "js",
+          "count": 6
+        },
+        {
+          "val": "php",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "property": "repositories",
+      "values": [
+        {
+          "val": "squid",
+          "count": 10
+        }
+      ]
+    }
+  ]
+}
