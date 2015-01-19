@@ -135,11 +135,17 @@ public class AppAction implements RequestHandler {
       DefaultDebtCharacteristic fullCarac = (DefaultDebtCharacteristic) carac;
       caracById.put(fullCarac.id(), fullCarac);
     }
-    json.name("characteristics").beginObject();
+    json.name("characteristics").beginArray();
     for (DefaultDebtCharacteristic carac : caracById.values()) {
-      json.prop(carac.key(), carac.isSub() ? caracById.get(carac.parentId()).name() + ": " + carac.name() : carac.name());
+      json.beginObject()
+        .prop("key", carac.key())
+        .prop("name", carac.name());
+      if (carac.isSub()) {
+        json.prop("parent", caracById.get(carac.parentId()).key());
+      }
+      json.endObject();
     }
-    json.endObject();
+    json.endArray();
   }
 
   void define(WebService.NewController controller) {

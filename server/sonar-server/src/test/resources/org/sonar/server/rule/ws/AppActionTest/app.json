@@ -34,8 +34,8 @@
     "DEPRECATED": "rules.status.deprecated",
     "READY": "rules.status.ready"
   },
-  "characteristics": {
-    "REUSABILITY": "Reusability",
-    "MODULARITY": "Reusability: Modularity"
-  }}
+  "characteristics": [
+    {"key": "REUSABILITY", "name": "Reusability"},
+    {"key": "MODULARITY", "name": "Modularity", "parent": "REUSABILITY"}
+  ]}
 
