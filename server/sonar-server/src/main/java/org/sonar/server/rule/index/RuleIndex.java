@@ -20,6 +20,7 @@
 package org.sonar.server.rule.index;
 
 import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
@@ -41,6 +42,7 @@ import org.elasticsearch.index.query.SimpleQueryStringBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.global.GlobalBuilder;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
@@ -354,6 +356,35 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     if (options.facets().contains(FACET_SEVERITIES)) {
       aggregations.put(FACET_SEVERITIES,
         stickyFacetBuilder.buildStickyFacet(RuleNormalizer.RuleField.SEVERITY.field(), FACET_SEVERITIES, Severity.ALL.toArray()));
+    }
+
+    if (options.facets().contains(FACET_DEBT_CHARACTERISTICS)) {
+      int characsSize = 10;
+      int subCharacsSize = 300;
+      Collection<String> characsFromQuery = query.getDebtCharacteristics();
+      Object[] selectedChars = characsFromQuery == null ? new Object[0] : characsFromQuery.toArray();
+      AggregationBuilder debtChar = AggregationBuilders.filter(FACET_DEBT_CHARACTERISTICS + "__chars")
+        .filter(stickyFacetBuilder.getStickyFacetFilter(RuleNormalizer.RuleField.CHARACTERISTIC.field()))
+        .subAggregation(
+          AggregationBuilders.terms(FACET_DEBT_CHARACTERISTICS + "__chars_top").field(RuleNormalizer.RuleField.CHARACTERISTIC.field())
+            .size(characsSize))
+        .subAggregation(
+          AggregationBuilders.terms(FACET_DEBT_CHARACTERISTICS + "__chars_selected").field(RuleNormalizer.RuleField.CHARACTERISTIC.field())
+            .include(Joiner.on('|').join(selectedChars))
+            .size(characsSize));
+      AggregationBuilder debtSubChar = AggregationBuilders.filter(FACET_DEBT_CHARACTERISTICS + "__subchars")
+        .filter(stickyFacetBuilder.getStickyFacetFilter(RuleNormalizer.RuleField.CHARACTERISTIC.field()))
+        .subAggregation(
+          AggregationBuilders.terms(FACET_DEBT_CHARACTERISTICS + "__subchars_top").field(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field())
+            .size(subCharacsSize))
+        .subAggregation(
+          AggregationBuilders.terms(FACET_DEBT_CHARACTERISTICS + "__chars_selected").field(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field())
+            .include(Joiner.on('|').join(selectedChars))
+            .size(subCharacsSize));
+      GlobalBuilder debtCharTopLevel = AggregationBuilders.global(FACET_DEBT_CHARACTERISTICS)
+        .subAggregation(debtChar)
+        .subAggregation(debtSubChar);
+      aggregations.put(FACET_DEBT_CHARACTERISTICS, debtCharTopLevel);
     }
 
     return aggregations;

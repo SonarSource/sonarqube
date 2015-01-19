@@ -35,7 +35,11 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class Result<K> {
 
@@ -79,7 +83,11 @@ public class Result<K> {
     } else if (Terms.class.isAssignableFrom(aggregation.getClass())) {
       Terms termAggregation = (Terms) aggregation;
       for (Terms.Bucket value : termAggregation.getBuckets()) {
-        this.facets.put(aggregation.getName().replace("_selected",""), new FacetValue(value.getKey(), value.getDocCount()));
+        String facetName = aggregation.getName().replace("_selected", "");
+        if (aggregation.getName().contains("__")) {
+          facetName = facetName.substring(0, facetName.indexOf("__"));
+        }
+        this.facets.put(facetName, new FacetValue(value.getKey(), value.getDocCount()));
       }
     } else if (HasAggregations.class.isAssignableFrom(aggregation.getClass())) {
       HasAggregations hasAggregations = (HasAggregations) aggregation;

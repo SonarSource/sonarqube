@@ -15,4 +15,19 @@
     "defaultDebtRemFnCoeff": "1h",
     "defaultDebtRemFnOffset": "15min"
   }
+],
+"facets": [
+  {
+    "property": "debt_characteristics",
+    "values": [
+      {
+        "val": "RELIABILITY",
+        "count": 1
+      },
+      {
+        "val": "HARD_RELIABILITY",
+        "count": 1
+      }
+    ]
+  }
 ]}
