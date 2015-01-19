@@ -6,7 +6,7 @@
    @project=@resource unless @project || selected_section==Navigation::SECTION_HOME
    period_param = "period=#{u(params[:period])}" if params[:period]
 %>
-<div id="container" class="navbar-sticky">
+<div id="container" class="wrapper navbar-sticky">
   <%
      navbar_class = 'navbar-global'
      navbar_class = 'navbar-project' if selected_section==Navigation::SECTION_RESOURCE

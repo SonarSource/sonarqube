@@ -14,7 +14,6 @@
 }
 
 .search-navigator-facet-box {
-  background-color: @barBackgroundColor;
   font-size: @baseFontSize;
 }
 
@@ -51,13 +50,11 @@
   margin: 0 0 1px 0;
   border-color: transparent;
   .box-sizing(border-box);
-  background-color: @barBackgroundColor;
   white-space: normal;
   overflow: hidden;
 
   .facet-name {
     white-space: nowrap;
-    background-color: @barBackgroundColor;
     color: @baseFontColor;
   }
 
@@ -66,14 +63,13 @@
     top: 0; right: 0;
     padding: 4px 5px;
     border: none;
-    background-color: @barBackgroundColor;
 
     &:before {
       content: " ";
       position: absolute;
       top: 0; bottom: 0; right: 100%;
       width: 10px;
-      background-image: linear-gradient(to right, fade(@barBackgroundColor, 0%), @barBackgroundColor 75%);
+      background-image: linear-gradient(to right, fade(#fff, 0%), #fff 75%);
     }
   }
 
@@ -91,15 +87,15 @@
 
 .search-navigator-facet-header {
   display: block;
-  padding: 6px 10px;
+  padding: 6px 0;
   border-bottom: none;
   color: @baseFontColor;
   font-weight: 500;
 }
 
 .search-navigator-facet-list {
-  margin: 0 0 0 0;
-  padding: 0 10px 10px;
+  margin: 0;
+  padding: 0 0 10px;
   font-size: 0;
 }
 
@@ -133,7 +129,7 @@
 }
 
 .search-navigator-facet-query {
-  padding: 6px 10px;
+  padding: 6px 0;
 
   input {
     width: 100%;
@@ -150,9 +146,9 @@
 }
 
 .search-navigator-filters {
-  position: relative;
   .clearfix;
-  padding: 5px 10px;
+  position: relative;
+  padding: 5px 0;
 }
 
 .search-navigator-filters-selected {
@@ -248,7 +244,7 @@
   position: absolute;
   top: 0;
   right: 0;
-  padding: 5px 10px;
+  padding: 5px 0;
   font-size: 0;
   white-space: nowrap;
 

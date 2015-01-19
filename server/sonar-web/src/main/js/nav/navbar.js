@@ -21,20 +21,9 @@ define([
     },
 
     initialize: function () {
-      $(window).on('scroll.nav-layout', this.onScroll);
       this.projectName = window.navbarProject;
       this.projectKey = window.navbarProjectKey;
       this.isProjectFavorite = window.navbarProjectFavorite;
-    },
-
-    onClose: function () {
-      $(window).off('scroll.nav-layout');
-    },
-
-    onScroll: function () {
-      var scrollTop = $(window).scrollTop(),
-          isInTheMiddle = scrollTop > 0;
-      $('.navbar-sticky').toggleClass('middle', isInTheMiddle);
     },
 
     onRender: function () {

@@ -21,8 +21,10 @@ define [
     showComponentViewer: ->
       @scroll = $(window).scrollTop()
       $('.issues').addClass 'issues-extended-view'
+      @$el.closest('.container').addClass 'container-full-width'
 
 
     hideComponentViewer: ->
       $('.issues').removeClass 'issues-extended-view'
       $(window).scrollTop @scroll if @scroll?
+      @$el.closest('.container').removeClass 'container-full-width'
