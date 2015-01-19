@@ -21,7 +21,7 @@
             <% ActiveDashboard.user_dashboards(current_user, false).each do |active_dashboard| %>
             {
               url: '/dashboard/index?id=<%= @project.key -%>&did=<%= active_dashboard.dashboard_id -%><%= "&"+period_param if period_param -%>',
-              labelLocalized: '<%= h active_dashboard.dashboard.name(true) -%>',
+              labelLocalized: '<%= escape_javascript active_dashboard.dashboard.name(true) -%>',
               active: <%= @dashboard && controller.controller_path=='dashboard' && active_dashboard.dashboard_id==@dashboard.id ? "true" : "false" -%>
             },
             <% end %>
@@ -120,7 +120,7 @@
             %>
             {
               url: '<%= page_url -%>',
-              labelLocalized: '<%= h message(page.getId() + '.page', :default => page.getTitle()) -%>',
+              labelLocalized: '<%= escape_javascript message(page.getId() + '.page', :default => page.getTitle()) -%>',
               active: false
             },
             <%   end
@@ -139,7 +139,7 @@
             %>
             {
               url: '<%= page_url -%>',
-              labelLocalized: '<%= h message(page.getId() + '.page', :default => page.getTitle()) -%>',
+              labelLocalized: '<%= escape_javascript message(page.getId() + '.page', :default => page.getTitle()) -%>',
               active: <%= request.request_uri.include?(page_url) ? "true" : "false" -%>
             },
             <% end %>

@@ -32,9 +32,9 @@
                       %>
             {
               url: '<%= page_url -%>',
-              labelLocalized: '<%= h message(page.getId() + '.page', :default => page.getTitle()) %>',
+              labelLocalized: '<%= escape_javascript message(page.getId() + '.page', :default => page.getTitle()) %>',
               active: <%= request.request_uri.include?(page_url) ? 'true' : 'false' -%>
-            }
+            },
             <% end %>
           ]
         },
