@@ -24,7 +24,6 @@ import com.google.common.base.Charsets;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
@@ -38,15 +37,12 @@ import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.platform.Server;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.user.User;
-import org.sonar.api.user.UserFinder;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.batch.bootstrap.AnalysisMode;
-import org.sonar.batch.events.BatchStepEvent;
-import org.sonar.batch.events.EventBus;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.scan.filesystem.InputPathCache;
+import org.sonar.batch.user.User;
+import org.sonar.batch.user.UserRepository;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -55,71 +51,47 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.Collection;
 import java.util.Set;
 
 import static com.google.common.collect.Sets.newHashSet;
 
-/**
- * @since 3.6
- */
+public class JSONReport implements Reporter {
 
-public class JsonReport implements BatchComponent {
-
-  private static final Logger LOG = LoggerFactory.getLogger(JsonReport.class);
+  private static final Logger LOG = LoggerFactory.getLogger(JSONReport.class);
   private final Settings settings;
   private final FileSystem fileSystem;
   private final Server server;
   private final ActiveRules activeRules;
   private final IssueCache issueCache;
-  private final EventBus eventBus;
-  private final AnalysisMode analysisMode;
-  private final UserFinder userFinder;
   private final InputPathCache fileCache;
   private final Project rootModule;
+  private final UserRepository userRepository;
 
-  public JsonReport(Settings settings, FileSystem fileSystem, Server server, ActiveRules activeRules, IssueCache issueCache,
-    EventBus eventBus, AnalysisMode analysisMode, UserFinder userFinder, Project rootModule, InputPathCache fileCache) {
+  public JSONReport(Settings settings, FileSystem fileSystem, Server server, ActiveRules activeRules, IssueCache issueCache,
+    Project rootModule, InputPathCache fileCache, UserRepository userRepository) {
     this.settings = settings;
     this.fileSystem = fileSystem;
     this.server = server;
     this.activeRules = activeRules;
     this.issueCache = issueCache;
-    this.eventBus = eventBus;
-    this.analysisMode = analysisMode;
-    this.userFinder = userFinder;
     this.rootModule = rootModule;
     this.fileCache = fileCache;
+    this.userRepository = userRepository;
   }
 
-  public JsonReport(Settings settings, FileSystem fileSystem, Server server, ActiveRules activeRules, IssueCache issueCache,
-    EventBus eventBus, AnalysisMode analysisMode, Project rootModule, InputPathCache fileCache) {
-    this.settings = settings;
-    this.fileSystem = fileSystem;
-    this.server = server;
-    this.activeRules = activeRules;
-    this.issueCache = issueCache;
-    this.eventBus = eventBus;
-    this.analysisMode = analysisMode;
-    this.userFinder = null;
-    this.rootModule = rootModule;
-    this.fileCache = fileCache;
-  }
-
+  @Override
   public void execute() {
     String exportPath = settings.getString("sonar.report.export.path");
-    if (exportPath != null && (analysisMode.isPreview() || analysisMode.isSensorMode())) {
-      eventBus.fireEvent(new BatchStepEvent("JSON report", true));
+    if (exportPath != null) {
       exportResults(exportPath);
-      eventBus.fireEvent(new BatchStepEvent("JSON report", false));
     }
   }
 
   private void exportResults(String exportPath) {
     File exportFile = new File(fileSystem.workDir(), exportPath);
 
-    LOG.info("Export results to " + exportFile.getAbsolutePath());
+    LOG.info("Export issues to " + exportFile.getAbsolutePath());
     try (Writer output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(exportFile), Charsets.UTF_8))) {
       writeJson(output);
 
@@ -140,7 +112,7 @@ public class JsonReport implements BatchComponent {
       writeJsonIssues(json, ruleKeys, userLogins);
       writeJsonComponents(json);
       writeJsonRules(json, ruleKeys);
-      List<User> users = userFinder != null ? userFinder.findByLogins(new ArrayList<String>(userLogins)) : Collections.<User>emptyList();
+      Collection<User> users = userRepository.loadFromWs(new ArrayList<String>(userLogins));
       writeUsers(json, users);
       json.endObject().close();
 
@@ -238,7 +210,7 @@ public class JsonReport implements BatchComponent {
     json.endArray();
   }
 
-  private void writeUsers(JsonWriter json, List<User> users) throws IOException {
+  private void writeUsers(JsonWriter json, Collection<User> users) throws IOException {
     json.name("users").beginArray();
     for (User user : users) {
       json

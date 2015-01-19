@@ -17,23 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.user;
+package org.sonar.batch.user;
 
-import org.sonar.api.ServerComponent;
+import com.google.common.base.Joiner;
+import org.sonar.batch.bootstrap.ServerClient;
+import org.sonar.batch.protocol.GsonHelper;
 
-import javax.annotation.CheckForNull;
-
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
-/**
- * @since 3.6
- */
-public interface UserFinder extends ServerComponent {
+public class UserRepository {
 
-  @CheckForNull
-  User findByLogin(String login);
+  private ServerClient serverClient;
 
-  List<User> findByLogins(List<String> logins);
+  public UserRepository(ServerClient serverClient) {
+    this.serverClient = serverClient;
+  }
 
-  List<User> find(UserQuery query);
+  private static class Users {
+
+    private List<User> users = new ArrayList<>();
+
+    public List<User> getUsers() {
+      return users;
+    }
+  }
+
+  public Collection<User> loadFromWs(List<String> userLogins) {
+    String url = "/api/users/search?format=json&includeDeactivated=true&logins=" + Joiner.on(',').join(userLogins);
+    String json = serverClient.request(url);
+    Users users = GsonHelper.create().fromJson(json, Users.class);
+    return users.getUsers();
+  }
+
 }

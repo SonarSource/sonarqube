@@ -17,23 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.user;
+package org.sonar.batch.scan.report;
 
-import org.sonar.api.ServerComponent;
+import org.sonar.api.BatchComponent;
 
-import javax.annotation.CheckForNull;
+public interface Reporter extends BatchComponent {
 
-import java.util.List;
+  public void execute();
 
-/**
- * @since 3.6
- */
-public interface UserFinder extends ServerComponent {
-
-  @CheckForNull
-  User findByLogin(String login);
-
-  List<User> findByLogins(List<String> logins);
-
-  List<User> find(UserQuery query);
 }

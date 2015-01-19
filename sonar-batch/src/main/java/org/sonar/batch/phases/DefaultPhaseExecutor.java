@@ -36,7 +36,7 @@ import org.sonar.batch.rule.QProfileVerifier;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.batch.scan.filesystem.FileSystemLogger;
 import org.sonar.batch.scan.maven.MavenPluginsConfigurator;
-import org.sonar.batch.scan.report.JsonReport;
+import org.sonar.batch.scan.report.IssuesReports;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -61,7 +61,7 @@ public final class DefaultPhaseExecutor implements PhaseExecutor {
   private final ProjectInitializer pi;
   private final ScanPersister[] persisters;
   private final FileSystemLogger fsLogger;
-  private final JsonReport jsonReport;
+  private final IssuesReports jsonReport;
   private final DefaultModuleFileSystem fs;
   private final QProfileVerifier profileVerifier;
   private final IssueExclusionsLoader issueExclusionsLoader;
@@ -74,7 +74,7 @@ public final class DefaultPhaseExecutor implements PhaseExecutor {
     PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
     SensorContext sensorContext, DefaultIndex index,
     EventBus eventBus, PublishReportJob publishReportJob, ProjectInitializer pi,
-    ScanPersister[] persisters, FileSystemLogger fsLogger, JsonReport jsonReport, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
+    ScanPersister[] persisters, FileSystemLogger fsLogger, IssuesReports jsonReport, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
     IssueExclusionsLoader issueExclusionsLoader, AnalysisMode analysisMode, DatabaseSession session, ResourcePersister resourcePersister) {
     this.phases = phases;
     this.decoratorsExecutor = decoratorsExecutor;

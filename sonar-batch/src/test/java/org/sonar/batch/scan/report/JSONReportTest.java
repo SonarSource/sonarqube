@@ -41,13 +41,10 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.user.User;
-import org.sonar.api.user.UserFinder;
-import org.sonar.batch.bootstrap.AnalysisMode;
-import org.sonar.batch.events.EventBus;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.scan.filesystem.InputPathCache;
-import org.sonar.core.user.DefaultUser;
+import org.sonar.batch.user.User;
+import org.sonar.batch.user.UserRepository;
 
 import java.io.File;
 import java.io.IOException;
@@ -62,30 +59,28 @@ import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class JsonReportTest {
+public class JSONReportTest {
 
   private SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
   @org.junit.Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-  JsonReport jsonReport;
+  JSONReport jsonReport;
   Resource resource = mock(Resource.class);
   DefaultFileSystem fs = new DefaultFileSystem();
   Server server = mock(Server.class);
   ActiveRules activeRules = mock(ActiveRules.class);
   Settings settings = new Settings();
   IssueCache issueCache = mock(IssueCache.class);
-  private UserFinder userFinder;
+  private UserRepository userRepository;
 
   @Before
   public void before() {
     SIMPLE_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT+02:00"));
     when(resource.getEffectiveKey()).thenReturn("Action.java");
     when(server.getVersion()).thenReturn("3.6");
-    AnalysisMode mode = mock(AnalysisMode.class);
-    when(mode.isPreview()).thenReturn(true);
-    userFinder = mock(UserFinder.class);
+    userRepository = mock(UserRepository.class);
     DefaultInputDir inputDir = new DefaultInputDir("struts", "src/main/java/org/apache/struts");
     DeprecatedDefaultInputFile inputFile = new DeprecatedDefaultInputFile("struts", "src/main/java/org/apache/struts/Action.java");
     inputFile.setStatus(InputFile.Status.CHANGED);
@@ -99,8 +94,7 @@ public class JsonReportTest {
     activeRules = new ActiveRulesBuilder()
       .create(RuleKey.of("squid", "AvoidCycles")).setName("Avoid Cycles").activate()
       .build();
-    jsonReport = new JsonReport(settings, fs, server, activeRules, issueCache, mock(EventBus.class),
-      mode, userFinder, rootModule, fileCache);
+    jsonReport = new JSONReport(settings, fs, server, activeRules, issueCache, rootModule, fileCache, userRepository);
   }
 
   @Test
@@ -121,9 +115,9 @@ public class JsonReportTest {
       .setUpdateDate(SIMPLE_DATE_FORMAT.parse("2013-04-25"))
       .setNew(false);
     when(jsonReport.getIssues()).thenReturn(Lists.newArrayList(issue));
-    DefaultUser user1 = new DefaultUser().setLogin("julien").setName("Julien");
-    DefaultUser user2 = new DefaultUser().setLogin("simon").setName("Simon");
-    when(userFinder.findByLogins(anyListOf(String.class))).thenReturn(Lists.<User>newArrayList(user1, user2));
+    User user1 = new User("julien", "Julien");
+    User user2 = new User("simon", "Simon");
+    when(userRepository.loadFromWs(anyListOf(String.class))).thenReturn(Lists.<User>newArrayList(user1, user2));
 
     StringWriter writer = new StringWriter();
     jsonReport.writeJson(writer);

@@ -29,7 +29,7 @@ import org.sonar.batch.rule.QProfileVerifier;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.batch.scan.filesystem.FileSystemLogger;
 import org.sonar.batch.scan.maven.MavenPluginsConfigurator;
-import org.sonar.batch.scan.report.JsonReport;
+import org.sonar.batch.scan.report.IssuesReports;
 
 public final class PreviewPhaseExecutor implements PhaseExecutor {
 
@@ -45,13 +45,13 @@ public final class PreviewPhaseExecutor implements PhaseExecutor {
   private final DefaultModuleFileSystem fs;
   private final QProfileVerifier profileVerifier;
   private final IssueExclusionsLoader issueExclusionsLoader;
-  private final JsonReport jsonReport;
+  private final IssuesReports issuesReport;
 
   public PreviewPhaseExecutor(Phases phases,
     MavenPluginsConfigurator mavenPluginsConfigurator, InitializersExecutor initializersExecutor,
     SensorsExecutor sensorsExecutor,
     SensorContext sensorContext, DefaultIndex index,
-    EventBus eventBus, ProjectInitializer pi, FileSystemLogger fsLogger, JsonReport jsonReport, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
+    EventBus eventBus, ProjectInitializer pi, FileSystemLogger fsLogger, IssuesReports jsonReport, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
     IssueExclusionsLoader issueExclusionsLoader) {
     this.phases = phases;
     this.mavenPluginsConfigurator = mavenPluginsConfigurator;
@@ -62,7 +62,7 @@ public final class PreviewPhaseExecutor implements PhaseExecutor {
     this.eventBus = eventBus;
     this.pi = pi;
     this.fsLogger = fsLogger;
-    this.jsonReport = jsonReport;
+    this.issuesReport = jsonReport;
     this.fs = fs;
     this.profileVerifier = profileVerifier;
     this.issueExclusionsLoader = issueExclusionsLoader;
@@ -95,11 +95,18 @@ public final class PreviewPhaseExecutor implements PhaseExecutor {
     }
 
     if (module.isRoot()) {
-      jsonReport.execute();
+      issuesReport();
     }
 
     cleanMemory();
     eventBus.fireEvent(new ProjectAnalysisEvent(module, false));
+  }
+
+  private void issuesReport() {
+    String stepName = "Issues Reports";
+    eventBus.fireEvent(new BatchStepEvent(stepName, true));
+    issuesReport.execute();
+    eventBus.fireEvent(new BatchStepEvent(stepName, false));
   }
 
   private void initIssueExclusions() {

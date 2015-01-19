@@ -17,23 +17,45 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.user;
+package org.sonar.batch.user;
 
-import org.sonar.api.ServerComponent;
+import org.apache.commons.lang.builder.EqualsBuilder;
 
-import javax.annotation.CheckForNull;
+public class User {
 
-import java.util.List;
+  private final String login;
+  private final String name;
 
-/**
- * @since 3.6
- */
-public interface UserFinder extends ServerComponent {
+  public User(String login, String name) {
+    this.login = login;
+    this.name = name;
+  }
 
-  @CheckForNull
-  User findByLogin(String login);
+  public String login() {
+    return login;
+  }
 
-  List<User> findByLogins(List<String> logins);
+  public String name() {
+    return name;
+  }
 
-  List<User> find(UserQuery query);
+  // For testing
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == null) {
+      return false;
+    }
+    if (obj == this) {
+      return true;
+    }
+    if (obj.getClass() != getClass()) {
+      return false;
+    }
+    User rhs = (User) obj;
+    return new EqualsBuilder()
+      .append(login, rhs.login)
+      .append(name, rhs.name)
+      .isEquals();
+  }
+
 }

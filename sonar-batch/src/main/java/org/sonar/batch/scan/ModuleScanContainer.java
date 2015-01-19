@@ -96,7 +96,7 @@ import org.sonar.batch.scan.filesystem.ModuleInputFileCache;
 import org.sonar.batch.scan.filesystem.ProjectFileSystemAdapter;
 import org.sonar.batch.scan.filesystem.StatusDetectionFactory;
 import org.sonar.batch.scan.maven.MavenPluginsConfigurator;
-import org.sonar.batch.scan.report.JsonReport;
+import org.sonar.batch.scan.report.IssuesReports;
 import org.sonar.batch.sensor.DefaultSensorContext;
 import org.sonar.batch.sensor.DefaultSensorStorage;
 import org.sonar.batch.sensor.coverage.CoverageExclusions;
@@ -192,7 +192,7 @@ public class ModuleScanContainer extends ComponentContainer {
       CheckFactory.class,
 
       // report
-      JsonReport.class,
+      IssuesReports.class,
 
       // issues
       IssuableFactory.class,
