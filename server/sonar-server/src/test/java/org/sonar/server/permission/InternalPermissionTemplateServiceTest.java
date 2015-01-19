@@ -30,12 +30,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.core.permission.PermissionQuery;
-import org.sonar.core.permission.PermissionTemplateDao;
-import org.sonar.core.permission.PermissionTemplateDto;
-import org.sonar.core.permission.PermissionTemplateGroupDto;
-import org.sonar.core.permission.PermissionTemplateUserDto;
+import org.sonar.core.permission.*;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.properties.PropertiesDao;
@@ -160,15 +155,15 @@ public class InternalPermissionTemplateServiceTest {
 
     List<PermissionTemplateUserDto> usersPermissions = Lists.newArrayList(
       buildUserPermission("user_scan", GlobalPermissions.SCAN_EXECUTION),
-      buildUserPermission("user_dry_run", GlobalPermissions.DRY_RUN_EXECUTION),
+      buildUserPermission("user_dry_run", GlobalPermissions.PREVIEW_EXECUTION),
       buildUserPermission("user_scan_and_dry_run", GlobalPermissions.SCAN_EXECUTION),
-      buildUserPermission("user_scan_and_dry_run", GlobalPermissions.DRY_RUN_EXECUTION)
+      buildUserPermission("user_scan_and_dry_run", GlobalPermissions.PREVIEW_EXECUTION)
       );
 
     List<PermissionTemplateGroupDto> groupsPermissions = Lists.newArrayList(
       buildGroupPermission("admin_group", GlobalPermissions.SYSTEM_ADMIN),
       buildGroupPermission("scan_group", GlobalPermissions.SCAN_EXECUTION),
-      buildGroupPermission(null, GlobalPermissions.DRY_RUN_EXECUTION)
+      buildGroupPermission(null, GlobalPermissions.PREVIEW_EXECUTION)
       );
 
     PermissionTemplateDto permissionTemplateDto = new PermissionTemplateDto()
@@ -184,7 +179,7 @@ public class InternalPermissionTemplateServiceTest {
 
     assertThat(permissionTemplate.getUsersForPermission(GlobalPermissions.DASHBOARD_SHARING)).isEmpty();
     assertThat(permissionTemplate.getUsersForPermission(GlobalPermissions.SCAN_EXECUTION)).extracting("userName").containsOnly("user_scan", "user_scan_and_dry_run");
-    assertThat(permissionTemplate.getUsersForPermission(GlobalPermissions.DRY_RUN_EXECUTION)).extracting("userName").containsOnly("user_dry_run", "user_scan_and_dry_run");
+    assertThat(permissionTemplate.getUsersForPermission(GlobalPermissions.PREVIEW_EXECUTION)).extracting("userName").containsOnly("user_dry_run", "user_scan_and_dry_run");
     assertThat(permissionTemplate.getGroupsForPermission(GlobalPermissions.DASHBOARD_SHARING)).isEmpty();
     assertThat(permissionTemplate.getGroupsForPermission(GlobalPermissions.SCAN_EXECUTION)).extracting("groupName").containsOnly("scan_group");
     assertThat(permissionTemplate.getGroupsForPermission(GlobalPermissions.SYSTEM_ADMIN)).extracting("groupName").containsOnly("admin_group");

@@ -48,6 +48,7 @@ import org.sonar.core.profiling.Profiling;
 import org.sonar.server.search.BaseDoc;
 import org.sonar.test.TestUtils;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.util.Collections;
 import java.util.List;
@@ -147,8 +148,11 @@ public class EsTester extends ExternalResource {
   public void putDocuments(String index, String type, Class<?> testClass, String... jsonPaths) throws Exception {
     BulkRequestBuilder bulk = client.prepareBulk().setRefresh(true);
     for (String path : jsonPaths) {
-      bulk.add(new IndexRequest(index, type).source(IOUtils.toString(
-        new FileInputStream(TestUtils.getResource(testClass, path)))));
+      File file = TestUtils.getResource(testClass, path);
+      if (file == null) {
+        throw new IllegalArgumentException(String.format("File '%s' hasn't been found in folder '%s'", path, testClass.getSimpleName()));
+      }
+      bulk.add(new IndexRequest(index, type).source(IOUtils.toString(new FileInputStream(file))));
     }
     bulk.get();
   }

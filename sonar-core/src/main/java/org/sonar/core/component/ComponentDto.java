@@ -20,6 +20,7 @@
 package org.sonar.core.component;
 
 import org.sonar.api.component.Component;
+import org.sonar.api.resources.Scopes;
 import org.sonar.core.persistence.Dto;
 
 import javax.annotation.CheckForNull;
@@ -221,6 +222,10 @@ public class ComponentDto extends Dto<String> implements Component {
   public ComponentDto setKey(String key) {
     this.kee = key;
     return this;
+  }
+
+  public boolean isRootProject() {
+    return MODULE_UUID_PATH_SEP.equals(moduleUuidPath) && Scopes.PROJECT.equals(scope);
   }
 
   @Override

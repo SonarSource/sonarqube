@@ -19,13 +19,15 @@
  */
 package org.sonar.server.issue.db;
 
+import org.apache.ibatis.executor.result.DefaultResultHandler;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.System2;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.issue.db.BatchIssueDto;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
@@ -35,18 +37,15 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class IssueDaoTest extends AbstractDaoTestCase {
 
   private IssueDao dao;
   private DbSession session;
-  private System2 system2;
 
   @Before
   public void before() throws Exception {
     this.session = getMyBatis().openSession(false);
-    this.system2 = mock(System2.class);
     this.dao = new IssueDao(getMyBatis());
   }
 
@@ -135,6 +134,62 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void select_non_closed_issues_by_module_uuid() {
+    setupData("shared", "select_non_closed_issues_by_module_uuid");
+
+    // BCDE is a non-root module, we should find 2 issues from classes and one on itself
+    DefaultResultHandler handler = new DefaultResultHandler();
+    dao.selectNonClosedIssuesByModuleUuid(session, "BCDE", handler);
+    assertThat(handler.getResultList()).extracting("key").containsOnly("100", "101", "103");
+
+    // DBCA is a a simple project with a single file
+    handler = new DefaultResultHandler();
+    dao.selectNonClosedIssuesByModuleUuid(session, "DBCA", handler);
+    assertThat(handler.getResultList()).hasSize(1);
+
+    BatchIssueDto batchIssueDto = (BatchIssueDto) handler.getResultList().get(0);
+    assertThat(batchIssueDto.getKey()).isEqualTo("1000");
+    assertThat(batchIssueDto.getRuleKey()).isEqualTo("AvoidCycle");
+    assertThat(batchIssueDto.getRuleRepo()).isEqualTo("squid");
+    assertThat(batchIssueDto.getMessage()).isEqualTo("Avoid this");
+    assertThat(batchIssueDto.getLine()).isEqualTo(200);
+    assertThat(batchIssueDto.getResolution()).isEqualTo(Issue.RESOLUTION_FALSE_POSITIVE);
+    assertThat(batchIssueDto.getStatus()).isEqualTo(Issue.STATUS_RESOLVED);
+    assertThat(batchIssueDto.getComponentPath()).isEqualTo("src/main/java/Sample.java");
+    assertThat(batchIssueDto.getChecksum()).isEqualTo("123456");
+    assertThat(batchIssueDto.getAssigneeLogin()).isEqualTo("john");
+    assertThat(batchIssueDto.getAssigneeName()).isEqualTo("John Doo");
+  }
+
+  @Test
+  public void select_non_closed_issues_by_project_uuid() {
+    setupData("shared", "select_non_closed_issues_by_project_uuid");
+
+    // ABCD is the root module, we should find all 4 issues
+    DefaultResultHandler handler = new DefaultResultHandler();
+    dao.selectNonClosedIssuesByProjectUuid(session, "ABCD", handler);
+    assertThat(handler.getResultList()).hasSize(4);
+
+    // DBCA is a a simple project with a single file
+    handler = new DefaultResultHandler();
+    dao.selectNonClosedIssuesByProjectUuid(session, "DBCA", handler);
+    assertThat(handler.getResultList()).hasSize(1);
+
+    BatchIssueDto batchIssueDto = (BatchIssueDto) handler.getResultList().get(0);
+    assertThat(batchIssueDto.getKey()).isEqualTo("1000");
+    assertThat(batchIssueDto.getRuleKey()).isEqualTo("AvoidCycle");
+    assertThat(batchIssueDto.getRuleRepo()).isEqualTo("squid");
+    assertThat(batchIssueDto.getMessage()).isEqualTo("Avoid this");
+    assertThat(batchIssueDto.getLine()).isEqualTo(200);
+    assertThat(batchIssueDto.getResolution()).isEqualTo(Issue.RESOLUTION_FALSE_POSITIVE);
+    assertThat(batchIssueDto.getStatus()).isEqualTo(Issue.STATUS_RESOLVED);
+    assertThat(batchIssueDto.getComponentPath()).isEqualTo("src/main/java/Sample.java");
+    assertThat(batchIssueDto.getChecksum()).isEqualTo("123456");
+    assertThat(batchIssueDto.getAssigneeLogin()).isEqualTo("john");
+    assertThat(batchIssueDto.getAssigneeName()).isEqualTo("John Doo");
+  }
+
+  @Test
   public void insert() throws Exception {
     IssueDto dto = new IssueDto();
     dto.setComponent(new ComponentDto().setKey("struts:Action").setId(123L));
@@ -164,7 +219,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     dao.insert(session, dto);
     session.commit();
 
-    checkTables("insert", new String[]{"id"}, "issues");
+    checkTables("insert", new String[] {"id"}, "issues");
   }
 
   @Test
@@ -199,6 +254,6 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     dao.update(session, dto);
     session.commit();
 
-    checkTables("update", new String[]{"id"}, "issues");
+    checkTables("update", new String[] {"id"}, "issues");
   }
 }

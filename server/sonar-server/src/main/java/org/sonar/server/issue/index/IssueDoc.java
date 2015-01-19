@@ -30,11 +30,7 @@ import org.sonar.server.search.BaseDoc;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class IssueDoc extends BaseDoc implements Issue {
 
@@ -199,101 +195,125 @@ public class IssueDoc extends BaseDoc implements Issue {
     return getNullableField(IssueIndexDefinition.FIELD_ISSUE_FILE_PATH);
   }
 
-  public void setKey(@Nullable String s) {
+  public IssueDoc setKey(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_KEY, s);
+    return this;
   }
 
-  public void setComponentUuid(@Nullable String s) {
+  public IssueDoc setComponentUuid(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, s);
+    return this;
   }
 
-  public void setModuleUuid(@Nullable String s) {
+  public IssueDoc setModuleUuid(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, s);
+    return this;
   }
 
-  public void setProjectUuid(@Nullable String s) {
+  public IssueDoc setProjectUuid(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, s);
+    return this;
   }
 
-  public void setRuleKey(@Nullable String s) {
+  public IssueDoc setRuleKey(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_RULE_KEY, s);
+    return this;
   }
 
-  public void setLanguage(@Nullable String s) {
+  public IssueDoc setLanguage(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_LANGUAGE, s);
+    return this;
   }
 
-  public void setSeverity(@Nullable String s) {
+  public IssueDoc setSeverity(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_SEVERITY, s);
     setField(IssueIndexDefinition.FIELD_ISSUE_SEVERITY_VALUE, Severity.ALL.indexOf(s));
+    return this;
   }
 
-  public void setMessage(@Nullable String s) {
+  public IssueDoc setMessage(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_MESSAGE, s);
+    return this;
   }
 
-  public void setLine(@Nullable Integer i) {
+  public IssueDoc setLine(@Nullable Integer i) {
     setField(IssueIndexDefinition.FIELD_ISSUE_LINE, i);
+    return this;
   }
 
-  public void setEffortToFix(@Nullable Double d) {
+  public IssueDoc setEffortToFix(@Nullable Double d) {
     setField(IssueIndexDefinition.FIELD_ISSUE_EFFORT, d);
+    return this;
   }
 
-  public void setStatus(@Nullable String s) {
+  public IssueDoc setStatus(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_STATUS, s);
+    return this;
   }
 
-  public void setResolution(@Nullable String s) {
+  public IssueDoc setResolution(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION, s);
+    return this;
   }
 
-  public void setReporter(@Nullable String s) {
+  public IssueDoc setReporter(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_REPORTER, s);
+    return this;
   }
 
-  public void setAssignee(@Nullable String s) {
+  public IssueDoc setAssignee(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE, s);
+    return this;
   }
 
-  public void setFuncUpdateDate(@Nullable Date d) {
+  public IssueDoc setFuncUpdateDate(@Nullable Date d) {
     setField(IssueIndexDefinition.FIELD_ISSUE_FUNC_UPDATED_AT, d);
+    return this;
   }
 
-  public void setFuncCreationDate(@Nullable Date d) {
+  public IssueDoc setFuncCreationDate(@Nullable Date d) {
     setField(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT, d);
+    return this;
   }
 
-  public void setTechnicalUpdateDate(@Nullable Date d) {
+  public IssueDoc setTechnicalUpdateDate(@Nullable Date d) {
     setField(IssueIndexDefinition.FIELD_ISSUE_TECHNICAL_UPDATED_AT, d);
+    return this;
   }
 
-  public void setFuncCloseDate(@Nullable Date d) {
+  public IssueDoc setFuncCloseDate(@Nullable Date d) {
     setField(IssueIndexDefinition.FIELD_ISSUE_FUNC_CLOSED_AT, d);
+    return this;
   }
 
-  public void setAttributes(@Nullable String s) {
+  public IssueDoc setAttributes(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_ATTRIBUTES, s);
+    return this;
   }
 
-  public void setAuthorLogin(@Nullable String s) {
+  public IssueDoc setAuthorLogin(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_AUTHOR_LOGIN, s);
+    return this;
   }
 
-  public void setActionPlanKey(@Nullable String s) {
+  public IssueDoc setActionPlanKey(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_ACTION_PLAN, s);
+    return this;
   }
 
-  public void setDebt(@Nullable Long l) {
+  public IssueDoc setDebt(@Nullable Long l) {
     setField(IssueIndexDefinition.FIELD_ISSUE_DEBT, l);
+    return this;
   }
 
-  public void setFilePath(@Nullable String s) {
+  public IssueDoc setFilePath(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_FILE_PATH, s);
+    return this;
   }
 
-  public void setModuleUuidPath(@Nullable String s) {
+  public IssueDoc setModuleUuidPath(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_MODULE_PATH, s);
+    return this;
   }
 
   @Override
@@ -302,7 +322,8 @@ public class IssueDoc extends BaseDoc implements Issue {
     return getNullableField(IssueIndexDefinition.FIELD_ISSUE_TAGS);
   }
 
-  public void setTags(@Nullable Collection<String> tags) {
+  public IssueDoc setTags(@Nullable Collection<String> tags) {
     setField(IssueIndexDefinition.FIELD_ISSUE_TAGS, tags);
+    return this;
   }
 }

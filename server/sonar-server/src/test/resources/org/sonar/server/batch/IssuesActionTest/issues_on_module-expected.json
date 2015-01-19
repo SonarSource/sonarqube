@@ -1,0 +1,16 @@
+[
+  {
+    "key": "EFGH",
+    "componentPath": "src/main/java/Action.java",
+    "ruleKey": "AvoidCycle",
+    "ruleRepo": "squid",
+    "line": 200,
+    "message": "Do not use this method",
+    "resolution": "FALSE-POSITIVE",
+    "status": "RESOLVED",
+    "checksum": "123456",
+    "assigneeLogin": "john",
+    "assigneeFullname": "John Doo"
+  }
+]
+

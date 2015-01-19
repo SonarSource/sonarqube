@@ -404,7 +404,7 @@ public class IssueFilterServiceTest {
     String currentUser = "dave.loper";
     IssueFilterDto sharedFilter = new IssueFilterDto().setId(1L).setName("My filter").setUserLogin(currentUser).setShared(true);
 
-    when(authorizationDao.selectGlobalPermissions(currentUser)).thenReturn(newArrayList(GlobalPermissions.DRY_RUN_EXECUTION));
+    when(authorizationDao.selectGlobalPermissions(currentUser)).thenReturn(newArrayList(GlobalPermissions.PREVIEW_EXECUTION));
     when(issueFilterDao.selectById(1L)).thenReturn(sharedFilter);
 
     try {
@@ -529,7 +529,7 @@ public class IssueFilterServiceTest {
   public void should_execute_from_issue_query() {
     IssueQuery issueQuery = IssueQuery.builder().build();
     QueryContext queryContext = new QueryContext().setPage(2, 50);
-    
+
     Result<Issue> result = mock(Result.class);
     when(result.getHits()).thenReturn(newArrayList((Issue) new DefaultIssue()));
     when(result.getTotal()).thenReturn(100L);

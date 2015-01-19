@@ -37,14 +37,14 @@ import static org.mockito.Mockito.when;
 public class ProjectRepositoryActionTest {
 
   @Mock
-  ProjectRepositoryLoader projectReferentialsLoader;
+  ProjectRepositoryLoader projectRepositoryLoader;
 
   WsTester tester;
 
   @Before
   public void setUp() throws Exception {
     tester = new WsTester(new BatchWs(mock(BatchIndex.class), mock(GlobalRepositoryAction.class),
-      new ProjectRepositoryAction(projectReferentialsLoader)));
+      new ProjectRepositoryAction(projectRepositoryLoader), mock(IssuesAction.class)));
   }
 
   @Test
@@ -55,7 +55,7 @@ public class ProjectRepositoryActionTest {
     when(projectReferentials.toJson()).thenReturn("{\"settingsByModule\": {}}");
 
     ArgumentCaptor<ProjectRepositoryQuery> queryArgumentCaptor = ArgumentCaptor.forClass(ProjectRepositoryQuery.class);
-    when(projectReferentialsLoader.load(queryArgumentCaptor.capture())).thenReturn(projectReferentials);
+    when(projectRepositoryLoader.load(queryArgumentCaptor.capture())).thenReturn(projectReferentials);
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "project")
       .setParam("key", projectKey)

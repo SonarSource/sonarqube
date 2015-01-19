@@ -111,7 +111,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
   @Test
   public void not_returned_secured_settings_with_only_preview_permission() throws Exception {
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.DRY_RUN_EXECUTION);
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
 
     ComponentDto project = ComponentTesting.newProjectDto();
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
@@ -659,7 +659,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
   @Test
   public void fail_when_not_preview_and_only_dry_run_permission() throws Exception {
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.DRY_RUN_EXECUTION);
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
 
     ComponentDto project = ComponentTesting.newProjectDto();
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
@@ -676,7 +676,7 @@ public class ProjectRepositoryLoaderMediumTest {
   }
 
   @Test
-  public void add_file_data_on_single_project() throws Exception {
+  public void return_file_data_from_single_project() throws Exception {
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
 
     ComponentDto project = ComponentTesting.newProjectDto();
@@ -696,7 +696,7 @@ public class ProjectRepositoryLoaderMediumTest {
   }
 
   @Test
-  public void add_file_data_on_multi_modules() throws Exception {
+  public void return_file_data_from_multi_modules() throws Exception {
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
 
     ComponentDto project = ComponentTesting.newProjectDto();
@@ -721,6 +721,34 @@ public class ProjectRepositoryLoaderMediumTest {
     ProjectReferentials ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
     assertThat(ref.fileData(project.key(), projectFile.path()).hash()).isEqualTo("123456");
     assertThat(ref.fileData(module.key(), moduleFile.path()).hash()).isEqualTo("789456");
+  }
+
+  @Test
+  public void return_file_data_from_module() throws Exception {
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+
+    ComponentDto project = ComponentTesting.newProjectDto();
+    tester.get(DbClient.class).componentDao().insert(dbSession, project);
+    addDefaultProfile();
+
+    // File on project
+    ComponentDto projectFile = ComponentTesting.newFileDto(project, "projectFile");
+    tester.get(DbClient.class).componentDao().insert(dbSession, projectFile);
+    tester.get(FileSourceDao.class).insert(newFileSourceDto(projectFile).setSrcHash("123456"));
+
+    ComponentDto module = ComponentTesting.newModuleDto(project);
+    tester.get(DbClient.class).componentDao().insert(dbSession, module);
+
+    // File on module
+    ComponentDto moduleFile = ComponentTesting.newFileDto(module, "moduleFile");
+    tester.get(DbClient.class).componentDao().insert(dbSession, moduleFile);
+    tester.get(FileSourceDao.class).insert(newFileSourceDto(moduleFile).setSrcHash("789456"));
+
+    dbSession.commit();
+
+    ProjectReferentials ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(module.key()));
+    assertThat(ref.fileData(module.key(), moduleFile.path()).hash()).isEqualTo("789456");
+    assertThat(ref.fileData(project.key(), projectFile.path())).isNull();
   }
 
   private void addDefaultProfile() {

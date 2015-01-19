@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue.db;
 
+import org.apache.ibatis.session.ResultHandler;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.db.IssueMapper;
 import org.sonar.core.persistence.DaoComponent;
@@ -56,6 +57,14 @@ public class IssueDao extends org.sonar.core.issue.db.IssueDao implements DaoCom
 
   public List<IssueDto> selectByKeys(DbSession session, Collection<String> keys) {
     return mapper(session).selectByKeys(keys);
+  }
+
+  public void selectNonClosedIssuesByModuleUuid(DbSession session, String moduleUuid, ResultHandler handler) {
+    session.select("org.sonar.core.issue.db.IssueMapper.selectNonClosedIssuesByModuleUuid", moduleUuid, handler);
+  }
+
+  public void selectNonClosedIssuesByProjectUuid(DbSession session, String projectUuid, ResultHandler handler) {
+    session.select("org.sonar.core.issue.db.IssueMapper.selectNonClosedIssuesByProjectUuid", projectUuid, handler);
   }
 
   public void insert(DbSession session, IssueDto dto) {

@@ -25,7 +25,6 @@ import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.Arrays;
 import java.util.Iterator;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,8 +33,8 @@ public class PreviousIssueHelperTest {
 
   @Test
   public void writeIssues() throws JSONException {
-    PreviousIssueHelper helper = PreviousIssueHelper.create();
     StringWriter out = new StringWriter();
+    PreviousIssueHelper helper = PreviousIssueHelper.create(out);
 
     PreviousIssue issue1 = new PreviousIssue();
     issue1.setKey("key1");
@@ -52,12 +51,10 @@ public class PreviousIssueHelperTest {
     PreviousIssue issue2 = new PreviousIssue();
     issue2.setKey("key2");
 
-    helper.streamIssues(out, Arrays.asList(issue1, issue2), new PreviousIssueHelper.Function<PreviousIssue, PreviousIssue>() {
-      @Override
-      public PreviousIssue apply(PreviousIssue from) {
-        return from;
-      }
-    });
+    PreviousIssueFunction previousIssueFunction = new PreviousIssueFunction();
+    helper.addIssue(issue1, previousIssueFunction);
+    helper.addIssue(issue2, previousIssueFunction);
+    helper.close();
 
     JSONAssert
       .assertEquals(
@@ -65,11 +62,20 @@ public class PreviousIssueHelperTest {
           +
           "{\"key\": \"key2\"}]",
         out.getBuffer().toString(), true);
+
+  }
+
+  private static class PreviousIssueFunction implements PreviousIssueHelper.Function<PreviousIssue, PreviousIssue> {
+    @Override
+    public PreviousIssue apply(PreviousIssue from) {
+      return from;
+    }
   }
 
   @Test
   public void readIssues() {
-    PreviousIssueHelper helper = PreviousIssueHelper.create();
+    StringWriter out = new StringWriter();
+    PreviousIssueHelper helper = PreviousIssueHelper.create(out);
     StringReader reader = new StringReader(
       "[{\"key\": \"key1\", \"componentPath\": \"path\", \"ruleKey\": \"rulekey\", \"ruleRepo\": \"repokey\", \"line\": 2,\"message\": \"message\", \"severity\": \"severity\", \"resolution\": \"resolution\", \"status\": \"status\", \"checksum\": \"checksum\",\"assigneeLogin\": \"login\", \"assigneeFullname\": \"fullname\"},"
         +
@@ -95,6 +101,7 @@ public class PreviousIssueHelperTest {
     assertThat(issue1.assigneeFullname()).isEqualTo("fullname");
 
     assertThat(issue2.key()).isEqualTo("key2");
+    helper.close();
   }
 
 }

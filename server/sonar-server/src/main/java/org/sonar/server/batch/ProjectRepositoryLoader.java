@@ -135,7 +135,7 @@ public class ProjectRepositoryLoader implements ServerComponent {
   }
 
   private void addSettingsToChildrenModules(ProjectReferentials ref, String moduleKey, Map<String, String> parentProperties, TreeModuleSettings treeModuleSettings,
-                                            boolean hasScanPerm, DbSession session) {
+    boolean hasScanPerm, DbSession session) {
     Map<String, String> currentParentProperties = newHashMap();
     currentParentProperties.putAll(parentProperties);
     currentParentProperties.putAll(getPropertiesMap(treeModuleSettings.findModuleSettings(moduleKey), hasScanPerm));
@@ -235,7 +235,7 @@ public class ProjectRepositoryLoader implements ServerComponent {
   private void checkPermission(boolean preview) {
     UserSession userSession = UserSession.get();
     boolean hasScanPerm = userSession.hasGlobalPermission(GlobalPermissions.SCAN_EXECUTION);
-    boolean hasPreviewPerm = userSession.hasGlobalPermission(GlobalPermissions.DRY_RUN_EXECUTION);
+    boolean hasPreviewPerm = userSession.hasGlobalPermission(GlobalPermissions.PREVIEW_EXECUTION);
     if (!hasPreviewPerm && !hasScanPerm) {
       throw new ForbiddenException("You're not authorized to execute any SonarQube analysis. Please contact your SonarQube administrator.");
     }

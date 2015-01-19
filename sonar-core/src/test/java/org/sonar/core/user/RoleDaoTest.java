@@ -69,11 +69,11 @@ public class RoleDaoTest extends AbstractDaoTestCase {
     setupData("globalGroupPermissions");
 
     assertThat(dao.selectGroupPermissions(session, "sonar-administrators", null)).containsOnly(GlobalPermissions.SYSTEM_ADMIN, GlobalPermissions.QUALITY_PROFILE_ADMIN,
-        GlobalPermissions.DASHBOARD_SHARING);
+      GlobalPermissions.DASHBOARD_SHARING);
     assertThat(dao.selectGroupPermissions(session, "sonar-users", null)).containsOnly(GlobalPermissions.DASHBOARD_SHARING);
-    assertThat(dao.selectGroupPermissions(session, DefaultGroups.ANYONE, null)).containsOnly(GlobalPermissions.DRY_RUN_EXECUTION, GlobalPermissions.SCAN_EXECUTION);
-    assertThat(dao.selectGroupPermissions(session, "anyone", null)).containsOnly(GlobalPermissions.DRY_RUN_EXECUTION, GlobalPermissions.SCAN_EXECUTION);
-    assertThat(dao.selectGroupPermissions(session, "AnYoNe", null)).containsOnly(GlobalPermissions.DRY_RUN_EXECUTION, GlobalPermissions.SCAN_EXECUTION);
+    assertThat(dao.selectGroupPermissions(session, DefaultGroups.ANYONE, null)).containsOnly(GlobalPermissions.PREVIEW_EXECUTION, GlobalPermissions.SCAN_EXECUTION);
+    assertThat(dao.selectGroupPermissions(session, "anyone", null)).containsOnly(GlobalPermissions.PREVIEW_EXECUTION, GlobalPermissions.SCAN_EXECUTION);
+    assertThat(dao.selectGroupPermissions(session, "AnYoNe", null)).containsOnly(GlobalPermissions.PREVIEW_EXECUTION, GlobalPermissions.SCAN_EXECUTION);
   }
 
   @Test

@@ -59,7 +59,7 @@ public class GlobalRepositoryActionTest {
     when(dbClient.openSession(false)).thenReturn(session);
     when(dbClient.metricDao()).thenReturn(metricDao);
 
-    tester = new WsTester(new BatchWs(mock(BatchIndex.class), new GlobalRepositoryAction(dbClient, propertiesDao), mock(ProjectRepositoryAction.class)));
+    tester = new WsTester(new BatchWs(mock(BatchIndex.class), new GlobalRepositoryAction(dbClient, propertiesDao), mock(ProjectRepositoryAction.class), mock(IssuesAction.class)));
   }
 
   @Test
@@ -75,7 +75,7 @@ public class GlobalRepositoryActionTest {
 
   @Test
   public void return_global_settings() throws Exception {
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.PREVIEW_EXECUTION);
 
     when(propertiesDao.selectGlobalProperties(session)).thenReturn(newArrayList(
       new PropertyDto().setKey("foo").setValue("bar"),
@@ -89,7 +89,7 @@ public class GlobalRepositoryActionTest {
 
   @Test
   public void return_only_license_settings_without_scan_but_with_preview_permission() throws Exception {
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.DRY_RUN_EXECUTION);
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
 
     when(propertiesDao.selectGlobalProperties(session)).thenReturn(newArrayList(
       new PropertyDto().setKey("foo").setValue("bar"),

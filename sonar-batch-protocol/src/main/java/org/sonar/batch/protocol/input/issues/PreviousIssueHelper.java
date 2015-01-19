@@ -26,39 +26,47 @@ import org.sonar.batch.protocol.GsonHelper;
 
 import javax.annotation.Nullable;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class PreviousIssueHelper {
+public class PreviousIssueHelper implements Closeable {
 
   private final Gson gson = GsonHelper.create();
+  JsonWriter writer;
 
-  private PreviousIssueHelper() {
+  private PreviousIssueHelper(Writer out) {
+    try {
+      this.writer = new JsonWriter(out);
+      writer.setIndent("  ");
+      writer.beginArray();
+    } catch (IOException e) {
+      throw new IllegalStateException("Unable to open writer", e);
+    }
   }
 
-  public static PreviousIssueHelper create() {
-    return new PreviousIssueHelper();
+  public static PreviousIssueHelper create(Writer out) {
+    return new PreviousIssueHelper(out);
   }
 
   public static interface Function<F, T> {
     T apply(@Nullable F from);
   }
 
-  public <G> void streamIssues(Writer out, Iterable<G> issues, Function<G, PreviousIssue> converter) {
+  public <G> void addIssue(G issue, Function<G, PreviousIssue> converter) {
+    gson.toJson(converter.apply(issue), PreviousIssue.class, writer);
+  }
+
+  @Override
+  public void close() {
     try {
-      JsonWriter writer = new JsonWriter(out);
-      writer.setIndent("  ");
-      writer.beginArray();
-      for (G issue : issues) {
-        gson.toJson(converter.apply(issue), PreviousIssue.class, writer);
-      }
       writer.endArray();
       writer.close();
     } catch (IOException e) {
-      throw new IllegalStateException("Unable to stream issues", e);
+      throw new IllegalStateException("Unable to close write", e);
     }
   }
 

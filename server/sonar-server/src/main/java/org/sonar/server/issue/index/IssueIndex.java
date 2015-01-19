@@ -30,12 +30,7 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.index.query.BoolFilterBuilder;
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
-import org.elasticsearch.index.query.OrFilterBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuilder;
@@ -49,24 +44,13 @@ import org.sonar.api.rule.Severity;
 import org.sonar.server.es.Sorting;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.filter.IssueFilterParameters;
-import org.sonar.server.search.BaseIndex;
-import org.sonar.server.search.FacetValue;
-import org.sonar.server.search.IndexDefinition;
-import org.sonar.server.search.QueryContext;
-import org.sonar.server.search.Result;
-import org.sonar.server.search.SearchClient;
-import org.sonar.server.search.StickyFacetBuilder;
+import org.sonar.server.search.*;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -528,7 +512,7 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
     Terms result = count.addAggregation(aggreg).get().getAggregations().get("_ref");
 
     Map<String, Long> map = Maps.newHashMap();
-    for (Bucket bucket: result.getBuckets()) {
+    for (Bucket bucket : result.getBuckets()) {
       map.put(bucket.getKey(), bucket.getDocCount());
     }
     return map;

@@ -58,7 +58,7 @@ public class GlobalRepositoryAction implements RequestHandler {
   public void handle(Request request, Response response) throws Exception {
     UserSession userSession = UserSession.get();
     boolean hasScanPerm = userSession.hasGlobalPermission(GlobalPermissions.SCAN_EXECUTION);
-    boolean hasDryRunPerm = userSession.hasGlobalPermission(GlobalPermissions.DRY_RUN_EXECUTION);
+    boolean hasDryRunPerm = userSession.hasGlobalPermission(GlobalPermissions.PREVIEW_EXECUTION);
 
     DbSession session = dbClient.openSession(false);
     try {
