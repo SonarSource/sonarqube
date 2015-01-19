@@ -72,7 +72,7 @@ define([
 
     getAvailableQualityProfiles: function () {
       var queryLanguages = this.options.app.state.get('query').languages,
-          languages = queryLanguages.length > 0 ? queryLanguages.split(',') : [],
+          languages = queryLanguages && queryLanguages.length > 0 ? queryLanguages.split(',') : [],
           profiles = this.options.app.qualityProfiles;
       if (languages.length > 0) {
         profiles = _.filter(profiles, function (profile) {
