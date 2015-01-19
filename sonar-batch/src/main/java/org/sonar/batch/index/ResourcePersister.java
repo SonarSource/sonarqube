@@ -37,7 +37,6 @@ import org.sonar.api.utils.internal.Uuids;
 import org.sonar.batch.ProjectTree;
 import org.sonar.core.component.ScanGraph;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.Query;
@@ -107,7 +106,6 @@ public class ResourcePersister implements ScanPersister {
     }
   }
 
-  @CheckForNull
   private Project findModule(BatchResource batchResource) {
     if (batchResource.resource() instanceof Project) {
       return (Project) batchResource.resource();
@@ -131,7 +129,7 @@ public class ResourcePersister implements ScanPersister {
     Snapshot parentSnapshot = null;
     if (parent != null) {
       // assume that the parent project has already been saved
-      parentSnapshot = resourceCache.get(project.getParent().getEffectiveKey()).snapshot();
+      parentSnapshot = resourceCache.get(parent.getEffectiveKey()).snapshot();
       model.setRootId((Integer) ObjectUtils.defaultIfNull(parentSnapshot.getRootProjectId(), parentSnapshot.getResourceId()));
     } else {
       model.setRootId(null);

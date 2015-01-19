@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.phases;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.events.BatchStepEvent;
@@ -34,8 +32,6 @@ import org.sonar.batch.scan.maven.MavenPluginsConfigurator;
 import org.sonar.batch.scan.report.JsonReport;
 
 public final class PreviewPhaseExecutor implements PhaseExecutor {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(PreviewPhaseExecutor.class);
 
   private final EventBus eventBus;
   private final Phases phases;
