@@ -89,6 +89,7 @@ public class FileTest {
     File file = new File("toto.sql");
     assertThat(file.getDeprecatedKey(), is("toto.sql"));
     assertThat(file.getName(), is("toto.sql"));
+    assertThat(file.language()).isNull();
     assertThat(file.getParent().getDeprecatedKey(), is(Directory.ROOT));
     assertThat(file.getScope(), is(Resource.SCOPE_ENTITY));
     assertThat(file.getQualifier(), is(Resource.QUALIFIER_FILE));
@@ -106,12 +107,19 @@ public class FileTest {
 
   @Test
   public void setLanguage() {
-    Language lang = mock(Language.class);
+    Language lang = new AbstractLanguage("java", "Java") {
+
+      @Override
+      public String[] getFileSuffixes() {
+        return null;
+      }
+    };
     File file = new File(lang, "Foo.java");
     assertThat(file.getLanguage(), is(lang));
 
     file = new File(lang, "org/sonar", "Foo.java");
     assertThat(file.getLanguage(), is(lang));
+    assertThat(file.language()).isEqualTo("java");
     assertThat(file.getParent().getLanguage(), nullValue());
   }
 

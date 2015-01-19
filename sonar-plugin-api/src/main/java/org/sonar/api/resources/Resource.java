@@ -194,10 +194,21 @@ public abstract class Resource implements Serializable {
   public abstract String getDescription();
 
   /**
-   * @return the language of the resource. Only {@link File}s have a non null value.
+   * @return the language of the resource. Only {@link File}s may have a non null value.
+   * @deprecated since 5.1 use {@link #language()}
    */
+  @Deprecated
   @CheckForNull
   public abstract Language getLanguage();
+
+  /**
+   * @return the language of the resource. Only {@link File}s may have a non null value.
+   */
+  @CheckForNull
+  public String language() {
+    Language l = getLanguage();
+    return l != null ? l.getKey() : null;
+  }
 
   /**
    * @return the scope
