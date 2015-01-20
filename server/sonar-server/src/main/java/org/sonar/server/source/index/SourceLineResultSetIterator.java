@@ -28,6 +28,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.core.source.db.FileSourceDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.db.ResultSetIterator;
 import org.sonar.server.db.migrations.SqlUtil;
@@ -136,26 +137,27 @@ public class SourceLineResultSetIterator extends ResultSetIterator<SourceLineRes
         doc.setFileUuid(fileUuid);
         doc.setLine(line);
         doc.setUpdateDate(updatedDate);
-        doc.setScmRevision(csvRecord.get(0));
-        doc.setScmAuthor(csvRecord.get(1));
-        doc.setScmDate(DateUtils.parseDateTimeQuietly(csvRecord.get(2)));
+        doc.setScmRevision(csvRecord.get(FileSourceDto.CSV_INDEX_SCM_REVISION));
+        doc.setScmAuthor(csvRecord.get(FileSourceDto.CSV_INDEX_SCM_AUTHOR));
+        doc.setScmDate(DateUtils.parseDateTimeQuietly(csvRecord.get(FileSourceDto.CSV_INDEX_SCM_DATE)));
         // UT
-        doc.setUtLineHits(parseIntegerFromRecord(csvRecord.get(3)));
-        doc.setUtConditions(parseIntegerFromRecord(csvRecord.get(4)));
-        doc.setUtCoveredConditions(parseIntegerFromRecord(csvRecord.get(5)));
+        doc.setUtLineHits(parseIntegerFromRecord(csvRecord.get(FileSourceDto.CSV_INDEX_UT_LINE_HITS)));
+        doc.setUtConditions(parseIntegerFromRecord(csvRecord.get(FileSourceDto.CSV_INDEX_UT_CONDITIONS)));
+        doc.setUtCoveredConditions(parseIntegerFromRecord(csvRecord.get(FileSourceDto.CSV_INDEX_UT_COVERED_CONDITIONS)));
         // IT
-        doc.setItLineHits(parseIntegerFromRecord(csvRecord.get(6)));
-        doc.setItConditions(parseIntegerFromRecord(csvRecord.get(7)));
-        doc.setItCoveredConditions(parseIntegerFromRecord(csvRecord.get(8)));
+        doc.setItLineHits(parseIntegerFromRecord(csvRecord.get(FileSourceDto.CSV_INDEX_IT_LINE_HITS)));
+        doc.setItConditions(parseIntegerFromRecord(csvRecord.get(FileSourceDto.CSV_INDEX_IT_CONDITIONS)));
+        doc.setItCoveredConditions(parseIntegerFromRecord(csvRecord.get(FileSourceDto.CSV_INDEX_IT_COVERED_CONDITIONS)));
         // OVERALL
-        doc.setOverallLineHits(parseIntegerFromRecord(csvRecord.get(9)));
-        doc.setOverallConditions(parseIntegerFromRecord(csvRecord.get(10)));
-        doc.setOverallCoveredConditions(parseIntegerFromRecord(csvRecord.get(11)));
-        doc.setHighlighting(csvRecord.get(12));
-        doc.setSymbols(csvRecord.get(13));
+        doc.setOverallLineHits(parseIntegerFromRecord(csvRecord.get(FileSourceDto.CSV_INDEX_OVERALL_LINE_HITS)));
+        doc.setOverallConditions(parseIntegerFromRecord(csvRecord.get(FileSourceDto.CSV_INDEX_OVERALL_CONDITIONS)));
+        doc.setOverallCoveredConditions(parseIntegerFromRecord(csvRecord.get(FileSourceDto.CSV_INDEX_OVERALL_COVERED_CONDITIONS)));
 
-        doc.setDuplications(parseDuplications(csvRecord.get(14)));
-        doc.setSource(csvRecord.get(csvRecord.size() - 1));
+        doc.setHighlighting(csvRecord.get(FileSourceDto.CSV_INDEX_HIGHLIGHTING));
+        doc.setSymbols(csvRecord.get(FileSourceDto.CSV_INDEX_SYMBOLS));
+
+        doc.setDuplications(parseDuplications(csvRecord.get(FileSourceDto.CSV_INDEX_DUPLICATIONS)));
+        doc.setSource(csvRecord.get(FileSourceDto.CSV_INDEX_SOURCE));
 
         result.addLine(doc);
 

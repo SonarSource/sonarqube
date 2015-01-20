@@ -35,6 +35,8 @@ import org.sonar.batch.protocol.output.component.ReportComponents;
 import org.sonar.batch.protocol.output.issue.ReportIssue;
 import org.sonar.server.computation.issue.IssueComputation;
 
+import javax.annotation.Nullable;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -76,14 +78,14 @@ public class AnalysisReportService {
 
   private void browseComponent(ComputationContext context, ReportHelper helper, ReportComponent component) {
     Iterable<ReportIssue> reportIssues = helper.getIssues(component.batchId());
-    browseComponentIssues(context, reportIssues);
+    browseComponentIssues(context, component, reportIssues);
     for (ReportComponent child : component.children()) {
       browseComponent(context, helper, child);
     }
   }
 
-  private void browseComponentIssues(final ComputationContext context, Iterable<ReportIssue> reportIssues) {
-    issueComputation.processComponentIssues(Iterables.transform(reportIssues, new Function<ReportIssue, DefaultIssue>() {
+  private void browseComponentIssues(final ComputationContext context, ReportComponent component, Iterable<ReportIssue> reportIssues) {
+    issueComputation.processComponentIssues(component.uuid(), Iterables.transform(reportIssues, new Function<ReportIssue, DefaultIssue>() {
       @Override
       public DefaultIssue apply(ReportIssue input) {
         return toIssue(context, input);
@@ -94,7 +96,8 @@ public class AnalysisReportService {
   private DefaultIssue toIssue(ComputationContext context, ReportIssue issue) {
     DefaultIssue defaultIssue = new DefaultIssue();
     defaultIssue.setKey(issue.key());
-    setComponentId(defaultIssue, context.getComponentByBatchId(issue.componentBatchId()));
+    ReportComponent component = context.getComponentByBatchId(issue.componentBatchId());
+    setComponent(defaultIssue, component);
     defaultIssue.setRuleKey(RuleKey.of(issue.ruleRepo(), issue.ruleKey()));
     defaultIssue.setSeverity(issue.severity());
     defaultIssue.setManualSeverity(issue.isManualSeverity());
@@ -130,14 +133,15 @@ public class AnalysisReportService {
     return issue;
   }
 
-  private DefaultIssue setComponentId(DefaultIssue issue, ReportComponent component) {
+  private DefaultIssue setComponent(DefaultIssue issue, @Nullable ReportComponent component) {
     if (component != null) {
-      issue.setComponentId((long) component.id());
+      issue.setComponentId((long)component.id());
+      issue.setComponentUuid(component.uuid());
     }
     return issue;
   }
 
-  private DefaultIssue setDebt(DefaultIssue issue, Long debt) {
+  private DefaultIssue setDebt(DefaultIssue issue, @Nullable Long debt) {
     if (debt != null) {
       issue.setDebt(Duration.create(debt));
     }

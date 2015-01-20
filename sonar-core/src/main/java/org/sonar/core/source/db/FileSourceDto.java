@@ -23,6 +23,24 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 public class FileSourceDto {
+
+  public static final int CSV_INDEX_SCM_REVISION = 0;
+  public static final int CSV_INDEX_SCM_AUTHOR = 1;
+  public static final int CSV_INDEX_SCM_DATE = 2;
+  public static final int CSV_INDEX_UT_LINE_HITS = 3;
+  public static final int CSV_INDEX_UT_CONDITIONS = 4;
+  public static final int CSV_INDEX_UT_COVERED_CONDITIONS = 5;
+  public static final int CSV_INDEX_IT_LINE_HITS = 6;
+  public static final int CSV_INDEX_IT_CONDITIONS = 7;
+  public static final int CSV_INDEX_IT_COVERED_CONDITIONS = 8;
+  public static final int CSV_INDEX_OVERALL_LINE_HITS = 9;
+  public static final int CSV_INDEX_OVERALL_CONDITIONS = 10;
+  public static final int CSV_INDEX_OVERALL_COVERED_CONDITIONS = 11;
+  public static final int CSV_INDEX_HIGHLIGHTING = 12;
+  public static final int CSV_INDEX_SYMBOLS = 13;
+  public static final int CSV_INDEX_DUPLICATIONS = 14;
+  public static final int CSV_INDEX_SOURCE = 15;
+
   private Long id;
   private String projectUuid;
   private String fileUuid;

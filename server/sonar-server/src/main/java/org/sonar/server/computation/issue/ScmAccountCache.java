@@ -19,22 +19,13 @@
  */
 package org.sonar.server.computation.issue;
 
-import org.sonar.api.issue.internal.DefaultIssue;
-import org.sonar.api.utils.System2;
-import org.sonar.api.utils.TempFolder;
-import org.sonar.server.util.cache.DiskCache;
-
-import java.io.IOException;
+import org.sonar.server.util.cache.MemoryCache;
 
 /**
- * Cache of all the issues involved in the analysis. Their state is as it will be
- * persisted in database (after issue tracking, auto-assignment, ...)
- *
+ * Cache of dictionary {SCM account -> SQ user login}
  */
-public class FinalIssues extends DiskCache<DefaultIssue> {
-
-  public FinalIssues(TempFolder tempFolder, System2 system2) throws IOException {
-    super(tempFolder.newFile("issues", ".dat"), system2);
+public class ScmAccountCache extends MemoryCache<String,String> {
+  public ScmAccountCache(ScmAccountCacheLoader loader) {
+    super(loader);
   }
-
 }

@@ -1,0 +1,9 @@
+{
+  "login": "charlie",
+  "name": "Charlie",
+  "email": "charlie@hebdo.com",
+  "active": true,
+  "scmAccounts": ["charlie", "jesuis@charlie.com"],
+  "createdAt": 1500000000000,
+  "updatedAt": 1500000000000
+}

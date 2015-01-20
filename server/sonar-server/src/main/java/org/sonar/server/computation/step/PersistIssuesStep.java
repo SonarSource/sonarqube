@@ -34,7 +34,7 @@ import org.sonar.core.persistence.BatchSession;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.computation.ComputationContext;
-import org.sonar.server.computation.issue.FinalIssues;
+import org.sonar.server.computation.issue.IssueCache;
 import org.sonar.server.computation.issue.RuleCache;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.util.CloseableIterator;
@@ -45,15 +45,15 @@ public class PersistIssuesStep implements ComputationStep {
   private final System2 system2;
   private final UpdateConflictResolver conflictResolver;
   private final RuleCache ruleCache;
-  private final FinalIssues finalIssues;
+  private final IssueCache issueCache;
 
   public PersistIssuesStep(DbClient dbClient, System2 system2, UpdateConflictResolver conflictResolver,
-    RuleCache ruleCache, FinalIssues finalIssues) {
+    RuleCache ruleCache, IssueCache issueCache) {
     this.dbClient = dbClient;
     this.system2 = system2;
     this.conflictResolver = conflictResolver;
     this.ruleCache = ruleCache;
-    this.finalIssues = finalIssues;
+    this.issueCache = issueCache;
   }
 
   @Override
@@ -63,7 +63,7 @@ public class PersistIssuesStep implements ComputationStep {
     IssueChangeMapper changeMapper = session.getMapper(IssueChangeMapper.class);
     int count = 0;
 
-    CloseableIterator<DefaultIssue> issues = finalIssues.traverse();
+    CloseableIterator<DefaultIssue> issues = issueCache.traverse();
     try {
       while (issues.hasNext()) {
         DefaultIssue issue = issues.next();

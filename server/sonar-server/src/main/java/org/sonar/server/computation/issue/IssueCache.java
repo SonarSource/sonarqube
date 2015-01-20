@@ -19,24 +19,26 @@
  */
 package org.sonar.server.computation.issue;
 
-import org.sonar.api.rule.RuleKey;
-import org.sonar.core.rule.RuleDto;
-import org.sonar.server.util.cache.MemoryCache;
+import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.utils.System2;
+import org.sonar.api.utils.TempFolder;
+import org.sonar.server.util.cache.DiskCache;
 
-import javax.annotation.CheckForNull;
+import java.io.File;
+import java.io.IOException;
 
 /**
- * Cache of the rules involved during the current analysis
+ * Cache of all the issues involved in the analysis. Their state is as it will be
+ * persisted in database (after issue tracking, auto-assignment, ...)
+ *
  */
-public class RuleCache extends MemoryCache<RuleKey, RuleDto> {
+public class IssueCache extends DiskCache<DefaultIssue> {
 
-  public RuleCache(RuleCacheLoader loader) {
-    super(loader);
+  public IssueCache(TempFolder tempFolder, System2 system2) throws IOException {
+    super(tempFolder.newFile("issues", ".dat"), system2);
   }
 
-  @CheckForNull
-  public String ruleName(RuleKey key) {
-    RuleDto rule = getNullable(key);
-    return rule != null ? rule.getName() : null;
+  IssueCache(File file, System2 system2) {
+    super(file, system2);
   }
 }

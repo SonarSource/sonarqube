@@ -98,6 +98,7 @@ public class ComputationService implements ServerComponent {
     try {
       report.setFinishedAt(System2.INSTANCE.now());
       activityService.write(session, Activity.Type.ANALYSIS_REPORT, new AnalysisReportLog(report, project));
+      session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }

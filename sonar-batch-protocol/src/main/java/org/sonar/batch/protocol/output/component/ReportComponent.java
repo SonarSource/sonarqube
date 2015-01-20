@@ -41,6 +41,7 @@ public class ReportComponent {
   private int snapshotId;
   private String path;
   private String name;
+  private String uuid;
   private Type type;
   // Only for files
   private Boolean isTest;
@@ -82,6 +83,15 @@ public class ReportComponent {
 
   public String path() {
     return path;
+  }
+
+  public ReportComponent setUuid(String s) {
+    this.uuid = s;
+    return this;
+  }
+
+  public String uuid() {
+    return uuid;
   }
 
   public ReportComponent setName(@Nullable String name) {

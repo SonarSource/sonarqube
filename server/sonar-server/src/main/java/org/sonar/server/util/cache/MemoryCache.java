@@ -19,6 +19,8 @@
  */
 package org.sonar.server.util.cache;
 
+import org.sonar.server.exceptions.NotFoundException;
+
 import javax.annotation.CheckForNull;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,11 +56,15 @@ public class MemoryCache<K, V> {
   public V get(K key) {
     V value = getNullable(key);
     if (value == null) {
-      throw new IllegalArgumentException("Not found: " + key);
+      throw new NotFoundException("Not found: " + key);
     }
     return value;
   }
 
+  /**
+   * Get values associated with keys. All the requested keys are included
+   * in the Map result. Value is null if the key is not found in cache.
+   */
   public Map<K, V> getAll(Iterable<K> keys) {
     List<K> missingKeys = new ArrayList<>();
     Map<K, V> result = new HashMap<>();
@@ -74,6 +80,12 @@ public class MemoryCache<K, V> {
       Map<K, V> missingValues = loader.loadAll(missingKeys);
       map.putAll(missingValues);
       result.putAll(missingValues);
+      for (K missingKey : missingKeys) {
+        if (!map.containsKey(missingKey)) {
+          map.put(missingKey, null);
+          result.put(missingKey, null);
+        }
+      }
     }
     return result;
   }

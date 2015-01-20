@@ -62,6 +62,7 @@ public class ComponentsPublisher implements ReportPublisher {
       .setId(r.getId())
       .setName(getName(r))
       .setPath(r.getPath())
+      .setUuid(r.getUuid())
       .setType(getType(r))
       .setLanguageKey(getLanguageKey(r))
       .setTest(isTest(r));

@@ -1,0 +1,14 @@
+<dataset>
+  <rules id="1" name="Rule One" plugin_name="squid" plugin_rule_key="R001"
+         plugin_config_key="[null]" description="[null]" priority="4"
+         status="READY"
+         is_template="[false]" template_id="[null]"
+         tags="[null]" system_tags="[null]"/>
+
+  <rules id="2" name="Rule Two" plugin_name="squid" plugin_rule_key="R002"
+         plugin_config_key="[null]" description="[null]" priority="4"
+         status="READY"
+         is_template="[false]" template_id="[null]"
+         tags="[null]" system_tags="[null]"/>
+
+</dataset>

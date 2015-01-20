@@ -22,12 +22,10 @@ package org.sonar.server.computation.issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
-import org.sonar.server.util.cache.CacheLoader;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.util.cache.CacheLoader;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class RuleCacheLoader implements CacheLoader<RuleKey, RuleDto> {
@@ -50,16 +48,6 @@ public class RuleCacheLoader implements CacheLoader<RuleKey, RuleDto> {
 
   @Override
   public Map<RuleKey, RuleDto> loadAll(Collection<? extends RuleKey> keys) {
-    Map<RuleKey, RuleDto> result = new HashMap<>();
-    DbSession session = dbClient.openSession(false);
-    try {
-      List<RuleDto> dtos = dbClient.ruleDao().getByKeys(session, (Collection<RuleKey>) keys);
-      for (RuleDto dto : dtos) {
-        result.put(dto.getKey(), dto);
-      }
-      return result;
-    } finally {
-      session.close();
-    }
+    throw new UnsupportedOperationException("See RuleDao");
   }
 }

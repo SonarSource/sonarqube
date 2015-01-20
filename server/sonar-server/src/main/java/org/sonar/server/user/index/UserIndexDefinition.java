@@ -27,7 +27,7 @@ import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.NewIndex;
 
 /**
- * Definition of ES index "issues", including settings and fields.
+ * Definition of ES index "users", including settings and fields.
  */
 public class UserIndexDefinition implements IndexDefinition {
 
@@ -61,7 +61,7 @@ public class UserIndexDefinition implements IndexDefinition {
       // else keep defaults (one shard)
     }
 
-    // type "users"
+    // type "user"
     NewIndex.NewIndexType mapping = index.createType(TYPE_USER);
     mapping.setAttribute("_id", ImmutableMap.of("path", FIELD_LOGIN));
     mapping.stringFieldBuilder(FIELD_LOGIN).build();
