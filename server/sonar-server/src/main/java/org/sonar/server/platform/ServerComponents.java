@@ -46,7 +46,6 @@ import org.sonar.core.config.Logback;
 import org.sonar.core.i18n.DefaultI18n;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.issue.IssueFilterSerializer;
-import org.sonar.server.issue.notification.IssueNotifications;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.workflow.FunctionExecutor;
 import org.sonar.core.issue.workflow.IssueWorkflow;
@@ -168,6 +167,7 @@ import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueNormalizer;
 import org.sonar.server.issue.notification.ChangesOnMyIssueNotificationDispatcher;
 import org.sonar.server.issue.notification.IssueChangesEmailTemplate;
+import org.sonar.server.issue.notification.IssueNotifications;
 import org.sonar.server.issue.notification.NewFalsePositiveNotificationDispatcher;
 import org.sonar.server.issue.notification.NewIssuesEmailTemplate;
 import org.sonar.server.issue.notification.NewIssuesNotificationDispatcher;
@@ -176,6 +176,8 @@ import org.sonar.server.issue.ws.IssueActionsWriter;
 import org.sonar.server.issue.ws.IssueShowAction;
 import org.sonar.server.issue.ws.IssuesWs;
 import org.sonar.server.issue.ws.SetTagsAction;
+import org.sonar.server.language.ws.LanguageWs;
+import org.sonar.server.language.ws.ListAction;
 import org.sonar.server.measure.MeasureFilterEngine;
 import org.sonar.server.measure.MeasureFilterExecutor;
 import org.sonar.server.measure.MeasureFilterFactory;
@@ -482,7 +484,6 @@ class ServerComponents {
   void startLevel4Components(ComponentContainer pico) {
     pico.addSingleton(PluginDownloader.class);
     pico.addSingleton(ChartFactory.class);
-    pico.addSingleton(Languages.class);
     pico.addSingleton(Views.class);
     pico.addSingleton(ResourceTypes.class);
     pico.addSingleton(SettingsChangeNotifier.class);
@@ -558,6 +559,11 @@ class ServerComponents {
     pico.addSingleton(RuleMapping.class);
     pico.addSingleton(ActiveRuleCompleter.class);
     pico.addSingleton(AppAction.class);
+
+    // languages
+    pico.addSingleton(Languages.class);
+    pico.addSingleton(LanguageWs.class);
+    pico.addSingleton(ListAction.class);
 
     // activity
     pico.addSingleton(ActivitiesWebService.class);
