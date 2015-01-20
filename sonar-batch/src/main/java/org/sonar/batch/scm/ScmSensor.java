@@ -26,6 +26,7 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Status;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
@@ -92,7 +93,7 @@ public final class ScmSensor implements Sensor {
 
     if (f.status() == Status.SAME && fileData != null) {
       if (fileData.needBlame()) {
-        filesToBlame.add(f);
+        addIfNotEmpty(filesToBlame, f);
       } else {
         // Copy previous measures
         String scmAuthorsByLine = fileData.scmAuthorsByLine();
@@ -105,6 +106,12 @@ public final class ScmSensor implements Sensor {
         }
       }
     } else {
+      addIfNotEmpty(filesToBlame, f);
+    }
+  }
+
+  private void addIfNotEmpty(List<InputFile> filesToBlame, InputFile f) {
+    if (!((DefaultInputFile) f).isEmpty()) {
       filesToBlame.add(f);
     }
   }

@@ -39,8 +39,9 @@ public class DefaultInputFile implements InputFile, Serializable {
   private String hash;
   private int lines;
   private String encoding;
-  long[] originalLineOffsets;
-  byte[][] lineHashes;
+  private long[] originalLineOffsets;
+  private byte[][] lineHashes;
+  private boolean empty;
 
   public DefaultInputFile(String moduleKey, String relativePath) {
     this.moduleKey = moduleKey;
@@ -165,6 +166,15 @@ public class DefaultInputFile implements InputFile, Serializable {
 
   public DefaultInputFile setLineHashes(byte[][] lineHashes) {
     this.lineHashes = lineHashes;
+    return this;
+  }
+
+  public boolean isEmpty() {
+    return this.empty;
+  }
+
+  public DefaultInputFile setEmpty(boolean empty) {
+    this.empty = empty;
     return this;
   }
 

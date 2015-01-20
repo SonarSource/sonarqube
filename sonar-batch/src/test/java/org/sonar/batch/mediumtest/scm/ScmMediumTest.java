@@ -95,6 +95,36 @@ public class ScmMediumTest {
   }
 
   @Test
+  public void noScmOnEmptyFile() throws IOException {
+
+    File baseDir = prepareProject();
+
+    // Clear file content
+    FileUtils.write(new File(baseDir, "src/sample.xoo"), "");
+
+    TaskResult result = tester.newTask()
+      .properties(ImmutableMap.<String, String>builder()
+        .put("sonar.task", "scan")
+        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+        .put("sonar.projectKey", "com.foo.project")
+        .put("sonar.projectName", "Foo Project")
+        .put("sonar.projectVersion", "1.0-SNAPSHOT")
+        .put("sonar.projectDescription", "Description of Foo Project")
+        .put("sonar.sources", "src")
+        .put("sonar.scm.provider", "xoo")
+        .build())
+      .start();
+
+    // lines + qprofile
+    assertThat(result.measures()).hasSize(2);
+
+    assertThat(result.measures()).contains(new DefaultMeasure<Integer>()
+      .forMetric(CoreMetrics.LINES)
+      .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
+      .withValue(1));
+  }
+
+  @Test
   public void failIfMissingFile() throws IOException {
 
     File baseDir = prepareProject();

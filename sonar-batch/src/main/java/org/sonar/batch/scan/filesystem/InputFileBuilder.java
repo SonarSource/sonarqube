@@ -112,6 +112,7 @@ class InputFileBuilder {
     inputFile.setHash(metadata.hash);
     inputFile.setOriginalLineOffsets(metadata.originalLineOffsets);
     inputFile.setLineHashes(metadata.lineHashes);
+    inputFile.setEmpty(metadata.empty);
     inputFile.setStatus(statusDetection.status(inputFile.moduleKey(), inputFile.relativePath(), metadata.hash));
     if (analysisMode.isIncremental() && inputFile.status() == InputFile.Status.SAME) {
       return null;

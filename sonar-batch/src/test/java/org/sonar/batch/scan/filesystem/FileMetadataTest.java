@@ -46,10 +46,11 @@ public class FileMetadataTest {
     FileUtils.touch(tempFile);
 
     FileMetadata.Metadata metadata = new FileMetadata().read(tempFile, Charsets.UTF_8);
-    assertThat(metadata.lines).isEqualTo(0);
-    assertThat(metadata.hash).isNotEmpty();
+    assertThat(metadata.lines).isEqualTo(1);
+    assertThat(metadata.hash).isNull();
     assertThat(metadata.originalLineOffsets).containsOnly(0);
-    assertThat(metadata.lineHashes).isEmpty();
+    assertThat(metadata.lineHashes[0]).isNull();
+    assertThat(metadata.empty).isTrue();
   }
 
   @Test
@@ -64,6 +65,7 @@ public class FileMetadataTest {
     assertThat(metadata.lineHashes[0]).containsOnly(md5("foo"));
     assertThat(metadata.lineHashes[1]).containsOnly(md5("bar"));
     assertThat(metadata.lineHashes[2]).containsOnly(md5("baz"));
+    assertThat(metadata.empty).isFalse();
   }
 
   @Test

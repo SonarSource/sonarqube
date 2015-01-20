@@ -47,6 +47,7 @@ class DefaultInputFileValueCoder implements ValueCoder {
     putUTFOrNull(value, f.hash());
     value.put(f.lines());
     putUTFOrNull(value, f.encoding());
+    value.put(f.isEmpty());
     value.putLongArray(f.originalLineOffsets());
     for (int i = 0; i < f.lines(); i++) {
       value.putByteArray(f.lineHashes()[i]);
@@ -76,6 +77,7 @@ class DefaultInputFileValueCoder implements ValueCoder {
     file.setHash(value.getString());
     file.setLines(value.getInt());
     file.setEncoding(value.getString());
+    file.setEmpty(value.getBoolean());
     file.setOriginalLineOffsets(value.getLongArray());
     byte[][] lineHashes = new byte[file.lines()][];
     for (int i = 0; i < file.lines(); i++) {
