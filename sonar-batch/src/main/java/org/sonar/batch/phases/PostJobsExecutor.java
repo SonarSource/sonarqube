@@ -24,12 +24,12 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
-import org.sonar.api.batch.BatchExtensionDictionnary;
 import org.sonar.api.batch.PostJob;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.maven.DependsUponMavenPlugin;
 import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;
+import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
@@ -46,7 +46,7 @@ public class PostJobsExecutor implements BatchComponent {
   private final EventBus eventBus;
 
   public PostJobsExecutor(BatchExtensionDictionnary selector, Project project, DefaultModuleFileSystem fs, MavenPluginExecutor mavenExecutor,
-                          EventBus eventBus) {
+    EventBus eventBus) {
     this.selector = selector;
     this.project = project;
     this.fs = fs;
@@ -55,7 +55,7 @@ public class PostJobsExecutor implements BatchComponent {
   }
 
   public void execute(SensorContext context) {
-    Collection<PostJob> postJobs = selector.select(PostJob.class, project, true);
+    Collection<PostJob> postJobs = selector.select(PostJob.class, project, true, null);
 
     eventBus.fireEvent(new PostJobPhaseEvent(Lists.newArrayList(postJobs), true));
     execute(context, postJobs);

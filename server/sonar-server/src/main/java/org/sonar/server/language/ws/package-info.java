@@ -17,28 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.rule.ws;
+@ParametersAreNonnullByDefault
+package org.sonar.server.language.ws;
 
-import org.sonar.api.server.ws.WebService;
-
-public class RulesWebService implements WebService {
-
-  private final RulesAction[] actions;
-
-  public RulesWebService(RulesAction... actions) {
-    this.actions = actions;
-  }
-
-  @Override
-  public void define(Context context) {
-    NewController controller = context
-      .createController("api/rules")
-      .setDescription("Coding rules");
-
-    for (RulesAction action : actions) {
-      action.define(controller);
-    }
-
-    controller.done();
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

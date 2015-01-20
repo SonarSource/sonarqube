@@ -1,0 +1,27 @@
+{
+  "repositories": [
+    {"key": "clirr", "name": "Clirr", "language": "java"},
+    {"key": "common-c", "name": "Common SonarQube", "language": "c"},
+    {"key": "common-cpp", "name": "Common SonarQube", "language": "cpp"},
+    {"key": "common-cs", "name": "Common SonarQube", "language": "cs"},
+    {"key": "common-java", "name": "Common SonarQube", "language": "java"},
+    {"key": "common-js", "name": "Common SonarQube", "language": "js"},
+    {"key": "common-objc", "name": "Common SonarQube", "language": "objc"},
+    {"key": "common-php", "name": "Common SonarQube", "language": "php"},
+    {"key": "c-cppcheck", "name": "Cppcheck", "language": "c"},
+    {"key": "cpp-cppcheck", "name": "Cppcheck", "language": "cpp"},
+    {"key": "fb-contrib", "name": "fb-contrib", "language": "java"},
+    {"key": "findbugs", "name": "FindBugs", "language": "java"},
+    {"key": "fxcop", "name": "FxCop / Code Analysis", "language": "cs"},
+    {"key": "resharper-cs", "name": "ReSharper", "language": "cs"},
+    {"key": "resharper-vbnet", "name": "ReSharper", "language": "vbnet"},
+    {"key": "c", "name": "SonarQube", "language": "c"},
+    {"key": "cpp", "name": "SonarQube", "language": "cpp"},
+    {"key": "csharpsquid", "name": "SonarQube", "language": "cs"},
+    {"key": "javascript", "name": "SonarQube", "language": "js"},
+    {"key": "objc", "name": "SonarQube", "language": "objc"},
+    {"key": "php", "name": "SonarQube", "language": "php"},
+    {"key": "squid", "name": "SonarQube", "language": "java"},
+    {"key": "stylecop", "name": "StyleCop", "language": "cs"}
+  ]
+}

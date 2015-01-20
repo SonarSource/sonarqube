@@ -47,7 +47,7 @@ import java.util.Collection;
 /**
  * @since 4.4
  */
-public class SearchAction extends SearchRequestHandler<RuleQuery, Rule> {
+public class SearchAction extends SearchRequestHandler<RuleQuery, Rule> implements RulesAction {
 
   public static final String PARAM_REPOSITORIES = "repositories";
   public static final String PARAM_KEY = "rule_key";

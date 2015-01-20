@@ -23,12 +23,12 @@ import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.BatchExtensionDictionnary;
 import org.sonar.api.batch.Initializer;
 import org.sonar.api.batch.maven.DependsUponMavenPlugin;
 import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.TimeProfiler;
+import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
@@ -55,7 +55,7 @@ public class InitializersExecutor {
   }
 
   public void execute() {
-    Collection<Initializer> initializers = selector.select(Initializer.class, project, true);
+    Collection<Initializer> initializers = selector.select(Initializer.class, project, true, null);
     eventBus.fireEvent(new InitializersPhaseEvent(Lists.newArrayList(initializers), true));
     if (LOG.isDebugEnabled()) {
       LOG.debug("Initializers : {}", StringUtils.join(initializers, " -> "));

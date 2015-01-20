@@ -45,6 +45,7 @@ import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.global.GlobalBuilder;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
@@ -64,6 +65,7 @@ import org.sonar.server.search.SearchClient;
 import org.sonar.server.search.StickyFacetBuilder;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -484,16 +486,24 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
   }
 
   public Set<String> terms(String fields) {
+    return terms(fields, null, Integer.MAX_VALUE);
+  }
+
+  public Set<String> terms(String fields, @Nullable String query, int size) {
     Set<String> tags = new HashSet<String>();
     String key = "_ref";
 
+    TermsBuilder terms = AggregationBuilders.terms(key)
+      .field(fields)
+      .size(size)
+      .minDocCount(1);
+    if (query != null) {
+      terms.include(".*" + query + ".*");
+    }
     SearchRequestBuilder request = this.getClient()
       .prepareSearch(this.getIndexName())
       .setQuery(QueryBuilders.matchAllQuery())
-      .addAggregation(AggregationBuilders.terms(key)
-        .field(fields)
-        .size(Integer.MAX_VALUE)
-        .minDocCount(1));
+      .addAggregation(terms);
 
     SearchResponse esResponse = request.get();
 

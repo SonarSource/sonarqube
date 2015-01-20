@@ -25,6 +25,7 @@ import org.sonar.batch.protocol.GsonHelper;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 public class UserRepository {
@@ -45,6 +46,9 @@ public class UserRepository {
   }
 
   public Collection<User> loadFromWs(List<String> userLogins) {
+    if (userLogins.isEmpty()) {
+      return Collections.emptyList();
+    }
     String url = "/api/users/search?format=json&includeDeactivated=true&logins=" + Joiner.on(',').join(userLogins);
     String json = serverClient.request(url);
     Users users = GsonHelper.create().fromJson(json, Users.class);

@@ -25,7 +25,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.KeyValueFormat;
@@ -42,7 +41,7 @@ import java.io.OutputStreamWriter;
 /**
  * @since 4.4
  */
-public class CreateAction implements RequestHandler {
+public class CreateAction implements RulesAction {
 
   public static final String PARAM_CUSTOM_KEY = "custom_key";
   public static final String PARAM_MANUAL_KEY = "manual_key";
@@ -63,7 +62,8 @@ public class CreateAction implements RequestHandler {
     this.mapping = mapping;
   }
 
-  void define(WebService.NewController controller) {
+  @Override
+  public void define(WebService.NewController controller) {
     WebService.NewAction action = controller
       .createAction("create")
       .setDescription("Create a custom rule or a manual rule")

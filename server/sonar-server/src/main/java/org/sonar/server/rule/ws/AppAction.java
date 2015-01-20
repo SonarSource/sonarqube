@@ -28,7 +28,6 @@ import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.api.server.debt.DebtModel;
 import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
@@ -45,7 +44,7 @@ import java.util.Map;
 /**
  * @since 4.4
  */
-public class AppAction implements RequestHandler {
+public class AppAction implements RulesAction {
 
   private final Languages languages;
   private final RuleRepositories ruleRepositories;
@@ -148,7 +147,8 @@ public class AppAction implements RequestHandler {
     json.endArray();
   }
 
-  void define(WebService.NewController controller) {
+  @Override
+  public void define(WebService.NewController controller) {
     controller.createAction("app")
       .setDescription("Data required for rendering the page 'Coding Rules'")
       .setInternal(true)

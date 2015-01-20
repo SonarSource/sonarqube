@@ -31,6 +31,7 @@ import org.sonar.batch.maven.MavenProjectBootstrapper;
 import org.sonar.batch.maven.MavenProjectBuilder;
 import org.sonar.batch.maven.MavenProjectConverter;
 import org.sonar.batch.scan.report.ConsoleReport;
+import org.sonar.batch.scan.report.JSONReport;
 import org.sonar.batch.scm.ScmConfiguration;
 import org.sonar.batch.scm.ScmSensor;
 import org.sonar.batch.source.LinesSensor;
@@ -67,6 +68,7 @@ public class BatchComponents {
 
       // Reports
       ConsoleReport.class,
+      JSONReport.class,
 
       // dbcleaner
       DefaultPeriodCleaner.class,

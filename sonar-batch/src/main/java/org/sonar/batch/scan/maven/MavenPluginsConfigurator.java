@@ -24,10 +24,10 @@ import org.apache.maven.project.MavenProject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
-import org.sonar.api.batch.BatchExtensionDictionnary;
 import org.sonar.api.batch.maven.MavenPlugin;
 import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;
+import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
 
 import java.io.File;
 import java.io.FileOutputStream;

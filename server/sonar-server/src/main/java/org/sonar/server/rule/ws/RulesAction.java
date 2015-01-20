@@ -17,38 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.rule.ws;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.server.rule.RuleService;
-import org.sonar.server.ws.WsTester;
+import org.sonar.api.server.ws.RequestHandler;
+import org.sonar.api.server.ws.WebService;
 
-import static org.mockito.Mockito.verify;
+/**
+ * Marker interface for coding rule related actions
+ * @author jblievremont
+ *
+ */
+interface RulesAction extends RequestHandler {
 
-@RunWith(MockitoJUnitRunner.class)
-public class DeleteActionTest {
-
-  WsTester tester;
-
-  @Mock
-  RuleService ruleService;
-
-  @Before
-  public void setUp() throws Exception {
-    tester = new WsTester(new RulesWebService(new DeleteAction(ruleService)));
-  }
-
-  @Test
-  public void delete_custom_rule() throws Exception {
-    WsTester.TestRequest request = tester.newGetRequest("api/rules", "delete").setParam("key", "squid:XPath_1402065390816");
-    request.execute();
-
-    verify(ruleService).delete(RuleKey.of("squid", "XPath_1402065390816"));
-  }
+  void define(WebService.NewController controller);
 }

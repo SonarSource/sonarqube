@@ -176,12 +176,6 @@ import java.util.List;
     global = true, project = false,
     defaultValue = CoreProperties.PREVIEW_EXCLUDE_PLUGINS_DEFAULT_VALUE,
     category = CoreProperties.CATEGORY_GENERAL),
-  @Property(
-    key = "sonar.report.export.path",
-    defaultValue = "sonar-report.json",
-    name = "Report Results Export File",
-    type = PropertyType.STRING,
-    global = false, project = false),
 
   // SERVER-SIDE TECHNICAL PROPERTIES
 
