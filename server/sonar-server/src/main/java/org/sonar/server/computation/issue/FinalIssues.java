@@ -24,6 +24,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.server.util.cache.DiskCache;
 
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -37,4 +38,7 @@ public class FinalIssues extends DiskCache<DefaultIssue> {
     super(tempFolder.newFile("issues", ".dat"), system2);
   }
 
+  FinalIssues(File file, System2 system2) {
+    super(file, system2);
+  }
 }

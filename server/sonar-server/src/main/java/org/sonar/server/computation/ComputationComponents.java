@@ -20,10 +20,13 @@
 package org.sonar.server.computation;
 
 import org.sonar.core.issue.db.UpdateConflictResolver;
-import org.sonar.server.computation.issue.IssueComputation;
 import org.sonar.server.computation.issue.FinalIssues;
+import org.sonar.server.computation.issue.IssueComputation;
 import org.sonar.server.computation.issue.RuleCache;
 import org.sonar.server.computation.issue.RuleCacheLoader;
+import org.sonar.server.computation.issue.ScmAccountCache;
+import org.sonar.server.computation.issue.ScmAccountCacheLoader;
+import org.sonar.server.computation.issue.SourceLinesCache;
 import org.sonar.server.computation.step.ComputationSteps;
 
 import java.util.Arrays;
@@ -42,6 +45,9 @@ public class ComputationComponents {
       AnalysisReportService.class,
 
       // issues
+      ScmAccountCacheLoader.class,
+      ScmAccountCache.class,
+      SourceLinesCache.class,
       IssueComputation.class,
       RuleCache.class,
       RuleCacheLoader.class,

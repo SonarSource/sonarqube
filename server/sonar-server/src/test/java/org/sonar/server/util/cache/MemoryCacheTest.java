@@ -21,6 +21,7 @@ package org.sonar.server.util.cache;
 
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
+import org.sonar.server.exceptions.NotFoundException;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -62,30 +63,32 @@ public class MemoryCacheTest {
     try {
       cache.get("not_exists");
       fail();
-    } catch (IllegalArgumentException e) {
+    } catch (NotFoundException e) {
       assertThat(e).hasMessage("Not found: not_exists");
     }
   }
 
   @Test
   public void getAllNullable() throws Exception {
+    // ask for 3 keys but only 2 are available in backed (third key is missing)
     List<String> keys = Arrays.asList("one", "two", "three");
     Map<String, String> values = new HashMap<>();
     values.put("one", "un");
     values.put("two", "deux");
-    values.put("three", null);
     when(loader.loadAll(keys)).thenReturn(values);
-    assertThat(cache.getAll(keys))
+    assertThat(cache.getAllNullable(keys))
       .hasSize(3)
       .containsEntry("one", "un")
       .containsEntry("two", "deux")
       .containsEntry("three", null);
 
+    // ask for 4 keys. Only a single one was never loaded. The 3 others are kept from cache
     when(loader.loadAll(Arrays.asList("four"))).thenReturn(ImmutableMap.of("four", "quatre"));
-    assertThat(cache.getAll(Arrays.asList("one", "two", "four")))
-      .hasSize(3)
+    assertThat(cache.getAllNullable(Arrays.asList("one", "two", "three", "four")))
+      .hasSize(4)
       .containsEntry("one", "un")
       .containsEntry("two", "deux")
+      .containsEntry("three", null)
       .containsEntry("four", "quatre");
     verify(loader, times(2)).loadAll(anyCollection());
   }

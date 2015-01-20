@@ -19,24 +19,13 @@
  */
 package org.sonar.server.computation.issue;
 
-import org.sonar.api.rule.RuleKey;
-import org.sonar.core.rule.RuleDto;
 import org.sonar.server.util.cache.MemoryCache;
 
-import javax.annotation.CheckForNull;
-
 /**
- * Cache of the rules involved during the current analysis
+ * Cache of dictionary {SCM account -> SQ user login}
  */
-public class RuleCache extends MemoryCache<RuleKey, RuleDto> {
-
-  public RuleCache(RuleCacheLoader loader) {
+public class ScmAccountCache extends MemoryCache<String,String> {
+  public ScmAccountCache(ScmAccountCacheLoader loader) {
     super(loader);
-  }
-
-  @CheckForNull
-  public String ruleName(RuleKey key) {
-    RuleDto rule = getNullable(key);
-    return rule != null ? rule.getName() : null;
   }
 }

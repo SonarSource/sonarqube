@@ -27,14 +27,20 @@ import org.sonar.server.util.cache.DiskCache;
 public class IssueComputation {
 
   private final RuleCache ruleCache;
+  private final ScmAccountCache scmAccountCache;
+  private final SourceLinesCache linesCache;
   private final DiskCache<DefaultIssue>.DiskAppender finalIssuesAppender;
 
-  public IssueComputation(RuleCache ruleCache, FinalIssues finalIssues) {
+  public IssueComputation(RuleCache ruleCache, SourceLinesCache linesCache, ScmAccountCache scmAccountCache,
+                          FinalIssues finalIssues) {
     this.ruleCache = ruleCache;
+    this.linesCache = linesCache;
+    this.scmAccountCache = scmAccountCache;
     this.finalIssuesAppender = finalIssues.newAppender();
   }
 
-  public void processComponentIssues(Iterable<DefaultIssue> issues) {
+  public void processComponentIssues(String componentUuid, Iterable<DefaultIssue> issues) {
+    linesCache.init(componentUuid);
     for (DefaultIssue issue : issues) {
       if (issue.isNew()) {
         guessAuthor(issue);
@@ -44,6 +50,7 @@ public class IssueComputation {
       }
       finalIssuesAppender.append(issue);
     }
+    linesCache.clear();
   }
 
   public void afterReportProcessing() {
@@ -51,16 +58,23 @@ public class IssueComputation {
   }
 
   private void guessAuthor(DefaultIssue issue) {
-    // TODO
+    if (issue.line() != null) {
+      issue.setAuthorLogin(linesCache.lineAuthor(issue.line()));
+    }
   }
 
   private void autoAssign(DefaultIssue issue) {
-    // TODO
+    String scmAccount = issue.authorLogin();
+    if (scmAccount != null) {
+      issue.setAssignee(scmAccountCache.getNullable(scmAccount));
+    }
   }
 
   private void copyRuleTags(DefaultIssue issue) {
-    RuleDto rule = ruleCache.get(issue.ruleKey());
-    issue.setTags(Sets.union(rule.getTags(), rule.getSystemTags()));
+    RuleDto rule = ruleCache.getNullable(issue.ruleKey());
+    if (rule != null) {
+      issue.setTags(Sets.union(rule.getTags(), rule.getSystemTags()));
+    }
   }
 
 }

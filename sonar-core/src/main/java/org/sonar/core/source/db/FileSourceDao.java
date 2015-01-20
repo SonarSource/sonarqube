@@ -20,6 +20,9 @@
 
 package org.sonar.core.source.db;
 
+import com.google.common.base.Function;
+import org.apache.commons.dbutils.DbUtils;
+import org.apache.commons.io.IOUtils;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.DaoComponent;
@@ -27,6 +30,12 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
+
+import java.io.Reader;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class FileSourceDao implements BatchComponent, ServerComponent, DaoComponent {
 
@@ -44,6 +53,29 @@ public class FileSourceDao implements BatchComponent, ServerComponent, DaoCompon
       return mapper.select(fileUuid);
     } finally {
       MyBatis.closeQuietly(session);
+    }
+  }
+
+  public <T> void readDataStream(String fileUuid, Function<Reader, T> function) {
+    DbSession dbSession = mybatis.openSession(false);
+    Connection connection = dbSession.getConnection();
+    PreparedStatement pstmt = null;
+    ResultSet rs = null;
+    Reader reader = null;
+    try {
+      pstmt = connection.prepareStatement("select data from file_sources where file_uuid = ?");
+      pstmt.setString(1, fileUuid);
+      rs = pstmt.executeQuery();
+      if (rs.next()) {
+        reader = rs.getCharacterStream(1);
+        function.apply(reader);
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    } finally {
+      IOUtils.closeQuietly(reader);
+      DbUtils.closeQuietly(connection, pstmt, rs);
+      MyBatis.closeQuietly(dbSession);
     }
   }
 

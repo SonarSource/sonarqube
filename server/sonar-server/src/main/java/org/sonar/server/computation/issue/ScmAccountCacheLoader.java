@@ -19,24 +19,32 @@
  */
 package org.sonar.server.computation.issue;
 
-import org.sonar.api.rule.RuleKey;
-import org.sonar.core.rule.RuleDto;
-import org.sonar.server.util.cache.MemoryCache;
+import org.sonar.server.user.index.UserDoc;
+import org.sonar.server.user.index.UserIndex;
+import org.sonar.server.util.cache.CacheLoader;
 
-import javax.annotation.CheckForNull;
+import java.util.Collection;
+import java.util.Map;
 
 /**
- * Cache of the rules involved during the current analysis
+ * Loads the association between a SCM account and a SQ user
  */
-public class RuleCache extends MemoryCache<RuleKey, RuleDto> {
+public class ScmAccountCacheLoader implements CacheLoader<String,String> {
 
-  public RuleCache(RuleCacheLoader loader) {
-    super(loader);
+  private final UserIndex index;
+
+  public ScmAccountCacheLoader(UserIndex index) {
+    this.index = index;
   }
 
-  @CheckForNull
-  public String ruleName(RuleKey key) {
-    RuleDto rule = getNullable(key);
-    return rule != null ? rule.getName() : null;
+  @Override
+  public String load(String scmAccount) {
+    UserDoc user = index.getNullableByScmAccount(scmAccount);
+    return user != null ? user.login() : null;
+  }
+
+  @Override
+  public Map<String, String> loadAll(Collection<? extends String> scmAccounts) {
+    throw new UnsupportedOperationException("Loading by multiple scm accounts is not supported yet");
   }
 }

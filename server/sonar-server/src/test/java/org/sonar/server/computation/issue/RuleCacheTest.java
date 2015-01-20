@@ -19,24 +19,22 @@
  */
 package org.sonar.server.computation.issue;
 
+import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.rule.RuleDto;
-import org.sonar.server.util.cache.MemoryCache;
 
-import javax.annotation.CheckForNull;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-/**
- * Cache of the rules involved during the current analysis
- */
-public class RuleCache extends MemoryCache<RuleKey, RuleDto> {
+public class RuleCacheTest {
 
-  public RuleCache(RuleCacheLoader loader) {
-    super(loader);
-  }
-
-  @CheckForNull
-  public String ruleName(RuleKey key) {
-    RuleDto rule = getNullable(key);
-    return rule != null ? rule.getName() : null;
+  @Test
+  public void ruleName() throws Exception {
+    RuleCacheLoader loader = mock(RuleCacheLoader.class);
+    when(loader.load(RuleKey.of("squid", "R002"))).thenReturn(new RuleDto().setName("Rule Two"));
+    RuleCache cache = new RuleCache(loader);
+    assertThat(cache.ruleName(RuleKey.of("squid", "R001"))).isNull();
+    assertThat(cache.ruleName(RuleKey.of("squid", "R002"))).isEqualTo("Rule Two");
   }
 }
