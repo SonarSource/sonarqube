@@ -21,12 +21,11 @@ package org.sonar.batch.scan.maven;
 
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
-import org.sonar.api.batch.BatchExtensionDictionnary;
 import org.sonar.api.batch.maven.MavenPlugin;
 import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;
 import org.sonar.api.test.MavenTestUtils;
-import org.sonar.batch.scan.maven.MavenPluginsConfigurator;
+import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
 
 import java.util.Arrays;
 

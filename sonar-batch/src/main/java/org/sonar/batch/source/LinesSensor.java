@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.source;
 
+import org.sonar.api.batch.Phase;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
@@ -28,6 +29,7 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
 
+@Phase(name = Phase.Name.PRE)
 public final class LinesSensor implements Sensor {
 
   private final FileSystem fs;

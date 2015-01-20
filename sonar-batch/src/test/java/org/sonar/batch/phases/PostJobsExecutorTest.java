@@ -21,10 +21,10 @@ package org.sonar.batch.phases;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.batch.BatchExtensionDictionnary;
 import org.sonar.api.batch.PostJob;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
+import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
@@ -52,7 +52,7 @@ public class PostJobsExecutorTest {
 
   @Test
   public void should_execute_post_jobs() {
-    when(selector.select(PostJob.class, project, true)).thenReturn(Arrays.asList(job1, job2));
+    when(selector.select(PostJob.class, project, true, null)).thenReturn(Arrays.asList(job1, job2));
 
     executor.execute(context);
 

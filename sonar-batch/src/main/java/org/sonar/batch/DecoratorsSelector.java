@@ -21,10 +21,10 @@ package org.sonar.batch;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
-import org.sonar.api.batch.BatchExtensionDictionnary;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
+import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,9 +39,9 @@ public final class DecoratorsSelector {
   }
 
   public Collection<Decorator> select(Project project) {
-    List<Decorator> decorators = new ArrayList<Decorator>(batchExtDictionnary.select(Decorator.class, project, false));
+    List<Decorator> decorators = new ArrayList<Decorator>(batchExtDictionnary.select(Decorator.class, project, false, null));
     SetMultimap<Metric, Decorator> decoratorsByGeneratedMetric = getDecoratorsByMetric(decorators);
-    for (Metric metric : batchExtDictionnary.select(Metric.class)) {
+    for (Metric metric : batchExtDictionnary.select(Metric.class, null, false, null)) {
       if (metric.getFormula() != null) {
         decorators.add(new FormulaDecorator(metric, decoratorsByGeneratedMetric.get(metric)));
       }

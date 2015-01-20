@@ -21,7 +21,6 @@ package org.sonar.batch;
 
 import com.google.common.collect.Iterables;
 import org.junit.Test;
-import org.sonar.api.batch.BatchExtensionDictionnary;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependedUpon;
@@ -33,6 +32,7 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
+import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -81,7 +81,7 @@ public class DecoratorsSelectorTest {
     for (Object extension : extensions) {
       ioc.addSingleton(extension);
     }
-    return new BatchExtensionDictionnary(ioc);
+    return new BatchExtensionDictionnary(ioc, null, null);
   }
 
   class FakeFormula implements Formula {

@@ -20,7 +20,6 @@
 package org.sonar.batch.phases;
 
 import org.junit.Test;
-import org.sonar.api.batch.BatchExtensionDictionnary;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.SonarIndex;
@@ -30,6 +29,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.DefaultDecoratorContext;
+import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.scan.measure.MeasureCache;

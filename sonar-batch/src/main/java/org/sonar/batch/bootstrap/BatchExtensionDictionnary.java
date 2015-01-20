@@ -19,34 +19,49 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.sonar.batch.sensor.AnalyzerOptimizer;
-
+import com.google.common.base.Predicates;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.ClassUtils;
+import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.CheckProject;
+import org.sonar.api.batch.DependedUpon;
+import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.batch.Phase;
+import org.sonar.api.batch.maven.DependsUponMavenPlugin;
+import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
+import org.sonar.api.utils.AnnotationUtils;
+import org.sonar.api.utils.dag.DirectAcyclicGraph;
 import org.sonar.batch.scan.SensorWrapper;
+import org.sonar.batch.sensor.AnalyzerOptimizer;
 import org.sonar.batch.sensor.DefaultSensorContext;
 
 import javax.annotation.Nullable;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 /**
  * @since 2.6
  */
-public class BatchExtensionDictionnary extends org.sonar.api.batch.BatchExtensionDictionnary {
+public class BatchExtensionDictionnary {
 
-  private SensorContext context;
-  private AnalyzerOptimizer analyzerOptimizer;
+  private final ComponentContainer componentContainer;
+  private final SensorContext context;
+  private final AnalyzerOptimizer analyzerOptimizer;
 
   public BatchExtensionDictionnary(ComponentContainer componentContainer, DefaultSensorContext context, AnalyzerOptimizer analyzerOptimizer) {
-    super(componentContainer);
+    this.componentContainer = componentContainer;
     this.context = context;
     this.analyzerOptimizer = analyzerOptimizer;
   }
@@ -59,13 +74,41 @@ public class BatchExtensionDictionnary extends org.sonar.api.batch.BatchExtensio
     return result;
   }
 
-  @Override
-  protected Phase.Name evaluatePhase(Object extension) {
-    if (extension instanceof SensorWrapper) {
-      return super.evaluatePhase(((SensorWrapper) extension).wrappedSensor());
-    } else {
-      return super.evaluatePhase(extension);
+  public Collection<MavenPluginHandler> selectMavenPluginHandlers(Project project) {
+    List<DependsUponMavenPlugin> selectedExtensions = Lists.newArrayList();
+    for (Object extension : getExtensions(null)) {
+      if (ClassUtils.isAssignable(extension.getClass(), DependsUponMavenPlugin.class)) {
+        selectedExtensions.add((DependsUponMavenPlugin) extension);
+      }
     }
+    List<MavenPluginHandler> handlers = Lists.newArrayList();
+    for (DependsUponMavenPlugin extension : selectedExtensions) {
+      MavenPluginHandler handler = extension.getMavenPluginHandler(project);
+      if (handler != null) {
+        boolean ok = true;
+        if (handler instanceof CheckProject) {
+          ok = ((CheckProject) handler).shouldExecuteOnProject(project);
+        }
+        if (ok) {
+          handlers.add(handler);
+        }
+      }
+    }
+    return handlers;
+  }
+
+  private Phase.Name evaluatePhase(Object extension) {
+    Object extensionToEvaluate;
+    if (extension instanceof SensorWrapper) {
+      extensionToEvaluate = ((SensorWrapper) extension).wrappedSensor();
+    } else {
+      extensionToEvaluate = extension;
+    }
+    Phase phaseAnnotation = AnnotationUtils.getAnnotation(extensionToEvaluate, Phase.class);
+    if (phaseAnnotation != null) {
+      return phaseAnnotation.name();
+    }
+    return Phase.Name.DEFAULT;
   }
 
   private <T> List<T> getFilteredExtensions(Class<T> type, @Nullable Project project, @Nullable ExtensionMatcher matcher) {
@@ -88,6 +131,135 @@ public class BatchExtensionDictionnary extends org.sonar.api.batch.BatchExtensio
       }
     }
     return result;
+  }
+
+  protected List<Object> getExtensions(@Nullable Class type) {
+    List<Object> extensions = Lists.newArrayList();
+    completeBatchExtensions(componentContainer, extensions, type);
+    return extensions;
+  }
+
+  private static void completeBatchExtensions(ComponentContainer container, List<Object> extensions, @Nullable Class type) {
+    if (container != null) {
+      extensions.addAll(container.getComponentsByType(type != null ? type : BatchExtension.class));
+      completeBatchExtensions(container.getParent(), extensions, type);
+    }
+  }
+
+  public <T> Collection<T> sort(Collection<T> extensions) {
+    DirectAcyclicGraph dag = new DirectAcyclicGraph();
+
+    for (T extension : extensions) {
+      dag.add(extension);
+      for (Object dependency : getDependencies(extension)) {
+        dag.add(extension, dependency);
+      }
+      for (Object generates : getDependents(extension)) {
+        dag.add(generates, extension);
+      }
+      completePhaseDependencies(dag, extension);
+    }
+    List sortedList = dag.sort();
+
+    return Collections2.filter(sortedList, Predicates.in(extensions));
+  }
+
+  /**
+   * Extension dependencies
+   */
+  private <T> List<Object> getDependencies(T extension) {
+    List<Object> result = new ArrayList<Object>();
+    result.addAll(evaluateAnnotatedClasses(extension, DependsUpon.class));
+    return result;
+  }
+
+  /**
+   * Objects that depend upon this extension.
+   */
+  public <T> List<Object> getDependents(T extension) {
+    List<Object> result = new ArrayList<Object>();
+    result.addAll(evaluateAnnotatedClasses(extension, DependedUpon.class));
+    return result;
+  }
+
+  private void completePhaseDependencies(DirectAcyclicGraph dag, Object extension) {
+    Phase.Name phase = evaluatePhase(extension);
+    dag.add(extension, phase);
+    for (Phase.Name name : Phase.Name.values()) {
+      if (phase.compareTo(name) < 0) {
+        dag.add(name, extension);
+      } else if (phase.compareTo(name) > 0) {
+        dag.add(extension, name);
+      }
+    }
+  }
+
+  protected List<Object> evaluateAnnotatedClasses(Object extension, Class<? extends Annotation> annotation) {
+    List<Object> results = Lists.newArrayList();
+    Class aClass = extension.getClass();
+    while (aClass != null) {
+      evaluateClass(aClass, annotation, results);
+
+      for (Method method : aClass.getDeclaredMethods()) {
+        if (method.getAnnotation(annotation) != null) {
+          checkAnnotatedMethod(method);
+          evaluateMethod(extension, method, results);
+        }
+      }
+      aClass = aClass.getSuperclass();
+    }
+
+    return results;
+  }
+
+  private void evaluateClass(Class extensionClass, Class annotationClass, List<Object> results) {
+    Annotation annotation = extensionClass.getAnnotation(annotationClass);
+    if (annotation != null) {
+      if (annotation.annotationType().isAssignableFrom(DependsUpon.class)) {
+        results.addAll(Arrays.asList(((DependsUpon) annotation).value()));
+
+      } else if (annotation.annotationType().isAssignableFrom(DependedUpon.class)) {
+        results.addAll(Arrays.asList(((DependedUpon) annotation).value()));
+      }
+    }
+
+    Class[] interfaces = extensionClass.getInterfaces();
+    for (Class anInterface : interfaces) {
+      evaluateClass(anInterface, annotationClass, results);
+    }
+  }
+
+  private void evaluateMethod(Object extension, Method method, List<Object> results) {
+    try {
+      Object result = method.invoke(extension);
+      if (result != null) {
+        if (result instanceof Class<?>) {
+          results.addAll(componentContainer.getComponentsByType((Class<?>) result));
+
+        } else if (result instanceof Collection<?>) {
+          results.addAll((Collection<?>) result);
+
+        } else if (result.getClass().isArray()) {
+          for (int i = 0; i < Array.getLength(result); i++) {
+            results.add(Array.get(result, i));
+          }
+
+        } else {
+          results.add(result);
+        }
+      }
+    } catch (Exception e) {
+      throw new IllegalStateException("Can not invoke method " + method, e);
+    }
+  }
+
+  private void checkAnnotatedMethod(Method method) {
+    if (!Modifier.isPublic(method.getModifiers())) {
+      throw new IllegalStateException("Annotated method must be public:" + method);
+    }
+    if (method.getParameterTypes().length > 0) {
+      throw new IllegalStateException("Annotated method must not have parameters:" + method);
+    }
   }
 
   private boolean shouldKeep(Class type, Object extension, @Nullable Project project, @Nullable ExtensionMatcher matcher) {
