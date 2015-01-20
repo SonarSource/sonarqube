@@ -11,8 +11,8 @@
     "xoo:x1": [
       {
         "qProfile": "XOO_P2",
-        "inherit": "NONE",
-        "severity": "BLOCKER",
+        "inherit": "OVERRIDES",
+        "severity": "CRITICAL",
         "params": []
       }
     ]
@@ -20,6 +20,12 @@
   "qProfiles": {
     "XOO_P2": {
       "name": "P2",
+      "lang": "xoo",
+      "langName": "xoo",
+      "parent": "XOO_P1"
+    },
+    "XOO_P1": {
+      "name": "P1",
       "lang": "xoo",
       "langName": "xoo"
     }

@@ -3,5 +3,6 @@
     "p": 1,
     "ps": 100,
     "rules": [],
-    "actives": {}
+    "actives": {},
+    "qProfiles": {}
 }

@@ -19,10 +19,15 @@
  */
 package org.sonar.server.rule.ws;
 
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.resources.Language;
+import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
+import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.qualityprofile.QProfileLoader;
 import org.sonar.server.rule.Rule;
@@ -38,13 +43,17 @@ import java.util.Map;
  */
 public class ActiveRuleCompleter implements ServerComponent {
   private final QProfileLoader loader;
+  private final Languages languages;
 
-  public ActiveRuleCompleter(QProfileLoader loader) {
+  public ActiveRuleCompleter(QProfileLoader loader, Languages languages) {
     this.loader = loader;
+    this.languages = languages;
   }
 
   void completeSearch(RuleQuery query, Collection<Rule> rules, JsonWriter json) {
     json.name("actives").beginObject();
+
+    Collection<String> qProfileKeys = Sets.newHashSet();
 
     String profileKey = query.getQProfileKey();
     if (profileKey != null) {
@@ -52,14 +61,38 @@ public class ActiveRuleCompleter implements ServerComponent {
       for (Rule rule : rules) {
         ActiveRule activeRule = loader.getActiveRule(ActiveRuleKey.of(profileKey, rule.key()));
         if (activeRule != null) {
-          writeActiveRules(rule.key(), Arrays.asList(activeRule), json);
+          qProfileKeys = writeActiveRules(rule.key(), Arrays.asList(activeRule), json);
         }
       }
     } else {
       // Load details of all active rules
       for (Rule rule : rules) {
-        writeActiveRules(rule.key(), loader.findActiveRulesByRule(rule.key()), json);
+        qProfileKeys = writeActiveRules(rule.key(), loader.findActiveRulesByRule(rule.key()), json);
       }
+    }
+    json.endObject();
+
+
+    Map<String, QualityProfileDto> qProfilesByKey = Maps.newHashMap();
+    for (String qProfileKey: qProfileKeys) {
+      if (!qProfilesByKey.containsKey(qProfileKey)) {
+        QualityProfileDto profile = loader.getByKey(qProfileKey);
+        qProfilesByKey.put(qProfileKey, profile);
+        if (profile.getParentKee() != null && !qProfilesByKey.containsKey(profile.getParentKee())) {
+          qProfilesByKey.put(profile.getParentKee(), loader.getByKey(profile.getParentKee()));
+        }
+      }
+    }
+    json.name("qProfiles").beginObject();
+    for (QualityProfileDto profile: qProfilesByKey.values()) {
+      Language language = languages.get(profile.getLanguage());
+      String langName = language == null ? profile.getLanguage() : language.getName();
+      json.name(profile.getKey()).beginObject()
+        .prop("name", profile.getName())
+        .prop("lang", profile.getLanguage())
+        .prop("langName", langName)
+        .prop("parent", profile.getParentKee())
+        .endObject();
     }
     json.endObject();
   }
@@ -72,18 +105,20 @@ public class ActiveRuleCompleter implements ServerComponent {
     json.endArray();
   }
 
-  private void writeActiveRules(RuleKey ruleKey, Collection<ActiveRule> activeRules, JsonWriter json) {
+  private Collection<String> writeActiveRules(RuleKey ruleKey, Collection<ActiveRule> activeRules, JsonWriter json) {
+    Collection<String> qProfileKeys = Sets.newHashSet();
     if (!activeRules.isEmpty()) {
       json.name(ruleKey.toString());
       json.beginArray();
       for (ActiveRule activeRule : activeRules) {
-        writeActiveRule(activeRule, json);
+        qProfileKeys.add(writeActiveRule(activeRule, json));
       }
       json.endArray();
     }
+    return qProfileKeys;
   }
 
-  private void writeActiveRule(ActiveRule activeRule, JsonWriter json) {
+  private String writeActiveRule(ActiveRule activeRule, JsonWriter json) {
     json
       .beginObject()
       .prop("qProfile", activeRule.key().qProfile().toString())
@@ -102,5 +137,6 @@ public class ActiveRuleCompleter implements ServerComponent {
         .endObject();
     }
     json.endArray().endObject();
+    return activeRule.key().qProfile();
   }
 }

@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
@@ -387,9 +388,39 @@ public class RulesWebServiceMediumTest {
     request.setParam(SearchOptions.PARAM_TEXT_QUERY, "x1");
     request.setParam(SearchAction.PARAM_ACTIVATION, "true");
     request.setParam(SearchAction.PARAM_QPROFILE, profile2.getKey());
-    request.setParam(SearchOptions.PARAM_FIELDS, "");
+    request.setParam(SearchOptions.PARAM_FIELDS, "actives");
     WsTester.Result result = request.execute();
     result.assertJson(this.getClass(), "search_profile_active_rules.json", false);
+  }
+
+  @Test
+  public void search_profile_active_rules_with_inheritance() throws Exception {
+    QualityProfileDto profile = QProfileTesting.newXooP1();
+    tester.get(QualityProfileDao.class).insert(session, profile);
+
+    QualityProfileDto profile2 = QProfileTesting.newXooP2().setParentKee(profile.getKee());
+    tester.get(QualityProfileDao.class).insert(session, profile2);
+
+    session.commit();
+
+    RuleDto rule = RuleTesting.newXooX1();
+    ruleDao.insert(session, rule);
+
+    ActiveRuleDto activeRule = newActiveRule(profile, rule);
+    tester.get(ActiveRuleDao.class).insert(session, activeRule);
+    ActiveRuleDto activeRule2 = newActiveRule(profile2, rule).setInheritance(ActiveRuleDto.OVERRIDES).setSeverity(Severity.CRITICAL);
+    tester.get(ActiveRuleDao.class).insert(session, activeRule2);
+
+    session.commit();
+
+    MockUserSession.set();
+    WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
+    request.setParam(SearchOptions.PARAM_TEXT_QUERY, "x1");
+    request.setParam(SearchAction.PARAM_ACTIVATION, "true");
+    request.setParam(SearchAction.PARAM_QPROFILE, profile2.getKey());
+    request.setParam(SearchOptions.PARAM_FIELDS, "actives");
+    WsTester.Result result = request.execute();
+    result.assertJson(this.getClass(), "search_profile_active_rules_inheritance.json", false);
   }
 
   @Test
