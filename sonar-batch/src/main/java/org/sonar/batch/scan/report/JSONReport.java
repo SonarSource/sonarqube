@@ -24,6 +24,9 @@ import com.google.common.base.Charsets;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.Properties;
+import org.sonar.api.Property;
+import org.sonar.api.PropertyType;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
@@ -56,8 +59,16 @@ import java.util.Set;
 
 import static com.google.common.collect.Sets.newHashSet;
 
+@Properties({
+  @Property(
+    key = JSONReport.SONAR_REPORT_EXPORT_PATH,
+    defaultValue = "sonar-report.json",
+    name = "Report Results Export File",
+    type = PropertyType.STRING,
+    global = false, project = false)})
 public class JSONReport implements Reporter {
 
+  static final String SONAR_REPORT_EXPORT_PATH = "sonar.report.export.path";
   private static final Logger LOG = LoggerFactory.getLogger(JSONReport.class);
   private final Settings settings;
   private final FileSystem fileSystem;
@@ -82,7 +93,7 @@ public class JSONReport implements Reporter {
 
   @Override
   public void execute() {
-    String exportPath = settings.getString("sonar.report.export.path");
+    String exportPath = settings.getString(SONAR_REPORT_EXPORT_PATH);
     if (exportPath != null) {
       exportResults(exportPath);
     }
