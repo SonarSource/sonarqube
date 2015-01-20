@@ -23,6 +23,7 @@ package org.sonar.server.user.index;
 import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.sonar.api.ServerComponent;
@@ -55,10 +56,11 @@ public class UserIndex implements ServerComponent {
   public UserDoc getNullableByScmAccount(String scmAccount) {
     SearchRequestBuilder request = esClient.prepareSearch(UserIndexDefinition.INDEX)
       .setTypes(UserIndexDefinition.TYPE_USER)
-      .setQuery(QueryBuilders.boolQuery()
-        .should(QueryBuilders.termQuery(UserIndexDefinition.FIELD_LOGIN, scmAccount))
-        .should(QueryBuilders.termQuery(UserIndexDefinition.FIELD_EMAIL, scmAccount))
-        .should(QueryBuilders.termQuery(UserIndexDefinition.FIELD_SCM_ACCOUNTS, scmAccount)))
+      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
+        FilterBuilders.boolFilter()
+          .should(FilterBuilders.termFilter(UserIndexDefinition.FIELD_LOGIN, scmAccount))
+          .should(FilterBuilders.termFilter(UserIndexDefinition.FIELD_EMAIL, scmAccount))
+          .should(FilterBuilders.termFilter(UserIndexDefinition.FIELD_SCM_ACCOUNTS, scmAccount))))
       .setSize(2);
     SearchHit[] result = request.get().getHits().getHits();
     if (result.length == 1) {
