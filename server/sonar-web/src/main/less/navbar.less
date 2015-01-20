@@ -1,0 +1,183 @@
+@import (reference) "mixins";
+@import (reference) "variables";
+@import (reference) "ui";
+
+@navbarGlobalBackground: #262626;
+@navbarContextBackground: @barBackgroundColor;
+
+@navbarHeight: 30px;
+@navbarLineHeight: 20px;
+@navbarTopPadding: (@navbarHeight - @navbarLineHeight) / 2;
+
+.navbar, [class^="navbar-"], [class*=" navbar-"] {
+  .box-sizing(border-box);
+}
+
+.navbar {
+  .clearfix;
+  height: @navbarHeight;
+}
+
+.navbar-fade {
+  .navbar-nav {
+    opacity: 0;
+    .trans(opacity);
+  }
+
+  .navbar-favorite {
+    margin-right: -23px;
+    .trans(margin);
+  }
+
+  &.in {
+    .navbar-nav {
+      opacity: 1;
+    }
+
+    .navbar-favorite {
+      margin-right: 0;
+    }
+  }
+}
+
+.navbar a {
+  .link-no-underline;
+}
+
+.navbar-header {
+  float: left;
+}
+
+.navbar-nav {
+  float: left;
+}
+
+.navbar-nav > li {
+  float: left;
+}
+
+.navbar-nav > li > a {
+  padding: @navbarTopPadding 10px;
+  line-height: @navbarLineHeight;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 300;
+  letter-spacing: 0.05em;
+
+  &:hover, &:focus {
+    color: #fff;
+  }
+}
+
+.navbar-nav > .active > a,
+.navbar-nav > .dropdown.open > a {
+  color: #fff;
+}
+
+
+.navbar-icon:before {
+  font-size: @iconFontSize;
+}
+
+.navbar-favorite {
+  position: relative;
+  top: -2px;
+}
+
+.navbar-right {
+  float: right;
+}
+
+.navbar-search {
+  position: relative;
+  width: 400px;
+  .box-sizing(border-box);
+  .trans(width);
+}
+
+.navbar-search-input {
+  width: 100%;
+  padding: 0 20px 0 40px !important;
+  border: none !important;
+}
+
+.navbar-search-icon {
+  position: absolute;
+  top: 4px;
+  left: 20px;
+  color: @secondFontColor;
+
+  &:before {
+    font-size: @iconSmallFontSize;
+  }
+}
+
+.navbar-search-extra {
+  display: inline-block;
+  width: 90px;
+  margin-right: 10px;
+  text-align: right;
+}
+
+
+.navbar-global {
+  background-color: @navbarGlobalBackground;
+
+  .navbar-nav > li > a:hover,
+  .navbar-nav > li > a:focus,
+  .navbar-nav > .active > a,
+  .navbar-nav > .dropdown.open > a {
+    background-color: darken(@navbarGlobalBackground, 10%);
+  }
+}
+
+
+.navbar-context {
+  background-color: @navbarContextBackground;
+  border-bottom: 1px solid @barBorderColor;
+
+  .navbar-nav > li > a {
+    color: @baseFontColor;
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+
+  .navbar-nav > li > a:hover,
+  .navbar-nav > li > a:focus,
+  .navbar-nav > .active > a,
+  .navbar-nav > .dropdown.open > a {
+    color: @baseFontColor;
+  }
+}
+
+.navbar-nav-pills {
+  padding-top: 4px;
+  padding-bottom: 4px;
+
+  > li + li {
+    margin-left: 5px;
+  }
+
+  > li > a {
+    padding-top: 0;
+    padding-bottom: 0;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    color: @baseFontColor;
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+
+  > li > a:hover,
+  > li > a:focus,
+  > .active > a,
+  > .dropdown.open > a {
+    border-color: @blue;
+    color: @baseFontColor;
+  }
+
+  > .active > a,
+  > .dropdown.open > a {
+    background-color: @lightBlue;
+  }
+}

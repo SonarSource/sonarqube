@@ -10,6 +10,7 @@
    end
   %>
 <%= render :partial => 'layouts/head' unless params[:hd]=='false' %>
+<%= render :partial => 'layouts/navbar' %>
 <% if params[:layout]=='false' %>
   <%= render :partial => 'layouts/nolayout' %>
 <% else %>

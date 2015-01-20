@@ -1,0 +1,38 @@
+<div class="container">
+  <ul class="nav navbar-nav">
+    {{#each breadcrumbs}}
+      <li>
+        <a href="{{link url}}">
+          {{qualifierIcon q}}&nbsp;{{name}}
+        </a>
+      </li>
+    {{/each}}
+  </ul>
+
+  <ul class="nav navbar-nav navbar-nav-pills navbar-right">
+    {{#each items}}
+      {{#notEmpty menu}}
+        <li class="dropdown {{#if active}}active{{/if}}">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            {{> '_nav-navbar-label'}}&nbsp;<i class="icon-dropdown"></i>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-right">
+            {{#each menu}}
+              <li {{#if active}}class="active"{{/if}}>
+                <a href="{{link url}}">
+                  {{> '_nav-navbar-label'}}
+                </a>
+              </li>
+            {{/each}}
+          </ul>
+        </li>
+      {{else}}
+        <li {{#if active}}class="active"{{/if}}>
+          <a href="{{link url}}">
+            {{> '_nav-navbar-label'}}
+          </a>
+        </li>
+      {{/notEmpty}}
+    {{/each}}
+  </ul>
+</div>

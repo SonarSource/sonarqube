@@ -25,76 +25,78 @@ padding: 5px;
 }
 </style>
 <% end %>
-<form action="<%= ApplicationController.root_context -%>/dependencies/index" id="search_form">
-  <input type="text" name="search" value="<%= h params[:search] -%>" id="search_input"> </input>
-  <input type="submit" value="<%= message('dependencies.search_library') -%>" id="search_submit"/><br/>
-  <p class="small gray"><%= message('dependencies.search_help') -%></p>
-</form>
+<div class="page">
+  <form action="<%= ApplicationController.root_context -%>/dependencies/index" id="search_form">
+    <input type="text" name="search" value="<%= h params[:search] -%>" id="search_input"> </input>
+    <input type="submit" value="<%= message('dependencies.search_library') -%>" id="search_submit"/><br/>
+    <p class="small gray"><%= message('dependencies.search_help') -%></p>
+  </form>
 
-<div id="deps_drilldown">
-  <% if @resources %>
-  <div id="artifacts_col" class="drilldown_col">
-    <h3><%= message('dependencies.select_library') -%> :</h3>
-    <div class="col">
-    <table>
-      <tbody>
-      <% if @resources.empty? %>
-      <tr class="even"><td><%= message('no_data') -%></td></tr>
-      <% end %>
-     <% @resources.each do |resource|%>
-      <tr class="<%= cycle('even', 'odd', :name => 'lib') -%> <%= 'selected' if resource==@resource -%>">
-        <td ><%= qualifier_icon(resource) %> <a href="<%= url_for :action => 'index', :overwrite_params => {:version => nil, :resource => resource.kee} -%>"><%= h resource.name(true) -%></a><br/><span class="small gray"><%= h resource.kee -%></span></td>
-      </tr>
-      <% end %>
-      </tbody>
-    </table>
-    </div>
-  </div>
-  <% end %>
-
-  <% if @versions %>
-  <div id="versions_col" class="drilldown_col">
-    <h3><%= message('dependencies.select_version') -%> :</h3>
-    <div class="col">
-    <table>
-      <tbody>
-      <% if @versions.size>1 %>
-        <tr class="<%= cycle('even', 'odd', :name => 'version') -%> <%= 'selected' if @version.blank? -%>">
-          <td><a href="<%= url_for :action => 'index', :overwrite_params => {:version => nil, :resource => @resource.kee} -%>">All</a></td>
+  <div id="deps_drilldown">
+    <% if @resources %>
+    <div id="artifacts_col" class="drilldown_col">
+      <h3><%= message('dependencies.select_library') -%> :</h3>
+      <div class="col">
+      <table>
+        <tbody>
+        <% if @resources.empty? %>
+        <tr class="even"><td><%= message('no_data') -%></td></tr>
+        <% end %>
+       <% @resources.each do |resource|%>
+        <tr class="<%= cycle('even', 'odd', :name => 'lib') -%> <%= 'selected' if resource==@resource -%>">
+          <td ><%= qualifier_icon(resource) %> <a href="<%= url_for :action => 'index', :overwrite_params => {:version => nil, :resource => resource.kee} -%>"><%= h resource.name(true) -%></a><br/><span class="small gray"><%= h resource.kee -%></span></td>
         </tr>
-      <% end %>
-     <% @versions.each do |version|%>
-      <tr class="<%= cycle('even', 'odd', :name => 'version') -%> <%= 'selected' if version==@version-%>">
-        <td><a href="<%= url_for :action => 'index', :overwrite_params => {:version => version, :resource => @resource.kee} -%>"><%= version -%></a></td>
-      </tr>
-      <% end %>
-      </tbody>
-    </table>
+        <% end %>
+        </tbody>
+      </table>
+      </div>
     </div>
-  </div>
-  <% end %>
+    <% end %>
 
-  <% if @project_snapshots %>
-  <div id="results_col" class="drilldown_col">
-    <h3><%= message('dependencies.used_by') -%> :</h3>
-    <div class="col">
-    <table>
-      <tbody>
-      <% if @project_snapshots.empty? %>
-      <tr class="even"><td><%= message('dependencies.not_used') -%></td></tr>
-      <% end %>
-     <% @project_snapshots.each do |project_snapshot|%>
-      <tr class="<%= cycle('even', 'odd', :name => 'dep') -%>">
-        <td>
-        <%= qualifier_icon(project_snapshot.project) %> <%= link_to h(project_snapshot.project.name(true)), "#{ApplicationController.root_context}/libraries/index/#{project_snapshot.project_id}" -%><br/>
-        <span class="small gray"><%= h project_snapshot.project.kee -%></span></td>
-      </tr>
-      <% end %>
-      </tbody>
-    </table>
+    <% if @versions %>
+    <div id="versions_col" class="drilldown_col">
+      <h3><%= message('dependencies.select_version') -%> :</h3>
+      <div class="col">
+      <table>
+        <tbody>
+        <% if @versions.size>1 %>
+          <tr class="<%= cycle('even', 'odd', :name => 'version') -%> <%= 'selected' if @version.blank? -%>">
+            <td><a href="<%= url_for :action => 'index', :overwrite_params => {:version => nil, :resource => @resource.kee} -%>">All</a></td>
+          </tr>
+        <% end %>
+       <% @versions.each do |version|%>
+        <tr class="<%= cycle('even', 'odd', :name => 'version') -%> <%= 'selected' if version==@version-%>">
+          <td><a href="<%= url_for :action => 'index', :overwrite_params => {:version => version, :resource => @resource.kee} -%>"><%= version -%></a></td>
+        </tr>
+        <% end %>
+        </tbody>
+      </table>
+      </div>
     </div>
+    <% end %>
+
+    <% if @project_snapshots %>
+    <div id="results_col" class="drilldown_col">
+      <h3><%= message('dependencies.used_by') -%> :</h3>
+      <div class="col">
+      <table>
+        <tbody>
+        <% if @project_snapshots.empty? %>
+        <tr class="even"><td><%= message('dependencies.not_used') -%></td></tr>
+        <% end %>
+       <% @project_snapshots.each do |project_snapshot|%>
+        <tr class="<%= cycle('even', 'odd', :name => 'dep') -%>">
+          <td>
+          <%= qualifier_icon(project_snapshot.project) %> <%= link_to h(project_snapshot.project.name(true)), "#{ApplicationController.root_context}/libraries/index/#{project_snapshot.project_id}" -%><br/>
+          <span class="small gray"><%= h project_snapshot.project.kee -%></span></td>
+        </tr>
+        <% end %>
+        </tbody>
+      </table>
+      </div>
+    </div>
+    <% end %>
   </div>
-  <% end %>
 </div>
 <script>
 $j('#artifacts_col tr.selected').each(function(index,item) {item.scrollIntoView(true);});

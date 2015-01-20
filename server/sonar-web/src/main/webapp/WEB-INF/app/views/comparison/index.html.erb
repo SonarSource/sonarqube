@@ -65,7 +65,7 @@
 <% end %>
 
 
-  <div id="comparison-page">
+  <div id="comparison-page" class="page">
     <form method="GET" id="compare-form" action="<%= ApplicationController.root_context -%>/comparison/index">
       <input type="hidden" name="sids" id="sids" value="<%= @snapshots.map { |s| s.id.to_s }.join(',') -%>">
       <input type="hidden" name="metrics" id="metrics" value="<%= @metrics.map { |m| m.key }.join(',') -%>">
