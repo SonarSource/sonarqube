@@ -21,7 +21,6 @@ package org.sonar.server.rule.ws;
 
 import com.google.common.io.Resources;
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
@@ -30,7 +29,7 @@ import org.sonar.server.rule.RuleService;
 
 import java.util.Set;
 
-public class TagsAction implements RequestHandler {
+public class TagsAction implements RulesAction {
 
   private final RuleService service;
 
@@ -38,7 +37,8 @@ public class TagsAction implements RequestHandler {
     this.service = service;
   }
 
-  void define(WebService.NewController controller) {
+  @Override
+  public void define(WebService.NewController controller) {
     NewAction action = controller
       .createAction("tags")
       .setDescription("List rule tags")

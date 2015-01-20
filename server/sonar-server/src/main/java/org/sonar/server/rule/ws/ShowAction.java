@@ -22,7 +22,6 @@ package org.sonar.server.rule.ws;
 import com.google.common.io.Resources;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
@@ -33,7 +32,7 @@ import org.sonar.server.rule.RuleService;
 /**
  * @since 4.4
  */
-public class ShowAction implements RequestHandler {
+public class ShowAction implements RulesAction {
 
   public static final String PARAM_KEY = "key";
   public static final String PARAM_ACTIVES = "actives";
@@ -48,7 +47,8 @@ public class ShowAction implements RequestHandler {
     this.activeRuleCompleter = activeRuleCompleter;
   }
 
-  void define(WebService.NewController controller) {
+  @Override
+  public void define(WebService.NewController controller) {
     WebService.NewAction action = controller
       .createAction("show")
       .setDescription("Get detailed information about a rule")

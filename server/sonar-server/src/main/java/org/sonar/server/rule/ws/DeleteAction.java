@@ -22,7 +22,6 @@ package org.sonar.server.rule.ws;
 
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.rule.RuleService;
@@ -30,7 +29,7 @@ import org.sonar.server.rule.RuleService;
 /**
  * @since 4.4
  */
-public class DeleteAction implements RequestHandler {
+public class DeleteAction implements RulesAction {
 
   public static final String PARAM_KEY = "key";
 
@@ -40,7 +39,8 @@ public class DeleteAction implements RequestHandler {
     this.service = service;
   }
 
-  void define(WebService.NewController controller) {
+  @Override
+  public void define(WebService.NewController controller) {
     WebService.NewAction action = controller
       .createAction("delete")
       .setDescription("Delete custom rule or manual rule")

@@ -28,7 +28,6 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.KeyValueFormat;
@@ -38,7 +37,7 @@ import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleService;
 import org.sonar.server.rule.RuleUpdate;
 
-public class UpdateAction implements RequestHandler {
+public class UpdateAction implements RulesAction {
 
   public static final String PARAM_KEY = "key";
   public static final String PARAM_TAGS = "tags";
@@ -61,7 +60,8 @@ public class UpdateAction implements RequestHandler {
     this.mapping = mapping;
   }
 
-  void define(WebService.NewController controller) {
+  @Override
+  public void define(WebService.NewController controller) {
     WebService.NewAction action = controller
       .createAction("update")
       .setPost(true)

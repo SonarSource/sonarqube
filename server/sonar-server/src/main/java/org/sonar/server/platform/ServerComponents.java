@@ -264,6 +264,7 @@ import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.rule.ws.ActiveRuleCompleter;
 import org.sonar.server.rule.ws.AppAction;
 import org.sonar.server.rule.ws.DeleteAction;
+import org.sonar.server.rule.ws.RepositoriesAction;
 import org.sonar.server.rule.ws.RuleMapping;
 import org.sonar.server.rule.ws.RulesWebService;
 import org.sonar.server.rule.ws.SearchAction;
@@ -558,6 +559,7 @@ class ServerComponents {
     pico.addSingleton(TagsAction.class);
     pico.addSingleton(RuleMapping.class);
     pico.addSingleton(ActiveRuleCompleter.class);
+    pico.addSingleton(RepositoriesAction.class);
     pico.addSingleton(AppAction.class);
 
     // languages

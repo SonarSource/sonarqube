@@ -23,23 +23,10 @@ import org.sonar.api.server.ws.WebService;
 
 public class RulesWebService implements WebService {
 
-  private final SearchAction search;
-  private final ShowAction show;
-  private final TagsAction tags;
-  private final CreateAction create;
-  private final AppAction app;
-  private final UpdateAction update;
-  private final DeleteAction delete;
+  private final RulesAction[] actions;
 
-  public RulesWebService(SearchAction search, ShowAction show, TagsAction tags, CreateAction create,
-                         AppAction app, UpdateAction update, DeleteAction delete) {
-    this.search = search;
-    this.show = show;
-    this.tags = tags;
-    this.create = create;
-    this.app = app;
-    this.update = update;
-    this.delete = delete;
+  public RulesWebService(RulesAction... actions) {
+    this.actions = actions;
   }
 
   @Override
@@ -48,13 +35,9 @@ public class RulesWebService implements WebService {
       .createController("api/rules")
       .setDescription("Coding rules");
 
-    search.define(controller);
-    show.define(controller);
-    tags.define(controller);
-    app.define(controller);
-    update.define(controller);
-    create.define(controller);
-    delete.define(controller);
+    for (RulesAction action : actions) {
+      action.define(controller);
+    }
 
     controller.done();
   }
