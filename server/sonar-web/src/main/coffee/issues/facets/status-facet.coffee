@@ -11,5 +11,5 @@ define [
 
 
     sortValues: (values) ->
-      order = ['OPEN', 'REOPENED', 'CONFIRMED', 'RESOLVED', 'CLOSED']
+      order = ['OPEN', 'RESOLVED', 'REOPENED', 'CLOSED', 'CONFIRMED']
       _.sortBy values, (v) -> order.indexOf v.val

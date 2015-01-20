@@ -1,3 +1,12 @@
 <div class="search-navigator-filters-header">
   <span class="search-navigator-filters-name">{{t 'coding_rules.page'}}</span>
 </div>
+
+<div class="search-navigator-filters-actions">
+  <div class="button-group">
+    <button class="js-new-search" id="coding-rules-new-search">{{t 'issue_filter.new_search'}}</button>
+    {{#if canWrite}}
+      <button class="js-create-manual-rule">{{t 'coding_rules.create'}}</button>
+    {{/if}}
+  </div>
+</div>

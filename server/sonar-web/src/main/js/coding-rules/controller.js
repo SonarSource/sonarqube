@@ -127,6 +127,7 @@ define([
       this.app.layout.workspaceDetailsRegion.reset();
       this.app.layout.hideDetails();
       this.app.workspaceListView.bindScrollEvents();
+      this.app.workspaceListView.scrollTo();
     }
 
   });

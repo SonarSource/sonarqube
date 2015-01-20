@@ -69,7 +69,7 @@ class Api::ComponentsController < Api::ApiController
       qualifier_results['items']=resource_indexes.map do |resource_index|
         resource=resources_by_id[resource_index.resource_id]
         {
-          'key' => resource.key,
+          'id' => resource.id,
           'name' => resource.name(true)
         }
       end

@@ -20,7 +20,7 @@
 
 class ComparisonController < ApplicationController
 
-  SECTION=Navigation::SECTION_TOOLS
+  SECTION=Navigation::SECTION_HOME
 
   def index
     snapshots = []

@@ -21,11 +21,9 @@
     </div>
   {{/notNull}}
 
-  <div class="search-navigator-header-buttons button-group">
-    <button class="js-new-search" id="coding-rules-new-search">{{t 'issue_filter.new_search'}}</button>
-    {{#if canWrite}}
-      <button class="js-create-manual-rule">{{t 'coding_rules.create'}}</button>
+  {{#if canWrite}}
+    <div class="search-navigator-header-buttons button-group">
       <button class="js-bulk-change">{{t 'bulk_change'}}</button>
-    {{/if}}
-  </div>
+    </div>
+  {{/if}}
 </div>

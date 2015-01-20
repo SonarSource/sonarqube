@@ -1,6 +1,12 @@
 <div class="issues-header-component">
   {{#if state.component}}
     <a class="js-back">{{t 'issues.return_to_list'}}</a>&nbsp;&nbsp;&nbsp;
+
+    {{#with state.component}}
+      {{qualifierIcon 'TRK'}}&nbsp;<a href="{{dashboardUrl project}}" title="{{projectName}}">{{projectName}}</a>
+      &nbsp;&nbsp;
+      {{qualifierIcon qualifier}}&nbsp;<a href="{{dashboardUrl key}}" title="{{name}}">{{name}}</a>
+    {{/with}}
   {{else}}
     &nbsp;
   {{/if}}
@@ -22,7 +28,6 @@
 
 
   <div class="search-navigator-header-buttons button-group">
-    <button class="js-new-search" id="issues-new-search">{{t 'issue_filter.new_search'}}</button>
     <button id="issues-reload" class="js-reload">{{t 'reload'}}</button>
     {{#if state.canBulkChange}}
       <button id="issues-bulk-change" class="js-bulk-change">{{t 'bulk_change'}}</button>

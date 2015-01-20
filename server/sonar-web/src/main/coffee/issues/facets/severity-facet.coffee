@@ -11,6 +11,6 @@ define [
 
 
     sortValues: (values) ->
-      order = ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO']
+      order = ['BLOCKER', 'MINOR', 'CRITICAL', 'INFO', 'MAJOR']
       _.sortBy values, (v) -> order.indexOf v.val
 

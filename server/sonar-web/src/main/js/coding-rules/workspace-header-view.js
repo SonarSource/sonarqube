@@ -1,9 +1,8 @@
 define([
   'components/navigator/workspace-header-view',
   'coding-rules/bulk-change-popup-view',
-  'coding-rules/rule/manual-rule-creation-view',
   'templates/coding-rules'
-], function (WorkspaceHeaderView, BulkChangePopup, ManualRuleCreationView) {
+], function (WorkspaceHeaderView, BulkChangePopup) {
 
   var $ = jQuery;
 
@@ -13,9 +12,7 @@ define([
     events: function () {
       return _.extend(WorkspaceHeaderView.prototype.events.apply(this, arguments), {
         'click .js-back': 'onBackClick',
-        'click .js-bulk-change': 'onBulkChangeClick',
-        'click .js-new-search': 'newSearch',
-        'click .js-create-manual-rule': 'createManualRule'
+        'click .js-bulk-change': 'onBulkChangeClick'
       });
     },
 
@@ -30,16 +27,6 @@ define([
         app: this.options.app,
         triggerEl: $(e.currentTarget),
         bottomRight: true
-      }).render();
-    },
-
-    newSearch: function () {
-      this.options.app.controller.newSearch();
-    },
-
-    createManualRule: function() {
-      new ManualRuleCreationView({
-        app: this.options.app
       }).render();
     },
 

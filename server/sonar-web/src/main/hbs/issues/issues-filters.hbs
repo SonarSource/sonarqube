@@ -21,6 +21,8 @@
 
 <div class="search-navigator-filters-actions">
   <div class="button-group">
+    <button class="js-new-search" id="issues-new-search">{{t 'issue_filter.new_search'}}</button>
+
     {{#if state.canManageFilters}}
       {{#if filter.canModify}}
         {{#if state.changed}}<button class="js-filter-save" id="issues-filter-save">{{t 'save'}}</button>{{/if}}

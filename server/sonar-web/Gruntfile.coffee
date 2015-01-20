@@ -14,7 +14,6 @@ module.exports = (grunt) ->
             '<%= pkg.sources %>less/select2.less'
             '<%= pkg.sources %>less/select2-sonar.less'
             '<%= pkg.sources %>less/layout.less'
-            '<%= pkg.sources %>less/layout-new.less'
             '<%= pkg.sources %>less/style.less'
             '<%= pkg.sources %>less/icons.less'
             '<%= pkg.sources %>less/ui.less'
@@ -34,7 +33,6 @@ module.exports = (grunt) ->
             '<%= pkg.sources %>less/select2.less'
             '<%= pkg.sources %>less/select2-sonar.less'
             '<%= pkg.sources %>less/layout.less'
-            '<%= pkg.sources %>less/layout-new.less'
             '<%= pkg.sources %>less/style.less'
             '<%= pkg.sources %>less/icons.less'
             '<%= pkg.sources %>less/ui.less'
@@ -93,7 +91,6 @@ module.exports = (grunt) ->
             '<%= pkg.assets %>js/third-party/numeral.js'
             '<%= pkg.assets %>js/third-party/numeral-languages.js'
             '<%= pkg.assets %>js/third-party/bootstrap/tooltip.js'
-            '<%= pkg.assets %>js/third-party/bootstrap/dropdown.js'
             '<%= pkg.assets %>js/select2-jquery-ui-fix.js'
             '<%= pkg.assets %>js/widgets/base.js'
             '<%= pkg.assets %>js/widgets/widget.js'
@@ -137,7 +134,6 @@ module.exports = (grunt) ->
             '<%= pkg.assets %>js/third-party/numeral.js'
             '<%= pkg.assets %>js/third-party/numeral-languages.js'
             '<%= pkg.assets %>js/third-party/bootstrap/tooltip.js'
-            '<%= pkg.assets %>js/third-party/bootstrap/dropdown.js'
             '<%= pkg.assets %>js/select2-jquery-ui-fix.js'
             '<%= pkg.assets %>js/widgets/base.js'
             '<%= pkg.assets %>js/widgets/widget.js'
@@ -239,10 +235,6 @@ module.exports = (grunt) ->
         name: 'analysis-reports/app'
         out: '<%= pkg.assets %>build/js/analysis-reports/app.js'
 
-      nav: options:
-        name: 'nav/app'
-        out: '<%= pkg.assets %>build/js/nav/app.js'
-
 
     handlebars:
       options:
@@ -292,9 +284,6 @@ module.exports = (grunt) ->
           ]
           '<%= pkg.assets %>js/templates/analysis-reports.js': [
             '<%= pkg.sources %>hbs/analysis-reports/**/*.hbs'
-          ]
-          '<%= pkg.assets %>js/templates/nav.js': [
-            '<%= pkg.sources %>hbs/nav/**/*.hbs'
           ]
 
 
