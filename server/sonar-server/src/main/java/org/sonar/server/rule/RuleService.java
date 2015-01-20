@@ -31,6 +31,7 @@ import org.sonar.server.search.Result;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.util.Collection;
 import java.util.List;
@@ -84,6 +85,14 @@ public class RuleService implements ServerComponent {
   public Set<String> listTags() {
     /** using combined ALL_TAGS field of ES until ES update that has multiTerms aggregation */
     return index.terms(RuleNormalizer.RuleField.ALL_TAGS.field());
+  }
+
+  /**
+   * List tags matching a given criterion
+   */
+  public Set<String> listTags(@Nullable String query, int size) {
+    /** using combined ALL_TAGS field of ES until ES update that has multiTerms aggregation */
+    return index.terms(RuleNormalizer.RuleField.ALL_TAGS.field(), query, size);
   }
 
   public void update(RuleUpdate update) {

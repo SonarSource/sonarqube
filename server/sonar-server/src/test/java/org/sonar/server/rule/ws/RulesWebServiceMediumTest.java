@@ -446,16 +446,17 @@ public class RulesWebServiceMediumTest {
     ruleDao.insert(session, rule);
 
     RuleDto rule2 = RuleTesting.newXooX2()
-      .setTags(ImmutableSet.of("java"))
+      .setTags(ImmutableSet.of("hello", "java"))
       .setSystemTags(ImmutableSet.of("sys1"));
     ruleDao.insert(session, rule2);
     session.commit();
 
     MockUserSession.set();
-    WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_TAGS_METHOD);
-    WsTester.Result result = request.execute();
-
-    result.assertJson(this.getClass(), "get_tags.json", false);
+    tester.wsTester().newGetRequest(API_ENDPOINT, API_TAGS_METHOD).execute().assertJson(this.getClass(), "get_tags.json", false);
+    tester.wsTester().newGetRequest(API_ENDPOINT, API_TAGS_METHOD)
+      .setParam("ps", "1").execute().assertJson(this.getClass(), "get_tags_limited.json", false);
+    tester.wsTester().newGetRequest(API_ENDPOINT, API_TAGS_METHOD)
+      .setParam("q", "ll").execute().assertJson(this.getClass(), "get_tags_filtered.json", false);
   }
 
   @Test
