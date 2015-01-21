@@ -1,0 +1,11 @@
+{{> '_coding-rules-facet-header'}}
+
+<div class="search-navigator-facet-list">
+  {{#each values}}
+    <a class="facet search-navigator-facet {{#if parent}}search-navigator-facet-indent{{/if}} js-facet"
+       data-value="{{val}}" title="{{default label val}}">
+      <span class="facet-name">{{default label val}}</span>
+      <span class="facet-stat">{{numberShort count}}</span>
+    </a>
+  {{/each}}
+</div>

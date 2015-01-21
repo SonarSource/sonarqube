@@ -115,7 +115,9 @@ requirejs([
         App.repositories = r.repositories;
         App.repositories.push(App.manualRepository());
         App.statuses = r.statuses;
-        App.characteristics = r.characteristics;
+        App.characteristics = r.characteristics.map(function (item, index) {
+          return _.extend(item, { index: index });
+        });
       });
 
       $.when(window.requestMessages(), appXHR).done(function () {

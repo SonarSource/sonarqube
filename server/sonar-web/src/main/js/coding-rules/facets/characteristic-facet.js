@@ -1,8 +1,10 @@
 define([
-  'coding-rules/facets/base-facet'
+  'coding-rules/facets/base-facet',
+  'templates/coding-rules'
 ], function (BaseFacet) {
 
   return BaseFacet.extend({
+    template: Templates['coding-rules-characteristic-facet'],
 
     getValues: function () {
       var values = this.model.getValues(),
@@ -19,9 +21,7 @@ define([
     },
 
     sortValues: function (values) {
-      return _.sortBy(values, function (v) {
-        return v.val === 'NONE' ? -999999 : -v.count;
-      });
+      return _.sortBy(values, 'index');
     },
 
     serializeData: function () {
