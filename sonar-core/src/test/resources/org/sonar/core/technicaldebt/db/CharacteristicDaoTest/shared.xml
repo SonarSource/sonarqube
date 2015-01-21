@@ -6,7 +6,7 @@
                    created_at="2013-11-20" updated_at="2013-11-22"/>
 
   <!-- Characteristic -->
-  <characteristics id="2" kee="COMPILER_RELATED_PORTABILITY" name="Compiler related portability" parent_id="1" rcharacteristic_order="[null]"
+  <characteristics id="2" kee="COMPILER_RELATED_PORTABILITY" name="Compiler related portability" parent_id="1" characteristic_order="[null]"
                    enabled="[true]"
                    created_at="2013-11-20" updated_at="2013-11-22"/>
 

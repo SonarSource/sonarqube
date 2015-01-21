@@ -6,15 +6,15 @@
                    created_at="2013-11-20" updated_at="2013-11-22"/>
 
   <!-- Sub characteristics of root characteristic -->
-  <characteristics id="2" kee="COMPILER_RELATED_PORTABILITY" name="Compiler related portability" parent_id="1" rcharacteristic_order="[null]"
+  <characteristics id="2" kee="COMPILER_RELATED_PORTABILITY" name="Compiler related portability" parent_id="1" characteristic_order="[null]"
                    enabled="[true]"
                    created_at="2013-11-20" updated_at="2013-11-22"/>
-  <characteristics id="3" kee="HARDWARE_RELATED_PORTABILITY" name="Hardware related portability " parent_id="1" rcharacteristic_order="[null]"
+  <characteristics id="3" kee="HARDWARE_RELATED_PORTABILITY" name="Hardware related portability " parent_id="1" characteristic_order="[null]"
                    enabled="[true]"
                    created_at="2013-11-20" updated_at="2013-11-22"/>
 
   <!-- Other sub characteristic -->
-  <characteristics id="4" kee="READABILITY" name="Readability" parent_id="5" rcharacteristic_order="[null]"
+  <characteristics id="4" kee="READABILITY" name="Readability" parent_id="5" characteristic_order="[null]"
                    enabled="[true]"
                    created_at="2013-11-20" updated_at="2013-11-22"/>
 
