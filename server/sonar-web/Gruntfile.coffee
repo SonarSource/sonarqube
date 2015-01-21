@@ -9,7 +9,7 @@ module.exports = (grunt) ->
       dev:
         files:
           '<%= pkg.assets %>css/sonar.css': [
-            '<%= pkg.sources %>less/yui-reset-font.less'
+            '<%= pkg.sources %>less/init.less'
             '<%= pkg.sources %>less/jquery-ui.less'
             '<%= pkg.sources %>less/select2.less'
             '<%= pkg.sources %>less/select2-sonar.less'
@@ -28,7 +28,7 @@ module.exports = (grunt) ->
           cleancss: true
         files:
           '<%= pkg.assets %>css/sonar.css': [
-            '<%= pkg.sources %>less/yui-reset-font.less'
+            '<%= pkg.sources %>less/init.less'
             '<%= pkg.sources %>less/jquery-ui.less'
             '<%= pkg.sources %>less/select2.less'
             '<%= pkg.sources %>less/select2-sonar.less'

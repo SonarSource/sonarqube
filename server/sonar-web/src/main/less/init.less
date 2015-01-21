@@ -1,0 +1,170 @@
+@import (reference) "variables";
+@import (reference) "mixins";
+
+html {
+  color: @baseFontColor;
+  background: #fff;
+}
+
+body {
+  font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: @baseFontSize;
+  line-height: 1.231;
+}
+
+* {
+  margin: 0;
+  padding: 0
+}
+
+a {
+  border-bottom: 1px solid @lightBlue;
+  color: @darkBlue;
+  cursor: pointer;
+  outline: none;
+  text-decoration: none;
+  .trans;
+
+  &:hover {
+    color: @blue;
+  }
+
+  &:active, &:focus {
+    color: @darkBlue;
+  }
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+fieldset, img {
+  border: 0;
+}
+
+address, caption, cite, code, dfn, em, strong, th, var {
+  font-style: normal;
+  font-weight: normal;
+}
+
+ol, ul {
+  list-style: none;
+}
+
+caption, th {
+  text-align: left;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-size: 100%;
+  font-weight: normal;
+}
+
+q:before, q:after {
+  content: '';
+}
+
+abbr, acronym {
+  border: 0;
+  font-variant: normal;
+}
+
+sup {
+  vertical-align: text-top;
+}
+
+sub {
+  vertical-align: text-bottom;
+}
+
+input, textarea, select {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+select, input, button, textarea {
+  font-size: inherit;
+  font-family: inherit;
+}
+
+/*Remove button padding in FF*/
+select::-moz-focus-inner, input::-moz-focus-inner, button::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+
+legend {
+  color: #000
+}
+
+/* font */
+body {
+  font: 13px/1.231 arial, helvetica, clean, sans-serif;
+}
+
+select, input, button, textarea {
+  font: 99% arial, helvetica, clean, sans-serif
+}
+
+pre, code, kbd, samp, tt {
+  font-family: monospace;
+  line-height: 1;
+}
+
+code {
+  font-size: 93%;
+}
+
+small {
+  color: #aaa;
+  font-size: 85%;
+  font-style: normal;
+}
+
+em {
+  font-weight: bold;
+}
+
+
+@font-face {
+  font-family: 'Roboto';
+  src: url('../fonts/Roboto-Light-webfont.eot');
+  src: url('../fonts/Roboto-Light-webfont.eot?#iefix') format('embedded-opentype'),
+  url('../fonts/Roboto-Light-webfont.woff') format('woff'),
+  url('../fonts/Roboto-Light-webfont.ttf') format('truetype'),
+  url('../fonts/Roboto-Light-webfont.svg#robotolight') format('svg');
+  font-weight: 300;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Roboto';
+  src: url('../fonts/Roboto-Regular-webfont.eot');
+  src: url('../fonts/Roboto-Regular-webfont.eot?#iefix') format('embedded-opentype'),
+  url('../fonts/Roboto-Regular-webfont.woff') format('woff'),
+  url('../fonts/Roboto-Regular-webfont.ttf') format('truetype'),
+  url('../fonts/Roboto-Regular-webfont.svg#robotoregular') format('svg');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Roboto';
+  src: url('../fonts/Roboto-Medium-webfont.eot');
+  src: url('../fonts/Roboto-Medium-webfont.eot?#iefix') format('embedded-opentype'),
+  url('../fonts/Roboto-Medium-webfont.woff') format('woff'),
+  url('../fonts/Roboto-Medium-webfont.ttf') format('truetype'),
+  url('../fonts/Roboto-Medium-webfont.svg#robotomedium') format('svg');
+  font-weight: 500;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Roboto';
+  src: url('../fonts/Roboto-Bold-webfont.eot');
+  src: url('../fonts/Roboto-Bold-webfont.eot?#iefix') format('embedded-opentype'),
+  url('../fonts/Roboto-Bold-webfont.woff') format('woff'),
+  url('../fonts/Roboto-Bold-webfont.ttf') format('truetype'),
+  url('../fonts/Roboto-Bold-webfont.svg#robotobold') format('svg');
+  font-weight: 700;
+  font-style: normal;
+}

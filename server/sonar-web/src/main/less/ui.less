@@ -2,64 +2,6 @@
 @import (reference) "mixins";
 
 
-
-@font-face {
-  font-family: 'Roboto';
-  src: url('../fonts/Roboto-Light-webfont.eot');
-  src: url('../fonts/Roboto-Light-webfont.eot?#iefix') format('embedded-opentype'),
-  url('../fonts/Roboto-Light-webfont.woff') format('woff'),
-  url('../fonts/Roboto-Light-webfont.ttf') format('truetype'),
-  url('../fonts/Roboto-Light-webfont.svg#robotolight') format('svg');
-  font-weight: 300;
-  font-style: normal;
-}
-@font-face {
-  font-family: 'Roboto';
-  src: url('../fonts/Roboto-Regular-webfont.eot');
-  src: url('../fonts/Roboto-Regular-webfont.eot?#iefix') format('embedded-opentype'),
-  url('../fonts/Roboto-Regular-webfont.woff') format('woff'),
-  url('../fonts/Roboto-Regular-webfont.ttf') format('truetype'),
-  url('../fonts/Roboto-Regular-webfont.svg#robotoregular') format('svg');
-  font-weight: 400;
-  font-style: normal;
-}
-@font-face {
-  font-family: 'Roboto';
-  src: url('../fonts/Roboto-Medium-webfont.eot');
-  src: url('../fonts/Roboto-Medium-webfont.eot?#iefix') format('embedded-opentype'),
-  url('../fonts/Roboto-Medium-webfont.woff') format('woff'),
-  url('../fonts/Roboto-Medium-webfont.ttf') format('truetype'),
-  url('../fonts/Roboto-Medium-webfont.svg#robotomedium') format('svg');
-  font-weight: 500;
-  font-style: normal;
-}
-@font-face {
-  font-family: 'Roboto';
-  src: url('../fonts/Roboto-Bold-webfont.eot');
-  src: url('../fonts/Roboto-Bold-webfont.eot?#iefix') format('embedded-opentype'),
-  url('../fonts/Roboto-Bold-webfont.woff') format('woff'),
-  url('../fonts/Roboto-Bold-webfont.ttf') format('truetype'),
-  url('../fonts/Roboto-Bold-webfont.svg#robotobold') format('svg');
-  font-weight: 700;
-  font-style: normal;
-}
-
-
-body {
-  font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-}
-
-select, input, button, textarea {
-  font-size: 99%;
-  font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-}
-
-/*Remove button padding in FF*/
-select::-moz-focus-inner, input::-moz-focus-inner, button::-moz-focus-inner {
-  border: 0;
-  padding: 0;
-}
-
 /*
  * Common
  */
@@ -164,15 +106,9 @@ select::-moz-focus-inner, input::-moz-focus-inner, button::-moz-focus-inner {
   }
 }
 
-
-a {
-  cursor: pointer;
-  .underlined-link;
-
-  &.active-link {
-    border-bottom: none;
-    font-weight: 500;
-  }
+a.active-link {
+  border-bottom: none;
+  font-weight: 500;
 }
 
 
@@ -479,6 +415,15 @@ input[type=button] {
 
 .nav > li > a {
   position: relative;
-  display: block;
+  display: inline-block;
+  vertical-align: middle;
   padding: 10px 15px;
+}
+
+
+.nav-crumbs > li + li:before {
+  content: " /";
+  display: inline-block;
+  vertical-align: middle;
+  color: @secondFontColor;
 }
