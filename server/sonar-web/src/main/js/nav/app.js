@@ -21,7 +21,7 @@ define([
         app: App,
         el: $('.navbar-context'),
         collection: new Backbone.Collection(window.navbarContextMenu),
-        breadcrumbs: new Backbone.Collection(window.navbarBreadcrumbs),
+        breadcrumbs: new Backbone.Collection(window.navbarBreadcrumbs)
       });
       this.contextNavbarView.render();
     });

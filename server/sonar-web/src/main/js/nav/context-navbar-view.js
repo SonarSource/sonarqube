@@ -2,8 +2,6 @@ define([
   'templates/nav'
 ], function () {
 
-  var $ = jQuery;
-
   return Marionette.ItemView.extend({
     template: Templates['nav-context-navbar'],
 
