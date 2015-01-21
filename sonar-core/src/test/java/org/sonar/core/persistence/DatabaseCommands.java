@@ -137,17 +137,37 @@ public abstract class DatabaseCommands {
       statement = connection.createStatement();
       for (String table : DatabaseVersion.TABLES) {
         try {
-          statement.executeUpdate(getTruncateCommand(table));
-          connection.commit();
+          if (countRows(connection, table)>0) {
+            statement.executeUpdate(getTruncateCommand(table));
+            connection.commit();
+          }
         } catch (Exception e) {
-          // ignore
           connection.rollback();
+          throw new IllegalStateException("Fail to truncate table " + table, e);
         }
       }
     } finally {
       DbUtils.closeQuietly(connection);
       DbUtils.closeQuietly(statement);
     }
+  }
+
+  private int countRows(Connection connection, String table) throws SQLException {
+    Statement stmt = connection.createStatement();
+    ResultSet rs = null;
+    try {
+      rs = stmt.executeQuery("select count(*) from " + table);
+      if (rs.next()) {
+        return rs.getInt(1);
+      }
+
+    } catch (SQLException ignored) {
+      // probably because table does not exist. That's the case with H2 tests.
+    } finally {
+      DbUtils.closeQuietly(rs);
+      DbUtils.closeQuietly(stmt);
+    }
+    return 0;
   }
 
   public void resetPrimaryKeys(DataSource dataSource) throws SQLException {
