@@ -561,7 +561,7 @@ public final class IssueDto implements Serializable {
   /**
    * On batch side, component keys and uuid are useless
    */
-  public static IssueDto toDtoForBatchInsert(DefaultIssue issue, long componentId, long projectId, int ruleId, long now) {
+  public static IssueDto toDtoForComputationInsert(DefaultIssue issue, long componentId, long projectId, int ruleId, long now) {
     return new IssueDto()
       .setKee(issue.key())
       .setLine(issue.line())
@@ -603,8 +603,8 @@ public final class IssueDto implements Serializable {
   /**
    * On server side, we need component keys and uuid
    */
-  public static IssueDto toDtoForServerInsert(DefaultIssue issue, ComponentDto component, ComponentDto project, Integer ruleId, long now) {
-    return toDtoForBatchInsert(issue, component.getId(), project.getId(), ruleId, now)
+  public static IssueDto toDtoForServerInsert(DefaultIssue issue, ComponentDto component, ComponentDto project, int ruleId, long now) {
+    return toDtoForComputationInsert(issue, component.getId(), project.getId(), ruleId, now)
       .setComponent(component)
       .setProject(project);
   }

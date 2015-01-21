@@ -83,6 +83,7 @@ public interface DatabaseMigrations {
     CopyScmAccountsFromAuthorsToUsers.class,
     FeedIssueChangesLongDates.class,
     FeedAnalysisReportsLongDates.class,
-    UpdateProjectsModuleUuidPath.class
+    UpdateProjectsModuleUuidPath.class,
+    FeedIssueComponentUuids.class
     );
 }

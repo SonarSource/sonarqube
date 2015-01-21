@@ -81,6 +81,8 @@ public class IssueStorageTest extends AbstractDaoTestCase {
       .setUpdateDate(date)
       .setCloseDate(date)
 
+      .setComponentUuid("component-uuid")
+      .setProjectUuid("project-uuid")
       .setComponentKey("struts:Action");
 
     saver.save(issue);
@@ -114,6 +116,8 @@ public class IssueStorageTest extends AbstractDaoTestCase {
       .setUpdateDate(date)
       .setCloseDate(date)
 
+      .setComponentUuid("component-uuid")
+      .setProjectUuid("project-uuid")
       .setComponentKey("struts:Action");
 
     saver.save(session, issue);
@@ -124,8 +128,8 @@ public class IssueStorageTest extends AbstractDaoTestCase {
 
   @Test
   public void server_insert_new_issues_with_session() throws Exception {
-    ComponentDto project = new ComponentDto().setId(10L);
-    ComponentDto component = new ComponentDto().setId(100L);
+    ComponentDto project = new ComponentDto().setId(10L).setUuid("project-uuid");
+    ComponentDto component = new ComponentDto().setId(100L).setUuid("component-uuid");
     FakeServerSaver saver = new FakeServerSaver(getMyBatis(), new FakeRuleFinder(), component, project);
 
     DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
@@ -150,7 +154,9 @@ public class IssueStorageTest extends AbstractDaoTestCase {
       .setUpdateDate(date)
       .setCloseDate(date)
 
-      .setComponentKey("struts:Action");
+      .setComponentKey("struts:Action")
+      .setComponentUuid("component-uuid")
+      .setProjectUuid("project-uuid");
 
     saver.save(session, issue);
     session.commit();
@@ -253,7 +259,7 @@ public class IssueStorageTest extends AbstractDaoTestCase {
     @Override
     protected void doInsert(DbSession session, long now, DefaultIssue issue) {
       int ruleId = rule(issue).getId();
-      IssueDto dto = IssueDto.toDtoForBatchInsert(issue, 100l, 10l, ruleId, now);
+      IssueDto dto = IssueDto.toDtoForComputationInsert(issue, 100l, 10l, ruleId, now);
 
       session.getMapper(IssueMapper.class).insert(dto);
     }

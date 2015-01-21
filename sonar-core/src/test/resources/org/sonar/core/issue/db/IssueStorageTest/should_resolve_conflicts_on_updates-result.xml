@@ -19,6 +19,8 @@
           message="[null]"
           line="444"
           component_id="100"
+          component_uuid="component-uuid"
+          project_uuid="project-uuid"
           root_component_id="10"
           rule_id="200"
           reporter="[null]"
@@ -29,5 +31,5 @@
           issue_creation_date="2005-05-12 00:00:00.0"
           issue_update_date="2013-05-18 00:00:00.0"
           issue_close_date="[null]"
-    />
+      />
 </dataset>

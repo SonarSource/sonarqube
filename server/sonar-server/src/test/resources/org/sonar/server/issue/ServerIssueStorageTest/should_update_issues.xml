@@ -20,6 +20,8 @@
           message="[null]"
           line="3000"
           component_id="100"
+          component_uuid="[null]"
+          project_uuid="[null]"
           root_component_id="10"
           rule_id="200"
           created_at="1000000000"

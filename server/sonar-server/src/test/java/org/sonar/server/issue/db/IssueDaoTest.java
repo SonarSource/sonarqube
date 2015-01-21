@@ -41,13 +41,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class IssueDaoTest extends AbstractDaoTestCase {
 
-  private IssueDao dao;
+  private IssueDao sut;
   private DbSession session;
 
   @Before
   public void before() throws Exception {
     this.session = getMyBatis().openSession(false);
-    this.dao = new IssueDao(getMyBatis());
+    this.sut = new IssueDao(getMyBatis());
   }
 
   @After
@@ -59,7 +59,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   public void get_by_key() {
     setupData("shared", "get_by_key");
 
-    IssueDto issue = dao.selectByKey(session, "ABCDE");
+    IssueDto issue = sut.selectByKey(session, "ABCDE");
     assertThat(issue.getKee()).isEqualTo("ABCDE");
     assertThat(issue.getId()).isEqualTo(100L);
     assertThat(issue.getComponentId()).isEqualTo(401);
@@ -93,7 +93,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   public void get_by_keys() {
     setupData("shared", "get_by_key");
 
-    List<IssueDto> issues = dao.selectByKeys(session, Arrays.asList("ABCDE"));
+    List<IssueDto> issues = sut.selectByKeys(session, Arrays.asList("ABCDE"));
     assertThat(issues).hasSize(1);
   }
 
@@ -101,7 +101,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   public void find_by_action_plan() {
     setupData("shared", "find_by_action_plan");
 
-    List<IssueDto> issues = dao.findByActionPlan(session, "AP-1");
+    List<IssueDto> issues = sut.findByActionPlan(session, "AP-1");
     assertThat(issues).hasSize(1);
 
     IssueDto issue = issues.get(0);
@@ -140,12 +140,12 @@ public class IssueDaoTest extends AbstractDaoTestCase {
 
     // BCDE is a non-root module, we should find 2 issues from classes and one on itself
     DefaultResultHandler handler = new DefaultResultHandler();
-    dao.selectNonClosedIssuesByModuleUuid(session, "BCDE", handler);
+    sut.selectNonClosedIssuesByModuleUuid(session, "BCDE", handler);
     assertThat(handler.getResultList()).extracting("key").containsOnly("100", "101", "103");
 
     // DBCA is a a simple project with a single file
     handler = new DefaultResultHandler();
-    dao.selectNonClosedIssuesByModuleUuid(session, "DBCA", handler);
+    sut.selectNonClosedIssuesByModuleUuid(session, "DBCA", handler);
     assertThat(handler.getResultList()).hasSize(1);
 
     BatchIssueDto batchIssueDto = (BatchIssueDto) handler.getResultList().get(0);
@@ -169,12 +169,12 @@ public class IssueDaoTest extends AbstractDaoTestCase {
 
     // ABCD is the root module, we should find all 4 issues
     DefaultResultHandler handler = new DefaultResultHandler();
-    dao.selectNonClosedIssuesByProjectUuid(session, "ABCD", handler);
+    sut.selectNonClosedIssuesByProjectUuid(session, "ABCD", handler);
     assertThat(handler.getResultList()).hasSize(4);
 
     // DBCA is a a simple project with a single file
     handler = new DefaultResultHandler();
-    dao.selectNonClosedIssuesByProjectUuid(session, "DBCA", handler);
+    sut.selectNonClosedIssuesByProjectUuid(session, "DBCA", handler);
     assertThat(handler.getResultList()).hasSize(1);
 
     BatchIssueDto batchIssueDto = (BatchIssueDto) handler.getResultList().get(0);
@@ -195,8 +195,8 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   @Test
   public void insert() throws Exception {
     IssueDto dto = new IssueDto();
-    dto.setComponent(new ComponentDto().setKey("struts:Action").setId(123L));
-    dto.setProject(new ComponentDto().setKey("struts").setId(100L));
+    dto.setComponent(new ComponentDto().setKey("struts:Action").setId(123L).setUuid("component-uuid"));
+    dto.setProject(new ComponentDto().setKey("struts").setId(100L).setUuid("project-uuid"));
     dto.setRule(RuleTesting.newDto(RuleKey.of("squid", "S001")).setId(200));
     dto.setKee("ABCDE");
     dto.setLine(500);
@@ -219,44 +219,9 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     dto.setCreatedAt(1400000000000L);
     dto.setUpdatedAt(1450000000000L);
 
-    dao.insert(session, dto);
+    sut.insert(session, dto);
     session.commit();
 
     checkTables("insert", new String[] {"id"}, "issues");
-  }
-
-  @Test
-  public void update() throws Exception {
-    setupData("update");
-
-    IssueDto dto = new IssueDto();
-    dto.setComponent(new ComponentDto().setKey("struts:Action").setId(123L));
-    dto.setProject(new ComponentDto().setKey("struts").setId(101L));
-    dto.setRule(RuleTesting.newDto(RuleKey.of("squid", "S001")).setId(200));
-    dto.setKee("ABCDE");
-    dto.setLine(500);
-    dto.setEffortToFix(3.14);
-    dto.setDebt(10L);
-    dto.setResolution("FIXED");
-    dto.setStatus("RESOLVED");
-    dto.setSeverity("BLOCKER");
-    dto.setReporter("emmerik");
-    dto.setAuthorLogin("morgan");
-    dto.setAssignee("karadoc");
-    dto.setActionPlanKey("current_sprint");
-    dto.setIssueAttributes("JIRA=FOO-1234");
-    dto.setChecksum("123456789");
-    dto.setMessage("the message");
-
-    dto.setIssueCreationDate(DateUtils.parseDate("2013-05-18"));
-    dto.setIssueUpdateDate(DateUtils.parseDate("2013-05-19"));
-    dto.setIssueCloseDate(DateUtils.parseDate("2013-05-20"));
-    dto.setCreatedAt(1400000000000L);
-    dto.setUpdatedAt(1450000000000L);
-
-    dao.update(session, dto);
-    session.commit();
-
-    checkTables("update", new String[] {"id"}, "issues");
   }
 }

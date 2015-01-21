@@ -57,6 +57,8 @@ What has been changed :
   <!-- Open issue on file -->
   <issues id="1" kee="ISSUE-1"
           component_id="3"
+          component_uuid="[null]"
+          project_uuid="[null]"
           root_component_id="1"
           status="CLOSED"
           issue_close_date="2014-04-09"
@@ -67,6 +69,8 @@ What has been changed :
   <!-- Open issue on directory -->
   <issues id="2" kee="ISSUE-2"
           component_id="2"
+          component_uuid="[null]"
+          project_uuid="[null]"
           root_component_id="1"
           status="CLOSED"
           issue_close_date="2014-04-09"
@@ -77,6 +81,8 @@ What has been changed :
   <!-- Open issue on project -->
   <issues id="3" kee="ISSUE-3"
           component_id="1"
+          component_uuid="[null]"
+          project_uuid="[null]"
           root_component_id="1"
           status="CLOSED"
           issue_close_date="2014-04-09"
@@ -87,6 +93,8 @@ What has been changed :
   <!-- Resolved issue on file -> not to be updated -->
   <issues id="4" kee="ISSUE-4"
           component_id="3"
+          component_uuid="[null]"
+          project_uuid="[null]"
           root_component_id="1"
           status="CLOSED"
           issue_close_date="2015-12-08"

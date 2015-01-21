@@ -3,6 +3,8 @@
       id="100"
       kee="ABCDE"
       component_id="123"
+      component_uuid="component-uuid"
+      project_uuid="project-uuid"
       root_component_id="100"
       rule_id="200"
       severity="BLOCKER"
