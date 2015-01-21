@@ -47,10 +47,18 @@ public class SourceLinesCacheTest {
 
     assertThat(cache.lineAuthor(1)).isEqualTo("charlie");
     assertThat(cache.lineAuthor(2)).isEqualTo("cabu");
+
+    // blank author -> return null
     assertThat(cache.lineAuthor(3)).isNull();
-    assertThat(cache.countLines()).isEqualTo(2);
+
+    // only 3 lines in the file
+    assertThat(cache.lineAuthor(100)).isNull();
+
+    assertThat(cache.countLines()).isEqualTo(3);
 
     cache.clear();
     assertThat(cache.countLines()).isEqualTo(0);
   }
+
+
 }

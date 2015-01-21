@@ -56,6 +56,7 @@ public class UserIndexTest {
     assertThat(userDoc.createdAt()).isEqualTo(1500000000000L);
     assertThat(userDoc.updatedAt()).isEqualTo(1500000000000L);
 
+    assertThat(index.getNullableByLogin("")).isNull();
     assertThat(index.getNullableByLogin("unknown")).isNull();
   }
 
@@ -100,6 +101,7 @@ public class UserIndexTest {
     assertThat(index.getNullableByScmAccount("user1@mail.com").login()).isEqualTo("user1");
     assertThat(index.getNullableByScmAccount("user1").login()).isEqualTo("user1");
 
+    assertThat(index.getNullableByScmAccount("")).isNull();
     assertThat(index.getNullableByScmAccount("unknown")).isNull();
   }
 
