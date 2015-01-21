@@ -1,0 +1,31 @@
+@import (reference) "../variables";
+@import (reference) "../mixins";
+@import (reference) "../ui";
+
+.page {
+  padding: 10px 0;
+}
+
+.page-header,
+// deprecated
+.page_title {
+  .clearfix;
+  margin-bottom: 10px;
+}
+
+.page-title {
+  float: left;
+  font-size: @bigFontSize;
+  line-height: @formControlHeight;
+}
+
+.page-actions {
+  float: right;
+}
+
+.page-description {
+  float: left;
+  clear: left;
+  font-size: @smallFontSize;
+  line-height: 1.5;
+}

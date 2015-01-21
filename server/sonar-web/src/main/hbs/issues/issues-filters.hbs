@@ -6,7 +6,7 @@
   <a class="search-navigator-filters-manage" href="{{link '/issues/manage'}}"><i class="icon-settings"></i> {{t 'manage'}}</a>
 </div>
 
-<div class="search-navigator-filters-header">
+<h1 class="page-title">
   {{#if state.canManageFilters}}
     <a class="search-navigator-filters-show-list js-toggle-filters">
       <i class="icon-list"></i>&nbsp;<span class="issues-filters-name">{{> '_issues-filter-name'}}</span>
@@ -17,9 +17,9 @@
   {{else}}
     <span class="search-navigator-filters-name">{{t 'issues'}}</span>
   {{/if}}
-</div>
+</h1>
 
-<div class="search-navigator-filters-actions">
+<div class="page-actions">
   <div class="button-group">
     <button class="js-new-search" id="issues-new-search">{{t 'issue_filter.new_search'}}</button>
 

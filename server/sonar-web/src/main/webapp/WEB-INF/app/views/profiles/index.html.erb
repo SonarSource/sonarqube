@@ -1,12 +1,19 @@
 <div class="page">
-<div class="line-block marginbottom10">
-  <div style="float: right" class="operations button-group">
-    <a href="profiles/compare" id="compare-link" class="button"><i class="icon-compare"></i> <%= message('quality_profiles.compare_profiles') -%></a>
-    <% if profiles_administrator? %>
-      <a href="profiles/restore_form" class="open-modal button" id="restore-link"><i class="icon-restore"></i> <%= message('quality_profiles.restore_profile') -%></a>
-    <% end %>
+
+  <div class="page-header">
+    <h1 class="page-title"><%= h message('quality_profiles.page') -%></h1>
+
+    <div class="page-actions operations">
+      <div class="button-group">
+        <a href="profiles/compare" id="compare-link" class="button"><i class="icon-compare"></i> <%= message('quality_profiles.compare_profiles') -%>
+        </a>
+        <% if profiles_administrator? %>
+          <a href="profiles/restore_form" class="open-modal button" id="restore-link"><i class="icon-restore"></i> <%= message('quality_profiles.restore_profile') -%>
+          </a>
+        <% end %>
+      </div>
+    </div>
   </div>
-</div>
 
 <%
    Api::Utils.insensitive_sort(languages){|l| l.getName()}.each do |language|

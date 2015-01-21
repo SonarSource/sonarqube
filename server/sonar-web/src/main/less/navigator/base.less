@@ -140,6 +140,11 @@
   padding: 0 @navigatorPadding;
   background-color: @navigatorBarBackground;
   font-size: 0;
+
+  .page-title,
+  .page-actions {
+    margin: (@navigatorHeaderHeight - @formControlHeight) / 2 0;
+  }
 }
 
 .navigator-header-favorite {
@@ -170,7 +175,7 @@
 }
 
 .navigator-header-actions {
-  margin-left: 20px;
+  margin: 8px 0 8px 20px;
 
   & > a {
     vertical-align: middle;

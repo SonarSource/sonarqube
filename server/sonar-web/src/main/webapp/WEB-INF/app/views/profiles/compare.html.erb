@@ -1,4 +1,11 @@
 <div class="page">
+  <header class="page-header">
+    <h1 class="page-title"><%= h message('quality_profiles.compare_profiles') -%></h1>
+    <div class="page-description">
+      <a href="<%= ApplicationController.root_context -%>/profiles">&larr;&nbsp;<%= h message('quality_profiles.page') -%></a>
+    </div>
+  </header>
+
 <form method="GET" class="marginbottom10">
   <select name="id1" class="small">
     <option value=""></option>

@@ -1,46 +1,51 @@
-<div class="dsm-header">
-  <i class="icon-help"></i> <a href="http://redirect.sonarsource.com/doc/dsm.html">{{t 'design.help'}}</a>
-</div>
+<div class="page">
+  <header class="page-header">
+    <h1 class="page-title">{{t 'design.page'}}</h1>
+    <div class="page-actions">
+      <i class="icon-help"></i>&nbsp;<a href="http://redirect.sonarsource.com/doc/dsm.html">{{t 'design.help'}}</a>
+    </div>
+  </header>
 
-<ul class="dsm-legend">
-  <li>
-    <span class="dsm-legend-square gray"></span>
-    <span class="dsm-legend-label">{{t 'design.legend.dependencies'}}</span>
-  </li>
-  <li>
-    <span class="dsm-legend-square red"></span>
-    <span class="dsm-legend-label">{{t 'design.legend.cycles'}}</span>
-  </li>
-  <li>
-    <span class="dsm-legend-square green"></span>
-    <span class="dsm-legend-label">{{t 'design.legend.uses'}}</span>
-    <span class="dsm-legend-square blue"></span>
-    <span class="dsm-legend-label">{{t 'design.legend.uses'}}</span>
-    <span class="dsm-legend-square yellow"></span>
-  </li>
-</ul>
+  <ul class="dsm-legend">
+    <li>
+      <span class="dsm-legend-square gray"></span>
+      <span class="dsm-legend-label">{{t 'design.legend.dependencies'}}</span>
+    </li>
+    <li>
+      <span class="dsm-legend-square red"></span>
+      <span class="dsm-legend-label">{{t 'design.legend.cycles'}}</span>
+    </li>
+    <li>
+      <span class="dsm-legend-square green"></span>
+      <span class="dsm-legend-label">{{t 'design.legend.uses'}}</span>
+      <span class="dsm-legend-square blue"></span>
+      <span class="dsm-legend-label">{{t 'design.legend.uses'}}</span>
+      <span class="dsm-legend-square yellow"></span>
+    </li>
+  </ul>
 
-<div class="dsm-body">
-  <table>
-    <tbody>
-    {{#eachIndex items}}
-      <tr>
-        <td class="dsm-body-title" title="{{t 'design.rowTooltip'}}">
-          {{qualifierIcon q}} {{n}}
-          {{#gt pt 0}}
-            <span class="dsm-body-title-package-tangles" title="{{t 'metric.package_cycles.name'}}">{{pt}}</span>
-          {{/gt}}
-          <span class="dsm-body-title-indicator"></span>
-        </td>
-        {{#eachIndex v}}
-          <td class="dsm-body-cell {{#if status}}dsm-body-cell-{{status}}{{/if}}" title="{{t 'design.cellTooltip'}}">
-            {{#eq index ../index}}–{{else}}{{w}}{{/eq}}
+  <div class="dsm-body">
+    <table>
+      <tbody>
+      {{#eachIndex items}}
+        <tr>
+          <td class="dsm-body-title" title="{{t 'design.rowTooltip'}}">
+            {{qualifierIcon q}} {{n}}
+            {{#gt pt 0}}
+              <span class="dsm-body-title-package-tangles" title="{{t 'metric.package_cycles.name'}}">{{pt}}</span>
+            {{/gt}}
+            <span class="dsm-body-title-indicator"></span>
           </td>
-        {{/eachIndex}}
-      </tr>
-    {{/eachIndex}}
-    </tbody>
-  </table>
-</div>
+          {{#eachIndex v}}
+            <td class="dsm-body-cell {{#if status}}dsm-body-cell-{{status}}{{/if}}" title="{{t 'design.cellTooltip'}}">
+              {{#eq index ../index}}–{{else}}{{w}}{{/eq}}
+            </td>
+          {{/eachIndex}}
+        </tr>
+      {{/eachIndex}}
+      </tbody>
+    </table>
+  </div>
 
-<div class="dsm-info"></div>
+  <div class="dsm-info"></div>
+</div>
