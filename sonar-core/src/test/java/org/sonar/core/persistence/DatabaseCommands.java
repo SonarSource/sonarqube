@@ -116,6 +116,12 @@ public abstract class DatabaseCommands {
     List<String> resetPrimaryKey(String table, int minSequenceValue) {
       return null;
     }
+
+    @Override
+    protected boolean shouldTruncate(Connection connection, String table) throws SQLException {
+      // truncate all tables on mssql, else unexpected errors in some tests
+      return true;
+    }
   };
 
   private static final DatabaseCommands MYSQL = new DatabaseCommands(new MySqlDataTypeFactory()) {
@@ -137,7 +143,7 @@ public abstract class DatabaseCommands {
       statement = connection.createStatement();
       for (String table : DatabaseVersion.TABLES) {
         try {
-          if (countRows(connection, table)>0) {
+          if (shouldTruncate(connection, table)) {
             statement.executeUpdate(getTruncateCommand(table));
             connection.commit();
           }
@@ -152,13 +158,13 @@ public abstract class DatabaseCommands {
     }
   }
 
-  private int countRows(Connection connection, String table) throws SQLException {
+  protected boolean shouldTruncate(Connection connection, String table) throws SQLException {
     Statement stmt = connection.createStatement();
     ResultSet rs = null;
     try {
       rs = stmt.executeQuery("select count(*) from " + table);
       if (rs.next()) {
-        return rs.getInt(1);
+        return rs.getInt(1)>0;
       }
 
     } catch (SQLException ignored) {
@@ -167,7 +173,7 @@ public abstract class DatabaseCommands {
       DbUtils.closeQuietly(rs);
       DbUtils.closeQuietly(stmt);
     }
-    return 0;
+    return false;
   }
 
   public void resetPrimaryKeys(DataSource dataSource) throws SQLException {
