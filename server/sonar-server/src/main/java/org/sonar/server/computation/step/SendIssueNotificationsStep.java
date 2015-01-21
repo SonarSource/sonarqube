@@ -28,7 +28,7 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.server.computation.ComputationContext;
-import org.sonar.server.computation.issue.FinalIssues;
+import org.sonar.server.computation.issue.IssueCache;
 import org.sonar.server.computation.issue.RuleCache;
 import org.sonar.server.issue.notification.IssueNotifications;
 import org.sonar.server.util.CloseableIterator;
@@ -40,13 +40,13 @@ import org.sonar.server.util.CloseableIterator;
  */
 public class SendIssueNotificationsStep implements ComputationStep {
 
-  private final FinalIssues finalIssues;
+  private final IssueCache issueCache;
   private final RuleCache rules;
   private final IssueNotifications service;
 
-  public SendIssueNotificationsStep(FinalIssues finalIssues, RuleCache rules,
+  public SendIssueNotificationsStep(IssueCache issueCache, RuleCache rules,
     IssueNotifications service) {
-    this.finalIssues = finalIssues;
+    this.issueCache = issueCache;
     this.rules = rules;
     this.service = service;
   }
@@ -54,7 +54,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
   @Override
   public void execute(ComputationContext context) {
     NewIssuesStatistics newIssuesStatistics = new NewIssuesStatistics();
-    CloseableIterator<DefaultIssue> issues = finalIssues.traverse();
+    CloseableIterator<DefaultIssue> issues = issueCache.traverse();
     try {
       while (issues.hasNext()) {
         DefaultIssue issue = issues.next();

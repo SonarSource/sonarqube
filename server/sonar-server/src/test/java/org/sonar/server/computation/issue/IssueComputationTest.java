@@ -52,19 +52,19 @@ public class IssueComputationTest {
   RuleDto rule = new RuleDto().setRepositoryKey(RULE_KEY.repository()).setRuleKey(RULE_KEY.rule());
 
   // output
-  FinalIssues finalIssues;
+  IssueCache issueCache;
 
   @Before
   public void setUp() throws IOException {
-    when(ruleCache.getNullable(RULE_KEY)).thenReturn(rule);
-    finalIssues = new FinalIssues(temp.newFile(), System2.INSTANCE);
+    when(ruleCache.get(RULE_KEY)).thenReturn(rule);
+    issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
   }
 
   @Test
   public void store_issues_on_disk() throws Exception {
     process();
 
-    assertThat(Iterators.getOnlyElement(finalIssues.traverse()).key()).isEqualTo("ISSUE_A");
+    assertThat(Iterators.getOnlyElement(issueCache.traverse()).key()).isEqualTo("ISSUE_A");
   }
 
   @Test
@@ -75,7 +75,7 @@ public class IssueComputationTest {
 
     process();
 
-    assertThat(issue.tags()).containsOnly("blocker", "bug", "performance");
+    assertThat(Iterators.getOnlyElement(issueCache.traverse()).tags()).containsOnly("blocker", "bug", "performance");
   }
 
   @Test
@@ -86,7 +86,7 @@ public class IssueComputationTest {
 
     process();
 
-    assertThat(issue.tags()).isEmpty();
+    assertThat(Iterators.getOnlyElement(issueCache.traverse()).tags()).isEmpty();
   }
 
   @Test
@@ -97,7 +97,7 @@ public class IssueComputationTest {
 
     process();
 
-    assertThat(issue.authorLogin()).isEqualTo("charlie");
+    assertThat(Iterators.getOnlyElement(issueCache.traverse()).authorLogin()).isEqualTo("charlie");
   }
 
   @Test
@@ -108,7 +108,7 @@ public class IssueComputationTest {
 
     process();
 
-    assertThat(issue.authorLogin()).isNull();
+    assertThat(Iterators.getOnlyElement(issueCache.traverse()).authorLogin()).isNull();
   }
 
   @Test
@@ -119,7 +119,7 @@ public class IssueComputationTest {
 
     process();
 
-    assertThat(issue.authorLogin()).isNull();
+    assertThat(Iterators.getOnlyElement(issueCache.traverse()).authorLogin()).isNull();
   }
 
   @Test
@@ -130,7 +130,7 @@ public class IssueComputationTest {
 
     process();
 
-    assertThat(issue.assignee()).isEqualTo("char.lie");
+    assertThat(Iterators.getOnlyElement(issueCache.traverse()).assignee()).isEqualTo("char.lie");
   }
 
   @Test
@@ -141,11 +141,11 @@ public class IssueComputationTest {
 
     process();
 
-    assertThat(issue.assignee()).isNull();
+    assertThat(Iterators.getOnlyElement(issueCache.traverse()).assignee()).isNull();
   }
 
   private void process() {
-    IssueComputation computation = new IssueComputation(ruleCache, lineCache, scmAccountCache, finalIssues);
+    IssueComputation computation = new IssueComputation(ruleCache, lineCache, scmAccountCache, issueCache);
     computation.processComponentIssues("FILE_A", Arrays.asList(issue));
     computation.afterReportProcessing();
   }

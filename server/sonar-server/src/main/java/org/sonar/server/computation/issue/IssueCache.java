@@ -32,13 +32,13 @@ import java.io.IOException;
  * persisted in database (after issue tracking, auto-assignment, ...)
  *
  */
-public class FinalIssues extends DiskCache<DefaultIssue> {
+public class IssueCache extends DiskCache<DefaultIssue> {
 
-  public FinalIssues(TempFolder tempFolder, System2 system2) throws IOException {
+  public IssueCache(TempFolder tempFolder, System2 system2) throws IOException {
     super(tempFolder.newFile("issues", ".dat"), system2);
   }
 
-  FinalIssues(File file, System2 system2) {
+  IssueCache(File file, System2 system2) {
     super(file, system2);
   }
 }

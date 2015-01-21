@@ -32,11 +32,11 @@ public class IssueComputation {
   private final DiskCache<DefaultIssue>.DiskAppender finalIssuesAppender;
 
   public IssueComputation(RuleCache ruleCache, SourceLinesCache linesCache, ScmAccountCache scmAccountCache,
-                          FinalIssues finalIssues) {
+                          IssueCache issueCache) {
     this.ruleCache = ruleCache;
     this.linesCache = linesCache;
     this.scmAccountCache = scmAccountCache;
-    this.finalIssuesAppender = finalIssues.newAppender();
+    this.finalIssuesAppender = issueCache.newAppender();
   }
 
   public void processComponentIssues(String componentUuid, Iterable<DefaultIssue> issues) {
@@ -71,10 +71,8 @@ public class IssueComputation {
   }
 
   private void copyRuleTags(DefaultIssue issue) {
-    RuleDto rule = ruleCache.getNullable(issue.ruleKey());
-    if (rule != null) {
-      issue.setTags(Sets.union(rule.getTags(), rule.getSystemTags()));
-    }
+    RuleDto rule = ruleCache.get(issue.ruleKey());
+    issue.setTags(Sets.union(rule.getTags(), rule.getSystemTags()));
   }
 
 }

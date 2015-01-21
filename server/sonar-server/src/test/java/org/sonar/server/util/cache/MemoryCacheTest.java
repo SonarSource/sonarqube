@@ -76,7 +76,7 @@ public class MemoryCacheTest {
     values.put("one", "un");
     values.put("two", "deux");
     when(loader.loadAll(keys)).thenReturn(values);
-    assertThat(cache.getAllNullable(keys))
+    assertThat(cache.getAll(keys))
       .hasSize(3)
       .containsEntry("one", "un")
       .containsEntry("two", "deux")
@@ -84,7 +84,7 @@ public class MemoryCacheTest {
 
     // ask for 4 keys. Only a single one was never loaded. The 3 others are kept from cache
     when(loader.loadAll(Arrays.asList("four"))).thenReturn(ImmutableMap.of("four", "quatre"));
-    assertThat(cache.getAllNullable(Arrays.asList("one", "two", "three", "four")))
+    assertThat(cache.getAll(Arrays.asList("one", "two", "three", "four")))
       .hasSize(4)
       .containsEntry("one", "un")
       .containsEntry("two", "deux")

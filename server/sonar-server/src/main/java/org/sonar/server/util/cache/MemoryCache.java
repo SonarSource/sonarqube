@@ -65,7 +65,7 @@ public class MemoryCache<K, V> {
    * Get values associated with keys. All the requested keys are included
    * in the Map result. Value is null if the key is not found in cache.
    */
-  public Map<K, V> getAllNullable(Iterable<K> keys) {
+  public Map<K, V> getAll(Iterable<K> keys) {
     List<K> missingKeys = new ArrayList<>();
     Map<K, V> result = new HashMap<>();
     for (K key : keys) {

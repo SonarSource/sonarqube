@@ -20,7 +20,7 @@
 package org.sonar.server.computation;
 
 import org.sonar.core.issue.db.UpdateConflictResolver;
-import org.sonar.server.computation.issue.FinalIssues;
+import org.sonar.server.computation.issue.IssueCache;
 import org.sonar.server.computation.issue.IssueComputation;
 import org.sonar.server.computation.issue.RuleCache;
 import org.sonar.server.computation.issue.RuleCacheLoader;
@@ -51,7 +51,7 @@ public class ComputationComponents {
       IssueComputation.class,
       RuleCache.class,
       RuleCacheLoader.class,
-      FinalIssues.class,
+      IssueCache.class,
       UpdateConflictResolver.class);
   }
 }

@@ -38,7 +38,7 @@ import java.util.List;
  * is kept in memory at a time. Moreover data is loaded on demand to avoid
  * useless db trips.
  * <p/>
- * It assumes that db table FILE_SOURCES is up-to-date before using of this
+ * It assumes that db table FILE_SOURCES is up-to-date before using this
  * cache.
  */
 public class SourceLinesCache {

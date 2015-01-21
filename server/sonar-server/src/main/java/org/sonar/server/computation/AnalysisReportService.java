@@ -141,7 +141,7 @@ public class AnalysisReportService {
     return issue;
   }
 
-  private DefaultIssue setDebt(DefaultIssue issue, Long debt) {
+  private DefaultIssue setDebt(DefaultIssue issue, @Nullable Long debt) {
     if (debt != null) {
       issue.setDebt(Duration.create(debt));
     }

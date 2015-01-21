@@ -71,7 +71,7 @@ public class FileSourceDao implements BatchComponent, ServerComponent, DaoCompon
         function.apply(reader);
       }
     } catch (SQLException e) {
-      e.printStackTrace();
+      throw new IllegalStateException("Fail to read FILE_SOURCES.DATA of file " + fileUuid, e);
     } finally {
       IOUtils.closeQuietly(reader);
       DbUtils.closeQuietly(connection, pstmt, rs);
