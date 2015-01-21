@@ -64,7 +64,7 @@ public abstract class DatabaseCommands {
   abstract List<String> resetPrimaryKey(String table, int minSequenceValue);
 
   String getTruncateCommand(String table) {
-    return "TRUNCATE TABLE " + table;
+    return "DELETE FROM " + table;
   }
 
   public static DatabaseCommands forDialect(Dialect dialect) {
