@@ -124,45 +124,193 @@
     "DEPRECATED": "Deprecated",
     "READY": "Ready"
   },
-  "characteristics": {
-    "UNDERSTANDABILITY": "Maintainability: Understandability",
-    "MAINTAINABILITY": "Maintainability",
-    "TIME_ZONE_RELATED_PORTABILITY": "Portability: Time zone related portability",
-    "READABILITY": "Maintainability: Readability",
-    "SECURITY_FEATURES": "Security: Security features",
-    "ARCHITECTURE_RELIABILITY": "Reliability: Architecture related reliability",
-    "OS_RELATED_PORTABILITY": "Portability: OS related portability",
-    "EXCEPTION_HANDLING": "Reliability: Exception handling",
-    "LOGIC_CHANGEABILITY": "Changeability: Logic related changeability",
-    "SOFTWARE_RELATED_PORTABILITY": "Portability: Software related portability",
-    "INPUT_VALIDATION_AND_REPRESENTATION": "Security: Input validation and representation",
-    "LANGUAGE_RELATED_PORTABILITY": "Portability: Language related portability",
-    "ERRORS": "Security: Errors",
-    "SECURITY": "Security",
-    "RELIABILITY": "Reliability",
-    "PORTABILITY": "Portability",
-    "HARDWARE_RELATED_PORTABILITY": "Portability: Hardware related portability",
-    "SYNCHRONIZATION_RELIABILITY": "Reliability: Synchronization related reliability",
-    "TRANSPORTABILITY": "Reusability: Transportability",
-    "COMPILER_RELATED_PORTABILITY": "Portability: Compiler related portability",
-    "RESOURCE_RELIABILITY": "Reliability: Resource",
-    "CPU_EFFICIENCY": "Efficiency: Processor use",
-    "EFFICIENCY": "Efficiency",
-    "CHANGEABILITY": "Changeability",
-    "DATA_CHANGEABILITY": "Changeability: Data related changeability",
-    "API_ABUSE": "Security: API abuse",
-    "ARCHITECTURE_CHANGEABILITY": "Changeability: Architecture related changeability",
-    "UNIT_TESTS": "Reliability: Unit tests",
-    "INSTRUCTION_RELIABILITY": "Reliability: Instruction related reliability",
-    "REUSABILITY": "Reusability",
-    "MODULARITY": "Reusability: Modularity",
-    "UNIT_TESTABILITY": "Testability: Unit level testability",
-    "TESTABILITY": "Testability",
-    "INTEGRATION_TESTABILITY": "Testability: Integration level testability",
-    "NETWORK_USE": "Efficiency: Network use",
-    "MEMORY_EFFICIENCY": "Efficiency: Memory use",
-    "DATA_RELIABILITY": "Reliability: Data related reliability",
-    "FAULT_TOLERANCE": "Reliability: Fault tolerance",
-    "LOGIC_RELIABILITY": "Reliability: Logic related reliability"
-  }
+  "characteristics": [
+    {
+      "key": "UNDERSTANDABILITY",
+      "name": "Understandability",
+      "parent": "MAINTAINABILITY"
+    },
+    {
+      "key": "MAINTAINABILITY",
+      "name": "Maintainability"
+    },
+    {
+      "key": "TIME_ZONE_RELATED_PORTABILITY",
+      "name": "Time zone related portability",
+      "parent": "PORTABILITY"
+    },
+    {
+      "key": "READABILITY",
+      "name": "Readability",
+      "parent": "MAINTAINABILITY"
+    },
+    {
+      "key": "SECURITY_FEATURES",
+      "name": "Security features",
+      "parent": "SECURITY"
+    },
+    {
+      "key": "ARCHITECTURE_RELIABILITY",
+      "name": "Architecture related reliability",
+      "parent": "RELIABILITY"
+    },
+    {
+      "key": "OS_RELATED_PORTABILITY",
+      "name": "OS related portability",
+      "parent": "PORTABILITY"
+    },
+    {
+      "key": "EXCEPTION_HANDLING",
+      "name": "Exception handling",
+      "parent": "RELIABILITY"
+    },
+    {
+      "key": "LOGIC_CHANGEABILITY",
+      "name": "Logic related changeability",
+      "parent": "CHANGEABILITY"
+    },
+    {
+      "key": "SOFTWARE_RELATED_PORTABILITY",
+      "name": "Software related portability",
+      "parent": "PORTABILITY"
+    },
+    {
+      "key": "INPUT_VALIDATION_AND_REPRESENTATION",
+      "name": "Input validation and representation",
+      "parent": "SECURITY"
+    },
+    {
+      "key": "LANGUAGE_RELATED_PORTABILITY",
+      "name": "Language related portability",
+      "parent": "PORTABILITY"
+    },
+    {
+      "key": "ERRORS",
+      "name": "Errors",
+      "parent": "SECURITY"
+    },
+    {
+      "key": "SECURITY",
+      "name": "Security"
+    },
+    {
+      "key": "RELIABILITY",
+      "name": "Reliability"
+    },
+    {
+      "key": "PORTABILITY",
+      "name": "Portability"
+    },
+    {
+      "key": "HARDWARE_RELATED_PORTABILITY",
+      "name": "Hardware related portability",
+      "parent": "PORTABILITY"
+    },
+    {
+      "key": "SYNCHRONIZATION_RELIABILITY",
+      "name": "Synchronization related reliability",
+      "parent": "RELIABILITY"
+    },
+    {
+      "key": "TRANSPORTABILITY",
+      "name": "Transportability",
+      "parent": "REUSABILITY"
+    },
+    {
+      "key": "COMPILER_RELATED_PORTABILITY",
+      "name": "Compiler related portability",
+      "parent": "PORTABILITY"
+    },
+    {
+      "key": "RESOURCE_RELIABILITY",
+      "name": "Resource",
+      "parent": "RELIABILITY"
+    },
+    {
+      "key": "CPU_EFFICIENCY",
+      "name": "Processor use",
+      "parent": "EFFICIENCY"
+    },
+    {
+      "key": "EFFICIENCY",
+      "name": "Efficiency"
+    },
+    {
+      "key": "CHANGEABILITY",
+      "name": "Changeability"
+    },
+    {
+      "key": "DATA_CHANGEABILITY",
+      "name": "Data related changeability",
+      "parent": "CHANGEABILITY"
+    },
+    {
+      "key": "API_ABUSE",
+      "name": "API abuse",
+      "parent": "SECURITY"
+    },
+    {
+      "key": "ARCHITECTURE_CHANGEABILITY",
+      "name": "Architecture related changeability",
+      "parent": "CHANGEABILITY"
+    },
+    {
+      "key": "UNIT_TESTS",
+      "name": "Unit tests",
+      "parent": "RELIABILITY"
+    },
+    {
+      "key": "INSTRUCTION_RELIABILITY",
+      "name": "Instruction related reliability",
+      "parent": "RELIABILITY"
+    },
+    {
+      "key": "REUSABILITY",
+      "name": "Reusability"
+    },
+    {
+      "key": "MODULARITY",
+      "name": "Modularity",
+      "parent": "REUSABILITY"
+    },
+    {
+      "key": "UNIT_TESTABILITY",
+      "name": "Unit level testability",
+      "parent": "TESTABILITY"
+    },
+    {
+      "key": "TESTABILITY",
+      "name": "Testability"
+    },
+    {
+      "key": "INTEGRATION_TESTABILITY",
+      "name": "Integration level testability",
+      "parent": "TESTABILITY"
+    },
+    {
+      "key": "NETWORK_USE",
+      "name": "Network use",
+      "parent": "EFFICIENCY"
+    },
+    {
+      "key": "MEMORY_EFFICIENCY",
+      "name": "Memory use",
+      "parent": "EFFICIENCY"
+    },
+    {
+      "key": "DATA_RELIABILITY",
+      "name": "Data related reliability",
+      "parent": "RELIABILITY"
+    },
+    {
+      "key": "FAULT_TOLERANCE",
+      "name": "Fault tolerance",
+      "parent": "RELIABILITY"
+    },
+    {
+      "key": "LOGIC_RELIABILITY",
+      "name": "Logic related reliability",
+      "parent": "RELIABILITY"
+    }
+  ]
 }

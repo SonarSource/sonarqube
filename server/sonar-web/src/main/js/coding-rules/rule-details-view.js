@@ -171,7 +171,6 @@ define([
             isEditable: isEditable,
             canWrite: this.options.app.canWrite,
             qualityProfilesVisible: qualityProfilesVisible,
-            subCharacteristic: this.options.app.getSubCharacteristicName(this.model.get('debtSubChar')),
             allTags: _.union(this.model.get('sysTags'), this.model.get('tags'))
           });
         }

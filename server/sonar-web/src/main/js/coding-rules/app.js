@@ -93,8 +93,14 @@ requirejs([
         };
       };
 
-      App.getSubCharacteristicName = function (name) {
-        return (App.characteristics[name] || '').replace(': ', ' > ');
+      App.getSubCharacteristicName = function (key) {
+        if (key != null) {
+          var ch = _.findWhere(App.characteristics, { key: key }),
+              parent = _.findWhere(App.characteristics, { key: ch.parent });
+          return [parent.name, ch.name].join(' > ');
+        } else {
+          return null;
+        }
       };
 
       var appXHR = $.get(baseUrl + '/api/rules/app').done(function(r) {
