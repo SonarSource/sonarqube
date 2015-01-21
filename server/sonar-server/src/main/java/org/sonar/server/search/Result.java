@@ -84,7 +84,7 @@ public class Result<K> {
       Terms termAggregation = (Terms) aggregation;
       for (Terms.Bucket value : termAggregation.getBuckets()) {
         String facetName = aggregation.getName().replace("_selected", "");
-        if (aggregation.getName().contains("__")) {
+        if (aggregation.getName().contains("__") && !aggregation.getName().startsWith("__")) {
           facetName = facetName.substring(0, facetName.indexOf("__"));
         }
         this.facets.put(facetName, new FacetValue(value.getKey(), value.getDocCount()));
