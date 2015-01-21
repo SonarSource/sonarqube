@@ -59,9 +59,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class RulesWebServiceMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester()
-    .setProperty("sonar.log.profilingLevel", "FULL")
-    .setProperty("sonar.search.httpPort", "9010");
+  public static ServerTester tester = new ServerTester();
 
   private static final String API_ENDPOINT = "api/rules";
   private static final String API_SEARCH_METHOD = "search";

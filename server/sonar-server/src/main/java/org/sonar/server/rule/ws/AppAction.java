@@ -19,7 +19,9 @@
  */
 package org.sonar.server.rule.ws;
 
-import com.google.common.collect.Maps;
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
@@ -38,8 +40,10 @@ import org.sonar.server.rule.RuleRepositories;
 import org.sonar.server.rule.RuleRepositories.Repository;
 import org.sonar.server.user.UserSession;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 /**
  * @since 4.4
@@ -129,22 +133,61 @@ public class AppAction implements RulesAction {
   }
 
   private void addCharacteristics(JsonWriter json) {
-    Map<Integer, DefaultDebtCharacteristic> caracById = Maps.newHashMap();
-    for (DebtCharacteristic carac : debtModel.allCharacteristics()) {
-      DefaultDebtCharacteristic fullCarac = (DefaultDebtCharacteristic) carac;
-      caracById.put(fullCarac.id(), fullCarac);
-    }
+
+    List<DebtCharacteristic> rootCharacs = sortRootCaracs();
+
+    Multimap<Integer, DefaultDebtCharacteristic> subByCaracId = ventilateSubCaracs(rootCharacs);
+
     json.name("characteristics").beginArray();
-    for (DefaultDebtCharacteristic carac : caracById.values()) {
+    for (DebtCharacteristic rootCarac : rootCharacs) {
       json.beginObject()
-        .prop("key", carac.key())
-        .prop("name", carac.name());
-      if (carac.isSub()) {
-        json.prop("parent", caracById.get(carac.parentId()).key());
+        .prop("key", rootCarac.key())
+        .prop("name", rootCarac.name())
+        .endObject();
+      for (DefaultDebtCharacteristic child : sortSubCaracs(subByCaracId, rootCarac)) {
+        json.beginObject()
+          .prop("key", child.key())
+          .prop("name", child.name())
+          .prop("parent", rootCarac.key())
+          .endObject();
       }
-      json.endObject();
     }
     json.endArray();
+  }
+
+  private List<DebtCharacteristic> sortRootCaracs() {
+    List<DebtCharacteristic> rootCharacs = Lists.newArrayList(debtModel.characteristics());
+    Collections.sort(rootCharacs, new Comparator<DebtCharacteristic>() {
+      @Override
+      public int compare(DebtCharacteristic o1, DebtCharacteristic o2) {
+        return o1.order().compareTo(o2.order());
+      }
+    });
+    return rootCharacs;
+
+  }
+
+  private Multimap<Integer, DefaultDebtCharacteristic> ventilateSubCaracs(List<DebtCharacteristic> rootCharacs) {
+    Multimap<Integer, DefaultDebtCharacteristic> subByCaracId = LinkedListMultimap.create(rootCharacs.size());
+
+    for (DebtCharacteristic carac : debtModel.allCharacteristics()) {
+      DefaultDebtCharacteristic fullCarac = (DefaultDebtCharacteristic) carac;
+      if (carac.isSub()) {
+        subByCaracId.put(fullCarac.parentId(), fullCarac);
+      }
+    }
+    return subByCaracId;
+  }
+
+  private List<DefaultDebtCharacteristic> sortSubCaracs(Multimap<Integer, DefaultDebtCharacteristic> subByCaracId, DebtCharacteristic rootCarac) {
+    List<DefaultDebtCharacteristic> subCaracs = Lists.newArrayList(subByCaracId.get(((DefaultDebtCharacteristic) rootCarac).id()));
+    Collections.sort(subCaracs, new Comparator<DefaultDebtCharacteristic>() {
+      @Override
+      public int compare(DefaultDebtCharacteristic o1, DefaultDebtCharacteristic o2) {
+        return o1.name().compareTo(o2.name());
+      }
+    });
+    return subCaracs;
   }
 
   @Override
