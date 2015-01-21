@@ -377,18 +377,19 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
   private void addStatusFacetIfNeeded(RuleQuery query, QueryContext options, Map<String, AggregationBuilder> aggregations, StickyFacetBuilder stickyFacetBuilder) {
     if (options.facets().contains(FACET_STATUSES)) {
       Collection<RuleStatus> statusesFromQuery = query.getStatuses();
-      Object[] selectedStatuses = statusesFromQuery == null ? new Object[0] : statusesFromQuery.toArray();
 
-      AggregationBuilder statuses = AggregationBuilders.filter(FACET_STATUSES + "__top")
-        .filter(stickyFacetBuilder.getStickyFacetFilter(RuleNormalizer.RuleField.STATUS.field())
-          .mustNot(FilterBuilders.termFilter(RuleNormalizer.RuleField.STATUS.field(), RuleStatus.REMOVED.toString())))
+      BoolFilterBuilder facetFilter = stickyFacetBuilder.getStickyFacetFilter(RuleNormalizer.RuleField.STATUS.field());
+      AggregationBuilder statuses = AggregationBuilders.filter(FACET_STATUSES + "_filter")
+        .filter(facetFilter)
         .subAggregation(
-          AggregationBuilders.terms(FACET_STATUSES + "__values").field(RuleNormalizer.RuleField.STATUS.field()))
-        .subAggregation(
-          AggregationBuilders.terms(FACET_STATUSES + "__selected").field(RuleNormalizer.RuleField.STATUS.field())
-            .include(Joiner.on('|').join(selectedStatuses)));
+          AggregationBuilders
+            .terms(FACET_STATUSES)
+            .field(RuleNormalizer.RuleField.STATUS.field())
+            .include(Joiner.on('|').join(ALL_STATUSES_EXCEPT_REMOVED))
+            .exclude(RuleStatus.REMOVED.toString())
+            .size(ALL_STATUSES_EXCEPT_REMOVED.size()));
 
-      aggregations.put(FACET_STATUSES, statuses);
+      aggregations.put(FACET_STATUSES, AggregationBuilders.global(FACET_STATUSES).subAggregation(statuses));
     }
   }
 

@@ -83,10 +83,11 @@ public class Result<K> {
     } else if (Terms.class.isAssignableFrom(aggregation.getClass())) {
       Terms termAggregation = (Terms) aggregation;
       for (Terms.Bucket value : termAggregation.getBuckets()) {
-        String facetName = aggregation.getName().replace("_selected", "");
-        if (aggregation.getName().contains("__") && !aggregation.getName().startsWith("__")) {
+        String facetName = aggregation.getName();
+        if (facetName.contains("__") && !facetName.startsWith("__")) {
           facetName = facetName.substring(0, facetName.indexOf("__"));
         }
+        facetName = facetName.replace("_selected", "");
         this.facets.put(facetName, new FacetValue(value.getKey(), value.getDocCount()));
       }
     } else if (HasAggregations.class.isAssignableFrom(aggregation.getClass())) {

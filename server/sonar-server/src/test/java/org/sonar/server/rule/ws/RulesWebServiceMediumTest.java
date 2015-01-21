@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.ws.WebService;
@@ -58,7 +59,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class RulesWebServiceMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester();
+  public static ServerTester tester = new ServerTester()
+    .setProperty("sonar.log.profilingLevel", "FULL")
+    .setProperty("sonar.search.httpPort", "9010");
 
   private static final String API_ENDPOINT = "api/rules";
   private static final String API_SEARCH_METHOD = "search";
@@ -537,6 +540,19 @@ public class RulesWebServiceMediumTest {
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(SearchAction.PARAM_FACETS, "statuses");
     request.execute().assertJson(this.getClass(), "statuses_facet.json", false);
+  }
+
+  @Test
+  public void statuses_facet_should_be_sticky() throws Exception {
+    ruleDao.insert(session, RuleTesting.newXooX1());
+    ruleDao.insert(session, RuleTesting.newXooX2().setStatus(RuleStatus.BETA));
+    ruleDao.insert(session, RuleTesting.newXooX3().setStatus(RuleStatus.DEPRECATED));
+    session.commit();
+
+    WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
+    request.setParam(SearchAction.PARAM_STATUSES, "DEPRECATED");
+    request.setParam(SearchAction.PARAM_FACETS, "statuses");
+    request.execute().assertJson(this.getClass(), "statuses_facet_sticky.json", false);
   }
 
   @Test

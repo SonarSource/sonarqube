@@ -1,0 +1,20 @@
+{"total": 1, "p": 1, "ps": 100, "rules": [
+  {"key": "xoo:x3"}
+],
+"facets": [
+  {
+    "property": "statuses",
+    "values": [
+      {
+        "val": "BETA",
+        "count": 1
+      },{
+        "val": "DEPRECATED",
+        "count": 1
+      },{
+        "val": "READY",
+        "count": 1
+      }
+    ]
+  }
+]}
