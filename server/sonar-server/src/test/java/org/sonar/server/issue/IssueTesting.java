@@ -21,18 +21,14 @@ package org.sonar.server.issue;
 
 import com.google.common.collect.Maps;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.internal.Uuids;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.rule.RuleTesting;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class IssueTesting {
 
@@ -89,34 +85,13 @@ public class IssueTesting {
     return doc;
   }
 
-  public static void assertIsEquivalent(IssueDto dto, IssueDoc issue) {
-    assertThat(issue).isNotNull();
-    assertThat(dto).isNotNull();
-
-    assertThat(issue.key()).isEqualTo(dto.getKey());
-    assertThat(issue.componentUuid()).isEqualTo(dto.getComponentUuid());
-    assertThat(issue.moduleUuid()).isEqualTo(dto.getModuleUuid());
-    assertThat(issue.projectUuid()).isEqualTo(dto.getProjectUuid());
-
-    assertThat(issue.actionPlanKey()).isEqualTo(dto.getActionPlanKey());
-    assertThat(issue.assignee()).isEqualTo(dto.getAssignee());
-    assertThat(issue.authorLogin()).isEqualTo(dto.getAuthorLogin());
-    assertThat(issue.closeDate()).isEqualTo(dto.getIssueCloseDate());
-    assertThat(issue.effortToFix()).isEqualTo(dto.getEffortToFix());
-    assertThat(issue.resolution()).isEqualTo(dto.getResolution());
-    assertThat(issue.ruleKey()).isEqualTo(RuleKey.of(dto.getRuleRepo(), dto.getRule()));
-    assertThat(issue.line()).isEqualTo(dto.getLine());
-    assertThat(issue.message()).isEqualTo(dto.getMessage());
-    assertThat(issue.reporter()).isEqualTo(dto.getReporter());
-    assertThat(issue.language()).isEqualTo(dto.getLanguage());
-    assertThat(issue.status()).isEqualTo(dto.getStatus());
-    assertThat(issue.severity()).isEqualTo(dto.getSeverity());
-    assertThat(issue.filePath()).isEqualTo(dto.getFilePath());
-
-    assertThat(issue.attributes()).isEqualTo(KeyValueFormat.parse(dto.getIssueAttributes()));
-
-    assertThat(issue.creationDate()).isEqualTo(dto.getIssueCreationDate());
-    assertThat(issue.updateDate()).isEqualTo(dto.getIssueUpdateDate());
-    assertThat(issue.closeDate()).isEqualTo(dto.getIssueCloseDate());
+  public static IssueDoc newDoc(String key, ComponentDto componentDto) {
+    return newDoc()
+      .setKey(key)
+      .setComponentUuid(componentDto.uuid())
+      .setModuleUuid(componentDto.moduleUuid())
+      .setModuleUuidPath(componentDto.moduleUuidPath())
+      .setProjectUuid(componentDto.projectUuid())
+      .setFilePath(componentDto.path());
   }
 }

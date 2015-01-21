@@ -21,7 +21,6 @@ package org.sonar.server.issue.index;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterators;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -31,129 +30,83 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.issue.db.IssueDto;
-import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.core.permission.PermissionFacade;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.profiling.Profiling;
-import org.sonar.core.rule.RuleDto;
-import org.sonar.core.user.GroupDto;
-import org.sonar.core.user.UserDto;
 import org.sonar.server.component.ComponentTesting;
-import org.sonar.server.component.db.ComponentDao;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.IssueTesting;
-import org.sonar.server.issue.db.IssueDao;
-import org.sonar.server.permission.InternalPermissionService;
-import org.sonar.server.permission.PermissionChange;
-import org.sonar.server.rule.RuleTesting;
-import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.FacetValue;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 
+import javax.annotation.Nullable;
+
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * As soon as IssueIndex take {@link org.sonar.server.es.EsClient} in its constructor, ServerTester should be replaced by EsTester, it will make this test going faster !
+ */
 public class IssueIndexMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.FULL.name());
+  public static ServerTester tester = new ServerTester();
 
-  DbClient db;
-  DbSession session;
   IssueIndex index;
-  RuleDto rule = RuleTesting.newXooX1();
-  ComponentDto project = ComponentTesting.newProjectDto("My-Project");
-  ComponentDto file;
-  ComponentDto file2;
 
   @Before
   public void setUp() throws Exception {
-    tester.clearDbAndIndexes();
-    db = tester.get(DbClient.class);
-    session = db.openSession(false);
+    tester.clearIndexes();
     index = tester.get(IssueIndex.class);
-
-    tester.get(RuleDao.class).insert(session, rule);
-    tester.get(ComponentDao.class).insert(session, project);
-    file = ComponentTesting.newFileDto(project, "F1").setPath("src/main/xoo/org/sonar/samples/File.xoo");
-    file2 = ComponentTesting.newFileDto(project, "F2").setPath("src/main/xoo/org/sonar/samples/File2.xoo");
-    tester.get(ComponentDao.class).insert(session, file, file2);
-    session.commit();
-
-    // project can be seen by anyone
-    MockUserSession.set().setLogin("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-    tester.get(InternalPermissionService.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(UserRole.USER));
-
-    MockUserSession.set();
-
-    session.commit();
-    session.clearCache();
-  }
-
-  @After
-  public void after() {
-    session.close();
   }
 
   @Test
   public void get_by_key() throws Exception {
-    IssueDoc issue = IssueTesting.newDoc();
-    issue.setKey("ABC");
-    issue.setProjectUuid(project.uuid());
-    tester.get(IssueIndexer.class).index(Iterators.singletonIterator(issue));
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+    IssueDoc issue = IssueTesting.newDoc("ISSUE1", file);
+    indexIssues(issue);
 
     Issue loaded = index.getByKey(issue.key());
     assertThat(loaded).isNotNull();
-
   }
 
   @Test
   public void get_by_key_with_attributes() throws Exception {
-    IssueDto issue = IssueTesting.newDto(rule, file, project);
-    issue.setIssueAttributes(KeyValueFormat.format(ImmutableMap.of("jira-issue-key", "SONAR-1234")));
-    db.issueDao().insert(session, issue);
-    session.commit();
-    index();
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+    IssueDoc issue = IssueTesting.newDoc("ISSUE1", file).setAttributes((KeyValueFormat.format(ImmutableMap.of("jira-issue-key", "SONAR-1234"))));
+    indexIssues(issue);
 
-    Issue result = index.getByKey(issue.getKey());
-    IssueTesting.assertIsEquivalent(issue, (IssueDoc) result);
+    Issue result = index.getByKey(issue.key());
     assertThat(result.attribute("jira-issue-key")).isEqualTo("SONAR-1234");
   }
 
   @Test(expected = IllegalStateException.class)
   public void comments_field_is_not_available() throws Exception {
-    IssueDto issue = IssueTesting.newDto(rule, file, project);
-    db.issueDao().insert(session, issue);
-    session.commit();
-    index();
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+    IssueDoc issue = IssueTesting.newDoc("ISSUE1", file);
+    indexIssues(issue);
 
-    Issue result = index.getByKey(issue.getKey());
+    Issue result = index.getByKey(issue.key());
     result.comments();
-  }
-
-  private void index() {
-    tester.get(IssueIndexer.class).indexAll();
   }
 
   @Test(expected = IllegalStateException.class)
   public void is_new_field_is_not_available() throws Exception {
-    IssueDto issue = IssueTesting.newDto(rule, file, project);
-    db.issueDao().insert(session, issue);
-    session.commit();
-    index();
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+    IssueDoc issue = IssueTesting.newDoc("ISSUE1", file);
+    indexIssues(issue);
 
-    Issue result = index.getByKey(issue.getKey());
+    Issue result = index.getByKey(issue.key());
     result.isNew();
   }
 
@@ -164,11 +117,11 @@ public class IssueIndexMediumTest {
 
   @Test
   public void filter_by_keys() throws Exception {
-    db.issueDao().insert(session,
-      IssueTesting.newDto(rule, file, project).setKee("1"),
-      IssueTesting.newDto(rule, file, project).setKee("2"));
-    session.commit();
-    index();
+    ComponentDto project = ComponentTesting.newProjectDto();
+
+    indexIssues(
+      IssueTesting.newDoc("1", ComponentTesting.newFileDto(project)),
+      IssueTesting.newDoc("2", ComponentTesting.newFileDto(project)));
 
     assertThat(index.search(IssueQuery.builder().issueKeys(newArrayList("1", "2")).build(), new QueryContext()).getHits()).hasSize(2);
     assertThat(index.search(IssueQuery.builder().issueKeys(newArrayList("1")).build(), new QueryContext()).getHits()).hasSize(1);
@@ -177,22 +130,17 @@ public class IssueIndexMediumTest {
 
   @Test
   public void filter_by_projects() throws Exception {
+    ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto module = ComponentTesting.newModuleDto(project);
     ComponentDto subModule = ComponentTesting.newModuleDto(module);
-    ComponentDto file1 = ComponentTesting.newFileDto(project);
-    ComponentDto file2 = ComponentTesting.newFileDto(module);
-    ComponentDto file3 = ComponentTesting.newFileDto(subModule);
-    tester.get(ComponentDao.class).insert(session, module, subModule, file1, file2, file3);
 
-    db.issueDao().insert(session,
-      IssueTesting.newDto(rule, project, project),
-      IssueTesting.newDto(rule, file1, project),
-      IssueTesting.newDto(rule, module, project),
-      IssueTesting.newDto(rule, file2, project),
-      IssueTesting.newDto(rule, subModule, project),
-      IssueTesting.newDto(rule, file3, project));
-    session.commit();
-    index();
+    indexIssues(
+      IssueTesting.newDoc("ISSUE1", project),
+      IssueTesting.newDoc("ISSUE2", ComponentTesting.newFileDto(project)),
+      IssueTesting.newDoc("ISSUE3", module),
+      IssueTesting.newDoc("ISSUE4", ComponentTesting.newFileDto(module)),
+      IssueTesting.newDoc("ISSUE5", subModule),
+      IssueTesting.newDoc("ISSUE6", ComponentTesting.newFileDto(subModule)));
 
     assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).build(), new QueryContext()).getHits()).hasSize(6);
     assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).onComponentOnly(true).build(), new QueryContext()).getHits()).hasSize(1);
@@ -201,17 +149,15 @@ public class IssueIndexMediumTest {
 
   @Test
   public void filter_by_modules() throws Exception {
+    ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto module = ComponentTesting.newModuleDto(project);
     ComponentDto subModule = ComponentTesting.newModuleDto(module);
     ComponentDto file = ComponentTesting.newFileDto(subModule);
-    tester.get(ComponentDao.class).insert(session, module, subModule, file);
 
-    db.issueDao().insert(session,
-      IssueTesting.newDto(rule, module, project),
-      IssueTesting.newDto(rule, subModule, project),
-      IssueTesting.newDto(rule, file, project));
-    session.commit();
-    index();
+    indexIssues(
+      IssueTesting.newDoc("ISSUE3", module),
+      IssueTesting.newDoc("ISSUE5", subModule),
+      IssueTesting.newDoc("ISSUE2", file));
 
     assertThat(index.search(IssueQuery.builder().moduleUuids(newArrayList(file.uuid())).build(), new QueryContext()).getHits()).isEmpty();
     assertThat(index.search(IssueQuery.builder().moduleUuids(newArrayList(module.uuid())).build(), new QueryContext()).getHits()).hasSize(1);
@@ -222,22 +168,20 @@ public class IssueIndexMediumTest {
 
   @Test
   public void filter_by_components() throws Exception {
+    ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto module = ComponentTesting.newModuleDto(project);
     ComponentDto subModule = ComponentTesting.newModuleDto(module);
     ComponentDto file1 = ComponentTesting.newFileDto(project);
     ComponentDto file2 = ComponentTesting.newFileDto(module);
     ComponentDto file3 = ComponentTesting.newFileDto(subModule);
-    tester.get(ComponentDao.class).insert(session, module, subModule, file1, file2, file3);
 
-    db.issueDao().insert(session,
-      IssueTesting.newDto(rule, project, project),
-      IssueTesting.newDto(rule, file1, project),
-      IssueTesting.newDto(rule, module, project),
-      IssueTesting.newDto(rule, file2, project),
-      IssueTesting.newDto(rule, subModule, project),
-      IssueTesting.newDto(rule, file3, project));
-    session.commit();
-    index();
+    indexIssues(
+      IssueTesting.newDoc("ISSUE1", project),
+      IssueTesting.newDoc("ISSUE2", file1),
+      IssueTesting.newDoc("ISSUE3", module),
+      IssueTesting.newDoc("ISSUE4", file2),
+      IssueTesting.newDoc("ISSUE5", subModule),
+      IssueTesting.newDoc("ISSUE6", file3));
 
     assertThat(index.search(IssueQuery.builder().componentUuids(newArrayList(file1.uuid(), file2.uuid(), file3.uuid())).build(), new QueryContext()).getHits()).hasSize(3);
     assertThat(index.search(IssueQuery.builder().componentUuids(newArrayList(file1.uuid())).build(), new QueryContext()).getHits()).hasSize(1);
@@ -252,11 +196,12 @@ public class IssueIndexMediumTest {
 
   @Test
   public void filter_by_severities() throws Exception {
-    db.issueDao().insert(session,
-      IssueTesting.newDto(rule, file, project).setSeverity(Severity.INFO),
-      IssueTesting.newDto(rule, file, project).setSeverity(Severity.MAJOR));
-    session.commit();
-    index();
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+
+    indexIssues(
+      IssueTesting.newDoc("ISSUE1", file).setSeverity(Severity.INFO),
+      IssueTesting.newDoc("ISSUE2", file).setSeverity(Severity.MAJOR));
 
     assertThat(index.search(IssueQuery.builder().severities(newArrayList(Severity.INFO, Severity.MAJOR)).build(), new QueryContext()).getHits()).hasSize(2);
     assertThat(index.search(IssueQuery.builder().severities(newArrayList(Severity.INFO)).build(), new QueryContext()).getHits()).hasSize(1);
@@ -265,11 +210,12 @@ public class IssueIndexMediumTest {
 
   @Test
   public void filter_by_statuses() throws Exception {
-    db.issueDao().insert(session,
-      IssueTesting.newDto(rule, file, project).setStatus(Issue.STATUS_CLOSED),
-      IssueTesting.newDto(rule, file, project).setStatus(Issue.STATUS_OPEN));
-    session.commit();
-    index();
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+
+    indexIssues(
+      IssueTesting.newDoc("ISSUE1", file).setStatus(Issue.STATUS_CLOSED),
+      IssueTesting.newDoc("ISSUE2", file).setStatus(Issue.STATUS_OPEN));
 
     assertThat(index.search(IssueQuery.builder().statuses(newArrayList(Issue.STATUS_CLOSED, Issue.STATUS_OPEN)).build(), new QueryContext()).getHits()).hasSize(2);
     assertThat(index.search(IssueQuery.builder().statuses(newArrayList(Issue.STATUS_CLOSED)).build(), new QueryContext()).getHits()).hasSize(1);
@@ -278,11 +224,12 @@ public class IssueIndexMediumTest {
 
   @Test
   public void filter_by_resolutions() throws Exception {
-    db.issueDao().insert(session,
-      IssueTesting.newDto(rule, file, project).setResolution(Issue.RESOLUTION_FALSE_POSITIVE),
-      IssueTesting.newDto(rule, file, project).setResolution(Issue.RESOLUTION_FIXED));
-    session.commit();
-    index();
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+
+    indexIssues(
+      IssueTesting.newDoc("ISSUE1", file).setResolution(Issue.RESOLUTION_FALSE_POSITIVE),
+      IssueTesting.newDoc("ISSUE2", file).setResolution(Issue.RESOLUTION_FIXED));
 
     assertThat(index.search(IssueQuery.builder().resolutions(newArrayList(Issue.RESOLUTION_FALSE_POSITIVE, Issue.RESOLUTION_FIXED)).build(), new QueryContext()).getHits())
       .hasSize(2);
@@ -292,12 +239,13 @@ public class IssueIndexMediumTest {
 
   @Test
   public void filter_by_resolved() throws Exception {
-    db.issueDao().insert(session,
-      IssueTesting.newDto(rule, file, project).setStatus(Issue.STATUS_CLOSED).setResolution(Issue.RESOLUTION_FIXED),
-      IssueTesting.newDto(rule, file, project).setStatus(Issue.STATUS_OPEN).setResolution(null),
-      IssueTesting.newDto(rule, file, project).setStatus(Issue.STATUS_OPEN).setResolution(null));
-    session.commit();
-    index();
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+
+    indexIssues(
+      IssueTesting.newDoc("ISSUE1", file).setStatus(Issue.STATUS_CLOSED).setResolution(Issue.RESOLUTION_FIXED),
+      IssueTesting.newDoc("ISSUE2", file).setStatus(Issue.STATUS_OPEN).setResolution(null),
+      IssueTesting.newDoc("ISSUE3", file).setStatus(Issue.STATUS_OPEN).setResolution(null));
 
     assertThat(index.search(IssueQuery.builder().resolved(true).build(), new QueryContext()).getHits()).hasSize(1);
     assertThat(index.search(IssueQuery.builder().resolved(false).build(), new QueryContext()).getHits()).hasSize(2);
@@ -306,25 +254,28 @@ public class IssueIndexMediumTest {
 
   @Test
   public void filter_by_action_plans() throws Exception {
-    db.issueDao().insert(session,
-      IssueTesting.newDto(rule, file, project).setActionPlanKey("plan1"),
-      IssueTesting.newDto(rule, file, project).setActionPlanKey("plan2"));
-    session.commit();
-    index();
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+
+    indexIssues(
+      IssueTesting.newDoc("ISSUE1", file).setActionPlanKey("plan1"),
+      IssueTesting.newDoc("ISSUE2", file).setActionPlanKey("plan2"));
 
     assertThat(index.search(IssueQuery.builder().actionPlans(newArrayList("plan1")).build(), new QueryContext()).getHits()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().actionPlans(newArrayList("plan1", "plan2")).build(), new QueryContext()).getHits()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder().actionPlans(newArrayList("plan1", "plan2")).build(), new
+      QueryContext()).getHits()).hasSize(2);
     assertThat(index.search(IssueQuery.builder().actionPlans(newArrayList("unknown")).build(), new QueryContext()).getHits()).isEmpty();
   }
 
   @Test
   public void filter_by_planned() throws Exception {
-    db.issueDao().insert(session,
-      IssueTesting.newDto(rule, file, project).setActionPlanKey("AP-KEY"),
-      IssueTesting.newDto(rule, file, project).setActionPlanKey(null),
-      IssueTesting.newDto(rule, file, project).setActionPlanKey(null));
-    session.commit();
-    index();
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+
+    indexIssues(
+      IssueTesting.newDoc("ISSUE1", file).setActionPlanKey("AP-KEY"),
+      IssueTesting.newDoc("ISSUE2", file).setActionPlanKey(null),
+      IssueTesting.newDoc("ISSUE3", file).setActionPlanKey(null));
 
     assertThat(index.search(IssueQuery.builder().planned(true).build(), new QueryContext()).getHits()).hasSize(1);
     assertThat(index.search(IssueQuery.builder().planned(false).build(), new QueryContext()).getHits()).hasSize(2);
@@ -333,34 +284,38 @@ public class IssueIndexMediumTest {
 
   @Test
   public void filter_by_rules() throws Exception {
-    db.issueDao().insert(session, IssueTesting.newDto(rule, file, project).setRule(rule));
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+    RuleKey ruleKey = RuleKey.of("repo", "X1");
 
-    tester.get(RuleDao.class).insert(session, RuleTesting.newDto(RuleKey.of("rule", "without issue")));
-    session.commit();
-    index();
+    indexIssues(IssueTesting.newDoc("ISSUE1", file).setRuleKey(ruleKey.toString()));
 
-    assertThat(index.search(IssueQuery.builder().rules(newArrayList(rule.getKey())).build(), new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().rules(newArrayList(ruleKey)).build(), new QueryContext()).getHits()).hasSize(1);
     assertThat(index.search(IssueQuery.builder().rules(newArrayList(RuleKey.of("rule", "without issue"))).build(), new QueryContext()).getHits()).isEmpty();
   }
 
   @Test
   public void filter_by_languages() throws Exception {
-    db.issueDao().insert(session, IssueTesting.newDto(rule, file, project).setRule(rule));
-    session.commit();
-    index();
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+    RuleKey ruleKey = RuleKey.of("repo", "X1");
 
-    assertThat(index.search(IssueQuery.builder().languages(newArrayList(rule.getLanguage())).build(), new QueryContext()).getHits()).hasSize(1);
+    indexIssues(IssueTesting.newDoc("ISSUE1", file).setRuleKey(ruleKey.toString()).setLanguage("xoo"));
+
+    assertThat(index.search(IssueQuery.builder().languages(newArrayList("xoo")).build(), new
+      QueryContext()).getHits()).hasSize(1);
     assertThat(index.search(IssueQuery.builder().languages(newArrayList("unknown")).build(), new QueryContext()).getHits()).isEmpty();
   }
 
   @Test
   public void filter_by_assignees() throws Exception {
-    db.issueDao().insert(session,
-      IssueTesting.newDto(rule, file, project).setAssignee("steph"),
-      IssueTesting.newDto(rule, file, project).setAssignee("simon"),
-      IssueTesting.newDto(rule, file, project));
-    session.commit();
-    index();
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+
+    indexIssues(
+      IssueTesting.newDoc("ISSUE1", file).setAssignee("steph"),
+      IssueTesting.newDoc("ISSUE2", file).setAssignee("simon"),
+      IssueTesting.newDoc("ISSUE3", file).setAssignee(null));
 
     assertThat(index.search(IssueQuery.builder().assignees(newArrayList("steph")).build(), new QueryContext()).getHits()).hasSize(1);
     assertThat(index.search(IssueQuery.builder().assignees(newArrayList("steph", "simon")).build(), new QueryContext()).getHits()).hasSize(2);
@@ -369,12 +324,13 @@ public class IssueIndexMediumTest {
 
   @Test
   public void filter_by_assigned() throws Exception {
-    db.issueDao().insert(session,
-      IssueTesting.newDto(rule, file, project).setAssignee("steph"),
-      IssueTesting.newDto(rule, file, project).setAssignee(null),
-      IssueTesting.newDto(rule, file, project).setAssignee(null));
-    session.commit();
-    index();
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+
+    indexIssues(
+      IssueTesting.newDoc("ISSUE1", file).setAssignee("steph"),
+      IssueTesting.newDoc("ISSUE2", file).setAssignee(null),
+      IssueTesting.newDoc("ISSUE3", file).setAssignee(null));
 
     assertThat(index.search(IssueQuery.builder().assigned(true).build(), new QueryContext()).getHits()).hasSize(1);
     assertThat(index.search(IssueQuery.builder().assigned(false).build(), new QueryContext()).getHits()).hasSize(2);
@@ -383,11 +339,12 @@ public class IssueIndexMediumTest {
 
   @Test
   public void filter_by_reporters() throws Exception {
-    db.issueDao().insert(session,
-      IssueTesting.newDto(rule, file, project).setReporter("fabrice"),
-      IssueTesting.newDto(rule, file, project).setReporter("stephane"));
-    session.commit();
-    index();
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+
+    indexIssues(
+      IssueTesting.newDoc("ISSUE1", file).setReporter("fabrice"),
+      IssueTesting.newDoc("ISSUE2", file).setReporter("stephane"));
 
     assertThat(index.search(IssueQuery.builder().reporters(newArrayList("fabrice", "stephane")).build(), new QueryContext()).getHits()).hasSize(2);
     assertThat(index.search(IssueQuery.builder().reporters(newArrayList("fabrice")).build(), new QueryContext()).getHits()).hasSize(1);
@@ -396,11 +353,12 @@ public class IssueIndexMediumTest {
 
   @Test
   public void filter_by_created_after() throws Exception {
-    IssueDto issue1 = IssueTesting.newDto(rule, file, project).setIssueCreationDate(DateUtils.parseDate("2014-09-20"));
-    IssueDto issue2 = IssueTesting.newDto(rule, file, project).setIssueCreationDate(DateUtils.parseDate("2014-09-23"));
-    db.issueDao().insert(session, issue1, issue2);
-    session.commit();
-    index();
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+
+    indexIssues(
+      IssueTesting.newDoc("ISSUE1", file).setFuncCreationDate(DateUtils.parseDate("2014-09-20")),
+      IssueTesting.newDoc("ISSUE2", file).setFuncCreationDate(DateUtils.parseDate("2014-09-23")));
 
     assertThat(index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2014-09-19")).build(), new QueryContext()).getHits()).hasSize(2);
     assertThat(index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2014-09-20")).build(), new QueryContext()).getHits()).hasSize(2);
@@ -410,11 +368,12 @@ public class IssueIndexMediumTest {
 
   @Test
   public void filter_by_created_before() throws Exception {
-    IssueDto issue1 = IssueTesting.newDto(rule, file, project).setIssueCreationDate(DateUtils.parseDate("2014-09-20"));
-    IssueDto issue2 = IssueTesting.newDto(rule, file, project).setIssueCreationDate(DateUtils.parseDate("2014-09-23"));
-    db.issueDao().insert(session, issue1, issue2);
-    session.commit();
-    index();
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+
+    indexIssues(
+      IssueTesting.newDoc("ISSUE1", file).setFuncCreationDate(DateUtils.parseDate("2014-09-20")),
+      IssueTesting.newDoc("ISSUE2", file).setFuncCreationDate(DateUtils.parseDate("2014-09-23")));
 
     assertThat(index.search(IssueQuery.builder().createdBefore(DateUtils.parseDate("2014-09-19")).build(), new QueryContext()).getHits()).isEmpty();
     assertThat(index.search(IssueQuery.builder().createdBefore(DateUtils.parseDate("2014-09-20")).build(), new QueryContext()).getHits()).hasSize(1);
@@ -424,10 +383,10 @@ public class IssueIndexMediumTest {
 
   @Test
   public void filter_by_created_at() throws Exception {
-    IssueDto issue = IssueTesting.newDto(rule, file, project).setIssueCreationDate(DateUtils.parseDate("2014-09-20"));
-    db.issueDao().insert(session, issue);
-    session.commit();
-    index();
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+
+    indexIssues(IssueTesting.newDoc("ISSUE1", file).setFuncCreationDate(DateUtils.parseDate("2014-09-20")));
 
     assertThat(index.search(IssueQuery.builder().createdAt(DateUtils.parseDate("2014-09-20")).build(), new QueryContext()).getHits()).hasSize(1);
     assertThat(index.search(IssueQuery.builder().createdAt(DateUtils.parseDate("2014-09-21")).build(), new QueryContext()).getHits()).isEmpty();
@@ -435,12 +394,11 @@ public class IssueIndexMediumTest {
 
   @Test
   public void paging() throws Exception {
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
     for (int i = 0; i < 12; i++) {
-      IssueDto issue = IssueTesting.newDto(rule, file, project);
-      tester.get(IssueDao.class).insert(session, issue);
+      indexIssues(IssueTesting.newDoc("ISSUE" + i, file));
     }
-    session.commit();
-    index();
 
     IssueQuery.Builder query = IssueQuery.builder();
     // There are 12 issues in total, with 10 issues per page, the page 2 should only contain 2 elements
@@ -459,14 +417,14 @@ public class IssueIndexMediumTest {
 
   @Test
   public void search_with_max_limit() throws Exception {
-    List<String> issueKeys = newArrayList();
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+    List<IssueDoc> issues = newArrayList();
     for (int i = 0; i < 500; i++) {
-      IssueDto issue = IssueTesting.newDto(rule, file, project);
-      tester.get(IssueDao.class).insert(session, issue);
-      issueKeys.add(issue.getKey());
+      String key = "ISSUE" + i;
+      issues.add(IssueTesting.newDoc(key, file));
     }
-    session.commit();
-    index();
+    indexIssues(issues.toArray(new IssueDoc[] {}));
 
     IssueQuery.Builder query = IssueQuery.builder();
     Result<Issue> result = index.search(query.build(), new QueryContext().setMaxLimit());
@@ -475,13 +433,13 @@ public class IssueIndexMediumTest {
 
   @Test
   public void sort_by_status() throws Exception {
-    db.issueDao().insert(session,
-      IssueTesting.newDto(rule, file, project).setStatus(Issue.STATUS_OPEN),
-      IssueTesting.newDto(rule, file, project).setStatus(Issue.STATUS_CLOSED),
-      IssueTesting.newDto(rule, file, project).setStatus(Issue.STATUS_REOPENED)
-      );
-    session.commit();
-    index();
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+
+    indexIssues(
+      IssueTesting.newDoc("ISSUE1", file).setStatus(Issue.STATUS_OPEN),
+      IssueTesting.newDoc("ISSUE2", file).setStatus(Issue.STATUS_CLOSED),
+      IssueTesting.newDoc("ISSUE3", file).setStatus(Issue.STATUS_REOPENED));
 
     IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_STATUS).asc(true);
     Result<Issue> result = index.search(query.build(), new QueryContext());
@@ -498,15 +456,15 @@ public class IssueIndexMediumTest {
 
   @Test
   public void sort_by_severity() throws Exception {
-    db.issueDao().insert(session,
-      IssueTesting.newDto(rule, file, project).setSeverity(Severity.BLOCKER),
-      IssueTesting.newDto(rule, file, project).setSeverity(Severity.INFO),
-      IssueTesting.newDto(rule, file, project).setSeverity(Severity.MINOR),
-      IssueTesting.newDto(rule, file, project).setSeverity(Severity.CRITICAL),
-      IssueTesting.newDto(rule, file, project).setSeverity(Severity.MAJOR)
-      );
-    session.commit();
-    index();
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+
+    indexIssues(
+      IssueTesting.newDoc("ISSUE1", file).setSeverity(Severity.BLOCKER),
+      IssueTesting.newDoc("ISSUE2", file).setSeverity(Severity.INFO),
+      IssueTesting.newDoc("ISSUE3", file).setSeverity(Severity.MINOR),
+      IssueTesting.newDoc("ISSUE4", file).setSeverity(Severity.CRITICAL),
+      IssueTesting.newDoc("ISSUE5", file).setSeverity(Severity.MAJOR));
 
     IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_SEVERITY).asc(true);
     Result<Issue> result = index.search(query.build(), new QueryContext());
@@ -527,11 +485,12 @@ public class IssueIndexMediumTest {
 
   @Test
   public void sort_by_assignee() throws Exception {
-    db.issueDao().insert(session,
-      IssueTesting.newDto(rule, file, project).setAssignee("steph"),
-      IssueTesting.newDto(rule, file, project).setAssignee("simon"));
-    session.commit();
-    index();
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+
+    indexIssues(
+      IssueTesting.newDoc("ISSUE1", file).setAssignee("steph"),
+      IssueTesting.newDoc("ISSUE2", file).setAssignee("simon"));
 
     IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_ASSIGNEE).asc(true);
     Result<Issue> result = index.search(query.build(), new QueryContext());
@@ -548,11 +507,12 @@ public class IssueIndexMediumTest {
 
   @Test
   public void sort_by_creation_date() throws Exception {
-    db.issueDao().insert(session,
-      IssueTesting.newDto(rule, file, project).setIssueCreationDate(DateUtils.parseDate("2014-09-23")),
-      IssueTesting.newDto(rule, file, project).setIssueCreationDate(DateUtils.parseDate("2014-09-24")));
-    session.commit();
-    index();
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+
+    indexIssues(
+      IssueTesting.newDoc("ISSUE1", file).setFuncCreationDate(DateUtils.parseDate("2014-09-23")),
+      IssueTesting.newDoc("ISSUE2", file).setFuncCreationDate(DateUtils.parseDate("2014-09-24")));
 
     IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_CREATION_DATE).asc(true);
     Result<Issue> result = index.search(query.build(), new QueryContext());
@@ -569,11 +529,12 @@ public class IssueIndexMediumTest {
 
   @Test
   public void sort_by_update_date() throws Exception {
-    db.issueDao().insert(session,
-      IssueTesting.newDto(rule, file, project).setIssueUpdateDate(DateUtils.parseDate("2014-09-23")),
-      IssueTesting.newDto(rule, file, project).setIssueUpdateDate(DateUtils.parseDate("2014-09-24")));
-    session.commit();
-    index();
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+
+    indexIssues(
+      IssueTesting.newDoc("ISSUE1", file).setFuncUpdateDate(DateUtils.parseDate("2014-09-23")),
+      IssueTesting.newDoc("ISSUE2", file).setFuncUpdateDate(DateUtils.parseDate("2014-09-24")));
 
     IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_UPDATE_DATE).asc(true);
     Result<Issue> result = index.search(query.build(), new QueryContext());
@@ -590,12 +551,13 @@ public class IssueIndexMediumTest {
 
   @Test
   public void sort_by_close_date() throws Exception {
-    db.issueDao().insert(session,
-      IssueTesting.newDto(rule, file, project).setIssueCloseDate(DateUtils.parseDate("2014-09-23")),
-      IssueTesting.newDto(rule, file, project).setIssueCloseDate(DateUtils.parseDate("2014-09-24")),
-      IssueTesting.newDto(rule, file, project).setIssueCloseDate(null));
-    session.commit();
-    index();
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+
+    indexIssues(
+      IssueTesting.newDoc("ISSUE1", file).setFuncCloseDate(DateUtils.parseDate("2014-09-23")),
+      IssueTesting.newDoc("ISSUE2", file).setFuncCloseDate(DateUtils.parseDate("2014-09-24")),
+      IssueTesting.newDoc("ISSUE3", file).setFuncCloseDate(null));
 
     IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_CLOSE_DATE).asc(true);
     Result<Issue> result = index.search(query.build(), new QueryContext());
@@ -614,20 +576,21 @@ public class IssueIndexMediumTest {
 
   @Test
   public void sort_by_file_and_line() throws Exception {
-    db.issueDao().insert(session,
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file1 = ComponentTesting.newFileDto(project, "F1").setPath("src/main/xoo/org/sonar/samples/File.xoo");
+    ComponentDto file2 = ComponentTesting.newFileDto(project, "F2").setPath("src/main/xoo/org/sonar/samples/File2.xoo");
+
+    indexIssues(
       // file F1
-      IssueTesting.newDto(rule, file, project).setLine(20).setKee("F1_2"),
-      IssueTesting.newDto(rule, file, project).setLine(null).setKee("F1_1"),
-      IssueTesting.newDto(rule, file, project).setLine(25).setKee("F1_3"),
+      IssueTesting.newDoc("F1_2", file1).setLine(20),
+      IssueTesting.newDoc("F1_1", file1).setLine(null),
+      IssueTesting.newDoc("F1_3", file1).setLine(25),
 
       // file F2
-      IssueTesting.newDto(rule, file2, project).setLine(9).setKee("F2_1"),
-      IssueTesting.newDto(rule, file2, project).setLine(109).setKee("F2_2"),
+      IssueTesting.newDoc("F2_1", file2).setLine(9),
+      IssueTesting.newDoc("F2_2", file2).setLine(109),
       // two issues on the same line -> sort by key
-      IssueTesting.newDto(rule, file2, project).setLine(109).setKee("F2_3")
-      );
-    session.commit();
-    index();
+      IssueTesting.newDoc("F2_3", file2).setLine(109));
 
     // ascending sort -> F1 then F2. Line "0" first.
     IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_FILE_LINE).asc(true);
@@ -659,31 +622,15 @@ public class IssueIndexMediumTest {
     ComponentDto project3 = ComponentTesting.newProjectDto().setKey("project3");
 
     ComponentDto file1 = ComponentTesting.newFileDto(project1).setKey("file1");
-    ComponentDto file2 = ComponentTesting.newFileDto(project1).setKey("file2");
-    ComponentDto file3 = ComponentTesting.newFileDto(project1).setKey("file3");
-
-    tester.get(ComponentDao.class).insert(session, project1, project2, project3, file1, file2, file3);
+    ComponentDto file2 = ComponentTesting.newFileDto(project2).setKey("file2");
+    ComponentDto file3 = ComponentTesting.newFileDto(project3).setKey("file3");
 
     // project1 can be seen by sonar-users
+    indexIssue(IssueTesting.newDoc("ISSUE1", file1), "sonar-users", null);
     // project2 can be seen by sonar-admins
+    indexIssue(IssueTesting.newDoc("ISSUE2", file2), "sonar-admins", null);
     // project3 cannot be seen by anyone
-    GroupDto userGroup = new GroupDto().setName("sonar-users");
-    db.groupDao().insert(session, userGroup);
-    GroupDto adminGroup = new GroupDto().setName("sonar-admins");
-    db.groupDao().insert(session, adminGroup);
-    session.commit();
-    MockUserSession.set().setLogin("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-    tester.get(InternalPermissionService.class).addPermission(new PermissionChange().setComponentKey(project1.getKey()).setGroup(userGroup.getName()).setPermission(UserRole.USER));
-    tester.get(InternalPermissionService.class)
-      .addPermission(new PermissionChange().setComponentKey(project2.getKey()).setGroup(adminGroup.getName()).setPermission(UserRole.USER));
-    db.issueDao().insert(session,
-      IssueTesting.newDto(rule, file1, project1),
-      IssueTesting.newDto(rule, file2, project2),
-      IssueTesting.newDto(rule, file3, project3));
-
-    session.commit();
-    session.clearCache();
-    index();
+    indexIssue(IssueTesting.newDoc("ISSUE3", file3), null, null);
 
     IssueQuery.Builder query = IssueQuery.builder();
 
@@ -710,31 +657,13 @@ public class IssueIndexMediumTest {
     ComponentDto project3 = ComponentTesting.newProjectDto().setKey("project3");
 
     ComponentDto file1 = ComponentTesting.newFileDto(project1).setKey("file1");
-    ComponentDto file2 = ComponentTesting.newFileDto(project1).setKey("file2");
-    ComponentDto file3 = ComponentTesting.newFileDto(project1).setKey("file3");
+    ComponentDto file2 = ComponentTesting.newFileDto(project2).setKey("file2");
+    ComponentDto file3 = ComponentTesting.newFileDto(project3).setKey("file3");
 
-    tester.get(ComponentDao.class).insert(session, project1, project2, project3, file1, file2, file3);
-
-    // project1 can be seen by john and project2 by max. project3 cannot be seen by anyone
-    UserDto john = new UserDto().setLogin("john").setName("john").setActive(true);
-    UserDto max = new UserDto().setLogin("max").setName("max").setActive(true);
-    db.userDao().insert(session, max);
-    db.userDao().insert(session, john);
-    session.commit();
-
-    MockUserSession.set().setLogin("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-    tester.get(InternalPermissionService.class).addPermission(new PermissionChange().setComponentKey(project1.getKey()).setUser(john.getLogin()).setPermission(UserRole.USER));
-    tester.get(InternalPermissionService.class).addPermission(new PermissionChange().setComponentKey(project2.getKey()).setUser(max.getLogin()).setPermission(UserRole.USER));
-
-    db.issueDao().insert(session,
-      IssueTesting.newDto(rule, file1, project1),
-      IssueTesting.newDto(rule, file2, project2),
-      IssueTesting.newDto(rule, file2, project3)
-      );
-
-    session.commit();
-    session.clearCache();
-    index();
+    // project1 can be seen by john, project2 by max, project3 cannot be seen by anyone
+    indexIssue(IssueTesting.newDoc("ISSUE1", file1), null, "john");
+    indexIssue(IssueTesting.newDoc("ISSUE2", file2), null, "max");
+    indexIssue(IssueTesting.newDoc("ISSUE3", file3), null, null);
 
     IssueQuery.Builder query = IssueQuery.builder();
 
@@ -755,46 +684,31 @@ public class IssueIndexMediumTest {
   public void authorized_issues_on_user_and_group() throws Exception {
     ComponentDto project1 = ComponentTesting.newProjectDto().setKey("project1");
     ComponentDto project2 = ComponentTesting.newProjectDto().setKey("project2");
-    tester.get(ComponentDao.class).insert(session, project1, project2);
 
-    // project1 can be seen by john
-    UserDto john = new UserDto().setLogin("john").setName("john").setActive(true);
-    db.userDao().insert(session, john);
-    tester.get(PermissionFacade.class).insertUserPermission(project1.getId(), john.getId(), UserRole.USER, session);
+    ComponentDto file1 = ComponentTesting.newFileDto(project1).setKey("file1");
+    ComponentDto file2 = ComponentTesting.newFileDto(project2).setKey("file2");
 
-    // project1 can be seen by sonar-users
-    GroupDto groupDto = new GroupDto().setName("sonar-users");
-    db.groupDao().insert(session, groupDto);
-    session.commit();
-    MockUserSession.set().setLogin("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-    tester.get(InternalPermissionService.class).addPermission(new PermissionChange().setComponentKey(project1.getKey()).setGroup("sonar-users").setPermission(UserRole.USER));
-
-    db.issueDao().insert(session,
-      IssueTesting.newDto(rule, file, project1),
-      IssueTesting.newDto(rule, file, project2));
-
-    session.commit();
-    session.clearCache();
-    index();
+    // project1 can be seen by john and by sonar-users
+    indexIssue(IssueTesting.newDoc("ISSUE1", file1), "sonar-users", "john");
+    indexIssue(IssueTesting.newDoc("ISSUE2", file2), null, "max");
 
     IssueQuery.Builder query = IssueQuery.builder();
-
     MockUserSession.set().setLogin("john").setUserGroups("sonar-users");
     assertThat(index.search(query.build(), new QueryContext()).getHits()).hasSize(1);
   }
 
   @Test
   public void list_assignees() throws Exception {
-    db.issueDao().insert(session,
-      IssueTesting.newDto(rule, file, project).setAssignee("steph").setStatus(Issue.STATUS_OPEN),
-      IssueTesting.newDto(rule, file, project).setAssignee("simon").setStatus(Issue.STATUS_OPEN),
-      IssueTesting.newDto(rule, file, project).setStatus(Issue.STATUS_OPEN),
-      IssueTesting.newDto(rule, file, project).setAssignee("steph").setStatus(Issue.STATUS_OPEN),
-      // julien should not be returned as the issue is closed
-      IssueTesting.newDto(rule, file, project).setAssignee("julien").setStatus(Issue.STATUS_CLOSED)
-      );
-    session.commit();
-    index();
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+
+    indexIssues(
+      IssueTesting.newDoc("ISSUE1", file).setAssignee("steph").setStatus(Issue.STATUS_OPEN),
+      IssueTesting.newDoc("ISSUE2", file).setAssignee("simon").setStatus(Issue.STATUS_OPEN),
+      IssueTesting.newDoc("ISSUE3", file).setAssignee(null).setStatus(Issue.STATUS_OPEN),
+      IssueTesting.newDoc("ISSUE4", file).setAssignee("steph").setStatus(Issue.STATUS_OPEN),
+      // Issue assigned to julien should not be returned as the issue is closed
+      IssueTesting.newDoc("ISSUE5", file).setAssignee("julien").setStatus(Issue.STATUS_CLOSED));
 
     List<FacetValue> results = index.listAssignees(IssueQuery.builder().statuses(newArrayList(Issue.STATUS_OPEN)).build());
 
@@ -816,12 +730,13 @@ public class IssueIndexMediumTest {
     Date yesterday = org.apache.commons.lang.time.DateUtils.addDays(today, -1);
     Date beforeYesterday = org.apache.commons.lang.time.DateUtils.addDays(yesterday, -1);
 
-    tester.get(IssueDao.class).insert(session, IssueTesting.newDto(rule, file, project).setIssueCloseDate(today));
-    tester.get(IssueDao.class).insert(session, IssueTesting.newDto(rule, file, project).setIssueCloseDate(beforeYesterday));
-    tester.get(IssueDao.class).insert(session, IssueTesting.newDto(rule, file, project));
-    session.commit();
-    index();
-    assertThat(index.countAll()).isEqualTo(3L);
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+
+    indexIssues(
+      IssueTesting.newDoc("ISSUE1", file).setFuncCloseDate(today),
+      IssueTesting.newDoc("ISSUE2", file).setFuncCloseDate(beforeYesterday),
+      IssueTesting.newDoc("ISSUE3", file).setFuncCloseDate(null));
 
     // ACT
     index.deleteClosedIssuesOfProjectBefore(project.uuid(), yesterday);
@@ -836,4 +751,21 @@ public class IssueIndexMediumTest {
     assertThat(index.countAll()).isEqualTo(2);
     assertThat(dates).containsOnly(null, today);
   }
+
+  private void indexIssues(IssueDoc... issues) {
+    tester.get(IssueIndexer.class).index(Arrays.asList(issues).iterator());
+    for (IssueDoc issue : issues) {
+      addIssueAuthorization(issue.projectUuid(), DefaultGroups.ANYONE, null);
+    }
+  }
+
+  private void indexIssue(IssueDoc issue, @Nullable String group, @Nullable String user) {
+    tester.get(IssueIndexer.class).index(Iterators.singletonIterator(issue));
+    addIssueAuthorization(issue.projectUuid(), group, user);
+  }
+
+  private void addIssueAuthorization(String projectUuid, @Nullable String group, @Nullable String user) {
+    tester.get(IssueAuthorizationIndexer.class).index(newArrayList(new IssueAuthorizationDao.Dto(projectUuid, 1).addGroup(group).addUser(user)));
+  }
+
 }

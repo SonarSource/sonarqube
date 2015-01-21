@@ -61,12 +61,14 @@ public class IssueAuthorizationDao {
       return users;
     }
 
-    public void addUser(String s) {
+    public Dto addUser(String s) {
       users.add(s);
+      return this;
     }
 
-    public void addGroup(String s) {
+    public Dto addGroup(String s) {
       groups.add(s);
+      return this;
     }
 
     public List<String> getGroups() {
