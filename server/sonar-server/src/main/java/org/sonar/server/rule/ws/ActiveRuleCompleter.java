@@ -21,6 +21,8 @@ package org.sonar.server.rule.ws;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
@@ -42,6 +44,9 @@ import java.util.Map;
  * web services.
  */
 public class ActiveRuleCompleter implements ServerComponent {
+
+  private static final Logger LOG = LoggerFactory.getLogger(ActiveRuleCompleter.class);
+
   private final QProfileLoader loader;
   private final Languages languages;
 
@@ -51,10 +56,15 @@ public class ActiveRuleCompleter implements ServerComponent {
   }
 
   void completeSearch(RuleQuery query, Collection<Rule> rules, JsonWriter json) {
-    json.name("actives").beginObject();
+    Collection<String> harvestedProfileKeys = writeActiveRules(json, query, rules);
 
+    writeProfiles(json, harvestedProfileKeys);
+  }
+
+  private Collection<String> writeActiveRules(JsonWriter json, RuleQuery query, Collection<Rule> rules) {
     Collection<String> qProfileKeys = Sets.newHashSet();
 
+    json.name("actives").beginObject();
     String profileKey = query.getQProfileKey();
     if (profileKey != null) {
       // Load details of active rules on the selected profile
@@ -72,29 +82,7 @@ public class ActiveRuleCompleter implements ServerComponent {
     }
     json.endObject();
 
-
-    Map<String, QualityProfileDto> qProfilesByKey = Maps.newHashMap();
-    for (String qProfileKey: qProfileKeys) {
-      if (!qProfilesByKey.containsKey(qProfileKey)) {
-        QualityProfileDto profile = loader.getByKey(qProfileKey);
-        qProfilesByKey.put(qProfileKey, profile);
-        if (profile.getParentKee() != null && !qProfilesByKey.containsKey(profile.getParentKee())) {
-          qProfilesByKey.put(profile.getParentKee(), loader.getByKey(profile.getParentKee()));
-        }
-      }
-    }
-    json.name("qProfiles").beginObject();
-    for (QualityProfileDto profile: qProfilesByKey.values()) {
-      Language language = languages.get(profile.getLanguage());
-      String langName = language == null ? profile.getLanguage() : language.getName();
-      json.name(profile.getKey()).beginObject()
-        .prop("name", profile.getName())
-        .prop("lang", profile.getLanguage())
-        .prop("langName", langName)
-        .prop("parent", profile.getParentKee())
-        .endObject();
-    }
-    json.endObject();
+    return qProfileKeys;
   }
 
   void completeShow(Rule rule, JsonWriter json) {
@@ -139,4 +127,39 @@ public class ActiveRuleCompleter implements ServerComponent {
     json.endArray().endObject();
     return activeRule.key().qProfile();
   }
+
+  private void writeProfiles(JsonWriter json, Collection<String> harvestedProfileKeys) {
+    Map<String, QualityProfileDto> qProfilesByKey = Maps.newHashMap();
+    for (String qProfileKey : harvestedProfileKeys) {
+      if (!qProfilesByKey.containsKey(qProfileKey)) {
+        QualityProfileDto profile = loader.getByKey(qProfileKey);
+        if (profile == null) {
+          LOG.warn("Could not find quality profile with key " + qProfileKey);
+          continue;
+        }
+        qProfilesByKey.put(qProfileKey, profile);
+        String parentKee = profile.getParentKee();
+        if (parentKee != null && !qProfilesByKey.containsKey(parentKee)) {
+          qProfilesByKey.put(parentKee, loader.getByKey(parentKee));
+        }
+      }
+    }
+    json.name("qProfiles").beginObject();
+    for (QualityProfileDto profile : qProfilesByKey.values()) {
+      writeProfile(json, profile);
+    }
+    json.endObject();
+  }
+
+  private void writeProfile(JsonWriter json, QualityProfileDto profile) {
+    Language language = languages.get(profile.getLanguage());
+    String langName = language == null ? profile.getLanguage() : language.getName();
+    json.name(profile.getKey()).beginObject()
+      .prop("name", profile.getName())
+      .prop("lang", profile.getLanguage())
+      .prop("langName", langName)
+      .prop("parent", profile.getParentKee())
+      .endObject();
+  }
+
 }

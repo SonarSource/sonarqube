@@ -42,6 +42,7 @@ import java.util.regex.Pattern;
  */
 public class RepositoriesAction implements RulesAction {
 
+  private static final String LANGUAGE = "language";
   private static final String MATCH_ALL = ".*";
   private final RuleRepositories repositories;
 
@@ -52,12 +53,12 @@ public class RepositoriesAction implements RulesAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     String query = request.param("q");
-    String languageKey = request.param("language");
+    String languageKey = request.param(LANGUAGE);
     int pageSize = request.mandatoryParamAsInt("ps");
 
     JsonWriter json = response.newJsonWriter().beginObject().name("repositories").beginArray();
     for (Repository repo : listMatchingRepositories(query, languageKey, pageSize)) {
-      json.beginObject().prop("key", repo.key()).prop("name", repo.name()).prop("language", repo.language()).endObject();
+      json.beginObject().prop("key", repo.key()).prop("name", repo.name()).prop(LANGUAGE, repo.language()).endObject();
     }
     json.endArray().endObject().close();
   }
@@ -90,7 +91,7 @@ public class RepositoriesAction implements RulesAction {
     action.createParam("q")
       .setDescription("A pattern to match repository keys/names against")
       .setExampleValue("squid");
-    action.createParam("language")
+    action.createParam(LANGUAGE)
       .setDescription("A language key; if provided, only repositories for the given language will be returned")
       .setExampleValue("java");
     action.createParam("ps")

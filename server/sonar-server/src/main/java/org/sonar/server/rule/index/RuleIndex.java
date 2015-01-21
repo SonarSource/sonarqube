@@ -80,6 +80,7 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
+  private static final String FILTER_DEBT_CHARACTERISTICS = "debtCharacteristics";
   public static final String FACET_LANGUAGES = "languages";
   public static final String FACET_TAGS = "tags";
   public static final String FACET_REPOSITORIES = "repositories";
@@ -273,7 +274,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     // Construct the debt filter on effective char and subChar
     Collection<String> debtCharacteristics = query.getDebtCharacteristics();
     if (debtCharacteristics != null && !debtCharacteristics.isEmpty()) {
-      filters.put("debtCharacteristics",
+      filters.put(FILTER_DEBT_CHARACTERISTICS,
         FilterBuilders.boolFilter().must(
           FilterBuilders.orFilter(
             // Match only when NONE (overridden)
@@ -376,8 +377,6 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
   private void addStatusFacetIfNeeded(RuleQuery query, QueryContext options, Map<String, AggregationBuilder> aggregations, StickyFacetBuilder stickyFacetBuilder) {
     if (options.facets().contains(FACET_STATUSES)) {
-      Collection<RuleStatus> statusesFromQuery = query.getStatuses();
-
       BoolFilterBuilder facetFilter = stickyFacetBuilder.getStickyFacetFilter(RuleNormalizer.RuleField.STATUS.field());
       AggregationBuilder statuses = AggregationBuilders.filter(FACET_STATUSES + "_filter")
         .filter(facetFilter)
@@ -400,7 +399,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       Collection<String> characsFromQuery = query.getDebtCharacteristics();
       Object[] selectedChars = characsFromQuery == null ? new Object[0] : characsFromQuery.toArray();
       AggregationBuilder debtChar = AggregationBuilders.filter(FACET_DEBT_CHARACTERISTICS + "__chars")
-        .filter(stickyFacetBuilder.getStickyFacetFilter("debtCharacteristics"))
+        .filter(stickyFacetBuilder.getStickyFacetFilter(FILTER_DEBT_CHARACTERISTICS))
         .subAggregation(
           AggregationBuilders.terms(FACET_DEBT_CHARACTERISTICS + "__chars_top").field(RuleNormalizer.RuleField.CHARACTERISTIC.field())
             .size(characsSize))
@@ -409,7 +408,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
             .include(Joiner.on('|').join(selectedChars))
             .size(characsSize));
       AggregationBuilder debtSubChar = AggregationBuilders.filter(FACET_DEBT_CHARACTERISTICS + "__subchars")
-        .filter(stickyFacetBuilder.getStickyFacetFilter("debtCharacteristics"))
+        .filter(stickyFacetBuilder.getStickyFacetFilter(FILTER_DEBT_CHARACTERISTICS))
         .subAggregation(
           AggregationBuilders.terms(FACET_DEBT_CHARACTERISTICS + "__subchars_top").field(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field())
             .size(subCharacsSize))

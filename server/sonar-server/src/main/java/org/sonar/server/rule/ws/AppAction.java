@@ -22,6 +22,7 @@ package org.sonar.server.rule.ws;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import org.apache.commons.collections.ComparatorUtils;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
@@ -160,7 +161,7 @@ public class AppAction implements RulesAction {
     Collections.sort(rootCharacs, new Comparator<DebtCharacteristic>() {
       @Override
       public int compare(DebtCharacteristic o1, DebtCharacteristic o2) {
-        return o1.order().compareTo(o2.order());
+        return ComparatorUtils.nullHighComparator(ComparatorUtils.naturalComparator()).compare(o1.order(), o2.order());
       }
     });
     return rootCharacs;
