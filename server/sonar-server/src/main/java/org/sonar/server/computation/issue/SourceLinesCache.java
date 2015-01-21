@@ -20,6 +20,7 @@
 package org.sonar.server.computation.issue;
 
 import com.google.common.base.Function;
+import com.google.common.base.Strings;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -69,7 +70,8 @@ public class SourceLinesCache {
   public String lineAuthor(int lineId) {
     loadIfNeeded();
     if (lineId <= authors.size()) {
-      return authors.get(lineId - 1);
+      String author = authors.get(lineId - 1);
+      return Strings.emptyToNull(author);
     }
     return null;
   }

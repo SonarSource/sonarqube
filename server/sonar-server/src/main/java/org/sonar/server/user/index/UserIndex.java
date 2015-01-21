@@ -20,6 +20,7 @@
 
 package org.sonar.server.user.index;
 
+import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -54,17 +55,19 @@ public class UserIndex implements ServerComponent {
 
   @CheckForNull
   public UserDoc getNullableByScmAccount(String scmAccount) {
-    SearchRequestBuilder request = esClient.prepareSearch(UserIndexDefinition.INDEX)
-      .setTypes(UserIndexDefinition.TYPE_USER)
-      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
-        FilterBuilders.boolFilter()
-          .should(FilterBuilders.termFilter(UserIndexDefinition.FIELD_LOGIN, scmAccount))
-          .should(FilterBuilders.termFilter(UserIndexDefinition.FIELD_EMAIL, scmAccount))
-          .should(FilterBuilders.termFilter(UserIndexDefinition.FIELD_SCM_ACCOUNTS, scmAccount))))
-      .setSize(2);
-    SearchHit[] result = request.get().getHits().getHits();
-    if (result.length == 1) {
-      return new UserDoc(result[0].sourceAsMap());
+    if (!StringUtils.isEmpty(scmAccount)) {
+      SearchRequestBuilder request = esClient.prepareSearch(UserIndexDefinition.INDEX)
+        .setTypes(UserIndexDefinition.TYPE_USER)
+        .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
+          FilterBuilders.boolFilter()
+            .should(FilterBuilders.termFilter(UserIndexDefinition.FIELD_LOGIN, scmAccount))
+            .should(FilterBuilders.termFilter(UserIndexDefinition.FIELD_EMAIL, scmAccount))
+            .should(FilterBuilders.termFilter(UserIndexDefinition.FIELD_SCM_ACCOUNTS, scmAccount))))
+        .setSize(2);
+      SearchHit[] result = request.get().getHits().getHits();
+      if (result.length == 1) {
+        return new UserDoc(result[0].sourceAsMap());
+      }
     }
     return null;
   }
