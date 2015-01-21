@@ -70,7 +70,7 @@ public class PersistIssuesStep implements ComputationStep {
 
         if (issue.isNew()) {
           Integer ruleId = ruleCache.get(issue.ruleKey()).getId();
-          mapper.insert(IssueDto.toDtoForBatchInsert(issue, issue.componentId(), context.getProject().getId(), ruleId, system2.now()));
+          mapper.insert(IssueDto.toDtoForComputationInsert(issue, issue.componentId(), context.getProject().getId(), ruleId, system2.now()));
           count++;
         } else {
           IssueDto dto = IssueDto.toDtoForUpdate(issue, context.getProject().getId(), system2.now());

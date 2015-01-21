@@ -13,6 +13,8 @@
           message="[null]"
           line="3000"
           component_id="100"
+          component_uuid="component-uuid"
+          project_uuid="[null]"
           root_component_id="10"
           rule_id="200"
           created_at="1400000000000"
@@ -24,5 +26,5 @@
           issue_creation_date="2010-01-01"
           issue_update_date="2010-02-02"
           issue_close_date="[null]"
-    />
+      />
 </dataset>

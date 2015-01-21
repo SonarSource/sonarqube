@@ -40,6 +40,8 @@
   <!-- old open issues -> do not purge -->
   <issues id="3" kee="ISSUE-3"
           component_id="1"
+          component_uuid="[null]"
+          project_uuid="[null]"
           root_component_id="1"
           status="OPEN"
           issue_close_date="[null]"
@@ -51,6 +53,8 @@
   <!-- recent open and closed issues -> do not purge -->
   <issues id="4" kee="ISSUE-4"
           component_id="100"
+          component_uuid="[null]"
+          project_uuid="[null]"
           root_component_id="1"
           status="OPEN"
           issue_close_date="[null]"
@@ -61,6 +65,8 @@
 
   <issues id="5" kee="ISSUE-5"
           component_id="100"
+          component_uuid="[null]"
+          project_uuid="[null]"
           root_component_id="1"
           status="CLOSED"
           issue_close_date="2025-01-01"
