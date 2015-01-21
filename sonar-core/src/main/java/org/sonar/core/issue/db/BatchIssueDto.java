@@ -30,7 +30,7 @@ public class BatchIssueDto {
   private String checksum;
   private String assigneeLogin;
   private String assigneeName;
-  private String componentPath;
+  private String componentKey;
   private String ruleKey;
   private String ruleRepo;
 
@@ -61,12 +61,12 @@ public class BatchIssueDto {
     return this;
   }
 
-  public String getComponentPath() {
-    return componentPath;
+  public String getComponentKey() {
+    return componentKey;
   }
 
-  public BatchIssueDto setComponentPath(String componentPath) {
-    this.componentPath = componentPath;
+  public BatchIssueDto setComponentKey(String componentKey) {
+    this.componentKey = componentKey;
     return this;
   }
 

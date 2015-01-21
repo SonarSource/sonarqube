@@ -192,11 +192,11 @@
     i.checksum as checksum,
     r.plugin_rule_key as ruleKey,
     r.plugin_name as ruleRepo,
-    component.path as componentPath,
+    component.kee as componentKey,
     i.assignee as assigneeLogin,
     u.name as assigneeName
     FROM issues i
-    INNER JOIN (SELECT p.id,p.path FROM projects p WHERE p.module_uuid=#{uuid} OR p.uuid=#{uuid}) component ON component.id=i.component_id
+    INNER JOIN (SELECT p.id,p.kee FROM projects p WHERE p.module_uuid=#{uuid} OR p.uuid=#{uuid}) component ON component.id=i.component_id
     INNER JOIN rules r ON r.id=i.rule_id
     LEFT OUTER JOIN users u ON u.login=i.assignee
     WHERE i.status &lt;&gt; 'CLOSED'
@@ -212,7 +212,7 @@
     i.checksum as checksum,
     r.plugin_rule_key as ruleKey,
     r.plugin_name as ruleRepo,
-    component.path as componentPath,
+    component.kee as componentKey,
     i.assignee as assigneeLogin,
     u.name as assigneeName
     FROM issues i

@@ -155,7 +155,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(batchIssueDto.getLine()).isEqualTo(200);
     assertThat(batchIssueDto.getResolution()).isEqualTo(Issue.RESOLUTION_FALSE_POSITIVE);
     assertThat(batchIssueDto.getStatus()).isEqualTo(Issue.STATUS_RESOLVED);
-    assertThat(batchIssueDto.getComponentPath()).isEqualTo("src/main/java/Sample.java");
+    assertThat(batchIssueDto.getComponentKey()).isEqualTo("Sample.java");
     assertThat(batchIssueDto.getChecksum()).isEqualTo("123456");
     assertThat(batchIssueDto.getAssigneeLogin()).isEqualTo("john");
     assertThat(batchIssueDto.getAssigneeName()).isEqualTo("John Doo");
@@ -183,7 +183,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(batchIssueDto.getLine()).isEqualTo(200);
     assertThat(batchIssueDto.getResolution()).isEqualTo(Issue.RESOLUTION_FALSE_POSITIVE);
     assertThat(batchIssueDto.getStatus()).isEqualTo(Issue.STATUS_RESOLVED);
-    assertThat(batchIssueDto.getComponentPath()).isEqualTo("src/main/java/Sample.java");
+    assertThat(batchIssueDto.getComponentKey()).isEqualTo("Sample.java");
     assertThat(batchIssueDto.getChecksum()).isEqualTo("123456");
     assertThat(batchIssueDto.getAssigneeLogin()).isEqualTo("john");
     assertThat(batchIssueDto.getAssigneeName()).isEqualTo("John Doo");

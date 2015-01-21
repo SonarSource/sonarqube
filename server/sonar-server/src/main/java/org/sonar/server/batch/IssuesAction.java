@@ -111,7 +111,7 @@ public class IssuesAction implements RequestHandler {
       if (batchIssueDto != null) {
         return new PreviousIssue()
           .setKey(batchIssueDto.getKey())
-          .setComponentPath(batchIssueDto.getComponentPath())
+          .setComponentKey(batchIssueDto.getComponentKey())
           .setChecksum(batchIssueDto.getChecksum())
           .setAssigneeLogin(batchIssueDto.getAssigneeLogin())
           .setAssigneeFullname(batchIssueDto.getAssigneeName())

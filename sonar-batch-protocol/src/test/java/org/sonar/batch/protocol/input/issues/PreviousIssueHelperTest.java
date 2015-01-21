@@ -38,7 +38,7 @@ public class PreviousIssueHelperTest {
 
     PreviousIssue issue1 = new PreviousIssue();
     issue1.setKey("key1");
-    issue1.setComponentPath("path");
+    issue1.setComponentKey("key");
     issue1.setRuleKey("repokey", "rulekey");
     issue1.setLine(2);
     issue1.setMessage("message");
@@ -58,7 +58,7 @@ public class PreviousIssueHelperTest {
 
     JSONAssert
       .assertEquals(
-        "[{\"key\": \"key1\", \"componentPath\": \"path\", \"ruleKey\": \"rulekey\", \"ruleRepo\": \"repokey\", \"line\": 2,\"message\": \"message\", \"severity\": \"severity\", \"resolution\": \"resolution\", \"status\": \"status\", \"checksum\": \"checksum\",\"assigneeLogin\": \"login\", \"assigneeFullname\": \"fullname\"},"
+        "[{\"key\": \"key1\", \"componentKey\": \"key\", \"ruleKey\": \"rulekey\", \"ruleRepo\": \"repokey\", \"line\": 2,\"message\": \"message\", \"severity\": \"severity\", \"resolution\": \"resolution\", \"status\": \"status\", \"checksum\": \"checksum\",\"assigneeLogin\": \"login\", \"assigneeFullname\": \"fullname\"},"
           +
           "{\"key\": \"key2\"}]",
         out.getBuffer().toString(), true);
@@ -77,7 +77,7 @@ public class PreviousIssueHelperTest {
     StringWriter out = new StringWriter();
     PreviousIssueHelper helper = PreviousIssueHelper.create(out);
     StringReader reader = new StringReader(
-      "[{\"key\": \"key1\", \"componentPath\": \"path\", \"ruleKey\": \"rulekey\", \"ruleRepo\": \"repokey\", \"line\": 2,\"message\": \"message\", \"severity\": \"severity\", \"resolution\": \"resolution\", \"status\": \"status\", \"checksum\": \"checksum\",\"assigneeLogin\": \"login\", \"assigneeFullname\": \"fullname\"},"
+      "[{\"key\": \"key1\", \"componentKey\": \"key\", \"ruleKey\": \"rulekey\", \"ruleRepo\": \"repokey\", \"line\": 2,\"message\": \"message\", \"severity\": \"severity\", \"resolution\": \"resolution\", \"status\": \"status\", \"checksum\": \"checksum\",\"assigneeLogin\": \"login\", \"assigneeFullname\": \"fullname\"},"
         +
         "{\"key\": \"key2\"}]");
 
@@ -88,7 +88,7 @@ public class PreviousIssueHelperTest {
     assertThat(iterator.hasNext()).isFalse();
 
     assertThat(issue1.key()).isEqualTo("key1");
-    assertThat(issue1.componentPath()).isEqualTo("path");
+    assertThat(issue1.componentKey()).isEqualTo("key");
     assertThat(issue1.ruleRepo()).isEqualTo("repokey");
     assertThat(issue1.ruleKey()).isEqualTo("rulekey");
     assertThat(issue1.line()).isEqualTo(2);

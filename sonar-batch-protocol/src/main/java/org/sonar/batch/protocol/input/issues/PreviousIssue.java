@@ -24,7 +24,7 @@ import javax.annotation.Nullable;
 public class PreviousIssue {
 
   private String key;
-  private String componentPath;
+  private String componentKey;
   private String ruleKey;
   private String ruleRepo;
   private Integer line;
@@ -45,13 +45,13 @@ public class PreviousIssue {
     return key;
   }
 
-  public PreviousIssue setComponentPath(@Nullable String path) {
-    this.componentPath = path;
+  public PreviousIssue setComponentKey(@Nullable String key) {
+    this.componentKey = key;
     return this;
   }
 
-  public String componentPath() {
-    return componentPath;
+  public String componentKey() {
+    return componentKey;
   }
 
   public PreviousIssue setLine(Integer line) {

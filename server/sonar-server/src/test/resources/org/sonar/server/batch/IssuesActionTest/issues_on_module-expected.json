@@ -1,7 +1,7 @@
 [
   {
     "key": "EFGH",
-    "componentPath": "src/main/java/Action.java",
+    "componentKey": "Action.java",
     "ruleKey": "AvoidCycle",
     "ruleRepo": "squid",
     "line": 200,
