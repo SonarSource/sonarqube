@@ -6,11 +6,11 @@
           {{severityIcon activeProfile.severity}}
           {{#eq activeProfile.inherit 'OVERRIDES'}}
             <i class="icon-inheritance"
-               title="{{tp 'coding_rules.overrides' activeProfile.name activeProfile.parent.name}}"></i>
+               title="{{tp 'coding_rules.overrides' activeProfile.name activeProfile.parentProfile.name}}"></i>
           {{/eq}}
           {{#eq activeProfile.inherit 'INHERITED'}}
             <i class="icon-inheritance"
-               title="{{tp 'coding_rules.inherits' activeProfile.name activeProfile.parent.name}}"></i>
+               title="{{tp 'coding_rules.inherits' activeProfile.name activeProfile.parentProfile.name}}"></i>
           {{/eq}}
         </td>
       {{/if}}
@@ -44,20 +44,11 @@
         <td class="coding-rule-table-meta-cell coding-rule-activation-actions">
           <div class="button-group">
             {{#if activeProfile.severity}}
-              {{#unless activeProfile.isTemplate}}
-                <button class="coding-rules-detail-quality-profile-change">{{t 'change_verb'}}</button>
-              {{/unless}}
-              {{#if activeProfile.parent}}
-                {{#eq activeProfile.inherit 'OVERRIDES'}}
-                  <button class="coding-rules-detail-quality-profile-revert button-red">
-                    {{t 'coding_rules.revert_to_parent_definition'}}
-                  </button>
-                {{/eq}}
-              {{else}}
+              {{#eq activeProfile.inherit 'NONE'}}
                 <button class="coding-rules-detail-quality-profile-deactivate button-red">
                   {{t 'coding_rules.deactivate'}}
                 </button>
-              {{/if}}
+              {{/eq}}
             {{else}}
               <button class="coding-rules-detail-quality-profile-activate">
                 {{t 'coding_rules.activate'}}

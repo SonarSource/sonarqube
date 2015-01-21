@@ -83,7 +83,11 @@ define([
           params: paramsHash
         }
       }).done(function () {
-        that.options.app.controller.showDetails(that.options.rule);
+        if (that.options.fromList) {
+          that.options.rule.set({ activeProfile: { qProfile: profileKey, inherit: 'NONE', severity: severity } });
+        } else {
+          that.options.app.controller.showDetails(that.options.rule);
+        }
         window.process.finishBackgroundProcess(p);
       }).fail(function () {
         that.options.app.controller.showDetails(that.options.rule);
@@ -92,7 +96,7 @@ define([
     },
 
     getAvailableQualityProfiles: function (lang) {
-      var activeQualityProfiles = this.collection,
+      var activeQualityProfiles = this.collection || new Backbone.Collection(),
           inactiveProfiles = _.reject(this.options.app.qualityProfiles, function (profile) {
             return activeQualityProfiles.findWhere({ key: profile.key });
           });

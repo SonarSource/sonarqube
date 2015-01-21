@@ -19,6 +19,7 @@ define([
           profile = this.app.state.get('query').qprofile;
       if (profile != null) {
         fields.push('actives');
+        fields.push('params');
       }
       return {
         p: this.app.state.get('page'),

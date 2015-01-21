@@ -6,11 +6,19 @@ define([
     model: Rule,
 
     parseRules: function (r) {
-      var rules = r.rules;
+      var rules = r.rules,
+          profileBases = r.qProfiles || [];
+
       if (r.actives != null) {
         rules = rules.map(function (rule) {
-          var profiles = r.actives[rule.key];
-          return _.extend(rule, { activeProfiles: profiles });
+          var profiles = (r.actives[rule.key] || []).map(function (profile) {
+            _.extend(profile, profileBases[profile.qProfile]);
+            if (profile.parent != null) {
+              _.extend(profile, { parentProfile: profileBases[profile.parent] });
+            }
+            return profile;
+          });
+          return _.extend(rule, { activeProfile: profiles.length > 0 ? profiles[0] : null });
         });
       }
       return rules;

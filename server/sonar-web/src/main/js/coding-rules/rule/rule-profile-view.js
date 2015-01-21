@@ -64,13 +64,10 @@ define([
 
     deactivate: function () {
       var that = this,
-          ruleKey = this.options.rule.get('key'),
-          myProfile = _.findWhere(this.options.app.qualityProfiles, {
-            key: this.model.get('qProfile')
-          });
+          ruleKey = this.options.rule.get('key');
       window.confirmDialog({
         title: t('coding_rules.deactivate'),
-        html: tp('coding_rules.deactivate.confirm', myProfile.name),
+        html: tp('coding_rules.deactivate.confirm'),
         yesHandler: function () {
           var p = window.process.addBackgroundProcess();
           return jQuery.ajax({

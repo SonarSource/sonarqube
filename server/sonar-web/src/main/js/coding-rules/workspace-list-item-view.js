@@ -1,7 +1,8 @@
 define([
   'components/navigator/workspace-list-item-view',
+  'coding-rules/rule/profile-activation-view',
   'templates/coding-rules'
-], function (WorkspaceListItemView) {
+], function (WorkspaceListItemView, ProfileActivationView) {
 
   return WorkspaceListItemView.extend({
     className: 'coding-rule',
@@ -13,7 +14,9 @@ define([
 
     events: {
       'click': 'selectCurrent',
-      'click .js-rule': 'openRule'
+      'click .js-rule': 'openRule',
+      'click .coding-rules-detail-quality-profile-activate': 'activate',
+      'click .coding-rules-detail-quality-profile-deactivate': 'deactivate'
     },
 
     selectCurrent: function () {
@@ -24,9 +27,51 @@ define([
       this.options.app.controller.showDetails(this.model);
     },
 
+    getActiveProfile: function () {
+      return this.model.get('activeProfile');
+    },
+
+    activate: function () {
+      var activeProfile = this.options.app.state.get('query').qprofile,
+          othersQualityProfiles = _.reject(this.options.app.qualityProfiles, function (profile) {
+            return profile.key === activeProfile;
+          });
+
+      new ProfileActivationView({
+        rule: this.model,
+        collection: new Backbone.Collection(othersQualityProfiles),
+        app: this.options.app,
+        fromList: true
+      }).render();
+    },
+
+    deactivate: function () {
+      var that = this,
+          ruleKey = this.model.get('key'),
+          myProfile = this.model.get('activeProfile');
+      window.confirmDialog({
+        title: t('coding_rules.deactivate'),
+        html: tp('coding_rules.deactivate.confirm'),
+        yesHandler: function () {
+          var p = window.process.addBackgroundProcess();
+          return jQuery.ajax({
+            type: 'POST',
+            url: baseUrl + '/api/qualityprofiles/deactivate_rule',
+            data: {
+              profile_key: myProfile.qProfile,
+              rule_key: ruleKey
+            }
+          }).done(function () {
+            window.process.finishBackgroundProcess(p);
+            var newProfile = _.extend({}, myProfile, { severity: undefined });
+            that.model.set({ activeProfile: newProfile });
+          });
+        }
+      });
+    },
+
     serializeData: function () {
-      var activeProfiles = this.model.get('activeProfiles'),
-          activeProfile = _.isArray(activeProfiles) && activeProfiles.length === 1 ? activeProfiles[0] : null,
+      var activeProfile = this.getActiveProfile(),
           selectedProfile = this.options.app.state.get('query').qprofile;
       if (selectedProfile != null && activeProfile == null) {
         activeProfile = selectedProfile;
