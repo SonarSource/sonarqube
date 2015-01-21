@@ -89,10 +89,13 @@ public class JGitBlameCommand extends BlameCommand {
 
   private Repository buildRepository(File basedir) {
     try {
-      return new RepositoryBuilder()
+      Repository repo = new RepositoryBuilder()
         .findGitDir(basedir)
         .setMustExist(true)
         .build();
+      // SONAR-6064 Force initialization of shallow commits to avoid later concurrent modification issue
+      repo.getObjectDatabase().newReader().getShallowCommits();
+      return repo;
     } catch (IOException e) {
       throw new IllegalStateException("Unable to open Git repository", e);
     }
