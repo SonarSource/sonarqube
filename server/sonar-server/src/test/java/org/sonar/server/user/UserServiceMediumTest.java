@@ -168,13 +168,6 @@ public class UserServiceMediumTest {
   }
 
   @Test
-  public void get_nullable_by_scm_account() throws Exception {
-    createSampleUser();
-
-    assertThat(service.getNullableByScmAccount("u1")).isNotNull();
-  }
-
-  @Test
   public void index() throws Exception {
     UserDto userDto = new UserDto().setLogin("user").setEmail("user@mail.com").setCreatedAt(System.currentTimeMillis()).setUpdatedAt(System.currentTimeMillis());
     dbClient.userDao().insert(session, userDto);

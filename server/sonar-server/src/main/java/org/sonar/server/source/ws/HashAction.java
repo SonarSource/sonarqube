@@ -19,6 +19,8 @@
  */
 package org.sonar.server.source.ws;
 
+import com.google.common.base.Function;
+import com.google.common.io.CharStreams;
 import com.google.common.io.Resources;
 import org.apache.commons.io.Charsets;
 import org.sonar.api.server.ws.Request;
@@ -31,7 +33,9 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
 
-import java.io.OutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
 
 public class HashAction implements RequestHandler {
 
@@ -59,17 +63,49 @@ public class HashAction implements RequestHandler {
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession session = dbClient.openSession(false)) {
-      String componentKey = request.mandatoryParam("key");
+      final String componentKey = request.mandatoryParam("key");
       UserSession.get().checkComponentPermission(UserRole.CODEVIEWER, componentKey);
-      ComponentDto component = dbClient.componentDao().getByKey(session, componentKey);
-      String lineHashes = dbClient.fileSourceDao().selectLineHashes(component.uuid(), session);
-      if (lineHashes == null) {
-        response.noContent();
-      } else {
-        try (OutputStream output = response.stream().setMediaType("text/plain").output()) {
-          output.write(lineHashes.getBytes(Charsets.UTF_8));
+      final ComponentDto component = dbClient.componentDao().getByKey(session, componentKey);
+
+      response.stream().setMediaType("text/plain");
+      OutputStreamWriter writer = new OutputStreamWriter(response.stream().output(), Charsets.UTF_8);
+      try {
+        HashFunction hashFunction = new HashFunction(writer, componentKey);
+        dbClient.fileSourceDao().readLineHashesStream(session, component.uuid(), hashFunction);
+        if (!hashFunction.hasData()) {
+          response.noContent();
         }
+      } finally {
+        writer.close();
       }
     }
   }
+
+  private class HashFunction implements Function<Reader, Void> {
+
+    private final OutputStreamWriter writer;
+    private final String componentKey;
+    private boolean hasData = false;
+
+    public HashFunction(OutputStreamWriter writer, String componentKey) {
+      this.writer = writer;
+      this.componentKey = componentKey;
+    }
+
+    @Override
+    public Void apply(Reader input) {
+      try {
+        hasData = true;
+        CharStreams.copy(input, writer);
+      } catch (IOException e) {
+        throw new IllegalStateException(String.format("Can't read line hashes of file '%s'", componentKey));
+      }
+      return null;
+    }
+
+    public boolean hasData() {
+      return hasData;
+    }
+  }
+
 }

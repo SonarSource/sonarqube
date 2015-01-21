@@ -62,11 +62,6 @@ public class UserService implements ServerComponent {
     return userIndex.getNullableByLogin(login);
   }
 
-  @CheckForNull
-  public UserDoc getNullableByScmAccount(String scmAccount) {
-    return userIndex.getNullableByScmAccount(scmAccount);
-  }
-
   public void index() {
     userIndexer.index();
   }

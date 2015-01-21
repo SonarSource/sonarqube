@@ -72,13 +72,13 @@ public class IssuesAction implements RequestHandler {
     UserSession.get().checkGlobalPermission(GlobalPermissions.PREVIEW_EXECUTION);
     final String moduleKey = request.mandatoryParam(PARAM_KEY);
 
+    response.stream().setMediaType(MimeTypes.JSON);
     PreviousIssueHelper previousIssueHelper = PreviousIssueHelper.create(new OutputStreamWriter(response.stream().output(), Charsets.UTF_8));
     DbSession session = dbClient.openSession(false);
     try {
       ComponentDto moduleOrProject = dbClient.componentDao().getByKey(session, moduleKey);
       UserSession.get().checkComponentPermission(UserRole.USER, moduleKey);
 
-      response.stream().setMediaType(MimeTypes.JSON);
       BatchIssueResultHandler batchIssueResultHandler = new BatchIssueResultHandler(previousIssueHelper);
       if (moduleOrProject.isRootProject()) {
         dbClient.issueDao().selectNonClosedIssuesByProjectUuid(session, moduleOrProject.uuid(), batchIssueResultHandler);

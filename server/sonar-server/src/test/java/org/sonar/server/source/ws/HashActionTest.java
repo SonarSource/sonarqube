@@ -19,14 +19,15 @@
  */
 package org.sonar.server.source.ws;
 
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.DbTester;
 import org.sonar.core.source.db.FileSourceDao;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
@@ -37,30 +38,27 @@ import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class HashActionTest {
 
-  @Mock
-  DbClient dbClient;
+  final static String COMPONENT_KEY = "Action.java";
+  final static String PROJECT_KEY = "struts";
 
-  @Mock
-  ComponentDao componentDao;
+  @Rule
+  public DbTester db = new DbTester();
 
-  @Mock
-  FileSourceDao fileSourceDao;
+  DbSession session;
 
   WsTester tester;
 
   @Before
-  public void setUp() throws Exception {
-    when(dbClient.componentDao()).thenReturn(componentDao);
-    when(dbClient.fileSourceDao()).thenReturn(fileSourceDao);
-    when(dbClient.openSession(false)).thenReturn(mock(DbSession.class));
+  public void before() throws Exception {
+    this.session = db.myBatis().openSession(false);
+
+    DbClient dbClient = new DbClient(db.database(), db.myBatis(), new FileSourceDao(db.myBatis()), new ComponentDao());
+
     tester = new WsTester(
       new SourcesWs(
         mock(ShowAction.class),
@@ -73,39 +71,34 @@ public class HashActionTest {
       );
   }
 
+  @After
+  public void after() {
+    this.session.close();
+  }
+
   @Test
   public void show_hashes() throws Exception {
-    String componentKey = "project:src/File.xoo";
-    String uuid = "polop";
-    ComponentDto component = new ComponentDto().setUuid(uuid);
-    String hashes = "polop\n"
-      + "\n"
-      + "pilip";
-    MockUserSession.set().setLogin("polop").addComponentPermission(UserRole.CODEVIEWER, "palap", componentKey);
-    when(componentDao.getByKey(any(DbSession.class), eq(componentKey))).thenReturn(component);
-    when(fileSourceDao.selectLineHashes(eq(uuid), any(DbSession.class))).thenReturn(hashes);
-    WsTester.TestRequest request = tester.newGetRequest("api/sources", "hash").setParam("key", componentKey);
-    assertThat(request.execute().outputAsString()).isEqualTo(hashes);
+    db.prepareDbUnit(getClass(), "shared.xml");
+    MockUserSession.set().setLogin("polop").addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
+
+    WsTester.TestRequest request = tester.newGetRequest("api/sources", "hash").setParam("key", COMPONENT_KEY);
+    assertThat(request.execute().outputAsString()).isEqualTo("987654");
   }
 
   @Test
   public void hashes_empty_if_no_source() throws Exception {
-    String componentKey = "project:src/File.xoo";
-    String uuid = "polop";
-    ComponentDto component = new ComponentDto().setUuid(uuid);
-    MockUserSession.set().setLogin("polop").addComponentPermission(UserRole.CODEVIEWER, "palap", componentKey);
-    when(componentDao.getByKey(any(DbSession.class), eq(componentKey))).thenReturn(component);
-    WsTester.TestRequest request = tester.newGetRequest("api/sources", "hash").setParam("key", componentKey);
+    db.prepareDbUnit(getClass(), "no_source.xml");
+    MockUserSession.set().setLogin("polop").addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
+
+    WsTester.TestRequest request = tester.newGetRequest("api/sources", "hash").setParam("key", COMPONENT_KEY);
     request.execute().assertNoContent();
   }
 
   @Test
   public void fail_to_show_hashes_if_file_does_not_exist() throws Exception {
-    String componentKey = "project:src/File.xoo";
-    MockUserSession.set().setLogin("polop").addComponentPermission(UserRole.CODEVIEWER, "palap", componentKey);
-    when(componentDao.getByKey(any(DbSession.class), eq(componentKey))).thenThrow(NotFoundException.class);
+    MockUserSession.set().setLogin("polop").addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
     try {
-      WsTester.TestRequest request = tester.newGetRequest("api/sources", "hash").setParam("key", componentKey);
+      WsTester.TestRequest request = tester.newGetRequest("api/sources", "hash").setParam("key", COMPONENT_KEY);
       request.execute();
       fail();
     } catch (Exception e) {
@@ -115,11 +108,9 @@ public class HashActionTest {
 
   @Test(expected = ForbiddenException.class)
   public void fail_on_missing_permission() throws Exception {
-    String componentKey = "project:src/File.xoo";
-    String uuid = "polop";
-    ComponentDto component = new ComponentDto().setUuid(uuid);
+    db.prepareDbUnit(getClass(), "shared.xml");
+
     MockUserSession.set().setLogin("polop");
-    when(componentDao.getByKey(any(DbSession.class), eq(componentKey))).thenReturn(component);
-    tester.newGetRequest("api/sources", "hash").setParam("key", componentKey).execute();
+    tester.newGetRequest("api/sources", "hash").setParam("key", COMPONENT_KEY).execute();
   }
 }

@@ -1,0 +1,7 @@
+<dataset>
+
+  <projects id="100" kee="struts" root_id="[null]" qualifier="TRK" scope="PRJ" uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path="." path="[null]"/>
+  <projects id="101" kee="Action.java" root_id="100" qualifier="CLA" scope="PRJ" uuid="CDEF" project_uuid="ABCD" module_uuid="ABCD" module_uuid_path=".ABCD."
+            path="src/main/java/Action.java"/>
+
+</dataset>

@@ -44,7 +44,6 @@ import org.sonar.core.user.UserDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Message;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.db.GroupDao;
 import org.sonar.server.user.db.UserDao;
 import org.sonar.server.user.db.UserGroupDao;
@@ -741,21 +740,6 @@ public class UserUpdaterTest {
     assertThat(membership.groups()).hasSize(1);
     assertThat(membership.groups().get(0).name()).isEqualTo("sonar-users");
     assertThat(membership.groups().get(0).isMember()).isTrue();
-  }
-
-  @Test
-  public void fail_to_update_unknown_user() throws Exception {
-    try {
-      userUpdater.update(UpdateUser.create("marius")
-        .setName("Marius2")
-        .setEmail("marius2@mail.com")
-        .setPassword("password2")
-        .setPasswordConfirmation("password2")
-        .setScmAccounts(newArrayList("ma2")));
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(NotFoundException.class).hasMessage("User 'marius' does not exists");
-    }
   }
 
   @Test

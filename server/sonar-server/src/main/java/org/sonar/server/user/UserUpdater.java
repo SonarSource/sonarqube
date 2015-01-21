@@ -40,7 +40,6 @@ import org.sonar.core.user.UserGroupDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Message;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.db.UserGroupDao;
 import org.sonar.server.util.Validation;
 
@@ -116,13 +115,9 @@ public class UserUpdater implements ServerComponent {
   public void update(UpdateUser updateUser) {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      UserDto user = dbClient.userDao().selectNullableByLogin(dbSession, updateUser.login());
-      if (user != null) {
-        updateUserDto(dbSession, updateUser, user);
-        updateUser(dbSession, user);
-      } else {
-        throw new NotFoundException(String.format("User '%s' does not exists", updateUser.login()));
-      }
+      UserDto user = dbClient.userDao().selectByLogin(dbSession, updateUser.login());
+      updateUserDto(dbSession, updateUser, user);
+      updateUser(dbSession, user);
       dbSession.commit();
       notifyNewUser(user.getLogin(), user.getName(), user.getEmail());
     } finally {

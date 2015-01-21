@@ -20,28 +20,42 @@
 
 package org.sonar.core.source.db;
 
+import com.google.common.base.Function;
+import org.apache.commons.io.IOUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
 
+import java.io.IOException;
+import java.io.Reader;
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class FileSourceDaoTest extends AbstractDaoTestCase {
 
-  private FileSourceDao dao;
+  DbSession session;
+
+  FileSourceDao dao;
 
   @Before
   public void setUpTestData() {
+    session = getMyBatis().openSession(false);
     dao = new FileSourceDao(getMyBatis());
-    setupData("shared");
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    session.close();
   }
 
   @Test
   public void select() throws Exception {
+    setupData("shared");
+
     FileSourceDto fileSourceDto = dao.select("ab12");
 
     assertThat(fileSourceDto.getData()).isEqualTo("aef12a,alice,2014-04-25T12:34:56+0100,,class Foo");
@@ -53,20 +67,39 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void selectLineHashes() throws Exception {
-    DbSession session = getMyBatis().openSession(false);
-    String lineHashes = null;
-    try {
-      lineHashes = dao.selectLineHashes("ab12", session);
-    } finally {
-      session.close();
-    }
+  public void select_data() throws Exception {
+    setupData("shared");
 
-    assertThat(lineHashes).isEqualTo("truc");
+    StringParser stringParser = new StringParser();
+    dao.readDataStream("ab12", stringParser);
+
+    assertThat(stringParser.getResult()).isEqualTo("aef12a,alice,2014-04-25T12:34:56+0100,,class Foo");
+  }
+
+  @Test
+  public void select_line_hashes() throws Exception {
+    setupData("shared");
+
+    StringParser stringParser = new StringParser();
+    dao.readLineHashesStream(session, "ab12", stringParser);
+
+    assertThat(stringParser.getResult()).isEqualTo("truc");
+  }
+
+  @Test
+  public void no_line_hashes_on_unknown_file() throws Exception {
+    setupData("shared");
+
+    StringParser stringParser = new StringParser();
+    dao.readLineHashesStream(session, "unknown", stringParser);
+
+    assertThat(stringParser.getResult()).isEmpty();
   }
 
   @Test
   public void insert() throws Exception {
+    setupData("shared");
+
     dao.insert(new FileSourceDto().setProjectUuid("prj").setFileUuid("file").setData("bla bla")
       .setDataHash("hash2")
       .setLineHashes("foo\nbar")
@@ -79,6 +112,8 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void update() throws Exception {
+    setupData("shared");
+
     dao.update(new FileSourceDto().setId(101L).setProjectUuid("prj").setFileUuid("file")
       .setData("updated data")
       .setDataHash("hash2")
@@ -87,5 +122,24 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
       .setUpdatedAt(DateUtils.parseDateTime("2014-10-31T16:44:02+0100").getTime()));
 
     checkTable("update", "file_sources");
+  }
+
+  class StringParser implements Function<Reader, String> {
+
+    String result = "";
+
+    @Override
+    public String apply(Reader input) {
+      try {
+        result = IOUtils.toString(input);
+        return IOUtils.toString(input);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    public String getResult() {
+      return result;
+    }
   }
 }

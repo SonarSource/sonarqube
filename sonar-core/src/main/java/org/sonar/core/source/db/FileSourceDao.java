@@ -58,25 +58,15 @@ public class FileSourceDao implements BatchComponent, ServerComponent, DaoCompon
 
   public <T> void readDataStream(String fileUuid, Function<Reader, T> function) {
     DbSession dbSession = mybatis.openSession(false);
-    Connection connection = dbSession.getConnection();
-    PreparedStatement pstmt = null;
-    ResultSet rs = null;
-    Reader reader = null;
     try {
-      pstmt = connection.prepareStatement("select data from file_sources where file_uuid = ?");
-      pstmt.setString(1, fileUuid);
-      rs = pstmt.executeQuery();
-      if (rs.next()) {
-        reader = rs.getCharacterStream(1);
-        function.apply(reader);
-      }
-    } catch (SQLException e) {
-      throw new IllegalStateException("Fail to read FILE_SOURCES.DATA of file " + fileUuid, e);
+      readColumnStream(dbSession, fileUuid, function, "data");
     } finally {
-      IOUtils.closeQuietly(reader);
-      DbUtils.closeQuietly(connection, pstmt, rs);
       MyBatis.closeQuietly(dbSession);
     }
+  }
+
+  public <T> void readLineHashesStream(DbSession dbSession, String fileUuid, Function<Reader, T> function) {
+    readColumnStream(dbSession, fileUuid, function, "line_hashes");
   }
 
   public void insert(FileSourceDto dto) {
@@ -99,8 +89,24 @@ public class FileSourceDao implements BatchComponent, ServerComponent, DaoCompon
     }
   }
 
-  @CheckForNull
-  public String selectLineHashes(String fileUuid, DbSession session) {
-    return session.getMapper(FileSourceMapper.class).selectLineHashes(fileUuid);
+  private <T> void readColumnStream(DbSession dbSession, String fileUuid, Function<Reader, T> function, String column) {
+    Connection connection = dbSession.getConnection();
+    PreparedStatement pstmt = null;
+    ResultSet rs = null;
+    Reader reader = null;
+    try {
+      pstmt = connection.prepareStatement("SELECT " + column + " FROM file_sources WHERE file_uuid = ?");
+      pstmt.setString(1, fileUuid);
+      rs = pstmt.executeQuery();
+      if (rs.next()) {
+        reader = rs.getCharacterStream(1);
+        function.apply(reader);
+      }
+    } catch (SQLException e) {
+      throw new IllegalStateException("Fail to read FILE_SOURCES." + column.toUpperCase() + " of file " + fileUuid, e);
+    } finally {
+      IOUtils.closeQuietly(reader);
+      DbUtils.closeQuietly(connection, pstmt, rs);
+    }
   }
 }
