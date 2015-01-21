@@ -35,11 +35,13 @@ import org.sonar.batch.components.PastSnapshotFinderByDays;
 import org.sonar.batch.components.PastSnapshotFinderByPreviousAnalysis;
 import org.sonar.batch.components.PastSnapshotFinderByPreviousVersion;
 import org.sonar.batch.components.PastSnapshotFinderByVersion;
-import org.sonar.batch.referential.DefaultGlobalReferentialsLoader;
-import org.sonar.batch.referential.DefaultProjectReferentialsLoader;
-import org.sonar.batch.referential.GlobalReferentialsLoader;
-import org.sonar.batch.referential.GlobalReferentialsProvider;
-import org.sonar.batch.referential.ProjectReferentialsLoader;
+import org.sonar.batch.repository.DefaultGlobalReferentialsLoader;
+import org.sonar.batch.repository.DefaultPreviousIssuesLoader;
+import org.sonar.batch.repository.DefaultProjectReferentialsLoader;
+import org.sonar.batch.repository.GlobalReferentialsLoader;
+import org.sonar.batch.repository.GlobalReferentialsProvider;
+import org.sonar.batch.repository.PreviousIssuesLoader;
+import org.sonar.batch.repository.ProjectRepositoriesLoader;
 import org.sonar.batch.user.UserRepository;
 import org.sonar.core.cluster.NullQueue;
 import org.sonar.core.config.Logback;
@@ -113,8 +115,11 @@ public class BootstrapContainer extends ComponentContainer {
     if (getComponentByType(GlobalReferentialsLoader.class) == null) {
       add(DefaultGlobalReferentialsLoader.class);
     }
-    if (getComponentByType(ProjectReferentialsLoader.class) == null) {
+    if (getComponentByType(ProjectRepositoriesLoader.class) == null) {
       add(DefaultProjectReferentialsLoader.class);
+    }
+    if (getComponentByType(PreviousIssuesLoader.class) == null) {
+      add(DefaultPreviousIssuesLoader.class);
     }
   }
 

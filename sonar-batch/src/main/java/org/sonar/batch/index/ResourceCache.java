@@ -38,6 +38,8 @@ public class ResourceCache implements BatchComponent {
   // dedicated cache for libraries
   private final Map<Library, BatchResource> libraries = Maps.newLinkedHashMap();
 
+  private BatchResource root;
+
   @CheckForNull
   public BatchResource get(String componentKey) {
     return resources.get(componentKey);
@@ -56,10 +58,13 @@ public class ResourceCache implements BatchComponent {
     String componentKey = resource.getEffectiveKey();
     Preconditions.checkState(!Strings.isNullOrEmpty(componentKey), "Missing resource effective key");
     BatchResource parent = parentResource != null ? get(parentResource.getEffectiveKey()) : null;
-    BatchResource batchResource = new BatchResource((long) resources.size() + 1, resource, parent);
+    BatchResource batchResource = new BatchResource(resources.size() + 1, resource, parent);
     if (!(resource instanceof Library)) {
       // Libraries can have the same effective key than a project so we can't cache by effectiveKey
       resources.put(componentKey, batchResource);
+      if (parent == null) {
+        root = batchResource;
+      }
     } else {
       libraries.put((Library) resource, batchResource);
     }
@@ -72,5 +77,9 @@ public class ResourceCache implements BatchComponent {
 
   public Collection<BatchResource> allLibraries() {
     return libraries.values();
+  }
+
+  public BatchResource getRoot() {
+    return root;
   }
 }

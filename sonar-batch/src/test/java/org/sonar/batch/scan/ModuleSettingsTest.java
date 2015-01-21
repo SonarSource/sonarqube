@@ -29,7 +29,7 @@ import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.utils.MessageException;
 import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.bootstrap.GlobalSettings;
-import org.sonar.batch.protocol.input.ProjectReferentials;
+import org.sonar.batch.protocol.input.ProjectRepository;
 
 import java.util.List;
 
@@ -42,12 +42,12 @@ public class ModuleSettingsTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  ProjectReferentials projectRef;
+  ProjectRepository projectRef;
   private AnalysisMode mode;
 
   @Before
   public void before() {
-    projectRef = new ProjectReferentials();
+    projectRef = new ProjectRepository();
     mode = mock(AnalysisMode.class);
   }
 

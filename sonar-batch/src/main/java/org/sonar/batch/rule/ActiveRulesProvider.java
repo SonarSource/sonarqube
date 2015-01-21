@@ -25,26 +25,26 @@ import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.protocol.input.ActiveRule;
-import org.sonar.batch.protocol.input.ProjectReferentials;
+import org.sonar.batch.protocol.input.ProjectRepository;
 
 import java.util.Map.Entry;
 
 /**
  * Loads the rules that are activated on the Quality profiles
- * used by the current module and build {@link org.sonar.api.batch.rule.ActiveRules}.
+ * used by the current project and build {@link org.sonar.api.batch.rule.ActiveRules}.
  */
 public class ActiveRulesProvider extends ProviderAdapter {
 
   private ActiveRules singleton = null;
 
-  public ActiveRules provide(ProjectReferentials ref) {
+  public ActiveRules provide(ProjectRepository ref) {
     if (singleton == null) {
       singleton = load(ref);
     }
     return singleton;
   }
 
-  private ActiveRules load(ProjectReferentials ref) {
+  private ActiveRules load(ProjectRepository ref) {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
     for (ActiveRule activeRule : ref.activeRules()) {
       NewActiveRule newActiveRule = builder.create(RuleKey.of(activeRule.repositoryKey(), activeRule.ruleKey()));

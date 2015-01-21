@@ -20,6 +20,7 @@
 package org.sonar.batch.mediumtest.issues;
 
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,6 +28,7 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.batch.protocol.input.ActiveRule;
+import org.sonar.batch.protocol.input.issues.PreviousIssue;
 import org.sonar.xoo.XooPlugin;
 
 import java.io.File;
@@ -43,6 +45,13 @@ public class ReportsMediumTest {
     .addDefaultQProfile("xoo", "Sonar Way")
     .activateRule(new ActiveRule("xoo", "OneIssuePerLine", "One issue per line", "MAJOR", "OneIssuePerLine.internal", "xoo"))
     .bootstrapProperties(ImmutableMap.of("sonar.analysis.mode", "sensor"))
+    .addPreviousIssue(new PreviousIssue().setKey("xyz")
+      .setComponentKey("sample:xources/hello/HelloJava.xoo")
+      .setRuleKey("xoo", "OneIssuePerLine")
+      .setLine(1)
+      .setOverriddenSeverity("MAJOR")
+      .setChecksum(DigestUtils.md5Hex("packagehello;"))
+      .setStatus("OPEN"))
     .build();
 
   @Before
@@ -64,7 +73,7 @@ public class ReportsMediumTest {
       .property("sonar.issuesReport.console.enable", "true")
       .start();
 
-    assertThat(result.issues()).hasSize(26);
+    assertThat(result.issues()).hasSize(14);
   }
 
 }

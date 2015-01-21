@@ -26,7 +26,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.batch.protocol.input.ProjectReferentials;
+import org.sonar.batch.protocol.input.ProjectRepository;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,7 +51,7 @@ public class ProjectRepositoryActionTest {
   public void project_referentials() throws Exception {
     String projectKey = "org.codehaus.sonar:sonar";
 
-    ProjectReferentials projectReferentials = mock(ProjectReferentials.class);
+    ProjectRepository projectReferentials = mock(ProjectRepository.class);
     when(projectReferentials.toJson()).thenReturn("{\"settingsByModule\": {}}");
 
     ArgumentCaptor<ProjectRepositoryQuery> queryArgumentCaptor = ArgumentCaptor.forClass(ProjectRepositoryQuery.class);

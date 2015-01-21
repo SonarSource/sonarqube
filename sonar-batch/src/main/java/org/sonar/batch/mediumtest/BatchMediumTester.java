@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.mediumtest;
 
+import com.google.common.base.Function;
 import org.apache.commons.io.Charsets;
 import org.sonar.api.SonarPlugin;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
@@ -32,9 +33,11 @@ import org.sonar.batch.bootstrapper.Batch;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.protocol.input.ActiveRule;
 import org.sonar.batch.protocol.input.GlobalReferentials;
-import org.sonar.batch.protocol.input.ProjectReferentials;
-import org.sonar.batch.referential.GlobalReferentialsLoader;
-import org.sonar.batch.referential.ProjectReferentialsLoader;
+import org.sonar.batch.protocol.input.ProjectRepository;
+import org.sonar.batch.protocol.input.issues.PreviousIssue;
+import org.sonar.batch.repository.GlobalReferentialsLoader;
+import org.sonar.batch.repository.PreviousIssuesLoader;
+import org.sonar.batch.repository.ProjectRepositoriesLoader;
 import org.sonar.core.plugins.DefaultPluginMetadata;
 import org.sonar.core.plugins.RemotePlugin;
 
@@ -65,6 +68,7 @@ public class BatchMediumTester {
     private final FakeGlobalReferentialsLoader globalRefProvider = new FakeGlobalReferentialsLoader();
     private final FakeProjectReferentialsLoader projectRefProvider = new FakeProjectReferentialsLoader();
     private final FakePluginsReferential pluginsReferential = new FakePluginsReferential();
+    private final FakePreviousIssuesLoader previousIssues = new FakePreviousIssuesLoader();
     private final Map<String, String> bootstrapProperties = new HashMap<String, String>();
 
     public BatchMediumTester build() {
@@ -114,6 +118,11 @@ public class BatchMediumTester {
       return this;
     }
 
+    public BatchMediumTesterBuilder addPreviousIssue(PreviousIssue issue) {
+      previousIssues.getPreviousIssues().add(issue);
+      return this;
+    }
+
   }
 
   public void start() {
@@ -132,6 +141,7 @@ public class BatchMediumTester {
         builder.pluginsReferential,
         builder.globalRefProvider,
         builder.projectRefProvider,
+        builder.previousIssues,
         new DefaultDebtModel())
       .setBootstrapProperties(builder.bootstrapProperties)
       .build();
@@ -217,12 +227,12 @@ public class BatchMediumTester {
     }
   }
 
-  private static class FakeProjectReferentialsLoader implements ProjectReferentialsLoader {
+  private static class FakeProjectReferentialsLoader implements ProjectRepositoriesLoader {
 
-    private ProjectReferentials ref = new ProjectReferentials();
+    private ProjectRepository ref = new ProjectRepository();
 
     @Override
-    public ProjectReferentials load(ProjectReactor reactor, TaskProperties taskProperties) {
+    public ProjectRepository load(ProjectReactor reactor, TaskProperties taskProperties) {
       return ref;
     }
 
@@ -268,6 +278,24 @@ public class BatchMediumTester {
     @Override
     public Map<PluginMetadata, SonarPlugin> localPlugins() {
       return localPlugins;
+    }
+
+  }
+
+  private static class FakePreviousIssuesLoader implements PreviousIssuesLoader {
+
+    List<PreviousIssue> previousIssues = new ArrayList<>();
+
+    public List<PreviousIssue> getPreviousIssues() {
+      return previousIssues;
+    }
+
+    @Override
+    public void load(ProjectReactor reactor, Function<PreviousIssue, Void> consumer) {
+      for (PreviousIssue previousIssue : previousIssues) {
+        consumer.apply(previousIssue);
+      }
+
     }
 
   }

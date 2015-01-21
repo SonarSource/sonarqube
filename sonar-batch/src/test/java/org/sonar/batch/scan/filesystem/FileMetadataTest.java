@@ -77,9 +77,9 @@ public class FileMetadataTest {
     assertThat(metadata.lines).isEqualTo(4);
     assertThat(metadata.hash).isEqualTo(md5Hex("föo\nbàr\n\u1D11Ebaßz\n"));
     assertThat(metadata.originalLineOffsets).containsOnly(0, 5, 10, 18);
-    assertThat(metadata.lineHashes[0]).containsOnly(md5("föo"));
-    assertThat(metadata.lineHashes[1]).containsOnly(md5("bàr"));
-    assertThat(metadata.lineHashes[2]).containsOnly(md5("\u1D11Ebaßz"));
+    assertThat(metadata.lineHashes[0]).containsExactly(md5("föo"));
+    assertThat(metadata.lineHashes[1]).containsExactly(md5("bàr"));
+    assertThat(metadata.lineHashes[2]).containsExactly(md5("\u1D11Ebaßz"));
     assertThat(metadata.lineHashes[3]).isNull();
   }
 
@@ -92,9 +92,9 @@ public class FileMetadataTest {
     assertThat(metadata.lines).isEqualTo(4);
     assertThat(metadata.hash).isEqualTo(md5Hex("föo\nbàr\n\u1D11Ebaßz\n"));
     assertThat(metadata.originalLineOffsets).containsOnly(0, 5, 10, 18);
-    assertThat(metadata.lineHashes[0]).containsOnly(md5("föo"));
-    assertThat(metadata.lineHashes[1]).containsOnly(md5("bàr"));
-    assertThat(metadata.lineHashes[2]).containsOnly(md5("\u1D11Ebaßz"));
+    assertThat(metadata.lineHashes[0]).containsExactly(md5("föo"));
+    assertThat(metadata.lineHashes[1]).containsExactly(md5("bàr"));
+    assertThat(metadata.lineHashes[2]).containsExactly(md5("\u1D11Ebaßz"));
     assertThat(metadata.lineHashes[3]).isNull();
   }
 

@@ -19,7 +19,10 @@
  */
 package org.sonar.xoo.rule;
 
+import org.sonar.api.batch.fs.FilePredicates;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
@@ -43,7 +46,9 @@ public class OneIssuePerLineSensor implements Sensor {
 
   @Override
   public void execute(SensorContext context) {
-    for (InputFile file : context.fileSystem().inputFiles(context.fileSystem().predicates().hasLanguages(Xoo.KEY))) {
+    FileSystem fs = context.fileSystem();
+    FilePredicates p = fs.predicates();
+    for (InputFile file : fs.inputFiles(p.and(p.hasLanguages(Xoo.KEY), p.hasType(Type.MAIN)))) {
       createIssues(file, context);
     }
   }

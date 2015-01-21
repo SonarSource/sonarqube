@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.scan;
 
-import org.sonar.batch.sensor.AnalyzerOptimizer;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
@@ -59,6 +57,9 @@ import org.sonar.batch.issue.ignore.pattern.IssueExclusionPatternInitializer;
 import org.sonar.batch.issue.ignore.pattern.IssueInclusionPatternInitializer;
 import org.sonar.batch.issue.ignore.scanner.IssueExclusionsLoader;
 import org.sonar.batch.issue.ignore.scanner.IssueExclusionsRegexpScanner;
+import org.sonar.batch.issue.tracking.InitialOpenIssuesSensor;
+import org.sonar.batch.issue.tracking.IssueHandlers;
+import org.sonar.batch.issue.tracking.IssueTrackingDecorator;
 import org.sonar.batch.language.LanguageDistributionDecorator;
 import org.sonar.batch.phases.DecoratorsExecutor;
 import org.sonar.batch.phases.DefaultPhaseExecutor;
@@ -75,7 +76,6 @@ import org.sonar.batch.qualitygate.QualityGateVerifier;
 import org.sonar.batch.report.ComponentsPublisher;
 import org.sonar.batch.report.IssuesPublisher;
 import org.sonar.batch.report.PublishReportJob;
-import org.sonar.batch.rule.ActiveRulesProvider;
 import org.sonar.batch.rule.ModuleQProfiles;
 import org.sonar.batch.rule.QProfileDecorator;
 import org.sonar.batch.rule.QProfileEventsDecorator;
@@ -97,6 +97,7 @@ import org.sonar.batch.scan.filesystem.ProjectFileSystemAdapter;
 import org.sonar.batch.scan.filesystem.StatusDetectionFactory;
 import org.sonar.batch.scan.maven.MavenPluginsConfigurator;
 import org.sonar.batch.scan.report.IssuesReports;
+import org.sonar.batch.sensor.AnalyzerOptimizer;
 import org.sonar.batch.sensor.DefaultSensorContext;
 import org.sonar.batch.sensor.DefaultSensorStorage;
 import org.sonar.batch.sensor.coverage.CoverageExclusions;
@@ -185,7 +186,6 @@ public class ModuleScanContainer extends ComponentContainer {
 
       // rules
       ModuleQProfiles.class,
-      new ActiveRulesProvider(),
       new RulesProfileProvider(),
       QProfileSensor.class,
       QProfileDecorator.class,
@@ -228,6 +228,11 @@ public class ModuleScanContainer extends ComponentContainer {
       NewDebtDecorator.class,
       SqaleRatingDecorator.class,
       SqaleRatingSettings.class,
+
+      // Issue tracking
+      IssueTrackingDecorator.class,
+      IssueHandlers.class,
+      InitialOpenIssuesSensor.class,
 
       QProfileEventsDecorator.class,
 

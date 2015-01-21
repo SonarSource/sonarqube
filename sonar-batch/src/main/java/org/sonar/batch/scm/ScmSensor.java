@@ -34,7 +34,7 @@ import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.batch.protocol.input.FileData;
-import org.sonar.batch.protocol.input.ProjectReferentials;
+import org.sonar.batch.protocol.input.ProjectRepository;
 import org.sonar.core.DryRunIncompatible;
 
 import java.util.LinkedList;
@@ -48,10 +48,10 @@ public final class ScmSensor implements Sensor {
   private final ProjectDefinition projectDefinition;
   private final ScmConfiguration configuration;
   private final FileSystem fs;
-  private final ProjectReferentials projectReferentials;
+  private final ProjectRepository projectReferentials;
 
   public ScmSensor(ProjectDefinition projectDefinition, ScmConfiguration configuration,
-    ProjectReferentials projectReferentials, FileSystem fs) {
+    ProjectRepository projectReferentials, FileSystem fs) {
     this.projectDefinition = projectDefinition;
     this.configuration = configuration;
     this.projectReferentials = projectReferentials;

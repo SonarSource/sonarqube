@@ -66,7 +66,7 @@ public class IssuesMediumTest {
       .newScanTask(new File(projectDir, "sonar-project.properties"))
       .start();
 
-    assertThat(result.issues()).hasSize(26);
+    assertThat(result.issues()).hasSize(14);
   }
 
   @Test
@@ -78,7 +78,7 @@ public class IssuesMediumTest {
       .property("sonar.xoo.internalKey", "OneIssuePerLine.internal")
       .start();
 
-    assertThat(result.issues()).hasSize(26 /* 26 lines */+ 3 /* 3 files */);
+    assertThat(result.issues()).hasSize(14 /* 8 + 6 lines */+ 2 /* 2 files */);
   }
 
   @Test
@@ -103,7 +103,7 @@ public class IssuesMediumTest {
       .property("sonar.issue.ignore.allfile.1.fileRegexp", "object")
       .start();
 
-    assertThat(result.issues()).hasSize(20);
+    assertThat(result.issues()).hasSize(8);
   }
 
   @Test

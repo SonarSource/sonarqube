@@ -31,7 +31,7 @@ import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.batch.protocol.input.ActiveRule;
 import org.sonar.batch.protocol.input.FileData;
-import org.sonar.batch.protocol.input.ProjectReferentials;
+import org.sonar.batch.protocol.input.ProjectRepository;
 import org.sonar.batch.protocol.input.QProfile;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
@@ -99,7 +99,7 @@ public class ProjectRepositoryLoaderMediumTest {
       dbSession);
     dbSession.commit();
 
-    ProjectReferentials ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
+    ProjectRepository ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
     Map<String, String> projectSettings = ref.settings(project.key());
     assertThat(projectSettings).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR",
@@ -124,7 +124,7 @@ public class ProjectRepositoryLoaderMediumTest {
       dbSession);
     dbSession.commit();
 
-    ProjectReferentials ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()).setPreview(true));
+    ProjectRepository ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()).setPreview(true));
     Map<String, String> projectSettings = ref.settings(project.key());
     assertThat(projectSettings).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR"
@@ -156,7 +156,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectReferentials ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
+    ProjectRepository ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
     assertThat(ref.settings(project.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR",
       "sonar.jira.login.secured", "john"
@@ -189,7 +189,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectReferentials ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
+    ProjectRepository ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
     assertThat(ref.settings(project.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR",
       "sonar.jira.login.secured", "john"
@@ -232,7 +232,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectReferentials ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
+    ProjectRepository ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
     assertThat(ref.settings(project.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR",
       "sonar.jira.login.secured", "john"
@@ -278,7 +278,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectReferentials ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
+    ProjectRepository ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
     assertThat(ref.settings(project.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR",
       "sonar.jira.login.secured", "john"
@@ -290,6 +290,28 @@ public class ProjectRepositoryLoaderMediumTest {
       ));
     assertThat(ref.settings(module2.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR-APPLICATION",
+      "sonar.jira.login.secured", "john"
+      ));
+  }
+
+  @Test
+  public void return_provisioned_project_settings() throws Exception {
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+
+    // No snapshot attached on the project -> provisioned project
+    ComponentDto project = ComponentTesting.newProjectDto();
+    tester.get(DbClient.class).componentDao().insert(dbSession, project);
+    addDefaultProfile();
+
+    // Project properties
+    tester.get(DbClient.class).propertiesDao().setProperty(new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR").setResourceId(project.getId()), dbSession);
+    tester.get(DbClient.class).propertiesDao().setProperty(new PropertyDto().setKey("sonar.jira.login.secured").setValue("john").setResourceId(project.getId()), dbSession);
+
+    dbSession.commit();
+
+    ProjectRepository ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
+    assertThat(ref.settings(project.key())).isEqualTo(ImmutableMap.of(
+      "sonar.jira.project.key", "SONAR",
       "sonar.jira.login.secured", "john"
       ));
   }
@@ -317,7 +339,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectReferentials ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(subModule.key()));
+    ProjectRepository ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(subModule.key()));
     assertThat(ref.settings(project.key())).isEmpty();
     assertThat(ref.settings(module.key())).isEmpty();
     assertThat(ref.settings(subModule.key())).isEqualTo(ImmutableMap.of(
@@ -352,7 +374,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectReferentials ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(subModule.key()));
+    ProjectRepository ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(subModule.key()));
     assertThat(ref.settings(project.key())).isEmpty();
     assertThat(ref.settings(module.key())).isEmpty();
     assertThat(ref.settings(subModule.key())).isEqualTo(ImmutableMap.of(
@@ -385,7 +407,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectReferentials ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(subModule.key()));
+    ProjectRepository ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(subModule.key()));
     assertThat(ref.settings(project.key())).isEmpty();
     assertThat(ref.settings(module.key())).isEmpty();
     assertThat(ref.settings(subModule.key())).isEqualTo(ImmutableMap.of(
@@ -419,7 +441,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectReferentials ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(subModule.key()));
+    ProjectRepository ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(subModule.key()));
     assertThat(ref.settings(project.key())).isEmpty();
     assertThat(ref.settings(module.key())).isEmpty();
     assertThat(ref.settings(subModule.key())).isEqualTo(ImmutableMap.of(
@@ -444,7 +466,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectReferentials ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
+    ProjectRepository ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
     List<QProfile> profiles = newArrayList(ref.qProfiles());
     assertThat(profiles).hasSize(1);
     assertThat(profiles.get(0).key()).isEqualTo("abcd");
@@ -468,7 +490,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectReferentials ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
+    ProjectRepository ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
     List<QProfile> profiles = newArrayList(ref.qProfiles());
     assertThat(profiles).hasSize(1);
     assertThat(profiles.get(0).key()).isEqualTo("abcd");
@@ -492,7 +514,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectReferentials ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()).setProfileName("SonarQube way"));
+    ProjectRepository ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()).setProfileName("SonarQube way"));
     List<QProfile> profiles = newArrayList(ref.qProfiles());
     assertThat(profiles).hasSize(1);
     assertThat(profiles.get(0).key()).isEqualTo("abcd");
@@ -513,7 +535,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectReferentials ref = loader.load(ProjectRepositoryQuery.create().setModuleKey("project"));
+    ProjectRepository ref = loader.load(ProjectRepositoryQuery.create().setModuleKey("project"));
     List<QProfile> profiles = newArrayList(ref.qProfiles());
     assertThat(profiles).hasSize(1);
     assertThat(profiles.get(0).key()).isEqualTo("abcd");
@@ -538,7 +560,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectReferentials ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
+    ProjectRepository ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
     List<QProfile> profiles = newArrayList(ref.qProfiles());
     assertThat(profiles).hasSize(1);
     assertThat(profiles.get(0).key()).isEqualTo("abcd");
@@ -589,7 +611,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectReferentials ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
+    ProjectRepository ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
     List<ActiveRule> activeRules = newArrayList(ref.activeRules());
     assertThat(activeRules).hasSize(1);
     assertThat(activeRules.get(0).repositoryKey()).isEqualTo("squid");
@@ -614,7 +636,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectReferentials ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
+    ProjectRepository ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
     List<ActiveRule> activeRules = newArrayList(ref.activeRules());
     assertThat(activeRules).extracting("repositoryKey").containsOnly(RuleKey.MANUAL_REPOSITORY_KEY);
     assertThat(activeRules).extracting("ruleKey").containsOnly("manualRuleKey");
@@ -671,7 +693,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectReferentials ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
+    ProjectRepository ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
     assertThat(ref.fileDataByPath(project.key())).hasSize(1);
     FileData fileData = ref.fileData(project.key(), file.path());
     assertThat(fileData.hash()).isEqualTo("123456");
@@ -700,7 +722,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectReferentials ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
+    ProjectRepository ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
     assertThat(ref.fileData(project.key(), projectFile.path()).hash()).isEqualTo("123456");
     assertThat(ref.fileData(module.key(), moduleFile.path()).hash()).isEqualTo("789456");
   }
@@ -728,7 +750,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectReferentials ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(module.key()));
+    ProjectRepository ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(module.key()));
     assertThat(ref.fileData(module.key(), moduleFile.path()).hash()).isEqualTo("789456");
     assertThat(ref.fileData(project.key(), projectFile.path())).isNull();
   }

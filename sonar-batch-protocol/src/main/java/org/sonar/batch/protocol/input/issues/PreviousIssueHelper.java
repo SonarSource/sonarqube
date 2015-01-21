@@ -70,7 +70,7 @@ public class PreviousIssueHelper implements Closeable {
     }
   }
 
-  public Iterable<PreviousIssue> getIssues(final Reader reader) {
+  public static Iterable<PreviousIssue> getIssues(final Reader reader) {
 
     return new Iterable<PreviousIssue>() {
       @Override
@@ -80,9 +80,10 @@ public class PreviousIssueHelper implements Closeable {
     };
   }
 
-  private final class PreviousIssueIterator implements Iterator<PreviousIssue> {
+  private final static class PreviousIssueIterator implements Iterator<PreviousIssue> {
 
     private JsonReader jsonreader;
+    private final Gson gson = GsonHelper.create();
 
     public PreviousIssueIterator(Reader reader) {
       try {

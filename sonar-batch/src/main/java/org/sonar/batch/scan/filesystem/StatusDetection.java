@@ -22,13 +22,13 @@ package org.sonar.batch.scan.filesystem;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.batch.protocol.input.FileData;
-import org.sonar.batch.protocol.input.ProjectReferentials;
+import org.sonar.batch.protocol.input.ProjectRepository;
 
 class StatusDetection {
 
-  private final ProjectReferentials projectReferentials;
+  private final ProjectRepository projectReferentials;
 
-  StatusDetection(ProjectReferentials projectReferentials) {
+  StatusDetection(ProjectRepository projectReferentials) {
     this.projectReferentials = projectReferentials;
   }
 

@@ -26,6 +26,7 @@ import org.sonar.batch.design.FileTangleIndexDecorator;
 import org.sonar.batch.design.MavenDependenciesSensor;
 import org.sonar.batch.design.ProjectDsmDecorator;
 import org.sonar.batch.design.SubProjectDsmDecorator;
+import org.sonar.batch.issue.tracking.IssueTracking;
 import org.sonar.batch.maven.DefaultMavenPluginExecutor;
 import org.sonar.batch.maven.MavenProjectBootstrapper;
 import org.sonar.batch.maven.MavenProjectBuilder;
@@ -65,6 +66,9 @@ public class BatchComponents {
       ScmSensor.class,
 
       LinesSensor.class,
+
+      // Issues tracking
+      IssueTracking.class,
 
       // Reports
       ConsoleReport.class,

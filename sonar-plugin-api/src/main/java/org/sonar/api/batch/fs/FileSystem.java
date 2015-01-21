@@ -48,7 +48,7 @@ import java.util.SortedSet;
  * for example :
  * <pre>
  * DefaultFileSystem fs = new DefaultFileSystem();
- * fs.add(new DefaultInputFile("src/foo/bar.php"));
+ * fs.add(new DefaultInputFile("myprojectKey", "src/foo/bar.php"));
  * </pre>
  *
  * @since 4.2

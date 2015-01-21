@@ -19,10 +19,11 @@
  */
 package org.sonar.batch.protocol.input.issues;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-public class PreviousIssue {
+import java.io.Serializable;
+
+public class PreviousIssue implements Serializable {
 
   private String key;
   private String componentKey;
@@ -30,6 +31,7 @@ public class PreviousIssue {
   private String ruleRepo;
   private Integer line;
   private String message;
+  // For manual issues and when user has overriden severity
   private String overriddenSeverity;
   private String resolution;
   private String status;
@@ -45,7 +47,7 @@ public class PreviousIssue {
     return key;
   }
 
-  public PreviousIssue setComponentKey(@Nullable String key) {
+  public PreviousIssue setComponentKey(String key) {
     this.componentKey = key;
     return this;
   }
@@ -95,7 +97,6 @@ public class PreviousIssue {
     return this;
   }
 
-  @CheckForNull
   public String overriddenSeverity() {
     return overriddenSeverity;
   }

@@ -59,11 +59,15 @@ import org.sonar.batch.index.ResourcePersister;
 import org.sonar.batch.index.SourcePersister;
 import org.sonar.batch.issue.DefaultProjectIssues;
 import org.sonar.batch.issue.IssueCache;
+import org.sonar.batch.issue.tracking.InitialOpenIssuesStack;
+import org.sonar.batch.issue.tracking.LocalIssueTracking;
+import org.sonar.batch.issue.tracking.PreviousIssueRepository;
 import org.sonar.batch.languages.DefaultLanguagesReferential;
 import org.sonar.batch.mediumtest.ScanTaskObservers;
 import org.sonar.batch.phases.GraphPersister;
 import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
-import org.sonar.batch.referential.ProjectReferentialsProvider;
+import org.sonar.batch.repository.ProjectRepositoriesProvider;
+import org.sonar.batch.rule.ActiveRulesProvider;
 import org.sonar.batch.rule.RulesProvider;
 import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.batch.scan.maven.FakeMavenPluginExecutor;
@@ -131,7 +135,7 @@ public class ProjectScanContainer extends ComponentContainer {
 
   private void addBatchComponents() {
     add(
-      new ProjectReferentialsProvider(),
+      new ProjectRepositoriesProvider(),
       DefaultResourceCreationLock.class,
       CodeColorizers.class,
       DefaultNotificationManager.class,
@@ -148,6 +152,9 @@ public class ProjectScanContainer extends ComponentContainer {
       InputPathCache.class,
       PathResolver.class,
 
+      // rules
+      new ActiveRulesProvider(),
+
       // issues
       IssueUpdater.class,
       FunctionExecutor.class,
@@ -155,6 +162,8 @@ public class ProjectScanContainer extends ComponentContainer {
       IssueCache.class,
       DefaultProjectIssues.class,
       IssueChangelogDebtCalculator.class,
+      LocalIssueTracking.class,
+      PreviousIssueRepository.class,
 
       // tests
       TestPlanPerspectiveLoader.class,
@@ -202,6 +211,9 @@ public class ProjectScanContainer extends ComponentContainer {
 
       // technical debt
       DefaultTechnicalDebtModel.class,
+
+      // Issue tracking
+      InitialOpenIssuesStack.class,
 
       ProjectLock.class);
   }

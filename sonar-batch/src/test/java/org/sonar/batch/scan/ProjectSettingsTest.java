@@ -33,7 +33,7 @@ import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.bootstrap.BootstrapProperties;
 import org.sonar.batch.bootstrap.GlobalSettings;
 import org.sonar.batch.protocol.input.GlobalReferentials;
-import org.sonar.batch.protocol.input.ProjectReferentials;
+import org.sonar.batch.protocol.input.ProjectRepository;
 
 import java.util.Collections;
 
@@ -46,7 +46,7 @@ public class ProjectSettingsTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  ProjectReferentials projectRef;
+  ProjectRepository projectRef;
   ProjectDefinition project = ProjectDefinition.create().setKey("struts");
   GlobalSettings bootstrapProps;
 
@@ -54,7 +54,7 @@ public class ProjectSettingsTest {
 
   @Before
   public void prepare() {
-    projectRef = new ProjectReferentials();
+    projectRef = new ProjectRepository();
     mode = mock(AnalysisMode.class);
     bootstrapProps = new GlobalSettings(new BootstrapProperties(Collections.<String, String>emptyMap()), new PropertyDefinitions(), new GlobalReferentials(), mode);
   }

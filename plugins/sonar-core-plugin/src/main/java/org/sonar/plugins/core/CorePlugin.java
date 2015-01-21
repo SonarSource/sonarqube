@@ -34,11 +34,6 @@ import org.sonar.plugins.core.dashboards.ProjectIssuesDashboard;
 import org.sonar.plugins.core.dashboards.ProjectTimeMachineDashboard;
 import org.sonar.plugins.core.issue.CountFalsePositivesDecorator;
 import org.sonar.plugins.core.issue.CountUnresolvedIssuesDecorator;
-import org.sonar.plugins.core.issue.InitialOpenIssuesSensor;
-import org.sonar.plugins.core.issue.InitialOpenIssuesStack;
-import org.sonar.plugins.core.issue.IssueHandlers;
-import org.sonar.plugins.core.issue.IssueTracking;
-import org.sonar.plugins.core.issue.IssueTrackingDecorator;
 import org.sonar.plugins.core.measurefilters.MyFavouritesFilter;
 import org.sonar.plugins.core.measurefilters.ProjectFilter;
 import org.sonar.plugins.core.notifications.alerts.NewAlerts;
@@ -325,13 +320,8 @@ public final class CorePlugin extends SonarPlugin {
       DistributionAreaChart.class,
 
       // issues
-      IssueTrackingDecorator.class,
-      IssueTracking.class,
-      IssueHandlers.class,
       CountUnresolvedIssuesDecorator.class,
       CountFalsePositivesDecorator.class,
-      InitialOpenIssuesSensor.class,
-      InitialOpenIssuesStack.class,
       HotspotMostViolatedRulesWidget.class,
       MyUnresolvedIssuesWidget.class,
       FalsePositiveIssuesWidget.class,
