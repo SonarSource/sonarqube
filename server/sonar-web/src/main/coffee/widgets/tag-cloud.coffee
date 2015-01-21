@@ -51,7 +51,7 @@ class TagCloud extends window.SonarWidgets.BaseWidget
   tooltip: (d) ->
     suffixKey = if d.value == 1 then 'issue' else 'issues'
     suffix = t(suffixKey)
-    "#{d.value} " + suffix
+    "#{d.value}\u00a0" + suffix
 
 
   parseSource: (response) ->
