@@ -1,8 +1,30 @@
 define([
-  'coding-rules/facets/custom-labels-facet'
-], function (CustomLabelsFacet) {
+  'coding-rules/facets/custom-values-facet'
+], function (CustomValuesFacet) {
 
-  return CustomLabelsFacet.extend({
+  return CustomValuesFacet.extend({
+
+    getUrl: function () {
+      return baseUrl + '/api/rules/repositories';
+    },
+
+    prepareAjaxSearch: function () {
+      return {
+        quietMillis: 300,
+        url: this.getUrl(),
+        data: function (term) {
+          return { q: term, ps: 10000 };
+        },
+        results: function (data) {
+          return {
+            more: false,
+            results: data.repositories.map(function (repo) {
+              return { id: repo.key, text: repo.name + ' (' + repo.language + ')' };
+            })
+          };
+        }
+      };
+    },
 
     getLabelsSource: function () {
       var repos = this.options.app.repositories;
@@ -11,14 +33,20 @@ define([
 
     getValues: function () {
       var that = this,
-          values = CustomLabelsFacet.prototype.getValues.apply(this, arguments);
-      return values.map(function (value) {
+          labels = that.getLabelsSource();
+      return this.model.getValues().map(function (value) {
         var repo = _.findWhere(that.options.app.repositories, { key: value.val });
         if (repo != null) {
           var langName = that.options.app.languages[repo.language];
           _.extend(value, { extra: langName });
         }
-        return value;
+        return _.extend(value, { label: labels[value.val] });
+      });
+    },
+
+    serializeData: function () {
+      return _.extend(CustomValuesFacet.prototype.serializeData.apply(this, arguments), {
+        values: this.getValues()
       });
     }
 
