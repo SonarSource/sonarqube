@@ -68,6 +68,7 @@ public class IssueIndexDefinition implements IndexDefinition {
   public static final String FIELD_ISSUE_MODULE_UUID = "module";
   public static final String FIELD_ISSUE_MODULE_PATH = "modulePath";
   public static final String FIELD_ISSUE_PROJECT_UUID = "project";
+  public static final String FIELD_ISSUE_DIRECTORY_PATH = "dirPath";
   public static final String FIELD_ISSUE_REPORTER = "reporter";
   public static final String FIELD_ISSUE_RESOLUTION = "resolution";
   public static final String FIELD_ISSUE_RULE_KEY = "ruleKey";
@@ -129,6 +130,7 @@ public class IssueIndexDefinition implements IndexDefinition {
     issueMapping.stringFieldBuilder(FIELD_ISSUE_MODULE_UUID).build();
     issueMapping.createUuidPathField(FIELD_ISSUE_MODULE_PATH);
     issueMapping.stringFieldBuilder(FIELD_ISSUE_PROJECT_UUID).enableSorting().build();
+    issueMapping.stringFieldBuilder(FIELD_ISSUE_DIRECTORY_PATH).build();
     issueMapping.stringFieldBuilder(FIELD_ISSUE_REPORTER).build();
     issueMapping.stringFieldBuilder(FIELD_ISSUE_RESOLUTION).build();
     issueMapping.stringFieldBuilder(FIELD_ISSUE_RULE_KEY).build();

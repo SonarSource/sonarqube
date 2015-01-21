@@ -53,8 +53,13 @@ public class IssueDoc extends BaseDoc implements Issue {
     return getField(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID);
   }
 
+  @CheckForNull
   public String moduleUuid() {
     return getField(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID);
+  }
+
+  public String modulePath() {
+    return getField(IssueIndexDefinition.FIELD_ISSUE_MODULE_PATH);
   }
 
   @Override
@@ -195,6 +200,11 @@ public class IssueDoc extends BaseDoc implements Issue {
     return getNullableField(IssueIndexDefinition.FIELD_ISSUE_FILE_PATH);
   }
 
+  @CheckForNull
+  public String directoryPath() {
+    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH);
+  }
+
   public IssueDoc setKey(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_KEY, s);
     return this;
@@ -308,6 +318,11 @@ public class IssueDoc extends BaseDoc implements Issue {
 
   public IssueDoc setFilePath(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_FILE_PATH, s);
+    return this;
+  }
+
+  public IssueDoc setDirectoryPath(@Nullable String s) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH, s);
     return this;
   }
 

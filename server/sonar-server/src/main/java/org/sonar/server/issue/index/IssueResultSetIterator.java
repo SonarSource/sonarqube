@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue.index;
 
+import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
@@ -27,6 +28,9 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.db.ResultSetIterator;
 import org.sonar.server.db.migrations.SqlUtil;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -134,8 +138,22 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
     doc.setModuleUuid(rs.getString(23));
     doc.setModuleUuidPath(rs.getString(24));
     doc.setFilePath(rs.getString(25));
+    doc.setDirectoryPath(extractDirPath(doc.filePath()));
     String tags = rs.getString(26);
     doc.setTags(ImmutableList.copyOf(TAGS_SPLITTER.split(tags == null ? "" : tags)));
     return doc;
+  }
+
+  @CheckForNull
+  private static String extractDirPath(@Nullable String filePath) {
+    if (filePath != null) {
+      StringBuilder dirPath = new StringBuilder("/");
+      int lastSlashIndex = CharMatcher.anyOf("/").lastIndexIn(filePath);
+      if (lastSlashIndex > 0) {
+        dirPath.append(filePath.substring(0, lastSlashIndex));
+      }
+      return dirPath.toString();
+    }
+    return null;
   }
 }
