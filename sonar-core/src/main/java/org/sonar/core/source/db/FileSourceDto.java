@@ -39,7 +39,6 @@ public class FileSourceDto {
   public static final int CSV_INDEX_HIGHLIGHTING = 12;
   public static final int CSV_INDEX_SYMBOLS = 13;
   public static final int CSV_INDEX_DUPLICATIONS = 14;
-  public static final int CSV_INDEX_SOURCE = 15;
 
   private Long id;
   private String projectUuid;

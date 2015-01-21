@@ -155,9 +155,10 @@ public class SourceLineResultSetIterator extends ResultSetIterator<SourceLineRes
 
         doc.setHighlighting(csvRecord.get(FileSourceDto.CSV_INDEX_HIGHLIGHTING));
         doc.setSymbols(csvRecord.get(FileSourceDto.CSV_INDEX_SYMBOLS));
-
         doc.setDuplications(parseDuplications(csvRecord.get(FileSourceDto.CSV_INDEX_DUPLICATIONS)));
-        doc.setSource(csvRecord.get(FileSourceDto.CSV_INDEX_SOURCE));
+
+        // source is always the latest field. All future fields will be added between duplications (14) and source.
+        doc.setSource(csvRecord.get(csvRecord.size()-1));
 
         result.addLine(doc);
 
