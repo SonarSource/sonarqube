@@ -8,7 +8,7 @@ module.exports = (grunt) ->
     less:
       dev:
         files:
-          '<%= pkg.assets %>css/sonar.css': [
+          '<%= grunt.option("assetsDir") || pkg.assets %>css/sonar.css': [
             '<%= pkg.sources %>less/init.less'
             '<%= pkg.sources %>less/jquery-ui.less'
             '<%= pkg.sources %>less/select2.less'
@@ -27,7 +27,7 @@ module.exports = (grunt) ->
         options:
           cleancss: true
         files:
-          '<%= pkg.assets %>css/sonar.css': [
+          '<%= grunt.option("assetsDir") || pkg.assets %>css/sonar.css': [
             '<%= pkg.sources %>less/init.less'
             '<%= pkg.sources %>less/jquery-ui.less'
             '<%= pkg.sources %>less/select2.less'
@@ -46,8 +46,8 @@ module.exports = (grunt) ->
 
     cssUrlRewrite:
       build:
-        src: '<%= pkg.assets %>css/sonar.css'
-        dest: '<%= pkg.assets %>css/sonar.css'
+        src: '<%= grunt.option("assetsDir") || pkg.assets %>css/sonar.css'
+        dest: '<%= grunt.option("assetsDir") || pkg.assets %>css/sonar.css'
         options:
           skipExternal: true
           rewriteUrl: (url, options, dataURI) ->
@@ -66,7 +66,7 @@ module.exports = (grunt) ->
           expand: true
           cwd: '<%= pkg.sources %>coffee'
           src: ['**/*.coffee']
-          dest: '<%= pkg.assets %>js'
+          dest: '<%= grunt.option("assetsDir") || pkg.assets %>js'
           ext: '.js'
         ]
 
@@ -74,97 +74,97 @@ module.exports = (grunt) ->
     concat:
       dev:
         files:
-          '<%= pkg.assets %>js/sonar.js': [
-            '<%= pkg.assets %>js/translate.js'
-            '<%= pkg.assets %>js/third-party/jquery.js'
-            '<%= pkg.assets %>js/third-party/jquery-ui.js'
-            '<%= pkg.assets %>js/third-party/d3.js'
-            '<%= pkg.assets %>js/third-party/latinize.js'
-            '<%= pkg.assets %>js/third-party/underscore.js'
-            '<%= pkg.assets %>js/third-party/backbone.js'
-            '<%= pkg.assets %>js/third-party/backbone.marionette.js'
-            '<%= pkg.assets %>js/third-party/handlebars.js'
-            '<%= pkg.assets %>js/third-party/underscore.js'
-            '<%= pkg.assets %>js/third-party/select2.js'
-            '<%= pkg.assets %>js/third-party/keymaster.js'
-            '<%= pkg.assets %>js/third-party/moment.js'
-            '<%= pkg.assets %>js/third-party/numeral.js'
-            '<%= pkg.assets %>js/third-party/numeral-languages.js'
-            '<%= pkg.assets %>js/third-party/bootstrap/tooltip.js'
-            '<%= pkg.assets %>js/third-party/bootstrap/dropdown.js'
-            '<%= pkg.assets %>js/select2-jquery-ui-fix.js'
-            '<%= pkg.assets %>js/widgets/base.js'
-            '<%= pkg.assets %>js/widgets/widget.js'
-            '<%= pkg.assets %>js/widgets/bubble-chart.js'
-            '<%= pkg.assets %>js/widgets/timeline.js'
-            '<%= pkg.assets %>js/widgets/stack-area.js'
-            '<%= pkg.assets %>js/widgets/pie-chart.js'
-            '<%= pkg.assets %>js/widgets/histogram.js'
-            '<%= pkg.assets %>js/widgets/word-cloud.js'
-            '<%= pkg.assets %>js/widgets/tag-cloud.js'
-            '<%= pkg.assets %>js/widgets/treemap.js'
-            '<%= pkg.assets %>js/graphics/pie-chart.js'
-            '<%= pkg.assets %>js/top-search.js'
-            '<%= pkg.assets %>js/sortable.js'
-            '<%= pkg.assets %>js/common/inputs.js'
-            '<%= pkg.assets %>js/common/dialogs.js'
-            '<%= pkg.assets %>js/common/processes.js'
-            '<%= pkg.assets %>js/common/jquery-isolated-scroll.js'
-            '<%= pkg.assets %>js/common/handlebars-extensions.js'
-            '<%= pkg.assets %>js/application.js'
-            '<%= pkg.assets %>js/csv.js'
-            '<%= pkg.assets %>js/dashboard.js'
-            '<%= pkg.assets %>js/recent-history.js'
+          '<%= grunt.option("assetsDir") || pkg.assets %>js/sonar.js': [
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/translate.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/third-party/jquery.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/third-party/jquery-ui.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/third-party/d3.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/third-party/latinize.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/third-party/underscore.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/third-party/backbone.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/third-party/backbone.marionette.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/third-party/handlebars.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/third-party/underscore.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/third-party/select2.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/third-party/keymaster.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/third-party/moment.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/third-party/numeral.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/third-party/numeral-languages.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/third-party/bootstrap/tooltip.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/third-party/bootstrap/dropdown.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/select2-jquery-ui-fix.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/widgets/base.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/widgets/widget.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/widgets/bubble-chart.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/widgets/timeline.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/widgets/stack-area.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/widgets/pie-chart.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/widgets/histogram.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/widgets/word-cloud.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/widgets/tag-cloud.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/widgets/treemap.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/graphics/pie-chart.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/top-search.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/sortable.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/common/inputs.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/common/dialogs.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/common/processes.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/common/jquery-isolated-scroll.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/common/handlebars-extensions.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/application.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/csv.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/dashboard.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/recent-history.js'
           ]
       build:
         files:
-          '<%= pkg.assets %>build/js/sonar.js': [
-            '<%= pkg.assets %>js/translate.js'
-            '<%= pkg.assets %>js/third-party/jquery.js'
-            '<%= pkg.assets %>js/third-party/jquery-ui.js'
-            '<%= pkg.assets %>js/third-party/d3.js'
-            '<%= pkg.assets %>js/third-party/latinize.js'
-            '<%= pkg.assets %>js/third-party/underscore.js'
-            '<%= pkg.assets %>js/third-party/backbone.js'
-            '<%= pkg.assets %>js/third-party/backbone.marionette.js'
-            '<%= pkg.assets %>js/third-party/handlebars.js'
-            '<%= pkg.assets %>js/third-party/underscore.js'
-            '<%= pkg.assets %>js/third-party/select2.js'
-            '<%= pkg.assets %>js/third-party/keymaster.js'
-            '<%= pkg.assets %>js/third-party/moment.js'
-            '<%= pkg.assets %>js/third-party/numeral.js'
-            '<%= pkg.assets %>js/third-party/numeral-languages.js'
-            '<%= pkg.assets %>js/third-party/bootstrap/tooltip.js'
-            '<%= pkg.assets %>js/third-party/bootstrap/dropdown.js'
-            '<%= pkg.assets %>js/select2-jquery-ui-fix.js'
-            '<%= pkg.assets %>js/widgets/base.js'
-            '<%= pkg.assets %>js/widgets/widget.js'
-            '<%= pkg.assets %>js/widgets/bubble-chart.js'
-            '<%= pkg.assets %>js/widgets/timeline.js'
-            '<%= pkg.assets %>js/widgets/stack-area.js'
-            '<%= pkg.assets %>js/widgets/pie-chart.js'
-            '<%= pkg.assets %>js/widgets/histogram.js'
-            '<%= pkg.assets %>js/widgets/word-cloud.js'
-            '<%= pkg.assets %>js/widgets/tag-cloud.js'
-            '<%= pkg.assets %>js/widgets/treemap.js'
-            '<%= pkg.assets %>js/graphics/pie-chart.js'
-            '<%= pkg.assets %>js/top-search.js'
-            '<%= pkg.assets %>js/sortable.js'
-            '<%= pkg.assets %>js/common/inputs.js'
-            '<%= pkg.assets %>js/common/dialogs.js'
-            '<%= pkg.assets %>js/common/processes.js'
-            '<%= pkg.assets %>js/common/jquery-isolated-scroll.js'
-            '<%= pkg.assets %>js/common/handlebars-extensions.js'
-            '<%= pkg.assets %>js/application.js'
-            '<%= pkg.assets %>js/csv.js'
-            '<%= pkg.assets %>js/dashboard.js'
-            '<%= pkg.assets %>js/recent-history.js'
+          '<%= grunt.option("assetsDir") || pkg.assets %>build/js/sonar.js': [
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/translate.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/third-party/jquery.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/third-party/jquery-ui.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/third-party/d3.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/third-party/latinize.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/third-party/underscore.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/third-party/backbone.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/third-party/backbone.marionette.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/third-party/handlebars.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/third-party/underscore.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/third-party/select2.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/third-party/keymaster.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/third-party/moment.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/third-party/numeral.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/third-party/numeral-languages.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/third-party/bootstrap/tooltip.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/third-party/bootstrap/dropdown.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/select2-jquery-ui-fix.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/widgets/base.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/widgets/widget.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/widgets/bubble-chart.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/widgets/timeline.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/widgets/stack-area.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/widgets/pie-chart.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/widgets/histogram.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/widgets/word-cloud.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/widgets/tag-cloud.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/widgets/treemap.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/graphics/pie-chart.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/top-search.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/sortable.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/common/inputs.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/common/dialogs.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/common/processes.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/common/jquery-isolated-scroll.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/common/handlebars-extensions.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/application.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/csv.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/dashboard.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/recent-history.js'
           ]
 
 
     requirejs:
       options:
-        baseUrl: '<%= pkg.assets %>js/'
+        baseUrl: '<%= grunt.option("assetsDir") || pkg.assets %>js/'
         preserveLicenseComments: false
         optimize: 'none'
 
@@ -187,59 +187,59 @@ module.exports = (grunt) ->
 
       qualityGate: options:
         name: 'quality-gate/app'
-        out: '<%= pkg.assets %>build/js/quality-gate/app.js'
+        out: '<%= grunt.option("assetsDir") || pkg.assets %>build/js/quality-gate/app.js'
 
       codingRules: options:
         name: 'coding-rules/app'
-        out: '<%= pkg.assets %>build/js/coding-rules/app.js'
+        out: '<%= grunt.option("assetsDir") || pkg.assets %>build/js/coding-rules/app.js'
 
       codingRulesShow: options:
         name: 'coding-rules/show-app'
-        out: '<%= pkg.assets %>build/js/coding-rules/show-app.js'
+        out: '<%= grunt.option("assetsDir") || pkg.assets %>build/js/coding-rules/show-app.js'
 
       issues: options:
         name: 'issues/app-new'
-        out: '<%= pkg.assets %>build/js/issues/app-new.js'
+        out: '<%= grunt.option("assetsDir") || pkg.assets %>build/js/issues/app-new.js'
 
       measures: options:
         name: 'measures/app'
-        out: '<%= pkg.assets %>build/js/measures/app.js'
+        out: '<%= grunt.option("assetsDir") || pkg.assets %>build/js/measures/app.js'
 
       selectList: options:
         name: 'common/select-list'
-        out: '<%= pkg.assets %>build/js/common/select-list.js'
+        out: '<%= grunt.option("assetsDir") || pkg.assets %>build/js/common/select-list.js'
 
       apiDocumentation: options:
         name: 'api-documentation/app'
-        out: '<%= pkg.assets %>build/js/api-documentation/app.js'
+        out: '<%= grunt.option("assetsDir") || pkg.assets %>build/js/api-documentation/app.js'
 
       drilldown: options:
         name: 'drilldown/app'
-        out: '<%= pkg.assets %>build/js/drilldown/app.js'
+        out: '<%= grunt.option("assetsDir") || pkg.assets %>build/js/drilldown/app.js'
 
       dashboard: options:
         name: 'dashboard/app'
-        out: '<%= pkg.assets %>build/js/dashboard/app.js'
+        out: '<%= grunt.option("assetsDir") || pkg.assets %>build/js/dashboard/app.js'
 
       sourceViewer: options:
         name: 'source-viewer/app'
-        out: '<%= pkg.assets %>build/js/source-viewer/app.js'
+        out: '<%= grunt.option("assetsDir") || pkg.assets %>build/js/source-viewer/app.js'
 
       design: options:
         name: 'design/app'
-        out: '<%= pkg.assets %>build/js/design/app.js'
+        out: '<%= grunt.option("assetsDir") || pkg.assets %>build/js/design/app.js'
 
       libraries: options:
         name: 'libraries/app'
-        out: '<%= pkg.assets %>build/js/libraries/app.js'
+        out: '<%= grunt.option("assetsDir") || pkg.assets %>build/js/libraries/app.js'
 
       monitoring: options:
         name: 'analysis-reports/app'
-        out: '<%= pkg.assets %>build/js/analysis-reports/app.js'
+        out: '<%= grunt.option("assetsDir") || pkg.assets %>build/js/analysis-reports/app.js'
 
       nav: options:
         name: 'nav/app'
-        out: '<%= pkg.assets %>build/js/nav/app.js'
+        out: '<%= grunt.option("assetsDir") || pkg.assets %>build/js/nav/app.js'
 
 
     handlebars:
@@ -256,42 +256,42 @@ module.exports = (grunt) ->
 
       build:
         files:
-          '<%= pkg.assets %>js/templates/navigator.js': [
+          '<%= grunt.option("assetsDir") || pkg.assets %>js/templates/navigator.js': [
             '<%= pkg.sources %>hbs/navigator/**/*.hbs'
           ]
-          '<%= pkg.assets %>js/templates/coding-rules.js': [
+          '<%= grunt.option("assetsDir") || pkg.assets %>js/templates/coding-rules.js': [
             '<%= pkg.sources %>hbs/common/**/*.hbs'
             '<%= pkg.sources %>hbs/coding-rules/**/*.hbs'
           ]
-          '<%= pkg.assets %>js/templates/quality-gates.js': [
+          '<%= grunt.option("assetsDir") || pkg.assets %>js/templates/quality-gates.js': [
             '<%= pkg.sources %>hbs/quality-gates/**/*.hbs'
           ]
-          '<%= pkg.assets %>js/templates/source-viewer.js': [
+          '<%= grunt.option("assetsDir") || pkg.assets %>js/templates/source-viewer.js': [
             '<%= pkg.sources %>hbs/source-viewer/**/*.hbs'
           ]
-          '<%= pkg.assets %>js/templates/issue.js': [
+          '<%= grunt.option("assetsDir") || pkg.assets %>js/templates/issue.js': [
             '<%= pkg.sources %>hbs/common/**/*.hbs'
             '<%= pkg.sources %>hbs/issue/**/*.hbs'
           ]
-          '<%= pkg.assets %>js/templates/issues.js': [
+          '<%= grunt.option("assetsDir") || pkg.assets %>js/templates/issues.js': [
             '<%= pkg.sources %>hbs/issues/**/*.hbs'
           ]
-          '<%= pkg.assets %>js/templates/api-documentation.js': [
+          '<%= grunt.option("assetsDir") || pkg.assets %>js/templates/api-documentation.js': [
             '<%= pkg.sources %>hbs/api-documentation/**/*.hbs'
           ]
-          '<%= pkg.assets %>js/templates/design.js': [
+          '<%= grunt.option("assetsDir") || pkg.assets %>js/templates/design.js': [
             '<%= pkg.sources %>hbs/design/**/*.hbs'
           ]
-          '<%= pkg.assets %>js/templates/libraries.js': [
+          '<%= grunt.option("assetsDir") || pkg.assets %>js/templates/libraries.js': [
             '<%= pkg.sources %>hbs/libraries/**/*.hbs'
           ]
-          '<%= pkg.assets %>js/templates/dashboard.js': [
+          '<%= grunt.option("assetsDir") || pkg.assets %>js/templates/dashboard.js': [
             '<%= pkg.sources %>hbs/dashboard/**/*.hbs'
           ]
-          '<%= pkg.assets %>js/templates/analysis-reports.js': [
+          '<%= grunt.option("assetsDir") || pkg.assets %>js/templates/analysis-reports.js': [
             '<%= pkg.sources %>hbs/analysis-reports/**/*.hbs'
           ]
-          '<%= pkg.assets %>js/templates/nav.js': [
+          '<%= grunt.option("assetsDir") || pkg.assets %>js/templates/nav.js': [
             '<%= pkg.sources %>hbs/nav/**/*.hbs'
           ]
 
@@ -299,18 +299,18 @@ module.exports = (grunt) ->
     clean:
       options:
         force: true
-      css: ['<%= pkg.assets %>css/']
-      js: ['<%= pkg.assets %>js/']
-      build: ['<%= pkg.assets %>build/']
+      css: ['<%= grunt.option("assetsDir") || pkg.assets %>css/']
+      js: ['<%= grunt.option("assetsDir") || pkg.assets %>js/']
+      build: ['<%= grunt.option("assetsDir") || pkg.assets %>build/']
 
 
     copy:
       js:
-        expand: true, cwd: '<%= pkg.sources %>js/', src: ['**'], dest: '<%= pkg.assets %>js/'
+        expand: true, cwd: '<%= pkg.sources %>js/', src: ['**'], dest: '<%= grunt.option("assetsDir") || pkg.assets %>js/'
       build:
-        expand: true, cwd: '<%= pkg.assets %>build/js/', src: ['**'], dest: '<%= pkg.assets %>js/'
+        expand: true, cwd: '<%= grunt.option("assetsDir") || pkg.assets %>build/js/', src: ['**'], dest: '<%= grunt.option("assetsDir") || pkg.assets %>js/'
       requirejs:
-        src: '<%= pkg.sources %>js/require.js', dest: '<%= pkg.assets %>js/require.js'
+        src: '<%= pkg.sources %>js/require.js', dest: '<%= grunt.option("assetsDir") || pkg.assets %>js/require.js'
 
 
     express:
@@ -353,9 +353,9 @@ module.exports = (grunt) ->
       build:
         files: [
           expand: true
-          cwd: '<%= pkg.assets %>js'
+          cwd: '<%= grunt.option("assetsDir") || pkg.assets %>js'
           src: ['**/*.js']
-          dest: '<%= pkg.assets %>js'
+          dest: '<%= grunt.option("assetsDir") || pkg.assets %>js'
           ext: '.js'
         ]
 
