@@ -21,6 +21,7 @@ package org.sonar.server.computation.issue;
 
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.util.cache.CacheLoader;
@@ -42,7 +43,7 @@ public class RuleCacheLoader implements CacheLoader<RuleKey, RuleDto> {
     try {
       return dbClient.ruleDao().getNullableByKey(session, key);
     } finally {
-      session.close();
+      MyBatis.closeQuietly(session);
     }
   }
 

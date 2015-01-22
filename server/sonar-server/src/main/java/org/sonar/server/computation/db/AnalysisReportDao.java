@@ -156,7 +156,7 @@ public class AnalysisReportDao implements DaoComponent {
     Connection connection = session.getConnection();
     InputStream stream = null;
     PreparedStatement ps = null;
-    ResultSet rs;
+    ResultSet rs = null;
     try {
       ps = connection.prepareStatement("select report_data from analysis_reports where id=?");
       ps.setLong(1, id);
@@ -175,6 +175,7 @@ public class AnalysisReportDao implements DaoComponent {
       throw new IllegalStateException(String.format("Failed to decompress report '%d'", id), e);
     } finally {
       IOUtils.closeQuietly(stream);
+      DatabaseUtils.closeQuietly(rs);
       DatabaseUtils.closeQuietly(ps);
     }
   }
