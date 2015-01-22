@@ -26,8 +26,11 @@ import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.DatabaseVersion;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.SearchClient;
+import org.sonar.server.source.index.SourceLineIndex;
+import org.sonar.server.source.index.SourceLineIndexDefinition;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -118,7 +121,8 @@ public class BackendCleanup implements ServerComponent {
       deleteManualRules(connection);
 
       // Clear inspection indexes
-      clearIndex(IndexDefinition.ISSUES);
+      clearIndex(IssueIndexDefinition.INDEX);
+      clearIndex(SourceLineIndexDefinition.INDEX);
 
     } finally {
       dbSession.close();
@@ -149,9 +153,9 @@ public class BackendCleanup implements ServerComponent {
   /**
    * Completely remove a index with all types
    */
-  public void clearIndex(IndexDefinition indexDefinition) {
+  public void clearIndex(String indexName) {
     searchClient.prepareDeleteByQuery(searchClient.prepareState().get()
-      .getState().getMetaData().concreteIndices(new String[] {indexDefinition.getIndexName()}))
+      .getState().getMetaData().concreteIndices(new String[] {indexName}))
       .setQuery(QueryBuilders.matchAllQuery())
       .get();
   }
