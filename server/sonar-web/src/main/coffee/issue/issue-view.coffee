@@ -6,12 +6,14 @@ define [
 
   'issue/views/issue-popup'
 
+  'issue/views/transitions-form-view'
   'issue/views/assign-form-view'
   'issue/views/comment-form-view'
   'issue/views/plan-form-view'
   'issue/views/set-severity-form-view'
   'issue/views/more-actions-view'
   'issue/views/rule-overlay'
+  'issue/views/tags-form-view'
 
   'templates/issue'
 
@@ -23,12 +25,14 @@ define [
 
   IssuePopup
 
+  TransitionsFormView
   AssignFormView
   CommentFormView
   PlanFormView
   SetSeverityFormView
   MoreActionsView
   RuleOverlay
+  TagsFormView
 
 ) ->
 
@@ -66,9 +70,7 @@ define [
       'click .js-issue-show-changelog': 'showChangeLog'
       'click .js-issue-more': 'showMoreActions'
       'click .js-issue-rule': 'showRule'
-      'click @ui.tagsChange': 'changeTags'
-      'click @ui.tagsEditDone': 'editDone'
-      'click @ui.tagsEditCancel': 'cancelEdit'
+      'click .js-issue-edit-tags': 'editTags'
 
 
     onRender: ->
@@ -172,22 +174,19 @@ define [
         .done =>
           @updateAfterAction true
           window.process.finishBackgroundProcess p
-        .fail (r) =>
+        .fail =>
           window.process.failBackgroundProcess p
 
 
     transition: (e) ->
-      p = window.process.addBackgroundProcess()
-      $.ajax
-        type: 'POST',
-        url: baseUrl + '/api/issues/do_transition',
-        data:
-          issue: @model.get('key')
-          transition: $(e.currentTarget).data 'transition'
-      .done =>
-        @resetIssue {}, p
-      .fail =>
-        window.process.failBackgroundProcess p
+      e.stopPropagation()
+      $('body').click()
+      @popup = new TransitionsFormView
+        triggerEl: $(e.currentTarget)
+        bottom: true
+        model: @model
+        view: @
+      @popup.render()
 
 
     setSeverity: (e) ->
@@ -265,6 +264,16 @@ define [
           model: new Backbone.Model r.rule
           large: true
         ruleOverlay.render()
+
+
+    editTags: (e)->
+      e.stopPropagation()
+      $('body').click()
+      @popup = new TagsFormView
+        triggerEl: $(e.currentTarget)
+        bottomRight: true
+        model: @model
+      @popup.render()
 
 
     changeTags: ->

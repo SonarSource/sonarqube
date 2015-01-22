@@ -36,11 +36,6 @@ define [
 
 
     bindShortcuts: ->
-      doTransition = (transition) =>
-        selectedIssueView = @getSelectedIssueEl()
-        return unless selectedIssueView
-        selectedIssueView.find("[data-transition=#{transition}]").click()
-
       doAction = (action) =>
         selectedIssueView = @getSelectedIssueEl()
         return unless selectedIssueView
@@ -58,12 +53,7 @@ define [
         @options.app.controller.closeComponentViewer()
         false
 
-      key 'c', 'componentViewer', -> doTransition 'confirm'
-      key 'c', 'componentViewer', -> doTransition 'unconfirm'
-      key 'u', 'componentViewer', -> doTransition 'mute'
-      key 'r', 'componentViewer', -> doTransition 'resolve'
-      key 'r', 'componentViewer', -> doTransition 'reopen'
-      key 'f', 'componentViewer', -> doTransition 'falsepositive'
+      key 'f', 'componentViewer', -> doAction 'transition'
       key 'a', 'componentViewer', -> doAction 'assign'
       key 'm', 'componentViewer', -> doAction 'assign-to-me'
       key 'p', 'componentViewer', -> doAction 'plan'

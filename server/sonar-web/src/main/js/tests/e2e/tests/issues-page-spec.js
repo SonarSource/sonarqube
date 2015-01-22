@@ -79,15 +79,13 @@ casper.test.begin(testName('Issue Box', 'Check Elements'), function (test) {
 
       .then(function () {
         test.assertSelectorContains('.issue.selected', "Add a 'package-info.java' file to document the");
-        test.assertExists('.issue.selected .issue-tags');
-        test.assertSelectorContains('.issue.selected .issue-tags', 'issue.no_tag');
+        test.assertExists('.issue.selected .js-issue-tags');
+        test.assertSelectorContains('.issue.selected .js-issue-tags', 'issue.no_tag');
         test.assertExists('.issue.selected .js-issue-set-severity');
         test.assertSelectorContains('.issue.selected .js-issue-set-severity', 'MAJOR');
         test.assertSelectorContains('.issue.selected', 'CONFIRMED');
-        test.assertElementCount('.issue.selected .js-issue-transition', 3);
-        test.assertExists('.issue.selected [data-transition=unconfirm]');
-        test.assertExists('.issue.selected [data-transition=resolve]');
-        test.assertExists('.issue.selected [data-transition=falsepositive]');
+        test.assertElementCount('.issue.selected .js-issue-transition', 1);
+        test.assertExists('.issue.selected .js-issue-transition');
         test.assertExists('.issue.selected .js-issue-assign');
         test.assertSelectorContains('.issue.selected .js-issue-assign', 'unassigned');
         test.assertExists('.issue.selected .js-issue-plan');
@@ -111,25 +109,31 @@ casper.test.begin(testName('Issue Box', 'Tags'), function (test) {
         lib.mockRequest('/api/l10n/index', '{}');
         lib.mockRequestFromFile('/api/issue_filters/app', 'app.json');
         lib.mockRequestFromFile('/api/issues/search', 'search-with-tags.json');
-        this.showMock = lib.mockRequestFromFile('/api/issues/show*', 'show-with-tags.json');
+        lib.mockRequestFromFile('/api/issues/tags', 'tags.json');
+        lib.mockRequestFromFile('/api/issues/set_tags', 'tags-modified.json');
       })
 
       .then(function () {
-        casper.waitForSelector('.issue.selected .issue-tags', function () {
-          test.assertSelectorContains('.issue.selected .issue-tags', 'security, cwe');
-          lib.mockRequestFromFile('/api/issues/tags*', 'tags.json');
-          casper.click('.issue.selected .issue-tag-list');
+        casper.waitForSelector('.issue.selected .js-issue-tags');
+      })
 
-          casper.waitForSelector('.issue.selected .select2-input', function () {
-            lib.mockRequestFromFile('/api/issues/set_tags', 'tags-modified.json');
-            casper.click('.issue.selected .issue-tag-edit-done');
-            casper.waitWhileVisible('.issue.selected .issue-tag-edit');
-            casper.waitUntilVisible('.issue.selected .issue-tag-list', function () {
-              // TODO Find a way to have this assertion work
-              // test.assertSelectorContains('.issue.selected .issue-tags .issue-tag-list', 'security, cwe, cert');
-            });
-          });
-        });
+      .then(function () {
+        test.assertSelectorContains('.issue.selected .js-issue-tags', 'security, cwe');
+        casper.click('.issue.selected .js-issue-edit-tags');
+      })
+
+      .then(function () {
+        casper.waitForSelector('.issue-action-option[data-value=design]');
+      })
+
+      .then(function () {
+        casper.click('.issue-action-option[data-value=design]');
+        test.assertSelectorContains('.issue.selected .js-issue-tags', 'security, cwe, design');
+      })
+
+      .then(function () {
+        casper.click('.issue-action-option[data-value=cwe]');
+        test.assertSelectorContains('.issue.selected .js-issue-tags', 'security, design');
       })
 
       .run(function () {
@@ -146,54 +150,23 @@ casper.test.begin(testName('Issue Box', 'Transitions'), function (test) {
         lib.mockRequest('/api/l10n/index', '{}');
         lib.mockRequestFromFile('/api/issue_filters/app', 'app.json');
         lib.mockRequestFromFile('/api/issues/search', 'search.json');
-        this.showMock = lib.mockRequestFromFile('/api/issues/show*', 'show.json');
+        lib.mockRequestFromFile('/api/issues/show*', 'show.json');
         lib.mockRequest('/api/issues/do_transition', '{}');
       })
 
       .then(function () {
-        casper.waitForSelector('.issue.selected [data-transition=unconfirm]', function () {
-          test.assertExists('.issue.selected [data-transition=unconfirm]');
-          test.assertExists('.issue.selected [data-transition=resolve]');
-          test.assertExists('.issue.selected [data-transition=falsepositive]');
-          lib.clearRequestMock(this.showMock);
-          this.showMock = lib.mockRequestFromFile('/api/issues/show*', 'show-open.json');
-          casper.click('.issue.selected [data-transition=unconfirm]');
-        });
+        casper.waitForSelector('.issue.selected .js-issue-transition');
       })
 
       .then(function () {
-        casper.waitForSelector('.issue.selected [data-transition=confirm]', function () {
-          test.assertExists('.issue.selected [data-transition=resolve]');
-          test.assertExists('.issue.selected [data-transition=falsepositive]');
-          lib.clearRequestMock(this.showMock);
-          this.showMock = lib.mockRequestFromFile('/api/issues/show*', 'show-resolved.json');
-          casper.click('.issue.selected [data-transition=resolve]');
-        });
+        casper.click('.issue.selected .js-issue-transition');
+        casper.waitForSelector('.issue-action-option');
       })
 
       .then(function () {
-        casper.waitForSelector('.issue.selected [data-transition=reopen]', function () {
-          lib.clearRequestMock(this.showMock);
-          this.showMock = lib.mockRequestFromFile('/api/issues/show*', 'show-open.json');
-          casper.click('.issue.selected [data-transition=reopen]');
-        });
-      })
-
-      .then(function () {
-        casper.waitForSelector('.issue.selected [data-transition=confirm]', function () {
-          test.assertExists('.issue.selected [data-transition=confirm]');
-          test.assertExists('.issue.selected [data-transition=resolve]');
-          test.assertExists('.issue.selected [data-transition=falsepositive]');
-          lib.clearRequestMock(this.showMock);
-          this.showMock = lib.mockRequestFromFile('/api/issues/show*', 'show-resolved.json');
-          casper.click('.issue.selected [data-transition=falsepositive]');
-        });
-      })
-
-      .then(function () {
-        casper.waitForSelector('.issue.selected [data-transition=reopen]', function () {
-          test.assertExists('.issue.selected [data-transition=reopen]');
-        });
+        test.assertExists('.issue-action-option[data-value=unconfirm]');
+        test.assertExists('.issue-action-option[data-value=resolve]');
+        test.assertExists('.issue-action-option[data-value=falsepositive]');
       })
 
       .run(function () {

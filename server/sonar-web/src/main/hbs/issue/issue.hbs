@@ -2,14 +2,13 @@
   <tr>
     <td>
       <div class="issue-message">{{message}}</div>
+      <div class="issue-message">
+        <a class="issue-rule js-issue-rule">{{ruleName}}</a>
+      </div>
     </td>
 
     <td class="issue-table-meta-cell">
       <div class="issue-meta-list">
-        <div class="issue-meta">
-          <a class="issue-action js-issue-rule">Rule</a>
-        </div>
-
         {{#if debt}}
           <div class="issue-meta">
             <span class="issue-meta-label">{{t 'issue.debt'}} {{debt}}</span>
@@ -51,18 +50,15 @@
         </div>
 
         <div class="issue-meta">
-          {{statusHelper status resolution}}
+          {{#notEmpty transitions}}
+            <a class="issue-action issue-action-with-options js-issue-transition">
+              <span class="issue-meta-label">{{statusHelper status resolution}}</span>&nbsp;<i
+                class="icon-dropdown"></i>
+            </a>
+          {{else}}
+            {{statusHelper status resolution}}
+          {{/notEmpty}}
         </div>
-
-        {{#notEmpty transitions}}
-          <div class="issue-meta">
-            {{#each transitions}}
-              <a class="issue-action js-issue-transition" data-transition="{{this}}">
-                <span class="issue-meta-label">{{t 'issue.transition' this}}</span>
-              </a>
-            {{/each}}
-          </div>
-        {{/notEmpty}}
 
         <div class="issue-meta">
           {{#inArray actions "assign"}}
@@ -97,7 +93,7 @@
         {{#inArray actions "comment"}}
           <div class="issue-meta">
             <a class="issue-action js-issue-comment"><span
-                class="issue-meta-label">{{t 'issue.comment.formlink' }}</span></a>
+                class="issue-meta-label"><i class="icon-comment"></i></span></a>
           </div>
         {{/inArray}}
 
@@ -112,18 +108,16 @@
     </td>
 
     <td class="issue-table-meta-cell">
-      <div class="issue-tags">
-        <span class="issue-tag-list {{#inArray actions "set_tags"}}js-issue-edit-tags{{/inArray}}">
-          <i class="icon-tags"></i>
-          <span class="issue-meta">{{#if tags}}{{join tags ', '}}{{else}}{{t 'issue.no_tag'}}{{/if}}</span>
-        </span>
+      <div class="issue-meta js-issue-tags">
         {{#inArray actions "set_tags"}}
-          <span class="issue-meta issue-tag-edit">
-            <input class="issue-tag-input" type="text" value="{{#if tags}}{{join tags ','}}{{/if}}">
-            <span class="button-group">
-              <button class="issue-tag-edit-done">{{t 'Done'}}</button>
-            </span>
-            <a class="issue-tag-edit-cancel">{{t 'cancel'}}</a>
+          <a class="issue-action issue-action-with-options js-issue-edit-tags">
+            <span>
+              <i class="icon-tags"></i>&nbsp;<span>{{#if tags}}{{join tags ', '}}{{else}}{{t 'issue.no_tag'}}{{/if}}</span>
+            </span>&nbsp;<i class="icon-dropdown"></i>
+          </a>
+        {{else}}
+          <span>
+            <i class="icon-tags"></i>&nbsp;<span>{{#if tags}}{{join tags ', '}}{{else}}{{t 'issue.no_tag'}}{{/if}}</span>
           </span>
         {{/inArray}}
       </div>

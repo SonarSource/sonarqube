@@ -12,12 +12,12 @@ define [
     template: Templates['issue-set-severity-form']
 
 
-    getSeverity: ->
+    getTransition: ->
       @model.get 'severity'
 
 
     selectInitialOption: ->
-      @makeActive @getOptions().filter("[data-value=#{@getSeverity()}]")
+      @makeActive @getOptions().filter("[data-value=#{@getTransition()}]")
 
 
     selectOption: (e) ->
@@ -27,7 +27,7 @@ define [
 
 
     submit: (severity) ->
-      _severity = @getSeverity()
+      _severity = @getTransition()
       return if severity == _severity
       p = window.process.addBackgroundProcess()
       @model.set severity: severity

@@ -36,11 +36,11 @@ define [
 
     onRender: ->
       super
-      @renderAssignees()
+      @renderTags()
       setTimeout (=> @$('input').focus()), 100
 
 
-    renderAssignees: ->
+    renderTags: ->
       @$('.issue-action-option').remove()
       @getAssignees().forEach @renderAssignee, @
       @selectInitialOption()
@@ -118,7 +118,7 @@ define [
       @assignees = users.map (user) ->
         id: user.login
         text: user.name
-      @renderAssignees()
+      @renderTags()
 
 
     getAssignees: ->

@@ -1,0 +1,15 @@
+<a href="#" class="issue-action-option" data-value="{{tag}}" data-text="{{tag}}"
+   {{#if selected}}data-selected{{/if}}>
+
+  {{#if selected}}
+    <i class="icon-checkbox icon-checkbox-checked"></i>
+  {{else}}
+    <i class="icon-checkbox"></i>
+  {{/if}}
+
+  {{#if custom}}
+    + {{tag}}
+  {{else}}
+    {{tag}}
+  {{/if}}
+</a>

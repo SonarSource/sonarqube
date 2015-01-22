@@ -25,12 +25,6 @@ define [
 
 
     bindShortcuts: ->
-      doTransition = (transition) =>
-        selectedIssue = @collection.at @options.app.state.get 'selectedIndex'
-        return unless selectedIssue?
-        selectedIssueView = @children.findByModel selectedIssue
-        selectedIssueView.$("[data-transition=#{transition}]").click()
-
       doAction = (action) =>
         selectedIssue = @collection.at @options.app.state.get 'selectedIndex'
         return unless selectedIssue?
@@ -44,12 +38,7 @@ define [
         @options.app.controller.showComponentViewer selectedIssue
         return false
 
-      key 'c', 'list', -> doTransition 'confirm'
-      key 'c', 'list', -> doTransition 'unconfirm'
-      key 'u', 'list', -> doTransition 'mute'
-      key 'r', 'list', -> doTransition 'resolve'
-      key 'r', 'list', -> doTransition 'reopen'
-      key 'f', 'list', -> doTransition 'falsepositive'
+      key 'f', 'list', -> doAction 'transition'
       key 'a', 'list', -> doAction 'assign'
       key 'm', 'list', -> doAction 'assign-to-me'
       key 'p', 'list', -> doAction 'plan'
