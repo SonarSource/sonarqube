@@ -195,6 +195,21 @@ public class IssueIndexMediumTest {
   }
 
   @Test
+  public void filter_by_directories() throws Exception {
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file1 = ComponentTesting.newFileDto(project).setPath("src/main/xoo/F1.xoo");
+    ComponentDto file2 = ComponentTesting.newFileDto(project).setPath("F2.xoo");
+
+    indexIssues(
+      IssueTesting.newDoc("ISSUE1", file1).setDirectoryPath("/src/main/xoo"),
+      IssueTesting.newDoc("ISSUE2", file2).setDirectoryPath("/"));
+
+    assertThat(index.search(IssueQuery.builder().directories(newArrayList("/src/main/xoo")).build(), new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().directories(newArrayList("/")).build(), new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().directories(newArrayList("unknown")).build(), new QueryContext()).getHits()).isEmpty();
+  }
+
+  @Test
   public void filter_by_severities() throws Exception {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);

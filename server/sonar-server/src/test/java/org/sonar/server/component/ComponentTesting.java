@@ -34,38 +34,37 @@ public class ComponentTesting {
   }
 
   public static ComponentDto newFileDto(ComponentDto module, String fileUuid) {
-    return new ComponentDto()
-      .setUuid(fileUuid)
-      .setProjectUuid(module.projectUuid())
-      .setModuleUuid(module.uuid())
-      .setModuleUuidPath(module.moduleUuidPath() + module.uuid() + MODULE_UUID_PATH_SEP)
+    return newComponent(module, fileUuid)
       .setKey("KEY_" + fileUuid)
       .setName("NAME_" + fileUuid)
       .setLongName("LONG_NAME_" + fileUuid)
-      .setParentProjectId(module.getId())
       .setScope(Scopes.FILE)
       .setQualifier(Qualifiers.FILE)
       .setPath("src/main/xoo/org/sonar/samples/File.xoo")
-      .setLanguage("xoo")
-      .setEnabled(true);
+      .setLanguage("xoo");
+  }
+
+  public static ComponentDto newDirectory(ComponentDto module, String path) {
+    String uuid = Uuids.create();
+    return newComponent(module, uuid)
+      .setKey(!path.equals("/") ? module.getKey() + ":" + path : module.getKey() + ":/")
+      .setName(path)
+      .setLongName(path)
+      .setPath(path)
+      .setScope(Scopes.DIRECTORY)
+      .setQualifier(Qualifiers.DIRECTORY);
   }
 
   public static ComponentDto newModuleDto(ComponentDto subProjectOrProject) {
     String uuid = Uuids.create();
-    return new ComponentDto()
-      .setUuid(Uuids.create())
-      .setProjectUuid(subProjectOrProject.projectUuid())
-      .setModuleUuid(subProjectOrProject.uuid())
-      .setModuleUuidPath(subProjectOrProject.moduleUuidPath() + subProjectOrProject.uuid() + MODULE_UUID_PATH_SEP)
+    return newComponent(subProjectOrProject, uuid)
       .setKey("KEY_" + uuid)
       .setName("NAME_" + uuid)
       .setLongName("LONG_NAME_" + uuid)
-      .setParentProjectId(subProjectOrProject.getId())
+      .setPath("module")
       .setScope(Scopes.PROJECT)
       .setQualifier(Qualifiers.MODULE)
-      .setPath("module")
-      .setLanguage(null)
-      .setEnabled(true);
+      .setLanguage(null);
   }
 
   public static ComponentDto newProjectDto() {
@@ -77,14 +76,24 @@ public class ComponentTesting {
       .setUuid(uuid)
       .setProjectUuid(uuid)
       .setModuleUuidPath(MODULE_UUID_PATH_SEP)
+      .setParentProjectId(null)
       .setKey("KEY_" + uuid)
       .setName("NAME_" + uuid)
       .setLongName("LONG_NAME_" + uuid)
-      .setParentProjectId(null)
       .setScope(Scopes.PROJECT)
       .setQualifier(Qualifiers.PROJECT)
       .setPath(null)
       .setLanguage(null)
+      .setEnabled(true);
+  }
+
+  private static ComponentDto newComponent(ComponentDto module, String uuid) {
+    return new ComponentDto()
+      .setUuid(uuid)
+      .setProjectUuid(module.projectUuid())
+      .setModuleUuid(module.uuid())
+      .setModuleUuidPath(module.moduleUuidPath() + module.uuid() + MODULE_UUID_PATH_SEP)
+      .setParentProjectId(module.getId())
       .setEnabled(true);
   }
 }

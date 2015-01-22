@@ -94,6 +94,7 @@ public class IssueQueryServiceTest {
     map.put("components", componentKeys);
     ArrayList<String> moduleKeys = newArrayList("org.sonar");
     map.put("moduleKeys", moduleKeys);
+    map.put("directories", newArrayList("/src/main/java/example"));
     map.put("reporters", newArrayList("marilyn"));
     map.put("assignees", newArrayList("joanna"));
     map.put("languages", newArrayList("xoo"));
@@ -141,6 +142,7 @@ public class IssueQueryServiceTest {
     assertThat(query.planned()).isTrue();
     assertThat(query.hideRules()).isTrue();
     assertThat(query.rules()).hasSize(2);
+    assertThat(query.directories()).containsOnly("/src/main/java/example");
     assertThat(query.createdAfter()).isEqualTo(DateUtils.parseDateTime("2013-04-16T09:08:24+0200"));
     assertThat(query.createdBefore()).isEqualTo(DateUtils.parseDateTime("2013-04-17T09:08:24+0200"));
     assertThat(query.sort()).isEqualTo(IssueQuery.SORT_BY_CREATION_DATE);

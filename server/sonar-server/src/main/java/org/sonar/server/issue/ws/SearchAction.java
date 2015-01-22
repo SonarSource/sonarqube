@@ -63,13 +63,7 @@ import org.sonar.server.user.UserSession;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -244,6 +238,10 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       .setDescription("To retrieve issues associated to a specific list of modules (comma-separated list of module UUIDs). " +
         INTERNAL_PARAMETER_DISCLAIMER +
         "Views are not supported. If this parameter is set, moduleKeys must not be set.")
+      .setExampleValue("7d8749e8-3070-4903-9188-bdd82933bb92");
+
+    action.createParam(IssueFilterParameters.DIRECTORIES)
+      .setDescription("Since 5.1. To retrieve issues associated to a specific list of directories (comma-separated list of directory paths). ")
       .setExampleValue("7d8749e8-3070-4903-9188-bdd82933bb92");
 
     action.createParam(IssueFilterParameters.ON_COMPONENT_ONLY)
@@ -545,7 +543,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
   }
 
   private void writeTags(Issue issue, JsonWriter json) {
-    Collection<String> tags = ((IssueDoc) issue).tags();
+    Collection<String> tags = issue.tags();
     if (tags != null && !tags.isEmpty()) {
       json.name("tags").beginArray();
       for (String tag: tags) {

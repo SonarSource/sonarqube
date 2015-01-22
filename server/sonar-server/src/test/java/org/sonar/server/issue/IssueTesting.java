@@ -68,6 +68,7 @@ public class IssueTesting {
     doc.setComponentUuid("FILE_1");
     doc.setEffortToFix(3.14);
     doc.setFilePath("src/Foo.xoo");
+    doc.setDirectoryPath("/src");
     doc.setMessage("the message");
     doc.setModuleUuid("MODULE_1");
     doc.setModuleUuidPath("MODULE_1");

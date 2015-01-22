@@ -270,6 +270,8 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
 
       FilterBuilder compositeFilter = componentFilter(componentUuids);
       filters.put(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, compositeFilter);
+
+      filters.put(IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH, matchFilter(IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH, query.directories()));
     }
   }
 

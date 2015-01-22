@@ -32,14 +32,12 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.component.SnapshotDto;
 import org.sonar.core.issue.db.*;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.user.UserDto;
 import org.sonar.server.component.ComponentTesting;
-import org.sonar.server.component.SnapshotTesting;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.IssueTesting;
@@ -65,10 +63,6 @@ public class SearchActionMediumTest {
   DbClient db;
   DbSession session;
   WsTester wsTester;
-  RuleDto rule;
-  ComponentDto project;
-  ComponentDto file;
-  ComponentDto otherFile;
 
   @Before
   public void setUp() throws Exception {
@@ -76,41 +70,6 @@ public class SearchActionMediumTest {
     db = tester.get(DbClient.class);
     wsTester = tester.get(WsTester.class);
     session = db.openSession(false);
-
-    rule = RuleTesting.newXooX1()
-      .setName("Rule name")
-      .setDescription("Rule desc")
-      .setStatus(RuleStatus.READY);
-    tester.get(RuleDao.class).insert(session, rule);
-
-    project = ComponentTesting.newProjectDto().setUuid("ABCD").setProjectUuid("ABCD")
-      .setKey("MyProject");
-    db.componentDao().insert(session, project);
-    db.snapshotDao().insert(session, SnapshotTesting.createForProject(project));
-    session.commit();
-
-    // project can be seen by anyone
-    MockUserSession.set().setLogin("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-    tester.get(InternalPermissionService.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(UserRole.USER));
-    tester.get(InternalPermissionService.class).addPermission(
-      new PermissionChange().setComponentKey(project.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(UserRole.CODEVIEWER));
-
-    file = ComponentTesting.newFileDto(project).setUuid("BCDE")
-      .setKey("MyComponent")
-      .setParentProjectId(project.getId());
-    db.componentDao().insert(session, file);
-
-    otherFile = ComponentTesting.newFileDto(project).setUuid("FEDC")
-      .setKey("OtherComponent")
-      .setParentProjectId(project.getId());
-    db.componentDao().insert(session, otherFile);
-
-    UserDto john = new UserDto().setLogin("john").setName("John").setEmail("john@email.com");
-    db.userDao().insert(session, john);
-
-    session.commit();
-
-    MockUserSession.set().setLogin("john").addComponentPermission(UserRole.CODEVIEWER, project.getKey(), file.getKey()).setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   }
 
   @After
@@ -129,7 +88,7 @@ public class SearchActionMediumTest {
     assertThat(show.isPost()).isFalse();
     assertThat(show.isInternal()).isFalse();
     assertThat(show.responseExampleAsString()).isNotEmpty();
-    assertThat(show.params()).hasSize(37);
+    assertThat(show.params()).hasSize(38);
   }
 
   @Test
@@ -146,7 +105,10 @@ public class SearchActionMediumTest {
     db.userDao().insert(session, new UserDto().setLogin("simon").setName("Simon").setEmail("simon@email.com"));
     db.userDao().insert(session, new UserDto().setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
 
-    IssueDto issue = IssueTesting.newDto(rule, file, project)
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    setDefaultProjectPermission(project);
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
+    IssueDto issue = IssueTesting.newDto(newRule(), file, project)
       .setDebt(10L)
       .setStatus("OPEN").setResolution("OPEN")
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
@@ -168,8 +130,10 @@ public class SearchActionMediumTest {
 
   @Test
   public void issues_on_different_projects() throws Exception {
-    db.userDao().insert(session, new UserDto().setLogin("simon").setName("Simon").setEmail("simon@email.com"));
-
+    RuleDto rule = newRule();
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    setDefaultProjectPermission(project);
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
     IssueDto issue = IssueTesting.newDto(rule, file, project)
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
       .setStatus("OPEN").setResolution("OPEN")
@@ -178,22 +142,9 @@ public class SearchActionMediumTest {
       .setIssueUpdateDate(DateUtils.parseDate("2017-12-04"));
     db.issueDao().insert(session, issue);
 
-    ComponentDto project2 = ComponentTesting.newProjectDto().setUuid("DBCA").setProjectUuid("DBCA")
-      .setKey("MyProject2");
-    db.componentDao().insert(session, project2);
-    db.snapshotDao().insert(session, SnapshotTesting.createForProject(project2));
-    session.commit();
-
-    tester.get(InternalPermissionService.class)
-      .addPermission(new PermissionChange().setComponentKey(project2.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(UserRole.USER));
-    tester.get(InternalPermissionService.class).addPermission(
-      new PermissionChange().setComponentKey(project2.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(UserRole.CODEVIEWER));
-
-    ComponentDto file2 = ComponentTesting.newFileDto(project2).setUuid("EDCB")
-      .setKey("MyComponent2")
-      .setParentProjectId(project2.getId());
-    db.componentDao().insert(session, file2);
-
+    ComponentDto project2 = insertComponent(ComponentTesting.newProjectDto("DBCA").setKey("MyProject2"));
+    setDefaultProjectPermission(project2);
+    ComponentDto file2 = insertComponent(ComponentTesting.newFileDto(project2, "EDCB").setKey("MyComponent2"));
     IssueDto issue2 = IssueTesting.newDto(rule, file2, project2)
       .setKee("92fd47d4-b650-4037-80bc-7b112bd4eac2")
       .setStatus("OPEN").setResolution("OPEN")
@@ -210,9 +161,14 @@ public class SearchActionMediumTest {
 
   @Test
   public void issue_with_comment() throws Exception {
+    db.userDao().insert(session, new UserDto().setLogin("john").setName("John").setEmail("john@email.com"));
     db.userDao().insert(session, new UserDto().setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
 
-    IssueDto issue = IssueTesting.newDto(rule, file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2");
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    setDefaultProjectPermission(project);
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
+    IssueDto issue = IssueTesting.newDto(newRule(), file, project)
+      .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2");
     db.issueDao().insert(session, issue);
 
     tester.get(IssueChangeDao.class).insert(session,
@@ -232,14 +188,16 @@ public class SearchActionMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
+    MockUserSession.set().setLogin("john");
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).execute();
     result.assertJson(this.getClass(), "issue_with_comment.json", false);
   }
 
   @Test
   public void issue_with_action_plan() throws Exception {
-    db.userDao().insert(session, new UserDto().setLogin("simon").setName("Simon").setEmail("simon@email.com"));
-    db.userDao().insert(session, new UserDto().setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    setDefaultProjectPermission(project);
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
 
     tester.get(ActionPlanDao.class).save(new ActionPlanDto()
       .setKey("AP-ABCD")
@@ -251,7 +209,8 @@ public class SearchActionMediumTest {
       .setCreatedAt(DateUtils.parseDateTime("2014-01-22T19:10:03+0100"))
       .setUpdatedAt(DateUtils.parseDateTime("2014-01-23T19:10:03+0100")));
 
-    IssueDto issue = IssueTesting.newDto(rule, file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
+    IssueDto issue = IssueTesting.newDto(newRule(), file, project)
+      .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
       .setActionPlanKey("AP-ABCD");
     db.issueDao().insert(session, issue);
     session.commit();
@@ -263,7 +222,10 @@ public class SearchActionMediumTest {
 
   @Test
   public void issue_with_attributes() throws Exception {
-    IssueDto issue = IssueTesting.newDto(rule, file, project)
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    setDefaultProjectPermission(project);
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
+    IssueDto issue = IssueTesting.newDto(newRule(), file, project)
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
       .setIssueAttributes(KeyValueFormat.format(ImmutableMap.of("jira-issue-key", "SONAR-1234")));
     db.issueDao().insert(session, issue);
@@ -278,6 +240,9 @@ public class SearchActionMediumTest {
   public void issue_with_extra_fields() throws Exception {
     db.userDao().insert(session, new UserDto().setLogin("simon").setName("Simon").setEmail("simon@email.com"));
     db.userDao().insert(session, new UserDto().setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    setDefaultProjectPermission(project);
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
 
     tester.get(ActionPlanDao.class).save(new ActionPlanDto()
       .setKey("AP-ABCD")
@@ -286,7 +251,7 @@ public class SearchActionMediumTest {
       .setProjectId(project.getId())
       .setUserLogin("simon"));
 
-    IssueDto issue = IssueTesting.newDto(rule, file, project)
+    IssueDto issue = IssueTesting.newDto(newRule(), file, project)
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
       .setAuthorLogin("John")
       .setAssignee("simon")
@@ -296,6 +261,7 @@ public class SearchActionMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
+    MockUserSession.set().setLogin("john");
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam("extra_fields", "actions,transitions,assigneeName,reporterName,actionPlanName").execute();
     result.assertJson(this.getClass(), "issue_with_extra_fields.json", false);
@@ -303,11 +269,12 @@ public class SearchActionMediumTest {
 
   @Test
   public void issue_linked_on_removed_file() throws Exception {
-    ComponentDto removedFile = ComponentTesting.newFileDto(project).setUuid("EDCB")
+    RuleDto rule = newRule();
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    setDefaultProjectPermission(project);
+    ComponentDto removedFile = insertComponent(ComponentTesting.newFileDto(project).setUuid("EDCB")
       .setEnabled(false)
-      .setKey("RemovedComponent")
-      .setParentProjectId(project.getId());
-    db.componentDao().insert(session, removedFile);
+      .setKey("RemovedComponent"));
 
     IssueDto issue = IssueTesting.newDto(rule, removedFile, project)
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
@@ -326,7 +293,10 @@ public class SearchActionMediumTest {
 
   @Test
   public void issue_contains_component_id_for_eclipse() throws Exception {
-    IssueDto issue = IssueTesting.newDto(rule, file, project);
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    setDefaultProjectPermission(project);
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
+    IssueDto issue = IssueTesting.newDto(newRule(), file, project);
     db.issueDao().insert(session, issue);
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
@@ -337,7 +307,11 @@ public class SearchActionMediumTest {
 
   @Test
   public void search_by_project_uuid() throws Exception {
-    db.issueDao().insert(session, IssueTesting.newDto(rule, file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2"));
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    setDefaultProjectPermission(project);
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
+    IssueDto issue = IssueTesting.newDto(newRule(), file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2");
+    db.issueDao().insert(session, issue);
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
@@ -354,7 +328,11 @@ public class SearchActionMediumTest {
 
   @Test
   public void search_by_component_uuid() throws Exception {
-    db.issueDao().insert(session, IssueTesting.newDto(rule, file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2"));
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    setDefaultProjectPermission(project);
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
+    IssueDto issue = IssueTesting.newDto(newRule(), file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2");
+    db.issueDao().insert(session, issue);
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
@@ -370,7 +348,33 @@ public class SearchActionMediumTest {
   }
 
   @Test
+  public void search_by_directory_path() throws Exception {
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    setDefaultProjectPermission(project);
+    ComponentDto directory = insertComponent(ComponentTesting.newDirectory(project, "src/main/java/dir"));
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent").setPath(directory.path() + "/MyComponent.java"));
+    IssueDto issue = IssueTesting.newDto(newRule(), file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2");
+    db.issueDao().insert(session, issue);
+    session.commit();
+    tester.get(IssueIndexer.class).indexAll();
+
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+      .setParam(IssueFilterParameters.DIRECTORIES, "/src/main/java/dir")
+      .execute()
+      .assertJson(this.getClass(), "search_by_file_uuid.json", false);
+
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+      .setParam(IssueFilterParameters.DIRECTORIES, "/src/main/java")
+      .execute()
+      .assertJson(this.getClass(), "no_issue.json", false);
+  }
+
+  @Test
   public void ignore_paging_with_one_component() throws Exception {
+    RuleDto rule = newRule();
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    setDefaultProjectPermission(project);
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
     for (int i = 0; i < QueryContext.MAX_LIMIT + 1; i++) {
       IssueDto issue = IssueTesting.newDto(rule, file, project);
       tester.get(IssueDao.class).insert(session, issue);
@@ -387,12 +391,18 @@ public class SearchActionMediumTest {
 
   @Test
   public void apply_paging_with_multiple_components() throws Exception {
+    RuleDto rule = newRule();
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    setDefaultProjectPermission(project);
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
     for (int i = 0; i < QueryContext.MAX_LIMIT + 1; i++) {
       IssueDto issue = IssueTesting.newDto(rule, file, project);
       tester.get(IssueDao.class).insert(session, issue);
     }
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
+
+    ComponentDto otherFile = insertComponent(ComponentTesting.newFileDto(project).setUuid("FEDC").setKey("OtherComponent"));
 
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENTS, file.getKey() + "," + otherFile.getKey())
@@ -403,6 +413,10 @@ public class SearchActionMediumTest {
 
   @Test
   public void apply_paging_with_one_component() throws Exception {
+    RuleDto rule = newRule();
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    setDefaultProjectPermission(project);
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
     for (int i = 0; i < QueryContext.MAX_LIMIT + 1; i++) {
       IssueDto issue = IssueTesting.newDto(rule, file, project);
       tester.get(IssueDao.class).insert(session, issue);
@@ -416,26 +430,11 @@ public class SearchActionMediumTest {
 
   @Test
   public void components_contains_sub_projects() throws Exception {
-    ComponentDto project = ComponentTesting.newProjectDto().setKey("ProjectHavingModule");
-    db.componentDao().insert(session, project);
-    SnapshotDto projectSnapshot = SnapshotTesting.createForProject(project);
-    db.snapshotDao().insert(session, projectSnapshot);
-    session.commit();
-
-    // project can be seen by anyone
-    tester.get(InternalPermissionService.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(UserRole.USER));
-
-    ComponentDto module = ComponentTesting.newFileDto(project).setKey("ModuleHavingFile")
-      .setScope("PRJ")
-      .setParentProjectId(project.getId());
-    db.componentDao().insert(session, module);
-    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(module, projectSnapshot));
-
-    ComponentDto file = ComponentTesting.newFileDto(module).setKey("FileLinkedToModule");
-    db.componentDao().insert(session, file);
-    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(file, projectSnapshot));
-
-    IssueDto issue = IssueTesting.newDto(rule, file, project);
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("ProjectHavingModule"));
+    setDefaultProjectPermission(project);
+    ComponentDto module = insertComponent(ComponentTesting.newModuleDto(project).setKey("ModuleHavingFile"));
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(module, "BCDE").setKey("FileLinkedToModule"));
+    IssueDto issue = IssueTesting.newDto(newRule(), file, project);
     db.issueDao().insert(session, issue);
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
@@ -446,7 +445,10 @@ public class SearchActionMediumTest {
 
   @Test
   public void display_facets() throws Exception {
-    IssueDto issue = IssueTesting.newDto(rule, file, project)
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    setDefaultProjectPermission(project);
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
+    IssueDto issue = IssueTesting.newDto(newRule(), file, project)
       .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
       .setIssueUpdateDate(DateUtils.parseDate("2017-12-04"))
       .setDebt(10L)
@@ -457,6 +459,7 @@ public class SearchActionMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
+    MockUserSession.set().setLogin("john");
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam("resolved", "false")
       .setParam(SearchAction.PARAM_FACETS, "statuses,severities,resolutions,projectUuids,rules,componentUuids,assignees,languages,actionPlans")
@@ -466,7 +469,10 @@ public class SearchActionMediumTest {
 
   @Test
   public void display_zero_valued_facets_for_selected_items() throws Exception {
-    IssueDto issue = IssueTesting.newDto(rule, file, project)
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    setDefaultProjectPermission(project);
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
+    IssueDto issue = IssueTesting.newDto(newRule(), file, project)
       .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
       .setIssueUpdateDate(DateUtils.parseDate("2017-12-04"))
       .setDebt(10L)
@@ -477,6 +483,7 @@ public class SearchActionMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
+    MockUserSession.set().setLogin("john");
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam("resolved", "false")
       .setParam("severities", "MAJOR,MINOR")
@@ -488,7 +495,10 @@ public class SearchActionMediumTest {
 
   @Test
   public void hide_rules() throws Exception {
-    IssueDto issue = IssueTesting.newDto(rule, file, project)
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    setDefaultProjectPermission(project);
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
+    IssueDto issue = IssueTesting.newDto(newRule(), file, project)
       .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
       .setIssueUpdateDate(DateUtils.parseDate("2017-12-04"))
       .setDebt(10L)
@@ -505,6 +515,10 @@ public class SearchActionMediumTest {
 
   @Test
   public void sort_by_updated_at() throws Exception {
+    RuleDto rule = newRule();
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    setDefaultProjectPermission(project);
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
     db.issueDao().insert(session, IssueTesting.newDto(rule, file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac1").setIssueUpdateDate(DateUtils.parseDate("2014-11-02")));
     db.issueDao().insert(session, IssueTesting.newDto(rule, file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2").setIssueUpdateDate(DateUtils.parseDate("2014-11-01")));
     db.issueDao().insert(session, IssueTesting.newDto(rule, file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac3").setIssueUpdateDate(DateUtils.parseDate("2014-11-03")));
@@ -520,6 +534,10 @@ public class SearchActionMediumTest {
 
   @Test
   public void paging() throws Exception {
+    RuleDto rule = newRule();
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    setDefaultProjectPermission(project);
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
     for (int i = 0; i < 12; i++) {
       IssueDto issue = IssueTesting.newDto(rule, file, project);
       tester.get(IssueDao.class).insert(session, issue);
@@ -537,6 +555,10 @@ public class SearchActionMediumTest {
 
   @Test
   public void paging_with_page_size_to_minus_one() throws Exception {
+    RuleDto rule = newRule();
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    setDefaultProjectPermission(project);
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
     for (int i = 0; i < 12; i++) {
       IssueDto issue = IssueTesting.newDto(rule, file, project);
       tester.get(IssueDao.class).insert(session, issue);
@@ -554,6 +576,10 @@ public class SearchActionMediumTest {
 
   @Test
   public void deprecated_paging() throws Exception {
+    RuleDto rule = newRule();
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    setDefaultProjectPermission(project);
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
     for (int i = 0; i < 12; i++) {
       IssueDto issue = IssueTesting.newDto(rule, file, project);
       tester.get(IssueDao.class).insert(session, issue);
@@ -576,4 +602,28 @@ public class SearchActionMediumTest {
     WsTester.Result result = request.execute();
     result.assertJson(this.getClass(), "default_page_size_is_100.json", false);
   }
+
+  private RuleDto newRule() {
+    RuleDto rule = RuleTesting.newXooX1()
+      .setName("Rule name")
+      .setDescription("Rule desc")
+      .setStatus(RuleStatus.READY);
+    tester.get(RuleDao.class).insert(session, rule);
+    session.commit();
+    return rule;
+  }
+
+  private void setDefaultProjectPermission(ComponentDto project) {
+    // project can be seen by anyone and by code viewer
+    MockUserSession.set().setLogin("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    tester.get(InternalPermissionService.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(UserRole.USER));
+    MockUserSession.set();
+  }
+
+  private ComponentDto insertComponent(ComponentDto component) {
+    db.componentDao().insert(session, component);
+    session.commit();
+    return component;
+  }
+
 }

@@ -60,6 +60,7 @@ public class IssueQuery {
   private final Collection<String> components;
   private final Collection<String> modules;
   private final Collection<String> projects;
+  private final Collection<String> directories;
   private final Collection<RuleKey> rules;
   private final Collection<String> actionPlans;
   private final Collection<String> reporters;
@@ -86,6 +87,7 @@ public class IssueQuery {
     this.components = defaultCollection(builder.components);
     this.modules = defaultCollection(builder.modules);
     this.projects = defaultCollection(builder.projects);
+    this.directories = defaultCollection(builder.directories);
     this.rules = defaultCollection(builder.rules);
     this.actionPlans = defaultCollection(builder.actionPlans);
     this.reporters = defaultCollection(builder.reporters);
@@ -131,6 +133,10 @@ public class IssueQuery {
 
   public Collection<String> projectUuids() {
     return projects;
+  }
+
+  public Collection<String> directories() {
+    return directories;
   }
 
   public Collection<RuleKey> rules() {
@@ -232,6 +238,7 @@ public class IssueQuery {
     private Collection<String> components;
     private Collection<String> modules;
     private Collection<String> projects;
+    private Collection<String> directories;
     private Collection<RuleKey> rules;
     private Collection<String> actionPlans;
     private Collection<String> reporters;
@@ -285,6 +292,11 @@ public class IssueQuery {
 
     public Builder projectUuids(@Nullable Collection<String> l) {
       this.projects = l;
+      return this;
+    }
+
+    public Builder directories(@Nullable Collection<String> l) {
+      this.directories = l;
       return this;
     }
 
@@ -403,7 +415,7 @@ public class IssueQuery {
     }
 
     public Builder ignorePaging(@Nullable Boolean ignorePaging) {
-      this.ignorePaging  = ignorePaging;
+      this.ignorePaging = ignorePaging;
       return this;
     }
   }
