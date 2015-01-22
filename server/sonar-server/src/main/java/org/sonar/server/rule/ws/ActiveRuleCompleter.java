@@ -35,6 +35,8 @@ import org.sonar.server.qualityprofile.QProfileLoader;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.index.RuleQuery;
 
+import javax.annotation.CheckForNull;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
@@ -132,7 +134,7 @@ public class ActiveRuleCompleter implements ServerComponent {
     Map<String, QualityProfileDto> qProfilesByKey = Maps.newHashMap();
     for (String qProfileKey : harvestedProfileKeys) {
       if (!qProfilesByKey.containsKey(qProfileKey)) {
-        QualityProfileDto profile = loader.getByKey(qProfileKey);
+        QualityProfileDto profile = loadProfile(qProfileKey);
         if (profile == null) {
           LOG.warn("Could not find quality profile with key " + qProfileKey);
           continue;
@@ -140,7 +142,7 @@ public class ActiveRuleCompleter implements ServerComponent {
         qProfilesByKey.put(qProfileKey, profile);
         String parentKee = profile.getParentKee();
         if (parentKee != null && !qProfilesByKey.containsKey(parentKee)) {
-          qProfilesByKey.put(parentKee, loader.getByKey(parentKee));
+          qProfilesByKey.put(parentKee, loadProfile(parentKee));
         }
       }
     }
@@ -149,6 +151,11 @@ public class ActiveRuleCompleter implements ServerComponent {
       writeProfile(json, profile);
     }
     json.endObject();
+  }
+
+  @CheckForNull
+  QualityProfileDto loadProfile(String qProfileKey) {
+    return loader.getByKey(qProfileKey);
   }
 
   private void writeProfile(JsonWriter json, QualityProfileDto profile) {
