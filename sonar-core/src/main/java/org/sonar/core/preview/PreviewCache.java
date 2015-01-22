@@ -19,7 +19,6 @@
  */
 package org.sonar.core.preview;
 
-import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
@@ -38,7 +37,6 @@ import org.sonar.core.resource.ResourceDto;
 import javax.annotation.Nullable;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -72,7 +70,7 @@ public class PreviewCache implements ServerExtension {
     this.previewDatabaseFactory = previewDatabaseFactory;
   }
 
-  public byte[] getDatabaseForPreview(@Nullable Long projectId) {
+  public String getPathToDatabaseFile(@Nullable Long projectId) {
     long notNullProjectId = projectId != null ? projectId.longValue() : 0L;
     ReadWriteLock rwl = getLock(notNullProjectId);
     try {
@@ -93,7 +91,7 @@ public class PreviewCache implements ServerExtension {
         rwl.writeLock().unlock();
       }
       File dbFile = new File(getCacheLocation(projectId), lastTimestampPerProject.get(notNullProjectId) + PreviewDatabaseFactory.H2_FILE_SUFFIX);
-      return fileToByte(dbFile);
+      return dbFile.getAbsolutePath();
     } finally {
       rwl.readLock().unlock();
     }
@@ -127,14 +125,6 @@ public class PreviewCache implements ServerExtension {
     File dbFile = previewDatabaseFactory.createNewDatabaseForDryRun(projectId, cacheLocation, String.valueOf(newTimestamp));
     LOG.debug("Cached DB at {}", dbFile);
     lastTimestampPerProject.put(notNullProjectId, newTimestamp);
-  }
-
-  private byte[] fileToByte(File dbFile) {
-    try {
-      return Files.toByteArray(dbFile);
-    } catch (IOException e) {
-      throw new SonarException("Unable to create h2 database file", e);
-    }
   }
 
   private synchronized ReadWriteLock getLock(long notNullProjectId) {

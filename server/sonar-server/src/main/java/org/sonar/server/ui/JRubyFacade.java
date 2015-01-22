@@ -360,8 +360,8 @@ public final class JRubyFacade {
     }
   }
 
-  public byte[] createDatabaseForPreview(@Nullable Long projectId) {
-    return get(PreviewCache.class).getDatabaseForPreview(projectId);
+  public String pathToPreviewDbFile(@Nullable Long projectId) {
+     return get(PreviewCache.class).getPathToDatabaseFile(projectId);
   }
 
   public String getPeriodLabel(int periodIndex) {
