@@ -84,6 +84,16 @@ public class IssuesActionTest {
   }
 
   @Test
+  public void return_only_manual_severity() throws Exception {
+    db.prepareDbUnit(getClass(), "return_only_manual_severity.xml");
+
+    MockUserSession.set().setLogin("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION).addComponentPermission(UserRole.USER, PROJECT_KEY, PROJECT_KEY);
+
+    WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", PROJECT_KEY);
+    request.execute().assertJson(getClass(), "return_only_manual_severity-expected.json");
+  }
+
+  @Test
   public void return_issues_on_module() throws Exception {
     db.prepareDbUnit(getClass(), "shared.xml");
 

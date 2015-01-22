@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.db.BatchIssueDto;
@@ -155,10 +156,11 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(batchIssueDto.getLine()).isEqualTo(200);
     assertThat(batchIssueDto.getResolution()).isEqualTo(Issue.RESOLUTION_FALSE_POSITIVE);
     assertThat(batchIssueDto.getStatus()).isEqualTo(Issue.STATUS_RESOLVED);
+    assertThat(batchIssueDto.getSeverity()).isEqualTo(Severity.BLOCKER);
+    assertThat(batchIssueDto.isManualSeverity()).isTrue();
     assertThat(batchIssueDto.getComponentKey()).isEqualTo("Sample.java");
     assertThat(batchIssueDto.getChecksum()).isEqualTo("123456");
     assertThat(batchIssueDto.getAssigneeLogin()).isEqualTo("john");
-    assertThat(batchIssueDto.getAssigneeName()).isEqualTo("John Doo");
   }
 
   @Test
@@ -183,10 +185,11 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(batchIssueDto.getLine()).isEqualTo(200);
     assertThat(batchIssueDto.getResolution()).isEqualTo(Issue.RESOLUTION_FALSE_POSITIVE);
     assertThat(batchIssueDto.getStatus()).isEqualTo(Issue.STATUS_RESOLVED);
+    assertThat(batchIssueDto.getSeverity()).isEqualTo(Severity.BLOCKER);
+    assertThat(batchIssueDto.isManualSeverity()).isTrue();
     assertThat(batchIssueDto.getComponentKey()).isEqualTo("Sample.java");
     assertThat(batchIssueDto.getChecksum()).isEqualTo("123456");
     assertThat(batchIssueDto.getAssigneeLogin()).isEqualTo("john");
-    assertThat(batchIssueDto.getAssigneeName()).isEqualTo("John Doo");
   }
 
   @Test

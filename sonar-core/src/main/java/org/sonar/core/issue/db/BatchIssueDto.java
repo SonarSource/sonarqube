@@ -26,10 +26,11 @@ public class BatchIssueDto {
   private String message;
   private Integer line;
   private String status;
+  private String severity;
+  private boolean manualSeverity;
   private String resolution;
   private String checksum;
   private String assigneeLogin;
-  private String assigneeName;
   private String componentKey;
   private String ruleKey;
   private String ruleRepo;
@@ -40,15 +41,6 @@ public class BatchIssueDto {
 
   public BatchIssueDto setAssigneeLogin(String assigneeLogin) {
     this.assigneeLogin = assigneeLogin;
-    return this;
-  }
-
-  public String getAssigneeName() {
-    return assigneeName;
-  }
-
-  public BatchIssueDto setAssigneeName(String assigneeName) {
-    this.assigneeName = assigneeName;
     return this;
   }
 
@@ -130,6 +122,24 @@ public class BatchIssueDto {
 
   public BatchIssueDto setStatus(String status) {
     this.status = status;
+    return this;
+  }
+
+  public boolean isManualSeverity() {
+    return manualSeverity;
+  }
+
+  public BatchIssueDto setManualSeverity(boolean manualSeverity) {
+    this.manualSeverity = manualSeverity;
+    return this;
+  }
+
+  public String getSeverity() {
+    return severity;
+  }
+
+  public BatchIssueDto setSeverity(String severity) {
+    this.severity = severity;
     return this;
   }
 }

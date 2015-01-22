@@ -138,7 +138,7 @@
       root_component_id="1000"
       rule_id="500"
       severity="BLOCKER"
-      manual_severity="[false]"
+      manual_severity="[true]"
       message="Avoid this"
       line="200"
       effort_to_fix="[null]"

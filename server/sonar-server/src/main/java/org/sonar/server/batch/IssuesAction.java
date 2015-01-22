@@ -114,11 +114,11 @@ public class IssuesAction implements RequestHandler {
           .setComponentKey(batchIssueDto.getComponentKey())
           .setChecksum(batchIssueDto.getChecksum())
           .setAssigneeLogin(batchIssueDto.getAssigneeLogin())
-          .setAssigneeFullname(batchIssueDto.getAssigneeName())
           .setLine(batchIssueDto.getLine())
           .setRuleKey(batchIssueDto.getRuleRepo(), batchIssueDto.getRuleKey())
           .setMessage(batchIssueDto.getMessage())
           .setResolution(batchIssueDto.getResolution())
+          .setOverriddenSeverity(batchIssueDto.isManualSeverity() ? batchIssueDto.getSeverity() : null)
           .setStatus(batchIssueDto.getStatus());
       }
       return null;

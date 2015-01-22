@@ -7,23 +7,23 @@
   <projects id="401" kee="Action.java" root_id="400" qualifier="CLA" scope="PRJ" uuid="CDEF" project_uuid="ABCD" module_uuid="BCDE" module_uuid_path=".ABCD.BCDE."
             path="src/main/java/Action.java"/>
 
-  <rules id="500" tags="[null]" system_tags="[null]" plugin_rule_key="AvoidCycle" plugin_name="squid" language="java"/>
+  <rules id="501" tags="[null]" system_tags="[null]" plugin_rule_key="API" plugin_name="manual" language="[null]"/>
 
-  <!-- Open Issue on a file -->
+  <!-- Open Issue with manual severity on a file -->
   <issues
-      id="100"
-      kee="EFGH"
+      id="101"
+      kee="FGHI"
       component_id="401"
       root_component_id="399"
-      rule_id="500"
-      severity="BLOCKER"
-      manual_severity="[false]"
+      rule_id="501"
+      severity="CRITICAL"
+      manual_severity="[true]"
       message="Do not use this method"
-      line="200"
+      line="201"
       effort_to_fix="[null]"
-      status="RESOLVED"
-      resolution="FALSE-POSITIVE"
-      checksum="123456"
+      status="OPEN"
+      resolution="[null]"
+      checksum="234567"
       reporter="user"
       assignee="john"
       author_login="[null]"

@@ -42,12 +42,11 @@ public class PreviousIssueHelperTest {
     issue1.setRuleKey("repokey", "rulekey");
     issue1.setLine(2);
     issue1.setMessage("message");
-    issue1.setSeverity("severity");
+    issue1.setOverriddenSeverity("severity");
     issue1.setResolution("resolution");
     issue1.setStatus("status");
     issue1.setChecksum("checksum");
     issue1.setAssigneeLogin("login");
-    issue1.setAssigneeFullname("fullname");
     PreviousIssue issue2 = new PreviousIssue();
     issue2.setKey("key2");
 
@@ -58,7 +57,7 @@ public class PreviousIssueHelperTest {
 
     JSONAssert
       .assertEquals(
-        "[{\"key\": \"key1\", \"componentKey\": \"key\", \"ruleKey\": \"rulekey\", \"ruleRepo\": \"repokey\", \"line\": 2,\"message\": \"message\", \"severity\": \"severity\", \"resolution\": \"resolution\", \"status\": \"status\", \"checksum\": \"checksum\",\"assigneeLogin\": \"login\", \"assigneeFullname\": \"fullname\"},"
+        "[{\"key\": \"key1\", \"componentKey\": \"key\", \"ruleKey\": \"rulekey\", \"ruleRepo\": \"repokey\", \"line\": 2,\"message\": \"message\", \"overriddenSeverity\": \"severity\", \"resolution\": \"resolution\", \"status\": \"status\", \"checksum\": \"checksum\",\"assigneeLogin\": \"login\"},"
           +
           "{\"key\": \"key2\"}]",
         out.getBuffer().toString(), true);
@@ -77,7 +76,7 @@ public class PreviousIssueHelperTest {
     StringWriter out = new StringWriter();
     PreviousIssueHelper helper = PreviousIssueHelper.create(out);
     StringReader reader = new StringReader(
-      "[{\"key\": \"key1\", \"componentKey\": \"key\", \"ruleKey\": \"rulekey\", \"ruleRepo\": \"repokey\", \"line\": 2,\"message\": \"message\", \"severity\": \"severity\", \"resolution\": \"resolution\", \"status\": \"status\", \"checksum\": \"checksum\",\"assigneeLogin\": \"login\", \"assigneeFullname\": \"fullname\"},"
+      "[{\"key\": \"key1\", \"componentKey\": \"key\", \"ruleKey\": \"rulekey\", \"ruleRepo\": \"repokey\", \"line\": 2,\"message\": \"message\", \"overriddenSeverity\": \"severity\", \"resolution\": \"resolution\", \"status\": \"status\", \"checksum\": \"checksum\",\"assigneeLogin\": \"login\"},"
         +
         "{\"key\": \"key2\"}]");
 
@@ -93,12 +92,11 @@ public class PreviousIssueHelperTest {
     assertThat(issue1.ruleKey()).isEqualTo("rulekey");
     assertThat(issue1.line()).isEqualTo(2);
     assertThat(issue1.message()).isEqualTo("message");
-    assertThat(issue1.severity()).isEqualTo("severity");
+    assertThat(issue1.overriddenSeverity()).isEqualTo("severity");
     assertThat(issue1.resolution()).isEqualTo("resolution");
     assertThat(issue1.status()).isEqualTo("status");
     assertThat(issue1.checksum()).isEqualTo("checksum");
     assertThat(issue1.assigneeLogin()).isEqualTo("login");
-    assertThat(issue1.assigneeFullname()).isEqualTo("fullname");
 
     assertThat(issue2.key()).isEqualTo("key2");
     helper.close();

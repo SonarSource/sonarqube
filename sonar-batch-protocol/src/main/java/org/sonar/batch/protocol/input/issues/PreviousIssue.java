@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.protocol.input.issues;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 public class PreviousIssue {
@@ -29,12 +30,11 @@ public class PreviousIssue {
   private String ruleRepo;
   private Integer line;
   private String message;
-  private String severity;
+  private String overriddenSeverity;
   private String resolution;
   private String status;
   private String checksum;
   private String assigneeLogin;
-  private String assigneeFullname;
 
   public PreviousIssue setKey(String key) {
     this.key = key;
@@ -90,13 +90,14 @@ public class PreviousIssue {
     return status;
   }
 
-  public PreviousIssue setSeverity(String severity) {
-    this.severity = severity;
+  public PreviousIssue setOverriddenSeverity(@Nullable String overriddenSeverity) {
+    this.overriddenSeverity = overriddenSeverity;
     return this;
   }
 
-  public String severity() {
-    return severity;
+  @CheckForNull
+  public String overriddenSeverity() {
+    return overriddenSeverity;
   }
 
   public PreviousIssue setChecksum(String checksum) {
@@ -115,15 +116,6 @@ public class PreviousIssue {
 
   public String assigneeLogin() {
     return assigneeLogin;
-  }
-
-  public PreviousIssue setAssigneeFullname(String assigneeFullname) {
-    this.assigneeFullname = assigneeFullname;
-    return this;
-  }
-
-  public String assigneeFullname() {
-    return assigneeFullname;
   }
 
   public PreviousIssue setRuleKey(String ruleRepo, String ruleKey) {
