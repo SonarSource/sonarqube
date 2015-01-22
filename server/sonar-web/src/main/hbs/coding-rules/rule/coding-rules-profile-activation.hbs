@@ -1,3 +1,5 @@
+{{log this}}
+
 <form>
   <div class="modal-head">
     {{#if change}}
@@ -20,7 +22,7 @@
       <tr class="property">
         <th><h3>{{t 'coding_rules.quality_profile'}}</h3></th>
         <td>
-          {{#if key}}
+          {{#any key qProfile}}
             {{name}}
           {{else}}
             <select id="coding-rules-quality-profile-activation-select">
@@ -28,7 +30,7 @@
                 <option value="{{key}}">{{name}}</option>
               {{/each}}
             </select>
-          {{/if}}
+          {{/any}}
         </td>
       </tr>
       <tr class="property">

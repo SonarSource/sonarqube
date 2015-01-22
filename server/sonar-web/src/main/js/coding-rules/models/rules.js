@@ -7,18 +7,21 @@ define([
 
     parseRules: function (r) {
       var rules = r.rules,
-          profileBases = r.qProfiles || [];
+          profiles = r.qProfiles || [];
 
       if (r.actives != null) {
         rules = rules.map(function (rule) {
-          var profiles = (r.actives[rule.key] || []).map(function (profile) {
-            _.extend(profile, profileBases[profile.qProfile]);
-            if (profile.parent != null) {
-              _.extend(profile, { parentProfile: profileBases[profile.parent] });
+          var activations = (r.actives[rule.key] || []).map(function (activation) {
+            var profile = profiles[activation.qProfile];
+            if (profile != null) {
+              _.extend(activation, { profile: profile });
+              if (profile.parent != null) {
+                _.extend(activation, { parentProfile: profiles[profile.parent] });
+              }
             }
-            return profile;
+            return activation;
           });
-          return _.extend(rule, { activeProfile: profiles.length > 0 ? profiles[0] : null });
+          return _.extend(rule, { activation: activations.length > 0 ? activations[0] : null });
         });
       }
       return rules;

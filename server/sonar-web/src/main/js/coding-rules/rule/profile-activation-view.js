@@ -83,14 +83,10 @@ define([
           params: paramsHash
         }
       }).done(function () {
-        if (that.options.fromList) {
-          that.options.rule.set({ activeProfile: { qProfile: profileKey, inherit: 'NONE', severity: severity } });
-        } else {
-          that.options.app.controller.showDetails(that.options.rule);
-        }
+        that.trigger('profileActivated', severity, params);
         window.process.finishBackgroundProcess(p);
       }).fail(function () {
-        that.options.app.controller.showDetails(that.options.rule);
+        that.trigger('profileActivationFailed');
         window.process.failBackgroundProcess(p);
       });
     },

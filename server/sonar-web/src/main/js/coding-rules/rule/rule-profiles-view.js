@@ -41,11 +41,16 @@ define([
     },
 
     activate: function () {
-      new ProfileActivationView({
-        rule: this.model,
-        collection: this.collection,
-        app: this.options.app
-      }).render();
+      var that = this,
+          activationView = new ProfileActivationView({
+            rule: this.model,
+            collection: this.collection,
+            app: this.options.app
+          });
+      activationView.on('profileActivated', function () {
+        that.options.app.controller.showDetails(that.model);
+      });
+      activationView.render();
     },
 
     serializeData: function () {

@@ -1,19 +1,17 @@
 <table class="coding-rule-table">
   <tr>
-    {{#if activeProfile}}
-      {{#if activeProfile.severity}}
-        <td class="coding-rule-table-meta-cell coding-rule-activation">
-          {{severityIcon activeProfile.severity}}
-          {{#eq activeProfile.inherit 'OVERRIDES'}}
-            <i class="icon-inheritance"
-               title="{{tp 'coding_rules.overrides' activeProfile.name activeProfile.parentProfile.name}}"></i>
-          {{/eq}}
-          {{#eq activeProfile.inherit 'INHERITED'}}
-            <i class="icon-inheritance"
-               title="{{tp 'coding_rules.inherits' activeProfile.name activeProfile.parentProfile.name}}"></i>
-          {{/eq}}
-        </td>
-      {{/if}}
+    {{#if activation}}
+      <td class="coding-rule-table-meta-cell coding-rule-activation">
+        {{severityIcon activation.severity}}
+        {{#eq activation.inherit 'OVERRIDES'}}
+          <i class="icon-inheritance"
+             title="{{tp 'coding_rules.overrides' activation.profile.name activation.parentProfile.name}}"></i>
+        {{/eq}}
+        {{#eq activation.inherit 'INHERITED'}}
+          <i class="icon-inheritance"
+             title="{{tp 'coding_rules.inherits' activation.profile.name activation.parentProfile.name}}"></i>
+        {{/eq}}
+      </td>
     {{/if}}
 
     <td>
@@ -39,24 +37,24 @@
       </div>
     </td>
 
-    {{#if activeProfile}}
+    {{#any activation selectedProfile}}
       {{#if canWrite}}
         <td class="coding-rule-table-meta-cell coding-rule-activation-actions">
           <div class="button-group">
-            {{#if activeProfile.severity}}
-              {{#eq activeProfile.inherit 'NONE'}}
+            {{#if activation}}
+              {{#eq activation.inherit 'NONE'}}
                 <button class="coding-rules-detail-quality-profile-deactivate button-red">
                   {{t 'coding_rules.deactivate'}}
                 </button>
               {{/eq}}
             {{else}}
-              <button class="coding-rules-detail-quality-profile-activate">
-                {{t 'coding_rules.activate'}}
-              </button>
+              {{#unless isTemplate}}
+                <button class="coding-rules-detail-quality-profile-activate">{{t 'coding_rules.activate'}}</button>
+              {{/unless}}
             {{/if}}
           </div>
         </td>
       {{/if}}
-    {{/if}}
+    {{/any}}
   </tr>
 </table>

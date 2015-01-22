@@ -30,12 +30,17 @@ define([
     },
 
     change: function () {
-      new ProfileActivationView({
-        model: this.model,
-        collection: this.model.collection,
-        rule: this.options.rule,
-        app: this.options.app
-      }).render();
+      var that = this,
+          activationView = new ProfileActivationView({
+            model: this.model,
+            collection: this.model.collection,
+            rule: this.options.rule,
+            app: this.options.app
+          });
+      activationView.on('profileActivated', function () {
+        that.options.app.controller.showDetails(that.options.rule);
+      });
+      activationView.render();
     },
 
     revert: function () {

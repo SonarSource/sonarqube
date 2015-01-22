@@ -20,6 +20,7 @@ define([
       if (profile != null) {
         fields.push('actives');
         fields.push('params');
+        fields.push('isTemplate');
       }
       return {
         p: this.app.state.get('page'),
