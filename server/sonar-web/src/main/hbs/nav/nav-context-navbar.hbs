@@ -1,5 +1,5 @@
 <div class="container">
-  <ul class="nav nav-crumbs navbar-nav navbar-nav-pills">
+  <ul class="nav navbar-nav nav-crumbs">
     {{#each breadcrumbs}}
       <li>
         <a href="{{link url}}">
@@ -9,7 +9,7 @@
     {{/each}}
   </ul>
 
-  <ul class="nav navbar-nav navbar-nav-pills navbar-right">
+  <ul class="nav navbar-nav navbar-right">
     {{#each items}}
       {{#notEmpty menu}}
         <li class="dropdown {{#if active}}active{{/if}}">

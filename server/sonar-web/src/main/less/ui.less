@@ -421,9 +421,13 @@ input[type=button] {
 }
 
 
+.nav-crumbs {
+
+}
+
 .nav-crumbs > li + li:before {
   content: " /";
   display: inline-block;
   vertical-align: middle;
-  color: @secondFontColor;
+  color: fade(@baseFontColor, 30%);
 }

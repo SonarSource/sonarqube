@@ -3,7 +3,7 @@
 @import (reference) "ui";
 
 @navbarGlobalBackground: #262626;
-@navbarContextBackground: @barBackgroundColor;
+@navbarContextBackground: @lightBlue;
 
 @navbarHeight: 30px;
 @navbarLineHeight: 20px;
@@ -59,21 +59,7 @@
 .navbar-nav > li > a {
   padding: @navbarTopPadding 10px;
   line-height: @navbarLineHeight;
-  color: #fff;
-  font-size: 12px;
-  font-weight: 300;
-  letter-spacing: 0.05em;
-
-  &:hover, &:focus {
-    color: #fff;
-  }
 }
-
-.navbar-nav > .active > a,
-.navbar-nav > .dropdown.open > a {
-  color: #fff;
-}
-
 
 .navbar-icon:before {
   font-size: @iconFontSize;
@@ -123,6 +109,22 @@
 .navbar-global {
   background-color: @navbarGlobalBackground;
 
+  .navbar-nav > li > a {
+    color: #fff;
+    font-size: 12px;
+    font-weight: 300;
+    letter-spacing: 0.05em;
+
+    &:hover, &:focus {
+      color: #fff;
+    }
+  }
+
+  .navbar-nav > .active > a,
+  .navbar-nav > .dropdown.open > a {
+    color: #fff;
+  }
+
   .navbar-nav > li > a:hover,
   .navbar-nav > li > a:focus,
   .navbar-nav > .active > a,
@@ -134,50 +136,18 @@
 
 .navbar-context {
   background-color: @navbarContextBackground;
-  border-bottom: 1px solid @barBorderColor;
+  border-bottom: 1px solid @blue;
 
   .navbar-nav > li > a {
+    padding-bottom: 1px !important;
+    border-bottom: 3px solid transparent;
     color: @baseFontColor;
-    font-weight: 400;
-    letter-spacing: 0;
   }
 
   .navbar-nav > li > a:hover,
   .navbar-nav > li > a:focus,
   .navbar-nav > .active > a,
   .navbar-nav > .dropdown.open > a {
-    color: @baseFontColor;
-  }
-}
-
-.navbar-nav-pills {
-  padding-top: 4px;
-  padding-bottom: 4px;
-
-  > li + li {
-    margin-left: 5px;
-  }
-
-  > li > a {
-    padding-top: 0;
-    padding-bottom: 0;
-    border: 1px solid transparent;
-    border-radius: 3px;
-    color: @baseFontColor;
-    font-weight: 400;
-    letter-spacing: 0;
-  }
-
-  > li > a:hover,
-  > li > a:focus,
-  > .active > a,
-  > .dropdown.open > a {
-    border-color: @blue;
-    color: @baseFontColor;
-  }
-
-  > .active > a,
-  > .dropdown.open > a {
-    background-color: @lightBlue;
+    border-bottom-color: @blue;
   }
 }
