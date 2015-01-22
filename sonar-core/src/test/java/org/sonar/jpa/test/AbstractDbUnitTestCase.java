@@ -55,7 +55,9 @@ import static org.junit.Assert.fail;
 
 /**
  * Heavily duplicates AbstractDaoTestCase as long as Hibernate is in use.
+ * @deprecated this class does not support non-H2 databases
  */
+@Deprecated
 public abstract class AbstractDbUnitTestCase {
   private static Database database;
   private static MyBatis myBatis;

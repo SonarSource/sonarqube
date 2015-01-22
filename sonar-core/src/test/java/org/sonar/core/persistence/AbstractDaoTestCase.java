@@ -19,6 +19,7 @@
  */
 package org.sonar.core.persistence;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
 import com.google.common.io.Closeables;
 import org.apache.commons.io.FileUtils;
@@ -72,6 +73,7 @@ public abstract class AbstractDaoTestCase {
   private static Database database;
   private static DatabaseCommands databaseCommands;
   private static MyBatis myBatis;
+  private static String login;
 
   private IDatabaseTester databaseTester;
 
@@ -82,6 +84,7 @@ public abstract class AbstractDaoTestCase {
       if (settings.hasKey("orchestrator.configUrl")) {
         loadOrchestratorSettings(settings);
       }
+      login = settings.getString("sonar.jdbc.username");
       for (String key : settings.getKeysStartingWith("sonar.jdbc")) {
         LOG.info(key + ": " + settings.getString(key));
       }
@@ -103,7 +106,7 @@ public abstract class AbstractDaoTestCase {
   @Before
   public void startDbUnit() throws Exception {
     databaseCommands.truncateDatabase(database.getDataSource());
-    databaseTester = new DataSourceDatabaseTester(database.getDataSource());
+    databaseTester = new DataSourceDatabaseTester(database.getDataSource(), login);
   }
 
   /**

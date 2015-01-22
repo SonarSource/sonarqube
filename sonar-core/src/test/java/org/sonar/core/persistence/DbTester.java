@@ -56,7 +56,11 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -95,6 +99,7 @@ public class DbTester extends ExternalResource {
     if (settings.hasKey("orchestrator.configUrl")) {
       loadOrchestratorSettings(settings);
     }
+    String login = settings.getString("sonar.jdbc.username");
     for (String key : settings.getKeysStartingWith("sonar.jdbc")) {
       LOG.info(key + ": " + settings.getString(key));
     }
@@ -117,7 +122,7 @@ public class DbTester extends ExternalResource {
     LOG.info("Test Database: " + db);
 
     commands = DatabaseCommands.forDialect(db.getDialect());
-    tester = new DataSourceDatabaseTester(db.getDataSource());
+    tester = new DataSourceDatabaseTester(db.getDataSource(), login);
 
     myBatis = new MyBatis(db, new Logback(), new NullQueue());
     myBatis.start();
