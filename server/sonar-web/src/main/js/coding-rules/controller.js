@@ -21,6 +21,7 @@ define([
         fields.push('actives');
         fields.push('params');
         fields.push('isTemplate');
+        fields.push('severity');
       }
       return {
         p: this.app.state.get('page'),
