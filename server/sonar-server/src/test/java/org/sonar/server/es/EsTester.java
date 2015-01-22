@@ -52,6 +52,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -153,6 +154,14 @@ public class EsTester extends ExternalResource {
         throw new IllegalArgumentException(String.format("File '%s' hasn't been found in folder '%s'", path, testClass.getSimpleName()));
       }
       bulk.add(new IndexRequest(index, type).source(IOUtils.toString(new FileInputStream(file))));
+    }
+    bulk.get();
+  }
+
+  public void putDocuments(String index, String type, Map<String, Object>... docs) throws Exception {
+    BulkRequestBuilder bulk = client.prepareBulk().setRefresh(true);
+    for (Map<String, Object> doc : docs) {
+      bulk.add(new IndexRequest(index, type).source(doc));
     }
     bulk.get();
   }

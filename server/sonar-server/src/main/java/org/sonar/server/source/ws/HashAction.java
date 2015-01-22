@@ -81,7 +81,7 @@ public class HashAction implements RequestHandler {
     }
   }
 
-  private class HashFunction implements Function<Reader, Void> {
+  private static class HashFunction implements Function<Reader, Void> {
 
     private final OutputStreamWriter writer;
     private final String componentKey;
@@ -98,7 +98,7 @@ public class HashAction implements RequestHandler {
         hasData = true;
         CharStreams.copy(input, writer);
       } catch (IOException e) {
-        throw new IllegalStateException(String.format("Can't read line hashes of file '%s'", componentKey));
+        throw new IllegalStateException(String.format("Can't read line hashes of file '%s'", componentKey), e);
       }
       return null;
     }
