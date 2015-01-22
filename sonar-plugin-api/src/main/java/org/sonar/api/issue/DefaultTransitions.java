@@ -38,10 +38,10 @@ public interface DefaultTransitions {
   /**
    * @since 5.1
    */
-  String MUTE = "mute";
+  String WONT_FIX = "wontfix";
 
   /**
    * @since 4.4
    */
-  List<String> ALL = ImmutableList.of(CONFIRM, UNCONFIRM, REOPEN, RESOLVE, FALSE_POSITIVE, MUTE, CLOSE);
+  List<String> ALL = ImmutableList.of(CONFIRM, UNCONFIRM, REOPEN, RESOLVE, FALSE_POSITIVE, WONT_FIX, CLOSE);
 }

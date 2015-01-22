@@ -66,9 +66,9 @@ public interface Issue extends Serializable {
    * Issue is irrelevant in the context and was muted by user.
    * @since 5.1
    */
-  String RESOLUTION_MUTED = "MUTED";
+  String RESOLUTION_WONT_FIX = "WONTFIX";
 
-  List<String> RESOLUTIONS = ImmutableList.of(RESOLUTION_FALSE_POSITIVE, RESOLUTION_MUTED, RESOLUTION_FIXED, RESOLUTION_REMOVED);
+  List<String> RESOLUTIONS = ImmutableList.of(RESOLUTION_FALSE_POSITIVE, RESOLUTION_WONT_FIX, RESOLUTION_FIXED, RESOLUTION_REMOVED);
 
   /**
    * Return all available statuses

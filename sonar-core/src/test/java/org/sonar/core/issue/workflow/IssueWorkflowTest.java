@@ -72,7 +72,7 @@ public class IssueWorkflowTest {
 
     DefaultIssue issue = new DefaultIssue().setStatus(Issue.STATUS_OPEN);
     List<Transition> transitions = workflow.outTransitions(issue);
-    assertThat(keys(transitions)).containsOnly("confirm", "falsepositive", "resolve", "mute");
+    assertThat(keys(transitions)).containsOnly("confirm", "falsepositive", "resolve", "wontfix");
   }
 
   @Test
@@ -81,7 +81,7 @@ public class IssueWorkflowTest {
 
     DefaultIssue issue = new DefaultIssue().setStatus(Issue.STATUS_CONFIRMED);
     List<Transition> transitions = workflow.outTransitions(issue);
-    assertThat(keys(transitions)).containsOnly("unconfirm", "falsepositive", "resolve", "mute");
+    assertThat(keys(transitions)).containsOnly("unconfirm", "falsepositive", "resolve", "wontfix");
   }
 
   @Test
@@ -99,7 +99,7 @@ public class IssueWorkflowTest {
 
     DefaultIssue issue = new DefaultIssue().setStatus(Issue.STATUS_REOPENED);
     List<Transition> transitions = workflow.outTransitions(issue);
-    assertThat(keys(transitions)).containsOnly("confirm", "mute", "resolve", "falsepositive", "mute");
+    assertThat(keys(transitions)).containsOnly("confirm", "resolve", "falsepositive", "wontfix");
   }
 
   @Test
@@ -250,7 +250,7 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void mute() throws Exception {
+  public void wont_fix() throws Exception {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setStatus(Issue.STATUS_OPEN)
@@ -258,9 +258,9 @@ public class IssueWorkflowTest {
       .setAssignee("morgan");
 
     workflow.start();
-    workflow.doTransition(issue, DefaultTransitions.MUTE, IssueChangeContext.createScan(new Date()));
+    workflow.doTransition(issue, DefaultTransitions.WONT_FIX, IssueChangeContext.createScan(new Date()));
 
-    assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_MUTED);
+    assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_WONT_FIX);
     assertThat(issue.status()).isEqualTo(Issue.STATUS_RESOLVED);
 
     // should remove assignee
@@ -282,7 +282,7 @@ public class IssueWorkflowTest {
       Transition.create("confirm", "OPEN", "CONFIRMED"),
       Transition.create("resolve", "OPEN", "RESOLVED"),
       Transition.create("falsepositive", "OPEN", "RESOLVED"),
-      Transition.create("mute", "OPEN", "RESOLVED")
+      Transition.create("wontfix", "OPEN", "RESOLVED")
     );
 
     workflow.doTransition(issue, "resolve", mock(IssueChangeContext.class));
@@ -313,7 +313,7 @@ public class IssueWorkflowTest {
       Transition.create("confirm", "OPEN", "CONFIRMED"),
       Transition.create("resolve", "OPEN", "RESOLVED"),
       Transition.create("falsepositive", "OPEN", "RESOLVED"),
-      Transition.create("mute", "OPEN", "RESOLVED")
+      Transition.create("wontfix", "OPEN", "RESOLVED")
     );
 
     workflow.doTransition(issue, "confirm", mock(IssueChangeContext.class));
@@ -324,7 +324,7 @@ public class IssueWorkflowTest {
       Transition.create("unconfirm", "CONFIRMED", "REOPENED"),
       Transition.create("resolve", "CONFIRMED", "RESOLVED"),
       Transition.create("falsepositive", "CONFIRMED", "RESOLVED"),
-      Transition.create("mute", "CONFIRMED", "RESOLVED")
+      Transition.create("wontfix", "CONFIRMED", "RESOLVED")
     );
 
     // keep confirmed and unresolved

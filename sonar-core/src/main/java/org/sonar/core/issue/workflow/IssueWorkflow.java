@@ -106,20 +106,20 @@ public class IssueWorkflow implements BatchComponent, ServerComponent, Startable
         .requiredProjectPermission(UserRole.ISSUE_ADMIN)
         .build())
 
-      // resolve as muted
-      .transition(Transition.builder(DefaultTransitions.MUTE)
+      // resolve as won't fix
+      .transition(Transition.builder(DefaultTransitions.WONT_FIX)
         .from(Issue.STATUS_OPEN).to(Issue.STATUS_RESOLVED)
-        .functions(new SetResolution(Issue.RESOLUTION_MUTED), SetAssignee.UNASSIGN)
+        .functions(new SetResolution(Issue.RESOLUTION_WONT_FIX), SetAssignee.UNASSIGN)
         .requiredProjectPermission(UserRole.ISSUE_ADMIN)
         .build())
-      .transition(Transition.builder(DefaultTransitions.MUTE)
+      .transition(Transition.builder(DefaultTransitions.WONT_FIX)
         .from(Issue.STATUS_REOPENED).to(Issue.STATUS_RESOLVED)
-        .functions(new SetResolution(Issue.RESOLUTION_MUTED), SetAssignee.UNASSIGN)
+        .functions(new SetResolution(Issue.RESOLUTION_WONT_FIX), SetAssignee.UNASSIGN)
         .requiredProjectPermission(UserRole.ISSUE_ADMIN)
         .build())
-      .transition(Transition.builder(DefaultTransitions.MUTE)
+      .transition(Transition.builder(DefaultTransitions.WONT_FIX)
           .from(Issue.STATUS_CONFIRMED).to(Issue.STATUS_RESOLVED)
-          .functions(new SetResolution(Issue.RESOLUTION_MUTED), SetAssignee.UNASSIGN)
+          .functions(new SetResolution(Issue.RESOLUTION_WONT_FIX), SetAssignee.UNASSIGN)
           .requiredProjectPermission(UserRole.ISSUE_ADMIN)
           .build()
       );
