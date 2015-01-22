@@ -46,6 +46,7 @@ requirejs [
   App.addInitializer ->
     @layout = new Layout()
     $('.issues').empty().append @layout.render().el
+    $('#footer').addClass('search-navigator-footer');
 
 
   App.addInitializer ->

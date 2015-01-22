@@ -36,6 +36,7 @@ requirejs([
       App.addInitializer(function () {
         this.layout = new Layout();
         $('.coding-rules').empty().append(this.layout.render().el);
+        $('#footer').addClass('search-navigator-footer');
       });
 
       App.addInitializer(function () {
