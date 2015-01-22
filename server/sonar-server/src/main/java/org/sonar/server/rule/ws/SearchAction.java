@@ -28,6 +28,7 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleService;
@@ -273,7 +274,17 @@ public class SearchAction extends SearchRequestHandler<RuleQuery, Rule> implemen
 
   @Override
   protected RuleQuery doQuery(Request request) {
-    return createRuleQuery(ruleService.newRuleQuery(), request);
+    RuleQuery plainQuery = createRuleQuery(ruleService.newRuleQuery(), request);
+
+    String qProfileKey = request.param(PARAM_QPROFILE);
+    if (qProfileKey != null) {
+      QualityProfileDto qProfile = activeRuleCompleter.loadProfile(qProfileKey);
+      if (qProfile != null) {
+        plainQuery.setLanguages(ImmutableList.of(qProfile.getLanguage()));
+      }
+    }
+
+    return plainQuery;
   }
 
   @Override

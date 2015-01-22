@@ -392,6 +392,13 @@ public class RulesWebServiceMediumTest {
     request.setParam(SearchOptions.PARAM_FIELDS, "actives");
     WsTester.Result result = request.execute();
     result.assertJson(this.getClass(), "search_profile_active_rules.json", false);
+
+    tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD)
+      .setParam(SearchAction.PARAM_ACTIVATION, "true")
+      .setParam(SearchAction.PARAM_QPROFILE, "unknown_profile")
+      .setParam(SearchOptions.PARAM_FIELDS, "actives")
+      .execute()
+      .assertJson(this.getClass(), "search_no_rules.json", false);
   }
 
   @Test
