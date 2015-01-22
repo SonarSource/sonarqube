@@ -61,10 +61,14 @@ public abstract class DatabaseCommands {
     return dbUnitFactory;
   }
 
-  abstract List<String> resetPrimaryKey(String table, int minSequenceValue);
+  abstract List<String> resetSequenceSql(String table, int minSequenceValue);
 
-  String getTruncateCommand(String table) {
+  String truncateSql(String table) {
     return "TRUNCATE TABLE " + table;
+  }
+
+  boolean useLoginAsSchema() {
+    return false;
   }
 
   public static DatabaseCommands forDialect(Dialect dialect) {
@@ -80,21 +84,21 @@ public abstract class DatabaseCommands {
 
   private static final DatabaseCommands H2 = new DatabaseCommands(new H2DataTypeFactory()) {
     @Override
-    List<String> resetPrimaryKey(String table, int minSequenceValue) {
+    List<String> resetSequenceSql(String table, int minSequenceValue) {
       return Arrays.asList("ALTER TABLE " + table + " ALTER COLUMN ID RESTART WITH " + minSequenceValue);
     }
   };
 
   private static final DatabaseCommands POSTGRESQL = new DatabaseCommands(new PostgresqlDataTypeFactory()) {
     @Override
-    List<String> resetPrimaryKey(String table, int minSequenceValue) {
+    List<String> resetSequenceSql(String table, int minSequenceValue) {
       return Arrays.asList("ALTER SEQUENCE " + table + "_id_seq RESTART WITH " + minSequenceValue);
     }
   };
 
   private static final DatabaseCommands ORACLE = new DatabaseCommands(new Oracle10DataTypeFactory()) {
     @Override
-    List<String> resetPrimaryKey(String table, int minSequenceValue) {
+    List<String> resetSequenceSql(String table, int minSequenceValue) {
       String sequence = StringUtils.upperCase(table) + "_SEQ";
       return Arrays.asList(
         "DROP SEQUENCE " + sequence,
@@ -102,8 +106,13 @@ public abstract class DatabaseCommands {
     }
 
     @Override
-    String getTruncateCommand(String table) {
+    String truncateSql(String table) {
       return "TRUNCATE TABLE " + table + " REUSE STORAGE";
+    }
+
+    @Override
+    boolean useLoginAsSchema() {
+      return true;
     }
   };
 
@@ -113,7 +122,7 @@ public abstract class DatabaseCommands {
     }
 
     @Override
-    List<String> resetPrimaryKey(String table, int minSequenceValue) {
+    List<String> resetSequenceSql(String table, int minSequenceValue) {
       return null;
     }
 
@@ -130,7 +139,7 @@ public abstract class DatabaseCommands {
     }
 
     @Override
-    List<String> resetPrimaryKey(String table, int minSequenceValue) {
+    List<String> resetSequenceSql(String table, int minSequenceValue) {
       return null;
     }
   };
@@ -144,7 +153,7 @@ public abstract class DatabaseCommands {
       for (String table : DatabaseVersion.TABLES) {
         try {
           if (shouldTruncate(connection, table)) {
-            statement.executeUpdate(getTruncateCommand(table));
+            statement.executeUpdate(truncateSql(table));
             connection.commit();
           }
         } catch (Exception e) {
@@ -188,7 +197,7 @@ public abstract class DatabaseCommands {
         int maxId = result.getInt(1);
         result.close();
 
-        for (String resetCommand : resetPrimaryKey(table, maxId)) {
+        for (String resetCommand : resetSequenceSql(table, maxId)) {
           statement.executeUpdate(resetCommand);
         }
         connection.commit();

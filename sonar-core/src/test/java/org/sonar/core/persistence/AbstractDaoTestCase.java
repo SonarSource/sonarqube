@@ -106,7 +106,7 @@ public abstract class AbstractDaoTestCase {
   @Before
   public void startDbUnit() throws Exception {
     databaseCommands.truncateDatabase(database.getDataSource());
-    databaseTester = new DataSourceDatabaseTester(database.getDataSource(), login);
+    databaseTester = new DataSourceDatabaseTester(database.getDataSource(), databaseCommands.useLoginAsSchema() ? login : null);
   }
 
   /**

@@ -122,7 +122,7 @@ public class DbTester extends ExternalResource {
     LOG.info("Test Database: " + db);
 
     commands = DatabaseCommands.forDialect(db.getDialect());
-    tester = new DataSourceDatabaseTester(db.getDataSource(), login);
+    tester = new DataSourceDatabaseTester(db.getDataSource(), commands.useLoginAsSchema() ? login : null);
 
     myBatis = new MyBatis(db, new Logback(), new NullQueue());
     myBatis.start();
