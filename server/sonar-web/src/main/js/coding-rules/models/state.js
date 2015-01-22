@@ -7,7 +7,7 @@ define([
       page: 1,
       maxResultsReached: false,
       query: {},
-      facets: []
+      facets: ['languages', 'tags']
     }
   });
 

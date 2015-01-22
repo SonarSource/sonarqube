@@ -7,8 +7,8 @@ define([
   var $ = jQuery;
 
   return Controller.extend({
-    allFacets: ['q', 'languages', 'repositories', 'tags', 'qprofile', 'debt_characteristics', 'severities', 'statuses',
-                'available_since', 'inheritance', 'active_severities', 'is_template'],
+    allFacets: ['q', 'languages', 'tags', 'repositories', 'debt_characteristics', 'severities', 'statuses',
+                'available_since', 'is_template', 'qprofile', 'inheritance', 'active_severities'],
     facetsFromServer: ['languages', 'repositories', 'tags', 'severities', 'statuses', 'debt_characteristics'],
     pageSize: 200,
     ruleFields: ['name', 'lang', 'langName', 'sysTags', 'tags', 'status'],
