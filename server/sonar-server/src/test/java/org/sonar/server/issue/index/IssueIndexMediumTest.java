@@ -148,6 +148,21 @@ public class IssueIndexMediumTest {
   }
 
   @Test
+  public void facets_on_projects() throws Exception {
+    ComponentDto project = ComponentTesting.newProjectDto("ABCD");
+    ComponentDto project2 = ComponentTesting.newProjectDto("EFGH");
+
+    indexIssues(
+      IssueTesting.newDoc("ISSUE1", ComponentTesting.newFileDto(project)),
+      IssueTesting.newDoc("ISSUE2", ComponentTesting.newFileDto(project)),
+      IssueTesting.newDoc("ISSUE3", ComponentTesting.newFileDto(project2)));
+
+    Result<Issue> result = index.search(IssueQuery.builder().build(), new QueryContext().addFacets(newArrayList("projectUuids")));
+    assertThat(result.getFacets()).containsOnlyKeys("projectUuids");
+    assertThat(result.getFacets().get("projectUuids")).containsOnly(new FacetValue("ABCD", 2), new FacetValue("EFGH", 1));
+  }
+
+  @Test
   public void filter_by_modules() throws Exception {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto module = ComponentTesting.newModuleDto(project);
@@ -195,6 +210,25 @@ public class IssueIndexMediumTest {
   }
 
   @Test
+  public void facets_on_components() throws Exception {
+    ComponentDto project = ComponentTesting.newProjectDto("A");
+    ComponentDto file1 = ComponentTesting.newFileDto(project, "ABCD");
+    ComponentDto file2 = ComponentTesting.newFileDto(project, "BCDE");
+    ComponentDto file3 = ComponentTesting.newFileDto(project, "CDEF");
+
+    indexIssues(
+      IssueTesting.newDoc("ISSUE1", project),
+      IssueTesting.newDoc("ISSUE2", file1),
+      IssueTesting.newDoc("ISSUE3", file2),
+      IssueTesting.newDoc("ISSUE4", file2),
+      IssueTesting.newDoc("ISSUE5", file3));
+
+    Result<Issue> result = index.search(IssueQuery.builder().build(), new QueryContext().addFacets(newArrayList("componentUuids")));
+    assertThat(result.getFacets()).containsOnlyKeys("componentUuids");
+    assertThat(result.getFacets().get("componentUuids")).containsOnly(new FacetValue("A", 1), new FacetValue("ABCD", 1), new FacetValue("BCDE", 2), new FacetValue("CDEF", 1));
+  }
+
+  @Test
   public void filter_by_directories() throws Exception {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file1 = ComponentTesting.newFileDto(project).setPath("src/main/xoo/F1.xoo");
@@ -207,6 +241,21 @@ public class IssueIndexMediumTest {
     assertThat(index.search(IssueQuery.builder().directories(newArrayList("/src/main/xoo")).build(), new QueryContext()).getHits()).hasSize(1);
     assertThat(index.search(IssueQuery.builder().directories(newArrayList("/")).build(), new QueryContext()).getHits()).hasSize(1);
     assertThat(index.search(IssueQuery.builder().directories(newArrayList("unknown")).build(), new QueryContext()).getHits()).isEmpty();
+  }
+
+  @Test
+  public void facets_on_directories() throws Exception {
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file1 = ComponentTesting.newFileDto(project).setPath("src/main/xoo/F1.xoo");
+    ComponentDto file2 = ComponentTesting.newFileDto(project).setPath("F2.xoo");
+
+    indexIssues(
+      IssueTesting.newDoc("ISSUE1", file1).setDirectoryPath("/src/main/xoo"),
+      IssueTesting.newDoc("ISSUE2", file2).setDirectoryPath("/"));
+
+    Result<Issue> result = index.search(IssueQuery.builder().build(), new QueryContext().addFacets(newArrayList("directories")));
+    assertThat(result.getFacets()).containsOnlyKeys("directories");
+    assertThat(result.getFacets().get("directories")).containsOnly(new FacetValue("/src/main/xoo", 1), new FacetValue("/", 1));
   }
 
   @Test
@@ -224,6 +273,21 @@ public class IssueIndexMediumTest {
   }
 
   @Test
+  public void facets_on_severities() throws Exception {
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+
+    indexIssues(
+      IssueTesting.newDoc("ISSUE1", file).setSeverity(Severity.INFO),
+      IssueTesting.newDoc("ISSUE2", file).setSeverity(Severity.INFO),
+      IssueTesting.newDoc("ISSUE3", file).setSeverity(Severity.MAJOR));
+
+    Result<Issue> result = index.search(IssueQuery.builder().build(), new QueryContext().addFacets(newArrayList("severities")));
+    assertThat(result.getFacets()).containsOnlyKeys("severities");
+    assertThat(result.getFacets().get("severities")).containsOnly(new FacetValue("INFO", 2), new FacetValue("MAJOR", 1));
+  }
+
+  @Test
   public void filter_by_statuses() throws Exception {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
@@ -235,6 +299,21 @@ public class IssueIndexMediumTest {
     assertThat(index.search(IssueQuery.builder().statuses(newArrayList(Issue.STATUS_CLOSED, Issue.STATUS_OPEN)).build(), new QueryContext()).getHits()).hasSize(2);
     assertThat(index.search(IssueQuery.builder().statuses(newArrayList(Issue.STATUS_CLOSED)).build(), new QueryContext()).getHits()).hasSize(1);
     assertThat(index.search(IssueQuery.builder().statuses(newArrayList(Issue.STATUS_CONFIRMED)).build(), new QueryContext()).getHits()).isEmpty();
+  }
+
+  @Test
+  public void facets_on_statuses() throws Exception {
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+
+    indexIssues(
+      IssueTesting.newDoc("ISSUE1", file).setStatus(Issue.STATUS_CLOSED),
+      IssueTesting.newDoc("ISSUE2", file).setStatus(Issue.STATUS_CLOSED),
+      IssueTesting.newDoc("ISSUE3", file).setStatus(Issue.STATUS_OPEN));
+
+    Result<Issue> result = index.search(IssueQuery.builder().build(), new QueryContext().addFacets(newArrayList("statuses")));
+    assertThat(result.getFacets()).containsOnlyKeys("statuses");
+    assertThat(result.getFacets().get("statuses")).containsOnly(new FacetValue("CLOSED", 2), new FacetValue("OPEN", 1));
   }
 
   @Test
@@ -250,6 +329,21 @@ public class IssueIndexMediumTest {
       .hasSize(2);
     assertThat(index.search(IssueQuery.builder().resolutions(newArrayList(Issue.RESOLUTION_FALSE_POSITIVE)).build(), new QueryContext()).getHits()).hasSize(1);
     assertThat(index.search(IssueQuery.builder().resolutions(newArrayList(Issue.RESOLUTION_REMOVED)).build(), new QueryContext()).getHits()).isEmpty();
+  }
+
+  @Test
+  public void facets_on_resolutions() throws Exception {
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+
+    indexIssues(
+      IssueTesting.newDoc("ISSUE1", file).setResolution(Issue.RESOLUTION_FALSE_POSITIVE),
+      IssueTesting.newDoc("ISSUE2", file).setResolution(Issue.RESOLUTION_FALSE_POSITIVE),
+      IssueTesting.newDoc("ISSUE3", file).setResolution(Issue.RESOLUTION_FIXED));
+
+    Result<Issue> result = index.search(IssueQuery.builder().build(), new QueryContext().addFacets(newArrayList("resolutions")));
+    assertThat(result.getFacets()).containsOnlyKeys("resolutions");
+    assertThat(result.getFacets().get("resolutions")).containsOnly(new FacetValue("FALSE-POSITIVE", 2), new FacetValue("FIXED", 1));
   }
 
   @Test
@@ -280,6 +374,20 @@ public class IssueIndexMediumTest {
     assertThat(index.search(IssueQuery.builder().actionPlans(newArrayList("plan1", "plan2")).build(), new
       QueryContext()).getHits()).hasSize(2);
     assertThat(index.search(IssueQuery.builder().actionPlans(newArrayList("unknown")).build(), new QueryContext()).getHits()).isEmpty();
+  }
+
+  @Test
+  public void facets_on_action_plans() throws Exception {
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+
+    indexIssues(
+      IssueTesting.newDoc("ISSUE1", file).setActionPlanKey("plan1"),
+      IssueTesting.newDoc("ISSUE2", file).setActionPlanKey("plan2"));
+
+    Result<Issue> result = index.search(IssueQuery.builder().build(), new QueryContext().addFacets(newArrayList("actionPlans")));
+    assertThat(result.getFacets()).containsOnlyKeys("actionPlans");
+    assertThat(result.getFacets().get("actionPlans")).containsOnly(new FacetValue("plan1", 1), new FacetValue("plan2", 1));
   }
 
   @Test
@@ -323,6 +431,19 @@ public class IssueIndexMediumTest {
   }
 
   @Test
+  public void facets_on_languages() throws Exception {
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+    RuleKey ruleKey = RuleKey.of("repo", "X1");
+
+    indexIssues(IssueTesting.newDoc("ISSUE1", file).setRuleKey(ruleKey.toString()).setLanguage("xoo"));
+
+    Result<Issue> result = index.search(IssueQuery.builder().build(), new QueryContext().addFacets(newArrayList("languages")));
+    assertThat(result.getFacets()).containsOnlyKeys("languages");
+    assertThat(result.getFacets().get("languages")).containsOnly(new FacetValue("xoo", 1));
+  }
+
+  @Test
   public void filter_by_assignees() throws Exception {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
@@ -335,6 +456,22 @@ public class IssueIndexMediumTest {
     assertThat(index.search(IssueQuery.builder().assignees(newArrayList("steph")).build(), new QueryContext()).getHits()).hasSize(1);
     assertThat(index.search(IssueQuery.builder().assignees(newArrayList("steph", "simon")).build(), new QueryContext()).getHits()).hasSize(2);
     assertThat(index.search(IssueQuery.builder().assignees(newArrayList("unknown")).build(), new QueryContext()).getHits()).isEmpty();
+  }
+
+  @Test
+  public void facets_on_assignees() throws Exception {
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+
+    indexIssues(
+      IssueTesting.newDoc("ISSUE1", file).setAssignee("steph"),
+      IssueTesting.newDoc("ISSUE2", file).setAssignee("simon"),
+      IssueTesting.newDoc("ISSUE3", file).setAssignee("simon"),
+      IssueTesting.newDoc("ISSUE4", file).setAssignee(null));
+
+    Result<Issue> result = index.search(IssueQuery.builder().build(), new QueryContext().addFacets(newArrayList("assignees")));
+    assertThat(result.getFacets()).containsOnlyKeys("assignees");
+    assertThat(result.getFacets().get("assignees")).containsOnly(new FacetValue("steph", 1), new FacetValue("simon", 2), new FacetValue("", 1));
   }
 
   @Test

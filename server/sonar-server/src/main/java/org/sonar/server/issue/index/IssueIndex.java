@@ -181,7 +181,7 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
     setFacets(query, options, filters, esQuery, esSearch);
 
     SearchResponse response = esSearch.get();
-    return new Result<Issue>(this, response);
+    return new Result<>(this, response);
   }
 
   private BoolFilterBuilder getFilter(IssueQuery query, QueryContext options) {
@@ -196,7 +196,7 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
 
   public void deleteClosedIssuesOfProjectBefore(String uuid, Date beforeDate) {
     FilterBuilder projectFilter = FilterBuilders.boolFilter().must(FilterBuilders.termsFilter(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, uuid));
-    FilterBuilder dateFilter = FilterBuilders.rangeFilter(IssueNormalizer.IssueField.ISSUE_CLOSE_DATE.field()).lt(beforeDate.getTime());
+    FilterBuilder dateFilter = FilterBuilders.rangeFilter(IssueIndexDefinition.FIELD_ISSUE_FUNC_CLOSED_AT).lt(beforeDate.getTime());
     QueryBuilder queryBuilder = QueryBuilders.filteredQuery(
       QueryBuilders.matchAllQuery(),
       FilterBuilders.andFilter(projectFilter, dateFilter)
@@ -334,22 +334,24 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
       StickyFacetBuilder stickyFacetBuilder = stickyFacetBuilder(esQuery, filters);
       // Execute Term aggregations
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
-        IssueFilterParameters.SEVERITIES, IssueNormalizer.IssueField.SEVERITY.field(), Severity.ALL.toArray());
+        IssueFilterParameters.SEVERITIES, IssueIndexDefinition.FIELD_ISSUE_SEVERITY, Severity.ALL.toArray());
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
-        IssueFilterParameters.STATUSES, IssueNormalizer.IssueField.STATUS.field(), Issue.STATUSES.toArray());
+        IssueFilterParameters.STATUSES, IssueIndexDefinition.FIELD_ISSUE_STATUS, Issue.STATUSES.toArray());
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
-        IssueFilterParameters.COMPONENT_UUIDS, IssueNormalizer.IssueField.COMPONENT.field(), query.componentUuids().toArray());
+        IssueFilterParameters.COMPONENT_UUIDS, IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, query.componentUuids().toArray());
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
-        IssueFilterParameters.PROJECT_UUIDS, IssueNormalizer.IssueField.PROJECT.field(), query.projectUuids().toArray());
+        IssueFilterParameters.PROJECT_UUIDS, IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, query.projectUuids().toArray());
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
-        IssueFilterParameters.LANGUAGES, IssueNormalizer.IssueField.LANGUAGE.field(), query.languages().toArray());
+        IssueFilterParameters.DIRECTORIES, IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH, query.directories().toArray());
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
-        IssueFilterParameters.RULES, IssueNormalizer.IssueField.RULE_KEY.field(), query.rules().toArray());
+        IssueFilterParameters.LANGUAGES, IssueIndexDefinition.FIELD_ISSUE_LANGUAGE, query.languages().toArray());
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
-        IssueFilterParameters.REPORTERS, IssueNormalizer.IssueField.REPORTER.field());
+        IssueFilterParameters.RULES, IssueIndexDefinition.FIELD_ISSUE_RULE_KEY, query.rules().toArray());
+      addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
+        IssueFilterParameters.REPORTERS, IssueIndexDefinition.FIELD_ISSUE_REPORTER);
 
       if (options.facets().contains(IssueFilterParameters.TAGS)) {
-        esSearch.addAggregation(stickyFacetBuilder.buildStickyFacet(IssueNormalizer.IssueField.TAGS.field(), IssueFilterParameters.TAGS, TAGS_FACET_SIZE, query.tags().toArray()));
+        esSearch.addAggregation(stickyFacetBuilder.buildStickyFacet(IssueIndexDefinition.FIELD_ISSUE_TAGS, IssueFilterParameters.TAGS, TAGS_FACET_SIZE, query.tags().toArray()));
       }
 
       if (options.facets().contains(IssueFilterParameters.RESOLUTIONS)) {
@@ -372,7 +374,7 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
   }
 
   private AggregationBuilder getAssigneesFacet(IssueQuery query, Map<String, FilterBuilder> filters, QueryBuilder esQuery) {
-    String fieldName = IssueNormalizer.IssueField.ASSIGNEE.field();
+    String fieldName = IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE;
     String facetName = IssueFilterParameters.ASSIGNEES;
 
     // Same as in super.stickyFacetBuilder
@@ -403,7 +405,7 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
   }
 
   private AggregationBuilder getResolutionFacet(Map<String, FilterBuilder> filters, QueryBuilder esQuery) {
-    String fieldName = IssueNormalizer.IssueField.RESOLUTION.field();
+    String fieldName = IssueIndexDefinition.FIELD_ISSUE_RESOLUTION;
     String facetName = IssueFilterParameters.RESOLUTIONS;
 
     // Same as in super.stickyFacetBuilder
@@ -428,7 +430,7 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
   }
 
   private AggregationBuilder getActionPlansFacet(IssueQuery query, Map<String, FilterBuilder> filters, QueryBuilder esQuery) {
-    String fieldName = IssueNormalizer.IssueField.ACTION_PLAN.field();
+    String fieldName = IssueIndexDefinition.FIELD_ISSUE_ACTION_PLAN;
     String facetName = IssueFilterParameters.ACTION_PLANS;
 
     // Same as in super.stickyFacetBuilder

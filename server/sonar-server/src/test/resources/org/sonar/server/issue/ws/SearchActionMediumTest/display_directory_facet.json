@@ -1,0 +1,13 @@
+{
+  "facets": [
+    {
+      "property": "directories",
+      "values": [
+        {
+          "val": "/src/main/java/dir",
+          "count": 1
+        }
+      ]
+    }
+  ]
+}

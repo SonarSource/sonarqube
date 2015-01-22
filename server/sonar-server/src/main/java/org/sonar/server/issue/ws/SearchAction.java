@@ -283,6 +283,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       IssueFilterParameters.ASSIGNEES,
       IssueFilterParameters.REPORTERS,
       IssueFilterParameters.COMPONENT_UUIDS,
+      IssueFilterParameters.DIRECTORIES,
       IssueFilterParameters.LANGUAGES,
       IssueFilterParameters.TAGS,
     });

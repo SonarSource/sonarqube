@@ -54,4 +54,12 @@ public class FacetValue {
   public int hashCode() {
     return key != null ? key.hashCode() : 0;
   }
+
+  @Override
+  public String toString() {
+    return "FacetValue{" +
+      "key='" + key + '\'' +
+      ", value=" + value +
+      '}';
+  }
 }

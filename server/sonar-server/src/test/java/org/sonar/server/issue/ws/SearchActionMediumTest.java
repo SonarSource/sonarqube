@@ -494,6 +494,25 @@ public class SearchActionMediumTest {
   }
 
   @Test
+  public void display_directory_facet() throws Exception {
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    setDefaultProjectPermission(project);
+    ComponentDto directory = insertComponent(ComponentTesting.newDirectory(project, "src/main/java/dir"));
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent").setPath(directory.path() + "/MyComponent.java"));
+    IssueDto issue = IssueTesting.newDto(newRule(), file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2");
+    db.issueDao().insert(session, issue);
+    session.commit();
+    tester.get(IssueIndexer.class).indexAll();
+
+    MockUserSession.set().setLogin("john");
+    WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+      .setParam("resolved", "false")
+      .setParam(SearchAction.PARAM_FACETS, "directories")
+      .execute();
+    result.assertJson(this.getClass(), "display_directory_facet.json", false);
+  }
+
+  @Test
   public void hide_rules() throws Exception {
     ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
     setDefaultProjectPermission(project);
