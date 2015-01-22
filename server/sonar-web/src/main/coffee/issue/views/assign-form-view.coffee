@@ -40,6 +40,13 @@ define [
       setTimeout (=> @$('input').focus()), 100
 
 
+    selectInitialOption: ->
+      assignee = @getAssignee()
+      if assignee
+        @makeActive @getOptions().filter("[data-value=\"#{@getAssignee()}\"]")
+      else super
+
+
     renderTags: ->
       @$('.issue-action-option').remove()
       @getAssignees().forEach @renderAssignee, @
@@ -126,9 +133,9 @@ define [
       assignees = [{ id: '', text: t('unassigned') }]
       currentUser = window.SS.user
       currentUserName = window.SS.userName
-      currentAssignee = @getAssignee()
-      if !currentAssignee || currentUser != currentAssignee
-        assignees.push id: currentUser, text: currentUserName
+      assignees.push id: currentUser, text: currentUserName
+      if @getAssignee()
+        assignees.push id: @getAssignee(), text: @getAssigneeName()
       @makeUnique assignees
 
 
