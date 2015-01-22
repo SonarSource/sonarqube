@@ -17,13 +17,20 @@ define([
 
     getValues: function () {
       var that = this,
-          values = this.options.app.qualityProfiles.map(function (profile) {
-            return {
-              label: profile.name,
-              extra: that.options.app.languages[profile.lang],
-              val: profile.key
-            };
-          });
+          languagesQuery = this.options.app.state.get('query').languages,
+          languages = languagesQuery != null ? languagesQuery.split(',') : [],
+          lang = languages.length === 1 ? languages[0] : null,
+          values = this.options.app.qualityProfiles
+              .filter(function (profile) {
+                return lang != null ? profile.lang === lang : true;
+              })
+              .map(function (profile) {
+                return {
+                  label: profile.name,
+                  extra: that.options.app.languages[profile.lang],
+                  val: profile.key
+                };
+              });
       return _.sortBy(values, 'label');
     },
 
