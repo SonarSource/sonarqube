@@ -98,7 +98,7 @@ public class RuleTesting {
   public static RuleDto newManualRule(String manualKey){
     return new RuleDto().setRuleKey(manualKey)
       .setName("Name " + manualKey)
-      .setRepositoryKey("manual")
+      .setRepositoryKey(RuleKey.MANUAL_REPOSITORY_KEY)
       .setDescription("Description " + manualKey)
       .setStatus(RuleStatus.READY);
   }

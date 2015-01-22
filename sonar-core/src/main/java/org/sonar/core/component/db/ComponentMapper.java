@@ -52,12 +52,6 @@ public interface ComponentMapper {
   @CheckForNull
   ComponentDto selectByUuid(String uuid);
 
-  @CheckForNull
-  ComponentDto selectRootProjectByKey(String key);
-
-  @CheckForNull
-  ComponentDto selectParentModuleByKey(String key);
-
   /**
    * Return direct modules from a project/module
    */

@@ -26,6 +26,7 @@ import com.google.common.collect.Multimap;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.protocol.input.FileData;
 import org.sonar.batch.protocol.input.ProjectReferentials;
 import org.sonar.core.UtcDateUtils;
@@ -43,11 +44,16 @@ import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileLoader;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleService;
+import org.sonar.server.rule.index.RuleNormalizer;
+import org.sonar.server.rule.index.RuleQuery;
+import org.sonar.server.search.QueryContext;
+import org.sonar.server.search.Result;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.Nullable;
 
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -82,41 +88,43 @@ public class ProjectRepositoryLoader implements ServerComponent {
       ComponentDto module = dbClient.componentDao().getNullableByKey(session, query.getModuleKey());
       // Current project/module can be null when analysing a new project
       if (module != null) {
-        ComponentDto project = dbClient.componentDao().getNullableRootProjectByKey(query.getModuleKey(), session);
-
-        // Can be null if the given project is a provisioned one
-        if (project != null) {
-          if (!project.key().equals(module.key())) {
-            addSettings(ref, module.getKey(), getSettingsFromParents(module.key(), hasScanPerm, session));
-            projectKey = project.key();
-          }
-
-          List<ComponentDto> moduleChildren = dbClient.componentDao().findChildrenModulesFromModule(session, query.getModuleKey());
-          Map<String, String> moduleUuidsByKey = moduleUuidsByKey(module, moduleChildren);
-          Map<String, Long> moduleIdsByKey = moduleIdsByKey(module, moduleChildren);
-
-          List<PropertyDto> moduleChildrenSettings = dbClient.propertiesDao().findChildrenModuleProperties(query.getModuleKey(), session);
-          TreeModuleSettings treeModuleSettings = new TreeModuleSettings(moduleUuidsByKey, moduleIdsByKey, moduleChildren, moduleChildrenSettings, module);
-
-          addSettingsToChildrenModules(ref, query.getModuleKey(), Maps.<String, String>newHashMap(), treeModuleSettings, hasScanPerm, session);
-          addFileData(session, ref, moduleChildren, module.key());
-        } else {
-          // Add settings of the provisioned project
-          addSettings(ref, query.getModuleKey(), getPropertiesMap(dbClient.propertiesDao().selectProjectProperties(query.getModuleKey(), session), hasScanPerm));
+        ComponentDto project = getProject(module, session);
+        if (!project.key().equals(module.key())) {
+          addSettings(ref, module.getKey(), getSettingsFromParents(module, hasScanPerm, session));
+          projectKey = project.key();
         }
+
+        List<ComponentDto> moduleChildren = dbClient.componentDao().findChildrenModulesFromModule(session, query.getModuleKey());
+        Map<String, String> moduleUuidsByKey = moduleUuidsByKey(module, moduleChildren);
+        Map<String, Long> moduleIdsByKey = moduleIdsByKey(module, moduleChildren);
+
+        List<PropertyDto> moduleChildrenSettings = dbClient.propertiesDao().findChildrenModuleProperties(query.getModuleKey(), session);
+        TreeModuleSettings treeModuleSettings = new TreeModuleSettings(moduleUuidsByKey, moduleIdsByKey, moduleChildren, moduleChildrenSettings, module);
+
+        addSettingsToChildrenModules(ref, query.getModuleKey(), Maps.<String, String>newHashMap(), treeModuleSettings, hasScanPerm, session);
+        addFileData(session, ref, moduleChildren, module.key());
       }
 
       addProfiles(ref, projectKey, query.getProfileName(), session);
       addActiveRules(ref);
+      addManualRules(ref);
       return ref;
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  private Map<String, String> getSettingsFromParents(String moduleKey, boolean hasScanPerm, DbSession session) {
+  private ComponentDto getProject(ComponentDto module, DbSession session) {
+    if (!module.isRootProject()) {
+      return dbClient.componentDao().getNullableByUuid(session, module.projectUuid());
+    } else {
+      return module;
+    }
+  }
+
+  private Map<String, String> getSettingsFromParents(ComponentDto module, boolean hasScanPerm, DbSession session) {
     List<ComponentDto> parents = newArrayList();
-    aggregateParentModules(moduleKey, parents, session);
+    aggregateParentModules(module, parents, session);
     Collections.reverse(parents);
 
     Map<String, String> parentProperties = newHashMap();
@@ -126,11 +134,14 @@ public class ProjectRepositoryLoader implements ServerComponent {
     return parentProperties;
   }
 
-  private void aggregateParentModules(String component, List<ComponentDto> parents, DbSession session) {
-    ComponentDto parent = dbClient.componentDao().getParentModuleByKey(component, session);
-    if (parent != null) {
-      parents.add(parent);
-      aggregateParentModules(parent.key(), parents, session);
+  private void aggregateParentModules(ComponentDto component, List<ComponentDto> parents, DbSession session) {
+    String moduleUuid = component.moduleUuid();
+    if (moduleUuid != null) {
+      ComponentDto parent = dbClient.componentDao().getByUuid(session, moduleUuid);
+      if (parent != null) {
+        parents.add(parent);
+        aggregateParentModules(parent, parents, session);
+      }
     }
   }
 
@@ -217,6 +228,20 @@ public class ProjectRepositoryLoader implements ServerComponent {
         }
         ref.addActiveRule(inputActiveRule);
       }
+    }
+  }
+
+  private void addManualRules(ProjectReferentials ref) {
+    Result<Rule> ruleSearchResult = ruleService.search(new RuleQuery().setRepositories(newArrayList(RuleKey.MANUAL_REPOSITORY_KEY)), new QueryContext().setScroll(true)
+      .setFieldsToReturn(newArrayList(RuleNormalizer.RuleField.KEY.field(), RuleNormalizer.RuleField.NAME.field())));
+    Iterator<Rule> rules = ruleSearchResult.scroll();
+    while (rules.hasNext()) {
+      Rule rule = rules.next();
+      ref.addActiveRule(new org.sonar.batch.protocol.input.ActiveRule(
+        RuleKey.MANUAL_REPOSITORY_KEY,
+        rule.key().rule(),
+        rule.name(),
+        null, null, null));
     }
   }
 

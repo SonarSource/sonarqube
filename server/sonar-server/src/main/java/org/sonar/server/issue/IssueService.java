@@ -38,7 +38,6 @@ import org.sonar.api.user.UserFinder;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.DefaultIssueBuilder;
-import org.sonar.server.issue.notification.IssueNotifications;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.db.IssueDao;
 import org.sonar.core.issue.db.IssueDto;
@@ -52,6 +51,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.issue.notification.IssueNotifications;
 import org.sonar.server.search.FacetValue;
 import org.sonar.server.search.IndexClient;
 import org.sonar.server.search.QueryContext;
@@ -251,7 +251,7 @@ public class IssueService implements ServerComponent {
     DbSession session = dbClient.openSession(false);
     try {
       ComponentDto component = dbClient.componentDao().getByKey(session, componentKey);
-      ComponentDto project = dbClient.componentDao().getRootProjectByKey(componentKey, session);
+      ComponentDto project = dbClient.componentDao().getByUuid(session, component.projectUuid());
 
       UserSession.get().checkProjectPermission(UserRole.USER, project.getKey());
       if (!ruleKey.isManual()) {

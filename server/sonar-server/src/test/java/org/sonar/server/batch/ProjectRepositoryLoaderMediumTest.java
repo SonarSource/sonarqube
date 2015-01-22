@@ -34,7 +34,6 @@ import org.sonar.batch.protocol.input.FileData;
 import org.sonar.batch.protocol.input.ProjectReferentials;
 import org.sonar.batch.protocol.input.QProfile;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.component.SnapshotDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.properties.PropertyDto;
@@ -44,7 +43,6 @@ import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.source.db.FileSourceDao;
 import org.sonar.core.source.db.FileSourceDto;
 import org.sonar.server.component.ComponentTesting;
-import org.sonar.server.component.SnapshotTesting;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.qualityprofile.QProfileName;
@@ -297,28 +295,6 @@ public class ProjectRepositoryLoaderMediumTest {
   }
 
   @Test
-  public void return_provisioned_project_settings() throws Exception {
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
-
-    // No snapshot attached on the project -> provisioned project
-    ComponentDto project = ComponentTesting.newProjectDto();
-    tester.get(DbClient.class).componentDao().insert(dbSession, project);
-    addDefaultProfile();
-
-    // Project properties
-    tester.get(DbClient.class).propertiesDao().setProperty(new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR").setResourceId(project.getId()), dbSession);
-    tester.get(DbClient.class).propertiesDao().setProperty(new PropertyDto().setKey("sonar.jira.login.secured").setValue("john").setResourceId(project.getId()), dbSession);
-
-    dbSession.commit();
-
-    ProjectReferentials ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
-    assertThat(ref.settings(project.key())).isEqualTo(ImmutableMap.of(
-      "sonar.jira.project.key", "SONAR",
-      "sonar.jira.login.secured", "john"
-      ));
-  }
-
-  @Test
   public void return_sub_module_settings() throws Exception {
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
 
@@ -357,8 +333,6 @@ public class ProjectRepositoryLoaderMediumTest {
 
     ComponentDto project = ComponentTesting.newProjectDto();
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
-    SnapshotDto projectSnapshot = SnapshotTesting.createForProject(project);
-    tester.get(DbClient.class).snapshotDao().insert(dbSession, projectSnapshot);
     addDefaultProfile();
 
     // Project property
@@ -366,15 +340,12 @@ public class ProjectRepositoryLoaderMediumTest {
 
     ComponentDto module = ComponentTesting.newModuleDto(project);
     tester.get(DbClient.class).componentDao().insert(dbSession, module);
-    SnapshotDto moduleSnapshot = SnapshotTesting.createForComponent(module, projectSnapshot);
-    tester.get(DbClient.class).snapshotDao().insert(dbSession, moduleSnapshot);
 
     // Module property
     tester.get(DbClient.class).propertiesDao().setProperty(new PropertyDto().setKey("sonar.jira.login.secured").setValue("john").setResourceId(module.getId()), dbSession);
 
     ComponentDto subModule = ComponentTesting.newModuleDto(module);
     tester.get(DbClient.class).componentDao().insert(dbSession, subModule);
-    tester.get(DbClient.class).snapshotDao().insert(dbSession, SnapshotTesting.createForComponent(subModule, moduleSnapshot));
 
     // Sub module properties
     tester.get(DbClient.class).propertiesDao().setProperty(new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java").setResourceId(subModule.getId()), dbSession);
@@ -397,8 +368,6 @@ public class ProjectRepositoryLoaderMediumTest {
 
     ComponentDto project = ComponentTesting.newProjectDto();
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
-    SnapshotDto projectSnapshot = SnapshotTesting.createForProject(project);
-    tester.get(DbClient.class).snapshotDao().insert(dbSession, projectSnapshot);
     addDefaultProfile();
 
     // Project properties
@@ -408,13 +377,10 @@ public class ProjectRepositoryLoaderMediumTest {
 
     ComponentDto module = ComponentTesting.newModuleDto(project);
     tester.get(DbClient.class).componentDao().insert(dbSession, module);
-    SnapshotDto moduleSnapshot = SnapshotTesting.createForComponent(module, projectSnapshot);
-    tester.get(DbClient.class).snapshotDao().insert(dbSession, moduleSnapshot);
     // No module property
 
     ComponentDto subModule = ComponentTesting.newModuleDto(module);
     tester.get(DbClient.class).componentDao().insert(dbSession, subModule);
-    tester.get(DbClient.class).snapshotDao().insert(dbSession, SnapshotTesting.createForComponent(subModule, moduleSnapshot));
     // No sub module property
 
     dbSession.commit();
@@ -435,8 +401,6 @@ public class ProjectRepositoryLoaderMediumTest {
 
     ComponentDto project = ComponentTesting.newProjectDto();
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
-    SnapshotDto projectSnapshot = SnapshotTesting.createForProject(project);
-    tester.get(DbClient.class).snapshotDao().insert(dbSession, projectSnapshot);
     addDefaultProfile();
 
     // Project properties
@@ -445,15 +409,12 @@ public class ProjectRepositoryLoaderMediumTest {
 
     ComponentDto module = ComponentTesting.newModuleDto(project);
     tester.get(DbClient.class).componentDao().insert(dbSession, module);
-    SnapshotDto moduleSnapshot = SnapshotTesting.createForComponent(module, projectSnapshot);
-    tester.get(DbClient.class).snapshotDao().insert(dbSession, moduleSnapshot);
 
     // Module property
     tester.get(DbClient.class).propertiesDao().setProperty(new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR-SERVER").setResourceId(module.getId()), dbSession);
 
     ComponentDto subModule = ComponentTesting.newModuleDto(module);
     tester.get(DbClient.class).componentDao().insert(dbSession, subModule);
-    tester.get(DbClient.class).snapshotDao().insert(dbSession, SnapshotTesting.createForComponent(subModule, moduleSnapshot));
     // No sub module property
 
     dbSession.commit();
@@ -637,8 +598,29 @@ public class ProjectRepositoryLoaderMediumTest {
     assertThat(activeRules.get(0).language()).isEqualTo("xoo");
     assertThat(activeRules.get(0).severity()).isEqualTo("MINOR");
     assertThat(activeRules.get(0).internalKey()).isEqualTo("squid-1");
-    assertThat(activeRules.get(0).language()).isEqualTo("xoo");
     assertThat(activeRules.get(0).params()).isEqualTo(ImmutableMap.of("max", "2"));
+  }
+
+  @Test
+  public void return_manual_rules() throws Exception {
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+
+    ComponentDto project = ComponentTesting.newProjectDto();
+    tester.get(DbClient.class).componentDao().insert(dbSession, project);
+    addDefaultProfile();
+
+    RuleDto rule = RuleTesting.newManualRule("manualRuleKey").setName("Name manualRuleKey");
+    tester.get(DbClient.class).ruleDao().insert(dbSession, rule);
+
+    dbSession.commit();
+
+    ProjectReferentials ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
+    List<ActiveRule> activeRules = newArrayList(ref.activeRules());
+    assertThat(activeRules).extracting("repositoryKey").containsOnly(RuleKey.MANUAL_REPOSITORY_KEY);
+    assertThat(activeRules).extracting("ruleKey").containsOnly("manualRuleKey");
+    assertThat(activeRules).extracting("name").containsOnly("Name manualRuleKey");
+    assertThat(activeRules).extracting("language").containsNull();
+    assertThat(activeRules).extracting("severity").containsNull();
   }
 
   @Test

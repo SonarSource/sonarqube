@@ -74,4 +74,5 @@ public class ProjectRepositoryAction implements RequestHandler {
     response.stream().setMediaType(MimeTypes.JSON);
     IOUtils.write(ref.toJson(), response.stream().output());
   }
+
 }

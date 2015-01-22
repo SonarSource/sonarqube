@@ -83,28 +83,6 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
     return mapper(session).countById(id) > 0;
   }
 
-  /**
-   * Return null only if the component does not exists.
-   * If the component if a root project, it will return itself.
-   */
-  @CheckForNull
-  public ComponentDto getNullableRootProjectByKey(String componentKey, DbSession session) {
-    return mapper(session).selectRootProjectByKey(componentKey);
-  }
-
-  public ComponentDto getRootProjectByKey(String componentKey, DbSession session) {
-    ComponentDto componentDto = getNullableRootProjectByKey(componentKey, session);
-    if (componentDto == null) {
-      throw new NotFoundException(String.format("Root project for project '%s' not found", componentKey));
-    }
-    return componentDto;
-  }
-
-  @CheckForNull
-  public ComponentDto getParentModuleByKey(String componentKey, DbSession session) {
-    return mapper(session).selectParentModuleByKey(componentKey);
-  }
-
   public List<ComponentDto> findModulesByProject(String projectKey, DbSession session) {
     return mapper(session).findModulesByProject(projectKey);
   }

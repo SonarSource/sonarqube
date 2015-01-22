@@ -62,27 +62,6 @@
     </where>
   </select>
 
-  <select id="selectRootProjectByKey" parameterType="String" resultType="Component">
-    SELECT rootProject.*
-    FROM projects p
-    INNER JOIN projects rootProject ON rootProject.uuid=p.project_uuid
-    <where>
-      AND p.kee=#{componentKey}
-    </where>
-  </select>
-
-  <select id="selectParentModuleByKey" parameterType="String" resultType="Component">
-    SELECT <include refid="componentColumns"/>
-    FROM projects p
-    INNER JOIN snapshots s ON s.project_id=p.id AND s.islast=${_true}
-    INNER JOIN snapshots child_snapshots ON child_snapshots.parent_snapshot_id=s.id AND child_snapshots.islast=${_true}
-    INNER JOIN projects child ON child.id=child_snapshots.project_id AND child.enabled=${_true} AND child.kee=#{key}
-    <where>
-      AND p.enabled=${_true}
-      AND p.scope='PRJ'
-    </where>
-  </select>
-
   <select id="findModulesByProject" parameterType="String" resultType="Component">
     SELECT <include refid="componentColumns"/>
     FROM projects p

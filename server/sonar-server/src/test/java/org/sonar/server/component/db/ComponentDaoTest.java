@@ -257,46 +257,6 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void get_nullable_root_project_by_key() throws Exception {
-    setupData("multi-modules");
-
-    assertThat(dao.getNullableRootProjectByKey("org.struts:struts-data", session).getKey()).isEqualTo("org.struts:struts");
-    assertThat(dao.getNullableRootProjectByKey("org.struts:struts-core", session).getKey()).isEqualTo("org.struts:struts");
-
-    // Root project of a project is itself
-    assertThat(dao.getNullableRootProjectByKey("org.struts:struts", session).getKey()).isEqualTo("org.struts:struts");
-
-    assertThat(dao.getNullableRootProjectByKey("unknown", session)).isNull();
-  }
-
-  @Test
-  public void get_root_project_by_key() throws Exception {
-    setupData("multi-modules");
-
-    assertThat(dao.getRootProjectByKey("org.struts:struts-data", session).getKey()).isEqualTo("org.struts:struts");
-    assertThat(dao.getRootProjectByKey("org.struts:struts-core", session).getKey()).isEqualTo("org.struts:struts");
-
-    // Root project of a project is itself
-    assertThat(dao.getRootProjectByKey("org.struts:struts", session).getKey()).isEqualTo("org.struts:struts");
-  }
-
-  @Test(expected = NotFoundException.class)
-  public void get_root_project_by_key_on_unknown_project() throws Exception {
-    dao.getRootProjectByKey("unknown", session);
-  }
-
-  @Test
-  public void get_parent_module_by_key() throws Exception {
-    setupData("multi-modules");
-
-    assertThat(dao.getParentModuleByKey("org.struts:struts-data", session).getKey()).isEqualTo("org.struts:struts-core");
-    assertThat(dao.getParentModuleByKey("org.struts:struts-core", session).getKey()).isEqualTo("org.struts:struts");
-    assertThat(dao.getParentModuleByKey("org.struts:struts", session)).isNull();
-
-    assertThat(dao.getParentModuleByKey("unknown", session)).isNull();
-  }
-
-  @Test
   public void find_sub_projects_by_component_keys() throws Exception {
     setupData("multi-modules");
 
