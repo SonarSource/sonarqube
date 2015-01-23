@@ -9,7 +9,7 @@
 <div id="container">
   <nav class="navbar navbar-global"></nav>
 
-  <% if selected_section==Navigation::SECTION_RESOURCE %>
+  <% if selected_section==Navigation::SECTION_RESOURCE || selected_section==Navigation::SECTION_CONFIGURATION %>
     <nav class="navbar navbar-context"></nav>
   <% end %>
 

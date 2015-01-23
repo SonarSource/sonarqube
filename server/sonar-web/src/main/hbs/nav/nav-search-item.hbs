@@ -1,14 +1,14 @@
+{{#if extra}}
+  {{#gt index 0}}
+    <div class="divider"></div>
+  {{/gt}}
+  <div class="dropdown-header">{{extra}}</div>
+{{/if}}
+
 <a href="{{url}}" title="{{name}}">
-  {{#if extra}}
-    <span class="navbar-search-extra subtitle">{{extra}}</span>
-  {{/if}}
   {{#if q}}{{qualifierIcon q}}{{/if}}
   {{#if subtitle}}
     {{title}}
-    <br>
-    {{#if extra}}
-      <span class="navbar-search-extra subtitle">&nbsp;</span>
-    {{/if}}
     <span class="subtitle">{{subtitle}}</span>
   {{else}}
     {{name}}

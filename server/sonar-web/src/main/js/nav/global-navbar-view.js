@@ -19,12 +19,6 @@ define([
       'hidden.bs.dropdown .js-search-dropdown': 'onSearchDropdownHidden'
     },
 
-    initialize: function () {
-      this.projectName = window.navbarProject;
-      this.projectKey = window.navbarProjectKey;
-      this.isProjectFavorite = window.navbarProjectFavorite;
-    },
-
     onRender: function () {
       var that = this;
       this.$el.addClass('navbar-' + window.navbarSpace);
@@ -56,6 +50,7 @@ define([
     onSearchDropdownShow: function () {
       var that = this;
       this.searchRegion.show(new SearchView({
+        model: this.model,
         hide: function () {
           that.$('.js-search-dropdown-toggle').dropdown('toggle');
         }
@@ -72,10 +67,9 @@ define([
         userName: window.SS.userName,
         isUserAdmin: window.SS.isUserAdmin,
 
-        projectName: this.projectName,
-        projectKey: this.projectKey,
-        projectFavorite: this.isProjectFavorite,
-        navbarCanFavoriteProject: window.navbarCanFavoriteProject
+        canManageGlobalDashboards: window.SS.user != null,
+        canManageIssueFilters: window.SS.user != null,
+        canManageMeasureFilters: window.SS.user != null
       });
     }
   });

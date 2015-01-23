@@ -7,6 +7,10 @@ define(function () {
       this.listenTo(this.collection, 'reset', this.resetSelectedIndex);
     },
 
+    itemViewOptions: function (model, index) {
+      return { index: index };
+    },
+
     resetSelectedIndex: function () {
       this.selectedIndex = 0;
     },

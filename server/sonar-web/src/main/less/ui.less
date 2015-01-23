@@ -422,12 +422,43 @@ input[type=button] {
 
 
 .nav-crumbs {
+  padding: 5px 0;
 
+  a {
+    color: @baseFontColor;
+  }
+
+  > li + li:before {
+    content: "/";
+    float: left;
+    padding: 7px 0;
+    color: fade(@baseFontColor, 30%);
+  }
+
+  > li:first-child {
+    font-size: 21px;
+    font-weight: 300;
+  }
 }
 
-.nav-crumbs > li + li:before {
-  content: " /";
-  display: inline-block;
-  vertical-align: middle;
-  color: fade(@baseFontColor, 30%);
+.nav-tabs {
+  border-bottom: 1px solid @barBorderColor;
+
+  > li {
+    float: left;
+    margin-bottom: -1px;
+  }
+
+  > li > a {
+    margin-right: 2px;
+    border-bottom: 3px solid transparent;
+
+    &:hover {
+      border-color: @lightBlue;
+    }
+  }
+
+  > li.active > a {
+    border-color: @lightBlue;
+  }
 }

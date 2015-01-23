@@ -1,29 +1,64 @@
 <div class="container">
+  <div class="navbar-header">
+    <a class="navbar-brand" href="{{link '/'}}">{{> '_nav-logo'}}</a>
+  </div>
+
   <ul class="nav navbar-nav">
-    {{#each items}}
-      {{#notEmpty menu}}
-        <li class="dropdown {{#if active}}active{{/if}}">
-          <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-            {{> '_nav-navbar-label'}}&nbsp;<i class="icon-dropdown"></i>
-          </a>
-          <ul class="dropdown-menu">
-            {{#each menu}}
-              <li {{#if active}}class="active"{{/if}}>
-                <a href="{{link url}}">
-                  {{> '_nav-navbar-label'}}
-                </a>
-              </li>
-            {{/each}}
-          </ul>
+    <li class="dropdown">
+      <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+        {{t 'layout.dashboards'}}&nbsp;<span class="icon-dropdown"></span>
+      </a>
+      <ul class="dropdown-menu">
+        {{#each globalDashboards}}
+          <li>
+            <a href="{{link url}}">{{name}}</a>
+          </li>
+        {{/each}}
+        {{#if canManageGlobalDashboards}}
+          <li class="divider"></li>
+          <li>
+            <a href="{{link '/dashboards'}}">{{t 'manage'}}</a>
+          </li>
+        {{/if}}
+      </ul>
+    </li>
+    <li class="dropdown immediate-dropdown">
+      <a href="{{link '/issues/search'}}">{{t 'issues.page'}}</a>
+    </li>
+    <li>
+      <a href="{{link '/measures/search?qualifiers[]=TRK'}}">{{t 'layout.measures'}}</a>
+    </li>
+    <li>
+      <a href="{{link '/coding_rules'}}">{{t 'coding_rules.page'}}</a>
+    </li>
+    <li>
+      <a href="{{link '/profiles'}}">{{t 'quality_profiles.page'}}</a>
+    </li>
+    <li>
+      <a href="{{link '/quality_gates'}}">{{t 'quality_gates.page'}}</a>
+    </li>
+    <li class="dropdown">
+      <a class="dropdown-toggle" data-toggle="dropdown" href="#">{{t 'more'}}&nbsp;<i class="icon-dropdown"></i></a>
+      <ul class="dropdown-menu">
+        <li>
+          <a href="{{link '/comparison'}}">{{t 'comparison.page'}}</a>
         </li>
-      {{else}}
-        <li {{#if active}}class="active"{{/if}}>
-          <a href="{{link url}}">
-            {{> '_nav-navbar-label'}}
-          </a>
+        <li>
+          <a href="{{link '/dependencies'}}">{{t 'dependencies.page'}}</a>
         </li>
-      {{/notEmpty}}
-    {{/each}}
+        {{#each globalPages}}
+          <li>
+            <a href="{{link url}}">{{name}}</a>
+          </li>
+        {{/each}}
+        {{#if isUserAdmin}}
+          <li class="divider"></li>
+          <li>
+            <a href="{{link '/settings'}}">{{t 'layout.settings'}}</a>
+          </li>
+        {{/if}}
+      </ul>
+    </li>
   </ul>
 
   <ul class="nav navbar-nav navbar-right">
@@ -48,16 +83,12 @@
       </li>
     {{/if}}
     <li class="dropdown js-search-dropdown">
-      <a class="dropdown-toggle js-search-dropdown-toggle" data-toggle="dropdown" href="#">
+      <a class="dropdown-toggle navbar-search-dropdown js-search-dropdown-toggle" data-toggle="dropdown" href="#">
         <i class="icon-search navbar-icon"></i>&nbsp;<span class="icon-dropdown"></span>
       </a>
+
       <div class="js-search-region dropdown-menu dropdown-menu-right"></div>
     </li>
-    {{#if isUserAdmin}}
-      <li>
-        <a href="{{link '/settings/index'}}"><i class="icon-settings navbar-icon"></i></a>
-      </li>
-    {{/if}}
   </ul>
 
 </div>

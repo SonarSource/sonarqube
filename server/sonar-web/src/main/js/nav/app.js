@@ -1,29 +1,41 @@
 define([
   'nav/global-navbar-view',
-  'nav/context-navbar-view'
-], function (GlobalNavbarView, ContextNavbarView) {
+  'nav/context-navbar-view',
+  'nav/settings-navbar-view'
+], function (GlobalNavbarView, ContextNavbarView, SettingsNavbarView) {
 
   var $ = jQuery,
-      App = new Marionette.Application();
+      App = new Marionette.Application(),
+      model = window.navbarOptions;
 
   App.addInitializer(function () {
     this.navbarView = new GlobalNavbarView({
       app: App,
       el: $('.navbar-global'),
-      collection: new Backbone.Collection(window.navbarGlobalMenu)
+      model: model
     });
     this.navbarView.render();
   });
 
-  if (window.navbarBreadcrumbs != null) {
+  if (model.has('contextBreadcrumbs')) {
     App.addInitializer(function () {
       this.contextNavbarView = new ContextNavbarView({
         app: App,
         el: $('.navbar-context'),
-        collection: new Backbone.Collection(window.navbarContextMenu),
-        breadcrumbs: new Backbone.Collection(window.navbarBreadcrumbs)
+        model: model
       });
       this.contextNavbarView.render();
+    });
+  }
+
+  if (model.get('space') === 'settings') {
+    App.addInitializer(function () {
+      this.settingsNavbarView = new SettingsNavbarView({
+        app: App,
+        el: $('.navbar-context'),
+        model: model
+      });
+      this.settingsNavbarView.render();
     });
   }
 

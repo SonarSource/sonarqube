@@ -1,8 +1,21 @@
 <header class="page-header">
   <h1 class="page-title"><%= h @dashboard.name -%></h1>
 
-  <% if logged_in? %>
-    <div class="page-actions operations noprint">
+
+  <div class="page-actions operations noprint">
+    <% if @snapshot %>
+      <% if @snapshot.project_snapshot.periods? %>
+        <% period_options = period_select_option_tags(@snapshot, 'small') %>
+        <% if period_options %>
+          <form method="GET" action="<%= url_for :controller => :dashboard, :action => :index, :id => @resource.id -%>" style="display: inline" class="spacer-left">
+            <input type="hidden" name="did" value="<%= @dashboard.id -%>"/>
+            <%= dropdown_tag 'period', period_options, {:width => '250px'}, {:id => 'select-comparison', :onchange => 'submit()'} -%>
+          </form>
+        <% end %>
+      <% end %>
+    <% end %>
+
+    <% if logged_in? %>
       <div class="button-group">
         <% if back %>
           <%= link_to message('dashboard.back_to_dashboard'), dashboard_action(:index), :class => 'button' -%>
@@ -13,21 +26,6 @@
         <% end %>
         <%= link_to message('dashboard.manage_dashboards'), {:controller => :dashboards, :action => :index, :resource => (@resource.id if @resource)}, :class => 'button' -%>
       </div>
-    </div>
-  <% end %>
-
-  <% if @snapshot %>
-    <div class="page-description" id="snapshot_title">
-      <%= "Version #{@snapshot.version} - " if @snapshot.version.present? -%><%= l @snapshot.created_at -%>
-      <% if @snapshot.project_snapshot.periods? %>
-        <% period_options = period_select_option_tags(@snapshot, 'small') %>
-        <% if period_options %>
-          <form method="GET" action="<%= url_for :controller => :dashboard, :action => :index, :id => @resource.id -%>" style="display: inline" class="spacer-left">
-            <input type="hidden" name="did" value="<%= @dashboard.id -%>"/>
-            <%= dropdown_tag 'period', period_options, {:width => '250px'}, {:id => 'select-comparison', :onchange => 'submit()'} -%>
-          </form>
-        <% end %>
-      <% end %>
-    </div>
-  <% end %>
+    <% end %>
+  </div>
 </header>

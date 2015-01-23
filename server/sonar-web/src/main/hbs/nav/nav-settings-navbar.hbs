@@ -1,0 +1,75 @@
+<div class="container">
+  <ul class="nav navbar-nav">
+    <li class="dropdown">
+      <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+        {{t 'sidebar.project_settings'}}&nbsp;<i class="icon-dropdown"></i>
+      </a>
+      <ul class="dropdown-menu">
+        <li>
+          <a href="{{link '/settings/index'}}">{{t 'settings.page'}}</a>
+        </li>
+        <li>
+          <a href="{{link '/metrics/index'}}">{{t 'manual_metrics.page'}}</a>
+        </li>
+        <li>
+          <a href="{{link '/admin_dashboards/index'}}">{{t 'default_dashboards.page'}}</a>
+        </li>
+        {{#each settingsPages}}
+          <li>
+            <a href="{{link url}}">{{name}}</a>
+          </li>
+        {{/each}}
+      </ul>
+    </li>
+
+    <li class="dropdown">
+      <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+        {{t 'sidebar.security'}}&nbsp;<i class="icon-dropdown"></i>
+      </a>
+      <ul class="dropdown-menu">
+        <li>
+          <a href="{{link '/users'}}">{{t 'users.page'}}</a>
+        </li>
+        <li>
+          <a href="{{link '/groups/index'}}">{{t 'user_groups.page'}}</a>
+        </li>
+        <li>
+          <a href="{{link '/roles/global'}}">{{t 'global_permissions.page'}}</a>
+        </li>
+        <li>
+          <a href="{{link '/roles/projects'}}">{{t 'roles.page'}}</a>
+        </li>
+        <li>
+          <a href="{{link '/admin_dashboards/index'}}">{{t 'default_dashboards.page'}}</a>
+        </li>
+      </ul>
+    </li>
+
+    <li class="dropdown">
+      <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+        {{t 'sidebar.system'}}&nbsp;<i class="icon-dropdown"></i>
+      </a>
+      <ul class="dropdown-menu">
+        {{#if settingsProvisioning}}
+          <li>
+            <a href="{{link '/provisioning'}}">{{t 'provisioning.page'}}</a>
+          </li>
+        {{/if}}
+        <li>
+          <a href="{{link '/bulk_deletion'}}">{{t 'bulk_deletion.page'}}</a>
+        </li>
+        {{#if settingsUpdateCenter}}
+          <li>
+            <a href="{{link '/updatecenter'}}">{{t 'update_center.page'}}</a>
+          </li>
+        {{/if}}
+        <li>
+          <a href="{{link '/system'}}">{{t 'system_info.page'}}</a>
+        </li>
+        <li>
+          <a href="{{link '/analysis_reports'}}">{{t 'analysis_reports.page'}}</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>

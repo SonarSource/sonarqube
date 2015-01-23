@@ -19,6 +19,12 @@ define([
 
         submit: function () {
           this.$('a')[0].click();
+        },
+
+        serializeData: function () {
+          return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
+            index: this.options.index
+          });
         }
       }),
 
@@ -106,7 +112,7 @@ define([
               q: historyItem.icon
             };
           }),
-          qualifiers = window.navbarQualifiers.map(function (q) {
+          qualifiers = this.model.get('qualifiers').map(function (q) {
             return {
               url: baseUrl + '/all_projects?qualifier=' + encodeURIComponent(q),
               name: t('qualifiers.all', q)
@@ -131,14 +137,14 @@ define([
             var title = item.name,
                 subtitle = null;
             if (domain.q === 'FIL' || domain.q === 'UTS') {
-              subtitle = title.substr(0, title.lastIndexOf('/') - 1);
+              subtitle = title.substr(0, title.lastIndexOf('/'));
               title = title.substr(title.lastIndexOf('/') + 1);
             }
             collection.push(_.extend(item, {
               q: domain.q,
               title: title,
               subtitle: subtitle,
-              extra: index === 0 ? domain.name : ' ',
+              extra: index === 0 ? domain.name : null,
               url: baseUrl + '/dashboard/index?id=' + encodeURIComponent(item.key) + dashboardParameters(true)
             }));
           });

@@ -1,6 +1,6 @@
 <div class="container">
   <ul class="nav navbar-nav nav-crumbs">
-    {{#each breadcrumbs}}
+    {{#each contextBreadcrumbs}}
       <li>
         <a href="{{link url}}">
           {{qualifierIcon q}}&nbsp;{{name}}
@@ -9,30 +9,53 @@
     {{/each}}
   </ul>
 
-  <ul class="nav navbar-nav navbar-right">
-    {{#each items}}
-      {{#notEmpty menu}}
-        <li class="dropdown {{#if active}}active{{/if}}">
-          <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-            {{> '_nav-navbar-label'}}&nbsp;<i class="icon-dropdown"></i>
-          </a>
-          <ul class="dropdown-menu dropdown-menu-right">
-            {{#each menu}}
-              <li {{#if active}}class="active"{{/if}}>
-                <a href="{{link url}}">
-                  {{> '_nav-navbar-label'}}
-                </a>
-              </li>
-            {{/each}}
-          </ul>
+  <div class="navbar-right navbar-context-meta">
+    {{#if contextVersion}}Version {{contextVersion}}{{/if}}
+    {{#if contextDate}}{{dt contextDate}}{{/if}}
+  </div>
+
+  <ul class="nav navbar-nav nav-tabs">
+    <li {{#isActiveLink '/dashboard'}}class="active"{{/isActiveLink}}>
+      <a href="{{dashboardUrl contextKey}}">{{t 'overview.page'}}</a>
+    </li>
+    <li {{#isActiveLink '/components'}}class="active"{{/isActiveLink}}>
+      <a href="{{link '/components/index/' contextId }}">{{t 'components.page'}}</a>
+    </li>
+    <li>
+      <a href="{{link '/drilldown/issues/' contextId }}">{{t 'issues.page'}}</a>
+    </li>
+    <li class="dropdown {{#isActiveLink '/dashboard'}}{{else}}{{#isActiveLink '/components'}}{{else}}active{{/isActiveLink}}{{/isActiveLink}}">
+      <a class="dropdown-toggle" data-toggle="dropdown" href="#">{{t 'more'}}&nbsp;<i class="icon-dropdown"></i></a>
+      <ul class="dropdown-menu">
+        <li class="dropdown-header">{{t 'layout.dashboards'}}</li>
+        {{#each contextDashboards}}
+          <li>
+            <a href="{{link url}}">{{name}}</a>
+          </li>
+        {{/each}}
+        <li class="divider"></li>
+        <li class="dropdown-header">Tools</li>
+        <li>
+          <a href="{{link '/design/index/' contextId }}">{{t 'design.page'}}</a>
         </li>
-      {{else}}
-        <li {{#if active}}class="active"{{/if}}>
-          <a href="{{link url}}">
-            {{> '_nav-navbar-label'}}
-          </a>
+        <li>
+          <a href="{{link '/libraries/index/' contextId }}">{{t 'libraries.page'}}</a>
         </li>
-      {{/notEmpty}}
-    {{/each}}
+        {{#if contextComparable}}
+          <li>
+            <a href="{{link '/comparison/index?resource=' contextKey}}">{{t 'comparison.page'}}</a>
+          </li>
+        {{/if}}
+        {{#if contextConfiguration}}
+          <li class="divider"></li>
+          <li class="dropdown-header">Configuration</li>
+          {{#each contextConfiguration}}
+            <li>
+              <a href="{{link url}}">{{name}}</a>
+            </li>
+          {{/each}}
+        {{/if}}
+      </ul>
+    </li>
   </ul>
 </div>

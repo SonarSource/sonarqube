@@ -1,3 +1,19 @@
+<script>
+  window.navbarOptions = new Backbone.Model();
+
+  window.navbarOptions.set({
+    qualifiers: [
+      <% qualifiers = Project.root_qualifiers.sort
+         qualifiers.each_with_index do |qualifier, index| %>
+      '<%= qualifier -%>'<% if index < qualifiers.size - 1 %>,<% end %>
+      <% end %>
+    ]
+  });
+  window.SS.isUserAdmin = <%= current_user && is_admin? ? 'true' : 'false' -%>;
+</script>
+
+
+
 <%
    selected_section = controller.class::SECTION if defined?(controller.class::SECTION)
    if selected_section==Navigation::SECTION_RESOURCE && !@project && !@resource
@@ -17,13 +33,3 @@
 <% elsif selected_section==Navigation::SECTION_CONFIGURATION %>
   <%= render :partial => 'layouts/navbar_conf_settings' %>
 <% end %>
-
-
-<script>
-  var navbarQualifiers = [
-    <% Project.root_qualifiers.sort.each do |qualifier| %>
-    '<%= qualifier -%>',
-    <% end %>
-  ];
-  window.SS.isUserAdmin = <%= current_user && is_admin? ? 'true' : 'false' -%>;
-</script>

@@ -3,7 +3,7 @@
 @import (reference) "ui";
 
 @navbarGlobalBackground: #262626;
-@navbarContextBackground: @lightBlue;
+@navbarContextBackground: @barBackgroundColor;
 
 @navbarHeight: 30px;
 @navbarLineHeight: 20px;
@@ -42,10 +42,16 @@
 
 .navbar a {
   .link-no-underline;
+  .trans(none);
 }
 
 .navbar-header {
   float: left;
+}
+
+.navbar-brand {
+  display: block;
+  padding: 2px 10px 0;
 }
 
 .navbar-nav {
@@ -59,6 +65,19 @@
 .navbar-nav > li > a {
   padding: @navbarTopPadding 10px;
   line-height: @navbarLineHeight;
+}
+
+.navbar-nav > li.navbar-more > a {
+  padding-right: 17px;
+}
+
+.navbar-nav > li.navbar-more + li {
+  margin-left: -17px;
+}
+
+.navbar-nav > li.navbar-more + li > a {
+  padding-left: 5px;
+  padding-right: 5px;
 }
 
 .navbar-icon:before {
@@ -76,7 +95,7 @@
 
 .navbar-search {
   position: relative;
-  width: 400px;
+  width: 480px;
   .box-sizing(border-box);
   .trans(width);
 }
@@ -125,29 +144,36 @@
     color: #fff;
   }
 
+  .navbar-brand:hover,
+  .navbar-brand:focus {
+    background-color: darken(@navbarGlobalBackground, 20%);
+  }
+
   .navbar-nav > li > a:hover,
   .navbar-nav > li > a:focus,
   .navbar-nav > .active > a,
   .navbar-nav > .dropdown.open > a {
-    background-color: darken(@navbarGlobalBackground, 10%);
+    background-color: @darkBlue;
+  }
+
+  .navbar-search-dropdown {
+    background-color: @blue !important;
   }
 }
 
 
 .navbar-context {
+  height: auto;
   background-color: @navbarContextBackground;
-  border-bottom: 1px solid @blue;
 
-  .navbar-nav > li > a {
-    padding-bottom: 1px !important;
-    border-bottom: 3px solid transparent;
-    color: @baseFontColor;
+  .nav-tabs {
+    width: 100%;
   }
+}
 
-  .navbar-nav > li > a:hover,
-  .navbar-nav > li > a:focus,
-  .navbar-nav > .active > a,
-  .navbar-nav > .dropdown.open > a {
-    border-bottom-color: @blue;
-  }
+.navbar-context-meta {
+  line-height: @navbarHeight;
+  padding: 0 10px;
+  color: @secondFontColor;
+  font-size: @smallFontSize;
 }

@@ -6,70 +6,25 @@
 %>
 
 <script>
-  window.navbarGlobalMenu = [
-    {
-      label: 'layout.dashboards',
-      active: <%= selected_section==Navigation::SECTION_HOME ? 'true' : 'false' -%>,
-      menu: [
-        <% ActiveDashboard.user_dashboards(current_user, true).each do |active_dashboard| %>
-        {
-          url: '/dashboard/?did=<%= active_dashboard.dashboard_id -%>',
-          labelLocalized: '<%= escape_javascript active_dashboard.dashboard.name(true) -%>',
-          active: <%= @dashboard && controller.controller_path=='dashboard' && active_dashboard.dashboard_id==@dashboard.id ? 'true' : 'false' -%>
-        },
-        <% end %>
-      ]
-    },
-    {
-      url: '/measures/search?qualifiers[]=TRK',
-      label: 'layout.measures',
-      active: <%= selected_section==Navigation::SECTION_MEASURES ? 'true' : 'false' -%>
-    },
-    {
-      url: '/issues/index',
-      label: 'issues.page',
-      active: <%= selected_section==Navigation::SECTION_ISSUES ? 'true' : 'false' -%>
-    },
-    {
-      url: '/coding_rules',
-      label: 'coding_rules.page',
-      active: <%= selected_section==Navigation::SECTION_CODING_RULES ? 'true' : 'false' -%>
-    },
-    {
-      url: '/profiles',
-      label: 'quality_profiles.page',
-      active: <%= selected_section==Navigation::SECTION_QUALITY_PROFILES ? 'true' : 'false' -%>
-    },
-    {
-      url: '/quality_gates',
-      label: 'quality_gates.page',
-      active: <%= selected_section==Navigation::SECTION_QUALITY_GATES ? 'true' : 'false' -%>
-    },
-    {
-      label: 'more',
-      active: false,
-      menu: [
-        {
-          url: '/comparison/index',
-          label: 'comparison.page',
-          active: <%= request.request_uri.include?('/comparison') ? 'true' : 'false' -%>
-        },
-        {
-          url: '/dependencies/index',
-          label: 'dependencies.page',
-          active: <%= request.request_uri.include?('/dependencies') ? 'true' : 'false' -%>
-        },
-        <% controller.java_facade.getPages(Navigation::SECTION_HOME.key, nil, nil, nil, nil).each do |page|
-          page_url = (page.isController() ? page.getId() : "/plugins/home/#{page.getId()}")
-          selected=request.request_uri.include?("/plugins/home/#{page_url}")
-        %>
-        {
-          url: '<%= page_url -%>',
-          labelLocalized: '<%= escape_javascript message(page.getId() + '.page', :default => page.getTitle()) -%>',
-          active: <%= selected ? 'true' : 'false' -%>
-        },
-        <% end %>
-      ]
-    }
-  ];
+  window.navbarOptions.set({
+    globalDashboards: [
+      <% dashboards = ActiveDashboard.user_dashboards(current_user, true)
+         dashboards.each_with_index do |dashboard, index| %>
+      {
+        url: '/dashboard/?did=<%= dashboard.dashboard_id -%>',
+        name: '<%= escape_javascript dashboard.dashboard.name(true) -%>'
+      }<% if index < dashboards.size - 1 -%>, <% end %>
+      <% end %>
+    ],
+    globalPages: [
+      <% pages = controller.java_facade.getPages(Navigation::SECTION_HOME.key, nil, nil, nil, nil)
+         pages.each_with_index do |page, index|
+      %>
+      {
+        url: '<%= page.isController() ? page.getId() : "/plugins/home/#{page.getId()}" -%>',
+        name: '<%= escape_javascript message(page.getId() + '.page', :default => page.getTitle()) -%>'
+      }<% if index < pages.size - 1 -%>, <% end %>
+      <% end %>
+    ]
+  });
 </script>
