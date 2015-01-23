@@ -106,7 +106,7 @@
       ]
     },
     {
-      "property": "componentUuids",
+      "property": "fileUuids",
       "values": [
         {
           "val": "BCDE",

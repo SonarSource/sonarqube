@@ -23,6 +23,7 @@ package org.sonar.server.component;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.i18n.I18n;
@@ -44,11 +45,7 @@ import org.sonar.server.user.UserSession;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -219,6 +216,30 @@ public class ComponentService implements ServerComponent {
     return componentUuids;
   }
 
+  public Set<String> getDistinctQualifiers(DbSession session, @Nullable Collection<String> componentUuids) {
+    Set<String> componentQualifiers = Sets.newHashSet();
+    if (componentUuids != null && !componentUuids.isEmpty()) {
+      List<ComponentDto> components = dbClient.componentDao().getByUuids(session, componentUuids);
+
+      for (ComponentDto component : components) {
+        componentQualifiers.add(component.qualifier());
+      }
+    }
+    return componentQualifiers;
+  }
+
+  public Collection<ComponentDto> getByUuids(DbSession session, Collection<String> componentUuids) {
+    Set<ComponentDto> directoryPaths = Sets.newHashSet();
+    if (componentUuids != null && !componentUuids.isEmpty()) {
+      List<ComponentDto> components = dbClient.componentDao().getByUuids(session, componentUuids);
+
+      for (ComponentDto component : components) {
+        directoryPaths.add(component);
+      }
+    }
+    return directoryPaths;
+  }
+
   private void checkKeyFormat(String qualifier, String kee) {
     if (!ComponentKeys.isValidModuleKey(kee)) {
       throw new BadRequestException(formatMessage("Malformed key for %s: %s. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.",
@@ -245,5 +266,4 @@ public class ComponentService implements ServerComponent {
   private ComponentDto getByKey(DbSession session, String key) {
     return dbClient.componentDao().getByKey(session, key);
   }
-
 }

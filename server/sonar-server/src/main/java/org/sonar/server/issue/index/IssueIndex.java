@@ -24,7 +24,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import org.apache.commons.lang.BooleanUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -257,25 +256,41 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
   }
 
   private void addComponentRelatedFilters(IssueQuery query, Map<String, FilterBuilder> filters) {
-    Collection<String> componentUuids = query.componentUuids();
-    if (BooleanUtils.isTrue(query.onComponentOnly())) {
-      Set<String> allComponents = Sets.newHashSet();
-      allComponents.addAll(query.projectUuids());
-      allComponents.addAll(query.moduleUuids());
-      allComponents.addAll(componentUuids);
-      filters.put(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, matchFilter(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, allComponents));
-    } else {
-      filters.put(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, matchFilter(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, query.projectUuids()));
-      filters.put(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, matchFilter(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, query.moduleUuids()));
 
-      FilterBuilder compositeFilter = componentFilter(componentUuids);
-      filters.put(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, compositeFilter);
+    FilterBuilder projectFilter = matchFilter(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, query.projectUuids());
+    FilterBuilder moduleRootFilter = moduleRootFilter(query.moduleRootUuids());
+    FilterBuilder moduleFilter = matchFilter(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, query.moduleUuids());
+    FilterBuilder directoryRootFilter = directoryFilter(query.moduleUuids(), query.directories());
+    FilterBuilder directoryFilter = matchFilter(IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH, query.directories());
+    FilterBuilder fileFilter = matchFilter(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, query.fileUuids());
+    FilterBuilder componentFilter = matchFilter(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, query.componentUuids());
 
-      filters.put(IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH, matchFilter(IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH, query.directories()));
+    if (projectFilter != null) {
+      filters.put("__componentRoot", projectFilter);
+      filters.put(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, moduleFilter);
+      filters.put(IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH, directoryFilter);
+      filters.put(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, fileFilter);
+    } else if (moduleRootFilter != null) {
+      filters.put("__componentRoot", moduleRootFilter);
+      filters.put(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, moduleFilter);
+      filters.put(IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH, directoryFilter);
+      filters.put(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, fileFilter);
+    } else if (directoryRootFilter != null) {
+      filters.put("__componentRoot", directoryRootFilter);
+      filters.put(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, fileFilter);
+    } else if (fileFilter != null) {
+      filters.put("__componentRoot", fileFilter);
+    } else if (componentFilter != null) {
+      // Last resort, when component type is unknown
+      filters.put("__componentRoot", componentFilter);
     }
   }
 
-  private FilterBuilder componentFilter(Collection<String> componentUuids) {
+  private FilterBuilder moduleRootFilter(Collection<String> componentUuids) {
+    if (componentUuids == null || componentUuids.isEmpty()) {
+      return null;
+    }
+
     FilterBuilder componentFilter = matchFilter(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, componentUuids);
     FilterBuilder modulePathFilter = matchFilter(IssueIndexDefinition.FIELD_ISSUE_MODULE_PATH, componentUuids);
     FilterBuilder compositeFilter = null;
@@ -289,6 +304,23 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
       compositeFilter = modulePathFilter;
     }
     return compositeFilter;
+  }
+
+  private FilterBuilder directoryFilter(Collection<String> moduleUuids, Collection<String> directoryPaths) {
+    BoolFilterBuilder directoryTop = null;
+    FilterBuilder moduleFilter = matchFilter(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, moduleUuids);
+    FilterBuilder directoryFilter = matchFilter(IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH, directoryPaths);
+    if (moduleFilter != null) {
+      directoryTop = FilterBuilders.boolFilter();
+      directoryTop.must(moduleFilter);
+    }
+    if (directoryFilter != null) {
+      if (directoryTop == null) {
+        directoryTop = FilterBuilders.boolFilter();
+      }
+      directoryTop.must(directoryFilter);
+    }
+    return directoryTop;
   }
 
   private FilterBuilder getAuthorizationFilter(QueryContext options) {
@@ -338,11 +370,13 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
         IssueFilterParameters.STATUSES, IssueIndexDefinition.FIELD_ISSUE_STATUS, Issue.STATUSES.toArray());
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
-        IssueFilterParameters.COMPONENT_UUIDS, IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, query.componentUuids().toArray());
-      addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
         IssueFilterParameters.PROJECT_UUIDS, IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, query.projectUuids().toArray());
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
+        IssueFilterParameters.MODULE_UUIDS, IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, query.moduleUuids().toArray());
+      addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
         IssueFilterParameters.DIRECTORIES, IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH, query.directories().toArray());
+      addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
+        IssueFilterParameters.FILE_UUIDS, IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, query.fileUuids().toArray());
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
         IssueFilterParameters.LANGUAGES, IssueIndexDefinition.FIELD_ISSUE_LANGUAGE, query.languages().toArray());
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
@@ -507,7 +541,7 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
         FilterBuilders.boolFilter()
           .must(getAuthorizationFilter(new QueryContext()))
           .must(FilterBuilders.missingFilter(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION))
-          .must(componentFilter(Arrays.asList(componentUuid)))));
+          .must(moduleRootFilter(Arrays.asList(componentUuid)))));
     TermsBuilder aggreg = AggregationBuilders.terms("_ref")
       .field(IssueIndexDefinition.FIELD_ISSUE_TAGS)
       .size(pageSize)
