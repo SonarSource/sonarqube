@@ -30,9 +30,9 @@ class BatchBootstrapController < Api::ApiController
     return render_unauthorized("You're not authorized to execute a dry run analysis. Please contact your SonarQube administrator.") if !has_dryrun_role
     project = load_project()
     return render_unauthorized("You're not authorized to access to project '" + project.name + "', please contact your SonarQube administrator") if project && !has_role?(:user, project)
-    db_content = java_facade.createDatabaseForPreview(project && project.id)
+    db_file = java_facade.pathToPreviewDbFile(project && project.id)
 
-    send_data String.from_java_bytes(db_content)
+    send_file db_file
   end
 
 

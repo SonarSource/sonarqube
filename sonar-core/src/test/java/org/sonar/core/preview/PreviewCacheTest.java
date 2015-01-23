@@ -87,16 +87,16 @@ public class PreviewCacheTest {
     when(dryRunDatabaseFactory.createNewDatabaseForDryRun(isNull(Long.class), any(File.class), anyString())).thenAnswer(new Answer<File>() {
       public File answer(InvocationOnMock invocation) throws IOException {
         Object[] args = invocation.getArguments();
-        File dbFile = new File(new File(dryRunCacheLocation, "default"), (String) args[2] + ".h2.db");
+        File dbFile = new File(new File(dryRunCacheLocation, "default"), args[2] + ".h2.db");
         FileUtils.write(dbFile, "fake db content");
         return dbFile;
       }
     });
-    byte[] dbContent = dryRunCache.getDatabaseForPreview(null);
-    assertThat(new String(dbContent)).isEqualTo("fake db content");
+    String path = dryRunCache.getPathToDatabaseFile(null);
+    assertThat(FileUtils.readFileToString(new File(path))).isEqualTo("fake db content");
 
-    dbContent = dryRunCache.getDatabaseForPreview(null);
-    assertThat(new String(dbContent)).isEqualTo("fake db content");
+    path = dryRunCache.getPathToDatabaseFile(null);
+    assertThat(FileUtils.readFileToString(new File(path))).isEqualTo("fake db content");
 
     verify(dryRunDatabaseFactory, times(1)).createNewDatabaseForDryRun(anyLong(), any(File.class), anyString());
   }
@@ -112,11 +112,11 @@ public class PreviewCacheTest {
       }
     });
     when(resourceDao.getRootProjectByComponentId(123L)).thenReturn(new ResourceDto().setId(123L));
-    byte[] dbContent = dryRunCache.getDatabaseForPreview(123L);
-    assertThat(new String(dbContent)).isEqualTo("fake db content");
+    String path = dryRunCache.getPathToDatabaseFile(123L);
+    assertThat(FileUtils.readFileToString(new File(path))).isEqualTo("fake db content");
 
-    dbContent = dryRunCache.getDatabaseForPreview(123L);
-    assertThat(new String(dbContent)).isEqualTo("fake db content");
+    path = dryRunCache.getPathToDatabaseFile(123L);
+    assertThat(FileUtils.readFileToString(new File(path))).isEqualTo("fake db content");
 
     verify(dryRunDatabaseFactory, times(1)).createNewDatabaseForDryRun(anyLong(), any(File.class), anyString());
   }
@@ -140,15 +140,15 @@ public class PreviewCacheTest {
           return dbFile;
         }
       });
-    byte[] dbContent = dryRunCache.getDatabaseForPreview(null);
-    assertThat(new String(dbContent)).isEqualTo("fake db content 1");
+    String path = dryRunCache.getPathToDatabaseFile(null);
+    assertThat(FileUtils.readFileToString(new File(path))).isEqualTo("fake db content 1");
 
     // Emulate invalidation of cache
     Thread.sleep(100);
     when(propertiesDao.selectGlobalProperty(PreviewCache.SONAR_PREVIEW_CACHE_LAST_UPDATE_KEY)).thenReturn(new PropertyDto().setValue("" + System.currentTimeMillis()));
 
-    dbContent = dryRunCache.getDatabaseForPreview(null);
-    assertThat(new String(dbContent)).isEqualTo("fake db content 2");
+    path = dryRunCache.getPathToDatabaseFile(null);
+    assertThat(FileUtils.readFileToString(new File(path))).isEqualTo("fake db content 2");
 
     verify(dryRunDatabaseFactory, times(2)).createNewDatabaseForDryRun(anyLong(), any(File.class), anyString());
   }
@@ -174,15 +174,15 @@ public class PreviewCacheTest {
       });
     when(resourceDao.getRootProjectByComponentId(123L)).thenReturn(new ResourceDto().setId(123L));
 
-    byte[] dbContent = dryRunCache.getDatabaseForPreview(123L);
-    assertThat(new String(dbContent)).isEqualTo("fake db content 1");
+    String path = dryRunCache.getPathToDatabaseFile(123L);
+    assertThat(FileUtils.readFileToString(new File(path))).isEqualTo("fake db content 1");
 
     // Emulate invalidation of cache
     Thread.sleep(100);
     when(propertiesDao.selectProjectProperty(123L, PreviewCache.SONAR_PREVIEW_CACHE_LAST_UPDATE_KEY)).thenReturn(new PropertyDto().setValue("" + System.currentTimeMillis()));
 
-    dbContent = dryRunCache.getDatabaseForPreview(123L);
-    assertThat(new String(dbContent)).isEqualTo("fake db content 2");
+    path = dryRunCache.getPathToDatabaseFile(123L);
+    assertThat(FileUtils.readFileToString(new File(path))).isEqualTo("fake db content 2");
 
     verify(dryRunDatabaseFactory, times(2)).createNewDatabaseForDryRun(anyLong(), any(File.class), anyString());
   }
