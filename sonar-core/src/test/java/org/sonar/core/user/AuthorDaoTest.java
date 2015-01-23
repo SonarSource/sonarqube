@@ -72,10 +72,24 @@ public class AuthorDaoTest extends AbstractDaoTestCase {
     setupData("shouldInsertAuthorAndDeveloper");
 
     String login = "developer@company.net";
-    ResourceDto resourceDto = new ResourceDto().setName(login).setQualifier("DEV").setUuid("ABCD").setProjectUuid("ABCD");
+    ResourceDto resourceDto = new ResourceDto().setName(login).setQualifier("DEV").setUuid("ABCD").setProjectUuid("ABCD").setModuleUuidPath(".");
     dao.insertAuthorAndDeveloper(login, resourceDto);
 
     checkTables("shouldInsertAuthorAndDeveloper",
+      new String[] {"created_at", "updated_at", "copy_resource_id", "description", "enabled", "kee", "deprecated_kee", "path", "language", "long_name", "person_id", "root_id",
+        "scope", "authorization_updated_at"},
+      "authors", "projects");
+  }
+
+  @Test
+  public void add_missing_module_uuid_path() throws Exception {
+    setupData("add_missing_module_uuid_path");
+
+    dao.insertAuthorAndDeveloper("developer@company.net", new ResourceDto().setName("developer@company.net").setQualifier("DEV").setUuid("ABCD").setProjectUuid("ABCD")
+      .setModuleUuidPath(""));
+    dao.insertAuthorAndDeveloper("developer2@company.net", new ResourceDto().setName("developer2@company.net").setQualifier("DEV").setUuid("BCDE").setProjectUuid("BCDE"));
+
+    checkTables("add_missing_module_uuid_path",
       new String[] {"created_at", "updated_at", "copy_resource_id", "description", "enabled", "kee", "deprecated_kee", "path", "language", "long_name", "person_id", "root_id",
         "scope", "authorization_updated_at"},
       "authors", "projects");

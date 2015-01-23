@@ -19,6 +19,7 @@
  */
 package org.sonar.core.user;
 
+import com.google.common.base.Strings;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
@@ -78,7 +79,7 @@ public class AuthorDao implements BatchComponent, ServerComponent {
     SqlSession session = mybatis.openSession(false);
     try {
       // Hack in order to set "." on DEV
-      if (resourceDto.getModuleUuidPath() == null || resourceDto.getModuleUuidPath().isEmpty()) {
+      if (Strings.isNullOrEmpty(resourceDto.getModuleUuidPath())) {
         resourceDto.setModuleUuidPath(ComponentDto.MODULE_UUID_PATH_SEP);
       }
       resourceDao.insertUsingExistingSession(resourceDto, session);

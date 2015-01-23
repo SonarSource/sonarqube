@@ -30,7 +30,7 @@ public class ActiveRule {
   private final String name, severity, internalKey, language;
   private final Map<String, String> params = new HashMap<String, String>();
 
-  public ActiveRule(String repositoryKey, String ruleKey, String name, String severity, @Nullable String internalKey, String language) {
+  public ActiveRule(String repositoryKey, String ruleKey, String name, @Nullable String severity, @Nullable String internalKey, @Nullable String language) {
     this.repositoryKey = repositoryKey;
     this.ruleKey = ruleKey;
     this.name = name;
@@ -51,10 +51,18 @@ public class ActiveRule {
     return name;
   }
 
+  /**
+   * Is null on manual rules
+   */
+  @CheckForNull
   public String severity() {
     return severity;
   }
 
+  /**
+   * Is null on manual rules
+   */
+  @CheckForNull
   public String language() {
     return language;
   }
