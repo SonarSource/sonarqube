@@ -204,6 +204,7 @@
     i.resolution as resolution,
     i.checksum as checksum,
     i.assignee as assigneeLogin,
+    i.issue_creation_date as creationDate,
     r.plugin_rule_key as ruleKey,
     r.plugin_name as ruleRepo,
     component.kee as componentKey
@@ -225,6 +226,7 @@
     i.resolution as resolution,
     i.checksum as checksum,
     i.assignee as assigneeLogin,
+    i.issue_creation_date as creationDate,
     r.plugin_rule_key as ruleKey,
     r.plugin_name as ruleRepo,
     component.kee as componentKey

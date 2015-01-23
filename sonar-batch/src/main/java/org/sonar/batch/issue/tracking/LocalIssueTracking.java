@@ -141,7 +141,7 @@ public class LocalIssueTracking implements BatchComponent {
       issue.setStatus(ref.status());
       issue.setAssignee(ref.assigneeLogin());
 
-      String overriddenSeverity = ref.overriddenSeverity();
+      String overriddenSeverity = ref.severity();
       if (overriddenSeverity != null) {
         // Severity overriden by user
         issue.setSeverity(overriddenSeverity);
@@ -177,7 +177,7 @@ public class LocalIssueTracking implements BatchComponent {
     issue.setResolution(previous.resolution());
     issue.setMessage(previous.message());
     issue.setLine(previous.line());
-    String overriddenSeverity = previous.overriddenSeverity();
+    String overriddenSeverity = previous.severity();
     if (overriddenSeverity != null) {
       issue.setSeverity(overriddenSeverity);
     } else {

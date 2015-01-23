@@ -161,6 +161,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(batchIssueDto.getComponentKey()).isEqualTo("Sample.java");
     assertThat(batchIssueDto.getChecksum()).isEqualTo("123456");
     assertThat(batchIssueDto.getAssigneeLogin()).isEqualTo("john");
+    assertThat(batchIssueDto.getCreationDate()).isNotNull();
   }
 
   @Test
@@ -190,6 +191,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(batchIssueDto.getComponentKey()).isEqualTo("Sample.java");
     assertThat(batchIssueDto.getChecksum()).isEqualTo("123456");
     assertThat(batchIssueDto.getAssigneeLogin()).isEqualTo("john");
+    assertThat(batchIssueDto.getCreationDate()).isNotNull();
   }
 
   @Test

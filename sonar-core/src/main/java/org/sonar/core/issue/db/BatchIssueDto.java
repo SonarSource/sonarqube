@@ -20,6 +20,8 @@
 
 package org.sonar.core.issue.db;
 
+import java.util.Date;
+
 public class BatchIssueDto {
 
   private String kee;
@@ -34,6 +36,7 @@ public class BatchIssueDto {
   private String componentKey;
   private String ruleKey;
   private String ruleRepo;
+  private Date creationDate;
 
   public String getAssigneeLogin() {
     return assigneeLogin;
@@ -140,6 +143,15 @@ public class BatchIssueDto {
 
   public BatchIssueDto setSeverity(String severity) {
     this.severity = severity;
+    return this;
+  }
+
+  public Date getCreationDate() {
+    return creationDate;
+  }
+
+  public BatchIssueDto setCreationDate(Date creationDate) {
+    this.creationDate = creationDate;
     return this;
   }
 }

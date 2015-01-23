@@ -80,7 +80,7 @@ public class IssuesActionTest {
     MockUserSession.set().setLogin("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION).addComponentPermission(UserRole.USER, PROJECT_KEY, PROJECT_KEY);
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", PROJECT_KEY);
-    request.execute().assertJson(getClass(), "issues_on_project-expected.json");
+    request.execute().assertJson(getClass(), "issues_on_project-expected.json", false);
   }
 
   @Test
@@ -90,7 +90,7 @@ public class IssuesActionTest {
     MockUserSession.set().setLogin("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION).addComponentPermission(UserRole.USER, PROJECT_KEY, PROJECT_KEY);
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", PROJECT_KEY);
-    request.execute().assertJson(getClass(), "return_only_manual_severity-expected.json");
+    request.execute().assertJson(getClass(), "return_only_manual_severity-expected.json", false);
   }
 
   @Test
@@ -100,7 +100,7 @@ public class IssuesActionTest {
     MockUserSession.set().setLogin("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION).addComponentPermission(UserRole.USER, PROJECT_KEY, MODULE_KEY);
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", MODULE_KEY);
-    request.execute().assertJson(getClass(), "issues_on_module-expected.json");
+    request.execute().assertJson(getClass(), "issues_on_module-expected.json", false);
   }
 
   @Test(expected = ForbiddenException.class)

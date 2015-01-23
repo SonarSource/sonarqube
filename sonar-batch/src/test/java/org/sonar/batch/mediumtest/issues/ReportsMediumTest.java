@@ -49,7 +49,7 @@ public class ReportsMediumTest {
       .setComponentKey("sample:xources/hello/HelloJava.xoo")
       .setRuleKey("xoo", "OneIssuePerLine")
       .setLine(1)
-      .setOverriddenSeverity("MAJOR")
+      .setSeverity("MAJOR")
       .setChecksum(DigestUtils.md5Hex("packagehello;"))
       .setStatus("OPEN"))
     .build();

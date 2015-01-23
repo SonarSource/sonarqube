@@ -22,6 +22,7 @@ package org.sonar.batch.protocol.input.issues;
 import javax.annotation.Nullable;
 
 import java.io.Serializable;
+import java.util.Date;
 
 public class PreviousIssue implements Serializable {
 
@@ -31,12 +32,13 @@ public class PreviousIssue implements Serializable {
   private String ruleRepo;
   private Integer line;
   private String message;
-  // For manual issues and when user has overriden severity
-  private String overriddenSeverity;
+  private String severity;
+  private Boolean manualSeverity;
   private String resolution;
   private String status;
   private String checksum;
   private String assigneeLogin;
+  private Date creationDate;
 
   public PreviousIssue setKey(String key) {
     this.key = key;
@@ -92,13 +94,22 @@ public class PreviousIssue implements Serializable {
     return status;
   }
 
-  public PreviousIssue setOverriddenSeverity(@Nullable String overriddenSeverity) {
-    this.overriddenSeverity = overriddenSeverity;
+  public PreviousIssue setSeverity(@Nullable String severity) {
+    this.severity = severity;
     return this;
   }
 
-  public String overriddenSeverity() {
-    return overriddenSeverity;
+  public String severity() {
+    return severity;
+  }
+
+  public boolean isManualSeverity() {
+    return manualSeverity;
+  }
+
+  public PreviousIssue setManualSeverity(boolean manualSeverity) {
+    this.manualSeverity = manualSeverity;
+    return this;
   }
 
   public PreviousIssue setChecksum(String checksum) {
@@ -133,4 +144,12 @@ public class PreviousIssue implements Serializable {
     return ruleKey;
   }
 
+  public Date getCreationDate() {
+    return creationDate;
+  }
+
+  public PreviousIssue setCreationDate(Date creationDate) {
+    this.creationDate = creationDate;
+    return this;
+  }
 }

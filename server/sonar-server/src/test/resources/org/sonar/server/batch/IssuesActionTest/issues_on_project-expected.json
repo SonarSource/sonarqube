@@ -8,6 +8,8 @@
     "message": "Do not use this method",
     "resolution": "FALSE-POSITIVE",
     "status": "RESOLVED",
+    "severity": "BLOCKER",
+    "manualSeverity": false,
     "checksum": "123456",
     "assigneeLogin": "john"
   }

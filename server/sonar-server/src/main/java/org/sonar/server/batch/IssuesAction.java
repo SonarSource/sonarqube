@@ -118,8 +118,10 @@ public class IssuesAction implements RequestHandler {
           .setRuleKey(batchIssueDto.getRuleRepo(), batchIssueDto.getRuleKey())
           .setMessage(batchIssueDto.getMessage())
           .setResolution(batchIssueDto.getResolution())
-          .setOverriddenSeverity(batchIssueDto.isManualSeverity() ? batchIssueDto.getSeverity() : null)
-          .setStatus(batchIssueDto.getStatus());
+          .setSeverity(batchIssueDto.getSeverity())
+          .setManualSeverity(batchIssueDto.isManualSeverity())
+          .setStatus(batchIssueDto.getStatus())
+          .setCreationDate(batchIssueDto.getCreationDate());
       }
       return null;
     }

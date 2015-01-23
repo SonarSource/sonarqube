@@ -7,7 +7,8 @@
     "line": 201,
     "message": "Do not use this method",
     "status": "OPEN",
-    "overriddenSeverity": "CRITICAL",
+    "severity": "CRITICAL",
+    "manualSeverity": true,
     "checksum": "234567",
     "assigneeLogin": "john"
   }
