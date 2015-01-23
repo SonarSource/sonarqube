@@ -102,7 +102,7 @@ class InputFileBuilder {
     inputFile.setEncoding(fs.encoding().name());
 
     String lang = langDetection.language(inputFile);
-    if (lang == null && !settings.getBoolean(CoreProperties.INDEX_ALL_FILES_KEY)) {
+    if (lang == null && !settings.getBoolean(CoreProperties.IMPORT_UNKNOWN_FILES_KEY)) {
       return null;
     }
     inputFile.setLanguage(lang);

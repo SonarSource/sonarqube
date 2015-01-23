@@ -556,5 +556,5 @@ public interface CoreProperties {
   /**
    * @since 5.1
    */
-  String INDEX_ALL_FILES_KEY = "sonar.index_all_files";
+  String IMPORT_UNKNOWN_FILES_KEY = "sonar.import_unknown_files";
 }

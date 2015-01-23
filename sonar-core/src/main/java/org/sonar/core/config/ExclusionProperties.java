@@ -46,22 +46,16 @@ public class ExclusionProperties {
         .build(),
 
       // FILES
-      PropertyDefinition.builder(CoreProperties.PROJECT_INCLUSIONS_PROPERTY)
-        .name("Source File Inclusions")
-        .multiValues(true)
+      PropertyDefinition.builder(CoreProperties.IMPORT_UNKNOWN_FILES_KEY)
+        .name("Import unknown files")
+        .description("If set to true, all files are imported - with respect to inclusions and exclusions, even if there is no matching language plugin installed.")
+        .type(PropertyType.BOOLEAN)
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(CoreProperties.SUBCATEGORY_FILES_EXCLUSIONS)
         .onQualifiers(Qualifiers.PROJECT)
-        .index(3)
+        .index(-1)
         .build(),
-      PropertyDefinition.builder(CoreProperties.PROJECT_TEST_INCLUSIONS_PROPERTY)
-        .name("Test File Inclusions")
-        .multiValues(true)
-        .category(CoreProperties.CATEGORY_EXCLUSIONS)
-        .subCategory(CoreProperties.SUBCATEGORY_FILES_EXCLUSIONS)
-        .onQualifiers(Qualifiers.PROJECT)
-        .index(5)
-        .build(),
+
       PropertyDefinition.builder(CoreProperties.GLOBAL_EXCLUSIONS_PROPERTY)
         .name("Global Source File Exclusions")
         .multiValues(true)
@@ -76,22 +70,7 @@ public class ExclusionProperties {
         .subCategory(CoreProperties.SUBCATEGORY_FILES_EXCLUSIONS)
         .index(1)
         .build(),
-      PropertyDefinition.builder(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY)
-        .name("Source File Exclusions")
-        .multiValues(true)
-        .category(CoreProperties.CATEGORY_EXCLUSIONS)
-        .subCategory(CoreProperties.SUBCATEGORY_FILES_EXCLUSIONS)
-        .onQualifiers(Qualifiers.PROJECT)
-        .index(2)
-        .build(),
-      PropertyDefinition.builder(CoreProperties.PROJECT_TEST_EXCLUSIONS_PROPERTY)
-        .name("Test File Exclusions")
-        .multiValues(true)
-        .category(CoreProperties.CATEGORY_EXCLUSIONS)
-        .subCategory(CoreProperties.SUBCATEGORY_FILES_EXCLUSIONS)
-        .onQualifiers(Qualifiers.PROJECT)
-        .index(4)
-        .build(),
+
       PropertyDefinition.builder(CoreProperties.CORE_SKIPPED_MODULES_PROPERTY)
         .name("Exclude Modules")
         .description("Maven artifact ids of modules to exclude.")
@@ -109,7 +88,41 @@ public class ExclusionProperties {
         .subCategory(CoreProperties.SUBCATEGORY_FILES_EXCLUSIONS)
         .onlyOnQualifiers(Qualifiers.PROJECT)
         .index(1)
+        .build(),
+      PropertyDefinition.builder(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY)
+        .name("Source File Exclusions")
+        .multiValues(true)
+        .category(CoreProperties.CATEGORY_EXCLUSIONS)
+        .subCategory(CoreProperties.SUBCATEGORY_FILES_EXCLUSIONS)
+        .onQualifiers(Qualifiers.PROJECT)
+        .index(2)
+        .build(),
+
+      PropertyDefinition.builder(CoreProperties.PROJECT_INCLUSIONS_PROPERTY)
+        .name("Source File Inclusions")
+        .multiValues(true)
+        .category(CoreProperties.CATEGORY_EXCLUSIONS)
+        .subCategory(CoreProperties.SUBCATEGORY_FILES_EXCLUSIONS)
+        .onQualifiers(Qualifiers.PROJECT)
+        .index(3)
+        .build(),
+      PropertyDefinition.builder(CoreProperties.PROJECT_TEST_EXCLUSIONS_PROPERTY)
+        .name("Test File Exclusions")
+        .multiValues(true)
+        .category(CoreProperties.CATEGORY_EXCLUSIONS)
+        .subCategory(CoreProperties.SUBCATEGORY_FILES_EXCLUSIONS)
+        .onQualifiers(Qualifiers.PROJECT)
+        .index(4)
+        .build(),
+      PropertyDefinition.builder(CoreProperties.PROJECT_TEST_INCLUSIONS_PROPERTY)
+        .name("Test File Inclusions")
+        .multiValues(true)
+        .category(CoreProperties.CATEGORY_EXCLUSIONS)
+        .subCategory(CoreProperties.SUBCATEGORY_FILES_EXCLUSIONS)
+        .onQualifiers(Qualifiers.PROJECT)
+        .index(5)
         .build()
+
       );
   }
 }
