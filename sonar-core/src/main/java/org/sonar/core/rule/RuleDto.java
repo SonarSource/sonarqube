@@ -69,7 +69,7 @@ public final class RuleDto extends Dto<RuleKey> {
   private String tags;
   private String systemTags;
 
-  private transient RuleKey key;
+  private RuleKey key;
 
   @Override
   public RuleKey getKey() {

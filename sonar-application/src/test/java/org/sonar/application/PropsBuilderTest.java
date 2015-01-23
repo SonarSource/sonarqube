@@ -92,7 +92,6 @@ public class PropsBuilderTest {
     // <home>/data is missing
     FileUtils.forceMkdir(webDir);
     FileUtils.forceMkdir(logsDir);
-
     try {
       FileUtils.touch(dataDir);
       new PropsBuilder(new Properties(), jdbcSettings, homeDir).build();
@@ -115,6 +114,19 @@ public class PropsBuilderTest {
 
     assertThat(props.value("sonar.jdbc.username")).isEqualTo("angela");
     // command-line arguments override sonar.properties file
+    assertThat(props.value("sonar.origin")).isEqualTo("raw");
+  }
+
+  @Test
+  public void do_not_load_properties_file_if_not_exists() throws Exception {
+    FileUtils.forceMkdir(dataDir);
+    FileUtils.forceMkdir(webDir);
+    FileUtils.forceMkdir(logsDir);
+
+    Properties rawProperties = new Properties();
+    rawProperties.setProperty("sonar.origin", "raw");
+    Props props = new PropsBuilder(rawProperties, jdbcSettings, homeDir).build();
+
     assertThat(props.value("sonar.origin")).isEqualTo("raw");
   }
 

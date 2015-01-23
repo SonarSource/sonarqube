@@ -49,34 +49,41 @@ public class RemoveSortFieldFromIssueFiltersMigration extends BaseDataChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    final Date now = new Date(system.now());
     MassUpdate massUpdate = context.prepareMassUpdate();
     massUpdate.select("select id,data from issue_filters where data like '%" + SORT_KEY + "%' or data like '%" + ASC_KEY +"%'");
     massUpdate.update("update issue_filters set data=?, updated_at=? where id=?");
     massUpdate.rowPluralName("issue filters");
-    massUpdate.execute(new MassUpdate.Handler() {
-      @Override
-      public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
-        String data = row.getString(2);
-        String[] fields = StringUtils.split(data, FIELD_SEPARATOR);
+    massUpdate.execute(new FilterHandler(new Date(system.now())));
+  }
 
-        boolean found = false;
-        List<String> fieldsToKeep = Lists.newArrayList();
-        for (String field : fields) {
-          if (field.startsWith(SORT_KEY) || field.startsWith(ASC_KEY)) {
-            found = true;
-          } else {
-            fieldsToKeep.add(field);
-          }
+  private static class FilterHandler implements MassUpdate.Handler {
+    private final Date now;
+
+    private FilterHandler(Date now) {
+      this.now = now;
+    }
+
+    @Override
+    public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
+      String data = row.getString(2);
+      String[] fields = StringUtils.split(data, FIELD_SEPARATOR);
+
+      boolean found = false;
+      List<String> fieldsToKeep = Lists.newArrayList();
+      for (String field : fields) {
+        if (field.startsWith(SORT_KEY) || field.startsWith(ASC_KEY)) {
+          found = true;
+        } else {
+          fieldsToKeep.add(field);
         }
-        if (found) {
-          // data without 'sort' field
-          update.setString(1, StringUtils.join(fieldsToKeep, FIELD_SEPARATOR));
-          update.setDate(2, now);
-          update.setLong(3, row.getLong(1));
-        }
-        return found;
       }
-    });
+      if (found) {
+        // data without 'sort' field
+        update.setString(1, StringUtils.join(fieldsToKeep, FIELD_SEPARATOR));
+        update.setDate(2, now);
+        update.setLong(3, row.getLong(1));
+      }
+      return found;
+    }
   }
 }

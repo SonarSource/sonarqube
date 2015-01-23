@@ -60,8 +60,9 @@ public class IssueComputation {
   private void guessAuthor(DefaultIssue issue) {
     // issue.authorLogin() can be not-null when old developer cockpit plugin (or other plugin)
     // is still installed and executed during analysis
-    if (issue.authorLogin() == null && issue.line() != null) {
-      issue.setAuthorLogin(linesCache.lineAuthor(issue.line()));
+    Integer line = issue.line();
+    if (issue.authorLogin() == null && line != null) {
+      issue.setAuthorLogin(linesCache.lineAuthor(line));
     }
   }
 

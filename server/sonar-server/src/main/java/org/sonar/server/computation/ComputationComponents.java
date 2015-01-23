@@ -34,6 +34,10 @@ import java.util.List;
 
 public class ComputationComponents {
 
+  private ComputationComponents() {
+    // only static stuff
+  }
+
   /**
    * List of all objects to be injected in the picocontainer dedicated to computation stack. 
    * Does not contain the steps declared in {@link org.sonar.server.computation.step.ComputationSteps#orderedStepClasses()}.

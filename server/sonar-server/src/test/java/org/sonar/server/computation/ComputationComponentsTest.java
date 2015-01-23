@@ -20,6 +20,7 @@
 package org.sonar.server.computation;
 
 import org.junit.Test;
+import org.sonar.test.TestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -28,5 +29,10 @@ public class ComputationComponentsTest {
   @Test
   public void nonStepComponents() throws Exception {
     assertThat(ComputationComponents.nonStepComponents()).isNotEmpty();
+  }
+
+  @Test
+  public void util_class() throws Exception {
+    assertThat(TestUtils.hasOnlyPrivateConstructors(ComputationComponents.class)).isTrue();
   }
 }

@@ -25,7 +25,7 @@ import org.apache.commons.codec.binary.Base64;
 final class Base64Cipher extends Cipher {
   @Override
   String encrypt(String clearText) {
-    return Base64.encodeBase64String(clearText.getBytes());
+    return Base64.encodeBase64String(clearText.getBytes(Charsets.UTF_8));
   }
 
   @Override

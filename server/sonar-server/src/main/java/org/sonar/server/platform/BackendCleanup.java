@@ -29,7 +29,6 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.SearchClient;
-import org.sonar.server.source.index.SourceLineIndex;
 import org.sonar.server.source.index.SourceLineIndexDefinition;
 
 import java.sql.Connection;

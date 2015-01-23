@@ -31,9 +31,9 @@ import java.util.Iterator;
 
 public class SwitchLogbackAppender extends AppenderBase<ILoggingEvent> implements AppenderAttachable<ILoggingEvent> {
 
-  private transient AppenderAttachableImpl<ILoggingEvent> attachedAppenders = new AppenderAttachableImpl<ILoggingEvent>();
-  private transient Appender<ILoggingEvent> console = null;
-  private transient Appender<ILoggingEvent> analysisReports = null;
+  private AppenderAttachableImpl<ILoggingEvent> attachedAppenders = new AppenderAttachableImpl<>();
+  private Appender<ILoggingEvent> console = null;
+  private Appender<ILoggingEvent> analysisReports = null;
 
   @Override
   protected void append(ILoggingEvent event) {

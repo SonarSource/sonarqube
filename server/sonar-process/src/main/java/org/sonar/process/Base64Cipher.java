@@ -26,7 +26,7 @@ import org.apache.commons.io.Charsets;
 final class Base64Cipher implements Cipher {
   @Override
   public String encrypt(String clearText) {
-    return Base64.encodeBase64String(clearText.getBytes());
+    return Base64.encodeBase64String(clearText.getBytes(Charsets.UTF_8));
   }
 
   @Override
