@@ -52,12 +52,7 @@ import org.sonar.server.startup.RegisterDebtModel;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -180,7 +175,7 @@ public class RegisterRules implements Startable {
     if (characteristicDto == null) {
       // Log a warning only if rule has not been overridden by user
       if (overridingCharacteristicId == null) {
-        LOG.warn(String.format("Characteristic '%s' has not been found on rule '%s:%s'", subCharacteristic, repo, ruleKey));
+        LOG.warn(String.format("Unknown Characteristic '%s' was found on rule '%s:%s'", subCharacteristic, repo, ruleKey));
       }
     } else if (characteristicDto.getParentId() == null) {
       throw MessageException.of(String.format("Rule '%s:%s' cannot be linked on the root characteristic '%s'", repo, ruleKey, subCharacteristic));
