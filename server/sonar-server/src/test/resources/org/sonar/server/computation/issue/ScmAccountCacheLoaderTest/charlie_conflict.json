@@ -1,0 +1,8 @@
+{
+  "login": "another.charlie",
+  "name": "Another Charlie",
+  "active": true,
+  "scmAccounts": ["charlie"],
+  "createdAt": 1500000000000,
+  "updatedAt": 1500000000000
+}

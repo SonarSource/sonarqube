@@ -33,6 +33,9 @@ import org.sonar.server.exceptions.NotFoundException;
 
 import javax.annotation.CheckForNull;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class UserIndex implements ServerComponent {
 
   private final EsClient esClient;
@@ -53,6 +56,10 @@ public class UserIndex implements ServerComponent {
     return null;
   }
 
+  /**
+   * Returns the user associated with the given SCM account. If multiple users have the same
+   * SCM account, then result is null.
+   */
   @CheckForNull
   public UserDoc getNullableByScmAccount(String scmAccount) {
     if (!StringUtils.isEmpty(scmAccount)) {
@@ -78,6 +85,28 @@ public class UserIndex implements ServerComponent {
       throw new NotFoundException(String.format("User '%s' not found", login));
     }
     return userDoc;
+  }
+
+  /**
+   * Returns the users (at most 3) who are associated to the given SCM account. This method can be used
+   * to detect user conflicts.
+   */
+  public List<UserDoc> getAtMostThreeUsersForScmAccount(String scmAccount) {
+    List<UserDoc> result = new ArrayList<>();
+    if (!StringUtils.isEmpty(scmAccount)) {
+      SearchRequestBuilder request = esClient.prepareSearch(UserIndexDefinition.INDEX)
+        .setTypes(UserIndexDefinition.TYPE_USER)
+        .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
+          FilterBuilders.boolFilter()
+            .should(FilterBuilders.termFilter(UserIndexDefinition.FIELD_LOGIN, scmAccount))
+            .should(FilterBuilders.termFilter(UserIndexDefinition.FIELD_EMAIL, scmAccount))
+            .should(FilterBuilders.termFilter(UserIndexDefinition.FIELD_SCM_ACCOUNTS, scmAccount))))
+        .setSize(3);
+      for (SearchHit hit : request.get().getHits().getHits()) {
+        result.add(new UserDoc(hit.sourceAsMap()));
+      }
+    }
+    return result;
   }
 
 }
