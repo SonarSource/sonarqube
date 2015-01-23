@@ -125,4 +125,13 @@ public class UserIndexTest {
     assertThat(index.getAtMostThreeUsersForScmAccount("")).isEmpty();
     assertThat(index.getAtMostThreeUsersForScmAccount("unknown")).isEmpty();
   }
+
+  @Test
+  public void get_maximum_three_users_for_scm_account() throws Exception {
+    esTester.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, this.getClass(), "user1.json",
+      "user2-with-same-email-as-user1.json", "user3-with-same-email-as-user1.json", "user4-with-same-email-as-user1.json");
+
+    // restrict results to 3 users
+    assertThat(index.getAtMostThreeUsersForScmAccount("user1@mail.com")).hasSize(3);
+  }
 }

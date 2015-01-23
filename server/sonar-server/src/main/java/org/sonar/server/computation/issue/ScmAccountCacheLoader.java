@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.issue;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Collections2;
@@ -44,7 +45,8 @@ public class ScmAccountCacheLoader implements CacheLoader<String, String> {
     this(index, LoggerFactory.getLogger(ScmAccountCacheLoader.class));
   }
 
-  public ScmAccountCacheLoader(UserIndex index, Logger log) {
+  @VisibleForTesting
+  ScmAccountCacheLoader(UserIndex index, Logger log) {
     this.log = log;
     this.index = index;
   }
@@ -52,19 +54,20 @@ public class ScmAccountCacheLoader implements CacheLoader<String, String> {
   @Override
   public String load(String scmAccount) {
     List<UserDoc> users = index.getAtMostThreeUsersForScmAccount(scmAccount);
-    if (users.isEmpty()) {
-      return null;
-    }
     if (users.size() == 1) {
       return users.get(0).login();
     }
-    Collection<String> logins = Collections2.transform(users, new Function<UserDoc, String>() {
-      @Override
-      public String apply(UserDoc input) {
-        return input.login();
-      }
-    });
-    log.warn(String.format("Multiple users share the SCM account '%s': %s", scmAccount, Joiner.on(", ").join(logins)));
+    if (!users.isEmpty()) {
+      // multiple users are associated to the same SCM account, for example
+      // the same email
+      Collection<String> logins = Collections2.transform(users, new Function<UserDoc, String>() {
+        @Override
+        public String apply(UserDoc input) {
+          return input.login();
+        }
+      });
+      log.warn(String.format("Multiple users share the SCM account '%s': %s", scmAccount, Joiner.on(", ").join(logins)));
+    }
     return null;
   }
 

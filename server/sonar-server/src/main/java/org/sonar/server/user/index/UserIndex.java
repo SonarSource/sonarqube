@@ -56,6 +56,10 @@ public class UserIndex implements ServerComponent {
     return null;
   }
 
+  /**
+   * Returns the user associated with the given SCM account. If multiple users have the same
+   * SCM account, then result is null.
+   */
   @CheckForNull
   public UserDoc getNullableByScmAccount(String scmAccount) {
     if (!StringUtils.isEmpty(scmAccount)) {
@@ -85,7 +89,7 @@ public class UserIndex implements ServerComponent {
 
   /**
    * Returns the users (at most 3) who are associated to the given SCM account. This method can be used
-   * to detect user conflicts. It never returns null.
+   * to detect user conflicts.
    */
   public List<UserDoc> getAtMostThreeUsersForScmAccount(String scmAccount) {
     List<UserDoc> result = new ArrayList<>();
