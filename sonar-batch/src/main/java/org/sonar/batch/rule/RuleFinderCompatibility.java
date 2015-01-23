@@ -19,8 +19,8 @@
  */
 package org.sonar.batch.rule;
 
-import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.batch.rule.ActiveRules;
+import org.sonar.api.batch.rule.internal.DefaultActiveRule;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
@@ -48,8 +48,8 @@ public class RuleFinderCompatibility implements RuleFinder {
 
   @Override
   public Rule findByKey(RuleKey key) {
-    ActiveRule ar = activeRules.find(key);
-    return ar == null ? null : Rule.create(key.repository(), key.rule());
+    DefaultActiveRule ar = (DefaultActiveRule) activeRules.find(key);
+    return ar == null ? null : Rule.create(key.repository(), key.rule()).setName(ar.name());
   }
 
   @Override

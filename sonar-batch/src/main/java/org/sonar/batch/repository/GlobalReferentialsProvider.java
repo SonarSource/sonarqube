@@ -23,15 +23,15 @@ import org.picocontainer.injectors.ProviderAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.TimeProfiler;
-import org.sonar.batch.protocol.input.GlobalReferentials;
+import org.sonar.batch.protocol.input.GlobalRepositories;
 
 public class GlobalReferentialsProvider extends ProviderAdapter {
 
   private static final Logger LOG = LoggerFactory.getLogger(GlobalReferentialsProvider.class);
 
-  private GlobalReferentials globalReferentials;
+  private GlobalRepositories globalReferentials;
 
-  public GlobalReferentials provide(GlobalReferentialsLoader loader) {
+  public GlobalRepositories provide(GlobalReferentialsLoader loader) {
     if (globalReferentials == null) {
       TimeProfiler profiler = new TimeProfiler(LOG).start("Load global referentials");
       try {

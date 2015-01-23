@@ -21,10 +21,10 @@ package org.sonar.batch.repository;
 
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.batch.bootstrap.TaskProperties;
-import org.sonar.batch.protocol.input.ProjectRepository;
+import org.sonar.batch.protocol.input.ProjectRepositories;
 
 public interface ProjectRepositoriesLoader {
 
-  ProjectRepository load(ProjectReactor reactor, TaskProperties taskProperties);
+  ProjectRepositories load(ProjectReactor reactor, TaskProperties taskProperties);
 
 }

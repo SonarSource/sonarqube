@@ -21,6 +21,7 @@ package org.sonar.batch.index;
 
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.ResourceUtils;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -73,5 +74,13 @@ public class BatchResource {
 
   public Collection<BatchResource> children() {
     return children;
+  }
+
+  public boolean isFile() {
+    return ResourceUtils.isFile(r);
+  }
+
+  public boolean isDir() {
+    return ResourceUtils.isDirectory(r);
   }
 }

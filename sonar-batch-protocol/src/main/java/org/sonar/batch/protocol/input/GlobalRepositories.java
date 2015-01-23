@@ -30,7 +30,7 @@ import java.util.Map;
  * Container for all global data going from server to batch.
  * This is not an API since server and batch always share the same version.
  */
-public class GlobalReferentials {
+public class GlobalRepositories {
 
   private long timestamp;
   private Collection<Metric> metrics = new ArrayList<Metric>();
@@ -40,7 +40,7 @@ public class GlobalReferentials {
     return globalSettings;
   }
 
-  public GlobalReferentials addGlobalSetting(String key, String value) {
+  public GlobalRepositories addGlobalSetting(String key, String value) {
     globalSettings.put(key, value);
     return this;
   }
@@ -49,7 +49,7 @@ public class GlobalReferentials {
     return metrics;
   }
 
-  public GlobalReferentials addMetric(Metric metric) {
+  public GlobalRepositories addMetric(Metric metric) {
     metrics.add(metric);
     return this;
   }
@@ -66,8 +66,8 @@ public class GlobalReferentials {
     return GsonHelper.create().toJson(this);
   }
 
-  public static GlobalReferentials fromJson(String json) {
-    return GsonHelper.create().fromJson(json, GlobalReferentials.class);
+  public static GlobalRepositories fromJson(String json) {
+    return GsonHelper.create().fromJson(json, GlobalRepositories.class);
   }
 
 }

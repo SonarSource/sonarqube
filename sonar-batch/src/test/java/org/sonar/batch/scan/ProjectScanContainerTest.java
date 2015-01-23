@@ -42,8 +42,8 @@ import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.GlobalSettings;
 import org.sonar.batch.bootstrap.TaskProperties;
 import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
-import org.sonar.batch.protocol.input.GlobalReferentials;
-import org.sonar.batch.protocol.input.ProjectRepository;
+import org.sonar.batch.protocol.input.GlobalRepositories;
+import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
 
 import java.util.Collections;
@@ -70,13 +70,13 @@ public class ProjectScanContainerTest {
     parentContainer.add(System2.INSTANCE);
     parentContainer.add(bootstrapProperties);
     parentContainer.add(analysisMode);
-    GlobalReferentials globalRef = new GlobalReferentials();
+    GlobalRepositories globalRef = new GlobalRepositories();
     settings = new GlobalSettings(bootstrapProperties, new PropertyDefinitions(), globalRef, analysisMode);
     parentContainer.add(settings);
     ProjectRepositoriesLoader projectReferentialsLoader = new ProjectRepositoriesLoader() {
       @Override
-      public ProjectRepository load(ProjectReactor reactor, TaskProperties taskProperties) {
-        return new ProjectRepository();
+      public ProjectRepositories load(ProjectReactor reactor, TaskProperties taskProperties) {
+        return new ProjectRepositories();
       }
     };
     parentContainer.add(projectReferentialsLoader);

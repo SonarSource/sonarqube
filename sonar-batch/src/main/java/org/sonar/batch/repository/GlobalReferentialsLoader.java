@@ -19,10 +19,10 @@
  */
 package org.sonar.batch.repository;
 
-import org.sonar.batch.protocol.input.GlobalReferentials;
+import org.sonar.batch.protocol.input.GlobalRepositories;
 
 public interface GlobalReferentialsLoader {
 
-  GlobalReferentials load();
+  GlobalRepositories load();
 
 }

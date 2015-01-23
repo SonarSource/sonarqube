@@ -24,7 +24,7 @@ import com.google.common.collect.Maps;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.measures.MetricFinder;
-import org.sonar.batch.protocol.input.GlobalReferentials;
+import org.sonar.batch.protocol.input.GlobalRepositories;
 
 import java.util.Collection;
 import java.util.List;
@@ -35,7 +35,7 @@ public final class DeprecatedMetricFinder implements MetricFinder {
   private Map<String, Metric> metricsByKey = Maps.newLinkedHashMap();
   private Map<Integer, Metric> metricsById = Maps.newLinkedHashMap();
 
-  public DeprecatedMetricFinder(GlobalReferentials globalReferentials) {
+  public DeprecatedMetricFinder(GlobalRepositories globalReferentials) {
     for (org.sonar.batch.protocol.input.Metric metric : globalReferentials.metrics()) {
       Metric hibernateMetric = new org.sonar.api.measures.Metric.Builder(metric.key(), metric.name(), ValueType.valueOf(metric.valueType()))
         .create()

@@ -29,11 +29,11 @@ import java.util.HashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ProjectRepositoryTest {
+public class ProjectRepositoriesTest {
 
   @Test
   public void testToJson() throws Exception {
-    ProjectRepository ref = new ProjectRepository();
+    ProjectRepositories ref = new ProjectRepositories();
     assertThat(ref.settings("foo")).isEmpty();
 
     ref.addQProfile(new QProfile("squid-java", "Java", "java", new SimpleDateFormat("dd/MM/yyyy").parse("14/03/1984")));
@@ -66,7 +66,7 @@ public class ProjectRepositoryTest {
 
   @Test
   public void testFromJson() throws JSONException, ParseException {
-    ProjectRepository ref = ProjectRepository
+    ProjectRepositories ref = ProjectRepositories
       .fromJson("{timestamp:1,"
         + "qprofilesByLanguage:{java:{key:\"squid-java\",name:Java,language:java,rulesUpdatedAt:\"1984-03-14T00:00:00+0100\"}},"
         + "activeRules:[{repositoryKey:repo,ruleKey:rule,name:Rule,severity:MAJOR,internalKey:rule1,language:java,params:{param1:value1}}],"

@@ -25,11 +25,11 @@ import org.skyscreamer.jsonassert.JSONAssert;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class GlobalReferentialsTest {
+public class GlobalRepositoriesTest {
 
   @Test
   public void to_json() throws Exception {
-    GlobalReferentials ref = new GlobalReferentials();
+    GlobalRepositories ref = new GlobalRepositories();
     ref.addMetric(new Metric(1, "ncloc", "INT", "Description", -1, "NCLOC", true, false, 2.0, 1.0, true));
     ref.addGlobalSetting("prop", "value");
     ref.setTimestamp(10);
@@ -44,7 +44,7 @@ public class GlobalReferentialsTest {
 
   @Test
   public void from_json() throws JSONException {
-    GlobalReferentials ref = GlobalReferentials
+    GlobalRepositories ref = GlobalRepositories
       .fromJson(
       "{timestamp:1,"
         + "metrics:[{id:1,key:ncloc,valueType:DATA,description:Description,direction:-1,name:NCLOC,qualitative:true,userManaged:false,worstValue:2.0,bestValue:1.0,optimizedBestValue:true}],"

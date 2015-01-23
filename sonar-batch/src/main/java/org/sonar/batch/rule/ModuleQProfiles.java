@@ -21,7 +21,7 @@ package org.sonar.batch.rule;
 
 import com.google.common.collect.ImmutableMap;
 import org.sonar.api.BatchComponent;
-import org.sonar.batch.protocol.input.ProjectRepository;
+import org.sonar.batch.protocol.input.ProjectRepositories;
 
 import javax.annotation.CheckForNull;
 
@@ -36,7 +36,7 @@ public class ModuleQProfiles implements BatchComponent {
   public static final String SONAR_PROFILE_PROP = "sonar.profile";
   private final Map<String, QProfile> byLanguage;
 
-  public ModuleQProfiles(ProjectRepository ref) {
+  public ModuleQProfiles(ProjectRepositories ref) {
     ImmutableMap.Builder<String, QProfile> builder = ImmutableMap.builder();
 
     for (org.sonar.batch.protocol.input.QProfile qProfile : ref.qProfiles()) {

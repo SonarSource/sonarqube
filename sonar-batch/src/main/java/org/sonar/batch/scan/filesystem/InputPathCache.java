@@ -24,6 +24,7 @@ import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
+import org.sonar.batch.index.BatchResource;
 import org.sonar.batch.index.Cache;
 import org.sonar.batch.index.Caches;
 
@@ -91,8 +92,19 @@ public class InputPathCache implements BatchComponent {
     return (InputFile) cache.get(moduleKey, FILE, relativePath);
   }
 
+  @CheckForNull
   public InputDir getDir(String moduleKey, String relativePath) {
     return (InputDir) cache.get(moduleKey, DIR, relativePath);
+  }
+
+  @CheckForNull
+  public InputPath getInputPath(BatchResource component) {
+    if (component.isFile()) {
+      return getFile(component.parent().parent().resource().getEffectiveKey(), component.resource().getPath());
+    } else if (component.isDir()) {
+      return getDir(component.parent().parent().resource().getEffectiveKey(), component.resource().getPath());
+    }
+    return null;
   }
 
 }

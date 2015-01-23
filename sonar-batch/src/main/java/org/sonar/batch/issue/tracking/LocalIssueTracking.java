@@ -29,7 +29,6 @@ import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
-import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.rule.RuleKey;
@@ -96,9 +95,8 @@ public class LocalIssueTracking implements BatchComponent {
     }
 
     SourceHashHolder sourceHashHolder = null;
-    if (ResourceUtils.isFile(component.resource())) {
-      File sonarFile = (File) component.resource();
-      InputFile file = inputPathCache.getFile(component.parent().parent().resource().getEffectiveKey(), sonarFile.getPath());
+    if (component.isFile()) {
+      InputFile file = (InputFile) inputPathCache.getInputPath(component);
       if (file == null) {
         throw new IllegalStateException("Resource " + component.resource() + " was not found in InputPath cache");
       }
@@ -152,9 +150,8 @@ public class LocalIssueTracking implements BatchComponent {
   private void addUnmatched(Collection<PreviousIssue> unmatchedIssues, SourceHashHolder sourceHashHolder, Collection<DefaultIssue> issues) {
     for (PreviousIssue unmatchedIssue : unmatchedIssues) {
       org.sonar.batch.protocol.input.issues.PreviousIssue unmatchedPreviousIssue = ((PreviousIssueFromWs) unmatchedIssue).getDto();
-      ActiveRule activeRule = activeRules.find(unmatchedIssue.ruleKey());
       DefaultIssue unmatched = toUnmatchedIssue(unmatchedPreviousIssue);
-      if (activeRule != null && !Issue.STATUS_CLOSED.equals(unmatchedPreviousIssue.status())) {
+      if (unmatchedIssue.ruleKey().isManual() && !Issue.STATUS_CLOSED.equals(unmatchedPreviousIssue.status())) {
         relocateManualIssue(unmatched, unmatchedIssue, sourceHashHolder);
       }
       updateUnmatchedIssue(unmatched, false /* manual issues can be kept open */);
@@ -197,8 +194,15 @@ public class LocalIssueTracking implements BatchComponent {
 
   private void updateUnmatchedIssue(DefaultIssue issue, boolean forceEndOfLife) {
     ActiveRule activeRule = activeRules.find(issue.ruleKey());
+    issue.setNew(false);
+
+    boolean manualIssue = issue.ruleKey().isManual();
     boolean isRemovedRule = activeRule == null;
-    issue.setEndOfLife(forceEndOfLife || isRemovedRule);
+    if (manualIssue) {
+      issue.setEndOfLife(forceEndOfLife || isRemovedRule);
+    } else {
+      issue.setEndOfLife(true);
+    }
     issue.setOnDisabledRule(isRemovedRule);
   }
 

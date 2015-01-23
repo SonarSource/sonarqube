@@ -127,6 +127,11 @@
       <groupId>com.github.kevinsawicki</groupId>
       <artifactId>http-request</artifactId>
     </dependency>
+    <!-- For HTML Report -->
+    <dependency>
+      <groupId>org.freemarker</groupId>
+      <artifactId>freemarker</artifactId>
+    </dependency>
 
     <!-- unit tests -->
     <dependency>

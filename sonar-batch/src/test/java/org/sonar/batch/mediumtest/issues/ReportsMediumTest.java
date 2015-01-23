@@ -45,12 +45,21 @@ public class ReportsMediumTest {
     .addDefaultQProfile("xoo", "Sonar Way")
     .activateRule(new ActiveRule("xoo", "OneIssuePerLine", "One issue per line", "MAJOR", "OneIssuePerLine.internal", "xoo"))
     .bootstrapProperties(ImmutableMap.of("sonar.analysis.mode", "sensor"))
+    // Existing issue
     .addPreviousIssue(new PreviousIssue().setKey("xyz")
       .setComponentKey("sample:xources/hello/HelloJava.xoo")
       .setRuleKey("xoo", "OneIssuePerLine")
       .setLine(1)
       .setSeverity("MAJOR")
       .setChecksum(DigestUtils.md5Hex("packagehello;"))
+      .setStatus("OPEN"))
+    // Resolved issue
+    .addPreviousIssue(new PreviousIssue().setKey("resolved")
+      .setComponentKey("sample:xources/hello/HelloJava.xoo")
+      .setRuleKey("xoo", "OneIssuePerLine")
+      .setLine(1)
+      .setOverriddenSeverity("MAJOR")
+      .setChecksum(DigestUtils.md5Hex("dontexist"))
       .setStatus("OPEN"))
     .build();
 
@@ -73,7 +82,19 @@ public class ReportsMediumTest {
       .property("sonar.issuesReport.console.enable", "true")
       .start();
 
-    assertThat(result.issues()).hasSize(14);
+    assertThat(result.issues()).hasSize(15);
+  }
+
+  @Test
+  public void testHtmlReport() throws Exception {
+    File projectDir = new File(ReportsMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
+
+    TaskResult result = tester
+      .newScanTask(new File(projectDir, "sonar-project.properties"))
+      .property("sonar.issuesReport.html.enable", "true")
+      .start();
+
+    assertThat(result.issues()).hasSize(15);
   }
 
 }

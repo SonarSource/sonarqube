@@ -30,7 +30,7 @@ import java.util.*;
  * Container for all project data going from server to batch.
  * This is not an API since server and batch always share the same version.
  */
-public class ProjectRepository {
+public class ProjectRepositories {
 
   private long timestamp;
   private Map<String, QProfile> qprofilesByLanguage = new HashMap<String, QProfile>();
@@ -43,7 +43,7 @@ public class ProjectRepository {
     return settingsByModule.containsKey(moduleKey) ? settingsByModule.get(moduleKey) : Collections.<String, String>emptyMap();
   }
 
-  public ProjectRepository addSettings(String moduleKey, Map<String, String> settings) {
+  public ProjectRepositories addSettings(String moduleKey, Map<String, String> settings) {
     Map<String, String> existingSettings = settingsByModule.get(moduleKey);
     if (existingSettings == null) {
       existingSettings = new HashMap<>();
@@ -57,7 +57,7 @@ public class ProjectRepository {
     return qprofilesByLanguage.values();
   }
 
-  public ProjectRepository addQProfile(QProfile qProfile) {
+  public ProjectRepositories addQProfile(QProfile qProfile) {
     qprofilesByLanguage.put(qProfile.language(), qProfile);
     return this;
   }
@@ -66,7 +66,7 @@ public class ProjectRepository {
     return activeRules;
   }
 
-  public ProjectRepository addActiveRule(ActiveRule activeRule) {
+  public ProjectRepositories addActiveRule(ActiveRule activeRule) {
     activeRules.add(activeRule);
     return this;
   }
@@ -75,7 +75,7 @@ public class ProjectRepository {
     return fileDataByModuleAndPath.containsKey(moduleKey) ? fileDataByModuleAndPath.get(moduleKey) : Collections.<String, FileData>emptyMap();
   }
 
-  public ProjectRepository addFileData(String moduleKey, String path, FileData fileData) {
+  public ProjectRepositories addFileData(String moduleKey, String path, FileData fileData) {
     Map<String, FileData> existingFileDataByPath = fileDataByModuleAndPath.get(moduleKey);
     if (existingFileDataByPath == null) {
       existingFileDataByPath = new HashMap<>();
@@ -111,8 +111,8 @@ public class ProjectRepository {
     return GsonHelper.create().toJson(this);
   }
 
-  public static ProjectRepository fromJson(String json) {
-    return GsonHelper.create().fromJson(json, ProjectRepository.class);
+  public static ProjectRepositories fromJson(String json) {
+    return GsonHelper.create().fromJson(json, ProjectRepositories.class);
   }
 
 }

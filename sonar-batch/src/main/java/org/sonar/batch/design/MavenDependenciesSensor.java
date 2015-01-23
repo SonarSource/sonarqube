@@ -55,6 +55,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.index.ResourcePersister;
+import org.sonar.core.DryRunIncompatible;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -62,6 +63,7 @@ import java.util.Collection;
 import java.util.List;
 
 @SupportedEnvironment("maven")
+@DryRunIncompatible
 public class MavenDependenciesSensor implements Sensor {
 
   private static final String SONAR_MAVEN_PROJECT_DEPENDENCY = "sonar.maven.projectDependencies";

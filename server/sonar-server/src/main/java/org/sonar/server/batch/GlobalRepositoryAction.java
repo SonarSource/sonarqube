@@ -25,7 +25,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.batch.protocol.input.GlobalReferentials;
+import org.sonar.batch.protocol.input.GlobalRepositories;
 import org.sonar.core.measure.db.MetricDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
@@ -62,7 +62,7 @@ public class GlobalRepositoryAction implements RequestHandler {
 
     DbSession session = dbClient.openSession(false);
     try {
-      GlobalReferentials ref = new GlobalReferentials();
+      GlobalRepositories ref = new GlobalRepositories();
       addMetrics(ref, session);
       addSettings(ref, hasScanPerm, hasDryRunPerm, session);
 
@@ -73,7 +73,7 @@ public class GlobalRepositoryAction implements RequestHandler {
     }
   }
 
-  private void addMetrics(GlobalReferentials ref, DbSession session) {
+  private void addMetrics(GlobalRepositories ref, DbSession session) {
     for (MetricDto metric : dbClient.metricDao().findEnabled(session)) {
       Boolean optimizedBestValue = metric.isOptimizedBestValue();
       ref.addMetric(
@@ -90,7 +90,7 @@ public class GlobalRepositoryAction implements RequestHandler {
     }
   }
 
-  private void addSettings(GlobalReferentials ref, boolean hasScanPerm, boolean hasDryRunPerm, DbSession session) {
+  private void addSettings(GlobalRepositories ref, boolean hasScanPerm, boolean hasDryRunPerm, DbSession session) {
     for (PropertyDto propertyDto : propertiesDao.selectGlobalProperties(session)) {
       String key = propertyDto.getKey();
       String value = propertyDto.getValue();

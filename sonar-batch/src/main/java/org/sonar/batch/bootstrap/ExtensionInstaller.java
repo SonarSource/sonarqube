@@ -45,7 +45,7 @@ public class ExtensionInstaller {
   public ExtensionInstaller install(ComponentContainer container, ExtensionMatcher matcher) {
 
     // core components
-    for (Object o : BatchComponents.all()) {
+    for (Object o : BatchComponents.all(analysisMode)) {
       doInstall(container, matcher, null, o);
     }
 

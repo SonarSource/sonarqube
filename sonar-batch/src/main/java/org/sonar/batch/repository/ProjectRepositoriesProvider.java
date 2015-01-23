@@ -25,15 +25,15 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.batch.bootstrap.TaskProperties;
-import org.sonar.batch.protocol.input.ProjectRepository;
+import org.sonar.batch.protocol.input.ProjectRepositories;
 
 public class ProjectRepositoriesProvider extends ProviderAdapter {
 
   private static final Logger LOG = LoggerFactory.getLogger(ProjectRepositoriesProvider.class);
 
-  private ProjectRepository projectReferentials;
+  private ProjectRepositories projectReferentials;
 
-  public ProjectRepository provide(ProjectRepositoriesLoader loader, ProjectReactor reactor, TaskProperties taskProps) {
+  public ProjectRepositories provide(ProjectRepositoriesLoader loader, ProjectReactor reactor, TaskProperties taskProps) {
     if (projectReferentials == null) {
       TimeProfiler profiler = new TimeProfiler(LOG).start("Load project referentials");
       try {

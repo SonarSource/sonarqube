@@ -20,7 +20,7 @@
 package org.sonar.batch.repository;
 
 import org.sonar.batch.bootstrap.ServerClient;
-import org.sonar.batch.protocol.input.GlobalReferentials;
+import org.sonar.batch.protocol.input.GlobalRepositories;
 
 public class DefaultGlobalReferentialsLoader implements GlobalReferentialsLoader {
 
@@ -33,8 +33,8 @@ public class DefaultGlobalReferentialsLoader implements GlobalReferentialsLoader
   }
 
   @Override
-  public GlobalReferentials load() {
-    return GlobalReferentials.fromJson(serverClient.request(BATCH_GLOBAL_URL));
+  public GlobalRepositories load() {
+    return GlobalRepositories.fromJson(serverClient.request(BATCH_GLOBAL_URL));
   }
 
 }

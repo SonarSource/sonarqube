@@ -22,14 +22,14 @@ package org.sonar.batch.scan.filesystem;
 import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.batch.protocol.input.FileData;
-import org.sonar.batch.protocol.input.ProjectRepository;
+import org.sonar.batch.protocol.input.ProjectRepositories;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class StatusDetectionTest {
   @Test
   public void detect_status() throws Exception {
-    ProjectRepository ref = new ProjectRepository();
+    ProjectRepositories ref = new ProjectRepositories();
     ref.addFileData("foo", "src/Foo.java", new FileData("ABCDE", true, null, null, null));
     ref.addFileData("foo", "src/Bar.java", new FileData("FGHIJ", true, null, null, null));
     StatusDetection statusDetection = new StatusDetection(ref);

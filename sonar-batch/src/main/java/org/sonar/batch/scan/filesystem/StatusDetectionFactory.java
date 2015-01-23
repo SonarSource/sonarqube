@@ -20,13 +20,13 @@
 package org.sonar.batch.scan.filesystem;
 
 import org.sonar.api.BatchComponent;
-import org.sonar.batch.protocol.input.ProjectRepository;
+import org.sonar.batch.protocol.input.ProjectRepositories;
 
 public class StatusDetectionFactory implements BatchComponent {
 
-  private final ProjectRepository projectReferentials;
+  private final ProjectRepositories projectReferentials;
 
-  public StatusDetectionFactory(ProjectRepository projectReferentials) {
+  public StatusDetectionFactory(ProjectRepositories projectReferentials) {
     this.projectReferentials = projectReferentials;
   }
 

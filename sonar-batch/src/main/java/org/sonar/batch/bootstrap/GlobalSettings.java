@@ -23,16 +23,16 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
-import org.sonar.batch.protocol.input.GlobalReferentials;
+import org.sonar.batch.protocol.input.GlobalRepositories;
 
 public class GlobalSettings extends Settings {
 
   private final BootstrapProperties bootstrapProps;
-  private final GlobalReferentials globalReferentials;
+  private final GlobalRepositories globalReferentials;
   private final AnalysisMode mode;
 
   public GlobalSettings(BootstrapProperties bootstrapProps, PropertyDefinitions propertyDefinitions,
-    GlobalReferentials globalReferentials, AnalysisMode mode) {
+    GlobalRepositories globalReferentials, AnalysisMode mode) {
 
     super(propertyDefinitions);
     this.mode = mode;

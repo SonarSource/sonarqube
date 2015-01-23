@@ -25,7 +25,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.batch.protocol.input.ProjectRepository;
+import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonar.server.plugins.MimeTypes;
 
 public class ProjectRepositoryAction implements RequestHandler {
@@ -67,7 +67,7 @@ public class ProjectRepositoryAction implements RequestHandler {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    ProjectRepository ref = projectReferentialsLoader.load(ProjectRepositoryQuery.create()
+    ProjectRepositories ref = projectReferentialsLoader.load(ProjectRepositoryQuery.create()
       .setModuleKey(request.mandatoryParam(PARAM_KEY))
       .setProfileName(request.param(PARAM_PROFILE))
       .setPreview(request.mandatoryParamAsBoolean(PARAM_PREVIEW)));

@@ -25,7 +25,7 @@ import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.protocol.input.ActiveRule;
-import org.sonar.batch.protocol.input.ProjectRepository;
+import org.sonar.batch.protocol.input.ProjectRepositories;
 
 import java.util.Map.Entry;
 
@@ -37,14 +37,14 @@ public class ActiveRulesProvider extends ProviderAdapter {
 
   private ActiveRules singleton = null;
 
-  public ActiveRules provide(ProjectRepository ref) {
+  public ActiveRules provide(ProjectRepositories ref) {
     if (singleton == null) {
       singleton = load(ref);
     }
     return singleton;
   }
 
-  private ActiveRules load(ProjectRepository ref) {
+  private ActiveRules load(ProjectRepositories ref) {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
     for (ActiveRule activeRule : ref.activeRules()) {
       NewActiveRule newActiveRule = builder.create(RuleKey.of(activeRule.repositoryKey(), activeRule.ruleKey()));

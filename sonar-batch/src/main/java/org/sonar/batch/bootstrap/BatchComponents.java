@@ -32,7 +32,11 @@ import org.sonar.batch.maven.MavenProjectBootstrapper;
 import org.sonar.batch.maven.MavenProjectBuilder;
 import org.sonar.batch.maven.MavenProjectConverter;
 import org.sonar.batch.scan.report.ConsoleReport;
+import org.sonar.batch.scan.report.HtmlReport;
+import org.sonar.batch.scan.report.IssuesReportBuilder;
 import org.sonar.batch.scan.report.JSONReport;
+import org.sonar.batch.scan.report.RuleNameProvider;
+import org.sonar.batch.scan.report.SourceProvider;
 import org.sonar.batch.scm.ScmConfiguration;
 import org.sonar.batch.scm.ScmSensor;
 import org.sonar.batch.source.LinesSensor;
@@ -48,13 +52,12 @@ public class BatchComponents {
     // only static stuff
   }
 
-  public static Collection all() {
+  public static Collection all(AnalysisMode analysisMode) {
     List components = Lists.newArrayList(
       // Maven
       MavenProjectBootstrapper.class, DefaultMavenPluginExecutor.class, MavenProjectConverter.class, MavenProjectBuilder.class,
 
       // Design
-      MavenDependenciesSensor.class,
       ProjectDsmDecorator.class,
       SubProjectDsmDecorator.class,
       DirectoryDsmDecorator.class,
@@ -73,12 +76,19 @@ public class BatchComponents {
       // Reports
       ConsoleReport.class,
       JSONReport.class,
+      HtmlReport.class,
+      IssuesReportBuilder.class,
+      SourceProvider.class,
+      RuleNameProvider.class,
 
       // dbcleaner
       DefaultPeriodCleaner.class,
       DefaultPurgeTask.class
       );
     components.addAll(CorePropertyDefinitions.all());
+    if (!analysisMode.isSensorMode()) {
+      components.add(MavenDependenciesSensor.class);
+    }
     return components;
   }
 }

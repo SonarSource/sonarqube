@@ -32,8 +32,8 @@ import org.sonar.batch.bootstrap.TaskProperties;
 import org.sonar.batch.bootstrapper.Batch;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.protocol.input.ActiveRule;
-import org.sonar.batch.protocol.input.GlobalReferentials;
-import org.sonar.batch.protocol.input.ProjectRepository;
+import org.sonar.batch.protocol.input.GlobalRepositories;
+import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonar.batch.protocol.input.issues.PreviousIssue;
 import org.sonar.batch.repository.GlobalReferentialsLoader;
 import org.sonar.batch.repository.PreviousIssuesLoader;
@@ -198,10 +198,10 @@ public class BatchMediumTester {
 
     private int metricId = 1;
 
-    private GlobalReferentials ref = new GlobalReferentials();
+    private GlobalRepositories ref = new GlobalRepositories();
 
     @Override
-    public GlobalReferentials load() {
+    public GlobalRepositories load() {
       return ref;
     }
 
@@ -229,10 +229,10 @@ public class BatchMediumTester {
 
   private static class FakeProjectReferentialsLoader implements ProjectRepositoriesLoader {
 
-    private ProjectRepository ref = new ProjectRepository();
+    private ProjectRepositories ref = new ProjectRepositories();
 
     @Override
-    public ProjectRepository load(ProjectReactor reactor, TaskProperties taskProperties) {
+    public ProjectRepositories load(ProjectReactor reactor, TaskProperties taskProperties) {
       return ref;
     }
 

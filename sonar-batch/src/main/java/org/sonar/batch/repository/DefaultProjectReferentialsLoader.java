@@ -35,7 +35,7 @@ import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.bootstrap.TaskProperties;
 import org.sonar.batch.protocol.input.FileData;
-import org.sonar.batch.protocol.input.ProjectRepository;
+import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonar.batch.rule.ModuleQProfiles;
 
 import javax.annotation.CheckForNull;
@@ -71,7 +71,7 @@ public class DefaultProjectReferentialsLoader implements ProjectRepositoriesLoad
   }
 
   @Override
-  public ProjectRepository load(ProjectReactor reactor, TaskProperties taskProperties) {
+  public ProjectRepositories load(ProjectReactor reactor, TaskProperties taskProperties) {
     String projectKey = reactor.getRoot().getKeyWithBranch();
     String url = BATCH_PROJECT_URL + "?key=" + ServerClient.encodeForUrl(projectKey);
     if (taskProperties.properties().containsKey(ModuleQProfiles.SONAR_PROFILE_PROP)) {
@@ -80,7 +80,7 @@ public class DefaultProjectReferentialsLoader implements ProjectRepositoriesLoad
       url += "&profile=" + ServerClient.encodeForUrl(taskProperties.properties().get(ModuleQProfiles.SONAR_PROFILE_PROP));
     }
     url += "&preview=" + analysisMode.isPreview();
-    ProjectRepository ref = ProjectRepository.fromJson(serverClient.request(url));
+    ProjectRepositories ref = ProjectRepositories.fromJson(serverClient.request(url));
 
     if (session != null) {
       for (ProjectDefinition module : reactor.getProjects()) {

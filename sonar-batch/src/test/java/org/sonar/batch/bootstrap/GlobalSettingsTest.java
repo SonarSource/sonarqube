@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.batch.protocol.input.GlobalReferentials;
+import org.sonar.batch.protocol.input.GlobalRepositories;
 
 import java.util.Collections;
 
@@ -37,7 +37,7 @@ public class GlobalSettingsTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  GlobalReferentials globalRef;
+  GlobalRepositories globalRef;
   ProjectDefinition project = ProjectDefinition.create().setKey("struts");
   BootstrapProperties bootstrapProps;
 
@@ -45,7 +45,7 @@ public class GlobalSettingsTest {
 
   @Before
   public void prepare() {
-    globalRef = new GlobalReferentials();
+    globalRef = new GlobalRepositories();
     bootstrapProps = new BootstrapProperties(Collections.<String, String>emptyMap());
     mode = mock(AnalysisMode.class);
   }

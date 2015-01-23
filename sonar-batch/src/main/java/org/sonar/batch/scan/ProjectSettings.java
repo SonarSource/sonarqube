@@ -28,18 +28,18 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.bootstrap.GlobalSettings;
-import org.sonar.batch.protocol.input.ProjectRepository;
+import org.sonar.batch.protocol.input.ProjectRepositories;
 
 public class ProjectSettings extends Settings {
 
   private static final Logger LOG = LoggerFactory.getLogger(ProjectSettings.class);
 
   private final GlobalSettings globalSettings;
-  private final ProjectRepository projectReferentials;
+  private final ProjectRepositories projectReferentials;
   private final AnalysisMode mode;
 
   public ProjectSettings(ProjectReactor reactor, GlobalSettings globalSettings, PropertyDefinitions propertyDefinitions,
-    ProjectRepository projectReferentials, AnalysisMode mode) {
+    ProjectRepositories projectReferentials, AnalysisMode mode) {
     super(propertyDefinitions);
     this.mode = mode;
     getEncryption().setPathToSecretKey(globalSettings.getString(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));

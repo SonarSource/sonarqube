@@ -28,7 +28,7 @@ import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.protocol.input.FileData;
-import org.sonar.batch.protocol.input.ProjectRepository;
+import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonar.core.UtcDateUtils;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.FilePathWithHashDto;
@@ -77,13 +77,13 @@ public class ProjectRepositoryLoader implements ServerComponent {
     this.languages = languages;
   }
 
-  public ProjectRepository load(ProjectRepositoryQuery query) {
+  public ProjectRepositories load(ProjectRepositoryQuery query) {
     boolean hasScanPerm = UserSession.get().hasGlobalPermission(GlobalPermissions.SCAN_EXECUTION);
     checkPermission(query.isPreview());
 
     DbSession session = dbClient.openSession(false);
     try {
-      ProjectRepository ref = new ProjectRepository();
+      ProjectRepositories ref = new ProjectRepositories();
       String projectKey = query.getModuleKey();
       ComponentDto module = dbClient.componentDao().getNullableByKey(session, query.getModuleKey());
       // Current project/module can be null when analysing a new project
@@ -145,7 +145,7 @@ public class ProjectRepositoryLoader implements ServerComponent {
     }
   }
 
-  private void addSettingsToChildrenModules(ProjectRepository ref, String moduleKey, Map<String, String> parentProperties, TreeModuleSettings treeModuleSettings,
+  private void addSettingsToChildrenModules(ProjectRepositories ref, String moduleKey, Map<String, String> parentProperties, TreeModuleSettings treeModuleSettings,
     boolean hasScanPerm, DbSession session) {
     Map<String, String> currentParentProperties = newHashMap();
     currentParentProperties.putAll(parentProperties);
@@ -158,7 +158,7 @@ public class ProjectRepositoryLoader implements ServerComponent {
     }
   }
 
-  private void addSettings(ProjectRepository ref, String module, Map<String, String> properties) {
+  private void addSettings(ProjectRepositories ref, String module, Map<String, String> properties) {
     if (!properties.isEmpty()) {
       ref.addSettings(module, properties);
     }
@@ -180,7 +180,7 @@ public class ProjectRepositoryLoader implements ServerComponent {
     return !key.contains(".secured") || hasScanPerm;
   }
 
-  private void addProfiles(ProjectRepository ref, @Nullable String projectKey, @Nullable String profileName, DbSession session) {
+  private void addProfiles(ProjectRepositories ref, @Nullable String projectKey, @Nullable String profileName, DbSession session) {
     for (Language language : languages.all()) {
       String languageKey = language.getKey();
       QualityProfileDto qualityProfileDto = getProfile(languageKey, projectKey, profileName, session);
@@ -212,7 +212,7 @@ public class ProjectRepositoryLoader implements ServerComponent {
     }
   }
 
-  private void addActiveRules(ProjectRepository ref) {
+  private void addActiveRules(ProjectRepositories ref) {
     for (org.sonar.batch.protocol.input.QProfile qProfile : ref.qProfiles()) {
       for (ActiveRule activeRule : qProfileLoader.findActiveRulesByProfile(qProfile.key())) {
         Rule rule = ruleService.getNonNullByKey(activeRule.key().ruleKey());
@@ -231,7 +231,7 @@ public class ProjectRepositoryLoader implements ServerComponent {
     }
   }
 
-  private void addManualRules(ProjectRepository ref) {
+  private void addManualRules(ProjectRepositories ref) {
     Result<Rule> ruleSearchResult = ruleService.search(new RuleQuery().setRepositories(newArrayList(RuleKey.MANUAL_REPOSITORY_KEY)), new QueryContext().setScroll(true)
       .setFieldsToReturn(newArrayList(RuleNormalizer.RuleField.KEY.field(), RuleNormalizer.RuleField.NAME.field())));
     Iterator<Rule> rules = ruleSearchResult.scroll();
@@ -245,7 +245,7 @@ public class ProjectRepositoryLoader implements ServerComponent {
     }
   }
 
-  private void addFileData(DbSession session, ProjectRepository ref, List<ComponentDto> moduleChildren, String moduleKey) {
+  private void addFileData(DbSession session, ProjectRepositories ref, List<ComponentDto> moduleChildren, String moduleKey) {
     Map<String, String> moduleKeysByUuid = newHashMap();
     for (ComponentDto module : moduleChildren) {
       moduleKeysByUuid.put(module.uuid(), module.key());
