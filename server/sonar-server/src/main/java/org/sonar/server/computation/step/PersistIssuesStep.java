@@ -67,34 +67,36 @@ public class PersistIssuesStep implements ComputationStep {
     try {
       while (issues.hasNext()) {
         DefaultIssue issue = issues.next();
-
+        boolean saved = false;
         if (issue.isNew()) {
           Integer ruleId = ruleCache.get(issue.ruleKey()).getId();
           mapper.insert(IssueDto.toDtoForBatchInsert(issue, issue.componentId(), context.getProject().getId(), ruleId, system2.now()));
           count++;
-        } else {
+          saved = true;
+        } else if (issue.isChanged()) {
           IssueDto dto = IssueDto.toDtoForUpdate(issue, context.getProject().getId(), system2.now());
           if (Issue.STATUS_CLOSED.equals(issue.status()) || issue.selectedAt() == null) {
             // Issue is closed by scan or changed by end-user
             mapper.update(dto);
-
+            count++;
           } else {
             int updateCount = mapper.updateIfBeforeSelectedDate(dto);
+            count++;
             if (updateCount == 0) {
               // End-user and scan changed the issue at the same time.
               // See https://jira.codehaus.org/browse/SONAR-4309
               conflictResolver.resolve(issue, mapper);
             }
           }
-
-          count++;
+          saved = true;
         }
-        count += insertChanges(changeMapper, issue);
-
-        if (count > BatchSession.MAX_BATCH_SIZE) {
-          session.flushStatements();
-          session.commit();
-          count = 0;
+        if (saved) {
+          count += insertChanges(changeMapper, issue);
+          if (count > BatchSession.MAX_BATCH_SIZE) {
+            session.flushStatements();
+            session.commit();
+            count = 0;
+          }
         }
       }
       session.flushStatements();
