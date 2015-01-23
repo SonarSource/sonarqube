@@ -58,15 +58,21 @@ public class IssueComputation {
   }
 
   private void guessAuthor(DefaultIssue issue) {
-    if (issue.line() != null) {
+    // issue.authorLogin() can be not-null when old developer cockpit plugin (or other plugin)
+    // is still installed and executed during analysis
+    if (issue.authorLogin() == null && issue.line() != null) {
       issue.setAuthorLogin(linesCache.lineAuthor(issue.line()));
     }
   }
 
   private void autoAssign(DefaultIssue issue) {
-    String scmAccount = issue.authorLogin();
-    if (scmAccount != null) {
-      issue.setAssignee(scmAccountCache.getNullable(scmAccount));
+    // issue.assignee() can be not-null if the issue-assign-plugin is
+    // still installed and executed during analysis
+    if (issue.assignee() == null) {
+      String scmAccount = issue.authorLogin();
+      if (scmAccount != null) {
+        issue.setAssignee(scmAccountCache.getNullable(scmAccount));
+      }
     }
   }
 

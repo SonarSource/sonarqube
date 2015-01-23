@@ -35,6 +35,7 @@ import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class IssueComputationTest {
@@ -145,6 +146,24 @@ public class IssueComputationTest {
     process();
 
     assertThat(Iterators.getOnlyElement(issueCache.traverse()).assignee()).isNull();
+  }
+
+  @Test
+  public void do_not_override_author_and_assignee_set_by_old_batch_plugins() throws Exception {
+    issue.setNew(true);
+
+    // these fields were provided during project analysis, for instance
+    // by developer cockpit or issue-assign plugins
+    issue.setAuthorLogin("charlie");
+    issue.setAssignee("cabu");
+
+    process();
+
+    // keep the values, without trying to update them
+    DefaultIssue cachedIssue = Iterators.getOnlyElement(issueCache.traverse());
+    assertThat(cachedIssue.assignee()).isEqualTo("cabu");
+    assertThat(cachedIssue.authorLogin()).isEqualTo("charlie");
+    verifyZeroInteractions(scmAccountCache);
   }
 
   private void process() {
