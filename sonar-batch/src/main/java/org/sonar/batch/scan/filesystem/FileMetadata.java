@@ -23,6 +23,10 @@ import com.google.common.base.Charsets;
 import com.google.common.primitives.Longs;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.ByteOrderMark;
+import org.apache.commons.io.input.BOMInputStream;
+
+import javax.annotation.CheckForNull;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -45,68 +49,194 @@ class FileMetadata {
 
   private static final char LINE_FEED = '\n';
   private static final char CARRIAGE_RETURN = '\r';
-  private static final char BOM = '\uFEFF';
+
+  private abstract class CharHandler {
+
+    void handleAll(char c) {
+    }
+
+    void handleIgnoreEoL(char c) {
+    }
+
+    void newLine() {
+    }
+
+    void eof() {
+    }
+  }
+
+  private class LineCounter extends CharHandler {
+    private boolean empty = true;
+    private int lines = 1;
+    private int nonBlankLines = 0;
+    private boolean blankLine = true;
+
+    @Override
+    void handleAll(char c) {
+      this.empty = false;
+    }
+
+    @Override
+    void newLine() {
+      lines++;
+      if (!blankLine) {
+        nonBlankLines++;
+      }
+      blankLine = true;
+    }
+
+    @Override
+    void handleIgnoreEoL(char c) {
+      if (!Character.isWhitespace(c)) {
+        blankLine = false;
+      }
+    }
+
+    @Override
+    void eof() {
+      if (!blankLine) {
+        nonBlankLines++;
+      }
+    }
+
+    public int lines() {
+      return lines;
+    }
+
+    public int nonBlankLines() {
+      return nonBlankLines;
+    }
+
+    public boolean isEmpty() {
+      return empty;
+    }
+  }
+
+  private class FileHashComputer extends CharHandler {
+    private MessageDigest globalMd5Digest = DigestUtils.getMd5Digest();
+    private boolean emptyFile = true;;
+
+    @Override
+    void handleIgnoreEoL(char c) {
+      emptyFile = false;
+      updateDigestUTF8Char(c, globalMd5Digest);
+    }
+
+    @Override
+    void newLine() {
+      emptyFile = false;
+      updateDigestUTF8Char(LINE_FEED, globalMd5Digest);
+    }
+
+    @CheckForNull
+    public String getHash() {
+      return emptyFile ? null : Hex.encodeHexString(globalMd5Digest.digest());
+    }
+  }
+
+  private class LineOffsetCounter extends CharHandler {
+    private long currentOriginalOffset = 0;
+    private List<Long> originalLineOffsets = new ArrayList<Long>();
+
+    public LineOffsetCounter() {
+      originalLineOffsets.add(0L);
+    }
+
+    @Override
+    void handleAll(char c) {
+      currentOriginalOffset++;
+    }
+
+    @Override
+    void newLine() {
+      originalLineOffsets.add(currentOriginalOffset);
+    }
+
+    public List<Long> getOriginalLineOffsets() {
+      return originalLineOffsets;
+    }
+
+  }
+
+  private class LineHashesComputer extends CharHandler {
+    private List<Object> lineHashes = new ArrayList<Object>();
+    private MessageDigest lineMd5Digest = DigestUtils.getMd5Digest();
+    private boolean blankLine = true;
+
+    @Override
+    void handleIgnoreEoL(char c) {
+      if (!Character.isWhitespace(c)) {
+        blankLine = false;
+        updateDigestUTF8Char(c, lineMd5Digest);
+      }
+    }
+
+    @Override
+    void newLine() {
+      lineHashes.add(blankLine ? null : lineMd5Digest.digest());
+      blankLine = true;
+    }
+
+    @Override
+    void eof() {
+      lineHashes.add(blankLine ? null : lineMd5Digest.digest());
+    }
+
+    public byte[][] lineHashes() {
+      return lineHashes.toArray(new byte[0][]);
+    }
+  }
 
   /**
    * Compute hash of a file ignoring line ends differences.
    * Maximum performance is needed.
    */
   Metadata read(File file, Charset encoding) {
-    long currentOriginalOffset = 0;
-    List<Long> originalLineOffsets = new ArrayList<Long>();
-    List<Object> lineHashes = new ArrayList<Object>();
-    int lines = 1;
     char c = (char) 0;
-    try (Reader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), encoding))) {
-      MessageDigest globalMd5Digest = DigestUtils.getMd5Digest();
-      MessageDigest lineMd5Digest = DigestUtils.getMd5Digest();
+    LineCounter lineCounter = new LineCounter();
+    FileHashComputer fileHashComputer = new FileHashComputer();
+    LineOffsetCounter lineOffsetCounter = new LineOffsetCounter();
+    LineHashesComputer lineHashesComputer = new LineHashesComputer();
+    CharHandler[] handlers = new CharHandler[] {lineCounter, fileHashComputer, lineOffsetCounter, lineHashesComputer};
+    try (BOMInputStream bomIn = new BOMInputStream(new FileInputStream(file),
+      ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE);
+      Reader reader = new BufferedReader(new InputStreamReader(bomIn, encoding))) {
       int i = reader.read();
       boolean afterCR = false;
-      // First offset of first line is always 0
-      originalLineOffsets.add(0L);
-      boolean blankline = true;
       while (i != -1) {
         c = (char) i;
-        if (c == BOM) {
-          // Ignore
-          i = reader.read();
-          continue;
-        }
-        currentOriginalOffset++;
         if (afterCR) {
-          afterCR = false;
-          if (c == LINE_FEED) {
-            originalLineOffsets.set(originalLineOffsets.size() - 1, originalLineOffsets.get(originalLineOffsets.size() - 1) + 1);
-            // Ignore
-            i = reader.read();
-            continue;
+          for (CharHandler handler : handlers) {
+            if (c != CARRIAGE_RETURN && c != LINE_FEED) {
+              handler.handleIgnoreEoL(c);
+            }
+            handler.handleAll(c);
+            handler.newLine();
           }
-        }
-        if (c == CARRIAGE_RETURN) {
+          afterCR = c == CARRIAGE_RETURN;
+        } else if (c == LINE_FEED) {
+          for (CharHandler handler : handlers) {
+            handler.handleAll(c);
+            handler.newLine();
+          }
+        } else if (c == CARRIAGE_RETURN) {
           afterCR = true;
-          c = LINE_FEED;
-        }
-        if (c == LINE_FEED) {
-          lines++;
-          originalLineOffsets.add(currentOriginalOffset);
-          lineHashes.add(blankline ? null : lineMd5Digest.digest());
-          blankline = true;
+          for (CharHandler handler : handlers) {
+            handler.handleAll(c);
+          }
         } else {
-          if (!Character.isWhitespace(c)) {
-            blankline = false;
-            updateDigestUTF8Char(c, lineMd5Digest);
+          for (CharHandler handler : handlers) {
+            handler.handleIgnoreEoL(c);
+            handler.handleAll(c);
           }
         }
-        updateDigestUTF8Char(c, globalMd5Digest);
         i = reader.read();
       }
-      if (c != (char) -1) {
-        // Last line
-        lineHashes.add(blankline ? null : lineMd5Digest.digest());
+      for (CharHandler handler : handlers) {
+        handler.eof();
       }
-      boolean empty = lines == 1 && blankline;
-      String filehash = empty ? null : Hex.encodeHexString(globalMd5Digest.digest());
-      return new Metadata(lines, filehash, originalLineOffsets, lineHashes.toArray(new byte[0][]), empty);
+      return new Metadata(lineCounter.lines(), lineCounter.nonBlankLines(), fileHashComputer.getHash(), lineOffsetCounter.getOriginalLineOffsets(),
+        lineHashesComputer.lineHashes(), lineCounter.isEmpty());
 
     } catch (IOException e) {
       throw new IllegalStateException(String.format("Fail to read file '%s' with encoding '%s'", file.getAbsolutePath(), encoding), e);
@@ -128,13 +258,15 @@ class FileMetadata {
 
   static class Metadata {
     final int lines;
+    final int nonBlankLines;
     final String hash;
     final long[] originalLineOffsets;
     final byte[][] lineHashes;
     final boolean empty;
 
-    private Metadata(int lines, String hash, List<Long> originalLineOffsets, byte[][] lineHashes, boolean empty) {
+    private Metadata(int lines, int nonBlankLines, String hash, List<Long> originalLineOffsets, byte[][] lineHashes, boolean empty) {
       this.lines = lines;
+      this.nonBlankLines = nonBlankLines;
       this.hash = hash;
       this.empty = empty;
       this.originalLineOffsets = Longs.toArray(originalLineOffsets);

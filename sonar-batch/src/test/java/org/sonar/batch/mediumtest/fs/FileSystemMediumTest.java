@@ -218,7 +218,7 @@ public class FileSystemMediumTest {
     TaskResult result = tester.newTask()
       .properties(builder
         .put("sonar.sources", "src")
-        .put("sonar.index_all_files", "true")
+        .put("sonar.import_unknown_files", "true")
         .build())
       .start();
 

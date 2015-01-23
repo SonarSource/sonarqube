@@ -110,7 +110,7 @@ public class MeasuresMediumTest {
     srcDir.mkdir();
 
     File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent");
+    FileUtils.write(xooFile, "Sample xoo\n\ncontent");
 
     File otherFile = new File(srcDir, "sample.other");
     FileUtils.write(otherFile, "Sample other\ncontent\n");
@@ -124,21 +124,26 @@ public class MeasuresMediumTest {
         .put("sonar.projectVersion", "1.0-SNAPSHOT")
         .put("sonar.projectDescription", "Description of Foo Project")
         .put("sonar.sources", "src")
-        .put("sonar.index_all_files", "true")
+        .put("sonar.import_unknown_files", "true")
         .build())
       .start();
 
-    // QP + 2 x lines
-    assertThat(result.measures()).hasSize(3);
+    // QP + 2 x lines + 1 x ncloc
+    assertThat(result.measures()).hasSize(4);
 
     assertThat(result.measures()).contains(new DefaultMeasure<Integer>()
       .forMetric(CoreMetrics.LINES)
       .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
-      .withValue(2));
+      .withValue(3));
+
     assertThat(result.measures()).contains(new DefaultMeasure<Integer>()
       .forMetric(CoreMetrics.LINES)
       .onFile(new DefaultInputFile("com.foo.project", "src/sample.other"))
       .withValue(3));
+    assertThat(result.measures()).contains(new DefaultMeasure<Integer>()
+      .forMetric(CoreMetrics.NCLOC)
+      .onFile(new DefaultInputFile("com.foo.project", "src/sample.other"))
+      .withValue(2));
 
   }
 

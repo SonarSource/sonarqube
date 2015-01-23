@@ -38,6 +38,7 @@ public class DefaultInputFile implements InputFile, Serializable {
   private Status status;
   private String hash;
   private int lines;
+  private int nonBlankLines;
   private String encoding;
   private long[] originalLineOffsets;
   private byte[][] lineHashes;
@@ -96,6 +97,10 @@ public class DefaultInputFile implements InputFile, Serializable {
     return lines;
   }
 
+  public int nonBlankLines() {
+    return nonBlankLines;
+  }
+
   /**
    * Component key.
    */
@@ -151,6 +156,11 @@ public class DefaultInputFile implements InputFile, Serializable {
 
   public DefaultInputFile setLines(int lines) {
     this.lines = lines;
+    return this;
+  }
+
+  public DefaultInputFile setNonBlankLines(int nonBlankLines) {
+    this.nonBlankLines = nonBlankLines;
     return this;
   }
 

@@ -23,6 +23,7 @@ import org.sonar.api.batch.Phase;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
@@ -52,6 +53,14 @@ public final class LinesSensor implements Sensor {
         .withValue(f.lines()))
         .setFromCore()
         .save();
+      if (f.language() == null) {
+        // As an approximation for files with no language plugin we consider every non blank line as ncloc
+        ((DefaultMeasure<Integer>) context.<Integer>newMeasure()
+          .onFile(f)
+          .forMetric(CoreMetrics.NCLOC)
+          .withValue(((DefaultInputFile) f).nonBlankLines()))
+          .save();
+      }
     }
   }
 
