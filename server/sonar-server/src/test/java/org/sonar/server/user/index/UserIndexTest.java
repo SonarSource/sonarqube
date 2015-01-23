@@ -112,4 +112,17 @@ public class UserIndexTest {
     assertThat(index.getNullableByScmAccount("user1@mail.com")).isNull();
   }
 
+  @Test
+  public void get_users_for_scm_account() throws Exception {
+    esTester.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, this.getClass(), "user1.json", "user3-with-same-email-as-user1.json");
+
+    assertThat(index.getAtMostThreeUsersForScmAccount("user_1")).extractingResultOf("login").containsOnly("user1");
+    assertThat(index.getAtMostThreeUsersForScmAccount("user1")).extractingResultOf("login").containsOnly("user1");
+
+    // both users share the same email
+    assertThat(index.getAtMostThreeUsersForScmAccount("user1@mail.com")).extractingResultOf("login").containsOnly("user1", "user3");
+
+    assertThat(index.getAtMostThreeUsersForScmAccount("")).isEmpty();
+    assertThat(index.getAtMostThreeUsersForScmAccount("unknown")).isEmpty();
+  }
 }

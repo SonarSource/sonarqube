@@ -19,28 +19,53 @@
  */
 package org.sonar.server.computation.issue;
 
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Collections2;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.util.cache.CacheLoader;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 /**
  * Loads the association between a SCM account and a SQ user
  */
-public class ScmAccountCacheLoader implements CacheLoader<String,String> {
+public class ScmAccountCacheLoader implements CacheLoader<String, String> {
 
+  private final Logger log;
   private final UserIndex index;
 
   public ScmAccountCacheLoader(UserIndex index) {
+    this(index, LoggerFactory.getLogger(ScmAccountCacheLoader.class));
+  }
+
+  public ScmAccountCacheLoader(UserIndex index, Logger log) {
+    this.log = log;
     this.index = index;
   }
 
   @Override
   public String load(String scmAccount) {
-    UserDoc user = index.getNullableByScmAccount(scmAccount);
-    return user != null ? user.login() : null;
+    List<UserDoc> users = index.getAtMostThreeUsersForScmAccount(scmAccount);
+    if (users.isEmpty()) {
+      return null;
+    }
+    if (users.size() == 1) {
+      return users.get(0).login();
+    }
+    Collection<String> logins = Collections2.transform(users, new Function<UserDoc, String>() {
+      @Override
+      public String apply(UserDoc input) {
+        return input.login();
+      }
+    });
+    log.warn(String.format("Multiple users share the SCM account '%s': %s", scmAccount, Joiner.on(", ").join(logins)));
+    return null;
   }
 
   @Override

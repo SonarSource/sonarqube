@@ -21,6 +21,7 @@ package org.sonar.server.computation.issue;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.Logger;
 import org.sonar.api.config.Settings;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.user.index.UserIndex;
@@ -30,6 +31,8 @@ import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class ScmAccountCacheLoaderTest {
 
@@ -38,13 +41,23 @@ public class ScmAccountCacheLoaderTest {
 
   @Test
   public void load_login_for_scm_account() throws Exception {
-    esTester.putDocuments("users", "user", getClass(), "user1.json");
-
+    esTester.putDocuments("users", "user", getClass(), "charlie.json");
     UserIndex index = new UserIndex(esTester.client());
     ScmAccountCacheLoader loader = new ScmAccountCacheLoader(index);
 
     assertThat(loader.load("missing")).isNull();
     assertThat(loader.load("jesuis@charlie.com")).isEqualTo("charlie");
+  }
+
+  @Test
+  public void warn_if_multiple_users_share_same_scm_account() throws Exception {
+    esTester.putDocuments("users", "user", getClass(), "charlie.json", "charlie_conflict.json");
+    UserIndex index = new UserIndex(esTester.client());
+    Logger log = mock(Logger.class);
+    ScmAccountCacheLoader loader = new ScmAccountCacheLoader(index, log);
+
+    assertThat(loader.load("charlie")).isNull();
+    verify(log).warn("Multiple users share the SCM account 'charlie': charlie, another.charlie");
   }
 
   @Test
