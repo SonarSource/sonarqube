@@ -21,6 +21,7 @@ package org.sonar.batch.protocol.output.issue;
 
 import javax.annotation.Nullable;
 
+import java.util.Collection;
 import java.util.Date;
 
 public class ReportIssue {
@@ -32,6 +33,7 @@ public class ReportIssue {
   private String message;
   private Double effortToFix;
   private String severity;
+  private Collection<String> tags;
 
   // Temporary fields that should be removed when aggregation/issue tracking is done by computation
   private boolean isNew;
@@ -52,6 +54,7 @@ public class ReportIssue {
   private Long selectedAt;
   private String diffFields;
   private boolean isChanged;
+
 
   public ReportIssue setKey(String key) {
     this.key = key;
@@ -177,6 +180,15 @@ public class ReportIssue {
 
   public String assignee() {
     return assignee;
+  }
+
+  public Collection<String> tags() {
+    return tags;
+  }
+
+  public ReportIssue setTags(Collection<String> s) {
+    this.tags = s;
+    return this;
   }
 
   public ReportIssue setRuleKey(String ruleRepo, String ruleKey) {

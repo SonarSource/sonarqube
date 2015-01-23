@@ -109,6 +109,7 @@ public class AnalysisReportService {
     setDebt(defaultIssue, issue.debt());
     setFieldDiffs(defaultIssue, issue.diffFields(), context.getAnalysisDate());
     defaultIssue.setStatus(issue.status());
+    defaultIssue.setTags(issue.tags());
     defaultIssue.setResolution(issue.resolution());
     defaultIssue.setReporter(issue.reporter());
     defaultIssue.setAssignee(issue.assignee());
