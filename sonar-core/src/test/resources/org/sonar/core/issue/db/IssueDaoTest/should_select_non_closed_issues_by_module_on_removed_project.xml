@@ -24,8 +24,8 @@
   <issues
       id="100"
       kee="100"
-      component_id="401"
-      root_component_id="111"
+      component_uuid="CDEF"
+      project_uuid="uuid-111"
       rule_id="500"
       severity="BLOCKER"
       manual_severity="[false]"
@@ -50,8 +50,8 @@
   <issues
       id="101"
       kee="101"
-      component_id="402"
-      root_component_id="111"
+      component_uuid="DEFG"
+      project_uuid="uuid-111"
       rule_id="501"
       severity="MAJOR"
       manual_severity="[false]"
@@ -76,8 +76,8 @@
   <issues
       id="102"
       kee="102"
-      component_id="402"
-      root_component_id="111"
+      component_uuid="DEFG"
+      project_uuid="uuid-111"
       rule_id="501"
       severity="MAJOR"
       manual_severity="[false]"
@@ -102,8 +102,8 @@
   <issues
       id="103"
       kee="103"
-      component_id="400"
-      root_component_id="111"
+      component_uuid="BCDE"
+      project_uuid="uuid-111"
       rule_id="501"
       severity="MAJOR"
       manual_severity="[false]"

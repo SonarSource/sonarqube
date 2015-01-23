@@ -47,12 +47,7 @@ import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.batch.user.User;
 import org.sonar.batch.user.UserRepository;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
@@ -80,7 +75,7 @@ public class JSONReport implements Reporter {
   private final UserRepository userRepository;
 
   public JSONReport(Settings settings, FileSystem fileSystem, Server server, ActiveRules activeRules, IssueCache issueCache,
-    Project rootModule, InputPathCache fileCache, UserRepository userRepository) {
+                    Project rootModule, InputPathCache fileCache, UserRepository userRepository) {
     this.settings = settings;
     this.fileSystem = fileSystem;
     this.server = server;

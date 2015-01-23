@@ -55,7 +55,6 @@ public class DefaultIssue implements Issue {
 
   private String componentUuid;
   private String componentKey;
-  private Long componentId;
 
   private String moduleUuid;
   private String moduleUuidPath;
@@ -144,19 +143,6 @@ public class DefaultIssue implements Issue {
 
   public DefaultIssue setComponentKey(String s) {
     this.componentKey = s;
-    return this;
-  }
-
-  /**
-   * The component id not populated on batch side
-   */
-  @CheckForNull
-  public Long componentId() {
-    return componentId;
-  }
-
-  public DefaultIssue setComponentId(@Nullable Long s) {
-    this.componentId = s;
     return this;
   }
 

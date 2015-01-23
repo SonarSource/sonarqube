@@ -72,11 +72,11 @@ public class DefaultPurgeTask implements PurgeTask {
   @Override
   public DefaultPurgeTask purge(long resourceId) {
     long start = System.currentTimeMillis();
-    String resourceQualifier = resourceDao.getResource(resourceId).getQualifier();
-    if (isNotViewNorSubview(resourceQualifier)) {
+    ResourceDto component = resourceDao.getResource(resourceId);
+    if (isNotViewNorSubview(component.getQualifier())) {
       profiler.reset();
       cleanHistoricalData(resourceId);
-      doPurge(resourceId);
+      doPurge(new IdUuidPair(component.getId(), component.getUuid()));
       if (settings.getBoolean(CoreProperties.PROFILING_LOG_PROPERTY)) {
         long duration = System.currentTimeMillis() - start;
         LOG.info("\n -------- Profiling for purge: " + TimeUtils.formatDuration(duration) + " --------\n");
@@ -96,16 +96,16 @@ public class DefaultPurgeTask implements PurgeTask {
     }
   }
 
-  private void doPurge(long resourceId) {
+  private void doPurge(IdUuidPair componentIdUuid) {
     try {
-      purgeDao.purge(newPurgeConfigurationOnResource(resourceId), PurgeListener.EMPTY);
+      purgeDao.purge(newPurgeConfigurationOnResource(componentIdUuid), PurgeListener.EMPTY);
     } catch (Exception e) {
       // purge errors must not fail the report analysis
-      LOG.error("Fail to purge data [id=" + resourceId + "]", e);
+      LOG.error("Fail to purge data [id=" + componentIdUuid + "]", e);
     }
   }
 
-  public PurgeConfiguration newPurgeConfigurationOnResource(long resourceId) {
-    return newDefaultPurgeConfiguration(settings, resourceId);
+  public PurgeConfiguration newPurgeConfigurationOnResource(IdUuidPair componentIdUuid) {
+    return newDefaultPurgeConfiguration(settings, componentIdUuid);
   }
 }

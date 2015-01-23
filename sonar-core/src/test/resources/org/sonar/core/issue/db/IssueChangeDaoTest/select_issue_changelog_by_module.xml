@@ -1,16 +1,16 @@
 <dataset>
 
-  <projects id="399" uuid="1" kee="struts" root_id="[null]" qualifier="TRK" scope="PRJ" />
-  <projects id="400" uuid="2" kee="struts-core" root_id="399" qualifier="BRC" scope="PRJ" />
-  <projects id="401" uuid="3" kee="Action.java" root_id="400" qualifier="CLA" scope="PRJ" />
-  <projects id="402" uuid="4" kee="Filter.java" root_id="400" qualifier="CLA" scope="PRJ" />
+  <projects id="399" uuid="uuid-399" kee="struts" root_id="[null]" project_uuid="[null]" qualifier="TRK" scope="PRJ" />
+  <projects id="400" uuid="uuid-400" kee="struts-core" root_id="399" project_uuid="uuid-399" qualifier="BRC" scope="PRJ" />
+  <projects id="401" uuid="uuid-401" kee="Action.java" root_id="400" project_uuid="uuid-400" qualifier="CLA" scope="PRJ" />
+  <projects id="402" uuid="uuid-402" kee="Filter.java" root_id="400" project_uuid="uuid-400" qualifier="CLA" scope="PRJ" />
 
   <!-- Open Issue on a file -->
   <issues
       id="100"
       kee="100"
-      component_id="401"
-      root_component_id="399"
+      component_uuid="uuid-401"
+      project_uuid="uuid-399"
       rule_id="500"
       severity="BLOCKER"
       manual_severity="[false]"
@@ -71,8 +71,8 @@
   <issues
       id="101"
       kee="101"
-      component_id="402"
-      root_component_id="399"
+      component_uuid="uuid-402"
+      project_uuid="uuid-399"
       rule_id="501"
       severity="MAJOR"
       manual_severity="[false]"
@@ -109,8 +109,8 @@
   <issues
       id="102"
       kee="102"
-      component_id="402"
-      root_component_id="399"
+      component_uuid="uuid-402"
+      project_uuid="uuid-399"
       rule_id="501"
       severity="MAJOR"
       manual_severity="[false]"
@@ -147,8 +147,8 @@
   <issues
       id="103"
       kee="103"
-      component_id="400"
-      root_component_id="399"
+      component_uuid="uuid-400"
+      project_uuid="uuid-399"
       rule_id="501"
       severity="MAJOR"
       manual_severity="[false]"
@@ -185,8 +185,8 @@
   <issues
       id="104"
       kee="104"
-      component_id="399"
-      root_component_id="399"
+      component_uuid="uuid-399"
+      project_uuid="uuid-399"
       rule_id="501"
       severity="MAJOR"
       manual_severity="[false]"

@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.MyBatis;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -118,7 +117,7 @@ public class PurgeCommandsTest extends AbstractDaoTestCase {
     setupData("shouldDeleteResource");
     SqlSession session = getMyBatis().openSession();
     try {
-      new PurgeCommands(session, profiler).deleteResources(Arrays.asList(1L));
+      new PurgeCommands(session, profiler).deleteResources(newArrayList(new IdUuidPair(1L, "1")));
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -132,11 +131,19 @@ public class PurgeCommandsTest extends AbstractDaoTestCase {
   public void should_not_fail_when_deleting_huge_number_of_resources() {
     SqlSession session = getMyBatis().openSession();
     try {
-      new PurgeCommands(session, profiler).deleteResources(getHugeNumberOfIds());
+      new PurgeCommands(session, profiler).deleteResources(getHugeNumberOfIdUuids());
     } finally {
       MyBatis.closeQuietly(session);
     }
     // The goal of this test is only to check that the query do no fail, not to check result
+  }
+
+  private List<IdUuidPair> getHugeNumberOfIdUuids() {
+    List<IdUuidPair> hugeNbOfSnapshotIds = newArrayList();
+    for (long i = 0; i < 4500; i++) {
+      hugeNbOfSnapshotIds.add(new IdUuidPair(i, String.valueOf(i)));
+    }
+    return hugeNbOfSnapshotIds;
   }
 
   private List<Long> getHugeNumberOfIds() {

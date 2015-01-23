@@ -27,38 +27,37 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.computation.dbcleaner.DbCleanerConstants;
 
 import javax.annotation.CheckForNull;
-
 import java.util.Date;
 
 public class PurgeConfiguration {
 
-  private final long rootProjectId;
+  private final IdUuidPair rootProjectIdUuid;
   private final String[] scopesWithoutHistoricalData;
   private final int maxAgeInDaysOfClosedIssues;
   private final System2 system2;
 
-  public PurgeConfiguration(long rootProjectId, String[] scopesWithoutHistoricalData, int maxAgeInDaysOfClosedIssues) {
+  public PurgeConfiguration(IdUuidPair rootProjectId, String[] scopesWithoutHistoricalData, int maxAgeInDaysOfClosedIssues) {
     this(rootProjectId, scopesWithoutHistoricalData, maxAgeInDaysOfClosedIssues, System2.INSTANCE);
   }
 
   @VisibleForTesting
-  PurgeConfiguration(long rootProjectId, String[] scopesWithoutHistoricalData, int maxAgeInDaysOfClosedIssues, System2 system2) {
-    this.rootProjectId = rootProjectId;
+  PurgeConfiguration(IdUuidPair rootProjectId, String[] scopesWithoutHistoricalData, int maxAgeInDaysOfClosedIssues, System2 system2) {
+    this.rootProjectIdUuid = rootProjectId;
     this.scopesWithoutHistoricalData = scopesWithoutHistoricalData;
     this.maxAgeInDaysOfClosedIssues = maxAgeInDaysOfClosedIssues;
     this.system2 = system2;
   }
 
-  public static PurgeConfiguration newDefaultPurgeConfiguration(Settings settings, long resourceId) {
-    String[] scopes = new String[] {Scopes.FILE};
+  public static PurgeConfiguration newDefaultPurgeConfiguration(Settings settings, IdUuidPair idUuidPair) {
+    String[] scopes = new String[]{Scopes.FILE};
     if (settings.getBoolean(DbCleanerConstants.PROPERTY_CLEAN_DIRECTORY)) {
-      scopes = new String[] {Scopes.DIRECTORY, Scopes.FILE};
+      scopes = new String[]{Scopes.DIRECTORY, Scopes.FILE};
     }
-    return new PurgeConfiguration(resourceId, scopes, settings.getInt(DbCleanerConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES));
+    return new PurgeConfiguration(idUuidPair, scopes, settings.getInt(DbCleanerConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES));
   }
 
-  public long rootProjectId() {
-    return rootProjectId;
+  public IdUuidPair rootProjectIdUuid() {
+    return rootProjectIdUuid;
   }
 
   public String[] scopesWithoutHistoricalData() {

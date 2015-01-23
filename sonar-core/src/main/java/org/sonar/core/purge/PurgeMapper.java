@@ -22,7 +22,6 @@ package org.sonar.core.purge;
 import org.apache.ibatis.annotations.Param;
 
 import javax.annotation.Nullable;
-
 import java.util.Date;
 import java.util.List;
 
@@ -32,7 +31,9 @@ public interface PurgeMapper {
 
   List<Long> selectSnapshotIdsByResource(@Param("resourceIds") List<Long> resourceIds);
 
-  List<Long> selectProjectIdsByRootId(long rootResourceId);
+  List<IdUuidPair> selectProjectIdUuidsByRootId(long rootResourceId);
+
+  List<IdUuidPair> selectComponentIdUuidsByRootId(long rootProjectId);
 
   void deleteSnapshot(@Param("snapshotIds") List<Long> snapshotIds);
 
@@ -58,7 +59,7 @@ public interface PurgeMapper {
 
   void disableResource(long resourceId);
 
-  void resolveResourceIssuesNotAlreadyResolved(@Param("resourceId") long resourceId, @Param("date") Date date, @Param("dateAsLong") Long dateAsLong);
+  void resolveResourceIssuesNotAlreadyResolved(@Param("componentUuid") String componentUuid, @Param("date") Date date, @Param("dateAsLong") Long dateAsLong);
 
   void deleteResourceIndex(@Param("resourceIds") List<Long> resourceIds);
 
@@ -90,15 +91,13 @@ public interface PurgeMapper {
 
   List<PurgeableSnapshotDto> selectPurgeableSnapshotsWithoutEvents(long resourceId);
 
-  List<Long> selectResourceIdsByRootId(long rootProjectId);
+  void deleteComponentIssueChanges(@Param("componentUuids") List<String> componentUuids);
 
-  void deleteResourceIssueChanges(@Param("resourceIds") List<Long> resourceIds);
+  void deleteComponentIssues(@Param("componentUuids") List<String> componentUuids);
 
-  void deleteResourceIssues(@Param("resourceIds") List<Long> resourceIds);
+  void deleteOldClosedIssueChanges(@Param("projectUuid") String projectUuid, @Nullable @Param("toDate") Date toDate);
 
-  void deleteOldClosedIssueChanges(@Param("rootProjectId") long rootProjectId, @Nullable @Param("toDate") Date toDate);
-
-  void deleteOldClosedIssues(@Param("rootProjectId") long rootProjectId, @Nullable @Param("toDate") Date toDate);
+  void deleteOldClosedIssues(@Param("projectUuid") String projectUuid, @Nullable @Param("toDate") Date toDate);
 
   void deleteFileSourcesByProjectUuid(String rootProjectUuid);
 

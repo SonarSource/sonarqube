@@ -7,8 +7,6 @@
   <sql id="issueColumns">
     i.id,
     i.kee as kee,
-    i.component_id as componentId,
-    i.root_component_id as projectId,
     i.rule_id as ruleId,
     i.action_plan_key as actionPlanKey,
     i.severity as severity,
@@ -34,12 +32,12 @@
     r.plugin_name as ruleRepo,
     r.language as language,
     p.kee as componentKey,
-    p.uuid as componentUuid,
+    i.component_uuid as componentUuid,
     p.module_uuid as moduleUuid,
     p.module_uuid_path as moduleUuidPath,
     p.path as filePath,
     root.kee as projectKey,
-    root.uuid as projectUuid
+    i.project_uuid as projectUuid
   </sql>
 
   <sql id="sortColumn">
@@ -68,12 +66,12 @@
   </sql>
 
   <insert id="insert" parameterType="Issue" useGeneratedKeys="false" keyProperty="id">
-    INSERT INTO issues (kee, component_id, root_component_id, rule_id, action_plan_key, severity, manual_severity,
+    INSERT INTO issues (kee, rule_id, action_plan_key, severity, manual_severity,
     message, line, effort_to_fix, technical_debt, status, tags,
     resolution, checksum, reporter, assignee, author_login, issue_attributes, issue_creation_date, issue_update_date,
     issue_close_date, created_at, updated_at, component_uuid, project_uuid)
-    VALUES (#{kee,jdbcType=VARCHAR}, #{componentId,jdbcType=BIGINT}, #{projectId,jdbcType=BIGINT},
-    #{ruleId,jdbcType=INTEGER}, #{actionPlanKey,jdbcType=VARCHAR}, #{severity,jdbcType=VARCHAR},
+    VALUES (#{kee,jdbcType=VARCHAR}, #{ruleId,jdbcType=INTEGER}, #{actionPlanKey,jdbcType=VARCHAR},
+    #{severity,jdbcType=VARCHAR},
     #{manualSeverity,jdbcType=BOOLEAN}, #{message,jdbcType=VARCHAR}, #{line,jdbcType=INTEGER},
     #{effortToFix,jdbcType=DOUBLE}, #{debt,jdbcType=INTEGER}, #{status,jdbcType=VARCHAR},
     #{tagsString,jdbcType=VARCHAR}, #{resolution,jdbcType=VARCHAR}, #{checksum,jdbcType=VARCHAR},
@@ -103,7 +101,6 @@
     assignee=#{assignee},
     author_login=#{authorLogin},
     tags=#{tagsString},
-    root_component_id=#{projectId},
     project_uuid=#{projectUuid},
     issue_attributes=#{issueAttributes},
     issue_creation_date=#{issueCreationDate},
@@ -132,7 +129,6 @@
     assignee=#{assignee},
     author_login=#{authorLogin},
     tags=#{tagsString},
-    root_component_id=#{projectId},
     project_uuid=#{projectUuid},
     issue_attributes=#{issueAttributes},
     issue_creation_date=#{issueCreationDate},
@@ -147,8 +143,8 @@
     <include refid="issueColumns"/>
     from issues i
     inner join rules r on r.id=i.rule_id
-    inner join projects p on p.id=i.component_id
-    inner join projects root on root.id=i.root_component_id
+    inner join projects p on p.uuid=i.component_uuid
+    inner join projects root on root.uuid=i.project_uuid
     where i.kee=#{kee}
   </select>
 
@@ -156,8 +152,6 @@
     select
     i.id,
     i.kee as kee,
-    i.component_id as componentId,
-    i.root_component_id as projectId,
     i.rule_id as ruleId,
     i.component_uuid as componentUuid,
     i.project_uuid as projectUuid,
@@ -186,10 +180,10 @@
     p.kee as componentKey,
     root.kee as projectKey
     from issues i
-    inner join (select p.id,p.kee from projects p where (p.root_id=#{id} and p.qualifier &lt;&gt; 'BRC') or
-    (p.id=#{id})) p on p.id=i.component_id
+    inner join (select p.id, p.uuid,p.kee from projects p where (p.root_id=#{id} and p.qualifier &lt;&gt; 'BRC') or
+    (p.id=#{id})) p on p.uuid=i.component_uuid
     inner join rules r on r.id=i.rule_id
-    left outer join projects root on root.id=i.root_component_id
+    left outer join projects root on root.uuid=i.project_uuid
     where i.status &lt;&gt; 'CLOSED'
   </select>
 
@@ -209,8 +203,8 @@
     r.plugin_name as ruleRepo,
     component.kee as componentKey
     FROM issues i
-    INNER JOIN (SELECT p.id,p.kee FROM projects p WHERE p.module_uuid=#{uuid} OR p.uuid=#{uuid}) component ON
-    component.id=i.component_id
+    INNER JOIN (SELECT p.id,p.uuid, p.kee FROM projects p WHERE p.module_uuid=#{uuid} OR p.uuid=#{uuid}) component ON
+    component.uuid=i.component_uuid
     INNER JOIN rules r ON r.id=i.rule_id
     WHERE i.status &lt;&gt; 'CLOSED'
   </select>
@@ -231,10 +225,9 @@
     r.plugin_name as ruleRepo,
     component.kee as componentKey
     FROM issues i
-    INNER JOIN projects component on component.id=i.component_id
-    INNER JOIN projects project on project.uuid=component.project_uuid AND project.uuid=#{uuid}
+    INNER JOIN projects component on component.uuid=i.component_uuid
     INNER JOIN rules r ON r.id=i.rule_id
-    WHERE i.status &lt;&gt; 'CLOSED'
+    WHERE i.status &lt;&gt; 'CLOSED' AND i.project_uuid=#{uuid}
   </select>
 
   <select id="selectByKeys" parameterType="map" resultType="Issue">
@@ -242,8 +235,8 @@
     <include refid="issueColumns"/>
     from issues i
     inner join rules r on r.id=i.rule_id
-    inner join projects p on p.id=i.component_id
-    inner join projects root on root.id=i.root_component_id
+    inner join projects p on p.uuid=i.component_uuid
+    inner join projects root on root.uuid=i.project_uuid
     where i.kee in
     <foreach collection="list" open="(" close=")" item="key" separator=",">
       #{key}
@@ -255,8 +248,8 @@
     <include refid="issueColumns"/>
     from issues i
     inner join rules r on r.id=i.rule_id
-    inner join projects p on p.id=i.component_id
-    inner join projects root on root.id=i.root_component_id
+    inner join projects p on p.uuid=i.component_uuid
+    inner join projects root on root.uuid=i.project_uuid
     <where>
       and i.action_plan_key=#{action_plan}
     </where>
@@ -266,7 +259,7 @@
     SELECT
     <include refid="org.sonar.core.rule.RuleMapper.selectColumns"/>
     FROM issues i
-    INNER JOIN projects p on p.id=i.component_id
+    INNER JOIN projects p on p.uuid=i.component_uuid
     INNER JOIN rules r on r.id=i.rule_id
     WHERE
     p.kee=#{componentKey}
@@ -279,7 +272,7 @@
   <select id="findSeveritiesByComponent" parameterType="String" resultType="String">
     SELECT i.severity
     FROM issues i
-    INNER JOIN projects on projects.id=i.component_id
+    INNER JOIN projects on projects.uuid=i.component_uuid
     INNER JOIN rules on rules.id=i.rule_id
     WHERE
     projects.kee=#{componentKey}

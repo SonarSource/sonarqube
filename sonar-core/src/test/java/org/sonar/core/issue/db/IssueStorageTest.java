@@ -81,8 +81,8 @@ public class IssueStorageTest extends AbstractDaoTestCase {
       .setUpdateDate(date)
       .setCloseDate(date)
 
-      .setComponentUuid("component-uuid")
-      .setProjectUuid("project-uuid")
+      .setComponentUuid("uuid-100")
+      .setProjectUuid("uuid-10")
       .setComponentKey("struts:Action");
 
     saver.save(issue);
@@ -116,8 +116,8 @@ public class IssueStorageTest extends AbstractDaoTestCase {
       .setUpdateDate(date)
       .setCloseDate(date)
 
-      .setComponentUuid("component-uuid")
-      .setProjectUuid("project-uuid")
+      .setComponentUuid("uuid-100")
+      .setProjectUuid("uuid-10")
       .setComponentKey("struts:Action");
 
     saver.save(session, issue);
@@ -128,8 +128,8 @@ public class IssueStorageTest extends AbstractDaoTestCase {
 
   @Test
   public void server_insert_new_issues_with_session() throws Exception {
-    ComponentDto project = new ComponentDto().setId(10L).setUuid("project-uuid");
-    ComponentDto component = new ComponentDto().setId(100L).setUuid("component-uuid");
+    ComponentDto project = new ComponentDto().setId(10L).setUuid("uuid-10");
+    ComponentDto component = new ComponentDto().setId(100L).setUuid("uuid-100");
     FakeServerSaver saver = new FakeServerSaver(getMyBatis(), new FakeRuleFinder(), component, project);
 
     DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
@@ -196,6 +196,8 @@ public class IssueStorageTest extends AbstractDaoTestCase {
       .setCreationDate(date)
       .setUpdateDate(date)
       .setCloseDate(date)
+      .setComponentUuid("uuid-100")
+      .setProjectUuid("uuid-10")
 
       // unmodifiable fields
       .setRuleKey(RuleKey.of("xxx", "unknown"))
@@ -210,8 +212,8 @@ public class IssueStorageTest extends AbstractDaoTestCase {
   public void server_update_issues() throws Exception {
     setupData("should_update_issues");
 
-    ComponentDto project = new ComponentDto().setId(10L);
-    ComponentDto component = new ComponentDto().setId(100L);
+    ComponentDto project = new ComponentDto().setId(10L).setUuid("whatever-uuid");
+    ComponentDto component = new ComponentDto().setId(100L).setUuid("whatever-uuid-2");
     FakeServerSaver saver = new FakeServerSaver(getMyBatis(), new FakeRuleFinder(), component, project);
 
     DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
@@ -240,6 +242,7 @@ public class IssueStorageTest extends AbstractDaoTestCase {
       .setCreationDate(date)
       .setUpdateDate(date)
       .setCloseDate(date)
+      .setProjectUuid("uuid-10")
 
       // unmodifiable fields
       .setRuleKey(RuleKey.of("xxx", "unknown"))
@@ -259,14 +262,14 @@ public class IssueStorageTest extends AbstractDaoTestCase {
     @Override
     protected void doInsert(DbSession session, long now, DefaultIssue issue) {
       int ruleId = rule(issue).getId();
-      IssueDto dto = IssueDto.toDtoForComputationInsert(issue, 100l, 10l, ruleId, now);
+      IssueDto dto = IssueDto.toDtoForComputationInsert(issue, ruleId, now);
 
       session.getMapper(IssueMapper.class).insert(dto);
     }
 
     @Override
     protected void doUpdate(DbSession session, long now, DefaultIssue issue) {
-      IssueDto dto = IssueDto.toDtoForUpdate(issue, 10l, now);
+      IssueDto dto = IssueDto.toDtoForUpdate(issue, now);
       session.getMapper(IssueMapper.class).update(dto);
     }
   }
@@ -292,7 +295,7 @@ public class IssueStorageTest extends AbstractDaoTestCase {
 
     @Override
     protected void doUpdate(DbSession session, long now, DefaultIssue issue) {
-      IssueDto dto = IssueDto.toDtoForUpdate(issue, 10l, now);
+      IssueDto dto = IssueDto.toDtoForUpdate(issue, now);
       session.getMapper(IssueMapper.class).update(dto);
     }
   }

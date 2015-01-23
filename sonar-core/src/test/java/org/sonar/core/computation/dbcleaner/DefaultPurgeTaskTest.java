@@ -29,8 +29,8 @@ import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
-import org.sonar.core.purge.*;
 import org.sonar.core.computation.dbcleaner.period.DefaultPeriodCleaner;
+import org.sonar.core.purge.*;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 
@@ -53,7 +53,7 @@ public class DefaultPurgeTaskTest {
   public void before() throws Exception {
     this.purgeDao = mock(PurgeDao.class);
     this.resourceDao = mock(ResourceDao.class);
-    when(resourceDao.getResource(anyLong())).thenReturn(new ResourceDto().setQualifier(Qualifiers.PROJECT));
+    when(resourceDao.getResource(anyLong())).thenReturn(new ResourceDto().setQualifier(Qualifiers.PROJECT).setUuid("1").setId(1L));
 
     this.settings = mock(Settings.class);
     this.periodCleaner = mock(DefaultPeriodCleaner.class);
@@ -75,7 +75,7 @@ public class DefaultPurgeTaskTest {
       @Override
       public boolean matches(Object o) {
         PurgeConfiguration conf = (PurgeConfiguration) o;
-        return conf.rootProjectId() == 1L && conf.scopesWithoutHistoricalData().length == 1 && conf.scopesWithoutHistoricalData()[0].equals(Scopes.FILE);
+        return conf.rootProjectIdUuid().getId() == 1L && conf.scopesWithoutHistoricalData().length == 1 && conf.scopesWithoutHistoricalData()[0].equals(Scopes.FILE);
       }
     }), any(PurgeListener.class));
   }
@@ -92,7 +92,7 @@ public class DefaultPurgeTaskTest {
       @Override
       public boolean matches(Object o) {
         PurgeConfiguration conf = (PurgeConfiguration) o;
-        return conf.rootProjectId() == 1L &&
+        return conf.rootProjectIdUuid().getId() == 1L &&
           conf.scopesWithoutHistoricalData().length == 2 &&
           conf.scopesWithoutHistoricalData()[0].equals(Scopes.DIRECTORY) &&
           conf.scopesWithoutHistoricalData()[1].equals(Scopes.FILE);
@@ -103,7 +103,7 @@ public class DefaultPurgeTaskTest {
   @Test
   public void shouldNotFailOnErrors() {
     PurgeDao purgeDao = mock(PurgeDao.class);
-    when(purgeDao.purge(any(PurgeConfiguration.class),any(PurgeListener.class))).thenThrow(new RuntimeException());
+    when(purgeDao.purge(any(PurgeConfiguration.class), any(PurgeListener.class))).thenThrow(new RuntimeException());
     DefaultPurgeTask task = new DefaultPurgeTask(purgeDao, resourceDao, new Settings(), mock(DefaultPeriodCleaner.class), mock(PurgeProfiler.class));
 
     task.purge(1L);
@@ -113,7 +113,7 @@ public class DefaultPurgeTaskTest {
 
   @Test
   public void shouldDumpProfiling() {
-    PurgeConfiguration conf = new PurgeConfiguration(1L, new String[0], 30);
+    PurgeConfiguration conf = new PurgeConfiguration(new IdUuidPair(1L, "1"), new String[0], 30);
     PurgeDao purgeDao = mock(PurgeDao.class);
     when(purgeDao.purge(conf, PurgeListener.EMPTY)).thenThrow(new RuntimeException());
     Settings settings = new Settings(new PropertyDefinitions(DataCleanerProperties.all()));

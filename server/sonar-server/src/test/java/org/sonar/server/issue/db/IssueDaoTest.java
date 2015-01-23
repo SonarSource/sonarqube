@@ -62,8 +62,8 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     IssueDto issue = sut.selectByKey(session, "ABCDE");
     assertThat(issue.getKee()).isEqualTo("ABCDE");
     assertThat(issue.getId()).isEqualTo(100L);
-    assertThat(issue.getComponentId()).isEqualTo(401);
-    assertThat(issue.getProjectId()).isEqualTo(399);
+    assertThat(issue.getComponentUuid()).isEqualTo("CDEF");
+    assertThat(issue.getProjectUuid()).isEqualTo("ABCD");
     assertThat(issue.getRuleId()).isEqualTo(500);
     assertThat(issue.getLanguage()).isEqualTo("java");
     assertThat(issue.getSeverity()).isEqualTo("BLOCKER");
@@ -107,8 +107,8 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     IssueDto issue = issues.get(0);
     assertThat(issue.getKee()).isEqualTo("ABCDE");
     assertThat(issue.getActionPlanKey()).isEqualTo("AP-1");
-    assertThat(issue.getComponentId()).isEqualTo(401);
-    assertThat(issue.getProjectId()).isEqualTo(399);
+    assertThat(issue.getComponentUuid()).isEqualTo("CDEF");
+    assertThat(issue.getProjectUuid()).isEqualTo("ABCD");
     assertThat(issue.getRuleId()).isEqualTo(500);
     assertThat(issue.getLanguage()).isEqualTo("java");
     assertThat(issue.getSeverity()).isEqualTo("BLOCKER");

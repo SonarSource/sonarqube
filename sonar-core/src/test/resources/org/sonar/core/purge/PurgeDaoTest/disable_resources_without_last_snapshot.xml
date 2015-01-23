@@ -48,10 +48,8 @@
 
   <!-- Open issue on file -->
   <issues id="1" kee="ISSUE-1"
-          component_id="3"
-          component_uuid="[null]"
-          project_uuid="[null]"
-          root_component_id="1"
+          component_uuid="GHIJ"
+          project_uuid="ABCD"
           status="OPEN"
           issue_close_date="[null]"
           resolution="[null]" line="200" severity="BLOCKER" reporter="perceval" assignee="arthur" rule_id="500" manual_severity="[false]"
@@ -60,10 +58,8 @@
 
   <!-- Open issue on directory -->
   <issues id="2" kee="ISSUE-2"
-          component_id="2"
-          component_uuid="[null]"
-          project_uuid="[null]"
-          root_component_id="1"
+          component_uuid="EFGH"
+          project_uuid="ABCD"
           status="OPEN"
           issue_close_date="[null]"
           resolution="[null]" line="[null]" severity="BLOCKER" reporter="perceval" assignee="arthur" rule_id="500" manual_severity="[false]"
@@ -72,10 +68,8 @@
 
   <!-- Open issue on project -->
   <issues id="3" kee="ISSUE-3"
-          component_id="1"
-          component_uuid="[null]"
-          project_uuid="[null]"
-          root_component_id="1"
+          component_uuid="ABCD"
+          project_uuid="ABCD"
           status="CONFIRM"
           issue_close_date="[null]"
           resolution="[null]" line="[null]" severity="BLOCKER" reporter="perceval" assignee="arthur" rule_id="500" manual_severity="[false]"
@@ -84,10 +78,8 @@
 
   <!-- Resolved issue on file -> not to be updated -->
   <issues id="4" kee="ISSUE-4"
-          component_id="3"
-          component_uuid="[null]"
-          project_uuid="[null]"
-          root_component_id="1"
+          component_uuid="GHIJ"
+          project_uuid="ABCD"
           status="CLOSED"
           issue_close_date="2015-12-08"
           resolution="FIXED" line="200" severity="BLOCKER" reporter="perceval" assignee="arthur" rule_id="500" manual_severity="[false]"

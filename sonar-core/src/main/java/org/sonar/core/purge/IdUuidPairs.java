@@ -20,6 +20,7 @@
 
 package org.sonar.core.purge;
 
+import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
 import java.util.List;
@@ -29,22 +30,20 @@ public class IdUuidPairs {
   }
 
   public static List<Long> ids(List<IdUuidPair> pairs) {
-    List<Long> ids = Lists.newArrayList();
-
-    for (IdUuidPair idUuidPair : pairs) {
-      ids.add(idUuidPair.getId());
-    }
-
-    return ids;
+    return Lists.transform(pairs, new Function<IdUuidPair, Long>() {
+      @Override
+      public Long apply(IdUuidPair pair) {
+        return pair.getId();
+      }
+    });
   }
 
-  public static List<String> uuids(List<IdUuidPair> idUuidPairList) {
-    List<String> uuids = Lists.newArrayList();
-
-    for (IdUuidPair idUuidPair : idUuidPairList) {
-      uuids.add(idUuidPair.getUuid());
-    }
-
-    return uuids;
+  public static List<String> uuids(List<IdUuidPair> pairs) {
+    return Lists.transform(pairs, new Function<IdUuidPair, String>() {
+      @Override
+      public String apply(IdUuidPair pair) {
+        return pair.getUuid();
+      }
+    });
   }
 }

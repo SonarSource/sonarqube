@@ -56,7 +56,7 @@ public class ServerIssueStorage extends IssueStorage implements ServerComponent 
 
   @Override
   protected void doUpdate(DbSession session, long now, DefaultIssue issue) {
-    IssueDto dto = IssueDto.toDtoForUpdate(issue, project(session, issue).getId(), now);
+    IssueDto dto = IssueDto.toDtoForUpdate(issue, now);
 
     dbClient.issueDao().update(session, dto);
   }

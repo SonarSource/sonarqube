@@ -6,8 +6,8 @@
   <issues
       id="100"
       kee="ABCDE-1"
-      component_id="401"
-      root_component_id="399"
+      component_uuid="uuid-401"
+      project_uuid="uuid-399"
       rule_id="500"
       severity="BLOCKER"
       manual_severity="[false]"
@@ -31,8 +31,8 @@
   <issues
       id="101"
       kee="ABCDE-2"
-      component_id="401"
-      root_component_id="399"
+      component_uuid="uuid-401"
+      project_uuid="uuid-399"
       rule_id="500"
       severity="BLOCKER"
       manual_severity="[false]"
@@ -56,8 +56,8 @@
   <issues
       id="102"
       kee="ABCDE-3"
-      component_id="401"
-      root_component_id="399"
+      component_uuid="uuid-401"
+      project_uuid="uuid-399"
       rule_id="501"
       severity="BLOCKER"
       manual_severity="[false]"

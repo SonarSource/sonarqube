@@ -1,10 +1,13 @@
 <dataset>
 
   <!-- Multi module project -->
-  <projects id="399" kee="struts" root_id="[null]" qualifier="TRK" scope="PRJ" uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path="." path="[null]"/>
-  <projects id="400" kee="struts-core" root_id="399" qualifier="BRC" scope="PRJ" uuid="BCDE" project_uuid="ABCD" module_uuid="ABCD" module_uuid_path=".ABCD.BCDE."
+  <projects id="399" kee="struts" root_id="[null]" qualifier="TRK" scope="PRJ" uuid="ABCD" project_uuid="ABCD"
+            module_uuid="[null]" module_uuid_path="." path="[null]"/>
+  <projects id="400" kee="struts-core" root_id="399" qualifier="BRC" scope="PRJ" uuid="BCDE" project_uuid="ABCD"
+            module_uuid="ABCD" module_uuid_path=".ABCD.BCDE."
             path="struts-core"/>
-  <projects id="401" kee="Action.java" root_id="400" qualifier="CLA" scope="PRJ" uuid="CDEF" project_uuid="ABCD" module_uuid="BCDE" module_uuid_path=".ABCD.BCDE."
+  <projects id="401" kee="Action.java" root_id="400" qualifier="CLA" scope="PRJ" uuid="CDEF" project_uuid="ABCD"
+            module_uuid="BCDE" module_uuid_path=".ABCD.BCDE."
             path="src/main/java/Action.java"/>
 
   <rules id="500" tags="[null]" system_tags="[null]" plugin_rule_key="AvoidCycle" plugin_name="squid" language="java"/>
@@ -13,8 +16,8 @@
   <issues
       id="100"
       kee="EFGH"
-      component_id="401"
-      root_component_id="399"
+      component_uuid="CDEF"
+      project_uuid="ABCD"
       rule_id="500"
       severity="BLOCKER"
       manual_severity="[false]"

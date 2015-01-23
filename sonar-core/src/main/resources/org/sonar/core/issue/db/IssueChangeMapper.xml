@@ -48,8 +48,8 @@
     <include refid="issueChangeColumns"/>
     from issue_changes c
     inner join issues i on i.kee = c.issue_key
-    inner join (select p.id,p.kee from projects p where (p.root_id=#{componentId} and p.qualifier &lt;&gt; 'BRC') or
-    (p.id=#{componentId})) p on p.id=i.component_id
+    inner join (select p.id, p.uuid, p.kee from projects p where (p.root_id=#{componentId} and p.qualifier &lt;&gt; 'BRC') or
+    (p.id=#{componentId})) p on p.uuid=i.component_uuid
     <where>
       and c.change_type=#{changeType}
       and i.status &lt;&gt; 'CLOSED'

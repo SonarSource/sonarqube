@@ -124,7 +124,7 @@ public class ServerIssueStorageTest extends AbstractDaoTestCase {
 
     storage.save(issue);
 
-    checkTables("should_insert_new_issues", new String[]{"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
+    checkTables("should_insert_new_issues", new String[] {"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
   }
 
   @Test
@@ -143,8 +143,9 @@ public class ServerIssueStorageTest extends AbstractDaoTestCase {
       .setNew(false)
       .setChanged(true)
 
-        // updated fields
+      // updated fields
       .setLine(5000)
+      .setProjectUuid("CDEF")
       .setDebt(Duration.create(10L))
       .setChecksum("FFFFF")
       .setAuthorLogin("simon")
@@ -160,14 +161,14 @@ public class ServerIssueStorageTest extends AbstractDaoTestCase {
       .setUpdateDate(date)
       .setCloseDate(date)
 
-        // unmodifiable fields
+      // unmodifiable fields
       .setRuleKey(RuleKey.of("xxx", "unknown"))
       .setComponentKey("struts:Action")
       .setProjectKey("struts");
 
     storage.save(issue);
 
-    checkTables("should_update_issues", new String[]{"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
+    checkTables("should_update_issues", new String[] {"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
   }
 
   static class FakeRuleFinder implements RuleFinder {

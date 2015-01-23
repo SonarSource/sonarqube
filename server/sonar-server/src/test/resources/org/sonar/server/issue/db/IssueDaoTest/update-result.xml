@@ -2,8 +2,8 @@
   <issues
       id="100"
       kee="ABCDE"
-      component_uuid="uuid-123"
-      project_uuid="uuid-100"
+      component_uuid="123"
+      project_uuid="101"
       rule_id="200"
       severity="BLOCKER"
       manual_severity="[false]"
@@ -23,7 +23,7 @@
       issue_update_date="2013-05-19"
       issue_close_date="2013-05-20"
       created_at="1400000000000"
-      updated_at="1500000000000"
+      updated_at="1450000000000"
       action_plan_key="current_sprint"
       />
 </dataset>

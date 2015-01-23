@@ -5,7 +5,8 @@
   <projects id="10" scope="PRJ" qualifier="TRK" kee="the_project" name="TheProject"
             uuid="THE_PROJECT" module_uuid="[null]" module_uuid_path="." path="[null]"/>
   <projects id="11" scope="FIL" qualifier="FIL" kee="abcde" name="TheFile"
-            uuid="THE_FILE" module_uuid="THE_PROJECT" module_uuid_path=".THE_PROJECT." path="src/main/java/TheFile.java"/>
+            uuid="THE_FILE" module_uuid="THE_PROJECT" module_uuid_path=".THE_PROJECT."
+            path="src/main/java/TheFile.java"/>
 
   <issues id="1"
           kee="ABCDE"
@@ -20,8 +21,8 @@
           technical_debt="[null]"
           message="[null]"
           line="444"
-          component_id="11"
-          root_component_id="10"
+          component_uuid="THE_FILE"
+          project_uuid="THE_PROJECT"
           rule_id="1"
           reporter="[null]"
           issue_attributes="JIRA=http://jira.com"
@@ -31,5 +32,5 @@
           issue_creation_date="2005-05-12 00:00:00.0"
           issue_update_date="2013-05-18 00:00:00.0"
           issue_close_date="[null]"
-    />
+      />
 </dataset>

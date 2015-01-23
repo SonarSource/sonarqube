@@ -70,11 +70,11 @@ public class PersistIssuesStep implements ComputationStep {
         boolean saved = false;
         if (issue.isNew()) {
           Integer ruleId = ruleCache.get(issue.ruleKey()).getId();
-          mapper.insert(IssueDto.toDtoForComputationInsert(issue, issue.componentId(), context.getProject().getId(), ruleId, system2.now()));
+          mapper.insert(IssueDto.toDtoForComputationInsert(issue, ruleId, system2.now()));
           count++;
           saved = true;
         } else if (issue.isChanged()) {
-          IssueDto dto = IssueDto.toDtoForUpdate(issue, context.getProject().getId(), system2.now());
+          IssueDto dto = IssueDto.toDtoForUpdate(issue, system2.now());
           if (Issue.STATUS_CLOSED.equals(issue.status()) || issue.selectedAt() == null) {
             // Issue is closed by scan or changed by end-user
             mapper.update(dto);

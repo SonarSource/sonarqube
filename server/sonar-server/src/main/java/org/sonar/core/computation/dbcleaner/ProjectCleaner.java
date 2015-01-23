@@ -34,7 +34,6 @@ import org.sonar.server.properties.ProjectSettingsFactory;
 import org.sonar.server.search.IndexClient;
 
 import javax.annotation.Nullable;
-
 import java.util.Date;
 
 import static org.sonar.core.purge.PurgeConfiguration.newDefaultPurgeConfiguration;
@@ -50,7 +49,7 @@ public class ProjectCleaner implements ServerComponent {
   private final IndexClient indexClient;
 
   public ProjectCleaner(PurgeDao purgeDao, DefaultPeriodCleaner periodCleaner, PurgeProfiler profiler, PurgeListener purgeListener,
-    ProjectSettingsFactory projectSettingsFactory, IndexClient indexClient) {
+                        ProjectSettingsFactory projectSettingsFactory, IndexClient indexClient) {
     this.purgeDao = purgeDao;
     this.periodCleaner = periodCleaner;
     this.profiler = profiler;
@@ -64,9 +63,9 @@ public class ProjectCleaner implements ServerComponent {
     profiler.reset();
 
     Settings settings = projectSettingsFactory.newProjectSettings(session, idUuidPair.getId());
-    PurgeConfiguration configuration = newDefaultPurgeConfiguration(settings, idUuidPair.getId());
+    PurgeConfiguration configuration = newDefaultPurgeConfiguration(settings, idUuidPair);
 
-    cleanHistoricalData(session, configuration.rootProjectId(), settings);
+    cleanHistoricalData(session, configuration.rootProjectIdUuid().getId(), settings);
     doPurge(session, configuration);
 
     deleteIndexedIssuesBefore(idUuidPair.getUuid(), configuration.maxLiveDateOfClosedIssues());
@@ -105,7 +104,7 @@ public class ProjectCleaner implements ServerComponent {
       purgeDao.purge(session, configuration, purgeListener);
     } catch (Exception e) {
       // purge errors must no fail the report analysis
-      LOG.error("Fail to purge data [id=" + configuration.rootProjectId() + "]", e);
+      LOG.error("Fail to purge data [id=" + configuration.rootProjectIdUuid().getId() + "]", e);
     }
   }
 }

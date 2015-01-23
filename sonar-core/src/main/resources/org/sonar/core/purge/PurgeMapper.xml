@@ -72,7 +72,7 @@
     not exists(select e.id from events e where e.snapshot_id=s.id)
   </select>
 
-  <select id="selectResourceIdsToDisable" resultType="IdUuidPair" parameterType="long">
+  <select id="selectComponentIdUuidsToDisable" resultType="IdUuidPair" parameterType="long">
     select p.id, p.uuid from projects p
     where (p.id=#{id} or p.root_id=#{id}) and p.enabled=${_true}
     and not exists(select s.project_id from snapshots s where s.islast=${_true} and s.project_id=p.id)
@@ -88,12 +88,12 @@
     select id from metrics where delete_historical_data=${_true}
   </select>
 
-  <select id="selectProjectIdsByRootId" resultType="long" parameterType="long">
-    select id from projects where root_id=#{id} and scope='PRJ'
+  <select id="selectProjectIdUuidsByRootId" resultType="IdUuidPair" parameterType="long">
+    select id, uuid from projects where root_id=#{id} and scope='PRJ'
   </select>
 
-  <select id="selectResourceIdsByRootId" resultType="long" parameterType="long">
-    select id from projects where root_id=#{id} or id=#{id}
+  <select id="selectComponentIdUuidsByRootId" resultType="IdUuidPair" parameterType="long">
+    select id, uuid from projects where root_id=#{id} or id=#{id}
   </select>
 
   <delete id="deleteSnapshotMeasures" parameterType="map">
@@ -179,7 +179,7 @@
   <update id="resolveResourceIssuesNotAlreadyResolved" parameterType="map">
     UPDATE issues SET status='CLOSED',resolution='REMOVED',updated_at=#{dateAsLong},issue_close_date=#{date},
     issue_update_date=#{date}
-    WHERE component_id=#{resourceId} AND resolution IS NULL
+    WHERE component_uuid=#{componentUuid} AND resolution IS NULL
   </update>
 
   <delete id="deleteResourceIndex" parameterType="map">
@@ -270,37 +270,37 @@
     update snapshots set islast=${_false} where project_id=#{id}
   </update>
 
-  <delete id="deleteResourceIssueChanges" parameterType="map">
+  <delete id="deleteComponentIssueChanges" parameterType="map">
     delete from issue_changes ic
-    where exists (select * from issues i where i.kee=ic.issue_key and i.component_id in
-    <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
-      #{resourceId}
+    where exists (select * from issues i where i.kee=ic.issue_key and i.component_uuid in
+    <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
+      #{componentUuid}
     </foreach>
     )
   </delete>
 
   <!-- Mssql -->
-  <delete id="deleteResourceIssueChanges" databaseId="mssql" parameterType="map">
+  <delete id="deleteComponentIssueChanges" databaseId="mssql" parameterType="map">
     delete issue_changes from issue_changes
     inner join issues on issue_changes.issue_key=issues.kee
-    where issues.component_id in
-    <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
-      #{resourceId}
+    where issues.component_uuid in
+    <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
+      #{componentUuid}
     </foreach>
   </delete>
 
   <!-- Mysql -->
-  <delete id="deleteResourceIssueChanges" databaseId="mysql" parameterType="map">
-    delete ic from issue_changes as ic, issues as i where ic.issue_key=i.kee and i.component_id in
-    <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
-      #{resourceId}
+  <delete id="deleteComponentIssueChanges" databaseId="mysql" parameterType="map">
+    delete ic from issue_changes as ic, issues as i where ic.issue_key=i.kee and i.component_uuid in
+    <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
+      #{componentUuid}
     </foreach>
   </delete>
 
-  <delete id="deleteResourceIssues" parameterType="map">
-    delete from issues where component_id in
-    <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
-      #{resourceId}
+  <delete id="deleteComponentIssues" parameterType="map">
+    delete from issues where component_uuid in
+    <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
+      #{componentUuid}
     </foreach>
   </delete>
 
@@ -316,7 +316,7 @@
     delete from issue_changes ic
     where exists (
     select * from issues i
-    where i.root_component_id=#{rootProjectId} and i.kee=ic.issue_key
+    where i.project_uuid=#{projectUuid} and i.kee=ic.issue_key
     <choose>
       <when test="toDate == null">
         and i.issue_close_date is not null
@@ -332,7 +332,7 @@
   <delete id="deleteOldClosedIssueChanges" databaseId="mssql" parameterType="map">
     delete issue_changes from issue_changes
     inner join issues on issue_changes.issue_key=issues.kee
-    where issues.root_component_id=#{rootProjectId}
+    where issues.project_uuid=#{projectUuid}
     <choose>
       <when test="toDate == null">
         and issues.issue_close_date is not null
@@ -347,7 +347,7 @@
   <delete id="deleteOldClosedIssueChanges" databaseId="mysql" parameterType="map">
     delete ic
     from issue_changes as ic, issues as i
-    where i.root_component_id=#{rootProjectId}
+    where i.project_uuid=#{projectUuid}
     and ic.issue_key=i.kee
     <choose>
       <when test="toDate == null">
@@ -361,7 +361,7 @@
 
   <delete id="deleteOldClosedIssues" parameterType="map">
     delete from issues
-    where root_component_id=#{rootProjectId}
+    where project_uuid=#{projectUuid}
     <choose>
       <when test="toDate == null">
         and issue_close_date is not null

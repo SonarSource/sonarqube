@@ -1,12 +1,13 @@
 <dataset>
 
   <action_plans id="1" kee="ABC" project_id="1" name="SHORT_TERM" description="[null]" deadline="[null]"
-                user_login="igor" status="OPEN" created_at="[null]" updated_at="[null]" />
+                user_login="igor" status="OPEN" created_at="[null]" updated_at="[null]"/>
 
   <issues
       id="100"
       kee="ABCDE"
-      component_id="400"
+      component_uuid="uuid-400"
+      project_uuid="uuid-400"
       rule_id="500"
       severity="BLOCKER"
       manual_severity="[false]"
@@ -30,7 +31,8 @@
   <issues
       id="101"
       kee="ABCDF"
-      component_id="400"
+      component_uuid="uuid-400"
+      project_uuid="uuid-400"
       rule_id="500"
       severity="BLOCKER"
       manual_severity="[false]"
@@ -54,7 +56,8 @@
   <issues
       id="102"
       kee="ABCDG"
-      component_id="400"
+      component_uuid="uuid-400"
+      project_uuid="uuid-400"
       rule_id="500"
       severity="BLOCKER"
       manual_severity="[false]"

@@ -1,8 +1,8 @@
 <dataset>
 
-  <projects id="1" enabled="[true]" root_id="[null]"
+  <projects id="1" uuid="1" enabled="[true]" root_id="[null]"
             long_name="[null]" scope="PRJ" qualifier="TRK" kee="project" name="project"
-            description="[null]" language="java" copy_resource_id="[null]" person_id="[null]" />
+            description="[null]" language="java" copy_resource_id="[null]" person_id="[null]"/>
 
   <snapshots id="1" project_id="1" parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]"
              status="P" islast="[false]" purge_status="[null]"
@@ -18,7 +18,8 @@
   <events id="1" name="Version 1.0" resource_id="1" snapshot_id="1" category="VERSION" description="[null]"
           event_date="2008-12-02 13:58:00.00" created_at="[null]" event_data="[null]"/>
 
-  <issues id="1" kee="ABCDE" component_id="1" status="CLOSED" resolution="[null]" line="200" severity="BLOCKER"
+  <issues id="1" kee="ABCDE" component_uuid="1" project_uuid="1" status="CLOSED" resolution="[null]" line="200"
+          severity="BLOCKER"
           reporter="perceval" assignee="arthur" rule_id="500"
           manual_severity="[false]"
           message="[null]"
@@ -29,8 +30,9 @@
           updated_at="[null]"
       />
 
-  <issue_changes id="1" kee="ABDA" issue_key="ABCDE" created_at="[null]" updated_at="[null]" user_login="admin" change_type="comment" change_data="this is a comment"/>
+  <issue_changes id="1" kee="ABDA" issue_key="ABCDE" created_at="[null]" updated_at="[null]" user_login="admin"
+                 change_type="comment" change_data="this is a comment"/>
 
-  <authors id="1" person_id="1" login="tartanpion" created_at="[null]" updated_at="[null]" />
-  <authors id="2" person_id="1" login="fanfoue" created_at="[null]" updated_at="[null]" />
+  <authors id="1" person_id="1" login="tartanpion" created_at="[null]" updated_at="[null]"/>
+  <authors id="2" person_id="1" login="fanfoue" created_at="[null]" updated_at="[null]"/>
 </dataset>

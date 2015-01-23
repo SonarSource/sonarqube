@@ -1,13 +1,13 @@
 <dataset>
 
-  <projects id="399" uuid="1" kee="struts" root_id="[null]" qualifier="TRK" scope="PRJ" />
+  <projects id="399" uuid="uuid-399" kee="struts" root_id="[null]" project_uuid="[null]" qualifier="TRK" scope="PRJ" />
 
   <!-- Open Issue on a root module -->
   <issues
       id="104"
       kee="104"
-      component_id="399"
-      root_component_id="399"
+      component_uuid="uuid-399"
+      project_uuid="uuid-399"
       rule_id="501"
       severity="MAJOR"
       manual_severity="[false]"

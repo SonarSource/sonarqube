@@ -1,6 +1,6 @@
 <dataset>
 
-  <projects id="1" enabled="[true]" root_id="[null]" created_at="[null]"
+  <projects id="1" uuid="1" enabled="[true]" root_id="[null]" created_at="[null]"
             long_name="[null]" scope="PRJ" qualifier="TRK" kee="project" name="project"
             description="[null]" language="java" copy_resource_id="[null]" person_id="[null]" authorization_updated_at="[null]"/>
 
@@ -17,8 +17,8 @@
   <!-- old closed issues on file and project -> to be purged -->
   <!--
   <issues id="1" kee="ISSUE-1"
-          component_id="100"
-          root_component_id="1"
+          component_uuid="100"
+          project_uuid="1"
           status="CLOSED"
           issue_close_date="2010-01-01"
           resolution="FIXED" line="200" severity="BLOCKER" reporter="perceval" assignee="arthur" rule_id="500" manual_severity="[false]"
@@ -27,8 +27,8 @@
   <issue_changes id="1" kee="[null]" issue_key="ISSUE-1" created_at="[null]" updated_at="[null]" user_login="admin" change_type="comment" change_data="abc" issue_change_creation_date="[null]"/>
 
   <issues id="2" kee="ISSUE-2"
-          component_id="1"
-          root_component_id="1"
+          component_uuid="1"
+          project_uuid="1"
           status="CLOSED"
           issue_close_date="2010-01-01"
           resolution="FIXED" line="200" severity="BLOCKER" reporter="perceval" assignee="arthur" rule_id="500" manual_severity="[false]"
@@ -39,10 +39,8 @@
 
   <!-- old open issues -> do not purge -->
   <issues id="3" kee="ISSUE-3"
-          component_id="1"
-          component_uuid="[null]"
-          project_uuid="[null]"
-          root_component_id="1"
+          component_uuid="1"
+          project_uuid="1"
           status="OPEN"
           issue_close_date="[null]"
           resolution="[null]" line="200" severity="BLOCKER" reporter="perceval" assignee="arthur" rule_id="500" manual_severity="[false]" tags="[null]"
@@ -52,10 +50,8 @@
 
   <!-- recent open and closed issues -> do not purge -->
   <issues id="4" kee="ISSUE-4"
-          component_id="100"
-          component_uuid="[null]"
-          project_uuid="[null]"
-          root_component_id="1"
+          component_uuid="100"
+          project_uuid="1"
           status="OPEN"
           issue_close_date="[null]"
           resolution="[null]" line="200" severity="BLOCKER" reporter="perceval" assignee="arthur" rule_id="500" manual_severity="[false]" tags="[null]"
@@ -64,10 +60,8 @@
   <issue_changes id="4" kee="[null]" issue_key="ISSUE-4" created_at="[null]" updated_at="[null]" user_login="admin" change_type="comment" change_data="abc" issue_change_creation_date="[null]"/>
 
   <issues id="5" kee="ISSUE-5"
-          component_id="100"
-          component_uuid="[null]"
-          project_uuid="[null]"
-          root_component_id="1"
+          component_uuid="100"
+          project_uuid="1"
           status="CLOSED"
           issue_close_date="2025-01-01"
           resolution="FIXED" line="200" severity="BLOCKER" reporter="perceval" assignee="arthur" rule_id="500" manual_severity="[false]" tags="[null]"

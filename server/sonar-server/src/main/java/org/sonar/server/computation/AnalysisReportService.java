@@ -137,7 +137,6 @@ public class AnalysisReportService {
 
   private DefaultIssue setComponent(DefaultIssue issue, @Nullable ReportComponent component) {
     if (component != null) {
-      issue.setComponentId((long) component.id());
       issue.setComponentUuid(component.uuid());
     }
     return issue;

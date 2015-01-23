@@ -34,10 +34,10 @@ import java.io.File;
 import java.sql.SQLException;
 
 public class PreviewDatabaseFactory implements ServerComponent {
+  public static final String H2_FILE_SUFFIX = ".h2.db";
   private static final String DIALECT = "h2";
   private static final String DRIVER = "org.h2.Driver";
   private static final String URL = "jdbc:h2:";
-  public static final String H2_FILE_SUFFIX = ".h2.db";
   private static final String SONAR = "sonar";
   private static final String USER = SONAR;
   private static final String PASSWORD = SONAR;
@@ -111,7 +111,7 @@ public class PreviewDatabaseFactory implements ServerComponent {
         .append(" INNER JOIN (")
         .append(projectQuery(projectId, true))
         .append(") resources")
-        .append(" ON issues.component_id=resources.id")
+        .append(" ON issues.component_uuid=resources.uuid")
         .append(" AND status <> '").append(Issue.STATUS_CLOSED).append("'");
       template.copyTable(source, dest, "issues", issueQuery.toString());
     }
@@ -119,12 +119,12 @@ public class PreviewDatabaseFactory implements ServerComponent {
 
   private String projectQuery(Long projectId, boolean returnOnlyIds) {
     return new StringBuilder()
-      .append("SELECT p.").append(returnOnlyIds ? "id" : "*")
+      .append("SELECT p.").append(returnOnlyIds ? "id, p.uuid" : "*")
       .append(" FROM projects p INNER JOIN snapshots s ON p.id = s.project_id")
       .append(" WHERE s.islast=").append(database.getDialect().getTrueSqlValue())
       .append(" AND s.root_project_id=").append(projectId)
       .append(" UNION")
-      .append(" SELECT p.").append(returnOnlyIds ? "id" : "*")
+      .append(" SELECT p.").append(returnOnlyIds ? "id, p.uuid" : "*")
       .append(" FROM projects p")
       .append(" WHERE p.id=").append(projectId)
       .append(" OR p.root_id=").append(projectId).toString();

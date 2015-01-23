@@ -80,8 +80,8 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
 
   private static final String SQL_ALL = "select " + StringUtils.join(FIELDS, ",") + " from issues i " +
     "inner join rules r on r.id=i.rule_id " +
-    "inner join projects p on p.id=i.component_id " +
-    "inner join projects root on root.id=i.root_component_id";
+    "inner join projects p on p.uuid=i.component_uuid " +
+    "inner join projects root on root.uuid=i.project_uuid";
 
   private static final String SQL_AFTER_DATE = SQL_ALL + " where i.updated_at>?";
 
