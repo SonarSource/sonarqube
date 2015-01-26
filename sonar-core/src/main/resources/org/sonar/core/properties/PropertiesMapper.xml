@@ -49,7 +49,6 @@
     SELECT prop.id as id, prop.prop_key as "key", prop.text_value as value, prop.resource_id as resourceId, prop.user_id as userId
     FROM properties prop
     INNER JOIN (SELECT p.id FROM projects p<include refid="org.sonar.core.component.db.ComponentMapper.childrenModuleQuery"/>) modules on modules.id=prop.resource_id
-    INNER JOIN projects p on p.id = prop.resource_id
     WHERE prop.user_id IS NULL
   </select>
 
