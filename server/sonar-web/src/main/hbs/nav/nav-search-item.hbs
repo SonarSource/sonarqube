@@ -1,9 +1,11 @@
-{{#if extra}}
+{{#notNull extra}}
   {{#gt index 0}}
     <div class="divider"></div>
   {{/gt}}
-  <div class="dropdown-header">{{extra}}</div>
-{{/if}}
+  {{#if extra}}
+    <div class="dropdown-header">{{extra}}</div>
+  {{/if}}
+{{/notNull}}
 
 <a href="{{url}}" title="{{name}}">
   {{#if q}}{{qualifierIcon q}}{{/if}}

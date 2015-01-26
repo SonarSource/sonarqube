@@ -105,17 +105,19 @@ define([
 
     resetResultsToDefault: function () {
       var recentHistory = JSON.parse(localStorage.getItem('sonar_recent_history')),
-          history = (recentHistory || []).map(function (historyItem) {
+          history = (recentHistory || []).map(function (historyItem, index) {
             return {
               url: baseUrl + '/dashboard/index?id=' + encodeURIComponent(historyItem.key) + dashboardParameters(true),
               name: historyItem.name,
-              q: historyItem.icon
+              q: historyItem.icon,
+              extra: index === 0 ? t('recent_history') : null
             };
           }),
-          qualifiers = this.model.get('qualifiers').map(function (q) {
+          qualifiers = this.model.get('qualifiers').map(function (q, index) {
             return {
               url: baseUrl + '/all_projects?qualifier=' + encodeURIComponent(q),
-              name: t('qualifiers.all', q)
+              name: t('qualifiers.all', q),
+              extra: index === 0 ? '' : null
             };
           });
       this.results.reset(history.concat(qualifiers));
