@@ -1,0 +1,95 @@
+/*
+    SonarQube, open source software quality management tool.
+    Copyright (C) 2008-2015 SonarSource
+    mailto:contact AT sonarsource DOT com
+
+    SonarQube is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    SonarQube is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with this program; if not, write to the Free Software Foundation,
+    Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
+
+/*
+Notes
+
+  - "required" fields are not used as recommended by Google to keep forward-compatibility:
+    https://developers.google.com/protocol-buffers/docs/proto#simple
+
+  - this is beta version of specification. It will evolve during next releases and is
+    not forward-compatible yet.
+
+  - the related Java files are not generated during build. Indeed the existing protoc maven
+    plugins require protobuf to be installed on boxes. That means that generated Java files
+    are updated and committed for each change (see src/main/gen-java).
+*/
+
+
+import "constants.proto";
+
+option java_package = "org.sonar.batch.protocol.output";
+option optimize_for = SPEED;
+
+message ReportMetadata {
+  optional int64 analysis_date = 1;
+  optional string project_key = 2;
+  optional int32 root_component_ref = 3;
+}
+
+message ReportComponent {
+  optional int32 ref = 1;
+  optional string path = 2;
+  optional string name = 3;
+  optional ComponentType type = 4;
+  optional bool is_test = 5;
+  optional string language = 6;
+  repeated int32 child_refs = 7;
+
+  // temporary fields during development of computation stack
+  optional int32 snapshot_id = 8;
+  optional string uuid = 9;
+}
+
+message ReportIssue {
+    optional string rule_repository = 1;
+    optional string rule_key = 2;
+    optional int32 line = 3;
+    optional string msg = 4;
+    optional Severity severity = 5;
+    repeated string tags = 6;
+
+    // temporary fields during development of computation stack
+    optional double effort_to_fix = 7;
+    optional bool is_new = 8;
+    optional string uuid = 9;
+    optional int64 debt_in_minutes = 10;
+    optional string resolution = 11;
+    optional string status = 12;
+    optional string checksum = 13;
+    optional bool manual_severity = 14;
+    optional string reporter = 15;
+    optional string assignee = 16;
+    optional string action_plan_key = 17;
+    optional string attributes = 18;
+    optional string author_login = 19;
+    optional int64 creation_date = 20;
+    optional int64 close_date = 21;
+    optional int64 update_date = 22;
+    optional int64 selected_at = 23;
+    optional string diff_fields = 24;
+    optional bool is_changed = 25;
+    optional bool must_send_notification = 26;
+}
+
+message ReportIssues {
+    optional int32 component_ref = 1;
+    repeated ReportIssue list = 2;
+}

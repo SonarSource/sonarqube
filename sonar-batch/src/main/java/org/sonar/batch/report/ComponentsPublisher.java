@@ -26,14 +26,15 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.batch.index.BatchResource;
 import org.sonar.batch.index.ResourceCache;
-import org.sonar.batch.protocol.output.ReportHelper;
-import org.sonar.batch.protocol.output.component.ReportComponent;
-import org.sonar.batch.protocol.output.component.ReportComponents;
+import org.sonar.batch.protocol.Constants;
+import org.sonar.batch.protocol.output.BatchOutput;
+import org.sonar.batch.protocol.output.BatchOutputWriter;
 
 import javax.annotation.CheckForNull;
 
-import java.io.IOException;
-
+/**
+ * Adds components and analysis metadata to output report
+ */
 public class ComponentsPublisher implements ReportPublisher {
 
   private final ResourceCache resourceCache;
@@ -45,37 +46,52 @@ public class ComponentsPublisher implements ReportPublisher {
   }
 
   @Override
-  public void export(ReportHelper reportHelper) throws IOException {
-    ReportComponents components = new ReportComponents();
+  public void publish(BatchOutputWriter writer) {
     BatchResource rootProject = resourceCache.get(reactor.getRoot().getKeyWithBranch());
-    components.setRoot(buildResourceForReport(rootProject));
-    components.setAnalysisDate(((Project) rootProject.resource()).getAnalysisDate());
-    reportHelper.saveComponents(components);
+    BatchOutput.ReportMetadata metadata = BatchOutput.ReportMetadata.newBuilder()
+      .setAnalysisDate(((Project) rootProject.resource()).getAnalysisDate().getTime())
+      .setProjectKey(((Project) rootProject.resource()).key())
+      .setRootComponentRef(rootProject.batchId())
+      .build();
+    writer.writeMetadata(metadata);
+    recursiveWriteComponent(rootProject, writer);
   }
 
-  private ReportComponent buildResourceForReport(BatchResource batchResource) {
+  private void recursiveWriteComponent(BatchResource batchResource, BatchOutputWriter writer) {
     Resource r = batchResource.resource();
-    Integer snapshotId = batchResource.snapshotId();
-    Integer id = r.getId();
-    ReportComponent result = new ReportComponent()
-      .setBatchId(batchResource.batchId())
-      .setSnapshotId(snapshotId != null ? snapshotId.intValue() : -1)
-      .setId(id != null ? id : -1)
-      .setName(getName(r))
-      .setPath(r.getPath())
-      .setUuid(r.getUuid())
-      .setType(getType(r))
-      .setLanguageKey(getLanguageKey(r))
-      .setTest(isTest(r));
-    for (BatchResource child : batchResource.children()) {
-      result.addChild(buildResourceForReport(child));
-    }
-    return result;
-  }
+    BatchOutput.ReportComponent.Builder builder = BatchOutput.ReportComponent.newBuilder();
 
-  @CheckForNull
-  private Boolean isTest(Resource r) {
-    return ResourceUtils.isFile(r) ? ResourceUtils.isUnitTestClass(r) : null;
+    // non-null fields
+    builder.setRef(batchResource.batchId());
+    builder.setSnapshotId(batchResource.snapshotId());
+    builder.setUuid(r.getUuid());
+    builder.setType(getType(r));
+
+    // protocol buffers does not accept null values
+
+    if (ResourceUtils.isFile(r)) {
+      builder.setIsTest(ResourceUtils.isUnitTestClass(r));
+    }
+    String name = getName(r);
+    if (name != null) {
+      builder.setName(name);
+    }
+    String path = r.getPath();
+    if (path != null) {
+      builder.setPath(path);
+    }
+    String lang = getLanguageKey(r);
+    if (lang != null) {
+      builder.setLanguage(lang);
+    }
+    for (BatchResource child : batchResource.children()) {
+      builder.addChildRefs(child.batchId());
+    }
+    writer.writeComponent(builder.build());
+
+    for (BatchResource child : batchResource.children()) {
+      recursiveWriteComponent(child, writer);
+    }
   }
 
   @CheckForNull
@@ -90,21 +106,21 @@ public class ComponentsPublisher implements ReportPublisher {
     return (ResourceUtils.isFile(r) || ResourceUtils.isDirectory(r)) ? null : r.getName();
   }
 
-  private ReportComponent.Type getType(Resource r) {
+  private Constants.ComponentType getType(Resource r) {
     if (ResourceUtils.isFile(r)) {
-      return ReportComponent.Type.FIL;
+      return Constants.ComponentType.FILE;
     } else if (ResourceUtils.isDirectory(r)) {
-      return ReportComponent.Type.DIR;
+      return Constants.ComponentType.DIRECTORY;
     } else if (ResourceUtils.isModuleProject(r)) {
-      return ReportComponent.Type.MOD;
+      return Constants.ComponentType.MODULE;
     } else if (ResourceUtils.isRootProject(r)) {
-      return ReportComponent.Type.PRJ;
+      return Constants.ComponentType.PROJECT;
     } else if (ResourceUtils.isView(r)) {
-      return ReportComponent.Type.VIEW;
+      return Constants.ComponentType.VIEW;
     } else if (ResourceUtils.isSubview(r)) {
-      return ReportComponent.Type.SUBVIEW;
+      return Constants.ComponentType.SUBVIEW;
     }
-    throw new IllegalArgumentException("Unknow resource type: " + r);
+    throw new IllegalArgumentException("Unknown resource type: " + r);
   }
 
 }

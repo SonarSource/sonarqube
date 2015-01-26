@@ -17,41 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.protocol.output.component;
+package org.sonar.batch.protocol;
 
-import org.sonar.batch.protocol.GsonHelper;
+import org.junit.Test;
+import org.sonar.test.TestUtils;
 
-import java.util.Date;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class ReportComponents {
+public class ProtobufUtilTest {
 
-  private Date analysisDate;
-
-  private ReportComponent root;
-
-  public void setAnalysisDate(Date analysisDate) {
-    this.analysisDate = analysisDate;
-  }
-
-  public Date analysisDate() {
-    return analysisDate;
-  }
-
-  public ReportComponents setRoot(ReportComponent r) {
-    this.root = r;
-    return this;
-  }
-
-  public ReportComponent root() {
-    return root;
-  }
-
-  public String toJson() {
-    return GsonHelper.create().toJson(this);
-  }
-
-  public static ReportComponents fromJson(String json) {
-    return GsonHelper.create().fromJson(json, ReportComponents.class);
+  @Test
+  public void only_utils() throws Exception {
+    assertThat(TestUtils.hasOnlyPrivateConstructors(ProtobufUtil.class));
   }
 
 }

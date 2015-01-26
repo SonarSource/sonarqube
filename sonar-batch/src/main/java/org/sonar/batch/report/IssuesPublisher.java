@@ -27,10 +27,13 @@ import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.index.BatchResource;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.issue.IssueCache;
-import org.sonar.batch.protocol.output.ReportHelper;
-import org.sonar.batch.protocol.output.issue.ReportIssue;
+import org.sonar.batch.protocol.Constants;
+import org.sonar.batch.protocol.output.BatchOutputWriter;
+import org.sonar.batch.protocol.output.BatchOutput;
 
-import java.io.IOException;
+import javax.annotation.Nullable;
+
+import java.util.Date;
 
 public class IssuesPublisher implements ReportPublisher {
 
@@ -43,51 +46,91 @@ public class IssuesPublisher implements ReportPublisher {
   }
 
   @Override
-  public void export(ReportHelper reportHelper) throws IOException {
+  public void publish(BatchOutputWriter writer) {
     for (BatchResource resource : resourceCache.all()) {
       Iterable<DefaultIssue> issues = issueCache.byComponent(resource.resource().getEffectiveKey());
-      reportHelper.saveIssues(resource.batchId(), Iterables.transform(issues, new Function<DefaultIssue, ReportIssue>() {
+      writer.writeComponentIssues(resource.batchId(), Iterables.transform(issues, new Function<DefaultIssue, BatchOutput.ReportIssue>() {
         @Override
-        public ReportIssue apply(DefaultIssue input) {
+        public BatchOutput.ReportIssue apply(DefaultIssue input) {
           return toReportIssue(input);
         }
       }));
     }
   }
 
-  private ReportIssue toReportIssue(DefaultIssue issue) {
-    BatchResource batchResource = resourceCache.get(issue.componentKey());
-    return new ReportIssue()
-      .setKey(issue.key())
-      .setComponentBatchId(batchResource != null ? batchResource.batchId() : null)
-      .setNew(issue.isNew())
-      .setLine(issue.line())
-      .setMessage(issue.message())
-      .setEffortToFix(issue.effortToFix())
-      .setDebt(issue.debtInMinutes())
-      .setResolution(issue.resolution())
-      .setStatus(issue.status())
-      .setSeverity(issue.severity())
-      .setChecksum(issue.checksum())
-      .setManualSeverity(issue.manualSeverity())
-      .setReporter(issue.reporter())
-      .setAssignee(issue.assignee())
-      .setRuleKey(issue.ruleKey().repository(), issue.ruleKey().rule())
-      .setActionPlanKey(issue.actionPlanKey())
-      .setAttributes(KeyValueFormat.format(issue.attributes()))
-      .setAuthorLogin(issue.authorLogin())
-      .setCreationDate(issue.creationDate())
-      .setCloseDate(issue.closeDate())
-      .setUpdateDate(issue.updateDate())
-      .setSelectedAt(issue.selectedAt())
-      .setDiffFields(toString(issue.currentChange()))
-      .setTags(issue.tags())
-      .setMustSendNotification(issue.mustSendNotifications())
-      .setChanged(issue.isChanged());
+  private BatchOutput.ReportIssue toReportIssue(DefaultIssue issue) {
+    BatchOutput.ReportIssue.Builder builder = BatchOutput.ReportIssue.newBuilder();
+
+    // non-null fields
+    builder.setUuid(issue.key());
+    builder.setIsNew(issue.isNew());
+    builder.setSeverity(Constants.Severity.valueOf(issue.severity()));
+    builder.setRuleRepository(issue.ruleKey().repository());
+    builder.setRuleKey(issue.ruleKey().rule());
+    builder.setAttributes(KeyValueFormat.format(issue.attributes()));
+    builder.addAllTags(issue.tags());
+    builder.setMustSendNotification(issue.mustSendNotifications());
+    builder.setIsChanged(issue.isChanged());
+
+    // nullable fields
+    Integer line = issue.line();
+    if (line != null) {
+      builder.setLine(line);
+    }
+    builder.setMsg(issue.message());
+    if (issue.effortToFix() != null) {
+      builder.setEffortToFix(issue.effortToFix());
+    }
+    if (issue.debtInMinutes() != null) {
+      builder.setDebtInMinutes(issue.debtInMinutes());
+    }
+    if (issue.resolution() != null) {
+      builder.setResolution(issue.resolution());
+    }
+    if (issue.status() != null) {
+      builder.setStatus(issue.status());
+    }
+    if (issue.checksum() != null) {
+      builder.setChecksum(issue.checksum());
+    }
+    builder.setManualSeverity(issue.manualSeverity());
+    if (issue.reporter() != null) {
+      builder.setReporter(issue.reporter());
+    }
+    if (issue.assignee() != null) {
+      builder.setAssignee(issue.assignee());
+    }
+    if (issue.actionPlanKey() != null) {
+      builder.setActionPlanKey(issue.actionPlanKey());
+    }
+    if (issue.authorLogin() != null) {
+      builder.setAuthorLogin(issue.authorLogin());
+    }
+    String diff = diffsToString(issue.currentChange());
+    if (diff != null) {
+      builder.setDiffFields(diff);
+    }
+    Date creationDate = issue.creationDate();
+    if (creationDate != null) {
+      builder.setCreationDate(creationDate.getTime());
+    }
+    Long selectedAt = issue.selectedAt();
+    if (selectedAt != null) {
+      builder.setSelectedAt(selectedAt);
+    }
+    Date closeDate = issue.closeDate();
+    if (closeDate != null) {
+      builder.setCloseDate(closeDate.getTime());
+    }
+    Date updateDate = issue.updateDate();
+    if (updateDate != null) {
+      builder.setUpdateDate(updateDate.getTime());
+    }
+    return builder.build();
   }
 
-  private String toString(FieldDiffs currentChange) {
-    return currentChange != null ? currentChange.toString() : null;
+  private String diffsToString(@Nullable FieldDiffs diffs) {
+    return diffs != null ? diffs.toString() : null;
   }
 
 }
