@@ -19,27 +19,10 @@
  */
 package org.sonar.batch.repository;
 
-import org.picocontainer.injectors.ProviderAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.utils.TimeProfiler;
 import org.sonar.batch.protocol.input.GlobalRepositories;
 
-public class GlobalReferentialsProvider extends ProviderAdapter {
+public interface GlobalRepositoriesLoader {
 
-  private static final Logger LOG = LoggerFactory.getLogger(GlobalReferentialsProvider.class);
+  GlobalRepositories load();
 
-  private GlobalRepositories globalReferentials;
-
-  public GlobalRepositories provide(GlobalReferentialsLoader loader) {
-    if (globalReferentials == null) {
-      TimeProfiler profiler = new TimeProfiler(LOG).start("Load global referentials");
-      try {
-        globalReferentials = loader.load();
-      } finally {
-        profiler.stop();
-      }
-    }
-    return globalReferentials;
-  }
 }

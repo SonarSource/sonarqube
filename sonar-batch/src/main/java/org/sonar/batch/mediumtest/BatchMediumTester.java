@@ -35,7 +35,7 @@ import org.sonar.batch.protocol.input.ActiveRule;
 import org.sonar.batch.protocol.input.GlobalRepositories;
 import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonar.batch.protocol.input.issues.PreviousIssue;
-import org.sonar.batch.repository.GlobalReferentialsLoader;
+import org.sonar.batch.repository.GlobalRepositoriesLoader;
 import org.sonar.batch.repository.PreviousIssuesLoader;
 import org.sonar.batch.repository.ProjectRepositoriesLoader;
 import org.sonar.core.plugins.DefaultPluginMetadata;
@@ -194,7 +194,7 @@ public class BatchMediumTester {
     }
   }
 
-  private static class FakeGlobalReferentialsLoader implements GlobalReferentialsLoader {
+  private static class FakeGlobalReferentialsLoader implements GlobalRepositoriesLoader {
 
     private int metricId = 1;
 

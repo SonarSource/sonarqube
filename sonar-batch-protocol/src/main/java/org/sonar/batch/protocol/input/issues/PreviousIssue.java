@@ -24,6 +24,9 @@ import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.Date;
 
+/**
+ * Issues from previous analysis. USed by local issue tracking.
+ */
 public class PreviousIssue implements Serializable {
 
   private String key;

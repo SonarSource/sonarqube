@@ -35,11 +35,11 @@ import org.sonar.batch.components.PastSnapshotFinderByDays;
 import org.sonar.batch.components.PastSnapshotFinderByPreviousAnalysis;
 import org.sonar.batch.components.PastSnapshotFinderByPreviousVersion;
 import org.sonar.batch.components.PastSnapshotFinderByVersion;
-import org.sonar.batch.repository.DefaultGlobalReferentialsLoader;
+import org.sonar.batch.repository.DefaultGlobalRepositoriesLoader;
 import org.sonar.batch.repository.DefaultPreviousIssuesLoader;
-import org.sonar.batch.repository.DefaultProjectReferentialsLoader;
-import org.sonar.batch.repository.GlobalReferentialsLoader;
-import org.sonar.batch.repository.GlobalReferentialsProvider;
+import org.sonar.batch.repository.DefaultProjectRepositoriesLoader;
+import org.sonar.batch.repository.GlobalRepositoriesLoader;
+import org.sonar.batch.repository.GlobalRepositoriesProvider;
 import org.sonar.batch.repository.PreviousIssuesLoader;
 import org.sonar.batch.repository.ProjectRepositoriesLoader;
 import org.sonar.batch.user.UserRepository;
@@ -107,16 +107,16 @@ public class BootstrapContainer extends ComponentContainer {
       UriReader.class,
       new FileCacheProvider(),
       System2.INSTANCE,
-      new GlobalReferentialsProvider(),
+      new GlobalRepositoriesProvider(),
       UserRepository.class);
     if (getComponentByType(PluginsReferential.class) == null) {
       add(DefaultPluginsReferential.class);
     }
-    if (getComponentByType(GlobalReferentialsLoader.class) == null) {
-      add(DefaultGlobalReferentialsLoader.class);
+    if (getComponentByType(GlobalRepositoriesLoader.class) == null) {
+      add(DefaultGlobalRepositoriesLoader.class);
     }
     if (getComponentByType(ProjectRepositoriesLoader.class) == null) {
-      add(DefaultProjectReferentialsLoader.class);
+      add(DefaultProjectRepositoriesLoader.class);
     }
     if (getComponentByType(PreviousIssuesLoader.class) == null) {
       add(DefaultPreviousIssuesLoader.class);

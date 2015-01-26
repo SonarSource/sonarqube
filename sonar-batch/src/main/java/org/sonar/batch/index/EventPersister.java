@@ -45,6 +45,9 @@ public class EventPersister {
 
   public void saveEvent(Resource resource, Event event) {
     BatchResource batchResource = resourceCache.get(resource.getEffectiveKey());
+    if (batchResource == null) {
+      throw new IllegalStateException("Unknow component: " + resource);
+    }
     if (event.getDate() == null) {
       event.setSnapshot(batchResource.snapshot());
     } else {

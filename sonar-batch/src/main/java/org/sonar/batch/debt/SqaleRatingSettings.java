@@ -25,6 +25,8 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.Metric;
 
+import javax.annotation.Nullable;
+
 public class SqaleRatingSettings implements BatchComponent {
 
   private final Settings settings;
@@ -48,11 +50,13 @@ public class SqaleRatingSettings implements BatchComponent {
     }
   }
 
-  public long getDevCost(String languageKey) {
+  public long getDevCost(@Nullable String languageKey) {
     try {
-      LanguageSpecificConfiguration languageSpecificConfig = getSpecificParametersForLanguage(languageKey);
-      if (languageSpecificConfig != null && languageSpecificConfig.getManDays() != null) {
-        return Long.parseLong(languageSpecificConfig.getManDays());
+      if (languageKey != null) {
+        LanguageSpecificConfiguration languageSpecificConfig = getSpecificParametersForLanguage(languageKey);
+        if (languageSpecificConfig != null && languageSpecificConfig.getManDays() != null) {
+          return Long.parseLong(languageSpecificConfig.getManDays());
+        }
       }
       return Long.parseLong(settings.getString(CoreProperties.DEVELOPMENT_COST));
     } catch (Exception e) {
@@ -61,10 +65,12 @@ public class SqaleRatingSettings implements BatchComponent {
     }
   }
 
-  public Metric getSizeMetric(String languageKey, Metric[] metrics) {
-    LanguageSpecificConfiguration languageSpecificConfig = getSpecificParametersForLanguage(languageKey);
-    if (languageSpecificConfig != null && languageSpecificConfig.getMetric() != null) {
-      return getMetricForKey(languageSpecificConfig.getMetric(), metrics);
+  public Metric getSizeMetric(@Nullable String languageKey, Metric[] metrics) {
+    if (languageKey != null) {
+      LanguageSpecificConfiguration languageSpecificConfig = getSpecificParametersForLanguage(languageKey);
+      if (languageSpecificConfig != null && languageSpecificConfig.getMetric() != null) {
+        return getMetricForKey(languageSpecificConfig.getMetric(), metrics);
+      }
     }
     return getMetricForKey(settings.getString(CoreProperties.SIZE_METRIC), metrics);
   }

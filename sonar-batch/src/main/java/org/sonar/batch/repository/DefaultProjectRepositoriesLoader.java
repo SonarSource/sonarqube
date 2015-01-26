@@ -48,9 +48,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public class DefaultProjectReferentialsLoader implements ProjectRepositoriesLoader {
+public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoader {
 
-  private static final Logger LOG = LoggerFactory.getLogger(DefaultProjectReferentialsLoader.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultProjectRepositoriesLoader.class);
 
   private static final String BATCH_PROJECT_URL = "/batch/project";
 
@@ -58,13 +58,13 @@ public class DefaultProjectReferentialsLoader implements ProjectRepositoriesLoad
   private final AnalysisMode analysisMode;
   private final DatabaseSession session;
 
-  public DefaultProjectReferentialsLoader(DatabaseSession session, ServerClient serverClient, AnalysisMode analysisMode) {
+  public DefaultProjectRepositoriesLoader(DatabaseSession session, ServerClient serverClient, AnalysisMode analysisMode) {
     this.session = session;
     this.serverClient = serverClient;
     this.analysisMode = analysisMode;
   }
 
-  public DefaultProjectReferentialsLoader(ServerClient serverClient, AnalysisMode analysisMode) {
+  public DefaultProjectRepositoriesLoader(ServerClient serverClient, AnalysisMode analysisMode) {
     this.session = null;
     this.serverClient = serverClient;
     this.analysisMode = analysisMode;

@@ -35,7 +35,7 @@ public class ProjectRepositoriesProvider extends ProviderAdapter {
 
   public ProjectRepositories provide(ProjectRepositoriesLoader loader, ProjectReactor reactor, TaskProperties taskProps) {
     if (projectReferentials == null) {
-      TimeProfiler profiler = new TimeProfiler(LOG).start("Load project referentials");
+      TimeProfiler profiler = new TimeProfiler(LOG).start("Load project repositories");
       try {
         projectReferentials = loader.load(reactor, taskProps);
       } finally {

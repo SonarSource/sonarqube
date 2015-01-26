@@ -19,22 +19,27 @@
  */
 package org.sonar.batch.repository;
 
-import org.sonar.batch.bootstrap.ServerClient;
+import org.picocontainer.injectors.ProviderAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.TimeProfiler;
 import org.sonar.batch.protocol.input.GlobalRepositories;
 
-public class DefaultGlobalReferentialsLoader implements GlobalReferentialsLoader {
+public class GlobalRepositoriesProvider extends ProviderAdapter {
 
-  private static final String BATCH_GLOBAL_URL = "/batch/global";
+  private static final Logger LOG = LoggerFactory.getLogger(GlobalRepositoriesProvider.class);
 
-  private final ServerClient serverClient;
+  private GlobalRepositories globalReferentials;
 
-  public DefaultGlobalReferentialsLoader(ServerClient serverClient) {
-    this.serverClient = serverClient;
+  public GlobalRepositories provide(GlobalRepositoriesLoader loader) {
+    if (globalReferentials == null) {
+      TimeProfiler profiler = new TimeProfiler(LOG).start("Load global repositories");
+      try {
+        globalReferentials = loader.load();
+      } finally {
+        profiler.stop();
+      }
+    }
+    return globalReferentials;
   }
-
-  @Override
-  public GlobalRepositories load() {
-    return GlobalRepositories.fromJson(serverClient.request(BATCH_GLOBAL_URL));
-  }
-
 }

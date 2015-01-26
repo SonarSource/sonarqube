@@ -22,6 +22,9 @@ package org.sonar.api.batch.fs.internal;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.utils.PathUtils;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import java.io.File;
 import java.io.Serializable;
 
@@ -67,6 +70,7 @@ public class DefaultInputFile implements InputFile, Serializable {
     return new File(absolutePath);
   }
 
+  @CheckForNull
   @Override
   public String language() {
     return language;
@@ -129,7 +133,7 @@ public class DefaultInputFile implements InputFile, Serializable {
     return this;
   }
 
-  public DefaultInputFile setLanguage(String language) {
+  public DefaultInputFile setLanguage(@Nullable String language) {
     this.language = language;
     return this;
   }

@@ -294,8 +294,9 @@ public class SourcePersister implements ScanPersister {
   @CheckForNull
   private SyntaxHighlightingData loadHighlighting(DefaultInputFile file) {
     SyntaxHighlightingData highlighting = componentDataCache.getData(file.key(), SnapshotDataTypes.SYNTAX_HIGHLIGHTING);
-    if (highlighting == null) {
-      highlighting = codeColorizers.toSyntaxHighlighting(file.file(), file.encoding(), file.language());
+    String language = file.language();
+    if (highlighting == null && language != null) {
+      highlighting = codeColorizers.toSyntaxHighlighting(file.file(), file.encoding(), language);
     }
     return highlighting;
   }

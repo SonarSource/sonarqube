@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.repository;
 
-import org.sonar.batch.repository.DefaultProjectReferentialsLoader;
+import org.sonar.batch.repository.DefaultProjectRepositoriesLoader;
 
 import com.google.common.collect.Maps;
 import org.junit.Before;
@@ -38,9 +38,9 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class DefaultProjectReferentialsLoaderTest {
+public class DefaultProjectRepositoriesLoaderTest {
 
-  private DefaultProjectReferentialsLoader loader;
+  private DefaultProjectRepositoriesLoader loader;
   private ServerClient serverClient;
   private AnalysisMode analysisMode;
   private ProjectReactor reactor;
@@ -50,7 +50,7 @@ public class DefaultProjectReferentialsLoaderTest {
   public void prepare() {
     serverClient = mock(ServerClient.class);
     analysisMode = mock(AnalysisMode.class);
-    loader = new DefaultProjectReferentialsLoader(mock(DatabaseSession.class), serverClient, analysisMode);
+    loader = new DefaultProjectRepositoriesLoader(mock(DatabaseSession.class), serverClient, analysisMode);
     loader = spy(loader);
     doReturn(null).when(loader).lastSnapshotCreationDate(anyString());
     when(serverClient.request(anyString())).thenReturn("{}");

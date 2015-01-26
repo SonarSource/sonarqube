@@ -33,6 +33,8 @@ import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.protocol.input.issues.PreviousIssue;
 import org.sonar.batch.repository.PreviousIssuesLoader;
 
+import javax.annotation.Nullable;
+
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 public class PreviousIssueRepository implements BatchComponent {
 
@@ -58,7 +60,10 @@ public class PreviousIssueRepository implements BatchComponent {
       previousIssuesLoader.load(reactor, new Function<PreviousIssue, Void>() {
 
         @Override
-        public Void apply(PreviousIssue issue) {
+        public Void apply(@Nullable PreviousIssue issue) {
+          if (issue == null) {
+            return null;
+          }
           String componentKey = issue.componentKey();
           BatchResource r = resourceCache.get(componentKey);
           if (r == null) {
