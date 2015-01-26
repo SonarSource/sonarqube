@@ -36,7 +36,7 @@ public class SourceLinesCacheTest {
   public DbTester dbTester = new DbTester();
 
   @Test
-  public void load_data() throws Exception {
+  public void line_author() throws Exception {
     dbTester.prepareDbUnit(getClass(), "load_data.xml");
     DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new FileSourceDao(dbTester.myBatis()));
     SourceLinesCache cache = new SourceLinesCache(dbClient);
@@ -45,16 +45,18 @@ public class SourceLinesCacheTest {
     // load data on demand -> still nothing in cache
     assertThat(cache.countLines()).isEqualTo(0);
 
-    assertThat(cache.lineAuthor(1)).isEqualTo("charlie");
+    assertThat(cache.lineAuthor(1)).isEqualTo("charb");
     assertThat(cache.lineAuthor(2)).isEqualTo("cabu");
+    assertThat(cache.lineAuthor(3)).isEqualTo("wolinski");
 
-    // blank author -> return null
-    assertThat(cache.lineAuthor(3)).isNull();
+    // blank author on line 4 -> return last committer on file
+    assertThat(cache.lineAuthor(4)).isEqualTo("cabu");
 
-    // only 3 lines in the file
-    assertThat(cache.lineAuthor(100)).isNull();
+    // only 4 lines in the file -> return last committer on file
+    assertThat(cache.lineAuthor(100)).isEqualTo("cabu");
 
-    assertThat(cache.countLines()).isEqualTo(3);
+
+    assertThat(cache.countLines()).isEqualTo(4);
 
     cache.clear();
     assertThat(cache.countLines()).isEqualTo(0);
