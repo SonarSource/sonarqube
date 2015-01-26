@@ -73,10 +73,10 @@
   </select>
 
   <sql id="selectChildrenModulesFromModuleQuery">
-    SELECT <include refid="org.sonar.core.component.db.SnapshotMapper.snapshotColumns"/>
+    SELECT s.project_id as resourceId, s.parent_snapshot_id as parentId
     FROM snapshots s
     INNER JOIN snapshots root_snapshot ON root_snapshot.id = s.root_snapshot_id AND root_snapshot.islast = ${_true}
-    INNER JOIN snapshots current_snapshot ON current_snapshot.root_project_id = root_snapshot.project_id AND s.islast = ${_true}
+    INNER JOIN snapshots current_snapshot ON current_snapshot.root_project_id = root_snapshot.project_id AND current_snapshot.islast = ${_true}
     INNER JOIN projects module ON module.id = current_snapshot.project_id AND module.enabled = ${_true} AND module.kee = #{moduleKey}
     <where>
       AND s.islast = ${_true}
