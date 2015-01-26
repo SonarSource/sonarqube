@@ -34,7 +34,7 @@ import org.sonar.api.utils.ZipUtils;
 import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.index.ResourceCache;
-import org.sonar.batch.protocol.output.ReportHelper;
+import org.sonar.batch.protocol.output.BatchOutputWriter;
 
 import java.io.File;
 import java.io.IOException;
@@ -87,19 +87,19 @@ public class PublishReportJob implements BatchComponent {
     try {
       long startTime = System.currentTimeMillis();
       File reportDir = temp.newDir("batch-report");
-      ReportHelper reportHelper = ReportHelper.create(reportDir);
+      BatchOutputWriter writer = new BatchOutputWriter(reportDir);
       for (ReportPublisher publisher : publishers) {
-        publisher.export(reportHelper);
+        publisher.publish(writer);
       }
       long stopTime = System.currentTimeMillis();
-      LOG.debug("Analysis reports generated in " + (stopTime - startTime) + "ms");
+      LOG.info("Analysis reports generated in " + (stopTime - startTime) + "ms, dir size=" + FileUtils.byteCountToDisplaySize(FileUtils.sizeOfDirectory(reportDir)));
 
       startTime = System.currentTimeMillis();
       File reportZip = temp.newFile("batch-report", ".zip");
       ZipUtils.zipDir(reportDir, reportZip);
       FileUtils.deleteDirectory(reportDir);
       stopTime = System.currentTimeMillis();
-      LOG.debug("Analysis reports compressed in " + (stopTime - startTime) + "ms, zip size=" + FileUtils.byteCountToDisplaySize(FileUtils.sizeOf(reportZip)));
+      LOG.info("Analysis reports compressed in " + (stopTime - startTime) + "ms, zip size=" + FileUtils.byteCountToDisplaySize(FileUtils.sizeOf(reportZip)));
       return reportZip;
     } catch (IOException e) {
       throw new IllegalStateException("Unable to prepare batch report", e);
@@ -135,7 +135,7 @@ public class PublishReportJob implements BatchComponent {
       throw new IllegalStateException(String.format("Fail to execute request [code=%s, url=%s]: %s", responseCode, url, request.body()));
     }
     long stopTime = System.currentTimeMillis();
-    LOG.debug("Analysis reports sent to server in " + (stopTime - startTime) + "ms");
+    LOG.info("Analysis reports sent to server in " + (stopTime - startTime) + "ms");
   }
 
   @VisibleForTesting

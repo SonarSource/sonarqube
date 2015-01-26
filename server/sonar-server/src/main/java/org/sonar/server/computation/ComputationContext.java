@@ -20,31 +20,27 @@
 
 package org.sonar.server.computation;
 
-import com.google.common.annotations.VisibleForTesting;
-import org.sonar.batch.protocol.output.component.ReportComponent;
-import org.sonar.batch.protocol.output.component.ReportComponents;
+import org.sonar.batch.protocol.output.BatchOutputReader;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 
-import javax.annotation.CheckForNull;
-
-import java.io.File;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 public class ComputationContext {
 
   private final AnalysisReportDto reportDto;
   private final ComponentDto project;
-  private final File reportDirectory;
-  private Map<Long, ReportComponent> components = new HashMap<>();
-  private Date analysisDate;
+  private final BatchOutputReader reportReader;
 
-  public ComputationContext(AnalysisReportDto reportDto, ComponentDto project, File reportDir) {
+  /**
+   * Cache of analysis date as it can be accessed several times
+   */
+  private Date analysisDate = null;
+
+  public ComputationContext(AnalysisReportDto reportDto, ComponentDto project, BatchOutputReader reportReader) {
     this.reportDto = reportDto;
     this.project = project;
-    this.reportDirectory = reportDir;
+    this.reportReader = reportReader;
   }
 
   public AnalysisReportDto getReportDto() {
@@ -55,35 +51,14 @@ public class ComputationContext {
     return project;
   }
 
-  public File getReportDirectory() {
-    return reportDirectory;
+  public BatchOutputReader getReportReader() {
+    return reportReader;
   }
 
-  public void addResources(ReportComponents reportComponents) {
-    analysisDate = reportComponents.analysisDate();
-    addResource(reportComponents.root());
-  }
-
-  @CheckForNull
-  public ReportComponent getComponentByBatchId(Long batchId) {
-    return components.get(batchId);
-  }
-
-  @VisibleForTesting
-  Map<Long, ReportComponent> getComponents() {
-    return components;
-  }
-
-  private void addResource(ReportComponent resource) {
-    this.components.put(resource.batchId(), resource);
-    for (ReportComponent childResource : resource.children()) {
-      addResource(childResource);
-    }
-  }
-
-  @CheckForNull
   public Date getAnalysisDate() {
+    if (analysisDate == null) {
+      analysisDate = new Date(reportReader.readMetadata().getAnalysisDate());
+    }
     return analysisDate;
   }
-
 }

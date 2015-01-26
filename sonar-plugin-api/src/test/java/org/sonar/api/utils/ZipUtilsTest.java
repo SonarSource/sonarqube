@@ -21,7 +21,9 @@ package org.sonar.api.utils;
 
 import com.google.common.collect.Iterators;
 import org.apache.commons.io.FileUtils;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,24 +36,33 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ZipUtilsTest {
 
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
   @Test
   public void shouldZipDirectory() throws IOException {
     File foo = FileUtils.toFile(getClass().getResource("/org/sonar/api/utils/ZipUtilsTest/shouldZipDirectory/foo.txt"));
     File dir = foo.getParentFile();
-    File zip = new File("target/tmp/shouldZipDirectory.zip");
+    File zip = temp.newFile();
 
     ZipUtils.zipDir(dir, zip);
 
-    assertThat(zip).exists();
+    assertThat(zip).exists().isFile();
     assertThat(zip.length()).isGreaterThan(1L);
     Iterator<? extends ZipEntry> zipEntries = Iterators.forEnumeration(new ZipFile(zip).entries());
     assertThat(zipEntries).hasSize(4);
+
+    File unzipDir = temp.newFolder();
+    ZipUtils.unzip(zip, unzipDir);
+    assertThat(new File(unzipDir, "bar.txt")).exists().isFile();
+    assertThat(new File(unzipDir, "foo.txt")).exists().isFile();
+    assertThat(new File(unzipDir, "dir1/hello.properties")).exists().isFile();
   }
 
   @Test
   public void shouldUnzipFile() throws IOException {
     File zip = FileUtils.toFile(getClass().getResource("/org/sonar/api/utils/ZipUtilsTest/shouldUnzipFile.zip"));
-    File toDir = new File("target/tmp/shouldUnzipFile/");
+    File toDir = temp.newFolder();
     ZipUtils.unzip(zip, toDir);
     assertThat(toDir.list()).hasSize(3);
   }
@@ -59,7 +70,7 @@ public class ZipUtilsTest {
   @Test
   public void should_unzip_stream_file() throws Exception {
     InputStream zip = getClass().getResource("/org/sonar/api/utils/ZipUtilsTest/shouldUnzipFile.zip").openStream();
-    File toDir = new File("target/tmp/shouldUnzipStreamFile/");
+    File toDir = temp.newFolder();
     ZipUtils.unzip(zip, toDir);
     assertThat(toDir.list()).hasSize(3);
   }

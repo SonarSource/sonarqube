@@ -17,8 +17,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.batch.protocol.output.issue;
+package org.sonar.batch.protocol.output;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import java.io.File;
 
+/**
+ * Structure of files in the zipped report
+ */
+public class FileStructure {
+
+  public static enum Domain {
+    ISSUES("issues-"), COMPONENT("component-");
+
+    private final String filePrefix;
+
+    Domain(String filePrefix) {
+      this.filePrefix = filePrefix;
+    }
+  }
+
+  private final File dir;
+
+  FileStructure(File dir) {
+    if (!dir.exists() || !dir.isDirectory()) {
+      throw new IllegalArgumentException("Directory of analysis report does not exist: " + dir);
+    }
+    this.dir = dir;
+  }
+
+  public File metadataFile() {
+    return new File(dir, "metadata.pb");
+  }
+
+  public File fileFor(Domain domain, int componentRef) {
+    return new File(dir, domain.filePrefix + componentRef + ".pb");
+  }
+
+}

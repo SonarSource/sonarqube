@@ -19,12 +19,13 @@
  */
 package org.sonar.batch.report;
 
-import org.sonar.batch.protocol.output.ReportHelper;
+import org.sonar.batch.protocol.output.BatchOutputWriter;
 
-import java.io.IOException;
-
+/**
+ * Adds a sub-part of data to output report
+ */
 public interface ReportPublisher {
 
-  void export(ReportHelper reportHelper) throws IOException;
+  void publish(BatchOutputWriter writer);
 
 }

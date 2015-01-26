@@ -33,7 +33,7 @@ public class ComputationStepsTest {
     ComputationSteps registry = new ComputationSteps(
       // unordered
       mock(ApplyPermissionsStep.class),
-      mock(DigestReportStep.class),
+      mock(ParseReportStep.class),
       mock(IndexSourceLinesStep.class),
       mock(IndexViewsStep.class),
       mock(PurgeRemovedViewsStep.class),
@@ -45,14 +45,14 @@ public class ComputationStepsTest {
       mock(IndexComponentsStep.class));
 
     assertThat(registry.orderedSteps()).hasSize(11);
-    assertThat(registry.orderedSteps().get(0)).isInstanceOf(DigestReportStep.class);
+    assertThat(registry.orderedSteps().get(0)).isInstanceOf(ParseReportStep.class);
     assertThat(registry.orderedSteps().get(10)).isInstanceOf(SendIssueNotificationsStep.class);
   }
 
   @Test
   public void fail_if_a_step_is_not_registered_in_picocontainer() throws Exception {
     try {
-      new ComputationSteps(mock(DigestReportStep.class));
+      new ComputationSteps(mock(ParseReportStep.class));
       fail();
     } catch (IllegalStateException e) {
       assertThat(e).hasMessageContaining("Component not found");

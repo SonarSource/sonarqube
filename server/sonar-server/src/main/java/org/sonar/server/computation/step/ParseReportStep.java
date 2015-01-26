@@ -20,20 +20,34 @@
 
 package org.sonar.server.computation.step;
 
-import org.sonar.server.computation.AnalysisReportService;
+import org.sonar.batch.protocol.output.BatchOutputReader;
+import org.sonar.batch.protocol.output.BatchOutput;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.issue.IssueComputation;
 
-public class DigestReportStep implements ComputationStep {
+public class ParseReportStep implements ComputationStep {
 
-  private final AnalysisReportService reportService;
+  private final IssueComputation issueComputation;
 
-  public DigestReportStep(AnalysisReportService reportService) {
-    this.reportService = reportService;
+  public ParseReportStep(IssueComputation issueComputation) {
+    this.issueComputation = issueComputation;
   }
 
   @Override
   public void execute(ComputationContext context) {
-    reportService.digest(context);
+    int rootComponentRef = context.getReportReader().readMetadata().getRootComponentRef();
+    processComponent(context, rootComponentRef);
+    issueComputation.afterReportProcessing();
+  }
+
+  private void processComponent(ComputationContext context, int componentRef) {
+    BatchOutputReader reader = context.getReportReader();
+    BatchOutput.ReportComponent component = reader.readComponent(componentRef);
+    issueComputation.processComponentIssues(context, component.getUuid(), reader.readComponentIssues(componentRef));
+
+    for (Integer childRef : component.getChildRefsList()) {
+      processComponent(context, childRef);
+    }
   }
 
   @Override
