@@ -61,7 +61,7 @@ public class PreviousIssueHelperTest {
         "[{\"key\": \"key1\", \"componentKey\": \"key\", \"ruleKey\": \"rulekey\", \"ruleRepo\": \"repokey\", \"line\": 2,\"message\": \"message\", " +
           "\"severity\": \"severity\", \"manualSeverity\": true, \"resolution\": \"resolution\", \"status\": \"status\", \"checksum\": \"checksum\",\"assigneeLogin\": \"login\"},"
           +
-          "{\"key\": \"key2\"}]",
+          "{\"key\": \"key2\", \"manualSeverity\": false}]",
         out.getBuffer().toString(), true);
   }
 

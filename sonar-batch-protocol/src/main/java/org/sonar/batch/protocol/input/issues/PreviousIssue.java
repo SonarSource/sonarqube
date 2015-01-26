@@ -33,7 +33,7 @@ public class PreviousIssue implements Serializable {
   private Integer line;
   private String message;
   private String severity;
-  private Boolean manualSeverity;
+  private boolean manualSeverity;
   private String resolution;
   private String status;
   private String checksum;
@@ -144,7 +144,7 @@ public class PreviousIssue implements Serializable {
     return ruleKey;
   }
 
-  public Date getCreationDate() {
+  public Date creationDate() {
     return creationDate;
   }
 

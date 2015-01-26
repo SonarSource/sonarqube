@@ -138,11 +138,11 @@ public class LocalIssueTracking implements BatchComponent {
       issue.setResolution(ref.resolution());
       issue.setStatus(ref.status());
       issue.setAssignee(ref.assigneeLogin());
+      issue.setCreationDate(ref.creationDate());
 
-      String overriddenSeverity = ref.severity();
-      if (overriddenSeverity != null) {
+      if (ref.isManualSeverity()) {
         // Severity overriden by user
-        issue.setSeverity(overriddenSeverity);
+        issue.setSeverity(ref.severity());
       }
     }
   }
@@ -174,19 +174,10 @@ public class LocalIssueTracking implements BatchComponent {
     issue.setResolution(previous.resolution());
     issue.setMessage(previous.message());
     issue.setLine(previous.line());
-    String overriddenSeverity = previous.severity();
-    if (overriddenSeverity != null) {
-      issue.setSeverity(overriddenSeverity);
-    } else {
-      ActiveRule activeRule = activeRules.find(RuleKey.of(previous.ruleRepo(), previous.ruleKey()));
-      if (activeRule != null) {
-        // FIXME if rule was removed we can't guess what was the severity of the issue
-        issue.setSeverity(activeRule.severity());
-      }
-    }
+    issue.setSeverity(previous.severity());
     issue.setAssignee(previous.assigneeLogin());
     issue.setComponentKey(previous.componentKey());
-    issue.setManualSeverity(overriddenSeverity != null);
+    issue.setManualSeverity(previous.isManualSeverity());
     issue.setRuleKey(RuleKey.of(previous.ruleRepo(), previous.ruleKey()));
     issue.setNew(false);
     return issue;
