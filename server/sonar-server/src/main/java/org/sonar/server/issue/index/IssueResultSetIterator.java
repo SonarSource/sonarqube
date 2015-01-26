@@ -147,12 +147,11 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
   @CheckForNull
   private static String extractDirPath(@Nullable String filePath) {
     if (filePath != null) {
-      StringBuilder dirPath = new StringBuilder("/");
       int lastSlashIndex = CharMatcher.anyOf("/").lastIndexIn(filePath);
       if (lastSlashIndex > 0) {
-        dirPath.append(filePath.substring(0, lastSlashIndex));
+        return filePath.substring(0, lastSlashIndex);
       }
-      return dirPath.toString();
+      return "/";
     }
     return null;
   }

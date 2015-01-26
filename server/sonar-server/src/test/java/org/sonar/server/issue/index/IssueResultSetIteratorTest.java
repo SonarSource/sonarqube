@@ -104,7 +104,7 @@ public class IssueResultSetIteratorTest {
     assertThat(issuesByKey).hasSize(3);
 
     // File in sub directoy
-    assertThat(issuesByKey.get("ABC").directoryPath()).isEqualTo("/src/main/java");
+    assertThat(issuesByKey.get("ABC").directoryPath()).isEqualTo("src/main/java");
 
     // File in root directoy
     assertThat(issuesByKey.get("DEF").directoryPath()).isEqualTo("/");

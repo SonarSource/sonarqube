@@ -359,12 +359,12 @@ public class SearchActionMediumTest {
     tester.get(IssueIndexer.class).indexAll();
 
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
-      .setParam(IssueFilterParameters.DIRECTORIES, "/src/main/java/dir")
+      .setParam(IssueFilterParameters.DIRECTORIES, "src/main/java/dir")
       .execute()
       .assertJson(this.getClass(), "search_by_file_uuid.json", false);
 
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
-      .setParam(IssueFilterParameters.DIRECTORIES, "/src/main/java")
+      .setParam(IssueFilterParameters.DIRECTORIES, "src/main/java")
       .execute()
       .assertJson(this.getClass(), "no_issue.json", false);
   }

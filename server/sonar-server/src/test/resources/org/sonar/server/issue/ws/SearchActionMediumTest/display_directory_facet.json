@@ -4,7 +4,7 @@
       "property": "directories",
       "values": [
         {
-          "val": "/src/main/java/dir",
+          "val": "src/main/java/dir",
           "count": 1
         }
       ]

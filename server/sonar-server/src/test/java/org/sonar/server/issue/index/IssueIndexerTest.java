@@ -64,7 +64,7 @@ public class IssueIndexerTest {
     assertThat(doc.componentUuid()).isEqualTo("THE_FILE");
     assertThat(doc.moduleUuid()).isEqualTo("THE_PROJECT");
     assertThat(doc.modulePath()).isEqualTo(".THE_PROJECT.");
-    assertThat(doc.directoryPath()).isEqualTo("/src/main/java");
+    assertThat(doc.directoryPath()).isEqualTo("src/main/java");
     assertThat(doc.severity()).isEqualTo("BLOCKER");
     assertThat(doc.ruleKey()).isEqualTo(RuleKey.of("squid", "AvoidCycles"));
 
