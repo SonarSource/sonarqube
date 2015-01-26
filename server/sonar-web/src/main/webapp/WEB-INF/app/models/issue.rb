@@ -24,7 +24,7 @@ class Issue
     hash = {
         :key => issue.key,
         :component => issue.componentKey,
-        :componentId => issue.componentId,
+        :componentUuid => issue.componentUuid,
         :project => issue.projectKey,
         :rule => issue.ruleKey.toString(),
         :status => issue.status
