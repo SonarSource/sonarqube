@@ -219,13 +219,14 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
     // From root project
     List<SnapshotDto> snapshots = sut.findChildrenModulesFromModule(session, "org.struts:struts");
     assertThat(snapshots).hasSize(2);
-    assertThat(snapshots).onProperty("id").containsOnly(2L, 3L);
-    assertThat(snapshots).onProperty("last").containsOnly(true);
+    assertThat(snapshots).onProperty("resourceId").containsOnly(2L, 3L);
+    assertThat(snapshots).onProperty("parentId").containsOnly(1L, 2L);
 
     // From module
     snapshots = sut.findChildrenModulesFromModule(session, "org.struts:struts-core");
     assertThat(snapshots).hasSize(1);
-    assertThat(snapshots).onProperty("id").containsOnly(3L);
+    assertThat(snapshots).onProperty("resourceId").containsOnly(3L);
+    assertThat(snapshots).onProperty("parentId").containsOnly(2L);
 
     // From sub module
     snapshots = sut.findChildrenModulesFromModule(session, "org.struts:struts-data");
