@@ -32,6 +32,9 @@ import org.sonar.batch.protocol.input.issues.PreviousIssue;
 import org.sonar.xoo.XooPlugin;
 
 import java.io.File;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -39,6 +42,16 @@ public class ReportsMediumTest {
 
   @org.junit.Rule
   public TemporaryFolder temp = new TemporaryFolder();
+
+  private static SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+
+  private static Date date(String date) {
+    try {
+      return sdf.parse(date);
+    } catch (ParseException e) {
+      throw new IllegalStateException(e);
+    }
+  }
 
   public BatchMediumTester tester = BatchMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
@@ -51,6 +64,7 @@ public class ReportsMediumTest {
       .setRuleKey("xoo", "OneIssuePerLine")
       .setLine(1)
       .setSeverity("MAJOR")
+      .setCreationDate(date("14/03/2004"))
       .setChecksum(DigestUtils.md5Hex("packagehello;"))
       .setStatus("OPEN"))
     // Resolved issue
@@ -59,6 +73,7 @@ public class ReportsMediumTest {
       .setRuleKey("xoo", "OneIssuePerLine")
       .setLine(1)
       .setSeverity("MAJOR")
+      .setCreationDate(date("14/03/2004"))
       .setChecksum(DigestUtils.md5Hex("dontexist"))
       .setStatus("OPEN"))
     .build();
