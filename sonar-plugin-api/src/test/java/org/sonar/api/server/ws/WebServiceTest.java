@@ -26,6 +26,7 @@ import org.sonar.api.rule.RuleStatus;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -326,6 +327,24 @@ public class WebServiceTest {
     assertThat(action.param("status").possibleValues()).isNull();
     assertThat(action.param("status").exampleValue()).isNull();
     assertThat(action.param("max").possibleValues()).isNull();
+  }
+
+  @Test
+  public void param_with_empty_possible_values() {
+    new WebService() {
+      @Override
+      public void define(Context context) {
+        NewController newController = context.createController("api/rule");
+        NewAction create = newController.createAction("create").setHandler(mock(RequestHandler.class));
+        create.createParam("status")
+          .setPossibleValues(Collections.emptyList());
+        newController.done();
+      }
+    }.define(context);
+
+    WebService.Action action = context.controller("api/rule").action("create");
+    // no possible values -> return null but not empty
+    assertThat(action.param("status").possibleValues()).isNull();
   }
 
   @Test

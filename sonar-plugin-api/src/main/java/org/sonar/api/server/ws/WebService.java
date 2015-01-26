@@ -504,7 +504,7 @@ public interface WebService extends ServerExtension {
      * @since 4.4
      */
     public NewParam setPossibleValues(@Nullable Collection values) {
-      if (values == null) {
+      if (values == null || values.isEmpty()) {
         this.possibleValues = null;
       } else {
         this.possibleValues = Sets.newLinkedHashSet();
