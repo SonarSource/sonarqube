@@ -83,15 +83,21 @@ public class PublishReportJob implements BatchComponent {
 
   private File prepareReport() {
     try {
+      long startTime = System.currentTimeMillis();
       File reportDir = temp.newDir("batch-report");
       ReportHelper reportHelper = ReportHelper.create(reportDir);
       for (ReportPublisher publisher : publishers) {
         publisher.export(reportHelper);
       }
+      long stopTime = System.currentTimeMillis();
+      LOG.debug("Analysis reports generated in " + (stopTime - startTime) + "ms");
 
+      startTime = System.currentTimeMillis();
       File reportZip = temp.newFile("batch-report", ".zip");
       ZipUtils.zipDir(reportDir, reportZip);
       FileUtils.deleteDirectory(reportDir);
+      stopTime = System.currentTimeMillis();
+      LOG.debug("Analysis reports compressed in " + (stopTime - startTime) + "ms, zip size=" + FileUtils.byteCountToDisplaySize(FileUtils.sizeOf(reportZip)));
       return reportZip;
     } catch (IOException e) {
       throw new IllegalStateException("Unable to prepare batch report", e);
@@ -101,6 +107,7 @@ public class PublishReportJob implements BatchComponent {
   @VisibleForTesting
   void uploadMultiPartReport(File report) {
     LOG.debug("Publish results");
+    long startTime = System.currentTimeMillis();
     URL url;
     try {
       int snapshotId = resourceCache.get(project.getEffectiveKey()).snapshotId();
@@ -125,6 +132,8 @@ public class PublishReportJob implements BatchComponent {
       }
       throw new IllegalStateException(String.format("Fail to execute request [code=%s, url=%s]: %s", responseCode, url, request.body()));
     }
+    long stopTime = System.currentTimeMillis();
+    LOG.debug("Analysis reports sent to server in " + (stopTime - startTime) + "ms");
   }
 
   @VisibleForTesting

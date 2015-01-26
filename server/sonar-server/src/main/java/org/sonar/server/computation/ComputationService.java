@@ -105,11 +105,14 @@ public class ComputationService implements ServerComponent {
   }
 
   private void decompressReport(AnalysisReportDto report, File toDir) {
+    long startTime = System.currentTimeMillis();
     DbSession session = dbClient.openSession(false);
     try {
       dbClient.analysisReportDao().selectAndDecompressToDir(session, report.getId(), toDir);
     } finally {
       MyBatis.closeQuietly(session);
     }
+    long stoptTime = System.currentTimeMillis();
+    LOG.info("Analysis report loaded and uncompressed in " + (stoptTime-startTime) + "ms (project=" + report.getProjectKey() +")");
   }
 }
