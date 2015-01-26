@@ -50,6 +50,7 @@ public class ExclusionProperties {
         .name("Import unknown files")
         .description("If set to true, all files are imported - with respect to inclusions and exclusions, even if there is no matching language plugin installed.")
         .type(PropertyType.BOOLEAN)
+        .defaultValue("false")
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(CoreProperties.SUBCATEGORY_FILES_EXCLUSIONS)
         .onQualifiers(Qualifiers.PROJECT)
