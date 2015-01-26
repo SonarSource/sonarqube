@@ -17,24 +17,24 @@
         {{#if canManageGlobalDashboards}}
           <li class="divider"></li>
           <li>
-            <a href="{{link '/dashboards'}}">{{t 'manage'}}</a>
+            <a href="{{link '/dashboards'}}">{{t 'dashboard.manage_dashboards'}}</a>
           </li>
         {{/if}}
       </ul>
     </li>
-    <li class="dropdown immediate-dropdown">
+    <li {{#isActiveLink '/issues'}}class="active"{{/isActiveLink}}>
       <a href="{{link '/issues/search'}}">{{t 'issues.page'}}</a>
     </li>
-    <li>
+    <li {{#isActiveLink '/measures'}}class="active"{{/isActiveLink}}>
       <a href="{{link '/measures/search?qualifiers[]=TRK'}}">{{t 'layout.measures'}}</a>
     </li>
-    <li>
+    <li {{#isActiveLink '/coding_rules'}}class="active"{{/isActiveLink}}>
       <a href="{{link '/coding_rules'}}">{{t 'coding_rules.page'}}</a>
     </li>
-    <li>
+    <li {{#isActiveLink '/profiles'}}class="active"{{/isActiveLink}}>
       <a href="{{link '/profiles'}}">{{t 'quality_profiles.page'}}</a>
     </li>
-    <li>
+    <li {{#isActiveLink '/quality_gates'}}class="active"{{/isActiveLink}}>
       <a href="{{link '/quality_gates'}}">{{t 'quality_gates.page'}}</a>
     </li>
     <li class="dropdown">

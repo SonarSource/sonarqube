@@ -13,6 +13,8 @@
     contextKey: '<%= @project.key -%>',
     contextUuid: '<%= @project.uuid -%>',
     contextComparable: <%= controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'comparable') -%>,
+    canFavoriteContext: <%= logged_in? && displayed_resource && !display_only_root ? 'true' : 'false' -%>,
+    isContextFavorite: <%= logged_in? && current_user.favourite?(resource_id) ? 'true' : 'false' -%>,
     <% if @snapshot && @snapshot.version.present? %>
     contextVersion: '<%= @snapshot.version -%>',
     <% end %>

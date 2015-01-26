@@ -1,4 +1,9 @@
 <div class="container">
+  {{# if canFavoriteContext}}
+    <div class="navbar-context-favorite">
+      <a class="js-favorite {{#if isContextFavorite}}icon-favorite{{else}}icon-not-favorite{{/if}}"></a>
+    </div>
+  {{/if}}
   <ul class="nav navbar-nav nav-crumbs">
     {{#each contextBreadcrumbs}}
       <li>
@@ -11,11 +16,12 @@
 
   <div class="navbar-right navbar-context-meta">
     {{#if contextVersion}}Version {{contextVersion}}{{/if}}
+    {{#all contextVersion contextDate}}/{{/all}}
     {{#if contextDate}}{{dt contextDate}}{{/if}}
   </div>
 
   <ul class="nav navbar-nav nav-tabs">
-    <li {{#isActiveLink '/dashboard'}}class="active"{{/isActiveLink}}>
+    <li {{#isActiveLink '/dashboard/'}}class="active"{{/isActiveLink}}>
       <a href="{{dashboardUrl contextKey}}">{{t 'overview.page'}}</a>
     </li>
     <li {{#isActiveLink '/components'}}class="active"{{/isActiveLink}}>
@@ -33,6 +39,12 @@
             <a href="{{link url}}">{{name}}</a>
           </li>
         {{/each}}
+        {{#if canManageContextDashboards}}
+          <li class="divider"></li>
+          <li>
+            <a href="{{link '/dashboards?resource=' contextId}}">{{t 'dashboard.manage_dashboards'}}</a>
+          </li>
+        {{/if}}
         <li class="divider"></li>
         <li class="dropdown-header">Tools</li>
         <li>

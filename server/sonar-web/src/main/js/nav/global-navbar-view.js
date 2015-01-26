@@ -21,7 +21,9 @@ define([
 
     onRender: function () {
       var that = this;
-      this.$el.addClass('navbar-' + window.navbarSpace);
+      if (this.model.has('space')) {
+        this.$el.addClass('navbar-' + this.model.get('space'));
+      }
       this.$el.addClass('navbar-fade');
       setTimeout(function () {
         that.$el.addClass('in');
@@ -32,19 +34,6 @@ define([
       var returnTo = window.location.pathname + window.location.search;
       window.location = baseUrl + '/sessions/new?return_to=' + encodeURIComponent(returnTo) + window.location.hash;
       return false;
-    },
-
-    onFavoriteClick: function () {
-      var that = this,
-          p = window.process.addBackgroundProcess(),
-          url = baseUrl + '/favourites/toggle/' + window.navbarProjectId;
-      return $.post(url).done(function () {
-        that.isProjectFavorite = !that.isProjectFavorite;
-        that.render();
-        window.process.finishBackgroundProcess(p);
-      }).fail(function () {
-        window.process.failBackgroundProcess(p);
-      });
     },
 
     onSearchDropdownShow: function () {

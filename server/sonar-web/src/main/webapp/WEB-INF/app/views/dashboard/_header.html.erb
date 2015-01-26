@@ -24,7 +24,6 @@
             <%= link_to message('dashboard.configure_widgets'), dashboard_action(:configure), :class => 'button' -%>
           <% end %>
         <% end %>
-        <%= link_to message('dashboard.manage_dashboards'), {:controller => :dashboards, :action => :index, :resource => (@resource.id if @resource)}, :class => 'button' -%>
       </div>
     <% end %>
   </div>
