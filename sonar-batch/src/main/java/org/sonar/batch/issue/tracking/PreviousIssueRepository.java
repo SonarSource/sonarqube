@@ -69,8 +69,9 @@ public class PreviousIssueRepository implements BatchComponent {
           if (r == null) {
             // Deleted resource
             issuesCache.put(0, issue.key(), issue);
+          } else {
+            issuesCache.put(r.batchId(), issue.key(), issue);
           }
-          issuesCache.put(r.batchId(), issue.key(), issue);
           return null;
         }
       });
