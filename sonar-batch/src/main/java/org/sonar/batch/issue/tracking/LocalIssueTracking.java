@@ -178,6 +178,7 @@ public class LocalIssueTracking implements BatchComponent {
     issue.setAssignee(previous.assigneeLogin());
     issue.setComponentKey(previous.componentKey());
     issue.setManualSeverity(previous.isManualSeverity());
+    issue.setCreationDate(previous.creationDate());
     issue.setRuleKey(RuleKey.of(previous.ruleRepo(), previous.ruleKey()));
     issue.setNew(false);
     return issue;

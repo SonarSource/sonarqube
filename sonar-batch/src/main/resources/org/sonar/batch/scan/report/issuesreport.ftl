@@ -372,7 +372,7 @@
                   <#if issue.isNew()>
                     NEW
                   <#else>
-                    <#if issue.creationDate()??>${issue.creationDate()?date}<#else>TODO (no date)</#if>
+                    ${issue.creationDate()?date}
                   </#if>
                 </span>
               </div>
@@ -421,7 +421,7 @@
                               <#if issue.isNew()>
                                 NEW
                               <#else>
-                                <#if issue.creationDate()??>${issue.creationDate()?date}<#else>TODO (no date)</#if>
+                                ${issue.creationDate()?date}
                               </#if>
                             </span>
                             &nbsp;
