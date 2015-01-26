@@ -46,6 +46,7 @@ define([
         that.ui.tagsEdit.removeClass('hidden');
         that.ui.tagsList.addClass('hidden');
         that.tagsBuffer = that.ui.tagInput.select2('val');
+        that.ui.tagInput.select2('open');
       });
     },
 
