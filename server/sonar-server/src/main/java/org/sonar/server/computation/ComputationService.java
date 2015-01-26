@@ -28,6 +28,7 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.TimeProfiler;
+import org.sonar.batch.protocol.output.BatchOutputReader;
 import org.sonar.core.activity.Activity;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
@@ -64,8 +65,8 @@ public class ComputationService implements ServerComponent {
     ComponentDto project = loadProject(report);
     File reportDir = tempFolder.newDir();
     try {
-      ComputationContext context = new ComputationContext(report, project, reportDir);
       decompressReport(report, reportDir);
+      ComputationContext context = new ComputationContext(report, project, new BatchOutputReader(reportDir));
       for (ComputationStep step : steps.orderedSteps()) {
         TimeProfiler stepProfiler = new TimeProfiler(LOG).start(step.getDescription());
         step.execute(context);
@@ -112,7 +113,7 @@ public class ComputationService implements ServerComponent {
     } finally {
       MyBatis.closeQuietly(session);
     }
-    long stoptTime = System.currentTimeMillis();
-    LOG.info("Analysis report loaded and uncompressed in " + (stoptTime-startTime) + "ms (project=" + report.getProjectKey() +")");
+    long stopTime = System.currentTimeMillis();
+    LOG.info("Analysis report loaded and uncompressed in " + (stopTime - startTime) + "ms (project=" + report.getProjectKey() + ")");
   }
 }

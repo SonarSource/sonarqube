@@ -46,7 +46,6 @@ public class ComputationComponents {
     return Arrays.asList(
       ComputationService.class,
       ComputationSteps.class,
-      AnalysisReportService.class,
 
       // issues
       ScmAccountCacheLoader.class,

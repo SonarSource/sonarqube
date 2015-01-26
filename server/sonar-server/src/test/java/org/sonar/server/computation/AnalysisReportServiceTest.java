@@ -125,7 +125,7 @@
 //    }
 //
 //    @Override
-//    public ReportComponent getComponentByBatchId(Long batchId) {
+//    public ReportComponent getComponentByBatchId(Long ref) {
 //      return new ReportComponent()
 //        .setBatchId(123)
 //        .setId(456);

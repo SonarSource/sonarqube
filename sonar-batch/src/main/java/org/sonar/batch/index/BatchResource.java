@@ -31,13 +31,13 @@ import java.util.Collection;
 
 public class BatchResource {
 
-  private final long batchId;
+  private final int batchId;
   private final Resource r;
   private Snapshot s;
   private final BatchResource parent;
   private final Collection<BatchResource> children = new ArrayList<BatchResource>();
 
-  public BatchResource(long batchId, Resource r, @Nullable BatchResource parent) {
+  public BatchResource(int batchId, Resource r, @Nullable BatchResource parent) {
     this.batchId = batchId;
     this.r = r;
     this.parent = parent;
@@ -46,7 +46,7 @@ public class BatchResource {
     }
   }
 
-  public long batchId() {
+  public int batchId() {
     return batchId;
   }
 
