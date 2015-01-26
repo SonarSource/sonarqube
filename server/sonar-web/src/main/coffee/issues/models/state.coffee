@@ -10,10 +10,11 @@ define [
       facets: ['severities', 'statuses', 'resolutions']
       isContext: false
 
-      allFacets: ['issues', 'severities', 'statuses', 'resolutions', 'projectUuids', 'moduleUuids', 'componentUuids',
-                  'assignees', 'reporters', 'rules', 'tags', 'languages', 'actionPlans', 'creationDate'],
-      facetsFromServer: ['severities', 'statuses', 'resolutions', 'actionPlans', 'projectUuids', 'rules', 'tags',
-                         'assignees', 'reporters', 'componentUuids', 'languages'],
+      allFacets: ['issues', 'severities', 'statuses', 'resolutions', 'projectUuids', 'moduleUuids', 'directories',
+                  'componentUuids', 'assignees', 'reporters', 'rules', 'tags', 'languages', 'actionPlans',
+                  'creationDate'],
+      facetsFromServer: ['severities', 'statuses', 'resolutions', 'actionPlans', 'projectUuids', 'directories', 'rules',
+                         'tags', 'assignees', 'reporters', 'componentUuids', 'languages'],
       transform: {
         'resolved': 'resolutions'
         'assigned': 'assignees'
