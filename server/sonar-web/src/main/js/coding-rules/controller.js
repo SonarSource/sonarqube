@@ -39,7 +39,7 @@ define([
         this.app.state.set({ selectedIndex: 0, page: 1 }, { silent: true });
       }
 
-      this.hideDetails();
+      this.hideDetails(firstPage);
 
       var that = this,
           url = baseUrl + '/api/rules/search',
@@ -124,13 +124,15 @@ define([
       this.showDetails(rule);
     },
 
-    hideDetails: function () {
+    hideDetails: function (firstPage) {
       key.setScope('list');
       this.app.state.unset('rule');
       this.app.layout.workspaceDetailsRegion.reset();
       this.app.layout.hideDetails();
       this.app.workspaceListView.bindScrollEvents();
-      this.app.workspaceListView.scrollTo();
+      if (firstPage) {
+        this.app.workspaceListView.scrollTo();
+      }
     }
 
   });
