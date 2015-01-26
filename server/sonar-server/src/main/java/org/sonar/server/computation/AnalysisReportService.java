@@ -123,6 +123,7 @@ public class AnalysisReportService {
     defaultIssue.setChanged(issue.isChanged());
     defaultIssue.setNew(issue.isNew());
     defaultIssue.setSelectedAt(issue.selectedAt());
+    defaultIssue.setSendNotifications(issue.mustSendNotifications());
     return defaultIssue;
   }
 

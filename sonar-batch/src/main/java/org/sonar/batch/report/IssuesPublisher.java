@@ -82,6 +82,7 @@ public class IssuesPublisher implements ReportPublisher {
       .setSelectedAt(issue.selectedAt())
       .setDiffFields(toString(issue.currentChange()))
       .setTags(issue.tags())
+      .setMustSendNotification(issue.mustSendNotifications())
       .setChanged(issue.isChanged());
   }
 

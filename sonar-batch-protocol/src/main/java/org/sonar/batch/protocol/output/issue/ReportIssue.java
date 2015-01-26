@@ -54,6 +54,7 @@ public class ReportIssue {
   private Long selectedAt;
   private String diffFields;
   private boolean isChanged;
+  private boolean mustSendNotification;
 
 
   public ReportIssue setKey(String key) {
@@ -286,4 +287,12 @@ public class ReportIssue {
     return isChanged;
   }
 
+  public ReportIssue setMustSendNotification(boolean mustSendNotification) {
+    this.mustSendNotification = mustSendNotification;
+    return this;
+  }
+
+  public boolean mustSendNotifications() {
+    return mustSendNotification;
+  }
 }
