@@ -1,10 +1,7 @@
 <table class="issue-table">
   <tr>
     <td>
-      <div class="issue-message">{{message}}</div>
-      <div class="issue-message">
-        <a class="issue-rule js-issue-rule">{{ruleName}}</a>
-      </div>
+      <div class="issue-message">{{message}} <a class="issue-rule js-issue-rule">{{t 'rule'}}</a></div>
     </td>
 
     <td class="issue-table-meta-cell">
@@ -93,7 +90,7 @@
         {{#inArray actions "comment"}}
           <div class="issue-meta">
             <a class="issue-action js-issue-comment"><span
-                class="issue-meta-label"><i class="icon-comment"></i></span></a>
+                class="issue-meta-label">{{t 'issue.comment.formlink' }}</span></a>
           </div>
         {{/inArray}}
 

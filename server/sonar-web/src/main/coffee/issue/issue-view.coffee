@@ -141,7 +141,7 @@ define [
       $('body').click()
       @popup = new CommentFormView
         triggerEl: $(e.currentTarget)
-        bottomRight: true
+        bottom: true
         issue: @model
         detailView: @
       @popup.render()
