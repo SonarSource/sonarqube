@@ -1,9 +1,6 @@
 define [
   'components/navigator/models/state'
-], (
-  State
-) ->
-
+], (State) ->
   class extends State
 
     defaults:
@@ -13,8 +10,8 @@ define [
       facets: ['severities', 'statuses', 'resolutions']
       isContext: false
 
-      allFacets: ['severities', 'statuses', 'resolutions', 'projectUuids', 'moduleUuids', 'componentUuids', 'assignees',
-                  'reporters', 'rules', 'tags', 'languages', 'actionPlans', 'creationDate', 'issues'],
+      allFacets: ['issues', 'severities', 'statuses', 'resolutions', 'projectUuids', 'moduleUuids', 'componentUuids',
+                  'assignees', 'reporters', 'rules', 'tags', 'languages', 'actionPlans', 'creationDate'],
       facetsFromServer: ['severities', 'statuses', 'resolutions', 'actionPlans', 'projectUuids', 'rules', 'tags',
                          'assignees', 'reporters', 'componentUuids', 'languages'],
       transform: {
