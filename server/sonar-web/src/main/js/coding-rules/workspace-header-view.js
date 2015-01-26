@@ -14,7 +14,9 @@ define([
       return _.extend(WorkspaceHeaderView.prototype.events.apply(this, arguments), {
         'click .js-back': 'onBackClick',
         'click .js-bulk-change': 'onBulkChangeClick',
-        'click .js-create-manual-rule': 'createManualRule'
+        'click .js-create-manual-rule': 'createManualRule',
+        'click .js-reload': 'reload',
+        'click .js-new-search': 'newSearch'
       });
     },
 
@@ -36,6 +38,14 @@ define([
       new ManualRuleCreationView({
         app: this.options.app
       }).render();
+    },
+
+    reload: function () {
+      this.options.app.controller.fetchList(true);
+    },
+
+    newSearch: function () {
+      this.options.app.controller.newSearch();
     },
 
     serializeData: function () {
