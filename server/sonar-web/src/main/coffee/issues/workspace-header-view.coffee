@@ -15,6 +15,7 @@ define [
     events: ->
       _.extend super,
         'click .js-back': 'returnToList'
+        'click .js-new-search': 'newSearch'
 
 
     initialize: ->
@@ -31,6 +32,10 @@ define [
 
     returnToList: ->
       @options.app.controller.closeComponentViewer()
+
+
+    newSearch: ->
+      @options.app.controller.newSearch()
 
 
     bulkChange: ->

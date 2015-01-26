@@ -14,18 +14,6 @@ define [
 
 
   class extends Controller
-    allFacets: ['severities', 'statuses', 'resolutions', 'projectUuids', 'moduleUuids', 'componentUuids', 'assignees',
-                'reporters', 'rules', 'tags', 'languages', 'actionPlans', 'creationDate', 'issues'],
-    facetsFromServer: ['severities', 'statuses', 'resolutions', 'actionPlans', 'projectUuids', 'rules', 'tags',
-                       'assignees', 'reporters', 'componentUuids', 'languages'],
-    transform: {
-      'resolved': 'resolutions'
-      'assigned': 'assignees'
-      'planned': 'actionPlans'
-      'createdAt': 'creationDate'
-      'createdBefore': 'creationDate'
-      'createdAfter': 'creationDate'
-    },
 
     _issuesParameters: ->
       p: @options.app.state.get 'page'

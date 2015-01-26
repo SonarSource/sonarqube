@@ -1,0 +1,14 @@
+<% content_for :script do %>
+  <script>require(['issues/app-context']);</script>
+<% end %>
+
+<div class="issues search-navigator"></div>
+
+<script>
+  var config = {
+    resource: '<%= @resource.uuid -%>',
+    resourceQualifier: '<%= @resource.qualifier -%>',
+    resourceName: '<%= @resource.name -%>',
+    periodDate: <% if @period %>'<%= @snapshot.period_datetime(@period) -%>'<% else %>null<% end %>
+  };
+</script>

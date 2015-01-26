@@ -201,6 +201,10 @@ module.exports = (grunt) ->
         name: 'issues/app-new'
         out: '<%= grunt.option("assetsDir") || pkg.assets %>build/js/issues/app-new.js'
 
+      issuesContext: options:
+        name: 'issues/app-context'
+        out: '<%= grunt.option("assetsDir") || pkg.assets %>build/js/issues/app-context.js'
+
       measures: options:
         name: 'measures/app'
         out: '<%= grunt.option("assetsDir") || pkg.assets %>build/js/measures/app.js'

@@ -12,7 +12,6 @@ define [
     events:
       'click .js-toggle-filters': 'toggleFilters'
       'click .js-filter': 'applyFilter'
-      'click .js-new-search': 'newSearch'
       'click .js-filter-save-as': 'saveAs'
       'click .js-filter-save': 'save'
       'click .js-filter-copy': 'copy'
@@ -46,10 +45,6 @@ define [
       id = $(e.currentTarget).data 'id'
       filter = @collection.get id
       filter.fetch().done => @options.app.controller.applyFilter filter
-
-
-    newSearch: ->
-      @options.app.controller.newSearch()
 
 
     saveAs: ->

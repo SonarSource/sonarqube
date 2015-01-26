@@ -7,13 +7,7 @@
         severity: <% if @severity %>'<%= @severity -%>'<% else %>null<% end %>,
         periodDate: <% if @period %>'<%= @snapshot.period_datetime(@period) -%>'<% else %>null<% end %>
       },
-      url = baseUrl + '/issues/search#resolved=false|';
-  if (config.resourceQualifier === 'TRK') {
-    url = url + 'projectUuids=' + encodeURIComponent(config.resource);
-  } else {
-    url = url + 'componentRootUuids=' + encodeURIComponent(config.resource);
-  }
-
+      url = baseUrl + '/component_issues/index?id=<%= @resource.key -%>#resolved=false';
   if (config.rule) {
     url = url + '|rules=' + config.rule;
   }

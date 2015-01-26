@@ -42,8 +42,36 @@ requirejs [
   App = new Marionette.Application
   issuesAppProcess = window.process.addBackgroundProcess()
 
+
+  App.getContextQuery = ->
+    componentRootUuids: window.config.resource
+
+
+  App.getRestrictedFacets = ->
+    'TRK': ['projectUuids']
+    'BRC': ['projectUuids']
+    'DIR': ['projectUuids', 'moduleUuids']
+
+
+  App.updateContextFacets = ->
+    facets = @state.get 'facets'
+    allFacets = @state.get 'allFacets'
+    facetsFromServer = @state.get 'facetsFromServer'
+    facets.unshift 'context'
+    allFacets.unshift 'context'
+    @state.set
+      facets: facets
+      allFacets: _.difference allFacets, @getRestrictedFacets()[window.config.resourceQualifier]
+      facetsFromServer: _.difference facetsFromServer, @getRestrictedFacets()[window.config.resourceQualifier]
+
+
   App.addInitializer ->
-    @state = new State()
+    @state = new State
+      isContext: true,
+      contextQuery: @getContextQuery()
+      contextComponentName: window.config.resourceName
+      contextComponentQualifier: window.config.resourceQualifier
+    @updateContextFacets()
     @list = new Issues()
     @facets = new Facets()
     @filters = new Filters()
@@ -79,13 +107,6 @@ requirejs [
       app: @
       collection: @facets
     @layout.facetsRegion.show @facetsView
-
-
-  App.addInitializer ->
-    @filtersView = new FiltersView
-      app: @
-      collection: @filters
-    @layout.filtersRegion.show @filtersView
 
 
   App.addInitializer ->

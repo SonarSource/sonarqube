@@ -6,7 +6,6 @@ define([
 
   return Marionette.Layout.extend({
     template: Templates['coding-rules-layout'],
-    topOffset: 30,
 
     regions: {
       filtersRegion: '.search-navigator-filters',
@@ -18,6 +17,7 @@ define([
 
     initialize: function () {
       var that = this;
+      this.topOffset = 0;
       $(window).on('scroll.search-navigator-layout', function () {
         that.onScroll();
       });
@@ -28,7 +28,9 @@ define([
     },
 
     onRender: function () {
-      this.$('.search-navigator-side').isolatedScroll();
+      var top = $('.search-navigator').offset().top;
+      this.topOffset = top;
+      this.$('.search-navigator-side').css({ top: top }).isolatedScroll();
     },
 
     onScroll: function () {

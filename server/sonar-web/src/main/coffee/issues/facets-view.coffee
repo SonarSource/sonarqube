@@ -16,6 +16,7 @@ define [
   'issues/facets/reporter-facet'
   'issues/facets/language-facet'
   'issues/facets/issue-key-facet'
+  'issues/facets/context-facet'
 ], (
   FacetsView
 
@@ -34,6 +35,7 @@ define [
   ReporterFacet
   LanguageFacet
   IssueKeyFacet
+  ContextFacet
 ) ->
 
   class extends FacetsView
@@ -54,4 +56,5 @@ define [
         when 'reporters' then ReporterFacet
         when 'languages' then LanguageFacet
         when 'issues' then IssueKeyFacet
+        when 'context' then ContextFacet
         else BaseFacet

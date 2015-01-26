@@ -2,9 +2,6 @@ define(function () {
 
   return Marionette.Controller.extend({
     pageSize: 50,
-    allFacets: [],
-    facetsFromServer: [],
-    transform: {},
 
     initialize: function (options) {
       this.app = options.app;
@@ -12,7 +9,7 @@ define(function () {
     },
 
     _allFacets: function () {
-      return this.allFacets.map(function (facet) {
+      return this.options.app.state.get('allFacets').map(function (facet) {
         return {property: facet};
       });
     },
@@ -23,10 +20,11 @@ define(function () {
           criteria = Object.keys(this.options.app.state.get('query'));
       facets = facets.concat(criteria);
       facets = facets.map(function (facet) {
-        return that.transform[facet] != null ? that.transform[facet] : facet;
+        return that.options.app.state.get('transform')[facet] != null ?
+            that.options.app.state.get('transform')[facet] : facet;
       });
       return facets.filter(function (facet) {
-        return that.allFacets.indexOf(facet) !== -1;
+        return that.options.app.state.get('allFacets').indexOf(facet) !== -1;
       });
     },
 
@@ -34,7 +32,7 @@ define(function () {
       var that = this,
           facets = this._enabledFacets();
       return facets.filter(function (facet) {
-        return that.facetsFromServer.indexOf(facet) !== -1;
+        return that.options.app.state.get('facetsFromServer').indexOf(facet) !== -1;
       });
     },
 
@@ -49,7 +47,7 @@ define(function () {
 
     enableFacet: function (id) {
       var facet = this.options.app.facets.get(id);
-      if (facet.has('values') || this.facetsFromServer.indexOf(id) === -1) {
+      if (facet.has('values') || this.options.app.state.get('facetsFromServer').indexOf(id) === -1) {
         facet.set({enabled: true});
       } else {
         var p = window.process.addBackgroundProcess();

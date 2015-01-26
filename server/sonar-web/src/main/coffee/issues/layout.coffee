@@ -7,7 +7,6 @@ define [
 
   class extends Marionette.Layout
     template: Templates['issues-layout']
-    topOffset: 30
 
 
     regions:
@@ -19,6 +18,7 @@ define [
 
 
     initialize: ->
+      @topOffset = 0
       $(window).on 'scroll.issues-layout', (=> @onScroll())
 
 
@@ -27,7 +27,10 @@ define [
 
 
     onRender: ->
-      @$('.search-navigator-side').isolatedScroll()
+      @$(@filtersRegion.el).addClass('hidden') if @options.app.state.get('isContext')
+      top = $('.search-navigator').offset().top
+      @topOffset = top
+      @$('.search-navigator-side').css({ top: top }).isolatedScroll()
 
 
     onScroll: ->

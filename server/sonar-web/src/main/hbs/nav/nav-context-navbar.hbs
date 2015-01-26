@@ -21,10 +21,10 @@
     <li {{#isActiveLink '/components'}}class="active"{{/isActiveLink}}>
       <a href="{{link '/components/index/' contextId }}">{{t 'components.page'}}</a>
     </li>
-    <li>
-      <a href="{{link '/drilldown/issues/' contextId }}">{{t 'issues.page'}}</a>
+    <li {{#isActiveLink '/component_issues'}}class="active"{{/isActiveLink}}>
+      <a href="{{link '/component_issues/index?id=' contextKey }}">{{t 'issues.page'}}</a>
     </li>
-    <li class="dropdown {{#isActiveLink '/dashboard'}}{{else}}{{#isActiveLink '/components'}}{{else}}active{{/isActiveLink}}{{/isActiveLink}}">
+    <li class="dropdown">
       <a class="dropdown-toggle" data-toggle="dropdown" href="#">{{t 'more'}}&nbsp;<i class="icon-dropdown"></i></a>
       <ul class="dropdown-menu">
         <li class="dropdown-header">{{t 'layout.dashboards'}}</li>

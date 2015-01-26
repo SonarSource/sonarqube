@@ -5,6 +5,7 @@
 @sideWidth: 300px;
 
 .search-navigator {
+  margin: 0 -10px;
 
   &.sticky {
 
@@ -24,7 +25,6 @@
     .search-navigator-side {
       position: fixed;
       z-index: 4;
-      top: 0;
       bottom: 0;
       overflow-y: auto;
     }
@@ -40,16 +40,21 @@
   position: fixed;
   z-index: 100;
   width: @sideWidth;
-  top: 30px; left: 0; bottom: 0;
+  left: 0;
+  bottom: 0;
+  border-right: 1px solid @barBorderColor;
   .box-sizing(border-box);
   background-color: @barBorderColor;
   overflow-x: hidden;
 }
 
 .search-navigator-facet-box {
-  border-top: 1px solid @barBorderColor;
   background-color: @barBackgroundColor;
   font-size: @baseFontSize;
+}
+
+.search-navigator-facet-box + .search-navigator-facet-box {
+  border-top: 1px solid @barBorderColor;
 }
 
 .search-navigator-facet-box-collapsed {
@@ -177,7 +182,7 @@
 }
 
 .search-navigator-facet-query {
-  padding: 6px 10px;
+  padding: 7px 10px;
 
   input {
     width: 100%;
@@ -267,7 +272,7 @@
 }
 
 .search-navigator-workspace {
-  padding-left: @sideWidth - 10px;
+  padding-left: @sideWidth;
 }
 
 .search-navigator-workspace-header {
