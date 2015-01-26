@@ -25,7 +25,9 @@ import org.sonar.api.database.model.User;
 
 /**
  * @since 2.10
+ * @deprecated since 5.1 DB access will soon be removed from batch side
  */
+@Deprecated
 public interface UserFinder extends ServerComponent, BatchComponent {
 
   User findById(int id);

@@ -86,6 +86,7 @@ import org.sonar.core.test.TestPlanBuilder;
 import org.sonar.core.test.TestPlanPerspectiveLoader;
 import org.sonar.core.test.TestableBuilder;
 import org.sonar.core.test.TestablePerspectiveLoader;
+import org.sonar.core.user.DefaultUserFinder;
 
 public class ProjectScanContainer extends ComponentContainer {
   private boolean sensorMode;
@@ -204,6 +205,9 @@ public class ProjectScanContainer extends ComponentContainer {
       ResourcePersister.class,
       SourcePersister.class,
       ResourceKeyMigration.class,
+
+      // Users
+      DefaultUserFinder.class,
 
       // Rules
       new RulesProvider(),

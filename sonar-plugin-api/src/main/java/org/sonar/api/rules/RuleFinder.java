@@ -20,6 +20,7 @@
 package org.sonar.api.rules;
 
 import org.sonar.api.ServerComponent;
+import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.task.TaskComponent;
 
@@ -29,7 +30,9 @@ import java.util.Collection;
 
 /**
  * @since 2.3
+ * @deprecated since 5.1 DB access will soon be removed from batch side. Use {@link ActiveRules} instead.
  */
+@Deprecated
 public interface RuleFinder extends TaskComponent, ServerComponent {
 
   /**
