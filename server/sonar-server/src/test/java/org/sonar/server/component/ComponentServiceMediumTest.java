@@ -115,9 +115,6 @@ public class ComponentServiceMediumTest {
     // Check file key has been updated
     assertThat(service.getNullableByKey(file.key())).isNull();
     assertThat(service.getNullableByKey("sample2:root:src/File.xoo")).isNotNull();
-
-    // Check dry run cache have been updated
-    assertThat(db.propertiesDao().selectProjectProperties("sample2:root", session)).hasSize(1);
   }
 
   @Test
@@ -145,9 +142,6 @@ public class ComponentServiceMediumTest {
     // Check file key has been updated
     assertThat(service.getNullableByKey(file.key())).isNull();
     assertThat(service.getNullableByKey("sample:root2:module:src/File.xoo")).isNotNull();
-
-    // Check dry run cache have been updated -> on a module it's the project cache that is updated
-    assertThat(db.propertiesDao().selectProjectProperties(project.key(), session)).hasSize(1);
   }
 
   @Test
@@ -164,9 +158,6 @@ public class ComponentServiceMediumTest {
     // Check project key has been updated
     assertThat(service.getNullableByKey(provisionedProject.key())).isNull();
     assertThat(service.getNullableByKey("provisionedProject2")).isNotNull();
-
-    // Check dry run cache have been updated
-    assertThat(db.propertiesDao().selectProjectProperties("provisionedProject2", session)).hasSize(1);
   }
 
   @Test(expected = ForbiddenException.class)
@@ -247,9 +238,6 @@ public class ComponentServiceMediumTest {
     // Check file key has been updated
     assertThat(service.getNullableByKey(file.key())).isNull();
     assertThat(service.getNullableByKey("sample2:root:module:src/File.xoo")).isNotNull();
-
-    // Check dry run cache have been updated
-    assertThat(db.propertiesDao().selectProjectProperties("sample2:root", session)).hasSize(1);
   }
 
   @Test
@@ -266,9 +254,6 @@ public class ComponentServiceMediumTest {
     // Check project key has been updated
     assertThat(service.getNullableByKey(provisionedProject.key())).isNull();
     assertThat(service.getNullableByKey("provisionedProject2")).isNotNull();
-
-    // Check dry run cache have been updated
-    assertThat(db.propertiesDao().selectProjectProperties("provisionedProject2", session)).hasSize(1);
   }
 
   @Test(expected = ForbiddenException.class)
@@ -339,8 +324,9 @@ public class ComponentServiceMediumTest {
     try {
       service.create(NewComponent.create("struts?parent", "Struts project"));
       fail();
-    } catch (Exception e){
-      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Malformed key for Project: struts?parent. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage(
+        "Malformed key for Project: struts?parent. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
     }
   }
 
@@ -351,8 +337,9 @@ public class ComponentServiceMediumTest {
     try {
       service.create(NewComponent.create("struts", "Struts project").setBranch("origin?branch"));
       fail();
-    } catch (Exception e){
-      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Malformed branch for Project: origin?branch. Allowed characters are alphanumeric, '-', '_', '.' and '/', with at least one non-digit.");
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage(
+        "Malformed branch for Project: origin?branch. Allowed characters are alphanumeric, '-', '_', '.' and '/', with at least one non-digit.");
     }
   }
 
@@ -367,7 +354,7 @@ public class ComponentServiceMediumTest {
     try {
       service.create(NewComponent.create("struts", "Struts project"));
       fail();
-    } catch (Exception e){
+    } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Could not create Project, key already exists: struts");
     }
   }
@@ -396,7 +383,7 @@ public class ComponentServiceMediumTest {
     try {
       service.componentUuids(Arrays.asList(moduleKey, fileKey));
       Fail.fail("Should throw NotFoundException");
-    } catch(NotFoundException notFound) {
+    } catch (NotFoundException notFound) {
       assertThat(notFound.getMessage()).contains(moduleKey).contains(fileKey);
     }
   }
@@ -409,7 +396,7 @@ public class ComponentServiceMediumTest {
     assertThat(service.componentUuids(session, Arrays.asList(moduleKey, fileKey), true)).isEmpty();
   }
 
-  private ComponentDto createProject(String key){
+  private ComponentDto createProject(String key) {
     ComponentDto project = ComponentTesting.newProjectDto().setKey("sample:root");
     tester.get(ComponentDao.class).insert(session, project);
     session.commit();
@@ -422,7 +409,7 @@ public class ComponentServiceMediumTest {
     return project;
   }
 
-  private void executeStartupTasksToCreateDefaultPermissionTemplate(){
+  private void executeStartupTasksToCreateDefaultPermissionTemplate() {
     tester.get(Platform.class).executeStartupTasks();
   }
 
