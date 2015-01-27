@@ -192,6 +192,8 @@ import org.sonar.server.user.ws.FavoritesWs;
 import org.sonar.server.user.ws.UserPropertiesWs;
 import org.sonar.server.user.ws.UsersWs;
 import org.sonar.server.util.*;
+import org.sonar.server.view.index.ViewIndexDefinition;
+import org.sonar.server.view.index.ViewIndexer;
 import org.sonar.server.ws.ListingWs;
 import org.sonar.server.ws.WebServiceEngine;
 
@@ -508,6 +510,10 @@ class ServerComponents {
     pico.addSingleton(ComponentAppAction.class);
     pico.addSingleton(EventsWs.class);
     pico.addSingleton(ComponentCleanerService.class);
+
+    // views
+    pico.addSingleton(ViewIndexDefinition.class);
+    pico.addSingleton(ViewIndexer.class);
 
     // issues
     pico.addSingleton(IssueIndexDefinition.class);

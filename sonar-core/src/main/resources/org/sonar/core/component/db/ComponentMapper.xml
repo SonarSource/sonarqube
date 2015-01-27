@@ -111,15 +111,15 @@
     </where>
   </select>
 
-  <select id="findChildrenModulesFromModule" parameterType="map" resultType="Component">
+  <select id="selectModulesTree" parameterType="map" resultType="Component">
     SELECT <include refid="componentColumns"/>
     FROM projects p
-    <include refid="childrenModuleQuery"/>
+    <include refid="modulesTreeQuery"/>
   </select>
 
-  <sql id="childrenModuleQuery">
+  <sql id="modulesTreeQuery">
     INNER JOIN projects root_project ON root_project.uuid = p.project_uuid AND root_project.enabled = ${_true}
-    INNER JOIN projects module ON module.project_uuid = root_project.uuid AND module.enabled = ${_true} AND module.kee = #{moduleKey}
+    INNER JOIN projects module ON module.project_uuid = root_project.uuid AND module.enabled = ${_true} AND module.uuid = #{moduleUuid}
     <where>
       p.enabled = ${_true}
       AND p.scope = #{scope}
@@ -139,11 +139,11 @@
     </where>
   </sql>
 
-  <select id="findFilesFromModule" parameterType="map" resultType="FilePathWithHash">
+  <select id="selectModuleFilesTree" parameterType="map" resultType="FilePathWithHash">
     SELECT p.uuid, p.path, p.module_uuid as moduleUuid, fs.src_hash as srcHash
     FROM projects p
     INNER JOIN file_sources fs ON fs.file_uuid=p.uuid
-    <include refid="childrenModuleQuery"/>
+    <include refid="modulesTreeQuery"/>
   </select>
 
   <select id="findProjectUuids" resultType="String">
@@ -153,6 +153,21 @@
       AND p.enabled=${_true}
       AND p.scope='PRJ'
       AND p.qualifier='TRK'
+    </where>
+  </select>
+
+  <select id="selectAllViewsAndSubViews" resultType="hashmap">
+    SELECT v.uuid as "uuid", v.project_uuid as "projectUuid" FROM projects v
+    <where>
+      v.enabled=${_true} AND v.qualifier=#{viewQualifier} OR v.qualifier=#{subViewQualifier}
+    </where>
+  </select>
+
+  <select id="selectProjectsFromView" resultType="String">
+    SELECT p.uuid FROM projects p
+    <where>
+      p.enabled=${_true} AND p.project_uuid=#{projectViewUuid} AND p.qualifier&lt;&gt;#{subViewQualifier}
+      AND p.module_uuid_path LIKE #{viewUuidLikeQuery}
     </where>
   </select>
 

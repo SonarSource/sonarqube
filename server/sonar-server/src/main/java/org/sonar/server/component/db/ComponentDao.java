@@ -22,6 +22,7 @@ package org.sonar.server.component.db;
 
 import com.google.common.collect.Lists;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
 import org.sonar.core.component.ComponentDto;
@@ -37,6 +38,7 @@ import javax.annotation.CheckForNull;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -94,12 +96,12 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
     return mapper(session).findSubProjectsByComponentUuids(keys);
   }
 
-  public List<ComponentDto> findChildrenModulesFromModule(DbSession session, String moduleKey) {
-    return mapper(session).findChildrenModulesFromModule(moduleKey, Scopes.PROJECT);
+  public List<ComponentDto> selectModulesTree(DbSession session, String rootComponentUuid) {
+    return mapper(session).selectModulesTree(rootComponentUuid, Scopes.PROJECT);
   }
 
-  public List<FilePathWithHashDto> findFilesFromModule(DbSession session, String moduleKey) {
-    return mapper(session).findFilesFromModule(moduleKey, Scopes.FILE);
+  public List<FilePathWithHashDto> selectModuleFilesTree(DbSession session, String rootComponentUuid) {
+    return mapper(session).selectModuleFilesTree(rootComponentUuid, Scopes.FILE);
   }
 
   public List<ComponentDto> getByUuids(DbSession session, Collection<String> uuids) {
@@ -139,5 +141,13 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
 
   public List<String> findProjectUuids(DbSession session) {
     return mapper(session).findProjectUuids();
+  }
+
+  public List<Map<String, String>> selectAllViewsAndSubViews(DbSession session) {
+    return mapper(session).selectAllViewsAndSubViews(Qualifiers.VIEW, Qualifiers.SUBVIEW);
+  }
+
+  public List<String> selectProjectsFromView(DbSession session, String projectViewUuid, String viewUuid) {
+    return mapper(session).selectProjectsFromView(projectViewUuid, "%." + viewUuid + ".%", Qualifiers.SUBVIEW);
   }
 }

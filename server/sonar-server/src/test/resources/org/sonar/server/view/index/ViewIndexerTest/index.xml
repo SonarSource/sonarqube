@@ -1,0 +1,26 @@
+<dataset>
+
+  <!-- Simple View -->
+  <projects id="10" uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path="." copy_resource_id="[null]"
+            kee="MASTER_PROJECT" scope="PRJ" qualifier="VW" name="All projects" path="[null]"/>
+
+  <projects id="110" uuid="BCDE" project_uuid="ABCD" module_uuid="ABCD" module_uuid_path=".ABCD." copy_resource_id="100"
+            kee="MASTER_PROJECTstruts" scope="FIL" qualifier="TRK" name="Struts" path="[null]"/>
+
+  <!-- View with sub view -->
+  <projects id="11" uuid="EFGH" project_uuid="EFGH" module_uuid="[null]" module_uuid_path="." copy_resource_id="[null]"
+            kee="LANGUAGE_VIEW" scope="PRJ" qualifier="VW" name="By Language" path="[null]"/>
+  <projects id="112" uuid="GHIJ" project_uuid="EFGH" module_uuid="EFGH" module_uuid_path=".EFGH." copy_resource_id="101"
+            kee="VIEW2sslr" scope="FIL" qualifier="TRK" name="SSLR" path="[null]"/>
+
+  <!-- Sub view -->
+  <projects id="13" uuid="FGHI" project_uuid="EFGH" module_uuid="EFGH" module_uuid_path=".EFGH." copy_resource_id="[null]"
+            kee="JAVA_PROJECTS" scope="PRJ" qualifier="SVW" name="Java projects" path="[null]"/>
+  <projects id="113" uuid="HIJK" project_uuid="EFGH" module_uuid="FGHI" module_uuid_path=".EFGH.FGHI." copy_resource_id="100"
+            kee="VIEW2struts" scope="FIL" qualifier="TRK" name="Struts" path="[null]"/>
+
+  <!-- View without project -->
+  <projects id="14" uuid="IJKL" project_uuid="IJKL" module_uuid="[null]" module_uuid_path="." copy_resource_id="[null]"
+            kee="OTHER" scope="PRJ" qualifier="VW" name="Other projects" path="[null]"/>
+
+</dataset>

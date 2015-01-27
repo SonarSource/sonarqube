@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.user.index;
+
+package org.sonar.server.view.index;
 
 import org.junit.Test;
 import org.sonar.api.config.Settings;
@@ -27,19 +28,19 @@ import org.sonar.server.es.NewIndex;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class UserIndexDefinitionTest {
+public class ViewIndexDefinitionTest {
 
   IndexDefinition.IndexDefinitionContext context = new IndexDefinition.IndexDefinitionContext();
 
   @Test
   public void define() throws Exception {
-    UserIndexDefinition def = new UserIndexDefinition(new Settings());
+    ViewIndexDefinition def = new ViewIndexDefinition(new Settings());
     def.define(context);
 
     assertThat(context.getIndices()).hasSize(1);
-    NewIndex index = context.getIndices().get("users");
+    NewIndex index = context.getIndices().get("views");
     assertThat(index).isNotNull();
-    assertThat(index.getTypes().keySet()).containsOnly("user");
+    assertThat(index.getTypes().keySet()).containsOnly("view");
 
     // no cluster by default
     assertThat(index.getSettings().get("index.number_of_shards")).isEqualTo("1");
@@ -50,10 +51,10 @@ public class UserIndexDefinitionTest {
   public void enable_cluster() throws Exception {
     Settings settings = new Settings();
     settings.setProperty(ProcessConstants.CLUSTER_ACTIVATE, true);
-    UserIndexDefinition def = new UserIndexDefinition(settings);
+    ViewIndexDefinition def = new ViewIndexDefinition(settings);
     def.define(context);
 
-    NewIndex index = context.getIndices().get("users");
+    NewIndex index = context.getIndices().get("views");
     assertThat(index.getSettings().get("index.number_of_shards")).isEqualTo("4");
     assertThat(index.getSettings().get("index.number_of_replicas")).isEqualTo("1");
   }

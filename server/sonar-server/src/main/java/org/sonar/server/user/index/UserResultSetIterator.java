@@ -80,7 +80,7 @@ class UserResultSetIterator extends ResultSetIterator<UserDoc> {
 
   @Override
   protected UserDoc read(ResultSet rs) throws SQLException {
-    UserDoc doc = new UserDoc(Maps.<String, Object>newHashMapWithExpectedSize(30));
+    UserDoc doc = new UserDoc(Maps.<String, Object>newHashMapWithExpectedSize(7));
 
     String login = rs.getString(1);
 

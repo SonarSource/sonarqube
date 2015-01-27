@@ -94,15 +94,15 @@ public class ProjectRepositoryLoader implements ServerComponent {
           projectKey = project.key();
         }
 
-        List<ComponentDto> moduleChildren = dbClient.componentDao().findChildrenModulesFromModule(session, query.getModuleKey());
-        Map<String, String> moduleUuidsByKey = moduleUuidsByKey(module, moduleChildren);
-        Map<String, Long> moduleIdsByKey = moduleIdsByKey(module, moduleChildren);
+        List<ComponentDto> modulesTree = dbClient.componentDao().selectModulesTree(session, module.uuid());
+        Map<String, String> moduleUuidsByKey = moduleUuidsByKey(module, modulesTree);
+        Map<String, Long> moduleIdsByKey = moduleIdsByKey(module, modulesTree);
 
-        List<PropertyDto> moduleChildrenSettings = dbClient.propertiesDao().findChildrenModuleProperties(query.getModuleKey(), session);
-        TreeModuleSettings treeModuleSettings = new TreeModuleSettings(moduleUuidsByKey, moduleIdsByKey, moduleChildren, moduleChildrenSettings, module);
+        List<PropertyDto> modulesTreeSettings = dbClient.propertiesDao().selectModulePropertiesTree(module.uuid(), session);
+        TreeModuleSettings treeModuleSettings = new TreeModuleSettings(moduleUuidsByKey, moduleIdsByKey, modulesTree, modulesTreeSettings, module);
 
         addSettingsToChildrenModules(ref, query.getModuleKey(), Maps.<String, String>newHashMap(), treeModuleSettings, hasScanPerm, session);
-        addFileData(session, ref, moduleChildren, module.key());
+        addFileData(session, ref, modulesTree, module.uuid());
       }
 
       addProfiles(ref, projectKey, query.getProfileName(), session);
@@ -251,7 +251,7 @@ public class ProjectRepositoryLoader implements ServerComponent {
       moduleKeysByUuid.put(module.uuid(), module.key());
     }
 
-    for (FilePathWithHashDto file : dbClient.componentDao().findFilesFromModule(session, moduleKey)) {
+    for (FilePathWithHashDto file : dbClient.componentDao().selectModuleFilesTree(session, moduleKey)) {
       FileData fileData = new FileData(file.getSrcHash(), false, null, null, null);
       ref.addFileData(moduleKeysByUuid.get(file.getModuleUuid()), file.getPath(), fileData);
     }
