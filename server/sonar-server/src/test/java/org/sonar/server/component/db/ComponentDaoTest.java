@@ -452,9 +452,9 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
   public void select_projects_from_view() {
     setupData("shared_views");
 
-    assertThat(dao.selectProjectsFromView(session, "ABCD", "ABCD")).containsExactly("JKLM");
-    assertThat(dao.selectProjectsFromView(session, "EFGH", "EFGH")).containsExactly("KLMN", "JKLM");
-    assertThat(dao.selectProjectsFromView(session, "FGHI", "EFGH")).containsExactly("JKLM");
+    assertThat(dao.selectProjectsFromView(session, "ABCD", "ABCD")).containsOnly("JKLM");
+    assertThat(dao.selectProjectsFromView(session, "EFGH", "EFGH")).containsOnly("KLMN", "JKLM");
+    assertThat(dao.selectProjectsFromView(session, "FGHI", "EFGH")).containsOnly("JKLM");
     assertThat(dao.selectProjectsFromView(session, "IJKL", "IJKL")).isEmpty();
     assertThat(dao.selectProjectsFromView(session, "Unknown", "Unknown")).isEmpty();
   }
