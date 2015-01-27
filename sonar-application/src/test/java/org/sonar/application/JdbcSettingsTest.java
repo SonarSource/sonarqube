@@ -94,10 +94,13 @@ public class JdbcSettingsTest {
   @Test
   public void check_h2() throws Exception {
     File home = temp.newFolder();
+    File driverFile = new File(home, "lib/jdbc/h2/h2.jar");
+    FileUtils.touch(driverFile);
+
     Props props = new Props(new Properties());
     props.set("sonar.jdbc.url", "jdbc:h2:tcp://localhost:9092/sonar");
     settings.checkAndComplete(home, props);
-    assertThat(props.value(ProcessConstants.JDBC_DRIVER_PATH)).isNull();
+    assertThat(props.nonNullValueAsFile(ProcessConstants.JDBC_DRIVER_PATH)).isEqualTo(driverFile);
   }
 
   @Test
