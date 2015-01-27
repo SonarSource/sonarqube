@@ -78,9 +78,9 @@ public class ViewIndexerTest {
       }
     });
 
-    assertThat(viewsByUuid.get("ABCD").projects()).containsOnly("BCDE");
-    assertThat(viewsByUuid.get("EFGH").projects()).containsOnly("GHIJ", "HIJK");
-    assertThat(viewsByUuid.get("FGHI").projects()).containsOnly("HIJK");
+    assertThat(viewsByUuid.get("ABCD").projects()).containsOnly("JKLM");
+    assertThat(viewsByUuid.get("EFGH").projects()).containsOnly("KLMN", "JKLM");
+    assertThat(viewsByUuid.get("FGHI").projects()).containsOnly("JKLM");
     assertThat(viewsByUuid.get("IJKL").projects()).isEmpty();
   }
 
@@ -116,8 +116,8 @@ public class ViewIndexerTest {
       }
     });
 
-    assertThat(viewsByUuid.get("EFGH").projects()).containsOnly("GHIJ", "HIJK");
-    assertThat(viewsByUuid.get("FGHI").projects()).containsOnly("HIJK");
+    assertThat(viewsByUuid.get("EFGH").projects()).containsOnly("KLMN", "JKLM");
+    assertThat(viewsByUuid.get("FGHI").projects()).containsOnly("JKLM");
   }
 
 }

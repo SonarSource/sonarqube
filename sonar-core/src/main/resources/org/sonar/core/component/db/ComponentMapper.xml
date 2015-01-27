@@ -164,10 +164,11 @@
   </select>
 
   <select id="selectProjectsFromView" resultType="String">
-    SELECT p.uuid FROM projects p
+    SELECT p.uuid FROM projects technical_projects
+    INNER JOIN projects p on p.id=technical_projects.copy_resource_id AND p.enabled=${_true}
     <where>
-      p.enabled=${_true} AND p.project_uuid=#{projectViewUuid} AND p.qualifier&lt;&gt;#{subViewQualifier}
-      AND p.module_uuid_path LIKE #{viewUuidLikeQuery}
+      technical_projects.enabled=${_true} AND technical_projects.project_uuid=#{projectViewUuid}
+      AND technical_projects.module_uuid_path LIKE #{viewUuidLikeQuery}
     </where>
   </select>
 

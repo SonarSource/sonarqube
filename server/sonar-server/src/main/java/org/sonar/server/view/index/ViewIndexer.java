@@ -87,7 +87,7 @@ public class ViewIndexer extends BaseIndexer {
   }
 
   private void doIndex(DbSession dbSession, BulkIndexer bulk, String uuid, String projectUuid) {
-    List<String> projects = dbClient.componentDao().selectProjectsFromView(dbSession, projectUuid, uuid);
+    List<String> projects = dbClient.componentDao().selectProjectsFromView(dbSession, uuid, projectUuid);
     bulk.add(newUpsertRequest(new ViewDoc(Maps.<String, Object>newHashMap())
       .setUuid(uuid)
       .setProjects(projects)));
