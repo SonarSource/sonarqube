@@ -73,7 +73,7 @@ public class DuplicationsParser implements ServerComponent {
               duplications.add(createDuplication(componentsByKey, from, size, componentKey, session));
             }
           }
-          Collections.sort(duplications, new DuplicationComparator(component));
+          Collections.sort(duplications, new DuplicationComparator(component.uuid(), component.projectUuid()));
           blocks.add(new Block(duplications));
         }
         Collections.sort(blocks, new BlockComparator());
@@ -107,10 +107,12 @@ public class DuplicationsParser implements ServerComponent {
   static class DuplicationComparator implements Comparator<Duplication>, Serializable {
     private static final long serialVersionUID = 1;
 
-    private final ComponentDto component;
+    private final String uuid;
+    private final String projectUuid;
 
-    DuplicationComparator(ComponentDto component) {
-      this.component = component;
+    DuplicationComparator(String uuid, String projectUuid) {
+      this.uuid = uuid;
+      this.projectUuid = projectUuid;
     }
 
     @Override
@@ -129,16 +131,16 @@ public class DuplicationsParser implements ServerComponent {
       if (file1.equals(d2.file())) {
         // if duplication on same file => order by starting line
         return d1.from().compareTo(d2.from());
-      } else if (file1.equals(component)) {
+      } else if (file1.uuid().equals(uuid)) {
         // the current resource must be displayed first
         return -1;
-      } else if (file2.equals(component)) {
+      } else if (file2.uuid().equals(uuid)) {
         // the current resource must be displayed first
         return 1;
-      } else if (StringUtils.equals(file1.projectUuid(), component.projectUuid()) && !StringUtils.equals(file2.projectUuid(), component.projectUuid())) {
+      } else if (StringUtils.equals(file1.projectUuid(), projectUuid) && !StringUtils.equals(file2.projectUuid(), projectUuid)) {
         // if resource is in the same project, this it must be displayed first
         return -1;
-      } else if (StringUtils.equals(file2.projectUuid(), component.projectUuid()) && !StringUtils.equals(file1.projectUuid(), component.projectUuid())) {
+      } else if (StringUtils.equals(file2.projectUuid(), projectUuid) && !StringUtils.equals(file1.projectUuid(), projectUuid)) {
         // if resource is in the same project, this it must be displayed first
         return 1;
       } else {
