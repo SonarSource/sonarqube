@@ -24,8 +24,3 @@ define [
         'createdAfter': 'creationDate'
       }
 
-
-    setQuery: (query) ->
-      _.extend query, @get 'contextQuery' if @get 'isContext'
-      super
-
