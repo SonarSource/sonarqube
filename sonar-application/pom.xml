@@ -130,13 +130,13 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.codehaus.sonar.plugins</groupId>
+      <groupId>org.codehaus.sonar-plugins</groupId>
       <artifactId>sonar-scm-git-plugin</artifactId>
       <type>sonar-plugin</type>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.codehaus.sonar.plugins</groupId>
+      <groupId>org.codehaus.sonar-plugins</groupId>
       <artifactId>sonar-scm-svn-plugin</artifactId>
       <type>sonar-plugin</type>
       <scope>provided</scope>
