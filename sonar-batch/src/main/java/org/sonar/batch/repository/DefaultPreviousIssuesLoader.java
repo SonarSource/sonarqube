@@ -23,6 +23,7 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.io.InputSupplier;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.utils.HttpDownloader;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.protocol.input.issues.PreviousIssue;
 import org.sonar.batch.protocol.input.issues.PreviousIssueHelper;
@@ -47,6 +48,8 @@ public class DefaultPreviousIssuesLoader implements PreviousIssuesLoader {
       for (PreviousIssue issue : PreviousIssueHelper.getIssues(reader)) {
         consumer.apply(issue);
       }
+    } catch (HttpDownloader.HttpException e) {
+      throw serverClient.handleHttpException(e);
     } catch (IOException e) {
       throw new IllegalStateException("Unable to get previous issues", e);
     }

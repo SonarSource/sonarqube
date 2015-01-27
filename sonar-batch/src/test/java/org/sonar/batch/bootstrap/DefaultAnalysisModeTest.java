@@ -27,17 +27,17 @@ import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class AnalysisModeTest {
+public class DefaultAnalysisModeTest {
 
   @Test
   public void regular_analysis_by_default() {
-    AnalysisMode mode = new AnalysisMode(new BootstrapProperties(Collections.<String, String>emptyMap()));
+    DefaultAnalysisMode mode = new DefaultAnalysisMode(new BootstrapProperties(Collections.<String, String>emptyMap()));
 
     assertThat(mode.isPreview()).isFalse();
     assertThat(mode.isIncremental()).isFalse();
 
     BootstrapProperties bootstrapProps = new BootstrapProperties(ImmutableMap.of(CoreProperties.ANALYSIS_MODE, "pouet"));
-    mode = new AnalysisMode(bootstrapProps);
+    mode = new DefaultAnalysisMode(bootstrapProps);
 
     assertThat(mode.isPreview()).isFalse();
     assertThat(mode.isIncremental()).isFalse();
@@ -46,7 +46,7 @@ public class AnalysisModeTest {
   @Test
   public void support_analysis_mode() {
     BootstrapProperties bootstrapProps = new BootstrapProperties(ImmutableMap.of(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_ANALYSIS));
-    AnalysisMode mode = new AnalysisMode(bootstrapProps);
+    DefaultAnalysisMode mode = new DefaultAnalysisMode(bootstrapProps);
 
     assertThat(mode.isPreview()).isFalse();
     assertThat(mode.isIncremental()).isFalse();
@@ -55,7 +55,7 @@ public class AnalysisModeTest {
   @Test
   public void support_preview_mode() {
     BootstrapProperties bootstrapProps = new BootstrapProperties(ImmutableMap.of(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_PREVIEW));
-    AnalysisMode mode = new AnalysisMode(bootstrapProps);
+    DefaultAnalysisMode mode = new DefaultAnalysisMode(bootstrapProps);
 
     assertThat(mode.isPreview()).isTrue();
     assertThat(mode.isIncremental()).isFalse();
@@ -66,7 +66,7 @@ public class AnalysisModeTest {
   @Test
   public void support_incremental_mode() {
     BootstrapProperties bootstrapProps = new BootstrapProperties(ImmutableMap.of(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_INCREMENTAL));
-    AnalysisMode mode = new AnalysisMode(bootstrapProps);
+    DefaultAnalysisMode mode = new DefaultAnalysisMode(bootstrapProps);
 
     assertThat(mode.isPreview()).isTrue();
     assertThat(mode.isIncremental()).isTrue();
@@ -77,34 +77,9 @@ public class AnalysisModeTest {
   @Test
   public void support_deprecated_dryrun_property() {
     BootstrapProperties bootstrapProps = new BootstrapProperties(ImmutableMap.of(CoreProperties.DRY_RUN, "true"));
-    AnalysisMode mode = new AnalysisMode(bootstrapProps);
+    DefaultAnalysisMode mode = new DefaultAnalysisMode(bootstrapProps);
 
     assertThat(mode.isPreview()).isTrue();
     assertThat(mode.isIncremental()).isFalse();
-  }
-
-  @Test
-  public void should_get_default_preview_read_timeout() {
-    BootstrapProperties bootstrapProps = new BootstrapProperties(ImmutableMap.of(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_PREVIEW));
-    AnalysisMode mode = new AnalysisMode(bootstrapProps);
-
-    assertThat(mode.getPreviewReadTimeoutSec()).isEqualTo(60);
-  }
-
-  @Test
-  public void should_download_database_with_deprecated_overriden_timeout() {
-    BootstrapProperties bootstrapProps = new BootstrapProperties(ImmutableMap.of(CoreProperties.DRY_RUN, "true", CoreProperties.DRY_RUN_READ_TIMEOUT_SEC, "80"));
-    AnalysisMode mode = new AnalysisMode(bootstrapProps);
-
-    assertThat(mode.getPreviewReadTimeoutSec()).isEqualTo(80);
-  }
-
-  @Test
-  public void should_download_database_with_overriden_timeout() {
-    BootstrapProperties bootstrapProps = new BootstrapProperties(ImmutableMap.of(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_PREVIEW,
-      CoreProperties.PREVIEW_READ_TIMEOUT_SEC, "80"));
-    AnalysisMode mode = new AnalysisMode(bootstrapProps);
-
-    assertThat(mode.getPreviewReadTimeoutSec()).isEqualTo(80);
   }
 }

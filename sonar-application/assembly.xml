@@ -143,6 +143,14 @@
       <unpack>false</unpack>
       <scope>provided</scope>
     </dependencySet>
+    <dependencySet>
+      <outputDirectory>lib/jdbc/h2/</outputDirectory>
+      <includes>
+        <include>com.h2database:h2</include>
+      </includes>
+      <unpack>false</unpack>
+      <scope>provided</scope>
+    </dependencySet>
     <!-- Java Service Wrapper -->
     <dependencySet>
       <outputDirectory>bin</outputDirectory>

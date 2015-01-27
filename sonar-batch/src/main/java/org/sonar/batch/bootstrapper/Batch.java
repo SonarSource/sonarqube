@@ -21,7 +21,7 @@ package org.sonar.batch.bootstrapper;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.sonar.batch.bootstrap.BootstrapContainer;
+import org.sonar.batch.bootstrap.GlobalContainer;
 
 import java.util.Collections;
 import java.util.List;
@@ -38,7 +38,7 @@ public final class Batch {
   private LoggingConfiguration logging;
   private List<Object> components;
   private Map<String, String> bootstrapProperties = Maps.newHashMap();
-  private BootstrapContainer bootstrapContainer;
+  private GlobalContainer bootstrapContainer;
 
   private Batch(Builder builder) {
     components = Lists.newArrayList();
@@ -77,7 +77,7 @@ public final class Batch {
     }
 
     configureLogging();
-    bootstrapContainer = BootstrapContainer.create(bootstrapProperties, components);
+    bootstrapContainer = GlobalContainer.create(bootstrapProperties, components);
     bootstrapContainer.startComponents();
     this.started = true;
 

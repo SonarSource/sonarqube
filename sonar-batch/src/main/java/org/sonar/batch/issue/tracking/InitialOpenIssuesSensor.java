@@ -19,13 +19,14 @@
  */
 package org.sonar.batch.issue.tracking;
 
+import org.sonar.api.batch.RequiresDB;
+
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
-import org.sonar.core.DryRunIncompatible;
 import org.sonar.core.issue.db.IssueChangeDao;
 import org.sonar.core.issue.db.IssueChangeDto;
 import org.sonar.core.issue.db.IssueDao;
@@ -37,7 +38,7 @@ import java.util.Date;
 /**
  * Load all the issues referenced during the previous scan.
  */
-@DryRunIncompatible
+@RequiresDB
 public class InitialOpenIssuesSensor implements Sensor {
 
   private final InitialOpenIssuesStack initialOpenIssuesStack;

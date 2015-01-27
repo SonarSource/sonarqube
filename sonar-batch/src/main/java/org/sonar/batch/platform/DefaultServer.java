@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.bootstrap;
+package org.sonar.batch.platform;
 
-import com.google.common.annotations.VisibleForTesting;
-import org.apache.commons.lang.StringUtils;
+import org.sonar.batch.bootstrap.ServerClient;
+
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
@@ -32,16 +32,12 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-/**
- * @deprecated in 3.4. Replaced by {@link org.sonar.batch.bootstrap.ServerClient}
- */
-@Deprecated
-public class ServerMetadata extends Server implements BatchComponent {
+public class DefaultServer extends Server implements BatchComponent {
 
   private Settings settings;
   private ServerClient client;
 
-  public ServerMetadata(Settings settings, ServerClient client) {
+  public DefaultServer(Settings settings, ServerClient client) {
     this.settings = settings;
     this.client = client;
   }
@@ -93,17 +89,5 @@ public class ServerMetadata extends Server implements BatchComponent {
   @Override
   public String getPermanentServerId() {
     return settings.getString(CoreProperties.PERMANENT_SERVER_ID);
-  }
-
-  public String getServerId() {
-    String remoteServerInfo = client.request("/api/server");
-    // don't use JSON utilities to extract ID from such a small string
-    return extractServerId(remoteServerInfo);
-  }
-
-  @VisibleForTesting
-  String extractServerId(String remoteServerInfo) {
-    String partialId = StringUtils.substringAfter(remoteServerInfo, "\"id\":\"");
-    return StringUtils.substringBefore(partialId, "\"");
   }
 }

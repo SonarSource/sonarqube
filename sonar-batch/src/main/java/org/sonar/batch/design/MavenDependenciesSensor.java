@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.design;
 
+import org.sonar.api.batch.RequiresDB;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -55,7 +57,6 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.index.ResourcePersister;
-import org.sonar.core.DryRunIncompatible;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -63,7 +64,7 @@ import java.util.Collection;
 import java.util.List;
 
 @SupportedEnvironment("maven")
-@DryRunIncompatible
+@RequiresDB
 public class MavenDependenciesSensor implements Sensor {
 
   private static final String SONAR_MAVEN_PROJECT_DEPENDENCY = "sonar.maven.projectDependencies";

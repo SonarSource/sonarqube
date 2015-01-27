@@ -21,39 +21,42 @@ package org.sonar.batch.bootstrap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.AnalysisMode;
 
 import java.text.MessageFormat;
 
 /**
  * @since 4.0
  */
-public class AnalysisMode implements BatchComponent {
+public class DefaultAnalysisMode implements AnalysisMode {
 
-  private static final Logger LOG = LoggerFactory.getLogger(AnalysisMode.class);
-
-  private static final int DEFAULT_PREVIEW_READ_TIMEOUT_SEC = 60;
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultAnalysisMode.class);
 
   private boolean preview;
   private boolean incremental;
-  private int previewReadTimeoutSec;
-  private boolean sensorMode;
+  private boolean mediumTestMode;
 
-  public AnalysisMode(BootstrapProperties bootstrapProps) {
+  public DefaultAnalysisMode(BootstrapProperties bootstrapProps) {
     init(bootstrapProps);
   }
 
+  public boolean isDb() {
+    return !preview && !incremental && !mediumTestMode;
+  }
+
+  @Override
   public boolean isPreview() {
     return preview || incremental;
   }
 
+  @Override
   public boolean isIncremental() {
     return incremental;
   }
 
-  public boolean isSensorMode() {
-    return sensorMode;
+  public boolean isMediumTest() {
+    return mediumTestMode;
   }
 
   private void init(BootstrapProperties bootstrapProps) {
@@ -61,46 +64,24 @@ public class AnalysisMode implements BatchComponent {
       LOG.warn(MessageFormat.format("Property {0} is deprecated. Please use {1} instead.", CoreProperties.DRY_RUN, CoreProperties.ANALYSIS_MODE));
       preview = "true".equals(bootstrapProps.property(CoreProperties.DRY_RUN));
       incremental = false;
-      sensorMode = false;
+      mediumTestMode = false;
     } else {
       String mode = bootstrapProps.property(CoreProperties.ANALYSIS_MODE);
       preview = CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode);
       incremental = CoreProperties.ANALYSIS_MODE_INCREMENTAL.equals(mode);
-      sensorMode = CoreProperties.ANALYSIS_MODE_SENSOR.equals(mode);
+      mediumTestMode = CoreProperties.ANALYSIS_MODE_MEDIUM_TEST.equals(mode);
     }
     if (incremental) {
       LOG.info("Incremental mode");
     } else if (preview) {
       LOG.info("Preview mode");
-    } else if (sensorMode) {
-      LOG.info("Sensor mode");
+    } else if (mediumTestMode) {
+      LOG.info("Medium test mode");
     }
     // To stay compatible with plugins that use the old property to check mode
     if (incremental || preview) {
       bootstrapProps.properties().put(CoreProperties.DRY_RUN, "true");
-      previewReadTimeoutSec = loadPreviewReadTimeout(bootstrapProps);
     }
-  }
-
-  // SONAR-4488 Allow to increase preview read timeout
-  private int loadPreviewReadTimeout(BootstrapProperties bootstrapProps) {
-    int readTimeoutSec;
-    if (bootstrapProps.property(CoreProperties.DRY_RUN_READ_TIMEOUT_SEC) != null) {
-      LOG.warn("Property {} is deprecated. Please use {} instead.", CoreProperties.DRY_RUN_READ_TIMEOUT_SEC, CoreProperties.PREVIEW_READ_TIMEOUT_SEC);
-      readTimeoutSec = Integer.parseInt(bootstrapProps.property(CoreProperties.DRY_RUN_READ_TIMEOUT_SEC));
-    } else if (bootstrapProps.property(CoreProperties.PREVIEW_READ_TIMEOUT_SEC) != null) {
-      readTimeoutSec = Integer.parseInt(bootstrapProps.property(CoreProperties.PREVIEW_READ_TIMEOUT_SEC));
-    } else {
-      readTimeoutSec = DEFAULT_PREVIEW_READ_TIMEOUT_SEC;
-    }
-    return readTimeoutSec;
-  }
-
-  /**
-   * Read timeout used by HTTP request done in preview mode (SONAR-4488, SONAR-5028)
-   */
-  public int getPreviewReadTimeoutSec() {
-    return previewReadTimeoutSec;
   }
 
 }

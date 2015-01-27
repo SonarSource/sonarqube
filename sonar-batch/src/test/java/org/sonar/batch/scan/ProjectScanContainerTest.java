@@ -36,7 +36,7 @@ import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.task.TaskExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.TempFolder;
-import org.sonar.batch.bootstrap.AnalysisMode;
+import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.BootstrapProperties;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.GlobalSettings;
@@ -64,7 +64,7 @@ public class ProjectScanContainerTest {
   public void prepare() {
     projectBootstrapper = mock(ProjectBootstrapper.class);
     bootstrapProperties = new BootstrapProperties(Collections.<String, String>emptyMap());
-    AnalysisMode analysisMode = new AnalysisMode(bootstrapProperties);
+    DefaultAnalysisMode analysisMode = new DefaultAnalysisMode(bootstrapProperties);
     when(projectBootstrapper.bootstrap()).thenReturn(new ProjectReactor(ProjectDefinition.create()));
     parentContainer = new ComponentContainer();
     parentContainer.add(System2.INSTANCE);

@@ -26,13 +26,14 @@ import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.issue.ignore.scanner.IssueExclusionsLoader;
 import org.sonar.batch.issue.tracking.LocalIssueTracking;
+import org.sonar.batch.report.PublishReportJob;
 import org.sonar.batch.rule.QProfileVerifier;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.batch.scan.filesystem.FileSystemLogger;
 import org.sonar.batch.scan.maven.MavenPluginsConfigurator;
 import org.sonar.batch.scan.report.IssuesReports;
 
-public final class PreviewPhaseExecutor implements PhaseExecutor {
+public final class DatabaseLessPhaseExecutor implements PhaseExecutor {
 
   private final EventBus eventBus;
   private final Phases phases;
@@ -48,13 +49,14 @@ public final class PreviewPhaseExecutor implements PhaseExecutor {
   private final IssueExclusionsLoader issueExclusionsLoader;
   private final IssuesReports issuesReport;
   private final LocalIssueTracking localIssueTracking;
+  private final PublishReportJob publishReportJob;
 
-  public PreviewPhaseExecutor(Phases phases,
+  public DatabaseLessPhaseExecutor(Phases phases,
     MavenPluginsConfigurator mavenPluginsConfigurator, InitializersExecutor initializersExecutor,
     SensorsExecutor sensorsExecutor,
     SensorContext sensorContext, DefaultIndex index,
     EventBus eventBus, ProjectInitializer pi, FileSystemLogger fsLogger, IssuesReports jsonReport, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
-    IssueExclusionsLoader issueExclusionsLoader, LocalIssueTracking localIssueTracking) {
+    IssueExclusionsLoader issueExclusionsLoader, LocalIssueTracking localIssueTracking, PublishReportJob publishReportJob) {
     this.phases = phases;
     this.mavenPluginsConfigurator = mavenPluginsConfigurator;
     this.initializersExecutor = initializersExecutor;
@@ -69,6 +71,7 @@ public final class PreviewPhaseExecutor implements PhaseExecutor {
     this.profileVerifier = profileVerifier;
     this.issueExclusionsLoader = issueExclusionsLoader;
     this.localIssueTracking = localIssueTracking;
+    this.publishReportJob = publishReportJob;
   }
 
   /**
@@ -98,14 +101,20 @@ public final class PreviewPhaseExecutor implements PhaseExecutor {
     }
 
     if (module.isRoot()) {
-
       localIssueTracking();
-
       issuesReport();
+      publishReportJob();
     }
 
     cleanMemory();
     eventBus.fireEvent(new ProjectAnalysisEvent(module, false));
+  }
+
+  private void publishReportJob() {
+    String stepName = "Publish report";
+    eventBus.fireEvent(new BatchStepEvent(stepName, true));
+    this.publishReportJob.execute();
+    eventBus.fireEvent(new BatchStepEvent(stepName, false));
   }
 
   private void localIssueTracking() {

@@ -30,7 +30,7 @@ import static org.mockito.Mockito.mock;
 public class BatchDatabaseTest {
   @Test
   public void should_init_at_least_two_connections() {
-    BatchDatabase db = new BatchDatabase(new Settings(), mock(JdbcDriverHolder.class), mock(PreviewDatabase.class));
+    BatchDatabase db = new BatchDatabase(new Settings(), mock(JdbcDriverHolder.class));
     Properties props = new Properties();
 
     db.doCompleteProperties(props);

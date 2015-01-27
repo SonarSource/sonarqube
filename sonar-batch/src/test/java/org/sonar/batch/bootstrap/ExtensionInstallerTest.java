@@ -42,7 +42,7 @@ import static org.mockito.Mockito.when;
 
 public class ExtensionInstallerTest {
 
-  private AnalysisMode mode;
+  private DefaultAnalysisMode mode;
   PluginMetadata metadata = mock(PluginMetadata.class);
 
   Map<PluginMetadata, Plugin> newPlugin(final Object... extensions) {
@@ -59,7 +59,7 @@ public class ExtensionInstallerTest {
 
   @Before
   public void setUp() throws Exception {
-    mode = mock(AnalysisMode.class);
+    mode = mock(DefaultAnalysisMode.class);
   }
 
   @Test

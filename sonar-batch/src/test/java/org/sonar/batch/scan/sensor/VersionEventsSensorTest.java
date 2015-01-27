@@ -17,12 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.sensors;
+package org.sonar.batch.scan.sensor;
+
+import org.sonar.batch.scan.sensor.VersionEventsSensor;
 
 import com.google.common.collect.Lists;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.Event;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
@@ -30,6 +33,7 @@ import org.sonar.api.resources.Resource;
 
 import java.util.Date;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
@@ -48,17 +52,20 @@ public class VersionEventsSensorTest {
 
   @Test
   public void shouldExecuteOnProject() throws Exception {
-    assertThat(new VersionEventsSensor().shouldExecuteOnProject(null), is(true));
+    AnalysisMode analysisMode = mock(AnalysisMode.class);
+    assertThat(new VersionEventsSensor(analysisMode).shouldExecuteOnProject(null)).isTrue();
+    when(analysisMode.isPreview()).thenReturn(true);
+    assertThat(new VersionEventsSensor(analysisMode).shouldExecuteOnProject(null)).isFalse();
   }
 
   @Test
   public void testToString() throws Exception {
-    assertThat(new VersionEventsSensor().toString(), is("VersionEventsSensor"));
+    assertThat(new VersionEventsSensor(null).toString(), is("VersionEventsSensor"));
   }
 
   @Test
   public void shouldDoNothingIfNoVersion() {
-    VersionEventsSensor sensor = new VersionEventsSensor();
+    VersionEventsSensor sensor = new VersionEventsSensor(null);
     SensorContext context = mock(SensorContext.class);
     Project project = mock(Project.class);
     when(project.getAnalysisVersion()).thenReturn(null);
@@ -71,7 +78,7 @@ public class VersionEventsSensorTest {
 
   @Test
   public void shouldCreateVersionEvent() {
-    VersionEventsSensor sensor = new VersionEventsSensor();
+    VersionEventsSensor sensor = new VersionEventsSensor(null);
     SensorContext context = mock(SensorContext.class);
 
     Project project = mock(Project.class);
@@ -88,7 +95,7 @@ public class VersionEventsSensorTest {
     Event otherEvent = mockVersionEvent("1.4");
     Event anotherEvent = mockVersionEvent("1.3-SNAPSHOT");
 
-    VersionEventsSensor sensor = new VersionEventsSensor();
+    VersionEventsSensor sensor = new VersionEventsSensor(null);
     SensorContext context = mock(SensorContext.class);
 
     Project project = mock(Project.class);

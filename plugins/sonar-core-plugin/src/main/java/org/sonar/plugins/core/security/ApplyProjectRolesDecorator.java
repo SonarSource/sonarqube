@@ -19,11 +19,12 @@
  */
 package org.sonar.plugins.core.security;
 
+import org.sonar.api.batch.RequiresDB;
+
 import com.google.common.collect.ImmutableSet;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
-import org.sonar.core.DryRunIncompatible;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
@@ -31,7 +32,7 @@ import org.sonar.api.security.ResourcePermissions;
 
 import java.util.Set;
 
-@DryRunIncompatible
+@RequiresDB
 public class ApplyProjectRolesDecorator implements Decorator {
 
   private static final Set<String> QUALIFIERS = ImmutableSet.of(Qualifiers.PROJECT, Qualifiers.VIEW, Qualifiers.SUBVIEW);

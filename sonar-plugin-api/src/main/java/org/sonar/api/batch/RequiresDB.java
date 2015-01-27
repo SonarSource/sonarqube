@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core;
+package org.sonar.api.batch;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -26,17 +26,12 @@ import java.lang.annotation.Target;
 
 /**
  * The presence of this annotation on an extension class indicates that the extension
- * may be disabled when the dry-run mode is enabled (-Dsonar.dryRun=true).
- * It's generally used by the extensions that push data to external systems, for example :
- * <ul>
- *   <li>Send emails</li>
- *   <li>Create a JIRA issue</li>
- * </ul>
+ * requires database access. As a result such extension will be disabled in preview mode.
  *
  *
  * @since 3.4
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface DryRunIncompatible {
+public @interface RequiresDB {
 }

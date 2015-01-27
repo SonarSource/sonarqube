@@ -22,10 +22,10 @@ package org.sonar.batch.bootstrap;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.InstantiationStrategy;
+import org.sonar.api.batch.RequiresDB;
 import org.sonar.api.batch.SupportedEnvironment;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
-import org.sonar.core.DryRunIncompatible;
 
 public class ExtensionUtils {
 
@@ -58,8 +58,8 @@ public class ExtensionUtils {
     return false;
   }
 
-  public static boolean supportsPreview(Object extension) {
-    return AnnotationUtils.getAnnotation(extension, DryRunIncompatible.class) == null;
+  public static boolean requiresDB(Object extension) {
+    return AnnotationUtils.getAnnotation(extension, RequiresDB.class) != null;
   }
 
   public static boolean isMavenExtensionOnly(Object extension) {

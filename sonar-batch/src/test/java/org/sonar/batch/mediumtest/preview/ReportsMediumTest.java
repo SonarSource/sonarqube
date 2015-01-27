@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.mediumtest.issues;
+package org.sonar.batch.mediumtest.preview;
 
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -25,6 +25,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.CoreProperties;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.batch.protocol.input.ActiveRule;
@@ -35,8 +36,6 @@ import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class ReportsMediumTest {
 
@@ -54,10 +53,10 @@ public class ReportsMediumTest {
   }
 
   public BatchMediumTester tester = BatchMediumTester.builder()
+    .bootstrapProperties(ImmutableMap.of(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_PREVIEW))
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
     .activateRule(new ActiveRule("xoo", "OneIssuePerLine", "One issue per line", "MAJOR", "OneIssuePerLine.internal", "xoo"))
-    .bootstrapProperties(ImmutableMap.of("sonar.analysis.mode", "sensor"))
     // Existing issue
     .addPreviousIssue(new PreviousIssue().setKey("xyz")
       .setComponentKey("sample:xources/hello/HelloJava.xoo")
@@ -97,7 +96,6 @@ public class ReportsMediumTest {
       .property("sonar.issuesReport.console.enable", "true")
       .start();
 
-    assertThat(result.issues()).hasSize(15);
   }
 
   @Test
@@ -109,7 +107,6 @@ public class ReportsMediumTest {
       .property("sonar.issuesReport.html.enable", "true")
       .start();
 
-    assertThat(result.issues()).hasSize(15);
   }
 
 }

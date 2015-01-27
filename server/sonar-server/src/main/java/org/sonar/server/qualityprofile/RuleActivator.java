@@ -25,7 +25,6 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.core.activity.Activity;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
@@ -63,18 +62,16 @@ public class RuleActivator implements ServerComponent {
   private final DbClient db;
   private final TypeValidations typeValidations;
   private final RuleActivatorContextFactory contextFactory;
-  private final PreviewCache previewCache;
   private final IndexClient index;
   private final ActivityService log;
 
   public RuleActivator(DbClient db, IndexClient index,
-                       RuleActivatorContextFactory contextFactory, TypeValidations typeValidations,
-                       PreviewCache previewCache, ActivityService log) {
+    RuleActivatorContextFactory contextFactory, TypeValidations typeValidations,
+    ActivityService log) {
     this.db = db;
     this.index = index;
     this.contextFactory = contextFactory;
     this.typeValidations = typeValidations;
-    this.previewCache = previewCache;
     this.log = log;
   }
 
@@ -147,7 +144,6 @@ public class RuleActivator implements ServerComponent {
 
     if (!changes.isEmpty()) {
       updateProfileDate(dbSession, context);
-      previewCache.reportGlobalModification(dbSession);
     }
     return changes;
   }
@@ -370,7 +366,6 @@ public class RuleActivator implements ServerComponent {
 
     if (!changes.isEmpty()) {
       updateProfileDate(dbSession, context);
-      previewCache.reportGlobalModification(dbSession);
     }
 
     return changes;

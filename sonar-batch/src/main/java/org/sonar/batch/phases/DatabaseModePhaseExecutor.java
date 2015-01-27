@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.resources.Project;
-import org.sonar.batch.bootstrap.AnalysisMode;
+import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.events.BatchStepEvent;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
@@ -44,9 +44,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public final class DefaultPhaseExecutor implements PhaseExecutor {
+public final class DatabaseModePhaseExecutor implements PhaseExecutor {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(DefaultPhaseExecutor.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseModePhaseExecutor.class);
 
   private final EventBus eventBus;
   private final Phases phases;
@@ -65,17 +65,17 @@ public final class DefaultPhaseExecutor implements PhaseExecutor {
   private final DefaultModuleFileSystem fs;
   private final QProfileVerifier profileVerifier;
   private final IssueExclusionsLoader issueExclusionsLoader;
-  private final AnalysisMode analysisMode;
+  private final DefaultAnalysisMode analysisMode;
   private final DatabaseSession session;
   private final ResourcePersister resourcePersister;
 
-  public DefaultPhaseExecutor(Phases phases, DecoratorsExecutor decoratorsExecutor,
+  public DatabaseModePhaseExecutor(Phases phases, DecoratorsExecutor decoratorsExecutor,
     MavenPluginsConfigurator mavenPluginsConfigurator, InitializersExecutor initializersExecutor,
     PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
     SensorContext sensorContext, DefaultIndex index,
     EventBus eventBus, PublishReportJob publishReportJob, ProjectInitializer pi,
     ScanPersister[] persisters, FileSystemLogger fsLogger, IssuesReports jsonReport, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
-    IssueExclusionsLoader issueExclusionsLoader, AnalysisMode analysisMode, DatabaseSession session, ResourcePersister resourcePersister) {
+    IssueExclusionsLoader issueExclusionsLoader, DefaultAnalysisMode analysisMode, DatabaseSession session, ResourcePersister resourcePersister) {
     this.phases = phases;
     this.decoratorsExecutor = decoratorsExecutor;
     this.mavenPluginsConfigurator = mavenPluginsConfigurator;

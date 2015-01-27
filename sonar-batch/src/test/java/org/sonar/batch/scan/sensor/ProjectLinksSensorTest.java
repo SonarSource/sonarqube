@@ -17,12 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.sensors;
+package org.sonar.batch.scan.sensor;
+
+import org.sonar.batch.scan.sensor.ProjectLinksSensor;
 
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
@@ -33,19 +36,24 @@ import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ProjectLinksSensorTest {
 
   @Test
   public void testToString() {
-    assertThat(new ProjectLinksSensor(null, null).toString()).isEqualTo("ProjectLinksSensor");
+    assertThat(new ProjectLinksSensor(null, null, null).toString()).isEqualTo("ProjectLinksSensor");
   }
 
   @Test
-  public void shouldExecuteOnlyForLatestAnalysis() {
+  public void shouldNotExecuteInPreview() {
     Project project = mock(Project.class);
-    assertThat(new ProjectLinksSensor(null, null).shouldExecuteOnProject(project)).isTrue();
+    AnalysisMode analysisMode = mock(AnalysisMode.class);
+    assertThat(new ProjectLinksSensor(null, null, analysisMode).shouldExecuteOnProject(project)).isTrue();
+    when(analysisMode.isPreview()).thenReturn(true);
+    assertThat(new ProjectLinksSensor(null, null, analysisMode).shouldExecuteOnProject(project)).isFalse();
   }
 
   @Test
@@ -57,7 +65,7 @@ public class ProjectLinksSensorTest {
     Project project = mock(Project.class);
     SensorContext context = mock(SensorContext.class);
 
-    new ProjectLinksSensor(settings, defaultI18n).analyse(project, context);
+    new ProjectLinksSensor(settings, defaultI18n, null).analyse(project, context);
 
     verify(context).saveLink(argThat(new MatchLink("homepage", "HOME", "http://home")));
   }
@@ -71,7 +79,7 @@ public class ProjectLinksSensorTest {
     Project project = mock(Project.class);
     SensorContext context = mock(SensorContext.class);
 
-    new ProjectLinksSensor(settings, defaultI18n).analyse(project, context);
+    new ProjectLinksSensor(settings, defaultI18n, null).analyse(project, context);
 
     verify(context).deleteLink("homepage");
   }

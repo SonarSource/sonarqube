@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.bootstrap;
 
+import com.google.common.annotations.VisibleForTesting;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
@@ -35,10 +37,10 @@ public class DatabaseCompatibility implements BatchComponent {
   private DatabaseVersion version;
   private Settings settings;
   private PropertiesDao propertiesDao;
-  private ServerMetadata server;
-  private AnalysisMode analysisMode;
+  private ServerClient server;
+  private DefaultAnalysisMode analysisMode;
 
-  public DatabaseCompatibility(DatabaseVersion version, ServerMetadata server, Settings settings, PropertiesDao propertiesDao, AnalysisMode mode) {
+  public DatabaseCompatibility(DatabaseVersion version, ServerClient server, Settings settings, PropertiesDao propertiesDao, DefaultAnalysisMode mode) {
     this.version = version;
     this.server = server;
     this.settings = settings;
@@ -54,7 +56,7 @@ public class DatabaseCompatibility implements BatchComponent {
   }
 
   private void checkCorrectServerId() {
-    if (!propertiesDao.selectGlobalProperty(CoreProperties.SERVER_ID).getValue().equals(server.getServerId())) {
+    if (!propertiesDao.selectGlobalProperty(CoreProperties.SERVER_ID).getValue().equals(getServerId())) {
       StringBuilder message = new StringBuilder("The current batch process and the configured remote server do not share the same DB configuration.\n");
       message.append("\t- Batch side: ");
       message.append(settings.getString(DatabaseProperties.PROP_URL));
@@ -66,6 +68,18 @@ public class DatabaseCompatibility implements BatchComponent {
       message.append("/system\n");
       throw MessageException.of(message.toString());
     }
+  }
+
+  private String getServerId() {
+    String remoteServerInfo = server.request("/api/server");
+    // don't use JSON utilities to extract ID from such a small string
+    return extractServerId(remoteServerInfo);
+  }
+
+  @VisibleForTesting
+  String extractServerId(String remoteServerInfo) {
+    String partialId = StringUtils.substringAfter(remoteServerInfo, "\"id\":\"");
+    return StringUtils.substringBefore(partialId, "\"");
   }
 
   private void checkDatabaseStatus() {

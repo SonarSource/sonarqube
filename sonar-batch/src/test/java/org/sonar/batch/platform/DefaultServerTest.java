@@ -17,35 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch;
+package org.sonar.batch.platform;
 
 import org.junit.Test;
-import org.sonar.api.utils.DateUtils;
-
-import java.util.Date;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Settings;
+import org.sonar.batch.bootstrap.ServerClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ServerMetadataTest {
+public class DefaultServerTest {
+
   @Test
-  public void should_proxy_target() {
-    org.sonar.batch.bootstrap.ServerMetadata client = mock(org.sonar.batch.bootstrap.ServerMetadata.class);
-    when(client.getId()).thenReturn("id1");
-    when(client.getPermanentServerId()).thenReturn("pid1");
-    Date startedAt = DateUtils.parseDate("2012-05-18");
-    when(client.getStartedAt()).thenReturn(startedAt);
-    when(client.getURL()).thenReturn("http://foo");
-    when(client.getVersion()).thenReturn("v1");
+  public void shouldLoadServerProperties() {
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.SERVER_ID, "123");
+    settings.setProperty(CoreProperties.SERVER_VERSION, "2.2");
+    settings.setProperty(CoreProperties.SERVER_STARTTIME, "2010-05-18T17:59:00+0000");
+    settings.setProperty(CoreProperties.PERMANENT_SERVER_ID, "abcde");
+    ServerClient client = mock(ServerClient.class);
+    when(client.getURL()).thenReturn("http://foo.com");
 
-    ServerMetadata metadata = new ServerMetadata(client);
+    DefaultServer metadata = new DefaultServer(settings, client);
 
-    assertThat(metadata.getId()).isEqualTo("id1");
-    assertThat(metadata.getPermanentServerId()).isEqualTo("pid1");
-    assertThat(metadata.getStartedAt()).isEqualTo(startedAt);
-    assertThat(metadata.getURL()).isEqualTo("http://foo");
-    assertThat(metadata.getVersion()).isEqualTo("v1");
-
+    assertThat(metadata.getId()).isEqualTo("123");
+    assertThat(metadata.getVersion()).isEqualTo("2.2");
+    assertThat(metadata.getStartedAt().getDate()).isEqualTo(18);
+    assertThat(metadata.getURL()).isEqualTo("http://foo.com");
+    assertThat(metadata.getPermanentServerId()).isEqualTo("abcde");
   }
 }

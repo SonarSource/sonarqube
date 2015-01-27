@@ -22,7 +22,7 @@ package org.sonar.batch.components;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.BatchExtension;
+import org.sonar.api.BatchComponent;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.measures.Metric;
@@ -38,7 +38,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class PastMeasuresLoader implements BatchExtension {
+public class PastMeasuresLoader implements BatchComponent {
 
   private Map<Integer, Metric> metricByIds;
   private DatabaseSession session;

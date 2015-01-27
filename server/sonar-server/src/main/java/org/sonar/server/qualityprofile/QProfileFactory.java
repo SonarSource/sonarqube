@@ -24,7 +24,6 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.db.DbClient;
@@ -46,11 +45,9 @@ public class QProfileFactory implements ServerComponent {
   private static final String PROFILE_PROPERTY_PREFIX = "sonar.profile.";
 
   private final DbClient db;
-  private final PreviewCache previewCache;
 
-  public QProfileFactory(DbClient db, PreviewCache previewCache) {
+  public QProfileFactory(DbClient db) {
     this.db = db;
-    this.previewCache = previewCache;
   }
 
   // ------------- CREATION
@@ -122,7 +119,6 @@ public class QProfileFactory implements ServerComponent {
       doDelete(session, descendant);
     }
     doDelete(session, profile);
-    previewCache.reportGlobalModification(session);
   }
 
   private void doDelete(DbSession session, QualityProfileDto profile) {

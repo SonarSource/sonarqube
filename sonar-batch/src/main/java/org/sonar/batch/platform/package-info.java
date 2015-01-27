@@ -17,32 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+@ParametersAreNonnullByDefault
+package org.sonar.batch.platform;
 
-package org.sonar.server.computation.step;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-import org.sonar.core.preview.PreviewCache;
-import org.sonar.core.properties.PropertiesDao;
-import org.sonar.core.properties.PropertyDto;
-import org.sonar.server.computation.ComputationContext;
-
-public class InvalidateBatchCacheStep implements ComputationStep {
-  private final PropertiesDao propertiesDao;
-
-  public InvalidateBatchCacheStep(PropertiesDao propertiesDao) {
-    this.propertiesDao = propertiesDao;
-  }
-
-  @Override
-  public void execute(ComputationContext context) {
-    PropertyDto property = new PropertyDto()
-      .setKey(PreviewCache.SONAR_PREVIEW_CACHE_LAST_UPDATE_KEY)
-      .setResourceId(context.getProject().getId())
-      .setValue(String.valueOf(System.currentTimeMillis()));
-    propertiesDao.setProperty(property);
-  }
-
-  @Override
-  public String getDescription() {
-    return "Invalidate batch cache";
-  }
-}

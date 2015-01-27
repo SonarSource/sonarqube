@@ -35,7 +35,7 @@ import org.sonar.batch.DefaultFileLinesContextFactory;
 import org.sonar.batch.DefaultResourceCreationLock;
 import org.sonar.batch.ProjectConfigurator;
 import org.sonar.batch.ProjectTree;
-import org.sonar.batch.bootstrap.BootstrapProperties;
+import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.ExtensionMatcher;
 import org.sonar.batch.bootstrap.ExtensionUtils;
@@ -89,18 +89,19 @@ import org.sonar.core.test.TestablePerspectiveLoader;
 import org.sonar.core.user.DefaultUserFinder;
 
 public class ProjectScanContainer extends ComponentContainer {
-  private boolean sensorMode;
+
+  private DefaultAnalysisMode analysisMode;
 
   public ProjectScanContainer(ComponentContainer taskContainer) {
     super(taskContainer);
-    sensorMode = CoreProperties.ANALYSIS_MODE_SENSOR.equals(taskContainer.getComponentByType(BootstrapProperties.class).property(CoreProperties.ANALYSIS_MODE));
+    analysisMode = taskContainer.getComponentByType(DefaultAnalysisMode.class);
   }
 
   @Override
   protected void doBeforeStart() {
     projectBootstrap();
     addBatchComponents();
-    if (!sensorMode) {
+    if (analysisMode.isDb()) {
       addDataBaseComponents();
     }
     fixMavenExecutor();
@@ -236,7 +237,7 @@ public class ProjectScanContainer extends ComponentContainer {
   protected void doAfterStart() {
     ProjectTree tree = getComponentByType(ProjectTree.class);
     scanRecursively(tree.getRootProject());
-    if (sensorMode) {
+    if (analysisMode.isMediumTest()) {
       getComponentByType(ScanTaskObservers.class).notifyEndOfScanTask();
     }
   }

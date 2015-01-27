@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.core.timemachine;
 
+import org.sonar.api.batch.RequiresDB;
+
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
@@ -38,11 +40,10 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.Scopes;
 import org.sonar.batch.components.PeriodsDefinition;
-import org.sonar.core.DryRunIncompatible;
 
 import java.util.List;
 
-@DryRunIncompatible
+@RequiresDB
 @DependedUpon(DecoratorBarriers.END_OF_TIME_MACHINE)
 public class TendencyDecorator implements Decorator {
 

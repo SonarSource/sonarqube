@@ -31,7 +31,7 @@ import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.batch.bootstrap.AnalysisMode;
+import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.bootstrap.TaskProperties;
 import org.sonar.batch.protocol.input.FileData;
@@ -55,16 +55,16 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
   private static final String BATCH_PROJECT_URL = "/batch/project";
 
   private final ServerClient serverClient;
-  private final AnalysisMode analysisMode;
+  private final DefaultAnalysisMode analysisMode;
   private final DatabaseSession session;
 
-  public DefaultProjectRepositoriesLoader(DatabaseSession session, ServerClient serverClient, AnalysisMode analysisMode) {
+  public DefaultProjectRepositoriesLoader(DatabaseSession session, ServerClient serverClient, DefaultAnalysisMode analysisMode) {
     this.session = session;
     this.serverClient = serverClient;
     this.analysisMode = analysisMode;
   }
 
-  public DefaultProjectRepositoriesLoader(ServerClient serverClient, AnalysisMode analysisMode) {
+  public DefaultProjectRepositoriesLoader(ServerClient serverClient, DefaultAnalysisMode analysisMode) {
     this.session = null;
     this.serverClient = serverClient;
     this.analysisMode = analysisMode;

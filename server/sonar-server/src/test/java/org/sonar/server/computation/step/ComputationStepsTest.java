@@ -36,7 +36,6 @@ public class ComputationStepsTest {
       mock(DigestReportStep.class),
       mock(IndexSourceLinesStep.class),
       mock(IndexViewsStep.class),
-      mock(InvalidateBatchCacheStep.class),
       mock(PersistIssuesStep.class),
       mock(IndexIssuesStep.class),
       mock(SwitchSnapshotStep.class),
@@ -44,9 +43,9 @@ public class ComputationStepsTest {
       mock(SendIssueNotificationsStep.class),
       mock(IndexComponentsStep.class));
 
-    assertThat(registry.orderedSteps()).hasSize(11);
+    assertThat(registry.orderedSteps()).hasSize(10);
     assertThat(registry.orderedSteps().get(0)).isInstanceOf(DigestReportStep.class);
-    assertThat(registry.orderedSteps().get(10)).isInstanceOf(SendIssueNotificationsStep.class);
+    assertThat(registry.orderedSteps().get(9)).isInstanceOf(SendIssueNotificationsStep.class);
   }
 
   @Test

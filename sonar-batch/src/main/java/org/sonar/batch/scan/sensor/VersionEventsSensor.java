@@ -17,23 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.sensors;
+package org.sonar.batch.scan.sensor;
 
 import org.apache.commons.lang.StringUtils;
-import org.sonar.core.DryRunIncompatible;
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.Event;
+import org.sonar.api.batch.RequiresDB;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
 
 import java.util.Iterator;
 
-@DryRunIncompatible
+@RequiresDB
 public class VersionEventsSensor implements Sensor {
+
+  private final AnalysisMode analysisMode;
+
+  public VersionEventsSensor(AnalysisMode analysisMode) {
+    this.analysisMode = analysisMode;
+  }
 
   @Override
   public boolean shouldExecuteOnProject(Project project) {
-    return true;
+    return !analysisMode.isPreview();
   }
 
   @Override

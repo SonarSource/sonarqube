@@ -19,9 +19,6 @@
  */
 package org.sonar.batch.report;
 
-import org.sonar.batch.protocol.output.component.ReportComponent;
-import org.sonar.batch.protocol.output.component.ReportComponents;
-
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Project;
@@ -30,6 +27,8 @@ import org.sonar.api.resources.ResourceUtils;
 import org.sonar.batch.index.BatchResource;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.protocol.output.ReportHelper;
+import org.sonar.batch.protocol.output.component.ReportComponent;
+import org.sonar.batch.protocol.output.component.ReportComponents;
 
 import javax.annotation.CheckForNull;
 
@@ -56,10 +55,12 @@ public class ComponentsPublisher implements ReportPublisher {
 
   private ReportComponent buildResourceForReport(BatchResource batchResource) {
     Resource r = batchResource.resource();
+    Integer snapshotId = batchResource.snapshotId();
+    Integer id = r.getId();
     ReportComponent result = new ReportComponent()
       .setBatchId(batchResource.batchId())
-      .setSnapshotId(batchResource.snapshotId())
-      .setId(r.getId())
+      .setSnapshotId(snapshotId != null ? snapshotId.intValue() : -1)
+      .setId(id != null ? id : -1)
       .setName(getName(r))
       .setPath(r.getPath())
       .setUuid(r.getUuid())

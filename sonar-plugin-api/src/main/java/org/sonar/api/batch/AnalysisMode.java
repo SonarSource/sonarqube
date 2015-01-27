@@ -17,29 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.startup;
+package org.sonar.api.batch;
 
-import org.picocontainer.Startable;
-import org.sonar.core.preview.PreviewCache;
+import org.sonar.api.BatchComponent;
 
 /**
- * @since 4.0
+ * Use this component to find the current running mode.
+ * @since 5.1
  */
-public class CleanPreviewAnalysisCache implements Startable {
+public interface AnalysisMode extends BatchComponent {
 
-  private final PreviewCache cache;
+  boolean isPreview();
 
-  public CleanPreviewAnalysisCache(PreviewCache cache) {
-    this.cache = cache;
-  }
+  boolean isIncremental();
 
-  @Override
-  public void start() {
-    cache.cleanAll();
-  }
-
-  @Override
-  public void stop() {
-    // nothing
-  }
 }

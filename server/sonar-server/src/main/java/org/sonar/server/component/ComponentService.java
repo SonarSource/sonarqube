@@ -33,7 +33,6 @@ import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.core.resource.ResourceKeyUpdaterDao;
 import org.sonar.server.db.DbClient;
@@ -45,7 +44,11 @@ import org.sonar.server.user.UserSession;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -54,16 +57,14 @@ public class ComponentService implements ServerComponent {
   private final DbClient dbClient;
 
   private final ResourceKeyUpdaterDao resourceKeyUpdaterDao;
-  private final PreviewCache previewCache;
   private final I18n i18n;
   private final ResourceIndexerDao resourceIndexerDao;
   private final InternalPermissionService permissionService;
 
-  public ComponentService(DbClient dbClient, ResourceKeyUpdaterDao resourceKeyUpdaterDao, PreviewCache previewCache, I18n i18n, ResourceIndexerDao resourceIndexerDao,
-                          InternalPermissionService permissionService) {
+  public ComponentService(DbClient dbClient, ResourceKeyUpdaterDao resourceKeyUpdaterDao, I18n i18n, ResourceIndexerDao resourceIndexerDao,
+    InternalPermissionService permissionService) {
     this.dbClient = dbClient;
     this.resourceKeyUpdaterDao = resourceKeyUpdaterDao;
-    this.previewCache = previewCache;
     this.i18n = i18n;
     this.resourceIndexerDao = resourceIndexerDao;
     this.permissionService = permissionService;
@@ -116,8 +117,6 @@ public class ComponentService implements ServerComponent {
       resourceKeyUpdaterDao.updateKey(projectOrModule.getId(), newKey);
       session.commit();
 
-      previewCache.reportResourceModification(newKey);
-
       session.commit();
     } finally {
       session.close();
@@ -145,7 +144,6 @@ public class ComponentService implements ServerComponent {
       resourceKeyUpdaterDao.bulkUpdateKey(session, project.getId(), stringToReplace, replacementString);
 
       ComponentDto newProject = dbClient.componentDao().getById(project.getId(), session);
-      previewCache.reportResourceModification(session, newProject.key());
 
       session.commit();
     } finally {
@@ -237,7 +235,7 @@ public class ComponentService implements ServerComponent {
 
   private String formatMessage(String message, String qualifier, String key) {
     return String.format(message, i18n.message(Locale.getDefault(), "qualifier." + qualifier, "Project"), key);
-  }  
+  }
 
   @CheckForNull
   private ComponentDto getNullableByKey(DbSession session, String key) {

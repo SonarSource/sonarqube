@@ -64,19 +64,12 @@ public class JdbcDriverDeployerTest {
   }
 
   @Test
-  public void create_empty_file_when_no_jdbc_driver() throws Exception {
+  public void dont_fail_when_medium_test() throws Exception {
     Settings settings = new Settings();
     DefaultServerFileSystem fs = mock(DefaultServerFileSystem.class);
 
-    File deployDir = temp.newFolder("deploy");
-    when(fs.getDeployDir()).thenReturn(deployDir);
-    File deployedIndex = new File(deployDir, "jdbc-driver.txt");
-    assertThat(deployedIndex).doesNotExist();
-    when(fs.getDeployedJdbcDriverIndex()).thenReturn(deployedIndex);
+    // No sonar.jdbc.driverPath property
 
     new JdbcDriverDeployer(fs, settings).start();
-
-    assertThat(deployedIndex).exists();
-    assertThat(Files.toString(deployedIndex, Charsets.UTF_8)).isEqualTo("");
   }
 }

@@ -29,10 +29,10 @@ public class GlobalSettings extends Settings {
 
   private final BootstrapProperties bootstrapProps;
   private final GlobalRepositories globalReferentials;
-  private final AnalysisMode mode;
+  private final DefaultAnalysisMode mode;
 
   public GlobalSettings(BootstrapProperties bootstrapProps, PropertyDefinitions propertyDefinitions,
-    GlobalRepositories globalReferentials, AnalysisMode mode) {
+    GlobalRepositories globalReferentials, DefaultAnalysisMode mode) {
 
     super(propertyDefinitions);
     this.mode = mode;

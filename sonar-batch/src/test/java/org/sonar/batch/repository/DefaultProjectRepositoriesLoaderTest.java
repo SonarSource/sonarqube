@@ -27,7 +27,7 @@ import org.junit.Test;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.database.DatabaseSession;
-import org.sonar.batch.bootstrap.AnalysisMode;
+import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.bootstrap.TaskProperties;
 import org.sonar.batch.rule.ModuleQProfiles;
@@ -42,14 +42,14 @@ public class DefaultProjectRepositoriesLoaderTest {
 
   private DefaultProjectRepositoriesLoader loader;
   private ServerClient serverClient;
-  private AnalysisMode analysisMode;
+  private DefaultAnalysisMode analysisMode;
   private ProjectReactor reactor;
   private TaskProperties taskProperties;
 
   @Before
   public void prepare() {
     serverClient = mock(ServerClient.class);
-    analysisMode = mock(AnalysisMode.class);
+    analysisMode = mock(DefaultAnalysisMode.class);
     loader = new DefaultProjectRepositoriesLoader(mock(DatabaseSession.class), serverClient, analysisMode);
     loader = spy(loader);
     doReturn(null).when(loader).lastSnapshotCreationDate(anyString());

@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.sonar.api.CoreProperties;
 import org.sonar.api.Plugin;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.platform.ComponentContainer;
@@ -35,6 +34,7 @@ import org.sonar.batch.components.PastSnapshotFinderByDays;
 import org.sonar.batch.components.PastSnapshotFinderByPreviousAnalysis;
 import org.sonar.batch.components.PastSnapshotFinderByPreviousVersion;
 import org.sonar.batch.components.PastSnapshotFinderByVersion;
+import org.sonar.batch.platform.DefaultServer;
 import org.sonar.batch.repository.DefaultGlobalRepositoriesLoader;
 import org.sonar.batch.repository.DefaultPreviousIssuesLoader;
 import org.sonar.batch.repository.DefaultProjectRepositoriesLoader;
@@ -62,51 +62,49 @@ import org.sonar.jpa.session.JpaDatabaseSession;
 import java.util.List;
 import java.util.Map;
 
-public class BootstrapContainer extends ComponentContainer {
+public class GlobalContainer extends ComponentContainer {
 
   private final Map<String, String> bootstrapProperties;
-  private final boolean sensorMode;
 
-  private BootstrapContainer(Map<String, String> bootstrapProperties) {
+  private GlobalContainer(Map<String, String> bootstrapProperties) {
     super();
-    this.sensorMode = CoreProperties.ANALYSIS_MODE_SENSOR.equals(bootstrapProperties.get(CoreProperties.ANALYSIS_MODE));
     this.bootstrapProperties = bootstrapProperties;
   }
 
-  public static BootstrapContainer create(Map<String, String> bootstrapProperties, List extensions) {
-    BootstrapContainer container = new BootstrapContainer(bootstrapProperties);
+  public static GlobalContainer create(Map<String, String> bootstrapProperties, List extensions) {
+    GlobalContainer container = new GlobalContainer(bootstrapProperties);
     container.add(extensions);
     return container;
   }
 
   @Override
   protected void doBeforeStart() {
+    BootstrapProperties bootstrapProps = new BootstrapProperties(bootstrapProperties);
+    DefaultAnalysisMode analysisMode = new DefaultAnalysisMode(bootstrapProps);
+    add(bootstrapProps, analysisMode);
     addBootstrapComponents();
-    if (!sensorMode) {
+    if (analysisMode.isDb()) {
       addDatabaseComponents();
-      addCoreComponents();
     }
 
   }
 
   private void addBootstrapComponents() {
     add(
-      new BootstrapProperties(bootstrapProperties),
-      AnalysisMode.class,
       BatchPluginRepository.class,
       BatchPluginJarInstaller.class,
       GlobalSettings.class,
       ServerClient.class,
       ExtensionInstaller.class,
       Logback.class,
-      ServerMetadata.class,
-      org.sonar.batch.ServerMetadata.class,
+      DefaultServer.class,
       new TempFolderProvider(),
       TempFolderCleaner.class,
       HttpDownloader.class,
       UriReader.class,
       new FileCacheProvider(),
       System2.INSTANCE,
+      DefaultI18n.class,
       new GlobalRepositoriesProvider(),
       UserRepository.class);
     if (getComponentByType(PluginsReferential.class) == null) {
@@ -125,29 +123,19 @@ public class BootstrapContainer extends ComponentContainer {
 
   private void addDatabaseComponents() {
     add(
-      PreviewDatabase.class,
       JdbcDriverHolder.class,
       BatchDatabase.class,
       MyBatis.class,
       NullQueue.class,
       DatabaseVersion.class,
-      // TODO check that it still works (see @Freddy)
       DatabaseCompatibility.class,
       DefaultDatabaseConnector.class,
       JpaDatabaseSession.class,
       BatchDatabaseSessionFactory.class,
       DaoUtils.getDaoClasses(),
       PurgeProfiler.class,
-      CacheRuleFinder.class);
-  }
-
-  /**
-   * These components MUST not depend on extensions provided by plugins
-   */
-  private void addCoreComponents() {
-    add(
+      CacheRuleFinder.class,
       EmailSettings.class,
-      DefaultI18n.class,
       RuleI18nManager.class,
       MeasuresDao.class,
       HibernateUserFinder.class,

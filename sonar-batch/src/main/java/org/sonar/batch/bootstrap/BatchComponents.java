@@ -37,6 +37,8 @@ import org.sonar.batch.scan.report.IssuesReportBuilder;
 import org.sonar.batch.scan.report.JSONReport;
 import org.sonar.batch.scan.report.RuleNameProvider;
 import org.sonar.batch.scan.report.SourceProvider;
+import org.sonar.batch.scan.sensor.ProjectLinksSensor;
+import org.sonar.batch.scan.sensor.VersionEventsSensor;
 import org.sonar.batch.scm.ScmConfiguration;
 import org.sonar.batch.scm.ScmSensor;
 import org.sonar.batch.source.LinesSensor;
@@ -52,7 +54,7 @@ public class BatchComponents {
     // only static stuff
   }
 
-  public static Collection all(AnalysisMode analysisMode) {
+  public static Collection all(DefaultAnalysisMode analysisMode) {
     List components = Lists.newArrayList(
       // Maven
       MavenProjectBootstrapper.class, DefaultMavenPluginExecutor.class, MavenProjectConverter.class, MavenProjectBuilder.class,
@@ -69,6 +71,8 @@ public class BatchComponents {
       ScmSensor.class,
 
       LinesSensor.class,
+      ProjectLinksSensor.class,
+      VersionEventsSensor.class,
 
       // Issues tracking
       IssueTracking.class,
@@ -86,7 +90,7 @@ public class BatchComponents {
       DefaultPurgeTask.class
       );
     components.addAll(CorePropertyDefinitions.all());
-    if (!analysisMode.isSensorMode()) {
+    if (!analysisMode.isMediumTest()) {
       components.add(MavenDependenciesSensor.class);
     }
     return components;

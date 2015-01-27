@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.sensors;
+package org.sonar.batch.scan.sensor;
 
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.config.Settings;
@@ -34,15 +35,17 @@ public class ProjectLinksSensor implements Sensor {
 
   private Settings settings;
   private DefaultI18n defaultI18n;
+  private AnalysisMode analysisMode;
 
-  public ProjectLinksSensor(Settings settings, DefaultI18n defaultI18n) {
+  public ProjectLinksSensor(Settings settings, DefaultI18n defaultI18n, AnalysisMode analysisMode) {
     this.settings = settings;
     this.defaultI18n = defaultI18n;
+    this.analysisMode = analysisMode;
   }
 
   @Override
   public boolean shouldExecuteOnProject(Project project) {
-    return true;
+    return !analysisMode.isPreview();
   }
 
   @Override

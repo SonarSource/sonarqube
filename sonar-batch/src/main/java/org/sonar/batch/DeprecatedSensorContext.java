@@ -22,6 +22,7 @@ package org.sonar.batch;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.Event;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.SonarIndex;
@@ -65,9 +66,9 @@ public class DeprecatedSensorContext extends DefaultSensorContext implements Sen
   private final CoverageExclusions coverageFilter;
 
   public DeprecatedSensorContext(SonarIndex index, Project project, Settings settings, FileSystem fs, ActiveRules activeRules,
-    ComponentDataCache componentDataCache, CoverageExclusions coverageFilter,
+    AnalysisMode analysisMode, ComponentDataCache componentDataCache, CoverageExclusions coverageFilter,
     BlockCache blockCache, DuplicationCache duplicationCache, SensorStorage sensorStorage) {
-    super(settings, fs, activeRules, componentDataCache, blockCache, duplicationCache, sensorStorage);
+    super(settings, fs, activeRules, analysisMode, componentDataCache, blockCache, duplicationCache, sensorStorage);
     this.index = index;
     this.project = project;
     this.coverageFilter = coverageFilter;

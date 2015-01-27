@@ -28,7 +28,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.resources.Project;
-import org.sonar.batch.bootstrap.AnalysisMode;
+import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.core.duplication.DuplicationDao;
 
@@ -40,11 +40,11 @@ public class IndexFactory implements BatchComponent {
 
   private final Settings settings;
   private final DuplicationDao dao;
-  private final AnalysisMode mode;
+  private final DefaultAnalysisMode mode;
   private final DatabaseSession session;
   private final ResourceCache resourceCache;
 
-  public IndexFactory(AnalysisMode mode, Settings settings, @Nullable DuplicationDao dao, @Nullable DatabaseSession session, ResourceCache resourceCache) {
+  public IndexFactory(DefaultAnalysisMode mode, Settings settings, @Nullable DuplicationDao dao, @Nullable DatabaseSession session, ResourceCache resourceCache) {
     this.mode = mode;
     this.settings = settings;
     this.dao = dao;
@@ -55,7 +55,7 @@ public class IndexFactory implements BatchComponent {
   /**
    * Used by new sensor mode
    */
-  public IndexFactory(AnalysisMode mode, Settings settings, ResourceCache resourceCache) {
+  public IndexFactory(DefaultAnalysisMode mode, Settings settings, ResourceCache resourceCache) {
     this(mode, settings, null, null, resourceCache);
   }
 

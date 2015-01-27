@@ -29,7 +29,7 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.utils.MessageException;
-import org.sonar.batch.bootstrap.AnalysisMode;
+import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.BootstrapProperties;
 import org.sonar.batch.bootstrap.GlobalSettings;
 import org.sonar.batch.protocol.input.GlobalRepositories;
@@ -50,12 +50,12 @@ public class ProjectSettingsTest {
   ProjectDefinition project = ProjectDefinition.create().setKey("struts");
   GlobalSettings bootstrapProps;
 
-  private AnalysisMode mode;
+  private DefaultAnalysisMode mode;
 
   @Before
   public void prepare() {
     projectRef = new ProjectRepositories();
-    mode = mock(AnalysisMode.class);
+    mode = mock(DefaultAnalysisMode.class);
     bootstrapProps = new GlobalSettings(new BootstrapProperties(Collections.<String, String>emptyMap()), new PropertyDefinitions(), new GlobalRepositories(), mode);
   }
 

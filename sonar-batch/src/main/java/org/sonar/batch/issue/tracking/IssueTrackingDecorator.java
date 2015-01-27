@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.issue.tracking;
 
+import org.sonar.api.batch.RequiresDB;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -50,7 +52,6 @@ import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.scan.LastLineHashes;
 import org.sonar.batch.scan.filesystem.InputPathCache;
-import org.sonar.core.DryRunIncompatible;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.db.IssueChangeDto;
 import org.sonar.core.issue.db.IssueDto;
@@ -60,7 +61,7 @@ import java.util.Collection;
 
 @DependsUpon(DecoratorBarriers.ISSUES_ADDED)
 @DependedUpon(DecoratorBarriers.ISSUES_TRACKED)
-@DryRunIncompatible
+@RequiresDB
 public class IssueTrackingDecorator implements Decorator {
 
   private static final Logger LOG = LoggerFactory.getLogger(IssueTrackingDecorator.class);

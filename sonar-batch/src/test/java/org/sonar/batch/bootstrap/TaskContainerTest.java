@@ -33,14 +33,14 @@ public class TaskContainerTest {
 
   @Test
   public void should_add_project_reactor_builder_by_default() {
-    BootstrapContainer container = BootstrapContainer.create(Collections.<String, String>emptyMap(),
+    GlobalContainer container = GlobalContainer.create(Collections.<String, String>emptyMap(),
       Lists.newArrayList(new BootstrapProperties(Collections.<String, String>emptyMap())));
     TaskContainer taskContainer = new TaskContainer(container, Collections.<String, String>emptyMap());
     taskContainer.installCoreTasks();
 
     assertThat(taskContainer.getComponentByType(ProjectReactorBuilder.class)).isNotNull().isInstanceOf(ProjectReactorBuilder.class);
 
-    container = BootstrapContainer.create(Collections.<String, String>emptyMap(),
+    container = GlobalContainer.create(Collections.<String, String>emptyMap(),
       Lists.newArrayList(new BootstrapProperties(Collections.<String, String>emptyMap()), new EnvironmentInformation("SonarQubeRunner", "2.4")));
     taskContainer = new TaskContainer(container, Collections.<String, String>emptyMap());
     taskContainer.installCoreTasks();
@@ -50,7 +50,7 @@ public class TaskContainerTest {
 
   @Test
   public void should_add_deprecated_project_reactor_builder_if_old_runner() {
-    BootstrapContainer container = BootstrapContainer.create(Collections.<String, String>emptyMap(),
+    GlobalContainer container = GlobalContainer.create(Collections.<String, String>emptyMap(),
       Lists.newArrayList(new BootstrapProperties(Collections.<String, String>emptyMap()), new EnvironmentInformation("SonarRunner", "2.3")));
     TaskContainer taskContainer = new TaskContainer(container, Collections.<String, String>emptyMap());
     taskContainer.installCoreTasks();

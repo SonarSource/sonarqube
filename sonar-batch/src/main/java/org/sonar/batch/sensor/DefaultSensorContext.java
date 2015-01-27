@@ -20,6 +20,7 @@
 package org.sonar.batch.sensor;
 
 import com.google.common.base.Preconditions;
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -70,12 +71,14 @@ public class DefaultSensorContext implements SensorContext {
   private final BlockCache blockCache;
   private final DuplicationCache duplicationCache;
   private final SensorStorage sensorStorage;
+  private final AnalysisMode analysisMode;
 
-  public DefaultSensorContext(Settings settings, FileSystem fs, ActiveRules activeRules, ComponentDataCache componentDataCache,
+  public DefaultSensorContext(Settings settings, FileSystem fs, ActiveRules activeRules, AnalysisMode analysisMode, ComponentDataCache componentDataCache,
     BlockCache blockCache, DuplicationCache duplicationCache, SensorStorage sensorStorage) {
     this.settings = settings;
     this.fs = fs;
     this.activeRules = activeRules;
+    this.analysisMode = analysisMode;
     this.componentDataCache = componentDataCache;
     this.blockCache = blockCache;
     this.duplicationCache = duplicationCache;
@@ -95,6 +98,11 @@ public class DefaultSensorContext implements SensorContext {
   @Override
   public ActiveRules activeRules() {
     return activeRules;
+  }
+
+  @Override
+  public AnalysisMode analysisMode() {
+    return analysisMode;
   }
 
   @Override

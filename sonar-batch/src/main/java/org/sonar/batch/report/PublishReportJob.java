@@ -31,7 +31,7 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.ZipUtils;
-import org.sonar.batch.bootstrap.AnalysisMode;
+import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.protocol.output.ReportHelper;
@@ -49,14 +49,14 @@ public class PublishReportJob implements BatchComponent {
   private final Server server;
   private final Settings settings;
   private final Project project;
-  private final AnalysisMode analysisMode;
+  private final DefaultAnalysisMode analysisMode;
   private final ResourceCache resourceCache;
   private final TempFolder temp;
 
   private ReportPublisher[] publishers;
 
   public PublishReportJob(Settings settings, ServerClient serverClient, Server server,
-    Project project, AnalysisMode analysisMode, TempFolder temp, ResourceCache resourceCache, ReportPublisher[] publishers) {
+    Project project, DefaultAnalysisMode analysisMode, TempFolder temp, ResourceCache resourceCache, ReportPublisher[] publishers) {
     this.serverClient = serverClient;
     this.server = server;
     this.project = project;
@@ -68,7 +68,7 @@ public class PublishReportJob implements BatchComponent {
   }
 
   public PublishReportJob(Settings settings, ServerClient serverClient, Server server,
-    Project project, AnalysisMode analysisMode, TempFolder temp, ResourceCache resourceCache) {
+    Project project, DefaultAnalysisMode analysisMode, TempFolder temp, ResourceCache resourceCache) {
     this(settings, serverClient, server, project, analysisMode, temp, resourceCache, new ReportPublisher[0]);
   }
 
@@ -76,7 +76,9 @@ public class PublishReportJob implements BatchComponent {
     // If this is a preview analysis then we should not upload reports
     if (!analysisMode.isPreview()) {
       File report = prepareReport();
-      uploadMultiPartReport(report);
+      if (!analysisMode.isMediumTest()) {
+        uploadMultiPartReport(report);
+      }
     }
     logSuccess(LoggerFactory.getLogger(getClass()));
   }
@@ -138,7 +140,7 @@ public class PublishReportJob implements BatchComponent {
 
   @VisibleForTesting
   void logSuccess(Logger logger) {
-    if (analysisMode.isPreview()) {
+    if (analysisMode.isPreview() || analysisMode.isMediumTest()) {
       logger.info("ANALYSIS SUCCESSFUL");
 
     } else {

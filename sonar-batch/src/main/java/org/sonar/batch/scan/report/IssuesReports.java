@@ -20,20 +20,20 @@
 package org.sonar.batch.scan.report;
 
 import org.sonar.api.BatchComponent;
-import org.sonar.batch.bootstrap.AnalysisMode;
+import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 
 public class IssuesReports implements BatchComponent {
 
-  private final AnalysisMode analysisMode;
+  private final DefaultAnalysisMode analysisMode;
   private final Reporter[] reporters;
 
-  public IssuesReports(AnalysisMode analysisMode, Reporter... reporters) {
+  public IssuesReports(DefaultAnalysisMode analysisMode, Reporter... reporters) {
     this.reporters = reporters;
     this.analysisMode = analysisMode;
   }
 
   public void execute() {
-    if (analysisMode.isPreview() || analysisMode.isSensorMode()) {
+    if (analysisMode.isPreview() || analysisMode.isMediumTest()) {
       for (Reporter reporter : reporters) {
         reporter.execute();
       }

@@ -39,10 +39,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-public class BootstrapContainerTest {
+public class GlobalContainerTest {
   @Test
   public void should_add_components() {
-    BootstrapContainer container = BootstrapContainer.create(Collections.<String, String>emptyMap(), Collections.emptyList());
+    GlobalContainer container = GlobalContainer.create(Collections.<String, String>emptyMap(), Collections.emptyList());
     container.doBeforeStart();
 
     assertThat(container.getComponentByType(Logback.class)).isNotNull();
@@ -51,7 +51,7 @@ public class BootstrapContainerTest {
 
   @Test
   public void should_add_bootstrap_extensions() {
-    BootstrapContainer container = BootstrapContainer.create(Collections.<String, String>emptyMap(), Lists.newArrayList(Foo.class, new Bar()));
+    GlobalContainer container = GlobalContainer.create(Collections.<String, String>emptyMap(), Lists.newArrayList(Foo.class, new Bar()));
     container.doBeforeStart();
 
     assertThat(container.getComponentByType(Foo.class)).isNotNull();
@@ -67,7 +67,7 @@ public class BootstrapContainerTest {
       metadata, plugin
       ));
 
-    BootstrapContainer container = spy(BootstrapContainer.create(Collections.<String, String>emptyMap(), Lists.<Object>newArrayList(pluginRepository)));
+    GlobalContainer container = spy(GlobalContainer.create(Collections.<String, String>emptyMap(), Lists.<Object>newArrayList(pluginRepository)));
     doNothing().when(container).executeTask(Collections.<String, String>emptyMap());
     container.doAfterStart();
 

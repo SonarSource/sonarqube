@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.core.timemachine;
 
+import org.sonar.api.batch.RequiresDB;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.ObjectUtils;
@@ -33,7 +35,6 @@ import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.components.Period;
 import org.sonar.batch.components.TimeMachineConfiguration;
-import org.sonar.core.DryRunIncompatible;
 
 import javax.annotation.Nullable;
 
@@ -45,7 +46,7 @@ import java.util.Map;
 /**
  * @since 2.7
  */
-@DryRunIncompatible
+@RequiresDB
 @DependedUpon(DecoratorBarriers.END_OF_TIME_MACHINE)
 public abstract class AbstractNewCoverageFileAnalyzer implements Decorator {
 

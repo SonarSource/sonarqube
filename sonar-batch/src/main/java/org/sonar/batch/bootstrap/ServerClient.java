@@ -121,7 +121,7 @@ public class ServerClient implements BatchComponent {
     }
   }
 
-  private RuntimeException handleHttpException(HttpDownloader.HttpException he) {
+  public RuntimeException handleHttpException(HttpDownloader.HttpException he) {
     if (he.getResponseCode() == 401) {
       return new IllegalStateException(String.format(getMessageWhenNotAuthorized(), CoreProperties.LOGIN, CoreProperties.PASSWORD));
     }
