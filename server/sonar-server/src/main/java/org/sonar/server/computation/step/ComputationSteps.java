@@ -45,6 +45,7 @@ public class ComputationSteps {
       ApplyPermissionsStep.class,
       IndexIssuesStep.class,
       IndexSourceLinesStep.class,
+      IndexViewsStep.class,
 
       // notifications are sent at the end, so that webapp displays up-to-date information
       SendIssueNotificationsStep.class);
