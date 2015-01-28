@@ -26,15 +26,9 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.batch.index.BatchResource;
 import org.sonar.batch.index.ResourceCache;
-<<<<<<< HEAD
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchOutput;
 import org.sonar.batch.protocol.output.BatchOutputWriter;
-=======
-import org.sonar.batch.protocol.output.ReportHelper;
-import org.sonar.batch.protocol.output.component.ReportComponent;
-import org.sonar.batch.protocol.output.component.ReportComponents;
->>>>>>> origin/master
 
 import javax.annotation.CheckForNull;
 
