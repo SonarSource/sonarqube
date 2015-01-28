@@ -47,7 +47,12 @@ import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.batch.user.User;
 import org.sonar.batch.user.UserRepository;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
@@ -75,7 +80,7 @@ public class JSONReport implements Reporter {
   private final UserRepository userRepository;
 
   public JSONReport(Settings settings, FileSystem fileSystem, Server server, ActiveRules activeRules, IssueCache issueCache,
-                    Project rootModule, InputPathCache fileCache, UserRepository userRepository) {
+    Project rootModule, InputPathCache fileCache, UserRepository userRepository) {
     this.settings = settings;
     this.fileSystem = fileSystem;
     this.server = server;
@@ -142,12 +147,9 @@ public class JSONReport implements Reporter {
           .prop("status", issue.status())
           .prop("resolution", issue.resolution())
           .prop("isNew", issue.isNew())
-          .prop("reporter", issue.reporter())
           .prop("assignee", issue.assignee())
           .prop("effortToFix", issue.effortToFix())
-          .propDateTime("creationDate", issue.creationDate())
-          .propDateTime("updateDate", issue.updateDate())
-          .propDateTime("closeDate", issue.closeDate());
+          .propDateTime("creationDate", issue.creationDate());
         if (issue.reporter() != null) {
           logins.add(issue.reporter());
         }
