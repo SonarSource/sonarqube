@@ -101,8 +101,8 @@ public final class ScmConfiguration implements BatchComponent, Startable {
     if (providerPerKey.containsKey(forcedProviderKey)) {
       this.provider = providerPerKey.get(forcedProviderKey);
     } else {
-      throw new IllegalArgumentException("SCM provider was set to \"" + forcedProviderKey + "\" but no provider found for this key. Supported providers are "
-        + Joiner.on(",").join(providerPerKey.keySet()));
+      String supportedProviders = providerPerKey.isEmpty() ? "No SCM provider installed" : "Supported SCM providers are " + Joiner.on(",").join(providerPerKey.keySet());
+      throw new IllegalArgumentException("SCM provider was set to \"" + forcedProviderKey + "\" but no SCM provider found for this key. " + supportedProviders);
     }
   }
 
