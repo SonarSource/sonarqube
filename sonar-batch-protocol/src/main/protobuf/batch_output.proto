@@ -1,6 +1,6 @@
 /*
     SonarQube, open source software quality management tool.
-    Copyright (C) 2008-2014 SonarSource
+    Copyright (C) 2008-2015 SonarSource
     mailto:contact AT sonarsource DOT com
 
     SonarQube is free software; you can redistribute it and/or
@@ -17,6 +17,21 @@
     along with this program; if not, write to the Free Software Foundation,
     Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
+
+/*
+Notes
+
+  - "required" fields are not used as recommended by Google to keep forward-compatibility:
+    https://developers.google.com/protocol-buffers/docs/proto#simple
+
+  - this is beta version of specification. It will evolve during next releases and is
+    not forward-compatible yet.
+
+  - the related Java files are not generated during build. Indeed the existing protoc maven
+    plugins require protobuf to be installed on boxes. That means that generated Java files
+    are updated and committed for each change (see src/main/gen-java).
+*/
+
 
 import "constants.proto";
 
