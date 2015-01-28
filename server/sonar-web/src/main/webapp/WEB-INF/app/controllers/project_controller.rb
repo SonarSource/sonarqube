@@ -230,7 +230,6 @@ class ProjectController < ApplicationController
     sid = params[:snapshot_id]
     if sid
       Snapshot.update_all("status='U'", ["id=? or root_snapshot_id=(?)", sid.to_i, sid.to_i])
-      reportProjectModification(@project.id)
       flash[:notice] = message('project_history.snapshot_deleted')
     end
 
@@ -313,7 +312,6 @@ class ProjectController < ApplicationController
           end
           flash[:notice] = message('project_history.version_created', :params => params[:version_name])
         end
-        reportProjectModification(snapshot.root_project_id)
       end
     end
 
@@ -343,8 +341,6 @@ class ProjectController < ApplicationController
         Event.delete(safe_for_oracle_ids)
       end
     end
-
-    reportProjectModification(parent_snapshot.root_project_id)
 
     flash[:notice] = message('project_history.version_removed', :params => old_version_name)
     redirect_to :action => 'history', :id => parent_snapshot.root_project_id
@@ -439,10 +435,6 @@ class ProjectController < ApplicationController
 
   def redirect_to_default
     redirect_to home_path
-  end
-
-  def reportProjectModification(project_id)
-    Property.set(Java::OrgSonarCorePreview::PreviewCache::SONAR_PREVIEW_CACHE_LAST_UPDATE_KEY, java.lang.System.currentTimeMillis, project_id)
   end
 
 end
