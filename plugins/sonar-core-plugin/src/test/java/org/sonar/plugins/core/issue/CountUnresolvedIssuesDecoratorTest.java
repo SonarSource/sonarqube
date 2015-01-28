@@ -20,6 +20,9 @@
 
 package org.sonar.plugins.core.issue;
 
+import org.sonar.batch.components.TimeMachineConfiguration;
+
+import org.sonar.batch.deprecated.components.Period;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.time.DateUtils;
@@ -40,8 +43,6 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.test.IsRuleMeasure;
-import org.sonar.batch.components.Period;
-import org.sonar.batch.components.TimeMachineConfiguration;
 
 import java.util.Calendar;
 import java.util.Collections;

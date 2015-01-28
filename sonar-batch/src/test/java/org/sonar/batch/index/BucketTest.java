@@ -24,17 +24,17 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.File;
 
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
-import static org.hamcrest.Matchers.hasItem;
 
 public class BucketTest {
 
-  Directory directory = new Directory("org/foo");
-  File javaFile = new File("org/foo/Bar.java");
+  Directory directory = Directory.create("org/foo");
+  File javaFile = File.create("org/foo/Bar.java");
   Metric ncloc = new Metric("ncloc");
 
   @Test

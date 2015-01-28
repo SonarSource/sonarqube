@@ -20,6 +20,7 @@
 package org.sonar.api.batch.fs;
 
 import java.io.File;
+import java.nio.file.Path;
 
 /**
  * Layer over {@link java.io.File} for directories.
@@ -57,5 +58,11 @@ public interface InputDir extends InputPath {
    */
   @Override
   File file();
+
+  /**
+   * The underlying absolute {@link Path}
+   */
+  @Override
+  Path path();
 
 }

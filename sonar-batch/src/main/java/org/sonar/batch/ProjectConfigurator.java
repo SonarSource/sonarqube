@@ -41,6 +41,10 @@ import java.util.Date;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.longToDate;
 
+/**
+ * Used by views !!
+ *
+ */
 public class ProjectConfigurator implements BatchComponent {
 
   private static final Logger LOG = LoggerFactory.getLogger(ProjectConfigurator.class);

@@ -19,82 +19,133 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
-import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.batch.index.BatchResource;
-import org.sonar.batch.index.Cache;
-import org.sonar.batch.index.Caches;
 
 import javax.annotation.CheckForNull;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * Cache of all files. This cache is shared amongst all project modules. Inclusion and
+ * Cache of all files and dirs. This cache is shared amongst all project modules. Inclusion and
  * exclusion patterns are already applied.
  */
 public class InputPathCache implements BatchComponent {
 
-  private static final String DIR = "DIR";
-  private static final String FILE = "FILE";
-  // [module key | type | path] -> InputPath
-  // For example:
-  // [struts-core | FILE | src/main/java/Action.java] -> InputFile
-  // [struts-core | FILE | src/main/java/Filter.java] -> InputFile
-  // [struts-core | DIR | src/main/java] -> InputDir
-  private final Cache<InputPath> cache;
+  private final Map<String, Map<String, InputFile>> inputFileCache = new HashMap<>();
+  private final Map<String, Map<String, InputDir>> inputDirCache = new HashMap<>();
+  private final Map<String, Map<String, InputFileMetadata>> inputFileMetadataCache = new HashMap<>();
 
-  public InputPathCache(Caches caches) {
-    caches.registerValueCoder(DeprecatedDefaultInputFile.class, new DefaultInputFileValueCoder());
-    cache = caches.createCache("inputFiles");
+  public Iterable<InputFile> allFiles() {
+    return Iterables.concat(Iterables.transform(inputFileCache.values(), new Function<Map<String, InputFile>, Collection<InputFile>>() {
+      @Override
+      public Collection<InputFile> apply(Map<String, InputFile> input) {
+        return input.values();
+      }
+    }));
   }
 
-  public Iterable<InputPath> all() {
-    return cache.values();
+  public Iterable<InputDir> allDirs() {
+    return Iterables.concat(Iterables.transform(inputDirCache.values(), new Function<Map<String, InputDir>, Collection<InputDir>>() {
+      @Override
+      public Collection<InputDir> apply(Map<String, InputDir> input) {
+        return input.values();
+      }
+    }));
   }
 
   public Iterable<InputFile> filesByModule(String moduleKey) {
-    return (Iterable) cache.values(moduleKey, FILE);
+    if (inputFileCache.containsKey(moduleKey)) {
+      return inputFileCache.get(moduleKey).values();
+    }
+    return Collections.emptyList();
   }
 
   public Iterable<InputDir> dirsByModule(String moduleKey) {
-    return (Iterable) cache.values(moduleKey, DIR);
+    if (inputDirCache.containsKey(moduleKey)) {
+      return inputDirCache.get(moduleKey).values();
+    }
+    return Collections.emptyList();
   }
 
   public InputPathCache removeModule(String moduleKey) {
-    cache.clear(moduleKey);
+    inputFileCache.remove(moduleKey);
+    inputDirCache.remove(moduleKey);
+    inputFileMetadataCache.remove(moduleKey);
     return this;
   }
 
   public InputPathCache remove(String moduleKey, InputFile inputFile) {
-    cache.remove(moduleKey, FILE, inputFile.relativePath());
+    if (inputFileCache.containsKey(moduleKey)) {
+      inputFileCache.get(moduleKey).remove(inputFile.relativePath());
+    }
+    if (inputFileMetadataCache.containsKey(moduleKey)) {
+      inputFileMetadataCache.get(moduleKey).remove(inputFile.relativePath());
+    }
     return this;
   }
 
   public InputPathCache remove(String moduleKey, InputDir inputDir) {
-    cache.remove(moduleKey, DIR, inputDir.relativePath());
+    if (inputDirCache.containsKey(moduleKey)) {
+      inputDirCache.get(moduleKey).remove(inputDir.relativePath());
+    }
     return this;
   }
 
   public InputPathCache put(String moduleKey, InputFile inputFile) {
-    cache.put(moduleKey, FILE, inputFile.relativePath(), inputFile);
+    if (!inputFileCache.containsKey(moduleKey)) {
+      inputFileCache.put(moduleKey, new HashMap<String, InputFile>());
+    }
+    inputFileCache.get(moduleKey).put(inputFile.relativePath(), inputFile);
+    return this;
+  }
+
+  public synchronized InputPathCache put(String moduleKey, String relativePath, InputFileMetadata metadata) {
+    if (!inputFileMetadataCache.containsKey(moduleKey)) {
+      inputFileMetadataCache.put(moduleKey, new HashMap<String, InputFileMetadata>());
+    }
+    inputFileMetadataCache.get(moduleKey).put(relativePath, metadata);
     return this;
   }
 
   public InputPathCache put(String moduleKey, InputDir inputDir) {
-    cache.put(moduleKey, DIR, inputDir.relativePath(), inputDir);
+    if (!inputDirCache.containsKey(moduleKey)) {
+      inputDirCache.put(moduleKey, new HashMap<String, InputDir>());
+    }
+    inputDirCache.get(moduleKey).put(inputDir.relativePath(), inputDir);
     return this;
   }
 
   @CheckForNull
   public InputFile getFile(String moduleKey, String relativePath) {
-    return (InputFile) cache.get(moduleKey, FILE, relativePath);
+    if (inputFileCache.containsKey(moduleKey)) {
+      return inputFileCache.get(moduleKey).get(relativePath);
+    }
+    return null;
+  }
+
+  @CheckForNull
+  public InputFileMetadata getFileMetadata(String moduleKey, String relativePath) {
+    if (inputFileMetadataCache.containsKey(moduleKey)) {
+      return inputFileMetadataCache.get(moduleKey).get(relativePath);
+    }
+    return null;
   }
 
   @CheckForNull
   public InputDir getDir(String moduleKey, String relativePath) {
-    return (InputDir) cache.get(moduleKey, DIR, relativePath);
+    if (inputDirCache.containsKey(moduleKey)) {
+      return inputDirCache.get(moduleKey).get(relativePath);
+    }
+    return null;
   }
 
   @CheckForNull

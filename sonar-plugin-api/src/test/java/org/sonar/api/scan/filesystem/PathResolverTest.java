@@ -76,6 +76,7 @@ public class PathResolverTest {
     File world = new File(hello, "World.java");
 
     assertThat(resolver.relativePath(rootDir, world)).isEqualTo("org/hello/World.java");
+    assertThat(resolver.relativePath(new File(rootDir, "."), world)).isEqualTo("org/hello/World.java");
   }
 
   @Test
@@ -139,5 +140,14 @@ public class PathResolverTest {
     File rootDir = temp.newFolder();
 
     assertThat(resolver.relativePath(rootDir, new File("Elsewhere.java"))).isNull();
+  }
+
+  @Test
+  public void supportSymlink() {
+    PathResolver resolver = new PathResolver();
+    File rootDir = new File("src/test/resources/org/sonar/api/scan/filesystem/sample-with-symlink");
+
+    assertThat(resolver.relativePath(rootDir, new File("src/test/resources/org/sonar/api/scan/filesystem/sample-with-symlink/testx/ClassOneTest.java"))).isEqualTo(
+      "testx/ClassOneTest.java");
   }
 }

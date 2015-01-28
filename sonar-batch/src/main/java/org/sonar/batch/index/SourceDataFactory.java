@@ -35,6 +35,7 @@ import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.highlighting.SyntaxHighlightingData;
 import org.sonar.batch.highlighting.SyntaxHighlightingRule;
+import org.sonar.batch.scan.filesystem.InputFileMetadata;
 import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.batch.source.CodeColorizers;
 import org.sonar.batch.symbol.SymbolData;
@@ -72,18 +73,18 @@ public class SourceDataFactory implements BatchComponent {
     this.codeColorizers = codeColorizers;
   }
 
-  public byte[] consolidateData(DefaultInputFile inputFile) throws IOException {
+  public byte[] consolidateData(DefaultInputFile inputFile, InputFileMetadata metadata) throws IOException {
     FileSourceDb.Data.Builder dataBuilder = createForSource(inputFile);
     applyLineMeasures(inputFile, dataBuilder);
     applyDuplications(inputFile.key(), dataBuilder);
-    applyHighlighting(inputFile, dataBuilder);
-    applySymbolReferences(inputFile, dataBuilder);
+    applyHighlighting(inputFile, metadata, dataBuilder);
+    applySymbolReferences(inputFile, metadata, dataBuilder);
     return FileSourceDto.encodeData(dataBuilder.build());
   }
 
   FileSourceDb.Data.Builder createForSource(DefaultInputFile inputFile) throws IOException {
     FileSourceDb.Data.Builder result = FileSourceDb.Data.newBuilder();
-    List<String> lines = FileUtils.readLines(inputFile.file(), inputFile.encoding());
+    List<String> lines = FileUtils.readLines(inputFile.file(), inputFile.charset());
     // Missing empty last line
     if (lines.size() == inputFile.lines() - 1) {
       lines.add("");
@@ -191,11 +192,11 @@ public class SourceDataFactory implements BatchComponent {
     void apply(String value, FileSourceDb.Line.Builder lineBuilder);
   }
 
-  void applyHighlighting(DefaultInputFile inputFile, FileSourceDb.Data.Builder to) {
+  void applyHighlighting(DefaultInputFile inputFile, InputFileMetadata metadata, FileSourceDb.Data.Builder to) {
     SyntaxHighlightingData highlighting = componentDataCache.getData(inputFile.key(), SnapshotDataTypes.SYNTAX_HIGHLIGHTING);
     String language = inputFile.language();
     if (highlighting == null && language != null) {
-      highlighting = codeColorizers.toSyntaxHighlighting(inputFile.file(), inputFile.encoding(), language);
+      highlighting = codeColorizers.toSyntaxHighlighting(inputFile.file(), inputFile.charset(), language);
     }
     if (highlighting == null) {
       return;
@@ -204,12 +205,12 @@ public class SourceDataFactory implements BatchComponent {
     RuleItemWriter ruleItemWriter = new RuleItemWriter();
     int currentLineIdx = 1;
     for (SyntaxHighlightingRule rule : highlighting.syntaxHighlightingRuleSet()) {
-      while (currentLineIdx < inputFile.lines() && rule.getStartPosition() >= inputFile.originalLineOffsets()[currentLineIdx]) {
+      while (currentLineIdx < inputFile.lines() && rule.getStartPosition() >= metadata.originalLineOffsets()[currentLineIdx]) {
         // This rule starts on another line so advance
         currentLineIdx++;
       }
       // Now we know current rule starts on current line
-      writeDataPerLine(inputFile.originalLineOffsets(), rule, rule.getStartPosition(), rule.getEndPosition(), highlightingPerLine, currentLineIdx, ruleItemWriter);
+      writeDataPerLine(metadata.originalLineOffsets(), rule, rule.getStartPosition(), rule.getEndPosition(), highlightingPerLine, currentLineIdx, ruleItemWriter);
     }
     for (int i = 0; i < highlightingPerLine.length; i++) {
       StringBuilder sb = highlightingPerLine[i];
@@ -219,7 +220,7 @@ public class SourceDataFactory implements BatchComponent {
     }
   }
 
-  void applySymbolReferences(DefaultInputFile file, FileSourceDb.Data.Builder to) {
+  void applySymbolReferences(DefaultInputFile file, InputFileMetadata metadata, FileSourceDb.Data.Builder to) {
     SymbolData symbolRefs = componentDataCache.getData(file.key(), SnapshotDataTypes.SYMBOL_HIGHLIGHTING);
     if (symbolRefs != null) {
       StringBuilder[] refsPerLine = new StringBuilder[file.lines()];
@@ -236,13 +237,13 @@ public class SourceDataFactory implements BatchComponent {
         int declarationStartOffset = symbol.getDeclarationStartOffset();
         int declarationEndOffset = symbol.getDeclarationEndOffset();
         int length = declarationEndOffset - declarationStartOffset;
-        addSymbol(symbolId, declarationStartOffset, declarationEndOffset, file.originalLineOffsets(), refsPerLine);
+        addSymbol(symbolId, declarationStartOffset, declarationEndOffset, metadata.originalLineOffsets(), refsPerLine);
         for (Integer referenceStartOffset : symbolRefs.referencesBySymbol().get(symbol)) {
           if (referenceStartOffset == declarationStartOffset) {
             // Ignore old API that used to store reference as first declaration
             continue;
           }
-          addSymbol(symbolId, referenceStartOffset, referenceStartOffset + length, file.originalLineOffsets(), refsPerLine);
+          addSymbol(symbolId, referenceStartOffset, referenceStartOffset + length, metadata.originalLineOffsets(), refsPerLine);
         }
         symbolId++;
       }
@@ -255,12 +256,12 @@ public class SourceDataFactory implements BatchComponent {
     }
   }
 
-  private void addSymbol(int symbolId, int startOffset, int endOffset, long[] originalLineOffsets, StringBuilder[] result) {
+  private void addSymbol(int symbolId, int startOffset, int endOffset, int[] originalLineOffsets, StringBuilder[] result) {
     int startLine = binarySearchLine(startOffset, originalLineOffsets);
     writeDataPerLine(originalLineOffsets, symbolId, startOffset, endOffset, result, startLine, new SymbolItemWriter());
   }
 
-  private int binarySearchLine(int declarationStartOffset, long[] originalLineOffsets) {
+  private int binarySearchLine(int declarationStartOffset, int[] originalLineOffsets) {
     int begin = 0;
     int end = originalLineOffsets.length - 1;
     while (begin < end) {
@@ -274,7 +275,7 @@ public class SourceDataFactory implements BatchComponent {
     return begin + 1;
   }
 
-  private <G> void writeDataPerLine(long[] originalLineOffsets, G item, int globalStartOffset, int globalEndOffset, StringBuilder[] dataPerLine, int startLine,
+  private <G> void writeDataPerLine(int[] originalLineOffsets, G item, int globalStartOffset, int globalEndOffset, StringBuilder[] dataPerLine, int startLine,
     RangeItemWriter<G> writer) {
     int currentLineIdx = startLine;
     // We know current item starts on current line

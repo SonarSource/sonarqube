@@ -19,19 +19,19 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import org.sonar.batch.repository.language.DefaultLanguagesRepository;
+import org.sonar.batch.repository.language.LanguagesRepository;
+
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Languages;
-import org.sonar.batch.languages.DefaultLanguagesReferential;
-import org.sonar.batch.languages.LanguagesReferential;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class LanguageDetectionFactoryTest {
   @Test
   public void testCreate() throws Exception {
-    LanguagesReferential languages = new DefaultLanguagesReferential(new Languages(Java.INSTANCE));
+    LanguagesRepository languages = new DefaultLanguagesRepository(new Languages(Java.INSTANCE));
     LanguageDetectionFactory factory = new LanguageDetectionFactory(new Settings(), languages);
     LanguageDetection languageDetection = factory.create();
     assertThat(languageDetection).isNotNull();

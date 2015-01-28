@@ -57,7 +57,7 @@ public class DefaultFileLinesContextTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void shouldNotAllowCreationForDirectory() {
-    new DefaultFileLinesContext(index, new Directory("key"));
+    new DefaultFileLinesContext(index, Directory.create("key"));
   }
 
   @Test

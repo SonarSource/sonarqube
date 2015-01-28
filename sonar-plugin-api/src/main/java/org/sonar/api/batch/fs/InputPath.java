@@ -21,6 +21,7 @@ package org.sonar.api.batch.fs;
 
 import java.io.File;
 import java.io.Serializable;
+import java.nio.file.Path;
 
 /**
  * Layer over {@link java.io.File} for files or directories.
@@ -48,5 +49,12 @@ public interface InputPath extends Serializable {
    * @see InputDir#file()
    */
   File file();
+
+  /**
+   * @see InputFile#path()
+   * @see InputDir#path()
+   * @since 5.1
+   */
+  Path path();
 
 }

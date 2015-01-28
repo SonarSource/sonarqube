@@ -29,8 +29,8 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.utils.MessageException;
-import org.sonar.batch.languages.DefaultLanguagesReferential;
-import org.sonar.batch.languages.LanguagesReferential;
+import org.sonar.batch.repository.language.DefaultLanguagesRepository;
+import org.sonar.batch.repository.language.LanguagesRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -43,12 +43,12 @@ public class LanguageVerifierTest {
   public ExpectedException thrown = ExpectedException.none();
 
   private Settings settings = new Settings();
-  private LanguagesReferential languages = new DefaultLanguagesReferential(new Languages(Java.INSTANCE));
+  private LanguagesRepository languages = new DefaultLanguagesRepository(new Languages(Java.INSTANCE));
   private DefaultFileSystem fs;
 
   @Before
   public void prepare() throws Exception {
-    fs = new DefaultFileSystem(temp.newFolder());
+    fs = new DefaultFileSystem(temp.newFolder().toPath());
   }
 
   @Test

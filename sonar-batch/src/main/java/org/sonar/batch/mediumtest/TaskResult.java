@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.dependency.Dependency;
 import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
@@ -165,12 +164,11 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
 
   private void storeFs(ProjectScanContainer container) {
     InputPathCache inputFileCache = container.getComponentByType(InputPathCache.class);
-    for (InputPath inputPath : inputFileCache.all()) {
-      if (inputPath instanceof InputFile) {
-        inputFiles.put(inputPath.relativePath(), (InputFile) inputPath);
-      } else {
-        inputDirs.put(inputPath.relativePath(), (InputDir) inputPath);
-      }
+    for (InputFile inputPath : inputFileCache.allFiles()) {
+      inputFiles.put(inputPath.relativePath(), inputPath);
+    }
+    for (InputDir inputPath : inputFileCache.allDirs()) {
+      inputDirs.put(inputPath.relativePath(), inputPath);
     }
   }
 

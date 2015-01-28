@@ -27,6 +27,8 @@ import javax.annotation.Nullable;
 
 import java.io.File;
 import java.io.Serializable;
+import java.nio.charset.Charset;
+import java.nio.file.Path;
 
 /**
  * @since 4.2
@@ -35,17 +37,12 @@ public class DefaultInputFile implements InputFile, Serializable {
 
   private final String relativePath;
   private final String moduleKey;
-  private String absolutePath;
+  protected Path moduleBaseDir;
   private String language;
   private Type type = Type.MAIN;
   private Status status;
-  private String hash;
   private int lines;
-  private int nonBlankLines;
-  private String encoding;
-  private long[] originalLineOffsets;
-  private byte[][] lineHashes;
-  private boolean empty;
+  private Charset charset;
 
   public DefaultInputFile(String moduleKey, String relativePath) {
     this.moduleKey = moduleKey;
@@ -59,15 +56,20 @@ public class DefaultInputFile implements InputFile, Serializable {
 
   @Override
   public String absolutePath() {
-    return absolutePath;
+    return PathUtils.sanitize(path().toString());
   }
 
   @Override
   public File file() {
-    if (absolutePath == null) {
-      throw new IllegalStateException("Can not return the java.io.File because absolute path is not set (see method setFile(java.io.File))");
+    return path().toFile();
+  }
+
+  @Override
+  public Path path() {
+    if (moduleBaseDir == null) {
+      throw new IllegalStateException("Can not return the java.nio.file.Path because module baseDir is not set (see method setModuleBaseDir(java.io.File))");
     }
-    return new File(absolutePath);
+    return moduleBaseDir.resolve(relativePath);
   }
 
   @CheckForNull
@@ -89,20 +91,9 @@ public class DefaultInputFile implements InputFile, Serializable {
     return status;
   }
 
-  /**
-   * Digest hash of the file.
-   */
-  public String hash() {
-    return hash;
-  }
-
   @Override
   public int lines() {
     return lines;
-  }
-
-  public int nonBlankLines() {
-    return nonBlankLines;
   }
 
   /**
@@ -116,30 +107,20 @@ public class DefaultInputFile implements InputFile, Serializable {
     return moduleKey;
   }
 
-  public String encoding() {
-    return encoding;
+  public Charset charset() {
+    return charset;
   }
 
-  public long[] originalLineOffsets() {
-    return originalLineOffsets;
-  }
-
-  public byte[][] lineHashes() {
-    return lineHashes;
-  }
-
-  public DefaultInputFile setAbsolutePath(String s) {
-    this.absolutePath = PathUtils.sanitize(s);
+  /**
+   * For testing purpose. Will be automaticall set when file is added to {@link DefaultFileSystem}
+   */
+  public DefaultInputFile setModuleBaseDir(Path moduleBaseDir) {
+    this.moduleBaseDir = moduleBaseDir.normalize();
     return this;
   }
 
   public DefaultInputFile setLanguage(@Nullable String language) {
     this.language = language;
-    return this;
-  }
-
-  public DefaultInputFile setFile(File file) {
-    setAbsolutePath(file.getAbsolutePath());
     return this;
   }
 
@@ -153,42 +134,13 @@ public class DefaultInputFile implements InputFile, Serializable {
     return this;
   }
 
-  public DefaultInputFile setHash(String hash) {
-    this.hash = hash;
-    return this;
-  }
-
   public DefaultInputFile setLines(int lines) {
     this.lines = lines;
     return this;
   }
 
-  public DefaultInputFile setNonBlankLines(int nonBlankLines) {
-    this.nonBlankLines = nonBlankLines;
-    return this;
-  }
-
-  public DefaultInputFile setEncoding(String encoding) {
-    this.encoding = encoding;
-    return this;
-  }
-
-  public DefaultInputFile setOriginalLineOffsets(long[] originalLineOffsets) {
-    this.originalLineOffsets = originalLineOffsets;
-    return this;
-  }
-
-  public DefaultInputFile setLineHashes(byte[][] lineHashes) {
-    this.lineHashes = lineHashes;
-    return this;
-  }
-
-  public boolean isEmpty() {
-    return this.empty;
-  }
-
-  public DefaultInputFile setEmpty(boolean empty) {
-    this.empty = empty;
+  public DefaultInputFile setCharset(Charset charset) {
+    this.charset = charset;
     return this;
   }
 
@@ -212,7 +164,7 @@ public class DefaultInputFile implements InputFile, Serializable {
 
   @Override
   public String toString() {
-    return "[moduleKey=" + moduleKey + ", relative=" + relativePath + ", abs=" + absolutePath + "]";
+    return "[moduleKey=" + moduleKey + ", relative=" + relativePath + ", basedir=" + moduleBaseDir + "]";
   }
 
 }

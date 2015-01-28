@@ -28,7 +28,9 @@ import java.util.regex.Pattern;
  * Register and describe a {@link TaskExtension}.
  *
  * @since 3.6
+ * @deprecated since 5.1 all tasks (devcockpit, views) will be moved to server side
  */
+@Deprecated
 public class TaskDefinition implements TaskExtension, Comparable<TaskDefinition> {
   static final String KEY_PATTERN = "[a-zA-Z0-9\\-\\_]+";
 

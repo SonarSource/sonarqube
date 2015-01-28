@@ -33,15 +33,12 @@ public class InputFileBuilderFactory implements BatchComponent {
   private final StatusDetectionFactory statusDetectionFactory;
   private final DefaultAnalysisMode analysisMode;
   private final Settings settings;
+  private final FileMetadata fileMetadata;
 
   public InputFileBuilderFactory(ProjectDefinition def, PathResolver pathResolver, LanguageDetectionFactory langDetectionFactory,
-    StatusDetectionFactory statusDetectionFactory, DefaultAnalysisMode analysisMode, Settings settings) {
-    this(def.getKeyWithBranch(), pathResolver, langDetectionFactory, statusDetectionFactory, analysisMode, settings);
-  }
-
-  private InputFileBuilderFactory(String effectiveKey, PathResolver pathResolver, LanguageDetectionFactory langDetectionFactory,
-    StatusDetectionFactory statusDetectionFactory, DefaultAnalysisMode analysisMode, Settings settings) {
-    this.moduleKey = effectiveKey;
+    StatusDetectionFactory statusDetectionFactory, DefaultAnalysisMode analysisMode, Settings settings, FileMetadata fileMetadata) {
+    this.fileMetadata = fileMetadata;
+    this.moduleKey = def.getKeyWithBranch();
     this.pathResolver = pathResolver;
     this.langDetectionFactory = langDetectionFactory;
     this.statusDetectionFactory = statusDetectionFactory;
@@ -50,6 +47,6 @@ public class InputFileBuilderFactory implements BatchComponent {
   }
 
   InputFileBuilder create(DefaultModuleFileSystem fs) {
-    return new InputFileBuilder(moduleKey, pathResolver, langDetectionFactory.create(), statusDetectionFactory.create(), fs, analysisMode, settings);
+    return new InputFileBuilder(moduleKey, pathResolver, langDetectionFactory.create(), statusDetectionFactory.create(), fs, analysisMode, settings, fileMetadata);
   }
 }

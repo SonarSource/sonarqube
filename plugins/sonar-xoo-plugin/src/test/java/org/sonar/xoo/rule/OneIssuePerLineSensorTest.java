@@ -60,7 +60,7 @@ public class OneIssuePerLineSensorTest {
 
   @Test
   public void testRule() throws IOException {
-    DefaultFileSystem fs = new DefaultFileSystem(temp.newFolder());
+    DefaultFileSystem fs = new DefaultFileSystem(temp.newFolder().toPath());
     DefaultInputFile inputFile = new DefaultInputFile("foo", "src/Foo.xoo").setLanguage(Xoo.KEY).setLines(10);
     fs.add(inputFile);
 
@@ -84,7 +84,7 @@ public class OneIssuePerLineSensorTest {
 
   @Test
   public void testForceSeverity() throws IOException {
-    DefaultFileSystem fs = new DefaultFileSystem(temp.newFolder());
+    DefaultFileSystem fs = new DefaultFileSystem(temp.newFolder().toPath());
     DefaultInputFile inputFile = new DefaultInputFile("foo", "src/Foo.xoo").setLanguage(Xoo.KEY).setLines(10);
     fs.add(inputFile);
 

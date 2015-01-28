@@ -19,6 +19,9 @@
  */
 package org.sonar.batch.phases;
 
+import org.sonar.batch.deprecated.decorator.DefaultDecoratorContext;
+
+import org.sonar.batch.deprecated.decorator.DecoratorsSelector;
 import com.google.common.collect.Lists;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.Decorator;
@@ -29,8 +32,6 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.DecoratorsSelector;
-import org.sonar.batch.DefaultDecoratorContext;
 import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.events.EventBus;

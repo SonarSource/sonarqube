@@ -24,6 +24,7 @@ import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -36,12 +37,12 @@ import java.util.List;
  */
 public class DefaultFilePredicates implements FilePredicates {
 
-  private final File baseDir;
+  private final Path baseDir;
 
   /**
    * Client code should use {@link org.sonar.api.batch.fs.FileSystem#predicates()} to get an instance
    */
-  DefaultFilePredicates(File baseDir) {
+  DefaultFilePredicates(Path baseDir) {
     this.baseDir = baseDir;
   }
 

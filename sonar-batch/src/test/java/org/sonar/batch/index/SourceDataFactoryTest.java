@@ -26,6 +26,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
@@ -35,6 +36,7 @@ import org.sonar.api.measures.Metric;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.highlighting.SyntaxHighlightingData;
 import org.sonar.batch.highlighting.SyntaxHighlightingDataBuilder;
+import org.sonar.batch.scan.filesystem.InputFileMetadata;
 import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.batch.source.CodeColorizers;
 import org.sonar.batch.symbol.DefaultSymbolTableBuilder;
@@ -58,18 +60,21 @@ public class SourceDataFactoryTest {
   DuplicationCache duplicationCache = mock(DuplicationCache.class);
   CodeColorizers colorizers = mock(CodeColorizers.class);
   DefaultInputFile inputFile;
+  InputFileMetadata metadata;
   SourceDataFactory sut = new SourceDataFactory(measureCache, componentDataCache, duplicationCache, colorizers);
   FileSourceDb.Data.Builder output;
 
   @Before
   public void setUp() throws Exception {
     // generate a file with 3 lines
-    File file = temp.newFile();
+    File baseDir = temp.newFolder();
+    DefaultFileSystem fs = new DefaultFileSystem(baseDir.toPath());
     inputFile = new DefaultInputFile("module_key", "src/Foo.java")
       .setLines(3)
-      .setEncoding(Charsets.UTF_8.name())
-      .setFile(file);
-    FileUtils.write(file, "one\ntwo\nthree\n");
+      .setCharset(Charsets.UTF_8);
+    fs.add(inputFile);
+    metadata = new InputFileMetadata();
+    FileUtils.write(inputFile.file(), "one\ntwo\nthree\n");
     output = sut.createForSource(inputFile);
   }
 
@@ -84,7 +89,7 @@ public class SourceDataFactoryTest {
 
   @Test
   public void consolidateData() throws Exception {
-    byte[] bytes = sut.consolidateData(inputFile);
+    byte[] bytes = sut.consolidateData(inputFile, metadata);
     assertThat(bytes).isNotEmpty();
   }
 
@@ -145,7 +150,6 @@ public class SourceDataFactoryTest {
       Arrays.asList(new Measure().setData(dataPerLine).setMetric(metric)));
   }
 
-
   @Test
   public void applyDuplications() throws Exception {
     DuplicationGroup group1 = new DuplicationGroup(new DuplicationGroup.Block(inputFile.key(), 1, 1))
@@ -169,7 +173,7 @@ public class SourceDataFactoryTest {
   public void applyHighlighting_missing() throws Exception {
     when(componentDataCache.getData(inputFile.key(), SnapshotDataTypes.SYNTAX_HIGHLIGHTING)).thenReturn(null);
 
-    sut.applyHighlighting(inputFile, output);
+    sut.applyHighlighting(inputFile, metadata, output);
 
     FileSourceDb.Data data = output.build();
     assertThat(data.getLines(0).hasHighlighting()).isFalse();
@@ -185,9 +189,9 @@ public class SourceDataFactoryTest {
       .registerHighlightingRule(7, 16, TypeOfText.CONSTANT)
       .build();
     when(componentDataCache.getData(inputFile.key(), SnapshotDataTypes.SYNTAX_HIGHLIGHTING)).thenReturn(highlighting);
-    inputFile.setOriginalLineOffsets(new long[] {0, 4, 7});
+    metadata.setOriginalLineOffsets(new int[] {0, 4, 7});
 
-    sut.applyHighlighting(inputFile, output);
+    sut.applyHighlighting(inputFile, metadata, output);
 
     FileSourceDb.Data data = output.build();
     assertThat(data.getLines(0).getHighlighting()).isEqualTo("0,4,a");
@@ -203,9 +207,9 @@ public class SourceDataFactoryTest {
       .registerHighlightingRule(10, 16, TypeOfText.CONSTANT)
       .build();
     when(componentDataCache.getData(inputFile.key(), SnapshotDataTypes.SYNTAX_HIGHLIGHTING)).thenReturn(highlighting);
-    inputFile.setOriginalLineOffsets(new long[] {0, 4, 7});
+    metadata.setOriginalLineOffsets(new int[] {0, 4, 7});
 
-    sut.applyHighlighting(inputFile, output);
+    sut.applyHighlighting(inputFile, metadata, output);
 
     FileSourceDb.Data data = output.build();
     assertThat(data.getLines(0).getHighlighting()).isEqualTo("0,3,a");
@@ -222,9 +226,9 @@ public class SourceDataFactoryTest {
       .registerHighlightingRule(8, 15, TypeOfText.KEYWORD)
       .build();
     when(componentDataCache.getData(inputFile.key(), SnapshotDataTypes.SYNTAX_HIGHLIGHTING)).thenReturn(highlighting);
-    inputFile.setOriginalLineOffsets(new long[] {0, 4, 7});
+    metadata.setOriginalLineOffsets(new int[] {0, 4, 7});
 
-    sut.applyHighlighting(inputFile, output);
+    sut.applyHighlighting(inputFile, metadata, output);
 
     FileSourceDb.Data data = output.build();
     assertThat(data.getLines(0).getHighlighting()).isEqualTo("0,3,a");
@@ -241,9 +245,9 @@ public class SourceDataFactoryTest {
       .registerHighlightingRule(8, 15, TypeOfText.KEYWORD)
       .build();
     when(componentDataCache.getData(inputFile.key(), SnapshotDataTypes.SYNTAX_HIGHLIGHTING)).thenReturn(highlighting);
-    inputFile.setOriginalLineOffsets(new long[] {0, 4, 7});
+    metadata.setOriginalLineOffsets(new int[] {0, 4, 7});
 
-    sut.applyHighlighting(inputFile, output);
+    sut.applyHighlighting(inputFile, metadata, output);
 
     FileSourceDb.Data data = output.build();
     assertThat(data.getLines(0).getHighlighting()).isEqualTo("0,3,a");
@@ -255,7 +259,7 @@ public class SourceDataFactoryTest {
   public void applySymbolReferences_missing() throws Exception {
     when(componentDataCache.getData(inputFile.key(), SnapshotDataTypes.SYMBOL_HIGHLIGHTING)).thenReturn(null);
 
-    sut.applySymbolReferences(inputFile, output);
+    sut.applySymbolReferences(inputFile, metadata, output);
 
     FileSourceDb.Data data = output.build();
     assertThat(data.getLines(0).hasSymbols()).isFalse();
@@ -273,9 +277,9 @@ public class SourceDataFactoryTest {
     symbolBuilder.newReference(s2, 0);
     symbolBuilder.newReference(s2, 7);
     when(componentDataCache.getData(inputFile.key(), SnapshotDataTypes.SYMBOL_HIGHLIGHTING)).thenReturn(symbolBuilder.build());
-    inputFile.setOriginalLineOffsets(new long[] {0, 4, 7});
+    metadata.setOriginalLineOffsets(new int[] {0, 4, 7});
 
-    sut.applySymbolReferences(inputFile, output);
+    sut.applySymbolReferences(inputFile, metadata, output);
 
     FileSourceDb.Data data = output.build();
     assertThat(data.getLines(0).getSymbols()).isEqualTo("1,2,1;0,2,2");
@@ -293,9 +297,9 @@ public class SourceDataFactoryTest {
     symbolBuilder.newReference(s1, 11);
     symbolBuilder.newReference(s1, 4);
     when(componentDataCache.getData(inputFile.key(), SnapshotDataTypes.SYMBOL_HIGHLIGHTING)).thenReturn(symbolBuilder.build());
-    inputFile.setOriginalLineOffsets(new long[] {0, 4, 7});
+    metadata.setOriginalLineOffsets(new int[] {0, 4, 7});
 
-    sut.applySymbolReferences(inputFile, output);
+    sut.applySymbolReferences(inputFile, metadata, output);
 
     FileSourceDb.Data data = output.build();
     assertThat(data.getLines(0).getSymbols()).isEqualTo("1,2,1;0,2,2");

@@ -46,7 +46,7 @@ public class DuplicationPersisterTest extends AbstractDaoTestCase {
 
   DuplicationPersister duplicationPersister;
   RuleFinder ruleFinder = mock(RuleFinder.class);
-  File aFile = new File("org/foo/Bar.java");
+  File aFile = File.create("org/foo/Bar.java");
   Snapshot fileSnapshot = snapshot(FILE_SNAPSHOT_ID);
 
   private DuplicationCache duplicationCache;

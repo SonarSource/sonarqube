@@ -19,9 +19,12 @@
  */
 package org.sonar.batch.issue.tracking;
 
+import com.google.common.base.Charsets;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 import org.sonar.api.batch.DecoratorContext;
@@ -41,6 +44,7 @@ import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.scan.LastLineHashes;
+import org.sonar.batch.scan.filesystem.InputFileMetadata;
 import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.db.IssueChangeDto;
@@ -48,6 +52,7 @@ import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.java.api.JavaClass;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -70,6 +75,9 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class IssueTrackingDecoratorTest {
+
+  @org.junit.Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
   IssueTrackingDecorator decorator;
   IssueCache issueCache = mock(IssueCache.class, RETURNS_MOCKS);
@@ -124,6 +132,7 @@ public class IssueTrackingDecoratorTest {
     List<PreviousIssue> dbIssues = Collections.emptyList();
     when(initialOpenIssues.selectAndRemoveIssues("struts:Action.java")).thenReturn(dbIssues);
     when(inputPathCache.getFile("foo", "Action.java")).thenReturn(mock(DefaultInputFile.class));
+    when(inputPathCache.getFileMetadata("foo", "Action.java")).thenReturn(new InputFileMetadata());
     decorator.doDecorate(file);
 
     // Apply filters, track, apply transitions, notify extensions then update cache
@@ -152,6 +161,7 @@ public class IssueTrackingDecoratorTest {
 
     when(tracking.track(isA(SourceHashHolder.class), anyCollection(), anyCollection())).thenReturn(trackingResult);
     when(inputPathCache.getFile("foo", "Action.java")).thenReturn(mock(DefaultInputFile.class));
+    when(inputPathCache.getFileMetadata("foo", "Action.java")).thenReturn(new InputFileMetadata());
 
     decorator.doDecorate(file);
 
@@ -210,10 +220,13 @@ public class IssueTrackingDecoratorTest {
     assertThat(issue.isOnDisabledRule()).isFalse();
   }
 
-  private Resource mockHashes(String originalSource, String newSource) {
+  private Resource mockHashes(String originalSource, String newSource) throws IOException {
     DefaultInputFile inputFile = mock(DefaultInputFile.class);
-    byte[][] hashes = computeHashes(newSource);
-    when(inputFile.lineHashes()).thenReturn(hashes);
+    java.io.File f = temp.newFile();
+    when(inputFile.path()).thenReturn(f.toPath());
+    when(inputFile.charset()).thenReturn(Charsets.UTF_8);
+    when(inputFile.lines()).thenReturn(newSource.split("\n").length);
+    FileUtils.write(f, newSource, Charsets.UTF_8);
     when(inputFile.key()).thenReturn("foo:Action.java");
     when(inputPathCache.getFile("foo", "Action.java")).thenReturn(inputFile);
     when(lastSnapshots.getLineHashes("foo:Action.java")).thenReturn(computeHexHashes(originalSource));
@@ -559,15 +572,6 @@ public class IssueTrackingDecoratorTest {
     decorator.mergeMatched(trackingResult);
 
     assertThat(issue.changes()).hasSize(1);
-  }
-
-  private byte[][] computeHashes(String source) {
-    String[] lines = source.split("\n");
-    byte[][] hashes = new byte[lines.length][];
-    for (int i = 0; i < lines.length; i++) {
-      hashes[i] = DigestUtils.md5(lines[i].replaceAll("[\t ]", ""));
-    }
-    return hashes;
   }
 
   private String[] computeHexHashes(String source) {

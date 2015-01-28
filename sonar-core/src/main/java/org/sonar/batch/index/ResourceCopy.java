@@ -19,6 +19,9 @@
  */
 package org.sonar.batch.index;
 
+/**
+ * Used by views !!
+ */
 public interface ResourceCopy {
 
   int getCopyResourceId();

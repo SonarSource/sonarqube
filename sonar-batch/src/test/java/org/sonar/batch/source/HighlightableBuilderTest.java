@@ -37,7 +37,7 @@ public class HighlightableBuilderTest {
 
   @Test
   public void should_load_default_perspective() throws Exception {
-    Resource file = new File("foo.c").setEffectiveKey("myproject:path/to/foo.c");
+    Resource file = File.create("foo.c").setEffectiveKey("myproject:path/to/foo.c");
     Component component = new ResourceComponent(file);
 
     HighlightableBuilder builder = new HighlightableBuilder(cache);

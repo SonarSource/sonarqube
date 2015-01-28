@@ -38,7 +38,6 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.measures.MeasuresFilters;
-import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectLink;
@@ -107,7 +106,6 @@ public class DefaultIndex extends SonarIndex {
   // caches
   private Project currentProject;
   private Map<Resource, Bucket> buckets = Maps.newLinkedHashMap();
-  private Map<String, Bucket> bucketsByDeprecatedKey = Maps.newLinkedHashMap();
   private Set<Dependency> dependencies = Sets.newLinkedHashSet();
   private Map<Resource, Map<Resource, Dependency>> outgoingDependenciesByResource = Maps.newLinkedHashMap();
   private Map<Resource, Map<Resource, Dependency>> incomingDependenciesByResource = Maps.newLinkedHashMap();
@@ -166,9 +164,6 @@ public class DefaultIndex extends SonarIndex {
 
   private void addBucket(Resource resource, Bucket bucket) {
     buckets.put(resource, bucket);
-    if (StringUtils.isNotBlank(resource.getDeprecatedKey())) {
-      bucketsByDeprecatedKey.put(resource.getDeprecatedKey(), bucket);
-    }
   }
 
   private void addModule(Project parent, Project module) {
@@ -613,29 +608,12 @@ public class DefaultIndex extends SonarIndex {
     return getBucket(reference) != null;
   }
 
-  /**
-   * Should support 2 situations
-   * 1) key = new key and deprecatedKey = old key : this is the standard use case in a perfect world
-   * 2) key = null and deprecatedKey = oldKey : this is for plugins that are using deprecated constructors of
-   * {@link File} and {@link Directory}
-   */
   private Bucket getBucket(@Nullable Resource reference) {
     if (reference == null) {
       return null;
     }
     if (StringUtils.isNotBlank(reference.getKey())) {
       return buckets.get(reference);
-    }
-    if (StringUtils.isNotBlank(reference.getDeprecatedKey())) {
-      // Fallback to use deprecated key
-      Bucket bucket = bucketsByDeprecatedKey.get(reference.getDeprecatedKey());
-      if (bucket != null) {
-        // Fix reference resource
-        reference.setKey(bucket.getResource().getKey());
-        reference.setPath(bucket.getResource().getPath());
-        LOG.debug("Resource {} was found using deprecated key. Please update your plugin.", reference);
-        return bucket;
-      }
     }
     return null;
   }

@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import org.apache.commons.codec.digest.DigestUtils;
+import com.google.common.base.Charsets;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -30,8 +30,6 @@ import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
-import org.sonar.batch.index.Caches;
-import org.sonar.batch.index.CachesTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -40,59 +38,61 @@ public class InputPathCacheTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  Caches caches;
-
   @Before
   public void start() throws Exception {
-    caches = CachesTest.createCacheOnTemp(temp);
-    caches.start();
   }
 
   @After
   public void stop() {
-    caches.stop();
   }
 
   @Test
   public void should_add_input_file() throws Exception {
-    InputPathCache cache = new InputPathCache(caches);
-    DefaultInputFile fooFile = new DefaultInputFile("foo", "src/main/java/Foo.java").setFile(temp.newFile("Foo.java"));
+    InputPathCache cache = new InputPathCache();
+    DefaultInputFile fooFile = new DefaultInputFile("foo", "src/main/java/Foo.java").setModuleBaseDir(temp.newFolder().toPath());
     cache.put("struts", fooFile);
     cache.put("struts-core", new DeprecatedDefaultInputFile("foo", "src/main/java/Bar.java")
-      .setBasedir(temp.newFolder())
-      .setDeprecatedKey("foo")
-      .setSourceDirAbsolutePath("foo")
-      .setPathRelativeToSourceDir("foo")
       .setLanguage("bla")
       .setType(Type.MAIN)
       .setStatus(Status.ADDED)
-      .setHash("xyz")
       .setLines(2)
-      .setEncoding("UTF-8")
-      .setOriginalLineOffsets(new long[] {0, 4})
-      .setLineHashes(new byte[][] {DigestUtils.md5("foo"), DigestUtils.md5("bar")})
-      .setFile(temp.newFile("Bar.java")));
+      .setCharset(Charsets.UTF_8)
+      .setModuleBaseDir(temp.newFolder().toPath()));
 
     DefaultInputFile loadedFile = (DefaultInputFile) cache.getFile("struts-core", "src/main/java/Bar.java");
     assertThat(loadedFile.relativePath()).isEqualTo("src/main/java/Bar.java");
-    assertThat(loadedFile.encoding()).isEqualTo("UTF-8");
-    assertThat(loadedFile.originalLineOffsets()).containsOnly(0, 4);
-    assertThat(loadedFile.lineHashes()[0]).containsOnly(DigestUtils.md5("foo"));
-    assertThat(loadedFile.lineHashes()[1]).containsOnly(DigestUtils.md5("bar"));
+    assertThat(loadedFile.charset()).isEqualTo(Charsets.UTF_8);
 
     assertThat(cache.filesByModule("struts")).hasSize(1);
     assertThat(cache.filesByModule("struts-core")).hasSize(1);
-    assertThat(cache.all()).hasSize(2);
-    for (InputPath inputPath : cache.all()) {
+    assertThat(cache.allFiles()).hasSize(2);
+    for (InputPath inputPath : cache.allFiles()) {
       assertThat(inputPath.relativePath()).startsWith("src/main/java/");
     }
 
     cache.remove("struts", fooFile);
-    assertThat(cache.all()).hasSize(1);
+    assertThat(cache.allFiles()).hasSize(1);
 
     cache.removeModule("struts");
     assertThat(cache.filesByModule("struts")).hasSize(0);
     assertThat(cache.filesByModule("struts-core")).hasSize(1);
-    assertThat(cache.all()).hasSize(1);
+    assertThat(cache.allFiles()).hasSize(1);
+  }
+
+  @Test
+  public void should_add_input_file_metadata() throws Exception {
+    InputPathCache cache = new InputPathCache();
+    cache.put("struts-core", "src/main/java/Bar.java", new InputFileMetadata()
+      .setHash("xyz")
+      .setNonBlankLines(2)
+      .setEmpty(true)
+      .setOriginalLineOffsets(new int[] {0, 4}));
+
+    InputFileMetadata loadedFileMetadata = cache.getFileMetadata("struts-core", "src/main/java/Bar.java");
+    assertThat(loadedFileMetadata.originalLineOffsets()).containsOnly(0, 4);
+    assertThat(loadedFileMetadata.hash()).isEqualTo("xyz");
+    assertThat(loadedFileMetadata.nonBlankLines()).isEqualTo(2);
+    assertThat(loadedFileMetadata.isEmpty()).isTrue();
+
   }
 }

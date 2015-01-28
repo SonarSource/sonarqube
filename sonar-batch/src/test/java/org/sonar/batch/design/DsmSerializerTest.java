@@ -43,8 +43,8 @@ public class DsmSerializerTest {
 
   @Test
   public void serialize() throws IOException {
-    Resource foo = Directory.create("src/org/foo", "org/foo").setId(7);
-    Resource bar = Directory.create("src/org/bar", "org/bar").setId(8);
+    Resource foo = Directory.create("src/org/foo").setId(7);
+    Resource bar = Directory.create("src/org/bar").setId(8);
     Dependency dep = new Dependency(foo, bar).setId(30l).setWeight(1);
 
     DirectedGraph<Resource, Dependency> graph = new DirectedGraph<Resource, Dependency>();

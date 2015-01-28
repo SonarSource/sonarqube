@@ -77,7 +77,7 @@ public class DefaultTestCaseCoverageTest {
 
     assertThat(testCaseCoverage1.toString())
       .isEqualTo(
-        "DefaultTestCaseCoverage[testFile=[moduleKey=foo, relative=test/FooTest.php, abs=null],mainFile=[moduleKey=foo, relative=src/Foo.php, abs=null],name=myTest,lines=[1, 2, 3]]");
+        "DefaultTestCaseCoverage[testFile=[moduleKey=foo, relative=test/FooTest.php, basedir=null],mainFile=[moduleKey=foo, relative=src/Foo.php, basedir=null],name=myTest,lines=[1, 2, 3]]");
     assertThat(testCaseCoverage1.hashCode()).isEqualTo(testCaseCoverage1a.hashCode());
   }
 }

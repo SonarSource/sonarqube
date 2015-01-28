@@ -35,7 +35,7 @@ public class ComponentKeysTest {
     Project project = new Project("my_project");
     assertThat(ComponentKeys.createEffectiveKey(project, project)).isEqualTo("my_project");
 
-    Directory dir = Directory.create("src/org/foo", "org/foo");
+    Directory dir = Directory.create("src/org/foo");
     assertThat(ComponentKeys.createEffectiveKey(project, dir)).isEqualTo("my_project:src/org/foo");
 
     Library library = new Library("junit:junit", "4.7");

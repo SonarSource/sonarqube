@@ -45,7 +45,7 @@ public class DefaultFileSystemTest {
   @Before
   public void prepare() throws Exception {
     basedir = temp.newFolder();
-    fs = new DefaultFileSystem(basedir);
+    fs = new DefaultFileSystem(basedir.toPath());
   }
 
   @Test
@@ -81,12 +81,12 @@ public class DefaultFileSystemTest {
   public void files() throws Exception {
     assertThat(fs.inputFiles(fs.predicates().all())).isEmpty();
 
-    fs.add(new DefaultInputFile("foo", "src/Foo.php").setLanguage("php").setFile(temp.newFile()));
-    fs.add(new DefaultInputFile("foo", "src/Bar.java").setLanguage("java").setFile(temp.newFile()));
-    fs.add(new DefaultInputFile("foo", "src/Baz.java").setLanguage("java").setFile(temp.newFile()));
+    fs.add(new DefaultInputFile("foo", "src/Foo.php").setLanguage("php"));
+    fs.add(new DefaultInputFile("foo", "src/Bar.java").setLanguage("java"));
+    fs.add(new DefaultInputFile("foo", "src/Baz.java").setLanguage("java"));
 
     // no language
-    fs.add(new DefaultInputFile("foo", "src/readme.txt").setFile(temp.newFile()));
+    fs.add(new DefaultInputFile("foo", "src/readme.txt"));
 
     assertThat(fs.inputFile(fs.predicates().hasRelativePath("src/Bar.java"))).isNotNull();
     assertThat(fs.inputFile(fs.predicates().hasRelativePath("does/not/exist"))).isNull();
@@ -118,15 +118,15 @@ public class DefaultFileSystemTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("expected one element");
 
-    fs.add(new DefaultInputFile("foo", "src/Bar.java").setLanguage("java").setFile(temp.newFile()));
-    fs.add(new DefaultInputFile("foo", "src/Baz.java").setLanguage("java").setFile(temp.newFile()));
+    fs.add(new DefaultInputFile("foo", "src/Bar.java").setLanguage("java"));
+    fs.add(new DefaultInputFile("foo", "src/Baz.java").setLanguage("java"));
 
     fs.inputFile(fs.predicates().all());
   }
 
   @Test
   public void input_file_supports_non_indexed_predicates() throws Exception {
-    fs.add(new DefaultInputFile("foo", "src/Bar.java").setLanguage("java").setFile(temp.newFile()));
+    fs.add(new DefaultInputFile("foo", "src/Bar.java").setLanguage("java"));
 
     // it would fail if more than one java file
     assertThat(fs.inputFile(fs.predicates().hasLanguage("java"))).isNotNull();

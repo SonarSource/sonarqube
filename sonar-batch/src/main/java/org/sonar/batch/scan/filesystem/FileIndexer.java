@@ -23,20 +23,18 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.HiddenFileFilter;
 import org.apache.commons.io.filefilter.IOFileFilter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFileFilter;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.MessageException;
+import org.sonar.batch.util.ProgressReport;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -47,13 +45,12 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Index input files into {@link InputPathCache}.
  */
 public class FileIndexer implements BatchComponent {
-
-  private static final Logger LOG = LoggerFactory.getLogger(FileIndexer.class);
 
   private static final IOFileFilter DIR_FILTER = FileFilterUtils.and(HiddenFileFilter.VISIBLE, FileFilterUtils.notFileFilter(FileFilterUtils.prefixFileFilter(".")));
   private static final IOFileFilter FILE_FILTER = HiddenFileFilter.VISIBLE;
@@ -62,18 +59,19 @@ public class FileIndexer implements BatchComponent {
   private final boolean isAggregator;
   private final ExclusionFilters exclusionFilters;
   private final InputFileBuilderFactory inputFileBuilderFactory;
+  private final InputPathCache inputPathCache;
+
+  private ProgressReport progressReport;
+  private ExecutorService executorService;
+  private List<Future<Void>> tasks;
 
   public FileIndexer(List<InputFileFilter> filters, ExclusionFilters exclusionFilters, InputFileBuilderFactory inputFileBuilderFactory,
-    ProjectDefinition def) {
-    this(filters, exclusionFilters, inputFileBuilderFactory, !def.getSubProjects().isEmpty());
-  }
-
-  private FileIndexer(List<InputFileFilter> filters, ExclusionFilters exclusionFilters, InputFileBuilderFactory inputFileBuilderFactory,
-    boolean isAggregator) {
+    ProjectDefinition def, InputPathCache inputPathCache) {
+    this.inputPathCache = inputPathCache;
     this.filters = filters;
     this.exclusionFilters = exclusionFilters;
     this.inputFileBuilderFactory = inputFileBuilderFactory;
-    this.isAggregator = isAggregator;
+    this.isAggregator = !def.getSubProjects().isEmpty();
   }
 
   void index(DefaultModuleFileSystem fileSystem) {
@@ -81,47 +79,34 @@ public class FileIndexer implements BatchComponent {
       // No indexing for an aggregator module
       return;
     }
-    LOG.info("Index files");
+    progressReport = new ProgressReport("Report about progress of file indexation", TimeUnit.SECONDS.toMillis(10));
+    progressReport.start("Index files");
     exclusionFilters.prepare();
 
     Progress progress = new Progress();
 
     InputFileBuilder inputFileBuilder = inputFileBuilderFactory.create(fileSystem);
+    executorService = Executors.newFixedThreadPool(Math.max(1, Runtime.getRuntime().availableProcessors() - 1));
+    tasks = new ArrayList<Future<Void>>();
     indexFiles(fileSystem, progress, inputFileBuilder, fileSystem.sources(), InputFile.Type.MAIN);
     indexFiles(fileSystem, progress, inputFileBuilder, fileSystem.tests(), InputFile.Type.TEST);
 
-    indexAllConcurrently(progress);
+    waitForTasksToComplete();
 
-    // Populate FS in a synchronous way because PersistIt Exchange is not concurrent
-    for (InputFile indexed : progress.indexed) {
-      fileSystem.add(indexed);
-    }
-    for (InputDir indexed : progress.indexedDir) {
-      fileSystem.add(indexed);
-    }
-
-    LOG.info(String.format("%d files indexed", progress.count()));
-
+    progressReport.stop(progress.count() + " files indexed");
   }
 
-  private void indexAllConcurrently(Progress progress) {
-    ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
-    try {
-      List<Future<Void>> all = executor.invokeAll(progress.indexingTasks);
-      for (Future<Void> future : all) {
-        future.get();
-      }
-    } catch (InterruptedException e) {
-      throw new IllegalStateException("FileIndexer was interrupted", e);
-    } catch (ExecutionException e) {
-      Throwable cause = e.getCause();
-      if (cause instanceof RuntimeException) {
-        throw (RuntimeException) cause;
-      } else {
-        throw new IllegalStateException("Error during file indexing", e);
+  private void waitForTasksToComplete() {
+    for (Future<Void> task : tasks) {
+      try {
+        task.get();
+      } catch (ExecutionException e) {
+        // Unwrap ExecutionException
+        throw e.getCause() instanceof RuntimeException ? (RuntimeException) e.getCause() : new IllegalStateException(e.getCause());
+      } catch (InterruptedException e) {
+        throw new IllegalStateException(e);
       }
     }
-    executor.shutdown();
   }
 
   private void indexFiles(DefaultModuleFileSystem fileSystem, Progress progress, InputFileBuilder inputFileBuilder, List<File> sources, InputFile.Type type) {
@@ -151,25 +136,25 @@ public class FileIndexer implements BatchComponent {
   private void indexFile(final InputFileBuilder inputFileBuilder, final DefaultModuleFileSystem fs,
     final Progress status, final DeprecatedDefaultInputFile inputFile, final InputFile.Type type) {
 
-    Callable<Void> task = new Callable<Void>() {
-
+    tasks.add(executorService.submit(new Callable<Void>() {
       @Override
-      public Void call() throws Exception {
-        DefaultInputFile completedFile = inputFileBuilder.complete(inputFile, type);
-        if (completedFile != null && accept(completedFile)) {
+      public Void call() {
+        InputFileMetadata metadata = inputFileBuilder.completeAndComputeMetadata(inputFile, type);
+        if (metadata != null && accept(inputFile)) {
+          fs.add(inputFile);
           status.markAsIndexed(inputFile);
+          inputPathCache.put(inputFile.moduleKey(), inputFile.relativePath(), metadata);
           File parentDir = inputFile.file().getParentFile();
           String relativePath = new PathResolver().relativePath(fs.baseDir(), parentDir);
           if (relativePath != null) {
             DefaultInputDir inputDir = new DefaultInputDir(fs.moduleKey(), relativePath);
-            inputDir.setFile(parentDir);
-            status.markAsIndexed(inputDir);
+            fs.add(inputDir);
           }
         }
         return null;
       }
-    };
-    status.planForIndexing(task);
+    }));
+
   }
 
   private boolean accept(InputFile inputFile) {
@@ -182,31 +167,16 @@ public class FileIndexer implements BatchComponent {
     return true;
   }
 
-  private static class Progress {
-    private final Set<InputFile> indexed;
-    private final Set<InputDir> indexedDir;
-    private final List<Callable<Void>> indexingTasks;
-
-    Progress() {
-      this.indexed = new HashSet<InputFile>();
-      this.indexedDir = new HashSet<InputDir>();
-      this.indexingTasks = new ArrayList<Callable<Void>>();
-    }
-
-    void planForIndexing(Callable<Void> indexingTask) {
-      this.indexingTasks.add(indexingTask);
-    }
+  private class Progress {
+    private final Set<Path> indexed = new HashSet<>();
 
     synchronized void markAsIndexed(InputFile inputFile) {
-      if (indexed.contains(inputFile)) {
+      if (indexed.contains(inputFile.path())) {
         throw MessageException.of("File " + inputFile + " can't be indexed twice. Please check that inclusion/exclusion patterns produce "
           + "disjoint sets for main and test files");
       }
-      indexed.add(inputFile);
-    }
-
-    synchronized void markAsIndexed(InputDir inputDir) {
-      indexedDir.add(inputDir);
+      indexed.add(inputFile.path());
+      progressReport.message(indexed.size() + " files indexed...  (last one was " + inputFile.relativePath() + ")");
     }
 
     int count() {

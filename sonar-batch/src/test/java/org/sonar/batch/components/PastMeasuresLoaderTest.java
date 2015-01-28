@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.components;
 
+import org.sonar.batch.components.PastMeasuresLoader;
+
 import org.junit.Test;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.measures.Metric;

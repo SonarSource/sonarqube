@@ -19,6 +19,9 @@
  */
 package org.sonar.plugins.core.issue;
 
+import org.sonar.batch.components.TimeMachineConfiguration;
+
+import org.sonar.batch.deprecated.components.Period;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.*;
 import org.apache.commons.lang.time.DateUtils;
@@ -32,8 +35,6 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RulePriority;
-import org.sonar.batch.components.Period;
-import org.sonar.batch.components.TimeMachineConfiguration;
 
 import javax.annotation.Nullable;
 

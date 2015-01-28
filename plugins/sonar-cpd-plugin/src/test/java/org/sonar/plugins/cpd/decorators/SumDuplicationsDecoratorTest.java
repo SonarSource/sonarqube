@@ -27,8 +27,8 @@ import org.sonar.api.resources.File;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.test.IsMeasure;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
@@ -48,7 +48,7 @@ public class SumDuplicationsDecoratorTest {
   @Test
   public void doNotSetDuplicationsOnUnitTests() {
     SumDuplicationsDecorator decorator = new SumDuplicationsDecorator();
-    File unitTest = new File("org/foo/BarTest.java");
+    File unitTest = File.create("org/foo/BarTest.java");
     unitTest.setQualifier(Qualifiers.UNIT_TEST_FILE);
     DecoratorContext context = mock(DecoratorContext.class);
 
@@ -60,7 +60,7 @@ public class SumDuplicationsDecoratorTest {
   @Test
   public void saveZeroIfNoDuplications() {
     SumDuplicationsDecorator decorator = new SumDuplicationsDecorator();
-    File file = new File("org/foo/BarTest.java");
+    File file = File.create("org/foo/BarTest.java");
     DecoratorContext context = mock(DecoratorContext.class);
 
     decorator.decorate(file, context);

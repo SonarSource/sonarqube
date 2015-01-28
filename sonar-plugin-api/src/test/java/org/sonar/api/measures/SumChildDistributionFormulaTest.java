@@ -30,9 +30,9 @@ import java.util.Collections;
 import java.util.List;
 
 import static junit.framework.Assert.assertNull;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -45,7 +45,7 @@ public class SumChildDistributionFormulaTest {
   public void init() {
     formula = new SumChildDistributionFormula();
     context = mock(FormulaContext.class);
-    when(context.getResource()).thenReturn(new File("foo"));
+    when(context.getResource()).thenReturn(File.create("foo"));
     data = mock(FormulaData.class);
   }
 
@@ -97,7 +97,7 @@ public class SumChildDistributionFormulaTest {
 
   @Test
   public void shouldNotPersistWhenScopeLowerThanMinimun() throws Exception {
-    when(context.getResource()).thenReturn(new File("org/Foo.java"));
+    when(context.getResource()).thenReturn(File.create("org/Foo.java"));
 
     initContextWithChildren();
     formula.setMinimumScopeToPersist(Scopes.DIRECTORY);
@@ -108,7 +108,7 @@ public class SumChildDistributionFormulaTest {
 
   @Test
   public void shouldPersistWhenScopeEqualsMinimun() throws Exception {
-    when(context.getResource()).thenReturn(new File("org/Foo.java"));
+    when(context.getResource()).thenReturn(File.create("org/Foo.java"));
 
     initContextWithChildren();
     formula.setMinimumScopeToPersist(Scopes.FILE);
@@ -119,7 +119,7 @@ public class SumChildDistributionFormulaTest {
 
   @Test
   public void shouldPersistWhenScopeHigherThanMinimun() throws Exception {
-    when(context.getResource()).thenReturn(new Directory("org/foo"));
+    when(context.getResource()).thenReturn(Directory.create("org/foo"));
 
     initContextWithChildren();
     formula.setMinimumScopeToPersist(Scopes.FILE);

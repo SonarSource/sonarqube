@@ -27,6 +27,11 @@ import org.sonar.api.BatchExtension;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.model.Snapshot;
+import org.sonar.batch.deprecated.components.PastSnapshotFinderByDate;
+import org.sonar.batch.deprecated.components.PastSnapshotFinderByDays;
+import org.sonar.batch.deprecated.components.PastSnapshotFinderByPreviousAnalysis;
+import org.sonar.batch.deprecated.components.PastSnapshotFinderByPreviousVersion;
+import org.sonar.batch.deprecated.components.PastSnapshotFinderByVersion;
 
 import javax.annotation.Nullable;
 
@@ -34,6 +39,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/**
+ * Can't be moved since it is used by devcockpit.
+ */
 public class PastSnapshotFinder implements BatchExtension {
 
   private static final Logger LOG = LoggerFactory.getLogger(PastSnapshotFinder.class);

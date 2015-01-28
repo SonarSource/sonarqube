@@ -56,7 +56,7 @@ public class DependencySensorTest {
   public void prepare() throws IOException {
     baseDir = temp.newFolder();
     sensor = new DependencySensor();
-    fileSystem = new DefaultFileSystem(baseDir);
+    fileSystem = new DefaultFileSystem(baseDir.toPath());
     when(context.fileSystem()).thenReturn(fileSystem);
   }
 
@@ -67,7 +67,7 @@ public class DependencySensorTest {
 
   @Test
   public void testNoExecutionIfNoDepsFile() {
-    DefaultInputFile file = new DefaultInputFile("foo", "src/foo.xoo").setAbsolutePath(new File(baseDir, "src/foo.xoo").getAbsolutePath()).setLanguage("xoo")
+    DefaultInputFile file = new DefaultInputFile("foo", "src/foo.xoo").setLanguage("xoo")
       .setType(Type.MAIN);
     fileSystem.add(file);
     sensor.execute(context);
@@ -77,9 +77,9 @@ public class DependencySensorTest {
   public void testExecution() throws IOException {
     File deps = new File(baseDir, "src/foo.xoo.deps");
     FileUtils.write(deps, "src/foo2.xoo:2\nsrc2/foo3.xoo:6\n\n#comment");
-    DefaultInputFile inputFile1 = new DefaultInputFile("foo", "src/foo.xoo").setAbsolutePath(new File(baseDir, "src/foo.xoo").getAbsolutePath()).setLanguage("xoo");
-    DefaultInputFile inputFile2 = new DefaultInputFile("foo", "src/foo2.xoo").setAbsolutePath(new File(baseDir, "src/foo2.xoo").getAbsolutePath()).setLanguage("xoo");
-    DefaultInputFile inputFile3 = new DefaultInputFile("foo", "src2/foo3.xoo").setAbsolutePath(new File(baseDir, "src2/foo3.xoo").getAbsolutePath()).setLanguage("xoo");
+    DefaultInputFile inputFile1 = new DefaultInputFile("foo", "src/foo.xoo").setLanguage("xoo");
+    DefaultInputFile inputFile2 = new DefaultInputFile("foo", "src/foo2.xoo").setLanguage("xoo");
+    DefaultInputFile inputFile3 = new DefaultInputFile("foo", "src2/foo3.xoo").setLanguage("xoo");
     fileSystem.add(inputFile1);
     fileSystem.add(inputFile2);
     fileSystem.add(inputFile3);

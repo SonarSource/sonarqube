@@ -247,7 +247,7 @@ public class DebtDecoratorTest {
 
     // or for a file
     context = mock(DecoratorContext.class);
-    when(context.getResource()).thenReturn(new File("foo"));
+    when(context.getResource()).thenReturn(File.create("foo"));
     decorator.saveCharacteristicMeasure(context, (Characteristic) null, 12.0, false);
     verify(context, times(1)).saveMeasure(new Measure(CoreMetrics.TECHNICAL_DEBT));
   }
@@ -282,7 +282,7 @@ public class DebtDecoratorTest {
   @Test
   public void not_save_technical_debt_for_file_if_zero() throws Exception {
     DecoratorContext context = mock(DecoratorContext.class);
-    when(context.getResource()).thenReturn(new File("foo"));
+    when(context.getResource()).thenReturn(File.create("foo"));
 
     decorator.saveCharacteristicMeasure(context, null, 0.0, true);
     verify(context, never()).saveMeasure(new Measure(CoreMetrics.TECHNICAL_DEBT));

@@ -57,7 +57,7 @@ public class CoveragePerTestSensorTest {
   public void prepare() throws IOException {
     baseDir = temp.newFolder();
     sensor = new CoveragePerTestSensor();
-    fileSystem = new DefaultFileSystem(baseDir);
+    fileSystem = new DefaultFileSystem(baseDir.toPath());
     when(context.fileSystem()).thenReturn(fileSystem);
   }
 
@@ -68,7 +68,7 @@ public class CoveragePerTestSensorTest {
 
   @Test
   public void testNoExecutionIfCoveragePerTestFile() {
-    DefaultInputFile testFile = new DefaultInputFile("foo", "test/fooTest.xoo").setAbsolutePath(new File(baseDir, "test/fooTest.xoo").getAbsolutePath()).setLanguage("xoo")
+    DefaultInputFile testFile = new DefaultInputFile("foo", "test/fooTest.xoo").setLanguage("xoo")
       .setType(Type.TEST);
     fileSystem.add(testFile);
     sensor.execute(context);
@@ -78,8 +78,8 @@ public class CoveragePerTestSensorTest {
   public void testExecution() throws IOException {
     File coverPerTest = new File(baseDir, "test/fooTest.xoo.coveragePerTest");
     FileUtils.write(coverPerTest, "test1:src/foo.xoo:1,2,3,4\ntest2:src/foo.xoo:5,6,7\n\n#comment");
-    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setAbsolutePath(new File(baseDir, "src/foo.xoo").getAbsolutePath()).setLanguage("xoo");
-    DefaultInputFile testFile = new DefaultInputFile("foo", "test/fooTest.xoo").setAbsolutePath(new File(baseDir, "test/fooTest.xoo").getAbsolutePath()).setLanguage("xoo")
+    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setLanguage("xoo");
+    DefaultInputFile testFile = new DefaultInputFile("foo", "test/fooTest.xoo").setLanguage("xoo")
       .setType(Type.TEST);
     fileSystem.add(inputFile);
     fileSystem.add(testFile);

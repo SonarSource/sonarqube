@@ -207,7 +207,7 @@ public class ModuleIssuesTest {
     initModuleIssues();
 
     org.sonar.api.rules.Rule rule = org.sonar.api.rules.Rule.create("squid", "AvoidCycle", "Avoid Cycle");
-    Resource resource = new File("org/struts/Action.java").setEffectiveKey("struts:src/org/struts/Action.java");
+    Resource resource = File.create("org/struts/Action.java").setEffectiveKey("struts:src/org/struts/Action.java");
     Violation violation = new Violation(rule, resource);
     violation.setLineId(42);
     violation.setSeverity(RulePriority.CRITICAL);

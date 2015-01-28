@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.issue.tracking;
 
-import org.sonar.api.batch.RequiresDB;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -32,6 +30,7 @@ import org.sonar.api.batch.DecoratorBarriers;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.DependsUpon;
+import org.sonar.api.batch.RequiresDB;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.component.ResourcePerspectives;
@@ -133,7 +132,7 @@ public class IssueTrackingDecorator implements Decorator {
       File sonarFile = (File) resource;
       InputFile file = inputPathCache.getFile(project.getEffectiveKey(), sonarFile.getPath());
       if (file == null) {
-        throw new IllegalStateException("Resource " + resource + " was not found in InputPath cache");
+        throw new IllegalStateException("File " + resource + " was not found in InputPath cache");
       }
       sourceHashHolder = new SourceHashHolder((DefaultInputFile) file, lastLineHashes);
     }

@@ -65,7 +65,7 @@ public class MeasureSensorTest {
     baseDir = temp.newFolder();
     metricFinder = mock(MetricFinder.class);
     sensor = new MeasureSensor(metricFinder);
-    fileSystem = new DefaultFileSystem(baseDir);
+    fileSystem = new DefaultFileSystem(baseDir.toPath());
     when(context.fileSystem()).thenReturn(fileSystem);
     storage = mock(SensorStorage.class);
     when(context.newMeasure()).then(new Answer<DefaultMeasure>() {
@@ -83,7 +83,7 @@ public class MeasureSensorTest {
 
   @Test
   public void testNoExecutionIfNoMeasureFile() {
-    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setAbsolutePath(new File(baseDir, "src/foo.xoo").getAbsolutePath()).setLanguage("xoo");
+    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setLanguage("xoo");
     fileSystem.add(inputFile);
     sensor.execute(context);
   }
@@ -92,7 +92,7 @@ public class MeasureSensorTest {
   public void testExecution() throws IOException {
     File measures = new File(baseDir, "src/foo.xoo.measures");
     FileUtils.write(measures, "ncloc:12\nbranch_coverage:5.3\nsqale_index:300\nbool:true\n\n#comment");
-    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setAbsolutePath(new File(baseDir, "src/foo.xoo").getAbsolutePath()).setLanguage("xoo");
+    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setLanguage("xoo");
     fileSystem.add(inputFile);
 
     Metric<Boolean> booleanMetric = new Metric.Builder("bool", "Bool", Metric.ValueType.BOOL)
@@ -115,7 +115,7 @@ public class MeasureSensorTest {
   public void failIfMetricNotFound() throws IOException {
     File measures = new File(baseDir, "src/foo.xoo.measures");
     FileUtils.write(measures, "unknow:12\n\n#comment");
-    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setAbsolutePath(new File(baseDir, "src/foo.xoo").getAbsolutePath()).setLanguage("xoo");
+    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setLanguage("xoo");
     fileSystem.add(inputFile);
 
     thrown.expect(IllegalStateException.class);

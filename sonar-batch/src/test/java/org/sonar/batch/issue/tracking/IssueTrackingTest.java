@@ -24,8 +24,11 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FileUtils;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
@@ -35,6 +38,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.scan.LastLineHashes;
 import org.sonar.core.issue.db.IssueDto;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -46,6 +50,9 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class IssueTrackingTest {
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
   IssueTracking tracking;
   Resource project;
@@ -345,20 +352,15 @@ public class IssueTrackingTest {
 
   private void initLastHashes(String reference, String newSource) throws IOException {
     DefaultInputFile inputFile = mock(DefaultInputFile.class);
-    byte[][] hashes = computeHashes(load(newSource));
-    when(inputFile.lineHashes()).thenReturn(hashes);
+    File f = temp.newFile();
+    when(inputFile.path()).thenReturn(f.toPath());
+    when(inputFile.charset()).thenReturn(Charsets.UTF_8);
+    String data = load(newSource);
+    when(inputFile.lines()).thenReturn(data.split("\n").length);
+    FileUtils.write(f, data, Charsets.UTF_8);
     when(inputFile.key()).thenReturn("foo:Action.java");
     when(lastSnapshots.getLineHashes("foo:Action.java")).thenReturn(computeHexHashes(load(reference)));
     sourceHashHolder = new SourceHashHolder(inputFile, lastSnapshots);
-  }
-
-  private byte[][] computeHashes(String source) {
-    String[] lines = source.split("\n");
-    byte[][] hashes = new byte[lines.length][];
-    for (int i = 0; i < lines.length; i++) {
-      hashes[i] = DigestUtils.md5(lines[i].replaceAll("[\t ]", ""));
-    }
-    return hashes;
   }
 
   private String[] computeHexHashes(String source) {

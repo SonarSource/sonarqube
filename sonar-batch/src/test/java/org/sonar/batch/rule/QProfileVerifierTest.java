@@ -47,7 +47,7 @@ public class QProfileVerifierTest {
 
   @Before
   public void before() throws Exception {
-    fs = new DefaultFileSystem(temp.newFolder());
+    fs = new DefaultFileSystem(temp.newFolder().toPath());
     profiles = mock(ModuleQProfiles.class);
     QProfile javaProfile = new QProfile().setKey("p1").setName("My Java profile").setLanguage("java");
     when(profiles.findByLanguage("java")).thenReturn(javaProfile);

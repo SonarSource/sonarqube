@@ -24,6 +24,7 @@ import org.sonar.api.utils.PathUtils;
 
 import java.io.File;
 import java.io.Serializable;
+import java.nio.file.Path;
 
 /**
  * @since 4.5
@@ -32,7 +33,7 @@ public class DefaultInputDir implements InputDir, Serializable {
 
   private final String relativePath;
   private final String moduleKey;
-  private String absolutePath;
+  private Path moduleBaseDir;
 
   public DefaultInputDir(String moduleKey, String relativePath) {
     this.moduleKey = moduleKey;
@@ -46,15 +47,20 @@ public class DefaultInputDir implements InputDir, Serializable {
 
   @Override
   public String absolutePath() {
-    return absolutePath;
+    return PathUtils.sanitize(path().toString());
   }
 
   @Override
   public File file() {
-    if (absolutePath == null) {
-      throw new IllegalStateException("Can not return the java.io.File because absolute path is not set (see method setFile(java.io.File))");
+    return path().toFile();
+  }
+
+  @Override
+  public Path path() {
+    if (moduleBaseDir == null) {
+      throw new IllegalStateException("Can not return the java.nio.file.Path because module baseDir is not set (see method setModuleBaseDir(java.io.File))");
     }
-    return new File(absolutePath);
+    return moduleBaseDir.resolve(relativePath);
   }
 
   public String moduleKey() {
@@ -65,13 +71,11 @@ public class DefaultInputDir implements InputDir, Serializable {
     return new StringBuilder().append(moduleKey).append(":").append(relativePath).toString();
   }
 
-  public DefaultInputDir setAbsolutePath(String s) {
-    this.absolutePath = PathUtils.sanitize(s);
-    return this;
-  }
-
-  public DefaultInputDir setFile(File file) {
-    setAbsolutePath(file.getAbsolutePath());
+  /**
+   * For testing purpose. Will be automaticall set when dir is added to {@link DefaultFileSystem}
+   */
+  public DefaultInputDir setModuleBaseDir(Path moduleBaseDir) {
+    this.moduleBaseDir = moduleBaseDir.normalize();
     return this;
   }
 
@@ -95,6 +99,6 @@ public class DefaultInputDir implements InputDir, Serializable {
 
   @Override
   public String toString() {
-    return "[moduleKey=" + moduleKey + ", relative=" + relativePath + ", abs=" + absolutePath + "]";
+    return "[moduleKey=" + moduleKey + ", relative=" + relativePath + ", basedir=" + moduleBaseDir + "]";
   }
 }

@@ -19,14 +19,14 @@
  */
 package org.sonar.batch.index;
 
-import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
-import org.sonar.api.batch.fs.InputPath;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.ProjectTree;
+import org.sonar.batch.scan.filesystem.InputFileMetadata;
 import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
@@ -35,7 +35,9 @@ import org.sonar.core.source.db.FileSourceMapper;
 
 import javax.annotation.CheckForNull;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -73,10 +75,8 @@ public class SourcePersister implements ScanPersister {
       });
 
       FileSourceMapper mapper = session.getMapper(FileSourceMapper.class);
-      for (InputPath inputPath : inputPathCache.all()) {
-        if (inputPath instanceof DefaultInputFile) {
-          persist(session, mapper, (DefaultInputFile) inputPath, previousDtosByUuid);
-        }
+      for (InputFile inputFile : inputPathCache.allFiles()) {
+        persist(session, mapper, (DefaultInputFile) inputFile, previousDtosByUuid);
       }
     } catch (Exception e) {
       throw new IllegalStateException("Unable to save file sources", e);
@@ -87,7 +87,8 @@ public class SourcePersister implements ScanPersister {
   private void persist(DbSession session, FileSourceMapper mapper, DefaultInputFile inputFile, Map<String, FileSourceDto> previousDtosByUuid) {
     String fileUuid = resourceCache.get(inputFile.key()).resource().getUuid();
 
-    byte[] data = computeData(inputFile);
+    InputFileMetadata metadata = inputPathCache.getFileMetadata(inputFile.moduleKey(), inputFile.relativePath());
+    byte[] data = computeData(inputFile, metadata);
     String dataHash = DigestUtils.md5Hex(data);
     FileSourceDto previousDto = previousDtosByUuid.get(fileUuid);
     if (previousDto == null) {
@@ -96,20 +97,20 @@ public class SourcePersister implements ScanPersister {
         .setFileUuid(fileUuid)
         .setBinaryData(data)
         .setDataHash(dataHash)
-        .setSrcHash(inputFile.hash())
-        .setLineHashes(lineHashesAsMd5Hex(inputFile))
+        .setSrcHash(metadata.hash())
+        .setLineHashes(lineHashesAsMd5Hex(inputFile, metadata))
         .setCreatedAt(system2.now())
         .setUpdatedAt(system2.now());
       mapper.insert(dto);
       session.commit();
     } else {
       // Update only if data_hash has changed or if src_hash is missing (progressive migration)
-      if (!dataHash.equals(previousDto.getDataHash()) || !inputFile.hash().equals(previousDto.getSrcHash())) {
+      if (!dataHash.equals(previousDto.getDataHash()) || !metadata.hash().equals(previousDto.getSrcHash())) {
         previousDto
           .setBinaryData(data)
           .setDataHash(dataHash)
-          .setSrcHash(inputFile.hash())
-          .setLineHashes(lineHashesAsMd5Hex(inputFile))
+          .setSrcHash(metadata.hash())
+          .setLineHashes(lineHashesAsMd5Hex(inputFile, metadata))
           .setUpdatedAt(system2.now());
         mapper.update(previousDto);
         session.commit();
@@ -118,24 +119,41 @@ public class SourcePersister implements ScanPersister {
   }
 
   @CheckForNull
-  private String lineHashesAsMd5Hex(DefaultInputFile inputFile) {
-    if (inputFile.lines() == 0) {
+  private String lineHashesAsMd5Hex(DefaultInputFile f, InputFileMetadata metadata) {
+    if (f.lines() == 0) {
       return null;
     }
     // A md5 string is 32 char long + '\n' = 33
-    StringBuilder result = new StringBuilder(inputFile.lines() * (32 + 1));
-    for (byte[] lineHash : inputFile.lineHashes()) {
-      if (result.length() > 0) {
-        result.append("\n");
+    StringBuilder result = new StringBuilder(f.lines() * (32 + 1));
+
+    try {
+      BufferedReader reader = Files.newBufferedReader(f.path(), f.charset());
+      StringBuilder sb = new StringBuilder();
+      for (int i = 0; i < f.lines(); i++) {
+        String lineStr = reader.readLine();
+        lineStr = lineStr == null ? "" : lineStr;
+        for (int j = 0; j < lineStr.length(); j++) {
+          char c = lineStr.charAt(j);
+          if (!Character.isWhitespace(c)) {
+            sb.append(c);
+          }
+        }
+        if (i > 0) {
+          result.append("\n");
+        }
+        result.append(sb.length() > 0 ? DigestUtils.md5Hex(sb.toString()) : "");
+        sb.setLength(0);
       }
-      result.append(lineHash != null ? Hex.encodeHexString(lineHash) : "");
+    } catch (Exception e) {
+      throw new IllegalStateException("Unable to compute line hashes of file " + f, e);
     }
+
     return result.toString();
   }
 
-  private byte[] computeData(DefaultInputFile inputFile) {
+  private byte[] computeData(DefaultInputFile inputFile, InputFileMetadata metadata) {
     try {
-      return dataFactory.consolidateData(inputFile);
+      return dataFactory.consolidateData(inputFile, metadata);
     } catch (IOException e) {
       throw new IllegalStateException("Fail to read file " + inputFile, e);
     }

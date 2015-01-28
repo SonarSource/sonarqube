@@ -26,6 +26,7 @@ import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.PathUtils;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -35,9 +36,9 @@ import java.util.Collections;
 class AbsolutePathPredicate extends AbstractFilePredicate {
 
   private final String path;
-  private final File baseDir;
+  private final Path baseDir;
 
-  AbsolutePathPredicate(String path, File baseDir) {
+  AbsolutePathPredicate(String path, Path baseDir) {
     this.baseDir = baseDir;
     this.path = PathUtils.sanitize(path);
   }
@@ -49,7 +50,7 @@ class AbsolutePathPredicate extends AbstractFilePredicate {
 
   @Override
   public Iterable<InputFile> get(Index index) {
-    String relative = PathUtils.sanitize(new PathResolver().relativePath(baseDir, new File(path)));
+    String relative = PathUtils.sanitize(new PathResolver().relativePath(baseDir.toFile(), new File(path)));
     if (relative == null) {
       return Collections.<InputFile>emptyList();
     }

@@ -31,6 +31,8 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
+import org.sonar.api.scan.filesystem.PathResolver;
+import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.io.File;
@@ -39,6 +41,7 @@ import java.util.Arrays;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ResourceKeyMigrationTest extends AbstractDbUnitTestCase {
 
@@ -73,23 +76,21 @@ public class ResourceKeyMigrationTest extends AbstractDbUnitTestCase {
     baseDir = temp.newFolder();
 
     javaInputFiles = (Iterable) Arrays.asList(
-      newInputFile(javaModule, "src/main/java/org/foo/Bar.java", "org.foo.Bar", false),
-      newInputFile(javaModule, "src/main/java/RootBar.java", "[default].RootBar", false),
-      newInputFile(javaModule, "src/test/java/org/foo/BarTest.java", "org.foo.BarTest", true));
+      newInputFile(javaModule, "src/main/java/org/foo/Bar.java", false, "java"),
+      newInputFile(javaModule, "src/main/java/RootBar.java", false, "java"),
+      newInputFile(javaModule, "src/test/java/org/foo/BarTest.java", true, "java"));
 
     phpInputFiles = (Iterable) Arrays.asList(
-      newInputFile(phpModule, "org/foo/Bar.php", "org/foo/Bar.php", false),
-      newInputFile(phpModule, "RootBar.php", "RootBar.php", false),
-      newInputFile(phpModule, "test/org/foo/BarTest.php", "org/foo/BarTest.php", true));
+      newInputFile(phpModule, "org/foo/Bar.php", false, "php"),
+      newInputFile(phpModule, "RootBar.php", false, "php"),
+      newInputFile(phpModule, "test/org/foo/BarTest.php", true, "php"));
 
   }
 
-  private DefaultInputFile newInputFile(Project module, String path, String deprecatedKey, boolean isTest) {
-    File file = new File(baseDir, path);
-    String deprecatedEffectiveKey = module.getKey() + ":" + deprecatedKey;
+  private DefaultInputFile newInputFile(Project module, String path, boolean isTest, String language) {
     return new DeprecatedDefaultInputFile(module.getKey(), path)
-      .setDeprecatedKey(deprecatedEffectiveKey)
-      .setFile(file)
+      .setModuleBaseDir(baseDir.toPath())
+      .setLanguage(language)
       .setType(isTest ? InputFile.Type.TEST : InputFile.Type.MAIN);
   }
 
@@ -98,11 +99,17 @@ public class ResourceKeyMigrationTest extends AbstractDbUnitTestCase {
     setupData("shouldMigrateResourceKeys");
 
     Logger logger = mock(Logger.class);
-    ResourceKeyMigration migration = new ResourceKeyMigration(getSession(), logger);
+    ResourceKeyMigration migration = new ResourceKeyMigration(getSession(), new PathResolver(), logger);
     migration.checkIfMigrationNeeded(multiModuleProject);
 
-    migration.migrateIfNeeded(javaModule, javaInputFiles);
-    migration.migrateIfNeeded(phpModule, phpInputFiles);
+    DefaultModuleFileSystem fs = mock(DefaultModuleFileSystem.class);
+    when(fs.sourceDirs()).thenReturn(Arrays.asList(new File(baseDir, "src/main/java")));
+    when(fs.testDirs()).thenReturn(Arrays.asList(new File(baseDir, "src/test/java")));
+    migration.migrateIfNeeded(javaModule, javaInputFiles, fs);
+
+    when(fs.sourceDirs()).thenReturn(Arrays.asList(new File(baseDir, ".")));
+    when(fs.testDirs()).thenReturn(Arrays.asList(new File(baseDir, "test")));
+    migration.migrateIfNeeded(phpModule, phpInputFiles, fs);
 
     verify(logger).info("Component {} changed to {}", "b:org.foo.Bar", "b:src/main/java/org/foo/Bar.java");
     verify(logger).warn("Directory with key b:org/foo matches both b:src/main/java/org/foo and b:src/test/java/org/foo. First match is arbitrary chosen.");

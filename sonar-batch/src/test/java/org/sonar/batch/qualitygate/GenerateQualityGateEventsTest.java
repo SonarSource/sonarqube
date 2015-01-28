@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.qualitygate;
 
-import org.sonar.batch.qualitygate.GenerateQualityGateEvents;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.DecoratorContext;
@@ -35,14 +33,20 @@ import org.sonar.api.notifications.NotificationManager;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.test.ProjectTestBuilder;
-import org.sonar.batch.qualitygate.QualityGate;
 
 import java.util.Arrays;
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class GenerateQualityGateEventsTest {
   private GenerateQualityGateEvents decorator;
@@ -80,7 +84,7 @@ public class GenerateQualityGateEventsTest {
 
   @Test
   public void shouldNotDecorateIfNotRootProject() {
-    decorator.decorate(new File("Foo"), context);
+    decorator.decorate(File.create("Foo"), context);
     verify(context, never()).createEvent(anyString(), anyString(), anyString(), (Date) isNull());
   }
 

@@ -29,7 +29,6 @@ public final class Library extends Resource {
 
   public Library(String key, String version) {
     setKey(key);
-    setDeprecatedKey(key);
     this.version = version;
   }
 

@@ -23,6 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.maven.project.MavenProject;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.component.Component;
 import org.sonar.api.config.Settings;
 
@@ -85,13 +86,15 @@ public class Project extends Resource implements Component {
   private String analysisVersion;
   private Settings settings;
 
+  // For internal use
+  private java.io.File baseDir;
+
   // modules tree
   private Project parent;
   private List<Project> modules = new ArrayList<Project>();
 
   public Project(String key) {
     setKey(key);
-    setDeprecatedKey(key);
     setEffectiveKey(key);
   }
 
@@ -103,7 +106,6 @@ public class Project extends Resource implements Component {
       setKey(key);
       this.name = name;
     }
-    setDeprecatedKey(getKey());
     setEffectiveKey(getKey());
     this.branch = branch;
   }
@@ -373,7 +375,7 @@ public class Project extends Resource implements Component {
 
   /**
    * Note: it's better to get a reference on ProjectFileSystem as an IoC dependency (constructor parameter)
-   * @deprecated replaced by {@link org.sonar.api.scan.filesystem.ModuleFileSystem} in 3.5
+   * @deprecated since 3.5 use {@link FileSystem} instead
    */
   @Deprecated
   public ProjectFileSystem getFileSystem() {
@@ -457,5 +459,14 @@ public class Project extends Resource implements Component {
   @Override
   public String qualifier() {
     return getQualifier();
+  }
+
+  // For internal use
+  public void setBaseDir(java.io.File baseDir) {
+    this.baseDir = baseDir;
+  }
+
+  java.io.File getBaseDir() {
+    return baseDir;
   }
 }

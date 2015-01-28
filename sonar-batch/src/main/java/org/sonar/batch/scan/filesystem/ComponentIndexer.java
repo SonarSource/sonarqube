@@ -21,16 +21,13 @@ package org.sonar.batch.scan.filesystem;
 
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.SonarIndex;
-import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.batch.index.ResourceKeyMigration;
 import org.sonar.batch.index.ResourcePersister;
-import org.sonar.batch.util.DeprecatedKeyUtils;
 
 import javax.annotation.Nullable;
 
@@ -60,7 +57,9 @@ public class ComponentIndexer implements BatchComponent {
     this(module, languages, sonarIndex, null, null);
   }
 
-  public void execute(FileSystem fs) {
+  public void execute(DefaultModuleFileSystem fs) {
+    module.setBaseDir(fs.baseDir());
+
     if (resourcePersister != null) {
       // Force persistence of module structure in order to know if project should be migrated
       resourcePersister.persist();
@@ -73,16 +72,7 @@ public class ComponentIndexer implements BatchComponent {
     for (InputFile inputFile : fs.inputFiles(fs.predicates().all())) {
       String languageKey = inputFile.language();
       boolean unitTest = InputFile.Type.TEST == inputFile.type();
-      String pathFromSourceDir = ((DeprecatedDefaultInputFile) inputFile).pathRelativeToSourceDir();
-      if (pathFromSourceDir == null) {
-        pathFromSourceDir = inputFile.relativePath();
-      }
-      Resource sonarFile = File.create(inputFile.relativePath(), pathFromSourceDir, languages.get(languageKey), unitTest);
-      if ("java".equals(languageKey)) {
-        sonarFile.setDeprecatedKey(DeprecatedKeyUtils.getJavaFileDeprecatedKey(pathFromSourceDir));
-      } else {
-        sonarFile.setDeprecatedKey(pathFromSourceDir);
-      }
+      Resource sonarFile = File.create(inputFile.relativePath(), languages.get(languageKey), unitTest);
       sonarIndex.index(sonarFile);
     }
 

@@ -37,6 +37,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,7 +68,7 @@ public class CodeColorizers implements BatchComponent {
   }
 
   @CheckForNull
-  public SyntaxHighlightingData toSyntaxHighlighting(File file, String encoding, String language) {
+  public SyntaxHighlightingData toSyntaxHighlighting(File file, Charset charset, String language) {
     CodeColorizerFormat format = byLang.get(language);
     List<Tokenizer> tokenizers;
     if (format == null) {
@@ -81,7 +82,7 @@ public class CodeColorizers implements BatchComponent {
     } else {
       tokenizers = format.getTokenizers();
     }
-    try (Reader reader = new BufferedReader(new InputStreamReader(new BOMInputStream(new FileInputStream(file)), encoding))) {
+    try (Reader reader = new BufferedReader(new InputStreamReader(new BOMInputStream(new FileInputStream(file)), charset))) {
       return new HighlightingRenderer().render(reader, tokenizers);
     } catch (Exception e) {
       throw new IllegalStateException("Unable to read source file for colorization", e);

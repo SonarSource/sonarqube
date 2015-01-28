@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.issue.tracking;
 
-import org.sonar.api.BatchExtension;
+import org.sonar.api.BatchComponent;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueHandler;
 import org.sonar.api.issue.internal.DefaultIssue;
@@ -30,7 +30,7 @@ import org.sonar.core.user.DefaultUser;
 
 import javax.annotation.Nullable;
 
-public class IssueHandlers implements BatchExtension {
+public class IssueHandlers implements BatchComponent {
   private final IssueHandler[] handlers;
   private final DefaultContext context;
 
@@ -117,7 +117,7 @@ public class IssueHandlers implements BatchExtension {
     @Override
     public IssueHandler.Context assign(@Nullable String assignee) {
       User user = null;
-      if(assignee != null) {
+      if (assignee != null) {
         user = new DefaultUser().setLogin(assignee).setName(assignee);
       }
       updater.assign(issue, user, changeContext);

@@ -290,7 +290,7 @@ public class ResourcePersisterTest extends AbstractDbUnitTestCase {
     setupData("shared");
 
     resourceCache.add(singleProject, null).setSnapshot(persister.persist(null, singleProject, null));
-    persister.persist(singleProject, Directory.create("src/main/java/org/foo", "org.foo").setEffectiveKey("foo:src/main/java/org/foo"), null);
+    persister.persist(singleProject, Directory.create("src/main/java/org/foo").setEffectiveKey("foo:src/main/java/org/foo"), null);
     // check that the directory is attached to the project
     checkTables("shouldSaveNewDirectory", new String[] {"build_date", "created_at", "authorization_updated_at", "uuid", "project_uuid", "module_uuid", "module_uuid_path"},
       "projects", "snapshots");

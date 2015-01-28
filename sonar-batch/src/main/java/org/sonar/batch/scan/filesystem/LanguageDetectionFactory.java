@@ -19,15 +19,16 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import org.sonar.batch.repository.language.LanguagesRepository;
+
 import org.sonar.api.BatchComponent;
 import org.sonar.api.config.Settings;
-import org.sonar.batch.languages.LanguagesReferential;
 
 public class LanguageDetectionFactory implements BatchComponent {
   private final Settings settings;
-  private final LanguagesReferential languages;
+  private final LanguagesRepository languages;
 
-  public LanguageDetectionFactory(Settings settings, LanguagesReferential languages) {
+  public LanguageDetectionFactory(Settings settings, LanguagesRepository languages) {
     this.settings = settings;
     this.languages = languages;
   }

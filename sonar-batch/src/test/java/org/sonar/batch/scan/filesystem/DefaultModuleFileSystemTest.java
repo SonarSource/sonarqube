@@ -135,9 +135,9 @@ public class DefaultModuleFileSystemTest {
     DefaultModuleFileSystem fs = new DefaultModuleFileSystem(moduleInputFileCache,
       new Project("foo"), settings, fileIndexer, initializer, componentIndexer);
 
-    File mainFile = temp.newFile();
-    InputFile mainInput = new DeprecatedDefaultInputFile("foo", "Main.java").setFile(mainFile).setType(InputFile.Type.MAIN);
-    InputFile testInput = new DeprecatedDefaultInputFile("foo", "Test.java").setFile(temp.newFile()).setType(InputFile.Type.TEST);
+    File baseDir = temp.newFile();
+    InputFile mainInput = new DeprecatedDefaultInputFile("foo", "Main.java").setModuleBaseDir(baseDir.toPath()).setType(InputFile.Type.MAIN);
+    InputFile testInput = new DeprecatedDefaultInputFile("foo", "Test.java").setModuleBaseDir(baseDir.toPath()).setType(InputFile.Type.TEST);
     when(moduleInputFileCache.inputFiles()).thenReturn(Lists.newArrayList(mainInput, testInput));
 
     fs.index();
@@ -145,7 +145,7 @@ public class DefaultModuleFileSystemTest {
     assertThat(inputFiles).containsOnly(mainInput);
 
     Iterable<File> files = fs.files(fs.predicates().hasType(InputFile.Type.MAIN));
-    assertThat(files).containsOnly(mainFile);
+    assertThat(files).containsOnly(new File(baseDir, "Main.java"));
   }
 
   @Test

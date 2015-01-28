@@ -52,7 +52,7 @@ public class SymbolReferencesSensorTest {
   public void prepare() throws IOException {
     baseDir = temp.newFolder();
     sensor = new SymbolReferencesSensor();
-    fileSystem = new DefaultFileSystem(baseDir);
+    fileSystem = new DefaultFileSystem(baseDir.toPath());
     when(context.fileSystem()).thenReturn(fileSystem);
   }
 
@@ -63,7 +63,7 @@ public class SymbolReferencesSensorTest {
 
   @Test
   public void testNoExecutionIfNoSymbolFile() {
-    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setAbsolutePath(new File(baseDir, "src/foo.xoo").getAbsolutePath()).setLanguage("xoo");
+    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setLanguage("xoo");
     fileSystem.add(inputFile);
     sensor.execute(context);
   }
@@ -72,7 +72,7 @@ public class SymbolReferencesSensorTest {
   public void testExecution() throws IOException {
     File symbol = new File(baseDir, "src/foo.xoo.symbol");
     FileUtils.write(symbol, "1,4,7\n12,15,23\n\n#comment");
-    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setAbsolutePath(new File(baseDir, "src/foo.xoo").getAbsolutePath()).setLanguage("xoo");
+    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setLanguage("xoo");
     fileSystem.add(inputFile);
     SymbolTableBuilder symbolTableBuilder = mock(SymbolTableBuilder.class);
     when(context.symbolTableBuilder(inputFile)).thenReturn(symbolTableBuilder);

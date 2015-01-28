@@ -27,8 +27,11 @@ import org.sonar.api.batch.RequiresDB;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.batch.deprecated.components.Period;
+import org.sonar.batch.deprecated.components.PeriodsDefinition;
 
 import javax.annotation.CheckForNull;
+
 import java.util.List;
 
 import static com.google.common.collect.Lists.newLinkedList;

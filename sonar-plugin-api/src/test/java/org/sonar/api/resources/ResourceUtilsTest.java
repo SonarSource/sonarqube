@@ -29,7 +29,7 @@ public class ResourceUtilsTest {
 
   @Test
   public void checkFile() {
-    File file = new File("hello.Foo");
+    File file = File.create("hello.Foo");
     assertThat(ResourceUtils.isClass(file)).isFalse();
     assertThat(ResourceUtils.isPackage(file)).isFalse();
     assertThat(ResourceUtils.isModuleProject(file)).isFalse();
@@ -42,7 +42,7 @@ public class ResourceUtilsTest {
 
   @Test
   public void checkUnitTest() {
-    File utFile = new File("hello.Foo");
+    File utFile = File.create("hello.Foo");
     utFile.setQualifier(Qualifiers.UNIT_TEST_FILE);
     assertThat(ResourceUtils.isClass(utFile)).isFalse();
     assertThat(ResourceUtils.isPackage(utFile)).isFalse();
@@ -56,7 +56,7 @@ public class ResourceUtilsTest {
 
   @Test
   public void checkDirectory() {
-    Directory dir = new Directory("hello");
+    Directory dir = Directory.create("hello");
     assertThat(ResourceUtils.isClass(dir)).isFalse();
     assertThat(ResourceUtils.isPackage(dir)).isFalse();
     assertThat(ResourceUtils.isModuleProject(dir)).isFalse();
@@ -69,8 +69,8 @@ public class ResourceUtilsTest {
 
   @Test
   public void shouldBePersistable() {
-    assertThat(ResourceUtils.isPersistable(new File("Foo.java"))).isTrue();
-    assertThat(ResourceUtils.isPersistable(new Directory("bar/Foo.java"))).isTrue();
+    assertThat(ResourceUtils.isPersistable(File.create("Foo.java"))).isTrue();
+    assertThat(ResourceUtils.isPersistable(Directory.create("bar/Foo.java"))).isTrue();
     assertThat(ResourceUtils.isPersistable(new Project("foo"))).isTrue();
     assertThat(ResourceUtils.isPersistable(new Library("foo", "1.2"))).isTrue();
   }

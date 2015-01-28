@@ -19,6 +19,10 @@
  */
 package org.sonar.batch.components;
 
+import org.sonar.batch.components.TimeMachineConfiguration;
+
+import org.sonar.batch.components.PastSnapshot;
+import org.sonar.batch.deprecated.components.PeriodsDefinition;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.database.model.Snapshot;

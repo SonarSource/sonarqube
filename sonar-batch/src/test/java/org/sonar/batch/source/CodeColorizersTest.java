@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.source;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
@@ -52,7 +53,7 @@ public class CodeColorizersTest {
 
     File jsFile = new File(this.getClass().getResource("CodeColorizersTest/Person.js").toURI());
 
-    SyntaxHighlightingData syntaxHighlighting = codeColorizers.toSyntaxHighlighting(jsFile, "UTF-8", "js");
+    SyntaxHighlightingData syntaxHighlighting = codeColorizers.toSyntaxHighlighting(jsFile, Charsets.UTF_8, "js");
 
     assertThat(syntaxHighlighting.writeString()).isEqualTo(HIGHLIGHTING_JS);
 
@@ -67,7 +68,7 @@ public class CodeColorizersTest {
     File jsFile = new File(this.getClass().getResource("CodeColorizersTest/Person.js").toURI());
     FileUtils.write(fileWithBom, FileUtils.readFileToString(jsFile), "UTF-8", true);
 
-    SyntaxHighlightingData syntaxHighlighting = codeColorizers.toSyntaxHighlighting(fileWithBom, "UTF-8", "js");
+    SyntaxHighlightingData syntaxHighlighting = codeColorizers.toSyntaxHighlighting(fileWithBom, Charsets.UTF_8, "js");
 
     assertThat(syntaxHighlighting.writeString()).isEqualTo(HIGHLIGHTING_JS);
   }
@@ -78,7 +79,7 @@ public class CodeColorizersTest {
 
     File javaFile = new File(this.getClass().getResource("CodeColorizersTest/Person.java").toURI());
 
-    SyntaxHighlightingData syntaxHighlighting = codeColorizers.toSyntaxHighlighting(javaFile, "UTF-8", "java");
+    SyntaxHighlightingData syntaxHighlighting = codeColorizers.toSyntaxHighlighting(javaFile, Charsets.UTF_8, "java");
 
     assertThat(syntaxHighlighting.writeString()).isEqualTo(HIGHLIGHTING_JAVA);
 

@@ -26,6 +26,7 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 
 import java.io.File;
+import java.nio.file.Paths;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,10 +38,7 @@ public class DeprecatedDefaultInputFileTest {
   @Test
   public void test() throws Exception {
     DeprecatedDefaultInputFile inputFile = (DeprecatedDefaultInputFile) new DeprecatedDefaultInputFile("ABCDE", "src/Foo.php")
-      .setPathRelativeToSourceDir("Foo.php")
-      .setDeprecatedKey("deprecated")
-      .setFile(temp.newFile("Foo.php"))
-      .setHash("1234")
+      .setModuleBaseDir(temp.newFolder().toPath())
       .setLines(42)
       .setLanguage("php")
       .setStatus(InputFile.Status.ADDED)
@@ -48,7 +46,7 @@ public class DeprecatedDefaultInputFileTest {
 
     assertThat(inputFile.relativePath()).isEqualTo("src/Foo.php");
     // deprecated method is different -> path relative to source dir
-    assertThat(inputFile.getRelativePath()).isEqualTo("Foo.php");
+    assertThat(inputFile.getRelativePath()).isEqualTo("src/Foo.php");
     assertThat(new File(inputFile.relativePath())).isRelative();
     assertThat(inputFile.absolutePath()).endsWith("Foo.php");
     assertThat(new File(inputFile.absolutePath())).isAbsolute();
@@ -56,7 +54,6 @@ public class DeprecatedDefaultInputFileTest {
     assertThat(inputFile.status()).isEqualTo(InputFile.Status.ADDED);
     assertThat(inputFile.type()).isEqualTo(InputFile.Type.TEST);
     assertThat(inputFile.lines()).isEqualTo(42);
-    assertThat(inputFile.hash()).isEqualTo("1234");
   }
 
   @Test
@@ -77,7 +74,8 @@ public class DeprecatedDefaultInputFileTest {
 
   @Test
   public void test_toString() throws Exception {
-    DefaultInputFile file = new DefaultInputFile("ABCDE", "src/Foo.php").setAbsolutePath("/path/to/src/Foo.php");
-    assertThat(file.toString()).isEqualTo("[moduleKey=ABCDE, relative=src/Foo.php, abs=/path/to/src/Foo.php]");
+    DefaultInputFile file = new DefaultInputFile("ABCDE", "src/Foo.php")
+      .setModuleBaseDir(Paths.get("/foo/bar/"));
+    assertThat(file.toString()).isEqualTo("[moduleKey=ABCDE, relative=src/Foo.php, basedir=/foo/bar]");
   }
 }

@@ -129,8 +129,6 @@ public abstract class Resource implements Serializable {
 
   private String uuid;
 
-  private String deprecatedKey;
-
   private String path;
 
   private String effectiveKey;
@@ -161,21 +159,6 @@ public abstract class Resource implements Serializable {
    */
   public void setUuid(String s) {
     this.uuid = s;
-  }
-
-  /**
-   * @return the resource deprecated key. Should not be used except to deal with backward compatibility.
-   * @since 4.2
-   */
-  public final String getDeprecatedKey() {
-    return deprecatedKey;
-  }
-
-  /**
-   * For internal use only
-   */
-  public void setDeprecatedKey(String s) {
-    this.deprecatedKey = s;
   }
 
   /**
@@ -321,15 +304,11 @@ public abstract class Resource implements Serializable {
     }
 
     Resource resource = (Resource) o;
-    if (key != null) {
-      return key.equals(resource.key);
-    } else {
-      return resource.key == null && deprecatedKey.equals(resource.deprecatedKey);
-    }
+    return key.equals(resource.key);
   }
 
   @Override
   public int hashCode() {
-    return key != null ? key.hashCode() : deprecatedKey.hashCode();
+    return key.hashCode();
   }
 }

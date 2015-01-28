@@ -60,9 +60,9 @@ public class SubProjectDsmDecoratorTest {
     module = new Project("foo");
     moduleContext = mock(DecoratorContext.class);
 
-    dir1 = Directory.create("src/foo1", "foo1");
+    dir1 = Directory.create("src/foo1");
     dir1.setId(1);
-    dir2 = Directory.create("src/foo2", "foo2");
+    dir2 = Directory.create("src/foo2");
     dir2.setId(2);
 
     DecoratorContext dir1Context = mock(DecoratorContext.class);

@@ -84,7 +84,7 @@ public class DefaultSensorStorageTest {
   @Before
   public void prepare() throws Exception {
     activeRules = new ActiveRulesBuilder().build();
-    fs = new DefaultFileSystem(temp.newFolder());
+    fs = new DefaultFileSystem(temp.newFolder().toPath());
     MetricFinder metricFinder = mock(MetricFinder.class);
     when(metricFinder.findByKey(CoreMetrics.NCLOC_KEY)).thenReturn(CoreMetrics.NCLOC);
     when(metricFinder.findByKey(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION_KEY)).thenReturn(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION);
@@ -279,7 +279,7 @@ public class DefaultSensorStorageTest {
     when(sonarIndex.getEdge(foo, bar)).thenReturn(new Dependency(foo, bar));
 
     thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Dependency between [moduleKey=foo, relative=src/Foo.java, abs=null] and [moduleKey=foo, relative=src/Bar.java, abs=null] was already saved.");
+    thrown.expectMessage("Dependency between [moduleKey=foo, relative=src/Foo.java, basedir=null] and [moduleKey=foo, relative=src/Bar.java, basedir=null] was already saved.");
 
     sensorStorage.store(new DefaultDependency()
       .from(new DefaultInputFile("foo", "src/Foo.java").setType(Type.MAIN))

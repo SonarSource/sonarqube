@@ -57,7 +57,7 @@ public class XooBlameCommandTest {
   @Before
   public void prepare() throws IOException {
     baseDir = temp.newFolder();
-    fs = new DefaultFileSystem(baseDir);
+    fs = new DefaultFileSystem(baseDir.toPath());
     input = mock(BlameInput.class);
     when(input.fileSystem()).thenReturn(fs);
   }
@@ -68,7 +68,7 @@ public class XooBlameCommandTest {
     FileUtils.write(source, "sample content");
     File scm = new File(baseDir, "src/foo.xoo.scm");
     FileUtils.write(scm, "123,julien,2014-12-12\n234,julien,2014-12-24");
-    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setAbsolutePath(new File(baseDir, "src/foo.xoo").getAbsolutePath()).setLanguage(Xoo.KEY);
+    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setLanguage(Xoo.KEY);
     fs.add(inputFile);
 
     BlameOutput result = mock(BlameOutput.class);

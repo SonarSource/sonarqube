@@ -28,8 +28,8 @@ import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.DefaultDecoratorContext;
 import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
+import org.sonar.batch.deprecated.decorator.DefaultDecoratorContext;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.scan.measure.MeasureCache;
@@ -69,7 +69,7 @@ public class DecoratorsExecutorTest {
     DecoratorsExecutor executor = new DecoratorsExecutor(mock(BatchExtensionDictionnary.class), new Project("key"), mock(SonarIndex.class),
       mock(EventBus.class), mock(CoverageExclusions.class), mock(MeasureCache.class), mock(MetricFinder.class), mock(DuplicationCache.class));
     try {
-      executor.executeDecorator(decorator, mock(DefaultDecoratorContext.class), File.create("src/org/foo/Bar.java", "org/foo/Bar.java", null, false));
+      executor.executeDecorator(decorator, mock(DefaultDecoratorContext.class), File.create("src/org/foo/Bar.java", null, false));
       fail("Exception has not been thrown");
 
     } catch (SonarException e) {

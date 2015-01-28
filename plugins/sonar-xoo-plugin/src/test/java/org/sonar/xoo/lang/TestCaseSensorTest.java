@@ -56,7 +56,7 @@ public class TestCaseSensorTest {
   public void prepare() throws IOException {
     baseDir = temp.newFolder();
     sensor = new TestCaseSensor();
-    fileSystem = new DefaultFileSystem(baseDir);
+    fileSystem = new DefaultFileSystem(baseDir.toPath());
     when(context.fileSystem()).thenReturn(fileSystem);
   }
 
@@ -67,7 +67,7 @@ public class TestCaseSensorTest {
 
   @Test
   public void testNoExecutionIfNoTestFile() {
-    DefaultInputFile testFile = new DefaultInputFile("foo", "test/fooTest.xoo").setAbsolutePath(new File(baseDir, "test/fooTest.xoo").getAbsolutePath()).setLanguage("xoo")
+    DefaultInputFile testFile = new DefaultInputFile("foo", "test/fooTest.xoo").setLanguage("xoo")
       .setType(Type.TEST);
     fileSystem.add(testFile);
     sensor.execute(context);
@@ -77,7 +77,7 @@ public class TestCaseSensorTest {
   public void testExecution() throws IOException {
     File testPlan = new File(baseDir, "test/fooTest.xoo.testplan");
     FileUtils.write(testPlan, "test1:UNIT:OK:::10\ntest2:INTEGRATION:ERROR:message:stack:15\n\n#comment");
-    DefaultInputFile testFile = new DefaultInputFile("foo", "test/fooTest.xoo").setAbsolutePath(new File(baseDir, "test/fooTest.xoo").getAbsolutePath()).setLanguage("xoo")
+    DefaultInputFile testFile = new DefaultInputFile("foo", "test/fooTest.xoo").setLanguage("xoo")
       .setType(Type.TEST);
     fileSystem.add(testFile);
 

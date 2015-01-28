@@ -28,35 +28,35 @@ import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 public class ModuleInputFileCache extends DefaultFileSystem.Cache implements BatchComponent {
 
   private final String moduleKey;
-  private final InputPathCache projectCache;
+  private final InputPathCache inputPathCache;
 
   public ModuleInputFileCache(ProjectDefinition projectDef, InputPathCache projectCache) {
     this.moduleKey = projectDef.getKeyWithBranch();
-    this.projectCache = projectCache;
+    this.inputPathCache = projectCache;
   }
 
   @Override
   public Iterable<InputFile> inputFiles() {
-    return projectCache.filesByModule(moduleKey);
+    return inputPathCache.filesByModule(moduleKey);
   }
 
   @Override
   public InputFile inputFile(String relativePath) {
-    return projectCache.getFile(moduleKey, relativePath);
+    return inputPathCache.getFile(moduleKey, relativePath);
   }
 
   @Override
   public InputDir inputDir(String relativePath) {
-    return projectCache.getDir(moduleKey, relativePath);
+    return inputPathCache.getDir(moduleKey, relativePath);
   }
 
   @Override
   protected void doAdd(InputFile inputFile) {
-    projectCache.put(moduleKey, inputFile);
+    inputPathCache.put(moduleKey, inputFile);
   }
 
   @Override
   protected void doAdd(InputDir inputDir) {
-    projectCache.put(moduleKey, inputDir);
+    inputPathCache.put(moduleKey, inputDir);
   }
 }

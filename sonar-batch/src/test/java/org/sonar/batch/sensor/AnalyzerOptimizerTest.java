@@ -53,7 +53,7 @@ public class AnalyzerOptimizerTest {
 
   @Before
   public void prepare() throws Exception {
-    fs = new DefaultFileSystem(temp.newFolder());
+    fs = new DefaultFileSystem(temp.newFolder().toPath());
     settings = new Settings();
     analysisMode = mock(AnalysisMode.class);
     optimizer = new AnalyzerOptimizer(fs, new ActiveRulesBuilder().build(), settings, analysisMode);

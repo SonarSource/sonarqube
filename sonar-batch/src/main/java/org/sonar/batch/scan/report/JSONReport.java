@@ -30,7 +30,6 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.rule.ActiveRules;
@@ -43,9 +42,9 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.batch.issue.IssueCache;
+import org.sonar.batch.repository.user.User;
+import org.sonar.batch.repository.user.UserRepository;
 import org.sonar.batch.scan.filesystem.InputPathCache;
-import org.sonar.batch.user.User;
-import org.sonar.batch.user.UserRepository;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -167,27 +166,24 @@ public class JSONReport implements Reporter {
     json.name("components").beginArray();
     // Dump modules
     writeJsonModuleComponents(json, rootModule);
-    for (InputPath inputPath : fileCache.all()) {
-      if (inputPath instanceof InputFile) {
-        InputFile inputFile = (InputFile) inputPath;
-        String key = ((DefaultInputFile) inputFile).key();
-        json
-          .beginObject()
-          .prop("key", key)
-          .prop("path", inputFile.relativePath())
-          .prop("moduleKey", StringUtils.substringBeforeLast(key, ":"))
-          .prop("status", inputFile.status().name())
-          .endObject();
-      } else {
-        InputDir inputDir = (InputDir) inputPath;
-        String key = ((DefaultInputDir) inputDir).key();
-        json
-          .beginObject()
-          .prop("key", key)
-          .prop("path", inputDir.relativePath())
-          .prop("moduleKey", StringUtils.substringBeforeLast(key, ":"))
-          .endObject();
-      }
+    for (InputFile inputFile : fileCache.allFiles()) {
+      String key = ((DefaultInputFile) inputFile).key();
+      json
+        .beginObject()
+        .prop("key", key)
+        .prop("path", inputFile.relativePath())
+        .prop("moduleKey", StringUtils.substringBeforeLast(key, ":"))
+        .prop("status", inputFile.status().name())
+        .endObject();
+    }
+    for (InputDir inputDir : fileCache.allDirs()) {
+      String key = ((DefaultInputDir) inputDir).key();
+      json
+        .beginObject()
+        .prop("key", key)
+        .prop("path", inputDir.relativePath())
+        .prop("moduleKey", StringUtils.substringBeforeLast(key, ":"))
+        .endObject();
 
     }
     json.endArray();

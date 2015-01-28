@@ -19,8 +19,10 @@
  */
 package org.sonar.plugins.core.timemachine;
 
-import org.sonar.api.batch.RequiresDB;
+import org.sonar.batch.components.TimeMachineConfiguration;
 
+import org.sonar.batch.deprecated.components.Period;
+import org.sonar.api.batch.RequiresDB;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.ObjectUtils;
@@ -33,8 +35,6 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.batch.components.Period;
-import org.sonar.batch.components.TimeMachineConfiguration;
 
 import javax.annotation.Nullable;
 

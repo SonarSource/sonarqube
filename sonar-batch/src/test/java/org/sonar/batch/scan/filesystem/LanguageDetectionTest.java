@@ -30,8 +30,8 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.utils.MessageException;
-import org.sonar.batch.languages.DefaultLanguagesReferential;
-import org.sonar.batch.languages.LanguagesReferential;
+import org.sonar.batch.repository.language.DefaultLanguagesRepository;
+import org.sonar.batch.repository.language.LanguagesRepository;
 
 import java.io.File;
 import java.io.IOException;
@@ -58,7 +58,7 @@ public class LanguageDetectionTest {
 
   @Test
   public void search_by_file_extension() throws Exception {
-    LanguagesReferential languages = new DefaultLanguagesReferential(new Languages(new MockLanguage("java", "java", "jav"), new MockLanguage("cobol", "cbl", "cob")));
+    LanguagesRepository languages = new DefaultLanguagesRepository(new Languages(new MockLanguage("java", "java", "jav"), new MockLanguage("cobol", "cbl", "cob")));
     LanguageDetection detection = new LanguageDetection(new Settings(), languages);
 
     assertThat(detection.language(newInputFile("Foo.java"))).isEqualTo("java");
@@ -76,13 +76,13 @@ public class LanguageDetectionTest {
 
   @Test
   public void should_not_fail_if_no_language() throws Exception {
-    LanguageDetection detection = spy(new LanguageDetection(new Settings(), new DefaultLanguagesReferential(new Languages())));
+    LanguageDetection detection = spy(new LanguageDetection(new Settings(), new DefaultLanguagesRepository(new Languages())));
     assertThat(detection.language(newInputFile("Foo.java"))).isNull();
   }
 
   @Test
   public void plugin_can_declare_a_file_extension_twice_for_case_sensitivity() throws Exception {
-    LanguagesReferential languages = new DefaultLanguagesReferential(new Languages(new MockLanguage("abap", "abap", "ABAP")));
+    LanguagesRepository languages = new DefaultLanguagesRepository(new Languages(new MockLanguage("abap", "abap", "ABAP")));
 
     LanguageDetection detection = new LanguageDetection(new Settings(), languages);
     assertThat(detection.language(newInputFile("abc.abap"))).isEqualTo("abap");
@@ -92,7 +92,7 @@ public class LanguageDetectionTest {
   public void language_with_no_extension() throws Exception {
     // abap does not declare any file extensions.
     // When analyzing an ABAP project, then all source files must be parsed.
-    LanguagesReferential languages = new DefaultLanguagesReferential(new Languages(new MockLanguage("java", "java"), new MockLanguage("abap")));
+    LanguagesRepository languages = new DefaultLanguagesRepository(new Languages(new MockLanguage("java", "java"), new MockLanguage("abap")));
 
     // No side-effect on non-ABAP projects
     LanguageDetection detection = new LanguageDetection(new Settings(), languages);
@@ -110,7 +110,7 @@ public class LanguageDetectionTest {
 
   @Test
   public void force_language_using_deprecated_property() throws Exception {
-    LanguagesReferential languages = new DefaultLanguagesReferential(new Languages(new MockLanguage("java", "java"), new MockLanguage("php", "php")));
+    LanguagesRepository languages = new DefaultLanguagesRepository(new Languages(new MockLanguage("java", "java"), new MockLanguage("php", "php")));
 
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.PROJECT_LANGUAGE_PROPERTY, "java");
@@ -126,7 +126,7 @@ public class LanguageDetectionTest {
     thrown.expect(MessageException.class);
     thrown.expectMessage("No language is installed with key 'unknown'. Please update property 'sonar.language'");
 
-    LanguagesReferential languages = new DefaultLanguagesReferential(new Languages(new MockLanguage("java", "java"), new MockLanguage("php", "php")));
+    LanguagesRepository languages = new DefaultLanguagesRepository(new Languages(new MockLanguage("java", "java"), new MockLanguage("php", "php")));
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.PROJECT_LANGUAGE_PROPERTY, "unknown");
     new LanguageDetection(settings, languages);
@@ -134,7 +134,7 @@ public class LanguageDetectionTest {
 
   @Test
   public void fail_if_conflicting_language_suffix() throws Exception {
-    LanguagesReferential languages = new DefaultLanguagesReferential(new Languages(new MockLanguage("xml", "xhtml"), new MockLanguage("web", "xhtml")));
+    LanguagesRepository languages = new DefaultLanguagesRepository(new Languages(new MockLanguage("xml", "xhtml"), new MockLanguage("web", "xhtml")));
     LanguageDetection detection = new LanguageDetection(new Settings(), languages);
     try {
       detection.language(newInputFile("abc.xhtml"));
@@ -149,7 +149,7 @@ public class LanguageDetectionTest {
 
   @Test
   public void solve_conflict_using_filepattern() throws Exception {
-    LanguagesReferential languages = new DefaultLanguagesReferential(new Languages(new MockLanguage("xml", "xhtml"), new MockLanguage("web", "xhtml")));
+    LanguagesRepository languages = new DefaultLanguagesRepository(new Languages(new MockLanguage("xml", "xhtml"), new MockLanguage("web", "xhtml")));
 
     Settings settings = new Settings();
     settings.setProperty("sonar.lang.patterns.xml", "xml/**");
@@ -161,7 +161,7 @@ public class LanguageDetectionTest {
 
   @Test
   public void fail_if_conflicting_filepattern() throws Exception {
-    LanguagesReferential languages = new DefaultLanguagesReferential(new Languages(new MockLanguage("abap", "abap"), new MockLanguage("cobol", "cobol")));
+    LanguagesRepository languages = new DefaultLanguagesRepository(new Languages(new MockLanguage("abap", "abap"), new MockLanguage("cobol", "cobol")));
     Settings settings = new Settings();
     settings.setProperty("sonar.lang.patterns.abap", "*.abap,*.txt");
     settings.setProperty("sonar.lang.patterns.cobol", "*.cobol,*.txt");
@@ -183,7 +183,7 @@ public class LanguageDetectionTest {
 
   private InputFile newInputFile(String path) throws IOException {
     File basedir = temp.newFolder();
-    return new DefaultInputFile("foo", path).setFile(new File(basedir, path));
+    return new DefaultInputFile("foo", path).setModuleBaseDir(basedir.toPath());
   }
 
   static class MockLanguage implements Language {

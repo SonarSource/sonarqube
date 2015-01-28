@@ -40,7 +40,7 @@ public class IssuableFactoryTest {
   @Test
   public void file_should_be_issuable() throws Exception {
     IssuableFactory factory = new IssuableFactory(moduleIssues, cache, projectTree);
-    Component component = new ResourceComponent(new File("foo/bar.c").setEffectiveKey("foo/bar.c"));
+    Component component = new ResourceComponent(File.create("foo/bar.c").setEffectiveKey("foo/bar.c"));
     Issuable issuable = factory.loadPerspective(Issuable.class, component);
 
     assertThat(issuable).isNotNull();

@@ -72,7 +72,7 @@ public class JavaCpdEngineTest {
     inputFile = new DeprecatedDefaultInputFile("foo", "src/main/java/Foo.java");
     duplicationBuilder = spy(new DefaultDuplicationBuilder(inputFile));
     when(context.duplicationBuilder(any(InputFile.class))).thenReturn(duplicationBuilder);
-    inputFile.setFile(temp.newFile("Foo.java"));
+    inputFile.setModuleBaseDir(temp.newFolder().toPath());
   }
 
   @SuppressWarnings("unchecked")

@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import org.apache.commons.io.FilenameUtils;
 import org.sonar.api.batch.fs.AbstractFilePredicate;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
@@ -47,42 +46,4 @@ class AdditionalFilePredicates {
     }
   }
 
-  static class DeprecatedKeyPredicate extends AbstractFilePredicate {
-    private final String key;
-
-    DeprecatedKeyPredicate(String key) {
-      this.key = key;
-    }
-
-    @Override
-    public boolean apply(InputFile f) {
-      return key.equals(((DeprecatedDefaultInputFile) f).deprecatedKey());
-    }
-  }
-
-  static class SourceRelativePathPredicate extends AbstractFilePredicate {
-    private final String path;
-
-    SourceRelativePathPredicate(String s) {
-      this.path = FilenameUtils.normalize(s, true);
-    }
-
-    @Override
-    public boolean apply(InputFile f) {
-      return path.equals(((DeprecatedDefaultInputFile) f).pathRelativeToSourceDir());
-    }
-  }
-
-  static class SourceDirPredicate extends AbstractFilePredicate {
-    private final String path;
-
-    SourceDirPredicate(String s) {
-      this.path = FilenameUtils.normalize(s, true);
-    }
-
-    @Override
-    public boolean apply(InputFile f) {
-      return path.equals(((DeprecatedDefaultInputFile) f).sourceDirAbsolutePath());
-    }
-  }
 }
