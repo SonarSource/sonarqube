@@ -48,7 +48,7 @@ public class NotificationTest {
   public void shouldReturnToStringIfDefaultMessageNotSet() {
     notification = new Notification("alerts").setFieldValue("alertCount", "42");
     System.out.println(notification);
-    assertThat(notification.getDefaultMessage()).contains("type=alerts");
+    assertThat(notification.getDefaultMessage()).contains("type='alerts'");
     assertThat(notification.getDefaultMessage()).contains("fields={alertCount=42}");
   }
 

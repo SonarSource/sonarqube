@@ -40,7 +40,7 @@ public class NewFalsePositiveNotificationDispatcher extends NotificationDispatch
   private final NotificationManager notifications;
 
   public NewFalsePositiveNotificationDispatcher(NotificationManager notifications) {
-    super("issue-changes");
+    super(IssueChangeNotification.TYPE);
     this.notifications = notifications;
   }
 

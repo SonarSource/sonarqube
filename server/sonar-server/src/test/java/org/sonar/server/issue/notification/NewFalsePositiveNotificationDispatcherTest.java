@@ -79,7 +79,7 @@ public class NewFalsePositiveNotificationDispatcherTest {
     recipients.put("godin", twitterChannel);
     when(notifications.findNotificationSubscribers(dispatcher, "struts")).thenReturn(recipients);
 
-    Notification notification = new Notification("issue-changes").setFieldValue("projectKey", "struts")
+    Notification notification = new IssueChangeNotification().setFieldValue("projectKey", "struts")
       .setFieldValue("changeAuthor", "godin")
       .setFieldValue("new.resolution", "FALSE-POSITIVE")
       .setFieldValue("assignee", "freddy");

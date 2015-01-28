@@ -29,6 +29,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,8 +40,9 @@ public class PropertiesDaoTest extends AbstractDaoTestCase {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
-  private DbSession session;
-  private PropertiesDao dao;
+
+  DbSession session;
+  PropertiesDao dao;
 
   @Before
   public void createDao() {
@@ -101,6 +103,25 @@ public class PropertiesDaoTest extends AbstractDaoTestCase {
     // Global + Project subscribers
     users = dao.findNotificationSubscribers("DispatcherWithGlobalAndProjectSubscribers", "Email", "org.apache:struts");
     assertThat(users).containsOnly("eric", "simon");
+  }
+
+  @Test
+  public void hasNotificationSubscribers() throws Exception {
+    setupData("findNotificationSubscribers");
+
+    // Nobody is subscribed
+    assertThat(dao.hasProjectNotificationSubscribersForDispatchers("PROJECT_A", Arrays.asList("NotSexyDispatcher"))).isFalse();
+
+    // Global subscribers
+    assertThat(dao.hasProjectNotificationSubscribersForDispatchers("PROJECT_A", Arrays.asList("DispatcherWithGlobalSubscribers"))).isTrue();
+
+    // Project subscribers
+    assertThat(dao.hasProjectNotificationSubscribersForDispatchers("PROJECT_A", Arrays.asList("DispatcherWithProjectSubscribers"))).isTrue();
+    assertThat(dao.hasProjectNotificationSubscribersForDispatchers("PROJECT_B", Arrays.asList("DispatcherWithProjectSubscribers"))).isFalse();
+
+    // Global + Project subscribers
+    assertThat(dao.hasProjectNotificationSubscribersForDispatchers("PROJECT_A", Arrays.asList("DispatcherWithGlobalAndProjectSubscribers"))).isTrue();
+    assertThat(dao.hasProjectNotificationSubscribersForDispatchers("PROJECT_B", Arrays.asList("DispatcherWithGlobalAndProjectSubscribers"))).isTrue();
   }
 
   @Test

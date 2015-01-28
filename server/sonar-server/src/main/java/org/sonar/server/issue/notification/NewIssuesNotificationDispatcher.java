@@ -34,7 +34,7 @@ public class NewIssuesNotificationDispatcher extends NotificationDispatcher {
   private final NotificationManager manager;
 
   public NewIssuesNotificationDispatcher(NotificationManager manager) {
-    super("new-issues");
+    super(NewIssuesNotification.TYPE);
     this.manager = manager;
   }
 

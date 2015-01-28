@@ -37,7 +37,7 @@ public class ChangesOnMyIssueNotificationDispatcher extends NotificationDispatch
   private NotificationManager notificationManager;
 
   public ChangesOnMyIssueNotificationDispatcher(NotificationManager notificationManager) {
-    super("issue-changes");
+    super(IssueChangeNotification.TYPE);
     this.notificationManager = notificationManager;
   }
 

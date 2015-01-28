@@ -33,4 +33,11 @@ public class DaoUtilsTest {
 
     assertThat(daoClasses).isNotEmpty();
   }
+
+  @Test
+  public void repeatCondition() throws Exception {
+    assertThat(DaoUtils.repeatCondition("uuid=?", 1, "or")).isEqualTo("uuid=?");
+    assertThat(DaoUtils.repeatCondition("uuid=?", 3, "or")).isEqualTo("uuid=? or uuid=? or uuid=?");
+
+  }
 }

@@ -39,7 +39,7 @@ import org.sonar.api.ServerExtension;
  */
 public abstract class NotificationDispatcher implements ServerExtension {
 
-  private String notificationType;
+  private final String notificationType;
 
   /**
    * Additional information related to the notification, which will be used
@@ -89,6 +89,13 @@ public abstract class NotificationDispatcher implements ServerExtension {
    */
   public String getKey() {
     return getClass().getSimpleName();
+  }
+
+  /**
+   * @since 5.1
+   */
+  public String getType() {
+    return notificationType;
   }
 
   /**
