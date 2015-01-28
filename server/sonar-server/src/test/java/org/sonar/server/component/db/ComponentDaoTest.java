@@ -20,7 +20,6 @@
 
 package org.sonar.server.component.db;
 
-import com.google.common.collect.ImmutableMap;
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.junit.After;
 import org.junit.Before;
@@ -440,12 +439,8 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
   public void select_views_and_sub_views() {
     setupData("shared_views");
 
-    assertThat(dao.selectAllViewsAndSubViews(session)).contains(
-      ImmutableMap.of("uuid", "ABCD", "projectUuid", "ABCD"),
-      ImmutableMap.of("uuid", "EFGH", "projectUuid", "EFGH"),
-      ImmutableMap.of("uuid", "FGHI", "projectUuid", "EFGH"),
-      ImmutableMap.of("uuid", "IJKL", "projectUuid", "IJKL")
-      );
+    assertThat(dao.selectAllViewsAndSubViews(session)).extracting("uuid").containsOnly("ABCD", "EFGH", "FGHI", "IJKL");
+    assertThat(dao.selectAllViewsAndSubViews(session)).extracting("projectUuid").containsOnly("ABCD", "EFGH", "IJKL");
   }
 
   @Test
