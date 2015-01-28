@@ -23,7 +23,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.lang.reflect.ConstructorUtils;
@@ -54,6 +53,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class EsTester extends ExternalResource {
@@ -61,7 +61,7 @@ public class EsTester extends ExternalResource {
   private static final int INSTANCE_ID = RandomUtils.nextInt();
   private Node node;
   private EsClient client;
-  private final List<IndexDefinition> definitions = Lists.newArrayList();
+  private final List<IndexDefinition> definitions = newArrayList();
   private Settings settings = new Settings();
 
   public EsTester addDefinitions(IndexDefinition... defs) {
@@ -176,7 +176,7 @@ public class EsTester extends ExternalResource {
    */
   public <E extends BaseDoc> List<E> getDocuments(String indexName, String typeName, final Class<E> docClass) {
     List<SearchHit> hits = getDocuments(indexName, typeName);
-    return Lists.newArrayList(Collections2.transform(hits, new Function<SearchHit, E>() {
+    return newArrayList(Collections2.transform(hits, new Function<SearchHit, E>() {
       @Override
       public E apply(SearchHit input) {
         try {
@@ -198,7 +198,7 @@ public class EsTester extends ExternalResource {
       .setSize(100);
 
     SearchResponse response = req.get();
-    List<SearchHit> result = Lists.newArrayList();
+    List<SearchHit> result = newArrayList();
     while (true) {
       Iterables.addAll(result, response.getHits());
       response = client.nativeClient().prepareSearchScroll(response.getScrollId()).setScroll(new TimeValue(600000)).execute().actionGet();
@@ -208,6 +208,15 @@ public class EsTester extends ExternalResource {
       }
     }
     return result;
+  }
+
+  public <T> List<T> getDocumentFields(String indexName, String typeName, final String fieldName) {
+    return newArrayList(Iterables.transform(getDocuments(indexName, typeName), new Function<SearchHit, T>() {
+      @Override
+      public T apply(SearchHit input) {
+        return (T) input.sourceAsMap().get(fieldName);
+      }
+    }));
   }
 
   public Node node() {

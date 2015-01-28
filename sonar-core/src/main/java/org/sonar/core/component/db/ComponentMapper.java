@@ -65,10 +65,9 @@ public interface ComponentMapper {
 
   List<ComponentDto> findByKeys(@Param("keys") Collection<String> keys);
 
-  /**
-   * Warning, projectId are always null
-   */
   List<ComponentDto> findByUuids(@Param("uuids") Collection<String> uuids);
+
+  List<String> selectUuidsByUuids(@Param("uuids") Collection<String> uuids);
 
   /**
    * Return all project (PRJ/TRK) uuids
@@ -86,9 +85,11 @@ public interface ComponentMapper {
   List<FilePathWithHashDto> selectModuleFilesTree(@Param("moduleUuid") String moduleUuid, @Param(value = "scope") String scope);
 
   /**
-   * Return all views and sub views
+   * Return uuids and project uuids from list of qualifiers
+   *
+   * It's using a join on snapshots in order to use he indexed columns snapshots.qualifier
    */
-  List<UuidWithProjectUuidDto> selectAllViewsAndSubViews(@Param("viewQualifier") String viewQualifier, @Param("subViewQualifier") String subViewQualifier);
+  List<UuidWithProjectUuidDto> selectUuidsForQualifiers(@Param("qualifiers") String... qualifiers);
 
   /**
    * Return technical projects from a view or a sub-view

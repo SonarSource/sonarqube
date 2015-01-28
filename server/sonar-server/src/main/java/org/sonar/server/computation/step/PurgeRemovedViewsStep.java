@@ -20,25 +20,19 @@
 
 package org.sonar.server.computation.step;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.core.component.UuidWithProjectUuidDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.view.index.ViewIndex;
 
-import javax.annotation.Nullable;
-
-import java.util.List;
 import java.util.Set;
 
 import static com.google.common.collect.Sets.newHashSet;
 
 /**
- * This step will remove every Views and Sub Views from the index that do not exists in the db.
+ * This step removes from index the views and sub-views that do not exist in db.
  * As it's executed on each analysis, it means that when the Views task is executed on every views, this step will be executed on each views !
  *
  * A more optimized approach would be to execute this step only once at this end of the Views task.
@@ -63,15 +57,9 @@ public class PurgeRemovedViewsStep implements ComputationStep {
   private void purgeRemovedViews() {
     DbSession session = dbClient.openSession(false);
     try {
-      List<UuidWithProjectUuidDto> uuidWithProjectUuidDtos = dbClient.componentDao().selectAllViewsAndSubViews(session);
-      Set<String> viewUuidsInDb = newHashSet(Iterables.transform(uuidWithProjectUuidDtos, new Function<UuidWithProjectUuidDto, String>() {
-        @Override
-        public String apply(@Nullable UuidWithProjectUuidDto input) {
-          return input != null ? input.getUuid() : null;
-        }
-      }));
       Set<String> viewUuidsInIndex = newHashSet(index.findAllViewUuids());
-      Set<String> viewsToRemove = Sets.difference(viewUuidsInIndex, viewUuidsInDb);
+      Set<String> viewUuidInDb = newHashSet(dbClient.componentDao().selectUuidsByUuids(session, viewUuidsInIndex));
+      Set<String> viewsToRemove = Sets.difference(viewUuidsInIndex, viewUuidInDb);
       index.delete(viewsToRemove);
     } finally {
       session.close();
