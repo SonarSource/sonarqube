@@ -126,6 +126,17 @@ public class ServerClientTest {
   }
 
   @Test
+  public void should_display_json_error_when_403() throws Exception {
+    server = new MockHttpServer();
+    server.start();
+    server.setMockResponseStatus(403);
+    server.setMockResponseData("{\"errors\":[{\"msg\":\"Insufficient privileges\"}]}");
+
+    thrown.expectMessage("Insufficient privileges");
+    newServerClient().request("/foo");
+  }
+
+  @Test
   public void should_fail_if_error() throws Exception {
     server = new MockHttpServer();
     server.start();

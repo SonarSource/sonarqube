@@ -19,10 +19,15 @@
  */
 package org.sonar.batch.bootstrap;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -39,6 +44,8 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Replace the deprecated org.sonar.batch.ServerMetadata
@@ -127,9 +134,24 @@ public class ServerClient implements BatchComponent {
     }
     if (he.getResponseCode() == 403) {
       // SONAR-4397 Details are in response content
-      return new IllegalStateException(he.getResponseContent());
+      return new IllegalStateException(tryParseAsJsonError(he.getResponseContent()));
     }
     return new IllegalStateException(String.format("Fail to execute request [code=%s, url=%s]", he.getResponseCode(), he.getUri()), he);
+  }
+
+  private String tryParseAsJsonError(String responseContent) {
+    try {
+      JsonParser parser = new JsonParser();
+      JsonObject obj = parser.parse(responseContent).getAsJsonObject();
+      JsonArray errors = obj.getAsJsonArray("errors");
+      List<String> errorMessages = new ArrayList<>();
+      for (JsonElement e : errors) {
+        errorMessages.add(e.getAsJsonObject().get("msg").getAsString());
+      }
+      return Joiner.on(", ").join(errorMessages);
+    } catch (Exception e) {
+      return responseContent;
+    }
   }
 
   public String getMessageWhenNotAuthorized() {
