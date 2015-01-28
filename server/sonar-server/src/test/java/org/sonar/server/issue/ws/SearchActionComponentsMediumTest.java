@@ -131,6 +131,38 @@ public class SearchActionComponentsMediumTest {
   }
 
   @Test
+  public void project_facet_is_sticky_when_non_contextualized() throws Exception {
+    ComponentDto project1 = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject1"));
+    ComponentDto project2 = insertComponent(ComponentTesting.newProjectDto("BCDE").setKey("MyProject2"));
+    ComponentDto project3 = insertComponent(ComponentTesting.newProjectDto("CDEF").setKey("MyProject3"));
+    setDefaultProjectPermission(project1);
+    setDefaultProjectPermission(project2);
+    setDefaultProjectPermission(project3);
+    ComponentDto file1 = insertComponent(ComponentTesting.newFileDto(project1, "FEDC").setKey("MyComponent1"));
+    ComponentDto file2 = insertComponent(ComponentTesting.newFileDto(project2, "EDCB").setKey("MyComponent2"));
+    ComponentDto file3 = insertComponent(ComponentTesting.newFileDto(project3, "DCBA").setKey("MyComponent3"));
+    RuleDto rule = newRule();
+    IssueDto issue1 = IssueTesting.newDto(rule, file1, project1).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2");
+    IssueDto issue2 = IssueTesting.newDto(rule, file2, project2).setKee("2bd4eac2-b650-4037-80bc-7b1182fd47d4");
+    IssueDto issue3 = IssueTesting.newDto(rule, file3, project3).setKee("7b1182fd-b650-4037-80bc-82fd47d4eac2");
+    db.issueDao().insert(session, issue1, issue2, issue3);
+    session.commit();
+    tester.get(IssueIndexer.class).indexAll();
+
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+      .setParam(IssueFilterParameters.PROJECT_UUIDS, project1.uuid())
+      .setParam(SearchAction.PARAM_FACETS, "projectUuids")
+      .execute()
+      .assertJson(this.getClass(), "display_sticky_project_facet.json", false);
+
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+      .setParam(IssueFilterParameters.COMPONENT_UUIDS, project1.uuid())
+      .setParam(SearchAction.PARAM_FACETS, "projectUuids")
+      .execute()
+      .assertJson(this.getClass(), "display_non_sticky_project_facet.json", false);
+  }
+
+  @Test
   public void search_by_file_uuid() throws Exception {
     ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
     setDefaultProjectPermission(project);

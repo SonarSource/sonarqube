@@ -198,8 +198,10 @@ public class IssueQueryService implements ServerComponent {
     }
 
     if (allComponentUuids.isEmpty()) {
+      builder.setContextualized(false);
       addComponentsBelowView(builder, session, projects, projectUuids, moduleUuids, directories, fileUuids);
     } else {
+      builder.setContextualized(true);
 
       Set<String> qualifiers = componentService.getDistinctQualifiers(session, allComponentUuids);
       if (qualifiers.isEmpty()) {

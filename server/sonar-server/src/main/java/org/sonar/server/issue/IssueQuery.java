@@ -80,6 +80,7 @@ public class IssueQuery {
   private final String sort;
   private final Boolean asc;
   private final Boolean ignorePaging;
+  private final Boolean contextualized;
 
   private IssueQuery(Builder builder) {
     this.issueKeys = defaultCollection(builder.issueKeys);
@@ -109,6 +110,7 @@ public class IssueQuery {
     this.sort = builder.sort;
     this.asc = builder.asc;
     this.ignorePaging = builder.ignorePaging;
+    this.contextualized = builder.contextualized;
   }
 
   public Collection<String> issueKeys() {
@@ -233,6 +235,11 @@ public class IssueQuery {
     return ignorePaging;
   }
 
+  @CheckForNull
+  public Boolean isContextualized() {
+    return contextualized;
+  }
+
   @Override
   public String toString() {
     return ReflectionToStringBuilder.toString(this);
@@ -270,6 +277,7 @@ public class IssueQuery {
     private String sort;
     private Boolean asc = false;
     private Boolean ignorePaging = false;
+    private boolean contextualized;
 
     private Builder() {
     }
@@ -440,6 +448,11 @@ public class IssueQuery {
 
     public Builder ignorePaging(@Nullable Boolean ignorePaging) {
       this.ignorePaging = ignorePaging;
+      return this;
+    }
+
+    public Builder setContextualized(boolean b) {
+      this.contextualized = b;
       return this;
     }
   }
