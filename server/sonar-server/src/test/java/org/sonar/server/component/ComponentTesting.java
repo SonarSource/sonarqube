@@ -56,7 +56,10 @@ public class ComponentTesting {
   }
 
   public static ComponentDto newModuleDto(ComponentDto subProjectOrProject) {
-    String uuid = Uuids.create();
+    return newModuleDto(subProjectOrProject, Uuids.create());
+  }
+
+  public static ComponentDto newModuleDto(ComponentDto subProjectOrProject, String uuid) {
     return newComponent(subProjectOrProject, uuid)
       .setKey("KEY_" + uuid)
       .setName("NAME_" + uuid)

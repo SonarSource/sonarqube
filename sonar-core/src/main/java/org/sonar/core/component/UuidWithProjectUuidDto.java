@@ -18,40 +18,28 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.view.index;
+package org.sonar.core.component;
 
-import com.google.common.collect.Maps;
-import org.sonar.server.search.BaseDoc;
+public class UuidWithProjectUuidDto {
 
-import java.util.List;
-import java.util.Map;
+  private String uuid;
+  private String projectUuid;
 
-public class ViewDoc extends BaseDoc {
-
-  public ViewDoc(Map<String, Object> fields) {
-    super(fields);
+  public String getProjectUuid() {
+    return projectUuid;
   }
 
-  public ViewDoc() {
-    super(Maps.<String, Object>newHashMap());
-  }
-
-  public String uuid() {
-    return getField(ViewIndexDefinition.FIELD_UUID);
-  }
-
-  public List<String> projects() {
-    return getField(ViewIndexDefinition.FIELD_PROJECTS);
-  }
-
-  public ViewDoc setUuid(String s) {
-    setField(ViewIndexDefinition.FIELD_UUID, s);
+  public UuidWithProjectUuidDto setProjectUuid(String projectUuid) {
+    this.projectUuid = projectUuid;
     return this;
   }
 
-  public ViewDoc setProjects(List<String> s) {
-    setField(ViewIndexDefinition.FIELD_PROJECTS, s);
-    return this;
+  public String getUuid() {
+    return uuid;
   }
 
+  public UuidWithProjectUuidDto setUuid(String uuid) {
+    this.uuid = uuid;
+    return this;
+  }
 }

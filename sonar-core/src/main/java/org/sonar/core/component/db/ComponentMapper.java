@@ -23,12 +23,12 @@ package org.sonar.core.component.db;
 import org.apache.ibatis.annotations.Param;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.FilePathWithHashDto;
+import org.sonar.core.component.UuidWithProjectUuidDto;
 
 import javax.annotation.CheckForNull;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @since 4.3
@@ -88,7 +88,7 @@ public interface ComponentMapper {
   /**
    * Return all views and sub views
    */
-  List<Map<String, String>> selectAllViewsAndSubViews(@Param("viewQualifier") String viewQualifier, @Param("subViewQualifier") String subViewQualifier);
+  List<UuidWithProjectUuidDto> selectAllViewsAndSubViews(@Param("viewQualifier") String viewQualifier, @Param("subViewQualifier") String subViewQualifier);
 
   /**
    * Return technical projects from a view or a sub-view
