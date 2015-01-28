@@ -20,9 +20,6 @@
 
 package org.sonar.server.computation.step;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
-import org.elasticsearch.search.SearchHit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -44,7 +41,6 @@ import org.sonar.server.view.index.ViewIndexDefinition;
 
 import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -95,13 +91,7 @@ public class PurgeRemovedViewsStepTest {
 
     step.execute(context);
 
-    List<SearchHit> results = esTester.getDocuments(ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW);
-    List<String> viewUuids = newArrayList(Iterables.transform(results, new Function<SearchHit, String>() {
-      @Override
-      public String apply(SearchHit input) {
-        return new ViewDoc(input.getSource()).uuid();
-      }
-    }));
+    List<String> viewUuids = esTester.getDocumentFields(ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW, ViewIndexDefinition.FIELD_UUID);
     assertThat(viewUuids).containsOnly("ABCD", "BCDE");
   }
 
