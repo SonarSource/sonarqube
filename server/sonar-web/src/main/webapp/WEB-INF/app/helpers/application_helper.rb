@@ -203,8 +203,11 @@ module ApplicationHelper
     if issues_metrics.include? metric_key
       url = url_for({:controller => 'component_issues', :action => 'index', :id => options[:resource]||@resource.id}) + '#'
       if options[:period] && @snapshot
-        date = @snapshot.period_datetime(options[:period]).to_date
-        url += "createdAfter=#{date}|"
+        snapshot_datetime = @snapshot.period_datetime(options[:period])
+        if snapshot_datetime
+          date = snapshot_datetime.to_date
+          url += "createdAfter=#{date}|"
+        end
       end
       case metric_key
         when 'blocker_violations', 'new_blocker_violations'
