@@ -11,18 +11,8 @@ define [
       "#{baseUrl}/api/resources/search?f=s2&q=BRC&display_uuid=true"
 
 
-    getValues: ->
-      componentRoots = @options.app.state.get('query').moduleUuids
-      componentRoots = '' unless typeof componentRoots == typeof ''
-      if componentRoots.length > 0
-        componentRoots = componentRoots.split ','
-        componentRoots.map (c) ->
-          { val: c, count: null }
-      else []
-
-
     getValuesWithLabels: ->
-      values = @getValues()
+      values = @model.getValues()
       components = @options.app.facets.components
       values.forEach (v) =>
         uuid = v.val
@@ -36,4 +26,4 @@ define [
 
     serializeData: ->
       _.extend super,
-        values: @getValuesWithLabels()
+        values: @sortValues @getValuesWithLabels()

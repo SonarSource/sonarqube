@@ -12,7 +12,7 @@ define [
   'issues/facets/resolution-facet'
   'issues/facets/creation-date-facet'
   'issues/facets/action-plan-facet'
-  'issues/facets/component-facet'
+  'issues/facets/file-facet'
   'issues/facets/reporter-facet'
   'issues/facets/language-facet'
   'issues/facets/issue-key-facet'
@@ -31,7 +31,7 @@ define [
   ResolutionFacet
   CreationDateFacet
   ActionPlanFacet
-  ComponentFacet
+  FileFacet
   ReporterFacet
   LanguageFacet
   IssueKeyFacet
@@ -52,7 +52,7 @@ define [
         when 'rules' then RuleFacet
         when 'tags' then TagFacet
         when 'actionPlans' then ActionPlanFacet
-        when 'componentUuids' then ComponentFacet
+        when 'fileUuids' then FileFacet
         when 'reporters' then ReporterFacet
         when 'languages' then LanguageFacet
         when 'issues' then IssueKeyFacet

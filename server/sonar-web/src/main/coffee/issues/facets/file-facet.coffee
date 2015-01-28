@@ -9,7 +9,7 @@ define [
 
 
   class extends BaseFacet
-    template: Templates['issues-component-facet']
+    template: Templates['issues-file-facet']
 
 
     onRender: ->
