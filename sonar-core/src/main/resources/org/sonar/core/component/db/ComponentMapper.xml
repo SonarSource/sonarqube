@@ -156,7 +156,7 @@
     </where>
   </select>
 
-  <select id="selectAllViewsAndSubViews" resultType="hashmap">
+  <select id="selectAllViewsAndSubViews" resultType="UuidWithProjectUuid">
     SELECT v.uuid as "uuid", v.project_uuid as "projectUuid" FROM projects v
     <where>
       v.enabled=${_true} AND v.qualifier=#{viewQualifier} OR v.qualifier=#{subViewQualifier}

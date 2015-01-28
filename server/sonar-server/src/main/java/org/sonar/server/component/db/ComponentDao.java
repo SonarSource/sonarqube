@@ -27,6 +27,7 @@ import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.FilePathWithHashDto;
+import org.sonar.core.component.UuidWithProjectUuidDto;
 import org.sonar.core.component.db.ComponentMapper;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
@@ -38,7 +39,6 @@ import javax.annotation.CheckForNull;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -143,7 +143,7 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
     return mapper(session).findProjectUuids();
   }
 
-  public List<Map<String, String>> selectAllViewsAndSubViews(DbSession session) {
+  public List<UuidWithProjectUuidDto> selectAllViewsAndSubViews(DbSession session) {
     return mapper(session).selectAllViewsAndSubViews(Qualifiers.VIEW, Qualifiers.SUBVIEW);
   }
 
