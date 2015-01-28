@@ -201,7 +201,7 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
     QueryBuilder queryBuilder = QueryBuilders.filteredQuery(
       QueryBuilders.matchAllQuery(),
       FilterBuilders.andFilter(projectFilter, dateFilter)
-      );
+    );
 
     getClient().prepareDeleteByQuery(IssueIndexDefinition.INDEX).setQuery(queryBuilder).get();
   }
@@ -348,7 +348,7 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
         FilterBuilders.boolFilter()
           .must(groupsAndUser)
           .cache(true))
-      );
+    );
   }
 
   private void addDatesFilter(Map<String, FilterBuilder> filters, IssueQuery query) {
@@ -410,7 +410,7 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
   }
 
   private void addSimpleStickyFacetIfNeeded(QueryContext options, StickyFacetBuilder stickyFacetBuilder, SearchRequestBuilder esSearch,
-    String facetName, String fieldName, Object... selectedValues) {
+                                            String facetName, String fieldName, Object... selectedValues) {
     if (options.facets().contains(facetName)) {
       esSearch.addAggregation(stickyFacetBuilder.buildStickyFacet(fieldName, facetName, DEFAULT_ISSUE_FACET_SIZE, selectedValues));
     }
@@ -440,7 +440,7 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
       AggregationBuilders
         .missing(facetName + FACET_SUFFIX_MISSING)
         .field(fieldName)
-      );
+    );
 
     return AggregationBuilders
       .global(facetName)
@@ -465,7 +465,7 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
       AggregationBuilders
         .missing(facetName + FACET_SUFFIX_MISSING)
         .field(fieldName)
-      );
+    );
 
     return AggregationBuilders
       .global(facetName)
@@ -490,7 +490,7 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
       AggregationBuilders
         .missing(facetName + FACET_SUFFIX_MISSING)
         .field(fieldName)
-      );
+    );
 
     return AggregationBuilders
       .global(facetName)
