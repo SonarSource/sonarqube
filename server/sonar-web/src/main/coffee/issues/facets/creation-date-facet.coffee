@@ -15,6 +15,8 @@ define [
     events: ->
       _.extend super,
         'change input': 'applyFacet'
+        'click .js-select-period-start': 'selectPeriodStart'
+        'click .js-select-period-end': 'selectPeriodEnd'
 
 
     onRender: ->
@@ -30,6 +32,21 @@ define [
       props.forEach (prop) =>
         value = query[prop]
         @$("input[name=#{prop}]").val value if value?
+
+      @$('.js-barchart').barchart @model.getValues()
+
+      @$('select').select2
+        width: '100%'
+        minimumResultsForSearch: 999
+
+
+    selectPeriodStart: ->
+      @$('.js-period-start').datepicker 'show'
+
+
+    selectPeriodEnd: ->
+      @$('.js-period-end').datepicker 'show'
+
 
 
     applyFacet: ->
@@ -47,4 +64,6 @@ define [
 
     serializeData: ->
       _.extend super,
+        periodStart: @options.app.state.get('query').createdAfter
+        periodEnd: @options.app.state.get('query').createdBefore
         createdAt: @options.app.state.get('query').createdAt
