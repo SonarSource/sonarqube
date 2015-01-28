@@ -119,7 +119,7 @@ requirejs [
     sort = _.findWhere(params, key: 'sort')
     asc = _.findWhere(params, key: 'asc')
 
-    if (sort && asc)
+    if (sort? && asc?)
       @codingRules.sorting =
         sort: sort.value
         asc: asc.value =='true'

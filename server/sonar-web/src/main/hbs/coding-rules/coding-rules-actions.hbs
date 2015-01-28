@@ -1,6 +1,6 @@
 <div class="navigator-actions-order">
   {{#if sorting}}
-    {{t 'coding_rules.ordered_by'}} <strong>{{sorting.sortText}}</strong> {{#if sorting.asc}}<i class="icon-sort-asc"></i>{{else}}<i class="icon-sort-desc"></i>{{/if}}
+    {{t 'coding_rules.ordered_by'}} <strong class="navigator-actions-ordered-by">{{sorting.sortText}}</strong> {{#if sorting.asc}}<i class="icon-sort-asc"></i>{{else}}<i class="icon-sort-desc"></i>{{/if}}
   {{else}}
     {{t 'coding_rules.order'}}
   {{/if}}

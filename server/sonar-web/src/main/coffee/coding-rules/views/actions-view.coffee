@@ -21,15 +21,14 @@ define [
 
     events:
       'click .navigator-actions-order': 'toggleOrderChoices'
-      'click @ui.orderChoices': 'sort'
+      'click .navigator-actions-order-choices li': 'sort'
       'click @ui.bulkChange': 'bulkChange'
 
 
     onRender: ->
       unless @collection.sorting.sortText
-        while not @collection.sorting.sortText
-          @collection.sorting.sortText = @$('[data-sort=' + @collection.sorting.sort + ']:first').text()
-        @render()
+        @collection.sorting.sortText = @$("[data-sort=#{@collection.sorting.sort}]:first").text()
+        @$('.navigator-actions-ordered-by').text @collection.sorting.sortText
 
 
     toggleOrderChoices: (e) ->
@@ -44,10 +43,10 @@ define [
       e.stopPropagation()
       @ui.orderChoices.removeClass 'open'
       jQuery('body').off 'click.coding_rules_actions'
-      el = jQuery(e.target)
+      el = jQuery(e.currentTarget)
       sort = el.data 'sort'
       asc = el.data 'asc'
-      if sort != null && asc != null
+      if sort? && asc?
         @collection.sorting = sort: sort, sortText: el.text(), asc: asc
         @options.app.fetchFirstPage()
 
