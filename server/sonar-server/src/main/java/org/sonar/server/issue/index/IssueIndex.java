@@ -55,6 +55,8 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
 
+  private static final String FILTER_COMPONENT_ROOT = "__componentRoot";
+
   private static final String FACET_SUFFIX_MISSING = "_missing";
 
   private static final int DEFAULT_ISSUE_FACET_SIZE = 5;
@@ -266,23 +268,23 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
     FilterBuilder componentFilter = matchFilter(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, query.componentUuids());
 
     if (projectFilter != null) {
-      filters.put("__componentRoot", projectFilter);
+      filters.put(FILTER_COMPONENT_ROOT, projectFilter);
       filters.put(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, moduleFilter);
       filters.put(IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH, directoryFilter);
       filters.put(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, fileFilter);
     } else if (moduleRootFilter != null) {
-      filters.put("__componentRoot", moduleRootFilter);
+      filters.put(FILTER_COMPONENT_ROOT, moduleRootFilter);
       filters.put(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, moduleFilter);
       filters.put(IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH, directoryFilter);
       filters.put(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, fileFilter);
     } else if (directoryRootFilter != null) {
-      filters.put("__componentRoot", directoryRootFilter);
+      filters.put(FILTER_COMPONENT_ROOT, directoryRootFilter);
       filters.put(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, fileFilter);
     } else if (fileFilter != null) {
-      filters.put("__componentRoot", fileFilter);
+      filters.put(FILTER_COMPONENT_ROOT, fileFilter);
     } else if (componentFilter != null) {
       // Last resort, when component type is unknown
-      filters.put("__componentRoot", componentFilter);
+      filters.put(FILTER_COMPONENT_ROOT, componentFilter);
     }
   }
 

@@ -1,0 +1,42 @@
+{
+  "total": 1,
+  "p": 1,
+  "projects": [
+    { "key": "MyProject" }
+  ],
+  "components": [
+    { "key": "MyProject" },
+    { "key": "MyModule" },
+    { "key": "MySubModule1" },
+    { "key": "MySubModule2" },
+    { "key": "MySubModule3" },
+    { "key": "MyComponent1" },
+  ],
+  "issues": [
+    {
+      "key": "82fd47d4-b650-4037-80bc-7b112bd4eac2",
+      "component": "MyComponent1",
+      "project": "MyProject",
+      "rule": "xoo:x1"
+    }
+  ],
+  "facets": [
+    {
+      "property": "moduleUuids",
+      "values": [
+        {
+          "val": "CDEF",
+          "count": 1
+        },
+        {
+          "val": "DEFA",
+          "count": 1
+        },
+        {
+          "val": "EFAB",
+          "count": 0
+        }
+      ]
+    }
+  ]
+}
