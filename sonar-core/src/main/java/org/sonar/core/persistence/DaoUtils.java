@@ -90,7 +90,7 @@ public final class DaoUtils {
       RuleDao.class,
       SemaphoreDao.class,
       UserDao.class
-      );
+    );
   }
 
   /**

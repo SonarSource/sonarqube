@@ -416,9 +416,9 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
   @Test(expected = IllegalStateException.class)
   public void update() {
     dao.update(session, new ComponentDto()
-      .setId(1L)
-      .setKey("org.struts:struts-core:src/org/struts/RequestContext.java")
-      );
+        .setId(1L)
+        .setKey("org.struts:struts-core:src/org/struts/RequestContext.java")
+    );
   }
 
   @Test
@@ -426,9 +426,9 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
     setupData("shared");
 
     dao.delete(session, new ComponentDto()
-      .setId(1L)
-      .setKey("org.struts:struts-core:src/org/struts/RequestContext.java")
-      );
+        .setId(1L)
+        .setKey("org.struts:struts-core:src/org/struts/RequestContext.java")
+    );
     session.commit();
 
     checkTable("delete", "projects");
