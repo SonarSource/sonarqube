@@ -31,6 +31,7 @@ import org.sonar.api.config.EmailSettings;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -71,9 +72,9 @@ public class IssueChangesEmailTemplateTest {
 
     String message = email.getMessage();
     String expected = Resources.toString(Resources.getResource(
-        "org/sonar/server/issue/notification/IssueChangesEmailTemplateTest/email_with_assignee_change.txt"),
+      "org/sonar/server/issue/notification/IssueChangesEmailTemplateTest/email_with_assignee_change.txt"),
       Charsets.UTF_8
-    );
+      );
     expected = StringUtils.remove(expected, '\r');
     assertThat(message).isEqualTo(expected);
     assertThat(email.getFrom()).isNull();
@@ -91,9 +92,9 @@ public class IssueChangesEmailTemplateTest {
 
     String message = email.getMessage();
     String expected = Resources.toString(Resources.getResource(
-        "org/sonar/server/issue/notification/IssueChangesEmailTemplateTest/email_with_action_plan_change.txt"),
+      "org/sonar/server/issue/notification/IssueChangesEmailTemplateTest/email_with_action_plan_change.txt"),
       Charsets.UTF_8
-    );
+      );
     expected = StringUtils.remove(expected, '\r');
     assertThat(message).isEqualTo(expected);
     assertThat(email.getFrom()).isNull();
@@ -110,9 +111,9 @@ public class IssueChangesEmailTemplateTest {
 
     String message = email.getMessage();
     String expected = Resources.toString(Resources.getResource(
-        "org/sonar/server/issue/notification/IssueChangesEmailTemplateTest/display_component_key_if_no_component_name.txt"),
+      "org/sonar/server/issue/notification/IssueChangesEmailTemplateTest/display_component_key_if_no_component_name.txt"),
       Charsets.UTF_8
-    );
+      );
     expected = StringUtils.remove(expected, '\r');
     assertThat(message).isEqualTo(expected);
   }
@@ -145,17 +146,16 @@ public class IssueChangesEmailTemplateTest {
     when(user.name()).thenReturn("Simon");
     when(userFinder.findByLogin("simon")).thenReturn(user);
 
-    Notification notification = new Notification("issue-changes")
-      .setFieldValue("projectName", "Struts")
-      .setFieldValue("projectKey", "org.apache:struts")
-      .setFieldValue("changeAuthor", "simon");
+    Notification notification = new IssueChangeNotification()
+      .setChangeAuthorLogin("simon")
+      .setProject(new ComponentDto().setLongName("Struts").setKey("org.apache:struts"));
 
     EmailMessage message = template.format(notification);
     assertThat(message.getFrom()).isEqualTo("Simon");
   }
 
   private Notification generateNotification() {
-    Notification notification = new Notification("issue-changes")
+    Notification notification = new IssueChangeNotification()
       .setFieldValue("projectName", "Struts")
       .setFieldValue("projectKey", "org.apache:struts")
       .setFieldValue("componentName", "Action")

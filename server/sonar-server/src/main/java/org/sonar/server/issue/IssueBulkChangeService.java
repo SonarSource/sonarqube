@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
+import org.sonar.api.notifications.NotificationManager;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.core.component.ComponentDto;
@@ -36,7 +37,7 @@ import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.issue.notification.IssueNotifications;
+import org.sonar.server.issue.notification.IssueChangeNotification;
 import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.user.UserSession;
@@ -62,16 +63,16 @@ public class IssueBulkChangeService {
   private final IssueService issueService;
   private final IssueStorage issueStorage;
   private final DefaultRuleFinder ruleFinder;
-  private final IssueNotifications issueNotifications;
+  private final NotificationManager notificationService;
   private final List<Action> actions;
 
   public IssueBulkChangeService(DbClient dbClient, IssueService issueService, IssueStorage issueStorage, DefaultRuleFinder ruleFinder,
-    IssueNotifications issueNotifications, List<Action> actions) {
+    NotificationManager notificationService, List<Action> actions) {
     this.dbClient = dbClient;
     this.issueService = issueService;
     this.issueStorage = issueStorage;
     this.ruleFinder = ruleFinder;
-    this.issueNotifications = issueNotifications;
+    this.notificationService = notificationService;
     this.actions = actions;
   }
 
@@ -103,10 +104,12 @@ public class IssueBulkChangeService {
           String projectKey = issue.projectKey();
           if (projectKey != null) {
             Rule rule = repository.rule(issue.ruleKey());
-            issueNotifications.sendChanges((DefaultIssue) issue, issueChangeContext.login(),
-              rule != null ? rule.getName() : null,
-              repository.project(projectKey),
-              repository.component(issue.componentKey()), null, false);
+            notificationService.scheduleForSending(new IssueChangeNotification()
+              .setIssue((DefaultIssue) issue)
+              .setChangeAuthorLogin(issueChangeContext.login())
+              .setRuleName(rule != null ? rule.getName() : null)
+              .setProject(repository.project(projectKey))
+              .setComponent(repository.component(issue.componentKey())));
           }
         }
         concernedProjects.add(issue.projectKey());

@@ -29,6 +29,7 @@ import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
+import org.sonar.api.notifications.NotificationManager;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.Rule;
@@ -50,7 +51,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.issue.index.IssueIndex;
-import org.sonar.server.issue.notification.IssueNotifications;
+import org.sonar.server.issue.notification.IssueChangeNotification;
 import org.sonar.server.search.FacetValue;
 import org.sonar.server.search.IndexClient;
 import org.sonar.server.search.QueryContext;
@@ -80,7 +81,7 @@ public class IssueService implements ServerComponent {
   private final IssueWorkflow workflow;
   private final IssueUpdater issueUpdater;
   private final IssueStorage issueStorage;
-  private final IssueNotifications issueNotifications;
+  private final NotificationManager notificationService;
   private final ActionPlanService actionPlanService;
   private final RuleFinder ruleFinder;
   private final IssueDao deprecatedIssueDao;
@@ -92,7 +93,7 @@ public class IssueService implements ServerComponent {
     IssueWorkflow workflow,
     IssueStorage issueStorage,
     IssueUpdater issueUpdater,
-    IssueNotifications issueNotifications,
+    NotificationManager notificationService,
     ActionPlanService actionPlanService,
     RuleFinder ruleFinder,
     IssueDao deprecatedIssueDao,
@@ -105,7 +106,7 @@ public class IssueService implements ServerComponent {
     this.issueUpdater = issueUpdater;
     this.actionPlanService = actionPlanService;
     this.ruleFinder = ruleFinder;
-    this.issueNotifications = issueNotifications;
+    this.notificationService = notificationService;
     this.deprecatedIssueDao = deprecatedIssueDao;
     this.userFinder = userFinder;
     this.userIndex = userIndex;
@@ -333,11 +334,13 @@ public class IssueService implements ServerComponent {
     }
     issueStorage.save(session, issue);
     Rule rule = getNullableRuleByKey(issue.ruleKey());
-    issueNotifications.sendChanges(issue, context.login(),
-      rule != null ? rule.getName() : null,
-      dbClient.componentDao().getByKey(session, projectKey),
-      dbClient.componentDao().getNullableByKey(session, issue.componentKey()),
-      comment, false);
+    notificationService.scheduleForSending(new IssueChangeNotification()
+      .setIssue(issue)
+      .setChangeAuthorLogin(context.login())
+      .setRuleName(rule != null ? rule.getName() : null)
+      .setProject(dbClient.componentDao().getByKey(session, projectKey))
+      .setComponent(dbClient.componentDao().getNullableByKey(session, issue.componentKey()))
+      .setComment(comment));
   }
 
   /**

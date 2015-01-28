@@ -19,27 +19,57 @@
  */
 package org.sonar.server.computation.step;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.mockito.Mockito;
 import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.notifications.Notification;
+import org.sonar.api.rule.Severity;
+import org.sonar.api.utils.System2;
+import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.issue.IssueCache;
+import org.sonar.server.computation.issue.RuleCache;
+import org.sonar.server.issue.notification.IssueChangeNotification;
+import org.sonar.server.issue.notification.NewIssuesNotification;
+import org.sonar.server.notifications.NotificationService;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 public class SendIssueNotificationsStepTest {
 
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
+  RuleCache ruleCache = mock(RuleCache.class);
+  NotificationService notifService = mock(NotificationService.class);
+  ComputationContext context = mock(ComputationContext.class, Mockito.RETURNS_DEEP_STUBS);
+
   @Test
-  public void new_issue_statistics() {
-    SendIssueNotificationsStep.NewIssuesStatistics sut = new SendIssueNotificationsStep.NewIssuesStatistics();
-    assertThat(sut.isEmpty()).isTrue();
-    assertThat(sut.size()).isEqualTo(0);
+  public void do_not_send_notifications_if_no_subscribers() throws Exception {
+    IssueCache issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
+    when(context.getProject().uuid()).thenReturn("PROJECT_UUID");
+    when(notifService.hasProjectSubscribersForTypes("PROJECT_UUID", SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(false);
 
-    sut.add(new DefaultIssue().setSeverity("MINOR"));
-    sut.add(new DefaultIssue().setSeverity("BLOCKER"));
-    sut.add(new DefaultIssue().setSeverity("MINOR"));
+    SendIssueNotificationsStep step = new SendIssueNotificationsStep(issueCache, ruleCache, notifService);
+    step.execute(context);
 
-    assertThat(sut.isEmpty()).isFalse();
-    assertThat(sut.size()).isEqualTo(3);
-    assertThat(sut.issuesWithSeverity("INFO")).isEqualTo(0);
-    assertThat(sut.issuesWithSeverity("MINOR")).isEqualTo(2);
-    assertThat(sut.issuesWithSeverity("BLOCKER")).isEqualTo(1);
+    verify(notifService, never()).deliver(any(Notification.class));
+  }
+
+  @Test
+  public void send_notifications_if_subscribers() throws Exception {
+    IssueCache issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
+    issueCache.newAppender().append(new DefaultIssue().setSeverity(Severity.BLOCKER)).close();
+
+    when(context.getProject().uuid()).thenReturn("PROJECT_UUID");
+    when(notifService.hasProjectSubscribersForTypes("PROJECT_UUID", SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(true);
+
+    SendIssueNotificationsStep step = new SendIssueNotificationsStep(issueCache, ruleCache, notifService);
+    step.execute(context);
+
+    verify(notifService).deliver(any(NewIssuesNotification.class));
+    verify(notifService, atLeastOnce()).deliver(any(IssueChangeNotification.class));
   }
 }

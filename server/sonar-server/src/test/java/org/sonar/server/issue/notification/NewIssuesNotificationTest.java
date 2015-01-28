@@ -17,29 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.issue;
+package org.sonar.server.issue.notification;
 
+import org.junit.Test;
 import org.sonar.api.issue.internal.DefaultIssue;
-import org.sonar.api.utils.System2;
-import org.sonar.api.utils.TempFolder;
-import org.sonar.server.util.cache.DiskCache;
 
-import java.io.File;
-import java.io.IOException;
+import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * Cache of all the issues involved in the analysis. Their state is as it will be
- * persisted in database (after issue tracking, auto-assignment, ...)
- *
- */
-public class IssueCache extends DiskCache<DefaultIssue> {
+public class NewIssuesNotificationTest {
 
-  // this constructor is used by picocontainer
-  public IssueCache(TempFolder tempFolder, System2 system2) throws IOException {
-    super(tempFolder.newFile("issues", ".dat"), system2);
-  }
+  @Test
+  public void stats() {
+    NewIssuesNotification.Stats sut = new NewIssuesNotification.Stats();
+    assertThat(sut.size()).isEqualTo(0);
 
-  public IssueCache(File file, System2 system2) {
-    super(file, system2);
+    sut.add(new DefaultIssue().setSeverity("MINOR"));
+    sut.add(new DefaultIssue().setSeverity("BLOCKER"));
+    sut.add(new DefaultIssue().setSeverity("MINOR"));
+
+    assertThat(sut.size()).isEqualTo(3);
+    assertThat(sut.countIssuesWithSeverity("INFO")).isEqualTo(0);
+    assertThat(sut.countIssuesWithSeverity("MINOR")).isEqualTo(2);
+    assertThat(sut.countIssuesWithSeverity("BLOCKER")).isEqualTo(1);
   }
 }

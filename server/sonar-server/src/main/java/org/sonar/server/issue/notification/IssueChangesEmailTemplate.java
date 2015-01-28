@@ -47,7 +47,7 @@ public class IssueChangesEmailTemplate extends EmailTemplate {
 
   @Override
   public EmailMessage format(Notification notif) {
-    if (!"issue-changes".equals(notif.getType())) {
+    if (!IssueChangeNotification.TYPE.equals(notif.getType())) {
       return null;
     }
 

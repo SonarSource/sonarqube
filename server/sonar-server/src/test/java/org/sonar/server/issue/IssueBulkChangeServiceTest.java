@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.condition.Condition;
 import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.notifications.NotificationManager;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.rules.Rule;
@@ -38,7 +39,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.issue.db.IssueDao;
-import org.sonar.server.issue.notification.IssueNotifications;
+import org.sonar.server.issue.notification.IssueChangeNotification;
 import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.search.QueryContext;
@@ -56,15 +57,8 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyMap;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class IssueBulkChangeServiceTest {
 
@@ -76,7 +70,7 @@ public class IssueBulkChangeServiceTest {
   IssueStorage issueStorage = mock(IssueStorage.class);
   DefaultRuleFinder ruleFinder = mock(DefaultRuleFinder.class);
   ComponentDao componentDao = mock(ComponentDao.class);
-  IssueNotifications issueNotifications = mock(IssueNotifications.class);
+  NotificationManager notificationService = mock(NotificationManager.class);
 
   IssueBulkChangeService service;
 
@@ -122,7 +116,7 @@ public class IssueBulkChangeServiceTest {
     when(issueDao.selectByKeys(dbSession, newArrayList(issue.key()))).thenReturn(newArrayList(issueDto));
 
     actions = newArrayList();
-    service = new IssueBulkChangeService(dbClient, issueService, issueStorage, ruleFinder, issueNotifications, actions);
+    service = new IssueBulkChangeService(dbClient, issueService, issueStorage, ruleFinder, notificationService, actions);
   }
 
   @Test
@@ -140,8 +134,8 @@ public class IssueBulkChangeServiceTest {
 
     verify(issueStorage).save(eq(issue));
     verifyNoMoreInteractions(issueStorage);
-    verify(issueNotifications).sendChanges(eq(issue), anyString(), eq("the rule name"), eq(project), eq(file), eq((String) null), eq(false));
-    verifyNoMoreInteractions(issueNotifications);
+    verify(notificationService).scheduleForSending(any(IssueChangeNotification.class));
+    verifyNoMoreInteractions(notificationService);
   }
 
   @Test
@@ -159,7 +153,7 @@ public class IssueBulkChangeServiceTest {
 
     verify(issueStorage).save(eq(issue));
     verifyNoMoreInteractions(issueStorage);
-    verifyZeroInteractions(issueNotifications);
+    verifyZeroInteractions(notificationService);
   }
 
   @Test
@@ -244,8 +238,8 @@ public class IssueBulkChangeServiceTest {
 
     verify(issueStorage, times(1)).save(eq(issue));
     verifyNoMoreInteractions(issueStorage);
-    verify(issueNotifications).sendChanges(eq(issue), anyString(), eq("the rule name"), eq(project), eq(file), eq((String) null), eq(false));
-    verifyNoMoreInteractions(issueNotifications);
+    verify(notificationService).scheduleForSending(any(IssueChangeNotification.class));
+    verifyNoMoreInteractions(notificationService);
   }
 
   @Test
@@ -262,7 +256,7 @@ public class IssueBulkChangeServiceTest {
     assertThat(result.issuesNotChanged()).hasSize(1);
 
     verifyZeroInteractions(issueStorage);
-    verifyZeroInteractions(issueNotifications);
+    verifyZeroInteractions(notificationService);
   }
 
   @Test
@@ -279,7 +273,7 @@ public class IssueBulkChangeServiceTest {
     assertThat(result.issuesNotChanged()).isEmpty();
 
     verifyZeroInteractions(issueStorage);
-    verifyZeroInteractions(issueNotifications);
+    verifyZeroInteractions(notificationService);
   }
 
   @Test
@@ -296,7 +290,7 @@ public class IssueBulkChangeServiceTest {
     assertThat(result.issuesNotChanged()).hasSize(1);
 
     verifyZeroInteractions(issueStorage);
-    verifyZeroInteractions(issueNotifications);
+    verifyZeroInteractions(notificationService);
   }
 
   @Test
@@ -319,7 +313,7 @@ public class IssueBulkChangeServiceTest {
     assertThat(result.issuesNotChanged()).hasSize(1);
 
     verifyZeroInteractions(issueStorage);
-    verifyZeroInteractions(issueNotifications);
+    verifyZeroInteractions(notificationService);
   }
 
   @Test
@@ -338,7 +332,7 @@ public class IssueBulkChangeServiceTest {
       assertThat(e).isInstanceOf(UnauthorizedException.class);
     }
     verifyZeroInteractions(issueStorage);
-    verifyZeroInteractions(issueNotifications);
+    verifyZeroInteractions(notificationService);
   }
 
   @Test
@@ -355,7 +349,7 @@ public class IssueBulkChangeServiceTest {
       assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("The action : 'unknown' is unknown");
     }
     verifyZeroInteractions(issueStorage);
-    verifyZeroInteractions(issueNotifications);
+    verifyZeroInteractions(notificationService);
   }
 
   class MockAction extends Action {

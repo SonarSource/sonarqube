@@ -21,6 +21,7 @@ package org.sonar.server.notifications;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.SetMultimap;
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
@@ -34,11 +35,13 @@ import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.notifications.NotificationDispatcher;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.core.notification.DefaultNotificationManager;
+import org.sonar.server.db.DbClient;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -72,7 +75,8 @@ public class NotificationService implements ServerComponent, Startable {
   private final long delayInSeconds;
   private final long delayBeforeReportingStatusInSeconds;
   private final DefaultNotificationManager manager;
-  private final NotificationDispatcher[] dispatchers;
+  private final List<NotificationDispatcher> dispatchers;
+  private final DbClient dbClient;
 
   private ScheduledExecutorService executorService;
   private boolean stopping = false;
@@ -80,19 +84,19 @@ public class NotificationService implements ServerComponent, Startable {
   /**
    * Constructor for {@link NotificationService}
    */
-  public NotificationService(Settings settings, DefaultNotificationManager manager, NotificationDispatcher[] dispatchers) {
-    delayInSeconds = settings.getLong(PROPERTY_DELAY);
-    delayBeforeReportingStatusInSeconds = settings.getLong(PROPERTY_DELAY_BEFORE_REPORTING_STATUS);
+  public NotificationService(Settings settings, DefaultNotificationManager manager, DbClient dbClient, NotificationDispatcher[] dispatchers) {
+    this.delayInSeconds = settings.getLong(PROPERTY_DELAY);
+    this.delayBeforeReportingStatusInSeconds = settings.getLong(PROPERTY_DELAY_BEFORE_REPORTING_STATUS);
     this.manager = manager;
-    this.dispatchers = dispatchers;
+    this.dbClient = dbClient;
+    this.dispatchers = ImmutableList.copyOf(dispatchers);
   }
 
   /**
-   * Default constructor when no channels.
+   * Default constructor when no dispatchers.
    */
-  public NotificationService(Settings settings, DefaultNotificationManager manager) {
-    this(settings, manager, new NotificationDispatcher[0]);
-    LOG.warn("There is no dispatcher - all notifications will be ignored!");
+  public NotificationService(Settings settings, DefaultNotificationManager manager, DbClient dbClient) {
+    this(settings, manager, dbClient, new NotificationDispatcher[0]);
   }
 
   @Override
@@ -204,7 +208,21 @@ public class NotificationService implements ServerComponent, Startable {
 
   @VisibleForTesting
   protected List<NotificationDispatcher> getDispatchers() {
-    return Arrays.asList(dispatchers);
+    return dispatchers;
   }
 
+  /**
+   * Returns true if at least one user is subscribed to at least one notifications with given types.
+   * Subscription can be globally or on the specific project.
+   */
+  public boolean hasProjectSubscribersForTypes(String projectUuid, Set<String> notificationTypes) {
+    Collection<String> dispatcherKeys = new ArrayList<>();
+    for (NotificationDispatcher dispatcher : dispatchers) {
+      if (notificationTypes.contains(dispatcher.getType())) {
+        dispatcherKeys.add(dispatcher.getKey());
+      }
+    }
+
+    return dbClient.propertiesDao().hasProjectNotificationSubscribersForDispatchers(projectUuid, dispatcherKeys);
+  }
 }

@@ -164,7 +164,6 @@ import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.notification.ChangesOnMyIssueNotificationDispatcher;
 import org.sonar.server.issue.notification.IssueChangesEmailTemplate;
-import org.sonar.server.issue.notification.IssueNotifications;
 import org.sonar.server.issue.notification.NewFalsePositiveNotificationDispatcher;
 import org.sonar.server.issue.notification.NewIssuesEmailTemplate;
 import org.sonar.server.issue.notification.NewIssuesNotificationDispatcher;
@@ -680,7 +679,6 @@ class ServerComponents {
     pico.addSingleton(IssueService.class);
     pico.addSingleton(IssueActionsWriter.class);
     pico.addSingleton(IssueQueryService.class);
-    pico.addSingleton(IssueNotifications.class);
     pico.addSingleton(NewIssuesEmailTemplate.class);
     pico.addSingleton(IssueChangesEmailTemplate.class);
     pico.addSingleton(ChangesOnMyIssueNotificationDispatcher.class);

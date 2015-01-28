@@ -73,7 +73,7 @@ public class NewIssuesEmailTemplateTest {
    */
   @Test
   public void shouldFormatCommentAdded() {
-    Notification notification = new Notification("new-issues")
+    Notification notification = new NewIssuesNotification()
       .setFieldValue("count", "32")
       .setFieldValue("count-INFO", "1")
       .setFieldValue("count-MINOR", "3")
@@ -108,7 +108,7 @@ public class NewIssuesEmailTemplateTest {
 
   @Test
   public void shouldNotAddFooterIfMissingProperties() {
-    Notification notification = new Notification("new-issues")
+    Notification notification = new NewIssuesNotification()
       .setFieldValue("count", "32")
       .setFieldValue("projectName", "Struts");
 
