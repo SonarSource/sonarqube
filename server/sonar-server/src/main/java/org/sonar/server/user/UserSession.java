@@ -36,7 +36,13 @@ import org.sonar.server.platform.Platform;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -66,7 +72,8 @@ public class UserSession {
   List<String> projectPermissions = newArrayList();
 
   UserSession() {
-    // Do not forget that when forceAuthentication is set to true, the Anyone group should not be set (but this will be check when authentication will be done in Java)
+    // Do not forget that when forceAuthentication is set to true, the Anyone group should not be set (but this will be check when
+    // authentication will be done in Java)
     userGroups = newHashSet(DefaultGroups.ANYONE);
   }
 
@@ -135,8 +142,12 @@ public class UserSession {
    * Ensures that user implies the specified global permission. If not a {@link org.sonar.server.exceptions.ForbiddenException} is thrown.
    */
   public UserSession checkGlobalPermission(String globalPermission) {
+    return checkGlobalPermission(globalPermission, null);
+  }
+
+  public UserSession checkGlobalPermission(String globalPermission, @Nullable String errorMessage) {
     if (!hasGlobalPermission(globalPermission)) {
-      throw new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
+      throw new ForbiddenException(errorMessage != null ? errorMessage : INSUFFICIENT_PRIVILEGES_MESSAGE);
     }
     return this;
   }
@@ -187,7 +198,6 @@ public class UserSession {
     return projectKeyByPermission.get(permission).contains(projectKey);
   }
 
-
   /**
    * Does the user have the given project permission ?
    */
@@ -206,8 +216,12 @@ public class UserSession {
    * Ensures that user implies the specified project permission on a component. If not a {@link org.sonar.server.exceptions.ForbiddenException} is thrown.
    */
   public UserSession checkComponentPermission(String projectPermission, String componentKey) {
+    return checkComponentPermission(projectPermission, componentKey, INSUFFICIENT_PRIVILEGES_MESSAGE);
+  }
+
+  public UserSession checkComponentPermission(String projectPermission, String componentKey, @Nullable String errorMessage) {
     if (!hasComponentPermission(projectPermission, componentKey)) {
-      throw new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
+      throw new ForbiddenException(errorMessage);
     }
     return this;
   }
