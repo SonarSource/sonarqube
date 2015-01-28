@@ -30,7 +30,6 @@ import org.sonar.api.batch.events.DecoratorExecutionHandler;
 import org.sonar.api.batch.events.DecoratorsPhaseHandler;
 import org.sonar.api.batch.events.InitializerExecutionHandler;
 import org.sonar.api.batch.events.InitializersPhaseHandler;
-import org.sonar.api.batch.events.MavenPhaseHandler;
 import org.sonar.api.batch.events.PostJobExecutionHandler;
 import org.sonar.api.batch.events.PostJobsPhaseHandler;
 import org.sonar.api.batch.events.ProjectAnalysisHandler;
@@ -59,7 +58,7 @@ import static org.sonar.batch.profiling.AbstractTimeProfiling.sortByDescendingTo
 import static org.sonar.batch.profiling.AbstractTimeProfiling.truncate;
 
 public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorExecutionHandler, DecoratorExecutionHandler, PostJobExecutionHandler, DecoratorsPhaseHandler,
-  SensorsPhaseHandler, PostJobsPhaseHandler, MavenPhaseHandler, InitializersPhaseHandler, InitializerExecutionHandler, BatchStepHandler, PersistersPhaseHandler,
+  SensorsPhaseHandler, PostJobsPhaseHandler, InitializersPhaseHandler, InitializerExecutionHandler, BatchStepHandler, PersistersPhaseHandler,
   PersisterExecutionHandler {
 
   static final Logger LOG = LoggerFactory.getLogger(PhasesSumUpTimeProfiler.class);
@@ -238,15 +237,6 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
       profiling.newItemProfiling(event.getPostJob());
     } else {
       profiling.getProfilingPerItem(event.getPostJob()).stop();
-    }
-  }
-
-  @Override
-  public void onMavenPhase(MavenPhaseEvent event) {
-    if (event.isStart()) {
-      currentModuleProfiling.addPhaseProfiling(Phases.Phase.MAVEN);
-    } else {
-      currentModuleProfiling.getProfilingPerPhase(Phases.Phase.MAVEN).stop();
     }
   }
 

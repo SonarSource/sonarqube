@@ -26,8 +26,6 @@ import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
 import org.sonar.batch.events.EventBus;
-import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
-import org.sonar.batch.scan.maven.MavenPluginExecutor;
 
 import java.util.Arrays;
 
@@ -40,14 +38,13 @@ public class PostJobsExecutorTest {
 
   Project project = new Project("project");
   BatchExtensionDictionnary selector = mock(BatchExtensionDictionnary.class);
-  MavenPluginExecutor mavenPluginExecutor = mock(MavenPluginExecutor.class);
   PostJob job1 = mock(PostJob.class);
   PostJob job2 = mock(PostJob.class);
   SensorContext context = mock(SensorContext.class);
 
   @Before
   public void setUp() {
-    executor = new PostJobsExecutor(selector, project, mock(DefaultModuleFileSystem.class), mavenPluginExecutor, mock(EventBus.class));
+    executor = new PostJobsExecutor(selector, project, mock(EventBus.class));
   }
 
   @Test

@@ -26,13 +26,9 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.PostJob;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.batch.maven.DependsUponMavenPlugin;
-import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
 import org.sonar.batch.events.EventBus;
-import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
-import org.sonar.batch.scan.maven.MavenPluginExecutor;
 
 import java.util.Collection;
 
@@ -41,16 +37,11 @@ public class PostJobsExecutor implements BatchComponent {
 
   private final BatchExtensionDictionnary selector;
   private final Project project;
-  private final DefaultModuleFileSystem fs;
-  private final MavenPluginExecutor mavenExecutor;
   private final EventBus eventBus;
 
-  public PostJobsExecutor(BatchExtensionDictionnary selector, Project project, DefaultModuleFileSystem fs, MavenPluginExecutor mavenExecutor,
-    EventBus eventBus) {
+  public PostJobsExecutor(BatchExtensionDictionnary selector, Project project, EventBus eventBus) {
     this.selector = selector;
     this.project = project;
-    this.fs = fs;
-    this.mavenExecutor = mavenExecutor;
     this.eventBus = eventBus;
   }
 
@@ -68,7 +59,6 @@ public class PostJobsExecutor implements BatchComponent {
     for (PostJob postJob : postJobs) {
       LOG.info("Executing post-job {}", postJob.getClass());
       eventBus.fireEvent(new PostJobExecutionEvent(postJob, true));
-      executeMavenPlugin(postJob);
       postJob.executeOn(project, context);
       eventBus.fireEvent(new PostJobExecutionEvent(postJob, false));
     }
@@ -77,15 +67,6 @@ public class PostJobsExecutor implements BatchComponent {
   private void logPostJobs(Collection<PostJob> postJobs) {
     if (LOG.isDebugEnabled()) {
       LOG.debug("Post-jobs : {}", StringUtils.join(postJobs, " -> "));
-    }
-  }
-
-  private void executeMavenPlugin(PostJob job) {
-    if (job instanceof DependsUponMavenPlugin) {
-      MavenPluginHandler handler = ((DependsUponMavenPlugin) job).getMavenPluginHandler(project);
-      if (handler != null) {
-        mavenExecutor.execute(project, fs, handler);
-      }
     }
   }
 }

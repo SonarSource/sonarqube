@@ -70,8 +70,6 @@ import org.sonar.batch.repository.ProjectRepositoriesProvider;
 import org.sonar.batch.rule.ActiveRulesProvider;
 import org.sonar.batch.rule.RulesProvider;
 import org.sonar.batch.scan.filesystem.InputPathCache;
-import org.sonar.batch.scan.maven.FakeMavenPluginExecutor;
-import org.sonar.batch.scan.maven.MavenPluginExecutor;
 import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.batch.source.CodeColorizers;
 import org.sonar.batch.source.HighlightableBuilder;
@@ -104,7 +102,6 @@ public class ProjectScanContainer extends ComponentContainer {
     if (analysisMode.isDb()) {
       addDataBaseComponents();
     }
-    fixMavenExecutor();
     addBatchExtensions();
     Settings settings = getComponentByType(Settings.class);
     if (settings != null && settings.getBoolean(CoreProperties.PROFILING_LOG_PROPERTY)) {
@@ -221,12 +218,6 @@ public class ProjectScanContainer extends ComponentContainer {
       InitialOpenIssuesStack.class,
 
       ProjectLock.class);
-  }
-
-  private void fixMavenExecutor() {
-    if (getComponentByType(MavenPluginExecutor.class) == null) {
-      add(FakeMavenPluginExecutor.class);
-    }
   }
 
   private void addBatchExtensions() {

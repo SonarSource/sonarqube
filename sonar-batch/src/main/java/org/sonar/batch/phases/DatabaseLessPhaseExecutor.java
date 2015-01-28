@@ -30,14 +30,12 @@ import org.sonar.batch.report.PublishReportJob;
 import org.sonar.batch.rule.QProfileVerifier;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.batch.scan.filesystem.FileSystemLogger;
-import org.sonar.batch.scan.maven.MavenPluginsConfigurator;
 import org.sonar.batch.scan.report.IssuesReports;
 
 public final class DatabaseLessPhaseExecutor implements PhaseExecutor {
 
   private final EventBus eventBus;
   private final Phases phases;
-  private final MavenPluginsConfigurator mavenPluginsConfigurator;
   private final InitializersExecutor initializersExecutor;
   private final SensorsExecutor sensorsExecutor;
   private final SensorContext sensorContext;
@@ -51,14 +49,11 @@ public final class DatabaseLessPhaseExecutor implements PhaseExecutor {
   private final LocalIssueTracking localIssueTracking;
   private final PublishReportJob publishReportJob;
 
-  public DatabaseLessPhaseExecutor(Phases phases,
-    MavenPluginsConfigurator mavenPluginsConfigurator, InitializersExecutor initializersExecutor,
-    SensorsExecutor sensorsExecutor,
+  public DatabaseLessPhaseExecutor(Phases phases, InitializersExecutor initializersExecutor, SensorsExecutor sensorsExecutor,
     SensorContext sensorContext, DefaultIndex index,
     EventBus eventBus, ProjectInitializer pi, FileSystemLogger fsLogger, IssuesReports jsonReport, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
     IssueExclusionsLoader issueExclusionsLoader, LocalIssueTracking localIssueTracking, PublishReportJob publishReportJob) {
     this.phases = phases;
-    this.mavenPluginsConfigurator = mavenPluginsConfigurator;
     this.initializersExecutor = initializersExecutor;
     this.sensorsExecutor = sensorsExecutor;
     this.sensorContext = sensorContext;
@@ -82,8 +77,6 @@ public final class DatabaseLessPhaseExecutor implements PhaseExecutor {
     pi.execute(module);
 
     eventBus.fireEvent(new ProjectAnalysisEvent(module, true));
-
-    executeMavenPhase(module);
 
     executeInitializersPhase();
 
@@ -149,14 +142,6 @@ public final class DatabaseLessPhaseExecutor implements PhaseExecutor {
     if (phases.isEnabled(Phases.Phase.INIT)) {
       initializersExecutor.execute();
       fsLogger.log();
-    }
-  }
-
-  private void executeMavenPhase(Project module) {
-    if (phases.isEnabled(Phases.Phase.MAVEN)) {
-      eventBus.fireEvent(new MavenPhaseEvent(true));
-      mavenPluginsConfigurator.execute(module);
-      eventBus.fireEvent(new MavenPhaseEvent(false));
     }
   }
 

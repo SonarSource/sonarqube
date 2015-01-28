@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.scan;
 
-import org.sonar.batch.repository.ProjectRepositoriesLoader;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.BatchExtension;
@@ -36,15 +34,15 @@ import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.task.TaskExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.TempFolder;
-import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.BootstrapProperties;
+import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.GlobalSettings;
 import org.sonar.batch.bootstrap.TaskProperties;
 import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
 import org.sonar.batch.protocol.input.GlobalRepositories;
 import org.sonar.batch.protocol.input.ProjectRepositories;
-import org.sonar.batch.scan.maven.MavenPluginExecutor;
+import org.sonar.batch.repository.ProjectRepositoriesLoader;
 
 import java.util.Collections;
 
@@ -82,25 +80,6 @@ public class ProjectScanContainerTest {
     parentContainer.add(projectReferentialsLoader);
     parentContainer.add(mock(TaskProperties.class));
     container = new ProjectScanContainer(parentContainer);
-  }
-
-  @Test
-  public void should_add_fake_maven_executor_on_non_maven_env() {
-    container.add(mock(ExtensionInstaller.class), projectBootstrapper);
-    container.doBeforeStart();
-
-    assertThat(container.getComponentByType(MavenPluginExecutor.class)).isNotNull();
-  }
-
-  @Test
-  public void should_use_maven_executor_provided_by_maven() {
-    container.add(mock(ExtensionInstaller.class), projectBootstrapper);
-    MavenPluginExecutor mavenPluginExecutor = mock(MavenPluginExecutor.class);
-    container.add(mavenPluginExecutor);
-    container.doBeforeStart();
-
-    assertThat(container.getComponentsByType(MavenPluginExecutor.class)).hasSize(1);
-    assertThat(container.getComponentByType(MavenPluginExecutor.class)).isSameAs(mavenPluginExecutor);
   }
 
   @Test

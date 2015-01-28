@@ -20,39 +20,26 @@
 package org.sonar.batch.phases;
 
 import com.google.common.collect.Lists;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.batch.maven.DependsUponMavenPlugin;
-import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;
-import org.sonar.api.utils.TimeProfiler;
 import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
 import org.sonar.batch.events.EventBus;
-import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
-import org.sonar.batch.scan.maven.MavenPluginExecutor;
 
 import java.util.Collection;
 
 public class SensorsExecutor implements BatchComponent {
-  private static final Logger LOG = LoggerFactory.getLogger(SensorsExecutor.class);
 
-  private MavenPluginExecutor mavenExecutor;
   private EventBus eventBus;
   private Project module;
-  private DefaultModuleFileSystem fs;
   private BatchExtensionDictionnary selector;
   private final SensorMatcher sensorMatcher;
 
-  public SensorsExecutor(BatchExtensionDictionnary selector, Project project, DefaultModuleFileSystem fs, MavenPluginExecutor mavenExecutor, EventBus eventBus,
-    SensorMatcher sensorMatcher) {
+  public SensorsExecutor(BatchExtensionDictionnary selector, Project project, EventBus eventBus, SensorMatcher sensorMatcher) {
     this.selector = selector;
-    this.mavenExecutor = mavenExecutor;
     this.eventBus = eventBus;
     this.module = project;
-    this.fs = fs;
     this.sensorMatcher = sensorMatcher;
   }
 
@@ -69,19 +56,7 @@ public class SensorsExecutor implements BatchComponent {
 
   private void executeSensor(SensorContext context, Sensor sensor) {
     eventBus.fireEvent(new SensorExecutionEvent(sensor, true));
-    executeMavenPlugin(sensor);
     sensor.analyse(module, context);
     eventBus.fireEvent(new SensorExecutionEvent(sensor, false));
-  }
-
-  private void executeMavenPlugin(Sensor sensor) {
-    if (sensor instanceof DependsUponMavenPlugin) {
-      MavenPluginHandler handler = ((DependsUponMavenPlugin) sensor).getMavenPluginHandler(module);
-      if (handler != null) {
-        TimeProfiler profiler = new TimeProfiler(LOG).start("Execute maven plugin " + handler.getArtifactId());
-        mavenExecutor.execute(module, fs, handler);
-        profiler.stop();
-      }
-    }
   }
 }

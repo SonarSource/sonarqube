@@ -28,8 +28,6 @@ import org.sonar.api.batch.CheckProject;
 import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.batch.Phase;
-import org.sonar.api.batch.maven.DependsUponMavenPlugin;
-import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.platform.ComponentContainer;
@@ -72,29 +70,6 @@ public class BatchExtensionDictionnary {
       return sort(result);
     }
     return result;
-  }
-
-  public Collection<MavenPluginHandler> selectMavenPluginHandlers(Project project) {
-    List<DependsUponMavenPlugin> selectedExtensions = Lists.newArrayList();
-    for (Object extension : getExtensions(null)) {
-      if (ClassUtils.isAssignable(extension.getClass(), DependsUponMavenPlugin.class)) {
-        selectedExtensions.add((DependsUponMavenPlugin) extension);
-      }
-    }
-    List<MavenPluginHandler> handlers = Lists.newArrayList();
-    for (DependsUponMavenPlugin extension : selectedExtensions) {
-      MavenPluginHandler handler = extension.getMavenPluginHandler(project);
-      if (handler != null) {
-        boolean ok = true;
-        if (handler instanceof CheckProject) {
-          ok = ((CheckProject) handler).shouldExecuteOnProject(project);
-        }
-        if (ok) {
-          handlers.add(handler);
-        }
-      }
-    }
-    return handlers;
   }
 
   private Phase.Name evaluatePhase(Object extension) {
