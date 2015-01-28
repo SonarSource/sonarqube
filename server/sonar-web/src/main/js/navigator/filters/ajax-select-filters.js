@@ -150,7 +150,6 @@ define([
             that.$('.navigator-filter-search').removeClass('fetching-error');
           },
           error: function() {
-            console.log(arguments);
             that.showSearchError();
           }
         });

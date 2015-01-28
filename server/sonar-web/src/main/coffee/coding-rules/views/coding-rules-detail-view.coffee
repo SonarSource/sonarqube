@@ -211,7 +211,6 @@ define [
       if @ui.tagsList.show
         @ui.tagsList.show()
       if @ui.tagInput.select2
-        console.log @tagsBuffer
         @ui.tagInput.select2 'val', @tagsBuffer
         @ui.tagInput.select2 'close'
       if @ui.tagsEdit.hide
