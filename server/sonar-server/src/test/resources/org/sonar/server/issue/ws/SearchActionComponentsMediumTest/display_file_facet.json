@@ -1,0 +1,40 @@
+{
+  "total": 1,
+  "p": 1,
+  "projects": [
+    { "key": "MyProject" }
+  ],
+  "components": [
+    { "key": "MyProject" },
+    { "key": "MyComponent1" },
+    { "key": "MyComponent2" },
+    { "key": "MyComponent3" }
+  ],
+  "issues": [
+    {
+      "key": "82fd47d4-b650-4037-80bc-7b112bd4eac2",
+      "component": "MyComponent1",
+      "project": "MyProject",
+      "rule": "xoo:x1"
+    }
+  ],
+  "facets": [
+    {
+      "property": "fileUuids",
+      "values": [
+        {
+          "val": "BCDE",
+          "count": 1
+        },
+        {
+          "val": "CDEF",
+          "count": 1
+        },
+        {
+          "val": "DEFA",
+          "count": 0
+        }
+      ]
+    }
+  ]
+}

@@ -426,10 +426,16 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
   private void collectFacetsData(Request request, Result<Issue> result, Set<String> projectUuids, Set<String> componentUuids, List<String> userLogins, Set<String> actionPlanKeys) {
     collectFacetKeys(result, IssueFilterParameters.PROJECT_UUIDS, projectUuids);
     collectParameterValues(request, IssueFilterParameters.PROJECT_UUIDS, projectUuids);
+
     collectFacetKeys(result, IssueFilterParameters.COMPONENT_UUIDS, componentUuids);
     collectParameterValues(request, IssueFilterParameters.COMPONENT_UUIDS, componentUuids);
+    collectFacetKeys(result, IssueFilterParameters.FILE_UUIDS, componentUuids);
+    collectParameterValues(request, IssueFilterParameters.FILE_UUIDS, componentUuids);
+
+    collectFacetKeys(result, IssueFilterParameters.MODULE_UUIDS, componentUuids);
     collectParameterValues(request, IssueFilterParameters.MODULE_UUIDS, componentUuids);
     collectParameterValues(request, IssueFilterParameters.COMPONENT_ROOT_UUIDS, componentUuids);
+
     collectFacetKeys(result, IssueFilterParameters.ASSIGNEES, userLogins);
     collectParameterValues(request, IssueFilterParameters.ASSIGNEES, userLogins);
     collectFacetKeys(result, IssueFilterParameters.REPORTERS, userLogins);

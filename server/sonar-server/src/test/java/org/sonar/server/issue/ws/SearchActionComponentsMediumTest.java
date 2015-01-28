@@ -162,6 +162,28 @@ public class SearchActionComponentsMediumTest {
   }
 
   @Test
+  public void display_file_facet() throws Exception {
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    setDefaultProjectPermission(project);
+    ComponentDto file1 = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent1"));
+    ComponentDto file2 = insertComponent(ComponentTesting.newFileDto(project, "CDEF").setKey("MyComponent2"));
+    ComponentDto file3 = insertComponent(ComponentTesting.newFileDto(project, "DEFA").setKey("MyComponent3"));
+    RuleDto newRule = newRule();
+    IssueDto issue1 = IssueTesting.newDto(newRule, file1, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2");
+    IssueDto issue2 = IssueTesting.newDto(newRule, file2, project).setKee("2bd4eac2-b650-4037-80bc-7b1182fd47d4");
+    db.issueDao().insert(session, issue1, issue2);
+    session.commit();
+    tester.get(IssueIndexer.class).indexAll();
+
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+      .setParam(IssueFilterParameters.COMPONENT_UUIDS, project.uuid())
+      .setParam(IssueFilterParameters.FILE_UUIDS, file1.uuid() + "," + file3.uuid())
+      .setParam(SearchAction.PARAM_FACETS, "fileUuids")
+      .execute()
+      .assertJson(this.getClass(), "display_file_facet.json", false);
+  }
+
+  @Test
   public void search_by_directory_path() throws Exception {
     ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
     setDefaultProjectPermission(project);
@@ -241,6 +263,31 @@ public class SearchActionComponentsMediumTest {
       .setParam(IssueFilterParameters.DIRECTORIES, "src/main/java")
       .execute()
       .assertJson(this.getClass(), "no_issue.json", false);
+  }
+
+  @Test
+  public void display_module_facet() throws Exception {
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    setDefaultProjectPermission(project);
+    ComponentDto module = insertComponent(ComponentTesting.newModuleDto(project).setUuid("BCDE").setKey("MyModule"));
+    ComponentDto subModule1 = insertComponent(ComponentTesting.newModuleDto(module).setUuid("CDEF").setKey("MySubModule1"));
+    ComponentDto subModule2 = insertComponent(ComponentTesting.newModuleDto(module).setUuid("DEFA").setKey("MySubModule2"));
+    ComponentDto subModule3 = insertComponent(ComponentTesting.newModuleDto(module).setUuid("EFAB").setKey("MySubModule3"));
+    ComponentDto file1 = insertComponent(ComponentTesting.newFileDto(subModule1, "FEDC").setKey("MyComponent1"));
+    ComponentDto file2 = insertComponent(ComponentTesting.newFileDto(subModule2, "EDCB").setKey("MyComponent2"));
+    RuleDto newRule = newRule();
+    IssueDto issue1 = IssueTesting.newDto(newRule, file1, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2");
+    IssueDto issue2 = IssueTesting.newDto(newRule, file2, project).setKee("2bd4eac2-b650-4037-80bc-7b1182fd47d4");
+    db.issueDao().insert(session, issue1, issue2);
+    session.commit();
+    tester.get(IssueIndexer.class).indexAll();
+
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+      .setParam(IssueFilterParameters.COMPONENT_UUIDS, project.uuid())
+      .setParam(IssueFilterParameters.MODULE_UUIDS, subModule1.uuid() + "," + subModule3.uuid())
+      .setParam(SearchAction.PARAM_FACETS, "moduleUuids")
+      .execute()
+      .assertJson(this.getClass(), "display_module_facet.json", false);
   }
 
   @Test
