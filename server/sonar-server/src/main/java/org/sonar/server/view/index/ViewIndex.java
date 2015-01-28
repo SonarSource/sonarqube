@@ -78,7 +78,7 @@ public class ViewIndex implements ServerComponent {
       .setTypes(ViewIndexDefinition.TYPE_VIEW)
       .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
         FilterBuilders.termsFilter(ViewIndexDefinition.FIELD_UUID, viewUuids)
-        ))
+      ))
       .get();
   }
 }

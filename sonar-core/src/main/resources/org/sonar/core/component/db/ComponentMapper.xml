@@ -194,7 +194,7 @@
   <insert id="insert" parameterType="Component" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     insert into projects <include refid="insertColumns"/>
     values (#{kee}, #{deprecatedKey}, #{uuid}, #{projectUuid}, #{moduleUuid}, #{moduleUuidPath}, #{name}, #{longName}, #{qualifier}, #{scope},
-      #{language}, #{parentProjectId}, #{path}, #{enabled}, #{createdAt}, #{authorizationUpdatedAt})
+    #{language}, #{parentProjectId}, #{path}, #{enabled}, #{createdAt}, #{authorizationUpdatedAt})
   </insert>
 
   <delete id="deleteByKey" parameterType="String">
