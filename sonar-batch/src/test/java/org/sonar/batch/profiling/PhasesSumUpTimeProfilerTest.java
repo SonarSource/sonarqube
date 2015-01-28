@@ -35,7 +35,6 @@ import org.sonar.api.batch.events.DecoratorExecutionHandler;
 import org.sonar.api.batch.events.DecoratorsPhaseHandler;
 import org.sonar.api.batch.events.InitializerExecutionHandler;
 import org.sonar.api.batch.events.InitializersPhaseHandler;
-import org.sonar.api.batch.events.MavenPhaseHandler;
 import org.sonar.api.batch.events.PostJobExecutionHandler;
 import org.sonar.api.batch.events.PostJobsPhaseHandler;
 import org.sonar.api.batch.events.ProjectAnalysisHandler;
@@ -87,7 +86,6 @@ public class PhasesSumUpTimeProfilerTest {
 
     fakeAnalysis(profiler, project);
 
-    assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.MAVEN).totalTime()).isEqualTo(4L);
     assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.INIT).getProfilingPerItem(new FakeInitializer()).totalTime()).isEqualTo(7L);
     assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.SENSOR).getProfilingPerItem(new FakeSensor()).totalTime()).isEqualTo(10L);
     assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.DECORATOR).getProfilingPerItem(new FakeDecorator1()).totalTime()).isEqualTo(20L);
@@ -108,7 +106,6 @@ public class PhasesSumUpTimeProfilerTest {
     fakeAnalysis(profiler, moduleB);
     fakeAnalysis(profiler, project);
 
-    assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.MAVEN).totalTime()).isEqualTo(4L);
     assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.INIT).getProfilingPerItem(new FakeInitializer()).totalTime()).isEqualTo(7L);
     assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.SENSOR).getProfilingPerItem(new FakeSensor()).totalTime()).isEqualTo(10L);
     assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.DECORATOR).getProfilingPerItem(new FakeDecorator1()).totalTime()).isEqualTo(20L);
@@ -116,7 +113,6 @@ public class PhasesSumUpTimeProfilerTest {
     assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.PERSISTER).getProfilingPerItem(new FakeScanPersister()).totalTime()).isEqualTo(40L);
     assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.POSTJOB).getProfilingPerItem(new FakePostJob()).totalTime()).isEqualTo(30L);
 
-    assertThat(profiler.totalProfiling.getProfilingPerPhase(Phase.MAVEN).totalTime()).isEqualTo(12L);
     assertThat(profiler.totalProfiling.getProfilingPerPhase(Phase.INIT).getProfilingPerItem(new FakeInitializer()).totalTime()).isEqualTo(21L);
     assertThat(profiler.totalProfiling.getProfilingPerPhase(Phase.SENSOR).getProfilingPerItem(new FakeSensor()).totalTime()).isEqualTo(30L);
     assertThat(profiler.totalProfiling.getProfilingPerPhase(Phase.DECORATOR).getProfilingPerItem(new FakeDecorator1()).totalTime()).isEqualTo(60L);
@@ -166,7 +162,6 @@ public class PhasesSumUpTimeProfilerTest {
   private void fakeAnalysis(PhasesSumUpTimeProfiler profiler, final Project module) throws InterruptedException {
     // Start of moduleA
     profiler.onProjectAnalysis(projectEvent(module, true));
-    mavenPhase(profiler);
     initializerPhase(profiler);
     sensorPhase(profiler);
     decoratorPhase(profiler);
@@ -212,14 +207,6 @@ public class PhasesSumUpTimeProfilerTest {
     clock.sleep(9);
     // End of batch step
     profiler.onBatchStep(new BatchStepEvent("Free memory", false));
-  }
-
-  private void mavenPhase(PhasesSumUpTimeProfiler profiler) throws InterruptedException {
-    // Start of maven phase
-    profiler.onMavenPhase(mavenEvent(true));
-    clock.sleep(4);
-    // End of maven phase
-    profiler.onMavenPhase(mavenEvent(false));
   }
 
   private void initializerPhase(PhasesSumUpTimeProfiler profiler) throws InterruptedException {
@@ -390,21 +377,6 @@ public class PhasesSumUpTimeProfilerTest {
       @Override
       public List<Sensor> getSensors() {
         return null;
-      }
-    };
-  }
-
-  private MavenPhaseHandler.MavenPhaseEvent mavenEvent(final boolean start) {
-    return new MavenPhaseHandler.MavenPhaseEvent() {
-
-      @Override
-      public boolean isStart() {
-        return start;
-      }
-
-      @Override
-      public boolean isEnd() {
-        return !start;
       }
     };
   }

@@ -27,7 +27,7 @@ import java.util.Set;
 public class Phases {
 
   public static enum Phase {
-    MAVEN("Maven"), INIT("Initializers"), SENSOR("Sensors"), DECORATOR("Decorators"), PERSISTER("Persisters"), POSTJOB("Post-Jobs");
+    INIT("Initializers"), SENSOR("Sensors"), DECORATOR("Decorators"), PERSISTER("Persisters"), POSTJOB("Post-Jobs");
 
     private final String label;
 

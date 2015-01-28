@@ -35,7 +35,6 @@ import org.sonar.batch.report.PublishReportJob;
 import org.sonar.batch.rule.QProfileVerifier;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.batch.scan.filesystem.FileSystemLogger;
-import org.sonar.batch.scan.maven.MavenPluginsConfigurator;
 import org.sonar.batch.scan.report.IssuesReports;
 
 import java.util.ArrayList;
@@ -51,7 +50,6 @@ public final class DatabaseModePhaseExecutor implements PhaseExecutor {
   private final EventBus eventBus;
   private final Phases phases;
   private final DecoratorsExecutor decoratorsExecutor;
-  private final MavenPluginsConfigurator mavenPluginsConfigurator;
   private final PostJobsExecutor postJobsExecutor;
   private final InitializersExecutor initializersExecutor;
   private final SensorsExecutor sensorsExecutor;
@@ -70,15 +68,13 @@ public final class DatabaseModePhaseExecutor implements PhaseExecutor {
   private final ResourcePersister resourcePersister;
 
   public DatabaseModePhaseExecutor(Phases phases, DecoratorsExecutor decoratorsExecutor,
-    MavenPluginsConfigurator mavenPluginsConfigurator, InitializersExecutor initializersExecutor,
-    PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
+    InitializersExecutor initializersExecutor, PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
     SensorContext sensorContext, DefaultIndex index,
     EventBus eventBus, PublishReportJob publishReportJob, ProjectInitializer pi,
     ScanPersister[] persisters, FileSystemLogger fsLogger, IssuesReports jsonReport, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
     IssueExclusionsLoader issueExclusionsLoader, DefaultAnalysisMode analysisMode, DatabaseSession session, ResourcePersister resourcePersister) {
     this.phases = phases;
     this.decoratorsExecutor = decoratorsExecutor;
-    this.mavenPluginsConfigurator = mavenPluginsConfigurator;
     this.postJobsExecutor = postJobsExecutor;
     this.initializersExecutor = initializersExecutor;
     this.sensorsExecutor = sensorsExecutor;
@@ -106,8 +102,6 @@ public final class DatabaseModePhaseExecutor implements PhaseExecutor {
     pi.execute(module);
 
     eventBus.fireEvent(new ProjectAnalysisEvent(module, true));
-
-    executeMavenPhase(module);
 
     executeInitializersPhase();
 
@@ -199,14 +193,6 @@ public final class DatabaseModePhaseExecutor implements PhaseExecutor {
     if (phases.isEnabled(Phases.Phase.INIT)) {
       initializersExecutor.execute();
       fsLogger.log();
-    }
-  }
-
-  private void executeMavenPhase(Project module) {
-    if (phases.isEnabled(Phases.Phase.MAVEN)) {
-      eventBus.fireEvent(new MavenPhaseEvent(true));
-      mavenPluginsConfigurator.execute(module);
-      eventBus.fireEvent(new MavenPhaseEvent(false));
     }
   }
 

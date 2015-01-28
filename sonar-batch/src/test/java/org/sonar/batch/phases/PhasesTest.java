@@ -47,7 +47,6 @@ public class PhasesTest {
     phases.enable(Phases.Phase.values());
 
     assertThat(phases.isEnabled(Phases.Phase.INIT)).isTrue();
-    assertThat(phases.isEnabled(Phases.Phase.MAVEN)).isTrue();
     assertThat(phases.isEnabled(Phases.Phase.DECORATOR)).isTrue();
     assertThat(phases.isEnabled(Phases.Phase.SENSOR)).isTrue();
     assertThat(phases.isEnabled(Phases.Phase.POSTJOB)).isTrue();

@@ -27,7 +27,6 @@ import org.sonar.batch.design.MavenDependenciesSensor;
 import org.sonar.batch.design.ProjectDsmDecorator;
 import org.sonar.batch.design.SubProjectDsmDecorator;
 import org.sonar.batch.issue.tracking.IssueTracking;
-import org.sonar.batch.maven.DefaultMavenPluginExecutor;
 import org.sonar.batch.maven.MavenProjectBootstrapper;
 import org.sonar.batch.maven.MavenProjectBuilder;
 import org.sonar.batch.maven.MavenProjectConverter;
@@ -57,7 +56,7 @@ public class BatchComponents {
   public static Collection all(DefaultAnalysisMode analysisMode) {
     List components = Lists.newArrayList(
       // Maven
-      MavenProjectBootstrapper.class, DefaultMavenPluginExecutor.class, MavenProjectConverter.class, MavenProjectBuilder.class,
+      MavenProjectBootstrapper.class, MavenProjectConverter.class, MavenProjectBuilder.class,
 
       // Design
       ProjectDsmDecorator.class,

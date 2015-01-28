@@ -34,8 +34,8 @@ import org.sonar.batch.DefaultTimeMachine;
 import org.sonar.batch.DeprecatedSensorContext;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.ResourceFilters;
-import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
+import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.ExtensionMatcher;
 import org.sonar.batch.bootstrap.ExtensionUtils;
@@ -60,13 +60,13 @@ import org.sonar.batch.issue.tracking.InitialOpenIssuesSensor;
 import org.sonar.batch.issue.tracking.IssueHandlers;
 import org.sonar.batch.issue.tracking.IssueTrackingDecorator;
 import org.sonar.batch.language.LanguageDistributionDecorator;
-import org.sonar.batch.phases.DecoratorsExecutor;
+import org.sonar.batch.phases.DatabaseLessPhaseExecutor;
 import org.sonar.batch.phases.DatabaseModePhaseExecutor;
+import org.sonar.batch.phases.DecoratorsExecutor;
 import org.sonar.batch.phases.InitializersExecutor;
 import org.sonar.batch.phases.PhaseExecutor;
 import org.sonar.batch.phases.PhasesTimeProfiler;
 import org.sonar.batch.phases.PostJobsExecutor;
-import org.sonar.batch.phases.DatabaseLessPhaseExecutor;
 import org.sonar.batch.phases.ProjectInitializer;
 import org.sonar.batch.phases.SensorsExecutor;
 import org.sonar.batch.qualitygate.GenerateQualityGateEvents;
@@ -94,7 +94,6 @@ import org.sonar.batch.scan.filesystem.ModuleFileSystemInitializer;
 import org.sonar.batch.scan.filesystem.ModuleInputFileCache;
 import org.sonar.batch.scan.filesystem.ProjectFileSystemAdapter;
 import org.sonar.batch.scan.filesystem.StatusDetectionFactory;
-import org.sonar.batch.scan.maven.MavenPluginsConfigurator;
 import org.sonar.batch.scan.report.IssuesReports;
 import org.sonar.batch.sensor.AnalyzerOptimizer;
 import org.sonar.batch.sensor.DefaultSensorContext;
@@ -144,7 +143,6 @@ public class ModuleScanContainer extends ComponentContainer {
     add(
       EventBus.class,
       PhasesTimeProfiler.class,
-      MavenPluginsConfigurator.class,
       PostJobsExecutor.class,
       SensorsExecutor.class,
       InitializersExecutor.class,
