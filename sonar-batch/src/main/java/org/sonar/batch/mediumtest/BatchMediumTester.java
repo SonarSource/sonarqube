@@ -28,11 +28,12 @@ import org.sonar.api.batch.debt.internal.DefaultDebtModel;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.platform.PluginMetadata;
-import org.sonar.batch.bootstrap.PluginsReferential;
+import org.sonar.batch.bootstrap.PluginsRepository;
 import org.sonar.batch.bootstrap.TaskProperties;
 import org.sonar.batch.bootstrapper.Batch;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.protocol.input.ActiveRule;
+import org.sonar.batch.protocol.input.FileData;
 import org.sonar.batch.protocol.input.GlobalRepositories;
 import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonar.batch.protocol.input.issues.PreviousIssue;
@@ -68,9 +69,9 @@ public class BatchMediumTester {
   }
 
   public static class BatchMediumTesterBuilder {
-    private final FakeGlobalReferentialsLoader globalRefProvider = new FakeGlobalReferentialsLoader();
-    private final FakeProjectReferentialsLoader projectRefProvider = new FakeProjectReferentialsLoader();
-    private final FakePluginsReferential pluginsReferential = new FakePluginsReferential();
+    private final FakeGlobalRepositoriesLoader globalRefProvider = new FakeGlobalRepositoriesLoader();
+    private final FakeProjectRepositoriesLoader projectRefProvider = new FakeProjectRepositoriesLoader();
+    private final FakePluginsRepository pluginsReferential = new FakePluginsRepository();
     private final FakePreviousIssuesLoader previousIssues = new FakePreviousIssuesLoader();
     private final Map<String, String> bootstrapProperties = new HashMap<String, String>();
 
@@ -118,6 +119,11 @@ public class BatchMediumTester {
 
     public BatchMediumTesterBuilder activateRule(ActiveRule activeRule) {
       projectRefProvider.addActiveRule(activeRule);
+      return this;
+    }
+
+    public BatchMediumTesterBuilder addFileData(String moduleKey, String path, FileData fileData) {
+      projectRefProvider.addFileData(moduleKey, path, fileData);
       return this;
     }
 
@@ -180,9 +186,9 @@ public class BatchMediumTester {
 
     public TaskResult start() {
       TaskResult result = new TaskResult();
-      tester.batch.executeTask(taskProperties,
-        result
-        );
+      Map<String, String> props = new HashMap<>();
+      props.putAll(taskProperties);
+      tester.batch.executeTask(props, result);
       return result;
     }
 
@@ -197,7 +203,7 @@ public class BatchMediumTester {
     }
   }
 
-  private static class FakeGlobalReferentialsLoader implements GlobalRepositoriesLoader {
+  private static class FakeGlobalRepositoriesLoader implements GlobalRepositoriesLoader {
 
     private int metricId = 1;
 
@@ -212,7 +218,7 @@ public class BatchMediumTester {
       return ref.globalSettings();
     }
 
-    public FakeGlobalReferentialsLoader add(Metric metric) {
+    public FakeGlobalRepositoriesLoader add(Metric metric) {
       Boolean optimizedBestValue = metric.isOptimizedBestValue();
       ref.metrics().add(new org.sonar.batch.protocol.input.Metric(metricId,
         metric.key(),
@@ -230,7 +236,7 @@ public class BatchMediumTester {
     }
   }
 
-  private static class FakeProjectReferentialsLoader implements ProjectRepositoriesLoader {
+  private static class FakeProjectRepositoriesLoader implements ProjectRepositoriesLoader {
 
     private ProjectRepositories ref = new ProjectRepositories();
 
@@ -239,18 +245,24 @@ public class BatchMediumTester {
       return ref;
     }
 
-    public FakeProjectReferentialsLoader addQProfile(String language, String name) {
+    public FakeProjectRepositoriesLoader addQProfile(String language, String name) {
       ref.addQProfile(new org.sonar.batch.protocol.input.QProfile(name, name, language, new Date()));
       return this;
     }
 
-    public FakeProjectReferentialsLoader addActiveRule(ActiveRule activeRule) {
+    public FakeProjectRepositoriesLoader addActiveRule(ActiveRule activeRule) {
       ref.addActiveRule(activeRule);
       return this;
     }
+
+    public FakeProjectRepositoriesLoader addFileData(String moduleKey, String path, FileData fileData) {
+      ref.addFileData(moduleKey, path, fileData);
+      return this;
+    }
+
   }
 
-  private static class FakePluginsReferential implements PluginsReferential {
+  private static class FakePluginsRepository implements PluginsRepository {
 
     private List<RemotePlugin> pluginList = new ArrayList<RemotePlugin>();
     private Map<RemotePlugin, File> pluginFiles = new HashMap<RemotePlugin, File>();
@@ -266,14 +278,14 @@ public class BatchMediumTester {
       return pluginFiles.get(remote);
     }
 
-    public FakePluginsReferential addPlugin(String pluginKey, File location) {
+    public FakePluginsRepository addPlugin(String pluginKey, File location) {
       RemotePlugin plugin = new RemotePlugin(pluginKey, false);
       pluginList.add(plugin);
       pluginFiles.put(plugin, location);
       return this;
     }
 
-    public FakePluginsReferential addPlugin(String pluginKey, SonarPlugin pluginInstance) {
+    public FakePluginsRepository addPlugin(String pluginKey, SonarPlugin pluginInstance) {
       localPlugins.put(DefaultPluginMetadata.create(pluginKey), pluginInstance);
       return this;
     }

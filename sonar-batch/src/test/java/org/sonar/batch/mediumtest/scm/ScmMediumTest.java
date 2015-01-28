@@ -20,6 +20,7 @@
 package org.sonar.batch.mediumtest.scm;
 
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -31,7 +32,9 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.batch.mediumtest.BatchMediumTester;
+import org.sonar.batch.mediumtest.BatchMediumTester.TaskBuilder;
 import org.sonar.batch.mediumtest.TaskResult;
+import org.sonar.batch.protocol.input.FileData;
 import org.sonar.xoo.XooPlugin;
 
 import java.io.File;
@@ -40,6 +43,8 @@ import java.io.IOException;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ScmMediumTest {
+
+  private static final String SAMPLE_XOO_CONTENT = "Sample xoo\ncontent";
 
   @org.junit.Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -50,6 +55,7 @@ public class ScmMediumTest {
   public BatchMediumTester tester = BatchMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
+    .addFileData("com.foo.project", "src/sample2.xoo", new FileData(DigestUtils.md5Hex(SAMPLE_XOO_CONTENT), false, "1=;2=", "1=;2=", "1=;2="))
     .build();
 
   @Before
@@ -145,7 +151,57 @@ public class ScmMediumTest {
         .put("sonar.scm.provider", "xoo")
         .build())
       .start();
+  }
 
+  @Test
+  public void copyPreviousMeasuresOrForceReload() throws IOException {
+
+    File baseDir = prepareProject();
+    File xooFileNoScm = new File(baseDir, "src/sample2.xoo");
+    FileUtils.write(xooFileNoScm, SAMPLE_XOO_CONTENT);
+
+    TaskBuilder taskBuilder = tester.newTask()
+      .properties(ImmutableMap.<String, String>builder()
+        .put("sonar.task", "scan")
+        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+        .put("sonar.projectKey", "com.foo.project")
+        .put("sonar.projectName", "Foo Project")
+        .put("sonar.projectVersion", "1.0-SNAPSHOT")
+        .put("sonar.projectDescription", "Description of Foo Project")
+        .put("sonar.sources", "src")
+        .put("sonar.scm.provider", "xoo")
+        .build());
+
+    TaskResult result = taskBuilder.start();
+
+    assertThat(result.measures()).hasSize(1 + 2 * 4);
+
+    assertThat(result.measures()).contains(new DefaultMeasure<Integer>()
+      .forMetric(CoreMetrics.LINES)
+      .onFile(new DefaultInputFile("com.foo.project", "src/sample2.xoo"))
+      .withValue(2));
+
+    assertThat(result.measures()).contains(new DefaultMeasure<String>()
+      .forMetric(CoreMetrics.SCM_AUTHORS_BY_LINE)
+      .onFile(new DefaultInputFile("com.foo.project", "src/sample2.xoo"))
+      .withValue("1=;2="));
+
+    // Force reload
+    File xooScmFile = new File(baseDir, "src/sample2.xoo.scm");
+    FileUtils.write(xooScmFile,
+      // revision,author,dateTime
+      "1,foo,2013-01-04\n" +
+        "1,bar,2013-01-04\n"
+      );
+
+    result = taskBuilder
+      .property("sonar.scm.forceReloadAll", "true")
+      .start();
+
+    assertThat(result.measures()).contains(new DefaultMeasure<String>()
+      .forMetric(CoreMetrics.SCM_AUTHORS_BY_LINE)
+      .onFile(new DefaultInputFile("com.foo.project", "src/sample2.xoo"))
+      .withValue("1=foo;2=bar"));
   }
 
   @Test
@@ -215,12 +271,10 @@ public class ScmMediumTest {
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 
-    File xooFile = new File(srcDir, "sample.xoo");
-    File xooMeasureFile = new File(srcDir, "sample.xoo.measures");
-    File xooScmFile = new File(srcDir, "sample.xoo.scm");
-    FileUtils.write(xooFile, "Sample xoo\ncontent\n3\n4\n5");
-    FileUtils.write(xooMeasureFile, "lines:5");
-    FileUtils.write(xooScmFile,
+    File xooFile1 = new File(srcDir, "sample.xoo");
+    FileUtils.write(xooFile1, "Sample xoo\ncontent\n3\n4\n5");
+    File xooScmFile1 = new File(srcDir, "sample.xoo.scm");
+    FileUtils.write(xooScmFile1,
       // revision,author,dateTime
       "1,,2013-01-04\n" +
         "1,julien,2013-01-04\n" +
@@ -228,6 +282,7 @@ public class ScmMediumTest {
         "2,julien,2013-02-03\n" +
         "3,simon,2013-03-04\n"
       );
+
     return baseDir;
   }
 

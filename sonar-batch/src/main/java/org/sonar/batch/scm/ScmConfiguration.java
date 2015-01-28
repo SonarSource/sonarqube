@@ -25,6 +25,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.Properties;
+import org.sonar.api.Property;
+import org.sonar.api.PropertyType;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
@@ -37,9 +40,24 @@ import javax.annotation.Nullable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+@Properties({
+  @Property(
+    key = ScmConfiguration.FORCE_RELOAD_KEY,
+    defaultValue = "false",
+    type = PropertyType.BOOLEAN,
+    name = "Force reloading of SCM information for all files",
+    description = "By default only files modified since previous analysis are inspected. Set this parameter to true to force the reloading.",
+    module = false,
+    project = false,
+    global = false,
+    category = CoreProperties.CATEGORY_SCM
+  )
+})
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 public final class ScmConfiguration implements BatchComponent, Startable {
   private static final Logger LOG = LoggerFactory.getLogger(ScmConfiguration.class);
+
+  public static final String FORCE_RELOAD_KEY = "sonar.scm.forceReloadAll";
 
   private final ProjectReactor projectReactor;
   private final Settings settings;
@@ -138,6 +156,10 @@ public final class ScmConfiguration implements BatchComponent, Startable {
 
   public boolean isDisabled() {
     return settings.getBoolean(CoreProperties.SCM_DISABLED_KEY);
+  }
+
+  public boolean forceReloadAll() {
+    return settings.getBoolean(FORCE_RELOAD_KEY);
   }
 
   @Override

@@ -73,10 +73,7 @@ public final class ScmSensor implements Sensor {
       return;
     }
 
-    List<InputFile> filesToBlame = new LinkedList<InputFile>();
-    for (InputFile f : fs.inputFiles(fs.predicates().all())) {
-      copyPreviousMeasuresForUnmodifiedFiles(context, filesToBlame, f);
-    }
+    List<InputFile> filesToBlame = collectFilesToBlame(context);
     if (!filesToBlame.isEmpty()) {
       LOG.info("SCM provider for this project is: " + configuration.provider().key());
       TimeProfiler profiler = new TimeProfiler().start("Retrieve SCM blame information");
@@ -85,6 +82,21 @@ public final class ScmSensor implements Sensor {
       output.finish();
       profiler.stop();
     }
+  }
+
+  private List<InputFile> collectFilesToBlame(final SensorContext context) {
+    if (configuration.forceReloadAll()) {
+      LOG.warn("Forced reloading of SCM data for all files.");
+    }
+    List<InputFile> filesToBlame = new LinkedList<InputFile>();
+    for (InputFile f : fs.inputFiles(fs.predicates().all())) {
+      if (!configuration.forceReloadAll()) {
+        copyPreviousMeasuresForUnmodifiedFiles(context, filesToBlame, f);
+      } else {
+        filesToBlame.add(f);
+      }
+    }
+    return filesToBlame;
   }
 
   private void copyPreviousMeasuresForUnmodifiedFiles(final SensorContext context, List<InputFile> filesToBlame, InputFile f) {
