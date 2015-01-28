@@ -90,8 +90,11 @@ public class ProjectRepositoryLoader implements ServerComponent {
       ComponentDto module = dbClient.componentDao().getNullableByKey(session, query.getModuleKey());
       // Current project/module can be null when analysing a new project
       if (module != null) {
-        UserSession.get().checkComponentPermission(UserRole.USER, query.getModuleKey(),
-          "You're not authorized to access to project '" + module.name() + "', please contact your SonarQube administrator.");
+        if (query.isPreview()) {
+          // Scan permission is enough to analyze all projects but preview permission is limited to projects user can access
+          UserSession.get().checkComponentPermission(UserRole.USER, query.getModuleKey(),
+            "You're not authorized to access to project '" + module.name() + "', please contact your SonarQube administrator.");
+        }
 
         ComponentDto project = getProject(module, session);
         if (!project.key().equals(module.key())) {
