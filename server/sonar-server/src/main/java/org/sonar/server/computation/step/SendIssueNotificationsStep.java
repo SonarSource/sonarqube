@@ -19,19 +19,18 @@
  */
 package org.sonar.server.computation.step;
 
-import com.google.common.collect.HashMultiset;
-import com.google.common.collect.Multiset;
-import org.sonar.api.issue.Issue;
+import com.google.common.collect.ImmutableSet;
 import org.sonar.api.issue.internal.DefaultIssue;
-import org.sonar.api.notifications.Notification;
-import org.sonar.api.rule.Severity;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.issue.IssueCache;
 import org.sonar.server.computation.issue.RuleCache;
-import org.sonar.server.issue.notification.IssueNotifications;
+import org.sonar.server.issue.notification.IssueChangeNotification;
+import org.sonar.server.issue.notification.NewIssuesNotification;
+import org.sonar.server.notifications.NotificationService;
 import org.sonar.server.util.CloseableIterator;
+
+import java.util.Set;
 
 /**
  * Reads issues from disk cache and send related notifications. For performance reasons,
@@ -39,13 +38,16 @@ import org.sonar.server.util.CloseableIterator;
  * are directly processed by {@link org.sonar.server.notifications.NotificationService}.
  */
 public class SendIssueNotificationsStep implements ComputationStep {
+  /**
+   * Types of the notifications sent by this step
+   */
+  static final Set<String> NOTIF_TYPES = ImmutableSet.of(IssueChangeNotification.TYPE, NewIssuesNotification.TYPE);
 
   private final IssueCache issueCache;
   private final RuleCache rules;
-  private final IssueNotifications service;
+  private final NotificationService service;
 
-  public SendIssueNotificationsStep(IssueCache issueCache, RuleCache rules,
-    IssueNotifications service) {
+  public SendIssueNotificationsStep(IssueCache issueCache, RuleCache rules, NotificationService service) {
     this.issueCache = issueCache;
     this.rules = rules;
     this.service = service;
@@ -53,65 +55,48 @@ public class SendIssueNotificationsStep implements ComputationStep {
 
   @Override
   public void execute(ComputationContext context) {
-    NewIssuesStatistics newIssuesStatistics = new NewIssuesStatistics();
+    if (service.hasProjectSubscribersForTypes(context.getProject().uuid(), NOTIF_TYPES)) {
+      doExecute(context);
+    }
+  }
+
+  private void doExecute(ComputationContext context) {
+    NewIssuesNotification.Stats newIssueStats = new NewIssuesNotification.Stats();
     CloseableIterator<DefaultIssue> issues = issueCache.traverse();
     try {
       while (issues.hasNext()) {
         DefaultIssue issue = issues.next();
         if (issue.isNew() && issue.resolution() == null) {
-          newIssuesStatistics.add(issue);
+          newIssueStats.add(issue);
         } else if (issue.isChanged() && issue.mustSendNotifications()) {
-          service.sendChanges(issue, null, rules.ruleName(issue.ruleKey()),
-            context.getProject(), /* TODO */null, null, true);
+          IssueChangeNotification changeNotification = new IssueChangeNotification();
+          changeNotification.setRuleName(rules.ruleName(issue.ruleKey()));
+          changeNotification.setIssue(issue);
+          changeNotification.setProject(context.getProject());
+          service.deliver(changeNotification);
         }
       }
 
     } finally {
       issues.close();
     }
-    sendNewIssuesStatistics(context, newIssuesStatistics);
+    sendNewIssuesStatistics(context, newIssueStats);
   }
 
-  private void sendNewIssuesStatistics(ComputationContext context, NewIssuesStatistics newIssuesStatistics) {
-    if (!newIssuesStatistics.isEmpty()) {
+  private void sendNewIssuesStatistics(ComputationContext context, NewIssuesNotification.Stats stats) {
+    if (stats.size() > 0) {
       ComponentDto project = context.getProject();
-      Notification notification = new Notification("new-issues")
-        .setFieldValue("projectName", project.longName())
-        .setFieldValue("projectKey", project.key())
-        .setDefaultMessage(newIssuesStatistics.size() + " new issues on " + project.longName() + ".\n")
-        .setFieldValue("projectDate", DateUtils.formatDateTime(context.getAnalysisDate()))
-        .setFieldValue("projectUuid", project.uuid())
-        .setFieldValue("count", String.valueOf(newIssuesStatistics.size()));
-      for (String severity : Severity.ALL) {
-        notification.setFieldValue("count-" + severity, String.valueOf(newIssuesStatistics.issuesWithSeverity(severity)));
-      }
-      service.send(notification, true);
+      NewIssuesNotification notification = new NewIssuesNotification();
+      notification.setProject(project);
+      notification.setAnalysisDate(context.getAnalysisDate());
+      notification.setStatistics(project, stats);
+      service.deliver(notification);
     }
   }
 
   @Override
   public String getDescription() {
     return "Send issue notifications";
-  }
-
-  static class NewIssuesStatistics {
-    private final Multiset<String> set = HashMultiset.create();
-
-    void add(Issue issue) {
-      set.add(issue.severity());
-    }
-
-    int issuesWithSeverity(String severity) {
-      return set.count(severity);
-    }
-
-    int size() {
-      return set.size();
-    }
-
-    boolean isEmpty() {
-      return set.isEmpty();
-    }
   }
 
 }

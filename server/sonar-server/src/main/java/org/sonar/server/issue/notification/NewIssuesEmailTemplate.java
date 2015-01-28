@@ -53,7 +53,7 @@ public class NewIssuesEmailTemplate extends EmailTemplate {
 
   @Override
   public EmailMessage format(Notification notification) {
-    if (!"new-issues".equals(notification.getType())) {
+    if (!NewIssuesNotification.TYPE.equals(notification.getType())) {
       return null;
     }
     String projectName = notification.getFieldValue(FIELD_PROJECT_NAME);

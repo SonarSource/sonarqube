@@ -20,11 +20,10 @@
 package org.sonar.api.notifications;
 
 import com.google.common.collect.Maps;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.io.Serializable;
 import java.util.Map;
 
@@ -140,7 +139,10 @@ public class Notification implements Serializable {
 
   @Override
   public String toString() {
-    return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    StringBuilder sb = new StringBuilder("Notification{");
+    sb.append("type='").append(type).append('\'');
+    sb.append(", fields=").append(fields);
+    sb.append('}');
+    return sb.toString();
   }
-
 }

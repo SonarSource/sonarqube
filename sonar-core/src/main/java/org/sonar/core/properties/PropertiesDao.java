@@ -22,17 +22,24 @@ package org.sonar.core.properties;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.resources.Scopes;
 import org.sonar.core.persistence.DaoComponent;
+import org.sonar.core.persistence.DaoUtils;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.Nullable;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -70,6 +77,33 @@ public class PropertiesDao implements BatchComponent, ServerComponent, DaoCompon
     try {
       return mapper.findNotificationSubscribers(NOTIFICATION_PREFIX + notificationDispatcherKey + "." + notificationChannelKey, componentKey);
     } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public boolean hasProjectNotificationSubscribersForDispatchers(String projectUuid, Collection<String> dispatcherKeys) {
+    DbSession session = mybatis.openSession(false);
+    Connection connection = session.getConnection();
+    PreparedStatement pstmt = null;
+    ResultSet rs = null;
+    String sql = "SELECT count(*) FROM properties pp " +
+      "left outer join projects pj on pp.resource_id = pj.id " +
+      "where pp.user_id is not null and (pp.resource_id is null or pj.uuid=?) " +
+      "and (" + DaoUtils.repeatCondition("pp.prop_key like ?", dispatcherKeys.size(), "or") + ")";
+    try {
+      pstmt = connection.prepareStatement(sql);
+      pstmt.setString(1, projectUuid);
+      int index = 2;
+      for (String dispatcherKey : dispatcherKeys) {
+        pstmt.setString(index, "notification." + dispatcherKey + ".%");
+        index++;
+      }
+      rs = pstmt.executeQuery();
+      return rs.next() && rs.getInt(1) > 0;
+    } catch (SQLException e) {
+      throw new IllegalStateException("Fail to execute SQL request: " + sql, e);
+    } finally {
+      DbUtils.closeQuietly(connection, pstmt, rs);
       MyBatis.closeQuietly(session);
     }
   }

@@ -112,4 +112,14 @@ public final class DaoUtils {
     return results;
   }
 
+  public static String repeatCondition(String sql, int count, String separator) {
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < count; i++) {
+      sb.append(sql);
+      if (i < count-1) {
+        sb.append(" ").append(separator).append(" ");
+      }
+    }
+    return sb.toString();
+  }
 }

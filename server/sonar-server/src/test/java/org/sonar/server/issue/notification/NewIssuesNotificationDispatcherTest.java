@@ -70,7 +70,7 @@ public class NewIssuesNotificationDispatcherTest {
     recipients.put("user2", twitterChannel);
     when(notifications.findNotificationSubscribers(dispatcher, "struts")).thenReturn(recipients);
 
-    Notification notification = new Notification("new-issues").setFieldValue("projectKey", "struts");
+    Notification notification = new NewIssuesNotification().setFieldValue("projectKey", "struts");
     dispatcher.performDispatch(notification, context);
 
     verify(context).addUser("user1", emailChannel);

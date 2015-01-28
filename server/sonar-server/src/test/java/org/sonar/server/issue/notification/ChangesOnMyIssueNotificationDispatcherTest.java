@@ -78,7 +78,7 @@ public class ChangesOnMyIssueNotificationDispatcherTest {
     recipients.put("godin", twitterChannel);
     when(notifications.findNotificationSubscribers(dispatcher, "struts")).thenReturn(recipients);
 
-    Notification notification = new Notification("issue-changes").setFieldValue("projectKey", "struts")
+    Notification notification = new IssueChangeNotification().setFieldValue("projectKey", "struts")
       .setFieldValue("changeAuthor", "olivier")
       .setFieldValue("reporter", "simon")
       .setFieldValue("assignee", "freddy");
@@ -99,15 +99,15 @@ public class ChangesOnMyIssueNotificationDispatcherTest {
     when(notifications.findNotificationSubscribers(dispatcher, "struts")).thenReturn(recipients);
 
     // change author is the reporter
-    dispatcher.performDispatch(new Notification("issue-changes").setFieldValue("projectKey", "struts")
+    dispatcher.performDispatch(new IssueChangeNotification().setFieldValue("projectKey", "struts")
       .setFieldValue("changeAuthor", "simon").setFieldValue("reporter", "simon"), context);
 
     // change author is the assignee
-    dispatcher.performDispatch(new Notification("issue-changes").setFieldValue("projectKey", "struts")
+    dispatcher.performDispatch(new IssueChangeNotification().setFieldValue("projectKey", "struts")
       .setFieldValue("changeAuthor", "simon").setFieldValue("assignee", "simon"), context);
 
     // no change author
-    dispatcher.performDispatch(new Notification("issue-changes").setFieldValue("projectKey", "struts")
+    dispatcher.performDispatch(new IssueChangeNotification().setFieldValue("projectKey", "struts")
       .setFieldValue("new.resolution", "FIXED"), context);
 
     verifyNoMoreInteractions(context);
