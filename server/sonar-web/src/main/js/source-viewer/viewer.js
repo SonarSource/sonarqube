@@ -605,8 +605,10 @@ define([
               $lines = this.$('.source-line');
           this.model.set('filterLinesFunc', func);
           lines.forEach(function (line, idx) {
-            var $line = $($lines[idx]);
-            $line.toggleClass('source-line-shadowed', !func(line));
+            var $line = $($lines[idx]),
+                filtered = func(line) && line.line > 0;
+            $line.toggleClass('source-line-shadowed', !filtered);
+            $line.toggleClass('source-line-filtered', filtered);
           });
         },
 

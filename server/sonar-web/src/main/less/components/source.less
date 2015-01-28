@@ -54,12 +54,18 @@
 }
 
 .source-line-shadowed {
-  opacity: 0.4;
-
-  .source-meta {
-    border-color: #f9f9f9 !important;
+  .source-line-code {
+    background-color: #f9f9f9;
   }
 }
+
+.source-line-filtered {
+  .source-line-code {
+    border-left: 4px solid @lightBlue;
+    padding-left: 6px;
+  }
+}
+
 
 .source-line-expand {
   .source-line-code {
