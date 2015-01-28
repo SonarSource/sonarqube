@@ -45,7 +45,6 @@ import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.issue.workflow.Transition;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
@@ -64,7 +63,12 @@ import org.sonar.server.user.index.UserIndex;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.Maps.newLinkedHashMap;
 
@@ -81,7 +85,6 @@ public class IssueService implements ServerComponent {
   private final RuleFinder ruleFinder;
   private final IssueDao deprecatedIssueDao;
   private final UserFinder userFinder;
-  private final PreviewCache dryRunCache;
   private final UserIndex userIndex;
   private final SourceLineIndex sourceLineIndex;
 
@@ -94,7 +97,6 @@ public class IssueService implements ServerComponent {
     RuleFinder ruleFinder,
     IssueDao deprecatedIssueDao,
     UserFinder userFinder,
-    PreviewCache dryRunCache,
     UserIndex userIndex, SourceLineIndex sourceLineIndex) {
     this.dbClient = dbClient;
     this.indexClient = indexClient;
@@ -106,7 +108,6 @@ public class IssueService implements ServerComponent {
     this.issueNotifications = issueNotifications;
     this.deprecatedIssueDao = deprecatedIssueDao;
     this.userFinder = userFinder;
-    this.dryRunCache = dryRunCache;
     this.userIndex = userIndex;
     this.sourceLineIndex = sourceLineIndex;
   }
@@ -278,7 +279,6 @@ public class IssueService implements ServerComponent {
       issue.setCreationDate(now);
       issue.setUpdateDate(now);
       issueStorage.save(issue);
-      dryRunCache.reportResourceModification(component.getKey());
       return issue;
     } finally {
       session.close();
@@ -338,7 +338,6 @@ public class IssueService implements ServerComponent {
       dbClient.componentDao().getByKey(session, projectKey),
       dbClient.componentDao().getNullableByKey(session, issue.componentKey()),
       comment, false);
-    dryRunCache.reportResourceModification(issue.componentKey());
   }
 
   /**

@@ -20,6 +20,7 @@
 
 package org.sonar.server.component.db;
 
+import com.google.common.collect.ImmutableMap;
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.junit.After;
 import org.junit.Before;
@@ -292,55 +293,55 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void find_children_modules_from_module() throws Exception {
+  public void select_modules_tree() throws Exception {
     setupData("multi-modules");
 
     // From root project
-    List<ComponentDto> modules = dao.findChildrenModulesFromModule(session, "org.struts:struts");
+    List<ComponentDto> modules = dao.selectModulesTree(session, "ABCD");
     assertThat(modules).extracting("uuid").containsOnly("ABCD", "EFGH", "FGHI");
 
     // From module
-    modules = dao.findChildrenModulesFromModule(session, "org.struts:struts-core");
+    modules = dao.selectModulesTree(session, "EFGH");
     assertThat(modules).extracting("uuid").containsOnly("EFGH", "FGHI");
 
     // From sub module
-    modules = dao.findChildrenModulesFromModule(session, "org.struts:struts-data");
+    modules = dao.selectModulesTree(session, "FGHI");
     assertThat(modules).extracting("uuid").containsOnly("FGHI");
 
     // Folder
-    assertThat(dao.findChildrenModulesFromModule(session, "org.struts:struts-core:src/org/struts")).isEmpty();
-    assertThat(dao.findChildrenModulesFromModule(session, "unknown")).isEmpty();
+    assertThat(dao.selectModulesTree(session, "GHIJ")).isEmpty();
+    assertThat(dao.selectModulesTree(session, "unknown")).isEmpty();
   }
 
   @Test
-  public void find_files_from_module() throws Exception {
-    setupData("find_files_from_module");
+  public void select_module_files_tree() throws Exception {
+    setupData("select_module_files_tree");
 
     // From root project
-    List<FilePathWithHashDto> files = dao.findFilesFromModule(session, "org.struts:struts");
+    List<FilePathWithHashDto> files = dao.selectModuleFilesTree(session, "ABCD");
     assertThat(files).extracting("uuid").containsOnly("EFGHI", "HIJK");
     assertThat(files).extracting("moduleUuid").containsOnly("EFGH", "FGHI");
     assertThat(files).extracting("srcHash").containsOnly("srcEFGHI", "srcHIJK");
     assertThat(files).extracting("path").containsOnly("src/org/struts/pom.xml", "src/org/struts/RequestContext.java");
 
     // From module
-    files = dao.findFilesFromModule(session, "org.struts:struts-core");
+    files = dao.selectModuleFilesTree(session, "EFGH");
     assertThat(files).extracting("uuid").containsOnly("EFGHI", "HIJK");
     assertThat(files).extracting("moduleUuid").containsOnly("EFGH", "FGHI");
     assertThat(files).extracting("srcHash").containsOnly("srcEFGHI", "srcHIJK");
     assertThat(files).extracting("path").containsOnly("src/org/struts/pom.xml", "src/org/struts/RequestContext.java");
 
     // From sub module
-    files = dao.findFilesFromModule(session, "org.struts:struts-data");
+    files = dao.selectModuleFilesTree(session, "FGHI");
     assertThat(files).extracting("uuid").containsOnly("HIJK");
     assertThat(files).extracting("moduleUuid").containsOnly("FGHI");
     assertThat(files).extracting("srcHash").containsOnly("srcHIJK");
     assertThat(files).extracting("path").containsOnly("src/org/struts/RequestContext.java");
 
     // From directory
-    assertThat(dao.findFilesFromModule(session, "org.struts:struts-core:src/org/struts")).isEmpty();
+    assertThat(dao.selectModuleFilesTree(session, "GHIJ")).isEmpty();
 
-    assertThat(dao.findFilesFromModule(session, "unknown")).isEmpty();
+    assertThat(dao.selectModuleFilesTree(session, "unknown")).isEmpty();
   }
 
   @Test
@@ -433,5 +434,28 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
   @Test(expected = PersistenceException.class)
   public void synchronize_after() {
     dao.synchronizeAfter(session, new Date(0L));
+  }
+
+  @Test
+  public void select_views_and_sub_views() {
+    setupData("shared_views");
+
+    assertThat(dao.selectAllViewsAndSubViews(session)).contains(
+      ImmutableMap.of("uuid", "ABCD", "projectUuid", "ABCD"),
+      ImmutableMap.of("uuid", "EFGH", "projectUuid", "EFGH"),
+      ImmutableMap.of("uuid", "FGHI", "projectUuid", "EFGH"),
+      ImmutableMap.of("uuid", "IJKL", "projectUuid", "IJKL")
+      );
+  }
+
+  @Test
+  public void select_projects_from_view() {
+    setupData("shared_views");
+
+    assertThat(dao.selectProjectsFromView(session, "ABCD", "ABCD")).containsOnly("JKLM");
+    assertThat(dao.selectProjectsFromView(session, "EFGH", "EFGH")).containsOnly("KLMN", "JKLM");
+    assertThat(dao.selectProjectsFromView(session, "FGHI", "EFGH")).containsOnly("JKLM");
+    assertThat(dao.selectProjectsFromView(session, "IJKL", "IJKL")).isEmpty();
+    assertThat(dao.selectProjectsFromView(session, "Unknown", "Unknown")).isEmpty();
   }
 }

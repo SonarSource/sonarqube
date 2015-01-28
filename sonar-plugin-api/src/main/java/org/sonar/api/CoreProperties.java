@@ -19,6 +19,8 @@
  */
 package org.sonar.api;
 
+import org.sonar.api.batch.AnalysisMode;
+
 /**
  * Non-exhaustive list of constants of core properties.
  *
@@ -369,7 +371,9 @@ public interface CoreProperties {
 
   /**
    * @since 3.4
+   * @deprecated since 5.1 use {@link AnalysisMode} to check existing mode
    */
+  @Deprecated
   String DRY_RUN = "sonar.dryRun";
 
   /**
@@ -396,13 +400,14 @@ public interface CoreProperties {
 
   /**
    * @since 3.7
-   * @deprecated in 4.0 replaced by {@link CoreProperties#PREVIEW_READ_TIMEOUT_SEC}
+   * @deprecated in 4.0 no more used
    */
   @Deprecated
   String DRY_RUN_READ_TIMEOUT_SEC = "sonar.dryRun.readTimeout";
 
   /**
    * @since 4.0
+   * @deprecated in 5.1 no more used
    */
   String PREVIEW_READ_TIMEOUT_SEC = "sonar.preview.readTimeout";
 
@@ -432,9 +437,9 @@ public interface CoreProperties {
   String ANALYSIS_MODE_INCREMENTAL = "incremental";
 
   /**
-   * @since 4.4
+   * @since 5.1
    */
-  String ANALYSIS_MODE_SENSOR = "sensor";
+  String ANALYSIS_MODE_MEDIUM_TEST = "mediumtest";
 
   /**
    * @since 4.0

@@ -4,12 +4,14 @@
   {{#each values}}
     {{#eq val ''}}
     {{! unresolved }}
-      <a class="facet search-navigator-facet search-navigator-facet-half js-facet" data-unresolved title="{{t 'unresolved'}}">
+      <a class="facet search-navigator-facet search-navigator-facet-half js-facet" data-unresolved
+         title="{{t 'issue.unresolved.description'}}" data-toggle="tooltip" data-placement="right">
         <span class="facet-name">{{t 'unresolved'}}</span>
         <span class="facet-stat">{{numberShort count}}</span>
       </a>
     {{else}}
-      <a class="facet search-navigator-facet search-navigator-facet-half js-facet" data-value="{{val}}" title="{{t 'issue.resolution' val}}">
+      <a class="facet search-navigator-facet search-navigator-facet-half js-facet" data-value="{{val}}"
+         title="{{t 'issue.resolution' val 'description'}}" data-toggle="tooltip" data-placement="right">
         <span class="facet-name">{{t 'issue.resolution' val}}</span>
         <span class="facet-stat">{{numberShort count}}</span>
       </a>

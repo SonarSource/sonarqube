@@ -44,7 +44,6 @@ public class IssuesOnDirMediumTest {
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
     .activateRule(new ActiveRule("xoo", "OneIssueOnDirPerFile", "One issue per line", "MINOR", "xoo", "xoo"))
-    .bootstrapProperties(ImmutableMap.of("sonar.analysis.mode", "sensor"))
     .build();
 
   @Before

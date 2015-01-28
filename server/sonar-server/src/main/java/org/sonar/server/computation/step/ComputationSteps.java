@@ -39,12 +39,12 @@ public class ComputationSteps {
       SwitchSnapshotStep.class,
       IndexComponentsStep.class,
       PurgeDatastoresStep.class,
-      InvalidateBatchCacheStep.class,
 
       // ES indexing is done after all db changes
       ApplyPermissionsStep.class,
       IndexIssuesStep.class,
       IndexSourceLinesStep.class,
+      IndexViewsStep.class,
 
       // notifications are sent at the end, so that webapp displays up-to-date information
       SendIssueNotificationsStep.class);

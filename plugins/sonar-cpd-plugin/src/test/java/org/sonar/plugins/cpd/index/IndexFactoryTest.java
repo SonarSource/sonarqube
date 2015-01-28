@@ -26,7 +26,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.resources.Project;
-import org.sonar.batch.bootstrap.AnalysisMode;
+import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.core.duplication.DuplicationDao;
 
@@ -41,13 +41,13 @@ public class IndexFactoryTest {
   Settings settings;
   IndexFactory factory;
   Logger logger;
-  private AnalysisMode analysisMode;
+  private DefaultAnalysisMode analysisMode;
 
   @Before
   public void setUp() {
     project = new Project("foo");
     settings = new Settings();
-    analysisMode = mock(AnalysisMode.class);
+    analysisMode = mock(DefaultAnalysisMode.class);
     factory = new IndexFactory(analysisMode, settings, mock(DuplicationDao.class), mock(DatabaseSession.class), new ResourceCache());
     logger = mock(Logger.class);
   }

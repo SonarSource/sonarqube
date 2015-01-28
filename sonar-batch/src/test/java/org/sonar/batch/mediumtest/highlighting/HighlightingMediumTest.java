@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.mediumtest.highlighting;
 
-import org.sonar.batch.mediumtest.TaskResult;
-
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -32,6 +30,7 @@ import org.junit.rules.TestName;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.batch.mediumtest.BatchMediumTester;
+import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.xoo.XooPlugin;
 
 import java.io.File;
@@ -50,7 +49,6 @@ public class HighlightingMediumTest {
   public BatchMediumTester tester = BatchMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
-    .bootstrapProperties(ImmutableMap.of("sonar.analysis.mode", "sensor"))
     .build();
 
   @Before

@@ -26,9 +26,15 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.batch.index.BatchResource;
 import org.sonar.batch.index.ResourceCache;
+<<<<<<< HEAD
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchOutput;
 import org.sonar.batch.protocol.output.BatchOutputWriter;
+=======
+import org.sonar.batch.protocol.output.ReportHelper;
+import org.sonar.batch.protocol.output.component.ReportComponent;
+import org.sonar.batch.protocol.output.component.ReportComponents;
+>>>>>>> origin/master
 
 import javax.annotation.CheckForNull;
 
@@ -63,12 +69,18 @@ public class ComponentsPublisher implements ReportPublisher {
 
     // non-null fields
     builder.setRef(batchResource.batchId());
-    builder.setSnapshotId(batchResource.snapshotId());
-    builder.setUuid(r.getUuid());
     builder.setType(getType(r));
 
     // protocol buffers does not accept null values
 
+    Integer sid = batchResource.snapshotId();
+    if (sid != null) {
+      builder.setSnapshotId(sid);
+    }
+    String uuid = r.getUuid();
+    if (uuid != null) {
+      builder.setUuid(uuid);
+    }
     if (ResourceUtils.isFile(r)) {
       builder.setIsTest(ResourceUtils.isUnitTestClass(r));
     }

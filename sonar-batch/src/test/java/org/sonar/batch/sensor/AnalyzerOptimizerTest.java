@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -33,6 +34,8 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.rule.RuleKey;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class AnalyzerOptimizerTest {
 
@@ -44,10 +47,13 @@ public class AnalyzerOptimizerTest {
 
   private Settings settings;
 
+  private AnalysisMode analysisMode;
+
   @Before
   public void prepare() {
     settings = new Settings();
-    optimizer = new AnalyzerOptimizer(fs, new ActiveRulesBuilder().build(), settings);
+    analysisMode = mock(AnalysisMode.class);
+    optimizer = new AnalyzerOptimizer(fs, new ActiveRulesBuilder().build(), settings, analysisMode);
   }
 
   @Test
@@ -105,7 +111,7 @@ public class AnalyzerOptimizerTest {
       .create(RuleKey.of("repo1", "foo"))
       .activate()
       .build();
-    optimizer = new AnalyzerOptimizer(fs, activeRules, settings);
+    optimizer = new AnalyzerOptimizer(fs, activeRules, settings, analysisMode);
 
     assertThat(optimizer.shouldExecute(descriptor)).isFalse();
 
@@ -115,7 +121,7 @@ public class AnalyzerOptimizerTest {
       .create(RuleKey.of("squid", "rule"))
       .activate()
       .build();
-    optimizer = new AnalyzerOptimizer(fs, activeRules, settings);
+    optimizer = new AnalyzerOptimizer(fs, activeRules, settings, analysisMode);
     assertThat(optimizer.shouldExecute(descriptor)).isTrue();
   }
 
@@ -127,5 +133,16 @@ public class AnalyzerOptimizerTest {
 
     settings.setProperty("sonar.foo.reportPath", "foo");
     assertThat(optimizer.shouldExecute(descriptor)).isTrue();
+  }
+
+  @Test
+  public void should_disabled_in_preview() throws Exception {
+    DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor()
+      .disabledInPreview();
+    assertThat(optimizer.shouldExecute(descriptor)).isTrue();
+
+    when(analysisMode.isPreview()).thenReturn(true);
+
+    assertThat(optimizer.shouldExecute(descriptor)).isFalse();
   }
 }

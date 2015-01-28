@@ -53,7 +53,6 @@ public class CpdMediumTest {
     .registerPlugin("xoo", new XooPlugin())
     .registerPlugin("cpd", new CpdPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
-    .bootstrapProperties(ImmutableMap.of("sonar.analysis.mode", "sensor"))
     .build();
 
   private File baseDir;

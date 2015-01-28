@@ -154,23 +154,23 @@ public class PropertiesDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_children_module_properties() throws Exception {
-    setupData("select_children_module_properties");
+  public void select_module_properties_tree() throws Exception {
+    setupData("select_module_properties_tree");
 
-    List<PropertyDto> properties = dao.findChildrenModuleProperties("org.struts:struts", session);
+    List<PropertyDto> properties = dao.selectModulePropertiesTree("ABCD", session);
     assertThat(properties.size(), is(4));
     assertThat(properties).extracting("key").containsOnly("struts.one", "core.one", "core.two", "data.one");
     assertThat(properties).extracting("value").containsOnly("one", "two");
 
-    properties = dao.findChildrenModuleProperties("org.struts:struts-core", session);
+    properties = dao.selectModulePropertiesTree("EFGH", session);
     assertThat(properties.size(), is(3));
     assertThat(properties).extracting("key").containsOnly("core.one", "core.two", "data.one");
 
-    properties = dao.findChildrenModuleProperties("org.struts:struts-data", session);
+    properties = dao.selectModulePropertiesTree("FGHI", session);
     assertThat(properties.size(), is(1));
     assertThat(properties).extracting("key").containsOnly("data.one");
 
-    assertThat(dao.findChildrenModuleProperties("unknown", session).size(), is(0));
+    assertThat(dao.selectModulePropertiesTree("unknown", session).size(), is(0));
   }
 
   @Test

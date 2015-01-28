@@ -203,7 +203,7 @@ public class DuplicationsParserTest {
     ComponentDto fileOnSameProject = ComponentTesting.newFileDto(project1).setId(12L);
     ComponentDto fileOnDifferentProject = ComponentTesting.newFileDto(project2).setId(13L);
 
-    DuplicationsParser.DuplicationComparator comparator = new DuplicationsParser.DuplicationComparator(currentFile);
+    DuplicationsParser.DuplicationComparator comparator = new DuplicationsParser.DuplicationComparator(currentFile.uuid(), currentFile.projectUuid());
 
     // On same file
     assertThat(comparator.compare(new DuplicationsParser.Duplication(currentFile, 2, 2), new DuplicationsParser.Duplication(currentFile, 5, 2))).isEqualTo(-1);

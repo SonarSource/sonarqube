@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.rule.ActiveRules;
@@ -48,6 +49,7 @@ public class DefaultSensorContextTest {
   private DefaultSensorContext adaptor;
   private Settings settings;
   private SensorStorage sensorStorage;
+  private AnalysisMode analysisMode;
 
   @Before
   public void prepare() {
@@ -60,7 +62,8 @@ public class DefaultSensorContextTest {
     ComponentDataCache componentDataCache = mock(ComponentDataCache.class);
     BlockCache blockCache = mock(BlockCache.class);
     sensorStorage = mock(SensorStorage.class);
-    adaptor = new DefaultSensorContext(settings, fs, activeRules, componentDataCache, blockCache, mock(DuplicationCache.class), sensorStorage);
+    analysisMode = mock(AnalysisMode.class);
+    adaptor = new DefaultSensorContext(settings, fs, activeRules, analysisMode, componentDataCache, blockCache, mock(DuplicationCache.class), sensorStorage);
   }
 
   @Test
@@ -68,6 +71,7 @@ public class DefaultSensorContextTest {
     assertThat(adaptor.activeRules()).isEqualTo(activeRules);
     assertThat(adaptor.fileSystem()).isEqualTo(fs);
     assertThat(adaptor.settings()).isEqualTo(settings);
+    assertThat(adaptor.analysisMode()).isEqualTo(analysisMode);
 
     assertThat(adaptor.newIssue()).isNotNull();
     assertThat(adaptor.newMeasure()).isNotNull();

@@ -37,13 +37,13 @@ public class UserIndexDefinitionTest {
     def.define(context);
 
     assertThat(context.getIndices()).hasSize(1);
-    NewIndex issuesIndex = context.getIndices().get("users");
-    assertThat(issuesIndex).isNotNull();
-    assertThat(issuesIndex.getTypes().keySet()).containsOnly("user");
+    NewIndex index = context.getIndices().get("users");
+    assertThat(index).isNotNull();
+    assertThat(index.getTypes().keySet()).containsOnly("user");
 
     // no cluster by default
-    assertThat(issuesIndex.getSettings().get("index.number_of_shards")).isEqualTo("1");
-    assertThat(issuesIndex.getSettings().get("index.number_of_replicas")).isEqualTo("0");
+    assertThat(index.getSettings().get("index.number_of_shards")).isEqualTo("1");
+    assertThat(index.getSettings().get("index.number_of_replicas")).isEqualTo("0");
   }
 
   @Test
@@ -53,8 +53,8 @@ public class UserIndexDefinitionTest {
     UserIndexDefinition def = new UserIndexDefinition(settings);
     def.define(context);
 
-    NewIndex issuesIndex = context.getIndices().get("users");
-    assertThat(issuesIndex.getSettings().get("index.number_of_shards")).isEqualTo("4");
-    assertThat(issuesIndex.getSettings().get("index.number_of_replicas")).isEqualTo("1");
+    NewIndex index = context.getIndices().get("users");
+    assertThat(index.getSettings().get("index.number_of_shards")).isEqualTo("4");
+    assertThat(index.getSettings().get("index.number_of_replicas")).isEqualTo("1");
   }
 }

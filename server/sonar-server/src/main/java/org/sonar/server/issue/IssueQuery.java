@@ -59,8 +59,10 @@ public class IssueQuery {
   private final Collection<String> resolutions;
   private final Collection<String> components;
   private final Collection<String> modules;
+  private final Collection<String> moduleRoots;
   private final Collection<String> projects;
   private final Collection<String> directories;
+  private final Collection<String> files;
   private final Collection<RuleKey> rules;
   private final Collection<String> actionPlans;
   private final Collection<String> reporters;
@@ -86,8 +88,10 @@ public class IssueQuery {
     this.resolutions = defaultCollection(builder.resolutions);
     this.components = defaultCollection(builder.components);
     this.modules = defaultCollection(builder.modules);
+    this.moduleRoots = defaultCollection(builder.moduleRoots);
     this.projects = defaultCollection(builder.projects);
     this.directories = defaultCollection(builder.directories);
+    this.files = defaultCollection(builder.files);
     this.rules = defaultCollection(builder.rules);
     this.actionPlans = defaultCollection(builder.actionPlans);
     this.reporters = defaultCollection(builder.reporters);
@@ -131,12 +135,20 @@ public class IssueQuery {
     return modules;
   }
 
+  public Collection<String> moduleRootUuids() {
+    return moduleRoots;
+  }
+
   public Collection<String> projectUuids() {
     return projects;
   }
 
   public Collection<String> directories() {
     return directories;
+  }
+
+  public Collection<String> fileUuids() {
+    return files;
   }
 
   public Collection<RuleKey> rules() {
@@ -237,8 +249,10 @@ public class IssueQuery {
     private Collection<String> resolutions;
     private Collection<String> components;
     private Collection<String> modules;
+    private Collection<String> moduleRoots;
     private Collection<String> projects;
     private Collection<String> directories;
+    private Collection<String> files;
     private Collection<RuleKey> rules;
     private Collection<String> actionPlans;
     private Collection<String> reporters;
@@ -290,6 +304,11 @@ public class IssueQuery {
       return this;
     }
 
+    public Builder moduleRootUuids(@Nullable Collection<String> l) {
+      this.moduleRoots = l;
+      return this;
+    }
+
     public Builder projectUuids(@Nullable Collection<String> l) {
       this.projects = l;
       return this;
@@ -297,6 +316,11 @@ public class IssueQuery {
 
     public Builder directories(@Nullable Collection<String> l) {
       this.directories = l;
+      return this;
+    }
+
+    public Builder fileUuids(@Nullable Collection<String> l) {
+      this.files = l;
       return this;
     }
 

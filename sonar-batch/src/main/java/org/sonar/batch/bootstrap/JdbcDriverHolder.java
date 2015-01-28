@@ -41,13 +41,13 @@ public class JdbcDriverHolder {
   private static final Logger LOG = LoggerFactory.getLogger(JdbcDriverHolder.class);
 
   private ServerClient serverClient;
-  private AnalysisMode analysisMode;
+  private DefaultAnalysisMode analysisMode;
   private FileCache fileCache;
 
   // initialized in start()
   private JdbcDriverClassLoader classLoader = null;
 
-  public JdbcDriverHolder(FileCache fileCache, AnalysisMode analysisMode, ServerClient serverClient) {
+  public JdbcDriverHolder(FileCache fileCache, DefaultAnalysisMode analysisMode, ServerClient serverClient) {
     this.serverClient = serverClient;
     this.analysisMode = analysisMode;
     this.fileCache = fileCache;

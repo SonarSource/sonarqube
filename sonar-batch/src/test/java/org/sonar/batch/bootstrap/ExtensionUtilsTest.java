@@ -22,8 +22,8 @@ package org.sonar.batch.bootstrap;
 import org.junit.Test;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.ServerExtension;
-import org.sonar.core.DryRunIncompatible;
 import org.sonar.api.batch.InstantiationStrategy;
+import org.sonar.api.batch.RequiresDB;
 import org.sonar.api.batch.SupportedEnvironment;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 
@@ -80,11 +80,11 @@ public class ExtensionUtilsTest {
   }
 
   @Test
-  public void shouldSupportDryRun() {
-    assertThat(ExtensionUtils.supportsPreview(BatchService.class)).isTrue();
-    assertThat(ExtensionUtils.supportsPreview(new BatchService())).isTrue();
-    assertThat(ExtensionUtils.supportsPreview(PersistentService.class)).isFalse();
-    assertThat(ExtensionUtils.supportsPreview(new PersistentService())).isFalse();
+  public void shouldRequiresDB() {
+    assertThat(ExtensionUtils.requiresDB(BatchService.class)).isFalse();
+    assertThat(ExtensionUtils.requiresDB(new BatchService())).isFalse();
+    assertThat(ExtensionUtils.requiresDB(PersistentService.class)).isTrue();
+    assertThat(ExtensionUtils.requiresDB(new PersistentService())).isTrue();
   }
 
   @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
@@ -115,7 +115,7 @@ public class ExtensionUtilsTest {
 
   }
 
-  @DryRunIncompatible
+  @RequiresDB
   public static class PersistentService implements BatchExtension {
 
   }

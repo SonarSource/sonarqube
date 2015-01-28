@@ -44,7 +44,7 @@ requirejs [
 
 
   App.getContextQuery = ->
-    componentRootUuids: window.config.resource
+    componentUuids: window.config.resource
 
 
   App.getRestrictedFacets = ->

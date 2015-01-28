@@ -129,37 +129,6 @@ public class SearchActionMediumTest {
   }
 
   @Test
-  public void issues_on_different_projects() throws Exception {
-    RuleDto rule = newRule();
-    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
-    setDefaultProjectPermission(project);
-    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
-    IssueDto issue = IssueTesting.newDto(rule, file, project)
-      .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
-      .setStatus("OPEN").setResolution("OPEN")
-      .setSeverity("MAJOR")
-      .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
-      .setIssueUpdateDate(DateUtils.parseDate("2017-12-04"));
-    db.issueDao().insert(session, issue);
-
-    ComponentDto project2 = insertComponent(ComponentTesting.newProjectDto("DBCA").setKey("MyProject2"));
-    setDefaultProjectPermission(project2);
-    ComponentDto file2 = insertComponent(ComponentTesting.newFileDto(project2, "EDCB").setKey("MyComponent2"));
-    IssueDto issue2 = IssueTesting.newDto(rule, file2, project2)
-      .setKee("92fd47d4-b650-4037-80bc-7b112bd4eac2")
-      .setStatus("OPEN").setResolution("OPEN")
-      .setSeverity("MAJOR")
-      .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
-      .setIssueUpdateDate(DateUtils.parseDate("2017-12-04"));
-    db.issueDao().insert(session, issue2);
-    session.commit();
-    tester.get(IssueIndexer.class).indexAll();
-
-    WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).execute();
-    result.assertJson(this.getClass(), "issues_on_different_projects.json", false);
-  }
-
-  @Test
   public void issue_with_comment() throws Exception {
     db.userDao().insert(session, new UserDto().setLogin("john").setName("John").setEmail("john@email.com"));
     db.userDao().insert(session, new UserDto().setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
@@ -306,70 +275,6 @@ public class SearchActionMediumTest {
   }
 
   @Test
-  public void search_by_project_uuid() throws Exception {
-    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
-    setDefaultProjectPermission(project);
-    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
-    IssueDto issue = IssueTesting.newDto(newRule(), file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2");
-    db.issueDao().insert(session, issue);
-    session.commit();
-    tester.get(IssueIndexer.class).indexAll();
-
-    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
-      .setParam(IssueFilterParameters.PROJECT_UUIDS, project.uuid())
-      .execute()
-      .assertJson(this.getClass(), "search_by_project_uuid.json", false);
-
-    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
-      .setParam(IssueFilterParameters.PROJECT_UUIDS, "unknown")
-      .execute()
-      .assertJson(this.getClass(), "no_issue.json", false);
-  }
-
-  @Test
-  public void search_by_component_uuid() throws Exception {
-    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
-    setDefaultProjectPermission(project);
-    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
-    IssueDto issue = IssueTesting.newDto(newRule(), file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2");
-    db.issueDao().insert(session, issue);
-    session.commit();
-    tester.get(IssueIndexer.class).indexAll();
-
-    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
-      .setParam(IssueFilterParameters.COMPONENT_UUIDS, file.uuid())
-      .execute()
-      .assertJson(this.getClass(), "search_by_file_uuid.json", false);
-
-    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
-      .setParam(IssueFilterParameters.COMPONENT_UUIDS, "unknown")
-      .execute()
-      .assertJson(this.getClass(), "no_issue.json", false);
-  }
-
-  @Test
-  public void search_by_directory_path() throws Exception {
-    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
-    setDefaultProjectPermission(project);
-    ComponentDto directory = insertComponent(ComponentTesting.newDirectory(project, "src/main/java/dir"));
-    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent").setPath(directory.path() + "/MyComponent.java"));
-    IssueDto issue = IssueTesting.newDto(newRule(), file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2");
-    db.issueDao().insert(session, issue);
-    session.commit();
-    tester.get(IssueIndexer.class).indexAll();
-
-    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
-      .setParam(IssueFilterParameters.DIRECTORIES, "src/main/java/dir")
-      .execute()
-      .assertJson(this.getClass(), "search_by_file_uuid.json", false);
-
-    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
-      .setParam(IssueFilterParameters.DIRECTORIES, "src/main/java")
-      .execute()
-      .assertJson(this.getClass(), "no_issue.json", false);
-  }
-
-  @Test
   public void ignore_paging_with_one_component() throws Exception {
     RuleDto rule = newRule();
     ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
@@ -462,7 +367,7 @@ public class SearchActionMediumTest {
     MockUserSession.set().setLogin("john");
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam("resolved", "false")
-      .setParam(SearchAction.PARAM_FACETS, "statuses,severities,resolutions,projectUuids,rules,componentUuids,assignees,languages,actionPlans")
+      .setParam(SearchAction.PARAM_FACETS, "statuses,severities,resolutions,projectUuids,rules,fileUuids,assignees,languages,actionPlans")
       .execute();
     result.assertJson(this.getClass(), "display_facets.json", false);
   }
@@ -488,28 +393,9 @@ public class SearchActionMediumTest {
       .setParam("resolved", "false")
       .setParam("severities", "MAJOR,MINOR")
       .setParam("languages", "xoo,polop,palap")
-      .setParam(SearchAction.PARAM_FACETS, "statuses,severities,resolutions,projectUuids,rules,componentUuids,assignees,languages,actionPlans")
+      .setParam(SearchAction.PARAM_FACETS, "statuses,severities,resolutions,projectUuids,rules,fileUuids,assignees,languages,actionPlans")
       .execute();
     result.assertJson(this.getClass(), "display_zero_facets.json", false);
-  }
-
-  @Test
-  public void display_directory_facet() throws Exception {
-    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
-    setDefaultProjectPermission(project);
-    ComponentDto directory = insertComponent(ComponentTesting.newDirectory(project, "src/main/java/dir"));
-    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent").setPath(directory.path() + "/MyComponent.java"));
-    IssueDto issue = IssueTesting.newDto(newRule(), file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2");
-    db.issueDao().insert(session, issue);
-    session.commit();
-    tester.get(IssueIndexer.class).indexAll();
-
-    MockUserSession.set().setLogin("john");
-    WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
-      .setParam("resolved", "false")
-      .setParam(SearchAction.PARAM_FACETS, "directories")
-      .execute();
-    result.assertJson(this.getClass(), "display_directory_facet.json", false);
   }
 
   @Test

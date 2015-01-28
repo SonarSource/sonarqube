@@ -229,11 +229,6 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       .setDescription("Deprecated since 5.1. Use componentKeys instead, with onComponentOnly=false.");
     action.createParam(IssueFilterParameters.COMPONENT_ROOT_UUIDS)
       .setDescription("Deprecated since 5.1. Use componentUuids instead, with onComponentOnly=false.");
-    action.createParam(IssueFilterParameters.MODULE_KEYS)
-      .setDescription("To retrieve issues associated to a specific list of modules (comma-separated list of module keys). " +
-        INTERNAL_PARAMETER_DISCLAIMER +
-        "Views are not supported. If this parameter is set, moduleUuids must not be set.")
-      .setExampleValue("org.apache.struts:struts");
     action.createParam(IssueFilterParameters.MODULE_UUIDS)
       .setDescription("To retrieve issues associated to a specific list of modules (comma-separated list of module UUIDs). " +
         INTERNAL_PARAMETER_DISCLAIMER +
@@ -241,8 +236,15 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       .setExampleValue("7d8749e8-3070-4903-9188-bdd82933bb92");
 
     action.createParam(IssueFilterParameters.DIRECTORIES)
-      .setDescription("Since 5.1. To retrieve issues associated to a specific list of directories (comma-separated list of directory paths). ")
-      .setExampleValue("7d8749e8-3070-4903-9188-bdd82933bb92");
+      .setDescription("Since 5.1. To retrieve issues associated to a specific list of directories (comma-separated list of directory paths). " +
+        "This parameter is only meaningful when a module is selected. " +
+        INTERNAL_PARAMETER_DISCLAIMER)
+      .setExampleValue("src/main/java/org/sonar/server/");
+
+    action.createParam(IssueFilterParameters.FILE_UUIDS)
+      .setDescription("To retrieve issues associated to a specific list of files (comma-separated list of file UUIDs). " +
+        INTERNAL_PARAMETER_DISCLAIMER)
+      .setExampleValue("bdd82933-3070-4903-9188-7d8749e8bb92");
 
     action.createParam(IssueFilterParameters.ON_COMPONENT_ONLY)
       .setDescription("Return only issues at the component's level, not on its descendants (modules, directories, files, etc.)")
@@ -257,7 +259,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
 
   @Override
   protected Result<Issue> doSearch(IssueQuery query, QueryContext context) {
-    Collection<String> components = query.componentUuids();
+    Collection<String> components = query.fileUuids();
     if (components != null && components.size() == 1 && BooleanUtils.isTrue(query.ignorePaging())) {
       context.setShowFullResult(true);
     }
@@ -282,7 +284,8 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       IssueFilterParameters.RULES,
       IssueFilterParameters.ASSIGNEES,
       IssueFilterParameters.REPORTERS,
-      IssueFilterParameters.COMPONENT_UUIDS,
+      IssueFilterParameters.MODULE_UUIDS,
+      IssueFilterParameters.FILE_UUIDS,
       IssueFilterParameters.DIRECTORIES,
       IssueFilterParameters.LANGUAGES,
       IssueFilterParameters.TAGS,

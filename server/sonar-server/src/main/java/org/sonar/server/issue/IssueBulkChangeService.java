@@ -31,13 +31,12 @@ import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.server.issue.notification.IssueNotifications;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.preview.PreviewCache;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.issue.notification.IssueNotifications;
 import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.user.UserSession;
@@ -45,7 +44,11 @@ import org.sonar.server.user.UserSession;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -60,18 +63,16 @@ public class IssueBulkChangeService {
   private final IssueStorage issueStorage;
   private final DefaultRuleFinder ruleFinder;
   private final IssueNotifications issueNotifications;
-  private final PreviewCache dryRunCache;
   private final List<Action> actions;
 
   public IssueBulkChangeService(DbClient dbClient, IssueService issueService, IssueStorage issueStorage, DefaultRuleFinder ruleFinder,
-    IssueNotifications issueNotifications, List<Action> actions, PreviewCache dryRunCache) {
+    IssueNotifications issueNotifications, List<Action> actions) {
     this.dbClient = dbClient;
     this.issueService = issueService;
     this.issueStorage = issueStorage;
     this.ruleFinder = ruleFinder;
     this.issueNotifications = issueNotifications;
     this.actions = actions;
-    this.dryRunCache = dryRunCache;
   }
 
   public IssueBulkChangeResult execute(IssueBulkChangeQuery issueBulkChangeQuery, UserSession userSession) {
@@ -110,10 +111,6 @@ public class IssueBulkChangeService {
         }
         concernedProjects.add(issue.projectKey());
       }
-    }
-    // Purge dryRun cache
-    for (String projectKey : concernedProjects) {
-      dryRunCache.reportResourceModification(projectKey);
     }
     LOG.debug("BulkChange execution time : {} ms", System.currentTimeMillis() - start);
     return result;

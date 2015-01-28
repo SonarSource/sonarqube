@@ -41,13 +41,13 @@ public class GlobalSettingsTest {
   ProjectDefinition project = ProjectDefinition.create().setKey("struts");
   BootstrapProperties bootstrapProps;
 
-  private AnalysisMode mode;
+  private DefaultAnalysisMode mode;
 
   @Before
   public void prepare() {
     globalRef = new GlobalRepositories();
     bootstrapProps = new BootstrapProperties(Collections.<String, String>emptyMap());
-    mode = mock(AnalysisMode.class);
+    mode = mock(DefaultAnalysisMode.class);
   }
 
   @Test

@@ -19,8 +19,10 @@
  */
 package org.sonar.core.timemachine;
 
+import org.sonar.api.batch.RequiresDB;
+
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.BatchExtension;
+import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.config.Settings;
@@ -35,7 +37,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class Periods implements BatchExtension, ServerComponent {
+@RequiresDB
+public class Periods implements BatchComponent, ServerComponent {
 
   private final Settings settings;
   private final I18n i18n;

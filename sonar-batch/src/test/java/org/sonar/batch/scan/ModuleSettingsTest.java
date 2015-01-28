@@ -27,7 +27,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.utils.MessageException;
-import org.sonar.batch.bootstrap.AnalysisMode;
+import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.GlobalSettings;
 import org.sonar.batch.protocol.input.ProjectRepositories;
 
@@ -43,12 +43,12 @@ public class ModuleSettingsTest {
   public ExpectedException thrown = ExpectedException.none();
 
   ProjectRepositories projectRef;
-  private AnalysisMode mode;
+  private DefaultAnalysisMode mode;
 
   @Before
   public void before() {
     projectRef = new ProjectRepositories();
-    mode = mock(AnalysisMode.class);
+    mode = mock(DefaultAnalysisMode.class);
   }
 
   @Test

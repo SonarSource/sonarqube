@@ -59,8 +59,12 @@ public class BatchResource {
     return this;
   }
 
-  public int snapshotId() {
-    return s.getId();
+  /**
+   * @return null in database less mode
+   */
+  @CheckForNull
+  public Integer snapshotId() {
+    return s != null ? s.getId() : null;
   }
 
   public Snapshot snapshot() {

@@ -23,7 +23,7 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
 import org.sonar.api.scan.filesystem.PathResolver;
-import org.sonar.batch.bootstrap.AnalysisMode;
+import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 
 public class InputFileBuilderFactory implements BatchComponent {
 
@@ -31,16 +31,16 @@ public class InputFileBuilderFactory implements BatchComponent {
   private final PathResolver pathResolver;
   private final LanguageDetectionFactory langDetectionFactory;
   private final StatusDetectionFactory statusDetectionFactory;
-  private final AnalysisMode analysisMode;
+  private final DefaultAnalysisMode analysisMode;
   private final Settings settings;
 
   public InputFileBuilderFactory(ProjectDefinition def, PathResolver pathResolver, LanguageDetectionFactory langDetectionFactory,
-    StatusDetectionFactory statusDetectionFactory, AnalysisMode analysisMode, Settings settings) {
+    StatusDetectionFactory statusDetectionFactory, DefaultAnalysisMode analysisMode, Settings settings) {
     this(def.getKeyWithBranch(), pathResolver, langDetectionFactory, statusDetectionFactory, analysisMode, settings);
   }
 
   private InputFileBuilderFactory(String effectiveKey, PathResolver pathResolver, LanguageDetectionFactory langDetectionFactory,
-    StatusDetectionFactory statusDetectionFactory, AnalysisMode analysisMode, Settings settings) {
+    StatusDetectionFactory statusDetectionFactory, DefaultAnalysisMode analysisMode, Settings settings) {
     this.moduleKey = effectiveKey;
     this.pathResolver = pathResolver;
     this.langDetectionFactory = langDetectionFactory;

@@ -27,7 +27,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.TempFolder;
-import org.sonar.batch.bootstrap.AnalysisMode;
+import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
@@ -38,13 +38,13 @@ import static org.mockito.Mockito.when;
 
 public class PublishReportJobTest extends AbstractDbUnitTestCase {
 
-  private AnalysisMode mode;
+  private DefaultAnalysisMode mode;
 
   ResourceCache resourceCache = mock(ResourceCache.class);
 
   @Before
   public void setUp() {
-    mode = mock(AnalysisMode.class);
+    mode = mock(DefaultAnalysisMode.class);
   }
 
   @Test

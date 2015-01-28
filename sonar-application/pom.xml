@@ -82,6 +82,11 @@
       <artifactId>jtds</artifactId>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <scope>provided</scope>
+    </dependency>
 
     <!-- core plugins -->
     <dependency>
@@ -125,13 +130,13 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.codehaus.sonar.plugins</groupId>
+      <groupId>org.codehaus.sonar-plugins</groupId>
       <artifactId>sonar-scm-git-plugin</artifactId>
       <type>sonar-plugin</type>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.codehaus.sonar.plugins</groupId>
+      <groupId>org.codehaus.sonar-plugins</groupId>
       <artifactId>sonar-scm-svn-plugin</artifactId>
       <type>sonar-plugin</type>
       <scope>provided</scope>

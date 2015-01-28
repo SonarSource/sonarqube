@@ -26,8 +26,6 @@ import org.sonar.process.MessageException;
 import org.sonar.process.ProcessConstants;
 import org.sonar.process.Props;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,12 +35,12 @@ import java.util.regex.Pattern;
 public class JdbcSettings {
 
   static enum Provider {
-    H2(null), JTDS("lib/jdbc/jtds"), MYSQL("lib/jdbc/mysql"), ORACLE("extensions/jdbc-driver/oracle"),
+    H2("lib/jdbc/h2"), JTDS("lib/jdbc/jtds"), MYSQL("lib/jdbc/mysql"), ORACLE("extensions/jdbc-driver/oracle"),
     POSTGRESQL("lib/jdbc/postgresql");
 
     final String path;
 
-    Provider(@Nullable String path) {
+    Provider(String path) {
       this.path = path;
     }
   }
@@ -52,17 +50,11 @@ public class JdbcSettings {
     Provider provider = driverProvider(url);
     checkUrlParameters(provider, url);
     String driverPath = driverPath(homeDir, provider);
-    if (driverPath != null) {
-      props.set(ProcessConstants.JDBC_DRIVER_PATH, driverPath);
-    }
+    props.set(ProcessConstants.JDBC_DRIVER_PATH, driverPath);
   }
 
-  @CheckForNull
   String driverPath(File homeDir, Provider provider) {
     String dirPath = provider.path;
-    if (dirPath == null) {
-      return null;
-    }
     File dir = new File(homeDir, dirPath);
     if (!dir.exists()) {
       throw new MessageException("Directory does not exist: " + dirPath);

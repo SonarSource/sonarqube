@@ -19,10 +19,12 @@
  */
 package org.sonar.batch.components;
 
+import org.sonar.api.batch.RequiresDB;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchExtension;
+import org.sonar.api.BatchComponent;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Qualifiers;
@@ -33,7 +35,8 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newLinkedList;
 
-public class TimeMachineConfiguration implements BatchExtension {
+@RequiresDB
+public class TimeMachineConfiguration implements BatchComponent {
 
   private static final Logger LOG = LoggerFactory.getLogger(TimeMachineConfiguration.class);
 

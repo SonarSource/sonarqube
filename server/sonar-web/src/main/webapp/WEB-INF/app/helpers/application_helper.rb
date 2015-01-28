@@ -195,9 +195,44 @@ module ApplicationHelper
       metric_key = metric_or_measure
     end
 
-    url_params={:controller => 'drilldown', :action => 'measures', :metric => metric_key, :id => options[:resource]||@resource.id}
+    issues_metrics = ['violations',
+                      'blocker_violations', 'critical_violations', 'major_violations', 'minor_violations', 'info_violations',
+                      'new_blocker_violations', 'new_critical_violations', 'new_major_violations', 'new_minor_violations', 'new_info_violations',
+                      'open_issues', 'reopened_issues', 'confirmed_issues', 'false_positive_issues']
 
-    url_for(options.merge(url_params))
+    if issues_metrics.include? metric_key
+      url = url_for({:controller => 'component_issues', :action => 'index', :id => options[:resource]||@resource.id}) + '#'
+      if options[:period] && @snapshot
+        date = @snapshot.period_datetime(options[:period]).to_date
+        url += "createdAfter=#{date}|"
+      end
+      case metric_key
+        when 'blocker_violations', 'new_blocker_violations'
+          url += 'resolved=false|severities=BLOCKER'
+        when 'critical_violations', 'new_critical_violations'
+          url += 'resolved=false|severities=CRITICAL'
+        when 'major_violations', 'new_major_violations'
+          url += 'resolved=false|severities=MAJOR'
+        when 'minor_violations', 'new_minor_violations'
+          url += 'resolved=false|severities=MINOR'
+        when 'info_violations', 'new_info_violations'
+          url += 'resolved=false|severities=INFO'
+        when 'open_issues'
+          url += 'resolved=false|statuses=OPEN'
+        when 'reopened_issues'
+          url += 'resolved=false|statuses=REOPENED'
+        when 'confirmed_issues'
+          url += 'resolved=false|statuses=CONFIRMED'
+        when 'false_positive_issues'
+          url += 'resolutions=FALSE-POSITIVE'
+        else
+          url += 'resolved=false'
+      end
+    else
+      url = url_for({:controller => 'drilldown', :action => 'measures', :metric => metric_key, :id => options[:resource]||@resource.id})
+    end
+
+    url
   end
 
   #

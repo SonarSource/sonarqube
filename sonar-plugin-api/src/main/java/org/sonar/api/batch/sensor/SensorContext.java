@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch.sensor;
 
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.ActiveRules;
@@ -59,6 +60,11 @@ public interface SensorContext {
    * Get list of active rules.
    */
   ActiveRules activeRules();
+
+  /**
+   * Get analysis mode.
+   */
+  AnalysisMode analysisMode();
 
   // ----------- MEASURES --------------
 

@@ -25,7 +25,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
-import org.sonar.batch.bootstrap.AnalysisMode;
+import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.GlobalSettings;
 import org.sonar.batch.protocol.input.ProjectRepositories;
 
@@ -37,10 +37,10 @@ import java.util.List;
 public class ModuleSettings extends Settings {
 
   private final ProjectRepositories projectReferentials;
-  private AnalysisMode analysisMode;
+  private DefaultAnalysisMode analysisMode;
 
   public ModuleSettings(GlobalSettings batchSettings, ProjectDefinition project, ProjectRepositories projectReferentials,
-    AnalysisMode analysisMode) {
+    DefaultAnalysisMode analysisMode) {
     super(batchSettings.getDefinitions());
     this.projectReferentials = projectReferentials;
     this.analysisMode = analysisMode;

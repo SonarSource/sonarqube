@@ -46,13 +46,13 @@ public class BatchPluginRepositoryTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   private BatchPluginRepository repository;
-  private AnalysisMode mode;
+  private DefaultAnalysisMode mode;
   private FileCache cache;
   private File userHome;
 
   @Before
   public void before() throws IOException {
-    mode = mock(AnalysisMode.class);
+    mode = mock(DefaultAnalysisMode.class);
     userHome = temp.newFolder();
     cache = new FileCacheBuilder().setUserHome(userHome).build();
   }

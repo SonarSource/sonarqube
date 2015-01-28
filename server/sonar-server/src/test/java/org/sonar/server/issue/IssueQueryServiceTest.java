@@ -20,6 +20,7 @@
 
 package org.sonar.server.issue;
 
+import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,6 +29,7 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.DbSession;
@@ -92,9 +94,11 @@ public class IssueQueryServiceTest {
     map.put("resolved", true);
     ArrayList<String> componentKeys = newArrayList("org.apache");
     map.put("components", componentKeys);
-    ArrayList<String> moduleKeys = newArrayList("org.sonar");
-    map.put("moduleKeys", moduleKeys);
+    ArrayList<String> moduleUuids = newArrayList("BCDE");
+    map.put("moduleUuids", moduleUuids);
     map.put("directories", newArrayList("/src/main/java/example"));
+    ArrayList<String> fileUuids = newArrayList("CDEF");
+    map.put("fileUuids", fileUuids);
     map.put("reporters", newArrayList("marilyn"));
     map.put("assignees", newArrayList("joanna"));
     map.put("languages", newArrayList("xoo"));
@@ -118,12 +122,12 @@ public class IssueQueryServiceTest {
         }
         if (components.contains("org.apache")) {
           return newArrayList("ABCD");
-        } else if (components.contains("org.sonar")) {
-          return newArrayList("BCDE");
         }
         return newArrayList();
       }
     });
+
+    when(componentService.getDistinctQualifiers(eq(session), Matchers.anyCollection())).thenReturn(Sets.newHashSet(Qualifiers.PROJECT));
 
     IssueQuery query = issueQueryService.createFromMap(map);
     assertThat(query.issueKeys()).containsOnly("ABCDE1234");
@@ -131,8 +135,9 @@ public class IssueQueryServiceTest {
     assertThat(query.statuses()).containsOnly("CLOSED");
     assertThat(query.resolutions()).containsOnly("FALSE-POSITIVE");
     assertThat(query.resolved()).isTrue();
-    assertThat(query.componentUuids()).containsOnly("ABCD");
+    assertThat(query.projectUuids()).containsOnly("ABCD");
     assertThat(query.moduleUuids()).containsOnly("BCDE");
+    assertThat(query.fileUuids()).containsOnly("CDEF");
     assertThat(query.reporters()).containsOnly("marilyn");
     assertThat(query.assignees()).containsOnly("joanna");
     assertThat(query.languages()).containsOnly("xoo");

@@ -23,6 +23,7 @@ package org.sonar.server.component;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.i18n.I18n;
@@ -33,7 +34,6 @@ import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.core.resource.ResourceKeyUpdaterDao;
 import org.sonar.server.db.DbClient;
@@ -54,16 +54,14 @@ public class ComponentService implements ServerComponent {
   private final DbClient dbClient;
 
   private final ResourceKeyUpdaterDao resourceKeyUpdaterDao;
-  private final PreviewCache previewCache;
   private final I18n i18n;
   private final ResourceIndexerDao resourceIndexerDao;
   private final InternalPermissionService permissionService;
 
-  public ComponentService(DbClient dbClient, ResourceKeyUpdaterDao resourceKeyUpdaterDao, PreviewCache previewCache, I18n i18n, ResourceIndexerDao resourceIndexerDao,
-                          InternalPermissionService permissionService) {
+  public ComponentService(DbClient dbClient, ResourceKeyUpdaterDao resourceKeyUpdaterDao, I18n i18n, ResourceIndexerDao resourceIndexerDao,
+    InternalPermissionService permissionService) {
     this.dbClient = dbClient;
     this.resourceKeyUpdaterDao = resourceKeyUpdaterDao;
-    this.previewCache = previewCache;
     this.i18n = i18n;
     this.resourceIndexerDao = resourceIndexerDao;
     this.permissionService = permissionService;
@@ -116,8 +114,6 @@ public class ComponentService implements ServerComponent {
       resourceKeyUpdaterDao.updateKey(projectOrModule.getId(), newKey);
       session.commit();
 
-      previewCache.reportResourceModification(newKey);
-
       session.commit();
     } finally {
       session.close();
@@ -145,7 +141,6 @@ public class ComponentService implements ServerComponent {
       resourceKeyUpdaterDao.bulkUpdateKey(session, project.getId(), stringToReplace, replacementString);
 
       ComponentDto newProject = dbClient.componentDao().getById(project.getId(), session);
-      previewCache.reportResourceModification(session, newProject.key());
 
       session.commit();
     } finally {
@@ -221,6 +216,30 @@ public class ComponentService implements ServerComponent {
     return componentUuids;
   }
 
+  public Set<String> getDistinctQualifiers(DbSession session, @Nullable Collection<String> componentUuids) {
+    Set<String> componentQualifiers = Sets.newHashSet();
+    if (componentUuids != null && !componentUuids.isEmpty()) {
+      List<ComponentDto> components = dbClient.componentDao().getByUuids(session, componentUuids);
+
+      for (ComponentDto component : components) {
+        componentQualifiers.add(component.qualifier());
+      }
+    }
+    return componentQualifiers;
+  }
+
+  public Collection<ComponentDto> getByUuids(DbSession session, Collection<String> componentUuids) {
+    Set<ComponentDto> directoryPaths = Sets.newHashSet();
+    if (componentUuids != null && !componentUuids.isEmpty()) {
+      List<ComponentDto> components = dbClient.componentDao().getByUuids(session, componentUuids);
+
+      for (ComponentDto component : components) {
+        directoryPaths.add(component);
+      }
+    }
+    return directoryPaths;
+  }
+
   private void checkKeyFormat(String qualifier, String kee) {
     if (!ComponentKeys.isValidModuleKey(kee)) {
       throw new BadRequestException(formatMessage("Malformed key for %s: %s. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.",
@@ -237,7 +256,7 @@ public class ComponentService implements ServerComponent {
 
   private String formatMessage(String message, String qualifier, String key) {
     return String.format(message, i18n.message(Locale.getDefault(), "qualifier." + qualifier, "Project"), key);
-  }  
+  }
 
   @CheckForNull
   private ComponentDto getNullableByKey(DbSession session, String key) {
@@ -247,5 +266,4 @@ public class ComponentService implements ServerComponent {
   private ComponentDto getByKey(DbSession session, String key) {
     return dbClient.componentDao().getByKey(session, key);
   }
-
 }

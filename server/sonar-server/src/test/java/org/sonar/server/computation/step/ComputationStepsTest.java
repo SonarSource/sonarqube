@@ -35,7 +35,7 @@ public class ComputationStepsTest {
       mock(ApplyPermissionsStep.class),
       mock(ParseReportStep.class),
       mock(IndexSourceLinesStep.class),
-      mock(InvalidateBatchCacheStep.class),
+      mock(IndexViewsStep.class),
       mock(PersistIssuesStep.class),
       mock(IndexIssuesStep.class),
       mock(SwitchSnapshotStep.class),

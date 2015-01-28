@@ -21,6 +21,7 @@ package org.sonar.batch.mediumtest;
 
 import com.google.common.base.Function;
 import org.apache.commons.io.Charsets;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.SonarPlugin;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.batch.debt.internal.DefaultDebtModel;
@@ -61,7 +62,9 @@ public class BatchMediumTester {
   private Batch batch;
 
   public static BatchMediumTesterBuilder builder() {
-    return new BatchMediumTesterBuilder().registerCoreMetrics();
+    BatchMediumTesterBuilder builder = new BatchMediumTesterBuilder().registerCoreMetrics();
+    builder.bootstrapProperties.put(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_MEDIUM_TEST);
+    return builder;
   }
 
   public static class BatchMediumTesterBuilder {

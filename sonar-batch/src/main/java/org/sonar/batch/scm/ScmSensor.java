@@ -35,12 +35,10 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.batch.protocol.input.FileData;
 import org.sonar.batch.protocol.input.ProjectRepositories;
-import org.sonar.core.DryRunIncompatible;
 
 import java.util.LinkedList;
 import java.util.List;
 
-@DryRunIncompatible
 public final class ScmSensor implements Sensor {
 
   private static final Logger LOG = LoggerFactory.getLogger(ScmSensor.class);
@@ -60,7 +58,8 @@ public final class ScmSensor implements Sensor {
 
   @Override
   public void describe(SensorDescriptor descriptor) {
-    descriptor.name("SCM Sensor");
+    descriptor.name("SCM Sensor")
+      .disabledInPreview();
   }
 
   @Override

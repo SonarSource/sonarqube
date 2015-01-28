@@ -22,6 +22,7 @@ package org.sonar.batch.sensor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.rule.ActiveRules;
@@ -35,11 +36,13 @@ public class AnalyzerOptimizer implements BatchComponent {
   private final FileSystem fs;
   private final ActiveRules activeRules;
   private final Settings settings;
+  private final AnalysisMode analysisMode;
 
-  public AnalyzerOptimizer(FileSystem fs, ActiveRules activeRules, Settings settings) {
+  public AnalyzerOptimizer(FileSystem fs, ActiveRules activeRules, Settings settings, AnalysisMode analysisMode) {
     this.fs = fs;
     this.activeRules = activeRules;
     this.settings = settings;
+    this.analysisMode = analysisMode;
   }
 
   /**
@@ -56,6 +59,10 @@ public class AnalyzerOptimizer implements BatchComponent {
     }
     if (!settingsCondition(descriptor)) {
       LOG.debug("'{}' skipped because one of the required properties is missing", descriptor.name());
+      return false;
+    }
+    if (descriptor.isDisabledInPreview() && analysisMode.isPreview()) {
+      LOG.debug("'{}' skipped in preview mode", descriptor.name());
       return false;
     }
     return true;

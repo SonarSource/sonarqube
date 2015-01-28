@@ -40,17 +40,17 @@ public class DatabaseCompatibilityTest {
   public ExpectedException thrown = ExpectedException.none();
 
   DatabaseVersion databaseVersion;
-  ServerMetadata server;
+  ServerClient server;
   Settings settings;
   PropertiesDao propertiesDao;
 
-  private AnalysisMode mode;
+  private DefaultAnalysisMode mode;
 
   @Before
   public void init() {
-    server = mock(ServerMetadata.class);
+    server = mock(ServerClient.class);
     when(server.getURL()).thenReturn("http://localhost:9000");
-    when(server.getServerId()).thenReturn("123456");
+    when(server.request("/api/server")).thenReturn("{\"id\":\"123456\",\"version\":\"3.1\",\"status\":\"UP\"}");
 
     settings = new Settings();
     settings.setProperty(DatabaseProperties.PROP_URL, "jdbc:postgresql://localhost/foo");
@@ -59,7 +59,7 @@ public class DatabaseCompatibilityTest {
     propertiesDao = mock(PropertiesDao.class);
     when(propertiesDao.selectGlobalProperty(CoreProperties.SERVER_ID)).thenReturn(new PropertyDto().setValue("123456"));
 
-    mode = mock(AnalysisMode.class);
+    mode = mock(DefaultAnalysisMode.class);
 
     databaseVersion = mock(DatabaseVersion.class);
   }
@@ -110,7 +110,7 @@ public class DatabaseCompatibilityTest {
 
   @Test
   public void shouldFailIfCantGetServerId() throws Exception {
-    when(server.getServerId()).thenThrow(new IllegalStateException());
+    when(server.request("/api/server")).thenThrow(new IllegalStateException());
 
     thrown.expect(IllegalStateException.class);
 

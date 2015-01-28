@@ -29,7 +29,7 @@ import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.api.config.Settings;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.PathUtils;
-import org.sonar.batch.bootstrap.AnalysisMode;
+import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 
 import java.io.File;
 import java.util.Arrays;
@@ -47,7 +47,7 @@ public class InputFileBuilderTest {
   LanguageDetection langDetection = mock(LanguageDetection.class);
   StatusDetection statusDetection = mock(StatusDetection.class);
   DefaultModuleFileSystem fs = mock(DefaultModuleFileSystem.class);
-  AnalysisMode analysisMode = mock(AnalysisMode.class);
+  DefaultAnalysisMode analysisMode = mock(DefaultAnalysisMode.class);
 
   @Test
   public void complete_input_file() throws Exception {

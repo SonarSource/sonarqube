@@ -31,6 +31,7 @@ define [
 
       data = @_issuesParameters()
       _.extend data, @options.app.state.get 'query'
+      _.extend data, @options.app.state.get 'contextQuery' if @options.app.state.get 'isContext'
 
       fetchIssuesProcess = window.process.addBackgroundProcess()
       $.get "#{baseUrl}/api/issues/search", data

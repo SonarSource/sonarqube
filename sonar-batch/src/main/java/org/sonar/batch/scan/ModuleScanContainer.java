@@ -22,7 +22,6 @@ package org.sonar.batch.scan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.rule.CheckFactory;
@@ -35,8 +34,8 @@ import org.sonar.batch.DefaultTimeMachine;
 import org.sonar.batch.DeprecatedSensorContext;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.ResourceFilters;
+import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
-import org.sonar.batch.bootstrap.BootstrapProperties;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.ExtensionMatcher;
 import org.sonar.batch.bootstrap.ExtensionUtils;
@@ -62,12 +61,12 @@ import org.sonar.batch.issue.tracking.IssueHandlers;
 import org.sonar.batch.issue.tracking.IssueTrackingDecorator;
 import org.sonar.batch.language.LanguageDistributionDecorator;
 import org.sonar.batch.phases.DecoratorsExecutor;
-import org.sonar.batch.phases.DefaultPhaseExecutor;
+import org.sonar.batch.phases.DatabaseModePhaseExecutor;
 import org.sonar.batch.phases.InitializersExecutor;
 import org.sonar.batch.phases.PhaseExecutor;
 import org.sonar.batch.phases.PhasesTimeProfiler;
 import org.sonar.batch.phases.PostJobsExecutor;
-import org.sonar.batch.phases.PreviewPhaseExecutor;
+import org.sonar.batch.phases.DatabaseLessPhaseExecutor;
 import org.sonar.batch.phases.ProjectInitializer;
 import org.sonar.batch.phases.SensorsExecutor;
 import org.sonar.batch.qualitygate.GenerateQualityGateEvents;
@@ -106,19 +105,19 @@ import org.sonar.core.component.ScanPerspectives;
 public class ModuleScanContainer extends ComponentContainer {
   private static final Logger LOG = LoggerFactory.getLogger(ModuleScanContainer.class);
   private final Project module;
-  private boolean sensorMode;
+  private DefaultAnalysisMode analysisMode;
 
   public ModuleScanContainer(ProjectScanContainer parent, Project module) {
     super(parent);
     this.module = module;
-    this.sensorMode = CoreProperties.ANALYSIS_MODE_SENSOR.equals(parent.getComponentByType(BootstrapProperties.class).property(CoreProperties.ANALYSIS_MODE));
+    analysisMode = parent.getComponentByType(DefaultAnalysisMode.class);
   }
 
   @Override
   protected void doBeforeStart() {
     LOG.info("-------------  Scan {}", module.getName());
     addCoreComponents();
-    if (!sensorMode) {
+    if (analysisMode.isDb()) {
       addDataBaseComponents();
     }
     addExtensions();
@@ -135,11 +134,11 @@ public class ModuleScanContainer extends ComponentContainer {
     ModuleSettings moduleSettings = getComponentByType(ModuleSettings.class);
     module.setSettings(moduleSettings);
 
-    if (!sensorMode) {
-      add(DefaultPhaseExecutor.class);
+    if (analysisMode.isDb()) {
+      add(DatabaseModePhaseExecutor.class);
     } else {
       add(RuleFinderCompatibility.class,
-        PreviewPhaseExecutor.class);
+        DatabaseLessPhaseExecutor.class);
     }
 
     add(

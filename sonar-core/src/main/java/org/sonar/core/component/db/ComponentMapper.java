@@ -28,6 +28,7 @@ import javax.annotation.CheckForNull;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @since 4.3
@@ -75,14 +76,25 @@ public interface ComponentMapper {
   List<String> findProjectUuids();
 
   /**
-   * Return all modules children (including itself) from a module key
+   * Return all modules tree (child, grand child, etc. including itself) from a module uuid
    */
-  List<ComponentDto> findChildrenModulesFromModule(@Param("moduleKey") String moduleKey, @Param(value = "scope") String scope);
+  List<ComponentDto> selectModulesTree(@Param("moduleUuid") String moduleUuid, @Param(value = "scope") String scope);
 
   /**
-   * Return all files children from a module key
+   * Return all files children from a module uuid
    */
-  List<FilePathWithHashDto> findFilesFromModule(@Param("moduleKey") String moduleKey, @Param(value = "scope") String scope);
+  List<FilePathWithHashDto> selectModuleFilesTree(@Param("moduleUuid") String moduleUuid, @Param(value = "scope") String scope);
+
+  /**
+   * Return all views and sub views
+   */
+  List<Map<String, String>> selectAllViewsAndSubViews(@Param("viewQualifier") String viewQualifier, @Param("subViewQualifier") String subViewQualifier);
+
+  /**
+   * Return technical projects from a view or a sub-view
+   */
+  List<String> selectProjectsFromView(@Param("viewUuidLikeQuery") String viewUuidLikeQuery, @Param("projectViewUuid") String projectViewUuid,
+    @Param("subViewQualifier") String subViewQualifier);
 
   long countById(long id);
 

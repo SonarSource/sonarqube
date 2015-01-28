@@ -22,6 +22,7 @@ package org.sonar.server.startup;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.config.Settings;
 import org.sonar.home.cache.FileHashes;
+import org.sonar.process.ProcessConstants;
 import org.sonar.server.platform.DefaultServerFileSystem;
 
 import javax.annotation.Nullable;
@@ -40,20 +41,20 @@ public class JdbcDriverDeployer {
   }
 
   public void start() {
-    File deployedDriver = null;
     // see initialization of this property in sonar-application
-    String driverPath = settings.getString("sonar.jdbc.driverPath");
-    // Driver can be null for H2, in that case we write an empty jdbc-driver.txt file
-    if (driverPath != null) {
-      File driver = new File(driverPath);
-      deployedDriver = new File(fileSystem.getDeployDir(), driver.getName());
-      if (!deployedDriver.exists() || FileUtils.sizeOf(deployedDriver) != FileUtils.sizeOf(driver)) {
-        try {
-          FileUtils.copyFile(driver, deployedDriver);
-        } catch (IOException e) {
-          throw new IllegalStateException(
-            String.format("Can not copy the JDBC driver from %s to %s", driver, deployedDriver), e);
-        }
+    String driverPath = settings.getString(ProcessConstants.JDBC_DRIVER_PATH);
+    if (driverPath == null) {
+      // Medium tests
+      return;
+    }
+    File driver = new File(driverPath);
+    File deployedDriver = new File(fileSystem.getDeployDir(), driver.getName());
+    if (!deployedDriver.exists() || FileUtils.sizeOf(deployedDriver) != FileUtils.sizeOf(driver)) {
+      try {
+        FileUtils.copyFile(driver, deployedDriver);
+      } catch (IOException e) {
+        throw new IllegalStateException(
+          String.format("Can not copy the JDBC driver from %s to %s", driver, deployedDriver), e);
       }
     }
 
@@ -65,7 +66,7 @@ public class JdbcDriverDeployer {
     }
   }
 
-  private String driverIndexContent(@Nullable File deployedDriver){
+  private String driverIndexContent(@Nullable File deployedDriver) {
     if (deployedDriver != null) {
       String hash = new FileHashes().of(deployedDriver);
       return deployedDriver.getName() + "|" + hash;

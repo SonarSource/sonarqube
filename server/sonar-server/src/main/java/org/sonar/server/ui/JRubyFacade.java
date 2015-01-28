@@ -35,7 +35,6 @@ import org.sonar.api.web.Page;
 import org.sonar.api.web.RubyRailsWebservice;
 import org.sonar.api.web.Widget;
 import org.sonar.core.persistence.Database;
-import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.process.ProcessConstants;
@@ -358,10 +357,6 @@ public final class JRubyFacade {
         .setEmail(fields.get("email"))
         .build());
     }
-  }
-
-  public String pathToPreviewDbFile(@Nullable Long projectId) {
-     return get(PreviewCache.class).getPathToDatabaseFile(projectId);
   }
 
   public String getPeriodLabel(int periodIndex) {

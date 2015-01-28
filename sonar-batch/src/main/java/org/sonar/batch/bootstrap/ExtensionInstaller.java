@@ -34,9 +34,9 @@ public class ExtensionInstaller {
 
   private final BatchPluginRepository pluginRepository;
   private final EnvironmentInformation env;
-  private final AnalysisMode analysisMode;
+  private final DefaultAnalysisMode analysisMode;
 
-  public ExtensionInstaller(BatchPluginRepository pluginRepository, EnvironmentInformation env, AnalysisMode analysisMode) {
+  public ExtensionInstaller(BatchPluginRepository pluginRepository, EnvironmentInformation env, DefaultAnalysisMode analysisMode) {
     this.pluginRepository = pluginRepository;
     this.env = env;
     this.analysisMode = analysisMode;
@@ -73,7 +73,7 @@ public class ExtensionInstaller {
 
   private void doInstall(ComponentContainer container, ExtensionMatcher matcher, @Nullable PluginMetadata metadata, Object extension) {
     if (ExtensionUtils.supportsEnvironment(extension, env)
-      && (!analysisMode.isPreview() || ExtensionUtils.supportsPreview(extension))
+      && (analysisMode.isDb() || !ExtensionUtils.requiresDB(extension))
       && matcher.accept(extension)) {
       container.addExtension(metadata, extension);
     } else {

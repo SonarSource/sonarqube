@@ -45,11 +45,13 @@ public class TaskContainer extends ComponentContainer {
 
   private final Map<String, String> taskProperties;
   private final Object[] components;
+  private final DefaultAnalysisMode analysisMode;
 
   public TaskContainer(ComponentContainer parent, Map<String, String> taskProperties, Object... components) {
     super(parent);
     this.taskProperties = taskProperties;
     this.components = components;
+    analysisMode = parent.getComponentByType(DefaultAnalysisMode.class);
   }
 
   @Override
@@ -58,20 +60,21 @@ public class TaskContainer extends ComponentContainer {
     installTaskExtensions();
     installComponentsUsingTaskExtensions();
     addCoreComponents();
+    if (analysisMode.isDb()) {
+      addDataBaseComponents();
+    }
     for (Object component : components) {
       add(component);
     }
   }
 
-  private void addCoreComponents() {
-    // Metrics
-    if (!getParent().getComponentByType(AnalysisMode.class).isSensorMode()) {
-      // Needed by dev cockpit task
-      add(DeprecatedMetricFinder.class,
-        PastMeasuresLoader.class);
-    }
-    add(DefaultMetricFinder.class);
+  private void addDataBaseComponents() {
+    add(PastMeasuresLoader.class);
+  }
 
+  private void addCoreComponents() {
+    add(DefaultMetricFinder.class,
+      DeprecatedMetricFinder.class);
   }
 
   void installCoreTasks() {

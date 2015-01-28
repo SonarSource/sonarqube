@@ -44,12 +44,12 @@ public class JdbcDriverHolderTest {
   public ExpectedException thrown = ExpectedException.none();
 
   ClassLoader initialThreadClassloader;
-  private AnalysisMode mode;
+  private DefaultAnalysisMode mode;
 
   @Before
   public void before() {
     initialThreadClassloader = Thread.currentThread().getContextClassLoader();
-    mode = mock(AnalysisMode.class);
+    mode = mock(DefaultAnalysisMode.class);
   }
 
   @After

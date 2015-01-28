@@ -26,7 +26,7 @@ import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
-import org.sonar.batch.bootstrap.AnalysisMode;
+import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.GlobalSettings;
 import org.sonar.batch.protocol.input.ProjectRepositories;
 
@@ -36,10 +36,10 @@ public class ProjectSettings extends Settings {
 
   private final GlobalSettings globalSettings;
   private final ProjectRepositories projectReferentials;
-  private final AnalysisMode mode;
+  private final DefaultAnalysisMode mode;
 
   public ProjectSettings(ProjectReactor reactor, GlobalSettings globalSettings, PropertyDefinitions propertyDefinitions,
-    ProjectRepositories projectReferentials, AnalysisMode mode) {
+    ProjectRepositories projectReferentials, DefaultAnalysisMode mode) {
     super(propertyDefinitions);
     this.mode = mode;
     getEncryption().setPathToSecretKey(globalSettings.getString(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));

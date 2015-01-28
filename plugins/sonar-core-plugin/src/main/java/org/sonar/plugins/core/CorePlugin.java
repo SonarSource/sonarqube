@@ -51,9 +51,7 @@ import org.sonar.plugins.core.sensors.ManualMeasureDecorator;
 import org.sonar.plugins.core.sensors.OverallBranchCoverageDecorator;
 import org.sonar.plugins.core.sensors.OverallCoverageDecorator;
 import org.sonar.plugins.core.sensors.OverallLineCoverageDecorator;
-import org.sonar.plugins.core.sensors.ProjectLinksSensor;
 import org.sonar.plugins.core.sensors.UnitTestDecorator;
-import org.sonar.plugins.core.sensors.VersionEventsSensor;
 import org.sonar.plugins.core.timemachine.NewCoverageAggregator;
 import org.sonar.plugins.core.timemachine.NewCoverageFileAnalyzer;
 import org.sonar.plugins.core.timemachine.NewItCoverageFileAnalyzer;
@@ -322,9 +320,7 @@ public final class CorePlugin extends SonarPlugin {
       IssueTagCloudWidget.class,
 
       // batch
-      ProjectLinksSensor.class,
       UnitTestDecorator.class,
-      VersionEventsSensor.class,
       LineCoverageDecorator.class,
       CoverageDecorator.class,
       BranchCoverageDecorator.class,

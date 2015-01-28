@@ -28,7 +28,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.api.config.Settings;
 import org.sonar.api.scan.filesystem.PathResolver;
-import org.sonar.batch.bootstrap.AnalysisMode;
+import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.util.DeprecatedKeyUtils;
 
 import javax.annotation.CheckForNull;
@@ -45,11 +45,11 @@ class InputFileBuilder {
   private final LanguageDetection langDetection;
   private final StatusDetection statusDetection;
   private final DefaultModuleFileSystem fs;
-  private final AnalysisMode analysisMode;
+  private final DefaultAnalysisMode analysisMode;
   private final Settings settings;
 
   InputFileBuilder(String moduleKey, PathResolver pathResolver, LanguageDetection langDetection,
-    StatusDetection statusDetection, DefaultModuleFileSystem fs, AnalysisMode analysisMode, Settings settings) {
+    StatusDetection statusDetection, DefaultModuleFileSystem fs, DefaultAnalysisMode analysisMode, Settings settings) {
     this.moduleKey = moduleKey;
     this.pathResolver = pathResolver;
     this.langDetection = langDetection;

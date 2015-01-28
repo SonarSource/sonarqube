@@ -26,7 +26,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.utils.Semaphores;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.ProjectTree;
-import org.sonar.batch.bootstrap.AnalysisMode;
+import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 
 import java.util.Locale;
 
@@ -44,11 +44,11 @@ public class ProjectLockTest {
   ProjectTree projectTree = mock(ProjectTree.class);
   I18n i18n = mock(I18n.class);
   Project project;
-  private AnalysisMode mode;
+  private DefaultAnalysisMode mode;
 
   @Before
   public void setUp() {
-    mode = mock(AnalysisMode.class);
+    mode = mock(DefaultAnalysisMode.class);
 
     project = new Project("my-project-key");
     when(projectTree.getRootProject()).thenReturn(project);
