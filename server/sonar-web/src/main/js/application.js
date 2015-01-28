@@ -251,7 +251,6 @@ function openAccordionItem(url) {
   }).fail(function (jqXHR, textStatus) {
     var error = 'Server error. Please contact your administrator. The status of the error is : ' +
         jqXHR.status + ', textStatus is : ' + textStatus;
-    console.log(error);
     $j('#accordion-panel').append($j('<div class="error">').append(error));
   }).done(function (html) {
     var panel = $j('#accordion-panel');
