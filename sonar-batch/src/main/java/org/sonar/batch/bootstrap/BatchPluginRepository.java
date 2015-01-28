@@ -51,7 +51,7 @@ public class BatchPluginRepository implements PluginRepository {
   private static final Logger LOG = LoggerFactory.getLogger(BatchPluginRepository.class);
   private static final String CORE_PLUGIN = "core";
 
-  private PluginsReferential pluginsReferential;
+  private PluginsRepository pluginsReferential;
   private Map<String, Plugin> pluginsByKey;
   private Map<String, PluginMetadata> metadataByKey;
   private Settings settings;
@@ -59,7 +59,7 @@ public class BatchPluginRepository implements PluginRepository {
   private final DefaultAnalysisMode analysisMode;
   private final BatchPluginJarInstaller pluginInstaller;
 
-  public BatchPluginRepository(PluginsReferential pluginsReferential, Settings settings, DefaultAnalysisMode analysisMode,
+  public BatchPluginRepository(PluginsRepository pluginsReferential, Settings settings, DefaultAnalysisMode analysisMode,
     BatchPluginJarInstaller pluginInstaller) {
     this.pluginsReferential = pluginsReferential;
     this.settings = settings;

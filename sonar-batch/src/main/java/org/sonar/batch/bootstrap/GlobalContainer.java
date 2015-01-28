@@ -107,7 +107,7 @@ public class GlobalContainer extends ComponentContainer {
       DefaultI18n.class,
       new GlobalRepositoriesProvider(),
       UserRepository.class);
-    if (getComponentByType(PluginsReferential.class) == null) {
+    if (getComponentByType(PluginsRepository.class) == null) {
       add(DefaultPluginsReferential.class);
     }
     if (getComponentByType(GlobalRepositoriesLoader.class) == null) {

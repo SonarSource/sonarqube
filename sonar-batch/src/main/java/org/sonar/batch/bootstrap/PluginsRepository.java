@@ -31,7 +31,7 @@ import java.util.Map;
  * Plugin referential.
  * @since 4.4
  */
-public interface PluginsReferential {
+public interface PluginsRepository {
 
   /**
    * Return list of remote plugins to be installed

@@ -37,9 +37,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A {@link PluginsReferential} implementation that put downloaded plugins in a FS cache.
+ * A {@link PluginsRepository} implementation that put downloaded plugins in a FS cache.
  */
-public class DefaultPluginsReferential implements PluginsReferential {
+public class DefaultPluginsReferential implements PluginsRepository {
 
   private static final Logger LOG = LoggerFactory.getLogger(DefaultPluginsReferential.class);
 
