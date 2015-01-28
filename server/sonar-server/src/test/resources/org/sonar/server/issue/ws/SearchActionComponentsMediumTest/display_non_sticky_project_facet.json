@@ -1,0 +1,30 @@
+{
+  "total": 1,
+  "p": 1,
+  "projects": [
+    { "key": "MyProject1" }
+  ],
+  "components": [
+    { "key": "MyProject1" },
+    { "key": "MyComponent1" }
+  ],
+  "issues": [
+    {
+      "key": "82fd47d4-b650-4037-80bc-7b112bd4eac2",
+      "component": "MyComponent1",
+      "project": "MyProject1",
+      "rule": "xoo:x1"
+    }
+  ],
+  "facets": [
+    {
+      "property": "projectUuids",
+      "values": [
+        {
+          "val": "ABCD",
+          "count": 1
+        }
+      ]
+    }
+  ]
+}
