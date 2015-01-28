@@ -27,6 +27,7 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.web.UserRole;
 import org.sonar.batch.protocol.input.FileData;
 import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonar.core.UtcDateUtils;
@@ -53,6 +54,7 @@ import org.sonar.server.user.UserSession;
 import javax.annotation.Nullable;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -88,6 +90,9 @@ public class ProjectRepositoryLoader implements ServerComponent {
       ComponentDto module = dbClient.componentDao().getNullableByKey(session, query.getModuleKey());
       // Current project/module can be null when analysing a new project
       if (module != null) {
+        UserSession.get().checkComponentPermission(UserRole.USER, query.getModuleKey(),
+          "You're not authorized to access to project '" + module.name() + "', please contact your SonarQube administrator.");
+
         ComponentDto project = getProject(module, session);
         if (!project.key().equals(module.key())) {
           addSettings(ref, module.getKey(), getSettingsFromParents(module, hasScanPerm, session));
@@ -103,6 +108,12 @@ public class ProjectRepositoryLoader implements ServerComponent {
 
         addSettingsToChildrenModules(ref, query.getModuleKey(), Maps.<String, String>newHashMap(), treeModuleSettings, hasScanPerm, session);
         addFileData(session, ref, modulesTree, module.uuid());
+
+        // FIXME need real value but actually only used to know if there is a previous analysis in local issue tracking mode so any value is
+        // ok
+        ref.setLastAnalysisDate(new Date());
+      } else {
+        ref.setLastAnalysisDate(null);
       }
 
       addProfiles(ref, projectKey, query.getProfileName(), session);
@@ -265,8 +276,11 @@ public class ProjectRepositoryLoader implements ServerComponent {
       throw new ForbiddenException("You're not authorized to execute any SonarQube analysis. Please contact your SonarQube administrator.");
     }
     if (!preview && !hasScanPerm) {
-      throw new ForbiddenException("You're only authorized to execute a local (dry run) SonarQube analysis without pushing the results to the SonarQube server. " +
+      throw new ForbiddenException("You're only authorized to execute a local (preview) SonarQube analysis without pushing the results to the SonarQube server. " +
         "Please contact your SonarQube administrator.");
+    }
+    if (preview && !hasPreviewPerm) {
+      throw new ForbiddenException("You're not authorized to execute a preview analysis. Please contact your SonarQube administrator.");
     }
   }
 

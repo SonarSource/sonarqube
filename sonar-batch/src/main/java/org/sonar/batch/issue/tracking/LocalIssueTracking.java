@@ -21,6 +21,8 @@ package org.sonar.batch.issue.tracking;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -35,6 +37,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.index.BatchResource;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.issue.IssueCache;
+import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonar.batch.scan.LastLineHashes;
 import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.core.issue.IssueUpdater;
@@ -44,6 +47,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class LocalIssueTracking implements BatchComponent {
+
+  private static final Logger LOG = LoggerFactory.getLogger(LocalIssueTracking.class);
 
   private final IssueCache issueCache;
   private final IssueTracking tracking;
@@ -55,10 +60,11 @@ public class LocalIssueTracking implements BatchComponent {
   private final InputPathCache inputPathCache;
   private final ResourceCache resourceCache;
   private final PreviousIssueRepository previousIssueCache;
+  private final ProjectRepositories projectRepositories;
 
   public LocalIssueTracking(ResourceCache resourceCache, IssueCache issueCache, IssueTracking tracking,
     LastLineHashes lastLineHashes, IssueWorkflow workflow, IssueUpdater updater,
-    ActiveRules activeRules, InputPathCache inputPathCache, PreviousIssueRepository previousIssueCache) {
+    ActiveRules activeRules, InputPathCache inputPathCache, PreviousIssueRepository previousIssueCache, ProjectRepositories projectRepositories) {
     this.resourceCache = resourceCache;
     this.issueCache = issueCache;
     this.tracking = tracking;
@@ -67,11 +73,17 @@ public class LocalIssueTracking implements BatchComponent {
     this.updater = updater;
     this.inputPathCache = inputPathCache;
     this.previousIssueCache = previousIssueCache;
+    this.projectRepositories = projectRepositories;
     this.changeContext = IssueChangeContext.createScan(((Project) resourceCache.getRoot().resource()).getAnalysisDate());
     this.activeRules = activeRules;
   }
 
   public void execute() {
+    if (projectRepositories.lastAnalysisDate() == null) {
+      LOG.debug("No previous analysis, skipping issue tracking");
+      return;
+    }
+
     previousIssueCache.load();
 
     for (BatchResource component : resourceCache.all()) {
