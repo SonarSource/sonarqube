@@ -17,7 +17,7 @@
    new_technical_debt = @snapshot.measure('new_technical_debt')
 
    if @dashboard_configuration.selected_period?
-     period_date = @snapshot.period_datetime(@dashboard_configuration.period_index).strftime('%Y-%m-%d')
+     period_date = @snapshot.period_datetime(@dashboard_configuration.period_index).strftime('%FT%T%z')
    end
 %>
 

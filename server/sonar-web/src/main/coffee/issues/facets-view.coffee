@@ -46,7 +46,7 @@ define [
         when 'statuses' then StatusFacet
         when 'assignees' then AssigneeFacet
         when 'resolutions' then ResolutionFacet
-        when 'creationDate' then CreationDateFacet
+        when 'createdAt' then CreationDateFacet
         when 'projectUuids' then ProjectFacet
         when 'moduleUuids' then ModuleFacet
         when 'rules' then RuleFacet

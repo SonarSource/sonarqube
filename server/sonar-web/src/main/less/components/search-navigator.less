@@ -181,6 +181,10 @@
   padding: 0 10px 16px;
 }
 
+.search-navigator-facet-container-center {
+  text-align: center;
+}
+
 .search-navigator-facet-query {
   padding: 7px 10px;
 
@@ -197,6 +201,87 @@
 .search-navigator-facet-input {
   width: @sideWidth * 0.4;
 }
+
+.search-navigator-facet-histogram {
+  font-size: 0;
+
+  > li {
+    display: inline-block;
+    vertical-align: bottom;
+    width: 24px;
+    font-size: @smallFontSize;
+  }
+
+  > li > a {
+    display: block;
+    padding-bottom: 3px;
+    .link-no-underline;
+    .trans(none);
+
+    &:hover, &:focus,
+    &:hover .search-navigator-facet-histogram-bar-inner, &:focus .search-navigator-facet-histogram-bar-inner {
+      background-color: @barBorderColor;
+    }
+
+    &:hover .search-navigator-facet-histogram-bar, &:focus .search-navigator-facet-histogram-bar {
+      background-color: @blue;
+    }
+  }
+}
+
+.search-navigator-facet-histogram-large {
+  > li {
+    width: 48px;
+  }
+}
+
+.search-navigator-facet-histogram-bar {
+  display: block;
+  height: 60px;
+  background-color: @darkBlue;
+}
+
+.search-navigator-facet-histogram-bar-inner {
+  display: block;
+  max-height: 59px;
+  background-color: @barBackgroundColor;
+}
+
+.search-navigator-facet-histogram-label {
+  display: block;
+  text-align: center;
+}
+
+.search-navigator-date-facet-selection {
+  .clearfix;
+  position: relative;
+  font-size: @smallFontSize;
+}
+
+.search-navigator-date-facet-selection-dropdown-left {
+  float: left;
+  .link-no-underline;
+}
+
+.search-navigator-date-facet-selection-dropdown-right {
+  float: right;
+  .link-no-underline;
+}
+
+.search-navigator-date-facet-selection-input-left {
+  position: absolute;
+  left: 0;
+  width: 100px;
+  visibility: hidden;
+}
+
+.search-navigator-date-facet-selection-input-right {
+  position: absolute;
+  right: 0;
+  width: 100px;
+  visibility: hidden;
+}
+
 
 .search-navigator-filters {
   position: relative;

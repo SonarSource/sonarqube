@@ -274,6 +274,10 @@
     return moment(date).format('LLL');
   });
 
+  Handlebars.registerHelper('ds', function(date) {
+    return moment(date).format('YYYY-MM-DD');
+  });
+
   Handlebars.registerHelper('fromNow', function(date) {
     return moment(date).fromNow();
   });

@@ -6,9 +6,19 @@
     {{dt createdAt}} ({{fromNow createdAt}})
   </div>
 {{else}}
-  <div class="search-navigator-facet-container justify">
-    <input type="text" class="search-navigator-facet-input" name="createdAfter" placeholder="From">
-    to
-    <input type="text" class="search-navigator-facet-input" name="createdBefore" placeholder="To">
+  <div class="search-navigator-facet-container">
+    <div class="js-barchart" data-height="75"></div>
+    <div class="search-navigator-date-facet-selection">
+      <a class="js-select-period-start search-navigator-date-facet-selection-dropdown-left">
+        {{#if periodStart}}{{d periodStart}}{{else}}Past{{/if}}&nbsp;<i class="icon-dropdown"></i>
+      </a>
+      <a class="js-select-period-end search-navigator-date-facet-selection-dropdown-right">
+        {{#if periodEnd}}{{d periodEnd}}{{else}}Now{{/if}}&nbsp;<i class="icon-dropdown"></i>
+      </a>
+      <input class="js-period-start search-navigator-date-facet-selection-input-left"
+             type="text" value="{{#if periodStart}}{{ds periodStart}}{{/if}}" name="createdAfter">
+      <input class="js-period-end search-navigator-date-facet-selection-input-right"
+             type="text" value="{{#if periodEnd}}{{ds periodEnd}}{{/if}}" name="createdBefore">
+    </div>
   </div>
 {{/if}}
