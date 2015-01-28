@@ -201,6 +201,17 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void select_uuids_by_uuids() {
+    setupData("shared");
+
+    List<String> results = dao.selectUuidsByUuids(session, newArrayList("KLMN"));
+    assertThat(results).containsOnly("KLMN");
+
+    assertThat(dao.selectUuidsByUuids(session, newArrayList("KLMN", "unknown"))).hasSize(1);
+    assertThat(dao.selectUuidsByUuids(session, newArrayList("unknown"))).isEmpty();
+  }
+
+  @Test
   public void get_by_id() {
     setupData("shared");
 

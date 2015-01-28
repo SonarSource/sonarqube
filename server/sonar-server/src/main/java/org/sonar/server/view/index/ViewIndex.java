@@ -37,7 +37,7 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public class ViewIndex implements ServerComponent {
 
-  private final int SCROLL_TIME_IN_MINUTES = 3;
+  private static final int SCROLL_TIME_IN_MINUTES = 3;
 
   private final EsClient esClient;
 
