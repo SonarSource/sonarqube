@@ -38,6 +38,11 @@ class IssuesController < ApplicationController
 
   end
 
+  def show
+    # the redirect is needed for the backward compatibility with eclipse plugin
+    redirect_to :action => 'search', :anchor => 'issues=' + params[:id]
+  end
+
   # GET /issues/manage
   def manage
     @issues_query = Internal.issues.emptyIssueQuery()
