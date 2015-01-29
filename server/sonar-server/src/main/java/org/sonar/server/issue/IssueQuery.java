@@ -63,6 +63,7 @@ public class IssueQuery {
   private final Collection<String> projects;
   private final Collection<String> directories;
   private final Collection<String> files;
+  private final Collection<String> views;
   private final Collection<RuleKey> rules;
   private final Collection<String> actionPlans;
   private final Collection<String> reporters;
@@ -93,6 +94,7 @@ public class IssueQuery {
     this.projects = defaultCollection(builder.projects);
     this.directories = defaultCollection(builder.directories);
     this.files = defaultCollection(builder.files);
+    this.views = defaultCollection(builder.views);
     this.rules = defaultCollection(builder.rules);
     this.actionPlans = defaultCollection(builder.actionPlans);
     this.reporters = defaultCollection(builder.reporters);
@@ -151,6 +153,10 @@ public class IssueQuery {
 
   public Collection<String> fileUuids() {
     return files;
+  }
+
+  public Collection<String> viewUuids() {
+    return views;
   }
 
   public Collection<RuleKey> rules() {
@@ -260,6 +266,7 @@ public class IssueQuery {
     private Collection<String> projects;
     private Collection<String> directories;
     private Collection<String> files;
+    private Collection<String> views;
     private Collection<RuleKey> rules;
     private Collection<String> actionPlans;
     private Collection<String> reporters;
@@ -329,6 +336,11 @@ public class IssueQuery {
 
     public Builder fileUuids(@Nullable Collection<String> l) {
       this.files = l;
+      return this;
+    }
+
+    public Builder viewUuids(@Nullable Collection<String> l) {
+      this.views = l;
       return this;
     }
 

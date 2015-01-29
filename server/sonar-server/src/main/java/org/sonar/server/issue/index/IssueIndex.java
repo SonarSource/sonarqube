@@ -45,6 +45,7 @@ import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.filter.IssueFilterParameters;
 import org.sonar.server.search.*;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.view.index.ViewIndexDefinition;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -258,7 +259,6 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
   }
 
   private void addComponentRelatedFilters(IssueQuery query, Map<String, FilterBuilder> filters) {
-
     FilterBuilder projectFilter = matchFilter(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, query.projectUuids());
     FilterBuilder moduleRootFilter = moduleRootFilter(query.moduleRootUuids());
     FilterBuilder moduleFilter = matchFilter(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, query.moduleUuids());
@@ -266,6 +266,7 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
     FilterBuilder directoryFilter = matchFilter(IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH, query.directories());
     FilterBuilder fileFilter = matchFilter(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, query.fileUuids());
     FilterBuilder componentFilter = matchFilter(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, query.componentUuids());
+    FilterBuilder viewFilter = viewFilter(query.viewUuids());
 
     if (BooleanUtils.isTrue(query.isContextualized())) {
       if (projectFilter != null) {
@@ -292,14 +293,15 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
       filters.put(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, moduleFilter);
       filters.put(IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH, directoryFilter);
       filters.put(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, fileFilter);
+      filters.put("view", viewFilter);
     }
   }
 
+  @CheckForNull
   private FilterBuilder moduleRootFilter(Collection<String> componentUuids) {
-    if (componentUuids == null || componentUuids.isEmpty()) {
+    if (componentUuids.isEmpty()) {
       return null;
     }
-
     FilterBuilder componentFilter = matchFilter(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, componentUuids);
     FilterBuilder modulePathFilter = matchFilter(IssueIndexDefinition.FIELD_ISSUE_MODULE_PATH, componentUuids);
     FilterBuilder compositeFilter = null;
@@ -315,6 +317,7 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
     return compositeFilter;
   }
 
+  @CheckForNull
   private FilterBuilder directoryFilter(Collection<String> moduleUuids, Collection<String> directoryPaths) {
     BoolFilterBuilder directoryTop = null;
     FilterBuilder moduleFilter = matchFilter(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, moduleUuids);
@@ -330,6 +333,23 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
       directoryTop.must(directoryFilter);
     }
     return directoryTop;
+  }
+
+  @CheckForNull
+  private FilterBuilder viewFilter(Collection<String> viewUuids) {
+    if (viewUuids.isEmpty()) {
+      return null;
+    }
+
+    OrFilterBuilder viewsFilter = FilterBuilders.orFilter();
+    for (String viewUuid : viewUuids) {
+      viewsFilter.add(FilterBuilders.termsLookupFilter(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID)
+        .lookupIndex(ViewIndexDefinition.INDEX)
+        .lookupType(ViewIndexDefinition.TYPE_VIEW)
+        .lookupId(viewUuid)
+        .lookupPath(ViewIndexDefinition.FIELD_PROJECTS));
+    }
+    return viewsFilter;
   }
 
   private FilterBuilder getAuthorizationFilter(QueryContext options) {
@@ -513,8 +533,8 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
   }
 
   @CheckForNull
-  private FilterBuilder matchFilter(String field, @Nullable Collection<?> values) {
-    if (values != null && !values.isEmpty()) {
+  private FilterBuilder matchFilter(String field, Collection<?> values) {
+    if (!values.isEmpty()) {
       return FilterBuilders.termsFilter(field, values);
     } else {
       return null;
