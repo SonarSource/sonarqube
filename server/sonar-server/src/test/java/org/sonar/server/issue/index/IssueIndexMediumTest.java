@@ -573,6 +573,37 @@ public class IssueIndexMediumTest {
   }
 
   @Test
+  public void filter_by_authors() throws Exception {
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+
+    indexIssues(
+      IssueTesting.newDoc("ISSUE1", file).setAuthorLogin("steph"),
+      IssueTesting.newDoc("ISSUE2", file).setAuthorLogin("simon"),
+      IssueTesting.newDoc("ISSUE3", file).setAssignee(null));
+
+    assertThat(index.search(IssueQuery.builder().authors(newArrayList("steph")).build(), new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().authors(newArrayList("steph", "simon")).build(), new QueryContext()).getHits()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder().authors(newArrayList("unknown")).build(), new QueryContext()).getHits()).isEmpty();
+  }
+
+  @Test
+  public void facets_on_authors() throws Exception {
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+
+    indexIssues(
+      IssueTesting.newDoc("ISSUE1", file).setAuthorLogin("steph"),
+      IssueTesting.newDoc("ISSUE2", file).setAuthorLogin("simon"),
+      IssueTesting.newDoc("ISSUE3", file).setAuthorLogin("simon"),
+      IssueTesting.newDoc("ISSUE4", file).setAuthorLogin(null));
+
+    Result<Issue> result = index.search(IssueQuery.builder().build(), new QueryContext().addFacets(newArrayList("authors")));
+    assertThat(result.getFacets()).containsOnlyKeys("authors");
+    assertThat(result.getFacets().get("authors")).containsOnly(new FacetValue("steph", 1), new FacetValue("simon", 2));
+  }
+
+  @Test
   public void filter_by_created_after() throws Exception {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);

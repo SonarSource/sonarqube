@@ -19,23 +19,29 @@
  */
 package org.sonar.core.user;
 
+import org.sonar.core.persistence.DaoComponent;
+
+import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.persistence.DaoUtils;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @since 3.0
  *
  * Be careful when updating this class because it's used by the Dev Cockpit plugin.
  */
-public class AuthorDao implements BatchComponent, ServerComponent {
+public class AuthorDao implements BatchComponent, ServerComponent, DaoComponent {
 
   private final MyBatis mybatis;
   private final ResourceDao resourceDao;
@@ -100,5 +106,23 @@ public class AuthorDao implements BatchComponent, ServerComponent {
       .setUpdatedAt(now);
 
     authorMapper.insert(authorDto);
+  }
+
+  public List<String> selectScmAccountsByDeveloperUuids(Collection<String> developerUuid) {
+    SqlSession session = mybatis.openSession(false);
+    try {
+      return selectScmAccountsByDeveloperUuids(session, developerUuid);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public List<String> selectScmAccountsByDeveloperUuids(final SqlSession session, Collection<String> developerUuids) {
+    return DaoUtils.executeLargeInputs(developerUuids, new Function<List<String>, List<String>>() {
+      @Override
+      public List<String> apply(List<String> partition) {
+        return session.getMapper(AuthorMapper.class).selectScmAccountsByDeveloperUuids(partition);
+      }
+    });
   }
 }

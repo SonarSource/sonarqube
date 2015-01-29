@@ -24,7 +24,6 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.internal.Uuids;
 import org.sonar.core.component.ComponentDto;
-
 import static org.sonar.core.component.ComponentDto.MODULE_UUID_PATH_SEP;
 
 public class ComponentTesting {
@@ -85,6 +84,24 @@ public class ComponentTesting {
       .setLongName("LONG_NAME_" + uuid)
       .setScope(Scopes.PROJECT)
       .setQualifier(Qualifiers.PROJECT)
+      .setPath(null)
+      .setLanguage(null)
+      .setEnabled(true);
+  }
+
+  public static ComponentDto newDeveloper(String name) {
+    String uuid = "DEV:" + name;
+    return new ComponentDto()
+      .setUuid(uuid)
+      .setProjectUuid(uuid)
+      .setModuleUuidPath(MODULE_UUID_PATH_SEP)
+      .setParentProjectId(null)
+      .setKey(uuid)
+      .setName(name)
+      .setLongName(name)
+      .setScope(Scopes.PROJECT)
+      // XXX No constant !
+      .setQualifier("DEV")
       .setPath(null)
       .setLanguage(null)
       .setEnabled(true);

@@ -37,6 +37,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.core.user.AuthorDao;
 import org.sonar.server.component.ComponentService;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.IssueQuery.Builder;
@@ -63,10 +64,12 @@ public class IssueQueryService implements ServerComponent {
   private static final String UNKNOWN = "<UNKNOWN>";
   private final DbClient dbClient;
   private final ComponentService componentService;
+  private final AuthorDao authorDao;
 
-  public IssueQueryService(DbClient dbClient, ComponentService componentService) {
+  public IssueQueryService(DbClient dbClient, ComponentService componentService, AuthorDao authorDao) {
     this.dbClient = dbClient;
     this.componentService = componentService;
+    this.authorDao = authorDao;
   }
 
   public IssueQuery createFromMap(Map<String, Object> params) {
@@ -108,7 +111,8 @@ public class IssueQueryService implements ServerComponent {
           ),
         RubyUtils.toStrings(params.get(IssueFilterParameters.MODULE_UUIDS)),
         RubyUtils.toStrings(params.get(IssueFilterParameters.DIRECTORIES)),
-        RubyUtils.toStrings(params.get(IssueFilterParameters.FILE_UUIDS)));
+        RubyUtils.toStrings(params.get(IssueFilterParameters.FILE_UUIDS)),
+        RubyUtils.toStrings(params.get(IssueFilterParameters.AUTHORS)));
 
       String sort = (String) params.get(IssueFilterParameters.SORT);
       if (!Strings.isNullOrEmpty(sort)) {
@@ -158,7 +162,8 @@ public class IssueQueryService implements ServerComponent {
         request.paramAsStrings(IssueFilterParameters.PROJECT_UUIDS), request.paramAsStrings(IssueFilterParameters.PROJECT_KEYS),
         request.paramAsStrings(IssueFilterParameters.MODULE_UUIDS),
         request.paramAsStrings(IssueFilterParameters.DIRECTORIES),
-        request.paramAsStrings(IssueFilterParameters.FILE_UUIDS));
+        request.paramAsStrings(IssueFilterParameters.FILE_UUIDS),
+        request.paramAsStrings(IssueFilterParameters.AUTHORS));
 
       String sort = request.param(SearchRequestHandler.PARAM_SORT);
       if (!Strings.isNullOrEmpty(sort)) {
@@ -187,7 +192,8 @@ public class IssueQueryService implements ServerComponent {
     @Nullable Collection<String> projectUuids, @Nullable Collection<String> projects,
     @Nullable Collection<String> moduleUuids,
     @Nullable Collection<String> directories,
-    @Nullable Collection<String> fileUuids) {
+    @Nullable Collection<String> fileUuids,
+    @Nullable Collection<String> authors) {
 
     Set<String> allComponentUuids = Sets.newHashSet();
     boolean effectiveOnComponentOnly = mergeComponentParameters(session, onComponentOnly,
@@ -202,7 +208,7 @@ public class IssueQueryService implements ServerComponent {
 
     if (allComponentUuids.isEmpty()) {
       builder.setContextualized(false);
-      addComponentsBelowView(builder, session, projects, projectUuids, moduleUuids, directories, fileUuids);
+      addComponentsBelowView(builder, session, authors, projects, projectUuids, moduleUuids, directories, fileUuids);
     } else {
       if (effectiveOnComponentOnly) {
         builder.setContextualized(false);
@@ -235,10 +241,11 @@ public class IssueQueryService implements ServerComponent {
           filteredViewUuids.add(UNKNOWN);
         }
         builder.viewUuids(filteredViewUuids);
-        addComponentsBelowView(builder, session, projects, projectUuids, moduleUuids, directories, fileUuids);
-      } else if ("DEV".equals(uniqueQualifier)) { // XXX No constant !!!
-        // TODO Get SCM accounts from dev, then search by author
-        // TODO addComponentsBelowView(projects, projectUuids, moduleUuids, directories, fileUuids);
+        addComponentsBelowView(builder, session, authors, projects, projectUuids, moduleUuids, directories, fileUuids);
+      } else if ("DEV".equals(uniqueQualifier)) {
+        // XXX No constant for developer !!!
+        Collection<String> actualAuthors = authors == null ? authorDao.selectScmAccountsByDeveloperUuids(allComponentUuids) : authors;
+        addComponentsBelowView(builder, session, actualAuthors, projects, projectUuids, moduleUuids, directories, fileUuids);
       } else if (Qualifiers.PROJECT.equals(uniqueQualifier)) {
         builder.projectUuids(allComponentUuids);
         addComponentsBelowModule(builder, moduleUuids, directories, fileUuids);
@@ -300,9 +307,12 @@ public class IssueQueryService implements ServerComponent {
     return effectiveOnComponentOnly;
   }
 
-  private void addComponentsBelowView(Builder builder, DbSession session,
+  private void addComponentsBelowView(Builder builder, DbSession session, @Nullable Collection<String> authors,
     @Nullable Collection<String> projects, @Nullable Collection<String> projectUuids,
     @Nullable Collection<String> moduleUuids, Collection<String> directories, Collection<String> fileUuids) {
+
+    builder.authors(authors);
+
     if (projectUuids != null) {
       if (projects != null) {
         throw new IllegalArgumentException("projects and projectUuids cannot be set simultaneously");
