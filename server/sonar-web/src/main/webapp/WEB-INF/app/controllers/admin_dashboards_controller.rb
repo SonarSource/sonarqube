@@ -57,14 +57,16 @@ class AdminDashboardsController < ApplicationController
 
   def remove
     verify_post_request
-    if @actives.size<=1
+
+    to_be_removed = ActiveDashboard.find(params[:id])
+    not_found unless to_be_removed
+
+    remaining_defaults = @actives.select { |a| (a.global? == to_be_removed.global? && a.id != to_be_removed.id) }
+    if remaining_defaults.size == 0
       flash[:error]='At least one dashboard must be defined as default.'
     else
-      active=@actives.find { |a| a.id==params[:id].to_i }
-      if active
-        active.destroy
-        flash[:notice]='Dashboard removed from default dashboards.'
-      end
+      to_be_removed.destroy
+      flash[:notice]='Dashboard removed from default dashboards.'
     end
 
     redirect_to :action => 'index'
