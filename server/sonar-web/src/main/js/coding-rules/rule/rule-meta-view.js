@@ -30,6 +30,10 @@ define([
       });
     },
 
+    onClose: function () {
+      this.$('[data-toggle="tooltip"]').tooltip('destroy');
+    },
+
     requestTags: function () {
       var url = baseUrl + '/api/rules/tags';
       return jQuery.get(url);
