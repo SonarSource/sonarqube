@@ -67,7 +67,7 @@ public interface ComponentMapper {
 
   List<ComponentDto> findByUuids(@Param("uuids") Collection<String> uuids);
 
-  List<String> selectUuidsByUuids(@Param("uuids") Collection<String> uuids);
+  List<String> selectExistingUuids(@Param("uuids") Collection<String> uuids);
 
   /**
    * Return all project (PRJ/TRK) uuids
