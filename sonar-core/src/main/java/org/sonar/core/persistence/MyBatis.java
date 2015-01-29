@@ -38,6 +38,7 @@ import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.FilePathWithHashDto;
 import org.sonar.core.component.SnapshotDto;
+import org.sonar.core.component.UuidWithProjectUuidDto;
 import org.sonar.core.component.db.ComponentMapper;
 import org.sonar.core.component.db.SnapshotMapper;
 import org.sonar.core.computation.db.AnalysisReportDto;
@@ -181,6 +182,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "AnalysisReport", AnalysisReportDto.class);
     loadAlias(conf, "IdUuidPair", IdUuidPair.class);
     loadAlias(conf, "FilePathWithHash", FilePathWithHashDto.class);
+    loadAlias(conf, "UuidWithProjectUuid", UuidWithProjectUuidDto.class);
 
     // AuthorizationMapper has to be loaded before IssueMapper because this last one used it
     loadMapper(conf, "org.sonar.core.user.AuthorizationMapper");

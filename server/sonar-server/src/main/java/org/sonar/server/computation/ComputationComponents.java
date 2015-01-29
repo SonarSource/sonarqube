@@ -22,6 +22,7 @@ package org.sonar.server.computation;
 import org.sonar.core.issue.db.UpdateConflictResolver;
 import org.sonar.server.computation.issue.*;
 import org.sonar.server.computation.step.ComputationSteps;
+import org.sonar.server.view.index.ViewIndex;
 
 import java.util.Arrays;
 import java.util.List;
@@ -50,6 +51,9 @@ public class ComputationComponents {
       RuleCache.class,
       RuleCacheLoader.class,
       IssueCache.class,
-      UpdateConflictResolver.class);
+      UpdateConflictResolver.class,
+
+      // views
+      ViewIndex.class);
   }
 }

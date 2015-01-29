@@ -97,6 +97,17 @@
     </where>
   </select>
 
+  <select id="selectExistingUuids" parameterType="String" resultType="String">
+    select p.uuid
+    from projects p
+    <where>
+      and p.uuid in
+      <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">
+        #{uuid}
+      </foreach>
+    </where>
+  </select>
+
   <select id="findSubProjectsByComponentUuids" parameterType="String" resultType="Component">
     SELECT <include refid="componentColumns"/>
     FROM projects p
@@ -156,10 +167,14 @@
     </where>
   </select>
 
-  <select id="selectAllViewsAndSubViews" resultType="hashmap">
-    SELECT v.uuid as "uuid", v.project_uuid as "projectUuid" FROM projects v
+  <select id="selectUuidsForQualifiers" resultType="UuidWithProjectUuid">
+    SELECT p.uuid as "uuid", p.project_uuid as "projectUuid" FROM projects p
+    INNER JOIN snapshots s on s.project_id=p.id AND s.islast=${_true}
     <where>
-      v.enabled=${_true} AND v.qualifier=#{viewQualifier} OR v.qualifier=#{subViewQualifier}
+      p.enabled=${_true} AND
+      <foreach collection="qualifiers" open="(" close=")" item="qualifier" separator="OR ">
+        s.qualifier=#{qualifier}
+      </foreach>
     </where>
   </select>
 
@@ -179,7 +194,7 @@
   <insert id="insert" parameterType="Component" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     insert into projects <include refid="insertColumns"/>
     values (#{kee}, #{deprecatedKey}, #{uuid}, #{projectUuid}, #{moduleUuid}, #{moduleUuidPath}, #{name}, #{longName}, #{qualifier}, #{scope},
-      #{language}, #{parentProjectId}, #{path}, #{enabled}, #{createdAt}, #{authorizationUpdatedAt})
+    #{language}, #{parentProjectId}, #{path}, #{enabled}, #{createdAt}, #{authorizationUpdatedAt})
   </insert>
 
   <delete id="deleteByKey" parameterType="String">

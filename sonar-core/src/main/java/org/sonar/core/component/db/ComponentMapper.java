@@ -23,12 +23,12 @@ package org.sonar.core.component.db;
 import org.apache.ibatis.annotations.Param;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.FilePathWithHashDto;
+import org.sonar.core.component.UuidWithProjectUuidDto;
 
 import javax.annotation.CheckForNull;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @since 4.3
@@ -65,10 +65,9 @@ public interface ComponentMapper {
 
   List<ComponentDto> findByKeys(@Param("keys") Collection<String> keys);
 
-  /**
-   * Warning, projectId are always null
-   */
   List<ComponentDto> findByUuids(@Param("uuids") Collection<String> uuids);
+
+  List<String> selectExistingUuids(@Param("uuids") Collection<String> uuids);
 
   /**
    * Return all project (PRJ/TRK) uuids
@@ -86,15 +85,17 @@ public interface ComponentMapper {
   List<FilePathWithHashDto> selectModuleFilesTree(@Param("moduleUuid") String moduleUuid, @Param(value = "scope") String scope);
 
   /**
-   * Return all views and sub views
+   * Return uuids and project uuids from list of qualifiers
+   *
+   * It's using a join on snapshots in order to use he indexed columns snapshots.qualifier
    */
-  List<Map<String, String>> selectAllViewsAndSubViews(@Param("viewQualifier") String viewQualifier, @Param("subViewQualifier") String subViewQualifier);
+  List<UuidWithProjectUuidDto> selectUuidsForQualifiers(@Param("qualifiers") String... qualifiers);
 
   /**
    * Return technical projects from a view or a sub-view
    */
   List<String> selectProjectsFromView(@Param("viewUuidLikeQuery") String viewUuidLikeQuery, @Param("projectViewUuid") String projectViewUuid,
-    @Param("subViewQualifier") String subViewQualifier);
+                                      @Param("subViewQualifier") String subViewQualifier);
 
   long countById(long id);
 

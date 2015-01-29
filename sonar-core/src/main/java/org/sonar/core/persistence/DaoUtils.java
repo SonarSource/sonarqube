@@ -19,17 +19,14 @@
  */
 package org.sonar.core.persistence;
 
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import org.sonar.core.dashboard.ActiveDashboardDao;
 import org.sonar.core.dashboard.DashboardDao;
 import org.sonar.core.duplication.DuplicationDao;
 import org.sonar.core.graph.jdbc.GraphDao;
-import org.sonar.core.issue.db.ActionPlanDao;
-import org.sonar.core.issue.db.ActionPlanStatsDao;
-import org.sonar.core.issue.db.IssueChangeDao;
-import org.sonar.core.issue.db.IssueDao;
-import org.sonar.core.issue.db.IssueFilterDao;
-import org.sonar.core.issue.db.IssueFilterFavouriteDao;
+import org.sonar.core.issue.db.*;
 import org.sonar.core.notification.db.NotificationQueueDao;
 import org.sonar.core.permission.PermissionDao;
 import org.sonar.core.permission.PermissionTemplateDao;
@@ -44,15 +41,17 @@ import org.sonar.core.rule.RuleDao;
 import org.sonar.core.source.db.FileSourceDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.template.LoadedTemplateDao;
-import org.sonar.core.user.AuthorDao;
-import org.sonar.core.user.AuthorizationDao;
-import org.sonar.core.user.GroupMembershipDao;
-import org.sonar.core.user.RoleDao;
-import org.sonar.core.user.UserDao;
+import org.sonar.core.user.*;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
+import static com.google.common.collect.Lists.newArrayList;
+
 public final class DaoUtils {
+
+  private static final int PARTITION_SIZE_FOR_ORACLE = 1000;
 
   private DaoUtils() {
     // only static stuff
@@ -91,6 +90,26 @@ public final class DaoUtils {
       RuleDao.class,
       SemaphoreDao.class,
       UserDao.class
-      );
+    );
   }
+
+  /**
+   * Partition by 1000 elements a list of input and execute a function on each part.
+   *
+   * The goal is to prevent issue with ORACLE when there's more than 1000 elements in a 'in ('X', 'Y', ...)'
+   * and with MsSQL when there's more than 2000 parameters in a query
+   */
+  public static <OUTPUT, INPUT> List<OUTPUT> executeLargeInputs(Collection<INPUT> input, Function<List<INPUT>, List<OUTPUT>> function) {
+    if (input.isEmpty()) {
+      return Collections.emptyList();
+    }
+    List<OUTPUT> results = newArrayList();
+    List<List<INPUT>> partitionList = Lists.partition(newArrayList(input), PARTITION_SIZE_FOR_ORACLE);
+    for (List<INPUT> partition : partitionList) {
+      List<OUTPUT> subResults = function.apply(partition);
+      results.addAll(subResults);
+    }
+    return results;
+  }
+
 }
