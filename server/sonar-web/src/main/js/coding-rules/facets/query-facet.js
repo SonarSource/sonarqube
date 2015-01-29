@@ -20,13 +20,6 @@ define([
       if (value != null) {
         this.$('input').val(value);
       }
-
-      if (Object.keys(query).length === 0) {
-        var that = this;
-        setTimeout(function () {
-          that.$('input').focus();
-        }, 100);
-      }
     },
 
     applyFacet: function() {
