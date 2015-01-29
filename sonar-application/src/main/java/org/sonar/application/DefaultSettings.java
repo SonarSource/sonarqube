@@ -27,6 +27,10 @@ import java.util.Map;
 
 class DefaultSettings {
 
+  public static final String WEB_SERVER_FORCED_JVM_ARGS = "-Djava.awt.headless=true -Dfile.encoding=UTF-8 -Djruby.management.enabled=false " +
+    // jruby is slow with java 8: https://jira.codehaus.org/browse/SONAR-6115
+    "-Djruby.compile.invokedynamic=false";
+
   private DefaultSettings() {
     // only static stuff
   }
