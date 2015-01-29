@@ -54,6 +54,7 @@ public class IssueFilterParameters {
   public static final String ACTION_PLANS = "actionPlans";
   public static final String REPORTERS = "reporters";
   public static final String ASSIGNEES = "assignees";
+  public static final String AUTHORS = "authors";
   public static final String LANGUAGES = "languages";
   public static final String TAGS = "tags";
   public static final String ASSIGNED = "assigned";
@@ -70,7 +71,7 @@ public class IssueFilterParameters {
 
   public static final List<String> ALL = ImmutableList.of(ISSUES, SEVERITIES, STATUSES, RESOLUTIONS, RESOLVED, COMPONENTS, COMPONENT_ROOTS, RULES, ACTION_PLANS, REPORTERS, TAGS,
     ASSIGNEES, LANGUAGES, ASSIGNED, PLANNED, HIDE_RULES, CREATED_AT, CREATED_AFTER, CREATED_BEFORE, PAGE_SIZE, PAGE_INDEX, SORT, ASC, COMPONENT_UUIDS, COMPONENT_ROOT_UUIDS,
-    PROJECTS, PROJECT_UUIDS, IGNORE_PAGING, PROJECT_KEYS, COMPONENT_KEYS, MODULE_UUIDS, DIRECTORIES, FILE_UUIDS);
+    PROJECTS, PROJECT_UUIDS, IGNORE_PAGING, PROJECT_KEYS, COMPONENT_KEYS, MODULE_UUIDS, DIRECTORIES, FILE_UUIDS, AUTHORS);
 
   public static final List<String> ALL_WITHOUT_PAGINATION = newArrayList(Iterables.filter(ALL, new Predicate<String>() {
     @Override

@@ -249,6 +249,7 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
     filters.put(IssueIndexDefinition.FIELD_ISSUE_TAGS, matchFilter(IssueIndexDefinition.FIELD_ISSUE_TAGS, query.tags()));
     filters.put(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION, matchFilter(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION, query.resolutions()));
     filters.put(IssueIndexDefinition.FIELD_ISSUE_REPORTER, matchFilter(IssueIndexDefinition.FIELD_ISSUE_REPORTER, query.reporters()));
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_AUTHOR_LOGIN, matchFilter(IssueIndexDefinition.FIELD_ISSUE_AUTHOR_LOGIN, query.authors()));
     filters.put(IssueIndexDefinition.FIELD_ISSUE_RULE_KEY, matchFilter(IssueIndexDefinition.FIELD_ISSUE_RULE_KEY, query.rules()));
     filters.put(IssueIndexDefinition.FIELD_ISSUE_SEVERITY, matchFilter(IssueIndexDefinition.FIELD_ISSUE_SEVERITY, query.severities()));
     filters.put(IssueIndexDefinition.FIELD_ISSUE_STATUS, matchFilter(IssueIndexDefinition.FIELD_ISSUE_STATUS, query.statuses()));
@@ -260,13 +261,13 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
 
   private void addComponentRelatedFilters(IssueQuery query, Map<String, FilterBuilder> filters) {
     FilterBuilder viewFilter = viewFilter(query.viewUuids());
+    FilterBuilder componentFilter = matchFilter(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, query.componentUuids());
     FilterBuilder projectFilter = matchFilter(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, query.projectUuids());
     FilterBuilder moduleRootFilter = moduleRootFilter(query.moduleRootUuids());
     FilterBuilder moduleFilter = matchFilter(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, query.moduleUuids());
-    FilterBuilder directoryRootFilter = directoryFilter(query.moduleUuids(), query.directories());
+    FilterBuilder directoryRootFilter = directoryRootFilter(query.moduleUuids(), query.directories());
     FilterBuilder directoryFilter = matchFilter(IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH, query.directories());
     FilterBuilder fileFilter = matchFilter(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, query.fileUuids());
-    FilterBuilder componentFilter = matchFilter(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, query.componentUuids());
 
     if (BooleanUtils.isTrue(query.isContextualized())) {
       if (viewFilter != null) {
@@ -328,7 +329,7 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
   }
 
   @CheckForNull
-  private FilterBuilder directoryFilter(Collection<String> moduleUuids, Collection<String> directoryPaths) {
+  private FilterBuilder directoryRootFilter(Collection<String> moduleUuids, Collection<String> directoryPaths) {
     BoolFilterBuilder directoryTop = null;
     FilterBuilder moduleFilter = matchFilter(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, moduleUuids);
     FilterBuilder directoryFilter = matchFilter(IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH, directoryPaths);
@@ -422,6 +423,8 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
         IssueFilterParameters.RULES, IssueIndexDefinition.FIELD_ISSUE_RULE_KEY, query.rules().toArray());
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
         IssueFilterParameters.REPORTERS, IssueIndexDefinition.FIELD_ISSUE_REPORTER);
+      addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
+        IssueFilterParameters.AUTHORS, IssueIndexDefinition.FIELD_ISSUE_AUTHOR_LOGIN, query.authors().toArray());
 
       if (options.facets().contains(IssueFilterParameters.TAGS)) {
         esSearch.addAggregation(stickyFacetBuilder.buildStickyFacet(IssueIndexDefinition.FIELD_ISSUE_TAGS, IssueFilterParameters.TAGS, TAGS_FACET_SIZE, query.tags().toArray()));

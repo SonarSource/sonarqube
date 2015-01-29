@@ -33,6 +33,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.core.user.AuthorDao;
 import org.sonar.server.component.ComponentService;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
@@ -64,6 +65,9 @@ public class IssueQueryServiceTest {
   ComponentDao componentDao;
 
   @Mock
+  AuthorDao authorDao;
+
+  @Mock
   ComponentService componentService;
 
   IssueQueryService issueQueryService;
@@ -81,7 +85,7 @@ public class IssueQueryServiceTest {
       }
     });
 
-    issueQueryService = new IssueQueryService(dbClient, componentService);
+    issueQueryService = new IssueQueryService(dbClient, componentService, authorDao);
   }
 
   @Test
