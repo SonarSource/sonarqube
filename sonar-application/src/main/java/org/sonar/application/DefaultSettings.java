@@ -28,6 +28,10 @@ import java.util.Map;
 
 class DefaultSettings {
 
+  public static final String WEB_SERVER_FORCED_JVM_ARGS = "-Djava.awt.headless=true -Dfile.encoding=UTF-8 -Djruby.management.enabled=false " +
+    // jruby is slow with java 8: https://jira.codehaus.org/browse/SONAR-6115
+    "-Djruby.compile.invokedynamic=false";
+
   private DefaultSettings() {
     // only static stuff
   }
@@ -56,7 +60,7 @@ class DefaultSettings {
   }
 
   private static Map<String, String> defaults() {
-    Map<String, String> defaults = new HashMap<String, String>();
+    Map<String, String> defaults = new HashMap<>();
     defaults.put(ProcessConstants.CLUSTER_NAME, "sonarqube");
     defaults.put(ProcessConstants.SEARCH_JAVA_OPTS, "-Xmx1G -Xms256m -Xss256k -Djava.net.preferIPv4Stack=true " +
       "-XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:CMSInitiatingOccupancyFraction=75 -XX:+UseCMSInitiatingOccupancyOnly " +
@@ -78,7 +82,7 @@ class DefaultSettings {
   }
 
   private static Map<String, Integer> defaultPorts() {
-    Map<String, Integer> defaults = new HashMap<String, Integer>();
+    Map<String, Integer> defaults = new HashMap<>();
     defaults.put(ProcessConstants.SEARCH_PORT, 9001);
     return defaults;
   }

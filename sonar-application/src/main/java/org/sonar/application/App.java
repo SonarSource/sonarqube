@@ -65,7 +65,7 @@ public class App implements Stoppable {
   }
 
   List<JavaCommand> createCommands(Props props) {
-    List<JavaCommand> commands = new ArrayList<JavaCommand>();
+    List<JavaCommand> commands = new ArrayList<>();
     File homeDir = props.nonNullValueAsFile(ProcessConstants.PATH_HOME);
     File tempDir = props.nonNullValueAsFile(ProcessConstants.PATH_TEMP);
     JavaCommand elasticsearch = new JavaCommand("search");
@@ -85,11 +85,11 @@ public class App implements Stoppable {
     if (StringUtils.isBlank(props.value(ProcessConstants.CLUSTER_MASTER_HOST))) {
       JavaCommand webServer = new JavaCommand("web")
         .setWorkDir(homeDir)
-        .addJavaOptions("-Djava.awt.headless=true -Dfile.encoding=UTF-8 -Djruby.management.enabled=false")
+        .addJavaOptions(DefaultSettings.WEB_SERVER_FORCED_JVM_ARGS)
         .addJavaOptions(props.nonNullValue(ProcessConstants.WEB_JAVA_OPTS))
         .addJavaOptions(props.nonNullValue(ProcessConstants.WEB_JAVA_ADDITIONAL_OPTS))
         .setTempDir(tempDir.getAbsoluteFile())
-        // required for logback tomcat valve
+          // required for logback tomcat valve
         .setEnvVariable(ProcessConstants.PATH_LOGS, props.nonNullValue(ProcessConstants.PATH_LOGS))
         .setClassName("org.sonar.server.app.WebServer")
         .setArguments(props.rawProperties())
