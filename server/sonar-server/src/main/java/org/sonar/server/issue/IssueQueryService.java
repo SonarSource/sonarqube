@@ -236,7 +236,7 @@ public class IssueQueryService implements ServerComponent {
         builder.moduleUuids(directoryModuleUuids);
         builder.directories(directoryPaths);
         addComponentsBelowDirectory(builder, fileUuids);
-      } else if (Qualifiers.FILE.equals(uniqueQualifier)) {
+      } else if (Qualifiers.FILE.equals(uniqueQualifier) || Qualifiers.UNIT_TEST_FILE.equals(uniqueQualifier)) {
         builder.fileUuids(allComponentUuids);
       } else {
         throw new IllegalArgumentException("Unable to set search root context for components " + Joiner.on(',').join(allComponentUuids));

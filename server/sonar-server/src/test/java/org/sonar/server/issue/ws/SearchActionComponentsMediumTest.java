@@ -24,6 +24,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.DateUtils;
@@ -191,6 +192,31 @@ public class SearchActionComponentsMediumTest {
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, "unknown")
       .execute()
       .assertJson(this.getClass(), "no_issue.json", false);
+  }
+
+  @Test
+  public void search_by_file_key() throws Exception {
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    setDefaultProjectPermission(project);
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
+    ComponentDto unitTest = insertComponent(ComponentTesting.newFileDto(project, "CDEF").setQualifier(Qualifiers.UNIT_TEST_FILE).setKey("MyComponentTest"));
+    RuleDto rule = newRule();
+    IssueDto issueOnFile = IssueTesting.newDto(rule, file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2");
+    IssueDto issueOnTest = IssueTesting.newDto(rule, unitTest, project).setKee("2bd4eac2-b650-4037-80bc-7b1182fd47d4");
+    db.issueDao().insert(session, issueOnFile, issueOnTest);
+    session.commit();
+    tester.get(IssueIndexer.class).indexAll();
+
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+      .setParam(IssueFilterParameters.COMPONENTS, file.key())
+      .execute()
+      .assertJson(this.getClass(), "search_by_file_key.json", false);
+
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+      .setParam(IssueFilterParameters.COMPONENTS, unitTest.key())
+      .execute()
+      .assertJson(this.getClass(), "search_by_test_key.json", false);
+
   }
 
   @Test
