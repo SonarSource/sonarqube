@@ -1,11 +1,33 @@
 define [
-  'issues/facets/base-facet'
+  'issues/facets/custom-values-facet'
 ], (
-  BaseFacet
+  CustomValuesFacet
 ) ->
 
 
-  class extends BaseFacet
+  class extends CustomValuesFacet
+
+    getUrl: ->
+      "#{baseUrl}/api/languages/list"
+
+
+    prepareSearch: ->
+      @$('.js-custom-value').select2
+        placeholder: 'Search...'
+        minimumInputLength: 2
+        allowClear: false
+        formatNoMatches: -> t 'select2.noMatches'
+        formatSearching: -> t 'select2.searching'
+        formatInputTooShort: -> tp 'select2.tooShort', 2
+        width: '100%'
+        ajax:
+          quietMillis: 300
+          url: @getUrl()
+          data: (term) -> { q: term, ps: 0 }
+          results: (data) ->
+            more: false
+            results: data.languages.map (lang) -> { id: lang.key, text: lang.name }
+
 
     getValuesWithLabels: ->
       values = @model.getValues()
