@@ -64,10 +64,6 @@ class PluginRealm
     result = nil
     if !username.blank? && !password.blank?
       user = User.find_active_by_login(username)
-      # SONAR-4950 Use a transaction to prevent multiple insertion of same groups
-      User.transaction do
-        user.save(false)
-      end
       result = user if user && user.authenticated?(password)
     end
     result
