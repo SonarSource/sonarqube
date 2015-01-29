@@ -89,7 +89,7 @@ define([
         canWrite: this.options.app.canWrite,
         subCharacteristic: this.options.app.getSubCharacteristicName(this.model.get('debtSubChar')),
         allTags: _.union(this.model.get('sysTags'), this.model.get('tags')),
-        permalink: baseUrl + '/coding_rules/show?key=' + encodeURIComponent(this.model.id)
+        permalink: baseUrl + '/coding_rules#rule_key=' + encodeURIComponent(this.model.id)
       });
     }
   });

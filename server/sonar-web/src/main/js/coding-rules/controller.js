@@ -61,9 +61,17 @@ define([
           maxResultsReached: r.p * r.ps >= r.total
         });
         window.process.finishBackgroundProcess(p);
+        if (firstPage && that.isRulePermalink()) {
+          that.showDetails(that.app.list.first());
+        }
       }).fail(function () {
         window.process.failBackgroundProcess(p);
       });
+    },
+
+    isRulePermalink: function () {
+      var query = this.app.state.get('query');
+      return query.rule_key != null && this.app.list.length === 1;
     },
 
     requestFacet: function (id) {

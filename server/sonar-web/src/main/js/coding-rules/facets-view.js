@@ -2,6 +2,7 @@ define([
       'components/navigator/facets-view',
       'coding-rules/facets/base-facet',
       'coding-rules/facets/query-facet',
+      'coding-rules/facets/key-facet',
       'coding-rules/facets/language-facet',
       'coding-rules/facets/repository-facet',
       'coding-rules/facets/tag-facet',
@@ -17,6 +18,7 @@ define([
     function (FacetsView,
               BaseFacet,
               QueryFacet,
+              KeyFacet,
               LanguageFacet,
               RepositoryFacet,
               TagFacet,
@@ -31,6 +33,7 @@ define([
 
       var viewsMapping = {
         q: QueryFacet,
+        rule_key: KeyFacet,
         languages: LanguageFacet,
         repositories: RepositoryFacet,
         tags: TagFacet,
