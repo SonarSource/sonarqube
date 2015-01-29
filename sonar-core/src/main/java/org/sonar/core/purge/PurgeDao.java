@@ -31,6 +31,7 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -84,7 +85,7 @@ public class PurgeDao {
       LOG.info("<- Delete aborted builds");
       PurgeSnapshotQuery query = PurgeSnapshotQuery.create()
         .setIslast(false)
-        .setStatus(new String[]{"U"})
+        .setStatus(new String[] {"U"})
         .setRootProjectId(project.getId());
       commands.deleteSnapshots(query);
     }
@@ -93,7 +94,7 @@ public class PurgeDao {
   private boolean hasAbortedBuilds(Long projectId, PurgeCommands commands) {
     PurgeSnapshotQuery query = PurgeSnapshotQuery.create()
       .setIslast(false)
-      .setStatus(new String[]{"U"})
+      .setStatus(new String[] {"U"})
       .setResourceId(projectId);
     return !commands.selectSnapshotIds(query).isEmpty();
   }
@@ -104,7 +105,7 @@ public class PurgeDao {
         .setResourceId(project.getId())
         .setIslast(false)
         .setNotPurged(true)
-    );
+      );
     for (final Long projectSnapshotId : projectSnapshotIds) {
       LOG.info("<- Clean snapshot " + projectSnapshotId);
       if (!ArrayUtils.isEmpty(scopesWithoutHistoricalData)) {
@@ -124,14 +125,18 @@ public class PurgeDao {
   }
 
   private void disableOrphanResources(final ResourceDto project, final SqlSession session, final PurgeMapper purgeMapper) {
+    final List<Long> resourceIds = new ArrayList<Long>();
     session.select("org.sonar.core.purge.PurgeMapper.selectResourceIdsToDisable", project.getId(), new ResultHandler() {
       public void handleResult(ResultContext resultContext) {
         Long resourceId = (Long) resultContext.getResultObject();
         if (resourceId != null) {
-          disableResource(resourceId, purgeMapper);
+          resourceIds.add(resourceId);
         }
       }
     });
+    for (Long resourceId : resourceIds) {
+      disableResource(resourceId, purgeMapper);
+    }
     session.commit();
   }
 
