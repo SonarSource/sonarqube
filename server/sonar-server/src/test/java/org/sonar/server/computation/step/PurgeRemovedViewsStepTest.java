@@ -85,7 +85,7 @@ public class PurgeRemovedViewsStepTest {
       new ViewDoc().setUuid("CDEF").getFields());
 
     ComponentDto view = ComponentTesting.newProjectDto("ABCD").setQualifier(Qualifiers.VIEW);
-    ComponentDto subView = ComponentTesting.newModuleDto(view, "BCDE").setQualifier(Qualifiers.SUBVIEW);
+    ComponentDto subView = ComponentTesting.newModuleDto("BCDE", view).setQualifier(Qualifiers.SUBVIEW);
     dbClient.componentDao().insert(session, view, subView);
     session.commit();
 
