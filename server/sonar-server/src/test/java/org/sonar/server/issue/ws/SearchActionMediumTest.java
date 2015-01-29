@@ -88,7 +88,7 @@ public class SearchActionMediumTest {
     assertThat(show.isPost()).isFalse();
     assertThat(show.isInternal()).isFalse();
     assertThat(show.responseExampleAsString()).isNotEmpty();
-    assertThat(show.params()).hasSize(38);
+    assertThat(show.params()).hasSize(39);
   }
 
   @Test

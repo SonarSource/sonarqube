@@ -19,4 +19,15 @@
     #{createdAt}, #{updatedAt})
   </insert>
 
+  <select id="selectScmAccountsByDeveloperUuids" parameterType="String" resultType="String">
+    SELECT a.login
+    FROM authors a
+    INNER JOIN projects p ON p.id=a.person_id
+    <where>
+      and p.uuid in
+      <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">
+        #{uuid}
+      </foreach>
+    </where>
+  </select>
 </mapper>

@@ -19,6 +19,8 @@
  */
 package org.sonar.server.db;
 
+import org.sonar.core.user.AuthorDao;
+
 import org.sonar.api.ServerComponent;
 import org.sonar.core.issue.db.ActionPlanDao;
 import org.sonar.core.persistence.DaoComponent;
@@ -83,6 +85,7 @@ public class DbClient implements ServerComponent {
   private final WidgetDao widgetDao;
   private final WidgetPropertyDao widgetPropertyDao;
   private final FileSourceDao fileSourceDao;
+  private final AuthorDao authorDao;
 
   public DbClient(Database db, MyBatis myBatis, DaoComponent... daoComponents) {
     this.db = db;
@@ -114,6 +117,7 @@ public class DbClient implements ServerComponent {
     widgetDao = getDao(map, WidgetDao.class);
     widgetPropertyDao = getDao(map, WidgetPropertyDao.class);
     fileSourceDao = getDao(map, FileSourceDao.class);
+    authorDao = getDao(map, AuthorDao.class);
   }
 
   public Database database() {
@@ -210,6 +214,10 @@ public class DbClient implements ServerComponent {
 
   public FileSourceDao fileSourceDao() {
     return fileSourceDao;
+  }
+
+  public AuthorDao authorDao() {
+    return authorDao;
   }
 
   private <K> K getDao(Map<Class, DaoComponent> map, Class<K> clazz) {

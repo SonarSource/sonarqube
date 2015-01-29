@@ -367,6 +367,55 @@ public class SearchActionComponentsMediumTest {
     result.assertJson(this.getClass(), "display_directory_facet.json", false);
   }
 
+  @Test
+  public void search_by_author() throws Exception {
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    setDefaultProjectPermission(project);
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
+    RuleDto newRule = newRule();
+    IssueDto issue1 = IssueTesting.newDto(newRule, file, project).setAuthorLogin("leia").setKee("2bd4eac2-b650-4037-80bc-7b112bd4eac2");
+    IssueDto issue2 = IssueTesting.newDto(newRule, file, project).setAuthorLogin("luke@skywalker.name").setKee("82fd47d4-b650-4037-80bc-7b1182fd47d4");
+
+    db.issueDao().insert(session, issue1, issue2);
+    session.commit();
+    tester.get(IssueIndexer.class).indexAll();
+
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+      .setParam(IssueFilterParameters.AUTHORS, "leia")
+      .setParam(SearchAction.PARAM_FACETS, "authors")
+      .execute()
+      .assertJson(this.getClass(), "search_by_authors.json", false);
+
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+      .setParam(IssueFilterParameters.AUTHORS, "unknown")
+      .execute()
+      .assertJson(this.getClass(), "no_issue.json", false);
+
+  }
+
+  @Test
+  public void search_by_developer() throws Exception {
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    setDefaultProjectPermission(project);
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
+    ComponentDto developer = insertComponent(ComponentTesting.newDeveloper("Anakin Skywalker"));
+    db.authorDao().insertAuthor("vader", developer.getId());
+    db.authorDao().insertAuthor("anakin@skywalker.name", developer.getId());
+    RuleDto newRule = newRule();
+    IssueDto issue1 = IssueTesting.newDto(newRule, file, project).setAuthorLogin("vader").setKee("2bd4eac2-b650-4037-80bc-7b112bd4eac2");
+    IssueDto issue2 = IssueTesting.newDto(newRule, file, project).setAuthorLogin("anakin@skywalker.name").setKee("82fd47d4-b650-4037-80bc-7b1182fd47d4");
+
+
+    db.issueDao().insert(session, issue1, issue2);
+    session.commit();
+    tester.get(IssueIndexer.class).indexAll();
+
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+      .setParam(IssueFilterParameters.COMPONENT_UUIDS, developer.uuid())
+      .execute()
+      .assertJson(this.getClass(), "search_by_developer.json", false);
+  }
+
   private RuleDto newRule() {
     RuleDto rule = RuleTesting.newXooX1()
       .setName("Rule name")
