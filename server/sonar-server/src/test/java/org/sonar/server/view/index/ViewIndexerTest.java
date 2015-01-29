@@ -21,7 +21,6 @@
 package org.sonar.server.view.index;
 
 import com.google.common.base.Function;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import org.junit.Before;
 import org.junit.Rule;
@@ -89,10 +88,7 @@ public class ViewIndexerTest {
     // Some views are not in the db
     dbTester.prepareDbUnit(getClass(), "index.xml");
     esTester.putDocuments(ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW,
-      ImmutableMap.<String, Object>of(
-        ViewIndexDefinition.FIELD_UUID, "ABCD",
-        ViewIndexDefinition.FIELD_PROJECTS, newArrayList("BCDE")
-        ));
+      new ViewDoc().setUuid("ABCD").setProjects(newArrayList("BCDE")).getFields());
 
     indexer.index();
 

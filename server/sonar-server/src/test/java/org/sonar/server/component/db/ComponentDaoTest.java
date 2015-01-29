@@ -20,7 +20,6 @@
 
 package org.sonar.server.component.db;
 
-import com.google.common.collect.ImmutableMap;
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.junit.After;
 import org.junit.Before;
@@ -199,6 +198,17 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
     ComponentDto result = results.get(0);
     assertThat(result).isNotNull();
     assertThat(result.isEnabled()).isFalse();
+  }
+
+  @Test
+  public void select_existing_uuids() {
+    setupData("shared");
+
+    List<String> results = dao.selectExistingUuids(session, newArrayList("KLMN"));
+    assertThat(results).containsOnly("KLMN");
+
+    assertThat(dao.selectExistingUuids(session, newArrayList("KLMN", "unknown"))).hasSize(1);
+    assertThat(dao.selectExistingUuids(session, newArrayList("unknown"))).isEmpty();
   }
 
   @Test
@@ -440,12 +450,8 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
   public void select_views_and_sub_views() {
     setupData("shared_views");
 
-    assertThat(dao.selectAllViewsAndSubViews(session)).contains(
-      ImmutableMap.of("uuid", "ABCD", "projectUuid", "ABCD"),
-      ImmutableMap.of("uuid", "EFGH", "projectUuid", "EFGH"),
-      ImmutableMap.of("uuid", "FGHI", "projectUuid", "EFGH"),
-      ImmutableMap.of("uuid", "IJKL", "projectUuid", "IJKL")
-      );
+    assertThat(dao.selectAllViewsAndSubViews(session)).extracting("uuid").containsOnly("ABCD", "EFGH", "FGHI", "IJKL");
+    assertThat(dao.selectAllViewsAndSubViews(session)).extracting("projectUuid").containsOnly("ABCD", "EFGH", "IJKL");
   }
 
   @Test

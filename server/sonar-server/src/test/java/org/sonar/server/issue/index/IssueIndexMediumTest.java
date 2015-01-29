@@ -21,6 +21,8 @@ package org.sonar.server.issue.index;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterators;
+import org.elasticsearch.action.bulk.BulkRequestBuilder;
+import org.elasticsearch.action.index.IndexRequest;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -32,6 +34,7 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.server.component.ComponentTesting;
+import org.sonar.server.es.EsClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.IssueTesting;
@@ -40,6 +43,8 @@ import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
+import org.sonar.server.view.index.ViewDoc;
+import org.sonar.server.view.index.ViewIndexDefinition;
 
 import javax.annotation.Nullable;
 
@@ -288,6 +293,32 @@ public class IssueIndexMediumTest {
     Result<Issue> result = index.search(IssueQuery.builder().build(), new QueryContext().addFacets(newArrayList("directories")));
     assertThat(result.getFacets()).containsOnlyKeys("directories");
     assertThat(result.getFacets().get("directories")).containsOnly(new FacetValue("/src/main/xoo", 1), new FacetValue("/", 1));
+  }
+
+  @Test
+  public void filter_by_views() throws Exception {
+    ComponentDto project1 = ComponentTesting.newProjectDto();
+    ComponentDto file1 = ComponentTesting.newFileDto(project1);
+    ComponentDto project2 = ComponentTesting.newProjectDto();
+    indexIssues(
+      // Project1 has 2 issues (one on a file and one on the project itself)
+      IssueTesting.newDoc("ISSUE1", project1),
+      IssueTesting.newDoc("ISSUE2", file1),
+      // Project2 has 1 issue
+      IssueTesting.newDoc("ISSUE3", project2));
+
+    // The view1 is containing 2 issues from project1
+    String view1 = "ABCD";
+    indexView(view1, newArrayList(project1.uuid()));
+
+    // The view2 is containing 1 issue from project2
+    String view2 = "CDEF";
+    indexView(view2, newArrayList(project2.uuid()));
+
+    assertThat(index.search(IssueQuery.builder().viewUuids(newArrayList(view1)).build(), new QueryContext()).getHits()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder().viewUuids(newArrayList(view2)).build(), new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().viewUuids(newArrayList(view1, view2)).build(), new QueryContext()).getHits()).hasSize(3);
+    assertThat(index.search(IssueQuery.builder().viewUuids(newArrayList("unknown")).build(), new QueryContext()).getHits()).isEmpty();
   }
 
   @Test
@@ -952,4 +983,10 @@ public class IssueIndexMediumTest {
     tester.get(IssueAuthorizationIndexer.class).index(newArrayList(new IssueAuthorizationDao.Dto(projectUuid, 1).addGroup(group).addUser(user)));
   }
 
+  private void indexView(String viewUuid, List<String> projects) {
+    EsClient client = tester.get(EsClient.class);
+    BulkRequestBuilder bulk = client.prepareBulk().setRefresh(true);
+    bulk.add(new IndexRequest(ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW).source(new ViewDoc().setUuid(viewUuid).setProjects(projects).getFields()));
+    bulk.get();
+  }
 }

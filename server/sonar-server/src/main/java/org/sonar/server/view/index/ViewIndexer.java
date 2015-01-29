@@ -20,9 +20,9 @@
 
 package org.sonar.server.view.index;
 
-import com.google.common.collect.Maps;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.component.UuidWithProjectUuidDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.BaseIndexer;
@@ -53,8 +53,8 @@ public class ViewIndexer extends BaseIndexer {
       DbSession dbSession = dbClient.openSession(false);
       try {
         Map<String, String> viewAndProjectViewUuidMap = newHashMap();
-        for (Map<String, String> viewsMap : dbClient.componentDao().selectAllViewsAndSubViews(dbSession)) {
-          viewAndProjectViewUuidMap.put(viewsMap.get("uuid"), viewsMap.get("projectUuid"));
+        for (UuidWithProjectUuidDto uuidWithProjectUuidDto : dbClient.componentDao().selectAllViewsAndSubViews(dbSession)) {
+          viewAndProjectViewUuidMap.put(uuidWithProjectUuidDto.getUuid(), uuidWithProjectUuidDto.getProjectUuid());
         }
         index(dbSession, viewAndProjectViewUuidMap);
       } finally {
@@ -88,7 +88,7 @@ public class ViewIndexer extends BaseIndexer {
 
   private void doIndex(DbSession dbSession, BulkIndexer bulk, String uuid, String projectUuid) {
     List<String> projects = dbClient.componentDao().selectProjectsFromView(dbSession, uuid, projectUuid);
-    bulk.add(newUpsertRequest(new ViewDoc(Maps.<String, Object>newHashMap())
+    bulk.add(newUpsertRequest(new ViewDoc()
       .setUuid(uuid)
       .setProjects(projects)));
   }

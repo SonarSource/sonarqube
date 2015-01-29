@@ -20,15 +20,17 @@
 
 package org.sonar.server.component.db;
 
-import com.google.common.collect.Lists;
+import com.google.common.base.Function;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.FilePathWithHashDto;
+import org.sonar.core.component.UuidWithProjectUuidDto;
 import org.sonar.core.component.db.ComponentMapper;
 import org.sonar.core.persistence.DaoComponent;
+import org.sonar.core.persistence.DaoUtils;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.BaseDao;
 import org.sonar.server.exceptions.NotFoundException;
@@ -38,9 +40,6 @@ import javax.annotation.CheckForNull;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-
-import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * @since 4.3
@@ -104,17 +103,22 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
     return mapper(session).selectModuleFilesTree(rootComponentUuid, Scopes.FILE);
   }
 
-  public List<ComponentDto> getByUuids(DbSession session, Collection<String> uuids) {
-    if (uuids.isEmpty()) {
-      return Collections.emptyList();
-    }
-    List<ComponentDto> components = newArrayList();
-    List<List<String>> partitionList = Lists.partition(newArrayList(uuids), 1000);
-    for (List<String> partition : partitionList) {
-      List<ComponentDto> dtos = mapper(session).findByUuids(partition);
-      components.addAll(dtos);
-    }
-    return components;
+  public List<ComponentDto> getByUuids(final DbSession session, Collection<String> uuids) {
+    return DaoUtils.executeLargeInputs(uuids, new Function<List<String>, List<ComponentDto>>() {
+      @Override
+      public List<ComponentDto> apply(List<String> partition) {
+        return mapper(session).findByUuids(partition);
+      }
+    });
+  }
+
+  public List<String> selectExistingUuids(final DbSession session, Collection<String> uuids) {
+    return DaoUtils.executeLargeInputs(uuids, new Function<List<String>, List<String>>() {
+      @Override
+      public List<String> apply(List<String> partition) {
+        return mapper(session).selectExistingUuids(partition);
+      }
+    });
   }
 
   @Override
@@ -143,8 +147,8 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
     return mapper(session).findProjectUuids();
   }
 
-  public List<Map<String, String>> selectAllViewsAndSubViews(DbSession session) {
-    return mapper(session).selectAllViewsAndSubViews(Qualifiers.VIEW, Qualifiers.SUBVIEW);
+  public List<UuidWithProjectUuidDto> selectAllViewsAndSubViews(DbSession session) {
+    return mapper(session).selectUuidsForQualifiers(Qualifiers.VIEW, Qualifiers.SUBVIEW);
   }
 
   public List<String> selectProjectsFromView(DbSession session, String viewUuid, String projectViewUuid) {

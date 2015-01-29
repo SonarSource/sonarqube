@@ -34,7 +34,7 @@ public class ComponentTesting {
   }
 
   public static ComponentDto newFileDto(ComponentDto module, String fileUuid) {
-    return newComponent(module, fileUuid)
+    return newComponent(fileUuid, module)
       .setKey("KEY_" + fileUuid)
       .setName("NAME_" + fileUuid)
       .setLongName("LONG_NAME_" + fileUuid)
@@ -46,7 +46,7 @@ public class ComponentTesting {
 
   public static ComponentDto newDirectory(ComponentDto module, String path) {
     String uuid = Uuids.create();
-    return newComponent(module, uuid)
+    return newComponent(uuid, module)
       .setKey(!path.equals("/") ? module.getKey() + ":" + path : module.getKey() + ":/")
       .setName(path)
       .setLongName(path)
@@ -55,9 +55,13 @@ public class ComponentTesting {
       .setQualifier(Qualifiers.DIRECTORY);
   }
 
+  public static ComponentDto newModuleDto(String uuid, ComponentDto subProjectOrProject) {
+    return newModuleDto(uuid, subProjectOrProject);
+  }
+
   public static ComponentDto newModuleDto(ComponentDto subProjectOrProject) {
     String uuid = Uuids.create();
-    return newComponent(subProjectOrProject, uuid)
+    return newComponent(uuid, subProjectOrProject)
       .setKey("KEY_" + uuid)
       .setName("NAME_" + uuid)
       .setLongName("LONG_NAME_" + uuid)
@@ -87,7 +91,7 @@ public class ComponentTesting {
       .setEnabled(true);
   }
 
-  private static ComponentDto newComponent(ComponentDto module, String uuid) {
+  private static ComponentDto newComponent(String uuid, ComponentDto module) {
     return new ComponentDto()
       .setUuid(uuid)
       .setProjectUuid(module.projectUuid())
