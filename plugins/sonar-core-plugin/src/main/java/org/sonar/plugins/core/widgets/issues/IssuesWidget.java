@@ -26,6 +26,6 @@ import org.sonar.plugins.core.widgets.CoreWidget;
 public class IssuesWidget extends CoreWidget {
 
   public IssuesWidget() {
-    super("rules", "Issues and Technical Debt", "/Users/stasvilchik/Projects/sonarqube/plugins/sonar-core-plugin/src/main/resources/org/sonar/plugins/core/widgets/issues/issues.html.erb");
+    super("rules", "Issues and Technical Debt", "/org/sonar/plugins/core/widgets/issues/issues.html.erb");
   }
 }
