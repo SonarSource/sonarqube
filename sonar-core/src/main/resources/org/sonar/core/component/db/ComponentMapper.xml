@@ -97,7 +97,7 @@
     </where>
   </select>
 
-  <select id="selectUuidsByUuids" parameterType="String" resultType="String">
+  <select id="selectExistingUuids" parameterType="String" resultType="String">
     select p.uuid
     from projects p
     <where>

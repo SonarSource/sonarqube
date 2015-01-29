@@ -20,6 +20,7 @@
 
 package org.sonar.server.component.db;
 
+import com.google.common.base.Function;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
@@ -103,19 +104,19 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
   }
 
   public List<ComponentDto> getByUuids(final DbSession session, Collection<String> uuids) {
-    return DaoUtils.partitionSelect(uuids, new DaoUtils.Function<ComponentDto, String>() {
+    return DaoUtils.executeLargeInputs(uuids, new Function<List<String>, List<ComponentDto>>() {
       @Override
-      public List<ComponentDto> execute(List<String> partition) {
+      public List<ComponentDto> apply(List<String> partition) {
         return mapper(session).findByUuids(partition);
       }
     });
   }
 
-  public List<String> selectUuidsByUuids(final DbSession session, Collection<String> uuids) {
-    return DaoUtils.partitionSelect(uuids, new DaoUtils.Function<String, String>() {
+  public List<String> selectExistingUuids(final DbSession session, Collection<String> uuids) {
+    return DaoUtils.executeLargeInputs(uuids, new Function<List<String>, List<String>>() {
       @Override
-      public List<String> execute(List<String> partition) {
-        return mapper(session).selectUuidsByUuids(partition);
+      public List<String> apply(List<String> partition) {
+        return mapper(session).selectExistingUuids(partition);
       }
     });
   }

@@ -58,7 +58,7 @@ public class PurgeRemovedViewsStep implements ComputationStep {
     DbSession session = dbClient.openSession(false);
     try {
       Set<String> viewUuidsInIndex = newHashSet(index.findAllViewUuids());
-      Set<String> viewUuidInDb = newHashSet(dbClient.componentDao().selectUuidsByUuids(session, viewUuidsInIndex));
+      Set<String> viewUuidInDb = newHashSet(dbClient.componentDao().selectExistingUuids(session, viewUuidsInIndex));
       Set<String> viewsToRemove = Sets.difference(viewUuidsInIndex, viewUuidInDb);
       index.delete(viewsToRemove);
     } finally {

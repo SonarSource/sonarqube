@@ -19,6 +19,7 @@
  */
 package org.sonar.core.persistence;
 
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.sonar.core.dashboard.ActiveDashboardDao;
@@ -92,21 +93,23 @@ public final class DaoUtils {
       );
   }
 
-  public static <F, T> List<F> partitionSelect(Collection<T> input, Function<F, T> select) {
+  /**
+   * Partition by 1000 elements a list of input and execute a function on each part.
+   *
+   * The goal is to prevent issue with ORACLE when there's more than 1000 elements in a 'in ('X', 'Y', ...)'
+   * and with MsSQL when there's more than 2000 parameters in a query
+   */
+  public static <OUTPUT, INPUT> List<OUTPUT> executeLargeInputs(Collection<INPUT> input, Function<List<INPUT>, List<OUTPUT>> function) {
     if (input.isEmpty()) {
       return Collections.emptyList();
     }
-    List<F> results = newArrayList();
-    List<List<T>> partitionList = Lists.partition(newArrayList(input), PARTITION_SIZE_FOR_ORACLE);
-    for (List<T> partition : partitionList) {
-      List<F> dtos = select.execute(partition);
-      results.addAll(dtos);
+    List<OUTPUT> results = newArrayList();
+    List<List<INPUT>> partitionList = Lists.partition(newArrayList(input), PARTITION_SIZE_FOR_ORACLE);
+    for (List<INPUT> partition : partitionList) {
+      List<OUTPUT> subResults = function.apply(partition);
+      results.addAll(subResults);
     }
     return results;
-  }
-
-  public static interface Function<F, T> {
-    List<F> execute(List<T> partition);
   }
 
 }
