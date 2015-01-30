@@ -80,6 +80,7 @@ define [
     requestFacet: (id) ->
       facet = @options.app.facets.get id
       data = _.extend { facets: id, ps: 1 }, @options.app.state.get('query')
+      _.extend data, @options.app.state.get 'contextQuery' if @options.app.state.get 'isContext'
       $.get "#{baseUrl}/api/issues/search", data, (r) =>
         FACET_DATA_FIELDS.forEach (field) =>
           @options.app.facets[field] = @_mergeCollections @options.app.facets[field], r[field]
