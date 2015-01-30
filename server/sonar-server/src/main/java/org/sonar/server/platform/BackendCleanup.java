@@ -20,6 +20,7 @@
 package org.sonar.server.platform;
 
 import org.apache.commons.dbutils.DbUtils;
+import org.elasticsearch.action.admin.indices.cache.clear.ClearIndicesCacheRequest;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
@@ -79,17 +80,24 @@ public class BackendCleanup implements ServerComponent {
 
   public void clearIndexes() {
     LoggerFactory.getLogger(getClass()).info("Truncate Elasticsearch indices");
-    searchClient.prepareDeleteByQuery(searchClient.prepareState().get()
-      .getState().getMetaData().concreteAllIndices())
-      .setQuery(QueryBuilders.matchAllQuery())
-      .get();
-    searchClient.prepareRefresh(searchClient.prepareState().get()
-      .getState().getMetaData().concreteAllIndices())
-      .setForce(true)
-      .get();
-    searchClient.prepareFlush(searchClient.prepareState().get()
-      .getState().getMetaData().concreteAllIndices())
-      .get();
+    try {
+      searchClient.admin().indices()
+        .clearCache(new ClearIndicesCacheRequest())
+        .get();
+      searchClient.prepareDeleteByQuery(searchClient.prepareState().get()
+        .getState().getMetaData().concreteAllIndices())
+        .setQuery(QueryBuilders.matchAllQuery())
+        .get();
+      searchClient.prepareRefresh(searchClient.prepareState().get()
+        .getState().getMetaData().concreteAllIndices())
+        .setForce(true)
+        .get();
+      searchClient.prepareFlush(searchClient.prepareState().get()
+        .getState().getMetaData().concreteAllIndices())
+        .get();
+    } catch (Exception e) {
+      throw new IllegalStateException("Unable to clear indexes", e);
+    }
   }
 
   /**

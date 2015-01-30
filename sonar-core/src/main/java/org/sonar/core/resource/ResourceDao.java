@@ -105,6 +105,16 @@ public class ResourceDao implements DaoComponent {
     }
   }
 
+  @CheckForNull
+  public ResourceDto getResource(String componentUuid) {
+    SqlSession session = mybatis.openSession(false);
+    try {
+      return session.getMapper(ResourceMapper.class).selectResourceByUuid(componentUuid);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
   public ResourceDto getResource(long projectId, SqlSession session) {
     return session.getMapper(ResourceMapper.class).selectResource(projectId);
   }

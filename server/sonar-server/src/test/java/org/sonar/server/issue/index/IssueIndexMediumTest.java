@@ -21,8 +21,6 @@ package org.sonar.server.issue.index;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterators;
-import org.elasticsearch.action.bulk.BulkRequestBuilder;
-import org.elasticsearch.action.index.IndexRequest;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -34,7 +32,6 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.server.component.ComponentTesting;
-import org.sonar.server.es.EsClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.IssueTesting;
@@ -44,7 +41,7 @@ import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.view.index.ViewDoc;
-import org.sonar.server.view.index.ViewIndexDefinition;
+import org.sonar.server.view.index.ViewIndexer;
 
 import javax.annotation.Nullable;
 
@@ -61,7 +58,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class IssueIndexMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester().setProperty("sonar.log.profilingLevel", "FULL").setProperty("sonar.search.httpPort", "9999");
+  public static ServerTester tester = new ServerTester();
 
   IssueIndex index;
 
@@ -198,6 +195,8 @@ public class IssueIndexMediumTest {
     ComponentDto file1 = ComponentTesting.newFileDto(project);
     ComponentDto file2 = ComponentTesting.newFileDto(module);
     ComponentDto file3 = ComponentTesting.newFileDto(subModule);
+    String view = "ABCD";
+    indexView(view, newArrayList(project.uuid()));
 
     indexIssues(
       IssueTesting.newDoc("ISSUE1", project),
@@ -217,6 +216,8 @@ public class IssueIndexMediumTest {
       .getHits()).hasSize(4);
     assertThat(index.search(IssueQuery.builder().setContextualized(true).projectUuids(newArrayList(project.uuid())).build(), new QueryContext())
       .getHits()).hasSize(6);
+    assertThat(index.search(IssueQuery.builder().setContextualized(true).viewUuids(newArrayList(view)).build(), new QueryContext())
+      .getHits()).hasSize(6);
     assertThat(index.search(IssueQuery.builder().setContextualized(true).projectUuids(newArrayList("unknown")).build(), new QueryContext())
       .getHits()).isEmpty();
   }
@@ -229,6 +230,8 @@ public class IssueIndexMediumTest {
     ComponentDto file2 = ComponentTesting.newFileDto(module, "file2");
     ComponentDto subModule = ComponentTesting.newModuleDto(module).setUuid("subModule");
     ComponentDto file3 = ComponentTesting.newFileDto(subModule, "file3");
+    String view = "ABCD";
+    indexView(view, newArrayList(project.uuid()));
 
     indexIssues(
       IssueTesting.newDoc("ISSUE1", project),
@@ -240,8 +243,11 @@ public class IssueIndexMediumTest {
 
     assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList("unknown")).build(), new QueryContext()).getHits()).isEmpty();
     assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).build(), new QueryContext()).getHits()).hasSize(6);
+    assertThat(index.search(IssueQuery.builder().viewUuids(newArrayList(view)).build(), new QueryContext()).getHits()).hasSize(6);
     assertThat(index.search(IssueQuery.builder().moduleUuids(newArrayList(module.uuid())).build(), new QueryContext()).getHits()).hasSize(2);
-    assertThat(index.search(IssueQuery.builder().moduleUuids(newArrayList(subModule.uuid())).build(), new QueryContext()).getHits()).hasSize(1); // XXX Misleading !
+    assertThat(index.search(IssueQuery.builder().moduleUuids(newArrayList(subModule.uuid())).build(), new QueryContext()).getHits()).hasSize(1); // XXX
+                                                                                                                                                 // Misleading
+                                                                                                                                                 // !
     assertThat(index.search(IssueQuery.builder().fileUuids(newArrayList(file1.uuid())).build(), new QueryContext()).getHits()).hasSize(1);
     assertThat(index.search(IssueQuery.builder().fileUuids(newArrayList(file1.uuid(), file2.uuid(), file3.uuid())).build(), new QueryContext()).getHits()).hasSize(3);
   }
@@ -984,9 +990,6 @@ public class IssueIndexMediumTest {
   }
 
   private void indexView(String viewUuid, List<String> projects) {
-    EsClient client = tester.get(EsClient.class);
-    BulkRequestBuilder bulk = client.prepareBulk().setRefresh(true);
-    bulk.add(new IndexRequest(ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW).source(new ViewDoc().setUuid(viewUuid).setProjects(projects).getFields()));
-    bulk.get();
+    tester.get(ViewIndexer.class).index(new ViewDoc().setUuid(viewUuid).setProjects(projects));
   }
 }

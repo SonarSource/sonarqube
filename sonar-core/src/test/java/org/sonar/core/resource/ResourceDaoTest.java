@@ -103,6 +103,25 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void get_resource_by_uuid() {
+    setupData("fixture");
+
+    ResourceDto resource = dao.getResource("ABCD");
+
+    assertThat(resource.getUuid()).isEqualTo("ABCD");
+    assertThat(resource.getProjectUuid()).isEqualTo("ABCD");
+    assertThat(resource.getPath()).isNull();
+    assertThat(resource.getName()).isEqualTo("Struts");
+    assertThat(resource.getLongName()).isEqualTo("Apache Struts");
+    assertThat(resource.getScope()).isEqualTo("PRJ");
+    assertThat(resource.getDescription()).isEqualTo("the description");
+    assertThat(resource.getLanguage()).isEqualTo("java");
+    assertThat(resource.isEnabled()).isTrue();
+    assertThat(resource.getAuthorizationUpdatedAt()).isNotNull();
+    assertThat(resource.getCreatedAt()).isNotNull();
+  }
+
+  @Test
   public void get_resource_path_and_module_key() {
     setupData("fixture");
 

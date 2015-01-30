@@ -36,13 +36,7 @@ import org.sonar.server.platform.Platform;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -69,6 +63,7 @@ public class UserSession {
   HashMultimap<String, String> projectKeyByPermission = HashMultimap.create();
   HashMultimap<String, String> projectUuidByPermission = HashMultimap.create();
   Map<String, String> projectKeyByComponentKey = newHashMap();
+  Map<String, String> projectUuidByComponentUuid = newHashMap();
   List<String> projectPermissions = newArrayList();
 
   UserSession() {
@@ -232,6 +227,7 @@ public class UserSession {
   public boolean hasComponentPermission(String permission, String componentKey) {
     String projectKey = projectKeyByComponentKey.get(componentKey);
     if (projectKey == null) {
+      // TODO use method using UUID
       ResourceDto project = resourceDao().getRootProjectByComponentKey(componentKey);
       if (project == null) {
         return false;
@@ -241,6 +237,26 @@ public class UserSession {
     boolean hasComponentPermission = hasProjectPermission(permission, projectKey);
     if (hasComponentPermission) {
       projectKeyByComponentKey.put(componentKey, projectKey);
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Does the user have the given project permission for a component uuid ?
+   */
+  public boolean hasComponentUuidPermission(String permission, String componentUuid) {
+    String projectUuid = projectUuidByComponentUuid.get(componentUuid);
+    if (projectUuid == null) {
+      ResourceDto project = resourceDao().getResource(componentUuid);
+      if (project == null) {
+        return false;
+      }
+      projectUuid = project.getProjectUuid();
+    }
+    boolean hasComponentPermission = hasProjectPermissionByUuid(permission, projectUuid);
+    if (hasComponentPermission) {
+      projectUuidByComponentUuid.put(componentUuid, projectUuid);
       return true;
     }
     return false;
