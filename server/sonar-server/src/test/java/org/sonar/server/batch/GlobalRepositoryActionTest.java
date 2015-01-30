@@ -21,7 +21,9 @@
 package org.sonar.server.batch;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -31,6 +33,7 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.measure.persistence.MetricDao;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
@@ -41,6 +44,9 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GlobalRepositoryActionTest {
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @Mock
   DbSession session;
@@ -102,7 +108,7 @@ public class GlobalRepositoryActionTest {
   }
 
   @Test
-  public void return_no_secured_settings_without_scan_and_preview_permission() throws Exception {
+  public void access_forbidden_without_scan_and_preview_permission() throws Exception {
     MockUserSession.set().setLogin("john").setGlobalPermissions();
 
     when(propertiesDao.selectGlobalProperties(session)).thenReturn(newArrayList(
@@ -111,7 +117,8 @@ public class GlobalRepositoryActionTest {
       new PropertyDto().setKey("foo.license.secured").setValue("5678")
       ));
 
-    WsTester.TestRequest request = tester.newGetRequest("batch", "global");
-    request.execute().assertJson(getClass(), "return_no_secured_settings_without_scan_and_preview_permission.json");
+    thrown.expect(ForbiddenException.class);
+
+    tester.newGetRequest("batch", "global").execute();
   }
 }
