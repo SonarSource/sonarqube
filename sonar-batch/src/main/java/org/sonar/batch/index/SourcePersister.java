@@ -149,7 +149,8 @@ public class SourcePersister implements ScanPersister {
         mapper.insert(newFileSource);
         session.commit();
       } else {
-        if (!newDataHash.equals(previous.getDataHash())) {
+        // Update only if data_hash has changed or if src_hash is missing (progressive migration)
+        if (!newDataHash.equals(previous.getDataHash()) || !inputFile.hash().equals(previous.getSrcHash())) {
           previous
             .setData(newData)
             .setLineHashes(lineHashesAsMd5Hex(inputFile))
