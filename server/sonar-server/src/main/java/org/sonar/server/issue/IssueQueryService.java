@@ -28,12 +28,12 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.component.ComponentService;
@@ -41,7 +41,6 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.IssueQuery.Builder;
 import org.sonar.server.issue.filter.IssueFilterParameters;
 import org.sonar.server.search.ws.SearchRequestHandler;
-import org.sonar.server.user.UserSession;
 import org.sonar.server.util.RubyUtils;
 
 import javax.annotation.CheckForNull;
@@ -60,6 +59,7 @@ import static com.google.common.collect.Lists.newArrayList;
 public class IssueQueryService implements ServerComponent {
 
   private static final String UNKNOWN = "<UNKNOWN>";
+  
   private final DbClient dbClient;
   private final ComponentService componentService;
 
@@ -84,7 +84,6 @@ public class IssueQueryService implements ServerComponent {
         .assignees(RubyUtils.toStrings(params.get(IssueFilterParameters.ASSIGNEES)))
         .languages(RubyUtils.toStrings(params.get(IssueFilterParameters.LANGUAGES)))
         .tags(RubyUtils.toStrings(params.get(IssueFilterParameters.TAGS)))
-        .onComponentOnly(RubyUtils.toBoolean(params.get(IssueFilterParameters.ON_COMPONENT_ONLY)))
         .assigned(RubyUtils.toBoolean(params.get(IssueFilterParameters.ASSIGNED)))
         .planned(RubyUtils.toBoolean(params.get(IssueFilterParameters.PLANNED)))
         .hideRules(RubyUtils.toBoolean(params.get(IssueFilterParameters.HIDE_RULES)))
@@ -92,14 +91,11 @@ public class IssueQueryService implements ServerComponent {
         .createdAfter(RubyUtils.toDate(params.get(IssueFilterParameters.CREATED_AFTER)))
         .createdBefore(RubyUtils.toDate(params.get(IssueFilterParameters.CREATED_BEFORE)));
 
-      addComponentUuids(builder, session,
+      addComponentParameters(builder, session,
+        RubyUtils.toBoolean(params.get(IssueFilterParameters.ON_COMPONENT_ONLY)),
+        RubyUtils.toStrings(params.get(IssueFilterParameters.COMPONENTS)),
         RubyUtils.toStrings(params.get(IssueFilterParameters.COMPONENT_UUIDS)),
-        RubyUtils.toStrings(
-          ObjectUtils.defaultIfNull(
-            params.get(IssueFilterParameters.COMPONENT_KEYS),
-            params.get(IssueFilterParameters.COMPONENTS)
-          )
-        ),
+        RubyUtils.toStrings(params.get(IssueFilterParameters.COMPONENT_KEYS)),
         RubyUtils.toStrings(params.get(IssueFilterParameters.COMPONENT_ROOT_UUIDS)),
         RubyUtils.toStrings(params.get(IssueFilterParameters.COMPONENT_ROOTS)),
         RubyUtils.toStrings(params.get(IssueFilterParameters.PROJECT_UUIDS)),
@@ -144,7 +140,6 @@ public class IssueQueryService implements ServerComponent {
         .assignees(request.paramAsStrings(IssueFilterParameters.ASSIGNEES))
         .languages(request.paramAsStrings(IssueFilterParameters.LANGUAGES))
         .tags(request.paramAsStrings(IssueFilterParameters.TAGS))
-        .onComponentOnly(request.paramAsBoolean(IssueFilterParameters.ON_COMPONENT_ONLY))
         .assigned(request.paramAsBoolean(IssueFilterParameters.ASSIGNED))
         .planned(request.paramAsBoolean(IssueFilterParameters.PLANNED))
         .createdAt(request.paramAsDateTime(IssueFilterParameters.CREATED_AT))
@@ -152,9 +147,13 @@ public class IssueQueryService implements ServerComponent {
         .createdBefore(request.paramAsDateTime(IssueFilterParameters.CREATED_BEFORE))
         .ignorePaging(request.paramAsBoolean(IssueFilterParameters.IGNORE_PAGING));
 
-      addComponentUuids(builder, session,
-        request.paramAsStrings(IssueFilterParameters.COMPONENT_UUIDS), request.paramAsStrings(IssueFilterParameters.COMPONENT_KEYS),
-        request.paramAsStrings(IssueFilterParameters.COMPONENT_ROOT_UUIDS), request.paramAsStrings(IssueFilterParameters.COMPONENT_ROOTS),
+      addComponentParameters(builder, session,
+        request.paramAsBoolean(IssueFilterParameters.ON_COMPONENT_ONLY),
+        request.paramAsStrings(IssueFilterParameters.COMPONENTS),
+        request.paramAsStrings(IssueFilterParameters.COMPONENT_UUIDS),
+        request.paramAsStrings(IssueFilterParameters.COMPONENT_KEYS),
+        request.paramAsStrings(IssueFilterParameters.COMPONENT_ROOT_UUIDS),
+        request.paramAsStrings(IssueFilterParameters.COMPONENT_ROOTS),
         request.paramAsStrings(IssueFilterParameters.PROJECT_UUIDS), request.paramAsStrings(IssueFilterParameters.PROJECT_KEYS),
         request.paramAsStrings(IssueFilterParameters.MODULE_UUIDS),
         request.paramAsStrings(IssueFilterParameters.DIRECTORIES),
@@ -172,38 +171,44 @@ public class IssueQueryService implements ServerComponent {
     }
   }
 
-  private void addComponentUuids(IssueQuery.Builder builder, DbSession session,
-                                 @Nullable Collection<String> componentUuids, @Nullable Collection<String> components,
+  private void addComponentParameters(IssueQuery.Builder builder, DbSession session,
+                                      @Nullable Boolean onComponentOnly,
+                                      @Nullable Collection<String> components,
+                                      @Nullable Collection<String> componentUuids,
+                                      @Nullable Collection<String> componentKeys,
     /*
      * Since 5.1, search of issues is recursive by default (module + submodules),
      * but "componentKeys" parameter already deprecates "components" parameter,
      * so queries specifying "componentRoots" must be handled manually
      */
-                                 @Nullable Collection<String> componentRootUuids, @Nullable Collection<String> componentRoots,
-                                 @Nullable Collection<String> projectUuids, @Nullable Collection<String> projects,
-                                 @Nullable Collection<String> moduleUuids,
-                                 @Nullable Collection<String> directories,
-                                 @Nullable Collection<String> fileUuids) {
+                                      @Nullable Collection<String> componentRootUuids,
+                                      @Nullable Collection<String> componentRoots,
+                                      @Nullable Collection<String> projectUuids, @Nullable Collection<String> projects,
+                                      @Nullable Collection<String> moduleUuids,
+                                      @Nullable Collection<String> directories,
+                                      @Nullable Collection<String> fileUuids) {
 
     Set<String> allComponentUuids = Sets.newHashSet();
+    boolean effectiveOnComponentOnly = mergeComponentParameters(session, onComponentOnly,
+      components,
+      componentUuids,
+      componentKeys,
+      componentRootUuids,
+      componentRoots,
+      allComponentUuids);
 
-    if (componentUuids != null || componentRootUuids != null) {
-      if (components != null || componentRoots != null) {
-        throw new IllegalArgumentException("components and componentUuids cannot be set simultaneously");
-      }
-      allComponentUuids.addAll((Collection<String>) ObjectUtils.defaultIfNull(componentUuids, Sets.newHashSet()));
-      allComponentUuids.addAll((Collection<String>) ObjectUtils.defaultIfNull(componentRootUuids, Sets.newHashSet()));
-    } else {
-      Set<String> allComponents = Sets.newHashSet();
-      allComponents.addAll((Collection<String>) ObjectUtils.defaultIfNull(components, Sets.newHashSet()));
-      allComponents.addAll((Collection<String>) ObjectUtils.defaultIfNull(componentRoots, Sets.newHashSet()));
-      allComponentUuids.addAll(componentUuids(session, allComponents));
-    }
+    builder.onComponentOnly(effectiveOnComponentOnly);
 
     if (allComponentUuids.isEmpty()) {
       builder.setContextualized(false);
       addComponentsBelowView(builder, session, projects, projectUuids, moduleUuids, directories, fileUuids);
     } else {
+      if (effectiveOnComponentOnly) {
+        builder.setContextualized(false);
+        builder.componentUuids(allComponentUuids);
+        return;
+      }
+
       builder.setContextualized(true);
 
       Set<String> qualifiers = componentService.getDistinctQualifiers(session, allComponentUuids);
@@ -217,7 +222,7 @@ public class IssueQueryService implements ServerComponent {
       }
 
       String uniqueQualifier = qualifiers.iterator().next();
-      if (Qualifiers.VIEW.equals(uniqueQualifier) || Qualifiers.SUBVIEW.equals(uniqueQualifier)) {
+      if (Qualifiers.VIEW.equals(uniqueQualifier)) {
         List<String> filteredViewUuids = newArrayList();
         for (String viewUuid : allComponentUuids) {
           if ((Qualifiers.VIEW.equals(uniqueQualifier) && UserSession.get().hasProjectPermissionByUuid(UserRole.USER, viewUuid))
@@ -255,6 +260,43 @@ public class IssueQueryService implements ServerComponent {
         throw new IllegalArgumentException("Unable to set search root context for components " + Joiner.on(',').join(allComponentUuids));
       }
     }
+  }
+
+  private boolean mergeComponentParameters(DbSession session, Boolean onComponentOnly,
+                                           Collection<String> components,
+                                           Collection<String> componentUuids,
+                                           Collection<String> componentKeys,
+                                           Collection<String> componentRootUuids,
+                                           Collection<String> componentRoots,
+                                           Set<String> allComponentUuids) {
+    boolean effectiveOnComponentOnly = false;
+
+    if (componentRootUuids != null) {
+      if (componentRoots != null) {
+        throw new IllegalArgumentException("componentRoots and componentRootUuids cannot be set simultaneously");
+      }
+      allComponentUuids.addAll(componentRootUuids);
+      effectiveOnComponentOnly = false;
+    } else if (componentRoots != null) {
+      allComponentUuids.addAll(componentUuids(session, componentRoots));
+      effectiveOnComponentOnly = false;
+    } else if (components != null) {
+      if (componentUuids != null) {
+        throw new IllegalArgumentException("components and componentUuids cannot be set simultaneously");
+      }
+      allComponentUuids.addAll(componentUuids(session, components));
+      effectiveOnComponentOnly = true;
+    } else if (componentUuids != null) {
+      if (componentKeys != null) {
+        throw new IllegalArgumentException("componentUuids and componentKeys cannot be set simultaneously");
+      }
+      allComponentUuids.addAll(componentUuids);
+      effectiveOnComponentOnly = BooleanUtils.isTrue(onComponentOnly);
+    } else if (componentKeys != null) {
+      allComponentUuids.addAll(componentUuids(session, componentKeys));
+      effectiveOnComponentOnly = BooleanUtils.isTrue(onComponentOnly);
+    }
+    return effectiveOnComponentOnly;
   }
 
   private void addComponentsBelowView(Builder builder, DbSession session,
