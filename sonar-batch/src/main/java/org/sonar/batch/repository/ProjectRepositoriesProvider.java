@@ -43,7 +43,7 @@ public class ProjectRepositoriesProvider extends ProviderAdapter {
         profiler.stop();
       }
       if (analysisMode.isPreview() && projectReferentials.lastAnalysisDate() == null) {
-        LOG.warn("No previous analysis for the project. All issues will be marked as 'new'.");
+        LOG.warn("No analysis has been found on the server for this project. All issues will be marked as 'new'.");
       }
     }
     return projectReferentials;
