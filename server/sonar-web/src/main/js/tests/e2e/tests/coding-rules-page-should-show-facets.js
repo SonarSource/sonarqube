@@ -21,7 +21,7 @@ casper.test.begin('coding-rules-page-should-show-facets', 1, function (test) {
       })
 
       .then(function () {
-        test.assertElementCount('.search-navigator-facet-box', 12);
+        test.assertElementCount('.search-navigator-facet-box', 13);
       })
 
       .run(function () {
