@@ -33,6 +33,7 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.user.UserSession;
 
@@ -58,13 +59,16 @@ public class GlobalRepositoryAction implements RequestHandler {
   public void handle(Request request, Response response) throws Exception {
     UserSession userSession = UserSession.get();
     boolean hasScanPerm = userSession.hasGlobalPermission(GlobalPermissions.SCAN_EXECUTION);
-    boolean hasDryRunPerm = userSession.hasGlobalPermission(GlobalPermissions.PREVIEW_EXECUTION);
+    boolean hasPreviewPerm = userSession.hasGlobalPermission(GlobalPermissions.PREVIEW_EXECUTION);
+    if (!hasPreviewPerm && !hasScanPerm) {
+      throw new ForbiddenException(Messages.NO_PERMISSION);
+    }
 
     DbSession session = dbClient.openSession(false);
     try {
       GlobalRepositories ref = new GlobalRepositories();
       addMetrics(ref, session);
-      addSettings(ref, hasScanPerm, hasDryRunPerm, session);
+      addSettings(ref, hasScanPerm, hasPreviewPerm, session);
 
       response.stream().setMediaType(MimeTypes.JSON);
       IOUtils.write(ref.toJson(), response.stream().output());
@@ -90,19 +94,19 @@ public class GlobalRepositoryAction implements RequestHandler {
     }
   }
 
-  private void addSettings(GlobalRepositories ref, boolean hasScanPerm, boolean hasDryRunPerm, DbSession session) {
+  private void addSettings(GlobalRepositories ref, boolean hasScanPerm, boolean hasPreviewPerm, DbSession session) {
     for (PropertyDto propertyDto : propertiesDao.selectGlobalProperties(session)) {
       String key = propertyDto.getKey();
       String value = propertyDto.getValue();
 
-      if (isPropertyAllowed(key, hasScanPerm, hasDryRunPerm)) {
+      if (isPropertyAllowed(key, hasScanPerm, hasPreviewPerm)) {
         ref.addGlobalSetting(key, value);
       }
     }
   }
 
-  private static boolean isPropertyAllowed(String key, boolean hasScanPerm, boolean hasDryRunPerm) {
-    return !key.contains(".secured") || hasScanPerm || (key.contains(".license") && hasDryRunPerm);
+  private static boolean isPropertyAllowed(String key, boolean hasScanPerm, boolean hasPreviewPerm) {
+    return !key.contains(".secured") || hasScanPerm || (key.contains(".license") && hasPreviewPerm);
   }
 
 }

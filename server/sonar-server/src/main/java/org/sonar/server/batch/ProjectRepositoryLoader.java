@@ -276,7 +276,7 @@ public class ProjectRepositoryLoader implements ServerComponent {
     boolean hasScanPerm = userSession.hasGlobalPermission(GlobalPermissions.SCAN_EXECUTION);
     boolean hasPreviewPerm = userSession.hasGlobalPermission(GlobalPermissions.PREVIEW_EXECUTION);
     if (!hasPreviewPerm && !hasScanPerm) {
-      throw new ForbiddenException("You're not authorized to execute any SonarQube analysis. Please contact your SonarQube administrator.");
+      throw new ForbiddenException(Messages.NO_PERMISSION);
     }
     if (!preview && !hasScanPerm) {
       throw new ForbiddenException("You're only authorized to execute a local (preview) SonarQube analysis without pushing the results to the SonarQube server. " +
