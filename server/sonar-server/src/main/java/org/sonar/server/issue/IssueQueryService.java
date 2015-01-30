@@ -103,8 +103,8 @@ public class IssueQueryService implements ServerComponent {
           ObjectUtils.defaultIfNull(
             params.get(IssueFilterParameters.PROJECT_KEYS),
             params.get(IssueFilterParameters.PROJECTS)
-          )
-        ),
+            )
+          ),
         RubyUtils.toStrings(params.get(IssueFilterParameters.MODULE_UUIDS)),
         RubyUtils.toStrings(params.get(IssueFilterParameters.DIRECTORIES)),
         RubyUtils.toStrings(params.get(IssueFilterParameters.FILE_UUIDS)));
@@ -172,21 +172,21 @@ public class IssueQueryService implements ServerComponent {
   }
 
   private void addComponentParameters(IssueQuery.Builder builder, DbSession session,
-                                      @Nullable Boolean onComponentOnly,
-                                      @Nullable Collection<String> components,
-                                      @Nullable Collection<String> componentUuids,
-                                      @Nullable Collection<String> componentKeys,
+    @Nullable Boolean onComponentOnly,
+    @Nullable Collection<String> components,
+    @Nullable Collection<String> componentUuids,
+    @Nullable Collection<String> componentKeys,
     /*
      * Since 5.1, search of issues is recursive by default (module + submodules),
      * but "componentKeys" parameter already deprecates "components" parameter,
      * so queries specifying "componentRoots" must be handled manually
      */
-                                      @Nullable Collection<String> componentRootUuids,
-                                      @Nullable Collection<String> componentRoots,
-                                      @Nullable Collection<String> projectUuids, @Nullable Collection<String> projects,
-                                      @Nullable Collection<String> moduleUuids,
-                                      @Nullable Collection<String> directories,
-                                      @Nullable Collection<String> fileUuids) {
+    @Nullable Collection<String> componentRootUuids,
+    @Nullable Collection<String> componentRoots,
+    @Nullable Collection<String> projectUuids, @Nullable Collection<String> projects,
+    @Nullable Collection<String> moduleUuids,
+    @Nullable Collection<String> directories,
+    @Nullable Collection<String> fileUuids) {
 
     Set<String> allComponentUuids = Sets.newHashSet();
     boolean effectiveOnComponentOnly = mergeComponentParameters(session, onComponentOnly,
@@ -263,12 +263,12 @@ public class IssueQueryService implements ServerComponent {
   }
 
   private boolean mergeComponentParameters(DbSession session, Boolean onComponentOnly,
-                                           Collection<String> components,
-                                           Collection<String> componentUuids,
-                                           Collection<String> componentKeys,
-                                           Collection<String> componentRootUuids,
-                                           Collection<String> componentRoots,
-                                           Set<String> allComponentUuids) {
+    Collection<String> components,
+    Collection<String> componentUuids,
+    Collection<String> componentKeys,
+    Collection<String> componentRootUuids,
+    Collection<String> componentRoots,
+    Set<String> allComponentUuids) {
     boolean effectiveOnComponentOnly = false;
 
     if (componentRootUuids != null) {
@@ -300,8 +300,8 @@ public class IssueQueryService implements ServerComponent {
   }
 
   private void addComponentsBelowView(Builder builder, DbSession session,
-                                      @Nullable Collection<String> projects, @Nullable Collection<String> projectUuids,
-                                      @Nullable Collection<String> moduleUuids, Collection<String> directories, Collection<String> fileUuids) {
+    @Nullable Collection<String> projects, @Nullable Collection<String> projectUuids,
+    @Nullable Collection<String> moduleUuids, Collection<String> directories, Collection<String> fileUuids) {
     if (projectUuids != null) {
       if (projects != null) {
         throw new IllegalArgumentException("projects and projectUuids cannot be set simultaneously");
@@ -314,19 +314,19 @@ public class IssueQueryService implements ServerComponent {
   }
 
   private void addComponentsBelowModule(Builder builder,
-                                        @Nullable Collection<String> moduleUuids, @Nullable Collection<String> directories, @Nullable Collection<String> fileUuids) {
+    @Nullable Collection<String> moduleUuids, @Nullable Collection<String> directories, @Nullable Collection<String> fileUuids) {
     builder.moduleUuids(moduleUuids);
     addComponentsBelowModule(builder, directories, fileUuids);
   }
 
   private void addComponentsBelowModule(Builder builder,
-                                        @Nullable Collection<String> directories, @Nullable Collection<String> fileUuids) {
+    @Nullable Collection<String> directories, @Nullable Collection<String> fileUuids) {
     builder.directories(directories);
     addComponentsBelowDirectory(builder, fileUuids);
   }
 
   private void addComponentsBelowDirectory(Builder builder,
-                                           @Nullable Collection<String> fileUuids) {
+    @Nullable Collection<String> fileUuids) {
     builder.fileUuids(fileUuids);
   }
 
