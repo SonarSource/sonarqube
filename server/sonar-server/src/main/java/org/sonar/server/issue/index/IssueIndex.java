@@ -289,10 +289,14 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
         filters.put(FILTER_COMPONENT_ROOT, componentFilter);
       }
     } else {
+      if (query.onComponentOnly()) {
+        filters.put(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, componentFilter);
+      } else {
+        filters.put(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, fileFilter);
+      }
       filters.put(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, projectFilter);
       filters.put(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, moduleFilter);
       filters.put(IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH, directoryFilter);
-      filters.put(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, fileFilter);
       filters.put("view", viewFilter);
     }
   }

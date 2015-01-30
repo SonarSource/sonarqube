@@ -92,8 +92,8 @@ public class IssueQueryServiceTest {
     map.put("statuses", newArrayList("CLOSED"));
     map.put("resolutions", newArrayList("FALSE-POSITIVE"));
     map.put("resolved", true);
-    ArrayList<String> componentKeys = newArrayList("org.apache");
-    map.put("components", componentKeys);
+    ArrayList<String> projectKeys = newArrayList("org.apache");
+    map.put("projectKeys", projectKeys);
     ArrayList<String> moduleUuids = newArrayList("BCDE");
     map.put("moduleUuids", moduleUuids);
     map.put("directories", newArrayList("/src/main/java/example"));
@@ -103,7 +103,6 @@ public class IssueQueryServiceTest {
     map.put("assignees", newArrayList("joanna"));
     map.put("languages", newArrayList("xoo"));
     map.put("tags", newArrayList("tag1", "tag2"));
-    map.put("onComponentOnly", true);
     map.put("assigned", true);
     map.put("planned", true);
     map.put("hideRules", true);
@@ -142,7 +141,7 @@ public class IssueQueryServiceTest {
     assertThat(query.assignees()).containsOnly("joanna");
     assertThat(query.languages()).containsOnly("xoo");
     assertThat(query.tags()).containsOnly("tag1", "tag2");
-    assertThat(query.onComponentOnly()).isTrue();
+    assertThat(query.onComponentOnly()).isFalse();
     assertThat(query.assigned()).isTrue();
     assertThat(query.planned()).isTrue();
     assertThat(query.hideRules()).isTrue();
@@ -219,7 +218,7 @@ public class IssueQueryServiceTest {
       issueQueryService.createFromMap(map);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("components and componentUuids cannot be set simultaneously");
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("componentRoots and componentRootUuids cannot be set simultaneously");
     }
   }
 
