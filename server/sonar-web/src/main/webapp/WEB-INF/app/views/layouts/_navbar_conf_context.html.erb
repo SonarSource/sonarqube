@@ -19,7 +19,7 @@
     contextVersion: '<%= @snapshot.version -%>',
     <% end %>
     <% if @snapshot %>
-    contextDate: '<%= @snapshot.created_at -%>',
+    contextDate: '<%= @snapshot.created_at.strftime('%FT%T%:z') -%>',
     <% end %>
     contextDashboards: [
       <% dashboards = ActiveDashboard.user_dashboards(current_user, false)
