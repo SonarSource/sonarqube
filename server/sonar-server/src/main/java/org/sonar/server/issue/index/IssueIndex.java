@@ -202,7 +202,7 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
     QueryBuilder queryBuilder = QueryBuilders.filteredQuery(
       QueryBuilders.matchAllQuery(),
       FilterBuilders.andFilter(projectFilter, dateFilter)
-    );
+      );
 
     getClient().prepareDeleteByQuery(IssueIndexDefinition.INDEX).setQuery(queryBuilder).get();
   }
@@ -259,6 +259,7 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
   }
 
   private void addComponentRelatedFilters(IssueQuery query, Map<String, FilterBuilder> filters) {
+    FilterBuilder viewFilter = viewFilter(query.viewUuids());
     FilterBuilder projectFilter = matchFilter(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, query.projectUuids());
     FilterBuilder moduleRootFilter = moduleRootFilter(query.moduleRootUuids());
     FilterBuilder moduleFilter = matchFilter(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, query.moduleUuids());
@@ -266,10 +267,15 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
     FilterBuilder directoryFilter = matchFilter(IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH, query.directories());
     FilterBuilder fileFilter = matchFilter(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, query.fileUuids());
     FilterBuilder componentFilter = matchFilter(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, query.componentUuids());
-    FilterBuilder viewFilter = viewFilter(query.viewUuids());
 
     if (BooleanUtils.isTrue(query.isContextualized())) {
-      if (projectFilter != null) {
+      if (viewFilter != null) {
+        filters.put(FILTER_COMPONENT_ROOT, viewFilter);
+        filters.put(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, projectFilter);
+        filters.put(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, moduleFilter);
+        filters.put(IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH, directoryFilter);
+        filters.put(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, fileFilter);
+      } else if (projectFilter != null) {
         filters.put(FILTER_COMPONENT_ROOT, projectFilter);
         filters.put(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, moduleFilter);
         filters.put(IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH, directoryFilter);
@@ -289,11 +295,11 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
         filters.put(FILTER_COMPONENT_ROOT, componentFilter);
       }
     } else {
+      filters.put("view", viewFilter);
       filters.put(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, projectFilter);
       filters.put(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, moduleFilter);
       filters.put(IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH, directoryFilter);
       filters.put(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, fileFilter);
-      filters.put("view", viewFilter);
     }
   }
 
@@ -368,7 +374,7 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
         FilterBuilders.boolFilter()
           .must(groupsAndUser)
           .cache(true))
-    );
+      );
   }
 
   private void addDatesFilter(Map<String, FilterBuilder> filters, IssueQuery query) {
@@ -430,7 +436,7 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
   }
 
   private void addSimpleStickyFacetIfNeeded(QueryContext options, StickyFacetBuilder stickyFacetBuilder, SearchRequestBuilder esSearch,
-                                            String facetName, String fieldName, Object... selectedValues) {
+    String facetName, String fieldName, Object... selectedValues) {
     if (options.facets().contains(facetName)) {
       esSearch.addAggregation(stickyFacetBuilder.buildStickyFacet(fieldName, facetName, DEFAULT_ISSUE_FACET_SIZE, selectedValues));
     }
@@ -460,7 +466,7 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
       AggregationBuilders
         .missing(facetName + FACET_SUFFIX_MISSING)
         .field(fieldName)
-    );
+      );
 
     return AggregationBuilders
       .global(facetName)
@@ -485,7 +491,7 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
       AggregationBuilders
         .missing(facetName + FACET_SUFFIX_MISSING)
         .field(fieldName)
-    );
+      );
 
     return AggregationBuilders
       .global(facetName)
@@ -510,7 +516,7 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
       AggregationBuilders
         .missing(facetName + FACET_SUFFIX_MISSING)
         .field(fieldName)
-    );
+      );
 
     return AggregationBuilders
       .global(facetName)

@@ -36,13 +36,7 @@ import org.sonar.server.platform.Platform;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -232,6 +226,7 @@ public class UserSession {
   public boolean hasComponentPermission(String permission, String componentKey) {
     String projectKey = projectKeyByComponentKey.get(componentKey);
     if (projectKey == null) {
+      // TODO use method using UUID
       ResourceDto project = resourceDao().getRootProjectByComponentKey(componentKey);
       if (project == null) {
         return false;
