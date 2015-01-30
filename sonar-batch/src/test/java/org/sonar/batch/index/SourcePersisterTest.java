@@ -99,6 +99,31 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void testPersistUpdateWhenSrcHashIsMissing() throws Exception {
+    setupData("file_sources_missing_src_hash");
+    Date now = DateUtils.parseDateTime("2014-10-29T16:44:02+0100");
+    when(system2.newDate()).thenReturn(now);
+
+    String relativePathSame = "src/same.java";
+    java.io.File sameFile = new java.io.File(basedir, relativePathSame);
+    FileUtils.write(sameFile, "unchanged\ncontent");
+    DefaultInputFile inputFileNew = new DefaultInputFile(PROJECT_KEY, relativePathSame)
+      .setLines(2)
+      .setAbsolutePath(sameFile.getAbsolutePath())
+      .setHash("123456")
+      .setLineHashes(new byte[][] {md5("unchanged"), md5("content")});
+    when(inputPathCache.all()).thenReturn(Arrays.<InputPath>asList(inputFileNew));
+
+    mockResourceCache(relativePathSame, PROJECT_KEY, "uuidsame");
+
+    sourcePersister.persist();
+    FileSourceDto fileSourceDto = new FileSourceDao(getMyBatis()).select("uuidsame");
+    assertThat(fileSourceDto.getCreatedAt()).isEqualTo(DateUtils.parseDateTime("2014-10-10T16:44:02+0200").getTime());
+    assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(now.getTime());
+    assertThat(fileSourceDto.getSrcHash()).isEqualTo("123456");
+  }
+
+  @Test
   public void testPersistDontTouchUnchanged() throws Exception {
     setupData("file_sources");
     when(system2.newDate()).thenReturn(DateUtils.parseDateTime("2014-10-29T16:44:02+0100"));
@@ -106,7 +131,9 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     String relativePathSame = "src/same.java";
     java.io.File sameFile = new java.io.File(basedir, relativePathSame);
     FileUtils.write(sameFile, "unchanged\ncontent");
-    DefaultInputFile inputFileNew = new DefaultInputFile(PROJECT_KEY, relativePathSame).setLines(2).setAbsolutePath(sameFile.getAbsolutePath())
+    DefaultInputFile inputFileNew = new DefaultInputFile(PROJECT_KEY, relativePathSame).setLines(2)
+      .setAbsolutePath(sameFile.getAbsolutePath())
+      .setHash("123456")
       .setLineHashes(new byte[][] {md5("unchanged"), md5("ncontent")});
     when(inputPathCache.all()).thenReturn(Arrays.<InputPath>asList(inputFileNew));
 

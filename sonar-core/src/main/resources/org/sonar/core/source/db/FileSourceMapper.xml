@@ -11,7 +11,7 @@
   </select>
   
   <select id="selectAllFileDataHashByProject" parameterType="string" resultType="org.sonar.core.source.db.FileSourceDto">
-    SELECT id, file_uuid as fileUuid, data_hash as dataHash
+    SELECT id, file_uuid as fileUuid, data_hash as dataHash, src_hash as srcHash
     FROM file_sources
     WHERE project_uuid = #{projectUuid}
   </select>
