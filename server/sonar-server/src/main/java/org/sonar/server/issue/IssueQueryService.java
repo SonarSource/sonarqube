@@ -34,6 +34,7 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ws.Request;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.component.ComponentService;
@@ -41,6 +42,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.IssueQuery.Builder;
 import org.sonar.server.issue.filter.IssueFilterParameters;
 import org.sonar.server.search.ws.SearchRequestHandler;
+import org.sonar.server.user.UserSession;
 import org.sonar.server.util.RubyUtils;
 
 import javax.annotation.CheckForNull;
@@ -59,7 +61,7 @@ import static com.google.common.collect.Lists.newArrayList;
 public class IssueQueryService implements ServerComponent {
 
   private static final String UNKNOWN = "<UNKNOWN>";
-  
+
   private final DbClient dbClient;
   private final ComponentService componentService;
 
