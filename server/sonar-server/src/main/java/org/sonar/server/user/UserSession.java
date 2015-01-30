@@ -63,6 +63,7 @@ public class UserSession {
   HashMultimap<String, String> projectKeyByPermission = HashMultimap.create();
   HashMultimap<String, String> projectUuidByPermission = HashMultimap.create();
   Map<String, String> projectKeyByComponentKey = newHashMap();
+  Map<String, String> projectUuidByComponentUuid = newHashMap();
   List<String> projectPermissions = newArrayList();
 
   UserSession() {
@@ -236,6 +237,26 @@ public class UserSession {
     boolean hasComponentPermission = hasProjectPermission(permission, projectKey);
     if (hasComponentPermission) {
       projectKeyByComponentKey.put(componentKey, projectKey);
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Does the user have the given project permission for a component uuid ?
+   */
+  public boolean hasComponentUuidPermission(String permission, String componentUuid) {
+    String projectUuid = projectUuidByComponentUuid.get(componentUuid);
+    if (projectUuid == null) {
+      ResourceDto project = resourceDao().getResource(componentUuid);
+      if (project == null) {
+        return false;
+      }
+      projectUuid = project.getProjectUuid();
+    }
+    boolean hasComponentPermission = hasProjectPermissionByUuid(permission, projectUuid);
+    if (hasComponentPermission) {
+      projectUuidByComponentUuid.put(componentUuid, projectUuid);
       return true;
     }
     return false;

@@ -384,7 +384,7 @@ public class SearchActionComponentsMediumTest {
     indexView(view.uuid(), newArrayList(project.uuid()));
 
     setAnyoneProjectPermission(view, UserRole.USER);
-    MockUserSession.set().setLogin("john").addProjectPermissions(UserRole.USER, view.uuid());
+    MockUserSession.set().setLogin("john").addProjectUuidPermissions(UserRole.USER, view.uuid());
 
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, view.uuid())
@@ -404,7 +404,7 @@ public class SearchActionComponentsMediumTest {
 
     setAnyoneProjectPermission(view, UserRole.USER);
     // User has wrong permission on the view, no issue will be returned
-    MockUserSession.set().setLogin("john").addProjectPermissions(UserRole.CODEVIEWER, view.uuid());
+    MockUserSession.set().setLogin("john").addProjectUuidPermissions(UserRole.CODEVIEWER, view.uuid());
 
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, view.uuid())
@@ -425,7 +425,7 @@ public class SearchActionComponentsMediumTest {
     indexView(subView.uuid(), newArrayList(project.uuid()));
 
     setAnyoneProjectPermission(view, UserRole.USER);
-    MockUserSession.set().setLogin("john").addComponentPermission(UserRole.USER, view.uuid(), subView.uuid());
+    MockUserSession.set().setLogin("john").addComponentUuidPermission(UserRole.USER, view.uuid(), subView.uuid());
 
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, subView.uuid())
@@ -447,7 +447,7 @@ public class SearchActionComponentsMediumTest {
 
     setAnyoneProjectPermission(view, UserRole.USER);
     // User has wrong permission on the view, no issue will be returned
-    MockUserSession.set().setLogin("john").addComponentPermission(UserRole.CODEVIEWER, view.uuid(), subView.uuid());
+    MockUserSession.set().setLogin("john").addComponentUuidPermission(UserRole.CODEVIEWER, view.uuid(), subView.uuid());
 
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, subView.uuid())

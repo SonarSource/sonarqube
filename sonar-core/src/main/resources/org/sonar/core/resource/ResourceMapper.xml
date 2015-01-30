@@ -97,6 +97,11 @@
     where p.id=#{id}
   </select>
 
+  <select id="selectResourceByUuid" parameterType="String" resultMap="resourceResultMap">
+    select * from projects p
+    where p.uuid=#{uuid}
+  </select>
+
   <select id="selectSnapshot" parameterType="long" resultMap="snapshotResultMap">
     select * from snapshots where id=#{id}
   </select>

@@ -35,6 +35,8 @@ public interface ResourceMapper {
 
   ResourceDto selectResource(long id);
 
+  ResourceDto selectResourceByUuid(String uuid);
+
   List<ResourceDto> selectDescendantProjects(long rootProjectId);
 
   /**
