@@ -116,4 +116,16 @@ public class ViewIndexerTest {
     assertThat(viewsByUuid.get("FGHI").projects()).containsOnly("JKLM");
   }
 
+  @Test
+  public void index_view_doc() throws Exception {
+    indexer.index(new ViewDoc().setUuid("EFGH").setProjects(newArrayList("KLMN", "JKLM")));
+
+    List<ViewDoc> docs = esTester.getDocuments("views", "view", ViewDoc.class);
+    assertThat(docs).hasSize(1);
+
+    ViewDoc view = docs.get(0);
+    assertThat(view.uuid()).isEqualTo("EFGH");
+    assertThat(view.projects()).containsOnly("KLMN", "JKLM");
+  }
+
 }

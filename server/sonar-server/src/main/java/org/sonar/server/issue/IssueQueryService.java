@@ -34,6 +34,7 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ws.Request;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.component.ComponentService;
@@ -41,6 +42,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.IssueQuery.Builder;
 import org.sonar.server.issue.filter.IssueFilterParameters;
 import org.sonar.server.search.ws.SearchRequestHandler;
+import org.sonar.server.user.UserSession;
 import org.sonar.server.util.RubyUtils;
 
 import javax.annotation.CheckForNull;
@@ -58,6 +60,7 @@ import static com.google.common.collect.Lists.newArrayList;
  */
 public class IssueQueryService implements ServerComponent {
 
+  private static final String UNKNOWN = "<UNKNOWN>";
   private final DbClient dbClient;
   private final ComponentService componentService;
 
@@ -220,8 +223,18 @@ public class IssueQueryService implements ServerComponent {
       }
 
       String uniqueQualifier = qualifiers.iterator().next();
-      if (Qualifiers.VIEW.equals(uniqueQualifier)) {
-        // TODO Handle views
+      if (Qualifiers.VIEW.equals(uniqueQualifier) || Qualifiers.SUBVIEW.equals(uniqueQualifier)) {
+        List<String> filteredViewUuids = newArrayList();
+        for (String viewUuid : allComponentUuids) {
+          if ((Qualifiers.VIEW.equals(uniqueQualifier) && UserSession.get().hasProjectPermissionByUuid(UserRole.USER, viewUuid))
+            || (Qualifiers.SUBVIEW.equals(uniqueQualifier) && UserSession.get().hasComponentUuidPermission(UserRole.USER, viewUuid))) {
+            filteredViewUuids.add(viewUuid);
+          }
+        }
+        if (filteredViewUuids.isEmpty()) {
+          filteredViewUuids.add(UNKNOWN);
+        }
+        builder.viewUuids(filteredViewUuids);
         addComponentsBelowView(builder, session, projects, projectUuids, moduleUuids, directories, fileUuids);
       } else if ("DEV".equals(uniqueQualifier)) { // XXX No constant !!!
         // TODO Get SCM accounts from dev, then search by author
@@ -324,7 +337,7 @@ public class IssueQueryService implements ServerComponent {
     // If unknown components are given, but no components are found, then all issues will be returned,
     // so we add this hack in order to return no issue in this case.
     if (componentKeys != null && !componentKeys.isEmpty() && componentUuids.isEmpty()) {
-      componentUuids.add("<UNKNOWN>");
+      componentUuids.add(UNKNOWN);
     }
     return componentUuids;
   }
