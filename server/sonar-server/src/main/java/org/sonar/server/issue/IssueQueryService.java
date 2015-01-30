@@ -224,7 +224,7 @@ public class IssueQueryService implements ServerComponent {
       }
 
       String uniqueQualifier = qualifiers.iterator().next();
-      if (Qualifiers.VIEW.equals(uniqueQualifier)) {
+      if (Qualifiers.VIEW.equals(uniqueQualifier) || Qualifiers.SUBVIEW.equals(uniqueQualifier)) {
         List<String> filteredViewUuids = newArrayList();
         for (String viewUuid : allComponentUuids) {
           if ((Qualifiers.VIEW.equals(uniqueQualifier) && UserSession.get().hasProjectPermissionByUuid(UserRole.USER, viewUuid))
