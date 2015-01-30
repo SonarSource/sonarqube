@@ -22,6 +22,7 @@ package org.sonar.batch.repository;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.batch.bootstrap.TaskProperties;
@@ -33,13 +34,16 @@ public class ProjectRepositoriesProvider extends ProviderAdapter {
 
   private ProjectRepositories projectReferentials;
 
-  public ProjectRepositories provide(ProjectRepositoriesLoader loader, ProjectReactor reactor, TaskProperties taskProps) {
+  public ProjectRepositories provide(ProjectRepositoriesLoader loader, ProjectReactor reactor, TaskProperties taskProps, AnalysisMode analysisMode) {
     if (projectReferentials == null) {
       TimeProfiler profiler = new TimeProfiler(LOG).start("Load project repositories");
       try {
         projectReferentials = loader.load(reactor, taskProps);
       } finally {
         profiler.stop();
+      }
+      if (analysisMode.isPreview() && projectReferentials.lastAnalysisDate() == null) {
+        LOG.warn("No previous analysis for the project. All issues will be marked as 'new'.");
       }
     }
     return projectReferentials;
