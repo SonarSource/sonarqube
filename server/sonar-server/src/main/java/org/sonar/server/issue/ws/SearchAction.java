@@ -196,20 +196,33 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
   }
 
   private void addComponentRelatedParams(WebService.NewAction action) {
+
+    action.createParam(IssueFilterParameters.ON_COMPONENT_ONLY)
+      .setDescription("Return only issues at a component's level, not on its descendants (modules, directories, files, etc). " +
+        "This parameter is only considered when componentKeys or componentUuids is set. " +
+        "Using the deprecated componentRoots or componentRootUuids parameters will set this parameter to false. " +
+        "Using the deprecated components parameter will set this parameter to true.")
+      .setBooleanPossibleValues()
+      .setDefaultValue("false");
+
     action.createParam(IssueFilterParameters.COMPONENT_KEYS)
-      .setDescription("To retrieve issues associated to a specific list of components and their sub-components (comma-separated list of component keys). " +
-        "A component can be a project, module, directory or file. " +
+      .setDescription("To retrieve issues associated to a specific list of components sub-components (comma-separated list of component keys). " +
+        "A component can be a view, developer, project, module, directory or file. " +
         "If this parameter is set, componentUuids must not be set.")
-      .setDeprecatedKey(IssueFilterParameters.COMPONENTS)
       .setExampleValue("org.apache.struts:struts:org.apache.struts.Action");
     action.createParam(IssueFilterParameters.COMPONENTS)
-      .setDescription("Deprecated since 5.1. See componentKeys.");
+      .setDescription("Deprecated since 5.1. If used, will have the same meaning as componentKeys AND onComponentOnly=true.");
     action.createParam(IssueFilterParameters.COMPONENT_UUIDS)
-      .setDescription("To retrieve issues associated to a specific list of components and their sub-components (comma-separated list of component UUIDs). " +
+      .setDescription("To retrieve issues associated to a specific list of components their sub-components (comma-separated list of component UUIDs). " +
         INTERNAL_PARAMETER_DISCLAIMER +
         "A component can be a project, module, directory or file. " +
         "If this parameter is set, componentKeys must not be set.")
       .setExampleValue("584a89f2-8037-4f7b-b82c-8b45d2d63fb2");
+
+    action.createParam(IssueFilterParameters.COMPONENT_ROOTS)
+      .setDescription("Deprecated since 5.1. If used, will have the same meaning as componentKeys AND onComponentOnly=false.");
+    action.createParam(IssueFilterParameters.COMPONENT_ROOT_UUIDS)
+      .setDescription("Deprecated since 5.1. If used, will have the same meaning as componentUuids AND onComponentOnly=false.");
 
     action.createParam(IssueFilterParameters.PROJECTS)
       .setDescription("Deprecated since 5.1. See projectKeys");
@@ -225,10 +238,6 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
         "Views are not supported. If this parameter is set, projectKeys must not be set.")
       .setExampleValue("7d8749e8-3070-4903-9188-bdd82933bb92");
 
-    action.createParam(IssueFilterParameters.COMPONENT_ROOTS)
-      .setDescription("Deprecated since 5.1. Use componentKeys instead, with onComponentOnly=false.");
-    action.createParam(IssueFilterParameters.COMPONENT_ROOT_UUIDS)
-      .setDescription("Deprecated since 5.1. Use componentUuids instead, with onComponentOnly=false.");
     action.createParam(IssueFilterParameters.MODULE_UUIDS)
       .setDescription("To retrieve issues associated to a specific list of modules (comma-separated list of module UUIDs). " +
         INTERNAL_PARAMETER_DISCLAIMER +
@@ -245,11 +254,6 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       .setDescription("To retrieve issues associated to a specific list of files (comma-separated list of file UUIDs). " +
         INTERNAL_PARAMETER_DISCLAIMER)
       .setExampleValue("bdd82933-3070-4903-9188-7d8749e8bb92");
-
-    action.createParam(IssueFilterParameters.ON_COMPONENT_ONLY)
-      .setDescription("Return only issues at the component's level, not on its descendants (modules, directories, files, etc.)")
-      .setBooleanPossibleValues()
-      .setDefaultValue("false");
   }
 
   @Override
@@ -259,7 +263,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
 
   @Override
   protected Result<Issue> doSearch(IssueQuery query, QueryContext context) {
-    Collection<String> components = query.fileUuids();
+    Collection<String> components = query.componentUuids();
     if (components != null && components.size() == 1 && BooleanUtils.isTrue(query.ignorePaging())) {
       context.setShowFullResult(true);
     }
