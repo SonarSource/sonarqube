@@ -30,6 +30,9 @@ import org.sonar.process.Props;
 import java.io.File;
 import java.util.Map;
 
+/**
+ * Configures webapp into Tomcat
+ */
 class Webapp {
 
   private static final String JRUBY_MAX_RUNTIMES = "jruby.max.runtimes";
