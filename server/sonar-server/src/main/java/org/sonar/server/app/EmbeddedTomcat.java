@@ -60,12 +60,16 @@ class EmbeddedTomcat {
     webappContext = Webapp.configure(tomcat, props);
     try {
       tomcat.start();
+      new StartupLogs(LoggerFactory.getLogger(getClass())).log(tomcat);
     } catch (LifecycleException e) {
       Throwables.propagate(e);
     }
   }
 
   boolean isReady() {
+    if (webappContext == null) {
+      return false;
+    }
     switch (webappContext.getState()) {
       case NEW:
       case INITIALIZING:

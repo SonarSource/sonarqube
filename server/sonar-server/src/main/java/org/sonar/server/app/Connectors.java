@@ -21,7 +21,6 @@ package org.sonar.server.app;
 
 import org.apache.catalina.connector.Connector;
 import org.apache.catalina.startup.Tomcat;
-import org.slf4j.LoggerFactory;
 import org.sonar.process.Props;
 
 import javax.annotation.Nullable;
@@ -33,6 +32,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Configuration of Tomcat connectors
+ */
 class Connectors {
 
   private static final int DISABLED_PORT = -1;
@@ -77,7 +79,6 @@ class Connectors {
     if (port > DISABLED_PORT) {
       connector = newConnector(props, HTTP_PROTOCOL, "http");
       connector.setPort(port);
-      info("HTTP connector is enabled on port " + port);
     }
     return connector;
   }
@@ -89,7 +90,6 @@ class Connectors {
     if (port > DISABLED_PORT) {
       connector = newConnector(props, AJP_PROTOCOL, "http");
       connector.setPort(port);
-      info("AJP connector is enabled on port " + port);
     }
     return connector;
   }
@@ -115,12 +115,12 @@ class Connectors {
       setConnectorAttribute(connector, "truststoreType", props.value("sonar.web.https.truststoreType", "JKS"));
       setConnectorAttribute(connector, "truststoreProvider", props.value("sonar.web.https.truststoreProvider"));
       setConnectorAttribute(connector, "clientAuth", props.value("sonar.web.https.clientAuth", "false"));
+      setConnectorAttribute(connector, "ciphers", props.value("sonar.web.https.ciphers"));
       // SSLv3 must not be enable because of Poodle vulnerability
       // See https://jira.codehaus.org/browse/SONAR-5860
       setConnectorAttribute(connector, "sslEnabledProtocols", "TLSv1,TLSv1.1,TLSv1.2");
       setConnectorAttribute(connector, "sslProtocol", "TLS");
       setConnectorAttribute(connector, "SSLEnabled", true);
-      info("HTTPS connector is enabled on port " + port);
     }
     return connector;
   }
@@ -152,9 +152,5 @@ class Connectors {
     if (value != null) {
       c.setAttribute(key, value);
     }
-  }
-
-  private static void info(String message) {
-    LoggerFactory.getLogger(Connectors.class).info(message);
   }
 }
