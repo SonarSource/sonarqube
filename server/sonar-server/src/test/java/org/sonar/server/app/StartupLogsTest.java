@@ -21,10 +21,13 @@ package org.sonar.server.app;
 
 import org.apache.catalina.connector.Connector;
 import org.apache.catalina.startup.Tomcat;
-import org.apache.coyote.http11.Http11Protocol;
+import org.apache.coyote.http11.AbstractHttp11JsseProtocol;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
+import org.sonar.process.Props;
+
+import java.util.Properties;
 
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
@@ -33,6 +36,7 @@ public class StartupLogsTest {
 
   Tomcat tomcat = mock(Tomcat.class, Mockito.RETURNS_DEEP_STUBS);
   Logger logger = mock(Logger.class);
+  Props props = new Props(new Properties());
   StartupLogs sut = new StartupLogs(logger);
 
   @Test
@@ -40,7 +44,7 @@ public class StartupLogsTest {
     Connector connector = newConnector("AJP/1.3", "http");
     when(tomcat.getService().findConnectors()).thenReturn(new Connector[] {connector});
 
-    sut.log(tomcat);
+    sut.log(props, tomcat);
 
     verify(logger).info("AJP/1.3 connector enabled on port 1234");
     verifyNoMoreInteractions(logger);
@@ -51,7 +55,7 @@ public class StartupLogsTest {
     Connector connector = newConnector("HTTP/1.1", "http");
     when(tomcat.getService().findConnectors()).thenReturn(new Connector[] {connector});
 
-    sut.log(tomcat);
+    sut.log(props, tomcat);
 
     verify(logger).info("HTTP connector enabled on port 1234");
     verifyNoMoreInteractions(logger);
@@ -62,7 +66,7 @@ public class StartupLogsTest {
     Connector connector = newConnector("HTTP/1.1", "https");
     when(tomcat.getService().findConnectors()).thenReturn(new Connector[] {connector});
 
-    sut.log(tomcat);
+    sut.log(props, tomcat);
 
     verify(logger).info("HTTPS connector enabled on port 1234 | ciphers=JVM defaults");
     verifyNoMoreInteractions(logger);
@@ -70,12 +74,17 @@ public class StartupLogsTest {
 
   @Test
   public void logHttps_overridden_ciphers() throws Exception {
-    Connector connector = newConnector("HTTP/1.1", "https");
-    connector.setProtocolHandlerClassName("org.apache.coyote.http11.Http11Protocol");
-    ((Http11Protocol) connector.getProtocolHandler()).setCiphers("SSL_RSA,TLS_RSA_WITH_RC4");
+    Connector connector = mock(Connector.class, Mockito.RETURNS_DEEP_STUBS);
     when(tomcat.getService().findConnectors()).thenReturn(new Connector[] {connector});
+    when(connector.getScheme()).thenReturn("https");
+    when(connector.getProtocol()).thenReturn("HTTP/1.1");
+    when(connector.getPort()).thenReturn(1234);
+    AbstractHttp11JsseProtocol protocol = mock(AbstractHttp11JsseProtocol.class);
+    when(connector.getProtocolHandler()).thenReturn(protocol);
+    when(protocol.getCiphersUsed()).thenReturn(new String[]{"SSL_RSA", "TLS_RSA_WITH_RC4"});
+    props.set(Connectors.PROP_HTTPS_CIPHERS, "SSL_RSA,TLS_RSA_WITH_RC4");
 
-    sut.log(tomcat);
+    sut.log(props, tomcat);
 
     verify(logger).info("HTTPS connector enabled on port 1234 | ciphers=SSL_RSA,TLS_RSA_WITH_RC4");
     verifyNoMoreInteractions(logger);
@@ -88,7 +97,7 @@ public class StartupLogsTest {
     when(connector.getScheme()).thenReturn("spdy");
     when(tomcat.getService().findConnectors()).thenReturn(new Connector[] {connector});
     try {
-      sut.log(tomcat);
+      sut.log(props, tomcat);
       fail();
     } catch (IllegalArgumentException e) {
       // expected

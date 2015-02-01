@@ -25,6 +25,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.coyote.ProtocolHandler;
 import org.apache.coyote.http11.AbstractHttp11JsseProtocol;
 import org.slf4j.Logger;
+import org.sonar.process.Props;
 
 class StartupLogs {
 
@@ -34,13 +35,13 @@ class StartupLogs {
     this.log = log;
   }
 
-  void log(Tomcat tomcat) {
+  void log(Props props, Tomcat tomcat) {
     Connector[] connectors = tomcat.getService().findConnectors();
     for (Connector connector : connectors) {
       if (StringUtils.containsIgnoreCase(connector.getProtocol(), "AJP")) {
         logAjp(connector);
       } else if (StringUtils.equalsIgnoreCase(connector.getScheme(), "https")) {
-        logHttps(connector);
+        logHttps(connector, props);
       } else if (StringUtils.equalsIgnoreCase(connector.getScheme(), "http")) {
         logHttp(connector);
       } else {
@@ -57,16 +58,16 @@ class StartupLogs {
     log.info(String.format("HTTP connector enabled on port %d", connector.getPort()));
   }
 
-  private void logHttps(Connector connector) {
+  private void logHttps(Connector connector, Props props) {
     StringBuilder additional = new StringBuilder();
     ProtocolHandler protocol = connector.getProtocolHandler();
     if (protocol instanceof AbstractHttp11JsseProtocol) {
       additional.append("| ciphers=");
-      String ciphers = ((AbstractHttp11JsseProtocol) protocol).getCiphers();
-      if (StringUtils.isBlank(ciphers)) {
+      if (StringUtils.isBlank(props.value(Connectors.PROP_HTTPS_CIPHERS))) {
         additional.append("JVM defaults");
       } else {
-        additional.append(ciphers);
+        String[] ciphers = ((AbstractHttp11JsseProtocol) protocol).getCiphersUsed();
+        additional.append(StringUtils.join(ciphers, ","));
       }
     }
     log.info(String.format("HTTPS connector enabled on port %d %s", connector.getPort(), additional));

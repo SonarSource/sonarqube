@@ -37,15 +37,17 @@ import java.util.Set;
  */
 class Connectors {
 
-  private static final int DISABLED_PORT = -1;
-  static final String HTTP_PROTOCOL = "HTTP/1.1";
-  static final String AJP_PROTOCOL = "AJP/1.3";
+  public static final String PROP_HTTPS_CIPHERS = "sonar.web.https.ciphers";
+  public static final int DISABLED_PORT = -1;
+  public static final String HTTP_PROTOCOL = "HTTP/1.1";
+  public static final String AJP_PROTOCOL = "AJP/1.3";
 
   private Connectors() {
+    // only static stuff
   }
 
   static void configure(Tomcat tomcat, Props props) {
-    List<Connector> connectors = new ArrayList<Connector>();
+    List<Connector> connectors = new ArrayList<>();
     connectors.addAll(Arrays.asList(newHttpConnector(props), newAjpConnector(props), newHttpsConnector(props)));
     connectors.removeAll(Collections.singleton(null));
 
@@ -61,7 +63,7 @@ class Connectors {
     if (connectors.isEmpty()) {
       throw new IllegalStateException("HTTP connectors are disabled");
     }
-    Set<Integer> ports = new HashSet<Integer>();
+    Set<Integer> ports = new HashSet<>();
     for (Connector connector : connectors) {
       int port = connector.getPort();
       if (ports.contains(port)) {
@@ -115,7 +117,7 @@ class Connectors {
       setConnectorAttribute(connector, "truststoreType", props.value("sonar.web.https.truststoreType", "JKS"));
       setConnectorAttribute(connector, "truststoreProvider", props.value("sonar.web.https.truststoreProvider"));
       setConnectorAttribute(connector, "clientAuth", props.value("sonar.web.https.clientAuth", "false"));
-      setConnectorAttribute(connector, "ciphers", props.value("sonar.web.https.ciphers"));
+      setConnectorAttribute(connector, "ciphers", props.value(PROP_HTTPS_CIPHERS));
       // SSLv3 must not be enable because of Poodle vulnerability
       // See https://jira.codehaus.org/browse/SONAR-5860
       setConnectorAttribute(connector, "sslEnabledProtocols", "TLSv1,TLSv1.1,TLSv1.2");
