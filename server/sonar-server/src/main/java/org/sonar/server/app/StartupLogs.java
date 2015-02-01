@@ -58,17 +58,12 @@ class StartupLogs {
   }
 
   private void logHttps(Connector connector) {
-    StringBuilder additional = new StringBuilder();
+    StringBuilder sb = new StringBuilder();
+    sb.append("HTTPS connector enabled on port ").append(connector.getPort());
+
     ProtocolHandler protocol = connector.getProtocolHandler();
-    if (protocol instanceof AbstractHttp11JsseProtocol) {
-      additional.append("| ciphers=");
-      String ciphers = ((AbstractHttp11JsseProtocol) protocol).getCiphers();
-      if (StringUtils.isBlank(ciphers)) {
-        additional.append("JVM defaults");
-      } else {
-        additional.append(ciphers);
-      }
-    }
-    log.info(String.format("HTTPS connector enabled on port %d %s", connector.getPort(), additional));
+    String[] ciphers = ((AbstractHttp11JsseProtocol) protocol).getCiphersUsed();
+    sb.append(" | ciphers=").append(StringUtils.join(ciphers, ","));
+    log.info(sb.toString());
   }
 }
