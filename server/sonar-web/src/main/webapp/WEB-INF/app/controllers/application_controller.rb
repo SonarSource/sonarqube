@@ -134,7 +134,7 @@ class ApplicationController < ActionController::Base
   end
 
   # The resource requested, such as a project, a dashboard or a filter, does not exist
-  def not_found(message)
+  def not_found(message=nil)
     raise Errors::NotFound.new(message)
   end
 
