@@ -51,12 +51,9 @@ class Webapp {
       context.setClearReferencesStopTimerThreads(false);
       context.setClearReferencesStopTimerThreads(false);
       context.setAntiResourceLocking(false);
-      context.setAntiJARLocking(false);
       context.setReloadable(false);
       context.setUseHttpOnly(true);
-      context.setProcessTlds(false);
       context.setTldValidation(false);
-      context.setTldNamespaceAware(false);
       context.setXmlValidation(false);
       context.setXmlNamespaceAware(false);
       context.setUseNaming(false);

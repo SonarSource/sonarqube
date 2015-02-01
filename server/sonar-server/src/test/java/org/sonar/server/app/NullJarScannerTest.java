@@ -39,13 +39,14 @@
  */
 package org.sonar.server.app;
 
+import org.apache.tomcat.JarScanFilter;
+import org.apache.tomcat.JarScanType;
 import org.apache.tomcat.JarScannerCallback;
 import org.junit.Test;
 
 import javax.servlet.ServletContext;
 
-import java.util.HashSet;
-
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
@@ -53,9 +54,13 @@ public class NullJarScannerTest {
   @Test
   public void does_nothing() {
     ServletContext context = mock(ServletContext.class);
-    ClassLoader classloader = mock(ClassLoader.class);
     JarScannerCallback callback = mock(JarScannerCallback.class);
-    new NullJarScanner().scan(context, classloader, callback, new HashSet<String>());
-    verifyZeroInteractions(context, classloader, callback);
+
+    NullJarScanner scanner = new NullJarScanner();
+
+    scanner.scan(JarScanType.PLUGGABILITY, context, callback);
+    verifyZeroInteractions(context, callback);
+    scanner.setJarScanFilter(mock(JarScanFilter.class));
+    assertThat(scanner.getJarScanFilter()).isNull();
   }
 }
