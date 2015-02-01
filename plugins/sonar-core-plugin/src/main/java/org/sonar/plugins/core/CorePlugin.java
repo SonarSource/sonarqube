@@ -235,7 +235,7 @@ import java.util.List;
     key = CoreProperties.SCM_DISABLED_KEY,
     defaultValue = "false",
     name = "Disable the SCM Sensor",
-    description = "This property can be set to true in order to deactivate the SCM Sensor.",
+    description = "Disable the retrieval of blame information from Source Control Manager",
     module = false,
     project = true,
     global = true,
