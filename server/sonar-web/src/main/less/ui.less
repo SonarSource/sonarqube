@@ -422,22 +422,30 @@ input[type=button] {
 
 
 .nav-crumbs {
-  padding: 5px 0;
+  padding: 2px 0;
 
   a {
-    color: @baseFontColor;
+    color: @baseLightFontColor;
+
+    &:hover, &:focus {
+      color: @blue !important;
+    }
   }
 
   > li + li:before {
     content: "/";
     float: left;
-    padding: 7px 0;
+    padding: 4px 0;
     color: fade(@baseFontColor, 30%);
   }
 
   > li:first-child {
-    font-size: 21px;
+    font-size: 18px;
     font-weight: 300;
+
+    > a {
+      color: @baseFontColor;
+    }
   }
 }
 
@@ -450,15 +458,18 @@ input[type=button] {
   }
 
   > li > a {
+    padding-top: 2px;
+    padding-bottom: 2px;
     margin-right: 2px;
     border-bottom: 3px solid transparent;
+    color: @baseLightFontColor;
 
     &:hover {
-      border-color: @lightBlue;
+      border-color: @blue;
     }
   }
 
   > li.active > a {
-    border-color: @lightBlue;
+    border-color: @blue;
   }
 }
