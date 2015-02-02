@@ -60,8 +60,7 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
 
   private static final String FACET_SUFFIX_MISSING = "_missing";
 
-  private static final int DEFAULT_ISSUE_FACET_SIZE = 5;
-  private static final int TAGS_FACET_SIZE = 10;
+  private static final int DEFAULT_ISSUE_FACET_SIZE = 15;
 
   private final Sorting sorting;
 
@@ -427,7 +426,7 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
         IssueFilterParameters.AUTHORS, IssueIndexDefinition.FIELD_ISSUE_AUTHOR_LOGIN, query.authors().toArray());
 
       if (options.facets().contains(IssueFilterParameters.TAGS)) {
-        esSearch.addAggregation(stickyFacetBuilder.buildStickyFacet(IssueIndexDefinition.FIELD_ISSUE_TAGS, IssueFilterParameters.TAGS, TAGS_FACET_SIZE, query.tags().toArray()));
+        esSearch.addAggregation(stickyFacetBuilder.buildStickyFacet(IssueIndexDefinition.FIELD_ISSUE_TAGS, IssueFilterParameters.TAGS, query.tags().toArray()));
       }
 
       if (options.facets().contains(IssueFilterParameters.RESOLUTIONS)) {
