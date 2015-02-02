@@ -124,6 +124,12 @@
   text-align: right;
 }
 
+.navbar-search-subtitle {
+  position: absolute;
+  top: 5px;
+  right: 40px;
+}
+
 
 .navbar-global {
   background-color: @navbarGlobalBackground;
@@ -153,11 +159,17 @@
   .navbar-nav > li > a:focus,
   .navbar-nav > .active > a,
   .navbar-nav > .dropdown.open > a {
-    background-color: @darkBlue;
+    background-color: @blue;
   }
 
   .navbar-search-dropdown {
     background-color: @blue !important;
+  }
+
+  .navbar-admin-link:hover,
+  .navbar-admin-link:focus,
+  .active > .navbar-admin-link {
+    background-color: @orange !important;
   }
 }
 
@@ -181,9 +193,4 @@
   padding: 0 10px;
   color: @secondFontColor;
   font-size: @smallFontSize;
-}
-
-
-.navbar-settings {
-  .horizontal-gradient(@navbarGlobalBackground, #7b1b1b);
 }
