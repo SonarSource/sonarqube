@@ -8,7 +8,7 @@
 
     var args = Array.prototype.slice.call(arguments, 0),
         key = args.join('.');
-    return (window.messages && window.messages[key]) || key;
+    return window.messages[key] != null ? window.messages[key] : key;
   };
 
   window.tp = function() {

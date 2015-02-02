@@ -1,6 +1,7 @@
 <div class="issue-action-options">
   {{#each transitions}}
-    <a href="#" class="issue-action-option js-issue-transition" data-value="{{this}}">
+    <a href="#" class="issue-action-option js-issue-transition" data-value="{{this}}"
+        title="{{t 'issue.transition' this 'description'}}" data-placement="right" data-toggle="tooltip">
       {{t 'issue.transition' this}}
     </a>
   {{/each}}
