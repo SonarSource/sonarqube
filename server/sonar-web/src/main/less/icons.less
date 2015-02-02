@@ -4,11 +4,11 @@
 
 @font-face {
 	font-family: 'sonar';
-	src:url('../fonts/sonar-5.0.eot?');
-	src:url('../fonts/sonar-5.0.eot?#iefix') format('embedded-opentype'),
-		  url('../fonts/sonar-5.0.woff?') format('woff'),
-		  url('../fonts/sonar-5.0.ttf?') format('truetype'),
-		  url('../fonts/sonar-5.0.svg?#sonar') format('svg');
+	src:url('../fonts/sonar-5.1.eot?');
+	src:url('../fonts/sonar-5.1.eot?#iefix') format('embedded-opentype'),
+		  url('../fonts/sonar-5.1.woff?') format('woff'),
+		  url('../fonts/sonar-5.1.ttf?') format('truetype'),
+		  url('../fonts/sonar-5.1.svg?#sonar') format('svg');
 	font-weight: normal;
 	font-style: normal;
 }
@@ -30,6 +30,10 @@
 
 a[class^="icon-"], a[class*=" icon-"] {
   .link-no-underline;
+}
+
+.icon-half-transparent {
+  opacity: 0.5;
 }
 
 
@@ -540,6 +544,16 @@ a[class^="icon-"], a[class*=" icon-"] {
 .icon-search:before {
   content: "\f002";
   font-size: @iconFontSize;
+}
+.icon-edit:before {
+  content: "\f040";
+  font-size: @iconFontSize;
+}
+.icon-ellipsis-h:before {
+  position: relative;
+  top: 1px;
+  content: "\f141";
+  font-size: @iconSmallFontSize;
 }
 
 

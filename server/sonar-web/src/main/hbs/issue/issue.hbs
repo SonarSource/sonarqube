@@ -3,17 +3,11 @@
   <table class="issue-table">
     <tr>
       <td>
-        <div class="issue-message">{{message}} <a class="issue-rule js-issue-rule">{{t 'rule'}}</a></div>
+        <div class="issue-message">{{message}} <a class="js-issue-rule issue-rule icon-ellipsis-h"></a></div>
       </td>
 
       <td class="issue-table-meta-cell">
         <div class="issue-meta-list">
-          {{#if debt}}
-            <div class="issue-meta">
-              <span class="issue-meta-label">{{t 'issue.debt'}} {{debt}}</span>
-            </div>
-          {{/if}}
-
           <div class="issue-meta">
             <a class="issue-action issue-action-with-options js-issue-show-changelog" title="{{dt creationDate}}">
               <span class="issue-meta-label">{{fromNow creationDate}}</span>&nbsp;<i class="icon-dropdown"></i>
@@ -89,6 +83,14 @@
             {{/inArray}}
           </div>
 
+          {{#if debt}}
+            <div class="issue-meta">
+              <span class="issue-meta-label">
+                {{tp 'issue.x_debt' debt}}
+              </span>
+            </div>
+          {{/if}}
+
           {{#inArray actions "comment"}}
             <div class="issue-meta">
               <a class="issue-action js-issue-comment"><span
@@ -111,12 +113,12 @@
           {{#inArray actions "set_tags"}}
             <a class="issue-action issue-action-with-options js-issue-edit-tags">
               <span>
-                <i class="icon-tags"></i>&nbsp;<span>{{#if tags}}{{join tags ', '}}{{else}}{{t 'issue.no_tag'}}{{/if}}</span>
+                <i class="icon-tags icon-half-transparent"></i>&nbsp;<span>{{#if tags}}{{join tags ', '}}{{else}}{{t 'issue.no_tag'}}{{/if}}</span>
               </span>&nbsp;<i class="icon-dropdown"></i>
             </a>
           {{else}}
             <span>
-              <i class="icon-tags"></i>&nbsp;<span>{{#if tags}}{{join tags ', '}}{{else}}{{t 'issue.no_tag'}}{{/if}}</span>
+              <i class="icon-tags icon-half-transparent"></i>&nbsp;<span>{{#if tags}}{{join tags ', '}}{{else}}{{t 'issue.no_tag'}}{{/if}}</span>
             </span>
           {{/inArray}}
         </div>
@@ -128,15 +130,15 @@
     <div class="issue-comments">
       {{#each comments}}
         <div class="issue-comment" data-comment-key="{{key}}">
-          <div class="issue-comment-author" title="{{userName}}"><i class="icon-comment"></i>&nbsp;{{userName}}
+          <div class="issue-comment-author" title="{{userName}}"><i class="icon-comment icon-half-transparent"></i>&nbsp;{{userName}}
           </div>
           <div class="issue-comment-text markdown">{{{show html htmlText}}}</div>
           <div class="issue-comment-age">({{fromNow createdAt}})</div>
           <div class="issue-comment-actions">
             {{#if updatable}}
-              <a class="js-issue-comment-edit">{{t 'edit'}}</a>&nbsp;
-              <a class="link-red js-issue-comment-delete"
-                 data-confirm-msg="{{t 'issue.comment.delete_confirm_message'}}">{{t 'delete'}}</a>
+              <a class="js-issue-comment-edit icon-edit icon-half-transparent"></a>
+              <a class="js-issue-comment-delete icon-delete icon-half-transparent"
+                 data-confirm-msg="{{t 'issue.comment.delete_confirm_message'}}"></a>
             {{/if}}
           </div>
         </div>
