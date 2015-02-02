@@ -48,7 +48,7 @@ public class FileMetadataTest {
     FileMetadata.Metadata metadata = new FileMetadata().read(tempFile, Charsets.UTF_8);
     assertThat(metadata.lines).isEqualTo(1);
     assertThat(metadata.nonBlankLines).isEqualTo(0);
-    assertThat(metadata.hash).isNull();
+    assertThat(metadata.hash).isNotEmpty();
     assertThat(metadata.originalLineOffsets).containsOnly(0);
     assertThat(metadata.lineHashes[0]).isNull();
     assertThat(metadata.empty).isTrue();

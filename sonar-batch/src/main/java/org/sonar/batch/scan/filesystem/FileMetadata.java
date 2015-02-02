@@ -28,12 +28,7 @@ import org.apache.commons.io.input.BOMInputStream;
 
 import javax.annotation.CheckForNull;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
@@ -114,23 +109,20 @@ class FileMetadata {
 
   private class FileHashComputer extends CharHandler {
     private MessageDigest globalMd5Digest = DigestUtils.getMd5Digest();
-    private boolean emptyFile = true;;
 
     @Override
     void handleIgnoreEoL(char c) {
-      emptyFile = false;
       updateDigestUTF8Char(c, globalMd5Digest);
     }
 
     @Override
     void newLine() {
-      emptyFile = false;
       updateDigestUTF8Char(LINE_FEED, globalMd5Digest);
     }
 
     @CheckForNull
     public String getHash() {
-      return emptyFile ? null : Hex.encodeHexString(globalMd5Digest.digest());
+      return Hex.encodeHexString(globalMd5Digest.digest());
     }
   }
 
