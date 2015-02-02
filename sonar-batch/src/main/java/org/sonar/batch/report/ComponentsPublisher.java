@@ -63,12 +63,18 @@ public class ComponentsPublisher implements ReportPublisher {
 
     // non-null fields
     builder.setRef(batchResource.batchId());
-    builder.setSnapshotId(batchResource.snapshotId());
-    builder.setUuid(r.getUuid());
     builder.setType(getType(r));
 
     // protocol buffers does not accept null values
 
+    String uuid = r.getUuid();
+    if (uuid != null) {
+      builder.setUuid(uuid);
+    }
+    Integer sid = batchResource.snapshotId();
+    if (sid != null) {
+      builder.setSnapshotId(sid);
+    }
     if (ResourceUtils.isFile(r)) {
       builder.setIsTest(ResourceUtils.isUnitTestClass(r));
     }
