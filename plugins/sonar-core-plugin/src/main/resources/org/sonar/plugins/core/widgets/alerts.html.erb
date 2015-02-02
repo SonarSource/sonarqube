@@ -46,12 +46,19 @@
       warning_measure = ProjectMeasure.new :metric => condition_metric, :value => warning_value
       error_measure = ProjectMeasure.new :metric => condition_metric, :value => error_value
 
+      is_difference_measure = condition_metric.name.start_with?('new_')
+      is_not_difference_measure_with_period = !is_difference_measure && !period.blank?
+
 
       unless level == 'OK' && !widget_properties['show_ok']
       -%>
       <div class="dashbox" style="margin: 10px; vertical-align: baseline">
         <p class="title"><%= condition_metric.short_name -%></p>
-        <span class="big"><%= format_measure(actual_measure, :url => drilldown_url) -%></span>
+        <% if is_not_difference_measure_with_period %>
+          <span class="big"><%= format_measure(actual_measure) -%></span>
+        <% else %>
+          <span class="big"><%= format_measure(actual_measure, :url => drilldown_url) -%></span>
+        <% end %>
         <% if level == 'WARN' -%><%= operator -%> <%= format_measure(warning_measure) -%><% end -%>
         <% if level == 'ERROR' -%><%= operator -%> <%= format_measure(error_measure) -%><% end -%>
         <% if level == 'OK' -%>
