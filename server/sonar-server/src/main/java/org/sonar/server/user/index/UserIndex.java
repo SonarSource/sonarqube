@@ -62,19 +62,9 @@ public class UserIndex implements ServerComponent {
    */
   @CheckForNull
   public UserDoc getNullableByScmAccount(String scmAccount) {
-    if (!StringUtils.isEmpty(scmAccount)) {
-      SearchRequestBuilder request = esClient.prepareSearch(UserIndexDefinition.INDEX)
-        .setTypes(UserIndexDefinition.TYPE_USER)
-        .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
-          FilterBuilders.boolFilter()
-            .should(FilterBuilders.termFilter(UserIndexDefinition.FIELD_LOGIN, scmAccount))
-            .should(FilterBuilders.termFilter(UserIndexDefinition.FIELD_EMAIL, scmAccount))
-            .should(FilterBuilders.termFilter(UserIndexDefinition.FIELD_SCM_ACCOUNTS, scmAccount))))
-        .setSize(2);
-      SearchHit[] result = request.get().getHits().getHits();
-      if (result.length == 1) {
-        return new UserDoc(result[0].sourceAsMap());
-      }
+    List<UserDoc> users = getAtMostThreeActiveUsersForScmAccount(scmAccount);
+    if (users.size() == 1) {
+      return users.get(0);
     }
     return null;
   }
@@ -88,16 +78,17 @@ public class UserIndex implements ServerComponent {
   }
 
   /**
-   * Returns the users (at most 3) who are associated to the given SCM account. This method can be used
+   * Returns the active users (at most 3) who are associated to the given SCM account. This method can be used
    * to detect user conflicts.
    */
-  public List<UserDoc> getAtMostThreeUsersForScmAccount(String scmAccount) {
+  public List<UserDoc> getAtMostThreeActiveUsersForScmAccount(String scmAccount) {
     List<UserDoc> result = new ArrayList<>();
     if (!StringUtils.isEmpty(scmAccount)) {
       SearchRequestBuilder request = esClient.prepareSearch(UserIndexDefinition.INDEX)
         .setTypes(UserIndexDefinition.TYPE_USER)
         .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
           FilterBuilders.boolFilter()
+            .must(FilterBuilders.termFilter(UserIndexDefinition.FIELD_ACTIVE, true))
             .should(FilterBuilders.termFilter(UserIndexDefinition.FIELD_LOGIN, scmAccount))
             .should(FilterBuilders.termFilter(UserIndexDefinition.FIELD_EMAIL, scmAccount))
             .should(FilterBuilders.termFilter(UserIndexDefinition.FIELD_SCM_ACCOUNTS, scmAccount))))
