@@ -139,9 +139,6 @@ public class ComponentService implements ServerComponent {
     try {
       ComponentDto project = getByKey(session, projectKey);
       resourceKeyUpdaterDao.bulkUpdateKey(session, project.getId(), stringToReplace, replacementString);
-
-      ComponentDto newProject = dbClient.componentDao().getById(project.getId(), session);
-
       session.commit();
     } finally {
       session.close();
