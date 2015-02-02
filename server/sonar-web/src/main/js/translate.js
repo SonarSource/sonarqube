@@ -20,7 +20,7 @@
         message = message.replace('{' + i + '}', p);
       });
     }
-    return message || '';
+    return message || (key + ' ' + args.join(' '));
   };
 
 
