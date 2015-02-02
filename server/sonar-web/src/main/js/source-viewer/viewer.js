@@ -165,7 +165,7 @@ define([
               source.unshift({line: 0});
             }
             source = source.map(function (row) {
-              return _.extend(row, {coverageStatus: that.getCoverageStatus(row)});
+              return _.extend(row, { coverageStatus: that.getCoverageStatus(row) });
             });
             var firstLine = _.first(source).line,
                 linesRequested = options.to - options.from + 1;
@@ -539,6 +539,9 @@ define([
             if (source.length === 0 || (source.length > 0 && _.first(source).line === 1)) {
               source.unshift({line: 0});
             }
+            source = source.map(function (row) {
+              return _.extend(row, { coverageStatus: that.getCoverageStatus(row) });
+            });
             that.model.set({
               source: source,
               hasSourceBefore: (data.sources.length === that.LINES_AROUND) && (_.first(source).line > 0)
@@ -574,6 +577,9 @@ define([
               source = source.slice(source.length - that.TOTAL_LINES_LIMIT);
               that.model.set({ hasSourceBefore: true });
             }
+            source = source.map(function (row) {
+              return _.extend(row, { coverageStatus: that.getCoverageStatus(row) });
+            });
             that.model.set({
               source: source,
               hasSourceAfter: data.sources.length === that.LINES_AROUND
