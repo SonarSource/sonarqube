@@ -232,7 +232,11 @@ module ApplicationHelper
           url += 'resolved=false'
       end
     else
-      url = url_for(options.merge({:controller => 'drilldown', :action => 'measures', :metric => metric_key, :id => options[:resource]||@resource.id}))
+      if metric_key == 'package_cycles'
+        url = url_for(options.merge({:controller => 'design', :action => 'index', :id => options[:resource]||@resource.key}))
+      else
+        url = url_for(options.merge({:controller => 'drilldown', :action => 'measures', :metric => metric_key, :id => options[:resource]||@resource.id}))
+      end
     end
 
     url
