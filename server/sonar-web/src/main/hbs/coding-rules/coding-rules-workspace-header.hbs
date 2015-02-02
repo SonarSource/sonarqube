@@ -21,12 +21,18 @@
     </div>
   {{/notNull}}
 
+
+  <div class="search-navigator-header-buttons button-group">
+    <button class="js-reload">{{t 'reload'}}</button>
+    <button class="js-new-search" id="coding-rules-new-search">{{t 'coding_rules.new_search'}}</button>
+    {{#if canWrite}}
+      <button class="js-bulk-change">{{t 'bulk_change'}}</button>
+    {{/if}}
+  </div>
+
   {{#if canWrite}}
     <div class="search-navigator-header-buttons button-group">
       <button class="js-create-manual-rule">{{t 'coding_rules.create_manual_rule'}}</button>
-      <button class="js-reload">{{t 'reload'}}</button>
-      <button class="js-new-search" id="coding-rules-new-search">{{t 'coding_rules.new_search'}}</button>
-      <button class="js-bulk-change">{{t 'bulk_change'}}</button>
     </div>
   {{/if}}
 </div>
