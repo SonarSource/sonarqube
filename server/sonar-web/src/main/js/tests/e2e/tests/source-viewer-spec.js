@@ -22,11 +22,10 @@ casper.test.begin(testName('Base'), function (test) {
         casper.waitForSelector('.source-line', function () {
           // Check header elements
           test.assertExists('.source-viewer-header');
-          test.assertSelectorContains('.source-viewer-header-component-project', 'SonarQube');
-          test.assertSelectorContains('.source-viewer-header-component-project', 'SonarQube :: Batch');
-          test.assertSelectorContains('.source-viewer-header-component-name',
-              'src/main/java/org/sonar/batch/index/Cache.java');
-          test.assertExists('.source-viewer-header-favorite');
+          test.assertSelectorContains('.source-viewer-header', 'SonarQube');
+          test.assertSelectorContains('.source-viewer-header', 'SonarQube :: Batch');
+          test.assertSelectorContains('.source-viewer-header', 'src/main/java/org/sonar/batch/index/Cache.java');
+          test.assertExists('.source-viewer-header .js-favorite');
           test.assertExists('.source-viewer-header-actions');
 
           // Check main measures

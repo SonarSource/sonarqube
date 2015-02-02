@@ -440,6 +440,47 @@
     return component.projectName + (component.subProjectName ? (' / ' + component.subProjectName) : '');
   });
 
+  Handlebars.registerHelper('dirFromPath', function (path) {
+    if (typeof path === 'string') {
+      var tokens = path.split('/');
+      return tokens.length > 1 ? _.initial(tokens).join('/') + '/' : '';
+    } else {
+      return null;
+    }
+  });
+
+  Handlebars.registerHelper('collapsedDirFromPath', function (path) {
+    var limit = 30;
+    if (typeof path === 'string') {
+      var tokens = _.initial(path.split('/'));
+      if (tokens.length > 2) {
+        var head = _.first(tokens),
+            tail = _.last(tokens),
+            middle = _.initial(_.rest(tokens)),
+            cut = false;
+        while (middle.join().length > limit && middle.length > 0) {
+          middle.shift();
+          cut = true;
+        }
+        var body = [].concat(head, cut ? ['...'] : [], middle, tail);
+        return body.join('/') + '/';
+      } else {
+        return tokens.join('/') + '/';
+      }
+    } else {
+      return null;
+    }
+  });
+
+  Handlebars.registerHelper('fileFromPath', function (path) {
+    if (typeof path === 'string') {
+      var tokens = path.split('/');
+      return _.last(tokens);
+    } else {
+      return null;
+    }
+  });
+
   Handlebars.registerHelper('repeat', function (number, options) {
     var ret = '';
     for (var i = 0; i < number; i++) {

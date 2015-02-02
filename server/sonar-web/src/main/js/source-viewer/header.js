@@ -70,6 +70,12 @@ define([
         model: this.model,
         large: true
       }).render();
+    },
+
+    serializeData: function () {
+      return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
+        path: this.model.get('path') || this.model.get('longName')
+      });
     }
   });
 
