@@ -1,28 +1,31 @@
 <div class="source-viewer-header-component">
-  {{#unless removed}}
-    {{#if projectName}}
-      <div class="source-viewer-header-component-project">
-        {{qualifierIcon 'TRK'}}&nbsp;<a href="{{dashboardUrl project}}">{{projectName}}</a>
+  <div class="component-name">
+
+    {{#unless removed}}
+      {{#if projectName}}
+        <div class="component-name-parent">
+          {{qualifierIcon 'TRK'}}&nbsp;<a href="{{dashboardUrl project}}">{{projectName}}</a>
+        </div>
         {{#if subProjectName}}
-          &nbsp;&nbsp;&nbsp;
-          {{qualifierIcon 'TRK'}}&nbsp;<a href="{{dashboardUrl subProject}}">{{subProjectName}}</a>
+          <div class="component-name-parent">
+            {{qualifierIcon 'TRK'}}&nbsp;<a href="{{dashboardUrl subProject}}">{{subProjectName}}</a>
+          </div>
+        {{/if}}
+      {{/if}}
+
+      <div class="component-name-path">
+        {{qualifierIcon q}}&nbsp;<span>{{collapsedDirFromPath path}}</span><span class="component-name-file">{{fileFromPath path}}</span>
+
+        {{#if canMarkAsFavourite}}
+          <a class="js-favorite component-name-favorite {{#if fav}}icon-favorite{{else}}icon-not-favorite{{/if}}"
+             title="{{#if fav}}{{t 'click_to_remove_from_favorites'}}{{else}}{{t 'click_to_add_to_favorites'}}{{/if}}">
+          </a>
         {{/if}}
       </div>
-    {{/if}}
-
-    <div class="source-viewer-header-component-name">
-      {{qualifierIcon q}} {{default path longName}}
-
-      {{#if canMarkAsFavourite}}
-        <a class="js-favorite source-viewer-header-favorite"
-           title="{{#if fav}}{{t 'click_to_remove_from_favorites'}}{{else}}{{t 'click_to_add_to_favorites'}}{{/if}}">
-          <i class="{{#if fav}}icon-favorite{{else}}icon-not-favorite{{/if}}"></i>
-        </a>
-      {{/if}}
-    </div>
-  {{else}}
-    <div class="source-viewer-header-component-project removed">{{removedMessage}}</div>
-  {{/unless}}
+    {{else}}
+      <div class="source-viewer-header-component-project removed">{{removedMessage}}</div>
+    {{/unless}}
+  </div>
 </div>
 
 {{#unless removed}}

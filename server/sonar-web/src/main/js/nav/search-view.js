@@ -136,16 +136,8 @@ define([
         var collection = [];
         r.results.forEach(function (domain) {
           domain.items.forEach(function (item, index) {
-            var title = item.name,
-                subtitle = null;
-            if (domain.q === 'FIL' || domain.q === 'UTS') {
-              subtitle = title.substr(0, title.lastIndexOf('/'));
-              title = title.substr(title.lastIndexOf('/') + 1);
-            }
             collection.push(_.extend(item, {
               q: domain.q,
-              title: title,
-              subtitle: subtitle,
               extra: index === 0 ? domain.name : null,
               url: baseUrl + '/dashboard/index?id=' + encodeURIComponent(item.key) + dashboardParameters(true)
             }));

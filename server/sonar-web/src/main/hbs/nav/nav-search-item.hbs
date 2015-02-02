@@ -9,10 +9,13 @@
 
 <a href="{{url}}" title="{{name}}">
   {{#if q}}{{qualifierIcon q}}{{/if}}
-  {{#if subtitle}}
-    {{title}}
-    <span class="subtitle">{{subtitle}}</span>
+  {{#eq q 'FIL'}}
+    {{collapsedDirFromPath name}}{{fileFromPath name}}
   {{else}}
-    {{name}}
-  {{/if}}
+    {{#eq q 'UTS'}}
+      {{collapsedDirFromPath name}}{{fileFromPath name}}
+    {{else}}
+      {{name}}
+    {{/eq}}
+  {{/eq}}
 </a>

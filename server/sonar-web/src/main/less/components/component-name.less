@@ -1,0 +1,35 @@
+@import (reference) "../variables";
+@import (reference) "../mixins";
+@import (reference) "../ui";
+
+.component-name {
+  .clearfix;
+  line-height: 20px;
+  font-size: @smallFontSize;
+}
+
+.component-name-parent {
+  float: left;
+  margin-right: 20px;
+
+  &:last-child {
+    margin-right: 0;
+  }
+}
+
+.component-name-path {
+  float: left;
+  clear: left;
+}
+
+.component-name-file {
+
+}
+
+.component-name-favorite {
+  position: relative;
+  top: -1px;
+  margin-left: 4px;
+  padding: 2px 0;
+}
+
