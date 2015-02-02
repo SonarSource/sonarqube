@@ -1,13 +1,9 @@
 define [
   'design/info-view',
   'templates/design'
-], (
-  InfoView
-) ->
-
+], (InfoView) ->
   $ = jQuery
   API_DEPENDECIES = "#{baseUrl}/api/dependencies"
-
 
 
   class extends Marionette.Layout
@@ -30,6 +26,11 @@ define [
       'dblclick @ui.titles': 'goToComponent'
       'click @ui.cells': 'highlightCell'
       'dblclick @ui.dependencies': 'showDependencies'
+      'change .js-hide-dir': 'toggleDirDisplay'
+
+
+    onRender: ->
+      @toggleDirDisplay()
 
 
     clearCells: ->
@@ -116,3 +117,13 @@ define [
     scrollToInfoView: ->
       delta = @$(@infoRegion.el).offset().top - 40
       $('html, body').animate { scrollTop: delta }, 500
+
+
+    toggleDirDisplay: ->
+      rows = @$('tr')
+      rows.each (index) ->
+        if $(@).data('empty')?
+          $(@).toggleClass 'hidden'
+          rows.each ->
+            $(@).find('td').eq(index + 1).toggleClass 'hidden'
+
