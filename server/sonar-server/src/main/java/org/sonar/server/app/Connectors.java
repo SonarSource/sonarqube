@@ -38,6 +38,14 @@ import java.util.Set;
 class Connectors {
 
   public static final String PROP_HTTPS_CIPHERS = "sonar.web.https.ciphers";
+
+  /**
+   * Removes the weak ciphers that are provided by default in JVM
+   * We follow the recommendations from Mozilla (Intermediate Compatibility)
+   * https://wiki.mozilla.org/Security/Server_Side_TLS#Intermediate_compatibility_.28default.29
+   */
+  public static final String DEFVAL_HTTPS_CIPHERS = "ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA";
+
   public static final int DISABLED_PORT = -1;
   public static final String HTTP_PROTOCOL = "HTTP/1.1";
   public static final String AJP_PROTOCOL = "AJP/1.3";
@@ -117,7 +125,7 @@ class Connectors {
       setConnectorAttribute(connector, "truststoreType", props.value("sonar.web.https.truststoreType", "JKS"));
       setConnectorAttribute(connector, "truststoreProvider", props.value("sonar.web.https.truststoreProvider"));
       setConnectorAttribute(connector, "clientAuth", props.value("sonar.web.https.clientAuth", "false"));
-      setConnectorAttribute(connector, "ciphers", props.value(PROP_HTTPS_CIPHERS));
+      setConnectorAttribute(connector, "ciphers", props.value(PROP_HTTPS_CIPHERS, DEFVAL_HTTPS_CIPHERS));
       // SSLv3 must not be enable because of Poodle vulnerability
       // See https://jira.codehaus.org/browse/SONAR-5860
       setConnectorAttribute(connector, "sslEnabledProtocols", "TLSv1,TLSv1.1,TLSv1.2");
