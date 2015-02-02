@@ -86,6 +86,10 @@ public class MockUserSession extends UserSession {
     return this;
   }
 
+  /**
+   * Deprecated, please use {@link #addProjectUuidPermissions}
+   */
+  @Deprecated
   public MockUserSession addProjectPermissions(String projectPermission, String... projectKeys) {
     this.projectPermissions.add(projectPermission);
     this.projectKeyByPermission.putAll(projectPermission, newArrayList(projectKeys));
@@ -98,9 +102,19 @@ public class MockUserSession extends UserSession {
     return this;
   }
 
+  /**
+   * Deprecated, please use {@link #addComponentUuidPermission}
+   */
+  @Deprecated
   public MockUserSession addComponentPermission(String projectPermission, String projectKey, String componentKey) {
     this.projectKeyByComponentKey.put(componentKey, projectKey);
     addProjectPermissions(projectPermission, projectKey);
+    return this;
+  }
+
+  public MockUserSession addComponentUuidPermission(String projectPermission, String projectUuid, String componentUuid) {
+    this.projectUuidByComponentUuid.put(componentUuid, projectUuid);
+    addProjectUuidPermissions(projectPermission, projectUuid);
     return this;
   }
 

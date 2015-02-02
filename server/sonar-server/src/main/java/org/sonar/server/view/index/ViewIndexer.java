@@ -45,6 +45,10 @@ public class ViewIndexer extends BaseIndexer {
     this.esClient = esClient;
   }
 
+  /**
+   * Index all views if the index is empty.
+   * Only used on startup .
+   */
   @Override
   protected long doIndex(long lastUpdatedAt) {
     // Index only if index is empty
@@ -64,6 +68,10 @@ public class ViewIndexer extends BaseIndexer {
     return 0L;
   }
 
+  /**
+   * Index a root view : it will load projects on each sub views and index it.
+   * Used by the compute engine to reindex a root view.
+   */
   public void index(String rootViewUuid) {
     DbSession dbSession = dbClient.openSession(false);
     try {
@@ -75,6 +83,16 @@ public class ViewIndexer extends BaseIndexer {
     } finally {
       dbSession.close();
     }
+  }
+
+  /**
+   * Index a single document
+   */
+  public void index(ViewDoc viewDoc) {
+    final BulkIndexer bulk = new BulkIndexer(esClient, ViewIndexDefinition.INDEX);
+    bulk.start();
+    bulk.add(newUpsertRequest(viewDoc));
+    bulk.stop();
   }
 
   private void index(DbSession dbSession, Map<String, String> viewAndProjectViewUuidMap) {

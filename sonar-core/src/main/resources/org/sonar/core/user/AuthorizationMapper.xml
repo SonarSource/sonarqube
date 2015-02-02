@@ -39,7 +39,7 @@
       <when test="userId != null">
         SELECT p.kee as root_project_kee
         FROM group_roles gr
-        INNER JOIN projects p on p.id = gr.resource_id AND p.scope = 'PRJ' AND p.qualifier = 'TRK'
+        INNER JOIN projects p on p.id = gr.resource_id AND p.module_uuid IS NULL
         <where>
           and gr.role=#{role}
           and (gr.group_id is null or gr.group_id in (select gu.group_id from groups_users gu where gu.user_id=#{userId}))
@@ -47,7 +47,7 @@
         UNION
         SELECT p.kee as root_project_kee
         FROM user_roles ur
-        INNER JOIN projects p on p.id = ur.resource_id AND p.scope = 'PRJ' AND p.qualifier = 'TRK'
+        INNER JOIN projects p on p.id = ur.resource_id AND p.module_uuid IS NULL
         <where>
           and ur.role=#{role}
           and ur.user_id = #{userId}
@@ -56,7 +56,7 @@
       <otherwise>
         SELECT p.kee as root_project_kee
         FROM group_roles gr
-        INNER JOIN projects p on p.id = gr.resource_id AND p.scope = 'PRJ' AND p.qualifier = 'TRK'
+        INNER JOIN projects p on p.id = gr.resource_id AND p.module_uuid IS NULL
         <where>
           and gr.role=#{role}
           and gr.group_id is null
@@ -70,7 +70,7 @@
       <when test="userId != null">
         SELECT p.uuid as root_project_uuid
         FROM group_roles gr
-        INNER JOIN projects p on p.id = gr.resource_id AND p.scope = 'PRJ' AND p.qualifier = 'TRK'
+        INNER JOIN projects p on p.id = gr.resource_id AND p.module_uuid IS NULL
         <where>
           and gr.role=#{role}
           and (gr.group_id is null or gr.group_id in (select gu.group_id from groups_users gu where gu.user_id=#{userId}))
@@ -78,7 +78,7 @@
         UNION
         SELECT p.uuid as root_project_uuid
         FROM user_roles ur
-        INNER JOIN projects p on p.id = ur.resource_id AND p.scope = 'PRJ' AND p.qualifier = 'TRK'
+        INNER JOIN projects p on p.id = ur.resource_id AND p.module_uuid IS NULL
         <where>
           and ur.role=#{role}
           and ur.user_id = #{userId}
@@ -87,7 +87,7 @@
       <otherwise>
         SELECT p.uuid as root_project_uuid
         FROM group_roles gr
-        INNER JOIN projects p on p.id = gr.resource_id AND p.scope = 'PRJ' AND p.qualifier = 'TRK'
+        INNER JOIN projects p on p.id = gr.resource_id AND p.module_uuid IS NULL
         <where>
           and gr.role=#{role}
           and gr.group_id is null
@@ -102,7 +102,7 @@
       <when test="userId != null">
         SELECT p.id as root_project_id
         FROM group_roles gr
-        INNER JOIN projects p on p.id = gr.resource_id AND p.scope = 'PRJ' AND p.qualifier = 'TRK'
+        INNER JOIN projects p on p.id = gr.resource_id AND p.module_uuid IS NULL
         <where>
           and gr.role=#{role}
           and (gr.group_id is null or gr.group_id in (select gu.group_id from groups_users gu where gu.user_id=#{userId}))
@@ -110,7 +110,7 @@
         UNION
         SELECT p.id as root_project_id
         FROM user_roles ur
-        INNER JOIN projects p on p.id = ur.resource_id AND p.scope = 'PRJ' AND p.qualifier = 'TRK'
+        INNER JOIN projects p on p.id = ur.resource_id AND p.module_uuid IS NULL
         <where>
           and ur.role=#{role}
           and ur.user_id = #{userId}
@@ -119,7 +119,7 @@
       <otherwise>
         SELECT p.id as root_project_id
         FROM group_roles gr
-        INNER JOIN projects p on p.id = gr.resource_id AND p.scope = 'PRJ' AND p.qualifier = 'TRK'
+        INNER JOIN projects p on p.id = gr.resource_id AND p.module_uuid IS NULL
         <where>
           and gr.role=#{role}
           and gr.group_id is null

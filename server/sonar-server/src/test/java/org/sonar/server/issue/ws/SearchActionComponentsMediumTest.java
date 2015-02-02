@@ -45,7 +45,13 @@ import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
+import org.sonar.server.view.index.ViewDoc;
+import org.sonar.server.view.index.ViewIndexer;
 import org.sonar.server.ws.WsTester;
+
+import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 public class SearchActionComponentsMediumTest {
 
@@ -367,6 +373,88 @@ public class SearchActionComponentsMediumTest {
     result.assertJson(this.getClass(), "display_directory_facet.json", false);
   }
 
+  @Test
+  public void search_by_view_uuid() throws Exception {
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    setDefaultProjectPermission(project);
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
+    insertIssue(IssueTesting.newDto(newRule(), file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2"));
+
+    ComponentDto view = insertComponent(ComponentTesting.newProjectDto("CDEF").setQualifier(Qualifiers.VIEW).setKey("MyView"));
+    indexView(view.uuid(), newArrayList(project.uuid()));
+
+    setAnyoneProjectPermission(view, UserRole.USER);
+    MockUserSession.set().setLogin("john").addProjectUuidPermissions(UserRole.USER, view.uuid());
+
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+      .setParam(IssueFilterParameters.COMPONENT_UUIDS, view.uuid())
+      .execute()
+      .assertJson(this.getClass(), "search_by_view_uuid.json", false);
+  }
+
+  @Test
+  public void search_by_view_uuid_return_only_authorized_view() throws Exception {
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    setDefaultProjectPermission(project);
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
+    insertIssue(IssueTesting.newDto(newRule(), file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2"));
+
+    ComponentDto view = insertComponent(ComponentTesting.newProjectDto("CDEF").setQualifier(Qualifiers.VIEW).setKey("MyView"));
+    indexView(view.uuid(), newArrayList(project.uuid()));
+
+    setAnyoneProjectPermission(view, UserRole.USER);
+    // User has wrong permission on the view, no issue will be returned
+    MockUserSession.set().setLogin("john").addProjectUuidPermissions(UserRole.CODEVIEWER, view.uuid());
+
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+      .setParam(IssueFilterParameters.COMPONENT_UUIDS, view.uuid())
+      .execute()
+      .assertJson(this.getClass(), "no_issue.json", false);
+  }
+
+  @Test
+  public void search_by_sub_view_uuid() throws Exception {
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    setDefaultProjectPermission(project);
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
+    insertIssue(IssueTesting.newDto(newRule(), file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2"));
+
+    ComponentDto view = insertComponent(ComponentTesting.newProjectDto("CDEF").setQualifier(Qualifiers.VIEW).setKey("MyView"));
+    indexView(view.uuid(), newArrayList(project.uuid()));
+    ComponentDto subView = insertComponent(ComponentTesting.newProjectDto("DEFG").setQualifier(Qualifiers.SUBVIEW).setKey("MySubView"));
+    indexView(subView.uuid(), newArrayList(project.uuid()));
+
+    setAnyoneProjectPermission(view, UserRole.USER);
+    MockUserSession.set().setLogin("john").addComponentUuidPermission(UserRole.USER, view.uuid(), subView.uuid());
+
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+      .setParam(IssueFilterParameters.COMPONENT_UUIDS, subView.uuid())
+      .execute()
+      .assertJson(this.getClass(), "search_by_view_uuid.json", false);
+  }
+
+  @Test
+  public void search_by_sub_view_uuid_return_only_authorized_view() throws Exception {
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    setDefaultProjectPermission(project);
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
+    insertIssue(IssueTesting.newDto(newRule(), file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2"));
+
+    ComponentDto view = insertComponent(ComponentTesting.newProjectDto("CDEF").setQualifier(Qualifiers.VIEW).setKey("MyView"));
+    indexView(view.uuid(), newArrayList(project.uuid()));
+    ComponentDto subView = insertComponent(ComponentTesting.newProjectDto("DEFG").setQualifier(Qualifiers.SUBVIEW).setKey("MySubView"));
+    indexView(subView.uuid(), newArrayList(project.uuid()));
+
+    setAnyoneProjectPermission(view, UserRole.USER);
+    // User has wrong permission on the view, no issue will be returned
+    MockUserSession.set().setLogin("john").addComponentUuidPermission(UserRole.CODEVIEWER, view.uuid(), subView.uuid());
+
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+      .setParam(IssueFilterParameters.COMPONENT_UUIDS, subView.uuid())
+      .execute()
+      .assertJson(this.getClass(), "no_issue.json", false);
+  }
+
   private RuleDto newRule() {
     RuleDto rule = RuleTesting.newXooX1()
       .setName("Rule name")
@@ -378,10 +466,21 @@ public class SearchActionComponentsMediumTest {
   }
 
   private void setDefaultProjectPermission(ComponentDto project) {
-    // project can be seen by anyone and by code viewer
+    // project can be seen by anyone
+    setAnyoneProjectPermission(project, UserRole.USER);
+  }
+
+  private void setAnyoneProjectPermission(ComponentDto project, String permission) {
     MockUserSession.set().setLogin("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-    tester.get(InternalPermissionService.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(UserRole.USER));
+    tester.get(InternalPermissionService.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(permission));
     MockUserSession.set();
+  }
+
+  private IssueDto insertIssue(IssueDto issue) {
+    db.issueDao().insert(session, issue);
+    session.commit();
+    tester.get(IssueIndexer.class).indexAll();
+    return issue;
   }
 
   private ComponentDto insertComponent(ComponentDto component) {
@@ -390,4 +489,7 @@ public class SearchActionComponentsMediumTest {
     return component;
   }
 
+  private void indexView(String viewUuid, List<String> projects) {
+    tester.get(ViewIndexer.class).index(new ViewDoc().setUuid(viewUuid).setProjects(projects));
+  }
 }
