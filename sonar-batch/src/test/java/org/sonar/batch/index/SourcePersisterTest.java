@@ -180,7 +180,7 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     String relativePathEmpty = "src/empty.java";
     DefaultInputFile inputFileEmpty = new DefaultInputFile(PROJECT_KEY, relativePathEmpty)
       .setLines(0)
-      .setHash(null)
+      .setHash("abcd")
       .setLineHashes(new byte[][] {});
     when(inputPathCache.all()).thenReturn(Arrays.<InputPath>asList(inputFileEmpty));
 
