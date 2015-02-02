@@ -113,25 +113,33 @@ public class UserIndexTest {
   }
 
   @Test
-  public void get_users_for_scm_account() throws Exception {
-    esTester.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, this.getClass(), "user1.json", "user3-with-same-email-as-user1.json");
+  public void getAtMostThreeActiveUsersForScmAccount() throws Exception {
+    esTester.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, this.getClass(), "user1.json", "user3-with-same-email-as-user1.json", "inactive-user.json");
 
-    assertThat(index.getAtMostThreeUsersForScmAccount("user_1")).extractingResultOf("login").containsOnly("user1");
-    assertThat(index.getAtMostThreeUsersForScmAccount("user1")).extractingResultOf("login").containsOnly("user1");
+    assertThat(index.getAtMostThreeActiveUsersForScmAccount("user_1")).extractingResultOf("login").containsOnly("user1");
+    assertThat(index.getAtMostThreeActiveUsersForScmAccount("user1")).extractingResultOf("login").containsOnly("user1");
 
     // both users share the same email
-    assertThat(index.getAtMostThreeUsersForScmAccount("user1@mail.com")).extractingResultOf("login").containsOnly("user1", "user3");
+    assertThat(index.getAtMostThreeActiveUsersForScmAccount("user1@mail.com")).extractingResultOf("login").containsOnly("user1", "user3");
 
-    assertThat(index.getAtMostThreeUsersForScmAccount("")).isEmpty();
-    assertThat(index.getAtMostThreeUsersForScmAccount("unknown")).isEmpty();
+    assertThat(index.getAtMostThreeActiveUsersForScmAccount("")).isEmpty();
+    assertThat(index.getAtMostThreeActiveUsersForScmAccount("unknown")).isEmpty();
   }
 
   @Test
-  public void get_maximum_three_users_for_scm_account() throws Exception {
+  public void getAtMostThreeActiveUsersForScmAccount_ignore_inactive_user() throws Exception {
+    esTester.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, this.getClass(), "inactive-user.json");
+
+    assertThat(index.getAtMostThreeActiveUsersForScmAccount("inactiveUser")).isEmpty();
+    assertThat(index.getAtMostThreeActiveUsersForScmAccount("user_1")).isEmpty();
+  }
+
+  @Test
+  public void getAtMostThreeActiveUsersForScmAccount_max_three() throws Exception {
     esTester.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, this.getClass(), "user1.json",
       "user2-with-same-email-as-user1.json", "user3-with-same-email-as-user1.json", "user4-with-same-email-as-user1.json");
 
     // restrict results to 3 users
-    assertThat(index.getAtMostThreeUsersForScmAccount("user1@mail.com")).hasSize(3);
+    assertThat(index.getAtMostThreeActiveUsersForScmAccount("user1@mail.com")).hasSize(3);
   }
 }

@@ -53,7 +53,7 @@ public class ScmAccountCacheLoader implements CacheLoader<String, String> {
 
   @Override
   public String load(String scmAccount) {
-    List<UserDoc> users = index.getAtMostThreeUsersForScmAccount(scmAccount);
+    List<UserDoc> users = index.getAtMostThreeActiveUsersForScmAccount(scmAccount);
     if (users.size() == 1) {
       return users.get(0).login();
     }
