@@ -68,6 +68,7 @@ public class IssueQuery {
   private final Collection<String> actionPlans;
   private final Collection<String> reporters;
   private final Collection<String> assignees;
+  private final Collection<String> authors;
   private final Collection<String> languages;
   private final Collection<String> tags;
   private final Boolean onComponentOnly;
@@ -99,6 +100,7 @@ public class IssueQuery {
     this.actionPlans = defaultCollection(builder.actionPlans);
     this.reporters = defaultCollection(builder.reporters);
     this.assignees = defaultCollection(builder.assignees);
+    this.authors = defaultCollection(builder.authors);
     this.languages = defaultCollection(builder.languages);
     this.tags = defaultCollection(builder.tags);
     this.onComponentOnly = builder.onComponentOnly;
@@ -173,6 +175,10 @@ public class IssueQuery {
 
   public Collection<String> assignees() {
     return assignees;
+  }
+
+  public Collection<String> authors() {
+    return authors;
   }
 
   public Collection<String> languages() {
@@ -271,6 +277,7 @@ public class IssueQuery {
     private Collection<String> actionPlans;
     private Collection<String> reporters;
     private Collection<String> assignees;
+    private Collection<String> authors;
     private Collection<String> languages;
     private Collection<String> tags;
     private Boolean onComponentOnly = false;
@@ -361,6 +368,11 @@ public class IssueQuery {
 
     public Builder assignees(@Nullable Collection<String> l) {
       this.assignees = l;
+      return this;
+    }
+
+    public Builder authors(@Nullable Collection<String> l) {
+      this.authors = l;
       return this;
     }
 

@@ -158,6 +158,9 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
     action.createParam(IssueFilterParameters.REPORTERS)
       .setDescription("Comma-separated list of reporter logins")
       .setExampleValue("admin");
+    action.createParam(IssueFilterParameters.AUTHORS)
+      .setDescription("Comma-separated list of SCM accounts")
+      .setExampleValue("torvalds@linux-foundation.org");
     action.createParam(IssueFilterParameters.ASSIGNEES)
       .setDescription("Comma-separated list of assignee logins")
       .setExampleValue("admin,usera");
@@ -288,6 +291,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       IssueFilterParameters.RULES,
       IssueFilterParameters.ASSIGNEES,
       IssueFilterParameters.REPORTERS,
+      IssueFilterParameters.AUTHORS,
       IssueFilterParameters.MODULE_UUIDS,
       IssueFilterParameters.FILE_UUIDS,
       IssueFilterParameters.DIRECTORIES,

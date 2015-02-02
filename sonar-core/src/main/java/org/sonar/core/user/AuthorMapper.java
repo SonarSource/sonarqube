@@ -19,6 +19,11 @@
  */
 package org.sonar.core.user;
 
+import org.apache.ibatis.annotations.Param;
+
+import java.util.Collection;
+import java.util.List;
+
 /**
  * @since 3.0
  */
@@ -29,4 +34,6 @@ public interface AuthorMapper {
   void insert(AuthorDto authorDto);
 
   int countDeveloperLogins(long developerId);
+
+  List<String> selectScmAccountsByDeveloperUuids(@Param("uuids") Collection<String> uuids);
 }
