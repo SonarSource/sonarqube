@@ -14,7 +14,7 @@ window.Sonar.RecentHistory.prototype.getRecentHistory = function () {
 };
 
 window.Sonar.RecentHistory.prototype.clear = function () {
-  localStorage.clear();
+  localStorage.removeItem('sonar_recent_history');
 };
 
 window.Sonar.RecentHistory.prototype.add = function (resourceKey, resourceName, icon) {
