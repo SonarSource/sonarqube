@@ -200,7 +200,7 @@ public class RulesWebServiceMediumTest {
     request.setParam(SearchOptions.PARAM_FIELDS, "debtChar,debtCharName,debtSubChar,debtSubCharName,debtRemFn,debtOverloaded,defaultDebtChar,defaultDebtSubChar,defaultDebtRemFn");
     request.setParam(SearchAction.PARAM_FACETS, "debt_characteristics");
     WsTester.Result result = request.execute();
-    result.assertJson(this.getClass(), "search_debt_rule.json");
+    result.assertJson(this.getClass(), "search_debt_rule.json", false);
   }
 
   @Test
@@ -309,7 +309,7 @@ public class RulesWebServiceMediumTest {
     request.setParam("debt_characteristics", "SOFT_RELIABILITY");
     request.setParam(SearchAction.PARAM_FACETS, "debt_characteristics");
     WsTester.Result result = request.execute();
-    result.assertJson(this.getClass(), "search_debt_rules_sticky.json");
+    result.assertJson(this.getClass(), "search_debt_rules_sticky.json", false);
   }
 
   @Test
