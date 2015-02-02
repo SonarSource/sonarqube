@@ -17,26 +17,12 @@ define [
       workspaceComponentViewerRegion: '.issues-workspace-component-viewer'
 
 
-    initialize: ->
-      @topOffset = 0
-      $(window).on 'scroll.issues-layout', (=> @onScroll())
-
-
-    onClose: ->
-      $(window).off 'scroll.issues-layout'
-
-
     onRender: ->
       @$(@filtersRegion.el).addClass('hidden') if @options.app.state.get('isContext')
+      $('.search-navigator').addClass 'sticky'
       top = $('.search-navigator').offset().top
-      @topOffset = top
+      @$('.search-navigator-workspace-header').css top: top
       @$('.search-navigator-side').css({ top: top }).isolatedScroll()
-
-
-    onScroll: ->
-      scrollTop = $(window).scrollTop()
-      $('.search-navigator').toggleClass 'sticky', scrollTop >= @topOffset
-      @$('.search-navigator-side').css top: Math.max(0, Math.min(@topOffset - scrollTop, @topOffset))
 
 
     showSpinner: (region) ->

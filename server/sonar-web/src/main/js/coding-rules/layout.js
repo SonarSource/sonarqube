@@ -15,30 +15,12 @@ define([
       workspaceDetailsRegion: '.search-navigator-workspace-details'
     },
 
-    initialize: function () {
-      var that = this;
-      this.topOffset = 0;
-      $(window).on('scroll.search-navigator-layout', function () {
-        that.onScroll();
-      });
-    },
-
-    onClose: function () {
-      $(window).off('scroll.search-navigator-layout');
-    },
-
     onRender: function () {
-      var top = $('.search-navigator').offset().top;
-      this.topOffset = top;
+      var navigator = $('.search-navigator');
+      navigator.addClass('sticky');
+      var top = navigator.offset().top;
+      this.$('.search-navigator-workspace-header').css({ top: top });
       this.$('.search-navigator-side').css({ top: top }).isolatedScroll();
-    },
-
-    onScroll: function () {
-      var scrollTop = $(window).scrollTop();
-      $('.search-navigator').toggleClass('sticky', scrollTop >= this.topOffset);
-      this.$('.search-navigator-side').css({
-        top: Math.max(0, Math.min(this.topOffset - scrollTop, this.topOffset))
-      });
     },
 
     showDetails: function () {

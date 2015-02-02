@@ -14,6 +14,9 @@
 }
 
 .navbar {
+  position: fixed;
+  left: 0;
+  right: 0;
   .clearfix;
   height: @navbarHeight;
 }
@@ -132,6 +135,8 @@
 
 
 .navbar-global {
+  top: 0;
+  z-index: 499;
   background-color: @navbarGlobalBackground;
 
   .navbar-nav > li > a {
@@ -175,6 +180,8 @@
 
 
 .navbar-context {
+  top: @navbarHeight;
+  z-index: 498;
   height: auto;
   background-color: @navbarContextBackground;
 
