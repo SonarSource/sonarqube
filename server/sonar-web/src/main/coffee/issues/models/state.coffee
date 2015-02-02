@@ -7,12 +7,11 @@ define [
       page: 1
       maxResultsReached: false
       query: {}
-      facets: ['severities', 'statuses', 'resolutions']
+      facets: ['severities', 'resolutions', 'rules', 'tags', 'projectUuids']
       isContext: false
 
-      allFacets: ['issues', 'severities', 'statuses', 'resolutions', 'projectUuids', 'moduleUuids', 'directories',
-                  'fileUuids', 'assignees', 'reporters', 'rules', 'tags', 'languages', 'actionPlans',
-                  'creationDate'],
+      allFacets: ['issues', 'severities', 'resolutions', 'rules', 'tags', 'statuses', 'projectUuids', 'moduleUuids',
+                  'directories', 'fileUuids', 'assignees', 'reporters', 'languages', 'actionPlans', 'creationDate'],
       facetsFromServer: ['severities', 'statuses', 'resolutions', 'actionPlans', 'projectUuids', 'directories', 'rules',
                          'moduleUuids', 'tags', 'assignees', 'reporters', 'fileUuids', 'languages'],
       transform: {

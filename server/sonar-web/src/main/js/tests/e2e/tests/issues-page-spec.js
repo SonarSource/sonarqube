@@ -208,26 +208,26 @@ casper.test.begin(testName('File-Level Issues'), function (test) {
 });
 
 
-casper.test.begin(testName('Status Facet'), function (test) {
+casper.test.begin(testName('Severity Facet'), function (test) {
   casper
       .start(lib.buildUrl('issues'), function () {
         lib.setDefaultViewport();
 
         lib.mockRequest('/api/l10n/index', '{}');
         lib.mockRequestFromFile('/api/issue_filters/app', 'app.json');
-        lib.mockRequestFromFile('/api/issues/search', 'search-reopened.json', { data: { statuses: 'REOPENED' } });
+        lib.mockRequestFromFile('/api/issues/search', 'search-reopened.json', { data: { severities: 'BLOCKER' } });
         lib.mockRequestFromFile('/api/issues/search', 'search.json');
       })
 
       .then(function () {
-        casper.waitForSelector('.facet[data-value=REOPENED]', function () {
-          casper.click('.facet[data-value=REOPENED]');
+        casper.waitForSelector('.facet[data-value=BLOCKER]', function () {
+          casper.click('.facet[data-value=BLOCKER]');
         });
       })
 
       .then(function () {
-        lib.waitForElementCount('.issue', 4, function () {
-          test.assertElementCount('.issue .icon-status-reopened', 4);
+        casper.waitForSelectorTextChange('#issues-total', function () {
+          test.assertElementCount('.issue', 4);
         });
       })
 
