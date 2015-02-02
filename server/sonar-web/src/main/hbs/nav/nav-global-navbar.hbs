@@ -37,11 +37,16 @@
     <li {{#isActiveLink '/quality_gates'}}class="active"{{/isActiveLink}}>
       <a href="{{link '/quality_gates'}}">{{t 'quality_gates.page'}}</a>
     </li>
+    {{#if isUserAdmin}}
+      <li {{#isActiveLink '/settings'}}class="active"{{/isActiveLink}}>
+        <a class="navbar-admin-link" href="{{link '/settings'}}">{{t 'layout.settings'}}</a>
+      </li>
+    {{/if}}
     <li class="dropdown">
       <a class="dropdown-toggle" data-toggle="dropdown" href="#">{{t 'more'}}&nbsp;<i class="icon-dropdown"></i></a>
       <ul class="dropdown-menu">
         <li>
-          <a href="{{link '/comparison'}}">{{t 'comparison.page'}}</a>
+          <a href="{{link '/comparison'}}">{{t 'comparison_global.page'}}</a>
         </li>
         <li>
           <a href="{{link '/dependencies'}}">{{t 'dependencies.page'}}</a>
@@ -51,12 +56,6 @@
             <a href="{{link url}}">{{name}}</a>
           </li>
         {{/each}}
-        {{#if isUserAdmin}}
-          <li class="divider"></li>
-          <li>
-            <a href="{{link '/settings'}}">{{t 'layout.settings'}}</a>
-          </li>
-        {{/if}}
       </ul>
     </li>
   </ul>
