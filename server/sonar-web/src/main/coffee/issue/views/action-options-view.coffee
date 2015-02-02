@@ -27,6 +27,7 @@ define [
     onRender: ->
       super
       @selectInitialOption()
+      @$('[data-toggle="tooltip"]').tooltip container: 'body'
 
 
     getOptions: ->
@@ -84,7 +85,10 @@ define [
 
 
     onClose: ->
+      super
       @unbindShortcuts()
+      @$('[data-toggle="tooltip"]').tooltip 'destroy'
+      $('.tooltip').remove()
 
 
     selectOption: (e) ->
