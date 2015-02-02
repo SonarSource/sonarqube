@@ -364,11 +364,19 @@ define([
           });
         },
 
-        showDuplications: function () {
-          var that = this;
+        showDuplications: function (e) {
+          var that = this,
+              lineNumber = $(e.currentTarget).closest('.source-line').data('line-number');
           this.requestDuplications().done(function () {
             that.render();
             that.$el.addClass('source-duplications-expanded');
+
+            // immediately show dropdown popup if there is only one duplicated block
+            if (that.model.get('duplications').length === 1) {
+              var dupsBlock = that.$('.source-line[data-line-number=' + lineNumber + ']')
+                  .find('.source-line-duplications-extra');
+              dupsBlock.click();
+            }
           });
         },
 
