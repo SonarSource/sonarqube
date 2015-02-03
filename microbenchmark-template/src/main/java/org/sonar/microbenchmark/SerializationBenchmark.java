@@ -147,10 +147,10 @@ public class SerializationBenchmark {
 
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
-      out.writeObject(uuid);
-      out.writeObject(severity);
-      out.writeObject(message);
-      out.writeObject(author);
+      out.writeBytes(uuid);
+      out.writeBytes(severity);
+      out.writeBytes(message);
+      out.writeBytes(author);
       out.writeInt(line);
     }
 
