@@ -25,6 +25,8 @@
       filter.set_criteria_value(:onBaseComponents, 'true')
       filter.set_criteria_value(:pageSize, 100)
       filter.set_criteria_value(:page, 1)
+      filter.set_criteria_value(:sort, 'metric:' + sizeMetric.name)
+      filter.set_criteria_value(:asc, false)
       filter.metrics=([sizeMetric, colorMetric].compact)
       filter.execute(self, :user => current_user)
     %>
