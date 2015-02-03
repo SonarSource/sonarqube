@@ -40,8 +40,7 @@ define([
 
       var that = this,
           url = baseUrl + '/api/rules/search',
-          options = _.extend(this._searchParameters(), this.app.state.get('query')),
-          p = window.process.addBackgroundProcess();
+          options = _.extend(this._searchParameters(), this.app.state.get('query'));
       return $.get(url, options).done(function (r) {
         var rules = that.app.list.parseRules(r);
         if (firstPage) {
@@ -60,12 +59,9 @@ define([
           total: r.total,
           maxResultsReached: r.p * r.ps >= r.total
         });
-        window.process.finishBackgroundProcess(p);
         if (firstPage && that.isRulePermalink()) {
           that.showDetails(that.app.list.first());
         }
-      }).fail(function () {
-        window.process.failBackgroundProcess(p);
       });
     },
 

@@ -50,7 +50,6 @@ define([
         title: t('coding_rules.revert_to_parent_definition'),
         html: tp('coding_rules.revert_to_parent_definition.confirm', this.getParent().name),
         yesHandler: function () {
-          var p = window.process.addBackgroundProcess();
           return jQuery.ajax({
             type: 'POST',
             url: baseUrl + '/api/qualityprofiles/activate_rule',
@@ -60,7 +59,6 @@ define([
               reset: true
             }
           }).done(function () {
-            window.process.finishBackgroundProcess(p);
             that.options.app.controller.showDetails(that.options.rule);
           });
         }
@@ -74,7 +72,6 @@ define([
         title: t('coding_rules.deactivate'),
         html: tp('coding_rules.deactivate.confirm'),
         yesHandler: function () {
-          var p = window.process.addBackgroundProcess();
           return jQuery.ajax({
             type: 'POST',
             url: baseUrl + '/api/qualityprofiles/deactivate_rule',
@@ -83,7 +80,6 @@ define([
               rule_key: ruleKey
             }
           }).done(function () {
-            window.process.finishBackgroundProcess(p);
             that.options.app.controller.showDetails(that.options.rule);
           });
         }

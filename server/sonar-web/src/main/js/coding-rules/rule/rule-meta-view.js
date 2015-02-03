@@ -65,7 +65,6 @@ define([
 
     editDone: function () {
       var that = this,
-          p = window.process.addBackgroundProcess(),
           tags = this.ui.tagInput.val();
       return jQuery.ajax({
         type: 'POST',
@@ -77,10 +76,8 @@ define([
       }).done(function (r) {
         that.model.set('tags', r.rule.tags);
         that.cancelEdit();
-        window.process.finishBackgroundProcess(p);
       }).always(function () {
         that.cancelEdit();
-        window.process.failBackgroundProcess(p);
       });
     },
 

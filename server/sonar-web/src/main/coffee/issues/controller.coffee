@@ -33,7 +33,6 @@ define [
       _.extend data, @options.app.state.get 'query'
       _.extend data, @options.app.state.get 'contextQuery' if @options.app.state.get 'isContext'
 
-      fetchIssuesProcess = window.process.addBackgroundProcess()
       $.get "#{baseUrl}/api/issues/search", data
       .done (r) =>
         issues = @options.app.list.parseIssues r
@@ -51,11 +50,8 @@ define [
           pageSize: r.ps
           total: r.total
           maxResultsReached: r.p * r.ps >= r.total
-        window.process.finishBackgroundProcess fetchIssuesProcess
         if firstPage && @isIssuePermalink()
           @showComponentViewer @options.app.list.first()
-      .fail ->
-        window.process.failBackgroundProcess fetchIssuesProcess
 
 
     isIssuePermalink: ->

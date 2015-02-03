@@ -130,8 +130,7 @@ define([
       }
       var that = this,
           url = baseUrl + '/api/components/suggestions',
-          options = { s: q },
-          p = window.process.addBackgroundProcess();
+          options = { s: q };
       return $.get(url, options).done(function (r) {
         var collection = [];
         r.results.forEach(function (domain) {
@@ -144,9 +143,6 @@ define([
           });
         });
         that.results.reset(collection);
-        window.process.finishBackgroundProcess(p);
-      }).fail(function() {
-        window.process.failBackgroundProcess(p);
       });
     }
   });

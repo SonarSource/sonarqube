@@ -35,7 +35,6 @@ define [
       _actionPlan = @getActionPlan()
       _actionPlanName = @getActionPlanName()
       return if actionPlan == _actionPlan
-      p = window.process.addBackgroundProcess()
       if actionPlan == ''
         @model.set actionPlan: null, actionPlanName: null
       else
@@ -46,11 +45,8 @@ define [
         data:
           issue: @model.id
           plan: actionPlan
-      .done =>
-        window.process.finishBackgroundProcess p
       .fail =>
         @model.set assignee: _actionPlan, assigneeName: _actionPlanName
-        window.process.failBackgroundProcess p
 
 
     getActionPlans: ->

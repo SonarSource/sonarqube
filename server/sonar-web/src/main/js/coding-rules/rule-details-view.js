@@ -139,14 +139,10 @@ define([
             title: t('delete'),
             html: tp('coding_rules.delete.' + ruleType + '.confirm', this.model.get('name')),
             yesHandler: function () {
-              var p = window.process.addBackgroundProcess(),
-                  url = baseUrl + '/api/rules/delete',
+              var url = baseUrl + '/api/rules/delete',
                   options = { key: that.model.id };
               $.post(url, options).done(function () {
                 that.options.app.controller.fetchList();
-                window.process.finishBackgroundProcess(p);
-              }).fail(function () {
-                window.process.failBackgroundProcess(p);
               });
             }
           });

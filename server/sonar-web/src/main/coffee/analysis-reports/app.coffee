@@ -25,7 +25,6 @@ requirejs [
 
 
   App.fetchReports = ->
-    process = window.process.addBackgroundProcess()
     fetch = if @state.get 'active' then @reports.fetchActive() else @reports.fetchHistory()
     @layout.showSpinner 'actionsRegion'
     @layout.resultsRegion.reset()
@@ -44,18 +43,14 @@ requirejs [
         collection: @reports
       @layout.actionsRegion.show @actionsView
 
-      window.process.finishBackgroundProcess process
-
 
   App.fetchNextPage = ->
-    process = window.process.addBackgroundProcess()
     @reports.fetchHistory
       data:
         p: @state.get('page') + 1
       remove: false
     .done =>
       @state.set page: @reports.paging.page
-      window.process.finishBackgroundProcess process
 
 
   App.addInitializer ->
