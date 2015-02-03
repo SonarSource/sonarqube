@@ -23,15 +23,11 @@ define([
 
     onFavoriteClick: function () {
       var that = this,
-          p = window.process.addBackgroundProcess(),
           url = baseUrl + '/favourites/toggle/' + this.model.get('contextId'),
           isContextFavorite = this.model.get('isContextFavorite');
       this.model.set({ isContextFavorite: !isContextFavorite });
-      return $.post(url).done(function () {
-        window.process.finishBackgroundProcess(p);
-      }).fail(function () {
+      return $.post(url).fail(function () {
         that.model.set({ isContextFavorite: isContextFavorite });
-        window.process.failBackgroundProcess(p);
       });
     },
 

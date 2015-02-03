@@ -95,18 +95,14 @@ define [
     submit: (tags) ->
       _tags = @getTags()
       @model.set tags: tags
-      p = window.process.addBackgroundProcess()
       $.ajax
         type: 'POST'
         url: "#{baseUrl}/api/issues/set_tags"
         data:
           key: @model.id
           tags: tags.join()
-      .done =>
-        window.process.finishBackgroundProcess p
       .fail =>
         @model.set tags: _tags
-        window.process.failBackgroundProcess p
 
 
     onInputClick: (e) ->

@@ -12,7 +12,6 @@ define([
 
     initialize: function () {
       var that = this,
-          p = window.process.addBackgroundProcess(),
           requests = [this.requestMeasures(), this.requestIssues()];
       if (this.model.get('isUnitTest')) {
         requests.push(this.requestTests());
@@ -20,9 +19,6 @@ define([
       this.testsScroll = 0;
       $.when.apply($, requests).done(function () {
         that.render();
-        window.process.finishBackgroundProcess(p);
-      }).fail(function () {
-        window.process.failBackgroundProcess(p);
       });
     },
 
@@ -203,7 +199,6 @@ define([
 
     showTest: function (e) {
       var that = this,
-          p = window.process.addBackgroundProcess(),
           name = $(e.currentTarget).data('name'),
           url = baseUrl + '/api/tests/covered_files',
           options = {
@@ -215,7 +210,6 @@ define([
         that.coveredFiles = data.files;
         that.selectedTest = _.findWhere(that.model.get('tests'), { name: name });
         that.render();
-        window.process.finishBackgroundProcess(p);
       });
     },
 

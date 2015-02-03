@@ -38,8 +38,7 @@ define([
     },
 
     submitExtendDescription: function () {
-      var that = this,
-          p = window.process.addBackgroundProcess();
+      var that = this;
       this.ui.extendDescriptionForm.addClass('hidden');
       return jQuery.ajax({
         type: 'POST',
@@ -55,10 +54,8 @@ define([
           mdNote: r.rule.mdNote
         });
         that.render();
-        window.process.finishBackgroundProcess(p);
       }).fail(function () {
         that.render();
-        window.process.failBackgroundProcess(p);
       });
     },
 

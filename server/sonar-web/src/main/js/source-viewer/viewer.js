@@ -97,11 +97,9 @@ define([
 
         open: function (id) {
           var that = this,
-              r = window.process.addBackgroundProcess(),
               finalize = function () {
                 that.requestIssues().done(function () {
                   that.render();
-                  window.process.finishBackgroundProcess(r);
                   that.trigger('loaded');
                 });
               };
@@ -343,8 +341,7 @@ define([
         showCoveragePopup: function (e) {
           e.stopPropagation();
           $('body').click();
-          var r = window.process.addBackgroundProcess(),
-              line = $(e.currentTarget).data('line-number'),
+          var line = $(e.currentTarget).data('line-number'),
               row = _.findWhere(this.model.get('source'), {line: line}),
               url = baseUrl + '/api/tests/test_cases',
               options = {
@@ -358,9 +355,6 @@ define([
               triggerEl: $(e.currentTarget)
             });
             popup.render();
-            window.process.finishBackgroundProcess(r);
-          }).fail(function () {
-            window.process.failBackgroundProcess(r);
           });
         },
 

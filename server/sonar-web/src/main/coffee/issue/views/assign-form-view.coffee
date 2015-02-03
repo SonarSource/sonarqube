@@ -69,7 +69,6 @@ define [
       _assignee = @getAssignee()
       _assigneeName = @getAssigneeName()
       return if assignee == _assignee
-      p = window.process.addBackgroundProcess()
       if assignee == ''
         @model.set assignee: null, assigneeName: null
       else
@@ -80,11 +79,8 @@ define [
         data:
           issue: @model.id
           assignee: assignee
-      .done =>
-        window.process.finishBackgroundProcess p
       .fail =>
         @model.set assignee: _assignee, assigneeName: _assigneeName
-        window.process.failBackgroundProcess p
 
 
     onInputClick: (e) ->
@@ -110,13 +106,9 @@ define [
 
     search: (query) ->
       if query.length > 1
-        p = window.process.addBackgroundProcess()
         $.get "#{baseUrl}/api/users/search", s: query
         .done (data) =>
           @resetAssignees data.users
-          window.process.finishBackgroundProcess p
-        .fail =>
-          window.process.failBackgroundProcess p
       else
         @resetAssignees []
 
