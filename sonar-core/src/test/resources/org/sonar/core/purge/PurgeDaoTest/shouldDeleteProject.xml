@@ -103,6 +103,6 @@
              depth="[null]" scope="FIL" qualifier="FIL" created_at="1228222680000"
              build_date="1228222680000"
              version="[null]" path="[null]"/>
-  <file_sources id="1" project_uuid="A" file_uuid="D" data="[null]" line_hashes="[null]" data_hash="321654987"
+  <file_sources id="1" project_uuid="A" file_uuid="D" binary_data="[null]" line_hashes="[null]" data_hash="321654987"
                 created_at="123456789" updated_at="123456789"/>
 </dataset>

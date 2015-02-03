@@ -34,6 +34,10 @@ import java.util.Iterator;
 import static org.sonar.server.source.index.SourceLineIndexDefinition.FIELD_FILE_UUID;
 import static org.sonar.server.source.index.SourceLineIndexDefinition.FIELD_PROJECT_UUID;
 
+/**
+ * Add to Elasticsearch index {@link SourceLineIndexDefinition} the rows of
+ * db table FILE_SOURCES that are not indexed yet
+ */
 public class SourceLineIndexer extends BaseIndexer {
 
   private final DbClient dbClient;

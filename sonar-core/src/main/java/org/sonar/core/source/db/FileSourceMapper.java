@@ -26,7 +26,7 @@ import java.util.List;
 
 public interface FileSourceMapper {
 
-  List<FileSourceDto> selectAllFileDataHashByProject(String projectUuid);
+  List<FileSourceDto> selectHashesForProject(String projectUuid);
 
   @CheckForNull
   FileSourceDto select(String fileUuid);

@@ -19,36 +19,30 @@
  */
 package org.sonar.core.source.db;
 
+import net.jpountz.lz4.LZ4BlockInputStream;
+import net.jpountz.lz4.LZ4BlockOutputStream;
+import org.apache.commons.io.IOUtils;
+import org.sonar.server.source.db.FileSourceDb;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-public class FileSourceDto {
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
-  public static final int CSV_INDEX_SCM_REVISION = 0;
-  public static final int CSV_INDEX_SCM_AUTHOR = 1;
-  public static final int CSV_INDEX_SCM_DATE = 2;
-  public static final int CSV_INDEX_UT_LINE_HITS = 3;
-  public static final int CSV_INDEX_UT_CONDITIONS = 4;
-  public static final int CSV_INDEX_UT_COVERED_CONDITIONS = 5;
-  public static final int CSV_INDEX_IT_LINE_HITS = 6;
-  public static final int CSV_INDEX_IT_CONDITIONS = 7;
-  public static final int CSV_INDEX_IT_COVERED_CONDITIONS = 8;
-  public static final int CSV_INDEX_OVERALL_LINE_HITS = 9;
-  public static final int CSV_INDEX_OVERALL_CONDITIONS = 10;
-  public static final int CSV_INDEX_OVERALL_COVERED_CONDITIONS = 11;
-  public static final int CSV_INDEX_HIGHLIGHTING = 12;
-  public static final int CSV_INDEX_SYMBOLS = 13;
-  public static final int CSV_INDEX_DUPLICATIONS = 14;
+public class FileSourceDto {
 
   private Long id;
   private String projectUuid;
   private String fileUuid;
   private long createdAt;
   private long updatedAt;
-  private String data;
   private String lineHashes;
-  private String dataHash;
   private String srcHash;
+  private byte[] binaryData;
+  private String dataHash;
 
   public Long getId() {
     return id;
@@ -77,14 +71,82 @@ public class FileSourceDto {
     return this;
   }
 
-  @CheckForNull
-  public String getData() {
-    return data;
+  public String getDataHash() {
+    return dataHash;
   }
 
-  public FileSourceDto setData(@Nullable String data) {
-    this.data = data;
+  /**
+   * MD5 of column BINARY_DATA. Used to know to detect data changes and need for update.
+   */
+  public FileSourceDto setDataHash(String s) {
+    this.dataHash = s;
     return this;
+  }
+
+  /**
+   * Compressed value of serialized protobuf message {@link org.sonar.server.source.db.FileSourceDb.Data}
+   */
+  public byte[] getBinaryData() {
+    return binaryData;
+  }
+
+  /**
+   * Compressed value of serialized protobuf message {@link org.sonar.server.source.db.FileSourceDb.Data}
+   */
+  public FileSourceDb.Data getData() {
+    return decodeData(binaryData);
+  }
+
+  public static FileSourceDb.Data decodeData(byte[] binaryData) {
+    // stream is always closed
+    return decodeData(new ByteArrayInputStream(binaryData));
+  }
+
+  /**
+   * Decompress and deserialize content of column FILE_SOURCES.BINARY_DATA.
+   * The parameter "input" is always closed by this method.
+   */
+  public static FileSourceDb.Data decodeData(InputStream binaryInput) {
+    LZ4BlockInputStream lz4Input = null;
+    try {
+      lz4Input = new LZ4BlockInputStream(binaryInput);
+      return FileSourceDb.Data.parseFrom(lz4Input);
+    } catch (IOException e) {
+      throw new IllegalStateException("Fail to decompress and deserialize source data", e);
+    } finally {
+      IOUtils.closeQuietly(lz4Input);
+    }
+  }
+
+  /**
+   * Set compressed value of the protobuf message {@link org.sonar.server.source.db.FileSourceDb.Data}
+   */
+  public FileSourceDto setBinaryData(byte[] data) {
+    this.binaryData = data;
+    return this;
+  }
+
+  public FileSourceDto setData(FileSourceDb.Data data) {
+    this.binaryData = encodeData(data);
+    return this;
+  }
+
+  /**
+   * Serialize and compress protobuf message {@link org.sonar.server.source.db.FileSourceDb.Data}
+   * in the column BINARY_DATA.
+   */
+  public static byte[] encodeData(FileSourceDb.Data data) {
+    ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
+    LZ4BlockOutputStream compressedOutput = new LZ4BlockOutputStream(byteOutput);
+    try {
+      data.writeTo(compressedOutput);
+      compressedOutput.close();
+      return byteOutput.toByteArray();
+    } catch (IOException e) {
+      throw new IllegalStateException("Fail to serialize and compress source data", e);
+    } finally {
+      IOUtils.closeQuietly(compressedOutput);
+    }
   }
 
   @CheckForNull
@@ -97,19 +159,13 @@ public class FileSourceDto {
     return this;
   }
 
-  public String getDataHash() {
-    return dataHash;
-  }
-
-  public FileSourceDto setDataHash(String dataHash) {
-    this.dataHash = dataHash;
-    return this;
-  }
-
   public String getSrcHash() {
     return srcHash;
   }
 
+  /**
+   * Hash of file content. Value is computed by batch.
+   */
   public FileSourceDto setSrcHash(String srcHash) {
     this.srcHash = srcHash;
     return this;

@@ -25,7 +25,11 @@ import org.junit.experimental.categories.Category;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.core.source.db.FileSourceDao;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.source.db.FileSourceDb;
+import org.sonar.server.source.db.FileSourceTesting;
 import org.sonar.test.DbTests;
+
+import java.sql.Connection;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -38,6 +42,15 @@ public class SourceLinesCacheTest {
   @Test
   public void line_author() throws Exception {
     dbTester.prepareDbUnit(getClass(), "load_data.xml");
+    FileSourceDb.Data.Builder data = FileSourceDb.Data.newBuilder();
+    data.addLinesBuilder().setLine(1).setScmAuthor("charb").setScmDate(1_400_000_000_000L);
+    data.addLinesBuilder().setLine(2).setScmAuthor("cabu").setScmDate(1_500_000_000_000L);
+    data.addLinesBuilder().setLine(3).setScmAuthor("wolinski").setScmDate(1_300_000_000_000L);
+    data.addLinesBuilder().setLine(4);
+    try (Connection connection = dbTester.openConnection()) {
+      FileSourceTesting.updateDataColumn(connection, "FILE_A", data.build());
+    }
+
     DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new FileSourceDao(dbTester.myBatis()));
     SourceLinesCache cache = new SourceLinesCache(dbClient);
     cache.init("FILE_A");
@@ -55,12 +68,10 @@ public class SourceLinesCacheTest {
     // only 4 lines in the file -> return last committer on file
     assertThat(cache.lineAuthor(100)).isEqualTo("cabu");
 
-
     assertThat(cache.countLines()).isEqualTo(4);
 
     cache.clear();
     assertThat(cache.countLines()).isEqualTo(0);
   }
-
 
 }

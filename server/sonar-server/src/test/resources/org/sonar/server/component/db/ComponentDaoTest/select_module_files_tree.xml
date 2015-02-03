@@ -20,7 +20,7 @@
             enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" path="src/org/struts/pom.xml" authorization_updated_at="[null]"/>
 
   <file_sources id="101" project_uuid="ABCD" file_uuid="EFGHI"
-                data=",,,,,,,,,,,,,,,unchanged&#13;&#10;,,,,,,,,,,,,,,,content&#13;&#10;"
+                binary_data=",,,,,,,,,,,,,,,unchanged&#13;&#10;,,,,,,,,,,,,,,,content&#13;&#10;"
                 line_hashes="lineEFGHI"
                 data_hash="dataEFGHI"
                 src_hash="srcEFGHI"
@@ -47,7 +47,7 @@
             enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" path="src/org/struts/RequestContext.java" authorization_updated_at="[null]"/>
 
   <file_sources id="102" project_uuid="ABCD" file_uuid="HIJK"
-                data=",,,,,,,,,,,,,,,unchanged&#13;&#10;,,,,,,,,,,,,,,,content&#13;&#10;"
+                binary_data=",,,,,,,,,,,,,,,unchanged&#13;&#10;,,,,,,,,,,,,,,,content&#13;&#10;"
                 line_hashes="lineHIJK"
                 data_hash="dataHIJK"
                 src_hash="srcHIJK"

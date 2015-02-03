@@ -20,31 +20,18 @@
 package org.sonar.server.source.index;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.core.source.db.FileSourceDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.db.ResultSetIterator;
-import org.sonar.server.db.migrations.SqlUtil;
+import org.sonar.server.source.db.FileSourceDb;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.io.IOException;
-import java.io.Reader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
-import java.util.StringTokenizer;
 
 /**
  * Scroll over table FILE_SOURCES and directly parse CSV field required to
@@ -84,7 +71,7 @@ public class SourceLineResultSetIterator extends ResultSetIterator<SourceLineRes
     "project_uuid",
     "file_uuid",
     "updated_at",
-    "data"
+    "binary_data"
   };
 
   private static final String SQL_ALL = "select " + StringUtils.join(FIELDS, ",") + " from file_sources";
@@ -113,87 +100,42 @@ public class SourceLineResultSetIterator extends ResultSetIterator<SourceLineRes
   protected SourceFile read(ResultSet rs) throws SQLException {
     String projectUuid = rs.getString(1);
     String fileUuid = rs.getString(2);
-    Long updatedAt = SqlUtil.getLong(rs, 3);
-    if (updatedAt == null) {
-      updatedAt = System.currentTimeMillis();
-    }
+    long updatedAt = rs.getLong(3);
     Date updatedDate = new Date(updatedAt);
+
     SourceFile result = new SourceFile(fileUuid, updatedAt);
+    FileSourceDb.Data data = FileSourceDto.decodeData(rs.getBinaryStream(4));
+    for (FileSourceDb.Line line : data.getLinesList()) {
+      SourceLineDoc doc = new SourceLineDoc();
+      doc.setProjectUuid(projectUuid);
+      doc.setFileUuid(fileUuid);
+      doc.setLine(line.getLine());
+      doc.setUpdateDate(updatedDate);
+      doc.setScmRevision(line.getScmRevision());
+      doc.setScmAuthor(line.getScmAuthor());
+      doc.setScmDate(line.hasScmDate() ? new Date(line.getScmDate()) : null);
+      // UT
+      doc.setUtLineHits(line.hasUtLineHits() ? line.getUtLineHits() : null);
+      doc.setUtConditions(line.hasUtConditions() ? line.getUtConditions() : null);
+      doc.setUtCoveredConditions(line.hasUtCoveredConditions() ? line.getUtCoveredConditions() : null);
+      // IT
+      doc.setItLineHits(line.hasItLineHits() ? line.getItLineHits() : null);
+      doc.setItConditions(line.hasItConditions() ? line.getItConditions() : null);
+      doc.setItCoveredConditions(line.hasItCoveredConditions() ? line.getItCoveredConditions() : null);
+      // OVERALL
+      doc.setOverallLineHits(line.hasOverallLineHits() ? line.getOverallLineHits() : null);
+      doc.setOverallConditions(line.hasOverallConditions() ? line.getOverallConditions() : null);
+      doc.setOverallCoveredConditions(line.hasOverallCoveredConditions() ? line.getOverallCoveredConditions() : null);
 
-    Reader csv = rs.getCharacterStream(4);
-    if (csv == null) {
-      return result;
+      doc.setHighlighting(line.hasHighlighting() ? line.getHighlighting() : null);
+      doc.setSymbols(line.hasSymbols() ? line.getSymbols() : null);
+      doc.setDuplications(line.getDuplicationsList());
+
+      // source is always the latest field. All future fields will be added between duplications (14) and source.
+      doc.setSource(line.hasSource() ? line.getSource() : null);
+
+      result.addLine(doc);
     }
-
-    int line = 1;
-    CSVParser csvParser = null;
-    try {
-      csvParser = new CSVParser(csv, CSVFormat.DEFAULT);
-
-      for (CSVRecord csvRecord : csvParser) {
-        SourceLineDoc doc = new SourceLineDoc(Maps.<String, Object>newHashMap());
-
-        doc.setProjectUuid(projectUuid);
-        doc.setFileUuid(fileUuid);
-        doc.setLine(line);
-        doc.setUpdateDate(updatedDate);
-        doc.setScmRevision(csvRecord.get(FileSourceDto.CSV_INDEX_SCM_REVISION));
-        doc.setScmAuthor(csvRecord.get(FileSourceDto.CSV_INDEX_SCM_AUTHOR));
-        doc.setScmDate(DateUtils.parseDateTimeQuietly(csvRecord.get(FileSourceDto.CSV_INDEX_SCM_DATE)));
-        // UT
-        doc.setUtLineHits(parseIntegerFromRecord(csvRecord.get(FileSourceDto.CSV_INDEX_UT_LINE_HITS)));
-        doc.setUtConditions(parseIntegerFromRecord(csvRecord.get(FileSourceDto.CSV_INDEX_UT_CONDITIONS)));
-        doc.setUtCoveredConditions(parseIntegerFromRecord(csvRecord.get(FileSourceDto.CSV_INDEX_UT_COVERED_CONDITIONS)));
-        // IT
-        doc.setItLineHits(parseIntegerFromRecord(csvRecord.get(FileSourceDto.CSV_INDEX_IT_LINE_HITS)));
-        doc.setItConditions(parseIntegerFromRecord(csvRecord.get(FileSourceDto.CSV_INDEX_IT_CONDITIONS)));
-        doc.setItCoveredConditions(parseIntegerFromRecord(csvRecord.get(FileSourceDto.CSV_INDEX_IT_COVERED_CONDITIONS)));
-        // OVERALL
-        doc.setOverallLineHits(parseIntegerFromRecord(csvRecord.get(FileSourceDto.CSV_INDEX_OVERALL_LINE_HITS)));
-        doc.setOverallConditions(parseIntegerFromRecord(csvRecord.get(FileSourceDto.CSV_INDEX_OVERALL_CONDITIONS)));
-        doc.setOverallCoveredConditions(parseIntegerFromRecord(csvRecord.get(FileSourceDto.CSV_INDEX_OVERALL_COVERED_CONDITIONS)));
-
-        doc.setHighlighting(csvRecord.get(FileSourceDto.CSV_INDEX_HIGHLIGHTING));
-        doc.setSymbols(csvRecord.get(FileSourceDto.CSV_INDEX_SYMBOLS));
-        doc.setDuplications(parseDuplications(csvRecord.get(FileSourceDto.CSV_INDEX_DUPLICATIONS)));
-
-        // source is always the latest field. All future fields will be added between duplications (14) and source.
-        doc.setSource(csvRecord.get(csvRecord.size()-1));
-
-        result.addLine(doc);
-
-        line++;
-      }
-    } catch (IOException ioError) {
-      throw new IllegalStateException("Impossible to open stream for file_sources.data with file_uuid " + fileUuid, ioError);
-    } catch (ArrayIndexOutOfBoundsException lineError) {
-      throw new IllegalStateException(
-        String.format("Impossible to parse source line data, stuck at line %d", line), lineError);
-    } finally {
-      IOUtils.closeQuietly(csv);
-      IOUtils.closeQuietly(csvParser);
-    }
-
     return result;
-  }
-
-  private List<Integer> parseDuplications(@Nullable String duplications) {
-    List<Integer> dups = Lists.newArrayList();
-    if (StringUtils.isNotEmpty(duplications)) {
-      StringTokenizer tokenizer = new StringTokenizer(duplications, ",", false);
-      while (tokenizer.hasMoreTokens()) {
-        dups.add(NumberUtils.toInt(tokenizer.nextToken(), -1));
-      }
-    }
-    return dups;
-  }
-
-  @CheckForNull
-  private Integer parseIntegerFromRecord(@Nullable String cellValue) {
-    if (cellValue == null || cellValue.isEmpty()) {
-      return null;
-    } else {
-      return Integer.parseInt(cellValue);
-    }
   }
 }

@@ -1,0 +1,72 @@
+/*
+    SonarQube, open source software quality management tool.
+    Copyright (C) 2008-2015 SonarSource
+    mailto:contact AT sonarsource DOT com
+
+    SonarQube is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    SonarQube is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with this program; if not, write to the Free Software Foundation,
+    Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
+
+/*
+Notes
+
+  - "required" fields are not used as recommended by Google to keep forward-compatibility:
+    https://developers.google.com/protocol-buffers/docs/proto#simple
+
+  - the related Java files are not generated during build. Indeed the existing protoc maven
+    plugins require protobuf to be installed on boxes. That means that generated Java files
+    are updated and committed for each change (see src/main/gen-java).
+*/
+
+// structure of db column FILE_SOURCES.BINARY_DATA
+
+// Temporarily in sonar-batch-protocol as this db table
+// is still fed on batch-side. However generated sources
+// are already in correct package
+
+package org.sonar.server.source.db;
+option optimize_for = SPEED;
+
+message Line {
+  optional int32 line = 1;
+  optional string source = 2;
+
+  // SCM
+  optional string scm_revision = 3;
+  optional string scm_author = 4;
+  optional int64 scm_date = 5;
+
+  // unit tests
+  optional int32 ut_line_hits = 6;
+  optional int32 ut_conditions = 7;
+  optional int32 ut_covered_conditions = 8;
+
+  // integration tests
+  optional int32 it_line_hits = 9;
+  optional int32 it_conditions = 10;
+  optional int32 it_covered_conditions = 11;
+
+  // overall tests
+  optional int32 overall_line_hits = 12;
+  optional int32 overall_conditions = 13;
+  optional int32 overall_covered_conditions = 14;
+
+  optional string highlighting = 15;
+  optional string symbols = 16;
+  repeated int32 duplications = 17;
+}
+
+message Data {
+  repeated Line lines = 1;
+}

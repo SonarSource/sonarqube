@@ -56,6 +56,7 @@ import org.sonar.batch.index.MeasurePersister;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.index.ResourceKeyMigration;
 import org.sonar.batch.index.ResourcePersister;
+import org.sonar.batch.index.SourceDataFactory;
 import org.sonar.batch.index.SourcePersister;
 import org.sonar.batch.issue.DefaultProjectIssues;
 import org.sonar.batch.issue.IssueCache;
@@ -147,6 +148,7 @@ public class ProjectScanContainer extends ComponentContainer {
       Caches.class,
       ResourceCache.class,
       ComponentDataCache.class,
+      SourceDataFactory.class,
 
       // file system
       InputPathCache.class,

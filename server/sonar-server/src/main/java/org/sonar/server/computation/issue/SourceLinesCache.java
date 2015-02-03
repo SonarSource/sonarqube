@@ -20,21 +20,16 @@
 package org.sonar.server.computation.issue;
 
 import com.google.common.base.Function;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.core.source.db.FileSourceDto;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.source.db.FileSourceDb;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.io.Reader;
+import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -53,7 +48,11 @@ public class SourceLinesCache {
   private final List<String> authors = new ArrayList<>();
   private boolean loaded = false;
   private String currentFileUuid = null;
+
+  // date of the latest commit on the file
   private long lastCommitDate = 0L;
+
+  // author of the latest commit on the file
   private String lastCommitAuthor = null;
 
   public SourceLinesCache(DbClient dbClient) {
@@ -114,30 +113,25 @@ public class SourceLinesCache {
     return authors.size();
   }
 
-  class FileDataParser implements Function<Reader, Void> {
+  /**
+   * Parse lines from db and collect SCM information
+   */
+  class FileDataParser implements Function<InputStream, Void> {
     @Override
-    public Void apply(Reader input) {
-      CSVParser csvParser = null;
-      try {
-        csvParser = new CSVParser(input, CSVFormat.DEFAULT);
-        for (CSVRecord csvRecord : csvParser) {
-          Date revisionDate = DateUtils.parseDateTimeQuietly(csvRecord.get(FileSourceDto.CSV_INDEX_SCM_DATE));
-
-          // do not keep all fields in memory
-          String author = csvRecord.get(FileSourceDto.CSV_INDEX_SCM_AUTHOR);
-          authors.add(author);
-
-          if (revisionDate != null && revisionDate.getTime() > lastCommitDate) {
-            lastCommitDate = revisionDate.getTime();
-            lastCommitAuthor = author;
-          }
+    public Void apply(InputStream input) {
+      FileSourceDb.Data data = FileSourceDto.decodeData(input);
+      for (FileSourceDb.Line line : data.getLinesList()) {
+        String author = null;
+        if (line.hasScmAuthor()) {
+          author = line.getScmAuthor();
         }
-        return null;
-      } catch (Exception e) {
-        throw new IllegalStateException("Fail to parse CSV data", e);
-      } finally {
-        IOUtils.closeQuietly(csvParser);
+        authors.add(author);
+        if (line.hasScmDate() && line.getScmDate() > lastCommitDate && author != null) {
+          lastCommitDate = line.getScmDate();
+          lastCommitAuthor = author;
+        }
       }
+      return null;
     }
   }
 }

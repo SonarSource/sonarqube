@@ -26,10 +26,10 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.source.db.FileSourceTesting;
 import org.sonar.test.DbTests;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -56,39 +56,32 @@ public class SourceLineResultSetIteratorTest {
   }
 
   @Test
-  public void should_generate_source_line_documents() throws Exception {
+  public void parse_db_and_generate_source_line_documents() throws Exception {
     db.prepareDbUnit(getClass(), "shared.xml");
-    PreparedStatement stmt = connection.prepareStatement("UPDATE file_sources SET data = ? WHERE id=1");
-    stmt.setString(1, "aef12a,alice,2014-04-25T12:34:56+0100,1,0,0,2,0,0,3,0,0,polop,palap,,class Foo {\r\n" +
-      "abe465,bob,2014-07-25T12:34:56+0100,,,,,,,,,,,,,  // Empty\r\n" +
-      "afb789,carol,2014-03-23T12:34:56+0100,,,,,,,,,,,,,}\r\n" +
-      "afb789,carol,2014-03-23T12:34:56+0100,,,,,,,,,,,,,\r\n");
-    stmt.executeUpdate();
+    FileSourceTesting.updateDataColumn(connection, "FILE_UUID", FileSourceTesting.newFakeData(3).build());
 
     SourceLineResultSetIterator iterator = SourceLineResultSetIterator.create(dbClient, connection, 0L);
     assertThat(iterator.hasNext()).isTrue();
     SourceLineResultSetIterator.SourceFile file = iterator.next();
-    assertThat(file.getLines()).hasSize(4);
+    assertThat(file.getLines()).hasSize(3);
     SourceLineDoc firstLine = file.getLines().get(0);
-    assertThat(firstLine.projectUuid()).isEqualTo("uuid-MyProject");
-    assertThat(firstLine.fileUuid()).isEqualTo("uuid-MyFile.xoo");
+    assertThat(firstLine.projectUuid()).isEqualTo("PROJECT_UUID");
+    assertThat(firstLine.fileUuid()).isEqualTo("FILE_UUID");
     assertThat(firstLine.line()).isEqualTo(1);
-    assertThat(firstLine.scmRevision()).isEqualTo("aef12a");
-    assertThat(firstLine.scmAuthor()).isEqualTo("alice");
-    // TODO Sanitize usage of fscking dates
-    // assertThat(firstLine.scmDate()).isEqualTo(DateUtils.parseDateTime("2014-04-25T12:34:56+0100"));
-    assertThat(firstLine.highlighting()).isEqualTo("polop");
-    assertThat(firstLine.symbols()).isEqualTo("palap");
-    assertThat(firstLine.source()).isEqualTo("class Foo {");
+    assertThat(firstLine.scmRevision()).isEqualTo("REVISION_1");
+    assertThat(firstLine.scmAuthor()).isEqualTo("AUTHOR_1");
+    assertThat(firstLine.highlighting()).isEqualTo("HIGHLIGHTING_1");
+    assertThat(firstLine.symbols()).isEqualTo("SYMBOLS_1");
+    assertThat(firstLine.source()).isEqualTo("SOURCE_1");
     assertThat(firstLine.utLineHits()).isEqualTo(1);
-    assertThat(firstLine.utConditions()).isEqualTo(0);
-    assertThat(firstLine.utCoveredConditions()).isEqualTo(0);
-    assertThat(firstLine.itLineHits()).isEqualTo(2);
-    assertThat(firstLine.itConditions()).isEqualTo(0);
-    assertThat(firstLine.itCoveredConditions()).isEqualTo(0);
-    assertThat(firstLine.overallLineHits()).isEqualTo(3);
-    assertThat(firstLine.overallConditions()).isEqualTo(0);
-    assertThat(firstLine.overallCoveredConditions()).isEqualTo(0);
+    assertThat(firstLine.utConditions()).isEqualTo(2);
+    assertThat(firstLine.utCoveredConditions()).isEqualTo(3);
+    assertThat(firstLine.itLineHits()).isEqualTo(4);
+    assertThat(firstLine.itConditions()).isEqualTo(5);
+    assertThat(firstLine.itCoveredConditions()).isEqualTo(6);
+    assertThat(firstLine.overallLineHits()).isEqualTo(7);
+    assertThat(firstLine.overallConditions()).isEqualTo(8);
+    assertThat(firstLine.overallCoveredConditions()).isEqualTo(9);
     iterator.close();
   }
 
@@ -102,36 +95,10 @@ public class SourceLineResultSetIteratorTest {
   }
 
   @Test
-  public void parse_empty_file() throws Exception {
-    db.prepareDbUnit(getClass(), "empty-file.xml");
-
-    SourceLineResultSetIterator iterator = SourceLineResultSetIterator.create(dbClient, connection, 0L);
-    assertThat(iterator.hasNext()).isTrue();
-    SourceLineResultSetIterator.SourceFile file = iterator.next();
-    assertThat(file.getFileUuid()).isEqualTo("uuid-MyFile.xoo");
-    assertThat(file.getLines()).isEmpty();
-    iterator.close();
-  }
-
-  @Test
-  public void parse_null_file() throws Exception {
-    db.prepareDbUnit(getClass(), "null-file.xml");
-
-    SourceLineResultSetIterator iterator = SourceLineResultSetIterator.create(dbClient, connection, 0L);
-    assertThat(iterator.hasNext()).isTrue();
-    SourceLineResultSetIterator.SourceFile file = iterator.next();
-    assertThat(file.getFileUuid()).isEqualTo("uuid-MyFile.xoo");
-    assertThat(file.getLines()).isEmpty();
-    iterator.close();
-  }
-
-  @Test
-  public void should_fail_on_bad_csv() throws Exception {
+  public void should_fail_on_bad_data_format() throws Exception {
     db.prepareDbUnit(getClass(), "shared.xml");
-    PreparedStatement stmt = connection.prepareStatement("UPDATE file_sources SET data = ? WHERE id=1");
-    stmt.setString(1, "plouf");
-    stmt.executeUpdate();
-    stmt.close();
+
+    FileSourceTesting.updateDataColumn(connection, "FILE_UUID", "THIS_IS_NOT_PROTOBUF".getBytes());
 
     SourceLineResultSetIterator iterator = SourceLineResultSetIterator.create(dbClient, connection, 0L);
     try {

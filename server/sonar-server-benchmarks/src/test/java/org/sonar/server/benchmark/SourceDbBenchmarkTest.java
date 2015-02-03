@@ -30,11 +30,13 @@ import org.sonar.core.persistence.DbTester;
 import org.sonar.core.source.db.FileSourceDao;
 import org.sonar.core.source.db.FileSourceDto;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.source.db.FileSourceDb;
 import org.sonar.server.source.index.SourceLineResultSetIterator;
 
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Timer;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -43,8 +45,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SourceDbBenchmarkTest {
 
   public static final Logger LOGGER = LoggerFactory.getLogger("benchmarkSourceDbScrolling");
-  // files are 3'220 lines long
+
   public static final int NUMBER_OF_FILES = 1000;
+  public static final int NUMBER_OF_LINES = 3220;
   public static final String PROJECT_UUID = Uuids.create();
 
   @Rule
@@ -52,7 +55,7 @@ public class SourceDbBenchmarkTest {
 
   @Test
   public void benchmark() throws Exception {
-    prepareFileSources();
+    prepareTable();
     scrollRows();
   }
 
@@ -70,12 +73,12 @@ public class SourceDbBenchmarkTest {
       SourceLineResultSetIterator it = SourceLineResultSetIterator.create(dbClient, connection, 0L);
       while (it.hasNext()) {
         SourceLineResultSetIterator.SourceFile row = it.next();
-        assertThat(row.getLines().size()).isEqualTo(3220);
+        assertThat(row.getLines().size()).isEqualTo(NUMBER_OF_LINES);
         assertThat(row.getFileUuid()).isNotEmpty();
         counter.incrementAndGet();
       }
       long end = System.currentTimeMillis();
-      long period = end-start;
+      long period = end - start;
       long throughputPerSecond = 1000L * counter.get() / period;
       LOGGER.info(String.format("%d FILE_SOURCES rows scrolled in %d ms (%d rows/second)", counter.get(), period, throughputPerSecond));
 
@@ -85,25 +88,50 @@ public class SourceDbBenchmarkTest {
     }
   }
 
-  private void prepareFileSources() throws IOException {
+  private void prepareTable() throws IOException {
     LOGGER.info("Populate table FILE_SOURCES");
     FileSourceDao dao = new FileSourceDao(dbTester.myBatis());
     for (int i = 0; i < NUMBER_OF_FILES; i++) {
-      dao.insert(newFileSourceDto());
+      dao.insert(generateDto());
     }
   }
 
-  private FileSourceDto newFileSourceDto() throws IOException {
+  private FileSourceDto generateDto() throws IOException {
     long now = System.currentTimeMillis();
+    byte[] data = generateData();
     FileSourceDto dto = new FileSourceDto();
     dto.setCreatedAt(now);
     dto.setUpdatedAt(now);
+    dto.setBinaryData(data);
+    dto.setDataHash("49d7230271f2bd24c759e54bcd66547d");
     dto.setProjectUuid(PROJECT_UUID);
     dto.setFileUuid(Uuids.create());
-    // this fake data is 3220 lines long
-    dto.setData(IOUtils.toString(getClass().getResourceAsStream("SourceDbBenchmarkTest/data.txt")));
-    dto.setDataHash("49d7230271f2bd24c759e54bcd66547d");
     dto.setLineHashes(IOUtils.toString(getClass().getResourceAsStream("SourceDbBenchmarkTest/line_hashes.txt")));
     return dto;
+  }
+
+  private byte[] generateData() throws IOException {
+    FileSourceDb.Data.Builder dataBuilder = FileSourceDb.Data.newBuilder();
+    for (int i = 1; i <= NUMBER_OF_LINES; i++) {
+      dataBuilder.addLinesBuilder()
+        .setLine(i)
+        .setScmRevision("REVISION_" + i)
+        .setScmAuthor("a_guy")
+        .setSource("this is not java code " + i)
+        .setUtLineHits(i)
+        .setUtConditions(i+1)
+        .setUtCoveredConditions(i)
+        .setItLineHits(i)
+        .setItConditions(i+1)
+        .setItCoveredConditions(i)
+        .setOverallLineHits(i)
+        .setOverallConditions(i+1)
+        .setOverallCoveredConditions(i)
+        .setScmDate(150000000L)
+        .setHighlighting("2,9,k;9,18,k")
+        .addAllDuplications(Arrays.asList(19,33,141))
+        .build();
+    }
+    return FileSourceDto.encodeData(dataBuilder.build());
   }
 }

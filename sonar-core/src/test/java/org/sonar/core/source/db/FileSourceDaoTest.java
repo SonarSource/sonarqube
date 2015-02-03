@@ -25,13 +25,12 @@ import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
-import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -56,77 +55,82 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
   public void select() throws Exception {
     setupData("shared");
 
-    FileSourceDto fileSourceDto = dao.select("ab12");
+    FileSourceDto fileSourceDto = dao.select("FILE1_UUID");
 
-    assertThat(fileSourceDto.getData()).isEqualTo("aef12a,alice,2014-04-25T12:34:56+0100,,class Foo");
+    assertThat(fileSourceDto.getBinaryData()).isNotEmpty();
     assertThat(fileSourceDto.getDataHash()).isEqualTo("hash");
-    assertThat(fileSourceDto.getProjectUuid()).isEqualTo("abcd");
-    assertThat(fileSourceDto.getFileUuid()).isEqualTo("ab12");
-    assertThat(new Date(fileSourceDto.getCreatedAt())).isEqualTo(DateUtils.parseDateTime("2014-10-29T16:44:02+0100"));
-    assertThat(new Date(fileSourceDto.getUpdatedAt())).isEqualTo(DateUtils.parseDateTime("2014-10-30T16:44:02+0100"));
+    assertThat(fileSourceDto.getProjectUuid()).isEqualTo("PRJ_UUID");
+    assertThat(fileSourceDto.getFileUuid()).isEqualTo("FILE1_UUID");
+    assertThat(fileSourceDto.getCreatedAt()).isEqualTo(1500000000000L);
+    assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(1500000000000L);
   }
 
   @Test
   public void select_data() throws Exception {
     setupData("shared");
 
-    StringParser stringParser = new StringParser();
-    dao.readDataStream("ab12", stringParser);
+    InputStreamToStringFunction fn = new InputStreamToStringFunction();
+    dao.readDataStream("FILE1_UUID", fn);
 
-    assertThat(stringParser.getResult()).isEqualTo("aef12a,alice,2014-04-25T12:34:56+0100,,class Foo");
+    assertThat(fn.result).isNotEmpty();
   }
 
   @Test
   public void select_line_hashes() throws Exception {
     setupData("shared");
 
-    StringParser stringParser = new StringParser();
-    dao.readLineHashesStream(session, "ab12", stringParser);
+    ReaderToStringFunction fn = new ReaderToStringFunction();
+    dao.readLineHashesStream(session, "FILE1_UUID", fn);
 
-    assertThat(stringParser.getResult()).isEqualTo("truc");
+    assertThat(fn.result).isEqualTo("ABC\\nDEF\\nGHI");
   }
 
   @Test
   public void no_line_hashes_on_unknown_file() throws Exception {
     setupData("shared");
 
-    StringParser stringParser = new StringParser();
-    dao.readLineHashesStream(session, "unknown", stringParser);
+    ReaderToStringFunction fn = new ReaderToStringFunction();
+    dao.readLineHashesStream(session, "unknown", fn);
 
-    assertThat(stringParser.getResult()).isEmpty();
+    assertThat(fn.result).isNull();
   }
 
   @Test
   public void insert() throws Exception {
     setupData("shared");
 
-    dao.insert(new FileSourceDto().setProjectUuid("prj").setFileUuid("file").setData("bla bla")
-      .setDataHash("hash2")
-      .setLineHashes("foo\nbar")
-      .setSrcHash("hache")
-      .setCreatedAt(DateUtils.parseDateTime("2014-10-31T16:44:02+0100").getTime())
-      .setUpdatedAt(DateUtils.parseDateTime("2014-10-31T16:44:02+0100").getTime()));
+    dao.insert(new FileSourceDto()
+      .setProjectUuid("PRJ_UUID")
+      .setFileUuid("FILE2_UUID")
+      .setBinaryData("FILE2_BINARY_DATA".getBytes())
+      .setDataHash("FILE2_DATA_HASH")
+      .setLineHashes("LINE1_HASH\\nLINE2_HASH")
+      .setSrcHash("FILE2_HASH")
+      .setCreatedAt(1500000000000L)
+      .setUpdatedAt(1500000000001L));
 
-    checkTable("insert", "file_sources");
+    checkTable("insert", "file_sources", "project_uuid", "file_uuid", "data_hash", "line_hashes", "src_hash", "created_at", "updated_at");
   }
 
   @Test
   public void update() throws Exception {
     setupData("shared");
 
-    dao.update(new FileSourceDto().setId(101L).setProjectUuid("prj").setFileUuid("file")
-      .setData("updated data")
-      .setDataHash("hash2")
-      .setSrcHash("123456")
-      .setLineHashes("foo2\nbar2")
-      .setUpdatedAt(DateUtils.parseDateTime("2014-10-31T16:44:02+0100").getTime()));
+    dao.update(new FileSourceDto().setId(101L)
+      .setProjectUuid("PRJ_UUID")
+      .setFileUuid("FILE1_UUID")
+      .setBinaryData("updated data".getBytes())
+      .setDataHash("NEW_DATA_HASH")
+      .setSrcHash("NEW_FILE_HASH")
+      .setLineHashes("NEW_LINE_HASHES")
+      .setUpdatedAt(1500000000002L));
 
-    checkTable("update", "file_sources");
+    checkTable("update", "file_sources", "project_uuid", "file_uuid", "data_hash", "line_hashes", "src_hash", "created_at", "updated_at");
   }
 
-  class StringParser implements Function<Reader, String> {
+  private static class ReaderToStringFunction implements Function<Reader, String> {
 
-    String result = "";
+    String result = null;
 
     @Override
     public String apply(Reader input) {
@@ -137,9 +141,20 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
         throw new RuntimeException(e);
       }
     }
+  }
 
-    public String getResult() {
-      return result;
+  private static class InputStreamToStringFunction implements Function<InputStream, String> {
+
+    String result = null;
+
+    @Override
+    public String apply(InputStream input) {
+      try {
+        result = IOUtils.toString(input);
+        return IOUtils.toString(input);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
     }
   }
 }
