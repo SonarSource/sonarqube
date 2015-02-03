@@ -33,7 +33,7 @@ define [
 
       super
 
-      key 'right,return', 'list', =>
+      key 'right', 'list', =>
         selectedIssue = @collection.at @options.app.state.get 'selectedIndex'
         @options.app.controller.showComponentViewer selectedIssue
         return false
