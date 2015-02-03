@@ -29,7 +29,6 @@ define [
     submit: (severity) ->
       _severity = @getTransition()
       return if severity == _severity
-      p = window.process.addBackgroundProcess()
       @model.set severity: severity
       $.ajax
         type: 'POST'
@@ -37,11 +36,8 @@ define [
         data:
           issue: @model.id
           severity: severity
-      .done =>
-        window.process.finishBackgroundProcess p
       .fail =>
         @model.set severity: _severity
-        window.process.failBackgroundProcess p
 
 
     serializeData: ->

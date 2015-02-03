@@ -22,15 +22,11 @@ define([
         title: t('delete'),
         html: t('are_you_sure'),
         yesHandler: function () {
-          var p = window.process.addBackgroundProcess(),
-              url = baseUrl + '/api/rules/delete',
+          var url = baseUrl + '/api/rules/delete',
               options = { key: that.model.id };
           $.post(url, options).done(function () {
             that.model.collection.remove(that.model);
             that.close();
-            window.process.finishBackgroundProcess(p);
-          }).fail(function () {
-            window.process.failBackgroundProcess(p);
           });
         }
       });

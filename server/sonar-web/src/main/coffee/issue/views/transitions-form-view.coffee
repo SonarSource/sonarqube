@@ -23,7 +23,6 @@ define [
 
 
     submit: (transition) ->
-      p = window.process.addBackgroundProcess()
       $.ajax
         type: 'POST',
         url: baseUrl + '/api/issues/do_transition',
@@ -31,6 +30,4 @@ define [
           issue: @model.get('key')
           transition: transition
       .done =>
-        @options.view.resetIssue {}, p
-      .fail =>
-        window.process.failBackgroundProcess p
+        @options.view.resetIssue {}

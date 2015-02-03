@@ -47,7 +47,6 @@ define([
 
     sendRequests: function (url, options, profiles) {
       var that = this,
-          p = window.process.addBackgroundProcess(),
           looper = $.Deferred().resolve();
       profiles.forEach(function (profile) {
         var opts = _.extend({}, options, { profile_key: profile });
@@ -64,9 +63,6 @@ define([
       looper.done(function () {
         that.options.app.controller.fetchList();
         that.$(that.ui.codingRulesSubmitBulkChange.selector).hide();
-        window.process.finishBackgroundProcess(p);
-      }).fail(function () {
-        window.process.failBackgroundProcess(p);
       });
     },
 

@@ -40,7 +40,6 @@ requirejs [
 
   $ = jQuery
   App = new Marionette.Application
-  issuesAppProcess = window.process.addBackgroundProcess()
 
   App.addInitializer ->
     @state = new State()
@@ -103,7 +102,6 @@ requirejs [
       key.setScope 'list'
       @router = new Router app: @
       Backbone.history.start()
-      window.process.finishBackgroundProcess issuesAppProcess
 
 
   l10nXHR = window.requestMessages()

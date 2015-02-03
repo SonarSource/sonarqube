@@ -30,8 +30,7 @@ requirejs([
               FiltersView) {
 
       var $ = jQuery,
-          App = new Marionette.Application(),
-          p = window.process.addBackgroundProcess();
+          App = new Marionette.Application();
 
       App.addInitializer(function () {
         this.layout = new Layout();
@@ -83,7 +82,6 @@ requirejs([
           app: this
         });
         Backbone.history.start();
-        window.process.finishBackgroundProcess(p);
       });
 
       App.manualRepository = function () {

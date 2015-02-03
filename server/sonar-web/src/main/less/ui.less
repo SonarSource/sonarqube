@@ -352,18 +352,21 @@ input[type=button] {
 }
 
 
+.processes-container {
+  position: fixed;
+  z-index: 9999;
+  top: 0;
+  left: 50%;
+  width: 350px;
+  margin-left: -175px;
+}
 
 .process-spinner {
-  position: fixed;
-  z-index: 2000;
-  top: 0; left: 50%;
-  min-width: 300px;
-  max-width: 900px;
-  margin-left: -150px;
   padding: 0 10px;
   line-height: @formControlHeight;
-  background-color: #f0e8ac;
   border-radius: 0 0 3px 3px;
+  .box-sizing(border-box);
+  background-color: #f0e8ac;
   text-align: center;
   opacity: 0;
   .trans;
@@ -371,14 +374,21 @@ input[type=button] {
   &.shown { opacity: 1; }
 }
 
+.process-spinner + .process-spinner {
+  margin-top: 5px;
+  border-radius: 3px;
+}
+
 .process-spinner-failed {
+  padding-right: 30px;
   background-color: @red;
   color: @white;
 }
 
 .process-spinner-close {
-  float: right;
-  margin-right: 5px;
+  position: absolute;
+  top: 0;
+  right: 0;
   padding: 3px;
   background: none !important;
   border: none !important;

@@ -85,7 +85,6 @@ define([
       this.$('.modal-error').hide();
       this.$('.modal-warning').hide();
       var that = this,
-          p = window.process.addBackgroundProcess(),
           url = baseUrl + '/api/rules/' + action;
       return $.post(url, options).done(function (r) {
         if (typeof r === 'string') {
@@ -100,8 +99,6 @@ define([
         } else {
           that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
         }
-      }).always(function () {
-        window.process.finishBackgroundProcess(p);
       });
     },
 

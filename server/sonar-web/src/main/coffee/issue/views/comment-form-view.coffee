@@ -50,7 +50,6 @@ define [
 
 
     submit: ->
-      p = window.process.addBackgroundProcess()
       text = @ui.textarea.val()
       update = @model && @model.has('key')
       method = if update then 'edit_comment' else 'add_comment'
@@ -62,7 +61,4 @@ define [
         data.issue = @options.issue.id
       $.post url, data
       .done =>
-        window.process.finishBackgroundProcess p
         @options.detailView.updateAfterAction true
-      .fail =>
-        window.process.failBackgroundProcess p
