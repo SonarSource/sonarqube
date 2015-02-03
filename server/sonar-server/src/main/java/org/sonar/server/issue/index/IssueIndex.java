@@ -54,6 +54,7 @@ import org.sonar.server.view.index.ViewIndexDefinition;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -544,9 +545,14 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
   }
 
   private AggregationBuilder getCreatedAtFacet(IssueQuery query, Map<String, FilterBuilder> filters, QueryBuilder esQuery) {
+    Date now = system.newDate();
+    SimpleDateFormat tzFormat = new SimpleDateFormat("XX");
+    tzFormat.setTimeZone(TimeZone.getDefault());
+    String timeZoneString = tzFormat.format(now);
+
     Interval bucketSize = Interval.YEAR;
     long startTime = query.createdAfter() == null ? 0L : query.createdAfter().getTime();
-    long endTime = query.createdBefore() == null ? system.newDate().getTime() : query.createdBefore().getTime();
+    long endTime = query.createdBefore() == null ? now.getTime() : query.createdBefore().getTime();
     Duration timeSpan = new Duration(startTime, endTime);
     if (timeSpan.isShorterThan(TWENTY_DAYS)) {
       bucketSize = Interval.DAY;
@@ -562,7 +568,8 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
       .interval(bucketSize)
       .minDocCount(0L)
       .format(DateUtils.DATETIME_FORMAT)
-      .preZone(TimeZone.getDefault().getID());
+      .preZone(timeZoneString)
+      .postZone(timeZoneString);
   }
 
   private void setSorting(IssueQuery query, SearchRequestBuilder esRequest) {
