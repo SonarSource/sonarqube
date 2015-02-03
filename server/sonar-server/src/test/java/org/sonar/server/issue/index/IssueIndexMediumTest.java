@@ -649,20 +649,55 @@ public class IssueIndexMediumTest {
 
     TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
 
-    IssueDoc issue1 = IssueTesting.newDoc("ISSUE1", file).setFuncCreationDate(DateUtils.parseDateTime("2014-09-20T12:34:56+0000"));
-    IssueDoc issue2 = IssueTesting.newDoc("ISSUE2", file).setFuncCreationDate(DateUtils.parseDateTime("2014-09-20T23:45:60+0000"));
-    IssueDoc issue3 = IssueTesting.newDoc("ISSUE3", file).setFuncCreationDate(DateUtils.parseDateTime("2014-09-21T12:34:56+0000"));
-    IssueDoc issue4 = IssueTesting.newDoc("ISSUE4", file).setFuncCreationDate(DateUtils.parseDateTime("2014-09-24T12:34:56+0000"));
-    indexIssues(issue1, issue2, issue3, issue4);
+    IssueDoc issue0 = IssueTesting.newDoc("ISSUE0", file).setFuncCreationDate(DateUtils.parseDateTime("2011-04-25T01:05:13+0000"));
+    IssueDoc issue1 = IssueTesting.newDoc("ISSUE1", file).setFuncCreationDate(DateUtils.parseDateTime("2014-09-01T12:34:56+0000"));
+    IssueDoc issue2 = IssueTesting.newDoc("ISSUE2", file).setFuncCreationDate(DateUtils.parseDateTime("2014-09-01T23:45:60+0000"));
+    IssueDoc issue3 = IssueTesting.newDoc("ISSUE3", file).setFuncCreationDate(DateUtils.parseDateTime("2014-09-02T12:34:56+0000"));
+    IssueDoc issue4 = IssueTesting.newDoc("ISSUE4", file).setFuncCreationDate(DateUtils.parseDateTime("2014-09-05T12:34:56+0000"));
+    IssueDoc issue5 = IssueTesting.newDoc("ISSUE5", file).setFuncCreationDate(DateUtils.parseDateTime("2014-09-20T12:34:56+0000"));
+    IssueDoc issue6 = IssueTesting.newDoc("ISSUE6", file).setFuncCreationDate(DateUtils.parseDateTime("2015-01-18T12:34:56+0000"));
 
-    Collection<FacetValue> createdAt = index.search(IssueQuery.builder().build(), new QueryContext().addFacets(Arrays.asList("createdAt"))).getFacets().get("createdAt");
+    indexIssues(issue0, issue1, issue2, issue3, issue4, issue5, issue6);
+
+    QueryContext queryContext = new QueryContext().addFacets(Arrays.asList("createdAt"));
+
+    Collection<FacetValue> createdAt = index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2014-09-01")).createdBefore(DateUtils.parseDate("2014-09-08")).build(),
+      queryContext).getFacets().get("createdAt");
     assertThat(createdAt).hasSize(5)
       .containsOnly(
-        new FacetValue("2014-09-20T00:00:00+0000", 2),
-        new FacetValue("2014-09-21T00:00:00+0000", 1),
-        new FacetValue("2014-09-22T00:00:00+0000", 0),
-        new FacetValue("2014-09-23T00:00:00+0000", 0),
-        new FacetValue("2014-09-24T00:00:00+0000", 1));
+        new FacetValue("2014-09-01T00:00:00+0000", 2),
+        new FacetValue("2014-09-02T00:00:00+0000", 1),
+        new FacetValue("2014-09-03T00:00:00+0000", 0),
+        new FacetValue("2014-09-04T00:00:00+0000", 0),
+        new FacetValue("2014-09-05T00:00:00+0000", 1));
+
+    createdAt = index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2014-09-01")).createdBefore(DateUtils.parseDate("2014-09-21")).build(),
+      queryContext).getFacets().get("createdAt");
+    assertThat(createdAt).hasSize(3)
+      .containsOnly(
+        new FacetValue("2014-09-01T00:00:00+0000", 4),
+        new FacetValue("2014-09-08T00:00:00+0000", 0),
+        new FacetValue("2014-09-15T00:00:00+0000", 1));
+
+    createdAt = index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2014-09-01")).createdBefore(DateUtils.parseDate("2015-01-19")).build(),
+      queryContext).getFacets().get("createdAt");
+    assertThat(createdAt).hasSize(5)
+      .containsOnly(
+        new FacetValue("2014-09-01T00:00:00+0000", 5),
+        new FacetValue("2014-10-01T00:00:00+0000", 0),
+        new FacetValue("2014-11-01T00:00:00+0000", 0),
+        new FacetValue("2014-12-01T00:00:00+0000", 0),
+        new FacetValue("2015-01-01T00:00:00+0000", 1));
+
+    createdAt = index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2011-01-01")).createdBefore(DateUtils.parseDate("2016-01-01")).build(),
+      queryContext).getFacets().get("createdAt");
+    assertThat(createdAt).hasSize(5)
+      .containsOnly(
+        new FacetValue("2011-01-01T00:00:00+0000", 1),
+        new FacetValue("2012-01-01T00:00:00+0000", 0),
+        new FacetValue("2013-01-01T00:00:00+0000", 0),
+        new FacetValue("2014-01-01T00:00:00+0000", 5),
+        new FacetValue("2015-01-01T00:00:00+0000", 1));
   }
 
   @Test

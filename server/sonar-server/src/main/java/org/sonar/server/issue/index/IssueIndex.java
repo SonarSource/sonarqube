@@ -39,9 +39,11 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms.Order;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
+import org.joda.time.Duration;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.System2;
 import org.sonar.server.es.Sorting;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.filter.IssueFilterParameters;
@@ -64,10 +66,17 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
 
   private static final int DEFAULT_ISSUE_FACET_SIZE = 15;
 
+  private static final Duration TWENTY_DAYS = Duration.standardDays(20L);
+  private static final Duration TWENTY_WEEKS = Duration.standardDays(20L * 7L);
+  private static final Duration TWENTY_MONTHS = Duration.standardDays(20L * 30L);
+
   private final Sorting sorting;
 
-  public IssueIndex(SearchClient client) {
+  private final System2 system;
+
+  public IssueIndex(SearchClient client, System2 system) {
     super(IndexDefinition.ISSUES, null, client);
+    this.system = system;
 
     sorting = new Sorting();
     sorting.add(IssueQuery.SORT_BY_ASSIGNEE, IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE);
@@ -540,9 +549,22 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
   }
 
   private AggregationBuilder getCreatedAtFacet(IssueQuery query, Map<String, FilterBuilder> filters, QueryBuilder esQuery) {
+    Interval bucketSize = Interval.YEAR;
+    long startTime = query.createdAfter() == null ? 0L : query.createdAfter().getTime();
+    long endTime = query.createdBefore() == null ? system.newDate().getTime() : query.createdBefore().getTime();
+    Duration timeSpan = new Duration(startTime, endTime);
+    if (timeSpan.isShorterThan(TWENTY_DAYS)) {
+      bucketSize = Interval.DAY;
+    } else if (timeSpan.isShorterThan(TWENTY_WEEKS)) {
+      bucketSize = Interval.WEEK;
+    } else if (timeSpan.isShorterThan(TWENTY_MONTHS)) {
+      bucketSize = Interval.MONTH;
+    }
+
+
     return AggregationBuilders.dateHistogram(IssueFilterParameters.CREATED_AT)
       .field(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT)
-      .interval(Interval.DAY)
+      .interval(bucketSize)
       .minDocCount(0L)
       .format(DateUtils.DATETIME_FORMAT)
       .preZone(TimeZone.getDefault().getID());
