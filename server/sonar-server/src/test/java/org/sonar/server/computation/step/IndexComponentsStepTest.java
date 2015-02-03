@@ -22,7 +22,6 @@ package org.sonar.server.computation.step;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.batch.protocol.output.BatchOutputReader;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.resource.ResourceIndexerDao;
@@ -47,7 +46,7 @@ public class IndexComponentsStepTest {
   public void call_indexProject_of_dao() throws IOException {
     ComponentDto project = mock(ComponentDto.class);
     when(project.getId()).thenReturn(123L);
-    ComputationContext context = new ComputationContext(mock(AnalysisReportDto.class), project, mock(BatchOutputReader.class));
+    ComputationContext context = new ComputationContext(mock(AnalysisReportDto.class), project);
 
     sut.execute(context);
 

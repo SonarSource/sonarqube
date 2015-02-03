@@ -20,33 +20,82 @@
 
 package org.sonar.server.computation.step;
 
-import org.sonar.batch.protocol.output.BatchOutputReader;
+import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.utils.TempFolder;
 import org.sonar.batch.protocol.output.BatchOutput;
+import org.sonar.batch.protocol.output.BatchOutputReader;
+import org.sonar.core.computation.db.AnalysisReportDto;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.issue.IssueComputation;
+import org.sonar.server.db.DbClient;
+
+import java.io.File;
 
 public class ParseReportStep implements ComputationStep {
 
-  private final IssueComputation issueComputation;
+  private static final Logger LOG = LoggerFactory.getLogger(ParseReportStep.class);
 
-  public ParseReportStep(IssueComputation issueComputation) {
+  private final IssueComputation issueComputation;
+  private final DbClient dbClient;
+  private final TempFolder tempFolder;
+
+  public ParseReportStep(IssueComputation issueComputation, DbClient dbClient, TempFolder tempFolder) {
     this.issueComputation = issueComputation;
+    this.dbClient = dbClient;
+    this.tempFolder = tempFolder;
+  }
+
+  @Override
+  public String[] supportedProjectQualifiers() {
+    return new String[] {Qualifiers.PROJECT, Qualifiers.VIEW};
   }
 
   @Override
   public void execute(ComputationContext context) {
-    int rootComponentRef = context.getReportReader().readMetadata().getRootComponentRef();
-    processComponent(context, rootComponentRef);
-    issueComputation.afterReportProcessing();
+    File reportDir = tempFolder.newDir();
+    try {
+      // extract compressed report from database and uncompress it in temporary directory
+      extractReport(context.getReportDto(), reportDir);
+
+      // prepare parsing of report
+      BatchOutputReader reader = new BatchOutputReader(reportDir);
+      BatchOutput.ReportMetadata reportMetadata = reader.readMetadata();
+      context.setReportMetadata(reportMetadata);
+
+      // and parse!
+      int rootComponentRef = reportMetadata.getRootComponentRef();
+      recursivelyProcessComponent(reader, context, rootComponentRef);
+      issueComputation.afterReportProcessing();
+
+    } finally {
+      FileUtils.deleteQuietly(reportDir);
+    }
   }
 
-  private void processComponent(ComputationContext context, int componentRef) {
-    BatchOutputReader reader = context.getReportReader();
-    BatchOutput.ReportComponent component = reader.readComponent(componentRef);
-    issueComputation.processComponentIssues(context, component.getUuid(), reader.readComponentIssues(componentRef));
+  private void extractReport(AnalysisReportDto report, File toDir) {
+    long startTime = System.currentTimeMillis();
+    DbSession session = dbClient.openSession(false);
+    try {
+      dbClient.analysisReportDao().selectAndDecompressToDir(session, report.getId(), toDir);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+    long stopTime = System.currentTimeMillis();
+    LOG.info(String.format("Report extracted in %dms | uncompressed size=%s | project=%s",
+      stopTime - startTime, FileUtils.byteCountToDisplaySize(FileUtils.sizeOf(toDir)), report.getProjectKey()));
+  }
+
+  private void recursivelyProcessComponent(BatchOutputReader reportReader, ComputationContext context, int componentRef) {
+    BatchOutput.ReportComponent component = reportReader.readComponent(componentRef);
+    issueComputation.processComponentIssues(context, component.getUuid(), reportReader.readComponentIssues(componentRef));
 
     for (Integer childRef : component.getChildRefsList()) {
-      processComponent(context, childRef);
+      recursivelyProcessComponent(reportReader, context, childRef);
     }
   }
 

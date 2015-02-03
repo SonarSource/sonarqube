@@ -20,11 +20,7 @@
 
 package org.sonar.server.computation.step;
 
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.computation.ComputationContext;
@@ -32,38 +28,19 @@ import org.sonar.server.view.index.ViewIndexer;
 
 import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.class)
 public class IndexViewsStepTest {
 
-  @Mock
-  ComputationContext context;
-
-  @Mock
-  ViewIndexer indexer;
-
-  IndexViewsStep step;
-
-  @Before
-  public void setUp() throws Exception {
-    step = new IndexViewsStep(indexer);
-  }
+  ComputationContext context = mock(ComputationContext.class);
+  ViewIndexer indexer = mock(ViewIndexer.class);
+  IndexViewsStep sut = new IndexViewsStep(indexer);
 
   @Test
-  public void index_view_on_view() throws Exception {
+  public void index_views() throws Exception {
     when(context.getProject()).thenReturn(ComponentTesting.newProjectDto("ABCD").setQualifier(Qualifiers.VIEW));
 
-    step.execute(context);
+    sut.execute(context);
 
     verify(indexer).index("ABCD");
-  }
-
-  @Test
-  public void not_index_view_on_project() throws Exception {
-    when(context.getProject()).thenReturn(ComponentTesting.newProjectDto().setQualifier(Qualifiers.PROJECT));
-
-    step.execute(context);
-
-    verifyZeroInteractions(indexer);
   }
 
 }

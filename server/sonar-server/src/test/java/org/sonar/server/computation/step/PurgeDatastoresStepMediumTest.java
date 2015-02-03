@@ -95,7 +95,7 @@ public class PurgeDatastoresStepMediumTest {
 
     dbClient.propertiesDao().setProperty(new PropertyDto().setKey(DbCleanerConstants.WEEKS_BEFORE_DELETING_ALL_SNAPSHOTS).setValue("52"));
     dbSession.commit();
-    ComputationContext context = new ComputationContext(report, project, null);
+    ComputationContext context = new ComputationContext(report, project);
 
     // ACT
     sut.execute(context);
@@ -134,7 +134,7 @@ public class PurgeDatastoresStepMediumTest {
     dbClient.propertiesDao().setProperty(new PropertyDto().setKey(DbCleanerConstants.WEEKS_BEFORE_DELETING_ALL_SNAPSHOTS).setValue("4"));
     dbClient.propertiesDao().setProperty(new PropertyDto().setKey(DbCleanerConstants.WEEKS_BEFORE_DELETING_ALL_SNAPSHOTS).setValue("1").setResourceId(project.getId()));
     dbSession.commit();
-    ComputationContext context = new ComputationContext(report, project, null);
+    ComputationContext context = new ComputationContext(report, project);
 
     // ACT
     sut.execute(context);

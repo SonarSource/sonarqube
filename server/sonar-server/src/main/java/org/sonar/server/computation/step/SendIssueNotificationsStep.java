@@ -21,6 +21,7 @@ package org.sonar.server.computation.step;
 
 import com.google.common.collect.ImmutableSet;
 import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.issue.IssueCache;
@@ -30,6 +31,7 @@ import org.sonar.server.issue.notification.NewIssuesNotification;
 import org.sonar.server.notifications.NotificationService;
 import org.sonar.server.util.CloseableIterator;
 
+import java.util.Date;
 import java.util.Set;
 
 /**
@@ -51,6 +53,11 @@ public class SendIssueNotificationsStep implements ComputationStep {
     this.issueCache = issueCache;
     this.rules = rules;
     this.service = service;
+  }
+
+  @Override
+  public String[] supportedProjectQualifiers() {
+    return new String[] {Qualifiers.PROJECT};
   }
 
   @Override
@@ -88,7 +95,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
       ComponentDto project = context.getProject();
       NewIssuesNotification notification = new NewIssuesNotification();
       notification.setProject(project);
-      notification.setAnalysisDate(context.getAnalysisDate());
+      notification.setAnalysisDate(new Date(context.getReportMetadata().getAnalysisDate()));
       notification.setStatistics(project, stats);
       service.deliver(notification);
     }

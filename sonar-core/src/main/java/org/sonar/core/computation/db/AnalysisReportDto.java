@@ -46,6 +46,10 @@ public class AnalysisReportDto {
     return report;
   }
 
+  public void setId(Long id) {
+    this.id = id;
+  }
+
   public String getProjectKey() {
     return projectKey;
   }

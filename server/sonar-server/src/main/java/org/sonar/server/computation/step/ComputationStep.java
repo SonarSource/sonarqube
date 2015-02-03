@@ -27,6 +27,11 @@ import org.sonar.server.computation.ComputationContext;
  */
 public interface ComputationStep {
 
+  /**
+   * Allows to distinguish standard projects from view projects
+   */
+  String[] supportedProjectQualifiers();
+
   void execute(ComputationContext context);
 
   String getDescription();

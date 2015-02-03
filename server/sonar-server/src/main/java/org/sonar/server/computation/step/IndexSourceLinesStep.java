@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.step;
 
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.source.index.SourceLineIndexer;
 
@@ -28,6 +29,11 @@ public class IndexSourceLinesStep implements ComputationStep {
 
   public IndexSourceLinesStep(SourceLineIndexer indexer) {
     this.indexer = indexer;
+  }
+
+  @Override
+  public String[] supportedProjectQualifiers() {
+    return new String[] {Qualifiers.PROJECT};
   }
 
   @Override

@@ -21,14 +21,12 @@
 package org.sonar.server.computation;
 
 import com.google.common.base.Throwables;
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.TimeProfiler;
-import org.sonar.batch.protocol.output.BatchOutputReader;
 import org.sonar.core.activity.Activity;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
@@ -39,8 +37,6 @@ import org.sonar.server.computation.step.ComputationStep;
 import org.sonar.server.computation.step.ComputationSteps;
 import org.sonar.server.db.DbClient;
 
-import java.io.File;
-
 public class ComputationService implements ServerComponent {
 
   private static final Logger LOG = LoggerFactory.getLogger(ComputationService.class);
@@ -48,14 +44,11 @@ public class ComputationService implements ServerComponent {
   private final DbClient dbClient;
   private final ComputationSteps steps;
   private final ActivityService activityService;
-  private final TempFolder tempFolder;
 
-  public ComputationService(DbClient dbClient, ComputationSteps steps, ActivityService activityService,
-    TempFolder tempFolder) {
+  public ComputationService(DbClient dbClient, ComputationSteps steps, ActivityService activityService) {
     this.dbClient = dbClient;
     this.steps = steps;
     this.activityService = activityService;
-    this.tempFolder = tempFolder;
   }
 
   public void process(AnalysisReportDto report) {
@@ -63,14 +56,14 @@ public class ComputationService implements ServerComponent {
       "#%s - %s - processing analysis report", report.getId(), report.getProjectKey()));
 
     ComponentDto project = loadProject(report);
-    File reportDir = tempFolder.newDir();
     try {
-      decompressReport(report, reportDir);
-      ComputationContext context = new ComputationContext(report, project, new BatchOutputReader(reportDir));
+      ComputationContext context = new ComputationContext(report, project);
       for (ComputationStep step : steps.orderedSteps()) {
-        TimeProfiler stepProfiler = new TimeProfiler(LOG).start(step.getDescription());
-        step.execute(context);
-        stepProfiler.stop();
+        if (ArrayUtils.contains(step.supportedProjectQualifiers(), context.getProject().qualifier())) {
+          TimeProfiler stepProfiler = new TimeProfiler(LOG).start(step.getDescription());
+          step.execute(context);
+          stepProfiler.stop();
+        }
       }
       report.succeed();
 
@@ -79,7 +72,6 @@ public class ComputationService implements ServerComponent {
       throw Throwables.propagate(e);
 
     } finally {
-      FileUtils.deleteQuietly(reportDir);
       logActivity(report, project);
       profiler.stop();
     }
@@ -103,17 +95,5 @@ public class ComputationService implements ServerComponent {
     } finally {
       MyBatis.closeQuietly(session);
     }
-  }
-
-  private void decompressReport(AnalysisReportDto report, File toDir) {
-    long startTime = System.currentTimeMillis();
-    DbSession session = dbClient.openSession(false);
-    try {
-      dbClient.analysisReportDao().selectAndDecompressToDir(session, report.getId(), toDir);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-    long stopTime = System.currentTimeMillis();
-    LOG.info("Analysis report loaded and uncompressed in " + (stopTime - startTime) + "ms (project=" + report.getProjectKey() + ")");
   }
 }
