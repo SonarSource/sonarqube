@@ -20,6 +20,7 @@
 
 package org.sonar.server.computation.step;
 
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.server.computation.ComputationContext;
 
@@ -31,6 +32,11 @@ public class IndexComponentsStep implements ComputationStep {
 
   public IndexComponentsStep(ResourceIndexerDao resourceIndexerDao) {
     this.resourceIndexerDao = resourceIndexerDao;
+  }
+
+  @Override
+  public String[] supportedProjectQualifiers() {
+    return new String[] {Qualifiers.PROJECT, Qualifiers.VIEW};
   }
 
   @Override

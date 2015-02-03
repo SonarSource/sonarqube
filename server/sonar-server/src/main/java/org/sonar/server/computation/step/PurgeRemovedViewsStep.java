@@ -48,13 +48,12 @@ public class PurgeRemovedViewsStep implements ComputationStep {
   }
 
   @Override
-  public void execute(ComputationContext context) {
-    if (context.getProject().qualifier().equals(Qualifiers.VIEW)) {
-      purgeRemovedViews();
-    }
+  public String[] supportedProjectQualifiers() {
+    return new String[] {Qualifiers.VIEW};
   }
 
-  private void purgeRemovedViews() {
+  @Override
+  public void execute(ComputationContext context) {
     DbSession session = dbClient.openSession(false);
     try {
       Set<String> viewUuidsInIndex = newHashSet(index.findAllViewUuids());
