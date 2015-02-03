@@ -28,6 +28,10 @@ import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.runner.Runner;
+import org.openjdk.jmh.runner.RunnerException;
+import org.openjdk.jmh.runner.options.Options;
+import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchOutput;
 
@@ -43,6 +47,8 @@ import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
 
 @State(Scope.Thread)
 public class SerializationBenchmark {
@@ -66,6 +72,7 @@ public class SerializationBenchmark {
       issue.message = "this is the message of issue " + i;
       issue.line = i;
       issue.author = "someone";
+      issue.tags = Arrays.asList("tag" + i, "othertag" + i);
       gson.toJson(issue, Issue.class, writer);
     }
     writer.endArray();
@@ -84,6 +91,7 @@ public class SerializationBenchmark {
         issueBuilder.setMsg("this is the message of issue " + i);
         issueBuilder.setLine(i);
         issueBuilder.setAuthorLogin("someone");
+        issueBuilder.addAllTags(Arrays.asList("tag" + i, "othertag" + i));
         issueBuilder.build().writeDelimitedTo(out);
       }
     }
@@ -99,6 +107,7 @@ public class SerializationBenchmark {
         issue.message = "this is the message of issue " + i;
         issue.line = i;
         issue.author = "someone";
+        issue.tags = Arrays.asList("tag" + i, "othertag" + i);
         out.writeObject(issue);
       }
     }
@@ -114,6 +123,7 @@ public class SerializationBenchmark {
         issue.message = "this is the message of issue " + i;
         issue.line = i;
         issue.author = "someone";
+        issue.tags = Arrays.asList("tag" + i, "othertag" + i);
         out.writeObject(issue);
       }
     }
@@ -131,6 +141,7 @@ public class SerializationBenchmark {
       issue.message = "this is the message of issue " + i;
       issue.line = i;
       issue.author = "someone";
+      issue.tags = Arrays.asList("tag" + i, "othertag" + i);
       kryo.writeObject(output, issue);
     }
     output.close();
@@ -139,24 +150,46 @@ public class SerializationBenchmark {
   public static class Issue implements Serializable {
     String uuid, severity, message, author;
     int line;
+    List<String> tags;
   }
 
   public static class ExternalizableIssue implements Externalizable {
     String uuid, severity, message, author;
     int line;
+    List<String> tags;
 
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
-      out.writeBytes(uuid);
-      out.writeBytes(severity);
-      out.writeBytes(message);
-      out.writeBytes(author);
+      out.writeUTF(uuid);
+      out.writeUTF(severity);
+      out.writeUTF(message);
+      out.writeUTF(author);
       out.writeInt(line);
+
+      // write number of tags then tags
+      out.writeByte(tags.size());
+      for (String tag : tags) {
+        out.writeUTF(tag);
+      }
     }
 
     @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
       throw new UnsupportedOperationException();
     }
+  }
+
+  /**
+   * You can this benchmark with maven command-line (see run.sh) or by executing this method
+   * in IDE
+   */
+  public static void main(String[] args) throws RunnerException {
+    Options opt = new OptionsBuilder()
+      .include(SerializationBenchmark.class.getSimpleName())
+      .warmupIterations(5)
+      .measurementIterations(5)
+      .forks(5)
+      .build();
+    new Runner(opt).run();
   }
 }

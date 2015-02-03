@@ -62,14 +62,14 @@ public class SerializationBenchmarkTest {
     Deflater deflater = new Deflater();
     byte[] content = FileUtils.readFileToByteArray(input);
     deflater.setInput(content);
-    OutputStream outputStream = new FileOutputStream(zipFile);
-    deflater.finish();
-    byte[] buffer = new byte[1024];
-    while (!deflater.finished()) {
-      int count = deflater.deflate(buffer); // returns the generated code... index
-      outputStream.write(buffer, 0, count);
+    try (OutputStream outputStream = new FileOutputStream(zipFile)) {
+      deflater.finish();
+      byte[] buffer = new byte[1024];
+      while (!deflater.finished()) {
+        int count = deflater.deflate(buffer); // returns the generated code... index
+        outputStream.write(buffer, 0, count);
+      }
     }
-    outputStream.close();
     deflater.end();
 
     return zipFile;

@@ -52,7 +52,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <jmh.version>1.1.1</jmh.version>
+    <jmh.version>1.5.1</jmh.version>
     <uberjar.name>microbenchmark</uberjar.name>
   </properties>
 
