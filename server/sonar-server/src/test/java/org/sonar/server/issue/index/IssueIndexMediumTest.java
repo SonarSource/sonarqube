@@ -655,10 +655,14 @@ public class IssueIndexMediumTest {
     IssueDoc issue4 = IssueTesting.newDoc("ISSUE4", file).setFuncCreationDate(DateUtils.parseDateTime("2014-09-24T12:34:56+0000"));
     indexIssues(issue1, issue2, issue3, issue4);
 
-
     Collection<FacetValue> createdAt = index.search(IssueQuery.builder().build(), new QueryContext().addFacets(Arrays.asList("createdAt"))).getFacets().get("createdAt");
-    assertThat(createdAt).hasSize(3)
-      .containsOnly(new FacetValue("2014-09-20T00:00:00+0000", 2), new FacetValue("2014-09-21T00:00:00+0000", 2), new FacetValue("2014-09-24T00:00:00+0000", 1));
+    assertThat(createdAt).hasSize(5)
+      .containsOnly(
+        new FacetValue("2014-09-20T00:00:00+0000", 2),
+        new FacetValue("2014-09-21T00:00:00+0000", 1),
+        new FacetValue("2014-09-22T00:00:00+0000", 0),
+        new FacetValue("2014-09-23T00:00:00+0000", 0),
+        new FacetValue("2014-09-24T00:00:00+0000", 1));
   }
 
   @Test
