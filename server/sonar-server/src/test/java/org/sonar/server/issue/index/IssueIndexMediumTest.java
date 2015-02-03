@@ -45,9 +45,7 @@ import org.sonar.server.view.index.ViewIndexer;
 
 import javax.annotation.Nullable;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -642,6 +640,25 @@ public class IssueIndexMediumTest {
 
     assertThat(index.search(IssueQuery.builder().createdAt(DateUtils.parseDate("2014-09-20")).build(), new QueryContext()).getHits()).hasSize(1);
     assertThat(index.search(IssueQuery.builder().createdAt(DateUtils.parseDate("2014-09-21")).build(), new QueryContext()).getHits()).isEmpty();
+  }
+
+  @Test
+  public void facet_on_created_at() throws Exception {
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+
+    TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
+
+    IssueDoc issue1 = IssueTesting.newDoc("ISSUE1", file).setFuncCreationDate(DateUtils.parseDateTime("2014-09-20T12:34:56+0000"));
+    IssueDoc issue2 = IssueTesting.newDoc("ISSUE2", file).setFuncCreationDate(DateUtils.parseDateTime("2014-09-20T23:45:60+0000"));
+    IssueDoc issue3 = IssueTesting.newDoc("ISSUE3", file).setFuncCreationDate(DateUtils.parseDateTime("2014-09-21T12:34:56+0000"));
+    IssueDoc issue4 = IssueTesting.newDoc("ISSUE4", file).setFuncCreationDate(DateUtils.parseDateTime("2014-09-24T12:34:56+0000"));
+    indexIssues(issue1, issue2, issue3, issue4);
+
+
+    Collection<FacetValue> createdAt = index.search(IssueQuery.builder().build(), new QueryContext().addFacets(Arrays.asList("createdAt"))).getFacets().get("createdAt");
+    assertThat(createdAt).hasSize(3)
+      .containsOnly(new FacetValue("2014-09-20T00:00:00+0000", 2), new FacetValue("2014-09-21T00:00:00+0000", 2), new FacetValue("2014-09-24T00:00:00+0000", 1));
   }
 
   @Test
