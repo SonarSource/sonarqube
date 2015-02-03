@@ -39,6 +39,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms.Order;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
+import org.elasticsearch.search.aggregations.metrics.min.Min;
 import org.joda.time.Duration;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.Severity;
@@ -177,8 +178,17 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
     setPagination(options, esSearch);
 
     QueryBuilder esQuery = QueryBuilders.matchAllQuery();
-    BoolFilterBuilder esFilter = FilterBuilders.boolFilter();
     Map<String, FilterBuilder> filters = getFilters(query, options);
+    setQueryFilter(esSearch, esQuery, filters);
+
+    setFacets(query, options, filters, esQuery, esSearch);
+
+    SearchResponse response = esSearch.get();
+    return new Result<>(this, response);
+  }
+
+  protected void setQueryFilter(SearchRequestBuilder esSearch, QueryBuilder esQuery, Map<String, FilterBuilder> filters) {
+    BoolFilterBuilder esFilter = FilterBuilders.boolFilter();
     for (FilterBuilder filter : filters.values()) {
       if (filter != null) {
         esFilter.must(filter);
@@ -190,11 +200,6 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
     } else {
       esSearch.setQuery(esQuery);
     }
-
-    setFacets(query, options, filters, esQuery, esSearch);
-
-    SearchResponse response = esSearch.get();
-    return new Result<>(this, response);
   }
 
   private BoolFilterBuilder getFilter(IssueQuery query, QueryContext options) {
@@ -556,7 +561,7 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
     String timeZoneString = tzFormat.format(now);
 
     Interval bucketSize = Interval.YEAR;
-    long startTime = query.createdAfter() == null ? 0L : query.createdAfter().getTime();
+    long startTime = query.createdAfter() == null ? getMinCreatedAt(filters, esQuery) : query.createdAfter().getTime();
     long endTime = query.createdBefore() == null ? now.getTime() : query.createdBefore().getTime();
     Duration timeSpan = new Duration(startTime, endTime);
     if (timeSpan.isShorterThan(TWENTY_DAYS)) {
@@ -575,6 +580,18 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
       .format(DateUtils.DATETIME_FORMAT)
       .preZone(timeZoneString)
       .postZone(timeZoneString);
+  }
+
+  private long getMinCreatedAt(Map<String, FilterBuilder> filters, QueryBuilder esQuery) {
+    String facetNameAndField = IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT;
+    SearchRequestBuilder minCount = getClient()
+      .prepareSearch(IssueIndexDefinition.INDEX)
+      .setTypes(IssueIndexDefinition.TYPE_ISSUE)
+      .setSearchType(SearchType.COUNT);
+    setQueryFilter(minCount, esQuery, filters);
+    minCount.addAggregation(AggregationBuilders.min(facetNameAndField).field(facetNameAndField));
+    Min minValue = minCount.get().getAggregations().get(facetNameAndField);
+    return Double.valueOf(minValue.getValue()).longValue();
   }
 
   private void setSorting(IssueQuery query, SearchRequestBuilder esRequest) {

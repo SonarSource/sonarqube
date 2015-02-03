@@ -708,6 +708,17 @@ public class IssueIndexMediumTest {
         new FacetValue("2013-01-01T04:00:00+0000", 0),
         new FacetValue("2014-01-01T04:00:00+0000", 5),
         new FacetValue("2015-01-01T04:00:00+0000", 1));
+
+    // createdAfter not set: taking min value
+    createdAt = index.search(IssueQuery.builder().createdBefore(DateUtils.parseDate("2016-01-01")).build(),
+      queryContext).getFacets().get("createdAt");
+    assertThat(createdAt).hasSize(5)
+      .containsOnly(
+        new FacetValue("2011-01-01T04:00:00+0000", 1),
+        new FacetValue("2012-01-01T04:00:00+0000", 0),
+        new FacetValue("2013-01-01T04:00:00+0000", 0),
+        new FacetValue("2014-01-01T04:00:00+0000", 5),
+        new FacetValue("2015-01-01T04:00:00+0000", 1));
   }
 
   @Test
