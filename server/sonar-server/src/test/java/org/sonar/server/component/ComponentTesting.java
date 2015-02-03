@@ -92,7 +92,7 @@ public class ComponentTesting {
   }
 
   public static ComponentDto newDeveloper(String name) {
-    String uuid = "DEV:" + name;
+    String uuid = Uuids.create();
     return new ComponentDto()
       .setUuid(uuid)
       .setProjectUuid(uuid)
