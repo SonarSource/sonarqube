@@ -76,6 +76,7 @@ public class IssueQueryServiceTest {
   public void setUp() throws Exception {
     when(dbClient.openSession(false)).thenReturn(session);
     when(dbClient.componentDao()).thenReturn(componentDao);
+    when(dbClient.authorDao()).thenReturn(authorDao);
 
     when(componentService.componentUuids(any(DbSession.class), any(Collection.class), eq(true))).thenAnswer(new Answer<Collection<String>>() {
       @Override
@@ -85,7 +86,7 @@ public class IssueQueryServiceTest {
       }
     });
 
-    issueQueryService = new IssueQueryService(dbClient, componentService, authorDao);
+    issueQueryService = new IssueQueryService(dbClient, componentService);
   }
 
   @Test

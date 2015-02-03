@@ -37,7 +37,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.user.AuthorDao;
 import org.sonar.server.component.ComponentService;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.IssueQuery.Builder;
@@ -64,12 +63,10 @@ public class IssueQueryService implements ServerComponent {
   private static final String UNKNOWN = "<UNKNOWN>";
   private final DbClient dbClient;
   private final ComponentService componentService;
-  private final AuthorDao authorDao;
 
-  public IssueQueryService(DbClient dbClient, ComponentService componentService, AuthorDao authorDao) {
+  public IssueQueryService(DbClient dbClient, ComponentService componentService) {
     this.dbClient = dbClient;
     this.componentService = componentService;
-    this.authorDao = authorDao;
   }
 
   public IssueQuery createFromMap(Map<String, Object> params) {
@@ -244,7 +241,7 @@ public class IssueQueryService implements ServerComponent {
         addComponentsBelowView(builder, session, authors, projects, projectUuids, moduleUuids, directories, fileUuids);
       } else if ("DEV".equals(uniqueQualifier)) {
         // XXX No constant for developer !!!
-        Collection<String> actualAuthors = authors == null ? authorDao.selectScmAccountsByDeveloperUuids(allComponentUuids) : authors;
+        Collection<String> actualAuthors = authors == null ? dbClient.authorDao().selectScmAccountsByDeveloperUuids(allComponentUuids) : authors;
         addComponentsBelowView(builder, session, actualAuthors, projects, projectUuids, moduleUuids, directories, fileUuids);
       } else if (Qualifiers.PROJECT.equals(uniqueQualifier)) {
         builder.projectUuids(allComponentUuids);
