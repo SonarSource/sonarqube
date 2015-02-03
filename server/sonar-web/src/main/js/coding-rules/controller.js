@@ -119,8 +119,8 @@ define([
           model: ruleModel,
           actives: data.actives
         });
-        that.app.layout.workspaceDetailsRegion.show(that.app.workspaceDetailsView);
         that.app.layout.showDetails();
+        that.app.layout.workspaceDetailsRegion.show(that.app.workspaceDetailsView);
       });
     },
 

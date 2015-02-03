@@ -165,7 +165,6 @@ define [
     scrollToLine: (line) ->
       row = @$("[data-line-number=#{line}]")
       goal = if row.length > 0 then row.offset().top - 200 else 0
-      goal = Math.max goal, 30
       $(window).scrollTop goal
 
 
