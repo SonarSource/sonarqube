@@ -123,12 +123,13 @@
 
   .value {
     display: inline-block;
+    vertical-align: top;
+    line-height: 23px;
     max-width: 300px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     font-family: @monoFontFamily;
-    vertical-align: baseline;
   }
 }
 .coding-rules-detail-quality-profile-parameter + .coding-rules-detail-quality-profile-parameter { margin-top: 0; }
@@ -257,6 +258,7 @@
 }
 
 .coding-rules-detail-parameter-value {
+  font-family: @monoFontFamily;
   word-break: break-all;
 }
 
