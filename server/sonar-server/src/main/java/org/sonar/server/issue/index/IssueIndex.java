@@ -538,6 +538,7 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
     return AggregationBuilders.dateHistogram(IssueFilterParameters.CREATED_AT)
       .field(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT)
       .interval(Interval.DAY)
+      .minDocCount(0L)
       .format(DateUtils.DATETIME_FORMAT)
       .preZone(TimeZone.getDefault().getID());
   }
