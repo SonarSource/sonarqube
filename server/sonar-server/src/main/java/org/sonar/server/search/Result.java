@@ -72,33 +72,49 @@ public class Result<K> {
 
   private void processAggregation(Aggregation aggregation) {
     if (Missing.class.isAssignableFrom(aggregation.getClass())) {
-      Missing missing = (Missing) aggregation;
-      long docCount = missing.getDocCount();
-      if (docCount > 0L) {
-        this.facets.put(aggregation.getName().replace("_missing",""), new FacetValue("", docCount));
-      }
+      processMissingAggregation(aggregation);
     } else if (Terms.class.isAssignableFrom(aggregation.getClass())) {
-      Terms termAggregation = (Terms) aggregation;
-      for (Terms.Bucket value : termAggregation.getBuckets()) {
-        String facetName = aggregation.getName();
-        if (facetName.contains("__") && !facetName.startsWith("__")) {
-          facetName = facetName.substring(0, facetName.indexOf("__"));
-        }
-        facetName = facetName.replace("_selected", "");
-        this.facets.put(facetName, new FacetValue(value.getKey(), value.getDocCount()));
-      }
+      processTermsAggregation(aggregation);
     } else if (HasAggregations.class.isAssignableFrom(aggregation.getClass())) {
-      HasAggregations hasAggregations = (HasAggregations) aggregation;
-      for (Aggregation internalAggregation : hasAggregations.getAggregations()) {
-        this.processAggregation(internalAggregation);
-      }
+      processSubAggregations(aggregation);
     } else if (DateHistogram.class.isAssignableFrom(aggregation.getClass())) {
-      DateHistogram dateHistogram = (DateHistogram) aggregation;
-      for (DateHistogram.Bucket value : dateHistogram.getBuckets()) {
-        this.facets.put(dateHistogram.getName(), new FacetValue(value.getKeyAsText().toString(), value.getDocCount()));
-      }
+      processDateHistogram(aggregation);
     } else {
       LOGGER.warn("Cannot process {} type of aggregation", aggregation.getClass());
+    }
+  }
+
+  private void processMissingAggregation(Aggregation aggregation) {
+    Missing missing = (Missing) aggregation;
+    long docCount = missing.getDocCount();
+    if (docCount > 0L) {
+      this.facets.put(aggregation.getName().replace("_missing",""), new FacetValue("", docCount));
+    }
+  }
+
+  private void processTermsAggregation(Aggregation aggregation) {
+    Terms termAggregation = (Terms) aggregation;
+    for (Terms.Bucket value : termAggregation.getBuckets()) {
+      String facetName = aggregation.getName();
+      if (facetName.contains("__") && !facetName.startsWith("__")) {
+        facetName = facetName.substring(0, facetName.indexOf("__"));
+      }
+      facetName = facetName.replace("_selected", "");
+      this.facets.put(facetName, new FacetValue(value.getKey(), value.getDocCount()));
+    }
+  }
+
+  private void processSubAggregations(Aggregation aggregation) {
+    HasAggregations hasAggregations = (HasAggregations) aggregation;
+    for (Aggregation internalAggregation : hasAggregations.getAggregations()) {
+      this.processAggregation(internalAggregation);
+    }
+  }
+
+  private void processDateHistogram(Aggregation aggregation) {
+    DateHistogram dateHistogram = (DateHistogram) aggregation;
+    for (DateHistogram.Bucket value : dateHistogram.getBuckets()) {
+      this.facets.put(dateHistogram.getName(), new FacetValue(value.getKeyAsText().toString(), value.getDocCount()));
     }
   }
 
