@@ -49,7 +49,7 @@ define [
         @options.app.controller.selectNext()
         false
 
-      key 'left', 'componentViewer', =>
+      key 'left,backspace', 'componentViewer', =>
         @options.app.controller.closeComponentViewer()
         false
 
