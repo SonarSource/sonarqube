@@ -77,7 +77,7 @@ public class IssueComputation {
     target.setDebt(issue.hasDebtInMinutes() ? Duration.create(issue.getDebtInMinutes()) : null);
     if (issue.hasDiffFields()) {
       FieldDiffs fieldDiffs = FieldDiffs.parse(issue.getDiffFields());
-      fieldDiffs.setCreationDate(context.getAnalysisDate());
+      fieldDiffs.setCreationDate(new Date(context.getReportMetadata().getAnalysisDate()));
       target.setCurrentChange(fieldDiffs);
     }
     target.setStatus(issue.getStatus());

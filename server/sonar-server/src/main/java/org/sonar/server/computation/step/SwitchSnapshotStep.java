@@ -20,6 +20,7 @@
 
 package org.sonar.server.computation.step;
 
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.core.component.SnapshotDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
@@ -36,6 +37,11 @@ public class SwitchSnapshotStep implements ComputationStep {
 
   public SwitchSnapshotStep(DbClient dbClient) {
     this.dbClient = dbClient;
+  }
+
+  @Override
+  public String[] supportedProjectQualifiers() {
+    return new String[] {Qualifiers.PROJECT, Qualifiers.VIEW};
   }
 
   @Override

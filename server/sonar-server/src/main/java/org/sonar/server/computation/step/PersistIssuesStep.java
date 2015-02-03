@@ -24,6 +24,7 @@ import org.sonar.api.issue.IssueComment;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.issue.internal.FieldDiffs;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.core.issue.db.IssueChangeDto;
 import org.sonar.core.issue.db.IssueChangeMapper;
@@ -54,6 +55,11 @@ public class PersistIssuesStep implements ComputationStep {
     this.conflictResolver = conflictResolver;
     this.ruleCache = ruleCache;
     this.issueCache = issueCache;
+  }
+
+  @Override
+  public String[] supportedProjectQualifiers() {
+    return new String[] {Qualifiers.PROJECT};
   }
 
   @Override

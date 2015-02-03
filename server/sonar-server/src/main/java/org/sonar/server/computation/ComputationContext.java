@@ -20,27 +20,24 @@
 
 package org.sonar.server.computation;
 
-import org.sonar.batch.protocol.output.BatchOutputReader;
+import org.sonar.batch.protocol.output.BatchOutput;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
-
-import java.util.Date;
+import org.sonar.server.computation.step.ParseReportStep;
 
 public class ComputationContext {
 
   private final AnalysisReportDto reportDto;
   private final ComponentDto project;
-  private final BatchOutputReader reportReader;
 
   /**
    * Cache of analysis date as it can be accessed several times
    */
-  private Date analysisDate = null;
+  private BatchOutput.ReportMetadata reportMetadata = null;
 
-  public ComputationContext(AnalysisReportDto reportDto, ComponentDto project, BatchOutputReader reportReader) {
+  public ComputationContext(AnalysisReportDto reportDto, ComponentDto project) {
     this.reportDto = reportDto;
     this.project = project;
-    this.reportReader = reportReader;
   }
 
   public AnalysisReportDto getReportDto() {
@@ -51,14 +48,14 @@ public class ComputationContext {
     return project;
   }
 
-  public BatchOutputReader getReportReader() {
-    return reportReader;
+  public BatchOutput.ReportMetadata getReportMetadata() {
+    if (reportMetadata == null) {
+      throw new IllegalStateException("Report metadata is available after execution of " + ParseReportStep.class);
+    }
+    return reportMetadata;
   }
 
-  public Date getAnalysisDate() {
-    if (analysisDate == null) {
-      analysisDate = new Date(reportReader.readMetadata().getAnalysisDate());
-    }
-    return analysisDate;
+  public void setReportMetadata(BatchOutput.ReportMetadata m) {
+    this.reportMetadata = m;
   }
 }

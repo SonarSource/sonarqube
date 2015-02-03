@@ -37,7 +37,12 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Types;
 import java.util.List;
 
 import static org.sonar.core.computation.db.AnalysisReportDto.Status.PENDING;
@@ -110,11 +115,12 @@ public class AnalysisReportDao implements DaoComponent {
 
     Connection connection = session.getConnection();
     PreparedStatement ps = null;
+    ResultSet generatedIdRs = null;
     try {
       ps = connection.prepareStatement(
         "insert into analysis_reports " +
           " (project_key, snapshot_id, report_status, report_data, created_at, updated_at, started_at, finished_at)" +
-          " values (?, ?, ?, ?, ?, ?, ?, ?)");
+          " values (?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
       ps.setString(1, report.getProjectKey());
       ps.setLong(2, report.getSnapshotId());
       ps.setString(3, report.getStatus().toString());
@@ -124,11 +130,16 @@ public class AnalysisReportDao implements DaoComponent {
       setLong(ps, 7, report.getStartedAt());
       setLong(ps, 8, report.getFinishedAt());
 
-      ps.executeUpdate();
+      if (ps.executeUpdate() == 1) {
+        generatedIdRs = ps.getGeneratedKeys();
+        generatedIdRs.next();
+        report.setId(generatedIdRs.getLong(1));
+      }
       connection.commit();
     } catch (SQLException | IOException e) {
       throw new IllegalStateException(String.format("Failed to insert %s in the database", report), e);
     } finally {
+      DatabaseUtils.closeQuietly(generatedIdRs);
       DatabaseUtils.closeQuietly(ps);
     }
 

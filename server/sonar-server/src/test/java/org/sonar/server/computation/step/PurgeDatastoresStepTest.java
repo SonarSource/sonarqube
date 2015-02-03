@@ -25,7 +25,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
-import org.sonar.batch.protocol.output.BatchOutputReader;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.computation.dbcleaner.ProjectCleaner;
@@ -59,7 +58,7 @@ public class PurgeDatastoresStepTest {
     ComponentDto project = mock(ComponentDto.class);
     when(project.getId()).thenReturn(123L);
     when(project.uuid()).thenReturn("UUID-1234");
-    ComputationContext context = new ComputationContext(mock(AnalysisReportDto.class), project, mock(BatchOutputReader.class));
+    ComputationContext context = new ComputationContext(mock(AnalysisReportDto.class), project);
 
     sut.execute(context);
 

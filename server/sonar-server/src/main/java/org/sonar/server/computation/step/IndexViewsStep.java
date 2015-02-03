@@ -33,10 +33,13 @@ public class IndexViewsStep implements ComputationStep {
   }
 
   @Override
+  public String[] supportedProjectQualifiers() {
+    return new String[] {Qualifiers.VIEW};
+  }
+
+  @Override
   public void execute(ComputationContext context) {
-    if (context.getProject().qualifier().equals(Qualifiers.VIEW)) {
-      indexer.index(context.getProject().uuid());
-    }
+    indexer.index(context.getProject().uuid());
   }
 
   @Override
