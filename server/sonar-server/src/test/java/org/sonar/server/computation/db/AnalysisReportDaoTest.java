@@ -88,6 +88,9 @@ public class AnalysisReportDaoTest {
     session.commit();
 
     db.assertDbUnit(getClass(), "insert-result.xml", "analysis_reports");
+    // update dto with generated id
+    assertThat(report1.getId()).isNotNull();
+    assertThat(report2.getId()).isNotNull();
   }
 
   @Test
