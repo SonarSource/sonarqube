@@ -556,8 +556,10 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
     String timeZoneString = tzFormat.format(now);
 
     Interval bucketSize = Interval.YEAR;
-    long startTime = query.createdAfter() == null ? getMinCreatedAt(filters, esQuery) : query.createdAfter().getTime();
-    long endTime = query.createdBefore() == null ? now.getTime() : query.createdBefore().getTime();
+    Date createdAfter = query.createdAfter();
+    long startTime = createdAfter == null ? getMinCreatedAt(filters, esQuery) : createdAfter.getTime();
+    Date createdBefore = query.createdBefore();
+    long endTime = createdBefore == null ? now.getTime() : createdBefore.getTime();
     Duration timeSpan = new Duration(startTime, endTime);
     if (timeSpan.isShorterThan(TWENTY_DAYS)) {
       bucketSize = Interval.DAY;
@@ -586,7 +588,7 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
     setQueryFilter(minCount, esQuery, filters);
     minCount.addAggregation(AggregationBuilders.min(facetNameAndField).field(facetNameAndField));
     Min minValue = minCount.get().getAggregations().get(facetNameAndField);
-    return Double.valueOf(minValue.getValue()).longValue();
+    return (long) minValue.getValue();
   }
 
   private void setSorting(IssueQuery query, SearchRequestBuilder esRequest) {

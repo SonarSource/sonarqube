@@ -297,6 +297,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       IssueFilterParameters.DIRECTORIES,
       IssueFilterParameters.LANGUAGES,
       IssueFilterParameters.TAGS,
+      IssueFilterParameters.CREATED_AT,
     });
   }
 
