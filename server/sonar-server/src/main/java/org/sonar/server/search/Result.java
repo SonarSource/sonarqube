@@ -27,6 +27,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.HasAggregations;
+import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
 import org.elasticsearch.search.aggregations.bucket.missing.Missing;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.slf4j.Logger;
@@ -35,11 +36,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Result<K> {
 
@@ -94,6 +91,11 @@ public class Result<K> {
       HasAggregations hasAggregations = (HasAggregations) aggregation;
       for (Aggregation internalAggregation : hasAggregations.getAggregations()) {
         this.processAggregation(internalAggregation);
+      }
+    } else if (DateHistogram.class.isAssignableFrom(aggregation.getClass())) {
+      DateHistogram dateHistogram = (DateHistogram) aggregation;
+      for (DateHistogram.Bucket value : dateHistogram.getBuckets()) {
+        this.facets.put(dateHistogram.getName(), new FacetValue(value.getKeyAsText().toString(), value.getDocCount()));
       }
     } else {
       LOGGER.warn("Cannot process {} type of aggregation", aggregation.getClass());

@@ -33,6 +33,7 @@ import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuilder;
+import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram.Interval;
 import org.elasticsearch.search.aggregations.bucket.missing.InternalMissing;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket;
@@ -40,6 +41,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms.Order;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.server.es.Sorting;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.filter.IssueFilterParameters;
@@ -438,6 +440,9 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
       if (options.facets().contains(IssueFilterParameters.ACTION_PLANS)) {
         esSearch.addAggregation(getActionPlansFacet(query, filters, esQuery));
       }
+      if (options.facets().contains(IssueFilterParameters.CREATED_AT)) {
+        esSearch.addAggregation(getCreatedAtFacet(query, filters, esQuery));
+      }
     }
   }
 
@@ -527,6 +532,14 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
     return AggregationBuilders
       .global(facetName)
       .subAggregation(facetTopAggregation);
+  }
+
+  private AggregationBuilder getCreatedAtFacet(IssueQuery query, Map<String, FilterBuilder> filters, QueryBuilder esQuery) {
+    return AggregationBuilders.dateHistogram(IssueFilterParameters.CREATED_AT)
+      .field(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT)
+      .interval(Interval.DAY)
+      .format(DateUtils.DATETIME_FORMAT)
+      .preZone(TimeZone.getDefault().getID());
   }
 
   private void setSorting(IssueQuery query, SearchRequestBuilder esRequest) {
