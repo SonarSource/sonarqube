@@ -1,0 +1,203 @@
+@import (reference) "../variables";
+@import (reference) "../mixins";
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.odd {
+  background-color: #fff;
+}
+
+.odd.selected, .even.selected, .odd.selected a, .even.selected a, .even.selected span, .odd.selected span {
+  background-color: @lightBlue;
+  color: @baseFontColor;
+}
+
+table.data > thead > tr > th {
+  vertical-align: top;
+  font-size: 93%;
+  padding: 4px 7px 4px 3px;
+  line-height: 1.4;
+  text-transform: uppercase;
+
+  & > .small {
+    text-transform: none;
+  }
+}
+
+table.data > tfoot > tr > td {
+  font-size: 93%;
+  color: #777;
+  padding: 5px;
+}
+
+table.data > tbody > tr > td {
+  padding: 5px;
+  vertical-align: text-top;
+}
+
+table.data td.small, table.data th.small {
+  padding: 0;
+  white-space: nowrap;
+}
+
+table.data th img, table.data td img {
+  vertical-align: sub;
+}
+
+table.data.zebra tbody tr:nth-child(odd) {
+  background-color: #f5f5f5;
+}
+
+.data thead tr.total {
+  background-color: #EFEFEF;
+  font-weight: normal;
+  border: 1px solid #DDD;
+}
+
+.data thead tr.total th {
+  font-weight: normal;
+}
+
+.data thead tr.blank {
+  background-color: #fff;
+  line-height: 15px;
+}
+
+.data tr.highlight {
+  background-color: @lightBlue;
+}
+
+.data input, .data select, .data button {
+  vertical-align: baseline;
+}
+
+.data td.category {
+  padding-right: 15px;
+}
+
+.categoryDescription {
+  padding: 10px 5px;
+}
+
+.data td.category.withSubcategories {
+  background-image: url('../images/bullet_arrow_down.gif');
+  background-position: right center;
+  background-repeat: no-repeat;
+}
+
+.data td.subcategory {
+  padding-left: 20px;
+}
+
+.hoverable:hover {
+  background-color: #CAE3F2;
+}
+
+.hoverable:hover a {
+  color: #111;
+}
+
+table.sortable .sortcol {
+  cursor: pointer;
+  padding-left: 15px;
+  background-repeat: no-repeat;
+  background-position: right center;
+}
+
+table.sortable .sortasc {
+  background-image: url('../images/bullet_arrow_up.gif');
+  background-position: left center;
+}
+
+table.sortable .sortdesc {
+  background-image: url('../images/bullet_arrow_down.gif');
+  background-position: left center;
+}
+
+table.sortable .righticon {
+  padding-right: 15px;
+  background-position: right center;
+}
+
+table.sortable .nosort {
+  cursor: default;
+}
+
+table.spaced th {
+  font-weight: bold;
+  color: #333;
+  padding: 4px 5px;
+}
+
+table.spaced td, table.matrix tfoot td {
+  padding: 3px 5px;
+  line-height: 18px;
+}
+
+table.spaced td img {
+  vertical-align: text-bottom;
+}
+
+table.spacedicon th {
+  font-weight: bold;
+  color: #333;
+  padding: 4px 5px;
+}
+
+table.spacedicon td {
+  padding: 0 5px;
+  height: 24px;
+}
+
+.thin {
+  width: 1%;
+}
+
+td.sep {
+  width: 10px;
+}
+
+.spacer {
+  width: 5px;
+  display: inline-block;
+}
+
+.formError {
+  display: inline-block;
+  background-color: #FF9090;
+  color: #000;
+  padding: 0 5px;
+}
+
+table.form td {
+  padding: 2px 5px;
+  vertical-align: top;
+}
+
+table.form td.keyCell {
+  width: 1%;
+  white-space: nowrap;
+  text-align: right;
+  font-weight: bold;
+  vertical-align: top;
+}
+
+table.form td img {
+  vertical-align: bottom;
+}
+
+.admin hr {
+  background: transparent;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  border-bottom: 1px dashed #FFD324;
+  height: 1px;
+}
+
+table#project-history tr > td {
+  vertical-align: top;
+}

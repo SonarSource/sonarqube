@@ -1,5 +1,11 @@
 <div class="container">
-  <ul class="nav navbar-nav">
+  <ul class="nav navbar-nav nav-crumbs">
+      <li>
+        <a href="{{link '/settings'}}">{{t 'layout.settings'}}</a>
+      </li>
+  </ul>
+
+  <ul class="nav navbar-nav nav-tabs">
     <li class="dropdown">
       <a class="dropdown-toggle" data-toggle="dropdown" href="#">
         {{t 'sidebar.project_settings'}}&nbsp;<i class="icon-dropdown"></i>
@@ -38,9 +44,6 @@
         </li>
         <li>
           <a href="{{link '/roles/projects'}}">{{t 'roles.page'}}</a>
-        </li>
-        <li>
-          <a href="{{link '/admin_dashboards/index'}}">{{t 'default_dashboards.page'}}</a>
         </li>
       </ul>
     </li>

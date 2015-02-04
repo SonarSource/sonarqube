@@ -1,11 +1,10 @@
 @import (reference) "../variables";
 @import (reference) "../mixins";
-@import (reference) "../ui";
+@import (reference) "ui";
 
 @sideWidth: 300px;
 
 .search-navigator {
-  margin: 0 -10px;
 
   &.sticky {
 
@@ -343,7 +342,6 @@
   margin-right: 4px;
   border-bottom: none;
   color: @baseFontColor;
-  font-size: @iconSmallFontSize;
 }
 
 .search-navigator-filters-actions {

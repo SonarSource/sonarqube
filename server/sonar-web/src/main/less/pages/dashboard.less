@@ -1,8 +1,9 @@
-@import (reference) "mixins";
-@import (reference) "variables";
-@import (reference) "ui";
+@import (reference) "../mixins";
+@import (reference) "../variables";
+@import (reference) "../components/ui";
 
-.dashboard-page {
+.dashboard-page,
+.dashboard-page body {
   background-color: @barBackgroundColor;
 }
 
@@ -12,12 +13,6 @@
 }
 
 /* LAYOUT */
-#dashboard {
-  position: relative;
-  width: 100%;
-  padding: 10px 0;
-}
-
 #dashboard .transparent {
   position: absolute;
   width: 100%;

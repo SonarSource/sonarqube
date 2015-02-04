@@ -1,0 +1,34 @@
+@import (reference) "../variables";
+@import (reference) "../mixins";
+@import (reference) "../components/ui";
+
+.vertical-top {
+  vertical-align: top;
+}
+
+.vertical-bottom {
+  vertical-align: bottom;
+}
+
+.vertical-middle {
+  vertical-align: middle;
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+.hidden {
+  display: none;
+  visibility: hidden;
+}
+
+.note {
+  color: @secondFontColor;
+  font-size: @smallFontSize;
+
+  img {
+    // FIXME why bottom?
+    vertical-align: bottom;
+  }
+}

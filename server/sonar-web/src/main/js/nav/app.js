@@ -41,7 +41,7 @@ define([
 
   App.addInitializer(function () {
     var navHeight = $('.navbar-global').outerHeight() + $('.navbar-context').outerHeight();
-    $(document.body).css('padding-top', navHeight).data('top-offset', navHeight);
+    $('.page-wrapper').css('padding-top', navHeight).data('top-offset', navHeight);
   });
 
   App.addInitializer(function () {
