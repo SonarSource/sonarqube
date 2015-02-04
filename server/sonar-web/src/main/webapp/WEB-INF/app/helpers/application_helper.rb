@@ -201,7 +201,8 @@ module ApplicationHelper
                       'open_issues', 'reopened_issues', 'confirmed_issues', 'false_positive_issues']
 
     if issues_metrics.include? metric_key
-      url = url_for({:controller => 'component_issues', :action => 'index', :id => options[:resource]||@resource.id}) + '#'
+      resource = options[:resource]||@resource.key
+      url = url_for({:controller => 'component_issues', :action => 'index'}) + '?id=' + url_encode(resource) + '#'
       if options[:period] && @snapshot
         snapshot_datetime = @snapshot.period_datetime(options[:period])
         if snapshot_datetime
