@@ -18,7 +18,7 @@
   %>
   <title><%= title -%></title>
 
-  <link href="<%= ApplicationController.root_context -%>/css/sonar.css" rel="stylesheet" media="all">
+  <link href="<%= ApplicationController.root_context -%>/css/sonar.css?v=<%= sonar_version -%>" rel="stylesheet" media="all">
   <%= yield :style -%>
 
   <script>
@@ -29,7 +29,7 @@
     window.SS.user = '<%= current_user.login if current_user -%>';
     window.SS.userName = '<%= current_user.name if current_user -%>';
   </script>
-  <script src="<%= ApplicationController.root_context -%>/js/sonar.js"></script>
+  <script src="<%= ApplicationController.root_context -%>/js/sonar.js?v=<%= sonar_version -%>"></script>
   <script>
     var baseUrl = '<%= ApplicationController.root_context -%>';
     var $j = jQuery.noConflict();
@@ -37,9 +37,12 @@
     moment.lang(window.pageLang);
     numeral.language(window.pageLang);
   </script>
-  <script src="<%= ApplicationController.root_context -%>/js/require.js"></script>
+  <script src="<%= ApplicationController.root_context -%>/js/require.js?v=<%= sonar_version -%>"></script>
   <script>
-    requirejs.config({ baseUrl: baseUrl + '/js' });
+    requirejs.config({
+      baseUrl: baseUrl + '/js',
+      urlArgs: 'v=<%= sonar_version -%>'
+    });
   </script>
   <%= yield :script -%>
 </head>
