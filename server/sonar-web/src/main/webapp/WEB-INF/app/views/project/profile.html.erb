@@ -1,41 +1,43 @@
-<h1 class="admin-page-title"><%= message('project_quality_profiles.page') -%></h1>
-<p class="admin-page-description"><%= message('project_quality_profiles.page.description') -%></p>
+<div class="page">
+  <h1 class="admin-page-title"><%= message('project_quality_profiles.page') -%></h1>
+  <p class="admin-page-description"><%= message('project_quality_profiles.page.description') -%></p>
 
-<table class="data">
-  <thead>
-  <tr>
-    <th><%= message 'language' -%></th>
-    <th>Quality Profile</th>
-  </tr>
-  </thead>
-  <tbody>
-  <%
-     Api::Utils.languages.each do |language|
-       selected_profile = Internal.quality_profiles.findProfileByProjectAndLanguage(@project_id, language.getKey())
-  %>
-    <tr class="<%= cycle 'even', 'odd' -%>">
-      <td class="thin" nowrap><%= h language.getName() -%></td>
-      <td>
-        <form id="form-<%= language.getKey().parameterize -%>" method="POST" action="<%= ApplicationController.root_context -%>/project/set_profile">
-          <input type="hidden" name="id" value="<%= @project_id -%>"/>
-          <input type="hidden" name="language" value="<%= language.getKey() -%>"/>
-
-          <select id="select-profiles-<%= language.getKey().parameterize -%>" name="profile_id">
-            <option value="" <%= "selected='selected'" unless selected_profile -%>><%= message 'project_quality_profile.default_profile' -%></option>
-            <optgroup>
-              <%
-                 profiles = Api::Utils.insensitive_sort(@all_quality_profiles.select {|profile| profile.language == language.getKey()}) { |profile| profile.name }
-                 profiles.each do |profile|
-              %>
-                <option value="<%= profile.id -%>" <%= "selected='selected'" if selected_profile && (selected_profile.id == profile.id) -%>><%= h profile.name -%></option>
-              <% end %>
-            </optgroup>
-          </select>
-
-          <%= submit_tag message('update_verb'), :id => "submit-#{language.getKey()}", :disable_with => message('updating') %>
-        </form>
-      </td>
+  <table class="data">
+    <thead>
+    <tr>
+      <th><%= message 'language' -%></th>
+      <th>Quality Profile</th>
     </tr>
-  <% end %>
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+    <%
+       Api::Utils.languages.each do |language|
+         selected_profile = Internal.quality_profiles.findProfileByProjectAndLanguage(@project_id, language.getKey())
+    %>
+      <tr class="<%= cycle 'even', 'odd' -%>">
+        <td class="thin" nowrap><%= h language.getName() -%></td>
+        <td>
+          <form id="form-<%= language.getKey().parameterize -%>" method="POST" action="<%= ApplicationController.root_context -%>/project/set_profile">
+            <input type="hidden" name="id" value="<%= @project_id -%>"/>
+            <input type="hidden" name="language" value="<%= language.getKey() -%>"/>
+
+            <select id="select-profiles-<%= language.getKey().parameterize -%>" name="profile_id">
+              <option value="" <%= "selected='selected'" unless selected_profile -%>><%= message 'project_quality_profile.default_profile' -%></option>
+              <optgroup>
+                <%
+                   profiles = Api::Utils.insensitive_sort(@all_quality_profiles.select {|profile| profile.language == language.getKey()}) { |profile| profile.name }
+                   profiles.each do |profile|
+                %>
+                  <option value="<%= profile.id -%>" <%= "selected='selected'" if selected_profile && (selected_profile.id == profile.id) -%>><%= h profile.name -%></option>
+                <% end %>
+              </optgroup>
+            </select>
+
+            <%= submit_tag message('update_verb'), :id => "submit-#{language.getKey()}", :disable_with => message('updating') %>
+          </form>
+        </td>
+      </tr>
+    <% end %>
+    </tbody>
+  </table>
+</div>
