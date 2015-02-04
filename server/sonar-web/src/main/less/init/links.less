@@ -1,0 +1,38 @@
+@import (reference) "../variables";
+@import (reference) "../mixins";
+
+a {
+  border-bottom: 1px solid @lightBlue;
+  color: @darkBlue;
+  cursor: pointer;
+  outline: none;
+  text-decoration: none;
+  .trans;
+
+  &:hover {
+    color: @blue;
+  }
+
+  &:active, &:focus {
+    color: @darkBlue;
+  }
+}
+
+.link-base-color {
+  border-color: mix(@baseFontColor, @barBackgroundColor, 20%);
+  color: @baseFontColor;
+
+  &:hover {
+    border-bottom-color: @lightBlue;
+    color: @blue;
+  }
+
+  &:active, &:focus {
+    border-bottom-color: @lightBlue;
+    color: @darkBlue;
+  }
+}
+
+.link-no-underline {
+  border-bottom: none;
+}

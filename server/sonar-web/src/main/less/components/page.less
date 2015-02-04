@@ -1,21 +1,29 @@
 @import (reference) "../variables";
 @import (reference) "../mixins";
-@import (reference) "../ui";
+@import (reference) "../init/links";
+
 
 .page {
-  padding: 10px 0;
+  position: relative;
+  padding: 10px;
 }
 
-.page-header,
-// deprecated
-.page_title {
+.page-container {
+  min-width: 980px;
+}
+
+.page-wrapper {
+  min-height: ~"calc(100vh - @{pageFooterHeight})";
+  .box-sizing(border-box);
+}
+
+.page-header {
   .clearfix;
   margin-bottom: 10px;
 }
 
 .page-title {
   float: left;
-  font-size: @mediumFontSize !important;
   line-height: @formControlHeight;
 }
 
@@ -28,4 +36,20 @@
   clear: left;
   font-size: @smallFontSize;
   line-height: 1.5;
+}
+
+.page-footer {
+  min-height: @pageFooterHeight;
+  padding: 10px;
+  line-height: 1.5;
+  border-top: 1px solid @barBorderColor;
+  .box-sizing(border-box);
+  background-color: @barBackgroundColor;
+  color: @baseFontColorLight;
+  font-size: @smallFontSize;
+  text-align: center;
+
+  a {
+    .link-base-color;
+  }
 }

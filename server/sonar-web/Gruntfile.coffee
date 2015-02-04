@@ -9,18 +9,16 @@ module.exports = (grunt) ->
       dev:
         files:
           '<%= grunt.option("assetsDir") || pkg.assets %>css/sonar.css': [
-            '<%= pkg.sources %>less/init.less'
             '<%= pkg.sources %>less/jquery-ui.less'
             '<%= pkg.sources %>less/select2.less'
             '<%= pkg.sources %>less/select2-sonar.less'
-            '<%= pkg.sources %>less/layout.less'
+
+            '<%= pkg.sources %>less/init.less'
+            '<%= pkg.sources %>less/components.less'
+            '<%= pkg.sources %>less/pages.less'
+
             '<%= pkg.sources %>less/style.less'
-            '<%= pkg.sources %>less/icons.less'
-            '<%= pkg.sources %>less/ui.less'
-            '<%= pkg.sources %>less/sonar-colorizer.less'
-            '<%= pkg.sources %>less/dashboard.less'
-            '<%= pkg.sources %>less/select-list.less'
-            '<%= pkg.sources %>less/navigator.less'
+
             '<%= pkg.sources %>less/*.less'
           ]
       build:
@@ -28,18 +26,16 @@ module.exports = (grunt) ->
           cleancss: true
         files:
           '<%= grunt.option("assetsDir") || pkg.assets %>css/sonar.css': [
-            '<%= pkg.sources %>less/init.less'
             '<%= pkg.sources %>less/jquery-ui.less'
             '<%= pkg.sources %>less/select2.less'
             '<%= pkg.sources %>less/select2-sonar.less'
-            '<%= pkg.sources %>less/layout.less'
+
+            '<%= pkg.sources %>less/init.less'
+            '<%= pkg.sources %>less/components.less'
+            '<%= pkg.sources %>less/pages.less'
+
             '<%= pkg.sources %>less/style.less'
-            '<%= pkg.sources %>less/icons.less'
-            '<%= pkg.sources %>less/ui.less'
-            '<%= pkg.sources %>less/sonar-colorizer.less'
-            '<%= pkg.sources %>less/dashboard.less'
-            '<%= pkg.sources %>less/select-list.less'
-            '<%= pkg.sources %>less/navigator.less'
+
             '<%= pkg.sources %>less/*.less'
           ]
 

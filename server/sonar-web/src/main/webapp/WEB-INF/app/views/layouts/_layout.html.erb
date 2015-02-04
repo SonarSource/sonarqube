@@ -6,20 +6,17 @@
    @project=@resource unless @project || selected_section==Navigation::SECTION_HOME
    period_param = "period=#{u(params[:period])}" if params[:period]
 %>
-<div id="container">
-  <nav class="navbar navbar-global"></nav>
+<div class="page-wrapper" id="container">
+  <nav class="navbar navbar-global page-container" id="global-navigation"></nav>
 
   <% if selected_section==Navigation::SECTION_RESOURCE || selected_section==Navigation::SECTION_CONFIGURATION %>
-    <nav class="navbar navbar-context"></nav>
+    <nav class="navbar navbar-context page-container" id="context-navigation"></nav>
   <% end %>
 
   <%= yield :header -%>
 
-  <div id="body">
+  <div id="body" class="page-container">
     <div id="content">
-      <% if @project %>
-        <div class="print"><h2><%= h @project.name() %></h2></div>
-      <% end %>
       <div class="error" id="error" style="display:none">
         <span id="errormsg"></span> &nbsp;&nbsp;[<a href="#" onclick="javascript:$j('#error').hide();return false;"><%= message('hide').downcase -%></a>]
       </div>
@@ -36,28 +33,26 @@
 
 <% unless params[:hd]=='false' %>
   <%= yield :footer %>
-  <div id="footer">
+  <div id="footer" class="page-footer page-container">
     <% controller.java_facade.getWebFooters().each do |footer| %>
       <% if footer.getHtml() %>
         <div><%= footer.getHtml().to_s %></div>
       <% end %>
     <% end %>
-    <div id="ftlinks">
-      <%= render 'branding/footer' -%>
-      <div>
-        Version <%= sonar_version -%> -
-        <a href="http://www.gnu.org/licenses/lgpl-3.0.txt" target="lgpl_v3">LGPL v3</a> -
-        <a href="http://www.sonarqube.org" target="sonar">Community</a> -
-        <a href="http://www.sonarqube.org/documentation" target="sonar_doc">Documentation</a> -
-        <a href="http://www.sonarqube.org/support" target="support">Get Support</a> -
-        <a href="http://sonar-plugins.codehaus.org" target="plugins">Plugins</a> -
-        <a href="<%= ApplicationController.root_context -%>/api_documentation">Web Service API</a>
-        <% unless DatabaseVersion.production? %>
-          <br><br><span class="error big" id="evaluation_warning">Embedded database should be used for evaluation purpose only</span>
-          <br><br><span class="error">The embedded database will not scale, it will not support upgrading to newer versions of SonarQube, and there is no support for migrating your data out of it into a different database engine.</span>
-        <% end %>
-      </div>
-      <!--[if lte IE 8 ]><br/><span class="ie-warn">IE 8 is not supported. Some widgets may not be properly displayed. Please switch to a <a target="_blank" href="http://redirect.sonarsource.com/doc/requirements.html">supported version or another supported browser</a>.</span><!--<![endif]-->
+    <%= render 'branding/footer' -%>
+    <div>
+      Version <%= sonar_version -%> -
+      <a href="http://www.gnu.org/licenses/lgpl-3.0.txt" target="lgpl_v3">LGPL v3</a> -
+      <a href="http://www.sonarqube.org" target="sonar">Community</a> -
+      <a href="http://www.sonarqube.org/documentation" target="sonar_doc">Documentation</a> -
+      <a href="http://www.sonarqube.org/support" target="support">Get Support</a> -
+      <a href="http://sonar-plugins.codehaus.org" target="plugins">Plugins</a> -
+      <a href="<%= ApplicationController.root_context -%>/api_documentation">Web Service API</a>
+      <% unless DatabaseVersion.production? %>
+        <br><br><span class="error big" id="evaluation_warning">Embedded database should be used for evaluation purpose only</span>
+        <br><br><span class="error">The embedded database will not scale, it will not support upgrading to newer versions of SonarQube, and there is no support for migrating your data out of it into a different database engine.</span>
+      <% end %>
     </div>
+    <!--[if lte IE 8 ]><br/><span class="ie-warn">IE 8 is not supported. Some widgets may not be properly displayed. Please switch to a <a target="_blank" href="http://redirect.sonarsource.com/doc/requirements.html">supported version or another supported browser</a>.</span><!--<![endif]-->
   </div>
 <% end %>

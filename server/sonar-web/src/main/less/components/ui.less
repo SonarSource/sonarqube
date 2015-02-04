@@ -1,5 +1,5 @@
-@import (reference) "variables";
-@import (reference) "mixins";
+@import (reference) "../variables";
+@import (reference) "../mixins";
 
 
 /*
@@ -91,18 +91,6 @@
   &:hover, &:active, &:focus {
     color: @red;
     border-bottom-color: @red;
-  }
-}
-
-.link-no-underline {
-  border-bottom: none;
-}
-
-.link-with-icon {
-  .link-no-underline;
-
-  & > .ul {
-    border-bottom: 1px solid @lightBlue;
   }
 }
 
@@ -453,7 +441,7 @@ input[type=button] {
   padding: 2px 0;
 
   a {
-    color: @baseLightFontColor;
+    color: @baseFontColorLight;
 
     &:hover, &:focus {
       color: @blue !important;
@@ -490,7 +478,7 @@ input[type=button] {
     padding-bottom: 2px;
     margin-right: 2px;
     border-bottom: 3px solid transparent;
-    color: @baseLightFontColor;
+    color: @baseFontColorLight;
 
     &:hover {
       border-color: @blue;

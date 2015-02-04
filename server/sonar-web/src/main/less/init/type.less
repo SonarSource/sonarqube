@@ -1,0 +1,86 @@
+@import (reference) "../variables";
+@import (reference) "../mixins";
+@import (reference) "../components/ui";
+
+html, body {
+  color: @baseFontColor;
+}
+
+body {
+  font-family: @baseFontFamily;
+  font-size: @baseFontSize;
+  line-height: @baseLineHeight;
+}
+
+h1, .h1 {
+  line-height: @formControlHeight;
+  color: @baseFontColor;
+  font-size: @bigFontSize;
+  font-weight: 300;
+}
+
+h2, .h2 {
+  line-height: @formControlHeight;
+  color: @baseFontColor;
+  font-size: @bigFontSize;
+  font-weight: 300;
+}
+
+h3, .h3 {
+  line-height: @formControlHeight;
+  color: @baseFontColor;
+  font-size: @baseFontSize;
+  font-weight: 500;
+}
+
+h4, .h4, h5, .h5, h6, .h6 {
+  line-height: @formControlHeight;
+  color: @secondFontColor;
+  font-size: @smallFontSize;
+  font-weight: 400;
+}
+
+h1 img, .h1 img, h2 img, .h2 img, h3 img, .h3 img, h4 img, .h4 img {
+  vertical-align: middle;
+}
+
+sup {
+  vertical-align: text-top;
+}
+
+sub {
+  vertical-align: text-bottom;
+}
+
+em {
+  font-style: italic;
+}
+
+strong {
+  font-weight: bold;
+}
+
+small,
+.small {
+  font-size: (100% * (@smallFontSize / @baseFontSize));
+}
+
+.big {
+  font-size: (100% * (@bigFontSize / @baseFontSize));
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-justify {
+  text-align: justify;
+}

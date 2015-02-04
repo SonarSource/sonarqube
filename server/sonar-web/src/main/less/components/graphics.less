@@ -1,0 +1,235 @@
+@import (reference) "../variables";
+@import (reference) "../mixins";
+
+.sonar-d3 {
+
+}
+
+.sonar-d3 .axis path {
+  fill: none;
+  stroke: #444;
+}
+
+.sonar-d3 .tick line {
+  stroke: #444;
+}
+
+.sonar-d3 .tick text {
+  fill: #444;
+}
+
+.sonar-d3 .plot {
+  transition: all 0.2s ease;
+}
+
+.sonar-d3 .plot:hover .arc,
+.sonar-d3 .plot.hover .arc {
+  opacity: 0.4;
+}
+
+.sonar-d3 .plot .arc:hover,
+.sonar-d3 .plot .arc.hover {
+  opacity: 1;
+}
+
+.sonar-d3 .plot .line {
+  fill: none;
+  stroke: #000;
+  stroke-width: 2;
+}
+
+.sonar-d3 .plot .line-marker {
+  fill: #fff;
+  stroke: #000;
+  stroke-width: 2;
+  opacity: 0;
+}
+
+.sonar-d3 .plot .scanner {
+  stroke: #000;
+  opacity: 0.25;
+}
+
+.sonar-d3 .arc,
+.sonar-d3 .bar rect {
+  cursor: pointer;
+  stroke: #fff;
+  stroke-width: 1px;
+  transition: all 0.2s ease;
+}
+
+.sonar-d3 .bar,
+.sonar-d3 .bar .legend-text,
+.sonar-d3 .pie-legend,
+.sonar-d3 .pie-legend .legend-text {
+  cursor: pointer;
+}
+
+.sonar-d3 .legend {
+
+}
+
+.sonar-d3 .legend-bullet {
+  transition: all 0.2s ease;
+}
+
+.sonar-d3 .legend-text {
+  font-size: 12px;
+  cursor: default;
+}
+
+.sonar-d3 .legend-active .legend-bullet {
+  -webkit-transform: scale(1.4);
+  -webkit-transform-origin: center;
+}
+
+.sonar-d3 .legend-html {
+  margin-bottom: 10px;
+  color: @secondFontColor;
+
+  .legend-text + .legend-text { margin-left: 15px; }
+  .legend-text-main { font-weight: 500; }
+}
+
+.sonar-d3 .details-color-indicator {
+  fill: #fff;
+  transition: fill 0.2s ease;
+}
+
+.sonar-d3 .details-metric {
+  font-size: 12px;
+}
+
+.sonar-d3 .details-metric-main {
+  font-weight: bold;
+}
+
+.sonar-d3 .info {
+
+}
+
+.sonar-d3 .info-text {
+  font-size: 13px;
+}
+
+.sonar-d3 .info-text-bold {
+  font-weight: bold;
+}
+
+.sonar-d3 .info-text-small {
+  font-size: 12px;
+}
+
+.sonar-d3 .event-tick {
+  fill: none;
+  stroke: #000;
+  stroke-width: 1px;
+  transition: all 0.3s ease;
+}
+
+.sonar-d3.cloud-widget {
+  text-align: center;
+}
+
+.sonar-d3 .cloud-word {
+  display: inline-block;
+  vertical-align: baseline;
+  white-space: nowrap;
+  margin-right: 14px;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+
+  &:hover {
+    border-bottom: 1px solid;
+  }
+}
+
+.max-results-reached-message {
+  font-size: 12px;
+}
+
+div.max-results-reached-message {
+  margin-top: 10px;
+  color: #777;
+  text-align: center;
+}
+
+text.max-results-reached-message {
+  fill: #777;
+}
+
+.sonar-d3 .treemap-container {
+  position: relative;
+}
+
+.sonar-d3 .treemap-cell {
+  position: absolute;
+  border-right: 1px solid #fff;
+  border-bottom: 1px solid #fff;
+  .box-sizing(border-box);
+  text-align: center;
+}
+
+.sonar-d3 .treemap-cell-drilldown {
+  cursor: pointer;
+}
+
+.sonar-d3 .treemap-inner {
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1.2;
+  padding: 5px;
+  .box-sizing(border-box);
+  color: #fff;
+  font-weight: 300;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sonar-d3 .treemap-link {
+  position: absolute;
+  z-index: 2;
+  top: 5px; right: 5px;
+  line-height: @iconSmallFontSize;
+  color: #fff;
+  opacity: 0.5;
+  .link-no-underline;
+
+  &:hover { opacity: 1; }
+}
+
+.sonar-d3 .treemap-link i,
+.sonar-d3 .treemap-link i:before {
+  vertical-align: top;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.sonar-d3 .treemap-cell-small {
+  .treemap-inner { display: none; }
+}
+
+.sonar-d3 .treemap-cell-very-small {
+  .treemap-inner { display: none; }
+  .treemap-link { display: none; }
+}
+
+.sonar-d3 .treemap-breadcrumbs {
+  margin-top: 10px;
+  padding-top: 7px;
+  border-top: 1px solid #E6E6E6;
+}
+
+.sonar-d3 .treemap-breadcrumbs-item {
+  color: @secondFontColor;
+
+  & > [class^="icon-qualifier-"] { margin-right: 4px; }
+}
+
+.sonar-d3 .treemap-breadcrumbs-item + .treemap-breadcrumbs-item {
+  margin-left: 10px;
+
+  & > .icon-chevron-right { margin-right: 10px; }
+}
