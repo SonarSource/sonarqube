@@ -43,7 +43,7 @@ requirejs([
       };
 
       App.getSubCharacteristicName = function (key) {
-        if (key != null) {
+        if (key != null && key !== 'NONE') {
           var ch = _.findWhere(App.characteristics, { key: key }),
               parent = _.findWhere(App.characteristics, { key: ch.parent });
           return [parent.name, ch.name].join(' > ');
