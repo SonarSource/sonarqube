@@ -46,17 +46,17 @@ public class BatchOutputWriter {
   /**
    * Metadata is mandatory
    */
-  public void writeMetadata(BatchOutput.ReportMetadata metadata) {
+  public void writeMetadata(BatchReport.Metadata metadata) {
     ProtobufUtil.writeToFile(metadata, fileStructure.metadataFile());
   }
 
-  public void writeComponent(BatchOutput.ReportComponent component) {
+  public void writeComponent(BatchReport.Component component) {
     File file = fileStructure.fileFor(FileStructure.Domain.COMPONENT, component.getRef());
     ProtobufUtil.writeToFile(component, file);
   }
 
-  public void writeComponentIssues(int componentRef, Iterable<BatchOutput.ReportIssue> issues) {
-    BatchOutput.ReportIssues.Builder issuesBuilder = BatchOutput.ReportIssues.newBuilder();
+  public void writeComponentIssues(int componentRef, Iterable<BatchReport.Issue> issues) {
+    BatchReport.Issues.Builder issuesBuilder = BatchReport.Issues.newBuilder();
     issuesBuilder.setComponentRef(componentRef);
     issuesBuilder.addAllList(issues);
     File file = fileStructure.fileFor(FileStructure.Domain.ISSUES, componentRef);

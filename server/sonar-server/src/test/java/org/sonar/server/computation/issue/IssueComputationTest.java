@@ -30,7 +30,7 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
-import org.sonar.batch.protocol.output.BatchOutput;
+import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.computation.ComputationContext;
 
@@ -54,7 +54,7 @@ public class IssueComputationTest {
   SourceLinesCache lineCache = mock(SourceLinesCache.class);
   ScmAccountCache scmAccountCache = mock(ScmAccountCache.class);
   RuleDto rule = new RuleDto().setRepositoryKey(RULE_KEY.repository()).setRuleKey(RULE_KEY.rule());
-  BatchOutput.ReportIssue.Builder inputIssue = BatchOutput.ReportIssue.newBuilder()
+  BatchReport.Issue.Builder inputIssue = BatchReport.Issue.newBuilder()
     .setUuid("ISSUE_A")
     .setRuleRepository(RULE_KEY.repository())
     .setRuleKey(RULE_KEY.rule())

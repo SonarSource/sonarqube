@@ -51,18 +51,18 @@ public class BatchOutputReaderTest {
   private void initFiles(File dir) {
     BatchOutputWriter writer = new BatchOutputWriter(dir);
 
-    BatchOutput.ReportMetadata.Builder metadata = BatchOutput.ReportMetadata.newBuilder()
+    BatchReport.Metadata.Builder metadata = BatchReport.Metadata.newBuilder()
       .setAnalysisDate(15000000L)
       .setProjectKey("PROJECT_A")
       .setRootComponentRef(1);
     writer.writeMetadata(metadata.build());
 
-    BatchOutput.ReportComponent.Builder component = BatchOutput.ReportComponent.newBuilder()
+    BatchReport.Component.Builder component = BatchReport.Component.newBuilder()
       .setRef(1)
       .setUuid("UUID_A");
     writer.writeComponent(component.build());
 
-    BatchOutput.ReportIssue issue = BatchOutput.ReportIssue.newBuilder()
+    BatchReport.Issue issue = BatchReport.Issue.newBuilder()
       .setUuid("ISSUE_A")
       .setLine(50)
       .build();

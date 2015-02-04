@@ -38,13 +38,13 @@ import "constants.proto";
 option java_package = "org.sonar.batch.protocol.output";
 option optimize_for = SPEED;
 
-message ReportMetadata {
+message Metadata {
   optional int64 analysis_date = 1;
   optional string project_key = 2;
   optional int32 root_component_ref = 3;
 }
 
-message ReportComponent {
+message Component {
   optional int32 ref = 1;
   optional string path = 2;
   optional string name = 3;
@@ -58,7 +58,7 @@ message ReportComponent {
   optional string uuid = 9;
 }
 
-message ReportIssue {
+message Issue {
     optional string rule_repository = 1;
     optional string rule_key = 2;
     optional int32 line = 3;
@@ -89,7 +89,7 @@ message ReportIssue {
     optional bool must_send_notification = 26;
 }
 
-message ReportIssues {
+message Issues {
     optional int32 component_ref = 1;
-    repeated ReportIssue list = 2;
+    repeated Issue list = 2;
 }

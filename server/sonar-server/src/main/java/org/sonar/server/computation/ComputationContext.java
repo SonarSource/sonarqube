@@ -20,7 +20,8 @@
 
 package org.sonar.server.computation;
 
-import org.sonar.batch.protocol.output.BatchOutput;
+import com.google.common.base.Preconditions;
+import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.server.computation.step.ParseReportStep;
@@ -33,7 +34,7 @@ public class ComputationContext {
   /**
    * Cache of analysis date as it can be accessed several times
    */
-  private BatchOutput.ReportMetadata reportMetadata = null;
+  private BatchReport.Metadata reportMetadata = null;
 
   public ComputationContext(AnalysisReportDto reportDto, ComponentDto project) {
     this.reportDto = reportDto;
@@ -48,14 +49,12 @@ public class ComputationContext {
     return project;
   }
 
-  public BatchOutput.ReportMetadata getReportMetadata() {
-    if (reportMetadata == null) {
-      throw new IllegalStateException("Report metadata is available after execution of " + ParseReportStep.class);
-    }
+  public BatchReport.Metadata getReportMetadata() {
+    Preconditions.checkState(reportMetadata != null, "Report metadata is available after execution of " + ParseReportStep.class);
     return reportMetadata;
   }
 
-  public void setReportMetadata(BatchOutput.ReportMetadata m) {
+  public void setReportMetadata(BatchReport.Metadata m) {
     this.reportMetadata = m;
   }
 }

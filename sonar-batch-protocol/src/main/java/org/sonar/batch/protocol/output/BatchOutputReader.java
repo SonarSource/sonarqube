@@ -33,28 +33,28 @@ public class BatchOutputReader {
     this.fileStructure = new FileStructure(dir);
   }
 
-  public BatchOutput.ReportMetadata readMetadata() {
+  public BatchReport.Metadata readMetadata() {
     File file = fileStructure.metadataFile();
     if (!file.exists() || !file.isFile()) {
       throw new IllegalStateException("Metadata file is missing in analysis report: " + file);
     }
-    return ProtobufUtil.readFile(file, BatchOutput.ReportMetadata.PARSER);
+    return ProtobufUtil.readFile(file, BatchReport.Metadata.PARSER);
   }
 
   @CheckForNull
-  public BatchOutput.ReportComponent readComponent(int componentRef) {
+  public BatchReport.Component readComponent(int componentRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.COMPONENT, componentRef);
     if (file.exists() && file.isFile()) {
-      return ProtobufUtil.readFile(file, BatchOutput.ReportComponent.PARSER);
+      return ProtobufUtil.readFile(file, BatchReport.Component.PARSER);
     }
     return null;
   }
 
-  public Iterable<BatchOutput.ReportIssue> readComponentIssues(int componentRef) {
+  public Iterable<BatchReport.Issue> readComponentIssues(int componentRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.ISSUES, componentRef);
     if (file.exists() && file.isFile()) {
       // all the issues are loaded in memory
-      BatchOutput.ReportIssues issues = ProtobufUtil.readFile(file, BatchOutput.ReportIssues.PARSER);
+      BatchReport.Issues issues = ProtobufUtil.readFile(file, BatchReport.Issues.PARSER);
       return issues.getListList();
     }
     return Collections.emptyList();
