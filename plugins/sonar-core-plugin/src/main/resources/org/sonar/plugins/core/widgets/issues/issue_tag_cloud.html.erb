@@ -35,7 +35,7 @@
       .source(baseUrl + '/api/issues/component_tags?' + query)
       .options({
         maxItemsReachedMessage: '<%= message("widget.measure_filter_histogram.max_items_reached", :params => [maxItems]) -%>',
-        baseUrl: baseUrl + '/issues/search#resolved=false|componentUuids=<%= @project.uuid() -%>',
+        baseUrl: baseUrl + '/component_issues/index?id=<%= @project.key -%>#resolved=false',
         noData: '<%= message('no_data') -%>'
       })
       .render('#<%= containerId -%>');
