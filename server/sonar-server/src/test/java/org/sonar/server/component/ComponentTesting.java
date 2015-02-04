@@ -20,6 +20,7 @@
 
 package org.sonar.server.component;
 
+import com.google.common.base.Preconditions;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.internal.Uuids;
@@ -34,7 +35,7 @@ public class ComponentTesting {
   }
 
   public static ComponentDto newFileDto(ComponentDto module, String fileUuid) {
-    return newComponent(fileUuid, module)
+    return newChildComponent(fileUuid, module)
       .setKey("KEY_" + fileUuid)
       .setName("NAME_" + fileUuid)
       .setLongName("LONG_NAME_" + fileUuid)
@@ -46,7 +47,7 @@ public class ComponentTesting {
 
   public static ComponentDto newDirectory(ComponentDto module, String path) {
     String uuid = Uuids.create();
-    return newComponent(uuid, module)
+    return newChildComponent(uuid, module)
       .setKey(!path.equals("/") ? module.getKey() + ":" + path : module.getKey() + ":/")
       .setName(path)
       .setLongName(path)
@@ -56,7 +57,7 @@ public class ComponentTesting {
   }
 
   public static ComponentDto newModuleDto(String uuid, ComponentDto subProjectOrProject) {
-    return newComponent(uuid, subProjectOrProject)
+    return newChildComponent(uuid, subProjectOrProject)
       .setKey("KEY_" + uuid)
       .setName("NAME_" + uuid)
       .setLongName("LONG_NAME_" + uuid)
@@ -108,7 +109,32 @@ public class ComponentTesting {
       .setEnabled(true);
   }
 
-  private static ComponentDto newComponent(String uuid, ComponentDto module) {
+  public static ComponentDto newView(String uuid) {
+    return newProjectDto(uuid)
+      .setUuid(uuid)
+      .setScope(Scopes.PROJECT)
+      .setQualifier(Qualifiers.VIEW);
+  }
+
+  public static ComponentDto newTechnicalProject(ComponentDto project, ComponentDto view) {
+    return newTechnicalProject(Uuids.create(), project, view);
+  }
+
+  public static ComponentDto newTechnicalProject(String uuid, ComponentDto project, ComponentDto view) {
+    Preconditions.checkNotNull(project.getId(), "The project need to be persisted before creating this technical project.");
+    return newChildComponent(uuid, view)
+      .setUuid(uuid)
+      .setKey(view.key() + project.key())
+      .setName(project.name())
+      .setLongName(project.longName())
+      .setCopyResourceId(project.getId())
+      .setScope(Scopes.FILE)
+      .setQualifier(Qualifiers.PROJECT)
+      .setPath(null)
+      .setLanguage(null);
+  }
+
+  private static ComponentDto newChildComponent(String uuid, ComponentDto module) {
     return new ComponentDto()
       .setUuid(uuid)
       .setProjectUuid(module.projectUuid())

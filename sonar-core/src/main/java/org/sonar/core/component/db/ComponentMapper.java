@@ -94,8 +94,7 @@ public interface ComponentMapper {
   /**
    * Return technical projects from a view or a sub-view
    */
-  List<String> selectProjectsFromView(@Param("viewUuidLikeQuery") String viewUuidLikeQuery, @Param("projectViewUuid") String projectViewUuid,
-                                      @Param("subViewQualifier") String subViewQualifier);
+  List<String> selectProjectsFromView(@Param("viewUuidLikeQuery") String viewUuidLikeQuery, @Param("projectViewUuid") String projectViewUuid);
 
   long countById(long id);
 
