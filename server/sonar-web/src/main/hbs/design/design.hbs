@@ -21,10 +21,12 @@
     <span class="dsm-legend-label">{{t 'design.legend.uses'}}</span>
     <span class="dsm-legend-square yellow"></span>
   </li>
-  <li>
-    <input class="js-hide-dir" type="checkbox" id="design-hide-empty-dir" checked>
-    <label for="design-hide-empty-dir">{{t 'design.hide_empty_directories'}}</label>
-  </li>
+  {{#if hasDirectories}}
+    <li>
+      <input class="js-hide-dir" type="checkbox" id="design-hide-empty-dir" checked>
+      <label for="design-hide-empty-dir">{{t 'design.hide_empty_directories'}}</label>
+    </li>
+  {{/if}}
 </ul>
 
 <div class="dsm-body">
