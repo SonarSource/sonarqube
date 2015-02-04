@@ -102,7 +102,7 @@ public class ComponentTesting {
       .setName(name)
       .setLongName(name)
       .setScope(Scopes.PROJECT)
-      // XXX No constant !
+        // XXX No constant !
       .setQualifier("DEV")
       .setPath(null)
       .setLanguage(null)
