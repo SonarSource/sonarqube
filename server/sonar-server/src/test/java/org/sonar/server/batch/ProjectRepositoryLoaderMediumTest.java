@@ -755,8 +755,8 @@ public class ProjectRepositoryLoaderMediumTest {
       .setData(",,,,,,,,,,,,,,,unchanged&#13;&#10;,,,,,,,,,,,,,,,content&#13;&#10;")
       .setDataHash("0263047cd758c68c27683625f072f010")
       .setLineHashes("8d7b3d6b83c0a517eac07e1aac94b773")
-      .setCreatedAt(new Date().getTime())
-      .setUpdatedAt(new Date().getTime())
+      .setCreatedAt(System.currentTimeMillis())
+      .setUpdatedAt(System.currentTimeMillis())
       .setSrcHash("123456");
   }
 

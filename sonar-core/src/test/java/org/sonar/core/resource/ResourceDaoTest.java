@@ -430,11 +430,11 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
 
     assertThat(snapshotDto.getPeriodMode(2)).isEqualTo("days");
     assertThat(snapshotDto.getPeriodModeParameter(2)).isEqualTo("30");
-    assertThat(snapshotDto.getPeriodDate(2)).isEqualTo(DateUtils.parseDate("2011-09-24"));
+    assertThat(snapshotDto.getPeriodDate(2)).isEqualTo(DateUtils.parseDate("2011-09-24").getTime());
 
     assertThat(snapshotDto.getPeriodMode(3)).isEqualTo("days");
     assertThat(snapshotDto.getPeriodModeParameter(3)).isEqualTo("90");
-    assertThat(snapshotDto.getPeriodDate(3)).isEqualTo(DateUtils.parseDate("2011-07-26"));
+    assertThat(snapshotDto.getPeriodDate(3)).isEqualTo(DateUtils.parseDate("2011-07-26").getTime());
 
     assertThat(snapshotDto.getPeriodMode(4)).isEqualTo("previous_analysis");
     assertThat(snapshotDto.getPeriodModeParameter(4)).isNull();

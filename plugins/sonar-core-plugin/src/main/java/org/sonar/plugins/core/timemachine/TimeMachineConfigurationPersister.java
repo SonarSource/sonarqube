@@ -34,6 +34,8 @@ import org.sonar.batch.index.ResourceCache;
 
 import java.util.List;
 
+import static org.sonar.api.utils.DateUtils.dateToLong;
+
 @DependedUpon(DecoratorBarriers.END_OF_TIME_MACHINE)
 public final class TimeMachineConfigurationPersister implements Decorator {
 
@@ -75,6 +77,6 @@ public final class TimeMachineConfigurationPersister implements Decorator {
     int periodIndex = pastSnapshot.getIndex();
     snapshot.setPeriodMode(periodIndex, pastSnapshot.getMode());
     snapshot.setPeriodModeParameter(periodIndex, pastSnapshot.getModeParameter());
-    snapshot.setPeriodDate(periodIndex, pastSnapshot.getDate());
+    snapshot.setPeriodDate(periodIndex, dateToLong(pastSnapshot.getDate()));
   }
 }

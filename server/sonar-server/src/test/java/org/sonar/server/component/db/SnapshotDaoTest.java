@@ -78,22 +78,22 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
 
     assertThat(result.getPeriodMode(1)).isEqualTo("days1");
     assertThat(result.getPeriodModeParameter(1)).isEqualTo("30");
-    assertThat(result.getPeriodDate(1)).isEqualTo(DateUtils.parseDate("2011-09-24"));
+    assertThat(result.getPeriodDate(1)).isEqualTo(1316815200000L);
     assertThat(result.getPeriodMode(2)).isEqualTo("days2");
     assertThat(result.getPeriodModeParameter(2)).isEqualTo("31");
-    assertThat(result.getPeriodDate(2)).isEqualTo(DateUtils.parseDate("2011-09-25"));
+    assertThat(result.getPeriodDate(2)).isEqualTo(1316901600000L);
     assertThat(result.getPeriodMode(3)).isEqualTo("days3");
     assertThat(result.getPeriodModeParameter(3)).isEqualTo("32");
-    assertThat(result.getPeriodDate(3)).isEqualTo(DateUtils.parseDate("2011-09-26"));
+    assertThat(result.getPeriodDate(3)).isEqualTo(1316988000000L);
     assertThat(result.getPeriodMode(4)).isEqualTo("days4");
     assertThat(result.getPeriodModeParameter(4)).isEqualTo("33");
-    assertThat(result.getPeriodDate(4)).isEqualTo(DateUtils.parseDate("2011-09-27"));
+    assertThat(result.getPeriodDate(4)).isEqualTo(1317074400000L);
     assertThat(result.getPeriodMode(5)).isEqualTo("days5");
     assertThat(result.getPeriodModeParameter(5)).isEqualTo("34");
-    assertThat(result.getPeriodDate(5)).isEqualTo(DateUtils.parseDate("2011-09-28"));
+    assertThat(result.getPeriodDate(5)).isEqualTo(1317160800000L);
 
-    assertThat(result.getCreatedAt()).isEqualTo(DateUtils.parseDate("2008-12-02"));
-    assertThat(result.getBuildDate()).isEqualTo(DateUtils.parseDate("2011-09-29"));
+    assertThat(result.getCreatedAt()).isEqualTo(1228172400000L);
+    assertThat(result.getBuildDate()).isEqualTo(1317247200000L);
 
     assertThat(sut.getNullableByKey(session, 999L)).isNull();
   }
@@ -102,7 +102,7 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
   public void insert() {
     setupData("empty");
 
-    when(system2.now()).thenReturn(DateUtils.parseDate("2014-06-18").getTime());
+    when(system2.now()).thenReturn(1403042400000L);
 
     SnapshotDto dto = defaultSnapshot();
 
@@ -155,7 +155,7 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
     setupData("snapshots");
 
     SnapshotDto referenceSnapshot = defaultSnapshot().setResourceId(1L);
-    referenceSnapshot.setCreatedAt(DateUtils.parseDate("2008-12-03"));
+    referenceSnapshot.setCreatedAt(DateUtils.parseDate("2008-12-03").getTime());
     SnapshotDto snapshot = sut.getLastSnapshotOlderThan(session, referenceSnapshot);
 
     assertThat(snapshot).isNotNull();
@@ -167,7 +167,7 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
     setupData("snapshots");
 
     SnapshotDto referenceSnapshot = defaultSnapshot().setResourceId(1L);
-    referenceSnapshot.setCreatedAt(DateUtils.parseDate("2008-12-01"));
+    referenceSnapshot.setCreatedAt(DateUtils.parseDate("2008-12-01").getTime());
     SnapshotDto snapshot = sut.getLastSnapshotOlderThan(session, referenceSnapshot);
 
     assertThat(snapshot).isNull();
@@ -226,8 +226,8 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
     Date today = new Date();
     Date yesterday = DateUtils.addDays(today, -1);
 
-    SnapshotDto snapshot = defaultSnapshot().setCreatedAt(today);
-    SnapshotDto previousLastSnapshot = defaultSnapshot().setCreatedAt(yesterday);
+    SnapshotDto snapshot = defaultSnapshot().setCreatedAt(today.getTime());
+    SnapshotDto previousLastSnapshot = defaultSnapshot().setCreatedAt(yesterday.getTime());
 
     boolean isLast = sut.isLast(snapshot, previousLastSnapshot);
 
@@ -239,8 +239,8 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
     Date today = new Date();
     Date yesterday = DateUtils.addDays(today, -1);
 
-    SnapshotDto snapshot = defaultSnapshot().setCreatedAt(yesterday);
-    SnapshotDto previousLastSnapshot = defaultSnapshot().setCreatedAt(today);
+    SnapshotDto snapshot = defaultSnapshot().setCreatedAt(yesterday.getTime());
+    SnapshotDto previousLastSnapshot = defaultSnapshot().setCreatedAt(today.getTime());
 
     boolean isLast = sut.isLast(snapshot, previousLastSnapshot);
 
@@ -271,11 +271,11 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
       .setPeriodParam(3, "32")
       .setPeriodParam(4, "33")
       .setPeriodParam(5, "34")
-      .setPeriodDate(1, DateUtils.parseDate("2011-09-24"))
-      .setPeriodDate(2, DateUtils.parseDate("2011-09-25"))
-      .setPeriodDate(3, DateUtils.parseDate("2011-09-26"))
-      .setPeriodDate(4, DateUtils.parseDate("2011-09-27"))
-      .setPeriodDate(5, DateUtils.parseDate("2011-09-28"))
-      .setBuildDate(DateUtils.parseDate("2011-09-29"));
+      .setPeriodDate(1, DateUtils.parseDate("2011-09-24").getTime())
+      .setPeriodDate(2, DateUtils.parseDate("2011-09-25").getTime())
+      .setPeriodDate(3, DateUtils.parseDate("2011-09-26").getTime())
+      .setPeriodDate(4, DateUtils.parseDate("2011-09-27").getTime())
+      .setPeriodDate(5, DateUtils.parseDate("2011-09-28").getTime())
+      .setBuildDate(DateUtils.parseDate("2011-09-29").getTime());
   }
 }

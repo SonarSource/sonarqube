@@ -24,8 +24,6 @@ import org.apache.ibatis.annotations.Param;
 import org.sonar.core.component.SnapshotDto;
 
 import javax.annotation.CheckForNull;
-
-import java.util.Date;
 import java.util.List;
 
 public interface SnapshotMapper {
@@ -33,13 +31,13 @@ public interface SnapshotMapper {
   @CheckForNull
   SnapshotDto selectByKey(long id);
 
-  void insert(SnapshotDto rule);
+  void insert(SnapshotDto snapshot);
 
   @CheckForNull
   SnapshotDto selectLastSnapshot(Long resourceId);
 
   @CheckForNull
-  SnapshotDto selectLastSnapshotOlderThan(@Param(value = "resource") Long resourceId, @Param(value = "createdAt") Date createdAtBefore);
+  SnapshotDto selectLastSnapshotOlderThan(@Param(value = "resource") Long resourceId, @Param(value = "createdAt") Long createdAtBefore);
 
   List<SnapshotDto> selectSnapshotAndChildrenOfScope(@Param(value = "snapshot") Long resourceId, @Param(value = "scope") String scope);
 

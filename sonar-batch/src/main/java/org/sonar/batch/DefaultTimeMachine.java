@@ -38,12 +38,10 @@ import org.sonar.batch.index.DefaultIndex;
 import javax.annotation.Nullable;
 import javax.persistence.Query;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+
+import static org.sonar.api.utils.DateUtils.dateToLong;
+import static org.sonar.api.utils.DateUtils.longToDate;
 
 public class DefaultTimeMachine implements TimeMachine {
 
@@ -71,7 +69,7 @@ public class DefaultTimeMachine implements TimeMachine {
       Integer characteristicId = model.getCharacteristicId();
       Characteristic characteristic = techDebtModel.characteristicById(characteristicId);
       Measure measure = toMeasure(model, metricById.get(model.getMetricId()), characteristic);
-      measure.setDate((Date) object[1]);
+      measure.setDate(longToDate((Long) object[1]));
       result.add(measure);
     }
     return result;
@@ -126,15 +124,15 @@ public class DefaultTimeMachine implements TimeMachine {
 
     } else if (query.getFrom() != null) {
       sb.append(" AND s.createdAt>=:from ");
-      params.put("from", query.getFrom());
+      params.put("from", dateToLong(query.getFrom()));
     }
     if (query.isToCurrentAnalysis()) {
       sb.append(" AND s.createdAt<=:to ");
-      params.put("to", index.getProject().getAnalysisDate());
+      params.put("to", dateToLong(index.getProject().getAnalysisDate()));
 
     } else if (query.getTo() != null) {
       sb.append(" AND s.createdAt<=:to ");
-      params.put("to", query.getTo());
+      params.put("to", dateToLong(query.getTo()));
     }
     if (query.isOnlyLastAnalysis()) {
       sb.append(" AND s.last=:last ");

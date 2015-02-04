@@ -30,6 +30,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import static org.sonar.api.utils.DateUtils.longToDate;
+
 public class PastSnapshotFinderByPreviousAnalysis implements BatchExtension {
 
   private DatabaseSession session;
@@ -54,7 +56,7 @@ public class PastSnapshotFinderByPreviousAnalysis implements BatchExtension {
       return new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS);
     }
     Snapshot snapshot = snapshots.get(0);
-    Date targetDate = snapshot.getCreatedAt();
+    Date targetDate = longToDate(snapshot.getCreatedAt());
     SimpleDateFormat format = new SimpleDateFormat(DateUtils.DATE_FORMAT);
     return new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, targetDate, snapshot).setModeParameter(format.format(targetDate));
   }

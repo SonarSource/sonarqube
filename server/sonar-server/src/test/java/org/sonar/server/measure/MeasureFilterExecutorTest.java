@@ -34,6 +34,7 @@ import org.sonar.test.DbTests;
 
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -55,11 +56,9 @@ public class MeasureFilterExecutorTest {
   private static final Metric METRIC_PROFILE = new Metric.Builder("profile", "Profile", Metric.ValueType.STRING).create().setId(2);
   private static final Metric METRIC_COVERAGE = new Metric.Builder("coverage", "Coverage", Metric.ValueType.FLOAT).create().setId(3);
   private static final Metric METRIC_UNKNOWN = new Metric.Builder("unknown", "Unknown", Metric.ValueType.FLOAT).create().setId(4);
-
-  private MeasureFilterExecutor executor;
-
   @ClassRule
   public static DbTester db = new DbTester();
+  private MeasureFilterExecutor executor;
 
   @Before
   public void before() {
@@ -212,7 +211,7 @@ public class MeasureFilterExecutorTest {
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
 
     assertThat(rows).hasSize(2);
-    verifyPhpProject(rows.get(0));//php way
+    verifyPhpProject(rows.get(0));// php way
     verifyJavaProject(rows.get(1));// Sonar way
   }
 
@@ -224,7 +223,7 @@ public class MeasureFilterExecutorTest {
 
     assertThat(rows).hasSize(2);
     verifyJavaProject(rows.get(0));// Sonar way
-    verifyPhpProject(rows.get(1));//php way
+    verifyPhpProject(rows.get(1));// php way
   }
 
   @Test
@@ -234,7 +233,7 @@ public class MeasureFilterExecutorTest {
     MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("CLA")).setSortOnMetric(METRIC_PROFILE);
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
 
-    assertThat(rows).hasSize(2);//2 files randomly sorted
+    assertThat(rows).hasSize(2);// 2 files randomly sorted
   }
 
   @Test
@@ -348,9 +347,9 @@ public class MeasureFilterExecutorTest {
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
 
     verifyJavaProject(rows.get(0));// 2008
-    assertThat(DateUtils.formatDate(rows.get(0).getSortDate())).isEqualTo("2008-12-19");
+    assertThat(DateUtils.formatDate(new Date(rows.get(0).getSortDate()))).isEqualTo("2008-12-19");
     verifyPhpProject(rows.get(1));// 2012
-    assertThat(DateUtils.formatDate(rows.get(1).getSortDate())).isEqualTo("2012-12-12");
+    assertThat(DateUtils.formatDate(new Date(rows.get(1).getSortDate()))).isEqualTo("2012-12-12");
   }
 
   @Test
@@ -360,9 +359,9 @@ public class MeasureFilterExecutorTest {
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
 
     verifyPhpProject(rows.get(0));// 2012
-    assertThat(DateUtils.formatDate(rows.get(0).getSortDate())).isEqualTo("2012-12-12");
+    assertThat(DateUtils.formatDate(new Date(rows.get(0).getSortDate()))).isEqualTo("2012-12-12");
     verifyJavaProject(rows.get(1));// 2008
-    assertThat(DateUtils.formatDate(rows.get(1).getSortDate())).isEqualTo("2008-12-19");
+    assertThat(DateUtils.formatDate(new Date(rows.get(1).getSortDate()))).isEqualTo("2008-12-19");
   }
 
   @Test
@@ -530,7 +529,8 @@ public class MeasureFilterExecutorTest {
   @Test
   public void filter_by_parent_without_children() throws Exception {
     db.prepareDbUnit(getClass(), "shared.xml");
-    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK", "PAC", "CLA")).setBaseResourceKey("java_project:org.sonar.foo.Big").setOnBaseResourceChildren(true);
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK", "PAC", "CLA")).setBaseResourceKey("java_project:org.sonar.foo.Big")
+      .setOnBaseResourceChildren(true);
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
 
     assertThat(rows).isEmpty();
@@ -552,7 +552,7 @@ public class MeasureFilterExecutorTest {
     db.prepareDbUnit(getClass(), "ignore_person_measures.xml");
     MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK")).addCondition(
       new MeasureFilterCondition(new Metric("ncloc").setId(1), MeasureFilterCondition.Operator.GREATER, 0.0)
-    );
+      );
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext().setUserId(50L));
 
     assertThat(rows).hasSize(1);
@@ -574,7 +574,7 @@ public class MeasureFilterExecutorTest {
     db.prepareDbUnit(getClass(), "ignore_quality_model_measures.xml");
     MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK")).addCondition(
       new MeasureFilterCondition(new Metric("ncloc").setId(1), MeasureFilterCondition.Operator.GREATER, 0.0)
-    );
+      );
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext().setUserId(50L));
 
     assertThat(rows).hasSize(1);
@@ -590,7 +590,6 @@ public class MeasureFilterExecutorTest {
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0).getSnapshotId()).isEqualTo(101L);
   }
-
 
   private void verifyJavaProject(MeasureFilterRow row) {
     verifyProject(row, JAVA_PROJECT_SNAPSHOT_ID, JAVA_PROJECT_ID, JAVA_PROJECT_ID);

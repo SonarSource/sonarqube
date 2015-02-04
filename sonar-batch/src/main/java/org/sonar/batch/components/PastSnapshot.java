@@ -26,9 +26,10 @@ import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.utils.DateUtils;
 
 import javax.annotation.Nullable;
-
 import java.util.Calendar;
 import java.util.Date;
+
+import static org.sonar.api.utils.DateUtils.longToDate;
 
 public class PastSnapshot {
 
@@ -74,7 +75,7 @@ public class PastSnapshot {
   }
 
   public Date getDate() {
-    return projectSnapshot != null ? projectSnapshot.getCreatedAt() : null;
+    return projectSnapshot != null ? longToDate(projectSnapshot.getCreatedAt()) : null;
   }
 
   public PastSnapshot setMode(String mode) {
@@ -111,7 +112,7 @@ public class PastSnapshot {
     return targetDate;
   }
 
-  public PastSnapshot clonePastSnapshot(){
+  public PastSnapshot clonePastSnapshot() {
     PastSnapshot clone = new PastSnapshot(mode, targetDate, projectSnapshot);
     clone.setIndex(index);
     clone.setModeParameter(modeParameter);

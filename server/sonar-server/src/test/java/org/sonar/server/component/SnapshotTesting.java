@@ -23,8 +23,6 @@ package org.sonar.server.component;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.SnapshotDto;
 
-import java.util.Date;
-
 public class SnapshotTesting {
 
   /**
@@ -42,7 +40,7 @@ public class SnapshotTesting {
       .setParentId(parentSnapshot.getId())
       .setPath(parentSnapshot.getPath() == null ? Long.toString(parentSnapshot.getId()) + "." : parentSnapshot.getPath() + Long.toString(parentSnapshot.getId()) + ".")
       .setLast(true)
-      .setBuildDate(new Date());
+      .setBuildDate(System.currentTimeMillis());
   }
 
   public static SnapshotDto createForProject(ComponentDto project) {
@@ -54,7 +52,7 @@ public class SnapshotTesting {
       .setScope(project.scope())
       .setPath("")
       .setLast(true)
-      .setBuildDate(new Date());
+      .setBuildDate(System.currentTimeMillis());
   }
 
 }

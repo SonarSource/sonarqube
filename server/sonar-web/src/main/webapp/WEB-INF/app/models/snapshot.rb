@@ -36,6 +36,39 @@ class Snapshot < ActiveRecord::Base
 
   STATUS_UNPROCESSED = 'U'
   STATUS_PROCESSED = 'P'
+  
+  def created_at
+    long_to_date(:created_at)
+  end
+  
+  def build_date
+    long_to_date(:build_date)
+  end
+  
+  def period1_date
+    long_to_date(:period1_date)
+  end
+  
+  def period2_date
+    long_to_date(:period2_date)
+  end
+  
+  def period3_date
+    long_to_date(:period3_date)
+  end
+  
+  def period4_date
+    long_to_date(:period4_date)
+  end
+  
+  def period5_date
+    long_to_date(:period5_date)
+  end
+  
+  def long_to_date(attribute)
+    date_in_long = read_attribute(attribute)
+    Time.at(date_in_long/1000) if date_in_long
+  end
 
   def self.for_timemachine_matrix(resource)
     # http://jira.codehaus.org/browse/SONAR-1850
@@ -185,7 +218,7 @@ class Snapshot < ActiveRecord::Base
 
   def self.snapshot_by_date(resource_id, date)
     if resource_id && date
-      Snapshot.find(:first, :conditions => ['created_at>=? and created_at<? and project_id=?', date.beginning_of_day, date.end_of_day, resource_id], :order => 'created_at desc')
+      Snapshot.find(:first, :conditions => ['created_at>=? and created_at<? and project_id=?', date.beginning_of_day.to_i*1000, date.end_of_day.to_i*1000, resource_id], :order => 'created_at desc')
     else
       nil
     end

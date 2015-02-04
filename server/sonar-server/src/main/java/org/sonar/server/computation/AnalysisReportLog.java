@@ -28,7 +28,7 @@ import org.sonar.core.computation.db.AnalysisReportDto;
 import java.util.Map;
 
 import static org.sonar.api.utils.DateUtils.formatDateTimeNullSafe;
-import static org.sonar.api.utils.DateUtils.timeToDate;
+import static org.sonar.api.utils.DateUtils.longToDate;
 
 public class AnalysisReportLog implements ActivityLog {
 
@@ -50,9 +50,9 @@ public class AnalysisReportLog implements ActivityLog {
       .put("projectName", project.name())
       .put("projectUuid", project.uuid())
       .put("status", String.valueOf(report.getStatus()))
-      .put("submittedAt", formatDateTimeNullSafe(timeToDate(report.getCreatedAt())))
-      .put("startedAt", formatDateTimeNullSafe(timeToDate(report.getStartedAt())))
-      .put("finishedAt", formatDateTimeNullSafe(timeToDate(report.getFinishedAt())))
+      .put("submittedAt", formatDateTimeNullSafe(longToDate(report.getCreatedAt())))
+      .put("startedAt", formatDateTimeNullSafe(longToDate(report.getStartedAt())))
+      .put("finishedAt", formatDateTimeNullSafe(longToDate(report.getFinishedAt())))
       .build();
   }
 

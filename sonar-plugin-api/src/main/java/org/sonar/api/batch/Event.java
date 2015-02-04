@@ -23,13 +23,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.database.BaseIdentifiable;
 import org.sonar.api.database.model.Snapshot;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-
+import javax.persistence.*;
 import java.util.Date;
 
 /**
@@ -131,7 +125,7 @@ public class Event extends BaseIdentifiable {
   public final void setSnapshot(Snapshot snapshot) {
     this.snapshot = snapshot;
     if (snapshot != null) {
-      this.date = snapshot.getCreatedAt();
+      this.date = (snapshot.getCreatedAt() == null ? null : new Date(snapshot.getCreatedAt()));
       this.resourceId = snapshot.getResourceId();
     }
   }

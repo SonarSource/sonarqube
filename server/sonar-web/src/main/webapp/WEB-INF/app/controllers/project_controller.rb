@@ -324,7 +324,7 @@ class ProjectController < ApplicationController
     access_denied unless is_admin?(parent_snapshot)
 
     # We update all the related snapshots to have the same version as the next snapshot
-    next_snapshot = Snapshot.find(:first, :conditions => ['created_at>? and project_id=?', parent_snapshot.created_at, parent_snapshot.project_id], :order => 'created_at asc')
+    next_snapshot = Snapshot.find(:first, :conditions => ['created_at>? and project_id=?', parent_snapshot.created_at.to_i*1000, parent_snapshot.project_id], :order => 'created_at asc')
     snapshots = find_project_snapshots(parent_snapshot.id)
     snapshots.each do |snapshot|
       snapshot.version = next_snapshot.version

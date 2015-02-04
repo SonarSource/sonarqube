@@ -6,7 +6,7 @@
              period4_mode="[null]" period4_param="[null]" period4_date="[null]"
              period5_mode="[null]" period5_param="[null]" period5_date="[null]"
              id="100" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
-             scope="PRJ" qualifier="TRK" created_at="2008-11-01 13:58:00.00" build_date="2008-11-01 13:58:00.00" version="[null]" path=""
+             scope="PRJ" qualifier="TRK" created_at="1225544280000" build_date="1225544280000" version="[null]" path=""
              status="P" islast="false" depth="0" />
 
   <snapshots purge_status="[null]"
@@ -16,7 +16,7 @@
              period4_mode="[null]" period4_param="[null]" period4_date="[null]"
              period5_mode="[null]" period5_param="[null]" period5_date="[null]"
              id="200" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
-             scope="PRJ" qualifier="TRK" created_at="2008-12-15 13:58:00.00" build_date="2008-12-15 13:58:00.00" version="[null]" path=""
+             scope="PRJ" qualifier="TRK" created_at="1229345880000" build_date="1229345880000" version="[null]" path=""
              status="P" islast="false" depth="0" />
 
   <!-- Snapshot of previous version -->
@@ -27,7 +27,7 @@
              period4_mode="[null]" period4_param="[null]" period4_date="[null]"
              period5_mode="[null]" period5_param="[null]" period5_date="[null]"
              id="300" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
-             scope="PRJ" qualifier="TRK" created_at="2008-12-13 13:58:00.00" build_date="2008-12-13 13:58:00.00" version="1.2.3" path=""
+             scope="PRJ" qualifier="TRK" created_at="1229173080000" build_date="1229173080000" version="1.2.3" path=""
              status="P" islast="false" depth="0" />
 
   <snapshots purge_status="[null]"
@@ -37,6 +37,6 @@
              period4_mode="[null]" period4_param="[null]" period4_date="[null]"
              period5_mode="[null]" period5_param="[null]" period5_date="[null]"
              id="1000" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
-             scope="PRJ" qualifier="TRK" created_at="2009-02-25 13:58:00.00" build_date="2009-02-25 13:58:00.00" version="[null]" path=""
+             scope="PRJ" qualifier="TRK" created_at="1235566680000" build_date="1235566680000" version="[null]" path=""
              status="P" islast="false" depth="0" />
 </dataset>

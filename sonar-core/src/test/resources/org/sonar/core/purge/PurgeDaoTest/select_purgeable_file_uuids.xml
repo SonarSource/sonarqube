@@ -42,8 +42,8 @@
              period3_mode="[null]" period3_param="[null]" period3_date="[null]"
              period4_mode="[null]" period4_param="[null]" period4_date="[null]"
              period5_mode="[null]" period5_param="[null]" period5_date="[null]"
-             depth="[null]" scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00"
-             build_date="2008-12-02 13:58:00.00" version="[null]" path="[null]"/>
+             depth="[null]" scope="PRJ" qualifier="TRK" created_at="1228222680000"
+             build_date="1228222680000" version="[null]" path="[null]"/>
 
   <snapshots id="2"
              project_id="2" parent_snapshot_id="1" root_project_id="1" root_snapshot_id="1"
@@ -53,8 +53,8 @@
              period3_mode="[null]" period3_param="[null]" period3_date="[null]"
              period4_mode="[null]" period4_param="[null]" period4_date="[null]"
              period5_mode="[null]" period5_param="[null]" period5_date="[null]"
-             depth="[null]" scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00"
-             build_date="2008-12-02 13:58:00.00" version="[null]" path="[null]"/>
+             depth="[null]" scope="PRJ" qualifier="TRK" created_at="1228222680000"
+             build_date="1228222680000" version="[null]" path="[null]"/>
 
   <!-- isLast is false -->
   <snapshots id="3"
@@ -65,8 +65,8 @@
              period3_mode="[null]" period3_param="[null]" period3_date="[null]"
              period4_mode="[null]" period4_param="[null]" period4_date="[null]"
              period5_mode="[null]" period5_param="[null]" period5_date="[null]"
-             depth="[null]" scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00"
-             build_date="2008-12-02 13:58:00.00" version="[null]" path="[null]"/>
+             depth="[null]" scope="PRJ" qualifier="TRK" created_at="1228222680000"
+             build_date="1228222680000" version="[null]" path="[null]"/>
 
   <snapshots id="4"
              project_id="4" parent_snapshot_id="2" root_project_id="1" root_snapshot_id="1"
@@ -76,8 +76,8 @@
              period3_mode="[null]" period3_param="[null]" period3_date="[null]"
              period4_mode="[null]" period4_param="[null]" period4_date="[null]"
              period5_mode="[null]" period5_param="[null]" period5_date="[null]"
-             depth="[null]" scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00"
-             build_date="2008-12-02 13:58:00.00" version="[null]" path="[null]"/>
+             depth="[null]" scope="PRJ" qualifier="TRK" created_at="1228222680000"
+             build_date="1228222680000" version="[null]" path="[null]"/>
 
   <file_sources id="1" project_uuid="ABCD" file_uuid="GHIJ" data="[null]" line_hashes="[null]" data_hash="321654987"
                 created_at="123456789" updated_at="123456789"/>

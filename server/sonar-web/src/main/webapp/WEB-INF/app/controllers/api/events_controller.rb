@@ -130,7 +130,7 @@ class Api::EventsController < Api::ApiController
       if (params[:dateTime])
         # try to find a snapshot on that day
         date = parse_datetime(params[:dateTime], true)
-        root_snapshot = Snapshot.find(:last, :conditions => ["project_id = ? AND created_at >= ? AND created_at <= ?", @resource.id, date, date + 1.day], :order => :created_at)
+        root_snapshot = Snapshot.find(:last, :conditions => ["project_id = ? AND created_at >= ? AND created_at <= ?", @resource.id, date.to_i*1000, (date + 1.day).to_i*1000], :order => :created_at)
         raise "No snapshot exists for given date" unless root_snapshot
       else
         root_snapshot = Snapshot.find(:last, :conditions => ["project_id = ?", @resource.id], :order => :created_at)

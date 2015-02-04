@@ -41,12 +41,13 @@ import org.sonar.batch.rule.ModuleQProfiles;
 import javax.annotation.CheckForNull;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
-
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import static org.sonar.api.utils.DateUtils.longToDate;
 
 public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoader {
 
@@ -169,7 +170,7 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
       jpaQuery.setParameter(entry.getKey(), entry.getValue());
     }
     try {
-      return (Date) jpaQuery.getSingleResult();
+      return longToDate((Long) jpaQuery.getSingleResult());
     } catch (NoResultException e) {
       return null;
     }

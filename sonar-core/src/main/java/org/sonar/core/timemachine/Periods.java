@@ -19,23 +19,23 @@
  */
 package org.sonar.core.timemachine;
 
-import org.sonar.api.batch.RequiresDB;
-
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.batch.RequiresDB;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.i18n.I18n;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+
+import static org.sonar.api.utils.DateUtils.longToDate;
 
 @RequiresDB
 public class Periods implements BatchComponent, ServerComponent {
@@ -50,12 +50,12 @@ public class Periods implements BatchComponent, ServerComponent {
 
   @CheckForNull
   public String label(Snapshot snapshot, int periodIndex) {
-    return label(snapshot.getPeriodMode(periodIndex), snapshot.getPeriodModeParameter(periodIndex), snapshot.getPeriodDate(periodIndex));
+    return label(snapshot.getPeriodMode(periodIndex), snapshot.getPeriodModeParameter(periodIndex), longToDate(snapshot.getPeriodDate(periodIndex)));
   }
 
   @CheckForNull
   public String abbreviation(Snapshot snapshot, int periodIndex) {
-    return abbreviation(snapshot.getPeriodMode(periodIndex), snapshot.getPeriodModeParameter(periodIndex), snapshot.getPeriodDate(periodIndex));
+    return abbreviation(snapshot.getPeriodMode(periodIndex), snapshot.getPeriodModeParameter(periodIndex), longToDate(snapshot.getPeriodDate(periodIndex)));
   }
 
   @CheckForNull

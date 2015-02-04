@@ -6,7 +6,7 @@
             enabled="true" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]" deprecated_kee="my:key" />
 
   <snapshots purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]" id="3000" project_id="1000" parent_snapshot_id="[null]" root_project_id="1000" root_snapshot_id="[null]"
-             scope="PRJ" qualifier="TRK" created_at="2008-11-01 13:58:00.00" build_date="2008-11-01 13:58:00.00" version="[null]" path=""
+             scope="PRJ" qualifier="TRK" created_at="1225544280000" build_date="1225544280000" version="[null]" path=""
              status="P" islast="false" depth="0" />
 
   <!-- new project -->
@@ -35,27 +35,27 @@
             enabled="true" language="[null]" copy_resource_id="[null]" person_id="[null]" path="src/main/java/org/Foo.java" deprecated_kee="[null]" />
 
   <snapshots purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]" id="3001" project_id="1001" root_project_id="1001" parent_snapshot_id="[null]"  root_snapshot_id="[null]"
-             scope="PRJ" qualifier="TRK" created_at="2010-12-25 00:00:00.00" build_date="2010-12-25 00:00:00.00" version="[null]" path=""
+             scope="PRJ" qualifier="TRK" created_at="1293231600000" build_date="1293231600000" version="[null]" path=""
              status="U" islast="false" depth="0" />
 
   <snapshots purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]" id="3002" project_id="1002" root_project_id="1001" parent_snapshot_id="3001" root_snapshot_id="3001"
-             scope="PRJ" qualifier="BRC" created_at="2010-12-25 00:00:00.00" build_date="2010-12-25 00:00:00.00" version="[null]" path="3001."
+             scope="PRJ" qualifier="BRC" created_at="1293231600000" build_date="1293231600000" version="[null]" path="3001."
              status="U" islast="false" depth="1" />
 
   <snapshots purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]" id="3003" project_id="1003" root_project_id="1001" parent_snapshot_id="3001" root_snapshot_id="3001"
-             scope="PRJ" qualifier="BRC" created_at="2010-12-25 00:00:00.00" build_date="2010-12-25 00:00:00.00" version="[null]" path="3001."
+             scope="PRJ" qualifier="BRC" created_at="1293231600000" build_date="1293231600000" version="[null]" path="3001."
              status="U" islast="false" depth="1" />
 
   <snapshots purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]" id="3004" project_id="1004" root_project_id="1001" parent_snapshot_id="3003" root_snapshot_id="3001"
-             scope="PRJ" qualifier="BRC" created_at="2010-12-25 00:00:00.00" build_date="2010-12-25 00:00:00.00" version="[null]" path="3001.3003."
+             scope="PRJ" qualifier="BRC" created_at="1293231600000" build_date="1293231600000" version="[null]" path="3001.3003."
              status="U" islast="false" depth="2" />
 
   <snapshots purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]" id="3005" project_id="1005" root_project_id="1001" parent_snapshot_id="3004" root_snapshot_id="3001"
-             scope="DIR" qualifier="DIR" created_at="2010-12-25 00:00:00.00" build_date="2010-12-25 00:00:00.00" version="[null]" path="3001.3003.3004."
+             scope="DIR" qualifier="DIR" created_at="1293231600000" build_date="1293231600000" version="[null]" path="3001.3003.3004."
              status="U" islast="false" depth="3" />
              
   <snapshots purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]" id="3006" project_id="1006" root_project_id="1001" parent_snapshot_id="3005" root_snapshot_id="3001"
-             scope="FIL" qualifier="FIL" created_at="2010-12-25 00:00:00.00" build_date="2010-12-25 00:00:00.00" version="[null]" path="3001.3003.3004.3005."
+             scope="FIL" qualifier="FIL" created_at="1293231600000" build_date="1293231600000" version="[null]" path="3001.3003.3004.3005."
              status="U" islast="false" depth="4" />
 
 </dataset>

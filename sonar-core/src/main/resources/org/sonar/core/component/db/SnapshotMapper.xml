@@ -88,7 +88,7 @@
     where root_snapshot_id=#{root} or id=#{root} or (path like #{path} and root_snapshot_id=#{pathRootId})
   </update>
 
-  <insert id="insert" parameterType="Component" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insert" parameterType="Snapshot" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     insert into snapshots
     <include refid="insertColumns"/>
     values (#{parentId}, #{rootId}, #{rootProjectId}, #{resourceId}, #{createdAt}, #{buildDate}, #{status},

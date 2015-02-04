@@ -8,8 +8,8 @@
              period3_mode="[null]" period3_param="[null]" period3_date="[null]"
              period4_mode="[null]" period4_param="[null]" period4_date="[null]"
              period5_mode="[null]" period5_param="[null]" period5_date="[null]"
-             depth="[null]" scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00"
-             build_date="2008-12-02 13:58:00.00" version="[null]" path="[null]"/>
+             depth="[null]" scope="PRJ" qualifier="TRK" created_at="1228222680000"
+             build_date="1228222680000" version="[null]" path="[null]"/>
 
   <project_measures ID="1" project_id="1" SNAPSHOT_ID="1" RULE_ID="[null]" characteristic_id="[null]"
                     url="[null]" variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]"
@@ -44,8 +44,8 @@
              period3_mode="[null]" period3_param="[null]" period3_date="[null]"
              period4_mode="[null]" period4_param="[null]" period4_date="[null]"
              period5_mode="[null]" period5_param="[null]" period5_date="[null]"
-             depth="[null]" scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00"
-             build_date="2008-12-02 13:58:00.00" version="[null]" path="[null]"/>
+             depth="[null]" scope="PRJ" qualifier="TRK" created_at="1228222680000"
+             build_date="1228222680000" version="[null]" path="[null]"/>
 
   <project_measures ID="2" project_id="2" SNAPSHOT_ID="2" RULE_ID="[null]" characteristic_id="[null]"
                     url="[null]" variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]"

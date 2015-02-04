@@ -27,6 +27,7 @@ import org.mockito.ArgumentMatcher;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.config.Settings;
+import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.purge.PurgeDao;
@@ -34,15 +35,11 @@ import org.sonar.core.purge.PurgeSnapshotQuery;
 import org.sonar.core.purge.PurgeableSnapshotDto;
 
 import java.util.Arrays;
-import java.util.Date;
 
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class DefaultPeriodCleanerTest {
 
@@ -51,7 +48,7 @@ public class DefaultPeriodCleanerTest {
     PurgeDao dao = mock(PurgeDao.class);
     DbSession session = mock(DbSession.class);
     when(dao.selectPurgeableSnapshots(123L, session)).thenReturn(Arrays.asList(
-      new PurgeableSnapshotDto().setSnapshotId(999L).setDate(new Date())));
+      new PurgeableSnapshotDto().setSnapshotId(999L).setDate(System2.INSTANCE.now())));
     Filter filter1 = newLazyFilter();
     Filter filter2 = newLazyFilter();
 

@@ -21,14 +21,14 @@
 
   <!-- current analysis : 2008-11-16 -->
   <snapshots purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]" id="1009" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
-             scope="PRJ" qualifier="TRK" created_at="2008-11-16 13:58:00.00" build_date="2008-11-16 13:58:00.00" version="[null]" path=""
+             scope="PRJ" qualifier="TRK" created_at="1226840280000" build_date="1226840280000" version="[null]" path=""
              status="U" islast="false" depth="0" />
 
   <snapshots purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]" id="1010" project_id="2" parent_snapshot_id="1009" root_project_id="1" root_snapshot_id="1009"
-             scope="DIR" qualifier="PAC" created_at="2008-11-16 13:58:00.00" build_date="2008-11-16 13:58:00.00" version="[null]" path="1009."
+             scope="DIR" qualifier="PAC" created_at="1226840280000" build_date="1226840280000" version="[null]" path="1009."
              status="U" islast="false" depth="1" />
 
   <snapshots purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]" id="1011" project_id="3" parent_snapshot_id="1010" root_project_id="1" root_snapshot_id="1009"
-             scope="FIL" qualifier="CLA" created_at="2008-11-16 13:58:00.00" build_date="2008-11-16 13:58:00.00" version="[null]" path="1009.1010."
+             scope="FIL" qualifier="CLA" created_at="1226840280000" build_date="1226840280000" version="[null]" path="1009.1010."
              status="U" islast="false" depth="2" />
 </dataset>

@@ -5,14 +5,14 @@
             kee="MASTER_PROJECT" scope="PRJ" qualifier="VW" name="All projects" path="[null]"/>
   <snapshots id="10" project_id="10" parent_snapshot_id="[null]" root_project_id="10" root_snapshot_id="[null]"
              status="P" islast="[true]" purge_status="[null]"
-             depth="[null]" scope="PRJ" qualifier="VW" created_at="2008-12-02 13:58:00.00" build_date="2008-12-02 13:58:00.00"
+             depth="[null]" scope="PRJ" qualifier="VW" created_at="1228222680000" build_date="1228222680000"
              version="[null]" path=""/>
 
   <projects id="110" uuid="BCDE" project_uuid="ABCD" module_uuid="ABCD" module_uuid_path=".ABCD." copy_resource_id="100" enabled="[true]"
             kee="MASTER_PROJECTorg.struts:struts" scope="FIL" qualifier="TRK" name="Struts" path="[null]"/>
   <snapshots id="110" project_id="110" parent_snapshot_id="[null]" root_project_id="110" root_snapshot_id="[null]"
              status="P" islast="[true]" purge_status="[null]"
-             depth="[null]" scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00" build_date="2008-12-02 13:58:00.00"
+             depth="[null]" scope="PRJ" qualifier="TRK" created_at="1228222680000" build_date="1228222680000"
              version="[null]" path=""/>
 
   <!-- View with sub view -->
@@ -20,13 +20,13 @@
             kee="LANGUAGE_VIEW" scope="PRJ" qualifier="VW" name="By Language" path="[null]"/>
   <snapshots id="11" project_id="11" parent_snapshot_id="[null]" root_project_id="11" root_snapshot_id="[null]"
              status="P" islast="[true]" purge_status="[null]"
-             depth="[null]" scope="PRJ" qualifier="VW" created_at="2008-12-02 13:58:00.00" build_date="2008-12-02 13:58:00.00"
+             depth="[null]" scope="PRJ" qualifier="VW" created_at="1228222680000" build_date="1228222680000"
              version="[null]" path=""/>
   <projects id="112" uuid="GHIJ" project_uuid="EFGH" module_uuid="EFGH" module_uuid_path=".EFGH." copy_resource_id="101" enabled="[true]"
             kee="VIEW2org.elasticsearch:elasticsearch" scope="FIL" qualifier="TRK" name="SSLR" path="[null]"/>
   <snapshots id="112" project_id="112" parent_snapshot_id="[null]" root_project_id="112" root_snapshot_id="[null]"
              status="P" islast="[true]" purge_status="[null]"
-             depth="[null]" scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00" build_date="2008-12-02 13:58:00.00"
+             depth="[null]" scope="PRJ" qualifier="TRK" created_at="1228222680000" build_date="1228222680000"
              version="[null]" path=""/>
 
   <!-- Sub view -->
@@ -34,14 +34,14 @@
             kee="JAVA_PROJECTS" scope="PRJ" qualifier="SVW" name="Java projects" path="[null]"/>
   <snapshots id="13" project_id="13" parent_snapshot_id="[null]" root_project_id="13" root_snapshot_id="[null]"
              status="P" islast="[true]" purge_status="[null]"
-             depth="[null]" scope="PRJ" qualifier="SVW" created_at="2008-12-02 13:58:00.00" build_date="2008-12-02 13:58:00.00"
+             depth="[null]" scope="PRJ" qualifier="SVW" created_at="1228222680000" build_date="1228222680000"
              version="[null]" path=""/>
 
   <projects id="113" uuid="HIJK" project_uuid="EFGH" module_uuid="FGHI" module_uuid_path=".EFGH.FGHI." copy_resource_id="100" enabled="[true]"
             kee="VIEW2org.struts:struts" scope="FIL" qualifier="TRK" name="Struts" path="[null]"/>
   <snapshots id="113" project_id="113" parent_snapshot_id="[null]" root_project_id="113" root_snapshot_id="[null]"
              status="P" islast="[true]" purge_status="[null]"
-             depth="[null]" scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00" build_date="2008-12-02 13:58:00.00"
+             depth="[null]" scope="PRJ" qualifier="TRK" created_at="1228222680000" build_date="1228222680000"
              version="[null]" path=""/>
 
   <!-- View without project -->
@@ -49,7 +49,7 @@
             kee="OTHER" scope="PRJ" qualifier="VW" name="Other projects" path="[null]"/>
   <snapshots id="14" project_id="14" parent_snapshot_id="[null]" root_project_id="14" root_snapshot_id="[null]"
              status="P" islast="[true]" purge_status="[null]"
-             depth="[null]" scope="PRJ" qualifier="VW" created_at="2008-12-02 13:58:00.00" build_date="2008-12-02 13:58:00.00"
+             depth="[null]" scope="PRJ" qualifier="VW" created_at="1228222680000" build_date="1228222680000"
              version="[null]" path=""/>
 
   <!-- Real projects -->
@@ -59,7 +59,7 @@
             enabled="[true]" copy_resource_id="[null]" path="[null]"/>
   <snapshots id="100" project_id="100" parent_snapshot_id="[null]" root_project_id="100" root_snapshot_id="[null]"
              status="P" islast="[true]" purge_status="[null]"
-             depth="[null]" scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00" build_date="2008-12-02 13:58:00.00"
+             depth="[null]" scope="PRJ" qualifier="TRK" created_at="1228222680000" build_date="1228222680000"
              version="[null]" path=""/>
 
   <projects id="101" scope="PRJ" qualifier="TRK" kee="org.elasticsearch:elasticsearch" name="Elasticsearch"
@@ -67,7 +67,7 @@
             enabled="[true]" copy_resource_id="[null]" path="[null]"/>
   <snapshots id="101" project_id="101" parent_snapshot_id="[null]" root_project_id="101" root_snapshot_id="[null]"
              status="P" islast="[true]" purge_status="[null]"
-             depth="[null]" scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00" build_date="2008-12-02 13:58:00.00"
+             depth="[null]" scope="PRJ" qualifier="TRK" created_at="1228222680000" build_date="1228222680000"
              version="[null]" path=""/>
 
 </dataset>
