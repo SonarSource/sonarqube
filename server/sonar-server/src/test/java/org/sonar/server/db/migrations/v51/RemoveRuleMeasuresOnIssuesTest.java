@@ -26,8 +26,6 @@ import org.junit.Test;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.db.migrations.DatabaseMigration;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 public class RemoveRuleMeasuresOnIssuesTest {
 
   @ClassRule
@@ -48,7 +46,7 @@ public class RemoveRuleMeasuresOnIssuesTest {
 
     migration.execute();
 
-    assertThat(db.countRowsOfTable("project_measures")).isEqualTo(0);
+    db.assertDbUnit(getClass(), "execute-result.xml", "project_measures");
   }
 
   @Test
