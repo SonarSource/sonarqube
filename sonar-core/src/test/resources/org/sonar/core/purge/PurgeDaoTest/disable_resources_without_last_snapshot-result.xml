@@ -68,12 +68,12 @@ What has been changed :
           component_uuid="GHIJ"
           project_uuid="ABCD"
           status="CLOSED"
-          issue_close_date="2014-04-09"
+          issue_close_date="1396994400000"
           resolution="REMOVED" line="200" severity="BLOCKER" reporter="perceval" assignee="arthur" rule_id="500"
           manual_severity="[false]"
           message="[null]" action_plan_key="[null]" effort_to_fix="[null]" technical_debt="[null]"
           issue_attributes="[null]" checksum="[null]" author_login="[null]"
-          updated_at="1450000000000" issue_creation_date="2013-04-16" issue_update_date="2014-04-09"
+          updated_at="1450000000000" issue_creation_date="1366063200000" issue_update_date="1396994400000"
           created_at="1450000000000" tags="[null]"/>
 
   <!-- Open issue on directory -->
@@ -81,12 +81,12 @@ What has been changed :
           component_uuid="EFGH"
           project_uuid="ABCD"
           status="CLOSED"
-          issue_close_date="2014-04-09"
+          issue_close_date="1396994400000"
           resolution="REMOVED" line="[null]" severity="BLOCKER" reporter="perceval" assignee="arthur" rule_id="500"
           manual_severity="[false]"
           message="[null]" action_plan_key="[null]" effort_to_fix="[null]" technical_debt="[null]"
           issue_attributes="[null]" checksum="[null]" author_login="[null]"
-          updated_at="1450000000000" issue_creation_date="2013-04-16" issue_update_date="2014-04-09"
+          updated_at="1450000000000" issue_creation_date="1366063200000" issue_update_date="1396994400000"
           created_at="1450000000000" tags="[null]"/>
 
   <!-- Open issue on project -->
@@ -94,12 +94,12 @@ What has been changed :
           component_uuid="ABCD"
           project_uuid="ABCD"
           status="CLOSED"
-          issue_close_date="2014-04-09"
+          issue_close_date="1396994400000"
           resolution="REMOVED" line="[null]" severity="BLOCKER" reporter="perceval" assignee="arthur" rule_id="500"
           manual_severity="[false]"
           message="[null]" action_plan_key="[null]" effort_to_fix="[null]" technical_debt="[null]"
           issue_attributes="[null]" checksum="[null]" author_login="[null]"
-          updated_at="1450000000000" issue_creation_date="2013-04-16" issue_update_date="2014-04-09"
+          updated_at="1450000000000" issue_creation_date="1366063200000" issue_update_date="1396994400000"
           created_at="1450000000000" tags="[null]"/>
 
   <!-- Resolved issue on file -> not to be updated -->
@@ -107,12 +107,12 @@ What has been changed :
           component_uuid="GHIJ"
           project_uuid="ABCD"
           status="CLOSED"
-          issue_close_date="2015-12-08"
+          issue_close_date="1449529200000"
           resolution="FIXED" line="200" severity="BLOCKER" reporter="perceval" assignee="arthur" rule_id="500"
           manual_severity="[false]"
           message="[null]" action_plan_key="[null]" effort_to_fix="[null]" technical_debt="[null]"
           issue_attributes="[null]" checksum="[null]" author_login="[null]"
-          updated_at="1450000000000" issue_creation_date="2013-04-16" issue_update_date="2014-04-08"
+          updated_at="1450000000000" issue_creation_date="1366063200000" issue_update_date="1396908000000"
           created_at="1450000000000" tags="[null]"/>
 
 </dataset>

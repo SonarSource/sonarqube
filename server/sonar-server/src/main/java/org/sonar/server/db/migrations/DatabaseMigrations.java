@@ -85,6 +85,7 @@ public interface DatabaseMigrations {
     FeedAnalysisReportsLongDates.class,
     UpdateProjectsModuleUuidPath.class,
     FeedIssueComponentUuids.class,
-    FeedSnapshotsLongDates.class
+    FeedSnapshotsLongDates.class,
+    FeedIssuesLongDates.class
     );
 }

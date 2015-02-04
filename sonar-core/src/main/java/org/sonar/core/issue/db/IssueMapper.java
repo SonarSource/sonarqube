@@ -34,9 +34,9 @@ public interface IssueMapper {
 
   List<IssueDto> selectByActionPlan(String actionPlan);
 
-  List<RuleDto> findRulesByComponent(@Param("componentKey") String componentKey, @Nullable @Param("createdAt") Date createdAtOrAfter);
+  List<RuleDto> findRulesByComponent(@Param("componentKey") String componentKey, @Nullable @Param("createdAt") Long createdAtOrAfter);
 
-  List<String> findSeveritiesByComponent(@Param("componentKey") String componentKey, @Nullable @Param("createdAt") Date createdAtOrAfter);
+  List<String> findSeveritiesByComponent(@Param("componentKey") String componentKey, @Nullable @Param("createdAt") Long createdAtOrAfter);
 
   void insert(IssueDto issue);
 

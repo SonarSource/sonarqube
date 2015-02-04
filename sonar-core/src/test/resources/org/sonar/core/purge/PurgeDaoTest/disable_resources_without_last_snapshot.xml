@@ -54,7 +54,7 @@
           issue_close_date="[null]"
           resolution="[null]" line="200" severity="BLOCKER" reporter="perceval" assignee="arthur" rule_id="500" manual_severity="[false]"
           message="[null]" action_plan_key="[null]" effort_to_fix="[null]" technical_debt="[null]" issue_attributes="[null]" checksum="[null]" author_login="[null]"
-          updated_at="[null]" issue_creation_date="2013-04-16" issue_update_date="2013-04-16" created_at="1450000000000"/>
+          updated_at="[null]" issue_creation_date="1366063200000" issue_update_date="1366063200000" created_at="1450000000000"/>
 
   <!-- Open issue on directory -->
   <issues id="2" kee="ISSUE-2"
@@ -64,7 +64,7 @@
           issue_close_date="[null]"
           resolution="[null]" line="[null]" severity="BLOCKER" reporter="perceval" assignee="arthur" rule_id="500" manual_severity="[false]"
           message="[null]" action_plan_key="[null]" effort_to_fix="[null]" technical_debt="[null]" issue_attributes="[null]" checksum="[null]" author_login="[null]"
-          updated_at="[null]" issue_creation_date="2013-04-16" issue_update_date="2013-04-16" created_at="1450000000000"/>
+          updated_at="[null]" issue_creation_date="1366063200000" issue_update_date="1366063200000" created_at="1450000000000"/>
 
   <!-- Open issue on project -->
   <issues id="3" kee="ISSUE-3"
@@ -74,16 +74,16 @@
           issue_close_date="[null]"
           resolution="[null]" line="[null]" severity="BLOCKER" reporter="perceval" assignee="arthur" rule_id="500" manual_severity="[false]"
           message="[null]" action_plan_key="[null]" effort_to_fix="[null]" technical_debt="[null]" issue_attributes="[null]" checksum="[null]" author_login="[null]"
-          updated_at="[null]" issue_creation_date="2013-04-16" issue_update_date="2013-04-16" created_at="1450000000000"/>
+          updated_at="[null]" issue_creation_date="1366063200000" issue_update_date="1366063200000" created_at="1450000000000"/>
 
   <!-- Resolved issue on file -> not to be updated -->
   <issues id="4" kee="ISSUE-4"
           component_uuid="GHIJ"
           project_uuid="ABCD"
           status="CLOSED"
-          issue_close_date="2015-12-08"
+          issue_close_date="1449529200000"
           resolution="FIXED" line="200" severity="BLOCKER" reporter="perceval" assignee="arthur" rule_id="500" manual_severity="[false]"
           message="[null]" action_plan_key="[null]" effort_to_fix="[null]" technical_debt="[null]" issue_attributes="[null]" checksum="[null]" author_login="[null]"
-          updated_at="1450000000000" issue_creation_date="2013-04-16" issue_update_date="2014-04-08" created_at="1450000000000"/>
+          updated_at="1450000000000" issue_creation_date="1366063200000" issue_update_date="1396908000000" created_at="1450000000000"/>
 
 </dataset>

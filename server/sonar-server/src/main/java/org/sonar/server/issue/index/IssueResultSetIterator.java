@@ -38,6 +38,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
 
+import static org.sonar.api.utils.DateUtils.longToDate;
+import static org.sonar.server.db.migrations.SqlUtil.getLong;
+
 /**
  * Scrolls over table ISSUES and reads documents to populate
  * the issues index
@@ -87,6 +90,10 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
 
   private static final Splitter TAGS_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
 
+  private IssueResultSetIterator(PreparedStatement stmt) throws SQLException {
+    super(stmt);
+  }
+
   static IssueResultSetIterator create(DbClient dbClient, Connection connection, long afterDate) {
     try {
       String sql = afterDate > 0L ? SQL_AFTER_DATE : SQL_ALL;
@@ -100,8 +107,16 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
     }
   }
 
-  private IssueResultSetIterator(PreparedStatement stmt) throws SQLException {
-    super(stmt);
+  @CheckForNull
+  private static String extractDirPath(@Nullable String filePath) {
+    if (filePath != null) {
+      int lastSlashIndex = CharMatcher.anyOf("/").lastIndexIn(filePath);
+      if (lastSlashIndex > 0) {
+        return filePath.substring(0, lastSlashIndex);
+      }
+      return "/";
+    }
+    return null;
   }
 
   @Override
@@ -124,12 +139,12 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
     doc.setResolution(rs.getString(10));
     doc.setSeverity(rs.getString(11));
     doc.setStatus(rs.getString(12));
-    doc.setDebt(SqlUtil.getLong(rs, 13));
+    doc.setDebt(getLong(rs, 13));
     doc.setReporter(rs.getString(14));
     doc.setAuthorLogin(rs.getString(15));
-    doc.setFuncCloseDate(SqlUtil.getDate(rs, 16));
-    doc.setFuncCreationDate(SqlUtil.getDate(rs, 17));
-    doc.setFuncUpdateDate(SqlUtil.getDate(rs, 18));
+    doc.setFuncCloseDate(longToDate(getLong(rs, 16)));
+    doc.setFuncCreationDate(longToDate(getLong(rs, 17)));
+    doc.setFuncUpdateDate(longToDate(getLong(rs, 18)));
     String ruleRepo = rs.getString(19);
     String ruleKey = rs.getString(20);
     doc.setRuleKey(RuleKey.of(ruleRepo, ruleKey).toString());
@@ -142,17 +157,5 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
     String tags = rs.getString(26);
     doc.setTags(ImmutableList.copyOf(TAGS_SPLITTER.split(tags == null ? "" : tags)));
     return doc;
-  }
-
-  @CheckForNull
-  private static String extractDirPath(@Nullable String filePath) {
-    if (filePath != null) {
-      int lastSlashIndex = CharMatcher.anyOf("/").lastIndexIn(filePath);
-      if (lastSlashIndex > 0) {
-        return filePath.substring(0, lastSlashIndex);
-      }
-      return "/";
-    }
-    return null;
   }
 }

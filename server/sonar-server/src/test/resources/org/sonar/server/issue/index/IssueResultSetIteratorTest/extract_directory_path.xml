@@ -29,8 +29,8 @@
       tags="tag1,tag2,tag3"
       created_at="1400000000000"
       updated_at="1400000000000"
-      issue_creation_date="2005-05-12 00:00:00.0"
-      issue_update_date="2013-01-01 00:00:00.0"
+      issue_creation_date="1115848800000"
+      issue_update_date="1356994800000"
       issue_close_date="[null]"/>
 
   <issues
@@ -56,8 +56,8 @@
       tags="[null]"
       created_at="1400000000000"
       updated_at="1450000000000"
-      issue_creation_date="2005-05-12 00:00:00.0"
-      issue_update_date="2013-05-18 00:00:00.0"
+      issue_creation_date="1115848800000"
+      issue_update_date="1368828000000"
       issue_close_date="[null]"/>
 
   <issues
@@ -83,8 +83,8 @@
       tags="[null]"
       created_at="1400000000000"
       updated_at="1450000000000"
-      issue_creation_date="2005-05-12 00:00:00.0"
-      issue_update_date="2013-05-18 00:00:00.0"
+      issue_creation_date="1115848800000"
+      issue_update_date="1368828000000"
       issue_close_date="[null]"/>
 
 </dataset>

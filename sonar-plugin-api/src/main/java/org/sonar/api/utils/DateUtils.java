@@ -21,6 +21,7 @@ package org.sonar.api.utils;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;

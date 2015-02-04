@@ -30,9 +30,10 @@ import org.sonar.core.rule.RuleDto;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.Date;
 import java.util.List;
+
+import static org.sonar.api.utils.DateUtils.dateToLong;
 
 /**
  * @since 3.6
@@ -67,12 +68,12 @@ public class IssueDao implements BatchComponent, ServerComponent {
 
   // TODO replace by aggregation in IssueIndex
   public List<RuleDto> findRulesByComponent(String componentKey, @Nullable Date createdAtOrAfter, DbSession session) {
-    return mapper(session).findRulesByComponent(componentKey, createdAtOrAfter);
+    return mapper(session).findRulesByComponent(componentKey, dateToLong(createdAtOrAfter));
   }
 
   // TODO replace by aggregation in IssueIndex
   public List<String> findSeveritiesByComponent(String componentKey, @Nullable Date createdAtOrAfter, DbSession session) {
-    return mapper(session).findSeveritiesByComponent(componentKey, createdAtOrAfter);
+    return mapper(session).findSeveritiesByComponent(componentKey, dateToLong(createdAtOrAfter));
   }
 
   protected IssueMapper mapper(DbSession session) {

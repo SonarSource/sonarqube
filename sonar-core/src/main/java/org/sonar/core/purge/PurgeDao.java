@@ -37,6 +37,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import static org.sonar.api.utils.DateUtils.dateToLong;
+
 /**
  * @since 2.14
  */
@@ -82,8 +84,8 @@ public class PurgeDao {
 
   private void deleteOldClosedIssues(PurgeConfiguration conf, PurgeMapper mapper) {
     Date toDate = conf.maxLiveDateOfClosedIssues();
-    mapper.deleteOldClosedIssueChanges(conf.rootProjectIdUuid().getUuid(), toDate);
-    mapper.deleteOldClosedIssues(conf.rootProjectIdUuid().getUuid(), toDate);
+    mapper.deleteOldClosedIssueChanges(conf.rootProjectIdUuid().getUuid(), dateToLong(toDate));
+    mapper.deleteOldClosedIssues(conf.rootProjectIdUuid().getUuid(), dateToLong(toDate));
   }
 
   private void deleteAbortedBuilds(ResourceDto project, PurgeCommands commands) {
@@ -91,7 +93,7 @@ public class PurgeDao {
       LOG.info("<- Delete aborted builds");
       PurgeSnapshotQuery query = PurgeSnapshotQuery.create()
         .setIslast(false)
-        .setStatus(new String[]{"U"})
+        .setStatus(new String[] {"U"})
         .setRootProjectId(project.getId());
       commands.deleteSnapshots(query);
     }
@@ -100,7 +102,7 @@ public class PurgeDao {
   private boolean hasAbortedBuilds(Long projectId, PurgeCommands commands) {
     PurgeSnapshotQuery query = PurgeSnapshotQuery.create()
       .setIslast(false)
-      .setStatus(new String[]{"U"})
+      .setStatus(new String[] {"U"})
       .setResourceId(projectId);
     return !commands.selectSnapshotIds(query).isEmpty();
   }
@@ -111,7 +113,7 @@ public class PurgeDao {
         .setResourceId(project.getId())
         .setIslast(false)
         .setNotPurged(true)
-    );
+      );
     for (final Long projectSnapshotId : projectSnapshotIds) {
       LOG.info("<- Clean snapshot " + projectSnapshotId);
       if (!ArrayUtils.isEmpty(scopesWithoutHistoricalData)) {
@@ -195,7 +197,7 @@ public class PurgeDao {
     mapper.setSnapshotIsLastToFalse(componentId);
     mapper.deleteFileSourcesByUuid(componentIdUuid.getUuid());
     mapper.disableResource(componentId);
-    mapper.resolveResourceIssuesNotAlreadyResolved(componentIdUuid.getUuid(), new Date(system2.now()), system2.now());
+    mapper.resolveResourceIssuesNotAlreadyResolved(componentIdUuid.getUuid(), system2.now());
   }
 
   public PurgeDao deleteSnapshots(PurgeSnapshotQuery query) {

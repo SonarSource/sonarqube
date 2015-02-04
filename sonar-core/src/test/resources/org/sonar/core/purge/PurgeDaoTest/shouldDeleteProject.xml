@@ -29,9 +29,9 @@
           action_plan_key="[null]"
           created_at="[null]"
           updated_at="[null]"
-          issue_creation_date="2013-04-16"
-          issue_update_date="2013-04-16"
-          issue_close_date="2013-04-16"
+          issue_creation_date="1366063200000"
+          issue_update_date="1366063200000"
+          issue_close_date="1366063200000"
       />
 
   <issues id="2" kee="ABCDF" component_uuid="A" project_uuid="A" status="CLOSED" resolution="[null]" line="200"
@@ -42,9 +42,9 @@
           action_plan_key="[null]"
           created_at="[null]"
           updated_at="[null]"
-          issue_creation_date="2013-04-16"
-          issue_update_date="2013-04-16"
-          issue_close_date="2013-04-16"
+          issue_creation_date="1366063200000"
+          issue_update_date="1366063200000"
+          issue_close_date="1366063200000"
       />
 
   <issue_changes id="1" kee="[null]" issue_key="ABCDF" created_at="[null]" updated_at="[null]" user_login="admin"

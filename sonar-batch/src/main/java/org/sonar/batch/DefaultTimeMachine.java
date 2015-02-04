@@ -37,11 +37,9 @@ import org.sonar.batch.index.DefaultIndex;
 
 import javax.annotation.Nullable;
 import javax.persistence.Query;
-
 import java.util.*;
 
 import static org.sonar.api.utils.DateUtils.dateToLong;
-import static org.sonar.api.utils.DateUtils.longToDate;
 
 public class DefaultTimeMachine implements TimeMachine {
 
@@ -69,7 +67,7 @@ public class DefaultTimeMachine implements TimeMachine {
       Integer characteristicId = model.getCharacteristicId();
       Characteristic characteristic = techDebtModel.characteristicById(characteristicId);
       Measure measure = toMeasure(model, metricById.get(model.getMetricId()), characteristic);
-      measure.setDate(longToDate((Long) object[1]));
+      measure.setDate(new Date((Long) object[1]));
       result.add(measure);
     }
     return result;
