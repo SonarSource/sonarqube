@@ -652,8 +652,85 @@ public class IssueIndexMediumTest {
   }
 
   @Test
-  public void facet_on_created_at() throws Exception {
+  public void facet_on_created_at_with_less_than_20_days() throws Exception {
 
+    QueryContext queryContext = fixtureForCreatedAtFacet();
+
+    Collection<FacetValue> createdAt = index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2014-09-01")).createdBefore(DateUtils.parseDate("2014-09-08")).build(),
+      queryContext).getFacets().get("createdAt");
+    assertThat(createdAt).hasSize(5)
+      .containsOnly(
+        new FacetValue("2014-09-01T04:00:00+0000", 2),
+        new FacetValue("2014-09-02T04:00:00+0000", 1),
+        new FacetValue("2014-09-03T04:00:00+0000", 0),
+        new FacetValue("2014-09-04T04:00:00+0000", 0),
+        new FacetValue("2014-09-05T04:00:00+0000", 1));
+  }
+
+  @Test
+  public void facet_on_created_at_with_less_than_20_weeks() throws Exception {
+
+    QueryContext queryContext = fixtureForCreatedAtFacet();
+
+    Collection<FacetValue> createdAt = index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2014-09-01")).createdBefore(DateUtils.parseDate("2014-09-21")).build(),
+      queryContext).getFacets().get("createdAt");
+    assertThat(createdAt).hasSize(3)
+      .containsOnly(
+        new FacetValue("2014-09-01T04:00:00+0000", 4),
+        new FacetValue("2014-09-08T04:00:00+0000", 0),
+        new FacetValue("2014-09-15T04:00:00+0000", 1));
+  }
+
+  @Test
+  public void facet_on_created_at_with_less_than_20_months() throws Exception {
+
+    QueryContext queryContext = fixtureForCreatedAtFacet();
+
+    Collection<FacetValue> createdAt = index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2014-09-01")).createdBefore(DateUtils.parseDate("2015-01-19")).build(),
+      queryContext).getFacets().get("createdAt");
+    assertThat(createdAt).hasSize(5)
+      .containsOnly(
+        new FacetValue("2014-09-01T04:00:00+0000", 5),
+        new FacetValue("2014-10-01T04:00:00+0000", 0),
+        new FacetValue("2014-11-01T04:00:00+0000", 0),
+        new FacetValue("2014-12-01T04:00:00+0000", 0),
+        new FacetValue("2015-01-01T04:00:00+0000", 1));
+  }
+
+  @Test
+  public void facet_on_created_at_with_more_than_20_months() throws Exception {
+
+    QueryContext queryContext = fixtureForCreatedAtFacet();
+
+    Collection<FacetValue> createdAt = index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2011-01-01")).createdBefore(DateUtils.parseDate("2016-01-01")).build(),
+      queryContext).getFacets().get("createdAt");
+    assertThat(createdAt).hasSize(5)
+      .containsOnly(
+        new FacetValue("2011-01-01T04:00:00+0000", 1),
+        new FacetValue("2012-01-01T04:00:00+0000", 0),
+        new FacetValue("2013-01-01T04:00:00+0000", 0),
+        new FacetValue("2014-01-01T04:00:00+0000", 5),
+        new FacetValue("2015-01-01T04:00:00+0000", 1));
+
+  }
+
+  @Test
+  public void facet_on_created_at_without_start_bound() throws Exception {
+
+    QueryContext queryContext = fixtureForCreatedAtFacet();
+
+    Collection<FacetValue> createdAt = index.search(IssueQuery.builder().createdBefore(DateUtils.parseDate("2016-01-01")).build(),
+      queryContext).getFacets().get("createdAt");
+    assertThat(createdAt).hasSize(5)
+      .containsOnly(
+        new FacetValue("2011-01-01T04:00:00+0000", 1),
+        new FacetValue("2012-01-01T04:00:00+0000", 0),
+        new FacetValue("2013-01-01T04:00:00+0000", 0),
+        new FacetValue("2014-01-01T04:00:00+0000", 5),
+        new FacetValue("2015-01-01T04:00:00+0000", 1));
+  }
+
+  protected QueryContext fixtureForCreatedAtFacet() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
 
@@ -670,55 +747,7 @@ public class IssueIndexMediumTest {
     indexIssues(issue0, issue1, issue2, issue3, issue4, issue5, issue6);
 
     QueryContext queryContext = new QueryContext().addFacets(Arrays.asList("createdAt"));
-
-    Collection<FacetValue> createdAt = index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2014-09-01")).createdBefore(DateUtils.parseDate("2014-09-08")).build(),
-      queryContext).getFacets().get("createdAt");
-    assertThat(createdAt).hasSize(5)
-      .containsOnly(
-        new FacetValue("2014-09-01T04:00:00+0000", 2),
-        new FacetValue("2014-09-02T04:00:00+0000", 1),
-        new FacetValue("2014-09-03T04:00:00+0000", 0),
-        new FacetValue("2014-09-04T04:00:00+0000", 0),
-        new FacetValue("2014-09-05T04:00:00+0000", 1));
-
-    createdAt = index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2014-09-01")).createdBefore(DateUtils.parseDate("2014-09-21")).build(),
-      queryContext).getFacets().get("createdAt");
-    assertThat(createdAt).hasSize(3)
-      .containsOnly(
-        new FacetValue("2014-09-01T04:00:00+0000", 4),
-        new FacetValue("2014-09-08T04:00:00+0000", 0),
-        new FacetValue("2014-09-15T04:00:00+0000", 1));
-
-    createdAt = index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2014-09-01")).createdBefore(DateUtils.parseDate("2015-01-19")).build(),
-      queryContext).getFacets().get("createdAt");
-    assertThat(createdAt).hasSize(5)
-      .containsOnly(
-        new FacetValue("2014-09-01T04:00:00+0000", 5),
-        new FacetValue("2014-10-01T04:00:00+0000", 0),
-        new FacetValue("2014-11-01T04:00:00+0000", 0),
-        new FacetValue("2014-12-01T04:00:00+0000", 0),
-        new FacetValue("2015-01-01T04:00:00+0000", 1));
-
-    createdAt = index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2011-01-01")).createdBefore(DateUtils.parseDate("2016-01-01")).build(),
-      queryContext).getFacets().get("createdAt");
-    assertThat(createdAt).hasSize(5)
-      .containsOnly(
-        new FacetValue("2011-01-01T04:00:00+0000", 1),
-        new FacetValue("2012-01-01T04:00:00+0000", 0),
-        new FacetValue("2013-01-01T04:00:00+0000", 0),
-        new FacetValue("2014-01-01T04:00:00+0000", 5),
-        new FacetValue("2015-01-01T04:00:00+0000", 1));
-
-    // createdAfter not set: taking min value
-    createdAt = index.search(IssueQuery.builder().createdBefore(DateUtils.parseDate("2016-01-01")).build(),
-      queryContext).getFacets().get("createdAt");
-    assertThat(createdAt).hasSize(5)
-      .containsOnly(
-        new FacetValue("2011-01-01T04:00:00+0000", 1),
-        new FacetValue("2012-01-01T04:00:00+0000", 0),
-        new FacetValue("2013-01-01T04:00:00+0000", 0),
-        new FacetValue("2014-01-01T04:00:00+0000", 5),
-        new FacetValue("2015-01-01T04:00:00+0000", 1));
+    return queryContext;
   }
 
   @Test
