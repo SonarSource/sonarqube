@@ -22,15 +22,17 @@ package org.sonar.server.app;
 import org.apache.catalina.connector.Connector;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.commons.lang.StringUtils;
-import org.apache.coyote.ProtocolHandler;
 import org.apache.coyote.http11.AbstractHttp11JsseProtocol;
 import org.slf4j.Logger;
+import org.sonar.process.Props;
 
 class StartupLogs {
 
   private final Logger log;
+  private final Props props;
 
-  StartupLogs(Logger log) {
+  StartupLogs(Props props, Logger log) {
+    this.props = props;
     this.log = log;
   }
 
@@ -61,9 +63,13 @@ class StartupLogs {
     StringBuilder sb = new StringBuilder();
     sb.append("HTTPS connector enabled on port ").append(connector.getPort());
 
-    ProtocolHandler protocol = connector.getProtocolHandler();
-    String[] ciphers = ((AbstractHttp11JsseProtocol) protocol).getCiphersUsed();
-    sb.append(" | ciphers=").append(StringUtils.join(ciphers, ","));
+    AbstractHttp11JsseProtocol protocol = (AbstractHttp11JsseProtocol) connector.getProtocolHandler();
+    sb.append(" | ciphers=");
+    if (props.contains(Connectors.PROP_HTTPS_CIPHERS)) {
+      sb.append(StringUtils.join(protocol.getCiphersUsed(), ","));
+    } else {
+      sb.append("JVM defaults");
+    }
     log.info(sb.toString());
   }
 }
