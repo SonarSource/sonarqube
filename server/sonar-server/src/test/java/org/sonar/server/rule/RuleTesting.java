@@ -27,8 +27,6 @@ import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleDto.Format;
 
-import java.util.Date;
-
 /**
  * Utility class for tests involving rules
  */
@@ -91,7 +89,7 @@ public class RuleTesting {
   }
 
   public static RuleDto newCustomRule(RuleDto templateRule){
-    return newDto(RuleKey.of(templateRule.getRepositoryKey(), templateRule.getRuleKey() + "_" + new Date().getTime()))
+    return newDto(RuleKey.of(templateRule.getRepositoryKey(), templateRule.getRuleKey() + "_" + System.currentTimeMillis()))
       .setTemplateId(templateRule.getId());
   }
 

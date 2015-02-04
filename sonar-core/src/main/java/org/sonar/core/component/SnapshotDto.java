@@ -19,11 +19,7 @@
  */
 package org.sonar.core.component;
 
-import org.sonar.core.persistence.Dto;
-
-import java.util.Date;
-
-public final class SnapshotDto extends Dto<Long> {
+public final class SnapshotDto {
 
   /**
    * This status is set on the snapshot at the beginning of the batch
@@ -38,7 +34,8 @@ public final class SnapshotDto extends Dto<Long> {
   private Long rootId;
   private Long rootProjectId;
 
-  private Date buildDate;
+  private Long createdAt;
+  private Long buildDate;
   private Long resourceId;
   private String status = STATUS_UNPROCESSED;
   private Integer purgeStatus;
@@ -61,11 +58,11 @@ public final class SnapshotDto extends Dto<Long> {
   private String period4Param;
   private String period5Param;
 
-  private Date period1Date;
-  private Date period2Date;
-  private Date period3Date;
-  private Date period4Date;
-  private Date period5Date;
+  private Long period1Date;
+  private Long period2Date;
+  private Long period3Date;
+  private Long period4Date;
+  private Long period5Date;
 
   public Long getId() {
     return id;
@@ -94,11 +91,11 @@ public final class SnapshotDto extends Dto<Long> {
     return this;
   }
 
-  public Date getBuildDate() {
+  public Long getBuildDate() {
     return buildDate;
   }
 
-  public SnapshotDto setBuildDate(Date buildDate) {
+  public SnapshotDto setBuildDate(Long buildDate) {
     this.buildDate = buildDate;
     return this;
   }
@@ -273,22 +270,22 @@ public final class SnapshotDto extends Dto<Long> {
     }
   }
 
-  public SnapshotDto setPeriodDate(int index, Date d) {
+  public SnapshotDto setPeriodDate(int index, Long date) {
     switch (index) {
       case 1:
-        period1Date = d;
+        period1Date = date;
         break;
       case 2:
-        period2Date = d;
+        period2Date = date;
         break;
       case 3:
-        period3Date = d;
+        period3Date = date;
         break;
       case 4:
-        period4Date = d;
+        period4Date = date;
         break;
       case 5:
-        period5Date = d;
+        period5Date = date;
         break;
       default:
         throw new IndexOutOfBoundsException(INDEX_SHOULD_BE_IN_RANGE_FROM_1_TO_5);
@@ -296,7 +293,7 @@ public final class SnapshotDto extends Dto<Long> {
     return this;
   }
 
-  public Date getPeriodDate(int periodIndex) {
+  public Long getPeriodDate(int periodIndex) {
     switch (periodIndex) {
       case 1:
         return period1Date;
@@ -313,21 +310,17 @@ public final class SnapshotDto extends Dto<Long> {
     }
   }
 
-  @Override
   public Long getKey() {
     return id;
   }
 
-  @Override
-  public SnapshotDto setCreatedAt(Date datetime) {
-    super.setCreatedAt(datetime);
+  public SnapshotDto setCreatedAt(Long createdAt) {
+    this.createdAt = createdAt;
     return this;
   }
 
-  @Override
-  public SnapshotDto setUpdatedAt(Date datetime) {
-    super.setUpdatedAt(datetime);
-    return this;
+  public Long getCreatedAt() {
+    return createdAt;
   }
 
   public Long getRootIdOrSelf() {

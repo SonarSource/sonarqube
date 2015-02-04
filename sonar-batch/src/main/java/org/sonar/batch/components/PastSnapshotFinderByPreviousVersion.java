@@ -27,6 +27,8 @@ import org.sonar.api.database.model.Snapshot;
 
 import java.util.List;
 
+import static org.sonar.api.utils.DateUtils.longToDate;
+
 public class PastSnapshotFinderByPreviousVersion implements BatchExtension {
 
   private final DatabaseSession session;
@@ -55,7 +57,7 @@ public class PastSnapshotFinderByPreviousVersion implements BatchExtension {
     Event previousVersionEvent = events.get(0);
     Snapshot snapshot = session.getSingleResult(Snapshot.class, "id", previousVersionEvent.getSnapshot().getId());
 
-    return new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION, snapshot.getCreatedAt(), snapshot).setModeParameter(snapshot.getVersion());
+    return new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION, longToDate(snapshot.getCreatedAt()), snapshot).setModeParameter(snapshot.getVersion());
   }
 
 }

@@ -46,7 +46,8 @@ public class PurgeableSnapshotDto implements Comparable<PurgeableSnapshotDto> {
     return isLast;
   }
 
-  public PurgeableSnapshotDto setDate(Date date) {
+  public PurgeableSnapshotDto setDate(Long aLong) {
+    Date date = aLong == null ? null : new Date(aLong);
     this.date = date;
     return this;
   }
@@ -85,7 +86,7 @@ public class PurgeableSnapshotDto implements Comparable<PurgeableSnapshotDto> {
 
   @Override
   public int hashCode() {
-    return (int)snapshotId;
+    return (int) snapshotId;
   }
 
   @Override

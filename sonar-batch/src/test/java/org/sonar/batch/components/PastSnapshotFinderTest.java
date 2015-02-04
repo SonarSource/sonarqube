@@ -27,6 +27,7 @@ import org.mockito.MockitoAnnotations;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.utils.DateUtils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -145,10 +146,9 @@ public class PastSnapshotFinderTest {
 
   @Test
   public void should_find_by_previous_analysis() throws ParseException {
-    final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-    final Date date = format.parse("2010-05-18");
+    final Date date = DateUtils.parseDate("2010-05-18");
     Snapshot snapshot = new Snapshot();
-    snapshot.setCreatedAt(date);
+    snapshot.setCreatedAt(date.getTime());
     when(finderByPreviousAnalysis.findByPreviousAnalysis(null)).thenReturn(new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, date, snapshot));
 
     PastSnapshot variationSnapshot = finder.find(null, 2, CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS);
@@ -175,7 +175,7 @@ public class PastSnapshotFinderTest {
     final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
     final Date date = format.parse("2010-05-18");
     Snapshot snapshot = new Snapshot();
-    snapshot.setCreatedAt(date);
+    snapshot.setCreatedAt(date.getTime());
     when(finderByPreviousVersion.findByPreviousVersion(null)).thenReturn(new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION, date, snapshot));
 
     PastSnapshot variationSnapshot = finder.find(null, 2, CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION);

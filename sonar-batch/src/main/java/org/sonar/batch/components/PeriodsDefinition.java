@@ -28,11 +28,10 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.batch.ProjectTree;
 
 import javax.persistence.Query;
-
-import java.util.Date;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newLinkedList;
+import static org.sonar.api.utils.DateUtils.dateToLong;
 
 public class PeriodsDefinition implements BatchComponent {
 
@@ -80,8 +79,8 @@ public class PeriodsDefinition implements BatchComponent {
     if (projectId != null) {
       snapshot = new Snapshot();
       snapshot.setResourceId(projectId.intValue());
-      snapshot.setCreatedAt(projectTree.getRootProject().getAnalysisDate());
-      snapshot.setBuildDate(new Date());
+      snapshot.setCreatedAt(dateToLong(projectTree.getRootProject().getAnalysisDate()));
+      snapshot.setBuildDate(System.currentTimeMillis());
       snapshot.setVersion(projectTree.getRootProject().getAnalysisVersion());
     }
     return snapshot;

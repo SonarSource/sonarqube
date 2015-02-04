@@ -31,14 +31,14 @@ public final class DbCleanerTestUtils {
   public static PurgeableSnapshotDto createSnapshotWithDate(long snapshotId, String date) {
     PurgeableSnapshotDto snapshot = new PurgeableSnapshotDto();
     snapshot.setSnapshotId(snapshotId);
-    snapshot.setDate(DateUtils.parseDate(date));
+    snapshot.setDate(DateUtils.parseDate(date).getTime());
     return snapshot;
   }
 
   public static PurgeableSnapshotDto createSnapshotWithDateTime(long snapshotId, String datetime) {
     PurgeableSnapshotDto snapshot = new PurgeableSnapshotDto();
     snapshot.setSnapshotId(snapshotId);
-    snapshot.setDate(DateUtils.parseDateTime(datetime));
+    snapshot.setDate(DateUtils.parseDateTime(datetime).getTime());
     return snapshot;
   }
 

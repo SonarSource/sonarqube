@@ -23,19 +23,10 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 
 class MeasureFilterSort {
-  public static enum Field {
-    KEY, NAME, VERSION, METRIC, SHORT_NAME, DESCRIPTION,
-    // Sort by last analysis date
-    DATE,
-    // Sort by project creation date
-    PROJECT_CREATION_DATE
-  }
-
   private Field field = Field.NAME;
   private Metric metric = null;
   private Integer period = null;
   private boolean asc = true;
-
   MeasureFilterSort() {
   }
 
@@ -54,10 +45,6 @@ class MeasureFilterSort {
 
   void setPeriod(Integer period) {
     this.period = period;
-  }
-
-  void setAsc(boolean asc) {
-    this.asc = asc;
   }
 
   public Field field() {
@@ -81,7 +68,11 @@ class MeasureFilterSort {
   }
 
   boolean isOnDate() {
-    return Field.DATE.equals(field) || Field.PROJECT_CREATION_DATE.equals(field);
+    return Field.PROJECT_CREATION_DATE.equals(field);
+  }
+
+  boolean isOnTime() {
+    return Field.DATE.equals(field);
   }
 
   boolean isOnAlert() {
@@ -90,6 +81,10 @@ class MeasureFilterSort {
 
   boolean isAsc() {
     return asc;
+  }
+
+  void setAsc(boolean asc) {
+    this.asc = asc;
   }
 
   String column() {
@@ -126,11 +121,19 @@ class MeasureFilterSort {
     return column;
   }
 
-  private String getMetricColumn(){
+  private String getMetricColumn() {
     if (metric.isNumericType()) {
       return period != null ? "pmsort.variation_value_" + period : "pmsort.value";
     } else {
       return "pmsort.text_value";
     }
+  }
+
+  public static enum Field {
+    KEY, NAME, VERSION, METRIC, SHORT_NAME, DESCRIPTION,
+    // Sort by last analysis date
+    DATE,
+    // Sort by project creation date
+    PROJECT_CREATION_DATE
   }
 }

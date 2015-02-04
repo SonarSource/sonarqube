@@ -12,11 +12,11 @@
   <snapshots id="1" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
                status="P" islast="[true]" purge_status="[null]"
                period1_mode="previous_analysis" period1_param="[null]" period1_date="[null]"
-               period2_mode="days" period2_param="30" period2_date="2011-09-24"
-               period3_mode="days" period3_param="90" period3_date="2011-07-26"
+               period2_mode="days" period2_param="30" period2_date="1316815200000"
+               period3_mode="days" period3_param="90" period3_date="1311631200000"
                period4_mode="previous_analysis" period4_param="[null]" period4_date="[null]"
                period5_mode="previous_version" period5_param="[null]" period5_date="[null]"
-               depth="[null]" scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00" build_date="2008-12-02 13:58:00.00"
+               depth="[null]" scope="PRJ" qualifier="TRK" created_at="1228222680000" build_date="1228222680000"
                version="[null]" path=""/>
   <snapshots id="10" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
              status="P" islast="[false]" purge_status="[null]"
@@ -25,7 +25,7 @@
              period3_mode="[null]" period3_param="[null]" period3_date="[null]"
              period4_mode="[null]" period4_param="[null]" period4_date="[null]"
              period5_mode="[null]" period5_param="[null]" period5_date="[null]"
-             depth="[null]" scope="PRJ" qualifier="TRK" created_at="2008-12-01 13:58:00.00" build_date="2008-12-01 13:58:00.00"
+             depth="[null]" scope="PRJ" qualifier="TRK" created_at="1228136280000" build_date="1228136280000"
              version="[null]" path=""/>
 
   <!-- module -->
@@ -40,7 +40,7 @@
                period3_mode="[null]" period3_param="[null]" period3_date="[null]"
                period4_mode="[null]" period4_param="[null]" period4_date="[null]"
                period5_mode="[null]" period5_param="[null]" period5_date="[null]"
-               depth="[null]" scope="PRJ" qualifier="BRC" created_at="2008-12-02 13:58:00.00" build_date="2008-12-02 13:58:00.00"
+               depth="[null]" scope="PRJ" qualifier="BRC" created_at="1228222680000" build_date="1228222680000"
                version="[null]" path="1."/>
 
   <!-- directory -->
@@ -56,7 +56,7 @@
                period3_mode="[null]" period3_param="[null]" period3_date="[null]"
                period4_mode="[null]" period4_param="[null]" period4_date="[null]"
                period5_mode="[null]" period5_param="[null]" period5_date="[null]"
-               depth="[null]" scope="DIR" qualifier="PAC" created_at="2008-12-02 13:58:00.00" build_date="2008-12-02 13:58:00.00"
+               depth="[null]" scope="DIR" qualifier="PAC" created_at="1228222680000" build_date="1228222680000"
                version="[null]" path="1.2."/>
 
   <!-- file -->
@@ -73,7 +73,7 @@
                period3_mode="[null]" period3_param="[null]" period3_date="[null]"
                period4_mode="[null]" period4_param="[null]" period4_date="[null]"
                period5_mode="[null]" period5_param="[null]" period5_date="[null]"
-               depth="[null]" scope="FIL" qualifier="CLA" created_at="2008-12-02 13:58:00.00" build_date="2008-12-02 13:58:00.00"
+               depth="[null]" scope="FIL" qualifier="CLA" created_at="1228222680000" build_date="1228222680000"
                version="[null]" path="1.2.3."/>
 
 

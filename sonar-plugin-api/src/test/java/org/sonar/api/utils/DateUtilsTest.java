@@ -109,8 +109,8 @@ public class DateUtilsTest {
   @Test
   public void time_to_date() throws Exception {
     Date date = new Date();
-    Assertions.assertThat(DateUtils.timeToDate(date.getTime())).isEqualTo(date);
-    Assertions.assertThat(DateUtils.timeToDate(null)).isNull();
+    Assertions.assertThat(DateUtils.longToDate(date.getTime())).isEqualTo(date);
+    Assertions.assertThat(DateUtils.longToDate(null)).isNull();
   }
 
   /**

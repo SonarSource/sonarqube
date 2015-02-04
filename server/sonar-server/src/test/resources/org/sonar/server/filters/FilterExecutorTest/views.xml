@@ -20,22 +20,22 @@
 
 
   <!-- snapshots -->
-  <snapshots purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]" id="1" created_at="2008-12-25 01:00:00.00" build_date="2008-12-25 01:00:00.00" version="1.0" project_id="1" scope="PRJ" qualifier="TRK"
+  <snapshots purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]" id="1" created_at="1230163200000" build_date="1230163200000" version="1.0" project_id="1" scope="PRJ" qualifier="TRK"
              root_project_id="1" root_snapshot_id="[null]" parent_snapshot_id="[null]" STATUS="P" ISLAST="true"
              path=""
              depth="0"/>
 
-  <snapshots purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]" id="2" created_at="2008-12-25 01:00:01.00" build_date="2008-12-25 01:00:01.00" version="1.0" project_id="3" scope="PRJ" qualifier="VW"
+  <snapshots purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]" id="2" created_at="1230163201000" build_date="1230163201000" version="1.0" project_id="3" scope="PRJ" qualifier="VW"
              root_project_id="2" root_snapshot_id="[null]" parent_snapshot_id="[null]" STATUS="P" ISLAST="true"
              path=""
              depth="0"/>
 
-  <snapshots purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]" id="3" created_at="2008-12-25 01:00:01.00" build_date="2008-12-25 01:00:01.00" version="1.0" project_id="3" scope="PRJ" qualifier="SVW"
+  <snapshots purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]" id="3" created_at="1230163201000" build_date="1230163201000" version="1.0" project_id="3" scope="PRJ" qualifier="SVW"
              root_project_id="2" root_snapshot_id="2" parent_snapshot_id="2" STATUS="P" ISLAST="true"
              path="2."
              depth="1"/>
 
-  <snapshots purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]" id="4" created_at="2008-12-25 01:00:00.00" build_date="2008-12-25 01:00:00.00" version="1.0" project_id="4" scope="FIL" qualifier="TRK"
+  <snapshots purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]" id="4" created_at="1230163200000" build_date="1230163200000" version="1.0" project_id="4" scope="FIL" qualifier="TRK"
              root_project_id="2" root_snapshot_id="2" parent_snapshot_id="3" STATUS="P" ISLAST="true"
              path="2.3."
              depth="2"/>

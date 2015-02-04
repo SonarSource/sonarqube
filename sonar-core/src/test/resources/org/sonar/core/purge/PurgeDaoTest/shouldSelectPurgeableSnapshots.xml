@@ -9,7 +9,7 @@
              period3_mode="[null]" period3_param="[null]" period3_date="[null]"
              period4_mode="[null]" period4_param="[null]" period4_date="[null]"
              period5_mode="[null]" period5_param="[null]" period5_date="[null]"
-             depth="[null]" scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00" build_date="2008-12-02 13:58:00.00" version="[null]" path="[null]"/>
+             depth="[null]" scope="PRJ" qualifier="TRK" created_at="1228222680000" build_date="1228222680000" version="[null]" path="[null]"/>
 
   <!-- not processed -> exclude -->
   <snapshots id="2"
@@ -20,7 +20,7 @@
              period3_mode="[null]" period3_param="[null]" period3_date="[null]"
              period4_mode="[null]" period4_param="[null]" period4_date="[null]"
              period5_mode="[null]" period5_param="[null]" period5_date="[null]"
-             depth="[null]" scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00" build_date="2008-12-02 13:58:00.00" version="[null]" path="[null]"/>
+             depth="[null]" scope="PRJ" qualifier="TRK" created_at="1228222680000" build_date="1228222680000" version="[null]" path="[null]"/>
 
   <!-- on other resource -> exclude -->
   <snapshots id="3"
@@ -31,7 +31,7 @@
              period3_mode="[null]" period3_param="[null]" period3_date="[null]"
              period4_mode="[null]" period4_param="[null]" period4_date="[null]"
              period5_mode="[null]" period5_param="[null]" period5_date="[null]"
-             depth="[null]" scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00" build_date="2008-12-02 13:58:00.00" version="[null]" path="[null]"/>
+             depth="[null]" scope="PRJ" qualifier="TRK" created_at="1228222680000" build_date="1228222680000" version="[null]" path="[null]"/>
 
   <!-- without event -> select -->
   <snapshots id="4"
@@ -42,7 +42,7 @@
              period3_mode="[null]" period3_param="[null]" period3_date="[null]"
              period4_mode="[null]" period4_param="[null]" period4_date="[null]"
              period5_mode="[null]" period5_param="[null]" period5_date="[null]"
-             depth="[null]" scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00" build_date="2008-12-02 13:58:00.00" version="[null]" path="[null]"/>
+             depth="[null]" scope="PRJ" qualifier="TRK" created_at="1228222680000" build_date="1228222680000" version="[null]" path="[null]"/>
 
   <!-- with event -> select -->
   <snapshots id="5"
@@ -53,7 +53,7 @@
              period3_mode="[null]" period3_param="[null]" period3_date="[null]"
              period4_mode="[null]" period4_param="[null]" period4_date="[null]"
              period5_mode="[null]" period5_param="[null]" period5_date="[null]"
-             depth="[null]" scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00" build_date="2008-12-02 13:58:00.00" version="[null]" path="[null]"/>
+             depth="[null]" scope="PRJ" qualifier="TRK" created_at="1228222680000" build_date="1228222680000" version="[null]" path="[null]"/>
 
   <events id="2" resource_id="1" snapshot_id="5"
           category="Version" description="[null]" name="Version 1.0" event_date="2008-12-02 13:58:00.00" created_at="[null]"

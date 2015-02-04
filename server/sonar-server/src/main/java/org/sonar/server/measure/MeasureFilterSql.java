@@ -37,6 +37,8 @@ import java.sql.*;
 import java.util.Comparator;
 import java.util.List;
 
+import static org.sonar.api.utils.DateUtils.dateToLong;
+
 class MeasureFilterSql {
 
   private final Database database;
@@ -57,7 +59,7 @@ class MeasureFilterSql {
     ResultSet rs = null;
     try {
       for (int index = 0; index < dateParameters.size(); index++) {
-        statement.setDate(index + 1, dateParameters.get(index));
+        statement.setLong(index + 1, dateToLong(dateParameters.get(index)));
       }
       rs = statement.executeQuery();
       return process(rs);
@@ -191,6 +193,8 @@ class MeasureFilterSql {
       rowProcessor = new NumericSortRowProcessor();
     } else if (filter.sort().isOnDate()) {
       rowProcessor = new DateSortRowProcessor();
+    } else if (filter.sort().isOnTime()) {
+      rowProcessor = new LongSortRowProcessor();
     } else if (filter.sort().isOnAlert()) {
       rowProcessor = new AlertSortRowProcessor();
     } else {
@@ -220,11 +224,11 @@ class MeasureFilterSql {
   /**
    * Replace escape percent and underscore by adding a slash just before
    */
-  private String escapePercentAndUnderscrore(String value){
+  private String escapePercentAndUnderscrore(String value) {
     return value.replaceAll("%", "\\\\%").replaceAll("_", "\\\\_");
   }
 
-  private void appendEscapeForSomeDb(StringBuilder sb){
+  private void appendEscapeForSomeDb(StringBuilder sb) {
     if (database.getDialect().getId().equals(Oracle.ID) || database.getDialect().getId().equals(MsSql.ID)) {
       sb.append(" ESCAPE '\\'");
     }
@@ -323,15 +327,39 @@ class MeasureFilterSql {
     @Override
     MeasureFilterRow fetch(ResultSet rs) throws SQLException {
       MeasureFilterRow row = new MeasureFilterRow(rs.getLong(1), rs.getLong(2), rs.getLong(3));
-      row.setSortDate(rs.getTimestamp(4));
+      row.setSortDate(rs.getTimestamp(4).getTime());
       return row;
     }
 
     @Override
     Function sortFieldFunction() {
-      return new Function<MeasureFilterRow, Timestamp>() {
+      return new Function<MeasureFilterRow, Long>() {
         @Override
-        public Timestamp apply(MeasureFilterRow row) {
+        public Long apply(MeasureFilterRow row) {
+          return row.getSortDate();
+        }
+      };
+    }
+
+    @Override
+    Ordering sortFieldOrdering(boolean ascending) {
+      return newObjectOrdering(ascending);
+    }
+  }
+
+  static class LongSortRowProcessor extends RowProcessor {
+    @Override
+    MeasureFilterRow fetch(ResultSet rs) throws SQLException {
+      MeasureFilterRow row = new MeasureFilterRow(rs.getLong(1), rs.getLong(2), rs.getLong(3));
+      row.setSortDate(rs.getLong(4));
+      return row;
+    }
+
+    @Override
+    Function sortFieldFunction() {
+      return new Function<MeasureFilterRow, Long>() {
+        @Override
+        public Long apply(MeasureFilterRow row) {
           return row.getSortDate();
         }
       };

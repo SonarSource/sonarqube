@@ -28,7 +28,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -46,7 +45,7 @@ public class ProjectConfiguratorTest extends AbstractDbUnitTestCase {
 
   @Test
   public void analysis_is_today_by_default() {
-    Long now = new Date().getTime();
+    Long now = System.currentTimeMillis();
     when(system2.now()).thenReturn(now);
 
     Project project = new Project("key");

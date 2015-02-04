@@ -83,8 +83,7 @@ public class PurgeDatastoresStepMediumTest {
     dbClient.componentDao().insert(dbSession, project);
 
     SnapshotDto snapshot = SnapshotTesting.createForProject(project)
-      .setCreatedAt(aWeekAgo)
-      .setUpdatedAt(aWeekAgo);
+      .setCreatedAt(aWeekAgo.getTime());
     dbClient.snapshotDao().insert(dbSession, snapshot);
 
     AnalysisReportDto report = AnalysisReportDto.newForTests(1L)
@@ -118,8 +117,7 @@ public class PurgeDatastoresStepMediumTest {
     dbClient.componentDao().insert(dbSession, project);
 
     SnapshotDto snapshot = SnapshotTesting.createForProject(project)
-      .setCreatedAt(twoWeeksAgo)
-      .setUpdatedAt(twoWeeksAgo)
+      .setCreatedAt(twoWeeksAgo.getTime())
       .setStatus("P")
       .setLast(true);
 

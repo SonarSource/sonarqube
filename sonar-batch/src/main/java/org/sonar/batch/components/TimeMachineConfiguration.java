@@ -19,21 +19,20 @@
  */
 package org.sonar.batch.components;
 
-import org.sonar.api.batch.RequiresDB;
-
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
+import org.sonar.api.batch.RequiresDB;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Qualifiers;
 
 import javax.annotation.CheckForNull;
-
 import java.util.List;
 
 import static com.google.common.collect.Lists.newLinkedList;
+import static org.sonar.api.utils.DateUtils.longToDate;
 
 @RequiresDB
 public class TimeMachineConfiguration implements BatchComponent {
@@ -61,7 +60,7 @@ public class TimeMachineConfiguration implements BatchComponent {
       PastSnapshot pastSnapshot = projectPastSnapshot.clonePastSnapshot();
       modulePastSnapshots.add(pastSnapshot);
       // When no snapshot is found, date of the period is null
-      periods.add(new Period(pastSnapshot.getIndex(), snapshot != null ? snapshot.getCreatedAt() : null));
+      periods.add(new Period(pastSnapshot.getIndex(), snapshot != null ? longToDate(snapshot.getCreatedAt()) : null));
       log(pastSnapshot);
     }
   }

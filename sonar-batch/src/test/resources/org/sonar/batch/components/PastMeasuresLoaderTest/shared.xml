@@ -35,15 +35,15 @@
 
   <!-- snapshots -->
   <snapshots purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]" id="1000" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
-             scope="PRJ" qualifier="TRK" created_at="2008-11-01 13:58:00.00" build_date="2008-11-01 13:58:00.00" version="[null]" path=""
+             scope="PRJ" qualifier="TRK" created_at="1225544280000" build_date="1225544280000" version="[null]" path=""
              status="P" islast="false" depth="0" />
 
   <snapshots purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]" id="1001" project_id="2" parent_snapshot_id="1000" root_project_id="1" root_snapshot_id="1000"
-             scope="DIR" qualifier="PAC" created_at="2008-11-01 13:58:00.00" build_date="2008-11-01 13:58:00.00" version="[null]" path="1000."
+             scope="DIR" qualifier="PAC" created_at="1225544280000" build_date="1225544280000" version="[null]" path="1000."
              status="P" islast="false" depth="1" />
 
   <snapshots purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]" id="1002" project_id="3" parent_snapshot_id="1001" root_project_id="1" root_snapshot_id="1000"
-             scope="FIL" qualifier="CLA" created_at="2008-11-01 13:58:00.00" build_date="2008-11-01 13:58:00.00" version="[null]" path="1000.1001."
+             scope="FIL" qualifier="CLA" created_at="1225544280000" build_date="1225544280000" version="[null]" path="1000.1001."
              status="P" islast="false" depth="2" />
 
 

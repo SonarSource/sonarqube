@@ -24,13 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Library;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.resources.ResourceUtils;
-import org.sonar.api.resources.Scopes;
+import org.sonar.api.resources.*;
 import org.sonar.api.security.ResourcePermissions;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.internal.Uuids;
@@ -40,9 +34,10 @@ import org.sonar.core.component.ScanGraph;
 import javax.annotation.Nullable;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.Query;
-
 import java.util.Date;
 import java.util.List;
+
+import static org.sonar.api.utils.DateUtils.dateToLong;
 
 public class ResourcePersister implements ScanPersister {
 
@@ -140,8 +135,8 @@ public class ResourcePersister implements ScanPersister {
 
     Snapshot snapshot = new Snapshot(model, parentSnapshot);
     snapshot.setVersion(project.getAnalysisVersion());
-    snapshot.setCreatedAt(project.getAnalysisDate());
-    snapshot.setBuildDate(new Date());
+    snapshot.setCreatedAt(dateToLong(project.getAnalysisDate()));
+    snapshot.setBuildDate(System.currentTimeMillis());
     snapshot = session.save(snapshot);
     session.commit();
 
@@ -175,8 +170,8 @@ public class ResourcePersister implements ScanPersister {
     Snapshot snapshot = findLibrarySnapshot(model.getId(), library.getVersion());
     if (snapshot == null) {
       snapshot = new Snapshot(model, null);
-      snapshot.setCreatedAt(analysisDate);
-      snapshot.setBuildDate(new Date());
+      snapshot.setCreatedAt(dateToLong(analysisDate));
+      snapshot.setBuildDate(System.currentTimeMillis());
       snapshot.setVersion(library.getVersion());
       snapshot.setStatus(Snapshot.STATUS_PROCESSED);
 
@@ -224,7 +219,7 @@ public class ResourcePersister implements ScanPersister {
     }
 
     Snapshot snapshot = new Snapshot(model, parentSnapshot);
-    snapshot.setBuildDate(new Date());
+    snapshot.setBuildDate(System.currentTimeMillis());
     snapshot = session.save(snapshot);
     session.commit();
     return snapshot;

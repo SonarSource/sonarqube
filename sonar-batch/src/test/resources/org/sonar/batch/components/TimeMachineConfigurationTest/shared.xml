@@ -3,13 +3,13 @@
   <!-- Project -->
   <snapshots id="1010" purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]"
              project_id="1" parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]"
-             scope="PRJ" qualifier="TRK" created_at="2008-11-27 13:58:00.00" build_date="2008-11-27 13:58:00.00" version="1.2-SNAPSHOT" path=""
+             scope="PRJ" qualifier="TRK" created_at="1227790680000" build_date="1227790680000" version="1.2-SNAPSHOT" path=""
              status="U" islast="false" depth="0" />
 
   <!-- Module -->
   <snapshots id="1011" purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]"
              project_id="2" parent_snapshot_id="1010" root_project_id="1" root_snapshot_id="1010"
-             scope="PRJ" qualifier="BRC" created_at="2008-11-27 13:58:00.00" build_date="2008-11-27 13:58:00.00" version="1.2-SNAPSHOT" path=""
+             scope="PRJ" qualifier="BRC" created_at="1227790680000" build_date="1227790680000" version="1.2-SNAPSHOT" path=""
              status="U" islast="false" depth="0" />
 
 </dataset>

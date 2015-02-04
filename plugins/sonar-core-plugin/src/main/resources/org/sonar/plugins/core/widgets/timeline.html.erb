@@ -53,9 +53,7 @@
          metric_data_map[metric_id].each() do |metric_data|
            # for every metric value, we need to check that the corresponding snapshot has values for each metric
            if metric_count_per_snapshot_id[metric_data[:sid]]==total_number_of_metrics
-             m_date = metric_data[:date]
-             # Only Oracle returns a Time object, so let's parse this string if it's not a Time instance
-             m_date = Time.parse(metric_data[:date]) unless m_date.is_a? Time
+             m_date = Time.at(metric_data[:date]/1000)
              m_value = sprintf("%0.02f", metric_data[:value])
              m_value_localized = ProjectMeasure.new(:metric => metric_map[metric_id]).format_numeric_value(metric_data[:value], {})
              js_data += "{x:d("
@@ -99,9 +97,7 @@
        unless from_date
          # find the oldest date
          metric_data_map.values.each() do |metric_data_array|
-           first_date = metric_data_array[0][:date]
-           # Only Oracle returns a Time object, so let's parse this string if it's not a Time instance
-           first_date = Time.parse(metric_data_array[0][:date]) unless first_date.is_a? Time
+           first_date = Time.at(metric_data_array[0][:date]/1000)
            from_date = first_date if !from_date || from_date > first_date
          end
        end

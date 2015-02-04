@@ -30,7 +30,7 @@ import org.sonar.server.computation.AnalysisReportQueue;
 
 import java.util.List;
 
-import static org.sonar.api.utils.DateUtils.timeToDate;
+import static org.sonar.api.utils.DateUtils.longToDate;
 
 /**
  * @since 5.0
@@ -69,9 +69,9 @@ public class QueueWsAction implements ComputationWsAction, RequestHandler {
       json.prop("key", report.getId());
       json.prop("projectKey", report.getProjectKey());
       json.prop("projectName", report.getProjectKey());
-      json.propDateTime("startedAt", timeToDate(report.getStartedAt()));
-      json.propDateTime("finishedAt", timeToDate(report.getFinishedAt()));
-      json.propDateTime("submittedAt", timeToDate(report.getCreatedAt()));
+      json.propDateTime("startedAt", longToDate(report.getStartedAt()));
+      json.propDateTime("finishedAt", longToDate(report.getFinishedAt()));
+      json.propDateTime("submittedAt", longToDate(report.getCreatedAt()));
       json.prop("status", report.getStatus().toString());
       json.endObject();
     }
