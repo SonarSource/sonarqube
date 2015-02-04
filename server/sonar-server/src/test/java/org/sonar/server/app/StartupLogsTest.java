@@ -25,6 +25,9 @@ import org.apache.coyote.http11.AbstractHttp11JsseProtocol;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
+import org.sonar.process.Props;
+
+import java.util.Properties;
 
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
@@ -33,7 +36,8 @@ public class StartupLogsTest {
 
   Tomcat tomcat = mock(Tomcat.class, Mockito.RETURNS_DEEP_STUBS);
   Logger logger = mock(Logger.class);
-  StartupLogs sut = new StartupLogs(logger);
+  Props props = new Props(new Properties());
+  StartupLogs sut = new StartupLogs(props, logger);
 
   @Test
   public void logAjp() throws Exception {
@@ -58,16 +62,26 @@ public class StartupLogsTest {
   }
 
   @Test
-  public void logHttps() throws Exception {
-    Connector connector = mock(Connector.class, Mockito.RETURNS_DEEP_STUBS);
+  public void logHttps_default_ciphers() throws Exception {
+    Connector connector = newConnector("HTTP/1.1", "https");
     when(tomcat.getService().findConnectors()).thenReturn(new Connector[] {connector});
+
+    sut.log(tomcat);
+
+    verify(logger).info("HTTPS connector enabled on port 1234 | ciphers=JVM defaults");
+    verifyNoMoreInteractions(logger);
+  }
+
+  @Test
+  public void logHttps_overridden_ciphers() throws Exception {
+    Connector connector = mock(Connector.class);
     when(connector.getScheme()).thenReturn("https");
-    when(connector.getProtocol()).thenReturn("HTTP/1.1");
     when(connector.getPort()).thenReturn(1234);
     AbstractHttp11JsseProtocol protocol = mock(AbstractHttp11JsseProtocol.class);
-    when(connector.getProtocolHandler()).thenReturn(protocol);
     when(protocol.getCiphersUsed()).thenReturn(new String[] {"SSL_RSA", "TLS_RSA_WITH_RC4"});
-
+    when(connector.getProtocolHandler()).thenReturn(protocol);
+    when(tomcat.getService().findConnectors()).thenReturn(new Connector[] {connector});
+    props.set(Connectors.PROP_HTTPS_CIPHERS, "SSL_RSA,TLS_RSA_WITH_RC4");
     sut.log(tomcat);
 
     verify(logger).info("HTTPS connector enabled on port 1234 | ciphers=SSL_RSA,TLS_RSA_WITH_RC4");
