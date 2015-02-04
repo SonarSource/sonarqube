@@ -78,7 +78,7 @@ define [
       @$el.attr 'data-key', @model.get('key')
 
 
-    resetIssue: (options, p) ->
+    resetIssue: (options) ->
       key = @model.get 'key'
       componentUuid = @model.get 'componentUuid'
       @model.clear silent: true
@@ -86,9 +86,6 @@ define [
       @model.fetch(options)
       .done =>
         @trigger 'reset'
-        window.process.finishBackgroundProcess p if p?
-      .fail ->
-        window.process.failBackgroundProcess p if p?
 
 
     showChangeLog: (e) ->
@@ -131,9 +128,7 @@ define [
     updateAfterAction: (fetch) ->
       @popup.close() if @popup
       if fetch
-        p = window.process.addBackgroundProcess()
-        $.when(@resetIssue()).done =>
-          window.process.finishBackgroundProcess p
+        @resetIssue()
 
 
     comment: (e) ->
@@ -163,7 +158,6 @@ define [
 
 
     deleteComment: (e) ->
-      p = window.process.addBackgroundProcess()
       commentKey = $(e.target).closest('[data-comment-key]').data 'comment-key'
       confirmMsg = $(e.target).data 'confirm-msg'
 
@@ -173,9 +167,6 @@ define [
           url: baseUrl + "/api/issues/delete_comment?key=" + commentKey
         .done =>
           @updateAfterAction true
-          window.process.finishBackgroundProcess p
-        .fail =>
-          window.process.failBackgroundProcess p
 
 
     transition: (e) ->
@@ -216,7 +207,6 @@ define [
 
 
     plan: (e) ->
-      p = window.process.addBackgroundProcess()
       t = $(e.currentTarget)
       actionPlans = new ActionPlans()
       actionPlans.fetch
@@ -231,9 +221,6 @@ define [
           model: @model
           collection: actionPlans
         @popup.render()
-        window.process.finishBackgroundProcess p
-      .fail =>
-        window.process.failBackgroundProcess p
 
 
     showMoreActions: (e) ->
@@ -248,13 +235,9 @@ define [
 
 
     action: (action) ->
-      p = window.process.addBackgroundProcess()
       $.post "#{baseUrl}/api/issues/do_action", issue: @model.id, actionKey: action
       .done =>
-        window.process.finishBackgroundProcess p
         @resetIssue()
-      .fail =>
-        window.process.failBackgroundProcess p
 
 
     showRule: ->
@@ -277,11 +260,9 @@ define [
 
 
     changeTags: ->
-      p = window.process.addBackgroundProcess()
       jQuery.ajax
         url: "#{baseUrl}/api/issues/tags?ps=0"
       .done (r) =>
-        window.process.finishBackgroundProcess p
         if @ui.tagInput.select2
           # Prevent synchronization issue with navigation
           @ui.tagInput.select2
@@ -305,8 +286,6 @@ define [
         )
 
         @ui.tagInput.select2 'focus'
-      .fail =>
-        window.process.failBackgroundProcess p
 
 
     cancelEdit: ->
@@ -328,15 +307,12 @@ define [
       tags = @ui.tagInput.val()
       splitTags = if tags then tags.split(',') else null
 
-      p = window.process.addBackgroundProcess()
       @model.set 'tags', splitTags
       $.post "#{baseUrl}/api/issues/set_tags", key: @model.get('key'), tags: tags
       .done =>
-        window.process.finishBackgroundProcess p
         @cancelEdit()
       .fail =>
         @model.set 'tags', _tags
-        window.process.failBackgroundProcess p
       .always =>
         @render()
 

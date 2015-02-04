@@ -58,7 +58,6 @@ define([
         title: t('coding_rules.deactivate'),
         html: tp('coding_rules.deactivate.confirm'),
         yesHandler: function () {
-          var p = window.process.addBackgroundProcess();
           return jQuery.ajax({
             type: 'POST',
             url: baseUrl + '/api/qualityprofiles/deactivate_rule',
@@ -67,7 +66,6 @@ define([
               rule_key: ruleKey
             }
           }).done(function () {
-            window.process.finishBackgroundProcess(p);
             that.model.unset('activation');
           });
         }

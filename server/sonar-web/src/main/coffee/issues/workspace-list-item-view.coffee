@@ -33,7 +33,7 @@ define [
       @options.app.state.set selectedIndex: @model.get('index')
 
 
-    resetIssue: (options, p) ->
+    resetIssue: (options) ->
       key = @model.get 'key'
       componentUuid = @model.get 'componentUuid'
       index = @model.get 'index'
@@ -42,9 +42,6 @@ define [
       @model.fetch(options)
       .done =>
         @trigger 'reset'
-        window.process.finishBackgroundProcess p if p?
-      .fail ->
-        window.process.failBackgroundProcess p if p?
 
 
     openComponentViewer: ->

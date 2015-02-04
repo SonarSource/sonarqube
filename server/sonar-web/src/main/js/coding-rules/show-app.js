@@ -11,8 +11,7 @@ requirejs([
               RuleDetailsView) {
 
       var $ = jQuery,
-          App = new Marionette.Application(),
-          p = window.process.addBackgroundProcess();
+          App = new Marionette.Application();
 
       App.addInitializer(function () {
         var url = baseUrl + '/api/rules/show',
@@ -28,9 +27,6 @@ requirejs([
             actives: data.actives
           });
           this.ruleDetailsView.render().$el.appendTo($('.page'));
-          window.process.finishBackgroundProcess(p);
-        }).fail(function () {
-          window.process.failBackgroundProcess(p);
         });
       });
 

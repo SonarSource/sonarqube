@@ -50,14 +50,9 @@ define(function () {
       if (facet.has('values') || this.options.app.state.get('facetsFromServer').indexOf(id) === -1) {
         facet.set({enabled: true});
       } else {
-        var p = window.process.addBackgroundProcess();
         this.requestFacet(id)
             .done(function () {
               facet.set({enabled: true});
-              window.process.finishBackgroundProcess(p);
-            })
-            .fail(function () {
-              window.process.failBackgroundProcess(p);
             });
       }
     },

@@ -49,7 +49,6 @@ define([
     activate: function (e) {
       e.preventDefault();
       var that = this,
-          p = window.process.addBackgroundProcess(),
           profileKey = this.ui.qualityProfileSelect.val(),
           params = this.ui.qualityProfileParameters.map(function () {
             return {
@@ -84,10 +83,8 @@ define([
         }
       }).done(function () {
         that.trigger('profileActivated', severity, params);
-        window.process.finishBackgroundProcess(p);
       }).fail(function () {
         that.trigger('profileActivationFailed');
-        window.process.failBackgroundProcess(p);
       });
     },
 

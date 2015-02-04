@@ -18,21 +18,6 @@ requirejs [
   QualityGateLayout
 ) ->
 
-  # Create a generic error handler for ajax requests
-  jQuery.ajaxSetup
-    error: (jqXHR) ->
-      text = jqXHR.responseText
-      errorBox = jQuery('.modal-error')
-      if jqXHR.responseJSON?.errors?
-        text = _.pluck(jqXHR.responseJSON.errors, 'msg').join '. '
-      else
-        text = t 'default_error_message'
-      if errorBox.length > 0
-        errorBox.show().text text
-      else
-        alert text
-
-
   # Add html class to mark the page as navigator page
   jQuery('html').addClass('navigator-page quality-gates-page');
 
