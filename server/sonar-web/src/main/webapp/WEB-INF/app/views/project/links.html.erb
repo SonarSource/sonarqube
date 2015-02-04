@@ -1,132 +1,135 @@
-<h1 class="admin-page-title"><%= message('project_links.page') -%></h1>
-<p class="admin-page-description"><%= message('project_links.page.description') -%></p>
-<br/>
+<div class="page">
+  <header class="page-header">
+    <h1 class="page-title"><%= message('project_links.page') -%></h1>
+    <p class="page-description"><%= message('project_links.page.description') -%></p>
+  </header>
 
-<style>
-#widget_links td, #widget_links th {
-  white-space: nowrap;
-  vertical-align: top;
-  text-align: left;
-  padding-left: 20px;
-  padding-right: 20px;
-}
-</style>
+  <style>
+  #widget_links td, #widget_links th {
+    white-space: nowrap;
+    vertical-align: top;
+    text-align: left;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  </style>
 
-<div class="yui-g widget" id="widget_links">
+  <div class="yui-g widget" id="widget_links">
 
-<% form_for( 'set_links', :url => { :action => 'set_links', :project_id => @project.id } ) do |form|
-     links_by_key={}
-     @project.links.each do |link|
-       links_by_key[link.link_type]=link
-     end
-%>
- <div class="yui-u first">
-   <table class="data">
-     <thead><tr><th >Title</th><th width="100%">URL</th></tr></thead>
+  <% form_for( 'set_links', :url => { :action => 'set_links', :project_id => @project.id } ) do |form|
+       links_by_key={}
+       @project.links.each do |link|
+         links_by_key[link.link_type]=link
+       end
+  %>
+   <div class="yui-u first">
+     <table class="data">
+       <thead><tr><th >Title</th><th width="100%">URL</th></tr></thead>
 
-     <tr class="even">
-      <td>
-        <%= image_tag("links/homepage.png") -%> <%= message('project_links.homepage') -%>
-        <br/>
-        <span class="note" style="margin-left: 20px">sonar.links.homepage</span>
-      </td>
+       <tr class="even">
         <td>
-          <%
-            link = links_by_key['homepage'] ? links_by_key['homepage'].href : ''
-            if link.starts_with?("http")
-              link = "<a href=\"#{h link}\">#{h link}</a>"
-            end
-          %>
-          <%= link -%>
+          <%= image_tag("links/homepage.png") -%> <%= message('project_links.homepage') -%>
+          <br/>
+          <span class="note" style="margin-left: 20px">sonar.links.homepage</span>
         </td>
-     </tr>
-     <tr class="odd">
-      <td>
-        <%= image_tag("links/ci.png") -%> <%= message('project_links.ci') -%>
-        <br/>
-        <span class="note" style="margin-left: 20px">sonar.links.ci</span>
-      </td>
-        <td>
-          <%
-            link = links_by_key['ci'] ? links_by_key['ci'].href : ''
-            if link.starts_with?("http")
-              link = "<a href=\"#{h link}\">#{h link}</a>"
-            end
-          %>
-          <%= link -%>
-        </td>
-     </tr>
-     <tr class="even">
-      <td>
-        <%= image_tag("links/issue.png") -%> <%= message('project_links.issue') -%>
-        <br/>
-        <span class="note" style="margin-left: 20px">sonar.links.issue</span>
-      </td>
-        <td>
-          <%
-            link = links_by_key['issue'] ? links_by_key['issue'].href : ''
-            if link.starts_with?("http")
-              link = "<a href=\"#{h link}\">#{h link}</a>"
-            end
-          %>
-          <%= link -%>
-        </td>
-     </tr>
-     <tr class="odd">
-      <td>
-        <%= image_tag("links/scm.png") -%> <%= message('project_links.scm') -%>
-        <br/>
-        <span class="note" style="margin-left: 20px">sonar.links.scm</span>
-      </td>
-        <td>
-          <%
-            link = links_by_key['scm'] ? links_by_key['scm'].href : ''
-            if link.starts_with?("http")
-              link = "<a href=\"#{h link}\">#{h link}</a>"
-            end
-          %>
-          <%= link -%>
-        </td>
-     </tr>
-     <tr class="even">
-      <td>
-        <%= image_tag("links/scm_dev.png") -%> <%= message('project_links.scm_dev') -%>
-        <br/>
-        <span class="note" style="margin-left: 20px">sonar.links.scm_dev</span>
-      </td>
-        <td>
-          <%
-            link = links_by_key['scm_dev'] ? links_by_key['scm_dev'].href : ''
-            if link.starts_with?("http")
-              link = "<a href=\"#{h link}\">#{h link}</a>"
-            end
-          %>
-          <%= link -%>
-        </td>
-     </tr>
-
-       <% index = 0
-         @project.custom_links.each do |custom_link|
-           index += 1 %>
-        <tr class="<%= cycle('odd','even') -%>">
-          <td align="left">
-            <%= image_tag("links/external.png") -%> <%= text_field_tag( "name_#{index}", h(custom_link.name), :size => 15 ) -%>
-          </td>
           <td>
-            <%= text_field_tag( "url_#{index}", custom_link.href, :size => 30 ) -%>
+            <%
+              link = links_by_key['homepage'] ? links_by_key['homepage'].href : ''
+              if link.starts_with?("http")
+                link = "<a href=\"#{h link}\">#{h link}</a>"
+              end
+            %>
+            <%= link -%>
           </td>
-        </tr>
-      <% end %>
-      <% index += 1
-         for var in index..5 %>
-        <tr class="<%= cycle('odd','even') -%>">
-            <td align="left"><%= image_tag("links/external.png") -%>  <%= text_field_tag( "name_#{var}", '', :size => 15) %></td>
-            <td><%= text_field_tag( "url_#{var}", '', :size => 30 ) %></td>
-        </tr>
-      <% end %>
-   </table>
-   <br/>
-   <%= submit_tag( "Save links" ) %>
- </div>
-<% end %>
+       </tr>
+       <tr class="odd">
+        <td>
+          <%= image_tag("links/ci.png") -%> <%= message('project_links.ci') -%>
+          <br/>
+          <span class="note" style="margin-left: 20px">sonar.links.ci</span>
+        </td>
+          <td>
+            <%
+              link = links_by_key['ci'] ? links_by_key['ci'].href : ''
+              if link.starts_with?("http")
+                link = "<a href=\"#{h link}\">#{h link}</a>"
+              end
+            %>
+            <%= link -%>
+          </td>
+       </tr>
+       <tr class="even">
+        <td>
+          <%= image_tag("links/issue.png") -%> <%= message('project_links.issue') -%>
+          <br/>
+          <span class="note" style="margin-left: 20px">sonar.links.issue</span>
+        </td>
+          <td>
+            <%
+              link = links_by_key['issue'] ? links_by_key['issue'].href : ''
+              if link.starts_with?("http")
+                link = "<a href=\"#{h link}\">#{h link}</a>"
+              end
+            %>
+            <%= link -%>
+          </td>
+       </tr>
+       <tr class="odd">
+        <td>
+          <%= image_tag("links/scm.png") -%> <%= message('project_links.scm') -%>
+          <br/>
+          <span class="note" style="margin-left: 20px">sonar.links.scm</span>
+        </td>
+          <td>
+            <%
+              link = links_by_key['scm'] ? links_by_key['scm'].href : ''
+              if link.starts_with?("http")
+                link = "<a href=\"#{h link}\">#{h link}</a>"
+              end
+            %>
+            <%= link -%>
+          </td>
+       </tr>
+       <tr class="even">
+        <td>
+          <%= image_tag("links/scm_dev.png") -%> <%= message('project_links.scm_dev') -%>
+          <br/>
+          <span class="note" style="margin-left: 20px">sonar.links.scm_dev</span>
+        </td>
+          <td>
+            <%
+              link = links_by_key['scm_dev'] ? links_by_key['scm_dev'].href : ''
+              if link.starts_with?("http")
+                link = "<a href=\"#{h link}\">#{h link}</a>"
+              end
+            %>
+            <%= link -%>
+          </td>
+       </tr>
+
+         <% index = 0
+           @project.custom_links.each do |custom_link|
+             index += 1 %>
+          <tr class="<%= cycle('odd','even') -%>">
+            <td align="left">
+              <%= image_tag("links/external.png") -%> <%= text_field_tag( "name_#{index}", h(custom_link.name), :size => 15 ) -%>
+            </td>
+            <td>
+              <%= text_field_tag( "url_#{index}", custom_link.href, :size => 30 ) -%>
+            </td>
+          </tr>
+        <% end %>
+        <% index += 1
+           for var in index..5 %>
+          <tr class="<%= cycle('odd','even') -%>">
+              <td align="left"><%= image_tag("links/external.png") -%>  <%= text_field_tag( "name_#{var}", '', :size => 15) %></td>
+              <td><%= text_field_tag( "url_#{var}", '', :size => 30 ) %></td>
+          </tr>
+        <% end %>
+     </table>
+     <br/>
+     <%= submit_tag( "Save links" ) %>
+   </div>
+  <% end %>
+  </div>
 </div>

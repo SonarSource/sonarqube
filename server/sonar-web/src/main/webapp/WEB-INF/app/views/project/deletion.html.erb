@@ -1,15 +1,20 @@
-<%
-   if !@snapshot || @snapshot.root?
-     resource_qualifier = message('qualifier.' + @project.qualifier)
-     delete_resource_message = message('project_deletion.page', :params => resource_qualifier)
-%>
-  <h1 class="admin-page-title"><%= delete_resource_message -%></h1>
-  <p class="admin-page-description"><%= message('project_deletion.page.description') -%></p>
-  <div class="yui-g widget" id="widget_delete_project">
-    <div class="warning">
-      <%= message('project_deletion.operation_cannot_be_undone') -%><br/>
-      <a id="delete_resource" class="open-modal button button-red"
-         href="<%= ApplicationController.root_context -%>/project/delete_form/<%= h(@project.id) -%>"><%= delete_resource_message -%></a>
+<div class="page">
+  <%
+     if !@snapshot || @snapshot.root?
+       resource_qualifier = message('qualifier.' + @project.qualifier)
+       delete_resource_message = message('project_deletion.page', :params => resource_qualifier)
+  %>
+    <header class="page-header">
+      <h1 class="page-title"><%= delete_resource_message -%></h1>
+      <p class="page-description"><%= message('project_deletion.page.description') -%></p>
+    </header>
+
+    <div class="yui-g widget" id="widget_delete_project">
+      <div class="warning">
+        <%= message('project_deletion.operation_cannot_be_undone') -%><br/>
+        <a id="delete_resource" class="open-modal button button-red"
+           href="<%= ApplicationController.root_context -%>/project/delete_form/<%= h(@project.id) -%>"><%= delete_resource_message -%></a>
+      </div>
     </div>
-  </div>
-<% end %>
+  <% end %>
+</div>
