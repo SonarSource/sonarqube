@@ -25,8 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.TempFolder;
-import org.sonar.batch.protocol.output.BatchOutput;
 import org.sonar.batch.protocol.output.BatchOutputReader;
+import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
@@ -64,7 +64,7 @@ public class ParseReportStep implements ComputationStep {
 
       // prepare parsing of report
       BatchOutputReader reader = new BatchOutputReader(reportDir);
-      BatchOutput.ReportMetadata reportMetadata = reader.readMetadata();
+      BatchReport.Metadata reportMetadata = reader.readMetadata();
       context.setReportMetadata(reportMetadata);
 
       // and parse!
@@ -91,7 +91,7 @@ public class ParseReportStep implements ComputationStep {
   }
 
   private void recursivelyProcessComponent(BatchOutputReader reportReader, ComputationContext context, int componentRef) {
-    BatchOutput.ReportComponent component = reportReader.readComponent(componentRef);
+    BatchReport.Component component = reportReader.readComponent(componentRef);
     issueComputation.processComponentIssues(context, component.getUuid(), reportReader.readComponentIssues(componentRef));
 
     for (Integer childRef : component.getChildRefsList()) {

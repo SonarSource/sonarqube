@@ -25,7 +25,7 @@ import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.batch.protocol.output.BatchOutput;
+import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.util.cache.DiskCache;
@@ -47,9 +47,9 @@ public class IssueComputation {
     this.diskIssuesAppender = issueCache.newAppender();
   }
 
-  public void processComponentIssues(ComputationContext context, String componentUuid, Iterable<BatchOutput.ReportIssue> issues) {
+  public void processComponentIssues(ComputationContext context, String componentUuid, Iterable<BatchReport.Issue> issues) {
     linesCache.init(componentUuid);
-    for (BatchOutput.ReportIssue reportIssue : issues) {
+    for (BatchReport.Issue reportIssue : issues) {
       DefaultIssue issue = toDefaultIssue(context, componentUuid, reportIssue);
       if (issue.isNew()) {
         guessAuthor(issue);
@@ -62,7 +62,7 @@ public class IssueComputation {
     linesCache.clear();
   }
 
-  private DefaultIssue toDefaultIssue(ComputationContext context, String componentUuid, BatchOutput.ReportIssue issue) {
+  private DefaultIssue toDefaultIssue(ComputationContext context, String componentUuid, BatchReport.Issue issue) {
     DefaultIssue target = new DefaultIssue();
     target.setKey(issue.getUuid());
     target.setComponentUuid(componentUuid);

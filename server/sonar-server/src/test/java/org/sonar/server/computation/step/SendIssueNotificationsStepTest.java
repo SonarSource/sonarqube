@@ -27,7 +27,7 @@ import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.System2;
-import org.sonar.batch.protocol.output.BatchOutput;
+import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.issue.IssueCache;
 import org.sonar.server.computation.issue.RuleCache;
@@ -65,7 +65,7 @@ public class SendIssueNotificationsStepTest {
     issueCache.newAppender().append(new DefaultIssue().setSeverity(Severity.BLOCKER)).close();
 
     when(context.getProject().uuid()).thenReturn("PROJECT_UUID");
-    when(context.getReportMetadata()).thenReturn(BatchOutput.ReportMetadata.newBuilder().build());
+    when(context.getReportMetadata()).thenReturn(BatchReport.Metadata.newBuilder().build());
     when(notifService.hasProjectSubscribersForTypes("PROJECT_UUID", SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(true);
 
     SendIssueNotificationsStep step = new SendIssueNotificationsStep(issueCache, ruleCache, notifService);

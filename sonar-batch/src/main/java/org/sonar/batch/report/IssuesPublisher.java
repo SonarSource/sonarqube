@@ -29,7 +29,7 @@ import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchOutputWriter;
-import org.sonar.batch.protocol.output.BatchOutput;
+import org.sonar.batch.protocol.output.BatchReport;
 
 import javax.annotation.Nullable;
 
@@ -49,17 +49,17 @@ public class IssuesPublisher implements ReportPublisher {
   public void publish(BatchOutputWriter writer) {
     for (BatchResource resource : resourceCache.all()) {
       Iterable<DefaultIssue> issues = issueCache.byComponent(resource.resource().getEffectiveKey());
-      writer.writeComponentIssues(resource.batchId(), Iterables.transform(issues, new Function<DefaultIssue, BatchOutput.ReportIssue>() {
+      writer.writeComponentIssues(resource.batchId(), Iterables.transform(issues, new Function<DefaultIssue, BatchReport.Issue>() {
         @Override
-        public BatchOutput.ReportIssue apply(DefaultIssue input) {
+        public BatchReport.Issue apply(DefaultIssue input) {
           return toReportIssue(input);
         }
       }));
     }
   }
 
-  private BatchOutput.ReportIssue toReportIssue(DefaultIssue issue) {
-    BatchOutput.ReportIssue.Builder builder = BatchOutput.ReportIssue.newBuilder();
+  private BatchReport.Issue toReportIssue(DefaultIssue issue) {
+    BatchReport.Issue.Builder builder = BatchReport.Issue.newBuilder();
 
     // non-null fields
     builder.setUuid(issue.key());
