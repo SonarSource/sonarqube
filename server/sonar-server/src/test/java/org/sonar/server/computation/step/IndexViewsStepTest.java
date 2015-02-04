@@ -30,7 +30,7 @@ import static org.mockito.Mockito.*;
 
 public class IndexViewsStepTest {
 
-  ComputationContext context = mock(ComputationContext.class);
+   ComputationContext context = mock(ComputationContext.class);
   ViewIndexer indexer = mock(ViewIndexer.class);
   IndexViewsStep sut = new IndexViewsStep(indexer);
 
