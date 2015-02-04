@@ -41,13 +41,14 @@ public class ComponentDto extends Dto<String> implements Component {
   private String projectUuid;
   private String moduleUuid;
   private String moduleUuidPath;
+  private Long parentProjectId;
+  private Long copyResourceId;
 
   private String path;
   private String deprecatedKey;
   private String name;
   private String longName;
   private String language;
-  private Long parentProjectId;
   private boolean enabled = true;
   private Long authorizationUpdatedAt;
 
@@ -198,6 +199,15 @@ public class ComponentDto extends Dto<String> implements Component {
 
   public ComponentDto setEnabled(boolean enabled) {
     this.enabled = enabled;
+    return this;
+  }
+
+  public Long getCopyResourceId() {
+    return copyResourceId;
+  }
+
+  public ComponentDto setCopyResourceId(Long copyResourceId) {
+    this.copyResourceId = copyResourceId;
     return this;
   }
 

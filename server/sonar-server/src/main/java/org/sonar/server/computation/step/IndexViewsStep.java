@@ -20,22 +20,39 @@
 
 package org.sonar.server.computation.step;
 
+import org.elasticsearch.action.admin.indices.cache.clear.ClearIndicesCacheRequest;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.search.SearchClient;
 import org.sonar.server.view.index.ViewIndexer;
 
 public class IndexViewsStep implements ComputationStep {
 
   private final ViewIndexer indexer;
+  private final SearchClient searchClient;
 
-  public IndexViewsStep(ViewIndexer indexer) {
+  public IndexViewsStep(ViewIndexer indexer, SearchClient searchClient) {
     this.indexer = indexer;
+    this.searchClient = searchClient;
   }
 
   @Override
   public void execute(ComputationContext context) {
     if (context.getProject().qualifier().equals(Qualifiers.VIEW)) {
+      String viewUuid = context.getProject().uuid();
       indexer.index(context.getProject().uuid());
+
+      try {
+        ClearIndicesCacheRequest clearIndicesCacheRequest = new ClearIndicesCacheRequest();
+        // TODO why does it not work ?
+        // clearIndicesCacheRequest.filterKeys(IssueIndex.cacheKey(viewUuid));
+        searchClient.admin().indices()
+          .clearCache(clearIndicesCacheRequest)
+          .get();
+
+      } catch (Exception e) {
+        throw new IllegalStateException(String.format("Unable to clear cache of view '%s'", viewUuid), e);
+      }
     }
   }
 
