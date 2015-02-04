@@ -57,6 +57,19 @@ define([
     });
   });
 
+  App.addInitializer(function () {
+    var that = this;
+    $(window).on('keypress', function (e) {
+      var tagName = e.target.tagName;
+      if (tagName !== 'INPUT' && tagName !== 'SELECT' && tagName !== 'TEXTAREA') {
+        var code = e.keyCode || e.which;
+        if (code === 63) {
+          that.navbarView.showShortcutsHelp();
+        }
+      }
+    });
+  });
+
   window.requestMessages().done(function () {
     App.start();
   });
