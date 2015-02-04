@@ -27,8 +27,8 @@ import org.sonar.api.resources.ResourceUtils;
 import org.sonar.batch.index.BatchResource;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.protocol.Constants;
-import org.sonar.batch.protocol.output.BatchOutput;
 import org.sonar.batch.protocol.output.BatchOutputWriter;
+import org.sonar.batch.protocol.output.BatchReport;
 
 import javax.annotation.CheckForNull;
 
@@ -48,7 +48,7 @@ public class ComponentsPublisher implements ReportPublisher {
   @Override
   public void publish(BatchOutputWriter writer) {
     BatchResource rootProject = resourceCache.get(reactor.getRoot().getKeyWithBranch());
-    BatchOutput.ReportMetadata metadata = BatchOutput.ReportMetadata.newBuilder()
+    BatchReport.Metadata metadata = BatchReport.Metadata.newBuilder()
       .setAnalysisDate(((Project) rootProject.resource()).getAnalysisDate().getTime())
       .setProjectKey(((Project) rootProject.resource()).key())
       .setRootComponentRef(rootProject.batchId())
@@ -59,7 +59,7 @@ public class ComponentsPublisher implements ReportPublisher {
 
   private void recursiveWriteComponent(BatchResource batchResource, BatchOutputWriter writer) {
     Resource r = batchResource.resource();
-    BatchOutput.ReportComponent.Builder builder = BatchOutput.ReportComponent.newBuilder();
+    BatchReport.Component.Builder builder = BatchReport.Component.newBuilder();
 
     // non-null fields
     builder.setRef(batchResource.batchId());

@@ -50,13 +50,13 @@ public class BatchOutputWriterTest {
   public void write_metadata() throws Exception {
     File dir = temp.newFolder();
     BatchOutputWriter writer = new BatchOutputWriter(dir);
-    BatchOutput.ReportMetadata.Builder metadata = BatchOutput.ReportMetadata.newBuilder()
+    BatchReport.Metadata.Builder metadata = BatchReport.Metadata.newBuilder()
       .setAnalysisDate(15000000L)
       .setProjectKey("PROJECT_A")
       .setRootComponentRef(1);
     writer.writeMetadata(metadata.build());
 
-    BatchOutput.ReportMetadata read = ProtobufUtil.readFile(writer.getFileStructure().metadataFile(), BatchOutput.ReportMetadata.PARSER);
+    BatchReport.Metadata read = ProtobufUtil.readFile(writer.getFileStructure().metadataFile(), BatchReport.Metadata.PARSER);
     assertThat(read.getAnalysisDate()).isEqualTo(15000000L);
     assertThat(read.getProjectKey()).isEqualTo("PROJECT_A");
     assertThat(read.getRootComponentRef()).isEqualTo(1);
@@ -71,7 +71,7 @@ public class BatchOutputWriterTest {
     assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 1)).isFalse();
 
     // write data
-    BatchOutput.ReportComponent.Builder component = BatchOutput.ReportComponent.newBuilder()
+    BatchReport.Component.Builder component = BatchReport.Component.newBuilder()
       .setRef(1)
       .setLanguage("java")
       .setPath("src/Foo.java")
@@ -85,7 +85,7 @@ public class BatchOutputWriterTest {
     assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 1)).isTrue();
     File file = writer.getFileStructure().fileFor(FileStructure.Domain.COMPONENT, 1);
     assertThat(file).exists().isFile();
-    BatchOutput.ReportComponent read = ProtobufUtil.readFile(file, BatchOutput.ReportComponent.PARSER);
+    BatchReport.Component read = ProtobufUtil.readFile(file, BatchReport.Component.PARSER);
     assertThat(read.getRef()).isEqualTo(1);
     assertThat(read.getChildRefsList()).containsOnly(5, 42);
     assertThat(read.hasName()).isFalse();
@@ -102,7 +102,7 @@ public class BatchOutputWriterTest {
     assertThat(writer.hasComponentData(FileStructure.Domain.ISSUES, 1)).isFalse();
 
     // write data
-    BatchOutput.ReportIssue issue = BatchOutput.ReportIssue.newBuilder()
+    BatchReport.Issue issue = BatchReport.Issue.newBuilder()
       .setUuid("ISSUE_A")
       .setLine(50)
       .setMsg("the message")
@@ -113,7 +113,7 @@ public class BatchOutputWriterTest {
     assertThat(writer.hasComponentData(FileStructure.Domain.ISSUES, 1)).isTrue();
     File file = writer.getFileStructure().fileFor(FileStructure.Domain.ISSUES, 1);
     assertThat(file).exists().isFile();
-    BatchOutput.ReportIssues read = ProtobufUtil.readFile(file, BatchOutput.ReportIssues.PARSER);
+    BatchReport.Issues read = ProtobufUtil.readFile(file, BatchReport.Issues.PARSER);
     assertThat(read.getComponentRef()).isEqualTo(1);
     assertThat(read.getListCount()).isEqualTo(1);
   }

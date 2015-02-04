@@ -25,8 +25,8 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.utils.ZipUtils;
 import org.sonar.api.utils.internal.DefaultTempFolder;
 import org.sonar.batch.protocol.Constants;
-import org.sonar.batch.protocol.output.BatchOutput;
 import org.sonar.batch.protocol.output.BatchOutputWriter;
+import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
@@ -65,9 +65,9 @@ public class ParseReportStepTest {
     step.execute(context);
 
     // verify that all components are processed (currently only for issues)
-    verify(issueComputation).processComponentIssues(context, "PROJECT_UUID", Collections.<BatchOutput.ReportIssue>emptyList());
-    verify(issueComputation).processComponentIssues(context, "FILE1_UUID", Collections.<BatchOutput.ReportIssue>emptyList());
-    verify(issueComputation).processComponentIssues(context, "FILE2_UUID", Collections.<BatchOutput.ReportIssue>emptyList());
+    verify(issueComputation).processComponentIssues(context, "PROJECT_UUID", Collections.<BatchReport.Issue>emptyList());
+    verify(issueComputation).processComponentIssues(context, "FILE1_UUID", Collections.<BatchReport.Issue>emptyList());
+    verify(issueComputation).processComponentIssues(context, "FILE2_UUID", Collections.<BatchReport.Issue>emptyList());
     verify(issueComputation).afterReportProcessing();
     assertThat(context.getReportMetadata().getRootComponentRef()).isEqualTo(1);
   }
@@ -76,24 +76,24 @@ public class ParseReportStepTest {
     File dir = temp.newFolder();
     // project and 2 files
     BatchOutputWriter writer = new BatchOutputWriter(dir);
-    writer.writeMetadata(BatchOutput.ReportMetadata.newBuilder()
+    writer.writeMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
       .setProjectKey("PROJECT_KEY")
       .setAnalysisDate(150000000L)
       .build());
-    writer.writeComponent(BatchOutput.ReportComponent.newBuilder()
+    writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .setUuid("PROJECT_UUID")
       .addChildRefs(2)
       .addChildRefs(3)
       .build());
-    writer.writeComponent(BatchOutput.ReportComponent.newBuilder()
+    writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(2)
       .setType(Constants.ComponentType.FILE)
       .setUuid("FILE1_UUID")
       .build());
-    writer.writeComponent(BatchOutput.ReportComponent.newBuilder()
+    writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(3)
       .setType(Constants.ComponentType.FILE)
       .setUuid("FILE2_UUID")
