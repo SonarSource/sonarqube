@@ -108,12 +108,18 @@ public class ParseReportStepTest {
       dto.setCreatedAt(System.currentTimeMillis());
       dto.setSnapshotId(1L);
       dto.setStatus(AnalysisReportDto.Status.PENDING);
-      dto.setData(new FileInputStream(zipFile));
-      new AnalysisReportDao().insert(dbSession, dto);
+      FileInputStream inputStream = new FileInputStream(zipFile);
+      dto.setData(inputStream);
+      AnalysisReportDao dao = new AnalysisReportDao();
+      dao.insert(dbSession, dto);
+      inputStream.close();
       dbSession.commit();
+
+      // dao#insert() does not set the generated id, so the row
+      // is loaded again to get its id
+      return dao.selectByProjectKey(dbSession, "PROJECT_KEY").get(0);
     } finally {
       dbSession.close();
     }
-    return dto;
   }
 }
