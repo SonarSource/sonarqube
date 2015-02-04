@@ -403,17 +403,19 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
     if (createdAfter != null) {
       filters.put("__createdAfter", FilterBuilders
         .rangeFilter(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT)
-        .gte(createdAfter));
+        .gte(createdAfter)
+        .cache(false));
     }
     Date createdBefore = query.createdBefore();
     if (createdBefore != null) {
       filters.put("__createdBefore", FilterBuilders
         .rangeFilter(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT)
-        .lte(createdBefore));
+        .lte(createdBefore)
+        .cache(false));
     }
     Date createdAt = query.createdAt();
     if (createdAt != null) {
-      filters.put("__createdAt", FilterBuilders.termFilter(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT, createdAt));
+      filters.put("__createdAt", FilterBuilders.termFilter(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT, createdAt).cache(false));
     }
   }
 
