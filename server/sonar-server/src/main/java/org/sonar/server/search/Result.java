@@ -20,18 +20,9 @@
 package org.sonar.server.search;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.Multimap;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.aggregations.Aggregation;
-import org.elasticsearch.search.aggregations.HasAggregations;
-import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
-import org.elasticsearch.search.aggregations.bucket.missing.Missing;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -40,10 +31,8 @@ import java.util.*;
 
 public class Result<K> {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(Result.class);
-
   private final List<K> hits;
-  private final Multimap<String, FacetValue> facets;
+  private final Facets facets;
   private final long total;
   private final String scrollId;
   private final BaseIndex<K, ?, ?> index;
@@ -55,66 +44,13 @@ public class Result<K> {
   public Result(@Nullable BaseIndex<K, ?, ?> index, SearchResponse response) {
     this.index = index;
     this.scrollId = response.getScrollId();
-    this.facets = LinkedHashMultimap.create();
+    this.facets = new Facets(response);
     this.total = (int) response.getHits().totalHits();
     this.hits = new ArrayList<K>();
     if (index != null) {
       for (SearchHit hit : response.getHits()) {
         this.hits.add(index.toDoc(hit.getSource()));
       }
-    }
-    if (response.getAggregations() != null) {
-      for (Map.Entry<String, Aggregation> facet : response.getAggregations().asMap().entrySet()) {
-        this.processAggregation(facet.getValue());
-      }
-    }
-  }
-
-  private void processAggregation(Aggregation aggregation) {
-    if (Missing.class.isAssignableFrom(aggregation.getClass())) {
-      processMissingAggregation(aggregation);
-    } else if (Terms.class.isAssignableFrom(aggregation.getClass())) {
-      processTermsAggregation(aggregation);
-    } else if (HasAggregations.class.isAssignableFrom(aggregation.getClass())) {
-      processSubAggregations(aggregation);
-    } else if (DateHistogram.class.isAssignableFrom(aggregation.getClass())) {
-      processDateHistogram(aggregation);
-    } else {
-      LOGGER.warn("Cannot process {} type of aggregation", aggregation.getClass());
-    }
-  }
-
-  private void processMissingAggregation(Aggregation aggregation) {
-    Missing missing = (Missing) aggregation;
-    long docCount = missing.getDocCount();
-    if (docCount > 0L) {
-      this.facets.put(aggregation.getName().replace("_missing",""), new FacetValue("", docCount));
-    }
-  }
-
-  private void processTermsAggregation(Aggregation aggregation) {
-    Terms termAggregation = (Terms) aggregation;
-    for (Terms.Bucket value : termAggregation.getBuckets()) {
-      String facetName = aggregation.getName();
-      if (facetName.contains("__") && !facetName.startsWith("__")) {
-        facetName = facetName.substring(0, facetName.indexOf("__"));
-      }
-      facetName = facetName.replace("_selected", "");
-      this.facets.put(facetName, new FacetValue(value.getKey(), value.getDocCount()));
-    }
-  }
-
-  private void processSubAggregations(Aggregation aggregation) {
-    HasAggregations hasAggregations = (HasAggregations) aggregation;
-    for (Aggregation internalAggregation : hasAggregations.getAggregations()) {
-      this.processAggregation(internalAggregation);
-    }
-  }
-
-  private void processDateHistogram(Aggregation aggregation) {
-    DateHistogram dateHistogram = (DateHistogram) aggregation;
-    for (DateHistogram.Bucket value : dateHistogram.getBuckets()) {
-      this.facets.put(dateHistogram.getName(), new FacetValue(value.getKeyAsText().toString(), value.getDocCount()));
     }
   }
 
@@ -132,24 +68,17 @@ public class Result<K> {
   }
 
   public Map<String, Collection<FacetValue>> getFacets() {
-    return this.facets.asMap();
+    return this.facets.getFacets();
   }
 
   @CheckForNull
   public Collection<FacetValue> getFacetValues(String facetName) {
-    return this.facets.get(facetName);
+    return this.facets.getFacetValues(facetName);
   }
 
   @CheckForNull
   public List<String> getFacetKeys(String facetName) {
-    if (this.facets.containsKey(facetName)) {
-      List<String> keys = new ArrayList<String>();
-      for (FacetValue facetValue : facets.get(facetName)) {
-        keys.add(facetValue.getKey());
-      }
-      return keys;
-    }
-    return null;
+    return this.facets.getFacetKeys(facetName);
   }
 
   @Override
