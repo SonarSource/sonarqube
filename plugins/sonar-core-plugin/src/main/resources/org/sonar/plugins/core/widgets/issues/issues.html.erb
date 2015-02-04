@@ -63,7 +63,7 @@
         <span class="widget-label"><%= message('widget.rules.issues') -%></span>
         <span class="nowrap">
           <span class="link-<%= widget.key %>-issues">
-            <%= format_measure(issues, :url => url_for(:controller => 'component_issues', :action => 'index', :id => @project.key)) -%>
+            <%= format_measure(issues, :url => "#{url_for(:controller => 'component_issues', :action => 'index')}?id=#{url_encode(@project.key)}") -%>
           </span>
           <%= trend_icon(issues) unless @dashboard_configuration.selected_period? -%>
         </span>
@@ -77,7 +77,7 @@
         %>
           <p class="small">
             <%= message('widget.rules.added') %>
-            <a href="<%= url_for(:controller => 'component_issues', :action => 'index', :id => @project.key) -%>#resolved=false|createdAfter=<%= period_date -%>"
+            <a href="<%= url_for(:controller => 'component_issues', :action => 'index') -%>?id=<%= url_encode(@project.key) -%>#resolved=false|createdAfter=<%= period_date -%>"
                class="varw widget-link widget-link-red link-<%= widget.key %>-new-issues">+<%= format_variation(new_issues, :style => 'none', :default => '-') -%></a>
           </p>
           <% if estimated_cleared_issues && estimated_cleared_issues > 0 %>
@@ -99,13 +99,13 @@
           <%= message('blocker') -%>
         </td>
         <td class="thin right nowrap">
-          <a href="<%= url_for(:controller => 'component_issues', :action => 'index') -%>?id=<%= @project.key -%>#resolved=false|severities=BLOCKER" class="widget-link drilldown_BLOCKER">
+          <a href="<%= url_for(:controller => 'component_issues', :action => 'index') -%>?id=<%= url_encode(@project.key) -%>#resolved=false|severities=BLOCKER" class="widget-link drilldown_BLOCKER">
             <%= format_measure(blocker_issues) -%>
           </a>
         </td>
         <td class="thin nowrap">
           <% if @dashboard_configuration.selected_period? %>
-            <a href="<%= url_for(:controller => 'component_issues', :action => 'index', :id => @project.key) -%>#resolved=false|severities=BLOCKER|createdAfter=<%= period_date -%>"
+            <a href="<%= url_for(:controller => 'component_issues', :action => 'index') -%>?id=<%= url_encode(@project.key) -%>#resolved=false|severities=BLOCKER|createdAfter=<%= period_date -%>"
                class="varw widget-link widget-link-red link-<%= widget.key %>-new-blocker-issues">+<%= format_variation(new_blocker_issues, :style => 'none', :default => '-') -%></a>
           <% else %>
             <%= trend_icon(blocker_issues, :empty => true) -%>
@@ -118,13 +118,13 @@
           <%= message('critical') -%>
         </td>
         <td class="thin right nowrap">
-          <a href="<%= url_for(:controller => 'component_issues', :action => 'index') -%>?id=<%= @project.key -%>#resolved=false|severities=CRITICAL" class="widget-link drilldown_CRITICAL">
+          <a href="<%= url_for(:controller => 'component_issues', :action => 'index') -%>?id=<%= url_encode(@project.key) -%>#resolved=false|severities=CRITICAL" class="widget-link drilldown_CRITICAL">
             <%= format_measure(critical_issues) -%>
           </a>
         </td>
         <td class="thin nowrap">
           <% if @dashboard_configuration.selected_period? %>
-            <a href="<%= url_for(:controller => 'component_issues', :action => 'index', :id => @project.key) -%>#resolved=false|severities=CRITICAL|createdAfter=<%= period_date -%>"
+            <a href="<%= url_for(:controller => 'component_issues', :action => 'index') -%>?id=<%= url_encode(@project.key) -%>#resolved=false|severities=CRITICAL|createdAfter=<%= period_date -%>"
                class="varw widget-link widget-link-red link-<%= widget.key %>-new-critical-issues">+<%= format_variation(new_critical_issues, :style => 'none', :default => '-') -%></a>
           <% else %>
             <%= trend_icon(critical_issues, :empty => true) -%>
@@ -137,13 +137,13 @@
           <%= message('major') -%>
         </td>
         <td class="thin right nowrap">
-          <a href="<%= url_for(:controller => 'component_issues', :action => 'index') -%>?id=<%= @project.key -%>#resolved=false|severities=MAJOR" class="widget-link drilldown_MAJOR">
+          <a href="<%= url_for(:controller => 'component_issues', :action => 'index') -%>?id=<%= url_encode(@project.key) -%>#resolved=false|severities=MAJOR" class="widget-link drilldown_MAJOR">
             <%= format_measure(major_issues) -%>
           </a>
         </td>
         <td class="thin nowrap">
           <% if @dashboard_configuration.selected_period? %>
-            <a href="<%= url_for(:controller => 'component_issues', :action => 'index', :id => @project.key) -%>#resolved=false|severities=MAJOR|createdAfter=<%= period_date -%>"
+            <a href="<%= url_for(:controller => 'component_issues', :action => 'index') -%>?id=<%= url_encode(@project.key) -%>#resolved=false|severities=MAJOR|createdAfter=<%= period_date -%>"
                class="varw widget-link widget-link-red link-<%= widget.key %>-new-major-issues">+<%= format_variation(new_major_issues, :style => 'none', :default => '-') -%></a>
           <% else %>
             <%= trend_icon(major_issues, :empty => true) -%>
@@ -156,13 +156,13 @@
           <%= message('minor') -%>
         </td>
         <td class="thin right nowrap">
-          <a href="<%= url_for(:controller => 'component_issues', :action => 'index') -%>?id=<%= @project.key -%>#resolved=false|severities=MINOR" class="widget-link drilldown_MINOR">
+          <a href="<%= url_for(:controller => 'component_issues', :action => 'index') -%>?id=<%= url_encode(@project.key) -%>#resolved=false|severities=MINOR" class="widget-link drilldown_MINOR">
             <%= format_measure(minor_issues) -%>
           </a>
         </td>
         <td class="thin nowrap">
           <% if @dashboard_configuration.selected_period? %>
-            <a href="<%= url_for(:controller => 'component_issues', :action => 'index', :id => @project.key) -%>#resolved=false|severities=MINOR|createdAfter=<%= period_date -%>"
+            <a href="<%= url_for(:controller => 'component_issues', :action => 'index') -%>?id=<%= url_encode(@project.key) -%>#resolved=false|severities=MINOR|createdAfter=<%= period_date -%>"
                class="varw widget-link widget-link-red link-<%= widget.key %>-new-minor-issues">+<%= format_variation(new_minor_issues, :style => 'none', :default => '-') -%></a>
           <% else %>
             <%= trend_icon(minor_issues, :empty => true) -%>
@@ -175,13 +175,13 @@
           <%= message('info') -%>
         </td>
         <td class="thin right nowrap">
-          <a href="<%= url_for(:controller => 'component_issues', :action => 'index') -%>?id=<%= @project.key -%>#resolved=false|severities=INFO" class="widget-link drilldown_INFO">
+          <a href="<%= url_for(:controller => 'component_issues', :action => 'index') -%>?id=<%= url_encode(@project.key) -%>#resolved=false|severities=INFO" class="widget-link drilldown_INFO">
             <%= format_measure(info_issues) -%>
           </a>
         </td>
         <td class="thin nowrap">
           <% if @dashboard_configuration.selected_period? %>
-            <a href="<%= url_for(:controller => 'component_issues', :action => 'index', :id => @project.key) -%>#resolved=false|severities=INFO|createdAfter=<%= period_date -%>"
+            <a href="<%= url_for(:controller => 'component_issues', :action => 'index') -%>?id=<%= url_encode(@project.key) -%>#resolved=false|severities=INFO|createdAfter=<%= period_date -%>"
                class="varw widget-link widget-link-red link-<%= widget.key %>-new-info-issues">+<%= format_variation(new_info_issues, :style => 'none', :default => '-') -%></a>
           <% else %>
             <%= trend_icon(info_issues, :empty => true) -%>
