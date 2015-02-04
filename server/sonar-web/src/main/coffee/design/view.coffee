@@ -127,3 +127,9 @@ define [
           rows.each ->
             $(@).find('td').eq(index + 1).toggleClass 'hidden'
 
+
+    serializeData: ->
+      hasDirectories = @collection.some (model) -> model.get('q') == 'DIR'
+      _.extend super,
+        hasDirectories: hasDirectories
+

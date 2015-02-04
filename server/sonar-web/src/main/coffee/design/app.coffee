@@ -42,7 +42,7 @@ requirejs [
             else
               cell.status = 'dependency'
       data = data.map (row) ->
-        _.extend row, empty: row.v.every (item) -> !item.w?
+        _.extend row, empty: row.q == 'DIR' && row.v.every (item) -> !item.w?
       collection = new Backbone.Collection data
       collection.forEach (model) ->
         model.set 'pt', packageTangles[model.get 'i']
