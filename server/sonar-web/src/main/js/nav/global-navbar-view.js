@@ -1,9 +1,8 @@
 define([
   'nav/search-view',
+  'nav/shortcuts-help-view',
   'templates/nav'
-], function (SearchView) {
-
-  var $ = jQuery;
+], function (SearchView, ShortcutsHelpView) {
 
   return Marionette.Layout.extend({
     template: Templates['nav-global-navbar'],
@@ -16,7 +15,8 @@ define([
       'click .js-login': 'onLoginClick',
       'click .js-favorite': 'onFavoriteClick',
       'show.bs.dropdown .js-search-dropdown': 'onSearchDropdownShow',
-      'hidden.bs.dropdown .js-search-dropdown': 'onSearchDropdownHidden'
+      'hidden.bs.dropdown .js-search-dropdown': 'onSearchDropdownHidden',
+      'click .js-shortcuts': 'onShortcutsClick'
     },
 
     onRender: function () {
@@ -48,6 +48,14 @@ define([
 
     onSearchDropdownHidden: function () {
       this.searchRegion.reset();
+    },
+
+    onShortcutsClick: function () {
+      this.showShortcutsHelp();
+    },
+
+    showShortcutsHelp: function () {
+      new ShortcutsHelpView({ shortcuts: this.model.get('shortcuts') }).render();
     },
 
     serializeData: function () {

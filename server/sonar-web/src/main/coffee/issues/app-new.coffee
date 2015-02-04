@@ -17,8 +17,6 @@ requirejs [
 
   'issues/facets-view'
   'issues/filters-view'
-
-  'issues/help-view'
 ], (
   State
   Layout
@@ -34,8 +32,6 @@ requirejs [
 
   FacetsView
   FiltersView
-
-  HelpView
 ) ->
 
   $ = jQuery
@@ -85,16 +81,6 @@ requirejs [
       app: @
       collection: @filters
     @layout.filtersRegion.show @filtersView
-
-
-  App.addInitializer ->
-    $(window).on 'keypress', (e) =>
-      tagName = e.target.tagName
-      unless tagName == 'INPUT' || tagName == 'SELECT' || tagName == 'TEXTAREA'
-        code = e.keyCode || e.which
-        if code == 63
-          @helpView = new HelpView app: @
-          @helpView.render()
 
 
   App.addInitializer ->
