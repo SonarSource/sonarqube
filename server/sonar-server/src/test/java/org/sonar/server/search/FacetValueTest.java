@@ -39,5 +39,18 @@ public class FacetValueTest {
     assertThat(facetValue.equals(withNullKey)).isFalse();
     assertThat(withNullKey.equals(withNullKey)).isTrue();
     assertThat(withNullKey.equals(facetValue)).isFalse();
+    assertThat(withNullKey.equals(new FacetValue(null, 666))).isTrue();
+  }
+
+  @Test
+  public void should_use_key_hashcode() {
+    assertThat(new FacetValue(null, 42).hashCode()).isZero();
+    String key = "polop";
+    assertThat(new FacetValue(key, 666).hashCode()).isEqualTo(key.hashCode());
+  }
+
+  @Test
+  public void should_define_toString() {
+    assertThat(new FacetValue("polop", 42).toString()).isEqualTo("FacetValue{key='polop', value=42}");
   }
 }

@@ -47,7 +47,11 @@ public class FacetValue {
     }
 
     FacetValue that = (FacetValue) o;
-    return key == null ? that.key == null : key.equals(that.key);
+    if (key == null) {
+      return that.key == null;
+    } else {
+      return key.equals(that.key);
+    }
   }
 
   @Override
@@ -58,8 +62,8 @@ public class FacetValue {
   @Override
   public String toString() {
     return "FacetValue{" +
-      "key='" + key + '\'' +
-      ", value=" + value +
+      "key='" + getKey() + '\'' +
+      ", value=" + getValue() +
       '}';
   }
 }
