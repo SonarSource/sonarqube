@@ -25,6 +25,7 @@ import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsRequestBuilde
 import org.elasticsearch.action.admin.cluster.state.ClusterStateRequestBuilder;
 import org.elasticsearch.action.admin.cluster.stats.ClusterStatsRequestBuilder;
 import org.elasticsearch.action.admin.cluster.stats.ClusterStatsResponse;
+import org.elasticsearch.action.admin.indices.cache.clear.ClearIndicesCacheRequestBuilder;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequestBuilder;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequestBuilder;
 import org.elasticsearch.action.admin.indices.flush.FlushRequestBuilder;
@@ -48,25 +49,7 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.metrics.max.Max;
 import org.picocontainer.Startable;
 import org.sonar.core.profiling.Profiling;
-import org.sonar.server.es.request.ProxyBulkRequestBuilder;
-import org.sonar.server.es.request.ProxyClusterHealthRequestBuilder;
-import org.sonar.server.es.request.ProxyClusterStateRequestBuilder;
-import org.sonar.server.es.request.ProxyClusterStatsRequestBuilder;
-import org.sonar.server.es.request.ProxyCountRequestBuilder;
-import org.sonar.server.es.request.ProxyCreateIndexRequestBuilder;
-import org.sonar.server.es.request.ProxyDeleteByQueryRequestBuilder;
-import org.sonar.server.es.request.ProxyDeleteRequestBuilder;
-import org.sonar.server.es.request.ProxyFlushRequestBuilder;
-import org.sonar.server.es.request.ProxyGetRequestBuilder;
-import org.sonar.server.es.request.ProxyIndexRequestBuilder;
-import org.sonar.server.es.request.ProxyIndicesExistsRequestBuilder;
-import org.sonar.server.es.request.ProxyIndicesStatsRequestBuilder;
-import org.sonar.server.es.request.ProxyMultiGetRequestBuilder;
-import org.sonar.server.es.request.ProxyNodesStatsRequestBuilder;
-import org.sonar.server.es.request.ProxyPutMappingRequestBuilder;
-import org.sonar.server.es.request.ProxyRefreshRequestBuilder;
-import org.sonar.server.es.request.ProxySearchRequestBuilder;
-import org.sonar.server.es.request.ProxySearchScrollRequestBuilder;
+import org.sonar.server.es.request.*;
 import org.sonar.server.search.ClusterHealth;
 import org.sonar.server.search.SearchClient;
 
@@ -178,7 +161,6 @@ public class EsClient implements Startable {
     return new ProxyDeleteRequestBuilder(profiling, client, index).setType(type).setId(id);
   }
 
-
   public DeleteByQueryRequestBuilder prepareDeleteByQuery(String... indices) {
     return new ProxyDeleteByQueryRequestBuilder(client, profiling).setIndices(indices);
   }
@@ -194,6 +176,9 @@ public class EsClient implements Startable {
       .setWaitForMerge(true);
   }
 
+  public ClearIndicesCacheRequestBuilder prepareClearCache(String... indices) {
+    return new ProxyClearCacheRequestBuilder(client, profiling).setIndices(indices);
+  }
 
   public long getLastUpdatedAt(String indexName, String typeName) {
     SearchRequestBuilder request = prepareSearch(indexName)

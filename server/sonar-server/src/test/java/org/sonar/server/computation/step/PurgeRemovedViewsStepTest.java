@@ -79,10 +79,10 @@ public class PurgeRemovedViewsStepTest {
     when(context.getProject()).thenReturn(ComponentTesting.newProjectDto("DBCA").setQualifier(Qualifiers.VIEW));
 
     esTester.putDocuments(ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW,
-      new ViewDoc().setUuid("ABCD").getFields(),
-      new ViewDoc().setUuid("BCDE").getFields(),
+      new ViewDoc().setUuid("ABCD"),
+      new ViewDoc().setUuid("BCDE"),
       // Should be removed as it no more exists in db
-      new ViewDoc().setUuid("CDEF").getFields());
+      new ViewDoc().setUuid("CDEF"));
 
     ComponentDto view = ComponentTesting.newProjectDto("ABCD").setQualifier(Qualifiers.VIEW);
     ComponentDto subView = ComponentTesting.newModuleDto("BCDE", view).setQualifier(Qualifiers.SUBVIEW);
@@ -94,4 +94,23 @@ public class PurgeRemovedViewsStepTest {
     List<String> viewUuids = esTester.getDocumentFields(ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW, ViewIndexDefinition.FIELD_UUID);
     assertThat(viewUuids).containsOnly("ABCD", "BCDE");
   }
+
+  @Test
+  public void nothing_to_do_when_not_analysing_view() throws Exception {
+    when(context.getProject()).thenReturn(ComponentTesting.newProjectDto("DBCA"));
+
+    esTester.putDocuments(ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW,
+      new ViewDoc().setUuid("ABCD"),
+      // This vies does not exists in db...
+      new ViewDoc().setUuid("BCDE"));
+
+    dbClient.componentDao().insert(session, ComponentTesting.newProjectDto("ABCD").setQualifier(Qualifiers.VIEW));
+    session.commit();
+
+    step.execute(context);
+
+    // ... But it should not be removed as the project of the context is not a view
+    assertThat(esTester.countDocuments(ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW)).isEqualTo(2);
+  }
+
 }

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue.index;
 
+import com.google.common.collect.Maps;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
 import org.sonar.api.rule.RuleKey;
@@ -36,6 +37,10 @@ public class IssueDoc extends BaseDoc implements Issue {
 
   public IssueDoc(Map<String, Object> fields) {
     super(fields);
+  }
+
+  public IssueDoc() {
+    super(Maps.<String, Object>newHashMap());
   }
 
   @Override

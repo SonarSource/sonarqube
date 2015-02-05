@@ -375,12 +375,12 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
         .lookupType(ViewIndexDefinition.TYPE_VIEW)
         .lookupId(viewUuid)
         .lookupPath(ViewIndexDefinition.FIELD_PROJECTS))
-        .cacheKey(cacheKey(viewUuid));
+        .cacheKey(viewsLookupCacheKey(viewUuid));
     }
     return viewsFilter;
   }
 
-  public static String cacheKey(String viewUuid) {
+  public static String viewsLookupCacheKey(String viewUuid) {
     return IssueIndexDefinition.TYPE_ISSUE + viewUuid + ViewIndexDefinition.TYPE_VIEW;
   }
 

@@ -88,7 +88,7 @@ public class ViewIndexerTest {
     // Some views are not in the db
     dbTester.prepareDbUnit(getClass(), "index.xml");
     esTester.putDocuments(ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW,
-      new ViewDoc().setUuid("ABCD").setProjects(newArrayList("BCDE")).getFields());
+      new ViewDoc().setUuid("ABCD").setProjects(newArrayList("BCDE")));
 
     indexer.index();
 

@@ -20,6 +20,7 @@
 package org.sonar.server.source.index;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
 import org.sonar.server.search.BaseDoc;
 import org.sonar.server.search.BaseNormalizer;
 import org.sonar.server.search.IndexUtils;
@@ -29,7 +30,6 @@ import javax.annotation.Nullable;
 
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 public class SourceLineDoc extends BaseDoc {
@@ -40,7 +40,7 @@ public class SourceLineDoc extends BaseDoc {
 
   // For testing purpose
   public SourceLineDoc() {
-    this(new HashMap<String, Object>());
+    this(Maps.<String, Object>newHashMap());
   }
 
   public String projectUuid() {

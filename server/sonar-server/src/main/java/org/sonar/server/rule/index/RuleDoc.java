@@ -48,7 +48,7 @@ public class RuleDoc extends BaseDoc implements Rule {
 
   public static final String MANUAL_REPOSITORY = "manual";
 
-  RuleDoc(Map<String, Object> fields) {
+  public RuleDoc(Map<String, Object> fields) {
     super(fields);
   }
 
@@ -326,4 +326,5 @@ public class RuleDoc extends BaseDoc implements Rule {
   public String toString() {
     return ReflectionToStringBuilder.toString(this);
   }
+
 }

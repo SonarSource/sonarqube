@@ -18,13 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.computation.step;
+package org.sonar.server.view.index;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
@@ -34,7 +33,6 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
-import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.IssueTesting;
@@ -48,38 +46,32 @@ import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
-import org.sonar.server.view.index.ViewIndexer;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
- * It's still not possible to only used EsTester as IssueIndex does not support it yet.
+ * It's not possible to only used EsTester as IssueIndex does not support it yet.
+ *
+ * This class
  */
-public class IndexViewsStepMediumTest {
+public class ViewIndexerMediumTest {
 
-  ComputationContext context;
+  @ClassRule
+  public static ServerTester tester = new ServerTester();
 
   DbSession dbSession;
 
   ViewIndexer indexer;
 
-  IndexViewsStep step;
-
-  @ClassRule
-  public static ServerTester tester = new ServerTester().addComponents(IndexViewsStep.class);
-
   IssueIndex index;
 
   @Before
   public void setUp() throws Exception {
-    tester.clearIndexes();
-    context = mock(ComputationContext.class);
+    tester.clearDbAndIndexes();
     dbSession = tester.get(DbClient.class).openSession(false);
     index = tester.get(IssueIndex.class);
-    step = tester.get(IndexViewsStep.class);
+    indexer = tester.get(ViewIndexer.class);
   }
 
   @After
@@ -88,35 +80,32 @@ public class IndexViewsStepMediumTest {
   }
 
   @Test
-  public void clear_cache_of_issue_on_view_filter() throws Exception {
+  public void clear_views_lookup_cache_on_index_view_uuid() throws Exception {
     String viewUuid = "ABCD";
-    when(context.getProject()).thenReturn(ComponentTesting.newProjectDto(viewUuid).setQualifier(Qualifiers.VIEW));
 
     RuleDto rule = RuleTesting.newXooX1();
     tester.get(RuleDao.class).insert(dbSession, rule);
     ComponentDto project1 = addProjectWithIssue(rule);
 
     ComponentDto view = ComponentTesting.newView("ABCD");
-    ComponentDto techProject1 = ComponentTesting.newTechnicalProject("CDEF", project1, view);
+    ComponentDto techProject1 = ComponentTesting.newProjectCopy("CDEF", project1, view);
     tester.get(ComponentDao.class).insert(dbSession, view, techProject1);
     dbSession.commit();
-    tester.get(ViewIndexer.class).index(viewUuid);
 
-    // Execute issue query on view -> 1 issue on view (and filter on view will be set in cache)
+    // First view indexation
+    indexer.index(viewUuid);
+
+    // Execute issue query on view -> 1 issue on view
     assertThat(tester.get(IssueIndex.class).search(IssueQuery.builder().viewUuids(newArrayList(viewUuid)).build(), new QueryContext()).getHits()).hasSize(1);
 
-    // Add a project to the view
+    // Add a project to the view and index it again
     ComponentDto project2 = addProjectWithIssue(rule);
-    ComponentDto techProject2 = ComponentTesting.newTechnicalProject("EFGH", project2, view);
+    ComponentDto techProject2 = ComponentTesting.newProjectCopy("EFGH", project2, view);
     tester.get(ComponentDao.class).insert(dbSession, techProject2);
     dbSession.commit();
+    indexer.index(viewUuid);
 
-    // Execute issue query on view -> Still 1 issue on view, issue on project2 is not yet visible
-    assertThat(tester.get(IssueIndex.class).search(IssueQuery.builder().viewUuids(newArrayList(viewUuid)).build(), new QueryContext()).getHits()).hasSize(1);
-
-    step.execute(context);
-
-    // Execute issue query on view -> issue of project2 are well taken into account
+    // Execute issue query on view -> issue of project2 are well taken into account : the cache has been cleared
     assertThat(tester.get(IssueIndex.class).search(IssueQuery.builder().viewUuids(newArrayList(viewUuid)).build(), new QueryContext()).getHits()).hasSize(2);
   }
 
@@ -141,4 +130,5 @@ public class IndexViewsStepMediumTest {
     tester.get(InternalPermissionService.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(UserRole.USER));
     MockUserSession.set();
   }
+
 }
