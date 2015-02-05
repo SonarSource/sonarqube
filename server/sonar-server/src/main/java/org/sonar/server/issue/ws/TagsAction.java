@@ -20,10 +20,7 @@
 package org.sonar.server.issue.ws;
 
 import com.google.common.io.Resources;
-import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
-import org.sonar.api.server.ws.Response;
-import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.*;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.issue.IssueService;
@@ -47,7 +44,7 @@ public class TagsAction implements RequestHandler {
       .setDescription("List tags matching a given query")
       .setResponseExample(Resources.getResource(getClass(), "example-tags.json"));
     action.createParam("q")
-      .setDescription("A pattern to match tags agains")
+      .setDescription("A pattern to match tags against")
       .setExampleValue("misra");
     action.createParam("ps")
       .setDescription("The size of the list to return")
