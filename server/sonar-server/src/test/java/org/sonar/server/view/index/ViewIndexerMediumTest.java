@@ -53,7 +53,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * It's not possible to only used EsTester as IssueIndex does not support it yet.
  *
- * This class
+ * Only clear of the views lookup cache is tested here.
+ * See {@link ViewIndexerTest} for tests on common use cases.
  */
 public class ViewIndexerMediumTest {
 
