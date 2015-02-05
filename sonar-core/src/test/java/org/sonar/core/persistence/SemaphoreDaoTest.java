@@ -19,15 +19,14 @@
  */
 package org.sonar.core.persistence;
 
-import org.apache.commons.lang.time.DateUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.Semaphores;
+import org.sonar.api.utils.System2;
 
-import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -37,10 +36,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SemaphoreDaoTest extends AbstractDaoTestCase {
 
   private SemaphoreDao dao;
+  private System2 system;
 
   @Before
   public void before() {
-    dao = new SemaphoreDao(getMyBatis());
+    system = System2.INSTANCE;
+    dao = new SemaphoreDao(getMyBatis(), system);
   }
 
   @Rule
@@ -51,7 +52,7 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Semaphore name must not be empty");
 
-    SemaphoreDao dao = new SemaphoreDao(getMyBatis());
+    SemaphoreDao dao = new SemaphoreDao(getMyBatis(), system);
     dao.acquire(null, 5000);
   }
 
@@ -60,7 +61,7 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Semaphore max age must be positive: -5000");
 
-    SemaphoreDao dao = new SemaphoreDao(getMyBatis());
+    SemaphoreDao dao = new SemaphoreDao(getMyBatis(), system);
     dao.acquire("foo", -5000);
   }
 
@@ -69,7 +70,7 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Semaphore name must not be empty");
 
-    SemaphoreDao dao = new SemaphoreDao(getMyBatis());
+    SemaphoreDao dao = new SemaphoreDao(getMyBatis(), system);
     dao.release(null);
   }
 
@@ -97,14 +98,14 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
     assertThat(lock.getDurationSinceLocked()).isNull();
 
     SemaphoreDto semaphore = selectSemaphore("foo");
-    assertThat(semaphore.getCreatedAt().getTime()).isEqualTo(semaphore.getUpdatedAt().getTime());
+    assertThat(semaphore.getCreatedAt()).isEqualTo(semaphore.getUpdatedAt());
 
     Thread.sleep(1000);
 
     dao.update(lock);
 
     semaphore = selectSemaphore("foo");
-    assertThat(semaphore.getCreatedAt().getTime()).isLessThan(semaphore.getUpdatedAt().getTime());
+    assertThat(semaphore.getCreatedAt()).isLessThan(semaphore.getUpdatedAt());
 
     dao.release("foo");
     assertThat(selectSemaphore("foo")).isNull();
@@ -247,19 +248,11 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
     }
   }
 
-  private boolean isRecent(Date date) {
-    Date future = DateUtils.addMinutes(now(), 1);
-    Date past = DateUtils.addDays(now(), -1);
-    return date.after(past) && date.before(future);
-  }
-
-  private Date now() {
-    SqlSession session = getMyBatis().openSession();
-    try {
-      return dao.now(session);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
+  private boolean isRecent(Long date) {
+    int oneMinuteInMs = 60 * 1000;
+    long future = system.now() + oneMinuteInMs;
+    long past = system.now() - oneMinuteInMs;
+    return date > past && date < future;
   }
 
   private static class Runner extends Thread {

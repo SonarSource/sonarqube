@@ -22,8 +22,6 @@ package org.sonar.core.persistence;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 
-import java.util.Date;
-
 /**
  * @since 3.4
  */
@@ -31,9 +29,9 @@ public class SemaphoreDto {
   private Long id;
   private String name;
   private String checksum;
-  private Date lockedAt;
-  private Date createdAt;
-  private Date updatedAt;
+  private Long lockedAt;
+  private Long createdAt;
+  private Long updatedAt;
 
   public String getName() {
     return name;
@@ -45,11 +43,11 @@ public class SemaphoreDto {
     return this;
   }
 
-  public Date getLockedAt() {
+  public Long getLockedAt() {
     return lockedAt;
   }
 
-  public SemaphoreDto setLockedAt(Date d) {
+  public SemaphoreDto setLockedAt(Long d) {
     this.lockedAt = d;
     return this;
   }
@@ -63,20 +61,20 @@ public class SemaphoreDto {
     return this;
   }
 
-  public Date getCreatedAt() {
+  public Long getCreatedAt() {
     return createdAt;
   }
 
-  public SemaphoreDto setCreatedAt(Date createdAt) {
+  public SemaphoreDto setCreatedAt(Long createdAt) {
     this.createdAt = createdAt;
     return this;
   }
 
-  public Date getUpdatedAt() {
+  public Long getUpdatedAt() {
     return updatedAt;
   }
 
-  public SemaphoreDto setUpdatedAt(Date updatedAt) {
+  public SemaphoreDto setUpdatedAt(Long updatedAt) {
     this.updatedAt = updatedAt;
     return this;
   }

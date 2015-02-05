@@ -21,19 +21,15 @@ package org.sonar.core.persistence;
 
 import org.apache.ibatis.annotations.Param;
 
-import java.util.Date;
-
 public interface SemaphoreMapper {
 
   int initialize(SemaphoreDto semaphore);
 
-  int acquire(@Param("name") String name, @Param("updatedBefore") Date updatedBefore);
-
-  Date now();
+  int acquire(@Param("name") String name, @Param("updatedBefore") Long updatedBefore, @Param("now") Long now);
 
   void release(String name);
 
   SemaphoreDto selectSemaphore(@Param("name") String name);
 
-  void update(String name);
+  void update(@Param("name") String name, @Param("now") Long now);
 }
