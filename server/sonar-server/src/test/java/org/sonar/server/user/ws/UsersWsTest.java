@@ -83,5 +83,4 @@ public class UsersWsTest {
     assertThat(action.handler()).isInstanceOf(RailsHandler.class);
     assertThat(action.params()).hasSize(2);
   }
-
 }

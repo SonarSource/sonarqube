@@ -61,7 +61,7 @@ public class IssuesWsTest {
     SearchAction searchAction = new SearchAction(mock(DbClient.class), mock(IssueChangeDao.class), mock(IssueService.class), mock(IssueActionsWriter.class),
       mock(IssueQueryService.class), mock(RuleService.class),
       mock(ActionPlanService.class), mock(UserFinder.class), mock(I18n.class), mock(Durations.class), mock(Languages.class));
-    tester = new WsTester(new IssuesWs(showAction, searchAction, new TagsAction(null), new SetTagsAction(null), new ComponentTagsAction(null)));
+    tester = new WsTester(new IssuesWs(showAction, searchAction, new TagsAction(null), new SetTagsAction(null), new ComponentTagsAction(null), new AuthorsAction(null)));
   }
 
   @Test
@@ -70,7 +70,7 @@ public class IssuesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();
     assertThat(controller.since()).isEqualTo("3.6");
-    assertThat(controller.actions()).hasSize(17);
+    assertThat(controller.actions()).hasSize(18);
   }
 
   @Test

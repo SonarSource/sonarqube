@@ -49,12 +49,7 @@ import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.debt.DebtModelService;
-import org.sonar.server.issue.ActionService;
-import org.sonar.server.issue.IssueChangelog;
-import org.sonar.server.issue.IssueChangelogService;
-import org.sonar.server.issue.IssueCommentService;
-import org.sonar.server.issue.IssueQueryService;
-import org.sonar.server.issue.IssueService;
+import org.sonar.server.issue.*;
 import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleService;
@@ -150,7 +145,7 @@ public class IssueShowActionTest {
       new SearchAction(mock(DbClient.class), mock(IssueChangeDao.class), mock(IssueService.class), mock(IssueActionsWriter.class), mock(IssueQueryService.class),
         mock(RuleService.class),
         mock(ActionPlanService.class), mock(UserFinder.class), mock(I18n.class), mock(Durations.class), mock(Languages.class)),
-      new TagsAction(null), new SetTagsAction(null), new ComponentTagsAction(null)
+      new TagsAction(null), new SetTagsAction(null), new ComponentTagsAction(null), new AuthorsAction(null)
       ));
   }
 

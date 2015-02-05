@@ -74,7 +74,10 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.junit.Assert.fail;
-import static org.sonar.server.source.index.SourceLineIndexDefinition.*;
+import static org.sonar.server.source.index.SourceLineIndexDefinition.FIELD_FILE_UUID;
+import static org.sonar.server.source.index.SourceLineIndexDefinition.FIELD_LINE;
+import static org.sonar.server.source.index.SourceLineIndexDefinition.FIELD_PROJECT_UUID;
+import static org.sonar.server.source.index.SourceLineIndexDefinition.FIELD_SCM_AUTHOR;
 
 public class IssueServiceMediumTest {
 
@@ -585,6 +588,23 @@ public class IssueServiceMediumTest {
     assertThat(service.listTagsForComponent(project.uuid(), 5)).contains(entry("convention", 3L), entry("bug", 2L), entry("java8", 1L));
     assertThat(service.listTagsForComponent(project.uuid(), 2)).contains(entry("convention", 3L), entry("bug", 2L)).doesNotContainEntry("java8", 1L);
     assertThat(service.listTagsForComponent("other", 10)).isEmpty();
+  }
+
+  @Test
+  public void list_authors() {
+    RuleDto rule = newRule();
+    ComponentDto project = newProject();
+    ComponentDto file = newFile(project);
+    saveIssue(IssueTesting.newDto(rule, file, project).setAuthorLogin("luke.skywalker"));
+    saveIssue(IssueTesting.newDto(rule, file, project).setAuthorLogin("luke@skywalker.name"));
+    saveIssue(IssueTesting.newDto(rule, file, project));
+    saveIssue(IssueTesting.newDto(rule, file, project).setAuthorLogin("anakin@skywalker.name"));
+
+    assertThat(service.listAuthors(null, 5)).containsExactly("anakin@skywalker.name", "luke.skywalker", "luke@skywalker.name");
+    assertThat(service.listAuthors(null, 2)).containsExactly("anakin@skywalker.name", "luke.skywalker");
+    assertThat(service.listAuthors("uke", 5)).containsExactly("luke.skywalker", "luke@skywalker.name");
+    assertThat(service.listAuthors(null, 1)).containsExactly("anakin@skywalker.name");
+    assertThat(service.listAuthors(null, Integer.MAX_VALUE)).containsExactly("anakin@skywalker.name", "luke.skywalker", "luke@skywalker.name");
   }
 
   private RuleDto newRule() {

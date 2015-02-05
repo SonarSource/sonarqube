@@ -618,11 +618,19 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
   }
 
   public Collection<String> listTagsMatching(@Nullable String query, int pageSize) {
+    return listTermsMatching(IssueIndexDefinition.FIELD_ISSUE_TAGS, query, pageSize);
+  }
+
+  public Collection<String> listAuthorsMatching(@Nullable String query, int pageSize) {
+    return listTermsMatching(IssueIndexDefinition.FIELD_ISSUE_AUTHOR_LOGIN, query, pageSize);
+  }
+
+  private Collection<String> listTermsMatching(String fieldName, @Nullable String query, int pageSize) {
     SearchRequestBuilder count = getClient().prepareSearch(IssueIndexDefinition.INDEX)
       .setTypes(IssueIndexDefinition.TYPE_ISSUE)
       .setQuery(QueryBuilders.matchAllQuery());
     TermsBuilder aggreg = AggregationBuilders.terms("_ref")
-      .field(IssueIndexDefinition.FIELD_ISSUE_TAGS)
+      .field(fieldName)
       .size(pageSize)
       .order(Order.term(true))
       .minDocCount(1L);
