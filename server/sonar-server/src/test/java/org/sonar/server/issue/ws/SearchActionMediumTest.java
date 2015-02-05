@@ -88,7 +88,7 @@ public class SearchActionMediumTest {
     assertThat(show.isPost()).isFalse();
     assertThat(show.isInternal()).isFalse();
     assertThat(show.responseExampleAsString()).isNotEmpty();
-    assertThat(show.params()).hasSize(39);
+    assertThat(show.params()).hasSize(38);
   }
 
   @Test
@@ -367,7 +367,7 @@ public class SearchActionMediumTest {
     MockUserSession.set().setLogin("john");
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam("resolved", "false")
-      .setParam(SearchAction.PARAM_FACETS, "statuses,severities,resolutions,projectUuids,rules,fileUuids,assignees,languages,actionPlans")
+      .setParam(WebService.Param.FACETS, "statuses,severities,resolutions,projectUuids,rules,fileUuids,assignees,languages,actionPlans")
       .execute();
     result.assertJson(this.getClass(), "display_facets.json", false);
   }
@@ -393,7 +393,7 @@ public class SearchActionMediumTest {
       .setParam("resolved", "false")
       .setParam("severities", "MAJOR,MINOR")
       .setParam("languages", "xoo,polop,palap")
-      .setParam(SearchAction.PARAM_FACETS, "statuses,severities,resolutions,projectUuids,rules,fileUuids,assignees,languages,actionPlans")
+      .setParam(WebService.Param.FACETS, "statuses,severities,resolutions,projectUuids,rules,fileUuids,assignees,languages,actionPlans")
       .execute();
     result.assertJson(this.getClass(), "display_zero_facets.json", false);
   }
@@ -451,8 +451,8 @@ public class SearchActionMediumTest {
     tester.get(IssueIndexer.class).indexAll();
 
     WsTester.TestRequest request = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION);
-    request.setParam(SearchAction.PARAM_PAGE, "2");
-    request.setParam(SearchAction.PARAM_PAGE_SIZE, "9");
+    request.setParam(WebService.Param.PAGE, "2");
+    request.setParam(WebService.Param.PAGE_SIZE, "9");
 
     WsTester.Result result = request.execute();
     result.assertJson(this.getClass(), "paging.json", false);
@@ -472,8 +472,8 @@ public class SearchActionMediumTest {
     tester.get(IssueIndexer.class).indexAll();
 
     WsTester.TestRequest request = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION);
-    request.setParam(SearchAction.PARAM_PAGE, "1");
-    request.setParam(SearchAction.PARAM_PAGE_SIZE, "-1");
+    request.setParam(WebService.Param.PAGE, "1");
+    request.setParam(WebService.Param.PAGE_SIZE, "-1");
 
     WsTester.Result result = request.execute();
     result.assertJson(this.getClass(), "paging_with_page_size_to_minus_one.json", false);

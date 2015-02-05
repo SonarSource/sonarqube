@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue.index;
+package org.sonar.server.issue.ws;
 
-import org.sonar.core.persistence.Dto;
+import org.sonar.api.server.ws.RequestHandler;
+import org.sonar.api.server.ws.WebService;
 
-public class FakeIssueDto extends Dto<String> {
-  @Override
-  public String getKey() {
-    throw new UnsupportedOperationException();
-  }
+interface BaseIssuesWsAction extends RequestHandler {
+
+  void define(WebService.NewController controller);
+
 }
+

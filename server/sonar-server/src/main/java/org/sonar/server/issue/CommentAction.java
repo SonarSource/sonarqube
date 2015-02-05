@@ -27,9 +27,8 @@ import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.server.user.UserSession;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
-
 
 public class CommentAction extends Action implements ServerComponent {
 
@@ -44,7 +43,7 @@ public class CommentAction extends Action implements ServerComponent {
   }
 
   @Override
-  public boolean verify(Map<String, Object> properties, List<Issue> issues, UserSession userSession) {
+  public boolean verify(Map<String, Object> properties, Collection<Issue> issues, UserSession userSession) {
     comment(properties);
     return true;
   }
@@ -58,7 +57,7 @@ public class CommentAction extends Action implements ServerComponent {
   private String comment(Map<String, Object> properties) {
     String param = (String) properties.get(COMMENT_PROPERTY);
     if (Strings.isNullOrEmpty(param)) {
-      throw new IllegalArgumentException("Missing parameter : '"+ COMMENT_PROPERTY +"'");
+      throw new IllegalArgumentException("Missing parameter : '" + COMMENT_PROPERTY + "'");
     }
     return param;
   }

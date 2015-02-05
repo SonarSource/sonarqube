@@ -22,7 +22,9 @@ package org.sonar.server.issue;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.issue.Issue;
@@ -35,16 +37,20 @@ import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.notification.IssueChangeNotification;
 import org.sonar.server.rule.DefaultRuleFinder;
-import org.sonar.server.search.QueryContext;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -83,12 +89,12 @@ public class IssueBulkChangeService {
 
     IssueBulkChangeResult result = new IssueBulkChangeResult();
 
-    List<Issue> issues = getByKeysForUpdate(issueBulkChangeQuery.issues());
+    Collection<Issue> issues = getByKeysForUpdate(issueBulkChangeQuery.issues());
     Repository repository = new Repository(issues);
 
     List<Action> bulkActions = getActionsToApply(issueBulkChangeQuery, issues, userSession);
     IssueChangeContext issueChangeContext = IssueChangeContext.createUser(new Date(), userSession.login());
-    Set<String> concernedProjects = new HashSet<String>();
+    Set<String> concernedProjects = new HashSet<>();
     for (Issue issue : issues) {
       ActionContext actionContext = new ActionContext(issue, issueChangeContext);
       for (Action action : bulkActions) {
@@ -119,31 +125,36 @@ public class IssueBulkChangeService {
     return result;
   }
 
-  private List<Issue> getByKeysForUpdate(List<String> issueKeys) {
+  private Collection<Issue> getByKeysForUpdate(List<String> issueKeys) {
     // Load from index to check permission
-    List<Issue> authorizedIndexIssues = issueService.search(IssueQuery.builder().issueKeys(issueKeys).build(), new QueryContext().setMaxLimit()).getHits();
-    List<String> authorizedIssueKeys = newArrayList(Iterables.transform(authorizedIndexIssues, new Function<Issue, String>() {
+    SearchOptions options = new SearchOptions().setLimit(SearchOptions.MAX_LIMIT);
+    // TODO restrict fields to issue key, in order to not load all other fields;
+    List<IssueDoc> authorizedIssues = issueService.search(IssueQuery.builder().issueKeys(issueKeys).build(), options).getDocs();
+    Collection<String> authorizedKeys = Collections2.transform(authorizedIssues, new Function<IssueDoc, String>() {
       @Override
-      public String apply(@Nullable Issue input) {
-        return input != null ? input.key() : null;
+      public String apply(IssueDoc input) {
+        return input.key();
       }
-    }));
+    });
 
-    DbSession session = dbClient.openSession(false);
-    try {
-      List<IssueDto> issueDtos = dbClient.issueDao().selectByKeys(session, authorizedIssueKeys);
-      return newArrayList(Iterables.transform(issueDtos, new Function<IssueDto, Issue>() {
-        @Override
-        public Issue apply(@Nullable IssueDto input) {
-          return input != null ? input.toDefaultIssue() : null;
-        }
-      }));
-    } finally {
-      session.close();
+    if (!authorizedKeys.isEmpty()) {
+      DbSession session = dbClient.openSession(false);
+      try {
+        List<IssueDto> dtos = dbClient.issueDao().selectByKeys(session, Lists.newArrayList(authorizedKeys));
+        return Collections2.transform(dtos, new Function<IssueDto, Issue>() {
+          @Override
+          public Issue apply(@Nullable IssueDto input) {
+            return input != null ? input.toDefaultIssue() : null;
+          }
+        });
+      } finally {
+        MyBatis.closeQuietly(session);
+      }
     }
+    return Collections.emptyList();
   }
 
-  private List<Action> getActionsToApply(IssueBulkChangeQuery issueBulkChangeQuery, List<Issue> issues, UserSession userSession) {
+  private List<Action> getActionsToApply(IssueBulkChangeQuery issueBulkChangeQuery, Collection<Issue> issues, UserSession userSession) {
     List<Action> bulkActions = newArrayList();
     for (String actionKey : issueBulkChangeQuery.actions()) {
       Action action = getAction(actionKey);
@@ -207,7 +218,7 @@ public class IssueBulkChangeService {
     private final Map<String, ComponentDto> components = newHashMap();
     private final Map<String, ComponentDto> projects = newHashMap();
 
-    public Repository(List<Issue> issues) {
+    public Repository(Collection<Issue> issues) {
       Set<RuleKey> ruleKeys = newHashSet();
       Set<String> componentKeys = newHashSet();
       Set<String> projectKeys = newHashSet();

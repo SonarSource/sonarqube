@@ -28,10 +28,13 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.utils.TimeUtils;
 import org.sonar.core.computation.dbcleaner.period.DefaultPeriodCleaner;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.purge.*;
+import org.sonar.core.purge.IdUuidPair;
+import org.sonar.core.purge.PurgeConfiguration;
+import org.sonar.core.purge.PurgeDao;
+import org.sonar.core.purge.PurgeListener;
+import org.sonar.core.purge.PurgeProfiler;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.properties.ProjectSettingsFactory;
-import org.sonar.server.search.IndexClient;
 
 import javax.annotation.Nullable;
 import java.util.Date;
@@ -46,16 +49,16 @@ public class ProjectCleaner implements ServerComponent {
   private final PurgeDao purgeDao;
   private final DefaultPeriodCleaner periodCleaner;
   private final ProjectSettingsFactory projectSettingsFactory;
-  private final IndexClient indexClient;
+  private final IssueIndex issueIndex;
 
   public ProjectCleaner(PurgeDao purgeDao, DefaultPeriodCleaner periodCleaner, PurgeProfiler profiler, PurgeListener purgeListener,
-                        ProjectSettingsFactory projectSettingsFactory, IndexClient indexClient) {
+                        ProjectSettingsFactory projectSettingsFactory, IssueIndex issueIndex) {
     this.purgeDao = purgeDao;
     this.periodCleaner = periodCleaner;
     this.profiler = profiler;
     this.purgeListener = purgeListener;
     this.projectSettingsFactory = projectSettingsFactory;
-    this.indexClient = indexClient;
+    this.issueIndex = issueIndex;
   }
 
   public ProjectCleaner purge(DbSession session, IdUuidPair idUuidPair) {
@@ -77,7 +80,7 @@ public class ProjectCleaner implements ServerComponent {
 
   private void deleteIndexedIssuesBefore(String uuid, @Nullable Date lastDateWithClosedIssues) {
     if (lastDateWithClosedIssues != null) {
-      indexClient.get(IssueIndex.class).deleteClosedIssuesOfProjectBefore(uuid, lastDateWithClosedIssues);
+      issueIndex.deleteClosedIssuesOfProjectBefore(uuid, lastDateWithClosedIssues);
     }
   }
 

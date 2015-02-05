@@ -25,20 +25,18 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortOrder;
-import org.sonar.api.ServerComponent;
+import org.sonar.server.es.BaseIndex;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.exceptions.NotFoundException;
 
 import java.util.List;
 
-public class SourceLineIndex implements ServerComponent {
+public class SourceLineIndex extends BaseIndex {
 
   private static final int MAX_RESULT = 500000;
 
-  private final EsClient esClient;
-
   public SourceLineIndex(EsClient esClient) {
-    this.esClient = esClient;
+    super(esClient);
   }
 
   /**
@@ -61,7 +59,7 @@ public class SourceLineIndex implements ServerComponent {
     }
     int toLimited = size + from - 1;
 
-    for (SearchHit hit : esClient.prepareSearch(SourceLineIndexDefinition.INDEX)
+    for (SearchHit hit : getClient().prepareSearch(SourceLineIndexDefinition.INDEX)
       .setTypes(SourceLineIndexDefinition.TYPE)
       .setSize(size)
       .setQuery(QueryBuilders.boolQuery()
@@ -79,7 +77,7 @@ public class SourceLineIndex implements ServerComponent {
 
   public SourceLineDoc getLine(String fileUuid, int line) {
     Preconditions.checkArgument(line > 0, "Line should be greater than 0");
-    SearchRequestBuilder request = esClient.prepareSearch(SourceLineIndexDefinition.INDEX)
+    SearchRequestBuilder request = getClient().prepareSearch(SourceLineIndexDefinition.INDEX)
       .setTypes(SourceLineIndexDefinition.TYPE)
       .setSize(1)
       .setQuery(QueryBuilders.boolQuery()

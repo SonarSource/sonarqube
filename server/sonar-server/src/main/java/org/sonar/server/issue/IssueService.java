@@ -48,13 +48,13 @@ import org.sonar.core.issue.workflow.Transition;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.es.SearchOptions;
+import org.sonar.server.es.SearchResult;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.actionplan.ActionPlanService;
+import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.notification.IssueChangeNotification;
-import org.sonar.server.search.FacetValue;
-import org.sonar.server.search.IndexClient;
-import org.sonar.server.search.QueryContext;
 import org.sonar.server.source.index.SourceLineDoc;
 import org.sonar.server.source.index.SourceLineIndex;
 import org.sonar.server.user.UserSession;
@@ -64,14 +64,20 @@ import org.sonar.server.user.index.UserIndex;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.Maps.newLinkedHashMap;
 
 public class IssueService implements ServerComponent {
 
   private final DbClient dbClient;
-  private final IndexClient indexClient;
+  private final IssueIndex issueIndex;
 
   private final IssueWorkflow workflow;
   private final IssueUpdater issueUpdater;
@@ -84,7 +90,7 @@ public class IssueService implements ServerComponent {
   private final UserIndex userIndex;
   private final SourceLineIndex sourceLineIndex;
 
-  public IssueService(DbClient dbClient, IndexClient indexClient,
+  public IssueService(DbClient dbClient, IssueIndex issueIndex,
     IssueWorkflow workflow,
     IssueStorage issueStorage,
     IssueUpdater issueUpdater,
@@ -95,7 +101,7 @@ public class IssueService implements ServerComponent {
     UserFinder userFinder,
     UserIndex userIndex, SourceLineIndex sourceLineIndex) {
     this.dbClient = dbClient;
-    this.indexClient = indexClient;
+    this.issueIndex = issueIndex;
     this.workflow = workflow;
     this.issueStorage = issueStorage;
     this.issueUpdater = issueUpdater;
@@ -301,19 +307,20 @@ public class IssueService implements ServerComponent {
 
   public Map<String, Long> findIssueAssignees(IssueQuery query) {
     Map<String, Long> result = newLinkedHashMap();
-    List<FacetValue> facetValues = indexClient.get(IssueIndex.class).listAssignees(query);
-    for (FacetValue facetValue : facetValues) {
-      if ("_notAssigned_".equals(facetValue.getKey())) {
-        result.put(null, facetValue.getValue());
+    Map<String,Long> buckets = issueIndex.searchForAssignees(query);
+    for (Map.Entry<String, Long> bucket : buckets.entrySet()) {
+      if ("_notAssigned_".equals(bucket.getKey())) {
+        // TODO null key ?
+        result.put(null, bucket.getValue());
       } else {
-        result.put(facetValue.getKey(), facetValue.getValue());
+        result.put(bucket.getKey(), bucket.getValue());
       }
     }
     return result;
   }
 
   public Issue getByKey(String key) {
-    return indexClient.get(IssueIndex.class).getByKey(key);
+    return issueIndex.getByKey(key);
   }
 
   IssueDto getByKeyForUpdate(DbSession session, String key) {
@@ -346,20 +353,29 @@ public class IssueService implements ServerComponent {
     return ruleFinder.findByKey(ruleKey);
   }
 
-  public org.sonar.server.search.Result<Issue> search(IssueQuery query, QueryContext options) {
-    return indexClient.get(IssueIndex.class).search(query, options);
+  public SearchResult<IssueDoc> search(IssueQuery query, SearchOptions options) {
+    return issueIndex.search(query, options);
   }
 
   private void verifyLoggedIn() {
     UserSession.get().checkLoggedIn();
   }
 
-  public Collection<String> listTags(@Nullable String query, int pageSize) {
-    return indexClient.get(IssueIndex.class).listTagsMatching(query, pageSize);
+  /**
+   * Search for all tags, whatever issue resolution or user access rights
+   */
+  public List<String> listTags(@Nullable String textQuery, int pageSize) {
+    IssueQuery query = IssueQuery.builder()
+      .checkAuthorization(false)
+      .build();
+    return issueIndex.listTags(query, textQuery, pageSize);
   }
 
-  public Collection<String> listAuthors(@Nullable String query, int pageSize) {
-    return indexClient.get(IssueIndex.class).listAuthorsMatching(query, pageSize);
+  public List<String> listAuthors(@Nullable String textQuery, int pageSize) {
+    IssueQuery query = IssueQuery.builder()
+      .checkAuthorization(false)
+      .build();
+    return issueIndex.listAuthors(query, textQuery, pageSize);
   }
 
   public Collection<String> setTags(String issueKey, Collection<String> tags) {
@@ -379,8 +395,17 @@ public class IssueService implements ServerComponent {
     }
   }
 
+  // TODO check compatibility with Views, projects, etc.
   public Map<String, Long> listTagsForComponent(String componentUuid, int pageSize) {
-    return indexClient.get(IssueIndex.class).listTagsForComponent(componentUuid, pageSize);
+    IssueQuery query = IssueQuery.builder()
+      .userLogin(UserSession.get().login())
+      .userGroups(UserSession.get().userGroups())
+      .moduleRootUuids(Arrays.asList(componentUuid))
+      .onComponentOnly(false)
+      .setContextualized(true)
+      .resolved(false)
+      .build();
+    return issueIndex.countTags(query, pageSize);
   }
 
   @CheckForNull

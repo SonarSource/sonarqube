@@ -25,7 +25,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.utils.Paging;
 import org.sonar.core.issue.DefaultIssueFilter;
 import org.sonar.core.issue.IssueFilterSerializer;
@@ -35,14 +34,15 @@ import org.sonar.core.issue.db.IssueFilterFavouriteDao;
 import org.sonar.core.issue.db.IssueFilterFavouriteDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.user.AuthorizationDao;
+import org.sonar.server.es.SearchOptions;
+import org.sonar.server.es.SearchResult;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.issue.IssueQuery;
+import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
-import org.sonar.server.search.QueryContext;
-import org.sonar.server.search.Result;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
@@ -61,8 +61,8 @@ public class IssueFilterService implements ServerComponent {
   private final IssueFilterSerializer serializer;
 
   public IssueFilterService(IssueFilterDao filterDao, IssueFilterFavouriteDao favouriteDao,
-                            IssueIndex issueIndex, AuthorizationDao authorizationDao,
-                            IssueFilterSerializer serializer) {
+    IssueIndex issueIndex, AuthorizationDao authorizationDao,
+    IssueFilterSerializer serializer) {
     this.filterDao = filterDao;
     this.favouriteDao = favouriteDao;
     this.issueIndex = issueIndex;
@@ -70,8 +70,8 @@ public class IssueFilterService implements ServerComponent {
     this.serializer = serializer;
   }
 
-  public IssueFilterResult execute(IssueQuery issueQuery, QueryContext context) {
-    return createIssueFilterResult(issueIndex.search(issueQuery, context), context);
+  public IssueFilterResult execute(IssueQuery issueQuery, SearchOptions options) {
+    return createIssueFilterResult(issueIndex.search(issueQuery, options), options);
   }
 
   public DefaultIssueFilter find(Long id, UserSession userSession) {
@@ -335,8 +335,8 @@ public class IssueFilterService implements ServerComponent {
     return authorizationDao.selectGlobalPermissions(user).contains(GlobalPermissions.SYSTEM_ADMIN);
   }
 
-  private IssueFilterResult createIssueFilterResult(Result<Issue> issues, QueryContext context) {
-    return new IssueFilterResult(issues.getHits(), Paging.create(context.getLimit(), context.getPage(), ((Long) issues.getTotal()).intValue()));
+  private IssueFilterResult createIssueFilterResult(SearchResult<IssueDoc> issues, SearchOptions options) {
+    return new IssueFilterResult(issues.getDocs(), Paging.create(options.getLimit(), options.getPage(), (int) issues.getTotal()));
   }
 
   private boolean hasUserSharingPermission(String user) {
@@ -345,21 +345,21 @@ public class IssueFilterService implements ServerComponent {
 
   public static class IssueFilterResult {
 
-    private final List<Issue> issues;
+    private final List<IssueDoc> issues;
     private final Paging paging;
 
-    public IssueFilterResult(List<Issue> issues, Paging paging) {
+    public IssueFilterResult(List<IssueDoc> issues, Paging paging) {
       this.issues = issues;
       this.paging = paging;
     }
 
-    public List<Issue> issues(){
+    public List<IssueDoc> issues() {
       return issues;
     }
 
-    public Paging paging(){
+    public Paging paging() {
       return paging;
     }
-  }  
-  
+  }
+
 }

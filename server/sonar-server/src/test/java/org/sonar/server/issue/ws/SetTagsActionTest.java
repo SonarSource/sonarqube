@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue.ws;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,19 +39,14 @@ import static org.mockito.Mockito.when;
 public class SetTagsActionTest {
 
   @Mock
-  private IssueService service;
-
-  private SetTagsAction setTagsAction;
-
-  private WsTester tester;
+  IssueService service;
+  SetTagsAction sut;
+  WsTester tester;
 
   @Before
   public void setUp() {
-    setTagsAction = new SetTagsAction(service);
-    tester = new WsTester(
-      new IssuesWs(new IssueShowAction(null, null, null, null, null, null, null, null, null, null, null),
-        new SearchAction(null, null, null, null, null, null, null, null, null, null,null),
-        new TagsAction(null), setTagsAction, new ComponentTagsAction(null), new AuthorsAction(null)));
+    sut = new SetTagsAction(service);
+    tester = new WsTester(new IssuesWs(sut));
   }
 
   @Test
@@ -60,7 +56,7 @@ public class SetTagsActionTest {
     assertThat(action.responseExampleAsString()).isNull();
     assertThat(action.isPost()).isTrue();
     assertThat(action.isInternal()).isFalse();
-    assertThat(action.handler()).isEqualTo(setTagsAction);
+    assertThat(action.handler()).isEqualTo(sut);
     assertThat(action.params()).hasSize(2);
 
     Param query = action.param("key");
@@ -76,9 +72,9 @@ public class SetTagsActionTest {
 
   @Test
   public void should_set_tags() throws Exception {
-    when(service.setTags("polop", ImmutableSet.of("palap"))).thenReturn(ImmutableSet.of("palap"));
+    when(service.setTags("polop", ImmutableList.of("palap"))).thenReturn(ImmutableSet.of("palap"));
     tester.newPostRequest("api/issues", "set_tags").setParam("key", "polop").setParam("tags", "palap").execute()
       .assertJson("{\"tags\":[\"palap\"]}");
-    verify(service).setTags("polop", ImmutableSet.of("palap"));
+    verify(service).setTags("polop", ImmutableList.of("palap"));
   }
 }

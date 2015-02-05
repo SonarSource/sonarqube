@@ -2,7 +2,6 @@
   "total": 0,
   "p": 1,
   "ps": 100,
-  "maxResultsReached": false,
   "paging": {
     "pageIndex": 1,
     "pageSize": 100,

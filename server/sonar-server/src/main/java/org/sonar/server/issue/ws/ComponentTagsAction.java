@@ -21,7 +21,6 @@ package org.sonar.server.issue.ws;
 
 import com.google.common.io.Resources;
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
@@ -34,7 +33,7 @@ import java.util.Map;
  * List issue tags matching a given query.
  * @since 5.1
  */
-public class ComponentTagsAction implements RequestHandler {
+public class ComponentTagsAction implements BaseIssuesWsAction {
 
   private final IssueService service;
 
@@ -42,7 +41,8 @@ public class ComponentTagsAction implements RequestHandler {
     this.service = service;
   }
 
-  void define(WebService.NewController controller) {
+  @Override
+  public void define(WebService.NewController controller) {
     NewAction action = controller.createAction("component_tags")
       .setHandler(this)
       .setSince("5.1")

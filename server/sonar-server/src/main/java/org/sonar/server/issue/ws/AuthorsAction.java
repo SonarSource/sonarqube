@@ -20,15 +20,15 @@
 package org.sonar.server.issue.ws;
 
 import com.google.common.io.Resources;
-import org.sonar.api.server.ws.*;
+import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.Response;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.issue.IssueService;
 
-public class AuthorsAction implements RequestHandler {
+public class AuthorsAction implements BaseIssuesWsAction {
 
-  private static final String PARAM_PAGE_SIZE = "ps";
-  private static final String PARAM_QUERY = "q";
   private final IssueService service;
 
   public AuthorsAction(IssueService service) {
@@ -37,8 +37,8 @@ public class AuthorsAction implements RequestHandler {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    String query = request.param(PARAM_QUERY);
-    int pageSize = request.mandatoryParamAsInt(PARAM_PAGE_SIZE);
+    String query = request.param(WebService.Param.TEXT_QUERY);
+    int pageSize = request.mandatoryParamAsInt(WebService.Param.PAGE_SIZE);
 
     JsonWriter json = response.newJsonWriter()
       .beginObject()
@@ -52,17 +52,18 @@ public class AuthorsAction implements RequestHandler {
     json.endArray().endObject().close();
   }
 
-  void define(WebService.NewController controller) {
+  @Override
+  public void define(WebService.NewController controller) {
     NewAction action = controller.createAction("authors")
       .setSince("5.1")
       .setDescription("Search SCM accounts which match a given query")
       .setResponseExample(Resources.getResource(this.getClass(), "example-authors.json"))
       .setHandler(this);
 
-    action.createParam(PARAM_QUERY)
+    action.createParam(WebService.Param.TEXT_QUERY)
       .setDescription("A pattern to match SCM accounts against")
       .setExampleValue("luke");
-    action.createParam(PARAM_PAGE_SIZE)
+    action.createParam(WebService.Param.PAGE_SIZE)
       .setDescription("The size of the list to return")
       .setExampleValue("25")
       .setDefaultValue("10");

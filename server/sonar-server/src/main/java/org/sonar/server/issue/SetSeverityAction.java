@@ -30,7 +30,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.server.user.UserSession;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 
 public class SetSeverityAction extends Action implements ServerComponent {
@@ -45,7 +45,7 @@ public class SetSeverityAction extends Action implements ServerComponent {
     super.setConditions(new IsUnResolved(), new Condition() {
       @Override
       public boolean matches(Issue issue) {
-        return isCurrentUserIssueAdmin(((DefaultIssue) issue).projectKey());
+        return isCurrentUserIssueAdmin(issue.projectKey());
       }
     });
   }
@@ -55,7 +55,7 @@ public class SetSeverityAction extends Action implements ServerComponent {
   }
 
   @Override
-  public boolean verify(Map<String, Object> properties, List<Issue> issues, UserSession userSession) {
+  public boolean verify(Map<String, Object> properties, Collection<Issue> issues, UserSession userSession) {
     severity(properties);
     return true;
   }

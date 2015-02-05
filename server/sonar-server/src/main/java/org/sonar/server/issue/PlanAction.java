@@ -30,9 +30,8 @@ import org.sonar.core.issue.IssueUpdater;
 import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.user.UserSession;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
-
 
 public class PlanAction extends Action implements ServerComponent {
 
@@ -50,7 +49,7 @@ public class PlanAction extends Action implements ServerComponent {
   }
 
   @Override
-  public boolean verify(Map<String, Object> properties, List<Issue> issues, UserSession userSession) {
+  public boolean verify(Map<String, Object> properties, Collection<Issue> issues, UserSession userSession) {
     String actionPlanValue = planValue(properties);
     if (!Strings.isNullOrEmpty(actionPlanValue)) {
       ActionPlan actionPlan = selectActionPlan(actionPlanValue, userSession);
@@ -67,7 +66,7 @@ public class PlanAction extends Action implements ServerComponent {
 
   @Override
   public boolean execute(Map<String, Object> properties, Context context) {
-    if(!properties.containsKey(VERIFIED_ACTION_PLAN)) {
+    if (!properties.containsKey(VERIFIED_ACTION_PLAN)) {
       throw new IllegalArgumentException("Action plan is missing from the execution parameters");
     }
     ActionPlan actionPlan = (ActionPlan) properties.get(VERIFIED_ACTION_PLAN);
@@ -78,7 +77,7 @@ public class PlanAction extends Action implements ServerComponent {
     return (String) properties.get("plan");
   }
 
-  private void verifyIssuesAreAllRelatedOnActionPlanProject(List<Issue> issues, ActionPlan actionPlan) {
+  private void verifyIssuesAreAllRelatedOnActionPlanProject(Collection<Issue> issues, ActionPlan actionPlan) {
     String projectKey = actionPlan.projectKey();
     for (Issue issue : issues) {
       DefaultIssue defaultIssue = (DefaultIssue) issue;

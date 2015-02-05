@@ -19,7 +19,11 @@
  */
 package org.sonar.server.issue;
 
-import com.google.common.collect.*;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Multiset;
+import com.google.common.collect.Sets;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -44,6 +48,8 @@ import org.sonar.core.user.UserDto;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.es.SearchOptions;
+import org.sonar.server.es.SearchResult;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.db.IssueDao;
@@ -55,8 +61,6 @@ import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.BaseNormalizer;
-import org.sonar.server.search.IndexClient;
-import org.sonar.server.search.QueryContext;
 import org.sonar.server.source.index.SourceLineDoc;
 import org.sonar.server.source.index.SourceLineIndexer;
 import org.sonar.server.source.index.SourceLineResultSetIterator;
@@ -66,7 +70,6 @@ import org.sonar.server.user.NewUser;
 import org.sonar.server.user.UserService;
 import org.sonar.server.user.db.GroupDao;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -85,7 +88,7 @@ public class IssueServiceMediumTest {
   public static ServerTester tester = new ServerTester();
 
   DbClient db;
-  IndexClient indexClient;
+  IssueIndex IssueIndex;
   DbSession session;
   IssueService service;
 
@@ -93,7 +96,7 @@ public class IssueServiceMediumTest {
   public void setUp() throws Exception {
     tester.clearDbAndIndexes();
     db = tester.get(DbClient.class);
-    indexClient = tester.get(IndexClient.class);
+    IssueIndex = tester.get(IssueIndex.class);
     session = db.openSession(false);
     service = tester.get(IssueService.class);
   }
@@ -126,14 +129,14 @@ public class IssueServiceMediumTest {
     saveIssue(IssueTesting.newDto(rule, file, project).setActionPlanKey("P1"));
     saveIssue(IssueTesting.newDto(rule, file, project).setActionPlanKey("P2").setResolution("NONE"));
 
-    org.sonar.server.search.Result<Issue> result = service.search(IssueQuery.builder().build(), new QueryContext());
-    assertThat(result.getHits()).hasSize(2);
-    assertThat(result.getFacets()).isEmpty();
+    SearchResult<IssueDoc> result = service.search(IssueQuery.builder().build(), new SearchOptions());
+    assertThat(result.getDocs()).hasSize(2);
+    assertThat(result.getFacets().getNames()).isEmpty();
 
-    result = service.search(IssueQuery.builder().build(), new QueryContext().addFacets(Arrays.asList("actionPlans", "assignees")));
-    assertThat(result.getFacets().keySet()).hasSize(2);
-    assertThat(result.getFacetKeys("actionPlans")).hasSize(2);
-    assertThat(result.getFacetKeys("assignees")).hasSize(1);
+    result = service.search(IssueQuery.builder().build(), new SearchOptions().addFacets("actionPlans", "assignees"));
+    assertThat(result.getFacets().getNames()).hasSize(2);
+    assertThat(result.getFacets().get("actionPlans")).hasSize(2);
+    assertThat(result.getFacets().get("assignees")).hasSize(1);
   }
 
   @Test
@@ -162,11 +165,11 @@ public class IssueServiceMediumTest {
 
     IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project).setStatus(Issue.STATUS_OPEN));
 
-    assertThat(indexClient.get(IssueIndex.class).getByKey(issue.getKey()).status()).isEqualTo(Issue.STATUS_OPEN);
+    assertThat(IssueIndex.getByKey(issue.getKey()).status()).isEqualTo(Issue.STATUS_OPEN);
 
     service.doTransition(issue.getKey(), DefaultTransitions.CONFIRM);
 
-    assertThat(indexClient.get(IssueIndex.class).getByKey(issue.getKey()).status()).isEqualTo(Issue.STATUS_CONFIRMED);
+    assertThat(IssueIndex.getByKey(issue.getKey()).status()).isEqualTo(Issue.STATUS_CONFIRMED);
   }
 
   @Test
@@ -183,11 +186,11 @@ public class IssueServiceMediumTest {
     session.commit();
     index();
 
-    assertThat(indexClient.get(IssueIndex.class).getByKey(issue.getKey()).assignee()).isNull();
+    assertThat(IssueIndex.getByKey(issue.getKey()).assignee()).isNull();
 
     service.assign(issue.getKey(), user.getLogin());
 
-    assertThat(indexClient.get(IssueIndex.class).getByKey(issue.getKey()).assignee()).isEqualTo("perceval");
+    assertThat(IssueIndex.getByKey(issue.getKey()).assignee()).isEqualTo("perceval");
   }
 
   @Test
@@ -204,11 +207,11 @@ public class IssueServiceMediumTest {
     session.commit();
     index();
 
-    assertThat(indexClient.get(IssueIndex.class).getByKey(issue.getKey()).assignee()).isEqualTo("perceval");
+    assertThat(IssueIndex.getByKey(issue.getKey()).assignee()).isEqualTo("perceval");
 
     service.assign(issue.getKey(), "");
 
-    assertThat(indexClient.get(IssueIndex.class).getByKey(issue.getKey()).assignee()).isNull();
+    assertThat(IssueIndex.getByKey(issue.getKey()).assignee()).isNull();
   }
 
   @Test
@@ -242,11 +245,11 @@ public class IssueServiceMediumTest {
     session.commit();
     index();
 
-    assertThat(indexClient.get(IssueIndex.class).getByKey(issue.getKey()).actionPlanKey()).isNull();
+    assertThat(IssueIndex.getByKey(issue.getKey()).actionPlanKey()).isNull();
 
     service.plan(issue.getKey(), actionPlanKey);
 
-    assertThat(indexClient.get(IssueIndex.class).getByKey(issue.getKey()).actionPlanKey()).isEqualTo(actionPlanKey);
+    assertThat(IssueIndex.getByKey(issue.getKey()).actionPlanKey()).isEqualTo(actionPlanKey);
   }
 
   @Test
@@ -260,11 +263,11 @@ public class IssueServiceMediumTest {
     db.actionPlanDao().save(new ActionPlanDto().setKey(actionPlanKey).setProjectId(project.getId()));
     IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project).setActionPlanKey(actionPlanKey));
 
-    assertThat(indexClient.get(IssueIndex.class).getByKey(issue.getKey()).actionPlanKey()).isEqualTo(actionPlanKey);
+    assertThat(IssueIndex.getByKey(issue.getKey()).actionPlanKey()).isEqualTo(actionPlanKey);
 
     service.plan(issue.getKey(), null);
 
-    assertThat(indexClient.get(IssueIndex.class).getByKey(issue.getKey()).actionPlanKey()).isNull();
+    assertThat(IssueIndex.getByKey(issue.getKey()).actionPlanKey()).isNull();
   }
 
   @Test
@@ -292,11 +295,11 @@ public class IssueServiceMediumTest {
 
     IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project).setSeverity(Severity.BLOCKER));
 
-    assertThat(indexClient.get(IssueIndex.class).getByKey(issue.getKey()).severity()).isEqualTo(Severity.BLOCKER);
+    assertThat(IssueIndex.getByKey(issue.getKey()).severity()).isEqualTo(Severity.BLOCKER);
 
     service.setSeverity(issue.getKey(), Severity.MINOR);
 
-    assertThat(indexClient.get(IssueIndex.class).getByKey(issue.getKey()).severity()).isEqualTo(Severity.MINOR);
+    assertThat(IssueIndex.getByKey(issue.getKey()).severity()).isEqualTo(Severity.MINOR);
   }
 
   @Test
@@ -311,7 +314,7 @@ public class IssueServiceMediumTest {
 
     Issue result = service.createManualIssue(file.key(), manualRule.getKey(), null, "Fix it", Severity.MINOR, 2d);
 
-    IssueDoc manualIssue = (IssueDoc) indexClient.get(IssueIndex.class).getByKey(result.key());
+    IssueDoc manualIssue = (IssueDoc) IssueIndex.getByKey(result.key());
     assertThat(manualIssue.componentUuid()).isEqualTo(file.uuid());
     assertThat(manualIssue.projectUuid()).isEqualTo(project.uuid());
     assertThat(manualIssue.ruleKey()).isEqualTo(manualRule.getKey());
@@ -337,7 +340,7 @@ public class IssueServiceMediumTest {
 
     Issue result = service.createManualIssue(file.key(), manualRule.getKey(), 1, "Fix it", Severity.MINOR, 2d);
 
-    IssueDoc manualIssue = (IssueDoc) indexClient.get(IssueIndex.class).getByKey(result.key());
+    IssueDoc manualIssue = (IssueDoc) IssueIndex.getByKey(result.key());
     assertThat(manualIssue.componentUuid()).isEqualTo(file.uuid());
     assertThat(manualIssue.projectUuid()).isEqualTo(project.uuid());
     assertThat(manualIssue.ruleKey()).isEqualTo(manualRule.getKey());
@@ -361,7 +364,7 @@ public class IssueServiceMediumTest {
 
     Issue result = service.createManualIssue(file.key(), manualRule.getKey(), null, "Fix it", null, 2d);
 
-    Issue manualIssue = indexClient.get(IssueIndex.class).getByKey(result.key());
+    Issue manualIssue = IssueIndex.getByKey(result.key());
     assertThat(manualIssue.severity()).isEqualTo(Severity.MAJOR);
   }
 
@@ -377,7 +380,7 @@ public class IssueServiceMediumTest {
 
     Issue result = service.createManualIssue(file.key(), manualRule.getKey(), null, null, null, 2d);
 
-    Issue manualIssue = indexClient.get(IssueIndex.class).getByKey(result.key());
+    Issue manualIssue = IssueIndex.getByKey(result.key());
     assertThat(manualIssue.message()).isEqualTo("Manual rule name");
   }
 
@@ -397,7 +400,7 @@ public class IssueServiceMediumTest {
 
     Issue result = service.createManualIssue(file.key(), manualRule.getKey(), 1, "Fix it", Severity.MINOR, 2d);
 
-    IssueDoc manualIssue = (IssueDoc) indexClient.get(IssueIndex.class).getByKey(result.key());
+    IssueDoc manualIssue = (IssueDoc) IssueIndex.getByKey(result.key());
     assertThat(manualIssue.assignee()).isNull();
   }
 
@@ -415,7 +418,7 @@ public class IssueServiceMediumTest {
 
     Issue result = service.createManualIssue(file.key(), manualRule.getKey(), 1, "Fix it", Severity.MINOR, 2d);
 
-    IssueDoc manualIssue = (IssueDoc) indexClient.get(IssueIndex.class).getByKey(result.key());
+    IssueDoc manualIssue = (IssueDoc) IssueIndex.getByKey(result.key());
     assertThat(manualIssue.assignee()).isNull();
   }
 
@@ -496,7 +499,7 @@ public class IssueServiceMediumTest {
     ComponentDto file = newFile(project);
     saveIssue(IssueTesting.newDto(rule, file, project));
 
-    List<Issue> result = service.search(IssueQuery.builder().build(), new QueryContext()).getHits();
+    List<IssueDoc> result = service.search(IssueQuery.builder().build(), new SearchOptions()).getDocs();
     assertThat(result).hasSize(1);
   }
 
@@ -548,15 +551,15 @@ public class IssueServiceMediumTest {
 
     IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project));
 
-    assertThat(indexClient.get(IssueIndex.class).getByKey(issue.getKey()).tags()).isEmpty();
+    assertThat(IssueIndex.getByKey(issue.getKey()).tags()).isEmpty();
 
     // Tags are lowercased
     service.setTags(issue.getKey(), ImmutableSet.of("bug", "Convention"));
-    assertThat(indexClient.get(IssueIndex.class).getByKey(issue.getKey()).tags()).containsOnly("bug", "convention");
+    assertThat(IssueIndex.getByKey(issue.getKey()).tags()).containsOnly("bug", "convention");
 
     // nulls and empty tags are ignored
     service.setTags(issue.getKey(), Sets.newHashSet("security", null, "", "convention"));
-    assertThat(indexClient.get(IssueIndex.class).getByKey(issue.getKey()).tags()).containsOnly("security", "convention");
+    assertThat(IssueIndex.getByKey(issue.getKey()).tags()).containsOnly("security", "convention");
 
     // tag validation
     try {
@@ -564,14 +567,14 @@ public class IssueServiceMediumTest {
     } catch (Exception exception) {
       assertThat(exception).isInstanceOf(IllegalArgumentException.class);
     }
-    assertThat(indexClient.get(IssueIndex.class).getByKey(issue.getKey()).tags()).containsOnly("security", "convention");
+    assertThat(IssueIndex.getByKey(issue.getKey()).tags()).containsOnly("security", "convention");
 
     // unchanged tags
     service.setTags(issue.getKey(), ImmutableSet.of("convention", "security"));
-    assertThat(indexClient.get(IssueIndex.class).getByKey(issue.getKey()).tags()).containsOnly("security", "convention");
+    assertThat(IssueIndex.getByKey(issue.getKey()).tags()).containsOnly("security", "convention");
 
     service.setTags(issue.getKey(), ImmutableSet.<String>of());
-    assertThat(indexClient.get(IssueIndex.class).getByKey(issue.getKey()).tags()).isEmpty();
+    assertThat(IssueIndex.getByKey(issue.getKey()).tags()).isEmpty();
   }
 
   @Test
@@ -585,7 +588,7 @@ public class IssueServiceMediumTest {
     saveIssue(IssueTesting.newDto(rule, file, project).setTags(ImmutableSet.of("convention", "java8", "bug")).setResolution(Issue.RESOLUTION_FIXED));
     saveIssue(IssueTesting.newDto(rule, file, project).setTags(ImmutableSet.of("convention")));
 
-    assertThat(service.listTagsForComponent(project.uuid(), 5)).contains(entry("convention", 3L), entry("bug", 2L), entry("java8", 1L));
+    assertThat(service.listTagsForComponent(project.uuid(), 5)).containsOnly(entry("convention", 3L), entry("bug", 2L), entry("java8", 1L));
     assertThat(service.listTagsForComponent(project.uuid(), 2)).contains(entry("convention", 3L), entry("bug", 2L)).doesNotContainEntry("java8", 1L);
     assertThat(service.listTagsForComponent("other", 10)).isEmpty();
   }

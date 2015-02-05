@@ -26,8 +26,6 @@ import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssueFilter;
 import org.sonar.core.issue.IssueFilterSerializer;
@@ -37,14 +35,15 @@ import org.sonar.core.issue.db.IssueFilterFavouriteDao;
 import org.sonar.core.issue.db.IssueFilterFavouriteDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.user.AuthorizationDao;
+import org.sonar.server.es.SearchOptions;
+import org.sonar.server.es.SearchResult;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.issue.IssueQuery;
+import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
-import org.sonar.server.search.QueryContext;
-import org.sonar.server.search.Result;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 
@@ -528,14 +527,14 @@ public class IssueFilterServiceTest {
   @Test
   public void should_execute_from_issue_query() {
     IssueQuery issueQuery = IssueQuery.builder().build();
-    QueryContext queryContext = new QueryContext().setPage(2, 50);
+    SearchOptions searchOptions = new SearchOptions().setPage(2, 50);
 
-    Result<Issue> result = mock(Result.class);
-    when(result.getHits()).thenReturn(newArrayList((Issue) new DefaultIssue()));
+    SearchResult<IssueDoc> result = mock(SearchResult.class);
+    when(result.getDocs()).thenReturn(newArrayList((IssueDoc) new IssueDoc()));
     when(result.getTotal()).thenReturn(100L);
-    when(issueIndex.search(issueQuery, queryContext)).thenReturn(result);
+    when(issueIndex.search(issueQuery, searchOptions)).thenReturn(result);
 
-    IssueFilterService.IssueFilterResult issueFilterResult = service.execute(issueQuery, queryContext);
+    IssueFilterService.IssueFilterResult issueFilterResult = service.execute(issueQuery, searchOptions);
     assertThat(issueFilterResult.issues()).hasSize(1);
     assertThat(issueFilterResult.paging().total()).isEqualTo(100);
     assertThat(issueFilterResult.paging().pageIndex()).isEqualTo(2);

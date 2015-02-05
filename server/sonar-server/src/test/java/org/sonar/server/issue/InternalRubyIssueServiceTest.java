@@ -21,7 +21,6 @@
 package org.sonar.server.issue;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,14 +39,16 @@ import org.sonar.core.issue.DefaultIssueFilter;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
+import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Message;
 import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.issue.filter.IssueFilterService;
-import org.sonar.server.search.QueryContext;
 import org.sonar.server.user.UserSession;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -57,10 +58,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class InternalRubyIssueServiceTest {
@@ -563,7 +561,7 @@ public class InternalRubyIssueServiceTest {
   @Test
   public void execute_issue_filter_from_issue_query() {
     service.execute(Maps.<String, Object>newHashMap());
-    verify(issueFilterService).execute(any(IssueQuery.class), any(QueryContext.class));
+    verify(issueFilterService).execute(any(IssueQuery.class), any(SearchOptions.class));
   }
 
   @Test
@@ -584,14 +582,14 @@ public class InternalRubyIssueServiceTest {
     service.execute(10L, overrideProps);
 
     ArgumentCaptor<IssueQuery> issueQueryArgumentCaptor = ArgumentCaptor.forClass(IssueQuery.class);
-    ArgumentCaptor<QueryContext> contextArgumentCaptor = ArgumentCaptor.forClass(QueryContext.class);
+    ArgumentCaptor<SearchOptions> contextArgumentCaptor = ArgumentCaptor.forClass(SearchOptions.class);
 
     verify(issueFilterService).execute(issueQueryArgumentCaptor.capture(), contextArgumentCaptor.capture());
     verify(issueFilterService).find(eq(10L), any(UserSession.class));
 
-    QueryContext queryContext = contextArgumentCaptor.getValue();
-    assertThat(queryContext.getLimit()).isEqualTo(20);
-    assertThat(queryContext.getPage()).isEqualTo(2);
+    SearchOptions searchOptions = contextArgumentCaptor.getValue();
+    assertThat(searchOptions.getLimit()).isEqualTo(20);
+    assertThat(searchOptions.getPage()).isEqualTo(2);
   }
 
   @Test
@@ -687,25 +685,25 @@ public class InternalRubyIssueServiceTest {
     Map<String, Object> map = newHashMap();
     map.put("pageSize", 10l);
     map.put("pageIndex", 50);
-    QueryContext context = InternalRubyIssueService.toContext(map);
-    assertThat(context.getLimit()).isEqualTo(10);
-    assertThat(context.getPage()).isEqualTo(50);
+    SearchOptions searchOptions = InternalRubyIssueService.toSearchOptions(map);
+    assertThat(searchOptions.getLimit()).isEqualTo(10);
+    assertThat(searchOptions.getPage()).isEqualTo(50);
 
     map = newHashMap();
     map.put("pageSize", -1);
     map.put("pageIndex", 50);
-    context = InternalRubyIssueService.toContext(map);
-    assertThat(context.getLimit()).isEqualTo(500);
-    assertThat(context.getPage()).isEqualTo(1);
+    searchOptions = InternalRubyIssueService.toSearchOptions(map);
+    assertThat(searchOptions.getLimit()).isEqualTo(500);
+    assertThat(searchOptions.getPage()).isEqualTo(1);
 
-    context = InternalRubyIssueService.toContext(Maps.<String, Object>newHashMap());
-    assertThat(context.getLimit()).isEqualTo(100);
-    assertThat(context.getPage()).isEqualTo(1);
+    searchOptions = InternalRubyIssueService.toSearchOptions(Maps.<String, Object>newHashMap());
+    assertThat(searchOptions.getLimit()).isEqualTo(100);
+    assertThat(searchOptions.getPage()).isEqualTo(1);
   }
 
   @Test
   public void list_tags() throws Exception {
-    ImmutableSet<String> tags = ImmutableSet.of("tag1", "tag2", "tag3");
+    List<String> tags = Arrays.asList("tag1", "tag2", "tag3");
     when(issueService.listTags(null, 0)).thenReturn(tags);
     assertThat(service.listTags()).isEqualTo(tags);
   }

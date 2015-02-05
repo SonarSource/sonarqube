@@ -32,12 +32,11 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.server.component.ComponentTesting;
+import org.sonar.server.es.SearchOptions;
+import org.sonar.server.es.SearchResult;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.IssueTesting;
-import org.sonar.server.search.FacetValue;
-import org.sonar.server.search.QueryContext;
-import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.view.index.ViewDoc;
@@ -46,12 +45,15 @@ import org.sonar.server.view.index.ViewIndexer;
 import javax.annotation.Nullable;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
 /**
  * As soon as IssueIndex take {@link org.sonar.server.es.EsClient} in its constructor, ServerTester should be replaced by EsTester, it will make this test going faster !
@@ -126,9 +128,9 @@ public class IssueIndexMediumTest {
       IssueTesting.newDoc("1", ComponentTesting.newFileDto(project)),
       IssueTesting.newDoc("2", ComponentTesting.newFileDto(project)));
 
-    assertThat(index.search(IssueQuery.builder().issueKeys(newArrayList("1", "2")).build(), new QueryContext()).getHits()).hasSize(2);
-    assertThat(index.search(IssueQuery.builder().issueKeys(newArrayList("1")).build(), new QueryContext()).getHits()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().issueKeys(newArrayList("3", "4")).build(), new QueryContext()).getHits()).isEmpty();
+    assertThat(index.search(IssueQuery.builder().issueKeys(newArrayList("1", "2")).build(), new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder().issueKeys(newArrayList("1")).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().issueKeys(newArrayList("3", "4")).build(), new SearchOptions()).getDocs()).isEmpty();
   }
 
   @Test
@@ -145,8 +147,8 @@ public class IssueIndexMediumTest {
       IssueTesting.newDoc("ISSUE5", subModule),
       IssueTesting.newDoc("ISSUE6", ComponentTesting.newFileDto(subModule)));
 
-    assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).build(), new QueryContext()).getHits()).hasSize(6);
-    assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList("unknown")).build(), new QueryContext()).getHits()).isEmpty();
+    assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).build(), new SearchOptions()).getDocs()).hasSize(6);
+    assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList("unknown")).build(), new SearchOptions()).getDocs()).isEmpty();
   }
 
   @Test
@@ -159,9 +161,9 @@ public class IssueIndexMediumTest {
       IssueTesting.newDoc("ISSUE2", ComponentTesting.newFileDto(project)),
       IssueTesting.newDoc("ISSUE3", ComponentTesting.newFileDto(project2)));
 
-    Result<Issue> result = index.search(IssueQuery.builder().build(), new QueryContext().addFacets(newArrayList("projectUuids")));
-    assertThat(result.getFacets()).containsOnlyKeys("projectUuids");
-    assertThat(result.getFacets().get("projectUuids")).containsOnly(new FacetValue("ABCD", 2), new FacetValue("EFGH", 1));
+    SearchResult<IssueDoc> result = index.search(IssueQuery.builder().build(), new SearchOptions().addFacets(newArrayList("projectUuids")));
+    assertThat(result.getFacets().getNames()).containsOnly("projectUuids");
+    assertThat(result.getFacets().get("projectUuids")).containsOnly(entry("ABCD", 2L), entry("EFGH", 1L));
   }
 
   @Test
@@ -177,15 +179,15 @@ public class IssueIndexMediumTest {
       IssueTesting.newDoc("ISSUE2", file));
 
     assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid()))
-      .moduleUuids(newArrayList(file.uuid())).build(), new QueryContext()).getHits()).isEmpty();
+      .moduleUuids(newArrayList(file.uuid())).build(), new SearchOptions()).getDocs()).isEmpty();
     assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid()))
-      .moduleUuids(newArrayList(module.uuid())).build(), new QueryContext()).getHits()).hasSize(1);
+      .moduleUuids(newArrayList(module.uuid())).build(), new SearchOptions()).getDocs()).hasSize(1);
     assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid()))
-      .moduleUuids(newArrayList(subModule.uuid())).build(), new QueryContext()).getHits()).hasSize(1);
+      .moduleUuids(newArrayList(subModule.uuid())).build(), new SearchOptions()).getDocs()).hasSize(1);
     assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid()))
-      .moduleUuids(newArrayList(project.uuid())).build(), new QueryContext()).getHits()).hasSize(1);
+      .moduleUuids(newArrayList(project.uuid())).build(), new SearchOptions()).getDocs()).hasSize(1);
     assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid()))
-      .moduleUuids(newArrayList("unknown")).build(), new QueryContext()).getHits()).isEmpty();
+      .moduleUuids(newArrayList("unknown")).build(), new SearchOptions()).getDocs()).isEmpty();
   }
 
   @Test
@@ -207,20 +209,20 @@ public class IssueIndexMediumTest {
       IssueTesting.newDoc("ISSUE5", subModule),
       IssueTesting.newDoc("ISSUE6", file3));
 
-    assertThat(index.search(IssueQuery.builder().setContextualized(true).fileUuids(newArrayList(file1.uuid(), file2.uuid(), file3.uuid())).build(), new QueryContext())
-      .getHits()).hasSize(3);
-    assertThat(index.search(IssueQuery.builder().setContextualized(true).fileUuids(newArrayList(file1.uuid())).build(), new QueryContext())
-      .getHits()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().setContextualized(true).moduleRootUuids(newArrayList(subModule.uuid())).build(), new QueryContext())
-      .getHits()).hasSize(2);
-    assertThat(index.search(IssueQuery.builder().setContextualized(true).moduleRootUuids(newArrayList(module.uuid())).build(), new QueryContext())
-      .getHits()).hasSize(4);
-    assertThat(index.search(IssueQuery.builder().setContextualized(true).projectUuids(newArrayList(project.uuid())).build(), new QueryContext())
-      .getHits()).hasSize(6);
-    assertThat(index.search(IssueQuery.builder().setContextualized(true).viewUuids(newArrayList(view)).build(), new QueryContext())
-      .getHits()).hasSize(6);
-    assertThat(index.search(IssueQuery.builder().setContextualized(true).projectUuids(newArrayList("unknown")).build(), new QueryContext())
-      .getHits()).isEmpty();
+    assertThat(index.search(IssueQuery.builder().setContextualized(true).fileUuids(newArrayList(file1.uuid(), file2.uuid(), file3.uuid())).build(), new SearchOptions())
+      .getDocs()).hasSize(3);
+    assertThat(index.search(IssueQuery.builder().setContextualized(true).fileUuids(newArrayList(file1.uuid())).build(), new SearchOptions())
+      .getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().setContextualized(true).moduleRootUuids(newArrayList(subModule.uuid())).build(), new SearchOptions())
+      .getDocs()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder().setContextualized(true).moduleRootUuids(newArrayList(module.uuid())).build(), new SearchOptions())
+      .getDocs()).hasSize(4);
+    assertThat(index.search(IssueQuery.builder().setContextualized(true).projectUuids(newArrayList(project.uuid())).build(), new SearchOptions())
+      .getDocs()).hasSize(6);
+    assertThat(index.search(IssueQuery.builder().setContextualized(true).viewUuids(newArrayList(view)).build(), new SearchOptions())
+      .getDocs()).hasSize(6);
+    assertThat(index.search(IssueQuery.builder().setContextualized(true).projectUuids(newArrayList("unknown")).build(), new SearchOptions())
+      .getDocs()).isEmpty();
   }
 
   @Test
@@ -242,15 +244,15 @@ public class IssueIndexMediumTest {
       IssueTesting.newDoc("ISSUE5", subModule),
       IssueTesting.newDoc("ISSUE6", file3));
 
-    assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList("unknown")).build(), new QueryContext()).getHits()).isEmpty();
-    assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).build(), new QueryContext()).getHits()).hasSize(6);
-    assertThat(index.search(IssueQuery.builder().viewUuids(newArrayList(view)).build(), new QueryContext()).getHits()).hasSize(6);
-    assertThat(index.search(IssueQuery.builder().moduleUuids(newArrayList(module.uuid())).build(), new QueryContext()).getHits()).hasSize(2);
-    assertThat(index.search(IssueQuery.builder().moduleUuids(newArrayList(subModule.uuid())).build(), new QueryContext()).getHits()).hasSize(1); // XXX
-                                                                                                                                                 // Misleading
-                                                                                                                                                 // !
-    assertThat(index.search(IssueQuery.builder().fileUuids(newArrayList(file1.uuid())).build(), new QueryContext()).getHits()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().fileUuids(newArrayList(file1.uuid(), file2.uuid(), file3.uuid())).build(), new QueryContext()).getHits()).hasSize(3);
+    assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList("unknown")).build(), new SearchOptions()).getDocs()).isEmpty();
+    assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).build(), new SearchOptions()).getDocs()).hasSize(6);
+    assertThat(index.search(IssueQuery.builder().viewUuids(newArrayList(view)).build(), new SearchOptions()).getDocs()).hasSize(6);
+    assertThat(index.search(IssueQuery.builder().moduleUuids(newArrayList(module.uuid())).build(), new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder().moduleUuids(newArrayList(subModule.uuid())).build(), new SearchOptions()).getDocs()).hasSize(1); // XXX
+                                                                                                                                                  // Misleading
+                                                                                                                                                  // !
+    assertThat(index.search(IssueQuery.builder().fileUuids(newArrayList(file1.uuid())).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().fileUuids(newArrayList(file1.uuid(), file2.uuid(), file3.uuid())).build(), new SearchOptions()).getDocs()).hasSize(3);
   }
 
   @Test
@@ -267,9 +269,10 @@ public class IssueIndexMediumTest {
       IssueTesting.newDoc("ISSUE4", file2),
       IssueTesting.newDoc("ISSUE5", file3));
 
-    Result<Issue> result = index.search(IssueQuery.builder().build(), new QueryContext().addFacets(newArrayList("fileUuids")));
-    assertThat(result.getFacets()).containsOnlyKeys("fileUuids");
-    assertThat(result.getFacets().get("fileUuids")).containsOnly(new FacetValue("A", 1), new FacetValue("ABCD", 1), new FacetValue("BCDE", 2), new FacetValue("CDEF", 1));
+    SearchResult<IssueDoc> result = index.search(IssueQuery.builder().build(), new SearchOptions().addFacets(newArrayList("fileUuids")));
+    assertThat(result.getFacets().getNames()).containsOnly("fileUuids");
+    assertThat(result.getFacets().get("fileUuids"))
+      .containsOnly(entry("A", 1L), entry("ABCD", 1L), entry("BCDE", 2L), entry("CDEF", 1L));
   }
 
   @Test
@@ -282,9 +285,9 @@ public class IssueIndexMediumTest {
       IssueTesting.newDoc("ISSUE1", file1).setDirectoryPath("/src/main/xoo"),
       IssueTesting.newDoc("ISSUE2", file2).setDirectoryPath("/"));
 
-    assertThat(index.search(IssueQuery.builder().directories(newArrayList("/src/main/xoo")).build(), new QueryContext()).getHits()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().directories(newArrayList("/")).build(), new QueryContext()).getHits()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().directories(newArrayList("unknown")).build(), new QueryContext()).getHits()).isEmpty();
+    assertThat(index.search(IssueQuery.builder().directories(newArrayList("/src/main/xoo")).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().directories(newArrayList("/")).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().directories(newArrayList("unknown")).build(), new SearchOptions()).getDocs()).isEmpty();
   }
 
   @Test
@@ -297,9 +300,9 @@ public class IssueIndexMediumTest {
       IssueTesting.newDoc("ISSUE1", file1).setDirectoryPath("/src/main/xoo"),
       IssueTesting.newDoc("ISSUE2", file2).setDirectoryPath("/"));
 
-    Result<Issue> result = index.search(IssueQuery.builder().build(), new QueryContext().addFacets(newArrayList("directories")));
-    assertThat(result.getFacets()).containsOnlyKeys("directories");
-    assertThat(result.getFacets().get("directories")).containsOnly(new FacetValue("/src/main/xoo", 1), new FacetValue("/", 1));
+    SearchResult<IssueDoc> result = index.search(IssueQuery.builder().build(), new SearchOptions().addFacets(newArrayList("directories")));
+    assertThat(result.getFacets().getNames()).containsOnly("directories");
+    assertThat(result.getFacets().get("directories")).containsOnly(entry("/src/main/xoo", 1L), entry("/", 1L));
   }
 
   @Test
@@ -322,10 +325,10 @@ public class IssueIndexMediumTest {
     String view2 = "CDEF";
     indexView(view2, newArrayList(project2.uuid()));
 
-    assertThat(index.search(IssueQuery.builder().viewUuids(newArrayList(view1)).build(), new QueryContext()).getHits()).hasSize(2);
-    assertThat(index.search(IssueQuery.builder().viewUuids(newArrayList(view2)).build(), new QueryContext()).getHits()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().viewUuids(newArrayList(view1, view2)).build(), new QueryContext()).getHits()).hasSize(3);
-    assertThat(index.search(IssueQuery.builder().viewUuids(newArrayList("unknown")).build(), new QueryContext()).getHits()).isEmpty();
+    assertThat(index.search(IssueQuery.builder().viewUuids(newArrayList(view1)).build(), new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder().viewUuids(newArrayList(view2)).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().viewUuids(newArrayList(view1, view2)).build(), new SearchOptions()).getDocs()).hasSize(3);
+    assertThat(index.search(IssueQuery.builder().viewUuids(newArrayList("unknown")).build(), new SearchOptions()).getDocs()).isEmpty();
   }
 
   @Test
@@ -337,9 +340,9 @@ public class IssueIndexMediumTest {
       IssueTesting.newDoc("ISSUE1", file).setSeverity(Severity.INFO),
       IssueTesting.newDoc("ISSUE2", file).setSeverity(Severity.MAJOR));
 
-    assertThat(index.search(IssueQuery.builder().severities(newArrayList(Severity.INFO, Severity.MAJOR)).build(), new QueryContext()).getHits()).hasSize(2);
-    assertThat(index.search(IssueQuery.builder().severities(newArrayList(Severity.INFO)).build(), new QueryContext()).getHits()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().severities(newArrayList(Severity.BLOCKER)).build(), new QueryContext()).getHits()).isEmpty();
+    assertThat(index.search(IssueQuery.builder().severities(newArrayList(Severity.INFO, Severity.MAJOR)).build(), new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder().severities(newArrayList(Severity.INFO)).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().severities(newArrayList(Severity.BLOCKER)).build(), new SearchOptions()).getDocs()).isEmpty();
   }
 
   @Test
@@ -352,9 +355,9 @@ public class IssueIndexMediumTest {
       IssueTesting.newDoc("ISSUE2", file).setSeverity(Severity.INFO),
       IssueTesting.newDoc("ISSUE3", file).setSeverity(Severity.MAJOR));
 
-    Result<Issue> result = index.search(IssueQuery.builder().build(), new QueryContext().addFacets(newArrayList("severities")));
-    assertThat(result.getFacets()).containsOnlyKeys("severities");
-    assertThat(result.getFacets().get("severities")).containsOnly(new FacetValue("INFO", 2), new FacetValue("MAJOR", 1));
+    SearchResult<IssueDoc> result = index.search(IssueQuery.builder().build(), new SearchOptions().addFacets(newArrayList("severities")));
+    assertThat(result.getFacets().getNames()).containsOnly("severities");
+    assertThat(result.getFacets().get("severities")).containsOnly(entry("INFO", 2L), entry("MAJOR", 1L));
   }
 
   @Test
@@ -366,9 +369,9 @@ public class IssueIndexMediumTest {
       IssueTesting.newDoc("ISSUE1", file).setStatus(Issue.STATUS_CLOSED),
       IssueTesting.newDoc("ISSUE2", file).setStatus(Issue.STATUS_OPEN));
 
-    assertThat(index.search(IssueQuery.builder().statuses(newArrayList(Issue.STATUS_CLOSED, Issue.STATUS_OPEN)).build(), new QueryContext()).getHits()).hasSize(2);
-    assertThat(index.search(IssueQuery.builder().statuses(newArrayList(Issue.STATUS_CLOSED)).build(), new QueryContext()).getHits()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().statuses(newArrayList(Issue.STATUS_CONFIRMED)).build(), new QueryContext()).getHits()).isEmpty();
+    assertThat(index.search(IssueQuery.builder().statuses(newArrayList(Issue.STATUS_CLOSED, Issue.STATUS_OPEN)).build(), new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder().statuses(newArrayList(Issue.STATUS_CLOSED)).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().statuses(newArrayList(Issue.STATUS_CONFIRMED)).build(), new SearchOptions()).getDocs()).isEmpty();
   }
 
   @Test
@@ -381,9 +384,9 @@ public class IssueIndexMediumTest {
       IssueTesting.newDoc("ISSUE2", file).setStatus(Issue.STATUS_CLOSED),
       IssueTesting.newDoc("ISSUE3", file).setStatus(Issue.STATUS_OPEN));
 
-    Result<Issue> result = index.search(IssueQuery.builder().build(), new QueryContext().addFacets(newArrayList("statuses")));
-    assertThat(result.getFacets()).containsOnlyKeys("statuses");
-    assertThat(result.getFacets().get("statuses")).containsOnly(new FacetValue("CLOSED", 2), new FacetValue("OPEN", 1));
+    SearchResult<IssueDoc> result = index.search(IssueQuery.builder().build(), new SearchOptions().addFacets(newArrayList("statuses")));
+    assertThat(result.getFacets().getNames()).containsOnly("statuses");
+    assertThat(result.getFacets().get("statuses")).containsOnly(entry("CLOSED", 2L), entry("OPEN", 1L));
   }
 
   @Test
@@ -395,10 +398,10 @@ public class IssueIndexMediumTest {
       IssueTesting.newDoc("ISSUE1", file).setResolution(Issue.RESOLUTION_FALSE_POSITIVE),
       IssueTesting.newDoc("ISSUE2", file).setResolution(Issue.RESOLUTION_FIXED));
 
-    assertThat(index.search(IssueQuery.builder().resolutions(newArrayList(Issue.RESOLUTION_FALSE_POSITIVE, Issue.RESOLUTION_FIXED)).build(), new QueryContext()).getHits())
+    assertThat(index.search(IssueQuery.builder().resolutions(newArrayList(Issue.RESOLUTION_FALSE_POSITIVE, Issue.RESOLUTION_FIXED)).build(), new SearchOptions()).getDocs())
       .hasSize(2);
-    assertThat(index.search(IssueQuery.builder().resolutions(newArrayList(Issue.RESOLUTION_FALSE_POSITIVE)).build(), new QueryContext()).getHits()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().resolutions(newArrayList(Issue.RESOLUTION_REMOVED)).build(), new QueryContext()).getHits()).isEmpty();
+    assertThat(index.search(IssueQuery.builder().resolutions(newArrayList(Issue.RESOLUTION_FALSE_POSITIVE)).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().resolutions(newArrayList(Issue.RESOLUTION_REMOVED)).build(), new SearchOptions()).getDocs()).isEmpty();
   }
 
   @Test
@@ -411,9 +414,9 @@ public class IssueIndexMediumTest {
       IssueTesting.newDoc("ISSUE2", file).setResolution(Issue.RESOLUTION_FALSE_POSITIVE),
       IssueTesting.newDoc("ISSUE3", file).setResolution(Issue.RESOLUTION_FIXED));
 
-    Result<Issue> result = index.search(IssueQuery.builder().build(), new QueryContext().addFacets(newArrayList("resolutions")));
-    assertThat(result.getFacets()).containsOnlyKeys("resolutions");
-    assertThat(result.getFacets().get("resolutions")).containsOnly(new FacetValue("FALSE-POSITIVE", 2), new FacetValue("FIXED", 1));
+    SearchResult<IssueDoc> result = index.search(IssueQuery.builder().build(), new SearchOptions().addFacets(newArrayList("resolutions")));
+    assertThat(result.getFacets().getNames()).containsOnly("resolutions");
+    assertThat(result.getFacets().get("resolutions")).containsOnly(entry("FALSE-POSITIVE", 2L), entry("FIXED", 1L));
   }
 
   @Test
@@ -426,9 +429,9 @@ public class IssueIndexMediumTest {
       IssueTesting.newDoc("ISSUE2", file).setStatus(Issue.STATUS_OPEN).setResolution(null),
       IssueTesting.newDoc("ISSUE3", file).setStatus(Issue.STATUS_OPEN).setResolution(null));
 
-    assertThat(index.search(IssueQuery.builder().resolved(true).build(), new QueryContext()).getHits()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().resolved(false).build(), new QueryContext()).getHits()).hasSize(2);
-    assertThat(index.search(IssueQuery.builder().resolved(null).build(), new QueryContext()).getHits()).hasSize(3);
+    assertThat(index.search(IssueQuery.builder().resolved(true).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().resolved(false).build(), new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder().resolved(null).build(), new SearchOptions()).getDocs()).hasSize(3);
   }
 
   @Test
@@ -440,10 +443,9 @@ public class IssueIndexMediumTest {
       IssueTesting.newDoc("ISSUE1", file).setActionPlanKey("plan1"),
       IssueTesting.newDoc("ISSUE2", file).setActionPlanKey("plan2"));
 
-    assertThat(index.search(IssueQuery.builder().actionPlans(newArrayList("plan1")).build(), new QueryContext()).getHits()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().actionPlans(newArrayList("plan1", "plan2")).build(), new
-      QueryContext()).getHits()).hasSize(2);
-    assertThat(index.search(IssueQuery.builder().actionPlans(newArrayList("unknown")).build(), new QueryContext()).getHits()).isEmpty();
+    assertThat(index.search(IssueQuery.builder().actionPlans(newArrayList("plan1")).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().actionPlans(newArrayList("plan1", "plan2")).build(), new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder().actionPlans(newArrayList("unknown")).build(), new SearchOptions()).getDocs()).isEmpty();
   }
 
   @Test
@@ -455,9 +457,9 @@ public class IssueIndexMediumTest {
       IssueTesting.newDoc("ISSUE1", file).setActionPlanKey("plan1"),
       IssueTesting.newDoc("ISSUE2", file).setActionPlanKey("plan2"));
 
-    Result<Issue> result = index.search(IssueQuery.builder().build(), new QueryContext().addFacets(newArrayList("actionPlans")));
-    assertThat(result.getFacets()).containsOnlyKeys("actionPlans");
-    assertThat(result.getFacets().get("actionPlans")).containsOnly(new FacetValue("plan1", 1), new FacetValue("plan2", 1));
+    SearchResult<IssueDoc> result = index.search(IssueQuery.builder().build(), new SearchOptions().addFacets(newArrayList("actionPlans")));
+    assertThat(result.getFacets().getNames()).containsOnly("actionPlans");
+    assertThat(result.getFacets().get("actionPlans")).containsOnly(entry("plan1", 1L), entry("plan2", 1L));
   }
 
   @Test
@@ -470,9 +472,9 @@ public class IssueIndexMediumTest {
       IssueTesting.newDoc("ISSUE2", file).setActionPlanKey(null),
       IssueTesting.newDoc("ISSUE3", file).setActionPlanKey(null));
 
-    assertThat(index.search(IssueQuery.builder().planned(true).build(), new QueryContext()).getHits()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().planned(false).build(), new QueryContext()).getHits()).hasSize(2);
-    assertThat(index.search(IssueQuery.builder().planned(null).build(), new QueryContext()).getHits()).hasSize(3);
+    assertThat(index.search(IssueQuery.builder().planned(true).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().planned(false).build(), new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder().planned(null).build(), new SearchOptions()).getDocs()).hasSize(3);
   }
 
   @Test
@@ -483,8 +485,8 @@ public class IssueIndexMediumTest {
 
     indexIssues(IssueTesting.newDoc("ISSUE1", file).setRuleKey(ruleKey.toString()));
 
-    assertThat(index.search(IssueQuery.builder().rules(newArrayList(ruleKey)).build(), new QueryContext()).getHits()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().rules(newArrayList(RuleKey.of("rule", "without issue"))).build(), new QueryContext()).getHits()).isEmpty();
+    assertThat(index.search(IssueQuery.builder().rules(newArrayList(ruleKey)).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().rules(newArrayList(RuleKey.of("rule", "without issue"))).build(), new SearchOptions()).getDocs()).isEmpty();
   }
 
   @Test
@@ -495,9 +497,9 @@ public class IssueIndexMediumTest {
 
     indexIssues(IssueTesting.newDoc("ISSUE1", file).setRuleKey(ruleKey.toString()).setLanguage("xoo"));
 
-    assertThat(index.search(IssueQuery.builder().languages(newArrayList("xoo")).build(), new
-      QueryContext()).getHits()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().languages(newArrayList("unknown")).build(), new QueryContext()).getHits()).isEmpty();
+    assertThat(index.search(IssueQuery.builder().languages(newArrayList("xoo")).build(),
+      new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().languages(newArrayList("unknown")).build(), new SearchOptions()).getDocs()).isEmpty();
   }
 
   @Test
@@ -508,9 +510,9 @@ public class IssueIndexMediumTest {
 
     indexIssues(IssueTesting.newDoc("ISSUE1", file).setRuleKey(ruleKey.toString()).setLanguage("xoo"));
 
-    Result<Issue> result = index.search(IssueQuery.builder().build(), new QueryContext().addFacets(newArrayList("languages")));
-    assertThat(result.getFacets()).containsOnlyKeys("languages");
-    assertThat(result.getFacets().get("languages")).containsOnly(new FacetValue("xoo", 1));
+    SearchResult<IssueDoc> result = index.search(IssueQuery.builder().build(), new SearchOptions().addFacets(newArrayList("languages")));
+    assertThat(result.getFacets().getNames()).containsOnly("languages");
+    assertThat(result.getFacets().get("languages")).containsOnly(entry("xoo", 1L));
   }
 
   @Test
@@ -523,9 +525,9 @@ public class IssueIndexMediumTest {
       IssueTesting.newDoc("ISSUE2", file).setAssignee("simon"),
       IssueTesting.newDoc("ISSUE3", file).setAssignee(null));
 
-    assertThat(index.search(IssueQuery.builder().assignees(newArrayList("steph")).build(), new QueryContext()).getHits()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().assignees(newArrayList("steph", "simon")).build(), new QueryContext()).getHits()).hasSize(2);
-    assertThat(index.search(IssueQuery.builder().assignees(newArrayList("unknown")).build(), new QueryContext()).getHits()).isEmpty();
+    assertThat(index.search(IssueQuery.builder().assignees(newArrayList("steph")).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().assignees(newArrayList("steph", "simon")).build(), new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder().assignees(newArrayList("unknown")).build(), new SearchOptions()).getDocs()).isEmpty();
   }
 
   @Test
@@ -539,9 +541,9 @@ public class IssueIndexMediumTest {
       IssueTesting.newDoc("ISSUE3", file).setAssignee("simon"),
       IssueTesting.newDoc("ISSUE4", file).setAssignee(null));
 
-    Result<Issue> result = index.search(IssueQuery.builder().build(), new QueryContext().addFacets(newArrayList("assignees")));
-    assertThat(result.getFacets()).containsOnlyKeys("assignees");
-    assertThat(result.getFacets().get("assignees")).containsOnly(new FacetValue("steph", 1), new FacetValue("simon", 2), new FacetValue("", 1));
+    SearchResult<IssueDoc> result = index.search(IssueQuery.builder().build(), new SearchOptions().addFacets(newArrayList("assignees")));
+    assertThat(result.getFacets().getNames()).containsOnly("assignees");
+    assertThat(result.getFacets().get("assignees")).containsOnly(entry("steph", 1L), entry("simon", 2L), entry("", 1L));
   }
 
   @Test
@@ -554,9 +556,9 @@ public class IssueIndexMediumTest {
       IssueTesting.newDoc("ISSUE2", file).setAssignee(null),
       IssueTesting.newDoc("ISSUE3", file).setAssignee(null));
 
-    assertThat(index.search(IssueQuery.builder().assigned(true).build(), new QueryContext()).getHits()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().assigned(false).build(), new QueryContext()).getHits()).hasSize(2);
-    assertThat(index.search(IssueQuery.builder().assigned(null).build(), new QueryContext()).getHits()).hasSize(3);
+    assertThat(index.search(IssueQuery.builder().assigned(true).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().assigned(false).build(), new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder().assigned(null).build(), new SearchOptions()).getDocs()).hasSize(3);
   }
 
   @Test
@@ -568,9 +570,9 @@ public class IssueIndexMediumTest {
       IssueTesting.newDoc("ISSUE1", file).setReporter("fabrice"),
       IssueTesting.newDoc("ISSUE2", file).setReporter("stephane"));
 
-    assertThat(index.search(IssueQuery.builder().reporters(newArrayList("fabrice", "stephane")).build(), new QueryContext()).getHits()).hasSize(2);
-    assertThat(index.search(IssueQuery.builder().reporters(newArrayList("fabrice")).build(), new QueryContext()).getHits()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().reporters(newArrayList("unknown")).build(), new QueryContext()).getHits()).isEmpty();
+    assertThat(index.search(IssueQuery.builder().reporters(newArrayList("fabrice", "stephane")).build(), new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder().reporters(newArrayList("fabrice")).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().reporters(newArrayList("unknown")).build(), new SearchOptions()).getDocs()).isEmpty();
   }
 
   @Test
@@ -583,9 +585,9 @@ public class IssueIndexMediumTest {
       IssueTesting.newDoc("ISSUE2", file).setAuthorLogin("simon"),
       IssueTesting.newDoc("ISSUE3", file).setAssignee(null));
 
-    assertThat(index.search(IssueQuery.builder().authors(newArrayList("steph")).build(), new QueryContext()).getHits()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().authors(newArrayList("steph", "simon")).build(), new QueryContext()).getHits()).hasSize(2);
-    assertThat(index.search(IssueQuery.builder().authors(newArrayList("unknown")).build(), new QueryContext()).getHits()).isEmpty();
+    assertThat(index.search(IssueQuery.builder().authors(newArrayList("steph")).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().authors(newArrayList("steph", "simon")).build(), new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder().authors(newArrayList("unknown")).build(), new SearchOptions()).getDocs()).isEmpty();
   }
 
   @Test
@@ -599,9 +601,9 @@ public class IssueIndexMediumTest {
       IssueTesting.newDoc("ISSUE3", file).setAuthorLogin("simon"),
       IssueTesting.newDoc("ISSUE4", file).setAuthorLogin(null));
 
-    Result<Issue> result = index.search(IssueQuery.builder().build(), new QueryContext().addFacets(newArrayList("authors")));
-    assertThat(result.getFacets()).containsOnlyKeys("authors");
-    assertThat(result.getFacets().get("authors")).containsOnly(new FacetValue("steph", 1), new FacetValue("simon", 2));
+    SearchResult<IssueDoc> result = index.search(IssueQuery.builder().build(), new SearchOptions().addFacets(newArrayList("authors")));
+    assertThat(result.getFacets().getNames()).containsOnly("authors");
+    assertThat(result.getFacets().get("authors")).containsOnly(entry("steph", 1L), entry("simon", 2L));
   }
 
   @Test
@@ -613,10 +615,10 @@ public class IssueIndexMediumTest {
       IssueTesting.newDoc("ISSUE1", file).setFuncCreationDate(DateUtils.parseDate("2014-09-20")),
       IssueTesting.newDoc("ISSUE2", file).setFuncCreationDate(DateUtils.parseDate("2014-09-23")));
 
-    assertThat(index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2014-09-19")).build(), new QueryContext()).getHits()).hasSize(2);
-    assertThat(index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2014-09-20")).build(), new QueryContext()).getHits()).hasSize(2);
-    assertThat(index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2014-09-21")).build(), new QueryContext()).getHits()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2014-09-25")).build(), new QueryContext()).getHits()).isEmpty();
+    assertThat(index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2014-09-19")).build(), new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2014-09-20")).build(), new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2014-09-21")).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2014-09-25")).build(), new SearchOptions()).getDocs()).isEmpty();
   }
 
   @Test
@@ -628,10 +630,10 @@ public class IssueIndexMediumTest {
       IssueTesting.newDoc("ISSUE1", file).setFuncCreationDate(DateUtils.parseDate("2014-09-20")),
       IssueTesting.newDoc("ISSUE2", file).setFuncCreationDate(DateUtils.parseDate("2014-09-23")));
 
-    assertThat(index.search(IssueQuery.builder().createdBefore(DateUtils.parseDate("2014-09-19")).build(), new QueryContext()).getHits()).isEmpty();
-    assertThat(index.search(IssueQuery.builder().createdBefore(DateUtils.parseDate("2014-09-20")).build(), new QueryContext()).getHits()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().createdBefore(DateUtils.parseDate("2014-09-21")).build(), new QueryContext()).getHits()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().createdBefore(DateUtils.parseDate("2014-09-25")).build(), new QueryContext()).getHits()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder().createdBefore(DateUtils.parseDate("2014-09-19")).build(), new SearchOptions()).getDocs()).isEmpty();
+    assertThat(index.search(IssueQuery.builder().createdBefore(DateUtils.parseDate("2014-09-20")).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().createdBefore(DateUtils.parseDate("2014-09-21")).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().createdBefore(DateUtils.parseDate("2014-09-25")).build(), new SearchOptions()).getDocs()).hasSize(2);
   }
 
   @Test
@@ -641,121 +643,114 @@ public class IssueIndexMediumTest {
 
     indexIssues(IssueTesting.newDoc("ISSUE1", file).setFuncCreationDate(DateUtils.parseDate("2014-09-20")));
 
-    assertThat(index.search(IssueQuery.builder().createdAt(DateUtils.parseDate("2014-09-20")).build(), new QueryContext()).getHits()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().createdAt(DateUtils.parseDate("2014-09-21")).build(), new QueryContext()).getHits()).isEmpty();
+    assertThat(index.search(IssueQuery.builder().createdAt(DateUtils.parseDate("2014-09-20")).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().createdAt(DateUtils.parseDate("2014-09-21")).build(), new SearchOptions()).getDocs()).isEmpty();
   }
 
   @Test
   public void facet_on_created_at_with_less_than_20_days() throws Exception {
 
-    QueryContext queryContext = fixtureForCreatedAtFacet();
+    SearchOptions options = fixtureForCreatedAtFacet();
 
-    Collection<FacetValue> createdAt = index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2014-09-01")).createdBefore(DateUtils.parseDate("2014-09-08")).build(),
-      queryContext).getFacets().get("createdAt");
-    assertThat(createdAt).hasSize(8)
-      .containsOnly(
-        new FacetValue("2014-08-31T01:00:00+0000", 0),
-        new FacetValue("2014-09-01T01:00:00+0000", 2),
-        new FacetValue("2014-09-02T01:00:00+0000", 1),
-        new FacetValue("2014-09-03T01:00:00+0000", 0),
-        new FacetValue("2014-09-04T01:00:00+0000", 0),
-        new FacetValue("2014-09-05T01:00:00+0000", 1),
-        new FacetValue("2014-09-06T01:00:00+0000", 0),
-        new FacetValue("2014-09-07T01:00:00+0000", 0));
+    IssueQuery query = IssueQuery.builder()
+      .createdAfter(DateUtils.parseDate("2014-09-01"))
+      .createdBefore(DateUtils.parseDate("2014-09-08"))
+      .checkAuthorization(false)
+      .build();
+    SearchResult<IssueDoc> result = index.search(query, options);
+    Map<String, Long> buckets = result.getFacets().get("createdAt");
+    assertThat(buckets).containsOnly(
+      entry("2014-08-31T01:00:00+0000", 0L),
+      entry("2014-09-01T01:00:00+0000", 2L),
+      entry("2014-09-02T01:00:00+0000", 1L),
+      entry("2014-09-03T01:00:00+0000", 0L),
+      entry("2014-09-04T01:00:00+0000", 0L),
+      entry("2014-09-05T01:00:00+0000", 1L),
+      entry("2014-09-06T01:00:00+0000", 0L),
+      entry("2014-09-07T01:00:00+0000", 0L));
   }
 
   @Test
   public void facet_on_created_at_with_less_than_20_weeks() throws Exception {
 
-    QueryContext queryContext = fixtureForCreatedAtFacet();
+    SearchOptions SearchOptions = fixtureForCreatedAtFacet();
 
-    Collection<FacetValue> createdAt = index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2014-09-01")).createdBefore(DateUtils.parseDate("2014-09-21")).build(),
-      queryContext).getFacets().get("createdAt");
-    assertThat(createdAt).hasSize(4)
-      .containsOnly(
-        new FacetValue("2014-08-25T01:00:00+0000", 0),
-        new FacetValue("2014-09-01T01:00:00+0000", 4),
-        new FacetValue("2014-09-08T01:00:00+0000", 0),
-        new FacetValue("2014-09-15T01:00:00+0000", 1));
+    Map<String, Long> createdAt = index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2014-09-01")).createdBefore(DateUtils.parseDate("2014-09-21")).build(),
+      SearchOptions).getFacets().get("createdAt");
+    assertThat(createdAt).containsOnly(
+      entry("2014-08-25T01:00:00+0000", 0L),
+      entry("2014-09-01T01:00:00+0000", 4L),
+      entry("2014-09-08T01:00:00+0000", 0L),
+      entry("2014-09-15T01:00:00+0000", 1L));
   }
 
   @Test
   public void facet_on_created_at_with_less_than_20_months() throws Exception {
 
-    QueryContext queryContext = fixtureForCreatedAtFacet();
+    SearchOptions SearchOptions = fixtureForCreatedAtFacet();
 
-    Collection<FacetValue> createdAt = index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2014-09-01")).createdBefore(DateUtils.parseDate("2015-01-19")).build(),
-      queryContext).getFacets().get("createdAt");
-    assertThat(createdAt).hasSize(6)
-      .containsOnly(
-        new FacetValue("2014-08-01T01:00:00+0000", 0),
-        new FacetValue("2014-09-01T01:00:00+0000", 5),
-        new FacetValue("2014-10-01T01:00:00+0000", 0),
-        new FacetValue("2014-11-01T01:00:00+0000", 0),
-        new FacetValue("2014-12-01T01:00:00+0000", 0),
-        new FacetValue("2015-01-01T01:00:00+0000", 1));
+    Map<String, Long> createdAt = index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2014-09-01")).createdBefore(DateUtils.parseDate("2015-01-19")).build(),
+      SearchOptions).getFacets().get("createdAt");
+    assertThat(createdAt).containsOnly(
+      entry("2014-08-01T01:00:00+0000", 0L),
+      entry("2014-09-01T01:00:00+0000", 5L),
+      entry("2014-10-01T01:00:00+0000", 0L),
+      entry("2014-11-01T01:00:00+0000", 0L),
+      entry("2014-12-01T01:00:00+0000", 0L),
+      entry("2015-01-01T01:00:00+0000", 1L));
   }
 
   @Test
   public void facet_on_created_at_with_more_than_20_months() throws Exception {
+    SearchOptions SearchOptions = fixtureForCreatedAtFacet();
 
-    QueryContext queryContext = fixtureForCreatedAtFacet();
-
-    Collection<FacetValue> createdAt = index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2011-01-01")).createdBefore(DateUtils.parseDate("2016-01-01")).build(),
-      queryContext).getFacets().get("createdAt");
-    assertThat(createdAt).hasSize(6)
-      .containsOnly(
-        new FacetValue("2011-01-01T01:00:00+0000", 1),
-        new FacetValue("2012-01-01T01:00:00+0000", 0),
-        new FacetValue("2013-01-01T01:00:00+0000", 0),
-        new FacetValue("2014-01-01T01:00:00+0000", 5),
-        new FacetValue("2015-01-01T01:00:00+0000", 1),
-        new FacetValue("2016-01-01T01:00:00+0000", 0));
+    Map<String, Long> createdAt = index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2011-01-01")).createdBefore(DateUtils.parseDate("2016-01-01")).build(),
+      SearchOptions).getFacets().get("createdAt");
+    assertThat(createdAt).containsOnly(
+      entry("2011-01-01T01:00:00+0000", 1L),
+      entry("2012-01-01T01:00:00+0000", 0L),
+      entry("2013-01-01T01:00:00+0000", 0L),
+      entry("2014-01-01T01:00:00+0000", 5L),
+      entry("2015-01-01T01:00:00+0000", 1L),
+      entry("2016-01-01T01:00:00+0000", 0L));
 
   }
 
   @Test
   public void facet_on_created_at_with_bounds_outside_of_data() throws Exception {
+    SearchOptions options = fixtureForCreatedAtFacet();
 
-    QueryContext queryContext = fixtureForCreatedAtFacet();
-
-    Collection<FacetValue> createdAt = index.search(IssueQuery.builder()
-        .createdAfter(DateUtils.parseDate("2009-01-01"))
-        .createdBefore(DateUtils.parseDate("2016-01-01"))
-        .build(),
-      queryContext).getFacets().get("createdAt");
-    assertThat(createdAt).hasSize(8)
-      .containsOnly(
-        new FacetValue("2009-01-01T01:00:00+0000", 0),
-        new FacetValue("2010-01-01T01:00:00+0000", 0),
-        new FacetValue("2011-01-01T01:00:00+0000", 1),
-        new FacetValue("2012-01-01T01:00:00+0000", 0),
-        new FacetValue("2013-01-01T01:00:00+0000", 0),
-        new FacetValue("2014-01-01T01:00:00+0000", 5),
-        new FacetValue("2015-01-01T01:00:00+0000", 1),
-        new FacetValue("2016-01-01T01:00:00+0000", 0));
-
+    Map<String, Long> createdAt = index.search(IssueQuery.builder()
+      .createdAfter(DateUtils.parseDate("2009-01-01"))
+      .createdBefore(DateUtils.parseDate("2016-01-01"))
+      .build(), options).getFacets().get("createdAt");
+    assertThat(createdAt).containsOnly(
+      entry("2009-01-01T01:00:00+0000", 0L),
+      entry("2010-01-01T01:00:00+0000", 0L),
+      entry("2011-01-01T01:00:00+0000", 1L),
+      entry("2012-01-01T01:00:00+0000", 0L),
+      entry("2013-01-01T01:00:00+0000", 0L),
+      entry("2014-01-01T01:00:00+0000", 5L),
+      entry("2015-01-01T01:00:00+0000", 1L),
+      entry("2016-01-01T01:00:00+0000", 0L));
   }
 
   @Test
   public void facet_on_created_at_without_start_bound() throws Exception {
+    SearchOptions SearchOptions = fixtureForCreatedAtFacet();
 
-    QueryContext queryContext = fixtureForCreatedAtFacet();
-
-    Collection<FacetValue> createdAt = index.search(IssueQuery.builder()
-      .createdBefore(DateUtils.parseDate("2016-01-01")).build(),
-      queryContext).getFacets().get("createdAt");
-    assertThat(createdAt).hasSize(6)
-      .containsOnly(
-        new FacetValue("2011-01-01T01:00:00+0000", 1),
-        new FacetValue("2012-01-01T01:00:00+0000", 0),
-        new FacetValue("2013-01-01T01:00:00+0000", 0),
-        new FacetValue("2014-01-01T01:00:00+0000", 5),
-        new FacetValue("2015-01-01T01:00:00+0000", 1),
-        new FacetValue("2016-01-01T01:00:00+0000", 0));
+    Map<String, Long> createdAt = index.search(IssueQuery.builder().createdBefore(DateUtils.parseDate("2016-01-01")).build(),
+      SearchOptions).getFacets().get("createdAt");
+    assertThat(createdAt).containsOnly(
+      entry("2011-01-01T01:00:00+0000", 1L),
+      entry("2012-01-01T01:00:00+0000", 0L),
+      entry("2013-01-01T01:00:00+0000", 0L),
+      entry("2014-01-01T01:00:00+0000", 5L),
+      entry("2015-01-01T01:00:00+0000", 1L),
+      entry("2016-01-01T01:00:00+0000", 0L));
   }
 
-  protected QueryContext fixtureForCreatedAtFacet() {
+  protected SearchOptions fixtureForCreatedAtFacet() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
 
@@ -769,8 +764,7 @@ public class IssueIndexMediumTest {
 
     indexIssues(issue0, issue1, issue2, issue3, issue4, issue5, issue6);
 
-    QueryContext queryContext = new QueryContext().addFacets(Arrays.asList("createdAt"));
-    return queryContext;
+    return new SearchOptions().addFacets("createdAt");
   }
 
   @Test
@@ -783,16 +777,16 @@ public class IssueIndexMediumTest {
 
     IssueQuery.Builder query = IssueQuery.builder();
     // There are 12 issues in total, with 10 issues per page, the page 2 should only contain 2 elements
-    Result<Issue> result = index.search(query.build(), new QueryContext().setPage(2, 10));
-    assertThat(result.getHits()).hasSize(2);
+    SearchResult<IssueDoc> result = index.search(query.build(), new SearchOptions().setPage(2, 10));
+    assertThat(result.getDocs()).hasSize(2);
     assertThat(result.getTotal()).isEqualTo(12);
 
-    result = index.search(IssueQuery.builder().build(), new QueryContext().setOffset(0).setLimit(5));
-    assertThat(result.getHits()).hasSize(5);
+    result = index.search(IssueQuery.builder().build(), new SearchOptions().setOffset(0).setLimit(5));
+    assertThat(result.getDocs()).hasSize(5);
     assertThat(result.getTotal()).isEqualTo(12);
 
-    result = index.search(IssueQuery.builder().build(), new QueryContext().setOffset(2).setLimit(0));
-    assertThat(result.getHits()).hasSize(0);
+    result = index.search(IssueQuery.builder().build(), new SearchOptions().setOffset(2).setLimit(0));
+    assertThat(result.getDocs()).hasSize(0);
     assertThat(result.getTotal()).isEqualTo(12);
   }
 
@@ -808,8 +802,8 @@ public class IssueIndexMediumTest {
     indexIssues(issues.toArray(new IssueDoc[] {}));
 
     IssueQuery.Builder query = IssueQuery.builder();
-    Result<Issue> result = index.search(query.build(), new QueryContext().setMaxLimit());
-    assertThat(result.getHits()).hasSize(500);
+    SearchResult<IssueDoc> result = index.search(query.build(), new SearchOptions().setLimit(Integer.MAX_VALUE));
+    assertThat(result.getDocs()).hasSize(SearchOptions.MAX_LIMIT);
   }
 
   @Test
@@ -823,16 +817,16 @@ public class IssueIndexMediumTest {
       IssueTesting.newDoc("ISSUE3", file).setStatus(Issue.STATUS_REOPENED));
 
     IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_STATUS).asc(true);
-    Result<Issue> result = index.search(query.build(), new QueryContext());
-    assertThat(result.getHits().get(0).status()).isEqualTo(Issue.STATUS_CLOSED);
-    assertThat(result.getHits().get(1).status()).isEqualTo(Issue.STATUS_OPEN);
-    assertThat(result.getHits().get(2).status()).isEqualTo(Issue.STATUS_REOPENED);
+    SearchResult<IssueDoc> result = index.search(query.build(), new SearchOptions());
+    assertThat(result.getDocs().get(0).status()).isEqualTo(Issue.STATUS_CLOSED);
+    assertThat(result.getDocs().get(1).status()).isEqualTo(Issue.STATUS_OPEN);
+    assertThat(result.getDocs().get(2).status()).isEqualTo(Issue.STATUS_REOPENED);
 
     query = IssueQuery.builder().sort(IssueQuery.SORT_BY_STATUS).asc(false);
-    result = index.search(query.build(), new QueryContext());
-    assertThat(result.getHits().get(0).status()).isEqualTo(Issue.STATUS_REOPENED);
-    assertThat(result.getHits().get(1).status()).isEqualTo(Issue.STATUS_OPEN);
-    assertThat(result.getHits().get(2).status()).isEqualTo(Issue.STATUS_CLOSED);
+    result = index.search(query.build(), new SearchOptions());
+    assertThat(result.getDocs().get(0).status()).isEqualTo(Issue.STATUS_REOPENED);
+    assertThat(result.getDocs().get(1).status()).isEqualTo(Issue.STATUS_OPEN);
+    assertThat(result.getDocs().get(2).status()).isEqualTo(Issue.STATUS_CLOSED);
   }
 
   @Test
@@ -848,20 +842,20 @@ public class IssueIndexMediumTest {
       IssueTesting.newDoc("ISSUE5", file).setSeverity(Severity.MAJOR));
 
     IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_SEVERITY).asc(true);
-    Result<Issue> result = index.search(query.build(), new QueryContext());
-    assertThat(result.getHits().get(0).severity()).isEqualTo(Severity.INFO);
-    assertThat(result.getHits().get(1).severity()).isEqualTo(Severity.MINOR);
-    assertThat(result.getHits().get(2).severity()).isEqualTo(Severity.MAJOR);
-    assertThat(result.getHits().get(3).severity()).isEqualTo(Severity.CRITICAL);
-    assertThat(result.getHits().get(4).severity()).isEqualTo(Severity.BLOCKER);
+    SearchResult<IssueDoc> result = index.search(query.build(), new SearchOptions());
+    assertThat(result.getDocs().get(0).severity()).isEqualTo(Severity.INFO);
+    assertThat(result.getDocs().get(1).severity()).isEqualTo(Severity.MINOR);
+    assertThat(result.getDocs().get(2).severity()).isEqualTo(Severity.MAJOR);
+    assertThat(result.getDocs().get(3).severity()).isEqualTo(Severity.CRITICAL);
+    assertThat(result.getDocs().get(4).severity()).isEqualTo(Severity.BLOCKER);
 
     query = IssueQuery.builder().sort(IssueQuery.SORT_BY_SEVERITY).asc(false);
-    result = index.search(query.build(), new QueryContext());
-    assertThat(result.getHits().get(0).severity()).isEqualTo(Severity.BLOCKER);
-    assertThat(result.getHits().get(1).severity()).isEqualTo(Severity.CRITICAL);
-    assertThat(result.getHits().get(2).severity()).isEqualTo(Severity.MAJOR);
-    assertThat(result.getHits().get(3).severity()).isEqualTo(Severity.MINOR);
-    assertThat(result.getHits().get(4).severity()).isEqualTo(Severity.INFO);
+    result = index.search(query.build(), new SearchOptions());
+    assertThat(result.getDocs().get(0).severity()).isEqualTo(Severity.BLOCKER);
+    assertThat(result.getDocs().get(1).severity()).isEqualTo(Severity.CRITICAL);
+    assertThat(result.getDocs().get(2).severity()).isEqualTo(Severity.MAJOR);
+    assertThat(result.getDocs().get(3).severity()).isEqualTo(Severity.MINOR);
+    assertThat(result.getDocs().get(4).severity()).isEqualTo(Severity.INFO);
   }
 
   @Test
@@ -874,16 +868,16 @@ public class IssueIndexMediumTest {
       IssueTesting.newDoc("ISSUE2", file).setAssignee("simon"));
 
     IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_ASSIGNEE).asc(true);
-    Result<Issue> result = index.search(query.build(), new QueryContext());
-    assertThat(result.getHits()).hasSize(2);
-    assertThat(result.getHits().get(0).assignee()).isEqualTo("simon");
-    assertThat(result.getHits().get(1).assignee()).isEqualTo("steph");
+    SearchResult<IssueDoc> result = index.search(query.build(), new SearchOptions());
+    assertThat(result.getDocs()).hasSize(2);
+    assertThat(result.getDocs().get(0).assignee()).isEqualTo("simon");
+    assertThat(result.getDocs().get(1).assignee()).isEqualTo("steph");
 
     query = IssueQuery.builder().sort(IssueQuery.SORT_BY_ASSIGNEE).asc(false);
-    result = index.search(query.build(), new QueryContext());
-    assertThat(result.getHits()).hasSize(2);
-    assertThat(result.getHits().get(0).assignee()).isEqualTo("steph");
-    assertThat(result.getHits().get(1).assignee()).isEqualTo("simon");
+    result = index.search(query.build(), new SearchOptions());
+    assertThat(result.getDocs()).hasSize(2);
+    assertThat(result.getDocs().get(0).assignee()).isEqualTo("steph");
+    assertThat(result.getDocs().get(1).assignee()).isEqualTo("simon");
   }
 
   @Test
@@ -896,16 +890,16 @@ public class IssueIndexMediumTest {
       IssueTesting.newDoc("ISSUE2", file).setFuncCreationDate(DateUtils.parseDate("2014-09-24")));
 
     IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_CREATION_DATE).asc(true);
-    Result<Issue> result = index.search(query.build(), new QueryContext());
-    assertThat(result.getHits()).hasSize(2);
-    assertThat(result.getHits().get(0).creationDate()).isEqualTo(DateUtils.parseDate("2014-09-23"));
-    assertThat(result.getHits().get(1).creationDate()).isEqualTo(DateUtils.parseDate("2014-09-24"));
+    SearchResult<IssueDoc> result = index.search(query.build(), new SearchOptions());
+    assertThat(result.getDocs()).hasSize(2);
+    assertThat(result.getDocs().get(0).creationDate()).isEqualTo(DateUtils.parseDate("2014-09-23"));
+    assertThat(result.getDocs().get(1).creationDate()).isEqualTo(DateUtils.parseDate("2014-09-24"));
 
     query = IssueQuery.builder().sort(IssueQuery.SORT_BY_CREATION_DATE).asc(false);
-    result = index.search(query.build(), new QueryContext());
-    assertThat(result.getHits()).hasSize(2);
-    assertThat(result.getHits().get(0).creationDate()).isEqualTo(DateUtils.parseDate("2014-09-24"));
-    assertThat(result.getHits().get(1).creationDate()).isEqualTo(DateUtils.parseDate("2014-09-23"));
+    result = index.search(query.build(), new SearchOptions());
+    assertThat(result.getDocs()).hasSize(2);
+    assertThat(result.getDocs().get(0).creationDate()).isEqualTo(DateUtils.parseDate("2014-09-24"));
+    assertThat(result.getDocs().get(1).creationDate()).isEqualTo(DateUtils.parseDate("2014-09-23"));
   }
 
   @Test
@@ -918,16 +912,16 @@ public class IssueIndexMediumTest {
       IssueTesting.newDoc("ISSUE2", file).setFuncUpdateDate(DateUtils.parseDate("2014-09-24")));
 
     IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_UPDATE_DATE).asc(true);
-    Result<Issue> result = index.search(query.build(), new QueryContext());
-    assertThat(result.getHits()).hasSize(2);
-    assertThat(result.getHits().get(0).updateDate()).isEqualTo(DateUtils.parseDate("2014-09-23"));
-    assertThat(result.getHits().get(1).updateDate()).isEqualTo(DateUtils.parseDate("2014-09-24"));
+    SearchResult<IssueDoc> result = index.search(query.build(), new SearchOptions());
+    assertThat(result.getDocs()).hasSize(2);
+    assertThat(result.getDocs().get(0).updateDate()).isEqualTo(DateUtils.parseDate("2014-09-23"));
+    assertThat(result.getDocs().get(1).updateDate()).isEqualTo(DateUtils.parseDate("2014-09-24"));
 
     query = IssueQuery.builder().sort(IssueQuery.SORT_BY_UPDATE_DATE).asc(false);
-    result = index.search(query.build(), new QueryContext());
-    assertThat(result.getHits()).hasSize(2);
-    assertThat(result.getHits().get(0).updateDate()).isEqualTo(DateUtils.parseDate("2014-09-24"));
-    assertThat(result.getHits().get(1).updateDate()).isEqualTo(DateUtils.parseDate("2014-09-23"));
+    result = index.search(query.build(), new SearchOptions());
+    assertThat(result.getDocs()).hasSize(2);
+    assertThat(result.getDocs().get(0).updateDate()).isEqualTo(DateUtils.parseDate("2014-09-24"));
+    assertThat(result.getDocs().get(1).updateDate()).isEqualTo(DateUtils.parseDate("2014-09-23"));
   }
 
   @Test
@@ -941,18 +935,18 @@ public class IssueIndexMediumTest {
       IssueTesting.newDoc("ISSUE3", file).setFuncCloseDate(null));
 
     IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_CLOSE_DATE).asc(true);
-    Result<Issue> result = index.search(query.build(), new QueryContext());
-    assertThat(result.getHits()).hasSize(3);
-    assertThat(result.getHits().get(0).closeDate()).isNull();
-    assertThat(result.getHits().get(1).closeDate()).isEqualTo(DateUtils.parseDate("2014-09-23"));
-    assertThat(result.getHits().get(2).closeDate()).isEqualTo(DateUtils.parseDate("2014-09-24"));
+    SearchResult<IssueDoc> result = index.search(query.build(), new SearchOptions());
+    assertThat(result.getDocs()).hasSize(3);
+    assertThat(result.getDocs().get(0).closeDate()).isNull();
+    assertThat(result.getDocs().get(1).closeDate()).isEqualTo(DateUtils.parseDate("2014-09-23"));
+    assertThat(result.getDocs().get(2).closeDate()).isEqualTo(DateUtils.parseDate("2014-09-24"));
 
     query = IssueQuery.builder().sort(IssueQuery.SORT_BY_CLOSE_DATE).asc(false);
-    result = index.search(query.build(), new QueryContext());
-    assertThat(result.getHits()).hasSize(3);
-    assertThat(result.getHits().get(0).closeDate()).isEqualTo(DateUtils.parseDate("2014-09-24"));
-    assertThat(result.getHits().get(1).closeDate()).isEqualTo(DateUtils.parseDate("2014-09-23"));
-    assertThat(result.getHits().get(2).closeDate()).isNull();
+    result = index.search(query.build(), new SearchOptions());
+    assertThat(result.getDocs()).hasSize(3);
+    assertThat(result.getDocs().get(0).closeDate()).isEqualTo(DateUtils.parseDate("2014-09-24"));
+    assertThat(result.getDocs().get(1).closeDate()).isEqualTo(DateUtils.parseDate("2014-09-23"));
+    assertThat(result.getDocs().get(2).closeDate()).isNull();
   }
 
   @Test
@@ -975,25 +969,25 @@ public class IssueIndexMediumTest {
 
     // ascending sort -> F1 then F2. Line "0" first.
     IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_FILE_LINE).asc(true);
-    Result<Issue> result = index.search(query.build(), new QueryContext());
-    assertThat(result.getHits()).hasSize(6);
-    assertThat(result.getHits().get(0).key()).isEqualTo("F1_1");
-    assertThat(result.getHits().get(1).key()).isEqualTo("F1_2");
-    assertThat(result.getHits().get(2).key()).isEqualTo("F1_3");
-    assertThat(result.getHits().get(3).key()).isEqualTo("F2_1");
-    assertThat(result.getHits().get(4).key()).isEqualTo("F2_2");
-    assertThat(result.getHits().get(5).key()).isEqualTo("F2_3");
+    SearchResult<IssueDoc> result = index.search(query.build(), new SearchOptions());
+    assertThat(result.getDocs()).hasSize(6);
+    assertThat(result.getDocs().get(0).key()).isEqualTo("F1_1");
+    assertThat(result.getDocs().get(1).key()).isEqualTo("F1_2");
+    assertThat(result.getDocs().get(2).key()).isEqualTo("F1_3");
+    assertThat(result.getDocs().get(3).key()).isEqualTo("F2_1");
+    assertThat(result.getDocs().get(4).key()).isEqualTo("F2_2");
+    assertThat(result.getDocs().get(5).key()).isEqualTo("F2_3");
 
     // descending sort -> F2 then F1
     query = IssueQuery.builder().sort(IssueQuery.SORT_BY_FILE_LINE).asc(false);
-    result = index.search(query.build(), new QueryContext());
-    assertThat(result.getHits()).hasSize(6);
-    assertThat(result.getHits().get(0).key()).isEqualTo("F2_3");
-    assertThat(result.getHits().get(1).key()).isEqualTo("F2_2");
-    assertThat(result.getHits().get(2).key()).isEqualTo("F2_1");
-    assertThat(result.getHits().get(3).key()).isEqualTo("F1_3");
-    assertThat(result.getHits().get(4).key()).isEqualTo("F1_2");
-    assertThat(result.getHits().get(5).key()).isEqualTo("F1_1");
+    result = index.search(query.build(), new SearchOptions());
+    assertThat(result.getDocs()).hasSize(6);
+    assertThat(result.getDocs().get(0).key()).isEqualTo("F2_3");
+    assertThat(result.getDocs().get(1).key()).isEqualTo("F2_2");
+    assertThat(result.getDocs().get(2).key()).isEqualTo("F2_1");
+    assertThat(result.getDocs().get(3).key()).isEqualTo("F1_3");
+    assertThat(result.getDocs().get(4).key()).isEqualTo("F1_2");
+    assertThat(result.getDocs().get(5).key()).isEqualTo("F1_1");
   }
 
   @Test
@@ -1013,22 +1007,20 @@ public class IssueIndexMediumTest {
     // project3 can be seen by nobody
     indexIssue(IssueTesting.newDoc("ISSUE3", file3), null, null);
 
-    IssueQuery.Builder query = IssueQuery.builder();
-
     MockUserSession.set().setUserGroups("sonar-users");
-    assertThat(index.search(query.build(), new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().build(), new SearchOptions()).getDocs()).hasSize(1);
 
     MockUserSession.set().setUserGroups("sonar-admins");
-    assertThat(index.search(query.build(), new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().build(), new SearchOptions()).getDocs()).hasSize(1);
 
     MockUserSession.set().setUserGroups("sonar-users", "sonar-admins");
-    assertThat(index.search(query.build(), new QueryContext()).getHits()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder().build(), new SearchOptions()).getDocs()).hasSize(2);
 
     MockUserSession.set().setUserGroups("another group");
-    assertThat(index.search(query.build(), new QueryContext()).getHits()).isEmpty();
+    assertThat(index.search(IssueQuery.builder().build(), new SearchOptions()).getDocs()).isEmpty();
 
     MockUserSession.set().setUserGroups("sonar-users", "sonar-admins");
-    assertThat(index.search(query.projectUuids(newArrayList(project3.uuid())).build(), new QueryContext()).getHits()).isEmpty();
+    assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList(project3.uuid())).build(), new SearchOptions()).getDocs()).isEmpty();
   }
 
   @Test
@@ -1046,19 +1038,18 @@ public class IssueIndexMediumTest {
     indexIssue(IssueTesting.newDoc("ISSUE2", file2), null, "max");
     indexIssue(IssueTesting.newDoc("ISSUE3", file3), null, null);
 
-    IssueQuery.Builder query = IssueQuery.builder();
-
     MockUserSession.set().setLogin("john");
-    assertThat(index.search(query.build(), new QueryContext()).getHits()).hasSize(1);
+
+    assertThat(index.search(IssueQuery.builder().build(), new SearchOptions()).getDocs()).hasSize(1);
 
     MockUserSession.set().setLogin("max");
-    assertThat(index.search(query.build(), new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().build(), new SearchOptions()).getDocs()).hasSize(1);
 
     MockUserSession.set().setLogin("another guy");
-    assertThat(index.search(query.build(), new QueryContext()).getHits()).hasSize(0);
+    assertThat(index.search(IssueQuery.builder().build(), new SearchOptions()).getDocs()).hasSize(0);
 
     MockUserSession.set().setLogin("john");
-    assertThat(index.search(query.projectUuids(newArrayList(project3.key())).build(), new QueryContext()).getHits()).hasSize(0);
+    assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList(project3.key())).build(), new SearchOptions()).getDocs()).hasSize(0);
   }
 
   @Test
@@ -1075,7 +1066,7 @@ public class IssueIndexMediumTest {
 
     IssueQuery.Builder query = IssueQuery.builder();
     MockUserSession.set().setLogin("john").setUserGroups("sonar-users");
-    assertThat(index.search(query.build(), new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(query.build(), new SearchOptions()).getDocs()).hasSize(1);
   }
 
   @Test
@@ -1091,17 +1082,22 @@ public class IssueIndexMediumTest {
       // Issue assigned to julien should not be returned as the issue is closed
       IssueTesting.newDoc("ISSUE5", file).setAssignee("julien").setStatus(Issue.STATUS_CLOSED));
 
-    List<FacetValue> results = index.listAssignees(IssueQuery.builder().statuses(newArrayList(Issue.STATUS_OPEN)).build());
-
+    LinkedHashMap<String, Long> results = index.searchForAssignees(IssueQuery.builder().statuses(newArrayList(Issue.STATUS_OPEN)).build());
     assertThat(results).hasSize(3);
-    assertThat(results.get(0).getKey()).isEqualTo("steph");
-    assertThat(results.get(0).getValue()).isEqualTo(2);
 
-    assertThat(results.get(1).getKey()).isEqualTo("simon");
-    assertThat(results.get(1).getValue()).isEqualTo(1);
+    Iterator<Map.Entry<String, Long>> buckets = results.entrySet().iterator();
 
-    assertThat(results.get(2).getKey()).isEqualTo("_notAssigned_");
-    assertThat(results.get(2).getValue()).isEqualTo(1);
+    Map.Entry<String, Long> bucket = buckets.next();
+    assertThat(bucket.getKey()).isEqualTo("steph");
+    assertThat(bucket.getValue()).isEqualTo(2L);
+
+    bucket = buckets.next();
+    assertThat(bucket.getKey()).isEqualTo("simon");
+    assertThat(bucket.getValue()).isEqualTo(1L);
+
+    bucket = buckets.next();
+    assertThat(bucket.getKey()).isEqualTo("_notAssigned_");
+    assertThat(bucket.getValue()).isEqualTo(1L);
   }
 
   @Test
@@ -1123,9 +1119,9 @@ public class IssueIndexMediumTest {
     index.deleteClosedIssuesOfProjectBefore(project.uuid(), yesterday);
 
     // ASSERT
-    List<Issue> issues = index.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).build(), new QueryContext()).getHits();
+    List<IssueDoc> issues = index.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).build(), new SearchOptions()).getDocs();
     List<Date> dates = newArrayList();
-    for (Issue issue : issues) {
+    for (IssueDoc issue : issues) {
       dates.add(issue.closeDate());
     }
 

@@ -34,14 +34,14 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.internal.Uuids;
 import org.sonar.server.es.EsClient;
+import org.sonar.server.es.SearchOptions;
+import org.sonar.server.es.SearchResult;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.index.IssueAuthorizationDao;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexer;
-import org.sonar.server.search.QueryContext;
-import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 
@@ -138,7 +138,7 @@ public class IssueIndexBenchmarkTest {
     IssueIndex index = tester.get(IssueIndex.class);
     for (int i = 0; i < 10; i++) {
       long start = System.currentTimeMillis();
-      Result<Issue> result = index.search(query, new QueryContext());
+      SearchResult<IssueDoc> result = index.search(query, new SearchOptions());
       long end = System.currentTimeMillis();
       LOGGER.info("Request (" + label + "): {} docs in {} ms", result.getTotal(), end - start);
     }

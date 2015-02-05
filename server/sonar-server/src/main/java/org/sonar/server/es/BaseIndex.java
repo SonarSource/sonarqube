@@ -17,31 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.issue.db;
+package org.sonar.server.es;
 
-import org.apache.ibatis.annotations.Param;
-import org.sonar.core.rule.RuleDto;
+import org.sonar.api.ServerComponent;
 
-import javax.annotation.Nullable;
-import java.util.Date;
-import java.util.List;
+public abstract class BaseIndex implements ServerComponent {
+  private final EsClient client;
 
-public interface IssueMapper {
+  public BaseIndex(EsClient client) {
+    this.client = client;
+  }
 
-  IssueDto selectByKey(String key);
-
-  List<IssueDto> selectByKeys(List<String> keys);
-
-  List<IssueDto> selectByActionPlan(String actionPlan);
-
-  List<RuleDto> findRulesByComponent(@Param("componentKey") String componentKey, @Nullable @Param("createdAt") Date createdAtOrAfter);
-
-  List<String> findSeveritiesByComponent(@Param("componentKey") String componentKey, @Nullable @Param("createdAt") Date createdAtOrAfter);
-
-  void insert(IssueDto issue);
-
-  int update(IssueDto issue);
-
-  int updateIfBeforeSelectedDate(IssueDto issue);
+  public EsClient getClient() {
+    return client;
+  }
 
 }

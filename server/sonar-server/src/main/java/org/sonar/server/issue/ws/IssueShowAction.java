@@ -29,7 +29,6 @@ import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.user.User;
@@ -54,14 +53,13 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import static com.google.common.collect.Maps.newHashMap;
 
-public class IssueShowAction implements RequestHandler {
+public class IssueShowAction implements BaseIssuesWsAction {
 
   public static final String SHOW_ACTION = "show";
 
@@ -94,7 +92,8 @@ public class IssueShowAction implements RequestHandler {
     this.durations = durations;
   }
 
-  void define(WebService.NewController controller) {
+  @Override
+  public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction(SHOW_ACTION)
       .setDescription("Detail of issue")
       .setSince("4.2")
