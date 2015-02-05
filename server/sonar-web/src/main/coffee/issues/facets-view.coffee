@@ -15,6 +15,7 @@ define [
   'issues/facets/file-facet'
   'issues/facets/reporter-facet'
   'issues/facets/language-facet'
+  'issues/facets/author-facet'
   'issues/facets/issue-key-facet'
   'issues/facets/context-facet'
 ], (
@@ -34,6 +35,7 @@ define [
   FileFacet
   ReporterFacet
   LanguageFacet
+  AuthorFacet
   IssueKeyFacet
   ContextFacet
 ) ->
@@ -55,6 +57,7 @@ define [
         when 'fileUuids' then FileFacet
         when 'reporters' then ReporterFacet
         when 'languages' then LanguageFacet
+        when 'authors' then AuthorFacet
         when 'issues' then IssueKeyFacet
         when 'context' then ContextFacet
         else BaseFacet
