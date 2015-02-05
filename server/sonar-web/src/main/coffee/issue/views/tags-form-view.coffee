@@ -34,7 +34,7 @@ define [
 
 
     requestTags: ->
-      $.get "#{baseUrl}/api/issues/tags", ps: 0
+      $.get "#{baseUrl}/api/issues/tags", ps: 25
       .done (data) =>
         @tags = data.tags
         @renderTags()
