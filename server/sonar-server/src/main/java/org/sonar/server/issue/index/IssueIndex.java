@@ -446,6 +446,7 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
         IssueFilterParameters.RULES, IssueIndexDefinition.FIELD_ISSUE_RULE_KEY, query.rules().toArray());
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
         IssueFilterParameters.REPORTERS, IssueIndexDefinition.FIELD_ISSUE_REPORTER);
+
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
         IssueFilterParameters.AUTHORS, IssueIndexDefinition.FIELD_ISSUE_AUTHOR_LOGIN, query.authors().toArray());
 
@@ -583,7 +584,8 @@ public class IssueIndex extends BaseIndex<Issue, FakeIssueDto, String> {
       .minDocCount(0L)
       .format(DateUtils.DATETIME_FORMAT)
       .preZone(timeZoneString)
-      .postZone(timeZoneString);
+      .postZone(timeZoneString)
+      .extendedBounds(startTime, endTime);
   }
 
   private long getMinCreatedAt(Map<String, FilterBuilder> filters, QueryBuilder esQuery) {
