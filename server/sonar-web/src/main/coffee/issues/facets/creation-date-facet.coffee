@@ -18,6 +18,10 @@ define [
         'click .js-select-period-start': 'selectPeriodStart'
         'click .js-select-period-end': 'selectPeriodEnd'
 
+        'click .js-last-week': 'onLastWeekClick'
+        'click .js-last-month': 'onLastMonthClick'
+        'click .js-last-year': 'onLastYearClick'
+
 
     onRender: ->
       @$el.toggleClass 'search-navigator-facet-box-collapsed', !@model.get('enabled')
@@ -33,11 +37,11 @@ define [
         value = query[prop]
         @$("input[name=#{prop}]").val value if value?
 
-      @$('.js-barchart').barchart @model.getValues()
-
-      @$('select').select2
-        width: '100%'
-        minimumResultsForSearch: 999
+      values = @model.getValues()
+      if _.isArray(values) && values.length > 0
+        @$('.js-barchart').barchart values
+      else
+        @$('.js-barchart').addClass 'hidden'
 
 
     selectPeriodStart: ->
@@ -46,7 +50,6 @@ define [
 
     selectPeriodEnd: ->
       @$('.js-period-end').datepicker 'show'
-
 
 
     applyFacet: ->
@@ -60,6 +63,21 @@ define [
 
     disable: ->
       @options.app.state.updateFilter createdAfter: null, createdBefore: null, createdAt: null
+
+
+    onLastWeekClick: ->
+      createdAfter = moment().subtract(1, 'weeks').format 'YYYY-MM-DD'
+      @options.app.state.updateFilter createdAfter: createdAfter, createdBefore: null, createdAt: null
+
+
+    onLastMonthClick: ->
+      createdAfter = moment().subtract(1, 'months').format 'YYYY-MM-DD'
+      @options.app.state.updateFilter createdAfter: createdAfter, createdBefore: null, createdAt: null
+
+
+    onLastYearClick: ->
+      createdAfter = moment().subtract(1, 'years').format 'YYYY-MM-DD'
+      @options.app.state.updateFilter createdAfter: createdAfter, createdBefore: null, createdAt: null
 
 
     serializeData: ->

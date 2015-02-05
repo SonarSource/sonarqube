@@ -76,7 +76,7 @@
             })
             .attr('title', function (d, i) {
               var beginning = moment(d.val),
-                  ending = i < data.length - 1 ? moment(data[i].val).subtract(1, 'days') : moment();
+                  ending = i < data.length - 1 ? moment(data[i + 1].val).subtract(1, 'days') : moment();
               return d.count + ' | ' + beginning.format('LL') + ' - ' + ending.format('LL');
             })
             .attr('data-placement', 'right')
