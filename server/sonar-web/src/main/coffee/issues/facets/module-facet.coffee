@@ -1,15 +1,10 @@
 define [
-  'issues/facets/custom-values-facet'
+  'issues/facets/base-facet'
 ], (
-  CustomValuesFacet
+  BaseFacet
 ) ->
 
-
-  class extends CustomValuesFacet
-
-    getUrl: ->
-      "#{baseUrl}/api/resources/search?f=s2&q=BRC&display_uuid=true"
-
+  class extends BaseFacet
 
     getValuesWithLabels: ->
       values = @model.getValues()
