@@ -52,7 +52,7 @@
       <tr class="<%= cycle 'even', 'odd', :name => ('issues-widget-list-' + widget_id) -%>">
         <td><i class="icon-severity-<%= issue.severity.downcase -%>"></i></td>
         <td>
-          <a class="js-issue-link" href="<%= url_for_issues(search_options.merge({:issues => issue.key}).except('pageSize', 'pageIndex', 'table_limit', 'widget_id')) -%>">
+          <a class="js-issue-link" href="<%= url_for_component_issues(@project, search_options.merge({:issues => issue.key}).except('pageSize', 'pageIndex', 'table_limit', 'widget_id')) -%>">
             <%= h truncate(issue.message, :length => 100) -%></a>
           <% if last_comment && last_comment.userLogin() %>
             <div class="comment-excerpt">
@@ -81,7 +81,7 @@
        link_params[:period] = params[:period]
     %>
     <%= paginate_java(paging, :colspan => 3, :id => "issue-filter-foot-#{widget_id}", :include_loading_icon => true,
-                      :url_results => url_for_issues(search_options.except('pageSize', 'pageIndex', 'table_limit', 'widget_id')) ) { |label, page_id|
+                      :url_results => url_for_component_issues(@project, search_options.except('pageSize', 'pageIndex', 'table_limit', 'widget_id')) ) { |label, page_id|
 <<EOF
 <a href="#" onclick="$j.ajax({	url:'#{url_for(link_params.merge({:pageIndex => page_id}))}',	type:'post', success:function(response){$j('#issues-widget-#{widget_id}').html(response);}}); return false;">#{label}</a>
 EOF

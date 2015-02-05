@@ -1,7 +1,6 @@
 <%
     options = {}
     options['resolved'] = 'false'
-    options['componentUuids'] = @project.uuid
     if @dashboard_configuration.selected_period?
       options['createdAfter'] = Api::Utils.format_datetime(@dashboard_configuration.from_datetime)
       options['createdBefore'] = Api::Utils.format_datetime(DateTime.now)
@@ -48,7 +47,7 @@
       %>
         <tr class="<%= cycle 'even', 'odd', :name => (div_id) -%>">
           <td class="max-width">
-            <%= link_to users_by_login[assignee].name(), url_for_issues(options.merge(:assignees => assignee)) -%>
+            <%= link_to users_by_login[assignee].name(), url_for_component_issues(@project, options.merge(:assignees => assignee)) -%>
           </td>
           <td class="nowrap">
             <%= '+' if @dashboard_configuration.selected_period? -%><%= count.to_s -%>
@@ -65,7 +64,7 @@
       %>
         <tr class="<%= cycle 'even', 'odd', :name => (div_id) -%>">
           <td class="max-width">
-            <%= link_to message('widget.reviews_per_developer.not_assigned'), url_for_issues(options.merge(:assigned => 'false')) -%>
+            <%= link_to message('widget.reviews_per_developer.not_assigned'), url_for_component_issues(@project, options.merge(:assigned => 'false')) -%>
           </td>
           <td class="nowrap">
             <%= '+' if @dashboard_configuration.selected_period? -%><%= counter_no_assignee.to_s -%>

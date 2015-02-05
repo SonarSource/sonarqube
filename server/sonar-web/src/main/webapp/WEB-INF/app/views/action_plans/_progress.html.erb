@@ -3,24 +3,19 @@
      project = @project
      project = @resource if project.nil?
      options = {:actionPlans => action_plan.key}
-     if project.qualifier == 'TRK'
-       options['projectUuids'] = project.uuid
-     else
-       options['componentRootUuids'] = project.uuid
-     end
 
      resolved_issues_link = action_plan.resolvedIssues().to_s
-     resolved_issues_link = link_to action_plan.resolvedIssues().to_s, url_for_issues(options.merge(:resolved => 'true')) unless action_plan.resolvedIssues()==0
-     total_issues_link = link_to action_plan.totalIssues().to_s, url_for_issues(options)
+     resolved_issues_link = link_to action_plan.resolvedIssues().to_s, url_for_component_issues(@project, options.merge(:resolved => 'true')) unless action_plan.resolvedIssues()==0
+     total_issues_link = link_to action_plan.totalIssues().to_s, url_for_component_issues(@project, options)
 
      if action_plan.resolvedIssues() > 0
-       resolved_issues_url = url_for_issues(options.merge({:resolved => 'true'}))
+       resolved_issues_url = url_for_component_issues(@project, options.merge({:resolved => 'true'}))
        percent_resolved = (action_plan.resolvedIssues()*100 / action_plan.totalIssues()).to_i
        tooltip_resolved = message('action_plans.resolved_issues_x_percent', :params => [percent_resolved.to_s, action_plan.resolvedIssues().to_s])
      end
 
      if action_plan.unresolvedIssues() > 0
-       unresolved_issues_url = url_for_issues(options.merge({:resolved => 'false'}))
+       unresolved_issues_url = url_for_component_issues(@project, options.merge({:resolved => 'false'}))
        percent_open = (action_plan.unresolvedIssues()*100 / action_plan.totalIssues()).to_i
        tooltip_open = message('action_plans.unresolved_issues_x_percent', :params => [percent_open.to_s, action_plan.unresolvedIssues().to_s])
      end
