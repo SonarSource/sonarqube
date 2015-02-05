@@ -20,17 +20,17 @@
 package org.sonar.server.platform;
 
 import org.apache.commons.dbutils.DbUtils;
-import org.elasticsearch.action.admin.indices.cache.clear.ClearIndicesCacheRequest;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.DatabaseVersion;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.server.es.EsClient;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.search.IndexDefinition;
-import org.sonar.server.search.SearchClient;
 import org.sonar.server.source.index.SourceLineIndexDefinition;
+import org.sonar.server.view.index.ViewIndexDefinition;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -45,11 +45,11 @@ public class BackendCleanup implements ServerComponent {
   private static final String[] RESOURCE_RELATED_TABLES = {
     "group_roles", "user_roles", "properties"
   };
-  private final SearchClient searchClient;
+  private final EsClient esClient;
   private final MyBatis myBatis;
 
-  public BackendCleanup(SearchClient searchClient, MyBatis myBatis) {
-    this.searchClient = searchClient;
+  public BackendCleanup(EsClient esClient, MyBatis myBatis) {
+    this.esClient = esClient;
     this.myBatis = myBatis;
   }
 
@@ -81,18 +81,17 @@ public class BackendCleanup implements ServerComponent {
   public void clearIndexes() {
     LoggerFactory.getLogger(getClass()).info("Truncate Elasticsearch indices");
     try {
-      searchClient.admin().indices()
-        .clearCache(new ClearIndicesCacheRequest())
+      esClient.prepareClearCache()
         .get();
-      searchClient.prepareDeleteByQuery(searchClient.prepareState().get()
+      esClient.prepareDeleteByQuery(esClient.prepareState().get()
         .getState().getMetaData().concreteAllIndices())
         .setQuery(QueryBuilders.matchAllQuery())
         .get();
-      searchClient.prepareRefresh(searchClient.prepareState().get()
+      esClient.prepareRefresh(esClient.prepareState().get()
         .getState().getMetaData().concreteAllIndices())
         .setForce(true)
         .get();
-      searchClient.prepareFlush(searchClient.prepareState().get()
+      esClient.prepareFlush(esClient.prepareState().get()
         .getState().getMetaData().concreteAllIndices())
         .get();
     } catch (Exception e) {
@@ -130,6 +129,7 @@ public class BackendCleanup implements ServerComponent {
       // Clear inspection indexes
       clearIndex(IssueIndexDefinition.INDEX);
       clearIndex(SourceLineIndexDefinition.INDEX);
+      clearIndex(ViewIndexDefinition.INDEX);
 
     } finally {
       dbSession.close();
@@ -161,7 +161,7 @@ public class BackendCleanup implements ServerComponent {
    * Completely remove a index with all types
    */
   public void clearIndex(String indexName) {
-    searchClient.prepareDeleteByQuery(searchClient.prepareState().get()
+    esClient.prepareDeleteByQuery(esClient.prepareState().get()
       .getState().getMetaData().concreteIndices(new String[] {indexName}))
       .setQuery(QueryBuilders.matchAllQuery())
       .get();
@@ -171,7 +171,7 @@ public class BackendCleanup implements ServerComponent {
    * Remove only the type of an index
    */
   public void clearIndexType(IndexDefinition indexDefinition) {
-    searchClient.prepareDeleteByQuery(searchClient.prepareState().get()
+    esClient.prepareDeleteByQuery(esClient.prepareState().get()
       .getState().getMetaData().concreteIndices(new String[] {indexDefinition.getIndexName()})).setTypes(indexDefinition.getIndexType())
       .setQuery(QueryBuilders.matchAllQuery())
       .get();

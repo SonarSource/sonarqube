@@ -19,6 +19,7 @@
  */
 package org.sonar.server.user.index;
 
+import com.google.common.collect.Maps;
 import org.sonar.api.user.User;
 import org.sonar.server.search.BaseDoc;
 
@@ -31,6 +32,10 @@ public class UserDoc extends BaseDoc implements User {
 
   public UserDoc(Map<String, Object> fields) {
     super(fields);
+  }
+
+  public UserDoc() {
+    this(Maps.<String, Object>newHashMap());
   }
 
   @Override
@@ -66,31 +71,38 @@ public class UserDoc extends BaseDoc implements User {
     return getField(UserIndexDefinition.FIELD_UPDATED_AT);
   }
 
-  public void setLogin(@Nullable String s) {
+  public UserDoc setLogin(@Nullable String s) {
     setField(UserIndexDefinition.FIELD_LOGIN, s);
+    return this;
   }
 
-  public void setName(@Nullable String s) {
+  public UserDoc setName(@Nullable String s) {
     setField(UserIndexDefinition.FIELD_NAME, s);
+    return this;
   }
 
-  public void setEmail(@Nullable String s) {
+  public UserDoc setEmail(@Nullable String s) {
     setField(UserIndexDefinition.FIELD_EMAIL, s);
+    return this;
   }
 
-  public void setActive(boolean b) {
+  public UserDoc setActive(boolean b) {
     setField(UserIndexDefinition.FIELD_ACTIVE, b);
+    return this;
   }
 
-  public void setScmAccounts(@Nullable List<String> s) {
+  public UserDoc setScmAccounts(@Nullable List<String> s) {
     setField(UserIndexDefinition.FIELD_SCM_ACCOUNTS, s);
+    return this;
   }
 
-  public void setCreatedAt(long l) {
+  public UserDoc setCreatedAt(long l) {
     setField(UserIndexDefinition.FIELD_CREATED_AT, l);
+    return this;
   }
 
-  public void setUpdatedAt(long l) {
+  public UserDoc setUpdatedAt(long l) {
     setField(UserIndexDefinition.FIELD_UPDATED_AT, l);
+    return this;
   }
 }

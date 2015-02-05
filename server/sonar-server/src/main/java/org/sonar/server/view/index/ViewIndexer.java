@@ -28,6 +28,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
+import org.sonar.server.issue.index.IssueIndex;
 
 import java.util.List;
 import java.util.Map;
@@ -47,11 +48,12 @@ public class ViewIndexer extends BaseIndexer {
 
   /**
    * Index all views if the index is empty.
-   * Only used on startup .
+   * Only used on startup.
+   *
+   * The views lookup cache will not be cleared
    */
   @Override
   protected long doIndex(long lastUpdatedAt) {
-    // Index only if index is empty
     long count = esClient.prepareCount(ViewIndexDefinition.INDEX).setTypes(ViewIndexDefinition.TYPE_VIEW).get().getCount();
     if (count == 0) {
       DbSession dbSession = dbClient.openSession(false);
@@ -60,7 +62,7 @@ public class ViewIndexer extends BaseIndexer {
         for (UuidWithProjectUuidDto uuidWithProjectUuidDto : dbClient.componentDao().selectAllViewsAndSubViews(dbSession)) {
           viewAndProjectViewUuidMap.put(uuidWithProjectUuidDto.getUuid(), uuidWithProjectUuidDto.getProjectUuid());
         }
-        index(dbSession, viewAndProjectViewUuidMap);
+        index(dbSession, viewAndProjectViewUuidMap, false);
       } finally {
         dbSession.close();
       }
@@ -71,6 +73,8 @@ public class ViewIndexer extends BaseIndexer {
   /**
    * Index a root view : it will load projects on each sub views and index it.
    * Used by the compute engine to reindex a root view.
+   *
+   * The views lookup cache will be cleared
    */
   public void index(String rootViewUuid) {
     DbSession dbSession = dbClient.openSession(false);
@@ -79,42 +83,59 @@ public class ViewIndexer extends BaseIndexer {
       for (ComponentDto viewOrSubView : dbClient.componentDao().selectModulesTree(dbSession, rootViewUuid)) {
         viewAndProjectViewUuidMap.put(viewOrSubView.uuid(), viewOrSubView.projectUuid());
       }
-      index(dbSession, viewAndProjectViewUuidMap);
+      index(dbSession, viewAndProjectViewUuidMap, true);
     } finally {
       dbSession.close();
     }
   }
 
   /**
-   * Index a single document
+   * Index a single document.
+   *
+   * The views lookup cache will be cleared
    */
   public void index(ViewDoc viewDoc) {
     final BulkIndexer bulk = new BulkIndexer(esClient, ViewIndexDefinition.INDEX);
     bulk.start();
-    bulk.add(newUpsertRequest(viewDoc));
+    doIndex(bulk, viewDoc, true);
     bulk.stop();
   }
 
-  private void index(DbSession dbSession, Map<String, String> viewAndProjectViewUuidMap) {
+  private void index(DbSession dbSession, Map<String, String> viewAndProjectViewUuidMap, boolean needClearCache) {
     final BulkIndexer bulk = new BulkIndexer(esClient, ViewIndexDefinition.INDEX);
     bulk.start();
     for (Map.Entry<String, String> entry : viewAndProjectViewUuidMap.entrySet()) {
-      doIndex(dbSession, bulk, entry.getKey(), entry.getValue());
+      String viewUuid = entry.getKey();
+      List<String> projects = dbClient.componentDao().selectProjectsFromView(dbSession, viewUuid, entry.getValue());
+      doIndex(bulk, new ViewDoc()
+        .setUuid(viewUuid)
+        .setProjects(projects), needClearCache);
     }
     bulk.stop();
   }
 
-  private void doIndex(DbSession dbSession, BulkIndexer bulk, String uuid, String projectUuid) {
-    List<String> projects = dbClient.componentDao().selectProjectsFromView(dbSession, uuid, projectUuid);
-    bulk.add(newUpsertRequest(new ViewDoc()
-      .setUuid(uuid)
-      .setProjects(projects)));
+  private void doIndex(BulkIndexer bulk, ViewDoc viewDoc, boolean needClearCache) {
+    bulk.add(newUpsertRequest(viewDoc));
+    if (needClearCache) {
+      clearLookupCache(viewDoc.uuid());
+    }
   }
 
   private UpdateRequest newUpsertRequest(ViewDoc doc) {
     return new UpdateRequest(ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW, doc.uuid())
       .doc(doc.getFields())
       .upsert(doc.getFields());
+  }
+
+  private void clearLookupCache(String viewUuid) {
+    try {
+      esClient.prepareClearCache()
+        .setFilterCache(true)
+        .setFilterKeys(IssueIndex.viewsLookupCacheKey(viewUuid))
+        .get();
+    } catch (Exception e) {
+      throw new IllegalStateException(String.format("Unable to clear lookup cache of view '%s'", viewUuid), e);
+    }
   }
 
 }

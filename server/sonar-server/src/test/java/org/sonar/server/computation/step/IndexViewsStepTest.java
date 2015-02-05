@@ -20,27 +20,50 @@
 
 package org.sonar.server.computation.step;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.view.index.ViewIndexer;
 
-public class IndexViewsStep implements ComputationStep {
+import static org.mockito.Mockito.*;
 
-  private final ViewIndexer indexer;
+@RunWith(MockitoJUnitRunner.class)
+public class IndexViewsStepTest {
 
-  public IndexViewsStep(ViewIndexer indexer) {
-    this.indexer = indexer;
+  @Mock
+  ComputationContext context;
+
+  @Mock
+  ViewIndexer indexer;
+
+  IndexViewsStep step;
+
+  @Before
+  public void setUp() throws Exception {
+    step = new IndexViewsStep(indexer);
   }
 
-  @Override
-  public void execute(ComputationContext context) {
-    if (context.getProject().qualifier().equals(Qualifiers.VIEW)) {
-      indexer.index(context.getProject().uuid());
-    }
+  @Test
+  public void index_view_on_view() throws Exception {
+    when(context.getProject()).thenReturn(ComponentTesting.newProjectDto("ABCD").setQualifier(Qualifiers.VIEW));
+
+    step.execute(context);
+
+    verify(indexer).index("ABCD");
   }
 
-  @Override
-  public String getDescription() {
-    return "Index views";
+  @Test
+  public void not_index_view_on_project() throws Exception {
+    when(context.getProject()).thenReturn(ComponentTesting.newProjectDto().setQualifier(Qualifiers.PROJECT));
+
+    step.execute(context);
+
+    verifyZeroInteractions(indexer);
   }
+
 }

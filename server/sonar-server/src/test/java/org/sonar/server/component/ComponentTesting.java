@@ -116,11 +116,7 @@ public class ComponentTesting {
       .setQualifier(Qualifiers.VIEW);
   }
 
-  public static ComponentDto newTechnicalProject(ComponentDto project, ComponentDto view) {
-    return newTechnicalProject(Uuids.create(), project, view);
-  }
-
-  public static ComponentDto newTechnicalProject(String uuid, ComponentDto project, ComponentDto view) {
+  public static ComponentDto newProjectCopy(String uuid, ComponentDto project, ComponentDto view) {
     Preconditions.checkNotNull(project.getId(), "The project need to be persisted before creating this technical project.");
     return newChildComponent(uuid, view)
       .setUuid(uuid)
