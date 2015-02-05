@@ -1046,4 +1046,19 @@ module ApplicationHelper
     url
   end
 
+  def url_for_component_issues(component, params)
+    if component.blank?
+      url_for_issues(params)
+    else
+      url = ApplicationController.root_context + '/component_issues/index?id=' + url_encode(component.key) + '#'
+      params.each_with_index do |(key, value), index|
+        url += key.to_s + '=' + value.to_s
+        if index < params.size - 1
+          url += '|'
+        end
+      end
+      url
+    end
+  end
+
 end
