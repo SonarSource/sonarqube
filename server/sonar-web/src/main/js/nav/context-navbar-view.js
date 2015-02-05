@@ -33,7 +33,8 @@ define([
 
     serializeData: function () {
       return _.extend(Marionette.Layout.prototype.serializeData.apply(this, arguments), {
-        canManageContextDashboards: window.SS.user != null
+        canManageContextDashboards: window.SS.user != null,
+        contextKeyEncoded: encodeURIComponent(this.model.get('contextKey'))
       });
     }
   });

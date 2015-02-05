@@ -46,14 +46,13 @@ requirejs [
     'TRK': ['projectUuids']
     'BRC': ['projectUuids']
     'DIR': ['projectUuids', 'moduleUuids']
+    'DEV': ['authors']
 
 
   App.updateContextFacets = ->
     facets = @state.get 'facets'
     allFacets = @state.get 'allFacets'
     facetsFromServer = @state.get 'facetsFromServer'
-    facets.unshift 'context'
-    allFacets.unshift 'context'
     @state.set
       facets: facets
       allFacets: _.difference allFacets, @getRestrictedFacets()[window.config.resourceQualifier]
