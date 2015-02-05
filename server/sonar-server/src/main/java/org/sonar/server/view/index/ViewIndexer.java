@@ -47,8 +47,10 @@ public class ViewIndexer extends BaseIndexer {
   }
 
   /**
-   * Index all views if the index is empty.
-   * Only used on startup.
+   * Index all views if the index is empty (Only used on startup).
+   * It's currently not possible to index only data from db that are not existing in the index because we have no way to last when the structure of a view is changed :
+   * - Either the definition has changed -> No updated at column in the projects table,
+   * - Either the view is defined by a regex -> A new analysed project automatically steps into the view.
    *
    * The views lookup cache will not be cleared
    */

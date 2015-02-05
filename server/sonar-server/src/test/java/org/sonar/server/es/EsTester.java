@@ -51,6 +51,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -161,6 +162,14 @@ public class EsTester extends ExternalResource {
     BulkRequestBuilder bulk = client.prepareBulk().setRefresh(true);
     for (BaseDoc doc : docs) {
       bulk.add(new IndexRequest(index, type).source(doc.getFields()));
+    }
+    bulk.get();
+  }
+
+  public void putDocuments(String index, String type, Map<String, Object>... docs) throws Exception {
+    BulkRequestBuilder bulk = client.prepareBulk().setRefresh(true);
+    for (Map<String, Object> doc : docs) {
+      bulk.add(new IndexRequest(index, type).source(doc));
     }
     bulk.get();
   }
