@@ -1,0 +1,15 @@
+{
+  "authors": {
+    "more": true,
+    "results": [
+      {
+        "key": "leia.organa",
+        "text": "leia.organa"
+      },
+      {
+        "key": "luke@skywalker.name",
+        "text": "luke@skywalker.name"
+      }
+    ]
+  }
+}
