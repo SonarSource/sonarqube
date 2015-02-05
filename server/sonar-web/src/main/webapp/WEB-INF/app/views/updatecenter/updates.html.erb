@@ -1,93 +1,103 @@
- <script>
-function upgradePlugin(key) {
-  $j('#upgrade-form-' + key).submit();
-  var button=$j('#upgrade-submit-' + key);
-  button.prop('disabled','true');
-  button.attr('value', 'Upgrading');
-  return false;
-}
+<script>
+  function upgradePlugin (key) {
+    $j('#upgrade-form-' + key).submit();
+    var button = $j('#upgrade-submit-' + key);
+    button.prop('disabled', 'true');
+    button.attr('value', 'Upgrading');
+    return false;
+  }
 </script>
-<h1 class="admin-page-title"><%= message('update_center.page') -%></h1>
-<p class="admin-page-description"><%= message('update_center.page.description') -%></p>
-<%= render :partial => 'updatecenter/tabs', :locals => {:tab => 'updates'} -%>
 
- <div class="tabs-panel">
+<div class="page">
+  <header class="page-header">
+    <h1 class="page-title"><%= message('update_center.page') -%></h1>
+    <p class="page-description"><%= message('update_center.page.description') -%></p>
+  </header>
 
-   <%= render :partial => 'updatecenter/operations' -%>
+  <%= render :partial => 'updatecenter/tabs', :locals => {:tab => 'updates'} -%>
 
-   <% if @update_plugin_center %>
-     <table class="data width100 marginbottom10" id="plugin-updates">
-       <thead>
-         <tr><th colspan="2"><h2>Plugins</h2></th></tr>
-       </thead>
-       <tbody>
-       <% if @updates_by_plugin.empty? %>
-         <tr class="even">
-           <td colspan="2">All of your plugins are up to date.</td>
-         </tr>
-       <% end %>
-       <% @updates_by_plugin.keys.each do |plugin|
-       css=cycle('even','odd', :name => 'user-plugins')
-          updates=@updates_by_plugin[plugin]
-           updates.each_with_index do |update, index|
-            release=update.release
-       %>
-        <tr class="<%= css -%>" id="select-<%= plugin.getKey() -%>">
-          <td width="1%" nowrap><% if index==0 %><b><%= h(plugin.getName()) -%></b> <%= @installed_plugins[plugin.getKey()] -%> -> <% end %></td>
-          <td width="1%" nowrap><b><%= release.getVersion() -%></b></td>
-          <td width="1%" nowrap><%= release_date(release.getDate()) if release.getDate() -%></td>
-          <td><%= release.getDescription() -%></td>
-          <td><%= link_to 'Release Notes', release.getChangelogUrl(), :class => 'external' if release.getChangelogUrl() %></td>
-          <td>
-            <% if update.isIncompatible() %>
-              <%= image_tag 'warning.png' -%> Incompatible
-            <% elsif update.requiresSonarUpgrade %>
-              <%= image_tag 'warning.png' -%> <%= h(plugin.getName()) -%> <%=release.getVersion()-%> is not compatible with SonarQube <%= @sonar_version -%>.
-              You need to upgrade to SonarQube <%= release.getMinimumRequiredSonarVersion() -%> to perform the plugin upgrade.
-            <% elsif update.requiresSonarUpgradeForDependencies %>
-              <%= image_tag 'warning.png' -%> Incompatible, some dependencies requires SonarQube upgrade
-            <% end %>
-          </td>
-         </tr>
-       <%
-          end
-       %>
+  <div class="tabs-panel">
 
-       <% if @last_compatible[plugin.getKey()] %>
-         <%
-            version = @last_compatible[plugin.getKey()]
-            dependencies = @updates_by_plugin[plugin].last.dependencies.select {|dependency| dependency.master}
-            dependencies.each_with_index do |dependency, index| %>
-           <tr class="<%= css -%> dep-<%= plugin.getKey() -%>">
-             <td> </td>
-             <td> </td>
-             <% if index == 0 %>
-               <td class="thin nowrap"><b>Updating this plugin will also update:</b></td>
-             <% else %>
-               <td >&nbsp;</td>
-             <% end %>
-             <td colspan="4">
-               <span><%= dependency.artifact.name -%></span> : <span><%= dependency.artifact.description -%></span>
-             </td>
-           </tr>
-         <% end %>
+    <%= render :partial => 'updatecenter/operations' -%>
 
-         <tr class="<%= css -%>">
-           <td> </td>
-           <td colspan="5">
-            <form method="post" id="upgrade-form-<%= plugin.getKey() -%>" action="<%= ApplicationController.root_context -%>/updatecenter/install?from=updates&key=<%= plugin.getKey() -%>&version=<%= version -%>" style="display: inline-block">
-               <input type="submit" id="upgrade-submit-<%= plugin.getKey() -%>" value="Upgrade to <%= @last_compatible[plugin.getKey()] -%>" onClick="upgradePlugin('<%= plugin.getKey() -%>');return false;"/>
-             </form>
-            </td>
+    <% if @update_plugin_center %>
+      <table class="data width100 marginbottom10" id="plugin-updates">
+        <thead>
+        <tr>
+          <th colspan="2"><h2>Plugins</h2></th>
+        </tr>
+        </thead>
+        <tbody>
+        <% if @updates_by_plugin.empty? %>
+          <tr class="even">
+            <td colspan="2">All of your plugins are up to date.</td>
           </tr>
         <% end %>
+        <% @updates_by_plugin.keys.each do |plugin|
+          css=cycle('even', 'odd', :name => 'user-plugins')
+          updates=@updates_by_plugin[plugin]
+          updates.each_with_index do |update, index|
+            release=update.release
+        %>
+            <tr class="<%= css -%>" id="select-<%= plugin.getKey() -%>">
+              <td width="1%" nowrap>
+                <% if index==0 %><b><%= h(plugin.getName()) -%></b> <%= @installed_plugins[plugin.getKey()] -%> ->
+                <% end %></td>
+              <td width="1%" nowrap><b><%= release.getVersion() -%></b></td>
+              <td width="1%" nowrap><%= release_date(release.getDate()) if release.getDate() -%></td>
+              <td><%= release.getDescription() -%></td>
+              <td><%= link_to 'Release Notes', release.getChangelogUrl(), :class => 'external' if release.getChangelogUrl() %></td>
+              <td>
+                <% if update.isIncompatible() %>
+                  <%= image_tag 'warning.png' -%> Incompatible
+                <% elsif update.requiresSonarUpgrade %>
+                  <%= image_tag 'warning.png' -%> <%= h(plugin.getName()) -%> <%= release.getVersion() -%> is not compatible with SonarQube <%= @sonar_version -%>.
+                  You need to upgrade to SonarQube <%= release.getMinimumRequiredSonarVersion() -%> to perform the plugin upgrade.
+                <% elsif update.requiresSonarUpgradeForDependencies %>
+                  <%= image_tag 'warning.png' -%> Incompatible, some dependencies requires SonarQube upgrade
+                <% end %>
+              </td>
+            </tr>
+          <%
+             end
+          %>
 
-       <%
-        end
-       %>
-       </tbody>
-     </table>
+          <% if @last_compatible[plugin.getKey()] %>
+            <%
+               version = @last_compatible[plugin.getKey()]
+               dependencies = @updates_by_plugin[plugin].last.dependencies.select { |dependency| dependency.master }
+               dependencies.each_with_index do |dependency, index| %>
+              <tr class="<%= css -%> dep-<%= plugin.getKey() -%>">
+                <td></td>
+                <td></td>
+                <% if index == 0 %>
+                  <td class="thin nowrap"><b>Updating this plugin will also update:</b></td>
+                <% else %>
+                  <td>&nbsp;</td>
+                <% end %>
+                <td colspan="4">
+                  <span><%= dependency.artifact.name -%></span> : <span><%= dependency.artifact.description -%></span>
+                </td>
+              </tr>
+            <% end %>
 
-   <% end %>
-   <%= render :partial => 'updatecenter/status', :locals => {:action => 'updates' } %>
- </div>
+            <tr class="<%= css -%>">
+              <td></td>
+              <td colspan="5">
+                <form method="post" id="upgrade-form-<%= plugin.getKey() -%>" action="<%= ApplicationController.root_context -%>/updatecenter/install?from=updates&key=<%= plugin.getKey() -%>&version=<%= version -%>" style="display: inline-block">
+                  <input type="submit" id="upgrade-submit-<%= plugin.getKey() -%>" value="Upgrade to <%= @last_compatible[plugin.getKey()] -%>" onClick="upgradePlugin('<%= plugin.getKey() -%>');return false;"/>
+                </form>
+              </td>
+            </tr>
+          <% end %>
+
+        <%
+           end
+        %>
+        </tbody>
+      </table>
+
+    <% end %>
+    <%= render :partial => 'updatecenter/status', :locals => {:action => 'updates'} %>
+  </div>
+</div>

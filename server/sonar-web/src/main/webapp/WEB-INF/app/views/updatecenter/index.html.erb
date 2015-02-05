@@ -1,104 +1,121 @@
-<h1 class="admin-page-title"><%= message('update_center.page') -%></h1>
-<p class="admin-page-description"><%= message('update_center.page.description') -%></p>
+<div class="page">
+  <header class="page-header">
+    <h1 class="page-title"><%= message('update_center.page') -%></h1>
+    <p class="page-description"><%= message('update_center.page.description') -%></p>
+  </header>
 
- <%= render :partial => 'updatecenter/tabs', :locals => {:tab => 'index'} -%>
+  <%= render :partial => 'updatecenter/tabs', :locals => {:tab => 'index'} -%>
 
- <div class="tabs-panel">
+  <div class="tabs-panel">
 
- <%= render :partial => 'updatecenter/operations' -%>
+    <%= render :partial => 'updatecenter/operations' -%>
 
- <table class="data width100" id="user-plugins">
-   <thead>
-     <tr><th colspan="3"><h2>Plugins</h2></th></tr>
-     <tr>
-       <th>Plugin</th>
-       <th>Version</th>
-       <th>Description</th>
-     </tr>
-   </thead>
-   <tbody>
-     <% if @plugins.empty? %>
-       <tr class="even"><td colspan="5">No plugins</td></tr>
-     <% else
-          @plugins.each do |plugin|
-            release = plugin.lastRelease
-     %>
-       <tr class="select <%= cycle('even', 'odd', :name => 'user') -%>" id="select_<%= plugin.getKey() -%>">
-         <td width="1%" class="nowrap"><b><a href="#plugin" onclick="showPlugin('<%= plugin.getKey() -%>')"><%= h(plugin.getName()) -%></a></b> <span class="note">[<%= h plugin.getKey() -%>]</span></td>
-         <td class="nowrap"><%= release.getVersion() || '-' -%></td>
-         <td>
-         <%= plugin.getDescription() -%>
-         <div id="detail-<%= plugin.getKey() -%>" style="display:none">
+    <table class="data width100" id="user-plugins">
+      <thead>
+      <tr>
+        <th colspan="3"><h2>Plugins</h2></th>
+      </tr>
+      <tr>
+        <th>Plugin</th>
+        <th>Version</th>
+        <th>Description</th>
+      </tr>
+      </thead>
+      <tbody>
+      <% if @plugins.empty? %>
+        <tr class="even">
+          <td colspan="5">No plugins</td>
+        </tr>
+      <% else
+           @plugins.each do |plugin|
+             release = plugin.lastRelease
+      %>
+          <tr class="select <%= cycle('even', 'odd', :name => 'user') -%>" id="select_<%= plugin.getKey() -%>">
+            <td width="1%" class="nowrap">
+              <b><a href="#plugin" onclick="showPlugin('<%= plugin.getKey() -%>')"><%= h(plugin.getName()) -%></a></b>
+              <span class="note">[<%= h plugin.getKey() -%>]</span></td>
+            <td class="nowrap"><%= release.getVersion() || '-' -%></td>
+            <td>
+              <%= plugin.getDescription() -%>
+              <div id="detail-<%= plugin.getKey() -%>" style="display:none">
 
-         <table class="spaced width100">
+                <table class="spaced width100">
 
-           <% index = 0 %>
-           <% release.children.each do |child|
-             child_plugin = @installed_plugin_referential.findPlugin(child.key)
-           %>
-             <tr>
-               <% if index == 0 %>
-                 <td class="thin nowrap"><b>Includes:</b></td>
-               <% else %>
-                 <td>&nbsp;</td>
-               <% end %>
-               <td><span><%= child_plugin.name -%></span> : <span><%= child_plugin.description -%></span></td>
-             </tr>
-             <% index = index + 1 %>
-           <% end %>
+                  <% index = 0 %>
+                  <% release.children.each do |child|
+                    child_plugin = @installed_plugin_referential.findPlugin(child.key)
+                  %>
+                    <tr>
+                      <% if index == 0 %>
+                        <td class="thin nowrap"><b>Includes:</b></td>
+                      <% else %>
+                        <td>&nbsp;</td>
+                      <% end %>
+                      <td><span><%= child_plugin.name -%></span> : <span><%= child_plugin.description -%></span></td>
+                    </tr>
+                    <% index = index + 1 %>
+                  <% end %>
 
-           <% release.outgoingDependencies.each_with_index do |outgoing_release, index| %>
-             <tr>
-               <% if index == 0 %>
-                 <td class="thin nowrap"><b>Depends upon:</b></td>
-               <% else %>
-                 <td>&nbsp;</td>
-               <% end %>
-               <td><span><%= outgoing_release.artifact.name -%></span> : <span><%= outgoing_release.artifact.description -%></span></td>
-             </tr>
-           <% end %>
+                  <% release.outgoingDependencies.each_with_index do |outgoing_release, index| %>
+                    <tr>
+                      <% if index == 0 %>
+                        <td class="thin nowrap"><b>Depends upon:</b></td>
+                      <% else %>
+                        <td>&nbsp;</td>
+                      <% end %>
+                      <td><span><%= outgoing_release.artifact.name -%></span> :
+                        <span><%= outgoing_release.artifact.description -%></span></td>
+                    </tr>
+                  <% end %>
 
-           <% release.incomingDependencies.each_with_index do |incoming_release, index| %>
-             <tr>
-               <% if index == 0 %>
-                 <td class="thin nowrap"><b>Uninstalling this plugin will also uninstall:</b></td>
-               <% else %>
-                 <td>&nbsp;</td>
-               <% end %>
-               <td><span><%= incoming_release.artifact.name -%></span> : <span><%= incoming_release.artifact.description -%></span></td>
-             </tr>
-           <% end %>
+                  <% release.incomingDependencies.each_with_index do |incoming_release, index| %>
+                    <tr>
+                      <% if index == 0 %>
+                        <td class="thin nowrap"><b>Uninstalling this plugin will also uninstall:</b></td>
+                      <% else %>
+                        <td>&nbsp;</td>
+                      <% end %>
+                      <td><span><%= incoming_release.artifact.name -%></span> :
+                        <span><%= incoming_release.artifact.description -%></span></td>
+                    </tr>
+                  <% end %>
 
-           <% if plugin.getLicense() %><tr><td class="thin nowrap"><b>License:</b> </td><td><%= plugin.getLicense() -%></td></tr><% end %>
-           <% if plugin.getOrganization() %>
-             <tr><td class="thin nowrap"><b>Author:</b> </td>
-                 <td><%= link_to_if plugin.getOrganizationUrl(), plugin.getOrganization(), plugin.getOrganizationUrl(), :class=>'external' -%></td>
-             </tr>
-           <% end %>
-           <% if !plugin.getHomepageUrl().blank? || !plugin.getIssueTrackerUrl().blank? %>
-             <tr>
-               <td class="thin nowrap"><b>Links:</b> </td>
-               <td>
-                 <%= link_to 'Homepage', plugin.getHomepageUrl(), :class=>'external' unless plugin.getHomepageUrl().blank? -%>
-                 <%= link_to 'Issue Tracker', plugin.getIssueTrackerUrl(), :class=>'external' unless plugin.getIssueTrackerUrl().blank? -%>
-               </td>
-             </tr>
-           <% end %>
-          <tr>
-            <td colspan="2">
-             <form method="post" action="<%= ApplicationController.root_context -%>/updatecenter/uninstall?key=<%= plugin.getKey() -%>" style="display: inline-block">
-               <input type="submit" value="Uninstall" class="red-button" id="uninstall-<%= plugin.getKey() -%>"/>
-             </form>
-              </td>
-            </tr>
-           </table>
-         </div>
-         </td>
-       </tr>
-       <% end %>
-     <% end %>
-   </tbody>
- </table>
+                  <% if plugin.getLicense() %>
+                    <tr>
+                      <td class="thin nowrap"><b>License:</b></td>
+                      <td><%= plugin.getLicense() -%></td>
+                    </tr>
+                  <% end %>
+                  <% if plugin.getOrganization() %>
+                    <tr>
+                      <td class="thin nowrap"><b>Author:</b></td>
+                      <td><%= link_to_if plugin.getOrganizationUrl(), plugin.getOrganization(), plugin.getOrganizationUrl(), :class => 'external' -%></td>
+                    </tr>
+                  <% end %>
+                  <% if !plugin.getHomepageUrl().blank? || !plugin.getIssueTrackerUrl().blank? %>
+                    <tr>
+                      <td class="thin nowrap"><b>Links:</b></td>
+                      <td>
+                        <%= link_to 'Homepage', plugin.getHomepageUrl(), :class => 'external' unless plugin.getHomepageUrl().blank? -%>
+                        <%= link_to 'Issue Tracker', plugin.getIssueTrackerUrl(), :class => 'external' unless plugin.getIssueTrackerUrl().blank? -%>
+                      </td>
+                    </tr>
+                  <% end %>
+                  <tr>
+                    <td colspan="2">
+                      <form method="post" action="<%= ApplicationController.root_context -%>/updatecenter/uninstall?key=<%= plugin.getKey() -%>" style="display: inline-block">
+                        <input type="submit" value="Uninstall" class="red-button" id="uninstall-<%= plugin.getKey() -%>"/>
+                      </form>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      <% end %>
+      </tbody>
+    </table>
 
- </div>
-
+  </div>
+</div>

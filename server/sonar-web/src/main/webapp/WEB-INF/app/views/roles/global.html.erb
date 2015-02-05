@@ -2,46 +2,50 @@
   <script>require(['common/select-list']);</script>
 <% end %>
 
-<h1 class="admin-page-title"><%= h message 'global_permissions.page' -%></h1>
-<p class="admin-page-description"><%= message('global_permissions.page.description') -%> </p>
+<div class="page">
+  <header class="page-header">
+    <h1 class="page-title"><%= h message 'global_permissions.page' -%></h1>
+    <p class="page-description"><%= message('global_permissions.page.description') -%> </p>
+  </header>
 
-<table class="data width100" id="global-permissions">
-  <thead>
-  <tr >
-    <th><%= h message('global_permissions.permission') -%></th>
-    <th width="30%"><%= h message('global_permissions.users') -%></th>
-    <th width="30%"><%= h message('global_permissions.groups') -%></th>
-  </tr>
-  </thead>
-  <tbody>
-  <%
-     permission_keys = Internal.permissions.globalPermissions()
-     key_to_name = permission_keys.inject({}) do |hash, key|
-       hash[key] = message("global_permissions.#{key}")
-       hash
-     end
-  %>
-
-  <%
-     # Note that sorting by names should be case insensitive but it's not the case. It's not a problem in this page.
-     key_to_name.sort{|a,b| a[1]<=>b[1]}.each do |elem|
-       permission_key = elem[0]
-       permission_name = elem[1]
-  %>
-    <tr class="<%= cycle('even', 'odd', :name => 'global_permission') -%>" >
-      <td valign="top">
-        <b><%= h permission_name -%></b><br/>
-        <span class="small gray"><%= message("global_permissions.#{permission_key}.desc") -%></span>
-      </td>
-      <td valign="top" style="word-break:break-all;width:30%;">
-        <span id="users-<%= permission_key.parameterize -%>"><%= users(permission_key).map(&:name).join(', ') -%></span>
-        (<%= link_to_edit_roles_permission_form(message('select'), permission_key, nil, "select-users-#{permission_key}") -%>)<br/>
-      </td>
-      <td valign="top" style="word-break:break-all;width:30%;">
-        <span id="groups-<%= permission_key.parameterize -%>"><%= groups(permission_key).map{|g| group_name(g)}.join(', ') %></span>
-        (<%= link_to_edit_groups_permission_form(message('select'), permission_key, nil, "select-groups-#{permission_key}") -%>)<br/>
-      </td>
+  <table class="data width100" id="global-permissions">
+    <thead>
+    <tr>
+      <th><%= h message('global_permissions.permission') -%></th>
+      <th width="30%"><%= h message('global_permissions.users') -%></th>
+      <th width="30%"><%= h message('global_permissions.groups') -%></th>
     </tr>
+    </thead>
+    <tbody>
+    <%
+       permission_keys = Internal.permissions.globalPermissions()
+       key_to_name = permission_keys.inject({}) do |hash, key|
+         hash[key] = message("global_permissions.#{key}")
+         hash
+       end
+    %>
+
+    <%
+       # Note that sorting by names should be case insensitive but it's not the case. It's not a problem in this page.
+       key_to_name.sort { |a, b| a[1]<=>b[1] }.each do |elem|
+         permission_key = elem[0]
+         permission_name = elem[1]
+    %>
+      <tr class="<%= cycle('even', 'odd', :name => 'global_permission') -%>">
+        <td valign="top">
+          <b><%= h permission_name -%></b><br/>
+          <span class="small gray"><%= message("global_permissions.#{permission_key}.desc") -%></span>
+        </td>
+        <td valign="top" style="word-break:break-all;width:30%;">
+          <span id="users-<%= permission_key.parameterize -%>"><%= users(permission_key).map(&:name).join(', ') -%></span>
+          (<%= link_to_edit_roles_permission_form(message('select'), permission_key, nil, "select-users-#{permission_key}") -%>)<br/>
+        </td>
+        <td valign="top" style="word-break:break-all;width:30%;">
+          <span id="groups-<%= permission_key.parameterize -%>"><%= groups(permission_key).map { |g| group_name(g) }.join(', ') %></span>
+          (<%= link_to_edit_groups_permission_form(message('select'), permission_key, nil, "select-groups-#{permission_key}") -%>)<br/>
+        </td>
+      </tr>
     <% end %>
-  </tbody>
-</table>
+    </tbody>
+  </table>
+</div>

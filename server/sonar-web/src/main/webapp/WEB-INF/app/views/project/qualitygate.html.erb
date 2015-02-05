@@ -1,6 +1,8 @@
 <div class="page">
-  <h1 class="admin-page-title"><%= message('project_quality_gate.page') -%></h1>
-  <p class="admin-page-description"><%= message('project_quality_gate.page.description') -%></p>
+  <header class="page-header">
+    <h1 class="page-title"><%= message('project_quality_gate.page') -%></h1>
+    <p class="page-description"><%= message('project_quality_gate.page.description') -%></p>
+  </header>
 
   <form id="select-quality-gate" method="POST" action="<%= ApplicationController.root_context -%>/project/set_qualitygate">
     <input type="hidden" name="id" value="<%= @project_id -%>"/>

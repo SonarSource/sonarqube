@@ -1,6 +1,8 @@
 <div class="page">
-  <h1 class="admin-page-title"><%= message('project_quality_profiles.page') -%></h1>
-  <p class="admin-page-description"><%= message('project_quality_profiles.page.description') -%></p>
+  <header class="page-header">
+    <h1 class="page-title"><%= message('project_quality_profiles.page') -%></h1>
+    <p class="page-description"><%= message('project_quality_profiles.page.description') -%></p>
+  </header>
 
   <table class="data">
     <thead>
@@ -25,7 +27,7 @@
               <option value="" <%= "selected='selected'" unless selected_profile -%>><%= message 'project_quality_profile.default_profile' -%></option>
               <optgroup>
                 <%
-                   profiles = Api::Utils.insensitive_sort(@all_quality_profiles.select {|profile| profile.language == language.getKey()}) { |profile| profile.name }
+                   profiles = Api::Utils.insensitive_sort(@all_quality_profiles.select { |profile| profile.language == language.getKey() }) { |profile| profile.name }
                    profiles.each do |profile|
                 %>
                   <option value="<%= profile.id -%>" <%= "selected='selected'" if selected_profile && (selected_profile.id == profile.id) -%>><%= h profile.name -%></option>

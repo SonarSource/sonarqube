@@ -354,3 +354,38 @@ div.autocompleteNote {
   font-weight: normal;
   margin-bottom: 25px;
 }
+
+.red-button {
+  color: #990000 !important;
+}
+
+.red-button:hover {
+  color: #FFFFFF !important;
+  border: solid 1px #CD504A !important;
+  background: #B33630 !important;
+  background: -webkit-gradient(linear, left top, left bottom, from(#DC5F59), to(#B33630)) !important;
+  background: -moz-linear-gradient(top, #DC5F59, #B33630) !important;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#DC5F59', endColorstr = '#B33630') !important;
+}
+
+.red-button:active {
+  color: #FFFFFF !important;
+  border: solid 1px #CD504A !important;
+  background: #B33630 !important;
+  background: -webkit-gradient(linear, left top, left bottom, from(#AC2F29), to(#D35650)) !important;
+  background: -moz-linear-gradient(top, #AC2F29, #D35650) !important;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#AC2F29', endColorstr = '#D35650') !important;
+}
+
+.red-button[disabled] {
+  position: relative;
+  top: 0;
+  text-shadow: 1px 1px 0 #FFFFFF;
+  color: #BBBBBB;
+  border: solid 1px #DDD;
+  background: #EBEBEB;
+  background: -webkit-gradient(linear, left top, left bottom, from(#FFFFFF), to(#E1E1E1));
+  background: -moz-linear-gradient(top, #FFFFFF, #E1E1E1);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#FFFFFF', endColorstr = '#E1E1E1');
+  cursor: default;
+}
