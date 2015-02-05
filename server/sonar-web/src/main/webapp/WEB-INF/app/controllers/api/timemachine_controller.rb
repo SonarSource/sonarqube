@@ -80,7 +80,7 @@ class Api::TimemachineController < Api::ApiController
           from = parse_datetime(params[:fromDateTime])
           if from
             sql_conditions << 'snapshots.created_at>=:from'
-            sql_values[:from] = from
+            sql_values[:from] = from.to_i*1000
           end
         end
 
@@ -88,7 +88,7 @@ class Api::TimemachineController < Api::ApiController
           to = parse_datetime(params[:toDateTime])
           if to
             sql_conditions << 'snapshots.created_at<=:to'
-            sql_values[:to] = to
+            sql_values[:to] = to.to_i*1000
           end
         end
 
@@ -191,7 +191,7 @@ class Api::TimemachineController < Api::ApiController
     end
 
     @sids.each do |snapshot_id|
-      cell={:d => Api::Utils.format_datetime(@dates_by_sid[snapshot_id])}
+      cell={:d => Api::Utils.format_datetime(Time.at(@dates_by_sid[snapshot_id]/1000))}
       cell_values=[]
       cell[:v]=cell_values
 
@@ -216,7 +216,7 @@ class Api::TimemachineController < Api::ApiController
       end
       csv << header
       @sids.each do |snapshot_id|
-        row=[Api::Utils.format_datetime(@dates_by_sid[snapshot_id])]
+        row=[Api::Utils.format_datetime(Time.at(@dates_by_sid[snapshot_id]/1000))]
         @metadata.each do |metadata|
           measure=@measures_by_sid[snapshot_id][metadata.to_id]
           if measure
