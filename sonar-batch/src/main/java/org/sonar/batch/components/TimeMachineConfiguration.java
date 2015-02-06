@@ -60,7 +60,7 @@ public class TimeMachineConfiguration implements BatchComponent {
       PastSnapshot pastSnapshot = projectPastSnapshot.clonePastSnapshot();
       modulePastSnapshots.add(pastSnapshot);
       // When no snapshot is found, date of the period is null
-      periods.add(new Period(pastSnapshot.getIndex(), snapshot != null ? longToDate(snapshot.getCreatedAt()) : null));
+      periods.add(new Period(pastSnapshot.getIndex(), snapshot != null ? longToDate(snapshot.getCreatedAtMs()) : null));
       log(pastSnapshot);
     }
   }

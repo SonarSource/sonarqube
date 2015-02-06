@@ -32,7 +32,7 @@ public class PastSnapshotTest {
 
   @Test
   public void test_some_setters_and_getters() {
-    Snapshot snapshot = new Snapshot().setQualifier(Qualifiers.FILE).setCreatedAt(System.currentTimeMillis());
+    Snapshot snapshot = new Snapshot().setQualifier(Qualifiers.FILE).setCreatedAtMs(System.currentTimeMillis());
     snapshot.setId(10);
     PastSnapshot pastSnapshot = new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_VERSION, new Date(),
       snapshot)
@@ -57,7 +57,7 @@ public class PastSnapshotTest {
 
   @Test
   public void testToStringForVersion() {
-    PastSnapshot pastSnapshot = new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_VERSION, new Date(), new Snapshot().setCreatedAt(System.currentTimeMillis())).setModeParameter("2.3");
+    PastSnapshot pastSnapshot = new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_VERSION, new Date(), new Snapshot().setCreatedAtMs(System.currentTimeMillis())).setModeParameter("2.3");
     assertThat(pastSnapshot.toString()).startsWith("Compare to version 2.3");
   }
 
@@ -75,7 +75,7 @@ public class PastSnapshotTest {
 
   @Test
   public void testToStringForNumberOfDaysWithSnapshot() {
-    PastSnapshot pastSnapshot = new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_DAYS, new Date(), new Snapshot().setCreatedAt(System.currentTimeMillis())).setModeParameter("30");
+    PastSnapshot pastSnapshot = new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_DAYS, new Date(), new Snapshot().setCreatedAtMs(System.currentTimeMillis())).setModeParameter("30");
     assertThat(pastSnapshot.toString()).startsWith("Compare over 30 days (");
   }
 
@@ -87,13 +87,13 @@ public class PastSnapshotTest {
 
   @Test
   public void testToStringForDateWithSnapshot() {
-    PastSnapshot pastSnapshot = new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_DATE, new Date(), new Snapshot().setCreatedAt(System.currentTimeMillis()));
+    PastSnapshot pastSnapshot = new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_DATE, new Date(), new Snapshot().setCreatedAtMs(System.currentTimeMillis()));
     assertThat(pastSnapshot.toString()).startsWith("Compare to date ");
   }
 
   @Test
   public void testToStringForPreviousAnalysis() {
-    PastSnapshot pastSnapshot = new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, new Date(), new Snapshot().setCreatedAt(System.currentTimeMillis()));
+    PastSnapshot pastSnapshot = new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, new Date(), new Snapshot().setCreatedAtMs(System.currentTimeMillis()));
     assertThat(pastSnapshot.toString()).startsWith("Compare to previous analysis ");
   }
 

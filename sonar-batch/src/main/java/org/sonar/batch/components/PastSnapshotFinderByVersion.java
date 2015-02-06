@@ -53,7 +53,7 @@ public class PastSnapshotFinderByVersion implements BatchExtension {
       result = new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_VERSION);
     } else {
       Snapshot snapshot = snapshots.get(0);
-      Date targetDate = longToDate(snapshot.getCreatedAt());
+      Date targetDate = longToDate(snapshot.getCreatedAtMs());
       result = new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_VERSION, targetDate, snapshot).setModeParameter(version);
     }
     return result;

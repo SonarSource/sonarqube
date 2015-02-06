@@ -75,7 +75,7 @@ public class PastSnapshot {
   }
 
   public Date getDate() {
-    return projectSnapshot != null ? longToDate(projectSnapshot.getCreatedAt()) : null;
+    return projectSnapshot != null ? longToDate(projectSnapshot.getCreatedAtMs()) : null;
   }
 
   public PastSnapshot setMode(String mode) {

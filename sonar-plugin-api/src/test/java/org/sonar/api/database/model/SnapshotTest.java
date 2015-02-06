@@ -29,11 +29,11 @@ public class SnapshotTest {
   @Test
   public void testGetDate() {
     Snapshot snapshot = new Snapshot();
-    assertNull(snapshot.getCreatedAt());
+    assertNull(snapshot.getCreatedAtMs());
 
     Long now = System.currentTimeMillis();
-    snapshot.setCreatedAt(now);
-    assertEquals(now, snapshot.getCreatedAt());
+    snapshot.setCreatedAtMs(now);
+    assertEquals(now, snapshot.getCreatedAtMs());
   }
 
   @Test

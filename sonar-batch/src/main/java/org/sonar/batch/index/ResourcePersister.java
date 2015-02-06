@@ -135,8 +135,8 @@ public class ResourcePersister implements ScanPersister {
 
     Snapshot snapshot = new Snapshot(model, parentSnapshot);
     snapshot.setVersion(project.getAnalysisVersion());
-    snapshot.setCreatedAt(dateToLong(project.getAnalysisDate()));
-    snapshot.setBuildDate(System.currentTimeMillis());
+    snapshot.setCreatedAtMs(dateToLong(project.getAnalysisDate()));
+    snapshot.setBuildDateMs(System.currentTimeMillis());
     snapshot = session.save(snapshot);
     session.commit();
 
@@ -170,8 +170,8 @@ public class ResourcePersister implements ScanPersister {
     Snapshot snapshot = findLibrarySnapshot(model.getId(), library.getVersion());
     if (snapshot == null) {
       snapshot = new Snapshot(model, null);
-      snapshot.setCreatedAt(dateToLong(analysisDate));
-      snapshot.setBuildDate(System.currentTimeMillis());
+      snapshot.setCreatedAtMs(dateToLong(analysisDate));
+      snapshot.setBuildDateMs(System.currentTimeMillis());
       snapshot.setVersion(library.getVersion());
       snapshot.setStatus(Snapshot.STATUS_PROCESSED);
 
@@ -219,7 +219,7 @@ public class ResourcePersister implements ScanPersister {
     }
 
     Snapshot snapshot = new Snapshot(model, parentSnapshot);
-    snapshot.setBuildDate(System.currentTimeMillis());
+    snapshot.setBuildDateMs(System.currentTimeMillis());
     snapshot = session.save(snapshot);
     session.commit();
     return snapshot;

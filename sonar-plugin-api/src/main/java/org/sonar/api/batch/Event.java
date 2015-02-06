@@ -125,7 +125,7 @@ public class Event extends BaseIdentifiable {
   public final void setSnapshot(Snapshot snapshot) {
     this.snapshot = snapshot;
     if (snapshot != null) {
-      this.date = (snapshot.getCreatedAt() == null ? null : new Date(snapshot.getCreatedAt()));
+      this.date = (snapshot.getCreatedAtMs() == null ? null : new Date(snapshot.getCreatedAtMs()));
       this.resourceId = snapshot.getResourceId();
     }
   }

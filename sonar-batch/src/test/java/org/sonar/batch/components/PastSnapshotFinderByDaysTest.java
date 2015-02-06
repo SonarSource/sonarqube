@@ -107,7 +107,7 @@ public class PastSnapshotFinderByDaysTest extends AbstractDbUnitTestCase {
   private Snapshot newSnapshot(int id, String date) throws ParseException {
     Snapshot snapshot = new Snapshot();
     snapshot.setId(id);
-    snapshot.setCreatedAt(dateFormat.parse(date).getTime());
+    snapshot.setCreatedAtMs(dateFormat.parse(date).getTime());
     return snapshot;
   }
 }

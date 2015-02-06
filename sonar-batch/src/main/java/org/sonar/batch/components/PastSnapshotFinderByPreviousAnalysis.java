@@ -44,7 +44,7 @@ public class PastSnapshotFinderByPreviousAnalysis implements BatchExtension {
     String hql = "from " + Snapshot.class.getSimpleName()
         + " where createdAt<:date AND resourceId=:resourceId AND status=:status and last=:last and qualifier<>:lib order by createdAt desc";
     List<Snapshot> snapshots = session.createQuery(hql)
-        .setParameter("date", projectSnapshot.getCreatedAt())
+        .setParameter("date", projectSnapshot.getCreatedAtMs())
         .setParameter("resourceId", projectSnapshot.getResourceId())
         .setParameter("status", Snapshot.STATUS_PROCESSED)
         .setParameter("last", true)
@@ -56,7 +56,7 @@ public class PastSnapshotFinderByPreviousAnalysis implements BatchExtension {
       return new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS);
     }
     Snapshot snapshot = snapshots.get(0);
-    Date targetDate = longToDate(snapshot.getCreatedAt());
+    Date targetDate = longToDate(snapshot.getCreatedAtMs());
     SimpleDateFormat format = new SimpleDateFormat(DateUtils.DATE_FORMAT);
     return new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, targetDate, snapshot).setModeParameter(format.format(targetDate));
   }

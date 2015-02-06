@@ -57,7 +57,7 @@ public class PastSnapshotFinderByPreviousVersion implements BatchExtension {
     Event previousVersionEvent = events.get(0);
     Snapshot snapshot = session.getSingleResult(Snapshot.class, "id", previousVersionEvent.getSnapshot().getId());
 
-    return new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION, longToDate(snapshot.getCreatedAt()), snapshot).setModeParameter(snapshot.getVersion());
+    return new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION, longToDate(snapshot.getCreatedAtMs()), snapshot).setModeParameter(snapshot.getVersion());
   }
 
 }

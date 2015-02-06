@@ -41,10 +41,10 @@ public class PastSnapshotFinderByDays implements BatchExtension {
   }
 
   PastSnapshot findFromDays(Snapshot projectSnapshot, int days) {
-    Date targetDate = DateUtils.addDays(longToDate(projectSnapshot.getCreatedAt()), -days);
+    Date targetDate = DateUtils.addDays(longToDate(projectSnapshot.getCreatedAtMs()), -days);
     String hql = "from " + Snapshot.class.getSimpleName() + " where resourceId=:resourceId AND status=:status AND createdAt<:date AND qualifier<>:lib order by createdAt asc";
     List<Snapshot> snapshots = session.createQuery(hql)
-      .setParameter("date", projectSnapshot.getCreatedAt())
+      .setParameter("date", projectSnapshot.getCreatedAtMs())
       .setParameter("resourceId", projectSnapshot.getResourceId())
       .setParameter("status", Snapshot.STATUS_PROCESSED)
       .setParameter("lib", Qualifiers.LIBRARY)
@@ -65,7 +65,7 @@ public class PastSnapshotFinderByDays implements BatchExtension {
     long bestDistance = Long.MAX_VALUE;
     Snapshot nearest = null;
     for (Snapshot snapshot : snapshots) {
-      long distance = distance(longToDate(snapshot.getCreatedAt()), targetDate);
+      long distance = distance(longToDate(snapshot.getCreatedAtMs()), targetDate);
       if (distance <= bestDistance) {
         bestDistance = distance;
         nearest = snapshot;

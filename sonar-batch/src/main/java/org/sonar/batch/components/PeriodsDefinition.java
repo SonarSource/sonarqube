@@ -79,8 +79,8 @@ public class PeriodsDefinition implements BatchComponent {
     if (projectId != null) {
       snapshot = new Snapshot();
       snapshot.setResourceId(projectId.intValue());
-      snapshot.setCreatedAt(dateToLong(projectTree.getRootProject().getAnalysisDate()));
-      snapshot.setBuildDate(System.currentTimeMillis());
+      snapshot.setCreatedAtMs(dateToLong(projectTree.getRootProject().getAnalysisDate()));
+      snapshot.setBuildDateMs(System.currentTimeMillis());
       snapshot.setVersion(projectTree.getRootProject().getAnalysisVersion());
     }
     return snapshot;

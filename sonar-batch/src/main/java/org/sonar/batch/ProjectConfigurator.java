@@ -95,12 +95,12 @@ public class ProjectConfigurator implements BatchComponent {
       ResourceModel persistedProject = databaseSession.getSingleResult(ResourceModel.class, "key", projectKey, "enabled", true);
       if (persistedProject != null) {
         Snapshot lastSnapshot = databaseSession.getSingleResult(Snapshot.class, "resourceId", persistedProject.getId(), "last", true);
-        boolean analysisBeforeLastSnapshot = lastSnapshot != null && analysisDate.getTime() <= lastSnapshot.getCreatedAt();
+        boolean analysisBeforeLastSnapshot = lastSnapshot != null && analysisDate.getTime() <= lastSnapshot.getCreatedAtMs();
         if (analysisBeforeLastSnapshot) {
           throw new IllegalArgumentException(
             "'sonar.projectDate' property cannot be older than the date of the last known quality snapshot on this project. Value: '" +
               settings.getString(CoreProperties.PROJECT_DATE_PROPERTY) + "'. " +
-              "Latest quality snapshot: '" + formatDateTime(longToDate(lastSnapshot.getCreatedAt()))
+              "Latest quality snapshot: '" + formatDateTime(longToDate(lastSnapshot.getCreatedAtMs()))
               + "'. This property may only be used to rebuild the past in a chronological order.");
         }
       }

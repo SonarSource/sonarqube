@@ -29,8 +29,12 @@ import org.sonar.api.database.DatabaseSession;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+
 import java.io.Serializable;
 import java.util.Date;
+
+import static org.sonar.api.utils.DateUtils.dateToLong;
+import static org.sonar.api.utils.DateUtils.longToDate;
 
 /**
  * A class to map a snapshot with its hibernate model
@@ -153,7 +157,7 @@ public class Snapshot extends BaseIdentifiable<Snapshot> implements Serializable
     } else {
       this.parentId = parent.getId();
       this.rootId = (parent.getRootId() == null ? parent.getId() : parent.getRootId());
-      this.createdAt = parent.getCreatedAt();
+      this.createdAt = parent.getCreatedAtMs();
       this.depth = parent.getDepth() + 1;
       this.path = new StringBuilder()
         .append(parent.getPath())
@@ -191,7 +195,11 @@ public class Snapshot extends BaseIdentifiable<Snapshot> implements Serializable
    *
    * @since 2.14
    */
-  public Long getBuildDate() {
+  public Date getBuildDate() {
+    return longToDate(buildDate);
+  }
+
+  public Long getBuildDateMs() {
     return buildDate;
   }
 
@@ -200,16 +208,30 @@ public class Snapshot extends BaseIdentifiable<Snapshot> implements Serializable
    *
    * @since 2.14
    */
-  public Snapshot setBuildDate(Long d) {
+  public Snapshot setBuildDate(Date date) {
+    this.buildDate = dateToLong(date);
+    return this;
+  }
+
+  public Snapshot setBuildDateMs(Long d) {
     this.buildDate = d;
     return this;
   }
 
-  public Long getCreatedAt() {
+  public Date getCreatedAt() {
+    return longToDate(createdAt);
+  }
+
+  public Long getCreatedAtMs() {
     return createdAt;
   }
 
-  public Snapshot setCreatedAt(Long createdAt) {
+  public Snapshot setCreatedAt(Date createdAt) {
+    this.createdAt = dateToLong(createdAt);
+    return this;
+  }
+
+  public Snapshot setCreatedAtMs(Long createdAt) {
     this.createdAt = createdAt;
     return this;
   }
@@ -482,7 +504,11 @@ public class Snapshot extends BaseIdentifiable<Snapshot> implements Serializable
     return this;
   }
 
-  public Long getPeriod1Date() {
+  public Date getPeriod1Date() {
+    return longToDate(period1Date);
+  }
+
+  public Long getPeriod1DateMs() {
     return period1Date;
   }
 
@@ -491,12 +517,21 @@ public class Snapshot extends BaseIdentifiable<Snapshot> implements Serializable
    *
    * @since 2.5
    */
-  public Snapshot setPeriod1Date(Long period1Date) {
+  public Snapshot setPeriod1Date(Date period1Date) {
+    this.period1Date = dateToLong(period1Date);
+    return this;
+  }
+
+  public Snapshot setPeriod1DateMs(Long period1Date) {
     this.period1Date = period1Date;
     return this;
   }
 
-  public Long getPeriod2Date() {
+  public Date getPeriod2Date() {
+    return longToDate(period2Date);
+  }
+
+  public Long getPeriod2DateMs() {
     return period2Date;
   }
 
@@ -505,12 +540,21 @@ public class Snapshot extends BaseIdentifiable<Snapshot> implements Serializable
    *
    * @since 2.5
    */
-  public Snapshot setPeriod2Date(Long period2Date) {
+  public Snapshot setPeriod2Date(Date period2Date) {
+    this.period2Date = dateToLong(period2Date);
+    return this;
+  }
+
+  public Snapshot setPeriod2DateMs(Long period2Date) {
     this.period2Date = period2Date;
     return this;
   }
 
-  public Long getPeriod3Date() {
+  public Date getPeriod3Date() {
+    return longToDate(period3Date);
+  }
+
+  public Long getPeriod3DateMs() {
     return period3Date;
   }
 
@@ -519,12 +563,21 @@ public class Snapshot extends BaseIdentifiable<Snapshot> implements Serializable
    *
    * @since 2.5
    */
-  public Snapshot setPeriod3Date(Long period3Date) {
+  public Snapshot setPeriod3Date(Date period3Date) {
+    this.period3Date = dateToLong(period3Date);
+    return this;
+  }
+
+  public Snapshot setPeriod3DateMs(Long period3Date) {
     this.period3Date = period3Date;
     return this;
   }
 
-  public Long getPeriod4Date() {
+  public Date getPeriod4Date() {
+    return longToDate(period4Date);
+  }
+
+  public Long getPeriod4DateMs() {
     return period4Date;
   }
 
@@ -533,12 +586,21 @@ public class Snapshot extends BaseIdentifiable<Snapshot> implements Serializable
    *
    * @since 2.5
    */
-  public Snapshot setPeriod4Date(Long period4Date) {
+  public Snapshot setPeriod4Date(Date period4Date) {
+    this.period4Date = dateToLong(period4Date);
+    return this;
+  }
+
+  public Snapshot setPeriod4DateMs(Long period4Date) {
     this.period4Date = period4Date;
     return this;
   }
 
-  public Long getPeriod5Date() {
+  public Date getPeriod5Date() {
+    return longToDate(period5Date);
+  }
+
+  public Long getPeriod5DateMs() {
     return period5Date;
   }
 
@@ -547,7 +609,12 @@ public class Snapshot extends BaseIdentifiable<Snapshot> implements Serializable
    *
    * @since 2.5
    */
-  public Snapshot setPeriod5Date(Long period5Date) {
+  public Snapshot setPeriod5Date(Date period5Date) {
+    this.period5Date = dateToLong(period5Date);
+    return this;
+  }
+
+  public Snapshot setPeriod5DateMs(Long period5Date) {
     this.period5Date = period5Date;
     return this;
   }
@@ -647,7 +714,7 @@ public class Snapshot extends BaseIdentifiable<Snapshot> implements Serializable
    *
    * @since 2.5
    */
-  public Snapshot setPeriodDate(int periodIndex, Long date) {
+  public Snapshot setPeriodDateMs(int periodIndex, Long date) {
     switch (periodIndex) {
       case 1:
         period1Date = date;
@@ -698,7 +765,7 @@ public class Snapshot extends BaseIdentifiable<Snapshot> implements Serializable
     Snapshot other = (Snapshot) obj;
     return new EqualsBuilder()
       .append(resourceId, other.getResourceId())
-      .append(createdAt, other.getCreatedAt())
+      .append(createdAt, other.getCreatedAtMs())
       .isEquals();
   }
 

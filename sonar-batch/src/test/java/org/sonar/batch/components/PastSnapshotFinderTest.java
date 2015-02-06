@@ -148,7 +148,7 @@ public class PastSnapshotFinderTest {
   public void should_find_by_previous_analysis() throws ParseException {
     final Date date = DateUtils.parseDate("2010-05-18");
     Snapshot snapshot = new Snapshot();
-    snapshot.setCreatedAt(date.getTime());
+    snapshot.setCreatedAtMs(date.getTime());
     when(finderByPreviousAnalysis.findByPreviousAnalysis(null)).thenReturn(new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, date, snapshot));
 
     PastSnapshot variationSnapshot = finder.find(null, 2, CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS);
@@ -175,7 +175,7 @@ public class PastSnapshotFinderTest {
     final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
     final Date date = format.parse("2010-05-18");
     Snapshot snapshot = new Snapshot();
-    snapshot.setCreatedAt(date.getTime());
+    snapshot.setCreatedAtMs(date.getTime());
     when(finderByPreviousVersion.findByPreviousVersion(null)).thenReturn(new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION, date, snapshot));
 
     PastSnapshot variationSnapshot = finder.find(null, 2, CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION);
