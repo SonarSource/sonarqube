@@ -18,6 +18,7 @@ define [
         'click .js-select-period-start': 'selectPeriodStart'
         'click .js-select-period-end': 'selectPeriodEnd'
 
+        'click .js-all': 'onAllClick'
         'click .js-last-week': 'onLastWeekClick'
         'click .js-last-month': 'onLastMonthClick'
         'click .js-last-year': 'onLastYearClick'
@@ -63,6 +64,10 @@ define [
 
     disable: ->
       @options.app.state.updateFilter createdAfter: null, createdBefore: null, createdAt: null
+
+
+    onAllClick: ->
+      @disable()
 
 
     onLastWeekClick: ->
