@@ -39,6 +39,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
+import org.sonar.api.test.IsRuleMeasure;
 import org.sonar.batch.components.Period;
 import org.sonar.batch.components.TimeMachineConfiguration;
 
@@ -185,10 +186,39 @@ public class CountUnresolvedIssuesDecoratorTest {
   }
 
   @Test
+  public void should_count_issues_per_rule() {
+    List<Issue> issues = newArrayList();
+    issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setSeverity(RulePriority.CRITICAL.name()));
+    issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setSeverity(RulePriority.CRITICAL.name()));
+    issues.add(new DefaultIssue().setRuleKey(ruleA2.ruleKey()).setSeverity(RulePriority.MAJOR.name()));
+    when(issuable.issues()).thenReturn(issues);
+
+    decorator.decorate(resource, context);
+
+    verify(context).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.CRITICAL_VIOLATIONS, ruleA1, 2.0)));
+    verify(context, never()).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.MAJOR_VIOLATIONS, ruleA1, 0.0)));
+    verify(context).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.MAJOR_VIOLATIONS, ruleA2, 1.0)));
+  }
+
+  @Test
+  public void same_rule_should_have_different_severities() {
+    List<Issue> issues = newArrayList();
+    issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setSeverity(RulePriority.CRITICAL.name()));
+    issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setSeverity(RulePriority.CRITICAL.name()));
+    issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setSeverity(RulePriority.MINOR.name()));
+    when(issuable.issues()).thenReturn(issues);
+
+    decorator.decorate(resource, context);
+
+    verify(context).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.CRITICAL_VIOLATIONS, ruleA1, 2.0)));
+    verify(context).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.MINOR_VIOLATIONS, ruleA1, 1.0)));
+  }
+
+  @Test
   public void should_count_issues_after_date() {
     List<Issue> issues = createIssuesForNewMetrics();
 
-    assertThat(decorator.countIssuesAfterDate(Collections.<Issue>emptyList(), fiveDaysAgo)).isEqualTo(0);
+    assertThat(decorator.countIssuesAfterDate(null, fiveDaysAgo)).isEqualTo(0);
     assertThat(decorator.countIssuesAfterDate(issues, fiveDaysAgo)).isEqualTo(1); // 1 rightNow
     assertThat(decorator.countIssuesAfterDate(issues, tenDaysAgo)).isEqualTo(3); // 1 rightNow + 2 fiveDaysAgo
     assertThat(decorator.countIssuesAfterDate(issues, sameSecond)).isEqualTo(0); // 0
@@ -219,6 +249,18 @@ public class CountUnresolvedIssuesDecoratorTest {
     verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_MAJOR_VIOLATIONS, 0.0, 1.0)));
     verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_MINOR_VIOLATIONS, 0.0, 1.0)));
     verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_INFO_VIOLATIONS, 0.0, 0.0)));
+  }
+
+  @Test
+  public void should_save_rule_new_issues() {
+    when(issuable.issues()).thenReturn(createIssuesForNewMetrics());
+
+    decorator.decorate(resource, context);
+
+    // remember : period1 is 5daysAgo, period2 is 10daysAgo
+    verify(context).saveMeasure(argThat(new IsVariationRuleMeasure(CoreMetrics.NEW_CRITICAL_VIOLATIONS, ruleA1, 1.0, 1.0)));
+    verify(context).saveMeasure(argThat(new IsVariationRuleMeasure(CoreMetrics.NEW_MAJOR_VIOLATIONS, ruleA2, 0.0, 1.0)));
+    verify(context).saveMeasure(argThat(new IsVariationRuleMeasure(CoreMetrics.NEW_MINOR_VIOLATIONS, ruleB1, 0.0, 1.0)));
   }
 
   @Test

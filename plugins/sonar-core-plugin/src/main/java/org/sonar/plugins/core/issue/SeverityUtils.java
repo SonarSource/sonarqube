@@ -21,44 +21,46 @@ package org.sonar.plugins.core.issue;
 
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.RulePriority;
 
 final class SeverityUtils {
   private SeverityUtils() {
     // only static methods
   }
 
-  static Metric severityToIssueMetric(String severity) {
-    switch (severity) {
-      case Severity.BLOCKER:
-        return CoreMetrics.BLOCKER_VIOLATIONS;
-      case Severity.CRITICAL:
-        return CoreMetrics.CRITICAL_VIOLATIONS;
-      case Severity.MAJOR:
-        return CoreMetrics.MAJOR_VIOLATIONS;
-      case Severity.MINOR:
-        return CoreMetrics.MINOR_VIOLATIONS;
-      case Severity.INFO:
-        return CoreMetrics.INFO_VIOLATIONS;
-      default:
-        throw new IllegalArgumentException("Unsupported severity: " + severity);
+  static Metric severityToIssueMetric(RulePriority severity) {
+    Metric metric;
+    if (severity.equals(RulePriority.BLOCKER)) {
+      metric = CoreMetrics.BLOCKER_VIOLATIONS;
+    } else if (severity.equals(RulePriority.CRITICAL)) {
+      metric = CoreMetrics.CRITICAL_VIOLATIONS;
+    } else if (severity.equals(RulePriority.MAJOR)) {
+      metric = CoreMetrics.MAJOR_VIOLATIONS;
+    } else if (severity.equals(RulePriority.MINOR)) {
+      metric = CoreMetrics.MINOR_VIOLATIONS;
+    } else if (severity.equals(RulePriority.INFO)) {
+      metric = CoreMetrics.INFO_VIOLATIONS;
+    } else {
+      throw new IllegalArgumentException("Unsupported severity: " + severity);
     }
+    return metric;
   }
 
-  static Metric severityToNewMetricIssue(String severity) {
-    switch (severity) {
-      case Severity.BLOCKER:
-        return CoreMetrics.NEW_BLOCKER_VIOLATIONS;
-      case Severity.CRITICAL:
-        return CoreMetrics.NEW_CRITICAL_VIOLATIONS;
-      case Severity.MAJOR:
-        return CoreMetrics.NEW_MAJOR_VIOLATIONS;
-      case Severity.MINOR:
-        return CoreMetrics.NEW_MINOR_VIOLATIONS;
-      case Severity.INFO:
-        return CoreMetrics.NEW_INFO_VIOLATIONS;
-      default:
-        throw new IllegalArgumentException("Unsupported severity: " + severity);
+  static Metric severityToNewMetricIssue(RulePriority severity) {
+    Metric metric;
+    if (severity.equals(RulePriority.BLOCKER)) {
+      metric = CoreMetrics.NEW_BLOCKER_VIOLATIONS;
+    } else if (severity.equals(RulePriority.CRITICAL)) {
+      metric = CoreMetrics.NEW_CRITICAL_VIOLATIONS;
+    } else if (severity.equals(RulePriority.MAJOR)) {
+      metric = CoreMetrics.NEW_MAJOR_VIOLATIONS;
+    } else if (severity.equals(RulePriority.MINOR)) {
+      metric = CoreMetrics.NEW_MINOR_VIOLATIONS;
+    } else if (severity.equals(RulePriority.INFO)) {
+      metric = CoreMetrics.NEW_INFO_VIOLATIONS;
+    } else {
+      throw new IllegalArgumentException("Unsupported severity: " + severity);
     }
+    return metric;
   }
 }

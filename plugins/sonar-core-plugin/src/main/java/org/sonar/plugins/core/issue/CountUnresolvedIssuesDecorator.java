@@ -30,16 +30,14 @@ import org.sonar.api.measures.*;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
-import org.sonar.api.rule.Severity;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.RulePriority;
 import org.sonar.batch.components.Period;
 import org.sonar.batch.components.TimeMachineConfiguration;
 
 import javax.annotation.Nullable;
 
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * Computes metrics related to number of issues.
@@ -90,15 +88,18 @@ public class CountUnresolvedIssuesDecorator implements Decorator {
       Collection<Issue> issues = issuable.issues();
       boolean shouldSaveNewMetrics = shouldSaveNewMetrics(context);
 
-      Multiset<String> severityBag = HashMultiset.create();
-      ListMultimap<String, Issue> issuesPerSeverity = ArrayListMultimap.create();
+      Multiset<RulePriority> severityBag = HashMultiset.create();
+      Map<RulePriority, Multiset<RuleKey>> rulesPerSeverity = Maps.newHashMap();
+      ListMultimap<RulePriority, Issue> issuesPerSeverity = ArrayListMultimap.create();
       int countOpen = 0;
       int countReopened = 0;
       int countConfirmed = 0;
 
       for (Issue issue : issues) {
-        severityBag.add(issue.severity());
-        issuesPerSeverity.put(issue.severity(), issue);
+        severityBag.add(RulePriority.valueOf(issue.severity()));
+        Multiset<RuleKey> rulesBag = initRules(rulesPerSeverity, RulePriority.valueOf(issue.severity()));
+        rulesBag.add(issue.ruleKey());
+        issuesPerSeverity.put(RulePriority.valueOf(issue.severity()), issue);
 
         if (Issue.STATUS_OPEN.equals(issue.status())) {
           countOpen++;
@@ -109,9 +110,11 @@ public class CountUnresolvedIssuesDecorator implements Decorator {
         }
       }
 
-      for (String severity : Severity.ALL) {
-        saveIssuesForSeverity(context, severity, severityBag);
-        saveNewIssuesForSeverity(context, severity, issuesPerSeverity, shouldSaveNewMetrics);
+      for (RulePriority ruleSeverity : RulePriority.values()) {
+        saveIssuesForSeverity(context, ruleSeverity, severityBag);
+        saveIssuesPerRules(context, ruleSeverity, rulesPerSeverity);
+        saveNewIssuesForSeverity(context, ruleSeverity, issuesPerSeverity, shouldSaveNewMetrics);
+        saveNewIssuesPerRule(context, ruleSeverity, issues, shouldSaveNewMetrics);
       }
 
       saveTotalIssues(context, issues);
@@ -138,20 +141,80 @@ public class CountUnresolvedIssuesDecorator implements Decorator {
     }
   }
 
-  private void saveIssuesForSeverity(DecoratorContext context, String severity, Multiset<String> severitiesBag) {
-    Metric metric = SeverityUtils.severityToIssueMetric(severity);
+  private void saveIssuesForSeverity(DecoratorContext context, RulePriority ruleSeverity, Multiset<RulePriority> severitiesBag) {
+    Metric metric = SeverityUtils.severityToIssueMetric(ruleSeverity);
     if (context.getMeasure(metric) == null) {
       Collection<Measure> children = context.getChildrenMeasures(MeasuresFilters.metric(metric));
-      int sum = MeasureUtils.sum(true, children).intValue() + severitiesBag.count(severity);
+      int sum = MeasureUtils.sum(true, children).intValue() + severitiesBag.count(ruleSeverity);
       context.saveMeasure(metric, (double) sum);
     }
   }
 
-  private void saveNewIssuesForSeverity(DecoratorContext context, String severity, ListMultimap<String, Issue> issuesPerSeverities, boolean shouldSaveNewMetrics) {
+  private void saveNewIssuesForSeverity(DecoratorContext context, RulePriority severity, ListMultimap<RulePriority, Issue> issuesPerSeverities, boolean shouldSaveNewMetrics) {
     if (shouldSaveNewMetrics) {
       Metric metric = SeverityUtils.severityToNewMetricIssue(severity);
       Measure measure = new Measure(metric);
       saveNewIssues(context, measure, issuesPerSeverities.get(severity));
+    }
+  }
+
+  private void saveIssuesPerRules(DecoratorContext context, RulePriority severity, Map<RulePriority, Multiset<RuleKey>> rulesPerSeverity) {
+    Metric metric = SeverityUtils.severityToIssueMetric(severity);
+
+    Collection<Measure> children = context.getChildrenMeasures(MeasuresFilters.rules(metric));
+    for (Measure child : children) {
+      RuleMeasure childRuleMeasure = (RuleMeasure) child;
+      RuleKey ruleKey = childRuleMeasure.ruleKey();
+      if (ruleKey != null && MeasureUtils.hasValue(childRuleMeasure)) {
+        Multiset<RuleKey> rulesBag = initRules(rulesPerSeverity, severity);
+        rulesBag.add(ruleKey, childRuleMeasure.getIntValue());
+      }
+    }
+
+    Multiset<RuleKey> rulesBag = rulesPerSeverity.get(severity);
+    if (rulesBag != null) {
+      for (Multiset.Entry<RuleKey> entry : rulesBag.entrySet()) {
+        RuleMeasure measure = RuleMeasure.createForRule(metric, entry.getElement(), (double) entry.getCount());
+        measure.setSeverity(severity);
+        context.saveMeasure(measure);
+      }
+    }
+  }
+
+  private void saveNewIssuesPerRule(DecoratorContext context, RulePriority severity, Collection<Issue> issues, boolean shouldSaveNewMetrics) {
+    if (shouldSaveNewMetrics) {
+      Metric metric = SeverityUtils.severityToNewMetricIssue(severity);
+      ListMultimap<RuleKey, Measure> childMeasuresPerRuleKeys = ArrayListMultimap.create();
+      ListMultimap<RuleKey, Issue> issuesPerRuleKeys = ArrayListMultimap.create();
+      Set<RuleKey> ruleKeys = Sets.newHashSet();
+
+      Collection<Measure> children = context.getChildrenMeasures(MeasuresFilters.rules(metric));
+      for (Measure child : children) {
+        RuleMeasure childRuleMeasure = (RuleMeasure) child;
+        RuleKey ruleKey = childRuleMeasure.ruleKey();
+        if (ruleKey != null) {
+          childMeasuresPerRuleKeys.put(ruleKey, childRuleMeasure);
+          ruleKeys.add(ruleKey);
+        }
+      }
+
+      for (Issue issue : issues) {
+        if (RulePriority.valueOf(issue.severity()).equals(severity)) {
+          ruleKeys.add(issue.ruleKey());
+          issuesPerRuleKeys.put(issue.ruleKey(), issue);
+        }
+      }
+
+      for (RuleKey ruleKey : ruleKeys) {
+        RuleMeasure measure = RuleMeasure.createForRule(metric, ruleKey, null);
+        measure.setSeverity(severity);
+        for (Period period : timeMachineConfiguration.periods()) {
+          int variationIndex = period.getIndex();
+          double sum = MeasureUtils.sumOnVariation(true, variationIndex, childMeasuresPerRuleKeys.get(ruleKey)) + countIssues(issuesPerRuleKeys.get(ruleKey), period);
+          measure.setVariation(variationIndex, sum);
+        }
+        context.saveMeasure(measure);
+      }
     }
   }
 
@@ -177,6 +240,15 @@ public class CountUnresolvedIssuesDecorator implements Decorator {
     return sum;
   }
 
+  private Multiset<RuleKey> initRules(Map<RulePriority, Multiset<RuleKey>> rulesPerSeverity, RulePriority severity) {
+    Multiset<RuleKey> rulesBag = rulesPerSeverity.get(severity);
+    if (rulesBag == null) {
+      rulesBag = HashMultiset.create();
+      rulesPerSeverity.put(severity, rulesBag);
+    }
+    return rulesBag;
+  }
+
   private int countIssues(Collection<Issue> issues, Period period) {
     // SONAR-3647 Use real snapshot date and not target date in order to stay consistent with other measure variations
     Date datePlusOneSecond = period.getDate() != null ? DateUtils.addSeconds(period.getDate(), 1) : null;
@@ -185,6 +257,9 @@ public class CountUnresolvedIssuesDecorator implements Decorator {
 
   @VisibleForTesting
   int countIssuesAfterDate(Collection<Issue> issues, @Nullable Date date) {
+    if (issues == null) {
+      return 0;
+    }
     int count = 0;
     for (Issue issue : issues) {
       if (isAfter(issue, date)) {
