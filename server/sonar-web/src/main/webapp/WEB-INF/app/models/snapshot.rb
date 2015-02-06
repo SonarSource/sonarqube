@@ -103,7 +103,7 @@ class Snapshot < ActiveRecord::Base
     snapshot_conditions = ["snapshots.project_id=? AND snapshots.status=? AND snapshots.scope=? AND snapshots.qualifier=?", resource.id, STATUS_PROCESSED, resource.scope, resource.qualifier]
     if options[:from]
       snapshot_conditions[0] += " AND snapshots.created_at>=?"
-      snapshot_conditions << options[:from]
+      snapshot_conditions << options[:from].to_i * 1000
     end
     first_snapshot=Snapshot.find(:first, :conditions => snapshot_conditions, :order => 'snapshots.created_at ASC')
     last_snapshot=resource.last_snapshot
