@@ -43,6 +43,18 @@ public class CorePropertyDefinitions {
     defs.addAll(DataCleanerProperties.all());
 
     defs.addAll(ImmutableList.of(
+      // WEB LOOK&FEEL
+      PropertyDefinition.builder("sonar.lf.logoUrl")
+        .deprecatedKey("sonar.branding.image")
+        .name("Logo URL")
+        .description("URL to logo image. Any standard format is accepted.")
+        .build(),
+      PropertyDefinition.builder("sonar.lf.logoWidthPx")
+        .deprecatedKey("sonar.branding.image.width")
+        .name("Width of image in pixels")
+        .description("Width in pixels, according that the height of image is constrained to 30px.")
+        .build(),
+
       // BATCH
 
       PropertyDefinition.builder(CoreProperties.CORE_VIOLATION_LOCALE_PROPERTY)
