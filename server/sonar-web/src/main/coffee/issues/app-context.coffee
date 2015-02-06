@@ -63,6 +63,7 @@ requirejs [
     @state = new State
       isContext: true,
       contextQuery: @getContextQuery()
+      contextComponentUuid: window.config.resource
       contextComponentName: window.config.resourceName
       contextComponentQualifier: window.config.resourceQualifier
     @updateContextFacets()
