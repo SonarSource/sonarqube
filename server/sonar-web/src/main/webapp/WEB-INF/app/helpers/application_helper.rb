@@ -87,17 +87,17 @@ module ApplicationHelper
   # shortcut for the method is_admin?() without parameters. Result is kept in cache.
   def administrator?
     @is_administrator ||=
-      begin
-        is_admin?
-      end
+        begin
+          is_admin?
+        end
   end
 
   # shortcut for the method has_role?(:profileadmin). Result is kept in cache.
   def profiles_administrator?
     @is_profileadmin ||=
-      begin
-        has_role?(:profileadmin)
-      end
+        begin
+          has_role?(:profileadmin)
+        end
   end
 
   def qualifier_icon(object)
@@ -195,10 +195,7 @@ module ApplicationHelper
       metric_key = metric_or_measure
     end
 
-    issues_metrics = ['violations',
-                      'blocker_violations', 'critical_violations', 'major_violations', 'minor_violations', 'info_violations',
-                      'new_blocker_violations', 'new_critical_violations', 'new_major_violations', 'new_minor_violations', 'new_info_violations',
-                      'open_issues', 'reopened_issues', 'confirmed_issues', 'false_positive_issues']
+    issues_metrics = get_issue_metrics
 
     if issues_metrics.include? metric_key
       resource = options[:resource]||@resource.key
@@ -319,7 +316,6 @@ module ApplicationHelper
     end
     html
   end
-
 
 
   #
@@ -618,11 +614,11 @@ module ApplicationHelper
     min_length=options[:min_length]
 
     js_options={
-      'minimumInputLength' => min_length,
-      'allowClear' => options[:allow_clear]||false,
-      'formatNoMatches' => "function(term){return '#{escape_javascript message('select2.noMatches')}'}",
-      'formatSearching' => "function(){return '#{escape_javascript message('select2.searching')}'}",
-      'formatInputTooShort' => "function(term, minLength){return '#{escape_javascript message('select2.tooShort', :params => [min_length])}'}"
+        'minimumInputLength' => min_length,
+        'allowClear' => options[:allow_clear]||false,
+        'formatNoMatches' => "function(term){return '#{escape_javascript message('select2.noMatches')}'}",
+        'formatSearching' => "function(){return '#{escape_javascript message('select2.searching')}'}",
+        'formatInputTooShort' => "function(term, minLength){return '#{escape_javascript message('select2.tooShort', :params => [min_length])}'}"
     }
     js_options['placeholder']= "'#{options[:placeholder]}'" if options.has_key?(:placeholder)
     js_options['width']= "'#{width}'" if width
@@ -786,8 +782,8 @@ module ApplicationHelper
     width=options[:width]||'250px'
     html_id=options[:html_id]||name
     js_options={
-      'formatNoMatches' => "function(term){return '#{escape_javascript message('select2.noMatches')}'}",
-      'width' => "'#{width}'"
+        'formatNoMatches' => "function(term){return '#{escape_javascript message('select2.noMatches')}'}",
+        'width' => "'#{width}'"
     }
 
     select_tag_prompt=nil
@@ -849,8 +845,8 @@ module ApplicationHelper
     minimumResultsForSearch=show_search_box ? 0 : option_tags.size + 1
 
     js_options={
-      'minimumResultsForSearch' => minimumResultsForSearch,
-      'allowClear' => options[:allow_clear]||false,
+        'minimumResultsForSearch' => minimumResultsForSearch,
+        'allowClear' => options[:allow_clear]||false,
     }
     js_options['placeholder']= options.has_key?(:placeholder) ? "'#{options[:placeholder]}'" : "''"
     js_options['width']= "'#{width}'" if width
@@ -1061,6 +1057,14 @@ module ApplicationHelper
       end
       url
     end
+  end
+
+
+  def get_issue_metrics
+    ['violations',
+     'blocker_violations', 'critical_violations', 'major_violations', 'minor_violations', 'info_violations',
+     'new_blocker_violations', 'new_critical_violations', 'new_major_violations', 'new_minor_violations', 'new_info_violations',
+     'open_issues', 'reopened_issues', 'confirmed_issues', 'false_positive_issues']
   end
 
 end

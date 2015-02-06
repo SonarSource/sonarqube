@@ -47,7 +47,8 @@
       error_measure = ProjectMeasure.new :metric => condition_metric, :value => error_value
 
       is_difference_measure = condition_metric.name.start_with?('new_')
-      is_not_difference_measure_with_period = !is_difference_measure && !period.blank?
+      is_issue_measure = get_issue_metrics.include? condition_metric.name
+      is_not_difference_measure_with_period = !is_difference_measure && !period.blank? && !is_issue_measure
 
 
       unless level == 'OK' && !widget_properties['show_ok']
