@@ -11,28 +11,15 @@
   <metrics id="9" name="new_minor_violations"/>
   <metrics id="10" name="new_info_violations"/>
 
-  <!-- Should be removed -->
-  <project_measures id="1" metric_id="1" rule_id="1"/>
-  <project_measures id="2" metric_id="2" rule_id="1"/>
-  <project_measures id="3" metric_id="3" rule_id="1"/>
-  <project_measures id="4" metric_id="4" rule_id="1"/>
-  <project_measures id="5" metric_id="5" rule_id="1"/>
-  <project_measures id="6" metric_id="6" rule_id="1"/>
-  <project_measures id="7" metric_id="7" rule_id="1"/>
-  <project_measures id="8" metric_id="8" rule_id="1"/>
-  <project_measures id="9" metric_id="9" rule_id="1"/>
-  <project_measures id="10" metric_id="10" rule_id="1"/>
-
-  <!-- Should not be removed -->
-  <project_measures id="11" metric_id="1"/>
-  <project_measures id="12" metric_id="2"/>
-  <project_measures id="13" metric_id="3"/>
-  <project_measures id="14" metric_id="4"/>
-  <project_measures id="15" metric_id="5"/>
-  <project_measures id="16" metric_id="6"/>
-  <project_measures id="17" metric_id="7"/>
-  <project_measures id="18" metric_id="8"/>
-  <project_measures id="19" metric_id="9"/>
-  <project_measures id="20" metric_id="10"/>
+  <project_measures id="1" metric_id="1"/>
+  <project_measures id="2" metric_id="2"/>
+  <project_measures id="3" metric_id="3"/>
+  <project_measures id="4" metric_id="4"/>
+  <project_measures id="5" metric_id="5"/>
+  <project_measures id="6" metric_id="6"/>
+  <project_measures id="7" metric_id="7"/>
+  <project_measures id="8" metric_id="8"/>
+  <project_measures id="9" metric_id="9"/>
+  <project_measures id="10" metric_id="10"/>
 
 </dataset>
