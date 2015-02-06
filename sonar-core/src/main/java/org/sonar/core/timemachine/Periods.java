@@ -50,12 +50,12 @@ public class Periods implements BatchComponent, ServerComponent {
 
   @CheckForNull
   public String label(Snapshot snapshot, int periodIndex) {
-    return label(snapshot.getPeriodMode(periodIndex), snapshot.getPeriodModeParameter(periodIndex), longToDate(snapshot.getPeriodDate(periodIndex)));
+    return label(snapshot.getPeriodMode(periodIndex), snapshot.getPeriodModeParameter(periodIndex), longToDate(snapshot.getPeriodDateMs(periodIndex)));
   }
 
   @CheckForNull
   public String abbreviation(Snapshot snapshot, int periodIndex) {
-    return abbreviation(snapshot.getPeriodMode(periodIndex), snapshot.getPeriodModeParameter(periodIndex), longToDate(snapshot.getPeriodDate(periodIndex)));
+    return abbreviation(snapshot.getPeriodMode(periodIndex), snapshot.getPeriodModeParameter(periodIndex), longToDate(snapshot.getPeriodDateMs(periodIndex)));
   }
 
   @CheckForNull

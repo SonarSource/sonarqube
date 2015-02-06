@@ -714,6 +714,30 @@ public class Snapshot extends BaseIdentifiable<Snapshot> implements Serializable
    *
    * @since 2.5
    */
+  public Snapshot setPeriodDate(int periodIndex, Date date) {
+    Long time = dateToLong(date);
+    switch (periodIndex) {
+      case 1:
+        period1Date = time;
+        break;
+      case 2:
+        period2Date = time;
+        break;
+      case 3:
+        period3Date = time;
+        break;
+      case 4:
+        period4Date = time;
+        break;
+      case 5:
+        period5Date = time;
+        break;
+      default:
+        throw new IndexOutOfBoundsException("Index of Snapshot.periodDate is between 1 and 5");
+    }
+    return this;
+  }
+
   public Snapshot setPeriodDateMs(int periodIndex, Long date) {
     switch (periodIndex) {
       case 1:
@@ -737,7 +761,24 @@ public class Snapshot extends BaseIdentifiable<Snapshot> implements Serializable
     return this;
   }
 
-  public Long getPeriodDate(int periodIndex) {
+  public Date getPeriodDate(int periodIndex) {
+    switch (periodIndex) {
+      case 1:
+        return longToDate(period1Date);
+      case 2:
+        return longToDate(period2Date);
+      case 3:
+        return longToDate(period3Date);
+      case 4:
+        return longToDate(period4Date);
+      case 5:
+        return longToDate(period5Date);
+      default:
+        throw new IndexOutOfBoundsException("Index of Snapshot.periodDate is between 1 and 5");
+    }
+  }
+
+  public Long getPeriodDateMs(int periodIndex) {
     switch (periodIndex) {
       case 1:
         return period1Date;

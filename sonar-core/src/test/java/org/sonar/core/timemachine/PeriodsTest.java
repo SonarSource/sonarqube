@@ -63,7 +63,7 @@ public class PeriodsTest {
   @Test
   public void label_of_duration_in_days() {
     when(snapshot.getPeriodMode(periodIndex)).thenReturn(CoreProperties.TIMEMACHINE_MODE_DAYS);
-    when(snapshot.getPeriodDate(periodIndex)).thenReturn(System2.INSTANCE.now());
+    when(snapshot.getPeriodDateMs(periodIndex)).thenReturn(System2.INSTANCE.now());
     when(snapshot.getPeriodModeParameter(periodIndex)).thenReturn(param);
 
     periods.label(snapshot, periodIndex);
@@ -73,7 +73,7 @@ public class PeriodsTest {
   @Test
   public void abbreviation_of_duration_in_days() {
     when(snapshot.getPeriodMode(periodIndex)).thenReturn(CoreProperties.TIMEMACHINE_MODE_DAYS);
-    when(snapshot.getPeriodDate(periodIndex)).thenReturn(System.currentTimeMillis());
+    when(snapshot.getPeriodDateMs(periodIndex)).thenReturn(System.currentTimeMillis());
     when(snapshot.getPeriodModeParameter(periodIndex)).thenReturn(param);
 
     periods.abbreviation(snapshot, periodIndex);
@@ -83,7 +83,7 @@ public class PeriodsTest {
   @Test
   public void label_of_snapshot_version() {
     when(snapshot.getPeriodMode(periodIndex)).thenReturn(CoreProperties.TIMEMACHINE_MODE_VERSION);
-    when(snapshot.getPeriodDate(periodIndex)).thenReturn(System.currentTimeMillis());
+    when(snapshot.getPeriodDateMs(periodIndex)).thenReturn(System.currentTimeMillis());
     when(snapshot.getPeriodModeParameter(periodIndex)).thenReturn(param);
 
     periods.label(snapshot, periodIndex);
@@ -93,7 +93,7 @@ public class PeriodsTest {
   @Test
   public void abbreviation_of_snapshot_version() {
     when(snapshot.getPeriodMode(periodIndex)).thenReturn(CoreProperties.TIMEMACHINE_MODE_VERSION);
-    when(snapshot.getPeriodDate(periodIndex)).thenReturn(System.currentTimeMillis());
+    when(snapshot.getPeriodDateMs(periodIndex)).thenReturn(System.currentTimeMillis());
     when(snapshot.getPeriodModeParameter(periodIndex)).thenReturn(param);
 
     periods.abbreviation(snapshot, periodIndex);
@@ -103,7 +103,7 @@ public class PeriodsTest {
   @Test
   public void label_of_previous_analysis_with_date() {
     when(snapshot.getPeriodMode(periodIndex)).thenReturn(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS);
-    when(snapshot.getPeriodDate(periodIndex)).thenReturn(System.currentTimeMillis());
+    when(snapshot.getPeriodDateMs(periodIndex)).thenReturn(System.currentTimeMillis());
 
     periods.label(snapshot, periodIndex);
     verify(i18n).message(any(Locale.class), eq("since_previous_analysis_detailed"), isNull(String.class), anyString());
@@ -112,7 +112,7 @@ public class PeriodsTest {
   @Test
   public void label_of_previous_analysis_without_date() {
     when(snapshot.getPeriodMode(periodIndex)).thenReturn(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS);
-    when(snapshot.getPeriodDate(periodIndex)).thenReturn(null);
+    when(snapshot.getPeriodDateMs(periodIndex)).thenReturn(null);
     when(snapshot.getPeriodModeParameter(periodIndex)).thenReturn(param);
 
     periods.label(snapshot, periodIndex);
@@ -122,7 +122,7 @@ public class PeriodsTest {
   @Test
   public void abbreviation_of_previous_analysis_with_date() {
     when(snapshot.getPeriodMode(periodIndex)).thenReturn(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS);
-    when(snapshot.getPeriodDate(periodIndex)).thenReturn(System.currentTimeMillis());
+    when(snapshot.getPeriodDateMs(periodIndex)).thenReturn(System.currentTimeMillis());
 
     periods.abbreviation(snapshot, periodIndex);
     verify(i18n).message(any(Locale.class), eq("since_previous_analysis_detailed.short"), isNull(String.class), anyString());
@@ -131,7 +131,7 @@ public class PeriodsTest {
   @Test
   public void abbreviation_of_previous_analysis_without_date() {
     when(snapshot.getPeriodMode(periodIndex)).thenReturn(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS);
-    when(snapshot.getPeriodDate(periodIndex)).thenReturn(null);
+    when(snapshot.getPeriodDateMs(periodIndex)).thenReturn(null);
     when(snapshot.getPeriodModeParameter(periodIndex)).thenReturn(param);
 
     periods.abbreviation(snapshot, periodIndex);
@@ -151,7 +151,7 @@ public class PeriodsTest {
   public void label_of_previous_version_with_param_and_date() {
     when(snapshot.getPeriodMode(periodIndex)).thenReturn(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION);
     when(snapshot.getPeriodModeParameter(periodIndex)).thenReturn(param);
-    when(snapshot.getPeriodDate(periodIndex)).thenReturn(System.currentTimeMillis());
+    when(snapshot.getPeriodDateMs(periodIndex)).thenReturn(System.currentTimeMillis());
 
     periods.label(snapshot, periodIndex);
     verify(i18n).message(any(Locale.class), eq("since_previous_version_detailed"), isNull(String.class), eq(param), anyString());
@@ -169,7 +169,7 @@ public class PeriodsTest {
   @Test
   public void shouldReturnSnapshotLabelInModeDate() {
     when(snapshot.getPeriodMode(periodIndex)).thenReturn(CoreProperties.TIMEMACHINE_MODE_DATE);
-    when(snapshot.getPeriodDate(periodIndex)).thenReturn(System.currentTimeMillis());
+    when(snapshot.getPeriodDateMs(periodIndex)).thenReturn(System.currentTimeMillis());
 
     periods.label(snapshot, periodIndex);
 
