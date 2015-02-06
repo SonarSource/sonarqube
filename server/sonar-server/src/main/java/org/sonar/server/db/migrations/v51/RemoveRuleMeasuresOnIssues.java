@@ -44,7 +44,7 @@ public class RemoveRuleMeasuresOnIssues extends BaseDataChange {
         "'new_blocker_violations', 'new_critical_violations', 'new_major_violations', 'new_minor_violations', 'new_info_violations')")
       .list(Select.LONG_READER);
     if (!metricIds.isEmpty()) {
-      String sql = "DELETE FROM project_measures WHERE rule_id IS NOT NULL AND metric_id IN (";
+      String sql = "DELETE FROM project_measures pm WHERE pm.rule_id IS NOT NULL AND pm.metric_id IN (";
       String[] parameters = new String[metricIds.size()];
       Arrays.fill(parameters, "?");
       sql += Joiner.on(",").join(parameters);
