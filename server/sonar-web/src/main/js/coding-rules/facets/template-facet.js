@@ -20,7 +20,11 @@ define([
       $(e.currentTarget).toggleClass('active');
       var property = this.model.get('property'),
           obj = {};
-      obj[property] = '' + $(e.currentTarget).data('value');
+      if ($(e.currentTarget).hasClass('active')) {
+        obj[property] = '' + $(e.currentTarget).data('value');
+      } else {
+        obj[property] = null;
+      }
       this.options.app.state.updateFilter(obj);
     }
 
