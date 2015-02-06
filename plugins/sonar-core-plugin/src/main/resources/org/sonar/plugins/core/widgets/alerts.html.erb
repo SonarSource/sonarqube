@@ -50,15 +50,17 @@
       is_issue_measure = get_issue_metrics.include? condition_metric.name
       is_not_difference_measure_with_period = !is_difference_measure && !period.blank? && !is_issue_measure
 
+      tooltip = message('widget.as_calculated_on_x', :params => l(@snapshot.created_at))
+
 
       unless level == 'OK' && !widget_properties['show_ok']
       -%>
       <div class="dashbox" style="margin: 10px; vertical-align: baseline">
         <p class="title"><%= condition_metric.short_name -%></p>
         <% if is_not_difference_measure_with_period %>
-          <span class="big"><%= format_measure(actual_measure) -%></span>
+          <span class="big" title="<%= tooltip -%>" data-toggle="tooltip" data-placement="bottom"><%= format_measure(actual_measure) -%></span>
         <% else %>
-          <span class="big"><%= format_measure(actual_measure, :url => drilldown_url) -%></span>
+          <span class="big" title="<%= tooltip -%>" data-toggle="tooltip" data-placement="bottom"><%= format_measure(actual_measure, :url => drilldown_url) -%></span>
         <% end %>
         <% if level == 'WARN' -%><%= operator -%> <%= format_measure(warning_measure) -%><% end -%>
         <% if level == 'ERROR' -%><%= operator -%> <%= format_measure(error_measure) -%><% end -%>
