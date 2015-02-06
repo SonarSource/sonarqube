@@ -1052,9 +1052,11 @@ module ApplicationHelper
     else
       url = ApplicationController.root_context + '/component_issues/index?id=' + url_encode(component.key) + '#'
       params.each_with_index do |(key, value), index|
-        url += key.to_s + '=' + value.to_s
-        if index < params.size - 1
-          url += '|'
+        if key != 'componentUuids'
+          url += key.to_s + '=' + value.to_s
+          if index < params.size - 1
+            url += '|'
+          end
         end
       end
       url

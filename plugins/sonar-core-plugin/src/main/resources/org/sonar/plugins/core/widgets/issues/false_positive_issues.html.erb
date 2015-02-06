@@ -2,6 +2,7 @@
    if has_role?(:user, @project)
 
      search_options = {}
+     search_options['componentUuids'] = @project.uuid
      search_options['resolutions'] = 'FALSE-POSITIVE'
      title = message('widget.false_positive_reviews.name')
 %>
