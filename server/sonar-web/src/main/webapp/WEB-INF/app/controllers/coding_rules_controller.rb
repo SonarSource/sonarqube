@@ -27,9 +27,4 @@ class CodingRulesController < ApplicationController
 
   end
 
-  # GET /coding_rules/show
-  def show
-
-  end
-
 end

@@ -193,10 +193,6 @@ module.exports = (grunt) ->
         name: 'coding-rules/app'
         out: '<%= grunt.option("assetsDir") || pkg.assets %>build/js/coding-rules/app.js'
 
-      codingRulesShow: options:
-        name: 'coding-rules/show-app'
-        out: '<%= grunt.option("assetsDir") || pkg.assets %>build/js/coding-rules/show-app.js'
-
       issues: options:
         name: 'issues/app-new'
         out: '<%= grunt.option("assetsDir") || pkg.assets %>build/js/issues/app-new.js'

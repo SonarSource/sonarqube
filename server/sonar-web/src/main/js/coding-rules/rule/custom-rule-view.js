@@ -36,7 +36,7 @@ define([
       return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
         canWrite: this.options.app.canWrite,
         templateRule: this.options.templateRule,
-        permalink: baseUrl + '/coding_rules/show?key=' + encodeURIComponent(this.model.id)
+        permalink: baseUrl + '/coding_rules/#rule_key=' + encodeURIComponent(this.model.id)
       });
     }
   });
