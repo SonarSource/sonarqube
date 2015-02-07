@@ -36,7 +36,7 @@ public interface UserMapper {
    * Can return multiple results if an email is used by many users (For instance, technical account can use the same email as a none technical account)
    */
   @CheckForNull
-  List<UserDto> selectNullableByScmAccountOrLoginOrEmail(String scmAccountOrLoginOrEmail);
+  List<UserDto> selectNullableByScmAccountOrLoginOrEmail(@Param("scmAccount") String scmAccountOrLoginOrEmail, @Param("likeScmAccount") String likeScmAccount);
 
   @CheckForNull
   UserDto selectUser(long userId);
