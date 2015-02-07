@@ -19,13 +19,22 @@
  */
 package org.sonar.core.user;
 
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
+import org.apache.commons.lang.StringUtils;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @since 3.2
  */
 public class UserDto {
+  private static final char SCM_ACCOUNTS_SEPARATOR = '|';
+
   private Long id;
   private String login;
   private String name;
@@ -88,9 +97,37 @@ public class UserDto {
     return scmAccounts;
   }
 
-  public UserDto setScmAccounts(@Nullable String scmAccounts) {
-    this.scmAccounts = scmAccounts;
+  public List<String> getScmAccountsAsList() {
+    return decodeScmAccounts(scmAccounts);
+  }
+
+  /**
+   * List of SCM accounts separated by '|'
+   */
+  public UserDto setScmAccounts(@Nullable String s) {
+    this.scmAccounts = s;
     return this;
+  }
+
+  public UserDto setScmAccounts(@Nullable List list) {
+    this.scmAccounts = encodeScmAccounts(list);
+    return this;
+  }
+
+  @CheckForNull
+  public static String encodeScmAccounts(@Nullable List<String> scmAccounts) {
+    if (scmAccounts != null && !scmAccounts.isEmpty()) {
+      return String.format("%s%s%s", SCM_ACCOUNTS_SEPARATOR, StringUtils.join(scmAccounts, SCM_ACCOUNTS_SEPARATOR), SCM_ACCOUNTS_SEPARATOR);
+    }
+    return null;
+  }
+
+  public static List<String> decodeScmAccounts(@Nullable String dbValue) {
+    if (dbValue == null) {
+      return new ArrayList<>();
+    } else {
+      return Lists.newArrayList(Splitter.on(SCM_ACCOUNTS_SEPARATOR).omitEmptyStrings().split(dbValue));
+    }
   }
 
   public String getCryptedPassword() {

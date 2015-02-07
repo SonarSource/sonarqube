@@ -151,7 +151,7 @@ public class UserUpdater implements ServerComponent {
     List<String> scmAccounts = sanitizeScmAccounts(newUser.scmAccounts());
     if (scmAccounts != null && !scmAccounts.isEmpty()) {
       validateScmAccounts(dbSession, scmAccounts, login, email, null, messages);
-      userDto.setScmAccounts(convertScmAccountsToCsv(scmAccounts));
+      userDto.setScmAccounts(scmAccounts);
     }
 
     if (!messages.isEmpty()) {
@@ -186,9 +186,9 @@ public class UserUpdater implements ServerComponent {
       List<String> scmAccounts = sanitizeScmAccounts(updateUser.scmAccounts());
       if (scmAccounts != null && !scmAccounts.isEmpty()) {
         validateScmAccounts(dbSession, scmAccounts, userDto.getLogin(), email != null ? email : userDto.getEmail(), userDto, messages);
-        userDto.setScmAccounts(convertScmAccountsToCsv(scmAccounts));
+        userDto.setScmAccounts(scmAccounts);
       } else {
-        userDto.setScmAccounts(null);
+        userDto.setScmAccounts((String) null);
       }
     }
 

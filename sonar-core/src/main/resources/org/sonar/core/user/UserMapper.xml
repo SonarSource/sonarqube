@@ -33,13 +33,13 @@
     OR
     <choose>
       <when test="_databaseId == 'mssql'">
-        u.scm_accounts LIKE '%,' + #{scmAccount} + ',%'
+        u.scm_accounts LIKE '%|' + #{scmAccount} + '|%'
       </when>
       <when test="_databaseId == 'mysql'">
-        u.scm_accounts LIKE concat('%,', #{scmAccount}, ',%')
+        u.scm_accounts LIKE concat('%|', #{scmAccount}, '|%')
       </when>
       <otherwise>
-        u.scm_accounts LIKE '%,' || #{scmAccount} || ',%'
+        u.scm_accounts LIKE '%|' || #{scmAccount} || '|%'
       </otherwise>
     </choose>
   </select>

@@ -1,14 +1,14 @@
 <dataset>
 
   <users id="1" login="user1" name="User1" email="user1@mail.com" active="[true]"
-         scm_accounts=",user_1,u1,"
+         scm_accounts="|user_1|u1|"
          created_at="1500000000000"
          updated_at="1500000000000"
       />
 
   <!-- scm accounts with comma -->
   <users id="2" login="user2" name="User2" email="user2@mail.com" active="[true]"
-         scm_accounts=",&quot;user,2&quot;,user_2,"
+         scm_accounts="|user,2|user_2|"
          created_at="1500000000000"
          updated_at="1500000000000"
       />
