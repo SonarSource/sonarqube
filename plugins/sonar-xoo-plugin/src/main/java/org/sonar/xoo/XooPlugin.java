@@ -20,8 +20,20 @@
 package org.sonar.xoo;
 
 import org.sonar.api.SonarPlugin;
-import org.sonar.xoo.lang.*;
-import org.sonar.xoo.rule.*;
+import org.sonar.xoo.lang.MeasureSensor;
+import org.sonar.xoo.lang.ScmActivitySensor;
+import org.sonar.xoo.lang.SymbolReferencesSensor;
+import org.sonar.xoo.lang.SyntaxHighlightingSensor;
+import org.sonar.xoo.lang.XooTokenizerSensor;
+import org.sonar.xoo.rule.ChecksSensor;
+import org.sonar.xoo.rule.CreateIssueByInternalKeySensor;
+import org.sonar.xoo.rule.OneIssueOnDirPerFileSensor;
+import org.sonar.xoo.rule.OneIssuePerLineSensor;
+import org.sonar.xoo.rule.XooFakeExporter;
+import org.sonar.xoo.rule.XooFakeImporter;
+import org.sonar.xoo.rule.XooFakeImporterWithMessages;
+import org.sonar.xoo.rule.XooQualityProfile;
+import org.sonar.xoo.rule.XooRulesDefinition;
 
 import java.util.Arrays;
 import java.util.List;
@@ -51,11 +63,11 @@ public class XooPlugin extends SonarPlugin {
       SyntaxHighlightingSensor.class,
       SymbolReferencesSensor.class,
       XooTokenizerSensor.class,
+      ChecksSensor.class,
 
       OneIssuePerLineSensor.class,
       OneIssueOnDirPerFileSensor.class,
       CreateIssueByInternalKeySensor.class
       );
   }
-
 }

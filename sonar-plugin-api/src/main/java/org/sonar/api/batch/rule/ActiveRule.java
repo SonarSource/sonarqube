@@ -63,4 +63,11 @@ public interface ActiveRule {
    */
   @CheckForNull
   String internalKey();
+
+  /**
+   * Optional rule key of the template rule.
+   * @since 4.5.3
+   */
+  @CheckForNull
+  String templateRuleKey();
 }
