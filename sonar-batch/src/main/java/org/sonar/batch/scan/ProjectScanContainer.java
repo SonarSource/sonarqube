@@ -67,6 +67,7 @@ import org.sonar.batch.mediumtest.ScanTaskObservers;
 import org.sonar.batch.phases.GraphPersister;
 import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
 import org.sonar.batch.repository.ProjectRepositoriesProvider;
+import org.sonar.batch.repository.ProjectScmRepositoryLoader;
 import org.sonar.batch.rule.ActiveRulesProvider;
 import org.sonar.batch.rule.RulesProvider;
 import org.sonar.batch.scan.filesystem.InputPathCache;
@@ -203,6 +204,8 @@ public class ProjectScanContainer extends ComponentContainer {
       ResourcePersister.class,
       SourcePersister.class,
       ResourceKeyMigration.class,
+
+      ProjectScmRepositoryLoader.class,
 
       // Users
       DefaultUserFinder.class,
