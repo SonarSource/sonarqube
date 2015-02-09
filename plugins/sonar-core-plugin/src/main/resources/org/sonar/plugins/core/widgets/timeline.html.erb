@@ -38,7 +38,7 @@
        else
          metric_count_per_snapshot_id[sid] = 1
        end
-       metric_data_map[trend_item["metric_id"].to_i] << {:date => trend_item["created_at"], :value => trend_item["value"], :sid => trend_item["sid"]}
+       metric_data_map[trend_item["metric_id"].to_i] << {:date => Time.at(trend_item["created_at"].to_i/1000), :value => trend_item["value"], :sid => trend_item["sid"]}
      end
 
      # Create JS structures to print out in the HTML page
@@ -53,7 +53,7 @@
          metric_data_map[metric_id].each() do |metric_data|
            # for every metric value, we need to check that the corresponding snapshot has values for each metric
            if metric_count_per_snapshot_id[metric_data[:sid]]==total_number_of_metrics
-             m_date = Time.at(metric_data[:date]/1000)
+             m_date = metric_data[:date]
              m_value = sprintf("%0.02f", metric_data[:value])
              m_value_localized = ProjectMeasure.new(:metric => metric_map[metric_id]).format_numeric_value(metric_data[:value], {})
              js_data += "{x:d("
@@ -97,7 +97,7 @@
        unless from_date
          # find the oldest date
          metric_data_map.values.each() do |metric_data_array|
-           first_date = Time.at(metric_data_array[0][:date]/1000)
+           first_date = metric_data_array[0][:date]
            from_date = first_date if !from_date || from_date > first_date
          end
        end
