@@ -135,11 +135,13 @@
 
   <insert id="insert" parameterType="User" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO users (login, name, email, active, scm_accounts, salt, crypted_password, created_at, updated_at)
-    VALUES (#{login}, #{name}, #{email}, #{active}, #{scmAccounts}, #{salt}, #{cryptedPassword}, #{createdAt}, #{updatedAt})
+    VALUES (#{login,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{active,jdbcType=BOOLEAN}, #{scmAccounts,jdbcType=VARCHAR},
+      #{salt,jdbcType=VARCHAR}, #{cryptedPassword,jdbcType=VARCHAR}, #{createdAt,jdbcType=BIGINT}, #{updatedAt,jdbcType=BIGINT})
   </insert>
 
   <insert id="update" parameterType="User" useGeneratedKeys="false">
-    UPDATE users set name=#{name}, email=#{email}, active=#{active}, scm_accounts=#{scmAccounts}, salt=#{salt}, crypted_password=#{cryptedPassword}, updated_at=#{updatedAt}
+    UPDATE users set name=#{name,jdbcType=VARCHAR}, email=#{email,jdbcType=VARCHAR}, active=#{active,jdbcType=BOOLEAN}, scm_accounts=#{scmAccounts,jdbcType=VARCHAR},
+      salt=#{salt,jdbcType=VARCHAR}, crypted_password=#{cryptedPassword,jdbcType=BIGINT}, updated_at=#{updatedAt,jdbcType=BIGINT}
     WHERE login = #{login}
   </insert>
 
