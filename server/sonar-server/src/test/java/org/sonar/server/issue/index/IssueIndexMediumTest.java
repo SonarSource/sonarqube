@@ -21,6 +21,7 @@ package org.sonar.server.issue.index;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterators;
+import org.assertj.core.api.Fail;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -629,6 +630,16 @@ public class IssueIndexMediumTest {
     assertThat(index.search(IssueQuery.builder().createdBefore(DateUtils.parseDate("2014-09-20")).build(), new SearchOptions()).getDocs()).hasSize(1);
     assertThat(index.search(IssueQuery.builder().createdBefore(DateUtils.parseDate("2014-09-21")).build(), new SearchOptions()).getDocs()).hasSize(1);
     assertThat(index.search(IssueQuery.builder().createdBefore(DateUtils.parseDate("2014-09-25")).build(), new SearchOptions()).getDocs()).hasSize(2);
+  }
+
+  @Test
+  public void filter_by_created_before_must_be_lower_than_after() throws Exception {
+    try {
+      index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2014-09-20")).createdBefore(DateUtils.parseDate("2014-09-19")).build(), new SearchOptions());
+      Fail.failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
+    } catch (IllegalArgumentException exception) {
+      assertThat(exception.getMessage()).isEqualTo("Start bound cannot be larger than end bound");
+    }
   }
 
   @Test

@@ -20,6 +20,7 @@
 package org.sonar.server.issue.index;
 
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -375,13 +376,16 @@ public class IssueIndex extends BaseIndex {
 
   private void addDatesFilter(Map<String, FilterBuilder> filters, IssueQuery query) {
     Date createdAfter = query.createdAfter();
+    Date createdBefore = query.createdBefore();
+    Preconditions.checkArgument(createdAfter == null || createdBefore == null || createdAfter.before(createdBefore),
+      "Start bound cannot be larger than end bound");
+
     if (createdAfter != null) {
       filters.put("__createdAfter", FilterBuilders
         .rangeFilter(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT)
         .gte(createdAfter)
         .cache(false));
     }
-    Date createdBefore = query.createdBefore();
     if (createdBefore != null) {
       filters.put("__createdBefore", FilterBuilders
         .rangeFilter(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT)
@@ -457,7 +461,9 @@ public class IssueIndex extends BaseIndex {
     long startTime = createdAfter == null ? getMinCreatedAt(filters, esQuery) : createdAfter.getTime();
     Date createdBefore = query.createdBefore();
     long endTime = createdBefore == null ? now.getTime() : createdBefore.getTime();
+
     Duration timeSpan = new Duration(startTime, endTime);
+
     if (timeSpan.isShorterThan(TWENTY_DAYS)) {
       bucketSize = DateHistogram.Interval.DAY;
     } else if (timeSpan.isShorterThan(TWENTY_WEEKS)) {
