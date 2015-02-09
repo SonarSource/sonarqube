@@ -139,7 +139,7 @@ public class SearchActionComponentsMediumTest {
   }
 
   @Test
-  public void project_facet_is_sticky_when_non_contextualized() throws Exception {
+  public void project_facet_is_sticky() throws Exception {
     ComponentDto project1 = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject1"));
     ComponentDto project2 = insertComponent(ComponentTesting.newProjectDto("BCDE").setKey("MyProject2"));
     ComponentDto project3 = insertComponent(ComponentTesting.newProjectDto("CDEF").setKey("MyProject3"));
@@ -162,12 +162,6 @@ public class SearchActionComponentsMediumTest {
       .setParam(WebService.Param.FACETS, "projectUuids")
       .execute()
       .assertJson(this.getClass(), "display_sticky_project_facet.json", false);
-
-    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
-      .setParam(IssueFilterParameters.COMPONENT_UUIDS, project1.uuid())
-      .setParam(WebService.Param.FACETS, "projectUuids")
-      .execute()
-      .assertJson(this.getClass(), "display_non_sticky_project_facet.json", false);
   }
 
   @Test
