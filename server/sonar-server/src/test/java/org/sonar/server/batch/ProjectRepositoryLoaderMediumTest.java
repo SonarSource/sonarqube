@@ -614,6 +614,39 @@ public class ProjectRepositoryLoaderMediumTest {
   }
 
   @Test
+  public void return_custom_rule() throws Exception {
+    Date ruleUpdatedAt = DateUtils.parseDateTime("2014-01-14T13:00:00+0100");
+
+    ComponentDto project = ComponentTesting.newProjectDto();
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION).addComponentUuidPermission(UserRole.USER, project.uuid(), project.uuid());
+    tester.get(DbClient.class).componentDao().insert(dbSession, project);
+
+    QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(
+      DateUtils.formatDateTime(ruleUpdatedAt));
+    tester.get(DbClient.class).qualityProfileDao().insert(dbSession, profileDto);
+    tester.get(DbClient.class).propertiesDao().setProperty(new PropertyDto().setKey("sonar.profile.xoo").setValue("SonarQube way"), dbSession);
+
+    RuleKey ruleKey = RuleKey.of("squid", "ArchitecturalConstraint");
+    RuleDto templateRule = RuleTesting.newTemplateRule(ruleKey).setName("Architectural Constraint").setLanguage(ServerTester.Xoo.KEY);
+    tester.get(DbClient.class).ruleDao().insert(dbSession, templateRule);
+
+    RuleDto customRule = RuleTesting.newCustomRule(templateRule);
+    tester.get(DbClient.class).ruleDao().insert(dbSession, customRule);
+    tester.get(RuleActivator.class).activate(dbSession, new RuleActivation(customRule.getKey()).setSeverity(Severity.MINOR), profileDto.getKey());
+
+    dbSession.commit();
+
+    ProjectRepositories ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
+    List<ActiveRule> activeRules = newArrayList(ref.activeRules());
+    assertThat(activeRules).hasSize(1);
+    assertThat(activeRules.get(0).repositoryKey()).isEqualTo("squid");
+    assertThat(activeRules.get(0).ruleKey()).startsWith("ArchitecturalConstraint_");
+    assertThat(activeRules.get(0).templateRuleKey()).isEqualTo("ArchitecturalConstraint");
+    assertThat(activeRules.get(0).language()).isEqualTo("xoo");
+    assertThat(activeRules.get(0).severity()).isEqualTo("MINOR");
+  }
+
+  @Test
   public void return_manual_rules() throws Exception {
     ComponentDto project = ComponentTesting.newProjectDto();
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION).addComponentPermission(UserRole.USER, project.getKey(), project.getKey());

@@ -53,11 +53,7 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.Nullable;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -230,9 +226,11 @@ public class ProjectRepositoryLoader implements ServerComponent {
     for (org.sonar.batch.protocol.input.QProfile qProfile : ref.qProfiles()) {
       for (ActiveRule activeRule : qProfileLoader.findActiveRulesByProfile(qProfile.key())) {
         Rule rule = ruleService.getNonNullByKey(activeRule.key().ruleKey());
+        RuleKey templateKey = rule.templateKey();
         org.sonar.batch.protocol.input.ActiveRule inputActiveRule = new org.sonar.batch.protocol.input.ActiveRule(
           activeRule.key().ruleKey().repository(),
           activeRule.key().ruleKey().rule(),
+          templateKey != null ? templateKey.rule() : null,
           rule.name(),
           activeRule.severity(),
           rule.internalKey(),
@@ -254,7 +252,7 @@ public class ProjectRepositoryLoader implements ServerComponent {
       ref.addActiveRule(new org.sonar.batch.protocol.input.ActiveRule(
         RuleKey.MANUAL_REPOSITORY_KEY,
         rule.key().rule(),
-        rule.name(),
+        null, rule.name(),
         null, null, null));
     }
   }
