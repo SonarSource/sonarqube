@@ -27,12 +27,7 @@ import org.apache.commons.lang.BooleanUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.index.query.BoolFilterBuilder;
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
-import org.elasticsearch.index.query.OrFilterBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuilder;
@@ -46,12 +41,7 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.server.es.BaseIndex;
-import org.sonar.server.es.EsClient;
-import org.sonar.server.es.EsUtils;
-import org.sonar.server.es.SearchOptions;
-import org.sonar.server.es.SearchResult;
-import org.sonar.server.es.Sorting;
+import org.sonar.server.es.*;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.filter.IssueFilterParameters;
@@ -63,13 +53,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.text.SimpleDateFormat;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -324,7 +308,6 @@ public class IssueIndex extends BaseIndex {
     } else if (modulePathFilter != null) {
       compositeFilter = modulePathFilter;
     }
-    System.out.println("compositeFilter:" + compositeFilter);
     return compositeFilter;
   }
 
