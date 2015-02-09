@@ -31,7 +31,7 @@ public class ActiveRule {
   private final Map<String, String> params = new HashMap<String, String>();
 
   public ActiveRule(String repositoryKey, String ruleKey, @Nullable String templateRuleKey, String name, @Nullable String severity,
-    @Nullable String internalKey, @Nullable String language) {
+                    @Nullable String internalKey, @Nullable String language) {
     this.repositoryKey = repositoryKey;
     this.ruleKey = ruleKey;
     this.templateRuleKey = templateRuleKey;

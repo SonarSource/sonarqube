@@ -104,7 +104,7 @@ public class ProjectRepositoryLoaderMediumTest {
     assertThat(projectSettings).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR",
       "sonar.jira.login.secured", "john"
-      ));
+    ));
   }
 
   @Test
@@ -127,7 +127,7 @@ public class ProjectRepositoryLoaderMediumTest {
     Map<String, String> projectSettings = ref.settings(project.key());
     assertThat(projectSettings).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR"
-      ));
+    ));
   }
 
   @Test
@@ -158,12 +158,12 @@ public class ProjectRepositoryLoaderMediumTest {
     assertThat(ref.settings(project.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR",
       "sonar.jira.login.secured", "john"
-      ));
+    ));
     assertThat(ref.settings(module.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR-SERVER",
       "sonar.jira.login.secured", "john",
       "sonar.coverage.exclusions", "**/*.java"
-      ));
+    ));
   }
 
   @Test
@@ -190,11 +190,11 @@ public class ProjectRepositoryLoaderMediumTest {
     assertThat(ref.settings(project.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR",
       "sonar.jira.login.secured", "john"
-      ));
+    ));
     assertThat(ref.settings(module.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR",
       "sonar.jira.login.secured", "john"
-      ));
+    ));
   }
 
   @Test
@@ -232,17 +232,17 @@ public class ProjectRepositoryLoaderMediumTest {
     assertThat(ref.settings(project.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR",
       "sonar.jira.login.secured", "john"
-      ));
+    ));
     assertThat(ref.settings(module.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR-SERVER",
       "sonar.jira.login.secured", "john",
       "sonar.coverage.exclusions", "**/*.java"
-      ));
+    ));
     assertThat(ref.settings(subModule.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR-SERVER-DAO",
       "sonar.jira.login.secured", "john",
       "sonar.coverage.exclusions", "**/*.java"
-      ));
+    ));
   }
 
   @Test
@@ -277,16 +277,16 @@ public class ProjectRepositoryLoaderMediumTest {
     assertThat(ref.settings(project.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR",
       "sonar.jira.login.secured", "john"
-      ));
+    ));
     assertThat(ref.settings(module1.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR-SERVER",
       "sonar.jira.login.secured", "john",
       "sonar.coverage.exclusions", "**/*.java"
-      ));
+    ));
     assertThat(ref.settings(module2.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR-APPLICATION",
       "sonar.jira.login.secured", "john"
-      ));
+    ));
   }
 
   @Test
@@ -307,7 +307,7 @@ public class ProjectRepositoryLoaderMediumTest {
     assertThat(ref.settings(project.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR",
       "sonar.jira.login.secured", "john"
-      ));
+    ));
   }
 
   @Test
@@ -340,7 +340,7 @@ public class ProjectRepositoryLoaderMediumTest {
       "sonar.jira.project.key", "SONAR",
       "sonar.jira.login.secured", "john",
       "sonar.coverage.exclusions", "**/*.java"
-      ));
+    ));
   }
 
   @Test
@@ -374,7 +374,7 @@ public class ProjectRepositoryLoaderMediumTest {
       "sonar.jira.project.key", "SONAR",
       "sonar.jira.login.secured", "john",
       "sonar.coverage.exclusions", "**/*.java"
-      ));
+    ));
   }
 
   @Test
@@ -406,7 +406,7 @@ public class ProjectRepositoryLoaderMediumTest {
       "sonar.jira.project.key", "SONAR",
       "sonar.jira.login.secured", "john",
       "sonar.coverage.exclusions", "**/*.java"
-      ));
+    ));
   }
 
   @Test
@@ -439,7 +439,7 @@ public class ProjectRepositoryLoaderMediumTest {
       "sonar.jira.project.key", "SONAR-SERVER",
       "sonar.jira.login.secured", "john",
       "sonar.coverage.exclusions", "**/*.java"
-      ));
+    ));
   }
 
   @Test

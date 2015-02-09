@@ -67,7 +67,7 @@ public class ProjectRepositoryLoader implements ServerComponent {
   private final Languages languages;
 
   public ProjectRepositoryLoader(DbClient dbClient, QProfileFactory qProfileFactory, QProfileLoader qProfileLoader, RuleService ruleService,
-    Languages languages) {
+                                 Languages languages) {
     this.dbClient = dbClient;
     this.qProfileFactory = qProfileFactory;
     this.qProfileLoader = qProfileLoader;
@@ -156,7 +156,7 @@ public class ProjectRepositoryLoader implements ServerComponent {
   }
 
   private void addSettingsToChildrenModules(ProjectRepositories ref, String moduleKey, Map<String, String> parentProperties, TreeModuleSettings treeModuleSettings,
-    boolean hasScanPerm, DbSession session) {
+                                            boolean hasScanPerm, DbSession session) {
     Map<String, String> currentParentProperties = newHashMap();
     currentParentProperties.putAll(parentProperties);
     currentParentProperties.putAll(getPropertiesMap(treeModuleSettings.findModuleSettings(moduleKey), hasScanPerm));
@@ -309,7 +309,7 @@ public class ProjectRepositoryLoader implements ServerComponent {
     private Multimap<String, ComponentDto> moduleChildrenByModuleUuid;
 
     private TreeModuleSettings(Map<String, String> moduleUuidsByKey, Map<String, Long> moduleIdsByKey, List<ComponentDto> moduleChildren,
-      List<PropertyDto> moduleChildrenSettings, ComponentDto module) {
+                               List<PropertyDto> moduleChildrenSettings, ComponentDto module) {
       this.moduleIdsByKey = moduleIdsByKey;
       this.moduleUuidsByKey = moduleUuidsByKey;
       propertiesByModuleId = ArrayListMultimap.create();
