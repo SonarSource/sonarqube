@@ -45,7 +45,7 @@ public class ProjectReferentialsTest {
     settings.put("prop2", "value2");
     ref.addSettings("foo", settings);
     ref.settings("foo").put("prop", "value");
-    ActiveRule activeRule = new ActiveRule("repo", "rule", "Rule", "MAJOR", "rule", "java");
+    ActiveRule activeRule = new ActiveRule("repo", "rule", "templateRule", "Rule", "MAJOR", "rule", "java");
     activeRule.addParam("param1", "value1");
     ref.addActiveRule(activeRule);
     ref.setTimestamp(10);
@@ -55,7 +55,7 @@ public class ProjectReferentialsTest {
       .assertEquals(
         "{timestamp:10,"
           + "qprofilesByLanguage:{java:{key:\"squid-java\",name:Java,language:java,rulesUpdatedAt:\"Mar 14, 1984 12:00:00 AM\"}},"
-          + "activeRules:[{repositoryKey:repo,ruleKey:rule,name:Rule,severity:MAJOR,internalKey:rule,language:java,params:{param1:value1}}],"
+          + "activeRules:[{repositoryKey:repo,ruleKey:rule,templateRuleKey:templateRule,name:Rule,severity:MAJOR,internalKey:rule,language:java,params:{param1:value1}}],"
           + "settingsByModule:{foo:{prop1:value1,prop2:value2,prop:value}}}",
         ref.toJson(), true);
   }
@@ -64,7 +64,7 @@ public class ProjectReferentialsTest {
   public void testFromJson() throws JSONException, ParseException {
     ProjectReferentials ref = ProjectReferentials.fromJson("{timestamp:1,"
       + "qprofilesByLanguage:{java:{key:\"squid-java\",name:Java,language:java,rulesUpdatedAt:\"Mar 14, 1984 12:00:00 AM\"}},"
-      + "activeRules:[{repositoryKey:repo,ruleKey:rule,name:Rule,severity:MAJOR,internalKey:rule1,language:java,params:{param1:value1}}],"
+      + "activeRules:[{repositoryKey:repo,ruleKey:rule,templateRuleKey:templateRule,name:Rule,severity:MAJOR,internalKey:rule1,language:java,params:{param1:value1}}],"
       + "settingsByModule:{foo:{prop:value}}}");
 
     assertThat(ref.timestamp()).isEqualTo(1);
@@ -72,6 +72,7 @@ public class ProjectReferentialsTest {
     ActiveRule activeRule = ref.activeRules().iterator().next();
     assertThat(activeRule.ruleKey()).isEqualTo("rule");
     assertThat(activeRule.repositoryKey()).isEqualTo("repo");
+    assertThat(activeRule.templateRuleKey()).isEqualTo("templateRule");
     assertThat(activeRule.name()).isEqualTo("Rule");
     assertThat(activeRule.severity()).isEqualTo("MAJOR");
     assertThat(activeRule.internalKey()).isEqualTo("rule1");
