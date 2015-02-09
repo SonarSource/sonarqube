@@ -20,19 +20,20 @@
 
 package org.sonar.server.db.migrations.v51;
 
-import com.google.common.base.CharMatcher;
+import com.google.common.base.Joiner;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.text.CsvWriter;
 import org.sonar.core.persistence.Database;
+import org.sonar.core.user.UserDto;
 import org.sonar.server.db.migrations.BaseDataChange;
 import org.sonar.server.db.migrations.Select;
 import org.sonar.server.db.migrations.Upsert;
 import org.sonar.server.db.migrations.UpsertImpl;
 import org.sonar.server.util.ProgressLogger;
 
-import java.io.StringWriter;
+import javax.annotation.CheckForNull;
+
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
@@ -60,13 +61,13 @@ public class CopyScmAccountsFromAuthorsToUsers extends BaseDataChange {
       final Multimap<Long, String> authorsByPersonId = ArrayListMultimap.create();
       context.prepareSelect("SELECT a.person_id, a.login FROM authors a," +
         "  (SELECT person_id, COUNT(*) AS nb FROM authors GROUP BY person_id HAVING COUNT(*) > 1) group_by_person" +
-          "     WHERE a.person_id = group_by_person.person_id "
-      ).scroll(new Select.RowHandler() {
-        @Override
-        public void handle(Select.Row row) throws SQLException {
-          authorsByPersonId.put(row.getLong(1), row.getString(2));
-        }
-      });
+        "     WHERE a.person_id = group_by_person.person_id "
+        ).scroll(new Select.RowHandler() {
+          @Override
+          public void handle(Select.Row row) throws SQLException {
+            authorsByPersonId.put(row.getLong(1), row.getString(2));
+          }
+        });
 
       Upsert update = context.prepareUpsert("UPDATE users SET scm_accounts = ?, updated_at = ? WHERE id = ?");
       for (Long personId : authorsByPersonId.keySet()) {
@@ -82,7 +83,7 @@ public class CopyScmAccountsFromAuthorsToUsers extends BaseDataChange {
           }
           if (!authors.isEmpty()) {
             update
-              .setString(1, convertScmAccountsToCsv(authors))
+              .setString(1, encodeScmAccounts(authors))
               .setLong(2, now)
               .setLong(3, user.id)
               .addBatch();
@@ -130,19 +131,12 @@ public class CopyScmAccountsFromAuthorsToUsers extends BaseDataChange {
     return users;
   }
 
-  private static String convertScmAccountsToCsv(List<String> scmAccounts) {
-    List<String> list = newArrayList(scmAccounts);
-    // Add one empty character at the begin and at the end of the list to be able to generate a coma at the begin and at the end of the
-    // text
-    list.add(0, "");
-    list.add("");
-    int size = list.size();
-    StringWriter writer = new StringWriter(size);
-    CsvWriter csv = CsvWriter.of(writer);
-    csv.values(list.toArray(new String[size]));
-    csv.close();
-    // Remove useless line break added by CsvWriter at this end of the text
-    return CharMatcher.JAVA_ISO_CONTROL.removeFrom(writer.toString());
+  @CheckForNull
+  private static String encodeScmAccounts(List<String> scmAccounts) {
+    if (scmAccounts.isEmpty()) {
+      return null;
+    }
+    return UserDto.SCM_ACCOUNTS_SEPARATOR + Joiner.on(UserDto.SCM_ACCOUNTS_SEPARATOR).join(scmAccounts) + UserDto.SCM_ACCOUNTS_SEPARATOR;
   }
 
   private static class User {

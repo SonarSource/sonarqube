@@ -32,14 +32,14 @@ public class UserDtoTest {
   public void encode_scm_accounts() throws Exception {
     assertThat(UserDto.encodeScmAccounts(null)).isNull();
     assertThat(UserDto.encodeScmAccounts(Collections.<String>emptyList())).isNull();
-    assertThat(UserDto.encodeScmAccounts(Arrays.asList("foo"))).isEqualTo("|foo|");
-    assertThat(UserDto.encodeScmAccounts(Arrays.asList("foo", "bar"))).isEqualTo("|foo|bar|");
+    assertThat(UserDto.encodeScmAccounts(Arrays.asList("foo"))).isEqualTo("\nfoo\n");
+    assertThat(UserDto.encodeScmAccounts(Arrays.asList("foo", "bar"))).isEqualTo("\nfoo\nbar\n");
   }
 
   @Test
   public void decode_scm_accounts() throws Exception {
     assertThat(UserDto.decodeScmAccounts(null)).isEmpty();
-    assertThat(UserDto.decodeScmAccounts("|foo|")).containsOnly("foo");
-    assertThat(UserDto.decodeScmAccounts("|foo|bar|")).containsOnly("foo", "bar");
+    assertThat(UserDto.decodeScmAccounts("\nfoo\n")).containsOnly("foo");
+    assertThat(UserDto.decodeScmAccounts("\nfoo\nbar\n")).containsOnly("foo", "bar");
   }
 }

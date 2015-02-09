@@ -66,7 +66,7 @@ public class UserDaoTest {
     assertThat(dto.getName()).isEqualTo("Marius");
     assertThat(dto.getEmail()).isEqualTo("marius@lesbronzes.fr");
     assertThat(dto.isActive()).isTrue();
-    assertThat(dto.getScmAccounts()).isEqualTo(",ma,marius33,");
+    assertThat(dto.getScmAccountsAsList()).containsOnly("ma","marius33");
     assertThat(dto.getSalt()).isEqualTo("79bd6a8e79fb8c76ac8b121cc7e8e11ad1af8365");
     assertThat(dto.getCryptedPassword()).isEqualTo("650d2261c98361e2f67f90ce5c65a95e7d8ea2fg");
     assertThat(dto.getCreatedAt()).isEqualTo(1418215735482L);

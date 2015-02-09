@@ -23,25 +23,14 @@
     WHERE u.login=#{login}
   </select>
 
-  <select id="selectNullableByScmAccountOrLoginOrEmail" parameterType="String" resultType="User">
+  <select id="selectNullableByScmAccountOrLoginOrEmail" parameterType="map" resultType="User">
     SELECT
     <include refid="userColumns"/>
     FROM users u
     WHERE
     u.login=#{scmAccount}
     OR u.email=#{scmAccount}
-    OR
-    <choose>
-      <when test="_databaseId == 'mssql'">
-        u.scm_accounts LIKE '%|' + #{scmAccount} + '|%'
-      </when>
-      <when test="_databaseId == 'mysql'">
-        u.scm_accounts LIKE concat('%|', #{scmAccount}, '|%')
-      </when>
-      <otherwise>
-        u.scm_accounts LIKE '%|' || #{scmAccount} || '|%'
-      </otherwise>
-    </choose>
+    OR u.scm_accounts like #{likeScmAccount}
   </select>
 
   <select id="selectUser" parameterType="long" resultType="User">
@@ -130,7 +119,7 @@
   </delete>
 
   <update id="deactivateUser" parameterType="long">
-    UPDATE users SET active=${_false}, updated_at=#{now} WHERE id=#{id}
+    UPDATE users SET active=${_false}, updated_at=#{now,jdbcType=BIGINT} WHERE id=#{id}
   </update>
 
   <insert id="insert" parameterType="User" keyColumn="id" useGeneratedKeys="true" keyProperty="id">

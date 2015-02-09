@@ -33,7 +33,7 @@ import java.util.List;
  * @since 3.2
  */
 public class UserDto {
-  private static final char SCM_ACCOUNTS_SEPARATOR = '|';
+  public static final char SCM_ACCOUNTS_SEPARATOR = '\n';
 
   private Long id;
   private String login;

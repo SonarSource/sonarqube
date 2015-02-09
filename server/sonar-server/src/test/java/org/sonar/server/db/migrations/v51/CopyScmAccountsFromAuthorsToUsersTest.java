@@ -25,6 +25,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbTester;
+import org.sonar.core.user.UserDto;
 import org.sonar.server.db.migrations.DatabaseMigration;
 
 import java.util.Map;
@@ -58,11 +59,11 @@ public class CopyScmAccountsFromAuthorsToUsersTest {
     migration.execute();
 
     User simon = getUserByLogin("simon");
-    assertThat(simon.scmAccounts).isEqualTo(",Simon B,simon@codehaus.org,");
+    assertThat(simon.scmAccounts).isEqualTo(UserDto.SCM_ACCOUNTS_SEPARATOR + "Simon B" + UserDto.SCM_ACCOUNTS_SEPARATOR + "simon@codehaus.org" + UserDto.SCM_ACCOUNTS_SEPARATOR);
     assertThat(simon.updatedAt).isEqualTo(updatedDate);
 
     User fabrice = getUserByLogin("fabrice");
-    assertThat(fabrice.scmAccounts).isEqualTo(",fab,");
+    assertThat(fabrice.scmAccounts).isEqualTo(UserDto.SCM_ACCOUNTS_SEPARATOR + "fab" + UserDto.SCM_ACCOUNTS_SEPARATOR);
     assertThat(fabrice.updatedAt).isEqualTo(updatedDate);
 
     assertThat(getUserByLogin("julien").updatedAt).isEqualTo(oldDate);
