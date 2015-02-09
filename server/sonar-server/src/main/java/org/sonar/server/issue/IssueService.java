@@ -64,13 +64,7 @@ import org.sonar.server.user.index.UserIndex;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.google.common.collect.Maps.newLinkedHashMap;
 
@@ -402,7 +396,6 @@ public class IssueService implements ServerComponent {
       .userGroups(UserSession.get().userGroups())
       .moduleRootUuids(Arrays.asList(componentUuid))
       .onComponentOnly(false)
-      .setContextualized(true)
       .resolved(false)
       .build();
     return issueIndex.countTags(query, pageSize);

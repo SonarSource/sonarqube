@@ -205,19 +205,19 @@ public class IssueIndexMediumTest {
       IssueTesting.newDoc("ISSUE5", subModule),
       IssueTesting.newDoc("ISSUE6", file3));
 
-    assertThat(index.search(IssueQuery.builder().setContextualized(true).fileUuids(newArrayList(file1.uuid(), file2.uuid(), file3.uuid())).build(), new SearchOptions())
+    assertThat(index.search(IssueQuery.builder().fileUuids(newArrayList(file1.uuid(), file2.uuid(), file3.uuid())).build(), new SearchOptions())
       .getDocs()).hasSize(3);
-    assertThat(index.search(IssueQuery.builder().setContextualized(true).fileUuids(newArrayList(file1.uuid())).build(), new SearchOptions())
+    assertThat(index.search(IssueQuery.builder().fileUuids(newArrayList(file1.uuid())).build(), new SearchOptions())
       .getDocs()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().setContextualized(true).moduleRootUuids(newArrayList(subModule.uuid())).build(), new SearchOptions())
+    assertThat(index.search(IssueQuery.builder().moduleRootUuids(newArrayList(subModule.uuid())).build(), new SearchOptions())
       .getDocs()).hasSize(2);
-    assertThat(index.search(IssueQuery.builder().setContextualized(true).moduleRootUuids(newArrayList(module.uuid())).build(), new SearchOptions())
+    assertThat(index.search(IssueQuery.builder().moduleRootUuids(newArrayList(module.uuid())).build(), new SearchOptions())
       .getDocs()).hasSize(4);
-    assertThat(index.search(IssueQuery.builder().setContextualized(true).projectUuids(newArrayList(project.uuid())).build(), new SearchOptions())
+    assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).build(), new SearchOptions())
       .getDocs()).hasSize(6);
-    assertThat(index.search(IssueQuery.builder().setContextualized(true).viewUuids(newArrayList(view)).build(), new SearchOptions())
+    assertThat(index.search(IssueQuery.builder().viewUuids(newArrayList(view)).build(), new SearchOptions())
       .getDocs()).hasSize(6);
-    assertThat(index.search(IssueQuery.builder().setContextualized(true).projectUuids(newArrayList("unknown")).build(), new SearchOptions())
+    assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList("unknown")).build(), new SearchOptions())
       .getDocs()).isEmpty();
   }
 
