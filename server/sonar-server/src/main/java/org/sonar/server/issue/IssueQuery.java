@@ -28,6 +28,7 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -84,7 +85,6 @@ public class IssueQuery {
   private final String sort;
   private final Boolean asc;
   private final Boolean ignorePaging;
-  private final Boolean contextualized;
 
   private final String userLogin;
   private final Set<String> userGroups;
@@ -123,7 +123,6 @@ public class IssueQuery {
     this.userLogin = builder.userLogin;
     this.userGroups = builder.userGroups;
     this.checkAuthorization = builder.checkAuthorization;
-    this.contextualized = builder.contextualized;
   }
 
   public Collection<String> issueKeys() {
@@ -269,11 +268,6 @@ public class IssueQuery {
     return checkAuthorization;
   }
 
-  @CheckForNull
-  public Boolean isContextualized() {
-    return contextualized;
-  }
-
   @Override
   public String toString() {
     return ReflectionToStringBuilder.toString(this);
@@ -313,7 +307,6 @@ public class IssueQuery {
     private String sort;
     private Boolean asc = false;
     private Boolean ignorePaging = false;
-    private boolean contextualized;
     private String userLogin = UserSession.get().login();
     private Set<String> userGroups = UserSession.get().userGroups();
     private boolean checkAuthorization = true;
@@ -515,10 +508,6 @@ public class IssueQuery {
       return this;
     }
 
-    public Builder setContextualized(boolean b) {
-      this.contextualized = b;
-      return this;
-    }
   }
 
   private static <T> Collection<T> defaultCollection(@Nullable Collection<T> c) {

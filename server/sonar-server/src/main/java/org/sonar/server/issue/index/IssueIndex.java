@@ -253,42 +253,19 @@ public class IssueIndex extends BaseIndex {
     FilterBuilder directoryFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH, query.directories());
     FilterBuilder fileFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, query.fileUuids());
 
-    if (BooleanUtils.isTrue(query.isContextualized())) {
-      if (viewFilter != null) {
-        filters.put(FILTER_COMPONENT_ROOT, viewFilter);
-        filters.put(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, projectFilter);
-        filters.put(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, moduleFilter);
-        filters.put(IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH, directoryFilter);
-        filters.put(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, fileFilter);
-      } else if (projectFilter != null) {
-        filters.put(FILTER_COMPONENT_ROOT, projectFilter);
-        filters.put(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, moduleFilter);
-        filters.put(IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH, directoryFilter);
-        filters.put(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, fileFilter);
-      } else if (moduleRootFilter != null) {
-        filters.put(FILTER_COMPONENT_ROOT, moduleRootFilter);
-        filters.put(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, moduleFilter);
-        filters.put(IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH, directoryFilter);
-        filters.put(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, fileFilter);
-      } else if (directoryRootFilter != null) {
-        filters.put(FILTER_COMPONENT_ROOT, directoryRootFilter);
-        filters.put(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, fileFilter);
-      } else if (fileFilter != null) {
-        filters.put(FILTER_COMPONENT_ROOT, fileFilter);
-      } else if (componentFilter != null) {
-        // Last resort, when component type is unknown
-        filters.put(FILTER_COMPONENT_ROOT, componentFilter);
-      }
+    if (query.onComponentOnly()) {
+      filters.put(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, componentFilter);
     } else {
-      if (query.onComponentOnly()) {
-        filters.put(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, componentFilter);
-      } else {
-        filters.put(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, fileFilter);
-      }
+      filters.put("__view", viewFilter);
       filters.put(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, projectFilter);
+      filters.put("__module", moduleRootFilter);
       filters.put(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, moduleFilter);
       filters.put(IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH, directoryFilter);
-      filters.put("view", viewFilter);
+      if (fileFilter != null) {
+        filters.put(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, fileFilter);
+      } else {
+        filters.put(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, componentFilter);
+      }
     }
   }
 
