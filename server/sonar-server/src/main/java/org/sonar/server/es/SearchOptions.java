@@ -89,7 +89,7 @@ public class SearchOptions {
    * Sets the limit on the number of results to return.
    */
   public SearchOptions setLimit(int limit) {
-    if (limit < 0) {
+    if (limit <= 0) {
       this.limit = MAX_LIMIT;
     } else {
       this.limit = Math.min(limit, MAX_LIMIT);

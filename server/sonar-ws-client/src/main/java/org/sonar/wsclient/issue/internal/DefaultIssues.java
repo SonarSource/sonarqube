@@ -28,9 +28,11 @@ import org.sonar.wsclient.rule.Rule;
 import org.sonar.wsclient.user.User;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @since 3.6
@@ -45,7 +47,6 @@ public class DefaultIssues implements Issues {
   private final Map<String, Component> projectsByKey = new HashMap<String, Component>();
   private final Map<String, ActionPlan> actionPlansByKey = new HashMap<String, ActionPlan>();
   private Paging paging;
-  private Boolean maxResultsReached;
 
   @Override
   public List<Issue> list() {
@@ -128,12 +129,6 @@ public class DefaultIssues implements Issues {
     return paging;
   }
 
-  @Override
-  @Nullable
-  public Boolean maxResultsReached() {
-    return maxResultsReached;
-  }
-
   DefaultIssues add(Issue issue) {
     list.add(issue);
     return this;
@@ -167,11 +162,6 @@ public class DefaultIssues implements Issues {
 
   DefaultIssues setPaging(Paging paging) {
     this.paging = paging;
-    return this;
-  }
-
-  DefaultIssues setMaxResultsReached(@Nullable Boolean maxResultsReached) {
-    this.maxResultsReached = maxResultsReached;
     return this;
   }
 }

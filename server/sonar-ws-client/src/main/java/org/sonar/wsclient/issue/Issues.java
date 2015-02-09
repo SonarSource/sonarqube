@@ -69,6 +69,4 @@ public interface Issues {
 
   Paging paging();
 
-  Boolean maxResultsReached();
-
 }

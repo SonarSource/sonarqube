@@ -786,7 +786,7 @@ public class IssueIndexMediumTest {
     assertThat(result.getTotal()).isEqualTo(12);
 
     result = index.search(IssueQuery.builder().build(), new SearchOptions().setOffset(2).setLimit(0));
-    assertThat(result.getDocs()).hasSize(0);
+    assertThat(result.getDocs()).hasSize(10);
     assertThat(result.getTotal()).isEqualTo(12);
   }
 

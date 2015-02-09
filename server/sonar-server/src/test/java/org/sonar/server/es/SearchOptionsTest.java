@@ -61,9 +61,9 @@ public class SearchOptionsTest {
   @Test
   public void with_zero_page_size() throws Exception {
     SearchOptions options = new SearchOptions().setPage(1, 0);
-    assertThat(options.getLimit()).isEqualTo(0);
+    assertThat(options.getLimit()).isEqualTo(SearchOptions.MAX_LIMIT);
     assertThat(options.getOffset()).isEqualTo(0);
-    assertThat(options.getPage()).isEqualTo(0);
+    assertThat(options.getPage()).isEqualTo(1);
   }
 
   @Test
