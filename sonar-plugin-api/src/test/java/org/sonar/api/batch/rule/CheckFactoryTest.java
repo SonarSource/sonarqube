@@ -114,9 +114,9 @@ public class CheckFactoryTest {
   }
 
   @Test
-  public void use_engine_key() {
-    RuleKey ruleKey = RuleKey.of("squid", "One");
-    builder.create(ruleKey).setInternalKey("S0001").activate();
+  public void use_template_rule_key() {
+    RuleKey ruleKey = RuleKey.of("squid", "S0001_123");
+    builder.create(ruleKey).setTemplateRuleKey("S0001").activate();
 
     CheckFactory checkFactory = new CheckFactory(builder.build());
     Checks checks = checkFactory.create("squid").addAnnotatedChecks(CheckWithKey.class);

@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.xoo;
+package org.sonar.xoo.checks;
 
-import org.junit.Test;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.rule.RuleKey;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public interface Check {
 
-public class XooPluginTest {
+  public Class<Check>[] ALL = new Class[] {TemplateRuleCheck.class};
 
-  @Test
-  public void provide_extensions() {
-    assertThat(new XooPlugin().getExtensions()).hasSize(19);
-  }
+  void execute(SensorContext context, InputFile file, RuleKey ruleKey);
+
 }
