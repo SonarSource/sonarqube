@@ -179,7 +179,7 @@ public class ModuleIssuesTest {
   @Test
   public void use_rule_name_if_no_message() throws Exception {
     ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
-    activeRulesBuilder.create(SQUID_RULE_KEY).setSeverity(Severity.INFO).activate();
+    activeRulesBuilder.create(SQUID_RULE_KEY).setSeverity(Severity.INFO).setName(SQUID_RULE_NAME).activate();
     initModuleIssues();
 
     Date analysisDate = new Date();

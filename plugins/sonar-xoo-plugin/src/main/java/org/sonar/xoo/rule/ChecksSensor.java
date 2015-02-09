@@ -42,9 +42,9 @@ public class ChecksSensor implements Sensor {
   public void describe(SensorDescriptor descriptor) {
     descriptor
       .name("ChecksSensor")
-      .workOnLanguages(Xoo.KEY)
+      .onlyOnLanguage(Xoo.KEY)
       .createIssuesForRuleRepositories(XooRulesDefinition.XOO_REPOSITORY)
-      .workOnFileTypes(InputFile.Type.MAIN);
+      .onlyOnFileType(InputFile.Type.MAIN);
   }
 
   @Override

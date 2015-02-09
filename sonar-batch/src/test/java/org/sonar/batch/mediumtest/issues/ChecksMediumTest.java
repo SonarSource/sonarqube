@@ -25,17 +25,15 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.batch.mediumtest.BatchMediumTester;
-import org.sonar.batch.mediumtest.BatchMediumTester.TaskResult;
+import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.batch.protocol.input.ActiveRule;
 import org.sonar.xoo.XooPlugin;
 
 import java.io.File;
 import java.io.IOException;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ChecksMediumTest {
 
@@ -47,7 +45,6 @@ public class ChecksMediumTest {
     .addDefaultQProfile("xoo", "Sonar Way")
     .activateRule(new ActiveRule("xoo", "TemplateRule_1234", "TemplateRule", "A template rule", "MAJOR", null, "xoo").addParam("line", "1"))
     .activateRule(new ActiveRule("xoo", "TemplateRule_1235", "TemplateRule", "Another template rule", "MAJOR", null, "xoo").addParam("line", "2"))
-    .bootstrapProperties(ImmutableMap.of("sonar.analysis.mode", "sensor"))
     .build();
 
   @Before
@@ -86,15 +83,15 @@ public class ChecksMediumTest {
 
     boolean foundIssueAtLine1 = false;
     boolean foundIssueAtLine2 = false;
-    for (Issue issue : result.issues()) {
+    for (org.sonar.api.issue.Issue issue : result.issues()) {
       if (issue.line() == 1) {
         foundIssueAtLine1 = true;
-        assertThat(issue.inputPath()).isEqualTo(new DefaultInputFile("com.foo.project", "src/sample.xoo"));
+        assertThat(issue.componentKey()).isEqualTo("com.foo.project:src/sample.xoo");
         assertThat(issue.message()).isEqualTo("A template rule");
       }
       if (issue.line() == 2) {
         foundIssueAtLine2 = true;
-        assertThat(issue.inputPath()).isEqualTo(new DefaultInputFile("com.foo.project", "src/sample.xoo"));
+        assertThat(issue.componentKey()).isEqualTo("com.foo.project:src/sample.xoo");
         assertThat(issue.message()).isEqualTo("Another template rule");
       }
     }

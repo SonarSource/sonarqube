@@ -57,11 +57,6 @@ import org.sonar.duplications.internal.pmd.PmdBlockChunker;
 import java.io.Serializable;
 import java.util.List;
 
-/**
- * Common bits between {@link ExperimentalSensorStorage} and {@link SensorContextAdapter}
- * @author julien
- *
- */
 public class DefaultSensorContext implements SensorContext {
 
   private final Settings settings;
