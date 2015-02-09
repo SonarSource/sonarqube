@@ -36,7 +36,7 @@ public class NewActiveRule {
   String name;
   String severity = Severity.defaultSeverity();
   Map<String, String> params = new HashMap<String, String>();
-  String internalKey, language;
+  String internalKey, language, templateRuleKey;
   private final ActiveRulesBuilder builder;
 
   NewActiveRule(ActiveRulesBuilder builder, RuleKey ruleKey) {
@@ -56,6 +56,11 @@ public class NewActiveRule {
 
   public NewActiveRule setInternalKey(@Nullable String internalKey) {
     this.internalKey = internalKey;
+    return this;
+  }
+
+  public NewActiveRule setTemplateRuleKey(@Nullable String templateRuleKey) {
+    this.templateRuleKey = templateRuleKey;
     return this;
   }
 

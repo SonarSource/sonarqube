@@ -17,16 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.xoo;
+package org.sonar.xoo.checks;
 
-import org.junit.Test;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.check.Cardinality;
+import org.sonar.check.Rule;
+import org.sonar.check.RuleProperty;
 
-import static org.fest.assertions.Assertions.assertThat;
+@Rule(key = TemplateRuleCheck.RULE_KEY, cardinality = Cardinality.MULTIPLE, name = "Template rule", description = "Sample template rule")
+public class TemplateRuleCheck implements Check {
 
-public class XooPluginTest {
+  public static final String RULE_KEY = "TemplateRule";
 
-  @Test
-  public void provide_extensions() {
-    assertThat(new XooPlugin().getExtensions()).hasSize(19);
+  @RuleProperty(key = "line")
+  private int line;
+
+  @Override
+  public void execute(SensorContext sensorContext, InputFile file, RuleKey ruleKey) {
+    sensorContext.newIssue()
+      .onFile(file)
+      .ruleKey(ruleKey)
+      .atLine(line)
+      .save();
   }
+
 }

@@ -27,6 +27,7 @@ import org.sonar.xoo.lang.SymbolReferencesSensor;
 import org.sonar.xoo.lang.SyntaxHighlightingSensor;
 import org.sonar.xoo.lang.TestCaseSensor;
 import org.sonar.xoo.lang.XooTokenizerSensor;
+import org.sonar.xoo.rule.ChecksSensor;
 import org.sonar.xoo.rule.CreateIssueByInternalKeySensor;
 import org.sonar.xoo.rule.OneIssueOnDirPerFileSensor;
 import org.sonar.xoo.rule.OneIssuePerLineSensor;
@@ -72,11 +73,11 @@ public class XooPlugin extends SonarPlugin {
       TestCaseSensor.class,
       CoveragePerTestSensor.class,
       DependencySensor.class,
+      ChecksSensor.class,
 
       OneIssuePerLineSensor.class,
       OneIssueOnDirPerFileSensor.class,
       CreateIssueByInternalKeySensor.class
       );
   }
-
 }
