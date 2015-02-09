@@ -26,6 +26,7 @@ import com.google.common.collect.Multimap;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.protocol.input.ProjectReferentials;
 import org.sonar.core.UtcDateUtils;
 import org.sonar.core.component.ComponentDto;
@@ -203,9 +204,11 @@ public class ProjectReferentialsLoader implements ServerComponent {
     for (org.sonar.batch.protocol.input.QProfile qProfile : ref.qProfiles()) {
       for (ActiveRule activeRule : qProfileLoader.findActiveRulesByProfile(qProfile.key())) {
         Rule rule = ruleService.getNonNullByKey(activeRule.key().ruleKey());
+        RuleKey templateRuleKey = rule.templateKey();
         org.sonar.batch.protocol.input.ActiveRule inputActiveRule = new org.sonar.batch.protocol.input.ActiveRule(
           activeRule.key().ruleKey().repository(),
           activeRule.key().ruleKey().rule(),
+          templateRuleKey != null ? templateRuleKey.rule() : null,
           rule.name(),
           activeRule.severity(),
           rule.internalKey(),
