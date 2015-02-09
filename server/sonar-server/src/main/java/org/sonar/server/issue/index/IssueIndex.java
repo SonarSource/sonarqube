@@ -82,9 +82,6 @@ public class IssueIndex extends BaseIndex {
     IssueFilterParameters.CREATED_AT);
 
   // TODO to be documented
-  private static final String FILTER_COMPONENT_ROOT = "__componentRoot";
-
-  // TODO to be documented
   // TODO move to Facets ?
   private static final String FACET_SUFFIX_MISSING = "_missing";
 
@@ -249,11 +246,10 @@ public class IssueIndex extends BaseIndex {
     FilterBuilder projectFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, query.projectUuids());
     FilterBuilder moduleRootFilter = createModuleRootFilter(query.moduleRootUuids());
     FilterBuilder moduleFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, query.moduleUuids());
-    FilterBuilder directoryRootFilter = createDirectoryRootFilter(query.moduleUuids(), query.directories());
     FilterBuilder directoryFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH, query.directories());
     FilterBuilder fileFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, query.fileUuids());
 
-    if (query.onComponentOnly()) {
+    if (BooleanUtils.isTrue(query.onComponentOnly())) {
       filters.put(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, componentFilter);
     } else {
       filters.put("__view", viewFilter);
@@ -287,24 +283,6 @@ public class IssueIndex extends BaseIndex {
       compositeFilter = modulePathFilter;
     }
     return compositeFilter;
-  }
-
-  @CheckForNull
-  private FilterBuilder createDirectoryRootFilter(Collection<String> moduleUuids, Collection<String> directoryPaths) {
-    BoolFilterBuilder directoryTop = null;
-    FilterBuilder moduleFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, moduleUuids);
-    FilterBuilder directoryFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH, directoryPaths);
-    if (moduleFilter != null) {
-      directoryTop = FilterBuilders.boolFilter();
-      directoryTop.must(moduleFilter);
-    }
-    if (directoryFilter != null) {
-      if (directoryTop == null) {
-        directoryTop = FilterBuilders.boolFilter();
-      }
-      directoryTop.must(directoryFilter);
-    }
-    return directoryTop;
   }
 
   @CheckForNull
