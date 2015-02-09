@@ -44,12 +44,7 @@ import org.sonar.server.view.index.ViewIndexer;
 
 import javax.annotation.Nullable;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -748,6 +743,15 @@ public class IssueIndexMediumTest {
       entry("2014-01-01T01:00:00+0000", 5L),
       entry("2015-01-01T01:00:00+0000", 1L),
       entry("2016-01-01T01:00:00+0000", 0L));
+  }
+
+  @Test
+  public void facet_on_created_at_without_issues() throws Exception {
+    SearchOptions SearchOptions = new SearchOptions().addFacets("createdAt");
+
+    Map<String, Long> createdAt = index.search(IssueQuery.builder().build(),
+      SearchOptions).getFacets().get("createdAt");
+    assertThat(createdAt).isEmpty();
   }
 
   protected SearchOptions fixtureForCreatedAtFacet() {
