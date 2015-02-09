@@ -643,6 +643,16 @@ public class IssueIndexMediumTest {
   }
 
   @Test
+  public void filter_by_created_after_must_not_be_in_future() throws Exception {
+    try {
+      index.search(IssueQuery.builder().createdAfter(new Date(Long.MAX_VALUE)).build(), new SearchOptions());
+      Fail.failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
+    } catch (IllegalArgumentException exception) {
+      assertThat(exception.getMessage()).isEqualTo("Start bound cannot be in the future");
+    }
+  }
+
+  @Test
   public void filter_by_created_at() throws Exception {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);

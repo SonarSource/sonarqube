@@ -377,8 +377,8 @@ public class IssueIndex extends BaseIndex {
   private void addDatesFilter(Map<String, FilterBuilder> filters, IssueQuery query) {
     Date createdAfter = query.createdAfter();
     Date createdBefore = query.createdBefore();
-    Preconditions.checkArgument(createdAfter == null || createdBefore == null || createdAfter.before(createdBefore),
-      "Start bound cannot be larger than end bound");
+
+    validateCreationDateBounds(createdBefore, createdAfter);
 
     if (createdAfter != null) {
       filters.put("__createdAfter", FilterBuilders
@@ -396,6 +396,13 @@ public class IssueIndex extends BaseIndex {
     if (createdAt != null) {
       filters.put("__createdAt", FilterBuilders.termFilter(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT, createdAt).cache(false));
     }
+  }
+
+  private void validateCreationDateBounds(Date createdBefore, Date createdAfter) {
+    Preconditions.checkArgument(createdAfter == null || createdAfter.before(system.newDate()),
+      "Start bound cannot be in the future");
+    Preconditions.checkArgument(createdAfter == null || createdBefore == null || createdAfter.before(createdBefore),
+      "Start bound cannot be larger than end bound");
   }
 
   private void configureStickyFacets(IssueQuery query, SearchOptions options, Map<String, FilterBuilder> filters, QueryBuilder esQuery, SearchRequestBuilder esSearch) {
