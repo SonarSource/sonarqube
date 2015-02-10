@@ -57,7 +57,7 @@ public class XooTokenizerSensorTest {
   public void prepare() throws IOException {
     baseDir = temp.newFolder();
     sensor = new XooTokenizerSensor();
-    fileSystem = new DefaultFileSystem();
+    fileSystem = new DefaultFileSystem(baseDir);
     when(context.fileSystem()).thenReturn(fileSystem);
     settings = new Settings();
     when(context.settings()).thenReturn(settings);

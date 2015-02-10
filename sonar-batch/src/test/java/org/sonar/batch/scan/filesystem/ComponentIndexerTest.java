@@ -56,19 +56,20 @@ public class ComponentIndexerTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-  File baseDir;
-  DefaultFileSystem fs = new DefaultFileSystem();
-  SonarIndex sonarIndex;
-  AbstractLanguage cobolLanguage;
-  Project project;
-  Settings settings;
+  private File baseDir;
+  private DefaultFileSystem fs;
+  private SonarIndex sonarIndex;
+  private AbstractLanguage cobolLanguage;
+  private Project project;
+  private Settings settings;
 
-  String aClaess;
-  String explicacao;
+  private String aClaess;
+  private String explicacao;
 
   @Before
   public void prepare() throws IOException {
     baseDir = temp.newFolder();
+    fs = new DefaultFileSystem(baseDir);
     sonarIndex = mock(SonarIndex.class);
     project = mock(Project.class);
     settings = new Settings();

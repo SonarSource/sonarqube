@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.InputFile;
@@ -46,6 +47,8 @@ import org.sonar.batch.duplication.BlockCache;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.ComponentDataCache;
 
+import java.io.IOException;
+
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -56,6 +59,9 @@ public class SensorContextAdapterTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
   private ActiveRules activeRules;
   private DefaultFileSystem fs;
   private SensorContextAdaptor adaptor;
@@ -64,9 +70,9 @@ public class SensorContextAdapterTest {
   private ResourcePerspectives resourcePerspectives;
 
   @Before
-  public void prepare() {
+  public void prepare() throws IOException {
     activeRules = new ActiveRulesBuilder().build();
-    fs = new DefaultFileSystem();
+    fs = new DefaultFileSystem(temp.newFolder());
     MetricFinder metricFinder = mock(MetricFinder.class);
     when(metricFinder.findByKey(CoreMetrics.NCLOC_KEY)).thenReturn(CoreMetrics.NCLOC);
     sensorContext = mock(SensorContext.class);

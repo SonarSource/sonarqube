@@ -19,30 +19,35 @@
  */
 package org.sonar.batch.scan2;
 
-import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
+import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.rule.RuleKey;
+
 import static org.fest.assertions.Assertions.assertThat;
 
 public class AnalyzerOptimizerTest {
 
-  DefaultFileSystem fs = new DefaultFileSystem();
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
+
+  private DefaultFileSystem fs;
   private AnalyzerOptimizer optimizer;
 
   @Before
-  public void prepare() {
+  public void prepare() throws Exception {
+    fs = new DefaultFileSystem(temp.newFolder());
     optimizer = new AnalyzerOptimizer(fs, new ActiveRulesBuilder().build());
   }
 

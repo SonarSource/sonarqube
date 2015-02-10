@@ -40,6 +40,7 @@ import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.java.api.JavaUtils;
 
 import javax.annotation.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;

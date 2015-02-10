@@ -29,6 +29,7 @@ import org.sonar.xoo.rule.ChecksSensor;
 import org.sonar.xoo.rule.CreateIssueByInternalKeySensor;
 import org.sonar.xoo.rule.OneIssueOnDirPerFileSensor;
 import org.sonar.xoo.rule.OneIssuePerLineSensor;
+import org.sonar.xoo.rule.RandomAccessSensor;
 import org.sonar.xoo.rule.XooFakeExporter;
 import org.sonar.xoo.rule.XooFakeImporter;
 import org.sonar.xoo.rule.XooFakeImporterWithMessages;
@@ -64,6 +65,7 @@ public class XooPlugin extends SonarPlugin {
       SymbolReferencesSensor.class,
       XooTokenizerSensor.class,
       ChecksSensor.class,
+      RandomAccessSensor.class,
 
       OneIssuePerLineSensor.class,
       OneIssueOnDirPerFileSensor.class,

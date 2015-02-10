@@ -44,7 +44,10 @@ import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SqaleRatingDecoratorTest {
@@ -70,7 +73,7 @@ public class SqaleRatingDecoratorTest {
   public void setUp() throws Exception {
     settings = new Settings();
 
-    fs = new DefaultFileSystem();
+    fs = new DefaultFileSystem(temp.newFolder());
     fs.add(new DefaultInputFile(file.getPath())
       .setLanguage("java")
       .setFile(temp.newFile("Foo.java")));

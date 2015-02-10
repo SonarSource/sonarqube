@@ -67,11 +67,11 @@ public class JsonReportTest {
   private SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
   @org.junit.Rule
-  public TemporaryFolder temporaryFolder = new TemporaryFolder();
+  public TemporaryFolder temp = new TemporaryFolder();
 
   JsonReport jsonReport;
   Resource resource = mock(Resource.class);
-  DefaultFileSystem fs = new DefaultFileSystem();
+  DefaultFileSystem fs;
   Server server = mock(Server.class);
   RuleFinder ruleFinder = mock(RuleFinder.class);
   Settings settings = new Settings();
@@ -80,7 +80,8 @@ public class JsonReportTest {
   private UserFinder userFinder;
 
   @Before
-  public void before() {
+  public void before() throws Exception {
+    fs = new DefaultFileSystem(temp.newFolder());
     SIMPLE_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT+02:00"));
     when(resource.getEffectiveKey()).thenReturn("Action.java");
     when(server.getVersion()).thenReturn("3.6");
@@ -169,7 +170,7 @@ public class JsonReportTest {
 
   @Test
   public void should_export_issues_to_file() throws IOException {
-    File workDir = temporaryFolder.newFolder("sonar");
+    File workDir = temp.newFolder("sonar");
     fs.setWorkDir(workDir);
 
     Rule rule = Rule.create("squid", "AvoidCycles").setName("Avoid Cycles");

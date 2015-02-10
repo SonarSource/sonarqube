@@ -84,14 +84,11 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
   private DefaultModuleFileSystem(ModuleInputFileCache moduleInputFileCache, String moduleKey, Settings settings,
     FileIndexer indexer, ModuleFileSystemInitializer initializer,
     @Nullable ComponentIndexer componentIndexer) {
-    super(moduleInputFileCache);
+    super(initializer.baseDir(), moduleInputFileCache);
     this.componentIndexer = componentIndexer;
     this.moduleKey = moduleKey;
     this.settings = settings;
     this.indexer = indexer;
-    if (initializer.baseDir() != null) {
-      setBaseDir(initializer.baseDir());
-    }
     setWorkDir(initializer.workingDir());
     this.buildDir = initializer.buildDir();
     this.sourceDirsOrFiles = initializer.sources();

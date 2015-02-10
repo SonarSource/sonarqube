@@ -24,7 +24,6 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
-import org.sonar.api.batch.fs.internal.RelativePathPredicate;
 
 public class ModuleInputFileCache extends DefaultFileSystem.Cache implements BatchComponent {
 
@@ -37,17 +36,17 @@ public class ModuleInputFileCache extends DefaultFileSystem.Cache implements Bat
   }
 
   @Override
-  protected Iterable<InputFile> inputFiles() {
+  public Iterable<InputFile> inputFiles() {
     return projectCache.filesByModule(moduleKey);
   }
 
   @Override
-  protected InputFile inputFile(RelativePathPredicate predicate) {
-    return projectCache.getFile(moduleKey, predicate.path());
+  public InputFile inputFile(String relativePath) {
+    return projectCache.getFile(moduleKey, relativePath);
   }
 
   @Override
-  protected InputDir inputDir(String relativePath) {
+  public InputDir inputDir(String relativePath) {
     return projectCache.getDir(moduleKey, relativePath);
   }
 

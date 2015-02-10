@@ -35,10 +35,14 @@ import java.util.List;
  * @since 4.2
  */
 public class DefaultFilePredicates implements FilePredicates {
+
+  private final File baseDir;
+
   /**
    * Client code should use {@link org.sonar.api.batch.fs.FileSystem#predicates()} to get an instance
    */
-  DefaultFilePredicates() {
+  DefaultFilePredicates(File baseDir) {
+    this.baseDir = baseDir;
   }
 
   /**
@@ -55,15 +59,13 @@ public class DefaultFilePredicates implements FilePredicates {
     return FalsePredicate.FALSE;
   }
 
-  /**
-   * Warning - not efficient because absolute path is not indexed yet.
-   */
+  @Override
   public FilePredicate hasAbsolutePath(String s) {
-    return new AbsolutePathPredicate(s);
+    return new AbsolutePathPredicate(s, baseDir);
   }
 
   /**
-   * TODO document that non-normalized path and Windows-style path are supported
+   * non-normalized path and Windows-style path are supported
    */
   public FilePredicate hasRelativePath(String s) {
     return new RelativePathPredicate(s);
@@ -143,26 +145,26 @@ public class DefaultFilePredicates implements FilePredicates {
   }
 
   public FilePredicate or(Collection<FilePredicate> or) {
-    return new OrPredicate(or);
+    return OrPredicate.create(or);
   }
 
   public FilePredicate or(FilePredicate... or) {
-    return new OrPredicate(Arrays.asList(or));
+    return OrPredicate.create(Arrays.asList(or));
   }
 
   public FilePredicate or(FilePredicate first, FilePredicate second) {
-    return new OrPredicate(Arrays.asList(first, second));
+    return OrPredicate.create(Arrays.asList(first, second));
   }
 
   public FilePredicate and(Collection<FilePredicate> and) {
-    return new AndPredicate(and);
+    return AndPredicate.create(and);
   }
 
   public FilePredicate and(FilePredicate... and) {
-    return new AndPredicate(Arrays.asList(and));
+    return AndPredicate.create(Arrays.asList(and));
   }
 
   public FilePredicate and(FilePredicate first, FilePredicate second) {
-    return new AndPredicate(Arrays.asList(first, second));
+    return AndPredicate.create(Arrays.asList(first, second));
   }
 }

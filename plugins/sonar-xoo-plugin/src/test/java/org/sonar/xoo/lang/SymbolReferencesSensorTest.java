@@ -52,7 +52,7 @@ public class SymbolReferencesSensorTest {
   public void prepare() throws IOException {
     baseDir = temp.newFolder();
     sensor = new SymbolReferencesSensor();
-    fileSystem = new DefaultFileSystem();
+    fileSystem = new DefaultFileSystem(baseDir);
     when(context.fileSystem()).thenReturn(fileSystem);
   }
 

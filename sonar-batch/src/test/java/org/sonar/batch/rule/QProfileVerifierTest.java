@@ -23,24 +23,31 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class QProfileVerifierTest {
 
   @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
+  @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  DefaultFileSystem fs = new DefaultFileSystem();
-  ModuleQProfiles profiles;
-  Settings settings = new Settings();
+  private DefaultFileSystem fs;
+  private ModuleQProfiles profiles;
+  private Settings settings = new Settings();
 
   @Before
-  public void before() {
+  public void before() throws Exception {
+    fs = new DefaultFileSystem(temp.newFolder());
     profiles = mock(ModuleQProfiles.class);
     QProfile javaProfile = new QProfile().setKey("p1").setName("My Java profile").setLanguage("java");
     when(profiles.findByLanguage("java")).thenReturn(javaProfile);

@@ -141,4 +141,17 @@ public interface FileSystem extends BatchComponent {
    * Languages detected in all files, whatever their type (main or test)
    */
   SortedSet<String> languages();
+
+  /**
+   * Interface of the underlying file index.
+   */
+  public static interface Index {
+    Iterable<InputFile> inputFiles();
+
+    @CheckForNull
+    InputFile inputFile(String relativePath);
+
+    @CheckForNull
+    InputDir inputDir(String relativePath);
+  }
 }
