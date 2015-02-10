@@ -19,12 +19,15 @@
  */
 package org.sonar.server.issue.ws;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.server.issue.IssueQuery;
+import org.sonar.server.issue.IssueQueryService;
 import org.sonar.server.issue.IssueService;
 
 import java.util.Map;
@@ -36,9 +39,11 @@ import java.util.Map;
 public class ComponentTagsAction implements BaseIssuesWsAction {
 
   private final IssueService service;
+  private final IssueQueryService queryService;
 
-  public ComponentTagsAction(IssueService service) {
+  public ComponentTagsAction(IssueService service, IssueQueryService queryService) {
     this.service = service;
+    this.queryService = queryService;
   }
 
   @Override
@@ -62,9 +67,13 @@ public class ComponentTagsAction implements BaseIssuesWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     String componentUuid = request.mandatoryParam("componentUuid");
+    IssueQuery query = queryService.createFromMap(
+      ImmutableMap.<String, Object>of(
+        "componentUuids", componentUuid,
+        "resolved", false));
     int pageSize = request.mandatoryParamAsInt("ps");
     JsonWriter json = response.newJsonWriter().beginObject().name("tags").beginArray();
-    for (Map.Entry<String, Long> tag : service.listTagsForComponent(componentUuid, pageSize).entrySet()) {
+    for (Map.Entry<String, Long> tag : service.listTagsForComponent(query, pageSize).entrySet()) {
       json.beginObject()
         .prop("key", tag.getKey())
         .prop("value", tag.getValue())

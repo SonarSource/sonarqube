@@ -19,11 +19,7 @@
  */
 package org.sonar.server.issue;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Multiset;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -70,6 +66,7 @@ import org.sonar.server.user.NewUser;
 import org.sonar.server.user.UserService;
 import org.sonar.server.user.db.GroupDao;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -314,7 +311,7 @@ public class IssueServiceMediumTest {
 
     Issue result = service.createManualIssue(file.key(), manualRule.getKey(), null, "Fix it", Severity.MINOR, 2d);
 
-    IssueDoc manualIssue = (IssueDoc) IssueIndex.getByKey(result.key());
+    IssueDoc manualIssue = IssueIndex.getByKey(result.key());
     assertThat(manualIssue.componentUuid()).isEqualTo(file.uuid());
     assertThat(manualIssue.projectUuid()).isEqualTo(project.uuid());
     assertThat(manualIssue.ruleKey()).isEqualTo(manualRule.getKey());
@@ -340,7 +337,7 @@ public class IssueServiceMediumTest {
 
     Issue result = service.createManualIssue(file.key(), manualRule.getKey(), 1, "Fix it", Severity.MINOR, 2d);
 
-    IssueDoc manualIssue = (IssueDoc) IssueIndex.getByKey(result.key());
+    IssueDoc manualIssue = IssueIndex.getByKey(result.key());
     assertThat(manualIssue.componentUuid()).isEqualTo(file.uuid());
     assertThat(manualIssue.projectUuid()).isEqualTo(project.uuid());
     assertThat(manualIssue.ruleKey()).isEqualTo(manualRule.getKey());
@@ -400,7 +397,7 @@ public class IssueServiceMediumTest {
 
     Issue result = service.createManualIssue(file.key(), manualRule.getKey(), 1, "Fix it", Severity.MINOR, 2d);
 
-    IssueDoc manualIssue = (IssueDoc) IssueIndex.getByKey(result.key());
+    IssueDoc manualIssue = IssueIndex.getByKey(result.key());
     assertThat(manualIssue.assignee()).isNull();
   }
 
@@ -418,7 +415,7 @@ public class IssueServiceMediumTest {
 
     Issue result = service.createManualIssue(file.key(), manualRule.getKey(), 1, "Fix it", Severity.MINOR, 2d);
 
-    IssueDoc manualIssue = (IssueDoc) IssueIndex.getByKey(result.key());
+    IssueDoc manualIssue = IssueIndex.getByKey(result.key());
     assertThat(manualIssue.assignee()).isNull();
   }
 
@@ -588,9 +585,13 @@ public class IssueServiceMediumTest {
     saveIssue(IssueTesting.newDto(rule, file, project).setTags(ImmutableSet.of("convention", "java8", "bug")).setResolution(Issue.RESOLUTION_FIXED));
     saveIssue(IssueTesting.newDto(rule, file, project).setTags(ImmutableSet.of("convention")));
 
-    assertThat(service.listTagsForComponent(project.uuid(), 5)).containsOnly(entry("convention", 3L), entry("bug", 2L), entry("java8", 1L));
-    assertThat(service.listTagsForComponent(project.uuid(), 2)).contains(entry("convention", 3L), entry("bug", 2L)).doesNotContainEntry("java8", 1L);
-    assertThat(service.listTagsForComponent("other", 10)).isEmpty();
+    assertThat(service.listTagsForComponent(projectQuery(project.uuid()), 5)).containsOnly(entry("convention", 3L), entry("bug", 2L), entry("java8", 1L));
+    assertThat(service.listTagsForComponent(projectQuery(project.uuid()), 2)).contains(entry("convention", 3L), entry("bug", 2L)).doesNotContainEntry("java8", 1L);
+    assertThat(service.listTagsForComponent(projectQuery("other"), 10)).isEmpty();
+  }
+
+  private IssueQuery projectQuery(String projectUuid) {
+    return IssueQuery.builder().projectUuids(Arrays.asList(projectUuid)).resolved(false).build();
   }
 
   @Test

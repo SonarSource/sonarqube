@@ -23,16 +23,20 @@ import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.api.server.ws.WebService.Param;
+import org.sonar.server.issue.IssueQuery;
+import org.sonar.server.issue.IssueQueryService;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.ws.WsTester;
 
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -42,13 +46,16 @@ public class ComponentTagsActionTest {
   @Mock
   private IssueService service;
 
+  @Mock
+  private IssueQueryService queryService;
+
   private ComponentTagsAction componentTagsAction;
 
   private WsTester tester;
 
   @Before
   public void setUp() {
-    componentTagsAction = new ComponentTagsAction(service);
+    componentTagsAction = new ComponentTagsAction(service, queryService);
     tester = new WsTester(new IssuesWs(componentTagsAction));
   }
 
@@ -87,9 +94,15 @@ public class ComponentTagsActionTest {
       .put("bug", 32L)
       .put("cert", 2L)
       .build();
-    when(service.listTagsForComponent("polop", 5)).thenReturn(tags);
+    IssueQuery query = mock(IssueQuery.class);
+    ArgumentCaptor<Map> captor = ArgumentCaptor.forClass(Map.class);
+    when(queryService.createFromMap(captor.capture())).thenReturn(query);
+    when(service.listTagsForComponent(query, 5)).thenReturn(tags);
     tester.newGetRequest("api/issues", "component_tags").setParam("componentUuid", "polop").setParam("ps", "5").execute()
       .assertJson(getClass(), "component-tags.json");
-    verify(service).listTagsForComponent("polop", 5);
+    assertThat(captor.getValue())
+      .containsEntry("componentUuids", "polop")
+      .containsEntry("resolved", false);
+    verify(service).listTagsForComponent(query, 5);
   }
 }

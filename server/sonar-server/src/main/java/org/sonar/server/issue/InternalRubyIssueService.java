@@ -23,6 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
@@ -654,7 +655,11 @@ public class InternalRubyIssueService implements ServerComponent {
   }
 
   public Map<String, Long> listTagsForComponent(String componentUuid, int pageSize) {
-    return issueService.listTagsForComponent(componentUuid, pageSize);
+    IssueQuery query = issueQueryService.createFromMap(
+      ImmutableMap.<String, Object>of(
+        "componentUuids", componentUuid,
+        "resolved", false));
+    return issueService.listTagsForComponent(query, pageSize);
   }
 
 }

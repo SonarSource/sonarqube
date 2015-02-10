@@ -389,15 +389,7 @@ public class IssueService implements ServerComponent {
     }
   }
 
-  // TODO check compatibility with Views, projects, etc.
-  public Map<String, Long> listTagsForComponent(String componentUuid, int pageSize) {
-    IssueQuery query = IssueQuery.builder()
-      .userLogin(UserSession.get().login())
-      .userGroups(UserSession.get().userGroups())
-      .moduleRootUuids(Arrays.asList(componentUuid))
-      .onComponentOnly(false)
-      .resolved(false)
-      .build();
+  public Map<String, Long> listTagsForComponent(IssueQuery query, int pageSize) {
     return issueIndex.countTags(query, pageSize);
   }
 
