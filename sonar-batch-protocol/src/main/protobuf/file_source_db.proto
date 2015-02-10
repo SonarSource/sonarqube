@@ -64,7 +64,7 @@ message Line {
 
   optional string highlighting = 15;
   optional string symbols = 16;
-  repeated int32 duplications = 17;
+  repeated int32 duplications = 17 [packed=true];
 }
 
 message Data {

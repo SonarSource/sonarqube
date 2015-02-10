@@ -88,7 +88,7 @@ public final class FileSourceDb {
      * <code>optional int32 ut_line_hits = 6;</code>
      *
      * <pre>
-     * unit testing
+     * unit tests
      * </pre>
      */
     boolean hasUtLineHits();
@@ -96,7 +96,7 @@ public final class FileSourceDb {
      * <code>optional int32 ut_line_hits = 6;</code>
      *
      * <pre>
-     * unit testing
+     * unit tests
      * </pre>
      */
     int getUtLineHits();
@@ -123,7 +123,7 @@ public final class FileSourceDb {
      * <code>optional int32 it_line_hits = 9;</code>
      *
      * <pre>
-     * integration testing
+     * integration tests
      * </pre>
      */
     boolean hasItLineHits();
@@ -131,7 +131,7 @@ public final class FileSourceDb {
      * <code>optional int32 it_line_hits = 9;</code>
      *
      * <pre>
-     * integration testing
+     * integration tests
      * </pre>
      */
     int getItLineHits();
@@ -158,7 +158,7 @@ public final class FileSourceDb {
      * <code>optional int32 overall_line_hits = 12;</code>
      *
      * <pre>
-     * overall testing
+     * overall tests
      * </pre>
      */
     boolean hasOverallLineHits();
@@ -166,7 +166,7 @@ public final class FileSourceDb {
      * <code>optional int32 overall_line_hits = 12;</code>
      *
      * <pre>
-     * overall testing
+     * overall tests
      * </pre>
      */
     int getOverallLineHits();
@@ -218,15 +218,15 @@ public final class FileSourceDb {
         getSymbolsBytes();
 
     /**
-     * <code>repeated int32 duplications = 17;</code>
+     * <code>repeated int32 duplications = 17 [packed = true];</code>
      */
     java.util.List<java.lang.Integer> getDuplicationsList();
     /**
-     * <code>repeated int32 duplications = 17;</code>
+     * <code>repeated int32 duplications = 17 [packed = true];</code>
      */
     int getDuplicationsCount();
     /**
-     * <code>repeated int32 duplications = 17;</code>
+     * <code>repeated int32 duplications = 17 [packed = true];</code>
      */
     int getDuplications(int index);
   }
@@ -605,7 +605,7 @@ public final class FileSourceDb {
      * <code>optional int32 ut_line_hits = 6;</code>
      *
      * <pre>
-     * unit testing
+     * unit tests
      * </pre>
      */
     public boolean hasUtLineHits() {
@@ -615,7 +615,7 @@ public final class FileSourceDb {
      * <code>optional int32 ut_line_hits = 6;</code>
      *
      * <pre>
-     * unit testing
+     * unit tests
      * </pre>
      */
     public int getUtLineHits() {
@@ -658,7 +658,7 @@ public final class FileSourceDb {
      * <code>optional int32 it_line_hits = 9;</code>
      *
      * <pre>
-     * integration testing
+     * integration tests
      * </pre>
      */
     public boolean hasItLineHits() {
@@ -668,7 +668,7 @@ public final class FileSourceDb {
      * <code>optional int32 it_line_hits = 9;</code>
      *
      * <pre>
-     * integration testing
+     * integration tests
      * </pre>
      */
     public int getItLineHits() {
@@ -711,7 +711,7 @@ public final class FileSourceDb {
      * <code>optional int32 overall_line_hits = 12;</code>
      *
      * <pre>
-     * overall testing
+     * overall tests
      * </pre>
      */
     public boolean hasOverallLineHits() {
@@ -721,7 +721,7 @@ public final class FileSourceDb {
      * <code>optional int32 overall_line_hits = 12;</code>
      *
      * <pre>
-     * overall testing
+     * overall tests
      * </pre>
      */
     public int getOverallLineHits() {
@@ -845,24 +845,25 @@ public final class FileSourceDb {
     public static final int DUPLICATIONS_FIELD_NUMBER = 17;
     private java.util.List<java.lang.Integer> duplications_;
     /**
-     * <code>repeated int32 duplications = 17;</code>
+     * <code>repeated int32 duplications = 17 [packed = true];</code>
      */
     public java.util.List<java.lang.Integer>
         getDuplicationsList() {
       return duplications_;
     }
     /**
-     * <code>repeated int32 duplications = 17;</code>
+     * <code>repeated int32 duplications = 17 [packed = true];</code>
      */
     public int getDuplicationsCount() {
       return duplications_.size();
     }
     /**
-     * <code>repeated int32 duplications = 17;</code>
+     * <code>repeated int32 duplications = 17 [packed = true];</code>
      */
     public int getDuplications(int index) {
       return duplications_.get(index);
     }
+    private int duplicationsMemoizedSerializedSize = -1;
 
     private void initFields() {
       line_ = 0;
@@ -944,8 +945,12 @@ public final class FileSourceDb {
       if (((bitField0_ & 0x00008000) == 0x00008000)) {
         output.writeBytes(16, getSymbolsBytes());
       }
+      if (getDuplicationsList().size() > 0) {
+        output.writeRawVarint32(138);
+        output.writeRawVarint32(duplicationsMemoizedSerializedSize);
+      }
       for (int i = 0; i < duplications_.size(); i++) {
-        output.writeInt32(17, duplications_.get(i));
+        output.writeInt32NoTag(duplications_.get(i));
       }
       getUnknownFields().writeTo(output);
     }
@@ -1027,7 +1032,12 @@ public final class FileSourceDb {
             .computeInt32SizeNoTag(duplications_.get(i));
         }
         size += dataSize;
-        size += 2 * getDuplicationsList().size();
+        if (!getDuplicationsList().isEmpty()) {
+          size += 2;
+          size += com.google.protobuf.CodedOutputStream
+              .computeInt32SizeNoTag(dataSize);
+        }
+        duplicationsMemoizedSerializedSize = dataSize;
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -1709,7 +1719,7 @@ public final class FileSourceDb {
        * <code>optional int32 ut_line_hits = 6;</code>
        *
        * <pre>
-       * unit testing
+       * unit tests
        * </pre>
        */
       public boolean hasUtLineHits() {
@@ -1719,7 +1729,7 @@ public final class FileSourceDb {
        * <code>optional int32 ut_line_hits = 6;</code>
        *
        * <pre>
-       * unit testing
+       * unit tests
        * </pre>
        */
       public int getUtLineHits() {
@@ -1729,7 +1739,7 @@ public final class FileSourceDb {
        * <code>optional int32 ut_line_hits = 6;</code>
        *
        * <pre>
-       * unit testing
+       * unit tests
        * </pre>
        */
       public Builder setUtLineHits(int value) {
@@ -1742,7 +1752,7 @@ public final class FileSourceDb {
        * <code>optional int32 ut_line_hits = 6;</code>
        *
        * <pre>
-       * unit testing
+       * unit tests
        * </pre>
        */
       public Builder clearUtLineHits() {
@@ -1821,7 +1831,7 @@ public final class FileSourceDb {
        * <code>optional int32 it_line_hits = 9;</code>
        *
        * <pre>
-       * integration testing
+       * integration tests
        * </pre>
        */
       public boolean hasItLineHits() {
@@ -1831,7 +1841,7 @@ public final class FileSourceDb {
        * <code>optional int32 it_line_hits = 9;</code>
        *
        * <pre>
-       * integration testing
+       * integration tests
        * </pre>
        */
       public int getItLineHits() {
@@ -1841,7 +1851,7 @@ public final class FileSourceDb {
        * <code>optional int32 it_line_hits = 9;</code>
        *
        * <pre>
-       * integration testing
+       * integration tests
        * </pre>
        */
       public Builder setItLineHits(int value) {
@@ -1854,7 +1864,7 @@ public final class FileSourceDb {
        * <code>optional int32 it_line_hits = 9;</code>
        *
        * <pre>
-       * integration testing
+       * integration tests
        * </pre>
        */
       public Builder clearItLineHits() {
@@ -1933,7 +1943,7 @@ public final class FileSourceDb {
        * <code>optional int32 overall_line_hits = 12;</code>
        *
        * <pre>
-       * overall testing
+       * overall tests
        * </pre>
        */
       public boolean hasOverallLineHits() {
@@ -1943,7 +1953,7 @@ public final class FileSourceDb {
        * <code>optional int32 overall_line_hits = 12;</code>
        *
        * <pre>
-       * overall testing
+       * overall tests
        * </pre>
        */
       public int getOverallLineHits() {
@@ -1953,7 +1963,7 @@ public final class FileSourceDb {
        * <code>optional int32 overall_line_hits = 12;</code>
        *
        * <pre>
-       * overall testing
+       * overall tests
        * </pre>
        */
       public Builder setOverallLineHits(int value) {
@@ -1966,7 +1976,7 @@ public final class FileSourceDb {
        * <code>optional int32 overall_line_hits = 12;</code>
        *
        * <pre>
-       * overall testing
+       * overall tests
        * </pre>
        */
       public Builder clearOverallLineHits() {
@@ -2200,26 +2210,26 @@ public final class FileSourceDb {
          }
       }
       /**
-       * <code>repeated int32 duplications = 17;</code>
+       * <code>repeated int32 duplications = 17 [packed = true];</code>
        */
       public java.util.List<java.lang.Integer>
           getDuplicationsList() {
         return java.util.Collections.unmodifiableList(duplications_);
       }
       /**
-       * <code>repeated int32 duplications = 17;</code>
+       * <code>repeated int32 duplications = 17 [packed = true];</code>
        */
       public int getDuplicationsCount() {
         return duplications_.size();
       }
       /**
-       * <code>repeated int32 duplications = 17;</code>
+       * <code>repeated int32 duplications = 17 [packed = true];</code>
        */
       public int getDuplications(int index) {
         return duplications_.get(index);
       }
       /**
-       * <code>repeated int32 duplications = 17;</code>
+       * <code>repeated int32 duplications = 17 [packed = true];</code>
        */
       public Builder setDuplications(
           int index, int value) {
@@ -2229,7 +2239,7 @@ public final class FileSourceDb {
         return this;
       }
       /**
-       * <code>repeated int32 duplications = 17;</code>
+       * <code>repeated int32 duplications = 17 [packed = true];</code>
        */
       public Builder addDuplications(int value) {
         ensureDuplicationsIsMutable();
@@ -2238,7 +2248,7 @@ public final class FileSourceDb {
         return this;
       }
       /**
-       * <code>repeated int32 duplications = 17;</code>
+       * <code>repeated int32 duplications = 17 [packed = true];</code>
        */
       public Builder addAllDuplications(
           java.lang.Iterable<? extends java.lang.Integer> values) {
@@ -2249,7 +2259,7 @@ public final class FileSourceDb {
         return this;
       }
       /**
-       * <code>repeated int32 duplications = 17;</code>
+       * <code>repeated int32 duplications = 17 [packed = true];</code>
        */
       public Builder clearDuplications() {
         duplications_ = java.util.Collections.emptyList();
@@ -2965,7 +2975,7 @@ public final class FileSourceDb {
   static {
     java.lang.String[] descriptorData = {
       "\n\024file_source_db.proto\022\032org.sonar.server" +
-      ".source.db\"\220\003\n\004Line\022\014\n\004line\030\001 \001(\005\022\016\n\006sou" +
+      ".source.db\"\224\003\n\004Line\022\014\n\004line\030\001 \001(\005\022\016\n\006sou" +
       "rce\030\002 \001(\t\022\024\n\014scm_revision\030\003 \001(\t\022\022\n\nscm_a" +
       "uthor\030\004 \001(\t\022\020\n\010scm_date\030\005 \001(\003\022\024\n\014ut_line" +
       "_hits\030\006 \001(\005\022\025\n\rut_conditions\030\007 \001(\005\022\035\n\025ut" +
@@ -2974,9 +2984,9 @@ public final class FileSourceDb {
       "ered_conditions\030\013 \001(\005\022\031\n\021overall_line_hi" +
       "ts\030\014 \001(\005\022\032\n\022overall_conditions\030\r \001(\005\022\"\n\032" +
       "overall_covered_conditions\030\016 \001(\005\022\024\n\014high",
-      "lighting\030\017 \001(\t\022\017\n\007symbols\030\020 \001(\t\022\024\n\014dupli" +
-      "cations\030\021 \003(\005\"7\n\004Data\022/\n\005lines\030\001 \003(\0132 .o" +
-      "rg.sonar.server.source.db.LineB\002H\001"
+      "lighting\030\017 \001(\t\022\017\n\007symbols\030\020 \001(\t\022\030\n\014dupli" +
+      "cations\030\021 \003(\005B\002\020\001\"7\n\004Data\022/\n\005lines\030\001 \003(\013" +
+      "2 .org.sonar.server.source.db.LineB\002H\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {

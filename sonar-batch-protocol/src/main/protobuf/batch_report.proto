@@ -51,7 +51,7 @@ message Component {
   optional ComponentType type = 4;
   optional bool is_test = 5;
   optional string language = 6;
-  repeated int32 child_refs = 7;
+  repeated int32 child_refs = 7 [packed=true];
 
   // temporary fields during development of computation stack
   optional int32 snapshot_id = 8;

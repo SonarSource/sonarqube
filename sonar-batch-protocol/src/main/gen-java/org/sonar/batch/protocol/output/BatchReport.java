@@ -714,15 +714,15 @@ public final class BatchReport {
         getLanguageBytes();
 
     /**
-     * <code>repeated int32 child_refs = 7;</code>
+     * <code>repeated int32 child_refs = 7 [packed = true];</code>
      */
     java.util.List<java.lang.Integer> getChildRefsList();
     /**
-     * <code>repeated int32 child_refs = 7;</code>
+     * <code>repeated int32 child_refs = 7 [packed = true];</code>
      */
     int getChildRefsCount();
     /**
-     * <code>repeated int32 child_refs = 7;</code>
+     * <code>repeated int32 child_refs = 7 [packed = true];</code>
      */
     int getChildRefs(int index);
 
@@ -1097,24 +1097,25 @@ public final class BatchReport {
     public static final int CHILD_REFS_FIELD_NUMBER = 7;
     private java.util.List<java.lang.Integer> childRefs_;
     /**
-     * <code>repeated int32 child_refs = 7;</code>
+     * <code>repeated int32 child_refs = 7 [packed = true];</code>
      */
     public java.util.List<java.lang.Integer>
         getChildRefsList() {
       return childRefs_;
     }
     /**
-     * <code>repeated int32 child_refs = 7;</code>
+     * <code>repeated int32 child_refs = 7 [packed = true];</code>
      */
     public int getChildRefsCount() {
       return childRefs_.size();
     }
     /**
-     * <code>repeated int32 child_refs = 7;</code>
+     * <code>repeated int32 child_refs = 7 [packed = true];</code>
      */
     public int getChildRefs(int index) {
       return childRefs_.get(index);
     }
+    private int childRefsMemoizedSerializedSize = -1;
 
     public static final int SNAPSHOT_ID_FIELD_NUMBER = 8;
     private int snapshotId_;
@@ -1223,8 +1224,12 @@ public final class BatchReport {
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
         output.writeBytes(6, getLanguageBytes());
       }
+      if (getChildRefsList().size() > 0) {
+        output.writeRawVarint32(58);
+        output.writeRawVarint32(childRefsMemoizedSerializedSize);
+      }
       for (int i = 0; i < childRefs_.size(); i++) {
-        output.writeInt32(7, childRefs_.get(i));
+        output.writeInt32NoTag(childRefs_.get(i));
       }
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
         output.writeInt32(8, snapshotId_);
@@ -1272,7 +1277,12 @@ public final class BatchReport {
             .computeInt32SizeNoTag(childRefs_.get(i));
         }
         size += dataSize;
-        size += 1 * getChildRefsList().size();
+        if (!getChildRefsList().isEmpty()) {
+          size += 1;
+          size += com.google.protobuf.CodedOutputStream
+              .computeInt32SizeNoTag(dataSize);
+        }
+        childRefsMemoizedSerializedSize = dataSize;
       }
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
         size += com.google.protobuf.CodedOutputStream
@@ -1902,26 +1912,26 @@ public final class BatchReport {
          }
       }
       /**
-       * <code>repeated int32 child_refs = 7;</code>
+       * <code>repeated int32 child_refs = 7 [packed = true];</code>
        */
       public java.util.List<java.lang.Integer>
           getChildRefsList() {
         return java.util.Collections.unmodifiableList(childRefs_);
       }
       /**
-       * <code>repeated int32 child_refs = 7;</code>
+       * <code>repeated int32 child_refs = 7 [packed = true];</code>
        */
       public int getChildRefsCount() {
         return childRefs_.size();
       }
       /**
-       * <code>repeated int32 child_refs = 7;</code>
+       * <code>repeated int32 child_refs = 7 [packed = true];</code>
        */
       public int getChildRefs(int index) {
         return childRefs_.get(index);
       }
       /**
-       * <code>repeated int32 child_refs = 7;</code>
+       * <code>repeated int32 child_refs = 7 [packed = true];</code>
        */
       public Builder setChildRefs(
           int index, int value) {
@@ -1931,7 +1941,7 @@ public final class BatchReport {
         return this;
       }
       /**
-       * <code>repeated int32 child_refs = 7;</code>
+       * <code>repeated int32 child_refs = 7 [packed = true];</code>
        */
       public Builder addChildRefs(int value) {
         ensureChildRefsIsMutable();
@@ -1940,7 +1950,7 @@ public final class BatchReport {
         return this;
       }
       /**
-       * <code>repeated int32 child_refs = 7;</code>
+       * <code>repeated int32 child_refs = 7 [packed = true];</code>
        */
       public Builder addAllChildRefs(
           java.lang.Iterable<? extends java.lang.Integer> values) {
@@ -1951,7 +1961,7 @@ public final class BatchReport {
         return this;
       }
       /**
-       * <code>repeated int32 child_refs = 7;</code>
+       * <code>repeated int32 child_refs = 7 [packed = true];</code>
        */
       public Builder clearChildRefs() {
         childRefs_ = java.util.Collections.emptyList();
@@ -6404,27 +6414,27 @@ public final class BatchReport {
       "\n\022batch_report.proto\032\017constants.proto\"R\n" +
       "\010Metadata\022\025\n\ranalysis_date\030\001 \001(\003\022\023\n\013proj" +
       "ect_key\030\002 \001(\t\022\032\n\022root_component_ref\030\003 \001(" +
-      "\005\"\254\001\n\tComponent\022\013\n\003ref\030\001 \001(\005\022\014\n\004path\030\002 \001" +
+      "\005\"\260\001\n\tComponent\022\013\n\003ref\030\001 \001(\005\022\014\n\004path\030\002 \001" +
       "(\t\022\014\n\004name\030\003 \001(\t\022\034\n\004type\030\004 \001(\0162\016.Compone" +
       "ntType\022\017\n\007is_test\030\005 \001(\010\022\020\n\010language\030\006 \001(" +
-      "\t\022\022\n\nchild_refs\030\007 \003(\005\022\023\n\013snapshot_id\030\010 \001" +
-      "(\005\022\014\n\004uuid\030\t \001(\t\"\232\004\n\005Issue\022\027\n\017rule_repos" +
-      "itory\030\001 \001(\t\022\020\n\010rule_key\030\002 \001(\t\022\014\n\004line\030\003 " +
-      "\001(\005\022\013\n\003msg\030\004 \001(\t\022\033\n\010severity\030\005 \001(\0162\t.Sev",
-      "erity\022\014\n\004tags\030\006 \003(\t\022\025\n\reffort_to_fix\030\007 \001" +
-      "(\001\022\016\n\006is_new\030\010 \001(\010\022\014\n\004uuid\030\t \001(\t\022\027\n\017debt" +
-      "_in_minutes\030\n \001(\003\022\022\n\nresolution\030\013 \001(\t\022\016\n" +
-      "\006status\030\014 \001(\t\022\020\n\010checksum\030\r \001(\t\022\027\n\017manua" +
-      "l_severity\030\016 \001(\010\022\020\n\010reporter\030\017 \001(\t\022\020\n\010as" +
-      "signee\030\020 \001(\t\022\027\n\017action_plan_key\030\021 \001(\t\022\022\n" +
-      "\nattributes\030\022 \001(\t\022\024\n\014author_login\030\023 \001(\t\022" +
-      "\025\n\rcreation_date\030\024 \001(\003\022\022\n\nclose_date\030\025 \001" +
-      "(\003\022\023\n\013update_date\030\026 \001(\003\022\023\n\013selected_at\030\027" +
-      " \001(\003\022\023\n\013diff_fields\030\030 \001(\t\022\022\n\nis_changed\030",
-      "\031 \001(\010\022\036\n\026must_send_notification\030\032 \001(\010\"5\n" +
-      "\006Issues\022\025\n\rcomponent_ref\030\001 \001(\005\022\024\n\004list\030\002" +
-      " \003(\0132\006.IssueB#\n\037org.sonar.batch.protocol" +
-      ".outputH\001"
+      "\t\022\026\n\nchild_refs\030\007 \003(\005B\002\020\001\022\023\n\013snapshot_id" +
+      "\030\010 \001(\005\022\014\n\004uuid\030\t \001(\t\"\232\004\n\005Issue\022\027\n\017rule_r" +
+      "epository\030\001 \001(\t\022\020\n\010rule_key\030\002 \001(\t\022\014\n\004lin" +
+      "e\030\003 \001(\005\022\013\n\003msg\030\004 \001(\t\022\033\n\010severity\030\005 \001(\0162\t",
+      ".Severity\022\014\n\004tags\030\006 \003(\t\022\025\n\reffort_to_fix" +
+      "\030\007 \001(\001\022\016\n\006is_new\030\010 \001(\010\022\014\n\004uuid\030\t \001(\t\022\027\n\017" +
+      "debt_in_minutes\030\n \001(\003\022\022\n\nresolution\030\013 \001(" +
+      "\t\022\016\n\006status\030\014 \001(\t\022\020\n\010checksum\030\r \001(\t\022\027\n\017m" +
+      "anual_severity\030\016 \001(\010\022\020\n\010reporter\030\017 \001(\t\022\020" +
+      "\n\010assignee\030\020 \001(\t\022\027\n\017action_plan_key\030\021 \001(" +
+      "\t\022\022\n\nattributes\030\022 \001(\t\022\024\n\014author_login\030\023 " +
+      "\001(\t\022\025\n\rcreation_date\030\024 \001(\003\022\022\n\nclose_date" +
+      "\030\025 \001(\003\022\023\n\013update_date\030\026 \001(\003\022\023\n\013selected_" +
+      "at\030\027 \001(\003\022\023\n\013diff_fields\030\030 \001(\t\022\022\n\nis_chan",
+      "ged\030\031 \001(\010\022\036\n\026must_send_notification\030\032 \001(" +
+      "\010\"5\n\006Issues\022\025\n\rcomponent_ref\030\001 \001(\005\022\024\n\004li" +
+      "st\030\002 \003(\0132\006.IssueB#\n\037org.sonar.batch.prot" +
+      "ocol.outputH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
