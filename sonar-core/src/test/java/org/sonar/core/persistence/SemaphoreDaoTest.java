@@ -35,6 +35,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class SemaphoreDaoTest extends AbstractDaoTestCase {
 
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
   private SemaphoreDao dao;
   private System2 system;
 
@@ -44,8 +46,14 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
     dao = new SemaphoreDao(getMyBatis(), system);
   }
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
+  @Test
+  public void should_fail_to_acquire_if_null_semaphore_name() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Semaphore name must not be empty");
+
+    SemaphoreDao dao = new SemaphoreDao(getMyBatis(), system);
+    dao.acquire(null, 5000);
+  }
 
   @Test
   public void should_fail_to_acquire_if_blank_semaphore_name() {
@@ -53,7 +61,7 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
     thrown.expectMessage("Semaphore name must not be empty");
 
     SemaphoreDao dao = new SemaphoreDao(getMyBatis(), system);
-    dao.acquire(null, 5000);
+    dao.acquire("", 5000);
   }
 
   @Test
@@ -109,6 +117,14 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
 
     dao.release("foo");
     assertThat(selectSemaphore("foo")).isNull();
+  }
+
+  @Test
+  public void fail_to_update_null_semaphore() throws Exception {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Semaphore must not be null");
+
+    dao.update(null);
   }
 
   @Test

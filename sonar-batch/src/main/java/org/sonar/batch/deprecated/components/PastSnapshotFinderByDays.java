@@ -28,11 +28,8 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.batch.components.PastSnapshot;
 
 import javax.annotation.CheckForNull;
-
 import java.util.Date;
 import java.util.List;
-
-import static org.sonar.api.utils.DateUtils.longToDate;
 
 public class PastSnapshotFinderByDays implements BatchExtension {
 
@@ -43,7 +40,7 @@ public class PastSnapshotFinderByDays implements BatchExtension {
   }
 
   public PastSnapshot findFromDays(Snapshot projectSnapshot, int days) {
-    Date targetDate = DateUtils.addDays(longToDate(projectSnapshot.getCreatedAtMs()), -days);
+    Date targetDate = DateUtils.addDays(projectSnapshot.getCreatedAt(), -days);
     String hql = "from " + Snapshot.class.getSimpleName() + " where resourceId=:resourceId AND status=:status AND createdAt<:date AND qualifier<>:lib order by createdAt asc";
     List<Snapshot> snapshots = session.createQuery(hql)
       .setParameter("date", projectSnapshot.getCreatedAtMs())
@@ -67,7 +64,7 @@ public class PastSnapshotFinderByDays implements BatchExtension {
     long bestDistance = Long.MAX_VALUE;
     Snapshot nearest = null;
     for (Snapshot snapshot : snapshots) {
-      long distance = distance(longToDate(snapshot.getCreatedAtMs()), targetDate);
+      long distance = distance(snapshot.getCreatedAt(), targetDate);
       if (distance <= bestDistance) {
         bestDistance = distance;
         nearest = snapshot;
