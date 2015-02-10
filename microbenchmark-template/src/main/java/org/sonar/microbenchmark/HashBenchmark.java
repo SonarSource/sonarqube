@@ -58,8 +58,12 @@ public class HashBenchmark {
   @Param({"1", "100", "1000", "10000", "100000", "1000000"})
   public int size;
 
-  XXHash32 xxHash32 = XXHashFactory.fastestInstance().hash32();
-  XXHash64 xxHash64 = XXHashFactory.fastestInstance().hash64();
+  XXHash32 xxHash32Jni = XXHashFactory.fastestInstance().hash32();
+  XXHash64 xxHash64Jni = XXHashFactory.fastestInstance().hash64();
+  XXHash32 xxHash32Unsafe = XXHashFactory.fastestJavaInstance().hash32();
+  XXHash64 xxHash64Unsafe = XXHashFactory.fastestJavaInstance().hash64();
+  XXHash32 xxHash32 = XXHashFactory.safeInstance().hash32();
+  XXHash64 xxHash64 = XXHashFactory.safeInstance().hash64();
 
   byte[] bytes;
 
@@ -86,10 +90,38 @@ public class HashBenchmark {
   }
 
   @Benchmark
+  public int xxhash32Jni() throws Exception {
+    int seed = 0x9747b28c; // used to initialize the hash value, use whatever
+    // value you want, but always the same
+    return xxHash32Jni.hash(bytes, 0, bytes.length, seed);
+  }
+
+  @Benchmark
+  public int xxhash32Unsafe() throws Exception {
+    int seed = 0x9747b28c; // used to initialize the hash value, use whatever
+    // value you want, but always the same
+    return xxHash32Unsafe.hash(bytes, 0, bytes.length, seed);
+  }
+
+  @Benchmark
   public long xxhash64() throws Exception {
     int seed = 0x9747b28c; // used to initialize the hash value, use whatever
     // value you want, but always the same
     return xxHash64.hash(bytes, 0, bytes.length, seed);
+  }
+
+  @Benchmark
+  public long xxhash64Jni() throws Exception {
+    int seed = 0x9747b28c; // used to initialize the hash value, use whatever
+    // value you want, but always the same
+    return xxHash64Jni.hash(bytes, 0, bytes.length, seed);
+  }
+
+  @Benchmark
+  public long xxhash64Unsafe() throws Exception {
+    int seed = 0x9747b28c; // used to initialize the hash value, use whatever
+    // value you want, but always the same
+    return xxHash64Unsafe.hash(bytes, 0, bytes.length, seed);
   }
 
   /**
