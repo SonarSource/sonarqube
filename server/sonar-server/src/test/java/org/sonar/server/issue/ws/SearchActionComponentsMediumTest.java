@@ -342,7 +342,7 @@ public class SearchActionComponentsMediumTest {
     tester.get(IssueIndexer.class).indexAll();
 
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
-      .setParam(IssueFilterParameters.COMPONENT_UUIDS, project.uuid())
+      .setParam(IssueFilterParameters.COMPONENT_UUIDS, module.uuid())
       .setParam(IssueFilterParameters.MODULE_UUIDS, subModule1.uuid() + "," + subModule3.uuid())
       .setParam(WebService.Param.FACETS, "moduleUuids")
       .execute()
