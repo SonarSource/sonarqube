@@ -123,7 +123,7 @@ public class NewIndex {
   public static class StringFieldBuilder {
     private final NewIndexType indexType;
     private final String fieldName;
-    private boolean sortable = false, wordSearch = false, gramSearch = false, docValues = false;
+    private boolean sortable = false, wordSearch = false, gramSearch = false, docValues = false, disableSearch = false;
 
     private StringFieldBuilder(NewIndexType indexType, String fieldName) {
       this.indexType = indexType;
@@ -159,12 +159,22 @@ public class NewIndex {
       return this;
     }
 
+    /**
+     * "index: no" -> Don’t index this field at all. This field will not be searchable.
+     * By default field is "not_analyzed": it is searchable, but index the value exactly
+     * as specified.
+     */
+    public StringFieldBuilder disableSearch() {
+      this.disableSearch = true;
+      return this;
+    }
+
     public void build() {
       validate();
-      Map<String, Object> hash = new TreeMap<String, Object>();
+      Map<String, Object> hash = new TreeMap<>();
       if (wordSearch || sortable || gramSearch) {
         hash.put("type", "multi_field");
-        Map<String, Object> multiFields = new TreeMap<String, Object>();
+        Map<String, Object> multiFields = new TreeMap<>();
 
         if (sortable) {
           multiFields.put(IndexField.SORT_SUFFIX, ImmutableSortedMap.of(
@@ -195,7 +205,7 @@ public class NewIndex {
       } else {
         hash.putAll(ImmutableMap.of(
           "type", "string",
-          "index", "not_analyzed",
+          "index", disableSearch ? "no" : "not_analyzed",
           "omit_norms", "true",
           "doc_values", docValues));
       }
@@ -205,7 +215,10 @@ public class NewIndex {
 
     private void validate() {
       if (docValues && (gramSearch || wordSearch || sortable)) {
-        throw new IllegalStateException("Doc values are not supported on analyzed strings");
+        throw new IllegalStateException("Doc values are not supported on analyzed strings of field: " + fieldName);
+      }
+      if (disableSearch && (gramSearch || wordSearch || sortable)) {
+        throw new IllegalStateException("Can't mix searchable and non-searchable arguments on field: " + fieldName);
       }
     }
   }

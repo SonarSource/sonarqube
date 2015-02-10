@@ -114,7 +114,7 @@ public class IssueIndexDefinition implements IndexDefinition {
     issueMapping.setAttribute("_routing", ImmutableMap.of("required", true, "path", FIELD_ISSUE_PROJECT_UUID));
     issueMapping.stringFieldBuilder(FIELD_ISSUE_ACTION_PLAN).build();
     issueMapping.stringFieldBuilder(FIELD_ISSUE_ASSIGNEE).enableSorting().build();
-    issueMapping.stringFieldBuilder(FIELD_ISSUE_ATTRIBUTES).build();
+    issueMapping.stringFieldBuilder(FIELD_ISSUE_ATTRIBUTES).disableSearch().build();
     issueMapping.stringFieldBuilder(FIELD_ISSUE_AUTHOR_LOGIN).build();
     issueMapping.stringFieldBuilder(FIELD_ISSUE_COMPONENT_UUID).build();
     issueMapping.createLongField(FIELD_ISSUE_DEBT);
