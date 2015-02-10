@@ -32,6 +32,8 @@ import org.sonar.jpa.entity.ManualMeasure;
 
 import java.util.List;
 
+import static com.google.common.base.Preconditions.checkState;
+
 @Phase(name = Phase.Name.PRE)
 public class ManualMeasureDecorator implements Decorator {
 
@@ -60,9 +62,8 @@ public class ManualMeasureDecorator implements Decorator {
 
   private Measure copy(ManualMeasure manualMeasure) {
     Metric metric = metricFinder.findById(manualMeasure.getMetricId());
-    if (metric == null) {
-      throw new IllegalStateException("Unable to find manual metric with id: " + manualMeasure.getMetricId());
-    }
+    checkState(metric != null, "Unable to find manual metric with id: " + manualMeasure.getMetricId());
+
     Measure measure = new Measure(metric);
     measure.setValue(manualMeasure.getValue(), 5);
     measure.setData(manualMeasure.getTextValue());

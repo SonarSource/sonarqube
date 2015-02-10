@@ -61,7 +61,7 @@ class ManualMeasure < ActiveRecord::Base
     if snapshot.nil?
       snapshot=resource.last_snapshot
     end
-    snapshot && updated_at && snapshot.created_at<updated_at
+    snapshot && updated_at && snapshot.created_at<Time.at(updated_at/1000)
   end
 
   def formatted_value

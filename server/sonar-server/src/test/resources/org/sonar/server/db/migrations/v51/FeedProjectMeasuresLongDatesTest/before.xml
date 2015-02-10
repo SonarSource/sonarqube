@@ -1,0 +1,22 @@
+<dataset>
+  <!-- new migration -->
+  <project_measures
+      id="1"
+      measure_date="2014-09-25"
+      measure_date_ms="[null]"
+      />
+
+  <!-- re-entrant migration - ignore the ones that are already fed with new dates -->
+  <project_measures
+      id="2"
+      measure_date="2014-09-25"
+      measure_date_ms="1500000000"
+      />
+
+  <!-- NULL dates -->
+  <project_measures
+      id="3"
+      measure_date="[null]"
+      measure_date_ms="[null]"
+      />
+</dataset>
