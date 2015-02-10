@@ -25,7 +25,6 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 
 import java.io.File;
-import java.nio.file.Paths;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -71,7 +70,7 @@ public class DefaultInputFileTest {
 
   @Test
   public void test_toString() throws Exception {
-    DefaultInputFile file = new DefaultInputFile("ABCDE", "src/Foo.php").setModuleBaseDir(Paths.get("/path/to/"));
-    assertThat(file.toString()).isEqualTo("[moduleKey=ABCDE, relative=src/Foo.php, basedir=/path/to]");
+    DefaultInputFile file = new DefaultInputFile("ABCDE", "src/Foo.php");
+    assertThat(file.toString()).isEqualTo("[moduleKey=ABCDE, relative=src/Foo.php, basedir=null]");
   }
 }
