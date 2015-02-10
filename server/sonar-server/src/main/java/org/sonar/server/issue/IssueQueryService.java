@@ -39,7 +39,6 @@ import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.component.ComponentService;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.issue.IssueQuery.Builder;
 import org.sonar.server.issue.filter.IssueFilterParameters;
 import org.sonar.server.search.ws.SearchRequestHandler;
 import org.sonar.server.user.UserSession;
@@ -93,7 +92,8 @@ public class IssueQueryService implements ServerComponent {
         .createdBefore(RubyUtils.toDate(params.get(IssueFilterParameters.CREATED_BEFORE)));
 
       Set<String> allComponentUuids = Sets.newHashSet();
-      boolean effectiveOnComponentOnly = mergeComponentParameters(session, RubyUtils.toBoolean(params.get(IssueFilterParameters.ON_COMPONENT_ONLY)),
+      boolean effectiveOnComponentOnly = mergeDeprecatedComponentParameters(session,
+        RubyUtils.toBoolean(params.get(IssueFilterParameters.ON_COMPONENT_ONLY)),
         RubyUtils.toStrings(params.get(IssueFilterParameters.COMPONENTS)),
         RubyUtils.toStrings(params.get(IssueFilterParameters.COMPONENT_UUIDS)),
         RubyUtils.toStrings(params.get(IssueFilterParameters.COMPONENT_KEYS)),
@@ -155,7 +155,8 @@ public class IssueQueryService implements ServerComponent {
         .ignorePaging(request.paramAsBoolean(IssueFilterParameters.IGNORE_PAGING));
 
       Set<String> allComponentUuids = Sets.newHashSet();
-      boolean effectiveOnComponentOnly = mergeComponentParameters(session, request.paramAsBoolean(IssueFilterParameters.ON_COMPONENT_ONLY),
+      boolean effectiveOnComponentOnly = mergeDeprecatedComponentParameters(session,
+        request.paramAsBoolean(IssueFilterParameters.ON_COMPONENT_ONLY),
         request.paramAsStrings(IssueFilterParameters.COMPONENTS),
         request.paramAsStrings(IssueFilterParameters.COMPONENT_UUIDS),
         request.paramAsStrings(IssueFilterParameters.COMPONENT_KEYS),
@@ -184,7 +185,7 @@ public class IssueQueryService implements ServerComponent {
     }
   }
 
-  private boolean mergeComponentParameters(DbSession session, Boolean onComponentOnly,
+  private boolean mergeDeprecatedComponentParameters(DbSession session, Boolean onComponentOnly,
     @Nullable Collection<String> components,
     @Nullable Collection<String> componentUuids,
     @Nullable Collection<String> componentKeys,
@@ -193,7 +194,9 @@ public class IssueQueryService implements ServerComponent {
     Set<String> allComponentUuids) {
     boolean effectiveOnComponentOnly = false;
 
-    failOnIncompatibleParameters(components, componentUuids, componentKeys, componentRootUuids, componentRoots);
+    failIfBothParametersSet(componentRootUuids, componentRoots, "componentRoots and componentRootUuids cannot be set simultaneously");
+    failIfBothParametersSet(componentUuids, components, "components and componentUuids cannot be set simultaneously");
+    failIfBothParametersSet(componentKeys, componentUuids, "componentKeys and componentUuids cannot be set simultaneously");
 
     if (componentRootUuids != null) {
       allComponentUuids.addAll(componentRootUuids);
@@ -214,17 +217,6 @@ public class IssueQueryService implements ServerComponent {
     return effectiveOnComponentOnly;
   }
 
-  protected void failOnIncompatibleParameters(
-    @Nullable Collection<String> components,
-    @Nullable Collection<String> componentUuids,
-    @Nullable Collection<String> componentKeys,
-    @Nullable Collection<String> componentRootUuids,
-    @Nullable Collection<String> componentRoots) {
-    failIfBothParametersSet(componentRootUuids, componentRoots, "componentRoots and componentRootUuids cannot be set simultaneously");
-    failIfBothParametersSet(componentUuids, components, "components and componentUuids cannot be set simultaneously");
-    failIfBothParametersSet(componentKeys, componentUuids, "componentKeys and componentUuids cannot be set simultaneously");
-  }
-
   private void failIfBothParametersSet(@Nullable Collection<String> uuids, @Nullable Collection<String> keys, String message) {
     if (uuids != null && keys != null) {
       throw new IllegalArgumentException(message);
@@ -232,38 +224,53 @@ public class IssueQueryService implements ServerComponent {
   }
 
   private void addComponentParameters(IssueQuery.Builder builder, DbSession session,
-    boolean effectiveOnComponentOnly,
-    Collection<String> allComponentUuids,
+    boolean onComponentOnly,
+    Collection<String> componentUuids,
     @Nullable Collection<String> projectUuids, @Nullable Collection<String> projects,
     @Nullable Collection<String> moduleUuids,
     @Nullable Collection<String> directories,
     @Nullable Collection<String> fileUuids,
     @Nullable Collection<String> authors) {
 
-    builder.onComponentOnly(effectiveOnComponentOnly);
+    builder.onComponentOnly(onComponentOnly);
+    if (onComponentOnly) {
+      builder.componentUuids(componentUuids);
+      return;
+    }
 
-    if (allComponentUuids.isEmpty()) {
-      addComponentsBelowView(builder, session, authors, projects, projectUuids, moduleUuids, directories, fileUuids);
+    builder.authors(authors);
+    failIfBothParametersSet(projectUuids, projects, "projects and projectUuids cannot be set simultaneously");
+    if (projectUuids != null) {
+      builder.projectUuids(projectUuids);
     } else {
-      if (effectiveOnComponentOnly) {
-        builder.componentUuids(allComponentUuids);
-        return;
-      }
+      builder.projectUuids(componentUuids(session, projects));
+    }
+    builder.moduleUuids(moduleUuids);
+    builder.directories(directories);
+    builder.fileUuids(fileUuids);
 
-      Set<String> qualifiers = componentService.getDistinctQualifiers(session, allComponentUuids);
-      if (qualifiers.isEmpty()) {
-        // Qualifier not found, defaulting to componentUuids (e.g <UNKNOWN>)
-        builder.componentUuids(allComponentUuids);
-        return;
-      }
-      if (qualifiers.size() > 1) {
-        throw new IllegalArgumentException("All components must have the same qualifier, found " + Joiner.on(',').join(qualifiers));
-      }
+    if (!componentUuids.isEmpty()) {
+      addComponentsBasedOnQualifier(builder, session, componentUuids, authors);
+    }
+  }
 
-      String uniqueQualifier = qualifiers.iterator().next();
-      if (Qualifiers.VIEW.equals(uniqueQualifier) || Qualifiers.SUBVIEW.equals(uniqueQualifier)) {
+  protected void addComponentsBasedOnQualifier(IssueQuery.Builder builder, DbSession session, Collection<String> componentUuids, Collection<String> authors) {
+    Set<String> qualifiers = componentService.getDistinctQualifiers(session, componentUuids);
+    if (qualifiers.isEmpty()) {
+      // Qualifier not found, defaulting to componentUuids (e.g <UNKNOWN>)
+      builder.componentUuids(componentUuids);
+      return;
+    }
+    if (qualifiers.size() > 1) {
+      throw new IllegalArgumentException("All components must have the same qualifier, found " + Joiner.on(',').join(qualifiers));
+    }
+
+    String uniqueQualifier = qualifiers.iterator().next();
+    switch(uniqueQualifier) {
+      case Qualifiers.VIEW:
+      case Qualifiers.SUBVIEW:
         List<String> filteredViewUuids = newArrayList();
-        for (String viewUuid : allComponentUuids) {
+        for (String viewUuid : componentUuids) {
           if ((Qualifiers.VIEW.equals(uniqueQualifier) && UserSession.get().hasProjectPermissionByUuid(UserRole.USER, viewUuid))
             || (Qualifiers.SUBVIEW.equals(uniqueQualifier) && UserSession.get().hasComponentUuidPermission(UserRole.USER, viewUuid))) {
             filteredViewUuids.add(viewUuid);
@@ -273,66 +280,35 @@ public class IssueQueryService implements ServerComponent {
           filteredViewUuids.add(UNKNOWN);
         }
         builder.viewUuids(filteredViewUuids);
-        addComponentsBelowView(builder, session, authors, projects, projectUuids, moduleUuids, directories, fileUuids);
-      } else if ("DEV".equals(uniqueQualifier)) {
+        break;
+      case "DEV":
         // XXX No constant for developer !!!
-        Collection<String> actualAuthors = authors == null ? dbClient.authorDao().selectScmAccountsByDeveloperUuids(session, allComponentUuids) : authors;
-        addComponentsBelowView(builder, session, actualAuthors, projects, projectUuids, moduleUuids, directories, fileUuids);
-      } else if (Qualifiers.PROJECT.equals(uniqueQualifier)) {
-        builder.projectUuids(allComponentUuids);
-        addComponentsBelowModule(builder, moduleUuids, directories, fileUuids);
-      } else if (Qualifiers.MODULE.equals(uniqueQualifier)) {
-        builder.moduleRootUuids(allComponentUuids);
-        addComponentsBelowModule(builder, moduleUuids, directories, fileUuids);
-      } else if (Qualifiers.DIRECTORY.equals(uniqueQualifier)) {
+        Collection<String> actualAuthors = authors == null ? dbClient.authorDao().selectScmAccountsByDeveloperUuids(session, componentUuids) : authors;
+        builder.authors(actualAuthors);
+        break;
+      case Qualifiers.PROJECT:
+        builder.projectUuids(componentUuids);
+        break;
+      case Qualifiers.MODULE:
+        builder.moduleRootUuids(componentUuids);
+        break;
+      case Qualifiers.DIRECTORY:
         Collection<String> directoryModuleUuids = Sets.newHashSet();
         Collection<String> directoryPaths = Sets.newHashSet();
-        for (ComponentDto directory : componentService.getByUuids(session, allComponentUuids)) {
+        for (ComponentDto directory : componentService.getByUuids(session, componentUuids)) {
           directoryModuleUuids.add(directory.moduleUuid());
           directoryPaths.add(directory.path());
         }
         builder.moduleUuids(directoryModuleUuids);
         builder.directories(directoryPaths);
-        addComponentsBelowDirectory(builder, fileUuids);
-      } else if (Qualifiers.FILE.equals(uniqueQualifier) || Qualifiers.UNIT_TEST_FILE.equals(uniqueQualifier)) {
-        builder.fileUuids(allComponentUuids);
-      } else {
-        throw new IllegalArgumentException("Unable to set search root context for components " + Joiner.on(',').join(allComponentUuids));
-      }
+        break;
+      case Qualifiers.FILE:
+      case Qualifiers.UNIT_TEST_FILE:
+        builder.fileUuids(componentUuids);
+        break;
+      default:
+        throw new IllegalArgumentException("Unable to set search root context for components " + Joiner.on(',').join(componentUuids));
     }
-  }
-
-  private void addComponentsBelowView(Builder builder, DbSession session, @Nullable Collection<String> authors,
-    @Nullable Collection<String> projects, @Nullable Collection<String> projectUuids,
-    @Nullable Collection<String> moduleUuids, Collection<String> directories, Collection<String> fileUuids) {
-
-    builder.authors(authors);
-
-    failIfBothParametersSet(projectUuids, projects, "projects and projectUuids cannot be set simultaneously");
-
-    if (projectUuids != null) {
-      builder.projectUuids(projectUuids);
-    } else {
-      builder.projectUuids(componentUuids(session, projects));
-    }
-    addComponentsBelowModule(builder, moduleUuids, directories, fileUuids);
-  }
-
-  private void addComponentsBelowModule(Builder builder,
-    @Nullable Collection<String> moduleUuids, @Nullable Collection<String> directories, @Nullable Collection<String> fileUuids) {
-    builder.moduleUuids(moduleUuids);
-    addComponentsBelowModule(builder, directories, fileUuids);
-  }
-
-  private void addComponentsBelowModule(Builder builder,
-    @Nullable Collection<String> directories, @Nullable Collection<String> fileUuids) {
-    builder.directories(directories);
-    addComponentsBelowDirectory(builder, fileUuids);
-  }
-
-  private void addComponentsBelowDirectory(Builder builder,
-    @Nullable Collection<String> fileUuids) {
-    builder.fileUuids(fileUuids);
   }
 
   private Collection<String> componentUuids(DbSession session, @Nullable Collection<String> componentKeys) {
