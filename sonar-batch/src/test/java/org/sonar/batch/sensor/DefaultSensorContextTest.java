@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.measure.MetricFinder;
@@ -42,6 +43,9 @@ import static org.mockito.Mockito.when;
 public class DefaultSensorContextTest {
 
   @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
+  @Rule
   public ExpectedException thrown = ExpectedException.none();
 
   private ActiveRules activeRules;
@@ -52,9 +56,9 @@ public class DefaultSensorContextTest {
   private AnalysisMode analysisMode;
 
   @Before
-  public void prepare() {
+  public void prepare() throws Exception {
     activeRules = new ActiveRulesBuilder().build();
-    fs = new DefaultFileSystem();
+    fs = new DefaultFileSystem(temp.newFolder());
     MetricFinder metricFinder = mock(MetricFinder.class);
     when(metricFinder.findByKey(CoreMetrics.NCLOC_KEY)).thenReturn(CoreMetrics.NCLOC);
     when(metricFinder.findByKey(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION_KEY)).thenReturn(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION);

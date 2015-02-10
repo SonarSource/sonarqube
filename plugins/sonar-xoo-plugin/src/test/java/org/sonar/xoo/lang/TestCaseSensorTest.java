@@ -56,7 +56,7 @@ public class TestCaseSensorTest {
   public void prepare() throws IOException {
     baseDir = temp.newFolder();
     sensor = new TestCaseSensor();
-    fileSystem = new DefaultFileSystem();
+    fileSystem = new DefaultFileSystem(baseDir);
     when(context.fileSystem()).thenReturn(fileSystem);
   }
 

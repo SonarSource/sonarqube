@@ -149,4 +149,17 @@ public interface FileSystem extends BatchComponent {
    * @since 5.0
    */
   File resolvePath(String path);
+
+  /**
+   * Interface of the underlying file index.
+   */
+  public static interface Index {
+    Iterable<InputFile> inputFiles();
+
+    @CheckForNull
+    InputFile inputFile(String relativePath);
+
+    @CheckForNull
+    InputDir inputDir(String relativePath);
+  }
 }

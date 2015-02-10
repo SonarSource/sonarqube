@@ -19,7 +19,9 @@
  */
 package org.sonar.xoo.rule;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -34,6 +36,8 @@ import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
 import org.sonar.api.config.Settings;
 import org.sonar.xoo.Xoo;
 
+import java.io.IOException;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -41,6 +45,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class OneIssuePerLineSensorTest {
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
   private OneIssuePerLineSensor sensor = new OneIssuePerLineSensor();
 
@@ -52,8 +59,8 @@ public class OneIssuePerLineSensorTest {
   }
 
   @Test
-  public void testRule() {
-    DefaultFileSystem fs = new DefaultFileSystem();
+  public void testRule() throws IOException {
+    DefaultFileSystem fs = new DefaultFileSystem(temp.newFolder());
     DefaultInputFile inputFile = new DefaultInputFile("foo", "src/Foo.xoo").setLanguage(Xoo.KEY).setLines(10);
     fs.add(inputFile);
 
@@ -76,8 +83,8 @@ public class OneIssuePerLineSensorTest {
   }
 
   @Test
-  public void testForceSeverity() {
-    DefaultFileSystem fs = new DefaultFileSystem();
+  public void testForceSeverity() throws IOException {
+    DefaultFileSystem fs = new DefaultFileSystem(temp.newFolder());
     DefaultInputFile inputFile = new DefaultInputFile("foo", "src/Foo.xoo").setLanguage(Xoo.KEY).setLines(10);
     fs.add(inputFile);
 

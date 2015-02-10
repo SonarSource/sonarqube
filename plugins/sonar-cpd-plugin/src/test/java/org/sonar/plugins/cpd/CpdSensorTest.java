@@ -20,7 +20,9 @@
 package org.sonar.plugins.cpd;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
@@ -28,10 +30,15 @@ import org.sonar.api.resources.Java;
 import org.sonar.batch.duplication.BlockCache;
 import org.sonar.plugins.cpd.index.IndexFactory;
 
+import java.io.IOException;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class CpdSensorTest {
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
   JavaCpdEngine sonarEngine;
   DefaultCpdEngine sonarBridgeEngine;
@@ -39,13 +46,13 @@ public class CpdSensorTest {
   Settings settings;
 
   @Before
-  public void setUp() {
+  public void setUp() throws IOException {
     IndexFactory indexFactory = mock(IndexFactory.class);
     sonarEngine = new JavaCpdEngine(indexFactory, null, null);
     sonarBridgeEngine = new DefaultCpdEngine(indexFactory, new CpdMappings(), null, null, mock(BlockCache.class));
     settings = new Settings(new PropertyDefinitions(CpdPlugin.class));
 
-    DefaultFileSystem fs = new DefaultFileSystem();
+    DefaultFileSystem fs = new DefaultFileSystem(temp.newFolder());
     sensor = new CpdSensor(sonarEngine, sonarBridgeEngine, settings, fs);
   }
 

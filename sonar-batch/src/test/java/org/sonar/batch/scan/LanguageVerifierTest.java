@@ -19,9 +19,11 @@
  */
 package org.sonar.batch.scan;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Java;
@@ -34,12 +36,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class LanguageVerifierTest {
 
-  Settings settings = new Settings();
-  LanguagesReferential languages = new DefaultLanguagesReferential(new Languages(Java.INSTANCE));
-  DefaultFileSystem fs = new DefaultFileSystem();
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
+
+  private Settings settings = new Settings();
+  private LanguagesReferential languages = new DefaultLanguagesReferential(new Languages(Java.INSTANCE));
+  private DefaultFileSystem fs;
+
+  @Before
+  public void prepare() throws Exception {
+    fs = new DefaultFileSystem(temp.newFolder());
+  }
 
   @Test
   public void language_is_not_set() throws Exception {

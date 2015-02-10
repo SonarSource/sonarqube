@@ -19,23 +19,46 @@
  */
 package org.sonar.api.batch.fs.internal;
 
-import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.AbstractFilePredicate;
+import org.sonar.api.batch.fs.FileSystem.Index;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.PathUtils;
+
+import java.io.File;
+import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * @since 4.2
  */
-class AbsolutePathPredicate implements FilePredicate {
+class AbsolutePathPredicate extends AbstractFilePredicate {
 
   private final String path;
+  private final File baseDir;
 
-  AbsolutePathPredicate(String path) {
+  AbsolutePathPredicate(String path, File baseDir) {
+    this.baseDir = baseDir;
     this.path = PathUtils.sanitize(path);
   }
 
   @Override
   public boolean apply(InputFile f) {
     return path.equals(f.absolutePath());
+  }
+
+  @Override
+  public Iterable<InputFile> get(Index index) {
+    String relative = PathUtils.sanitize(new PathResolver().relativePath(baseDir, new File(path)));
+    if (relative == null) {
+      return Collections.<InputFile>emptyList();
+    }
+    InputFile f = index.inputFile(relative);
+    return f != null ? Arrays.asList(f) : Collections.<InputFile>emptyList();
+  }
+
+  @Override
+  public int priority() {
+    return USE_INDEX;
   }
 }

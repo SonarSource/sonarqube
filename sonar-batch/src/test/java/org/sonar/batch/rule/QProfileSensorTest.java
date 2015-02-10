@@ -19,7 +19,10 @@
  */
 package org.sonar.batch.rule;
 
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.measures.CoreMetrics;
@@ -32,9 +35,14 @@ import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class QProfileSensorTest {
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
   static final Date DATE = UtcDateUtils.parseDateTime("2014-01-15T12:00:00+0000");
   static final QProfile JAVA_PROFILE = new QProfile().setKey("java-two").setName("Java Two").setLanguage("java")
@@ -45,7 +53,12 @@ public class QProfileSensorTest {
   ModuleQProfiles moduleQProfiles = mock(ModuleQProfiles.class);
   Project project = mock(Project.class);
   SensorContext sensorContext = mock(SensorContext.class);
-  DefaultFileSystem fs = new DefaultFileSystem();
+  DefaultFileSystem fs;
+
+  @Before
+  public void prepare() throws Exception {
+    fs = new DefaultFileSystem(temp.newFolder());
+  }
 
   @Test
   public void to_string() throws Exception {

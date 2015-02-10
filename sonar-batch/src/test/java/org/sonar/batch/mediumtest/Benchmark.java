@@ -17,24 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.fs.internal;
+package org.sonar.batch.mediumtest;
 
-import org.sonar.api.batch.fs.AbstractFilePredicate;
+import org.hamcrest.Matchers;
+import org.junit.rules.ErrorCollector;
+import org.slf4j.LoggerFactory;
 
-import org.sonar.api.batch.fs.InputFile;
+public class Benchmark extends ErrorCollector {
 
-/**
- * @since 4.2
- */
-class LanguagePredicate extends AbstractFilePredicate {
-  private final String language;
+  private static final boolean ENABLED = "true".equals(System.getProperty("enableBenchmarkAssertions"));
 
-  LanguagePredicate(String language) {
-    this.language = language;
+  static {
+    if (ENABLED) {
+      LoggerFactory.getLogger(Benchmark.class).warn("Assertions are calibrated for SonarSource dedicated box. " +
+        "They can be disabled by setting the property -DenableBenchmarkAssertions=false.");
+    }
   }
 
-  @Override
-  public boolean apply(InputFile f) {
-    return language.equals(f.language());
+  public void expectBetween(String label, long val, long min, long max) {
+    if (ENABLED) {
+      checkThat(label, val, Matchers.allOf(Matchers.greaterThan(min), Matchers.lessThan(max)));
+    }
   }
+
+  public void expectLessThanOrEqualTo(String label, long val, long max) {
+    if (ENABLED) {
+      checkThat(label, val, Matchers.lessThan(max));
+    }
+  }
+
 }

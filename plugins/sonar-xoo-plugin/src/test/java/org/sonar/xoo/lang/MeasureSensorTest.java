@@ -65,7 +65,7 @@ public class MeasureSensorTest {
     baseDir = temp.newFolder();
     metricFinder = mock(MetricFinder.class);
     sensor = new MeasureSensor(metricFinder);
-    fileSystem = new DefaultFileSystem();
+    fileSystem = new DefaultFileSystem(baseDir);
     when(context.fileSystem()).thenReturn(fileSystem);
     storage = mock(SensorStorage.class);
     when(context.newMeasure()).then(new Answer<DefaultMeasure>() {

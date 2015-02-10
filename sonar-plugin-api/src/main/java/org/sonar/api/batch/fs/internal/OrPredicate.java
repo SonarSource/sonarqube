@@ -19,25 +19,41 @@
  */
 package org.sonar.api.batch.fs.internal;
 
+import com.google.common.annotations.VisibleForTesting;
+import org.sonar.api.batch.fs.AbstractFilePredicate;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
  * @since 4.2
  */
-class OrPredicate implements FilePredicate {
+class OrPredicate extends AbstractFilePredicate {
 
-  private final Collection<FilePredicate> predicates;
+  private final Collection<FilePredicate> predicates = new ArrayList<>();
 
-  OrPredicate(Collection<FilePredicate> predicates) {
+  private OrPredicate() {
+  }
+
+  public static FilePredicate create(Collection<FilePredicate> predicates) {
     if (predicates.isEmpty()) {
-      this.predicates = Arrays.asList(TruePredicate.TRUE);
-    } else {
-      this.predicates = predicates;
+      return TruePredicate.TRUE;
     }
+    OrPredicate result = new OrPredicate();
+    for (FilePredicate filePredicate : predicates) {
+      if (filePredicate == TruePredicate.TRUE) {
+        return TruePredicate.TRUE;
+      } else if (filePredicate == FalsePredicate.FALSE) {
+        continue;
+      } else if (filePredicate instanceof OrPredicate) {
+        result.predicates.addAll(((OrPredicate) filePredicate).predicates);
+      } else {
+        result.predicates.add(filePredicate);
+      }
+    }
+    return result;
   }
 
   @Override
@@ -48,6 +64,11 @@ class OrPredicate implements FilePredicate {
       }
     }
     return false;
+  }
+
+  @VisibleForTesting
+  Collection<FilePredicate> predicates() {
+    return predicates;
   }
 
 }

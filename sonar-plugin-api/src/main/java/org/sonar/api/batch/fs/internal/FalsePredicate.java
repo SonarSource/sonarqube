@@ -19,15 +19,29 @@
  */
 package org.sonar.api.batch.fs.internal;
 
+import org.sonar.api.batch.fs.AbstractFilePredicate;
 import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.FileSystem.Index;
 import org.sonar.api.batch.fs.InputFile;
 
-class FalsePredicate implements FilePredicate {
+import java.util.Collections;
+
+class FalsePredicate extends AbstractFilePredicate {
 
   static final FilePredicate FALSE = new FalsePredicate();
 
   @Override
   public boolean apply(InputFile inputFile) {
     return false;
+  }
+
+  @Override
+  public Iterable<InputFile> filter(Iterable<InputFile> target) {
+    return Collections.emptyList();
+  }
+
+  @Override
+  public Iterable<InputFile> get(Index index) {
+    return Collections.emptyList();
   }
 }

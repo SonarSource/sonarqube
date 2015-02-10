@@ -57,7 +57,7 @@ public class XooBlameCommandTest {
   @Before
   public void prepare() throws IOException {
     baseDir = temp.newFolder();
-    fs = new DefaultFileSystem();
+    fs = new DefaultFileSystem(baseDir);
     input = mock(BlameInput.class);
     when(input.fileSystem()).thenReturn(fs);
   }

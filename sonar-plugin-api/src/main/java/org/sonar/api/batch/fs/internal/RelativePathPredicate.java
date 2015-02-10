@@ -19,14 +19,18 @@
  */
 package org.sonar.api.batch.fs.internal;
 
-import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.AbstractFilePredicate;
+import org.sonar.api.batch.fs.FileSystem.Index;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.utils.PathUtils;
+
+import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * @since 4.2
  */
-public class RelativePathPredicate implements FilePredicate {
+public class RelativePathPredicate extends AbstractFilePredicate {
 
   private final String path;
 
@@ -41,6 +45,17 @@ public class RelativePathPredicate implements FilePredicate {
   @Override
   public boolean apply(InputFile f) {
     return path.equals(f.relativePath());
+  }
+
+  @Override
+  public Iterable<InputFile> get(Index index) {
+    InputFile f = index.inputFile(this.path);
+    return f != null ? Arrays.asList(f) : Collections.<InputFile>emptyList();
+  }
+
+  @Override
+  public int priority() {
+    return USE_INDEX;
   }
 
 }

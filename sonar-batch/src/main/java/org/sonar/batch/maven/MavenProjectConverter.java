@@ -36,7 +36,6 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.maven.MavenUtils;
 import org.sonar.api.task.TaskExtension;
 import org.sonar.api.utils.MessageException;
-import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.java.api.JavaUtils;
 
 import javax.annotation.Nullable;
@@ -217,15 +216,6 @@ public class MavenProjectConverter implements TaskExtension {
 
   private static File getBuildDir(MavenProject pom) {
     return resolvePath(pom.getBuild().getDirectory(), pom.getBasedir());
-  }
-
-  public void synchronizeFileSystem(MavenProject pom, DefaultModuleFileSystem into) {
-    into.resetDirs(
-      pom.getBasedir(),
-      getBuildDir(pom),
-      mainDirs(pom),
-      testDirs(pom),
-      Arrays.asList(resolvePath(pom.getBuild().getOutputDirectory(), pom.getBasedir())));
   }
 
   static File resolvePath(@Nullable String path, File basedir) {

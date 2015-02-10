@@ -65,13 +65,14 @@ public class IssueExclusionsLoaderTest {
   @Mock
   private PatternMatcher patternMatcher;
 
-  DefaultFileSystem fs = new DefaultFileSystem().setEncoding(UTF_8);
-  IssueExclusionsLoader scanner;
-  File baseDir;
+  private DefaultFileSystem fs;
+  private IssueExclusionsLoader scanner;
+  private File baseDir;
 
   @Before
-  public void before() throws IOException {
+  public void before() throws Exception {
     baseDir = temp.newFolder();
+    fs = new DefaultFileSystem(baseDir).setEncoding(UTF_8);
     MockitoAnnotations.initMocks(this);
     scanner = new IssueExclusionsLoader(regexpScanner, exclusionPatternInitializer, inclusionPatternInitializer, fs);
   }

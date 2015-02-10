@@ -64,11 +64,11 @@ public class JSONReportTest {
   private SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
   @org.junit.Rule
-  public TemporaryFolder temporaryFolder = new TemporaryFolder();
+  public TemporaryFolder temp = new TemporaryFolder();
 
   JSONReport jsonReport;
   Resource resource = mock(Resource.class);
-  DefaultFileSystem fs = new DefaultFileSystem();
+  DefaultFileSystem fs;
   Server server = mock(Server.class);
   ActiveRules activeRules = mock(ActiveRules.class);
   Settings settings = new Settings();
@@ -76,7 +76,8 @@ public class JSONReportTest {
   private UserRepository userRepository;
 
   @Before
-  public void before() {
+  public void before() throws Exception {
+    fs = new DefaultFileSystem(temp.newFolder());
     SIMPLE_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT+02:00"));
     when(resource.getEffectiveKey()).thenReturn("Action.java");
     when(server.getVersion()).thenReturn("3.6");
@@ -161,7 +162,7 @@ public class JSONReportTest {
 
   @Test
   public void should_export_issues_to_file() throws IOException {
-    File workDir = temporaryFolder.newFolder("sonar");
+    File workDir = temp.newFolder("sonar");
     fs.setWorkDir(workDir);
 
     when(jsonReport.getIssues()).thenReturn(Collections.<DefaultIssue>emptyList());

@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch.fs.internal;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -37,12 +38,18 @@ public class DefaultFileSystemTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
+  private DefaultFileSystem fs;
+
+  private File basedir;
+
+  @Before
+  public void prepare() throws Exception {
+    basedir = temp.newFolder();
+    fs = new DefaultFileSystem(basedir);
+  }
+
   @Test
   public void test_directories() throws Exception {
-    DefaultFileSystem fs = new DefaultFileSystem();
-
-    File basedir = temp.newFolder();
-    fs.setBaseDir(basedir);
     assertThat(fs.baseDir()).isAbsolute().isDirectory().exists();
     assertThat(fs.baseDir().getCanonicalPath()).isEqualTo(basedir.getCanonicalPath());
 
@@ -54,8 +61,6 @@ public class DefaultFileSystemTest {
 
   @Test
   public void test_encoding() throws Exception {
-    DefaultFileSystem fs = new DefaultFileSystem();
-
     assertThat(fs.isDefaultJvmEncoding()).isTrue();
     assertThat(fs.encoding()).isEqualTo(Charset.defaultCharset());
 
@@ -66,8 +71,6 @@ public class DefaultFileSystemTest {
 
   @Test
   public void add_languages() throws Exception {
-    DefaultFileSystem fs = new DefaultFileSystem();
-
     assertThat(fs.languages()).isEmpty();
 
     fs.addLanguages("java", "php", "cobol");
@@ -76,8 +79,6 @@ public class DefaultFileSystemTest {
 
   @Test
   public void files() throws Exception {
-    DefaultFileSystem fs = new DefaultFileSystem();
-
     assertThat(fs.inputFiles(fs.predicates().all())).isEmpty();
 
     fs.add(new DefaultInputFile("foo", "src/Foo.php").setLanguage("php").setFile(temp.newFile()));
@@ -108,7 +109,6 @@ public class DefaultFileSystemTest {
 
   @Test
   public void input_file_returns_null_if_file_not_found() throws Exception {
-    DefaultFileSystem fs = new DefaultFileSystem();
     assertThat(fs.inputFile(fs.predicates().hasRelativePath("src/Bar.java"))).isNull();
     assertThat(fs.inputFile(fs.predicates().hasLanguage("cobol"))).isNull();
   }
@@ -118,7 +118,6 @@ public class DefaultFileSystemTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("expected one element");
 
-    DefaultFileSystem fs = new DefaultFileSystem();
     fs.add(new DefaultInputFile("foo", "src/Bar.java").setLanguage("java").setFile(temp.newFile()));
     fs.add(new DefaultInputFile("foo", "src/Baz.java").setLanguage("java").setFile(temp.newFile()));
 
@@ -127,7 +126,6 @@ public class DefaultFileSystemTest {
 
   @Test
   public void input_file_supports_non_indexed_predicates() throws Exception {
-    DefaultFileSystem fs = new DefaultFileSystem();
     fs.add(new DefaultInputFile("foo", "src/Bar.java").setLanguage("java").setFile(temp.newFile()));
 
     // it would fail if more than one java file

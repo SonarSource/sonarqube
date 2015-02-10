@@ -80,14 +80,11 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
   private DefaultModuleFileSystem(ModuleInputFileCache moduleInputFileCache, String moduleKey, Settings settings,
     FileIndexer indexer, ModuleFileSystemInitializer initializer,
     @Nullable ComponentIndexer componentIndexer) {
-    super(moduleInputFileCache);
+    super(initializer.baseDir(), moduleInputFileCache);
     this.componentIndexer = componentIndexer;
     this.moduleKey = moduleKey;
     this.settings = settings;
     this.indexer = indexer;
-    if (initializer.baseDir() != null) {
-      setBaseDir(initializer.baseDir());
-    }
     setWorkDir(initializer.workingDir());
     this.buildDir = initializer.buildDir();
     this.sourceDirsOrFiles = initializer.sources();
@@ -219,17 +216,6 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
     }
   }
 
-  public void resetDirs(File basedir, File buildDir, List<File> sourceDirs, List<File> testDirs, List<File> binaryDirs) {
-    if (initialized) {
-      throw MessageException.of("Module filesystem is already initialized. Modifications of filesystem are only allowed during Initializer phase.");
-    }
-    setBaseDir(basedir);
-    this.buildDir = buildDir;
-    this.sourceDirsOrFiles = existingDirsOrFiles(sourceDirs);
-    this.testDirsOrFiles = existingDirsOrFiles(testDirs);
-    this.binaryDirs = existingDirsOrFiles(binaryDirs);
-  }
-
   public void index() {
     if (initialized) {
       throw MessageException.of("Module filesystem can only be indexed once");
@@ -239,16 +225,6 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
     if (componentIndexer != null) {
       componentIndexer.execute(this);
     }
-  }
-
-  private List<File> existingDirsOrFiles(List<File> dirsOrFiles) {
-    ImmutableList.Builder<File> builder = ImmutableList.builder();
-    for (File dirOrFile : dirsOrFiles) {
-      if (dirOrFile.exists()) {
-        builder.add(dirOrFile);
-      }
-    }
-    return builder.build();
   }
 
   private FilePredicate fromDeprecatedAttribute(String key, Collection<String> value) {

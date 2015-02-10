@@ -19,20 +19,45 @@
  */
 package org.sonar.api.batch.fs.internal;
 
+import com.google.common.annotations.VisibleForTesting;
+import org.sonar.api.batch.fs.AbstractFilePredicate;
 import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.FileSystem.Index;
 import org.sonar.api.batch.fs.InputFile;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @since 4.2
  */
-class AndPredicate implements FilePredicate {
+class AndPredicate extends AbstractFilePredicate {
 
-  private final Collection<FilePredicate> predicates;
+  private final List<FilePredicate> predicates = new ArrayList<>();
 
-  AndPredicate(Collection<FilePredicate> predicates) {
-    this.predicates = predicates;
+  private AndPredicate() {
+  }
+
+  public static FilePredicate create(Collection<FilePredicate> predicates) {
+    if (predicates.isEmpty()) {
+      return TruePredicate.TRUE;
+    }
+    AndPredicate result = new AndPredicate();
+    for (FilePredicate filePredicate : predicates) {
+      if (filePredicate == TruePredicate.TRUE) {
+        continue;
+      } else if (filePredicate == FalsePredicate.FALSE) {
+        return FalsePredicate.FALSE;
+      } else if (filePredicate instanceof AndPredicate) {
+        result.predicates.addAll(((AndPredicate) filePredicate).predicates);
+      } else {
+        result.predicates.add(filePredicate);
+      }
+    }
+    Collections.sort(result.predicates);
+    return result;
   }
 
   @Override
@@ -43,6 +68,33 @@ class AndPredicate implements FilePredicate {
       }
     }
     return true;
+  }
+
+  @Override
+  public Iterable<InputFile> filter(Iterable<InputFile> target) {
+    Iterable<InputFile> result = target;
+    for (FilePredicate predicate : predicates) {
+      result = predicate.filter(result);
+    }
+    return result;
+  }
+
+  @Override
+  public Iterable<InputFile> get(Index index) {
+    if (predicates.isEmpty()) {
+      return index.inputFiles();
+    }
+    // Optimization, use get on first predicate then filter with next predicates
+    Iterable<InputFile> result = predicates.get(0).get(index);
+    for (int i = 1; i < predicates.size(); i++) {
+      result = predicates.get(i).filter(result);
+    }
+    return result;
+  }
+
+  @VisibleForTesting
+  Collection<FilePredicate> predicates() {
+    return predicates;
   }
 
 }

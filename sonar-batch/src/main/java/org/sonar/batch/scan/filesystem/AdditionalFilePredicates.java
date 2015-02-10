@@ -20,7 +20,7 @@
 package org.sonar.batch.scan.filesystem;
 
 import org.apache.commons.io.FilenameUtils;
-import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.AbstractFilePredicate;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 
@@ -34,7 +34,7 @@ class AdditionalFilePredicates {
     // only static inner classes
   }
 
-  static class KeyPredicate implements FilePredicate {
+  static class KeyPredicate extends AbstractFilePredicate {
     private final String key;
 
     KeyPredicate(String key) {
@@ -47,7 +47,7 @@ class AdditionalFilePredicates {
     }
   }
 
-  static class DeprecatedKeyPredicate implements FilePredicate {
+  static class DeprecatedKeyPredicate extends AbstractFilePredicate {
     private final String key;
 
     DeprecatedKeyPredicate(String key) {
@@ -60,7 +60,7 @@ class AdditionalFilePredicates {
     }
   }
 
-  static class SourceRelativePathPredicate implements FilePredicate {
+  static class SourceRelativePathPredicate extends AbstractFilePredicate {
     private final String path;
 
     SourceRelativePathPredicate(String s) {
@@ -73,7 +73,7 @@ class AdditionalFilePredicates {
     }
   }
 
-  static class SourceDirPredicate implements FilePredicate {
+  static class SourceDirPredicate extends AbstractFilePredicate {
     private final String path;
 
     SourceDirPredicate(String s) {

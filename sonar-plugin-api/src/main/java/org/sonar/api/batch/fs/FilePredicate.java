@@ -19,11 +19,35 @@
  */
 package org.sonar.api.batch.fs;
 
+import org.sonar.api.batch.fs.internal.RelativePathPredicate;
+
 /**
  * Determines if a file must be kept in search results. See {@link org.sonar.api.batch.fs.FileSystem}
  * and {@link org.sonar.api.batch.fs.FilePredicates}.
  * @since 4.2
  */
-public interface FilePredicate {
+public interface FilePredicate extends Comparable<FilePredicate> {
+  /**
+   * Test if provided file is valid for this predicate
+   */
   boolean apply(InputFile inputFile);
+
+  /**
+   * Filter provided files to keep only the ones that are valid for this predicate
+   */
+  Iterable<InputFile> filter(Iterable<InputFile> inputFiles);
+
+  /**
+   * Get all files that are valid for this predicate.
+   */
+  Iterable<InputFile> get(FileSystem.Index index);
+
+  /**
+   * For optimization. FilePredicates will be applied in priority order. For example when doing
+   * p.and(p1, p2, p3) then p1, p2 and p3 will be applied according to their priority value. Higher priority value
+   * are applied first.
+   * Assign a high priority when the predicate will likely highly reduce the set of InputFiles to filter. Also
+   * {@link RelativePathPredicate} and AbsolutePathPredicate have a high priority since they are using cache index.
+   */
+  int priority();
 }

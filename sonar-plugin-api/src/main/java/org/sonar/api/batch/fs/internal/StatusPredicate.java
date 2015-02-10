@@ -19,13 +19,14 @@
  */
 package org.sonar.api.batch.fs.internal;
 
-import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.AbstractFilePredicate;
+
 import org.sonar.api.batch.fs.InputFile;
 
 /**
  * @since 4.2
  */
-class StatusPredicate implements FilePredicate {
+class StatusPredicate extends AbstractFilePredicate {
 
   private final InputFile.Status status;
 

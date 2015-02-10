@@ -52,7 +52,7 @@ public class SyntaxHighlightingSensorTest {
   public void prepare() throws IOException {
     baseDir = temp.newFolder();
     sensor = new SyntaxHighlightingSensor();
-    fileSystem = new DefaultFileSystem();
+    fileSystem = new DefaultFileSystem(baseDir);
     when(context.fileSystem()).thenReturn(fileSystem);
   }
 

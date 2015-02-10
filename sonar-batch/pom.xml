@@ -9,6 +9,10 @@
 
   <artifactId>sonar-batch</artifactId>
   <name>SonarQube :: Batch</name>
+  
+  <properties>
+    <enableBenchmarkAssertions>false</enableBenchmarkAssertions>
+  </properties>
 
   <dependencies>
     <dependency>
@@ -197,4 +201,18 @@
       </plugin>
     </plugins>
   </build>
+  
+  <profiles>
+    <profile>
+      <id>runBenchmarks</id>
+      <activation>
+        <property>
+          <name>runBenchmarks</name>
+        </property>
+      </activation>
+      <properties>
+        <enableBenchmarkAssertions>true</enableBenchmarkAssertions>
+      </properties>
+    </profile>
+  </profiles>
 </project>

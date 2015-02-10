@@ -19,7 +19,9 @@
  */
 package org.sonar.api.batch.fs.internal;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterables;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
@@ -35,7 +37,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -50,25 +51,23 @@ public class DefaultFileSystem implements FileSystem {
 
   private final Cache cache;
   private final SortedSet<String> languages = new TreeSet<String>();
-  private File baseDir, workDir;
+  private final File baseDir;
+  private File workDir;
   private Charset encoding;
-  private final FilePredicates predicates = new DefaultFilePredicates();
+  private final FilePredicates predicates;
 
   /**
    * Only for testing
    */
-  public DefaultFileSystem() {
-    this.cache = new MapCache();
+  public DefaultFileSystem(File baseDir) {
+    this(baseDir, new MapCache());
   }
 
-  protected DefaultFileSystem(Cache cache) {
+  protected DefaultFileSystem(File baseDir, Cache cache) {
+    Preconditions.checkNotNull(baseDir, "Base directory can't be null");
+    this.baseDir = baseDir.getAbsoluteFile();
     this.cache = cache;
-  }
-
-  public DefaultFileSystem setBaseDir(File d) {
-    Preconditions.checkNotNull(d, "Base directory can't be null");
-    this.baseDir = d.getAbsoluteFile();
-    return this;
+    this.predicates = new DefaultFilePredicates(baseDir);
   }
 
   @Override
@@ -102,10 +101,6 @@ public class DefaultFileSystem implements FileSystem {
 
   @Override
   public InputFile inputFile(FilePredicate predicate) {
-    doPreloadFiles();
-    if (predicate instanceof RelativePathPredicate) {
-      return cache.inputFile((RelativePathPredicate) predicate);
-    }
     Iterable<InputFile> files = inputFiles(predicate);
     Iterator<InputFile> iterator = files.iterator();
     if (!iterator.hasNext()) {
@@ -133,30 +128,24 @@ public class DefaultFileSystem implements FileSystem {
   @Override
   public Iterable<InputFile> inputFiles(FilePredicate predicate) {
     doPreloadFiles();
-    return filter(cache.inputFiles(), predicate);
+    return predicate.get(cache);
   }
 
   @Override
   public boolean hasFiles(FilePredicate predicate) {
     doPreloadFiles();
-    for (InputFile element : cache.inputFiles()) {
-      if (predicate.apply(element)) {
-        return true;
-      }
-    }
-    return false;
+    return predicate.get(cache).iterator().hasNext();
   }
 
   @Override
   public Iterable<File> files(FilePredicate predicate) {
     doPreloadFiles();
-    Collection<File> result = new ArrayList<File>();
-    for (InputFile element : inputFiles(predicate)) {
-      if (predicate.apply(element)) {
-        result.add(element.file());
+    return Iterables.transform(inputFiles(predicate), new Function<InputFile, File>() {
+      @Override
+      public File apply(InputFile input) {
+        return input.file();
       }
-    }
-    return result;
+    });
   }
 
   @Override
@@ -167,16 +156,6 @@ public class DefaultFileSystem implements FileSystem {
       return null;
     }
     return cache.inputDir(relativePath);
-  }
-
-  public static Collection<InputFile> filter(Iterable<InputFile> target, FilePredicate predicate) {
-    Collection<InputFile> result = new ArrayList<InputFile>();
-    for (InputFile element : target) {
-      if (predicate.apply(element)) {
-        result.add(element);
-      }
-    }
-    return result;
   }
 
   /**
@@ -228,14 +207,17 @@ public class DefaultFileSystem implements FileSystem {
     // nothing to do by default
   }
 
-  public abstract static class Cache {
-    protected abstract Iterable<InputFile> inputFiles();
+  public abstract static class Cache implements Index {
+    @Override
+    public abstract Iterable<InputFile> inputFiles();
 
+    @Override
     @CheckForNull
-    protected abstract InputFile inputFile(RelativePathPredicate predicate);
+    public abstract InputFile inputFile(String relativePath);
 
+    @Override
     @CheckForNull
-    protected abstract InputDir inputDir(String relativePath);
+    public abstract InputDir inputDir(String relativePath);
 
     protected abstract void doAdd(InputFile inputFile);
 
@@ -264,12 +246,12 @@ public class DefaultFileSystem implements FileSystem {
     }
 
     @Override
-    public InputFile inputFile(RelativePathPredicate predicate) {
-      return fileMap.get(predicate.path());
+    public InputFile inputFile(String relativePath) {
+      return fileMap.get(relativePath);
     }
 
     @Override
-    protected InputDir inputDir(String relativePath) {
+    public InputDir inputDir(String relativePath) {
       return dirMap.get(relativePath);
     }
 

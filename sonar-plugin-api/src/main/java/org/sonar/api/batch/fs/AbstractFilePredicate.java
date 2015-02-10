@@ -17,29 +17,44 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.fs.internal;
+package org.sonar.api.batch.fs;
 
-import org.sonar.api.batch.fs.AbstractFilePredicate;
-import org.sonar.api.batch.fs.FilePredicate;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import org.sonar.api.batch.fs.FileSystem.Index;
-import org.sonar.api.batch.fs.InputFile;
 
-class TruePredicate extends AbstractFilePredicate {
+/**
+ * Partial implementation of {@link FilePredicate}.
+ * @since 5.1
+ */
+public abstract class AbstractFilePredicate implements FilePredicate {
 
-  static final FilePredicate TRUE = new TruePredicate();
+  protected static final int DEFAULT_PRIORITY = 10;
+  protected static final int USE_INDEX = 20;
 
   @Override
-  public boolean apply(InputFile inputFile) {
-    return true;
+  public Iterable<InputFile> filter(Iterable<InputFile> target) {
+    return Iterables.filter(target, new Predicate<InputFile>() {
+      @Override
+      public boolean apply(InputFile input) {
+        return AbstractFilePredicate.this.apply(input);
+      }
+    });
   }
 
   @Override
   public Iterable<InputFile> get(Index index) {
-    return index.inputFiles();
+    return filter(index.inputFiles());
   }
 
   @Override
-  public Iterable<InputFile> filter(Iterable<InputFile> target) {
-    return target;
+  public int priority() {
+    return DEFAULT_PRIORITY;
   }
+
+  @Override
+  public int compareTo(FilePredicate o) {
+    return o.priority() - priority();
+  }
+
 }

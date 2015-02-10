@@ -58,13 +58,13 @@ public class DefaultModuleFileSystemTest {
 
   @Test
   public void test_equals_and_hashCode() throws Exception {
-    DefaultModuleFileSystem foo1 = new DefaultModuleFileSystem(moduleInputFileCache, 
+    DefaultModuleFileSystem foo1 = new DefaultModuleFileSystem(moduleInputFileCache,
       new Project("foo"), settings, fileIndexer, initializer, componentIndexer);
-    DefaultModuleFileSystem foo2 = new DefaultModuleFileSystem(moduleInputFileCache, 
+    DefaultModuleFileSystem foo2 = new DefaultModuleFileSystem(moduleInputFileCache,
       new Project("foo"), settings, fileIndexer, initializer, componentIndexer);
-    DefaultModuleFileSystem bar = new DefaultModuleFileSystem(moduleInputFileCache, 
+    DefaultModuleFileSystem bar = new DefaultModuleFileSystem(moduleInputFileCache,
       new Project("bar"), settings, fileIndexer, initializer, componentIndexer);
-    DefaultModuleFileSystem branch = new DefaultModuleFileSystem(moduleInputFileCache, 
+    DefaultModuleFileSystem branch = new DefaultModuleFileSystem(moduleInputFileCache,
       new Project("bar", "branch", "My project"), settings, fileIndexer, initializer, componentIndexer);
 
     assertThat(foo1.moduleKey()).isEqualTo("foo");
@@ -79,7 +79,7 @@ public class DefaultModuleFileSystemTest {
 
   @Test
   public void default_source_encoding() {
-    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(moduleInputFileCache, 
+    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(moduleInputFileCache,
       new Project("foo"), settings, fileIndexer, initializer, componentIndexer);
 
     assertThat(fs.sourceCharset()).isEqualTo(Charset.defaultCharset());
@@ -89,7 +89,7 @@ public class DefaultModuleFileSystemTest {
   @Test
   public void source_encoding_is_set() {
     settings.setProperty(CoreProperties.ENCODING_PROPERTY, "Cp1124");
-    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(moduleInputFileCache, 
+    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(moduleInputFileCache,
       new Project("foo"), settings, fileIndexer, initializer, componentIndexer);
 
     assertThat(fs.encoding()).isEqualTo(Charset.forName("Cp1124"));
@@ -119,7 +119,7 @@ public class DefaultModuleFileSystemTest {
     javaTest.mkdirs();
     when(initializer.tests()).thenReturn(Arrays.asList(javaTest, additionalTest));
 
-    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(moduleInputFileCache, 
+    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(moduleInputFileCache,
       new Project("foo"), settings, fileIndexer, initializer, componentIndexer);
 
     assertThat(fs.baseDir().getCanonicalPath()).isEqualTo(basedir.getCanonicalPath());
@@ -131,34 +131,8 @@ public class DefaultModuleFileSystemTest {
   }
 
   @Test
-  public void should_reset_dirs() throws IOException {
-    File basedir = temp.newFolder();
-    when(initializer.baseDir()).thenReturn(basedir);
-    when(initializer.workingDir()).thenReturn(basedir);
-    when(initializer.sources()).thenReturn(Arrays.asList(new File(basedir, "src/main/java")));
-
-    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(moduleInputFileCache, 
-      new Project("foo"), settings, fileIndexer, initializer, componentIndexer);
-
-    File existingDir = temp.newFolder("new_folder");
-    File notExistingDir = new File(existingDir, "not_exist");
-
-    fs.resetDirs(existingDir, existingDir,
-      Lists.newArrayList(existingDir, notExistingDir), Lists.newArrayList(existingDir, notExistingDir), Lists.newArrayList(existingDir, notExistingDir));
-
-    assertThat(fs.baseDir().getCanonicalPath()).isEqualTo(existingDir.getCanonicalPath());
-    assertThat(fs.buildDir().getCanonicalPath()).isEqualTo(existingDir.getCanonicalPath());
-    assertThat(fs.sourceDirs()).hasSize(1);
-    assertThat(fs.sourceDirs().get(0).getCanonicalPath()).isEqualTo(existingDir.getCanonicalPath());
-    assertThat(fs.testDirs()).hasSize(1);
-    assertThat(fs.testDirs().get(0).getCanonicalPath()).isEqualTo(existingDir.getCanonicalPath());
-    assertThat(fs.binaryDirs()).hasSize(1);
-    assertThat(fs.binaryDirs().get(0).getCanonicalPath()).isEqualTo(existingDir.getCanonicalPath());
-  }
-
-  @Test
   public void should_search_input_files() throws Exception {
-    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(moduleInputFileCache, 
+    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(moduleInputFileCache,
       new Project("foo"), settings, fileIndexer, initializer, componentIndexer);
 
     File mainFile = temp.newFile();
@@ -176,7 +150,7 @@ public class DefaultModuleFileSystemTest {
 
   @Test
   public void should_index() throws Exception {
-    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(moduleInputFileCache, 
+    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(moduleInputFileCache,
       new Project("foo"), settings, fileIndexer, initializer, componentIndexer);
 
     verifyZeroInteractions(fileIndexer);
