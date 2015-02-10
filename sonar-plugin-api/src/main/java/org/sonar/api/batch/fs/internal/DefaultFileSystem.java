@@ -71,6 +71,10 @@ public class DefaultFileSystem implements FileSystem {
     this.predicates = new DefaultFilePredicates(baseDir);
   }
 
+  public Path baseDirPath() {
+    return baseDir;
+  }
+
   @Override
   public File baseDir() {
     return baseDir.toFile();
