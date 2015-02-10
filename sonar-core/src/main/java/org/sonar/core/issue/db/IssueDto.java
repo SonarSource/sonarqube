@@ -677,7 +677,7 @@ public final class IssueDto implements Serializable {
     issue.setActionPlanKey(actionPlanKey);
     issue.setAuthorLogin(authorLogin);
     issue.setNew(false);
-    issue.setCreationDate(new Date(issueCreationDate));
+    issue.setCreationDate(longToDate(issueCreationDate));
     issue.setCloseDate(longToDate(issueCloseDate));
     issue.setUpdateDate(longToDate(issueUpdateDate));
     issue.setSelectedAt(selectedAt);
