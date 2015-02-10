@@ -25,7 +25,6 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Database;
-import org.sonar.core.user.UserDto;
 import org.sonar.server.db.migrations.BaseDataChange;
 import org.sonar.server.db.migrations.Select;
 import org.sonar.server.db.migrations.Upsert;
@@ -42,6 +41,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import static com.google.common.collect.Lists.newArrayList;
 
 public class CopyScmAccountsFromAuthorsToUsers extends BaseDataChange {
+
+  private static final char SCM_ACCOUNTS_SEPARATOR = '\n';
 
   private final System2 system;
   private final AtomicLong counter = new AtomicLong(0L);
@@ -136,20 +137,20 @@ public class CopyScmAccountsFromAuthorsToUsers extends BaseDataChange {
     if (scmAccounts.isEmpty()) {
       return null;
     }
-    return UserDto.SCM_ACCOUNTS_SEPARATOR + Joiner.on(UserDto.SCM_ACCOUNTS_SEPARATOR).join(scmAccounts) + UserDto.SCM_ACCOUNTS_SEPARATOR;
+    return SCM_ACCOUNTS_SEPARATOR + Joiner.on(SCM_ACCOUNTS_SEPARATOR).join(scmAccounts) + SCM_ACCOUNTS_SEPARATOR;
   }
 
   private static class User {
     Long id;
     String login;
     String email;
-    String scmAcounts;
+    String scmAccounts;
 
-    User(Long id, String login, String email, String scmAcounts) {
+    User(Long id, String login, String email, String scmAccounts) {
       this.id = id;
       this.login = login;
       this.email = email;
-      this.scmAcounts = scmAcounts;
+      this.scmAccounts = scmAccounts;
     }
   }
 }
