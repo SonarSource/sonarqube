@@ -129,16 +129,15 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
 
       @Override
       public DOMAIN next() {
-        if (hits.isEmpty()) {
-          fillQueue();
+        if (!hasNext()) {
+          throw new NoSuchElementException();
         }
         return toDoc(hits.poll().getSource());
       }
 
       @Override
       public void remove() {
-        throw new IllegalStateException("Cannot remove item from scroll Iterable!!!" +
-          " Use Service or DAO classes instead");
+        throw new UnsupportedOperationException("Cannot remove item from scroll");
       }
     };
   }
@@ -195,7 +194,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
       .setQuery(QueryBuilders.filteredQuery(
         QueryBuilders.matchAllQuery(),
         getLastSynchronizationBuilder(params)
-      ))
+        ))
       .setSize(0)
       .addAggregation(AggregationBuilders.max("latest")
         .field(BaseNormalizer.UPDATED_AT_FIELD));
@@ -204,7 +203,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
 
     Max max = response.getAggregations().get("latest");
     if (max.getValue() > 0) {
-      Date date = new DateTime(Double.valueOf(max.getValue()).longValue()).toDate();
+      Date date = new DateTime((long) max.getValue()).toDate();
       LOG.debug("Index {}:{} has last update of {}", this.getIndexName(), this.getIndexType(), date);
       return date;
     } else {

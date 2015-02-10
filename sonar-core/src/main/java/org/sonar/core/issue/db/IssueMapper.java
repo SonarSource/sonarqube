@@ -23,7 +23,7 @@ import org.apache.ibatis.annotations.Param;
 import org.sonar.core.rule.RuleDto;
 
 import javax.annotation.Nullable;
-import java.util.Date;
+
 import java.util.List;
 
 public interface IssueMapper {

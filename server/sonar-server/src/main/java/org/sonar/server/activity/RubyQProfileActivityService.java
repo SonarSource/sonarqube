@@ -69,7 +69,7 @@ public class RubyQProfileActivityService implements ServerComponent, Startable {
     queryContext.setPage(pageIndex, 50);
 
     Result<QProfileActivity> result = service.searchActivities(query, queryContext);
-    return new QProfileActivityResult(result.getHits(), Paging.create(queryContext.getLimit(), pageIndex, Long.valueOf(result.getTotal()).intValue()));
+    return new QProfileActivityResult(result.getHits(), Paging.create(queryContext.getLimit(), pageIndex, (int) result.getTotal()));
   }
 
   @Override

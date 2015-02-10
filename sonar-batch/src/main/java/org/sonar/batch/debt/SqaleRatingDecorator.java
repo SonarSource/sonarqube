@@ -44,7 +44,7 @@ import java.util.List;
 /**
  * Decorator that computes Sqale Rating metric
  */
-public final class SqaleRatingDecorator implements Decorator {
+public class SqaleRatingDecorator implements Decorator {
 
   private final SqaleRatingSettings sqaleRatingSettings;
   private final Metric[] metrics;
