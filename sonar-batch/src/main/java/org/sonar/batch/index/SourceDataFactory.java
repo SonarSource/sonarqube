@@ -20,8 +20,6 @@
 package org.sonar.batch.index;
 
 import com.google.common.base.CharMatcher;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchComponent;
@@ -45,7 +43,6 @@ import org.sonar.server.source.db.FileSourceDb;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -343,16 +340,15 @@ public class SourceDataFactory implements BatchComponent {
   void applyDuplications(String inputFileKey, FileSourceDb.Data.Builder to) {
     List<DuplicationGroup> groups = duplicationCache.byComponent(inputFileKey);
     if (groups != null) {
-      Multimap<Integer, Integer> duplicationsPerLine = ArrayListMultimap.create();
       int blockId = 1;
       for (Iterator<DuplicationGroup> it = groups.iterator(); it.hasNext();) {
         DuplicationGroup group = it.next();
-        addBlock(blockId, group.originBlock(), duplicationsPerLine);
+        addBlock(blockId, group.originBlock(), to);
         blockId++;
         for (Iterator<DuplicationGroup.Block> dupsIt = group.duplicates().iterator(); dupsIt.hasNext();) {
           DuplicationGroup.Block dups = dupsIt.next();
           if (inputFileKey.equals(dups.resourceKey())) {
-            addBlock(blockId, dups, duplicationsPerLine);
+            addBlock(blockId, dups, to);
             blockId++;
           }
           // Save memory
@@ -361,16 +357,13 @@ public class SourceDataFactory implements BatchComponent {
         // Save memory
         it.remove();
       }
-      for (Map.Entry<Integer, Collection<Integer>> entry : duplicationsPerLine.asMap().entrySet()) {
-        to.getLinesBuilder(entry.getKey() - 1).addAllDuplications(entry.getValue());
-      }
     }
   }
 
-  private void addBlock(int blockId, DuplicationGroup.Block block, Multimap<Integer, Integer> dupPerLine) {
+  private void addBlock(int blockId, DuplicationGroup.Block block, FileSourceDb.Data.Builder to) {
     int currentLine = block.startLine();
     for (int i = 0; i < block.length(); i++) {
-      dupPerLine.put(currentLine, blockId);
+      to.getLinesBuilder(currentLine-1).addDuplications(blockId);
       currentLine++;
     }
   }
