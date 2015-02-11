@@ -86,7 +86,7 @@ public class QualityGateConditionDto {
 
   private long metricId;
 
-  private transient String metricKey;
+  private String metricKey;
 
   private Integer period;
 

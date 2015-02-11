@@ -62,12 +62,12 @@ class HtmlBlockquoteChannel extends Channel<MarkdownOutput> {
 
   private class QuotedLineElementChannel extends RegexChannel<MarkdownOutput> {
 
-    protected QuotedLineElementChannel() {
+    private QuotedLineElementChannel() {
       super("&gt;\\s[^\r\n]*+");
     }
 
     @Override
-    protected void consume(CharSequence token, MarkdownOutput output) {
+    public void consume(CharSequence token, MarkdownOutput output) {
       if (!pendingBlockConstruction) {
         output.append("<blockquote>");
         pendingBlockConstruction = true;
@@ -101,7 +101,7 @@ class HtmlBlockquoteChannel extends Channel<MarkdownOutput> {
     }
 
     @Override
-    protected void consume(CharSequence token, MarkdownOutput output) {
+    public void consume(CharSequence token, MarkdownOutput output) {
       output.append(token);
     }
   }

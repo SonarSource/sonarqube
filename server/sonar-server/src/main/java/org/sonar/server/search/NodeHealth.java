@@ -107,7 +107,7 @@ public class NodeHealth {
   }
 
   public String getProcessCpuPercent() {
-    return formatPercent(Long.valueOf(cpuPercent), 100L);
+    return formatPercent(cpuPercent, 100L);
   }
 
   void setOpenFiles(long avgOpenFileDescriptors) {
@@ -175,6 +175,10 @@ public class NodeHealth {
     // Uptime
     setJvmUptimeMillis(nodesStats.getJvm().getUptime().getMillis());
 
+    initPerformanceStats(nodesStats);
+  }
+
+  private void initPerformanceStats(NodeStats nodesStats) {
     // Performance Stat
     performanceStats = new ArrayList<Performance>();
 
@@ -249,13 +253,13 @@ public class NodeHealth {
         .setValue(filterCacheEviction));
   }
 
-  static public class Performance {
+  public static class Performance {
 
     public static enum Status {
       OK, WARN, ERROR
     }
 
-    final private String name;
+    private final String name;
     private String message;
     private double value;
     private double warnThreshold;
