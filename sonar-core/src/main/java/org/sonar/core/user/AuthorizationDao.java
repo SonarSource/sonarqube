@@ -19,14 +19,17 @@
  */
 package org.sonar.core.user;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.base.Function;
 import com.google.common.collect.Sets;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.DaoComponent;
+import org.sonar.core.persistence.DaoUtils;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.Nullable;
+
 import java.util.*;
 
 import static com.google.common.collect.Maps.newHashMap;
@@ -40,38 +43,48 @@ public class AuthorizationDao implements ServerComponent, DaoComponent {
     this.mybatis = mybatis;
   }
 
-  public Set<String> keepAuthorizedComponentKeys(Set<String> componentKeys, @Nullable Integer userId, String role) {
-    SqlSession session = mybatis.openSession(false);
-    try {
-      return keepAuthorizedComponentKeys(componentKeys, userId, role, session);
-
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  public Set<String> keepAuthorizedComponentKeys(Set<String> componentKeys, @Nullable Integer userId, String role, SqlSession session) {
-    if (componentKeys.isEmpty()) {
+  public Collection<Long> keepAuthorizedProjectIds(final DbSession session, final Collection<Long> componentIds, @Nullable final Integer userId, final String role) {
+    if (componentIds.isEmpty()) {
       return Collections.emptySet();
     }
-    String sql;
-    Map<String, Object> params;
-    if (userId == null) {
-      sql = "keepAuthorizedComponentKeysForAnonymous";
-      params = ImmutableMap.of("role", role, "componentKeys", componentKeys);
-    } else {
-      sql = "keepAuthorizedComponentKeysForUser";
-      params = ImmutableMap.of(USER_ID_PARAM, userId, "role", role, "componentKeys", componentKeys);
-    }
-
-    return Sets.newHashSet(session.<String>selectList(sql, params));
+    return DaoUtils.executeLargeInputs(componentIds, new Function<List<Long>, List<Long>>() {
+      @Override
+      public List<Long> apply(List<Long> partition) {
+        if (userId == null) {
+          return session.getMapper(AuthorizationMapper.class).keepAuthorizedProjectIdsForAnonymous(role, componentIds);
+        } else {
+          return session.getMapper(AuthorizationMapper.class).keepAuthorizedProjectIdsForUser(userId, role, componentIds);
+        }
+      }
+    });
   }
 
   /**
    * Used by the Views Plugin
    */
   public boolean isAuthorizedComponentKey(String componentKey, @Nullable Integer userId, String role) {
-    return keepAuthorizedComponentKeys(Sets.newHashSet(componentKey), userId, role).size() == 1;
+    DbSession session = mybatis.openSession(false);
+    try {
+      return keepAuthorizedComponentKeys(session, Sets.newHashSet(componentKey), userId, role).size() == 1;
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  private Set<String> keepAuthorizedComponentKeys(final DbSession session, final Set<String> componentKeys, @Nullable final Integer userId, final String role) {
+    if (componentKeys.isEmpty()) {
+      return Collections.emptySet();
+    }
+    return Sets.newHashSet(DaoUtils.executeLargeInputs(componentKeys, new Function<List<String>, List<String>>() {
+      @Override
+      public List<String> apply(List<String> partition) {
+        if (userId == null) {
+          return session.getMapper(AuthorizationMapper.class).keepAuthorizedComponentKeysForAnonymous(role, componentKeys);
+        } else {
+          return session.getMapper(AuthorizationMapper.class).keepAuthorizedComponentKeysForUser(userId, role, componentKeys);
+        }
+      }
+    }));
   }
 
   public Collection<String> selectAuthorizedRootProjectsKeys(@Nullable Integer userId, String role) {

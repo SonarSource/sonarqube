@@ -6,9 +6,6 @@
   <groups_users user_id="100" group_id="200"/>
   <group_roles id="1" group_id="200" resource_id="999" role="user"/>
 
-  <projects id="301" kee="pj-w-snapshot:package" root_id="300" uuid="ABCD" module_uuid="DEFG"/>
-  <projects id="302" kee="pj-w-snapshot:file" root_id="300" uuid="BCDE" module_uuid="DEFG"/>
-  <projects id="303" kee="pj-w-snapshot:other" root_id="300" uuid="CDEF" module_uuid="DEFG"/>
   <projects id="300" kee="pj-w-snapshot" uuid="DEFG" module_uuid="[null]"/>
   <projects id="400" kee="pj-wo-snapshot" uuid="EFGH" module_uuid="[null]"/>
 </dataset>

@@ -24,6 +24,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.api.platform.Server;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
@@ -36,9 +37,11 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.issue.db.IssueDao;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
+import org.sonar.test.DbTests;
 
 import static org.mockito.Mockito.mock;
 
+@Category(DbTests.class)
 public class IssuesActionTest {
 
   private final static String PROJECT_KEY = "struts";

@@ -180,6 +180,16 @@ public class UserSession {
   }
 
   /**
+   * Ensures that user implies the specified project permission. If not a {@link org.sonar.server.exceptions.ForbiddenException} is thrown.
+   */
+  public UserSession checkProjectUuidPermission(String projectPermission, String projectUuid) {
+    if (!hasProjectPermissionByUuid(projectPermission, projectUuid)) {
+      throw new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
+    }
+    return this;
+  }
+
+  /**
    * Does the user have the given project permission ?
    */
   public boolean hasProjectPermission(String permission, String projectKey) {
@@ -222,12 +232,11 @@ public class UserSession {
   }
 
   /**
-   * Does the user have the given project permission for a component ?
+   * Does the user have the given project permission for a component key ?
    */
   public boolean hasComponentPermission(String permission, String componentKey) {
     String projectKey = projectKeyByComponentKey.get(componentKey);
     if (projectKey == null) {
-      // TODO use method using UUID
       ResourceDto project = resourceDao().getRootProjectByComponentKey(componentKey);
       if (project == null) {
         return false;

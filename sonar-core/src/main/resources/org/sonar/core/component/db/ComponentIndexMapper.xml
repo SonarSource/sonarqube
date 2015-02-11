@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.sonar.core.component.db.ComponentIndexMapper">
+
+  <select id="selectProjectIdsFromQueryAndViewOrSubViewUuid" parameterType="map" resultType="long">
+    SELECT r.resource_id FROM resource_index r
+    INNER JOIN projects copy ON copy.copy_resource_id = r.resource_id
+    <where>
+      AND copy.module_uuid_path LIKE #{viewOrSubViewUuid}
+      AND r.kee LIKE #{query}
+    </where>
+    ORDER BY r.name_size
+  </select>
+
+</mapper>
+

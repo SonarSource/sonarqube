@@ -164,6 +164,27 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void get_by_ids() {
+    setupData("shared");
+
+    List<ComponentDto> results = dao.getByIds(session, newArrayList(4L));
+    assertThat(results).hasSize(1);
+
+    ComponentDto result = results.get(0);
+    assertThat(result).isNotNull();
+    assertThat(result.key()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
+    assertThat(result.path()).isEqualTo("src/org/struts/RequestContext.java");
+    assertThat(result.name()).isEqualTo("RequestContext.java");
+    assertThat(result.longName()).isEqualTo("org.struts.RequestContext");
+    assertThat(result.qualifier()).isEqualTo("FIL");
+    assertThat(result.scope()).isEqualTo("FIL");
+    assertThat(result.language()).isEqualTo("java");
+    assertThat(result.parentProjectId()).isEqualTo(2);
+
+    assertThat(dao.getByIds(session, newArrayList(555L))).isEmpty();
+  }
+
+  @Test
   public void get_by_uuids() {
     setupData("shared");
 

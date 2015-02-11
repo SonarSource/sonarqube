@@ -85,6 +85,7 @@ import org.sonar.server.component.ComponentService;
 import org.sonar.server.component.DefaultComponentFinder;
 import org.sonar.server.component.DefaultRubyComponentService;
 import org.sonar.server.component.db.ComponentDao;
+import org.sonar.server.component.db.ComponentIndexDao;
 import org.sonar.server.component.db.SnapshotDao;
 import org.sonar.server.component.ws.*;
 import org.sonar.server.computation.AnalysisReportQueue;
@@ -243,9 +244,10 @@ class ServerComponents {
       MetricDao.class,
       ComponentDao.class,
       SnapshotDao.class,
-      DbClient.class,
       MeasureFilterDao.class,
       AnalysisReportDao.class,
+      ComponentIndexDao.class,
+      DbClient.class,
 
       // Elasticsearch
       SearchClient.class,
@@ -502,11 +504,11 @@ class ServerComponents {
     pico.addSingleton(DefaultComponentFinder.class);
     pico.addSingleton(DefaultRubyComponentService.class);
     pico.addSingleton(ComponentService.class);
-    pico.addSingleton(ComponentDao.class);
     pico.addSingleton(ResourcesWs.class);
     pico.addSingleton(ComponentsWs.class);
     pico.addSingleton(ProjectsWs.class);
     pico.addSingleton(ComponentAppAction.class);
+    pico.addSingleton(org.sonar.server.component.ws.SearchAction.class);
     pico.addSingleton(EventsWs.class);
     pico.addSingleton(ComponentCleanerService.class);
 

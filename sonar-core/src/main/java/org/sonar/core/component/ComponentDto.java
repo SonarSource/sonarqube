@@ -105,7 +105,7 @@ public class ComponentDto extends Dto<String> implements Component {
   }
 
   /**
-   * Return the root project id. On a root project, return itself
+   * Return the root project uuid. On a root project, return itself
    */
   public String projectUuid() {
     return projectUuid;

@@ -1,0 +1,35 @@
+<dataset>
+
+  <!-- Projects is authorized for all user -->
+  <group_roles id="1" group_id="[null]" resource_id="100" role="user"/>
+  <group_roles id="2" group_id="[null]" resource_id="101" role="user"/>
+
+  <!-- View with sub view -->
+  <projects id="11" uuid="EFGH" project_uuid="EFGH" module_uuid="[null]" module_uuid_path="." copy_resource_id="[null]" enabled="[true]"
+            kee="LANGUAGE_VIEW" scope="PRJ" qualifier="VW" name="By Language" path="[null]"/>
+
+  <projects id="112" uuid="GHIJ" project_uuid="EFGH" module_uuid="EFGH" module_uuid_path=".EFGH." copy_resource_id="101" enabled="[true]"
+            kee="VIEW2org.elasticsearch:elasticsearch" scope="FIL" qualifier="TRK" name="Elasticsearch" path="[null]"/>
+
+  <!-- Sub view -->
+  <projects id="13" uuid="FGHI" project_uuid="EFGH" module_uuid="EFGH" module_uuid_path=".EFGH." copy_resource_id="[null]" enabled="[true]"
+            kee="JAVA_PROJECTS" scope="PRJ" qualifier="SVW" name="Java projects" path="[null]"/>
+
+  <projects id="113" uuid="HIJK" project_uuid="EFGH" module_uuid="FGHI" module_uuid_path=".EFGH.FGHI." copy_resource_id="100" enabled="[true]"
+            kee="VIEW2org.struts:struts" scope="FIL" qualifier="TRK" name="Struts" path="[null]"/>
+
+  <!-- Real projects -->
+
+  <projects id="100" scope="PRJ" qualifier="TRK" kee="org.struts:struts" name="Struts"
+            uuid="JKLM" project_uuid="JKLM" module_uuid="[null]" module_uuid_path="."
+            enabled="[true]" copy_resource_id="[null]" path="[null]"/>
+
+  <projects id="101" scope="PRJ" qualifier="TRK" kee="org.elasticsearch:elasticsearch" name="Elasticsearch"
+            uuid="KLMN" project_uuid="KLMN" module_uuid="[null]" module_uuid_path="."
+            enabled="[true]" copy_resource_id="[null]" path="[null]"/>
+
+  <resource_index id="1" kee="struts" resource_id="100" root_project_id="100" position="0" name_size="6" qualifier="TRK"/>
+  <resource_index id="2" kee="elasticsearch" resource_id="101" root_project_id="1" position="0" name_size="13" qualifier="TRK"/>
+  <resource_index id="3" kee="sticsearch" resource_id="101" root_project_id="1" position="1" name_size="13" qualifier="TRK"/>
+
+</dataset>

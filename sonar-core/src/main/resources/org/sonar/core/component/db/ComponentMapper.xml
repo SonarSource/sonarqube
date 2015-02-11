@@ -86,6 +86,19 @@
     </where>
   </select>
 
+  <select id="findByIds" parameterType="long" resultType="Component">
+    select
+    <include refid="componentColumns"/>
+    from projects p
+    <where>
+      p.enabled=${_true}
+      and p.id in
+      <foreach collection="ids" open="(" close=")" item="id" separator=",">
+        #{id}
+      </foreach>
+    </where>
+  </select>
+
   <select id="findByUuids" parameterType="String" resultType="Component">
     select <include refid="componentColumns"/>
     from projects p
