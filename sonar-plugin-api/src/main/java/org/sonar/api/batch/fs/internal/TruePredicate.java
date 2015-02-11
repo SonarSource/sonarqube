@@ -19,7 +19,6 @@
  */
 package org.sonar.api.batch.fs.internal;
 
-import org.sonar.api.batch.fs.AbstractFilePredicate;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem.Index;
 import org.sonar.api.batch.fs.InputFile;

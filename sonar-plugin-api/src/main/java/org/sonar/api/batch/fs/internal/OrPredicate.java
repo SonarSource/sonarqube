@@ -20,7 +20,6 @@
 package org.sonar.api.batch.fs.internal;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.sonar.api.batch.fs.AbstractFilePredicate;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
 

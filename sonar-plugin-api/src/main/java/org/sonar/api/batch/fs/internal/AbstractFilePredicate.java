@@ -17,17 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.fs;
+package org.sonar.api.batch.fs.internal;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem.Index;
+import org.sonar.api.batch.fs.InputFile;
 
 /**
  * Partial implementation of {@link FilePredicate}.
  * @since 5.1
  */
-public abstract class AbstractFilePredicate implements FilePredicate {
+public abstract class AbstractFilePredicate implements OptimizedFilePredicate {
 
   protected static final int DEFAULT_PRIORITY = 10;
   protected static final int USE_INDEX = 20;
@@ -53,7 +55,7 @@ public abstract class AbstractFilePredicate implements FilePredicate {
   }
 
   @Override
-  public int compareTo(FilePredicate o) {
+  public final int compareTo(OptimizedFilePredicate o) {
     return o.priority() - priority();
   }
 

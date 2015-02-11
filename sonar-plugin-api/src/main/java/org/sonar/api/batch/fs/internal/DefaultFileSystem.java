@@ -133,13 +133,12 @@ public class DefaultFileSystem implements FileSystem {
   @Override
   public Iterable<InputFile> inputFiles(FilePredicate predicate) {
     doPreloadFiles();
-    return predicate.get(cache);
+    return OptimizedFilePredicateAdapter.create(predicate).get(cache);
   }
 
   @Override
   public boolean hasFiles(FilePredicate predicate) {
-    doPreloadFiles();
-    return predicate.get(cache).iterator().hasNext();
+    return inputFiles(predicate).iterator().hasNext();
   }
 
   @Override

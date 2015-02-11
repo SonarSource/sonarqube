@@ -20,7 +20,6 @@
 package org.sonar.api.batch.fs.internal;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.sonar.api.batch.fs.AbstractFilePredicate;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem.Index;
 import org.sonar.api.batch.fs.InputFile;
@@ -35,7 +34,7 @@ import java.util.List;
  */
 class AndPredicate extends AbstractFilePredicate {
 
-  private final List<FilePredicate> predicates = new ArrayList<>();
+  private final List<OptimizedFilePredicate> predicates = new ArrayList<>();
 
   private AndPredicate() {
   }
@@ -53,7 +52,7 @@ class AndPredicate extends AbstractFilePredicate {
       } else if (filePredicate instanceof AndPredicate) {
         result.predicates.addAll(((AndPredicate) filePredicate).predicates);
       } else {
-        result.predicates.add(filePredicate);
+        result.predicates.add(OptimizedFilePredicateAdapter.create(filePredicate));
       }
     }
     Collections.sort(result.predicates);
@@ -62,7 +61,7 @@ class AndPredicate extends AbstractFilePredicate {
 
   @Override
   public boolean apply(InputFile f) {
-    for (FilePredicate predicate : predicates) {
+    for (OptimizedFilePredicate predicate : predicates) {
       if (!predicate.apply(f)) {
         return false;
       }
@@ -73,7 +72,7 @@ class AndPredicate extends AbstractFilePredicate {
   @Override
   public Iterable<InputFile> filter(Iterable<InputFile> target) {
     Iterable<InputFile> result = target;
-    for (FilePredicate predicate : predicates) {
+    for (OptimizedFilePredicate predicate : predicates) {
       result = predicate.filter(result);
     }
     return result;
@@ -93,7 +92,7 @@ class AndPredicate extends AbstractFilePredicate {
   }
 
   @VisibleForTesting
-  Collection<FilePredicate> predicates() {
+  Collection<OptimizedFilePredicate> predicates() {
     return predicates;
   }
 

@@ -19,20 +19,28 @@
  */
 package org.sonar.api.batch.fs.internal;
 
+import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
 
-/**
- * @since 4.2
- */
-class LanguagePredicate extends AbstractFilePredicate {
-  private final String language;
+class OptimizedFilePredicateAdapter extends AbstractFilePredicate {
 
-  LanguagePredicate(String language) {
-    this.language = language;
+  private FilePredicate unoptimizedPredicate;
+
+  private OptimizedFilePredicateAdapter(FilePredicate unoptimizedPredicate) {
+    this.unoptimizedPredicate = unoptimizedPredicate;
   }
 
   @Override
-  public boolean apply(InputFile f) {
-    return language.equals(f.language());
+  public boolean apply(InputFile inputFile) {
+    return unoptimizedPredicate.apply(inputFile);
   }
+
+  public static OptimizedFilePredicate create(FilePredicate predicate) {
+    if (predicate instanceof OptimizedFilePredicate) {
+      return (OptimizedFilePredicate) predicate;
+    } else {
+      return new OptimizedFilePredicateAdapter(predicate);
+    }
+  }
+
 }

@@ -19,7 +19,8 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import org.sonar.api.batch.fs.AbstractFilePredicate;
+import org.sonar.api.batch.fs.internal.AbstractFilePredicate;
+
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 

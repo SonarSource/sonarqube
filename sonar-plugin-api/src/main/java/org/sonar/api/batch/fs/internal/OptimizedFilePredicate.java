@@ -20,22 +20,30 @@
 package org.sonar.api.batch.fs.internal;
 
 import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 
 /**
- * @since 4.2
+ * Optimized version of FilePredicate allowing to speed up query by looking at InputFile by index.
  */
-class NotPredicate extends AbstractFilePredicate {
+public interface OptimizedFilePredicate extends FilePredicate, Comparable<OptimizedFilePredicate> {
 
-  private final FilePredicate predicate;
+  /**
+   * Filter provided files to keep only the ones that are valid for this predicate
+   */
+  Iterable<InputFile> filter(Iterable<InputFile> inputFiles);
 
-  NotPredicate(FilePredicate predicate) {
-    this.predicate = predicate;
-  }
+  /**
+   * Get all files that are valid for this predicate.
+   */
+  Iterable<InputFile> get(FileSystem.Index index);
 
-  @Override
-  public boolean apply(InputFile f) {
-    return !predicate.apply(f);
-  }
-
+  /**
+   * For optimization. FilePredicates will be applied in priority order. For example when doing
+   * p.and(p1, p2, p3) then p1, p2 and p3 will be applied according to their priority value. Higher priority value
+   * are applied first.
+   * Assign a high priority when the predicate will likely highly reduce the set of InputFiles to filter. Also
+   * {@link RelativePathPredicate} and AbsolutePathPredicate have a high priority since they are using cache index.
+   */
+  int priority();
 }
