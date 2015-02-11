@@ -30,6 +30,7 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -242,7 +243,7 @@ public interface SensorContext extends org.sonar.api.batch.sensor.SensorContext 
    * @param date        the event date
    * @return the created event
    */
-  Event createEvent(Resource resource, String name, String description, String category, Date date);
+  Event createEvent(Resource resource, String name, @Nullable String description, String category, @Nullable Date date);
 
   /**
    * Deletes an event

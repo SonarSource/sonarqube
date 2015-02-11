@@ -32,9 +32,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.DateUtils.parseDate;
 
-public class FeedManualMeasuresLongDatesTest {
+public class FeedEventsLongDatesTest {
   @ClassRule
-  public static DbTester db = new DbTester().schema(FeedManualMeasuresLongDatesTest.class, "schema.sql");
+  public static DbTester db = new DbTester().schema(FeedEventsLongDatesTest.class, "schema.sql");
 
   @Before
   public void before() throws Exception {
@@ -48,10 +48,10 @@ public class FeedManualMeasuresLongDatesTest {
     migration.execute();
 
     int count = db
-      .countSql("select count(*) from manual_measures where " +
+      .countSql("select count(*) from events where " +
         "created_at_ms is not null " +
-        "and updated_at_ms is not null");
-    assertThat(count).isEqualTo(2);
+        "and event_date_ms is not null");
+    assertThat(count).isEqualTo(3);
   }
 
   @Test
@@ -64,25 +64,25 @@ public class FeedManualMeasuresLongDatesTest {
     migration.execute();
 
     int count = db
-      .countSql("select count(*) from manual_measures where " +
+      .countSql("select count(*) from events where " +
         "created_at_ms = 1234");
-    assertThat(count).isEqualTo(1);
+    assertThat(count).isEqualTo(2);
   }
 
   @Test
-  public void take_manual_measure_date_if_in_the_past() throws Exception {
+  public void take_date_if_in_the_past() throws Exception {
     DatabaseMigration migration = newMigration(System2.INSTANCE);
 
     migration.execute();
 
-    long snapshotTime = parseDate("2014-09-25").getTime();
+    long time = parseDate("2014-09-25").getTime();
     int count = db
-      .countSql("select count(*) from manual_measures where " +
-        "created_at_ms=" + snapshotTime);
+      .countSql("select count(*) from events where " +
+        "created_at_ms=" + time);
     assertThat(count).isEqualTo(1);
   }
 
   private DatabaseMigration newMigration(System2 system) {
-    return new FeedManualMeasuresLongDates(db.database(), system);
+    return new FeedEventsLongDates(db.database(), system);
   }
 }

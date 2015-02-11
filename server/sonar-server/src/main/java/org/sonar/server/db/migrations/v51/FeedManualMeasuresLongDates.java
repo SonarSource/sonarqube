@@ -47,7 +47,7 @@ public class FeedManualMeasuresLongDates extends BaseDataChange {
       .select("SELECT m.created_at, m.updated_at, m.id FROM manual_measures m WHERE created_at_ms IS NULL");
     massUpdate
       .update("UPDATE manual_measures SET created_at_ms=?, updated_at_ms=? WHERE id=?");
-    massUpdate.rowPluralName("manualMeasures");
+    massUpdate.rowPluralName("manual measures");
     massUpdate.execute(new MassUpdate.Handler() {
       @Override
       public boolean handle(Select.Row row, SqlStatement update) throws SQLException {

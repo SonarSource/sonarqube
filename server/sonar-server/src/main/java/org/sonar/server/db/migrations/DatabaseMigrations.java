@@ -90,6 +90,7 @@ public interface DatabaseMigrations {
     FeedFileSourcesBinaryData.class,
     FeedSemaphoresLongDates.class,
     FeedProjectMeasuresLongDates.class,
-    FeedManualMeasuresLongDates.class
+    FeedManualMeasuresLongDates.class,
+    FeedEventsLongDates.class
     );
 }

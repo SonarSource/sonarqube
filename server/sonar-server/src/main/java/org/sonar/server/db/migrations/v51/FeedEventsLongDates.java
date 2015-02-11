@@ -30,36 +30,47 @@ import org.sonar.server.db.migrations.SqlStatement;
 import java.sql.SQLException;
 import java.util.Date;
 
-public class FeedProjectMeasuresLongDates extends BaseDataChange {
+public class FeedEventsLongDates extends BaseDataChange {
 
   private final System2 system2;
 
-  public FeedProjectMeasuresLongDates(Database db, System2 system2) {
+  public FeedEventsLongDates(Database db, System2 system2) {
     super(db);
     this.system2 = system2;
   }
 
   @Override
   public void execute(Context context) throws SQLException {
-    final long now = system2.now();
     MassUpdate massUpdate = context.prepareMassUpdate();
     massUpdate
-      .select("SELECT m.measure_date, m.id FROM project_measures m WHERE measure_date_ms IS NULL");
+      .select("SELECT e.event_date, e.created_at, e.id FROM events e WHERE event_date_ms IS NULL");
     massUpdate
-      .update("UPDATE project_measures SET measure_date_ms=? WHERE id=?");
-    massUpdate.rowPluralName("project measures");
-    massUpdate.execute(new MassUpdate.Handler() {
-      @Override
-      public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
-        Date date = row.getDate(1);
-        update.setLong(1, date == null ? null : Math.min(now, date.getTime()));
+      .update("UPDATE events SET event_date_ms=?, created_at_ms=? WHERE id=?");
+    massUpdate.rowPluralName("events");
+    massUpdate.execute(new EventDateHandler(system2.now()));
+  }
 
-        Long id = row.getLong(2);
-        update.setLong(2, id);
+  private static class EventDateHandler implements MassUpdate.Handler {
 
-        return true;
-      }
-    });
+    private final long now;
+
+    public EventDateHandler(long now) {
+      this.now = now;
+    }
+
+    @Override
+    public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
+      Date eventDate = row.getDate(1);
+      long eventTime = eventDate == null ? now : Math.min(now, eventDate.getTime());
+      update.setLong(1, eventTime);
+      Date createdAt = row.getDate(2);
+      update.setLong(2, createdAt == null ? eventTime : Math.min(now, createdAt.getTime()));
+
+      Long id = row.getLong(3);
+      update.setLong(3, id);
+
+      return true;
+    }
   }
 
 }

@@ -30,6 +30,7 @@ import org.sonar.api.rules.Violation;
 import org.sonar.graph.DirectedGraphAccessor;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.util.Collection;
 import java.util.Date;
@@ -155,7 +156,7 @@ public abstract class SonarIndex implements DirectedGraphAccessor<Resource, Depe
 
   public abstract void deleteEvent(Event event);
 
-  public abstract Event addEvent(Resource resource, String name, String description, String category, Date date);
+  public abstract Event addEvent(Resource resource, String name, String description, String category, @Nullable Date date);
 
   public final Collection<Dependency> getOutgoingDependencies(Resource from) {
     return getOutgoingEdges(from);
