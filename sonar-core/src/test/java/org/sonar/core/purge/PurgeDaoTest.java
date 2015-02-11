@@ -58,6 +58,7 @@ public class PurgeDaoTest extends AbstractDaoTestCase {
 
     sut = new PurgeDao(getMyBatis(), new ResourceDao(getMyBatis(), system2), new PurgeProfiler(), system2);
   }
+
   @After
   public void after() {
     MyBatis.closeQuietly(dbSession);
@@ -95,7 +96,7 @@ public class PurgeDaoTest extends AbstractDaoTestCase {
   public void disable_resources_without_last_snapshot() {
     setupData("disable_resources_without_last_snapshot");
     sut.purge(new PurgeConfiguration(1L, new String[0], 30, system2), PurgeListener.EMPTY);
-    checkTables("disable_resources_without_last_snapshot", new String[]{"issue_close_date", "issue_update_date"}, "projects", "snapshots", "issues");
+    checkTables("disable_resources_without_last_snapshot", new String[] {"issue_close_date", "issue_update_date"}, "projects", "snapshots", "issues");
   }
 
   @Test

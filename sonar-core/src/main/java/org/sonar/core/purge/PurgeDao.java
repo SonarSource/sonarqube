@@ -32,10 +32,7 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @since 2.14
@@ -131,16 +128,22 @@ public class PurgeDao {
   }
 
   private void disableOrphanResources(final ResourceDto project, final SqlSession session, final PurgeMapper purgeMapper, final PurgeListener purgeListener) {
+    final List<IdUuidPair> componentIdUuids = new ArrayList<IdUuidPair>();
     session.select("org.sonar.core.purge.PurgeMapper.selectResourceIdsToDisable", project.getId(), new ResultHandler() {
       @Override
       public void handleResult(ResultContext resultContext) {
-        IdUuidPair resourceIdUuid = (IdUuidPair) resultContext.getResultObject();
-        if (resourceIdUuid.getId() != null) {
-          disableResource(resourceIdUuid, purgeMapper);
-          purgeListener.onComponentDisabling(resourceIdUuid.getUuid());
+        IdUuidPair componentIdUuid = (IdUuidPair) resultContext.getResultObject();
+        if (componentIdUuid.getId() != null) {
+          componentIdUuids.add(componentIdUuid);
         }
       }
     });
+
+    for (IdUuidPair componentIdUuid : componentIdUuids) {
+      disableResource(componentIdUuid, purgeMapper);
+      purgeListener.onComponentDisabling(componentIdUuid.getUuid());
+    }
+
     session.commit();
   }
 
