@@ -18,13 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.batch.deprecated.components;
+package org.sonar.batch.components;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.util.Date;
 
+/**
+ * Used by devcockpit
+ */
 public class Period {
 
   private int index;

@@ -97,6 +97,7 @@ public class FileIndexer implements BatchComponent {
   }
 
   private void waitForTasksToComplete() {
+    executorService.shutdown();
     for (Future<Void> task : tasks) {
       try {
         task.get();

@@ -20,9 +20,9 @@
 
 package org.sonar.plugins.core.issue;
 
-import org.sonar.batch.components.TimeMachineConfiguration;
+import org.sonar.batch.components.Period;
 
-import org.sonar.batch.deprecated.components.Period;
+import org.sonar.batch.components.TimeMachineConfiguration;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.time.DateUtils;

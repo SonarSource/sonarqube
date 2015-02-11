@@ -19,9 +19,9 @@
  */
 package org.sonar.plugins.core.issue;
 
-import org.sonar.batch.components.TimeMachineConfiguration;
+import org.sonar.batch.components.Period;
 
-import org.sonar.batch.deprecated.components.Period;
+import org.sonar.batch.components.TimeMachineConfiguration;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.*;
 import org.apache.commons.lang.time.DateUtils;

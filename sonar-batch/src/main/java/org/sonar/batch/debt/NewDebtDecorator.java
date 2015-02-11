@@ -20,9 +20,9 @@
 
 package org.sonar.batch.debt;
 
-import org.sonar.batch.components.TimeMachineConfiguration;
+import org.sonar.batch.components.Period;
 
-import org.sonar.batch.deprecated.components.Period;
+import org.sonar.batch.components.TimeMachineConfiguration;
 import com.google.common.collect.ImmutableList;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorBarriers;

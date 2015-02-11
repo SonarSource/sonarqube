@@ -19,9 +19,9 @@
  */
 package org.sonar.plugins.core.timemachine;
 
-import org.sonar.batch.components.TimeMachineConfiguration;
+import org.sonar.batch.components.Period;
 
-import org.sonar.batch.deprecated.components.Period;
+import org.sonar.batch.components.TimeMachineConfiguration;
 import org.sonar.api.batch.RequiresDB;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
