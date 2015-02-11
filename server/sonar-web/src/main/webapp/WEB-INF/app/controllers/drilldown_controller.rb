@@ -64,6 +64,12 @@ class DrilldownController < ApplicationController
     @display_viewers = display_metric_viewers?(@highlighted_resource || @resource)
   end
 
+  def issues
+    @rule=Rule.by_key_or_id(params[:rule])
+    @period=params[:period].to_i if params[:period].present? && params[:period].to_i>0
+    @severity = params[:severity]
+  end
+
 
   private
 
