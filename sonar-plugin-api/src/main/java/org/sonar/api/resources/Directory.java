@@ -35,8 +35,34 @@ public class Directory extends Resource {
   public static final String SEPARATOR = "/";
   public static final String ROOT = "[root]";
 
+  private final String relativePathFromSourceDir;
+
   Directory() {
     // Used by factory
+    this.relativePathFromSourceDir = null;
+  }
+
+  /**
+   * @deprecated since 4.2 use {@link #fromIOFile(java.io.File, Project)}
+   */
+  @Deprecated
+  public Directory(String relativePathFromSourceDir) {
+    this(relativePathFromSourceDir, null);
+  }
+
+  /**
+   * @deprecated since 4.2 use {@link #fromIOFile(java.io.File, Project)}
+   */
+  @Deprecated
+  public Directory(String relativePathFromSourceDir, Language language) {
+    this.relativePathFromSourceDir = parseKey(relativePathFromSourceDir);
+  }
+
+  /**
+   * Internal.
+   */
+  public String relativePathFromSourceDir() {
+    return relativePathFromSourceDir;
   }
 
   @Override

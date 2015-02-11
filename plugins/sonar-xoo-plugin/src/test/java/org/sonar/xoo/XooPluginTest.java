@@ -27,6 +27,6 @@ public class XooPluginTest {
 
   @Test
   public void provide_extensions() {
-    assertThat(new XooPlugin().getExtensions()).hasSize(20);
+    assertThat(new XooPlugin().getExtensions()).hasSize(21);
   }
 }

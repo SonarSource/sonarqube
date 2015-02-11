@@ -28,6 +28,8 @@ import org.sonar.api.utils.WildcardPattern;
 
 import javax.annotation.CheckForNull;
 
+import java.util.List;
+
 /**
  * This class is an implementation of a resource of type FILE
  *
@@ -42,8 +44,62 @@ public class File extends Resource {
   private Directory parent;
   private String qualifier = Qualifiers.FILE;
 
+  private final String relativePathFromSourceDir;
+
   private File() {
     // Used by factory method
+    this.relativePathFromSourceDir = null;
+  }
+
+  /**
+   * @deprecated since 4.2 use {@link FileSystem#inputFile(org.sonar.api.batch.fs.FilePredicate)}
+   */
+  @Deprecated
+  public File(String relativePathFromSourceDir) {
+    if (relativePathFromSourceDir == null) {
+      throw new IllegalArgumentException("File key is null");
+    }
+    this.relativePathFromSourceDir = parseKey(relativePathFromSourceDir);
+  }
+
+  /**
+   * @deprecated since 4.2 use {@link FileSystem#inputFile(org.sonar.api.batch.fs.FilePredicate)}
+   */
+  @Deprecated
+  public File(String relativeDirectoryPathFromSourceDir, String filename) {
+    this.filename = StringUtils.trim(filename);
+    if (StringUtils.isBlank(relativeDirectoryPathFromSourceDir)) {
+      this.relativePathFromSourceDir = filename;
+    } else {
+      this.relativePathFromSourceDir = new StringBuilder().append(Directory.parseKey(relativeDirectoryPathFromSourceDir)).append(Directory.SEPARATOR).append(this.filename)
+        .toString();
+    }
+  }
+
+  /**
+   * @deprecated since 4.2 use {@link FileSystem#inputFile(org.sonar.api.batch.fs.FilePredicate)}
+   */
+  @Deprecated
+  public File(Language language, String relativePathFromSourceDir) {
+    this(relativePathFromSourceDir);
+    this.language = language;
+  }
+
+  /**
+   * Creates a File from language, directory and filename
+   * @deprecated since 4.2 use {@link #fromIOFile(java.io.File, Project)}
+   */
+  @Deprecated
+  public File(Language language, String relativeDirectoryPathFromSourceDir, String filename) {
+    this(relativeDirectoryPathFromSourceDir, filename);
+    this.language = language;
+  }
+
+  /**
+   * Internal.
+   */
+  public String relativePathFromSourceDir() {
+    return relativePathFromSourceDir;
   }
 
   /**
@@ -75,6 +131,20 @@ public class File extends Resource {
   public boolean matchFilePattern(String antPattern) {
     WildcardPattern matcher = WildcardPattern.create(antPattern, Directory.SEPARATOR);
     return matcher.match(getKey());
+  }
+
+  /**
+  * Creates a File from an io.file and a list of sources directories
+  * @deprecated since 4.2 use {@link #fromIOFile(java.io.File, Project)}
+  */
+  @Deprecated
+  @CheckForNull
+  public static File fromIOFile(java.io.File file, List<java.io.File> sourceDirs) {
+    PathResolver.RelativePath relativePath = new PathResolver().relativePath(sourceDirs, file);
+    if (relativePath != null) {
+      return new File(relativePath.path());
+    }
+    return null;
   }
 
   /**
