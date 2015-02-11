@@ -12,6 +12,7 @@ var BASE_URL = 'http://localhost:' + getPort() + '/pages/',
 
 
 exports.initMessages = function () {
+  casper.options.waitTimeout = 10000;
   if (casper.cli.options.verbose) {
     // Dump log messages
     casper.removeAllListeners('remote.message');
