@@ -20,6 +20,7 @@
 package org.sonar.server.issue.ws;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.io.Resources;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -29,6 +30,7 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.IssueQueryService;
 import org.sonar.server.issue.IssueService;
+import org.sonar.server.issue.filter.IssueFilterParameters;
 
 import java.util.Map;
 
@@ -38,6 +40,9 @@ import java.util.Map;
  */
 public class ComponentTagsAction implements BaseIssuesWsAction {
 
+  private static final String PARAM_COMPONENT_UUID = "componentUuid";
+  private static final String PARAM_CREATED_AT = "createdAfter";
+  private static final String PARAM_PAGE_SIZE = "ps";
   private final IssueService service;
   private final IssueQueryService queryService;
 
@@ -54,11 +59,14 @@ public class ComponentTagsAction implements BaseIssuesWsAction {
       .setInternal(true)
       .setDescription("List tags for the issues under a given component (including issues on the descendants of the component)")
       .setResponseExample(Resources.getResource(getClass(), "example-component-tags.json"));
-    action.createParam("componentUuid")
+    action.createParam(PARAM_COMPONENT_UUID)
       .setDescription("A component UUID")
       .setRequired(true)
       .setExampleValue("7d8749e8-3070-4903-9188-bdd82933bb92");
-    action.createParam("ps")
+    action.createParam(PARAM_CREATED_AT)
+      .setDescription("To retrieve tags on issues created after the given date (inclusive). Format: date or datetime ISO formats")
+      .setExampleValue("2013-05-01 (or 2013-05-01T13:00:00+0100)");
+    action.createParam(PARAM_PAGE_SIZE)
       .setDescription("The maximum size of the list to return")
       .setExampleValue("25")
       .setDefaultValue("10");
@@ -66,12 +74,14 @@ public class ComponentTagsAction implements BaseIssuesWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    String componentUuid = request.mandatoryParam("componentUuid");
-    IssueQuery query = queryService.createFromMap(
-      ImmutableMap.<String, Object>of(
-        "componentUuids", componentUuid,
-        "resolved", false));
-    int pageSize = request.mandatoryParamAsInt("ps");
+    Builder<String, Object> paramBuilder = ImmutableMap.<String, Object>builder()
+      .put(IssueFilterParameters.COMPONENT_UUIDS, request.mandatoryParam(PARAM_COMPONENT_UUID))
+      .put(IssueFilterParameters.RESOLVED, false);
+    if (request.hasParam(PARAM_CREATED_AT)) {
+      paramBuilder.put(IssueFilterParameters.CREATED_AFTER, request.param(PARAM_CREATED_AT));
+    }
+    IssueQuery query = queryService.createFromMap(paramBuilder.build());
+    int pageSize = request.mandatoryParamAsInt(PARAM_PAGE_SIZE);
     JsonWriter json = response.newJsonWriter().beginObject().name("tags").beginArray();
     for (Map.Entry<String, Long> tag : service.listTagsForComponent(query, pageSize).entrySet()) {
       json.beginObject()

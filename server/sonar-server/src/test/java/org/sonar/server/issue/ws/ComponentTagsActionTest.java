@@ -67,12 +67,16 @@ public class ComponentTagsActionTest {
     assertThat(action.isPost()).isFalse();
     assertThat(action.isInternal()).isTrue();
     assertThat(action.handler()).isEqualTo(componentTagsAction);
-    assertThat(action.params()).hasSize(2);
+    assertThat(action.params()).hasSize(3);
 
     Param query = action.param("componentUuid");
     assertThat(query.isRequired()).isTrue();
     assertThat(query.description()).isNotEmpty();
     assertThat(query.exampleValue()).isNotEmpty();
+    Param createdAfter = action.param("createdAfter");
+    assertThat(createdAfter.isRequired()).isFalse();
+    assertThat(createdAfter.description()).isNotEmpty();
+    assertThat(createdAfter.exampleValue()).isNotEmpty();
     Param pageSize = action.param("ps");
     assertThat(pageSize.isRequired()).isFalse();
     assertThat(pageSize.defaultValue()).isEqualTo("10");
@@ -98,11 +102,41 @@ public class ComponentTagsActionTest {
     ArgumentCaptor<Map> captor = ArgumentCaptor.forClass(Map.class);
     when(queryService.createFromMap(captor.capture())).thenReturn(query);
     when(service.listTagsForComponent(query, 5)).thenReturn(tags);
+
     tester.newGetRequest("api/issues", "component_tags").setParam("componentUuid", "polop").setParam("ps", "5").execute()
       .assertJson(getClass(), "component-tags.json");
     assertThat(captor.getValue())
       .containsEntry("componentUuids", "polop")
       .containsEntry("resolved", false);
+    verify(service).listTagsForComponent(query, 5);
+  }
+
+  @Test
+  public void should_return_tag_list_wuth_created_after() throws Exception {
+    Map<String, Long> tags = ImmutableMap.<String, Long>builder()
+      .put("convention", 2771L)
+      .put("brain-overload", 998L)
+      .put("cwe", 89L)
+      .put("bug", 32L)
+      .put("cert", 2L)
+      .build();
+    IssueQuery query = mock(IssueQuery.class);
+    ArgumentCaptor<Map> captor = ArgumentCaptor.forClass(Map.class);
+    when(queryService.createFromMap(captor.capture())).thenReturn(query);
+    when(service.listTagsForComponent(query, 5)).thenReturn(tags);
+
+    String componentUuid = "polop";
+    String createdAfter = "2011-04-25";
+    tester.newGetRequest("api/issues", "component_tags")
+      .setParam("componentUuid", componentUuid)
+      .setParam("createdAfter", createdAfter)
+      .setParam("ps", "5")
+      .execute()
+      .assertJson(getClass(), "component-tags.json");
+    assertThat(captor.getValue())
+      .containsEntry("componentUuids", componentUuid)
+      .containsEntry("resolved", false)
+      .containsEntry("createdAfter", createdAfter);
     verify(service).listTagsForComponent(query, 5);
   }
 }
