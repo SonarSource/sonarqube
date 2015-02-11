@@ -129,10 +129,12 @@ public class FileIndexer implements BatchComponent {
 
   private void indexFile(InputFileBuilder inputFileBuilder, DefaultModuleFileSystem fileSystem, Progress progress, File sourceFile, InputFile.Type type) {
     DeprecatedDefaultInputFile inputFile = inputFileBuilder.create(sourceFile);
-    // Set basedir on input file prior to adding it to the FS since exclusions filters may require the absolute path
-    inputFile.setModuleBaseDir(fileSystem.baseDirPath());
-    if (inputFile != null && exclusionFilters.accept(inputFile, type)) {
-      indexFile(inputFileBuilder, fileSystem, progress, inputFile, type);
+    if (inputFile != null) {
+      // Set basedir on input file prior to adding it to the FS since exclusions filters may require the absolute path
+      inputFile.setModuleBaseDir(fileSystem.baseDirPath());
+      if (exclusionFilters.accept(inputFile, type)) {
+        indexFile(inputFileBuilder, fileSystem, progress, inputFile, type);
+      }
     }
   }
 
