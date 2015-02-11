@@ -62,7 +62,7 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
 
   public DefaultModuleFileSystem(ModuleInputFileCache moduleInputFileCache, Project project,
     Settings settings, FileIndexer indexer, ModuleFileSystemInitializer initializer, ComponentIndexer componentIndexer) {
-    super(initializer.baseDir().toPath(), moduleInputFileCache);
+    super(initializer.baseDir(), moduleInputFileCache);
     this.componentIndexer = componentIndexer;
     this.moduleKey = project.getKey();
     this.settings = settings;

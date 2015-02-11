@@ -20,7 +20,6 @@
 package org.sonar.api.batch.fs.internal;
 
 import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FilePredicates;
@@ -61,14 +60,21 @@ public class DefaultFileSystem implements FileSystem {
    * Only for testing
    */
   public DefaultFileSystem(Path baseDir) {
+    this(baseDir.toFile(), new MapCache());
+  }
+
+  /**
+   * Only for testing
+   */
+  public DefaultFileSystem(File baseDir) {
     this(baseDir, new MapCache());
   }
 
-  protected DefaultFileSystem(Path baseDir, Cache cache) {
-    Preconditions.checkNotNull(baseDir, "Base directory can't be null");
-    this.baseDir = baseDir.toAbsolutePath().normalize();
+  protected DefaultFileSystem(@Nullable File baseDir, Cache cache) {
+    // Basedir can be null with views
+    this.baseDir = baseDir != null ? baseDir.toPath().toAbsolutePath().normalize() : new File(".").toPath();
     this.cache = cache;
-    this.predicates = new DefaultFilePredicates(baseDir);
+    this.predicates = new DefaultFilePredicates(this.baseDir);
   }
 
   public Path baseDirPath() {
