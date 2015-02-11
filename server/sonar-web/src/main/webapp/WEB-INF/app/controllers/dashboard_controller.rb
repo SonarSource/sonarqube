@@ -25,22 +25,27 @@ class DashboardController < ApplicationController
 
   def index
     load_resource()
-
-    if !@resource || @resource.display_dashboard?
-      load_dashboard()
-      load_authorized_widget_definitions()
-    else
-      # display the layout of the parent without the sidebar, usually the directory, but display the file viewers
-      @hide_sidebar = true
-      @file = @resource
-      @project = @snapshot.parent.project
-      @metric=params[:metric]
-      render :action => 'no_dashboard'
+      if !@resource || @resource.display_dashboard?
+        redirect_if_bad_component()
+        load_dashboard()
+        load_authorized_widget_definitions()
+      else
+        if !@resource || !@snapshot
+          redirect_if_bad_component()
+        else
+          # display the layout of the parent without the sidebar, usually the directory, but display the file viewers
+          @hide_sidebar = true
+          @file = @resource
+          @project = @snapshot.parent.project
+          @metric=params[:metric]
+          render :action => 'no_dashboard'
+      end
     end
   end
 
   def configure
     load_resource()
+    redirect_if_bad_component()
     load_dashboard()
 
     @category=params[:category]
@@ -136,6 +141,7 @@ class DashboardController < ApplicationController
   def widget_definitions
     @category=params[:category]
     load_resource()
+    # redirect_if_bad_component()
     load_dashboard()
     load_widget_definitions(@category)
     render :partial => 'widget_definitions', :locals => {:category => @category}
@@ -183,16 +189,27 @@ class DashboardController < ApplicationController
 
   def load_resource
     if params[:id]
-      @resource=Project.by_key(params[:id])
-      return project_not_found unless @resource
+      @resource = Project.by_key(params[:id])
+      return unless @resource
       @resource=@resource.permanent_resource
 
       @snapshot=@resource.last_snapshot
-      return project_not_analyzed unless @snapshot
+      return unless @snapshot
 
       access_denied unless has_role?(:user, @resource)
 
       @project=@resource # for backward compatibility with old widgets
+    end
+  end
+
+  def redirect_if_bad_component
+    if params[:id]
+      unless @resource
+        return project_not_found
+      end
+      unless @snapshot
+        project_not_analyzed
+      end
     end
   end
 
