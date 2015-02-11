@@ -258,7 +258,7 @@ class ApplicationController < ActionController::Base
 
   def init_resource_for_role(role, resource_param=:id)
     @resource=Project.by_key(params[resource_param])
-    unless @resource
+    unless @resource && @resource.enabled
       flash[:error] = message('dashboard.project_not_found')
       redirect_to :controller => :dashboard, :action => :index
     else
