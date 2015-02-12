@@ -20,6 +20,7 @@
 
 package org.sonar.server.db.migrations.v51;
 
+import org.apache.commons.lang.StringUtils;
 import org.sonar.core.persistence.Database;
 import org.sonar.server.db.migrations.*;
 import org.sonar.server.db.migrations.MassUpdate.Handler;
@@ -61,8 +62,13 @@ public class UpdateProjectsModuleUuidPath extends BaseDataChange {
       boolean needUpdate = false;
       String newModuleUuidPath = moduleUuidPath;
 
-      if (needUpdateForSeparators(moduleUuidPath)) {
-        newModuleUuidPath = newModuleUuidPathWithSeparators(moduleUuidPath);
+      if (needUpdateForEmptyPath(newModuleUuidPath)) {
+        newModuleUuidPath = SEP + uuid + SEP;
+        needUpdate = true;
+      }
+
+      if (needUpdateForSeparators(newModuleUuidPath)) {
+        newModuleUuidPath = newModuleUuidPathWithSeparators(newModuleUuidPath);
         needUpdate = true;
       }
 
@@ -78,19 +84,19 @@ public class UpdateProjectsModuleUuidPath extends BaseDataChange {
       return needUpdate;
     }
 
-    private static boolean needUpdateForSeparators(@Nullable String moduleUuidPath) {
-      return moduleUuidPath == null || !(moduleUuidPath.startsWith(SEP) && moduleUuidPath.endsWith(SEP));
+    private static boolean needUpdateForEmptyPath(@Nullable String moduleUuidPath) {
+      return StringUtils.isEmpty(moduleUuidPath) || SEP.equals(moduleUuidPath);
     }
 
-    private static String newModuleUuidPathWithSeparators(@Nullable String oldModuleUuidPath) {
-      if (oldModuleUuidPath == null || oldModuleUuidPath.isEmpty()) {
-        return SEP;
-      } else {
-        StringBuilder newModuleUuidPath = new StringBuilder(oldModuleUuidPath);
-        newModuleUuidPath.insert(0, SEP);
-        newModuleUuidPath.append(SEP);
-        return newModuleUuidPath.toString();
-      }
+    private static boolean needUpdateForSeparators(String moduleUuidPath) {
+      return !(moduleUuidPath.startsWith(SEP) && moduleUuidPath.endsWith(SEP));
+    }
+
+    private static String newModuleUuidPathWithSeparators(String oldModuleUuidPath) {
+      StringBuilder newModuleUuidPath = new StringBuilder(oldModuleUuidPath);
+      newModuleUuidPath.insert(0, SEP);
+      newModuleUuidPath.append(SEP);
+      return newModuleUuidPath.toString();
     }
 
     private static boolean needUpdateToIncludeItself(String moduleUuidPath, @Nullable String uuid, @Nullable String scope, @Nullable String qualifier) {
