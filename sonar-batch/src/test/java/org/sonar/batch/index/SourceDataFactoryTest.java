@@ -114,6 +114,24 @@ public class SourceDataFactoryTest {
   }
 
   @Test
+  public void applyLineMeasure_ignore_bad_line_numbers() throws Exception {
+    Metric metric = CoreMetrics.COVERAGE_LINE_HITS_DATA;
+    when(measureCache.byMetric("component_key", metric.key())).thenReturn(
+      // line 30 does not exist
+      Arrays.asList(new Measure().setData("30=42").setMetric(metric)));
+
+    sut.applyLineMeasure("component_key", metric.key(), output, new SourceDataFactory.MeasureOperation() {
+      @Override
+      public void apply(String value, FileSourceDb.Line.Builder lineBuilder) {
+        lineBuilder.setUtLineHits(Integer.parseInt(value));
+      }
+    });
+
+    FileSourceDb.Data data = output.build();
+    assertThat(data.getLinesCount()).isEqualTo(3);
+  }
+
+  @Test
   public void applyLineMeasures() throws Exception {
     setupLineMeasure(CoreMetrics.SCM_AUTHORS_BY_LINE, "1=him;2=her");
     setupLineMeasure(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE, "1=2014-10-11T16:44:02+0100;2=2014-10-12T16:44:02+0100;3=2014-10-13T16:44:02+0100");
@@ -170,6 +188,22 @@ public class SourceDataFactoryTest {
   }
 
   @Test
+  public void applyDuplications_ignore_bad_lines() throws Exception {
+    // duplication on 10 lines
+    DuplicationGroup group1 = new DuplicationGroup(new DuplicationGroup.Block(inputFile.key(), 1, 10))
+      .addDuplicate(new DuplicationGroup.Block("anotherFile1", 12, 1))
+      .addDuplicate(new DuplicationGroup.Block("anotherFile2", 13, 1));
+    when(duplicationCache.byComponent(inputFile.key())).thenReturn(Lists.newArrayList(group1));
+
+    sut.applyDuplications(inputFile.key(), output);
+
+    FileSourceDb.Data data = output.build();
+    assertThat(data.getLines(0).getDuplicationsList()).containsExactly(1);
+    assertThat(data.getLines(1).getDuplicationsList()).containsExactly(1);
+    assertThat(data.getLines(2).getDuplicationsList()).containsExactly(1);
+  }
+
+  @Test
   public void applyHighlighting_missing() throws Exception {
     when(componentDataCache.getData(inputFile.key(), SnapshotDataTypes.SYNTAX_HIGHLIGHTING)).thenReturn(null);
 
@@ -197,6 +231,22 @@ public class SourceDataFactoryTest {
     assertThat(data.getLines(0).getHighlighting()).isEqualTo("0,4,a");
     assertThat(data.getLines(1).getHighlighting()).isEqualTo("0,1,cd");
     assertThat(data.getLines(2).getHighlighting()).isEqualTo("0,9,c");
+  }
+
+  @Test
+  public void applyHighlighting_ignore_bad_line() throws Exception {
+    SyntaxHighlightingData highlighting = new SyntaxHighlightingDataBuilder()
+      .registerHighlightingRule(0, 4, TypeOfText.ANNOTATION)
+      .registerHighlightingRule(4, 5, TypeOfText.COMMENT)
+      .registerHighlightingRule(7, 25, TypeOfText.CONSTANT)
+      .build();
+    when(componentDataCache.getData(inputFile.key(), SnapshotDataTypes.SYNTAX_HIGHLIGHTING)).thenReturn(highlighting);
+    metadata.setOriginalLineOffsets(new int[] {0, 4, 7, 15});
+
+    sut.applyHighlighting(inputFile, metadata, output);
+
+    FileSourceDb.Data data = output.build();
+    assertThat(data.getLinesCount()).isEqualTo(3);
   }
 
   @Test

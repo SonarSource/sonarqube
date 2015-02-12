@@ -50,7 +50,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Consolidate different caches for the export of report to server.
+ * Consolidate different caches for the export of file sources to server.
  * @see org.sonar.server.source.db.FileSourceDb
  */
 public class SourceDataFactory implements BatchComponent {
@@ -175,10 +175,13 @@ public class SourceDataFactory implements BatchComponent {
       for (Measure measure : measures) {
         Map<Integer, String> lineMeasures = KeyValueFormat.parseIntString((String) measure.value());
         for (Map.Entry<Integer, String> lineMeasure : lineMeasures.entrySet()) {
-          String value = lineMeasure.getValue();
-          if (StringUtils.isNotEmpty(value)) {
-            FileSourceDb.Line.Builder lineBuilder = to.getLinesBuilder(lineMeasure.getKey() - 1);
-            op.apply(value, lineBuilder);
+          int lineIdx = lineMeasure.getKey();
+          if (lineIdx <= to.getLinesCount()) {
+            String value = lineMeasure.getValue();
+            if (StringUtils.isNotEmpty(value)) {
+              FileSourceDb.Line.Builder lineBuilder = to.getLinesBuilder(lineIdx - 1);
+              op.apply(value, lineBuilder);
+            }
           }
         }
       }
@@ -290,8 +293,8 @@ public class SourceDataFactory implements BatchComponent {
   }
 
   private <G> void writeItem(G item, StringBuilder[] dataPerLine, int currentLineIdx, long startLineOffset, long endLineOffset, RangeItemWriter<G> writer) {
-    if (startLineOffset == endLineOffset) {
-      // Do not store empty items
+    if (startLineOffset == endLineOffset || currentLineIdx > dataPerLine.length) {
+      // empty items or bad line index
       return;
     }
     if (dataPerLine[currentLineIdx - 1] == null) {
@@ -363,8 +366,10 @@ public class SourceDataFactory implements BatchComponent {
   private void addBlock(int blockId, DuplicationGroup.Block block, FileSourceDb.Data.Builder to) {
     int currentLine = block.startLine();
     for (int i = 0; i < block.length(); i++) {
-      to.getLinesBuilder(currentLine-1).addDuplications(blockId);
-      currentLine++;
+      if (currentLine <= to.getLinesCount()) {
+        to.getLinesBuilder(currentLine - 1).addDuplications(blockId);
+        currentLine++;
+      }
     }
   }
 }
