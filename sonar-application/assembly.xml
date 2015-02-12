@@ -58,9 +58,6 @@
       <scope>provided</scope>
     </dependencySet>
 
-
-
-
     <dependencySet>
       <outputDirectory>lib/search</outputDirectory>
       <useProjectArtifact>false</useProjectArtifact>
@@ -165,6 +162,8 @@
           <exclude>**/*.bat</exclude>
           <exclude>**/sample*/**</exclude>
           <exclude>**/macosx-universal-32/**</exclude>
+          <!-- SONAR-6110 - Drop support files for Linux PPC 64 -->
+          <exclude>**/linux-ppc-64/**</exclude>
         </excludes>
       </unpackOptions>
       <fileMode>0755</fileMode>
