@@ -244,7 +244,7 @@ public class IssueIndex extends BaseIndex {
     FilterBuilder viewFilter = createViewFilter(query.viewUuids());
     FilterBuilder componentFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, query.componentUuids());
     FilterBuilder projectFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, query.projectUuids());
-    FilterBuilder moduleRootFilter = createModuleRootFilter(query.moduleRootUuids());
+    FilterBuilder moduleRootFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_MODULE_PATH, query.moduleRootUuids());
     FilterBuilder moduleFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, query.moduleUuids());
     FilterBuilder directoryFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH, query.directories());
     FilterBuilder fileFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, query.fileUuids());
@@ -263,26 +263,6 @@ public class IssueIndex extends BaseIndex {
         filters.put(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, componentFilter);
       }
     }
-  }
-
-  @CheckForNull
-  private FilterBuilder createModuleRootFilter(Collection<String> componentUuids) {
-    if (componentUuids.isEmpty()) {
-      return null;
-    }
-    FilterBuilder componentFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, componentUuids);
-    FilterBuilder modulePathFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_MODULE_PATH, componentUuids);
-    FilterBuilder compositeFilter = null;
-    if (componentFilter != null) {
-      if (modulePathFilter != null) {
-        compositeFilter = FilterBuilders.orFilter(componentFilter, modulePathFilter);
-      } else {
-        compositeFilter = componentFilter;
-      }
-    } else if (modulePathFilter != null) {
-      compositeFilter = modulePathFilter;
-    }
-    return compositeFilter;
   }
 
   @CheckForNull
