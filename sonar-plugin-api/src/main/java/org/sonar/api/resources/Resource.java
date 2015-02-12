@@ -309,6 +309,7 @@ public abstract class Resource implements Serializable {
 
   @Override
   public int hashCode() {
-    return key.hashCode();
+    // For File and Directory using deprecatedKey, key can be null
+    return key != null ? key.hashCode() : super.hashCode();
   }
 }
