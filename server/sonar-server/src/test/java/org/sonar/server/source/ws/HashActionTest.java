@@ -47,7 +47,7 @@ import static org.mockito.Mockito.mock;
 public class HashActionTest {
 
   final static String COMPONENT_KEY = "Action.java";
-  final static String PROJECT_KEY = "struts";
+  final static String PROJECT_UUID = "ABCD";
 
   @ClassRule
   public static DbTester db = new DbTester();
@@ -83,7 +83,7 @@ public class HashActionTest {
   @Test
   public void show_hashes() throws Exception {
     db.prepareDbUnit(getClass(), "shared.xml");
-    MockUserSession.set().setLogin("polop").addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
+    MockUserSession.set().setLogin("polop").addProjectUuidPermissions(UserRole.USER, PROJECT_UUID);
 
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "hash").setParam("key", COMPONENT_KEY);
     assertThat(request.execute().outputAsString()).isEqualTo("987654");
@@ -92,7 +92,7 @@ public class HashActionTest {
   @Test
   public void hashes_empty_if_no_source() throws Exception {
     db.prepareDbUnit(getClass(), "no_source.xml");
-    MockUserSession.set().setLogin("polop").addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
+    MockUserSession.set().setLogin("polop").addProjectUuidPermissions(UserRole.USER, PROJECT_UUID);
 
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "hash").setParam("key", COMPONENT_KEY);
     request.execute().assertNoContent();
@@ -100,7 +100,7 @@ public class HashActionTest {
 
   @Test
   public void fail_to_show_hashes_if_file_does_not_exist() throws Exception {
-    MockUserSession.set().setLogin("polop").addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
+    MockUserSession.set().setLogin("polop").addProjectUuidPermissions(UserRole.USER, PROJECT_UUID);
     try {
       WsTester.TestRequest request = tester.newGetRequest("api/sources", "hash").setParam("key", COMPONENT_KEY);
       request.execute();
