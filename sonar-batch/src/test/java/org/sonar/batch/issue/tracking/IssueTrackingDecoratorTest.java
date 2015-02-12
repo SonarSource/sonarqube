@@ -22,6 +22,7 @@ package org.sonar.batch.issue.tracking;
 import com.google.common.base.Charsets;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -224,8 +225,9 @@ public class IssueTrackingDecoratorTest {
     DefaultInputFile inputFile = mock(DefaultInputFile.class);
     java.io.File f = temp.newFile();
     when(inputFile.path()).thenReturn(f.toPath());
+    when(inputFile.file()).thenReturn(f);
     when(inputFile.charset()).thenReturn(Charsets.UTF_8);
-    when(inputFile.lines()).thenReturn(newSource.split("\n").length);
+    when(inputFile.lines()).thenReturn(StringUtils.countMatches(newSource, "\n") + 1);
     FileUtils.write(f, newSource, Charsets.UTF_8);
     when(inputFile.key()).thenReturn("foo:Action.java");
     when(inputPathCache.getFile("foo", "Action.java")).thenReturn(inputFile);

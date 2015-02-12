@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.index;
 
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
@@ -26,6 +27,8 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.ProjectTree;
+import org.sonar.batch.scan.filesystem.FileMetadata;
+import org.sonar.batch.scan.filesystem.FileMetadata.LineHashConsumer;
 import org.sonar.batch.scan.filesystem.InputFileMetadata;
 import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.core.persistence.DbSession;
@@ -34,10 +37,9 @@ import org.sonar.core.source.db.FileSourceDto;
 import org.sonar.core.source.db.FileSourceMapper;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -98,7 +100,7 @@ public class SourcePersister implements ScanPersister {
         .setBinaryData(data)
         .setDataHash(dataHash)
         .setSrcHash(metadata.hash())
-        .setLineHashes(lineHashesAsMd5Hex(inputFile, metadata))
+        .setLineHashes(lineHashesAsMd5Hex(inputFile))
         .setCreatedAt(system2.now())
         .setUpdatedAt(system2.now());
       mapper.insert(dto);
@@ -110,7 +112,7 @@ public class SourcePersister implements ScanPersister {
           .setBinaryData(data)
           .setDataHash(dataHash)
           .setSrcHash(metadata.hash())
-          .setLineHashes(lineHashesAsMd5Hex(inputFile, metadata))
+          .setLineHashes(lineHashesAsMd5Hex(inputFile))
           .setUpdatedAt(system2.now());
         mapper.update(previousDto);
         session.commit();
@@ -119,34 +121,23 @@ public class SourcePersister implements ScanPersister {
   }
 
   @CheckForNull
-  private String lineHashesAsMd5Hex(DefaultInputFile f, InputFileMetadata metadata) {
+  private String lineHashesAsMd5Hex(DefaultInputFile f) {
     if (f.lines() == 0) {
       return null;
     }
     // A md5 string is 32 char long + '\n' = 33
-    StringBuilder result = new StringBuilder(f.lines() * (32 + 1));
+    final StringBuilder result = new StringBuilder(f.lines() * (32 + 1));
 
-    try {
-      BufferedReader reader = Files.newBufferedReader(f.path(), f.charset());
-      StringBuilder sb = new StringBuilder();
-      for (int i = 0; i < f.lines(); i++) {
-        String lineStr = reader.readLine();
-        lineStr = lineStr == null ? "" : lineStr;
-        for (int j = 0; j < lineStr.length(); j++) {
-          char c = lineStr.charAt(j);
-          if (!Character.isWhitespace(c)) {
-            sb.append(c);
-          }
-        }
-        if (i > 0) {
+    FileMetadata.computeLineHashesForIssueTracking(f, new LineHashConsumer() {
+
+      @Override
+      public void consume(int lineIdx, @Nullable byte[] hash) {
+        if (lineIdx > 0) {
           result.append("\n");
         }
-        result.append(sb.length() > 0 ? DigestUtils.md5Hex(sb.toString()) : "");
-        sb.setLength(0);
+        result.append(hash != null ? Hex.encodeHexString(hash) : "");
       }
-    } catch (Exception e) {
-      throw new IllegalStateException("Unable to compute line hashes of file " + f, e);
-    }
+    });
 
     return result.toString();
   }

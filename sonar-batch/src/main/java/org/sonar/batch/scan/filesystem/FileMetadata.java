@@ -25,10 +25,15 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.ByteOrderMark;
 import org.apache.commons.io.input.BOMInputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.AnalysisMode;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -47,6 +52,8 @@ import java.util.List;
  */
 public class FileMetadata implements BatchComponent {
 
+  private static final Logger LOG = LoggerFactory.getLogger(FileMetadata.class);
+
   private static final char LINE_FEED = '\n';
   private static final char CARRIAGE_RETURN = '\r';
   private final AnalysisMode analysisMode;
@@ -55,7 +62,7 @@ public class FileMetadata implements BatchComponent {
     this.analysisMode = analysisMode;
   }
 
-  private abstract class CharHandler {
+  private static abstract class CharHandler {
 
     void handleAll(char c) {
     }
@@ -70,15 +77,28 @@ public class FileMetadata implements BatchComponent {
     }
   }
 
-  private class LineCounter extends CharHandler {
+  private static class LineCounter extends CharHandler {
     private boolean empty = true;
     private int lines = 1;
     private int nonBlankLines = 0;
     private boolean blankLine = true;
+    boolean alreadyLoggedInvalidCharacter = false;
+    private final File file;
+    private final Charset encoding;
+
+    LineCounter(File file, Charset encoding) {
+      this.file = file;
+      this.encoding = encoding;
+    }
 
     @Override
     void handleAll(char c) {
       this.empty = false;
+      if (!alreadyLoggedInvalidCharacter && c == '\ufffd') {
+        LOG.warn("Invalid character encountered in file " + file + " at line " + lines
+          + " for encoding " + encoding + ". Please fix file content or configure the encoding to be used using property '" + CoreProperties.ENCODING_PROPERTY + "'.");
+        alreadyLoggedInvalidCharacter = true;
+      }
     }
 
     @Override
@@ -117,10 +137,9 @@ public class FileMetadata implements BatchComponent {
     }
   }
 
-  private class FileHashComputer extends CharHandler {
+  private static class FileHashComputer extends CharHandler {
     private MessageDigest globalMd5Digest = DigestUtils.getMd5Digest();
-
-    StringBuffer sb = new StringBuffer();
+    private StringBuffer sb = new StringBuffer();
 
     @Override
     void handleIgnoreEoL(char c) {
@@ -147,7 +166,38 @@ public class FileMetadata implements BatchComponent {
     }
   }
 
-  private class LineOffsetCounter extends CharHandler {
+  private static class LineHashComputer extends CharHandler {
+    private final MessageDigest lineMd5Digest = DigestUtils.getMd5Digest();
+    private final StringBuffer sb = new StringBuffer();
+    private final LineHashConsumer consumer;
+    private int line = 1;
+
+    public LineHashComputer(LineHashConsumer consumer) {
+      this.consumer = consumer;
+    }
+
+    @Override
+    void handleIgnoreEoL(char c) {
+      if (!Character.isWhitespace(c)) {
+        sb.append(c);
+      }
+    }
+
+    @Override
+    void newLine() {
+      consumer.consume(line, sb.length() > 0 ? lineMd5Digest.digest(sb.toString().getBytes(Charsets.UTF_8)) : null);
+      sb.setLength(0);
+      line++;
+    }
+
+    @Override
+    void eof() {
+      consumer.consume(line, sb.length() > 0 ? lineMd5Digest.digest(sb.toString().getBytes(Charsets.UTF_8)) : null);
+    }
+
+  }
+
+  private static class LineOffsetCounter extends CharHandler {
     private int currentOriginalOffset = 0;
     private List<Integer> originalLineOffsets = new ArrayList<Integer>();
 
@@ -176,17 +226,21 @@ public class FileMetadata implements BatchComponent {
    * Maximum performance is needed.
    */
   Metadata read(File file, Charset encoding) {
-    char c = (char) 0;
-    LineCounter lineCounter = new LineCounter();
+    LineCounter lineCounter = new LineCounter(file, encoding);
     FileHashComputer fileHashComputer = new FileHashComputer();
     LineOffsetCounter lineOffsetCounter = new LineOffsetCounter();
-    CharHandler[] handlers;
-    if (analysisMode.isPreview()) {
-      // No need to compute line offsets in preview mode since there is no syntax highlighting
-      handlers = new CharHandler[] {lineCounter, fileHashComputer};
+    if (!analysisMode.isPreview()) {
+      scanFile(file, encoding, lineCounter, fileHashComputer, lineOffsetCounter);
     } else {
-      handlers = new CharHandler[] {lineCounter, fileHashComputer, lineOffsetCounter};
+      // No need to compute line offsets in preview mode since there is no syntax highlighting
+      scanFile(file, encoding, lineCounter, fileHashComputer);
     }
+    return new Metadata(lineCounter.lines(), lineCounter.nonBlankLines(), fileHashComputer.getHash(), lineOffsetCounter.getOriginalLineOffsets(),
+      lineCounter.isEmpty());
+  }
+
+  private static void scanFile(File file, Charset encoding, CharHandler... handlers) {
+    char c = (char) 0;
     try (BOMInputStream bomIn = new BOMInputStream(new FileInputStream(file),
       ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE);
       Reader reader = new BufferedReader(new InputStreamReader(bomIn, encoding))) {
@@ -224,9 +278,6 @@ public class FileMetadata implements BatchComponent {
       for (CharHandler handler : handlers) {
         handler.eof();
       }
-      return new Metadata(lineCounter.lines(), lineCounter.nonBlankLines(), fileHashComputer.getHash(), lineOffsetCounter.getOriginalLineOffsets(),
-        lineCounter.isEmpty());
-
     } catch (IOException e) {
       throw new IllegalStateException(String.format("Fail to read file '%s' with encoding '%s'", file.getAbsolutePath(), encoding), e);
     }
@@ -246,5 +297,18 @@ public class FileMetadata implements BatchComponent {
       this.empty = empty;
       this.originalLineOffsets = Ints.toArray(originalLineOffsets);
     }
+  }
+
+  public static interface LineHashConsumer {
+
+    void consume(int lineIdx, @Nullable byte[] hash);
+
+  }
+
+  /**
+   * Compute a MD5 hash of each line of the file after removing of all blank chars
+   */
+  public static void computeLineHashesForIssueTracking(DefaultInputFile f, LineHashConsumer consumer) {
+    scanFile(f.file(), f.charset(), new LineHashComputer(consumer));
   }
 }

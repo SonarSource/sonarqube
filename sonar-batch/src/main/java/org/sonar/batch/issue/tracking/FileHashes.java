@@ -19,17 +19,16 @@
  */
 package org.sonar.batch.issue.tracking;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.batch.scan.filesystem.FileMetadata;
+import org.sonar.batch.scan.filesystem.FileMetadata.LineHashConsumer;
 
-import java.io.BufferedReader;
-import java.nio.file.Files;
-import java.security.MessageDigest;
+import javax.annotation.Nullable;
+
 import java.util.Collection;
 
 /**
@@ -56,27 +55,14 @@ public final class FileHashes {
   }
 
   public static FileHashes create(DefaultInputFile f) {
-    byte[][] hashes = new byte[f.lines()][];
-    try {
-      BufferedReader reader = Files.newBufferedReader(f.path(), f.charset());
-      MessageDigest lineMd5Digest = DigestUtils.getMd5Digest();
-      StringBuilder sb = new StringBuilder();
-      for (int i = 0; i < f.lines(); i++) {
-        String lineStr = reader.readLine();
-        if (lineStr != null) {
-          for (int j = 0; j < lineStr.length(); j++) {
-            char c = lineStr.charAt(j);
-            if (!Character.isWhitespace(c)) {
-              sb.append(c);
-            }
-          }
-        }
-        hashes[i] = sb.length() > 0 ? lineMd5Digest.digest(sb.toString().getBytes(Charsets.UTF_8)) : null;
-        sb.setLength(0);
+    final byte[][] hashes = new byte[f.lines()][];
+    FileMetadata.computeLineHashesForIssueTracking(f, new LineHashConsumer() {
+
+      @Override
+      public void consume(int lineIdx, @Nullable byte[] hash) {
+        hashes[lineIdx - 1] = hash;
       }
-    } catch (Exception e) {
-      throw new IllegalStateException("Unable to compute line hashes of file " + f, e);
-    }
+    });
 
     int size = hashes.length;
     Multimap<String, Integer> linesByHash = LinkedHashMultimap.create();

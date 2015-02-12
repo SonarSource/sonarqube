@@ -28,6 +28,7 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.AnalysisMode;
 
 import java.io.File;
+import java.nio.charset.Charset;
 
 import static org.apache.commons.codec.digest.DigestUtils.md5Hex;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -67,6 +68,17 @@ public class FileMetadataTest {
     assertThat(metadata.hash).isEqualTo(md5Hex("foo\nbar\nbaz"));
     assertThat(metadata.originalLineOffsets).containsOnly(0, 5, 10);
     assertThat(metadata.empty).isFalse();
+  }
+
+  @Test
+  public void read_with_wrong_encoding() throws Exception {
+    File tempFile = temp.newFile();
+    FileUtils.write(tempFile, "marker´s\n", Charset.forName("cp1252"));
+
+    FileMetadata.Metadata metadata = new FileMetadata(mode).read(tempFile, Charsets.UTF_8);
+    assertThat(metadata.lines).isEqualTo(2);
+    assertThat(metadata.hash).isEqualTo(md5Hex("marker\ufffds\n"));
+    assertThat(metadata.originalLineOffsets).containsOnly(0, 9);
   }
 
   @Test
