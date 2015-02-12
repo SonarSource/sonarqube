@@ -21,7 +21,7 @@ package org.sonar.api.component;
 
 import javax.annotation.CheckForNull;
 
-public interface Component<C extends Component> {
+public interface Component {
   String key();
 
   /**

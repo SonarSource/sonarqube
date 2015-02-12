@@ -34,22 +34,22 @@ import java.util.List;
  */
 public class Tokens {
 
-  private List<TokenEntry> tokens = new ArrayList<TokenEntry>();
+  private List<TokenEntry> entries = new ArrayList<>();
 
   public void add(TokenEntry tokenEntry) {
-    this.tokens.add(tokenEntry);
+    this.entries.add(tokenEntry);
   }
 
   public Iterator<TokenEntry> iterator() {
-    return tokens.iterator();
+    return entries.iterator();
   }
 
   public int size() {
-    return tokens.size();
+    return entries.size();
   }
 
   public List<TokenEntry> getTokens() {
-    return tokens;
+    return entries;
   }
 
 }

@@ -19,6 +19,6 @@
  */
 package org.sonar.api.component;
 
-public interface Perspective<C extends Component<C>> {
+public interface Perspective<C extends Component> {
   C component();
 }

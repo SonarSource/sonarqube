@@ -90,7 +90,7 @@ public final class CacheRuleFinder implements RuleFinder {
     Hibernate.initialize(rule.getParams());
   }
 
-  protected final Rule doFindById(int ruleId) {
+  private Rule doFindById(int ruleId) {
     DatabaseSession session = sessionFactory.getSession();
     return session.getSingleResult(
       session.createQuery("FROM " + Rule.class.getSimpleName() + " r WHERE r.id=:id and r.status<>:status")

@@ -19,5 +19,5 @@
  */
 package org.sonar.api.component;
 
-public interface SourceFile extends Component<SourceFile> {
+public interface SourceFile extends Component {
 }

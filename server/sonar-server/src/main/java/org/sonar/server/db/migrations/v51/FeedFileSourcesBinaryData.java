@@ -36,8 +36,8 @@ import org.sonar.server.db.migrations.Select;
 import org.sonar.server.db.migrations.SqlStatement;
 import org.sonar.server.source.db.FileSourceDb;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
 import java.sql.SQLException;
 import java.util.Iterator;
 
@@ -154,9 +154,9 @@ public class FeedFileSourcesBinaryData extends BaseDataChange {
   }
 
   private static Iterable<Integer> splitIntegers(String s) {
-    return Iterables.transform(Splitter.on(',').split(s), new Function<String, Integer>() {
+    return Iterables.transform(Splitter.on(',').omitEmptyStrings().trimResults().split(s), new Function<String, Integer>() {
       @Override
-      public Integer apply(String input) {
+      public Integer apply(@Nonnull String input) {
         return Integer.parseInt(input);
       }
     });

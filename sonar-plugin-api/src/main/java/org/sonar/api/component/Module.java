@@ -19,7 +19,7 @@
  */
 package org.sonar.api.component;
 
-public interface Module extends Component<Module> {
+public interface Module extends Component {
   String getDescription();
 
   String getBranch();

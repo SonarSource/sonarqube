@@ -67,7 +67,7 @@ public final class AnnotationCheckFactory extends CheckFactory {
   }
 
   @Override
-  protected Object createCheck(ActiveRule activeRule) {
+  public Object createCheck(ActiveRule activeRule) {
     Object object = checksByKey.get(activeRule.getConfigKey());
     if (object != null) {
       return instantiate(activeRule, object);

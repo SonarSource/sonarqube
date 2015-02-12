@@ -240,7 +240,7 @@ public class PluginClassloaders {
   }
 
   public void clean() {
-    for (ClassRealm realm : (Collection<ClassRealm>) world.getRealms()) {
+    for (ClassRealm realm : world.getRealms()) {
       try {
         world.disposeRealm(realm.getId());
       } catch (Exception e) {
