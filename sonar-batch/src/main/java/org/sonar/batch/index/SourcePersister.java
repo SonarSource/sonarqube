@@ -132,7 +132,7 @@ public class SourcePersister implements ScanPersister {
 
       @Override
       public void consume(int lineIdx, @Nullable byte[] hash) {
-        if (lineIdx > 0) {
+        if (lineIdx > 1) {
           result.append("\n");
         }
         result.append(hash != null ? Hex.encodeHexString(hash) : "");
