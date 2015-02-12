@@ -101,7 +101,7 @@ public class ProjectsWs implements WebService {
       .setExampleValue("SonarQube");
 
     action.createParam("branch")
-      .setDescription("SCM Branch")
+      .setDescription("SCM Branch of the project. The key of the project will become key:branch, for instance 'SonarQube:branch-5.0'")
       .setRequired(false)
       .setExampleValue("branch-5.0");
 
