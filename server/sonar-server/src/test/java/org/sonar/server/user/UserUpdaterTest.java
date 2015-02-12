@@ -23,7 +23,7 @@ package org.sonar.server.user;
 import com.google.common.base.Strings;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -60,8 +60,8 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class UserUpdaterTest {
 
-  @Rule
-  public DbTester db = new DbTester();
+  @ClassRule
+  public static DbTester db = new DbTester();
 
   @Mock
   System2 system2;
@@ -82,6 +82,7 @@ public class UserUpdaterTest {
 
   @Before
   public void setUp() throws Exception {
+    db.truncateTables();
     settings = new Settings();
     session = db.myBatis().openSession(false);
     userDao = new UserDao(db.myBatis(), system2);

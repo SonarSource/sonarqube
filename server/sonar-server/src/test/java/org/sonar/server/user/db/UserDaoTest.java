@@ -22,13 +22,15 @@ package org.sonar.server.user.db;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.core.user.UserDto;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.test.DbTests;
 
 import java.util.List;
 
@@ -36,16 +38,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
+@Category(DbTests.class)
 public class UserDaoTest {
 
-  @Rule
-  public DbTester db = new DbTester();
+  @ClassRule
+  public static DbTester db = new DbTester();
 
   private UserDao dao;
   private DbSession session;
 
   @Before
   public void before() throws Exception {
+    db.truncateTables();
+
     this.session = db.myBatis().openSession(false);
     System2 system2 = mock(System2.class);
     this.dao = new UserDao(db.myBatis(), system2);

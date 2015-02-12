@@ -19,6 +19,8 @@
  */
 package org.sonar.server.computation.step;
 
+import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -50,8 +52,13 @@ public class ParseReportStepTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  @Rule
-  public DbTester dbTester = new DbTester();
+  @ClassRule
+  public static DbTester dbTester = new DbTester();
+
+  @Before
+  public void setUp() throws Exception {
+    dbTester.truncateTables();
+  }
 
   @Test
   public void extract_report_from_db_and_browse_components() throws Exception {

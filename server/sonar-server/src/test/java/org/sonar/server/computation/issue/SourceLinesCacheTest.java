@@ -19,7 +19,8 @@
  */
 package org.sonar.server.computation.issue;
 
-import org.junit.Rule;
+import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.core.persistence.DbTester;
@@ -36,8 +37,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Category(DbTests.class)
 public class SourceLinesCacheTest {
 
-  @Rule
-  public DbTester dbTester = new DbTester();
+  @ClassRule
+  public static DbTester dbTester = new DbTester();
+
+  @Before
+  public void setUp() throws Exception {
+    dbTester.truncateTables();
+  }
 
   @Test
   public void line_author() throws Exception {

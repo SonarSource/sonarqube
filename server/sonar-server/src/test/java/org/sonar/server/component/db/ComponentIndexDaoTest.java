@@ -22,7 +22,7 @@ package org.sonar.server.component.db;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.core.persistence.DbSession;
@@ -34,8 +34,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Category(DbTests.class)
 public class ComponentIndexDaoTest {
 
-  @Rule
-  public DbTester dbTester = new DbTester();
+  @ClassRule
+  public static DbTester dbTester = new DbTester();
 
   DbSession session;
 
@@ -43,6 +43,7 @@ public class ComponentIndexDaoTest {
 
   @Before
   public void createDao() throws Exception {
+    dbTester.truncateTables();
     session = dbTester.myBatis().openSession(false);
     dao = new ComponentIndexDao();
   }

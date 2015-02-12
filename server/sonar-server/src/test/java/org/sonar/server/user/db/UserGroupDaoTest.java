@@ -22,22 +22,26 @@ package org.sonar.server.user.db;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.core.user.UserGroupDto;
+import org.sonar.test.DbTests;
 
+@Category(DbTests.class)
 public class UserGroupDaoTest {
 
-  @Rule
-  public DbTester db = new DbTester();
+  @ClassRule
+  public static DbTester db = new DbTester();
 
   private UserGroupDao dao;
   private DbSession session;
 
   @Before
   public void before() throws Exception {
+    db.truncateTables();
     this.session = db.myBatis().openSession(false);
     this.dao = new UserGroupDao();
   }

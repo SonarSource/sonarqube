@@ -21,8 +21,9 @@ package org.sonar.server.source.ws;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.web.UserRole;
@@ -35,19 +36,21 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
+import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
+@Category(DbTests.class)
 public class HashActionTest {
 
   final static String COMPONENT_KEY = "Action.java";
   final static String PROJECT_KEY = "struts";
 
-  @Rule
-  public DbTester db = new DbTester();
+  @ClassRule
+  public static DbTester db = new DbTester();
 
   DbSession session;
 
@@ -55,6 +58,7 @@ public class HashActionTest {
 
   @Before
   public void before() throws Exception {
+    db.truncateTables();
     this.session = db.myBatis().openSession(false);
 
     DbClient dbClient = new DbClient(db.database(), db.myBatis(), new FileSourceDao(db.myBatis()), new ComponentDao());

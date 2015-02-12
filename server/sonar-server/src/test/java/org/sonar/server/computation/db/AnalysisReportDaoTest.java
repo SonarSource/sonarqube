@@ -21,10 +21,7 @@
 package org.sonar.server.computation.db;
 
 import org.apache.commons.io.IOUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.utils.System2;
@@ -51,8 +48,8 @@ public class AnalysisReportDaoTest {
   private static final String DEFAULT_PROJECT_KEY = "123456789-987654321";
   private static final long DEFAULT_SNAPSHOT_ID = 123L;
 
-  @Rule
-  public DbTester db = new DbTester();
+  @ClassRule
+  public static DbTester db = new DbTester();
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -63,6 +60,7 @@ public class AnalysisReportDaoTest {
 
   @Before
   public void before() {
+    db.truncateTables();
     this.session = db.myBatis().openSession(false);
     this.system2 = mock(System2.class);
     this.sut = new AnalysisReportDao(system2);

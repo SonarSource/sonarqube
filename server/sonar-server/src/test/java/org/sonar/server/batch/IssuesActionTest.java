@@ -22,7 +22,7 @@ package org.sonar.server.batch;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.platform.Server;
@@ -51,13 +51,14 @@ public class IssuesActionTest {
 
   IssuesAction issuesAction;
 
-  @Rule
-  public DbTester db = new DbTester();
+  @ClassRule
+  public static DbTester db = new DbTester();
 
   private DbSession session;
 
   @Before
   public void before() throws Exception {
+    db.truncateTables();
     this.session = db.myBatis().openSession(false);
 
     DbClient dbClient = new DbClient(db.database(), db.myBatis(), new IssueDao(db.myBatis()), new ComponentDao());

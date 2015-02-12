@@ -21,8 +21,9 @@
 package org.sonar.server.component.ws;
 
 import org.junit.Before;
-import org.junit.Rule;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.core.user.AuthorizationDao;
@@ -31,20 +32,23 @@ import org.sonar.server.component.db.ComponentIndexDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
+import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.failBecauseExceptionWasNotThrown;
 import static org.mockito.Mockito.mock;
 
-public class SearchActionMediumTest {
+@Category(DbTests.class)
+public class SearchActionTest {
 
-  @Rule
-  public DbTester dbTester = new DbTester();
+  @ClassRule
+  public static DbTester dbTester = new DbTester();
 
   WsTester tester;
 
   @Before
   public void setUp() throws Exception {
+    dbTester.truncateTables();
     DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(),
       new ComponentDao(), new AuthorizationDao(dbTester.myBatis()), new ComponentIndexDao()
       );

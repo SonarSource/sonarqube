@@ -19,7 +19,8 @@
  */
 package org.sonar.server.computation;
 
-import org.junit.Rule;
+import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.core.activity.Activity;
@@ -41,14 +42,19 @@ import static org.mockito.Mockito.*;
 
 public class ComputationServiceTest {
 
-  @Rule
-  public DbTester dbTester = new DbTester();
+  @ClassRule
+  public static DbTester dbTester = new DbTester();
 
   ComputationStep projectStep1 = mockStep(Qualifiers.PROJECT);
   ComputationStep projectStep2 = mockStep(Qualifiers.PROJECT);
   ComputationStep viewStep = mockStep(Qualifiers.VIEW);
   ComputationSteps steps = mock(ComputationSteps.class);
   ActivityService activityService = mock(ActivityService.class);
+
+  @Before
+  public void setUp() throws Exception {
+    dbTester.truncateTables();
+  }
 
   @Test
   public void process_project() throws Exception {
