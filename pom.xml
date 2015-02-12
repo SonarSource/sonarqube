@@ -1502,6 +1502,13 @@
         </dependency>
       </dependencies>
     </profile>
+    <profile>
+      <!-- add microbenchmarks module to IDE -->
+      <id>includeMicrobenchmarkModule</id>
+      <modules>
+        <module>microbenchmark-template</module>
+      </modules>
+    </profile>
   </profiles>
 
 </project>
