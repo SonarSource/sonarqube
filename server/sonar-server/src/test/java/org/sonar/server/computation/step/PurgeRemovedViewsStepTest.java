@@ -22,7 +22,7 @@ package org.sonar.server.computation.step;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Qualifiers;
@@ -47,11 +47,11 @@ import static org.mockito.Mockito.when;
 
 public class PurgeRemovedViewsStepTest {
 
-  @Rule
-  public EsTester esTester = new EsTester().addDefinitions(new ViewIndexDefinition(new Settings()));
+  @ClassRule
+  public static EsTester esTester = new EsTester().addDefinitions(new ViewIndexDefinition(new Settings()));
 
-  @Rule
-  public DbTester db = new DbTester();
+  @ClassRule
+  public static DbTester db = new DbTester();
 
   ComputationContext context;
 
@@ -63,6 +63,9 @@ public class PurgeRemovedViewsStepTest {
 
   @Before
   public void setUp() {
+    esTester.truncateIndices();
+    db.truncateTables();
+
     context = mock(ComputationContext.class);
     session = db.myBatis().openSession(false);
     dbClient = new DbClient(db.database(), db.myBatis(), new IssueDao(db.myBatis()), new ComponentDao());

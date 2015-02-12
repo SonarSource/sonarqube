@@ -25,18 +25,20 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
-import org.junit.Rule;
+import org.junit.ClassRule;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BulkIndexerTest {
 
-  @Rule
-  public EsTester esTester = new EsTester().addDefinitions(new FakeIndexDefinition().setReplicas(1));
+  @ClassRule
+  public static EsTester esTester = new EsTester().addDefinitions(new FakeIndexDefinition().setReplicas(1));
 
   @Test
   public void index_nothing() throws Exception {
+    esTester.truncateIndices();
+
     BulkIndexer indexer = new BulkIndexer(esTester.client(), FakeIndexDefinition.INDEX);
     indexer.start();
     indexer.stop();

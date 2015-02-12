@@ -29,7 +29,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.junit.Before;
-import org.junit.Rule;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.config.Settings;
@@ -55,16 +55,18 @@ import static org.sonar.server.source.index.SourceLineIndexDefinition.*;
 @Category(DbTests.class)
 public class SourceLineIndexerTest {
 
-  @Rule
-  public EsTester es = new EsTester().addDefinitions(new SourceLineIndexDefinition(new Settings()));
+  @ClassRule
+  public static EsTester es = new EsTester().addDefinitions(new SourceLineIndexDefinition(new Settings()));
 
-  @Rule
-  public DbTester db = new DbTester();
+  @ClassRule
+  public static DbTester db = new DbTester();
 
   private SourceLineIndexer indexer;
 
   @Before
   public void setUp() {
+    es.truncateIndices();
+    db.truncateTables();
     indexer = new SourceLineIndexer(new DbClient(db.database(), db.myBatis()), es.client());
   }
 

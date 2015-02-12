@@ -25,22 +25,25 @@ import org.assertj.core.api.Fail;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.KeyValueFormat;
+import org.sonar.api.utils.System2;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.server.component.ComponentTesting;
+import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.IssueTesting;
-import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.view.index.ViewDoc;
+import org.sonar.server.view.index.ViewIndexDefinition;
 import org.sonar.server.view.index.ViewIndexer;
 
 import javax.annotation.Nullable;
@@ -51,20 +54,24 @@ import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
-/**
- * As soon as IssueIndex take {@link org.sonar.server.es.EsClient} in its constructor, ServerTester should be replaced by EsTester, it will make this test going faster !
- */
-public class IssueIndexMediumTest {
+public class IssueIndexTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester();
+  public static EsTester tester = new EsTester().addDefinitions(new IssueIndexDefinition(new Settings()), new ViewIndexDefinition(new Settings()));
 
   IssueIndex index;
 
+  IssueIndexer issueIndexer;
+  IssueAuthorizationIndexer issueAuthorizationIndexer;
+  ViewIndexer viewIndexer;
+
   @Before
   public void setUp() throws Exception {
-    tester.clearIndexes();
-    index = tester.get(IssueIndex.class);
+    tester.truncateIndices();
+    issueIndexer = new IssueIndexer(null, tester.client());
+    issueAuthorizationIndexer = new IssueAuthorizationIndexer(null, tester.client());
+    viewIndexer = new ViewIndexer(null, tester.client());
+    index = new IssueIndex(tester.client(), System2.INSTANCE);
   }
 
   @Test
@@ -245,8 +252,8 @@ public class IssueIndexMediumTest {
     assertThat(index.search(IssueQuery.builder().viewUuids(newArrayList(view)).build(), new SearchOptions()).getDocs()).hasSize(6);
     assertThat(index.search(IssueQuery.builder().moduleUuids(newArrayList(module.uuid())).build(), new SearchOptions()).getDocs()).hasSize(2);
     assertThat(index.search(IssueQuery.builder().moduleUuids(newArrayList(subModule.uuid())).build(), new SearchOptions()).getDocs()).hasSize(1); // XXX
-                                                                                                                                                  // Misleading
-                                                                                                                                                  // !
+    // Misleading
+    // !
     assertThat(index.search(IssueQuery.builder().fileUuids(newArrayList(file1.uuid())).build(), new SearchOptions()).getDocs()).hasSize(1);
     assertThat(index.search(IssueQuery.builder().fileUuids(newArrayList(file1.uuid(), file2.uuid(), file3.uuid())).build(), new SearchOptions()).getDocs()).hasSize(3);
   }
@@ -1155,22 +1162,22 @@ public class IssueIndexMediumTest {
   }
 
   private void indexIssues(IssueDoc... issues) {
-    tester.get(IssueIndexer.class).index(Arrays.asList(issues).iterator());
+    issueIndexer.index(Arrays.asList(issues).iterator());
     for (IssueDoc issue : issues) {
       addIssueAuthorization(issue.projectUuid(), DefaultGroups.ANYONE, null);
     }
   }
 
   private void indexIssue(IssueDoc issue, @Nullable String group, @Nullable String user) {
-    tester.get(IssueIndexer.class).index(Iterators.singletonIterator(issue));
+    issueIndexer.index(Iterators.singletonIterator(issue));
     addIssueAuthorization(issue.projectUuid(), group, user);
   }
 
   private void addIssueAuthorization(String projectUuid, @Nullable String group, @Nullable String user) {
-    tester.get(IssueAuthorizationIndexer.class).index(newArrayList(new IssueAuthorizationDao.Dto(projectUuid, 1).addGroup(group).addUser(user)));
+    issueAuthorizationIndexer.index(newArrayList(new IssueAuthorizationDao.Dto(projectUuid, 1).addGroup(group).addUser(user)));
   }
 
   private void indexView(String viewUuid, List<String> projects) {
-    tester.get(ViewIndexer.class).index(new ViewDoc().setUuid(viewUuid).setProjects(projects));
+    viewIndexer.index(new ViewDoc().setUuid(viewUuid).setProjects(projects));
   }
 }
