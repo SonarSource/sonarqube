@@ -21,11 +21,9 @@
 package org.sonar.server.db.migrations.v51;
 
 import org.sonar.core.persistence.Database;
-import org.sonar.server.db.migrations.BaseDataChange;
-import org.sonar.server.db.migrations.MassUpdate;
+import org.sonar.server.db.migrations.*;
 import org.sonar.server.db.migrations.MassUpdate.Handler;
 import org.sonar.server.db.migrations.Select.Row;
-import org.sonar.server.db.migrations.SqlStatement;
 
 import javax.annotation.Nullable;
 
@@ -33,6 +31,7 @@ import java.sql.SQLException;
 
 /**
  * SONAR-6054
+ * SONAR-6119
  */
 public class UpdateProjectsModuleUuidPath extends BaseDataChange {
 
@@ -44,37 +43,65 @@ public class UpdateProjectsModuleUuidPath extends BaseDataChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    MassUpdate update = context.prepareMassUpdate().rowPluralName("projects");
-    update.select("SELECT p.id, p.module_uuid_path FROM projects p");
+    MassUpdate update = context.prepareMassUpdate().rowPluralName("components");
+    update.select("SELECT p.id, p.module_uuid_path, p.uuid, p.scope, p.qualifier FROM projects p");
     update.update("UPDATE projects SET module_uuid_path=? WHERE id=?");
-    update.execute(new Handler() {
-      @Override
-      public boolean handle(Row row, SqlStatement update) throws SQLException {
-        Long id = row.getLong(1);
-        String moduleUuidPath = row.getString(2);
-        if (needUpdate(moduleUuidPath)) {
-          update.setString(1, newModuleUuidPath(moduleUuidPath));
-          update.setLong(2, id);
-          return true;
-        }
-        return false;
+    update.execute(new ModuleUuidPathUpdateHandler());
+  }
+
+  private static final class ModuleUuidPathUpdateHandler implements Handler {
+    @Override
+    public boolean handle(Row row, SqlStatement update) throws SQLException {
+      Long id = row.getLong(1);
+      String moduleUuidPath = row.getString(2);
+      String uuid = row.getString(3);
+      String scope = row.getString(4);
+      String qualifier = row.getString(5);
+
+      boolean needUpdate = false;
+      String newModuleUuidPath = moduleUuidPath;
+
+      if (needUpdateForSeparators(moduleUuidPath)) {
+        newModuleUuidPath = newModuleUuidPathWithSeparators(moduleUuidPath);
+        needUpdate = true;
       }
-    });
-  }
 
-  private static boolean needUpdate(@Nullable String moduleUuidPath) {
-    return moduleUuidPath == null || !(moduleUuidPath.startsWith(SEP) && moduleUuidPath.endsWith(SEP));
-  }
+      if (needUpdateToIncludeItself(newModuleUuidPath, uuid, scope, qualifier)) {
+        newModuleUuidPath = newModuleUuidPathIncludingItself(newModuleUuidPath, uuid);
+        needUpdate = true;
+      }
 
-  private static String newModuleUuidPath(@Nullable String oldModuleUuidPath) {
-    if (oldModuleUuidPath == null || oldModuleUuidPath.isEmpty()) {
-      return SEP;
-    } else {
-      StringBuilder newModuleUuidPath = new StringBuilder(oldModuleUuidPath);
-      newModuleUuidPath.insert(0, SEP);
+      if (needUpdate) {
+        update.setString(1, newModuleUuidPath);
+        update.setLong(2, id);
+      }
+      return needUpdate;
+    }
+
+    private static boolean needUpdateForSeparators(@Nullable String moduleUuidPath) {
+      return moduleUuidPath == null || !(moduleUuidPath.startsWith(SEP) && moduleUuidPath.endsWith(SEP));
+    }
+
+    private static String newModuleUuidPathWithSeparators(@Nullable String oldModuleUuidPath) {
+      if (oldModuleUuidPath == null || oldModuleUuidPath.isEmpty()) {
+        return SEP;
+      } else {
+        StringBuilder newModuleUuidPath = new StringBuilder(oldModuleUuidPath);
+        newModuleUuidPath.insert(0, SEP);
+        newModuleUuidPath.append(SEP);
+        return newModuleUuidPath.toString();
+      }
+    }
+
+    private static boolean needUpdateToIncludeItself(String moduleUuidPath, @Nullable String uuid, @Nullable String scope, @Nullable String qualifier) {
+      return "PRJ".equals(scope) && !("DEV_PRJ".equals(qualifier)) && !(moduleUuidPath.contains(uuid));
+    }
+
+    private static String newModuleUuidPathIncludingItself(String moduleUuidPath, String uuid) {
+      StringBuilder newModuleUuidPath = new StringBuilder(moduleUuidPath);
+      newModuleUuidPath.append(uuid);
       newModuleUuidPath.append(SEP);
       return newModuleUuidPath.toString();
     }
   }
-
 }

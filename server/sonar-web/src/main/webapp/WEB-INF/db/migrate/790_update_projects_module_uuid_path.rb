@@ -21,6 +21,7 @@
 #
 # SonarQube 5.1
 # SONAR-6054
+# SONAR-6117
 #
 class UpdateProjectsModuleUuidPath < ActiveRecord::Migration
 
