@@ -62,7 +62,7 @@ public class FileMetadata implements BatchComponent {
     this.analysisMode = analysisMode;
   }
 
-  private static abstract class CharHandler {
+  private abstract static class CharHandler {
 
     void handleAll(char c) {
     }
@@ -168,7 +168,7 @@ public class FileMetadata implements BatchComponent {
 
   private static class LineHashComputer extends CharHandler {
     private final MessageDigest lineMd5Digest = DigestUtils.getMd5Digest();
-    private final StringBuffer sb = new StringBuffer();
+    private final StringBuilder sb = new StringBuilder();
     private final LineHashConsumer consumer;
     private int line = 1;
 
