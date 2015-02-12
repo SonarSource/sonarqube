@@ -22,6 +22,7 @@ package org.sonar.server.issue.index;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterators;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rule.RuleKey;
@@ -75,7 +76,6 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
     // column 21
     "r.language",
     "p.uuid",
-    "p.module_uuid",
     "p.module_uuid_path",
     "p.path",
     "i.tags"
@@ -89,6 +89,8 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
   private static final String SQL_AFTER_DATE = SQL_ALL + " where i.updated_at>?";
 
   private static final Splitter TAGS_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
+
+  private static final Splitter MODULE_PATH_SPLITTER = Splitter.on('.').trimResults().omitEmptyStrings();
 
   private IssueResultSetIterator(PreparedStatement stmt) throws SQLException {
     super(stmt);
@@ -117,6 +119,10 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
       return "/";
     }
     return null;
+  }
+
+  private static String extractModule(String moduleUuidPath) {
+    return Iterators.getLast(MODULE_PATH_SPLITTER.split(moduleUuidPath).iterator());
   }
 
   @Override
@@ -150,11 +156,12 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
     doc.setRuleKey(RuleKey.of(ruleRepo, ruleKey).toString());
     doc.setLanguage(rs.getString(21));
     doc.setComponentUuid(rs.getString(22));
-    doc.setModuleUuid(rs.getString(23));
-    doc.setModuleUuidPath(rs.getString(24));
-    doc.setFilePath(rs.getString(25));
+    String moduleUuidPath = rs.getString(23);
+    doc.setModuleUuid(extractModule(moduleUuidPath));
+    doc.setModuleUuidPath(moduleUuidPath);
+    doc.setFilePath(rs.getString(24));
     doc.setDirectoryPath(extractDirPath(doc.filePath()));
-    String tags = rs.getString(26);
+    String tags = rs.getString(25);
     doc.setTags(ImmutableList.copyOf(TAGS_SPLITTER.split(tags == null ? "" : tags)));
     return doc;
   }

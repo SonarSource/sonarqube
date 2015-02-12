@@ -2,9 +2,9 @@
   <rules tags="[null]" system_tags="[null]" id="200" name="Avoid Cycles" plugin_rule_key="AvoidCycles"
          plugin_config_key="[null]" plugin_name="squid"/>
 
-  <projects id="10" scope="PRJ" qualifier="TRK" kee="struts" name="Struts" uuid="PROJECT1" path="[null]"/>
-  <projects id="100" scope="FIL" qualifier="CLA" kee="struts:Action" name="Action" uuid="FILE1" path="src/main/java/Action.java"/>
-  <projects id="101" scope="FIL" qualifier="CLA" kee="pom" name="pom.xml" uuid="ROOT_FILE1" path="pom.xml"/>
+  <projects id="10" scope="PRJ" qualifier="TRK" kee="struts" name="Struts" uuid="PROJECT1" path="[null]" module_uuid_path=".PROJECT1."/>
+  <projects id="100" scope="FIL" qualifier="CLA" kee="struts:Action" name="Action" uuid="FILE1" path="src/main/java/Action.java" module_uuid_path=".PROJECT1."/>
+  <projects id="101" scope="FIL" qualifier="CLA" kee="pom" name="pom.xml" uuid="ROOT_FILE1" path="pom.xml" module_uuid_path=".PROJECT1."/>
 
   <issues
       id="1"

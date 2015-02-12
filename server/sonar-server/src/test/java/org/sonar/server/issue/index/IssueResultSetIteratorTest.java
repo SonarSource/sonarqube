@@ -69,14 +69,27 @@ public class IssueResultSetIteratorTest {
     });
     it.close();
 
-    assertThat(issuesByKey).hasSize(2);
+    assertThat(issuesByKey).hasSize(3);
 
     IssueDoc issue = issuesByKey.get("ABC");
     assertThat(issue.key()).isEqualTo("ABC");
     assertThat(issue.assignee()).isEqualTo("guy1");
     assertThat(issue.componentUuid()).isEqualTo("FILE1");
     assertThat(issue.projectUuid()).isEqualTo("PROJECT1");
+    assertThat(issue.moduleUuid()).isEqualTo("PROJECT1");
+    assertThat(issue.modulePath()).isEqualTo(".PROJECT1.");
     assertThat(issue.filePath()).isEqualTo("src/main/java/Action.java");
+    assertThat(issue.tags()).containsOnly("tag1", "tag2", "tag3");
+    assertThat(issue.debt().toMinutes()).isGreaterThan(0L);
+
+    issue = issuesByKey.get("BCD");
+    assertThat(issue.key()).isEqualTo("BCD");
+    assertThat(issue.assignee()).isEqualTo("guy1");
+    assertThat(issue.componentUuid()).isEqualTo("MODULE1");
+    assertThat(issue.projectUuid()).isEqualTo("PROJECT1");
+    assertThat(issue.moduleUuid()).isEqualTo("MODULE1");
+    assertThat(issue.modulePath()).isEqualTo(".PROJECT1.MODULE1.");
+    assertThat(issue.filePath()).isNull();
     assertThat(issue.tags()).containsOnly("tag1", "tag2", "tag3");
     assertThat(issue.debt().toMinutes()).isGreaterThan(0L);
 
@@ -85,6 +98,8 @@ public class IssueResultSetIteratorTest {
     assertThat(issue.assignee()).isEqualTo("guy2");
     assertThat(issue.componentUuid()).isEqualTo("FILE1");
     assertThat(issue.projectUuid()).isEqualTo("PROJECT1");
+    assertThat(issue.moduleUuid()).isEqualTo("PROJECT1");
+    assertThat(issue.modulePath()).isEqualTo(".PROJECT1.");
     assertThat(issue.filePath()).isEqualTo("src/main/java/Action.java");
     assertThat(issue.tags()).isEmpty();
     assertThat(issue.debt().toMinutes()).isGreaterThan(0L);

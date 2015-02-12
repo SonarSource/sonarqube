@@ -2,8 +2,9 @@
   <rules tags="[null]" system_tags="[null]" id="200" name="Avoid Cycles" plugin_rule_key="AvoidCycles"
          plugin_config_key="[null]" plugin_name="squid"/>
 
-  <projects id="10" scope="PRJ" qualifier="TRK" kee="struts" name="Struts" uuid="PROJECT1" path="[null]"/>
-  <projects id="100" scope="FIL" qualifier="CLA" kee="struts:Action" name="Action" uuid="FILE1" path="src/main/java/Action.java"/>
+  <projects id="10" scope="PRJ" qualifier="TRK" kee="struts" name="Struts" uuid="PROJECT1" path="[null]" module_uuid_path=".PROJECT1."/>
+  <projects id="50" scope="PRJ" qualifier="BRC" kee="struts:struts-tiles" name="Struts Tiles" uuid="MODULE1" path="[null]" module_uuid_path=".PROJECT1.MODULE1."/>
+  <projects id="100" scope="FIL" qualifier="CLA" kee="struts:Action" name="Action" uuid="FILE1" path="src/main/java/Action.java" module_uuid_path=".PROJECT1."/>
 
   <issues
     id="1"
@@ -34,6 +35,33 @@
 
   <issues
     id="2"
+    kee="BCD"
+    resolution="FIXED"
+    status="RESOLVED"
+    severity="BLOCKER"
+    manual_severity="[false]"
+    assignee="guy1"
+    author_login="guy2"
+    checksum="FFFFF"
+    effort_to_fix="[null]"
+    technical_debt="10"
+    message="[null]"
+    line="444"
+    component_uuid="MODULE1"
+    project_uuid="PROJECT1"
+    rule_id="200"
+    reporter="[null]"
+    issue_attributes="JIRA=http://jira.com"
+    action_plan_key="PLAN1"
+    tags="tag1,tag2,tag3"
+    created_at="1400000000000"
+    updated_at="1400000000000"
+    issue_creation_date="1115848800000"
+    issue_update_date="1356994800000"
+    issue_close_date="[null]"/>
+
+  <issues
+    id="3"
     kee="DEF"
     resolution="[null]"
     status="OPEN"
