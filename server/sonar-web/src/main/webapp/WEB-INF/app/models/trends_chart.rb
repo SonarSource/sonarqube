@@ -37,10 +37,10 @@ class TrendsChart
       sql += ' order by s.created_at ASC'
       conditions=[sql, Snapshot::STATUS_PROCESSED, resource.id, metric_ids]
       if (options[:from])
-        conditions<<options[:from]
+        conditions<<options[:from].to_i*1000
       end
       if (options[:to])
-        conditions<<options[:to]
+        conditions<<options[:to].to_i*1000
       end
       ProjectMeasure.connection.select_all(Project.send(:sanitize_sql, conditions))
     end
