@@ -21,60 +21,45 @@
 package org.sonar.server.es.request;
 
 import org.elasticsearch.common.unit.TimeValue;
-import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
 import org.sonar.core.profiling.Profiling;
-import org.sonar.server.search.IndexDefinition;
-import org.sonar.server.search.SearchClient;
+import org.sonar.server.es.EsTester;
+import org.sonar.server.es.FakeIndexDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 public class ProxyIndicesExistsRequestBuilderTest {
 
-  Profiling profiling = new Profiling(new Settings().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.NONE.name()));
-  SearchClient searchClient = new SearchClient(new Settings(), profiling);
+  @ClassRule
+  public static EsTester esTester = new EsTester().addDefinitions(new FakeIndexDefinition());
 
-  @After
-  public void tearDown() throws Exception {
-    searchClient.stop();
+  @Before
+  public void setUp() throws Exception {
+    esTester.setProfilingLevel(Profiling.Level.NONE);
   }
 
   @Test
   public void exists() {
-    try {
-      searchClient.prepareIndicesExist(IndexDefinition.RULE.getIndexName()).get();
-
-      // expected to fail because elasticsearch is not correctly configured, but that does not matter
-      fail();
-    } catch (IllegalStateException e) {
-      assertThat(e.getMessage()).isEqualTo("Fail to execute ES indices exists request on indices 'rules'");
-    }
+    assertThat(esTester.client().prepareIndicesExist(FakeIndexDefinition.INDEX).get().isExists()).isTrue();
+    assertThat(esTester.client().prepareIndicesExist("unknown").get().isExists()).isFalse();
   }
 
   @Test
-  public void with_profiling_basic() {
-    Profiling profiling = new Profiling(new Settings().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.BASIC.name()));
-    SearchClient searchClient = new SearchClient(new Settings(), profiling);
+  public void with_profiling_full() {
+    esTester.setProfilingLevel(Profiling.Level.FULL);
 
-    try {
-      searchClient.prepareIndicesExist(IndexDefinition.RULE.getIndexName()).get();
-
-      // expected to fail because elasticsearch is not correctly configured, but that does not matter
-      fail();
-    } catch (IllegalStateException e) {
-      assertThat(e.getMessage()).isEqualTo("Fail to execute ES indices exists request on indices 'rules'");
-    }
+    esTester.client().prepareIndicesExist(FakeIndexDefinition.INDEX).get();
 
     // TODO assert profiling
-    searchClient.stop();
   }
 
   @Test
   public void fail_to_exists() throws Exception {
     try {
-      searchClient.prepareIndicesExist().get();
+      esTester.client().prepareIndicesExist().get();
 
       // expected to fail because elasticsearch is not correctly configured, but that does not matter
       fail();
@@ -86,13 +71,13 @@ public class ProxyIndicesExistsRequestBuilderTest {
 
   @Test
   public void to_string() {
-    assertThat(searchClient.prepareIndicesExist(IndexDefinition.RULE.getIndexName()).toString()).isEqualTo("ES indices exists request on indices 'rules'");
+    assertThat(esTester.client().prepareIndicesExist(FakeIndexDefinition.INDEX).toString()).isEqualTo("ES indices exists request on indices 'fakes'");
   }
 
   @Test
   public void get_with_string_timeout_is_not_yet_implemented() throws Exception {
     try {
-      searchClient.prepareIndicesExist().get("1");
+      esTester.client().prepareIndicesExist().get("1");
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -102,7 +87,7 @@ public class ProxyIndicesExistsRequestBuilderTest {
   @Test
   public void get_with_time_value_timeout_is_not_yet_implemented() throws Exception {
     try {
-      searchClient.prepareIndicesExist().get(TimeValue.timeValueMinutes(1));
+      esTester.client().prepareIndicesExist().get(TimeValue.timeValueMinutes(1));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -112,7 +97,7 @@ public class ProxyIndicesExistsRequestBuilderTest {
   @Test
   public void execute_should_throw_an_unsupported_operation_exception() throws Exception {
     try {
-      searchClient.prepareIndicesExist().execute();
+      esTester.client().prepareIndicesExist().execute();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(UnsupportedOperationException.class).hasMessage("execute() should not be called as it's used for asynchronous");

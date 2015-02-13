@@ -20,59 +20,55 @@
 
 package org.sonar.server.es.request;
 
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.unit.TimeValue;
-import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
 import org.sonar.core.profiling.Profiling;
-import org.sonar.server.search.SearchClient;
+import org.sonar.server.es.EsTester;
+import org.sonar.server.es.FakeIndexDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 public class ProxySearchScrollRequestBuilderTest {
 
-  Profiling profiling = new Profiling(new Settings().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.NONE.name()));
-  SearchClient searchClient = new SearchClient(new Settings(), profiling);
+  @ClassRule
+  public static EsTester esTester = new EsTester().addDefinitions(new FakeIndexDefinition());
 
-  @After
-  public void tearDown() throws Exception {
-    searchClient.stop();
+  @Before
+  public void setUp() throws Exception {
+    esTester.setProfilingLevel(Profiling.Level.NONE);
   }
 
   @Test
   public void search_scroll() {
-    try {
-      searchClient.prepareSearchScroll("scrollId").get();
-
-      // expected to fail because elasticsearch is not correctly configured, but that does not matter
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class);
-      assertThat(e.getMessage()).contains("Fail to execute ES search scroll request for scroll id 'null'");
-    }
+    SearchResponse response = esTester.client().prepareSearch(FakeIndexDefinition.INDEX)
+      .setSearchType(SearchType.SCAN)
+      .setScroll(TimeValue.timeValueMinutes(1))
+      .get();
+    esTester.client().prepareSearchScroll(response.getScrollId()).get();
   }
 
   @Test
-  public void with_profiling_basic() {
-    Profiling profiling = new Profiling(new Settings().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.BASIC.name()));
-    SearchClient searchClient = new SearchClient(new Settings(), profiling);
-    try {
-      searchClient.prepareSearchScroll("scrollId").get();
+  public void with_profiling_full() {
+    esTester.setProfilingLevel(Profiling.Level.FULL);
 
-      // expected to fail because elasticsearch is not correctly configured, but that does not matter
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class);
-      assertThat(e.getMessage()).contains("Fail to execute ES search scroll request for scroll id 'null'");
-    }
-    searchClient.stop();
+    SearchResponse response = esTester.client().prepareSearch(FakeIndexDefinition.INDEX)
+      .setSearchType(SearchType.SCAN)
+      .setScroll(TimeValue.timeValueMinutes(1))
+      .get();
+    esTester.client().prepareSearchScroll(response.getScrollId()).get();
+
+    // TODO assert profiling
   }
 
   @Test
   public void fail_to_search_bad_query() throws Exception {
     try {
-      searchClient.prepareSearchScroll("unknown").get();
+      esTester.client().prepareSearchScroll("unknown").get();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class);
@@ -83,7 +79,7 @@ public class ProxySearchScrollRequestBuilderTest {
   @Test
   public void get_with_string_timeout_is_not_yet_implemented() throws Exception {
     try {
-      searchClient.prepareSearchScroll("scrollId").get("1");
+      esTester.client().prepareSearchScroll("scrollId").get("1");
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -93,7 +89,7 @@ public class ProxySearchScrollRequestBuilderTest {
   @Test
   public void get_with_time_value_timeout_is_not_yet_implemented() throws Exception {
     try {
-      searchClient.prepareSearchScroll("scrollId").get(TimeValue.timeValueMinutes(1));
+      esTester.client().prepareSearchScroll("scrollId").get(TimeValue.timeValueMinutes(1));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -103,7 +99,7 @@ public class ProxySearchScrollRequestBuilderTest {
   @Test
   public void execute_should_throw_an_unsupported_operation_exception() throws Exception {
     try {
-      searchClient.prepareSearchScroll("scrollId").execute();
+      esTester.client().prepareSearchScroll("scrollId").execute();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(UnsupportedOperationException.class).hasMessage("execute() should not be called as it's used for asynchronous");

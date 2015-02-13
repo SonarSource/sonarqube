@@ -24,77 +24,60 @@ import org.elasticsearch.action.get.MultiGetRequest;
 import org.elasticsearch.action.get.MultiGetRequestBuilder;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.fetch.source.FetchSourceContext;
-import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
 import org.sonar.core.profiling.Profiling;
-import org.sonar.server.search.IndexDefinition;
-import org.sonar.server.search.SearchClient;
+import org.sonar.server.es.EsTester;
+import org.sonar.server.es.FakeIndexDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 public class ProxyMultiGetRequestBuilderTest {
 
-  Profiling profiling = new Profiling(new Settings().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.NONE.name()));
-  SearchClient searchClient = new SearchClient(new Settings(), profiling);
+  @ClassRule
+  public static EsTester esTester = new EsTester().addDefinitions(new FakeIndexDefinition());
 
-  @After
-  public void tearDown() throws Exception {
-    searchClient.stop();
+  @Before
+  public void setUp() throws Exception {
+    esTester.setProfilingLevel(Profiling.Level.NONE);
   }
 
   @Test
   public void multi_get() {
-    try {
-      MultiGetRequestBuilder request = searchClient.prepareMultiGet();
-      request.add(new MultiGetRequest.Item(IndexDefinition.RULE.getIndexName(), IndexDefinition.RULE.getIndexType(), "ruleKey")
-        .fetchSourceContext(FetchSourceContext.FETCH_SOURCE));
-      request.get();
+    MultiGetRequestBuilder request = esTester.client().prepareMultiGet();
+    request.add(new MultiGetRequest.Item(FakeIndexDefinition.INDEX, FakeIndexDefinition.TYPE, "ruleKey")
+      .fetchSourceContext(FetchSourceContext.FETCH_SOURCE));
+    request.get();
 
-      // expected to fail because elasticsearch is not correctly configured, but that does not matter
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class);
-      assertThat(e.getMessage()).contains("Fail to execute ES multi get request");
-    }
   }
 
   @Test
   public void to_string() {
-    assertThat(searchClient.prepareMultiGet().toString()).isEqualTo("ES multi get request");
-    assertThat(searchClient.prepareMultiGet().add(new MultiGetRequest.Item(IndexDefinition.RULE.getIndexName(), null, "ruleKey")
-      .fetchSourceContext(FetchSourceContext.FETCH_SOURCE)).toString()).isEqualTo("ES multi get request [key 'ruleKey', index 'rules'],");
-    assertThat(searchClient.prepareMultiGet().add(new MultiGetRequest.Item(IndexDefinition.RULE.getIndexName(), IndexDefinition.RULE.getIndexType(), "ruleKey")
-      .fetchSourceContext(FetchSourceContext.FETCH_SOURCE)).toString()).isEqualTo("ES multi get request [key 'ruleKey', index 'rules', type 'rule'],");
+    assertThat(esTester.client().prepareMultiGet().toString()).isEqualTo("ES multi get request");
+    assertThat(esTester.client().prepareMultiGet().add(new MultiGetRequest.Item(FakeIndexDefinition.INDEX, null, "fake1")
+      .fetchSourceContext(FetchSourceContext.FETCH_SOURCE)).toString()).isEqualTo("ES multi get request [key 'fake1', index 'fakes'],");
+    assertThat(esTester.client().prepareMultiGet().add(new MultiGetRequest.Item(FakeIndexDefinition.INDEX, FakeIndexDefinition.TYPE, "fake1")
+      .fetchSourceContext(FetchSourceContext.FETCH_SOURCE)).toString()).isEqualTo("ES multi get request [key 'fake1', index 'fakes', type 'fake'],");
   }
 
   @Test
-  public void with_profiling_basic() {
-    Profiling profiling = new Profiling(new Settings().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.BASIC.name()));
-    SearchClient searchClient = new SearchClient(new Settings(), profiling);
+  public void with_profiling_full() {
+    esTester.setProfilingLevel(Profiling.Level.FULL);
 
-    try {
-      MultiGetRequestBuilder request = searchClient.prepareMultiGet();
-      request.add(new MultiGetRequest.Item(IndexDefinition.RULE.getIndexName(), IndexDefinition.RULE.getIndexType(), "ruleKey")
-        .fetchSourceContext(FetchSourceContext.FETCH_SOURCE));
-      request.get();
-
-      // expected to fail because elasticsearch is not correctly configured, but that does not matter
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class);
-      assertThat(e.getMessage()).contains("Fail to execute ES multi get request");
-    }
+    MultiGetRequestBuilder request = esTester.client().prepareMultiGet();
+    request.add(new MultiGetRequest.Item(FakeIndexDefinition.INDEX, FakeIndexDefinition.TYPE, "ruleKey")
+      .fetchSourceContext(FetchSourceContext.FETCH_SOURCE));
+    request.get();
 
     // TODO assert profiling
-    searchClient.stop();
   }
 
   @Test
   public void get_with_string_timeout_is_not_yet_implemented() throws Exception {
     try {
-      searchClient.prepareMultiGet().get("1");
+      esTester.client().prepareMultiGet().get("1");
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -104,7 +87,7 @@ public class ProxyMultiGetRequestBuilderTest {
   @Test
   public void get_with_time_value_timeout_is_not_yet_implemented() throws Exception {
     try {
-      searchClient.prepareMultiGet().get(TimeValue.timeValueMinutes(1));
+      esTester.client().prepareMultiGet().get(TimeValue.timeValueMinutes(1));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -114,7 +97,7 @@ public class ProxyMultiGetRequestBuilderTest {
   @Test
   public void execute_should_throw_an_unsupported_operation_exception() throws Exception {
     try {
-      searchClient.prepareMultiGet().execute();
+      esTester.client().prepareMultiGet().execute();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(UnsupportedOperationException.class).hasMessage("execute() should not be called as it's used for asynchronous");

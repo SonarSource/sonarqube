@@ -22,20 +22,24 @@ package org.sonar.server.es.request;
 
 import org.elasticsearch.action.admin.indices.cache.clear.ClearIndicesCacheRequestBuilder;
 import org.elasticsearch.common.unit.TimeValue;
-import org.junit.Rule;
+import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.search.SearchClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 public class ProxyClearCacheRequestBuilderTest {
 
-  @Rule
-  public EsTester esTester = new EsTester();
+  @ClassRule
+  public static EsTester esTester = new EsTester();
+
+  @Before
+  public void setUp() throws Exception {
+    esTester.setProfilingLevel(Profiling.Level.NONE);
+  }
 
   @Test
   public void clear_cache() {
@@ -55,15 +59,12 @@ public class ProxyClearCacheRequestBuilderTest {
   }
 
   @Test
-  public void with_profiling_basic() {
-    Profiling profiling = new Profiling(new Settings().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.BASIC.name()));
-    SearchClient searchClient = new SearchClient(new Settings(), profiling);
-
+  public void with_profiling_full() {
+    esTester.setProfilingLevel(Profiling.Level.FULL);
     ClearIndicesCacheRequestBuilder requestBuilder = esTester.client().prepareClearCache();
     requestBuilder.get();
 
     // TODO assert profiling
-    searchClient.stop();
   }
 
   @Test

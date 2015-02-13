@@ -26,7 +26,8 @@ import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.common.unit.TimeValue;
-import org.junit.Rule;
+import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.server.es.EsTester;
@@ -36,8 +37,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ProxyBulkRequestBuilderTest {
 
-  @Rule
-  public EsTester esTester = new EsTester().addDefinitions(new FakeIndexDefinition());
+  @ClassRule
+  public static EsTester esTester = new EsTester().addDefinitions(new FakeIndexDefinition());
+
+  @Before
+  public void setUp() throws Exception {
+    esTester.setProfilingLevel(Profiling.Level.NONE);
+  }
 
   @Test
   public void bulk() {
@@ -45,8 +51,8 @@ public class ProxyBulkRequestBuilderTest {
   }
 
   @Test
-  public void with_profiling_basic() {
-    testBulk(Profiling.Level.BASIC);
+  public void with_profiling_full() {
+    testBulk(Profiling.Level.FULL);
     // TODO assert profiling
   }
 
