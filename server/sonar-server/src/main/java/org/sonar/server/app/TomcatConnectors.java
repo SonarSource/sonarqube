@@ -35,7 +35,7 @@ import java.util.Set;
 /**
  * Configuration of Tomcat connectors
  */
-class Connectors {
+class TomcatConnectors {
 
   public static final String PROP_HTTPS_CIPHERS = "sonar.web.https.ciphers";
 
@@ -43,7 +43,7 @@ class Connectors {
   public static final String HTTP_PROTOCOL = "HTTP/1.1";
   public static final String AJP_PROTOCOL = "AJP/1.3";
 
-  private Connectors() {
+  private TomcatConnectors() {
     // only static stuff
   }
 

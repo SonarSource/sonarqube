@@ -65,7 +65,7 @@ class StartupLogs {
 
     AbstractHttp11JsseProtocol protocol = (AbstractHttp11JsseProtocol) connector.getProtocolHandler();
     sb.append(" | ciphers=");
-    if (props.contains(Connectors.PROP_HTTPS_CIPHERS)) {
+    if (props.contains(TomcatConnectors.PROP_HTTPS_CIPHERS)) {
       sb.append(StringUtils.join(protocol.getCiphersUsed(), ","));
     } else {
       sb.append("JVM defaults");

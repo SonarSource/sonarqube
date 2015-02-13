@@ -60,7 +60,7 @@ public class WebServer implements Monitored {
    */
   public static void main(String[] args) throws Exception {
     ProcessEntryPoint entryPoint = ProcessEntryPoint.createForArguments(args);
-    Logging.init(entryPoint.getProps());
+    new WebLogging().configure();
     WebServer server = new WebServer(entryPoint.getProps());
     entryPoint.launch(server);
   }

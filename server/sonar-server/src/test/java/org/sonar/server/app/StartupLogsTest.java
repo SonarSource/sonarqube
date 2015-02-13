@@ -81,7 +81,7 @@ public class StartupLogsTest {
     when(protocol.getCiphersUsed()).thenReturn(new String[] {"SSL_RSA", "TLS_RSA_WITH_RC4"});
     when(connector.getProtocolHandler()).thenReturn(protocol);
     when(tomcat.getService().findConnectors()).thenReturn(new Connector[] {connector});
-    props.set(Connectors.PROP_HTTPS_CIPHERS, "SSL_RSA,TLS_RSA_WITH_RC4");
+    props.set(TomcatConnectors.PROP_HTTPS_CIPHERS, "SSL_RSA,TLS_RSA_WITH_RC4");
     sut.log(tomcat);
 
     verify(logger).info("HTTPS connector enabled on port 1234 | ciphers=SSL_RSA,TLS_RSA_WITH_RC4");

@@ -34,14 +34,11 @@ import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-public class ConnectorsTest {
+public class TomcatConnectorsTest {
 
   Tomcat tomcat = mock(Tomcat.class, Mockito.RETURNS_DEEP_STUBS);
 
@@ -55,7 +52,7 @@ public class ConnectorsTest {
     p.setProperty("sonar.web.http.acceptCount", "20");
     Props props = new Props(p);
 
-    Connectors.configure(tomcat, props);
+    TomcatConnectors.configure(tomcat, props);
 
     verify(tomcat).setConnector(argThat(new PropertiesMatcher(
       ImmutableMap.<String, Object>of("minSpareThreads", 2, "maxThreads", 30, "acceptCount", 20)
@@ -66,7 +63,7 @@ public class ConnectorsTest {
   public void configure_default_thread_pool() throws Exception {
     Props props = new Props(new Properties());
 
-    Connectors.configure(tomcat, props);
+    TomcatConnectors.configure(tomcat, props);
 
     verify(tomcat).setConnector(argThat(new PropertiesMatcher(
       ImmutableMap.<String, Object>of("minSpareThreads", 5, "maxThreads", 50, "acceptCount", 25)
@@ -82,7 +79,7 @@ public class ConnectorsTest {
     p.setProperty("sonar.web.https.minThreads", "5");
     Props props = new Props(p);
 
-    Connectors.configure(tomcat, props);
+    TomcatConnectors.configure(tomcat, props);
 
     verify(tomcat.getService()).addConnector(argThat(new ArgumentMatcher<Connector>() {
       @Override
@@ -108,7 +105,7 @@ public class ConnectorsTest {
     Props props = new Props(p);
 
     try {
-      Connectors.configure(tomcat, props);
+      TomcatConnectors.configure(tomcat, props);
       fail();
     } catch (IllegalStateException e) {
       assertThat(e.getMessage()).isEqualTo("HTTP connectors are disabled");
@@ -122,7 +119,7 @@ public class ConnectorsTest {
     p.setProperty("sonar.web.https.port", "9443");
     Props props = new Props(p);
 
-    Connectors.configure(tomcat, props);
+    TomcatConnectors.configure(tomcat, props);
 
     verify(tomcat).setConnector(argThat(new ArgumentMatcher<Connector>() {
       @Override
@@ -142,27 +139,27 @@ public class ConnectorsTest {
     p.setProperty("sonar.web.https.port", "9443");
     Props props = new Props(p);
 
-    Connectors.configure(tomcat, props);
+    TomcatConnectors.configure(tomcat, props);
 
     verify(tomcat.getService()).addConnector(argThat(new ArgumentMatcher<Connector>() {
       @Override
       public boolean matches(Object o) {
         Connector c = (Connector) o;
-        return c.getScheme().equals("http") && c.getPort() == 9000 && c.getProtocol().equals(Connectors.HTTP_PROTOCOL);
+        return c.getScheme().equals("http") && c.getPort() == 9000 && c.getProtocol().equals(TomcatConnectors.HTTP_PROTOCOL);
       }
     }));
     verify(tomcat.getService()).addConnector(argThat(new ArgumentMatcher<Connector>() {
       @Override
       public boolean matches(Object o) {
         Connector c = (Connector) o;
-        return c.getScheme().equals("http") && c.getPort() == 9009 && c.getProtocol().equals(Connectors.AJP_PROTOCOL);
+        return c.getScheme().equals("http") && c.getPort() == 9009 && c.getProtocol().equals(TomcatConnectors.AJP_PROTOCOL);
       }
     }));
     verify(tomcat.getService()).addConnector(argThat(new ArgumentMatcher<Connector>() {
       @Override
       public boolean matches(Object o) {
         Connector c = (Connector) o;
-        return c.getScheme().equals("https") && c.getPort() == 9443 && c.getProtocol().equals(Connectors.HTTP_PROTOCOL);
+        return c.getScheme().equals("https") && c.getPort() == 9443 && c.getProtocol().equals(TomcatConnectors.HTTP_PROTOCOL);
       }
     }));
   }
@@ -175,7 +172,7 @@ public class ConnectorsTest {
     p.setProperty("sonar.web.https.port", "9000");
 
     try {
-      Connectors.configure(tomcat, new Props(p));
+      TomcatConnectors.configure(tomcat, new Props(p));
       fail();
     } catch (IllegalStateException e) {
       assertThat(e).hasMessage("HTTP, AJP and HTTPS must not use the same port 9000");
@@ -189,7 +186,7 @@ public class ConnectorsTest {
     p.setProperty("sonar.ajp.port", "9009");
     p.setProperty("sonar.web.https.port", "9443");
 
-    Connectors.configure(tomcat, new Props(p));
+    TomcatConnectors.configure(tomcat, new Props(p));
 
     verify(tomcat.getService()).addConnector(argThat(new ArgumentMatcher<Connector>() {
       @Override
@@ -221,7 +218,7 @@ public class ConnectorsTest {
     p.setProperty("sonar.web.https.port", "9443");
     p.setProperty("sonar.web.host", "1.2.3.4");
 
-    Connectors.configure(tomcat, new Props(p));
+    TomcatConnectors.configure(tomcat, new Props(p));
 
     verify(tomcat.getService()).addConnector(argThat(new ArgumentMatcher<Connector>() {
       @Override
@@ -250,7 +247,7 @@ public class ConnectorsTest {
 
     Props props = new Props(p);
 
-    Connectors.configure(tomcat, props);
+    TomcatConnectors.configure(tomcat, props);
 
     verify(tomcat).setConnector(argThat(new ArgumentMatcher<Connector>() {
       @Override
@@ -272,7 +269,7 @@ public class ConnectorsTest {
 
     Props props = new Props(p);
 
-    Connectors.configure(tomcat, props);
+    TomcatConnectors.configure(tomcat, props);
 
     verify(tomcat).setConnector(argThat(new ArgumentMatcher<Connector>() {
       @Override
