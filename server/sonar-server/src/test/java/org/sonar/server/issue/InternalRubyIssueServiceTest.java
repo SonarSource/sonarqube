@@ -24,10 +24,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.action.Action;
@@ -58,44 +55,48 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
 public class InternalRubyIssueServiceTest {
 
-  @Mock
   IssueService issueService;
 
-  @Mock
   IssueQueryService issueQueryService;
 
-  @Mock
   IssueCommentService commentService;
 
-  @Mock
   IssueChangelogService changelogService;
 
-  @Mock
   ActionPlanService actionPlanService;
 
-  @Mock
   ResourceDao resourceDao;
 
-  @Mock
   ActionService actionService;
 
-  @Mock
   IssueFilterService issueFilterService;
 
-  @Mock
   IssueBulkChangeService issueBulkChangeService;
 
   InternalRubyIssueService service;
 
   @Before
   public void setUp() {
+    issueService = mock(IssueService.class);
+    issueQueryService = mock(IssueQueryService.class);
+    commentService = mock(IssueCommentService.class);
+    changelogService = mock(IssueChangelogService.class);
+    actionPlanService = mock(ActionPlanService.class);
+    resourceDao = mock(ResourceDao.class);
+    actionService = mock(ActionService.class);
+    issueFilterService = mock(IssueFilterService.class);
+    issueBulkChangeService = mock(IssueBulkChangeService.class);
+
     ResourceDto project = new ResourceDto().setKey("org.sonar.Sample");
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(project);
+
     service = new InternalRubyIssueService(issueService, issueQueryService, commentService, changelogService, actionPlanService, resourceDao, actionService,
       issueFilterService, issueBulkChangeService);
   }
@@ -577,7 +578,7 @@ public class InternalRubyIssueServiceTest {
     overrideProps.put("pageSize", 20);
     overrideProps.put("pageIndex", 2);
 
-    when(issueQueryService.createFromMap(overrideProps)).thenReturn(IssueQuery.builder().build());
+    when(issueQueryService.createFromMap(eq(overrideProps))).thenReturn(IssueQuery.builder().build());
 
     service.execute(10L, overrideProps);
 
@@ -706,6 +707,18 @@ public class InternalRubyIssueServiceTest {
     List<String> tags = Arrays.asList("tag1", "tag2", "tag3");
     when(issueService.listTags(null, 0)).thenReturn(tags);
     assertThat(service.listTags()).isEqualTo(tags);
+  }
+
+  @Test
+  public void list_tags_for_component() throws Exception {
+    Map<String, Long> tags = ImmutableMap.of("tag1", 1L, "tag2", 2L, "tag3", 3L);
+    int pageSize = 42;
+    IssueQuery query = IssueQuery.builder().build();
+    String componentUuid = "polop";
+    Map<String, Object> params = ImmutableMap.<String, Object>of("componentUuids", componentUuid, "resolved", false);
+    when(issueQueryService.createFromMap(params)).thenReturn(query);
+    when(issueService.listTagsForComponent(query, pageSize)).thenReturn(tags);
+    assertThat(service.listTagsForComponent(componentUuid, pageSize)).isEqualTo(tags);
   }
 
   private void checkBadRequestException(Exception e, String key, Object... params) {
