@@ -67,10 +67,7 @@ class DefaultBlameOutput implements BlameOutput {
   @Override
   public synchronized void blameResult(InputFile file, List<BlameLine> lines) {
     Preconditions.checkNotNull(file);
-    if (lines == null) {
-      // Ignore the file. Will be logged at the end.
-      return;
-    }
+    Preconditions.checkNotNull(lines);
     Preconditions.checkArgument(allFilesToBlame.contains(file), "It was not expected to blame file " + file.relativePath());
 
     if (lines.size() != file.lines()) {
