@@ -24,7 +24,6 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.process.MinimumViableSystem;
 import org.sonar.process.ProcessCommands;
 import org.sonar.process.ProcessConstants;
-import org.sonar.process.ProcessLogging;
 import org.sonar.process.Props;
 import org.sonar.process.StopWatcher;
 import org.sonar.process.Stoppable;
@@ -114,11 +113,8 @@ public class App implements Stoppable {
     CommandLineParser cli = new CommandLineParser();
     Properties rawProperties = cli.parseArguments(args);
     Props props = new PropsBuilder(rawProperties, new JdbcSettings()).build();
-    ProcessLogging logging = new ProcessLogging();
-    logging.configure(props, "/org/sonar/application/logback.xml");
-    if (props.valueAsBoolean("sonar.log.console", false)) {
-      logging.addConsoleAppender();
-    }
+    AppLogging logging = new AppLogging();
+    logging.configure(props);
 
     App app = new App();
     app.start(props);

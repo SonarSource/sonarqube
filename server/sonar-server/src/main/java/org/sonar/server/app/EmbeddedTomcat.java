@@ -55,8 +55,8 @@ class EmbeddedTomcat {
     tomcat.getHost().setAutoDeploy(false);
     tomcat.getHost().setCreateDirs(false);
     tomcat.getHost().setDeployOnStartup(true);
-    Logging.configure(tomcat, props);
-    Connectors.configure(tomcat, props);
+    new TomcatAccessLog().configure(tomcat, props);
+    TomcatConnectors.configure(tomcat, props);
     webappContext = Webapp.configure(tomcat, props);
     try {
       tomcat.start();

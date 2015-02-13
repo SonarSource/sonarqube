@@ -19,16 +19,13 @@
  */
 package org.sonar.server.app;
 
-import ch.qos.logback.access.tomcat.LogbackValve;
 import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleEvent;
-import org.apache.catalina.Valve;
 import org.apache.catalina.startup.Tomcat;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.sonar.process.ProcessConstants;
@@ -38,12 +35,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
-public class LoggingTest {
+public class TomcatAccessLogTest {
+
+  TomcatAccessLog sut = new TomcatAccessLog();
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -58,23 +55,16 @@ public class LoggingTest {
   public void enable_access_logs_by_Default() throws Exception {
     Tomcat tomcat = mock(Tomcat.class, Mockito.RETURNS_DEEP_STUBS);
     Props props = new Props(new Properties());
-    props.set(ProcessConstants.PATH_WEB, temp.newFolder().getAbsolutePath());
-    Logging.configure(tomcat, props);
+    props.set(ProcessConstants.PATH_LOGS, temp.newFolder().getAbsolutePath());
+    sut.configure(tomcat, props);
 
-    verify(tomcat.getHost().getPipeline()).addValve(argThat(new ArgumentMatcher<Valve>() {
-      @Override
-      public boolean matches(Object o) {
-        LogbackValve v = (LogbackValve) o;
-        String confFile = v.getFilename();
-        return confFile.endsWith("logback-access.xml");
-      }
-    }));
+    verify(tomcat.getHost().getPipeline()).addValve(any(ProgrammaticLogbackValve.class));
   }
 
   @Test
   public void log_when_started_and_stopped() {
     Logger logger = mock(Logger.class);
-    Logging.LifecycleLogger listener = new Logging.LifecycleLogger(logger);
+    TomcatAccessLog.LifecycleLogger listener = new TomcatAccessLog.LifecycleLogger(logger);
 
     LifecycleEvent event = new LifecycleEvent(mock(Lifecycle.class), "before_init", null);
     listener.lifecycleEvent(event);
