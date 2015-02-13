@@ -1,7 +1,7 @@
 <dataset>
 
   <!-- This project has a root_id which should be set to NULL (SONAR-1700) -->
-  <projects id="1001" scope="PRJ" qualifier="TRK" kee="foo" root_id="12345" uuid="BCDE" project_uuid="BCDE" module_uuid="[null]" module_uuid_path="[null]"
+  <projects id="1001" scope="PRJ" qualifier="TRK" kee="foo" root_id="12345" uuid="BCDE" project_uuid="BCDE" module_uuid="[null]" module_uuid_path=".BCDE."
             name="name" long_name="long name" description="description"
             enabled="true" language="java" copy_resource_id="[null]" person_id="[null]" created_at="[null]" path="[null]" deprecated_kee="foo"/>
 

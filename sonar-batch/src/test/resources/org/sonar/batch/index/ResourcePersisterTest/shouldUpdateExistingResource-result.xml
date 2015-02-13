@@ -1,6 +1,6 @@
 <dataset>
 
-  <projects id="1001" scope="PRJ" qualifier="TRK" kee="foo" root_id="[null]" uuid="BCDE" project_uuid="BCDE" module_uuid="[null]" module_uuid_path="."
+  <projects id="1001" scope="PRJ" qualifier="TRK" kee="foo" root_id="[null]" uuid="BCDE" project_uuid="BCDE" module_uuid="[null]" module_uuid_path=".BCDE."
             name="new name" long_name="new name" description="new description"
             enabled="true" language="[null]" copy_resource_id="[null]" person_id="[null]" path="[null]" deprecated_kee="foo" />
 
