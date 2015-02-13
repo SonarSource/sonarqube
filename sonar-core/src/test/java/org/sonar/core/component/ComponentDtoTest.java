@@ -21,6 +21,8 @@
 package org.sonar.core.component;
 
 import org.junit.Test;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Scopes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -69,5 +71,12 @@ public class ComponentDtoTest {
     assertThat(dto.hashCode()).isEqualTo(dto.hashCode());
     assertThat(dto.hashCode()).isEqualTo(dtoWithSameId.hashCode());
     assertThat(dto.hashCode()).isNotEqualTo(dtoWithDifferentId.hashCode());
+  }
+
+  @Test
+  public void is_root_project() throws Exception {
+    assertThat(new ComponentDto().setModuleUuid("ABCD").isRootProject()).isFalse();
+    assertThat(new ComponentDto().setModuleUuid("ABCD").setScope(Scopes.DIRECTORY).isRootProject()).isFalse();
+    assertThat(new ComponentDto().setModuleUuid(null).setScope(Scopes.PROJECT).setQualifier(Qualifiers.PROJECT).isRootProject()).isTrue();
   }
 }

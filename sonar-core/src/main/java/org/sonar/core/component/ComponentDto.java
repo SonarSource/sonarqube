@@ -235,7 +235,7 @@ public class ComponentDto extends Dto<String> implements Component {
   }
 
   public boolean isRootProject() {
-    return MODULE_UUID_PATH_SEP.equals(moduleUuidPath) && Scopes.PROJECT.equals(scope);
+    return moduleUuid == null && Scopes.PROJECT.equals(scope);
   }
 
   @Override

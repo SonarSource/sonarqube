@@ -2,11 +2,11 @@
 
   <!-- Multi module project -->
   <projects id="399" kee="struts" root_id="[null]" qualifier="TRK" scope="PRJ" uuid="ABCD" project_uuid="ABCD"
-            module_uuid="[null]" module_uuid_path="." path="[null]"/>
+            module_uuid="[null]" module_uuid_path=".ABCD." path="[null]"/>
   <projects id="400" kee="struts-core" root_id="399" qualifier="BRC" scope="PRJ" uuid="BCDE" project_uuid="ABCD"
             module_uuid="ABCD" module_uuid_path=".ABCD.BCDE."
             path="struts-core"/>
-  <projects id="401" kee="Action.java" root_id="400" qualifier="CLA" scope="PRJ" uuid="CDEF" project_uuid="ABCD"
+  <projects id="401" kee="Action.java" root_id="400" qualifier="FIL" scope="FIL" uuid="CDEF" project_uuid="ABCD"
             module_uuid="BCDE" module_uuid_path=".ABCD.BCDE."
             path="src/main/java/Action.java"/>
 
