@@ -34,7 +34,7 @@ class Api::Pagination
   attr_accessor :page_entries
 
   def initialize(options={})
-    @per_page=options[:per_page].to_i||DEFAULT_PER_PAGE
+    @per_page = (options[:per_page]||DEFAULT_PER_PAGE).to_i
     @page=options[:page].to_i
     @page=1 if @page<1
     @count = options[:count].to_i
