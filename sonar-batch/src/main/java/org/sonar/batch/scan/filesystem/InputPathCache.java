@@ -31,8 +31,11 @@ import javax.annotation.CheckForNull;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * Cache of all files and dirs. This cache is shared amongst all project modules. Inclusion and
@@ -40,8 +43,8 @@ import java.util.Map;
  */
 public class InputPathCache implements BatchComponent {
 
-  private final Map<String, Map<String, InputFile>> inputFileCache = new LinkedHashMap<>();
-  private final Map<String, Map<String, InputDir>> inputDirCache = new LinkedHashMap<>();
+  private final Map<String, SortedMap<String, InputFile>> inputFileCache = new LinkedHashMap<>();
+  private final Map<String, SortedMap<String, InputDir>> inputDirCache = new LinkedHashMap<>();
   private final Map<String, Map<String, InputFileMetadata>> inputFileMetadataCache = new LinkedHashMap<>();
 
   public Iterable<InputFile> allFiles() {
@@ -102,7 +105,7 @@ public class InputPathCache implements BatchComponent {
 
   public InputPathCache put(String moduleKey, InputFile inputFile) {
     if (!inputFileCache.containsKey(moduleKey)) {
-      inputFileCache.put(moduleKey, new LinkedHashMap<String, InputFile>());
+      inputFileCache.put(moduleKey, new TreeMap<String, InputFile>());
     }
     inputFileCache.get(moduleKey).put(inputFile.relativePath(), inputFile);
     return this;
@@ -110,7 +113,7 @@ public class InputPathCache implements BatchComponent {
 
   public synchronized InputPathCache put(String moduleKey, String relativePath, InputFileMetadata metadata) {
     if (!inputFileMetadataCache.containsKey(moduleKey)) {
-      inputFileMetadataCache.put(moduleKey, new LinkedHashMap<String, InputFileMetadata>());
+      inputFileMetadataCache.put(moduleKey, new HashMap<String, InputFileMetadata>());
     }
     inputFileMetadataCache.get(moduleKey).put(relativePath, metadata);
     return this;
@@ -118,7 +121,7 @@ public class InputPathCache implements BatchComponent {
 
   public InputPathCache put(String moduleKey, InputDir inputDir) {
     if (!inputDirCache.containsKey(moduleKey)) {
-      inputDirCache.put(moduleKey, new LinkedHashMap<String, InputDir>());
+      inputDirCache.put(moduleKey, new TreeMap<String, InputDir>());
     }
     inputDirCache.get(moduleKey).put(inputDir.relativePath(), inputDir);
     return this;
