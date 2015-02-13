@@ -69,7 +69,7 @@ public class IssueResultSetIteratorTest {
     });
     it.close();
 
-    assertThat(issuesByKey).hasSize(3);
+    assertThat(issuesByKey).hasSize(4);
 
     IssueDoc issue = issuesByKey.get("ABC");
     assertThat(issue.key()).isEqualTo("ABC");
@@ -78,6 +78,7 @@ public class IssueResultSetIteratorTest {
     assertThat(issue.projectUuid()).isEqualTo("PROJECT1");
     assertThat(issue.moduleUuid()).isEqualTo("PROJECT1");
     assertThat(issue.modulePath()).isEqualTo(".PROJECT1.");
+    assertThat(issue.directoryPath()).isEqualTo("src/main/java");
     assertThat(issue.filePath()).isEqualTo("src/main/java/Action.java");
     assertThat(issue.tags()).containsOnly("tag1", "tag2", "tag3");
     assertThat(issue.debt().toMinutes()).isGreaterThan(0L);
@@ -89,6 +90,7 @@ public class IssueResultSetIteratorTest {
     assertThat(issue.projectUuid()).isEqualTo("PROJECT1");
     assertThat(issue.moduleUuid()).isEqualTo("MODULE1");
     assertThat(issue.modulePath()).isEqualTo(".PROJECT1.MODULE1.");
+    assertThat(issue.directoryPath()).isNull();
     assertThat(issue.filePath()).isNull();
     assertThat(issue.tags()).containsOnly("tag1", "tag2", "tag3");
     assertThat(issue.debt().toMinutes()).isGreaterThan(0L);
@@ -100,7 +102,20 @@ public class IssueResultSetIteratorTest {
     assertThat(issue.projectUuid()).isEqualTo("PROJECT1");
     assertThat(issue.moduleUuid()).isEqualTo("PROJECT1");
     assertThat(issue.modulePath()).isEqualTo(".PROJECT1.");
+    assertThat(issue.directoryPath()).isEqualTo("src/main/java");
     assertThat(issue.filePath()).isEqualTo("src/main/java/Action.java");
+    assertThat(issue.tags()).isEmpty();
+    assertThat(issue.debt().toMinutes()).isGreaterThan(0L);
+
+    issue = issuesByKey.get("EFG");
+    assertThat(issue.key()).isEqualTo("EFG");
+    assertThat(issue.assignee()).isEqualTo("guy1");
+    assertThat(issue.componentUuid()).isEqualTo("DIR1");
+    assertThat(issue.projectUuid()).isEqualTo("PROJECT1");
+    assertThat(issue.moduleUuid()).isEqualTo("MODULE1");
+    assertThat(issue.modulePath()).isEqualTo(".PROJECT1.MODULE1.");
+    assertThat(issue.directoryPath()).isEqualTo("src/main/java");
+    assertThat(issue.filePath()).isEqualTo("src/main/java");
     assertThat(issue.tags()).isEmpty();
     assertThat(issue.debt().toMinutes()).isGreaterThan(0L);
   }

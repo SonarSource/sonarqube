@@ -25,6 +25,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.db.ResultSetIterator;
@@ -78,6 +79,7 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
     "p.uuid",
     "p.module_uuid_path",
     "p.path",
+    "p.scope",
     "i.tags"
   };
 
@@ -159,9 +161,11 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
     String moduleUuidPath = rs.getString(23);
     doc.setModuleUuid(extractModule(moduleUuidPath));
     doc.setModuleUuidPath(moduleUuidPath);
-    doc.setFilePath(rs.getString(24));
-    doc.setDirectoryPath(extractDirPath(doc.filePath()));
-    String tags = rs.getString(25);
+    String filePath = rs.getString(24);
+    doc.setFilePath(filePath);
+    String scope = rs.getString(25);
+    doc.setDirectoryPath(Scopes.DIRECTORY.equals(scope) ? filePath : extractDirPath(doc.filePath()));
+    String tags = rs.getString(26);
     doc.setTags(ImmutableList.copyOf(TAGS_SPLITTER.split(tags == null ? "" : tags)));
     return doc;
   }
