@@ -26,5 +26,5 @@ import java.util.List;
 
 public interface ComponentIndexMapper {
 
-  List<Long> selectProjectIdsFromQueryAndViewOrSubViewUuid(@Param("query") String query, @Param("viewOrSubViewUuid") String viewOrSubViewUuid);
+  List<Long> selectProjectIdsFromQueryAndViewOrSubViewUuid(@Param("query") String query, @Param("viewUuidQuery") String viewUuidQuery);
 }

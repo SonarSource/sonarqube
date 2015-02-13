@@ -143,23 +143,22 @@
 
   <sql id="modulesTreeQuery">
     INNER JOIN projects root_project ON root_project.uuid = p.project_uuid AND root_project.enabled = ${_true}
-    INNER JOIN projects module ON module.project_uuid = root_project.uuid AND module.enabled = ${_true} AND module.uuid = #{moduleUuid}
+    INNER JOIN projects module ON module.project_uuid = root_project.uuid AND module.enabled = ${_true} AND module.uuid = #{moduleUuid} AND module.scope='PRJ'
     <where>
       p.enabled = ${_true}
       AND p.scope = #{scope}
-      AND (p.uuid = module.uuid OR
+      AND
       <choose>
         <when test="_databaseId == 'mssql'">
-          p.module_uuid_path LIKE module.module_uuid_path + module.uuid + '.%'
+          p.module_uuid_path LIKE module.module_uuid_path + '%'
         </when>
         <when test="_databaseId == 'mysql'">
-          p.module_uuid_path LIKE concat(module.module_uuid_path, module.uuid, '.%')
+          p.module_uuid_path LIKE concat(module.module_uuid_path, '%')
         </when>
         <otherwise>
-          p.module_uuid_path LIKE module.module_uuid_path || module.uuid || '.%'
+          p.module_uuid_path LIKE module.module_uuid_path || '%'
         </otherwise>
       </choose>
-      )
     </where>
   </sql>
 
