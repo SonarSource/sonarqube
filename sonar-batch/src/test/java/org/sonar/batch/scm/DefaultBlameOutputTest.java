@@ -34,11 +34,8 @@ public class DefaultBlameOutputTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void shouldFailIfNotSameNumberOfLines() {
+  public void shouldNotFailIfNotSameNumberOfLines() {
     InputFile file = new DefaultInputFile("foo", "src/main/java/Foo.java").setLines(10);
-
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Expected one blame result per line but provider returned 1 blame lines while file src/main/java/Foo.java has 10 lines");
 
     new DefaultBlameOutput(null, Arrays.asList(file)).blameResult(file, Arrays.asList(new BlameLine().revision("1").author("guy")));
   }

@@ -20,6 +20,8 @@
 package org.sonar.batch.scm;
 
 import com.google.common.base.Preconditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.scm.BlameCommand.BlameOutput;
 import org.sonar.api.batch.scm.BlameLine;
@@ -42,6 +44,8 @@ import java.util.regex.Pattern;
 
 class DefaultBlameOutput implements BlameOutput {
 
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultBlameOutput.class);
+
   private static final Pattern NON_ASCII_CHARS = Pattern.compile("[^\\x00-\\x7F]");
   private static final Pattern ACCENT_CODES = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
 
@@ -63,10 +67,16 @@ class DefaultBlameOutput implements BlameOutput {
   @Override
   public synchronized void blameResult(InputFile file, List<BlameLine> lines) {
     Preconditions.checkNotNull(file);
-    Preconditions.checkNotNull(lines);
+    if (lines == null) {
+      // Ignore the file. Will be logged at the end.
+      return;
+    }
     Preconditions.checkArgument(allFilesToBlame.contains(file), "It was not expected to blame file " + file.relativePath());
-    Preconditions.checkArgument(lines.size() == file.lines(),
-      "Expected one blame result per line but provider returned " + lines.size() + " blame lines while file " + file.relativePath() + " has " + file.lines() + " lines");
+
+    if (lines.size() != file.lines()) {
+      LOG.debug("Ignoring blame result since provider returned " + lines.size() + " blame lines but file " + file.relativePath() + " has " + file.lines() + " lines");
+      return;
+    }
 
     PropertiesBuilder<Integer, String> authors = propertiesBuilder(CoreMetrics.SCM_AUTHORS_BY_LINE);
     PropertiesBuilder<Integer, String> dates = propertiesBuilder(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE);
@@ -109,9 +119,13 @@ class DefaultBlameOutput implements BlameOutput {
   }
 
   public void finish() {
+    progressReport.stop(count + "/" + total + " files analyzed");
     if (!allFilesToBlame.isEmpty()) {
-      throw new IllegalStateException("Some files were not blamed");
+      LOG.warn("Missing blame information for the following files:");
+      for (InputFile f : allFilesToBlame) {
+        LOG.warn("  * " + f.absolutePath());
+      }
+      LOG.warn("This may lead to missing/broken features in SonarQube");
     }
-    progressReport.stop(count + "/" + count + " files analyzed");
   }
 }

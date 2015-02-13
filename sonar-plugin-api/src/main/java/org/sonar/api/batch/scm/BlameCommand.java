@@ -24,6 +24,8 @@ import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 
+import javax.annotation.Nullable;
+
 import java.util.List;
 
 /**
@@ -66,8 +68,13 @@ public abstract class BlameCommand implements BatchComponent {
     /**
      * Add result of the blame command for a single file. Number of lines should
      * be consistent with {@link InputFile#lines()}. This method is thread safe.
+     * @param lines One entry per line in the file. Can return null since 5.1 to 
+     * express the provider was not able to collect blame for the file but that should
+     * not fail the analysis (for example when file is uncommited). The platform will 
+     * log a warning in this case. It is up to the provider to log debug info so that
+     * user can understand why the file has no blame.
      */
-    void blameResult(InputFile file, List<BlameLine> lines);
+    void blameResult(InputFile file, @Nullable List<BlameLine> lines);
 
   }
 

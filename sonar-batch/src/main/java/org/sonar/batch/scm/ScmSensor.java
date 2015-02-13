@@ -32,7 +32,6 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.utils.TimeProfiler;
 import org.sonar.batch.protocol.input.FileData;
 import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonar.batch.scan.filesystem.InputFileMetadata;
@@ -79,12 +78,11 @@ public final class ScmSensor implements Sensor {
 
     List<InputFile> filesToBlame = collectFilesToBlame(context);
     if (!filesToBlame.isEmpty()) {
-      LOG.info("SCM provider for this project is: " + configuration.provider().key());
-      TimeProfiler profiler = new TimeProfiler().start("Retrieve SCM blame information");
+      String key = configuration.provider().key();
+      LOG.info("SCM provider for this project is: " + key);
       DefaultBlameOutput output = new DefaultBlameOutput(context, filesToBlame);
       configuration.provider().blameCommand().blame(new DefaultBlameInput(fs, filesToBlame), output);
       output.finish();
-      profiler.stop();
     }
   }
 
