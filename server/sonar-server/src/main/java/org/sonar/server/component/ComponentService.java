@@ -106,11 +106,10 @@ public class ComponentService implements ServerComponent {
   }
 
   public void updateKey(String projectOrModuleKey, String newKey) {
-    UserSession.get().checkComponentPermission(UserRole.ADMIN, projectOrModuleKey);
-
     DbSession session = dbClient.openSession(false);
     try {
       ComponentDto projectOrModule = getByKey(session, projectOrModuleKey);
+      UserSession.get().checkProjectUuidPermission(UserRole.ADMIN, projectOrModule.projectUuid());
       resourceKeyUpdaterDao.updateKey(projectOrModule.getId(), newKey);
       session.commit();
 
@@ -121,10 +120,10 @@ public class ComponentService implements ServerComponent {
   }
 
   public Map<String, String> checkModuleKeysBeforeRenaming(String projectKey, String stringToReplace, String replacementString) {
-    UserSession.get().checkProjectPermission(UserRole.ADMIN, projectKey);
     DbSession session = dbClient.openSession(false);
     try {
       ComponentDto project = getByKey(projectKey);
+      UserSession.get().checkProjectUuidPermission(UserRole.ADMIN, project.projectUuid());
       return resourceKeyUpdaterDao.checkModuleKeysBeforeRenaming(project.getId(), stringToReplace, replacementString);
     } finally {
       session.close();
@@ -132,12 +131,11 @@ public class ComponentService implements ServerComponent {
   }
 
   public void bulkUpdateKey(String projectKey, String stringToReplace, String replacementString) {
-    UserSession.get().checkProjectPermission(UserRole.ADMIN, projectKey);
-
     // Open a batch session
     DbSession session = dbClient.openSession(true);
     try {
       ComponentDto project = getByKey(session, projectKey);
+      UserSession.get().checkProjectUuidPermission(UserRole.ADMIN, project.projectUuid());
       resourceKeyUpdaterDao.bulkUpdateKey(session, project.getId(), stringToReplace, replacementString);
       session.commit();
     } finally {
@@ -163,6 +161,8 @@ public class ComponentService implements ServerComponent {
       ComponentDto component = dbClient.componentDao().insert(session,
         new ComponentDto()
           .setUuid(uuid)
+          .setModuleUuid(null)
+          .setModuleUuidPath(ComponentDto.MODULE_UUID_PATH_SEP + uuid + ComponentDto.MODULE_UUID_PATH_SEP)
           .setProjectUuid(uuid)
           .setKey(keyWithBranch)
           .setDeprecatedKey(keyWithBranch)

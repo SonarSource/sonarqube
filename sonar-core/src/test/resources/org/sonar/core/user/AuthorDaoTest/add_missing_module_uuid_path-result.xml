@@ -1,7 +1,7 @@
 <dataset>
-  <projects id="1" name="developer@company.net" qualifier="DEV" uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path="."/>
+  <projects id="1" name="developer@company.net" qualifier="DEV" uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path=".ABCD."/>
   <authors id="1" person_id="1" login="developer@company.net"/>
 
-  <projects id="2" name="developer2@company.net" qualifier="DEV" uuid="BCDE" project_uuid="BCDE" module_uuid="[null]" module_uuid_path="."/>
+  <projects id="2" name="developer2@company.net" qualifier="DEV" uuid="BCDE" project_uuid="BCDE" module_uuid="[null]" module_uuid_path=".BCDE."/>
   <authors id="2" person_id="2" login="developer2@company.net"/>
 </dataset>
