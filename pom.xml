@@ -288,6 +288,16 @@
           <artifactId>clirr-maven-plugin</artifactId>
           <version>2.6.1</version>
         </plugin>
+        <plugin>
+          <groupId>org.owasp</groupId>
+          <artifactId>dependency-check-maven</artifactId>
+          <version>1.2.8</version>
+          <configuration>
+            <failBuildOnCVSS>8</failBuildOnCVSS>
+            <suppressionFile>cve-false-positives.xml</suppressionFile>
+          </configuration>
+        </plugin>
+
       </plugins>
     </pluginManagement>
 
@@ -1502,12 +1512,37 @@
         </dependency>
       </dependencies>
     </profile>
+
     <profile>
       <!-- add microbenchmarks module to IDE -->
       <id>includeMicrobenchmarkModule</id>
       <modules>
         <module>microbenchmark-template</module>
       </modules>
+    </profile>
+
+    <profile>
+      <!--
+      check if maven dependencies have vulnerabilities listed in CVE
+      Standalone command: mvn org.owasp:dependency-check-maven:check
+      See http://jeremylong.github.io/DependencyCheck
+      -->
+      <id>securityCheck</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.owasp</groupId>
+            <artifactId>dependency-check-maven</artifactId>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>check</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
   </profiles>
 
