@@ -23,11 +23,11 @@ import com.google.common.base.Strings;
 import com.google.common.collect.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
+import org.sonar.api.utils.log.Loggers;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -448,7 +448,7 @@ public interface RulesDefinition extends ServerExtension {
         // Should fail in a perfect world, but at the time being the Findbugs plugin
         // defines several times the rule EC_INCOMPATIBLE_ARRAY_COMPARE
         // See http://jira.codehaus.org/browse/SONARJAVA-428
-        LoggerFactory.getLogger(getClass()).warn(String.format("The rule '%s' of repository '%s' is declared several times", ruleKey, key));
+        Loggers.get(getClass()).warn(String.format("The rule '%s' of repository '%s' is declared several times", ruleKey, key));
       }
       NewRule newRule = new NewRule(key, ruleKey);
       newRules.put(ruleKey, newRule);

@@ -23,7 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.ReportPlugin;
 import org.apache.maven.project.MavenProject;
-import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.log.Loggers;
 
 import java.nio.charset.Charset;
 import java.util.Collection;
@@ -142,7 +142,7 @@ public final class MavenUtils {
         return Charset.forName(encoding);
 
       } catch (Exception e) {
-        LoggerFactory.getLogger(MavenUtils.class).warn("Can not get project charset", e);
+        Loggers.get(MavenUtils.class).warn("Can not get project charset", e);
       }
     }
     return Charset.defaultCharset();

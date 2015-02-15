@@ -45,7 +45,7 @@ public class ComputationThreadLauncher implements Startable, ServerComponent, Se
 
   public ComputationThreadLauncher(AnalysisReportQueue queue) {
     this.queue = queue;
-    this.executorService = Executors.newSingleThreadScheduledExecutor(threadFactoryWithSpecificNameForLogging());
+    this.executorService = Executors.newSingleThreadScheduledExecutor(newThreadFactory());
 
     this.delayBetweenTasks = 10;
     this.delayForFirstStart = 0;
@@ -55,7 +55,7 @@ public class ComputationThreadLauncher implements Startable, ServerComponent, Se
   @VisibleForTesting
   ComputationThreadLauncher(AnalysisReportQueue queue, long delayForFirstStart, long delayBetweenTasks, TimeUnit timeUnit) {
     this.queue = queue;
-    this.executorService = Executors.newSingleThreadScheduledExecutor(threadFactoryWithSpecificNameForLogging());
+    this.executorService = Executors.newSingleThreadScheduledExecutor(newThreadFactory());
 
     this.delayBetweenTasks = delayBetweenTasks;
     this.delayForFirstStart = delayForFirstStart;
@@ -81,10 +81,7 @@ public class ComputationThreadLauncher implements Startable, ServerComponent, Se
     executorService.scheduleAtFixedRate(new ComputationThread(queue), delayForFirstStart, delayBetweenTasks, timeUnit);
   }
 
-  /**
-   * @see org.sonar.server.platform.SwitchLogbackAppender
-   */
-  private ThreadFactory threadFactoryWithSpecificNameForLogging() {
+  private ThreadFactory newThreadFactory() {
     return new ThreadFactoryBuilder()
       .setNameFormat(THREAD_NAME_PREFIX + "%d").setPriority(Thread.MIN_PRIORITY).build();
   }

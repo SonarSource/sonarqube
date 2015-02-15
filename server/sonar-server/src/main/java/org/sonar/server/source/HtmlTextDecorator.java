@@ -20,7 +20,7 @@
 package org.sonar.server.source;
 
 import com.google.common.io.Closeables;
-import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.log.Loggers;
 
 import javax.annotation.Nullable;
 
@@ -89,7 +89,7 @@ class HtmlTextDecorator {
 
     } catch (IOException exception) {
       String errorMsg = "An exception occurred while highlighting the syntax of one of the project's files";
-      LoggerFactory.getLogger(HtmlTextDecorator.class).error(errorMsg);
+      Loggers.get(HtmlTextDecorator.class).error(errorMsg);
       throw new IllegalStateException(errorMsg, exception);
     } finally {
       Closeables.closeQuietly(stringBuffer);

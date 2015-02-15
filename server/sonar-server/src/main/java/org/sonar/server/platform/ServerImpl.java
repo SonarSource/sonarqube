@@ -26,11 +26,11 @@ import com.google.common.io.Resources;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.process.ProcessConstants;
 
 import java.io.File;
@@ -42,7 +42,7 @@ import java.util.Date;
 import java.util.Properties;
 
 public final class ServerImpl extends Server implements Startable {
-  private static final Logger LOG = LoggerFactory.getLogger(ServerImpl.class);
+  private static final Logger LOG = Loggers.get(ServerImpl.class);
 
   private final Settings settings;
   private final Date startedAt;

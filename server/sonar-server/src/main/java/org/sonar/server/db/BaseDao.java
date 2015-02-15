@@ -24,23 +24,32 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.apache.ibatis.session.ResultContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.Dto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.search.DbSynchronizationHandler;
 import org.sonar.server.search.IndexDefinition;
-import org.sonar.server.search.action.*;
+import org.sonar.server.search.action.DeleteKey;
+import org.sonar.server.search.action.DeleteNestedItem;
+import org.sonar.server.search.action.InsertDto;
+import org.sonar.server.search.action.RefreshIndex;
+import org.sonar.server.search.action.UpsertDto;
+import org.sonar.server.search.action.UpsertNestedItem;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -115,7 +124,7 @@ import static com.google.common.collect.Maps.newHashMap;
  */
 public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializable> implements Dao<DTO, KEY>, DaoComponent {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(BaseDao.class);
+  private static final Logger LOGGER = Loggers.get(BaseDao.class);
 
   protected IndexDefinition indexDefinition;
   private Class<MAPPER> mapperClass;

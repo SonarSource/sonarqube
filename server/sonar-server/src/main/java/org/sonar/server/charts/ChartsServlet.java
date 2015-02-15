@@ -22,10 +22,10 @@ package org.sonar.server.charts;
 import com.google.common.collect.Maps;
 import com.google.common.io.Closeables;
 import org.jfree.chart.encoders.KeypointPNGEncoderAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.charts.Chart;
 import org.sonar.api.charts.ChartParameters;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.charts.deprecated.BarChart;
 import org.sonar.server.charts.deprecated.BaseChartWeb;
 import org.sonar.server.charts.deprecated.CustomBarChart;
@@ -47,7 +47,7 @@ import java.util.Map;
 
 public class ChartsServlet extends HttpServlet {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ChartsServlet.class);
+  private static final Logger LOG = Loggers.get(ChartsServlet.class);
   private static final long serialVersionUID = 669857447198433893L;
 
   @Override

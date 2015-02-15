@@ -20,7 +20,7 @@
 package org.sonar.server.plugins;
 
 import org.picocontainer.Startable;
-import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.Plugin;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.PluginRepository;
@@ -75,7 +75,7 @@ public class ServerPluginRepository implements PluginRepository, Startable {
         clazz = classloader.loadClass(classname);
 
       } catch (ClassNotFoundException e) {
-        LoggerFactory.getLogger(getClass()).warn("Class not found in plugin " + pluginKey + ": " + classname, e);
+        Loggers.get(getClass()).warn("Class not found in plugin " + pluginKey + ": " + classname, e);
       }
     }
     return clazz;

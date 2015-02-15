@@ -21,12 +21,12 @@ package org.sonar.server.rule.ws;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
@@ -47,7 +47,7 @@ import java.util.Map;
  */
 public class ActiveRuleCompleter implements ServerComponent {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ActiveRuleCompleter.class);
+  private static final Logger LOG = Loggers.get(ActiveRuleCompleter.class);
 
   private final QProfileLoader loader;
   private final Languages languages;

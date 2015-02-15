@@ -20,8 +20,9 @@
 
 package org.sonar.server.ui;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.Profiling.Level;
 import org.sonar.core.profiling.StopWatch;
@@ -31,7 +32,7 @@ import org.sonar.core.profiling.StopWatch;
  */
 public class JRubyProfiling {
 
-  private static final Logger LOG = LoggerFactory.getLogger(JRubyProfiling.class);
+  private static final Logger LOG = Loggers.get(JRubyProfiling.class);
 
   private Profiling profiling;
 

@@ -19,7 +19,8 @@
  */
 package org.sonar.server.db.migrations;
 
-import org.slf4j.Logger;
+
+import org.sonar.api.utils.log.Logger;
 
 import javax.annotation.CheckForNull;
 

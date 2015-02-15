@@ -20,9 +20,10 @@
 
 package org.sonar.server.computation;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sonar.api.platform.ComponentContainer;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.server.computation.step.ComputationSteps;
 import org.sonar.server.platform.Platform;
@@ -31,7 +32,7 @@ import org.sonar.server.platform.Platform;
  * This thread pops queue of reports and processes the report if present
  */
 public class ComputationThread implements Runnable {
-  private static final Logger LOG = LoggerFactory.getLogger(ComputationThread.class);
+  private static final Logger LOG = Loggers.get(ComputationThread.class);
 
   private final AnalysisReportQueue queue;
 

@@ -23,13 +23,13 @@ package org.sonar.batch.debt;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.picocontainer.injectors.ProviderAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.debt.DebtCharacteristic;
 import org.sonar.api.batch.debt.DebtModel;
 import org.sonar.api.batch.debt.internal.DefaultDebtCharacteristic;
 import org.sonar.api.batch.debt.internal.DefaultDebtModel;
 import org.sonar.api.utils.TimeProfiler;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 
@@ -39,7 +39,7 @@ import java.util.List;
 
 public class DebtModelProvider extends ProviderAdapter {
 
-  private static final Logger LOG = LoggerFactory.getLogger(DebtModelProvider.class);
+  private static final Logger LOG = Loggers.get(DebtModelProvider.class);
 
   private DebtModel model;
 

@@ -21,14 +21,14 @@ package org.sonar.server.user;
 
 import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.config.Settings;
 import org.sonar.api.security.LoginPasswordAuthenticator;
 import org.sonar.api.security.SecurityRealm;
 import org.sonar.api.utils.SonarException;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 /**
  * @since 2.14
@@ -76,7 +76,7 @@ public class SecurityRealmFactory implements ServerComponent, Startable {
   @Override
   public void start() {
     if (realm != null) {
-      Logger logger = LoggerFactory.getLogger("org.sonar.INFO");
+      Logger logger = Loggers.get("org.sonar.INFO");
       try {
         logger.info("Security realm: " + realm.getName());
         realm.init();

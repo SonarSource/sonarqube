@@ -25,9 +25,9 @@ import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingResponse;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.picocontainer.Startable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 import java.util.Map;
 
@@ -36,7 +36,7 @@ import java.util.Map;
  */
 public class IndexCreator implements ServerComponent, Startable {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(IndexCreator.class);
+  private static final Logger LOGGER = Loggers.get(IndexCreator.class);
 
   /**
    * Internal setting stored on index to know its version. It's used to re-create index

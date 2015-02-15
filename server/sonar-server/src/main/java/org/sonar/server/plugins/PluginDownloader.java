@@ -22,10 +22,10 @@ package org.sonar.server.plugins;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.SonarException;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.platform.DefaultServerFileSystem;
 import org.sonar.updatecenter.common.Release;
 import org.sonar.updatecenter.common.Version;
@@ -40,7 +40,7 @@ import java.util.List;
 
 public class PluginDownloader implements Startable {
 
-  private static final Logger LOG = LoggerFactory.getLogger(PluginDownloader.class);
+  private static final Logger LOG = Loggers.get(PluginDownloader.class);
   private static final String TMP_SUFFIX = "tmp";
   private static final String PLUGIN_EXTENSION = "jar";
 

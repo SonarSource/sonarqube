@@ -20,13 +20,14 @@
 package org.sonar.server.notifications;
 
 import com.google.common.collect.Lists;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.notifications.NotificationDispatcherMetadata;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 import javax.annotation.Nullable;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -35,7 +36,7 @@ import java.util.List;
  */
 public class NotificationCenter implements ServerComponent {
 
-  private static final Logger LOG = LoggerFactory.getLogger(NotificationCenter.class);
+  private static final Logger LOG = Loggers.get(NotificationCenter.class);
 
   private final NotificationDispatcherMetadata[] dispatchersMetadata;
   private final NotificationChannel[] channels;

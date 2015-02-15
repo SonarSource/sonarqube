@@ -21,7 +21,7 @@ package org.sonar.server.startup;
 
 import com.google.common.collect.ImmutableMap;
 import org.picocontainer.Startable;
-import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.platform.Server;
 import org.sonar.server.platform.PersistentSettings;
@@ -40,7 +40,7 @@ public final class ServerMetadataPersister implements Startable {
 
   @Override
   public void start() {
-    LoggerFactory.getLogger(getClass()).debug("Persisting server metadata");
+    Loggers.get(getClass()).debug("Persisting server metadata");
     persistentSettings.saveProperties(ImmutableMap.of(
       CoreProperties.SERVER_ID, server.getId(),
       CoreProperties.SERVER_VERSION, server.getVersion(),

@@ -19,7 +19,7 @@
  */
 package org.sonar.server.user;
 
-import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.platform.NewUserHandler;
 
@@ -39,7 +39,7 @@ public class NewUserNotifier implements ServerComponent {
   }
 
   public void onNewUser(NewUserHandler.Context context) {
-    LoggerFactory.getLogger(NewUserNotifier.class).debug("User created: " + context.getLogin() + ". Notifying " + NewUserHandler.class.getSimpleName() + " handlers...");
+    Loggers.get(NewUserNotifier.class).debug("User created: " + context.getLogin() + ". Notifying " + NewUserHandler.class.getSimpleName() + " handlers...");
     for (NewUserHandler handler : handlers) {
       handler.doOnNewUser(context);
     }

@@ -23,8 +23,6 @@ package org.sonar.batch.rule;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import org.picocontainer.injectors.ProviderAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.debt.DebtCharacteristic;
 import org.sonar.api.batch.debt.DebtModel;
 import org.sonar.api.batch.debt.DebtRemediationFunction;
@@ -35,6 +33,8 @@ import org.sonar.api.batch.rule.internal.RulesBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.TimeProfiler;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
@@ -48,7 +48,7 @@ import java.util.List;
  */
 public class RulesProvider extends ProviderAdapter {
 
-  private static final Logger LOG = LoggerFactory.getLogger(RulesProvider.class);
+  private static final Logger LOG = Loggers.get(RulesProvider.class);
 
   private Rules singleton = null;
 

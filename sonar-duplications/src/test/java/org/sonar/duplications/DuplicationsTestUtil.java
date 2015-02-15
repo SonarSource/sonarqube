@@ -23,10 +23,13 @@ import java.io.File;
 
 public class DuplicationsTestUtil {
 
-  private static final File fileDir = new File("src/test/files/");
-
   public static File findFile(String relativePathToFile) {
-    return new File(fileDir, relativePathToFile);
+    File file = new File("src/test/files/", relativePathToFile);
+    if (!file.exists()) {
+      // IntellijIDEA resolves path from root module basedir
+      file = new File("sonar-duplications/src/test/files/", relativePathToFile);
+    }
+    return file;
   }
 
 }

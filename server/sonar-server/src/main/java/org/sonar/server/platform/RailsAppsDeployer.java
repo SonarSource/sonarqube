@@ -24,14 +24,15 @@ import com.google.common.base.Function;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.Plugin;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.PluginRepository;
 import org.sonar.api.platform.ServerFileSystem;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 import javax.annotation.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -43,7 +44,7 @@ import java.io.IOException;
  */
 public class RailsAppsDeployer implements Startable {
 
-  private static final Logger LOG = LoggerFactory.getLogger(RailsAppsDeployer.class);
+  private static final Logger LOG = Loggers.get(RailsAppsDeployer.class);
   private static final String ROR_PATH = "org/sonar/ror/";
 
   private final ServerFileSystem fileSystem;

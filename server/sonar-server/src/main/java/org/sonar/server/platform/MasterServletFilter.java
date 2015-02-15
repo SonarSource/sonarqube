@@ -22,7 +22,7 @@ package org.sonar.server.platform;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.web.ServletFilter;
 
 import javax.servlet.*;
@@ -63,7 +63,7 @@ public class MasterServletFilter implements Filter {
     List<Filter> filterList = Lists.newArrayList();
     for (ServletFilter extension : filterExtensions) {
       try {
-        LoggerFactory.getLogger(MasterServletFilter.class).info(String.format("Initializing servlet filter %s [pattern=%s]", extension, extension.doGetPattern()));
+        Loggers.get(MasterServletFilter.class).info(String.format("Initializing servlet filter %s [pattern=%s]", extension, extension.doGetPattern()));
         extension.init(config);
         filterList.add(extension);
       } catch (Exception e) {

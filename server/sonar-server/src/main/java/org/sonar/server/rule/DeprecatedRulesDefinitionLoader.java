@@ -23,8 +23,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -34,6 +32,8 @@ import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.ValidationMessages;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.server.debt.DebtModelPluginRepository;
 import org.sonar.server.debt.DebtModelXMLExporter;
@@ -54,7 +54,7 @@ import static org.sonar.server.debt.DebtModelXMLExporter.RuleDebt;
  */
 public class DeprecatedRulesDefinitionLoader implements ServerComponent {
 
-  private static final Logger LOG = LoggerFactory.getLogger(DeprecatedRulesDefinitionLoader.class);
+  private static final Logger LOG = Loggers.get(DeprecatedRulesDefinitionLoader.class);
 
   private final RuleI18nManager i18n;
   private final RuleRepository[] repositories;

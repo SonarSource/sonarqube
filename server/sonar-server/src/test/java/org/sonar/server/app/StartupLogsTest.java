@@ -24,7 +24,7 @@ import org.apache.catalina.startup.Tomcat;
 import org.apache.coyote.http11.AbstractHttp11JsseProtocol;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.slf4j.Logger;
+import org.sonar.api.utils.log.Logger;
 import org.sonar.process.Props;
 
 import java.util.Properties;

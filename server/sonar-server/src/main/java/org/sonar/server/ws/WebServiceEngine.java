@@ -21,7 +21,7 @@ package org.sonar.server.ws;
 
 import com.google.common.base.Charsets;
 import org.picocontainer.Startable;
-import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.Request;
@@ -92,7 +92,7 @@ public class WebServiceEngine implements ServerComponent, Startable {
       sendErrors(response, e.httpCode(), new Errors().add(Message.of(e.getMessage())));
     } catch (Exception e) {
       // TODO implement Request.toString()
-      LoggerFactory.getLogger(getClass()).error("Fail to process request " + request, e);
+      Loggers.get(getClass()).error("Fail to process request " + request, e);
       sendErrors(response, 500, new Errors().add(Message.of(e.getMessage())));
     }
   }

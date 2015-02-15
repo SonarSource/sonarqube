@@ -21,14 +21,18 @@
 package org.sonar.core.computation.dbcleaner;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.TimeUtils;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.computation.dbcleaner.period.DefaultPeriodCleaner;
-import org.sonar.core.purge.*;
+import org.sonar.core.purge.IdUuidPair;
+import org.sonar.core.purge.PurgeConfiguration;
+import org.sonar.core.purge.PurgeDao;
+import org.sonar.core.purge.PurgeListener;
+import org.sonar.core.purge.PurgeProfiler;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.plugins.dbcleaner.api.PurgeTask;
@@ -39,7 +43,7 @@ import static org.sonar.core.purge.PurgeConfiguration.newDefaultPurgeConfigurati
  * @since 2.14
  */
 public class DefaultPurgeTask implements PurgeTask {
-  private static final Logger LOG = LoggerFactory.getLogger(DefaultPurgeTask.class);
+  private static final Logger LOG = Loggers.get(DefaultPurgeTask.class);
   private final PurgeProfiler profiler;
   private final PurgeDao purgeDao;
   private final ResourceDao resourceDao;

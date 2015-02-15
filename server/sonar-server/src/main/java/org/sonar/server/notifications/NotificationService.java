@@ -24,8 +24,6 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.SetMultimap;
 import org.picocontainer.Startable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.ServerComponent;
@@ -34,6 +32,8 @@ import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.notifications.NotificationDispatcher;
 import org.sonar.api.utils.TimeProfiler;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.notification.DefaultNotificationManager;
 import org.sonar.server.db.DbClient;
 
@@ -65,7 +65,7 @@ import java.util.concurrent.TimeUnit;
 })
 public class NotificationService implements ServerComponent, Startable {
 
-  private static final Logger LOG = LoggerFactory.getLogger(NotificationService.class);
+  private static final Logger LOG = Loggers.get(NotificationService.class);
 
   public static final String PROPERTY_DELAY = "sonar.notifications.delay";
   public static final String PROPERTY_DELAY_BEFORE_REPORTING_STATUS = "sonar.notifications.runningDelayBeforeReportingStatus";

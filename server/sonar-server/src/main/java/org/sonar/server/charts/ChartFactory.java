@@ -20,16 +20,17 @@
 package org.sonar.server.charts;
 
 import com.google.common.collect.Maps;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.charts.Chart;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Map;
 
 public final class ChartFactory implements ServerComponent {
-  private static final Logger LOG = LoggerFactory.getLogger(ChartFactory.class);
+  private static final Logger LOG = Loggers.get(ChartFactory.class);
   private final Map<String, Chart> chartsByKey = Maps.newHashMap();
 
 

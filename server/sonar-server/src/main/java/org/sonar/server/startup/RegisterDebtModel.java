@@ -20,15 +20,16 @@
 
 package org.sonar.server.startup;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sonar.api.utils.TimeProfiler;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.server.debt.DebtModelBackup;
 
 public class RegisterDebtModel {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(RegisterDebtModel.class);
+  private static final Logger LOGGER = Loggers.get(RegisterDebtModel.class);
 
   private final CharacteristicDao dao;
   private final DebtModelBackup debtModelBackup;

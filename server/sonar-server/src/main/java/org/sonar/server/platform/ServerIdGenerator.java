@@ -22,7 +22,7 @@ package org.sonar.server.platform;
 import com.google.common.collect.Lists;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.log.Loggers;
 
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
@@ -121,7 +121,7 @@ public class ServerIdGenerator {
         }
       }
     } catch (SocketException e) {
-      LoggerFactory.getLogger(ServerIdGenerator.class).error("Fail to browse network interfaces", e);
+      Loggers.get(ServerIdGenerator.class).error("Fail to browse network interfaces", e);
     }
     return result;
   }

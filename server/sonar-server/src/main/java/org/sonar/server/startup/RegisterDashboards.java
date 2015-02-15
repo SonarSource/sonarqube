@@ -22,9 +22,9 @@ package org.sonar.server.startup;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import org.picocontainer.Startable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.TimeProfiler;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.web.Dashboard;
 import org.sonar.api.web.DashboardTemplate;
 import org.sonar.core.dashboard.ActiveDashboardDao;
@@ -45,7 +45,7 @@ import java.util.Map.Entry;
  * @since 2.13
  */
 public class RegisterDashboards implements Startable {
-  private static final Logger LOG = LoggerFactory.getLogger(RegisterDashboards.class);
+  private static final Logger LOG = Loggers.get(RegisterDashboards.class);
 
   static final String DEFAULT_DASHBOARD_NAME = "Dashboard";
 
