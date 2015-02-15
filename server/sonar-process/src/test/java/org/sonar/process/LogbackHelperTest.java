@@ -110,7 +110,7 @@ public class LogbackHelperTest {
     RollingFileAppender fileAppender = (RollingFileAppender) appender;
     TimeBasedRollingPolicy triggeringPolicy = (TimeBasedRollingPolicy) fileAppender.getTriggeringPolicy();
     assertThat(triggeringPolicy.getMaxHistory()).isEqualTo(7);
-    assertThat(triggeringPolicy.getFileNamePattern()).isEqualTo("sonar.%d{yyyy-MM-dd}.log");
+    assertThat(triggeringPolicy.getFileNamePattern()).endsWith("sonar.%d{yyyy-MM-dd}.log");
   }
 
   @Test
@@ -137,7 +137,7 @@ public class LogbackHelperTest {
     RollingFileAppender fileAppender = (RollingFileAppender) appender;
     FixedWindowRollingPolicy rollingPolicy = (FixedWindowRollingPolicy) fileAppender.getRollingPolicy();
     assertThat(rollingPolicy.getMaxIndex()).isEqualTo(20);
-    assertThat(rollingPolicy.getFileNamePattern()).isEqualTo("sonar.%i.log");
+    assertThat(rollingPolicy.getFileNamePattern()).endsWith("sonar.%i.log");
     SizeBasedTriggeringPolicy triggeringPolicy = (SizeBasedTriggeringPolicy) fileAppender.getTriggeringPolicy();
     assertThat(triggeringPolicy.getMaxFileSize()).isEqualTo("1MB");
   }
@@ -155,7 +155,7 @@ public class LogbackHelperTest {
     // max 5 monthly files
     TimeBasedRollingPolicy triggeringPolicy = (TimeBasedRollingPolicy) appender.getTriggeringPolicy();
     assertThat(triggeringPolicy.getMaxHistory()).isEqualTo(20);
-    assertThat(triggeringPolicy.getFileNamePattern()).isEqualTo("sonar.%d{yyyy-MM}.log");
+    assertThat(triggeringPolicy.getFileNamePattern()).endsWith("sonar.%d{yyyy-MM}.log");
   }
 
   @Test
