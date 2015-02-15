@@ -21,9 +21,9 @@ package org.sonar.server.measure;
 
 import com.google.common.base.Joiner;
 import org.apache.commons.lang.SystemUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.Profiling.Level;
 import org.sonar.core.profiling.StopWatch;
@@ -35,7 +35,7 @@ import java.util.Map;
 
 public class MeasureFilterEngine implements ServerComponent {
 
-  private static final Logger LOG = LoggerFactory.getLogger("org.sonar.MEASURE_FILTER");
+  private static final Logger LOG = Loggers.get("org.sonar.MEASURE_FILTER");
 
   private final MeasureFilterFactory factory;
   private final MeasureFilterExecutor executor;

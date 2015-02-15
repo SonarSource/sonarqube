@@ -22,14 +22,14 @@ package org.sonar.plugins.emailnotifications;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.SimpleEmail;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.database.model.User;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.security.UserFinder;
 import org.sonar.api.utils.SonarException;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
 import org.sonar.plugins.emailnotifications.api.EmailTemplate;
 
@@ -48,7 +48,7 @@ import java.net.URL;
  */
 public class EmailNotificationChannel extends NotificationChannel {
 
-  private static final Logger LOG = LoggerFactory.getLogger(EmailNotificationChannel.class);
+  private static final Logger LOG = Loggers.get(EmailNotificationChannel.class);
 
   /**
    * @see org.apache.commons.mail.Email#setSocketConnectionTimeout(int)

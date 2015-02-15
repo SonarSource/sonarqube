@@ -19,8 +19,9 @@
  */
 package org.sonar.server.search;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.activity.index.ActivityIndex;
 import org.sonar.server.db.Dao;
@@ -37,7 +38,7 @@ import java.util.Date;
 
 public class IndexSynchronizer {
 
-  private static final Logger LOG = LoggerFactory.getLogger(IndexSynchronizer.class);
+  private static final Logger LOG = Loggers.get(IndexSynchronizer.class);
 
   private final DbClient db;
   private final IndexClient index;

@@ -21,15 +21,15 @@ package org.sonar.batch.scan;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterators;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.utils.TimeProfiler;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.batch.bootstrap.ServerClient;
 
 public class LastLineHashes implements BatchComponent {
 
-  private static final Logger LOG = LoggerFactory.getLogger(LastLineHashes.class);
+  private static final Logger LOG = Loggers.get(LastLineHashes.class);
 
   private final ServerClient server;
 

@@ -21,7 +21,7 @@ package org.sonar.api.utils;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
+import org.sonar.api.utils.log.Logger;
 
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;

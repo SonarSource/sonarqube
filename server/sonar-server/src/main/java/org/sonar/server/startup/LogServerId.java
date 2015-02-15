@@ -20,9 +20,9 @@
 package org.sonar.server.startup;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 
@@ -38,7 +38,7 @@ public final class LogServerId {
   }
 
   public void start() {
-    logServerId(LoggerFactory.getLogger(LogServerId.class));
+    logServerId(Loggers.get(LogServerId.class));
   }
 
   @VisibleForTesting

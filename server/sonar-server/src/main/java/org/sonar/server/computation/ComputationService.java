@@ -22,11 +22,11 @@ package org.sonar.server.computation;
 
 import com.google.common.base.Throwables;
 import org.apache.commons.lang.ArrayUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.TimeProfiler;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.activity.Activity;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
@@ -39,7 +39,7 @@ import org.sonar.server.db.DbClient;
 
 public class ComputationService implements ServerComponent {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ComputationService.class);
+  private static final Logger LOG = Loggers.get(ComputationService.class);
 
   private final DbClient dbClient;
   private final ComputationSteps steps;

@@ -24,14 +24,15 @@ import com.google.common.base.Function;
 import com.google.common.base.Functions;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.api.utils.FieldUtils2;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.check.Cardinality;
 
 import javax.annotation.CheckForNull;
+
 import java.lang.reflect.Field;
 import java.util.List;
 
@@ -44,7 +45,7 @@ import java.util.List;
  */
 public class RulesDefinitionAnnotationLoader {
 
-  private static final Logger LOG = LoggerFactory.getLogger(RulesDefinitionAnnotationLoader.class);
+  private static final Logger LOG = Loggers.get(RulesDefinitionAnnotationLoader.class);
 
   private static final Function<Class<?>, RuleParamType> TYPE_FOR_CLASS = Functions.forMap(
     ImmutableMap.<Class<?>, RuleParamType>builder()

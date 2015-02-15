@@ -19,8 +19,9 @@
  */
 package org.sonar.server.db.migrations.v36;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicLong;
@@ -46,7 +47,7 @@ class Progress extends TimerTask {
   }
 
   Progress(long totalViolations) {
-    this(totalViolations, LoggerFactory.getLogger(Progress.class), System.currentTimeMillis());
+    this(totalViolations, Loggers.get(Progress.class), System.currentTimeMillis());
   }
 
   void increment(int delta) {

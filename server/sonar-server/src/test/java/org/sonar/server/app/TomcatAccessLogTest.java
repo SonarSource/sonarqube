@@ -27,7 +27,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
-import org.slf4j.Logger;
+import org.sonar.api.utils.log.Logger;
 import org.sonar.process.ProcessConstants;
 import org.sonar.process.Props;
 

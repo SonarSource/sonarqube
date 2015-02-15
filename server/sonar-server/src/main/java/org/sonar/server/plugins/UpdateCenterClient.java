@@ -21,7 +21,7 @@ package org.sonar.server.plugins;
 
 import com.google.common.base.Charsets;
 import org.apache.commons.io.IOUtils;
-import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
@@ -73,7 +73,7 @@ public class UpdateCenterClient {
   public UpdateCenterClient(UriReader uriReader, Settings settings) throws URISyntaxException {
     this.uriReader = uriReader;
     this.uri = new URI(settings.getString(URL_PROPERTY));
-    LoggerFactory.getLogger(getClass()).info("Update center: " + uriReader.description(uri));
+    Loggers.get(getClass()).info("Update center: " + uriReader.description(uri));
   }
 
   public UpdateCenter getUpdateCenter() {
@@ -106,7 +106,7 @@ public class UpdateCenterClient {
       return new UpdateCenterDeserializer(Mode.PROD, true).fromProperties(properties);
 
     } catch (Exception e) {
-      LoggerFactory.getLogger(getClass()).error("Fail to connect to update center", e);
+      Loggers.get(getClass()).error("Fail to connect to update center", e);
       return null;
 
     } finally {

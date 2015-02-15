@@ -26,12 +26,12 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import org.apache.commons.lang.builder.EqualsBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.Duration;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.rule.RuleDto;
@@ -59,7 +59,7 @@ import java.util.List;
  */
 public class CopyRequirementsFromCharacteristicsToRules implements ServerComponent {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(CopyRequirementsFromCharacteristicsToRules.class);
+  private static final Logger LOGGER = Loggers.get(CopyRequirementsFromCharacteristicsToRules.class);
 
   private static final String TEMPLATE_KEY = "CopyRequirementsFromCharacteristicsToRules";
 

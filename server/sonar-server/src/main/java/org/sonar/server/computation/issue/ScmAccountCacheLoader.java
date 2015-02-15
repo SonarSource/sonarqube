@@ -23,8 +23,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Collections2;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.util.cache.CacheLoader;
@@ -42,7 +42,7 @@ public class ScmAccountCacheLoader implements CacheLoader<String, String> {
   private final UserIndex index;
 
   public ScmAccountCacheLoader(UserIndex index) {
-    this(index, LoggerFactory.getLogger(ScmAccountCacheLoader.class));
+    this(index, Loggers.get(ScmAccountCacheLoader.class));
   }
 
   @VisibleForTesting

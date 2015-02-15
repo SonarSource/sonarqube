@@ -24,13 +24,13 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.Server;
 import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.TimeProfiler;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.plugins.DefaultPluginMetadata;
 import org.sonar.server.platform.DefaultServerFileSystem;
 import org.sonar.updatecenter.common.PluginReferential;
@@ -46,7 +46,7 @@ import java.util.Set;
 
 public class ServerPluginJarsInstaller {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ServerPluginJarsInstaller.class);
+  private static final Logger LOG = Loggers.get(ServerPluginJarsInstaller.class);
 
   private final Server server;
   private final DefaultServerFileSystem fs;

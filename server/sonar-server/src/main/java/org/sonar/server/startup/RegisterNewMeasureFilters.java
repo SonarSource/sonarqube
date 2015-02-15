@@ -23,9 +23,9 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.TimeProfiler;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.web.Criterion;
 import org.sonar.api.web.Filter;
 import org.sonar.api.web.FilterColumn;
@@ -42,7 +42,7 @@ import java.util.List;
  * @since 3.1
  */
 public final class RegisterNewMeasureFilters {
-  private static final Logger LOG = LoggerFactory.getLogger(RegisterNewMeasureFilters.class);
+  private static final Logger LOG = Loggers.get(RegisterNewMeasureFilters.class);
 
   private final List<FilterTemplate> filterTemplates;
   private final MeasureFilterDao filterDao;

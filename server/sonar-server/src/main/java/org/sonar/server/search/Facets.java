@@ -29,8 +29,8 @@ import org.elasticsearch.search.aggregations.HasAggregations;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
 import org.elasticsearch.search.aggregations.bucket.missing.Missing;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,7 +39,7 @@ import java.util.Map;
 
 class Facets {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(Facets.class);
+  private static final Logger LOGGER = Loggers.get(Facets.class);
 
   private final Multimap<String, FacetValue> facetValues;
 

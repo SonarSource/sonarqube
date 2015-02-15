@@ -23,7 +23,7 @@ import com.google.common.base.Throwables;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
-import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.dialect.H2;
@@ -44,7 +44,7 @@ public class DatabaseChecker implements ServerComponent, Startable {
   public void start() {
     try {
       if (H2.ID.equals(db.getDialect().getId())) {
-        LoggerFactory.getLogger(DatabaseChecker.class).warn("H2 database should be used for evaluation purpose only");
+        Loggers.get(DatabaseChecker.class).warn("H2 database should be used for evaluation purpose only");
       } else if (Oracle.ID.equals(db.getDialect().getId())) {
         checkOracleDriverVersion();
       }

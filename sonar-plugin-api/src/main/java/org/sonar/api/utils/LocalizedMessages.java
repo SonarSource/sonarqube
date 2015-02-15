@@ -21,14 +21,22 @@ package org.sonar.api.utils;
 
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
+import java.util.Set;
 
 public class LocalizedMessages extends ResourceBundle {
 
-  private static final Logger LOG = LoggerFactory.getLogger(LocalizedMessages.class);
+  private static final Logger LOG = Loggers.get(LocalizedMessages.class);
 
   private Locale locale;
   private List<ResourceBundle> bundles;

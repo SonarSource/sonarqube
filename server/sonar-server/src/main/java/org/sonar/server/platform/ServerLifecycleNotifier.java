@@ -20,7 +20,7 @@
 package org.sonar.server.platform;
 
 import org.picocontainer.Startable;
-import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.platform.Server;
 import org.sonar.api.platform.ServerStartHandler;
 import org.sonar.api.platform.ServerStopHandler;
@@ -62,7 +62,7 @@ public class ServerLifecycleNotifier implements Startable {
   }
 
   public void notifyStart() {
-    LoggerFactory.getLogger(ServerLifecycleNotifier.class).debug("Notify " + ServerStartHandler.class.getSimpleName() + " handlers...");
+    Loggers.get(ServerLifecycleNotifier.class).debug("Notify " + ServerStartHandler.class.getSimpleName() + " handlers...");
     for (ServerStartHandler handler : startHandlers) {
       handler.onServerStart(server);
     }
@@ -70,7 +70,7 @@ public class ServerLifecycleNotifier implements Startable {
 
   @Override
   public void stop() {
-    LoggerFactory.getLogger(ServerLifecycleNotifier.class).debug("Notify " + ServerStopHandler.class.getSimpleName() + " handlers...");
+    Loggers.get(ServerLifecycleNotifier.class).debug("Notify " + ServerStopHandler.class.getSimpleName() + " handlers...");
     for (ServerStopHandler handler : stopHandlers) {
       handler.onServerStop(server);
     }

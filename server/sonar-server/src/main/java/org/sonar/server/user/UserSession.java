@@ -22,9 +22,9 @@ package org.sonar.server.user;
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import com.google.common.collect.HashMultimap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.security.DefaultGroups;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
@@ -36,7 +36,13 @@ import org.sonar.server.platform.Platform;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -50,7 +56,7 @@ public class UserSession {
   public static final UserSession ANONYMOUS = new UserSession();
 
   private static final ThreadLocal<UserSession> THREAD_LOCAL = new ThreadLocal<UserSession>();
-  private static final Logger LOG = LoggerFactory.getLogger(UserSession.class);
+  private static final Logger LOG = Loggers.get(UserSession.class);
   private static final String INSUFFICIENT_PRIVILEGES_MESSAGE = "Insufficient privileges";
 
   private Integer userId;

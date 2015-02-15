@@ -25,14 +25,14 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.api.notifications.NotificationManager;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.db.IssueStorage;
@@ -63,7 +63,7 @@ import static com.google.common.collect.Sets.newHashSet;
 
 public class IssueBulkChangeService {
 
-  private static final Logger LOG = LoggerFactory.getLogger(IssueBulkChangeService.class);
+  private static final Logger LOG = Loggers.get(IssueBulkChangeService.class);
 
   private final DbClient dbClient;
   private final IssueService issueService;
