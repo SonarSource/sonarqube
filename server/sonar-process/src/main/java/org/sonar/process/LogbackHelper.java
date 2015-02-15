@@ -161,11 +161,12 @@ public class LogbackHelper {
       RollingFileAppender appender = new RollingFileAppender();
       appender.setContext(context);
       appender.setName(appenderName);
-      appender.setFile(new File(logsDir, filenamePrefix + ".log").getAbsolutePath());
+      String filePath = new File(logsDir, filenamePrefix + ".log").getAbsolutePath();
+      appender.setFile(filePath);
 
       TimeBasedRollingPolicy rollingPolicy = new TimeBasedRollingPolicy();
       rollingPolicy.setContext(context);
-      rollingPolicy.setFileNamePattern(filenamePrefix + ".%d{" + datePattern + "}.log");
+      rollingPolicy.setFileNamePattern(StringUtils.replace(filePath, filenamePrefix + ".log", filenamePrefix + ".%d{" + datePattern + "}.log"));
       rollingPolicy.setMaxHistory(maxFiles);
       rollingPolicy.setParent(appender);
       rollingPolicy.start();
@@ -192,7 +193,8 @@ public class LogbackHelper {
       RollingFileAppender appender = new RollingFileAppender();
       appender.setContext(context);
       appender.setName(appenderName);
-      appender.setFile(new File(logsDir, filenamePrefix + ".log").getAbsolutePath());
+      String filePath = new File(logsDir, filenamePrefix + ".log").getAbsolutePath();
+      appender.setFile(filePath);
 
       SizeBasedTriggeringPolicy trigger = new SizeBasedTriggeringPolicy(size);
       trigger.setContext(context);
@@ -201,7 +203,7 @@ public class LogbackHelper {
 
       FixedWindowRollingPolicy rollingPolicy = new FixedWindowRollingPolicy();
       rollingPolicy.setContext(context);
-      rollingPolicy.setFileNamePattern(filenamePrefix + ".%i.log");
+      rollingPolicy.setFileNamePattern(StringUtils.replace(filePath, filenamePrefix + ".log", filenamePrefix + ".%i.log"));
       rollingPolicy.setMaxIndex(1);
       rollingPolicy.setMaxIndex(maxFiles);
       rollingPolicy.setMaxIndex(maxFiles);
