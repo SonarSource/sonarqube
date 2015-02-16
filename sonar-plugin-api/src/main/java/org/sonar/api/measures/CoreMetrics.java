@@ -746,7 +746,6 @@ public final class CoreMetrics {
     .setQualitative(false)
     .setFormula(new SumChildValuesFormula(false))
     .setHidden(true)
-    .setDeleteHistoricalData(true)
     .create();
 
   /**
@@ -1031,7 +1030,6 @@ public final class CoreMetrics {
     .setQualitative(false)
     .setFormula(new SumChildValuesFormula(false))
     .setHidden(true)
-    .setDeleteHistoricalData(true)
     .create();
 
   /**
