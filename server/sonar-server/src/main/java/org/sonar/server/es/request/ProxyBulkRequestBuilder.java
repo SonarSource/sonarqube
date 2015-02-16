@@ -20,6 +20,10 @@
 
 package org.sonar.server.es.request;
 
+import com.google.common.collect.HashMultiset;
+import com.google.common.collect.Multiset.Entry;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
@@ -31,6 +35,8 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.StopWatch;
+
+import java.util.Set;
 
 public class ProxyBulkRequestBuilder extends BulkRequestBuilder {
 
@@ -79,23 +85,71 @@ public class ProxyBulkRequestBuilder extends BulkRequestBuilder {
   public String toString() {
     StringBuilder message = new StringBuilder();
     message.append("Bulk[");
+    HashMultiset<BulkRequestKey> groupedRequests = HashMultiset.create();
     for (int i=0 ; i<request.requests().size() ; i++) {
       ActionRequest item = request.requests().get(i);
+      String requestType, index, docType;
       if (item instanceof IndexRequest) {
         IndexRequest request = (IndexRequest) item;
-        message.append(String.format("index id '%s' in %s/%s", request.id(), request.index(), request.type()));
+        requestType = "index";
+        index = request.index();
+        docType = request.type();
       } else if (item instanceof UpdateRequest) {
         UpdateRequest request = (UpdateRequest) item;
-        message.append(String.format("update id '%s' in %s/%s", request.id(), request.index(), request.type()));
+        requestType = "update";
+        index = request.index();
+        docType = request.type();
       } else if (item instanceof DeleteRequest) {
         DeleteRequest request = (DeleteRequest) item;
-        message.append(String.format("delete id '%s' from %s/%s", request.id(), request.index(), request.type()));
+        requestType = "delete";
+        index = request.index();
+        docType = request.type();
+      } else {
+        // Cannot happen, not allowed by BulkRequest's contract
+        throw new IllegalStateException("Unsupported bulk request type: " + item.getClass());
       }
-      if (i < request.requests().size()-1) {
+      groupedRequests.add(new BulkRequestKey(requestType, index, docType));
+    }
+
+    Set<Entry<BulkRequestKey>> entrySet = groupedRequests.entrySet();
+    int size = entrySet.size();
+    int current = 0;
+    for (Entry<BulkRequestKey> requestEntry : entrySet) {
+      message.append(requestEntry.getCount()).append(" ").append(requestEntry.getElement().toString());
+      current++;
+      if (current < size) {
         message.append(", ");
       }
     }
+
     message.append("]");
     return message.toString();
+  }
+
+  private static class BulkRequestKey {
+    private String requestType;
+    private String index;
+    private String docType;
+
+    private BulkRequestKey(String requestType, String index, String docType) {
+      this.requestType = requestType;
+      this.index = index;
+      this.docType = docType;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      return EqualsBuilder.reflectionEquals(this, obj);
+    }
+
+    @Override
+    public int hashCode() {
+      return HashCodeBuilder.reflectionHashCode(this);
+    }
+
+    @Override
+    public String toString() {
+      return String.format("%s request(s) on index %s and type %s", requestType, index, docType);
+    }
   }
 }

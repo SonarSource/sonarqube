@@ -66,6 +66,9 @@ public class ProxyBulkRequestBuilderTest {
     req.add(new IndexRequest(FakeIndexDefinition.INDEX, FakeIndexDefinition.TYPE, "key3")
       .source(FakeIndexDefinition.newDoc(3)));
 
+    assertThat(req.toString()).isEqualTo(
+      "Bulk[1 delete request(s) on index fakes and type fake, 1 update request(s) on index fakes and type fake, 1 index request(s) on index fakes and type fake]");
+
     BulkResponse response = req.get();
     assertThat(response.getItems()).hasSize(3);
   }
