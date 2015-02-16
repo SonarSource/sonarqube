@@ -27,11 +27,15 @@ import ch.qos.logback.core.ConsoleAppender;
 import org.junit.AfterClass;
 import org.junit.Test;
 import org.sonar.process.LogbackHelper;
+import org.sonar.process.Props;
+
+import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class WebLoggingTest {
 
+  Props props = new Props(new Properties());
   WebLogging sut = new WebLogging();
 
   @AfterClass
@@ -41,13 +45,22 @@ public class WebLoggingTest {
 
   @Test
   public void log_to_console() throws Exception {
-    LoggerContext ctx = sut.configure();
+    LoggerContext ctx = sut.configure(props);
 
     Logger root = ctx.getLogger(Logger.ROOT_LOGGER_NAME);
     Appender appender = root.getAppender("CONSOLE");
     assertThat(appender).isInstanceOf(ConsoleAppender.class);
 
+    // default level is INFO
+    assertThat(ctx.getLogger(Logger.ROOT_LOGGER_NAME).getLevel()).isEqualTo(Level.INFO);
     // change level of some loggers
     assertThat(ctx.getLogger("java.sql").getLevel()).isEqualTo(Level.WARN);
+  }
+
+  @Test
+  public void enable_debug_logs() throws Exception {
+    props.set("sonar.log.debug", "true");
+    LoggerContext ctx = sut.configure(props);
+    assertThat(ctx.getLogger(Logger.ROOT_LOGGER_NAME).getLevel()).isEqualTo(Level.DEBUG);
   }
 }

@@ -25,6 +25,7 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.core.ConsoleAppender;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.sonar.process.LogbackHelper;
+import org.sonar.process.Props;
 
 import java.util.logging.LogManager;
 
@@ -38,13 +39,13 @@ class WebLogging {
 
   private final LogbackHelper helper = new LogbackHelper();
 
-  LoggerContext configure() {
+  LoggerContext configure(Props props) {
     LoggerContext ctx = helper.getRootContext();
     ctx.reset();
 
     helper.enableJulChangePropagation(ctx);
     configureAppender(ctx);
-    configureLevels(ctx);
+    configureLevels(ctx, props);
 
     // Configure java.util.logging, used by Tomcat, in order to forward to slf4j
     LogManager.getLogManager().reset();
@@ -54,11 +55,10 @@ class WebLogging {
 
   private void configureAppender(LoggerContext ctx) {
     ConsoleAppender consoleAppender = helper.newConsoleAppender(ctx, "CONSOLE", LOG_FORMAT);
-    Logger rootLogger = helper.configureLogger(ctx, Logger.ROOT_LOGGER_NAME, Level.INFO);
-    rootLogger.addAppender(consoleAppender);
+    ctx.getLogger(Logger.ROOT_LOGGER_NAME).addAppender(consoleAppender);
   }
 
-  private void configureLevels(LoggerContext ctx) {
+  private void configureLevels(LoggerContext ctx, Props props) {
     // override level of some loggers
     helper.configureLogger(ctx, "rails", Level.WARN);
     helper.configureLogger(ctx, "org.hibernate.cache.ReadWriteCache", Level.ERROR);
@@ -72,5 +72,7 @@ class WebLogging {
     helper.configureLogger(ctx, "org.elasticsearch.node", Level.INFO);
     helper.configureLogger(ctx, "org.elasticsearch.http", Level.INFO);
     helper.configureLogger(ctx, "ch.qos.logback", Level.WARN);
+    boolean debug = props.valueAsBoolean("sonar.log.debug", false);
+    helper.configureLogger(ctx, Logger.ROOT_LOGGER_NAME, debug ? Level.DEBUG : Level.INFO);
   }
 }
