@@ -20,6 +20,7 @@
 package org.sonar.batch.mediumtest;
 
 import com.google.common.base.Function;
+import com.google.common.io.Files;
 import org.apache.commons.io.Charsets;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.SonarPlugin;
@@ -65,6 +66,7 @@ public class BatchMediumTester {
   public static BatchMediumTesterBuilder builder() {
     BatchMediumTesterBuilder builder = new BatchMediumTesterBuilder().registerCoreMetrics();
     builder.bootstrapProperties.put(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_MEDIUM_TEST);
+    builder.bootstrapProperties.put(CoreProperties.WORKING_DIRECTORY, Files.createTempDir().getAbsolutePath());
     return builder;
   }
 
