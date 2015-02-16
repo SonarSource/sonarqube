@@ -19,13 +19,6 @@
  */
 package org.sonar.batch.cpd;
 
-import org.sonar.batch.cpd.CpdMappings;
-import org.sonar.batch.cpd.CpdComponents;
-import org.sonar.batch.cpd.CpdSensor;
-import org.sonar.batch.cpd.DefaultCpdEngine;
-import org.sonar.batch.cpd.JavaCpdEngine;
-import org.sonar.batch.cpd.index.IndexFactory;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,7 +27,7 @@ import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Java;
-import org.sonar.batch.duplication.BlockCache;
+import org.sonar.batch.cpd.index.IndexFactory;
 
 import java.io.IOException;
 
@@ -55,7 +48,7 @@ public class CpdSensorTest {
   public void setUp() throws IOException {
     IndexFactory indexFactory = mock(IndexFactory.class);
     sonarEngine = new JavaCpdEngine(indexFactory, null, null);
-    sonarBridgeEngine = new DefaultCpdEngine(indexFactory, new CpdMappings(), null, null, mock(BlockCache.class));
+    sonarBridgeEngine = new DefaultCpdEngine(indexFactory, new CpdMappings(), null, null);
     settings = new Settings(new PropertyDefinitions(CpdComponents.class));
 
     DefaultFileSystem fs = new DefaultFileSystem(temp.newFolder().toPath());

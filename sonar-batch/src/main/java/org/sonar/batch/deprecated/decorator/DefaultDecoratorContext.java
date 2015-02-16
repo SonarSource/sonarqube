@@ -25,7 +25,7 @@ import com.google.common.collect.Lists;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.Event;
 import org.sonar.api.batch.SonarIndex;
-import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
+import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
@@ -126,7 +126,7 @@ public class DefaultDecoratorContext implements DecoratorContext {
     String metricKey = ((MeasuresFilters.MetricFilter<M>) filter).filterOnMetricKey();
     if (CoreMetrics.DUPLICATIONS_DATA_KEY.equals(metricKey)) {
       // Hack for SONAR-5765
-      List<DuplicationGroup> group = duplicationCache.byComponent(resource.getEffectiveKey());
+      Iterable<DefaultDuplication> group = duplicationCache.byComponent(resource.getEffectiveKey());
       if (group != null) {
         unfiltered = Arrays.asList(new Measure(CoreMetrics.DUPLICATIONS_DATA, DuplicationUtils.toXml(group)));
       } else {

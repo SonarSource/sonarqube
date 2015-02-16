@@ -26,6 +26,8 @@ import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.SensorStorage;
+import org.sonar.api.batch.sensor.duplication.Duplication;
+import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.Issue.Severity;
 import org.sonar.api.batch.sensor.measure.Measure;
@@ -53,7 +55,6 @@ import org.sonar.api.test.MutableTestCase;
 import org.sonar.api.test.MutableTestPlan;
 import org.sonar.api.test.MutableTestable;
 import org.sonar.api.test.Testable;
-import org.sonar.batch.duplication.BlockCache;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.batch.index.DefaultIndex;
@@ -68,16 +69,18 @@ public class DefaultSensorStorage implements SensorStorage {
   private final ResourcePerspectives perspectives;
   private final DefaultIndex sonarIndex;
   private final CoverageExclusions coverageExclusions;
+  private final DuplicationCache duplicationCache;
 
   public DefaultSensorStorage(MetricFinder metricFinder, Project project,
     ResourcePerspectives perspectives,
-    Settings settings, FileSystem fs, ActiveRules activeRules, ComponentDataCache componentDataCache, BlockCache blockCache,
+    Settings settings, FileSystem fs, ActiveRules activeRules, ComponentDataCache componentDataCache,
     DuplicationCache duplicationCache, DefaultIndex sonarIndex, CoverageExclusions coverageExclusions) {
     this.metricFinder = metricFinder;
     this.project = project;
     this.perspectives = perspectives;
     this.sonarIndex = sonarIndex;
     this.coverageExclusions = coverageExclusions;
+    this.duplicationCache = duplicationCache;
   }
 
   private Metric findMetricOrFail(String metricKey) {
@@ -259,5 +262,10 @@ public class DefaultSensorStorage implements SensorStorage {
       .setUsage(USES)
       .setWeight(dep.weight())
       .setParent(parentDep));
+  }
+
+  @Override
+  public void store(Duplication duplication) {
+    duplicationCache.put(duplication.originBlock().resourceKey(), (DefaultDuplication) duplication);
   }
 }

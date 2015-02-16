@@ -19,32 +19,28 @@
  */
 package org.sonar.xoo.lang;
 
+import net.sourceforge.pmd.cpd.SourceCode;
+import net.sourceforge.pmd.cpd.TokenEntry;
+import net.sourceforge.pmd.cpd.Tokens;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.batch.sensor.duplication.DuplicationTokenBuilder;
-import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.config.Settings;
 
 import java.io.File;
 import java.io.IOException;
 
-import static org.mockito.Matchers.any;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class XooTokenizerSensorTest {
+public class XooTokenizerTest {
 
-  private XooTokenizerSensor sensor;
   private SensorContext context = mock(SensorContext.class);
   private DefaultFileSystem fileSystem;
 
@@ -56,25 +52,10 @@ public class XooTokenizerSensorTest {
   @Before
   public void prepare() throws IOException {
     baseDir = temp.newFolder();
-    sensor = new XooTokenizerSensor();
     fileSystem = new DefaultFileSystem(baseDir.toPath());
     when(context.fileSystem()).thenReturn(fileSystem);
     settings = new Settings();
     when(context.settings()).thenReturn(settings);
-  }
-
-  @Test
-  public void testDescriptor() {
-    sensor.describe(new DefaultSensorDescriptor());
-  }
-
-  @Test
-  public void testNoExecutionIfExclusion() {
-    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setLanguage("xoo");
-    fileSystem.add(inputFile);
-    settings.setProperty(CoreProperties.CPD_EXCLUSIONS, "**/foo.xoo");
-    sensor.execute(context);
-    verify(context, never()).duplicationTokenBuilder(any(InputFile.class));
   }
 
   @Test
@@ -83,15 +64,15 @@ public class XooTokenizerSensorTest {
     FileUtils.write(source, "token1 token2 token3\ntoken4");
     DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setLanguage("xoo");
     fileSystem.add(inputFile);
-    DuplicationTokenBuilder builder = mock(DuplicationTokenBuilder.class);
-    when(context.duplicationTokenBuilder(inputFile)).thenReturn(builder);
 
-    sensor.execute(context);
+    XooTokenizer tokenizer = new XooTokenizer(fileSystem);
+    SourceCode sourceCode = mock(SourceCode.class);
+    when(sourceCode.getFileName()).thenReturn(inputFile.absolutePath());
+    Tokens cpdTokens = new Tokens();
+    tokenizer.tokenize(sourceCode, cpdTokens);
 
-    verify(builder).addToken(1, "token1");
-    verify(builder).addToken(1, "token2");
-    verify(builder).addToken(1, "token3");
-    verify(builder).addToken(2, "token4");
-    verify(builder).done();
+    // 4 tokens + EOF
+    assertThat(cpdTokens.getTokens()).hasSize(5);
+    assertThat(cpdTokens.getTokens().get(3)).isEqualTo(new TokenEntry("token4", "src/foo.xoo", 2));
   }
 }

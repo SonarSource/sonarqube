@@ -17,31 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.sensor;
+package org.sonar.api.batch.sensor.duplication;
 
-import org.sonar.api.batch.sensor.dependency.Dependency;
-import org.sonar.api.batch.sensor.duplication.Duplication;
-import org.sonar.api.batch.sensor.issue.Issue;
-import org.sonar.api.batch.sensor.measure.Measure;
-import org.sonar.api.batch.sensor.test.TestCaseCoverage;
-import org.sonar.api.batch.sensor.test.TestCaseExecution;
+import org.junit.Test;
 
-/**
- * Interface for storing data computed by sensors.
- * @since 5.1
- */
-public interface SensorStorage {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  void store(Measure measure);
+public class DuplicationTest {
 
-  void store(Issue issue);
+  @Test
+  public void testBlockEqualsAndCo() {
+    Duplication.Block b1 = new Duplication.Block("foo", 1, 10);
+    Duplication.Block b2 = new Duplication.Block("foo", 1, 10);
+    assertThat(b1).isEqualTo(b1);
+    assertThat(b1).isEqualTo(b2);
+    assertThat(b1).isNotEqualTo("");
+    assertThat(b1).isNotEqualTo(new Duplication.Block("foo1", 1, 10));
+    assertThat(b1).isNotEqualTo(new Duplication.Block("foo", 2, 10));
+    assertThat(b1).isNotEqualTo(new Duplication.Block("foo", 1, 11));
 
-  void store(Duplication duplication);
-
-  void store(TestCaseExecution testCaseExecution);
-
-  void store(Dependency dependency);
-
-  void store(TestCaseCoverage testCaseCoverage);
+    assertThat(b1.hashCode()).isEqualTo(188843970);
+    assertThat(b1.toString()).isEqualTo("Duplication.Block[resourceKey=foo,startLine=1,length=10]");
+  }
 
 }

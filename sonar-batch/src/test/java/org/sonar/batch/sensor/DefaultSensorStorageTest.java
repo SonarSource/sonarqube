@@ -51,7 +51,6 @@ import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.batch.duplication.BlockCache;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.batch.index.DefaultIndex;
@@ -91,13 +90,12 @@ public class DefaultSensorStorageTest {
     settings = new Settings();
     resourcePerspectives = mock(ResourcePerspectives.class);
     ComponentDataCache componentDataCache = mock(ComponentDataCache.class);
-    BlockCache blockCache = mock(BlockCache.class);
     project = new Project("myProject");
     sonarIndex = mock(DefaultIndex.class);
     CoverageExclusions coverageExclusions = mock(CoverageExclusions.class);
     when(coverageExclusions.accept(any(Resource.class), any(Measure.class))).thenReturn(true);
     sensorStorage = new DefaultSensorStorage(metricFinder, project,
-      resourcePerspectives, settings, fs, activeRules, componentDataCache, blockCache, mock(DuplicationCache.class), sonarIndex, coverageExclusions);
+      resourcePerspectives, settings, fs, activeRules, componentDataCache, mock(DuplicationCache.class), sonarIndex, coverageExclusions);
   }
 
   @Test

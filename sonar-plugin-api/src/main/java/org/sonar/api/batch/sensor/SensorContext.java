@@ -20,13 +20,12 @@
 package org.sonar.api.batch.sensor;
 
 import org.sonar.api.batch.AnalysisMode;
+import org.sonar.api.batch.CpdMapping;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.dependency.Dependency;
-import org.sonar.api.batch.sensor.duplication.DuplicationBuilder;
-import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
-import org.sonar.api.batch.sensor.duplication.DuplicationTokenBuilder;
+import org.sonar.api.batch.sensor.duplication.NewDuplication;
 import org.sonar.api.batch.sensor.highlighting.HighlightingBuilder;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.measure.Measure;
@@ -38,7 +37,6 @@ import org.sonar.api.batch.sensor.test.TestCaseExecution;
 import org.sonar.api.config.Settings;
 
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * See {@link Sensor#execute(SensorContext)}
@@ -99,24 +97,11 @@ public interface SensorContext {
   // ------------ DUPLICATIONS ------------
 
   /**
-   * Builder to define tokens in a file. Tokens are used to compute duplication using default SonarQube engine.
-   * @since 4.5
+   * Builder to manually register duplication in a file. This can be used in addition to {@link CpdMapping} extension point.
+   * Don't forget to call {@link NewDuplication#save()}.
+   * @since 5.1
    */
-  DuplicationTokenBuilder duplicationTokenBuilder(InputFile inputFile);
-
-  /**
-   * Builder to manually define duplications in a file. When duplication are manually computed then
-   * no need to use {@link #duplicationTokenBuilder(InputFile)}.
-   * @since 4.5
-   */
-  DuplicationBuilder duplicationBuilder(InputFile inputFile);
-
-  /**
-   * Register all duplications of an {@link InputFile}. Use {@link #duplicationBuilder(InputFile)} to create
-   * list of duplications.
-   * @since 4.5
-   */
-  void saveDuplications(InputFile inputFile, List<DuplicationGroup> duplications);
+  NewDuplication newDuplication();
 
   // ------------ TESTS ------------
 

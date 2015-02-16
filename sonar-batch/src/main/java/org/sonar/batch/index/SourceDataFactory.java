@@ -24,7 +24,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
+import org.sonar.api.batch.sensor.duplication.Duplication;
+import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
 import org.sonar.api.batch.sensor.symbol.Symbol;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
@@ -341,29 +342,23 @@ public class SourceDataFactory implements BatchComponent {
   }
 
   void applyDuplications(String inputFileKey, FileSourceDb.Data.Builder to) {
-    List<DuplicationGroup> groups = duplicationCache.byComponent(inputFileKey);
-    if (groups != null) {
-      int blockId = 1;
-      for (Iterator<DuplicationGroup> it = groups.iterator(); it.hasNext();) {
-        DuplicationGroup group = it.next();
-        addBlock(blockId, group.originBlock(), to);
-        blockId++;
-        for (Iterator<DuplicationGroup.Block> dupsIt = group.duplicates().iterator(); dupsIt.hasNext();) {
-          DuplicationGroup.Block dups = dupsIt.next();
-          if (inputFileKey.equals(dups.resourceKey())) {
-            addBlock(blockId, dups, to);
-            blockId++;
-          }
-          // Save memory
-          dupsIt.remove();
+    Iterable<DefaultDuplication> groups = duplicationCache.byComponent(inputFileKey);
+    int blockId = 1;
+    for (Iterator<DefaultDuplication> it = groups.iterator(); it.hasNext();) {
+      Duplication group = it.next();
+      addBlock(blockId, group.originBlock(), to);
+      blockId++;
+      for (Iterator<Duplication.Block> dupsIt = group.duplicates().iterator(); dupsIt.hasNext();) {
+        Duplication.Block dups = dupsIt.next();
+        if (inputFileKey.equals(dups.resourceKey())) {
+          addBlock(blockId, dups, to);
+          blockId++;
         }
-        // Save memory
-        it.remove();
       }
     }
   }
 
-  private void addBlock(int blockId, DuplicationGroup.Block block, FileSourceDb.Data.Builder to) {
+  private void addBlock(int blockId, Duplication.Block block, FileSourceDb.Data.Builder to) {
     int currentLine = block.startLine();
     for (int i = 0; i < block.length(); i++) {
       if (currentLine <= to.getLinesCount()) {

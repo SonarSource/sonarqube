@@ -19,14 +19,12 @@
  */
 package org.sonar.batch.cpd;
 
-import org.sonar.batch.cpd.DefaultCpdEngine;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
-import org.sonar.batch.duplication.BlockCache;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -42,7 +40,7 @@ public class DefaultCpdEngineTest {
   @Before
   public void init() {
     settings = new Settings();
-    engine = new DefaultCpdEngine(null, null, null, settings, mock(BlockCache.class));
+    engine = new DefaultCpdEngine(null, null, null, settings);
   }
 
   @Test

@@ -20,9 +20,6 @@
 
 package org.sonar.batch.cpd;
 
-import org.sonar.batch.cpd.index.IndexFactory;
-import org.sonar.batch.cpd.index.SonarDuplicationsIndex;
-
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
@@ -34,14 +31,16 @@ import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.batch.sensor.duplication.DuplicationBuilder;
-import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplicationBuilder;
+import org.sonar.api.batch.sensor.duplication.NewDuplication;
+import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.SonarException;
+import org.sonar.batch.cpd.index.IndexFactory;
+import org.sonar.batch.cpd.index.SonarDuplicationsIndex;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.BlockChunker;
 import org.sonar.duplications.detector.suffixtree.SuffixTreeCloneDetectionAlgorithm;
@@ -66,7 +65,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class JavaCpdEngine extends CpdEngine {
 
@@ -226,16 +230,17 @@ public class JavaCpdEngine extends CpdEngine {
       .setFromCore()
       .save();
 
-    DuplicationBuilder builder = context.duplicationBuilder(inputFile);
     for (CloneGroup duplication : duplications) {
-      builder.originBlock(duplication.getOriginPart().getStartLine(), duplication.getOriginPart().getEndLine());
+      NewDuplication builder = context.newDuplication();
+      ClonePart originPart = duplication.getOriginPart();
+      builder.originBlock(inputFile, originPart.getStartLine(), originPart.getEndLine());
       for (ClonePart part : duplication.getCloneParts()) {
-        if (!part.equals(duplication.getOriginPart())) {
-          ((DefaultDuplicationBuilder) builder).isDuplicatedBy(part.getResourceId(), part.getStartLine(), part.getEndLine());
+        if (!part.equals(originPart)) {
+          ((DefaultDuplication) builder).isDuplicatedBy(part.getResourceId(), part.getStartLine(), part.getEndLine());
         }
       }
+      builder.save();
     }
-    context.saveDuplications(inputFile, builder.build());
   }
 
   private static int computeBlockAndLineCount(Iterable<CloneGroup> duplications, Set<Integer> duplicatedLines) {

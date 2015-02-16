@@ -28,7 +28,8 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
+import org.sonar.api.batch.sensor.duplication.Duplication;
+import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
@@ -45,8 +46,10 @@ import org.sonar.server.source.db.FileSourceDb;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -76,6 +79,7 @@ public class SourceDataFactoryTest {
     metadata = new InputFileMetadata();
     FileUtils.write(inputFile.file(), "one\ntwo\nthree\n");
     output = sut.createForSource(inputFile);
+    when(duplicationCache.byComponent(anyString())).thenReturn(Collections.<DefaultDuplication>emptyList());
   }
 
   @Test
@@ -170,13 +174,13 @@ public class SourceDataFactoryTest {
 
   @Test
   public void applyDuplications() throws Exception {
-    DuplicationGroup group1 = new DuplicationGroup(new DuplicationGroup.Block(inputFile.key(), 1, 1))
-      .addDuplicate(new DuplicationGroup.Block(inputFile.key(), 3, 1))
-      .addDuplicate(new DuplicationGroup.Block("anotherFile1", 12, 1))
-      .addDuplicate(new DuplicationGroup.Block("anotherFile2", 13, 1));
-    DuplicationGroup group2 = new DuplicationGroup(new DuplicationGroup.Block(inputFile.key(), 1, 2))
-      .addDuplicate(new DuplicationGroup.Block("anotherFile1", 12, 2))
-      .addDuplicate(new DuplicationGroup.Block("anotherFile2", 13, 2));
+    DefaultDuplication group1 = new DefaultDuplication().setOriginBlock(new Duplication.Block(inputFile.key(), 1, 1));
+    group1.duplicates().add(new Duplication.Block(inputFile.key(), 3, 1));
+    group1.duplicates().add(new Duplication.Block("anotherFile1", 12, 1));
+    group1.duplicates().add(new Duplication.Block("anotherFile2", 13, 1));
+    DefaultDuplication group2 = new DefaultDuplication().setOriginBlock(new Duplication.Block(inputFile.key(), 1, 2));
+    group2.duplicates().add(new Duplication.Block("anotherFile1", 12, 2));
+    group2.duplicates().add(new Duplication.Block("anotherFile2", 13, 2));
     when(duplicationCache.byComponent(inputFile.key())).thenReturn(Lists.newArrayList(group1, group2));
 
     sut.applyDuplications(inputFile.key(), output);
@@ -190,9 +194,9 @@ public class SourceDataFactoryTest {
   @Test
   public void applyDuplications_ignore_bad_lines() throws Exception {
     // duplication on 10 lines
-    DuplicationGroup group1 = new DuplicationGroup(new DuplicationGroup.Block(inputFile.key(), 1, 10))
-      .addDuplicate(new DuplicationGroup.Block("anotherFile1", 12, 1))
-      .addDuplicate(new DuplicationGroup.Block("anotherFile2", 13, 1));
+    DefaultDuplication group1 = new DefaultDuplication().setOriginBlock(new Duplication.Block(inputFile.key(), 1, 10));
+    group1.duplicates().add(new Duplication.Block("anotherFile1", 12, 1));
+    group1.duplicates().add(new Duplication.Block("anotherFile2", 13, 1));
     when(duplicationCache.byComponent(inputFile.key())).thenReturn(Lists.newArrayList(group1));
 
     sut.applyDuplications(inputFile.key(), output);

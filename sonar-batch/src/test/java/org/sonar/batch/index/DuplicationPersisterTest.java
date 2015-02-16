@@ -22,7 +22,8 @@ package org.sonar.batch.index;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
+import org.sonar.api.batch.sensor.duplication.Duplication;
+import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.MetricFinder;
@@ -32,7 +33,6 @@ import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.Arrays;
-import java.util.List;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -71,13 +71,14 @@ public class DuplicationPersisterTest extends AbstractDaoTestCase {
   public void should_insert_duplications() {
     setupData("empty");
 
-    DuplicationGroup.Block originBlock = new DuplicationGroup.Block("foo:org/foo/Bar.java", 1, 4);
+    Duplication.Block originBlock = new Duplication.Block("foo:org/foo/Bar.java", 1, 4);
 
-    DuplicationGroup group = new DuplicationGroup(originBlock)
-      .addDuplicate(new DuplicationGroup.Block("foo:org/foo/Foo.java", 5, 9));
+    DefaultDuplication group = new DefaultDuplication().setOriginBlock(originBlock);
+    group.duplicates().add(new Duplication.Block("foo:org/foo/Foo.java", 5, 9));
 
-    when(duplicationCache.entries()).thenReturn(
-      Arrays.<Cache.Entry<List<DuplicationGroup>>>asList(new Cache.Entry(new String[] {"foo:org/foo/Bar.java"}, Arrays.asList(group))));
+    when(duplicationCache.componentKeys()).thenReturn(Arrays.asList("foo:org/foo/Bar.java"));
+
+    when(duplicationCache.byComponent("foo:org/foo/Bar.java")).thenReturn(Arrays.asList(group));
 
     duplicationPersister.persist();
 

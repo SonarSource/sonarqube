@@ -22,35 +22,32 @@ package org.sonar.batch.duplication;
 import com.persistit.Value;
 import com.persistit.encoding.CoderContext;
 import com.persistit.encoding.ValueCoder;
-import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
-import org.sonar.api.batch.sensor.duplication.DuplicationGroup.Block;
+import org.sonar.api.batch.sensor.duplication.Duplication;
+import org.sonar.api.batch.sensor.duplication.Duplication.Block;
+import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
 
-import java.util.ArrayList;
-import java.util.List;
-
-class DuplicationGroupValueCoder implements ValueCoder {
+class DefaultDuplicationValueCoder implements ValueCoder {
 
   private DuplicationBlockValueCoder blockCoder = new DuplicationBlockValueCoder();
 
   @Override
   public void put(Value value, Object object, CoderContext context) {
-    DuplicationGroup c = (DuplicationGroup) object;
+    DefaultDuplication c = (DefaultDuplication) object;
     blockCoder.put(value, c.originBlock(), context);
     value.put(c.duplicates().size());
-    for (DuplicationGroup.Block block : c.duplicates()) {
+    for (Duplication.Block block : c.duplicates()) {
       blockCoder.put(value, block, context);
     }
   }
 
   @Override
   public Object get(Value value, Class clazz, CoderContext context) {
-    DuplicationGroup g = new DuplicationGroup((Block) blockCoder.get(value, DuplicationGroup.Block.class, context));
+    DefaultDuplication g = new DefaultDuplication();
+    g.setOriginBlock((Block) blockCoder.get(value, Duplication.Block.class, context));
     int count = value.getInt();
-    List<DuplicationGroup.Block> blocks = new ArrayList<DuplicationGroup.Block>(count);
     for (int i = 0; i < count; i++) {
-      blocks.add((Block) blockCoder.get(value, DuplicationGroup.Block.class, context));
+      g.duplicates().add((Block) blockCoder.get(value, Duplication.Block.class, context));
     }
-    g.setDuplicates(blocks);
     return g;
   }
 }

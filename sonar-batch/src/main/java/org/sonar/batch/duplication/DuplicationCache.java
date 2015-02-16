@@ -19,39 +19,41 @@
  */
 package org.sonar.batch.duplication;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import org.sonar.api.BatchComponent;
-import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
+import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
 import org.sonar.batch.index.Cache;
-import org.sonar.batch.index.Cache.Entry;
 import org.sonar.batch.index.Caches;
-
-import javax.annotation.CheckForNull;
-
-import java.util.List;
 
 /**
  * Cache of duplication blocks. This cache is shared amongst all project modules.
  */
 public class DuplicationCache implements BatchComponent {
 
-  private final Cache<List<DuplicationGroup>> cache;
+  private final Cache<DefaultDuplication> cache;
+  private int sequence = 1;
 
   public DuplicationCache(Caches caches) {
-    caches.registerValueCoder(DuplicationGroup.class, new DuplicationGroupValueCoder());
+    caches.registerValueCoder(DefaultDuplication.class, new DefaultDuplicationValueCoder());
     cache = caches.createCache("duplications");
   }
 
-  public Iterable<Entry<List<DuplicationGroup>>> entries() {
-    return cache.entries();
+  public Iterable<String> componentKeys() {
+    return Iterables.transform(cache.keySet(), new Function<Object, String>() {
+      @Override
+      public String apply(Object input) {
+        return input.toString();
+      }
+    });
   }
 
-  @CheckForNull
-  public List<DuplicationGroup> byComponent(String effectiveKey) {
-    return cache.get(effectiveKey);
+  public Iterable<DefaultDuplication> byComponent(String effectiveKey) {
+    return cache.values(effectiveKey);
   }
 
-  public DuplicationCache put(String effectiveKey, List<DuplicationGroup> blocks) {
-    cache.put(effectiveKey, blocks);
+  public DuplicationCache put(String effectiveKey, DefaultDuplication duplication) {
+    cache.put(effectiveKey, sequence++, duplication);
     return this;
   }
 

@@ -19,45 +19,36 @@
  */
 package org.sonar.api.batch.sensor.duplication;
 
-import com.google.common.annotations.Beta;
 import org.sonar.api.batch.fs.InputFile;
 
-import java.util.List;
-
 /**
- * Experimental, do not use.
  * <p/>
  * This builder is used to declare duplications on files of the project.
  * Usage:
  * <code><pre>
- * DuplicationBuilder builder = context.duplicationBuilder(inputFile);
- *   .originBlock(2, 10)
+ * context.newDuplication();
+ *   .originBlock(inputFile, 2, 10)
  *   .isDuplicatedBy(inputFile, 14, 22)
  *   .isDuplicatedBy(anotherInputFile, 3, 11)
- *   // Start another duplication
- *   .originBlock(45, 50)
- *   .isDuplicatedBy(yetAnotherInputFile, 10, 15);
- *   context.saveDuplications(inputFile, builder.build());
+ *   .save();
  * </pre></code>
- * @since 4.5
+ * @since 5.1
  */
-@Beta
-public interface DuplicationBuilder {
+public interface NewDuplication {
 
   /**
    * Declare duplication origin block. Then call {@link #isDuplicatedBy(InputFile, int, int)} to reference all duplicates of this block.
-   * Then call again {@link #originBlock(int, int)} to declare another duplication.
    */
-  DuplicationBuilder originBlock(int startLine, int endLine);
+  NewDuplication originBlock(InputFile originFile, int startLine, int endLine);
 
   /**
-   * Declare duplicate block of the previously declared {@link #originBlock(int, int)}.
+   * Declare duplicate block of the previously declared {@link #originBlock(int, int)}. Can be called several times.
    * @param sameOrOtherFile duplicate can be in the same file or in another file.
    */
-  DuplicationBuilder isDuplicatedBy(InputFile sameOrOtherFile, int startLine, int endLine);
+  NewDuplication isDuplicatedBy(InputFile sameOrOtherFile, int startLine, int endLine);
 
   /**
-   * Call this method when you have declared all duplications of the file.
+   * Save the duplication.
    */
-  List<DuplicationGroup> build();
+  void save();
 }

@@ -29,7 +29,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
+import org.sonar.api.batch.sensor.duplication.Duplication;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.xoo.XooPlugin;
@@ -106,10 +106,10 @@ public class CpdMediumTest {
     InputFile inputFile1 = result.inputFile("src/sample1.xoo");
     InputFile inputFile2 = result.inputFile("src/sample2.xoo");
     // One clone group on each file
-    List<DuplicationGroup> duplicationGroupsFile1 = result.duplicationsFor(inputFile1);
+    List<Duplication> duplicationGroupsFile1 = result.duplicationsFor(inputFile1);
     assertThat(duplicationGroupsFile1).hasSize(1);
 
-    DuplicationGroup cloneGroupFile1 = duplicationGroupsFile1.get(0);
+    Duplication cloneGroupFile1 = duplicationGroupsFile1.get(0);
     assertThat(cloneGroupFile1.duplicates()).hasSize(1);
     assertThat(cloneGroupFile1.originBlock().startLine()).isEqualTo(1);
     assertThat(cloneGroupFile1.originBlock().length()).isEqualTo(17);
@@ -117,10 +117,10 @@ public class CpdMediumTest {
     assertThat(cloneGroupFile1.duplicates()).hasSize(1);
     assertThat(cloneGroupFile1.duplicates().get(0).resourceKey()).isEqualTo(((DefaultInputFile) inputFile2).key());
 
-    List<DuplicationGroup> duplicationGroupsFile2 = result.duplicationsFor(inputFile2);
+    List<Duplication> duplicationGroupsFile2 = result.duplicationsFor(inputFile2);
     assertThat(duplicationGroupsFile2).hasSize(1);
 
-    DuplicationGroup cloneGroupFile2 = duplicationGroupsFile2.get(0);
+    Duplication cloneGroupFile2 = duplicationGroupsFile2.get(0);
     assertThat(cloneGroupFile2.duplicates()).hasSize(1);
     assertThat(cloneGroupFile2.originBlock().startLine()).isEqualTo(1);
     assertThat(cloneGroupFile2.originBlock().length()).isEqualTo(17);
@@ -153,10 +153,10 @@ public class CpdMediumTest {
 
     InputFile inputFile = result.inputFile("src/sample.xoo");
     // One clone group
-    List<DuplicationGroup> duplicationGroups = result.duplicationsFor(inputFile);
+    List<Duplication> duplicationGroups = result.duplicationsFor(inputFile);
     assertThat(duplicationGroups).hasSize(1);
 
-    DuplicationGroup cloneGroup = duplicationGroups.get(0);
+    Duplication cloneGroup = duplicationGroups.get(0);
     assertThat(cloneGroup.duplicates()).hasSize(1);
     assertThat(cloneGroup.originBlock().startLine()).isEqualTo(1);
     assertThat(cloneGroup.originBlock().length()).isEqualTo(2);

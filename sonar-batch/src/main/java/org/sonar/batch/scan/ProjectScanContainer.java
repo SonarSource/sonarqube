@@ -19,10 +19,6 @@
  */
 package org.sonar.batch.scan;
 
-import org.sonar.batch.deprecated.components.DefaultResourceCreationLock;
-
-import org.sonar.batch.deprecated.components.PeriodsDefinition;
-import org.sonar.batch.repository.language.DefaultLanguagesRepository;
 import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
@@ -45,7 +41,8 @@ import org.sonar.batch.bootstrap.ExtensionUtils;
 import org.sonar.batch.bootstrap.MetricProvider;
 import org.sonar.batch.debt.DebtModelProvider;
 import org.sonar.batch.debt.IssueChangelogDebtCalculator;
-import org.sonar.batch.duplication.BlockCache;
+import org.sonar.batch.deprecated.components.DefaultResourceCreationLock;
+import org.sonar.batch.deprecated.components.PeriodsDefinition;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.Caches;
 import org.sonar.batch.index.ComponentDataCache;
@@ -70,6 +67,7 @@ import org.sonar.batch.phases.GraphPersister;
 import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
 import org.sonar.batch.repository.ProjectRepositoriesProvider;
 import org.sonar.batch.repository.ProjectScmRepositoryLoader;
+import org.sonar.batch.repository.language.DefaultLanguagesRepository;
 import org.sonar.batch.rule.ActiveRulesProvider;
 import org.sonar.batch.rule.RulesProvider;
 import org.sonar.batch.scan.filesystem.InputPathCache;
@@ -189,7 +187,6 @@ public class ProjectScanContainer extends ComponentContainer {
       MeasureCache.class,
 
       // Duplications
-      BlockCache.class,
       DuplicationCache.class,
 
       ProjectSettings.class,

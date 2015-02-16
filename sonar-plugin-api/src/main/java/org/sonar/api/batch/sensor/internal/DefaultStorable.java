@@ -22,6 +22,7 @@ package org.sonar.api.batch.sensor.internal;
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorStorage;
 
 import javax.annotation.Nullable;
@@ -51,6 +52,11 @@ public abstract class DefaultStorable {
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+  }
+
+  protected void validateLineArgument(InputFile inputFile, int line, String label) {
+    Preconditions.checkArgument(line > 0 && line <= inputFile.lines(), "Invalid " + label + ": " + line + ". File " + inputFile + " has " + inputFile.lines()
+      + " lines.");
   }
 
 }

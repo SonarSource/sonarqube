@@ -17,31 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.sensor;
+package org.sonar.xoo.lang;
 
-import org.sonar.api.batch.sensor.dependency.Dependency;
-import org.sonar.api.batch.sensor.duplication.Duplication;
-import org.sonar.api.batch.sensor.issue.Issue;
-import org.sonar.api.batch.sensor.measure.Measure;
-import org.sonar.api.batch.sensor.test.TestCaseCoverage;
-import org.sonar.api.batch.sensor.test.TestCaseExecution;
+import net.sourceforge.pmd.cpd.Tokenizer;
+import org.sonar.api.batch.AbstractCpdMapping;
+import org.sonar.api.resources.Language;
+import org.sonar.xoo.Xoo;
 
-/**
- * Interface for storing data computed by sensors.
- * @since 5.1
- */
-public interface SensorStorage {
+public class XooCpdMapping extends AbstractCpdMapping {
 
-  void store(Measure measure);
+  private Xoo xoo;
+  private XooTokenizer xooTokenizer;
 
-  void store(Issue issue);
+  public XooCpdMapping(Xoo xoo, XooTokenizer xooTokenizer) {
+    this.xoo = xoo;
+    this.xooTokenizer = xooTokenizer;
+  }
 
-  void store(Duplication duplication);
+  @Override
+  public Tokenizer getTokenizer() {
+    return xooTokenizer;
+  }
 
-  void store(TestCaseExecution testCaseExecution);
-
-  void store(Dependency dependency);
-
-  void store(TestCaseCoverage testCaseCoverage);
-
+  @Override
+  public Language getLanguage() {
+    return xoo;
+  }
 }

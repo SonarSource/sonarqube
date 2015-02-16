@@ -26,10 +26,29 @@ package net.sourceforge.pmd.cpd;
 import java.io.IOException;
 
 /**
+ * A tokenizer is responsible to return a token list for the provided input file (see {@link SourceCode#getFileName()}.
+ * Tokens are basically list of non empty words in a file but you can also do some "anonymization" to ignore litteral differences.
+ * 
+ * For example if you have a first file:
+ * <pre>
+ * public class MyClass1 {
+ *   int foo1;
+ * }
+ * </pre>
+ * and a second file:
+ * <pre>
+ * public class MyClass2 {
+ *   int foo2;
+ * }
+ * </pre>
+ * Then in both cases your tokenizer could return the following (line, image) list:
+ * <pre>(1,public),(1,class),(1,LITERAL),(1,{),(2,int),(2,LITERAL),(2,;),(3,})</pre>
+ * in this case the two files will be considered as duplicate.
+ * 
  * @since 2.2
  */
 public interface Tokenizer {
 
-  void tokenize(SourceCode tokens, Tokens tokenEntries) throws IOException;
+  void tokenize(SourceCode sourceFile, Tokens tokenEntries) throws IOException;
 
 }

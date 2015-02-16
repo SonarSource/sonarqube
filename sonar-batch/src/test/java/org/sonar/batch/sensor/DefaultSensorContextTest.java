@@ -32,7 +32,6 @@ import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.sensor.SensorStorage;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.batch.duplication.BlockCache;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.ComponentDataCache;
 
@@ -64,10 +63,9 @@ public class DefaultSensorContextTest {
     when(metricFinder.findByKey(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION_KEY)).thenReturn(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION);
     settings = new Settings();
     ComponentDataCache componentDataCache = mock(ComponentDataCache.class);
-    BlockCache blockCache = mock(BlockCache.class);
     sensorStorage = mock(SensorStorage.class);
     analysisMode = mock(AnalysisMode.class);
-    adaptor = new DefaultSensorContext(settings, fs, activeRules, analysisMode, componentDataCache, blockCache, mock(DuplicationCache.class), sensorStorage);
+    adaptor = new DefaultSensorContext(settings, fs, activeRules, analysisMode, componentDataCache, mock(DuplicationCache.class), sensorStorage);
   }
 
   @Test

@@ -25,13 +25,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
+import org.sonar.api.batch.sensor.duplication.Duplication;
+import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
 import org.sonar.batch.index.Caches;
 import org.sonar.batch.index.CachesTest;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -60,24 +57,28 @@ public class DuplicationCacheTest {
   public void should_add_clone_groups() throws Exception {
     DuplicationCache cache = new DuplicationCache(caches);
 
-    DuplicationGroup group1 = new DuplicationGroup(new DuplicationGroup.Block("foo", 1, 2))
-      .addDuplicate(new DuplicationGroup.Block("foo", 1, 2))
-      .addDuplicate(new DuplicationGroup.Block("foo2", 12, 22))
-      .addDuplicate(new DuplicationGroup.Block("foo3", 13, 23));
+    DefaultDuplication group1 = new DefaultDuplication()
+      .setOriginBlock(new Duplication.Block("foo", 1, 2));
+    group1.duplicates().add(new Duplication.Block("foo", 1, 2));
+    group1.duplicates().add(new Duplication.Block("foo2", 12, 22));
+    group1.duplicates().add(new Duplication.Block("foo3", 13, 23));
 
-    DuplicationGroup group2 = new DuplicationGroup(new DuplicationGroup.Block("2foo", 1, 2))
-      .addDuplicate(new DuplicationGroup.Block("2foo", 1, 2))
-      .addDuplicate(new DuplicationGroup.Block("2foo2", 12, 22))
-      .addDuplicate(new DuplicationGroup.Block("2foo3", 13, 23));
+    DefaultDuplication group2 = new DefaultDuplication()
+      .setOriginBlock(new Duplication.Block("2foo", 1, 2));
+    group2.duplicates().add(new Duplication.Block("2foo", 1, 2));
+    group2.duplicates().add(new Duplication.Block("2foo2", 12, 22));
+    group2.duplicates().add(new Duplication.Block("2foo3", 13, 23));
 
-    assertThat(cache.entries()).hasSize(0);
+    assertThat(cache.componentKeys()).hasSize(0);
 
-    cache.put("foo", new ArrayList<DuplicationGroup>(Arrays.asList(group1, group2)));
+    cache.put("foo", group1);
+    cache.put("foo", group2);
 
-    assertThat(cache.entries()).hasSize(1);
+    assertThat(cache.componentKeys()).hasSize(1);
+    assertThat(cache.byComponent("foo")).hasSize(2);
 
-    List<DuplicationGroup> entry = cache.byComponent("foo");
-    assertThat(entry.get(0).originBlock().resourceKey()).isEqualTo("foo");
+    Iterable<DefaultDuplication> entry = cache.byComponent("foo");
+    assertThat(entry.iterator().next().originBlock().resourceKey()).isEqualTo("foo");
 
   }
 

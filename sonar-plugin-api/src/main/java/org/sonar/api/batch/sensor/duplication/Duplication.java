@@ -19,27 +19,23 @@
  */
 package org.sonar.api.batch.sensor.duplication;
 
-import com.google.common.annotations.Beta;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.batch.sensor.SensorContext;
 
-import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Experimental, do not use.
  * <p/>
- * A {@link DuplicationGroup} is a list of duplicated {@link Block}s. One block
+ * A {@link Duplication} is a list of duplicated {@link Block}s. One block
  * is considered as the original code and all others are duplicates.
- * Use {@link SensorContext#duplicationBuilder(org.sonar.api.batch.fs.InputFile)} and
- * {@link SensorContext#saveDuplications(org.sonar.api.batch.fs.InputFile, List)}.
- * @since 4.5
+ * Use {@link SensorContext#newDuplication()} to manually create a duplication. Use {@link SensorContext#duplicationTokenBuilder(org.sonar.api.batch.fs.InputFile)}
+ * to feed tokens and let the core compute duplications.
+ * @since 5.1
  */
-@Beta
-public class DuplicationGroup {
+public interface Duplication {
 
   public static class Block {
     private final String resourceKey;
@@ -101,80 +97,8 @@ public class DuplicationGroup {
     }
   }
 
-  private final Block originBlock;
-  private List<Block> duplicates = new LinkedList<DuplicationGroup.Block>();
+  public Block originBlock();
 
-  /**
-   * For unit test and internal use only.
-   */
-  public DuplicationGroup(Block originBlock) {
-    this.originBlock = originBlock;
-  }
-
-  /**
-   * For unit test and internal use only.
-   */
-  public void setDuplicates(List<Block> duplicates) {
-    this.duplicates = duplicates;
-  }
-
-  /**
-   * For unit test and internal use only.
-   */
-  public DuplicationGroup addDuplicate(Block anotherBlock) {
-    this.duplicates.add(anotherBlock);
-    return this;
-  }
-
-  public Block originBlock() {
-    return originBlock;
-  }
-
-  public List<Block> duplicates() {
-    return duplicates;
-  }
-
-  // Just for unit tests
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == null) {
-      return false;
-    }
-    if (obj == this) {
-      return true;
-    }
-    if (obj.getClass() != getClass()) {
-      return false;
-    }
-    DuplicationGroup rhs = (DuplicationGroup) obj;
-    EqualsBuilder equalsBuilder = new EqualsBuilder()
-      .append(originBlock, rhs.originBlock)
-      .append(duplicates.size(), rhs.duplicates.size());
-    if (duplicates.size() == rhs.duplicates.size()) {
-      for (int i = 0; i < duplicates.size(); i++) {
-        equalsBuilder.append(duplicates.get(i), rhs.duplicates.get(i));
-      }
-    }
-    return equalsBuilder.isEquals();
-  }
-
-  @Override
-  public int hashCode() {
-    HashCodeBuilder hcBuilder = new HashCodeBuilder(17, 37)
-      .append(originBlock)
-      .append(duplicates.size());
-    for (int i = 0; i < duplicates.size(); i++) {
-      hcBuilder.append(duplicates.get(i));
-    }
-    return hcBuilder.toHashCode();
-  }
-
-  @Override
-  public String toString() {
-    return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE).
-      append("origin", originBlock).
-      append("duplicates", duplicates, true).
-      toString();
-  }
+  public List<Block> duplicates();
 
 }

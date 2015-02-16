@@ -19,9 +19,6 @@
  */
 package org.sonar.batch.cpd;
 
-import org.sonar.batch.cpd.index.IndexFactory;
-import org.sonar.batch.cpd.index.SonarDuplicationsIndex;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -38,10 +35,10 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.duplication.BlockCache;
+import org.sonar.batch.cpd.index.IndexFactory;
+import org.sonar.batch.cpd.index.SonarDuplicationsIndex;
 import org.sonar.duplications.DuplicationPredicates;
 import org.sonar.duplications.block.Block;
-import org.sonar.duplications.block.FileBlocks;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.internal.pmd.TokenizerBridge;
 
@@ -68,20 +65,18 @@ public class DefaultCpdEngine extends CpdEngine {
   private final CpdMappings mappings;
   private final FileSystem fs;
   private final Settings settings;
-  private final BlockCache blockCache;
   private final Project project;
 
-  public DefaultCpdEngine(@Nullable Project project, IndexFactory indexFactory, CpdMappings mappings, FileSystem fs, Settings settings, BlockCache duplicationCache) {
+  public DefaultCpdEngine(@Nullable Project project, IndexFactory indexFactory, CpdMappings mappings, FileSystem fs, Settings settings) {
     this.project = project;
     this.indexFactory = indexFactory;
     this.mappings = mappings;
     this.fs = fs;
     this.settings = settings;
-    this.blockCache = duplicationCache;
   }
 
-  public DefaultCpdEngine(IndexFactory indexFactory, CpdMappings mappings, FileSystem fs, Settings settings, BlockCache duplicationCache) {
-    this(null, indexFactory, mappings, fs, settings, duplicationCache);
+  public DefaultCpdEngine(IndexFactory indexFactory, CpdMappings mappings, FileSystem fs, Settings settings) {
+    this(null, indexFactory, mappings, fs, settings);
   }
 
   @Override
@@ -91,6 +86,12 @@ public class DefaultCpdEngine extends CpdEngine {
 
   @Override
   public void analyse(String languageKey, SensorContext context) {
+    CpdMapping mapping = mappings.getMapping(languageKey);
+    if (mapping == null) {
+      LOG.debug("No CpdMapping for language " + languageKey);
+      return;
+    }
+
     String[] cpdExclusions = settings.getStringArray(CoreProperties.CPD_EXCLUSIONS);
     logExclusions(cpdExclusions, LOG);
     FilePredicates p = fs.predicates();
@@ -102,8 +103,6 @@ public class DefaultCpdEngine extends CpdEngine {
     if (sourceFiles.isEmpty()) {
       return;
     }
-
-    CpdMapping mapping = mappings.getMapping(languageKey);
 
     // Create index
     SonarDuplicationsIndex index = indexFactory.create(project, languageKey);
@@ -140,20 +139,12 @@ public class DefaultCpdEngine extends CpdEngine {
   }
 
   private void populateIndex(String languageKey, List<InputFile> sourceFiles, CpdMapping mapping, SonarDuplicationsIndex index) {
-    TokenizerBridge bridge = null;
-    if (mapping != null) {
-      bridge = new TokenizerBridge(mapping.getTokenizer(), fs.encoding().name(), getBlockSize(languageKey));
-    }
+    TokenizerBridge bridge = new TokenizerBridge(mapping.getTokenizer(), fs.encoding().name(), getBlockSize(languageKey));
     for (InputFile inputFile : sourceFiles) {
       LOG.debug("Populating index from {}", inputFile);
       String resourceEffectiveKey = ((DeprecatedDefaultInputFile) inputFile).key();
-      FileBlocks fileBlocks = blockCache.byComponent(resourceEffectiveKey);
-      if (fileBlocks != null) {
-        index.insert(inputFile, fileBlocks.blocks());
-      } else if (bridge != null) {
-        List<Block> blocks2 = bridge.chunk(resourceEffectiveKey, inputFile.file());
-        index.insert(inputFile, blocks2);
-      }
+      List<Block> blocks2 = bridge.chunk(resourceEffectiveKey, inputFile.file());
+      index.insert(inputFile, blocks2);
     }
   }
 

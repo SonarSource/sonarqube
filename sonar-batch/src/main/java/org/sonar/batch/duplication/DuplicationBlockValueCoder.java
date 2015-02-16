@@ -22,13 +22,13 @@ package org.sonar.batch.duplication;
 import com.persistit.Value;
 import com.persistit.encoding.CoderContext;
 import com.persistit.encoding.ValueCoder;
-import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
+import org.sonar.api.batch.sensor.duplication.Duplication;
 
 class DuplicationBlockValueCoder implements ValueCoder {
 
   @Override
   public void put(Value value, Object object, CoderContext context) {
-    DuplicationGroup.Block b = (DuplicationGroup.Block) object;
+    Duplication.Block b = (Duplication.Block) object;
     value.putUTF(b.resourceKey());
     value.put(b.startLine());
     value.put(b.length());
@@ -39,6 +39,6 @@ class DuplicationBlockValueCoder implements ValueCoder {
     String resourceKey = value.getString();
     int startLine = value.getInt();
     int length = value.getInt();
-    return new DuplicationGroup.Block(resourceKey, startLine, length);
+    return new Duplication.Block(resourceKey, startLine, length);
   }
 }

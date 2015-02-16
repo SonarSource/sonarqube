@@ -45,7 +45,6 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.duplication.BlockCache;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.batch.sensor.DefaultSensorContext;
@@ -67,8 +66,8 @@ public class DeprecatedSensorContext extends DefaultSensorContext implements Sen
 
   public DeprecatedSensorContext(SonarIndex index, Project project, Settings settings, FileSystem fs, ActiveRules activeRules,
     AnalysisMode analysisMode, ComponentDataCache componentDataCache, CoverageExclusions coverageFilter,
-    BlockCache blockCache, DuplicationCache duplicationCache, SensorStorage sensorStorage) {
-    super(settings, fs, activeRules, analysisMode, componentDataCache, blockCache, duplicationCache, sensorStorage);
+    DuplicationCache duplicationCache, SensorStorage sensorStorage) {
+    super(settings, fs, activeRules, analysisMode, componentDataCache, duplicationCache, sensorStorage);
     this.index = index;
     this.project = project;
     this.coverageFilter = coverageFilter;

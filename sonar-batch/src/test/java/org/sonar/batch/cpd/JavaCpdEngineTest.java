@@ -19,22 +19,17 @@
  */
 package org.sonar.batch.cpd;
 
-import org.sonar.batch.cpd.JavaCpdEngine;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.mockito.InOrder;
-import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorStorage;
-import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
-import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplicationBuilder;
+import org.sonar.api.batch.sensor.duplication.NewDuplication;
+import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
@@ -46,9 +41,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -60,7 +53,6 @@ public class JavaCpdEngineTest {
 
   SensorContext context = mock(SensorContext.class);
   DeprecatedDefaultInputFile inputFile;
-  private DefaultDuplicationBuilder duplicationBuilder;
   private SensorStorage storage = mock(SensorStorage.class);
 
   @Before
@@ -71,9 +63,13 @@ public class JavaCpdEngineTest {
         return new DefaultMeasure(storage);
       }
     });
-    inputFile = new DeprecatedDefaultInputFile("foo", "src/main/java/Foo.java");
-    duplicationBuilder = spy(new DefaultDuplicationBuilder(inputFile));
-    when(context.duplicationBuilder(any(InputFile.class))).thenReturn(duplicationBuilder);
+    when(context.newDuplication()).then(new Answer<NewDuplication>() {
+      @Override
+      public NewDuplication answer(InvocationOnMock invocation) throws Throwable {
+        return new DefaultDuplication(storage);
+      }
+    });
+    inputFile = (DeprecatedDefaultInputFile) new DeprecatedDefaultInputFile("foo", "src/main/java/Foo.java").setLines(300);
     inputFile.setModuleBaseDir(temp.newFolder().toPath());
   }
 
@@ -97,10 +93,9 @@ public class JavaCpdEngineTest {
     verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_LINES).onFile(inputFile).withValue(3));
     verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATION_LINES_DATA).onFile(inputFile).withValue("1=0;2=1;3=1;4=1;5=0"));
 
-    InOrder inOrder = Mockito.inOrder(duplicationBuilder);
-    inOrder.verify(duplicationBuilder).originBlock(2, 4);
-    inOrder.verify(duplicationBuilder).isDuplicatedBy("key2", 15, 17);
-    inOrder.verify(duplicationBuilder).build();
+    verify(storage).store(new DefaultDuplication()
+      .originBlock(inputFile, 2, 4)
+      .isDuplicatedBy("key2", 15, 17));
   }
 
   @Test
@@ -112,10 +107,9 @@ public class JavaCpdEngineTest {
     verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_BLOCKS).onFile(inputFile).withValue(2));
     verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_LINES).onFile(inputFile).withValue(400));
 
-    InOrder inOrder = Mockito.inOrder(duplicationBuilder);
-    inOrder.verify(duplicationBuilder).originBlock(5, 204);
-    inOrder.verify(duplicationBuilder).isDuplicatedBy("key1", 215, 414);
-    inOrder.verify(duplicationBuilder).build();
+    verify(storage).store(new DefaultDuplication()
+      .originBlock(inputFile, 5, 204)
+      .isDuplicatedBy("key1", 215, 414));
   }
 
   @Test
@@ -127,17 +121,10 @@ public class JavaCpdEngineTest {
     verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_BLOCKS).onFile(inputFile).withValue(1));
     verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_LINES).onFile(inputFile).withValue(200));
 
-    InOrder inOrder = Mockito.inOrder(duplicationBuilder);
-    inOrder.verify(duplicationBuilder).originBlock(5, 204);
-    inOrder.verify(duplicationBuilder).isDuplicatedBy("key2", 15, 214);
-    inOrder.verify(duplicationBuilder).isDuplicatedBy("key3", 25, 224);
-    inOrder.verify(duplicationBuilder).build();
-
-    verify(context).saveDuplications(inputFile, Arrays.asList(
-      new DuplicationGroup(new DuplicationGroup.Block("foo:src/main/java/Foo.java", 5, 200))
-        .addDuplicate(new DuplicationGroup.Block("key2", 15, 200))
-        .addDuplicate(new DuplicationGroup.Block("key3", 25, 200))
-      ));
+    verify(storage).store(new DefaultDuplication()
+      .originBlock(inputFile, 5, 204)
+      .isDuplicatedBy("key2", 15, 214)
+      .isDuplicatedBy("key3", 25, 224));
   }
 
   @Test
@@ -151,12 +138,12 @@ public class JavaCpdEngineTest {
     verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_BLOCKS).onFile(inputFile).withValue(2));
     verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_LINES).onFile(inputFile).withValue(210));
 
-    InOrder inOrder = Mockito.inOrder(duplicationBuilder);
-    inOrder.verify(duplicationBuilder).originBlock(5, 204);
-    inOrder.verify(duplicationBuilder).isDuplicatedBy("key2", 15, 214);
-    inOrder.verify(duplicationBuilder).originBlock(15, 214);
-    inOrder.verify(duplicationBuilder).isDuplicatedBy("key3", 15, 214);
-    inOrder.verify(duplicationBuilder).build();
+    verify(storage).store(new DefaultDuplication()
+      .originBlock(inputFile, 5, 204)
+      .isDuplicatedBy("key2", 15, 214));
+    verify(storage).store(new DefaultDuplication()
+      .originBlock(inputFile, 15, 214)
+      .isDuplicatedBy("key3", 15, 214));
   }
 
   private CloneGroup newCloneGroup(ClonePart... parts) {
