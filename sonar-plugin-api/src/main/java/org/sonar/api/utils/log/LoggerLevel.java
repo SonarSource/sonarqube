@@ -19,22 +19,6 @@
  */
 package org.sonar.api.utils.log;
 
-class ConsoleLoggers extends Loggers {
-
-  private boolean debugEnabled = false;
-
-  @Override
-  protected Logger newInstance(String name) {
-    return new ConsoleLogger();
-  }
-
-  @Override
-  protected boolean isDebugEnabled() {
-    return debugEnabled;
-  }
-
-  @Override
-  protected void enableDebug(boolean b) {
-    this.debugEnabled = b;
-  }
+public enum  LoggerLevel {
+  DEBUG, INFO, WARN, ERROR
 }

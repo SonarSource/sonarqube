@@ -35,7 +35,7 @@ class ConsoleLogger extends BaseLogger {
 
   private final PrintStream stream;
 
-  ConsoleLogger(String unusedName) {
+  ConsoleLogger() {
     this.stream = System.out;
   }
 
@@ -140,6 +140,11 @@ class ConsoleLogger extends BaseLogger {
   public void doError(String msg, Throwable thrown) {
     doError(msg);
     thrown.printStackTrace();
+  }
+
+  @Override
+  public boolean setLevel(LoggerLevel level) {
+    return false;
   }
 
   private void log(String level, String msg) {

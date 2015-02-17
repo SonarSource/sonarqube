@@ -19,6 +19,7 @@
  */
 package org.sonar.api.utils.log;
 
+import ch.qos.logback.classic.Level;
 import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
@@ -27,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class LogbackLoggerTest {
 
-  LogbackLogger sut = new LogbackLogger(LoggerFactory.getLogger(getClass()));
+  LogbackLogger sut = new LogbackLogger((ch.qos.logback.classic.Logger)LoggerFactory.getLogger(getClass()));
 
   @Rule
   public LogTester tester = new LogTester();
@@ -64,6 +65,21 @@ public class LogbackLoggerTest {
     sut.error("message {} {}", "foo", "bar");
     sut.error("message {} {} {}", "foo", "bar", "baz");
     sut.error("message", new IllegalArgumentException(""));
+  }
 
+  @Test
+  public void change_level() throws Exception {
+    assertThat(sut.setLevel(LoggerLevel.ERROR)).isTrue();
+    assertThat(sut.logbackLogger().getLevel()).isEqualTo(Level.ERROR);
+
+    assertThat(sut.setLevel(LoggerLevel.WARN)).isTrue();
+    assertThat(sut.logbackLogger().getLevel()).isEqualTo(Level.WARN);
+
+    assertThat(sut.setLevel(LoggerLevel.INFO)).isTrue();
+    assertThat(sut.logbackLogger().getLevel()).isEqualTo(Level.INFO);
+
+    assertThat(sut.setLevel(LoggerLevel.DEBUG)).isTrue();
+    assertThat(sut.logbackLogger().getLevel()).isEqualTo(Level.DEBUG);
+    assertThat(sut.isDebugEnabled()).isTrue();
   }
 }

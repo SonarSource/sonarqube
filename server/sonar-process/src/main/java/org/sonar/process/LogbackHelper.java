@@ -204,8 +204,7 @@ public class LogbackHelper {
       FixedWindowRollingPolicy rollingPolicy = new FixedWindowRollingPolicy();
       rollingPolicy.setContext(context);
       rollingPolicy.setFileNamePattern(StringUtils.replace(filePath, filenamePrefix + ".log", filenamePrefix + ".%i.log"));
-      rollingPolicy.setMaxIndex(1);
-      rollingPolicy.setMaxIndex(maxFiles);
+      rollingPolicy.setMinIndex(1);
       rollingPolicy.setMaxIndex(maxFiles);
       rollingPolicy.setParent(appender);
       rollingPolicy.start();

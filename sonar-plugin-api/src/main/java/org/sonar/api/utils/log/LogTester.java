@@ -29,7 +29,7 @@ import java.util.List;
  * This JUnit rule allows to configure and access logs in tests. By default
  * debug logs are enabled.
  * <p/>
- * Warning - not compatible with parallel execution of tests.
+ * Warning - not compatible with parallel execution of tests in the same JVM fork.
  * <p/>
  * Example:
  * <pre>

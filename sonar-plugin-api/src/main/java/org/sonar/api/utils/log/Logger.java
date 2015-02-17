@@ -23,7 +23,7 @@ import javax.annotation.Nullable;
 
 /**
  * SonarQube plugins are not coupled with external logging libraries like SLF4J or Logback.
- *
+ * <p/>
  * Example:
  * <pre>
  * public class MyClass {
@@ -35,7 +35,14 @@ import javax.annotation.Nullable;
  *   }
  * }
  * </pre>
+ * <p/>
+ * Message arguments are defined with <code>{}</code>, but not with {@link java.util.Formatter} syntax.
  *
+ * <p/>
+ * INFO, WARN and ERROR levels are always enabled. They can't be disabled by users.
+ * DEBUG level can be enabled with properties <code>sonar.log.debug</code> (on server, see sonar.properties)
+ * and <code>sonar.verbose</code> (on batch)
+ * <p/>
  * See {@link org.sonar.api.utils.log.LogTester} for testing facilities.
  * @since 5.1
  */
@@ -44,15 +51,24 @@ public interface Logger {
   boolean isDebugEnabled();
 
   /**
-   * Logs a DEBUG level message. Debug messages must
-   * be valuable for production environments and are not for development debugging.
+   * Logs a DEBUG message. Debug messages must
+   * be valuable for diagnosing production problems. They must not be used for development debugging.
    */
   void debug(String msg);
 
+  /**
+   * @see #debug(String) 
+   */
   void debug(String pattern, @Nullable Object arg);
 
+  /**
+   * @see #debug(String)
+   */
   void debug(String msg, @Nullable Object arg1, @Nullable Object arg2);
 
+  /**
+   * @see #debug(String)
+   */
   void debug(String msg, Object... args);
 
   /**
@@ -60,10 +76,19 @@ public interface Logger {
    */
   void info(String msg);
 
+  /**
+   * @see #info(String)
+   */
   void info(String msg, @Nullable Object arg);
 
+  /**
+   * @see #info(String)
+   */
   void info(String msg, @Nullable Object arg1, @Nullable Object arg2);
 
+  /**
+   * @see #info(String)
+   */
   void info(String msg, Object... args);
 
   /**
@@ -71,10 +96,19 @@ public interface Logger {
    */
   void warn(String msg);
 
+  /**
+   * @see #warn(String)
+   */
   void warn(String msg, @Nullable Object arg);
 
+  /**
+   * @see #warn(String)
+   */
   void warn(String msg, @Nullable Object arg1, @Nullable Object arg2);
 
+  /**
+   * @see #warn(String)
+   */
   void warn(String msg, Object... args);
 
   /**
@@ -82,14 +116,36 @@ public interface Logger {
    */
   void error(String msg);
 
+  /**
+   * @see #error(String)
+   */
   void error(String msg, @Nullable Object arg);
 
+  /**
+   * @see #error(String)
+   */
   void error(String msg, @Nullable Object arg1, @Nullable Object arg2);
 
+  /**
+   * @see #error(String)
+   */
   void error(String msg, Object... args);
 
   /**
-   * Logs an ERROR level message.
+   * @see #error(String)
    */
   void error(String msg, Throwable thrown);
+
+  /**
+   * Attempt to change logger level. Return true if it succeeded, false if
+   * the underlying logging facility does not allow to change level at
+   * runtime.
+   * <p/>
+   * This method must not be used to enable debug logs in tests. Use
+   * {@link org.sonar.api.utils.log.LogTester#enableDebug(boolean)}.
+   * <p/>
+   * The standard use-case is to customize logging of embedded 3rd-party
+   * libraries.
+   */
+  boolean setLevel(LoggerLevel level);
 }
