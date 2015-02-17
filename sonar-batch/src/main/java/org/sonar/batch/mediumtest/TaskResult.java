@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.sensor.dependency.Dependency;
+import org.sonar.api.batch.sensor.dependency.internal.DefaultDependency;
 import org.sonar.api.batch.sensor.duplication.Duplication;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
@@ -92,7 +92,7 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
     storeDuplication(container);
     // storeTestCases(container);
     // storeCoveragePerTest(container);
-    // storeDependencies(container);
+    storeDependencies(container);
 
   }
 
@@ -174,7 +174,7 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
 
   private void storeDependencies(ProjectScanContainer container) {
     DependencyCache dependencyCache = container.getComponentByType(DependencyCache.class);
-    for (Entry<Dependency> entry : dependencyCache.entries()) {
+    for (Entry<DefaultDependency> entry : dependencyCache.entries()) {
       String fromKey = entry.key()[1].toString();
       String toKey = entry.key()[2].toString();
       if (!dependencies.containsKey(fromKey)) {

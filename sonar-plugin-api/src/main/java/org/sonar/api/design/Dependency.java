@@ -50,9 +50,23 @@ public class Dependency implements Edge<Resource> {
     return from;
   }
 
+  /**
+   * For internal use only
+   */
+  public void setFrom(Resource from) {
+    this.from = from;
+  }
+
   @Override
   public Resource getTo() {
     return to;
+  }
+
+  /**
+   * For internal use only
+   */
+  public void setTo(Resource to) {
+    this.to = to;
   }
 
   public String getUsage() {
@@ -105,26 +119,26 @@ public class Dependency implements Edge<Resource> {
     }
     Dependency other = (Dependency) obj;
     return new EqualsBuilder()
-        .append(from, other.from)
-        .append(to, other.to)
-        .isEquals();
+      .append(from, other.from)
+      .append(to, other.to)
+      .isEquals();
   }
 
   @Override
   public int hashCode() {
     return new HashCodeBuilder(17, 37)
-        .append(from)
-        .append(to)
-        .toHashCode();
+      .append(from)
+      .append(to)
+      .toHashCode();
   }
 
   @Override
   public String toString() {
     return new ToStringBuilder(this)
-        .append("from", from)
-        .append("to", to)
-        .append("weight", weight)
-        .append("usage", usage)
-        .toString();
+      .append("from", from)
+      .append("to", to)
+      .append("weight", weight)
+      .append("usage", usage)
+      .toString();
   }
 }

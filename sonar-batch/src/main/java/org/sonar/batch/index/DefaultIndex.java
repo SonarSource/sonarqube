@@ -114,9 +114,9 @@ public class DefaultIndex extends SonarIndex {
     this.measureCache = measureCache;
   }
 
-  public DefaultIndex(ResourceCache resourceCache, ProjectTree projectTree, MetricFinder metricFinder, MeasureCache measureCache) {
+  public DefaultIndex(ResourceCache resourceCache, DependencyPersister dependencyPersister, ProjectTree projectTree, MetricFinder metricFinder, MeasureCache measureCache) {
     this.resourceCache = resourceCache;
-    this.dependencyPersister = null;
+    this.dependencyPersister = dependencyPersister;
     this.linkPersister = null;
     this.eventPersister = null;
     this.projectTree = projectTree;
@@ -188,6 +188,12 @@ public class DefaultIndex extends SonarIndex {
       }
     }
 
+    // store dependencies
+    for (Dependency dep : dependencies) {
+      dependencyPersister.saveDependency(currentProject, dep);
+    }
+
+    // Keep only inter module dependencies
     Set<Dependency> projectDependencies = getDependenciesBetweenProjects();
     dependencies.clear();
     incomingDependenciesByResource.clear();
@@ -268,8 +274,10 @@ public class DefaultIndex extends SonarIndex {
     // Reload resources
     Resource from = getResource(dependency.getFrom());
     Preconditions.checkArgument(from != null, dependency.getFrom() + " is not indexed");
+    dependency.setFrom(from);
     Resource to = getResource(dependency.getTo());
     Preconditions.checkArgument(to != null, dependency.getTo() + " is not indexed");
+    dependency.setTo(to);
 
     Dependency existingDep = getEdge(from, to);
     if (existingDep != null) {
@@ -280,10 +288,7 @@ public class DefaultIndex extends SonarIndex {
     if (parentDependency != null) {
       addDependency(parentDependency);
     }
-
-    if (registerDependency(dependency) && dependencyPersister != null) {
-      dependencyPersister.saveDependency(currentProject, from, to, dependency, parentDependency);
-    }
+    registerDependency(dependency);
     return dependency;
   }
 

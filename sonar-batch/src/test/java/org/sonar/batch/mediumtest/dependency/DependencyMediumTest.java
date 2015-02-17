@@ -34,6 +34,8 @@ import org.sonar.xoo.XooPlugin;
 import java.io.File;
 import java.io.IOException;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class DependencyMediumTest {
 
   @Rule
@@ -85,8 +87,8 @@ public class DependencyMediumTest {
         .build())
       .start();
 
-    // assertThat(result.dependencyWeight(result.inputFile("src/sample.xoo"), result.inputFile("src/sample2.xoo"))).isEqualTo(3);
-    // assertThat(result.dependencyWeight(result.inputFile("src/sample.xoo"), result.inputFile("src/foo/sample3.xoo"))).isEqualTo(6);
+    assertThat(result.dependencyWeight(result.inputFile("src/sample.xoo"), result.inputFile("src/sample2.xoo"))).isEqualTo(3);
+    assertThat(result.dependencyWeight(result.inputFile("src/sample.xoo"), result.inputFile("src/foo/sample3.xoo"))).isEqualTo(6);
   }
 
 }

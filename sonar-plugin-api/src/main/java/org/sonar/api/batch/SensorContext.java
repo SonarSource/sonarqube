@@ -192,14 +192,23 @@ public interface SensorContext extends org.sonar.api.batch.sensor.SensorContext 
   // ----------- DEPENDENCIES BETWEEN RESOURCES --------------
 
   /**
-   * Build a new dependency : from depends upon to. The dependency is NOT saved. The method saveDependency() must still be executed.
+   * @deprecated since 5.1 use {@link #newDependency()}
    */
   Dependency saveDependency(Dependency dependency);
 
+  /**
+   * @deprecated since 5.1 Sensors should not read but only save data
+   */
   Set<Dependency> getDependencies();
 
+  /**
+   * @deprecated since 5.1 Sensors should not read but only save data
+   */
   Collection<Dependency> getIncomingDependencies(Resource to);
 
+  /**
+   * @deprecated since 5.1 Sensors should not read but only save data
+   */
   Collection<Dependency> getOutgoingDependencies(Resource from);
 
   // ----------- FILE SOURCES --------------

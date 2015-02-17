@@ -19,27 +19,46 @@
  */
 package org.sonar.batch.index;
 
+import org.sonar.api.batch.sensor.dependency.internal.DefaultDependency;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.design.DependencyDto;
 import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Resource;
+import org.sonar.batch.dependency.DependencyCache;
+
+import javax.annotation.Nullable;
 
 public final class DependencyPersister {
 
-  private ResourceCache resourceCache;
-  private DatabaseSession session;
+  private final ResourceCache resourceCache;
+  private final DatabaseSession session;
+  private final DependencyCache dependencyCache;
 
-  public DependencyPersister(ResourceCache resourceCache, DatabaseSession session) {
+  public DependencyPersister(ResourceCache resourceCache, DependencyCache dependencyCache, @Nullable DatabaseSession session) {
     this.resourceCache = resourceCache;
+    this.dependencyCache = dependencyCache;
     this.session = session;
   }
 
-  public void saveDependency(Project project, Resource from, Resource to, Dependency dependency, Dependency parentDependency) {
-    BatchResource fromResource = resourceCache.get(from);
-    BatchResource toResource = resourceCache.get(to);
+  public DependencyPersister(ResourceCache resourceCache, DependencyCache dependencyCache) {
+    this(resourceCache, dependencyCache, null);
+  }
+
+  public void saveDependency(Project project, Dependency dependency) {
+    BatchResource fromResource = resourceCache.get(dependency.getFrom());
+    BatchResource toResource = resourceCache.get(dependency.getTo());
     BatchResource projectResource = resourceCache.get(project);
 
+    if (fromResource.isFile() && toResource.isFile()) {
+      dependencyCache.put(project.getEffectiveKey(), new DefaultDependency().setFromKey(fromResource.key()).setToKey(toResource.key()).setWeight(dependency.getWeight()));
+    }
+
+    if (session != null) {
+      saveInDB(project, dependency, fromResource, toResource, projectResource);
+    }
+  }
+
+  private void saveInDB(Project project, Dependency dependency, BatchResource fromResource, BatchResource toResource, BatchResource projectResource) {
     DependencyDto model = new DependencyDto();
     model.setProjectSnapshotId(projectResource.snapshotId());
     model.setUsage(dependency.getUsage());
@@ -53,8 +72,11 @@ public final class DependencyPersister {
     model.setToScope(toResource.resource().getScope());
     model.setToSnapshotId(toResource.snapshotId());
 
+    Dependency parentDependency = dependency.getParent();
     if (parentDependency != null) {
-      // assume that it has been previously saved
+      if (parentDependency.getId() == null) {
+        saveDependency(project, parentDependency);
+      }
       model.setParentDependencyId(parentDependency.getId());
     }
     session.save(model);

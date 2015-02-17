@@ -54,6 +54,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.batch.index.DefaultIndex;
+import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.sensor.coverage.CoverageExclusions;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -80,6 +81,8 @@ public class DefaultSensorStorageTest {
   private Project project;
   private DefaultIndex sonarIndex;
 
+  private ResourceCache resourceCache;
+
   @Before
   public void prepare() throws Exception {
     activeRules = new ActiveRulesBuilder().build();
@@ -94,8 +97,9 @@ public class DefaultSensorStorageTest {
     sonarIndex = mock(DefaultIndex.class);
     CoverageExclusions coverageExclusions = mock(CoverageExclusions.class);
     when(coverageExclusions.accept(any(Resource.class), any(Measure.class))).thenReturn(true);
+    resourceCache = new ResourceCache();
     sensorStorage = new DefaultSensorStorage(metricFinder, project,
-      resourcePerspectives, settings, fs, activeRules, componentDataCache, mock(DuplicationCache.class), sonarIndex, coverageExclusions);
+      resourcePerspectives, settings, fs, activeRules, componentDataCache, mock(DuplicationCache.class), sonarIndex, coverageExclusions, resourceCache);
   }
 
   @Test
@@ -248,10 +252,10 @@ public class DefaultSensorStorageTest {
   @Test
   public void shouldStoreDependencyInSameFolder() {
 
-    File foo = File.create("src/Foo.java");
-    File bar = File.create("src/Bar.java");
-    when(sonarIndex.getResource(foo)).thenReturn(foo);
-    when(sonarIndex.getResource(bar)).thenReturn(bar);
+    Resource foo = File.create("src/Foo.java").setEffectiveKey("foo:src/Foo.java");
+    Resource bar = File.create("src/Bar.java").setEffectiveKey("foo:src/Bar.java");
+    resourceCache.add(foo, null);
+    resourceCache.add(bar, null);
 
     sensorStorage.store(new DefaultDependency()
       .from(new DefaultInputFile("foo", "src/Foo.java").setType(Type.MAIN))
@@ -270,14 +274,15 @@ public class DefaultSensorStorageTest {
   @Test
   public void throw_if_attempt_to_save_same_dep_twice() {
 
-    File foo = File.create("src/Foo.java");
-    File bar = File.create("src/Bar.java");
-    when(sonarIndex.getResource(foo)).thenReturn(foo);
-    when(sonarIndex.getResource(bar)).thenReturn(bar);
+    Resource foo = File.create("src/Foo.java").setEffectiveKey("foo:src/Foo.java");
+    Resource bar = File.create("src/Bar.java").setEffectiveKey("foo:src/Bar.java");
+    resourceCache.add(foo, null);
+    resourceCache.add(bar, null);
+
     when(sonarIndex.getEdge(foo, bar)).thenReturn(new Dependency(foo, bar));
 
     thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Dependency between [moduleKey=foo, relative=src/Foo.java, basedir=null] and [moduleKey=foo, relative=src/Bar.java, basedir=null] was already saved.");
+    thrown.expectMessage("Dependency between foo:src/Foo.java and foo:src/Bar.java was already saved.");
 
     sensorStorage.store(new DefaultDependency()
       .from(new DefaultInputFile("foo", "src/Foo.java").setType(Type.MAIN))
@@ -288,10 +293,10 @@ public class DefaultSensorStorageTest {
   @Test
   public void shouldStoreDependencyInDifferentFolder() {
 
-    File foo = File.create("src1/Foo.java");
-    File bar = File.create("src2/Bar.java");
-    when(sonarIndex.getResource(foo)).thenReturn(foo);
-    when(sonarIndex.getResource(bar)).thenReturn(bar);
+    Resource foo = File.create("src1/Foo.java").setEffectiveKey("foo:src1/Foo.java");
+    Resource bar = File.create("src2/Bar.java").setEffectiveKey("foo:src2/Bar.java");
+    resourceCache.add(foo, null);
+    resourceCache.add(bar, null);
 
     sensorStorage.store(new DefaultDependency()
       .from(new DefaultInputFile("foo", "src1/Foo.java").setType(Type.MAIN))
@@ -318,12 +323,14 @@ public class DefaultSensorStorageTest {
   @Test
   public void shouldIncrementParentWeight() {
 
-    File foo = File.create("src1/Foo.java");
-    File bar = File.create("src2/Bar.java");
-    Directory src1 = Directory.create("src1");
-    Directory src2 = Directory.create("src2");
-    when(sonarIndex.getResource(foo)).thenReturn(foo);
-    when(sonarIndex.getResource(bar)).thenReturn(bar);
+    Resource src1 = Directory.create("src1").setEffectiveKey("foo:src1");
+    Resource src2 = Directory.create("src2").setEffectiveKey("foo:src2");
+    Resource foo = File.create("src1/Foo.java").setEffectiveKey("foo:src1/Foo.java");
+    Resource bar = File.create("src2/Bar.java").setEffectiveKey("foo:src2/Bar.java");
+    resourceCache.add(src1, null);
+    resourceCache.add(src2, null);
+    resourceCache.add(foo, src1);
+    resourceCache.add(bar, src2);
     Dependency parentDep = new Dependency(src1, src2).setWeight(4);
     when(sonarIndex.getEdge(src1, src2)).thenReturn(parentDep);
 

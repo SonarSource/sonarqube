@@ -19,19 +19,27 @@
  */
 package org.sonar.api.batch.sensor.dependency;
 
+import org.sonar.api.batch.fs.InputFile;
 
 /**
+ * Builder to create new Dependency.
+ * Should not be implemented by client.
  * @since 5.1
  */
-public interface Dependency {
+public interface NewDependency {
 
-  String fromKey();
+  NewDependency from(InputFile from);
 
-  String toKey();
+  NewDependency to(InputFile to);
 
   /**
-   * Default weight value is 1.
+   * Set the weight of the dependency. If not set default weight is 1.
    */
-  int weight();
+  NewDependency weight(int weight);
+
+  /**
+   * Save the dependency. It is not permitted so save several time a dependency between two same files.
+   */
+  void save();
 
 }

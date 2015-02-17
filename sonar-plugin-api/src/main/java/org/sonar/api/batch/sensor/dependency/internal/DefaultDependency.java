@@ -23,16 +23,18 @@ import com.google.common.base.Preconditions;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.SensorStorage;
 import org.sonar.api.batch.sensor.dependency.Dependency;
+import org.sonar.api.batch.sensor.dependency.NewDependency;
 import org.sonar.api.batch.sensor.internal.DefaultStorable;
 
 import javax.annotation.Nullable;
 
-public class DefaultDependency extends DefaultStorable implements Dependency {
+public class DefaultDependency extends DefaultStorable implements Dependency, NewDependency {
 
-  private InputFile from;
-  private InputFile to;
+  private String fromKey;
+  private String toKey;
   private int weight = 1;
 
   public DefaultDependency() {
@@ -44,21 +46,21 @@ public class DefaultDependency extends DefaultStorable implements Dependency {
   }
 
   @Override
-  public Dependency from(InputFile from) {
+  public DefaultDependency from(InputFile from) {
     Preconditions.checkNotNull(from, "InputFile should be non null");
-    this.from = from;
+    this.fromKey = ((DefaultInputFile) from).key();
     return this;
   }
 
   @Override
-  public Dependency to(InputFile to) {
+  public DefaultDependency to(InputFile to) {
     Preconditions.checkNotNull(to, "InputFile should be non null");
-    this.to = to;
+    this.toKey = ((DefaultInputFile) to).key();
     return this;
   }
 
   @Override
-  public Dependency weight(int weight) {
+  public DefaultDependency weight(int weight) {
     Preconditions.checkArgument(weight > 1, "weight should be greater than 1");
     this.weight = weight;
     return this;
@@ -66,25 +68,40 @@ public class DefaultDependency extends DefaultStorable implements Dependency {
 
   @Override
   public void doSave() {
-    Preconditions.checkState(!this.from.equals(this.to), "From and To can't be the same inputFile");
-    Preconditions.checkNotNull(this.from, "From inputFile can't be null");
-    Preconditions.checkNotNull(this.to, "To inputFile can't be null");
+    Preconditions.checkState(!this.fromKey.equals(this.toKey), "From and To can't be the same inputFile");
+    Preconditions.checkNotNull(this.fromKey, "From inputFile can't be null");
+    Preconditions.checkNotNull(this.toKey, "To inputFile can't be null");
     storage.store((Dependency) this);
   }
 
   @Override
-  public InputFile from() {
-    return this.from;
+  public String fromKey() {
+    return this.fromKey;
+  }
+
+  public DefaultDependency setFromKey(String fromKey) {
+    this.fromKey = fromKey;
+    return this;
   }
 
   @Override
-  public InputFile to() {
-    return this.to;
+  public String toKey() {
+    return this.toKey;
+  }
+
+  public DefaultDependency setToKey(String toKey) {
+    this.toKey = toKey;
+    return this;
   }
 
   @Override
   public int weight() {
     return this.weight;
+  }
+
+  public DefaultDependency setWeight(int weight) {
+    this.weight = weight;
+    return this;
   }
 
   // For testing purpose
@@ -102,8 +119,8 @@ public class DefaultDependency extends DefaultStorable implements Dependency {
     }
     DefaultDependency rhs = (DefaultDependency) obj;
     return new EqualsBuilder()
-      .append(from, rhs.from)
-      .append(to, rhs.to)
+      .append(fromKey, rhs.fromKey)
+      .append(toKey, rhs.toKey)
       .append(weight, rhs.weight)
       .isEquals();
   }
@@ -111,8 +128,8 @@ public class DefaultDependency extends DefaultStorable implements Dependency {
   @Override
   public int hashCode() {
     return new HashCodeBuilder(27, 45).
-      append(from).
-      append(to).
+      append(fromKey).
+      append(toKey).
       append(weight).
       toHashCode();
   }

@@ -41,6 +41,7 @@ import org.sonar.batch.bootstrap.ExtensionUtils;
 import org.sonar.batch.bootstrap.MetricProvider;
 import org.sonar.batch.debt.DebtModelProvider;
 import org.sonar.batch.debt.IssueChangelogDebtCalculator;
+import org.sonar.batch.dependency.DependencyCache;
 import org.sonar.batch.deprecated.components.DefaultResourceCreationLock;
 import org.sonar.batch.deprecated.components.PeriodsDefinition;
 import org.sonar.batch.duplication.DuplicationCache;
@@ -189,6 +190,10 @@ public class ProjectScanContainer extends ComponentContainer {
       // Duplications
       DuplicationCache.class,
 
+      // Dependencies
+      DependencyPersister.class,
+      DependencyCache.class,
+
       ProjectSettings.class,
 
       ScanTaskObservers.class);
@@ -196,7 +201,6 @@ public class ProjectScanContainer extends ComponentContainer {
 
   private void addDataBaseComponents() {
     add(
-      DependencyPersister.class,
       EventPersister.class,
       LinkPersister.class,
       MeasurePersister.class,

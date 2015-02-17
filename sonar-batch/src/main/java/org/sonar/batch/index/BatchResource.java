@@ -46,6 +46,10 @@ public class BatchResource {
     }
   }
 
+  public String key() {
+    return r.getEffectiveKey();
+  }
+
   public int batchId() {
     return batchId;
   }
