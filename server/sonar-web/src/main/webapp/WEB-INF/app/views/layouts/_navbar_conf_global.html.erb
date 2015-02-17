@@ -25,6 +25,20 @@
         name: '<%= escape_javascript message(page.getId() + '.page', :default => page.getTitle()) -%>'
       }<% if index < pages.size - 1 -%>, <% end %>
       <% end %>
-    ]
+    ],
+    <%
+      logo_url = property_by_key('sonar.lf.logoUrl')
+      logo_width = property_by_key('sonar.lf.logoWidthPx')
+    %>
+    <%
+      if logo_url
+    %>
+    logoUrl: '<%= escape_javascript property_value(logo_url) -%>',
+    <% end %>
+    <%
+      if logo_width
+    %>
+    logoWidth: '<%= escape_javascript property_value(logo_width) -%>'
+    <% end %>
   });
 </script>

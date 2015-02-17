@@ -55,6 +55,11 @@ public interface CoreProperties {
   String SUBCATEGORY_DIFFERENTIAL_VIEWS = "differentialViews";
 
   /**
+   * @since 5.1
+   */
+  String SUBCATEGORY_LOOKNFEEL = "looknfeel";
+
+  /**
    * @since 4.0
    */
   String SUBCATEGORY_L10N = "localization";

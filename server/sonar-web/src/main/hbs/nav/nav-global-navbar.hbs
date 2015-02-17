@@ -1,6 +1,13 @@
 <div class="container">
   <div class="navbar-header">
-    <a class="navbar-brand" href="{{link '/'}}">{{> '_nav-logo'}}</a>
+    <a class="navbar-brand" href="{{link '/'}}">
+      {{#if logoUrl}}
+        <img src="{{logoUrl}}" {{#if logoWidth}}width="{{logoWidth}}"{{/if}} height="30"
+             alt="{{t 'layout.sonar.slogan'}}" title="{{t 'layout.sonar.slogan'}}">
+      {{else}}
+        {{> '_nav-logo'}}
+      {{/if}}
+    </a>
   </div>
 
   <ul class="nav navbar-nav">
