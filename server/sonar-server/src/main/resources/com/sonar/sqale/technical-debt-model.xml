@@ -1,24 +1,3 @@
-<!--
-
-    SonarQube, open source software quality management tool.
-    Copyright (C) 2008-2014 SonarSource
-    mailto:contact AT sonarsource DOT com
-
-    SonarQube is free software; you can redistribute it and/or
-    modify it under the terms of the GNU Lesser General Public
-    License as published by the Free Software Foundation; either
-    version 3 of the License, or (at your option) any later version.
-
-    SonarQube is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    Lesser General Public License for more details.
-
-    You should have received a copy of the GNU Lesser General Public License
-    along with this program; if not, write to the Free Software Foundation,
-    Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-
--->
 <sqale>
   <chc>
     <key>REUSABILITY</key>
@@ -26,6 +5,10 @@
     <chc>
       <key>MODULARITY</key>
       <name>Modularity</name>
+    </chc>
+    <chc>
+      <key>REUSABILITY_COMPLIANCE</key>
+      <name>Reusability Compliance</name>
     </chc>
     <chc>
       <key>TRANSPORTABILITY</key>
@@ -52,6 +35,10 @@
       <name>OS</name>
     </chc>
     <chc>
+      <key>PORTABILITY_COMPLIANCE</key>
+      <name>Portability Compliance</name>
+    </chc>
+    <chc>
       <key>SOFTWARE_RELATED_PORTABILITY</key>
       <name>Software</name>
     </chc>
@@ -63,6 +50,10 @@
   <chc>
     <key>MAINTAINABILITY</key>
     <name>Maintainability</name>
+    <chc>
+      <key>MAINTAINABILITY_COMPLIANCE</key>
+      <name>Maintainability Compliance</name>
+    </chc>
     <chc>
       <key>READABILITY</key>
       <name>Readability</name>
@@ -88,8 +79,28 @@
       <name>Input validation and representation</name>
     </chc>
     <chc>
+      <key>SECURITY_COMPLIANCE</key>
+      <name>Security Compliance</name>
+    </chc>
+    <chc>
       <key>SECURITY_FEATURES</key>
       <name>Security features</name>
+    </chc>
+  </chc>
+  <chc>
+    <key>USABILITY</key>
+    <name>Usability</name>
+    <chc>
+      <key>USABILITY_ACCESSIBILITY</key>
+      <name>Accessibility</name>
+    </chc>
+    <chc>
+      <key>USABILITY_EASE_OF_USE</key>
+      <name>Ease of Use</name>
+    </chc>
+    <chc>
+      <key>USABILITY_COMPLIANCE</key>
+      <name>Usability Compliance</name>
     </chc>
   </chc>
   <chc>
@@ -98,6 +109,10 @@
     <chc>
       <key>CPU_EFFICIENCY</key>
       <name>Processor use</name>
+    </chc>
+    <chc>
+      <key>EFFICIENCY_COMPLIANCE</key>
+      <name>Efficiency Compliance</name>
     </chc>
     <chc>
       <key>MEMORY_EFFICIENCY</key>
@@ -114,6 +129,10 @@
     <chc>
       <key>ARCHITECTURE_CHANGEABILITY</key>
       <name>Architecture</name>
+    </chc>
+    <chc>
+      <key>CHANGEABILITY_COMPLIANCE</key>
+      <name>Changeability Compliance</name>
     </chc>
     <chc>
       <key>DATA_CHANGEABILITY</key>
@@ -152,6 +171,10 @@
       <name>Logic</name>
     </chc>
     <chc>
+      <key>RELIABILITY_COMPLIANCE</key>
+      <name>Reliability Compliance</name>
+    </chc>
+    <chc>
       <key>RESOURCE_RELIABILITY</key>
       <name>Resource</name>
     </chc>
@@ -170,6 +193,10 @@
     <chc>
       <key>INTEGRATION_TESTABILITY</key>
       <name>Integration level</name>
+    </chc>
+    <chc>
+      <key>TESTABILITY_COMPLIANCE</key>
+      <name>Testability Compliance</name>
     </chc>
     <chc>
       <key>UNIT_TESTABILITY</key>
