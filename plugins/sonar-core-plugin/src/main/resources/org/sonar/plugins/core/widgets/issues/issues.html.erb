@@ -43,12 +43,14 @@
                new_technical_debt_variation = variation_value(new_technical_debt)
                estimated_cleared_technical_debt = (new_technical_debt_variation - technical_debt_variation).to_i if technical_debt_variation && new_technical_debt_variation
           %>
-            <p class="small">
-              <%= message('widget.rules.added') %>
-              <a href="<%= url_for_drilldown('new_technical_debt', :period => @dashboard_configuration.period_index) -%>"
-                 class="varw widget-link widget-link-red link-<%= widget.key %>-new-debt"
-                 title="<%= tooltip -%>" data-toggle="tooltip" data-placement="bottom">+<%= format_variation(new_technical_debt, :style => 'none', :default => '-') -%></a>
-            </p>
+            <% if new_technical_debt_variation && new_technical_debt_variation > 0 %>
+              <p class="small">
+                <%= message('widget.rules.added') %>
+                <a href="<%= url_for_drilldown('new_technical_debt', :period => @dashboard_configuration.period_index) -%>"
+                   class="varw widget-link widget-link-red link-<%= widget.key %>-new-debt"
+                   title="<%= tooltip -%>" data-toggle="tooltip" data-placement="bottom">+<%= format_variation(new_technical_debt, :style => 'none', :default => '-') -%></a>
+              </p>
+            <% end %>
             <% if estimated_cleared_technical_debt && estimated_cleared_technical_debt > 0 %>
               <p class="small">
                 <%= message('widget.rules.removed') %>
@@ -82,12 +84,14 @@
              new_issues_variation = variation_value(new_issues)
              estimated_cleared_issues = (new_issues_variation - issues_variation).to_i if issues_variation && new_issues_variation
         %>
-          <p class="small">
-            <%= message('widget.rules.added') %>
-            <a href="<%= url_for(:controller => 'component_issues', :action => 'index') -%>?id=<%= url_encode(@project.key) -%>#resolved=false|createdAfter=<%= period_date -%>"
-               class="varw widget-link widget-link-red link-<%= widget.key %>-new-issues"
-               title="<%= tooltip -%>" data-toggle="tooltip" data-placement="bottom">+<%= format_variation(new_issues, :style => 'none', :default => '-') -%></a>
-          </p>
+          <% if new_issues_variation && new_issues_variation > 0 %>
+            <p class="small">
+              <%= message('widget.rules.added') %>
+              <a href="<%= url_for(:controller => 'component_issues', :action => 'index') -%>?id=<%= url_encode(@project.key) -%>#resolved=false|createdAfter=<%= period_date -%>"
+                 class="varw widget-link widget-link-red link-<%= widget.key %>-new-issues"
+                 title="<%= tooltip -%>" data-toggle="tooltip" data-placement="bottom">+<%= format_variation(new_issues, :style => 'none', :default => '-') -%></a>
+            </p>
+          <% end %>
           <% if estimated_cleared_issues && estimated_cleared_issues > 0 %>
             <p class="small">
               <%= message('widget.rules.removed') %>
