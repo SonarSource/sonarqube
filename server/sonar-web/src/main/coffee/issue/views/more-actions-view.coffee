@@ -5,6 +5,8 @@ define [
   PopupView
 ) ->
 
+  $ = jQuery
+
 
   class extends PopupView
     template: Templates['issue-more-actions']
