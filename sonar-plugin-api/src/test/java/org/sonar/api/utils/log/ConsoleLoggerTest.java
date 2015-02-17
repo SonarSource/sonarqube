@@ -79,4 +79,9 @@ public class ConsoleLoggerTest {
     sut.error("message", new IllegalArgumentException());
     verify(stream, times(5)).println(startsWith("ERROR "));
   }
+
+  @Test
+  public void level_change_not_implemented_yet() throws Exception {
+    assertThat(sut.setLevel(LoggerLevel.DEBUG)).isFalse();
+  }
 }

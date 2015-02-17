@@ -30,7 +30,8 @@ class LogbackLoggers extends Loggers {
 
   @Override
   protected Logger newInstance(String name) {
-    return new LogbackLogger(LoggerFactory.getLogger(name));
+    // logback is accessed through SLF4J
+    return new LogbackLogger((ch.qos.logback.classic.Logger)LoggerFactory.getLogger(name));
   }
 
   @Override
