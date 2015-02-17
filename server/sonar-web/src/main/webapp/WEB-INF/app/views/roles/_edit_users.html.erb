@@ -1,5 +1,5 @@
 <div class="modal-head">
-  <h2><%= @project ? "Edit Permission #{message("projects_role.#{@role}")} For: " + h(@project.name) : "Edit Global Permission: #{message("global_permissions.#{@role}")}" -%></h2>
+  <h2><%= @project ? "Edit Permission #{message("projects_role.#{h @role }")} For: " + h(@project.name) : "Edit Global Permission: #{message("global_permissions.#{h @role}")}" -%></h2>
 </div>
 
 <div class="modal-body">
@@ -15,12 +15,12 @@
     el: '#select-users-permissions',
     width: '100%',
     format: function (item) { return item.name + ' <div class="subtitle">' + item.login + '</div>'; },
-    searchUrl: baseUrl + '/permissions/search_users?permission=<%= @role -%><%= @project ? "&component=" + @project.key : "" -%>',
+    searchUrl: baseUrl + '/permissions/search_users?permission=<%= u @role -%><%= @project ? "&component=" + u(@project.key) : "" -%>',
     selectUrl: baseUrl + '/api/permissions/add',
     deselectUrl: baseUrl + '/api/permissions/remove',
     extra: {
-      permission: '<%= @role -%>'
-      <%= @project ? ", component: '" + @project.key + "'" : "" %>
+      permission: '<%= escape_javascript @role -%>'
+      <%= @project ? ", component: '" + escape_javascript(@project.key) + "'" : "" %>
     },
     selectParameter: 'user',
     selectParameterValue: 'login',
