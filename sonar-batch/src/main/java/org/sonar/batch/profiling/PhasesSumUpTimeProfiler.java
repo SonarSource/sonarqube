@@ -43,6 +43,7 @@ import org.sonar.batch.events.BatchStepHandler;
 import org.sonar.batch.phases.Phases;
 import org.sonar.batch.phases.event.PersisterExecutionHandler;
 import org.sonar.batch.phases.event.PersistersPhaseHandler;
+import org.sonar.batch.util.BatchUtils;
 
 import javax.annotation.Nullable;
 
@@ -118,7 +119,7 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
       println(" -------- End of profiling of module " + module.getName() + " --------");
       println("");
       String fileName = module.getKey() + "-profiler.properties";
-      dumpToFile(props, fileName);
+      dumpToFile(props, BatchUtils.cleanKeyForFilename(fileName));
       totalProfiling.merge(currentModuleProfiling);
       if (module.isRoot() && !module.getModules().isEmpty()) {
         dumpTotalExecutionSummary();
