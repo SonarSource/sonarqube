@@ -30,6 +30,7 @@ import org.sonar.server.db.migrations.v45.DeleteMeasuresOnDeletedProfilesMigrati
 import org.sonar.server.db.migrations.v451.AddMissingCustomRuleParametersMigration;
 import org.sonar.server.db.migrations.v451.DeleteUnescapedActivities;
 import org.sonar.server.db.migrations.v50.*;
+import org.sonar.server.db.migrations.v501.AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigration;
 
 import java.util.List;
 
@@ -73,7 +74,10 @@ public interface DatabaseMigrations {
     FeedSnapshotSourcesUpdatedAt.class,
     FeedFileSources.class,
     FeedIssueLongDates.class,
-    RemoveSortFieldFromIssueFiltersMigration.class
+    RemoveSortFieldFromIssueFiltersMigration.class,
+
+    // 5.0.1
+    AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigration.class
   );
 
 }
