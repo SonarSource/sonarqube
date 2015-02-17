@@ -29,7 +29,8 @@ define([
         minimumResultsForSearch: 5
       });
 
-      var format = function (state) {
+      var that = this,
+          format = function (state) {
             if (!state.id) {
               return state.text;
             } else {
@@ -44,6 +45,9 @@ define([
         formatResult: format,
         formatSelection: format
       });
+      setTimeout(function () {
+        that.$('a').first().focus();
+      }, 0);
     },
 
     activate: function (e) {
