@@ -221,12 +221,8 @@ public class UserSession {
    * Ensures that user implies the specified project permission on a component. If not a {@link org.sonar.server.exceptions.ForbiddenException} is thrown.
    */
   public UserSession checkComponentPermission(String projectPermission, String componentKey) {
-    return checkComponentPermission(projectPermission, componentKey, INSUFFICIENT_PRIVILEGES_MESSAGE);
-  }
-
-  public UserSession checkComponentPermission(String projectPermission, String componentKey, @Nullable String errorMessage) {
     if (!hasComponentPermission(projectPermission, componentKey)) {
-      throw new ForbiddenException(errorMessage);
+      throw new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
     }
     return this;
   }
