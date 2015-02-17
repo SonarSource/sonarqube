@@ -42,7 +42,7 @@ class Api::Pagination
 
   def pages
     if per_page <= 0
-      return DEFAULT_PER_PAGE
+      return 0
     end
     p=(count / per_page)
     p+=1 if count % per_page>0
