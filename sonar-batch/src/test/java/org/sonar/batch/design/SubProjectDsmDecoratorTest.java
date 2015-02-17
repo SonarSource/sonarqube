@@ -96,12 +96,14 @@ public class SubProjectDsmDecoratorTest {
   public void testSubProjectDsmDecoratorNoDependency() {
     decorator.decorate(module, moduleContext);
 
-    verify(moduleContext, times(4)).saveMeasure(any(Measure.class));
+    verify(moduleContext, times(5)).saveMeasure(any(Measure.class));
 
     verify(moduleContext).saveMeasure(isMeasureWithValue(CoreMetrics.DIRECTORY_CYCLES, 0.0));
     verify(moduleContext).saveMeasure(isMeasureWithValue(CoreMetrics.DIRECTORY_FEEDBACK_EDGES, 0.0));
     verify(moduleContext).saveMeasure(isMeasureWithValue(CoreMetrics.DIRECTORY_TANGLES, 0.0));
     verify(moduleContext).saveMeasure(isMeasureWithValue(CoreMetrics.DIRECTORY_EDGES_WEIGHT, 0.0));
+    verify(moduleContext).saveMeasure(isMeasureWithValue(CoreMetrics.DEPENDENCY_MATRIX,
+      "[{\"i\":1,\"n\":\"src/foo1\",\"q\":\"DIR\",\"v\":[{},{}]},{\"i\":2,\"n\":\"src/foo2\",\"q\":\"DIR\",\"v\":[{},{}]}]"));
   }
 
   @Test

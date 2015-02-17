@@ -31,7 +31,6 @@ public class Dsm<V> {
   private final DsmCell[][] cells;
   private final int dimension;
   private final DirectedGraphAccessor<V, ? extends Edge<V>> graph;
-  private boolean atLeastOneDependency = false;
 
   public Dsm(DirectedGraphAccessor<V, ? extends Edge<V>> graph, Collection<V> vertices, Set<Edge> feedbackEdges) {
     this.graph = graph;
@@ -57,7 +56,6 @@ public class Dsm<V> {
 
         Edge<V> edge = graph.getEdge(from, to);
         if (edge != null) {
-          atLeastOneDependency = true;
           boolean isFeedbackEdge = feedbackEdges.contains(edge);
           result[x][y] = new DsmCell(edge, isFeedbackEdge);
         }
@@ -169,13 +167,6 @@ public class Dsm<V> {
   @CheckForNull
   public DsmCell cell(int x, int y) {
     return cells[x][y];
-  }
-
-  /**
-   * @since 5.0
-   */
-  public boolean hasAtLeastOneDependency() {
-    return atLeastOneDependency;
   }
 
   public V[] getVertices() {
