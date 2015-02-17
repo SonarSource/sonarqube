@@ -20,27 +20,37 @@
 
 package org.sonar.server.rule;
 
+import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleDto.Format;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.rule.index.RuleDoc;
+import org.sonar.server.util.TypeValidations;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
+import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 public class RuleCreator implements ServerComponent {
 
   private final DbClient dbClient;
 
-  public RuleCreator(DbClient dbClient) {
+  private final TypeValidations typeValidations;
+
+  public RuleCreator(DbClient dbClient, TypeValidations typeValidations) {
     this.dbClient = dbClient;
+    this.typeValidations = typeValidations;
   }
 
   public RuleKey create(NewRule newRule) {
@@ -71,6 +81,7 @@ public class RuleCreator implements ServerComponent {
       throw new IllegalArgumentException("This rule is not a template rule: " + templateKey.toString());
     }
     validateCustomRule(newRule);
+    validateCustomRuleParams(newRule, dbSession, templateKey);
 
     RuleKey customRuleKey = RuleKey.of(templateRule.getRepositoryKey(), newRule.ruleKey());
 
@@ -113,6 +124,25 @@ public class RuleCreator implements ServerComponent {
     }
     if (newRule.status() == null) {
       throw new IllegalArgumentException("The status is missing");
+    }
+  }
+
+  protected void validateCustomRuleParams(NewRule newRule, DbSession dbSession, RuleKey templateKey) {
+    for (RuleParamDto ruleParam : dbClient.ruleDao().findRuleParamsByRuleKey(dbSession, templateKey)) {
+      validateParam(ruleParam, newRule.parameter(ruleParam.getName()));
+    }
+  }
+
+  @CheckForNull
+  private void validateParam(RuleParamDto ruleParam, @Nullable String value) {
+    if (value != null) {
+      RuleParamType ruleParamType = RuleParamType.parse(ruleParam.getType());
+      if (ruleParamType.multiple()) {
+        List<String> values = newArrayList(Splitter.on(",").split(value));
+        typeValidations.validate(values, ruleParamType.type(), ruleParamType.values());
+      } else {
+        typeValidations.validate(value, ruleParamType.type(), ruleParamType.values());
+      }
     }
   }
 

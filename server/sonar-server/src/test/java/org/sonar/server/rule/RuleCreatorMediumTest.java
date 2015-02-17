@@ -20,10 +20,9 @@
 
 package org.sonar.server.rule;
 
-import org.sonar.server.search.BaseIndex;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
+import org.assertj.core.api.Fail;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -37,8 +36,10 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleDto.Format;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.rule.index.RuleIndex;
+import org.sonar.server.search.BaseIndex;
 import org.sonar.server.tester.ServerTester;
 
 import java.util.List;
@@ -142,7 +143,7 @@ public class RuleCreatorMediumTest {
   @Test
   public void create_custom_rule_with_no_parameter_value() throws Exception {
     // insert template rule
-    RuleDto templateRule = createTemplateRule();
+    RuleDto templateRule = createTemplateRuleWithIntArrayParam();
 
     NewRule newRule = NewRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
       .setName("My custom")
@@ -157,10 +158,57 @@ public class RuleCreatorMediumTest {
     assertThat(params).hasSize(1);
 
     RuleParamDto param = params.get(0);
-    assertThat(param.getName()).isEqualTo("regex");
-    assertThat(param.getDescription()).isEqualTo("Reg ex");
-    assertThat(param.getType()).isEqualTo("STRING");
+    assertThat(param.getName()).isEqualTo("myIntegers");
+    assertThat(param.getDescription()).isEqualTo("My Integers");
+    assertThat(param.getType()).isEqualTo("INTEGER,multiple=true,values=1;2;3");
     assertThat(param.getDefaultValue()).isNull();
+  }
+
+  @Test
+  public void create_custom_rule_with_multiple_parameter_values() throws Exception {
+    // insert template rule
+    RuleDto templateRule = createTemplateRuleWithIntArrayParam();
+
+    NewRule newRule = NewRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
+      .setName("My custom")
+      .setHtmlDescription("Some description")
+      .setSeverity(Severity.MAJOR)
+      .setStatus(RuleStatus.READY)
+      .setParameters(ImmutableMap.of("myIntegers", "1,3"));
+
+    RuleKey customRuleKey = creator.create(newRule);
+    dbSession.clearCache();
+
+    List<RuleParamDto> params = db.ruleDao().findRuleParamsByRuleKey(dbSession, customRuleKey);
+    assertThat(params).hasSize(1);
+
+    RuleParamDto param = params.get(0);
+    assertThat(param.getName()).isEqualTo("myIntegers");
+    assertThat(param.getDescription()).isEqualTo("My Integers");
+    assertThat(param.getType()).isEqualTo("INTEGER,multiple=true,values=1;2;3");
+    assertThat(param.getDefaultValue()).isEqualTo("1,3");
+  }
+
+  @Test
+  public void create_custom_rule_with_invalid_parameter() throws Exception {
+    // insert template rule
+    RuleDto templateRule = createTemplateRuleWithIntArrayParam();
+
+    // Create custom rule
+    NewRule newRule = NewRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
+      .setName("My custom")
+      .setMarkdownDescription("Some description")
+      .setSeverity(Severity.MAJOR)
+      .setStatus(RuleStatus.READY)
+      .setParameters(ImmutableMap.of("myIntegers", "1,polop,2"));
+    try {
+      creator.create(newRule);
+      Fail.failBecauseExceptionWasNotThrown(BadRequestException.class);
+    } catch (BadRequestException iae) {
+      assertThat(iae).hasMessage("errors.type.notInteger");
+    }
+
+    dbSession.clearCache();
   }
 
   @Test
@@ -614,4 +662,22 @@ public class RuleCreatorMediumTest {
     return templateRule;
   }
 
+  private RuleDto createTemplateRuleWithIntArrayParam() {
+    RuleDto templateRule = dao.insert(dbSession,
+      RuleTesting.newDto(RuleKey.of("java", "S002"))
+        .setIsTemplate(true)
+        .setLanguage("java")
+        .setConfigKey("S002")
+        .setDefaultSubCharacteristicId(1)
+        .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+        .setDefaultRemediationCoefficient("1h")
+        .setDefaultRemediationOffset("5min")
+        .setEffortToFixDescription("desc")
+      );
+    RuleParamDto ruleParamDto = RuleParamDto.createFor(templateRule)
+      .setName("myIntegers").setType("INTEGER,multiple=true,values=1;2;3").setDescription("My Integers").setDefaultValue("1");
+    dao.addRuleParam(dbSession, templateRule, ruleParamDto);
+    dbSession.commit();
+    return templateRule;
+  }
 }
