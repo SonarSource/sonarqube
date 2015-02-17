@@ -18,6 +18,8 @@ define [
         'click .js-select-period-start': 'selectPeriodStart'
         'click .js-select-period-end': 'selectPeriodEnd'
 
+        'click .sonar-d3 rect': 'selectBar'
+
         'click .js-all': 'onAllClick'
         'click .js-last-week': 'onLastWeekClick'
         'click .js-last-month': 'onLastMonthClick'
@@ -68,6 +70,12 @@ define [
 
     disable: ->
       @options.app.state.updateFilter createdAfter: null, createdBefore: null, createdAt: null
+
+
+    selectBar: (e) ->
+      periodStart = $(e.currentTarget).data 'period-start'
+      periodEnd = $(e.currentTarget).data 'period-end'
+      @options.app.state.updateFilter createdAfter: periodStart, createdBefore: periodEnd, createdAt: null
 
 
     onAllClick: ->
