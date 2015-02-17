@@ -45,7 +45,7 @@ requirejs [
   App.getRestrictedFacets = ->
     'TRK': ['projectUuids']
     'BRC': ['projectUuids']
-    'DIR': ['projectUuids', 'moduleUuids']
+    'DIR': ['projectUuids', 'moduleUuids', 'directories']
     'DEV': ['authors']
 
 
