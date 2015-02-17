@@ -44,14 +44,14 @@ public class DebtMediumTest {
   }
 
   @Test
-  public void find_characteristics() throws Exception {
+  public void find_default_characteristics() throws Exception {
     DebtModelService debtModelService = serverTester.get(DebtModelService.class);
 
     // Only root characteristics
-    assertThat(debtModelService.characteristics()).hasSize(8);
+    assertThat(debtModelService.characteristics()).hasSize(9);
 
     // Characteristics and sub-characteristics
-    assertThat(debtModelService.allCharacteristics()).hasSize(39);
+    assertThat(debtModelService.allCharacteristics()).hasSize(51);
   }
 
   @Test
