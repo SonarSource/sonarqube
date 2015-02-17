@@ -81,6 +81,9 @@ public class JavaCpdEngine extends CpdEngine {
    */
   private static final int TIMEOUT = 5 * 60;
 
+  private static final int MAX_CLONE_GROUP_PER_FILE = 100;
+  private static final int MAX_CLONE_PART_PER_GROUP = 100;
+
   private final IndexFactory indexFactory;
   private final FileSystem fs;
   private final Settings settings;
@@ -223,10 +226,24 @@ public class JavaCpdEngine extends CpdEngine {
       .build());
 
     DuplicationBuilder builder = context.duplicationBuilder(inputFile);
+    int cloneGroupCount = 0;
     for (CloneGroup duplication : duplications) {
-      builder.originBlock(duplication.getOriginPart().getStartLine(), duplication.getOriginPart().getEndLine());
+      cloneGroupCount++;
+      if (cloneGroupCount > MAX_CLONE_GROUP_PER_FILE) {
+        LOG.warn("Too many duplication groups on file " + inputFile.relativePath() + ". Keep only the first " + MAX_CLONE_GROUP_PER_FILE + " groups.");
+        break;
+      }
+      ClonePart originPart = duplication.getOriginPart();
+      builder.originBlock(originPart.getStartLine(), originPart.getEndLine());
+      int clonePartCount = 0;
       for (ClonePart part : duplication.getCloneParts()) {
-        if (!part.equals(duplication.getOriginPart())) {
+        if (!part.equals(originPart)) {
+          clonePartCount++;
+          if (clonePartCount > MAX_CLONE_PART_PER_GROUP) {
+            LOG.warn("Too many duplication references on file " + inputFile.relativePath() + " for block at line " + originPart.getStartLine() + ". Keep only the first "
+              + MAX_CLONE_PART_PER_GROUP + " references.");
+            break;
+          }
           ((DefaultDuplicationBuilder) builder).isDuplicatedBy(part.getResourceId(), part.getStartLine(), part.getEndLine());
         }
       }
