@@ -95,10 +95,10 @@ public class DefaultIndexTest {
 
   @Test
   public void shouldIndexParentOfDeprecatedFiles() {
-    File file = File.create("src/org/foo/Bar.java", "org/foo/Bar.java", null, false);
+    File file = File.create("src/org/foo/Bar.java", null, false);
     assertThat(index.index(file)).isTrue();
 
-    Directory reference = Directory.create("src/org/foo", "org/foo");
+    Directory reference = Directory.create("src/org/foo");
     assertThat(index.getResource(reference).getName()).isEqualTo("src/org/foo");
     assertThat(index.isIndexed(reference, true)).isTrue();
     assertThat(index.isExcluded(reference)).isFalse();
@@ -108,15 +108,14 @@ public class DefaultIndexTest {
 
   @Test
   public void shouldIndexTreeOfResources() {
-    Directory directory = Directory.create("src/org/foo", "org/foo");
-    File file = File.create("src/org/foo/Bar.java", "org/foo/Bar.java", Java.INSTANCE, false);
+    Directory directory = Directory.create("src/org/foo");
+    File file = File.create("src/org/foo/Bar.java", Java.INSTANCE, false);
 
     assertThat(index.index(directory)).isTrue();
     assertThat(index.index(file, directory)).isTrue();
 
-    File fileRef = File.create("src/org/foo/Bar.java", "org/foo/Bar.java", null, false);
+    File fileRef = File.create("src/org/foo/Bar.java", null, false);
     assertThat(index.getResource(fileRef).getKey()).isEqualTo("src/org/foo/Bar.java");
-    assertThat(index.getResource(fileRef).getDeprecatedKey()).isEqualTo("org/foo/Bar.java");
     assertThat(index.getResource(fileRef).getLanguage().getKey()).isEqualTo("java");
     assertThat(index.isIndexed(fileRef, true)).isTrue();
     assertThat(index.isExcluded(fileRef)).isFalse();
@@ -126,14 +125,14 @@ public class DefaultIndexTest {
 
   @Test
   public void shouldGetSource() throws Exception {
-    Directory directory = Directory.create("src/org/foo", "org/foo");
-    File file = File.create("src/org/foo/Bar.java", "org/foo/Bar.java", Java.INSTANCE, false);
+    Directory directory = Directory.create("src/org/foo");
+    File file = File.create("src/org/foo/Bar.java", Java.INSTANCE, false);
     FileUtils.write(new java.io.File(baseDir, "src/org/foo/Bar.java"), "Foo bar");
 
     assertThat(index.index(directory)).isTrue();
     assertThat(index.index(file, directory)).isTrue();
 
-    File fileRef = File.create("src/org/foo/Bar.java", "org/foo/Bar.java", null, false);
+    File fileRef = File.create("src/org/foo/Bar.java", null, false);
     assertThat(index.getSource(fileRef)).isEqualTo("Foo bar");
   }
 
@@ -150,12 +149,12 @@ public class DefaultIndexTest {
 
   @Test
   public void shouldNotIndexResourceIfParentNotIndexed() {
-    Directory directory = Directory.create("src/org/other", "org/other");
-    File file = File.create("src/org/foo/Bar.java", "org/foo/Bar.java", null, false);
+    Directory directory = Directory.create("src/org/other");
+    File file = File.create("src/org/foo/Bar.java", null, false);
 
     assertThat(index.index(file, directory)).isFalse();
 
-    File fileRef = File.create("src/org/foo/Bar.java", "org/foo/Bar.java", null, false);
+    File fileRef = File.create("src/org/foo/Bar.java", null, false);
     assertThat(index.isIndexed(directory, true)).isFalse();
     assertThat(index.isIndexed(fileRef, true)).isFalse();
     assertThat(index.isExcluded(fileRef)).isFalse();
@@ -165,7 +164,7 @@ public class DefaultIndexTest {
 
   @Test
   public void shouldNotIndexResourceWhenAddingMeasure() {
-    Resource dir = Directory.create("src/org/foo", "org/foo");
+    Resource dir = Directory.create("src/org/foo");
     index.addMeasure(dir, new Measure("ncloc").setValue(50.0));
 
     assertThat(index.isIndexed(dir, true)).isFalse();

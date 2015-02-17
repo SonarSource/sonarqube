@@ -26,6 +26,19 @@ class ManualMeasure < ActiveRecord::Base
   validates_length_of :description, :maximum => 4000, :allow_nil => true, :allow_blank => true
   validate :validate_metric, :validate_value
 
+  def created_at
+    long_to_date(:created_at)
+  end
+  
+  def updated_at
+    long_to_date(:updated_at)
+  end
+  
+  def long_to_date(attribute)
+    date_in_long = read_attribute(attribute)
+    Time.at(date_in_long/1000) if date_in_long
+  end
+  
   def metric
     @metric ||=
         begin

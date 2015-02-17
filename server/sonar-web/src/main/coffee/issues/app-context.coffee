@@ -45,7 +45,7 @@ requirejs [
   App.getRestrictedFacets = ->
     'TRK': ['projectUuids']
     'BRC': ['projectUuids']
-    'DIR': ['projectUuids', 'moduleUuids']
+    'DIR': ['projectUuids', 'moduleUuids', 'directories']
     'DEV': ['authors']
 
 
@@ -63,6 +63,7 @@ requirejs [
     @state = new State
       isContext: true,
       contextQuery: @getContextQuery()
+      contextComponentUuid: window.config.resource
       contextComponentName: window.config.resourceName
       contextComponentQualifier: window.config.resourceQualifier
     @updateContextFacets()

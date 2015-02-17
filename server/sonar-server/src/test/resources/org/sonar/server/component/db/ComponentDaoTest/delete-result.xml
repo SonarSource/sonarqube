@@ -6,7 +6,7 @@
 
   <!-- root project -->
   <projects id="1" root_id="[null]" scope="PRJ" qualifier="TRK" kee="org.struts:struts" name="Struts" deprecated_kee="org.struts:struts"
-            uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path="."
+            uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path=".ABCD."
             description="the description" long_name="Apache Struts"
             enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]" path="[null]" created_at="[null]" authorization_updated_at="123456789" />
   <snapshots id="1" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
@@ -30,7 +30,7 @@
 
   <!-- module -->
   <projects id="2" root_id="1" kee="org.struts:struts-core" name="Struts Core" deprecated_kee="[null]"
-            uuid="EFGH" project_uuid="ABCD" module_uuid="[null]" module_uuid_path=".ABCD."
+            uuid="EFGH" project_uuid="ABCD" module_uuid="[null]" module_uuid_path=".ABCD.EFGH."
             scope="PRJ" qualifier="BRC" long_name="Struts Core"
             description="[null]" enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]" created_at="[null]" authorization_updated_at="[null]" />
   <snapshots id="2" project_id="2" parent_snapshot_id="1" root_project_id="1" root_snapshot_id="1"

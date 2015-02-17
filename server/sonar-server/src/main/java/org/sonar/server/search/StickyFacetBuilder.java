@@ -35,12 +35,10 @@ import java.util.Map;
 public class StickyFacetBuilder {
 
   private static final int FACET_DEFAULT_MIN_DOC_COUNT = 1;
-
   private static final int FACET_DEFAULT_SIZE = 10;
 
-  private QueryBuilder query;
-
-  private Map<String, FilterBuilder> filters;
+  private final QueryBuilder query;
+  private final Map<String, FilterBuilder> filters;
 
   public StickyFacetBuilder(QueryBuilder query, Map<String, FilterBuilder> filters) {
     this.query = query;

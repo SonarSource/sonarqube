@@ -21,12 +21,12 @@
           component_uuid="100"
           project_uuid="1"
           status="CLOSED"
-          issue_close_date="2010-01-01"
+          issue_close_date="1262300400000"
           resolution="FIXED" line="200" severity="BLOCKER" reporter="perceval" assignee="arthur" rule_id="500"
           manual_severity="[false]"
           message="[null]" action_plan_key="[null]" effort_to_fix="[null]" technical_debt="[null]"
           issue_attributes="[null]" checksum="[null]" author_login="[null]"
-          updated_at="[null]" issue_creation_date="2013-04-16" issue_update_date="2013-04-16"
+          updated_at="[null]" issue_creation_date="1366063200000" issue_update_date="1366063200000"
           created_at="1400000000000"/>
   <issue_changes id="1" kee="[null]" issue_key="ISSUE-1" created_at="[null]" updated_at="[null]" user_login="admin"
                  change_type="comment" change_data="abc" issue_change_creation_date="[null]"/>
@@ -35,12 +35,12 @@
           component_uuid="1"
           project_uuid="1"
           status="CLOSED"
-          issue_close_date="2010-01-01"
+          issue_close_date="1262300400000"
           resolution="FIXED" line="200" severity="BLOCKER" reporter="perceval" assignee="arthur" rule_id="500"
           manual_severity="[false]"
           message="[null]" action_plan_key="[null]" effort_to_fix="[null]" technical_debt="[null]"
           issue_attributes="[null]" checksum="[null]" author_login="[null]"
-          updated_at="[null]" issue_creation_date="2013-04-16" issue_update_date="2013-04-16"
+          updated_at="[null]" issue_creation_date="1366063200000" issue_update_date="1366063200000"
           created_at="1400000000000"/>
   <issue_changes id="2" kee="[null]" issue_key="ISSUE-2" created_at="[null]" updated_at="[null]" user_login="admin"
                  change_type="comment" change_data="abc" issue_change_creation_date="[null]"/>
@@ -56,7 +56,7 @@
           manual_severity="[false]"
           message="[null]" action_plan_key="[null]" effort_to_fix="[null]" technical_debt="[null]"
           issue_attributes="[null]" checksum="[null]" author_login="[null]"
-          updated_at="[null]" issue_creation_date="2013-04-16" issue_update_date="2013-04-16"
+          updated_at="[null]" issue_creation_date="1366063200000" issue_update_date="1366063200000"
           created_at="1400000000000"/>
   <issue_changes id="3" kee="[null]" issue_key="ISSUE-3" created_at="[null]" updated_at="[null]" user_login="admin"
                  change_type="comment" change_data="abc" issue_change_creation_date="[null]"/>
@@ -71,7 +71,7 @@
           manual_severity="[false]"
           message="[null]" action_plan_key="[null]" effort_to_fix="[null]" technical_debt="[null]"
           issue_attributes="[null]" checksum="[null]" author_login="[null]"
-          updated_at="[null]" issue_creation_date="2013-04-16" issue_update_date="2013-04-16"
+          updated_at="[null]" issue_creation_date="1366063200000" issue_update_date="1366063200000"
           created_at="1400000000000"/>
   <issue_changes id="4" kee="[null]" issue_key="ISSUE-4" created_at="[null]" updated_at="[null]" user_login="admin"
                  change_type="comment" change_data="abc" issue_change_creation_date="[null]"/>
@@ -80,12 +80,12 @@
           component_uuid="100"
           project_uuid="1"
           status="CLOSED"
-          issue_close_date="2025-01-01"
+          issue_close_date="1735686000000"
           resolution="FIXED" line="200" severity="BLOCKER" reporter="perceval" assignee="arthur" rule_id="500"
           manual_severity="[false]"
           message="[null]" action_plan_key="[null]" effort_to_fix="[null]" technical_debt="[null]"
           issue_attributes="[null]" checksum="[null]" author_login="[null]"
-          updated_at="[null]" issue_creation_date="2013-04-16" issue_update_date="2013-04-16"
+          updated_at="[null]" issue_creation_date="1366063200000" issue_update_date="1366063200000"
           created_at="1400000000000"/>
   <issue_changes id="5" kee="[null]" issue_key="ISSUE-5" created_at="[null]" updated_at="[null]" user_login="admin"
                  change_type="comment" change_data="abc" issue_change_creation_date="[null]"/>

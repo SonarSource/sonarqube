@@ -21,68 +21,50 @@
 package org.sonar.server.es.request;
 
 import org.elasticsearch.common.unit.TimeValue;
-import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
 import org.sonar.core.profiling.Profiling;
-import org.sonar.server.search.IndexDefinition;
-import org.sonar.server.search.SearchClient;
+import org.sonar.server.es.EsTester;
+import org.sonar.server.es.FakeIndexDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 public class ProxyNodesStatsRequestBuilderTest {
 
-  Profiling profiling = new Profiling(new Settings().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.NONE.name()));
-  SearchClient searchClient = new SearchClient(new Settings(), profiling);
+  @ClassRule
+  public static EsTester esTester = new EsTester();
 
-  @After
-  public void tearDown() throws Exception {
-    searchClient.stop();
+  @Before
+  public void setUp() throws Exception {
+    esTester.setProfilingLevel(Profiling.Level.NONE);
   }
 
   @Test
   public void stats() {
-    try {
-      searchClient.prepareNodesStats().get();
-
-      // expected to fail because elasticsearch is not correctly configured, but that does not matter
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class);
-      assertThat(e.getMessage()).contains("Fail to execute ES nodes stats request");
-    }
+    esTester.client().prepareNodesStats().get();
   }
 
   @Test
   public void to_string() {
-    assertThat(searchClient.prepareNodesStats().setNodesIds("node1").toString()).isEqualTo("ES nodes stats request on nodes 'node1'");
-    assertThat(searchClient.prepareNodesStats().toString()).isEqualTo("ES nodes stats request");
+    assertThat(esTester.client().prepareNodesStats().setNodesIds("node1").toString()).isEqualTo("ES nodes stats request on nodes 'node1'");
+    assertThat(esTester.client().prepareNodesStats().toString()).isEqualTo("ES nodes stats request");
   }
 
   @Test
-  public void with_profiling_basic() {
-    Profiling profiling = new Profiling(new Settings().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.BASIC.name()));
-    SearchClient searchClient = new SearchClient(new Settings(), profiling);
+  public void with_profiling_full() {
+    esTester.setProfilingLevel(Profiling.Level.FULL);
 
-    try {
-      searchClient.prepareNodesStats().get();
-
-      // expected to fail because elasticsearch is not correctly configured, but that does not matter
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class);
-      assertThat(e.getMessage()).contains("Fail to execute ES nodes stats request");
-    }
+    esTester.client().prepareNodesStats().get();
 
     // TODO assert profiling
-    searchClient.stop();
   }
 
   @Test
   public void get_with_string_timeout_is_not_yet_implemented() throws Exception {
     try {
-      searchClient.prepareNodesStats(IndexDefinition.RULE.getIndexName()).get("1");
+      esTester.client().prepareNodesStats(FakeIndexDefinition.INDEX).get("1");
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -92,7 +74,7 @@ public class ProxyNodesStatsRequestBuilderTest {
   @Test
   public void get_with_time_value_timeout_is_not_yet_implemented() throws Exception {
     try {
-      searchClient.prepareNodesStats(IndexDefinition.RULE.getIndexName()).get(TimeValue.timeValueMinutes(1));
+      esTester.client().prepareNodesStats(FakeIndexDefinition.INDEX).get(TimeValue.timeValueMinutes(1));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -102,7 +84,7 @@ public class ProxyNodesStatsRequestBuilderTest {
   @Test
   public void execute_should_throw_an_unsupported_operation_exception() throws Exception {
     try {
-      searchClient.prepareNodesStats(IndexDefinition.RULE.getIndexName()).execute();
+      esTester.client().prepareNodesStats(FakeIndexDefinition.INDEX).execute();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(UnsupportedOperationException.class).hasMessage("execute() should not be called as it's used for asynchronous");

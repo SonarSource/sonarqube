@@ -20,6 +20,7 @@
 package org.sonar.batch.bootstrap;
 
 import com.google.common.collect.Lists;
+import org.sonar.batch.cpd.CpdComponents;
 import org.sonar.batch.design.DirectoryDsmDecorator;
 import org.sonar.batch.design.DirectoryTangleIndexDecorator;
 import org.sonar.batch.design.FileTangleIndexDecorator;
@@ -89,6 +90,8 @@ public class BatchComponents {
       DefaultPurgeTask.class
       );
     components.addAll(CorePropertyDefinitions.all());
+    // CPD
+    components.addAll(CpdComponents.all());
     if (!analysisMode.isMediumTest()) {
       components.add(MavenDependenciesSensor.class);
     }

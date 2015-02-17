@@ -158,7 +158,11 @@ module DashboardHelper
 
     if widget.configured
       begin
-        widget_body=render :inline => widget.java_definition.getTarget().getTemplate(), :locals => {:widget_properties => widget.properties_as_hash, :widget => widget, :dashboard_configuration => @dashboard_configuration}
+        if has_role?(:user, @resource)
+          widget_body=render :inline => widget.java_definition.getTarget().getTemplate(), :locals => {:widget_properties => widget.properties_as_hash, :widget => widget, :dashboard_configuration => @dashboard_configuration}
+        else
+          widget_body=message 'not_authorized_to_access_project', h(@resource.name)
+        end
       rescue => error
         logger.error(message('dashboard.cannot_render_widget_x', :params => [widget.java_definition.getId(), error]), error)
       end

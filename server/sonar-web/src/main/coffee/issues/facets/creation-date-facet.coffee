@@ -39,10 +39,14 @@ define [
         @$("input[name=#{prop}]").val value if value?
 
       values = @model.getValues()
-      if _.isArray(values) && values.length > 0
-        @$('.js-barchart').barchart values
-      else
-        @$('.js-barchart').addClass 'hidden'
+      unless _.isArray(values) && values.length > 0
+        date = moment()
+        values = []
+        for i in [0..10]
+          values.push count: 0, val: date.toDate().toString()
+          date = date.subtract 1, 'days'
+        values.reverse()
+      @$('.js-barchart').barchart values
 
 
     selectPeriodStart: ->

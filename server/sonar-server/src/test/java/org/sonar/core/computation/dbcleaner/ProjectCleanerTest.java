@@ -25,12 +25,15 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.purge.*;
 import org.sonar.core.computation.dbcleaner.period.DefaultPeriodCleaner;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.purge.IdUuidPair;
+import org.sonar.core.purge.PurgeConfiguration;
+import org.sonar.core.purge.PurgeDao;
+import org.sonar.core.purge.PurgeListener;
+import org.sonar.core.purge.PurgeProfiler;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.properties.ProjectSettingsFactory;
-import org.sonar.server.search.IndexClient;
 
 import java.util.Date;
 
@@ -41,35 +44,25 @@ import static org.mockito.Mockito.*;
 public class ProjectCleanerTest {
 
   private ProjectCleaner sut;
-  private PurgeDao dao;
-  private PurgeProfiler profiler;
-  private DefaultPeriodCleaner periodCleaner;
-  private PurgeListener purgeListener;
+  private PurgeDao dao= mock(PurgeDao.class);
+  private PurgeProfiler profiler= mock(PurgeProfiler.class);
+  private DefaultPeriodCleaner periodCleaner= mock(DefaultPeriodCleaner.class);
+  private PurgeListener purgeListener= mock(PurgeListener.class);
   private ProjectSettingsFactory projectSettingsFactory;
-  private IndexClient indexClient;
-  private IssueIndex issueIndex;
-  private Settings settings;
+  private IssueIndex issueIndex= mock(IssueIndex.class);
+  private Settings settings = new Settings();
 
   @Before
   public void before() throws Exception {
-    this.dao = mock(PurgeDao.class);
-    this.profiler = mock(PurgeProfiler.class);
-    this.periodCleaner = mock(DefaultPeriodCleaner.class);
-    this.purgeListener = mock(PurgeListener.class);
-    this.settings = mock(Settings.class);
     this.projectSettingsFactory = mock(ProjectSettingsFactory.class);
     when(projectSettingsFactory.newProjectSettings(any(DbSession.class), any(Long.class))).thenReturn(settings);
 
-    this.issueIndex = mock(IssueIndex.class);
-    this.indexClient = mock(IndexClient.class);
-    when(indexClient.get(IssueIndex.class)).thenReturn(issueIndex);
-
-    this.sut = new ProjectCleaner(dao, periodCleaner, profiler, purgeListener, projectSettingsFactory, indexClient);
+    this.sut = new ProjectCleaner(dao, periodCleaner, profiler, purgeListener, projectSettingsFactory, issueIndex);
   }
 
   @Test
   public void no_profiling_when_property_is_false() throws Exception {
-    when(settings.getBoolean(CoreProperties.PROFILING_LOG_PROPERTY)).thenReturn(false);
+    settings.setProperty(CoreProperties.PROFILING_LOG_PROPERTY, false);
     when(projectSettingsFactory.newProjectSettings(any(DbSession.class), any(Long.class))).thenReturn(settings);
 
     sut.purge(mock(DbSession.class), mock(IdUuidPair.class));
@@ -83,12 +76,12 @@ public class ProjectCleanerTest {
 
     sut.purge(mock(DbSession.class), mock(IdUuidPair.class));
 
-    verify(indexClient, never()).get(IssueIndex.class);
+    verifyZeroInteractions(issueIndex);
   }
 
   @Test
   public void profiling_when_property_is_true() throws Exception {
-    when(settings.getBoolean(CoreProperties.PROFILING_LOG_PROPERTY)).thenReturn(true);
+    settings.setProperty(CoreProperties.PROFILING_LOG_PROPERTY, true);
 
     sut.purge(mock(DbSession.class), mock(IdUuidPair.class));
 
@@ -97,7 +90,7 @@ public class ProjectCleanerTest {
 
   @Test
   public void call_period_cleaner_index_client_and_purge_dao() throws Exception {
-    when(settings.getInt(DbCleanerConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES)).thenReturn(5);
+    settings.setProperty(DbCleanerConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES, 5);
 
     sut.purge(mock(DbSession.class), mock(IdUuidPair.class));
 

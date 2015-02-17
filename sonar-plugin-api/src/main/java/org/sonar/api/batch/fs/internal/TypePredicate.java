@@ -19,13 +19,12 @@
  */
 package org.sonar.api.batch.fs.internal;
 
-import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
 
 /**
  * @since 4.2
  */
-class TypePredicate implements FilePredicate {
+class TypePredicate extends AbstractFilePredicate {
 
   private final InputFile.Type type;
 
@@ -39,4 +38,3 @@ class TypePredicate implements FilePredicate {
   }
 
 }
-

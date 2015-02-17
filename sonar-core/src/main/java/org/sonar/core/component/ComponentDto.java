@@ -105,7 +105,7 @@ public class ComponentDto extends Dto<String> implements Component {
   }
 
   /**
-   * Return the root project id. On a root project, return itself
+   * Return the root project uuid. On a root project, return itself
    */
   public String projectUuid() {
     return projectUuid;
@@ -235,7 +235,7 @@ public class ComponentDto extends Dto<String> implements Component {
   }
 
   public boolean isRootProject() {
-    return MODULE_UUID_PATH_SEP.equals(moduleUuidPath) && Scopes.PROJECT.equals(scope);
+    return moduleUuid == null && Scopes.PROJECT.equals(scope);
   }
 
   @Override

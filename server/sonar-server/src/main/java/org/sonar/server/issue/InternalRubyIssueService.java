@@ -23,6 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
@@ -43,6 +44,7 @@ import org.sonar.core.issue.workflow.Transition;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
+import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.issue.filter.IssueFilterParameters;
@@ -477,7 +479,7 @@ public class InternalRubyIssueService implements ServerComponent {
    * Execute issue filter from parameters
    */
   public IssueFilterService.IssueFilterResult execute(Map<String, Object> props) {
-    return issueFilterService.execute(issueQueryService.createFromMap(props), toContext(props));
+    return issueFilterService.execute(issueQueryService.createFromMap(props), toSearchOptions(props));
   }
 
   /**
@@ -636,16 +638,16 @@ public class InternalRubyIssueService implements ServerComponent {
   }
 
   @VisibleForTesting
-  static QueryContext toContext(Map<String, Object> props) {
-    QueryContext context = new QueryContext();
+  static SearchOptions toSearchOptions(Map<String, Object> props) {
+    SearchOptions options = new SearchOptions();
     Integer pageIndex = RubyUtils.toInteger(props.get(IssueFilterParameters.PAGE_INDEX));
     Integer pageSize = RubyUtils.toInteger(props.get(IssueFilterParameters.PAGE_SIZE));
     if (pageSize != null && pageSize < 0) {
-      context.setMaxLimit();
+      options.setLimit(SearchOptions.MAX_LIMIT);
     } else {
-      context.setPage(pageIndex != null ? pageIndex : 1, pageSize != null ? pageSize : 100);
+      options.setPage(pageIndex != null ? pageIndex : 1, pageSize != null ? pageSize : 100);
     }
-    return context;
+    return options;
   }
 
   public Collection<String> listTags() {
@@ -653,7 +655,11 @@ public class InternalRubyIssueService implements ServerComponent {
   }
 
   public Map<String, Long> listTagsForComponent(String componentUuid, int pageSize) {
-    return issueService.listTagsForComponent(componentUuid, pageSize);
+    IssueQuery query = issueQueryService.createFromMap(
+      ImmutableMap.<String, Object>of(
+        "componentUuids", componentUuid,
+        "resolved", false));
+    return issueService.listTagsForComponent(query, pageSize);
   }
 
 }

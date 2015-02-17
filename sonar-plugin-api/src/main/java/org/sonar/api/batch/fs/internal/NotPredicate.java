@@ -25,7 +25,7 @@ import org.sonar.api.batch.fs.InputFile;
 /**
  * @since 4.2
  */
-class NotPredicate implements FilePredicate {
+class NotPredicate extends AbstractFilePredicate {
 
   private final FilePredicate predicate;
 

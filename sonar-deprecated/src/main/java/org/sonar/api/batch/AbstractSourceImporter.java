@@ -22,7 +22,6 @@ package org.sonar.api.batch;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 
 import java.io.File;
@@ -66,14 +65,7 @@ public abstract class AbstractSourceImporter implements Sensor {
   }
 
   protected Resource createResource(File file, List<File> sourceDirs, boolean unitTest) {
-    org.sonar.api.resources.File resource = org.sonar.api.resources.File.fromIOFile(file, sourceDirs);
-    if (resource != null) {
-      resource.setLanguage(language);
-      if (unitTest) {
-        resource.setQualifier(Qualifiers.UNIT_TEST_FILE);
-      }
-    }
-    return resource;
+    return null;
   }
 
   protected boolean isEnabled(Project project) {

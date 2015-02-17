@@ -94,6 +94,7 @@ public class SqlUtil {
     return rs.wasNull() ? null : s;
   }
 
+  @CheckForNull
   public static Date getDate(ResultSet rs, int columnIndex) throws SQLException {
     Timestamp t = rs.getTimestamp(columnIndex);
     return rs.wasNull() ? null : new Date(t.getTime());

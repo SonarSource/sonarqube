@@ -1,5 +1,6 @@
 <dataset>
 
+    <!-- Not updated, no concerned field -->
     <issue_filters
       id="1"
       name="No concerned field"
@@ -10,36 +11,40 @@
       created_at="2013-06-10"
       updated_at="2013-06-10" />
 
+    <!-- Not updated, projectUuids is left as is -->
     <issue_filters
       id="2"
       name="Has projects"
       user_login="michael"
       shared="[false]"
       description="to be updated"
-      data="statuses=OPEN|sort=SEVERITY|asc=true|projects=ABC"
+      data="statuses=OPEN|sort=SEVERITY|asc=true|projectUuids=ABC"
       created_at="2013-06-10"
       updated_at="2013-06-10" />
 
+    <!-- componentUuids replaced by fileUuids -->
     <issue_filters
       id="3"
       name="Has components"
       user_login="michael"
       shared="[false]"
       description="to be updated"
-      data="components=ABC|statuses=OPEN|sort=SEVERITY|asc=true"
+      data="componentUuids=ABC|statuses=OPEN|sort=SEVERITY|asc=true"
       created_at="2013-06-10"
       updated_at="2013-06-10" />
 
+    <!-- componentRootUuids replaced by moduleUuids -->
     <issue_filters
       id="4"
       name="Has componentRoots"
       user_login="michael"
       shared="[false]"
       description="to be updated"
-      data="statuses=OPEN|sort=SEVERITY|asc=true|componentRoots=ABC"
+      data="statuses=OPEN|sort=SEVERITY|asc=true|componentRootUuids=ABC"
       created_at="2013-06-10"
       updated_at="2013-06-10" />
 
+    <!-- componentRootUuids replaced by moduleUuids (in the middle of the string) -->
     <issue_filters
       id="5"
       name="Has projects"
@@ -50,6 +55,7 @@
       created_at="2013-06-10"
       updated_at="2013-06-10" />
 
+    <!-- componentUuidss replaced by fileUuids, componentRootUuids replaced by moduleUuids -->
     <issue_filters
       id="6"
       name="Has all parameters"

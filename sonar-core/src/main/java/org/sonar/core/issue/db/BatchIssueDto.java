@@ -36,7 +36,7 @@ public class BatchIssueDto {
   private String componentKey;
   private String ruleKey;
   private String ruleRepo;
-  private Date creationDate;
+  private Long creationTime;
 
   public String getAssigneeLogin() {
     return assigneeLogin;
@@ -147,11 +147,11 @@ public class BatchIssueDto {
   }
 
   public Date getCreationDate() {
-    return creationDate;
+    return new Date(creationTime);
   }
 
   public BatchIssueDto setCreationDate(Date creationDate) {
-    this.creationDate = creationDate;
+    this.creationTime = creationDate.getTime();
     return this;
   }
 }

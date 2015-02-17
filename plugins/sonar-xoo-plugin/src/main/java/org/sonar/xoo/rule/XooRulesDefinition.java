@@ -23,7 +23,9 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.api.server.rule.RulesDefinitionAnnotationLoader;
 import org.sonar.xoo.Xoo;
+import org.sonar.xoo.checks.Check;
 
 /**
  * Define all the coding rules that are supported on the repository named "xoo".
@@ -35,6 +37,9 @@ public class XooRulesDefinition implements RulesDefinition {
   @Override
   public void define(Context context) {
     NewRepository repository = context.createRepository(XOO_REPOSITORY, Xoo.KEY).setName("Xoo");
+
+    // Load checks
+    new RulesDefinitionAnnotationLoader().load(repository, Check.ALL);
 
     // define a single rule programmatically. Note that rules
     // can be loaded from JSON or XML files too.

@@ -28,6 +28,7 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.check.RuleProperty;
 
 import javax.annotation.CheckForNull;
+
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collection;
@@ -122,10 +123,12 @@ public class Checks<C> {
     }
 
     for (ActiveRule activeRule : activeRules.findByRepository(repository)) {
-      String engineKey = StringUtils.defaultIfBlank(activeRule.internalKey(), activeRule.ruleKey().rule());
+      String engineKey = StringUtils.defaultIfBlank(activeRule.templateRuleKey(), activeRule.ruleKey().rule());
       Object checkClassesOrObject = checksByEngineKey.get(engineKey);
-      Object obj = instantiate(activeRule, checkClassesOrObject);
-      add(activeRule.ruleKey(), (C) obj);
+      if (checkClassesOrObject != null) {
+        Object obj = instantiate(activeRule, checkClassesOrObject);
+        add(activeRule.ruleKey(), (C) obj);
+      }
     }
     return this;
   }

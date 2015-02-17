@@ -52,15 +52,15 @@ class DurationLabel {
     } else if (nbHours < 48) {
       return message("day");
     } else if (nbDays < 30) {
-      return message("days", Double.valueOf(Math.floor(nbDays)).longValue());
+      return message("days", (long)(Math.floor(nbDays)));
     } else if (nbDays < 60) {
       return message( "month");
     } else if (nbDays < 365) {
-      return message("months", Double.valueOf(Math.floor(nbDays / 30)).longValue());
+      return message("months", (long)(Math.floor(nbDays / 30)));
     } else if (nbYears < 2) {
       return message("year");
     }
-    return message("years", Double.valueOf(Math.floor(nbYears)).longValue());
+    return message("years", (long)(Math.floor(nbYears)));
   }
 
   private static Result message(String key) {

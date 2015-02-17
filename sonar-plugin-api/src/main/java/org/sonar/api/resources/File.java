@@ -39,58 +39,45 @@ public class File extends Resource {
 
   public static final String SCOPE = Scopes.FILE;
 
-  private String directoryDeprecatedKey;
   private String filename;
   private Language language;
   private Directory parent;
   private String qualifier = Qualifiers.FILE;
 
+  private final String relativePathFromSourceDir;
+
   private File() {
     // Used by factory method
+    this.relativePathFromSourceDir = null;
   }
 
   /**
-   * File in project. Key is the path relative to project source directories. It is not the absolute path and it does not include the path
-   * to source directories. Example : <code>new File("org/sonar/foo.sql")</code>. The absolute path may be
-   * c:/myproject/src/main/sql/org/sonar/foo.sql. Project root is c:/myproject and source dir is src/main/sql.
-   * @deprecated since 4.2 use {@link #fromIOFile(java.io.File, Project)}
+   * @deprecated since 4.2 use {@link FileSystem#inputFile(org.sonar.api.batch.fs.FilePredicate)}
    */
   @Deprecated
   public File(String relativePathFromSourceDir) {
     if (relativePathFromSourceDir == null) {
       throw new IllegalArgumentException("File key is null");
     }
-    String realKey = parseKey(relativePathFromSourceDir);
-    if (realKey.indexOf(Directory.SEPARATOR) >= 0) {
-      this.directoryDeprecatedKey = Directory.parseKey(StringUtils.substringBeforeLast(relativePathFromSourceDir, Directory.SEPARATOR));
-      this.filename = StringUtils.substringAfterLast(realKey, Directory.SEPARATOR);
-      realKey = new StringBuilder().append(this.directoryDeprecatedKey).append(Directory.SEPARATOR).append(filename).toString();
-
-    } else {
-      this.filename = relativePathFromSourceDir;
-    }
-    setDeprecatedKey(realKey);
+    this.relativePathFromSourceDir = parseKey(relativePathFromSourceDir);
   }
 
   /**
-   * Creates a file from its containing directory and name
-   * @deprecated since 4.2 use {@link #fromIOFile(java.io.File, Project)}
+   * @deprecated since 4.2 use {@link FileSystem#inputFile(org.sonar.api.batch.fs.FilePredicate)}
    */
   @Deprecated
   public File(String relativeDirectoryPathFromSourceDir, String filename) {
     this.filename = StringUtils.trim(filename);
     if (StringUtils.isBlank(relativeDirectoryPathFromSourceDir)) {
-      setDeprecatedKey(filename);
-
+      this.relativePathFromSourceDir = filename;
     } else {
-      this.directoryDeprecatedKey = Directory.parseKey(relativeDirectoryPathFromSourceDir);
-      setDeprecatedKey(new StringBuilder().append(directoryDeprecatedKey).append(Directory.SEPARATOR).append(this.filename).toString());
+      this.relativePathFromSourceDir = new StringBuilder().append(Directory.parseKey(relativeDirectoryPathFromSourceDir)).append(Directory.SEPARATOR).append(this.filename)
+        .toString();
     }
   }
 
   /**
-   * Creates a File from its language and its key
-   * @deprecated since 4.2 use {@link #fromIOFile(java.io.File, Project)}
+   * @deprecated since 4.2 use {@link FileSystem#inputFile(org.sonar.api.batch.fs.FilePredicate)}
    */
   @Deprecated
   public File(Language language, String relativePathFromSourceDir) {
@@ -109,15 +96,19 @@ public class File extends Resource {
   }
 
   /**
+   * Internal.
+   */
+  public String relativePathFromSourceDir() {
+    return relativePathFromSourceDir;
+  }
+
+  /**
    * {@inheritDoc}
    *
    * @see Resource#getParent()
    */
   @Override
   public Directory getParent() {
-    if (parent == null) {
-      parent = new Directory(directoryDeprecatedKey);
-    }
     return parent;
   }
 
@@ -143,9 +134,9 @@ public class File extends Resource {
   }
 
   /**
-   * Creates a File from an io.file and a list of sources directories
-   * @deprecated since 4.2 use {@link #fromIOFile(java.io.File, Project)}
-   */
+  * Creates a File from an io.file and a list of sources directories
+  * @deprecated since 4.2 use {@link #fromIOFile(java.io.File, Project)}
+  */
   @Deprecated
   @CheckForNull
   public static File fromIOFile(java.io.File file, List<java.io.File> sourceDirs) {
@@ -168,7 +159,7 @@ public class File extends Resource {
   @Deprecated
   @CheckForNull
   public static File fromIOFile(java.io.File file, Project module) {
-    String relativePathFromBasedir = new PathResolver().relativePath(module.getFileSystem().getBasedir(), file);
+    String relativePathFromBasedir = new PathResolver().relativePath(module.getBaseDir(), file);
     if (relativePathFromBasedir != null) {
       return File.create(relativePathFromBasedir);
     }
@@ -243,11 +234,10 @@ public class File extends Resource {
   }
 
   /**
-   * Create a File that is partially initialized. But that's enough to call for example
-   * {@link SensorContext#saveMeasure(Resource, org.sonar.api.measures.Measure)} when resources are already indexed.
    * Internal use only.
-   * @since 4.2
+   * @deprecated since 5.1 use {@link FileSystem#inputFile(org.sonar.api.batch.fs.FilePredicate)}
    */
+  @Deprecated
   public static File create(String relativePathFromBasedir) {
     File file = new File();
     String normalizedPath = normalize(relativePathFromBasedir);
@@ -256,34 +246,26 @@ public class File extends Resource {
     String directoryPath;
     if (normalizedPath != null && normalizedPath.contains(Directory.SEPARATOR)) {
       directoryPath = StringUtils.substringBeforeLast(normalizedPath, Directory.SEPARATOR);
+      file.filename = StringUtils.substringAfterLast(normalizedPath, Directory.SEPARATOR);
     } else {
       directoryPath = Directory.SEPARATOR;
+      file.filename = normalizedPath;
     }
     file.parent = Directory.create(directoryPath);
     return file;
   }
 
   /**
-   * Create a file that is fully initialized. Use for indexing resources.
    * Internal use only.
-   * @since 4.2
+   * @deprecated since 5.1 use {@link FileSystem#inputFile(org.sonar.api.batch.fs.FilePredicate)}
    */
-  public static File create(String relativePathFromBasedir, String relativePathFromSourceDir, Language language, boolean unitTest) {
+  @Deprecated
+  public static File create(String relativePathFromBasedir, Language language, boolean unitTest) {
     File file = create(relativePathFromBasedir);
     file.setLanguage(language);
-    if (relativePathFromSourceDir.contains(Directory.SEPARATOR)) {
-      file.filename = StringUtils.substringAfterLast(relativePathFromSourceDir, Directory.SEPARATOR);
-      file.directoryDeprecatedKey = Directory.parseKey(StringUtils.substringBeforeLast(relativePathFromSourceDir, Directory.SEPARATOR));
-      file.setDeprecatedKey(file.directoryDeprecatedKey + Directory.SEPARATOR + file.filename);
-    } else {
-      file.filename = relativePathFromSourceDir;
-      file.directoryDeprecatedKey = Directory.ROOT;
-      file.setDeprecatedKey(file.filename);
-    }
     if (unitTest) {
       file.setQualifier(Qualifiers.UNIT_TEST_FILE);
     }
-    file.parent.setDeprecatedKey(file.directoryDeprecatedKey);
     return file;
   }
 
@@ -291,9 +273,7 @@ public class File extends Resource {
   public String toString() {
     return new ToStringBuilder(this)
       .append("key", getKey())
-      .append("deprecatedKey", getDeprecatedKey())
       .append("path", getPath())
-      .append("dir", directoryDeprecatedKey)
       .append("filename", filename)
       .append("language", language)
       .toString();

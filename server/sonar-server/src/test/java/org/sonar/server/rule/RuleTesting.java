@@ -19,6 +19,7 @@
  */
 package org.sonar.server.rule;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -89,7 +90,9 @@ public class RuleTesting {
   }
 
   public static RuleDto newCustomRule(RuleDto templateRule){
+    Preconditions.checkNotNull(templateRule.getId(), "The template rule need to be persisted before creating this custom rule.");
     return newDto(RuleKey.of(templateRule.getRepositoryKey(), templateRule.getRuleKey() + "_" + System.currentTimeMillis()))
+      .setLanguage(templateRule.getLanguage())
       .setTemplateId(templateRule.getId());
   }
 

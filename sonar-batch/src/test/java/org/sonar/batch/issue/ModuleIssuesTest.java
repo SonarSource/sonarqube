@@ -179,7 +179,7 @@ public class ModuleIssuesTest {
   @Test
   public void use_rule_name_if_no_message() throws Exception {
     ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
-    activeRulesBuilder.create(SQUID_RULE_KEY).setSeverity(Severity.INFO).activate();
+    activeRulesBuilder.create(SQUID_RULE_KEY).setSeverity(Severity.INFO).setName(SQUID_RULE_NAME).activate();
     initModuleIssues();
 
     Date analysisDate = new Date();
@@ -207,7 +207,7 @@ public class ModuleIssuesTest {
     initModuleIssues();
 
     org.sonar.api.rules.Rule rule = org.sonar.api.rules.Rule.create("squid", "AvoidCycle", "Avoid Cycle");
-    Resource resource = new File("org/struts/Action.java").setEffectiveKey("struts:src/org/struts/Action.java");
+    Resource resource = File.create("org/struts/Action.java").setEffectiveKey("struts:src/org/struts/Action.java");
     Violation violation = new Violation(rule, resource);
     violation.setLineId(42);
     violation.setSeverity(RulePriority.CRITICAL);

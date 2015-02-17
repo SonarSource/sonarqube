@@ -23,7 +23,6 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import javax.persistence.*;
-import java.util.Date;
 
 @Entity
 @Table(name = "manual_measures")
@@ -51,10 +50,10 @@ public final class ManualMeasure {
   private String description;
 
   @Column(name = "created_at", updatable = true, nullable = true)
-  private Date createdAt;
+  private Long createdAt;
 
   @Column(name = "updated_at", updatable = true, nullable = true)
-  private Date updatedAt;
+  private Long updatedAt;
 
   @Column(name = "user_login", updatable = true, nullable = true, length = 40)
   private String userLogin;
@@ -83,11 +82,11 @@ public final class ManualMeasure {
     return resourceId;
   }
 
-  public Date getCreatedAt() {
+  public Long getCreatedAt() {
     return createdAt;
   }
 
-  public Date getUpdatedAt() {
+  public Long getUpdatedAt() {
     return updatedAt;
   }
 

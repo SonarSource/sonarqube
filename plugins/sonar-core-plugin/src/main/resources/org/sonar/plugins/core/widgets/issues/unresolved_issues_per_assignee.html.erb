@@ -9,13 +9,11 @@
     issues_by_assignee = Internal.issues.findIssueAssignees(options)
 
     unless issues_by_assignee.empty?
-      users = Internal.users_api.find({'logins', issues_by_assignee.keySet()})
+      users = Internal.users_api.find({'logins', issues_by_assignee.keySet(), 'includeDeactivated', true})
       users_by_login = {}
       users.each do |u|
         users_by_login[u.login()] = u
       end
-
-      # puts "### " + users_by_login.inspect
 
       counter_no_assignee = issues_by_assignee.get(nil)
       counter_max = 0

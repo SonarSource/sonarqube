@@ -1,12 +1,7 @@
 {
-  "securityExclusions": false,
-  "maxResultsReached": false,
-  "paging": {
-    "pageIndex": 1,
-    "pageSize": 5,
-    "total": 206,
-    "pages": 42
-  },
+  "total": 206,
+  "p": 1,
+  "ps": 5,
   "issues": [
     {
       "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",

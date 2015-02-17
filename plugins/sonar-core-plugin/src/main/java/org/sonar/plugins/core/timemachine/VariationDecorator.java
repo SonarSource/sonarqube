@@ -19,6 +19,10 @@
  */
 package org.sonar.plugins.core.timemachine;
 
+import org.sonar.batch.components.TimeMachineConfiguration;
+
+import org.sonar.batch.components.PastSnapshot;
+import org.sonar.batch.components.PastMeasuresLoader;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.Decorator;
@@ -38,9 +42,6 @@ import org.sonar.api.resources.Scopes;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.technicaldebt.batch.Characteristic;
-import org.sonar.batch.components.PastMeasuresLoader;
-import org.sonar.batch.components.PastSnapshot;
-import org.sonar.batch.components.TimeMachineConfiguration;
 
 import javax.annotation.Nullable;
 

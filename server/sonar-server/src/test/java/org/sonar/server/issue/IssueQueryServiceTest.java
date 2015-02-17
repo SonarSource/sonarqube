@@ -20,7 +20,10 @@
 
 package org.sonar.server.issue;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.assertj.core.api.Fail;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,11 +35,14 @@ import org.mockito.stubbing.Answer;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.web.UserRole;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.user.AuthorDao;
 import org.sonar.server.component.ComponentService;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.user.MockUserSession;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,7 +55,9 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -87,6 +95,11 @@ public class IssueQueryServiceTest {
     });
 
     issueQueryService = new IssueQueryService(dbClient, componentService);
+  }
+
+  @After
+  public void tearDown() {
+    MockUserSession.set();
   }
 
   @Test
@@ -227,4 +240,173 @@ public class IssueQueryServiceTest {
     }
   }
 
+  @Test
+  public void should_search_in_tree_with_component_root_uuids_but_unknown_qualifiers() throws Exception {
+    Map<String, Object> map = newHashMap();
+    map.put("componentRootUuids", newArrayList("ABCD"));
+
+    when(componentService.getDistinctQualifiers(isA(DbSession.class), anyCollection())).thenReturn(Sets.<String>newHashSet());
+
+    IssueQuery query = issueQueryService.createFromMap(map);
+    assertThat(query.onComponentOnly()).isFalse();
+    assertThat(query.componentUuids()).contains("ABCD");
+  }
+
+  @Test
+  public void should_search_in_tree_with_component_roots_but_different_qualifiers() throws Exception {
+    Map<String, Object> map = newHashMap();
+    map.put("componentRoots", newArrayList("org.apache.struts:struts", "org.codehaus.sonar:sonar-server"));
+
+    when(componentService.componentUuids(isA(DbSession.class), anyCollection(), eq(true))).thenReturn(Sets.newHashSet("ABCD", "BCDE"));
+    when(componentService.getDistinctQualifiers(isA(DbSession.class), anyCollection())).thenReturn(Sets.newTreeSet(Arrays.asList("TRK", "BRC")));
+
+    try {
+      issueQueryService.createFromMap(map);
+      Fail.failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
+    } catch (IllegalArgumentException exception) {
+      assertThat(exception).hasMessage("All components must have the same qualifier, found BRC,TRK");
+    }
+  }
+
+  @Test
+  public void should_search_in_tree_with_view() throws Exception {
+    String viewUuid = "ABCD";
+    Map<String, Object> map = newHashMap();
+    map.put("componentRootUuids", newArrayList(viewUuid));
+
+    when(componentService.getDistinctQualifiers(isA(DbSession.class), anyCollection())).thenReturn(Sets.newHashSet(Qualifiers.VIEW));
+
+    MockUserSession.set().addProjectUuidPermissions(UserRole.USER, viewUuid);
+
+    IssueQuery query = issueQueryService.createFromMap(map);
+    assertThat(query.viewUuids()).containsExactly(viewUuid);
+    assertThat(query.onComponentOnly()).isFalse();
+  }
+
+  @Test
+  public void should_search_in_tree_with_subview_but_bad_permissions() throws Exception {
+    String subViewUuid = "ABCD";
+    Map<String, Object> map = newHashMap();
+    map.put("componentRootUuids", newArrayList(subViewUuid));
+
+    when(componentService.getDistinctQualifiers(isA(DbSession.class), anyCollection())).thenReturn(Sets.newHashSet(Qualifiers.VIEW));
+
+    MockUserSession.set();
+
+    IssueQuery query = issueQueryService.createFromMap(map);
+    assertThat(query.viewUuids()).isNotEmpty().doesNotContain(subViewUuid);
+  }
+
+  @Test
+  public void should_search_in_tree_with_project_uuid() throws Exception {
+    String projectUuid = "ABCD";
+    Map<String, Object> map = newHashMap();
+    map.put("componentUuids", newArrayList(projectUuid));
+
+    when(componentService.getDistinctQualifiers(isA(DbSession.class), anyCollection())).thenReturn(Sets.newHashSet(Qualifiers.PROJECT));
+
+    IssueQuery query = issueQueryService.createFromMap(map);
+    assertThat(query.projectUuids()).containsExactly(projectUuid);
+    assertThat(query.onComponentOnly()).isFalse();
+  }
+
+  @Test
+  public void should_search_on_component_only_with_project_key() throws Exception {
+    String projectKey = "org.apache.struts:struts";
+    String projectUuid = "ABCD";
+    Map<String, Object> map = newHashMap();
+    map.put("componentKeys", newArrayList(projectKey));
+    map.put("onComponentOnly", true);
+
+    when(componentService.componentUuids(isA(DbSession.class), anyCollection(), eq(true))).thenReturn(Sets.newHashSet(projectUuid));
+    when(componentService.getDistinctQualifiers(isA(DbSession.class), anyCollection())).thenReturn(Sets.newHashSet(Qualifiers.PROJECT));
+
+    IssueQuery query = issueQueryService.createFromMap(map);
+    assertThat(query.projectUuids()).isEmpty();
+    assertThat(query.componentUuids()).containsExactly(projectUuid);
+    assertThat(query.onComponentOnly()).isTrue();
+  }
+
+  @Test
+  public void should_search_on_developer() throws Exception {
+    String devUuid = "DEV:anakin.skywalker";
+    String login1 = "anakin@skywalker.name";
+    String login2 = "darth.vader";
+    Map<String, Object> map = newHashMap();
+    map.put("componentUuids", newArrayList(devUuid));
+
+    when(componentService.getDistinctQualifiers(isA(DbSession.class), anyCollection())).thenReturn(Sets.newHashSet("DEV"));
+    when(authorDao.selectScmAccountsByDeveloperUuids(isA(DbSession.class), anyCollection())).thenReturn(Lists.newArrayList(login1, login2));
+
+    IssueQuery query = issueQueryService.createFromMap(map);
+    assertThat(query.authors()).containsExactly(login1, login2);
+  }
+
+  @Test
+  public void should_override_authors_when_searching_on_developer() throws Exception {
+    String devUuid = "DEV:anakin.skywalker";
+    String login = "anakin@skywalker.name";
+    Map<String, Object> map = newHashMap();
+    map.put("componentUuids", newArrayList(devUuid));
+    map.put("authors", newArrayList(login));
+
+    when(componentService.getDistinctQualifiers(isA(DbSession.class), anyCollection())).thenReturn(Sets.newHashSet("DEV"));
+
+    IssueQuery query = issueQueryService.createFromMap(map);
+    assertThat(query.authors()).containsExactly(login);
+  }
+
+  @Test
+  public void should_search_in_tree_with_module_uuid() throws Exception {
+    String moduleUuid = "ABCD";
+    Map<String, Object> map = newHashMap();
+    map.put("componentUuids", newArrayList(moduleUuid));
+
+    when(componentService.getDistinctQualifiers(isA(DbSession.class), anyCollection())).thenReturn(Sets.newHashSet(Qualifiers.MODULE));
+
+    IssueQuery query = issueQueryService.createFromMap(map);
+    assertThat(query.moduleRootUuids()).containsExactly(moduleUuid);
+    assertThat(query.onComponentOnly()).isFalse();
+  }
+
+  @Test
+  public void should_search_in_tree_with_directory_uuid() throws Exception {
+    String directoryUuid = "ABCD";
+    String directoryPath = "/some/module/relative/path";
+    String moduleUuid = "BCDE";
+    Map<String, Object> map = newHashMap();
+    map.put("componentUuids", newArrayList(directoryUuid));
+
+    when(componentService.getDistinctQualifiers(isA(DbSession.class), anyCollection())).thenReturn(Sets.newHashSet(Qualifiers.DIRECTORY));
+    when(componentService.getByUuids(isA(DbSession.class), anyCollection())).thenReturn(Arrays.asList(new ComponentDto().setModuleUuid(moduleUuid).setPath(directoryPath)));
+
+    IssueQuery query = issueQueryService.createFromMap(map);
+    assertThat(query.moduleUuids()).contains(moduleUuid);
+    assertThat(query.directories()).containsExactly(directoryPath);
+    assertThat(query.onComponentOnly()).isFalse();
+  }
+
+  @Test
+  public void should_search_on_source_file() throws Exception {
+    String fileUuid = "ABCD";
+    Map<String, Object> map = newHashMap();
+    map.put("componentUuids", newArrayList(fileUuid));
+
+    when(componentService.getDistinctQualifiers(isA(DbSession.class), anyCollection())).thenReturn(Sets.newHashSet(Qualifiers.FILE));
+
+    IssueQuery query = issueQueryService.createFromMap(map);
+    assertThat(query.fileUuids()).containsExactly(fileUuid);
+  }
+
+  @Test
+  public void should_search_on_test_file() throws Exception {
+    String fileUuid = "ABCD";
+    Map<String, Object> map = newHashMap();
+    map.put("componentUuids", newArrayList(fileUuid));
+
+    when(componentService.getDistinctQualifiers(isA(DbSession.class), anyCollection())).thenReturn(Sets.newHashSet(Qualifiers.UNIT_TEST_FILE));
+
+    IssueQuery query = issueQueryService.createFromMap(map);
+    assertThat(query.fileUuids()).containsExactly(fileUuid);
+  }
 }

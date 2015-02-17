@@ -1,0 +1,32 @@
+<dataset>
+
+  <!-- Real projects -->
+  <projects id="1" uuid="ABCD" project_uuid="ABCD" module_uuid_path=".ABCD." copy_resource_id="[null]" name="Project One" qualifier="TRK" scope="PRJ"/>
+  <projects id="2" uuid="BCDE" project_uuid="BCDE" module_uuid_path=".BCDE." copy_resource_id="[null]" name="Project Two" qualifier="TRK" scope="PRJ"/>
+
+  <!-- Copy projects -->
+  <projects id="3" uuid="CDEF" project_uuid="EFGH" module_uuid_path=".EFGH." copy_resource_id="1" name="Copy Project One" qualifier="TRK" scope="FIL"/>
+  <projects id="4" uuid="DEFG" project_uuid="EFGH" module_uuid_path=".EFGH." copy_resource_id="2" name="Copy Project One" qualifier="TRK" scope="FIL"/>
+
+  <!-- View containing all projects -->
+  <projects id="5" uuid="EFGH" project_uuid="EFGH" module_uuid_path=".EFGH." copy_resource_id="[null]" name="All projects" qualifier="VW" scope="PRJ"/>
+
+  <resource_index id="1" kee="project one" resource_id="1" root_project_id="1" position="0" name_size="11" qualifier="TRK"/>
+  <resource_index id="2" kee="roject one" resource_id="1" root_project_id="1" position="1" name_size="11" qualifier="TRK"/>
+  <resource_index id="3" kee="oject one" resource_id="1" root_project_id="1" position="2" name_size="11" qualifier="TRK"/>
+  <resource_index id="4" kee="ject one" resource_id="1" root_project_id="1" position="3" name_size="11" qualifier="TRK"/>
+  <resource_index id="5" kee="ect one" resource_id="1" root_project_id="1" position="4" name_size="11" qualifier="TRK"/>
+  <resource_index id="6" kee="ct one" resource_id="1" root_project_id="1" position="5" name_size="11" qualifier="TRK"/>
+  <resource_index id="7" kee="t one" resource_id="1" root_project_id="1" position="6" name_size="11" qualifier="TRK"/>
+  <resource_index id="8" kee=" one" resource_id="1" root_project_id="1" position="7" name_size="11" qualifier="TRK"/>
+  <resource_index id="9" kee="one" resource_id="1" root_project_id="1" position="8" name_size="11" qualifier="TRK"/>
+  <resource_index id="10" kee="project two" resource_id="2" root_project_id="2" position="0" name_size="11" qualifier="TRK"/>
+  <resource_index id="11" kee="roject two" resource_id="2" root_project_id="2" position="1" name_size="11" qualifier="TRK"/>
+  <resource_index id="12" kee="oject two" resource_id="2" root_project_id="2" position="2" name_size="11" qualifier="TRK"/>
+  <resource_index id="13" kee="ject two" resource_id="2" root_project_id="2" position="3" name_size="11" qualifier="TRK"/>
+  <resource_index id="14" kee="ect two" resource_id="2" root_project_id="2" position="4" name_size="11" qualifier="TRK"/>
+  <resource_index id="15" kee="ct two" resource_id="2" root_project_id="2" position="5" name_size="11" qualifier="TRK"/>
+  <resource_index id="16" kee="t two" resource_id="2" root_project_id="2" position="6" name_size="11" qualifier="TRK"/>
+  <resource_index id="17" kee="two" resource_id="2" root_project_id="2" position="7" name_size="11" qualifier="TRK"/>
+
+</dataset>

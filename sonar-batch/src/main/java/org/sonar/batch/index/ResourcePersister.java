@@ -19,12 +19,19 @@
  */
 package org.sonar.batch.index;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.resources.*;
+import org.sonar.api.resources.Language;
+import org.sonar.api.resources.Library;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.ResourceUtils;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.security.ResourcePermissions;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.internal.Uuids;
@@ -34,6 +41,7 @@ import org.sonar.core.component.ScanGraph;
 import javax.annotation.Nullable;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.Query;
+
 import java.util.Date;
 import java.util.List;
 
@@ -41,6 +49,8 @@ import static org.sonar.api.utils.DateUtils.dateToLong;
 
 public class ResourcePersister implements ScanPersister {
 
+  @VisibleForTesting
+  static final String MODULE_UUID_PATH_SEPARATOR = ".";
   private static final String RESOURCE_ID = "resourceId";
   private static final String LAST = "last";
   private static final String VERSION = "version";
@@ -273,22 +283,29 @@ public class ResourcePersister implements ScanPersister {
     if (ResourceUtils.isLibrary(resource) && !Qualifiers.LIBRARY.equals(model.getQualifier())) {
       return;
     }
-    if (parentResource != null) {
+    if (parentResource == null) {
+      // Root module && libraries
+      model.setProjectUuid(model.getUuid());
+      model.setModuleUuidPath(MODULE_UUID_PATH_SEPARATOR + model.getUuid() + MODULE_UUID_PATH_SEPARATOR);
+    } else {
       ResourceModel parentModel = session.getSingleResult(ResourceModel.class, "id", parentResource.getId());
       model.setProjectUuid(parentModel.getProjectUuid());
-      if (Scopes.isProject(parentResource)) {
+      if (Scopes.isProject(resource)) {
+        // Sub module
         model.setModuleUuid(parentResource.getUuid());
         String parentModuleUuidPath = parentModel.getModuleUuidPath();
-        model.setModuleUuidPath(parentModuleUuidPath + parentModel.getUuid() + ".");
+        model.setModuleUuidPath(parentModuleUuidPath + model.getUuid() + MODULE_UUID_PATH_SEPARATOR);
+      } else if (Scopes.isProject(parentResource)) {
+        // Directory
+        model.setModuleUuid(parentResource.getUuid());
+        String parentModuleUuidPath = parentModel.getModuleUuidPath();
+        model.setModuleUuidPath(parentModuleUuidPath);
       } else {
+        // File
         model.setModuleUuid(parentModel.getModuleUuid());
         String parentModuleUuidPath = parentModel.getModuleUuidPath();
         model.setModuleUuidPath(parentModuleUuidPath);
       }
-    } else {
-      // Root module && libraries
-      model.setProjectUuid(model.getUuid());
-      model.setModuleUuidPath(".");
     }
   }
 

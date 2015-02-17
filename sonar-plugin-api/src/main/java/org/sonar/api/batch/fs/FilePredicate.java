@@ -19,11 +19,16 @@
  */
 package org.sonar.api.batch.fs;
 
+
 /**
  * Determines if a file must be kept in search results. See {@link org.sonar.api.batch.fs.FileSystem}
  * and {@link org.sonar.api.batch.fs.FilePredicates}.
  * @since 4.2
  */
 public interface FilePredicate {
+  /**
+   * Test if provided file is valid for this predicate
+   */
   boolean apply(InputFile inputFile);
+
 }

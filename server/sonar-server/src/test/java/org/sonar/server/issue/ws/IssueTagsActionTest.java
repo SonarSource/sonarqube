@@ -47,10 +47,7 @@ public class IssueTagsActionTest {
   @Before
   public void setUp() {
     tagsAction = new TagsAction(service);
-    tester = new WsTester(
-      new IssuesWs(new IssueShowAction(null, null, null, null, null, null, null, null, null, null, null),
-        new SearchAction(null, null, null, null, null, null, null, null, null, null,null),
-        tagsAction, new SetTagsAction(null), new ComponentTagsAction(null), new AuthorsAction(null)));
+    tester = new WsTester(new IssuesWs(tagsAction));
   }
 
   @Test

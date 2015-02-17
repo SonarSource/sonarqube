@@ -23,6 +23,8 @@ package org.sonar.api.task;
  * All the classes implementing this interface can be injected in public constructors of {@link TaskExtension}.
  *
  * @since 3.6
+ * @deprecated since 5.1 all tasks (devcockpit, views) will be moved to server side
  */
+@Deprecated
 public interface TaskComponent {
 }

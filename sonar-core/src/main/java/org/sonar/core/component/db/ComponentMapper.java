@@ -35,21 +35,12 @@ import java.util.List;
  */
 public interface ComponentMapper {
 
-  /**
-   * Warning, projectId is always null
-   */
   @CheckForNull
   ComponentDto selectByKey(String key);
 
-  /**
-   * Warning, projectId is always null
-   */
   @CheckForNull
   ComponentDto selectById(long id);
 
-  /**
-   * Warning, projectId is always null
-   */
   @CheckForNull
   ComponentDto selectByUuid(String uuid);
 
@@ -64,6 +55,8 @@ public interface ComponentMapper {
   List<ComponentDto> findSubProjectsByComponentUuids(@Param("uuids") Collection<String> uuids);
 
   List<ComponentDto> findByKeys(@Param("keys") Collection<String> keys);
+
+  List<ComponentDto> findByIds(@Param("ids") Collection<Long> ids);
 
   List<ComponentDto> findByUuids(@Param("uuids") Collection<String> uuids);
 

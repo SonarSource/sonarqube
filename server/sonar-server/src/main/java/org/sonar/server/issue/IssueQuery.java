@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableSet;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.server.search.QueryContext;
+import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -32,6 +33,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Set;
+
+import static com.google.common.collect.Sets.newHashSet;
 
 /**
  * @since 3.6
@@ -82,7 +85,10 @@ public class IssueQuery {
   private final String sort;
   private final Boolean asc;
   private final Boolean ignorePaging;
-  private final Boolean contextualized;
+
+  private final String userLogin;
+  private final Set<String> userGroups;
+  private final boolean checkAuthorization;
 
   private IssueQuery(Builder builder) {
     this.issueKeys = defaultCollection(builder.issueKeys);
@@ -114,7 +120,9 @@ public class IssueQuery {
     this.sort = builder.sort;
     this.asc = builder.asc;
     this.ignorePaging = builder.ignorePaging;
-    this.contextualized = builder.contextualized;
+    this.userLogin = builder.userLogin;
+    this.userGroups = builder.userGroups;
+    this.checkAuthorization = builder.checkAuthorization;
   }
 
   public Collection<String> issueKeys() {
@@ -248,8 +256,16 @@ public class IssueQuery {
   }
 
   @CheckForNull
-  public Boolean isContextualized() {
-    return contextualized;
+  public String userLogin() {
+    return userLogin;
+  }
+
+  public Set<String> userGroups() {
+    return newHashSet(defaultCollection(userGroups));
+  }
+
+  public boolean checkAuthorization() {
+    return checkAuthorization;
   }
 
   @Override
@@ -291,7 +307,9 @@ public class IssueQuery {
     private String sort;
     private Boolean asc = false;
     private Boolean ignorePaging = false;
-    private boolean contextualized;
+    private String userLogin = UserSession.get().login();
+    private Set<String> userGroups = UserSession.get().userGroups();
+    private boolean checkAuthorization = true;
 
     private Builder() {
     }
@@ -475,10 +493,21 @@ public class IssueQuery {
       return this;
     }
 
-    public Builder setContextualized(boolean b) {
-      this.contextualized = b;
+    public Builder userLogin(@Nullable String userLogin) {
+      this.userLogin = userLogin;
       return this;
     }
+
+    public Builder userGroups(@Nullable Set<String> userGroups) {
+      this.userGroups = userGroups;
+      return this;
+    }
+
+    public Builder checkAuthorization(boolean checkAuthorization) {
+      this.checkAuthorization = checkAuthorization;
+      return this;
+    }
+
   }
 
   private static <T> Collection<T> defaultCollection(@Nullable Collection<T> c) {

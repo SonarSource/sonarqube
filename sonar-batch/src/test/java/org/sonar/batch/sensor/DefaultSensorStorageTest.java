@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
@@ -50,7 +51,6 @@ import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.batch.duplication.BlockCache;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.batch.index.DefaultIndex;
@@ -67,6 +67,9 @@ import static org.mockito.Mockito.when;
 public class DefaultSensorStorageTest {
 
   @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
+  @Rule
   public ExpectedException thrown = ExpectedException.none();
 
   private ActiveRules activeRules;
@@ -78,22 +81,21 @@ public class DefaultSensorStorageTest {
   private DefaultIndex sonarIndex;
 
   @Before
-  public void prepare() {
+  public void prepare() throws Exception {
     activeRules = new ActiveRulesBuilder().build();
-    fs = new DefaultFileSystem();
+    fs = new DefaultFileSystem(temp.newFolder().toPath());
     MetricFinder metricFinder = mock(MetricFinder.class);
     when(metricFinder.findByKey(CoreMetrics.NCLOC_KEY)).thenReturn(CoreMetrics.NCLOC);
     when(metricFinder.findByKey(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION_KEY)).thenReturn(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION);
     settings = new Settings();
     resourcePerspectives = mock(ResourcePerspectives.class);
     ComponentDataCache componentDataCache = mock(ComponentDataCache.class);
-    BlockCache blockCache = mock(BlockCache.class);
     project = new Project("myProject");
     sonarIndex = mock(DefaultIndex.class);
     CoverageExclusions coverageExclusions = mock(CoverageExclusions.class);
     when(coverageExclusions.accept(any(Resource.class), any(Measure.class))).thenReturn(true);
     sensorStorage = new DefaultSensorStorage(metricFinder, project,
-      resourcePerspectives, settings, fs, activeRules, componentDataCache, blockCache, mock(DuplicationCache.class), sonarIndex, coverageExclusions);
+      resourcePerspectives, settings, fs, activeRules, componentDataCache, mock(DuplicationCache.class), sonarIndex, coverageExclusions);
   }
 
   @Test
@@ -275,7 +277,7 @@ public class DefaultSensorStorageTest {
     when(sonarIndex.getEdge(foo, bar)).thenReturn(new Dependency(foo, bar));
 
     thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Dependency between [moduleKey=foo, relative=src/Foo.java, abs=null] and [moduleKey=foo, relative=src/Bar.java, abs=null] was already saved.");
+    thrown.expectMessage("Dependency between [moduleKey=foo, relative=src/Foo.java, basedir=null] and [moduleKey=foo, relative=src/Bar.java, basedir=null] was already saved.");
 
     sensorStorage.store(new DefaultDependency()
       .from(new DefaultInputFile("foo", "src/Foo.java").setType(Type.MAIN))

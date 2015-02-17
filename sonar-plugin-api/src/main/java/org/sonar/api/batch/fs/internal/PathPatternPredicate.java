@@ -19,13 +19,12 @@
  */
 package org.sonar.api.batch.fs.internal;
 
-import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
 
 /**
  * @since 4.2
  */
-class PathPatternPredicate implements FilePredicate {
+class PathPatternPredicate extends AbstractFilePredicate {
 
   private final PathPattern pattern;
 

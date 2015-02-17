@@ -20,6 +20,7 @@
 package org.sonar.api.batch.sensor;
 
 import org.sonar.api.batch.sensor.dependency.Dependency;
+import org.sonar.api.batch.sensor.duplication.Duplication;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.test.TestCaseCoverage;
@@ -27,13 +28,15 @@ import org.sonar.api.batch.sensor.test.TestCaseExecution;
 
 /**
  * Interface for storing data computed by sensors.
- * @since 5.0
+ * @since 5.1
  */
 public interface SensorStorage {
 
   void store(Measure measure);
 
   void store(Issue issue);
+
+  void store(Duplication duplication);
 
   void store(TestCaseExecution testCaseExecution);
 

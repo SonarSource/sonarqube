@@ -43,7 +43,7 @@ public class SourceHashHolder {
 
   private void initHashes() {
     if (hashedSource == null) {
-      hashedSource = FileHashes.create(inputFile.lineHashes());
+      hashedSource = FileHashes.create(inputFile);
       Status status = inputFile.status();
       if (status == Status.ADDED) {
         hashedReference = null;

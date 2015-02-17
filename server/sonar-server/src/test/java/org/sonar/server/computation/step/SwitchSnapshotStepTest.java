@@ -21,7 +21,7 @@
 package org.sonar.server.computation.step;
 
 import org.junit.Before;
-import org.junit.Rule;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.DateUtils;
@@ -42,13 +42,14 @@ import static org.mockito.Mockito.when;
 @Category(DbTests.class)
 public class SwitchSnapshotStepTest {
 
-  @Rule
-  public DbTester db = new DbTester();
+  @ClassRule
+  public static DbTester db = new DbTester();
 
   SwitchSnapshotStep sut;
 
   @Before
   public void before() {
+    db.truncateTables();
     System2 system2 = mock(System2.class);
     when(system2.now()).thenReturn(DateUtils.parseDate("2011-09-29").getTime());
     this.sut = new SwitchSnapshotStep(new DbClient(db.database(), db.myBatis(), new SnapshotDao(system2)));

@@ -101,6 +101,26 @@ public class IssueChangesEmailTemplateTest {
   }
 
   @Test
+  public void email_should_display_resolution_change() throws Exception {
+    Notification notification = generateNotification()
+      .setFieldValue("old.resolution", "FALSE-POSITIVE")
+      .setFieldValue("new.resolution", "FIXED");
+
+    EmailMessage email = template.format(notification);
+    assertThat(email.getMessageId()).isEqualTo("issue-changes/ABCDE");
+    assertThat(email.getSubject()).isEqualTo("Struts, change on issue #ABCDE");
+
+    String message = email.getMessage();
+    String expected = Resources.toString(Resources.getResource(
+      "org/sonar/server/issue/notification/IssueChangesEmailTemplateTest/email_should_display_resolution_change.txt"),
+      Charsets.UTF_8
+      );
+    expected = StringUtils.remove(expected, '\r');
+    assertThat(message).isEqualTo(expected);
+    assertThat(email.getFrom()).isNull();
+  }
+
+  @Test
   public void display_component_key_if_no_component_name() throws Exception {
     Notification notification = generateNotification()
       .setFieldValue("componentName", null);

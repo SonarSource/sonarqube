@@ -19,15 +19,15 @@
  */
 package org.sonar.batch.mediumtest;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.dependency.Dependency;
-import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
+import org.sonar.api.batch.sensor.duplication.Duplication;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.batch.sensor.symbol.Symbol;
@@ -68,7 +68,7 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
 
   private List<Issue> issues = new ArrayList<>();
   private List<org.sonar.api.batch.sensor.measure.Measure> measures = new ArrayList<>();
-  private Map<String, List<DuplicationGroup>> duplications = new HashMap<>();
+  private Map<String, List<Duplication>> duplications = new HashMap<>();
   private Map<String, InputFile> inputFiles = new HashMap<>();
   private Map<String, InputDir> inputDirs = new HashMap<>();
   private Map<InputFile, SyntaxHighlightingData> highlightingPerFile = new HashMap<>();
@@ -143,9 +143,8 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
 
   private void storeDuplication(ProjectScanContainer container) {
     DuplicationCache duplicationCache = container.getComponentByType(DuplicationCache.class);
-    for (Entry<List<DuplicationGroup>> entry : duplicationCache.entries()) {
-      String effectiveKey = entry.key()[0].toString();
-      duplications.put(effectiveKey, entry.value());
+    for (String effectiveKey : duplicationCache.componentKeys()) {
+      duplications.put(effectiveKey, Lists.<Duplication>newArrayList(duplicationCache.byComponent(effectiveKey)));
     }
   }
 
@@ -165,12 +164,11 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
 
   private void storeFs(ProjectScanContainer container) {
     InputPathCache inputFileCache = container.getComponentByType(InputPathCache.class);
-    for (InputPath inputPath : inputFileCache.all()) {
-      if (inputPath instanceof InputFile) {
-        inputFiles.put(inputPath.relativePath(), (InputFile) inputPath);
-      } else {
-        inputDirs.put(inputPath.relativePath(), (InputDir) inputPath);
-      }
+    for (InputFile inputPath : inputFileCache.allFiles()) {
+      inputFiles.put(inputPath.relativePath(), inputPath);
+    }
+    for (InputDir inputPath : inputFileCache.allDirs()) {
+      inputDirs.put(inputPath.relativePath(), inputPath);
     }
   }
 
@@ -212,7 +210,7 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
     return inputDirs.get(relativePath);
   }
 
-  public List<DuplicationGroup> duplicationsFor(InputFile inputFile) {
+  public List<Duplication> duplicationsFor(InputFile inputFile) {
     return duplications.get(((DefaultInputFile) inputFile).key());
   }
 

@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.rule;
 
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.FileSystem;
@@ -33,16 +34,20 @@ public class QProfileSensor implements Sensor {
 
   private final ModuleQProfiles moduleQProfiles;
   private final FileSystem fs;
+  private final AnalysisMode analysisMode;
 
-  public QProfileSensor(ModuleQProfiles moduleQProfiles, FileSystem fs) {
+  public QProfileSensor(ModuleQProfiles moduleQProfiles, FileSystem fs, AnalysisMode analysisMode) {
     this.moduleQProfiles = moduleQProfiles;
     this.fs = fs;
+    this.analysisMode = analysisMode;
   }
 
   @Override
   public boolean shouldExecuteOnProject(Project project) {
     // Should be only executed on leaf modules
-    return project.getModules().isEmpty();
+    return project.getModules().isEmpty()
+      // Useless in preview mode
+      && !analysisMode.isPreview();
   }
 
   @Override

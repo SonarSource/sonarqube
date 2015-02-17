@@ -19,13 +19,13 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.config.Settings;
@@ -45,8 +45,6 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This class can't be immutable because of execution of maven plugins that can change the project structure (see MavenPluginHandler and sonar.phase)
- *
  * @since 3.5
  */
 public class DefaultModuleFileSystem extends DefaultFileSystem implements ModuleFileSystem {
@@ -62,32 +60,28 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
   private ComponentIndexer componentIndexer;
   private boolean initialized;
 
-  /**
-   * Used by scan2 
-   */
-  public DefaultModuleFileSystem(ModuleInputFileCache moduleInputFileCache, ProjectDefinition def, Settings settings,
-    FileIndexer indexer, ModuleFileSystemInitializer initializer) {
-    this(moduleInputFileCache, def.getKey(), settings, indexer, initializer, null);
-  }
-
   public DefaultModuleFileSystem(ModuleInputFileCache moduleInputFileCache, Project project,
-    Settings settings, FileIndexer indexer,
-    ModuleFileSystemInitializer initializer,
-    ComponentIndexer componentIndexer) {
-    this(moduleInputFileCache, project.getKey(), settings, indexer, initializer, componentIndexer);
-  }
-
-  private DefaultModuleFileSystem(ModuleInputFileCache moduleInputFileCache, String moduleKey, Settings settings,
-    FileIndexer indexer, ModuleFileSystemInitializer initializer,
-    @Nullable ComponentIndexer componentIndexer) {
-    super(moduleInputFileCache);
+    Settings settings, FileIndexer indexer, ModuleFileSystemInitializer initializer, ComponentIndexer componentIndexer) {
+    super(initializer.baseDir(), moduleInputFileCache);
     this.componentIndexer = componentIndexer;
-    this.moduleKey = moduleKey;
+    this.moduleKey = project.getKey();
     this.settings = settings;
     this.indexer = indexer;
-    if (initializer.baseDir() != null) {
-      setBaseDir(initializer.baseDir());
-    }
+    setWorkDir(initializer.workingDir());
+    this.buildDir = initializer.buildDir();
+    this.sourceDirsOrFiles = initializer.sources();
+    this.testDirsOrFiles = initializer.tests();
+    this.binaryDirs = initializer.binaryDirs();
+  }
+
+  @VisibleForTesting
+  public DefaultModuleFileSystem(Project project,
+    Settings settings, FileIndexer indexer, ModuleFileSystemInitializer initializer, ComponentIndexer componentIndexer) {
+    super(initializer.baseDir().toPath());
+    this.componentIndexer = componentIndexer;
+    this.moduleKey = project.getKey();
+    this.settings = settings;
+    this.indexer = indexer;
     setWorkDir(initializer.workingDir());
     this.buildDir = initializer.buildDir();
     this.sourceDirsOrFiles = initializer.sources();
@@ -219,17 +213,6 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
     }
   }
 
-  public void resetDirs(File basedir, File buildDir, List<File> sourceDirs, List<File> testDirs, List<File> binaryDirs) {
-    if (initialized) {
-      throw MessageException.of("Module filesystem is already initialized. Modifications of filesystem are only allowed during Initializer phase.");
-    }
-    setBaseDir(basedir);
-    this.buildDir = buildDir;
-    this.sourceDirsOrFiles = existingDirsOrFiles(sourceDirs);
-    this.testDirsOrFiles = existingDirsOrFiles(testDirs);
-    this.binaryDirs = existingDirsOrFiles(binaryDirs);
-  }
-
   public void index() {
     if (initialized) {
       throw MessageException.of("Module filesystem can only be indexed once");
@@ -239,16 +222,6 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
     if (componentIndexer != null) {
       componentIndexer.execute(this);
     }
-  }
-
-  private List<File> existingDirsOrFiles(List<File> dirsOrFiles) {
-    ImmutableList.Builder<File> builder = ImmutableList.builder();
-    for (File dirOrFile : dirsOrFiles) {
-      if (dirOrFile.exists()) {
-        builder.add(dirOrFile);
-      }
-    }
-    return builder.build();
   }
 
   private FilePredicate fromDeprecatedAttribute(String key, Collection<String> value) {
@@ -281,30 +254,6 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
         @Override
         public FilePredicate apply(@Nullable String s) {
           return s == null ? predicates().all() : new AdditionalFilePredicates.KeyPredicate(s);
-        }
-      }));
-    }
-    if ("CMP_DEPRECATED_KEY".equals(key)) {
-      return predicates().or(Collections2.transform(value, new Function<String, FilePredicate>() {
-        @Override
-        public FilePredicate apply(@Nullable String s) {
-          return s == null ? predicates().all() : new AdditionalFilePredicates.DeprecatedKeyPredicate(s);
-        }
-      }));
-    }
-    if ("SRC_REL_PATH".equals(key)) {
-      return predicates().or(Collections2.transform(value, new Function<String, FilePredicate>() {
-        @Override
-        public FilePredicate apply(@Nullable String s) {
-          return s == null ? predicates().all() : new AdditionalFilePredicates.SourceRelativePathPredicate(s);
-        }
-      }));
-    }
-    if ("SRC_DIR_PATH".equals(key)) {
-      return predicates().or(Collections2.transform(value, new Function<String, FilePredicate>() {
-        @Override
-        public FilePredicate apply(@Nullable String s) {
-          return s == null ? predicates().all() : new AdditionalFilePredicates.SourceDirPredicate(s);
         }
       }));
     }

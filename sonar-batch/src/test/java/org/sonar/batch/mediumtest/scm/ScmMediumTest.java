@@ -130,14 +130,11 @@ public class ScmMediumTest {
   }
 
   @Test
-  public void failIfMissingFile() throws IOException {
+  public void dontFailIfMissingFile() throws IOException {
 
     File baseDir = prepareProject();
     File xooFile = new File(baseDir, "src/sample2.xoo");
     FileUtils.write(xooFile, "Sample xoo\ncontent\n3\n4\n5");
-
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Some files were not blamed");
 
     tester.newTask()
       .properties(ImmutableMap.<String, String>builder()

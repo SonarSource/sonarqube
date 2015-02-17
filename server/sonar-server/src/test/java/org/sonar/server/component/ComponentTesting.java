@@ -57,7 +57,7 @@ public class ComponentTesting {
   }
 
   public static ComponentDto newModuleDto(String uuid, ComponentDto subProjectOrProject) {
-    return newChildComponent(uuid, subProjectOrProject)
+    return newChildComponent(uuid, subProjectOrProject, true)
       .setKey("KEY_" + uuid)
       .setName("NAME_" + uuid)
       .setLongName("LONG_NAME_" + uuid)
@@ -131,11 +131,15 @@ public class ComponentTesting {
   }
 
   private static ComponentDto newChildComponent(String uuid, ComponentDto module) {
+    return newChildComponent(uuid, module, false);
+  }
+
+  private static ComponentDto newChildComponent(String uuid, ComponentDto module, boolean isModule) {
     return new ComponentDto()
       .setUuid(uuid)
       .setProjectUuid(module.projectUuid())
       .setModuleUuid(module.uuid())
-      .setModuleUuidPath(module.moduleUuidPath() + module.uuid() + MODULE_UUID_PATH_SEP)
+      .setModuleUuidPath(module.moduleUuidPath() + module.uuid() + MODULE_UUID_PATH_SEP + (isModule ? uuid + MODULE_UUID_PATH_SEP : ""))
       .setParentProjectId(module.getId())
       .setEnabled(true);
   }

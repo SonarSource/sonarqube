@@ -29,14 +29,16 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.batch.scan.filesystem.InputFileMetadata;
+import org.sonar.batch.scan.filesystem.InputPathCache;
 
 @Phase(name = Phase.Name.PRE)
 public final class LinesSensor implements Sensor {
 
-  private final FileSystem fs;
+  private final InputPathCache inputPathCache;
 
-  public LinesSensor(FileSystem fs) {
-    this.fs = fs;
+  public LinesSensor(InputPathCache inputPathCache) {
+    this.inputPathCache = inputPathCache;
   }
 
   @Override
@@ -46,6 +48,7 @@ public final class LinesSensor implements Sensor {
 
   @Override
   public void execute(final SensorContext context) {
+    FileSystem fs = context.fileSystem();
     for (InputFile f : fs.inputFiles(fs.predicates().hasType(Type.MAIN))) {
       ((DefaultMeasure<Integer>) context.<Integer>newMeasure()
         .onFile(f)
@@ -55,10 +58,11 @@ public final class LinesSensor implements Sensor {
         .save();
       if (f.language() == null) {
         // As an approximation for files with no language plugin we consider every non blank line as ncloc
+        InputFileMetadata metadata = inputPathCache.getFileMetadata(((DefaultInputFile) f).moduleKey(), f.relativePath());
         ((DefaultMeasure<Integer>) context.<Integer>newMeasure()
           .onFile(f)
           .forMetric(CoreMetrics.NCLOC)
-          .withValue(((DefaultInputFile) f).nonBlankLines()))
+          .withValue(metadata.nonBlankLines()))
           .save();
       }
     }

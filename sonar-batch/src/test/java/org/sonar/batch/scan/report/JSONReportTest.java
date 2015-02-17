@@ -27,8 +27,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.skyscreamer.jsonassert.JSONAssert;
+import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
@@ -42,9 +42,9 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.issue.IssueCache;
+import org.sonar.batch.repository.user.User;
+import org.sonar.batch.repository.user.UserRepository;
 import org.sonar.batch.scan.filesystem.InputPathCache;
-import org.sonar.batch.user.User;
-import org.sonar.batch.user.UserRepository;
 
 import java.io.File;
 import java.io.IOException;
@@ -64,11 +64,11 @@ public class JSONReportTest {
   private SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
   @org.junit.Rule
-  public TemporaryFolder temporaryFolder = new TemporaryFolder();
+  public TemporaryFolder temp = new TemporaryFolder();
 
   JSONReport jsonReport;
   Resource resource = mock(Resource.class);
-  DefaultFileSystem fs = new DefaultFileSystem();
+  DefaultFileSystem fs;
   Server server = mock(Server.class);
   ActiveRules activeRules = mock(ActiveRules.class);
   Settings settings = new Settings();
@@ -76,7 +76,8 @@ public class JSONReportTest {
   private UserRepository userRepository;
 
   @Before
-  public void before() {
+  public void before() throws Exception {
+    fs = new DefaultFileSystem(temp.newFolder().toPath());
     SIMPLE_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT+02:00"));
     when(resource.getEffectiveKey()).thenReturn("Action.java");
     when(server.getVersion()).thenReturn("3.6");
@@ -85,7 +86,8 @@ public class JSONReportTest {
     DeprecatedDefaultInputFile inputFile = new DeprecatedDefaultInputFile("struts", "src/main/java/org/apache/struts/Action.java");
     inputFile.setStatus(InputFile.Status.CHANGED);
     InputPathCache fileCache = mock(InputPathCache.class);
-    when(fileCache.all()).thenReturn(Arrays.<InputPath>asList(inputDir, inputFile));
+    when(fileCache.allFiles()).thenReturn(Arrays.<InputFile>asList(inputFile));
+    when(fileCache.allDirs()).thenReturn(Arrays.<InputDir>asList(inputDir));
     Project rootModule = new Project("struts");
     Project moduleA = new Project("struts-core");
     moduleA.setParent(rootModule).setPath("core");
@@ -161,7 +163,7 @@ public class JSONReportTest {
 
   @Test
   public void should_export_issues_to_file() throws IOException {
-    File workDir = temporaryFolder.newFolder("sonar");
+    File workDir = temp.newFolder("sonar");
     fs.setWorkDir(workDir);
 
     when(jsonReport.getIssues()).thenReturn(Collections.<DefaultIssue>emptyList());

@@ -33,11 +33,13 @@ import org.sonar.core.persistence.dialect.Oracle;
 
 import javax.annotation.Nullable;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
-
-import static org.sonar.api.utils.DateUtils.dateToLong;
 
 class MeasureFilterSql {
 
@@ -45,7 +47,7 @@ class MeasureFilterSql {
   private final MeasureFilter filter;
   private final MeasureFilterContext context;
   private final String sql;
-  private final List<Date> dateParameters = Lists.newArrayList();
+  private final List<Long> dateParameters = Lists.newArrayList();
 
   MeasureFilterSql(Database database, MeasureFilter filter, MeasureFilterContext context) {
     this.database = database;
@@ -54,12 +56,56 @@ class MeasureFilterSql {
     this.sql = generateSql();
   }
 
+  private static void appendInStatement(List<String> values, StringBuilder to) {
+    to.append(" (");
+    for (int i = 0; i < values.size(); i++) {
+      if (i > 0) {
+        to.append(",");
+      }
+      to.append("'");
+      to.append(StringEscapeUtils.escapeSql(values.get(i)));
+      to.append("'");
+    }
+    to.append(") ");
+  }
+
+  private static Ordering newObjectOrdering(boolean ascending) {
+    if (ascending) {
+      return Ordering.from(new Comparator<Comparable>() {
+        @Override
+        public int compare(@Nullable Comparable left, @Nullable Comparable right) {
+          if (left == null) {
+            return 1;
+          }
+          if (right == null) {
+            return -1;
+          }
+
+          return left.compareTo(right);
+        }
+      });
+    }
+    return Ordering.from(new Comparator<Comparable>() {
+      @Override
+      public int compare(@Nullable Comparable left, @Nullable Comparable right) {
+        if (left == null) {
+          return 1;
+        }
+        if (right == null) {
+          return -1;
+        }
+
+        return -left.compareTo(right);
+      }
+    });
+  }
+
   List<MeasureFilterRow> execute(Connection connection) throws SQLException {
     PreparedStatement statement = connection.prepareStatement(sql);
     ResultSet rs = null;
     try {
       for (int index = 0; index < dateParameters.size(); index++) {
-        statement.setLong(index + 1, dateToLong(dateParameters.get(index)));
+        statement.setLong(index + 1, dateParameters.get(index));
       }
       rs = statement.executeQuery();
       return process(rs);
@@ -130,15 +176,15 @@ class MeasureFilterSql {
   }
 
   private void appendDateConditions(StringBuilder sb) {
-    java.util.Date fromDate = filter.getFromDate();
+    Date fromDate = filter.getFromDate();
     if (fromDate != null) {
       sb.append(" AND s.created_at >= ? ");
-      dateParameters.add(new Date(fromDate.getTime()));
+      dateParameters.add(fromDate.getTime());
     }
-    java.util.Date toDate = filter.getToDate();
+    Date toDate = filter.getToDate();
     if (toDate != null) {
       sb.append(" AND s.created_at <= ? ");
-      dateParameters.add(new Date(toDate.getTime()));
+      dateParameters.add(toDate.getTime());
     }
   }
 
@@ -206,19 +252,6 @@ class MeasureFilterSql {
     }
 
     return rowProcessor.sort(rows, filter.sort().isAsc());
-  }
-
-  private static void appendInStatement(List<String> values, StringBuilder to) {
-    to.append(" (");
-    for (int i = 0; i < values.size(); i++) {
-      if (i > 0) {
-        to.append(",");
-      }
-      to.append("'");
-      to.append(StringEscapeUtils.escapeSql(values.get(i)));
-      to.append("'");
-    }
-    to.append(") ");
   }
 
   /**
@@ -369,36 +402,5 @@ class MeasureFilterSql {
     Ordering sortFieldOrdering(boolean ascending) {
       return newObjectOrdering(ascending);
     }
-  }
-
-  private static Ordering newObjectOrdering(boolean ascending) {
-    if (ascending) {
-      return Ordering.from(new Comparator<Comparable>() {
-        @Override
-        public int compare(@Nullable Comparable left, @Nullable Comparable right) {
-          if (left == null) {
-            return 1;
-          }
-          if (right == null) {
-            return -1;
-          }
-
-          return left.compareTo(right);
-        }
-      });
-    }
-    return Ordering.from(new Comparator<Comparable>() {
-      @Override
-      public int compare(@Nullable Comparable left, @Nullable Comparable right) {
-        if (left == null) {
-          return 1;
-        }
-        if (right == null) {
-          return -1;
-        }
-
-        return -left.compareTo(right);
-      }
-    });
   }
 }

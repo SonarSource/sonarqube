@@ -31,6 +31,7 @@ import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
 
+import java.io.InputStream;
 import java.io.Reader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -56,17 +57,48 @@ public class FileSourceDao implements BatchComponent, ServerComponent, DaoCompon
     }
   }
 
-  public <T> void readDataStream(String fileUuid, Function<Reader, T> function) {
+  public <T> void readDataStream(String fileUuid, Function<InputStream, T> function) {
     DbSession dbSession = mybatis.openSession(false);
+    Connection connection = dbSession.getConnection();
+    PreparedStatement pstmt = null;
+    ResultSet rs = null;
+    InputStream input = null;
     try {
-      readColumnStream(dbSession, fileUuid, function, "data");
+      pstmt = connection.prepareStatement("SELECT binary_data FROM file_sources WHERE file_uuid=?");
+      pstmt.setString(1, fileUuid);
+      rs = pstmt.executeQuery();
+      if (rs.next()) {
+        input = rs.getBinaryStream(1);
+        function.apply(input);
+      }
+    } catch (SQLException e) {
+      throw new IllegalStateException("Fail to read FILE_SOURCES.BINARY_DATA of file " + fileUuid, e);
     } finally {
+      IOUtils.closeQuietly(input);
+      DbUtils.closeQuietly(connection, pstmt, rs);
       MyBatis.closeQuietly(dbSession);
     }
   }
 
   public <T> void readLineHashesStream(DbSession dbSession, String fileUuid, Function<Reader, T> function) {
-    readColumnStream(dbSession, fileUuid, function, "line_hashes");
+    Connection connection = dbSession.getConnection();
+    PreparedStatement pstmt = null;
+    ResultSet rs = null;
+    Reader reader = null;
+    try {
+      pstmt = connection.prepareStatement("SELECT line_hashes FROM file_sources WHERE file_uuid=?");
+      pstmt.setString(1, fileUuid);
+      rs = pstmt.executeQuery();
+      if (rs.next()) {
+        reader = rs.getCharacterStream(1);
+        function.apply(reader);
+      }
+    } catch (SQLException e) {
+      throw new IllegalStateException("Fail to read FILE_SOURCES.LINE_HASHES of file " + fileUuid, e);
+    } finally {
+      IOUtils.closeQuietly(reader);
+      DbUtils.closeQuietly(connection, pstmt, rs);
+    }
   }
 
   public void insert(FileSourceDto dto) {
@@ -89,24 +121,4 @@ public class FileSourceDao implements BatchComponent, ServerComponent, DaoCompon
     }
   }
 
-  private <T> void readColumnStream(DbSession dbSession, String fileUuid, Function<Reader, T> function, String column) {
-    Connection connection = dbSession.getConnection();
-    PreparedStatement pstmt = null;
-    ResultSet rs = null;
-    Reader reader = null;
-    try {
-      pstmt = connection.prepareStatement("SELECT " + column + " FROM file_sources WHERE file_uuid = ?");
-      pstmt.setString(1, fileUuid);
-      rs = pstmt.executeQuery();
-      if (rs.next()) {
-        reader = rs.getCharacterStream(1);
-        function.apply(reader);
-      }
-    } catch (SQLException e) {
-      throw new IllegalStateException("Fail to read FILE_SOURCES." + column.toUpperCase() + " of file " + fileUuid, e);
-    } finally {
-      IOUtils.closeQuietly(reader);
-      DbUtils.closeQuietly(connection, pstmt, rs);
-    }
-  }
 }

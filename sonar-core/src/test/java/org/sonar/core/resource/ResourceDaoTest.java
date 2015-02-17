@@ -345,7 +345,7 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
     setupData("fixture");
 
     assertThat(dao.findByKey("org.struts:struts")).isNotNull();
-    Component<?> component = dao.findByKey("org.struts:struts-core:src/org/struts/RequestContext.java");
+    Component component = dao.findByKey("org.struts:struts-core:src/org/struts/RequestContext.java");
     assertThat(component).isNotNull();
     assertThat(component.path()).isEqualTo("src/org/struts/RequestContext.java");
     assertThat(dao.findByKey("unknown")).isNull();

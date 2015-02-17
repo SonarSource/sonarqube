@@ -10,7 +10,7 @@
       variation_value_2, variation_value_3, variation_value_4, variation_value_5, person_id, measure_data)
     VALUES (
       #{value, jdbcType=DOUBLE}, #{metricId, jdbcType=INTEGER}, #{snapshotId, jdbcType=INTEGER}, #{ruleId, jdbcType=INTEGER}, #{textValue, jdbcType=VARCHAR}, #{tendency, jdbcType=INTEGER},
-      #{measureDate, jdbcType=TIMESTAMP}, #{projectId, jdbcType=INTEGER}, #{alertStatus, jdbcType=VARCHAR}, #{alertText, jdbcType=VARCHAR},
+      #{measureDateMs, jdbcType=BIGINT}, #{projectId, jdbcType=INTEGER}, #{alertStatus, jdbcType=VARCHAR}, #{alertText, jdbcType=VARCHAR},
       #{url, jdbcType=VARCHAR}, #{description, jdbcType=VARCHAR}, #{rulePriority.ordinal, jdbcType=INTEGER}, #{characteristicId, jdbcType=INTEGER}, #{variationValue1, jdbcType=DOUBLE},
       #{variationValue2, jdbcType=DOUBLE}, #{variationValue3, jdbcType=DOUBLE}, #{variationValue4, jdbcType=DOUBLE}, #{variationValue5, jdbcType=DOUBLE}, #{personId, jdbcType=INTEGER}, #{data}
     )

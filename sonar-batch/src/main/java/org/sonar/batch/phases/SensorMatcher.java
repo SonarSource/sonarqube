@@ -27,6 +27,7 @@ import org.sonar.batch.bootstrap.ExtensionMatcher;
 
 /**
  * Allow to filter sensors that will be executed.
+ * Used by views !!
  * @since 3.6
  *
  */

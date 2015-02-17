@@ -19,12 +19,13 @@
 #
 class ComponentsController < ApplicationController
 
+  before_filter :init_resource_for_user_role
+
   helper :metrics, :components
 
   SECTION = Navigation::SECTION_RESOURCE
 
   def index
-    init_resource_for_user_role
     @components_configuration = Sonar::ComponentsConfiguration.new
 
     @snapshots = Snapshot.all(:include => 'project', :conditions => ['snapshots.parent_snapshot_id=?', @snapshot.id])

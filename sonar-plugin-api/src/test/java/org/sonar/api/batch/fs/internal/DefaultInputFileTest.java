@@ -36,8 +36,7 @@ public class DefaultInputFileTest {
   @Test
   public void test() throws Exception {
     DefaultInputFile inputFile = new DefaultInputFile("ABCDE", "src/Foo.php")
-      .setFile(temp.newFile("Foo.php"))
-      .setHash("1234")
+      .setModuleBaseDir(temp.newFolder().toPath())
       .setLines(42)
       .setLanguage("php")
       .setStatus(InputFile.Status.ADDED)
@@ -51,7 +50,6 @@ public class DefaultInputFileTest {
     assertThat(inputFile.status()).isEqualTo(InputFile.Status.ADDED);
     assertThat(inputFile.type()).isEqualTo(InputFile.Type.TEST);
     assertThat(inputFile.lines()).isEqualTo(42);
-    assertThat(inputFile.hash()).isEqualTo("1234");
   }
 
   @Test
@@ -72,7 +70,7 @@ public class DefaultInputFileTest {
 
   @Test
   public void test_toString() throws Exception {
-    DefaultInputFile file = new DefaultInputFile("ABCDE", "src/Foo.php").setAbsolutePath("/path/to/src/Foo.php");
-    assertThat(file.toString()).isEqualTo("[moduleKey=ABCDE, relative=src/Foo.php, abs=/path/to/src/Foo.php]");
+    DefaultInputFile file = new DefaultInputFile("ABCDE", "src/Foo.php");
+    assertThat(file.toString()).isEqualTo("[moduleKey=ABCDE, relative=src/Foo.php, basedir=null]");
   }
 }

@@ -61,8 +61,8 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
   MeasurePersister measurePersister;
   RuleFinder ruleFinder = mock(RuleFinder.class);
   Project project = new Project("foo");
-  Directory aDirectory = new Directory("org/foo");
-  File aFile = new File("org/foo/Bar.java");
+  Directory aDirectory = Directory.create("org/foo");
+  File aFile = File.create("org/foo/Bar.java");
   BatchResource projectResource = batchResource(project, PROJECT_SNAPSHOT_ID);
   BatchResource dirResource = batchResource(aDirectory, PACKAGE_SNAPSHOT_ID);
   BatchResource fileResource = batchResource(aFile, FILE_SNAPSHOT_ID);

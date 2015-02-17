@@ -65,9 +65,9 @@ public class DirectoryDsmDecoratorTest {
     dir = Directory.create("src");
     dirContext = mock(DecoratorContext.class);
 
-    file1 = File.create("src/Foo1.java", "Foo1.java", null, false);
+    file1 = File.create("src/Foo1.java", null, false);
     file1.setId(1);
-    file2 = File.create("src/Foo2.java", "Foo2.java", null, false);
+    file2 = File.create("src/Foo2.java", null, false);
     file2.setId(2);
 
     file1Context = mock(DecoratorContext.class);

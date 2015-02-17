@@ -31,7 +31,7 @@ import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.issue.workflow.Transition;
 import org.sonar.server.user.UserSession;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 
 public class TransitionAction extends Action implements ServerComponent {
@@ -46,7 +46,7 @@ public class TransitionAction extends Action implements ServerComponent {
   }
 
   @Override
-  public boolean verify(Map<String, Object> properties, List<Issue> issues, UserSession userSession) {
+  public boolean verify(Map<String, Object> properties, Collection<Issue> issues, UserSession userSession) {
     transition(properties);
     return true;
   }

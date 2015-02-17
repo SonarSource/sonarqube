@@ -44,7 +44,7 @@ public class ProjectRepositoriesTest {
     settings.put("prop2", "value2");
     ref.addSettings("foo", settings);
     ref.settings("foo").put("prop", "value");
-    ActiveRule activeRule = new ActiveRule("repo", "rule", "Rule", "MAJOR", "rule", "java");
+    ActiveRule activeRule = new ActiveRule("repo", "rule", "templateRule", "Rule", "MAJOR", "rule", "java");
     activeRule.addParam("param1", "value1");
     ref.addActiveRule(activeRule);
     ref.setLastAnalysisDate(new SimpleDateFormat("dd/MM/yyyy").parse("31/10/2014"));
@@ -56,7 +56,7 @@ public class ProjectRepositoriesTest {
       .assertEquals(
         "{timestamp:10,"
           + "qprofilesByLanguage:{java:{key:\"squid-java\",name:Java,language:java,rulesUpdatedAt:\"1984-03-14T00:00:00+0100\"}},"
-          + "activeRules:[{repositoryKey:repo,ruleKey:rule,name:Rule,severity:MAJOR,internalKey:rule,language:java,params:{param1:value1}}],"
+          + "activeRules:[{repositoryKey:repo,ruleKey:rule,templateRuleKey:templateRule,name:Rule,severity:MAJOR,internalKey:rule,language:java,params:{param1:value1}}],"
           + "settingsByModule:{foo:{prop1:value1,prop2:value2,prop:value}},"
           + "fileDataByModuleAndPath:{foo:{\"src/main/java/Foo.java\":{hash:xyz,needBlame:true,scmLastCommitDatetimesByLine:\"1\u003d12345,2\u003d3456\",scmRevisionsByLine:\"1\u003d345,2\u003d345\",scmAuthorsByLine:\"1\u003dhenryju,2\u003dgaudin\"},"
           + "\"src/main/java/Foo2.java\":{hash:xyz,needBlame:false,scmLastCommitDatetimesByLine:\"1\u003d12345,2\u003d3456\",scmRevisionsByLine:\"1\u003d345,2\u003d345\",scmAuthorsByLine:\"1\u003dhenryju,2\u003dgaudin\"}}},"
@@ -69,7 +69,7 @@ public class ProjectRepositoriesTest {
     ProjectRepositories ref = ProjectRepositories
       .fromJson("{timestamp:1,"
         + "qprofilesByLanguage:{java:{key:\"squid-java\",name:Java,language:java,rulesUpdatedAt:\"1984-03-14T00:00:00+0100\"}},"
-        + "activeRules:[{repositoryKey:repo,ruleKey:rule,name:Rule,severity:MAJOR,internalKey:rule1,language:java,params:{param1:value1}}],"
+        + "activeRules:[{repositoryKey:repo,ruleKey:rule,templateRuleKey:templateRule,name:Rule,severity:MAJOR,internalKey:rule1,language:java,params:{param1:value1}}],"
         + "settingsByModule:{foo:{prop:value}},"
         + "fileDataByModuleAndPath:{foo:{\"src/main/java/Foo.java\":{hash:xyz,needBlame:true,scmLastCommitDatetimesByLine:\"1\u003d12345,2\u003d3456\",scmRevisionsByLine:\"1\u003d345,2\u003d345\",scmAuthorsByLine:\"1\u003dhenryju,2\u003dgaudin\"}}},"
         + "lastAnalysisDate:\"2014-10-31T00:00:00+0100\"}");
@@ -79,6 +79,7 @@ public class ProjectRepositoriesTest {
     ActiveRule activeRule = ref.activeRules().iterator().next();
     assertThat(activeRule.ruleKey()).isEqualTo("rule");
     assertThat(activeRule.repositoryKey()).isEqualTo("repo");
+    assertThat(activeRule.templateRuleKey()).isEqualTo("templateRule");
     assertThat(activeRule.name()).isEqualTo("Rule");
     assertThat(activeRule.severity()).isEqualTo("MAJOR");
     assertThat(activeRule.internalKey()).isEqualTo("rule1");

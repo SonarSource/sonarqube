@@ -29,6 +29,7 @@ import org.sonar.api.issue.condition.Condition;
 import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.server.user.UserSession;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -70,7 +71,7 @@ public abstract class Action implements ServerComponent {
     return true;
   }
 
-  abstract boolean verify(Map<String, Object> properties, List<Issue> issues, UserSession userSession);
+  abstract boolean verify(Map<String, Object> properties, Collection<Issue> issues, UserSession userSession);
 
   abstract boolean execute(Map<String, Object> properties, Context context);
 

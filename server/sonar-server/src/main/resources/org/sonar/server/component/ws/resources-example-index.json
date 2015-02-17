@@ -8,16 +8,23 @@
     "date": "2012-08-10T04:03:51+0200",
     "creationDate": "2012-08-10T04:03:51+0200",
     "lname": "Sonar",
+
+    // Only available at file level
     "lang": "java",
+
+    // Only available at project and module levels
     "version": "3.3-SNAPSHOT",
     "description": "Open source platform for continuous inspection of code quality",
 
+    // Description of differential periods
     "p1": "previous_analysis",
     "p1p": "2012-08-09",
     "p1d": "2012-08-09T04:04:01+0200",
     "p2": "days",
     "p2p": "7",
     "p2d": "2012-08-03T04:03:51+0200",
+
+    // Values for the selected metrics
     "msr": [
       {
         "key": "coverage",

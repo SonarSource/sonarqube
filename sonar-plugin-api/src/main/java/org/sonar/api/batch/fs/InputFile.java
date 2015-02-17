@@ -22,6 +22,7 @@ package org.sonar.api.batch.fs;
 import javax.annotation.CheckForNull;
 
 import java.io.File;
+import java.nio.file.Path;
 
 /**
  * This layer over {@link java.io.File} adds information for code analyzers.
@@ -70,6 +71,12 @@ public interface InputFile extends InputPath {
    */
   @Override
   File file();
+
+  /**
+   * The underlying absolute {@link Path}
+   */
+  @Override
+  Path path();
 
   /**
    * Language, for example "java" or "php". Can be null if indexation of all files is enabled and no language claims to support the file.

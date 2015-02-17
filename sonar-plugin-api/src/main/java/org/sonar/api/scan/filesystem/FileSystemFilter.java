@@ -20,6 +20,7 @@
 package org.sonar.api.scan.filesystem;
 
 import org.sonar.api.BatchExtension;
+import org.sonar.api.batch.fs.InputFileFilter;
 
 import java.io.File;
 
@@ -44,10 +45,9 @@ public interface FileSystemFilter extends BatchExtension {
 
     FileType type();
 
-    File relativeDir();
-
     /**
-     * File path relative to source directory. Never return null.
+     * Changed in 5.1 as we don't keep track of relative path to source dir
+     * File path relative to module base directory. Never return null.
      */
     String relativePath();
 

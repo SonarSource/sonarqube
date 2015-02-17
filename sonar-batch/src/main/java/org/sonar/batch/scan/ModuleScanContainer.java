@@ -29,11 +29,7 @@ import org.sonar.api.checks.NoSonarFilter;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileExclusions;
-import org.sonar.batch.DefaultProjectClasspath;
-import org.sonar.batch.DefaultTimeMachine;
-import org.sonar.batch.DeprecatedSensorContext;
 import org.sonar.batch.ProjectTree;
-import org.sonar.batch.ResourceFilters;
 import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
 import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
@@ -45,6 +41,10 @@ import org.sonar.batch.debt.IssueChangelogDebtCalculator;
 import org.sonar.batch.debt.NewDebtDecorator;
 import org.sonar.batch.debt.SqaleRatingDecorator;
 import org.sonar.batch.debt.SqaleRatingSettings;
+import org.sonar.batch.deprecated.DeprecatedSensorContext;
+import org.sonar.batch.deprecated.ResourceFilters;
+import org.sonar.batch.deprecated.components.DefaultProjectClasspath;
+import org.sonar.batch.deprecated.components.DefaultTimeMachine;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.issue.IssuableFactory;
@@ -87,6 +87,7 @@ import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.batch.scan.filesystem.DeprecatedFileFilters;
 import org.sonar.batch.scan.filesystem.ExclusionFilters;
 import org.sonar.batch.scan.filesystem.FileIndexer;
+import org.sonar.batch.scan.filesystem.FileMetadata;
 import org.sonar.batch.scan.filesystem.FileSystemLogger;
 import org.sonar.batch.scan.filesystem.InputFileBuilderFactory;
 import org.sonar.batch.scan.filesystem.LanguageDetectionFactory;
@@ -158,6 +159,7 @@ public class ModuleScanContainer extends ComponentContainer {
       ExclusionFilters.class,
       DeprecatedFileFilters.class,
       InputFileBuilderFactory.class,
+      FileMetadata.class,
       StatusDetectionFactory.class,
       LanguageDetectionFactory.class,
       FileIndexer.class,

@@ -19,9 +19,10 @@
  */
 package org.sonar.plugins.core.timemachine;
 
+import org.sonar.batch.components.TimeMachineConfiguration;
+
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
-import org.sonar.batch.components.TimeMachineConfiguration;
 
 public class NewItCoverageFileAnalyzer extends AbstractNewCoverageFileAnalyzer {
 

@@ -19,6 +19,10 @@
  */
 package org.sonar.plugins.core.timemachine;
 
+import org.sonar.batch.components.TimeMachineConfiguration;
+
+import org.sonar.batch.components.PastSnapshot;
+import org.sonar.batch.components.PastMeasuresLoader;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.sonar.api.batch.DecoratorContext;
@@ -33,9 +37,6 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
-import org.sonar.batch.components.PastMeasuresLoader;
-import org.sonar.batch.components.PastSnapshot;
-import org.sonar.batch.components.TimeMachineConfiguration;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.util.Arrays;
@@ -64,12 +65,12 @@ public class VariationDecoratorTest extends AbstractDbUnitTestCase {
     VariationDecorator decorator = new VariationDecorator(mock(PastMeasuresLoader.class), mock(MetricFinder.class), timeMachineConfiguration, mock(RuleFinder.class));
 
     assertThat(decorator.shouldComputeVariation(new Project("foo"))).isTrue();
-    assertThat(decorator.shouldComputeVariation(new File("foo/bar.c"))).isFalse();
+    assertThat(decorator.shouldComputeVariation(File.create("foo/bar.c"))).isFalse();
   }
 
   @Test
   public void shouldCompareAndSaveVariation() {
-    Resource dir = new Directory("org/foo");
+    Resource dir = Directory.create("org/foo");
 
     PastMeasuresLoader pastMeasuresLoader = mock(PastMeasuresLoader.class);
     PastSnapshot pastSnapshot1 = new PastSnapshot("days", new Date()).setIndex(1);
@@ -117,7 +118,7 @@ public class VariationDecoratorTest extends AbstractDbUnitTestCase {
     when(ruleFinder.findByKey(rule1.ruleKey())).thenReturn(rule1);
     when(ruleFinder.findByKey(rule2.ruleKey())).thenReturn(rule2);
 
-    Resource dir = new Directory("org/foo");
+    Resource dir = Directory.create("org/foo");
 
     PastMeasuresLoader pastMeasuresLoader = mock(PastMeasuresLoader.class);
     PastSnapshot pastSnapshot1 = new PastSnapshot("days", new Date()).setIndex(1);

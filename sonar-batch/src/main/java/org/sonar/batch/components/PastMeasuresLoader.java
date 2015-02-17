@@ -38,6 +38,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Can't be moved. Used by devcockpit.
+ */
 public class PastMeasuresLoader implements BatchComponent {
 
   private Map<Integer, Metric> metricByIds;

@@ -23,7 +23,8 @@ package org.sonar.server.es.request;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.common.unit.TimeValue;
-import org.junit.Rule;
+import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.server.es.EsTester;
@@ -34,12 +35,16 @@ import static org.junit.Assert.fail;
 
 public class ProxyIndexRequestBuilderTest {
 
-  @Rule
-  public EsTester esTester = new EsTester().addDefinitions(new FakeIndexDefinition());
+  @ClassRule
+  public static EsTester esTester = new EsTester().addDefinitions(new FakeIndexDefinition());
+
+  @Before
+  public void setUp() throws Exception {
+    esTester.setProfilingLevel(Profiling.Level.NONE);
+  }
 
   @Test
   public void index_with_index_type_and_id() {
-    esTester.setProfilingLevel(Profiling.Level.FULL);
     IndexResponse response = esTester.client().prepareIndex(FakeIndexDefinition.INDEX, FakeIndexDefinition.TYPE)
       .setSource(FakeIndexDefinition.newDoc(42))
       .get();
@@ -47,8 +52,8 @@ public class ProxyIndexRequestBuilderTest {
   }
 
   @Test
-  public void with_profiling_basic() {
-    esTester.setProfilingLevel(Profiling.Level.BASIC);
+  public void with_profiling_full() {
+    esTester.setProfilingLevel(Profiling.Level.FULL);
     IndexResponse response = esTester.client().prepareIndex(FakeIndexDefinition.INDEX, FakeIndexDefinition.TYPE)
       .setSource(FakeIndexDefinition.newDoc(42))
       .get();
@@ -58,7 +63,6 @@ public class ProxyIndexRequestBuilderTest {
 
   @Test
   public void fail_if_bad_query() throws Exception {
-    esTester.setProfilingLevel(Profiling.Level.FULL);
     IndexRequestBuilder requestBuilder = esTester.client().prepareIndex("unknownIndex", "unknownType");
     try {
       requestBuilder.get();
@@ -71,7 +75,6 @@ public class ProxyIndexRequestBuilderTest {
 
   @Test
   public void fail_if_bad_query_with_basic_profiling() throws Exception {
-    esTester.setProfilingLevel(Profiling.Level.BASIC);
     IndexRequestBuilder requestBuilder = esTester.client().prepareIndex("unknownIndex", "unknownType");
     try {
       requestBuilder.get();
@@ -84,7 +87,6 @@ public class ProxyIndexRequestBuilderTest {
 
   @Test
   public void get_with_string_timeout_is_not_yet_implemented() throws Exception {
-    esTester.setProfilingLevel(Profiling.Level.FULL);
     try {
       esTester.client().prepareIndex(FakeIndexDefinition.INDEX, FakeIndexDefinition.TYPE).get("1");
       fail();
@@ -95,7 +97,6 @@ public class ProxyIndexRequestBuilderTest {
 
   @Test
   public void get_with_time_value_timeout_is_not_yet_implemented() throws Exception {
-    esTester.setProfilingLevel(Profiling.Level.FULL);
     try {
       esTester.client().prepareIndex(FakeIndexDefinition.INDEX, FakeIndexDefinition.TYPE).get(TimeValue.timeValueMinutes(1));
       fail();
@@ -106,7 +107,6 @@ public class ProxyIndexRequestBuilderTest {
 
   @Test
   public void do_not_support_execute_method() throws Exception {
-    esTester.setProfilingLevel(Profiling.Level.FULL);
     try {
       esTester.client().prepareIndex(FakeIndexDefinition.INDEX, FakeIndexDefinition.TYPE).execute();
       fail();

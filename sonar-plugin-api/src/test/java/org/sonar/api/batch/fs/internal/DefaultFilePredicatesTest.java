@@ -41,12 +41,13 @@ public class DefaultFilePredicatesTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   DefaultInputFile javaFile;
-  FilePredicates predicates = new DefaultFilePredicates();
+  FilePredicates predicates;
 
   @Before
   public void before() throws IOException {
+    predicates = new DefaultFilePredicates(temp.newFolder().toPath());
     javaFile = new DefaultInputFile("foo", "src/main/java/struts/Action.java")
-      .setFile(temp.newFile("Action.java"))
+      .setModuleBaseDir(temp.newFolder().toPath())
       .setLanguage("java")
       .setStatus(InputFile.Status.ADDED);
   }

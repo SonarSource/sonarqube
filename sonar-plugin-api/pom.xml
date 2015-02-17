@@ -202,7 +202,7 @@
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>clirr-maven-plugin</artifactId>
             <configuration>
-              <comparisonVersion>4.5.1</comparisonVersion>
+              <comparisonVersion>4.5.2</comparisonVersion>
               <textOutputFile>${project.build.directory}/clirr-report.txt</textOutputFile>
               <linkXRef>false</linkXRef>
               <failOnError>false</failOnError>

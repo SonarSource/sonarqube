@@ -5,7 +5,7 @@
 <div class="page">
   <header class="page-header">
     <h1 class="page-title"><%= message('user_groups.page') -%></h1>
-    <% if profiles_administrator? %>
+    <% if is_admin? %>
       <div class="page-actions">
         <a id="link-create-group" href="<%= ApplicationController.root_context -%>/groups/create_form" class="open-modal link-action">Add new group</a>
       </div>

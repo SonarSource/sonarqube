@@ -84,8 +84,6 @@ public class IssueJsonParserTest {
     assertThat(paging.pageSize()).isEqualTo(100);
     assertThat(paging.pages()).isEqualTo(1);
     assertThat(paging.total()).isEqualTo(2);
-
-    assertThat(issues.maxResultsReached()).isTrue();
   }
 
   @Test
@@ -95,7 +93,6 @@ public class IssueJsonParserTest {
     assertThat(issues).isNotNull();
     assertThat(issues.list()).isEmpty();
     assertThat(issues.rules()).isEmpty();
-    assertThat(issues.maxResultsReached()).isFalse();
   }
 
   @Test

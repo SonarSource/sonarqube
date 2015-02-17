@@ -103,6 +103,15 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
     return mapper(session).selectModuleFilesTree(rootComponentUuid, Scopes.FILE);
   }
 
+  public List<ComponentDto> getByIds(final DbSession session, Collection<Long> ids) {
+    return DaoUtils.executeLargeInputs(ids, new Function<List<Long>, List<ComponentDto>>() {
+      @Override
+      public List<ComponentDto> apply(List<Long> partition) {
+        return mapper(session).findByIds(partition);
+      }
+    });
+  }
+
   public List<ComponentDto> getByUuids(final DbSession session, Collection<String> uuids) {
     return DaoUtils.executeLargeInputs(uuids, new Function<List<String>, List<ComponentDto>>() {
       @Override
@@ -154,4 +163,5 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
   public List<String> selectProjectsFromView(DbSession session, String viewUuid, String projectViewUuid) {
     return mapper(session).selectProjectsFromView("%." + viewUuid + ".%", projectViewUuid);
   }
+
 }

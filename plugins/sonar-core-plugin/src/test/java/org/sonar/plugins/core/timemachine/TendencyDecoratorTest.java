@@ -36,8 +36,8 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -75,14 +75,14 @@ public class TendencyDecoratorTest {
       new Object[] {date("2009-12-02"), CoreMetrics.LINES, 1300.0},
       new Object[] {date("2009-12-02"), CoreMetrics.COVERAGE, 79.6},
       new Object[] {date("2009-12-15"), CoreMetrics.LINES, 1150.0}
-    ));
+      ));
 
     DecoratorContext context = mock(DecoratorContext.class);
     when(context.getMeasure(CoreMetrics.LINES)).thenReturn(new Measure(CoreMetrics.LINES, 1400.0));
     when(context.getMeasure(CoreMetrics.COVERAGE)).thenReturn(new Measure(CoreMetrics.LINES, 90.0));
 
     TendencyDecorator decorator = new TendencyDecorator(timeMachine, query, analyser);
-    decorator.decorate(new Directory("org/foo"), context);
+    decorator.decorate(Directory.create("org/foo"), context);
 
     verify(analyser).analyseLevel(Arrays.asList(1200.0, 1300.0, 1150.0, 1400.0));
     verify(analyser).analyseLevel(Arrays.asList(80.5, 79.6, 90.0));
@@ -97,11 +97,11 @@ public class TendencyDecoratorTest {
     when(timeMachine.getMeasuresFields(query)).thenReturn(Arrays.<Object[]>asList(
       new Object[] {date("2009-12-01"), CoreMetrics.LINES, 1200.0},
       new Object[] {date("2009-12-02"), CoreMetrics.LINES, 1300.0}
-    ));
+      ));
 
     DecoratorContext context = mock(DecoratorContext.class);
     TendencyDecorator decorator = new TendencyDecorator(timeMachine, query, analyser);
-    decorator.decorate(new Directory("org/foo"), context);
+    decorator.decorate(Directory.create("org/foo"), context);
 
     verify(analyser, never()).analyseLevel(anyList());
   }

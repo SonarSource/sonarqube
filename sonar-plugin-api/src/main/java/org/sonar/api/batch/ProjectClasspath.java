@@ -80,7 +80,7 @@ public class ProjectClasspath implements BatchComponent {
     try {
       List<File> files = Lists.newArrayList();
       if (pom.getCompileClasspathElements() != null) {
-        for (String classPathString : (List<String>) pom.getCompileClasspathElements()) {
+        for (String classPathString : pom.getCompileClasspathElements()) {
           files.add(new File(classPathString));
         }
       }

@@ -19,7 +19,8 @@
  */
 package org.sonar.batch.scan;
 
-import org.sonar.batch.languages.Language;
+import org.sonar.batch.repository.language.Language;
+import org.sonar.batch.repository.language.LanguagesRepository;
 
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
@@ -28,7 +29,6 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
-import org.sonar.batch.languages.LanguagesReferential;
 
 /**
  * Verifies that the property sonar.language is valid
@@ -38,10 +38,10 @@ public class LanguageVerifier implements Startable {
   private static final Logger LOG = LoggerFactory.getLogger(LanguageVerifier.class);
 
   private final Settings settings;
-  private final LanguagesReferential languages;
+  private final LanguagesRepository languages;
   private final DefaultFileSystem fs;
 
-  public LanguageVerifier(Settings settings, LanguagesReferential languages, DefaultFileSystem fs) {
+  public LanguageVerifier(Settings settings, LanguagesRepository languages, DefaultFileSystem fs) {
     this.settings = settings;
     this.languages = languages;
     this.fs = fs;

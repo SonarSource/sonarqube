@@ -25,6 +25,9 @@ import javax.annotation.Nullable;
 
 import java.util.Date;
 
+/**
+ * Used by devcockpit
+ */
 public class Period {
 
   private int index;

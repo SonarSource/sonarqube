@@ -9,12 +9,12 @@
 <form method="GET" class="marginbottom10">
   <select name="id1" class="small">
     <option value=""></option>
-    <%= options_for_profiles(@profiles, params[:id1].to_i) %>
+    <%= options_for_profiles(@profiles, params[:id1]) %>
   </select>
 
   <select name="id2" class="small">
     <option value=""></option>
-    <%= options_for_profiles(@profiles, params[:id2].to_i) %>
+    <%= options_for_profiles(@profiles, params[:id2]) %>
   </select>
   <input type="submit" value="<%= message('compare') -%>" class="small" id="submit-compare"/>
 </form>

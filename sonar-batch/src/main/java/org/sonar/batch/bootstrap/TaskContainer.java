@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.sonar.batch.components.PastMeasuresLoader;
+
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.platform.ComponentContainer;
@@ -28,19 +30,21 @@ import org.sonar.api.task.TaskComponent;
 import org.sonar.api.task.TaskDefinition;
 import org.sonar.api.utils.MessageException;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
-import org.sonar.batch.components.PastMeasuresLoader;
+import org.sonar.batch.deprecated.tasks.ListTask;
+import org.sonar.batch.deprecated.tasks.Tasks;
 import org.sonar.batch.scan.DeprecatedProjectReactorBuilder;
 import org.sonar.batch.scan.ProjectReactorBuilder;
 import org.sonar.batch.scan.ScanTask;
 import org.sonar.batch.scan.measure.DefaultMetricFinder;
 import org.sonar.batch.scan.measure.DeprecatedMetricFinder;
-import org.sonar.batch.tasks.ListTask;
-import org.sonar.batch.tasks.Tasks;
 import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.resource.DefaultResourcePermissions;
 
 import java.util.Map;
 
+/**
+ * Used by views !!
+ */
 public class TaskContainer extends ComponentContainer {
 
   private final Map<String, String> taskProperties;

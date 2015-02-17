@@ -29,7 +29,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.junit.Before;
-import org.junit.Rule;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.config.Settings;
@@ -38,10 +38,12 @@ import org.sonar.core.persistence.DbTester;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.search.BaseNormalizer;
+import org.sonar.server.source.db.FileSourceTesting;
 import org.sonar.test.DbTests;
 import org.sonar.test.TestUtils;
 
 import java.io.FileInputStream;
+import java.sql.Connection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -53,24 +55,31 @@ import static org.sonar.server.source.index.SourceLineIndexDefinition.*;
 @Category(DbTests.class)
 public class SourceLineIndexerTest {
 
-  @Rule
-  public EsTester es = new EsTester().addDefinitions(new SourceLineIndexDefinition(new Settings()));
+  @ClassRule
+  public static EsTester es = new EsTester().addDefinitions(new SourceLineIndexDefinition(new Settings()));
 
-  @Rule
-  public DbTester db = new DbTester();
+  @ClassRule
+  public static DbTester db = new DbTester();
 
   private SourceLineIndexer indexer;
 
   @Before
   public void setUp() {
+    es.truncateIndices();
+    db.truncateTables();
     indexer = new SourceLineIndexer(new DbClient(db.database(), db.myBatis()), es.client());
   }
 
   @Test
   public void index_source_lines_from_db() throws Exception {
     db.prepareDbUnit(getClass(), "db.xml");
+
+    Connection connection = db.openConnection();
+    FileSourceTesting.updateDataColumn(connection, "FILE_UUID", FileSourceTesting.newRandomData(3).build());
+    connection.close();
+
     indexer.index();
-    assertThat(countDocuments()).isEqualTo(2);
+    assertThat(countDocuments()).isEqualTo(3);
   }
 
   @Test

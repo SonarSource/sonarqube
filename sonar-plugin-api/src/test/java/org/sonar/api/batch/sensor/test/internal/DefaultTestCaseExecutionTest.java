@@ -116,7 +116,7 @@ public class DefaultTestCaseExecutionTest {
     assertThat(testCase1).isNotEqualTo("foo");
 
     assertThat(testCase1.toString()).isEqualTo(
-      "DefaultTestCaseExecution[testFile=[moduleKey=foo, relative=src/Foo.php, abs=null],name=myTest,duration=1,status=ERROR,message=message,type=UNIT,stackTrace=stack]");
+      "DefaultTestCaseExecution[testFile=[moduleKey=foo, relative=src/Foo.php, basedir=null],name=myTest,duration=1,status=ERROR,message=message,type=UNIT,stackTrace=stack]");
     assertThat(testCase1.hashCode()).isEqualTo(testCase1a.hashCode());
   }
 

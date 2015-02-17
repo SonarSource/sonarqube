@@ -3,11 +3,15 @@
   maxItems = widget_properties['maxItems'].to_i
 
   if has_role?(:user, @project) && !Internal.issues.listTagsForComponent(@project.uuid, maxItems).isEmpty()
-    search_options = {}
+    search_options = {
+      'resolved' => 'false'
+    }
     if @project
       search_options['componentUuids'] = @project.uuid
     end
-    search_options['resolved'] = 'false'
+    if @dashboard_configuration.selected_period?
+      search_options['createdAfter'] = @snapshot.period_datetime(@dashboard_configuration.period_index).strftime('%FT%T%z')
+    end
 
     title = message('widget.issue_tag_cloud.title')
 %>
@@ -24,10 +28,17 @@
 <!--[if (gte IE 9)|!(IE)]><!-->
 <script>
   (function () {
-    var query = [
+    var createdAfter = '';
+    <% if @dashboard_configuration.selected_period? -%>
+    createdAfter = moment('<%= search_options['createdAfter'] -%>').format('YYYY-MM-DD');
+    <% end -%>
+
+    var queryParams = [
           'componentUuid=<%= @project.uuid() -%>',
-          'ps=<%= maxItems -%>'
-        ].join('&'),
+          'ps=<%= maxItems -%>',
+          'createdAfter=' + createdAfter
+        ],
+        query = queryParams.join('&'),
         widget = new SonarWidgets.Widget();
 
     widget
@@ -36,7 +47,8 @@
       .options({
         maxItemsReachedMessage: '<%= message("widget.measure_filter_histogram.max_items_reached", :params => [maxItems]) -%>',
         baseUrl: baseUrl + '/component_issues/index?id=<%= @project.key -%>#resolved=false',
-        noData: '<%= message('no_data') -%>'
+        noData: '<%= message('no_data') -%>',
+        createdAfter: createdAfter
       })
       .render('#<%= containerId -%>');
 

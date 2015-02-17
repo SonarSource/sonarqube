@@ -31,7 +31,6 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.issue.internal.FieldDiffs;
-import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 import org.sonar.api.user.User;
@@ -41,7 +40,6 @@ import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.DefaultActionPlan;
-import org.sonar.core.issue.db.IssueChangeDao;
 import org.sonar.core.issue.workflow.Transition;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.user.DefaultUser;
@@ -49,7 +47,11 @@ import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.debt.DebtModelService;
-import org.sonar.server.issue.*;
+import org.sonar.server.issue.ActionService;
+import org.sonar.server.issue.IssueChangelog;
+import org.sonar.server.issue.IssueChangelogService;
+import org.sonar.server.issue.IssueCommentService;
+import org.sonar.server.issue.IssueService;
 import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleService;
@@ -141,11 +143,7 @@ public class IssueShowActionTest {
 
     tester = new WsTester(new IssuesWs(
       new IssueShowAction(dbClient, issueService, issueChangelogService, commentService,
-        new IssueActionsWriter(issueService, actionService), actionPlanService, userFinder, debtModel, ruleService, i18n, durations),
-      new SearchAction(mock(DbClient.class), mock(IssueChangeDao.class), mock(IssueService.class), mock(IssueActionsWriter.class), mock(IssueQueryService.class),
-        mock(RuleService.class),
-        mock(ActionPlanService.class), mock(UserFinder.class), mock(I18n.class), mock(Durations.class), mock(Languages.class)),
-      new TagsAction(null), new SetTagsAction(null), new ComponentTagsAction(null), new AuthorsAction(null)
+        new IssueActionsWriter(issueService, actionService), actionPlanService, userFinder, debtModel, ruleService, i18n, durations)
       ));
   }
 

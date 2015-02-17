@@ -28,6 +28,7 @@ import java.io.File;
 import java.util.List;
 
 /**
+ * Implement this extension to get Copy/Paste detection for your language.
  * @since 1.10
  */
 public interface CpdMapping extends BatchExtension {

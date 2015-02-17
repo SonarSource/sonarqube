@@ -31,7 +31,7 @@ public class ResourceCacheTest {
   public void should_cache_resource() throws Exception {
     ResourceCache cache = new ResourceCache();
     String componentKey = "struts:src/org/struts/Action.java";
-    Resource resource = new File("org/struts/Action.java").setEffectiveKey(componentKey);
+    Resource resource = File.create("org/struts/Action.java").setEffectiveKey(componentKey);
     cache.add(resource, null);
 
     assertThat(cache.get(componentKey).resource()).isSameAs(resource);
@@ -41,7 +41,7 @@ public class ResourceCacheTest {
   @Test
   public void should_fail_if_missing_component_key() throws Exception {
     ResourceCache cache = new ResourceCache();
-    Resource resource = new File("org/struts/Action.java").setEffectiveKey(null);
+    Resource resource = File.create("org/struts/Action.java").setEffectiveKey(null);
     try {
       cache.add(resource, null);
       fail();

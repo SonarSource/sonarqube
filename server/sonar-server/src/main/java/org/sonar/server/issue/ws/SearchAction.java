@@ -22,6 +22,7 @@ package org.sonar.server.issue.ws;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
 import com.google.common.io.Resources;
 import org.apache.commons.lang.BooleanUtils;
 import org.sonar.api.i18n.I18n;
@@ -34,6 +35,7 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
@@ -42,35 +44,37 @@ import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.issue.db.IssueChangeDao;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.es.SearchOptions;
+import org.sonar.server.es.SearchResult;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.IssueQueryService;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.issue.filter.IssueFilterParameters;
 import org.sonar.server.issue.index.IssueDoc;
+import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleService;
-import org.sonar.server.search.FacetValue;
-import org.sonar.server.search.QueryContext;
-import org.sonar.server.search.Result;
-import org.sonar.server.search.ws.SearchRequestHandler;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
 
-public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
-
+public class SearchAction implements BaseIssuesWsAction {
 
   public static final String SEARCH_ACTION = "search";
 
@@ -84,7 +88,6 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
 
   private static final String INTERNAL_PARAMETER_DISCLAIMER = "This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter. ";
 
-  private final IssueChangeDao issueChangeDao;
   private final IssueService service;
   private final IssueActionsWriter actionsWriter;
 
@@ -97,11 +100,9 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
   private final Durations durations;
   private final Languages languages;
 
-  public SearchAction(DbClient dbClient, IssueChangeDao issueChangeDao, IssueService service, IssueActionsWriter actionsWriter, IssueQueryService issueQueryService,
+  public SearchAction(DbClient dbClient, IssueService service, IssueActionsWriter actionsWriter, IssueQueryService issueQueryService,
     RuleService ruleService, ActionPlanService actionPlanService, UserFinder userFinder, I18n i18n, Durations durations, Languages languages) {
-    super(SEARCH_ACTION);
     this.dbClient = dbClient;
-    this.issueChangeDao = issueChangeDao;
     this.service = service;
     this.actionsWriter = actionsWriter;
     this.issueQueryService = issueQueryService;
@@ -114,11 +115,21 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
   }
 
   @Override
-  protected void doDefinition(WebService.NewAction action) {
-    action.setDescription("Get a list of issues. If the number of issues is greater than 10,000, only the first 10,000 ones are returned by the web service. " +
-      "Requires Browse permission on project(s)")
+  public void define(WebService.NewController controller) {
+    WebService.NewAction action = controller
+      .createAction(SEARCH_ACTION)
+      .setHandler(this)
+      .setDescription(
+        "Get a list of issues. If the number of issues is greater than 10,000, only the first 10,000 ones are returned by the web service. Requires Browse permission on project(s)")
       .setSince("3.6")
       .setResponseExample(Resources.getResource(this.getClass(), "example-search.json"));
+
+    action.addPagingParams(100);
+    action.createParam(WebService.Param.FACETS)
+      .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.")
+      .setPossibleValues(IssueIndex.SUPPORTED_FACETS);
+    action.addSortParams(IssueQuery.SORTS, null, true);
+    // TODO support param "f"
 
     addComponentRelatedParams(action);
     action.createParam(IssueFilterParameters.ISSUES)
@@ -182,14 +193,6 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
     action.createParam(IssueFilterParameters.CREATED_BEFORE)
       .setDescription("To retrieve issues created before the given date (exclusive). Format: date or datetime ISO formats")
       .setExampleValue("2013-05-01 (or 2013-05-01T13:00:00+0100)");
-    action.createParam(SearchRequestHandler.PARAM_SORT)
-      .setDescription("Sort field")
-      .setDeprecatedKey(IssueFilterParameters.SORT)
-      .setPossibleValues(IssueQuery.SORTS);
-    action.createParam(SearchRequestHandler.PARAM_ASCENDING)
-      .setDeprecatedKey(IssueFilterParameters.ASC)
-      .setDescription("Ascending sort")
-      .setBooleanPossibleValues();
     action.createParam(IssueFilterParameters.IGNORE_PAGING)
       .setDescription("Return the full list of issues, regardless of paging. For internal use only")
       .setBooleanPossibleValues()
@@ -199,7 +202,6 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
   }
 
   private void addComponentRelatedParams(WebService.NewAction action) {
-
     action.createParam(IssueFilterParameters.ON_COMPONENT_ONLY)
       .setDescription("Return only issues at a component's level, not on its descendants (modules, directories, files, etc). " +
         "This parameter is only considered when componentKeys or componentUuids is set. " +
@@ -260,49 +262,34 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
   }
 
   @Override
-  protected IssueQuery doQuery(Request request) {
-    return issueQueryService.createFromRequest(request);
+  public final void handle(Request request, Response response) throws Exception {
+    SearchOptions options = new SearchOptions();
+    options.setPage(request.mandatoryParamAsInt(IssuesWs.Param.PAGE), request.mandatoryParamAsInt(IssuesWs.Param.PAGE_SIZE));
+    options.addFacets(request.paramAsStrings(WebService.Param.FACETS));
+
+    IssueQuery query = issueQueryService.createFromRequest(request);
+    SearchResult<IssueDoc> result = execute(query, options);
+
+    JsonWriter json = response.newJsonWriter().beginObject();
+    options.writeJson(json, result.getTotal());
+    options.writeDeprecatedJson(json, result.getTotal());
+
+    writeResponse(request, result, json);
+    if (!options.getFacets().isEmpty()) {
+      writeFacets(request, options, result, json);
+    }
+    json.endObject().close();
   }
 
-  @Override
-  protected Result<Issue> doSearch(IssueQuery query, QueryContext context) {
+  private SearchResult<IssueDoc> execute(IssueQuery query, SearchOptions options) {
     Collection<String> components = query.componentUuids();
     if (components != null && components.size() == 1 && BooleanUtils.isTrue(query.ignorePaging())) {
-      context.setShowFullResult(true);
+      options.disableLimit();
     }
-    return service.search(query, context);
+    return service.search(query, options);
   }
 
-  @Override
-  @CheckForNull
-  protected Collection<String> possibleFields() {
-    return Collections.emptyList();
-  }
-
-  @Override
-  @CheckForNull
-  protected Collection<String> possibleFacets() {
-    return Arrays.asList(new String[]{
-      IssueFilterParameters.SEVERITIES,
-      IssueFilterParameters.STATUSES,
-      IssueFilterParameters.RESOLUTIONS,
-      IssueFilterParameters.ACTION_PLANS,
-      IssueFilterParameters.PROJECT_UUIDS,
-      IssueFilterParameters.RULES,
-      IssueFilterParameters.ASSIGNEES,
-      IssueFilterParameters.REPORTERS,
-      IssueFilterParameters.AUTHORS,
-      IssueFilterParameters.MODULE_UUIDS,
-      IssueFilterParameters.FILE_UUIDS,
-      IssueFilterParameters.DIRECTORIES,
-      IssueFilterParameters.LANGUAGES,
-      IssueFilterParameters.TAGS,
-      IssueFilterParameters.CREATED_AT,
-    });
-  }
-
-  @Override
-  protected void doContextResponse(Request request, QueryContext context, Result<Issue> result, JsonWriter json) {
+  private void writeResponse(Request request, SearchResult<IssueDoc> result, JsonWriter json) {
     List<String> issueKeys = newArrayList();
     Set<RuleKey> ruleKeys = newHashSet();
     Set<String> projectUuids = newHashSet();
@@ -313,21 +300,19 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
     Map<String, ComponentDto> componentsByUuid = newHashMap();
     Multimap<String, DefaultIssueComment> commentsByIssues = ArrayListMultimap.create();
     Collection<ComponentDto> componentDtos = newHashSet();
-    List<ComponentDto> projectDtos = newArrayList();
     Map<String, ComponentDto> projectsByComponentUuid = newHashMap();
 
-    for (Issue issue : result.getHits()) {
-      IssueDoc issueDoc = (IssueDoc) issue;
-      issueKeys.add(issue.key());
-      ruleKeys.add(issue.ruleKey());
+    for (IssueDoc issueDoc : result.getDocs()) {
+      issueKeys.add(issueDoc.key());
+      ruleKeys.add(issueDoc.ruleKey());
       projectUuids.add(issueDoc.projectUuid());
       componentUuids.add(issueDoc.componentUuid());
-      actionPlanKeys.add(issue.actionPlanKey());
-      if (issue.reporter() != null) {
-        userLogins.add(issue.reporter());
+      actionPlanKeys.add(issueDoc.actionPlanKey());
+      if (issueDoc.reporter() != null) {
+        userLogins.add(issueDoc.reporter());
       }
-      if (issue.assignee() != null) {
-        userLogins.add(issue.assignee());
+      if (issueDoc.assignee() != null) {
+        userLogins.add(issueDoc.assignee());
       }
     }
 
@@ -342,7 +327,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
 
     DbSession session = dbClient.openSession(false);
     try {
-      List<DefaultIssueComment> comments = issueChangeDao.selectCommentsByIssues(session, issueKeys);
+      List<DefaultIssueComment> comments = dbClient.issueChangeDao().selectCommentsByIssues(session, issueKeys);
       for (DefaultIssueComment issueComment : comments) {
         userLogins.add(issueComment.userLogin());
         commentsByIssues.put(issueComment.issueKey(), issueComment);
@@ -357,7 +342,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
         projectUuids.add(component.projectUuid());
       }
 
-      projectDtos = dbClient.componentDao().getByUuids(session, projectUuids);
+      List<ComponentDto> projectDtos = dbClient.componentDao().getByUuids(session, projectUuids);
       componentDtos.addAll(projectDtos);
       for (ComponentDto componentDto : componentDtos) {
         componentsByUuid.put(componentDto.uuid(), componentDto);
@@ -378,28 +363,24 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
     writeUsers(json, usersByLogin);
     writeActionPlans(json, actionPlanByKeys.values());
     writeLanguages(json);
-
-    // TODO remove legacy paging. Handled by the SearchRequestHandler
-    writeLegacyPaging(context, json, result);
   }
 
-  private void collectRuleKeys(Request request, Result<Issue> result, Set<RuleKey> ruleKeys) {
-    Collection<FacetValue> facetRules = result.getFacetValues(IssueFilterParameters.RULES);
+  private void collectRuleKeys(Request request, SearchResult<IssueDoc> result, Set<RuleKey> ruleKeys) {
+    Set<String> facetRules = result.getFacets().getBucketKeys(IssueFilterParameters.RULES);
     if (facetRules != null) {
-      for (FacetValue rule: facetRules) {
-        ruleKeys.add(RuleKey.parse(rule.getKey()));
+      for (String rule : facetRules) {
+        ruleKeys.add(RuleKey.parse(rule));
       }
     }
     List<String> rulesFromRequest = request.paramAsStrings(IssueFilterParameters.RULES);
-    if (rulesFromRequest != null ) {
-      for (String ruleKey: rulesFromRequest) {
+    if (rulesFromRequest != null) {
+      for (String ruleKey : rulesFromRequest) {
         ruleKeys.add(RuleKey.parse(ruleKey));
       }
     }
   }
 
-  @Override
-  protected void writeFacets(Request request, QueryContext context, Result<?> results, JsonWriter json) {
+  protected void writeFacets(Request request, SearchOptions options, SearchResult<IssueDoc> results, JsonWriter json) {
     addMandatoryFacetValues(results, IssueFilterParameters.SEVERITIES, Severity.ALL);
     addMandatoryFacetValues(results, IssueFilterParameters.STATUSES, Issue.STATUSES);
     List<String> resolutions = Lists.newArrayList("");
@@ -429,37 +410,51 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
     addMandatoryFacetValues(results, IssueFilterParameters.ACTION_PLANS, actionPlans);
     addMandatoryFacetValues(results, IssueFilterParameters.COMPONENT_UUIDS, request.paramAsStrings(IssueFilterParameters.COMPONENT_UUIDS));
 
-    super.writeFacets(request, context, results, json);
+    json.name("facets").beginArray();
+    for (String facetName : options.getFacets()) {
+      json.beginObject();
+      json.prop("property", facetName);
+      json.name("values").beginArray();
+      if (results.getFacets().contains(facetName)) {
+        Set<String> itemsFromFacets = Sets.newHashSet();
+        for (Map.Entry<String, Long> bucket : results.getFacets().get(facetName).entrySet()) {
+          itemsFromFacets.add(bucket.getKey());
+          json.beginObject();
+          json.prop("val", bucket.getKey());
+          json.prop("count", bucket.getValue());
+          json.endObject();
+        }
+        addZeroFacetsForSelectedItems(request, facetName, itemsFromFacets, json);
+      }
+      json.endArray().endObject();
+    }
+    json.endArray();
   }
 
-  private void collectFacetsData(Request request, Result<Issue> result, Set<String> projectUuids, Set<String> componentUuids, List<String> userLogins, Set<String> actionPlanKeys) {
-    collectFacetKeys(result, IssueFilterParameters.PROJECT_UUIDS, projectUuids);
+  private void collectFacetsData(Request request, SearchResult<IssueDoc> result, Set<String> projectUuids, Set<String> componentUuids, List<String> userLogins,
+    Set<String> actionPlanKeys) {
+    collectBucketKeys(result, IssueFilterParameters.PROJECT_UUIDS, projectUuids);
     collectParameterValues(request, IssueFilterParameters.PROJECT_UUIDS, projectUuids);
 
-    collectFacetKeys(result, IssueFilterParameters.COMPONENT_UUIDS, componentUuids);
+    collectBucketKeys(result, IssueFilterParameters.COMPONENT_UUIDS, componentUuids);
     collectParameterValues(request, IssueFilterParameters.COMPONENT_UUIDS, componentUuids);
-    collectFacetKeys(result, IssueFilterParameters.FILE_UUIDS, componentUuids);
+    collectBucketKeys(result, IssueFilterParameters.FILE_UUIDS, componentUuids);
     collectParameterValues(request, IssueFilterParameters.FILE_UUIDS, componentUuids);
 
-    collectFacetKeys(result, IssueFilterParameters.MODULE_UUIDS, componentUuids);
+    collectBucketKeys(result, IssueFilterParameters.MODULE_UUIDS, componentUuids);
     collectParameterValues(request, IssueFilterParameters.MODULE_UUIDS, componentUuids);
     collectParameterValues(request, IssueFilterParameters.COMPONENT_ROOT_UUIDS, componentUuids);
 
-    collectFacetKeys(result, IssueFilterParameters.ASSIGNEES, userLogins);
+    collectBucketKeys(result, IssueFilterParameters.ASSIGNEES, userLogins);
     collectParameterValues(request, IssueFilterParameters.ASSIGNEES, userLogins);
-    collectFacetKeys(result, IssueFilterParameters.REPORTERS, userLogins);
+    collectBucketKeys(result, IssueFilterParameters.REPORTERS, userLogins);
     collectParameterValues(request, IssueFilterParameters.REPORTERS, userLogins);
-    collectFacetKeys(result, IssueFilterParameters.ACTION_PLANS, actionPlanKeys);
+    collectBucketKeys(result, IssueFilterParameters.ACTION_PLANS, actionPlanKeys);
     collectParameterValues(request, IssueFilterParameters.ACTION_PLANS, actionPlanKeys);
   }
 
-  private void collectFacetKeys(Result<Issue> result, String facetName, Collection<String> facetKeys) {
-    Collection<FacetValue> facetValues = result.getFacetValues(facetName);
-    if (facetValues != null) {
-      for (FacetValue project : facetValues) {
-        facetKeys.add(project.getKey());
-      }
-    }
+  private void collectBucketKeys(SearchResult<IssueDoc> result, String facetName, Collection<String> bucketKeys) {
+    bucketKeys.addAll(result.getFacets().getBucketKeys(facetName));
   }
 
   private void collectParameterValues(Request request, String facetName, Collection<String> facetKeys) {
@@ -467,28 +462,6 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
     if (paramValues != null) {
       facetKeys.addAll(paramValues);
     }
-  }
-
-  private void writeLegacyPaging(QueryContext context, JsonWriter json, Result<?> result) {
-    // TODO remove with stas on HTML side
-    json.prop("maxResultsReached", false);
-
-    long pages = context.getLimit();
-    if (pages > 0) {
-      pages = result.getTotal() / context.getLimit();
-      if (result.getTotal() % context.getLimit() > 0) {
-        pages++;
-      }
-    }
-
-    json.name("paging").beginObject()
-      .prop("pageIndex", context.getPage())
-      .prop("pageSize", context.getLimit())
-      .prop("total", result.getTotal())
-      // TODO Remove as part of Front-end rework on Issue Domain
-      .prop("fTotal", i18n.formatInteger(UserSession.get().locale(), (int) result.getTotal()))
-      .prop("pages", pages)
-      .endObject();
   }
 
   // TODO change to use the RuleMapper
@@ -508,11 +481,12 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
     json.endArray();
   }
 
-  private void writeIssues(Result<Issue> result, Multimap<String, DefaultIssueComment> commentsByIssues, Map<String, User> usersByLogin, Map<String, ActionPlan> actionPlanByKeys,
+  private void writeIssues(SearchResult<IssueDoc> result, Multimap<String, DefaultIssueComment> commentsByIssues, Map<String, User> usersByLogin,
+    Map<String, ActionPlan> actionPlanByKeys,
     Map<String, ComponentDto> componentsByUuid, Map<String, ComponentDto> projectsByComponentUuid, @Nullable List<String> extraFields, JsonWriter json) {
     json.name("issues").beginArray();
 
-    for (Issue issue : result.getHits()) {
+    for (IssueDoc issue : result.getDocs()) {
       json.beginObject();
 
       String actionPlanKey = issue.actionPlanKey();
@@ -520,7 +494,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       ComponentDto project = null, subProject = null;
       if (file != null) {
         project = projectsByComponentUuid.get(file.uuid());
-        if (! file.projectUuid().equals(file.moduleUuid())) {
+        if (!file.projectUuid().equals(file.moduleUuid())) {
           subProject = componentsByUuid.get(file.moduleUuid());
         }
       }
@@ -565,7 +539,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
     Collection<String> tags = issue.tags();
     if (tags != null && !tags.isEmpty()) {
       json.name("tags").beginArray();
-      for (String tag: tags) {
+      for (String tag : tags) {
         json.value(tag);
       }
       json.endArray();
@@ -806,4 +780,28 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
     return null;
   }
 
+  protected void addMandatoryFacetValues(SearchResult<IssueDoc> results, String facetName, @Nullable List<String> mandatoryValues) {
+    Map<String, Long> buckets = results.getFacets().get(facetName);
+    if (buckets != null && mandatoryValues != null) {
+      for (String mandatoryValue : mandatoryValues) {
+        if (!buckets.containsKey(mandatoryValue)) {
+          buckets.put(mandatoryValue, 0L);
+        }
+      }
+    }
+  }
+
+  private void addZeroFacetsForSelectedItems(Request request, String facetName, Set<String> itemsFromFacets, JsonWriter json) {
+    List<String> requestParams = request.paramAsStrings(facetName);
+    if (requestParams != null) {
+      for (String param : requestParams) {
+        if (!itemsFromFacets.contains(param)) {
+          json.beginObject();
+          json.prop("val", param);
+          json.prop("count", 0);
+          json.endObject();
+        }
+      }
+    }
+  }
 }

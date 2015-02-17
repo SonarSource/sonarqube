@@ -66,6 +66,7 @@ public abstract class BlameCommand implements BatchComponent {
     /**
      * Add result of the blame command for a single file. Number of lines should
      * be consistent with {@link InputFile#lines()}. This method is thread safe.
+     * @param lines One entry per line in the file.
      */
     void blameResult(InputFile file, List<BlameLine> lines);
 

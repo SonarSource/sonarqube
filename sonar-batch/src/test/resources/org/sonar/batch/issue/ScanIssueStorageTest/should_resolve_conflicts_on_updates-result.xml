@@ -27,8 +27,8 @@
           action_plan_key="[null]"
           created_at="1400000000000"
           updated_at="1400000000000"
-          issue_creation_date="2005-05-12 00:00:00.0"
-          issue_update_date="2013-05-18 00:00:00.0"
+          issue_creation_date="1115848800000"
+          issue_update_date="1368828000000"
           issue_close_date="[null]"
     />
 </dataset>

@@ -23,9 +23,9 @@
     i.author_login as authorLogin,
     i.tags as tagsString,
     i.issue_attributes as issueAttributes,
-    i.issue_creation_date as issueCreationDate,
-    i.issue_update_date as issueUpdateDate,
-    i.issue_close_date as issueCloseDate,
+    i.issue_creation_date as issueCreationTime,
+    i.issue_update_date as issueUpdateTime,
+    i.issue_close_date as issueCloseTime,
     i.created_at as createdAt,
     i.updated_at as updatedAt,
     r.plugin_rule_key as ruleKey,
@@ -53,13 +53,13 @@
           i.assignee as assignee
         </when>
         <when test="'CREATION_DATE'.equals(query.sort())">
-          i.issue_creation_date as issueCreationDate
+          i.issue_creation_date as issueCreationTime
         </when>
         <when test="'UPDATE_DATE'.equals(query.sort())">
-          i.issue_update_date as issueUpdateDate
+          i.issue_update_date as issueUpdateTime
         </when>
         <when test="'CLOSE_DATE'.equals(query.sort())">
-          i.issue_close_date as issueCloseDate
+          i.issue_close_date as issueCloseTime
         </when>
       </choose>
     </if>
@@ -77,7 +77,7 @@
     #{tagsString,jdbcType=VARCHAR}, #{resolution,jdbcType=VARCHAR}, #{checksum,jdbcType=VARCHAR},
     #{reporter,jdbcType=VARCHAR}, #{assignee,jdbcType=VARCHAR}, #{authorLogin,jdbcType=VARCHAR},
     #{issueAttributes,jdbcType=VARCHAR},
-    #{issueCreationDate,jdbcType=TIMESTAMP},#{issueUpdateDate,jdbcType=TIMESTAMP}, #{issueCloseDate,jdbcType=TIMESTAMP},
+    #{issueCreationTime,jdbcType=BIGINT},#{issueUpdateTime,jdbcType=BIGINT}, #{issueCloseTime,jdbcType=BIGINT},
     #{createdAt,jdbcType=BIGINT}, #{updatedAt,jdbcType=BIGINT},
     #{componentUuid,jdbcType=VARCHAR}, #{projectUuid,jdbcType=VARCHAR})
   </insert>
@@ -87,26 +87,26 @@
   -->
   <update id="update" parameterType="Issue">
     update issues set
-    action_plan_key=#{actionPlanKey},
-    severity=#{severity},
-    manual_severity=#{manualSeverity},
-    message=#{message},
-    line=#{line},
-    effort_to_fix=#{effortToFix},
-    technical_debt=#{debt},
-    status=#{status},
-    resolution=#{resolution},
-    checksum=#{checksum},
-    reporter=#{reporter},
-    assignee=#{assignee},
-    author_login=#{authorLogin},
-    tags=#{tagsString},
-    project_uuid=#{projectUuid},
-    issue_attributes=#{issueAttributes},
-    issue_creation_date=#{issueCreationDate},
-    issue_update_date=#{issueUpdateDate},
-    issue_close_date=#{issueCloseDate},
-    updated_at=#{updatedAt}
+    action_plan_key=#{actionPlanKey,jdbcType=VARCHAR},
+    severity=#{severity,jdbcType=VARCHAR},
+    manual_severity=#{manualSeverity,jdbcType=BOOLEAN},
+    message=#{message,jdbcType=VARCHAR},
+    line=#{line,jdbcType=INTEGER},
+    effort_to_fix=#{effortToFix,jdbcType=DOUBLE},
+    technical_debt=#{debt,jdbcType=INTEGER},
+    status=#{status,jdbcType=VARCHAR},
+    resolution=#{resolution,jdbcType=VARCHAR},
+    checksum=#{checksum,jdbcType=VARCHAR},
+    reporter=#{reporter,jdbcType=VARCHAR},
+    assignee=#{assignee,jdbcType=VARCHAR},
+    author_login=#{authorLogin,jdbcType=VARCHAR},
+    tags=#{tagsString,jdbcType=VARCHAR},
+    project_uuid=#{projectUuid,jdbcType=VARCHAR},
+    issue_attributes=#{issueAttributes,jdbcType=VARCHAR},
+    issue_creation_date=#{issueCreationTime,jdbcType=BIGINT},
+    issue_update_date=#{issueUpdateTime,jdbcType=BIGINT},
+    issue_close_date=#{issueCloseTime,jdbcType=BIGINT},
+    updated_at=#{updatedAt,jdbcType=BIGINT}
     where kee = #{kee}
   </update>
 
@@ -115,26 +115,26 @@
  -->
   <update id="updateIfBeforeSelectedDate" parameterType="Issue">
     update issues set
-    action_plan_key=#{actionPlanKey},
-    severity=#{severity},
-    manual_severity=#{manualSeverity},
-    message=#{message},
-    line=#{line},
-    effort_to_fix=#{effortToFix},
-    technical_debt=#{debt},
-    status=#{status},
-    resolution=#{resolution},
-    checksum=#{checksum},
-    reporter=#{reporter},
-    assignee=#{assignee},
-    author_login=#{authorLogin},
-    tags=#{tagsString},
-    project_uuid=#{projectUuid},
-    issue_attributes=#{issueAttributes},
-    issue_creation_date=#{issueCreationDate},
-    issue_update_date=#{issueUpdateDate},
-    issue_close_date=#{issueCloseDate},
-    updated_at=#{updatedAt}
+    action_plan_key=#{actionPlanKey,jdbcType=VARCHAR},
+    severity=#{severity,jdbcType=VARCHAR},
+    manual_severity=#{manualSeverity,jdbcType=BOOLEAN},
+    message=#{message,jdbcType=VARCHAR},
+    line=#{line,jdbcType=INTEGER},
+    effort_to_fix=#{effortToFix,jdbcType=DOUBLE},
+    technical_debt=#{debt,jdbcType=INTEGER},
+    status=#{status,jdbcType=VARCHAR},
+    resolution=#{resolution,jdbcType=VARCHAR},
+    checksum=#{checksum,jdbcType=VARCHAR},
+    reporter=#{reporter,jdbcType=VARCHAR},
+    assignee=#{assignee,jdbcType=VARCHAR},
+    author_login=#{authorLogin,jdbcType=VARCHAR},
+    tags=#{tagsString,jdbcType=VARCHAR},
+    project_uuid=#{projectUuid,jdbcType=VARCHAR},
+    issue_attributes=#{issueAttributes,jdbcType=VARCHAR},
+    issue_creation_date=#{issueCreationTime,jdbcType=BIGINT},
+    issue_update_date=#{issueUpdateTime,jdbcType=BIGINT},
+    issue_close_date=#{issueCloseTime,jdbcType=BIGINT},
+    updated_at=#{updatedAt,jdbcType=BIGINT}
     where kee = #{kee} and updated_at &lt;= #{selectedAt}
   </update>
 
@@ -170,9 +170,9 @@
     i.author_login as authorLogin,
     i.tags as tagsString,
     i.issue_attributes as issueAttributes,
-    i.issue_creation_date as issueCreationDate,
-    i.issue_update_date as issueUpdateDate,
-    i.issue_close_date as issueCloseDate,
+    i.issue_creation_date as issueCreationTime,
+    i.issue_update_date as issueUpdateTime,
+    i.issue_close_date as issueCloseTime,
     i.created_at as createdAt,
     i.updated_at as updatedAt,
     r.plugin_rule_key as ruleKey,
@@ -198,7 +198,7 @@
     i.resolution as resolution,
     i.checksum as checksum,
     i.assignee as assigneeLogin,
-    i.issue_creation_date as creationDate,
+    i.issue_creation_date as creationTime,
     r.plugin_rule_key as ruleKey,
     r.plugin_name as ruleRepo,
     component.kee as componentKey
@@ -220,7 +220,7 @@
     i.resolution as resolution,
     i.checksum as checksum,
     i.assignee as assigneeLogin,
-    i.issue_creation_date as creationDate,
+    i.issue_creation_date as creationTime,
     r.plugin_rule_key as ruleKey,
     r.plugin_name as ruleRepo,
     component.kee as componentKey

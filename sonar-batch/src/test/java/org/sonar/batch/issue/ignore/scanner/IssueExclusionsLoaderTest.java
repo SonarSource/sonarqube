@@ -65,13 +65,14 @@ public class IssueExclusionsLoaderTest {
   @Mock
   private PatternMatcher patternMatcher;
 
-  DefaultFileSystem fs = new DefaultFileSystem().setEncoding(UTF_8);
-  IssueExclusionsLoader scanner;
-  File baseDir;
+  private DefaultFileSystem fs;
+  private IssueExclusionsLoader scanner;
+  private File baseDir;
 
   @Before
-  public void before() throws IOException {
+  public void before() throws Exception {
     baseDir = temp.newFolder();
+    fs = new DefaultFileSystem(baseDir.toPath()).setEncoding(UTF_8);
     MockitoAnnotations.initMocks(this);
     scanner = new IssueExclusionsLoader(regexpScanner, exclusionPatternInitializer, inclusionPatternInitializer, fs);
   }
@@ -105,11 +106,9 @@ public class IssueExclusionsLoaderTest {
   public void shouldAnalyzeProject() throws IOException {
     File javaFile1 = new File(baseDir, "src/main/java/Foo.java");
     fs.add(new DeprecatedDefaultInputFile("polop", "src/main/java/Foo.java")
-      .setFile(javaFile1)
       .setType(InputFile.Type.MAIN));
     File javaTestFile1 = new File(baseDir, "src/test/java/FooTest.java");
     fs.add(new DeprecatedDefaultInputFile("polop", "src/test/java/FooTest.java")
-      .setFile(javaTestFile1)
       .setType(InputFile.Type.TEST));
 
     when(exclusionPatternInitializer.hasFileContentPattern()).thenReturn(true);
@@ -128,11 +127,9 @@ public class IssueExclusionsLoaderTest {
   public void shouldAnalyseFilesOnlyWhenRegexConfigured() throws IOException {
     File javaFile1 = new File(baseDir, "src/main/java/Foo.java");
     fs.add(new DeprecatedDefaultInputFile("polop", "src/main/java/Foo.java")
-      .setFile(javaFile1)
       .setType(InputFile.Type.MAIN));
     File javaTestFile1 = new File(baseDir, "src/test/java/FooTest.java");
     fs.add(new DeprecatedDefaultInputFile("polop", "src/test/java/FooTest.java")
-      .setFile(javaTestFile1)
       .setType(InputFile.Type.TEST));
     when(exclusionPatternInitializer.hasFileContentPattern()).thenReturn(false);
 
@@ -149,7 +146,6 @@ public class IssueExclusionsLoaderTest {
   public void shouldReportFailure() throws IOException {
     File phpFile1 = new File(baseDir, "src/Foo.php");
     fs.add(new DeprecatedDefaultInputFile("polop", "src/Foo.php")
-      .setFile(phpFile1)
       .setType(InputFile.Type.MAIN));
 
     when(exclusionPatternInitializer.hasFileContentPattern()).thenReturn(true);

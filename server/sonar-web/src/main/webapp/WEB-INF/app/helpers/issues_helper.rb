@@ -19,19 +19,6 @@
 #
 module IssuesHelper
 
-  def column_html(issue_query, issues_result, column_label, column_tooltip, sort)
-    filter_sort = issue_query.sort
-    filter_asc = issue_query.asc
-    html = h(column_label)
-    unless issues_result.maxResultsReached()
-      html = link_to_function(h(column_label), "refreshList('#{escape_javascript sort}',#{!filter_asc}, #{issue_query.pageIndex||1})", :title => h(column_tooltip))
-      if sort == filter_sort
-        html << (filter_asc ? ' <i class="icon-sort-asc"></i>' : ' <i class="icon-sort-desc"></i>')
-      end
-    end
-    html
-  end
-
   def issue_filter_star(filter, is_favourite)
     if is_favourite
       style='icon-favorite'
@@ -57,14 +44,4 @@ module IssuesHelper
     options
   end
 
-  def user_labels(logins)
-    logins.map do |login|
-      if login=='<unassigned>'
-        Api::Utils.message('unassigned')
-      else
-        user = Api.users.findByLogin(login)
-        user ? "#{user.name} (#{user.login})" : login
-      end
-    end
-  end
 end

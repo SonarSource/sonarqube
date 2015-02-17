@@ -25,6 +25,7 @@ import org.sonar.api.rule.RuleStatus;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -257,15 +258,18 @@ public class WebServiceTest {
       @Override
       public void define(Context context) {
         NewController newController = context.createController("api/rule");
-        NewAction create = newController.createAction("create").setHandler(mock(RequestHandler.class));
-        create.createParam("key").setDescription("Key of the new rule");
-        create.createParam("severity").setDefaultValue("MAJOR").setPossibleValues("INFO", "MAJOR", "BLOCKER");
+        NewAction newAction = newController.createAction("create").setHandler(mock(RequestHandler.class));
+        newAction.createParam("key").setDescription("Key of the new rule");
+        newAction.createParam("severity").setDefaultValue("MAJOR").setPossibleValues("INFO", "MAJOR", "BLOCKER");
+        newAction.addPagingParams(20);
+        newAction.addFieldsParam(Arrays.asList("name", "severity"));
+        newAction.addSortParams(Arrays.asList("name", "updatedAt", "severity"), "updatedAt", false);
         newController.done();
       }
     }.define(context);
 
     WebService.Action action = context.controller("api/rule").action("create");
-    assertThat(action.params()).hasSize(2);
+    assertThat(action.params()).hasSize(7);
 
     assertThat(action.param("key").key()).isEqualTo("key");
     assertThat(action.param("key").description()).isEqualTo("Key of the new rule");
@@ -275,6 +279,16 @@ public class WebServiceTest {
     assertThat(action.param("severity").description()).isNull();
     assertThat(action.param("severity").defaultValue()).isEqualTo("MAJOR");
     assertThat(action.param("severity").possibleValues()).containsOnly("INFO", "MAJOR", "BLOCKER");
+
+    // predefined fields
+    assertThat(action.param("p").defaultValue()).isEqualTo("1");
+    assertThat(action.param("p").description()).isNotEmpty();
+    assertThat(action.param("ps").defaultValue()).isEqualTo("20");
+    assertThat(action.param("ps").description()).isNotEmpty();
+    assertThat(action.param("f").possibleValues()).containsOnly("name", "severity");
+    assertThat(action.param("s").possibleValues()).containsOnly("name", "severity", "updatedAt");
+    assertThat(action.param("s").description()).isNotEmpty();
+    assertThat(action.param("asc").defaultValue()).isEqualTo("false");
   }
 
   @Test

@@ -19,20 +19,17 @@
  */
 package org.sonar.batch.repository;
 
-import org.sonar.batch.repository.DefaultProjectRepositoriesLoader;
-
 import com.google.common.collect.Maps;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.api.database.DatabaseSession;
 import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.bootstrap.TaskProperties;
 import org.sonar.batch.rule.ModuleQProfiles;
+
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -50,9 +47,8 @@ public class DefaultProjectRepositoriesLoaderTest {
   public void prepare() {
     serverClient = mock(ServerClient.class);
     analysisMode = mock(DefaultAnalysisMode.class);
-    loader = new DefaultProjectRepositoriesLoader(mock(DatabaseSession.class), serverClient, analysisMode);
+    loader = new DefaultProjectRepositoriesLoader(serverClient, analysisMode);
     loader = spy(loader);
-    doReturn(null).when(loader).lastSnapshotCreationDate(anyString());
     when(serverClient.request(anyString())).thenReturn("{}");
     taskProperties = new TaskProperties(Maps.<String, String>newHashMap(), "");
   }

@@ -34,7 +34,10 @@ import org.sonar.java.api.JavaClass;
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class CountFalsePositivesDecoratorTest {
 
@@ -48,7 +51,7 @@ public class CountFalsePositivesDecoratorTest {
     DefaultIssue fixed = new DefaultIssue().setRuleKey(RuleKey.parse("squid:AvoidCycles"))
       .setResolution(Issue.RESOLUTION_FIXED).setStatus(Issue.STATUS_RESOLVED);
 
-    File file = new File("foo.c");
+    File file = File.create("foo.c");
     Issuable issuable = mock(Issuable.class);
     when(perspectives.as(Issuable.class, file)).thenReturn(issuable);
     when(issuable.resolvedIssues()).thenReturn(Arrays.<Issue>asList(falsePositive, fixed));

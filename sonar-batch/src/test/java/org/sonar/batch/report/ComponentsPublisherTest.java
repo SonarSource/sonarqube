@@ -62,17 +62,17 @@ public class ComponentsPublisherTest {
     dir.setId(3).setUuid("DIR_UUID");
     resourceCache.add(dir, module1).setSnapshot(new Snapshot().setId(13));
 
-    org.sonar.api.resources.File file = org.sonar.api.resources.File.create("src/Foo.java", "Foo.java", Java.INSTANCE, false);
+    org.sonar.api.resources.File file = org.sonar.api.resources.File.create("src/Foo.java", Java.INSTANCE, false);
     file.setEffectiveKey("foo:src/Foo.java");
     file.setId(4).setUuid("FILE_UUID");
     resourceCache.add(file, dir).setSnapshot(new Snapshot().setId(14));
 
-    org.sonar.api.resources.File fileWithoutLang = org.sonar.api.resources.File.create("src/make", "make", null, false);
+    org.sonar.api.resources.File fileWithoutLang = org.sonar.api.resources.File.create("src/make", null, false);
     fileWithoutLang.setEffectiveKey("foo:src/make");
     fileWithoutLang.setId(5).setUuid("FILE_WITHOUT_LANG_UUID");
     resourceCache.add(fileWithoutLang, dir).setSnapshot(new Snapshot().setId(15));
 
-    org.sonar.api.resources.File testFile = org.sonar.api.resources.File.create("test/FooTest.java", "FooTest.java", Java.INSTANCE, true);
+    org.sonar.api.resources.File testFile = org.sonar.api.resources.File.create("test/FooTest.java", Java.INSTANCE, true);
     testFile.setEffectiveKey("foo:test/FooTest.java");
     testFile.setId(6).setUuid("TEST_FILE_UUID");
     resourceCache.add(testFile, dir).setSnapshot(new Snapshot().setId(16));

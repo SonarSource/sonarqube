@@ -24,7 +24,8 @@ import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequestBuilder
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.unit.TimeValue;
-import org.junit.Rule;
+import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.server.es.EsTester;
@@ -34,8 +35,13 @@ import static org.junit.Assert.fail;
 
 public class ProxyClusterHealthRequestBuilderTest {
 
-  @Rule
-  public EsTester esTester = new EsTester();
+  @ClassRule
+  public static EsTester esTester = new EsTester();
+
+  @Before
+  public void setUp() throws Exception {
+    esTester.setProfilingLevel(Profiling.Level.NONE);
+  }
 
   @Test
   public void state() {
@@ -51,8 +57,8 @@ public class ProxyClusterHealthRequestBuilderTest {
   }
 
   @Test
-  public void with_profiling_basic() {
-    esTester.setProfilingLevel(Profiling.Level.BASIC);
+  public void with_profiling_full() {
+    esTester.setProfilingLevel(Profiling.Level.FULL);
 
     ClusterHealthRequestBuilder requestBuilder = esTester.client().prepareHealth();
     ClusterHealthResponse state = requestBuilder.get();

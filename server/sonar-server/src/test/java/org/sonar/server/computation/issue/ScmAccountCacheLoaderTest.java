@@ -19,7 +19,8 @@
  */
 package org.sonar.server.computation.issue;
 
-import org.junit.Rule;
+import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.sonar.api.config.Settings;
@@ -36,8 +37,13 @@ import static org.mockito.Mockito.verify;
 
 public class ScmAccountCacheLoaderTest {
 
-  @Rule
-  public EsTester esTester = new EsTester().addDefinitions(new UserIndexDefinition(new Settings()));
+  @ClassRule
+  public static EsTester esTester = new EsTester().addDefinitions(new UserIndexDefinition(new Settings()));
+
+  @Before
+  public void setUp() throws Exception {
+    esTester.truncateIndices();
+  }
 
   @Test
   public void load_login_for_scm_account() throws Exception {

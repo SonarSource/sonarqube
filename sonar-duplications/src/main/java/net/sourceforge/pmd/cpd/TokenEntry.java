@@ -24,6 +24,7 @@
 package net.sourceforge.pmd.cpd;
 
 import com.google.common.annotations.Beta;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -135,5 +136,10 @@ public class TokenEntry implements Comparable<TokenEntry> {
   @Override
   public int compareTo(TokenEntry other) {
     return getIndex() - other.getIndex();
+  }
+
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this);
   }
 }

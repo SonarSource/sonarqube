@@ -43,7 +43,7 @@ public class LastLineHashes implements BatchComponent {
   }
 
   private String loadHashesFromWs(String fileKey) {
-    TimeProfiler profiler = new TimeProfiler(LOG).start("Load previous line hashes of: " + fileKey).setLevelToDebug();
+    TimeProfiler profiler = new TimeProfiler(LOG).setLevelToDebug().start("Load previous line hashes of: " + fileKey);
     try {
       return server.request("/api/sources/hash?key=" + ServerClient.encodeForUrl(fileKey));
     } finally {

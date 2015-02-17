@@ -133,7 +133,7 @@ public class RulesProfile implements Cloneable {
   }
 
   /**
-   * @deprecated profile versioning is dropped in 4.4. Always returns -1.
+   * @deprecated profile versioning is dropped in 4.4. Always returns null.
    */
   @CheckForNull
   @Deprecated

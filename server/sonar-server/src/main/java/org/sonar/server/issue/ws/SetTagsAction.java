@@ -19,11 +19,8 @@
  */
 package org.sonar.server.issue.ws;
 
-import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableSet;
+import com.google.common.base.Objects;
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
@@ -31,14 +28,13 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.issue.IssueService;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
- * Set tags on an issue.
- * @since 5.1
+ * Set tags on an issue
  */
-public class SetTagsAction implements RequestHandler {
-
-  private static final Splitter WS_TAGS_SPLITTER = Splitter.on(',').omitEmptyStrings().trimResults();
+public class SetTagsAction implements BaseIssuesWsAction {
 
   private final IssueService service;
 
@@ -46,7 +42,8 @@ public class SetTagsAction implements RequestHandler {
     this.service = service;
   }
 
-  void define(WebService.NewController controller) {
+  @Override
+  public void define(WebService.NewController controller) {
     NewAction action = controller.createAction("set_tags")
       .setHandler(this)
       .setPost(true)
@@ -64,8 +61,8 @@ public class SetTagsAction implements RequestHandler {
   @Override
   public void handle(Request request, Response response) throws Exception {
     String key = request.mandatoryParam("key");
-    String tags = Strings.nullToEmpty(request.param("tags"));
-    Collection<String> resultTags = service.setTags(key, ImmutableSet.copyOf(WS_TAGS_SPLITTER.split(tags)));
+    List<String> tags = Objects.firstNonNull(request.paramAsStrings("tags"), Collections.<String>emptyList());
+    Collection<String> resultTags = service.setTags(key, tags);
     JsonWriter json = response.newJsonWriter().beginObject().name("tags").beginArray();
     for (String tag : resultTags) {
       json.value(tag);

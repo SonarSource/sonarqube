@@ -34,16 +34,18 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.es.SearchOptions;
+import org.sonar.server.es.SearchResult;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.IssueTesting;
 import org.sonar.server.issue.db.IssueDao;
+import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
-import org.sonar.server.search.QueryContext;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 
@@ -97,7 +99,9 @@ public class ViewIndexerMediumTest {
     indexer.index(viewUuid);
 
     // Execute issue query on view -> 1 issue on view
-    assertThat(tester.get(IssueIndex.class).search(IssueQuery.builder().viewUuids(newArrayList(viewUuid)).build(), new QueryContext()).getHits()).hasSize(1);
+    SearchResult<IssueDoc> docs = tester.get(IssueIndex.class).search(IssueQuery.builder().viewUuids(newArrayList(viewUuid)).build(),
+      new SearchOptions());
+    assertThat(docs.getDocs()).hasSize(1);
 
     // Add a project to the view and index it again
     ComponentDto project2 = addProjectWithIssue(rule);
@@ -107,7 +111,7 @@ public class ViewIndexerMediumTest {
     indexer.index(viewUuid);
 
     // Execute issue query on view -> issue of project2 are well taken into account : the cache has been cleared
-    assertThat(tester.get(IssueIndex.class).search(IssueQuery.builder().viewUuids(newArrayList(viewUuid)).build(), new QueryContext()).getHits()).hasSize(2);
+    assertThat(tester.get(IssueIndex.class).search(IssueQuery.builder().viewUuids(newArrayList(viewUuid)).build(), new SearchOptions()).getDocs()).hasSize(2);
   }
 
   private ComponentDto addProjectWithIssue(RuleDto rule) {

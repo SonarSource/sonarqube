@@ -26,11 +26,15 @@ import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.utils.DateUtils;
 
 import javax.annotation.Nullable;
+
 import java.util.Calendar;
 import java.util.Date;
 
 import static org.sonar.api.utils.DateUtils.longToDate;
 
+/**
+ * Used by devcockpit
+ */
 public class PastSnapshot {
 
   private int index;
@@ -96,7 +100,7 @@ public class PastSnapshot {
     return this;
   }
 
-  Integer getProjectSnapshotId() {
+  public Integer getProjectSnapshotId() {
     return projectSnapshot != null ? projectSnapshot.getId() : null;
   }
 

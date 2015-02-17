@@ -45,8 +45,8 @@ public class NoSonarFilterTest {
   @Before
   public void prepare() {
     when(chain.accept(isA(Issue.class))).thenReturn(true);
-    javaFile = new File("org.foo.Bar");
-    javaFile.setEffectiveKey("struts:org.apache.Action");
+    javaFile = File.create("org/foo/Bar.java");
+    javaFile.setEffectiveKey("struts:org/foo/Bar.java");
     when(sonarIndex.getResource(javaFile)).thenReturn(javaFile);
   }
 
@@ -58,7 +58,7 @@ public class NoSonarFilterTest {
     filter.addResource(javaFile, noSonarLines);
 
     Issue issue = mock(Issue.class);
-    when(issue.componentKey()).thenReturn("struts:org.apache.Action");
+    when(issue.componentKey()).thenReturn("struts:org/foo/Bar.java");
     when(issue.ruleKey()).thenReturn(RuleKey.of("squid", "Foo"));
 
     // violation on class

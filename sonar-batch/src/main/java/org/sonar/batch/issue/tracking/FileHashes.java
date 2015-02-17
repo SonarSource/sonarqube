@@ -23,6 +23,11 @@ import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.ObjectUtils;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.batch.scan.filesystem.FileMetadata;
+import org.sonar.batch.scan.filesystem.FileMetadata.LineHashConsumer;
+
+import javax.annotation.Nullable;
 
 import java.util.Collection;
 
@@ -49,7 +54,16 @@ public final class FileHashes {
     return new FileHashes(hashes, linesByHash);
   }
 
-  public static FileHashes create(byte[][] hashes) {
+  public static FileHashes create(DefaultInputFile f) {
+    final byte[][] hashes = new byte[f.lines()][];
+    FileMetadata.computeLineHashesForIssueTracking(f, new LineHashConsumer() {
+
+      @Override
+      public void consume(int lineIdx, @Nullable byte[] hash) {
+        hashes[lineIdx - 1] = hash;
+      }
+    });
+
     int size = hashes.length;
     Multimap<String, Integer> linesByHash = LinkedHashMultimap.create();
     String[] hexHashes = new String[size];

@@ -20,7 +20,6 @@
 
 package org.sonar.server.user;
 
-import com.google.common.base.CharMatcher;
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
@@ -32,7 +31,6 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.NewUserHandler;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.text.CsvWriter;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.user.GroupDto;
 import org.sonar.core.user.UserDto;
@@ -46,14 +44,12 @@ import org.sonar.server.util.Validation;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.io.StringWriter;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Sets.newLinkedHashSet;
 
 public class UserUpdater implements ServerComponent {
 
@@ -151,7 +147,7 @@ public class UserUpdater implements ServerComponent {
     List<String> scmAccounts = sanitizeScmAccounts(newUser.scmAccounts());
     if (scmAccounts != null && !scmAccounts.isEmpty()) {
       validateScmAccounts(dbSession, scmAccounts, login, email, null, messages);
-      userDto.setScmAccounts(convertScmAccountsToCsv(scmAccounts));
+      userDto.setScmAccounts(scmAccounts);
     }
 
     if (!messages.isEmpty()) {
@@ -186,9 +182,9 @@ public class UserUpdater implements ServerComponent {
       List<String> scmAccounts = sanitizeScmAccounts(updateUser.scmAccounts());
       if (scmAccounts != null && !scmAccounts.isEmpty()) {
         validateScmAccounts(dbSession, scmAccounts, userDto.getLogin(), email != null ? email : userDto.getEmail(), userDto, messages);
-        userDto.setScmAccounts(convertScmAccountsToCsv(scmAccounts));
+        userDto.setScmAccounts(scmAccounts);
       } else {
-        userDto.setScmAccounts(null);
+        userDto.setScmAccounts((String) null);
       }
     }
 
@@ -286,22 +282,6 @@ public class UserUpdater implements ServerComponent {
     String saltHex = DigestUtils.sha1Hex(salt);
     userDto.setSalt(saltHex);
     userDto.setCryptedPassword(DigestUtils.sha1Hex("--" + saltHex + "--" + password + "--"));
-  }
-
-  private static String convertScmAccountsToCsv(List<String> scmAccounts) {
-    // Use a set to remove duplication, then use a list to add empty characters
-    List<String> uniqueScmAccounts = newArrayList(newLinkedHashSet(scmAccounts));
-    // Add one empty character at the begin and at the end of the list to be able to generate a coma at the begin and at the end of the
-    // text
-    uniqueScmAccounts.add(0, "");
-    uniqueScmAccounts.add("");
-    int size = uniqueScmAccounts.size();
-    StringWriter writer = new StringWriter(size);
-    CsvWriter csv = CsvWriter.of(writer);
-    csv.values(uniqueScmAccounts.toArray(new String[size]));
-    csv.close();
-    // Remove useless line break added by CsvWriter at this end of the text
-    return CharMatcher.JAVA_ISO_CONTROL.removeFrom(writer.toString());
   }
 
   private void notifyNewUser(String login, String name, String email) {

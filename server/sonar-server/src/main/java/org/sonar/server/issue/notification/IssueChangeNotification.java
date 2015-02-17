@@ -19,11 +19,13 @@
  */
 package org.sonar.server.issue.notification;
 
+import com.google.common.base.Strings;
 import org.sonar.api.component.Component;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.notifications.Notification;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.io.Serializable;
@@ -48,10 +50,8 @@ public class IssueChangeNotification extends Notification {
       for (Map.Entry<String, FieldDiffs.Diff> entry : currentChange.diffs().entrySet()) {
         String type = entry.getKey();
         FieldDiffs.Diff diff = entry.getValue();
-        Serializable newValue = diff.newValue();
-        Serializable oldValue = diff.oldValue();
-        setFieldValue("old." + type, oldValue != null ? oldValue.toString() : null);
-        setFieldValue("new." + type, newValue != null ? newValue.toString() : null);
+        setFieldValue("old." + type, neverEmptySerializableToString(diff.oldValue()));
+        setFieldValue("new." + type, neverEmptySerializableToString(diff.newValue()));
       }
     }
     return this;
@@ -87,5 +87,10 @@ public class IssueChangeNotification extends Notification {
       setFieldValue("comment", s);
     }
     return this;
+  }
+
+  @CheckForNull
+  private static String neverEmptySerializableToString(@Nullable Serializable s) {
+    return s != null ? Strings.emptyToNull(s.toString()) : null;
   }
 }

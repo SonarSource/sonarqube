@@ -43,7 +43,7 @@ public class IssuesOnDirMediumTest {
   public BatchMediumTester tester = BatchMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
-    .activateRule(new ActiveRule("xoo", "OneIssueOnDirPerFile", "One issue per line", "MINOR", "xoo", "xoo"))
+    .activateRule(new ActiveRule("xoo", "OneIssueOnDirPerFile", null, "One issue per line", "MINOR", "xoo", "xoo"))
     .build();
 
   @Before

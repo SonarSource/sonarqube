@@ -63,7 +63,6 @@ public class IssueJsonParser {
   private void parsePaging(DefaultIssues result, Map jsonRoot) {
     Map paging = (Map) jsonRoot.get("paging");
     result.setPaging(new Paging(paging));
-    result.setMaxResultsReached(JsonUtils.getBoolean(jsonRoot, "maxResultsReached"));
   }
 
   private void parseProjects(DefaultIssues result, Map jsonRoot) {

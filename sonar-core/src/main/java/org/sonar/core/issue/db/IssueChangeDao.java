@@ -26,6 +26,7 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.issue.internal.FieldDiffs;
+import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 
@@ -43,7 +44,7 @@ import static com.google.common.collect.Maps.newHashMap;
 /**
  * @since 3.6
  */
-public class IssueChangeDao implements BatchComponent, ServerComponent {
+public class IssueChangeDao implements DaoComponent, BatchComponent, ServerComponent {
 
   private final MyBatis mybatis;
 

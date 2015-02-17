@@ -27,18 +27,13 @@ import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.rules.RulePriority;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
+
+import static org.sonar.api.utils.DateUtils.dateToLong;
+import static org.sonar.api.utils.DateUtils.longToDate;
 
 /**
  * This class is the Hibernate model to store a measure in the DB
@@ -75,9 +70,8 @@ public class MeasureModel implements Cloneable {
   @Column(name = "description", updatable = true, nullable = true, length = 4000)
   private String description;
 
-  @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "measure_date", updatable = true, nullable = true)
-  private Date measureDate;
+  private Long measureDate;
 
   @Column(name = "rule_id", updatable = true, nullable = true)
   private Integer ruleId;
@@ -119,14 +113,6 @@ public class MeasureModel implements Cloneable {
   @Column(name = "measure_data", updatable = true, nullable = true, length = 167772150)
   private byte[] data;
 
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
-  }
-
   /**
    * Creates a measure based on a metric and a double value
    */
@@ -162,11 +148,32 @@ public class MeasureModel implements Cloneable {
   public MeasureModel() {
   }
 
+  public Long getId() {
+    return id;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
+  }
+
   /**
    * @return the measure double value
    */
   public Double getValue() {
     return value;
+  }
+
+  /**
+   * Sets the measure value
+   *
+   * @throws IllegalArgumentException in case value is not a valid double
+   */
+  public MeasureModel setValue(Double value) {
+    if (value != null && (value.isNaN() || value.isInfinite())) {
+      throw new IllegalArgumentException();
+    }
+    this.value = value;
+    return this;
   }
 
   /**
@@ -181,19 +188,6 @@ public class MeasureModel implements Cloneable {
    */
   public void setDescription(String description) {
     this.description = description;
-  }
-
-  /**
-   * Sets the measure value
-   *
-   * @throws IllegalArgumentException in case value is not a valid double
-   */
-  public MeasureModel setValue(Double value) {
-    if (value != null && (value.isNaN() || value.isInfinite())) {
-      throw new IllegalArgumentException();
-    }
-    this.value = value;
-    return this;
   }
 
   /**
@@ -228,13 +222,6 @@ public class MeasureModel implements Cloneable {
   }
 
   /**
-   * @return whether the measure is about rule
-   */
-  public boolean isRuleMeasure() {
-    return ruleId != null || rulePriority != null;
-  }
-
-  /**
    * Sets the measure tendency
    *
    * @return the current object
@@ -242,6 +229,13 @@ public class MeasureModel implements Cloneable {
   public MeasureModel setTendency(Integer tendency) {
     this.tendency = tendency;
     return this;
+  }
+
+  /**
+   * @return whether the measure is about rule
+   */
+  public boolean isRuleMeasure() {
+    return ruleId != null || rulePriority != null;
   }
 
   public Integer getMetricId() {
@@ -315,7 +309,7 @@ public class MeasureModel implements Cloneable {
    * @return the date of the measure
    */
   public Date getMeasureDate() {
-    return measureDate;
+    return longToDate(measureDate);
   }
 
   /**
@@ -324,6 +318,23 @@ public class MeasureModel implements Cloneable {
    * @return the current object
    */
   public MeasureModel setMeasureDate(Date measureDate) {
+    this.measureDate = dateToLong(measureDate);
+    return this;
+  }
+
+  /**
+   * @return the date of the measure
+   */
+  public Long getMeasureDateMs() {
+    return measureDate;
+  }
+
+  /**
+   * Sets the date for the measure
+   *
+   * @return the current object
+   */
+  public MeasureModel setMeasureDateMs(Long measureDate) {
     this.measureDate = measureDate;
     return this;
   }

@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.security.DefaultGroups;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
@@ -138,7 +139,7 @@ public class SearchActionComponentsMediumTest {
   }
 
   @Test
-  public void project_facet_is_sticky_when_non_contextualized() throws Exception {
+  public void project_facet_is_sticky() throws Exception {
     ComponentDto project1 = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject1"));
     ComponentDto project2 = insertComponent(ComponentTesting.newProjectDto("BCDE").setKey("MyProject2"));
     ComponentDto project3 = insertComponent(ComponentTesting.newProjectDto("CDEF").setKey("MyProject3"));
@@ -158,15 +159,9 @@ public class SearchActionComponentsMediumTest {
 
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.PROJECT_UUIDS, project1.uuid())
-      .setParam(SearchAction.PARAM_FACETS, "projectUuids")
+      .setParam(WebService.Param.FACETS, "projectUuids")
       .execute()
       .assertJson(this.getClass(), "display_sticky_project_facet.json", false);
-
-    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
-      .setParam(IssueFilterParameters.COMPONENT_UUIDS, project1.uuid())
-      .setParam(SearchAction.PARAM_FACETS, "projectUuids")
-      .execute()
-      .assertJson(this.getClass(), "display_non_sticky_project_facet.json", false);
   }
 
   @Test
@@ -242,7 +237,7 @@ public class SearchActionComponentsMediumTest {
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, project.uuid())
       .setParam(IssueFilterParameters.FILE_UUIDS, file1.uuid() + "," + file3.uuid())
-      .setParam(SearchAction.PARAM_FACETS, "fileUuids")
+      .setParam(WebService.Param.FACETS, "fileUuids")
       .execute()
       .assertJson(this.getClass(), "display_file_facet.json", false);
   }
@@ -347,9 +342,9 @@ public class SearchActionComponentsMediumTest {
     tester.get(IssueIndexer.class).indexAll();
 
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
-      .setParam(IssueFilterParameters.COMPONENT_UUIDS, project.uuid())
+      .setParam(IssueFilterParameters.COMPONENT_UUIDS, module.uuid())
       .setParam(IssueFilterParameters.MODULE_UUIDS, subModule1.uuid() + "," + subModule3.uuid())
-      .setParam(SearchAction.PARAM_FACETS, "moduleUuids")
+      .setParam(WebService.Param.FACETS, "moduleUuids")
       .execute()
       .assertJson(this.getClass(), "display_module_facet.json", false);
   }
@@ -368,7 +363,7 @@ public class SearchActionComponentsMediumTest {
     MockUserSession.set().setLogin("john");
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam("resolved", "false")
-      .setParam(SearchAction.PARAM_FACETS, "directories")
+      .setParam(WebService.Param.FACETS, "directories")
       .execute();
     result.assertJson(this.getClass(), "display_directory_facet.json", false);
   }
@@ -469,7 +464,7 @@ public class SearchActionComponentsMediumTest {
 
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.AUTHORS, "leia")
-      .setParam(SearchAction.PARAM_FACETS, "authors")
+      .setParam(WebService.Param.FACETS, "authors")
       .execute()
       .assertJson(this.getClass(), "search_by_authors.json", false);
 

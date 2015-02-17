@@ -21,7 +21,7 @@
 package org.sonar.server.user.index;
 
 import org.junit.Before;
-import org.junit.Rule;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.server.es.EsTester;
@@ -32,13 +32,14 @@ import static org.junit.Assert.fail;
 
 public class UserIndexTest {
 
-  @Rule
-  public EsTester esTester = new EsTester().addDefinitions(new UserIndexDefinition(new Settings()));
+  @ClassRule
+  public static EsTester esTester = new EsTester().addDefinitions(new UserIndexDefinition(new Settings()));
 
   private UserIndex index;
 
   @Before
   public void setUp() {
+    esTester.truncateIndices();
     index = new UserIndex(esTester.client());
   }
 

@@ -38,7 +38,7 @@ public class ComponentsWsTest {
 
   @Before
   public void setUp() throws Exception {
-    WsTester tester = new WsTester(new ComponentsWs(new ComponentAppAction(mock(DbClient.class), mock(Durations.class), mock(I18n.class))));
+    WsTester tester = new WsTester(new ComponentsWs(new ComponentAppAction(mock(DbClient.class), mock(Durations.class), mock(I18n.class)), new SearchAction(mock(DbClient.class))));
     controller = tester.controller("api/components");
   }
 
@@ -47,7 +47,7 @@ public class ComponentsWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();
     assertThat(controller.since()).isEqualTo("4.2");
-    assertThat(controller.actions()).hasSize(2);
+    assertThat(controller.actions()).hasSize(3);
   }
 
   @Test
@@ -69,6 +69,16 @@ public class ComponentsWsTest {
     assertThat(action.isPost()).isFalse();
     assertThat(action.handler()).isNotNull();
     assertThat(action.params()).hasSize(2);
+  }
+
+  @Test
+  public void define_search_action() throws Exception {
+    WebService.Action action = controller.action("search");
+    assertThat(action).isNotNull();
+    assertThat(action.isInternal()).isTrue();
+    assertThat(action.isPost()).isFalse();
+    assertThat(action.handler()).isNotNull();
+    assertThat(action.params()).hasSize(4);
   }
 
 }

@@ -19,14 +19,13 @@
  */
 package org.sonar.core.user;
 
-import org.sonar.core.persistence.DaoComponent;
-
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DaoUtils;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
@@ -84,9 +83,9 @@ public class AuthorDao implements BatchComponent, ServerComponent, DaoComponent 
   public void insertAuthorAndDeveloper(String login, ResourceDto resourceDto) {
     SqlSession session = mybatis.openSession(false);
     try {
-      // Hack in order to set "." on DEV
+      // Hack in order to set the right module uuid path on DEVs
       if (Strings.isNullOrEmpty(resourceDto.getModuleUuidPath())) {
-        resourceDto.setModuleUuidPath(ComponentDto.MODULE_UUID_PATH_SEP);
+        resourceDto.setModuleUuidPath(ComponentDto.MODULE_UUID_PATH_SEP + resourceDto.getUuid() + ComponentDto.MODULE_UUID_PATH_SEP);
       }
       resourceDao.insertUsingExistingSession(resourceDto, session);
       insertAuthor(login, resourceDto.getId(), session);

@@ -21,7 +21,7 @@
 package org.sonar.server.view.index;
 
 import org.junit.Before;
-import org.junit.Rule;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.server.es.EsTester;
@@ -33,13 +33,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ViewIndexTest {
 
-  @Rule
-  public EsTester esTester = new EsTester().addDefinitions(new ViewIndexDefinition(new Settings()));
+  @ClassRule
+  public static EsTester esTester = new EsTester().addDefinitions(new ViewIndexDefinition(new Settings()));
 
   private ViewIndex index;
 
   @Before
   public void setUp() {
+    esTester.truncateIndices();
     index = new ViewIndex(esTester.client());
   }
 

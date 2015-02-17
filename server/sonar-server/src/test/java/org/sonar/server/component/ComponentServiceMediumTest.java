@@ -48,6 +48,10 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
+/**
+ * It's not possible to replace usage of ServerTester by DbTester because of the usage of {@link InternalPermissionService}.
+ * Maybe we should create a mock of the permission service ?
+ */
 public class ComponentServiceMediumTest {
 
   @ClassRule
@@ -104,7 +108,7 @@ public class ComponentServiceMediumTest {
 
     session.commit();
 
-    MockUserSession.set().setLogin("john").addComponentPermission(UserRole.ADMIN, project.key(), project.key());
+    MockUserSession.set().setLogin("john").addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
     service.updateKey(project.key(), "sample2:root");
     session.commit();
 
@@ -128,7 +132,7 @@ public class ComponentServiceMediumTest {
 
     session.commit();
 
-    MockUserSession.set().setLogin("john").addComponentPermission(UserRole.ADMIN, project.key(), module.key());
+    MockUserSession.set().setLogin("john").addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
     service.updateKey(module.key(), "sample:root2:module");
     session.commit();
 
@@ -151,7 +155,7 @@ public class ComponentServiceMediumTest {
 
     session.commit();
 
-    MockUserSession.set().setLogin("john").addComponentPermission(UserRole.ADMIN, provisionedProject.key(), provisionedProject.key());
+    MockUserSession.set().setLogin("john").addProjectUuidPermissions(UserRole.ADMIN, provisionedProject.uuid());
     service.updateKey(provisionedProject.key(), "provisionedProject2");
     session.commit();
 
@@ -163,7 +167,7 @@ public class ComponentServiceMediumTest {
   @Test(expected = ForbiddenException.class)
   public void fail_to_update_project_key_without_admin_permission() throws Exception {
     ComponentDto project = createProject("sample:root");
-    MockUserSession.set().setLogin("john").addComponentPermission(UserRole.USER, project.key(), project.key());
+    MockUserSession.set().setLogin("john").addProjectUuidPermissions(UserRole.USER, project.uuid());
     service.updateKey(project.key(), "sample2:root");
   }
 
@@ -178,7 +182,7 @@ public class ComponentServiceMediumTest {
 
     session.commit();
 
-    MockUserSession.set().setLogin("john").addProjectPermissions(UserRole.ADMIN, project.key());
+    MockUserSession.set().setLogin("john").addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
     Map<String, String> result = service.checkModuleKeysBeforeRenaming(project.key(), "sample", "sample2");
 
     assertThat(result).hasSize(2);
@@ -197,7 +201,7 @@ public class ComponentServiceMediumTest {
 
     session.commit();
 
-    MockUserSession.set().setLogin("john").addProjectPermissions(UserRole.ADMIN, project.key());
+    MockUserSession.set().setLogin("john").addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
     Map<String, String> result = service.checkModuleKeysBeforeRenaming(project.key(), "sample:root", "foo");
 
     assertThat(result).hasSize(2);
@@ -208,7 +212,7 @@ public class ComponentServiceMediumTest {
   @Test(expected = ForbiddenException.class)
   public void fail_to_check_module_keys_before_renaming_without_admin_permission() throws Exception {
     ComponentDto project = createProject("sample:root");
-    MockUserSession.set().setLogin("john").addComponentPermission(UserRole.USER, project.key(), project.key());
+    MockUserSession.set().setLogin("john").addProjectUuidPermissions(UserRole.USER, project.uuid());
     service.checkModuleKeysBeforeRenaming(project.key(), "sample", "sample2");
   }
 
@@ -223,7 +227,7 @@ public class ComponentServiceMediumTest {
 
     session.commit();
 
-    MockUserSession.set().setLogin("john").addProjectPermissions(UserRole.ADMIN, project.key());
+    MockUserSession.set().setLogin("john").addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
     service.bulkUpdateKey(project.key(), "sample", "sample2");
     session.commit();
 
@@ -247,7 +251,7 @@ public class ComponentServiceMediumTest {
 
     session.commit();
 
-    MockUserSession.set().setLogin("john").addComponentPermission(UserRole.ADMIN, provisionedProject.key(), provisionedProject.key());
+    MockUserSession.set().setLogin("john").addProjectUuidPermissions(UserRole.ADMIN, provisionedProject.uuid());
     service.bulkUpdateKey(provisionedProject.key(), "provisionedProject", "provisionedProject2");
     session.commit();
 
@@ -276,7 +280,7 @@ public class ComponentServiceMediumTest {
     assertThat(project.uuid()).isNotNull();
     assertThat(project.projectUuid()).isEqualTo(project.uuid());
     assertThat(project.moduleUuid()).isNull();
-    assertThat(project.moduleUuidPath()).isNull();
+    assertThat(project.moduleUuidPath()).isEqualTo("." + project.uuid() + ".");
     assertThat(project.name()).isEqualTo("Struts project");
     assertThat(project.longName()).isEqualTo("Struts project");
     assertThat(project.scope()).isEqualTo("PRJ");
@@ -309,7 +313,7 @@ public class ComponentServiceMediumTest {
     assertThat(project.uuid()).isNotNull();
     assertThat(project.projectUuid()).isEqualTo(project.uuid());
     assertThat(project.moduleUuid()).isNull();
-    assertThat(project.moduleUuidPath()).isNull();
+    assertThat(project.moduleUuidPath()).isEqualTo("." + project.uuid() + ".");
     assertThat(project.name()).isEqualTo("All Projects");
     assertThat(project.longName()).isEqualTo("All Projects");
     assertThat(project.scope()).isEqualTo("PRJ");

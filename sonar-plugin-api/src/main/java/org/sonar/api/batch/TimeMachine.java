@@ -25,10 +25,13 @@ import org.sonar.api.measures.Measure;
 import java.util.List;
 
 /**
- * The TimeMachine extension point
+ * The TimeMachine component
  *
  * @since 1.10
+ * @deprecated since 5.1 ability to access previous data from batch side will soon be removed
  */
+@Deprecated
+@RequiresDB
 public interface TimeMachine extends BatchComponent {
 
   /**

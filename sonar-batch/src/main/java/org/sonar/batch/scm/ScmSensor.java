@@ -32,9 +32,10 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.utils.TimeProfiler;
 import org.sonar.batch.protocol.input.FileData;
 import org.sonar.batch.protocol.input.ProjectRepositories;
+import org.sonar.batch.scan.filesystem.InputFileMetadata;
+import org.sonar.batch.scan.filesystem.InputPathCache;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -47,13 +48,15 @@ public final class ScmSensor implements Sensor {
   private final ScmConfiguration configuration;
   private final FileSystem fs;
   private final ProjectRepositories projectReferentials;
+  private final InputPathCache inputPathCache;
 
   public ScmSensor(ProjectDefinition projectDefinition, ScmConfiguration configuration,
-    ProjectRepositories projectReferentials, FileSystem fs) {
+    ProjectRepositories projectReferentials, FileSystem fs, InputPathCache inputPathCache) {
     this.projectDefinition = projectDefinition;
     this.configuration = configuration;
     this.projectReferentials = projectReferentials;
     this.fs = fs;
+    this.inputPathCache = inputPathCache;
   }
 
   @Override
@@ -75,12 +78,11 @@ public final class ScmSensor implements Sensor {
 
     List<InputFile> filesToBlame = collectFilesToBlame(context);
     if (!filesToBlame.isEmpty()) {
-      LOG.info("SCM provider for this project is: " + configuration.provider().key());
-      TimeProfiler profiler = new TimeProfiler().start("Retrieve SCM blame information");
+      String key = configuration.provider().key();
+      LOG.info("SCM provider for this project is: " + key);
       DefaultBlameOutput output = new DefaultBlameOutput(context, filesToBlame);
       configuration.provider().blameCommand().blame(new DefaultBlameInput(fs, filesToBlame), output);
       output.finish();
-      profiler.stop();
     }
   }
 
@@ -104,7 +106,7 @@ public final class ScmSensor implements Sensor {
 
     if (f.status() == Status.SAME && fileData != null) {
       if (fileData.needBlame()) {
-        addIfNotEmpty(filesToBlame, f);
+        addIfNotEmpty(filesToBlame, (DefaultInputFile) f);
       } else {
         // Copy previous measures
         String scmAuthorsByLine = fileData.scmAuthorsByLine();
@@ -117,12 +119,13 @@ public final class ScmSensor implements Sensor {
         }
       }
     } else {
-      addIfNotEmpty(filesToBlame, f);
+      addIfNotEmpty(filesToBlame, (DefaultInputFile) f);
     }
   }
 
-  private void addIfNotEmpty(List<InputFile> filesToBlame, InputFile f) {
-    if (!((DefaultInputFile) f).isEmpty()) {
+  private void addIfNotEmpty(List<InputFile> filesToBlame, DefaultInputFile f) {
+    InputFileMetadata metadata = inputPathCache.getFileMetadata(f.moduleKey(), f.relativePath());
+    if (!metadata.isEmpty()) {
       filesToBlame.add(f);
     }
   }

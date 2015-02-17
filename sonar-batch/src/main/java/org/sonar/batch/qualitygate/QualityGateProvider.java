@@ -84,7 +84,7 @@ public class QualityGateProvider extends ProviderAdapter {
   private QualityGate fetch(String qualityGateSetting, ServerClient client, MetricFinder metricFinder) {
     String jsonText = null;
     try {
-      long qGateId = Long.valueOf(qualityGateSetting);
+      long qGateId = Long.parseLong(qualityGateSetting);
       jsonText = client.request(SHOW_URL + "?id=" + qGateId, false);
     } catch (NumberFormatException configIsNameInsteadOfId) {
       jsonText = client.request(SHOW_URL + "?name=" + qualityGateSetting, false);

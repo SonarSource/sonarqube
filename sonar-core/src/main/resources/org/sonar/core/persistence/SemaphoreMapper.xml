@@ -5,20 +5,12 @@
 
   <insert id="initialize" parameterType="map" useGeneratedKeys="false" >
     INSERT INTO semaphores (name, checksum, created_at, updated_at, locked_at)
-    VALUES (#{name}, #{checksum}, current_timestamp, current_timestamp, #{lockedAt})
+    VALUES (#{name}, #{checksum}, #{createdAt}, #{updatedAt}, #{lockedAt})
   </insert>
-
-  <select id="now" resultType="Date" >
-    select current_timestamp
-  </select>
-
-  <select id="now" databaseId="oracle" resultType="Date" >
-    select current_timestamp from dual
-  </select>
 
   <update id="acquire" parameterType="map">
     update semaphores
-    set updated_at = current_timestamp, locked_at = current_timestamp
+    set updated_at = #{now}, locked_at = #{now}
     where name=#{name}
     <if test="updatedBefore != null">
       AND updated_at &lt; #{updatedBefore}
@@ -34,9 +26,9 @@
     from semaphores s where s.name=#{name}
   </select>
 
-  <update id="update" parameterType="String" >
+  <update id="update" parameterType="map" >
     update semaphores
-    set updated_at = current_timestamp
+    set updated_at = #{now}
     where name=#{name}
   </update>
 

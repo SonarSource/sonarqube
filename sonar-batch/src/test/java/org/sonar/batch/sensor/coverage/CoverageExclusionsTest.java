@@ -54,7 +54,7 @@ public class CoverageExclusionsTest {
 
   @Test
   public void shouldFilterFileBasedOnPattern() {
-    Resource resource = File.create("src/org/polop/File.php", "org/polop/File.php", null, false);
+    Resource resource = File.create("src/org/polop/File.php", null, false);
     Measure coverageMeasure = mock(Measure.class);
     when(coverageMeasure.getMetric()).thenReturn(CoreMetrics.LINES_TO_COVER);
 
@@ -65,7 +65,7 @@ public class CoverageExclusionsTest {
 
   @Test
   public void shouldNotFilterFileBasedOnPattern() {
-    Resource resource = File.create("src/org/polop/File.php", "org/polop/File.php", null, false);
+    Resource resource = File.create("src/org/polop/File.php", null, false);
     Measure coverageMeasure = mock(Measure.class);
     when(coverageMeasure.getMetric()).thenReturn(CoreMetrics.COVERAGE);
 

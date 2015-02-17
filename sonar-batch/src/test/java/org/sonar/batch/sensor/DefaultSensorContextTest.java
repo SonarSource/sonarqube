@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.measure.MetricFinder;
@@ -31,7 +32,6 @@ import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.sensor.SensorStorage;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.batch.duplication.BlockCache;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.ComponentDataCache;
 
@@ -40,6 +40,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class DefaultSensorContextTest {
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -52,18 +55,17 @@ public class DefaultSensorContextTest {
   private AnalysisMode analysisMode;
 
   @Before
-  public void prepare() {
+  public void prepare() throws Exception {
     activeRules = new ActiveRulesBuilder().build();
-    fs = new DefaultFileSystem();
+    fs = new DefaultFileSystem(temp.newFolder().toPath());
     MetricFinder metricFinder = mock(MetricFinder.class);
     when(metricFinder.findByKey(CoreMetrics.NCLOC_KEY)).thenReturn(CoreMetrics.NCLOC);
     when(metricFinder.findByKey(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION_KEY)).thenReturn(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION);
     settings = new Settings();
     ComponentDataCache componentDataCache = mock(ComponentDataCache.class);
-    BlockCache blockCache = mock(BlockCache.class);
     sensorStorage = mock(SensorStorage.class);
     analysisMode = mock(AnalysisMode.class);
-    adaptor = new DefaultSensorContext(settings, fs, activeRules, analysisMode, componentDataCache, blockCache, mock(DuplicationCache.class), sensorStorage);
+    adaptor = new DefaultSensorContext(settings, fs, activeRules, analysisMode, componentDataCache, mock(DuplicationCache.class), sensorStorage);
   }
 
   @Test

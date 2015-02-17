@@ -19,11 +19,12 @@
  */
 package org.sonar.api.task;
 
-
 /**
  * Implement this interface to provide the behavior of a task.
  * @since 3.6
+ * @deprecated since 5.1 all tasks (devcockpit, views) will be moved to server side
  */
+@Deprecated
 public interface Task extends TaskExtension {
 
   void execute();

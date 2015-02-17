@@ -32,10 +32,8 @@ import org.sonar.core.issue.IssueUpdater;
 import org.sonar.server.user.UserSession;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 
 public abstract class AbstractChangeTagsAction extends Action implements ServerComponent {
 
@@ -50,7 +48,7 @@ public abstract class AbstractChangeTagsAction extends Action implements ServerC
   }
 
   @Override
-  public boolean verify(Map<String, Object> properties, List<Issue> issues, UserSession userSession){
+  public boolean verify(Map<String, Object> properties, Collection<Issue> issues, UserSession userSession) {
     parseTags(properties);
     return true;
   }
@@ -67,7 +65,7 @@ public abstract class AbstractChangeTagsAction extends Action implements ServerC
     Set<String> result = Sets.newHashSet();
     String tagsString = (String) properties.get("tags");
     if (!Strings.isNullOrEmpty(tagsString)) {
-      for(String tag: TAGS_SPLITTER.split(tagsString)) {
+      for (String tag : TAGS_SPLITTER.split(tagsString)) {
         RuleTagFormat.validate(tag);
         result.add(tag);
       }

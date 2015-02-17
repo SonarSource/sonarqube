@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.sensor;
 
-import com.google.common.base.Preconditions;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -29,10 +28,8 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorStorage;
 import org.sonar.api.batch.sensor.dependency.Dependency;
 import org.sonar.api.batch.sensor.dependency.internal.DefaultDependency;
-import org.sonar.api.batch.sensor.duplication.DuplicationBuilder;
-import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
-import org.sonar.api.batch.sensor.duplication.DuplicationTokenBuilder;
-import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplicationBuilder;
+import org.sonar.api.batch.sensor.duplication.NewDuplication;
+import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
 import org.sonar.api.batch.sensor.highlighting.HighlightingBuilder;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
@@ -46,41 +43,30 @@ import org.sonar.api.batch.sensor.test.internal.DefaultCoverage;
 import org.sonar.api.batch.sensor.test.internal.DefaultTestCaseCoverage;
 import org.sonar.api.batch.sensor.test.internal.DefaultTestCaseExecution;
 import org.sonar.api.config.Settings;
-import org.sonar.batch.duplication.BlockCache;
-import org.sonar.batch.duplication.DefaultTokenBuilder;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.highlighting.DefaultHighlightingBuilder;
 import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.batch.symbol.DefaultSymbolTableBuilder;
-import org.sonar.duplications.internal.pmd.PmdBlockChunker;
 
 import java.io.Serializable;
-import java.util.List;
 
-/**
- * Common bits between {@link ExperimentalSensorStorage} and {@link SensorContextAdapter}
- * @author julien
- *
- */
 public class DefaultSensorContext implements SensorContext {
 
   private final Settings settings;
   private final FileSystem fs;
   private final ActiveRules activeRules;
   private final ComponentDataCache componentDataCache;
-  private final BlockCache blockCache;
   private final DuplicationCache duplicationCache;
   private final SensorStorage sensorStorage;
   private final AnalysisMode analysisMode;
 
   public DefaultSensorContext(Settings settings, FileSystem fs, ActiveRules activeRules, AnalysisMode analysisMode, ComponentDataCache componentDataCache,
-    BlockCache blockCache, DuplicationCache duplicationCache, SensorStorage sensorStorage) {
+    DuplicationCache duplicationCache, SensorStorage sensorStorage) {
     this.settings = settings;
     this.fs = fs;
     this.activeRules = activeRules;
     this.analysisMode = analysisMode;
     this.componentDataCache = componentDataCache;
-    this.blockCache = blockCache;
     this.duplicationCache = duplicationCache;
     this.sensorStorage = sensorStorage;
   }
@@ -126,43 +112,8 @@ public class DefaultSensorContext implements SensorContext {
   }
 
   @Override
-  public DuplicationTokenBuilder duplicationTokenBuilder(InputFile inputFile) {
-    PmdBlockChunker blockChunker = new PmdBlockChunker(getBlockSize(inputFile.language()));
-
-    return new DefaultTokenBuilder(inputFile, blockCache, blockChunker);
-  }
-
-  @Override
-  public DuplicationBuilder duplicationBuilder(InputFile inputFile) {
-    return new DefaultDuplicationBuilder(inputFile);
-  }
-
-  @Override
-  public void saveDuplications(InputFile inputFile, List<DuplicationGroup> duplications) {
-    Preconditions.checkState(!duplications.isEmpty(), "Empty duplications");
-    String effectiveKey = ((DefaultInputFile) inputFile).key();
-    for (DuplicationGroup duplicationGroup : duplications) {
-      Preconditions.checkState(effectiveKey.equals(duplicationGroup.originBlock().resourceKey()), "Invalid duplication group");
-    }
-    duplicationCache.put(effectiveKey, duplications);
-  }
-
-  private int getBlockSize(String languageKey) {
-    int blockSize = settings.getInt("sonar.cpd." + languageKey + ".minimumLines");
-    if (blockSize == 0) {
-      blockSize = getDefaultBlockSize(languageKey);
-    }
-    return blockSize;
-  }
-
-  private static int getDefaultBlockSize(String languageKey) {
-    if ("cobol".equals(languageKey)) {
-      return 30;
-    } else if ("abap".equals(languageKey) || "natur".equals(languageKey)) {
-      return 20;
-    } else {
-      return 10;
-    }
+  public NewDuplication newDuplication() {
+    return new DefaultDuplication(sensorStorage);
   }
 
   @Override

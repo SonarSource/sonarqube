@@ -24,19 +24,20 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
-import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.resources.Directory;
-import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.Scopes;
+import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.PathUtils;
+import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.batch.util.DeprecatedKeyUtils;
+
+import javax.annotation.CheckForNull;
 
 import java.util.HashMap;
 import java.util.List;
@@ -48,17 +49,19 @@ public class ResourceKeyMigration implements BatchComponent {
   private static final String COMPONENT_CHANGED_TO = "Component {} changed to {}";
   private final Logger logger;
   private final DatabaseSession session;
+  private final PathResolver pathResolver;
 
   private boolean migrationNeeded = false;
 
-  public ResourceKeyMigration(DatabaseSession session) {
-    this(session, LoggerFactory.getLogger(ResourceKeyMigration.class));
+  public ResourceKeyMigration(DatabaseSession session, PathResolver pathResolver) {
+    this(session, pathResolver, LoggerFactory.getLogger(ResourceKeyMigration.class));
   }
 
   @VisibleForTesting
-  ResourceKeyMigration(DatabaseSession session, Logger logger) {
+  ResourceKeyMigration(DatabaseSession session, PathResolver pathResolver, Logger logger) {
     this.session = session;
     this.logger = logger;
+    this.pathResolver = pathResolver;
   }
 
   public void checkIfMigrationNeeded(Project rootProject) {
@@ -68,19 +71,19 @@ public class ResourceKeyMigration implements BatchComponent {
     }
   }
 
-  public void migrateIfNeeded(Project module, FileSystem fs) {
+  public void migrateIfNeeded(Project module, DefaultModuleFileSystem fs) {
     if (migrationNeeded) {
-      migrateIfNeeded(module, fs.inputFiles(fs.predicates().all()));
+      migrateIfNeeded(module, fs.inputFiles(fs.predicates().all()), fs);
     }
   }
 
-  void migrateIfNeeded(Project module, Iterable<InputFile> inputFiles) {
+  void migrateIfNeeded(Project module, Iterable<InputFile> inputFiles, DefaultModuleFileSystem fs) {
     logger.info("Update component keys");
     Map<String, InputFile> deprecatedFileKeyMapper = new HashMap<String, InputFile>();
     Map<String, InputFile> deprecatedTestKeyMapper = new HashMap<String, InputFile>();
     Map<String, String> deprecatedDirectoryKeyMapper = new HashMap<String, String>();
     for (InputFile inputFile : inputFiles) {
-      String deprecatedKey = ((DeprecatedDefaultInputFile) inputFile).deprecatedKey();
+      String deprecatedKey = computeDeprecatedKey(module.getKey(), (DeprecatedDefaultInputFile) inputFile, fs);
       if (deprecatedKey != null) {
         if (InputFile.Type.TEST == inputFile.type() && !deprecatedTestKeyMapper.containsKey(deprecatedKey)) {
           deprecatedTestKeyMapper.put(deprecatedKey, inputFile);
@@ -95,6 +98,23 @@ public class ResourceKeyMigration implements BatchComponent {
     migrateFiles(module, deprecatedFileKeyMapper, deprecatedTestKeyMapper, deprecatedDirectoryKeyMapper, moduleId);
     migrateDirectories(deprecatedDirectoryKeyMapper, moduleId);
     session.commit();
+  }
+
+  @CheckForNull
+  private String computeDeprecatedKey(String moduleKey, DeprecatedDefaultInputFile inputFile, DefaultModuleFileSystem fs) {
+    List<java.io.File> sourceDirs = InputFile.Type.MAIN == inputFile.type() ? fs.sourceDirs() : fs.testDirs();
+    for (java.io.File sourceDir : sourceDirs) {
+      String sourceRelativePath = pathResolver.relativePath(sourceDir, inputFile.file());
+      if (sourceRelativePath != null) {
+        if ("java".equals(inputFile.language())) {
+          return new StringBuilder()
+            .append(moduleKey).append(":").append(DeprecatedKeyUtils.getJavaFileDeprecatedKey(sourceRelativePath)).toString();
+        } else {
+          return new StringBuilder().append(moduleKey).append(":").append(sourceRelativePath).toString();
+        }
+      }
+    }
+    return null;
   }
 
   private void migrateFiles(Project module, Map<String, InputFile> deprecatedFileKeyMapper, Map<String, InputFile> deprecatedTestKeyMapper,
@@ -113,13 +133,11 @@ public class ResourceKeyMigration implements BatchComponent {
         String newEffectiveKey = ((DeprecatedDefaultInputFile) matchedFile).key();
         // Now compute migration of the parent dir
         String oldKey = StringUtils.substringAfterLast(oldEffectiveKey, ":");
-        Resource sonarFile;
         String parentOldKey;
         if ("java".equals(resourceModel.getLanguageKey())) {
           parentOldKey = String.format("%s:%s", module.getEffectiveKey(), DeprecatedKeyUtils.getJavaFileParentDeprecatedKey(oldKey));
         } else {
-          sonarFile = new File(oldKey);
-          parentOldKey = String.format("%s:%s", module.getEffectiveKey(), sonarFile.getParent().getDeprecatedKey());
+          parentOldKey = String.format("%s:%s", module.getEffectiveKey(), oldParentKey(oldKey));
         }
         String parentNewKey = String.format("%s:%s", module.getEffectiveKey(), getParentKey(matchedFile));
         if (!deprecatedDirectoryKeyMapper.containsKey(parentOldKey)) {
@@ -134,6 +152,18 @@ public class ResourceKeyMigration implements BatchComponent {
       } else {
         logger.warn(UNABLE_TO_UPDATE_COMPONENT_NO_MATCH_WAS_FOUND, oldEffectiveKey);
       }
+    }
+  }
+
+  private String oldParentKey(String oldKey) {
+    String cleanKey = StringUtils.trim(oldKey.replace('\\', '/'));
+    if (cleanKey.indexOf(Directory.SEPARATOR) >= 0) {
+      String oldParentKey = Directory.parseKey(StringUtils.substringBeforeLast(oldKey, Directory.SEPARATOR));
+      oldParentKey = StringUtils.removeStart(oldParentKey, Directory.SEPARATOR);
+      oldParentKey = StringUtils.removeEnd(oldParentKey, Directory.SEPARATOR);
+      return oldParentKey;
+    } else {
+      return Directory.ROOT;
     }
   }
 

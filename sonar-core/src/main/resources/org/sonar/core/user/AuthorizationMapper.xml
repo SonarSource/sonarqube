@@ -30,6 +30,33 @@
         <foreach collection="componentKeys" open="(" close=")" item="element" index="index" separator=" or " >p.kee=#{element}</foreach>
   </select>
 
+  <select id="keepAuthorizedProjectIdsForUser" parameterType="map" resultType="long">
+    SELECT gr.resource_id
+    FROM group_roles gr
+    WHERE
+    gr.role=#{role}
+    and (gr.group_id is null or gr.group_id in (select gu.group_id from groups_users gu where gu.user_id=#{userId}))
+    and
+    <foreach collection="componentIds" open="(" close=")" item="element" index="index" separator=" or ">gr.resource_id=#{element}</foreach>
+    UNION
+    SELECT p.id
+    FROM user_roles ur, projects p
+    WHERE
+    ur.role=#{role}
+    and ur.user_id=#{userId} and
+    <foreach collection="componentIds" open="(" close=")" item="element" index="index" separator=" or ">p.id=#{element}</foreach>
+  </select>
+
+  <select id="keepAuthorizedProjectIdsForAnonymous" parameterType="map" resultType="long">
+    SELECT gr.resource_id
+    FROM group_roles gr
+    WHERE
+    gr.role=#{role}
+    and gr.group_id is null
+    and
+    <foreach collection="componentIds" open="(" close=")" item="element" index="index" separator=" or ">gr.resource_id=#{element}</foreach>
+  </select>
+
   <select id="selectAuthorizedRootProjectsKeys" parameterType="map" resultType="string">
     <include refid="selectAuthorizedRootProjectsKeysQuery" />
   </select>

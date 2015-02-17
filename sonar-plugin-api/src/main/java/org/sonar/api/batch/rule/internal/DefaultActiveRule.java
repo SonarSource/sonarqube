@@ -31,13 +31,14 @@ import java.util.Map;
 public class DefaultActiveRule implements ActiveRule {
   private final RuleKey ruleKey;
   private final String name;
-  private final String severity, internalKey, language;
+  private final String severity, internalKey, language, templateRuleKey;
   private final Map<String, String> params;
 
   DefaultActiveRule(NewActiveRule newActiveRule) {
     this.severity = newActiveRule.severity;
     this.name = newActiveRule.name;
     this.internalKey = newActiveRule.internalKey;
+    this.templateRuleKey = newActiveRule.templateRuleKey;
     this.ruleKey = newActiveRule.ruleKey;
     this.params = ImmutableMap.copyOf(newActiveRule.params);
     this.language = newActiveRule.language;
@@ -76,5 +77,10 @@ public class DefaultActiveRule implements ActiveRule {
   @Override
   public String internalKey() {
     return internalKey;
+  }
+
+  @Override
+  public String templateRuleKey() {
+    return templateRuleKey;
   }
 }

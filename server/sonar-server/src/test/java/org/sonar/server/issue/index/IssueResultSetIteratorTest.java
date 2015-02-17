@@ -24,7 +24,7 @@ import com.google.common.collect.Maps;
 import org.apache.commons.dbutils.DbUtils;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.core.persistence.DbTester;
@@ -39,14 +39,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Category(DbTests.class)
 public class IssueResultSetIteratorTest {
 
-  @Rule
-  public DbTester dbTester = new DbTester();
+  @ClassRule
+  public static DbTester dbTester = new DbTester();
 
   DbClient client;
   Connection connection;
 
   @Before
   public void setUp() throws Exception {
+    dbTester.truncateTables();
     client = new DbClient(dbTester.database(), dbTester.myBatis());
     connection = dbTester.openConnection();
   }
@@ -68,14 +69,29 @@ public class IssueResultSetIteratorTest {
     });
     it.close();
 
-    assertThat(issuesByKey).hasSize(2);
+    assertThat(issuesByKey).hasSize(4);
 
     IssueDoc issue = issuesByKey.get("ABC");
     assertThat(issue.key()).isEqualTo("ABC");
     assertThat(issue.assignee()).isEqualTo("guy1");
     assertThat(issue.componentUuid()).isEqualTo("FILE1");
     assertThat(issue.projectUuid()).isEqualTo("PROJECT1");
+    assertThat(issue.moduleUuid()).isEqualTo("PROJECT1");
+    assertThat(issue.modulePath()).isEqualTo(".PROJECT1.");
+    assertThat(issue.directoryPath()).isEqualTo("src/main/java");
     assertThat(issue.filePath()).isEqualTo("src/main/java/Action.java");
+    assertThat(issue.tags()).containsOnly("tag1", "tag2", "tag3");
+    assertThat(issue.debt().toMinutes()).isGreaterThan(0L);
+
+    issue = issuesByKey.get("BCD");
+    assertThat(issue.key()).isEqualTo("BCD");
+    assertThat(issue.assignee()).isEqualTo("guy1");
+    assertThat(issue.componentUuid()).isEqualTo("MODULE1");
+    assertThat(issue.projectUuid()).isEqualTo("PROJECT1");
+    assertThat(issue.moduleUuid()).isEqualTo("MODULE1");
+    assertThat(issue.modulePath()).isEqualTo(".PROJECT1.MODULE1.");
+    assertThat(issue.directoryPath()).isNull();
+    assertThat(issue.filePath()).isNull();
     assertThat(issue.tags()).containsOnly("tag1", "tag2", "tag3");
     assertThat(issue.debt().toMinutes()).isGreaterThan(0L);
 
@@ -84,7 +100,22 @@ public class IssueResultSetIteratorTest {
     assertThat(issue.assignee()).isEqualTo("guy2");
     assertThat(issue.componentUuid()).isEqualTo("FILE1");
     assertThat(issue.projectUuid()).isEqualTo("PROJECT1");
+    assertThat(issue.moduleUuid()).isEqualTo("PROJECT1");
+    assertThat(issue.modulePath()).isEqualTo(".PROJECT1.");
+    assertThat(issue.directoryPath()).isEqualTo("src/main/java");
     assertThat(issue.filePath()).isEqualTo("src/main/java/Action.java");
+    assertThat(issue.tags()).isEmpty();
+    assertThat(issue.debt().toMinutes()).isGreaterThan(0L);
+
+    issue = issuesByKey.get("EFG");
+    assertThat(issue.key()).isEqualTo("EFG");
+    assertThat(issue.assignee()).isEqualTo("guy1");
+    assertThat(issue.componentUuid()).isEqualTo("DIR1");
+    assertThat(issue.projectUuid()).isEqualTo("PROJECT1");
+    assertThat(issue.moduleUuid()).isEqualTo("MODULE1");
+    assertThat(issue.modulePath()).isEqualTo(".PROJECT1.MODULE1.");
+    assertThat(issue.directoryPath()).isEqualTo("src/main/java");
+    assertThat(issue.filePath()).isEqualTo("src/main/java");
     assertThat(issue.tags()).isEmpty();
     assertThat(issue.debt().toMinutes()).isGreaterThan(0L);
   }

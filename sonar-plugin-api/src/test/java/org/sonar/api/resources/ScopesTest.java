@@ -48,7 +48,7 @@ public class ScopesTest {
 
   @Test
   public void testDirectory() {
-    Resource resource = new Directory("org/foo");
+    Resource resource = Directory.create("org/foo");
     assertThat(Scopes.isProject(resource), is(false));
     assertThat(Scopes.isDirectory(resource), is(true));
     assertThat(Scopes.isFile(resource), is(false));
@@ -58,7 +58,7 @@ public class ScopesTest {
 
   @Test
   public void testFile() {
-    Resource resource = new File("org/foo/Bar.java");
+    Resource resource = File.create("org/foo/Bar.java");
     assertThat(Scopes.isProject(resource), is(false));
     assertThat(Scopes.isDirectory(resource), is(false));
     assertThat(Scopes.isFile(resource), is(true));

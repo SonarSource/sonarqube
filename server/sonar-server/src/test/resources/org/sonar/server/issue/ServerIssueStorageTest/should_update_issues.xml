@@ -27,8 +27,8 @@
           reporter="emmerik"
           issue_attributes="foo=bar"
           action_plan_key="[null]"
-          issue_creation_date="2010-01-01"
-          issue_update_date="2010-02-02"
+          issue_creation_date="1262300400000"
+          issue_update_date="1265065200000"
           issue_close_date="[null]"
       />
 </dataset>

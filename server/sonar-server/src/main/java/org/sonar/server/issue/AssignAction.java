@@ -30,7 +30,7 @@ import org.sonar.api.user.UserFinder;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.server.user.UserSession;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 
 
@@ -50,7 +50,7 @@ public class AssignAction extends Action implements ServerComponent {
   }
 
   @Override
-  public boolean verify(Map<String, Object> properties, List<Issue> issues, UserSession userSession){
+  public boolean verify(Map<String, Object> properties, Collection<Issue> issues, UserSession userSession){
     String assignee = assigneeValue(properties);
     if(!Strings.isNullOrEmpty(assignee)) {
       User user = selectUser(assignee);

@@ -19,6 +19,12 @@
  */
 package org.sonar.batch.components;
 
+import org.sonar.batch.components.PastSnapshotFinder;
+import org.sonar.batch.deprecated.components.PastSnapshotFinderByDate;
+import org.sonar.batch.deprecated.components.PastSnapshotFinderByDays;
+import org.sonar.batch.deprecated.components.PastSnapshotFinderByPreviousAnalysis;
+import org.sonar.batch.deprecated.components.PastSnapshotFinderByPreviousVersion;
+import org.sonar.batch.deprecated.components.PastSnapshotFinderByVersion;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;

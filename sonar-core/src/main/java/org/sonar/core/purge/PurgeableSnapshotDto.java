@@ -47,8 +47,7 @@ public class PurgeableSnapshotDto implements Comparable<PurgeableSnapshotDto> {
   }
 
   public PurgeableSnapshotDto setDate(Long aLong) {
-    Date date = aLong == null ? null : new Date(aLong);
-    this.date = date;
+    this.date = new Date(aLong);
     return this;
   }
 

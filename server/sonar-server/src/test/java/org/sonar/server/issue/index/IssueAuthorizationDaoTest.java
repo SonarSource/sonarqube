@@ -24,7 +24,7 @@ import com.google.common.collect.Iterables;
 import org.apache.commons.dbutils.DbUtils;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.core.persistence.DbTester;
@@ -39,8 +39,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Category(DbTests.class)
 public class IssueAuthorizationDaoTest {
 
-  @Rule
-  public DbTester dbTester = new DbTester();
+  @ClassRule
+  public static DbTester dbTester = new DbTester();
 
   IssueAuthorizationDao dao = new IssueAuthorizationDao();
   DbClient client;
@@ -48,6 +48,7 @@ public class IssueAuthorizationDaoTest {
 
   @Before
   public void setUp() throws Exception {
+    dbTester.truncateTables();
     client = new DbClient(dbTester.database(), dbTester.myBatis());
     connection = dbTester.openConnection();
   }

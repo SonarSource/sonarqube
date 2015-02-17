@@ -168,6 +168,14 @@ public class Snapshot extends BaseIdentifiable<Snapshot> implements Serializable
     this.rootProjectId = guessRootProjectId(resource, parent);
   }
 
+  public Snapshot(ResourceModel resource, boolean last, String status, Date date) {
+    this();
+    setResource(resource);
+    this.status = status;
+    this.last = last;
+    this.createdAt = date.getTime();
+  }
+
   private static Integer guessRootProjectId(ResourceModel resource, Snapshot parent) {
     Integer result;
     if (parent == null) {
@@ -182,14 +190,6 @@ public class Snapshot extends BaseIdentifiable<Snapshot> implements Serializable
     return session.save(this);
   }
 
-  public Snapshot(ResourceModel resource, boolean last, String status, Date date) {
-    this();
-    setResource(resource);
-    this.status = status;
-    this.last = last;
-    this.createdAt = date.getTime();
-  }
-
   /**
    * Insertion date (technical)
    *
@@ -197,10 +197,6 @@ public class Snapshot extends BaseIdentifiable<Snapshot> implements Serializable
    */
   public Date getBuildDate() {
     return longToDate(buildDate);
-  }
-
-  public Long getBuildDateMs() {
-    return buildDate;
   }
 
   /**
@@ -213,6 +209,10 @@ public class Snapshot extends BaseIdentifiable<Snapshot> implements Serializable
     return this;
   }
 
+  public Long getBuildDateMs() {
+    return buildDate;
+  }
+
   public Snapshot setBuildDateMs(Long d) {
     this.buildDate = d;
     return this;
@@ -222,13 +222,13 @@ public class Snapshot extends BaseIdentifiable<Snapshot> implements Serializable
     return longToDate(createdAt);
   }
 
-  public Long getCreatedAtMs() {
-    return createdAt;
-  }
-
   public Snapshot setCreatedAt(Date createdAt) {
     this.createdAt = dateToLong(createdAt);
     return this;
+  }
+
+  public Long getCreatedAtMs() {
+    return createdAt;
   }
 
   public Snapshot setCreatedAtMs(Long createdAt) {
@@ -343,15 +343,6 @@ public class Snapshot extends BaseIdentifiable<Snapshot> implements Serializable
     return depth;
   }
 
-  public Integer getRootProjectId() {
-    return rootProjectId;
-  }
-
-  public Snapshot setRootProjectId(Integer rootProjectId) {
-    this.rootProjectId = rootProjectId;
-    return this;
-  }
-
   /**
    * Sets the depth of the snapshot
    *
@@ -362,6 +353,15 @@ public class Snapshot extends BaseIdentifiable<Snapshot> implements Serializable
       throw new IllegalArgumentException("depth can not be negative : " + depth);
     }
     this.depth = depth;
+  }
+
+  public Integer getRootProjectId() {
+    return rootProjectId;
+  }
+
+  public Snapshot setRootProjectId(Integer rootProjectId) {
+    this.rootProjectId = rootProjectId;
+    return this;
   }
 
   public String getPeriod1Mode() {
@@ -508,10 +508,6 @@ public class Snapshot extends BaseIdentifiable<Snapshot> implements Serializable
     return longToDate(period1Date);
   }
 
-  public Long getPeriod1DateMs() {
-    return period1Date;
-  }
-
   /**
    * For internal use.
    *
@@ -522,6 +518,10 @@ public class Snapshot extends BaseIdentifiable<Snapshot> implements Serializable
     return this;
   }
 
+  public Long getPeriod1DateMs() {
+    return period1Date;
+  }
+
   public Snapshot setPeriod1DateMs(Long period1Date) {
     this.period1Date = period1Date;
     return this;
@@ -529,10 +529,6 @@ public class Snapshot extends BaseIdentifiable<Snapshot> implements Serializable
 
   public Date getPeriod2Date() {
     return longToDate(period2Date);
-  }
-
-  public Long getPeriod2DateMs() {
-    return period2Date;
   }
 
   /**
@@ -545,6 +541,10 @@ public class Snapshot extends BaseIdentifiable<Snapshot> implements Serializable
     return this;
   }
 
+  public Long getPeriod2DateMs() {
+    return period2Date;
+  }
+
   public Snapshot setPeriod2DateMs(Long period2Date) {
     this.period2Date = period2Date;
     return this;
@@ -552,10 +552,6 @@ public class Snapshot extends BaseIdentifiable<Snapshot> implements Serializable
 
   public Date getPeriod3Date() {
     return longToDate(period3Date);
-  }
-
-  public Long getPeriod3DateMs() {
-    return period3Date;
   }
 
   /**
@@ -568,6 +564,10 @@ public class Snapshot extends BaseIdentifiable<Snapshot> implements Serializable
     return this;
   }
 
+  public Long getPeriod3DateMs() {
+    return period3Date;
+  }
+
   public Snapshot setPeriod3DateMs(Long period3Date) {
     this.period3Date = period3Date;
     return this;
@@ -575,10 +575,6 @@ public class Snapshot extends BaseIdentifiable<Snapshot> implements Serializable
 
   public Date getPeriod4Date() {
     return longToDate(period4Date);
-  }
-
-  public Long getPeriod4DateMs() {
-    return period4Date;
   }
 
   /**
@@ -591,6 +587,10 @@ public class Snapshot extends BaseIdentifiable<Snapshot> implements Serializable
     return this;
   }
 
+  public Long getPeriod4DateMs() {
+    return period4Date;
+  }
+
   public Snapshot setPeriod4DateMs(Long period4Date) {
     this.period4Date = period4Date;
     return this;
@@ -598,10 +598,6 @@ public class Snapshot extends BaseIdentifiable<Snapshot> implements Serializable
 
   public Date getPeriod5Date() {
     return longToDate(period5Date);
-  }
-
-  public Long getPeriod5DateMs() {
-    return period5Date;
   }
 
   /**
@@ -612,6 +608,10 @@ public class Snapshot extends BaseIdentifiable<Snapshot> implements Serializable
   public Snapshot setPeriod5Date(Date period5Date) {
     this.period5Date = dateToLong(period5Date);
     return this;
+  }
+
+  public Long getPeriod5DateMs() {
+    return period5Date;
   }
 
   public Snapshot setPeriod5DateMs(Long period5Date) {
@@ -642,7 +642,7 @@ public class Snapshot extends BaseIdentifiable<Snapshot> implements Serializable
         period5Mode = s;
         break;
       default:
-        throw new IndexOutOfBoundsException("Index of Snapshot.periodMode is between 1 and 5");
+        throw newPeriodIndexOutOfBoundsException("periodMode");
     }
     return this;
   }
@@ -660,7 +660,7 @@ public class Snapshot extends BaseIdentifiable<Snapshot> implements Serializable
       case 5:
         return period5Mode;
       default:
-        throw new IndexOutOfBoundsException("Index of Snapshot.periodMode is between 1 and 5");
+        throw newPeriodIndexOutOfBoundsException("periodMode");
     }
   }
 
@@ -687,7 +687,7 @@ public class Snapshot extends BaseIdentifiable<Snapshot> implements Serializable
         period5Param = s;
         break;
       default:
-        throw new IndexOutOfBoundsException("Index of Snapshot.periodModeParameter is between 1 and 5");
+        throw newPeriodIndexOutOfBoundsException("periodParameter");
     }
     return this;
   }
@@ -705,7 +705,7 @@ public class Snapshot extends BaseIdentifiable<Snapshot> implements Serializable
       case 5:
         return period5Param;
       default:
-        throw new IndexOutOfBoundsException("Index of Snapshot.periodModeParameter is between 1 and 5");
+        throw newPeriodIndexOutOfBoundsException("periodParameter");
     }
   }
 
@@ -733,7 +733,7 @@ public class Snapshot extends BaseIdentifiable<Snapshot> implements Serializable
         period5Date = time;
         break;
       default:
-        throw new IndexOutOfBoundsException("Index of Snapshot.periodDate is between 1 and 5");
+        throw newPeriodIndexOutOfBoundsException("periodDate");
     }
     return this;
   }
@@ -756,7 +756,7 @@ public class Snapshot extends BaseIdentifiable<Snapshot> implements Serializable
         period5Date = date;
         break;
       default:
-        throw new IndexOutOfBoundsException("Index of Snapshot.periodDate is between 1 and 5");
+        throw newPeriodIndexOutOfBoundsException("periodDate");
     }
     return this;
   }
@@ -774,7 +774,7 @@ public class Snapshot extends BaseIdentifiable<Snapshot> implements Serializable
       case 5:
         return longToDate(period5Date);
       default:
-        throw new IndexOutOfBoundsException("Index of Snapshot.periodDate is between 1 and 5");
+        throw newPeriodIndexOutOfBoundsException("periodDate");
     }
   }
 
@@ -791,8 +791,12 @@ public class Snapshot extends BaseIdentifiable<Snapshot> implements Serializable
       case 5:
         return period5Date;
       default:
-        throw new IndexOutOfBoundsException("Index of Snapshot.periodDate is between 1 and 5");
+        throw newPeriodIndexOutOfBoundsException("periodDate");
     }
+  }
+
+  private IndexOutOfBoundsException newPeriodIndexOutOfBoundsException(String field) {
+    return new IndexOutOfBoundsException(String.format("Index of Snapshot.%s is between 1 and 5", field));
   }
 
   @Override

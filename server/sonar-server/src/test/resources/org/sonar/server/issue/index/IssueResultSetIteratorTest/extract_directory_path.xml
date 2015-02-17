@@ -2,9 +2,9 @@
   <rules tags="[null]" system_tags="[null]" id="200" name="Avoid Cycles" plugin_rule_key="AvoidCycles"
          plugin_config_key="[null]" plugin_name="squid"/>
 
-  <projects id="10" scope="PRJ" qualifier="TRK" kee="struts" name="Struts" uuid="PROJECT1" path="[null]"/>
-  <projects id="100" scope="FIL" qualifier="CLA" kee="struts:Action" name="Action" uuid="FILE1" path="src/main/java/Action.java"/>
-  <projects id="101" scope="FIL" qualifier="CLA" kee="pom" name="pom.xml" uuid="ROOT_FILE1" path="pom.xml"/>
+  <projects id="10" scope="PRJ" qualifier="TRK" kee="struts" name="Struts" uuid="PROJECT1" path="[null]" module_uuid_path=".PROJECT1."/>
+  <projects id="100" scope="FIL" qualifier="CLA" kee="struts:Action" name="Action" uuid="FILE1" path="src/main/java/Action.java" module_uuid_path=".PROJECT1."/>
+  <projects id="101" scope="FIL" qualifier="CLA" kee="pom" name="pom.xml" uuid="ROOT_FILE1" path="pom.xml" module_uuid_path=".PROJECT1."/>
 
   <issues
       id="1"
@@ -29,8 +29,8 @@
       tags="tag1,tag2,tag3"
       created_at="1400000000000"
       updated_at="1400000000000"
-      issue_creation_date="2005-05-12 00:00:00.0"
-      issue_update_date="2013-01-01 00:00:00.0"
+      issue_creation_date="1115848800000"
+      issue_update_date="1356994800000"
       issue_close_date="[null]"/>
 
   <issues
@@ -56,8 +56,8 @@
       tags="[null]"
       created_at="1400000000000"
       updated_at="1450000000000"
-      issue_creation_date="2005-05-12 00:00:00.0"
-      issue_update_date="2013-05-18 00:00:00.0"
+      issue_creation_date="1115848800000"
+      issue_update_date="1368828000000"
       issue_close_date="[null]"/>
 
   <issues
@@ -83,8 +83,8 @@
       tags="[null]"
       created_at="1400000000000"
       updated_at="1450000000000"
-      issue_creation_date="2005-05-12 00:00:00.0"
-      issue_update_date="2013-05-18 00:00:00.0"
+      issue_creation_date="1115848800000"
+      issue_update_date="1368828000000"
       issue_close_date="[null]"/>
 
 </dataset>

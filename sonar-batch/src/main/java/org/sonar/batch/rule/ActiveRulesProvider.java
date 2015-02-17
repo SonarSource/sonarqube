@@ -52,6 +52,7 @@ public class ActiveRulesProvider extends ProviderAdapter {
       newActiveRule.setSeverity(activeRule.severity());
       newActiveRule.setLanguage(activeRule.language());
       newActiveRule.setInternalKey(activeRule.internalKey());
+      newActiveRule.setTemplateRuleKey(activeRule.templateRuleKey());
 
       // load parameters
       for (Entry<String, String> param : activeRule.params().entrySet()) {

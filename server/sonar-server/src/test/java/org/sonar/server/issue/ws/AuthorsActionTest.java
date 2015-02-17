@@ -31,7 +31,6 @@ import org.sonar.server.ws.WsTester;
 
 import java.util.Arrays;
 
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -47,9 +46,7 @@ public class AuthorsActionTest {
 
   @Before
   public void setUp() throws Exception {
-    tester = new WsTester(new IssuesWs(mock(IssueShowAction.class), new SearchAction(null, null, null, null, null, null, null, null, null, null, null),
-      mock(TagsAction.class), mock(SetTagsAction.class), mock(ComponentTagsAction.class),
-      new AuthorsAction(service)));
+    tester = new WsTester(new IssuesWs(new AuthorsAction(service)));
     controller = tester.controller("api/issues");
   }
 

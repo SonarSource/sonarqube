@@ -61,10 +61,11 @@ public class ProgressReport implements Runnable {
   public void stop(String stopMessage) {
     this.stopMessage = stopMessage;
     thread.interrupt();
-  }
-
-  public void join() throws InterruptedException {
-    thread.join();
+    try {
+      thread.join();
+    } catch (InterruptedException e) {
+      // Ignore
+    }
   }
 
   private void log(String message) {

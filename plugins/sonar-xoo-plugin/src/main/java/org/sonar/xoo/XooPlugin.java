@@ -26,10 +26,14 @@ import org.sonar.xoo.lang.MeasureSensor;
 import org.sonar.xoo.lang.SymbolReferencesSensor;
 import org.sonar.xoo.lang.SyntaxHighlightingSensor;
 import org.sonar.xoo.lang.TestCaseSensor;
-import org.sonar.xoo.lang.XooTokenizerSensor;
+import org.sonar.xoo.lang.XooCpdMapping;
+import org.sonar.xoo.lang.XooTokenizer;
+import org.sonar.xoo.rule.ChecksSensor;
 import org.sonar.xoo.rule.CreateIssueByInternalKeySensor;
+import org.sonar.xoo.rule.DeprecatedResourceApiSensor;
 import org.sonar.xoo.rule.OneIssueOnDirPerFileSensor;
 import org.sonar.xoo.rule.OneIssuePerLineSensor;
+import org.sonar.xoo.rule.RandomAccessSensor;
 import org.sonar.xoo.rule.XooFakeExporter;
 import org.sonar.xoo.rule.XooFakeImporter;
 import org.sonar.xoo.rule.XooFakeImporterWithMessages;
@@ -64,19 +68,24 @@ public class XooPlugin extends SonarPlugin {
       XooScmProvider.class,
       XooBlameCommand.class,
 
+      // CPD
+      XooCpdMapping.class,
+      XooTokenizer.class,
+
       // sensors
       MeasureSensor.class,
       SyntaxHighlightingSensor.class,
       SymbolReferencesSensor.class,
-      XooTokenizerSensor.class,
       TestCaseSensor.class,
       CoveragePerTestSensor.class,
       DependencySensor.class,
+      ChecksSensor.class,
+      RandomAccessSensor.class,
+      DeprecatedResourceApiSensor.class,
 
       OneIssuePerLineSensor.class,
       OneIssueOnDirPerFileSensor.class,
       CreateIssueByInternalKeySensor.class
       );
   }
-
 }

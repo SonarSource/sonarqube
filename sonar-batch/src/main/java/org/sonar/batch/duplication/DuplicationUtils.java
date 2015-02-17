@@ -20,7 +20,8 @@
 package org.sonar.batch.duplication;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
+import org.sonar.api.batch.sensor.duplication.Duplication;
+import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
 
 public class DuplicationUtils {
 
@@ -28,13 +29,13 @@ public class DuplicationUtils {
     // Utility class
   }
 
-  public static String toXml(Iterable<DuplicationGroup> duplications) {
+  public static String toXml(Iterable<DefaultDuplication> duplications) {
     StringBuilder xml = new StringBuilder();
     xml.append("<duplications>");
-    for (DuplicationGroup duplication : duplications) {
+    for (Duplication duplication : duplications) {
       xml.append("<g>");
       toXml(xml, duplication.originBlock());
-      for (DuplicationGroup.Block part : duplication.duplicates()) {
+      for (Duplication.Block part : duplication.duplicates()) {
         toXml(xml, part);
       }
       xml.append("</g>");
@@ -43,7 +44,7 @@ public class DuplicationUtils {
     return xml.toString();
   }
 
-  private static void toXml(StringBuilder xml, DuplicationGroup.Block part) {
+  private static void toXml(StringBuilder xml, Duplication.Block part) {
     xml.append("<b s=\"").append(part.startLine())
       .append("\" l=\"").append(part.length())
       .append("\" r=\"").append(StringEscapeUtils.escapeXml(part.resourceKey()))

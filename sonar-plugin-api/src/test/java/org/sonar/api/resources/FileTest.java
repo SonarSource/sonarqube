@@ -26,9 +26,6 @@ import org.junit.rules.TemporaryFolder;
 import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -41,68 +38,34 @@ public class FileTest {
   public void createFromIoFileShouldComputeCorrectKey() throws IOException {
     java.io.File baseDir = temp.newFolder();
     Project project = mock(Project.class);
-    ProjectFileSystem fileSystem = mock(ProjectFileSystem.class);
-    when(project.getFileSystem()).thenReturn(fileSystem);
-    when(fileSystem.getBasedir()).thenReturn(baseDir);
+    when(project.getBaseDir()).thenReturn(baseDir);
     Resource file = File.fromIOFile(new java.io.File(baseDir, "src/foo/bar/toto.sql"), project);
-    assertThat(file.getKey(), is("src/foo/bar/toto.sql"));
+    assertThat(file.getKey()).isEqualTo("src/foo/bar/toto.sql");
   }
 
   @Test
   public void trimKeyAndName() {
-    File file = new File("   foo/bar/  ", "  toto.sql  ");
-    assertThat(file.getDeprecatedKey(), is("foo/bar/toto.sql"));
-    assertThat(file.getName(), is("toto.sql"));
+    File file = File.create("   foo/bar/toto.sql  ");
+    assertThat(file.getKey()).isEqualTo("foo/bar/toto.sql");
+    assertThat(file.getName()).isEqualTo("toto.sql");
   }
 
   @Test
   public void parentIsDirectory() {
-    File file = File.create("src/foo/bar/toto.sql", "foo/bar/toto.sql", null, false);
-    assertThat(file.getKey(), is("src/foo/bar/toto.sql"));
-    assertThat(file.getDeprecatedKey(), is("foo/bar/toto.sql"));
-    assertThat(file.getLongName(), is("src/foo/bar/toto.sql"));
-    assertThat(file.getName(), is("toto.sql"));
-    assertThat(file.getParent().getKey(), is("src/foo/bar"));
-    assertThat(ResourceUtils.isSpace(file.getParent()), is(true));
-  }
-
-  @Test
-  public void parentIsDirectoryWithDeprecatedKey() {
-    File file = new File("   foo/bar/", "toto.sql  ");
-    assertThat(file.getDeprecatedKey(), is("foo/bar/toto.sql"));
-    assertThat(file.getParent().getDeprecatedKey(), is("foo/bar"));
-    assertThat(ResourceUtils.isSpace(file.getParent()), is(true));
+    File file = File.create("src/foo/bar/toto.sql", null, false);
+    assertThat(file.getKey()).isEqualTo("src/foo/bar/toto.sql");
+    assertThat(file.getLongName()).isEqualTo("src/foo/bar/toto.sql");
+    assertThat(file.getName()).isEqualTo("toto.sql");
+    assertThat(file.getParent().getKey()).isEqualTo("src/foo/bar");
+    assertThat(ResourceUtils.isSpace(file.getParent())).isEqualTo(true);
   }
 
   @Test
   public void rootFilesHaveParent() {
-    File file = File.create("toto.sql", "toto.sql", null, false);
-    assertThat(file.getKey(), is("toto.sql"));
-    assertThat(file.getDeprecatedKey(), is("toto.sql"));
-    assertThat(file.getName(), is("toto.sql"));
-    assertThat(file.getParent().getKey(), is("/"));
-    assertThat(file.getParent().getDeprecatedKey(), is(Directory.ROOT));
-  }
-
-  @Test
-  public void newFileByDeprecatedKey() {
-    File file = new File("toto.sql");
-    assertThat(file.getDeprecatedKey(), is("toto.sql"));
-    assertThat(file.getName(), is("toto.sql"));
-    assertThat(file.language()).isNull();
-    assertThat(file.getParent().getDeprecatedKey(), is(Directory.ROOT));
-    assertThat(file.getScope(), is(Resource.SCOPE_ENTITY));
-    assertThat(file.getQualifier(), is(Resource.QUALIFIER_FILE));
-
-    file = new File("foo/bar/toto.sql");
-    assertThat(file.getDeprecatedKey(), is("foo/bar/toto.sql"));
-    assertThat(file.getName(), is("toto.sql"));
-    assertThat(file.getParent().getDeprecatedKey(), is("foo/bar"));
-
-    file = new File("/foo/bar/toto.sql ");
-    assertThat(file.getDeprecatedKey(), is("foo/bar/toto.sql"));
-    assertThat(file.getName(), is("toto.sql"));
-    assertThat(file.getParent().getDeprecatedKey(), is("foo/bar"));
+    File file = File.create("toto.sql", null, false);
+    assertThat(file.getKey()).isEqualTo("toto.sql");
+    assertThat(file.getName()).isEqualTo("toto.sql");
+    assertThat(file.getParent().getKey()).isEqualTo("/");
   }
 
   @Test
@@ -114,18 +77,19 @@ public class FileTest {
         return null;
       }
     };
-    File file = new File(lang, "Foo.java");
-    assertThat(file.getLanguage(), is(lang));
 
-    file = new File(lang, "org/sonar", "Foo.java");
-    assertThat(file.getLanguage(), is(lang));
+    File file = File.create("Foo.java", lang, false);
+    assertThat(file.getLanguage()).isEqualTo(lang);
+
+    file = File.create("org/sonar/Foo.java", lang, false);
+    assertThat(file.getLanguage()).isEqualTo(lang);
     assertThat(file.language()).isEqualTo("java");
-    assertThat(file.getParent().getLanguage(), nullValue());
+    assertThat(file.getParent().getLanguage()).isNull();
   }
 
   @Test
   public void matchAntPatterns() {
-    File file = File.create("src/one/two/foo.sql", "one/two/foo.sql", null, false);
+    File file = File.create("src/one/two/foo.sql", null, false);
     assertThat(file.matchFilePattern("/src/one/two/*.java")).isFalse();
     assertThat(file.matchFilePattern("false")).isFalse();
     assertThat(file.matchFilePattern("two/one/**")).isFalse();

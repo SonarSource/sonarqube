@@ -35,7 +35,11 @@ import javax.annotation.concurrent.Immutable;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Defines a web service. Note that contrary to the deprecated {@link org.sonar.api.web.Webservice}
@@ -117,8 +121,7 @@ public interface WebService extends ServerExtension {
     private void register(NewController newController) {
       if (controllers.containsKey(newController.path)) {
         throw new IllegalStateException(
-          String.format("The web service '%s' is defined multiple times", newController.path)
-        );
+          String.format("The web service '%s' is defined multiple times", newController.path));
       }
       controllers.put(newController.path, new Controller(newController));
     }
@@ -177,8 +180,7 @@ public interface WebService extends ServerExtension {
     public NewAction createAction(String actionKey) {
       if (actions.containsKey(actionKey)) {
         throw new IllegalStateException(
-          String.format("The action '%s' is defined multiple times in the web service '%s'", actionKey, path)
-        );
+          String.format("The action '%s' is defined multiple times in the web service '%s'", actionKey, path));
       }
       NewAction action = new NewAction(actionKey);
       actions.put(actionKey, action);
@@ -194,8 +196,7 @@ public interface WebService extends ServerExtension {
     private Controller(NewController newController) {
       if (newController.actions.isEmpty()) {
         throw new IllegalStateException(
-          String.format("At least one action must be declared in the web service '%s'", newController.path)
-        );
+          String.format("At least one action must be declared in the web service '%s'", newController.path));
       }
       this.path = newController.path;
       this.description = newController.description;
@@ -306,8 +307,7 @@ public interface WebService extends ServerExtension {
     public NewParam createParam(String paramKey) {
       if (newParams.containsKey(paramKey)) {
         throw new IllegalStateException(
-          String.format("The parameter '%s' is defined multiple times in the action '%s'", paramKey, key)
-        );
+          String.format("The parameter '%s' is defined multiple times in the action '%s'", paramKey, key));
       }
       NewParam newParam = new NewParam(paramKey);
       newParams.put(paramKey, newParam);
@@ -320,6 +320,52 @@ public interface WebService extends ServerExtension {
     @Deprecated
     public NewAction createParam(String paramKey, @Nullable String description) {
       createParam(paramKey).setDescription(description);
+      return this;
+    }
+
+    /**
+     * Add predefined parameters related to pagination of results.
+     */
+    public NewAction addPagingParams(int defaultPageSize) {
+      createParam(Param.PAGE)
+        .setDescription("1-based page number")
+        .setExampleValue("42")
+        .setDeprecatedKey("pageIndex")
+        .setDefaultValue("1");
+
+      createParam(Param.PAGE_SIZE)
+        .setDescription("Page size. Must be greater than 0.")
+        .setExampleValue("20")
+        .setDeprecatedKey("pageSize")
+        .setDefaultValue(String.valueOf(defaultPageSize));
+      return this;
+    }
+
+    /**
+     * Creates the parameter {@link org.sonar.api.server.ws.WebService.Param#FIELDS}, which is
+     * used to restrict the number of fields returned in JSON response.
+     */
+    public NewAction addFieldsParam(Collection possibleValues) {
+      createParam(Param.FIELDS)
+        .setDescription("Comma-separated list of the fields to be returned in response. All the fields are returned by default.")
+        .setPossibleValues(possibleValues);
+      return this;
+    }
+
+    /**
+     * Add predefined parameters related to sorting of results.
+     */
+    public <V> NewAction addSortParams(Collection<V> possibleValues, @Nullable V defaultValue, boolean defaultAscending) {
+      createParam(Param.SORT)
+        .setDescription("Sort field")
+        .setDeprecatedKey("sort")
+        .setDefaultValue(defaultValue)
+        .setPossibleValues(possibleValues);
+
+      createParam(Param.ASCENDING)
+        .setDescription("Ascending sort")
+        .setBooleanPossibleValues()
+        .setDefaultValue(defaultAscending);
       return this;
     }
   }
@@ -531,6 +577,14 @@ public interface WebService extends ServerExtension {
 
   @Immutable
   class Param {
+    public static final String TEXT_QUERY = "q";
+    public static final String PAGE = "p";
+    public static final String PAGE_SIZE = "ps";
+    public static final String FIELDS = "f";
+    public static final String SORT = "s";
+    public static final String ASCENDING = "asc";
+    public static final String FACETS = "facets";
+
     private final String key, deprecatedKey, description, exampleValue, defaultValue;
     private final boolean required;
     private final Set<String> possibleValues;

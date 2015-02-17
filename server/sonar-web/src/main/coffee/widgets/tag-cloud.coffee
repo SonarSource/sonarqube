@@ -19,6 +19,8 @@ class TagCloud extends window.SonarWidgets.BaseWidget
       wordsEnter.text (d) -> d.key
       wordsEnter.attr 'href', (d) =>
         url = @options().baseUrl + '|tags=' + d.key
+        if @options().createdAfter
+          url += '|createdAfter=' + @options().createdAfter
         url
       wordsEnter.attr 'title', (d) => @tooltip d
 

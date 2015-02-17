@@ -43,7 +43,7 @@ public class DirectoriesDecoratorTest {
   @Test
   public void doNotInsertZeroOnFiles() {
     DirectoriesDecorator decorator = new DirectoriesDecorator();
-    Resource file = new File("foo.php");
+    Resource file = File.create("foo.php");
     DecoratorContext context = mock(DecoratorContext.class);
 
     decorator.decorate(file, context);
@@ -54,7 +54,7 @@ public class DirectoriesDecoratorTest {
   @Test
   public void directoryCountsForOne() {
     DirectoriesDecorator decorator = new DirectoriesDecorator();
-    Resource directory = new Directory("org/foo");
+    Resource directory = Directory.create("org/foo");
     DecoratorContext context = mock(DecoratorContext.class);
     decorator.decorate(directory, context);
     verify(context).saveMeasure(CoreMetrics.DIRECTORIES, 1.0);

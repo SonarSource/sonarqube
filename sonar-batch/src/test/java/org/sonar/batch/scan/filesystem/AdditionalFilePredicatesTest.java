@@ -26,8 +26,6 @@ import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 
-import java.io.File;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class AdditionalFilePredicatesTest {
@@ -43,40 +41,6 @@ public class AdditionalFilePredicatesTest {
     assertThat(predicate.apply(inputFile)).isTrue();
 
     inputFile = new DeprecatedDefaultInputFile("struts", "Filter.java");
-    assertThat(predicate.apply(inputFile)).isFalse();
-  }
-
-  @Test
-  public void deprecated_key() throws Exception {
-    FilePredicate predicate = new AdditionalFilePredicates.DeprecatedKeyPredicate("struts:Action.java");
-
-    DeprecatedDefaultInputFile inputFile = new DeprecatedDefaultInputFile("struts", "Action.java").setDeprecatedKey("struts:Action.java");
-    assertThat(predicate.apply(inputFile)).isTrue();
-
-    inputFile = new DeprecatedDefaultInputFile("struts", "Filter.java").setDeprecatedKey("struts:Filter.java");
-    assertThat(predicate.apply(inputFile)).isFalse();
-  }
-
-  @Test
-  public void absolute_path_of_source_dir() throws Exception {
-    File dir = temp.newFolder();
-    FilePredicate predicate = new AdditionalFilePredicates.SourceDirPredicate(dir.getAbsolutePath());
-
-    DeprecatedDefaultInputFile inputFile = new DeprecatedDefaultInputFile("struts", "Action.java").setSourceDirAbsolutePath(dir.getAbsolutePath());
-    assertThat(predicate.apply(inputFile)).isTrue();
-
-    inputFile = new DeprecatedDefaultInputFile("struts", "Filter.java").setSourceDirAbsolutePath(temp.newFolder().getAbsolutePath());
-    assertThat(predicate.apply(inputFile)).isFalse();
-  }
-
-  @Test
-  public void path_relative_to_source_dir() throws Exception {
-    FilePredicate predicate = new AdditionalFilePredicates.SourceRelativePathPredicate("foo/Bar.php");
-
-    DeprecatedDefaultInputFile inputFile = new DeprecatedDefaultInputFile("foo", "src/php/foo/Bar.php").setPathRelativeToSourceDir("foo/Bar.php");
-    assertThat(predicate.apply(inputFile)).isTrue();
-
-    inputFile = new DeprecatedDefaultInputFile("foo", "foo/Bar.php").setPathRelativeToSourceDir("Bar.php");
     assertThat(predicate.apply(inputFile)).isFalse();
   }
 }

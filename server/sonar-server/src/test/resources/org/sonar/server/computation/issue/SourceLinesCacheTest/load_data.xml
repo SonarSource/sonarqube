@@ -5,7 +5,7 @@
   - line 4 has no author
   -->
   <file_sources id="1" file_uuid="FILE_A" project_uuid="PROJECT_A"
-                data=",charb,2015-01-01T15:50:45+0100,,,,,,,,,,,,,first line&#13;&#10;,cabu,2015-01-08T15:50:45+0100,,,,,,,,,,,,,second line&#13;&#10;,wolinski,2015-01-02T12:00:00+0100,,,,,,,,,,,,,third line&#13;&#10;,,,,,,,,,,,,,,,fourth line&#13;&#10;"
+                binary_data=""
                 line_hashes="8d7b3d6b83c0a517eac07e1aac94b773&#10;9a0364b9e99bb480dd25e1f0284c8555"
                 data_hash="0263047cd758c68c27683625f072f010"
                 src_hash="123456"

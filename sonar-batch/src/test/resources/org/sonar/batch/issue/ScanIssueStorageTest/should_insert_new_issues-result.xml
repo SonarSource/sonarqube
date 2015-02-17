@@ -16,9 +16,9 @@
       issue_attributes="foo=bar"
       tags="[null]"
       action_plan_key="[null]"
-      issue_creation_date="2013-05-18"
-      issue_update_date="2013-05-18"
-      issue_close_date="2013-05-18"
+      issue_creation_date="1368828000000"
+      issue_update_date="1368828000000"
+      issue_close_date="1368828000000"
       />
 
   <issue_changes id="1" kee="FGHIJ" issue_key="ABCDE" change_type="comment" user_login="emmerik" change_data="the comment"

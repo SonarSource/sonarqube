@@ -39,7 +39,7 @@ public class ManualMeasureDecoratorTest extends AbstractDbUnitTestCase {
   public void testCopyManualMeasures() throws Exception {
     setupData("testCopyManualMeasures");
 
-    File javaFile = new File("Foo.java");
+    File javaFile = File.create("Foo.java");
     javaFile.setId(40);
 
     ManualMeasureDecorator decorator = new ManualMeasureDecorator(getSession(), new DefaultMetricFinder(getSessionFactory()));

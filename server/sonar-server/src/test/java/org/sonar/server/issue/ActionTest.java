@@ -24,11 +24,10 @@ import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.server.user.UserSession;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
 
 public class ActionTest {
 
@@ -37,9 +36,10 @@ public class ActionTest {
     try {
       new Action("") {
         @Override
-        boolean verify(Map<String, Object> properties, List<Issue> issues, UserSession userSession) {
+        boolean verify(Map<String, Object> properties, Collection<Issue> issues, UserSession userSession) {
           return false;
         }
+
         @Override
         boolean execute(Map<String, Object> properties, Context context) {
           return false;
@@ -55,9 +55,10 @@ public class ActionTest {
     try {
       new Action(null) {
         @Override
-        boolean verify(Map<String, Object> properties, List<Issue> issues, UserSession userSession) {
+        boolean verify(Map<String, Object> properties, Collection<Issue> issues, UserSession userSession) {
           return false;
         }
+
         @Override
         boolean execute(Map<String, Object> properties, Context context) {
           return false;

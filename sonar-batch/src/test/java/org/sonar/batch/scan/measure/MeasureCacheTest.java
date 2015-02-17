@@ -233,9 +233,9 @@ public class MeasureCacheTest {
   @Test
   public void should_get_measures() throws Exception {
     Project p = new Project("struts");
-    Resource dir = new Directory("foo/bar").setEffectiveKey("struts:foo/bar");
-    Resource file1 = new File("foo/bar/File1.txt").setEffectiveKey("struts:foo/bar/File1.txt");
-    Resource file2 = new File("foo/bar/File2.txt").setEffectiveKey("struts:foo/bar/File2.txt");
+    Resource dir = Directory.create("foo/bar").setEffectiveKey("struts:foo/bar");
+    Resource file1 = Directory.create("foo/bar/File1.txt").setEffectiveKey("struts:foo/bar/File1.txt");
+    Resource file2 = Directory.create("foo/bar/File2.txt").setEffectiveKey("struts:foo/bar/File2.txt");
 
     assertThat(cache.entries()).hasSize(0);
 
@@ -271,7 +271,7 @@ public class MeasureCacheTest {
 
   @Test
   public void test_measure_coder() throws Exception {
-    Resource file1 = new File("foo/bar/File1.txt").setEffectiveKey("struts:foo/bar/File1.txt");
+    Resource file1 = File.create("foo/bar/File1.txt").setEffectiveKey("struts:foo/bar/File1.txt");
 
     Measure measure = new Measure(CoreMetrics.NCLOC, 1.786, 5);
     cache.put(file1, measure);

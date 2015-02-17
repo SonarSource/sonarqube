@@ -25,12 +25,18 @@ import javax.annotation.Nullable;
 import java.util.Date;
 import java.util.Map;
 
+import static com.google.common.collect.Maps.newHashMap;
+
 /**
  * Base implementation for business objects based on elasticsearch document
  */
 public abstract class BaseDoc {
 
   protected final Map<String, Object> fields;
+
+  protected BaseDoc() {
+    this.fields = newHashMap();
+  }
 
   protected BaseDoc(Map<String, Object> fields) {
     this.fields = fields;

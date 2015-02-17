@@ -32,7 +32,6 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.DefaultFileLinesContextFactory;
-import org.sonar.batch.DefaultResourceCreationLock;
 import org.sonar.batch.ProjectConfigurator;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.bootstrap.DefaultAnalysisMode;
@@ -40,10 +39,10 @@ import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.ExtensionMatcher;
 import org.sonar.batch.bootstrap.ExtensionUtils;
 import org.sonar.batch.bootstrap.MetricProvider;
-import org.sonar.batch.components.PeriodsDefinition;
 import org.sonar.batch.debt.DebtModelProvider;
 import org.sonar.batch.debt.IssueChangelogDebtCalculator;
-import org.sonar.batch.duplication.BlockCache;
+import org.sonar.batch.deprecated.components.DefaultResourceCreationLock;
+import org.sonar.batch.deprecated.components.PeriodsDefinition;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.Caches;
 import org.sonar.batch.index.ComponentDataCache;
@@ -56,17 +55,19 @@ import org.sonar.batch.index.MeasurePersister;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.index.ResourceKeyMigration;
 import org.sonar.batch.index.ResourcePersister;
+import org.sonar.batch.index.SourceDataFactory;
 import org.sonar.batch.index.SourcePersister;
 import org.sonar.batch.issue.DefaultProjectIssues;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.issue.tracking.InitialOpenIssuesStack;
 import org.sonar.batch.issue.tracking.LocalIssueTracking;
 import org.sonar.batch.issue.tracking.PreviousIssueRepository;
-import org.sonar.batch.languages.DefaultLanguagesReferential;
 import org.sonar.batch.mediumtest.ScanTaskObservers;
 import org.sonar.batch.phases.GraphPersister;
 import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
 import org.sonar.batch.repository.ProjectRepositoriesProvider;
+import org.sonar.batch.repository.ProjectScmRepositoryLoader;
+import org.sonar.batch.repository.language.DefaultLanguagesRepository;
 import org.sonar.batch.rule.ActiveRulesProvider;
 import org.sonar.batch.rule.RulesProvider;
 import org.sonar.batch.scan.filesystem.InputPathCache;
@@ -146,6 +147,7 @@ public class ProjectScanContainer extends ComponentContainer {
       Caches.class,
       ResourceCache.class,
       ComponentDataCache.class,
+      SourceDataFactory.class,
 
       // file system
       InputPathCache.class,
@@ -174,7 +176,7 @@ public class ProjectScanContainer extends ComponentContainer {
 
       // lang
       Languages.class,
-      DefaultLanguagesReferential.class,
+      DefaultLanguagesRepository.class,
       HighlightableBuilder.class,
       SymbolizableBuilder.class,
 
@@ -185,7 +187,6 @@ public class ProjectScanContainer extends ComponentContainer {
       MeasureCache.class,
 
       // Duplications
-      BlockCache.class,
       DuplicationCache.class,
 
       ProjectSettings.class,
@@ -203,6 +204,8 @@ public class ProjectScanContainer extends ComponentContainer {
       ResourcePersister.class,
       SourcePersister.class,
       ResourceKeyMigration.class,
+
+      ProjectScmRepositoryLoader.class,
 
       // Users
       DefaultUserFinder.class,

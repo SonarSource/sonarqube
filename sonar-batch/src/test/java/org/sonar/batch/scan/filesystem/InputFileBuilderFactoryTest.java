@@ -39,7 +39,7 @@ public class InputFileBuilderFactoryTest {
     DefaultAnalysisMode analysisMode = mock(DefaultAnalysisMode.class);
 
     InputFileBuilderFactory factory = new InputFileBuilderFactory(ProjectDefinition.create().setKey("struts"), pathResolver, langDetectionFactory,
-      statusDetectionFactory, analysisMode, new Settings());
+      statusDetectionFactory, analysisMode, new Settings(), new FileMetadata(analysisMode));
     InputFileBuilder builder = factory.create(fs);
 
     assertThat(builder.langDetection()).isNotNull();

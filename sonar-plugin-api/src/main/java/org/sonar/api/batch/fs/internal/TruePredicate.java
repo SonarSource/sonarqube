@@ -20,14 +20,25 @@
 package org.sonar.api.batch.fs.internal;
 
 import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.FileSystem.Index;
 import org.sonar.api.batch.fs.InputFile;
 
-class TruePredicate implements FilePredicate {
+class TruePredicate extends AbstractFilePredicate {
 
   static final FilePredicate TRUE = new TruePredicate();
 
   @Override
   public boolean apply(InputFile inputFile) {
     return true;
+  }
+
+  @Override
+  public Iterable<InputFile> get(Index index) {
+    return index.inputFiles();
+  }
+
+  @Override
+  public Iterable<InputFile> filter(Iterable<InputFile> target) {
+    return target;
   }
 }

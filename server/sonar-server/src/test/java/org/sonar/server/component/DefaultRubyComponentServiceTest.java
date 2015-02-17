@@ -57,7 +57,7 @@ public class DefaultRubyComponentServiceTest {
 
   @Test
   public void find_by_key() {
-    Component<?> component = mock(Component.class);
+    Component component = mock(Component.class);
     when(resourceDao.findByKey("struts")).thenReturn(component);
 
     assertThat(service.findByKey("struts")).isEqualTo(component);

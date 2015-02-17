@@ -49,7 +49,7 @@ public class DeprecatedFileFiltersTest {
   public void no_filters() throws Exception {
     DeprecatedFileFilters filters = new DeprecatedFileFilters();
 
-    InputFile inputFile = new DeprecatedDefaultInputFile("foo", "src/main/java/Foo.java").setFile(temp.newFile());
+    InputFile inputFile = new DeprecatedDefaultInputFile("foo", "src/main/java/Foo.java");
     assertThat(filters.accept(inputFile)).isTrue();
   }
 
@@ -58,11 +58,9 @@ public class DeprecatedFileFiltersTest {
     DeprecatedFileFilters filters = new DeprecatedFileFilters(new FileSystemFilter[] {filter});
 
     File basedir = temp.newFolder();
-    File file = temp.newFile();
+    File file = new File(basedir, "src/main/java/Foo.java");
     InputFile inputFile = new DeprecatedDefaultInputFile("foo", "src/main/java/Foo.java")
-      .setSourceDirAbsolutePath(new File(basedir, "src/main/java").getAbsolutePath())
-      .setPathRelativeToSourceDir("Foo.java")
-      .setFile(file)
+      .setModuleBaseDir(basedir.toPath())
       .setType(InputFile.Type.MAIN);
     when(filter.accept(eq(file), any(DeprecatedFileFilters.DeprecatedContext.class))).thenReturn(false);
 
@@ -73,8 +71,7 @@ public class DeprecatedFileFiltersTest {
 
     DeprecatedFileFilters.DeprecatedContext context = argument.getValue();
     assertThat(context.canonicalPath()).isEqualTo(FilenameUtils.separatorsToUnix(file.getAbsolutePath()));
-    assertThat(context.relativeDir()).isEqualTo(new File(basedir, "src/main/java"));
-    assertThat(context.relativePath()).isEqualTo("Foo.java");
+    assertThat(context.relativePath()).isEqualTo("src/main/java/Foo.java");
     assertThat(context.type()).isEqualTo(FileType.MAIN);
   }
 }

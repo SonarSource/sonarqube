@@ -19,27 +19,16 @@
  */
 package org.sonar.server.user.index;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.core.user.UserDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.db.ResultSetIterator;
 
-import javax.annotation.Nullable;
-
-import java.io.IOException;
-import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * Scrolls over table USERS and reads documents to populate the user index
@@ -89,35 +78,10 @@ class UserResultSetIterator extends ResultSetIterator<UserDoc> {
     doc.setName(rs.getString(2));
     doc.setEmail(rs.getString(3));
     doc.setActive(rs.getBoolean(4));
-    doc.setScmAccounts(getScmAccounts(rs.getString(5), login));
+    doc.setScmAccounts(UserDto.decodeScmAccounts(rs.getString(5)));
     doc.setCreatedAt(rs.getLong(6));
     doc.setUpdatedAt(rs.getLong(7));
     return doc;
   }
 
-  private List<String> getScmAccounts(@Nullable String csv, String login) {
-    List<String> result = newArrayList();
-    if (csv == null) {
-      return result;
-    }
-    CSVParser csvParser = null;
-    StringReader reader = null;
-    try {
-      reader = new StringReader(csv);
-      csvParser = new CSVParser(reader, CSVFormat.DEFAULT);
-      for (CSVRecord csvRecord : csvParser) {
-        for (String aCsvRecord : csvRecord) {
-          if (!Strings.isNullOrEmpty(aCsvRecord)) {
-            result.add(aCsvRecord);
-          }
-        }
-      }
-      return result;
-    } catch (IOException e) {
-      throw new IllegalStateException(String.format("Fail to read scm accounts for user '%s'", login), e);
-    } finally {
-      IOUtils.closeQuietly(reader);
-      IOUtils.closeQuietly(csvParser);
-    }
-  }
 }

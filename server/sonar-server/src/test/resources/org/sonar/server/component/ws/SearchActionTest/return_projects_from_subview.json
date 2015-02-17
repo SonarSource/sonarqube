@@ -1,0 +1,11 @@
+{
+  "total": 1,
+  "p": 1,
+  "ps": 10,
+  "components": [
+    {
+      "uuid": "JKLM",
+      "name": "Struts"
+    }
+  ]
+}

@@ -22,7 +22,6 @@ package org.sonar.core.purge;
 import org.apache.ibatis.annotations.Param;
 
 import javax.annotation.Nullable;
-import java.util.Date;
 import java.util.List;
 
 public interface PurgeMapper {
@@ -59,7 +58,7 @@ public interface PurgeMapper {
 
   void disableResource(long resourceId);
 
-  void resolveResourceIssuesNotAlreadyResolved(@Param("componentUuid") String componentUuid, @Param("date") Date date, @Param("dateAsLong") Long dateAsLong);
+  void resolveResourceIssuesNotAlreadyResolved(@Param("componentUuid") String componentUuid, @Param("dateAsLong") Long dateAsLong);
 
   void deleteResourceIndex(@Param("resourceIds") List<Long> resourceIds);
 
@@ -95,9 +94,9 @@ public interface PurgeMapper {
 
   void deleteComponentIssues(@Param("componentUuids") List<String> componentUuids);
 
-  void deleteOldClosedIssueChanges(@Param("projectUuid") String projectUuid, @Nullable @Param("toDate") Date toDate);
+  void deleteOldClosedIssueChanges(@Param("projectUuid") String projectUuid, @Nullable @Param("toDate") Long toDate);
 
-  void deleteOldClosedIssues(@Param("projectUuid") String projectUuid, @Nullable @Param("toDate") Date toDate);
+  void deleteOldClosedIssues(@Param("projectUuid") String projectUuid, @Nullable @Param("toDate") Long toDate);
 
   void deleteFileSourcesByProjectUuid(String rootProjectUuid);
 

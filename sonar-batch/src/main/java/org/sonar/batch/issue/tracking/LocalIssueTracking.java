@@ -24,7 +24,6 @@ import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.batch.rule.ActiveRules;
@@ -108,7 +107,7 @@ public class LocalIssueTracking implements BatchComponent {
 
     SourceHashHolder sourceHashHolder = null;
     if (component.isFile()) {
-      InputFile file = (InputFile) inputPathCache.getInputPath(component);
+      DefaultInputFile file = (DefaultInputFile) inputPathCache.getInputPath(component);
       if (file == null) {
         throw new IllegalStateException("Resource " + component.resource() + " was not found in InputPath cache");
       }

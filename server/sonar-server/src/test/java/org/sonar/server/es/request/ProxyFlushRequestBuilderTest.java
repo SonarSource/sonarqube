@@ -21,66 +21,50 @@
 package org.sonar.server.es.request;
 
 import org.elasticsearch.common.unit.TimeValue;
-import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
 import org.sonar.core.profiling.Profiling;
-import org.sonar.server.search.IndexDefinition;
-import org.sonar.server.search.SearchClient;
+import org.sonar.server.es.EsTester;
+import org.sonar.server.es.FakeIndexDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 public class ProxyFlushRequestBuilderTest {
 
-  Profiling profiling = new Profiling(new Settings().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.NONE.name()));
-  SearchClient searchClient = new SearchClient(new Settings(), profiling);
+  @ClassRule
+  public static EsTester esTester = new EsTester().addDefinitions(new FakeIndexDefinition());
 
-  @After
-  public void tearDown() throws Exception {
-    searchClient.stop();
+  @Before
+  public void setUp() throws Exception {
+    esTester.setProfilingLevel(Profiling.Level.NONE);
   }
 
   @Test
   public void flush() {
-    try {
-      searchClient.prepareFlush(IndexDefinition.RULE.getIndexName()).get();
-
-      // expected to fail because elasticsearch is not correctly configured, but that does not matter
-      fail();
-    } catch (IllegalStateException e) {
-      assertThat(e.getMessage()).isEqualTo("Fail to execute ES flush request on indices 'rules'");
-    }
+    esTester.client().prepareFlush(FakeIndexDefinition.INDEX).get();
   }
 
   @Test
   public void to_string() {
-    assertThat(searchClient.prepareFlush(IndexDefinition.RULE.getIndexName()).toString()).isEqualTo("ES flush request on indices 'rules'");
-    assertThat(searchClient.prepareFlush().toString()).isEqualTo("ES flush request");
+    assertThat(esTester.client().prepareFlush(FakeIndexDefinition.INDEX).toString()).isEqualTo("ES flush request on indices 'fakes'");
+    assertThat(esTester.client().prepareFlush().toString()).isEqualTo("ES flush request");
   }
 
   @Test
-  public void with_profiling_basic() {
-    Profiling profiling = new Profiling(new Settings().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.BASIC.name()));
-    SearchClient searchClient = new SearchClient(new Settings(), profiling);
+  public void with_profiling_full() {
+    esTester.setProfilingLevel(Profiling.Level.FULL);
 
-    try {
-      searchClient.prepareFlush(IndexDefinition.RULE.getIndexName()).get();
-
-      // expected to fail because elasticsearch is not correctly configured, but that does not matter
-      fail();
-    } catch (IllegalStateException e) {
-      assertThat(e.getMessage()).isEqualTo("Fail to execute ES flush request on indices 'rules'");
-    }
+    esTester.client().prepareFlush(FakeIndexDefinition.INDEX).get();
 
     // TODO assert profiling
-    searchClient.stop();
   }
 
   @Test
   public void fail_to_refresh() throws Exception {
     try {
-      searchClient.prepareFlush("unknown").get();
+      esTester.client().prepareFlush("unknown").get();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class);
@@ -91,7 +75,7 @@ public class ProxyFlushRequestBuilderTest {
   @Test
   public void get_with_string_timeout_is_not_yet_implemented() throws Exception {
     try {
-      searchClient.prepareFlush(IndexDefinition.RULE.getIndexName()).get("1");
+      esTester.client().prepareFlush(FakeIndexDefinition.INDEX).get("1");
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -101,7 +85,7 @@ public class ProxyFlushRequestBuilderTest {
   @Test
   public void get_with_time_value_timeout_is_not_yet_implemented() throws Exception {
     try {
-      searchClient.prepareFlush(IndexDefinition.RULE.getIndexName()).get(TimeValue.timeValueMinutes(1));
+      esTester.client().prepareFlush(FakeIndexDefinition.INDEX).get(TimeValue.timeValueMinutes(1));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -111,7 +95,7 @@ public class ProxyFlushRequestBuilderTest {
   @Test
   public void execute_should_throw_an_unsupported_operation_exception() throws Exception {
     try {
-      searchClient.prepareFlush(IndexDefinition.RULE.getIndexName()).execute();
+      esTester.client().prepareFlush(FakeIndexDefinition.INDEX).execute();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(UnsupportedOperationException.class).hasMessage("execute() should not be called as it's used for asynchronous");

@@ -22,66 +22,52 @@ package org.sonar.server.es.request;
 
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequestBuilder;
 import org.elasticsearch.common.unit.TimeValue;
-import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
+import org.sonar.api.utils.System2;
 import org.sonar.core.profiling.Profiling;
-import org.sonar.server.search.SearchClient;
+import org.sonar.server.es.EsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 public class ProxyCreateIndexRequestBuilderTest {
 
-  Profiling profiling = new Profiling(new Settings().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.NONE.name()));
-  SearchClient searchClient = new SearchClient(new Settings(), profiling);
+  @ClassRule
+  public static EsTester esTester = new EsTester();
 
-  @After
-  public void tearDown() throws Exception {
-    searchClient.stop();
+  @Before
+  public void setUp() throws Exception {
+    esTester.setProfilingLevel(Profiling.Level.NONE);
   }
 
   @Test
   public void create_index() {
-    try {
-      CreateIndexRequestBuilder requestBuilder = searchClient.prepareCreate("new");
-      requestBuilder.get();
-
-      // expected to fail because elasticsearch is not correctly configured, but that does not matter
-      fail();
-    } catch (IllegalStateException e) {
-      assertThat(e.getMessage()).isEqualTo("Fail to execute ES create index 'new'");
-    }
+    CreateIndexRequestBuilder requestBuilder = esTester.client().prepareCreate(generateNewIndexName());
+    requestBuilder.get();
   }
 
   @Test
   public void to_string() {
-    assertThat(searchClient.prepareCreate("new").toString()).isEqualTo("ES create index 'new'");
+    String indexName = generateNewIndexName();
+    assertThat(esTester.client().prepareCreate(indexName).toString()).contains("ES create index '" + indexName + "'");
   }
 
   @Test
-  public void with_profiling_basic() {
-    Profiling profiling = new Profiling(new Settings().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.BASIC.name()));
-    SearchClient searchClient = new SearchClient(new Settings(), profiling);
+  public void with_profiling_full() {
+    esTester.setProfilingLevel(Profiling.Level.FULL);
 
-    try {
-      CreateIndexRequestBuilder requestBuilder = searchClient.prepareCreate("new");
-      requestBuilder.get();
-
-      // expected to fail because elasticsearch is not correctly configured, but that does not matter
-      fail();
-    } catch (IllegalStateException e) {
-      assertThat(e.getMessage()).isEqualTo("Fail to execute ES create index 'new'");
-    }
+    CreateIndexRequestBuilder requestBuilder = esTester.client().prepareCreate(generateNewIndexName());
+    requestBuilder.get();
 
     // TODO assert profiling
-    searchClient.stop();
   }
 
   @Test
   public void get_with_string_timeout_is_not_yet_implemented() throws Exception {
     try {
-      searchClient.prepareCreate("new").get("1");
+      esTester.client().prepareCreate(generateNewIndexName()).get("1");
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -91,7 +77,7 @@ public class ProxyCreateIndexRequestBuilderTest {
   @Test
   public void get_with_time_value_timeout_is_not_yet_implemented() throws Exception {
     try {
-      searchClient.prepareCreate("new").get(TimeValue.timeValueMinutes(1));
+      esTester.client().prepareCreate(generateNewIndexName()).get(TimeValue.timeValueMinutes(1));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -101,11 +87,15 @@ public class ProxyCreateIndexRequestBuilderTest {
   @Test
   public void execute_should_throw_an_unsupported_operation_exception() throws Exception {
     try {
-      searchClient.prepareCreate("new").execute();
+      esTester.client().prepareCreate(generateNewIndexName()).execute();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(UnsupportedOperationException.class).hasMessage("execute() should not be called as it's used for asynchronous");
     }
+  }
+
+  private static String generateNewIndexName(){
+    return "index_" + Long.toString(System2.INSTANCE.now());
   }
 
 }

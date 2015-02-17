@@ -39,8 +39,11 @@ import javax.annotation.Nullable;
 import java.util.Date;
 
 import static org.sonar.api.utils.DateUtils.formatDateTime;
-import static org.sonar.api.utils.DateUtils.longToDate;
 
+/**
+ * Used by views !!
+ *
+ */
 public class ProjectConfigurator implements BatchComponent {
 
   private static final Logger LOG = LoggerFactory.getLogger(ProjectConfigurator.class);
@@ -100,7 +103,7 @@ public class ProjectConfigurator implements BatchComponent {
           throw new IllegalArgumentException(
             "'sonar.projectDate' property cannot be older than the date of the last known quality snapshot on this project. Value: '" +
               settings.getString(CoreProperties.PROJECT_DATE_PROPERTY) + "'. " +
-              "Latest quality snapshot: '" + formatDateTime(longToDate(lastSnapshot.getCreatedAtMs()))
+              "Latest quality snapshot: '" + formatDateTime(lastSnapshot.getCreatedAt())
               + "'. This property may only be used to rebuild the past in a chronological order.");
         }
       }

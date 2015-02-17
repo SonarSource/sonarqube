@@ -20,7 +20,7 @@
 package org.sonar.server.source.index;
 
 import org.junit.Before;
-import org.junit.Rule;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.server.es.EsTester;
@@ -30,13 +30,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class SourceLineIndexTest {
 
-  @Rule
-  public EsTester es = new EsTester().addDefinitions(new SourceLineIndexDefinition(new Settings()));
+  @ClassRule
+  public static EsTester es = new EsTester().addDefinitions(new SourceLineIndexDefinition(new Settings()));
 
   private SourceLineIndex index;
 
   @Before
   public void setUp() {
+    es.truncateIndices();
     index = new SourceLineIndex(es.client());
   }
 

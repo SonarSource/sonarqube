@@ -5,4 +5,4 @@
 # Example: run.sh org.sonar.microbenchmark.SerializationBenchmark
 
 mvn clean install
-java -jar target/microbenchmark.jar -i 5 -wi 5 -f 5 $*
+java -jar target/microbenchmark.jar $*

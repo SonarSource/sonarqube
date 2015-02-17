@@ -34,7 +34,7 @@ public class ResourceComponentTest {
 
   @Before
   public void prepare() {
-    file = new File("foo.c").setEffectiveKey("myproject:path/to/foo.c");
+    file = File.create("foo.c").setEffectiveKey("myproject:path/to/foo.c");
     file.setKey("path/to/foo.c");
   }
 
@@ -67,7 +67,7 @@ public class ResourceComponentTest {
   @Test
   public void effective_key_should_be_set() {
     try {
-      File file = new File("foo.c");
+      File file = File.create("foo.c");
       new ResourceComponent(file);
       fail();
     } catch (IllegalArgumentException e) {

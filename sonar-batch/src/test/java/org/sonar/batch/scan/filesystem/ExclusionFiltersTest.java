@@ -28,6 +28,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.config.Settings;
 import org.sonar.api.scan.filesystem.FileExclusions;
 
+import java.io.File;
 import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,7 +44,7 @@ public class ExclusionFiltersTest {
     filter.prepare();
 
     java.io.File file = temp.newFile();
-    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/main/java/com/mycompany/FooDao.java").setFile(file);
+    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/main/java/com/mycompany/FooDao.java").setModuleBaseDir(temp.newFolder().toPath());
     assertThat(filter.accept(inputFile, InputFile.Type.MAIN)).isTrue();
     assertThat(filter.accept(inputFile, InputFile.Type.TEST)).isTrue();
   }
@@ -56,10 +57,10 @@ public class ExclusionFiltersTest {
     filter.prepare();
 
     java.io.File file = temp.newFile();
-    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/main/java/com/mycompany/FooDao.java").setFile(file);
+    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/main/java/com/mycompany/FooDao.java").setModuleBaseDir(temp.newFolder().toPath());
     assertThat(filter.accept(inputFile, InputFile.Type.MAIN)).isTrue();
 
-    inputFile = new DefaultInputFile("foo", "src/main/java/com/mycompany/Foo.java").setFile(file);
+    inputFile = new DefaultInputFile("foo", "src/main/java/com/mycompany/Foo.java").setModuleBaseDir(temp.newFolder().toPath());
     assertThat(filter.accept(inputFile, InputFile.Type.MAIN)).isFalse();
   }
 
@@ -73,10 +74,10 @@ public class ExclusionFiltersTest {
 
     java.io.File file = temp.newFile();
 
-    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/main/java/com/mycompany/Foo.java").setFile(file);
+    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/main/java/com/mycompany/Foo.java").setModuleBaseDir(temp.newFolder().toPath());
     assertThat(filter.accept(inputFile, InputFile.Type.MAIN)).isFalse();
 
-    inputFile = new DefaultInputFile("foo", "src/main/java/com/mycompany/FooDto.java").setFile(file);
+    inputFile = new DefaultInputFile("foo", "src/main/java/com/mycompany/FooDto.java").setModuleBaseDir(temp.newFolder().toPath());
     assertThat(filter.accept(inputFile, InputFile.Type.MAIN)).isTrue();
   }
 
@@ -91,21 +92,21 @@ public class ExclusionFiltersTest {
     filter.prepare();
 
     java.io.File file = temp.newFile();
-    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/main/java/com/mycompany/FooDao.java").setFile(file);
+    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/main/java/com/mycompany/FooDao.java").setModuleBaseDir(temp.newFolder().toPath());
     assertThat(filter.accept(inputFile, InputFile.Type.MAIN)).isFalse();
 
-    inputFile = new DefaultInputFile("foo", "src/main/java/com/mycompany/Foo.java").setFile(file);
+    inputFile = new DefaultInputFile("foo", "src/main/java/com/mycompany/Foo.java").setModuleBaseDir(temp.newFolder().toPath());
     assertThat(filter.accept(inputFile, InputFile.Type.MAIN)).isTrue();
 
     // source exclusions do not apply to tests
-    inputFile = new DefaultInputFile("foo", "src/test/java/com/mycompany/FooDao.java").setFile(file);
+    inputFile = new DefaultInputFile("foo", "src/test/java/com/mycompany/FooDao.java").setModuleBaseDir(temp.newFolder().toPath());
     assertThat(filter.accept(inputFile, InputFile.Type.TEST)).isTrue();
   }
 
   @Test
   public void match_exclusion_by_absolute_path() throws IOException {
-    java.io.File includedFile = temp.newFile("Foo.java");
-    java.io.File excludedFile = temp.newFile("Bar.java");
+    File baseDir = temp.newFile();
+    File excludedFile = new File(baseDir, "src/main/java/org/bar/Bar.java");
 
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.PROJECT_INCLUSIONS_PROPERTY, "src/main/java/**/*");
@@ -114,10 +115,10 @@ public class ExclusionFiltersTest {
 
     filter.prepare();
 
-    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/main/java/org/bar/Foo.java").setFile(includedFile);
+    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/main/java/org/bar/Foo.java").setModuleBaseDir(baseDir.toPath());
     assertThat(filter.accept(inputFile, InputFile.Type.MAIN)).isTrue();
 
-    inputFile = new DefaultInputFile("foo", "src/main/java/org/bar/Bar.java").setFile(excludedFile);
+    inputFile = new DefaultInputFile("foo", "src/main/java/org/bar/Bar.java").setModuleBaseDir(baseDir.toPath());
     assertThat(filter.accept(inputFile, InputFile.Type.MAIN)).isFalse();
   }
 

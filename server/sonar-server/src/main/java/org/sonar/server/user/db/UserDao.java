@@ -52,7 +52,8 @@ public class UserDao extends org.sonar.core.user.UserDao implements DaoComponent
   }
 
   public List<UserDto> selectNullableByScmAccountOrLoginOrEmail(DbSession session, String scmAccountOrLoginOrEmail) {
-    return mapper(session).selectNullableByScmAccountOrLoginOrEmail(scmAccountOrLoginOrEmail);
+    String like = new StringBuilder().append("%").append(UserDto.SCM_ACCOUNTS_SEPARATOR).append(scmAccountOrLoginOrEmail).append(UserDto.SCM_ACCOUNTS_SEPARATOR).append("%").toString();
+    return mapper(session).selectNullableByScmAccountOrLoginOrEmail(scmAccountOrLoginOrEmail, like);
   }
 
   protected UserMapper mapper(DbSession session) {

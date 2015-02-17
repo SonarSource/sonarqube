@@ -64,8 +64,8 @@ public class HashAction implements RequestHandler {
   public void handle(Request request, Response response) throws Exception {
     try (DbSession session = dbClient.openSession(false)) {
       final String componentKey = request.mandatoryParam("key");
-      UserSession.get().checkComponentPermission(UserRole.CODEVIEWER, componentKey);
       final ComponentDto component = dbClient.componentDao().getByKey(session, componentKey);
+      UserSession.get().checkProjectUuidPermission(UserRole.USER, component.projectUuid());
 
       response.stream().setMediaType("text/plain");
       OutputStreamWriter writer = new OutputStreamWriter(response.stream().output(), Charsets.UTF_8);

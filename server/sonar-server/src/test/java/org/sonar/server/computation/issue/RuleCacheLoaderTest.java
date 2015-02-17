@@ -19,7 +19,8 @@
  */
 package org.sonar.server.computation.issue;
 
-import org.junit.Rule;
+import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.persistence.DbTester;
@@ -33,8 +34,13 @@ import static org.junit.Assert.fail;
 
 public class RuleCacheLoaderTest {
 
-  @Rule
-  public DbTester dbTester = new DbTester();
+  @ClassRule
+  public static DbTester dbTester = new DbTester();
+
+  @Before
+  public void setUp() throws Exception {
+    dbTester.truncateTables();
+  }
 
   @Test
   public void load_by_key() throws Exception {

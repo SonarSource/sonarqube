@@ -23,21 +23,20 @@ import org.apache.ibatis.annotations.Param;
 import org.sonar.core.rule.RuleDto;
 
 import javax.annotation.Nullable;
-import java.util.Collection;
-import java.util.Date;
+
 import java.util.List;
 
 public interface IssueMapper {
 
   IssueDto selectByKey(String key);
 
-  List<IssueDto> selectByKeys(Collection<String> keys);
+  List<IssueDto> selectByKeys(List<String> keys);
 
   List<IssueDto> selectByActionPlan(String actionPlan);
 
-  List<RuleDto> findRulesByComponent(@Param("componentKey") String componentKey, @Nullable @Param("createdAt") Date createdAtOrAfter);
+  List<RuleDto> findRulesByComponent(@Param("componentKey") String componentKey, @Nullable @Param("createdAt") Long createdAtOrAfter);
 
-  List<String> findSeveritiesByComponent(@Param("componentKey") String componentKey, @Nullable @Param("createdAt") Date createdAtOrAfter);
+  List<String> findSeveritiesByComponent(@Param("componentKey") String componentKey, @Nullable @Param("createdAt") Long createdAtOrAfter);
 
   void insert(IssueDto issue);
 

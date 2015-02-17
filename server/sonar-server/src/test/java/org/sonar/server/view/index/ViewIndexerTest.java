@@ -23,7 +23,7 @@ package org.sonar.server.view.index;
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import org.junit.Before;
-import org.junit.Rule;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.config.Settings;
@@ -42,16 +42,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Category(DbTests.class)
 public class ViewIndexerTest {
 
-  @Rule
-  public DbTester dbTester = new DbTester();
+  @ClassRule
+  public static DbTester dbTester = new DbTester();
 
-  @Rule
-  public EsTester esTester = new EsTester().addDefinitions(new ViewIndexDefinition(new Settings()));
+  @ClassRule
+  public static EsTester esTester = new EsTester().addDefinitions(new ViewIndexDefinition(new Settings()));
 
   ViewIndexer indexer;
 
   @Before
   public void setUp() throws Exception {
+    dbTester.truncateTables();
+    esTester.truncateIndices();
     indexer = new ViewIndexer(new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao()), esTester.client());
   }
 

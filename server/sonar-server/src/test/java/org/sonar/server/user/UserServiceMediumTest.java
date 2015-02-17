@@ -89,7 +89,7 @@ public class UserServiceMediumTest {
     assertThat(userDto.getEmail()).isEqualTo("user@mail.com");
     assertThat(userDto.getCryptedPassword()).isNotNull();
     assertThat(userDto.getSalt()).isNotNull();
-    assertThat(userDto.getScmAccounts()).contains(",u1,u_1,");
+    assertThat(userDto.getScmAccountsAsList()).containsOnly("u1", "u_1");
     assertThat(userDto.getCreatedAt()).isNotNull();
     assertThat(userDto.getUpdatedAt()).isNotNull();
 

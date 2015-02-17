@@ -20,7 +20,6 @@
 package org.sonar.api.test;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.StringUtils;
 import org.mockito.ArgumentMatcher;
 import org.sonar.api.resources.Resource;
 
@@ -43,7 +42,6 @@ public class IsResource extends ArgumentMatcher<Resource> {
   @Override
   public boolean matches(Object o) {
     Resource r = (Resource) o;
-    boolean keyMatch = (key != null) ? StringUtils.equals(r.getKey() != null ? r.getKey() : r.getDeprecatedKey(), key) : true;
-    return ObjectUtils.equals(r.getScope(), scope) && ObjectUtils.equals(r.getQualifier(), qualifier) && keyMatch;
+    return ObjectUtils.equals(r.getScope(), scope) && ObjectUtils.equals(r.getQualifier(), qualifier) && r.getKey().equals(key);
   }
 }

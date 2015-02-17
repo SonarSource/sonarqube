@@ -20,6 +20,7 @@
 package org.sonar.api;
 
 import org.sonar.api.batch.AnalysisMode;
+import org.sonar.api.batch.fs.FileSystem;
 
 /**
  * Non-exhaustive list of constants of core properties.
@@ -148,7 +149,7 @@ public interface CoreProperties {
   String PROJECT_DESCRIPTION_PROPERTY = "sonar.projectDescription";
 
   /**
-   * To determine value of this property use {@link org.sonar.api.resources.ProjectFileSystem#getSourceCharset()}.
+   * To determine value of this property use {@link FileSystem#encoding()}.
    *
    * @since 2.6
    */

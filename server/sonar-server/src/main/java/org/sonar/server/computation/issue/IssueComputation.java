@@ -55,7 +55,6 @@ public class IssueComputation {
         guessAuthor(issue);
         autoAssign(issue);
         copyRuleTags(issue);
-        // TODO execute extension points
       }
       diskIssuesAppender.append(issue);
     }

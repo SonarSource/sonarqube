@@ -24,6 +24,9 @@ import com.google.common.collect.Sets;
 import java.util.Arrays;
 import java.util.Set;
 
+/**
+ * Used by views
+ */
 public class Phases {
 
   public static enum Phase {

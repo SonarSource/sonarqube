@@ -28,8 +28,6 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.exceptions.NotFoundException;
 
 import javax.annotation.CheckForNull;
-
-import java.util.Collection;
 import java.util.List;
 
 public class IssueDao extends org.sonar.core.issue.db.IssueDao implements DaoComponent {
@@ -55,7 +53,7 @@ public class IssueDao extends org.sonar.core.issue.db.IssueDao implements DaoCom
     return mapper(session).selectByActionPlan(actionPlan);
   }
 
-  public List<IssueDto> selectByKeys(DbSession session, Collection<String> keys) {
+  public List<IssueDto> selectByKeys(DbSession session, List<String> keys) {
     return mapper(session).selectByKeys(keys);
   }
 

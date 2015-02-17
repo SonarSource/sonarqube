@@ -25,6 +25,8 @@ import org.sonar.api.Extension;
  * Task extension point
  *
  * @since 3.6
+ * @deprecated since 5.1 all tasks (devcockpit, views) will be moved to server side
  */
+@Deprecated
 public interface TaskExtension extends Extension, TaskComponent {
 }

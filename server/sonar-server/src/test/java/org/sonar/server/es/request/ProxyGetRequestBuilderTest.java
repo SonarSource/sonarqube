@@ -22,67 +22,51 @@ package org.sonar.server.es.request;
 
 import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.common.unit.TimeValue;
-import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
 import org.sonar.core.profiling.Profiling;
-import org.sonar.server.search.IndexDefinition;
-import org.sonar.server.search.SearchClient;
+import org.sonar.server.es.EsTester;
+import org.sonar.server.es.FakeIndexDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 public class ProxyGetRequestBuilderTest {
 
-  Profiling profiling = new Profiling(new Settings().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.NONE.name()));
-  SearchClient searchClient = new SearchClient(new Settings(), profiling);
+  @ClassRule
+  public static EsTester esTester = new EsTester().addDefinitions(new FakeIndexDefinition());
 
-  @After
-  public void tearDown() throws Exception {
-    searchClient.stop();
+  @Before
+  public void setUp() throws Exception {
+    esTester.setProfilingLevel(Profiling.Level.NONE);
   }
 
   @Test
   public void get() {
-    try {
-      searchClient.prepareGet()
-        .setIndex(IndexDefinition.RULE.getIndexName())
-        .setType(IndexDefinition.RULE.getIndexType())
-        .setId("ruleKey")
-        .get();
-
-      // expected to fail because elasticsearch is not correctly configured, but that does not matter
-      fail();
-    } catch (IllegalStateException e) {
-      assertThat(e.getMessage()).isEqualTo("Fail to execute ES get request for key 'ruleKey' on index 'rules' on type 'rule'");
-    }
+    esTester.client().prepareGet()
+      .setIndex(FakeIndexDefinition.INDEX)
+      .setType(FakeIndexDefinition.TYPE)
+      .setId("ruleKey")
+      .get();
   }
 
   @Test
   public void with_profiling_basic() {
-    Profiling profiling = new Profiling(new Settings().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.BASIC.name()));
-    SearchClient searchClient = new SearchClient(new Settings(), profiling);
+    esTester.setProfilingLevel(Profiling.Level.FULL);
 
-    try {
-      searchClient.prepareGet()
-        .setIndex(IndexDefinition.RULE.getIndexName())
-        .setType(IndexDefinition.RULE.getIndexType())
-        .setId("ruleKey")
-        .get();
-
-      // expected to fail because elasticsearch is not correctly configured, but that does not matter
-      fail();
-    } catch (IllegalStateException e) {
-      assertThat(e.getMessage()).isEqualTo("Fail to execute ES get request for key 'ruleKey' on index 'rules' on type 'rule'");
-    }
+    esTester.client().prepareGet()
+      .setIndex(FakeIndexDefinition.INDEX)
+      .setType(FakeIndexDefinition.TYPE)
+      .setId("ruleKey")
+      .get();
 
     // TODO assert profiling
-    searchClient.stop();
   }
 
   @Test
   public void fail_to_get_bad_query() throws Exception {
-    GetRequestBuilder requestBuilder = searchClient.prepareGet()
+    GetRequestBuilder requestBuilder = esTester.client().prepareGet()
       .setIndex("unknown")
       .setType("test")
       .setId("rule1");
@@ -98,7 +82,7 @@ public class ProxyGetRequestBuilderTest {
   @Test
   public void get_with_string_timeout_is_not_yet_implemented() throws Exception {
     try {
-      searchClient.prepareGet().get("1");
+      esTester.client().prepareGet().get("1");
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -108,7 +92,7 @@ public class ProxyGetRequestBuilderTest {
   @Test
   public void get_with_time_value_timeout_is_not_yet_implemented() throws Exception {
     try {
-      searchClient.prepareGet().get(TimeValue.timeValueMinutes(1));
+      esTester.client().prepareGet().get(TimeValue.timeValueMinutes(1));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -118,7 +102,7 @@ public class ProxyGetRequestBuilderTest {
   @Test
   public void execute_should_throw_an_unsupported_operation_exception() throws Exception {
     try {
-      searchClient.prepareGet().execute();
+      esTester.client().prepareGet().execute();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(UnsupportedOperationException.class).hasMessage("execute() should not be called as it's used for asynchronous");
