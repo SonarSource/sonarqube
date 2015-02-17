@@ -336,7 +336,7 @@ public class IssueIndex extends BaseIndex {
   private void validateCreationDateBounds(Date createdBefore, Date createdAfter) {
     Preconditions.checkArgument(createdAfter == null || createdAfter.before(system.newDate()),
       "Start bound cannot be in the future");
-    Preconditions.checkArgument(createdAfter == null || createdBefore == null || createdAfter.before(createdBefore),
+    Preconditions.checkArgument(createdAfter == null || createdAfter.equals(createdBefore) || createdBefore == null || createdAfter.before(createdBefore),
       "Start bound cannot be larger than end bound");
   }
 

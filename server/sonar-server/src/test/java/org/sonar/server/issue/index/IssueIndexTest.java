@@ -642,6 +642,51 @@ public class IssueIndexTest {
   }
 
   @Test
+  public void filter_by_created_after_and_before() throws Exception {
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+
+    indexIssues(
+      IssueTesting.newDoc("ISSUE1", file).setFuncCreationDate(DateUtils.parseDate("2014-09-20")),
+      IssueTesting.newDoc("ISSUE2", file).setFuncCreationDate(DateUtils.parseDate("2014-09-23")));
+
+    // 19 < createdAt < 25
+    assertThat(index.search(IssueQuery.builder()
+      .createdAfter(DateUtils.parseDate("2014-09-19")).createdBefore(DateUtils.parseDate("2014-09-25"))
+      .build(), new SearchOptions()).getDocs()).hasSize(2);
+
+    // 20 < createdAt < 25: excludes first issue
+    assertThat(index.search(IssueQuery.builder()
+      .createdAfter(DateUtils.parseDate("2014-09-20")).createdBefore(DateUtils.parseDate("2014-09-25"))
+      .build(), new SearchOptions()).getDocs()).hasSize(1);
+
+    // 21 < createdAt < 25
+    assertThat(index.search(IssueQuery.builder()
+      .createdAfter(DateUtils.parseDate("2014-09-21")).createdBefore(DateUtils.parseDate("2014-09-25"))
+      .build(), new SearchOptions()).getDocs()).hasSize(1);
+
+    // 21 < createdAt < 24
+    assertThat(index.search(IssueQuery.builder()
+      .createdAfter(DateUtils.parseDate("2014-09-21")).createdBefore(DateUtils.parseDate("2014-09-24"))
+      .build(), new SearchOptions()).getDocs()).hasSize(1);
+
+    // 21 < createdAt < 23: excludes second issue
+    assertThat(index.search(IssueQuery.builder()
+      .createdAfter(DateUtils.parseDate("2014-09-21")).createdBefore(DateUtils.parseDate("2014-09-23"))
+      .build(), new SearchOptions()).getDocs()).isEmpty();
+
+    // 19 < createdAt < 21: only first issue
+    assertThat(index.search(IssueQuery.builder()
+      .createdAfter(DateUtils.parseDate("2014-09-19")).createdBefore(DateUtils.parseDate("2014-09-21"))
+      .build(), new SearchOptions()).getDocs()).hasSize(1);
+
+    // 20 < createdAt < 20: nothing
+    assertThat(index.search(IssueQuery.builder()
+      .createdAfter(DateUtils.parseDate("2014-09-20")).createdBefore(DateUtils.parseDate("2014-09-20"))
+      .build(), new SearchOptions()).getDocs()).isEmpty();
+  }
+
+  @Test
   public void filter_by_created_before_must_be_lower_than_after() throws Exception {
     try {
       index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2014-09-20")).createdBefore(DateUtils.parseDate("2014-09-19")).build(), new SearchOptions());
