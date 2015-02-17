@@ -318,13 +318,13 @@ public class IssueIndex extends BaseIndex {
     if (createdAfter != null) {
       filters.put("__createdAfter", FilterBuilders
         .rangeFilter(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT)
-        .gte(createdAfter)
+        .gt(createdAfter)
         .cache(false));
     }
     if (createdBefore != null) {
       filters.put("__createdBefore", FilterBuilders
         .rangeFilter(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT)
-        .lte(createdBefore)
+        .lt(createdBefore)
         .cache(false));
     }
     Date createdAt = query.createdAt();

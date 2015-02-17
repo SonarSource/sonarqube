@@ -63,12 +63,7 @@ import org.sonar.server.user.UserSession;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -188,7 +183,7 @@ public class SearchAction implements BaseIssuesWsAction {
       .setDescription("To retrieve issues created at a given date. Format: date or datetime ISO formats")
       .setExampleValue("2013-05-01 (or 2013-05-01T13:00:00+0100)");
     action.createParam(IssueFilterParameters.CREATED_AFTER)
-      .setDescription("To retrieve issues created after the given date (inclusive). Format: date or datetime ISO formats")
+      .setDescription("To retrieve issues created after the given date (exclusive). Format: date or datetime ISO formats")
       .setExampleValue("2013-05-01 (or 2013-05-01T13:00:00+0100)");
     action.createParam(IssueFilterParameters.CREATED_BEFORE)
       .setDescription("To retrieve issues created before the given date (exclusive). Format: date or datetime ISO formats")
