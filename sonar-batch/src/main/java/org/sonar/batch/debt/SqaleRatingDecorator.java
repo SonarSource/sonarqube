@@ -82,7 +82,7 @@ public class SqaleRatingDecorator implements Decorator {
 
   @Override
   public void decorate(Resource resource, DecoratorContext context) {
-    if (ResourceUtils.isPersistable(resource) && !ResourceUtils.isUnitTestClass(resource)) {
+    if (ResourceUtils.isPersistable(resource) && !ResourceUtils.isUnitTestFile(resource)) {
       Long developmentCost = getDevelopmentCost(context);
       context.saveMeasure(new Measure(CoreMetrics.DEVELOPMENT_COST, Long.toString(developmentCost)));
 

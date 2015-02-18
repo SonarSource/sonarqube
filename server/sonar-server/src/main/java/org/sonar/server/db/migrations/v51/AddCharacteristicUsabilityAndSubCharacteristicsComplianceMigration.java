@@ -52,6 +52,9 @@ public class AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigration 
   private static final String COMPLIANCE_NAME = "Compliance";
   private static final String COMPLIANCE_KEY_SUFFIX = "_COMPLIANCE";
 
+  private static final String SECURITY_KEY = "SECURITY";
+  private static final String USABILITY_KEY = "USABILITY";
+
   private final System2 system;
 
   public AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigration(Database db, System2 system) {
@@ -71,7 +74,7 @@ public class AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigration 
       createSubCharacteristic(characteristicsContext, "REUSABILITY" + COMPLIANCE_KEY_SUFFIX, "Reusability " + COMPLIANCE_NAME, "REUSABILITY");
       createSubCharacteristic(characteristicsContext, "PORTABILITY" + COMPLIANCE_KEY_SUFFIX, "Portability " + COMPLIANCE_NAME, "PORTABILITY");
       createSubCharacteristic(characteristicsContext, "MAINTAINABILITY" + COMPLIANCE_KEY_SUFFIX, "Maintainability " + COMPLIANCE_NAME, "MAINTAINABILITY");
-      createSubCharacteristic(characteristicsContext, "SECURITY" + COMPLIANCE_KEY_SUFFIX, "Security " + COMPLIANCE_NAME, "SECURITY");
+      createSubCharacteristic(characteristicsContext, SECURITY_KEY + COMPLIANCE_KEY_SUFFIX, "Security " + COMPLIANCE_NAME, SECURITY_KEY);
       createSubCharacteristic(characteristicsContext, "EFFICIENCY" + COMPLIANCE_KEY_SUFFIX, "Efficiency " + COMPLIANCE_NAME, "EFFICIENCY");
       createSubCharacteristic(characteristicsContext, "CHANGEABILITY" + COMPLIANCE_KEY_SUFFIX, "Changeability " + COMPLIANCE_NAME, "CHANGEABILITY");
       createSubCharacteristic(characteristicsContext, "RELIABILITY" + COMPLIANCE_KEY_SUFFIX, "Reliability " + COMPLIANCE_NAME, "RELIABILITY");
@@ -89,8 +92,8 @@ public class AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigration 
    * If the characteristic 'Usability' is already at the right place, nothing will be done.
    */
   private int moveCharacteristicsDownToBeAbleToInsertUsability(CharacteristicsContext characteristicsContext) throws SQLException {
-    Characteristic security = characteristicsContext.findCharacteristicByKey("SECURITY");
-    Characteristic usability = characteristicsContext.findCharacteristicByKey("USABILITY");
+    Characteristic security = characteristicsContext.findCharacteristicByKey(SECURITY_KEY);
+    Characteristic usability = characteristicsContext.findCharacteristicByKey(USABILITY_KEY);
 
     int usabilityOder = 1;
     int indexToStart = 0;
@@ -113,7 +116,7 @@ public class AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigration 
 
   private void createOrUpdateUsabilityCharacteristicAndItsSubCharacteristic(CharacteristicsContext characteristicsContext, int newUsabilityOrder)
     throws SQLException {
-    String usabilityKey = "USABILITY";
+    String usabilityKey = USABILITY_KEY;
     Characteristic usability = characteristicsContext.findCharacteristicByKey(usabilityKey);
     if (usability != null) {
       if (usability.getOrder() != newUsabilityOrder) {
@@ -127,11 +130,11 @@ public class AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigration 
 
     createSubCharacteristic(characteristicsContext, "USABILITY_ACCESSIBILITY", "Accessibility", usabilityKey);
     createSubCharacteristic(characteristicsContext, "USABILITY_EASE_OF_USE", "Ease of Use", usabilityKey);
-    createSubCharacteristic(characteristicsContext, "USABILITY" + COMPLIANCE_KEY_SUFFIX, "Usability " + COMPLIANCE_NAME, usabilityKey);
+    createSubCharacteristic(characteristicsContext, USABILITY_KEY + COMPLIANCE_KEY_SUFFIX, "Usability " + COMPLIANCE_NAME, usabilityKey);
   }
 
   private void createSubCharacteristic(CharacteristicsContext characteristicsContext,
-                                       String subCharacteristicKey, String subCharacteristicName, String parentKey) throws SQLException {
+    String subCharacteristicKey, String subCharacteristicName, String parentKey) throws SQLException {
     Characteristic parent = characteristicsContext.findCharacteristicByKey(parentKey);
     if (parent != null) {
       Characteristic subCharacteristic = characteristicsContext.findSubCharacteristicByKey(subCharacteristicKey, parent);
@@ -176,9 +179,11 @@ public class AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigration 
       return this;
     }
 
-    @CheckForNull
+    /**
+     * On a characteristic, the order can never be null
+     */
     public Integer getOrder() {
-      return order;
+      return parentId == null ? order : null;
     }
 
     public Characteristic setOrder(@Nullable Integer order) {
@@ -226,10 +231,8 @@ public class AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigration 
           return input != null && input.key.equals(key);
         }
       }, null);
-      if (characteristic != null) {
-        if (characteristic.getParentId() != null) {
-          throw new IllegalStateException(String.format("'%s' must be a characteristic", characteristic.getName()));
-        }
+      if (characteristic != null && characteristic.getParentId() != null) {
+        throw new IllegalStateException(String.format("'%s' must be a characteristic", characteristic.getName()));
       }
       return characteristic;
     }
@@ -246,7 +249,7 @@ public class AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigration 
         Integer parentId = characteristic.getParentId();
         if (parentId == null) {
           throw new IllegalStateException(String.format("'%s' must be a sub-characteristic", characteristic.getName()));
-        } else if (!characteristic.getParentId().equals(parent.getId())) {
+        } else if (!parentId.equals(parent.getId())) {
           throw new IllegalStateException(String.format("'%s' must be defined under '%s'", characteristic.getName(), parent.getName()));
         }
       }
