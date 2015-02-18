@@ -349,6 +349,7 @@ define([
         showCoveragePopup: function (e) {
           e.stopPropagation();
           $('body').click();
+          this.clearTooltips();
           var line = $(e.currentTarget).data('line-number'),
               row = _.findWhere(this.model.get('source'), {line: line}),
               url = baseUrl + '/api/tests/test_cases',
@@ -386,6 +387,7 @@ define([
         showDuplicationPopup: function (e) {
           e.stopPropagation();
           $('body').click();
+          this.clearTooltips();
           var index = $(e.currentTarget).data('index'),
               line = $(e.currentTarget).data('line-number'),
               blocks = this.model.get('duplications')[index - 1].blocks;
