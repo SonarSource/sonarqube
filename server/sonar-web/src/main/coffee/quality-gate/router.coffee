@@ -34,7 +34,5 @@ define [
         @app.layout.detailsRegion.show qualityGateDetailView
         qualityGateDetailView.$el.hide()
 
-        qualityGateDetailHeaderView.showSpinner()
         qualityGate.fetch().done ->
           qualityGateDetailView.$el.show()
-          qualityGateDetailHeaderView.hideSpinner()

@@ -49,26 +49,21 @@ define [
         yesLabel: t 'delete'
         noLabel: t 'cancel'
         yesHandler: =>
-          @showSpinner()
           jQuery.ajax
             type: 'POST'
             url: "#{baseUrl}/api/qualitygates/destroy"
             data: id: @model.id
-          .always => @hideSpinner()
           .done => @options.app.deleteQualityGate @model.id
         always: => @ui.deleteButton.blur()
 
 
     changeDefault: (set) ->
-      @showSpinner()
       data = if set then { id: @model.id } else {}
       method = if set then 'set_as_default' else 'unset_default'
       jQuery.ajax
         type: 'POST'
         url: "#{baseUrl}/api/qualitygates/#{method}"
         data: data
-      .always =>
-        @hideSpinner()
       .done =>
         @options.app.unsetDefaults @model.id
         @model.set 'default', !@model.get('default')
@@ -80,16 +75,6 @@ define [
 
     unsetAsDefault: ->
       @changeDefault false
-
-
-    showSpinner: ->
-      @$el.hide()
-      jQuery(@spinner).insertBefore @$el
-
-
-    hideSpinner: ->
-      @$el.prev().remove()
-      @$el.show()
 
 
     serializeData: ->
