@@ -1,0 +1,10 @@
+<div>
+  <div class="accordion-item-header">
+    <%= render :partial => 'tabs' -%>
+  </div>
+  <div class="accordion-item-body">
+    <% if @extension.getTarget() # ruby on rails page %>
+      <%= render :inline => @extension.getTarget().getTemplate() -%>
+    <% end %>
+  </div>
+</div>
