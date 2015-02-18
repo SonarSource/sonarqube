@@ -91,6 +91,7 @@ public interface DatabaseMigrations {
     FeedSemaphoresLongDates.class,
     FeedProjectMeasuresLongDates.class,
     FeedManualMeasuresLongDates.class,
-    FeedEventsLongDates.class
-    );
+    FeedEventsLongDates.class,
+    AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigration.class
+  );
 }

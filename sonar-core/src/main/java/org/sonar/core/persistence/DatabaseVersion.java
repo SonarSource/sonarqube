@@ -33,7 +33,7 @@ import java.util.List;
  */
 public class DatabaseVersion implements BatchComponent, ServerComponent {
 
-  public static final int LAST_VERSION = 793;
+  public static final int LAST_VERSION = 794;
 
   /**
    * List of all the tables.n
@@ -88,7 +88,7 @@ public class DatabaseVersion implements BatchComponent, ServerComponent {
     "user_roles",
     "widgets",
     "widget_properties"
-    );
+  );
   private MyBatis mybatis;
 
   public DatabaseVersion(MyBatis mybatis) {
