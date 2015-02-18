@@ -1,21 +1,23 @@
 <% if @filter.rows %>
+  <div class="page">
+    <header class="page-header">
+      <h1 class="page-title"><%= message('qualifiers.all.' + @qualifier) -%></h1>
+    </header>
 
-  <h1 class="marginbottom10"><%= message('qualifiers.all.' + @qualifier) -%></h1>
+    <div id="all-projects">
 
-  <div id="all-projects">
+      <% if @filter.security_exclusions %>
+        <p class="notes"><%= message('all-projects.results_not_display_due_to_security') -%></p>
+      <% end %>
 
-    <% if @filter.security_exclusions %>
-      <p class="notes"><%= message('all-projects.results_not_display_due_to_security') -%></p>
-    <% end %>
+      <%
+         display_favourites = logged_in?
+         colspan = 5
+         colspan += 1 if display_favourites
+      %>
 
-    <%
-      display_favourites = logged_in?
-      colspan = 5
-      colspan += 1 if display_favourites
-    %>
-
-    <table class="data" id="all-projects-table">
-      <thead>
+      <table class="data" id="all-projects-table">
+        <thead>
         <tr>
           <% if display_favourites %>
             <th class="thin" style></th>
@@ -29,16 +31,16 @@
           <th></th>
           <th></th>
         </tr>
-      </thead>
-  
-      <tbody>
+        </thead>
+
+        <tbody>
         <% @filter.rows.each do |row| %>
           <tr class="thin <%= cycle 'even', 'odd' -%>">
             <% if display_favourites %>
               <td class="thin"><%= link_to_favourite(row.snapshot.resource) -%></td>
             <% end %>
             <td class="nowrap">
-              <%= qualifier_icon(row.snapshot)-%> <%= link_to(h(row.snapshot.resource.name(true)), {:controller => 'dashboard', :id => row.snapshot.resource_id}, :title => h(row.snapshot.resource.key)) -%>
+              <%= qualifier_icon(row.snapshot) -%> <%= link_to(h(row.snapshot.resource.name(true)), {:controller => 'dashboard', :id => row.snapshot.resource_id}, :title => h(row.snapshot.resource.key)) -%>
             </td>
             <td class="sep"></td>
             <td>
@@ -46,32 +48,34 @@
             </td>
             <td class="sep"></td>
             <td class="nowrap right">
-              <% 
+              <%
                  if row.links
                    row.links.select { |link| link.href.start_with?('http') }.each do |link|
               %>
-                <a target="_blank" href="<%= link.href -%>" class="icon-<%= link.link_type -%>"></a>
-              <%
+                  <a target="_blank" href="<%= link.href -%>" class="icon-<%= link.link_type -%>"></a>
+                <%
                    end
-                 end
-              %>
+                   end
+                %>
             </td>
           </tr>
         <% end %>
-        
+
         <% if @filter.rows.empty? %>
           <tr class="even">
             <td colspan="<%= colspan -%>"><%= message 'no_data' -%></td>
           </tr>
         <% end %>
-    </tbody>
+        </tbody>
 
-      <%= table_pagination(@filter.pagination, :colspan => colspan) { |label, page_id|
-            link_to(label, :action => 'index', :qualifier => h(@qualifier), :asc => h(@filter.criteria[:asc]), :page => page_id)
-          }
-      -%>
-    
-  </table>
+        <%= table_pagination(@filter.pagination, :colspan => colspan) { |label, page_id|
+          link_to(label, :action => 'index', :qualifier => h(@qualifier), :asc => h(@filter.criteria[:asc]), :page => page_id)
+        }
+        -%>
+
+      </table>
+    </div>
+
   </div>
-  
+
 <% end %>
