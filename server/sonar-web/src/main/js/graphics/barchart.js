@@ -79,7 +79,7 @@
               return moment(d.val).format('YYYY-MM-DD');
             })
             .attr('data-period-end', function (d, i) {
-              var ending = i < data.length - 1 ? moment(data[i + 1].val).subtract(1, 'days') : moment();
+              var ending = i < data.length - 1 ? moment(data[i + 1].val).subtract(1, 'seconds') : moment();
               return ending.format('YYYY-MM-DD');
             })
             .attr('title', function (d, i) {
