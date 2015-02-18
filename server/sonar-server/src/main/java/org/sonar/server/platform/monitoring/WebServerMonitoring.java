@@ -29,12 +29,12 @@ public class WebServerMonitoring extends MonitoringMBean implements WebServerMon
   }
 
   @Override
-  protected String name() {
+  public String name() {
     return "WebServer";
   }
 
   @Override
-  void toJson(JsonWriter json) {
+  public void toJson(JsonWriter json) {
     json.beginObject();
     json.endObject();
   }

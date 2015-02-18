@@ -18,26 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.platform.monitoring;
+package org.sonar.server.platform.ws;
 
-import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.api.server.ws.RequestHandler;
+import org.sonar.api.server.ws.WebService;
 
-public class MonitoringMBeans {
+public interface SystemWsAction extends RequestHandler {
 
-  private final MonitoringMBean[] mBeans;
-
-  public MonitoringMBeans(MonitoringMBean... mBeans) {
-    this.mBeans = mBeans;
-  }
-
-  public void toJson(JsonWriter json) {
-    json.beginArray();
-    for (MonitoringMBean mBean : mBeans) {
-      json.beginObject();
-      json.name(mBean.name());
-      mBean.toJson(json);
-      json.endObject();
-    }
-    json.endArray();
-  }
+  public void define(WebService.NewController controller);
 }

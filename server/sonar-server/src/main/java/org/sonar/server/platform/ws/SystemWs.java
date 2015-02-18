@@ -23,12 +23,10 @@ import org.sonar.api.server.ws.WebService;
 
 public class SystemWs implements WebService {
 
-  private final RestartHandler restartHandler;
-  private final InfoWsAction infoWsAction;
+  private final SystemWsAction[] actions;
 
-  public SystemWs(RestartHandler restartHandler, InfoWsAction infoWsAction) {
-    this.restartHandler = restartHandler;
-    this.infoWsAction = infoWsAction;
+  public SystemWs(SystemWsAction... actions) {
+    this.actions = actions;
   }
 
   @Override
@@ -37,8 +35,9 @@ public class SystemWs implements WebService {
       .setDescription("Restart server")
       .setSince("4.3");
 
-    restartHandler.define(controller);
-    infoWsAction.define(controller);
+    for (SystemWsAction action : actions) {
+      action.define(controller);
+    }
 
     controller.done();
   }

@@ -33,9 +33,9 @@ import java.lang.management.ManagementFactory;
 
 public abstract class MonitoringMBean implements Startable, ServerComponent {
 
-  abstract String name();
+  public abstract String name();
 
-  abstract void toJson(JsonWriter json);
+  public abstract void toJson(JsonWriter json);
 
   @Override
   public void start() {

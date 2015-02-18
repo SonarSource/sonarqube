@@ -141,7 +141,6 @@ import org.sonar.server.permission.InternalPermissionTemplateService;
 import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.permission.ws.PermissionsWs;
 import org.sonar.server.platform.monitoring.DatabaseMonitoring;
-import org.sonar.server.platform.monitoring.MonitoringMBeans;
 import org.sonar.server.platform.monitoring.SystemMonitoring;
 import org.sonar.server.platform.monitoring.WebServerMonitoring;
 import org.sonar.server.platform.ws.*;
@@ -319,8 +318,7 @@ class ServerComponents {
       // Monitoring MBean
       SystemMonitoring.class,
       DatabaseMonitoring.class,
-      WebServerMonitoring.class,
-      MonitoringMBeans.class
+      WebServerMonitoring.class
       );
   }
 

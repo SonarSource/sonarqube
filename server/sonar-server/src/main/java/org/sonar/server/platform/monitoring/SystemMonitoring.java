@@ -30,12 +30,12 @@ public class SystemMonitoring extends MonitoringMBean implements SystemMonitorin
   }
 
   @Override
-  protected String name() {
+  public String name() {
     return "System";
   }
 
   @Override
-  void toJson(JsonWriter json) {
+  public void toJson(JsonWriter json) {
     json.beginObject()
       .prop("dataDirectorySize", getDataDirectorySize())
       .endObject();

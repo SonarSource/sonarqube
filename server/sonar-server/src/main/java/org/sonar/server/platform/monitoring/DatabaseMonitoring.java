@@ -29,12 +29,12 @@ public class DatabaseMonitoring extends MonitoringMBean implements DatabaseMonit
   }
 
   @Override
-  protected String name() {
+  public String name() {
     return "Database";
   }
 
   @Override
-  void toJson(JsonWriter json) {
+  public void toJson(JsonWriter json) {
     json.beginObject();
     json.endObject();
   }

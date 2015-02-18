@@ -35,7 +35,7 @@ public class SystemWsTest {
     Platform platform = mock(Platform.class);
     Settings settings = new Settings();
     RestartHandler restartHandler = new RestartHandler(settings, platform, mock(System2.class));
-    SystemWs ws = new SystemWs(restartHandler, null);
+    SystemWs ws = new SystemWs(restartHandler);
     WebService.Context context = new WebService.Context();
 
     ws.define(context);

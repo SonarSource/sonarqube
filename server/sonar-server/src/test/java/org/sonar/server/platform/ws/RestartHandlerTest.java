@@ -41,7 +41,7 @@ public class RestartHandlerTest {
     when(system.isOsWindows()).thenReturn(false);
 
     RestartHandler restartHandler = new RestartHandler(settings, platform, system);
-    SystemWs ws = new SystemWs(restartHandler, null);
+    SystemWs ws = new SystemWs(restartHandler);
 
     WsTester tester = new WsTester(ws);
     tester.newPostRequest("api/system", "restart").execute();
@@ -54,7 +54,7 @@ public class RestartHandlerTest {
     Platform platform = mock(Platform.class);
     Settings settings = new Settings();
     RestartHandler restartHandler = new RestartHandler(settings, platform, system);
-    SystemWs ws = new SystemWs(restartHandler, null);
+    SystemWs ws = new SystemWs(restartHandler);
 
     WsTester tester = new WsTester(ws);
     try {

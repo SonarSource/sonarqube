@@ -22,7 +22,6 @@ package org.sonar.server.platform.ws;
 
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
@@ -31,7 +30,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.platform.Platform;
 
-public class RestartHandler implements RequestHandler {
+public class RestartHandler implements SystemWsAction {
 
   private final Settings settings;
   private final Platform platform;
@@ -43,7 +42,8 @@ public class RestartHandler implements RequestHandler {
     this.system = system;
   }
 
-  void define(WebService.NewController controller) {
+  @Override
+  public void define(WebService.NewController controller) {
     controller.createAction("restart")
       .setDescription("Restart server. Available only on development mode (sonar.web.dev=true), except when using Java 6 " +
         "on MS Windows. Ruby on Rails extensions are not reloaded")
