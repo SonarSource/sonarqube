@@ -20,16 +20,19 @@
 
 package org.sonar.server.platform;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.config.Settings;
-import org.sonar.core.profiling.Profiling;
-import org.sonar.core.profiling.Profiling.Level;
-import org.sonar.core.profiling.StopWatch;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.utils.log.Profiler;
 
-import javax.servlet.*;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+
 import java.io.IOException;
 import java.util.Set;
 
@@ -49,6 +52,7 @@ public class ProfilingFilter implements Filter {
 
   private static final String MESSAGE_WITH_QUERY = "%s %s?%s";
   private static final String MESSAGE_WITHOUT_QUERY = "%s %s";
+  public static final org.sonar.api.utils.log.Logger Logger = Loggers.get("http");
 
   private String contextRoot;
   private Set<String> staticResourceDirs;
@@ -76,12 +80,15 @@ public class ProfilingFilter implements Filter {
         // Static resource, not profiled
         chain.doFilter(request, response);
       } else {
-        StopWatch watch = getProfiling().start("http", Level.BASIC);
+        Profiler profiler = Profiler.createIfDebug(Logger).start();
         try {
           chain.doFilter(request, response);
         } finally {
-          String queryString = httpRequest.getQueryString();
-          watch.stop(queryString == null ? MESSAGE_WITHOUT_QUERY : MESSAGE_WITH_QUERY, httpRequest.getMethod(), requestUri, queryString);
+          if (profiler.isDebugEnabled()) {
+            String queryString = httpRequest.getQueryString();
+            String message = String.format(queryString == null ? MESSAGE_WITHOUT_QUERY : MESSAGE_WITH_QUERY, httpRequest.getMethod(), requestUri, queryString);
+            profiler.stopDebug(message);
+          }
         }
       }
     } else {
@@ -105,14 +112,5 @@ public class ProfilingFilter implements Filter {
   @Override
   public void destroy() {
     // Nothing
-  }
-
-  @VisibleForTesting
-  Profiling getProfiling() {
-    Profiling profiling = Platform.component(Profiling.class);
-    if (profiling != null) {
-      return profiling;
-    }
-    return new Profiling(new Settings());
   }
 }

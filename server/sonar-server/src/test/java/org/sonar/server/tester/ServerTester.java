@@ -48,7 +48,7 @@ import java.util.Properties;
  * Entry point to implement medium tests of server components.
  * <p/>
  * The system properties starting with "mediumTests." override the programmatic settings, for example:
- * <code>-DmediumTests.sonar.log.profilingLevel=FULL</code>
+ * <code>-DmediumTests.sonar.log.level=TRACE</code>
  *
  * @since 4.4
  */

@@ -25,28 +25,25 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchScrollRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
-import org.sonar.core.profiling.Profiling;
-import org.sonar.core.profiling.StopWatch;
+import org.sonar.api.utils.log.Profiler;
+import org.sonar.server.es.EsClient;
 
 public class ProxySearchScrollRequestBuilder extends SearchScrollRequestBuilder {
 
-  private final Profiling profiling;
-
-  public ProxySearchScrollRequestBuilder(String scrollId, Client client, Profiling profiling) {
+  public ProxySearchScrollRequestBuilder(String scrollId, Client client) {
     super(client, scrollId);
-    this.profiling = profiling;
   }
 
   @Override
   public SearchResponse get() {
-    StopWatch fullProfile = profiling.start("search scroll", Profiling.Level.FULL);
+    Profiler profiler = Profiler.createIfTrace(EsClient.LOGGER).start();
     try {
       return super.execute().actionGet();
     } catch (Exception e) {
       throw new IllegalStateException(String.format("Fail to execute %s", toString()), e);
     } finally {
-      if (profiling.isProfilingEnabled(Profiling.Level.BASIC)) {
-        fullProfile.stop("%s", toString());
+      if (profiler.isTraceEnabled()) {
+        profiler.stopTrace(toString());
       }
     }
   }

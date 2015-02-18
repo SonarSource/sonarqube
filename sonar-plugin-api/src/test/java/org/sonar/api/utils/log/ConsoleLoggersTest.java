@@ -34,14 +34,11 @@ public class ConsoleLoggersTest {
   }
 
   @Test
-  public void debugMode() throws Exception {
-    // disabled by default
-    assertThat(sut.isDebugEnabled()).isFalse();
+  public void level() throws Exception {
+    // INFO by default
+    assertThat(sut.getLevel()).isEqualTo(LoggerLevel.INFO);
 
-    sut.enableDebug(true);
-    assertThat(sut.isDebugEnabled()).isTrue();
-
-    sut.enableDebug(false);
-    assertThat(sut.isDebugEnabled()).isFalse();
+    sut.setLevel(LoggerLevel.DEBUG);
+    assertThat(sut.getLevel()).isEqualTo(LoggerLevel.DEBUG);
   }
 }

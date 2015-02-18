@@ -22,9 +22,9 @@ package org.sonar.server.startup;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import org.picocontainer.Startable;
-import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.utils.log.Profiler;
 import org.sonar.api.web.Dashboard;
 import org.sonar.api.web.DashboardTemplate;
 import org.sonar.core.dashboard.ActiveDashboardDao;
@@ -71,7 +71,7 @@ public class RegisterDashboards implements Startable {
 
   @Override
   public void start() {
-    TimeProfiler profiler = new TimeProfiler(LOG).start("Register dashboards");
+    Profiler profiler = Profiler.create(Loggers.get(getClass())).startInfo("Register dashboards");
 
     List<DashboardDto> registeredDashboards = Lists.newArrayList();
     for (DashboardTemplate template : dashboardTemplates) {
@@ -85,8 +85,7 @@ public class RegisterDashboards implements Startable {
     }
 
     activate(registeredDashboards);
-
-    profiler.stop();
+    profiler.stopDebug();
   }
 
   @Override

@@ -20,6 +20,8 @@
 package org.sonar.core.persistence.profiling;
 
 import org.apache.commons.dbcp.BasicDataSource;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 import java.io.PrintWriter;
 import java.lang.reflect.Proxy;
@@ -27,11 +29,13 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collection;
 
-class ProfilingDataSource extends BasicDataSource {
+public class ProfiledDataSource extends BasicDataSource {
+
+  public static final Logger SQL_LOGGER = Loggers.get("sql");
 
   private final BasicDataSource delegate;
 
-  public ProfilingDataSource(BasicDataSource delegate) {
+  public ProfiledDataSource(BasicDataSource delegate) {
     this.delegate = delegate;
   }
 

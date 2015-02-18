@@ -31,10 +31,10 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.ActiveRuleParam;
-import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.utils.log.Profiler;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.template.LoadedTemplateDto;
@@ -42,7 +42,6 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.platform.PersistentSettings;
 
 import javax.annotation.Nullable;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -69,13 +68,13 @@ public class RegisterQualityProfiles implements ServerComponent {
    * To be kept when no ProfileDefinition are injected
    */
   public RegisterQualityProfiles(PersistentSettings settings, BuiltInProfiles builtInProfiles,
-                                 DbClient dbClient, QProfileFactory profileFactory, RuleActivator ruleActivator, Languages languages) {
+    DbClient dbClient, QProfileFactory profileFactory, RuleActivator ruleActivator, Languages languages) {
     this(settings, builtInProfiles, dbClient, profileFactory, ruleActivator, Collections.<ProfileDefinition>emptyList(), languages);
   }
 
   public RegisterQualityProfiles(PersistentSettings settings, BuiltInProfiles builtInProfiles,
-                                 DbClient dbClient, QProfileFactory profileFactory, RuleActivator ruleActivator,
-                                 List<ProfileDefinition> definitions, Languages languages) {
+    DbClient dbClient, QProfileFactory profileFactory, RuleActivator ruleActivator,
+    List<ProfileDefinition> definitions, Languages languages) {
     this.settings = settings;
     this.builtInProfiles = builtInProfiles;
     this.dbClient = dbClient;
@@ -86,8 +85,7 @@ public class RegisterQualityProfiles implements ServerComponent {
   }
 
   public void start() {
-    TimeProfiler profiler = new TimeProfiler(LOGGER).start("Register Quality Profiles");
-
+    Profiler profiler = Profiler.create(Loggers.get(getClass())).startInfo("Register quality profiles");
     DbSession session = dbClient.openSession(false);
     try {
       ListMultimap<String, RulesProfile> profilesByLanguage = profilesByLanguage();
@@ -107,10 +105,10 @@ public class RegisterQualityProfiles implements ServerComponent {
           session.commit();
         }
       }
+      profiler.stopDebug();
 
     } finally {
       session.close();
-      profiler.stop();
     }
   }
 

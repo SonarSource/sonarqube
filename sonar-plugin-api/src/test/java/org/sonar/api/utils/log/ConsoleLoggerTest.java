@@ -38,8 +38,9 @@ public class ConsoleLoggerTest {
 
   @Test
   public void debug_enabled() throws Exception {
-    tester.enableDebug(true);
+    tester.setLevel(LoggerLevel.DEBUG);
     assertThat(sut.isDebugEnabled()).isTrue();
+    assertThat(sut.isTraceEnabled()).isFalse();
     sut.debug("message");
     sut.debug("message {}", "foo");
     sut.debug("message {} {}", "foo", "bar");
@@ -49,12 +50,36 @@ public class ConsoleLoggerTest {
 
   @Test
   public void debug_disabled() throws Exception {
-    tester.enableDebug(false);
+    tester.setLevel(LoggerLevel.INFO);
     assertThat(sut.isDebugEnabled()).isFalse();
+    assertThat(sut.isTraceEnabled()).isFalse();
     sut.debug("message");
     sut.debug("message {}", "foo");
     sut.debug("message {} {}", "foo", "bar");
     sut.debug("message {} {} {}", "foo", "bar", "baz");
+    verifyZeroInteractions(stream);
+  }
+
+  @Test
+  public void trace_enabled() throws Exception {
+    tester.setLevel(LoggerLevel.TRACE);
+    assertThat(sut.isDebugEnabled()).isTrue();
+    assertThat(sut.isTraceEnabled()).isTrue();
+    sut.trace("message");
+    sut.trace("message {}", "foo");
+    sut.trace("message {} {}", "foo", "bar");
+    sut.trace("message {} {} {}", "foo", "bar", "baz");
+    verify(stream, times(4)).println(anyString());
+  }
+
+  @Test
+  public void trace_disabled() throws Exception {
+    tester.setLevel(LoggerLevel.DEBUG);
+    assertThat(sut.isTraceEnabled()).isFalse();
+    sut.trace("message");
+    sut.trace("message {}", "foo");
+    sut.trace("message {} {}", "foo", "bar");
+    sut.trace("message {} {} {}", "foo", "bar", "baz");
     verifyZeroInteractions(stream);
   }
 

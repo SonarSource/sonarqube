@@ -21,7 +21,7 @@ package org.sonar.api.utils.log;
 
 class ConsoleLoggers extends Loggers {
 
-  private boolean debugEnabled = false;
+  private LoggerLevel level = LoggerLevel.INFO;
 
   @Override
   protected Logger newInstance(String name) {
@@ -29,12 +29,14 @@ class ConsoleLoggers extends Loggers {
   }
 
   @Override
-  protected boolean isDebugEnabled() {
-    return debugEnabled;
+  protected LoggerLevel getLevel() {
+    return level;
   }
 
   @Override
-  protected void enableDebug(boolean b) {
-    this.debugEnabled = b;
+  protected void setLevel(LoggerLevel level) {
+    this.level = level;
   }
+
+
 }

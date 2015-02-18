@@ -21,7 +21,7 @@ package org.sonar.core.persistence.profiling;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.core.profiling.StopWatch;
+import org.sonar.api.utils.log.Profiler;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -33,7 +33,6 @@ class ProfilingPreparedStatementHandler implements InvocationHandler {
   private static final String PARAM_PREFIX = "<";
   private static final String PARAM_SUFFIX = ">";
   private static final String PARAM_SEPARATOR = ", ";
-  private static final SqlProfiling PROFILING = new SqlProfiling();
 
   private final PreparedStatement statement;
   private final List<Object> arguments;
@@ -43,7 +42,7 @@ class ProfilingPreparedStatementHandler implements InvocationHandler {
     this.statement = statement;
     this.sql = sql;
     this.arguments = Lists.newArrayList();
-    for (int argCount = 0; argCount < StringUtils.countMatches(sql, "?"); argCount ++) {
+    for (int argCount = 0; argCount < StringUtils.countMatches(sql, "?"); argCount++) {
       arguments.add("!");
     }
   }
@@ -51,19 +50,13 @@ class ProfilingPreparedStatementHandler implements InvocationHandler {
   @Override
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     if (method.getName().startsWith("execute")) {
-      StopWatch watch = PROFILING.start();
+      Profiler profiler = Profiler.create(ProfiledDataSource.SQL_LOGGER).start();
       Object result = null;
       try {
         result = InvocationUtils.invokeQuietly(statement, method, args);
       } finally {
-        StringBuilder sqlBuilder = new StringBuilder().append(sql);
-        if (!arguments.isEmpty()) {
-          sqlBuilder.append(" - parameters are: ");
-          for (Object arg: arguments) {
-            sqlBuilder.append(PARAM_PREFIX).append(arg).append(PARAM_SUFFIX).append(PARAM_SEPARATOR);
-          }
-        }
-        PROFILING.stop(watch, StringUtils.removeEnd(sqlBuilder.toString(), PARAM_SEPARATOR));
+        profiler.addContext("sql", StringUtils.remove(sql, '\n'));
+        profiler.stopTrace("");
       }
       return result;
     } else if (method.getName().startsWith("set") && args.length > 1) {

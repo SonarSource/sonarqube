@@ -19,15 +19,14 @@
  */
 package org.sonar.core.persistence.profiling;
 
-import org.sonar.core.profiling.StopWatch;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.utils.log.Profiler;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.sql.Statement;
 
 class ProfilingStatementHandler implements InvocationHandler {
-
-  private static final SqlProfiling PROFILING = new SqlProfiling();
 
   private final Statement statement;
 
@@ -38,12 +37,13 @@ class ProfilingStatementHandler implements InvocationHandler {
   @Override
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     if (method.getName().startsWith("execute")) {
-      StopWatch watch = PROFILING.start();
+      Profiler profiler = Profiler.create(ProfiledDataSource.SQL_LOGGER).start();
       Object result = null;
       try {
         result = InvocationUtils.invokeQuietly(statement, method, args);
       } finally {
-        PROFILING.stop(watch, (String) args[0]);
+        profiler.addContext("sql", StringUtils.remove((String)args[0], '\n'));
+        profiler.stopTrace("");
       }
       return result;
     } else {

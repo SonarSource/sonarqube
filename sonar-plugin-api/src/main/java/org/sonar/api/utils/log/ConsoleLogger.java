@@ -44,8 +44,42 @@ class ConsoleLogger extends BaseLogger {
   }
 
   @Override
+  public boolean isTraceEnabled() {
+    return Loggers.getFactory().getLevel() == LoggerLevel.TRACE;
+  }
+
+  @Override
+  protected void doTrace(String msg) {
+    if (isTraceEnabled()) {
+      log("TRACE", msg);
+    }
+  }
+
+  @Override
+  protected void doTrace(String pattern, @Nullable Object arg) {
+    if (isTraceEnabled()) {
+      trace(format(pattern, arg));
+    }
+  }
+
+  @Override
+  protected void doTrace(String pattern, @Nullable Object arg1, @Nullable Object arg2) {
+    if (isTraceEnabled()) {
+      trace(format(pattern, arg1, arg2));
+    }
+  }
+
+  @Override
+  protected void doTrace(String pattern, Object... args) {
+    if (isTraceEnabled()) {
+      trace(format(pattern, args));
+    }
+  }
+
+  @Override
   public boolean isDebugEnabled() {
-    return Loggers.getFactory().isDebugEnabled();
+    LoggerLevel level = Loggers.getFactory().getLevel();
+    return level == LoggerLevel.TRACE || level == LoggerLevel.DEBUG;
   }
 
   @Override

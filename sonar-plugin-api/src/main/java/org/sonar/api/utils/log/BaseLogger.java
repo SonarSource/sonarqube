@@ -23,106 +23,138 @@ import javax.annotation.Nullable;
 
 abstract class BaseLogger implements Logger {
   @Override
+  public void trace(String msg) {
+    LogInterceptor.instance().log(msg);
+    doTrace(msg);
+  }
+
+  @Override
+  public void trace(String pattern, @Nullable Object arg) {
+    LogInterceptor.instance().log(pattern, arg);
+    doTrace(pattern, arg);
+  }
+
+  @Override
+  public void trace(String msg, @Nullable Object arg1, @Nullable Object arg2) {
+    LogInterceptor.instance().log(msg, arg1, arg2);
+    doTrace(msg, arg1, arg2);
+  }
+
+  @Override
+  public void trace(String msg, Object... args) {
+    LogInterceptor.instance().log(msg, args);
+    doTrace(msg, args);
+  }
+
+  @Override
   public void debug(String msg) {
-    LogInterceptor.instance.log(msg);
+    LogInterceptor.instance().log(msg);
     doDebug(msg);
   }
 
   @Override
   public void debug(String pattern, @Nullable Object arg) {
-    LogInterceptor.instance.log(pattern, arg);
+    LogInterceptor.instance().log(pattern, arg);
     doDebug(pattern, arg);
   }
 
   @Override
   public void debug(String msg, @Nullable Object arg1, @Nullable Object arg2) {
-    LogInterceptor.instance.log(msg, arg1, arg2);
+    LogInterceptor.instance().log(msg, arg1, arg2);
     doDebug(msg, arg1, arg2);
   }
 
   @Override
   public void debug(String msg, Object... args) {
-    LogInterceptor.instance.log(msg, args);
+    LogInterceptor.instance().log(msg, args);
     doDebug(msg, args);
   }
 
   @Override
   public void info(String msg) {
-    LogInterceptor.instance.log(msg);
+    LogInterceptor.instance().log(msg);
     doInfo(msg);
   }
 
   @Override
   public void info(String msg, @Nullable Object arg) {
-    LogInterceptor.instance.log(msg, arg);
+    LogInterceptor.instance().log(msg, arg);
     doInfo(msg, arg);
   }
 
   @Override
   public void info(String msg, @Nullable Object arg1, @Nullable Object arg2) {
-    LogInterceptor.instance.log(msg, arg1, arg2);
+    LogInterceptor.instance().log(msg, arg1, arg2);
     doInfo(msg, arg1, arg2);
   }
 
   @Override
   public void info(String msg, Object... args) {
-    LogInterceptor.instance.log(msg, args);
+    LogInterceptor.instance().log(msg, args);
     doInfo(msg, args);
   }
 
   @Override
   public void warn(String msg) {
-    LogInterceptor.instance.log(msg);
+    LogInterceptor.instance().log(msg);
     doWarn(msg);
   }
 
   @Override
   public void warn(String msg, @Nullable Object arg) {
-    LogInterceptor.instance.log(msg, arg);
+    LogInterceptor.instance().log(msg, arg);
     doWarn(msg, arg);
   }
 
   @Override
   public void warn(String msg, @Nullable Object arg1, @Nullable Object arg2) {
-    LogInterceptor.instance.log(msg, arg1, arg2);
+    LogInterceptor.instance().log(msg, arg1, arg2);
     doWarn(msg, arg1, arg2);
   }
 
   @Override
   public void warn(String msg, Object... args) {
-    LogInterceptor.instance.log(msg, args);
+    LogInterceptor.instance().log(msg, args);
     doWarn(msg, args);
   }
 
   @Override
   public void error(String msg) {
-    LogInterceptor.instance.log(msg);
+    LogInterceptor.instance().log(msg);
     doError(msg);
   }
 
   @Override
   public void error(String msg, @Nullable Object arg) {
-    LogInterceptor.instance.log(msg, arg);
+    LogInterceptor.instance().log(msg, arg);
     doError(msg, arg);
   }
 
   @Override
   public void error(String msg, @Nullable Object arg1, @Nullable Object arg2) {
-    LogInterceptor.instance.log(msg, arg1, arg2);
+    LogInterceptor.instance().log(msg, arg1, arg2);
     doError(msg, arg1, arg2);
   }
 
   @Override
   public void error(String msg, Object... args) {
-    LogInterceptor.instance.log(msg, args);
+    LogInterceptor.instance().log(msg, args);
     doError(msg, args);
   }
 
   @Override
   public void error(String msg, Throwable thrown) {
-    LogInterceptor.instance.log(msg, thrown);
+    LogInterceptor.instance().log(msg, thrown);
     doError(msg, thrown);
   }
+
+  abstract void doTrace(String msg);
+
+  abstract void doTrace(String msg, @Nullable Object arg);
+
+  abstract void doTrace(String msg, @Nullable Object arg1, @Nullable Object arg2);
+
+  abstract void doTrace(String msg, Object... args);
 
   abstract void doDebug(String msg);
 
@@ -132,9 +164,6 @@ abstract class BaseLogger implements Logger {
 
   abstract void doDebug(String msg, Object... args);
 
-  /**
-   * Logs an INFO level message.
-   */
   abstract void doInfo(String msg);
 
   abstract void doInfo(String msg, @Nullable Object arg);
@@ -143,9 +172,6 @@ abstract class BaseLogger implements Logger {
 
   abstract void doInfo(String msg, Object... args);
 
-  /**
-   * Logs a WARN level message.
-   */
   abstract void doWarn(String msg);
 
   abstract void doWarn(String msg, @Nullable Object arg);
@@ -154,9 +180,6 @@ abstract class BaseLogger implements Logger {
 
   abstract void doWarn(String msg, Object... args);
 
-  /**
-   * Logs an ERROR level message.
-   */
   abstract void doError(String msg);
 
   abstract void doError(String msg, @Nullable Object arg);
@@ -166,4 +189,24 @@ abstract class BaseLogger implements Logger {
   abstract void doError(String msg, Object... args);
 
   abstract void doError(String msg, Throwable thrown);
+
+  void log(LoggerLevel level, String msg) {
+    switch (level) {
+      case TRACE:
+        trace(msg);
+        break;
+      case DEBUG:
+        debug(msg);
+        break;
+      case INFO:
+        info(msg);
+        break;
+      case WARN:
+        warn(msg);
+        break;
+      case ERROR:
+        error(msg);
+        break;
+    }
+  }
 }

@@ -20,43 +20,36 @@
 package org.sonar.server.measure;
 
 import com.google.common.base.Joiner;
-import org.apache.commons.lang.SystemUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.profiling.Profiling;
-import org.sonar.core.profiling.Profiling.Level;
-import org.sonar.core.profiling.StopWatch;
+import org.sonar.api.utils.log.Profiler;
 
 import javax.annotation.Nullable;
-
 import java.util.List;
 import java.util.Map;
 
 public class MeasureFilterEngine implements ServerComponent {
 
-  private static final Logger LOG = Loggers.get("org.sonar.MEASURE_FILTER");
+  private static final Logger LOG = Loggers.get("MeasureFilter");
 
   private final MeasureFilterFactory factory;
   private final MeasureFilterExecutor executor;
-  private final Profiling profiling;
 
-  public MeasureFilterEngine(MeasureFilterFactory factory, MeasureFilterExecutor executor, Profiling profiling) {
+  public MeasureFilterEngine(MeasureFilterFactory factory, MeasureFilterExecutor executor) {
     this.executor = executor;
     this.factory = factory;
-    this.profiling = profiling;
   }
 
   public MeasureFilterResult execute(Map<String, Object> filterMap, @Nullable Long userId) {
-    StopWatch watch = profiling.start("measures", Level.BASIC);
-    StopWatch sqlWatch = null;
+    Profiler profiler = Profiler.createIfDebug(LOG).start();
     MeasureFilterResult result = new MeasureFilterResult();
     MeasureFilterContext context = new MeasureFilterContext();
     context.setUserId(userId);
     context.setData(String.format("{%s}", Joiner.on('|').withKeyValueSeparator("=").join(filterMap)));
     try {
+      profiler.addContext("request", context.getData());
       MeasureFilter filter = factory.create(filterMap);
-      sqlWatch = profiling.start("sql", Level.FULL);
       List<MeasureFilterRow> rows = executor.execute(filter, context);
       result.setRows(rows);
 
@@ -67,20 +60,9 @@ public class MeasureFilterEngine implements ServerComponent {
       result.setError(MeasureFilterResult.Error.UNKNOWN);
       LOG.error("Fail to execute measure filter: " + context, e);
     } finally {
-      if (sqlWatch != null) {
-        sqlWatch.stop(context.getSql());
-      }
-      watch.stop(log(context, result));
+      profiler.addContext("result", result.toString());
+      profiler.stopDebug("Measure filter executed");
     }
     return result;
   }
-
-  private String log(MeasureFilterContext context, MeasureFilterResult result) {
-    StringBuilder log = new StringBuilder();
-    log.append(SystemUtils.LINE_SEPARATOR);
-    log.append("request: ").append(context.getData()).append(SystemUtils.LINE_SEPARATOR);
-    log.append(" result: ").append(result.toString());
-    return log.toString();
-  }
-
 }

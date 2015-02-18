@@ -22,10 +22,11 @@ package org.sonar.server.es.request;
 
 import org.elasticsearch.action.admin.indices.cache.clear.ClearIndicesCacheRequestBuilder;
 import org.elasticsearch.common.unit.TimeValue;
-import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.core.profiling.Profiling;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.es.EsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,10 +37,8 @@ public class ProxyClearCacheRequestBuilderTest {
   @ClassRule
   public static EsTester esTester = new EsTester();
 
-  @Before
-  public void setUp() throws Exception {
-    esTester.setProfilingLevel(Profiling.Level.NONE);
-  }
+  @Rule
+  public LogTester logTester = new LogTester();
 
   @Test
   public void clear_cache() {
@@ -59,12 +58,21 @@ public class ProxyClearCacheRequestBuilderTest {
   }
 
   @Test
-  public void with_profiling_full() {
-    esTester.setProfilingLevel(Profiling.Level.FULL);
+  public void trace_logs() {
+    logTester.setLevel(LoggerLevel.TRACE);
     ClearIndicesCacheRequestBuilder requestBuilder = esTester.client().prepareClearCache();
     requestBuilder.get();
 
-    // TODO assert profiling
+    assertThat(logTester.logs()).hasSize(1);
+  }
+
+  @Test
+  public void no_trace_logs() {
+    logTester.setLevel(LoggerLevel.DEBUG);
+    ClearIndicesCacheRequestBuilder requestBuilder = esTester.client().prepareClearCache();
+    requestBuilder.get();
+
+    assertThat(logTester.logs()).isEmpty();
   }
 
   @Test

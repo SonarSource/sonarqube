@@ -26,9 +26,9 @@ import com.google.common.collect.Maps;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
-import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.utils.log.Profiler;
 import org.sonar.core.qualitygate.db.QualityGateConditionDao;
 import org.sonar.jpa.dao.MeasuresDao;
 
@@ -59,7 +59,7 @@ public class RegisterMetrics {
   }
 
   public void start() {
-    TimeProfiler profiler = new TimeProfiler().start("Load metrics");
+    Profiler profiler = Profiler.create(LOG).startInfo("Register metrics");
     measuresDao.disableAutomaticMetrics();
 
     List<Metric> metricsToRegister = newArrayList();
@@ -67,7 +67,7 @@ public class RegisterMetrics {
     metricsToRegister.addAll(getMetricsRepositories());
     register(metricsToRegister);
     cleanAlerts();
-    profiler.stop();
+    profiler.stopDebug();
   }
 
   @VisibleForTesting

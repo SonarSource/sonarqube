@@ -20,11 +20,10 @@
 
 package org.sonar.server.startup;
 
-
 import org.sonar.api.security.DefaultGroups;
-import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.utils.log.Profiler;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.PermissionTemplateDao;
 import org.sonar.core.permission.PermissionTemplateDto;
@@ -55,7 +54,7 @@ public class RegisterPermissionTemplates {
   }
 
   public void start() {
-    TimeProfiler profiler = new TimeProfiler(LOG).start("Register permission templates");
+    Profiler profiler = Profiler.create(Loggers.get(getClass())).startInfo("Register permission templates");
 
     if (shouldRegister()) {
       if (hasExistingPermissionsConfig()) {
@@ -67,7 +66,7 @@ public class RegisterPermissionTemplates {
       }
       registerInitialization();
     }
-    profiler.stop();
+    profiler.stopDebug();
   }
 
   private boolean hasExistingPermissionsConfig() {

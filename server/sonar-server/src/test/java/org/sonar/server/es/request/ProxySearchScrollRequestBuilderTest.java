@@ -23,10 +23,11 @@ package org.sonar.server.es.request;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.unit.TimeValue;
-import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.core.profiling.Profiling;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.FakeIndexDefinition;
 
@@ -38,31 +39,33 @@ public class ProxySearchScrollRequestBuilderTest {
   @ClassRule
   public static EsTester esTester = new EsTester().addDefinitions(new FakeIndexDefinition());
 
-  @Before
-  public void setUp() throws Exception {
-    esTester.setProfilingLevel(Profiling.Level.NONE);
-  }
+  @Rule
+  public LogTester logTester = new LogTester();
 
   @Test
-  public void search_scroll() {
-    SearchResponse response = esTester.client().prepareSearch(FakeIndexDefinition.INDEX)
-      .setSearchType(SearchType.SCAN)
-      .setScroll(TimeValue.timeValueMinutes(1))
-      .get();
-    esTester.client().prepareSearchScroll(response.getScrollId()).get();
-  }
-
-  @Test
-  public void with_profiling_full() {
-    esTester.setProfilingLevel(Profiling.Level.FULL);
+  public void trace_logs() {
+    logTester.setLevel(LoggerLevel.TRACE);
 
     SearchResponse response = esTester.client().prepareSearch(FakeIndexDefinition.INDEX)
       .setSearchType(SearchType.SCAN)
       .setScroll(TimeValue.timeValueMinutes(1))
       .get();
+    logTester.clear();
     esTester.client().prepareSearchScroll(response.getScrollId()).get();
+    assertThat(logTester.logs()).hasSize(1);
+  }
 
-    // TODO assert profiling
+  @Test
+  public void no_trace_logs() {
+    logTester.setLevel(LoggerLevel.DEBUG);
+
+    SearchResponse response = esTester.client().prepareSearch(FakeIndexDefinition.INDEX)
+      .setSearchType(SearchType.SCAN)
+      .setScroll(TimeValue.timeValueMinutes(1))
+      .get();
+    logTester.clear();
+    esTester.client().prepareSearchScroll(response.getScrollId()).get();
+    assertThat(logTester.logs()).isEmpty();
   }
 
   @Test

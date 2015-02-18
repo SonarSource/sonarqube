@@ -19,9 +19,11 @@
  */
 package org.sonar.api.utils.log;
 
+import com.google.common.base.Preconditions;
+
 abstract class LogInterceptor {
 
-  static LogInterceptor instance = NullInterceptor.NULL_INSTANCE;
+  private static LogInterceptor instance = NullInterceptor.NULL_INSTANCE;
 
   abstract void log(String msg);
 
@@ -32,4 +34,13 @@ abstract class LogInterceptor {
   abstract void log(String msg, Object... args);
 
   abstract void log(String msg, Throwable thrown);
+
+  static LogInterceptor instance() {
+    return instance;
+  }
+
+  static void setInstance(LogInterceptor li) {
+    Preconditions.checkArgument(li != null);
+    instance = li;
+  }
 }

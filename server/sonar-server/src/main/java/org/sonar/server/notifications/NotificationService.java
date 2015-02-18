@@ -31,7 +31,6 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.notifications.NotificationDispatcher;
-import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.notification.DefaultNotificationManager;
@@ -69,8 +68,6 @@ public class NotificationService implements ServerComponent, Startable {
 
   public static final String PROPERTY_DELAY = "sonar.notifications.delay";
   public static final String PROPERTY_DELAY_BEFORE_REPORTING_STATUS = "sonar.notifications.runningDelayBeforeReportingStatus";
-
-  private static final TimeProfiler TIME_PROFILER = new TimeProfiler(LOG).setLevelToDebug();
 
   private final long delayInSeconds;
   private final long delayBeforeReportingStatusInSeconds;
@@ -129,7 +126,6 @@ public class NotificationService implements ServerComponent, Startable {
 
   @VisibleForTesting
   synchronized void processQueue() {
-    TIME_PROFILER.start("Processing notifications queue");
     long start = now();
     long lastLog = start;
     long notifSentCount = 0;
@@ -150,8 +146,6 @@ public class NotificationService implements ServerComponent, Startable {
       }
       notifToSend = manager.getFromQueue();
     }
-
-    TIME_PROFILER.stop();
   }
 
   @VisibleForTesting

@@ -32,15 +32,13 @@ import org.sonar.api.batch.rule.internal.NewRule;
 import org.sonar.api.batch.rule.internal.RulesBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Durations;
-import org.sonar.api.utils.TimeProfiler;
-import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.utils.log.Profiler;
 import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 
 import javax.annotation.Nullable;
-
 import java.util.List;
 
 /**
@@ -48,15 +46,13 @@ import java.util.List;
  */
 public class RulesProvider extends ProviderAdapter {
 
-  private static final Logger LOG = Loggers.get(RulesProvider.class);
-
   private Rules singleton = null;
 
   public Rules provide(RuleDao ruleDao, DebtModel debtModel, Durations durations) {
     if (singleton == null) {
-      TimeProfiler profiler = new TimeProfiler(LOG).start("Loading rules");
+      Profiler profiler = Profiler.create(Loggers.get(getClass())).startInfo("Load rules");
       singleton = load(ruleDao, (DefaultDebtModel) debtModel, durations);
-      profiler.stop();
+      profiler.stopDebug();
     }
     return singleton;
   }
@@ -125,7 +121,7 @@ public class RulesProvider extends ProviderAdapter {
    * Return true is the characteristic has not been overridden and a default characteristic is existing or
    * if the characteristic has been overridden but is not disabled
    */
-  private boolean hasCharacteristic(RuleDto ruleDto){
+  private boolean hasCharacteristic(RuleDto ruleDto) {
     Integer subCharacteristicId = ruleDto.getSubCharacteristicId();
     return (subCharacteristicId == null && ruleDto.getDefaultSubCharacteristicId() != null) ||
       (subCharacteristicId != null && !RuleDto.DISABLED_CHARACTERISTIC_ID.equals(subCharacteristicId));

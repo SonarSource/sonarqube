@@ -26,28 +26,25 @@ import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsReques
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
-import org.sonar.core.profiling.Profiling;
-import org.sonar.core.profiling.StopWatch;
+import org.sonar.api.utils.log.Profiler;
+import org.sonar.server.es.EsClient;
 
 public class ProxyIndicesExistsRequestBuilder extends IndicesExistsRequestBuilder {
 
-  private final Profiling profiling;
-
-  public ProxyIndicesExistsRequestBuilder(Client client, Profiling profiling, String... indices) {
+  public ProxyIndicesExistsRequestBuilder(Client client, String... indices) {
     super(client.admin().indices(), indices);
-    this.profiling = profiling;
   }
 
   @Override
   public IndicesExistsResponse get() {
-    StopWatch fullProfile = profiling.start("indices exists", Profiling.Level.FULL);
+    Profiler profiler = Profiler.createIfTrace(EsClient.LOGGER).start();
     try {
       return super.execute().actionGet();
     } catch (Exception e) {
       throw new IllegalStateException(String.format("Fail to execute %s", toString()), e);
     } finally {
-      if (profiling.isProfilingEnabled(Profiling.Level.BASIC)) {
-        fullProfile.stop("%s", toString());
+      if (profiler.isTraceEnabled()) {
+        profiler.stopTrace(toString());
       }
     }
   }

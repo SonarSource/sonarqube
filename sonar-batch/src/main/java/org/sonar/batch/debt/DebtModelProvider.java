@@ -27,27 +27,23 @@ import org.sonar.api.batch.debt.DebtCharacteristic;
 import org.sonar.api.batch.debt.DebtModel;
 import org.sonar.api.batch.debt.internal.DefaultDebtCharacteristic;
 import org.sonar.api.batch.debt.internal.DefaultDebtModel;
-import org.sonar.api.utils.TimeProfiler;
-import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.utils.log.Profiler;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 
 import javax.annotation.Nullable;
-
 import java.util.List;
 
 public class DebtModelProvider extends ProviderAdapter {
-
-  private static final Logger LOG = Loggers.get(DebtModelProvider.class);
 
   private DebtModel model;
 
   public DebtModel provide(CharacteristicDao dao) {
     if (model == null) {
-      TimeProfiler profiler = new TimeProfiler(LOG).start("Loading technical debt model");
+      Profiler profiler = Profiler.create(Loggers.get(getClass())).startInfo("Load technical debt model");
       model = load(dao);
-      profiler.stop();
+      profiler.stopDebug();
     }
     return model;
   }
