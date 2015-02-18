@@ -17,29 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.ws;
+package org.sonar.server.platform.monitoring;
 
 import org.junit.Test;
-import org.sonar.api.config.Settings;
-import org.sonar.api.server.ws.WebService;
-import org.sonar.server.platform.Platform;
+
+import java.util.LinkedHashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
-public class SystemWsTest {
+public class SystemMonitorTest {
+
+  SystemMonitor sut = new SystemMonitor();
 
   @Test
-  public void define() throws Exception {
-    SystemRestartWsAction action1 = new SystemRestartWsAction(mock(Settings.class), mock(Platform.class));
-    SystemInfoWsAction action2 = new SystemInfoWsAction();
-    SystemWs ws = new SystemWs(action1, action2);
-    WebService.Context context = new WebService.Context();
+  public void name() throws Exception {
+    assertThat(sut.name()).isEqualTo("System");
+  }
 
-    ws.define(context);
+  @Test
+  public void system_properties() throws Exception {
+    LinkedHashMap<String, Object> attributes = sut.attributes();
 
-    assertThat(context.controllers()).hasSize(1);
-    assertThat(context.controller("api/system").actions()).hasSize(2);
-    assertThat(context.controller("api/system").action("info")).isNotNull();
+    assertThat(attributes).containsKeys("System Date", "Processors");
   }
 }

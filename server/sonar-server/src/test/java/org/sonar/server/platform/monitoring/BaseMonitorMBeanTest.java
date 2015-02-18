@@ -17,29 +17,45 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.ws;
+package org.sonar.server.platform.monitoring;
 
 import org.junit.Test;
-import org.sonar.api.config.Settings;
-import org.sonar.api.server.ws.WebService;
-import org.sonar.server.platform.Platform;
+
+import javax.annotation.CheckForNull;
+import javax.management.InstanceNotFoundException;
+import javax.management.ObjectInstance;
+import java.lang.management.ManagementFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
-public class SystemWsTest {
+public class BaseMonitorMBeanTest {
+
+  FakeMonitor sut = new FakeMonitor();
 
   @Test
-  public void define() throws Exception {
-    SystemRestartWsAction action1 = new SystemRestartWsAction(mock(Settings.class), mock(Platform.class));
-    SystemInfoWsAction action2 = new SystemInfoWsAction();
-    SystemWs ws = new SystemWs(action1, action2);
-    WebService.Context context = new WebService.Context();
+  public void test_registration() throws Exception {
+    assertThat(getMBean()).isNull();
 
-    ws.define(context);
+    sut.start();
+    assertThat(getMBean()).isNotNull();
 
-    assertThat(context.controllers()).hasSize(1);
-    assertThat(context.controller("api/system").actions()).hasSize(2);
-    assertThat(context.controller("api/system").action("info")).isNotNull();
+    sut.stop();
+    assertThat(getMBean()).isNull();
   }
+
+  @Test
+  public void do_not_fail_when_stopping_unstarted() throws Exception {
+    sut.stop();
+    assertThat(getMBean()).isNull();
+  }
+
+  @CheckForNull
+  private ObjectInstance getMBean() throws Exception {
+    try {
+      return ManagementFactory.getPlatformMBeanServer().getObjectInstance(sut.objectName());
+    } catch (InstanceNotFoundException e) {
+      return null;
+    }
+  }
+
 }

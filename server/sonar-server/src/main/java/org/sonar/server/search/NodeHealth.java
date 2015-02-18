@@ -42,108 +42,6 @@ public class NodeHealth {
   private long filterCacheMemory;
   private List<Performance> performanceStats;
 
-  public boolean isMaster() {
-    return master;
-  }
-
-  void setMaster(boolean master) {
-    this.master = master;
-  }
-
-  public String getAddress() {
-    return address;
-  }
-
-  void setAddress(String address) {
-    this.address = address;
-  }
-
-  void setJvmHeapMax(long bytes) {
-    this.jvmHeapMax = bytes;
-  }
-
-  void setJvmHeapUsed(long bytes) {
-    this.jvmHeapUsed = bytes;
-  }
-
-  public long getJvmHeapMax() {
-    return jvmHeapMax;
-  }
-
-  public long getJvmHeapUsed() {
-    return jvmHeapUsed;
-  }
-
-  public String getJvmHeapUsedPercent() {
-    return formatPercent(getJvmHeapUsed(), getJvmHeapMax());
-  }
-
-  void setFsAvailable(long bytes) {
-    this.fsAvailable = bytes;
-  }
-
-  void setFsTotal(long bytes) {
-    this.fsTotal = bytes;
-  }
-
-  public String getFsUsedPercent() {
-    return formatPercent(fsTotal - fsAvailable, fsTotal);
-  }
-
-  private String formatPercent(long amount, long total) {
-    return String.format("%.1f%%", 100 * amount * 1.0D / total);
-  }
-
-  void setJvmThreads(long threads) {
-    this.jvmThreads = threads;
-  }
-
-  public long getJvmThreads() {
-    return jvmThreads;
-  }
-
-  void setProcessCpuPercent(int cpuPercent) {
-    this.cpuPercent = cpuPercent;
-  }
-
-  public String getProcessCpuPercent() {
-    return formatPercent(cpuPercent, 100L);
-  }
-
-  void setOpenFiles(long avgOpenFileDescriptors) {
-    this.openFiles = avgOpenFileDescriptors;
-  }
-
-  long getOpenFiles() {
-    return openFiles;
-  }
-
-  void setJvmUptimeMillis(long millis) {
-    this.jvmUptimeMillis = millis;
-  }
-
-  public long getJvmUptimeMillis() {
-    return jvmUptimeMillis;
-  }
-
-  public Date getJvmUpSince() {
-    Calendar calendar = Calendar.getInstance();
-    calendar.setTimeInMillis(calendar.getTimeInMillis() - getJvmUptimeMillis());
-    return calendar.getTime();
-  }
-
-  public List<Performance> getPerformanceStats() {
-    return performanceStats;
-  }
-
-  public long getFieldCacheMemory() {
-    return fieldCacheMemory;
-  }
-
-  public long getFilterCacheMemory() {
-    return filterCacheMemory;
-  }
-
   NodeHealth(NodeStats nodesStats) {
     // Master/slave
     setMaster(nodesStats.getNode().isMasterNode());
@@ -178,6 +76,108 @@ public class NodeHealth {
     initPerformanceStats(nodesStats);
   }
 
+  public boolean isMaster() {
+    return master;
+  }
+
+  void setMaster(boolean master) {
+    this.master = master;
+  }
+
+  public String getAddress() {
+    return address;
+  }
+
+  void setAddress(String address) {
+    this.address = address;
+  }
+
+  public long getJvmHeapMax() {
+    return jvmHeapMax;
+  }
+
+  void setJvmHeapMax(long bytes) {
+    this.jvmHeapMax = bytes;
+  }
+
+  public long getJvmHeapUsed() {
+    return jvmHeapUsed;
+  }
+
+  void setJvmHeapUsed(long bytes) {
+    this.jvmHeapUsed = bytes;
+  }
+
+  public String getJvmHeapUsedPercent() {
+    return formatPercent(getJvmHeapUsed(), getJvmHeapMax());
+  }
+
+  void setFsAvailable(long bytes) {
+    this.fsAvailable = bytes;
+  }
+
+  void setFsTotal(long bytes) {
+    this.fsTotal = bytes;
+  }
+
+  public String getFsUsedPercent() {
+    return formatPercent(fsTotal - fsAvailable, fsTotal);
+  }
+
+  private String formatPercent(long amount, long total) {
+    return String.format("%.1f%%", 100 * amount * 1.0D / total);
+  }
+
+  public long getJvmThreads() {
+    return jvmThreads;
+  }
+
+  void setJvmThreads(long threads) {
+    this.jvmThreads = threads;
+  }
+
+  public String getProcessCpuPercent() {
+    return formatPercent(cpuPercent, 100L);
+  }
+
+  void setProcessCpuPercent(int cpuPercent) {
+    this.cpuPercent = cpuPercent;
+  }
+
+  public long getOpenFiles() {
+    return openFiles;
+  }
+
+  void setOpenFiles(long avgOpenFileDescriptors) {
+    this.openFiles = avgOpenFileDescriptors;
+  }
+
+  public long getJvmUptimeMillis() {
+    return jvmUptimeMillis;
+  }
+
+  void setJvmUptimeMillis(long millis) {
+    this.jvmUptimeMillis = millis;
+  }
+
+  public Date getJvmUpSince() {
+    Calendar calendar = Calendar.getInstance();
+    calendar.setTimeInMillis(calendar.getTimeInMillis() - getJvmUptimeMillis());
+    return calendar.getTime();
+  }
+
+  public List<Performance> getPerformanceStats() {
+    return performanceStats;
+  }
+
+  public long getFieldCacheMemory() {
+    return fieldCacheMemory;
+  }
+
+  public long getFilterCacheMemory() {
+    return filterCacheMemory;
+  }
+
   private void initPerformanceStats(NodeStats nodesStats) {
     // Performance Stat
     performanceStats = new ArrayList<Performance>();
@@ -190,7 +190,7 @@ public class NodeHealth {
         .setWarnThreshold(10)
         .setErrorThreshold(50)
         .setMessage("Too complex documents or low IO/CPU")
-        .setValue(indexCount > 0L ? indexTotalTime / (double)indexCount : 0.0));
+        .setValue(indexCount > 0L ? indexTotalTime / (double) indexCount : 0.0));
 
     // Query stats
     long queryCount = nodesStats.getIndices().getSearch().getTotal().getQueryCount();
@@ -200,7 +200,7 @@ public class NodeHealth {
         .setWarnThreshold(50)
         .setErrorThreshold(500)
         .setMessage("Inefficient query and/or filters")
-        .setValue(queryCount > 0L ? queryTotalTime / (double)queryCount : 0.0));
+        .setValue(queryCount > 0L ? queryTotalTime / (double) queryCount : 0.0));
 
     // Fetch stats
     long fetchCount = nodesStats.getIndices().getSearch().getTotal().getFetchCount();
@@ -210,7 +210,7 @@ public class NodeHealth {
         .setWarnThreshold(8)
         .setErrorThreshold(15)
         .setMessage("Slow IO, fetch-size too large or documents too big")
-        .setValue(fetchCount > 0L ? fetchTotalTime / (double)fetchCount : 0.0));
+        .setValue(fetchCount > 0L ? fetchTotalTime / (double) fetchCount : 0.0));
 
     // Get stats
     long getCount = nodesStats.getIndices().getGet().getCount();
@@ -220,7 +220,7 @@ public class NodeHealth {
         .setWarnThreshold(5)
         .setErrorThreshold(10)
         .setMessage("Slow IO")
-        .setValue(getCount > 0L ? getTotalTime / (double)getCount : 0.0));
+        .setValue(getCount > 0L ? getTotalTime / (double) getCount : 0.0));
 
     // Refresh Stat
     long refreshCount = nodesStats.getIndices().getRefresh().getTotal();
@@ -230,7 +230,7 @@ public class NodeHealth {
         .setWarnThreshold(10)
         .setErrorThreshold(20)
         .setMessage("Slow IO")
-        .setValue(refreshCount > 0L ? refreshTotalTime / (double)refreshCount : 0.0));
+        .setValue(refreshCount > 0L ? refreshTotalTime / (double) refreshCount : 0.0));
 
     // Field Cache
     fieldCacheMemory = nodesStats.getIndices().getFieldData().getMemorySizeInBytes();
@@ -255,16 +255,11 @@ public class NodeHealth {
 
   public static class Performance {
 
-    public static enum Status {
-      OK, WARN, ERROR
-    }
-
     private final String name;
     private String message;
     private double value;
     private double warnThreshold;
     private double errorThreshold;
-
     public Performance(String name) {
       this.name = name;
     }
@@ -309,6 +304,10 @@ public class NodeHealth {
     public Performance setErrorThreshold(long errorThreshold) {
       this.errorThreshold = errorThreshold;
       return this;
+    }
+
+    public static enum Status {
+      OK, WARN, ERROR
     }
   }
 }

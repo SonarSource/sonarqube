@@ -31,20 +31,30 @@ class Server
     add_property(system_info, 'JVM Vendor') { java.lang.management.ManagementFactory.getRuntimeMXBean().getVmVendor() }
     add_property(system_info, 'JVM Name') { java.lang.management.ManagementFactory.getRuntimeMXBean().getVmName() }
     add_property(system_info, 'JVM Version') { java.lang.management.ManagementFactory.getRuntimeMXBean().getVmVersion() }
-    add_property(system_info, 'Java Version') { java_property('java.runtime.version') }
-    add_property(system_info, 'Java Home') { java_property('java.home') }
-    add_property(system_info, 'JIT Compiler') { java_property('java.compiler') }
-    add_property(system_info, 'Application Server Container') { $servlet_context.getServerInfo() }
-    add_property(system_info, 'User Name') { java_property('user.name') }
-    add_property(system_info, 'User TimeZone') { java_property('user.timezone') }
-    add_property(system_info, 'OS') { "#{java_property('os.name')} / #{java_property('os.arch')} / #{java_property('os.version')}" }
+    #add_property(system_info, 'Java Version') { java_property('java.runtime.version') }
+    #add_property(system_info, 'Java Home') { java_property('java.home') }
+    #add_property(system_info, 'JIT Compiler') { java_property('java.compiler') }
+    #add_property(system_info, 'Application Server Container') { $servlet_context.getServerInfo() }
+    #add_property(system_info, 'User Name') { java_property('user.name') }
+    #add_property(system_info, 'User TimeZone') { java_property('user.timezone') }
+    #add_property(system_info, 'OS') { "#{java_property('os.name')} / #{java_property('os.arch')} / #{java_property('os.version')}" }
     add_property(system_info, 'Processors') { java.lang.Runtime.getRuntime().availableProcessors() }
     add_property(system_info, 'System Classpath') { java.lang.management.ManagementFactory.getRuntimeMXBean().getClassPath() }
     add_property(system_info, 'Boot Classpath') { java.lang.management.ManagementFactory.getRuntimeMXBean().getBootClassPath() }
     add_property(system_info, 'Library Path') { java.lang.management.ManagementFactory.getRuntimeMXBean().getLibraryPath() }
+    add_property(system_statistics, 'Total Memory') { "#{java.lang.Runtime.getRuntime().totalMemory() / 1000000} MB" }
+    add_property(system_statistics, 'Free Memory') { "#{java.lang.Runtime.getRuntime().freeMemory() / 1000000} MB" }
+    add_property(system_statistics, 'Max Memory') { "#{java.lang.Runtime.getRuntime().maxMemory() / 1000000} MB" }
+    add_property(system_statistics, 'Heap') { "#{java.lang.management.ManagementFactory.getMemoryMXBean().getHeapMemoryUsage()}" }
+    add_property(system_statistics, 'Non Heap') { "#{java.lang.management.ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage()}" }
+    add_property(system_statistics, 'System Load Average (last minute)') { system_load_average() }
+    add_property(system_statistics, 'Loaded Classes (currently/total/unloaded)') { "#{java.lang.management.ManagementFactory.getClassLoadingMXBean().getLoadedClassCount()} / #{java.lang.management.ManagementFactory.getClassLoadingMXBean().getTotalLoadedClassCount()} / #{java.lang.management.ManagementFactory.getClassLoadingMXBean().getUnloadedClassCount()}" }
+    add_property(system_statistics, 'Start Time') { "#{format_date(java.util.Date.new(java.lang.management.ManagementFactory.getRuntimeMXBean().getStartTime()))}" }
+    add_property(system_statistics, 'Threads (total/peak/daemon)') { "#{java.lang.management.ManagementFactory.getThreadMXBean().getThreadCount()} / #{java.lang.management.ManagementFactory.getThreadMXBean().getPeakThreadCount()} / #{java.lang.management.ManagementFactory.getThreadMXBean().getDaemonThreadCount() }" }
     system_info
   end
 
+  #TODO to remove
   def system_statistics
     system_statistics=[]
     add_property(system_statistics, 'Total Memory') { "#{java.lang.Runtime.getRuntime().totalMemory() / 1000000} MB" }
@@ -64,13 +74,13 @@ class Server
     add_property(sonar_info, 'Server ID') { sonar_property(ServerIdConfigurationController::PROPERTY_SERVER_ID) }
     add_property(sonar_info, 'Version') { org.sonar.server.platform.Platform.getServer().getVersion() }
     add_property(sonar_info, 'Started at') { org.sonar.server.platform.Platform.getServer().getStartedAt() }
-    add_property(sonar_info, 'Database') { "#{jdbc_metadata.getDatabaseProductName()} #{jdbc_metadata.getDatabaseProductVersion()}" }
-    add_property(sonar_info, 'Database URL') { sonar_property('sonar.jdbc.url') }
-    add_property(sonar_info, 'Database Login') { sonar_property('sonar.jdbc.username') }
-    add_property(sonar_info, 'Database Driver') { "#{jdbc_metadata.getDriverName()} #{jdbc_metadata.getDriverVersion()}" }
-    add_property(sonar_info, 'Database Active Connections') { "#{Java::OrgSonarServerUi::JRubyFacade.getInstance().getDatabase().getDataSource().getNumActive()}" }
-    add_property(sonar_info, 'Database Max. Active Connections') { sonar_property('sonar.jdbc.maxActive') }
-    add_property(sonar_info, 'Database Max. Pool Wait') { sonar_property('sonar.jdbc.maxWait') }
+    #add_property(sonar_info, 'Database') { "#{jdbc_metadata.getDatabaseProductName()} #{jdbc_metadata.getDatabaseProductVersion()}" }
+    #add_property(sonar_info, 'Database URL') { sonar_property('sonar.jdbc.url') }
+    #add_property(sonar_info, 'Database Login') { sonar_property('sonar.jdbc.username') }
+    #add_property(sonar_info, 'Database Driver') { "#{jdbc_metadata.getDriverName()} #{jdbc_metadata.getDriverVersion()}" }
+    #add_property(sonar_info, 'Database Active Connections') { "#{Java::OrgSonarServerUi::JRubyFacade.getInstance().getDatabase().getDataSource().getNumActive()}" }
+    #add_property(sonar_info, 'Database Max. Active Connections') { sonar_property('sonar.jdbc.maxActive') }
+    #add_property(sonar_info, 'Database Max. Pool Wait') { sonar_property('sonar.jdbc.maxWait') }
     add_property(sonar_info, 'External User Authentication') { realm_name }
     add_property(sonar_info, 'Automatic User Creation') { sonar_property(org.sonar.api.CoreProperties.CORE_AUTHENTICATOR_CREATE_USERS) }
     add_property(sonar_info, 'Allow Users to Sign Up') { sonar_property(org.sonar.api.CoreProperties.CORE_ALLOW_USERS_TO_SIGNUP_PROPERTY) }
@@ -124,6 +134,7 @@ class Server
     nodes_info
   end
 
+  #TODO should be removed
   def sonar_plugins
     sonar_plugins=[]
     Java::OrgSonarServerUi::JRubyFacade.getInstance().getPluginsMetadata().to_a.select { |plugin| !plugin.isCore() }.sort.each do |plugin|

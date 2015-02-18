@@ -140,10 +140,8 @@ import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.permission.InternalPermissionTemplateService;
 import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.permission.ws.PermissionsWs;
-import org.sonar.server.platform.ws.L10nWs;
-import org.sonar.server.platform.ws.RestartHandler;
-import org.sonar.server.platform.ws.ServerWs;
-import org.sonar.server.platform.ws.SystemWs;
+import org.sonar.server.platform.monitoring.*;
+import org.sonar.server.platform.ws.*;
 import org.sonar.server.plugins.*;
 import org.sonar.server.properties.ProjectSettingsFactory;
 import org.sonar.server.qualitygate.QgateProjectFinder;
@@ -308,11 +306,7 @@ class ServerComponents {
       JRubyI18n.class,
       DefaultI18n.class,
       RuleI18nManager.class,
-      Durations.class,
-
-      // ws
-      RestartHandler.class,
-      SystemWs.class
+      Durations.class
       );
   }
 
@@ -637,6 +631,20 @@ class ServerComponents {
 
     // Design
     pico.addSingleton(FileDesignWidget.class);
+
+    // System
+    pico.addSingletons(Arrays.asList(
+      SystemRestartWsAction.class,
+      SystemInfoWsAction.class,
+      SystemWs.class,
+      SystemMonitor.class,
+      SonarQubeMonitor.class,
+      EsClusterMonitor.class,
+      EsNodesMonitor.class,
+      PluginsMonitor.class,
+      JvmPropertiesMonitor.class,
+      DatabaseMonitor.class
+    ));
 
     // Compute engine
     pico.addSingleton(AnalysisReportQueue.class);

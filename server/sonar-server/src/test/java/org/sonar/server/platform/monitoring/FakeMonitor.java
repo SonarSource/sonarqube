@@ -17,29 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.ws;
+package org.sonar.server.platform.monitoring;
 
-import org.junit.Test;
-import org.sonar.api.config.Settings;
-import org.sonar.api.server.ws.WebService;
-import org.sonar.server.platform.Platform;
+import java.util.LinkedHashMap;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+public class FakeMonitor extends BaseMonitorMBean implements FakeMonitorMBean {
 
-public class SystemWsTest {
+  @Override
+  public int getFake() {
+    return 42;
+  }
 
-  @Test
-  public void define() throws Exception {
-    SystemRestartWsAction action1 = new SystemRestartWsAction(mock(Settings.class), mock(Platform.class));
-    SystemInfoWsAction action2 = new SystemInfoWsAction();
-    SystemWs ws = new SystemWs(action1, action2);
-    WebService.Context context = new WebService.Context();
+  @Override
+  public String name() {
+    return "fake";
+  }
 
-    ws.define(context);
-
-    assertThat(context.controllers()).hasSize(1);
-    assertThat(context.controller("api/system").actions()).hasSize(2);
-    assertThat(context.controller("api/system").action("info")).isNotNull();
+  @Override
+  public LinkedHashMap<String, Object> attributes() {
+    return new LinkedHashMap<>();
   }
 }

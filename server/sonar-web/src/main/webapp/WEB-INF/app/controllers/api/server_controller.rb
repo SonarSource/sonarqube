@@ -45,24 +45,6 @@ class Api::ServerController < Api::ApiController
     end
   end
 
-  def system
-    access_denied unless has_role?(:admin)
-    @server=Server.new
-    json=[
-      {:system_info => server_properties_to_json(@server.system_info)},
-      {:system_statistics => server_properties_to_json(@server.system_statistics)},
-      {:sonar_info => server_properties_to_json(@server.sonar_info)},
-      {:sonar_plugins => server_properties_to_json(@server.sonar_plugins)},
-      {:system_properties => server_properties_to_json(@server.system_properties)},
-      ]
-
-    respond_to do |format|
-      format.json{ render :json => jsonp(json) }
-      format.xml { render :xml => xml_not_supported }
-      format.text { render :text => text_not_supported}
-    end
-  end
-
   def setup
     verify_post_request
     manager=DatabaseMigrationManager.instance

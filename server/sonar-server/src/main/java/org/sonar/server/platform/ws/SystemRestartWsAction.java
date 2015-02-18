@@ -22,31 +22,28 @@ package org.sonar.server.platform.ws;
 
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.platform.Platform;
 
-public class RestartHandler implements RequestHandler {
+public class SystemRestartWsAction implements SystemWsAction {
 
   private final Settings settings;
   private final Platform platform;
-  private final System2 system;
 
-  public RestartHandler(Settings settings, Platform platform, System2 system) {
+  public SystemRestartWsAction(Settings settings, Platform platform) {
     this.settings = settings;
     this.platform = platform;
-    this.system = system;
   }
 
-  void define(WebService.NewController controller) {
+  @Override
+  public void define(WebService.NewController controller) {
     controller.createAction("restart")
-      .setDescription("Restart server. Available only on development mode (sonar.web.dev=true), except when using Java 6 " +
-        "on MS Windows. Ruby on Rails extensions are not reloaded")
+      .setDescription("Restart server. Available only on development mode (sonar.web.dev=true). " +
+        "Ruby on Rails extensions are not reloaded")
       .setSince("4.3")
       .setPost(true)
       .setHandler(this);
@@ -54,7 +51,7 @@ public class RestartHandler implements RequestHandler {
 
   @Override
   public void handle(Request request, Response response) {
-    if (canRestart()) {
+    if (settings.getBoolean("sonar.web.dev")) {
       Logger logger = Loggers.get(getClass());
       logger.info("Restart server");
       platform.restart();
@@ -65,13 +62,4 @@ public class RestartHandler implements RequestHandler {
       throw new ForbiddenException();
     }
   }
-
-  private boolean canRestart() {
-    boolean ok = settings.getBoolean("sonar.web.dev");
-    if (ok) {
-      ok = !system.isOsWindows() || system.isJavaAtLeast17();
-    }
-    return ok;
-  }
-
 }

@@ -21,63 +21,33 @@ package org.sonar.server.platform.ws;
 
 import org.junit.Test;
 import org.sonar.api.config.Settings;
-import org.sonar.api.utils.System2;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.ws.WsTester;
 
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
-public class RestartHandlerTest {
+public class SystemRestartWsActionTest {
 
-  System2 system = mock(System2.class);
+  Settings settings = new Settings();
+  Platform platform = mock(Platform.class);
+  SystemRestartWsAction sut = new SystemRestartWsAction(settings, platform);
 
   @Test
   public void restart_if_dev_mode() throws Exception {
-    Platform platform = mock(Platform.class);
-    Settings settings = new Settings();
     settings.setProperty("sonar.web.dev", true);
-    when(system.isOsWindows()).thenReturn(false);
 
-    RestartHandler restartHandler = new RestartHandler(settings, platform, system);
-    SystemWs ws = new SystemWs(restartHandler);
+    SystemWs ws = new SystemWs(sut);
 
     WsTester tester = new WsTester(ws);
     tester.newPostRequest("api/system", "restart").execute();
-
     verify(platform).restart();
   }
 
   @Test
   public void fail_if_production_mode() throws Exception {
-    Platform platform = mock(Platform.class);
-    Settings settings = new Settings();
-    RestartHandler restartHandler = new RestartHandler(settings, platform, system);
-    SystemWs ws = new SystemWs(restartHandler);
-
-    WsTester tester = new WsTester(ws);
-    try {
-      tester.newPostRequest("api/system", "restart").execute();
-      fail();
-    } catch (ForbiddenException e) {
-      verifyZeroInteractions(platform);
-    }
-  }
-
-  @Test
-  public void fail_if_windows_java_6() throws Exception {
-    Platform platform = mock(Platform.class);
-    Settings settings = new Settings();
-    settings.setProperty("sonar.web.dev", true);
-    when(system.isOsWindows()).thenReturn(true);
-    when(system.isJavaAtLeast17()).thenReturn(false);
-
-    RestartHandler restartHandler = new RestartHandler(settings, platform, system);
-    SystemWs ws = new SystemWs(restartHandler);
+    SystemWs ws = new SystemWs(sut);
 
     WsTester tester = new WsTester(ws);
     try {
