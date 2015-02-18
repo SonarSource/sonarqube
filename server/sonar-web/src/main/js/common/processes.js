@@ -26,12 +26,16 @@
         },
 
         fail: function (message) {
+          var that = this;
           clearInterval(this.get('timer'));
           this.set({
             state: 'failed',
             message: message || t('process.fail')
           });
           this.set('state', 'failed');
+          setTimeout(function () {
+            that.finish({ force: true });
+          }, 5000);
         }
       }),
 
