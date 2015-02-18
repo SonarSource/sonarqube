@@ -43,6 +43,8 @@ import static com.google.common.collect.Lists.newArrayList;
  * Add a new Characteristic 'Usability' with 2 sub-characteristics 'Accessibility' and 'Ease of Use'
  * and add a new sub-characteristic 'Compliance' for all characteristics.
  *
+ * Nothing will be done if there's no characteristics in db, as they're all gonna be created by {@link org.sonar.server.startup.RegisterDebtModel}
+ * 
  * @since 5.0.1
  */
 public class AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigration extends BaseDataChange {
@@ -63,17 +65,20 @@ public class AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigration 
   public void execute(Context context) throws SQLException {
     CharacteristicsContext characteristicsContext = new CharacteristicsContext(context, system);
 
-    int usabilityOder = moveCharacteristicsDownToBeAbleToInsertUsability(characteristicsContext);
-    createOrUpdateUsabilityCharacteristicAndItsSubCharacteristic(characteristicsContext, usabilityOder);
+    // On an empty DB, there are no characteristics, they're all gonna be created after in RegisterDebtModel
+    if (!characteristicsContext.characteristics().isEmpty()) {
+      int usabilityOder = moveCharacteristicsDownToBeAbleToInsertUsability(characteristicsContext);
+      createOrUpdateUsabilityCharacteristicAndItsSubCharacteristic(characteristicsContext, usabilityOder);
 
-    createSubCharacteristic(characteristicsContext, "REUSABILITY" + COMPLIANCE_KEY_SUFFIX, "Reusability " + COMPLIANCE_NAME, "REUSABILITY");
-    createSubCharacteristic(characteristicsContext, "PORTABILITY" + COMPLIANCE_KEY_SUFFIX, "Portability " + COMPLIANCE_NAME, "PORTABILITY");
-    createSubCharacteristic(characteristicsContext, "MAINTAINABILITY" + COMPLIANCE_KEY_SUFFIX, "Maintainability " + COMPLIANCE_NAME, "MAINTAINABILITY");
-    createSubCharacteristic(characteristicsContext, "SECURITY" + COMPLIANCE_KEY_SUFFIX, "Security " + COMPLIANCE_NAME, "SECURITY");
-    createSubCharacteristic(characteristicsContext, "EFFICIENCY" + COMPLIANCE_KEY_SUFFIX, "Efficiency " + COMPLIANCE_NAME, "EFFICIENCY");
-    createSubCharacteristic(characteristicsContext, "CHANGEABILITY" + COMPLIANCE_KEY_SUFFIX, "Changeability " + COMPLIANCE_NAME, "CHANGEABILITY");
-    createSubCharacteristic(characteristicsContext, "RELIABILITY" + COMPLIANCE_KEY_SUFFIX, "Reliability " + COMPLIANCE_NAME, "RELIABILITY");
-    createSubCharacteristic(characteristicsContext, "TESTABILITY" + COMPLIANCE_KEY_SUFFIX, "Testability " + COMPLIANCE_NAME, "TESTABILITY");
+      createSubCharacteristic(characteristicsContext, "REUSABILITY" + COMPLIANCE_KEY_SUFFIX, "Reusability " + COMPLIANCE_NAME, "REUSABILITY");
+      createSubCharacteristic(characteristicsContext, "PORTABILITY" + COMPLIANCE_KEY_SUFFIX, "Portability " + COMPLIANCE_NAME, "PORTABILITY");
+      createSubCharacteristic(characteristicsContext, "MAINTAINABILITY" + COMPLIANCE_KEY_SUFFIX, "Maintainability " + COMPLIANCE_NAME, "MAINTAINABILITY");
+      createSubCharacteristic(characteristicsContext, "SECURITY" + COMPLIANCE_KEY_SUFFIX, "Security " + COMPLIANCE_NAME, "SECURITY");
+      createSubCharacteristic(characteristicsContext, "EFFICIENCY" + COMPLIANCE_KEY_SUFFIX, "Efficiency " + COMPLIANCE_NAME, "EFFICIENCY");
+      createSubCharacteristic(characteristicsContext, "CHANGEABILITY" + COMPLIANCE_KEY_SUFFIX, "Changeability " + COMPLIANCE_NAME, "CHANGEABILITY");
+      createSubCharacteristic(characteristicsContext, "RELIABILITY" + COMPLIANCE_KEY_SUFFIX, "Reliability " + COMPLIANCE_NAME, "RELIABILITY");
+      createSubCharacteristic(characteristicsContext, "TESTABILITY" + COMPLIANCE_KEY_SUFFIX, "Testability " + COMPLIANCE_NAME, "TESTABILITY");
+    }
   }
 
   /**
@@ -146,17 +151,12 @@ public class AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigration 
     private Integer order;
     private Integer parentId;
 
-    public Characteristic setId(Integer id) {
-      this.id = id;
-      return this;
-    }
-
     public Integer getId() {
       return id;
     }
 
-    public Characteristic setKey(String key) {
-      this.key = key;
+    public Characteristic setId(Integer id) {
+      this.id = id;
       return this;
     }
 
@@ -164,8 +164,8 @@ public class AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigration 
       return key;
     }
 
-    public Characteristic setName(String name) {
-      this.name = name;
+    public Characteristic setKey(String key) {
+      this.key = key;
       return this;
     }
 
@@ -173,8 +173,8 @@ public class AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigration 
       return name;
     }
 
-    public Characteristic setOrder(@Nullable Integer order) {
-      this.order = order;
+    public Characteristic setName(String name) {
+      this.name = name;
       return this;
     }
 
@@ -183,8 +183,8 @@ public class AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigration 
       return order;
     }
 
-    public Characteristic setParentId(@Nullable Integer parentId) {
-      this.parentId = parentId;
+    public Characteristic setOrder(@Nullable Integer order) {
+      this.order = order;
       return this;
     }
 
@@ -192,11 +192,16 @@ public class AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigration 
     public Integer getParentId() {
       return parentId;
     }
+
+    public Characteristic setParentId(@Nullable Integer parentId) {
+      this.parentId = parentId;
+      return this;
+    }
   }
 
   private static class CharacteristicsContext {
-    Context context;
     private final System2 system;
+    Context context;
     Date now;
     List<Characteristic> characteristics;
 

@@ -65,6 +65,13 @@ public class AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigrationT
   }
 
   @Test
+  public void do_nothing_when_no_characteristics() throws Exception {
+    db.prepareDbUnit(getClass(), "empty.xml");
+    migration.execute();
+    assertThat(db.count("select count(id) from characteristics")).isEqualTo(0);
+  }
+
+  @Test
   public void insert_usability_at_the_top_if_security_does_exists() throws Exception {
     db.prepareDbUnit(getClass(), "insert_usability_at_the_top_if_security_does_exists.xml");
     migration.execute();
