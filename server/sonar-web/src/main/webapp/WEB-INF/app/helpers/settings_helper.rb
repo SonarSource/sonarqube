@@ -80,10 +80,6 @@ module SettingsHelper
     end
   end
 
-  def property_by_key(key)
-    Property.by_key(key)
-  end
-
   # for backward-compatibility with properties that do not define the type TEXT
   def property_type(property, value)
     unless property.fields.blank?
