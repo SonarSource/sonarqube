@@ -214,4 +214,42 @@ public class FeedFileSourcesTest {
 
     db.assertDbUnit(getClass(), "after-with-scm.xml", "file_sources");
   }
+
+  @Test
+  public void migrate_sources_with_invalid_duplication() throws Exception {
+    db.prepareDbUnit(getClass(), "before.xml");
+
+    Connection connection = null;
+    try {
+      connection = db.openConnection();
+
+      connection.prepareStatement("insert into snapshot_sources " +
+        "(snapshot_id, data, updated_at) " +
+        "values " +
+        "(6, 'class Foo {\r\n  // Empty\r\n}\r\n', '2014-10-31 16:44:02.000')")
+        .executeUpdate();
+
+      db.executeUpdateSql("insert into snapshot_sources " +
+        "(snapshot_id, data, updated_at) " +
+        "values " +
+        "(7, '', '2014-10-31 16:44:02.000')");
+
+      PreparedStatement duplicationDataStmt = connection.prepareStatement("insert into project_measures " +
+        "(metric_id, snapshot_id, text_value) " +
+        "values " +
+        "(13, 6, ?)");
+      duplicationDataStmt
+        .setBytes(
+          1,
+          "<duplications><g><b s=\"1\" l=\"1\" r=\"MyProject:src/main/xoo/prj/MyFile.xoo\"/><b s=\"2\" l=\"1\" r=\"MyProject:src/main/xoo/prj/MyFile.xoo\"/><b s=\"3\" l=\"1\" r=\"MyProject:src/main/xoo/prj/AnotherFile.xoo\"/"
+            .getBytes(Charsets.UTF_8));
+      duplicationDataStmt.executeUpdate();
+    } finally {
+      DbUtils.commitAndCloseQuietly(connection);
+    }
+
+    migration.execute();
+
+    db.assertDbUnit(getClass(), "after-with-invalid-duplication.xml", "file_sources");
+  }
 }

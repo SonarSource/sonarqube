@@ -21,11 +21,15 @@ package org.sonar.server.db.migrations;
 
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.rules.ExpectedException;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.BatchSession;
 import org.sonar.core.persistence.DbTester;
+import org.sonar.server.db.migrations.Select.Row;
+import org.sonar.server.db.migrations.Select.RowReader;
 import org.sonar.test.DbTests;
 
 import java.sql.SQLException;
@@ -41,6 +45,9 @@ public class BaseDataChangeTest extends AbstractDaoTestCase {
 
   @ClassRule
   public static DbTester db = new DbTester().schema(BaseDataChangeTest.class, "schema.sql");
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @Before
   public void setUp() throws Exception {
@@ -104,6 +111,48 @@ public class BaseDataChangeTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void display_current_row_details_if_error_during_get() throws Exception {
+    db.prepareDbUnit(getClass(), "persons.xml");
+
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("Error during processing of row: [id=2]");
+
+    new BaseDataChange(db.database()) {
+      @Override
+      public void execute(Context context) throws SQLException {
+        context.prepareSelect("select id from persons where id>=?").setLong(1, 2L).get(new RowReader<Long>() {
+          @Override
+          public Long read(Row row) throws SQLException {
+            throw new IllegalStateException("Unexpected error");
+          }
+        });
+      }
+    }.execute();
+
+  }
+
+  @Test
+  public void display_current_row_details_if_error_during_list() throws Exception {
+    db.prepareDbUnit(getClass(), "persons.xml");
+
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("Error during processing of row: [id=2]");
+
+    new BaseDataChange(db.database()) {
+      @Override
+      public void execute(Context context) throws SQLException {
+        context.prepareSelect("select id from persons where id>=?").setLong(1, 2L).list(new RowReader<Long>() {
+          @Override
+          public Long read(Row row) throws SQLException {
+            throw new IllegalStateException("Unexpected error");
+          }
+        });
+      }
+    }.execute();
+
+  }
+
+  @Test
   public void bad_parameterized_query() throws Exception {
     db.prepareDbUnit(getClass(), "persons.xml");
 
@@ -115,12 +164,10 @@ public class BaseDataChangeTest extends AbstractDaoTestCase {
         ids.addAll(context.prepareSelect("select id from persons where id>=?").list(Select.LONG_READER));
       }
     };
-    try {
-      change.execute();
-      fail();
-    } catch (SQLException e) {
-      // ok
-    }
+
+    thrown.expect(SQLException.class);
+
+    change.execute();
   }
 
   @Test
@@ -265,6 +312,28 @@ public class BaseDataChangeTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void display_current_row_details_if_error_during_scroll() throws Exception {
+    db.prepareDbUnit(getClass(), "persons.xml");
+
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("Error during processing of row: [id=1]");
+
+    new BaseDataChange(db.database()) {
+      @Override
+      public void execute(Context context) throws SQLException {
+        final Upsert upsert = context.prepareUpsert("update persons set login=?, age=? where id=?");
+        context.prepareSelect("select id from persons").scroll(new Select.RowHandler() {
+          @Override
+          public void handle(Select.Row row) throws SQLException {
+            throw new IllegalStateException("Unexpected error");
+          }
+        });
+        upsert.commit().close();
+      }
+    }.execute();
+  }
+
+  @Test
   public void mass_update() throws Exception {
     db.prepareDbUnit(getClass(), "persons.xml");
 
@@ -289,6 +358,29 @@ public class BaseDataChangeTest extends AbstractDaoTestCase {
     }.execute();
 
     db.assertDbUnit(getClass(), "mass-update-result.xml", "persons");
+  }
+
+  @Test
+  public void display_current_row_details_if_error_during_mass_update() throws Exception {
+    db.prepareDbUnit(getClass(), "persons.xml");
+
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("Error during processing of row: [id=2]");
+
+    new BaseDataChange(db.database()) {
+      @Override
+      public void execute(Context context) throws SQLException {
+        MassUpdate massUpdate = context.prepareMassUpdate();
+        massUpdate.select("select id from persons where id>=?").setLong(1, 2L);
+        massUpdate.update("update persons set login=?, age=? where id=?");
+        massUpdate.execute(new MassUpdate.Handler() {
+          @Override
+          public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
+            throw new IllegalStateException("Unexpected error");
+          }
+        });
+      }
+    }.execute();
   }
 
   @Test

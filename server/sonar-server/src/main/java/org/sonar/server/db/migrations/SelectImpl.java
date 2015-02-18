@@ -45,6 +45,8 @@ class SelectImpl extends BaseSqlStatement<Select> implements Select {
         rows.add(reader.read(row));
       }
       return rows;
+    } catch (Exception e) {
+      throw newExceptionWithRowDetails(row, e);
     } finally {
       DbUtils.closeQuietly(rs);
       close();
@@ -60,6 +62,8 @@ class SelectImpl extends BaseSqlStatement<Select> implements Select {
         return reader.read(row);
       }
       return null;
+    } catch (Exception e) {
+      throw newExceptionWithRowDetails(row, e);
     } finally {
       DbUtils.closeQuietly(rs);
       close();
@@ -74,10 +78,16 @@ class SelectImpl extends BaseSqlStatement<Select> implements Select {
       while (rs.next()) {
         handler.handle(row);
       }
+    } catch (Exception e) {
+      throw newExceptionWithRowDetails(row, e);
     } finally {
       DbUtils.closeQuietly(rs);
       close();
     }
+  }
+
+  private IllegalStateException newExceptionWithRowDetails(Select.Row row, Exception e) {
+    return new IllegalStateException("Error during processing of row: [" + row + "]", e);
   }
 
   static SelectImpl create(Database db, Connection connection, String sql) throws SQLException {

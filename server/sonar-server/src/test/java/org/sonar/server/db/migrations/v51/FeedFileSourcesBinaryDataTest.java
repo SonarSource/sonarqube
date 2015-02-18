@@ -21,7 +21,9 @@ package org.sonar.server.db.migrations.v51;
 
 import org.apache.commons.dbutils.DbUtils;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.core.source.db.FileSourceDto;
 import org.sonar.server.db.migrations.DatabaseMigration;
@@ -34,9 +36,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 
 public class FeedFileSourcesBinaryDataTest {
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @ClassRule
   public static DbTester db = new DbTester().schema(FeedFileSourcesBinaryDataTest.class, "schema.sql");
@@ -51,7 +55,7 @@ public class FeedFileSourcesBinaryDataTest {
     int count = db.countSql("select count(*) from file_sources where binary_data is not null");
     assertThat(count).isEqualTo(3);
 
-    try(Connection connection = db.openConnection()) {
+    try (Connection connection = db.openConnection()) {
       FileSourceDb.Data data = selectData(connection, 1L);
       assertThat(data.getLinesCount()).isEqualTo(4);
       assertThat(data.getLines(0).getScmRevision()).isEqualTo("aef12a");
@@ -70,12 +74,11 @@ public class FeedFileSourcesBinaryDataTest {
     db.prepareDbUnit(getClass(), "bad_data.xml");
 
     DatabaseMigration migration = new FeedFileSourcesBinaryData(db.database());
-    try {
-      migration.execute();
-      fail();
-    } catch (IllegalStateException e) {
-      assertThat(e).hasMessageContaining("Invalid FILE_SOURCES.DATA on row with ID 1:");
-    }
+
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("Error during processing of row: [id=1]");
+
+    migration.execute();
   }
 
   private FileSourceDb.Data selectData(Connection connection, long fileSourceId) throws SQLException {
