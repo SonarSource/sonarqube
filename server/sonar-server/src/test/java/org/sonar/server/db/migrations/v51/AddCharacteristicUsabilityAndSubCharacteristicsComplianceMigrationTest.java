@@ -121,4 +121,11 @@ public class AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigrationT
     }
   }
 
+  @Test
+  public void not_fail_if_some_deprecated_requirements_still_exists_in_db() throws Exception {
+    db.prepareDbUnit(getClass(), "not_fail_if_some_deprecated_requirements_still_exists_in_db.xml");
+    migration.execute();
+    db.assertDbUnit(getClass(), "not_fail_if_some_deprecated_requirements_still_exists_in_db.xml", "characteristics");
+  }
+
 }
