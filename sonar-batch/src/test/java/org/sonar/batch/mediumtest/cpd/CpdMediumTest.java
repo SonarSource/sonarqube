@@ -138,13 +138,13 @@ public class CpdMediumTest {
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 
-    String duplicatedStuff = "Sample xoo\nfoo\n";
+    String duplicatedStuff = "Sample xoo\n";
 
     int blockCount = 10000;
     File xooFile1 = new File(srcDir, "sample.xoo");
     for (int i = 0; i < blockCount; i++) {
       FileUtils.write(xooFile1, duplicatedStuff, true);
-      FileUtils.write(xooFile1, "" + i, true);
+      FileUtils.write(xooFile1, "" + i + "\n", true);
     }
 
     TaskResult result = tester.newTask()
