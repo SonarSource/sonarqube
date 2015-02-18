@@ -227,7 +227,9 @@ public class ProjectRepositoryLoader implements ServerComponent {
   private void addActiveRules(ProjectRepositories ref) {
     for (org.sonar.batch.protocol.input.QProfile qProfile : ref.qProfiles()) {
       Map<RuleKey, ActiveRule> activeRules = activeRuleByRuleKey(qProfileLoader.findActiveRulesByProfile(qProfile.key()));
-      for (Rule rule : ruleService.search(new RuleQuery().setQProfileKey(qProfile.key()).setActivation(true), new QueryContext()).getHits()) {
+      Iterator<Rule> rules = ruleService.search(new RuleQuery().setQProfileKey(qProfile.key()).setActivation(true), new QueryContext().setScroll(true)).scroll();
+      while (rules.hasNext()) {
+        Rule rule = rules.next();
         RuleKey templateKey = rule.templateKey();
         ActiveRule activeRule = activeRules.get(rule.key());
         org.sonar.batch.protocol.input.ActiveRule inputActiveRule = new org.sonar.batch.protocol.input.ActiveRule(
