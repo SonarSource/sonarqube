@@ -30,7 +30,7 @@
 
           {{#each duplications}}
             <td class="source-meta source-line-duplications-extra {{#if this}}source-line-duplicated{{/if}}"
-                data-index="{{this}}" data-line-number="{{line}}"
+                data-index="{{this}}" data-line-number="{{../line}}"
                 {{#if this}}title="{{t 'source_viewer.tooltip.duplicated_block'}}" data-placement="right" data-toggle="tooltip"{{/if}}>
               <div class="source-line-bar"></div>
             </td>
