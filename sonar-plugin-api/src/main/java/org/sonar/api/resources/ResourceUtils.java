@@ -120,8 +120,17 @@ public final class ResourceUtils {
 
   /**
    * @return whether a resource is a unit test class
+   * @deprecated since 5.1 use {@link #isUnitTestFile(Resource)}
    */
+  @Deprecated
   public static boolean isUnitTestClass(Resource resource) {
+    return isUnitTestFile(resource);
+  }
+
+  /**
+   * @return whether a resource is a unit test class
+   */
+  public static boolean isUnitTestFile(Resource resource) {
     return Qualifiers.UNIT_TEST_FILE.equals(resource.getQualifier());
   }
 
