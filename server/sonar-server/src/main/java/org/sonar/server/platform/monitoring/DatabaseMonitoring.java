@@ -17,30 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.ws;
 
-import org.sonar.api.server.ws.WebService;
+package org.sonar.server.platform.monitoring;
 
-public class SystemWs implements WebService {
+import org.sonar.api.utils.text.JsonWriter;
 
-  private final RestartHandler restartHandler;
-  private final InfoWsAction infoWsAction;
-
-  public SystemWs(RestartHandler restartHandler, InfoWsAction infoWsAction) {
-    this.restartHandler = restartHandler;
-    this.infoWsAction = infoWsAction;
+public class DatabaseMonitoring extends MonitoringMBean implements DatabaseMonitoringMBean {
+  @Override
+  public String getMigrationStatus() {
+    return "REQUIRES_MIGRATION";
   }
 
   @Override
-  public void define(Context context) {
-    NewController controller = context.createController("api/system")
-      .setDescription("Restart server")
-      .setSince("4.3");
-
-    restartHandler.define(controller);
-    infoWsAction.define(controller);
-
-    controller.done();
+  protected String name() {
+    return "Database";
   }
 
+  @Override
+  void toJson(JsonWriter json) {
+    json.beginObject();
+    json.endObject();
+  }
 }

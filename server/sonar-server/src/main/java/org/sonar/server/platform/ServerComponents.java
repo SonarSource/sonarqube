@@ -140,10 +140,11 @@ import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.permission.InternalPermissionTemplateService;
 import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.permission.ws.PermissionsWs;
-import org.sonar.server.platform.ws.L10nWs;
-import org.sonar.server.platform.ws.RestartHandler;
-import org.sonar.server.platform.ws.ServerWs;
-import org.sonar.server.platform.ws.SystemWs;
+import org.sonar.server.platform.monitoring.DatabaseMonitoring;
+import org.sonar.server.platform.monitoring.MonitoringMBeans;
+import org.sonar.server.platform.monitoring.SystemMonitoring;
+import org.sonar.server.platform.monitoring.WebServerMonitoring;
+import org.sonar.server.platform.ws.*;
 import org.sonar.server.plugins.*;
 import org.sonar.server.properties.ProjectSettingsFactory;
 import org.sonar.server.qualitygate.QgateProjectFinder;
@@ -312,7 +313,14 @@ class ServerComponents {
 
       // ws
       RestartHandler.class,
-      SystemWs.class
+      InfoWsAction.class,
+      SystemWs.class,
+
+      // Monitoring MBean
+      SystemMonitoring.class,
+      DatabaseMonitoring.class,
+      WebServerMonitoring.class,
+      MonitoringMBeans.class
       );
   }
 

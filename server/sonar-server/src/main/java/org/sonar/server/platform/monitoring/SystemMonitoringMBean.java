@@ -17,30 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.ws;
 
-import org.sonar.api.server.ws.WebService;
+package org.sonar.server.platform.monitoring;
 
-public class SystemWs implements WebService {
+public interface SystemMonitoringMBean {
 
-  private final RestartHandler restartHandler;
-  private final InfoWsAction infoWsAction;
-
-  public SystemWs(RestartHandler restartHandler, InfoWsAction infoWsAction) {
-    this.restartHandler = restartHandler;
-    this.infoWsAction = infoWsAction;
-  }
-
-  @Override
-  public void define(Context context) {
-    NewController controller = context.createController("api/system")
-      .setDescription("Restart server")
-      .setSince("4.3");
-
-    restartHandler.define(controller);
-    infoWsAction.define(controller);
-
-    controller.done();
-  }
-
+  String getDataDirectorySize();
 }
