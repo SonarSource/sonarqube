@@ -5,9 +5,8 @@
 @navbarGlobalBackground: #262626;
 @navbarContextBackground: @barBackgroundColor;
 
-@navbarHeight: 30px;
 @navbarLineHeight: 20px;
-@navbarTopPadding: (@navbarHeight - @navbarLineHeight) / 2;
+@navbarTopPadding: (@navbarGlobalHeight - @navbarLineHeight) / 2;
 
 .navbar, [class^="navbar-"], [class*=" navbar-"] {
   .box-sizing(border-box);
@@ -18,7 +17,7 @@
   left: 0;
   right: 0;
   .clearfix;
-  height: @navbarHeight;
+  height: @navbarGlobalHeight;
 }
 
 .navbar-fade {
@@ -184,9 +183,9 @@
 
 
 .navbar-context {
-  top: @navbarHeight;
+  top: @navbarGlobalHeight;
   z-index: 498;
-  height: 57px;
+  height: @navbarContextHeight;
   background-color: @navbarContextBackground;
 
   .nav-tabs {
@@ -194,8 +193,8 @@
   }
 
   .navbar-nav > li > a {
-    padding-top: 2px;
-    padding-bottom: 2px;
+    padding-top: 3px;
+    padding-bottom: 3px;
   }
 }
 
@@ -205,7 +204,7 @@
 }
 
 .navbar-context-meta {
-  line-height: @navbarHeight;
+  line-height: @navbarGlobalHeight;
   padding: 0 10px;
   color: @secondFontColor;
   font-size: @smallFontSize;
