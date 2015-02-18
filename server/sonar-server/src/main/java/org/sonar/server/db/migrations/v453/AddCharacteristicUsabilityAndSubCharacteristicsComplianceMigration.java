@@ -44,6 +44,8 @@ import static com.google.common.collect.Lists.newArrayList;
  * Add a new Characteristic 'Usability' with 2 sub-characteristics 'Accessibility' and 'Ease of Use'
  * and add a new sub-characteristic 'Compliance' for all characteristics.
  *
+ * Nothing will be done if there's no characteristics in db, as they're all gonna be created by {@link org.sonar.server.startup.RegisterDebtModel}
+ *
  * @since 4.5.3
  */
 public class AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigration extends BaseDataChange {
@@ -64,17 +66,20 @@ public class AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigration 
   public void execute(Context context) throws SQLException {
     CharacteristicsContext characteristicsContext = new CharacteristicsContext(context, system);
 
-    int usabilityOder = moveCharacteristicsDownToBeAbleToInsertUsability(characteristicsContext);
-    createOrUpdateUsabilityCharacteristicAndItsSubCharacteristic(characteristicsContext, usabilityOder);
+    // On an empty DB, there are no characteristics, they're all gonna be created after in RegisterDebtModel
+    if (!characteristicsContext.characteristics().isEmpty()) {
+      int usabilityOder = moveCharacteristicsDownToBeAbleToInsertUsability(characteristicsContext);
+      createOrUpdateUsabilityCharacteristicAndItsSubCharacteristic(characteristicsContext, usabilityOder);
 
-    createSubCharacteristic(characteristicsContext, "REUSABILITY" + COMPLIANCE_KEY_SUFFIX, "Reusability " + COMPLIANCE_NAME, "REUSABILITY");
-    createSubCharacteristic(characteristicsContext, "PORTABILITY" + COMPLIANCE_KEY_SUFFIX, "Portability " + COMPLIANCE_NAME, "PORTABILITY");
-    createSubCharacteristic(characteristicsContext, "MAINTAINABILITY" + COMPLIANCE_KEY_SUFFIX, "Maintainability " + COMPLIANCE_NAME, "MAINTAINABILITY");
-    createSubCharacteristic(characteristicsContext, "SECURITY" + COMPLIANCE_KEY_SUFFIX, "Security " + COMPLIANCE_NAME, "SECURITY");
-    createSubCharacteristic(characteristicsContext, "EFFICIENCY" + COMPLIANCE_KEY_SUFFIX, "Efficiency " + COMPLIANCE_NAME, "EFFICIENCY");
-    createSubCharacteristic(characteristicsContext, "CHANGEABILITY" + COMPLIANCE_KEY_SUFFIX, "Changeability " + COMPLIANCE_NAME, "CHANGEABILITY");
-    createSubCharacteristic(characteristicsContext, "RELIABILITY" + COMPLIANCE_KEY_SUFFIX, "Reliability " + COMPLIANCE_NAME, "RELIABILITY");
-    createSubCharacteristic(characteristicsContext, "TESTABILITY" + COMPLIANCE_KEY_SUFFIX, "Testability " + COMPLIANCE_NAME, "TESTABILITY");
+      createSubCharacteristic(characteristicsContext, "REUSABILITY" + COMPLIANCE_KEY_SUFFIX, "Reusability " + COMPLIANCE_NAME, "REUSABILITY");
+      createSubCharacteristic(characteristicsContext, "PORTABILITY" + COMPLIANCE_KEY_SUFFIX, "Portability " + COMPLIANCE_NAME, "PORTABILITY");
+      createSubCharacteristic(characteristicsContext, "MAINTAINABILITY" + COMPLIANCE_KEY_SUFFIX, "Maintainability " + COMPLIANCE_NAME, "MAINTAINABILITY");
+      createSubCharacteristic(characteristicsContext, "SECURITY" + COMPLIANCE_KEY_SUFFIX, "Security " + COMPLIANCE_NAME, "SECURITY");
+      createSubCharacteristic(characteristicsContext, "EFFICIENCY" + COMPLIANCE_KEY_SUFFIX, "Efficiency " + COMPLIANCE_NAME, "EFFICIENCY");
+      createSubCharacteristic(characteristicsContext, "CHANGEABILITY" + COMPLIANCE_KEY_SUFFIX, "Changeability " + COMPLIANCE_NAME, "CHANGEABILITY");
+      createSubCharacteristic(characteristicsContext, "RELIABILITY" + COMPLIANCE_KEY_SUFFIX, "Reliability " + COMPLIANCE_NAME, "RELIABILITY");
+      createSubCharacteristic(characteristicsContext, "TESTABILITY" + COMPLIANCE_KEY_SUFFIX, "Testability " + COMPLIANCE_NAME, "TESTABILITY");
+    }
   }
 
   /**
