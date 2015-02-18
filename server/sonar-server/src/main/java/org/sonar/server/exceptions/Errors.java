@@ -63,6 +63,12 @@ public class Errors {
     return messages.isEmpty();
   }
 
+  public void checkMessages() {
+    if (!isEmpty()) {
+      throw new BadRequestException(this);
+    }
+  }
+
   public boolean check(boolean expression, String l10nKey, Object... l10nParams) {
     if (!expression) {
       add(Message.of(l10nKey, l10nParams));

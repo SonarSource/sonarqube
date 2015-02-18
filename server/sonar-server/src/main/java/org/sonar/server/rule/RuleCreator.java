@@ -32,6 +32,9 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleDto.Format;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.Errors;
+import org.sonar.server.exceptions.Message;
 import org.sonar.server.rule.index.RuleDoc;
 import org.sonar.server.util.TypeValidations;
 
@@ -80,8 +83,7 @@ public class RuleCreator implements ServerComponent {
     if (!templateRule.isTemplate()) {
       throw new IllegalArgumentException("This rule is not a template rule: " + templateKey.toString());
     }
-    validateCustomRule(newRule);
-    validateCustomRuleParams(newRule, dbSession, templateKey);
+    validateCustomRule(newRule, dbSession, templateKey);
 
     RuleKey customRuleKey = RuleKey.of(templateRule.getRepositoryKey(), newRule.ruleKey());
 
@@ -111,26 +113,32 @@ public class RuleCreator implements ServerComponent {
     return customRuleKey;
   }
 
-  private static void validateCustomRule(NewRule newRule) {
-    validateRuleKey(newRule.ruleKey());
-    validateName(newRule);
-    validateDescription(newRule);
+  private void validateCustomRule(NewRule newRule, DbSession dbSession, RuleKey templateKey) {
+    Errors errors = new Errors();
+
+    validateRuleKey(errors, newRule.ruleKey());
+    validateName(errors, newRule);
+    validateDescription(errors, newRule);
 
     String severity = newRule.severity();
     if (Strings.isNullOrEmpty(severity)) {
-      throw new IllegalArgumentException("The severity is missing");
+      errors.add(Message.of("coding_rules.validation.missing_severity"));
     } else if (!Severity.ALL.contains(severity)) {
-      throw new IllegalArgumentException("This severity is invalid : " + severity);
+      errors.add(Message.of("coding_rules.validation.invalid_severity", severity));
     }
     if (newRule.status() == null) {
-      throw new IllegalArgumentException("The status is missing");
+      errors.add(Message.of("coding_rules.validation.missing_status"));
     }
-  }
 
-  protected void validateCustomRuleParams(NewRule newRule, DbSession dbSession, RuleKey templateKey) {
     for (RuleParamDto ruleParam : dbClient.ruleDao().findRuleParamsByRuleKey(dbSession, templateKey)) {
-      validateParam(ruleParam, newRule.parameter(ruleParam.getName()));
+      try {
+        validateParam(ruleParam, newRule.parameter(ruleParam.getName()));
+      } catch (BadRequestException validationError) {
+        errors.add(validationError.errors());
+      }
     }
+
+    errors.checkMessages();
   }
 
   @CheckForNull
@@ -147,30 +155,33 @@ public class RuleCreator implements ServerComponent {
   }
 
   private static void validateManualRule(NewRule newRule) {
-    validateRuleKey(newRule.ruleKey());
-    validateName(newRule);
-    validateDescription(newRule);
+    Errors errors = new Errors();
+    validateRuleKey(errors, newRule.ruleKey());
+    validateName(errors, newRule);
+    validateDescription(errors, newRule);
 
     if (!newRule.parameters().isEmpty()) {
-      throw new IllegalArgumentException("No parameter can be set on a manual rule");
+      errors.add(Message.of("coding_rules.validation.manual_rule_params"));
     }
+
+    errors.checkMessages();
   }
 
-  private static void validateName(NewRule newRule){
+  private static void validateName(Errors errors, NewRule newRule) {
     if (Strings.isNullOrEmpty(newRule.name())) {
-      throw new IllegalArgumentException("The name is missing");
+      errors.add(Message.of("coding_rules.validation.missing_name"));
     }
   }
 
-  private static void validateDescription(NewRule newRule){
+  private static void validateDescription(Errors errors, NewRule newRule) {
     if (Strings.isNullOrEmpty(newRule.htmlDescription()) && Strings.isNullOrEmpty(newRule.markdownDescription())) {
-      throw new IllegalArgumentException("The description is missing");
+      errors.add(Message.of("coding_rules.validation.missing_description"));
     }
   }
 
-  private static void validateRuleKey(String ruleKey) {
+  private static void validateRuleKey(Errors errors, String ruleKey) {
     if (!ruleKey.matches("^[\\w]+$")) {
-      throw new IllegalArgumentException(String.format("The rule key '%s' is invalid, it should only contains : a-z, 0-9, '_'", ruleKey));
+      errors.add(Message.of("coding_rules.validation.invalid_rule_key", ruleKey));
     }
   }
 
