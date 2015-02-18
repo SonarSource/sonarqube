@@ -384,6 +384,19 @@ public class ResourcePersisterTest extends AbstractDbUnitTestCase {
   }
 
   @Test
+  public void shouldNotGrantDefaultPermissionsOnModules() {
+    setupData("shared");
+    resourceCache.add(multiModuleProject, null).setSnapshot(persister.persist(null, multiModuleProject, null));
+    resourceCache.add(moduleA, multiModuleProject).setSnapshot(persister.persist(null, moduleA, multiModuleProject));
+    when(permissions.hasRoles(multiModuleProject)).thenReturn(true);
+    persister.persist(null, multiModuleProject, null);
+
+    persister.persist(null, moduleA, multiModuleProject);
+
+    verify(permissions, never()).grantDefaultRoles(moduleA);
+  }
+
+  @Test
   public void shouldNotGrantDefaultPermissionsIfExistingProject() {
     setupData("shared");
 
