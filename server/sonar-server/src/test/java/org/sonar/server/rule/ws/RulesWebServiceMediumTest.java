@@ -19,6 +19,8 @@
  */
 package org.sonar.server.rule.ws;
 
+import org.sonar.core.rule.RuleDto.Format;
+
 import com.google.common.collect.ImmutableSet;
 import org.junit.After;
 import org.junit.Before;
@@ -176,6 +178,19 @@ public class RulesWebServiceMediumTest {
     WsTester.Result result = request.execute();
 
     result.assertJson(getClass(), "search_2_rules.json", false);
+  }
+
+  @Test
+  public void search_2_rules_with_field_selection() throws Exception {
+    ruleDao.insert(session, RuleTesting.newXooX1());
+    ruleDao.insert(session, RuleTesting.newXooX2().setDescription("A *Xoo* rule").setDescriptionFormat(Format.MARKDOWN));
+    session.commit();
+
+    MockUserSession.set();
+    WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD).setParam(SearchOptions.PARAM_FIELDS, "name,htmlDesc,mdDesc");
+    WsTester.Result result = request.execute();
+
+    result.assertJson(getClass(), "search_2_rules_fields.json", false);
   }
 
   @Test

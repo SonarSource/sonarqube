@@ -1,0 +1,15 @@
+{
+  "total": 2, "p": 1, "ps": 100,
+  "rules": [
+    {
+      "key": "xoo:x2",
+      "name": "Rule x2",
+      "mdDesc": "A *Xoo* rule",
+      "htmlDesc": "A <em>Xoo</em> rule"
+    },
+    {
+      "key": "xoo:x1",
+      "name": "Rule x1",
+      "htmlDesc": "Description x1",
+    }
+  ]}
