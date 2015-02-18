@@ -46,8 +46,8 @@ public class CompleteIssueMessageMigration extends BaseDataChange {
     massUpdate.execute(new MassUpdate.Handler() {
       @Override
       public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
-        Long issueId = row.getLong(1);
-        String ruleName = row.getString(2);
+        Long issueId = row.getNullableLong(1);
+        String ruleName = row.getNullableString(2);
 
         update.setString(1, ruleName);
         update.setLong(2, issueId);

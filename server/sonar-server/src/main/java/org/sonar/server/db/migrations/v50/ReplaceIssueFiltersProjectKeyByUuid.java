@@ -64,8 +64,8 @@ public class ReplaceIssueFiltersProjectKeyByUuid extends BaseDataChange {
       massUpdate.execute(new MassUpdate.Handler() {
         @Override
         public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
-          Long id = row.getLong(1);
-          String data = row.getString(2);
+          Long id = row.getNullableLong(1);
+          String data = row.getNullableString(2);
           if (data == null) {
             return false;
           }

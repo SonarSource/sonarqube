@@ -47,9 +47,9 @@ public class FeedIssueComponentUuids extends BaseDataChange {
     update.execute(new Handler() {
       @Override
       public boolean handle(Row row, SqlStatement update) throws SQLException {
-        update.setString(1, row.getString(1));
-        update.setString(2, row.getString(2));
-        update.setLong(3, row.getLong(3));
+        update.setString(1, row.getNullableString(1));
+        update.setString(2, row.getNullableString(2));
+        update.setLong(3, row.getNullableLong(3));
 
         return true;
       }

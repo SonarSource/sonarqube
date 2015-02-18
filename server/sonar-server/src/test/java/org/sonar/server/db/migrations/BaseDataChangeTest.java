@@ -134,7 +134,7 @@ public class BaseDataChangeTest extends AbstractDaoTestCase {
         context.prepareSelect("select id from persons order by id desc").scroll(new Select.RowHandler() {
           @Override
           public void handle(Select.Row row) throws SQLException {
-            ids.add(row.getLong(1));
+            ids.add(row.getNullableLong(1));
           }
         });
       }
@@ -252,7 +252,7 @@ public class BaseDataChangeTest extends AbstractDaoTestCase {
         context.prepareSelect("select id from persons").scroll(new Select.RowHandler() {
           @Override
           public void handle(Select.Row row) throws SQLException {
-            long id = row.getLong(1);
+            long id = row.getNullableLong(1);
             upsert.setString(1, "login" + id).setInt(2, 10 + (int) id).setLong(3, id);
             upsert.execute();
           }
@@ -277,7 +277,7 @@ public class BaseDataChangeTest extends AbstractDaoTestCase {
         massUpdate.execute(new MassUpdate.Handler() {
           @Override
           public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
-            long id = row.getLong(1);
+            long id = row.getNullableLong(1);
             update
               .setString(1, "login" + id)
               .setInt(2, 10 + (int) id)
@@ -339,17 +339,52 @@ public class BaseDataChangeTest extends AbstractDaoTestCase {
     }
   }
 
+  @Test
+  public void read_not_null_fields() throws Exception {
+    db.prepareDbUnit(getClass(), "persons.xml");
+
+    final List<Object[]> persons = new ArrayList<Object[]>();
+    new BaseDataChange(db.database()) {
+      @Override
+      public void execute(Context context) throws SQLException {
+        persons.addAll(context
+          .prepareSelect("select id,login,age,enabled,updated_at,coeff from persons where id=2")
+          .list(new Select.RowReader<Object[]>() {
+            @Override
+            public Object[] read(Select.Row row) throws SQLException {
+              return new Object[] {
+                // id, login, age, enabled
+                row.getLong(1),
+                row.getString(2),
+                row.getInt(3),
+                row.getBoolean(4),
+                row.getDate(5),
+                row.getDouble(6),
+              };
+            }
+          }));
+      }
+    }.execute();
+    assertThat(persons).hasSize(1);
+    assertThat(persons.get(0)[0]).isEqualTo(2L);
+    assertThat(persons.get(0)[1]).isEqualTo("emmerik");
+    assertThat(persons.get(0)[2]).isEqualTo(14);
+    assertThat(persons.get(0)[3]).isEqualTo(true);
+    assertThat(persons.get(0)[4]).isNotNull();
+    assertThat(persons.get(0)[5]).isEqualTo(5.2);
+  }
+
   static class UserReader implements Select.RowReader<Object[]> {
     @Override
     public Object[] read(Select.Row row) throws SQLException {
-      return new Object[]{
+      return new Object[] {
         // id, login, age, enabled
-        row.getLong(1),
-        row.getString(2),
-        row.getInt(3),
-        row.getBoolean(4),
-        row.getDate(5),
-        row.getDouble(6),
+        row.getNullableLong(1),
+        row.getNullableString(2),
+        row.getNullableInt(3),
+        row.getNullableBoolean(4),
+        row.getNullableDate(5),
+        row.getNullableDouble(6),
       };
     }
   }

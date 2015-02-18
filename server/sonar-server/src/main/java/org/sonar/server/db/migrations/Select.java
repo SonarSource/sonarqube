@@ -37,45 +37,73 @@ public interface Select extends SqlStatement<Select> {
     }
 
     @CheckForNull
-    public Long getLong(int columnIndex) throws SQLException {
+    public Long getNullableLong(int columnIndex) throws SQLException {
       long l = rs.getLong(columnIndex);
       return rs.wasNull() ? null : l;
     }
 
+    public long getLong(int columnIndex) throws SQLException {
+      return rs.getLong(columnIndex);
+    }
+
     @CheckForNull
-    public Double getDouble(int columnIndex) throws SQLException {
+    public Double getNullableDouble(int columnIndex) throws SQLException {
       double d = rs.getDouble(columnIndex);
       return rs.wasNull() ? null : d;
     }
 
+    public double getDouble(int columnIndex) throws SQLException {
+      return rs.getDouble(columnIndex);
+    }
+
     @CheckForNull
-    public Integer getInt(int columnIndex) throws SQLException {
+    public Integer getNullableInt(int columnIndex) throws SQLException {
       int i = rs.getInt(columnIndex);
       return rs.wasNull() ? null : i;
     }
 
+    public int getInt(int columnIndex) throws SQLException {
+      return rs.getInt(columnIndex);
+    }
+
     @CheckForNull
-    public Boolean getBoolean(int columnIndex) throws SQLException {
+    public Boolean getNullableBoolean(int columnIndex) throws SQLException {
       boolean b = rs.getBoolean(columnIndex);
       return rs.wasNull() ? null : b;
     }
 
+    public boolean getBoolean(int columnIndex) throws SQLException {
+      return rs.getBoolean(columnIndex);
+    }
+
     @CheckForNull
-    public String getString(int columnIndex) throws SQLException {
+    public String getNullableString(int columnIndex) throws SQLException {
       String s = rs.getString(columnIndex);
       return rs.wasNull() ? null : s;
     }
 
+    public String getString(int columnIndex) throws SQLException {
+      return rs.getString(columnIndex);
+    }
+
     @CheckForNull
-    public Date getDate(int columnIndex) throws SQLException {
+    public Date getNullableDate(int columnIndex) throws SQLException {
       Timestamp t = rs.getTimestamp(columnIndex);
       return rs.wasNull() ? null : t;
     }
 
+    public Date getDate(int columnIndex) throws SQLException {
+      return rs.getTimestamp(columnIndex);
+    }
+
     @CheckForNull
-    public byte[] getBytes(int columnIndex) throws SQLException {
+    public byte[] getNullableBytes(int columnIndex) throws SQLException {
       byte[] b = rs.getBytes(columnIndex);
       return rs.wasNull() ? null : b;
+    }
+
+    public byte[] getBytes(int columnIndex) throws SQLException {
+      return rs.getBytes(columnIndex);
     }
   }
 
@@ -89,7 +117,7 @@ public interface Select extends SqlStatement<Select> {
 
     @Override
     public Long read(Row row) throws SQLException {
-      return row.getLong(1);
+      return row.getNullableLong(1);
     }
   }
 
@@ -101,7 +129,7 @@ public interface Select extends SqlStatement<Select> {
 
     @Override
     public String read(Row row) throws SQLException {
-      return row.getString(1);
+      return row.getNullableString(1);
     }
   }
 

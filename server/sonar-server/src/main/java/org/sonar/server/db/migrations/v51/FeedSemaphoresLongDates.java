@@ -52,11 +52,11 @@ public class FeedSemaphoresLongDates extends BaseDataChange {
       @Override
       public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
         for (int i = 1; i <= 3; i++) {
-          Date date = row.getDate(i);
+          Date date = row.getNullableDate(i);
           update.setLong(i, date == null ? null : Math.min(now, date.getTime()));
         }
 
-        Long id = row.getLong(4);
+        Long id = row.getNullableLong(4);
         update.setLong(4, id);
 
         return true;

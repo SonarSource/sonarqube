@@ -60,13 +60,13 @@ public class FeedEventsLongDates extends BaseDataChange {
 
     @Override
     public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
-      Date eventDate = row.getDate(1);
+      Date eventDate = row.getNullableDate(1);
       long eventTime = eventDate == null ? now : Math.min(now, eventDate.getTime());
       update.setLong(1, eventTime);
-      Date createdAt = row.getDate(2);
+      Date createdAt = row.getNullableDate(2);
       update.setLong(2, createdAt == null ? eventTime : Math.min(now, createdAt.getTime()));
 
-      Long id = row.getLong(3);
+      Long id = row.getNullableLong(3);
       update.setLong(3, id);
 
       return true;

@@ -49,9 +49,9 @@ public class DeleteUnescapedActivities extends BaseDataChange {
     massUpdate.execute(new MassUpdate.Handler() {
       @Override
       public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
-        String csv = row.getString(2);
+        String csv = row.getNullableString(2);
         if (isUnescaped(csv)) {
-          update.setLong(1, row.getLong(1));
+          update.setLong(1, row.getNullableLong(1));
           return true;
         }
         return false;

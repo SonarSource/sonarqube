@@ -38,6 +38,7 @@ import org.sonar.server.source.db.FileSourceDb;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
 import java.sql.SQLException;
 import java.util.Iterator;
 
@@ -55,8 +56,8 @@ public class FeedFileSourcesBinaryData extends BaseDataChange {
     update.execute(new MassUpdate.Handler() {
       @Override
       public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
-        Long fileSourceId = row.getLong(1);
-        update.setBytes(1, toBinary(fileSourceId, row.getString(2)));
+        Long fileSourceId = row.getNullableLong(1);
+        update.setBytes(1, toBinary(fileSourceId, row.getNullableString(2)));
         update.setLong(2, fileSourceId);
         return true;
       }

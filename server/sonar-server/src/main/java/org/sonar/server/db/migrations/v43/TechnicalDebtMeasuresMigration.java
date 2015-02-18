@@ -30,6 +30,7 @@ import org.sonar.server.db.migrations.SqlStatement;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.sql.SQLException;
 import java.util.List;
 
@@ -78,13 +79,13 @@ public class TechnicalDebtMeasuresMigration extends BaseDataChange {
   private class Converter implements MassUpdate.Handler {
     @Override
     public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
-      Long id = row.getLong(1);
-      Double value = row.getDouble(2);
-      Double var1 = row.getDouble(3);
-      Double var2 = row.getDouble(4);
-      Double var3 = row.getDouble(5);
-      Double var4 = row.getDouble(6);
-      Double var5 = row.getDouble(7);
+      Long id = row.getNullableLong(1);
+      Double value = row.getNullableDouble(2);
+      Double var1 = row.getNullableDouble(3);
+      Double var2 = row.getNullableDouble(4);
+      Double var3 = row.getNullableDouble(5);
+      Double var4 = row.getNullableDouble(6);
+      Double var5 = row.getNullableDouble(7);
 
       update.setLong(1, convertDebtForDays(value));
       update.setLong(2, convertDebtForDays(var1));

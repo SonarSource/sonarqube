@@ -51,8 +51,8 @@ public class MeasureDataMigration extends BaseDataChange {
     massUpdate.execute(new MassUpdate.Handler() {
       @Override
       public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
-        Long id = row.getLong(1);
-        Long measureId = row.getLong(2);
+        Long id = row.getNullableLong(1);
+        Long measureId = row.getNullableLong(2);
 
         update.setLong(1, id);
         update.setLong(2, measureId);

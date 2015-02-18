@@ -55,9 +55,9 @@ public class FeedQProfileKeysMigration extends BaseDataChange {
     massUpdate.execute(new MassUpdate.Handler() {
       @Override
       public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
-        Long id = row.getLong(1);
-        String lang = row.getString(2);
-        String name = row.getString(3);
+        Long id = row.getNullableLong(1);
+        String lang = row.getNullableString(2);
+        String name = row.getNullableString(3);
 
         update.setString(1, Slug.slugify(String.format("%s %s %s", lang, name, RandomStringUtils.randomNumeric(5))));
         update.setLong(2, id);
@@ -74,8 +74,8 @@ public class FeedQProfileKeysMigration extends BaseDataChange {
     massUpdate.execute(new MassUpdate.Handler() {
       @Override
       public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
-        Long id = row.getLong(1);
-        String parentKey = row.getString(2);
+        Long id = row.getNullableLong(1);
+        String parentKey = row.getNullableString(2);
 
         update.setString(1, parentKey);
         update.setLong(2, id);

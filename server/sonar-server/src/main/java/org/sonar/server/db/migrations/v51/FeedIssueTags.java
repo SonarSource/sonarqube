@@ -56,10 +56,10 @@ public class FeedIssueTags extends BaseDataChange {
     context.prepareSelect("SELECT id, system_tags, tags FROM rules").scroll(new RowHandler() {
       @Override
       public void handle(Row row) throws SQLException {
-        Integer id = row.getInt(1);
+        Integer id = row.getNullableInt(1);
         tagsByRuleId.put(id, StringUtils.trimToNull(TAG_JOINER.join(
-          StringUtils.trimToNull(row.getString(2)),
-          StringUtils.trimToNull(row.getString(3)))));
+          StringUtils.trimToNull(row.getNullableString(2)),
+          StringUtils.trimToNull(row.getNullableString(3)))));
       }
     });
 
@@ -69,8 +69,8 @@ public class FeedIssueTags extends BaseDataChange {
     update.execute(new Handler() {
       @Override
       public boolean handle(Row row, SqlStatement update) throws SQLException {
-        Long id = row.getLong(1);
-        Integer ruleId = row.getInt(2);
+        Long id = row.getNullableLong(1);
+        Integer ruleId = row.getNullableInt(2);
         boolean updated = false;
         if (tagsByRuleId.get(ruleId) != null) {
           updated = true;

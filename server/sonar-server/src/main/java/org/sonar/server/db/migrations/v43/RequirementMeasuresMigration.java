@@ -49,8 +49,8 @@ public class RequirementMeasuresMigration extends BaseDataChange {
     massUpdate.execute(new MassUpdate.Handler() {
       @Override
       public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
-        Long id = row.getLong(1);
-        Long ruleId = row.getLong(2);
+        Long id = row.getNullableLong(1);
+        Long ruleId = row.getNullableLong(2);
 
         update.setLong(1, ruleId);
         update.setLong(2, id);

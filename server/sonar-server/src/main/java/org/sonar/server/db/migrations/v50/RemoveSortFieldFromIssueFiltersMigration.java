@@ -65,7 +65,7 @@ public class RemoveSortFieldFromIssueFiltersMigration extends BaseDataChange {
 
     @Override
     public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
-      String data = row.getString(2);
+      String data = row.getNullableString(2);
       String[] fields = StringUtils.split(data, FIELD_SEPARATOR);
 
       boolean found = false;
@@ -81,7 +81,7 @@ public class RemoveSortFieldFromIssueFiltersMigration extends BaseDataChange {
         // data without 'sort' field
         update.setString(1, StringUtils.join(fieldsToKeep, FIELD_SEPARATOR));
         update.setDate(2, now);
-        update.setLong(3, row.getLong(1));
+        update.setLong(3, row.getNullableLong(1));
       }
       return found;
     }

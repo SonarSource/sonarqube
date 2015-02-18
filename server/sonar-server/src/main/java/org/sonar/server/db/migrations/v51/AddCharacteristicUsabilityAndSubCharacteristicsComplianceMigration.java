@@ -183,7 +183,7 @@ public class AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigration 
      * On a characteristic, the order can never be null
      */
     public Integer getOrder() {
-      return parentId == null ? order : null;
+      return parentId == null && order != null ? order : null;
     }
 
     public Characteristic setOrder(@Nullable Integer order) {
@@ -310,8 +310,8 @@ public class AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigration 
           .setId(row.getInt(1))
           .setKey(row.getString(2))
           .setName(row.getString(3))
-          .setOrder(row.getInt(4))
-          .setParentId(row.getInt(5));
+          .setOrder(row.getNullableInt(4))
+          .setParentId(row.getNullableInt(5));
       }
     }
   }

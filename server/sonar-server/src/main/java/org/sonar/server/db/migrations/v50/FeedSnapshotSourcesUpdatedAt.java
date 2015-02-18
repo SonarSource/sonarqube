@@ -52,8 +52,8 @@ public class FeedSnapshotSourcesUpdatedAt extends BaseDataChange {
     massUpdate.execute(new MassUpdate.Handler() {
       @Override
       public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
-        update.setDate(1, row.getDate(2));
-        update.setLong(2, row.getLong(1));
+        update.setDate(1, row.getNullableDate(2));
+        update.setLong(2, row.getNullableLong(1));
         return true;
       }
     });

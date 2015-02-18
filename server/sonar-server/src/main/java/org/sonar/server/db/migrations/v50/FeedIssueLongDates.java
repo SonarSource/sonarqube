@@ -49,9 +49,9 @@ public class FeedIssueLongDates extends BaseDataChange {
     massUpdate.execute(new MassUpdate.Handler() {
       @Override
       public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
-        Long id = row.getLong(1);
-        Date createdAt = row.getDate(2);
-        Date updatedAt = row.getDate(3);
+        Long id = row.getNullableLong(1);
+        Date createdAt = row.getNullableDate(2);
+        Date updatedAt = row.getNullableDate(3);
 
         if (createdAt == null) {
           update.setLong(1, now);
