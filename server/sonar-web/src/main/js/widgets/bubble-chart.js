@@ -198,15 +198,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     // Set event listeners
     this.items
         .on('click', function (d) {
-          switch (d.qualifier) {
-            case 'CLA':
-            case 'FIL':
-              window.location = widget.options().baseUrl + encodeURIComponent(d.key) +
-                  '?metric=' + encodeURIComponent(widget.sizeMetric);
-              break;
-            default:
-              window.location = widget.options().baseUrl + encodeURIComponent(d.key);
-          }
+          window.location = widget.options().baseUrl + '?id=' + encodeURIComponent(d.key);
         })
         .on('mouseenter', function (d) {
           d3.select(this).select('circle')

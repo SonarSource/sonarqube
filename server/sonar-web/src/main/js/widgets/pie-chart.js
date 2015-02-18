@@ -330,15 +330,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         },
 
         clickHandler = function(d) {
-          switch (d.qualifier) {
-            case 'CLA':
-            case 'FIL':
-              window.location = widget.options().baseUrl + encodeURIComponent(d.key) +
-                  '?metric=' + encodeURIComponent(widget.mainMetric);
-              break;
-            default:
-              window.location = widget.options().baseUrl + encodeURIComponent(d.key);
-          }
+          window.location = widget.options().baseUrl + '?id=' + encodeURIComponent(d.key);
         };
 
     this.sectors
