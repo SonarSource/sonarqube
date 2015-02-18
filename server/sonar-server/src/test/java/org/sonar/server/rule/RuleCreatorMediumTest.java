@@ -212,6 +212,29 @@ public class RuleCreatorMediumTest {
   }
 
   @Test
+  public void create_custom_rule_with_invalid_parameters() throws Exception {
+    // insert template rule
+    RuleDto templateRule = createTemplateRuleWithTwoIntParams();
+
+    // Create custom rule
+    NewRule newRule = NewRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
+      .setName("My custom")
+      .setMarkdownDescription("Some description")
+      .setSeverity(Severity.MAJOR)
+      .setStatus(RuleStatus.READY)
+      .setParameters(ImmutableMap.of("first", "polop", "second", "palap"));
+    try {
+      creator.create(newRule);
+      Fail.failBecauseExceptionWasNotThrown(BadRequestException.class);
+    } catch (BadRequestException badRequest) {
+      assertThat(badRequest.errors().toString()).contains("palap").contains("polop");
+    }
+
+    dbSession.clearCache();
+  }
+
+
+  @Test
   public void reactivate_custom_rule_if_already_exists_in_removed_status() throws Exception {
     String key = "CUSTOM_RULE";
 
@@ -308,7 +331,7 @@ public class RuleCreatorMediumTest {
       creator.create(newRule);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("The rule key '*INVALID*' is invalid, it should only contains : a-z, 0-9, '_'");
+      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("coding_rules.validation.invalid_rule_key");
     }
   }
 
@@ -356,7 +379,7 @@ public class RuleCreatorMediumTest {
       creator.create(newRule);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("The name is missing");
+      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("coding_rules.validation.missing_name");
     }
   }
 
@@ -375,7 +398,7 @@ public class RuleCreatorMediumTest {
       creator.create(newRule);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("The description is missing");
+      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("coding_rules.validation.missing_description");
     }
   }
 
@@ -394,7 +417,7 @@ public class RuleCreatorMediumTest {
       creator.create(newRule);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("The severity is missing");
+      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("coding_rules.validation.missing_severity");
     }
   }
 
@@ -414,7 +437,7 @@ public class RuleCreatorMediumTest {
       creator.create(newRule);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("This severity is invalid : INVALID");
+      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("coding_rules.validation.invalid_severity");
     }
   }
 
@@ -433,7 +456,7 @@ public class RuleCreatorMediumTest {
       creator.create(newRule);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("The status is missing");
+      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("coding_rules.validation.missing_status");
     }
   }
 
@@ -567,7 +590,7 @@ public class RuleCreatorMediumTest {
       creator.create(newRule);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("The rule key '*INVALID*' is invalid, it should only contains : a-z, 0-9, '_'");
+      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("coding_rules.validation.invalid_rule_key");
     }
   }
 
@@ -599,7 +622,7 @@ public class RuleCreatorMediumTest {
       creator.create(newRule);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("The name is missing");
+      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("coding_rules.validation.missing_name");
     }
   }
 
@@ -612,7 +635,7 @@ public class RuleCreatorMediumTest {
       creator.create(newRule);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("The description is missing");
+      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("coding_rules.validation.missing_description");
     }
   }
 
@@ -680,4 +703,27 @@ public class RuleCreatorMediumTest {
     dbSession.commit();
     return templateRule;
   }
+
+  private RuleDto createTemplateRuleWithTwoIntParams() {
+    RuleDto templateRule = dao.insert(dbSession,
+      RuleTesting.newDto(RuleKey.of("java", "S003"))
+        .setIsTemplate(true)
+        .setLanguage("java")
+        .setConfigKey("S003")
+        .setDefaultSubCharacteristicId(1)
+        .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+        .setDefaultRemediationCoefficient("1h")
+        .setDefaultRemediationOffset("5min")
+        .setEffortToFixDescription("desc")
+      );
+    RuleParamDto ruleParam1Dto = RuleParamDto.createFor(templateRule)
+      .setName("first").setType("INTEGER").setDescription("First integer").setDefaultValue("0");
+    dao.addRuleParam(dbSession, templateRule, ruleParam1Dto);
+    RuleParamDto ruleParam2Dto = RuleParamDto.createFor(templateRule)
+      .setName("second").setType("INTEGER").setDescription("Second integer").setDefaultValue("0");
+    dao.addRuleParam(dbSession, templateRule, ruleParam2Dto);
+    dbSession.commit();
+    return templateRule;
+  }
+
 }
