@@ -27,7 +27,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Database;
 import org.sonar.server.db.migrations.BaseDataChange;
 import org.sonar.server.db.migrations.Select;
-import org.sonar.server.db.migrations.Upsert;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -36,8 +35,6 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
-
 /**
  * See http://jira.codehaus.org/browse/SONAR-6187
  *
@@ -45,6 +42,8 @@ import static com.google.common.collect.Lists.newArrayList;
  * and add a new sub-characteristic 'Compliance' for all characteristics.
  *
  * Nothing will be done if there's no characteristics in db, as they're all gonna be created by {@link org.sonar.server.startup.RegisterDebtModel}
+ *
+ * Before 4.3 the characteristics table contains requirements, then when selecting characteristics we should not forget to exclude them (with a filter on rule_id IS NULL)
  *
  * @since 4.5.3
  */
@@ -258,7 +257,8 @@ public class AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigration 
 
     private List<Characteristic> selectEnabledCharacteristics() throws SQLException {
       return context.prepareSelect(
-        "SELECT c.id, c.kee, c.name, c.characteristic_order, c.parent_id FROM characteristics c WHERE c.enabled=? ORDER BY c.characteristic_order")
+        // Exclude requirements (to not fail when coming from a version older than 4.3)
+        "SELECT c.id, c.kee, c.name, c.characteristic_order, c.parent_id FROM characteristics c WHERE c.enabled=? AND c.rule_id IS NULL ORDER BY c.characteristic_order")
         .setBoolean(1, true)
         .list(new CharacteristicReader());
     }
