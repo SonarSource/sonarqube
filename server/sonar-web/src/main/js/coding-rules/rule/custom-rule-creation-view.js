@@ -139,7 +139,11 @@ define([
       var that = this,
           url = baseUrl + '/api/rules/' + action;
       return $.post(url, options).done(function () {
-        that.options.app.controller.showDetails(that.options.templateRule);
+        if (that.options.templateRule) {
+          that.options.app.controller.showDetails(that.options.templateRule);
+        } else {
+          that.options.app.controller.showDetails(that.model);
+        }
         that.close();
       }).fail(function (jqXHR) {
         if (jqXHR.status === 409) {
@@ -158,7 +162,7 @@ define([
         params = this.options.templateRule.get('params');
       } else if (this.model && this.model.has('params')) {
         params = this.model.get('params').map(function (p) {
-          _.extend(p, { value: p.defaultValue });
+          return _.extend(p, { value: p.defaultValue });
         });
       }
 
