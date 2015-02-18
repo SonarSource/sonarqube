@@ -18,10 +18,6 @@ requirejs [
   QualityGateLayout
 ) ->
 
-  # Add html class to mark the page as navigator page
-  jQuery('html').addClass('navigator-page quality-gates-page');
-
-
   # Create a Quality Gate Application
   App = new Marionette.Application
 
@@ -49,8 +45,8 @@ requirejs [
   # Construct layout
   App.addInitializer ->
     @layout = new QualityGateLayout app: @
-    jQuery('#content').append @layout.render().el
-    @layout.onResize()
+    jQuery('#quality-gates').append @layout.render().el
+    jQuery('#footer').addClass 'search-navigator-footer'
 
 
   # Construct actions bar
@@ -101,8 +97,5 @@ requirejs [
 
   jQuery.when(qualityGatesXHR, appXHR, l10nXHR)
     .done ->
-      # Remove the initial spinner
-      jQuery('#quality-gate-page-loader').remove()
-
       # Start the application
       App.start()

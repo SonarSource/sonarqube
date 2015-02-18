@@ -26,12 +26,20 @@ import org.elasticsearch.action.deletebyquery.DeleteByQueryRequestBuilder;
 import org.elasticsearch.action.deletebyquery.DeleteByQueryResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.common.xcontent.ToXContent;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.StopWatch;
+
+import java.io.IOException;
 
 public class ProxyDeleteByQueryRequestBuilder extends DeleteByQueryRequestBuilder {
 
   private final Profiling profiling;
+
+  private QueryBuilder internalBuilder;
 
   public ProxyDeleteByQueryRequestBuilder(Client client, Profiling profiling) {
     super(client);
@@ -68,12 +76,31 @@ public class ProxyDeleteByQueryRequestBuilder extends DeleteByQueryRequestBuilde
   }
 
   @Override
+  public DeleteByQueryRequestBuilder setQuery(QueryBuilder queryBuilder) {
+    this.internalBuilder = queryBuilder;
+    return super.setQuery(queryBuilder);
+  }
+
+  @Override
   public String toString() {
     StringBuilder message = new StringBuilder();
-    message.append("ES delete by query request");
+    message.append(String.format("ES delete by query request '%s'", xContentToString(internalBuilder)));
     if (request.indices().length > 0) {
       message.append(String.format(" on indices '%s'", StringUtils.join(request.indices(), ",")));
     }
     return message.toString();
+  }
+
+  private String xContentToString(ToXContent toXContent) {
+    if (internalBuilder == null) {
+      return "";
+    }
+    try {
+      XContentBuilder builder = XContentFactory.jsonBuilder();
+      toXContent.toXContent(builder, ToXContent.EMPTY_PARAMS);
+      return builder.string();
+    } catch (IOException e) {
+      throw new IllegalStateException("Fail to convert request to string", e);
+    }
   }
 }

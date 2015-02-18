@@ -22,16 +22,22 @@ package org.sonar.batch.index;
 import org.sonar.api.batch.Event;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.utils.System2;
 
+import java.util.Date;
 import java.util.List;
 
+import static com.google.common.base.Preconditions.checkState;
+
 public class EventPersister {
+  private final System2 system2;
   private DatabaseSession session;
   private ResourceCache resourceCache;
 
-  public EventPersister(DatabaseSession session, ResourceCache resourceCache) {
+  public EventPersister(DatabaseSession session, ResourceCache resourceCache, System2 system2) {
     this.session = session;
     this.resourceCache = resourceCache;
+    this.system2 = system2;
   }
 
   public List<Event> getEvents(Resource resource) {
@@ -45,16 +51,16 @@ public class EventPersister {
 
   public void saveEvent(Resource resource, Event event) {
     BatchResource batchResource = resourceCache.get(resource.getEffectiveKey());
-    if (batchResource == null) {
-      throw new IllegalStateException("Unknow component: " + resource);
-    }
+    checkState(batchResource != null, "Unknown component: " + resource);
+
+    event.setCreatedAt(new Date(system2.now()));
     if (event.getDate() == null) {
       event.setSnapshot(batchResource.snapshot());
     } else {
       event.setResourceId(batchResource.resource().getId());
     }
+
     session.save(event);
     session.commit();
-
   }
 }

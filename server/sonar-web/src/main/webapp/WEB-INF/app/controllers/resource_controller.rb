@@ -25,6 +25,7 @@ class ResourceController < ApplicationController
   helper :dashboard
   helper UsersHelper
 
+  # DO NOT REMOVE - used by eclipse plugin
   def index
     require_parameters 'id'
 

@@ -4,6 +4,7 @@
 
 
 .page {
+  .clearfix;
   position: relative;
   padding: 10px;
 }
@@ -15,6 +16,19 @@
 .page-wrapper {
   min-height: ~"calc(100vh - @{pageFooterHeight})";
   .box-sizing(border-box);
+}
+
+.page-wrapper-global {
+  padding-top: @navbarGlobalHeight;
+}
+
+.page-wrapper-context {
+  padding-top: @navbarGlobalHeight + @navbarContextHeight;
+}
+
+.page-simple {
+  margin: 50px 180px 0;
+  text-align: left;
 }
 
 .page-header {

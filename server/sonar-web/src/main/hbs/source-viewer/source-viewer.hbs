@@ -18,19 +18,20 @@
         </td>
 
         <td class="source-meta source-line-coverage {{#notNull coverageStatus}}source-line-{{coverageStatus}}{{/notNull}}"
-            data-line-number="{{line}}">
+            data-line-number="{{line}}" {{#notNull coverageStatus}}title="{{t 'source_viewer.tooltip' coverageStatus}}" data-placement="right" data-toggle="tooltip"{{/notNull}}>
           <div class="source-line-bar"></div>
         </td>
 
         {{#if ../hasDuplications}}
           <td class="source-meta source-line-duplications {{#if duplicated}}source-line-duplicated{{/if}}"
-              title="{{t 'source_viewer.expand_duplications'}}">
+              {{#if duplicated}}title="{{t 'source_viewer.tooltip.duplicated_line'}}" data-placement="right" data-toggle="tooltip"{{/if}}>
             <div class="source-line-bar"></div>
           </td>
 
           {{#each duplications}}
             <td class="source-meta source-line-duplications-extra {{#if this}}source-line-duplicated{{/if}}"
-                data-index="{{this}}" data-line-number="{{line}}">
+                data-index="{{this}}" data-line-number="{{../line}}"
+                {{#if this}}title="{{t 'source_viewer.tooltip.duplicated_block'}}" data-placement="right" data-toggle="tooltip"{{/if}}>
               <div class="source-line-bar"></div>
             </td>
           {{/each}}
@@ -41,6 +42,10 @@
           {{#withFirst issues}}
             {{severityIcon severity}}
           {{/withFirst}}
+        </td>
+
+        <td class="source-meta source-line-filtered-container" data-line-number="{{line}}">
+          <div class="source-line-bar"></div>
         </td>
 
         <td class="source-line-code code {{#notEmpty issues}}has-issues{{/notEmpty}}" data-line-number="{{line}}">

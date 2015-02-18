@@ -26,6 +26,9 @@ import org.sonar.api.database.model.Snapshot;
 import javax.persistence.*;
 import java.util.Date;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static org.sonar.api.utils.DateUtils.longToDate;
+
 /**
  * @since 1.10
  */
@@ -46,10 +49,10 @@ public class Event extends BaseIdentifiable {
   private String category;
 
   @Column(name = "event_date", updatable = true, nullable = false)
-  private Date date;
+  private Long date;
 
-  @Column(name = "created_at", updatable = true, nullable = true)
-  private Date createdAt;
+  @Column(name = "created_at", updatable = true, nullable = false)
+  private Long createdAt;
 
   @Column(name = "event_data", updatable = true, nullable = true)
   private String data;
@@ -103,11 +106,11 @@ public class Event extends BaseIdentifiable {
   }
 
   public Date getDate() {
-    return date;
+    return longToDate(date);
   }
 
   public void setDate(Date date) {
-    this.date = date;
+    this.date = date.getTime();
   }
 
   public Snapshot getSnapshot() {
@@ -115,19 +118,17 @@ public class Event extends BaseIdentifiable {
   }
 
   public Date getCreatedAt() {
-    return createdAt;
+    return new Date(createdAt);
   }
 
   public void setCreatedAt(Date createdAt) {
-    this.createdAt = createdAt;
+    this.createdAt = createdAt.getTime();
   }
 
   public final void setSnapshot(Snapshot snapshot) {
-    this.snapshot = snapshot;
-    if (snapshot != null) {
-      this.date = (snapshot.getCreatedAtMs() == null ? null : new Date(snapshot.getCreatedAtMs()));
-      this.resourceId = snapshot.getResourceId();
-    }
+    this.snapshot = checkNotNull(snapshot, "it is not possible to set a null snapshot linked to an event");
+    this.date = snapshot.getCreatedAtMs();
+    this.resourceId = snapshot.getResourceId();
   }
 
   public Integer getResourceId() {

@@ -22,47 +22,26 @@ package org.sonar.batch.dependency;
 import com.persistit.Value;
 import com.persistit.encoding.CoderContext;
 import com.persistit.encoding.ValueCoder;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.dependency.internal.DefaultDependency;
-import org.sonar.batch.scan.filesystem.InputPathCache;
 
 class DefaultDependencyValueCoder implements ValueCoder {
-
-  private InputPathCache inputPathCache;
-
-  public DefaultDependencyValueCoder(InputPathCache inputPathCache) {
-    this.inputPathCache = inputPathCache;
-  }
 
   @Override
   public void put(Value value, Object object, CoderContext context) {
     DefaultDependency dep = (DefaultDependency) object;
-    value.putUTF(((DefaultInputFile) dep.from()).moduleKey());
-    value.putUTF(((DefaultInputFile) dep.from()).relativePath());
-    value.putUTF(((DefaultInputFile) dep.to()).moduleKey());
-    value.putUTF(((DefaultInputFile) dep.to()).relativePath());
+    value.putUTF(dep.fromKey());
+    value.putUTF(dep.toKey());
     value.put(dep.weight());
   }
 
   @Override
   public Object get(Value value, Class clazz, CoderContext context) {
-    String fromModuleKey = value.getString();
-    String fromRelativePath = value.getString();
-    InputFile from = inputPathCache.getFile(fromModuleKey, fromRelativePath);
-    if (from == null) {
-      throw new IllegalStateException("Unable to load InputFile " + fromModuleKey + ":" + fromRelativePath);
-    }
-    String toModuleKey = value.getString();
-    String toRelativePath = value.getString();
-    InputFile to = inputPathCache.getFile(toModuleKey, toRelativePath);
-    if (to == null) {
-      throw new IllegalStateException("Unable to load InputFile " + toModuleKey + ":" + toRelativePath);
-    }
+    String fromKey = value.getString();
+    String toKey = value.getString();
     int weight = value.getInt();
     return new DefaultDependency()
-      .from(from)
-      .to(to)
-      .weight(weight);
+      .setFromKey(fromKey)
+      .setToKey(toKey)
+      .setWeight(weight);
   }
 }

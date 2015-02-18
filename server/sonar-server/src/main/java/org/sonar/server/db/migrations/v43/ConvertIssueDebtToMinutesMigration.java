@@ -63,9 +63,9 @@ public class ConvertIssueDebtToMinutesMigration extends BaseDataChange {
     massUpdate.execute(new MassUpdate.Handler() {
       @Override
       public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
-        Long debt = row.getLong(2);
+        Long debt = row.getNullableLong(2);
         if (debt != null) {
-          Long id = row.getLong(1);
+          Long id = row.getNullableLong(1);
           update.setLong(1, workDurationConvertor.createFromLong(debt));
           update.setDate(2, now);
           update.setLong(3, id);

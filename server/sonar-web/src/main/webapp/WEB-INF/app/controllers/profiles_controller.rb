@@ -371,9 +371,13 @@ class ProfilesController < ApplicationController
   # GET /profiles/compare?id1=<profile1 id>&id2=<profile2 id>
   def compare
     @profiles = Profile.all(:order => 'language asc, name')
-    if params[:id1].present? && params[:id2].present?
-      @profile1 = Profile.find(params[:id1])
-      @profile2 = Profile.find(params[:id2])
+    id1 = params[:id1]
+    id2 = params[:id2]
+    if id1.present? && id2.present? && id1.respond_to?(:to_i) && id2.respond_to?(:to_i)
+      @id1 = params[:id1].to_i
+      @id2 = params[:id2].to_i
+      @profile1 = Profile.find(id1)
+      @profile2 = Profile.find(id2)
 
       arules1 = ActiveRule.all(:include => [{:active_rule_parameters => :rules_parameter}, :rule],
                                :conditions => ['active_rules.profile_id=?', @profile1.id])

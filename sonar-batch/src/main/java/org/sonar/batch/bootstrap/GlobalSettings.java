@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
@@ -26,6 +28,8 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.batch.protocol.input.GlobalRepositories;
 
 public class GlobalSettings extends Settings {
+
+  private static final Logger LOG = LoggerFactory.getLogger(GlobalSettings.class);
 
   private final BootstrapProperties bootstrapProps;
   private final GlobalRepositories globalReferentials;
@@ -45,6 +49,7 @@ public class GlobalSettings extends Settings {
   private void init() {
     addProperties(globalReferentials.globalSettings());
     addProperties(bootstrapProps.properties());
+    LOG.info("Server id: " + getString(CoreProperties.SERVER_ID));
   }
 
   @Override

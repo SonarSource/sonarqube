@@ -50,11 +50,11 @@ public class FeedAnalysisReportsLongDates extends BaseDataChange {
     massUpdate.execute(new MassUpdate.Handler() {
       @Override
       public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
-        Date createdAt = row.getDate(1);
-        Date updatedAt = row.getDate(2);
-        Date startedAt = row.getDate(3);
-        Date finishedAt = row.getDate(4);
-        Long id = row.getLong(5);
+        Date createdAt = row.getNullableDate(1);
+        Date updatedAt = row.getNullableDate(2);
+        Date startedAt = row.getNullableDate(3);
+        Date finishedAt = row.getNullableDate(4);
+        Long id = row.getNullableLong(5);
 
         update.setLong(1, createdAt == null ? now : Math.min(now, createdAt.getTime()));
         update.setLong(2, updatedAt == null ? now : Math.min(now, updatedAt.getTime()));

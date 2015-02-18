@@ -173,6 +173,40 @@ public class FileSystemMediumTest {
   }
 
   @Test
+  public void fileInclusionsExclusions() throws IOException {
+    File srcDir = new File(baseDir, "src");
+    srcDir.mkdir();
+
+    File xooFile = new File(srcDir, "sample.xoo");
+    FileUtils.write(xooFile, "Sample xoo\ncontent");
+
+    File xooFile2 = new File(baseDir, "another.xoo");
+    FileUtils.write(xooFile2, "Sample xoo 2\ncontent");
+
+    File testDir = new File(baseDir, "test");
+    testDir.mkdir();
+
+    File xooTestFile = new File(baseDir, "sampleTest2.xoo");
+    FileUtils.write(xooTestFile, "Sample test xoo\ncontent");
+
+    File xooTestFile2 = new File(testDir, "sampleTest.xoo");
+    FileUtils.write(xooTestFile2, "Sample test xoo 2\ncontent");
+
+    TaskResult result = tester.newTask()
+      .properties(builder
+        .put("sonar.sources", "src,another.xoo")
+        .put("sonar.tests", "test,sampleTest2.xoo")
+        .put("sonar.inclusions", "src/**")
+        .put("sonar.exclusions", "**/another.*")
+        .put("sonar.test.inclusions", "**/sampleTest*.*")
+        .put("sonar.test.exclusions", "**/sampleTest2.xoo")
+        .build())
+      .start();
+
+    assertThat(result.inputFiles()).hasSize(2);
+  }
+
+  @Test
   public void failForDuplicateInputFile() throws IOException {
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();

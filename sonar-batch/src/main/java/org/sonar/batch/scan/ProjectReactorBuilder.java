@@ -33,6 +33,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.batch.bootstrap.TaskProperties;
+import org.sonar.batch.util.BatchUtils;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -189,9 +190,7 @@ public class ProjectReactorBuilder {
   protected File initModuleWorkDir(File moduleBaseDir, Map<String, String> moduleProperties) {
     String workDir = moduleProperties.get(CoreProperties.WORKING_DIRECTORY);
     if (StringUtils.isBlank(workDir)) {
-      String cleanKey = StringUtils.deleteWhitespace(moduleProperties.get(CoreProperties.PROJECT_KEY_PROPERTY));
-      cleanKey = StringUtils.replace(cleanKey, ":", "_");
-      return new File(rootProjectWorkDir, cleanKey);
+      return new File(rootProjectWorkDir, BatchUtils.cleanKeyForFilename(moduleProperties.get(CoreProperties.PROJECT_KEY_PROPERTY)));
     }
 
     File customWorkDir = new File(workDir);

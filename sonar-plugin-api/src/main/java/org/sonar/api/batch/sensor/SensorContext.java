@@ -24,7 +24,7 @@ import org.sonar.api.batch.CpdMapping;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.ActiveRules;
-import org.sonar.api.batch.sensor.dependency.Dependency;
+import org.sonar.api.batch.sensor.dependency.NewDependency;
 import org.sonar.api.batch.sensor.duplication.NewDuplication;
 import org.sonar.api.batch.sensor.highlighting.HighlightingBuilder;
 import org.sonar.api.batch.sensor.issue.Issue;
@@ -82,7 +82,6 @@ public interface SensorContext {
 
   /**
    * Builder to define highlighting of a file.
-   * @since 4.5
    */
   HighlightingBuilder highlightingBuilder(InputFile inputFile);
 
@@ -90,7 +89,6 @@ public interface SensorContext {
 
   /**
    * Builder to define symbol references in a file.
-   * @since 4.5
    */
   SymbolTableBuilder symbolTableBuilder(InputFile inputFile);
 
@@ -99,7 +97,6 @@ public interface SensorContext {
   /**
    * Builder to manually register duplication in a file. This can be used in addition to {@link CpdMapping} extension point.
    * Don't forget to call {@link NewDuplication#save()}.
-   * @since 5.1
    */
   NewDuplication newDuplication();
 
@@ -108,21 +105,18 @@ public interface SensorContext {
   /**
    * Create a new coverage report.
    * Don't forget to call {@link Coverage#save()} once all parameters are provided.
-   * @since 5.0
    */
   Coverage newCoverage();
 
   /**
    * Create a new test case execution report.
    * Don't forget to call {@link TestCaseExecution#save()} once all parameters are provided.
-   * @since 5.0
    */
   TestCaseExecution newTestCaseExecution();
 
   /**
    * Create a new test case coverage report.
    * Don't forget to call {@link TestCaseCoverage#save()} once all parameters are provided.
-   * @since 5.0
    */
   TestCaseCoverage newTestCaseCoverage();
 
@@ -130,9 +124,8 @@ public interface SensorContext {
 
   /**
    * Create a new dependency.
-   * Don't forget to call {@link Dependency#save()} once all parameters are provided.
-   * @since 5.0
+   * Don't forget to call {@link NewDependency#save()} once all parameters are provided.
    */
-  Dependency newDependency();
+  NewDependency newDependency();
 
 }

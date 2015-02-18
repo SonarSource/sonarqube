@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.design;
 
-import edu.emory.mathcs.backport.java.util.Collections;
 import org.apache.commons.lang.ObjectUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -86,17 +85,6 @@ public class ProjectDsmDecoratorTest {
     Project p = new Project("parent");
     Project child = new Project("child").setParent(p);
     decorator.decorate(p, rootContext);
-
-    // Should not do anything if module has no dir
-    when(rootContext.getChildren()).thenReturn(Collections.emptyList());
-    decorator.decorate(root, rootContext);
-
-    verify(rootContext, never()).saveMeasure(any(Measure.class));
-  }
-
-  @Test
-  public void testProjectDsmDecoratorNoDependency() {
-    decorator.decorate(root, rootContext);
 
     verify(rootContext, never()).saveMeasure(any(Measure.class));
   }

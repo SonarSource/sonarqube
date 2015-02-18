@@ -21,14 +21,10 @@ package org.sonar.batch.dependency;
 
 import com.google.common.base.Preconditions;
 import org.sonar.api.BatchComponent;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.sensor.dependency.Dependency;
 import org.sonar.api.batch.sensor.dependency.internal.DefaultDependency;
 import org.sonar.batch.index.Cache;
 import org.sonar.batch.index.Cache.Entry;
 import org.sonar.batch.index.Caches;
-import org.sonar.batch.scan.filesystem.InputPathCache;
 
 import javax.annotation.CheckForNull;
 
@@ -38,29 +34,29 @@ import javax.annotation.CheckForNull;
  */
 public class DependencyCache implements BatchComponent {
 
-  private final Cache<Dependency> cache;
+  private final Cache<DefaultDependency> cache;
 
-  public DependencyCache(Caches caches, InputPathCache inputPathCache) {
-    caches.registerValueCoder(DefaultDependency.class, new DefaultDependencyValueCoder(inputPathCache));
+  public DependencyCache(Caches caches) {
+    caches.registerValueCoder(DefaultDependency.class, new DefaultDependencyValueCoder());
     cache = caches.createCache("dependencies");
   }
 
-  public Iterable<Entry<Dependency>> entries() {
+  public Iterable<Entry<DefaultDependency>> entries() {
     return cache.entries();
   }
 
   @CheckForNull
-  public Dependency get(String moduleKey, InputFile from, InputFile to) {
+  public DefaultDependency get(String moduleKey, String fromKey, String toKey) {
     Preconditions.checkNotNull(moduleKey);
-    Preconditions.checkNotNull(from);
-    Preconditions.checkNotNull(to);
-    return cache.get(moduleKey, ((DefaultInputFile) from).key(), ((DefaultInputFile) to).key());
+    Preconditions.checkNotNull(fromKey);
+    Preconditions.checkNotNull(toKey);
+    return cache.get(moduleKey, fromKey, toKey);
   }
 
-  public DependencyCache put(String moduleKey, Dependency dependency) {
+  public DependencyCache put(String moduleKey, DefaultDependency dependency) {
     Preconditions.checkNotNull(moduleKey);
     Preconditions.checkNotNull(dependency);
-    cache.put(moduleKey, ((DefaultInputFile) dependency.from()).key(), ((DefaultInputFile) dependency.to()).key(), dependency);
+    cache.put(moduleKey, dependency.fromKey(), dependency.toKey(), dependency);
     return this;
   }
 

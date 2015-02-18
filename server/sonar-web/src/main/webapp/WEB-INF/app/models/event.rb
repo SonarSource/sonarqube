@@ -27,6 +27,27 @@ class Event < ActiveRecord::Base
   belongs_to :snapshot
 
   before_save :populate_snapshot
+  
+  def created_at
+    long_to_date(:created_at)
+  end
+  
+  def created_at=(date)
+    write_attribute(:created_at, date.to_i*1000)
+  end
+  
+  def event_date
+    long_to_date(:event_date)
+  end
+  
+  def event_date=(date)
+    write_attribute(:event_date, date.to_i*1000)
+  end
+  
+  def long_to_date(attribute)
+    date_in_long = read_attribute(attribute)
+    Time.at(date_in_long/1000) if date_in_long
+  end
 
   def fullname
     if category
@@ -59,10 +80,8 @@ class Event < ActiveRecord::Base
     return false
   end
   
-  #
-  # TODO: Remove this code when everything has been checked on the Event handling, both on the UI and the WS API
-  #
   def populate_snapshot
+    self.created_at=DateTime.now unless self.created_at
     self.snapshot=Snapshot.snapshot_by_date(resource_id, event_date) unless self.snapshot
   end
 end

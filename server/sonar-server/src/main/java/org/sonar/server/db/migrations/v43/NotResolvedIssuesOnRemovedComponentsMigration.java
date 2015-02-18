@@ -56,7 +56,7 @@ public class NotResolvedIssuesOnRemovedComponentsMigration extends BaseDataChang
     massUpdate.execute(new MassUpdate.Handler() {
       @Override
       public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
-        Long id = row.getLong(1);
+        Long id = row.getNullableLong(1);
         update.setString(1, Issue.STATUS_CLOSED);
         update.setString(2, Issue.RESOLUTION_REMOVED);
         update.setDate(3, now);

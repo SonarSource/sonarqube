@@ -23,6 +23,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.HiddenFileFilter;
 import org.apache.commons.io.filefilter.IOFileFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
@@ -51,6 +53,8 @@ import java.util.concurrent.TimeUnit;
  * Index input files into {@link InputPathCache}.
  */
 public class FileIndexer implements BatchComponent {
+
+  private static final Logger LOG = LoggerFactory.getLogger(FileIndexer.class);
 
   private static final IOFileFilter DIR_FILTER = FileFilterUtils.and(HiddenFileFilter.VISIBLE, FileFilterUtils.notFileFilter(FileFilterUtils.prefixFileFilter(".")));
   private static final IOFileFilter FILE_FILTER = HiddenFileFilter.VISIBLE;
@@ -94,6 +98,10 @@ public class FileIndexer implements BatchComponent {
     waitForTasksToComplete();
 
     progressReport.stop(progress.count() + " files indexed");
+
+    if (exclusionFilters.hasPattern()) {
+      LOG.info(progress.excludedByPatternsCount() + " files ignored because of inclusion/exclusion patterns");
+    }
   }
 
   private void waitForTasksToComplete() {
@@ -134,6 +142,8 @@ public class FileIndexer implements BatchComponent {
       inputFile.setModuleBaseDir(fileSystem.baseDirPath());
       if (exclusionFilters.accept(inputFile, type)) {
         indexFile(inputFileBuilder, fileSystem, progress, inputFile, type);
+      } else {
+        progress.increaseExcludedByPatternsCount();
       }
     }
   }
@@ -174,6 +184,7 @@ public class FileIndexer implements BatchComponent {
 
   private class Progress {
     private final Set<Path> indexed = new HashSet<>();
+    private int excludedByPatternsCount = 0;
 
     synchronized void markAsIndexed(InputFile inputFile) {
       if (indexed.contains(inputFile.path())) {
@@ -182,6 +193,14 @@ public class FileIndexer implements BatchComponent {
       }
       indexed.add(inputFile.path());
       progressReport.message(indexed.size() + " files indexed...  (last one was " + inputFile.relativePath() + ")");
+    }
+
+    void increaseExcludedByPatternsCount() {
+      excludedByPatternsCount++;
+    }
+
+    public int excludedByPatternsCount() {
+      return excludedByPatternsCount;
     }
 
     int count() {

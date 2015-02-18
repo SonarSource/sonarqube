@@ -71,8 +71,8 @@ public class IssueChangelogMigration extends BaseDataChange {
     massUpdate.execute(new MassUpdate.Handler() {
       @Override
       public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
-        Long id = row.getLong(1);
-        String changeData = row.getString(2);
+        Long id = row.getNullableLong(1);
+        String changeData = row.getNullableString(2);
 
         update.setString(1, convertChangelog(changeData));
         update.setDate(2, now);

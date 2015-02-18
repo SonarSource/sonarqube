@@ -47,14 +47,14 @@ public class FeedProjectMeasuresLongDates extends BaseDataChange {
       .select("SELECT m.measure_date, m.id FROM project_measures m WHERE measure_date_ms IS NULL");
     massUpdate
       .update("UPDATE project_measures SET measure_date_ms=? WHERE id=?");
-    massUpdate.rowPluralName("projectMeasures");
+    massUpdate.rowPluralName("project measures");
     massUpdate.execute(new MassUpdate.Handler() {
       @Override
       public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
-        Date date = row.getDate(1);
+        Date date = row.getNullableDate(1);
         update.setLong(1, date == null ? null : Math.min(now, date.getTime()));
 
-        Long id = row.getLong(2);
+        Long id = row.getNullableLong(2);
         update.setLong(2, id);
 
         return true;

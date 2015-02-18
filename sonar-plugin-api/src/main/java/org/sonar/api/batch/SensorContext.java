@@ -30,6 +30,7 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -191,14 +192,23 @@ public interface SensorContext extends org.sonar.api.batch.sensor.SensorContext 
   // ----------- DEPENDENCIES BETWEEN RESOURCES --------------
 
   /**
-   * Build a new dependency : from depends upon to. The dependency is NOT saved. The method saveDependency() must still be executed.
+   * @deprecated since 5.1 use {@link #newDependency()}
    */
   Dependency saveDependency(Dependency dependency);
 
+  /**
+   * @deprecated since 5.1 Sensors should not read but only save data
+   */
   Set<Dependency> getDependencies();
 
+  /**
+   * @deprecated since 5.1 Sensors should not read but only save data
+   */
   Collection<Dependency> getIncomingDependencies(Resource to);
 
+  /**
+   * @deprecated since 5.1 Sensors should not read but only save data
+   */
   Collection<Dependency> getOutgoingDependencies(Resource from);
 
   // ----------- FILE SOURCES --------------
@@ -242,7 +252,7 @@ public interface SensorContext extends org.sonar.api.batch.sensor.SensorContext 
    * @param date        the event date
    * @return the created event
    */
-  Event createEvent(Resource resource, String name, String description, String category, Date date);
+  Event createEvent(Resource resource, String name, @Nullable String description, String category, @Nullable Date date);
 
   /**
    * Deletes an event

@@ -115,12 +115,10 @@ public class PurgeCommandsTest extends AbstractDaoTestCase {
   @Test
   public void shouldDeleteResource() {
     setupData("shouldDeleteResource");
-    SqlSession session = getMyBatis().openSession();
-    try {
+    try (SqlSession session = getMyBatis().openSession()) {
       new PurgeCommands(session, profiler).deleteResources(newArrayList(new IdUuidPair(1L, "1")));
-    } finally {
-      MyBatis.closeQuietly(session);
     }
+
     assertEmptyTables("projects", "snapshots", "events", "issues", "issue_changes", "authors");
   }
 

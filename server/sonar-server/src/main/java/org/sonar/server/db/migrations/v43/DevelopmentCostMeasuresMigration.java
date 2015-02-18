@@ -28,6 +28,7 @@ import org.sonar.server.db.migrations.Select;
 import org.sonar.server.db.migrations.SqlStatement;
 
 import javax.annotation.CheckForNull;
+
 import java.sql.SQLException;
 
 /**
@@ -56,8 +57,8 @@ public class DevelopmentCostMeasuresMigration extends BaseDataChange {
       massUpdate.execute(new MassUpdate.Handler() {
         @Override
         public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
-          Long id = row.getLong(1);
-          Double value = row.getDouble(2);
+          Long id = row.getNullableLong(1);
+          Double value = row.getNullableDouble(2);
 
           update.setString(1, convertDebtForDays(value));
           update.setLong(2, id);

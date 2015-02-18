@@ -81,7 +81,7 @@ public class PhasesSumUpTimeProfilerTest {
   @Test
   public void testSimpleProject() throws InterruptedException {
 
-    final Project project = mockProject("project", true);
+    final Project project = mockProject("my:project", true);
     when(project.getModules()).thenReturn(Collections.<Project>emptyList());
 
     fakeAnalysis(profiler, project);

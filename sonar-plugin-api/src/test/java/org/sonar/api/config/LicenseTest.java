@@ -23,6 +23,9 @@ import org.apache.commons.codec.binary.Base64;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 
+import java.util.Calendar;
+import java.util.TimeZone;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class LicenseTest {
@@ -131,10 +134,20 @@ public class LicenseTest {
   public void isExpired() {
     License license = License.readPlainText(V2_FORMAT);
 
-    assertThat(license.isExpired(DateUtils.parseDate("2013-06-23"))).isTrue();
-    assertThat(license.isExpired(DateUtils.parseDate("2012-05-18"))).isTrue();
-    assertThat(license.isExpired(DateUtils.parseDateTime("2012-05-18T15:50:45+0100"))).isTrue();
     assertThat(license.isExpired(DateUtils.parseDate("2011-01-01"))).isFalse();
+    Calendar sameDay = Calendar.getInstance(TimeZone.getDefault());
+    sameDay.setTime(DateUtils.parseDate("2012-05-18"));
+    assertThat(license.isExpired(sameDay.getTime())).isFalse();
+    sameDay.set(Calendar.HOUR_OF_DAY, 15);
+    assertThat(license.isExpired(sameDay.getTime())).isFalse();
+    sameDay.set(Calendar.HOUR_OF_DAY, 23);
+    sameDay.set(Calendar.MINUTE, 59);
+    sameDay.set(Calendar.SECOND, 59);
+    assertThat(license.isExpired(sameDay.getTime())).isFalse();
+    // The day after
+    sameDay.add(Calendar.SECOND, 1);
+    assertThat(license.isExpired(sameDay.getTime())).isTrue();
+    assertThat(license.isExpired(DateUtils.parseDate("2013-06-23"))).isTrue();
   }
 
   @Test

@@ -300,15 +300,7 @@ public class Cache<V> {
    * Lazy-loading values for given keys
    */
   public Iterable<V> values(Object firstKey, Object secondKey) {
-    try {
-      exchange.clear();
-      exchange.append(firstKey).append(secondKey).append(Key.BEFORE);
-      Exchange iteratorExchange = new Exchange(exchange);
-      KeyFilter filter = new KeyFilter().append(KeyFilter.simpleTerm(firstKey)).append(KeyFilter.simpleTerm(secondKey));
-      return new ValueIterable<V>(iteratorExchange, filter);
-    } catch (Exception e) {
-      throw failToGetValues(e);
-    }
+    return new ValueIterable<V>(exchange, firstKey, secondKey);
   }
 
   private IllegalStateException failToGetValues(Exception e) {
@@ -319,41 +311,22 @@ public class Cache<V> {
    * Lazy-loading values for a given key
    */
   public Iterable<V> values(Object firstKey) {
-    try {
-      exchange.clear();
-      exchange.append(firstKey).append(Key.BEFORE);
-      Exchange iteratorExchange = new Exchange(exchange);
-      KeyFilter filter = new KeyFilter().append(KeyFilter.simpleTerm(firstKey));
-      return new ValueIterable<V>(iteratorExchange, filter);
-    } catch (Exception e) {
-      throw failToGetValues(e);
-    }
+    return new ValueIterable<V>(exchange, firstKey);
   }
 
   /**
    * Lazy-loading values
    */
   public Iterable<V> values() {
-    try {
-      exchange.clear().append(Key.BEFORE);
-      Exchange iteratorExchange = new Exchange(exchange);
-      KeyFilter filter = new KeyFilter().append(KeyFilter.ALL);
-      return new ValueIterable<V>(iteratorExchange, filter);
-    } catch (Exception e) {
-      throw failToGetValues(e);
-    }
+    return new ValueIterable<V>(exchange);
   }
 
   public Iterable<Entry<V>> entries() {
-    exchange.clear().to(Key.BEFORE);
-    KeyFilter filter = new KeyFilter().append(KeyFilter.ALL);
-    return new EntryIterable<V>(new Exchange(exchange), filter);
+    return new EntryIterable<V>(exchange);
   }
 
   public Iterable<Entry<V>> entries(Object firstKey) {
-    exchange.clear().append(firstKey).append(Key.BEFORE);
-    KeyFilter filter = new KeyFilter().append(KeyFilter.simpleTerm(firstKey));
-    return new EntryIterable<V>(new Exchange(exchange), filter);
+    return new EntryIterable<V>(exchange, firstKey);
   }
 
   private void resetKey(Object key) {
@@ -383,15 +356,25 @@ public class Cache<V> {
   //
 
   private static class ValueIterable<T> implements Iterable<T> {
-    private final Iterator<T> iterator;
+    private final Exchange originExchange;
+    private final Object[] keys;
 
-    private ValueIterable(Exchange exchange, KeyFilter keyFilter) {
-      this.iterator = new ValueIterator<T>(exchange, keyFilter);
+    private ValueIterable(Exchange originExchange, Object... keys) {
+      this.originExchange = originExchange;
+      this.keys = keys;
     }
 
     @Override
     public Iterator<T> iterator() {
-      return iterator;
+      originExchange.clear();
+      KeyFilter filter = new KeyFilter();
+      for (Object key : keys) {
+        originExchange.append(key);
+        filter = filter.append(KeyFilter.simpleTerm(key));
+      }
+      originExchange.append(Key.BEFORE);
+      Exchange iteratorExchange = new Exchange(originExchange);
+      return new ValueIterator<T>(iteratorExchange, filter);
     }
   }
 
@@ -434,15 +417,25 @@ public class Cache<V> {
   }
 
   private static class EntryIterable<T> implements Iterable<Entry<T>> {
-    private final EntryIterator<T> it;
+    private final Exchange originExchange;
+    private final Object[] keys;
 
-    private EntryIterable(Exchange exchange, KeyFilter keyFilter) {
-      it = new EntryIterator<T>(exchange, keyFilter);
+    private EntryIterable(Exchange originExchange, Object... keys) {
+      this.originExchange = originExchange;
+      this.keys = keys;
     }
 
     @Override
     public Iterator<Entry<T>> iterator() {
-      return it;
+      originExchange.clear();
+      KeyFilter filter = new KeyFilter();
+      for (Object key : keys) {
+        originExchange.append(key);
+        filter = filter.append(KeyFilter.simpleTerm(key));
+      }
+      originExchange.append(Key.BEFORE);
+      Exchange iteratorExchange = new Exchange(originExchange);
+      return new EntryIterator<T>(iteratorExchange, filter);
     }
   }
 

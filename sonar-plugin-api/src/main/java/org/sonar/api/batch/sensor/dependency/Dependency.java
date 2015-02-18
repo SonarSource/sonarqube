@@ -19,36 +19,19 @@
  */
 package org.sonar.api.batch.sensor.dependency;
 
-import com.google.common.annotations.Beta;
-import org.sonar.api.batch.fs.InputFile;
 
 /**
- * @since 5.0
+ * @since 5.1
  */
-@Beta
 public interface Dependency {
 
-  InputFile from();
+  String fromKey();
 
-  Dependency from(InputFile from);
-
-  InputFile to();
-
-  Dependency to(InputFile to);
+  String toKey();
 
   /**
    * Default weight value is 1.
    */
   int weight();
-
-  /**
-   * Set the weight of the dependency.
-   */
-  Dependency weight(int weight);
-
-  /**
-   * Save the dependency.
-   */
-  void save();
 
 }

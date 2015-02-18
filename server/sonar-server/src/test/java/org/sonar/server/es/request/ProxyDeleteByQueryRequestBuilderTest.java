@@ -49,8 +49,9 @@ public class ProxyDeleteByQueryRequestBuilderTest {
 
   @Test
   public void to_string() {
-    assertThat(esTester.client().prepareDeleteByQuery(FakeIndexDefinition.INDEX).toString()).isEqualTo("ES delete by query request on indices 'fakes'");
-    assertThat(esTester.client().prepareDeleteByQuery().toString()).isEqualTo("ES delete by query request");
+    assertThat(esTester.client().prepareDeleteByQuery(FakeIndexDefinition.INDEX).setQuery(QueryBuilders.matchAllQuery()).toString()).isEqualTo(
+      "ES delete by query request '{\"match_all\":{}}' on indices 'fakes'");
+    assertThat(esTester.client().prepareDeleteByQuery().toString()).isEqualTo("ES delete by query request ''");
   }
 
   @Test

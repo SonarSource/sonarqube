@@ -30,6 +30,9 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.duplication.Duplication;
+import org.sonar.api.batch.sensor.measure.Measure;
+import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.xoo.XooPlugin;
@@ -129,6 +132,44 @@ public class CpdMediumTest {
     assertThat(cloneGroupFile2.duplicates().get(0).resourceKey()).isEqualTo(((DefaultInputFile) inputFile1).key());
   }
 
+  // SONAR-6000
+  @Test
+  public void truncateDuplication() throws IOException {
+    File srcDir = new File(baseDir, "src");
+    srcDir.mkdir();
+
+    String duplicatedStuff = "Sample xoo\n";
+
+    int blockCount = 10000;
+    File xooFile1 = new File(srcDir, "sample.xoo");
+    for (int i = 0; i < blockCount; i++) {
+      FileUtils.write(xooFile1, duplicatedStuff, true);
+      FileUtils.write(xooFile1, "" + i + "\n", true);
+    }
+
+    TaskResult result = tester.newTask()
+      .properties(builder
+        .put("sonar.sources", "src")
+        .put("sonar.cpd.xoo.minimumTokens", "1")
+        .put("sonar.cpd.xoo.minimumLines", "1")
+        .build())
+      .start();
+
+    Measure duplicatedBlocks = null;
+    for (Measure m : result.measures()) {
+      if (m.metric().key().equals("duplicated_blocks")) {
+        duplicatedBlocks = m;
+      }
+    }
+    assertThat(duplicatedBlocks.value()).isEqualTo(blockCount);
+
+    List<Duplication> duplicationGroups = result.duplicationsFor(result.inputFile("src/sample.xoo"));
+    assertThat(duplicationGroups).hasSize(1);
+
+    Duplication cloneGroup = duplicationGroups.get(0);
+    assertThat(cloneGroup.duplicates()).hasSize(100);
+  }
+
   @Test
   public void testIntraFileDuplications() throws IOException {
     File srcDir = new File(baseDir, "src");
@@ -164,10 +205,10 @@ public class CpdMediumTest {
     assertThat(cloneGroup.duplicates().get(0).startLine()).isEqualTo(5);
     assertThat(cloneGroup.duplicates().get(0).length()).isEqualTo(2);
 
-    // assertThat(result.measures()).contains(new DefaultMeasure<String>()
-    // .forMetric(CoreMetrics.DUPLICATION_LINES_DATA)
-    // .onFile(inputFile)
-    // .withValue("1=1;2=1;3=0;4=0;5=1;6=1;7=0"));
+    assertThat(result.measures()).contains(new DefaultMeasure<String>()
+      .forMetric(CoreMetrics.DUPLICATION_LINES_DATA)
+      .onFile(inputFile)
+      .withValue("1=1;2=1;3=0;4=0;5=1;6=1;7=0"));
   }
 
 }

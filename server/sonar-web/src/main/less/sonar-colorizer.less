@@ -1,3 +1,6 @@
+@import (reference) 'variables';
+@import (reference) 'mixins';
+
 /* for example java annotations */
 .code .a {
   color: #808000;
@@ -5,7 +8,7 @@
 /* constants */
 .code .c {
   color: #660E80;
-  font-style: italic;
+  font-style: normal;
   font-weight: bold;
 }
 /* javadoc */
@@ -25,13 +28,13 @@
 }
 /* keyword */
 .code .k {
-  color: #000080;
-  font-weight: bold;
+  color: saturate(@darkBlue, 50%);
+  font-weight: 600;
 }
 /* string */
 .code .s {
-  color: #008000;
-  font-weight: bold;
+  color: saturate(@red, 0%);
+  font-weight: normal;
 }
 /* keyword light*/
 .code .h {

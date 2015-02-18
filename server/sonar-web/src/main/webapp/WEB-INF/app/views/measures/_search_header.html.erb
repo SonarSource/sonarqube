@@ -46,20 +46,20 @@
         <% end %>
       <% end %>
     </div>
+
+    <% unless edit_mode %>
+      <% if @filter.display %>
+        <div class="button-group">
+          <button id="change-display" onclick="window.location='<%= url_for @filter.criteria.merge({:action => 'search', :edit => true, :id => @filter.id}) -%>';"><%= message("measure_filter.#{@filter.display.key}.change") -%></button>
+        </div>
+      <% end %>
+    <% end %>
   </div>
 
-  <% unless edit_mode %>
-    <% if @filter.display %>
-      <div class="navigator-header-actions button-group">
-        <button id="change-display" onclick="window.location='<%= url_for @filter.criteria.merge({:action => 'search', :edit => true, :id => @filter.id}) -%>';"><%= message("measure_filter.#{@filter.display.key}.change") -%></button>
-      </div>
-    <% end %>
-  <% end %>
-
   <% if @filter.description.present? %>
-    <div id="filter-description" class="navigator-header-description"><%= h @filter.description -%></div>
+    <div id="filter-description" class="page-description"><%= h @filter.description -%></div>
   <% end %>
 
 <% else %>
-  <h1 class="navigator-header-title"><%= message('layout.measures') -%></h1>
+  <h1 class="page-title"><%= message('layout.measures') -%></h1>
 <% end %>

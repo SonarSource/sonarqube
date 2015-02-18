@@ -51,7 +51,9 @@ define([
             'click .source-line-duplications': 'showDuplications',
             'click .source-line-duplications-extra': 'showDuplicationPopup',
             'click .source-line-with-issues': 'onLineIssuesClick',
-            'click .source-line-number[data-line-number]': 'onLineNumberClick'
+            'click .source-line-number[data-line-number]': 'onLineNumberClick',
+            'mouseenter .source-line-filtered .source-line-filtered-container': 'showFilteredTooltip',
+            'mouseleave .source-line-filtered .source-line-filtered-container': 'hideFilteredTooltip'
           };
         },
 
@@ -82,6 +84,7 @@ define([
           if (this.model.has('filterLinesFunc')) {
             this.filterLines(this.model.get('filterLinesFunc'));
           }
+          this.$('[data-toggle="tooltip"]').tooltip({ container: 'body' });
         },
 
         onClose: function () {
@@ -89,6 +92,11 @@ define([
             return view.close();
           });
           this.issueViews = [];
+          this.clearTooltips();
+        },
+
+        clearTooltips: function () {
+          this.$('[data-toggle="tooltip"]').tooltip('destroy');
         },
 
         onLoaded: function () {
@@ -361,6 +369,7 @@ define([
         showDuplications: function (e) {
           var that = this,
               lineNumber = $(e.currentTarget).closest('.source-line').data('line-number');
+          this.clearTooltips();
           this.requestDuplications().done(function () {
             that.render();
             that.$el.addClass('source-duplications-expanded');
@@ -620,12 +629,26 @@ define([
           });
         },
 
-        filterLinesByDate: function (date) {
+        filterLinesByDate: function (date, label) {
           var sinceDate = moment(date).toDate();
+          this.sinceLabel = label;
           this.filterLines(function (line) {
             var scmDate = moment(line.scmDate).toDate();
             return scmDate >= sinceDate;
           });
+        },
+
+        showFilteredTooltip: function (e) {
+          $(e.currentTarget).tooltip({
+            container: 'body',
+            placement: 'right',
+            title: tp('source_viewer.tooltip.new_code', this.sinceLabel),
+            trigger: 'manual'
+          }).tooltip('show');
+        },
+
+        hideFilteredTooltip: function (e) {
+          $(e.currentTarget).tooltip('destroy');
         }
       });
 

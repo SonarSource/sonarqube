@@ -1,7 +1,7 @@
 define([
-    'components/navigator/controller',
-    'coding-rules/models/rule',
-    'coding-rules/rule-details-view'
+  'components/navigator/controller',
+  'coding-rules/models/rule',
+  'coding-rules/rule-details-view'
 ], function (Controller, Rule, RuleDetailsView) {
 
   var $ = jQuery;
@@ -20,14 +20,16 @@ define([
         fields.push('isTemplate');
         fields.push('severity');
       }
-      return {
+      var params = {
         p: this.app.state.get('page'),
         ps: this.pageSize,
         facets: this._facetsFromServer().join(),
-        f: fields.join(),
-        s: 'name',
-        asc: true
+        f: fields.join()
       };
+      if (this.app.state.get('query').q == null) {
+        _.extend(params, { s: 'name', asc: true });
+      }
+      return params;
     },
 
     fetchList: function (firstPage) {

@@ -74,10 +74,18 @@
             .attr('height', function (d) {
               return Math.floor(yScale(d.count));
             })
+            .style('cursor', 'pointer')
+            .attr('data-period-start', function (d) {
+              return moment(d.val).format('YYYY-MM-DD');
+            })
+            .attr('data-period-end', function (d, i) {
+              var ending = i < data.length - 1 ? moment(data[i + 1].val).subtract(1, 'seconds') : moment();
+              return ending.format('YYYY-MM-DD');
+            })
             .attr('title', function (d, i) {
               var beginning = moment(d.val),
                   ending = i < data.length - 1 ? moment(data[i + 1].val).subtract(1, 'days') : moment();
-              return d.count + ' | ' + beginning.format('LL') + ' - ' + ending.format('LL');
+              return d.count + '<br>' + beginning.format('LL') + ' – ' + ending.format('LL');
             })
             .attr('data-placement', 'right')
             .attr('data-toggle', 'tooltip');
@@ -97,7 +105,7 @@
               return text;
             });
 
-        $(this).find('[data-toggle=tooltip]').tooltip({ container: 'body' });
+        $(this).find('[data-toggle=tooltip]').tooltip({ container: 'body', html: true });
       }
     });
   };

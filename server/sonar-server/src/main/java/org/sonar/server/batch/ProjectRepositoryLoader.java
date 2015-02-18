@@ -20,6 +20,7 @@
 
 package org.sonar.server.batch;
 
+import com.google.common.base.Function;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
@@ -67,7 +68,7 @@ public class ProjectRepositoryLoader implements ServerComponent {
   private final Languages languages;
 
   public ProjectRepositoryLoader(DbClient dbClient, QProfileFactory qProfileFactory, QProfileLoader qProfileLoader, RuleService ruleService,
-                                 Languages languages) {
+    Languages languages) {
     this.dbClient = dbClient;
     this.qProfileFactory = qProfileFactory;
     this.qProfileLoader = qProfileLoader;
@@ -86,10 +87,9 @@ public class ProjectRepositoryLoader implements ServerComponent {
       ComponentDto module = dbClient.componentDao().getNullableByKey(session, query.getModuleKey());
       // Current project/module can be null when analysing a new project
       if (module != null) {
-        if (query.isPreview()) {
-          // Scan permission is enough to analyze all projects but preview permission is limited to projects user can access
-          UserSession.get().checkComponentPermission(UserRole.USER, query.getModuleKey(),
-            "You're not authorized to access to project '" + module.name() + "', please contact your SonarQube administrator.");
+        // Scan permission is enough to analyze all projects but preview permission is limited to projects user can access
+        if (query.isPreview() && !UserSession.get().hasProjectPermissionByUuid(UserRole.USER, module.projectUuid())) {
+          throw new ForbiddenException("You're not authorized to access to project '" + module.name() + "', please contact your SonarQube administrator.");
         }
 
         ComponentDto project = getProject(module, session);
@@ -156,7 +156,7 @@ public class ProjectRepositoryLoader implements ServerComponent {
   }
 
   private void addSettingsToChildrenModules(ProjectRepositories ref, String moduleKey, Map<String, String> parentProperties, TreeModuleSettings treeModuleSettings,
-                                            boolean hasScanPerm, DbSession session) {
+    boolean hasScanPerm, DbSession session) {
     Map<String, String> currentParentProperties = newHashMap();
     currentParentProperties.putAll(parentProperties);
     currentParentProperties.putAll(getPropertiesMap(treeModuleSettings.findModuleSettings(moduleKey), hasScanPerm));
@@ -224,12 +224,15 @@ public class ProjectRepositoryLoader implements ServerComponent {
 
   private void addActiveRules(ProjectRepositories ref) {
     for (org.sonar.batch.protocol.input.QProfile qProfile : ref.qProfiles()) {
-      for (ActiveRule activeRule : qProfileLoader.findActiveRulesByProfile(qProfile.key())) {
-        Rule rule = ruleService.getNonNullByKey(activeRule.key().ruleKey());
+      Map<RuleKey, ActiveRule> activeRules = activeRuleByRuleKey(qProfileLoader.findActiveRulesByProfile(qProfile.key()));
+      Iterator<Rule> rules = ruleService.search(new RuleQuery().setQProfileKey(qProfile.key()).setActivation(true), new QueryContext().setScroll(true)).scroll();
+      while (rules.hasNext()) {
+        Rule rule = rules.next();
         RuleKey templateKey = rule.templateKey();
+        ActiveRule activeRule = activeRules.get(rule.key());
         org.sonar.batch.protocol.input.ActiveRule inputActiveRule = new org.sonar.batch.protocol.input.ActiveRule(
-          activeRule.key().ruleKey().repository(),
-          activeRule.key().ruleKey().rule(),
+          rule.key().repository(),
+          rule.key().rule(),
           templateKey != null ? templateKey.rule() : null,
           rule.name(),
           activeRule.severity(),
@@ -241,6 +244,15 @@ public class ProjectRepositoryLoader implements ServerComponent {
         ref.addActiveRule(inputActiveRule);
       }
     }
+  }
+
+  private Map<RuleKey, ActiveRule> activeRuleByRuleKey(List<ActiveRule> activeRules) {
+    return Maps.uniqueIndex(activeRules, new Function<ActiveRule, RuleKey>() {
+      @Override
+      public RuleKey apply(@Nullable ActiveRule input) {
+        return input != null ? input.key().ruleKey() : null;
+      }
+    });
   }
 
   private void addManualRules(ProjectRepositories ref) {
@@ -309,7 +321,7 @@ public class ProjectRepositoryLoader implements ServerComponent {
     private Multimap<String, ComponentDto> moduleChildrenByModuleUuid;
 
     private TreeModuleSettings(Map<String, String> moduleUuidsByKey, Map<String, Long> moduleIdsByKey, List<ComponentDto> moduleChildren,
-                               List<PropertyDto> moduleChildrenSettings, ComponentDto module) {
+      List<PropertyDto> moduleChildrenSettings, ComponentDto module) {
       this.moduleIdsByKey = moduleIdsByKey;
       this.moduleUuidsByKey = moduleUuidsByKey;
       propertiesByModuleId = ArrayListMultimap.create();

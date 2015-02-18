@@ -123,7 +123,7 @@ public class ProjectReactorValidator {
   private void validateBranch(List<String> validationMessages, @Nullable String branch) {
     if (StringUtils.isNotEmpty(branch) && !ComponentKeys.isValidBranch(branch)) {
       validationMessages.add(String.format("\"%s\" is not a valid branch name. "
-        + "Allowed characters are alphanumeric, '-', '_' and '.'.", branch));
+        + "Allowed characters are alphanumeric, '-', '_', '.' and '/'.", branch));
     }
   }
 

@@ -40,24 +40,6 @@ define([
   }
 
   App.addInitializer(function () {
-    var navHeight = $('.navbar-global').outerHeight() + $('.navbar-context').outerHeight();
-    $('.page-wrapper').css('padding-top', navHeight).data('top-offset', navHeight);
-  });
-
-  App.addInitializer(function () {
-    var that = this;
-    $(window).on('keypress', function (e) {
-      var tagName = e.target.tagName;
-      if (tagName !== 'INPUT' && tagName !== 'SELECT' && tagName !== 'TEXTAREA') {
-        var code = e.keyCode || e.which;
-        if (code === 63) {
-          that.navbarView.showShortcutsHelp();
-        }
-      }
-    });
-  });
-
-  App.addInitializer(function () {
     var that = this;
     $(window).on('keypress', function (e) {
       var tagName = e.target.tagName;

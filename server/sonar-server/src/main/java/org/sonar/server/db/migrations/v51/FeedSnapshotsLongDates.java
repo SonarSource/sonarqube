@@ -51,10 +51,10 @@ public class FeedSnapshotsLongDates extends BaseDataChange {
       @Override
       public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
         for (int i = 1; i <= 7; i++) {
-          update.setLong(i, row.getDate(i) == null ? null : Math.min(now, row.getDate(i).getTime()));
+          update.setLong(i, row.getNullableDate(i) == null ? null : Math.min(now, row.getNullableDate(i).getTime()));
         }
 
-        Long id = row.getLong(8);
+        Long id = row.getNullableLong(8);
         update.setLong(8, id);
 
         return true;

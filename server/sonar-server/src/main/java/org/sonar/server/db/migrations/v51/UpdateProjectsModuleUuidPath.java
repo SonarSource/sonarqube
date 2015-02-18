@@ -22,9 +22,11 @@ package org.sonar.server.db.migrations.v51;
 
 import org.apache.commons.lang.StringUtils;
 import org.sonar.core.persistence.Database;
-import org.sonar.server.db.migrations.*;
+import org.sonar.server.db.migrations.BaseDataChange;
+import org.sonar.server.db.migrations.MassUpdate;
 import org.sonar.server.db.migrations.MassUpdate.Handler;
 import org.sonar.server.db.migrations.Select.Row;
+import org.sonar.server.db.migrations.SqlStatement;
 
 import javax.annotation.Nullable;
 
@@ -53,11 +55,11 @@ public class UpdateProjectsModuleUuidPath extends BaseDataChange {
   private static final class ModuleUuidPathUpdateHandler implements Handler {
     @Override
     public boolean handle(Row row, SqlStatement update) throws SQLException {
-      Long id = row.getLong(1);
-      String moduleUuidPath = row.getString(2);
-      String uuid = row.getString(3);
-      String scope = row.getString(4);
-      String qualifier = row.getString(5);
+      Long id = row.getNullableLong(1);
+      String moduleUuidPath = row.getNullableString(2);
+      String uuid = row.getNullableString(3);
+      String scope = row.getNullableString(4);
+      String qualifier = row.getNullableString(5);
 
       boolean needUpdate = false;
       String newModuleUuidPath = moduleUuidPath;

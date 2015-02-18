@@ -97,12 +97,16 @@ public class DirectoryDsmDecoratorTest {
   public void testDirectoryDsmDecoratorNoDependency() {
     decorator.decorate(dir, dirContext);
 
-    verify(dirContext, times(4)).saveMeasure(any(Measure.class));
+    verify(dirContext, times(5)).saveMeasure(any(Measure.class));
 
     verify(dirContext).saveMeasure(isMeasureWithValue(CoreMetrics.FILE_CYCLES, 0.0));
     verify(dirContext).saveMeasure(isMeasureWithValue(CoreMetrics.FILE_FEEDBACK_EDGES, 0.0));
     verify(dirContext).saveMeasure(isMeasureWithValue(CoreMetrics.FILE_TANGLES, 0.0));
     verify(dirContext).saveMeasure(isMeasureWithValue(CoreMetrics.FILE_EDGES_WEIGHT, 0.0));
+    verify(dirContext).saveMeasure(
+      isMeasureWithValue(CoreMetrics.DEPENDENCY_MATRIX,
+        "[{\"i\":1,\"n\":\"Foo1.java\",\"q\":\"FIL\",\"v\":[{},{}]},{\"i\":2,\"n\":\"Foo2.java\",\"q\":\"FIL\",\"v\":[{},{}]}]"));
+
   }
 
   @Test

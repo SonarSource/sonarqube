@@ -14,6 +14,7 @@ define([
 
     events: {
       'click': 'selectCurrent',
+      'dblclick': 'openRule',
       'click .js-rule': 'openRule',
       'click .coding-rules-detail-quality-profile-activate': 'activate',
       'click .coding-rules-detail-quality-profile-change': 'change',

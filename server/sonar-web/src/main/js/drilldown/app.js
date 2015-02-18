@@ -24,7 +24,7 @@ requirejs([
       viewer.open(uuid);
       if (window.drilldown.period != null) {
         viewer.on('loaded', function () {
-          viewer.filterLinesByDate(window.drilldown.period);
+          viewer.filterLinesByDate(window.drilldown.period, window.drilldown.periodName);
         });
       }
     });

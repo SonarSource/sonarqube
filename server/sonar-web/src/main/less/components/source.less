@@ -26,6 +26,7 @@
   .source-line-coverage,
   .source-line-duplications,
   .source-line-duplications-extra,
+  .source-line-filtered-container,
   .source-line-scm {
     border-color: darken(@barBackgroundColor, 4%);
     background-color: darken(@barBackgroundColor, 4%);
@@ -43,6 +44,7 @@
   .source-line-coverage,
   .source-line-duplications,
   .source-line-duplications-extra,
+  .source-line-filtered-container,
   .source-line-scm {
     border-color: #fdf190 !important;
     background-color: #fdf190;
@@ -60,9 +62,8 @@
 }
 
 .source-line-filtered {
-  .source-line-code {
-    border-left: 4px solid @lightBlue;
-    padding-left: 6px;
+  .source-line-filtered-container {
+    background-color: @lightBlue !important;
   }
 }
 
@@ -155,6 +156,10 @@
   .source-line-duplications-extra {
     display: table-cell;
   }
+}
+
+.source-line-filtered-container {
+  background-color: @barBackgroundColor;
 }
 
 .source-line-scm {

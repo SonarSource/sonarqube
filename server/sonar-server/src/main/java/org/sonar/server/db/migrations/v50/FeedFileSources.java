@@ -150,36 +150,36 @@ public class FeedFileSources extends BaseDataChange {
 
     @Override
     public boolean handle(Row row, SqlStatement update) throws SQLException {
-      String projectUuid = row.getString(1);
-      String fileUuid = row.getString(2);
-      String source = StringUtils.defaultIfBlank(row.getString(3), "");
-      Date updatedAt = row.getDate(4);
-      byte[] shortRevisions = row.getBytes(5);
-      byte[] longRevisions = row.getBytes(6);
-      byte[] shortAuthors = row.getBytes(7);
-      byte[] longAuthors = row.getBytes(8);
-      byte[] shortDates = row.getBytes(9);
-      byte[] longDates = row.getBytes(10);
-      byte[] shortUtHits = row.getBytes(11);
-      byte[] longUtHits = row.getBytes(12);
-      byte[] shortUtCond = row.getBytes(13);
-      byte[] longUtCond = row.getBytes(14);
-      byte[] shortUtCovCond = row.getBytes(15);
-      byte[] longUtCovCond = row.getBytes(16);
-      byte[] shortItHits = row.getBytes(17);
-      byte[] longItHits = row.getBytes(18);
-      byte[] shortItCond = row.getBytes(19);
-      byte[] longItCond = row.getBytes(20);
-      byte[] shortItCovCond = row.getBytes(21);
-      byte[] longItCovCond = row.getBytes(22);
-      byte[] shortOverallHits = row.getBytes(23);
-      byte[] longOverallHits = row.getBytes(24);
-      byte[] shortOverallCond = row.getBytes(25);
-      byte[] longOverallCond = row.getBytes(26);
-      byte[] shortOverallCovCond = row.getBytes(27);
-      byte[] longOverallCovCond = row.getBytes(28);
-      byte[] shortDuplicationData = row.getBytes(29);
-      byte[] longDuplicationData = row.getBytes(30);
+      String projectUuid = row.getNullableString(1);
+      String fileUuid = row.getNullableString(2);
+      String source = StringUtils.defaultIfBlank(row.getNullableString(3), "");
+      Date updatedAt = row.getNullableDate(4);
+      byte[] shortRevisions = row.getNullableBytes(5);
+      byte[] longRevisions = row.getNullableBytes(6);
+      byte[] shortAuthors = row.getNullableBytes(7);
+      byte[] longAuthors = row.getNullableBytes(8);
+      byte[] shortDates = row.getNullableBytes(9);
+      byte[] longDates = row.getNullableBytes(10);
+      byte[] shortUtHits = row.getNullableBytes(11);
+      byte[] longUtHits = row.getNullableBytes(12);
+      byte[] shortUtCond = row.getNullableBytes(13);
+      byte[] longUtCond = row.getNullableBytes(14);
+      byte[] shortUtCovCond = row.getNullableBytes(15);
+      byte[] longUtCovCond = row.getNullableBytes(16);
+      byte[] shortItHits = row.getNullableBytes(17);
+      byte[] longItHits = row.getNullableBytes(18);
+      byte[] shortItCond = row.getNullableBytes(19);
+      byte[] longItCond = row.getNullableBytes(20);
+      byte[] shortItCovCond = row.getNullableBytes(21);
+      byte[] longItCovCond = row.getNullableBytes(22);
+      byte[] shortOverallHits = row.getNullableBytes(23);
+      byte[] longOverallHits = row.getNullableBytes(24);
+      byte[] shortOverallCond = row.getNullableBytes(25);
+      byte[] longOverallCond = row.getNullableBytes(26);
+      byte[] shortOverallCovCond = row.getNullableBytes(27);
+      byte[] longOverallCovCond = row.getNullableBytes(28);
+      byte[] shortDuplicationData = row.getNullableBytes(29);
+      byte[] longDuplicationData = row.getNullableBytes(30);
 
       String[] sourceData = new FileSourceDto(source,
         ofNullableBytes(shortRevisions, longRevisions),
@@ -235,7 +235,7 @@ public class FeedFileSources extends BaseDataChange {
     RowReader<Long> simpleLongReader = new RowReader<Long>() {
       @Override
       public Long read(Row row) throws SQLException {
-        Long longValue = row.getLong(1);
+        Long longValue = row.getNullableLong(1);
         return longValue == null ? Long.valueOf(0L) : longValue;
       }
     };

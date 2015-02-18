@@ -58,6 +58,7 @@ import org.sonar.api.test.Testable;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.batch.index.DefaultIndex;
+import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.sensor.coverage.CoverageExclusions;
 import org.sonar.core.component.ComponentKeys;
 
@@ -70,17 +71,20 @@ public class DefaultSensorStorage implements SensorStorage {
   private final DefaultIndex sonarIndex;
   private final CoverageExclusions coverageExclusions;
   private final DuplicationCache duplicationCache;
+  private final ResourceCache resourceCache;
 
   public DefaultSensorStorage(MetricFinder metricFinder, Project project,
     ResourcePerspectives perspectives,
     Settings settings, FileSystem fs, ActiveRules activeRules, ComponentDataCache componentDataCache,
-    DuplicationCache duplicationCache, DefaultIndex sonarIndex, CoverageExclusions coverageExclusions) {
+    DuplicationCache duplicationCache, DefaultIndex sonarIndex, CoverageExclusions coverageExclusions,
+    ResourceCache resourceCache) {
     this.metricFinder = metricFinder;
     this.project = project;
     this.perspectives = perspectives;
     this.sonarIndex = sonarIndex;
     this.coverageExclusions = coverageExclusions;
     this.duplicationCache = duplicationCache;
+    this.resourceCache = resourceCache;
   }
 
   private Metric findMetricOrFail(String metricKey) {
@@ -241,10 +245,10 @@ public class DefaultSensorStorage implements SensorStorage {
 
   @Override
   public void store(org.sonar.api.batch.sensor.dependency.Dependency dep) {
-    File fromResource = getFile(dep.from());
-    File toResource = getFile(dep.to());
+    File fromResource = (File) resourceCache.get(dep.fromKey()).resource();
+    File toResource = (File) resourceCache.get(dep.toKey()).resource();
     if (sonarIndex.getEdge(fromResource, toResource) != null) {
-      throw new IllegalStateException("Dependency between " + dep.from() + " and " + dep.to() + " was already saved.");
+      throw new IllegalStateException("Dependency between " + dep.fromKey() + " and " + dep.toKey() + " was already saved.");
     }
     Directory fromParent = fromResource.getParent();
     Directory toParent = toResource.getParent();

@@ -70,7 +70,7 @@ public class FeedManualMeasuresLongDatesTest {
   }
 
   @Test
-  public void take_snapshot_date_if_in_the_past() throws Exception {
+  public void take_manual_measure_date_if_in_the_past() throws Exception {
     DatabaseMigration migration = newMigration(System2.INSTANCE);
 
     migration.execute();

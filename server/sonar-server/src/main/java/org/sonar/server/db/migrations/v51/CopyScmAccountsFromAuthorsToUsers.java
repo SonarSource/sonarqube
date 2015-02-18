@@ -66,7 +66,7 @@ public class CopyScmAccountsFromAuthorsToUsers extends BaseDataChange {
         ).scroll(new Select.RowHandler() {
           @Override
           public void handle(Select.Row row) throws SQLException {
-            authorsByPersonId.put(row.getLong(1), row.getString(2));
+            authorsByPersonId.put(row.getNullableLong(1), row.getNullableString(2));
           }
         });
 
@@ -126,7 +126,7 @@ public class CopyScmAccountsFromAuthorsToUsers extends BaseDataChange {
     select.scroll(new Select.RowHandler() {
       @Override
       public void handle(Select.Row row) throws SQLException {
-        users.add(new User(row.getLong(1), row.getString(2), row.getString(3), row.getString(4)));
+        users.add(new User(row.getNullableLong(1), row.getNullableString(2), row.getNullableString(3), row.getNullableString(4)));
       }
     });
     return users;

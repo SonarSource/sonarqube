@@ -54,7 +54,7 @@ public class InsertProjectsAuthorizationUpdatedAtMigration extends BaseDataChang
     massUpdate.execute(new MassUpdate.Handler() {
       @Override
       public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
-        Long id = row.getLong(1);
+        Long id = row.getNullableLong(1);
         update.setLong(1, now);
         update.setLong(2, id);
         return true;

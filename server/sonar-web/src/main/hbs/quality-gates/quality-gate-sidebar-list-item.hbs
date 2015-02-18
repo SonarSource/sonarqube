@@ -1,1 +1,7 @@
-<div class="line line-nowrap">{{name}} {{#if default}}<span class="subtitle">({{t 'default'}})</span>{{/if}}</div>
+<span class="facet-name">
+  {{name}}
+</span>
+
+{{#if default}}
+  <span class="facet-stat">{{t 'default'}}</span>
+{{/if}}

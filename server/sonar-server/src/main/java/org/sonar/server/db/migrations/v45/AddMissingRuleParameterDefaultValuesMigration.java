@@ -50,7 +50,7 @@ public class AddMissingRuleParameterDefaultValuesMigration extends BaseDataChang
       .list(new Select.RowReader<RuleParam>() {
         @Override
         public RuleParam read(Select.Row row) throws SQLException {
-          return new RuleParam(row.getLong(1), row.getLong(2), row.getString(3), row.getString(4));
+          return new RuleParam(row.getNullableLong(1), row.getNullableLong(2), row.getNullableString(3), row.getNullableString(4));
         }
       });
 
@@ -63,7 +63,7 @@ public class AddMissingRuleParameterDefaultValuesMigration extends BaseDataChang
         .list(new Select.RowReader<ActiveRule>() {
           @Override
           public ActiveRule read(Select.Row row) throws SQLException {
-            return new ActiveRule(row.getLong(1), row.getLong(2));
+            return new ActiveRule(row.getNullableLong(1), row.getNullableLong(2));
           }
         });
 

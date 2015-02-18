@@ -51,7 +51,7 @@ class Api::EventsController < Api::ApiController
       end
       if from
         conditions<<'event_date>=:from'
-        values[:from]=from
+        values[:from]=from.to_i*1000
       end
 
       to=nil
@@ -62,7 +62,7 @@ class Api::EventsController < Api::ApiController
       end
       if to
         conditions<<'event_date<=:to'
-        values[:to]=to
+        values[:to]=to.to_i*1000
       end
 
       events=Event.find(:all, :conditions => [conditions.join(' AND '), values], :order => 'event_date DESC')

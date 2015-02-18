@@ -50,8 +50,8 @@ public class PackageKeysMigration extends BaseDataChange {
     massUpdate.execute(new MassUpdate.Handler() {
       @Override
       public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
-        Long id = row.getLong(1);
-        String key = row.getString(2);
+        Long id = row.getNullableLong(1);
+        String key = row.getNullableString(2);
         update.setString(1, convertKey(key));
         update.setLong(2, id);
         return true;

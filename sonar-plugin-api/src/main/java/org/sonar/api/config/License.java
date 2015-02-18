@@ -102,7 +102,15 @@ public final class License {
   @VisibleForTesting
   boolean isExpired(Date now) {
     Date date = getExpirationDate();
-    return date != null && !date.after(org.apache.commons.lang.time.DateUtils.truncate(now, Calendar.DATE));
+    if (date == null) {
+      return false;
+    }
+    // SONAR-6079 include last day
+    Calendar cal = Calendar.getInstance();
+    cal.setTime(date);
+    cal.add(Calendar.DAY_OF_MONTH, 1);
+    cal.add(Calendar.SECOND, -1);
+    return now.after(cal.getTime());
   }
 
   @Nullable

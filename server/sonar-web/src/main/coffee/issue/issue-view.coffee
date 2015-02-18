@@ -201,7 +201,7 @@ define [
 
 
     assignToMe: ->
-      view = new AssignFormView model: @model
+      view = new AssignFormView model: @model, triggerEl: $('body')
       view.submit window.SS.user, window.SS.userName
       view.close()
 

@@ -150,7 +150,7 @@ public class ResourcePersister implements ScanPersister {
     snapshot = session.save(snapshot);
     session.commit();
 
-    if (!permissions.hasRoles(project)) {
+    if (parent == null && !permissions.hasRoles(project)) {
       permissions.grantDefaultRoles(project);
     }
 

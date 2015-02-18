@@ -4,12 +4,13 @@
      selected_section = Navigation::SECTION_HOME
    end
    @project=@resource unless @project || selected_section==Navigation::SECTION_HOME
+   has_context_nav = selected_section==Navigation::SECTION_RESOURCE || selected_section==Navigation::SECTION_CONFIGURATION
    period_param = "period=#{u(params[:period])}" if params[:period]
 %>
-<div class="page-wrapper" id="container">
+<div class="page-wrapper <% if has_context_nav %>page-wrapper-context<% else %>page-wrapper-global<% end %>" id="container">
   <nav class="navbar navbar-global page-container" id="global-navigation"></nav>
 
-  <% if selected_section==Navigation::SECTION_RESOURCE || selected_section==Navigation::SECTION_CONFIGURATION %>
+  <% if has_context_nav %>
     <nav class="navbar navbar-context page-container" id="context-navigation"></nav>
   <% end %>
 

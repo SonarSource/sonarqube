@@ -293,6 +293,61 @@ public interface RulesDefinition extends ServerExtension {
      */
     public static final String UNIT_TESTABILITY = "UNIT_TESTABILITY";
 
+    /**
+     * Related to characteristic ACCESSIBILITY
+     */
+    public static final String USABILITY_ACCESSIBILITY = "USABILITY_ACCESSIBILITY";
+
+    /**
+     * Related to characteristic ACCESSIBILITY
+     */
+    public static final String USABILITY_COMPLIANCE = "USABILITY_COMPLIANCE";
+
+    /**
+     * Related to characteristic ACCESSIBILITY
+     */
+    public static final String USABILITY_EASE_OF_USE = "USABILITY_EASE_OF_USE";
+
+    /**
+     * Related to characteristic REUSABILITY
+     */
+    public static final String REUSABILITY_COMPLIANCE = "REUSABILITY_COMPLIANCE";
+
+    /**
+     * Related to characteristic PORTABILITY
+     */
+    public static final String PORTABILITY_COMPLIANCE = "PORTABILITY_COMPLIANCE";
+
+    /**
+     * Related to characteristic MAINTAINABILITY
+     */
+    public static final String MAINTAINABILITY_COMPLIANCE = "MAINTAINABILITY_COMPLIANCE";
+
+    /**
+     * Related to characteristic SECURITY
+     */
+    public static final String SECURITY_COMPLIANCE = "SECURITY_COMPLIANCE";
+
+    /**
+     * Related to characteristic EFFICIENCY
+     */
+    public static final String EFFICIENCY_COMPLIANCE = "EFFICIENCY_COMPLIANCE";
+
+    /**
+     * Related to characteristic CHANGEABILITY
+     */
+    public static final String CHANGEABILITY_COMPLIANCE = "CHANGEABILITY_COMPLIANCE";
+
+    /**
+     * Related to characteristic RELIABILITY
+     */
+    public static final String RELIABILITY_COMPLIANCE = "RELIABILITY_COMPLIANCE";
+
+    /**
+     * Related to characteristic TESTABILITY
+     */
+    public static final String TESTABILITY_COMPLIANCE = "TESTABILITY_COMPLIANCE";
+
     private SubCharacteristics() {
       // only constants
     }

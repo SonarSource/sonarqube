@@ -37,18 +37,14 @@ import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.resources.Directory;
-import org.sonar.api.resources.File;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.ProjectLink;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.*;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.batch.sensor.DefaultSensorContext;
 import org.sonar.batch.sensor.coverage.CoverageExclusions;
+
+import javax.annotation.Nullable;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -66,8 +62,8 @@ public class DeprecatedSensorContext extends DefaultSensorContext implements Sen
 
   public DeprecatedSensorContext(SonarIndex index, Project project, Settings settings, FileSystem fs, ActiveRules activeRules,
     AnalysisMode analysisMode, ComponentDataCache componentDataCache, CoverageExclusions coverageFilter,
-    DuplicationCache duplicationCache, SensorStorage sensorStorage) {
-    super(settings, fs, activeRules, analysisMode, componentDataCache, duplicationCache, sensorStorage);
+    SensorStorage sensorStorage) {
+    super(settings, fs, activeRules, analysisMode, componentDataCache, sensorStorage);
     this.index = index;
     this.project = project;
     this.coverageFilter = coverageFilter;
@@ -255,7 +251,7 @@ public class DeprecatedSensorContext extends DefaultSensorContext implements Sen
   }
 
   @Override
-  public Event createEvent(Resource resource, String name, String description, String category, Date date) {
+  public Event createEvent(Resource resource, String name, String description, String category, @Nullable Date date) {
     return index.addEvent(resource, name, description, category, date);
   }
 

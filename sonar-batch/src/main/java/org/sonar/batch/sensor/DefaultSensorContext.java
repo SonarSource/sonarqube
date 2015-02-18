@@ -26,7 +26,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorStorage;
-import org.sonar.api.batch.sensor.dependency.Dependency;
+import org.sonar.api.batch.sensor.dependency.NewDependency;
 import org.sonar.api.batch.sensor.dependency.internal.DefaultDependency;
 import org.sonar.api.batch.sensor.duplication.NewDuplication;
 import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
@@ -43,7 +43,6 @@ import org.sonar.api.batch.sensor.test.internal.DefaultCoverage;
 import org.sonar.api.batch.sensor.test.internal.DefaultTestCaseCoverage;
 import org.sonar.api.batch.sensor.test.internal.DefaultTestCaseExecution;
 import org.sonar.api.config.Settings;
-import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.highlighting.DefaultHighlightingBuilder;
 import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.batch.symbol.DefaultSymbolTableBuilder;
@@ -56,18 +55,16 @@ public class DefaultSensorContext implements SensorContext {
   private final FileSystem fs;
   private final ActiveRules activeRules;
   private final ComponentDataCache componentDataCache;
-  private final DuplicationCache duplicationCache;
   private final SensorStorage sensorStorage;
   private final AnalysisMode analysisMode;
 
   public DefaultSensorContext(Settings settings, FileSystem fs, ActiveRules activeRules, AnalysisMode analysisMode, ComponentDataCache componentDataCache,
-    DuplicationCache duplicationCache, SensorStorage sensorStorage) {
+    SensorStorage sensorStorage) {
     this.settings = settings;
     this.fs = fs;
     this.activeRules = activeRules;
     this.analysisMode = analysisMode;
     this.componentDataCache = componentDataCache;
-    this.duplicationCache = duplicationCache;
     this.sensorStorage = sensorStorage;
   }
 
@@ -132,7 +129,7 @@ public class DefaultSensorContext implements SensorContext {
   }
 
   @Override
-  public Dependency newDependency() {
+  public NewDependency newDependency() {
     return new DefaultDependency(sensorStorage);
   }
 

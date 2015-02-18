@@ -23,7 +23,7 @@
     <td class="coding-rule-table-meta-cell">
       <div class="coding-rule-meta">
         {{#notEq status 'READY'}}
-          {{status}}
+          <span class="text-danger">{{status}}</span>
           &nbsp;&nbsp;&nbsp;
         {{/notEq}}
         <a class="js-lang link-no-underline" data-lang="{{lang}}">{{langName}}</a>
