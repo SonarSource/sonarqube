@@ -29,22 +29,22 @@ public class LogTesterTest {
 
   @Test
   public void debugLevel() throws Throwable {
-    boolean initial = sut.isDebugEnabled();
+    LoggerLevel initial = sut.getLevel();
 
     // when LogTester is used, then debug logs are enabled by default
     sut.before();
-    assertThat(sut.isDebugEnabled()).isTrue();
-    assertThat(Loggers.getFactory().isDebugEnabled()).isTrue();
+    assertThat(sut.getLevel()).isEqualTo(LoggerLevel.TRACE);
+    assertThat(Loggers.getFactory().getLevel()).isEqualTo(LoggerLevel.TRACE);
 
     // change
-    sut.enableDebug(false);
-    assertThat(sut.isDebugEnabled()).isFalse();
-    assertThat(Loggers.getFactory().isDebugEnabled()).isFalse();
+    sut.setLevel(LoggerLevel.INFO);
+    assertThat(sut.getLevel()).isEqualTo(LoggerLevel.INFO);
+    assertThat(Loggers.getFactory().getLevel()).isEqualTo(LoggerLevel.INFO);
 
-    // reset to initial level
+    // reset to initial level after execution of test
     sut.after();
-    assertThat(sut.isDebugEnabled()).isEqualTo(initial);
-    assertThat(Loggers.getFactory().isDebugEnabled()).isEqualTo(initial);
+    assertThat(sut.getLevel()).isEqualTo(initial);
+    assertThat(Loggers.getFactory().getLevel()).isEqualTo(initial);
   }
 
   @Test
@@ -54,6 +54,9 @@ public class LogTesterTest {
     Loggers.get("logger2").warn("warning: {}", 42);
 
     assertThat(sut.logs()).containsExactly("an information", "warning: 42");
+
+    sut.clear();
+    assertThat(sut.logs()).isEmpty();
 
     sut.after();
     assertThat(LogInterceptor.instance).isSameAs(NullInterceptor.NULL_INSTANCE);

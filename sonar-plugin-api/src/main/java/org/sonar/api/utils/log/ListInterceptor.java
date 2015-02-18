@@ -54,4 +54,8 @@ class ListInterceptor extends LogInterceptor {
   public List<String> logs() {
     return logs;
   }
+
+  public void clear() {
+    logs.clear();
+  }
 }

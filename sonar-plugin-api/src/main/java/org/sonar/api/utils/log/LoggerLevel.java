@@ -20,5 +20,13 @@
 package org.sonar.api.utils.log;
 
 public enum  LoggerLevel {
-  DEBUG, INFO, WARN, ERROR
+  TRACE,
+
+  DEBUG,
+
+  INFO,
+
+  WARN,
+
+  ERROR
 }

@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 
 public class LogbackLoggerTest {
 
@@ -34,17 +35,13 @@ public class LogbackLoggerTest {
   public LogTester tester = new LogTester();
 
   @Test
-  public void debug_enabling() throws Exception {
-    tester.enableDebug(true);
-    assertThat(sut.isDebugEnabled()).isTrue();
-
-    tester.enableDebug(false);
-    assertThat(sut.isDebugEnabled()).isFalse();
-  }
-
-  @Test
   public void log() throws Exception {
     // no assertions. Simply verify that calls do not fail.
+    sut.trace("message");
+    sut.trace("message {}", "foo");
+    sut.trace("message {} {}", "foo", "bar");
+    sut.trace("message {} {} {}", "foo", "bar", "baz");
+
     sut.debug("message");
     sut.debug("message {}", "foo");
     sut.debug("message {} {}", "foo", "bar");
@@ -69,17 +66,32 @@ public class LogbackLoggerTest {
 
   @Test
   public void change_level() throws Exception {
-    assertThat(sut.setLevel(LoggerLevel.ERROR)).isTrue();
-    assertThat(sut.logbackLogger().getLevel()).isEqualTo(Level.ERROR);
-
-    assertThat(sut.setLevel(LoggerLevel.WARN)).isTrue();
-    assertThat(sut.logbackLogger().getLevel()).isEqualTo(Level.WARN);
-
     assertThat(sut.setLevel(LoggerLevel.INFO)).isTrue();
     assertThat(sut.logbackLogger().getLevel()).isEqualTo(Level.INFO);
+    assertThat(sut.isDebugEnabled()).isFalse();
+    assertThat(sut.isTraceEnabled()).isFalse();
 
     assertThat(sut.setLevel(LoggerLevel.DEBUG)).isTrue();
-    assertThat(sut.logbackLogger().getLevel()).isEqualTo(Level.DEBUG);
     assertThat(sut.isDebugEnabled()).isTrue();
+    assertThat(sut.isTraceEnabled()).isFalse();
+    assertThat(sut.logbackLogger().getLevel()).isEqualTo(Level.DEBUG);
+
+    assertThat(sut.setLevel(LoggerLevel.TRACE)).isTrue();
+    assertThat(sut.isDebugEnabled()).isTrue();
+    assertThat(sut.isTraceEnabled()).isTrue();
+    assertThat(sut.logbackLogger().getLevel()).isEqualTo(Level.TRACE);
+  }
+
+  @Test
+  public void info_level_can_not_be_disabled() throws Exception {
+    try {
+      sut.setLevel(LoggerLevel.ERROR);
+      fail();
+
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("Only TRACE, DEBUG and INFO logging levels are supported. Got: ERROR");
+    }
+
+
   }
 }

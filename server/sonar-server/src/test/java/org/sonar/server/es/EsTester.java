@@ -41,9 +41,7 @@ import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.junit.rules.ExternalResource;
-import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ComponentContainer;
-import org.sonar.core.profiling.Profiling;
 import org.sonar.server.search.BaseDoc;
 import org.sonar.test.TestUtils;
 
@@ -62,7 +60,6 @@ public class EsTester extends ExternalResource {
   private Node node;
   private EsClient client;
   private final List<IndexDefinition> definitions = newArrayList();
-  private Settings settings = new Settings();
 
   public EsTester addDefinitions(IndexDefinition... defs) {
     Collections.addAll(definitions, defs);
@@ -99,7 +96,7 @@ public class EsTester extends ExternalResource {
     DeleteIndexResponse response = node.client().admin().indices().prepareDelete("_all").get();
     assertThat(response.isAcknowledged()).isTrue();
 
-    client = new EsClient(new Profiling(settings), node.client());
+    client = new EsClient(node.client());
     client.start();
 
     if (!definitions.isEmpty()) {
@@ -121,15 +118,6 @@ public class EsTester extends ExternalResource {
       node.stop();
       node.close();
     }
-    settings = null;
-  }
-
-  /**
-   * Default level is NONE.
-   */
-  public EsTester setProfilingLevel(Profiling.Level level) {
-    settings.setProperty(Profiling.CONFIG_PROFILING_LEVEL, level.name());
-    return this;
   }
 
   public void truncateIndices() {

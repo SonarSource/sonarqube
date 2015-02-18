@@ -40,13 +40,37 @@ import javax.annotation.Nullable;
  *
  * <p/>
  * INFO, WARN and ERROR levels are always enabled. They can't be disabled by users.
- * DEBUG level can be enabled with properties <code>sonar.log.debug</code> (on server, see sonar.properties)
- * and <code>sonar.verbose</code> (on batch)
+ * DEBUG and TRACE levels are enabled on demand with the property <code>sonar.log.level</code>.
  * <p/>
  * See {@link org.sonar.api.utils.log.LogTester} for testing facilities.
  * @since 5.1
  */
 public interface Logger {
+
+  boolean isTraceEnabled();
+
+  /**
+   * Logs a TRACE message. TRACE messages must
+   * be valuable for diagnosing production problems. They must not be used for development debugging.
+   * They can significantly slow down performances. The standard use-case is logging of
+   * SQL and Elasticsearch requests.
+   */
+  void trace(String msg);
+
+  /**
+   * @see #trace(String)
+   */
+  void trace(String pattern, @Nullable Object arg);
+
+  /**
+   * @see #trace(String)
+   */
+  void trace(String msg, @Nullable Object arg1, @Nullable Object arg2);
+
+  /**
+   * @see #trace(String)
+   */
+  void trace(String msg, Object... args);
 
   boolean isDebugEnabled();
 
@@ -148,4 +172,5 @@ public interface Logger {
    * libraries.
    */
   boolean setLevel(LoggerLevel level);
+
 }

@@ -31,17 +31,25 @@ class LogbackLoggers extends Loggers {
   @Override
   protected Logger newInstance(String name) {
     // logback is accessed through SLF4J
-    return new LogbackLogger((ch.qos.logback.classic.Logger)LoggerFactory.getLogger(name));
+    return new LogbackLogger((ch.qos.logback.classic.Logger) LoggerFactory.getLogger(name));
   }
 
   @Override
-  protected boolean isDebugEnabled() {
-    return LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME).isDebugEnabled();
-  }
-
-  @Override
-  protected void enableDebug(boolean b) {
+  protected LoggerLevel getLevel() {
     ch.qos.logback.classic.Logger logback = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
-    logback.setLevel(b ? Level.DEBUG : Level.INFO);
+    switch (logback.getLevel().levelInt) {
+      case Level.TRACE_INT:
+        return LoggerLevel.TRACE;
+      case Level.DEBUG_INT:
+        return LoggerLevel.DEBUG;
+      default:
+        return LoggerLevel.INFO;
+    }
+  }
+
+  @Override
+  protected void setLevel(LoggerLevel level) {
+    ch.qos.logback.classic.Logger logback = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+    new LogbackLogger(logback).setLevel(level);
   }
 }

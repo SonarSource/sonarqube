@@ -59,8 +59,15 @@ public class WebLoggingTest {
 
   @Test
   public void enable_debug_logs() throws Exception {
-    props.set("sonar.log.debug", "true");
+    props.set("sonar.log.level", "DEBUG");
     LoggerContext ctx = sut.configure(props);
     assertThat(ctx.getLogger(Logger.ROOT_LOGGER_NAME).getLevel()).isEqualTo(Level.DEBUG);
+  }
+
+  @Test
+  public void enable_trace_logs() throws Exception {
+    props.set("sonar.log.level", "TRACE");
+    LoggerContext ctx = sut.configure(props);
+    assertThat(ctx.getLogger(Logger.ROOT_LOGGER_NAME).getLevel()).isEqualTo(Level.TRACE);
   }
 }

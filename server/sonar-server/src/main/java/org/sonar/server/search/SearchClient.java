@@ -20,7 +20,6 @@
 
 package org.sonar.server.search;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsRequestBuilder;
@@ -60,7 +59,6 @@ import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.picocontainer.Startable;
 import org.sonar.api.config.Settings;
-import org.sonar.core.profiling.Profiling;
 import org.sonar.process.LoopbackAddress;
 import org.sonar.process.ProcessConstants;
 import org.sonar.server.es.request.ProxyBulkRequestBuilder;
@@ -86,14 +84,7 @@ import org.sonar.server.es.request.ProxySearchScrollRequestBuilder;
  */
 public class SearchClient extends TransportClient implements Startable {
 
-  private final Profiling profiling;
-
   public SearchClient(Settings settings) {
-    this(settings, new Profiling(settings));
-  }
-
-  @VisibleForTesting
-  public SearchClient(Settings settings, Profiling profiling) {
     super(ImmutableSettings.settingsBuilder()
       .put("node.name", StringUtils.defaultIfEmpty(settings.getString(ProcessConstants.CLUSTER_NODE_NAME), "sq_local_client"))
       .put("network.bind_host", "localhost")
@@ -103,11 +94,6 @@ public class SearchClient extends TransportClient implements Startable {
     initLogging();
     this.addTransportAddress(new InetSocketTransportAddress(LoopbackAddress.get().getHostAddress(),
       settings.getInt(ProcessConstants.SEARCH_PORT)));
-    this.profiling = profiling;
-  }
-
-  public Profiling getProfiling() {
-    return profiling;
   }
 
   public ClusterHealth getClusterHealth() {
@@ -128,74 +114,74 @@ public class SearchClient extends TransportClient implements Startable {
   }
 
   public RefreshRequestBuilder prepareRefresh(String... indices) {
-    return new ProxyRefreshRequestBuilder(this, profiling).setIndices(indices);
+    return new ProxyRefreshRequestBuilder(this).setIndices(indices);
   }
 
   public FlushRequestBuilder prepareFlush(String... indices) {
-    return new ProxyFlushRequestBuilder(this, profiling).setIndices(indices);
+    return new ProxyFlushRequestBuilder(this).setIndices(indices);
   }
 
   public IndicesStatsRequestBuilder prepareStats(String... indices) {
-    return new ProxyIndicesStatsRequestBuilder(this, profiling).setIndices(indices);
+    return new ProxyIndicesStatsRequestBuilder(this).setIndices(indices);
   }
 
   public NodesStatsRequestBuilder prepareNodesStats(String... nodesIds) {
-    return new ProxyNodesStatsRequestBuilder(this, profiling).setNodesIds(nodesIds);
+    return new ProxyNodesStatsRequestBuilder(this).setNodesIds(nodesIds);
   }
 
   public ClusterStatsRequestBuilder prepareClusterStats() {
-    return new ProxyClusterStatsRequestBuilder(this, profiling);
+    return new ProxyClusterStatsRequestBuilder(this);
   }
 
   public ClusterStateRequestBuilder prepareState() {
-    return new ProxyClusterStateRequestBuilder(this, profiling);
+    return new ProxyClusterStateRequestBuilder(this);
   }
 
   public IndicesExistsRequestBuilder prepareIndicesExist(String... indices) {
-    return new ProxyIndicesExistsRequestBuilder(this, profiling, indices);
+    return new ProxyIndicesExistsRequestBuilder(this, indices);
   }
 
   public CreateIndexRequestBuilder prepareCreate(String index) {
-    return new ProxyCreateIndexRequestBuilder(this, profiling, index);
+    return new ProxyCreateIndexRequestBuilder(this, index);
   }
 
   public PutMappingRequestBuilder preparePutMapping(String... indices) {
-    return new ProxyPutMappingRequestBuilder(this, profiling).setIndices(indices);
+    return new ProxyPutMappingRequestBuilder(this).setIndices(indices);
   }
 
   @Override
   public SearchRequestBuilder prepareSearch(String... indices) {
-    return new ProxySearchRequestBuilder(this, profiling).setIndices(indices);
+    return new ProxySearchRequestBuilder(this).setIndices(indices);
   }
 
   @Override
   public SearchScrollRequestBuilder prepareSearchScroll(String scrollId) {
-    return new ProxySearchScrollRequestBuilder(scrollId, this, profiling);
+    return new ProxySearchScrollRequestBuilder(scrollId, this);
   }
 
   @Override
   public GetRequestBuilder prepareGet() {
-    return new ProxyGetRequestBuilder(this, profiling);
+    return new ProxyGetRequestBuilder(this);
   }
 
   @Override
   public MultiGetRequestBuilder prepareMultiGet() {
-    return new ProxyMultiGetRequestBuilder(this, profiling);
+    return new ProxyMultiGetRequestBuilder(this);
   }
 
   @Override
   public CountRequestBuilder prepareCount(String... indices) {
-    return new ProxyCountRequestBuilder(this, profiling).setIndices(indices);
+    return new ProxyCountRequestBuilder(this).setIndices(indices);
   }
 
   @Override
   public BulkRequestBuilder prepareBulk() {
-    return new ProxyBulkRequestBuilder(this, profiling);
+    return new ProxyBulkRequestBuilder(this);
   }
 
   @Override
   public DeleteByQueryRequestBuilder prepareDeleteByQuery(String... indices) {
-    return new ProxyDeleteByQueryRequestBuilder(this, profiling).setIndices(indices);
+    return new ProxyDeleteByQueryRequestBuilder(this).setIndices(indices);
   }
 
   // ****************************************************************************************************************
@@ -244,7 +230,7 @@ public class SearchClient extends TransportClient implements Startable {
 
   @Override
   public DeleteRequestBuilder prepareDelete(String index, String type, String id) {
-    return new ProxyDeleteRequestBuilder(profiling, this, index).setType(type).setId(id);
+    return new ProxyDeleteRequestBuilder(this, index).setType(type).setId(id);
   }
 
   @Override

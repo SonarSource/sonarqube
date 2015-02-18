@@ -23,17 +23,18 @@ package org.sonar.server.platform;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.sonar.api.config.Settings;
-import org.sonar.core.profiling.Profiling;
 
-import javax.servlet.*;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
-
 
 public class ProfilingFilterTest {
 
@@ -42,7 +43,6 @@ public class ProfilingFilterTest {
 
   @Before
   public void initialize() throws Exception {
-
     FilterConfig filterConfig = mock(FilterConfig.class);
     when(filterConfig.getInitParameter("staticDirs")).thenReturn("/static,/assets");
     ServletContext context = mock(ServletContext.class);
@@ -50,12 +50,7 @@ public class ProfilingFilterTest {
     when(filterConfig.getServletContext()).thenReturn(context);
     chain = mock(FilterChain.class);
 
-    Settings settings = new Settings();
-    settings.setProperty("sonar.log.profilingLevel", "BASIC");
-    Profiling profiling = new Profiling(settings);
-
-    filter = spy(new ProfilingFilter());
-    when(filter.getProfiling()).thenReturn(profiling);
+    filter = new ProfilingFilter();
     filter.init(filterConfig);
   }
 

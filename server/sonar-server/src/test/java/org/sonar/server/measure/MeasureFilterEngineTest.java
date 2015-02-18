@@ -23,17 +23,13 @@ import com.google.common.collect.ImmutableMap;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
-import org.sonar.core.profiling.Profiling;
 
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.refEq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class MeasureFilterEngineTest {
 
@@ -45,7 +41,7 @@ public class MeasureFilterEngineTest {
     when(factory.create(filterMap)).thenReturn(filter);
     MeasureFilterExecutor executor = mock(MeasureFilterExecutor.class);
 
-    MeasureFilterEngine engine = new MeasureFilterEngine(factory, executor, new Profiling(new Settings()));
+    MeasureFilterEngine engine = new MeasureFilterEngine(factory, executor);
 
     final long userId = 50L;
     engine.execute(filterMap, userId);
@@ -67,7 +63,7 @@ public class MeasureFilterEngineTest {
     when(factory.create(filterMap)).thenThrow(new IllegalArgumentException());
     MeasureFilterExecutor executor = mock(MeasureFilterExecutor.class);
 
-    MeasureFilterEngine engine = new MeasureFilterEngine(factory, executor, new Profiling(new Settings()));
+    MeasureFilterEngine engine = new MeasureFilterEngine(factory, executor);
     MeasureFilterResult result = engine.execute(filterMap, 50L);
 
     assertThat(result.isSuccess()).isFalse();

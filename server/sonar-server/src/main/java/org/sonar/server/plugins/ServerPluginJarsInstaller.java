@@ -28,9 +28,9 @@ import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.Server;
 import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.utils.log.Profiler;
 import org.sonar.core.plugins.DefaultPluginMetadata;
 import org.sonar.server.platform.DefaultServerFileSystem;
 import org.sonar.updatecenter.common.PluginReferential;
@@ -64,14 +64,14 @@ public class ServerPluginJarsInstaller {
   }
 
   public void install() {
-    TimeProfiler profiler = new TimeProfiler().start("Install plugins");
+    Profiler profiler = Profiler.create(LOG).startInfo("Install plugins");
     deleteTrash();
     loadInstalledPlugins();
     copyBundledPlugins();
     moveDownloadedPlugins();
     loadCorePlugins();
     deployPlugins();
-    profiler.stop();
+    profiler.stopDebug();
   }
 
   private void deleteTrash() {

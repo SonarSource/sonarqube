@@ -28,7 +28,7 @@ public abstract class Loggers {
 
   static {
     try {
-      Class.forName("org.slf4j.Logger");
+      Class.forName("ch.qos.logback.classic.Logger");
       factory = new LogbackLoggers();
     } catch (Throwable e) {
       // no slf4j -> testing environment
@@ -50,8 +50,8 @@ public abstract class Loggers {
 
   protected abstract Logger newInstance(String name);
 
-  protected abstract boolean isDebugEnabled();
+  protected abstract LoggerLevel getLevel();
 
-  protected abstract void enableDebug(boolean b);
+  protected abstract void setLevel(LoggerLevel level);
 
 }

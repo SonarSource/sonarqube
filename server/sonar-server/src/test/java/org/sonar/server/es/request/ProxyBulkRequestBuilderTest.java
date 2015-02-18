@@ -26,10 +26,11 @@ import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.common.unit.TimeValue;
-import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.core.profiling.Profiling;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.FakeIndexDefinition;
 
@@ -40,25 +41,24 @@ public class ProxyBulkRequestBuilderTest {
   @ClassRule
   public static EsTester esTester = new EsTester().addDefinitions(new FakeIndexDefinition());
 
-  @Before
-  public void setUp() throws Exception {
-    esTester.setProfilingLevel(Profiling.Level.NONE);
+  @Rule
+  public LogTester logTester = new LogTester();
+
+  @Test
+  public void no_trace_logs() {
+    logTester.setLevel(LoggerLevel.INFO);
+    testBulk();
+    assertThat(logTester.logs()).isEmpty();
   }
 
   @Test
-  public void bulk() {
-    testBulk(Profiling.Level.NONE);
+  public void trace_logs() {
+    logTester.setLevel(LoggerLevel.TRACE);
+    testBulk();
+    assertThat(logTester.logs()).hasSize(1);
   }
 
-  @Test
-  public void with_profiling_full() {
-    testBulk(Profiling.Level.FULL);
-    // TODO assert profiling
-  }
-
-  private void testBulk(Profiling.Level profilingLevel) {
-    esTester.setProfilingLevel(profilingLevel);
-
+  private void testBulk() {
     BulkRequestBuilder req = esTester.client().prepareBulk();
     req.add(new UpdateRequest(FakeIndexDefinition.INDEX, FakeIndexDefinition.TYPE, "key1")
       .doc(FakeIndexDefinition.newDoc(1)));

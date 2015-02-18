@@ -24,6 +24,7 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.core.ConsoleAppender;
 import org.slf4j.bridge.SLF4JBridgeHandler;
+import org.sonar.api.utils.MessageException;
 import org.sonar.process.LogbackHelper;
 import org.sonar.process.Props;
 
@@ -35,7 +36,8 @@ import java.util.logging.LogManager;
  */
 class WebLogging {
 
-  private static final String LOG_FORMAT = "%d{yyyy.MM.dd HH:mm:ss} %-5level web[%logger{20}] %X %msg%n";
+  private static final String LOG_FORMAT = "%d{yyyy.MM.dd HH:mm:ss} %-5level web[%logger{20}] %msg%n";
+  public static final String LOG_LEVEL_PROPERTY = "sonar.log.level";
 
   private final LogbackHelper helper = new LogbackHelper();
 
@@ -72,7 +74,17 @@ class WebLogging {
     helper.configureLogger(ctx, "org.elasticsearch.node", Level.INFO);
     helper.configureLogger(ctx, "org.elasticsearch.http", Level.INFO);
     helper.configureLogger(ctx, "ch.qos.logback", Level.WARN);
-    boolean debug = props.valueAsBoolean("sonar.log.debug", false);
-    helper.configureLogger(ctx, Logger.ROOT_LOGGER_NAME, debug ? Level.DEBUG : Level.INFO);
+    String levelCode = props.value(LOG_LEVEL_PROPERTY, "INFO");
+    Level level;
+    if ("TRACE".equals(levelCode)) {
+      level = Level.TRACE;
+    } else if ("DEBUG".equals(levelCode)) {
+      level = Level.DEBUG;
+    } else if ("INFO".equals(levelCode)) {
+      level = Level.INFO;
+    } else {
+      throw MessageException.of(String.format("Unsupported log level: %s. Please check property %s", levelCode, LOG_LEVEL_PROPERTY));
+    }
+    helper.configureLogger(ctx, Logger.ROOT_LOGGER_NAME, level);
   }
 }

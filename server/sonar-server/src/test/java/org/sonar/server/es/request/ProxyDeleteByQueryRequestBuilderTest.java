@@ -22,10 +22,11 @@ package org.sonar.server.es.request;
 
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.core.profiling.Profiling;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.FakeIndexDefinition;
 
@@ -37,10 +38,8 @@ public class ProxyDeleteByQueryRequestBuilderTest {
   @ClassRule
   public static EsTester esTester = new EsTester().addDefinitions(new FakeIndexDefinition());
 
-  @Before
-  public void setUp() throws Exception {
-    esTester.setProfilingLevel(Profiling.Level.NONE);
-  }
+  @Rule
+  public LogTester logTester = new LogTester();
 
   @Test
   public void delete_by_query() {
@@ -55,12 +54,12 @@ public class ProxyDeleteByQueryRequestBuilderTest {
   }
 
   @Test
-  public void with_profiling_full() {
-    esTester.setProfilingLevel(Profiling.Level.FULL);
+  public void trace_logs() {
+    logTester.setLevel(LoggerLevel.TRACE);
 
     esTester.client().prepareDeleteByQuery(FakeIndexDefinition.INDEX).setQuery(QueryBuilders.matchAllQuery()).get();
 
-    // TODO assert profiling
+    assertThat(logTester.logs()).hasSize(1);
   }
 
   @Test

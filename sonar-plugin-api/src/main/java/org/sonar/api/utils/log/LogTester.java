@@ -27,7 +27,7 @@ import java.util.List;
  * <b>For tests only</b>
  * <p/>
  * This JUnit rule allows to configure and access logs in tests. By default
- * debug logs are enabled.
+ * trace level is enabled.
  * <p/>
  * Warning - not compatible with parallel execution of tests in the same JVM fork.
  * <p/>
@@ -58,36 +58,33 @@ import java.util.List;
  */
 public class LogTester extends ExternalResource {
 
-  private boolean initialDebugMode;
+  private LoggerLevel initialLevel;
 
   @Override
   protected void before() throws Throwable {
-    initialDebugMode = Loggers.getFactory().isDebugEnabled();
+    initialLevel = Loggers.getFactory().getLevel();
 
     // this shared instance breaks compatibility with parallel execution of tests
     LogInterceptor.instance = new ListInterceptor();
-    enableDebug(true);
+    setLevel(LoggerLevel.TRACE);
   }
 
   @Override
   protected void after() {
-    enableDebug(initialDebugMode);
     LogInterceptor.instance = NullInterceptor.NULL_INSTANCE;
+    setLevel(initialLevel);
   }
 
-  /**
-   * @see #enableDebug(boolean) 
-   */
-  public boolean isDebugEnabled() {
-    return Loggers.getFactory().isDebugEnabled();
+  protected LoggerLevel getLevel() {
+    return Loggers.getFactory().getLevel();
   }
 
   /**
    * Enable/disable debug logs. Info, warn and error logs are always enabled.
    * By default debug logs are enabled when LogTester is started.
    */
-  public LogTester enableDebug(boolean b) {
-    Loggers.getFactory().enableDebug(b);
+  public LogTester setLevel(LoggerLevel level) {
+    Loggers.getFactory().setLevel(level);
     return this;
   }
 
@@ -96,5 +93,10 @@ public class LogTester extends ExternalResource {
    */
   public List<String> logs() {
     return ((ListInterceptor) LogInterceptor.instance).logs();
+  }
+
+  public LogTester clear() {
+    ((ListInterceptor) LogInterceptor.instance).clear();
+    return this;
   }
 }

@@ -22,10 +22,11 @@ package org.sonar.server.es.request;
 
 import org.elasticsearch.action.admin.cluster.state.ClusterStateRequestBuilder;
 import org.elasticsearch.common.unit.TimeValue;
-import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.core.profiling.Profiling;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.es.EsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,10 +37,8 @@ public class ProxyClusterStateRequestBuilderTest {
   @ClassRule
   public static EsTester esTester = new EsTester();
 
-  @Before
-  public void setUp() throws Exception {
-    esTester.setProfilingLevel(Profiling.Level.NONE);
-  }
+  @Rule
+  public LogTester logTester = new LogTester();
 
   @Test
   public void state() {
@@ -54,13 +53,13 @@ public class ProxyClusterStateRequestBuilderTest {
   }
 
   @Test
-  public void with_profiling_full() {
-    esTester.setProfilingLevel(Profiling.Level.FULL);
+  public void trace_logs() {
+    logTester.setLevel(LoggerLevel.TRACE);
 
     ClusterStateRequestBuilder requestBuilder = esTester.client().prepareState();
     requestBuilder.get();
 
-    // TODO assert profiling
+    assertThat(logTester.logs()).hasSize(1);
   }
 
   @Test

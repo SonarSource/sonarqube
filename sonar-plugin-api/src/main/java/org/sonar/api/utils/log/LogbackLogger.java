@@ -36,9 +36,35 @@ class LogbackLogger extends BaseLogger {
   }
 
   @Override
+  public boolean isTraceEnabled() {
+    return logback.isTraceEnabled();
+  }
+
+  @Override
+  void doTrace(String msg) {
+    logback.trace(msg);
+  }
+
+  @Override
+  void doTrace(String msg, @Nullable Object arg) {
+    logback.trace(msg, arg);
+  }
+
+  @Override
+  void doTrace(String msg, @Nullable Object arg1, @Nullable Object arg2) {
+    logback.trace(msg, arg1, arg2);
+  }
+
+  @Override
+  void doTrace(String msg, Object... args) {
+    logback.trace(msg, args);
+  }
+
+  @Override
   public boolean isDebugEnabled() {
     return logback.isDebugEnabled();
   }
+
 
   @Override
   protected void doDebug(String msg) {
@@ -128,18 +154,17 @@ class LogbackLogger extends BaseLogger {
   @Override
   public boolean setLevel(LoggerLevel level) {
     switch (level) {
+      case TRACE:
+        logback.setLevel(Level.TRACE);
+        break;
       case DEBUG:
         logback.setLevel(Level.DEBUG);
         break;
       case INFO:
         logback.setLevel(Level.INFO);
         break;
-      case WARN:
-        logback.setLevel(Level.WARN);
-        break;
-      case ERROR:
-        logback.setLevel(Level.ERROR);
-        break;
+      default:
+        throw new IllegalArgumentException("Only TRACE, DEBUG and INFO logging levels are supported. Got: " + level);
     }
     return true;
   }

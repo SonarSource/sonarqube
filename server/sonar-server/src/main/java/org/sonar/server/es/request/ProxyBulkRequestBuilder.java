@@ -22,8 +22,6 @@ package org.sonar.server.es.request;
 
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset.Entry;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
@@ -33,30 +31,27 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
-import org.sonar.core.profiling.Profiling;
-import org.sonar.core.profiling.StopWatch;
+import org.sonar.api.utils.log.Profiler;
+import org.sonar.server.es.EsClient;
 
 import java.util.Set;
 
 public class ProxyBulkRequestBuilder extends BulkRequestBuilder {
 
-  private final Profiling profiling;
-
-  public ProxyBulkRequestBuilder(Client client, Profiling profiling) {
+  public ProxyBulkRequestBuilder(Client client) {
     super(client);
-    this.profiling = profiling;
   }
 
   @Override
   public BulkResponse get() {
-    StopWatch fullProfile = profiling.start("bulk", Profiling.Level.FULL);
+    Profiler profiler = Profiler.createIfTrace(EsClient.LOGGER).start();
     try {
       return super.execute().actionGet();
     } catch (Exception e) {
       throw new IllegalStateException(String.format("Fail to execute %s", toString()), e);
     } finally {
-      if (profiling.isProfilingEnabled(Profiling.Level.BASIC)) {
-        fullProfile.stop("%s", toString());
+      if (profiler.isTraceEnabled()) {
+        profiler.stopTrace(toString());
       }
     }
   }
@@ -86,7 +81,7 @@ public class ProxyBulkRequestBuilder extends BulkRequestBuilder {
     StringBuilder message = new StringBuilder();
     message.append("Bulk[");
     HashMultiset<BulkRequestKey> groupedRequests = HashMultiset.create();
-    for (int i=0 ; i<request.requests().size() ; i++) {
+    for (int i = 0; i < request.requests().size(); i++) {
       ActionRequest item = request.requests().get(i);
       String requestType, index, docType;
       if (item instanceof IndexRequest) {
@@ -138,13 +133,29 @@ public class ProxyBulkRequestBuilder extends BulkRequestBuilder {
     }
 
     @Override
-    public boolean equals(Object obj) {
-      return EqualsBuilder.reflectionEquals(this, obj);
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      BulkRequestKey that = (BulkRequestKey) o;
+      if (!docType.equals(that.docType)) {
+        return false;
+      }
+      if (!index.equals(that.index)) {
+        return false;
+      }
+      return requestType.equals(that.requestType);
     }
 
     @Override
     public int hashCode() {
-      return HashCodeBuilder.reflectionHashCode(this);
+      int result = requestType.hashCode();
+      result = 31 * result + index.hashCode();
+      result = 31 * result + docType.hashCode();
+      return result;
     }
 
     @Override

@@ -17,14 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.profiling;
+package org.sonar.api.utils.log;
 
 import org.junit.Test;
 
-public class ProfilingActivityFactoryTest {
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class NullProfilerTest {
+
+  NullProfiler sut = NullProfiler.NULL_INSTANCE;
 
   @Test
-  public void just_for_coverage() throws Exception {
-    new ProfilingLogFactory().getLogger("domain");
+  public void do_not_fail() throws Exception {
+    assertThat(sut.start()).isSameAs(sut);
+    assertThat(sut.startTrace("")).isSameAs(sut);
+    assertThat(sut.startDebug("")).isSameAs(sut);
+    assertThat(sut.startInfo("")).isSameAs(sut);
+
+    assertThat(sut.stopTrace()).isSameAs(sut);
+    assertThat(sut.stopTrace("")).isSameAs(sut);
+    assertThat(sut.stopDebug("")).isSameAs(sut);
+    assertThat(sut.stopDebug()).isSameAs(sut);
+    assertThat(sut.stopInfo()).isSameAs(sut);
+    assertThat(sut.stopInfo("")).isSameAs(sut);
+
+    assertThat(sut.isDebugEnabled()).isFalse();
+    assertThat(sut.isTraceEnabled()).isFalse();
+    assertThat(sut.addContext("foo", "bar")).isSameAs(sut);
   }
 }

@@ -19,40 +19,29 @@
  */
 package org.sonar.core.persistence.profiling;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.ContextBase;
-import ch.qos.logback.core.read.ListAppender;
 import org.apache.commons.dbcp.BasicDataSource;
+import org.junit.Rule;
 import org.junit.Test;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.config.Settings;
-import org.sonar.core.profiling.Profiling;
+import org.sonar.api.utils.log.LogTester;
 
 import java.io.ByteArrayInputStream;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
+import java.sql.Timestamp;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class PersistenceProfilingTest {
+public class ProfiledDataSourceTest {
+
+  @Rule
+  public LogTester logTester = new LogTester();
 
   @Test
-  public void should_be_transparent_when_profiling_less_than_full() {
-    BasicDataSource datasource = mock(BasicDataSource.class);
-    assertThat(PersistenceProfiling.addProfilingIfNeeded(datasource , new Settings())).isEqualTo(datasource);
-  }
-
-  @Test
-  public void should_enable_profiling_when_profiling_is_full() throws Exception {
-    final Logger sqlLogger = (Logger) LoggerFactory.getLogger("sql");
-    ListAppender<ILoggingEvent> appender = new ListAppender<ILoggingEvent>();
-    appender.setContext(new ContextBase());
-    appender.start();
-    sqlLogger.addAppender(appender);
-
+  public void log_sql_requests() throws Exception {
     BasicDataSource originDataSource = mock(BasicDataSource.class);
 
     Connection connection = mock(Connection.class);
@@ -74,15 +63,11 @@ public class PersistenceProfilingTest {
     when(connection.createStatement()).thenReturn(statement);
     when(statement.execute(sql)).thenReturn(true);
 
-    Settings settings = new Settings();
-    settings.setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.FULL.toString());
+    ProfiledDataSource ds = new ProfiledDataSource(originDataSource);
 
-    BasicDataSource resultDataSource = PersistenceProfiling.addProfilingIfNeeded(originDataSource , settings);
-
-    assertThat(resultDataSource).isInstanceOf(ProfilingDataSource.class);
-    assertThat(resultDataSource.getUrl()).isNull();
-    assertThat(resultDataSource.getConnection().getClientInfo()).isNull();
-    PreparedStatement preparedStatementProxy = resultDataSource.getConnection().prepareStatement(sqlWithParams);
+    assertThat(ds.getUrl()).isNull();
+    assertThat(ds.getConnection().getClientInfo()).isNull();
+    PreparedStatement preparedStatementProxy = ds.getConnection().prepareStatement(sqlWithParams);
     preparedStatementProxy.setInt(1, param1);
     preparedStatementProxy.setString(2, param2);
     preparedStatementProxy.setDate(3, param3);
@@ -90,14 +75,12 @@ public class PersistenceProfilingTest {
     preparedStatementProxy.setBlob(5, new ByteArrayInputStream(param5));
     assertThat(preparedStatementProxy.getConnection()).isNull();
     assertThat(preparedStatementProxy.execute()).isTrue();
-    final Statement statementProxy = resultDataSource.getConnection().createStatement();
+    final Statement statementProxy = ds.getConnection().createStatement();
     assertThat(statementProxy.getConnection()).isNull();
     assertThat(statementProxy.execute(sql)).isTrue();
 
-    assertThat(appender.list).hasSize(2);
-    assertThat(appender.list.get(0).getLevel()).isEqualTo(Level.INFO);
-    assertThat(appender.list.get(0).getFormattedMessage()).contains(sqlWithParams).contains(" - parameters are: ").contains(Integer.toString(param1)).contains(param2);
-    assertThat(appender.list.get(1).getLevel()).isEqualTo(Level.INFO);
-    assertThat(appender.list.get(1).getFormattedMessage()).contains(sql);
+    assertThat(logTester.logs()).hasSize(2);
+    assertThat(logTester.logs().get(0)).contains(sqlWithParams).contains(" - parameters are: ").contains(Integer.toString(param1)).contains(param2);
+    assertThat(logTester.logs().get(1)).contains(sql);
   }
 }

@@ -26,28 +26,25 @@ import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsRequestBuilde
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
-import org.sonar.core.profiling.Profiling;
-import org.sonar.core.profiling.StopWatch;
+import org.sonar.api.utils.log.Profiler;
+import org.sonar.server.es.EsClient;
 
 public class ProxyNodesStatsRequestBuilder extends NodesStatsRequestBuilder {
 
-  private final Profiling profiling;
-
-  public ProxyNodesStatsRequestBuilder(Client client, Profiling profiling) {
+  public ProxyNodesStatsRequestBuilder(Client client) {
     super(client.admin().cluster());
-    this.profiling = profiling;
   }
 
   @Override
   public NodesStatsResponse get() {
-    StopWatch fullProfile = profiling.start("nodes stats", Profiling.Level.FULL);
+    Profiler profiler = Profiler.createIfTrace(EsClient.LOGGER).start();
     try {
       return super.execute().actionGet();
     } catch (Exception e) {
       throw new IllegalStateException(String.format("Fail to execute %s", toString()), e);
     } finally {
-      if (profiling.isProfilingEnabled(Profiling.Level.BASIC)) {
-        fullProfile.stop("%s", toString());
+      if (profiler.isTraceEnabled()) {
+        profiler.stopTrace(toString());
       }
     }
   }
