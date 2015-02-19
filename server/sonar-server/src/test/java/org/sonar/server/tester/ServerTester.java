@@ -25,10 +25,10 @@ import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.rules.ExternalResource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.resources.Language;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.process.ProcessConstants;
 import org.sonar.server.es.EsServerHolder;
 import org.sonar.server.platform.BackendCleanup;
@@ -48,13 +48,13 @@ import java.util.Properties;
  * Entry point to implement medium tests of server components.
  * <p/>
  * The system properties starting with "mediumTests." override the programmatic settings, for example:
- * <code>-DmediumTests.sonar.log.profilingLevel=FULL</code>
+ * <code>-DmediumTests.sonar.log.level=TRACE</code>
  *
  * @since 4.4
  */
 public class ServerTester extends ExternalResource {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ServerTester.class);
+  private static final Logger LOG = Loggers.get(ServerTester.class);
   private static final String PROP_PREFIX = "mediumTests.";
 
   private Platform platform;

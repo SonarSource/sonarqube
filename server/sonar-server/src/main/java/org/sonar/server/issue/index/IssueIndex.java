@@ -24,6 +24,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.apache.commons.lang.BooleanUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -32,6 +33,8 @@ import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuilder;
+import org.elasticsearch.search.aggregations.bucket.global.Global;
+import org.elasticsearch.search.aggregations.bucket.global.GlobalBuilder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
 import org.elasticsearch.search.aggregations.bucket.missing.InternalMissing;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
@@ -46,6 +49,8 @@ import org.sonar.server.es.*;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.filter.IssueFilterParameters;
+import org.sonar.server.rule.index.RuleNormalizer;
+import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.StickyFacetBuilder;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.view.index.ViewIndexDefinition;
@@ -63,6 +68,8 @@ import static com.google.common.collect.Lists.newArrayList;
  * All the requests are listed here.
  */
 public class IssueIndex extends BaseIndex {
+
+  private static final String SUBSTRING_MATCH_REGEXP = ".*%s.*";
 
   public static final List<String> SUPPORTED_FACETS = ImmutableList.of(
     IssueFilterParameters.SEVERITIES,
@@ -318,13 +325,13 @@ public class IssueIndex extends BaseIndex {
     if (createdAfter != null) {
       filters.put("__createdAfter", FilterBuilders
         .rangeFilter(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT)
-        .gte(createdAfter)
+        .gt(createdAfter)
         .cache(false));
     }
     if (createdBefore != null) {
       filters.put("__createdBefore", FilterBuilders
         .rangeFilter(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT)
-        .lte(createdBefore)
+        .lt(createdBefore)
         .cache(false));
     }
     Date createdAt = query.createdAt();
@@ -336,7 +343,7 @@ public class IssueIndex extends BaseIndex {
   private void validateCreationDateBounds(Date createdBefore, Date createdAfter) {
     Preconditions.checkArgument(createdAfter == null || createdAfter.before(system.newDate()),
       "Start bound cannot be in the future");
-    Preconditions.checkArgument(createdAfter == null || createdBefore == null || createdAfter.before(createdBefore),
+    Preconditions.checkArgument(createdAfter == null || createdAfter.equals(createdBefore) || createdBefore == null || createdAfter.before(createdBefore),
       "Start bound cannot be larger than end bound");
   }
 
@@ -542,8 +549,39 @@ public class IssueIndex extends BaseIndex {
   }
 
   public List<String> listTags(IssueQuery query, @Nullable String textQuery, int maxNumberOfTags) {
-    Terms terms = listTermsMatching(IssueIndexDefinition.FIELD_ISSUE_TAGS, query, textQuery, Terms.Order.term(true), maxNumberOfTags);
-    return EsUtils.termsKeys(terms);
+    SearchRequestBuilder requestBuilder = getClient()
+      .prepareSearch(IssueIndexDefinition.INDEX, IndexDefinition.RULE.getIndexName())
+      .setTypes(IssueIndexDefinition.TYPE_ISSUE, IndexDefinition.RULE.getIndexType());
+
+    requestBuilder.setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
+      createBoolFilter(query)));
+    GlobalBuilder topAggreg = AggregationBuilders.global("tags");
+    TermsBuilder issueTags = AggregationBuilders.terms("tags__issues")
+      .field(IssueIndexDefinition.FIELD_ISSUE_TAGS)
+      .size(maxNumberOfTags)
+      .order(Terms.Order.term(true))
+      .minDocCount(1L);
+    if (textQuery != null) {
+      issueTags.include(String.format(SUBSTRING_MATCH_REGEXP, textQuery));
+    }
+    TermsBuilder ruleTags = AggregationBuilders.terms("tags__rules")
+      .field(RuleNormalizer.RuleField.ALL_TAGS.field())
+      .size(maxNumberOfTags)
+      .order(Terms.Order.term(true))
+      .minDocCount(1L);
+    if (textQuery != null) {
+      ruleTags.include(String.format(SUBSTRING_MATCH_REGEXP, textQuery));
+    }
+
+    SearchResponse searchResponse = requestBuilder.addAggregation(topAggreg.subAggregation(issueTags).subAggregation(ruleTags)).get();
+    Global allTags = searchResponse.getAggregations().get("tags");
+    SortedSet<String> result = Sets.newTreeSet();
+    Terms issuesResult = allTags.getAggregations().get("tags__issues");
+    Terms rulesResult = allTags.getAggregations().get("tags__rules");
+    result.addAll(EsUtils.termsKeys(issuesResult));
+    result.addAll(EsUtils.termsKeys(rulesResult));
+    List<String> resultAsList = Lists.newArrayList(result);
+    return resultAsList.size() > maxNumberOfTags ? resultAsList.subList(0, maxNumberOfTags) : resultAsList;
   }
 
   public Map<String, Long> countTags(IssueQuery query, int maxNumberOfTags) {
@@ -572,7 +610,7 @@ public class IssueIndex extends BaseIndex {
       .order(termsOrder)
       .minDocCount(1L);
     if (textQuery != null) {
-      aggreg.include(String.format(".*%s.*", textQuery));
+      aggreg.include(String.format(SUBSTRING_MATCH_REGEXP, textQuery));
     }
 
     SearchResponse searchResponse = requestBuilder.addAggregation(aggreg).get();

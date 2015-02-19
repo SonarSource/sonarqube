@@ -20,12 +20,12 @@
 
 package org.sonar.core.computation.dbcleaner;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.TimeUtils;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.computation.dbcleaner.period.DefaultPeriodCleaner;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.purge.IdUuidPair;
@@ -37,12 +37,13 @@ import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.properties.ProjectSettingsFactory;
 
 import javax.annotation.Nullable;
+
 import java.util.Date;
 
 import static org.sonar.core.purge.PurgeConfiguration.newDefaultPurgeConfiguration;
 
 public class ProjectCleaner implements ServerComponent {
-  private static final Logger LOG = LoggerFactory.getLogger(ProjectCleaner.class);
+  private static final Logger LOG = Loggers.get(ProjectCleaner.class);
 
   private final PurgeProfiler profiler;
   private final PurgeListener purgeListener;

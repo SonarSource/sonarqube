@@ -19,23 +19,23 @@
  */
 package org.sonar.api.utils;
 
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * A very simple profiler to log the time elapsed performing some tasks.
  * This implementation is not thread-safe.
  *
+ * @deprecated since 5.1. Replaced by {@link org.sonar.api.utils.log.Profiler}
  * @since 2.0
  */
 public class TimeProfiler {
 
-  private Logger logger;
+  private org.slf4j.Logger logger;
   private long start = 0;
   private String name;
   private boolean debug = false;
 
-  public TimeProfiler(Logger logger) {
+  public TimeProfiler(org.slf4j.Logger logger) {
     this.logger = logger;
   }
 
@@ -61,12 +61,12 @@ public class TimeProfiler {
     return this;
   }
 
-  public TimeProfiler setLogger(Logger logger) {
+  public TimeProfiler setLogger(org.slf4j.Logger logger) {
     this.logger = logger;
     return this;
   }
 
-  public Logger getLogger() {
+  public org.slf4j.Logger getLogger() {
     return logger;
   }
 

@@ -21,10 +21,10 @@
 package org.sonar.server.computation.step;
 
 import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.TempFolder;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.batch.protocol.output.BatchOutputReader;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.computation.db.AnalysisReportDto;
@@ -38,7 +38,7 @@ import java.io.File;
 
 public class ParseReportStep implements ComputationStep {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ParseReportStep.class);
+  private static final Logger LOG = Loggers.get(ParseReportStep.class);
 
   private final IssueComputation issueComputation;
   private final DbClient dbClient;

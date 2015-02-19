@@ -20,9 +20,9 @@
 package org.sonar.api.platform;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.internal.Uuids;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -37,7 +37,7 @@ class ComponentKeys {
   private final Set<Class> objectsWithoutToString = new HashSet<Class>();
 
   Object of(Object component) {
-    return of(component, LoggerFactory.getLogger(ComponentKeys.class));
+    return of(component, Loggers.get(ComponentKeys.class));
   }
 
   @VisibleForTesting

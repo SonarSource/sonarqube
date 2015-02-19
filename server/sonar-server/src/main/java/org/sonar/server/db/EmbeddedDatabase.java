@@ -24,11 +24,11 @@ import org.apache.commons.lang.StringUtils;
 import org.h2.Driver;
 import org.h2.tools.Server;
 import org.picocontainer.Startable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.utils.SonarException;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.process.ProcessConstants;
 
 import java.io.File;
@@ -36,7 +36,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class EmbeddedDatabase implements Startable {
-  private static final Logger LOG = LoggerFactory.getLogger(EmbeddedDatabase.class);
+  private static final Logger LOG = Loggers.get(EmbeddedDatabase.class);
   private final Settings settings;
   private Server server;
 

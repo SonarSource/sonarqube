@@ -20,12 +20,12 @@
 package org.sonar.batch.issue.tracking;
 
 import com.google.common.base.Function;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.api.utils.TimeProfiler;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.utils.log.Profiler;
 import org.sonar.batch.index.BatchResource;
 import org.sonar.batch.index.Cache;
 import org.sonar.batch.index.Caches;
@@ -38,7 +38,7 @@ import javax.annotation.Nullable;
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 public class PreviousIssueRepository implements BatchComponent {
 
-  private static final Logger LOG = LoggerFactory.getLogger(PreviousIssueRepository.class);
+  private static final Logger LOG = Loggers.get(PreviousIssueRepository.class);
 
   private final Caches caches;
   private Cache<PreviousIssue> issuesCache;
@@ -54,30 +54,27 @@ public class PreviousIssueRepository implements BatchComponent {
   }
 
   public void load() {
-    TimeProfiler profiler = new TimeProfiler(LOG).start("Load previous issues");
-    try {
-      this.issuesCache = caches.createCache("previousIssues");
-      previousIssuesLoader.load(reactor, new Function<PreviousIssue, Void>() {
+    Profiler profiler = Profiler.create(LOG).startInfo("Load previous issues");
+    this.issuesCache = caches.createCache("previousIssues");
+    previousIssuesLoader.load(reactor, new Function<PreviousIssue, Void>() {
 
-        @Override
-        public Void apply(@Nullable PreviousIssue issue) {
-          if (issue == null) {
-            return null;
-          }
-          String componentKey = issue.componentKey();
-          BatchResource r = resourceCache.get(componentKey);
-          if (r == null) {
-            // Deleted resource
-            issuesCache.put(0, issue.key(), issue);
-          } else {
-            issuesCache.put(r.batchId(), issue.key(), issue);
-          }
+      @Override
+      public Void apply(@Nullable PreviousIssue issue) {
+        if (issue == null) {
           return null;
         }
-      });
-    } finally {
-      profiler.stop();
-    }
+        String componentKey = issue.componentKey();
+        BatchResource r = resourceCache.get(componentKey);
+        if (r == null) {
+          // Deleted resource
+          issuesCache.put(0, issue.key(), issue);
+        } else {
+          issuesCache.put(r.batchId(), issue.key(), issue);
+        }
+        return null;
+      }
+    });
+    profiler.stopDebug();
   }
 
   public Iterable<PreviousIssue> byComponent(BatchResource component) {

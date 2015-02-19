@@ -303,10 +303,6 @@ public class Cache<V> {
     return new ValueIterable<V>(exchange, firstKey, secondKey);
   }
 
-  private IllegalStateException failToGetValues(Exception e) {
-    return new IllegalStateException("Fail to get values from cache " + name, e);
-  }
-
   /**
    * Lazy-loading values for a given key
    */

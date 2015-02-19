@@ -24,7 +24,7 @@ import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.CharEncoding;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.log.Loggers;
 
 import javax.annotation.Nullable;
 
@@ -128,7 +128,7 @@ class ClassLoaderUtils {
       try {
         jar.close();
       } catch (Exception e) {
-        LoggerFactory.getLogger(ClassLoaderUtils.class).error("Fail to close JAR file: " + jarPath, e);
+        Loggers.get(ClassLoaderUtils.class).error("Fail to close JAR file: " + jarPath, e);
       }
     }
   }

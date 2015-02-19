@@ -88,7 +88,7 @@ public class SearchActionMediumTest {
     assertThat(show.isPost()).isFalse();
     assertThat(show.isInternal()).isFalse();
     assertThat(show.responseExampleAsString()).isNotEmpty();
-    assertThat(show.params()).hasSize(38);
+    assertThat(show.params()).hasSize(39);
   }
 
   @Test
@@ -160,6 +160,41 @@ public class SearchActionMediumTest {
     MockUserSession.set().setLogin("john");
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).execute();
     result.assertJson(this.getClass(), "issue_with_comment.json", false);
+  }
+
+  @Test
+  public void issue_with_comment_hidden() throws Exception {
+    db.userDao().insert(session, new UserDto().setLogin("john").setName("John").setEmail("john@email.com"));
+    db.userDao().insert(session, new UserDto().setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
+
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    setDefaultProjectPermission(project);
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
+    IssueDto issue = IssueTesting.newDto(newRule(), file, project)
+      .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2");
+    db.issueDao().insert(session, issue);
+
+    tester.get(IssueChangeDao.class).insert(session,
+      new IssueChangeDto().setIssueKey(issue.getKey())
+        .setKey("COMMENT-ABCD")
+        .setChangeData("*My comment*")
+        .setChangeType(IssueChangeDto.TYPE_COMMENT)
+        .setUserLogin("john")
+        .setCreatedAt(DateUtils.parseDate("2014-09-09").getTime()));
+    tester.get(IssueChangeDao.class).insert(session,
+      new IssueChangeDto().setIssueKey(issue.getKey())
+        .setKey("COMMENT-ABCE")
+        .setChangeData("Another comment")
+        .setChangeType(IssueChangeDto.TYPE_COMMENT)
+        .setUserLogin("fabrice")
+        .setCreatedAt(DateUtils.parseDate("2014-09-10").getTime()));
+    session.commit();
+    tester.get(IssueIndexer.class).indexAll();
+
+    MockUserSession.set().setLogin("john");
+    WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).setParam(IssueFilterParameters.HIDE_COMMENTS, "true").execute();
+    result.assertJson(this.getClass(), "issue_with_comment_hidden.json", false);
+    assertThat(result.outputAsString()).doesNotContain("fabrice");
   }
 
   @Test

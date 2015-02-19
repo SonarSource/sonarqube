@@ -41,9 +41,7 @@ class Treemap extends window.SonarWidgets.BaseWidget
     @cellsLink = @box.selectAll('.treemap-link').data nodes
     @cellsLink.html '<i class="icon-link"></i>'
     @cellsLink.attr 'href', (d) =>
-      url = @options().baseUrl + encodeURIComponent(d.key)
-      url += '?metric=' + encodeURIComponent(@colorMetric.key) if d.qualifier == 'CLA' || d.qualifier == 'FIL'
-      url
+      @options().baseUrl + '?id=' + encodeURIComponent(d.key)
 
     @attachEvents cellsEnter
 

@@ -32,8 +32,8 @@ import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
 import org.picocontainer.Startable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.util.ProgressLogger;
 
 import java.util.List;
@@ -49,7 +49,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * </ul>
  */
 public class BulkIndexer implements Startable {
-  private static final Logger LOGGER = LoggerFactory.getLogger(BulkIndexer.class);
+  private static final Logger LOGGER = Loggers.get(BulkIndexer.class);
   private static final long FLUSH_BYTE_SIZE = new ByteSizeValue(5, ByteSizeUnit.MB).bytes();
   private static final String REFRESH_INTERVAL_SETTING = "index.refresh_interval";
   private static final String ALREADY_STARTED_MESSAGE = "Bulk indexing is already started";

@@ -35,6 +35,7 @@ class SessionsController < ApplicationController
       end
       redirect_back_or_default(home_url)
     else
+      @return_to_anchor = params[:return_to_anchor]
       flash.now[:loginerror] = message('session.flash_notice.authentication_failed')
     end
   end

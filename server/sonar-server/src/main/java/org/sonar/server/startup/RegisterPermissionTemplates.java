@@ -20,10 +20,10 @@
 
 package org.sonar.server.startup;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.security.DefaultGroups;
-import org.sonar.api.utils.TimeProfiler;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.utils.log.Profiler;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.PermissionTemplateDao;
 import org.sonar.core.permission.PermissionTemplateDto;
@@ -38,7 +38,7 @@ public class RegisterPermissionTemplates {
   public static final String DEFAULT_TEMPLATE_PROPERTY = "sonar.permission.template.default";
   public static final String DEFAULT_PROJECTS_TEMPLATE_PROPERTY = "sonar.permission.template.TRK.default";
 
-  private static final Logger LOG = LoggerFactory.getLogger(RegisterPermissionTemplates.class);
+  private static final Logger LOG = Loggers.get(RegisterPermissionTemplates.class);
 
   private final LoadedTemplateDao loadedTemplateDao;
   private final PermissionTemplateDao permissionTemplateDao;
@@ -54,7 +54,7 @@ public class RegisterPermissionTemplates {
   }
 
   public void start() {
-    TimeProfiler profiler = new TimeProfiler(LOG).start("Register permission templates");
+    Profiler profiler = Profiler.create(Loggers.get(getClass())).startInfo("Register permission templates");
 
     if (shouldRegister()) {
       if (hasExistingPermissionsConfig()) {
@@ -66,7 +66,7 @@ public class RegisterPermissionTemplates {
       }
       registerInitialization();
     }
-    profiler.stop();
+    profiler.stopDebug();
   }
 
   private boolean hasExistingPermissionsConfig() {

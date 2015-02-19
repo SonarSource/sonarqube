@@ -21,8 +21,8 @@ package org.sonar.api.utils;
 
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -78,7 +78,7 @@ public class XpathParser {
       bf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
       bf.setFeature("http://apache.org/xml/features/allow-java-encodings", true);
     } catch (ParserConfigurationException e) {
-      Logger log = LoggerFactory.getLogger(this.getClass().getName());
+      Logger log = Loggers.get(this.getClass().getName());
       log.error("Error occured during features set up.", e);
     }
     try {

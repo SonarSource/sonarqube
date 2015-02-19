@@ -22,9 +22,9 @@ package org.sonar.core.computation.dbcleaner;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
+import org.sonar.api.utils.log.Logger;
 import org.sonar.core.computation.dbcleaner.period.DefaultPeriodCleaner;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.purge.IdUuidPair;

@@ -22,9 +22,9 @@ package org.sonar.api.server.ws.internal;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.log.Loggers;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -106,7 +106,7 @@ public abstract class ValidatingRequest extends Request {
   private String readParamOrDefaultValue(String key, @Nullable WebService.Param definition) {
     if (definition == null) {
       String message = String.format("BUG - parameter '%s' is undefined for action '%s'", key, action.key());
-      LoggerFactory.getLogger(getClass()).error(message);
+      Loggers.get(getClass()).error(message);
       throw new IllegalArgumentException(message);
     }
     String deprecatedKey = definition.deprecatedKey();

@@ -31,7 +31,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.core.persistence.dialect.Dialect;
 import org.sonar.core.persistence.dialect.DialectUtils;
-import org.sonar.core.persistence.profiling.PersistenceProfiling;
+import org.sonar.core.persistence.profiling.ProfiledDataSource;
 import org.sonar.jpa.session.CustomHibernateConnectionProvider;
 
 import javax.sql.DataSource;
@@ -103,7 +103,9 @@ public class DefaultDatabase implements Database {
     datasource = (BasicDataSource) BasicDataSourceFactory.createDataSource(extractCommonsDbcpProperties(properties));
     datasource.setConnectionInitSqls(dialect.getConnectionInitStatements());
     datasource.setValidationQuery(dialect.getValidationQuery());
-    datasource = PersistenceProfiling.addProfilingIfNeeded(datasource, settings);
+    if ("TRACE".equals(settings.getString("sonar.log.level"))) {
+      datasource = new ProfiledDataSource(datasource);
+    }
   }
 
   private void checkConnection() {

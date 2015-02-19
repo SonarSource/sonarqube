@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import org.sonar.process.MinimumViableSystem;
 import org.sonar.process.Monitored;
 import org.sonar.process.ProcessEntryPoint;
-import org.sonar.process.ProcessLogging;
 import org.sonar.process.Props;
 
 public class SearchServer implements Monitored {
@@ -76,7 +75,7 @@ public class SearchServer implements Monitored {
 
   public static void main(String... args) {
     ProcessEntryPoint entryPoint = ProcessEntryPoint.createForArguments(args);
-    new ProcessLogging().configure(entryPoint.getProps(), "/org/sonar/search/logback.xml");
+    new SearchLogging().configure();
     SearchServer searchServer = new SearchServer(entryPoint.getProps());
     entryPoint.launch(searchServer);
   }

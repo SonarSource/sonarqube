@@ -21,10 +21,10 @@ package org.sonar.api.resources;
 
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.ArrayUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,7 +39,7 @@ import java.util.Map;
  */
 public class Languages implements BatchComponent, ServerComponent {
 
-  private static final Logger LOG = LoggerFactory.getLogger(Languages.class);
+  private static final Logger LOG = Loggers.get(Languages.class);
 
   private final Map<String, Language> map = Maps.newLinkedHashMap();
 

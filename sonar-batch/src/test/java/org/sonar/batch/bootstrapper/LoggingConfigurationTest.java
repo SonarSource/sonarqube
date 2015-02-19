@@ -62,25 +62,6 @@ public class LoggingConfigurationTest {
   }
 
   @Test
-  public void testSetShowSqlProperty() {
-    Map<String, String> properties = Maps.newHashMap();
-    assertThat(LoggingConfiguration.create(null).setProperties(properties)
-        .getSubstitutionVariable(LoggingConfiguration.PROPERTY_SQL_RESULTS_LOGGER_LEVEL)).isEqualTo(LoggingConfiguration.LEVEL_SQL_DEFAULT);
-
-    properties.put("sonar.log.profilingLevel", "FULL");
-    assertThat(LoggingConfiguration.create(null).setProperties(properties)
-        .getSubstitutionVariable(LoggingConfiguration.PROPERTY_SQL_RESULTS_LOGGER_LEVEL)).isEqualTo(LoggingConfiguration.LEVEL_SQL_VERBOSE);
-
-    properties.put("sonar.log.profilingLevel", "BASIC");
-    assertThat(LoggingConfiguration.create(null).setProperties(properties)
-        .getSubstitutionVariable(LoggingConfiguration.PROPERTY_SQL_RESULTS_LOGGER_LEVEL)).isEqualTo(LoggingConfiguration.LEVEL_SQL_DEFAULT);
-
-    properties.put("sonar.log.profilingLevel", "NONE");
-    assertThat(LoggingConfiguration.create(null).setProperties(properties)
-        .getSubstitutionVariable(LoggingConfiguration.PROPERTY_SQL_RESULTS_LOGGER_LEVEL)).isEqualTo(LoggingConfiguration.LEVEL_SQL_DEFAULT);
-  }
-
-  @Test
   public void testDefaultFormat() {
     assertThat(LoggingConfiguration.create(null)
         .getSubstitutionVariable(LoggingConfiguration.PROPERTY_FORMAT)).isEqualTo(LoggingConfiguration.FORMAT_DEFAULT);

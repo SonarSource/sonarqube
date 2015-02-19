@@ -23,12 +23,12 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
-import org.sonar.api.utils.TimeProfiler;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.utils.log.Profiler;
 import org.sonar.core.qualitygate.db.QualityGateConditionDao;
 import org.sonar.jpa.dao.MeasuresDao;
 
@@ -39,7 +39,7 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public class RegisterMetrics {
 
-  private static final Logger LOG = LoggerFactory.getLogger(RegisterMetrics.class);
+  private static final Logger LOG = Loggers.get(RegisterMetrics.class);
 
   private final MeasuresDao measuresDao;
   private final Metrics[] metricsRepositories;
@@ -59,7 +59,7 @@ public class RegisterMetrics {
   }
 
   public void start() {
-    TimeProfiler profiler = new TimeProfiler().start("Load metrics");
+    Profiler profiler = Profiler.create(LOG).startInfo("Register metrics");
     measuresDao.disableAutomaticMetrics();
 
     List<Metric> metricsToRegister = newArrayList();
@@ -67,7 +67,7 @@ public class RegisterMetrics {
     metricsToRegister.addAll(getMetricsRepositories());
     register(metricsToRegister);
     cleanAlerts();
-    profiler.stop();
+    profiler.stopDebug();
   }
 
   @VisibleForTesting

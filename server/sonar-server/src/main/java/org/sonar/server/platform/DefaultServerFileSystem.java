@@ -22,11 +22,11 @@ package org.sonar.server.platform;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.picocontainer.Startable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.platform.ServerFileSystem;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.process.ProcessConstants;
 
 import java.io.File;
@@ -43,7 +43,7 @@ import java.util.List;
  */
 public class DefaultServerFileSystem implements ServerFileSystem, Startable {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(DefaultServerFileSystem.class);
+  private static final Logger LOGGER = Loggers.get(DefaultServerFileSystem.class);
 
   private final Server server;
   private File homeDir;

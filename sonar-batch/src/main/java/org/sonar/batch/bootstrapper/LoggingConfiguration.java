@@ -19,9 +19,6 @@
  */
 package org.sonar.batch.bootstrapper;
 
-import org.sonar.core.profiling.Profiling.Level;
-
-import org.sonar.core.profiling.Profiling;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
@@ -69,8 +66,8 @@ public final class LoggingConfiguration {
   }
 
   public LoggingConfiguration setProperties(Map<String, String> properties) {
-    Profiling.Level profilingLevel = Profiling.Level.fromConfigString(properties.get("sonar.log.profilingLevel"));
-    setShowSqlResults(profilingLevel == Level.FULL);
+    //TODO
+    setShowSqlResults(false);
     setVerbose("true".equals(properties.get("sonar.verbose")));
     return this;
   }

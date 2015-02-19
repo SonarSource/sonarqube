@@ -121,10 +121,7 @@ class Histogram extends window.SonarWidgets.BaseWidget
       .attr 'transform', (d) => @trans @legendWidth() + @x(@mainMetric.value d) + 5, @barHeight
     @bars.exit().remove()
     @bars.on 'click', (d) =>
-      url = @options().baseUrl + encodeURIComponent d.key
-      if d.qualifier == 'CLA' || d.qualifier == 'FIL'
-        url += '?metric=' + encodeURIComponent @mainMetric.key
-      window.location = url
+      window.location = @options().baseUrl + '?id=' + encodeURIComponent(d.key)
 
     @metricLabel.attr 'transform', @trans @legendWidth(), 0
 

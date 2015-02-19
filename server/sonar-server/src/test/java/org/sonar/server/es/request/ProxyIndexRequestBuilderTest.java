@@ -23,10 +23,11 @@ package org.sonar.server.es.request;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.common.unit.TimeValue;
-import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.core.profiling.Profiling;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.FakeIndexDefinition;
 
@@ -38,10 +39,8 @@ public class ProxyIndexRequestBuilderTest {
   @ClassRule
   public static EsTester esTester = new EsTester().addDefinitions(new FakeIndexDefinition());
 
-  @Before
-  public void setUp() throws Exception {
-    esTester.setProfilingLevel(Profiling.Level.NONE);
-  }
+  @Rule
+  public LogTester logTester = new LogTester();
 
   @Test
   public void index_with_index_type_and_id() {
@@ -52,13 +51,13 @@ public class ProxyIndexRequestBuilderTest {
   }
 
   @Test
-  public void with_profiling_full() {
-    esTester.setProfilingLevel(Profiling.Level.FULL);
+  public void trace_logs() {
+    logTester.setLevel(LoggerLevel.TRACE);
     IndexResponse response = esTester.client().prepareIndex(FakeIndexDefinition.INDEX, FakeIndexDefinition.TYPE)
       .setSource(FakeIndexDefinition.newDoc(42))
       .get();
     assertThat(response.isCreated()).isTrue();
-    // TODO assert profiling
+    assertThat(logTester.logs()).hasSize(1);
   }
 
   @Test

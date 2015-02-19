@@ -78,7 +78,7 @@ public class RuleMapping extends BaseMapping<RuleDoc, RuleMappingContext> {
   }
 
   private void mapDescriptionFields(final MacroInterpreter macroInterpreter) {
-    map("htmlDesc", new Mapper<RuleDoc, RuleMappingContext>() {
+    map("htmlDesc", new IndexMapper<RuleDoc, RuleMappingContext>(RuleNormalizer.RuleField.MARKDOWN_DESCRIPTION.field(), RuleNormalizer.RuleField.HTML_DESCRIPTION.field()) {
       @Override
       public void write(JsonWriter json, RuleDoc rule, RuleMappingContext context) {
         if (rule.markdownDescription() != null) {

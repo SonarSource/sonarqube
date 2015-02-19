@@ -43,7 +43,7 @@
       .source(baseUrl + '/measures/search_filter?' + query)
       .metricsPriority(metrics)
       .options({
-        baseUrl: baseUrl + '/dashboard/index/',
+        baseUrl: baseUrl + '/dashboard/index',
         relativeScale: <%= relativeScale -%>,
         maxItemsReachedMessage: '<%= message("widget.measure_filter_histogram.max_items_reached", :params => [maxItems]) -%>',
         noData: '<%= message('no_data') -%>',

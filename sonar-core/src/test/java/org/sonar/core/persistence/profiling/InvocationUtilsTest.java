@@ -20,6 +20,7 @@
 package org.sonar.core.persistence.profiling;
 
 import org.junit.Test;
+import org.sonar.test.TestUtils;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -66,5 +67,11 @@ public class InvocationUtilsTest {
     } catch (Throwable t) {
       assertThat(t).isInstanceOf(IllegalStateException.class);
     }
+  }
+
+  @Test
+  public void only_static_methods() throws Exception {
+    assertThat(TestUtils.hasOnlyPrivateConstructors(InvocationUtils.class)).isTrue();
+
   }
 }

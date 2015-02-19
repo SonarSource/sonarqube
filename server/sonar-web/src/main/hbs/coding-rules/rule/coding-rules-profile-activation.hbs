@@ -18,7 +18,7 @@
 
     <table>
       <tr class="property">
-        <th><h3>{{t 'coding_rules.quality_profile'}}</h3></th>
+        <th class="nowrap"><h3>{{t 'coding_rules.quality_profile'}}</h3></th>
         <td>
           {{#any key qProfile}}
             {{name}}
@@ -32,7 +32,7 @@
         </td>
       </tr>
       <tr class="property">
-        <th><h3>{{t 'severity'}}</h3></th>
+        <th class="nowrap"><h3>{{t 'severity'}}</h3></th>
         <td>
           <select id="coding-rules-quality-profile-activation-severity">
             {{#each severities}}
@@ -47,7 +47,7 @@
       {{else}}
         {{#each params}}
           <tr class="property">
-            <th><h3>{{key}}</h3></th>
+            <th class="nowrap"><h3>{{key}}</h3></th>
             <td>
               {{#eq type 'TEXT'}}
                 <textarea class="width100" rows="3" name="{{key}}" placeholder="{{defaultValue}}">{{value}}</textarea>

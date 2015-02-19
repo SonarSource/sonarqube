@@ -29,7 +29,6 @@ import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.text.CsvWriter;
 
 import javax.xml.stream.XMLInputFactory;
@@ -161,8 +160,8 @@ class FileSourceDto {
    * Parses data of {@link CoreMetrics#DUPLICATIONS_DATA}.
    */
   private static List<List<Block>> parseDuplicationData(String data) {
+    ImmutableList.Builder<List<Block>> groups = ImmutableList.builder();
     try {
-      ImmutableList.Builder<List<Block>> groups = ImmutableList.builder();
       StringReader reader = new StringReader(data);
       SMInputFactory inputFactory = initStax();
       SMHierarchicCursor rootC = inputFactory.rootElementCursor(reader);
@@ -183,10 +182,11 @@ class FileSourceDto {
         }
         groups.add(group.build());
       }
-      return groups.build();
-    } catch (XMLStreamException e) {
-      throw new SonarException(e.getMessage(), e);
+    } catch (Exception e) {
+      // SONAR-6174 Ignore any issue while parsing duplication measure. There is nothing user can do and things will get solved after
+      // next analysis anyway
     }
+    return groups.build();
   }
 
   private static int getAttrIntValue(SMInputCursor cursor, String attrName) throws XMLStreamException {

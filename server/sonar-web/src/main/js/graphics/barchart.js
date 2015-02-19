@@ -4,10 +4,13 @@
     return 'translate(' + left + ', ' + top + ')';
   }
 
-  var defaults = {
-    height: 140,
-    color: '#1f77b4',
-    interpolate: 'basis'
+  var defaults = function () {
+    return {
+      height: 140,
+      color: '#1f77b4',
+      interpolate: 'basis',
+      endDate: moment().format('YYYY-MM-DD')
+    };
   };
 
   /*
@@ -19,8 +22,11 @@
 
   $.fn.barchart = function (data) {
     $(this).each(function () {
-      var options = _.defaults($(this).data(), defaults);
-      _.extend(options, { width: $(this).width() });
+      var options = _.defaults($(this).data(), defaults());
+      _.extend(options, {
+        width: $(this).width(),
+        endDate: moment(options.endDate)
+      });
 
       var container = d3.select(this),
           svg = container.append('svg')
@@ -79,13 +85,19 @@
               return moment(d.val).format('YYYY-MM-DD');
             })
             .attr('data-period-end', function (d, i) {
-              var ending = i < data.length - 1 ? moment(data[i + 1].val).subtract(1, 'seconds') : moment();
+              var beginning = moment(d.val),
+                  ending = i < data.length - 1 ? moment(data[i + 1].val).subtract(1, 'days') : options.endDate,
+                  isSameDay = ending.diff(beginning, 'days') <= 1;
+              if (isSameDay) {
+                ending.add(1, 'days');
+              }
               return ending.format('YYYY-MM-DD');
             })
             .attr('title', function (d, i) {
               var beginning = moment(d.val),
-                  ending = i < data.length - 1 ? moment(data[i + 1].val).subtract(1, 'days') : moment();
-              return d.count + '<br>' + beginning.format('LL') + ' – ' + ending.format('LL');
+                  ending = i < data.length - 1 ? moment(data[i + 1].val).subtract(1, 'days') : options.endDate,
+                  isSameDay = ending.diff(beginning, 'days') <= 1;
+              return d.count + '<br>' + beginning.format('LL') + (isSameDay ? '' : (' – ' + ending.format('LL')));
             })
             .attr('data-placement', 'right')
             .attr('data-toggle', 'tooltip');

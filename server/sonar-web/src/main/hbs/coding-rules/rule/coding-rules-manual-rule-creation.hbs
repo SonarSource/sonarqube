@@ -13,14 +13,14 @@
 
     <table>
       <tr class="property">
-        <th><h3>{{t 'name'}} <em class="mandatory">*</em></h3></th>
+        <th class="nowrap"><h3>{{t 'name'}} <em class="mandatory">*</em></h3></th>
         <td>
           <input type="text" name="name" id="coding-rules-manual-rule-creation-name"
             class="coding-rules-name-key" value="{{name}}"/>
         </td>
       </tr>
       <tr class="property">
-        <th><h3>{{t 'key'}}{{#unless change}} <em class="mandatory">*</em>{{/unless}}</h3></th>
+        <th class="nowrap"><h3>{{t 'key'}}{{#unless change}} <em class="mandatory">*</em>{{/unless}}</h3></th>
         <td>
           {{#if change}}
             {{key}}
@@ -31,7 +31,7 @@
         </td>
       </tr>
       <tr class="property">
-        <th><h3>{{t 'description'}} <em class="mandatory">*</em></h3></th>
+        <th class="nowrap"><h3>{{t 'description'}} <em class="mandatory">*</em></h3></th>
         <td>
           <textarea name="markdown_description" id="coding-rules-manual-rule-creation-html-description"
             class="coding-rules-markdown-description" rows="15">{{{mdDesc}}}</textarea>

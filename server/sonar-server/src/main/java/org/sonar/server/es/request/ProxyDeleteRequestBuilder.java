@@ -24,28 +24,25 @@ import org.elasticsearch.action.delete.DeleteRequestBuilder;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
-import org.sonar.core.profiling.Profiling;
-import org.sonar.core.profiling.StopWatch;
+import org.sonar.api.utils.log.Profiler;
+import org.sonar.server.es.EsClient;
 
 public class ProxyDeleteRequestBuilder extends DeleteRequestBuilder {
 
-  private final Profiling profiling;
-
-  public ProxyDeleteRequestBuilder(Profiling profiling, Client client, String index) {
+  public ProxyDeleteRequestBuilder(Client client, String index) {
     super(client, index);
-    this.profiling = profiling;
   }
 
   @Override
   public DeleteResponse get() {
-    StopWatch fullProfile = profiling.start("delete", Profiling.Level.FULL);
+    Profiler profiler = Profiler.createIfTrace(EsClient.LOGGER).start();
     try {
       return super.execute().actionGet();
     } catch (Exception e) {
       throw new IllegalStateException(String.format("Fail to execute %s", toString()), e);
     } finally {
-      if (profiling.isProfilingEnabled(Profiling.Level.BASIC)) {
-        fullProfile.stop("%s", toString());
+      if (profiler.isTraceEnabled()) {
+        profiler.stopTrace(toString());
       }
     }
   }

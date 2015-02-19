@@ -19,8 +19,9 @@
  */
 package org.sonar.server.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -44,7 +45,7 @@ public class ProgressLogger {
 
   public static ProgressLogger create(Class clazz, AtomicLong counter) {
     String threadName = String.format("ProgressLogger[%s]", clazz.getSimpleName());
-    Logger logger = LoggerFactory.getLogger(clazz);
+    Logger logger = Loggers.get(clazz);
     return new ProgressLogger(threadName, counter, logger);
   }
 

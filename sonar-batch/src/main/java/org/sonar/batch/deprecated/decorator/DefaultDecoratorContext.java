@@ -44,7 +44,6 @@ import org.sonar.batch.sensor.coverage.CoverageExclusions;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -127,11 +126,7 @@ public class DefaultDecoratorContext implements DecoratorContext {
     if (CoreMetrics.DUPLICATIONS_DATA_KEY.equals(metricKey)) {
       // Hack for SONAR-5765
       Iterable<DefaultDuplication> group = duplicationCache.byComponent(resource.getEffectiveKey());
-      if (group != null) {
-        unfiltered = Arrays.asList(new Measure(CoreMetrics.DUPLICATIONS_DATA, DuplicationUtils.toXml(group)));
-      } else {
-        unfiltered = Collections.<Measure>emptyList();
-      }
+      unfiltered = Arrays.asList(new Measure(CoreMetrics.DUPLICATIONS_DATA, DuplicationUtils.toXml(group)));
     } else {
       // optimization
       unfiltered = measuresByMetric.get(metricKey);

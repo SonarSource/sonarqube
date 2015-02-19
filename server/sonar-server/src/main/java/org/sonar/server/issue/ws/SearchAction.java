@@ -63,12 +63,7 @@ import org.sonar.server.user.UserSession;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -160,6 +155,10 @@ public class SearchAction implements BaseIssuesWsAction {
       .setDescription("To not return rules")
       .setDefaultValue(false)
       .setBooleanPossibleValues();
+    action.createParam(IssueFilterParameters.HIDE_COMMENTS)
+      .setDescription("To not return comments")
+      .setDefaultValue(false)
+      .setBooleanPossibleValues();
     action.createParam(IssueFilterParameters.ACTION_PLANS)
       .setDescription("Comma-separated list of action plan keys (not names)")
       .setExampleValue("3f19de90-1521-4482-a737-a311758ff513");
@@ -188,7 +187,7 @@ public class SearchAction implements BaseIssuesWsAction {
       .setDescription("To retrieve issues created at a given date. Format: date or datetime ISO formats")
       .setExampleValue("2013-05-01 (or 2013-05-01T13:00:00+0100)");
     action.createParam(IssueFilterParameters.CREATED_AFTER)
-      .setDescription("To retrieve issues created after the given date (inclusive). Format: date or datetime ISO formats")
+      .setDescription("To retrieve issues created after the given date (exclusive). Format: date or datetime ISO formats")
       .setExampleValue("2013-05-01 (or 2013-05-01T13:00:00+0100)");
     action.createParam(IssueFilterParameters.CREATED_BEFORE)
       .setDescription("To retrieve issues created before the given date (exclusive). Format: date or datetime ISO formats")
@@ -327,10 +326,12 @@ public class SearchAction implements BaseIssuesWsAction {
 
     DbSession session = dbClient.openSession(false);
     try {
-      List<DefaultIssueComment> comments = dbClient.issueChangeDao().selectCommentsByIssues(session, issueKeys);
-      for (DefaultIssueComment issueComment : comments) {
-        userLogins.add(issueComment.userLogin());
-        commentsByIssues.put(issueComment.issueKey(), issueComment);
+      if (!BooleanUtils.isTrue(request.paramAsBoolean(IssueFilterParameters.HIDE_COMMENTS))) {
+        List<DefaultIssueComment> comments = dbClient.issueChangeDao().selectCommentsByIssues(session, issueKeys);
+        for (DefaultIssueComment issueComment : comments) {
+          userLogins.add(issueComment.userLogin());
+          commentsByIssues.put(issueComment.issueKey(), issueComment);
+        }
       }
       usersByLogin = getUsersByLogin(userLogins);
 

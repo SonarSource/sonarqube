@@ -16,9 +16,7 @@ class WordCloud extends window.SonarWidgets.BaseWidget
     wordsEnter = words.enter().append('a').classed 'cloud-word', true
     wordsEnter.text (d) -> d.name
     wordsEnter.attr 'href', (d) =>
-      url = @options().baseUrl + encodeURIComponent(d.key)
-      url += '?metric=' + encodeURIComponent(@colorMetric.key) if d.qualifier == 'CLA' || d.qualifier == 'FIL'
-      url
+      @options().baseUrl + '?id=' + encodeURIComponent(d.key)
     wordsEnter.attr 'title', (d) => @tooltip d
 
     words.style 'color', (d) =>

@@ -6,6 +6,7 @@ define([
       'coding-rules/rule/rule-profiles-view',
       'coding-rules/rule/custom-rules-view',
       'coding-rules/rule/manual-rule-creation-view',
+      'coding-rules/rule/custom-rule-creation-view',
       'coding-rules/rule/rule-issues-view',
       'templates/coding-rules'
     ],
@@ -16,6 +17,7 @@ define([
               ProfilesView,
               CustomRulesView,
               ManualRuleCreationView,
+              CustomRuleCreationView,
               IssuesView) {
 
       var $ = jQuery;
@@ -35,6 +37,7 @@ define([
 
         events: {
           'click .js-edit-manual': 'editManualRule',
+          'click .js-edit-custom': 'editCustomRule',
           'click .js-delete': 'deleteRule'
         },
 
@@ -127,6 +130,13 @@ define([
 
         editManualRule: function () {
           new ManualRuleCreationView({
+            app: this.options.app,
+            model: this.model
+          }).render();
+        },
+
+        editCustomRule: function () {
+          new CustomRuleCreationView({
             app: this.options.app,
             model: this.model
           }).render();

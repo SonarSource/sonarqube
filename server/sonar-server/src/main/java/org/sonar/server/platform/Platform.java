@@ -19,7 +19,7 @@
  */
 package org.sonar.server.platform;
 
-import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.platform.Server;
 import org.sonar.core.persistence.DatabaseVersion;
@@ -151,7 +151,7 @@ public class Platform {
         dbConnected = false;
         started = false;
       } catch (Exception e) {
-        LoggerFactory.getLogger(getClass()).debug("Fail to stop server - ignored", e);
+        Loggers.get(getClass()).debug("Fail to stop server - ignored", e);
       }
     }
   }
