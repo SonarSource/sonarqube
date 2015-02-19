@@ -22,6 +22,7 @@ package org.sonar.server.db.migrations;
 import javax.annotation.CheckForNull;
 
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Date;
@@ -104,6 +105,25 @@ public interface Select extends SqlStatement<Select> {
 
     public byte[] getBytes(int columnIndex) throws SQLException {
       return rs.getBytes(columnIndex);
+    }
+
+    @Override
+    public String toString() {
+      try {
+        ResultSetMetaData rsMetaData = rs.getMetaData();
+        StringBuilder sb = new StringBuilder();
+        for (int i = 1; i <= rsMetaData.getColumnCount(); i++) {
+          if (i > 1) {
+            sb.append(",");
+          }
+          sb.append(rsMetaData.getColumnLabel(i).toLowerCase());
+          sb.append("=");
+          sb.append(rs.getObject(i));
+        }
+        return sb.toString();
+      } catch (Exception e) {
+        return "Unavailable: " + e.getMessage();
+      }
     }
   }
 
