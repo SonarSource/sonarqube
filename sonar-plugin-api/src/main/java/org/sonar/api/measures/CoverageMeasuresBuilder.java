@@ -35,12 +35,47 @@ import java.util.SortedMap;
 public final class CoverageMeasuresBuilder {
 
   /**
+   * @since 5.1
+   */
+  public static enum CoverageType {
+    UNIT(CoreMetrics.LINES_TO_COVER, CoreMetrics.UNCOVERED_LINES, CoreMetrics.COVERAGE_LINE_HITS_DATA,
+      CoreMetrics.CONDITIONS_TO_COVER, CoreMetrics.UNCOVERED_CONDITIONS, CoreMetrics.CONDITIONS_BY_LINE,
+      CoreMetrics.COVERED_CONDITIONS_BY_LINE),
+    IT(CoreMetrics.IT_LINES_TO_COVER, CoreMetrics.IT_UNCOVERED_LINES, CoreMetrics.IT_COVERAGE_LINE_HITS_DATA,
+      CoreMetrics.IT_CONDITIONS_TO_COVER, CoreMetrics.IT_UNCOVERED_CONDITIONS, CoreMetrics.IT_CONDITIONS_BY_LINE,
+      CoreMetrics.IT_COVERED_CONDITIONS_BY_LINE),
+    OVERALL(CoreMetrics.OVERALL_LINES_TO_COVER, CoreMetrics.OVERALL_UNCOVERED_LINES, CoreMetrics.OVERALL_COVERAGE_LINE_HITS_DATA,
+      CoreMetrics.OVERALL_CONDITIONS_TO_COVER, CoreMetrics.OVERALL_UNCOVERED_CONDITIONS, CoreMetrics.OVERALL_CONDITIONS_BY_LINE,
+      CoreMetrics.OVERALL_COVERED_CONDITIONS_BY_LINE);
+
+    private final Metric<Integer> linesToCover;
+    private final Metric<Integer> uncoveredLines;
+    private final Metric<String> lineHits;
+    private final Metric<Integer> conditionsToCover;
+    private final Metric<Integer> uncoveredConditions;
+    private final Metric<String> conditionsByLine;
+    private final Metric<String> coveredConditionsByLine;
+
+    private CoverageType(Metric<Integer> linesToCover, Metric<Integer> uncoveredLines, Metric<String> lineHits, Metric<Integer> conditionsToCover,
+      Metric<Integer> uncoveredConditions, Metric<String> conditionsByLine, Metric<String> coveredConditionsByLine) {
+      this.linesToCover = linesToCover;
+      this.uncoveredLines = uncoveredLines;
+      this.lineHits = lineHits;
+      this.conditionsToCover = conditionsToCover;
+      this.uncoveredConditions = uncoveredConditions;
+      this.conditionsByLine = conditionsByLine;
+      this.coveredConditionsByLine = coveredConditionsByLine;
+    }
+
+    public List<Metric> all() {
+      return Arrays.<Metric>asList(linesToCover, uncoveredLines, lineHits, conditionsToCover, uncoveredConditions, conditionsByLine, coveredConditionsByLine);
+    }
+  }
+
+  /**
    * Metrics of generated measures
    */
-  public static final List<Metric> METRICS = Arrays.<Metric>asList(
-    CoreMetrics.LINES_TO_COVER, CoreMetrics.UNCOVERED_LINES, CoreMetrics.COVERAGE_LINE_HITS_DATA,
-    CoreMetrics.CONDITIONS_TO_COVER, CoreMetrics.UNCOVERED_CONDITIONS, CoreMetrics.CONDITIONS_BY_LINE,
-    CoreMetrics.COVERED_CONDITIONS_BY_LINE);
+  public static final List<Metric> METRICS = CoverageType.UNIT.all();
 
   private int totalCoveredLines = 0, totalConditions = 0, totalCoveredConditions = 0;
   private SortedMap<Integer, Integer> hitsByLine = Maps.newTreeMap();
@@ -110,29 +145,33 @@ public final class CoverageMeasuresBuilder {
   }
 
   public Collection<Measure> createMeasures() {
+    return createMeasures(CoverageType.UNIT);
+  }
+
+  public Collection<Measure> createMeasures(CoverageType type) {
     Collection<Measure> measures = Lists.newArrayList();
     if (getLinesToCover() > 0) {
-      measures.add(new Measure(CoreMetrics.LINES_TO_COVER, (double) getLinesToCover()));
-      measures.add(new Measure(CoreMetrics.UNCOVERED_LINES, (double) (getLinesToCover() - getCoveredLines())));
-      measures.add(new Measure(CoreMetrics.COVERAGE_LINE_HITS_DATA).setData(KeyValueFormat.format(hitsByLine)).setPersistenceMode(PersistenceMode.DATABASE));
+      measures.add(new Measure(type.linesToCover, (double) getLinesToCover()));
+      measures.add(new Measure(type.uncoveredLines, (double) (getLinesToCover() - getCoveredLines())));
+      measures.add(new Measure(type.lineHits).setData(KeyValueFormat.format(hitsByLine)).setPersistenceMode(PersistenceMode.DATABASE));
     }
     if (getConditions() > 0) {
-      measures.add(new Measure(CoreMetrics.CONDITIONS_TO_COVER, (double) getConditions()));
-      measures.add(new Measure(CoreMetrics.UNCOVERED_CONDITIONS, (double) (getConditions() - getCoveredConditions())));
-      measures.add(createConditionsByLine());
-      measures.add(createCoveredConditionsByLine());
+      measures.add(new Measure(type.conditionsToCover, (double) getConditions()));
+      measures.add(new Measure(type.uncoveredConditions, (double) (getConditions() - getCoveredConditions())));
+      measures.add(createConditionsByLine(type));
+      measures.add(createCoveredConditionsByLine(type));
     }
     return measures;
   }
 
-  private Measure createCoveredConditionsByLine() {
-    return new Measure(CoreMetrics.COVERED_CONDITIONS_BY_LINE)
+  private Measure createCoveredConditionsByLine(CoverageType type) {
+    return new Measure(type.coveredConditionsByLine)
       .setData(KeyValueFormat.format(coveredConditionsByLine))
       .setPersistenceMode(PersistenceMode.DATABASE);
   }
 
-  private Measure createConditionsByLine() {
-    return new Measure(CoreMetrics.CONDITIONS_BY_LINE)
+  private Measure createConditionsByLine(CoverageType type) {
+    return new Measure(type.conditionsByLine)
       .setData(KeyValueFormat.format(conditionsByLine))
       .setPersistenceMode(PersistenceMode.DATABASE);
   }
