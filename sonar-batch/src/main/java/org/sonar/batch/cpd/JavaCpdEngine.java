@@ -207,6 +207,13 @@ public class JavaCpdEngine extends CpdEngine {
     for (int i = 1; i <= inputFile.lines(); i++) {
       duplicationByLine.put(i, duplicatedLines.contains(i) ? 1 : 0);
     }
+    saveMeasures(context, inputFile, duplicatedLines, duplicatedBlocks, duplicationByLine);
+
+    saveDuplications(context, inputFile, duplications);
+  }
+
+  private static void saveMeasures(org.sonar.api.batch.sensor.SensorContext context, InputFile inputFile, Set<Integer> duplicatedLines, int duplicatedBlocks,
+    Map<Integer, Integer> duplicationByLine) {
     ((DefaultMeasure<String>) context.<String>newMeasure()
       .forMetric(CoreMetrics.DUPLICATION_LINES_DATA)
       .onFile(inputFile)
@@ -232,7 +239,9 @@ public class JavaCpdEngine extends CpdEngine {
       .withValue(duplicatedBlocks))
       .setFromCore()
       .save();
+  }
 
+  private static void saveDuplications(org.sonar.api.batch.sensor.SensorContext context, InputFile inputFile, Iterable<CloneGroup> duplications) {
     int cloneGroupCount = 0;
     for (CloneGroup duplication : duplications) {
       cloneGroupCount++;

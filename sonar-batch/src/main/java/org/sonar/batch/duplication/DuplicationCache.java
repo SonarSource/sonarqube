@@ -53,7 +53,8 @@ public class DuplicationCache implements BatchComponent {
   }
 
   public DuplicationCache put(String effectiveKey, DefaultDuplication duplication) {
-    cache.put(effectiveKey, sequence++, duplication);
+    cache.put(effectiveKey, sequence, duplication);
+    sequence++;
     return this;
   }
 

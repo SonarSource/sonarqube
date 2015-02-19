@@ -97,8 +97,8 @@ public interface Duplication {
     }
   }
 
-  public Block originBlock();
+  Block originBlock();
 
-  public List<Block> duplicates();
+  List<Block> duplicates();
 
 }

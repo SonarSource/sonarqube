@@ -39,6 +39,7 @@ public class XooTokenizer implements Tokenizer, BatchComponent {
     this.fs = fs;
   }
 
+  @Override
   public final void tokenize(SourceCode source, Tokens cpdTokens) {
     String fileName = source.getFileName();
     int lineIdx = 1;

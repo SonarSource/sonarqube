@@ -28,6 +28,9 @@ import java.util.List;
 
 public final class CpdComponents {
 
+  private CpdComponents() {
+  }
+
   public static List all() {
     return ImmutableList.of(
       CpdSensor.class,

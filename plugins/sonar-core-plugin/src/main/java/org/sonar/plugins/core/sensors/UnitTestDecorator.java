@@ -47,7 +47,7 @@ public class UnitTestDecorator implements Decorator {
   }
 
   public boolean shouldDecorateResource(Resource resource) {
-    return ResourceUtils.isUnitTestClass(resource) || !ResourceUtils.isEntity(resource);
+    return ResourceUtils.isUnitTestFile(resource) || !ResourceUtils.isEntity(resource);
   }
 
   @Override

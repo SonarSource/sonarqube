@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.sensor;
 
+import com.google.common.base.Preconditions;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
@@ -56,6 +57,7 @@ import org.sonar.api.test.MutableTestPlan;
 import org.sonar.api.test.MutableTestable;
 import org.sonar.api.test.Testable;
 import org.sonar.batch.duplication.DuplicationCache;
+import org.sonar.batch.index.BatchResource;
 import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.ResourceCache;
@@ -245,8 +247,12 @@ public class DefaultSensorStorage implements SensorStorage {
 
   @Override
   public void store(org.sonar.api.batch.sensor.dependency.Dependency dep) {
-    File fromResource = (File) resourceCache.get(dep.fromKey()).resource();
-    File toResource = (File) resourceCache.get(dep.toKey()).resource();
+    BatchResource fromBatchResource = resourceCache.get(dep.fromKey());
+    BatchResource toBatchResource = resourceCache.get(dep.toKey());
+    Preconditions.checkNotNull(fromBatchResource, "Unable to find from resource " + dep.fromKey());
+    Preconditions.checkNotNull(toBatchResource, "Unable to find from resource " + dep.toKey());
+    File fromResource = (File) fromBatchResource.resource();
+    File toResource = (File) toBatchResource.resource();
     if (sonarIndex.getEdge(fromResource, toResource) != null) {
       throw new IllegalStateException("Dependency between " + dep.fromKey() + " and " + dep.toKey() + " was already saved.");
     }

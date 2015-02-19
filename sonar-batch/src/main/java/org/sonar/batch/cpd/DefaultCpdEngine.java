@@ -109,6 +109,10 @@ public class DefaultCpdEngine extends CpdEngine {
     populateIndex(languageKey, sourceFiles, mapping, index);
 
     // Detect
+    runCpdAnalysis(languageKey, context, sourceFiles, index);
+  }
+
+  private void runCpdAnalysis(String languageKey, SensorContext context, List<InputFile> sourceFiles, SonarDuplicationsIndex index) {
     Predicate<CloneGroup> minimumTokensPredicate = DuplicationPredicates.numberOfUnitsNotLessThan(getMinimumTokens(languageKey));
 
     ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -125,9 +129,7 @@ public class DefaultCpdEngine extends CpdEngine {
         } catch (TimeoutException e) {
           filtered = null;
           LOG.warn("Timeout during detection of duplications for " + inputFile, e);
-        } catch (InterruptedException e) {
-          throw new SonarException("Fail during detection of duplication for " + inputFile, e);
-        } catch (ExecutionException e) {
+        } catch (InterruptedException | ExecutionException e) {
           throw new SonarException("Fail during detection of duplication for " + inputFile, e);
         }
 
