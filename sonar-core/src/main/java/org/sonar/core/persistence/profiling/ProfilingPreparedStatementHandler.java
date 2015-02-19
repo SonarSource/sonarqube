@@ -30,10 +30,6 @@ import java.util.List;
 
 class ProfilingPreparedStatementHandler implements InvocationHandler {
 
-  private static final String PARAM_PREFIX = "<";
-  private static final String PARAM_SUFFIX = ">";
-  private static final String PARAM_SEPARATOR = ", ";
-
   private final PreparedStatement statement;
   private final List<Object> arguments;
   private final String sql;
