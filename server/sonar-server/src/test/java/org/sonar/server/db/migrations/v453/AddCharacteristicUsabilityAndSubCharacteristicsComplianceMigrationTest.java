@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.TestDatabase;
 import org.sonar.server.db.migrations.DatabaseMigration;
@@ -89,11 +90,13 @@ public class AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigrationT
   public void fail_if_usability_exists_as_sub_characteristic() throws Exception {
     db.prepareDbUnit(getClass(), "fail_if_usability_exists_as_sub_characteristic.xml");
 
-   try {
-     migration.execute();
-     fail();
-   } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("'Usability' must be a characteristic");
+    try {
+      migration.execute();
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(MessageException.class).hasMessage(
+        "'Usability' must be a characteristic. Please restore your DB backup, start the previous version of SonarQube " +
+          "and update your SQALE model to fix this issue before trying again to run the migration.");
     }
   }
 
@@ -105,7 +108,9 @@ public class AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigrationT
       migration.execute();
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("'Compliance' must be a sub-characteristic");
+      assertThat(e).isInstanceOf(MessageException.class).hasMessage(
+        "'Compliance' must be a sub-characteristic. Please restore your DB backup, start the previous version of SonarQube " +
+          "and update your SQALE model to fix this issue before trying again to run the migration.");
     }
   }
 
@@ -117,7 +122,9 @@ public class AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigrationT
       migration.execute();
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("'Reusability Compliance' must be defined under 'Reusability'");
+      assertThat(e).isInstanceOf(MessageException.class).hasMessage(
+        "'Reusability Compliance' must be defined under 'Reusability'. Please restore your DB backup, start the previous version of SonarQube " +
+          "and update your SQALE model to fix this issue before trying again to run the migration.");
     }
   }
 

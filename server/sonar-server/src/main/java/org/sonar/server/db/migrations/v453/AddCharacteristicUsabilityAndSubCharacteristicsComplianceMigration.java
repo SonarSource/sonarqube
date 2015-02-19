@@ -23,6 +23,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Database;
 import org.sonar.server.db.migrations.BaseDataChange;
@@ -53,6 +54,10 @@ public class AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigration 
 
   private static final String COMPLIANCE_NAME = "Compliance";
   private static final String COMPLIANCE_KEY_SUFFIX = "_COMPLIANCE";
+
+  private static final String ERROR_SUFFIX = "Please restore your DB backup, start the previous version of SonarQube " +
+    "and update your SQALE model to fix this issue before trying again to run the migration.";
+
 
   private final System2 system;
 
@@ -230,7 +235,7 @@ public class AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigration 
       }, null);
       if (characteristic != null) {
         if (characteristic.getParentId() != null) {
-          throw new IllegalStateException(String.format("'%s' must be a characteristic", characteristic.getName()));
+          throw MessageException.of(String.format("'%s' must be a characteristic. " + ERROR_SUFFIX, characteristic.getName()));
         }
       }
       return characteristic;
@@ -247,9 +252,9 @@ public class AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigration 
       if (characteristic != null) {
         Integer parentId = characteristic.getParentId();
         if (parentId == null) {
-          throw new IllegalStateException(String.format("'%s' must be a sub-characteristic", characteristic.getName()));
+          throw MessageException.of(String.format("'%s' must be a sub-characteristic. " + ERROR_SUFFIX, characteristic.getName()));
         } else if (!characteristic.getParentId().equals(parent.getId())) {
-          throw new IllegalStateException(String.format("'%s' must be defined under '%s'", characteristic.getName(), parent.getName()));
+          throw MessageException.of(String.format("'%s' must be defined under '%s'. " + ERROR_SUFFIX, characteristic.getName(), parent.getName()));
         }
       }
       return characteristic;
