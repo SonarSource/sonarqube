@@ -55,7 +55,7 @@ public class CreateIssueByInternalKeySensor implements Sensor {
       context.settings().getString(INTERNAL_KEY_PROPERTY));
     if (rule != null) {
       context.newIssue()
-        .ruleKey(rule.ruleKey())
+        .forRule(rule.ruleKey())
         .onFile(file)
         .message("This issue is generated on each file")
         .save();

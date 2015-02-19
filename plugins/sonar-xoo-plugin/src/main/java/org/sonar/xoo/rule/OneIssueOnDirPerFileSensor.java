@@ -51,7 +51,7 @@ public class OneIssueOnDirPerFileSensor implements Sensor {
     InputDir inputDir = context.fileSystem().inputDir(file.file().getParentFile());
     if (inputDir != null) {
       context.newIssue()
-        .ruleKey(ruleKey)
+        .forRule(ruleKey)
         .onDir(inputDir)
         .message("This issue is generated for file " + file.relativePath())
         .save();

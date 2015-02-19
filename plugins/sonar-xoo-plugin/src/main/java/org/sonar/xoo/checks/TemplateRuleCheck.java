@@ -38,7 +38,7 @@ public class TemplateRuleCheck implements Check {
   public void execute(SensorContext sensorContext, InputFile file, RuleKey ruleKey) {
     sensorContext.newIssue()
       .onFile(file)
-      .ruleKey(ruleKey)
+      .forRule(ruleKey)
       .atLine(line)
       .save();
   }

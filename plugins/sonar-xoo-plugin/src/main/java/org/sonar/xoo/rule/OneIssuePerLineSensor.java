@@ -58,7 +58,7 @@ public class OneIssuePerLineSensor implements Sensor {
     String severity = context.settings().getString(FORCE_SEVERITY_PROPERTY);
     for (int line = 1; line <= file.lines(); line++) {
       context.newIssue()
-        .ruleKey(ruleKey)
+        .forRule(ruleKey)
         .onFile(file)
         .atLine(line)
         .effortToFix(context.settings().getDouble(EFFORT_TO_FIX_PROPERTY))

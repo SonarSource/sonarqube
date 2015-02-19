@@ -61,7 +61,7 @@ public class DefaultIssue extends DefaultStorable implements Issue, NewIssue {
   }
 
   @Override
-  public DefaultIssue ruleKey(RuleKey ruleKey) {
+  public DefaultIssue forRule(RuleKey ruleKey) {
     this.ruleKey = ruleKey;
     return this;
   }

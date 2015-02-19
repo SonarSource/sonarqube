@@ -37,7 +37,7 @@ public interface NewIssue {
   /**
    * The {@link RuleKey} of the issue.
    */
-  NewIssue ruleKey(RuleKey ruleKey);
+  NewIssue forRule(RuleKey ruleKey);
 
   /**
    * The {@link InputFile} the issue belongs to. For global issues call {@link #onProject()}.

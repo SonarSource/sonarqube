@@ -40,7 +40,7 @@ public class DefaultIssueTest {
     SensorStorage storage = mock(SensorStorage.class);
     DefaultIssue issue = new DefaultIssue(storage)
       .onFile(new DefaultInputFile("foo", "src/Foo.php"))
-      .ruleKey(RuleKey.of("repo", "rule"))
+      .forRule(RuleKey.of("repo", "rule"))
       .atLine(1)
       .effortToFix(10.0)
       .message("Wrong way!");
@@ -61,7 +61,7 @@ public class DefaultIssueTest {
     SensorStorage storage = mock(SensorStorage.class);
     DefaultIssue issue = new DefaultIssue(storage)
       .onProject()
-      .ruleKey(RuleKey.of("repo", "rule"))
+      .forRule(RuleKey.of("repo", "rule"))
       .effortToFix(10.0)
       .message("Wrong way!");
 
@@ -83,7 +83,7 @@ public class DefaultIssueTest {
     new DefaultIssue()
       .onProject()
       .onFile(new DefaultInputFile("foo", "src/Foo.php"))
-      .ruleKey(RuleKey.of("repo", "rule"))
+      .forRule(RuleKey.of("repo", "rule"))
       .atLine(1)
       .effortToFix(10.0)
       .message("Wrong way!");

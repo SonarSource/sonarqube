@@ -187,7 +187,7 @@ public class DefaultSensorStorageTest {
 
     sensorStorage.store(new DefaultIssue()
       .onFile(file)
-      .ruleKey(RuleKey.of("foo", "bar"))
+      .forRule(RuleKey.of("foo", "bar"))
       .message("Foo")
       .atLine(3)
       .effortToFix(10.0));
@@ -213,7 +213,7 @@ public class DefaultSensorStorageTest {
 
     sensorStorage.store(new DefaultIssue()
       .onDir(dir)
-      .ruleKey(RuleKey.of("foo", "bar"))
+      .forRule(RuleKey.of("foo", "bar"))
       .message("Foo")
       .effortToFix(10.0));
 
@@ -236,7 +236,7 @@ public class DefaultSensorStorageTest {
 
     sensorStorage.store(new DefaultIssue()
       .onProject()
-      .ruleKey(RuleKey.of("foo", "bar"))
+      .forRule(RuleKey.of("foo", "bar"))
       .message("Foo")
       .overrideSeverity(Severity.BLOCKER)
       .effortToFix(10.0));

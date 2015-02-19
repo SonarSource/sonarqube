@@ -64,7 +64,7 @@ public class RandomAccessSensor implements Sensor {
   private void createIssues(InputFile file, SensorContext context) {
     RuleKey ruleKey = RuleKey.of(XooRulesDefinition.XOO_REPOSITORY, RULE_KEY);
     context.newIssue()
-      .ruleKey(ruleKey)
+      .forRule(ruleKey)
       .onFile(file)
       .atLine(1)
       .message("This issue is generated on each file")
