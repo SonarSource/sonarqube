@@ -149,6 +149,23 @@ public class SystemMonitoring extends MonitoringMBean implements SystemMonitorin
   @Override
   public void toJson(JsonWriter json) {
     json.beginObject()
+      .prop("System Date", getSystemDate())
+      .prop("JVM Vendor", getJvmVendor())
+      .prop("JVM Name", getJvmName())
+      .prop("JVM Version", getJvmVersion())
+      .prop("Processors", getProcessors())
+      .prop("System Classpath", getSystemClasspath())
+      .prop("BootClassPath", getBootClasspath())
+      .prop("Library Path", getLibraryPath())
+      .prop("Total Memory", getTotalMemory())
+      .prop("Free Memory", getFreeMemory())
+      .prop("Max Memory", getMaxMemory())
+      .prop("Heap", getHeapMemory())
+      .prop("Non Heap", getNonHeapMemory())
+      .prop("System Load Average", getSystemLoadAverage())
+      .prop("Loaded Classes", getLoadedClasses())
+      .prop("Start Time", getStartTime())
+      .prop("Threads", getThreads())
       .endObject();
   }
 
