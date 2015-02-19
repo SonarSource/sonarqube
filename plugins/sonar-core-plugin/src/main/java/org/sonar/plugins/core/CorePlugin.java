@@ -47,7 +47,7 @@ import org.sonar.plugins.core.sensors.ItBranchCoverageDecorator;
 import org.sonar.plugins.core.sensors.ItCoverageDecorator;
 import org.sonar.plugins.core.sensors.ItLineCoverageDecorator;
 import org.sonar.plugins.core.sensors.LineCoverageDecorator;
-import org.sonar.plugins.core.sensors.LinesToCoverDecorator;
+import org.sonar.plugins.core.sensors.MissingCoverageDecorator;
 import org.sonar.plugins.core.sensors.ManualMeasureDecorator;
 import org.sonar.plugins.core.sensors.OverallBranchCoverageDecorator;
 import org.sonar.plugins.core.sensors.OverallCoverageDecorator;
@@ -336,7 +336,7 @@ public final class CorePlugin extends SonarPlugin {
       DirectoriesDecorator.class,
       FilesDecorator.class,
       ManualMeasureDecorator.class,
-      LinesToCoverDecorator.class,
+      MissingCoverageDecorator.class,
 
       // time machine
       TendencyDecorator.class,

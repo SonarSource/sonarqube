@@ -26,17 +26,25 @@ import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.CoverageMeasuresBuilder;
+import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasureUtils;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.utils.KeyValueFormat;
 
-public final class LinesToCoverDecorator implements Decorator {
+import java.util.Map;
+
+/**
+ * Compute coverage when it was not already saved by language plugin.
+ */
+public final class MissingCoverageDecorator implements Decorator {
 
   private final Settings settings;
 
-  public LinesToCoverDecorator(Settings settings) {
+  public MissingCoverageDecorator(Settings settings) {
     this.settings = settings;
   }
 
@@ -59,9 +67,24 @@ public final class LinesToCoverDecorator implements Decorator {
   public void decorate(Resource resource, DecoratorContext context) {
     if (Qualifiers.isFile(resource)) {
       if (!MeasureUtils.hasValue(context.getMeasure(CoreMetrics.LINES_TO_COVER))) {
-        double ncloc = MeasureUtils.getValue(context.getMeasure(CoreMetrics.NCLOC), 0.0);
-        context.saveMeasure(CoreMetrics.LINES_TO_COVER, ncloc);
-        context.saveMeasure(CoreMetrics.UNCOVERED_LINES, ncloc);
+        Measure nclocData = context.getMeasure(CoreMetrics.NCLOC_DATA);
+        if (MeasureUtils.hasData(nclocData)) {
+          CoverageMeasuresBuilder builder = CoverageMeasuresBuilder.create();
+          Map<Integer, Integer> nclocByLine = KeyValueFormat.parseIntInt(nclocData.getData());
+          for (Map.Entry<Integer, Integer> entry : nclocByLine.entrySet()) {
+            if (entry.getValue() == 1) {
+              builder.setHits(entry.getKey(), 0);
+            }
+          }
+          for (Measure m : builder.createMeasures()) {
+            context.saveMeasure(m);
+          }
+        } else {
+          // No details about ncloc so fallback on setting high level metrics
+          double ncloc = MeasureUtils.getValue(context.getMeasure(CoreMetrics.NCLOC), 0.0);
+          context.saveMeasure(CoreMetrics.LINES_TO_COVER, ncloc);
+          context.saveMeasure(CoreMetrics.UNCOVERED_LINES, ncloc);
+        }
       }
     }
   }

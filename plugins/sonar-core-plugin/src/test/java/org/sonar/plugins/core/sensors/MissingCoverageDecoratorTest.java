@@ -42,15 +42,15 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-public class LinesToCoverDecoratorTest {
+public class MissingCoverageDecoratorTest {
 
   private Settings settings;
-  private LinesToCoverDecorator decorator;
+  private MissingCoverageDecorator decorator;
 
   @Before
   public void prepare() {
     settings = new Settings(new PropertyDefinitions(CorePropertyDefinitions.all()));
-    decorator = new LinesToCoverDecorator(settings);
+    decorator = new MissingCoverageDecorator(settings);
   }
 
   @Test
@@ -87,6 +87,21 @@ public class LinesToCoverDecoratorTest {
 
     verify(context, never()).saveMeasure(eq(CoreMetrics.LINES_TO_COVER), anyDouble());
     verify(context, never()).saveMeasure(eq(CoreMetrics.UNCOVERED_LINES), anyDouble());
+  }
+
+  @Test
+  public void testUseNclocDataIfPossible() {
+    DecoratorContext context = mock(DecoratorContext.class);
+    File file = File.create("src/Foo.java");
+
+    when(context.getMeasure(CoreMetrics.LINES_TO_COVER)).thenReturn(null);
+    when(context.getMeasure(CoreMetrics.NCLOC_DATA)).thenReturn(new Measure<>(CoreMetrics.NCLOC_DATA, "1=0;2=1;3=0;4=1"));
+
+    decorator.decorate(file, context);
+
+    verify(context).saveMeasure(new Measure(CoreMetrics.LINES_TO_COVER, 2.0));
+    verify(context).saveMeasure(new Measure(CoreMetrics.UNCOVERED_LINES, 2.0));
+    verify(context).saveMeasure(new Measure(CoreMetrics.COVERAGE_LINE_HITS_DATA, "2=0;4=0"));
   }
 
   @Test
