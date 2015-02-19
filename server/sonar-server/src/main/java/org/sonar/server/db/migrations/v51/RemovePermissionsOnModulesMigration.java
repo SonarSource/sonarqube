@@ -53,7 +53,7 @@ public class RemovePermissionsOnModulesMigration extends BaseDataChange {
     massUpdate.select("SELECT r.id " +
       "FROM " + tableName + " r " +
       "  INNER JOIN projects ON projects.id = r.resource_id " +
-      "WHERE projects.module_uuid IS NOT NULL;");
+      "WHERE projects.module_uuid IS NOT NULL");
     massUpdate.update("DELETE FROM " + tableName + " WHERE id=?");
     massUpdate.rowPluralName(pluralName);
     massUpdate.execute(new MassUpdate.Handler() {
