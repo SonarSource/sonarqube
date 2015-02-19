@@ -54,7 +54,6 @@ import org.sonar.core.metric.DefaultMetricFinder;
 import org.sonar.core.notification.DefaultNotificationManager;
 import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.persistence.*;
-import org.sonar.core.profiling.Profiling;
 import org.sonar.core.purge.PurgeProfiler;
 import org.sonar.core.qualitygate.db.ProjectQgateAssociationDao;
 import org.sonar.core.qualitygate.db.QualityGateConditionDao;
@@ -177,7 +176,6 @@ import org.sonar.server.test.ws.*;
 import org.sonar.server.text.MacroInterpreter;
 import org.sonar.server.text.RubyTextService;
 import org.sonar.server.ui.JRubyI18n;
-import org.sonar.server.ui.JRubyProfiling;
 import org.sonar.server.ui.PageDecorations;
 import org.sonar.server.ui.Views;
 import org.sonar.server.updatecenter.ws.UpdateCenterWs;
@@ -222,8 +220,6 @@ class ServerComponents {
       ServerSettings.class,
       ServerImpl.class,
       Logback.class,
-      Profiling.class,
-      JRubyProfiling.class,
       EmbeddedDatabaseFactory.class,
       DefaultDatabase.class,
       DatabaseChecker.class,

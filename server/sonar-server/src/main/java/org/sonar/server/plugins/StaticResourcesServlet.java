@@ -22,21 +22,22 @@ package org.sonar.server.plugins;
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.platform.Platform;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 public class StaticResourcesServlet extends HttpServlet {
 
-  private static final Logger LOG = LoggerFactory.getLogger(StaticResourcesServlet.class);
+  private static final Logger LOG = Loggers.get(StaticResourcesServlet.class);
   private static final long serialVersionUID = -2577454614650178426L;
 
   @Override

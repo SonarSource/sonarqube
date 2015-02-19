@@ -21,15 +21,12 @@ package org.sonar.batch.scan;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterators;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
-import org.sonar.api.utils.TimeProfiler;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.utils.log.Profiler;
 import org.sonar.batch.bootstrap.ServerClient;
 
 public class LastLineHashes implements BatchComponent {
-
-  private static final Logger LOG = LoggerFactory.getLogger(LastLineHashes.class);
 
   private final ServerClient server;
 
@@ -43,11 +40,13 @@ public class LastLineHashes implements BatchComponent {
   }
 
   private String loadHashesFromWs(String fileKey) {
-    TimeProfiler profiler = new TimeProfiler(LOG).setLevelToDebug().start("Load previous line hashes of: " + fileKey);
+    Profiler profiler = Profiler.createIfDebug(Loggers.get(getClass()))
+      .addContext("file", fileKey)
+      .startDebug("Load line hashes");
     try {
       return server.request("/api/sources/hash?key=" + ServerClient.encodeForUrl(fileKey));
     } finally {
-      profiler.stop();
+      profiler.stopDebug();
     }
   }
 }

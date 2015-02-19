@@ -24,7 +24,7 @@ import org.apache.catalina.LifecycleException;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.commons.io.FileUtils;
-import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.process.ProcessConstants;
 import org.sonar.process.Props;
 
@@ -55,12 +55,12 @@ class EmbeddedTomcat {
     tomcat.getHost().setAutoDeploy(false);
     tomcat.getHost().setCreateDirs(false);
     tomcat.getHost().setDeployOnStartup(true);
-    Logging.configure(tomcat, props);
-    Connectors.configure(tomcat, props);
+    new TomcatAccessLog().configure(tomcat, props);
+    TomcatConnectors.configure(tomcat, props);
     webappContext = Webapp.configure(tomcat, props);
     try {
       tomcat.start();
-      new StartupLogs(props, LoggerFactory.getLogger(getClass())).log(tomcat);
+      new StartupLogs(props, Loggers.get(getClass())).log(tomcat);
     } catch (LifecycleException e) {
       Throwables.propagate(e);
     }
@@ -95,7 +95,7 @@ class EmbeddedTomcat {
         tomcat.stop();
         tomcat.destroy();
       } catch (Exception e) {
-        LoggerFactory.getLogger(EmbeddedTomcat.class).error("Fail to stop web server", e);
+        Loggers.get(EmbeddedTomcat.class).error("Fail to stop web server", e);
       }
     }
     FileUtils.deleteQuietly(tomcatBasedir());

@@ -19,7 +19,7 @@
  */
 package org.sonar.server.ui;
 
-import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.config.License;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
@@ -279,7 +279,7 @@ public final class JRubyFacade {
     try {
       return get(Class.forName(className));
     } catch (ClassNotFoundException e) {
-      LoggerFactory.getLogger(getClass()).error("Component not found: " + className, e);
+      Loggers.get(getClass()).error("Component not found: " + className, e);
       return null;
     }
   }
@@ -313,13 +313,13 @@ public final class JRubyFacade {
     try {
       get(ComponentCleanerService.class).delete(projectKey);
     } catch (RuntimeException e) {
-      LoggerFactory.getLogger(JRubyFacade.class).error("Fail to delete resource with key: " + projectKey, e);
+      Loggers.get(JRubyFacade.class).error("Fail to delete resource with key: " + projectKey, e);
       throw e;
     }
   }
 
   public void logError(String message) {
-    LoggerFactory.getLogger(getClass()).error(message);
+    Loggers.get(getClass()).error(message);
   }
 
   public boolean hasSecretKey() {

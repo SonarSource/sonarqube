@@ -21,7 +21,7 @@ package org.sonar.api.utils;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.slf4j.Logger;
+import org.sonar.api.utils.log.Logger;
 
 import java.util.ArrayList;
 import java.util.List;

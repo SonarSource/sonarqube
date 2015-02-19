@@ -21,8 +21,8 @@ package org.sonar.api.utils.command;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Closeables;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 import javax.annotation.Nullable;
 
@@ -44,7 +44,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class CommandExecutor {
 
-  private static final Logger LOG = LoggerFactory.getLogger(CommandExecutor.class);
+  private static final Logger LOG = Loggers.get(CommandExecutor.class);
 
   private static final CommandExecutor INSTANCE = new CommandExecutor();
 

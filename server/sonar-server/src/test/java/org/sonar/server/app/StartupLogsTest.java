@@ -24,7 +24,7 @@ import org.apache.catalina.startup.Tomcat;
 import org.apache.coyote.http11.AbstractHttp11JsseProtocol;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.slf4j.Logger;
+import org.sonar.api.utils.log.Logger;
 import org.sonar.process.Props;
 
 import java.util.Properties;
@@ -81,7 +81,7 @@ public class StartupLogsTest {
     when(protocol.getCiphersUsed()).thenReturn(new String[] {"SSL_RSA", "TLS_RSA_WITH_RC4"});
     when(connector.getProtocolHandler()).thenReturn(protocol);
     when(tomcat.getService().findConnectors()).thenReturn(new Connector[] {connector});
-    props.set(Connectors.PROP_HTTPS_CIPHERS, "SSL_RSA,TLS_RSA_WITH_RC4");
+    props.set(TomcatConnectors.PROP_HTTPS_CIPHERS, "SSL_RSA,TLS_RSA_WITH_RC4");
     sut.log(tomcat);
 
     verify(logger).info("HTTPS connector enabled on port 1234 | ciphers=SSL_RSA,TLS_RSA_WITH_RC4");

@@ -26,28 +26,25 @@ import org.elasticsearch.action.admin.indices.stats.IndicesStatsRequestBuilder;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
-import org.sonar.core.profiling.Profiling;
-import org.sonar.core.profiling.StopWatch;
+import org.sonar.api.utils.log.Profiler;
+import org.sonar.server.es.EsClient;
 
 public class ProxyIndicesStatsRequestBuilder extends IndicesStatsRequestBuilder {
 
-  private final Profiling profiling;
-
-  public ProxyIndicesStatsRequestBuilder(Client client, Profiling profiling) {
+  public ProxyIndicesStatsRequestBuilder(Client client) {
     super(client.admin().indices());
-    this.profiling = profiling;
   }
 
   @Override
   public IndicesStatsResponse get() {
-    StopWatch fullProfile = profiling.start("indices stats", Profiling.Level.FULL);
+    Profiler profiler = Profiler.createIfTrace(EsClient.LOGGER).start();
     try {
       return super.execute().actionGet();
     } catch (Exception e) {
       throw new IllegalStateException(String.format("Fail to execute %s", toString()), e);
     } finally {
-      if (profiling.isProfilingEnabled(Profiling.Level.BASIC)) {
-        fullProfile.stop("%s", toString());
+      if (profiler.isTraceEnabled()) {
+        profiler.stopTrace(toString());
       }
     }
   }

@@ -20,8 +20,8 @@
 package org.sonar.api.rules;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.utils.log.Loggers;
 
 import java.util.Date;
 
@@ -128,7 +128,7 @@ public class Violation {
   public Violation setLineId(Integer lineId) {
     if (lineId != null && lineId < 1) {
       // TODO this normalization was added in 2.8, throw exception in future versions - see http://jira.codehaus.org/browse/SONAR-2386
-      LoggerFactory.getLogger(getClass()).warn("line must not be less than 1 - in future versions this will cause IllegalArgumentException");
+      Loggers.get(getClass()).warn("line must not be less than 1 - in future versions this will cause IllegalArgumentException");
       this.lineId = null;
     } else {
       this.lineId = lineId;

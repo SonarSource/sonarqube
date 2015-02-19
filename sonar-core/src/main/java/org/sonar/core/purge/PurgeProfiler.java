@@ -20,8 +20,8 @@
 package org.sonar.core.purge;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.slf4j.Logger;
 import org.sonar.api.utils.TimeUtils;
+import org.sonar.api.utils.log.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;

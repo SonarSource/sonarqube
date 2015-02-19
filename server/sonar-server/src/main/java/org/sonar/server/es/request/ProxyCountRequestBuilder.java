@@ -26,28 +26,25 @@ import org.elasticsearch.action.count.CountRequestBuilder;
 import org.elasticsearch.action.count.CountResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
-import org.sonar.core.profiling.Profiling;
-import org.sonar.core.profiling.StopWatch;
+import org.sonar.api.utils.log.Profiler;
+import org.sonar.server.es.EsClient;
 
 public class ProxyCountRequestBuilder extends CountRequestBuilder {
 
-  private final Profiling profiling;
-
-  public ProxyCountRequestBuilder(Client client, Profiling profiling) {
+  public ProxyCountRequestBuilder(Client client) {
     super(client);
-    this.profiling = profiling;
   }
 
   @Override
   public CountResponse get() {
-    StopWatch fullProfile = profiling.start("count", Profiling.Level.FULL);
+    Profiler profiler = Profiler.createIfTrace(EsClient.LOGGER).start();
     try {
       return super.execute().actionGet();
     } catch (Exception e) {
       throw new IllegalStateException(String.format("Fail to execute %s", toString()), e);
     } finally {
-      if (profiling.isProfilingEnabled(Profiling.Level.BASIC)) {
-        fullProfile.stop("%s", toString());
+      if (profiler.isTraceEnabled()) {
+        profiler.stopTrace(toString());
       }
     }
   }

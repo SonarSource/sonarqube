@@ -50,10 +50,6 @@ class Internal
     component(Java::OrgSonarServerDebt::DebtModelService.java_class)
   end
 
-  def self.profiling
-    component(Java::OrgSonarServerUi::JRubyProfiling.java_class)
-  end
-
   def self.group_membership
     component(Java::OrgSonarServerUser::GroupMembershipService.java_class)
   end

@@ -25,13 +25,13 @@ import com.google.common.base.Functions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.PropertyType;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.api.utils.FieldUtils2;
 import org.sonar.api.utils.SonarException;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
@@ -44,7 +44,7 @@ import java.util.List;
 @Deprecated
 public final class AnnotationRuleParser implements ServerComponent {
 
-  private static final Logger LOG = LoggerFactory.getLogger(AnnotationRuleParser.class);
+  private static final Logger LOG = Loggers.get(AnnotationRuleParser.class);
 
   public List<Rule> parse(String repositoryKey, Collection<Class> annotatedClasses) {
     List<Rule> rules = Lists.newArrayList();

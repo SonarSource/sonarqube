@@ -28,31 +28,28 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.ToXContent;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
-import org.sonar.core.profiling.Profiling;
-import org.sonar.core.profiling.StopWatch;
+import org.sonar.api.utils.log.Profiler;
+import org.sonar.server.es.EsClient;
 
 import java.io.IOException;
 import java.util.Arrays;
 
 public class ProxySearchRequestBuilder extends SearchRequestBuilder {
 
-  private final Profiling profiling;
-
-  public ProxySearchRequestBuilder(Client client, Profiling profiling) {
+  public ProxySearchRequestBuilder(Client client) {
     super(client);
-    this.profiling = profiling;
   }
 
   @Override
   public SearchResponse get() {
-    StopWatch fullProfile = profiling.start("search", Profiling.Level.FULL);
+    Profiler profiler = Profiler.createIfTrace(EsClient.LOGGER).start();
     try {
       return super.execute().actionGet();
     } catch (Exception e) {
       throw new IllegalStateException(String.format("Fail to execute %s", toString()), e);
     } finally {
-      if (profiling.isProfilingEnabled(Profiling.Level.BASIC)) {
-        fullProfile.stop("%s", toString());
+      if (profiler.isTraceEnabled()) {
+        profiler.stopTrace(toString());
       }
     }
   }

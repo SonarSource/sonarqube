@@ -23,9 +23,9 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.utils.TimeProfiler;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.utils.log.Profiler;
 import org.sonar.api.web.Criterion;
 import org.sonar.api.web.Filter;
 import org.sonar.api.web.FilterColumn;
@@ -42,7 +42,7 @@ import java.util.List;
  * @since 3.1
  */
 public final class RegisterNewMeasureFilters {
-  private static final Logger LOG = LoggerFactory.getLogger(RegisterNewMeasureFilters.class);
+  private static final Logger LOG = Loggers.get(RegisterNewMeasureFilters.class);
 
   private final List<FilterTemplate> filterTemplates;
   private final MeasureFilterDao filterDao;
@@ -58,11 +58,11 @@ public final class RegisterNewMeasureFilters {
    * Used when no plugin is defining some FilterTemplate
    */
   public RegisterNewMeasureFilters(MeasureFilterDao filterDao, LoadedTemplateDao loadedTemplateDao) {
-    this(new FilterTemplate[]{}, filterDao, loadedTemplateDao);
+    this(new FilterTemplate[] {}, filterDao, loadedTemplateDao);
   }
 
   public void start() {
-    TimeProfiler profiler = new TimeProfiler(LOG).start("Register measure filters");
+    Profiler profiler = Profiler.create(Loggers.get(getClass())).startInfo("Register measure filters");
 
     for (FilterTemplate template : filterTemplates) {
       if (shouldRegister(template.getName())) {
@@ -71,7 +71,7 @@ public final class RegisterNewMeasureFilters {
       }
     }
 
-    profiler.stop();
+    profiler.stopDebug();
   }
 
   private boolean shouldRegister(String filterName) {

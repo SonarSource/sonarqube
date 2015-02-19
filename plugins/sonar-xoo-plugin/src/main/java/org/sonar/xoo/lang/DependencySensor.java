@@ -22,14 +22,14 @@ package org.sonar.xoo.lang;
 import com.google.common.base.Splitter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.xoo.Xoo;
 
 import java.io.File;
@@ -42,7 +42,7 @@ import java.util.List;
  */
 public class DependencySensor implements Sensor {
 
-  private static final Logger LOG = LoggerFactory.getLogger(DependencySensor.class);
+  private static final Logger LOG = Loggers.get(DependencySensor.class);
 
   private static final String DEPS_EXTENSION = ".deps";
 

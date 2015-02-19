@@ -23,31 +23,27 @@ package org.sonar.batch.debt;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.picocontainer.injectors.ProviderAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.debt.DebtCharacteristic;
 import org.sonar.api.batch.debt.DebtModel;
 import org.sonar.api.batch.debt.internal.DefaultDebtCharacteristic;
 import org.sonar.api.batch.debt.internal.DefaultDebtModel;
-import org.sonar.api.utils.TimeProfiler;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.utils.log.Profiler;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 
 import javax.annotation.Nullable;
-
 import java.util.List;
 
 public class DebtModelProvider extends ProviderAdapter {
-
-  private static final Logger LOG = LoggerFactory.getLogger(DebtModelProvider.class);
 
   private DebtModel model;
 
   public DebtModel provide(CharacteristicDao dao) {
     if (model == null) {
-      TimeProfiler profiler = new TimeProfiler(LOG).start("Loading technical debt model");
+      Profiler profiler = Profiler.create(Loggers.get(getClass())).startInfo("Load technical debt model");
       model = load(dao);
-      profiler.stop();
+      profiler.stopDebug();
     }
     return model;
   }

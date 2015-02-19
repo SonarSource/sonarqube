@@ -28,14 +28,18 @@ import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.update.UpdateRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.platform.ComponentContainer;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.cluster.WorkQueue;
 import org.sonar.server.search.action.IndexAction;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -46,7 +50,7 @@ public class IndexQueue implements ServerComponent, WorkQueue<IndexAction<?>> {
   private final SearchClient searchClient;
   private final ComponentContainer container;
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(IndexQueue.class);
+  private static final Logger LOGGER = Loggers.get(IndexQueue.class);
 
   private static final Integer CONCURRENT_NORMALIZATION_FACTOR = 1;
 

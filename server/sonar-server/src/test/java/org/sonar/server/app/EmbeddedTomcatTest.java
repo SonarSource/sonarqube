@@ -50,6 +50,7 @@ public class EmbeddedTomcatTest {
     FileUtils.write(new File(home, "web/WEB-INF/web.xml"), "<web-app/>");
     props.set("sonar.path.home", home.getAbsolutePath());
     props.set("sonar.path.web", webDir.getAbsolutePath());
+    props.set("sonar.path.logs", temp.newFolder().getAbsolutePath());
 
     // start server on a random port
     int httpPort = NetworkUtils.freePort();

@@ -24,10 +24,11 @@ import org.elasticsearch.action.get.MultiGetRequest;
 import org.elasticsearch.action.get.MultiGetRequestBuilder;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.fetch.source.FetchSourceContext;
-import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.core.profiling.Profiling;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.FakeIndexDefinition;
 
@@ -39,10 +40,8 @@ public class ProxyMultiGetRequestBuilderTest {
   @ClassRule
   public static EsTester esTester = new EsTester().addDefinitions(new FakeIndexDefinition());
 
-  @Before
-  public void setUp() throws Exception {
-    esTester.setProfilingLevel(Profiling.Level.NONE);
-  }
+  @Rule
+  public LogTester logTester = new LogTester();
 
   @Test
   public void multi_get() {
@@ -63,15 +62,15 @@ public class ProxyMultiGetRequestBuilderTest {
   }
 
   @Test
-  public void with_profiling_full() {
-    esTester.setProfilingLevel(Profiling.Level.FULL);
+  public void trace_logs() {
+    logTester.setLevel(LoggerLevel.TRACE);
 
     MultiGetRequestBuilder request = esTester.client().prepareMultiGet();
     request.add(new MultiGetRequest.Item(FakeIndexDefinition.INDEX, FakeIndexDefinition.TYPE, "ruleKey")
       .fetchSourceContext(FetchSourceContext.FETCH_SOURCE));
     request.get();
 
-    // TODO assert profiling
+    assertThat(logTester.logs()).hasSize(1);
   }
 
   @Test

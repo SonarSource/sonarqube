@@ -26,28 +26,25 @@ import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequestBuild
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
-import org.sonar.core.profiling.Profiling;
-import org.sonar.core.profiling.StopWatch;
+import org.sonar.api.utils.log.Profiler;
+import org.sonar.server.es.EsClient;
 
 public class ProxyPutMappingRequestBuilder extends PutMappingRequestBuilder {
 
-  private final Profiling profiling;
-
-  public ProxyPutMappingRequestBuilder(Client client, Profiling profiling) {
+  public ProxyPutMappingRequestBuilder(Client client) {
     super(client.admin().indices());
-    this.profiling = profiling;
   }
 
   @Override
   public PutMappingResponse get() {
-    StopWatch fullProfile = profiling.start("put mapping", Profiling.Level.FULL);
+    Profiler profiler = Profiler.createIfTrace(EsClient.LOGGER).start();
     try {
       return super.execute().actionGet();
     } catch (Exception e) {
       throw new IllegalStateException(String.format("Fail to execute %s", toString()), e);
     } finally {
-      if (profiling.isProfilingEnabled(Profiling.Level.BASIC)) {
-        fullProfile.stop("%s", toString());
+      if (profiler.isTraceEnabled()) {
+        profiler.stopTrace(toString());
       }
     }
   }

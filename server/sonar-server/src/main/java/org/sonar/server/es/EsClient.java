@@ -48,8 +48,28 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.metrics.max.Max;
 import org.picocontainer.Startable;
-import org.sonar.core.profiling.Profiling;
-import org.sonar.server.es.request.*;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.server.es.request.ProxyBulkRequestBuilder;
+import org.sonar.server.es.request.ProxyClearCacheRequestBuilder;
+import org.sonar.server.es.request.ProxyClusterHealthRequestBuilder;
+import org.sonar.server.es.request.ProxyClusterStateRequestBuilder;
+import org.sonar.server.es.request.ProxyClusterStatsRequestBuilder;
+import org.sonar.server.es.request.ProxyCountRequestBuilder;
+import org.sonar.server.es.request.ProxyCreateIndexRequestBuilder;
+import org.sonar.server.es.request.ProxyDeleteByQueryRequestBuilder;
+import org.sonar.server.es.request.ProxyDeleteRequestBuilder;
+import org.sonar.server.es.request.ProxyFlushRequestBuilder;
+import org.sonar.server.es.request.ProxyGetRequestBuilder;
+import org.sonar.server.es.request.ProxyIndexRequestBuilder;
+import org.sonar.server.es.request.ProxyIndicesExistsRequestBuilder;
+import org.sonar.server.es.request.ProxyIndicesStatsRequestBuilder;
+import org.sonar.server.es.request.ProxyMultiGetRequestBuilder;
+import org.sonar.server.es.request.ProxyNodesStatsRequestBuilder;
+import org.sonar.server.es.request.ProxyPutMappingRequestBuilder;
+import org.sonar.server.es.request.ProxyRefreshRequestBuilder;
+import org.sonar.server.es.request.ProxySearchRequestBuilder;
+import org.sonar.server.es.request.ProxySearchScrollRequestBuilder;
 import org.sonar.server.search.ClusterHealth;
 import org.sonar.server.search.SearchClient;
 
@@ -59,16 +79,14 @@ import org.sonar.server.search.SearchClient;
  */
 public class EsClient implements Startable {
 
-  private final Profiling profiling;
+  public static final Logger LOGGER = Loggers.get("es");
   private final Client client;
 
   public EsClient(SearchClient deprecatedClient) {
-    this.profiling = deprecatedClient.getProfiling();
     this.client = deprecatedClient;
   }
 
-  EsClient(Profiling profiling, Client client) {
-    this.profiling = profiling;
+  EsClient(Client client) {
     this.client = client;
   }
 
@@ -86,31 +104,31 @@ public class EsClient implements Startable {
   }
 
   public RefreshRequestBuilder prepareRefresh(String... indices) {
-    return new ProxyRefreshRequestBuilder(client, profiling).setIndices(indices);
+    return new ProxyRefreshRequestBuilder(client).setIndices(indices);
   }
 
   public FlushRequestBuilder prepareFlush(String... indices) {
-    return new ProxyFlushRequestBuilder(client, profiling).setIndices(indices);
+    return new ProxyFlushRequestBuilder(client).setIndices(indices);
   }
 
   public IndicesStatsRequestBuilder prepareStats(String... indices) {
-    return new ProxyIndicesStatsRequestBuilder(client, profiling).setIndices(indices);
+    return new ProxyIndicesStatsRequestBuilder(client).setIndices(indices);
   }
 
   public NodesStatsRequestBuilder prepareNodesStats(String... nodesIds) {
-    return new ProxyNodesStatsRequestBuilder(client, profiling).setNodesIds(nodesIds);
+    return new ProxyNodesStatsRequestBuilder(client).setNodesIds(nodesIds);
   }
 
   public ClusterStatsRequestBuilder prepareClusterStats() {
-    return new ProxyClusterStatsRequestBuilder(client, profiling);
+    return new ProxyClusterStatsRequestBuilder(client);
   }
 
   public ClusterStateRequestBuilder prepareState() {
-    return new ProxyClusterStateRequestBuilder(client, profiling);
+    return new ProxyClusterStateRequestBuilder(client);
   }
 
   public ClusterHealthRequestBuilder prepareHealth(String... indices) {
-    return new ProxyClusterHealthRequestBuilder(client, profiling).setIndices(indices);
+    return new ProxyClusterHealthRequestBuilder(client).setIndices(indices);
   }
 
   public void waitForStatus(ClusterHealthStatus status) {
@@ -118,55 +136,55 @@ public class EsClient implements Startable {
   }
 
   public IndicesExistsRequestBuilder prepareIndicesExist(String... indices) {
-    return new ProxyIndicesExistsRequestBuilder(client, profiling, indices);
+    return new ProxyIndicesExistsRequestBuilder(client, indices);
   }
 
   public CreateIndexRequestBuilder prepareCreate(String index) {
-    return new ProxyCreateIndexRequestBuilder(client, profiling, index);
+    return new ProxyCreateIndexRequestBuilder(client, index);
   }
 
   public PutMappingRequestBuilder preparePutMapping(String... indices) {
-    return new ProxyPutMappingRequestBuilder(client, profiling).setIndices(indices);
+    return new ProxyPutMappingRequestBuilder(client).setIndices(indices);
   }
 
   public SearchRequestBuilder prepareSearch(String... indices) {
-    return new ProxySearchRequestBuilder(client, profiling).setIndices(indices);
+    return new ProxySearchRequestBuilder(client).setIndices(indices);
   }
 
   public SearchScrollRequestBuilder prepareSearchScroll(String scrollId) {
-    return new ProxySearchScrollRequestBuilder(scrollId, client, profiling);
+    return new ProxySearchScrollRequestBuilder(scrollId, client);
   }
 
   public GetRequestBuilder prepareGet() {
-    return new ProxyGetRequestBuilder(client, profiling);
+    return new ProxyGetRequestBuilder(client);
   }
 
   public GetRequestBuilder prepareGet(String index, String type, String id) {
-    return new ProxyGetRequestBuilder(client, profiling).setIndex(index).setType(type).setId(id);
+    return new ProxyGetRequestBuilder(client).setIndex(index).setType(type).setId(id);
   }
 
   public MultiGetRequestBuilder prepareMultiGet() {
-    return new ProxyMultiGetRequestBuilder(client, profiling);
+    return new ProxyMultiGetRequestBuilder(client);
   }
 
   public CountRequestBuilder prepareCount(String... indices) {
-    return new ProxyCountRequestBuilder(client, profiling).setIndices(indices);
+    return new ProxyCountRequestBuilder(client).setIndices(indices);
   }
 
   public BulkRequestBuilder prepareBulk() {
-    return new ProxyBulkRequestBuilder(client, profiling);
+    return new ProxyBulkRequestBuilder(client);
   }
 
   public DeleteRequestBuilder prepareDelete(String index, String type, String id) {
-    return new ProxyDeleteRequestBuilder(profiling, client, index).setType(type).setId(id);
+    return new ProxyDeleteRequestBuilder(client, index).setType(type).setId(id);
   }
 
   public DeleteByQueryRequestBuilder prepareDeleteByQuery(String... indices) {
-    return new ProxyDeleteByQueryRequestBuilder(client, profiling).setIndices(indices);
+    return new ProxyDeleteByQueryRequestBuilder(client).setIndices(indices);
   }
 
   public IndexRequestBuilder prepareIndex(String index, String type) {
-    return new ProxyIndexRequestBuilder(client, profiling).setIndex(index).setType(type);
+    return new ProxyIndexRequestBuilder(client).setIndex(index).setType(type);
   }
 
   public OptimizeRequestBuilder prepareOptimize(String indexName) {
@@ -177,7 +195,7 @@ public class EsClient implements Startable {
   }
 
   public ClearIndicesCacheRequestBuilder prepareClearCache(String... indices) {
-    return new ProxyClearCacheRequestBuilder(client, profiling).setIndices(indices);
+    return new ProxyClearCacheRequestBuilder(client).setIndices(indices);
   }
 
   public long getLastUpdatedAt(String indexName, String typeName) {

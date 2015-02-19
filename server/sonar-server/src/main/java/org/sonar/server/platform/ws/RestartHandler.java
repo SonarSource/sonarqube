@@ -19,14 +19,15 @@
  */
 package org.sonar.server.platform.ws;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.platform.Platform;
 
@@ -54,7 +55,7 @@ public class RestartHandler implements RequestHandler {
   @Override
   public void handle(Request request, Response response) {
     if (canRestart()) {
-      Logger logger = LoggerFactory.getLogger(getClass());
+      Logger logger = Loggers.get(getClass());
       logger.info("Restart server");
       platform.restart();
       logger.info("Server restarted");

@@ -22,10 +22,10 @@ package org.sonar.server.component;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.component.Component;
 import org.sonar.api.utils.Paging;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 import java.util.Collection;
 import java.util.List;
@@ -38,7 +38,7 @@ import static com.google.common.collect.Lists.newArrayList;
  */
 public class DefaultComponentFinder {
 
-  private static final Logger LOG = LoggerFactory.getLogger(DefaultComponentFinder.class);
+  private static final Logger LOG = Loggers.get(DefaultComponentFinder.class);
 
   public DefaultComponentQueryResult find(ComponentQuery query, List<Component> allComponents) {
     LOG.debug("ComponentQuery : {}", query);

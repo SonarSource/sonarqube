@@ -24,8 +24,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ObjectUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.debt.DebtCharacteristic;
@@ -34,6 +32,8 @@ import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.ValidationMessages;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
@@ -58,7 +58,7 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public class DebtModelBackup implements ServerComponent {
 
-  private static final Logger LOG = LoggerFactory.getLogger(DebtModelBackup.class);
+  private static final Logger LOG = Loggers.get(DebtModelBackup.class);
 
   private final DbClient dbClient;
   private final DebtModelOperations debtModelOperations;

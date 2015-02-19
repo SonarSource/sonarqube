@@ -21,7 +21,7 @@ package org.sonar.core.persistence.profiling;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.core.profiling.StopWatch;
+import org.sonar.api.utils.log.Profiler;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -33,7 +33,6 @@ class ProfilingPreparedStatementHandler implements InvocationHandler {
   private static final String PARAM_PREFIX = "<";
   private static final String PARAM_SUFFIX = ">";
   private static final String PARAM_SEPARATOR = ", ";
-  private static final SqlProfiling PROFILING = new SqlProfiling();
 
   private final PreparedStatement statement;
   private final List<Object> arguments;
@@ -51,7 +50,7 @@ class ProfilingPreparedStatementHandler implements InvocationHandler {
   @Override
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     if (method.getName().startsWith("execute")) {
-      StopWatch watch = PROFILING.start();
+      Profiler profiler = Profiler.createIfTrace(ProfiledDataSource.SQL_LOGGER).start();
       Object result = null;
       try {
         result = InvocationUtils.invokeQuietly(statement, method, args);
@@ -63,7 +62,7 @@ class ProfilingPreparedStatementHandler implements InvocationHandler {
             sqlBuilder.append(PARAM_PREFIX).append(arg).append(PARAM_SUFFIX).append(PARAM_SEPARATOR);
           }
         }
-        PROFILING.stop(watch, StringUtils.removeEnd(sqlBuilder.toString(), PARAM_SEPARATOR));
+        profiler.stopTrace(StringUtils.removeEnd(sqlBuilder.toString(), PARAM_SEPARATOR));
       }
       return result;
     } else if (method.getName().startsWith("set") && args.length > 1) {

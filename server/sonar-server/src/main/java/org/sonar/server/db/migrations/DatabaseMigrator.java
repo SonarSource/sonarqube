@@ -23,7 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.picocontainer.Startable;
-import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.core.persistence.DdlUtils;
@@ -70,7 +70,7 @@ public class DatabaseMigrator implements ServerComponent, Startable {
   @VisibleForTesting
   boolean createDatabase() {
     if (DdlUtils.supportsDialect(dbClient.database().getDialect().getId()) && serverUpgradeStatus.isFreshInstall()) {
-      LoggerFactory.getLogger(getClass()).info("Create database");
+      Loggers.get(getClass()).info("Create database");
       SqlSession session = dbClient.openSession(false);
       Connection connection = null;
       try {
@@ -96,7 +96,7 @@ public class DatabaseMigrator implements ServerComponent, Startable {
     } catch (Exception e) {
       // duplication between log and exception because webapp does not correctly log initial stacktrace
       String msg = "Fail to execute database migration: " + className;
-      LoggerFactory.getLogger(getClass()).error(msg, e);
+      Loggers.get(getClass()).error(msg, e);
       throw new IllegalStateException(msg, e);
     }
   }

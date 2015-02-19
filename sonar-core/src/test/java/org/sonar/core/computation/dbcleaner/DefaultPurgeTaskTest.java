@@ -20,7 +20,6 @@
 
 package org.sonar.core.computation.dbcleaner;
 
-import ch.qos.logback.classic.Logger;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
@@ -29,8 +28,13 @@ import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
+import org.sonar.api.utils.log.Logger;
 import org.sonar.core.computation.dbcleaner.period.DefaultPeriodCleaner;
-import org.sonar.core.purge.*;
+import org.sonar.core.purge.IdUuidPair;
+import org.sonar.core.purge.PurgeConfiguration;
+import org.sonar.core.purge.PurgeDao;
+import org.sonar.core.purge.PurgeListener;
+import org.sonar.core.purge.PurgeProfiler;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 
