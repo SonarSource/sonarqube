@@ -5,6 +5,7 @@ var lib = require('../lib'),
 
 lib.initMessages();
 lib.changeWorkingDirectory('source-viewer-spec');
+lib.configureCasper();
 
 
 casper.test.begin(testName('Link to Raw'), function (test) {

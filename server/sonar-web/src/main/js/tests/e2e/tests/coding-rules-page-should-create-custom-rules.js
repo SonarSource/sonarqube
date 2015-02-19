@@ -4,6 +4,7 @@ var lib = require('../lib');
 
 lib.initMessages();
 lib.changeWorkingDirectory('coding-rules-page-should-create-custom-rules');
+lib.configureCasper();
 
 
 casper.test.begin('coding-rules-page-should-delete-create-rules', 2, function (test) {

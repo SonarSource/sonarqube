@@ -4,6 +4,7 @@ var lib = require('../lib');
 
 lib.initMessages();
 lib.changeWorkingDirectory('coding-rules-page-should-activate-profile');
+lib.configureCasper();
 
 
 casper.test.begin('coding-rules-page-should-activate-profile', 5, function (test) {

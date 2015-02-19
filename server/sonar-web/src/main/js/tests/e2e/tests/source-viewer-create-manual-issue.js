@@ -5,6 +5,7 @@ var lib = require('../lib'),
 
 lib.initMessages();
 lib.changeWorkingDirectory('source-viewer-create-manual-issue');
+lib.configureCasper();
 
 
 casper.test.begin(testName('source-viewer-create-manual-issue'), function (test) {

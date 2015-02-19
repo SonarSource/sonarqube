@@ -2,6 +2,7 @@ var lib = require('../lib');
 
 lib.initMessages();
 lib.changeWorkingDirectory('treemap-spec');
+lib.configureCasper();
 
 
 casper.test.begin('Treemap', function (test) {

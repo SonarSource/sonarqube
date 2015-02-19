@@ -4,6 +4,7 @@ var lib = require('../lib');
 
 lib.initMessages();
 lib.changeWorkingDirectory('quality-gates-spec');
+lib.configureCasper();
 
 
 casper.test.begin('Quality Gates', function suite (test) {

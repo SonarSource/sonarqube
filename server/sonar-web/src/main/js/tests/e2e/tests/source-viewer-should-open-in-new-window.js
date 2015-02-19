@@ -5,6 +5,7 @@ var lib = require('../lib'),
 
 lib.initMessages();
 lib.changeWorkingDirectory('source-viewer-should-open-in-new-window');
+lib.configureCasper();
 
 
 casper.test.begin(testName('source-viewer-should-open-in-new-window'), function (test) {

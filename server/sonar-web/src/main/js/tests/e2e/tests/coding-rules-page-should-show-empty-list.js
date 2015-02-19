@@ -4,6 +4,7 @@ var lib = require('../lib');
 
 lib.initMessages();
 lib.changeWorkingDirectory('coding-rules-page-should-show-empty-list');
+lib.configureCasper();
 
 
 casper.test.begin('coding-rules-page-should-show-empty-list', 3, function (test) {

@@ -5,6 +5,7 @@ var lib = require('../lib'),
 
 lib.initMessages();
 lib.changeWorkingDirectory('source-viewer-spec');
+lib.configureCasper();
 
 
 casper.test.begin(testName('Mark as Favorite'), function (test) {

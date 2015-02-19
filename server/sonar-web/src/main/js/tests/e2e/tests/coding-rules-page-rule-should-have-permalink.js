@@ -4,6 +4,7 @@ var lib = require('../lib');
 
 lib.initMessages();
 lib.changeWorkingDirectory('coding-rules-page-rule-permalink');
+lib.configureCasper();
 
 
 casper.test.begin('coding-rules-page-rule-permalink', 1, function (test) {
