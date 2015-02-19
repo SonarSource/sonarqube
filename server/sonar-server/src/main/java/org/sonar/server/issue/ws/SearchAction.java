@@ -155,6 +155,10 @@ public class SearchAction implements BaseIssuesWsAction {
       .setDescription("To not return rules")
       .setDefaultValue(false)
       .setBooleanPossibleValues();
+    action.createParam(IssueFilterParameters.HIDE_COMMENTS)
+      .setDescription("To not return comments")
+      .setDefaultValue(false)
+      .setBooleanPossibleValues();
     action.createParam(IssueFilterParameters.ACTION_PLANS)
       .setDescription("Comma-separated list of action plan keys (not names)")
       .setExampleValue("3f19de90-1521-4482-a737-a311758ff513");
@@ -322,10 +326,12 @@ public class SearchAction implements BaseIssuesWsAction {
 
     DbSession session = dbClient.openSession(false);
     try {
-      List<DefaultIssueComment> comments = dbClient.issueChangeDao().selectCommentsByIssues(session, issueKeys);
-      for (DefaultIssueComment issueComment : comments) {
-        userLogins.add(issueComment.userLogin());
-        commentsByIssues.put(issueComment.issueKey(), issueComment);
+      if (!BooleanUtils.isTrue(request.paramAsBoolean(IssueFilterParameters.HIDE_COMMENTS))) {
+        List<DefaultIssueComment> comments = dbClient.issueChangeDao().selectCommentsByIssues(session, issueKeys);
+        for (DefaultIssueComment issueComment : comments) {
+          userLogins.add(issueComment.userLogin());
+          commentsByIssues.put(issueComment.issueKey(), issueComment);
+        }
       }
       usersByLogin = getUsersByLogin(userLogins);
 

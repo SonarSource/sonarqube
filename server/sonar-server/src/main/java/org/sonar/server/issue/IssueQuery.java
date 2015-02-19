@@ -79,6 +79,7 @@ public class IssueQuery {
   private final Boolean planned;
   private final Boolean resolved;
   private final Boolean hideRules;
+  private final Boolean hideComments;
   private final Date createdAt;
   private final Date createdAfter;
   private final Date createdBefore;
@@ -114,6 +115,7 @@ public class IssueQuery {
     this.planned = builder.planned;
     this.resolved = builder.resolved;
     this.hideRules = builder.hideRules;
+    this.hideComments = builder.hideComments;
     this.createdAt = builder.createdAt;
     this.createdAfter = builder.createdAfter;
     this.createdBefore = builder.createdBefore;
@@ -225,6 +227,14 @@ public class IssueQuery {
     return hideRules;
   }
 
+  /**
+   * @since 5.1
+   */
+  @CheckForNull
+  public Boolean hideComments() {
+    return hideComments;
+  }
+
   @CheckForNull
   public Date createdAfter() {
     return createdAfter == null ? null : new Date(createdAfter.getTime());
@@ -301,6 +311,7 @@ public class IssueQuery {
     private Boolean planned = null;
     private Boolean resolved = null;
     private Boolean hideRules = false;
+    private Boolean hideComments = false;
     private Date createdAt;
     private Date createdAfter;
     private Date createdBefore;
@@ -449,6 +460,18 @@ public class IssueQuery {
      */
     public Builder hideRules(@Nullable Boolean b) {
       this.hideRules = b;
+      return this;
+    }
+
+    /**
+     * If true, comments will not be loaded
+     * If false, comments will be loaded
+     *
+     * @since 5.1
+     *
+     */
+    public Builder hideComments(@Nullable Boolean b) {
+      this.hideComments = b;
       return this;
     }
 
