@@ -20,12 +20,10 @@
 package org.sonar.xoo;
 
 import org.sonar.api.SonarPlugin;
-import org.sonar.xoo.lang.CoveragePerTestSensor;
 import org.sonar.xoo.lang.DependencySensor;
 import org.sonar.xoo.lang.MeasureSensor;
 import org.sonar.xoo.lang.SymbolReferencesSensor;
 import org.sonar.xoo.lang.SyntaxHighlightingSensor;
-import org.sonar.xoo.lang.TestCaseSensor;
 import org.sonar.xoo.lang.XooCpdMapping;
 import org.sonar.xoo.lang.XooTokenizer;
 import org.sonar.xoo.rule.ChecksSensor;
@@ -76,8 +74,6 @@ public class XooPlugin extends SonarPlugin {
       MeasureSensor.class,
       SyntaxHighlightingSensor.class,
       SymbolReferencesSensor.class,
-      TestCaseSensor.class,
-      CoveragePerTestSensor.class,
       DependencySensor.class,
       ChecksSensor.class,
       RandomAccessSensor.class,

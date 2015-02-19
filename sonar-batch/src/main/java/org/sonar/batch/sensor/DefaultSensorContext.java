@@ -36,12 +36,6 @@ import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
 import org.sonar.api.batch.sensor.measure.NewMeasure;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.batch.sensor.symbol.SymbolTableBuilder;
-import org.sonar.api.batch.sensor.test.Coverage;
-import org.sonar.api.batch.sensor.test.TestCaseCoverage;
-import org.sonar.api.batch.sensor.test.TestCaseExecution;
-import org.sonar.api.batch.sensor.test.internal.DefaultCoverage;
-import org.sonar.api.batch.sensor.test.internal.DefaultTestCaseCoverage;
-import org.sonar.api.batch.sensor.test.internal.DefaultTestCaseExecution;
 import org.sonar.api.config.Settings;
 import org.sonar.batch.highlighting.DefaultHighlightingBuilder;
 import org.sonar.batch.index.ComponentDataCache;
@@ -111,21 +105,6 @@ public class DefaultSensorContext implements SensorContext {
   @Override
   public NewDuplication newDuplication() {
     return new DefaultDuplication(sensorStorage);
-  }
-
-  @Override
-  public Coverage newCoverage() {
-    return new DefaultCoverage(sensorStorage);
-  }
-
-  @Override
-  public TestCaseExecution newTestCaseExecution() {
-    return new DefaultTestCaseExecution(sensorStorage);
-  }
-
-  @Override
-  public TestCaseCoverage newTestCaseCoverage() {
-    return new DefaultTestCaseCoverage(sensorStorage);
   }
 
   @Override

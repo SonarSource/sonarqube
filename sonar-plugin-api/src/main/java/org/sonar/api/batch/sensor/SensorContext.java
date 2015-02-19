@@ -31,9 +31,6 @@ import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.measure.NewMeasure;
 import org.sonar.api.batch.sensor.symbol.SymbolTableBuilder;
-import org.sonar.api.batch.sensor.test.Coverage;
-import org.sonar.api.batch.sensor.test.TestCaseCoverage;
-import org.sonar.api.batch.sensor.test.TestCaseExecution;
 import org.sonar.api.config.Settings;
 
 import java.io.Serializable;
@@ -102,23 +99,7 @@ public interface SensorContext {
 
   // ------------ TESTS ------------
 
-  /**
-   * Create a new coverage report.
-   * Don't forget to call {@link Coverage#save()} once all parameters are provided.
-   */
-  Coverage newCoverage();
-
-  /**
-   * Create a new test case execution report.
-   * Don't forget to call {@link TestCaseExecution#save()} once all parameters are provided.
-   */
-  TestCaseExecution newTestCaseExecution();
-
-  /**
-   * Create a new test case coverage report.
-   * Don't forget to call {@link TestCaseCoverage#save()} once all parameters are provided.
-   */
-  TestCaseCoverage newTestCaseCoverage();
+  // TODO
 
   // ------------ DEPENDENCIES ------------
 

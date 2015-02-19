@@ -33,9 +33,6 @@ import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.Issue.Severity;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
-import org.sonar.api.batch.sensor.test.TestCaseCoverage;
-import org.sonar.api.batch.sensor.test.TestCaseExecution;
-import org.sonar.api.batch.sensor.test.internal.DefaultTestCaseExecution;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.config.Settings;
 import org.sonar.api.design.Dependency;
@@ -52,10 +49,6 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.test.MutableTestCase;
-import org.sonar.api.test.MutableTestPlan;
-import org.sonar.api.test.MutableTestable;
-import org.sonar.api.test.Testable;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.BatchResource;
 import org.sonar.batch.index.ComponentDataCache;
@@ -180,40 +173,6 @@ public class DefaultSensorStorage implements SensorStorage {
       .message(issue.message())
       .severity(overridenSeverity != null ? overridenSeverity.name() : null)
       .build();
-  }
-
-  @Override
-  public void store(TestCaseExecution testCase) {
-    File testRes = getTestResource(((DefaultTestCaseExecution) testCase).testFile());
-    MutableTestPlan testPlan = perspectives.as(MutableTestPlan.class, testRes);
-    if (testPlan != null) {
-      testPlan
-        .addTestCase(testCase.name())
-        .setDurationInMs(testCase.durationInMs())
-        .setType(testCase.type().name())
-        .setStatus(org.sonar.api.test.TestCase.Status.valueOf(testCase.status().name()))
-        .setMessage(testCase.message())
-        .setStackTrace(testCase.stackTrace());
-    }
-  }
-
-  @Override
-  public void store(TestCaseCoverage testCaseCoverage) {
-    File testRes = getTestResource(testCaseCoverage.testFile());
-    File mainRes = getMainResource(testCaseCoverage.coveredFile());
-    Testable testAbleFile = perspectives.as(MutableTestable.class, mainRes);
-    if (testAbleFile != null) {
-      MutableTestPlan testPlan = perspectives.as(MutableTestPlan.class, testRes);
-      if (testPlan != null) {
-        for (MutableTestCase mutableTestCase : testPlan.testCasesByName(testCaseCoverage.testName())) {
-          mutableTestCase.setCoverageBlock(testAbleFile, testCaseCoverage.coveredLines());
-        }
-      } else {
-        throw new IllegalStateException("Unable to get MutableTestPlan perspective from " + testRes);
-      }
-    } else {
-      throw new IllegalStateException("Unable to get MutableTestable perspective from " + mainRes);
-    }
   }
 
   private File getTestResource(InputFile testFile) {
