@@ -35,6 +35,7 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 
@@ -51,8 +52,7 @@ public class QProfileReset implements ServerComponent {
   private final BuiltInProfiles builtInProfiles;
   private final ProfileDefinition[] definitions;
 
-  public QProfileReset(DbClient db, RuleActivator activator, BuiltInProfiles builtInProfiles,
-    QProfileFactory factory, ProfileDefinition[] definitions) {
+  public QProfileReset(DbClient db, RuleActivator activator, BuiltInProfiles builtInProfiles, QProfileFactory factory, ProfileDefinition[] definitions) {
     this.db = db;
     this.activator = activator;
     this.builtInProfiles = builtInProfiles;
@@ -60,8 +60,7 @@ public class QProfileReset implements ServerComponent {
     this.definitions = definitions;
   }
 
-  public QProfileReset(DbClient db, RuleActivator activator, BuiltInProfiles builtInProfiles,
-    QProfileFactory factory) {
+  public QProfileReset(DbClient db, RuleActivator activator, BuiltInProfiles builtInProfiles, QProfileFactory factory) {
     this(db, activator, builtInProfiles, factory, new ProfileDefinition[0]);
   }
 
@@ -85,8 +84,14 @@ public class QProfileReset implements ServerComponent {
           for (ActiveRule activeRule : def.getActiveRules()) {
             RuleActivation activation = new RuleActivation(RuleKey.of(activeRule.getRepositoryKey(), activeRule.getRuleKey()));
             activation.setSeverity(activeRule.getSeverity().name());
-            for (ActiveRuleParam param : activeRule.getActiveRuleParams()) {
-              activation.setParameter(param.getParamKey(), param.getValue());
+            if (!activeRule.getActiveRuleParams().isEmpty()) {
+              for (ActiveRuleParam param : activeRule.getActiveRuleParams()) {
+                activation.setParameter(param.getParamKey(), param.getValue());
+              }
+            } else {
+              for (RuleParamDto param : db.ruleDao().findRuleParamsByRuleKey(dbSession, activeRule.getRule().ruleKey())) {
+                activation.setParameter(param.getName(), param.getDefaultValue());
+              }
             }
             activations.add(activation);
           }
@@ -109,27 +114,6 @@ public class QProfileReset implements ServerComponent {
       BulkChangeResult result = doReset(dbSession, profile, activations);
       dbSession.commit();
       return result;
-    } finally {
-      dbSession.close();
-    }
-  }
-
-  /**
-   * Reset the profile.
-   * @throws java.lang.IllegalStateException if the profile does not exist.
-   */
-  BulkChangeResult resetIfExists(String profileKey, Collection<RuleActivation> activations) {
-    DbSession dbSession = db.openSession(false);
-    try {
-      QualityProfileDto profile = db.qualityProfileDao().getByKey(dbSession, profileKey);
-      if (profile == null) {
-        // not enough information to create profile
-        throw new IllegalStateException("Quality profile does not exist: " + profileKey);
-      }
-      BulkChangeResult result = doReset(dbSession, profile, activations);
-      dbSession.commit();
-      return result;
-
     } finally {
       dbSession.close();
     }
