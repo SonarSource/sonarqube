@@ -532,11 +532,12 @@ public class IssueServiceMediumTest {
     saveIssue(IssueTesting.newDto(rule, file, project));
     saveIssue(IssueTesting.newDto(rule, file, project).setTags(ImmutableSet.of("convention")));
 
-    assertThat(service.listTags(null, 5)).containsOnly("convention", "java8", "bug");
+    assertThat(service.listTags(null, 5)).containsOnly("convention", "java8", "bug" /* from issues */, "systag1", "systag2" /* from rules */);
     assertThat(service.listTags(null, 2)).containsOnly("bug", "convention");
     assertThat(service.listTags("vent", 5)).containsOnly("convention");
+    assertThat(service.listTags("sys", 5)).containsOnly("systag1", "systag2");
     assertThat(service.listTags(null, 1)).containsOnly("bug");
-    assertThat(service.listTags(null, Integer.MAX_VALUE)).containsOnly("convention", "java8", "bug");
+    assertThat(service.listTags(null, Integer.MAX_VALUE)).containsOnly("convention", "java8", "bug", "systag1", "systag2", "tag1", "tag2");
   }
 
   @Test
