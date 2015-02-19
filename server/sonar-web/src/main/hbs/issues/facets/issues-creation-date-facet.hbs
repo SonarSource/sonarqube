@@ -7,7 +7,7 @@
   </div>
 {{else}}
   <div class="search-navigator-facet-container">
-    <div class="js-barchart" data-height="75"></div>
+    <div class="js-barchart" data-height="75" {{#if periodEnd}}data-end-date="{{periodEnd}}"{{/if}}></div>
     <div class="search-navigator-date-facet-selection">
       <a class="js-select-period-start search-navigator-date-facet-selection-dropdown-left">
         {{#if periodStart}}{{d periodStart}}{{else}}Past{{/if}}&nbsp;<i class="icon-dropdown"></i>
