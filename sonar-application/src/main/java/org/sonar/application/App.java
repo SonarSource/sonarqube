@@ -28,6 +28,7 @@ import org.sonar.process.Props;
 import org.sonar.process.StopWatcher;
 import org.sonar.process.Stoppable;
 import org.sonar.process.monitor.JavaCommand;
+import org.sonar.process.monitor.KnownJavaCommand;
 import org.sonar.process.monitor.Monitor;
 
 import java.io.File;
@@ -53,9 +54,8 @@ public class App implements Stoppable {
 
   public void start(Props props) {
     if (props.valueAsBoolean(ProcessConstants.ENABLE_STOP_COMMAND, false)) {
-      // stop application when file <temp>/app.stop is created
       File tempDir = props.nonNullValueAsFile(ProcessConstants.PATH_TEMP);
-      ProcessCommands commands = new ProcessCommands(tempDir, "app");
+      ProcessCommands commands = new ProcessCommands(tempDir, KnownJavaCommand.APP.getIndex());
       stopWatcher = new StopWatcher(commands, this);
       stopWatcher.start();
     }

@@ -45,8 +45,7 @@ public class JavaProcessLauncher {
     Process process = null;
     try {
       // cleanup existing monitor files
-      ProcessCommands commands = new ProcessCommands(command.getTempDir(), command.getKey());
-      commands.prepare();
+      ProcessCommands commands = new ProcessCommands(command.getTempDir(), command.getProcessIndex());
 
       ProcessBuilder processBuilder = create(command);
       LoggerFactory.getLogger(getClass()).info("Launch process[{}]: {}",
@@ -99,6 +98,7 @@ public class JavaProcessLauncher {
       Properties props = new Properties();
       props.putAll(javaCommand.getArguments());
       props.setProperty(ProcessEntryPoint.PROPERTY_PROCESS_KEY, javaCommand.getKey());
+      props.setProperty(ProcessEntryPoint.PROPERTY_PROCESS_INDEX, "" + javaCommand.getProcessIndex());
       props.setProperty(ProcessEntryPoint.PROPERTY_TERMINATION_TIMEOUT, String.valueOf(timeouts.getTerminationTimeout()));
       props.setProperty(ProcessEntryPoint.PROPERTY_SHARED_PATH, javaCommand.getTempDir().getAbsolutePath());
       OutputStream out = new FileOutputStream(propertiesFile);

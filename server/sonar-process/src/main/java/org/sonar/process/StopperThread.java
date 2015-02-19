@@ -57,6 +57,5 @@ class StopperThread extends Thread {
       LoggerFactory.getLogger(getClass()).error(String.format("Can not stop in %dms", terminationTimeout), e);
     }
     executor.shutdownNow();
-    commands.endWatch();
   }
 }

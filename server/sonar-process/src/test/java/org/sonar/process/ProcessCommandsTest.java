@@ -27,9 +27,8 @@ import org.junit.rules.TemporaryFolder;
 import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class ProcessCommandsTest {
 
@@ -42,7 +41,7 @@ public class ProcessCommandsTest {
     FileUtils.deleteQuietly(dir);
 
     try {
-      new ProcessCommands(dir, "web");
+      new ProcessCommands(dir, 1);
       fail();
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Not a valid directory: " + dir.getAbsolutePath());
@@ -50,62 +49,50 @@ public class ProcessCommandsTest {
   }
 
   @Test
-  public void delete_files_on_prepare() throws Exception {
-    File dir = temp.newFolder();
-    assertThat(dir).exists();
-    FileUtils.touch(new File(dir, "web.ready"));
-    FileUtils.touch(new File(dir, "web.stop"));
-
-    ProcessCommands commands = new ProcessCommands(dir, "web");
-    commands.prepare();
-
-    assertThat(commands.getReadyFile()).doesNotExist();
-    assertThat(commands.getStopFile()).doesNotExist();
-  }
-
-  @Test
-  public void fail_to_prepare_if_file_is_locked() throws Exception {
-    File readyFile = mock(File.class);
-    when(readyFile.exists()).thenReturn(true);
-    when(readyFile.delete()).thenReturn(false);
-
-    ProcessCommands commands = new ProcessCommands(readyFile, temp.newFile());
-    try {
-      commands.prepare();
-      fail();
-    } catch (MessageException e) {
-      // ok
-    }
-  }
-
-  @Test
-  public void child_process_create_file_when_ready() throws Exception {
+  public void child_process_update_the_mapped_memory() throws Exception {
     File dir = temp.newFolder();
 
-    ProcessCommands commands = new ProcessCommands(dir, "web");
-    commands.prepare();
+    ProcessCommands commands = new ProcessCommands(dir, 1);
     assertThat(commands.isReady()).isFalse();
-    assertThat(commands.getReadyFile()).doesNotExist();
+    assertThat(commands.mappedByteBuffer.get(commands.offset())).isEqualTo(ProcessCommands.EMPTY);
+    assertThat(commands.mappedByteBuffer.getLong(2 + commands.offset())).isEqualTo(0L);
 
     commands.setReady();
     assertThat(commands.isReady()).isTrue();
-    assertThat(commands.getReadyFile()).exists().isFile();
+    assertThat(commands.mappedByteBuffer.get(commands.offset())).isEqualTo(ProcessCommands.READY);
 
-    commands.endWatch();
-    assertThat(commands.getReadyFile()).doesNotExist();
+    long currentTime = System.currentTimeMillis();
+    commands.ping();
+    assertThat(commands.mappedByteBuffer.getLong(2 + commands.offset())).isGreaterThanOrEqualTo(currentTime);
   }
 
   @Test
   public void ask_for_stop() throws Exception {
     File dir = temp.newFolder();
 
-    ProcessCommands commands = new ProcessCommands(dir, "web");
+    ProcessCommands commands = new ProcessCommands(dir, 1);
+    assertThat(commands.mappedByteBuffer.get(commands.offset() + 1)).isNotEqualTo(ProcessCommands.STOP);
     assertThat(commands.askedForStop()).isFalse();
-    assertThat(commands.getStopFile()).doesNotExist();
 
     commands.askForStop();
     assertThat(commands.askedForStop()).isTrue();
-    assertThat(commands.getStopFile()).exists().isFile();
-    assertThat(commands.getStopFile().getName()).isEqualTo("web.stop");
+    assertThat(commands.mappedByteBuffer.get(commands.offset() + 1)).isEqualTo(ProcessCommands.STOP);
+  }
+
+  @Test
+  public void test_max_processes() throws Exception {
+    File dir = temp.newFolder();
+    try {
+      new ProcessCommands(dir, -2);
+      failBecauseExceptionWasNotThrown(AssertionError.class);
+    } catch (AssertionError e) {
+      assertThat(e).hasMessage("Incorrect process number");
+    }
+    try {
+      new ProcessCommands(dir, ProcessCommands.getMaxProcesses() + 1);
+      failBecauseExceptionWasNotThrown(AssertionError.class);
+    } catch (AssertionError e) {
+      assertThat(e).hasMessage("Incorrect process number");
+    }
   }
 }

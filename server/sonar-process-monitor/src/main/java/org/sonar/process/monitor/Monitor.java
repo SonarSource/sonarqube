@@ -22,6 +22,7 @@ package org.sonar.process.monitor;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.Lifecycle;
 import org.sonar.process.Lifecycle.State;
+import org.sonar.process.ProcessCommands;
 import org.sonar.process.SystemExit;
 
 import java.util.List;
@@ -39,6 +40,7 @@ public class Monitor {
 
   // used by awaitStop() to block until all processes are shutdown
   private final List<WatcherThread> watcherThreads = new CopyOnWriteArrayList<WatcherThread>();
+  static int nextProcessId = KnownJavaCommand.getFirstIndexAvailable();
 
   Monitor(JavaProcessLauncher launcher, SystemExit exit, TerminatorThread terminator) {
     this.launcher = launcher;
@@ -160,5 +162,12 @@ public class Monitor {
       // blocks until everything is corrected terminated
       stop();
     }
+  }
+
+  public static int getNextProcessId() {
+    if (nextProcessId >= ProcessCommands.getMaxProcesses()) {
+      throw new IllegalStateException("The maximum number of processes launched has been reached " + ProcessCommands.getMaxProcesses());
+    }
+    return nextProcessId++;
   }
 }
