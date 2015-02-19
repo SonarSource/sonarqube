@@ -69,7 +69,12 @@ class Api::ProfilesController < Api::ApiController
       end
     end
 
-    json = profiles.compact.map { |profile| {:name => profile.name, :language => profile.language, :default => default_profile_by_language[profile.language].name == profile.name } }
+    json = profiles.compact.map { |profile| {
+      :key => profile.key,
+      :name => profile.name,
+      :language => profile.language,
+      :default => default_profile_by_language[profile.language].name == profile.name
+    } }
     respond_to do |format|
       format.json { render :json => jsonp(json) }
       format.xml { render :xml => xml_not_supported }
