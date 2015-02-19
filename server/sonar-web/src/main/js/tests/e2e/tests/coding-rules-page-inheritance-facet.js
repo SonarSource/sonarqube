@@ -4,6 +4,7 @@ var lib = require('../lib');
 
 lib.initMessages();
 lib.changeWorkingDirectory('coding-rules-page-inheritance-facet');
+lib.configureCasper();
 
 
 casper.test.begin('coding-rules-page-inheritance-facet', 11, function (test) {

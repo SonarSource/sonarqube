@@ -4,6 +4,7 @@ var lib = require('../lib');
 
 lib.initMessages();
 lib.changeWorkingDirectory('coding-rules');
+lib.configureCasper();
 
 
 casper.test.begin('coding-rules-page-should-show-rules', 4, function (test) {

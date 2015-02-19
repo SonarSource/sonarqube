@@ -5,6 +5,7 @@ var lib = require('../lib'),
 
 lib.initMessages();
 lib.changeWorkingDirectory('source-viewer-should-not-show-source-if-no-permission');
+lib.configureCasper();
 
 
 casper.test.begin(testName('source-viewer-should-not-show-source-if-no-permission'), function (test) {

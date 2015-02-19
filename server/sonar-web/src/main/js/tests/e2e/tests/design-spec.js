@@ -3,6 +3,7 @@ var lib = require('../lib'),
 
 lib.initMessages();
 lib.changeWorkingDirectory('design-spec');
+lib.configureCasper();
 
 
 casper.test.begin(testName('Base'), function suite(test) {

@@ -4,6 +4,7 @@ var lib = require('../lib');
 
 lib.initMessages();
 lib.changeWorkingDirectory('coding-rules-page-should-create-manual-rules');
+lib.configureCasper();
 
 
 casper.test.begin('coding-rules-page-should-delete-manual-rules', 3, function (test) {

@@ -4,6 +4,7 @@ var lib = require('../lib');
 
 lib.initMessages();
 lib.changeWorkingDirectory('coding-rules-page-query-facet');
+lib.configureCasper();
 
 
 casper.test.begin('coding-rules-page-query-facet', 3, function (test) {

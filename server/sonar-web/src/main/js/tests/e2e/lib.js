@@ -42,6 +42,11 @@ exports.changeWorkingDirectory = function (dir) {
 };
 
 
+exports.configureCasper = function () {
+  casper.options.waitTimeout = 30000;
+};
+
+
 exports.testName = function () {
   var head = Array.prototype.slice.call(arguments, 0);
   return function () {

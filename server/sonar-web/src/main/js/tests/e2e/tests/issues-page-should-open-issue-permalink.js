@@ -5,6 +5,7 @@ var lib = require('../lib');
 
 lib.initMessages();
 lib.changeWorkingDirectory('issues-page-should-open-issue-permalink');
+lib.configureCasper();
 
 
 var issueKey = 'some-issue-key';
