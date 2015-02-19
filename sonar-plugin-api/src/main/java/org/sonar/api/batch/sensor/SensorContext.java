@@ -28,6 +28,7 @@ import org.sonar.api.batch.sensor.dependency.NewDependency;
 import org.sonar.api.batch.sensor.duplication.NewDuplication;
 import org.sonar.api.batch.sensor.highlighting.HighlightingBuilder;
 import org.sonar.api.batch.sensor.issue.Issue;
+import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.measure.NewMeasure;
 import org.sonar.api.batch.sensor.symbol.SymbolTableBuilder;
@@ -71,9 +72,9 @@ public interface SensorContext {
   // ----------- ISSUES --------------
 
   /**
-   * Fluent builder to create a new {@link Issue}. Don't forget to call {@link Issue#save()} once all parameters are provided.
+   * Fluent builder to create a new {@link Issue}. Don't forget to call {@link NewIssue#save()} once all parameters are provided.
    */
-  Issue newIssue();
+  NewIssue newIssue();
 
   // ------------ HIGHLIGHTING ------------
 

@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.cpd;
 
+import org.sonar.api.batch.sensor.internal.SensorStorage;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,7 +29,6 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.batch.sensor.SensorStorage;
 import org.sonar.api.batch.sensor.duplication.NewDuplication;
 import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
 import org.sonar.api.batch.sensor.measure.Measure;

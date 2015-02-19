@@ -19,6 +19,8 @@
  */
 package org.sonar.api.batch.sensor.duplication.internal;
 
+import org.sonar.api.batch.sensor.internal.SensorStorage;
+
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -26,7 +28,6 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.sensor.SensorStorage;
 import org.sonar.api.batch.sensor.duplication.Duplication;
 import org.sonar.api.batch.sensor.duplication.NewDuplication;
 import org.sonar.api.batch.sensor.internal.DefaultStorable;

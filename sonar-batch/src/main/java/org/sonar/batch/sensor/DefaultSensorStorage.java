@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.sensor;
 
+import org.sonar.api.batch.sensor.internal.SensorStorage;
+
 import com.google.common.base.Preconditions;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputDir;
@@ -26,7 +28,6 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.rule.ActiveRules;
-import org.sonar.api.batch.sensor.SensorStorage;
 import org.sonar.api.batch.sensor.duplication.Duplication;
 import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
 import org.sonar.api.batch.sensor.issue.Issue;

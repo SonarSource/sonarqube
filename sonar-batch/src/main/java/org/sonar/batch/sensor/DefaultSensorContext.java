@@ -25,13 +25,13 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.batch.sensor.SensorStorage;
 import org.sonar.api.batch.sensor.dependency.NewDependency;
 import org.sonar.api.batch.sensor.dependency.internal.DefaultDependency;
 import org.sonar.api.batch.sensor.duplication.NewDuplication;
 import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
 import org.sonar.api.batch.sensor.highlighting.HighlightingBuilder;
-import org.sonar.api.batch.sensor.issue.Issue;
+import org.sonar.api.batch.sensor.internal.SensorStorage;
+import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
 import org.sonar.api.batch.sensor.measure.NewMeasure;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
@@ -88,7 +88,7 @@ public class DefaultSensorContext implements SensorContext {
   }
 
   @Override
-  public Issue newIssue() {
+  public NewIssue newIssue() {
     return new DefaultIssue(sensorStorage);
   }
 

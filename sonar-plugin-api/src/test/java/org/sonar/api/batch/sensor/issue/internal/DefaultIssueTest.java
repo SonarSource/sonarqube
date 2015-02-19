@@ -19,13 +19,13 @@
  */
 package org.sonar.api.batch.sensor.issue.internal;
 
+import org.sonar.api.batch.sensor.internal.SensorStorage;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.sensor.SensorStorage;
 import org.sonar.api.rule.RuleKey;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;

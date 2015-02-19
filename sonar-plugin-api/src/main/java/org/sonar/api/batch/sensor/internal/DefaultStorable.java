@@ -23,7 +23,6 @@ import com.google.common.base.Preconditions;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.sensor.SensorStorage;
 
 import javax.annotation.Nullable;
 

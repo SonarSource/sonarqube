@@ -19,21 +19,23 @@
  */
 package org.sonar.api.batch.sensor.issue.internal;
 
+import org.sonar.api.batch.sensor.internal.SensorStorage;
+
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
-import org.sonar.api.batch.sensor.SensorStorage;
 import org.sonar.api.batch.sensor.internal.DefaultStorable;
 import org.sonar.api.batch.sensor.issue.Issue;
+import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.internal.Uuids;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-public class DefaultIssue extends DefaultStorable implements Issue {
+public class DefaultIssue extends DefaultStorable implements Issue, NewIssue {
 
   private static final String INPUT_DIR_SHOULD_BE_NON_NULL = "InputDir should be non null";
   private static final String INPUT_FILE_SHOULD_BE_NON_NULL = "InputFile should be non null";
@@ -110,7 +112,7 @@ public class DefaultIssue extends DefaultStorable implements Issue {
   }
 
   @Override
-  public Issue overrideSeverity(@Nullable Severity severity) {
+  public DefaultIssue overrideSeverity(@Nullable Severity severity) {
     this.overridenSeverity = severity;
     return this;
   }

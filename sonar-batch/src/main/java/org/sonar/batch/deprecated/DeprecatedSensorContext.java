@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.deprecated;
 
+import org.sonar.api.batch.sensor.internal.SensorStorage;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +33,6 @@ import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.rule.ActiveRules;
-import org.sonar.api.batch.sensor.SensorStorage;
 import org.sonar.api.config.Settings;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
