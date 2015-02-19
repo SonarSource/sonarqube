@@ -76,7 +76,7 @@ public class FeedFileSourcesBinaryDataTest {
     DatabaseMigration migration = new FeedFileSourcesBinaryData(db.database());
 
     thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Error during processing of row: [id=1]");
+    thrown.expectMessage("Error during processing of row: [id=1,data=");
 
     migration.execute();
   }
