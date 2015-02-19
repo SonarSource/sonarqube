@@ -21,7 +21,9 @@ package org.sonar.plugins.core.sensors;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.Project;
@@ -36,12 +38,16 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class LineCoverageDecoratorTest {
-  private final LineCoverageDecorator decorator = new LineCoverageDecorator();
+
+  private Settings settings;
+  private LineCoverageDecorator decorator;
   private final Project project = mock(Project.class);
 
   @Before
   public void before() {
     when(project.getScope()).thenReturn(Scopes.PROJECT);
+    settings = new Settings();
+    decorator = new LineCoverageDecorator(settings);
   }
 
   @Test
@@ -67,6 +73,28 @@ public class LineCoverageDecoratorTest {
     decorator.decorate(project, context);
 
     verify(context).saveMeasure(CoreMetrics.LINE_COVERAGE, 0.0);
+  }
+
+  @Test
+  public void forceCoverageByDefault() {
+    DecoratorContext context = mock(DecoratorContext.class);
+    when(context.getMeasure(CoreMetrics.NCLOC)).thenReturn(new Measure(CoreMetrics.NCLOC, 100.0));
+
+    decorator.decorate(project, context);
+
+    verify(context).saveMeasure(CoreMetrics.LINE_COVERAGE, 0.0);
+  }
+
+  @Test
+  public void dontForceCoverage() {
+    settings.setProperty(CoreProperties.COVERAGE_UNFORCED_KEY, "true");
+
+    DecoratorContext context = mock(DecoratorContext.class);
+    when(context.getMeasure(CoreMetrics.NCLOC)).thenReturn(new Measure(CoreMetrics.NCLOC, 100.0));
+
+    decorator.decorate(project, context);
+
+    verify(context, never()).saveMeasure(eq(CoreMetrics.LINE_COVERAGE), anyDouble());
   }
 
   @Test

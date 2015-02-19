@@ -19,10 +19,14 @@
  */
 package org.sonar.plugins.core.sensors;
 
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependedUpon;
+import org.sonar.api.config.Settings;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.MeasureUtils;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
@@ -32,6 +36,30 @@ import java.util.Arrays;
 import java.util.Collection;
 
 public abstract class AbstractCoverageDecorator implements Decorator {
+
+  private Settings settings;
+
+  public AbstractCoverageDecorator(Settings settings) {
+    this.settings = settings;
+  }
+
+  protected boolean isCoverageComputationForced() {
+    return !settings.getBoolean(CoreProperties.COVERAGE_UNFORCED_KEY);
+  }
+
+  protected long getLinesToCover(DecoratorContext context) {
+    Measure linesToCover = context.getMeasure(CoreMetrics.LINES_TO_COVER);
+    if (MeasureUtils.hasValue(linesToCover)) {
+      return linesToCover.getValue().longValue();
+    } else {
+      if (isCoverageComputationForced()) {
+        // SONAR-5772 as an approximation we consider that every ncloc is a line to cover
+        return MeasureUtils.getValueAsLong(context.getMeasure(CoreMetrics.NCLOC), 0L);
+      } else {
+        return 0L;
+      }
+    }
+  }
 
   @Override
   public boolean shouldExecuteOnProject(Project project) {
@@ -52,7 +80,7 @@ public abstract class AbstractCoverageDecorator implements Decorator {
   }
 
   protected boolean shouldDecorate(final Resource resource) {
-    return !ResourceUtils.isUnitTestClass(resource);
+    return !ResourceUtils.isUnitTestFile(resource);
   }
 
   private void computeMeasure(DecoratorContext context) {

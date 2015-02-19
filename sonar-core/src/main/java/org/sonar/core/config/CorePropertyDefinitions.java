@@ -136,6 +136,16 @@ public class CorePropertyDefinitions {
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(CoreProperties.SUBCATEGORY_DUPLICATIONS_EXCLUSIONS)
         .multiValues(true)
+        .build(),
+      PropertyDefinition.builder(CoreProperties.COVERAGE_UNFORCED_KEY)
+        .defaultValue("false")
+        .type(PropertyType.BOOLEAN)
+        .name("Don't force computation of test coverage")
+        .description("By default test coverage is computed for all languages even if no coverage information is provided. "
+          + "If test coverage is not applicable to your situation and you don't want to see 0% coverage on your dashboards then set this property to 'true' "
+          + "and coverage measures will only be computed when some input data are provided.")
+        .onQualifiers(Qualifiers.PROJECT)
+        .category(CoreProperties.CATEGORY_CODE_COVERAGE)
         .build()
       ));
     return defs;

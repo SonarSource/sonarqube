@@ -22,6 +22,7 @@ package org.sonar.plugins.core.sensors;
 import com.google.common.collect.ImmutableList;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependsUpon;
+import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.MeasureUtils;
 import org.sonar.api.measures.Metric;
@@ -29,6 +30,11 @@ import org.sonar.api.measures.Metric;
 import java.util.List;
 
 public final class OverallBranchCoverageDecorator extends AbstractCoverageDecorator {
+
+  public OverallBranchCoverageDecorator(Settings settings) {
+    super(settings);
+  }
+
   @DependsUpon
   public List<Metric> dependsUponMetrics() {
     return ImmutableList.<Metric>of(CoreMetrics.OVERALL_UNCOVERED_CONDITIONS, CoreMetrics.OVERALL_CONDITIONS_TO_COVER,

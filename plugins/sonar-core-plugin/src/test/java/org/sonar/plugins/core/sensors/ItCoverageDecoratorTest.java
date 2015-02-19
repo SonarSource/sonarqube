@@ -22,6 +22,7 @@ package org.sonar.plugins.core.sensors;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
@@ -39,7 +40,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class ItCoverageDecoratorTest {
-  private final ItCoverageDecorator decorator = new ItCoverageDecorator();
+  private final ItCoverageDecorator decorator = new ItCoverageDecorator(new Settings());
   private final Project project = mock(Project.class);
 
   @Before
@@ -52,8 +53,8 @@ public class ItCoverageDecoratorTest {
     Collection<Metric> metrics = decorator.usedMetrics();
 
     assertThat(metrics).containsOnly(CoreMetrics.IT_LINES_TO_COVER, CoreMetrics.IT_UNCOVERED_LINES, CoreMetrics.NEW_IT_LINES_TO_COVER,
-        CoreMetrics.NEW_IT_UNCOVERED_LINES, CoreMetrics.IT_CONDITIONS_TO_COVER, CoreMetrics.IT_UNCOVERED_CONDITIONS,
-        CoreMetrics.NEW_IT_CONDITIONS_TO_COVER, CoreMetrics.NEW_IT_UNCOVERED_CONDITIONS);
+      CoreMetrics.NEW_IT_UNCOVERED_LINES, CoreMetrics.IT_CONDITIONS_TO_COVER, CoreMetrics.IT_UNCOVERED_CONDITIONS,
+      CoreMetrics.NEW_IT_CONDITIONS_TO_COVER, CoreMetrics.NEW_IT_UNCOVERED_CONDITIONS);
   }
 
   @Test

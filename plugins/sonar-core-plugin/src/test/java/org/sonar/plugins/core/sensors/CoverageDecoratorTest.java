@@ -21,7 +21,9 @@ package org.sonar.plugins.core.sensors;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
@@ -31,20 +33,23 @@ import org.sonar.api.resources.Scopes;
 import java.util.Collection;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.anyDouble;
-import static org.mockito.Mockito.eq;
+import static org.mockito.Matchers.anyDouble;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class CoverageDecoratorTest {
-  private final CoverageDecorator decorator = new CoverageDecorator();
+  private Settings settings;
+  private CoverageDecorator decorator;
   private final Project project = mock(Project.class);
 
   @Before
   public void before() {
     when(project.getScope()).thenReturn(Scopes.PROJECT);
+    settings = new Settings();
+    decorator = new CoverageDecorator(settings);
   }
 
   @Test
@@ -52,8 +57,8 @@ public class CoverageDecoratorTest {
     Collection<Metric> metrics = decorator.usedMetrics();
 
     assertThat(metrics).containsOnly(CoreMetrics.LINES_TO_COVER, CoreMetrics.UNCOVERED_LINES, CoreMetrics.NEW_LINES_TO_COVER,
-        CoreMetrics.NEW_UNCOVERED_LINES, CoreMetrics.CONDITIONS_TO_COVER, CoreMetrics.UNCOVERED_CONDITIONS,
-        CoreMetrics.NEW_CONDITIONS_TO_COVER, CoreMetrics.NEW_UNCOVERED_CONDITIONS);
+      CoreMetrics.NEW_UNCOVERED_LINES, CoreMetrics.CONDITIONS_TO_COVER, CoreMetrics.UNCOVERED_CONDITIONS,
+      CoreMetrics.NEW_CONDITIONS_TO_COVER, CoreMetrics.NEW_UNCOVERED_CONDITIONS);
   }
 
   @Test
@@ -64,6 +69,28 @@ public class CoverageDecoratorTest {
 
     // (50-40 covered lines + 10-8 covered conditions) / (50 lines + 10 conditions)
     verify(context).saveMeasure(CoreMetrics.COVERAGE, 20.0);
+  }
+
+  @Test
+  public void forceCoverageByDefault() {
+    DecoratorContext context = mock(DecoratorContext.class);
+    when(context.getMeasure(CoreMetrics.NCLOC)).thenReturn(new Measure(CoreMetrics.NCLOC, 100.0));
+
+    decorator.decorate(project, context);
+
+    verify(context).saveMeasure(CoreMetrics.COVERAGE, 0.0);
+  }
+
+  @Test
+  public void dontForceCoverage() {
+    settings.setProperty(CoreProperties.COVERAGE_UNFORCED_KEY, "true");
+
+    DecoratorContext context = mock(DecoratorContext.class);
+    when(context.getMeasure(CoreMetrics.NCLOC)).thenReturn(new Measure(CoreMetrics.NCLOC, 100.0));
+
+    decorator.decorate(project, context);
+
+    verify(context, never()).saveMeasure(eq(CoreMetrics.COVERAGE), anyDouble());
   }
 
   @Test
