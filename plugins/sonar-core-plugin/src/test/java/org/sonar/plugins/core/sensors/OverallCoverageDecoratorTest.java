@@ -22,7 +22,6 @@ package org.sonar.plugins.core.sensors;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.DecoratorContext;
-import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
@@ -40,7 +39,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class OverallCoverageDecoratorTest {
-  private final OverallCoverageDecorator decorator = new OverallCoverageDecorator(new Settings());
+  private final OverallCoverageDecorator decorator = new OverallCoverageDecorator();
   private final Project project = mock(Project.class);
 
   @Before

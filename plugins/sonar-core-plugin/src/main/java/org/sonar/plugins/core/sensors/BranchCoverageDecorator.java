@@ -21,7 +21,6 @@ package org.sonar.plugins.core.sensors;
 
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependsUpon;
-import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.MeasureUtils;
 import org.sonar.api.measures.Metric;
@@ -30,10 +29,6 @@ import org.sonar.batch.sensor.coverage.CoverageConstants;
 import java.util.Collection;
 
 public final class BranchCoverageDecorator extends AbstractCoverageDecorator {
-
-  public BranchCoverageDecorator(Settings settings) {
-    super(settings);
-  }
 
   @DependsUpon
   public Collection<Metric> dependsUponMetrics() {

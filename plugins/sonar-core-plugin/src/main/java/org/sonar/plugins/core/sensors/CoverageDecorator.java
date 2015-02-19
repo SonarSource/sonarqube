@@ -21,7 +21,6 @@ package org.sonar.plugins.core.sensors;
 
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependsUpon;
-import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.MeasureUtils;
 import org.sonar.api.measures.Metric;
@@ -30,10 +29,6 @@ import org.sonar.batch.sensor.coverage.CoverageConstants;
 import java.util.Collection;
 
 public final class CoverageDecorator extends AbstractCoverageDecorator {
-
-  public CoverageDecorator(Settings settings) {
-    super(settings);
-  }
 
   @DependsUpon
   public Collection<Metric> usedMetrics() {
@@ -47,7 +42,7 @@ public final class CoverageDecorator extends AbstractCoverageDecorator {
 
   @Override
   protected Long countElements(DecoratorContext context) {
-    long linesToCover = getLinesToCover(context);
+    long linesToCover = MeasureUtils.getValueAsLong(context.getMeasure(CoreMetrics.LINES_TO_COVER), 0L);
     long conditions = MeasureUtils.getValueAsLong(context.getMeasure(CoreMetrics.CONDITIONS_TO_COVER), 0L);
 
     return linesToCover + conditions;

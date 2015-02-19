@@ -127,8 +127,8 @@ public class MeasuresMediumTest {
         .build())
       .start();
 
-    // QP + 2 x lines + 1 x ncloc
-    assertThat(result.measures()).hasSize(4);
+    // QP + 2 x lines + 1 x ncloc+ 1 x lines_to_cover
+    assertThat(result.measures()).hasSize(5);
 
     assertThat(result.measures()).contains(new DefaultMeasure<Integer>()
       .forMetric(CoreMetrics.LINES)

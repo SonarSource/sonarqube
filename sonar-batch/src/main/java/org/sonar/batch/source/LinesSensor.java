@@ -64,6 +64,12 @@ public final class LinesSensor implements Sensor {
           .forMetric(CoreMetrics.NCLOC)
           .withValue(metadata.nonBlankLines()))
           .save();
+        // No test and no coverage on those files
+        ((DefaultMeasure<Integer>) context.<Integer>newMeasure()
+          .onFile(f)
+          .forMetric(CoreMetrics.LINES_TO_COVER)
+          .withValue(0))
+          .save();
       }
     }
   }
