@@ -54,6 +54,10 @@ casper.test.begin(testName('Link to Raw'), function (test) {
         });
       })
 
+      .then(function () {
+        lib.sendCoverage();
+      })
+
       .run(function () {
         test.done();
       });

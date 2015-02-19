@@ -61,6 +61,10 @@ casper.test.begin(testName('source-viewer-should-open-in-new-window-with-line'),
         });
       })
 
+      .then(function () {
+        lib.sendCoverage();
+      })
+
       .run(function () {
         test.done();
       });

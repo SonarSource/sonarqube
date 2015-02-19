@@ -55,6 +55,10 @@ casper.test.begin(testName('source-viewer-should-open-in-new-window'), function 
         });
       })
 
+      .then(function () {
+        lib.sendCoverage();
+      })
+
       .run(function () {
         test.done();
       });

@@ -76,6 +76,10 @@ casper.test.begin('coding-rules-page-should-show-details', 20, function (test) {
         test.assertSelectorContains('.coding-rules-detail-quality-profile-inheritance', 'Default - Top');
       })
 
+      .then(function () {
+        lib.sendCoverage();
+      })
+
       .run(function () {
         test.done();
       });

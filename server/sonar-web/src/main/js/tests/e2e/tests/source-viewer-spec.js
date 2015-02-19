@@ -65,6 +65,10 @@ casper.test.begin(testName('Base'), function (test) {
         });
       })
 
+      .then(function () {
+        lib.sendCoverage();
+      })
+
       .run(function () {
         test.done();
       });
@@ -110,6 +114,10 @@ casper.test.begin(testName('Decoration'), function (test) {
         test.assertExists('.source-line-scm-inner[data-author="julien.henry@sonarsource.com"]');
       })
 
+      .then(function () {
+        lib.sendCoverage();
+      })
+
       .run(function () {
         test.done();
       });
@@ -133,6 +141,10 @@ casper.test.begin(testName('Test File'), function (test) {
 
       .then(function () {
         test.assertSelectorContains('.source-viewer-header-measure', '6');
+      })
+
+      .then(function () {
+        lib.sendCoverage();
       })
 
       .run(function () {

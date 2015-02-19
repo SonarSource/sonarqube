@@ -51,6 +51,10 @@ casper.test.begin('coding-rules-page-rule-permalink', 1, function (test) {
         test.assertExists('a[href="/coding_rules#rule_key=squid%3AS1181"]');
       })
 
+      .then(function () {
+        lib.sendCoverage();
+      })
+
       .run(function () {
         test.done();
       });

@@ -44,6 +44,10 @@ casper.test.begin(testName('source-viewer-should-not-show-source-if-no-permissio
         });
       })
 
+      .then(function () {
+        lib.sendCoverage();
+      })
+
       .run(function () {
         test.done();
       });

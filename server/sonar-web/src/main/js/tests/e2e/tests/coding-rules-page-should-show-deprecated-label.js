@@ -44,6 +44,10 @@ casper.test.begin('coding-rules-page-should-show-deprecated-label', 1, function 
         test.assertSelectorContains('.coding-rule.selected', 'DEPRECATED');
       })
 
+      .then(function () {
+        lib.sendCoverage();
+      })
+
       .run(function () {
         test.done();
       });

@@ -69,6 +69,10 @@ casper.test.begin('coding-rules-page-should-activate-profile', 5, function (test
         test.assertExists('.coding-rules-detail-quality-profile-deactivate');
       })
 
+      .then(function () {
+        lib.sendCoverage();
+      })
+
       .run(function () {
         test.done();
       });

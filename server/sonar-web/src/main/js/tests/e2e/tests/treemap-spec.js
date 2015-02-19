@@ -69,6 +69,9 @@ casper.test.begin('Treemap', function (test) {
           test.assertSelectorHasText('.treemap-cell', 'Server');
           test.assertElementCount('.treemap-cell', 25);
         });
+      })
+      .then(function () {
+        lib.sendCoverage();
       });
 
   casper.run(function() {

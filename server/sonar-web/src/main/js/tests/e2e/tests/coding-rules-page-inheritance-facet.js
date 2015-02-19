@@ -101,6 +101,10 @@ casper.test.begin('coding-rules-page-inheritance-facet', 11, function (test) {
         test.assertExists('.search-navigator-facet-box-forbidden[data-property="inheritance"]');
       })
 
+      .then(function () {
+        lib.sendCoverage();
+      })
+
       .run(function () {
         test.done();
       });

@@ -58,6 +58,10 @@ casper.test.begin('coding-rules-page-available-since', 2, function (test) {
         test.assertSelectorContains('#coding-rules-total', '101');
       })
 
+      .then(function () {
+        lib.sendCoverage();
+      })
+
       .run(function () {
         test.done();
       });

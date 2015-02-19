@@ -63,6 +63,10 @@ casper.test.begin('coding-rules-page-query-facet', 3, function (test) {
         test.assertSelectorContains('#coding-rules-total', '609');
       })
 
+      .then(function () {
+        lib.sendCoverage();
+      })
+
       .run(function () {
         test.done();
       });

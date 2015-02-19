@@ -58,6 +58,10 @@ casper.test.begin('coding-rules-page-no-available-profiles-for-activation', 2, f
         test.assertExists('.modal .message-notice');
       })
 
+      .then(function () {
+        lib.sendCoverage();
+      })
+
       .run(function () {
         test.done();
       });

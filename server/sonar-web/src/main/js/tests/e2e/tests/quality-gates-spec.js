@@ -56,6 +56,10 @@ casper.test.begin('Quality Gates', function suite (test) {
         });
       })
 
+      .then(function () {
+        lib.sendCoverage();
+      })
+
       .run(function () {
         test.done();
       });

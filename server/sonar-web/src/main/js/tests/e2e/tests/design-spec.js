@@ -60,6 +60,10 @@ casper.test.begin(testName('Base'), function suite(test) {
         test.assertSelectorContains('.dsm-info', 'src/main/java/com/maif/sonar/cobol/metrics/TableMetricsVisitor.java ');
       })
 
+      .then(function () {
+        lib.sendCoverage();
+      })
+
       .run(function () {
         test.done();
       });

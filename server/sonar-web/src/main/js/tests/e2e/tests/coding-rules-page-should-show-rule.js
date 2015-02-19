@@ -50,6 +50,10 @@ casper.test.begin('coding-rules-page-should-show-rule', 7, function (test) {
         test.assertSelectorContains('.coding-rule.selected', 'custom-tag');
       })
 
+      .then(function () {
+        lib.sendCoverage();
+      })
+
       .run(function () {
         test.done();
       });

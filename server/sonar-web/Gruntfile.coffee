@@ -1,6 +1,8 @@
 module.exports = (grunt) ->
   require('jit-grunt')(grunt, {
     express: 'grunt-express-server'
+    unzip: 'grunt-zip'
+    replace: 'grunt-text-replace'
   });
 
   pkg = grunt.file.readJSON('package.json')
@@ -363,6 +365,32 @@ module.exports = (grunt) ->
         ]
 
 
+    curl:
+      resetCoverage:
+        src:
+          url: 'http://localhost:' + expressPort + '/coverage/reset'
+          method: 'POST'
+        dest: 'target/reset_coverage.dump'
+
+      downloadCoverage:
+        src: 'http://localhost:' + expressPort + '/coverage/download'
+        dest: 'target/coverage.zip'
+
+
+    unzip:
+      'target/js-coverage': 'target/coverage.zip'
+
+
+    replace:
+      lcov:
+        src: 'target/js-coverage/lcov.info'
+        dest: 'target/js-coverage/lcov.info'
+        replacements: [{
+          from: '/webapp'
+          to: ''
+        }]
+
+
     jshint:
       dev:
         src: [
@@ -413,7 +441,7 @@ module.exports = (grunt) ->
       ['dev', 'watch']
 
   grunt.registerTask 'test',
-      ['dev', 'express:test', 'casper:test']
+      ['dev', 'express:test', 'curl:resetCoverage', 'casper:test', 'curl:downloadCoverage', 'unzip', 'replace:lcov']
 
   grunt.registerTask 'single',
       ['dev', 'express:test', 'casper:single']

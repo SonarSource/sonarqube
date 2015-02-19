@@ -46,6 +46,10 @@ casper.test.begin('coding-rules-page-should-show-empty-list', 3, function (test)
         test.assertExists('.search-navigator-no-results');
       })
 
+      .then(function () {
+        lib.sendCoverage();
+      })
+
       .run(function () {
         test.done();
       });

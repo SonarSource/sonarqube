@@ -57,6 +57,10 @@ casper.test.begin('coding-rules-page-should-show-custom-rules', 3, function (tes
             'Do not use org.h2.util.StringUtils');
       })
 
+      .then(function () {
+        lib.sendCoverage();
+      })
+
       .run(function () {
         test.done();
       });

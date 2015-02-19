@@ -68,6 +68,10 @@ casper.test.begin(testName('source-viewer-create-manual-issue'), function (test)
         });
       })
 
+      .then(function () {
+        lib.sendCoverage();
+      })
+
       .run(function () {
         test.done();
       });

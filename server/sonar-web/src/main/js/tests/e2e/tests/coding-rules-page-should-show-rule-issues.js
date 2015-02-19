@@ -56,6 +56,10 @@ casper.test.begin('coding-rules-page-should-show-rule-issues', 5, function (test
         test.assertSelectorContains('.coding-rules-most-violated-projects', '1');
       })
 
+      .then(function () {
+        lib.sendCoverage();
+      })
+
       .run(function () {
         test.done();
       });

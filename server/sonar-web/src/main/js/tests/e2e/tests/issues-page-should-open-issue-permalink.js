@@ -51,6 +51,10 @@ casper.test.begin('issues-page-should-open-issue-permalink', 3, function (test) 
         });
       })
 
+      .then(function () {
+        lib.sendCoverage();
+      })
+
       .run(function () {
         test.done();
       });

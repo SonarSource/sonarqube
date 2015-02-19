@@ -2,7 +2,49 @@ html
   head
     meta(http-equiv='Content-Type', content='text/html; charset=UTF-8')
     link(href='/css/sonar.css', rel='stylesheet', media='all')
-    script(src='/js/sonar.js')
+
+    script(src='/js/translate.js')
+    script(src='/js/third-party/jquery.js')
+    script(src='/js/third-party/jquery-ui.js')
+    script(src='/js/third-party/d3.js')
+    script(src='/js/third-party/latinize.js')
+    script(src='/js/third-party/underscore.js')
+    script(src='/js/third-party/backbone.js')
+    script(src='/js/third-party/backbone.marionette.js')
+    script(src='/js/third-party/handlebars.js')
+    script(src='/js/third-party/underscore.js')
+    script(src='/js/third-party/select2.js')
+    script(src='/js/third-party/keymaster.js')
+    script(src='/js/third-party/moment.js')
+    script(src='/js/third-party/numeral.js')
+    script(src='/js/third-party/numeral-languages.js')
+    script(src='/js/third-party/bootstrap/tooltip.js')
+    script(src='/js/third-party/bootstrap/dropdown.js')
+    script(src='/js/select2-jquery-ui-fix.js')
+    script(src='/js/widgets/base.js')
+    script(src='/js/widgets/widget.js')
+    script(src='/js/widgets/bubble-chart.js')
+    script(src='/js/widgets/timeline.js')
+    script(src='/js/widgets/stack-area.js')
+    script(src='/js/widgets/pie-chart.js')
+    script(src='/js/widgets/histogram.js')
+    script(src='/js/widgets/word-cloud.js')
+    script(src='/js/widgets/tag-cloud.js')
+    script(src='/js/widgets/treemap.js')
+    script(src='/js/graphics/pie-chart.js')
+    script(src='/js/graphics/timeline.js')
+    script(src='/js/graphics/barchart.js')
+    script(src='/js/sortable.js')
+    script(src='/js/common/inputs.js')
+    script(src='/js/common/dialogs.js')
+    script(src='/js/common/processes.js')
+    script(src='/js/common/jquery-isolated-scroll.js')
+    script(src='/js/common/handlebars-extensions.js')
+    script(src='/js/application.js')
+    script(src='/js/csv.js')
+    script(src='/js/dashboard.js')
+    script(src='/js/recent-history.js')
+
     script(src='/js/third-party/jquery.mockjax.js')
     script.
       var baseUrl = '';
@@ -10,7 +52,6 @@ html
       window.suppressTranslationWarnings = true;
       jQuery.mockjaxSettings.contentType = 'text/json';
       jQuery.mockjaxSettings.responseTime = 50;
-      jQuery.mockjaxSettings.throwUnmocked = true;
       $j(document).ready(function () { $j('.open-modal').modal(); });
       window.waitForMocks = function (app) {
         var x = setInterval(function () {

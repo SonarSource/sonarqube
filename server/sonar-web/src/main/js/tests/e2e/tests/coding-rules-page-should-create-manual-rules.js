@@ -65,6 +65,10 @@ casper.test.begin('coding-rules-page-should-delete-manual-rules', 3, function (t
         test.assertSelectorContains('.coding-rules-detail-description', 'Manual Rule Description');
       })
 
+      .then(function () {
+        lib.sendCoverage();
+      })
+
       .run(function () {
         test.done();
       });
