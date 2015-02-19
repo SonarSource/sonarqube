@@ -8,8 +8,7 @@ define([
 
     events: function () {
       return _.extend(BaseFacet.prototype.events.apply(this, arguments), {
-        'change input': 'applyFacet',
-        'keydown input': 'onKeydown'
+        'submit form': 'onFormSubmit'
       });
     },
 
@@ -22,18 +21,16 @@ define([
       }
     },
 
+    onFormSubmit: function (e) {
+      e.preventDefault();
+      this.applyFacet();
+    },
+
     applyFacet: function() {
       var obj = {},
           property = this.model.get('property');
       obj[property] = this.$('input').val();
       this.options.app.state.updateFilter(obj);
-    },
-
-    onKeydown: function (e) {
-      // escape
-      if (e.keyCode === 27) {
-        this.$('input').blur();
-      }
     }
   });
 
