@@ -22,5 +22,43 @@ package org.sonar.server.platform.monitoring;
 
 public interface SystemMonitoringMBean {
 
-  String getDataDirectorySize();
+  String getSystemDate();
+
+  String getJvmVendor();
+
+  String getJvmName();
+
+  String getJvmVersion();
+
+  String getJavaVersion();
+
+  String getJavaHome();
+
+  String getJitCompiler();
+
+  int getProcessors();
+
+  String getSystemClasspath();
+
+  String getBootClasspath();
+
+  String getLibraryPath();
+
+  String getTotalMemory();
+
+  String getFreeMemory();
+
+  String getMaxMemory();
+
+  String getHeapMemory();
+
+  String getNonHeapMemory();
+
+  String getSystemLoadAverage();
+
+  String getLoadedClasses();
+
+  String getStartTime();
+
+  String getThreads();
 }

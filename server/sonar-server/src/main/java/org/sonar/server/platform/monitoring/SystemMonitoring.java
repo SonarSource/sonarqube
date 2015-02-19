@@ -20,13 +20,19 @@
 
 package org.sonar.server.platform.monitoring;
 
+import org.sonar.api.utils.System2;
 import org.sonar.api.utils.text.JsonWriter;
 
-public class SystemMonitoring extends MonitoringMBean implements SystemMonitoringMBean {
+import java.lang.management.*;
+import java.util.Date;
 
-  @Override
-  public String getDataDirectorySize() {
-    return "6Mb";
+import static org.sonar.api.utils.DateUtils.formatDateTime;
+
+public class SystemMonitoring extends MonitoringMBean implements SystemMonitoringMBean {
+  private final System2 system;
+
+  public SystemMonitoring(System2 system) {
+    this.system = system;
   }
 
   @Override
@@ -35,9 +41,142 @@ public class SystemMonitoring extends MonitoringMBean implements SystemMonitorin
   }
 
   @Override
+  public String getSystemDate() {
+    return formatDateTime(new Date(system.now()));
+  }
+
+  @Override
+  public String getJvmVendor() {
+    return runtimeMXBean().getVmVendor();
+  }
+
+  @Override
+  public String getJvmName() {
+    return runtimeMXBean().getVmName();
+  }
+
+  @Override
+  public String getJvmVersion() {
+    return runtimeMXBean().getVmVersion();
+  }
+
+  @Override
+  public String getJavaVersion() {
+    return javaProperty("java.runtime.version");
+  }
+
+  @Override
+  public String getJavaHome() {
+    return javaProperty("java.home");
+  }
+
+  @Override
+  public String getJitCompiler() {
+    return javaProperty("java.compiler");
+  }
+
+  @Override
+  public int getProcessors() {
+    return runtime().availableProcessors();
+  }
+
+  @Override
+  public String getSystemClasspath() {
+    return runtimeMXBean().getClassPath();
+  }
+
+  @Override
+  public String getBootClasspath() {
+    return runtimeMXBean().getBootClassPath();
+  }
+
+  @Override
+  public String getLibraryPath() {
+    return runtimeMXBean().getLibraryPath();
+  }
+
+  @Override
+  public String getTotalMemory() {
+    return formatMemory(runtime().totalMemory());
+  }
+
+  @Override
+  public String getFreeMemory() {
+    return formatMemory(runtime().freeMemory());
+  }
+
+  @Override
+  public String getMaxMemory() {
+    return formatMemory(runtime().maxMemory());
+  }
+
+  @Override
+  public String getHeapMemory() {
+    return memoryMXBean().getHeapMemoryUsage().toString();
+  }
+
+  @Override
+  public String getNonHeapMemory() {
+    return memoryMXBean().getNonHeapMemoryUsage().toString();
+  }
+
+  @Override
+  public String getSystemLoadAverage() {
+    return String.format("%.1f%% (last minute)", ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage() * 100.0);
+  }
+
+  @Override
+  public String getLoadedClasses() {
+    return String.format("currently: %d, total: %d, unloaded: %d",
+      classLoadingMXBean().getLoadedClassCount(),
+      classLoadingMXBean().getTotalLoadedClassCount(),
+      classLoadingMXBean().getUnloadedClassCount());
+  }
+
+  @Override
+  public String getStartTime() {
+    return formatDateTime(new Date(runtimeMXBean().getStartTime()));
+  }
+
+  @Override
+  public String getThreads() {
+    return String.format("total: %d, peak: %d, daemon: %d",
+      threadMXBean().getThreadCount(),
+      threadMXBean().getPeakThreadCount(),
+      threadMXBean().getDaemonThreadCount());
+  }
+
+  @Override
   public void toJson(JsonWriter json) {
     json.beginObject()
-      .prop("dataDirectorySize", getDataDirectorySize())
       .endObject();
+  }
+
+  private RuntimeMXBean runtimeMXBean() {
+    return ManagementFactory.getRuntimeMXBean();
+  }
+
+  private Runtime runtime() {
+    return Runtime.getRuntime();
+  }
+
+  private MemoryMXBean memoryMXBean() {
+    return ManagementFactory.getMemoryMXBean();
+  }
+
+  private ClassLoadingMXBean classLoadingMXBean() {
+    return ManagementFactory.getClassLoadingMXBean();
+  }
+
+  private ThreadMXBean threadMXBean() {
+    return ManagementFactory.getThreadMXBean();
+  }
+
+  private String formatMemory(long memoryInBytes) {
+    return String.format("%d MB", memoryInBytes / 1_000_000);
+  }
+
+  private String javaProperty(String key) {
+    return System.getProperty(key);
   }
 }
