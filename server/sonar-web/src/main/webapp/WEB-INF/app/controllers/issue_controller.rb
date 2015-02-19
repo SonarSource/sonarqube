@@ -109,7 +109,7 @@ class IssueController < ApplicationController
 
   def show
     # the redirect is needed for the backward compatibility with eclipse plugin
-    redirect_to :action => 'search', :anchor => 'issues=' + params[:id]
+    redirect_to :controller => 'issues', :action => 'search', :anchor => 'issues=' + params[:id]
   end
 
 
