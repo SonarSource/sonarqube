@@ -74,7 +74,7 @@ public class RuleActivationActions implements ServerComponent {
 
     activate.createParam(PARAMS)
       .setDescription(String.format("Parameters as semi-colon list of <key>=<value>, for example " +
-        "'params=key1=v1;key2=v2'. Ignored if parameter %s is true.", RESET));
+        "'<code>params=key1=v1;key2=v2</code>'. Ignored if parameter %s is true.", RESET));
 
     activate.createParam(RESET)
       .setDescription("Reset severity and parameters of activated rule. Set the values defined on parent profile " +
@@ -99,12 +99,12 @@ public class RuleActivationActions implements ServerComponent {
 
   private void defineActiveRuleKeyParameters(WebService.NewAction action) {
     action.createParam(PROFILE_KEY)
-      .setDescription("Key of Quality profile")
+      .setDescription("Key of Quality profile, can be obtained through <code>api/profiles/list</code>")
       .setRequired(true)
-      .setExampleValue("Sonar way:java");
+      .setExampleValue("java-sonar-way-80423");
 
     action.createParam(RULE_KEY)
-      .setDescription("Key of the rule to activate")
+      .setDescription("Key of the rule")
       .setRequired(true)
       .setExampleValue("squid:AvoidCycles");
   }
