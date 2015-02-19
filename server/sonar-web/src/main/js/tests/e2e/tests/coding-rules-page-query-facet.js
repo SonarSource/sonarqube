@@ -25,7 +25,8 @@ casper.test.begin('coding-rules-page-query-facet', 3, function (test) {
       .then(function () {
         test.assertSelectorContains('#coding-rules-total', '609');
         casper.evaluate(function () {
-          jQuery('[data-property="q"] input').val('query').change();
+          jQuery('[data-property="q"] input').val('query');
+          jQuery('[data-property="q"] form').submit();
         });
         casper.waitForSelectorTextChange('#coding-rules-total');
       })
@@ -33,7 +34,8 @@ casper.test.begin('coding-rules-page-query-facet', 3, function (test) {
       .then(function () {
         test.assertSelectorContains('#coding-rules-total', '4');
         casper.evaluate(function () {
-          jQuery('[data-property="q"] input').val('').change();
+          jQuery('[data-property="q"] input').val('');
+          jQuery('[data-property="q"] form').submit();
         });
         casper.waitForSelectorTextChange('#coding-rules-total');
       })
