@@ -1,0 +1,10 @@
+extends layouts/main
+
+block header
+  script(src='../js/require.js')
+  script.
+    window.waitForMocks('/js/quality-gate/app.js');
+
+block body
+  #content
+    .search-navigator#quality-gates

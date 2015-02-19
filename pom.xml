@@ -85,6 +85,7 @@
     <skipBatchTests>false</skipBatchTests>
     <skipServerTests>false</skipServerTests>
     <skipWebTests>false</skipWebTests>
+    <jsCoverage>nocoverage</jsCoverage>
 
     <version.maven-license.plugin>1.9.0</version.maven-license.plugin>
     <skipSanityChecks>false</skipSanityChecks>
@@ -1549,6 +1550,13 @@
           </plugin>
         </plugins>
       </build>
+    </profile>
+
+    <profile>
+      <id>analysis</id>
+      <properties>
+        <jsCoverage>coverage</jsCoverage>
+      </properties>
     </profile>
   </profiles>
 
