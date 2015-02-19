@@ -67,4 +67,14 @@ public class ServletRequest extends ValidatingRequest {
     }
     return null;
   }
+
+  @Override
+  public String toString() {
+    StringBuffer url = source.getRequestURL();
+    String query = source.getQueryString();
+    if (query != null) {
+      url.append("?").append(query);
+    }
+    return url.toString();
+  }
 }
