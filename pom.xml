@@ -503,6 +503,7 @@
             <java.io.tmpdir>${project.build.directory}</java.io.tmpdir>
           </systemPropertyVariables>
           <groups>${junitGroups}</groups>
+          <threadCount>1</threadCount>
         </configuration>
       </plugin>
       <plugin>
