@@ -91,7 +91,6 @@ public class WebServiceEngine implements ServerComponent, Startable {
     } catch (ServerException e) {
       sendErrors(response, e.httpCode(), new Errors().add(Message.of(e.getMessage())));
     } catch (Exception e) {
-      // TODO implement Request.toString()
       LoggerFactory.getLogger(getClass()).error("Fail to process request " + request, e);
       sendErrors(response, 500, new Errors().add(Message.of(e.getMessage())));
     }
