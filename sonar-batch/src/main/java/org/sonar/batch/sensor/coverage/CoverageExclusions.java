@@ -48,6 +48,9 @@ public class CoverageExclusions {
     this.settings = settings;
     this.coverageMetrics = ImmutableSet.<Metric>builder()
       .add(CoreMetrics.COVERAGE)
+      .add(CoreMetrics.COVERAGE_LINE_HITS_DATA)
+      .add(CoreMetrics.CONDITIONS_BY_LINE)
+      .add(CoreMetrics.COVERED_CONDITIONS_BY_LINE)
       .addAll(CoverageConstants.COVERAGE_METRICS)
       .add(CoreMetrics.LINE_COVERAGE)
       .addAll(CoverageConstants.LINE_COVERAGE_METRICS)
