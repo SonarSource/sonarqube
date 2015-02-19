@@ -44,7 +44,7 @@ import java.util.List;
  * Nothing will be done if there's no characteristics in db, as they're all gonna be created by {@link org.sonar.server.startup.RegisterDebtModel}
  *
  * Before 4.3 the characteristics table contains requirements, then when selecting characteristics we should not forget to exclude them (with a filter on rule_id IS NULL)
- * 
+ *
  */
 public class AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigration extends BaseDataChange {
 
@@ -135,7 +135,7 @@ public class AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigration 
   }
 
   private void createSubCharacteristic(CharacteristicsContext characteristicsContext,
-    String subCharacteristicKey, String subCharacteristicName, String parentKey) throws SQLException {
+                                       String subCharacteristicKey, String subCharacteristicName, String parentKey) throws SQLException {
     Characteristic parent = characteristicsContext.findCharacteristicByKey(parentKey);
     if (parent != null) {
       Characteristic subCharacteristic = characteristicsContext.findSubCharacteristicByKey(subCharacteristicKey, parent);
