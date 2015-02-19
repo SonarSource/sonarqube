@@ -84,6 +84,11 @@ module ApplicationHelper
     Java::OrgSonarServerPlatform::Platform.getServer().getVersion()
   end
 
+  def property_value_by_key(key)
+    property = Property.by_key(key)
+    property.value if property
+  end
+
   # shortcut for the method is_admin?() without parameters. Result is kept in cache.
   def administrator?
     @is_administrator ||=
