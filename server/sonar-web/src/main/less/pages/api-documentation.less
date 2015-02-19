@@ -4,85 +4,19 @@
 
 @apiDocumentationSidebarWidth: 230px;
 
-.api-documentation-navigator {
-
-  .navigator-side {
-    display: table-cell;
-    vertical-align: top;
-    width: @apiDocumentationSidebarWidth + 2 * @navigatorPadding;
-    min-width: 0;
-  }
-
-  .navigator-header {
-    margin-left: 0;
-    .spinner { margin-top: 9px; }
-  }
-
-  .navigator-actions {
-    height: @navigatorHeaderHeight;
-    width: @apiDocumentationSidebarWidth;
-    margin: @navigatorPadding;
-    padding: 0 @navigatorPadding;
-
-    .navigator-header-title {
-      color: @baseFontColor;
-      font-size: 13px;
-      font-weight: bold;
-      text-transform: uppercase;
-    }
-  }
-
-  .api-documentation-show-internals {
-    margin: @navigatorPadding;
-    padding: 0 @navigatorPadding;
-  }
-
-  .navigator-results {
-    width: @apiDocumentationSidebarWidth;
-    min-width: 0;
-  }
-
-  .navigator-details { margin-left: 0; }
-
-  .internal {
-    color: @navigatorBarBackground;
-    background-color: rgb(127, 127, 127);
-    border-radius: 2px;
-    padding: 1px 5px;
-  }
+.api-documentation-show-internals {
+  margin: @navigatorPadding;
+  padding: 0 @navigatorPadding;
 }
 
-
-.api-documentation-nav {
-
-  .navigator-results-list {
-
-    & > li {
-      border-color: transparent;
-
-      &:hover:not(.active):not(.empty) {
-        background-color: @navigatorBarBackground;
-      }
-
-      &.active {
-        border-color: #4B9FD5;
-      }
-
-      &.empty {
-        cursor: default;
-      }
-
-      .line {
-        padding-top: 2px;
-        padding-bottom: 2px;
-      }
-    }
-  }
+.internal {
+  color: @navigatorBarBackground;
+  background-color: rgb(127, 127, 127);
+  border-radius: 2px;
+  padding: 1px 5px;
 }
 
 .api-documentation-actions {
-  margin-top: 10px;
-  margin-left: 5px;
 
   ol {
     li {
@@ -134,10 +68,6 @@
           }
         }
       }
-    }
-
-    .example-response {
-      text-decoration: underline;
     }
 
     .example-response-content {

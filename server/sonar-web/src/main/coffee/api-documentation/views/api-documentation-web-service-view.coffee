@@ -7,10 +7,11 @@ define [
   ApiDocumentationActionsListView
 ) ->
 
-  class ApiDocumentationWebServiceView extends Marionette.ItemView
-    tagName: 'li'
+  class extends Marionette.ItemView
+    tagName: 'a'
+    className: 'list-group-item'
     template: Templates['api-documentation-web-service']
-    spinner: '<i class="spinner"></i>'
+
 
     modelEvents:
       'change': 'render'

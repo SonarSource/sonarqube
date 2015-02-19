@@ -3,7 +3,8 @@ define [
 ], ->
 
   class QualityGateSidebarListItemView extends Marionette.ItemView
-    className: 'facet search-navigator-facet'
+    tagName: 'a'
+    className: 'list-group-item'
     template: Templates['quality-gate-sidebar-list-item']
 
 

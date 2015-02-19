@@ -35,7 +35,8 @@ requirejs [
   # Construct layout
   App.addInitializer ->
     @layout = new ApiDocumentationLayout app: App
-    jQuery('#body').append @layout.render().el
+    jQuery('#api-documentation').append @layout.render().el
+    jQuery('#footer').addClass 'search-navigator-footer'
 
   # Construct sidebar
   App.addInitializer ->

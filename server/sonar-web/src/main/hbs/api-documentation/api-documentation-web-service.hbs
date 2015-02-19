@@ -1,5 +1,5 @@
-<div class="line line-small">
-  <h1>{{path}}</h1>
-  <span class="subtitle">{{{description}}}</span>
-  {{#if internal}}<span class="subtitle internal">internal</span>{{/if}}
-</div>
+<h3 class="list-group-item-heading">{{path}}</h3>
+<p class="list-group-item-text">{{{description}}}</p>
+{{#if internal}}
+  <p class="note">internal</p>
+{{/if}}

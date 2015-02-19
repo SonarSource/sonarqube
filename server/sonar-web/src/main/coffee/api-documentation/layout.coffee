@@ -2,20 +2,31 @@ define [
   'templates/api-documentation'
 ], ->
 
-  class AppLayout extends Marionette.Layout
-    className: 'navigator api-documentation-navigator'
+  $ = jQuery
+
+  class extends Marionette.Layout
     template: Templates['api-documentation-layout']
 
+
     regions:
-      resultsRegion: '.navigator-results'
-      detailsRegion: '.navigator-details'
+      resultsRegion: '.api-documentation-results'
+      detailsRegion: '.search-navigator-workspace'
+
 
     events:
       'change #api-documentation-show-internals': 'toggleInternals'
 
-    toggleInternals: (event) ->
-      @app.webServices.toggleInternals()
 
     initialize: (app) ->
       @app = app.app
       @listenTo(@app.webServices, 'sync', @app.refresh)
+
+
+    onRender: ->
+      $('.search-navigator').addClass 'sticky'
+      top = $('.search-navigator').offset().top
+      @$('.search-navigator-side').css({ top: top }).isolatedScroll()
+
+
+    toggleInternals: (event) ->
+      @app.webServices.toggleInternals()

@@ -4,10 +4,10 @@ define [
   ApiDocumentationWebServiceView
 ) ->
 
-  class ApiDocumentationListView extends Marionette.CollectionView
-    tagName: 'ol'
-    className: 'navigator-results-list'
+  class extends Marionette.CollectionView
+    className: 'list-group'
     itemView: ApiDocumentationWebServiceView
+
 
     itemViewOptions: (model) ->
       app: @options.app

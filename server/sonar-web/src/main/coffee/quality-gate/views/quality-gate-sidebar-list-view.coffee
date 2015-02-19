@@ -7,7 +7,7 @@ define [
 ) ->
 
   class QualityGateSidebarListView extends Marionette.CollectionView
-    className: 'search-navigator-facet-list'
+    className: 'list-group'
     itemView: QualityGateSidebarListItemView
     emptyView: QualityGateSidebarListEmptyView
 

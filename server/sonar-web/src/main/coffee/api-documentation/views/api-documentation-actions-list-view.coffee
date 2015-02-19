@@ -7,9 +7,14 @@ define [
   ApiDocumentationActionView
 ) ->
 
-  class ApiDocumentationActionsListView extends Marionette.CompositeView
-    tagName: 'div'
+  $ = jQuery
+
+  class extends Marionette.CompositeView
     className: 'api-documentation-actions'
     template: Templates['api-documentation-actions']
     itemView: ApiDocumentationActionView
-    itemViewContainer: '.api-documentation-actions-list'
+    itemViewContainer: '.search-navigator-workspace-list'
+
+    onRender: ->
+      top = $('.search-navigator').offset().top
+      @$('.search-navigator-workspace-header').css top: top
