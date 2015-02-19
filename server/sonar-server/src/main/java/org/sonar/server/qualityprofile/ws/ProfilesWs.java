@@ -53,7 +53,6 @@ public class ProfilesWs implements WebService {
 
     action.createParam("language")
       .setDescription("Profile language")
-      .setRequired(true)
       .setExampleValue("java");
     action.createParam("project")
       .setDescription("Project key or id")
