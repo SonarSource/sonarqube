@@ -22,20 +22,19 @@ package org.sonar.server.platform.monitoring;
 
 import org.sonar.api.utils.text.JsonWriter;
 
-public class WebServerMonitoring extends MonitoringMBean implements WebServerMonitoringMBean {
+public class ElasticSearchNodesMonitoring extends MonitoringMBean implements ElasticSearchNodesMonitoringMBean {
   @Override
-  public int getNbJvmThreads() {
-    return 42;
+  public String getNodes() {
+    return "";
   }
 
   @Override
   public String name() {
-    return "WebServer";
+    return "ElasticSearchNodes";
   }
 
   @Override
   public void toJson(JsonWriter json) {
-    json.beginObject();
-    json.endObject();
+
   }
 }

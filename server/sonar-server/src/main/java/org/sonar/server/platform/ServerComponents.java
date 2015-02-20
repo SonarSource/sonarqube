@@ -140,10 +140,7 @@ import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.permission.InternalPermissionTemplateService;
 import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.permission.ws.PermissionsWs;
-import org.sonar.server.platform.monitoring.ElasticSearchClusterMonitoring;
-import org.sonar.server.platform.monitoring.PluginsMonitoring;
-import org.sonar.server.platform.monitoring.SonarQubeMonitoring;
-import org.sonar.server.platform.monitoring.SystemMonitoring;
+import org.sonar.server.platform.monitoring.*;
 import org.sonar.server.platform.ws.*;
 import org.sonar.server.plugins.*;
 import org.sonar.server.properties.ProjectSettingsFactory;
@@ -643,8 +640,9 @@ class ServerComponents {
       SystemMonitoring.class,
       SonarQubeMonitoring.class,
       ElasticSearchClusterMonitoring.class,
-      PluginsMonitoring.class)
-      );
+      PluginsMonitoring.class,
+      SystemPropertiesMonitoring.class
+      ));
 
     // Compute engine
     pico.addSingleton(AnalysisReportQueue.class);

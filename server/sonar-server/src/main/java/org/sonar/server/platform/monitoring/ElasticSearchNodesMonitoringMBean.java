@@ -20,6 +20,7 @@
 
 package org.sonar.server.platform.monitoring;
 
-public interface WebServerMonitoringMBean {
-  int getNbJvmThreads();
+public interface ElasticSearchNodesMonitoringMBean {
+
+  String getNodes();
 }
