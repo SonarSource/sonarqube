@@ -140,9 +140,10 @@ import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.permission.InternalPermissionTemplateService;
 import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.permission.ws.PermissionsWs;
-import org.sonar.server.platform.monitoring.DatabaseMonitoring;
+import org.sonar.server.platform.monitoring.ElasticSearchClusterMonitoring;
+import org.sonar.server.platform.monitoring.PluginsMonitoring;
+import org.sonar.server.platform.monitoring.SonarQubeMonitoring;
 import org.sonar.server.platform.monitoring.SystemMonitoring;
-import org.sonar.server.platform.monitoring.WebServerMonitoring;
 import org.sonar.server.platform.ws.*;
 import org.sonar.server.plugins.*;
 import org.sonar.server.properties.ProjectSettingsFactory;
@@ -308,17 +309,7 @@ class ServerComponents {
       JRubyI18n.class,
       DefaultI18n.class,
       RuleI18nManager.class,
-      Durations.class,
-
-      // ws
-      RestartHandler.class,
-      InfoWsAction.class,
-      SystemWs.class,
-
-      // Monitoring MBean
-      SystemMonitoring.class,
-      DatabaseMonitoring.class,
-      WebServerMonitoring.class
+      Durations.class
       );
   }
 
@@ -643,6 +634,17 @@ class ServerComponents {
 
     // Design
     pico.addSingleton(FileDesignWidget.class);
+
+    // System Admin
+    pico.addSingletons(Lists.newArrayList(
+      RestartHandler.class,
+      InfoWsAction.class,
+      SystemWs.class,
+      SystemMonitoring.class,
+      SonarQubeMonitoring.class,
+      ElasticSearchClusterMonitoring.class,
+      PluginsMonitoring.class)
+      );
 
     // Compute engine
     pico.addSingleton(AnalysisReportQueue.class);

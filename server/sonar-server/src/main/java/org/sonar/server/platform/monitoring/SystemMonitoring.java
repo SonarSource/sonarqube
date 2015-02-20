@@ -61,21 +61,6 @@ public class SystemMonitoring extends MonitoringMBean implements SystemMonitorin
   }
 
   @Override
-  public String getJavaVersion() {
-    return javaProperty("java.runtime.version");
-  }
-
-  @Override
-  public String getJavaHome() {
-    return javaProperty("java.home");
-  }
-
-  @Override
-  public String getJitCompiler() {
-    return javaProperty("java.compiler");
-  }
-
-  @Override
   public int getProcessors() {
     return runtime().availableProcessors();
   }
@@ -191,9 +176,5 @@ public class SystemMonitoring extends MonitoringMBean implements SystemMonitorin
 
   private String formatMemory(long memoryInBytes) {
     return String.format("%d MB", memoryInBytes / 1_000_000);
-  }
-
-  private String javaProperty(String key) {
-    return System.getProperty(key);
   }
 }

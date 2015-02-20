@@ -55,9 +55,7 @@ public class PluginsMonitoring extends MonitoringMBean implements PluginsMonitor
   public void toJson(JsonWriter json) {
     json.beginArray();
     for (PluginMetadata plugin : plugins()) {
-      json.beginObject()
-        .prop(plugin.getName(), plugin.getVersion())
-        .endObject();
+      json.prop(plugin.getName(), plugin.getVersion());
     }
     json.endArray();
   }

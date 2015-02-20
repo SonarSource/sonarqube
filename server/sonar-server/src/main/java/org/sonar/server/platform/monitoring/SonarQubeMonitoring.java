@@ -55,6 +55,10 @@ public class SonarQubeMonitoring extends MonitoringMBean implements SonarQubeMon
 
   @Override
   public String getExternalUserAuthentication() {
+    if (securityRealmFactory.getRealm() == null) {
+      return "";
+    }
+
     return securityRealmFactory.getRealm().getName();
   }
 
@@ -83,7 +87,7 @@ public class SonarQubeMonitoring extends MonitoringMBean implements SonarQubeMon
     json.beginObject()
       .prop("Server ID", getServerId())
       .prop("Version", getVersion())
-      .prop("Started at",getStartedAt())
+      .prop("Started at", getStartedAt())
       .prop("External User Authentication", getExternalUserAuthentication())
       .prop("Automatic User Creation", getAutomaticUserCreation())
       .prop("Allow Users to Sign Up", getAllowUsersToSignUp())

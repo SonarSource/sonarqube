@@ -30,12 +30,6 @@ public interface SystemMonitoringMBean {
 
   String getJvmVersion();
 
-  String getJavaVersion();
-
-  String getJavaHome();
-
-  String getJitCompiler();
-
   int getProcessors();
 
   String getSystemClasspath();

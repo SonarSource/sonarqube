@@ -21,4 +21,7 @@
 package org.sonar.server.platform.monitoring;
 
 public interface ElasticSearchClusterMonitoringMBean {
+  String getClusterState();
+  int getNumberOfNodes();
+  String getIndexesHealth();
 }
