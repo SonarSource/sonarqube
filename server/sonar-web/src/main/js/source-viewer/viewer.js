@@ -392,7 +392,8 @@ define([
               line = $(e.currentTarget).data('line-number'),
               blocks = this.model.get('duplications')[index - 1].blocks;
           blocks = _.filter(blocks, function (b) {
-            return (b._ref !== '1') || (b._ref === '1' && b.from > line) || (b._ref === '1' && b.from + b.size < line);
+            var outOfBounds = b.from > line || b.from + b.size < line;
+            return (b._ref !== '1') || (b._ref === '1' && outOfBounds);
           });
           var popup = new DuplicationPopupView({
             triggerEl: $(e.currentTarget),

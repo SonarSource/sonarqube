@@ -9,7 +9,12 @@
       height: 140,
       color: '#1f77b4',
       interpolate: 'basis',
-      endDate: moment().format('YYYY-MM-DD')
+      endDate: moment().format('YYYY-MM-DD'),
+
+      marginLeft: 1,
+      marginRight: 1,
+      marginTop: 18,
+      marginBottom: 1
     };
   };
 
@@ -47,13 +52,6 @@
           }),
           yScale = d3.scale.linear()
               .domain([0, yScaleMax]);
-
-      _.extend(options, {
-        marginLeft: 1,
-        marginRight: 1,
-        marginTop: 18,
-        marginBottom: 1
-      });
 
       _.extend(options, {
         availableWidth: options.width - options.marginLeft - options.marginRight,

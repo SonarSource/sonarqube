@@ -27,13 +27,13 @@ define([
       var query = this.options.app.state.get('query'),
           profileKey = query.qprofile,
           profile = _.findWhere(this.options.app.qualityProfiles, { key: profileKey }),
-          activation = query.activation;
+          activation = '' + query.activation;
 
       return {
         qualityProfile: profileKey,
         qualityProfileName: profile != null ? profile.name : null,
-        allowActivateOnProfile: profileKey != null && (activation === 'false' || activation === false),
-        allowDeactivateOnProfile: profileKey != null && (activation === 'true' || activation === true)
+        allowActivateOnProfile: profileKey != null && activation === 'false',
+        allowDeactivateOnProfile: profileKey != null && activation === 'true'
       };
     }
   });
