@@ -32,9 +32,7 @@ class RemoveIssueComponentIds < ActiveRecord::Migration
     remove_index 'issues', :name => 'issues_root_component_id'
     remove_column 'issues', 'component_id'
     remove_column 'issues', 'root_component_id'
-    change_column 'issues', :component_uuid, :string, :limit => 50, :null => false
-    change_column 'issues', :project_uuid, :string, :limit => 50, :null => false
-    
+
     if dialect()=='sqlserver'
       add_index :issues, :component_uuid, :name => 'issues_component_uuid'
       add_index :issues, :project_uuid, :name => 'issues_project_uuid'
