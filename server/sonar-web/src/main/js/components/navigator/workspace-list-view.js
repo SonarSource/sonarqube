@@ -93,7 +93,8 @@ define(function () {
         return;
       }
       var selectedView = this.children.findByModel(selected),
-          viewTop = selectedView.$el.offset().top,
+          parentTopOffset = this.$el.offset().top,
+          viewTop = selectedView.$el.offset().top - parentTopOffset,
           viewBottom = selectedView.$el.offset().top + selectedView.$el.outerHeight(),
           windowTop = $(window).scrollTop(),
           windowBottom = windowTop + $(window).height();

@@ -11,7 +11,6 @@ define [
 
   $ = jQuery
 
-  TOP_OFFSET = 43
   COMPONENT_HEIGHT = 29
   BOTTOM_OFFSET = 10
 
@@ -51,7 +50,8 @@ define [
       selectedIssue = @collection.at @options.app.state.get 'selectedIndex'
       return unless selectedIssue?
       selectedIssueView = @children.findByModel selectedIssue
-      viewTop = selectedIssueView.$el.offset().top - TOP_OFFSET
+      parentTopOffset = @$el.offset().top
+      viewTop = selectedIssueView.$el.offset().top - parentTopOffset
       if selectedIssueView.$el.prev().is('.issues-workspace-list-component')
         viewTop -= COMPONENT_HEIGHT
       viewBottom = selectedIssueView.$el.offset().top + selectedIssueView.$el.outerHeight() + BOTTOM_OFFSET
