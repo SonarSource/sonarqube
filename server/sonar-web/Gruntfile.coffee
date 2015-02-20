@@ -1,5 +1,7 @@
 module.exports = (grunt) ->
-  require('jit-grunt')(grunt);
+  require('jit-grunt')(grunt, {
+    express: 'grunt-express-server'
+  });
 
   pkg = grunt.file.readJSON('package.json')
   expressPort = '<%= grunt.option("port") || 3000 %>'
