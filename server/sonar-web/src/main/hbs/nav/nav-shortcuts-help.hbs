@@ -1,9 +1,18 @@
 <div class="modal-head">
-  <h2>{{t 'shortcuts.modal_title'}}</h2>
+  <h2>{{t 'help'}}</h2>
 </div>
 
 <div class="modal-body">
   <div class="shortcuts-section">
+    <a href="http://www.sonarqube.org" target="sonar">Community</a> -
+    <a href="http://www.sonarqube.org/documentation" target="sonar_doc">Documentation</a> -
+    <a href="http://www.sonarqube.org/support" target="support">Get Support</a> -
+    <a href="http://sonar-plugins.codehaus.org" target="plugins">Plugins</a> -
+    <a href="<%= ApplicationController.root_context -%>/api_documentation">Web Service API</a>
+  </div>
+
+  <div class="shortcuts-section">
+    <h2>{{t 'shortcuts.modal_title'}}</h2>
     <h3 class="shortcuts-section-title">{{t 'shortcuts.section.global'}}</h3>
     <ul class="shortcuts-list">
         <li><span class="shortcut-button">s</span> &nbsp;&nbsp; {{t 'shortcuts.section.global.search'}}</li>
