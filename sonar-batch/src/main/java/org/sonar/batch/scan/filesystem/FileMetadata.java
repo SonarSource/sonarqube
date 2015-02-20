@@ -200,6 +200,7 @@ public class FileMetadata implements BatchComponent {
   private static class LineOffsetCounter extends CharHandler {
     private int currentOriginalOffset = 0;
     private List<Integer> originalLineOffsets = new ArrayList<Integer>();
+    private int lastValidOffset = 0;
 
     public LineOffsetCounter() {
       originalLineOffsets.add(0);
@@ -215,8 +216,17 @@ public class FileMetadata implements BatchComponent {
       originalLineOffsets.add(currentOriginalOffset);
     }
 
+    @Override
+    void eof() {
+      lastValidOffset = currentOriginalOffset;
+    }
+
     public List<Integer> getOriginalLineOffsets() {
       return originalLineOffsets;
+    }
+
+    public int getLastValidOffset() {
+      return lastValidOffset;
     }
 
   }
@@ -236,6 +246,7 @@ public class FileMetadata implements BatchComponent {
       scanFile(file, encoding, lineCounter, fileHashComputer);
     }
     return new Metadata(lineCounter.lines(), lineCounter.nonBlankLines(), fileHashComputer.getHash(), lineOffsetCounter.getOriginalLineOffsets(),
+      lineOffsetCounter.getLastValidOffset(),
       lineCounter.isEmpty());
   }
 
@@ -288,14 +299,16 @@ public class FileMetadata implements BatchComponent {
     final int nonBlankLines;
     final String hash;
     final int[] originalLineOffsets;
+    final int lastValidOffset;
     final boolean empty;
 
-    private Metadata(int lines, int nonBlankLines, String hash, List<Integer> originalLineOffsets, boolean empty) {
+    private Metadata(int lines, int nonBlankLines, String hash, List<Integer> originalLineOffsets, int lastValidOffset, boolean empty) {
       this.lines = lines;
       this.nonBlankLines = nonBlankLines;
       this.hash = hash;
       this.empty = empty;
       this.originalLineOffsets = Ints.toArray(originalLineOffsets);
+      this.lastValidOffset = lastValidOffset;
     }
   }
 

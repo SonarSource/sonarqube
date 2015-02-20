@@ -54,6 +54,7 @@ public class FileMetadataTest {
     assertThat(metadata.nonBlankLines).isEqualTo(0);
     assertThat(metadata.hash).isNotEmpty();
     assertThat(metadata.originalLineOffsets).containsOnly(0);
+    assertThat(metadata.lastValidOffset).isEqualTo(0);
     assertThat(metadata.empty).isTrue();
   }
 
@@ -67,6 +68,7 @@ public class FileMetadataTest {
     assertThat(metadata.nonBlankLines).isEqualTo(3);
     assertThat(metadata.hash).isEqualTo(md5Hex("foo\nbar\nbaz"));
     assertThat(metadata.originalLineOffsets).containsOnly(0, 5, 10);
+    assertThat(metadata.lastValidOffset).isEqualTo(13);
     assertThat(metadata.empty).isFalse();
   }
 
@@ -115,6 +117,7 @@ public class FileMetadataTest {
     assertThat(metadata.nonBlankLines).isEqualTo(3);
     assertThat(metadata.hash).isEqualTo(md5Hex("foo\nbar\nbaz"));
     assertThat(metadata.originalLineOffsets).containsOnly(0, 4, 8);
+    assertThat(metadata.lastValidOffset).isEqualTo(11);
   }
 
   @Test
@@ -127,6 +130,7 @@ public class FileMetadataTest {
     assertThat(metadata.nonBlankLines).isEqualTo(3);
     assertThat(metadata.hash).isEqualTo(md5Hex("foo\nbar\nbaz\n"));
     assertThat(metadata.originalLineOffsets).containsOnly(0, 4, 8, 12);
+    assertThat(metadata.lastValidOffset).isEqualTo(12);
   }
 
   @Test

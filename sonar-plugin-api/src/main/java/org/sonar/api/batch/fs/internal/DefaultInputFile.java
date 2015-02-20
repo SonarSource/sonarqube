@@ -43,6 +43,7 @@ public class DefaultInputFile implements InputFile, Serializable {
   private Status status;
   private int lines;
   private Charset charset;
+  private int lastValidOffset;
 
   public DefaultInputFile(String moduleKey, String relativePath) {
     this.moduleKey = moduleKey;
@@ -141,6 +142,15 @@ public class DefaultInputFile implements InputFile, Serializable {
 
   public DefaultInputFile setCharset(Charset charset) {
     this.charset = charset;
+    return this;
+  }
+
+  public int lastValidOffset() {
+    return lastValidOffset;
+  }
+
+  public DefaultInputFile setLastValidOffset(int lastValidOffset) {
+    this.lastValidOffset = lastValidOffset;
     return this;
   }
 

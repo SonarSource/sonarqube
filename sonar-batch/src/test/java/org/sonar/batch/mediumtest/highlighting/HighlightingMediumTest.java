@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.mediumtest.highlighting;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -102,8 +103,8 @@ public class HighlightingMediumTest {
 
     File xooFile = new File(srcDir, "sample.xoo");
     File xoohighlightingFile = new File(srcDir, "sample.xoo.highlighting");
-    FileUtils.write(xooFile, "Sample xoo\ncontent");
     int chunkSize = 100000;
+    FileUtils.write(xooFile, Strings.repeat("a", chunkSize));
     StringBuilder sb = new StringBuilder(16 * chunkSize);
     for (int i = 0; i < chunkSize; i++) {
       sb.append(i).append(":").append(i + 1).append(":s\n");

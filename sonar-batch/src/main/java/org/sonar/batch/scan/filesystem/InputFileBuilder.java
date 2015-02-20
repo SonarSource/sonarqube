@@ -107,6 +107,7 @@ class InputFileBuilder {
 
     FileMetadata.Metadata metadata = fileMetadata.read(inputFile.file(), fs.encoding());
     inputFile.setLines(metadata.lines);
+    inputFile.setLastValidOffset(metadata.lastValidOffset);
 
     result.setNonBlankLines(metadata.nonBlankLines);
     result.setHash(metadata.hash);
