@@ -31,7 +31,11 @@ import static org.sonar.api.utils.DateUtils.formatDateTime;
 public class SystemMonitoring extends MonitoringMBean implements SystemMonitoringMBean {
   private final System2 system;
 
-  public SystemMonitoring(System2 system) {
+  public SystemMonitoring() {
+    this.system = System2.INSTANCE;
+  }
+
+  SystemMonitoring(System2 system) {
     this.system = system;
   }
 

@@ -30,7 +30,7 @@ import org.sonar.server.user.UserSession;
 
 public class InfoWsAction implements SystemWsAction {
 
-  private final MonitoringMBean[] mBeans;
+  final MonitoringMBean[] mBeans;
 
   public InfoWsAction(MonitoringMBean... mBeans) {
     this.mBeans = mBeans;
