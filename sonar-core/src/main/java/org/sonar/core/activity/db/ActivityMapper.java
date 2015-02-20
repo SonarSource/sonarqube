@@ -19,6 +19,11 @@
  */
 package org.sonar.core.activity.db;
 
+import org.apache.ibatis.annotations.Param;
+
+import javax.annotation.Nullable;
+
+import java.sql.Timestamp;
 import java.util.List;
 
 /**
@@ -29,4 +34,6 @@ public interface ActivityMapper {
   void insert(ActivityDto rule);
 
   List<ActivityDto> selectAll();
+
+  List<ActivityDto> selectAfterDate(@Nullable @Param("date") Timestamp timestamp);
 }

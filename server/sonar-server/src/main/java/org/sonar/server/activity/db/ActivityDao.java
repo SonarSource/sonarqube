@@ -58,11 +58,6 @@ public class ActivityDao extends BaseDao<ActivityMapper, ActivityDto, String> {
     throw new IllegalStateException("Cannot delete Log!");
   }
 
-  @Override
-  protected String getSynchronizationStatementName() {
-    return "selectAll";
-  }
-
   public List<ActivityDto> findAll(DbSession session) {
     return mapper(session).selectAll();
   }
