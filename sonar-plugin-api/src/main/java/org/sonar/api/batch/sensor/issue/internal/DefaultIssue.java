@@ -19,14 +19,13 @@
  */
 package org.sonar.api.batch.sensor.issue.internal;
 
-import org.sonar.api.batch.sensor.internal.SensorStorage;
-
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.sensor.internal.DefaultStorable;
+import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.rule.RuleKey;
@@ -94,7 +93,10 @@ public class DefaultIssue extends DefaultStorable implements Issue, NewIssue {
 
   @Override
   public DefaultIssue atLine(int line) {
-    Preconditions.checkState(this.path != null && this.path instanceof InputFile, "atLine should be called after onFile");
+    Preconditions.checkState(this.path != null && this.path instanceof InputFile, "atLine should be called after onFile.");
+    Preconditions.checkArgument(line > 0, "line starts at 1, invalid value " + line + ".");
+    int lines = ((InputFile) path).lines();
+    Preconditions.checkArgument(line <= lines, "File " + path + " has " + lines + " lines. Unable to create issue at line " + line + ".");
     this.line = line;
     return this;
   }
