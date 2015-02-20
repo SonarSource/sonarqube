@@ -27,6 +27,7 @@ import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -65,6 +66,10 @@ public class AuthorizationDaoTest extends AbstractDaoTestCase {
       Sets.newHashSet(PROJECT_ID),
       USER, "admin");
     assertThat(componentIds).isEmpty();
+
+    assertThat(authorization.keepAuthorizedProjectIds(session,
+      Collections.<Long>emptySet(),
+      USER, "admin")).isEmpty();
   }
 
   @Test
@@ -78,6 +83,16 @@ public class AuthorizationDaoTest extends AbstractDaoTestCase {
 
     // user does not have the role "admin"
     assertThat(authorization.isAuthorizedComponentKey(PROJECT, USER, "admin")).isFalse();
+  }
+
+  @Test
+  public void is_authorized_component_key_for_anonymous() {
+    setupData("anonymous_should_be_authorized");
+
+    AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
+
+    assertThat(authorization.isAuthorizedComponentKey(PROJECT, null, "user")).isTrue();
+    assertThat(authorization.isAuthorizedComponentKey(PROJECT, null, "admin")).isFalse();
   }
 
   @Test

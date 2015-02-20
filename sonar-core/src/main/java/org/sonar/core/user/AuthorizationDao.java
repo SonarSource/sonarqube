@@ -30,7 +30,10 @@ import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.Nullable;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.Maps.newHashMap;
 
@@ -65,26 +68,18 @@ public class AuthorizationDao implements ServerComponent, DaoComponent {
   public boolean isAuthorizedComponentKey(String componentKey, @Nullable Integer userId, String role) {
     DbSession session = mybatis.openSession(false);
     try {
-      return keepAuthorizedComponentKeys(session, Sets.newHashSet(componentKey), userId, role).size() == 1;
+      return keepAuthorizedComponentKeys(session, componentKey, userId, role).size() == 1;
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  private Set<String> keepAuthorizedComponentKeys(final DbSession session, final Set<String> componentKeys, @Nullable final Integer userId, final String role) {
-    if (componentKeys.isEmpty()) {
-      return Collections.emptySet();
+  private List<String> keepAuthorizedComponentKeys(final DbSession session, final String componentKey, @Nullable final Integer userId, final String role) {
+    if (userId == null) {
+      return session.getMapper(AuthorizationMapper.class).keepAuthorizedComponentKeysForAnonymous(role, Sets.newHashSet(componentKey));
+    } else {
+      return session.getMapper(AuthorizationMapper.class).keepAuthorizedComponentKeysForUser(userId, role, Sets.newHashSet(componentKey));
     }
-    return Sets.newHashSet(DaoUtils.executeLargeInputs(componentKeys, new Function<List<String>, List<String>>() {
-      @Override
-      public List<String> apply(List<String> partition) {
-        if (userId == null) {
-          return session.getMapper(AuthorizationMapper.class).keepAuthorizedComponentKeysForAnonymous(role, componentKeys);
-        } else {
-          return session.getMapper(AuthorizationMapper.class).keepAuthorizedComponentKeysForUser(userId, role, componentKeys);
-        }
-      }
-    }));
   }
 
   public Collection<String> selectAuthorizedRootProjectsKeys(@Nullable Integer userId, String role) {
