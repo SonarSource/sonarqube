@@ -25,60 +25,65 @@
     }
   }
 
-  .api-documentation-action {
-    margin-top: 30px;
+}
 
-    & > p, & > h3 {
-      margin-top: 5px;
-    }
+.api-documentation-action {
+  padding: 0 5px;
 
-    table {
-      width: 100%;
+  & > p {
+    margin-top: 5px;
+  }
 
-      tr {
-        border-top: 1px solid @navigatorBorderLightColor;
+  table {
+    width: 100%;
 
-        td {
-          padding: 10px 0 10px 5px;
-          margin: 5px;
-          vertical-align: top;
+    tr {
+      border-top: 1px solid @navigatorBorderLightColor;
 
-          ul {
-            li {
-              list-style: square;
-              margin-left: 2em;
-            }
+      td {
+        padding: 10px 0 10px 5px;
+        margin: 5px;
+        vertical-align: top;
+
+        ul {
+          li {
+            list-style: square;
+            margin-left: 2em;
           }
+        }
 
-          ul.possible-values {
+        ul.possible-values {
+          display: inline;
+
+          li {
             display: inline;
+            margin: 0;
 
-            li {
-              display: inline;
-              margin: 0;
+            &:before {
+              content: ', '
+            }
 
-              &:before {
-                content: ', '
-              }
-
-              &:first-child:before {
-                content: ''
-              }
+            &:first-child:before {
+              content: ''
             }
           }
         }
       }
     }
+  }
 
-    .example-response-content {
-      margin: 10px 0;
-      padding: 5px;
-      background-color: @navigatorBarBackground;
-      border: 1px solid @navigatorBorderLightColor;
+  .example-response-content {
+    margin: 10px 0;
+    padding: 5px;
+    background-color: @navigatorBarBackground;
+    border: 1px solid @navigatorBorderLightColor;
 
-      code {
-        white-space: pre-wrap;
-      }
+    code {
+      white-space: pre-wrap;
     }
   }
+}
+
+.api-documentation-action + .api-documentation-action {
+  margin-top: 30px;
 }
