@@ -1,0 +1,28 @@
+@import (reference) "../variables";
+@import (reference) "../mixins";
+
+.badge {
+  display: inline-block;
+  min-width: 10px;
+  padding: 2px 7px;
+  font-size: 11px;
+  font-weight: 300;
+  color: #fff;
+  line-height: 12px;
+  vertical-align: baseline;
+  white-space: nowrap;
+  text-align: center;
+  background-color: @blue;
+
+  &:empty { display: none; }
+
+  .list-group-item > &,
+  .list-group-item-heading > & {
+    float: right;
+  }
+
+  .list-group-item > & + &,
+  .list-group-item-heading > & + & {
+    margin-right: 5px;
+  }
+}

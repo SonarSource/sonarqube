@@ -1,5 +1,7 @@
-<h3 class="list-group-item-heading">{{path}}</h3>
+<h3 class="list-group-item-heading">
+  {{path}}
+  {{#if internal}}
+    <span class="badge">internal</span>
+  {{/if}}
+</h3>
 <p class="list-group-item-text">{{{description}}}</p>
-{{#if internal}}
-  <p class="note">internal</p>
-{{/if}}
