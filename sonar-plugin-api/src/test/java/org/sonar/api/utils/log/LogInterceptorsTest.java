@@ -19,15 +19,20 @@
  */
 package org.sonar.api.utils.log;
 
-abstract class LogInterceptor {
+import org.junit.Test;
 
-  abstract void log(String msg);
+import static org.assertj.core.api.Assertions.assertThat;
 
-  abstract void log(String msg, Object arg);
+public class LogInterceptorsTest {
 
-  abstract void log(String msg, Object arg1, Object arg2);
+  @Test
+  public void default_is_null_interceptor() throws Exception {
+    // production-ready
+    assertThat(LogInterceptors.get()).isInstanceOf(NullInterceptor.class);
+  }
 
-  abstract void log(String msg, Object... args);
-
-  abstract void log(String msg, Throwable thrown);
+  @Test(expected = IllegalArgumentException.class)
+  public void instance_cant_be_null() throws Exception {
+    LogInterceptors.set(null);
+  }
 }

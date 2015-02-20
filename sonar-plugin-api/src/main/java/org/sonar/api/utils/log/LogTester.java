@@ -65,13 +65,13 @@ public class LogTester extends ExternalResource {
     initialLevel = Loggers.getFactory().getLevel();
 
     // this shared instance breaks compatibility with parallel execution of tests
-    LogInterceptor.setInstance(new ListInterceptor());
+    LogInterceptors.set(new ListInterceptor());
     setLevel(LoggerLevel.TRACE);
   }
 
   @Override
   protected void after() {
-    LogInterceptor.setInstance(NullInterceptor.NULL_INSTANCE);
+    LogInterceptors.set(NullInterceptor.NULL_INSTANCE);
     setLevel(initialLevel);
   }
 
@@ -92,11 +92,11 @@ public class LogTester extends ExternalResource {
    * Logs in chronological order (item at index 0 is the oldest one)
    */
   public List<String> logs() {
-    return ((ListInterceptor) LogInterceptor.instance()).logs();
+    return ((ListInterceptor) LogInterceptors.get()).logs();
   }
 
   public LogTester clear() {
-    ((ListInterceptor) LogInterceptor.instance()).clear();
+    ((ListInterceptor) LogInterceptors.get()).clear();
     return this;
   }
 }

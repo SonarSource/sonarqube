@@ -19,15 +19,21 @@
  */
 package org.sonar.api.utils.log;
 
-abstract class LogInterceptor {
+import com.google.common.base.Preconditions;
 
-  abstract void log(String msg);
+class LogInterceptors {
 
-  abstract void log(String msg, Object arg);
+  private static LogInterceptor instance = NullInterceptor.NULL_INSTANCE;
 
-  abstract void log(String msg, Object arg1, Object arg2);
+  private LogInterceptors() {
+  }
 
-  abstract void log(String msg, Object... args);
+  static LogInterceptor get() {
+    return instance;
+  }
 
-  abstract void log(String msg, Throwable thrown);
+  static void set(LogInterceptor li) {
+    Preconditions.checkArgument(li != null);
+    instance = li;
+  }
 }

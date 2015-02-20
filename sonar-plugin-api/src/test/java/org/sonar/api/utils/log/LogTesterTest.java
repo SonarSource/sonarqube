@@ -59,6 +59,6 @@ public class LogTesterTest {
     assertThat(sut.logs()).isEmpty();
 
     sut.after();
-    assertThat(LogInterceptor.instance()).isSameAs(NullInterceptor.NULL_INSTANCE);
+    assertThat(LogInterceptors.get()).isSameAs(NullInterceptor.NULL_INSTANCE);
   }
 }

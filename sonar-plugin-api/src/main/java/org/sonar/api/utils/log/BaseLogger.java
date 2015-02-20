@@ -24,127 +24,127 @@ import javax.annotation.Nullable;
 abstract class BaseLogger implements Logger {
   @Override
   public void trace(String msg) {
-    LogInterceptor.instance().log(msg);
+    LogInterceptors.get().log(msg);
     doTrace(msg);
   }
 
   @Override
   public void trace(String pattern, @Nullable Object arg) {
-    LogInterceptor.instance().log(pattern, arg);
+    LogInterceptors.get().log(pattern, arg);
     doTrace(pattern, arg);
   }
 
   @Override
   public void trace(String msg, @Nullable Object arg1, @Nullable Object arg2) {
-    LogInterceptor.instance().log(msg, arg1, arg2);
+    LogInterceptors.get().log(msg, arg1, arg2);
     doTrace(msg, arg1, arg2);
   }
 
   @Override
   public void trace(String msg, Object... args) {
-    LogInterceptor.instance().log(msg, args);
+    LogInterceptors.get().log(msg, args);
     doTrace(msg, args);
   }
 
   @Override
   public void debug(String msg) {
-    LogInterceptor.instance().log(msg);
+    LogInterceptors.get().log(msg);
     doDebug(msg);
   }
 
   @Override
   public void debug(String pattern, @Nullable Object arg) {
-    LogInterceptor.instance().log(pattern, arg);
+    LogInterceptors.get().log(pattern, arg);
     doDebug(pattern, arg);
   }
 
   @Override
   public void debug(String msg, @Nullable Object arg1, @Nullable Object arg2) {
-    LogInterceptor.instance().log(msg, arg1, arg2);
+    LogInterceptors.get().log(msg, arg1, arg2);
     doDebug(msg, arg1, arg2);
   }
 
   @Override
   public void debug(String msg, Object... args) {
-    LogInterceptor.instance().log(msg, args);
+    LogInterceptors.get().log(msg, args);
     doDebug(msg, args);
   }
 
   @Override
   public void info(String msg) {
-    LogInterceptor.instance().log(msg);
+    LogInterceptors.get().log(msg);
     doInfo(msg);
   }
 
   @Override
   public void info(String msg, @Nullable Object arg) {
-    LogInterceptor.instance().log(msg, arg);
+    LogInterceptors.get().log(msg, arg);
     doInfo(msg, arg);
   }
 
   @Override
   public void info(String msg, @Nullable Object arg1, @Nullable Object arg2) {
-    LogInterceptor.instance().log(msg, arg1, arg2);
+    LogInterceptors.get().log(msg, arg1, arg2);
     doInfo(msg, arg1, arg2);
   }
 
   @Override
   public void info(String msg, Object... args) {
-    LogInterceptor.instance().log(msg, args);
+    LogInterceptors.get().log(msg, args);
     doInfo(msg, args);
   }
 
   @Override
   public void warn(String msg) {
-    LogInterceptor.instance().log(msg);
+    LogInterceptors.get().log(msg);
     doWarn(msg);
   }
 
   @Override
   public void warn(String msg, @Nullable Object arg) {
-    LogInterceptor.instance().log(msg, arg);
+    LogInterceptors.get().log(msg, arg);
     doWarn(msg, arg);
   }
 
   @Override
   public void warn(String msg, @Nullable Object arg1, @Nullable Object arg2) {
-    LogInterceptor.instance().log(msg, arg1, arg2);
+    LogInterceptors.get().log(msg, arg1, arg2);
     doWarn(msg, arg1, arg2);
   }
 
   @Override
   public void warn(String msg, Object... args) {
-    LogInterceptor.instance().log(msg, args);
+    LogInterceptors.get().log(msg, args);
     doWarn(msg, args);
   }
 
   @Override
   public void error(String msg) {
-    LogInterceptor.instance().log(msg);
+    LogInterceptors.get().log(msg);
     doError(msg);
   }
 
   @Override
   public void error(String msg, @Nullable Object arg) {
-    LogInterceptor.instance().log(msg, arg);
+    LogInterceptors.get().log(msg, arg);
     doError(msg, arg);
   }
 
   @Override
   public void error(String msg, @Nullable Object arg1, @Nullable Object arg2) {
-    LogInterceptor.instance().log(msg, arg1, arg2);
+    LogInterceptors.get().log(msg, arg1, arg2);
     doError(msg, arg1, arg2);
   }
 
   @Override
   public void error(String msg, Object... args) {
-    LogInterceptor.instance().log(msg, args);
+    LogInterceptors.get().log(msg, args);
     doError(msg, args);
   }
 
   @Override
   public void error(String msg, Throwable thrown) {
-    LogInterceptor.instance().log(msg, thrown);
+    LogInterceptors.get().log(msg, thrown);
     doError(msg, thrown);
   }
 
