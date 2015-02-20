@@ -118,7 +118,7 @@ define([
             that.options.app.controller.showDetailsForSelected();
             return false;
           });
-          key('left', 'details', function () {
+          key('left, backspace', 'details', function () {
             that.options.app.controller.hideDetails();
             return false;
           });
