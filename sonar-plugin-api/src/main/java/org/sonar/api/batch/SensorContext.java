@@ -105,12 +105,12 @@ public interface SensorContext extends org.sonar.api.batch.sensor.SensorContext 
   // ----------- MEASURES ON PROJECT --------------
 
   /**
-   * Find a project measure
+   * @deprecated since 5.1 Sensors should not read but only save data
    */
   <G extends Serializable> Measure<G> getMeasure(Metric<G> metric);
 
   /**
-   * All measures of the project. Never return null.
+   * @deprecated since 5.1 Sensors should not read but only save data
    */
   <M> M getMeasures(MeasuresFilter<M> filter);
 
@@ -127,7 +127,7 @@ public interface SensorContext extends org.sonar.api.batch.sensor.SensorContext 
   // ----------- MEASURES ON RESOURCES --------------
 
   /**
-   * Find a measure for this project
+   * @deprecated since 5.1 Sensors should not read but only save data
    */
   <G extends Serializable> Measure<G> getMeasure(Resource resource, Metric<G> metric);
 
@@ -141,7 +141,7 @@ public interface SensorContext extends org.sonar.api.batch.sensor.SensorContext 
   String saveResource(Resource resource);
 
   /**
-   * Find all measures for this project. Never return null.
+   * @deprecated since 5.1 Sensors should not read but only save data
    */
   <M> M getMeasures(Resource resource, MeasuresFilter<M> filter);
 
@@ -191,9 +191,6 @@ public interface SensorContext extends org.sonar.api.batch.sensor.SensorContext 
 
   // ----------- DEPENDENCIES BETWEEN RESOURCES --------------
 
-  /**
-   * @deprecated since 5.1 use {@link #newDependency()}
-   */
   Dependency saveDependency(Dependency dependency);
 
   /**

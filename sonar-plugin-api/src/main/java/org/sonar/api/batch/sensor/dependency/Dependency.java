@@ -19,10 +19,12 @@
  */
 package org.sonar.api.batch.sensor.dependency;
 
+import com.google.common.annotations.Beta;
 
 /**
  * @since 5.1
  */
+@Beta
 public interface Dependency {
 
   String fromKey();

@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch.sensor.duplication;
 
+import com.google.common.annotations.Beta;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -35,6 +36,7 @@ import java.util.List;
  * to feed tokens and let the core compute duplications.
  * @since 5.1
  */
+@Beta
 public interface Duplication {
 
   public static class Block {

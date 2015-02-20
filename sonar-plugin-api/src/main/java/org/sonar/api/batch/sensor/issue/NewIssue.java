@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch.sensor.issue;
 
+import com.google.common.annotations.Beta;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
@@ -32,6 +33,7 @@ import javax.annotation.Nullable;
  *
  * @since 5.1
  */
+@Beta
 public interface NewIssue {
 
   /**

@@ -63,7 +63,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Utility class to help testing {@link Sensor}
+ * Utility class to help testing {@link Sensor}.
+ * 
+ * Usage: call {@link #create(File)} to create an "in memory" implementation of {@link SensorContext} then
+ * pass it to your {@link Sensor}. You can then query elements provided by your sensor using methods {@link #allIssues()}, ...
+ * 
  * @since 5.1
  */
 @Beta

@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch.sensor;
 
+import com.google.common.annotations.Beta;
 import org.sonar.api.BatchExtension;
 
 /**
@@ -33,6 +34,7 @@ import org.sonar.api.BatchExtension;
  *
  * @since 5.1
  */
+@Beta
 public interface Sensor extends BatchExtension {
 
   /**

@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch.sensor.issue;
 
+import com.google.common.annotations.Beta;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.rule.RuleKey;
@@ -30,6 +31,7 @@ import javax.annotation.CheckForNull;
  *
  * @since 5.1
  */
+@Beta
 public interface Issue {
 
   public enum Severity {

@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch.sensor;
 
+import com.google.common.annotations.Beta;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.CpdMapping;
 import org.sonar.api.batch.fs.FileSystem;
@@ -26,6 +27,7 @@ import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.dependency.NewDependency;
 import org.sonar.api.batch.sensor.duplication.NewDuplication;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.measure.Measure;
@@ -36,8 +38,10 @@ import java.io.Serializable;
 
 /**
  * See {@link Sensor#execute(SensorContext)}
+ * In order to write unit tests you can use {@link SensorContextTester}
  * @since 5.1
  */
+@Beta
 public interface SensorContext {
 
   /**

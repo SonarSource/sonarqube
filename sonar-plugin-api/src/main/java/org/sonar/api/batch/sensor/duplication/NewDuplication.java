@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch.sensor.duplication;
 
+import com.google.common.annotations.Beta;
 import org.sonar.api.batch.fs.InputFile;
 
 /**
@@ -34,6 +35,7 @@ import org.sonar.api.batch.fs.InputFile;
  * </pre></code>
  * @since 5.1
  */
+@Beta
 public interface NewDuplication {
 
   /**
