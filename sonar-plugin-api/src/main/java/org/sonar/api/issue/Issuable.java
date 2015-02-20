@@ -20,7 +20,6 @@
 
 package org.sonar.api.issue;
 
-import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.component.Perspective;
 import org.sonar.api.rule.RuleKey;
 
@@ -61,10 +60,6 @@ import java.util.List;
  */
 public interface Issuable extends Perspective {
 
-  /**
-   * @deprecated since 5.1 use {@link SensorContext#newIssue()}
-   */
-  @Deprecated
   interface IssueBuilder {
     /**
      * The rule key is mandatory. Example: {@code RuleKey.of("pmd", "AvoidArrayLoops")}
@@ -103,9 +98,7 @@ public interface Issuable extends Perspective {
 
   /**
    * Builder is used to create the issue to be passed to {@link #addIssue(Issue)}
-   * @deprecated since 5.1 use {@link SensorContext#newIssue()}
    */
-  @Deprecated
   IssueBuilder newIssueBuilder();
 
   /**
@@ -115,9 +108,7 @@ public interface Issuable extends Perspective {
    * method must be annotated with {@code @DependedUpon(DecoratorBarriers.ISSUES_ADDED)}.
    *
    * @return true if the new issue is registered, false if the related rule does not exist or is disabled in the Quality profile.
-   * @deprecated since 5.1 use {@link SensorContext#newIssue()}
    */
-  @Deprecated
   boolean addIssue(Issue issue);
 
   /**
