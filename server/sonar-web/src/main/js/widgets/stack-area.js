@@ -52,39 +52,10 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
   };
 
-  window.SonarWidgets.StackArea.prototype.render = function () {
+
+  window.SonarWidgets.StackArea.prototype.initScales = function() {
     var widget = this,
         colorsLength = widget.colors().length;
-
-    this.svg = this.container.append('svg')
-        .attr('class', 'sonar-d3');
-
-    this.gWrap = this.svg.append('g');
-
-    this.gtimeAxis = this.gWrap.append('g')
-        .attr('class', 'axis x');
-
-    this.plotWrap = this.gWrap.append('g')
-        .attr('class', 'plot');
-
-    this.scanner = this.plotWrap.append('line');
-
-    this.infoWrap = this.gWrap.append('g');
-    this.infoDate = this.infoWrap.append('text');
-    this.infoSnapshot = this.infoWrap.append('text');
-    this.infoTotal = this.infoWrap.append('text');
-
-    this.gWrap
-        .attr('transform', trans(this.margin().left, this.margin().top));
-
-
-    // Configure stack
-    this.stack = d3.layout.stack();
-    this.stackData = this.stack(this.data());
-    this.stackDataTop = this.stackData[this.stackData.length - 1];
-
-
-    // Configure scales
     var timeDomain = this.data()
         .map(function(_) {
           return d3.extent(_, function(d) {
@@ -106,16 +77,19 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this.color = function(i) {
       return widget.colors()[i % colorsLength][0];
     };
+  };
 
 
-    // Configure the axis
+  window.SonarWidgets.StackArea.prototype.initAxis = function() {
     this.timeAxis = d3.svg.axis()
         .scale(this.time)
         .orient('bottom')
         .ticks(5);
+  };
 
 
-    // Configure the area
+  window.SonarWidgets.StackArea.prototype.initArea = function() {
+    var widget = this;
     this.area = d3.svg.area()
         .x(function(d) { return widget.time(d.x); })
         .y0(function(d) { return widget.y(d.y0); })
@@ -124,15 +98,11 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this.areaLine = d3.svg.line()
         .x(function(d) { return widget.time(d.x); })
         .y(function(d) { return widget.y(d.y0 + d.y); });
+  };
 
 
-    // Configure scanner
-    this.scanner
-        .attr('class', 'scanner')
-        .attr('y1', 0);
-
-
-    // Configure info
+  window.SonarWidgets.StackArea.prototype.initInfo = function() {
+    var widget = this;
     this.infoWrap
         .attr('class', 'info')
         .attr('transform', trans(0, -60));
@@ -176,9 +146,11 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         prevX += (infoMetricText.node().getComputedTextLength() + 70);
       }
     });
+  };
 
 
-    // Configure events
+  window.SonarWidgets.StackArea.prototype.initEvents = function() {
+    var widget = this;
     this.events = widget.snapshots()
         .filter(function(d) { return d.e.length > 0; });
 
@@ -256,13 +228,51 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
           cl = closest(widget.data()[0], mx, function(d) { return widget.time(d.x); });
       widget.selectSnapshot(cl);
     });
+  };
 
 
+  window.SonarWidgets.StackArea.prototype.render = function () {
+    this.svg = this.container.append('svg')
+        .attr('class', 'sonar-d3');
+
+    this.gWrap = this.svg.append('g');
+
+    this.gtimeAxis = this.gWrap.append('g')
+        .attr('class', 'axis x');
+
+    this.plotWrap = this.gWrap.append('g')
+        .attr('class', 'plot');
+
+    this.scanner = this.plotWrap.append('line');
+
+    this.infoWrap = this.gWrap.append('g');
+    this.infoDate = this.infoWrap.append('text');
+    this.infoSnapshot = this.infoWrap.append('text');
+    this.infoTotal = this.infoWrap.append('text');
+
+    this.gWrap
+        .attr('transform', trans(this.margin().left, this.margin().top));
+
+    // Configure stack
+    this.stack = d3.layout.stack();
+    this.stackData = this.stack(this.data());
+    this.stackDataTop = this.stackData[this.stackData.length - 1];
+
+    this.initScales();
+    this.initAxis();
+    this.initArea();
+
+    // Configure scanner
+    this.scanner
+        .attr('class', 'scanner')
+        .attr('y1', 0);
+
+    this.initInfo();
+    this.initEvents();
     this.update();
 
     return this;
   };
-
 
 
   window.SonarWidgets.StackArea.prototype.update = function() {

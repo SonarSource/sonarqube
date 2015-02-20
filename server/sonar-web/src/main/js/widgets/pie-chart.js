@@ -152,61 +152,8 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
   };
 
 
-
-  window.SonarWidgets.PieChart.prototype.update = function(container) {
-    container = d3.select(container);
-
-    var widget = this,
-        width = container.property('offsetWidth');
-    this.width(width > 100 ? width : 100);
-
-
-    // Update svg canvas
-    this.svg
-        .attr('width', this.width())
-        .attr('height', this.height());
-
-
-    // Update available size
-    this.availableWidth = this.width() - this.margin().left - this.margin().right -
-        this.legendWidth() - this.legendMargin();
-    this.availableHeight = this.height() - this.margin().top - this.margin().bottom;
-    this.radius = Math.min(this.availableWidth, this.availableHeight) / 2;
-    this._legendSize = Math.floor(this.availableHeight / this._lineHeight);
-    this._legendSymbols = Math.floor((this.width() - this.margin().left - this.margin().right -
-        this.legendMargin() - 2 * this.radius) / 6.2);
-
-
-    // Update plot
-    this.plotWrap
-        .attr('transform', trans(this.radius, this.radius));
-
-
-    // Update arc
-    this.arc
-        .innerRadius(this.radius / 2)
-        .outerRadius(this.radius);
-
-
-    // Configure sectors
-    this.sectors = this.plotWrap.selectAll('.arc')
-        .data(this.pie(this.components()));
-
-    this.sectors
-        .enter()
-        .append('path')
-        .classed('arc', true)
-        .style('fill', function(d, i) { return widget.color(i); });
-
-    this.sectors
-        .transition()
-        .attr('d', this.arc);
-
-    this.sectors
-        .exit().remove();
-
-
-    // Update legend
+  window.SonarWidgets.PieChart.prototype.updateLegend = function () {
+    var widget = this;
     this.legendWrap
         .attr('transform', trans(
             this.legendMargin() + 2 * this.radius,
@@ -235,9 +182,11 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .text(function(d) {
           return d.name.length > widget._legendSymbols ? d.name.substr(0, widget._legendSymbols) + '...' : d.name;
         });
+  };
 
 
-    // Update details
+  window.SonarWidgets.PieChart.prototype.updateDetails = function () {
+    var widget = this;
     this.detailsWrap
         .attr('width', this.legendWidth())
         .attr('transform', trans(
@@ -256,9 +205,11 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this.donutLabel2
         .attr('transform', trans(0, widget.radius / 6))
         .style('font-size', fz + 'px');
+  };
 
 
-    // Configure events
+  window.SonarWidgets.PieChart.prototype.configureEvents = function () {
+    var widget = this;
     var updateMetrics = function(metrics) {
           widget.detailsMetrics = widget.detailsWrap.selectAll('.details-metric')
               .data(metrics);
@@ -354,6 +305,65 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .on('click', function(d) {
           return clickHandler(d);
         });
+  };
+
+
+  window.SonarWidgets.PieChart.prototype.update = function(container) {
+    container = d3.select(container);
+
+    var widget = this,
+        width = container.property('offsetWidth');
+    this.width(width > 100 ? width : 100);
+
+
+    // Update svg canvas
+    this.svg
+        .attr('width', this.width())
+        .attr('height', this.height());
+
+
+    // Update available size
+    this.availableWidth = this.width() - this.margin().left - this.margin().right -
+        this.legendWidth() - this.legendMargin();
+    this.availableHeight = this.height() - this.margin().top - this.margin().bottom;
+    this.radius = Math.min(this.availableWidth, this.availableHeight) / 2;
+    this._legendSize = Math.floor(this.availableHeight / this._lineHeight);
+    this._legendSymbols = Math.floor((this.width() - this.margin().left - this.margin().right -
+        this.legendMargin() - 2 * this.radius) / 6.2);
+
+
+    // Update plot
+    this.plotWrap
+        .attr('transform', trans(this.radius, this.radius));
+
+
+    // Update arc
+    this.arc
+        .innerRadius(this.radius / 2)
+        .outerRadius(this.radius);
+
+
+    // Configure sectors
+    this.sectors = this.plotWrap.selectAll('.arc')
+        .data(this.pie(this.components()));
+
+    this.sectors
+        .enter()
+        .append('path')
+        .classed('arc', true)
+        .style('fill', function(d, i) { return widget.color(i); });
+
+    this.sectors
+        .transition()
+        .attr('d', this.arc);
+
+    this.sectors
+        .exit().remove();
+
+
+    this.updateLegend();
+    this.updateDetails();
+    this.configureEvents();
   };
 
 

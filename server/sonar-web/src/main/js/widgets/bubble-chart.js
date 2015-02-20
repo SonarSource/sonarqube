@@ -331,6 +331,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
 
   window.SonarWidgets.BubbleChart.prototype.adjustScalesAfterUpdate = function () {
+    var widget = this;
     // X
     var minX = d3.min(this.components(), function (d) {
           return widget.x(widget.getXMetric(d)) - widget.size(widget.getSizeMetric(d));
