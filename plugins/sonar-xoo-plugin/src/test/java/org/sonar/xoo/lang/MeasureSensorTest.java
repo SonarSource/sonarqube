@@ -19,37 +19,30 @@
  */
 package org.sonar.xoo.lang;
 
-import org.sonar.api.batch.sensor.internal.SensorStorage;
-
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.measure.MetricFinder;
-import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
-import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 
 import java.io.File;
 import java.io.IOException;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class MeasureSensorTest {
 
   private MeasureSensor sensor;
-  private SensorContext context = mock(SensorContext.class);
-  private DefaultFileSystem fileSystem;
+  private SensorContextTester context;
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -59,22 +52,13 @@ public class MeasureSensorTest {
 
   private File baseDir;
   private MetricFinder metricFinder;
-  private SensorStorage storage;
 
   @Before
   public void prepare() throws IOException {
     baseDir = temp.newFolder();
     metricFinder = mock(MetricFinder.class);
     sensor = new MeasureSensor(metricFinder);
-    fileSystem = new DefaultFileSystem(baseDir.toPath());
-    when(context.fileSystem()).thenReturn(fileSystem);
-    storage = mock(SensorStorage.class);
-    when(context.newMeasure()).then(new Answer<DefaultMeasure>() {
-      @Override
-      public DefaultMeasure answer(InvocationOnMock invocation) throws Throwable {
-        return new DefaultMeasure(storage);
-      }
-    });
+    context = SensorContextTester.create(baseDir);
   }
 
   @Test
@@ -85,7 +69,7 @@ public class MeasureSensorTest {
   @Test
   public void testNoExecutionIfNoMeasureFile() {
     DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setLanguage("xoo");
-    fileSystem.add(inputFile);
+    context.fileSystem().add(inputFile);
     sensor.execute(context);
   }
 
@@ -94,7 +78,7 @@ public class MeasureSensorTest {
     File measures = new File(baseDir, "src/foo.xoo.measures");
     FileUtils.write(measures, "ncloc:12\nbranch_coverage:5.3\nsqale_index:300\nbool:true\n\n#comment");
     DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setLanguage("xoo");
-    fileSystem.add(inputFile);
+    context.fileSystem().add(inputFile);
 
     Metric<Boolean> booleanMetric = new Metric.Builder("bool", "Bool", Metric.ValueType.BOOL)
       .create();
@@ -106,10 +90,10 @@ public class MeasureSensorTest {
 
     sensor.execute(context);
 
-    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.NCLOC).onFile(inputFile).withValue(12));
-    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.BRANCH_COVERAGE).onFile(inputFile).withValue(5.3));
-    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.TECHNICAL_DEBT).onFile(inputFile).withValue(300L));
-    verify(storage).store(new DefaultMeasure().forMetric(booleanMetric).onFile(inputFile).withValue(true));
+    assertThat(context.measure("foo:src/foo.xoo", CoreMetrics.NCLOC).value()).isEqualTo(12);
+    assertThat(context.measure("foo:src/foo.xoo", CoreMetrics.BRANCH_COVERAGE).value()).isEqualTo(5.3);
+    assertThat(context.measure("foo:src/foo.xoo", CoreMetrics.TECHNICAL_DEBT).value()).isEqualTo(300L);
+    assertThat(context.measure("foo:src/foo.xoo", booleanMetric).value()).isTrue();
   }
 
   @Test
@@ -117,7 +101,7 @@ public class MeasureSensorTest {
     File measures = new File(baseDir, "src/foo.xoo.measures");
     FileUtils.write(measures, "unknow:12\n\n#comment");
     DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setLanguage("xoo");
-    fileSystem.add(inputFile);
+    context.fileSystem().add(inputFile);
 
     thrown.expect(IllegalStateException.class);
 

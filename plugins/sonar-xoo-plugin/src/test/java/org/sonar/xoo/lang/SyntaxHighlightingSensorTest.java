@@ -24,27 +24,20 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
 
 import java.io.File;
 import java.io.IOException;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SyntaxHighlightingSensorTest {
 
   private SyntaxHighlightingSensor sensor;
-  private SensorContext context = mock(SensorContext.class);
-  private DefaultFileSystem fileSystem;
+  private SensorContextTester context;
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -54,8 +47,7 @@ public class SyntaxHighlightingSensorTest {
   public void prepare() throws IOException {
     baseDir = temp.newFolder();
     sensor = new SyntaxHighlightingSensor();
-    fileSystem = new DefaultFileSystem(baseDir.toPath());
-    when(context.fileSystem()).thenReturn(fileSystem);
+    context = SensorContextTester.create(baseDir);
   }
 
   @Test
@@ -66,7 +58,7 @@ public class SyntaxHighlightingSensorTest {
   @Test
   public void testNoExecutionIfNoSyntaxFile() {
     DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setLanguage("xoo");
-    fileSystem.add(inputFile);
+    context.fileSystem().add(inputFile);
     sensor.execute(context);
   }
 
@@ -75,15 +67,11 @@ public class SyntaxHighlightingSensorTest {
     File symbol = new File(baseDir, "src/foo.xoo.highlighting");
     FileUtils.write(symbol, "1:4:k\n12:15:cppd\n\n#comment");
     DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setLanguage("xoo");
-    fileSystem.add(inputFile);
-    NewHighlighting builder = mock(NewHighlighting.class);
-    when(context.newHighlighting()).thenReturn(builder);
-    when(builder.onFile(any(InputFile.class))).thenReturn(builder);
+    context.fileSystem().add(inputFile);
 
     sensor.execute(context);
 
-    verify(builder).highlight(1, 4, TypeOfText.KEYWORD);
-    verify(builder).highlight(12, 15, TypeOfText.CPP_DOC);
-    verify(builder).save();
+    assertThat(context.highlightingTypeFor("foo:src/foo.xoo", 2)).containsOnly(TypeOfText.KEYWORD);
+    assertThat(context.highlightingTypeFor("foo:src/foo.xoo", 13)).containsOnly(TypeOfText.CPP_DOC);
   }
 }
