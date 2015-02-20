@@ -20,7 +20,6 @@
 package org.sonar.batch.source;
 
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
-
 import org.sonar.api.component.Component;
 import org.sonar.api.source.Highlightable;
 import org.sonar.batch.highlighting.SyntaxHighlightingDataBuilder;
@@ -29,9 +28,7 @@ import org.sonar.core.source.SnapshotDataTypes;
 
 /**
  * @since 3.6
- * @deprecated since 4.5 no more used in batch 2.0
  */
-@Deprecated
 public class DefaultHighlightable implements Highlightable {
 
   private final Component component;

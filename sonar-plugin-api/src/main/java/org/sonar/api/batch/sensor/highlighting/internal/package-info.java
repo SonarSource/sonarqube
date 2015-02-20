@@ -17,28 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.sensor.internal;
-
-import org.sonar.api.batch.sensor.dependency.Dependency;
-import org.sonar.api.batch.sensor.duplication.Duplication;
-import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
-import org.sonar.api.batch.sensor.issue.Issue;
-import org.sonar.api.batch.sensor.measure.Measure;
-
-/**
- * Interface for storing data computed by sensors.
- * @since 5.1
- */
-public interface SensorStorage {
-
-  void store(Measure measure);
-
-  void store(Issue issue);
-
-  void store(Duplication duplication);
-
-  void store(Dependency dependency);
-
-  void store(DefaultHighlighting highlighting);
-
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.api.batch.sensor.highlighting.internal;

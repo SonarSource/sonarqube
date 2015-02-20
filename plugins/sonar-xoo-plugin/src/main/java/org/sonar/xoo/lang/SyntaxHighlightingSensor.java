@@ -26,7 +26,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
-import org.sonar.api.batch.sensor.highlighting.HighlightingBuilder;
+import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -54,7 +54,7 @@ public class SyntaxHighlightingSensor implements Sensor {
       try {
         List<String> lines = FileUtils.readLines(highlightingFile, context.fileSystem().encoding().name());
         int lineNumber = 0;
-        HighlightingBuilder highlightingBuilder = context.highlightingBuilder(inputFile);
+        NewHighlighting highlightingBuilder = context.newHighlighting().onFile(inputFile);
         for (String line : lines) {
           lineNumber++;
           if (StringUtils.isBlank(line) || line.startsWith("#")) {
@@ -62,14 +62,14 @@ public class SyntaxHighlightingSensor implements Sensor {
           }
           processLine(highlightingFile, lineNumber, highlightingBuilder, line);
         }
-        highlightingBuilder.done();
+        highlightingBuilder.save();
       } catch (IOException e) {
         throw new IllegalStateException(e);
       }
     }
   }
 
-  private void processLine(File highlightingFile, int lineNumber, HighlightingBuilder highlightingBuilder, String line) {
+  private void processLine(File highlightingFile, int lineNumber, NewHighlighting highlightingBuilder, String line) {
     try {
       Iterator<String> split = Splitter.on(":").split(line).iterator();
       int startOffset = Integer.parseInt(split.next());

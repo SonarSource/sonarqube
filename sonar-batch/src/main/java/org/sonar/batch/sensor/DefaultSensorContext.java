@@ -29,7 +29,8 @@ import org.sonar.api.batch.sensor.dependency.NewDependency;
 import org.sonar.api.batch.sensor.dependency.internal.DefaultDependency;
 import org.sonar.api.batch.sensor.duplication.NewDuplication;
 import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
-import org.sonar.api.batch.sensor.highlighting.HighlightingBuilder;
+import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
+import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
@@ -37,7 +38,6 @@ import org.sonar.api.batch.sensor.measure.NewMeasure;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.batch.sensor.symbol.SymbolTableBuilder;
 import org.sonar.api.config.Settings;
-import org.sonar.batch.highlighting.DefaultHighlightingBuilder;
 import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.batch.symbol.DefaultSymbolTableBuilder;
 
@@ -93,8 +93,8 @@ public class DefaultSensorContext implements SensorContext {
   }
 
   @Override
-  public HighlightingBuilder highlightingBuilder(InputFile inputFile) {
-    return new DefaultHighlightingBuilder(((DefaultInputFile) inputFile).key(), componentDataCache);
+  public NewHighlighting newHighlighting() {
+    return new DefaultHighlighting(sensorStorage);
   }
 
   @Override

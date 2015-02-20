@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.batch.sensor.highlighting.internal.SyntaxHighlightingRule;
 
 import java.util.Collection;
 

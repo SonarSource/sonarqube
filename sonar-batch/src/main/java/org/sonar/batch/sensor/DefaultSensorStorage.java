@@ -19,17 +19,18 @@
  */
 package org.sonar.batch.sensor;
 
-import org.sonar.api.batch.sensor.internal.SensorStorage;
-
 import com.google.common.base.Preconditions;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.duplication.Duplication;
 import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
+import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
+import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.Issue.Severity;
 import org.sonar.api.batch.sensor.measure.Measure;
@@ -51,12 +52,14 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.duplication.DuplicationCache;
+import org.sonar.batch.highlighting.SyntaxHighlightingData;
 import org.sonar.batch.index.BatchResource;
 import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.sensor.coverage.CoverageExclusions;
 import org.sonar.core.component.ComponentKeys;
+import org.sonar.core.source.SnapshotDataTypes;
 
 public class DefaultSensorStorage implements SensorStorage {
 
@@ -68,6 +71,7 @@ public class DefaultSensorStorage implements SensorStorage {
   private final CoverageExclusions coverageExclusions;
   private final DuplicationCache duplicationCache;
   private final ResourceCache resourceCache;
+  private final ComponentDataCache componentDataCache;
 
   public DefaultSensorStorage(MetricFinder metricFinder, Project project,
     ResourcePerspectives perspectives,
@@ -77,6 +81,7 @@ public class DefaultSensorStorage implements SensorStorage {
     this.metricFinder = metricFinder;
     this.project = project;
     this.perspectives = perspectives;
+    this.componentDataCache = componentDataCache;
     this.sonarIndex = sonarIndex;
     this.coverageExclusions = coverageExclusions;
     this.duplicationCache = duplicationCache;
@@ -237,5 +242,11 @@ public class DefaultSensorStorage implements SensorStorage {
   @Override
   public void store(Duplication duplication) {
     duplicationCache.put(duplication.originBlock().resourceKey(), (DefaultDuplication) duplication);
+  }
+
+  @Override
+  public void store(DefaultHighlighting highlighting) {
+    String componentKey = ((DefaultInputFile) highlighting.inputFile()).key();
+    componentDataCache.setData(componentKey, SnapshotDataTypes.SYNTAX_HIGHLIGHTING, new SyntaxHighlightingData(highlighting.getSyntaxHighlightingRuleSet()));
   }
 }

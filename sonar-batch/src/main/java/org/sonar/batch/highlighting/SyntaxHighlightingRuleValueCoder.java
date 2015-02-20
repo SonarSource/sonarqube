@@ -19,11 +19,11 @@
  */
 package org.sonar.batch.highlighting;
 
-import org.sonar.api.batch.sensor.highlighting.TypeOfText;
-
 import com.persistit.Value;
 import com.persistit.encoding.CoderContext;
 import com.persistit.encoding.ValueCoder;
+import org.sonar.api.batch.sensor.highlighting.TypeOfText;
+import org.sonar.api.batch.sensor.highlighting.internal.SyntaxHighlightingRule;
 
 class SyntaxHighlightingRuleValueCoder implements ValueCoder {
 

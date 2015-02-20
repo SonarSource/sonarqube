@@ -21,6 +21,7 @@ package org.sonar.batch.highlighting;
 
 import com.google.common.collect.Lists;
 import org.junit.Test;
+import org.sonar.api.batch.sensor.highlighting.internal.SyntaxHighlightingRule;
 
 import java.util.List;
 

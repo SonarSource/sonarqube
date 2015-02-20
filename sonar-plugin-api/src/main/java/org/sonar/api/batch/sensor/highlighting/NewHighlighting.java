@@ -19,16 +19,18 @@
  */
 package org.sonar.api.batch.sensor.highlighting;
 
-import com.google.common.annotations.Beta;
+import org.sonar.api.batch.fs.InputFile;
 
 /**
- * Experimental, do not use.
- * <p/>
  * This builder is used to define syntax highlighting (aka code coloration) on files.
- * @since 4.5
+ * @since 5.1
  */
-@Beta
-public interface HighlightingBuilder {
+public interface NewHighlighting {
+
+  /**
+   * The file the highlighting belongs to.
+   */
+  NewHighlighting onFile(InputFile inputFile);
 
   /**
    * Call this method to indicate the type of text in a range.
@@ -36,11 +38,11 @@ public interface HighlightingBuilder {
    * @param endOffset End position in file for this type of text.
    * @param typeOfText see {@link TypeOfText} values.
    */
-  HighlightingBuilder highlight(int startOffset, int endOffset, TypeOfText typeOfText);
+  NewHighlighting highlight(int startOffset, int endOffset, TypeOfText typeOfText);
 
   /**
    * Call this method only once when your are done with defining highlighting of the file.
    * @throws IllegalStateException if you have defined overlapping highlighting
    */
-  void done();
+  void save();
 }

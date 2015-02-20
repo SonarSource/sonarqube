@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.highlighting;
 
+import org.sonar.api.batch.sensor.highlighting.internal.SyntaxHighlightingRule;
 import org.sonar.batch.index.Data;
 
 import java.util.ArrayList;

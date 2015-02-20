@@ -26,7 +26,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.dependency.NewDependency;
 import org.sonar.api.batch.sensor.duplication.NewDuplication;
-import org.sonar.api.batch.sensor.highlighting.HighlightingBuilder;
+import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.measure.Measure;
@@ -79,9 +79,9 @@ public interface SensorContext {
   // ------------ HIGHLIGHTING ------------
 
   /**
-   * Builder to define highlighting of a file.
+   * Builder to define highlighting of a file. Don't forget to call {@link NewHighlighting#save()} once all elements are provided.
    */
-  HighlightingBuilder highlightingBuilder(InputFile inputFile);
+  NewHighlighting newHighlighting();
 
   // ------------ SYMBOL REFERENCES ------------
 

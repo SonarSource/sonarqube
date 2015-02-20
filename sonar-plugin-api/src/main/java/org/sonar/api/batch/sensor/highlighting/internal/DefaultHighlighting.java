@@ -17,24 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.highlighting;
+package org.sonar.api.batch.sensor.highlighting.internal;
 
-import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
-import org.sonar.api.batch.sensor.highlighting.internal.SyntaxHighlightingRule;
+import org.sonar.api.batch.sensor.internal.DefaultStorable;
+import org.sonar.api.batch.sensor.internal.SensorStorage;
 
 import javax.annotation.Nullable;
 
 import java.util.Iterator;
 import java.util.Set;
 
-public class SyntaxHighlightingDataBuilder {
+public class DefaultHighlighting extends DefaultStorable implements NewHighlighting {
 
+  private InputFile inputFile;
   private Set<SyntaxHighlightingRule> syntaxHighlightingRuleSet;
 
-  public SyntaxHighlightingDataBuilder() {
+  public DefaultHighlighting() {
+    this(null);
+  }
+
+  public DefaultHighlighting(@Nullable SensorStorage storage) {
+    super(storage);
     syntaxHighlightingRuleSet = Sets.newTreeSet(new Ordering<SyntaxHighlightingRule>() {
       @Override
       public int compare(@Nullable SyntaxHighlightingRule left,
@@ -48,21 +57,8 @@ public class SyntaxHighlightingDataBuilder {
     });
   }
 
-  @VisibleForTesting
   public Set<SyntaxHighlightingRule> getSyntaxHighlightingRuleSet() {
     return syntaxHighlightingRuleSet;
-  }
-
-  public SyntaxHighlightingDataBuilder registerHighlightingRule(int startOffset, int endOffset, TypeOfText typeOfText) {
-    SyntaxHighlightingRule syntaxHighlightingRule = SyntaxHighlightingRule.create(startOffset, endOffset,
-      typeOfText);
-    this.syntaxHighlightingRuleSet.add(syntaxHighlightingRule);
-    return this;
-  }
-
-  public SyntaxHighlightingData build() {
-    checkOverlappingBoudaries();
-    return new SyntaxHighlightingData(syntaxHighlightingRuleSet);
   }
 
   private void checkOverlappingBoudaries() {
@@ -81,4 +77,30 @@ public class SyntaxHighlightingDataBuilder {
     }
   }
 
+  @Override
+  public DefaultHighlighting onFile(InputFile inputFile) {
+    Preconditions.checkNotNull(inputFile, "file can't be null");
+    this.inputFile = inputFile;
+    return this;
+  }
+
+  public InputFile inputFile() {
+    return inputFile;
+  }
+
+  @Override
+  public DefaultHighlighting highlight(int startOffset, int endOffset, TypeOfText typeOfText) {
+    Preconditions.checkState(inputFile != null, "Call onFile() first");
+    SyntaxHighlightingRule syntaxHighlightingRule = SyntaxHighlightingRule.create(startOffset, endOffset,
+      typeOfText);
+    this.syntaxHighlightingRuleSet.add(syntaxHighlightingRule);
+    return this;
+  }
+
+  @Override
+  protected void doSave() {
+    Preconditions.checkState(inputFile != null, "Call onFile() first");
+    checkOverlappingBoudaries();
+    storage.store(this);
+  }
 }
