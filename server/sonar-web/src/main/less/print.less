@@ -2,7 +2,6 @@
 @import (reference) "variables";
 @import (reference) "init/links";
 
-
 @media print {
 
   .noprint {
@@ -29,6 +28,12 @@
   .dashboard-page,
   .dashboard-page body {
     background-color: #fff;
+  }
+
+  // see https://github.com/ariya/phantomjs/issues/10927
+  .widget thead,
+  .widget tfoot {
+    display: table-row-group;
   }
 
 }
