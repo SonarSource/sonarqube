@@ -254,7 +254,7 @@ public class AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigration 
         Integer parentId = characteristic.getParentId();
         if (parentId == null) {
           throw MessageException.of(String.format("'%s' must be a sub-characteristic. " + ERROR_SUFFIX, characteristic.getName()));
-        } else if (!characteristic.getParentId().equals(parent.getId())) {
+        } else if (!parentId.equals(parent.getId())) {
           throw MessageException.of(String.format("'%s' must be defined under '%s'. " + ERROR_SUFFIX, characteristic.getName(), parent.getName()));
         }
       }
