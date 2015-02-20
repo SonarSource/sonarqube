@@ -22,7 +22,6 @@ package org.sonar.api.batch.sensor;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.CpdMapping;
 import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.dependency.NewDependency;
 import org.sonar.api.batch.sensor.duplication.NewDuplication;
@@ -31,7 +30,6 @@ import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.measure.NewMeasure;
-import org.sonar.api.batch.sensor.symbol.SymbolTableBuilder;
 import org.sonar.api.config.Settings;
 
 import java.io.Serializable;
@@ -85,10 +83,7 @@ public interface SensorContext {
 
   // ------------ SYMBOL REFERENCES ------------
 
-  /**
-   * Builder to define symbol references in a file.
-   */
-  SymbolTableBuilder symbolTableBuilder(InputFile inputFile);
+  // TODO
 
   // ------------ DUPLICATIONS ------------
 

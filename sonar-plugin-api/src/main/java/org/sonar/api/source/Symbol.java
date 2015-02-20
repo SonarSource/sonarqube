@@ -20,12 +20,10 @@
 
 package org.sonar.api.source;
 
-public interface Symbol extends org.sonar.api.batch.sensor.symbol.Symbol {
+public interface Symbol {
 
-  @Override
   int getDeclarationStartOffset();
 
-  @Override
   int getDeclarationEndOffset();
 
   /**

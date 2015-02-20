@@ -26,8 +26,9 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
-import org.sonar.api.batch.sensor.symbol.Symbol;
-import org.sonar.api.batch.sensor.symbol.SymbolTableBuilder;
+import org.sonar.api.component.ResourcePerspectives;
+import org.sonar.api.source.Symbol;
+import org.sonar.api.source.Symbolizable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.xoo.Xoo;
@@ -42,6 +43,12 @@ import java.util.List;
  */
 public class SymbolReferencesSensor implements Sensor {
 
+  private ResourcePerspectives perspectives;
+
+  public SymbolReferencesSensor(ResourcePerspectives perspectives) {
+    this.perspectives = perspectives;
+  }
+
   private static final Logger LOG = Loggers.get(SymbolReferencesSensor.class);
 
   private static final String SYMBOL_EXTENSION = ".symbol";
@@ -54,7 +61,9 @@ public class SymbolReferencesSensor implements Sensor {
       try {
         List<String> lines = FileUtils.readLines(symbolFile, context.fileSystem().encoding().name());
         int lineNumber = 0;
-        SymbolTableBuilder symbolTableBuilder = context.symbolTableBuilder(inputFile);
+        Symbolizable symbolizable = perspectives.as(Symbolizable.class, inputFile);
+
+        Symbolizable.SymbolTableBuilder symbolTableBuilder = symbolizable.newSymbolTableBuilder();
         for (String line : lines) {
           lineNumber++;
           if (StringUtils.isBlank(line) || line.startsWith("#")) {
@@ -62,14 +71,14 @@ public class SymbolReferencesSensor implements Sensor {
           }
           processLine(symbolFile, lineNumber, symbolTableBuilder, line);
         }
-        symbolTableBuilder.done();
+        symbolizable.setSymbolTable(symbolTableBuilder.build());
       } catch (IOException e) {
         throw new IllegalStateException(e);
       }
     }
   }
 
-  private void processLine(File symbolFile, int lineNumber, SymbolTableBuilder symbolTableBuilder, String line) {
+  private void processLine(File symbolFile, int lineNumber, Symbolizable.SymbolTableBuilder symbolTableBuilder, String line) {
     try {
       Iterator<String> split = Splitter.on(",").split(line).iterator();
       int startOffset = Integer.parseInt(split.next());

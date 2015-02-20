@@ -20,10 +20,9 @@
 
 package org.sonar.batch.symbol;
 
-import org.sonar.api.batch.sensor.symbol.Symbol;
-import org.sonar.api.batch.sensor.symbol.SymbolTableBuilder;
-import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbol;
+import org.sonar.api.source.Symbol;
 import org.sonar.batch.index.ComponentDataCache;
+import org.sonar.batch.source.DefaultSymbol;
 import org.sonar.core.source.SnapshotDataTypes;
 
 import java.io.Serializable;
@@ -33,7 +32,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-public class DefaultSymbolTableBuilder implements SymbolTableBuilder {
+public class DefaultSymbolTableBuilder {
 
   private final String componentKey;
   private final ComponentDataCache cache;
@@ -44,14 +43,12 @@ public class DefaultSymbolTableBuilder implements SymbolTableBuilder {
     this.cache = cache;
   }
 
-  @Override
   public Symbol newSymbol(int fromOffset, int toOffset) {
     org.sonar.api.source.Symbol symbol = new DefaultSymbol(fromOffset, toOffset);
     referencesBySymbol.put(symbol, new TreeSet<Integer>());
     return symbol;
   }
 
-  @Override
   public void newReference(Symbol symbol, int fromOffset) {
     if (!referencesBySymbol.containsKey(symbol)) {
       throw new UnsupportedOperationException("Cannot add reference to a symbol in another file");
@@ -66,7 +63,6 @@ public class DefaultSymbolTableBuilder implements SymbolTableBuilder {
     return new SymbolData(referencesBySymbol);
   }
 
-  @Override
   public void done() {
     cache.setData(componentKey, SnapshotDataTypes.SYMBOL_HIGHLIGHTING, build());
   }

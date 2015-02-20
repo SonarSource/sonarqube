@@ -24,8 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
-import org.sonar.api.batch.sensor.symbol.Symbol;
-import org.sonar.api.batch.sensor.symbol.SymbolTableBuilder;
+import org.sonar.api.source.Symbol;
 import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.core.source.SnapshotDataTypes;
 
@@ -46,7 +45,7 @@ public class DefaultSymbolTableBuilderTest {
   @Test
   public void should_write_symbol_and_references() throws Exception {
     ComponentDataCache componentDataCache = mock(ComponentDataCache.class);
-    SymbolTableBuilder symbolTableBuilder = new DefaultSymbolTableBuilder("foo", componentDataCache);
+    DefaultSymbolTableBuilder symbolTableBuilder = new DefaultSymbolTableBuilder("foo", componentDataCache);
     Symbol firstSymbol = symbolTableBuilder.newSymbol(10, 20);
     symbolTableBuilder.newReference(firstSymbol, 32);
     Symbol secondSymbol = symbolTableBuilder.newSymbol(84, 92);
@@ -72,7 +71,7 @@ public class DefaultSymbolTableBuilderTest {
   public void should_serialize_unused_symbol() throws Exception {
 
     ComponentDataCache componentDataCache = mock(ComponentDataCache.class);
-    SymbolTableBuilder symbolTableBuilder = new DefaultSymbolTableBuilder("foo", componentDataCache);
+    DefaultSymbolTableBuilder symbolTableBuilder = new DefaultSymbolTableBuilder("foo", componentDataCache);
     symbolTableBuilder.newSymbol(10, 20);
     symbolTableBuilder.done();
 
@@ -87,7 +86,7 @@ public class DefaultSymbolTableBuilderTest {
     throwable.expect(UnsupportedOperationException.class);
 
     ComponentDataCache componentDataCache = mock(ComponentDataCache.class);
-    SymbolTableBuilder symbolTableBuilder = new DefaultSymbolTableBuilder("foo", componentDataCache);
+    DefaultSymbolTableBuilder symbolTableBuilder = new DefaultSymbolTableBuilder("foo", componentDataCache);
     Symbol symbol = symbolTableBuilder.newSymbol(10, 20);
     symbolTableBuilder.newReference(symbol, 15);
   }
@@ -97,10 +96,10 @@ public class DefaultSymbolTableBuilderTest {
     throwable.expect(UnsupportedOperationException.class);
 
     ComponentDataCache componentDataCache = mock(ComponentDataCache.class);
-    SymbolTableBuilder symbolTableBuilder = new DefaultSymbolTableBuilder("foo", componentDataCache);
+    DefaultSymbolTableBuilder symbolTableBuilder = new DefaultSymbolTableBuilder("foo", componentDataCache);
     Symbol symbol = symbolTableBuilder.newSymbol(10, 20);
 
-    SymbolTableBuilder symbolTableBuilder2 = new DefaultSymbolTableBuilder("foo2", componentDataCache);
+    DefaultSymbolTableBuilder symbolTableBuilder2 = new DefaultSymbolTableBuilder("foo2", componentDataCache);
     Symbol symbol2 = symbolTableBuilder2.newSymbol(30, 40);
 
     symbolTableBuilder.newReference(symbol2, 15);

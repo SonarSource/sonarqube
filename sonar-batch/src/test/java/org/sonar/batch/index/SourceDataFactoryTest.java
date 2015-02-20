@@ -34,6 +34,7 @@ import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.source.Symbol;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.highlighting.SyntaxHighlightingData;
 import org.sonar.batch.highlighting.SyntaxHighlightingDataBuilder;
@@ -324,10 +325,10 @@ public class SourceDataFactoryTest {
   @Test
   public void applySymbolReferences() throws Exception {
     DefaultSymbolTableBuilder symbolBuilder = new DefaultSymbolTableBuilder(inputFile.key(), null);
-    org.sonar.api.batch.sensor.symbol.Symbol s1 = symbolBuilder.newSymbol(1, 2);
+    Symbol s1 = symbolBuilder.newSymbol(1, 2);
     symbolBuilder.newReference(s1, 4);
     symbolBuilder.newReference(s1, 11);
-    org.sonar.api.batch.sensor.symbol.Symbol s2 = symbolBuilder.newSymbol(4, 6);
+    Symbol s2 = symbolBuilder.newSymbol(4, 6);
     symbolBuilder.newReference(s2, 0);
     symbolBuilder.newReference(s2, 7);
     when(componentDataCache.getData(inputFile.key(), SnapshotDataTypes.SYMBOL_HIGHLIGHTING)).thenReturn(symbolBuilder.build());
@@ -344,10 +345,10 @@ public class SourceDataFactoryTest {
   @Test
   public void applySymbolReferences_declaration_order_is_not_important() throws Exception {
     DefaultSymbolTableBuilder symbolBuilder = new DefaultSymbolTableBuilder(inputFile.key(), null);
-    org.sonar.api.batch.sensor.symbol.Symbol s2 = symbolBuilder.newSymbol(4, 6);
+    Symbol s2 = symbolBuilder.newSymbol(4, 6);
     symbolBuilder.newReference(s2, 7);
     symbolBuilder.newReference(s2, 0);
-    org.sonar.api.batch.sensor.symbol.Symbol s1 = symbolBuilder.newSymbol(1, 2);
+    Symbol s1 = symbolBuilder.newSymbol(1, 2);
     symbolBuilder.newReference(s1, 11);
     symbolBuilder.newReference(s1, 4);
     when(componentDataCache.getData(inputFile.key(), SnapshotDataTypes.SYMBOL_HIGHLIGHTING)).thenReturn(symbolBuilder.build());

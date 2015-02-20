@@ -28,8 +28,9 @@ import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
-import org.sonar.api.batch.sensor.symbol.Symbol;
-import org.sonar.api.batch.sensor.symbol.SymbolTableBuilder;
+import org.sonar.api.component.ResourcePerspectives;
+import org.sonar.api.source.Symbol;
+import org.sonar.api.source.Symbolizable;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,11 +48,13 @@ public class SymbolReferencesSensorTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
   private File baseDir;
+  private ResourcePerspectives perspectives;
 
   @Before
   public void prepare() throws IOException {
     baseDir = temp.newFolder();
-    sensor = new SymbolReferencesSensor();
+    perspectives = mock(ResourcePerspectives.class);
+    sensor = new SymbolReferencesSensor(perspectives);
     fileSystem = new DefaultFileSystem(baseDir.toPath());
     when(context.fileSystem()).thenReturn(fileSystem);
   }
@@ -74,8 +77,10 @@ public class SymbolReferencesSensorTest {
     FileUtils.write(symbol, "1,4,7\n12,15,23\n\n#comment");
     DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setLanguage("xoo");
     fileSystem.add(inputFile);
-    SymbolTableBuilder symbolTableBuilder = mock(SymbolTableBuilder.class);
-    when(context.symbolTableBuilder(inputFile)).thenReturn(symbolTableBuilder);
+    Symbolizable symbolizable = mock(Symbolizable.class);
+    when(perspectives.as(Symbolizable.class, inputFile)).thenReturn(symbolizable);
+    Symbolizable.SymbolTableBuilder symbolTableBuilder = mock(Symbolizable.SymbolTableBuilder.class);
+    when(symbolizable.newSymbolTableBuilder()).thenReturn(symbolTableBuilder);
 
     Symbol symbol1 = mock(Symbol.class);
     when(symbolTableBuilder.newSymbol(1, 4)).thenReturn(symbol1);

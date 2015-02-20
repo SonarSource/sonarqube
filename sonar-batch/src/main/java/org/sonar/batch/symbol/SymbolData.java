@@ -20,7 +20,7 @@
 
 package org.sonar.batch.symbol;
 
-import org.sonar.api.batch.sensor.symbol.Symbol;
+import org.sonar.api.source.Symbol;
 import org.sonar.batch.index.Data;
 
 import java.util.Collection;

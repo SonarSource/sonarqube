@@ -18,19 +18,41 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.api.batch.sensor.symbol;
+package org.sonar.batch.source;
 
-import com.google.common.annotations.Beta;
+import com.google.common.base.Objects;
 
-/**
- * Represent a symbol in a source file. Experimental, do not use
- * @since 4.5
- */
-@Beta
-public interface Symbol {
+import java.io.Serializable;
 
-  int getDeclarationStartOffset();
+public class DefaultSymbol implements org.sonar.api.source.Symbol, Serializable {
 
-  int getDeclarationEndOffset();
+  private final int declarationStartOffset;
+  private final int declarationEndOffset;
 
+  public DefaultSymbol(int startOffset, int endOffset) {
+    this.declarationStartOffset = startOffset;
+    this.declarationEndOffset = endOffset;
+  }
+
+  @Override
+  public int getDeclarationStartOffset() {
+    return declarationStartOffset;
+  }
+
+  @Override
+  public int getDeclarationEndOffset() {
+    return declarationEndOffset;
+  }
+
+  @Override
+  public String getFullyQualifiedName() {
+    return null;
+  }
+
+  @Override
+  public String toString() {
+    return Objects.toStringHelper("Symbol")
+      .add("offset", String.format("%d-%d", declarationStartOffset, declarationEndOffset))
+      .toString();
+  }
 }

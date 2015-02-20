@@ -20,7 +20,6 @@
 
 package org.sonar.batch.source;
 
-import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbol;
 import org.sonar.api.source.Symbol;
 import org.sonar.api.source.Symbolizable;
 
@@ -46,7 +45,7 @@ public class DefaultSymbolTable implements Symbolizable.SymbolTable {
   @Override
   public List<Symbol> symbols() {
     List<Symbol> result = new ArrayList<Symbol>();
-    for (org.sonar.api.batch.sensor.symbol.Symbol symbol : referencesBySymbol.keySet()) {
+    for (Symbol symbol : referencesBySymbol.keySet()) {
       result.add((Symbol) symbol);
     }
     return result;

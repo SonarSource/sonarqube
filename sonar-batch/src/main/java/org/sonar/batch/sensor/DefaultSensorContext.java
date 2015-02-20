@@ -21,8 +21,6 @@ package org.sonar.batch.sensor;
 
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.dependency.NewDependency;
@@ -36,10 +34,8 @@ import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
 import org.sonar.api.batch.sensor.measure.NewMeasure;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
-import org.sonar.api.batch.sensor.symbol.SymbolTableBuilder;
 import org.sonar.api.config.Settings;
 import org.sonar.batch.index.ComponentDataCache;
-import org.sonar.batch.symbol.DefaultSymbolTableBuilder;
 
 import java.io.Serializable;
 
@@ -95,11 +91,6 @@ public class DefaultSensorContext implements SensorContext {
   @Override
   public NewHighlighting newHighlighting() {
     return new DefaultHighlighting(sensorStorage);
-  }
-
-  @Override
-  public SymbolTableBuilder symbolTableBuilder(InputFile inputFile) {
-    return new DefaultSymbolTableBuilder(((DefaultInputFile) inputFile).key(), componentDataCache);
   }
 
   @Override
