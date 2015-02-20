@@ -45,18 +45,22 @@ public class StopWatcher extends Thread {
 
   @Override
   public void run() {
-    while (watching) {
-      if (commands.askedForStop()) {
-        LoggerFactory.getLogger(getClass()).info("Stopping process");
-        stoppable.stopAsync();
-        watching = false;
-      } else {
-        try {
-          Thread.sleep(delayMs);
-        } catch (InterruptedException ignored) {
+    try {
+      while (watching) {
+        if (commands.askedForStop()) {
+          LoggerFactory.getLogger(getClass()).info("Stopping process");
+          stoppable.stopAsync();
           watching = false;
+        } else {
+          try {
+            Thread.sleep(delayMs);
+          } catch (InterruptedException ignored) {
+            watching = false;
+          }
         }
       }
+    } finally {
+      commands.endWatch();
     }
   }
 

@@ -19,6 +19,7 @@
  */
 package org.sonar.process;
 
+import org.apache.commons.io.IOUtils;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
@@ -60,6 +61,7 @@ public class ProcessCommands {
    * </ul>
    */
   final MappedByteBuffer mappedByteBuffer;
+  private final RandomAccessFile sharedMemory;
   private static final int MAX_PROCESSES = 50;
   private static final int BYTE_LENGTH_FOR_ONE_PROCESS = 1 + 1 + 8;
   private static final int MAX_SHARED_MEMORY = BYTE_LENGTH_FOR_ONE_PROCESS * MAX_PROCESSES; // With this shared memory we can handle up to MAX_PROCESSES processes
@@ -80,7 +82,7 @@ public class ProcessCommands {
     }
 
     try {
-      RandomAccessFile sharedMemory = new RandomAccessFile(new File(directory, "sharedmemory"), "rw");
+      sharedMemory = new RandomAccessFile(new File(directory, "sharedmemory"), "rw");
       mappedByteBuffer = sharedMemory.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, MAX_SHARED_MEMORY);
     } catch (IOException e) {
       throw new IllegalArgumentException("Unable to create shared memory : ", e);
@@ -123,6 +125,10 @@ public class ProcessCommands {
 
   public boolean askedForStop() {
     return mappedByteBuffer.get(offset() + 1) == STOP;
+  }
+
+  public void endWatch() {
+    IOUtils.closeQuietly(sharedMemory);
   }
 
   int offset() {
