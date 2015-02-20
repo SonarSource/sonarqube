@@ -26,14 +26,13 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.io.File;
-import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 
 /**
  * @since 4.2
  */
-public class DefaultInputFile implements InputFile, Serializable {
+public class DefaultInputFile implements InputFile {
 
   private final String relativePath;
   private final String moduleKey;

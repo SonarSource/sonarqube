@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.AnalysisMode;
+import org.sonar.batch.mediumtest.BatchMediumTester;
 
 import java.text.MessageFormat;
 
@@ -64,18 +65,18 @@ public class DefaultAnalysisMode implements AnalysisMode {
       LOG.warn(MessageFormat.format("Property {0} is deprecated. Please use {1} instead.", CoreProperties.DRY_RUN, CoreProperties.ANALYSIS_MODE));
       preview = "true".equals(bootstrapProps.property(CoreProperties.DRY_RUN));
       incremental = false;
-      mediumTestMode = false;
     } else {
       String mode = bootstrapProps.property(CoreProperties.ANALYSIS_MODE);
       preview = CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode);
       incremental = CoreProperties.ANALYSIS_MODE_INCREMENTAL.equals(mode);
-      mediumTestMode = CoreProperties.ANALYSIS_MODE_MEDIUM_TEST.equals(mode);
     }
+    mediumTestMode = "true".equals(bootstrapProps.property(BatchMediumTester.MEDIUM_TEST_ENABLED));
     if (incremental) {
       LOG.info("Incremental mode");
     } else if (preview) {
       LOG.info("Preview mode");
-    } else if (mediumTestMode) {
+    }
+    if (mediumTestMode) {
       LOG.info("Medium test mode");
     }
     // To stay compatible with plugins that use the old property to check mode

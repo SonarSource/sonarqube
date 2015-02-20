@@ -139,7 +139,7 @@ public class FileMetadata implements BatchComponent {
 
   private static class FileHashComputer extends CharHandler {
     private MessageDigest globalMd5Digest = DigestUtils.getMd5Digest();
-    private StringBuffer sb = new StringBuffer();
+    private StringBuilder sb = new StringBuilder();
 
     @Override
     void handleIgnoreEoL(char c) {

@@ -61,11 +61,12 @@ import java.util.Properties;
  */
 public class BatchMediumTester {
 
+  public static final String MEDIUM_TEST_ENABLED = "sonar.mediumTest.enabled";
   private Batch batch;
 
   public static BatchMediumTesterBuilder builder() {
     BatchMediumTesterBuilder builder = new BatchMediumTesterBuilder().registerCoreMetrics();
-    builder.bootstrapProperties.put(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_MEDIUM_TEST);
+    builder.bootstrapProperties.put(MEDIUM_TEST_ENABLED, "true");
     builder.bootstrapProperties.put(CoreProperties.WORKING_DIRECTORY, Files.createTempDir().getAbsolutePath());
     return builder;
   }
@@ -111,6 +112,11 @@ public class BatchMediumTester {
     public BatchMediumTesterBuilder addDefaultQProfile(String language, String name) {
       addQProfile(language, name);
       globalRefProvider.globalSettings().put("sonar.profile." + language, name);
+      return this;
+    }
+
+    public BatchMediumTesterBuilder setPreviousAnalysisDate(Date previousAnalysis) {
+      projectRefProvider.ref.setLastAnalysisDate(previousAnalysis);
       return this;
     }
 

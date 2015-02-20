@@ -35,7 +35,6 @@ import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
 import org.sonar.api.batch.sensor.measure.NewMeasure;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.config.Settings;
-import org.sonar.batch.index.ComponentDataCache;
 
 import java.io.Serializable;
 
@@ -44,17 +43,14 @@ public class DefaultSensorContext implements SensorContext {
   private final Settings settings;
   private final FileSystem fs;
   private final ActiveRules activeRules;
-  private final ComponentDataCache componentDataCache;
   private final SensorStorage sensorStorage;
   private final AnalysisMode analysisMode;
 
-  public DefaultSensorContext(Settings settings, FileSystem fs, ActiveRules activeRules, AnalysisMode analysisMode, ComponentDataCache componentDataCache,
-    SensorStorage sensorStorage) {
+  public DefaultSensorContext(Settings settings, FileSystem fs, ActiveRules activeRules, AnalysisMode analysisMode, SensorStorage sensorStorage) {
     this.settings = settings;
     this.fs = fs;
     this.activeRules = activeRules;
     this.analysisMode = analysisMode;
-    this.componentDataCache = componentDataCache;
     this.sensorStorage = sensorStorage;
   }
 

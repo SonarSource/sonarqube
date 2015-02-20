@@ -23,13 +23,12 @@ import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.utils.PathUtils;
 
 import java.io.File;
-import java.io.Serializable;
 import java.nio.file.Path;
 
 /**
  * @since 4.5
  */
-public class DefaultInputDir implements InputDir, Serializable {
+public class DefaultInputDir implements InputDir {
 
   private final String relativePath;
   private final String moduleKey;

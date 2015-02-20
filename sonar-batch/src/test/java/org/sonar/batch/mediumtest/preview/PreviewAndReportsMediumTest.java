@@ -26,6 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.issue.Issue;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.batch.protocol.input.ActiveRule;
@@ -37,7 +38,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class ReportsMediumTest {
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class PreviewAndReportsMediumTest {
 
   @org.junit.Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -56,7 +59,9 @@ public class ReportsMediumTest {
     .bootstrapProperties(ImmutableMap.of(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_PREVIEW))
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
-    .activateRule(new ActiveRule("xoo", "OneIssuePerLine", null, "One issue per line", "MAJOR", "OneIssuePerLine.internal", "xoo"))
+    .activateRule(new ActiveRule("xoo", "OneIssuePerLine", null, "One issue per line", "MAJOR", null, "xoo"))
+    .activateRule(new ActiveRule("manual", "MyManualIssue", null, "My manual issue", "MAJOR", null, null))
+    .setPreviousAnalysisDate(new Date())
     // Existing issue
     .addPreviousIssue(new PreviousIssue().setKey("xyz")
       .setComponentKey("sample:xources/hello/HelloJava.xoo")
@@ -75,6 +80,15 @@ public class ReportsMediumTest {
       .setCreationDate(date("14/03/2004"))
       .setChecksum(DigestUtils.md5Hex("dontexist"))
       .setStatus("OPEN"))
+    // Manual issue
+    .addPreviousIssue(new PreviousIssue().setKey("manual")
+      .setComponentKey("sample:xources/hello/HelloJava.xoo")
+      .setRuleKey("manual", "MyManualIssue")
+      .setLine(1)
+      .setSeverity("MAJOR")
+      .setCreationDate(date("14/03/2004"))
+      .setChecksum(DigestUtils.md5Hex("packagehello;"))
+      .setStatus("OPEN"))
     .build();
 
   @Before
@@ -88,25 +102,53 @@ public class ReportsMediumTest {
   }
 
   @Test
+  public void testIssueTracking() throws Exception {
+    File projectDir = new File(PreviewAndReportsMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
+
+    TaskResult result = tester
+      .newScanTask(new File(projectDir, "sonar-project.properties"))
+      .start();
+
+    int newIssues = 0;
+    int openIssues = 0;
+    int resolvedIssue = 0;
+    for (Issue issue : result.issues()) {
+      if (issue.isNew()) {
+        newIssues++;
+      } else if (issue.resolution() != null) {
+        resolvedIssue++;
+      } else {
+        openIssues++;
+      }
+    }
+    assertThat(newIssues).isEqualTo(13);
+    assertThat(openIssues).isEqualTo(2);
+    assertThat(resolvedIssue).isEqualTo(1);
+  }
+
+  @Test
   public void testConsoleReport() throws Exception {
-    File projectDir = new File(ReportsMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
+    File projectDir = new File(PreviewAndReportsMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
 
     TaskResult result = tester
       .newScanTask(new File(projectDir, "sonar-project.properties"))
       .property("sonar.issuesReport.console.enable", "true")
       .start();
 
+    // TODO wait for ability to assert on logs
   }
 
   @Test
   public void testHtmlReport() throws Exception {
-    File projectDir = new File(ReportsMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
+    File projectDir = new File(PreviewAndReportsMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
 
     TaskResult result = tester
       .newScanTask(new File(projectDir, "sonar-project.properties"))
       .property("sonar.issuesReport.html.enable", "true")
       .start();
 
+    assertThat(new File(projectDir, ".sonar/issues-report/issues-report.html")).exists();
+    assertThat(new File(projectDir, ".sonar/issues-report/issues-report-light.html")).exists();
   }
 
 }

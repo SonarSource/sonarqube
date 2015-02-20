@@ -443,11 +443,6 @@ public interface CoreProperties {
   String ANALYSIS_MODE_INCREMENTAL = "incremental";
 
   /**
-   * @since 5.1
-   */
-  String ANALYSIS_MODE_MEDIUM_TEST = "mediumtest";
-
-  /**
    * @since 4.0
    */
   String PREVIEW_INCLUDE_PLUGINS = "sonar.preview.includePlugins";

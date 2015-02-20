@@ -78,7 +78,7 @@ public class DefaultSymbolTableBuilder {
     @Override
     public int compare(Integer left, Integer right) {
       int result;
-      if (left != null & right != null) {
+      if (left != null && right != null) {
         result = left - right;
       } else {
         result = left == null ? -1 : 1;

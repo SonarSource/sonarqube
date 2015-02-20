@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.deprecated;
 
-import org.sonar.api.batch.sensor.internal.SensorStorage;
-
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,15 +31,20 @@ import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.rule.ActiveRules;
+import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.config.Settings;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.resources.*;
+import org.sonar.api.resources.Directory;
+import org.sonar.api.resources.File;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ProjectLink;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.batch.sensor.DefaultSensorContext;
 import org.sonar.batch.sensor.coverage.CoverageExclusions;
 
@@ -62,9 +65,9 @@ public class DeprecatedSensorContext extends DefaultSensorContext implements Sen
   private final CoverageExclusions coverageFilter;
 
   public DeprecatedSensorContext(SonarIndex index, Project project, Settings settings, FileSystem fs, ActiveRules activeRules,
-    AnalysisMode analysisMode, ComponentDataCache componentDataCache, CoverageExclusions coverageFilter,
+    AnalysisMode analysisMode, CoverageExclusions coverageFilter,
     SensorStorage sensorStorage) {
-    super(settings, fs, activeRules, analysisMode, componentDataCache, sensorStorage);
+    super(settings, fs, activeRules, analysisMode, sensorStorage);
     this.index = index;
     this.project = project;
     this.coverageFilter = coverageFilter;
