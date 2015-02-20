@@ -202,6 +202,9 @@
                   <groupId>com.sonarsource</groupId>
                   <artifactId>sonarsource-branding</artifactId>
                   <!-- branding resources are added first -->
+                  <excludes>
+                    <exclude>META-INF/**/*</exclude>
+                  </excludes>
                 </overlay>
                 <overlay>
                   <!-- empty groupId/artifactId represents the current build => branding not overwritten -->
