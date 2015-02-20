@@ -569,8 +569,4 @@ public interface CoreProperties {
    */
   String IMPORT_UNKNOWN_FILES_KEY = "sonar.import_unknown_files";
 
-  /**
-   * @since 5.1
-   */
-  String COVERAGE_UNFORCED_KEY = "sonar.coverage.unforced";
 }
