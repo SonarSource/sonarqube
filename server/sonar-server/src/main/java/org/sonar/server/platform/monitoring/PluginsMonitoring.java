@@ -21,12 +21,15 @@
 package org.sonar.server.platform.monitoring;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.PluginRepository;
 import org.sonar.api.utils.text.JsonWriter;
 
-import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class PluginsMonitoring extends MonitoringMBean implements PluginsMonitoringMBean {
@@ -53,14 +56,19 @@ public class PluginsMonitoring extends MonitoringMBean implements PluginsMonitor
 
   @Override
   public void toJson(JsonWriter json) {
-    json.beginArray();
+    json.beginObject();
     for (PluginMetadata plugin : plugins()) {
       json.prop(plugin.getName(), plugin.getVersion());
     }
-    json.endArray();
+    json.endObject();
   }
 
-  private Collection<PluginMetadata> plugins() {
-    return repository.getMetadata();
+  private List<PluginMetadata> plugins() {
+    return Lists.newArrayList(Iterables.filter(repository.getMetadata(), new Predicate<PluginMetadata>() {
+      @Override
+      public boolean apply(PluginMetadata input) {
+        return !input.isCore();
+      }
+    }));
   }
 }

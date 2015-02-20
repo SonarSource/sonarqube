@@ -29,7 +29,7 @@ import java.util.Map;
 public class SystemPropertiesMonitoring extends MonitoringMBean implements SystemPropertiesMonitoringMBean {
   @Override
   public String getProperties() {
-    return Joiner.on(",").withKeyValueSeparator(":").join(properties());
+    return Joiner.on(" | ").withKeyValueSeparator(": ").join(properties());
   }
 
   @Override

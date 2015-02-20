@@ -640,6 +640,7 @@ class ServerComponents {
       SystemMonitoring.class,
       SonarQubeMonitoring.class,
       ElasticSearchClusterMonitoring.class,
+      ElasticSearchNodesMonitoring.class,
       PluginsMonitoring.class,
       SystemPropertiesMonitoring.class
       ));

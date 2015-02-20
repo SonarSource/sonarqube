@@ -54,13 +54,11 @@ public class InfoWsAction implements SystemWsAction {
   }
 
   private void writeMBeans(JsonWriter json) {
-    json.beginArray();
+    json.beginObject();
     for (MonitoringMBean mBean : mBeans) {
-      json.beginObject();
       json.name(mBean.name());
       mBean.toJson(json);
-      json.endObject();
     }
-    json.endArray();
+    json.endObject();
   }
 }
