@@ -168,8 +168,6 @@ function openModalWindow(url, options) {
           }
         });
     $dialog.dialog('open');
-  }).fail(function () {
-    alert('Server error. Please contact your administrator.');
   }).always(function () {
     $dialog.removeClass('ui-widget-overlay');
   });

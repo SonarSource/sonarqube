@@ -281,12 +281,13 @@ define([
               var value = item.get('id').split('=')[1];
               x = _.findWhere(q, { key: key, value: value });
             }
-            if (x) {
-              if (!param) {
-                param = { value: item.get('id') };
-              } else {
-                param.value += ',' + item.get('id');
-              }
+            if (x == null) {
+              return;
+            }
+            if (!param) {
+              param = { value: item.get('id') };
+            } else {
+              param.value += ',' + item.get('id');
             }
           }
         });

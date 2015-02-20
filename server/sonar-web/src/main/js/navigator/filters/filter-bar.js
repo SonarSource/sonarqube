@@ -37,23 +37,21 @@ define(
           });
           this.addMoreCriteriaFilter();
 
-          key.filter = function(e) {
-            var el = jQuery(e.target),
+          key.filter = function (e) {
+            var r = true,
+                el = jQuery(e.target),
                 box = el.closest('.navigator-filter-details-inner'),
-                tabbableSet = box.find(':tabbable');
-
-            if (el.closest('.ui-dialog').length > 0 && (el.is(':input') || el.is('a'))) {
-              return false;
-            }
-
-            if (el.is(':input') || el.is('a')) {
-              if (e.keyCode === 9 || e.keyCode === 27) {
-                return tabbableSet.index(el) >= tabbableSet.length - 1;
+                tabbableSet = box.find(':tabbable'),
+                isElFocusable = el.is(':input') || el.is('a'),
+                isInsideDialog = el.closest('.ui-dialog').length > 0;
+            if (isElFocusable) {
+              if (!isInsideDialog && (e.keyCode === 9 || e.keyCode === 27)) {
+                r = tabbableSet.index(el) >= tabbableSet.length - 1;
+              } else {
+                r = false;
               }
-              return false;
             }
-
-            return true;
+            return r;
           };
           key('tab', 'list', function() {
             key.setScope('filters');

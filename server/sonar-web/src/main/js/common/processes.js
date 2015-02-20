@@ -69,6 +69,8 @@
             case 'finished':
               this.$el.addClass('hidden');
               break;
+            default:
+              break;
           }
           return this;
         }

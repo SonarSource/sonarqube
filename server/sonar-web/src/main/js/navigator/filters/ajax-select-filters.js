@@ -238,12 +238,13 @@ define([
         _.each(this.model.get('choices'), function(v, k) {
           if (k[0] === '!') {
             var x = _.findWhere(q, { key: k.substr(1) });
-            if (x) {
-              if (!param) {
-                param = { value: k };
-              } else {
-                param.value += ',' + k;
-              }
+            if (x == null) {
+              return;
+            }
+            if (!param) {
+              param = { value: k };
+            } else {
+              param.value += ',' + k;
             }
           }
         });
