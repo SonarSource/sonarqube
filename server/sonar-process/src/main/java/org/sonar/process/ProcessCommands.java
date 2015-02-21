@@ -82,10 +82,7 @@ public class ProcessCommands {
     }
 
     try {
-      File file = new File(directory, "sharedmemory");
-      file.deleteOnExit();
-
-      sharedMemory = new RandomAccessFile(file, "rw");
+      sharedMemory = new RandomAccessFile(new File(directory, "sharedmemory"), "rw");
       mappedByteBuffer = sharedMemory.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, MAX_SHARED_MEMORY);
     } catch (IOException e) {
       throw new IllegalArgumentException("Unable to create shared memory : ", e);
