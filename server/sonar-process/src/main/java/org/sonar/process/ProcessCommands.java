@@ -145,8 +145,8 @@ public class ProcessCommands {
   }
 
   private void cleanData() {
-    for (int i = offset(); i < BYTE_LENGTH_FOR_ONE_PROCESS; i++) {
-      mappedByteBuffer.put(i, EMPTY);
+    for (int i = 0; i < BYTE_LENGTH_FOR_ONE_PROCESS; i++) {
+      mappedByteBuffer.put(offset() + i, EMPTY);
     }
   }
 
