@@ -58,10 +58,7 @@ public class JavaCommand {
 
   public JavaCommand(String key) {
     this.key = key;
-    processIndex = KnownJavaCommand.lookIndexFor(key);
-    if (processIndex == -1) {
-      processIndex = Monitor.getNextProcessId();
-    }
+    processIndex = Monitor.getNextProcessId();
   }
 
   public String getKey() {

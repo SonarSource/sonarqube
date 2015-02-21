@@ -217,7 +217,7 @@ public class MonitorTest {
     } catch (IllegalStateException e) {
       assertThat(e).hasMessageStartingWith("The maximum number of processes launched has been reached ");
     } finally {
-      Monitor.nextProcessId = KnownJavaCommand.getFirstIndexAvailable();
+      Monitor.nextProcessId = 0;
     }
   }
 

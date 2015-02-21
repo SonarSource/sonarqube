@@ -40,7 +40,7 @@ public class Monitor {
 
   // used by awaitStop() to block until all processes are shutdown
   private final List<WatcherThread> watcherThreads = new CopyOnWriteArrayList<WatcherThread>();
-  static int nextProcessId = KnownJavaCommand.getFirstIndexAvailable();
+  static int nextProcessId = 0;
 
   Monitor(JavaProcessLauncher launcher, SystemExit exit, TerminatorThread terminator) {
     this.launcher = launcher;

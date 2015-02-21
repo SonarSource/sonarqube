@@ -84,6 +84,7 @@ public class ProcessCommands {
     try {
       sharedMemory = new RandomAccessFile(new File(directory, "sharedmemory"), "rw");
       mappedByteBuffer = sharedMemory.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, MAX_SHARED_MEMORY);
+      cleanData();
     } catch (IOException e) {
       throw new IllegalArgumentException("Unable to create shared memory : ", e);
     }
@@ -141,6 +142,12 @@ public class ProcessCommands {
       LoggerFactory.getLogger(getClass()).info("This process cannot be monitored. Process Id : [{}]", processNumber);
     }
     return result;
+  }
+
+  private void cleanData() {
+    for (int i = offset(); i < BYTE_LENGTH_FOR_ONE_PROCESS; i++) {
+      mappedByteBuffer.put(i, EMPTY);
+    }
   }
 
   public static final int getMaxProcesses() {
