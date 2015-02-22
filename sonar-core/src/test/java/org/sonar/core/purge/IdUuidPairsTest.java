@@ -22,6 +22,7 @@ package org.sonar.core.purge;
 
 import com.google.common.collect.Lists;
 import org.junit.Test;
+import org.sonar.test.TestUtils;
 
 import java.util.List;
 
@@ -35,6 +36,11 @@ public class IdUuidPairsTest {
     List<Long> ids = IdUuidPairs.ids(idUuidPairList);
 
     assertThat(ids).containsOnly(1L, 2L);
+  }
+
+  @Test
+  public void is_non_instantiable() throws Exception {
+    assertThat(TestUtils.hasOnlyPrivateConstructors(IdUuidPairs.class)).isTrue();
   }
 
   @Test

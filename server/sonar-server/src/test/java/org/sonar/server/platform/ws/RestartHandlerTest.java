@@ -27,10 +27,7 @@ import org.sonar.server.platform.Platform;
 import org.sonar.server.ws.WsTester;
 
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class RestartHandlerTest {
 
@@ -77,7 +74,7 @@ public class RestartHandlerTest {
     when(system.isJavaAtLeast17()).thenReturn(false);
 
     RestartHandler restartHandler = new RestartHandler(settings, platform, system);
-    SystemWs ws = new SystemWs(restartHandler);
+    SystemWs ws = new SystemWs(restartHandler, null);
 
     WsTester tester = new WsTester(ws);
     try {

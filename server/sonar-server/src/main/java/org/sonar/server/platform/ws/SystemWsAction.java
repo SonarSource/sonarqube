@@ -17,29 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.platform.ws;
 
+import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.WebService;
 
-public class SystemWs implements WebService {
+public interface SystemWsAction extends RequestHandler {
 
-  private final SystemWsAction[] actions;
-
-  public SystemWs(SystemWsAction... actions) {
-    this.actions = actions;
-  }
-
-  @Override
-  public void define(Context context) {
-    NewController controller = context.createController("api/system")
-      .setDescription("Restart server")
-      .setSince("4.3");
-
-    for (SystemWsAction action : actions) {
-      action.define(controller);
-    }
-
-    controller.done();
-  }
-
+  public void define(WebService.NewController controller);
 }

@@ -17,29 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.ws;
 
-import org.sonar.api.server.ws.WebService;
+package org.sonar.server.platform.monitoring;
 
-public class SystemWs implements WebService {
+public interface SystemMonitoringMBean {
 
-  private final SystemWsAction[] actions;
+  String getSystemDate();
 
-  public SystemWs(SystemWsAction... actions) {
-    this.actions = actions;
-  }
+  String getJvmVendor();
 
-  @Override
-  public void define(Context context) {
-    NewController controller = context.createController("api/system")
-      .setDescription("Restart server")
-      .setSince("4.3");
+  String getJvmName();
 
-    for (SystemWsAction action : actions) {
-      action.define(controller);
-    }
+  String getJvmVersion();
 
-    controller.done();
-  }
+  int getProcessors();
 
+  String getSystemClasspath();
+
+  String getBootClasspath();
+
+  String getLibraryPath();
+
+  String getTotalMemory();
+
+  String getFreeMemory();
+
+  String getMaxMemory();
+
+  String getHeapMemory();
+
+  String getNonHeapMemory();
+
+  String getSystemLoadAverage();
+
+  String getLoadedClasses();
+
+  String getStartTime();
+
+  String getThreads();
 }
