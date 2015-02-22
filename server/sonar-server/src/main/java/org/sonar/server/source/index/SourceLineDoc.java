@@ -74,7 +74,7 @@ public class SourceLineDoc extends BaseDoc {
     return getNullableField(SourceLineIndexDefinition.FIELD_SCM_REVISION);
   }
 
-  public SourceLineDoc setScmRevision(String scmRevision) {
+  public SourceLineDoc setScmRevision(@Nullable String scmRevision) {
     setField(SourceLineIndexDefinition.FIELD_SCM_REVISION, scmRevision);
     return this;
   }
@@ -84,7 +84,7 @@ public class SourceLineDoc extends BaseDoc {
     return getNullableField(SourceLineIndexDefinition.FIELD_SCM_AUTHOR);
   }
 
-  public SourceLineDoc setScmAuthor(String scmAuthor) {
+  public SourceLineDoc setScmAuthor(@Nullable String scmAuthor) {
     setField(SourceLineIndexDefinition.FIELD_SCM_AUTHOR, scmAuthor);
     return this;
   }
@@ -104,7 +104,7 @@ public class SourceLineDoc extends BaseDoc {
     return getNullableField(SourceLineIndexDefinition.FIELD_HIGHLIGHTING);
   }
 
-  public SourceLineDoc setHighlighting(String s) {
+  public SourceLineDoc setHighlighting(@Nullable String s) {
     setField(SourceLineIndexDefinition.FIELD_HIGHLIGHTING, s);
     return this;
   }
@@ -113,7 +113,7 @@ public class SourceLineDoc extends BaseDoc {
     return getField(SourceLineIndexDefinition.FIELD_SOURCE);
   }
 
-  public SourceLineDoc setSource(String source) {
+  public SourceLineDoc setSource(@Nullable String source) {
     setField(SourceLineIndexDefinition.FIELD_SOURCE, source);
     return this;
   }
@@ -122,7 +122,7 @@ public class SourceLineDoc extends BaseDoc {
     return getFieldAsDate(BaseNormalizer.UPDATED_AT_FIELD);
   }
 
-  public SourceLineDoc setUpdateDate(Date updatedAt) {
+  public SourceLineDoc setUpdateDate(@Nullable Date updatedAt) {
     setField(BaseNormalizer.UPDATED_AT_FIELD, updatedAt);
     return this;
   }

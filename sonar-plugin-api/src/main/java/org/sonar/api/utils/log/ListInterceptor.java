@@ -19,6 +19,8 @@
  */
 package org.sonar.api.utils.log;
 
+import javax.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,12 +34,12 @@ class ListInterceptor extends LogInterceptor {
   }
 
   @Override
-  public void log(String msg, Object arg) {
+  public void log(String msg, @Nullable Object arg) {
     logs.add(ConsoleFormatter.format(msg, arg));
   }
 
   @Override
-  public void log(String msg, Object arg1, Object arg2) {
+  public void log(String msg, @Nullable Object arg1, @Nullable Object arg2) {
     logs.add(ConsoleFormatter.format(msg, arg1, arg2));
   }
 

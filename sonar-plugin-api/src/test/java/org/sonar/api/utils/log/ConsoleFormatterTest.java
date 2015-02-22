@@ -32,6 +32,7 @@ public class ConsoleFormatterTest {
     assertThat(ConsoleFormatter.format("arg: {}", "foo")).isEqualTo("arg: foo");
     assertThat(ConsoleFormatter.format("two args: {} and {}", "foo", 42)).isEqualTo("two args: foo and 42");
     assertThat(ConsoleFormatter.format("args: {}, {} and {}", true, 42, 2L)).isEqualTo("args: true, 42 and 2");
+    assertThat(ConsoleFormatter.format("args: {}, {} and {}", null, null, null)).isEqualTo("args: null, null and null");
   }
 
   @Test
