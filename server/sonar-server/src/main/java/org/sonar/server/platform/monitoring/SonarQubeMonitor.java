@@ -29,8 +29,6 @@ import org.sonar.server.user.SecurityRealmFactory;
 
 import java.util.LinkedHashMap;
 
-import static org.sonar.api.utils.DateUtils.formatDateTime;
-
 public class SonarQubeMonitor extends BaseMonitorMBean implements SonarQubeMonitorMBean {
 
   private final Settings settings;
@@ -52,11 +50,6 @@ public class SonarQubeMonitor extends BaseMonitorMBean implements SonarQubeMonit
   @Override
   public String getVersion() {
     return server.getVersion();
-  }
-
-  @Override
-  public String getStartedAt() {
-    return formatDateTime(server.getStartedAt());
   }
 
   public String getExternalUserAuthentication() {
@@ -89,7 +82,6 @@ public class SonarQubeMonitor extends BaseMonitorMBean implements SonarQubeMonit
     LinkedHashMap<String, Object> attributes = new LinkedHashMap<>();
     attributes.put("Server ID", getServerId());
     attributes.put("Version", getVersion());
-    attributes.put("Started at", getStartedAt());
     attributes.put("External User Authentication", getExternalUserAuthentication());
     attributes.put("Automatic User Creation", getAutomaticUserCreation());
     attributes.put("Allow Users to Sign Up", getAllowUsersToSignUp());

@@ -29,6 +29,9 @@ import org.sonar.api.platform.PluginRepository;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+/**
+ * Installed plugins (excluding core plugins)
+ */
 public class PluginsMonitor implements Monitor {
   private final PluginRepository repository;
 

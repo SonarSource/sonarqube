@@ -33,6 +33,9 @@ import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * Information about database and connection pool
+ */
 public class DatabaseMonitor extends BaseMonitorMBean implements DatabaseMonitorMBean {
 
   private final DatabaseVersion dbVersion;

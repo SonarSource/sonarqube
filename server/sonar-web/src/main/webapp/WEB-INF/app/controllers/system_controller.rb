@@ -23,15 +23,14 @@ class SystemController < ApplicationController
   before_filter :admin_required
 
   def index
-    @server=Server.new
-
-    filename = 'SystemInfo'
-    server_id = @server.sonar_property(ServerIdConfigurationController::PROPERTY_SERVER_ID)
-    filename += '-' + server_id.to_s if server_id
-
-    respond_to do |format|
-      format.html
-    end
+    @monitors = [
+      Java::OrgSonarServerPlatform::Platform.component(Java::OrgSonarServerPlatformMonitoring::SonarQubeMonitor.java_class),
+      Java::OrgSonarServerPlatform::Platform.component(Java::OrgSonarServerPlatformMonitoring::DatabaseMonitor.java_class),
+      Java::OrgSonarServerPlatform::Platform.component(Java::OrgSonarServerPlatformMonitoring::SystemMonitor.java_class),
+      Java::OrgSonarServerPlatform::Platform.component(Java::OrgSonarServerPlatformMonitoring::EsClusterMonitor.java_class),
+      Java::OrgSonarServerPlatform::Platform.component(Java::OrgSonarServerPlatformMonitoring::EsNodesMonitor.java_class),
+      Java::OrgSonarServerPlatform::Platform.component(Java::OrgSonarServerPlatformMonitoring::JvmPropertiesMonitor.java_class)
+    ]
   end
 
 end

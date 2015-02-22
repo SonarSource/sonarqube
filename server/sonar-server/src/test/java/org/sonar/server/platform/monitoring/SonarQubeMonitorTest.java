@@ -41,6 +41,6 @@ public class SonarQubeMonitorTest {
     SonarQubeMonitor monitor = new SonarQubeMonitor(settings, new SecurityRealmFactory(settings), server);
 
     LinkedHashMap<String, Object> attributes = monitor.attributes();
-    assertThat(attributes).containsKeys("Started at", "Server ID");
+    assertThat(attributes).containsKeys("Server ID", "Version");
   }
 }

@@ -32,6 +32,10 @@ import java.util.LinkedHashMap;
 
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 
+/**
+ * JVM runtime information. Not exported as a MXBean because these informations
+ * are natively provided.
+ */
 public class SystemMonitor implements Monitor {
   private final System2 system;
 
@@ -48,100 +52,30 @@ public class SystemMonitor implements Monitor {
     return "System";
   }
 
-  public String getSystemDate() {
-    return formatDateTime(new Date(system.now()));
-  }
-
-  public String getJvmVendor() {
-    return runtimeMXBean().getVmVendor();
-  }
-
-  public String getJvmName() {
-    return runtimeMXBean().getVmName();
-  }
-
-  public String getJvmVersion() {
-    return runtimeMXBean().getVmVersion();
-  }
-
-  public int getProcessors() {
-    return runtime().availableProcessors();
-  }
-
-  public String getSystemClasspath() {
-    return runtimeMXBean().getClassPath();
-  }
-
-  public String getBootClasspath() {
-    return runtimeMXBean().getBootClassPath();
-  }
-
-  public String getLibraryPath() {
-    return runtimeMXBean().getLibraryPath();
-  }
-
-  public String getTotalMemory() {
-    return formatMemory(runtime().totalMemory());
-  }
-
-  public String getFreeMemory() {
-    return formatMemory(runtime().freeMemory());
-  }
-
-  public String getMaxMemory() {
-    return formatMemory(runtime().maxMemory());
-  }
-
-  public String getHeapMemory() {
-    return memoryMXBean().getHeapMemoryUsage().toString();
-  }
-
-  public String getNonHeapMemory() {
-    return memoryMXBean().getNonHeapMemoryUsage().toString();
-  }
-
-  public String getSystemLoadAverage() {
-    return String.format("%.1f%% (last minute)", ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage() * 100.0);
-  }
-
-  public String getLoadedClasses() {
-    return String.format("currently: %d, total: %d, unloaded: %d",
-      classLoadingMXBean().getLoadedClassCount(),
-      classLoadingMXBean().getTotalLoadedClassCount(),
-      classLoadingMXBean().getUnloadedClassCount());
-  }
-
-  public String getStartTime() {
-    return formatDateTime(new Date(runtimeMXBean().getStartTime()));
-  }
-
-  public String getThreads() {
-    return String.format("total: %d, peak: %d, daemon: %d",
-      threadMXBean().getThreadCount(),
-      threadMXBean().getPeakThreadCount(),
-      threadMXBean().getDaemonThreadCount());
-  }
-
   @Override
   public LinkedHashMap<String, Object> attributes() {
     LinkedHashMap<String, Object> attributes = new LinkedHashMap<>();
-    attributes.put("System Date", getSystemDate());
-    attributes.put("JVM Vendor", getJvmVendor());
-    attributes.put("JVM Name", getJvmName());
-    attributes.put("JVM Version", getJvmVersion());
-    attributes.put("Processors", getProcessors());
-    attributes.put("System Classpath", getSystemClasspath());
-    attributes.put("BootClassPath", getBootClasspath());
-    attributes.put("Library Path", getLibraryPath());
-    attributes.put("Total Memory", getTotalMemory());
-    attributes.put("Free Memory", getFreeMemory());
-    attributes.put("Max Memory", getMaxMemory());
-    attributes.put("Heap", getHeapMemory());
-    attributes.put("Non Heap", getNonHeapMemory());
-    attributes.put("System Load Average", getSystemLoadAverage());
-    attributes.put("Loaded Classes", getLoadedClasses());
-    attributes.put("Start Time", getStartTime());
-    attributes.put("Threads", getThreads());
+    attributes.put("System Date", formatDateTime(new Date(system.now())));
+    attributes.put("Start Time", formatDateTime(new Date(runtimeMXBean().getStartTime())));
+    attributes.put("JVM Vendor", runtimeMXBean().getVmVendor());
+    attributes.put("JVM Name", runtimeMXBean().getVmName());
+    attributes.put("JVM Version", runtimeMXBean().getVmVersion());
+    attributes.put("Processors", runtime().availableProcessors());
+    attributes.put("System Classpath", runtimeMXBean().getClassPath());
+    attributes.put("BootClassPath", runtimeMXBean().getBootClassPath());
+    attributes.put("Library Path", runtimeMXBean().getLibraryPath());
+    attributes.put("Total Memory", formatMemory(runtime().totalMemory()));
+    attributes.put("Free Memory", formatMemory(runtime().freeMemory()));
+    attributes.put("Max Memory", formatMemory(runtime().maxMemory()));
+    attributes.put("Heap", memoryMXBean().getHeapMemoryUsage().toString());
+    attributes.put("Non Heap", memoryMXBean().getNonHeapMemoryUsage().toString());
+    attributes.put("System Load Average", String.format("%.1f%% (last minute)", ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage() * 100.0));
+    attributes.put("Loaded Classes", classLoadingMXBean().getLoadedClassCount());
+    attributes.put("Total Loaded Classes", classLoadingMXBean().getTotalLoadedClassCount());
+    attributes.put("Unloaded Classes", classLoadingMXBean().getUnloadedClassCount());
+    attributes.put("Threads", threadMXBean().getThreadCount());
+    attributes.put("Threads Peak", threadMXBean().getPeakThreadCount());
+    attributes.put("Daemon Thread", threadMXBean().getDaemonThreadCount());
     return attributes;
   }
 

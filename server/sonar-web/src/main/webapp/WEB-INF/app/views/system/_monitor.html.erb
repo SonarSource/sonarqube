@@ -1,0 +1,16 @@
+<table class="data width100" id="<%= monitor.name().parameterize -%>">
+    <thead>
+    <tr>
+      <th colspan="2"><h2><%= h monitor.name() -%></h2></th>
+    </tr>
+    </thead>
+    <tbody>
+    <% monitor.attributes().entrySet().each do |attribute| %>
+      <tr class="<%= cycle('even','odd') -%>">
+        <td width="25%" nowrap="nowrap"><%= h attribute.getKey() -%></td>
+        <td width="75%"><%= h attribute.getValue() -%></td>
+      </tr>
+    <% end %>
+    </tbody>
+  </table>
+  <br/>

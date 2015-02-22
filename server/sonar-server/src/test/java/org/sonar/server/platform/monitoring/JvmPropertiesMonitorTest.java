@@ -32,6 +32,6 @@ public class JvmPropertiesMonitorTest {
     JvmPropertiesMonitor sut = new JvmPropertiesMonitor();
     LinkedHashMap<String, Object> attributes = sut.attributes();
 
-    assertThat(attributes).containsKey("java.vm.vendor");
+    assertThat(attributes).containsKeys("java.vm.vendor", "os.name");
   }
 }

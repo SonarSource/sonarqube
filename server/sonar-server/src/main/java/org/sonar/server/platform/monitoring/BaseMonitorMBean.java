@@ -30,6 +30,10 @@ import javax.management.OperationsException;
 
 import java.lang.management.ManagementFactory;
 
+/**
+ * Base implementation of {@link org.sonar.server.platform.monitoring.Monitor}
+ * that is exported as a JMX bean
+ */
 public abstract class BaseMonitorMBean implements Monitor, Startable {
 
   /**
@@ -44,6 +48,9 @@ public abstract class BaseMonitorMBean implements Monitor, Startable {
     }
   }
 
+  /**
+   * Unregister, if needed
+   */
   @Override
   public void stop() {
     try {
