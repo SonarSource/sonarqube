@@ -37,7 +37,7 @@ import java.util.List;
  */
 public class MasterServletFilter implements Filter {
 
-  public static MasterServletFilter INSTANCE;
+  public static volatile MasterServletFilter INSTANCE;
   private ServletFilter[] filters;
   private FilterConfig config;
 
