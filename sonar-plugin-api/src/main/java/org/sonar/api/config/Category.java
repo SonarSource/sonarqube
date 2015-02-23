@@ -59,7 +59,7 @@ public class Category {
 
   @Override
   public boolean equals(Object obj) {
-    if (!(obj instanceof Category)) {
+    if (!(this.getClass() == obj.getClass())) {
       return false;
     }
     return StringUtils.equalsIgnoreCase(((Category) obj).originalKey, this.originalKey);

@@ -158,7 +158,8 @@ public class DefaultInputFile implements InputFile {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof DefaultInputFile)) {
+
+    if (!(this.getClass() == o.getClass())) {
       return false;
     }
 

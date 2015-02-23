@@ -83,7 +83,7 @@ public class DefaultInputDir implements InputDir {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof DefaultInputDir)) {
+    if (!(this.getClass() == o.getClass())) {
       return false;
     }
 
