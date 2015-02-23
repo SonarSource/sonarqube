@@ -26,7 +26,6 @@ import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
 import org.elasticsearch.action.admin.cluster.stats.ClusterStatsResponse;
 import org.elasticsearch.action.admin.indices.stats.IndexStats;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
-import org.elasticsearch.monitor.process.ProcessStats;
 import org.sonar.server.es.EsClient;
 
 import java.util.Date;
@@ -108,10 +107,6 @@ public class EsMonitor extends BaseMonitorMBean implements EsMonitorMBean {
       nodeAttributes.put("Disk Available", byteCountToDisplaySize(stats.getFs().getTotal().getAvailable().bytes()));
       nodeAttributes.put("Store Size", byteCountToDisplaySize(stats.getIndices().getStore().getSizeInBytes()));
       nodeAttributes.put("Open Files", stats.getProcess().getOpenFileDescriptors());
-      ProcessStats.Cpu cpu = stats.getProcess().getCpu();
-      if (cpu != null) {
-        nodeAttributes.put("CPU Load Average", formatPercent(cpu.getPercent()));
-      }
       nodeAttributes.put("JVM Heap Usage", formatPercent(stats.getJvm().getMem().getHeapUsedPrecent()));
       nodeAttributes.put("JVM Heap Used", byteCountToDisplaySize(stats.getJvm().getMem().getHeapUsed().bytes()));
       nodeAttributes.put("JVM Heap Max", byteCountToDisplaySize(stats.getJvm().getMem().getHeapMax().bytes()));

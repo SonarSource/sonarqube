@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -46,9 +47,13 @@ public class PluginsMonitorTest {
   public void plugin_name_and_version() throws Exception {
     LinkedHashMap<String, Object> attributes = sut.attributes();
 
-    assertThat(attributes)
-      .containsEntry("plugin-1", "1.1")
-      .containsEntry("plugin-2", "2.2");
+    assertThat(attributes).containsKeys("key-1", "key-2");
+    assertThat((Map) attributes.get("key-1"))
+      .containsEntry("Name", "plugin-1")
+      .containsEntry("Version", "1.1");
+    assertThat((Map)attributes.get("key-2"))
+      .containsEntry("Name", "plugin-2")
+      .containsEntry("Version", "2.2");
   }
 
   private static class FakePluginRepository implements PluginRepository {
