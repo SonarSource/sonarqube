@@ -112,7 +112,6 @@ public class EsMonitor extends BaseMonitorMBean implements EsMonitorMBean {
       nodeAttributes.put("JVM Heap Max", byteCountToDisplaySize(stats.getJvm().getMem().getHeapMax().bytes()));
       nodeAttributes.put("JVM Non Heap Used", byteCountToDisplaySize(stats.getJvm().getMem().getNonHeapUsed().bytes()));
       nodeAttributes.put("JVM Threads", stats.getJvm().getThreads().count());
-      nodeAttributes.put("JVM Started Since", formatDateTime(new Date(stats.getJvm().getUptime().getMillis())));
       nodeAttributes.put("Field Cache Memory", byteCountToDisplaySize(stats.getIndices().getFieldData().getMemorySizeInBytes()));
       nodeAttributes.put("Filter Cache Memory", byteCountToDisplaySize(stats.getIndices().getFilterCache().getMemorySizeInBytes()));
       nodeAttributes.put("ID Cache Memory", byteCountToDisplaySize(stats.getIndices().getIdCache().getMemorySizeInBytes()));
