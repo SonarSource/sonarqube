@@ -104,6 +104,15 @@ define [
       q
 
 
+    getQuery: (separator = '|') ->
+      filter = @options.app.state.get 'query'
+      _.extend filter, @options.app.state.get 'contextQuery' if @options.app.state.get 'isContext'
+      route = []
+      _.map filter, (value, property) ->
+        route.push '' + property + '=' + encodeURIComponent(value)
+      route.join separator
+
+
     getRoute: ->
       filter = @options.app.state.get 'filter'
       query = super
