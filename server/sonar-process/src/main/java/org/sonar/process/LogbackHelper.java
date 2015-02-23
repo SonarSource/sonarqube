@@ -110,7 +110,7 @@ public class LogbackHelper {
     }
   }
 
-  public static abstract class RollingPolicy {
+  public abstract static class RollingPolicy {
     protected final Context context;
     protected final String filenamePrefix;
     protected final File logsDir;

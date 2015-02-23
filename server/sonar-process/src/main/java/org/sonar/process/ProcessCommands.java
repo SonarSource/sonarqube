@@ -64,7 +64,10 @@ public class ProcessCommands {
   private final RandomAccessFile sharedMemory;
   private static final int MAX_PROCESSES = 50;
   private static final int BYTE_LENGTH_FOR_ONE_PROCESS = 1 + 1 + 8;
-  private static final int MAX_SHARED_MEMORY = BYTE_LENGTH_FOR_ONE_PROCESS * MAX_PROCESSES; // With this shared memory we can handle up to MAX_PROCESSES processes
+
+  // With this shared memory we can handle up to MAX_PROCESSES processes
+  private static final int MAX_SHARED_MEMORY = BYTE_LENGTH_FOR_ONE_PROCESS * MAX_PROCESSES;
+
   public static final byte STOP = (byte) 0xFF;
   public static final byte READY = (byte) 0x01;
   public static final byte EMPTY = (byte) 0x00;
@@ -150,7 +153,7 @@ public class ProcessCommands {
     }
   }
 
-  public static final int getMaxProcesses() {
+  public static int getMaxProcesses() {
     return MAX_PROCESSES;
   }
 }

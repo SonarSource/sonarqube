@@ -28,12 +28,10 @@ import org.elasticsearch.action.admin.indices.stats.IndexStats;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 import org.sonar.server.es.EsClient;
 
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static org.apache.commons.io.FileUtils.byteCountToDisplaySize;
-import static org.sonar.api.utils.DateUtils.formatDateTime;
 
 public class EsMonitor extends BaseMonitorMBean implements EsMonitorMBean {
 
@@ -77,7 +75,7 @@ public class EsMonitor extends BaseMonitorMBean implements EsMonitorMBean {
   }
 
   private LinkedHashMap<String, LinkedHashMap<String, Object>> indexAttributes() {
-    LinkedHashMap<String,LinkedHashMap<String,Object>> indices = new LinkedHashMap<>();
+    LinkedHashMap<String, LinkedHashMap<String, Object>> indices = new LinkedHashMap<>();
     IndicesStatsResponse indicesStats = esClient.prepareStats().all().get();
 
     for (Map.Entry<String, IndexStats> indexStats : indicesStats.getIndices().entrySet()) {
@@ -94,7 +92,7 @@ public class EsMonitor extends BaseMonitorMBean implements EsMonitorMBean {
    * map of {node name -> node attributes}
    */
   private LinkedHashMap<String, LinkedHashMap<String, Object>> nodeAttributes() {
-    LinkedHashMap<String,LinkedHashMap<String,Object>> nodes = new LinkedHashMap<>();
+    LinkedHashMap<String, LinkedHashMap<String, Object>> nodes = new LinkedHashMap<>();
     NodesStatsResponse nodesStats = esClient.prepareNodesStats().all().get();
     for (Map.Entry<String, NodeStats> entry : nodesStats.getNodesMap().entrySet()) {
 
