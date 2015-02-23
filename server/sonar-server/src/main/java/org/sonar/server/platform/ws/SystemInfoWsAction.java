@@ -43,6 +43,7 @@ public class SystemInfoWsAction implements SystemWsAction {
     controller.createAction("info")
       .setDescription("Detailed information about system configuration")
       .setSince("5.1")
+      .setResponseExample(getClass().getResource("/org/sonar/server/platform/ws/example-system-info.json"))
       .setHandler(this);
   }
 

@@ -1,0 +1,196 @@
+{
+  "System": {
+    "System Date": "2015-02-23T18:54:23+0100",
+    "Start Time": "2015-02-23T18:53:22+0100",
+    "JVM Vendor": "Oracle Corporation",
+    "JVM Name": "Java HotSpot(TM) 64-Bit Server VM",
+    "JVM Version": "24.71-b01",
+    "Processors": 8,
+    "System Classpath": "./lib/common/commons-codec-1.8.jar:./lib/common/commons-io-2.4.jar:./lib/common/commons-lang-2.6.jar:./lib/common/elasticsearch-1.4.2.jar:./lib/common/logback-classic-1.1.2.jar:./lib/common/logback-core-1.1.2.jar:./lib/common/lucene-analyzers-common-4.10.2.jar:./lib/common/lucene-core-4.10.2.jar:./lib/common/lucene-grouping-4.10.2.jar:./lib/common/lucene-highlighter-4.10.2.jar:./lib/common/lucene-join-4.10.2.jar:./lib/common/lucene-memory-4.10.2.jar:./lib/common/lucene-misc-4.10.2.jar:./lib/common/lucene-queries-4.10.2.jar:./lib/common/lucene-queryparser-4.10.2.jar:./lib/common/lucene-sandbox-4.10.2.jar:./lib/common/lucene-suggest-4.10.2.jar:./lib/common/slf4j-api-1.7.10.jar:./lib/common/sonar-process-5.1-tests.jar:./lib/common/sonar-process-5.1.jar:./lib/common/sonar-process-monitor-5.1.jar:./lib/server/antlr-2.7.6.jar:./lib/server/blueprints-core-2.2.0.jar:./lib/server/commons-beanutils-1.8.3.jar:./lib/server/commons-collections-3.2.1.jar:./lib/server/commons-csv-1.0.jar:./lib/server/commons-dbcp-1.4.jar:./lib/server/commons-dbutils-1.5.jar:./lib/server/commons-pool-1.5.4.jar:./lib/server/dom4j-1.6.1.jar:./lib/server/ejb3-persistence-1.0.2.GA.jar:./lib/server/geronimo-spec-jta-1.0-M1.jar:./lib/server/gson-2.3.1.jar:./lib/server/guava-10.0.1.jar:./lib/server/hibernate-annotations-3.4.0.GA.jar:./lib/server/hibernate-commons-annotations-3.1.0.GA.jar:./lib/server/hibernate-core-3.3.2.GA.jar:./lib/server/hibernate-entitymanager-3.4.0.GA.jar:./lib/server/javassist-3.4.GA.jar:./lib/server/jcl-over-slf4j-1.7.10.jar:./lib/server/jcommon-1.0.12.jar:./lib/server/jfreechart-1.0.9.jar:./lib/server/jruby-complete-1.7.9.jar:./lib/server/jruby-rack-1.1.13.2.jar:./lib/server/json-simple-1.1.1.jar:./lib/server/jul-to-slf4j-1.7.10.jar:./lib/server/log4j-over-slf4j-1.7.10.jar:./lib/server/logback-access-1.1.2.jar:./lib/server/lz4-1.3.0.jar:./lib/server/mybatis-3.2.7.jar:./lib/server/picocontainer-2.14.3.jar:./lib/server/plexus-classworlds-2.5.1.jar:./lib/server/protobuf-java-2.6.1.jar:./lib/server/sonar-batch-protocol-5.1.jar:./lib/server/sonar-channel-4.1.jar:./lib/server/sonar-check-api-5.1.jar:./lib/server/sonar-colorizer-5.1.jar:./lib/server/sonar-core-5.1.jar:./lib/server/sonar-deprecated-5.1.jar:./lib/server/sonar-duplications-5.1.jar:./lib/server/sonar-graph-5.1.jar:./lib/server/sonar-home-5.1.jar:./lib/server/sonar-java-api-5.1.jar:./lib/server/sonar-markdown-5.1.jar:./lib/server/sonar-plugin-api-5.1.jar:./lib/server/sonar-server-5.1.jar:./lib/server/sonar-squid-4.1.jar:./lib/server/sonar-update-center-common-1.11.jar:./lib/server/stax-api-1.0-2.jar:./lib/server/stax2-api-3.1.4.jar:./lib/server/staxmate-2.0.1.jar:./lib/server/tomcat-embed-core-8.0.18.jar:./lib/server/tomcat-embed-el-8.0.18.jar:./lib/server/tomcat-embed-jasper-8.0.18.jar:./lib/server/tomcat-embed-logging-juli-8.0.18.jar:./lib/server/woodstox-core-lgpl-4.4.0.jar:./lib/server/xml-apis-1.4.01.jar:/Users/foo/dev/core/sonarqube/sonar-application/target/sonarqube-5.1/lib/jdbc/h2/h2-1.3.176.jar",
+    "BootClassPath": "/Library/Java/JavaVirtualMachines/jdk1.7.0_71.jdk/Contents/Home/jre/lib/resources.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_71.jdk/Contents/Home/jre/lib/rt.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_71.jdk/Contents/Home/jre/lib/sunrsasign.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_71.jdk/Contents/Home/jre/lib/jsse.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_71.jdk/Contents/Home/jre/lib/jce.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_71.jdk/Contents/Home/jre/lib/charsets.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_71.jdk/Contents/Home/jre/lib/jfr.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_71.jdk/Contents/Home/jre/classes",
+    "Library Path": "/Users/foo/Library/Java/Extensions:/Library/Java/Extensions:/Network/Library/Java/Extensions:/System/Library/Java/Extensions:/usr/lib/java:.",
+    "Total Memory": "323 MB",
+    "Free Memory": "173 MB",
+    "Max Memory": "716 MB",
+    "Heap": "init = 134217728(131072K) used = 150395872(146870K) committed = 323485696(315904K) max = 716177408(699392K)",
+    "Non Heap": "init = 24576000(24000K) used = 91012976(88879K) committed = 114163712(111488K) max = 218103808(212992K)",
+    "System Load Average": "394.9% (last minute)",
+    "Loaded Classes": 15392,
+    "Total Loaded Classes": 15392,
+    "Unloaded Classes": 0,
+    "Threads": 52,
+    "Threads Peak": 52,
+    "Daemon Thread": 40
+  },
+  "SonarQube": {
+    "Version": "5.1",
+    "External User Authentication": "",
+    "Automatic User Creation": true,
+    "Allow Users to Sign Up": false,
+    "Force authentication": false,
+    "Home Dir": "/Users/foo/dev/core/sonarqube/sonar-application/target/sonarqube-5.1",
+    "Data Dir": "/Users/foo/dev/core/sonarqube/sonar-application/target/sonarqube-5.1/data",
+    "Logs Dir": "/Users/foo/dev/core/sonarqube/sonar-application/target/sonarqube-5.1/logs",
+    "Temp Dir": "/Users/foo/dev/core/sonarqube/sonar-application/target/sonarqube-5.1/temp"
+  },
+  "ElasticSearch": {
+    "State": "GREEN",
+    "Indices": {
+      "sourcelines": {
+        "Docs": 0,
+        "Shards": 1,
+        "Store Size": "115 bytes"
+      },
+      "users": {
+        "Docs": 1,
+        "Shards": 1,
+        "Store Size": "3 KB"
+      },
+      "logs": {
+        "Docs": 1104,
+        "Shards": 1,
+        "Store Size": "162 KB"
+      },
+      "views": {
+        "Docs": 0,
+        "Shards": 1,
+        "Store Size": "115 bytes"
+      },
+      "issues": {
+        "Docs": 0,
+        "Shards": 1,
+        "Store Size": "115 bytes"
+      },
+      "rules": {
+        "Docs": 1491,
+        "Shards": 1,
+        "Store Size": "2 MB"
+      }
+    },
+    "Number of Nodes": 1,
+    "Nodes": {
+      "6DYkdNuvT6abEdShyEK5ow": {
+        "Address": "inet[/10.150.0.193:9001]",
+        "Type": "Master",
+        "Disk Usage": "465 GB",
+        "Disk Available": "67 GB",
+        "Store Size": "2 MB",
+        "Open Files": 212,
+        "JVM Heap Usage": "8.0%",
+        "JVM Heap Used": "79 MB",
+        "JVM Heap Max": "989 MB",
+        "JVM Non Heap Used": "40 MB",
+        "JVM Threads": 104,
+        "Field Cache Memory": "0 bytes",
+        "Filter Cache Memory": "0 bytes",
+        "ID Cache Memory": "51 KB",
+        "Query Cache Memory": "0 bytes"
+      }
+    }
+  },
+  "Plugins": {
+    "scmgit": {
+      "Name": "Git",
+      "Version": "1.0-RC1"
+    },
+    "findbugs": {
+      "Name": "Findbugs",
+      "Version": "3.1"
+    },
+    "scmsvn": {
+      "Name": "SVN",
+      "Version": "1.0-RC1"
+    },
+    "java": {
+      "Name": "Java",
+      "Version": "2.9.1"
+    }
+  },
+  "JvmProperties": {
+    "awt.toolkit": "sun.lwawt.macosx.LWCToolkit",
+    "catalina.base": "/Users/foo/dev/core/sonarqube/sonar-application/target/sonarqube-5.1/temp/tc",
+    "catalina.home": "/Users/foo/dev/core/sonarqube/sonar-application/target/sonarqube-5.1/temp/tc",
+    "catalina.useNaming": "false",
+    "file.encoding": "UTF-8",
+    "file.encoding.pkg": "sun.io",
+    "file.separator": "/",
+    "ftp.nonProxyHosts": "local|*.local|169.254/16|*.169.254/16",
+    "gopherProxySet": "false",
+    "http.agent": "SonarQube 5.1",
+    "http.nonProxyHosts": "local|*.local|169.254/16|*.169.254/16",
+    "java.awt.graphicsenv": "sun.awt.CGraphicsEnvironment",
+    "java.awt.headless": "true",
+    "java.awt.printerjob": "sun.lwawt.macosx.CPrinterJob",
+    "java.class.path": "./lib/common/commons-codec-1.8.jar:./lib/common/commons-io-2.4.jar:./lib/common/commons-lang-2.6.jar:./lib/common/elasticsearch-1.4.2.jar:./lib/common/logback-classic-1.1.2.jar:./lib/common/logback-core-1.1.2.jar:./lib/common/lucene-analyzers-common-4.10.2.jar:./lib/common/lucene-core-4.10.2.jar:./lib/common/lucene-grouping-4.10.2.jar:./lib/common/lucene-highlighter-4.10.2.jar:./lib/common/lucene-join-4.10.2.jar:./lib/common/lucene-memory-4.10.2.jar:./lib/common/lucene-misc-4.10.2.jar:./lib/common/lucene-queries-4.10.2.jar:./lib/common/lucene-queryparser-4.10.2.jar:./lib/common/lucene-sandbox-4.10.2.jar:./lib/common/lucene-suggest-4.10.2.jar:./lib/common/slf4j-api-1.7.10.jar:./lib/common/sonar-process-5.1-tests.jar:./lib/common/sonar-process-5.1.jar:./lib/common/sonar-process-monitor-5.1.jar:./lib/server/antlr-2.7.6.jar:./lib/server/blueprints-core-2.2.0.jar:./lib/server/commons-beanutils-1.8.3.jar:./lib/server/commons-collections-3.2.1.jar:./lib/server/commons-csv-1.0.jar:./lib/server/commons-dbcp-1.4.jar:./lib/server/commons-dbutils-1.5.jar:./lib/server/commons-pool-1.5.4.jar:./lib/server/dom4j-1.6.1.jar:./lib/server/ejb3-persistence-1.0.2.GA.jar:./lib/server/geronimo-spec-jta-1.0-M1.jar:./lib/server/gson-2.3.1.jar:./lib/server/guava-10.0.1.jar:./lib/server/hibernate-annotations-3.4.0.GA.jar:./lib/server/hibernate-commons-annotations-3.1.0.GA.jar:./lib/server/hibernate-core-3.3.2.GA.jar:./lib/server/hibernate-entitymanager-3.4.0.GA.jar:./lib/server/javassist-3.4.GA.jar:./lib/server/jcl-over-slf4j-1.7.10.jar:./lib/server/jcommon-1.0.12.jar:./lib/server/jfreechart-1.0.9.jar:./lib/server/jruby-complete-1.7.9.jar:./lib/server/jruby-rack-1.1.13.2.jar:./lib/server/json-simple-1.1.1.jar:./lib/server/jul-to-slf4j-1.7.10.jar:./lib/server/log4j-over-slf4j-1.7.10.jar:./lib/server/logback-access-1.1.2.jar:./lib/server/lz4-1.3.0.jar:./lib/server/mybatis-3.2.7.jar:./lib/server/picocontainer-2.14.3.jar:./lib/server/plexus-classworlds-2.5.1.jar:./lib/server/protobuf-java-2.6.1.jar:./lib/server/sonar-batch-protocol-5.1.jar:./lib/server/sonar-channel-4.1.jar:./lib/server/sonar-check-api-5.1.jar:./lib/server/sonar-colorizer-5.1.jar:./lib/server/sonar-core-5.1.jar:./lib/server/sonar-deprecated-5.1.jar:./lib/server/sonar-duplications-5.1.jar:./lib/server/sonar-graph-5.1.jar:./lib/server/sonar-home-5.1.jar:./lib/server/sonar-java-api-5.1.jar:./lib/server/sonar-markdown-5.1.jar:./lib/server/sonar-plugin-api-5.1.jar:./lib/server/sonar-server-5.1.jar:./lib/server/sonar-squid-4.1.jar:./lib/server/sonar-update-center-common-1.11.jar:./lib/server/stax-api-1.0-2.jar:./lib/server/stax2-api-3.1.4.jar:./lib/server/staxmate-2.0.1.jar:./lib/server/tomcat-embed-core-8.0.18.jar:./lib/server/tomcat-embed-el-8.0.18.jar:./lib/server/tomcat-embed-jasper-8.0.18.jar:./lib/server/tomcat-embed-logging-juli-8.0.18.jar:./lib/server/woodstox-core-lgpl-4.4.0.jar:./lib/server/xml-apis-1.4.01.jar:/Users/foo/dev/core/sonarqube/sonar-application/target/sonarqube-5.1/lib/jdbc/h2/h2-1.3.176.jar",
+    "java.class.version": "51.0",
+    "java.endorsed.dirs": "/Library/Java/JavaVirtualMachines/jdk1.7.0_71.jdk/Contents/Home/jre/lib/endorsed",
+    "java.ext.dirs": "/Users/foo/Library/Java/Extensions:/Library/Java/JavaVirtualMachines/jdk1.7.0_71.jdk/Contents/Home/jre/lib/ext:/Library/Java/Extensions:/Network/Library/Java/Extensions:/System/Library/Java/Extensions:/usr/lib/java",
+    "java.home": "/Library/Java/JavaVirtualMachines/jdk1.7.0_71.jdk/Contents/Home/jre",
+    "java.io.tmpdir": "/Users/foo/dev/core/sonarqube/sonar-application/target/sonarqube-5.1/temp",
+    "java.library.path": "/Users/foo/Library/Java/Extensions:/Library/Java/Extensions:/Network/Library/Java/Extensions:/System/Library/Java/Extensions:/usr/lib/java:.",
+    "java.net.preferIPv4Stack": "true",
+    "java.runtime.name": "Java(TM) SE Runtime Environment",
+    "java.runtime.version": "1.7.0_71-b14",
+    "java.specification.name": "Java Platform API Specification",
+    "java.specification.vendor": "Oracle Corporation",
+    "java.specification.version": "1.7",
+    "java.vendor": "Oracle Corporation",
+    "java.vendor.url": "http://java.oracle.com/",
+    "java.vendor.url.bug": "http://bugreport.sun.com/bugreport/",
+    "java.version": "1.7.0_71",
+    "java.vm.info": "mixed mode",
+    "java.vm.name": "Java HotSpot(TM) 64-Bit Server VM",
+    "java.vm.specification.name": "Java Virtual Machine Specification",
+    "java.vm.specification.vendor": "Oracle Corporation",
+    "java.vm.specification.version": "1.7",
+    "java.vm.vendor": "Oracle Corporation",
+    "java.vm.version": "24.71-b01",
+    "jruby.compile.invokedynamic": "false",
+    "jruby.management.enabled": "false",
+    "line.separator": "\n",
+    "org.apache.catalina.startup.EXIT_ON_INIT_FAILURE": "true",
+    "org.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH": "true",
+    "os.arch": "x86_64",
+    "os.name": "Mac OS X",
+    "os.version": "10.9.5",
+    "path.separator": ":",
+    "socksNonProxyHosts": "local|*.local|169.254/16|*.169.254/16",
+    "sun.arch.data.model": "64",
+    "sun.boot.class.path": "/Library/Java/JavaVirtualMachines/jdk1.7.0_71.jdk/Contents/Home/jre/lib/resources.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_71.jdk/Contents/Home/jre/lib/rt.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_71.jdk/Contents/Home/jre/lib/sunrsasign.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_71.jdk/Contents/Home/jre/lib/jsse.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_71.jdk/Contents/Home/jre/lib/jce.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_71.jdk/Contents/Home/jre/lib/charsets.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_71.jdk/Contents/Home/jre/lib/jfr.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_71.jdk/Contents/Home/jre/classes",
+    "sun.boot.library.path": "/Library/Java/JavaVirtualMachines/jdk1.7.0_71.jdk/Contents/Home/jre/lib",
+    "sun.cpu.endian": "little",
+    "sun.cpu.isalist": "",
+    "sun.io.unicode.encoding": "UnicodeBig",
+    "sun.java.command": "org.sonar.server.app.WebServer /var/folders/ny/2lkywbzs63xc1n1k7rzprjj40000gn/T/sq-process8077706653824090037properties",
+    "sun.java.launcher": "SUN_STANDARD",
+    "sun.jnu.encoding": "UTF-8",
+    "sun.management.compiler": "HotSpot 64-Bit Tiered Compilers",
+    "sun.nio.ch.bugLevel": "",
+    "sun.os.patch.level": "unknown",
+    "user.country": "US",
+    "user.country.format": "FR",
+    "user.dir": "/Users/foo/dev/core/sonarqube/sonar-application/target/sonarqube-5.1",
+    "user.home": "/Users/foo",
+    "user.language": "en",
+    "user.name": "foo",
+    "user.timezone": "Europe/Paris"
+  },
+  "Database": {
+    "Database": "H2",
+    "Database Version": "1.3.176 (2014-04-05)",
+    "Username": "SONAR",
+    "URL": "jdbc:h2:tcp://localhost:9092/sonar",
+    "Driver": "H2 JDBC Driver",
+    "Driver Version": "1.3.176 (2014-04-05)",
+    "Version Status": "UP_TO_DATE",
+    "Pool Active Connections": 2,
+    "Pool Max Connections": 50,
+    "Pool Initial Size": 0,
+    "Pool Idle Connections": 2,
+    "Pool Min Idle Connections": 2,
+    "Pool Max Idle Connections": 5,
+    "Pool Max Wait (ms)": 5000,
+    "Pool Remove Abandoned": false,
+    "Pool Remove Abandoned Timeout (seconds)": 300
+  }
+}
