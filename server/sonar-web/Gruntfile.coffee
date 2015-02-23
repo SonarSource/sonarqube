@@ -1,4 +1,8 @@
 module.exports = (grunt) ->
+  require('jit-grunt')(grunt, {
+    express: 'grunt-express-server'
+  });
+
   pkg = grunt.file.readJSON('package.json')
   expressPort = '<%= grunt.option("port") || 3000 %>'
 
@@ -348,7 +352,7 @@ module.exports = (grunt) ->
         src: ['<%= grunt.option("file") %>']
 
 
-    uglify:
+    uglify_parallel:
       build:
         files: [
           expand: true
@@ -394,29 +398,13 @@ module.exports = (grunt) ->
 
 
 
-  # Load grunt-contrib-* plugins
-  grunt.loadNpmTasks 'grunt-contrib-less'
-  grunt.loadNpmTasks 'grunt-css-url-rewrite'
-  grunt.loadNpmTasks 'grunt-contrib-coffee'
-  grunt.loadNpmTasks 'grunt-contrib-uglify'
-  grunt.loadNpmTasks 'grunt-contrib-requirejs'
-  grunt.loadNpmTasks 'grunt-contrib-handlebars'
-  grunt.loadNpmTasks 'grunt-contrib-watch'
-  grunt.loadNpmTasks 'grunt-contrib-clean'
-  grunt.loadNpmTasks 'grunt-contrib-copy'
-  grunt.loadNpmTasks 'grunt-contrib-concat'
-  grunt.loadNpmTasks 'grunt-contrib-jshint'
-  grunt.loadNpmTasks 'grunt-express-server'
-  grunt.loadNpmTasks 'grunt-casper'
-
-
   # Define tasks
   grunt.registerTask 'dev',
       ['clean:css', 'clean:js', 'less:dev', 'coffee:build', 'handlebars:build', 'copy:js', 'concat:dev']
 
   grunt.registerTask 'build',
       ['clean:css', 'clean:js', 'less:build', 'cssUrlRewrite:build', 'coffee:build', 'handlebars:build', 'copy:js',
-       'concat:build', 'requirejs', 'clean:js', 'copy:build', 'copy:requirejs', 'uglify:build', 'clean:build']
+       'concat:build', 'requirejs', 'clean:js', 'copy:build', 'copy:requirejs', 'uglify_parallel:build', 'clean:build']
 
   grunt.registerTask 'default',
       ['build']
