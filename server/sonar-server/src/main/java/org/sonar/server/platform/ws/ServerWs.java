@@ -33,7 +33,6 @@ public class ServerWs implements WebService {
       .setSince("2.10");
 
     defineIndexAction(controller);
-    defineSystemAction(controller);
     defineSetupAction(controller);
 
     controller.done();
@@ -51,16 +50,6 @@ public class ServerWs implements WebService {
       .setSince("2.10")
       .setHandler(RailsHandler.INSTANCE)
       .setResponseExample(Resources.getResource(this.getClass(), "example-index.json"));
-
-    RailsHandler.addFormatParam(action);
-  }
-
-  private void defineSystemAction(NewController controller) {
-    NewAction action = controller.createAction("system")
-      .setDescription("Get the system properties, server info (Java, OS), database configuration, JVM statistics and installed plugins. Requires Administer System permission")
-      .setSince("2.10")
-      .setHandler(RailsHandler.INSTANCE)
-      .setResponseExample(Resources.getResource(this.getClass(), "example-system.json"));
 
     RailsHandler.addFormatParam(action);
   }

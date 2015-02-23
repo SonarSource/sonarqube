@@ -20,7 +20,6 @@
 
 package org.sonar.server.platform.ws;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
@@ -30,12 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ServerWsTest {
 
-  WsTester tester;
-
-  @Before
-  public void setUp() throws Exception {
-    tester = new WsTester(new ServerWs());
-  }
+  WsTester tester = new WsTester(new ServerWs());
 
   @Test
   public void define_controller() throws Exception {
@@ -43,7 +37,7 @@ public class ServerWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.since()).isEqualTo("2.10");
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(3);
+    assertThat(controller.actions()).hasSize(2);
   }
 
   @Test
@@ -51,17 +45,6 @@ public class ServerWsTest {
     WebService.Controller controller = tester.controller("api/server");
 
     WebService.Action action = controller.action("index");
-    assertThat(action).isNotNull();
-    assertThat(action.handler()).isInstanceOf(RailsHandler.class);
-    assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).hasSize(1);
-  }
-
-  @Test
-  public void define_system_action() throws Exception {
-    WebService.Controller controller = tester.controller("api/server");
-
-    WebService.Action action = controller.action("system");
     assertThat(action).isNotNull();
     assertThat(action.handler()).isInstanceOf(RailsHandler.class);
     assertThat(action.responseExampleAsString()).isNotEmpty();
