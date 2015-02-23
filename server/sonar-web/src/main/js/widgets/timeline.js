@@ -1,48 +1,3 @@
-//******************* TIMELINE CHART ******************* //
-/*
- * Displays the evolution of metrics on a line chart, displaying related events.
- *
- * Parameters of the Timeline class:
- *   - data: array of arrays, each containing maps {x,y,yl} where x is a (JS) date, y is a number value (representing
- *           a metric value at a given time), and yl the localized value of y. The {x,y, yl} maps must be sorted
- *           by ascending date.
- *   - metrics: array of metric names. The order is important as it defines which array of the "data" parameter
- *           represents which metric.
- *   - snapshots: array of maps {sid,d} where sid is the snapshot id and d is the locale-formatted date of the snapshot.
- *           The {sid,d} maps must be sorted by ascending date.
- *   - events: array of maps {sid,d,l[{n}]} where sid is the snapshot id corresponding to an event, d is the (JS) date
- *           of the event, and l is an array containing the different event names for this date.
- *   - height: height of the chart area (notice header excluded). Defaults to 80.
- *
- * Example: displays 2 metrics:
- *
- <code>
- function d(y,m,d,h,min,s) {
- return new Date(y,m,d,h,min,s);
- }
- var data = [
- [{x:d(2011,5,15,0,1,0),y:912.00,yl:"912"},{x:d(2011,6,21,0,1,0),y:152.10,yl:"152.10"}],
- [{x:d(2011,5,15,0,1,0),y:52.20,yi:"52.20"},{x:d(2011,6,21,0,1,0),y:1452.10,yi:"1,452.10"}]
- ];
- var metrics = ["Lines of code","Rules compliance"];
- var snapshots = [{sid:1,d:"June 15, 2011 00:01"},{sid:30,d:"July 21, 2011 00:01"}];
- var events = [
- {sid:1,d:d(2011,5,15,0,1,0),l:[{n:"0.6-SNAPSHOT"},{n:"Sun checks"}]},
- {sid:30,d:d(2011,6,21,0,1,0),l:[{n:"0.7-SNAPSHOT"}]}
- ];
-
- var timeline = new SonarWidgets.Timeline('timeline-chart-20')
- .height(160)
- .data(data)
- .snapshots(snapshots)
- .metrics(metrics)
- .events(events);
- timeline.render();
- </code>
- *
- */
-
-
 /*global d3:false*/
 
 window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
@@ -98,6 +53,101 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
   };
 
+
+  window.SonarWidgets.Timeline.prototype.initScalesAndAxis = function () {
+    // Configure scales
+    var timeDomain = this.data()
+        .map(function(_) {
+          return d3.extent(_, function(d) {
+            return d.x;
+          });
+        })
+        .reduce(function(p, c) {
+          return p.concat(c);
+        }, []);
+
+    this.time = d3.time.scale().domain(d3.extent(timeDomain));
+
+    this.y = this.data().map(function(_) {
+      return d3.scale.linear()
+          .domain(d3.extent(_, function(d) { return d.y; }));
+    });
+
+    this.color = d3.scale.category10();
+
+    // Configure the axis
+    this.timeAxis = d3.svg.axis()
+        .scale(this.time)
+        .orient('bottom')
+        .ticks(5);
+  };
+
+
+  window.SonarWidgets.Timeline.prototype.initEvents = function () {
+    var widget = this;
+    this.events(this.events().filter(function (event) {
+      return event.d >= widget.time.domain()[0];
+    }));
+
+    this.gevents = this.gWrap.append('g')
+        .attr('class', 'axis events')
+        .selectAll('.event-tick')
+        .data(this.events());
+
+    this.gevents.enter().append('line')
+        .attr('class', 'event-tick')
+        .attr('y2', -8);
+
+    this.gevents.exit().remove();
+
+
+    this.selectSnapshot = function(cl) {
+      var sx = widget.time(widget.data()[0][cl].x);
+
+      widget.markers.forEach(function(marker) {
+        marker.style('opacity', 0);
+        d3.select(marker[0][cl]).style('opacity', 1);
+      });
+
+      widget.scanner
+          .attr('x1', sx)
+          .attr('x2', sx);
+
+      widget.infoDate
+          .text(moment(widget.data()[0][cl].x).format('LL'));
+
+      var metricsLines = widget.data().map(function(d, i) {
+        return widget.metrics()[i] + ': ' + d[cl].yl;
+      });
+
+      metricsLines.forEach(function(d, i) {
+        widget.infoMetrics[i].select('text').text(d);
+      });
+
+      widget.gevents.attr('y2', -8);
+      widget.infoEvent.text('');
+      widget.events().forEach(function(d, i) {
+        if (d.d - widget.data()[0][cl].x === 0) {
+          d3.select(widget.gevents[0][i]).attr('y2', -12);
+
+          widget.infoEvent
+              .text(widget.events()[i].l
+                  .map(function(e) { return e.n; })
+                  .join(', '));
+        }
+      });
+    };
+
+
+    // Set event listeners
+    this.svg.on('mousemove', function() {
+      var mx = d3.mouse(widget.plotWrap.node())[0],
+          cl = closest(widget.data()[0], mx, function(d) { return widget.time(d.x); });
+      widget.selectSnapshot(cl);
+    });
+  };
+
+
   window.SonarWidgets.Timeline.prototype.render = function () {
     var widget = this;
 
@@ -126,37 +176,8 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this.gWrap
         .attr('transform', trans(this.margin().left, this.margin().top));
 
-
-    // Configure scales
-    var timeDomain = this.data()
-        .map(function(_) {
-          return d3.extent(_, function(d) {
-            return d.x;
-          });
-        })
-        .reduce(function(p, c) {
-          return p.concat(c);
-        }, []);
-
-    this.time = d3.time.scale().domain(d3.extent(timeDomain));
-
-    this.y = this.data().map(function(_) {
-      return d3.scale.linear()
-          .domain(d3.extent(_, function(d) { return d.y; }));
-    });
-
-    this.color = d3.scale.category10();
-
-
-    // Configure the axis
-    this.timeAxis = d3.svg.axis()
-        .scale(this.time)
-        .orient('bottom')
-        .ticks(5);
-
-
+    this.initScalesAndAxis();
     this.showLimitHistoryMessage();
-
 
     // Configure lines and points
     this.lines = [];
@@ -218,70 +239,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
       widget.infoMetrics.push(infoMetric);
     });
 
-
-    // Configure events
-    this.events(this.events().filter(function (event) {
-      return event.d >= widget.time.domain()[0];
-    }));
-
-    this.gevents = this.gWrap.append('g')
-        .attr('class', 'axis events')
-        .selectAll('.event-tick')
-        .data(this.events());
-
-    this.gevents.enter().append('line')
-        .attr('class', 'event-tick')
-        .attr('y2', -8);
-
-    this.gevents.exit().remove();
-
-
-    this.selectSnapshot = function(cl) {
-      var sx = widget.time(widget.data()[0][cl].x);
-
-      widget.markers.forEach(function(marker) {
-        marker.style('opacity', 0);
-        d3.select(marker[0][cl]).style('opacity', 1);
-      });
-
-      widget.scanner
-          .attr('x1', sx)
-          .attr('x2', sx);
-
-      widget.infoDate
-          .text(moment(widget.data()[0][cl].x).format('LL'));
-
-      var metricsLines = widget.data().map(function(d, i) {
-        return widget.metrics()[i] + ': ' + d[cl].yl;
-      });
-
-      metricsLines.forEach(function(d, i) {
-        widget.infoMetrics[i].select('text').text(d);
-      });
-
-      widget.gevents.attr('y2', -8);
-      widget.infoEvent.text('');
-      widget.events().forEach(function(d, i) {
-        if (d.d - widget.data()[0][cl].x === 0) {
-          d3.select(widget.gevents[0][i]).attr('y2', -12);
-
-          widget.infoEvent
-              .text(widget.events()[i].l
-                  .map(function(e) { return e.n; })
-                  .join(', '));
-        }
-      });
-    };
-
-
-    // Set event listeners
-    this.svg.on('mousemove', function() {
-      var mx = d3.mouse(widget.plotWrap.node())[0],
-          cl = closest(widget.data()[0], mx, function(d) { return widget.time(d.x); });
-      widget.selectSnapshot(cl);
-    });
-
-
+    this.initEvents();
     this.update();
 
     return this;
