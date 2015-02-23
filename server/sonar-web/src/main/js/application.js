@@ -314,6 +314,39 @@ function openPopup(url, popupId) {
 }
 
 
+function collapsedDirFromPath (path) {
+  var limit = 30;
+  if (typeof path === 'string') {
+    var tokens = _.initial(path.split('/'));
+    if (tokens.length > 2) {
+      var head = _.first(tokens),
+          tail = _.last(tokens),
+          middle = _.initial(_.rest(tokens)),
+          cut = false;
+      while (middle.join().length > limit && middle.length > 0) {
+        middle.shift();
+        cut = true;
+      }
+      var body = [].concat(head, cut ? ['...'] : [], middle, tail);
+      return body.join('/') + '/';
+    } else {
+      return tokens.join('/') + '/';
+    }
+  } else {
+    return null;
+  }
+}
+
+function fileFromPath (path) {
+  if (typeof path === 'string') {
+    var tokens = path.split('/');
+    return _.last(tokens);
+  } else {
+    return null;
+  }
+}
+
+
 jQuery(function () {
 
   // Process login link in order to add the anchor
