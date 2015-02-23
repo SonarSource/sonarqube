@@ -31,7 +31,7 @@ import java.util.Set;
  */
 public abstract class WSUtils {
 
-  private static WSUtils instance = null;
+  private static volatile WSUtils instance = null;
 
   public static void setInstance(WSUtils utils) {
     instance = utils;

@@ -92,10 +92,11 @@ public class ParseReportStep implements ComputationStep {
 
   private void recursivelyProcessComponent(BatchOutputReader reportReader, ComputationContext context, int componentRef) {
     BatchReport.Component component = reportReader.readComponent(componentRef);
-    issueComputation.processComponentIssues(context, component.getUuid(), reportReader.readComponentIssues(componentRef));
-
-    for (Integer childRef : component.getChildRefsList()) {
-      recursivelyProcessComponent(reportReader, context, childRef);
+    if (component != null) {
+      issueComputation.processComponentIssues(context, component.getUuid(), reportReader.readComponentIssues(componentRef));
+      for (Integer childRef : component.getChildRefsList()) {
+        recursivelyProcessComponent(reportReader, context, childRef);
+      }
     }
   }
 

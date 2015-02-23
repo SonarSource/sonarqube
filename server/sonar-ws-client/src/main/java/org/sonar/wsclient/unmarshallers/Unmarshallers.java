@@ -28,7 +28,7 @@ public final class Unmarshallers {
   private Unmarshallers() {
   }
 
-  private static Map<Class, Unmarshaller> unmarshallers;
+  private static volatile Map<Class, Unmarshaller> unmarshallers;
 
   static {
     unmarshallers = new HashMap<Class, Unmarshaller>();

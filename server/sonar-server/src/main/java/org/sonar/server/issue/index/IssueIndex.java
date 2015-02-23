@@ -45,6 +45,7 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.NonNullInputFunction;
 import org.sonar.server.es.*;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.IssueQuery;
@@ -101,9 +102,9 @@ public class IssueIndex extends BaseIndex {
    * Convert an Elasticsearch result (a map) to an {@link org.sonar.server.issue.index.IssueDoc}. It's
    * used for {@link org.sonar.server.es.SearchResult}.
    */
-  private static final Function<Map<String, Object>, IssueDoc> DOC_CONVERTER = new Function<Map<String, Object>, IssueDoc>() {
+  private static final Function<Map<String, Object>, IssueDoc> DOC_CONVERTER = new NonNullInputFunction<Map<String,Object>, IssueDoc>() {
     @Override
-    public IssueDoc apply(Map<String, Object> input) {
+    protected IssueDoc doApply(Map<String, Object> input) {
       return new IssueDoc(input);
     }
   };

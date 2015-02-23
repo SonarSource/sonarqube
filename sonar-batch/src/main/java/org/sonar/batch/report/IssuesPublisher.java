@@ -81,33 +81,43 @@ public class IssuesPublisher implements ReportPublisher {
     if (message != null) {
       builder.setMsg(message);
     }
-    if (issue.effortToFix() != null) {
-      builder.setEffortToFix(issue.effortToFix());
+    Double effortToFix = issue.effortToFix();
+    if (effortToFix != null) {
+      builder.setEffortToFix(effortToFix);
     }
-    if (issue.debtInMinutes() != null) {
-      builder.setDebtInMinutes(issue.debtInMinutes());
+
+    Long debtInMinutes = issue.debtInMinutes();
+    if (debtInMinutes != null) {
+      builder.setDebtInMinutes(debtInMinutes);
     }
-    if (issue.resolution() != null) {
-      builder.setResolution(issue.resolution());
+    String resolution = issue.resolution();
+    if (resolution != null) {
+      builder.setResolution(resolution);
     }
-    if (issue.status() != null) {
-      builder.setStatus(issue.status());
+    String status = issue.status();
+    if (status != null) {
+      builder.setStatus(status);
     }
-    if (issue.checksum() != null) {
-      builder.setChecksum(issue.checksum());
+    String checksum = issue.checksum();
+    if (checksum != null) {
+      builder.setChecksum(checksum);
     }
     builder.setManualSeverity(issue.manualSeverity());
-    if (issue.reporter() != null) {
-      builder.setReporter(issue.reporter());
+    String reporter = issue.reporter();
+    if (reporter != null) {
+      builder.setReporter(reporter);
     }
-    if (issue.assignee() != null) {
-      builder.setAssignee(issue.assignee());
+    String assignee = issue.assignee();
+    if (assignee != null) {
+      builder.setAssignee(assignee);
     }
-    if (issue.actionPlanKey() != null) {
-      builder.setActionPlanKey(issue.actionPlanKey());
+    String actionPlanKey = issue.actionPlanKey();
+    if (actionPlanKey != null) {
+      builder.setActionPlanKey(actionPlanKey);
     }
-    if (issue.authorLogin() != null) {
-      builder.setAuthorLogin(issue.authorLogin());
+    String authorLogin = issue.authorLogin();
+    if (authorLogin != null) {
+      builder.setAuthorLogin(authorLogin);
     }
     String diff = diffsToString(issue.currentChange());
     if (diff != null) {

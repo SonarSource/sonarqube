@@ -27,7 +27,7 @@ import java.util.Enumeration;
 
 public class LoopbackAddress {
 
-  private static InetAddress instance;
+  private static volatile InetAddress instance;
 
   private LoopbackAddress() {
     // only static stuff
