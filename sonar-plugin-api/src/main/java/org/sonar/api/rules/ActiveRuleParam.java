@@ -104,11 +104,11 @@ public class ActiveRuleParam implements Cloneable {
 
   @Override
   public boolean equals(Object obj) {
+    if (!(obj instanceof ActiveRuleParam)) {
+      return false;
+    }
     if (this == obj) {
       return true;
-    }
-    if (this.getClass() != obj.getClass()) {
-      return false;
     }
     ActiveRuleParam other = (ActiveRuleParam) obj;
     return other.getKey().equals(getKey());

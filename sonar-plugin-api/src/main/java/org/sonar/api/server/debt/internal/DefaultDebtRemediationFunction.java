@@ -101,11 +101,11 @@ public class DefaultDebtRemediationFunction implements DebtRemediationFunction {
 
   @Override
   public boolean equals(Object o) {
+    if (!(o instanceof DefaultDebtRemediationFunction)) {
+      return false;
+    }
     if (this == o) {
       return true;
-    }
-    if (this.getClass() != o.getClass()) {
-      return false;
     }
     DefaultDebtRemediationFunction other = (DefaultDebtRemediationFunction) o;
     return new EqualsBuilder()

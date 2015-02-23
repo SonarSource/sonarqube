@@ -50,7 +50,7 @@ public class Token {
 
   @Override
   public boolean equals(Object object) {
-    if (this.getClass() == object.getClass()) {
+    if (object instanceof Token) {
       Token anotherToken = (Token) object;
       return anotherToken.line == line && anotherToken.column == column && anotherToken.value.equals(value);
     }

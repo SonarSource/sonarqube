@@ -121,8 +121,8 @@ public class Notification implements Serializable {
   }
 
   @Override
-  public boolean equals(@Nullable Object obj) {
-    if (obj == null || this.getClass() != obj.getClass()) {
+  public boolean equals(Object obj) {
+    if (!(obj instanceof Notification)) {
       return false;
     }
     if (this == obj) {

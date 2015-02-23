@@ -71,12 +71,17 @@ public class RulesAggregation {
       if (this == o) {
         return true;
       }
-      if (this.getClass() != o.getClass()) {
+      if (o == null || getClass() != o.getClass()) {
         return false;
       }
 
       Rule rule = (Rule) o;
-      return ruleKey.equals(rule.ruleKey);
+
+      if (!ruleKey.equals(rule.ruleKey)) {
+        return false;
+      }
+
+      return true;
     }
 
     @Override
