@@ -222,11 +222,6 @@ public class MonitorTest {
   }
 
   @Test
-  public void force_stop_if_too_long() throws Exception {
-    // TODO
-  }
-
-  @Test
   public void fail_to_start_if_bad_class_name() throws Exception {
     monitor = newDefaultMonitor();
     JavaCommand command = new JavaCommand("test")
