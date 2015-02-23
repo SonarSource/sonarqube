@@ -22,11 +22,11 @@ package org.sonar.server.computation;
 
 import com.google.common.base.Throwables;
 import org.apache.commons.lang.ArrayUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.TimeProfiler;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.utils.log.Profiler;
 import org.sonar.core.activity.Activity;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
@@ -39,7 +39,7 @@ import org.sonar.server.db.DbClient;
 
 public class ComputationService implements ServerComponent {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ComputationService.class);
+  private static final Logger LOG = Loggers.get(ComputationService.class);
 
   private final DbClient dbClient;
   private final ComputationSteps steps;
@@ -52,7 +52,7 @@ public class ComputationService implements ServerComponent {
   }
 
   public void process(AnalysisReportDto report) {
-    TimeProfiler profiler = new TimeProfiler(LOG).start(String.format(
+    Profiler profiler = Profiler.create(LOG).startInfo(String.format(
       "#%s - %s - processing analysis report", report.getId(), report.getProjectKey()));
 
     ComponentDto project = loadProject(report);
@@ -60,9 +60,9 @@ public class ComputationService implements ServerComponent {
       ComputationContext context = new ComputationContext(report, project);
       for (ComputationStep step : steps.orderedSteps()) {
         if (ArrayUtils.contains(step.supportedProjectQualifiers(), context.getProject().qualifier())) {
-          TimeProfiler stepProfiler = new TimeProfiler(LOG).start(step.getDescription());
+          Profiler stepProfiler = Profiler.create(LOG).startInfo(step.getDescription());
           step.execute(context);
-          stepProfiler.stop();
+          stepProfiler.stopInfo();
         }
       }
       report.succeed();
@@ -73,7 +73,7 @@ public class ComputationService implements ServerComponent {
 
     } finally {
       logActivity(report, project);
-      profiler.stop();
+      profiler.stopInfo();
     }
   }
 

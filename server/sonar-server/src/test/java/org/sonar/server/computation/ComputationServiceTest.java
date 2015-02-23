@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -107,6 +108,7 @@ public class ComputationServiceTest {
   private ComputationStep mockStep(String... qualifiers) {
     ComputationStep step = mock(ComputationStep.class);
     when(step.supportedProjectQualifiers()).thenReturn(qualifiers);
+    when(step.getDescription()).thenReturn(RandomStringUtils.randomAscii(5));
     return step;
   }
 }

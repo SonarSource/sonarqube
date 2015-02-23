@@ -21,11 +21,11 @@ package org.sonar.batch.phases;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Initializer;
 import org.sonar.api.resources.Project;
-import org.sonar.api.utils.TimeProfiler;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.utils.log.Profiler;
 import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
 import org.sonar.batch.events.EventBus;
 
@@ -33,7 +33,7 @@ import java.util.Collection;
 
 public class InitializersExecutor {
 
-  private static final Logger LOG = LoggerFactory.getLogger(SensorsExecutor.class);
+  private static final Logger LOG = Loggers.get(SensorsExecutor.class);
 
   private Project project;
   private BatchExtensionDictionnary selector;
@@ -55,9 +55,9 @@ public class InitializersExecutor {
     for (Initializer initializer : initializers) {
       eventBus.fireEvent(new InitializerExecutionEvent(initializer, true));
 
-      TimeProfiler profiler = new TimeProfiler(LOG).start("Initializer " + initializer);
+      Profiler profiler = Profiler.create(LOG).startInfo("Initializer " + initializer);
       initializer.execute(project);
-      profiler.stop();
+      profiler.stopInfo();
       eventBus.fireEvent(new InitializerExecutionEvent(initializer, false));
     }
 

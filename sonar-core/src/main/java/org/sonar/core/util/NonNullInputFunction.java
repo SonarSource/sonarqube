@@ -32,7 +32,7 @@ public abstract class NonNullInputFunction<F,T> implements Function<F, T> {
 
   @Override
   public final T apply(@Nullable F input) {
-    Preconditions.checkNotNull(input, "Null inputs are not allowed in this function");
+    Preconditions.checkArgument(input != null, "Null inputs are not allowed in this function");
     return doApply(input);
   }
 

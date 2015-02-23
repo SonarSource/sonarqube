@@ -20,28 +20,25 @@
 package org.sonar.batch.repository;
 
 import org.picocontainer.injectors.ProviderAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.api.utils.TimeProfiler;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.utils.log.Profiler;
 import org.sonar.batch.bootstrap.TaskProperties;
 import org.sonar.batch.protocol.input.ProjectRepositories;
 
 public class ProjectRepositoriesProvider extends ProviderAdapter {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ProjectRepositoriesProvider.class);
+  private static final Logger LOG = Loggers.get(ProjectRepositoriesProvider.class);
 
   private ProjectRepositories projectReferentials;
 
   public ProjectRepositories provide(ProjectRepositoriesLoader loader, ProjectReactor reactor, TaskProperties taskProps, AnalysisMode analysisMode) {
     if (projectReferentials == null) {
-      TimeProfiler profiler = new TimeProfiler(LOG).start("Load project repositories");
-      try {
-        projectReferentials = loader.load(reactor, taskProps);
-      } finally {
-        profiler.stop();
-      }
+      Profiler profiler = Profiler.create(LOG).startInfo("Load project repositories");
+      projectReferentials = loader.load(reactor, taskProps);
+      profiler.stopInfo();
       if (analysisMode.isPreview() && projectReferentials.lastAnalysisDate() == null) {
         LOG.warn("No analysis has been found on the server for this project. All issues will be marked as 'new'.");
       }

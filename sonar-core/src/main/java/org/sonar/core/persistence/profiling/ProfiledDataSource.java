@@ -31,7 +31,7 @@ import java.util.Collection;
 
 public class ProfiledDataSource extends BasicDataSource {
 
-  public static final Logger SQL_LOGGER = Loggers.get("sql");
+  static final Logger SQL_LOGGER = Loggers.get("sql");
 
   private final BasicDataSource delegate;
 

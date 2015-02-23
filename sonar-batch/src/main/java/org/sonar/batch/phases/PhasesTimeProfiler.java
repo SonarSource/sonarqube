@@ -22,14 +22,14 @@ package org.sonar.batch.phases;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.events.DecoratorExecutionHandler;
 import org.sonar.api.batch.events.DecoratorsPhaseHandler;
 import org.sonar.api.batch.events.SensorExecutionHandler;
 import org.sonar.api.batch.events.SensorsPhaseHandler;
-import org.sonar.api.utils.TimeProfiler;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.utils.log.Profiler;
 
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -37,9 +37,9 @@ import java.util.Map;
 
 public class PhasesTimeProfiler implements SensorExecutionHandler, DecoratorExecutionHandler, DecoratorsPhaseHandler, SensorsPhaseHandler {
 
-  private static final Logger LOG = LoggerFactory.getLogger(PhasesTimeProfiler.class);
+  private static final Logger LOG = Loggers.get(PhasesTimeProfiler.class);
 
-  private TimeProfiler profiler = new TimeProfiler(LOG);
+  private Profiler profiler = Profiler.create(LOG);
   private DecoratorsProfiler decoratorsProfiler = new DecoratorsProfiler();
 
   @Override
@@ -52,9 +52,9 @@ public class PhasesTimeProfiler implements SensorExecutionHandler, DecoratorExec
   @Override
   public void onSensorExecution(SensorExecutionEvent event) {
     if (event.isStart()) {
-      profiler.start("Sensor " + event.getSensor());
+      profiler.startInfo("Sensor " + event.getSensor());
     } else {
-      profiler.stop();
+      profiler.stopInfo();
     }
   }
 

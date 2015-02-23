@@ -102,7 +102,7 @@ public class LogbackHelper {
     } else if (rollingPolicy.startsWith("size:")) {
       return new SizeRollingPolicy(ctx, filenamePrefix, logsDir, maxFiles, StringUtils.substringAfter(rollingPolicy, "size:"));
 
-    } else if (rollingPolicy.equals("none")) {
+    } else if ("none".equals(rollingPolicy)) {
       return new NoRollingPolicy(ctx, filenamePrefix, logsDir, maxFiles);
 
     } else {

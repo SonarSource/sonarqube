@@ -75,7 +75,7 @@ public class LogTester extends ExternalResource {
     setLevel(initialLevel);
   }
 
-  protected LoggerLevel getLevel() {
+  LoggerLevel getLevel() {
     return Loggers.getFactory().getLevel();
   }
 

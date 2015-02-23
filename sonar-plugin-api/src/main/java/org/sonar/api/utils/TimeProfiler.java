@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
  * @deprecated since 5.1. Replaced by {@link org.sonar.api.utils.log.Profiler}
  * @since 2.0
  */
+@Deprecated
 public class TimeProfiler {
 
   private org.slf4j.Logger logger;

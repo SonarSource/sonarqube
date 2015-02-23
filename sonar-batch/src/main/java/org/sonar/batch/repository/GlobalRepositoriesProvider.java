@@ -20,25 +20,22 @@
 package org.sonar.batch.repository;
 
 import org.picocontainer.injectors.ProviderAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.utils.TimeProfiler;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.utils.log.Profiler;
 import org.sonar.batch.protocol.input.GlobalRepositories;
 
 public class GlobalRepositoriesProvider extends ProviderAdapter {
 
-  private static final Logger LOG = LoggerFactory.getLogger(GlobalRepositoriesProvider.class);
+  private static final Logger LOG = Loggers.get(GlobalRepositoriesProvider.class);
 
   private GlobalRepositories globalReferentials;
 
   public GlobalRepositories provide(GlobalRepositoriesLoader loader) {
     if (globalReferentials == null) {
-      TimeProfiler profiler = new TimeProfiler(LOG).start("Load global repositories");
-      try {
-        globalReferentials = loader.load();
-      } finally {
-        profiler.stop();
-      }
+      Profiler profiler = Profiler.create(LOG).startInfo("Load global repositories");
+      globalReferentials = loader.load();
+      profiler.stopInfo();
     }
     return globalReferentials;
   }
