@@ -39,6 +39,6 @@ define [
 
 
     bulkChange: ->
-      query = @options.app.controller.getQuery '&'
+      query = @options.app.controller.getQuery '&', true
       url = "#{baseUrl}/issues/bulk_change_form?#{query}"
       openModalWindow url, {}

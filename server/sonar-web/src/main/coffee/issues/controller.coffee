@@ -104,9 +104,9 @@ define [
       q
 
 
-    getQuery: (separator = '|') ->
+    getQuery: (separator = '|', addContext = false) ->
       filter = @options.app.state.get 'query'
-      _.extend filter, @options.app.state.get 'contextQuery' if @options.app.state.get 'isContext'
+      _.extend filter, @options.app.state.get 'contextQuery' if addContext && @options.app.state.get 'isContext'
       route = []
       _.map filter, (value, property) ->
         route.push '' + property + '=' + encodeURIComponent(value)
