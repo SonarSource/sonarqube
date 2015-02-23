@@ -22,6 +22,8 @@ package org.sonar.duplications.statement;
 import org.sonar.duplications.CodeFragment;
 import org.sonar.duplications.token.Token;
 
+import javax.annotation.Nullable;
+
 import java.util.List;
 
 public class Statement implements CodeFragment {
@@ -81,8 +83,8 @@ public class Statement implements CodeFragment {
   }
 
   @Override
-  public boolean equals(Object obj) {
-    if (this.getClass() != obj.getClass()) {
+  public boolean equals(@Nullable Object obj) {
+    if (obj ==  null || this.getClass() != obj.getClass()) {
       return false;
     }
     Statement other = (Statement) obj;

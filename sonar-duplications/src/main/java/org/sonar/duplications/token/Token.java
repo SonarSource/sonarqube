@@ -19,6 +19,8 @@
  */
 package org.sonar.duplications.token;
 
+import javax.annotation.Nullable;
+
 public class Token {
 
   private final int line;
@@ -49,8 +51,8 @@ public class Token {
   }
 
   @Override
-  public boolean equals(Object object) {
-    if (this.getClass() == object.getClass()) {
+  public boolean equals(@Nullable Object object) {
+    if (object != null && this.getClass() == object.getClass()) {
       Token anotherToken = (Token) object;
       return anotherToken.line == line && anotherToken.column == column && anotherToken.value.equals(value);
     }

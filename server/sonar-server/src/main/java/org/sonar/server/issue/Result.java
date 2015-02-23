@@ -120,12 +120,12 @@ public class Result<T> {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
+      if (o == null || this.getClass() != o.getClass()) {
+        return false;
+      }
       if (this == o) {
         return true;
-      }
-      if (this.getClass() != o.getClass()) {
-        return false;
       }
       Message message = (Message) o;
 

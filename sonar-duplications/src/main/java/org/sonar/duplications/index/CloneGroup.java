@@ -23,6 +23,8 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
+import javax.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -134,8 +136,8 @@ public class CloneGroup {
    * Two groups are equal, if they have same length, same origins and contain same parts in same order.
    */
   @Override
-  public boolean equals(Object object) {
-    if (this.getClass() != object.getClass()) {
+  public boolean equals(@Nullable Object object) {
+    if (object == null || this.getClass() != object.getClass()) {
       return false;
     }
     CloneGroup another = (CloneGroup) object;

@@ -100,12 +100,12 @@ public class DefaultDebtRemediationFunction implements DebtRemediationFunction {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
+    if (o == null || this.getClass() != o.getClass()) {
+      return false;
+    }
     if (this == o) {
       return true;
-    }
-    if (this.getClass() != o.getClass()) {
-      return false;
     }
     DefaultDebtRemediationFunction other = (DefaultDebtRemediationFunction) o;
     return new EqualsBuilder()

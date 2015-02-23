@@ -25,6 +25,8 @@ import com.google.common.collect.Multiset;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.rule.RuleDto;
 
+import javax.annotation.Nullable;
+
 import java.util.Collection;
 
 public class RulesAggregation {
@@ -67,12 +69,12 @@ public class RulesAggregation {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
+      if (o == null || this.getClass() != o.getClass()) {
+        return false;
+      }
       if (this == o) {
         return true;
-      }
-      if (this.getClass() != o.getClass()) {
-        return false;
       }
 
       Rule rule = (Rule) o;
