@@ -27,8 +27,7 @@ class SystemController < ApplicationController
       Java::OrgSonarServerPlatform::Platform.component(Java::OrgSonarServerPlatformMonitoring::SonarQubeMonitor.java_class),
       Java::OrgSonarServerPlatform::Platform.component(Java::OrgSonarServerPlatformMonitoring::DatabaseMonitor.java_class),
       Java::OrgSonarServerPlatform::Platform.component(Java::OrgSonarServerPlatformMonitoring::SystemMonitor.java_class),
-      Java::OrgSonarServerPlatform::Platform.component(Java::OrgSonarServerPlatformMonitoring::EsClusterMonitor.java_class),
-      Java::OrgSonarServerPlatform::Platform.component(Java::OrgSonarServerPlatformMonitoring::EsNodesMonitor.java_class),
+      Java::OrgSonarServerPlatform::Platform.component(Java::OrgSonarServerPlatformMonitoring::EsMonitor.java_class),
       Java::OrgSonarServerPlatform::Platform.component(Java::OrgSonarServerPlatformMonitoring::JvmPropertiesMonitor.java_class)
     ]
   end

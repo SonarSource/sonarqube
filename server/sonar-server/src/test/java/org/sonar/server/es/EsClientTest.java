@@ -52,7 +52,6 @@ public class EsClientTest {
     EsClient client = es.client();
     client.start();
     assertThat(client.nativeClient()).isNotNull();
-    assertThat(client.getClusterHealth().isClusterAvailable()).isTrue();
     assertThat(client.prepareBulk()).isInstanceOf(ProxyBulkRequestBuilder.class);
     assertThat(client.prepareClusterStats()).isInstanceOf(ProxyClusterStatsRequestBuilder.class);
     assertThat(client.prepareCount()).isInstanceOf(ProxyCountRequestBuilder.class);

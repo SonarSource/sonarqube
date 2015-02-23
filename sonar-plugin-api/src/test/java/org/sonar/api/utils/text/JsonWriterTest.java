@@ -130,9 +130,10 @@ public class JsonWriterTest {
       .name("aFloat").valueObject(3.14)
       .name("aLong").valueObject(42L)
       .name("aList").valueObject(Arrays.asList("one", 2, "three"))
+      .name("anEnum").valueObject(ColorEnum.GREEN)
       .name("aMap").valueObject(ImmutableMap.of("hello", "world", "good", "bye"))
       .endObject().close();
-    expect("{\"aString\":\"stringValue\",\"aBoolean\":true,\"aInt\":42,\"aFloat\":3.14,\"aLong\":42,\"aList\":[\"one\",2,\"three\"],\"aMap\":{\"hello\":\"world\",\"good\":\"bye\"}}");
+    expect("{\"aString\":\"stringValue\",\"aBoolean\":true,\"aInt\":42,\"aFloat\":3.14,\"aLong\":42,\"aList\":[\"one\",2,\"three\"],\"anEnum\":\"GREEN\",\"aMap\":{\"hello\":\"world\",\"good\":\"bye\"}}");
   }
 
   @Test
@@ -172,5 +173,9 @@ public class JsonWriterTest {
     thrown.expectMessage("Fail to write JSON: the reason");
 
     new JsonWriter(gson).beginArray();
+  }
+
+  private static enum ColorEnum {
+    RED, GREEN
   }
 }

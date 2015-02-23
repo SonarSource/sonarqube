@@ -24,7 +24,6 @@ import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsRequestBuilder;
 import org.elasticsearch.action.admin.cluster.state.ClusterStateRequestBuilder;
 import org.elasticsearch.action.admin.cluster.stats.ClusterStatsRequestBuilder;
-import org.elasticsearch.action.admin.cluster.stats.ClusterStatsResponse;
 import org.elasticsearch.action.admin.indices.cache.clear.ClearIndicesCacheRequestBuilder;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequestBuilder;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequestBuilder;
@@ -70,7 +69,6 @@ import org.sonar.server.es.request.ProxyPutMappingRequestBuilder;
 import org.sonar.server.es.request.ProxyRefreshRequestBuilder;
 import org.sonar.server.es.request.ProxySearchRequestBuilder;
 import org.sonar.server.es.request.ProxySearchScrollRequestBuilder;
-import org.sonar.server.search.ClusterHealth;
 import org.sonar.server.search.SearchClient;
 
 /**
@@ -88,19 +86,6 @@ public class EsClient implements Startable {
 
   EsClient(Client client) {
     this.client = client;
-  }
-
-  public ClusterHealth getClusterHealth() {
-    ClusterHealth health = new ClusterHealth();
-    ClusterStatsResponse clusterStatsResponse = this.prepareClusterStats().get();
-
-    // Cluster health
-    health.setClusterAvailable(clusterStatsResponse.getStatus() != ClusterHealthStatus.RED);
-
-    // Number of nodes
-    health.setNumberOfNodes(clusterStatsResponse.getNodesStats().getCounts().getTotal());
-
-    return health;
   }
 
   public RefreshRequestBuilder prepareRefresh(String... indices) {

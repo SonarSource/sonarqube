@@ -203,6 +203,8 @@ public class JsonWriter {
           stream.value((Boolean) value);
         } else if (value instanceof Date) {
           valueDateTime((Date) value);
+        } else if (value instanceof Enum) {
+          stream.value(((Enum)value).name());
         } else if (value instanceof Map) {
           stream.beginObject();
           for (Map.Entry<Object, Object> entry : ((Map<Object, Object>) value).entrySet()) {

@@ -21,17 +21,10 @@
 package org.sonar.server.search;
 
 import org.apache.commons.lang.StringUtils;
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
-import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsRequestBuilder;
-import org.elasticsearch.action.admin.cluster.state.ClusterStateRequestBuilder;
-import org.elasticsearch.action.admin.cluster.stats.ClusterStatsRequestBuilder;
-import org.elasticsearch.action.admin.cluster.stats.ClusterStatsResponse;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequestBuilder;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequestBuilder;
-import org.elasticsearch.action.admin.indices.flush.FlushRequestBuilder;
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequestBuilder;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequestBuilder;
-import org.elasticsearch.action.admin.indices.stats.IndicesStatsRequestBuilder;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.count.CountRequestBuilder;
 import org.elasticsearch.action.delete.DeleteRequestBuilder;
@@ -62,18 +55,13 @@ import org.sonar.api.config.Settings;
 import org.sonar.process.LoopbackAddress;
 import org.sonar.process.ProcessConstants;
 import org.sonar.server.es.request.ProxyBulkRequestBuilder;
-import org.sonar.server.es.request.ProxyClusterStateRequestBuilder;
-import org.sonar.server.es.request.ProxyClusterStatsRequestBuilder;
 import org.sonar.server.es.request.ProxyCountRequestBuilder;
 import org.sonar.server.es.request.ProxyCreateIndexRequestBuilder;
 import org.sonar.server.es.request.ProxyDeleteByQueryRequestBuilder;
 import org.sonar.server.es.request.ProxyDeleteRequestBuilder;
-import org.sonar.server.es.request.ProxyFlushRequestBuilder;
 import org.sonar.server.es.request.ProxyGetRequestBuilder;
 import org.sonar.server.es.request.ProxyIndicesExistsRequestBuilder;
-import org.sonar.server.es.request.ProxyIndicesStatsRequestBuilder;
 import org.sonar.server.es.request.ProxyMultiGetRequestBuilder;
-import org.sonar.server.es.request.ProxyNodesStatsRequestBuilder;
 import org.sonar.server.es.request.ProxyPutMappingRequestBuilder;
 import org.sonar.server.es.request.ProxyRefreshRequestBuilder;
 import org.sonar.server.es.request.ProxySearchRequestBuilder;
@@ -96,45 +84,12 @@ public class SearchClient extends TransportClient implements Startable {
       settings.getInt(ProcessConstants.SEARCH_PORT)));
   }
 
-  public ClusterHealth getClusterHealth() {
-    ClusterHealth health = new ClusterHealth();
-    ClusterStatsResponse clusterStatsResponse = this.prepareClusterStats().get();
-
-    // Cluster health
-    health.setClusterAvailable(clusterStatsResponse.getStatus() != ClusterHealthStatus.RED);
-
-    // Number of nodes
-    health.setNumberOfNodes(clusterStatsResponse.getNodesStats().getCounts().getTotal());
-
-    return health;
-  }
-
   private void initLogging() {
     ESLoggerFactory.setDefaultFactory(new Slf4jESLoggerFactory());
   }
 
   public RefreshRequestBuilder prepareRefresh(String... indices) {
     return new ProxyRefreshRequestBuilder(this).setIndices(indices);
-  }
-
-  public FlushRequestBuilder prepareFlush(String... indices) {
-    return new ProxyFlushRequestBuilder(this).setIndices(indices);
-  }
-
-  public IndicesStatsRequestBuilder prepareStats(String... indices) {
-    return new ProxyIndicesStatsRequestBuilder(this).setIndices(indices);
-  }
-
-  public NodesStatsRequestBuilder prepareNodesStats(String... nodesIds) {
-    return new ProxyNodesStatsRequestBuilder(this).setNodesIds(nodesIds);
-  }
-
-  public ClusterStatsRequestBuilder prepareClusterStats() {
-    return new ProxyClusterStatsRequestBuilder(this);
-  }
-
-  public ClusterStateRequestBuilder prepareState() {
-    return new ProxyClusterStateRequestBuilder(this);
   }
 
   public IndicesExistsRequestBuilder prepareIndicesExist(String... indices) {

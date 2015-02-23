@@ -48,7 +48,10 @@ public class PluginsMonitor implements Monitor {
   public LinkedHashMap<String, Object> attributes() {
     LinkedHashMap<String, Object> attributes = new LinkedHashMap<>();
     for (PluginMetadata plugin : plugins()) {
-      attributes.put(plugin.getName(), plugin.getVersion());
+      LinkedHashMap<String, Object> pluginAttributes = new LinkedHashMap<>();
+      pluginAttributes.put("Name", plugin.getName());
+      pluginAttributes.put("Version", plugin.getVersion());
+      attributes.put(plugin.getKey(), pluginAttributes);
     }
     return attributes;
   }

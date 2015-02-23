@@ -20,8 +20,11 @@
 
 package org.sonar.server.platform.monitoring;
 
-public interface EsClusterMonitorMBean {
-  String getClusterState();
+/**
+ * The public attributes of {@link org.sonar.server.platform.monitoring.EsMonitor}
+ * to be exported in JMX bean.
+ */
+public interface EsMonitorMBean {
+  String getState();
   int getNumberOfNodes();
-  String getIndexesHealth();
 }

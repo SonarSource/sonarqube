@@ -246,7 +246,6 @@ class ServerComponents {
       // Elasticsearch
       SearchClient.class,
       IndexClient.class,
-      SearchHealth.class,
       EsClient.class,
 
       // users
@@ -639,8 +638,7 @@ class ServerComponents {
       SystemWs.class,
       SystemMonitor.class,
       SonarQubeMonitor.class,
-      EsClusterMonitor.class,
-      EsNodesMonitor.class,
+      EsMonitor.class,
       PluginsMonitor.class,
       JvmPropertiesMonitor.class,
       DatabaseMonitor.class
