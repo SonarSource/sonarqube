@@ -577,14 +577,12 @@ public class ProjectRepositoryLoaderMediumTest {
 
   @Test
   public void return_active_rules() throws Exception {
-    Date ruleUpdatedAt = DateUtils.parseDateTime("2014-01-14T13:00:00+0100");
-
     ComponentDto project = ComponentTesting.newProjectDto();
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
 
     QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(
-      DateUtils.formatDateTime(ruleUpdatedAt));
+      DateUtils.formatDateTime(DateUtils.parseDateTime("2014-01-14T13:00:00+0100")));
     tester.get(DbClient.class).qualityProfileDao().insert(dbSession, profileDto);
     tester.get(DbClient.class).propertiesDao().setProperty(new PropertyDto().setKey("sonar.profile.xoo").setValue("SonarQube way"), dbSession);
 
@@ -611,6 +609,44 @@ public class ProjectRepositoryLoaderMediumTest {
     assertThat(activeRules.get(0).severity()).isEqualTo("MINOR");
     assertThat(activeRules.get(0).internalKey()).isEqualTo("squid-1");
     assertThat(activeRules.get(0).params()).isEqualTo(ImmutableMap.of("max", "2"));
+  }
+
+  @Test
+  public void return_only_active_rules_from_project_profile() throws Exception {
+    ComponentDto project = ComponentTesting.newProjectDto();
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    tester.get(DbClient.class).componentDao().insert(dbSession, project);
+
+    RuleKey ruleKey1 = RuleKey.of("squid", "AvoidCycle");
+    RuleKey ruleKey2 = RuleKey.of("squid", "AvoidNPE");
+    tester.get(DbClient.class).ruleDao().insert(dbSession,
+      RuleTesting.newDto(ruleKey1).setName("Avoid Cycle").setLanguage(ServerTester.Xoo.KEY),
+      RuleTesting.newDto(ruleKey2).setName("Avoid NPE").setLanguage(ServerTester.Xoo.KEY)
+    );
+
+    QualityProfileDto profileDto1 = QProfileTesting.newDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd");
+    QualityProfileDto profileDto2 = QProfileTesting.newDto(QProfileName.createFor(ServerTester.Xoo.KEY, "Another profile"), "efgh");
+    tester.get(DbClient.class).qualityProfileDao().insert(dbSession, profileDto1, profileDto2);
+
+    // The first profile is the profile used but the project
+    tester.get(DbClient.class).propertiesDao().setProperty(new PropertyDto().setKey("sonar.profile.xoo").setResourceId(project.getId()).setValue(profileDto1.getName()), dbSession);
+
+    tester.get(RuleActivator.class).activate(dbSession, new RuleActivation(ruleKey1).setSeverity(Severity.MINOR), profileDto1.getKey());
+
+    // Active rule from 2nd profile
+    tester.get(RuleActivator.class).activate(dbSession, new RuleActivation(ruleKey1).setSeverity(Severity.BLOCKER), profileDto2.getKey());
+    tester.get(RuleActivator.class).activate(dbSession, new RuleActivation(ruleKey2).setSeverity(Severity.BLOCKER), profileDto2.getKey());
+
+    dbSession.commit();
+
+    ProjectRepositories ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
+    List<ActiveRule> activeRules = newArrayList(ref.activeRules());
+    assertThat(activeRules).hasSize(1);
+    assertThat(activeRules.get(0).repositoryKey()).isEqualTo("squid");
+    assertThat(activeRules.get(0).ruleKey()).isEqualTo("AvoidCycle");
+    assertThat(activeRules.get(0).name()).isEqualTo("Avoid Cycle");
+    assertThat(activeRules.get(0).language()).isEqualTo("xoo");
+    assertThat(activeRules.get(0).severity()).isEqualTo("MINOR");
   }
 
   @Test

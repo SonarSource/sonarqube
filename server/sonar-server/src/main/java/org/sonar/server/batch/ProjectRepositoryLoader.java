@@ -225,14 +225,17 @@ public class ProjectRepositoryLoader implements ServerComponent {
   private void addActiveRules(ProjectRepositories ref) {
     for (org.sonar.batch.protocol.input.QProfile qProfile : ref.qProfiles()) {
       Map<RuleKey, ActiveRule> activeRules = activeRuleByRuleKey(qProfileLoader.findActiveRulesByProfile(qProfile.key()));
-      Iterator<Rule> rules = ruleService.search(new RuleQuery().setQProfileKey(qProfile.key()).setActivation(true), new QueryContext().setScroll(true)).scroll();
+      Iterator<Rule> rules = ruleService.search(new RuleQuery().setQProfileKey(qProfile.key()).setActivation(true),
+        new QueryContext().setFieldsToReturn(newArrayList(
+          RuleNormalizer.RuleField.KEY.field(), RuleNormalizer.RuleField.NAME.field(), RuleNormalizer.RuleField.INTERNAL_KEY.field(), RuleNormalizer.RuleField.TEMPLATE_KEY.field()
+        )).setScroll(true)).scroll();
       while (rules.hasNext()) {
         Rule rule = rules.next();
         RuleKey templateKey = rule.templateKey();
         ActiveRule activeRule = activeRules.get(rule.key());
         org.sonar.batch.protocol.input.ActiveRule inputActiveRule = new org.sonar.batch.protocol.input.ActiveRule(
-          rule.key().repository(),
-          rule.key().rule(),
+          activeRule.key().ruleKey().repository(),
+          activeRule.key().ruleKey().rule(),
           templateKey != null ? templateKey.rule() : null,
           rule.name(),
           activeRule.severity(),
