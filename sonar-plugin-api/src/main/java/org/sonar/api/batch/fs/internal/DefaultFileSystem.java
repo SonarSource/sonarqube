@@ -178,8 +178,9 @@ public class DefaultFileSystem implements FileSystem {
     }
     inputFile.setModuleBaseDir(this.baseDir);
     cache.add(inputFile);
-    if (inputFile.language() != null) {
-      languages.add(inputFile.language());
+    String language = inputFile.language();
+    if (language != null) {
+      languages.add(language);
     }
     return this;
   }

@@ -416,9 +416,10 @@ public class SearchAction implements BaseIssuesWsAction {
       json.beginObject();
       json.prop("property", facetName);
       json.name("values").beginArray();
-      if (results.getFacets().contains(facetName)) {
+      LinkedHashMap<String, Long> buckets = results.getFacets().get(facetName);
+      if (buckets != null) {
         Set<String> itemsFromFacets = Sets.newHashSet();
-        for (Map.Entry<String, Long> bucket : results.getFacets().get(facetName).entrySet()) {
+        for (Map.Entry<String, Long> bucket : buckets.entrySet()) {
           itemsFromFacets.add(bucket.getKey());
           json.beginObject();
           json.prop("val", bucket.getKey());

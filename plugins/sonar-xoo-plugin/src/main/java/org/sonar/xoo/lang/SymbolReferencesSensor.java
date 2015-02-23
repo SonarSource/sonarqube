@@ -62,16 +62,17 @@ public class SymbolReferencesSensor implements Sensor {
         List<String> lines = FileUtils.readLines(symbolFile, context.fileSystem().encoding().name());
         int lineNumber = 0;
         Symbolizable symbolizable = perspectives.as(Symbolizable.class, inputFile);
-
-        Symbolizable.SymbolTableBuilder symbolTableBuilder = symbolizable.newSymbolTableBuilder();
-        for (String line : lines) {
-          lineNumber++;
-          if (StringUtils.isBlank(line) || line.startsWith("#")) {
-            continue;
+        if (symbolizable != null) {
+          Symbolizable.SymbolTableBuilder symbolTableBuilder = symbolizable.newSymbolTableBuilder();
+          for (String line : lines) {
+            lineNumber++;
+            if (StringUtils.isBlank(line) || line.startsWith("#")) {
+              continue;
+            }
+            processLine(symbolFile, lineNumber, symbolTableBuilder, line);
           }
-          processLine(symbolFile, lineNumber, symbolTableBuilder, line);
+          symbolizable.setSymbolTable(symbolTableBuilder.build());
         }
-        symbolizable.setSymbolTable(symbolTableBuilder.build());
       } catch (IOException e) {
         throw new IllegalStateException(e);
       }

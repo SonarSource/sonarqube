@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 public class ProcessEntryPoint implements Stoppable {
 
   public static final String PROPERTY_PROCESS_KEY = "process.key";
+  public static final String PROPERTY_PROCESS_INDEX = "process.index";
   public static final String PROPERTY_TERMINATION_TIMEOUT = "process.terminationTimeout";
   public static final String PROPERTY_SHARED_PATH = "process.sharedDir";
 
@@ -66,7 +67,6 @@ public class ProcessEntryPoint implements Stoppable {
     if (!lifecycle.tryToMoveTo(Lifecycle.State.STARTING)) {
       throw new IllegalStateException("Already started");
     }
-    commands.prepare();
     monitored = mp;
 
     try {
@@ -135,7 +135,7 @@ public class ProcessEntryPoint implements Stoppable {
   public static ProcessEntryPoint createForArguments(String[] args) {
     Props props = ConfigurationUtils.loadPropsFromCommandLineArgs(args);
     ProcessCommands commands = new ProcessCommands(
-      props.nonNullValueAsFile(PROPERTY_SHARED_PATH), props.nonNullValue(PROPERTY_PROCESS_KEY));
+      props.nonNullValueAsFile(PROPERTY_SHARED_PATH), Integer.parseInt(props.nonNullValue(PROPERTY_PROCESS_INDEX)));
     return new ProcessEntryPoint(props, new SystemExit(), commands);
   }
 }

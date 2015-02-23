@@ -63,6 +63,9 @@ public class SourceLineIndexDefinition implements IndexDefinition {
   public void define(IndexDefinitionContext context) {
     NewIndex index = context.create(INDEX);
 
+    // refresh is always handled by SourceLineIndexer
+    index.getSettings().put("index.refresh_interval", "-1");
+
     // shards
     boolean clusterMode = settings.getBoolean(ProcessConstants.CLUSTER_ACTIVATE);
     if (clusterMode) {

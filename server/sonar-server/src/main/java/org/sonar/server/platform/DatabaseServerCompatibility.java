@@ -36,7 +36,7 @@ public class DatabaseServerCompatibility implements Startable {
   public void start() {
     DatabaseVersion.Status status = version.getStatus();
     if (status == DatabaseVersion.Status.REQUIRES_DOWNGRADE) {
-      throw MessageException.of("Database relates to a more recent version of sonar. Please check your settings.");
+      throw MessageException.of("Database relates to a more recent version of SonarQube. Please check your settings.");
     }
     if (status == DatabaseVersion.Status.REQUIRES_UPGRADE) {
       Loggers.get(DatabaseServerCompatibility.class).warn("Database must be upgraded. Please browse /setup");

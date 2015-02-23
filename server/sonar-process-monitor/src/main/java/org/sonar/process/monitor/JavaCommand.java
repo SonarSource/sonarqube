@@ -54,12 +54,19 @@ public class JavaCommand {
 
   private File tempDir = null;
 
+  private int processIndex = -1;
+
   public JavaCommand(String key) {
     this.key = key;
+    processIndex = Monitor.getNextProcessId();
   }
 
   public String getKey() {
     return key;
+  }
+
+  public int getProcessIndex() {
+    return processIndex;
   }
 
   public File getWorkDir() {

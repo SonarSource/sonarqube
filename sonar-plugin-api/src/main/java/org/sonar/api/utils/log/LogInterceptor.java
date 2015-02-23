@@ -19,13 +19,15 @@
  */
 package org.sonar.api.utils.log;
 
+import javax.annotation.Nullable;
+
 abstract class LogInterceptor {
 
   abstract void log(String msg);
 
-  abstract void log(String msg, Object arg);
+  abstract void log(String msg, @Nullable Object arg);
 
-  abstract void log(String msg, Object arg1, Object arg2);
+  abstract void log(String msg, @Nullable Object arg1, @Nullable Object arg2);
 
   abstract void log(String msg, Object... args);
 

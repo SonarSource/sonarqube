@@ -40,6 +40,12 @@ public class ValidationMessagesTest {
     verify(logger, never()).error(anyString());
     verify(logger, never()).warn(anyString());
     verify(logger, never()).info(anyString());
+
+    org.slf4j.Logger slf4j = mock(org.slf4j.Logger.class);
+    messages.log(slf4j);
+    verify(slf4j, never()).error(anyString());
+    verify(slf4j, never()).warn(anyString());
+    verify(slf4j, never()).info(anyString());
   }
 
   @Test
@@ -58,5 +64,11 @@ public class ValidationMessagesTest {
     verify(logger, times(1)).error("my error");
     verify(logger, never()).warn(anyString());
     verify(logger, never()).info(anyString());
+
+    org.slf4j.Logger slf4j = mock(org.slf4j.Logger.class);
+    messages.log(slf4j);
+    verify(slf4j, times(1)).error("my error");
+    verify(slf4j, never()).warn(anyString());
+    verify(slf4j, never()).info(anyString());
   }
 }

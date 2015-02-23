@@ -1,0 +1,40 @@
+/*
+ * SonarQube, open source software quality management tool.
+ * Copyright (C) 2008-2014 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * SonarQube is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * SonarQube is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+package org.sonar.server.platform.monitoring;
+
+import org.sonar.api.ServerComponent;
+
+import java.util.LinkedHashMap;
+
+/**
+ * Any component that is involved in the informations returned by the web service api/system/info
+ */
+public interface Monitor extends ServerComponent {
+  /**
+   * Name of section in System Info page
+   */
+  String name();
+
+  /**
+   * Type of attribute values must be supported by {@link org.sonar.api.utils.text.JsonWriter#valueObject(Object)}
+   * because of JSON export by {@link org.sonar.server.platform.ws.SystemInfoWsAction}
+   */
+  LinkedHashMap<String,Object> attributes();
+}

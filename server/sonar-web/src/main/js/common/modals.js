@@ -10,7 +10,7 @@ define(function () {
 
     events: function () {
       return {
-        'click .js-modal-close': 'close'
+        'click .js-modal-close': 'onCloseClick'
       };
     },
 
@@ -44,6 +44,11 @@ define(function () {
       this.removeOverlay();
       key.deleteScope('modal');
       key.setScope(this.keyScope);
+    },
+
+    onCloseClick: function (e) {
+      e.preventDefault();
+      this.close();
     },
 
     renderOverlay: function () {

@@ -21,7 +21,7 @@ package org.sonar.api.utils;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.sonar.api.utils.log.Logger;
+import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,6 +81,25 @@ public final class ValidationMessages {
     return this;
   }
 
+  /**
+   * @since 5.1
+   */
+  public void log(org.sonar.api.utils.log.Logger logger) {
+    for (String error : getErrors()) {
+      logger.error(error);
+    }
+    for (String warning : getWarnings()) {
+      logger.warn(warning);
+    }
+    for (String info : getInfos()) {
+      logger.info(info);
+    }
+  }
+
+  /**
+   * @deprecated replaced by {@link #log(org.sonar.api.utils.log.Logger)} since deprecation of slf4j in 5.1
+   */
+  @Deprecated
   public void log(Logger logger) {
     for (String error : getErrors()) {
       logger.error(error);

@@ -23,19 +23,19 @@ import org.sonar.api.server.ws.WebService;
 
 public class SystemWs implements WebService {
 
-  private final RestartHandler restartHandler;
+  private final SystemWsAction[] actions;
 
-  public SystemWs(RestartHandler restartHandler) {
-    this.restartHandler = restartHandler;
+  public SystemWs(SystemWsAction... actions) {
+    this.actions = actions;
   }
 
   @Override
   public void define(Context context) {
-    NewController controller = context.createController("api/system")
-      .setDescription("Restart server")
-      .setSince("4.3");
+    NewController controller = context.createController("api/system");
 
-    restartHandler.define(controller);
+    for (SystemWsAction action : actions) {
+      action.define(controller);
+    }
 
     controller.done();
   }

@@ -87,12 +87,12 @@ public class SensorContextTesterTest {
     assertThat(tester.issues("foo:src/Foo.java")).isEmpty();
     assertThat(tester.allIssues()).isEmpty();
     tester.newIssue()
-      .onFile(new DefaultInputFile("foo", "src/Foo.java"))
+      .onFile(new DefaultInputFile("foo", "src/Foo.java").setLines(10))
       .forRule(RuleKey.of("repo", "rule"))
       .atLine(1)
       .save();
     tester.newIssue()
-      .onFile(new DefaultInputFile("foo", "src/Foo.java"))
+      .onFile(new DefaultInputFile("foo", "src/Foo.java").setLines(10))
       .forRule(RuleKey.of("repo", "rule"))
       .atLine(3)
       .save();
@@ -144,7 +144,7 @@ public class SensorContextTesterTest {
   public void testHighlighting() {
     assertThat(tester.highlightingTypeFor("foo:src/Foo.java", 3)).isEmpty();
     tester.newHighlighting()
-      .onFile(new DefaultInputFile("foo", "src/Foo.java"))
+      .onFile(new DefaultInputFile("foo", "src/Foo.java").setLastValidOffset(100))
       .highlight(0, 4, TypeOfText.ANNOTATION)
       .highlight(8, 10, TypeOfText.CONSTANT)
       .highlight(9, 10, TypeOfText.COMMENT)

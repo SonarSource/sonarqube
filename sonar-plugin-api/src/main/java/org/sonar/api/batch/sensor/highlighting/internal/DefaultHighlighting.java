@@ -23,6 +23,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.internal.DefaultStorable;
@@ -91,10 +92,19 @@ public class DefaultHighlighting extends DefaultStorable implements NewHighlight
   @Override
   public DefaultHighlighting highlight(int startOffset, int endOffset, TypeOfText typeOfText) {
     Preconditions.checkState(inputFile != null, "Call onFile() first");
+    int maxValidOffset = ((DefaultInputFile) inputFile).lastValidOffset();
+    checkOffset(startOffset, maxValidOffset, "startOffset");
+    checkOffset(endOffset, maxValidOffset, "endOffset");
+    Preconditions.checkArgument(startOffset < endOffset, "startOffset (" + startOffset + ") should be < endOffset (" + endOffset + ") for file " + inputFile + ".");
     SyntaxHighlightingRule syntaxHighlightingRule = SyntaxHighlightingRule.create(startOffset, endOffset,
       typeOfText);
     this.syntaxHighlightingRuleSet.add(syntaxHighlightingRule);
     return this;
+  }
+
+  private void checkOffset(int offset, int maxValidOffset, String label) {
+    Preconditions.checkArgument(offset >= 0 && offset <= maxValidOffset, "Invalid " + label + " " + offset + ". Should be >= 0 and <= " + maxValidOffset
+      + " for file " + inputFile);
   }
 
   @Override

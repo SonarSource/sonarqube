@@ -44,7 +44,6 @@ public class StopperThreadTest {
     stopper.join();
 
     verify(monitored).stop();
-    verify(commands).endWatch();
   }
 
   @Test(timeout = 3000L)
@@ -65,7 +64,5 @@ public class StopperThreadTest {
     stopper.join();
 
     verify(monitored).stop();
-    // even if stopper was interrupted, stop watching process
-    verify(commands).endWatch();
   }
 }

@@ -107,11 +107,13 @@ public interface SensorContext extends org.sonar.api.batch.sensor.SensorContext 
   /**
    * @deprecated since 5.1 Sensors should not read but only save data
    */
+  @Deprecated
   <G extends Serializable> Measure<G> getMeasure(Metric<G> metric);
 
   /**
    * @deprecated since 5.1 Sensors should not read but only save data
    */
+  @Deprecated
   <M> M getMeasures(MeasuresFilter<M> filter);
 
   /**
@@ -129,6 +131,7 @@ public interface SensorContext extends org.sonar.api.batch.sensor.SensorContext 
   /**
    * @deprecated since 5.1 Sensors should not read but only save data
    */
+  @Deprecated
   <G extends Serializable> Measure<G> getMeasure(Resource resource, Metric<G> metric);
 
   /**
@@ -143,6 +146,7 @@ public interface SensorContext extends org.sonar.api.batch.sensor.SensorContext 
   /**
    * @deprecated since 5.1 Sensors should not read but only save data
    */
+  @Deprecated
   <M> M getMeasures(Resource resource, MeasuresFilter<M> filter);
 
   /**
@@ -196,16 +200,19 @@ public interface SensorContext extends org.sonar.api.batch.sensor.SensorContext 
   /**
    * @deprecated since 5.1 Sensors should not read but only save data
    */
+  @Deprecated
   Set<Dependency> getDependencies();
 
   /**
    * @deprecated since 5.1 Sensors should not read but only save data
    */
+  @Deprecated
   Collection<Dependency> getIncomingDependencies(Resource to);
 
   /**
    * @deprecated since 5.1 Sensors should not read but only save data
    */
+  @Deprecated
   Collection<Dependency> getOutgoingDependencies(Resource from);
 
   // ----------- FILE SOURCES --------------

@@ -53,9 +53,8 @@ public class App implements Stoppable {
 
   public void start(Props props) {
     if (props.valueAsBoolean(ProcessConstants.ENABLE_STOP_COMMAND, false)) {
-      // stop application when file <temp>/app.stop is created
       File tempDir = props.nonNullValueAsFile(ProcessConstants.PATH_TEMP);
-      ProcessCommands commands = new ProcessCommands(tempDir, "app");
+      ProcessCommands commands = new ProcessCommands(tempDir, 0);
       stopWatcher = new StopWatcher(commands, this);
       stopWatcher.start();
     }

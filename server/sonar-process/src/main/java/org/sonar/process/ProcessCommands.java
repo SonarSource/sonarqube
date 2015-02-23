@@ -19,10 +19,14 @@
  */
 package org.sonar.process;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 
 /**
  * Process inter-communication to :
@@ -42,75 +46,111 @@ import java.io.IOException;
  */
 public class ProcessCommands {
 
-  private final File readyFile, stopFile;
+  /**
+   * The ByteBuffer will contains :
+   * <ul>
+   *   <li>First byte will contains 0x00 until stop command is issued = 0xFF</li>
+   *   <li>Then each 10 bytes will be reserved for each process</li>
+   * </ul>
+   *
+   * Description of ten bytes of each process :
+   * <ul>
+   *   <li>First byte will contains the state 0x00 until READY 0x01</li>
+   *   <li>The second byte will contains the request for stopping 0x00 or STOP (0xFF)</li>
+   *   <li>The next 8 bytes contains a long (System.currentTimeInMillis for ping)</li>
+   * </ul>
+   */
+  final MappedByteBuffer mappedByteBuffer;
+  private final RandomAccessFile sharedMemory;
+  private static final int MAX_PROCESSES = 50;
+  private static final int BYTE_LENGTH_FOR_ONE_PROCESS = 1 + 1 + 8;
+  private static final int MAX_SHARED_MEMORY = BYTE_LENGTH_FOR_ONE_PROCESS * MAX_PROCESSES; // With this shared memory we can handle up to MAX_PROCESSES processes
+  public static final byte STOP = (byte) 0xFF;
+  public static final byte READY = (byte) 0x01;
+  public static final byte EMPTY = (byte) 0x00;
 
-  public ProcessCommands(File directory, String processKey) {
+  private int processNumber;
+
+  public ProcessCommands(File directory, int processNumber) {
+    // processNumber should not excess MAX_PROCESSES and must not be below -1
+    assert processNumber <= MAX_PROCESSES : "Incorrect process number";
+    assert processNumber >= -1 : "Incorrect process number";
+
+    this.processNumber = processNumber;
     if (!directory.isDirectory() || !directory.exists()) {
       throw new IllegalArgumentException("Not a valid directory: " + directory);
     }
-    this.readyFile = new File(directory, processKey + ".ready");
-    this.stopFile = new File(directory, processKey + ".stop");
-  }
 
-  // visible for tests
-  ProcessCommands(File readyFile, File stopFile) {
-    this.readyFile = readyFile;
-    this.stopFile = stopFile;
-  }
-
-  public void prepare() {
-    deleteFile(readyFile);
-    deleteFile(stopFile);
-  }
-
-  public void endWatch() {
-    // do not fail if files can't be deleted
-    FileUtils.deleteQuietly(readyFile);
-    FileUtils.deleteQuietly(stopFile);
+    try {
+      sharedMemory = new RandomAccessFile(new File(directory, "sharedmemory"), "rw");
+      mappedByteBuffer = sharedMemory.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, MAX_SHARED_MEMORY);
+      cleanData();
+    } catch (IOException e) {
+      throw new IllegalArgumentException("Unable to create shared memory : ", e);
+    }
   }
 
   public boolean isReady() {
-    return readyFile.exists();
+    return canBeMonitored() && mappedByteBuffer.get(offset()) == READY;
   }
 
   /**
    * To be executed by child process to declare that it's ready
    */
   public void setReady() {
-    createFile(readyFile);
+    if (canBeMonitored()) {
+      mappedByteBuffer.put(offset(), READY);
+    }
+  }
+
+  public void ping() {
+    if (canBeMonitored()) {
+      mappedByteBuffer.putLong(2 + offset(), System.currentTimeMillis());
+    }
+  }
+
+  public long getLastPing() {
+    if (canBeMonitored()) {
+      return mappedByteBuffer.getLong(2 + offset());
+    } else {
+      return -1;
+    }
   }
 
   /**
    * To be executed by monitor process to ask for child process termination
    */
   public void askForStop() {
-    createFile(stopFile);
+    mappedByteBuffer.put(offset() + 1, STOP);
   }
 
   public boolean askedForStop() {
-    return stopFile.exists();
+    return mappedByteBuffer.get(offset() + 1) == STOP;
   }
 
-  File getReadyFile() {
-    return readyFile;
+  public void endWatch() {
+    IOUtils.closeQuietly(sharedMemory);
   }
 
-  File getStopFile() {
-    return stopFile;
+  int offset() {
+    return BYTE_LENGTH_FOR_ONE_PROCESS * processNumber;
   }
 
-  private void createFile(File file) {
-    try {
-      FileUtils.touch(file);
-    } catch (IOException e) {
-      throw new IllegalStateException(String.format("Fail to create file %s", file), e);
+  private boolean canBeMonitored() {
+    boolean result = processNumber >= 0 && processNumber < MAX_PROCESSES;
+    if (!result) {
+      LoggerFactory.getLogger(getClass()).info("This process cannot be monitored. Process Id : [{}]", processNumber);
+    }
+    return result;
+  }
+
+  private void cleanData() {
+    for (int i = 0; i < BYTE_LENGTH_FOR_ONE_PROCESS; i++) {
+      mappedByteBuffer.put(offset() + i, EMPTY);
     }
   }
 
-  private void deleteFile(File file) {
-    if (file.exists() && !file.delete()) {
-      throw new MessageException(String.format(
-        "Fail to delete file %s. Please check that no SonarQube process is alive", file));
-    }
+  public static final int getMaxProcesses() {
+    return MAX_PROCESSES;
   }
 }

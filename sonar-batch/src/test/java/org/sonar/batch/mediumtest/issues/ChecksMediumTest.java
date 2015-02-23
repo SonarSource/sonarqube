@@ -65,7 +65,7 @@ public class ChecksMediumTest {
     srcDir.mkdir();
 
     File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "foo");
+    FileUtils.write(xooFile, "foo\nbar");
 
     TaskResult result = tester.newTask()
       .properties(ImmutableMap.<String, String>builder()

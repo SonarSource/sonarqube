@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.sensor;
 
-import org.sonar.api.batch.sensor.internal.SensorStorage;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,9 +29,10 @@ import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
+import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.batch.index.ComponentDataCache;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -61,10 +60,9 @@ public class DefaultSensorContextTest {
     when(metricFinder.findByKey(CoreMetrics.NCLOC_KEY)).thenReturn(CoreMetrics.NCLOC);
     when(metricFinder.findByKey(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION_KEY)).thenReturn(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION);
     settings = new Settings();
-    ComponentDataCache componentDataCache = mock(ComponentDataCache.class);
     sensorStorage = mock(SensorStorage.class);
     analysisMode = mock(AnalysisMode.class);
-    adaptor = new DefaultSensorContext(settings, fs, activeRules, analysisMode, componentDataCache, sensorStorage);
+    adaptor = new DefaultSensorContext(settings, fs, activeRules, analysisMode, sensorStorage);
   }
 
   @Test

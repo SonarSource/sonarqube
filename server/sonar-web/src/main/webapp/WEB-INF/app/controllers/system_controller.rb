@@ -17,34 +17,20 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
-require 'fastercsv'
 class SystemController < ApplicationController
 
   SECTION=Navigation::SECTION_CONFIGURATION
   before_filter :admin_required
 
   def index
-    @server=Server.new
-
-    filename = 'SystemInfo'
-    server_id = @server.sonar_property(ServerIdConfigurationController::PROPERTY_SERVER_ID)
-    filename += '-' + server_id.to_s if server_id
-
-    respond_to do |format|
-      format.html
-      format.csv  { 
-        send_data(to_csv, :type => 'text/csv; charset=utf-8', :disposition => "attachment; filename=#{filename}.csv")
-      }
-    end
+    @monitors = [
+      Java::OrgSonarServerPlatform::Platform.component(Java::OrgSonarServerPlatformMonitoring::SonarQubeMonitor.java_class),
+      Java::OrgSonarServerPlatform::Platform.component(Java::OrgSonarServerPlatformMonitoring::DatabaseMonitor.java_class),
+      Java::OrgSonarServerPlatform::Platform.component(Java::OrgSonarServerPlatformMonitoring::SystemMonitor.java_class),
+      Java::OrgSonarServerPlatform::Platform.component(Java::OrgSonarServerPlatformMonitoring::EsClusterMonitor.java_class),
+      Java::OrgSonarServerPlatform::Platform.component(Java::OrgSonarServerPlatformMonitoring::EsNodesMonitor.java_class),
+      Java::OrgSonarServerPlatform::Platform.component(Java::OrgSonarServerPlatformMonitoring::JvmPropertiesMonitor.java_class)
+    ]
   end
-  
-  private
-  
-  def to_csv
-    FasterCSV.generate do |csv|
-      @server.info.each do |property|
-        csv << property
-      end
-    end
-  end
+
 end

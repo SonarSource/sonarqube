@@ -29,6 +29,7 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.rules.Timeout;
 import org.sonar.process.NetworkUtils;
 import org.sonar.process.Lifecycle.State;
+import org.sonar.process.ProcessCommands;
 import org.sonar.process.SystemExit;
 
 import java.io.File;
@@ -209,8 +210,15 @@ public class MonitorTest {
   }
 
   @Test
-  public void force_stop_if_too_long() throws Exception {
-    // TODO
+  public void test_too_many_processes() {
+    while (Monitor.getNextProcessId() < ProcessCommands.getMaxProcesses() - 1) {}
+    try {
+      newDefaultMonitor();
+    } catch (IllegalStateException e) {
+      assertThat(e).hasMessageStartingWith("The maximum number of processes launched has been reached ");
+    } finally {
+      Monitor.nextProcessId = 0;
+    }
   }
 
   @Test

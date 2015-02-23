@@ -2,12 +2,12 @@
   <h2>{{t 'help'}}</h2>
 </div>
 
-<div class="modal-body">
+<div class="modal-body modal-container">
   <div class="shortcuts-section">
     <a href="http://www.sonarqube.org" target="sonar">Community</a> -
     <a href="http://www.sonarqube.org/documentation" target="sonar_doc">Documentation</a> -
     <a href="http://www.sonarqube.org/support" target="support">Get Support</a> -
-    <a href="http://sonar-plugins.codehaus.org" target="plugins">Plugins</a> -
+    <a href="http://redirect.sonarsource.com/doc/plugin-library.html" target="plugins">Plugins</a> -
     <a href="{{link '/api_documentation'}}">Web Service API</a>
   </div>
 
@@ -35,8 +35,17 @@
       <li><span class="shortcut-button">t</span> &nbsp;&nbsp; {{t 'shortcuts.section.issue.change_tags'}}</li>
     </ul>
   </div>
+
+  <div class="shortcuts-section">
+    <h3 class="shortcuts-section-title">{{t 'shortcuts.section.rules'}}</h3>
+    <ul class="shortcuts-list">
+      <li><span class="shortcut-button">&uparrow;</span> <span class="shortcut-button">&darr;</span> &nbsp;&nbsp; {{t 'shortcuts.section.rules.navigate_between_rules'}}</li>
+      <li><span class="shortcut-button">&rarr;</span> &nbsp;&nbsp; {{t 'shortcuts.section.rules.open_details'}}</li>
+      <li><span class="shortcut-button">&larr;</span> &nbsp;&nbsp; {{t 'shortcuts.section.rules.return_to_list'}}</li>
+    </ul>
+  </div>
 </div>
 
 <div class="modal-foot">
-  <a class="js-modal-close">{{t 'close'}}</a>
+  <a class="js-modal-close" href="#">{{t 'close'}}</a>
 </div>

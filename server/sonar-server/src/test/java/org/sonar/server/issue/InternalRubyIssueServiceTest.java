@@ -578,7 +578,8 @@ public class InternalRubyIssueServiceTest {
     overrideProps.put("pageSize", 20);
     overrideProps.put("pageIndex", 2);
 
-    when(issueQueryService.createFromMap(eq(overrideProps))).thenReturn(IssueQuery.builder().build());
+    IssueQuery query = IssueQuery.builder().build();
+    when(issueQueryService.createFromMap(eq(overrideProps))).thenReturn(query);
 
     service.execute(10L, overrideProps);
 

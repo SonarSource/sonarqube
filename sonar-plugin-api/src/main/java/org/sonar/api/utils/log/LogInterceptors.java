@@ -23,7 +23,7 @@ import com.google.common.base.Preconditions;
 
 class LogInterceptors {
 
-  private static LogInterceptor instance = NullInterceptor.NULL_INSTANCE;
+  private static volatile LogInterceptor instance = NullInterceptor.NULL_INSTANCE;
 
   private LogInterceptors() {
   }

@@ -176,7 +176,7 @@ public class DefaultSensorStorageTest {
 
   @Test
   public void shouldAddIssueOnFile() {
-    InputFile file = new DefaultInputFile("foo", "src/Foo.php");
+    InputFile file = new DefaultInputFile("foo", "src/Foo.php").setLines(4);
 
     ArgumentCaptor<Issue> argumentCaptor = ArgumentCaptor.forClass(Issue.class);
 

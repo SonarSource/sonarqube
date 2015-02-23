@@ -77,7 +77,10 @@ public class IssuesPublisher implements ReportPublisher {
     if (line != null) {
       builder.setLine(line);
     }
-    builder.setMsg(issue.message());
+    String message = issue.message();
+    if (message != null) {
+      builder.setMsg(message);
+    }
     if (issue.effortToFix() != null) {
       builder.setEffortToFix(issue.effortToFix());
     }

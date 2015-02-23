@@ -45,7 +45,7 @@ public class DefaultHighlightingTest {
   public void setUpSampleRules() {
 
     DefaultHighlighting highlightingDataBuilder = new DefaultHighlighting()
-      .onFile(new DefaultInputFile("foo", "src/Foo.java"))
+      .onFile(new DefaultInputFile("foo", "src/Foo.java").setLastValidOffset(100))
       .highlight(0, 10, COMMENT)
       .highlight(10, 12, KEYWORD)
       .highlight(24, 38, KEYWORD)
@@ -71,7 +71,7 @@ public class DefaultHighlightingTest {
   @Test
   public void should_suport_overlapping() throws Exception {
     new DefaultHighlighting(mock(SensorStorage.class))
-      .onFile(new DefaultInputFile("foo", "src/Foo.java"))
+      .onFile(new DefaultInputFile("foo", "src/Foo.java").setLastValidOffset(100))
       .highlight(0, 15, KEYWORD)
       .highlight(8, 12, CPP_DOC)
       .save();
@@ -83,9 +83,45 @@ public class DefaultHighlightingTest {
     throwable.expectMessage("Cannot register highlighting rule for characters from 8 to 15 as it overlaps at least one existing rule");
 
     new DefaultHighlighting(mock(SensorStorage.class))
-      .onFile(new DefaultInputFile("foo", "src/Foo.java"))
+      .onFile(new DefaultInputFile("foo", "src/Foo.java").setLastValidOffset(100))
       .highlight(0, 10, KEYWORD)
       .highlight(8, 15, KEYWORD)
+      .save();
+  }
+
+  @Test
+  public void should_prevent_invalid_offset() throws Exception {
+    throwable.expect(IllegalArgumentException.class);
+    throwable.expectMessage("Invalid endOffset 15. Should be >= 0 and <= 10 for file [moduleKey=foo, relative=src/Foo.java, basedir=null]");
+
+    new DefaultHighlighting(mock(SensorStorage.class))
+      .onFile(new DefaultInputFile("foo", "src/Foo.java").setLastValidOffset(10))
+      .highlight(0, 10, KEYWORD)
+      .highlight(8, 15, KEYWORD)
+      .save();
+  }
+
+  @Test
+  public void positive_offset() throws Exception {
+    throwable.expect(IllegalArgumentException.class);
+    throwable.expectMessage("Invalid startOffset -8. Should be >= 0 and <= 10 for file [moduleKey=foo, relative=src/Foo.java, basedir=null]");
+
+    new DefaultHighlighting(mock(SensorStorage.class))
+      .onFile(new DefaultInputFile("foo", "src/Foo.java").setLastValidOffset(10))
+      .highlight(0, 10, KEYWORD)
+      .highlight(-8, 15, KEYWORD)
+      .save();
+  }
+
+  @Test
+  public void should_prevent_invalid_offset_order() throws Exception {
+    throwable.expect(IllegalArgumentException.class);
+    throwable.expectMessage("startOffset (18) should be < endOffset (15) for file [moduleKey=foo, relative=src/Foo.java, basedir=null].");
+
+    new DefaultHighlighting(mock(SensorStorage.class))
+      .onFile(new DefaultInputFile("foo", "src/Foo.java").setLastValidOffset(20))
+      .highlight(0, 10, KEYWORD)
+      .highlight(18, 15, KEYWORD)
       .save();
   }
 

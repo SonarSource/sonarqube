@@ -214,8 +214,8 @@ public class DefaultSensorStorage implements SensorStorage {
   public void store(org.sonar.api.batch.sensor.dependency.Dependency dep) {
     BatchResource fromBatchResource = resourceCache.get(dep.fromKey());
     BatchResource toBatchResource = resourceCache.get(dep.toKey());
-    Preconditions.checkNotNull(fromBatchResource, "Unable to find from resource " + dep.fromKey());
-    Preconditions.checkNotNull(toBatchResource, "Unable to find from resource " + dep.toKey());
+    Preconditions.checkNotNull(fromBatchResource, "Unable to find origin resource " + dep.fromKey());
+    Preconditions.checkNotNull(toBatchResource, "Unable to find destination resource " + dep.toKey());
     File fromResource = (File) fromBatchResource.resource();
     File toResource = (File) toBatchResource.resource();
     if (sonarIndex.getEdge(fromResource, toResource) != null) {

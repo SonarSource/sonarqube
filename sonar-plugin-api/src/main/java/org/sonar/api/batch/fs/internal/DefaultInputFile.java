@@ -26,14 +26,13 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.io.File;
-import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 
 /**
  * @since 4.2
  */
-public class DefaultInputFile implements InputFile, Serializable {
+public class DefaultInputFile implements InputFile {
 
   private final String relativePath;
   private final String moduleKey;
@@ -43,6 +42,7 @@ public class DefaultInputFile implements InputFile, Serializable {
   private Status status;
   private int lines;
   private Charset charset;
+  private int lastValidOffset;
 
   public DefaultInputFile(String moduleKey, String relativePath) {
     this.moduleKey = moduleKey;
@@ -144,12 +144,22 @@ public class DefaultInputFile implements InputFile, Serializable {
     return this;
   }
 
+  public int lastValidOffset() {
+    return lastValidOffset;
+  }
+
+  public DefaultInputFile setLastValidOffset(int lastValidOffset) {
+    this.lastValidOffset = lastValidOffset;
+    return this;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof DefaultInputFile)) {
+
+    if (!(this.getClass() == o.getClass())) {
       return false;
     }
 

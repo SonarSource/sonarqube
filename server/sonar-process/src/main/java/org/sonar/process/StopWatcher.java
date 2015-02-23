@@ -45,7 +45,6 @@ public class StopWatcher extends Thread {
 
   @Override
   public void run() {
-    commands.prepare();
     try {
       while (watching) {
         if (commands.askedForStop()) {

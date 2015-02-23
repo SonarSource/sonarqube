@@ -9,7 +9,7 @@
     values (#{createdAt}, #{key}, #{type}, #{action}, #{author}, #{data}, #{message})
   </insert>
 
-  <select id="selectAll" parameterType="map" resultType="Activity" >
+  <select id="selectAll" parameterType="map" resultType="Activity" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
     SELECT
     created_at as "createdAt",
     log_type as "type",
@@ -21,5 +21,22 @@
     FROM activities
   </select>
 
+
+  <select id="selectAfterDate" parameterType="map" resultType="Activity" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
+    SELECT
+    created_at as "createdAt",
+    log_type as "type",
+    user_login as "author",
+    data_field as "data",
+    log_message as "message",
+    log_key as "key",
+    log_action as "action"
+    FROM activities
+    <where>
+      <if test="date != null">
+        created_at &gt;= #{date}
+      </if>
+    </where>
+  </select>
 </mapper>
 

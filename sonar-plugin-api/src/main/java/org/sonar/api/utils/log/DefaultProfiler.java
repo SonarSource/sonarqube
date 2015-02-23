@@ -36,7 +36,6 @@ class DefaultProfiler extends Profiler {
 
   private long startTime = 0L;
   private String startMessage = null;
-  private LoggerLevel startLevel = null;
 
   public DefaultProfiler(BaseLogger logger) {
     this.logger = logger;
@@ -56,7 +55,6 @@ class DefaultProfiler extends Profiler {
   public Profiler start() {
     this.startTime = System2.INSTANCE.now();
     this.startMessage = null;
-    this.startLevel = null;
     return this;
   }
 
@@ -64,7 +62,6 @@ class DefaultProfiler extends Profiler {
   public Profiler startTrace(String message) {
     this.startTime = System2.INSTANCE.now();
     this.startMessage = message;
-    this.startLevel = LoggerLevel.TRACE;
     StringBuilder sb = new StringBuilder();
     sb.append(message);
     appendContext(sb);
@@ -76,7 +73,6 @@ class DefaultProfiler extends Profiler {
   public Profiler startDebug(String message) {
     this.startTime = System2.INSTANCE.now();
     this.startMessage = message;
-    this.startLevel = LoggerLevel.DEBUG;
     StringBuilder sb = new StringBuilder();
     sb.append(message);
     appendContext(sb);
@@ -88,7 +84,6 @@ class DefaultProfiler extends Profiler {
   public Profiler startInfo(String message) {
     this.startTime = System2.INSTANCE.now();
     this.startMessage = message;
-    this.startLevel = LoggerLevel.INFO;
     StringBuilder sb = new StringBuilder();
     sb.append(message);
     appendContext(sb);
@@ -154,7 +149,6 @@ class DefaultProfiler extends Profiler {
     logger.log(level, sb.toString());
     startTime = 0L;
     startMessage = null;
-    startLevel = null;
     context.clear();
   }
 

@@ -22,7 +22,6 @@ package org.sonar.server.platform.ws;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.System2;
 import org.sonar.server.platform.Platform;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,18 +31,15 @@ public class SystemWsTest {
 
   @Test
   public void define() throws Exception {
-    Platform platform = mock(Platform.class);
-    Settings settings = new Settings();
-    RestartHandler restartHandler = new RestartHandler(settings, platform, mock(System2.class));
-    SystemWs ws = new SystemWs(restartHandler);
+    SystemRestartWsAction action1 = new SystemRestartWsAction(mock(Settings.class), mock(Platform.class));
+    SystemInfoWsAction action2 = new SystemInfoWsAction();
+    SystemWs ws = new SystemWs(action1, action2);
     WebService.Context context = new WebService.Context();
 
     ws.define(context);
 
     assertThat(context.controllers()).hasSize(1);
-    assertThat(context.controller("api/system")).isNotNull();
-    assertThat(context.controller("api/system").description()).isNotEmpty();
-    assertThat(context.controller("api/system").since()).isEqualTo("4.3");
-    assertThat(context.controller("api/system").actions()).isNotEmpty();
+    assertThat(context.controller("api/system").actions()).hasSize(2);
+    assertThat(context.controller("api/system").action("info")).isNotNull();
   }
 }
