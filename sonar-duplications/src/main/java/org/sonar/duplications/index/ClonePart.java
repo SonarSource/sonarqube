@@ -21,8 +21,6 @@ package org.sonar.duplications.index;
 
 import org.sonar.duplications.CodeFragment;
 
-import javax.annotation.Nullable;
-
 public class ClonePart implements CodeFragment {
 
   private final String resourceId;
@@ -65,8 +63,8 @@ public class ClonePart implements CodeFragment {
   }
 
   @Override
-  public boolean equals(@Nullable Object obj) {
-    if (obj != null && this.getClass() == obj.getClass()) {
+  public boolean equals(Object obj) {
+    if (this.getClass() == obj.getClass()) {
       ClonePart another = (ClonePart) obj;
       return another.resourceId.equals(resourceId)
         && another.startLine == startLine

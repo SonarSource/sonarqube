@@ -19,8 +19,6 @@
  */
 package org.sonar.api.rules;
 
-import javax.annotation.Nullable;
-
 public class ActiveRuleParam implements Cloneable {
 
   private Integer id;
@@ -105,12 +103,12 @@ public class ActiveRuleParam implements Cloneable {
   }
 
   @Override
-  public boolean equals(@Nullable Object obj) {
-    if (obj == null || this.getClass() != obj.getClass()) {
-      return false;
-    }
+  public boolean equals(Object obj) {
     if (this == obj) {
       return true;
+    }
+    if (this.getClass() != obj.getClass()) {
+      return false;
     }
     ActiveRuleParam other = (ActiveRuleParam) obj;
     return other.getKey().equals(getKey());
