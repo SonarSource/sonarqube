@@ -63,6 +63,7 @@ define([
       looper.done(function () {
         that.options.app.controller.fetchList();
         that.$(that.ui.codingRulesSubmitBulkChange.selector).hide();
+        that.$('.js-modal-close').focus();
       });
     },
 

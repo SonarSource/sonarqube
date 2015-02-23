@@ -14,6 +14,14 @@ define(['common/modals'], function (ModalView) {
       });
     },
 
+    onRender: function () {
+      ModalView.prototype.onRender.apply(this, arguments);
+      var that = this;
+      setTimeout(function () {
+        that.$(':tabbable').first().focus();
+      }, 0);
+    },
+
     onFormSubmit: function (e) {
       e.preventDefault();
     },
