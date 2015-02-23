@@ -159,7 +159,8 @@ public class DefaultInputFile implements InputFile {
       return true;
     }
 
-    if (!(this.getClass() == o.getClass())) {
+    // Use instanceof to support DeprecatedDefaultInputFile
+    if (!(o instanceof DefaultInputFile)) {
       return false;
     }
 

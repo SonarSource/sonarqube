@@ -66,7 +66,7 @@ public abstract class PathPattern {
     public boolean match(InputFile inputFile, boolean caseSensitiveFileExtension) {
       String path = inputFile.absolutePath();
       if (!caseSensitiveFileExtension) {
-        String extension = sanitizeExtension(FilenameUtils.getExtension(inputFile.file().getName()));
+        String extension = super.sanitizeExtension(FilenameUtils.getExtension(inputFile.file().getName()));
         if (StringUtils.isNotBlank(extension)) {
           path = StringUtils.removeEndIgnoreCase(path, extension);
           path = path + extension;
@@ -98,7 +98,7 @@ public abstract class PathPattern {
     public boolean match(InputFile inputFile, boolean caseSensitiveFileExtension) {
       String path = inputFile.relativePath();
       if (!caseSensitiveFileExtension) {
-        String extension = sanitizeExtension(FilenameUtils.getExtension(inputFile.file().getName()));
+        String extension = super.sanitizeExtension(FilenameUtils.getExtension(inputFile.file().getName()));
         if (StringUtils.isNotBlank(extension)) {
           path = StringUtils.removeEndIgnoreCase(path, extension);
           path = path + extension;
