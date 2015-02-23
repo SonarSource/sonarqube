@@ -19,11 +19,10 @@
  */
 package org.sonar.duplications.detector.suffixtree;
 
-import java.util.List;
-
+import com.google.common.collect.Lists;
 import org.sonar.duplications.block.Block;
 
-import com.google.common.collect.Lists;
+import java.util.List;
 
 /**
  * Simplifies construction of <a href="http://en.wikipedia.org/wiki/Generalised_suffix_tree">generalised suffix-tree</a>.
@@ -92,7 +91,7 @@ public final class TextSet extends AbstractText {
 
     @Override
     public boolean equals(Object obj) {
-      return (obj instanceof Terminator) && (((Terminator) obj).stringNumber == stringNumber);
+      return (this.getClass() == obj.getClass()) && (((Terminator) obj).stringNumber == stringNumber);
     }
 
     @Override

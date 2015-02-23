@@ -135,7 +135,7 @@ public class CloneGroup {
    */
   @Override
   public boolean equals(Object object) {
-    if (!(object instanceof CloneGroup)) {
+    if (this.getClass() != object.getClass()) {
       return false;
     }
     CloneGroup another = (CloneGroup) object;

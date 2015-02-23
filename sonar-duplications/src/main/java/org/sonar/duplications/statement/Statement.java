@@ -82,7 +82,7 @@ public class Statement implements CodeFragment {
 
   @Override
   public boolean equals(Object obj) {
-    if (!(obj instanceof Statement)) {
+    if (this.getClass() != obj.getClass()) {
       return false;
     }
     Statement other = (Statement) obj;

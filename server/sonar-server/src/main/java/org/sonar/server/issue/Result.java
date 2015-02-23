@@ -23,6 +23,7 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -123,7 +124,7 @@ public class Result<T> {
       if (this == o) {
         return true;
       }
-      if (o == null || getClass() != o.getClass()) {
+      if (this.getClass() != o.getClass()) {
         return false;
       }
       Message message = (Message) o;
