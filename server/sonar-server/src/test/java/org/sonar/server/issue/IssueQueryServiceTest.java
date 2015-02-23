@@ -357,6 +357,31 @@ public class IssueQueryServiceTest {
   }
 
   @Test
+  public void should_search_on_developer_technical_project() throws Exception {
+    String projectUuid = "sample1";
+    String devUuid = "DEV:anakin.skywalker";
+    String login1 = "anakin@skywalker.name";
+    String login2 = "darth.vader";
+    String copyProjectUuid = devUuid + ":" + projectUuid;
+
+    long copyResourceId = 42L;
+    ComponentDto technicalProject = new ComponentDto().setProjectUuid(devUuid).setCopyResourceId(copyResourceId);
+    when(componentDao.getByUuids(isA(DbSession.class), anyCollection())).thenReturn(Arrays.asList(technicalProject));
+
+    when(componentService.getDistinctQualifiers(isA(DbSession.class), anyCollection())).thenReturn(Sets.newHashSet("DEV_PRJ"));
+    when(authorDao.selectScmAccountsByDeveloperUuids(isA(DbSession.class), anyCollection())).thenReturn(Lists.newArrayList(login1, login2));
+
+    ComponentDto actualProject = new ComponentDto().setUuid(projectUuid);
+    when(componentDao.getByIds(isA(DbSession.class), anyCollection())).thenReturn(Arrays.asList(actualProject));
+
+    Map<String, Object> map = newHashMap();
+    map.put("componentUuids", newArrayList(copyProjectUuid));
+    IssueQuery query = issueQueryService.createFromMap(map);
+    assertThat(query.authors()).containsExactly(login1, login2);
+    assertThat(query.projectUuids()).containsExactly(projectUuid);
+  }
+
+  @Test
   public void should_search_in_tree_with_module_uuid() throws Exception {
     String moduleUuid = "ABCD";
     Map<String, Object> map = newHashMap();

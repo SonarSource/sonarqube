@@ -49,6 +49,7 @@ import org.sonar.server.user.MockUserSession;
 import org.sonar.server.view.index.ViewDoc;
 import org.sonar.server.view.index.ViewIndexer;
 import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.WsTester.Result;
 
 import java.util.List;
 
@@ -495,6 +496,40 @@ public class SearchActionComponentsMediumTest {
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, developer.uuid())
       .execute()
+      .assertJson(this.getClass(), "search_by_developer.json", false);
+  }
+
+  @Test
+  public void search_by_developer_technical_project() throws Exception {
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    setDefaultProjectPermission(project);
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
+
+    ComponentDto otherProject = insertComponent(ComponentTesting.newProjectDto("XXXX").setKey("OtherProject"));
+    setDefaultProjectPermission(otherProject);
+    ComponentDto otherFile = insertComponent(ComponentTesting.newFileDto(otherProject, "YYYY").setKey("OtherComponent"));
+
+    ComponentDto developer = insertComponent(ComponentTesting.newDeveloper("Anakin Skywalker"));
+    ComponentDto technicalProject = insertComponent(ComponentTesting.newDevProjectCopy("CDEF", project, developer));
+    insertComponent(ComponentTesting.newDevProjectCopy("DEFG", otherProject, developer));
+
+    db.authorDao().insertAuthor("vader", developer.getId());
+    db.authorDao().insertAuthor("anakin@skywalker.name", developer.getId());
+    RuleDto newRule = newRule();
+
+    IssueDto issue1 = IssueTesting.newDto(newRule, file, project).setAuthorLogin("vader").setKee("2bd4eac2-b650-4037-80bc-7b112bd4eac2");
+    IssueDto issue2 = IssueTesting.newDto(newRule, file, project).setAuthorLogin("anakin@skywalker.name").setKee("82fd47d4-b650-4037-80bc-7b1182fd47d4");
+    IssueDto issueX = IssueTesting.newDto(newRule, otherFile, otherProject).setAuthorLogin("anakin@skywalker.name").setKee("82fd47d4-b650-4037-7b11-80bc82fd47d4");
+
+    db.issueDao().insert(session, issue1, issue2, issueX);
+    session.commit();
+    tester.get(IssueIndexer.class).indexAll();
+
+    Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+      .setParam(IssueFilterParameters.COMPONENT_UUIDS, technicalProject.uuid())
+      .execute();
+    System.out.println(result.outputAsString());
+    result
       .assertJson(this.getClass(), "search_by_developer.json", false);
   }
 

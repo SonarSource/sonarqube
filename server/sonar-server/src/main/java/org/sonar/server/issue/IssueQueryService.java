@@ -25,6 +25,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -269,22 +270,15 @@ public class IssueQueryService implements ServerComponent {
     switch(uniqueQualifier) {
       case Qualifiers.VIEW:
       case Qualifiers.SUBVIEW:
-        List<String> filteredViewUuids = newArrayList();
-        for (String viewUuid : componentUuids) {
-          if ((Qualifiers.VIEW.equals(uniqueQualifier) && UserSession.get().hasProjectPermissionByUuid(UserRole.USER, viewUuid))
-            || (Qualifiers.SUBVIEW.equals(uniqueQualifier) && UserSession.get().hasComponentUuidPermission(UserRole.USER, viewUuid))) {
-            filteredViewUuids.add(viewUuid);
-          }
-        }
-        if (filteredViewUuids.isEmpty()) {
-          filteredViewUuids.add(UNKNOWN);
-        }
-        builder.viewUuids(filteredViewUuids);
+        addViewsOrSubViews(builder, componentUuids, uniqueQualifier);
         break;
       case "DEV":
         // XXX No constant for developer !!!
-        Collection<String> actualAuthors = authors == null ? dbClient.authorDao().selectScmAccountsByDeveloperUuids(session, componentUuids) : authors;
+        Collection<String> actualAuthors = authorsFromParamsOrFromDeveloper(session, componentUuids, authors);
         builder.authors(actualAuthors);
+        break;
+      case "DEV_PRJ":
+        addDeveloperTechnicalProjects(builder, session, componentUuids, authors);
         break;
       case Qualifiers.PROJECT:
         builder.projectUuids(componentUuids);
@@ -293,14 +287,7 @@ public class IssueQueryService implements ServerComponent {
         builder.moduleRootUuids(componentUuids);
         break;
       case Qualifiers.DIRECTORY:
-        Collection<String> directoryModuleUuids = Sets.newHashSet();
-        Collection<String> directoryPaths = Sets.newHashSet();
-        for (ComponentDto directory : componentService.getByUuids(session, componentUuids)) {
-          directoryModuleUuids.add(directory.moduleUuid());
-          directoryPaths.add(directory.path());
-        }
-        builder.moduleUuids(directoryModuleUuids);
-        builder.directories(directoryPaths);
+        addDirectories(builder, session, componentUuids);
         break;
       case Qualifiers.FILE:
       case Qualifiers.UNIT_TEST_FILE:
@@ -309,6 +296,61 @@ public class IssueQueryService implements ServerComponent {
       default:
         throw new IllegalArgumentException("Unable to set search root context for components " + Joiner.on(',').join(componentUuids));
     }
+  }
+
+  private void addViewsOrSubViews(IssueQuery.Builder builder, Collection<String> componentUuids, String uniqueQualifier) {
+    List<String> filteredViewUuids = newArrayList();
+    for (String viewUuid : componentUuids) {
+      if ((Qualifiers.VIEW.equals(uniqueQualifier) && UserSession.get().hasProjectPermissionByUuid(UserRole.USER, viewUuid))
+        || (Qualifiers.SUBVIEW.equals(uniqueQualifier) && UserSession.get().hasComponentUuidPermission(UserRole.USER, viewUuid))) {
+        filteredViewUuids.add(viewUuid);
+      }
+    }
+    if (filteredViewUuids.isEmpty()) {
+      filteredViewUuids.add(UNKNOWN);
+    }
+    builder.viewUuids(filteredViewUuids);
+  }
+
+  private void addDeveloperTechnicalProjects(IssueQuery.Builder builder, DbSession session, Collection<String> componentUuids, Collection<String> authors) {
+    Collection<ComponentDto> technicalProjects = dbClient.componentDao().getByUuids(session, componentUuids);
+    Collection<String> developerUuids = Collections2.transform(technicalProjects, new Function<ComponentDto, String>() {
+      @Override
+      public String apply(ComponentDto input) {
+        return input.projectUuid();
+      }
+    });
+    Collection<String> authorsFromProjects = authorsFromParamsOrFromDeveloper(session, developerUuids, authors);
+    builder.authors(authorsFromProjects);
+    Collection<Long> projectIds = Collections2.transform(technicalProjects, new Function<ComponentDto, Long>() {
+      @Override
+      public Long apply(ComponentDto input) {
+        return input.getCopyResourceId();
+      }
+    });
+    List<ComponentDto> originalProjects = dbClient.componentDao().getByIds(session, projectIds);
+    Collection<String> projectUuids = Collections2.transform(originalProjects, new Function<ComponentDto, String>() {
+      @Override
+      public String apply(ComponentDto input) {
+        return input.uuid();
+      }
+    });
+    builder.projectUuids(projectUuids);
+  }
+
+  private Collection<String> authorsFromParamsOrFromDeveloper(DbSession session, Collection<String> componentUuids, Collection<String> authors) {
+    return authors == null ? dbClient.authorDao().selectScmAccountsByDeveloperUuids(session, componentUuids) : authors;
+  }
+
+  private void addDirectories(IssueQuery.Builder builder, DbSession session, Collection<String> componentUuids) {
+    Collection<String> directoryModuleUuids = Sets.newHashSet();
+    Collection<String> directoryPaths = Sets.newHashSet();
+    for (ComponentDto directory : componentService.getByUuids(session, componentUuids)) {
+      directoryModuleUuids.add(directory.moduleUuid());
+      directoryPaths.add(directory.path());
+    }
+    builder.moduleUuids(directoryModuleUuids);
+    builder.directories(directoryPaths);
   }
 
   private Collection<String> componentUuids(DbSession session, @Nullable Collection<String> componentKeys) {

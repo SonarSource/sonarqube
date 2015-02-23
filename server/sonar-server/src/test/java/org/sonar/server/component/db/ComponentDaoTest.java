@@ -79,6 +79,28 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
     assertThat(result.qualifier()).isEqualTo("FIL");
     assertThat(result.scope()).isEqualTo("FIL");
     assertThat(result.language()).isEqualTo("java");
+    assertThat(result.getCopyResourceId()).isNull();
+  }
+
+  @Test
+  public void get_by_uuid_on_technical_project_copy() {
+    setupData("shared");
+
+    ComponentDto result = dao.getNullableByUuid(session, "STUV");
+    assertThat(result).isNotNull();
+    assertThat(result.uuid()).isEqualTo("STUV");
+    assertThat(result.moduleUuid()).isEqualTo("OPQR");
+    assertThat(result.moduleUuidPath()).isEqualTo(".OPQR.");
+    assertThat(result.parentProjectId()).isEqualTo(11);
+    assertThat(result.projectUuid()).isEqualTo("OPQR");
+    assertThat(result.key()).isEqualTo("DEV:anakin@skywalker.name:org.struts:struts");
+    assertThat(result.path()).isNull();
+    assertThat(result.name()).isEqualTo("Apache Struts");
+    assertThat(result.longName()).isEqualTo("Apache Struts");
+    assertThat(result.qualifier()).isEqualTo("DEV_PRJ");
+    assertThat(result.scope()).isEqualTo("PRJ");
+    assertThat(result.language()).isNull();
+    assertThat(result.getCopyResourceId()).isEqualTo(1L);
   }
 
   @Test

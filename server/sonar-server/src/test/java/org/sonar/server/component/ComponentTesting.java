@@ -130,6 +130,20 @@ public class ComponentTesting {
       .setLanguage(null);
   }
 
+  public static ComponentDto newDevProjectCopy(String uuid, ComponentDto project, ComponentDto developer) {
+    Preconditions.checkNotNull(project.getId(), "The project need to be persisted before creating this technical project.");
+    return newChildComponent(uuid, developer)
+      .setUuid(uuid)
+      .setKey(developer.key() + ":" + project.key())
+      .setName(project.name())
+      .setLongName(project.longName())
+      .setCopyResourceId(project.getId())
+      .setScope(Scopes.PROJECT)
+      .setQualifier("DEV_PRJ")
+      .setPath(null)
+      .setLanguage(null);
+  }
+
   private static ComponentDto newChildComponent(String uuid, ComponentDto module) {
     return newChildComponent(uuid, module, false);
   }

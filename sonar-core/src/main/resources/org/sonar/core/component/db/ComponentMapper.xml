@@ -18,6 +18,7 @@
     p.root_id as parentProjectId,
     p.path as path,
     p.enabled as enabled,
+    p.copy_resource_id as copyResourceId,
     p.authorization_updated_at as authorizationUpdatedAt,
     p.created_at as createdAt
   </sql>
