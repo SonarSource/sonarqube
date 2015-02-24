@@ -30,6 +30,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.ws.WsTester;
 
 import java.io.File;
@@ -58,7 +59,7 @@ public class BatchWsTest {
     tester = new WsTester(new BatchWs(batchIndex,
       new GlobalRepositoryAction(mock(DbClient.class), mock(PropertiesDao.class)),
       new ProjectRepositoryAction(mock(ProjectRepositoryLoader.class)),
-      new IssuesAction(mock(DbClient.class))));
+      new IssuesAction(mock(DbClient.class), mock(IssueIndex.class))));
   }
 
   @Test

@@ -64,6 +64,8 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
 
     // column 11
     "i.severity",
+    "i.manual_severity",
+    "i.checksum",
     "i.status",
     "i.technical_debt",
     "i.reporter",
@@ -71,10 +73,10 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
     "i.issue_close_date",
     "i.issue_creation_date",
     "i.issue_update_date",
-    "r.plugin_name",
-    "r.plugin_rule_key",
 
     // column 21
+    "r.plugin_name",
+    "r.plugin_rule_key",
     "r.language",
     "p.uuid",
     "p.module_uuid_path",
@@ -146,26 +148,28 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
     doc.setMessage(rs.getString(9));
     doc.setResolution(rs.getString(10));
     doc.setSeverity(rs.getString(11));
-    doc.setStatus(rs.getString(12));
-    doc.setDebt(getLong(rs, 13));
-    doc.setReporter(rs.getString(14));
-    doc.setAuthorLogin(rs.getString(15));
-    doc.setFuncCloseDate(longToDate(getLong(rs, 16)));
-    doc.setFuncCreationDate(longToDate(getLong(rs, 17)));
-    doc.setFuncUpdateDate(longToDate(getLong(rs, 18)));
-    String ruleRepo = rs.getString(19);
-    String ruleKey = rs.getString(20);
+    doc.setManualSeverity(rs.getBoolean(12));
+    doc.setChecksum(rs.getString(13));
+    doc.setStatus(rs.getString(14));
+    doc.setDebt(getLong(rs, 15));
+    doc.setReporter(rs.getString(16));
+    doc.setAuthorLogin(rs.getString(17));
+    doc.setFuncCloseDate(longToDate(getLong(rs, 18)));
+    doc.setFuncCreationDate(longToDate(getLong(rs, 19)));
+    doc.setFuncUpdateDate(longToDate(getLong(rs, 20)));
+    String ruleRepo = rs.getString(21);
+    String ruleKey = rs.getString(22);
     doc.setRuleKey(RuleKey.of(ruleRepo, ruleKey).toString());
-    doc.setLanguage(rs.getString(21));
-    doc.setComponentUuid(rs.getString(22));
-    String moduleUuidPath = rs.getString(23);
+    doc.setLanguage(rs.getString(23));
+    doc.setComponentUuid(rs.getString(24));
+    String moduleUuidPath = rs.getString(25);
     doc.setModuleUuid(extractModule(moduleUuidPath));
     doc.setModuleUuidPath(moduleUuidPath);
-    String filePath = rs.getString(24);
+    String filePath = rs.getString(26);
     doc.setFilePath(filePath);
-    String scope = rs.getString(25);
+    String scope = rs.getString(27);
     doc.setDirectoryPath(Scopes.DIRECTORY.equals(scope) ? filePath : extractDirPath(doc.filePath()));
-    String tags = rs.getString(26);
+    String tags = rs.getString(28);
     doc.setTags(ImmutableList.copyOf(TAGS_SPLITTER.split(tags == null ? "" : tags)));
     return doc;
   }

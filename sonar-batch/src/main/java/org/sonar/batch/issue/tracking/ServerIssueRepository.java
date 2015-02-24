@@ -32,6 +32,7 @@ import org.sonar.batch.index.Caches;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.protocol.input.BatchInput.ServerIssue;
 import org.sonar.batch.repository.ServerIssuesLoader;
+import org.sonar.core.component.ComponentKeys;
 
 import javax.annotation.Nullable;
 
@@ -64,7 +65,7 @@ public class ServerIssueRepository implements BatchComponent {
         if (issue == null) {
           return null;
         }
-        String componentKey = issue.getComponentKey();
+        String componentKey = issue.hasPath() ? ComponentKeys.createEffectiveKey(issue.getModuleKey(), issue.getPath()) : issue.getModuleKey();
         BatchResource r = resourceCache.get(componentKey);
         if (r == null) {
           // Deleted resource

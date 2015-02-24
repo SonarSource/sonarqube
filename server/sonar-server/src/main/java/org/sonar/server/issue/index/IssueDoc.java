@@ -92,6 +92,14 @@ public class IssueDoc extends BaseDoc implements Issue {
     return getField(IssueIndexDefinition.FIELD_ISSUE_SEVERITY);
   }
 
+  public boolean isManualSeverity() {
+    return (Boolean) getField(IssueIndexDefinition.FIELD_ISSUE_MANUAL_SEVERITY);
+  }
+
+  public String checksum() {
+    return getField(IssueIndexDefinition.FIELD_ISSUE_CHECKSUM);
+  }
+
   @Override
   @CheckForNull
   public String message() {
@@ -246,8 +254,18 @@ public class IssueDoc extends BaseDoc implements Issue {
     return this;
   }
 
+  public IssueDoc setManualSeverity(boolean b) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_MANUAL_SEVERITY, b);
+    return this;
+  }
+
   public IssueDoc setMessage(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_MESSAGE, s);
+    return this;
+  }
+
+  public IssueDoc setChecksum(@Nullable String s) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_CHECKSUM, s);
     return this;
   }
 

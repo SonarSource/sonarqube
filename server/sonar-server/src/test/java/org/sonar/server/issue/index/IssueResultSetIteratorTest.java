@@ -27,6 +27,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
@@ -55,6 +56,45 @@ public class IssueResultSetIteratorTest {
   @After
   public void tearDown() throws Exception {
     DbUtils.closeQuietly(connection);
+  }
+
+  @Test
+  public void iterator_over_one_issue() throws Exception {
+    dbTester.prepareDbUnit(getClass(), "one_issue.xml");
+    IssueResultSetIterator it = IssueResultSetIterator.create(client, connection, 0L);
+    Map<String, IssueDoc> issuesByKey = Maps.uniqueIndex(it, new Function<IssueDoc, String>() {
+      @Override
+      public String apply(IssueDoc issue) {
+        return issue.key();
+      }
+    });
+    it.close();
+
+    assertThat(issuesByKey).hasSize(1);
+
+    IssueDoc issue = issuesByKey.get("ABC");
+    assertThat(issue.key()).isEqualTo("ABC");
+    assertThat(issue.resolution()).isEqualTo("FIXED");
+    assertThat(issue.status()).isEqualTo("RESOLVED");
+    assertThat(issue.severity()).isEqualTo("BLOCKER");
+    assertThat(issue.isManualSeverity()).isFalse();
+    assertThat(issue.assignee()).isEqualTo("guy1");
+    assertThat(issue.authorLogin()).isEqualTo("guy2");
+    assertThat(issue.reporter()).isEqualTo("john");
+    assertThat(issue.checksum()).isEqualTo("FFFFF");
+    assertThat(issue.line()).isEqualTo(444);
+    assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("squid", "AvoidCycles"));
+    assertThat(issue.componentUuid()).isEqualTo("FILE1");
+    assertThat(issue.projectUuid()).isEqualTo("PROJECT1");
+    assertThat(issue.moduleUuid()).isEqualTo("PROJECT1");
+    assertThat(issue.modulePath()).isEqualTo(".PROJECT1.");
+    assertThat(issue.directoryPath()).isEqualTo("src/main/java");
+    assertThat(issue.filePath()).isEqualTo("src/main/java/Action.java");
+    assertThat(issue.tags()).containsOnly("tag1", "tag2", "tag3");
+    assertThat(issue.debt().toMinutes()).isGreaterThan(0L);
+    assertThat(issue.effortToFix()).isEqualTo(2d);
+    assertThat(issue.actionPlanKey()).isEqualTo("PLAN1");
+    assertThat(issue.attribute("JIRA")).isEqualTo("http://jira.com");
   }
 
   @Test

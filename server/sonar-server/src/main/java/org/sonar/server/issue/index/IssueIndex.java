@@ -28,8 +28,11 @@ import com.google.common.collect.Sets;
 import org.apache.commons.lang.BooleanUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchScrollRequestBuilder;
 import org.elasticsearch.action.search.SearchType;
+import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.*;
+import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuilder;
@@ -42,9 +45,11 @@ import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
 import org.elasticsearch.search.aggregations.metrics.min.Min;
 import org.joda.time.Duration;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.server.es.*;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.IssueQuery;
@@ -68,6 +73,8 @@ import static com.google.common.collect.Lists.newArrayList;
  * All the requests are listed here.
  */
 public class IssueIndex extends BaseIndex {
+
+  private static final int SCROLL_TIME_IN_MINUTES = 3;
 
   private static final String SUBSTRING_MATCH_REGEXP = ".*%s.*";
 
@@ -200,7 +207,7 @@ public class IssueIndex extends BaseIndex {
 
   private Map<String, FilterBuilder> createFilters(IssueQuery query) {
     Map<String, FilterBuilder> filters = new HashMap<>();
-    filters.put("__authorization", createAuthorizationFilter(query));
+    filters.put("__authorization", createAuthorizationFilter(query.checkAuthorization(), query.userLogin(), query.userGroups()));
 
     // Issue is assigned Filter
     String isAssigned = "__isAssigned";
@@ -294,14 +301,13 @@ public class IssueIndex extends BaseIndex {
     return String.format("%s%s%s", IssueIndexDefinition.TYPE_ISSUE, viewUuid, ViewIndexDefinition.TYPE_VIEW);
   }
 
-  private FilterBuilder createAuthorizationFilter(IssueQuery query) {
-    if (query.checkAuthorization()) {
-      String user = query.userLogin();
+  private FilterBuilder createAuthorizationFilter(boolean checkAuthorization, @Nullable String userLogin, Set<String> userGroups) {
+    if (checkAuthorization) {
       OrFilterBuilder groupsAndUser = FilterBuilders.orFilter();
-      if (user != null) {
-        groupsAndUser.add(FilterBuilders.termFilter(IssueIndexDefinition.FIELD_AUTHORIZATION_USERS, user));
+      if (userLogin != null) {
+        groupsAndUser.add(FilterBuilders.termFilter(IssueIndexDefinition.FIELD_AUTHORIZATION_USERS, userLogin));
       }
-      for (String group : query.userGroups()) {
+      for (String group : userGroups) {
         groupsAndUser.add(FilterBuilders.termFilter(IssueIndexDefinition.FIELD_AUTHORIZATION_GROUPS, group));
       }
       return FilterBuilders.hasParentFilter(IssueIndexDefinition.TYPE_AUTHORIZATION,
@@ -674,5 +680,64 @@ public class IssueIndex extends BaseIndex {
     return getClient().prepareCount(IssueIndexDefinition.INDEX)
       .setTypes(IssueIndexDefinition.TYPE_ISSUE)
       .get().getCount();
+  }
+
+  /**
+   * Return non closed issue for a given project, module, or file. Other kind of components are not allowed.
+   */
+  public Iterator<IssueDoc> searchNonClosedIssuesByComponent(ComponentDto component) {
+    BoolFilterBuilder filter = FilterBuilders.boolFilter()
+      .must(createAuthorizationFilter(true, UserSession.get().login(), UserSession.get().userGroups()))
+      .mustNot(FilterBuilders.termsFilter(IssueIndexDefinition.FIELD_ISSUE_STATUS, Issue.STATUS_CLOSED));
+
+    switch (component.scope()) {
+      case Scopes.PROJECT:
+        filter.must(FilterBuilders.termsFilter(IssueIndexDefinition.FIELD_ISSUE_MODULE_PATH, component.uuid()));
+        break;
+      case Scopes.FILE:
+        filter.must(FilterBuilders.termsFilter(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, component.uuid()));
+        break;
+      default:
+        throw new IllegalStateException(String.format("Component of scope '%s' is not allowed", component.scope()));
+    }
+
+    SearchRequestBuilder requestBuilder = getClient()
+      .prepareSearch(IssueIndexDefinition.INDEX)
+      .setTypes(IssueIndexDefinition.TYPE_ISSUE)
+      .setSearchType(SearchType.SCAN)
+      .setScroll(TimeValue.timeValueMinutes(SCROLL_TIME_IN_MINUTES))
+      .setSize(100)
+      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), filter));
+    SearchResponse response = requestBuilder.get();
+
+    return scroll(response.getScrollId());
+  }
+
+  // Scrolling within the index
+  private Iterator<IssueDoc> scroll(final String scrollId) {
+    return new Iterator<IssueDoc>() {
+
+      private final Queue<SearchHit> hits = new ArrayDeque<>();
+
+      @Override
+      public boolean hasNext() {
+        if (hits.isEmpty()) {
+          SearchScrollRequestBuilder esRequest = getClient().prepareSearchScroll(scrollId)
+            .setScroll(TimeValue.timeValueMinutes(SCROLL_TIME_IN_MINUTES));
+          Collections.addAll(hits, esRequest.get().getHits().getHits());
+        }
+        return !hits.isEmpty();
+      }
+
+      @Override
+      public IssueDoc next() {
+        return new IssueDoc(hits.poll().getSource());
+      }
+
+      @Override
+      public void remove() {
+        throw new UnsupportedOperationException("Cannot remove item when scrolling");
+      }
+    };
   }
 }

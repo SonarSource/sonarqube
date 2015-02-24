@@ -39,6 +39,7 @@ import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonar.batch.scan.LastLineHashes;
 import org.sonar.batch.scan.filesystem.InputPathCache;
+import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 
@@ -188,7 +189,7 @@ public class LocalIssueTracking implements BatchComponent {
     issue.setLine(previous.hasLine() ? previous.getLine() : null);
     issue.setSeverity(previous.getSeverity().name());
     issue.setAssignee(previous.hasAssigneeLogin() ? previous.getAssigneeLogin() : null);
-    issue.setComponentKey(previous.getComponentKey());
+    issue.setComponentKey(previous.hasPath() ? ComponentKeys.createEffectiveKey(previous.getModuleKey(), previous.getPath()) : previous.getModuleKey());
     issue.setManualSeverity(previous.getManualSeverity());
     issue.setCreationDate(new Date(previous.getCreationDate()));
     issue.setRuleKey(RuleKey.of(previous.getRuleRepository(), previous.getRuleKey()));

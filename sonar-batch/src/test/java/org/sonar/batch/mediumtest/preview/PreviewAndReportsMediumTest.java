@@ -64,7 +64,8 @@ public class PreviewAndReportsMediumTest {
     .setPreviousAnalysisDate(new Date())
     // Existing issue
     .mockServerIssue(org.sonar.batch.protocol.input.BatchInput.ServerIssue.newBuilder().setKey("xyz")
-      .setComponentKey("sample:xources/hello/HelloJava.xoo")
+      .setModuleKey("sample")
+      .setPath("xources/hello/HelloJava.xoo")
       .setRuleRepository("xoo")
       .setRuleKey("OneIssuePerLine")
       .setLine(1)
@@ -75,7 +76,8 @@ public class PreviewAndReportsMediumTest {
       .build())
     // Resolved issue
     .mockServerIssue(org.sonar.batch.protocol.input.BatchInput.ServerIssue.newBuilder().setKey("resolved")
-      .setComponentKey("sample:xources/hello/HelloJava.xoo")
+      .setModuleKey("sample")
+      .setPath("xources/hello/HelloJava.xoo")
       .setRuleRepository("xoo")
       .setRuleKey("OneIssuePerLine")
       .setLine(1)
@@ -86,7 +88,8 @@ public class PreviewAndReportsMediumTest {
       .build())
     // Manual issue
     .mockServerIssue(org.sonar.batch.protocol.input.BatchInput.ServerIssue.newBuilder().setKey("manual")
-      .setComponentKey("sample:xources/hello/HelloJava.xoo")
+      .setModuleKey("sample")
+      .setPath("xources/hello/HelloJava.xoo")
       .setRuleRepository("manual")
       .setRuleKey("MyManualIssue")
       .setLine(1)

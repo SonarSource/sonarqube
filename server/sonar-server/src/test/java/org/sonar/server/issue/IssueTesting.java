@@ -21,6 +21,7 @@ package org.sonar.server.issue;
 
 import com.google.common.collect.Maps;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.internal.Uuids;
@@ -90,7 +91,7 @@ public class IssueTesting {
     return newDoc()
       .setKey(key)
       .setComponentUuid(componentDto.uuid())
-      .setModuleUuid(componentDto.moduleUuid())
+      .setModuleUuid(!componentDto.scope().equals(Scopes.PROJECT) ? componentDto.moduleUuid() : componentDto.uuid())
       .setModuleUuidPath(componentDto.moduleUuidPath())
       .setProjectUuid(componentDto.projectUuid())
       .setFilePath(componentDto.path());

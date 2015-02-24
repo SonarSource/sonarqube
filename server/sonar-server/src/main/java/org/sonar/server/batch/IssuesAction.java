@@ -20,25 +20,29 @@
 
 package org.sonar.server.batch;
 
-import org.apache.ibatis.session.ResultContext;
-import org.apache.ibatis.session.ResultHandler;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
 import org.sonar.batch.protocol.input.BatchInput;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.issue.db.BatchIssueDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.issue.index.IssueDoc;
+import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.user.UserSession;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import static com.google.common.collect.Maps.newHashMap;
 
 public class IssuesAction implements RequestHandler {
 
@@ -46,8 +50,11 @@ public class IssuesAction implements RequestHandler {
 
   private final DbClient dbClient;
 
-  public IssuesAction(DbClient dbClient) {
+  private final IssueIndex issueIndex;
+
+  public IssuesAction(DbClient dbClient, IssueIndex issueIndex) {
     this.dbClient = dbClient;
+    this.issueIndex = issueIndex;
   }
 
   void define(WebService.NewController controller) {
@@ -60,7 +67,7 @@ public class IssuesAction implements RequestHandler {
     action
       .createParam(PARAM_KEY)
       .setRequired(true)
-      .setDescription("Project or module key")
+      .setDescription("Project, module or file key")
       .setExampleValue("org.codehaus.sonar:sonar");
   }
 
@@ -72,63 +79,72 @@ public class IssuesAction implements RequestHandler {
     response.stream().setMediaType(MimeTypes.PROTOBUF);
     DbSession session = dbClient.openSession(false);
     try {
-      ComponentDto moduleOrProject = dbClient.componentDao().getByKey(session, moduleKey);
-      UserSession.get().checkComponentPermission(UserRole.USER, moduleKey);
+      ComponentDto component = dbClient.componentDao().getByKey(session, moduleKey);
+      Map<String, String> keysByUUid = keysByUUid(session, component);
 
-      BatchIssueResultHandler batchIssueResultHandler = new BatchIssueResultHandler(response.stream().output());
-      if (moduleOrProject.isRootProject()) {
-        dbClient.issueDao().selectNonClosedIssuesByProjectUuid(session, moduleOrProject.uuid(), batchIssueResultHandler);
-      } else {
-        dbClient.issueDao().selectNonClosedIssuesByModuleUuid(session, moduleOrProject.uuid(), batchIssueResultHandler);
+      BatchInput.ServerIssue.Builder issueBuilder = BatchInput.ServerIssue.newBuilder();
+      for (Iterator<IssueDoc> issueDocIterator = issueIndex.searchNonClosedIssuesByComponent(component); issueDocIterator.hasNext();) {
+        handleIssue(issueDocIterator.next(), issueBuilder, keysByUUid, response.stream().output());
       }
-
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  private static class BatchIssueResultHandler implements ResultHandler {
-    private OutputStream out;
-    BatchInput.ServerIssue.Builder issueBuilder = BatchInput.ServerIssue.newBuilder();
-
-    public BatchIssueResultHandler(OutputStream out) {
-      this.out = out;
+  private void handleIssue(IssueDoc issue, BatchInput.ServerIssue.Builder issueBuilder, Map<String, String> keysByUUid, OutputStream out) {
+    issueBuilder.setKey(issue.key());
+    issueBuilder.setModuleKey(keysByUUid.get(issue.moduleUuid()));
+    String path = issue.filePath();
+    // Issue on module/project should not have a path
+    if (path != null && !issue.componentUuid().equals(issue.moduleUuid())) {
+      issueBuilder.setPath(path);
     }
-
-    @Override
-    public void handleResult(ResultContext rc) {
-      BatchIssueDto batchIssueDto = (BatchIssueDto) rc.getResultObject();
-      issueBuilder.setKey(batchIssueDto.getKey());
-      issueBuilder.setComponentKey(batchIssueDto.getComponentKey());
-      issueBuilder.setRuleRepository(batchIssueDto.getRuleRepo());
-      issueBuilder.setRuleKey(batchIssueDto.getRuleKey());
-      issueBuilder.setChecksum(batchIssueDto.getChecksum());
-      String assigneeLogin = batchIssueDto.getAssigneeLogin();
-      if (assigneeLogin != null) {
-        issueBuilder.setAssigneeLogin(assigneeLogin);
-      }
-      Integer line = batchIssueDto.getLine();
-      if (line != null) {
-        issueBuilder.setLine(line.intValue());
-      }
-      String message = batchIssueDto.getMessage();
-      if (message != null) {
-        issueBuilder.setMsg(message);
-      }
-      issueBuilder.setSeverity(org.sonar.batch.protocol.Constants.Severity.valueOf(batchIssueDto.getSeverity()));
-      issueBuilder.setManualSeverity(batchIssueDto.isManualSeverity());
-      issueBuilder.setStatus(batchIssueDto.getStatus());
-      String resolution = batchIssueDto.getResolution();
-      if (resolution != null) {
-        issueBuilder.setResolution(resolution);
-      }
-      issueBuilder.setCreationDate(batchIssueDto.getCreationTime());
-      try {
-        issueBuilder.build().writeDelimitedTo(out);
-      } catch (IOException e) {
-        throw new IllegalStateException("Unable to serialize issue", e);
-      }
-      issueBuilder.clear();
+    issueBuilder.setRuleRepository(issue.ruleKey().repository());
+    issueBuilder.setRuleKey(issue.ruleKey().rule());
+    issueBuilder.setChecksum(issue.checksum());
+    String assigneeLogin = issue.assignee();
+    if (assigneeLogin != null) {
+      issueBuilder.setAssigneeLogin(assigneeLogin);
     }
+    Integer line = issue.line();
+    if (line != null) {
+      issueBuilder.setLine(line);
+    }
+    String message = issue.message();
+    if (message != null) {
+      issueBuilder.setMsg(message);
+    }
+    issueBuilder.setSeverity(org.sonar.batch.protocol.Constants.Severity.valueOf(issue.severity()));
+    issueBuilder.setManualSeverity(issue.isManualSeverity());
+    issueBuilder.setStatus(issue.status());
+    String resolution = issue.resolution();
+    if (resolution != null) {
+      issueBuilder.setResolution(resolution);
+    }
+    issueBuilder.setCreationDate(issue.creationDate().getTime());
+    try {
+      issueBuilder.build().writeDelimitedTo(out);
+    } catch (IOException e) {
+      throw new IllegalStateException("Unable to serialize issue", e);
+    }
+    issueBuilder.clear();
+  }
+
+  private Map<String, String> keysByUUid(DbSession session, ComponentDto component) {
+    Map<String, String> keysByUUid = newHashMap();
+    if (Scopes.PROJECT.equals(component.scope())) {
+      List<ComponentDto> modulesTree = dbClient.componentDao().selectModulesTree(session, component.uuid());
+      for (ComponentDto componentDto : modulesTree) {
+        keysByUUid.put(componentDto.uuid(), componentDto.key());
+      }
+    } else {
+      String moduleUuid = component.moduleUuid();
+      if (moduleUuid == null) {
+        throw new IllegalArgumentException(String.format("The component '%s' has no module uuid", component.uuid()));
+      }
+      ComponentDto module = dbClient.componentDao().getByUuid(session, moduleUuid);
+      keysByUUid.put(module.uuid(), module.key());
+    }
+    return keysByUUid;
   }
 }

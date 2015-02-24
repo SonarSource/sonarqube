@@ -65,11 +65,15 @@ public final class ComponentKeys {
   }
 
   public static String createEffectiveKey(String projectKey, InputPath inputPath) {
+    return createEffectiveKey(projectKey, inputPath.relativePath());
+  }
+
+  public static String createEffectiveKey(String projectKey, String path) {
     // not a project nor a library
     return new StringBuilder(ResourceModel.KEY_SIZE)
       .append(projectKey)
       .append(':')
-      .append(inputPath.relativePath())
+      .append(path)
       .toString();
   }
 
