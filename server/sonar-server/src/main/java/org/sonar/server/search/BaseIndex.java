@@ -26,23 +26,14 @@ import com.google.common.collect.Multimap;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.count.CountRequestBuilder;
 import org.elasticsearch.action.count.CountResponse;
-import org.elasticsearch.action.get.GetRequestBuilder;
-import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.action.get.MultiGetItemResponse;
-import org.elasticsearch.action.get.MultiGetRequest;
-import org.elasticsearch.action.get.MultiGetRequestBuilder;
-import org.elasticsearch.action.get.MultiGetResponse;
+import org.elasticsearch.action.get.*;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchScrollRequestBuilder;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.index.query.BoolFilterBuilder;
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -62,22 +53,14 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.io.Serializable;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Queue;
+import java.util.*;
 
 public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serializable>
   implements Index<DOMAIN, DTO, KEY> {
 
   private static final Logger LOG = Loggers.get(BaseIndex.class);
+
+  public static final int SCROLL_TIME_IN_MINUTES = 3;
 
   private final SearchClient client;
   private final BaseNormalizer<DTO, KEY> normalizer;
@@ -126,31 +109,20 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   public Iterator<DOMAIN> scroll(final String scrollId) {
     return new Iterator<DOMAIN>() {
 
-      private final Queue<SearchHit> hits = new ArrayDeque<SearchHit>();
-
-      private void fillQueue() {
-        try {
-          SearchScrollRequestBuilder esRequest = client.prepareSearchScroll(scrollId)
-            .setScroll(TimeValue.timeValueMinutes(3));
-          Collections.addAll(hits, esRequest.get().getHits().getHits());
-        } catch (Exception e) {
-          throw new IllegalStateException("Error while filling in the scroll buffer", e);
-        }
-      }
+      private final Queue<SearchHit> hits = new ArrayDeque<>();
 
       @Override
       public boolean hasNext() {
         if (hits.isEmpty()) {
-          fillQueue();
+          SearchScrollRequestBuilder esRequest = client.prepareSearchScroll(scrollId)
+            .setScroll(TimeValue.timeValueMinutes(SCROLL_TIME_IN_MINUTES));
+          Collections.addAll(hits, esRequest.get().getHits().getHits());
         }
         return !hits.isEmpty();
       }
 
       @Override
       public DOMAIN next() {
-        if (!hasNext()) {
-          throw new NoSuchElementException();
-        }
         return toDoc(hits.poll().getSource());
       }
 

@@ -39,6 +39,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -97,7 +98,8 @@ public class QProfileExporters implements ServerComponent {
 
   private RulesProfile wrap(QualityProfileDto profile) {
     RulesProfile target = new RulesProfile(profile.getName(), profile.getLanguage());
-    for (ActiveRule activeRule : loader.findActiveRulesByProfile(profile.getKey())) {
+    for (Iterator<ActiveRule> activeRuleIterator = loader.findActiveRulesByProfile(profile.getKey()); activeRuleIterator.hasNext();) {
+      ActiveRule activeRule = activeRuleIterator.next();
       Rule rule = ruleFinder.findByKey(activeRule.key().ruleKey());
       org.sonar.api.rules.ActiveRule wrappedActiveRule = target.activateRule(rule, RulePriority.valueOf(activeRule.severity()));
       for (Map.Entry<String, String> entry : activeRule.params().entrySet()) {

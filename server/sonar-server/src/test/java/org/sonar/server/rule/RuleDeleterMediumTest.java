@@ -20,8 +20,7 @@
 
 package org.sonar.server.rule;
 
-import org.sonar.server.search.BaseIndex;
-
+import com.google.common.collect.Lists;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -40,6 +39,7 @@ import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.rule.index.RuleIndex;
+import org.sonar.server.search.BaseIndex;
 import org.sonar.server.tester.ServerTester;
 
 import java.util.List;
@@ -96,7 +96,7 @@ public class RuleDeleterMediumTest {
     assertThat(customRuleReloaded.status()).isEqualTo(RuleStatus.REMOVED);
 
     // Verify there's no more active rule from custom rule
-    List<ActiveRule> activeRules = tester.get(ActiveRuleIndex.class).findByProfile(profileDto.getKey());
+    List<ActiveRule> activeRules = Lists.newArrayList(tester.get(ActiveRuleIndex.class).findByProfile(profileDto.getKey()));
     assertThat(activeRules).isEmpty();
   }
 

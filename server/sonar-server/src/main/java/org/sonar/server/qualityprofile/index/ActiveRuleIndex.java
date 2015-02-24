@@ -23,6 +23,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchType;
+import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -37,10 +39,7 @@ import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.search.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, ActiveRuleKey> {
 
@@ -121,22 +120,20 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
     return activeRules;
   }
 
-  public List<ActiveRule> findByProfile(String key) {
+  public Iterator<ActiveRule> findByProfile(String key) {
     SearchRequestBuilder request = getClient().prepareSearch(getIndexName())
-      .setQuery(QueryBuilders.filteredQuery(
-        QueryBuilders.termsQuery(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field(), key),
-        FilterBuilders.boolFilter()
-          .mustNot(FilterBuilders.hasParentFilter(this.getParentType(),
-            FilterBuilders.termFilter(RuleNormalizer.RuleField.STATUS.field(), RuleStatus.REMOVED.name())))))
-      .setRouting(key)
-      // TODO replace by scrolling
-      .setSize(Integer.MAX_VALUE);
+      .setTypes(IndexDefinition.ACTIVE_RULE.getIndexType())
+      .setSearchType(SearchType.SCAN)
+      .setScroll(TimeValue.timeValueMinutes(SCROLL_TIME_IN_MINUTES))
+      .setSize(100)
+      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), FilterBuilders.boolFilter()
+        .must(FilterBuilders.termFilter(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field(), key))
+        .mustNot(FilterBuilders.hasParentFilter(this.getParentType(),
+          FilterBuilders.termFilter(RuleNormalizer.RuleField.STATUS.field(), RuleStatus.REMOVED.name())))))
+      .setRouting(key);
+
     SearchResponse response = request.get();
-    List<ActiveRule> activeRules = new ArrayList<ActiveRule>();
-    for (SearchHit hit : response.getHits()) {
-      activeRules.add(toDoc(hit.getSource()));
-    }
-    return activeRules;
+    return scroll(response.getScrollId());
   }
 
   private String getParentType() {

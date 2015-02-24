@@ -20,6 +20,7 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -173,7 +174,7 @@ public class QProfileCopierMediumTest {
   private void verifyOneActiveRule(String profileKey, String expectedSeverity,
     @Nullable String expectedInheritance, Map<String, String> expectedParams) {
 
-    List<ActiveRule> activeRules = index.findByProfile(profileKey);
+    List<ActiveRule> activeRules = Lists.newArrayList(index.findByProfile(profileKey));
     assertThat(activeRules).hasSize(1);
     ActiveRule activeRule = activeRules.get(0);
     assertThat(activeRule.severity()).isEqualTo(expectedSeverity);

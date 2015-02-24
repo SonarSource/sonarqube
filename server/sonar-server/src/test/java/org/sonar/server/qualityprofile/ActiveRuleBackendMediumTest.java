@@ -20,6 +20,7 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import org.junit.After;
 import org.junit.Before;
@@ -233,16 +234,16 @@ public class ActiveRuleBackendMediumTest {
     assertThat(activeRules).isEmpty();
 
     // 2. find by profile
-    activeRules = index.get(ActiveRuleIndex.class).findByProfile(profile1.getKey());
+    activeRules = Lists.newArrayList(index.get(ActiveRuleIndex.class).findByProfile(profile1.getKey()));
     assertThat(activeRules).hasSize(2);
     assertThat(activeRules.get(0).key().qProfile()).isEqualTo(profile1.getKey());
     assertThat(activeRules.get(1).key().qProfile()).isEqualTo(profile1.getKey());
 
-    activeRules = index.get(ActiveRuleIndex.class).findByProfile(profile2.getKey());
+    activeRules = Lists.newArrayList(index.get(ActiveRuleIndex.class).findByProfile(profile2.getKey()));
     assertThat(activeRules).hasSize(1);
     assertThat(activeRules.get(0).key().qProfile()).isEqualTo(profile2.getKey());
 
-    activeRules = index.get(ActiveRuleIndex.class).findByProfile("unknown");
+    activeRules = Lists.newArrayList(index.get(ActiveRuleIndex.class).findByProfile("unknown"));
     assertThat(activeRules).isEmpty();
   }
 
@@ -263,7 +264,7 @@ public class ActiveRuleBackendMediumTest {
     dbSession.clearCache();
 
     // verify index
-    Collection<ActiveRule> activeRules = index.get(ActiveRuleIndex.class).findByProfile(profileDto.getKey());
+    Collection<ActiveRule> activeRules = Lists.newArrayList(index.get(ActiveRuleIndex.class).findByProfile(profileDto.getKey()));
     assertThat(activeRules).hasSize(nb);
   }
 

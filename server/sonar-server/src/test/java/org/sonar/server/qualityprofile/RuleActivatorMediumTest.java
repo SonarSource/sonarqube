@@ -20,6 +20,7 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -163,7 +164,7 @@ public class RuleActivatorMediumTest {
   @Test
   public void activate_with_empty_parameter_having_no_default_value() throws Exception {
     activate(new RuleActivation(RuleTesting.XOO_X1)
-        .setParameter("min", ""),
+      .setParameter("min", ""),
       XOO_P1_KEY);
 
     assertThat(countActiveRules(XOO_P1_KEY)).isEqualTo(1);
@@ -178,7 +179,7 @@ public class RuleActivatorMediumTest {
   @Test
   public void activate_with_empty_parameters() throws Exception {
     activate(new RuleActivation(RuleTesting.XOO_X1)
-        .setParameters(ImmutableMap.of("max", "", "min", "")),
+      .setParameters(ImmutableMap.of("max", "", "min", "")),
       XOO_P1_KEY);
 
     assertThat(countActiveRules(XOO_P1_KEY)).isEqualTo(1);
@@ -193,7 +194,7 @@ public class RuleActivatorMediumTest {
   @Test
   public void activate_rule_with_negative_integer_value_on_parameter_having_no_default_value() throws Exception {
     activate(new RuleActivation(RuleTesting.XOO_X1)
-        .setParameter("min", "-10"),
+      .setParameter("min", "-10"),
       XOO_P1_KEY);
 
     assertThat(countActiveRules(XOO_P1_KEY)).isEqualTo(1);
@@ -1031,24 +1032,24 @@ public class RuleActivatorMediumTest {
 
   private int countActiveRules(String profileKey) {
     List<ActiveRuleDto> activeRuleDtos = db.activeRuleDao().findByProfileKey(dbSession, profileKey);
-    List<ActiveRule> activeRules = index.findByProfile(profileKey);
+    List<ActiveRule> activeRules = Lists.newArrayList(index.findByProfile(profileKey));
     assertThat(activeRuleDtos.size()).as("Not same active rules between db and index").isEqualTo(activeRules.size());
     return activeRuleDtos.size();
   }
 
   private void verifyOneActiveRule(String profileKey, RuleKey ruleKey, String expectedSeverity,
-                                   @Nullable String expectedInheritance, Map<String, String> expectedParams) {
+    @Nullable String expectedInheritance, Map<String, String> expectedParams) {
     assertThat(countActiveRules(profileKey)).isEqualTo(1);
     verifyHasActiveRule(profileKey, ruleKey, expectedSeverity, expectedInheritance, expectedParams);
   }
 
   private void verifyHasActiveRule(String profileKey, RuleKey ruleKey, String expectedSeverity,
-                                   @Nullable String expectedInheritance, Map<String, String> expectedParams) {
+    @Nullable String expectedInheritance, Map<String, String> expectedParams) {
     verifyHasActiveRule(ActiveRuleKey.of(profileKey, ruleKey), expectedSeverity, expectedInheritance, expectedParams);
   }
 
   private void verifyHasActiveRule(ActiveRuleKey activeRuleKey, String expectedSeverity,
-                                   @Nullable String expectedInheritance, Map<String, String> expectedParams) {
+    @Nullable String expectedInheritance, Map<String, String> expectedParams) {
     // verify db
     boolean found = false;
     List<ActiveRuleDto> activeRuleDtos = db.activeRuleDao().findByProfileKey(dbSession, activeRuleKey.qProfile());
@@ -1073,7 +1074,7 @@ public class RuleActivatorMediumTest {
     assertThat(found).as("Rule is not activated in db").isTrue();
 
     // verify es
-    List<ActiveRule> activeRules = index.findByProfile(activeRuleKey.qProfile());
+    List<ActiveRule> activeRules = Lists.newArrayList(index.findByProfile(activeRuleKey.qProfile()));
     found = false;
     for (ActiveRule activeRule : activeRules) {
       if (activeRule.key().equals(activeRuleKey)) {
@@ -1116,7 +1117,7 @@ public class RuleActivatorMediumTest {
     assertThat(activeRuleDtos).isEmpty();
 
     // verify es
-    List<ActiveRule> activeRules = index.findByProfile(key);
+    List<ActiveRule> activeRules = Lists.newArrayList(index.findByProfile(key));
     assertThat(activeRules).isEmpty();
   }
 }

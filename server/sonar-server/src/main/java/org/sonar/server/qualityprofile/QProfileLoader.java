@@ -38,6 +38,7 @@ import org.sonar.server.search.QueryContext;
 import javax.annotation.CheckForNull;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -93,7 +94,7 @@ public class QProfileLoader implements ServerComponent {
     return index.get(ActiveRuleIndex.class).findByRule(key);
   }
 
-  public List<ActiveRule> findActiveRulesByProfile(String key) {
+  public Iterator<ActiveRule> findActiveRulesByProfile(String key) {
     return index.get(ActiveRuleIndex.class).findByProfile(key);
   }
 

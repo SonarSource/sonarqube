@@ -28,6 +28,8 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.web.UserRole;
 import org.sonar.batch.protocol.input.FileData;
 import org.sonar.batch.protocol.input.ProjectRepositories;
@@ -60,6 +62,8 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 
 public class ProjectRepositoryLoader implements ServerComponent {
+
+  private static final Logger LOG = Loggers.get(ProjectRepositoryLoader.class);
 
   private final DbClient dbClient;
   private final QProfileFactory qProfileFactory;
@@ -224,36 +228,42 @@ public class ProjectRepositoryLoader implements ServerComponent {
 
   private void addActiveRules(ProjectRepositories ref) {
     for (org.sonar.batch.protocol.input.QProfile qProfile : ref.qProfiles()) {
-      Map<RuleKey, ActiveRule> activeRules = activeRuleByRuleKey(qProfileLoader.findActiveRulesByProfile(qProfile.key()));
-      Iterator<Rule> rules = ruleService.search(new RuleQuery().setQProfileKey(qProfile.key()).setActivation(true),
-        new QueryContext().setFieldsToReturn(newArrayList(
+      // Load all rules of the profile language (only needed fields are loaded)
+      Map<RuleKey, Rule> languageRules = ruleByRuleKey(ruleService.search(new RuleQuery().setLanguages(newArrayList(qProfile.language())),
+        new QueryContext().setLimit(100).setFieldsToReturn(newArrayList(
           RuleNormalizer.RuleField.KEY.field(), RuleNormalizer.RuleField.NAME.field(), RuleNormalizer.RuleField.INTERNAL_KEY.field(), RuleNormalizer.RuleField.TEMPLATE_KEY.field()
-        )).setScroll(true)).scroll();
-      while (rules.hasNext()) {
-        Rule rule = rules.next();
-        RuleKey templateKey = rule.templateKey();
-        ActiveRule activeRule = activeRules.get(rule.key());
-        org.sonar.batch.protocol.input.ActiveRule inputActiveRule = new org.sonar.batch.protocol.input.ActiveRule(
-          activeRule.key().ruleKey().repository(),
-          activeRule.key().ruleKey().rule(),
-          templateKey != null ? templateKey.rule() : null,
-          rule.name(),
-          activeRule.severity(),
-          rule.internalKey(),
-          qProfile.language());
-        for (Map.Entry<String, String> entry : activeRule.params().entrySet()) {
-          inputActiveRule.addParam(entry.getKey(), entry.getValue());
+          )).setScroll(true))
+        .scroll());
+      for (Iterator<ActiveRule> activeRuleIterator = qProfileLoader.findActiveRulesByProfile(qProfile.key()); activeRuleIterator.hasNext();) {
+        ActiveRule activeRule = activeRuleIterator.next();
+        Rule rule = languageRules.get(activeRule.key().ruleKey());
+        if (rule == null) {
+          // It should never happen, but we need some log in case it happens
+          LOG.warn("Rule could not be found on active rule '{}'", activeRule.key());
+        } else {
+          RuleKey templateKey = rule.templateKey();
+          org.sonar.batch.protocol.input.ActiveRule inputActiveRule = new org.sonar.batch.protocol.input.ActiveRule(
+            activeRule.key().ruleKey().repository(),
+            activeRule.key().ruleKey().rule(),
+            templateKey != null ? templateKey.rule() : null,
+            rule.name(),
+            activeRule.severity(),
+            rule.internalKey(),
+            qProfile.language());
+          for (Map.Entry<String, String> entry : activeRule.params().entrySet()) {
+            inputActiveRule.addParam(entry.getKey(), entry.getValue());
+          }
+          ref.addActiveRule(inputActiveRule);
         }
-        ref.addActiveRule(inputActiveRule);
       }
     }
   }
 
-  private Map<RuleKey, ActiveRule> activeRuleByRuleKey(List<ActiveRule> activeRules) {
-    return Maps.uniqueIndex(activeRules, new Function<ActiveRule, RuleKey>() {
+  private Map<RuleKey, Rule> ruleByRuleKey(Iterator<Rule> rules) {
+    return Maps.uniqueIndex(rules, new Function<Rule, RuleKey>() {
       @Override
-      public RuleKey apply(@Nullable ActiveRule input) {
-        return input != null ? input.key().ruleKey() : null;
+      public RuleKey apply(@Nullable Rule input) {
+        return input != null ? input.key() : null;
       }
     });
   }

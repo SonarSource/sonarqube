@@ -21,6 +21,7 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import org.junit.After;
 import org.junit.Before;
@@ -122,7 +123,7 @@ public class QProfileServiceMediumTest {
     assertThat(loader.getByKey(profile.getKey()).getLanguage()).isEqualTo("xoo");
     assertThat(loader.getByKey(profile.getKey()).getName()).isEqualTo("New Profile");
 
-    List<ActiveRule> activeRules = loader.findActiveRulesByProfile(profile.getKey());
+    List<ActiveRule> activeRules = Lists.newArrayList(loader.findActiveRulesByProfile(profile.getKey()));
     assertThat(activeRules).hasSize(1);
   }
 
@@ -190,7 +191,7 @@ public class QProfileServiceMediumTest {
       ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1))
         .setSeverity(Severity.MAJOR)
         .setParameter("max", "10")
-    );
+      );
     dbSession.commit();
 
     Result<QProfileActivity> activities = service.searchActivities(new QProfileActivityQuery(), new QueryContext());
@@ -219,7 +220,7 @@ public class QProfileServiceMediumTest {
     tester.get(ActivityService.class).write(dbSession, Activity.Type.QPROFILE,
       ActiveRuleChange.createFor(ActiveRuleChange.Type.UPDATED, ActiveRuleKey.of(XOO_P1_KEY, ruleKey))
         .setParameter("max", "10")
-    );
+      );
     dbSession.commit();
 
     Result<QProfileActivity> activities = service.searchActivities(new QProfileActivityQuery(), new QueryContext());
@@ -242,7 +243,7 @@ public class QProfileServiceMediumTest {
       ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1))
         .setSeverity(Severity.MAJOR)
         .setParameter("max", "10")
-    );
+      );
     dbSession.commit();
 
     Result<QProfileActivity> activities = service.searchActivities(new QProfileActivityQuery(), new QueryContext());
@@ -263,7 +264,7 @@ public class QProfileServiceMediumTest {
       ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, ruleKey))
         .setSeverity(Severity.MAJOR)
         .setParameter("max", "10")
-    );
+      );
     dbSession.commit();
 
     Result<QProfileActivity> activities = service.searchActivities(new QProfileActivityQuery(), new QueryContext());
@@ -333,7 +334,6 @@ public class QProfileServiceMediumTest {
     assertThat(service.getDefault("xoo").getKey()).isEqualTo(XOO_P1_KEY);
   }
 
-
   public static class XooExporter extends ProfileExporter {
     public XooExporter() {
       super("xootool", "Xoo Tool");
@@ -341,7 +341,7 @@ public class QProfileServiceMediumTest {
 
     @Override
     public String[] getSupportedLanguages() {
-      return new String[]{"xoo"};
+      return new String[] {"xoo"};
     }
 
     @Override
@@ -366,7 +366,7 @@ public class QProfileServiceMediumTest {
 
     @Override
     public String[] getSupportedLanguages() {
-      return new String[]{"xoo"};
+      return new String[] {"xoo"};
     }
 
     @Override

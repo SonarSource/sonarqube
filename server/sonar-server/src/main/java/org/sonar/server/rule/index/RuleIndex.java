@@ -308,7 +308,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     }
 
     // ActiveRule Filter (profile and inheritance)
-    BoolFilterBuilder childrenFilter = FilterBuilders.boolFilter().cache(false);
+    BoolFilterBuilder childrenFilter = FilterBuilders.boolFilter();
     this.addTermFilter(childrenFilter, ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field(), query.getQProfileKey());
     this.addTermFilter(childrenFilter, ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.field(), query.getInheritance());
     this.addTermFilter(childrenFilter, ActiveRuleNormalizer.ActiveRuleField.SEVERITY.field(), query.getActiveSeverities());

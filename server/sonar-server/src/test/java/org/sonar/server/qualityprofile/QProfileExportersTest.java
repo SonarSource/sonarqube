@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile;
 
+import com.google.common.collect.Lists;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -134,7 +135,7 @@ public class QProfileExportersTest {
     exporters.importXml(profileDto, "XooProfileImporter", "<xml/>", dbSession);
     dbSession.commit();
 
-    List<ActiveRule> activeRules = loader.findActiveRulesByProfile(profileDto.getKey());
+    List<ActiveRule> activeRules = Lists.newArrayList(loader.findActiveRulesByProfile(profileDto.getKey()));
     assertThat(activeRules).hasSize(1);
     ActiveRule activeRule = activeRules.get(0);
     assertThat(activeRule.key().ruleKey()).isEqualTo(RuleKey.of("xoo", "R1"));

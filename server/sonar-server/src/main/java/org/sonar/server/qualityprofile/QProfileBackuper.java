@@ -41,6 +41,7 @@ import javax.xml.stream.XMLStreamException;
 
 import java.io.Reader;
 import java.io.Writer;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -64,17 +65,18 @@ public class QProfileBackuper implements ServerComponent {
     } finally {
       dbSession.close();
     }
-    List<ActiveRule> activeRules = index.get(ActiveRuleIndex.class).findByProfile(profile.getKey());
+    Iterator<ActiveRule> activeRules = index.get(ActiveRuleIndex.class).findByProfile(profile.getKey());
     writeXml(writer, profile, activeRules);
   }
 
-  private void writeXml(Writer writer, QualityProfileDto profile, List<ActiveRule> activeRules) {
+  private void writeXml(Writer writer, QualityProfileDto profile, Iterator<ActiveRule> activeRules) {
     XmlWriter xml = XmlWriter.of(writer).declaration();
     xml.begin("profile");
     xml.prop("name", profile.getName());
     xml.prop("language", profile.getLanguage());
     xml.begin("rules");
-    for (ActiveRule activeRule : activeRules) {
+    while (activeRules.hasNext()) {
+      ActiveRule activeRule = activeRules.next();
       xml.begin("rule");
       xml.prop("repositoryKey", activeRule.key().ruleKey().repository());
       xml.prop("key", activeRule.key().ruleKey().rule());
