@@ -227,7 +227,7 @@ public class InternalPermissionService implements ServerComponent {
   }
 
   private Long getTargetedUser(DbSession session, String userLogin) {
-    UserDto user = dbClient.userDao().selectActiveUserByLogin(userLogin, session);
+    UserDto user = dbClient.userDao().selectActiveUserByLogin(session, userLogin);
     badRequestIfNullResult(user, OBJECT_TYPE_USER, userLogin);
     return user.getId();
   }

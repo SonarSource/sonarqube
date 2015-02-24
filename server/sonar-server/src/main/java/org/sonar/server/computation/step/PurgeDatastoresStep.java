@@ -47,7 +47,7 @@ public class PurgeDatastoresStep implements ComputationStep {
   public void execute(ComputationContext context) {
     DbSession session = dbClient.openSession(true);
     try {
-      projectCleaner.purge(session, new IdUuidPair(context.getProject().getId(), context.getProject().uuid()));
+      projectCleaner.purge(session, new IdUuidPair(context.getProject().getId(), context.getProject().uuid()), context.getProjectSettings());
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);

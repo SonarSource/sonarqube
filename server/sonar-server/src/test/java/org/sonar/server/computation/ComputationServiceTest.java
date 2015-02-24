@@ -23,6 +23,7 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.core.activity.Activity;
 import org.sonar.core.computation.db.AnalysisReportDto;
@@ -33,6 +34,7 @@ import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.computation.step.ComputationStep;
 import org.sonar.server.computation.step.ComputationSteps;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.properties.ProjectSettingsFactory;
 
 import java.util.Arrays;
 
@@ -66,7 +68,7 @@ public class ComputationServiceTest {
     when(steps.orderedSteps()).thenReturn(Arrays.asList(projectStep1, projectStep2, viewStep));
 
     // load report from db and parse it
-    ComputationService sut = new ComputationService(dbClient, steps, activityService);
+    ComputationService sut = new ComputationService(dbClient, steps, activityService, mock(ProjectSettingsFactory.class, Mockito.RETURNS_DEEP_STUBS));
     AnalysisReportDto report = AnalysisReportDto.newForTests(1L);
     report.setProjectKey("PROJECT_KEY");
     assertThat(report.getStatus()).isNull();
@@ -92,7 +94,7 @@ public class ComputationServiceTest {
     doThrow(new UnsupportedOperationException()).when(projectStep1).execute(any(ComputationContext.class));
 
     // load report from db and parse it
-    ComputationService sut = new ComputationService(dbClient, steps, activityService);
+    ComputationService sut = new ComputationService(dbClient, steps, activityService, mock(ProjectSettingsFactory.class, Mockito.RETURNS_DEEP_STUBS));
     AnalysisReportDto report = AnalysisReportDto.newForTests(1L);
     report.setProjectKey("PROJECT_KEY");
     try {

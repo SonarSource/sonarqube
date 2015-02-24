@@ -24,6 +24,8 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.Mockito;
+import org.sonar.api.config.Settings;
 import org.sonar.api.utils.ZipUtils;
 import org.sonar.api.utils.internal.DefaultTempFolder;
 import org.sonar.batch.protocol.Constants;
@@ -49,11 +51,11 @@ import static org.mockito.Mockito.verify;
 
 public class ParseReportStepTest {
 
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
-
   @ClassRule
   public static DbTester dbTester = new DbTester();
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+  ParseReportStep sut;
 
   @Before
   public void setUp() throws Exception {
@@ -63,13 +65,13 @@ public class ParseReportStepTest {
   @Test
   public void extract_report_from_db_and_browse_components() throws Exception {
     AnalysisReportDto reportDto = prepareAnalysisReportInDb();
-
-
     IssueComputation issueComputation = mock(IssueComputation.class);
     DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new AnalysisReportDao());
-    ParseReportStep step = new ParseReportStep(issueComputation, dbClient, new DefaultTempFolder(temp.newFolder()));
+    sut = new ParseReportStep(issueComputation, dbClient, new DefaultTempFolder(temp.newFolder()));
     ComputationContext context = new ComputationContext(reportDto, mock(ComponentDto.class));
-    step.execute(context);
+    context.setProjectSettings(mock(Settings.class, Mockito.RETURNS_DEEP_STUBS));
+
+    sut.execute(context);
 
     // verify that all components are processed (currently only for issues)
     verify(issueComputation).processComponentIssues(context, "PROJECT_UUID", Collections.<BatchReport.Issue>emptyList());

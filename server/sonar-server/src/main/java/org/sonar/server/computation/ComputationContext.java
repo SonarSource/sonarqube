@@ -20,16 +20,19 @@
 
 package org.sonar.server.computation;
 
-import com.google.common.base.Preconditions;
+import org.sonar.api.config.Settings;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.server.computation.step.ParseReportStep;
 
+import static com.google.common.base.Preconditions.checkState;
+
 public class ComputationContext {
 
   private final AnalysisReportDto reportDto;
   private final ComponentDto project;
+  private Settings projectSettings;
 
   /**
    * Cache of analysis date as it can be accessed several times
@@ -50,11 +53,20 @@ public class ComputationContext {
   }
 
   public BatchReport.Metadata getReportMetadata() {
-    Preconditions.checkState(reportMetadata != null, "Report metadata is available after execution of " + ParseReportStep.class);
+    checkState(reportMetadata != null, "Report metadata is available after execution of " + ParseReportStep.class);
     return reportMetadata;
   }
 
   public void setReportMetadata(BatchReport.Metadata m) {
     this.reportMetadata = m;
+  }
+
+  public Settings getProjectSettings() {
+    return projectSettings;
+  }
+
+  public void setProjectSettings(Settings projectSettings) {
+    checkState(this.projectSettings == null, "can't set project settings twice");
+    this.projectSettings = projectSettings;
   }
 }
