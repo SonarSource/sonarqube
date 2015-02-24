@@ -20,38 +20,30 @@
 
 package org.sonar.server.platform.ws;
 
-import org.apache.commons.lang.StringUtils;
-import org.assertj.core.api.Condition;
-import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
+import org.sonar.api.server.ws.internal.SimpleGetRequest;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.platform.monitoring.Monitor;
-import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
+import org.sonar.server.ws.WsTester;
+
+import java.util.LinkedHashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class SystemInfoWsActionTest {
 
-  @ClassRule
-  public static ServerTester serverTester = new ServerTester();
-
-  private SystemInfoWsAction sut;
-
-  @Test
-  public void all_monitors_have_a_name() throws Exception {
-    sut = serverTester.get(SystemInfoWsAction.class);
-
-    assertThat(sut.getMonitors()).areNot(withEmptyName());
-  }
+  Monitor monitor1 = mock(Monitor.class);
+  Monitor monitor2 = mock(Monitor.class);
+  SystemInfoWsAction sut = new SystemInfoWsAction(monitor1, monitor2);
 
   @Test(expected = ForbiddenException.class)
   public void should_fail_when_does_not_have_admin_right() throws Exception {
-    sut = serverTester.get(SystemInfoWsAction.class);
     MockUserSession.set()
       .setLogin("login")
       .setName("name")
@@ -60,12 +52,25 @@ public class SystemInfoWsActionTest {
     sut.handle(mock(Request.class), mock(Response.class));
   }
 
-  private Condition<Monitor> withEmptyName() {
-    return new Condition<Monitor>() {
-      @Override
-      public boolean matches(Monitor m) {
-        return StringUtils.isEmpty(m.name());
-      }
-    };
+  @Test
+  public void write_json() throws Exception {
+    MockUserSession.set()
+      .setLogin("login")
+      .setName("name")
+      .setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+
+    LinkedHashMap<String, Object> attributes1 = new LinkedHashMap<>();
+    attributes1.put("foo", "bar");
+    LinkedHashMap<String, Object> attributes2 = new LinkedHashMap<>();
+    attributes2.put("one", 1);
+    attributes2.put("two", 2);
+    when(monitor1.name()).thenReturn("Monitor One");
+    when(monitor1.attributes()).thenReturn(attributes1);
+    when(monitor2.name()).thenReturn("Monitor Two");
+    when(monitor2.attributes()).thenReturn(attributes2);
+
+    WsTester.TestResponse response = new WsTester.TestResponse();
+    sut.handle(new SimpleGetRequest(), response);
+    assertThat(response.outputAsString()).isEqualTo("{\"Monitor One\":{\"foo\":\"bar\"},\"Monitor Two\":{\"one\":1,\"two\":2}}");
   }
 }

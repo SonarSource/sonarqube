@@ -159,6 +159,10 @@ public class WsTester {
       IOUtils.closeQuietly(output);
       return this;
     }
+
+    public String outputAsString() {
+      return new String(output.toByteArray(), Charsets.UTF_8);
+    }
   }
 
   public static class Result {

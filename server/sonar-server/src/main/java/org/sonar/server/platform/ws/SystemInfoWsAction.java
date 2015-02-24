@@ -67,8 +67,4 @@ public class SystemInfoWsAction implements SystemWsAction {
     }
     json.endObject();
   }
-
-  Monitor[] getMonitors() {
-    return monitors;
-  }
 }
