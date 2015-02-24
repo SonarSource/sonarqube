@@ -154,7 +154,7 @@
               <goal>grunt</goal>
             </goals>
             <configuration>
-              <arguments>maven-build-skip-tests-${skipWebTests} --port=${jsTestPort} --no-color</arguments>
+              <arguments>maven-build-skip-tests-${skipWebTests}-{jsCoverage} --port=${jsTestPort} --no-color</arguments>
             </configuration>
           </execution>
         </executions>
