@@ -34,29 +34,29 @@ import java.util.HashMap;
 import java.util.Map;
 
 class IssueTrackingResult {
-  private final Map<String, PreviousIssue> unmatchedByKey = new HashMap<>();
-  private final Map<RuleKey, Map<String, PreviousIssue>> unmatchedByRuleAndKey = new HashMap<>();
-  private final Map<RuleKey, Map<Integer, Multimap<String, PreviousIssue>>> unmatchedByRuleAndLineAndChecksum = new HashMap<>();
-  private final Map<DefaultIssue, PreviousIssue> matched = Maps.newIdentityHashMap();
+  private final Map<String, ServerIssue> unmatchedByKey = new HashMap<>();
+  private final Map<RuleKey, Map<String, ServerIssue>> unmatchedByRuleAndKey = new HashMap<>();
+  private final Map<RuleKey, Map<Integer, Multimap<String, ServerIssue>>> unmatchedByRuleAndLineAndChecksum = new HashMap<>();
+  private final Map<DefaultIssue, ServerIssue> matched = Maps.newIdentityHashMap();
 
-  Collection<PreviousIssue> unmatched() {
+  Collection<ServerIssue> unmatched() {
     return unmatchedByKey.values();
   }
 
-  Map<String, PreviousIssue> unmatchedByKeyForRule(RuleKey ruleKey) {
-    return unmatchedByRuleAndKey.containsKey(ruleKey) ? unmatchedByRuleAndKey.get(ruleKey) : Collections.<String, PreviousIssue>emptyMap();
+  Map<String, ServerIssue> unmatchedByKeyForRule(RuleKey ruleKey) {
+    return unmatchedByRuleAndKey.containsKey(ruleKey) ? unmatchedByRuleAndKey.get(ruleKey) : Collections.<String, ServerIssue>emptyMap();
   }
 
-  Collection<PreviousIssue> unmatchedForRuleAndForLineAndForChecksum(RuleKey ruleKey, @Nullable Integer line, @Nullable String checksum) {
+  Collection<ServerIssue> unmatchedForRuleAndForLineAndForChecksum(RuleKey ruleKey, @Nullable Integer line, @Nullable String checksum) {
     if (!unmatchedByRuleAndLineAndChecksum.containsKey(ruleKey)) {
       return Collections.emptyList();
     }
-    Map<Integer, Multimap<String, PreviousIssue>> unmatchedForRule = unmatchedByRuleAndLineAndChecksum.get(ruleKey);
+    Map<Integer, Multimap<String, ServerIssue>> unmatchedForRule = unmatchedByRuleAndLineAndChecksum.get(ruleKey);
     Integer lineNotNull = line != null ? line : 0;
     if (!unmatchedForRule.containsKey(lineNotNull)) {
       return Collections.emptyList();
     }
-    Multimap<String, PreviousIssue> unmatchedForRuleAndLine = unmatchedForRule.get(lineNotNull);
+    Multimap<String, ServerIssue> unmatchedForRuleAndLine = unmatchedForRule.get(lineNotNull);
     String checksumNotNull = StringUtils.defaultString(checksum, "");
     if (!unmatchedForRuleAndLine.containsKey(checksumNotNull)) {
       return Collections.emptyList();
@@ -72,34 +72,34 @@ class IssueTrackingResult {
     return matched.containsKey(issue);
   }
 
-  PreviousIssue matching(DefaultIssue issue) {
+  ServerIssue matching(DefaultIssue issue) {
     return matched.get(issue);
   }
 
-  void addUnmatched(PreviousIssue i) {
+  void addUnmatched(ServerIssue i) {
     unmatchedByKey.put(i.key(), i);
     RuleKey ruleKey = i.ruleKey();
     if (!unmatchedByRuleAndKey.containsKey(ruleKey)) {
-      unmatchedByRuleAndKey.put(ruleKey, new HashMap<String, PreviousIssue>());
-      unmatchedByRuleAndLineAndChecksum.put(ruleKey, new HashMap<Integer, Multimap<String, PreviousIssue>>());
+      unmatchedByRuleAndKey.put(ruleKey, new HashMap<String, ServerIssue>());
+      unmatchedByRuleAndLineAndChecksum.put(ruleKey, new HashMap<Integer, Multimap<String, ServerIssue>>());
     }
     unmatchedByRuleAndKey.get(ruleKey).put(i.key(), i);
-    Map<Integer, Multimap<String, PreviousIssue>> unmatchedForRule = unmatchedByRuleAndLineAndChecksum.get(ruleKey);
+    Map<Integer, Multimap<String, ServerIssue>> unmatchedForRule = unmatchedByRuleAndLineAndChecksum.get(ruleKey);
     Integer lineNotNull = lineNotNull(i);
     if (!unmatchedForRule.containsKey(lineNotNull)) {
-      unmatchedForRule.put(lineNotNull, HashMultimap.<String, PreviousIssue>create());
+      unmatchedForRule.put(lineNotNull, HashMultimap.<String, ServerIssue>create());
     }
-    Multimap<String, PreviousIssue> unmatchedForRuleAndLine = unmatchedForRule.get(lineNotNull);
+    Multimap<String, ServerIssue> unmatchedForRuleAndLine = unmatchedForRule.get(lineNotNull);
     String checksumNotNull = StringUtils.defaultString(i.checksum(), "");
     unmatchedForRuleAndLine.put(checksumNotNull, i);
   }
 
-  private Integer lineNotNull(PreviousIssue i) {
+  private Integer lineNotNull(ServerIssue i) {
     Integer line = i.line();
     return line != null ? line : 0;
   }
 
-  void setMatch(DefaultIssue issue, PreviousIssue matching) {
+  void setMatch(DefaultIssue issue, ServerIssue matching) {
     matched.put(issue, matching);
     RuleKey ruleKey = matching.ruleKey();
     unmatchedByRuleAndKey.get(ruleKey).remove(matching.key());

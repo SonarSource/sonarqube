@@ -73,7 +73,7 @@ public class InitialOpenIssuesStackTest {
     IssueDto issueDto = new IssueDto().setComponentKey("org.struts.Action").setKee("ISSUE-1");
     stack.addIssue(issueDto);
 
-    List<PreviousIssue> issueDtos = stack.selectAndRemoveIssues("org.struts.Action");
+    List<ServerIssue> issueDtos = stack.selectAndRemoveIssues("org.struts.Action");
     assertThat(issueDtos).hasSize(1);
     assertThat(issueDtos.get(0).key()).isEqualTo("ISSUE-1");
 
@@ -85,7 +85,7 @@ public class InitialOpenIssuesStackTest {
     stack.addIssue(new IssueDto().setComponentKey("org.struts.Action").setKee("ISSUE-1"));
     stack.addIssue(new IssueDto().setComponentKey("org.struts.Action").setKee("ISSUE-2"));
 
-    List<PreviousIssue> issueDtos = stack.selectAndRemoveIssues("org.struts.Action");
+    List<ServerIssue> issueDtos = stack.selectAndRemoveIssues("org.struts.Action");
     assertThat(issueDtos).hasSize(2);
 
     assertThat(stack.selectAllIssues()).isEmpty();
@@ -95,7 +95,7 @@ public class InitialOpenIssuesStackTest {
   public void get_and_remove_do_nothing_if_resource_not_found() {
     stack.addIssue(new IssueDto().setComponentKey("org.struts.Action").setKee("ISSUE-1"));
 
-    List<PreviousIssue> issueDtos = stack.selectAndRemoveIssues("Other");
+    List<ServerIssue> issueDtos = stack.selectAndRemoveIssues("Other");
     assertThat(issueDtos).hasSize(0);
 
     assertThat(stack.selectAllIssues()).hasSize(1);

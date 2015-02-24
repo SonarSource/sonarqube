@@ -125,7 +125,7 @@ public class IssueTrackingDecorator implements Decorator {
     // issues = all the issues created by rule engines during this module scan and not excluded by filters
 
     // all the issues that are not closed in db before starting this module scan, including manual issues
-    Collection<PreviousIssue> dbOpenIssues = initialOpenIssues.selectAndRemoveIssues(resource.getEffectiveKey());
+    Collection<ServerIssue> dbOpenIssues = initialOpenIssues.selectAndRemoveIssues(resource.getEffectiveKey());
 
     SourceHashHolder sourceHashHolder = null;
     if (ResourceUtils.isFile(resource)) {
@@ -159,7 +159,7 @@ public class IssueTrackingDecorator implements Decorator {
   @VisibleForTesting
   protected void mergeMatched(IssueTrackingResult result) {
     for (DefaultIssue issue : result.matched()) {
-      IssueDto ref = ((PreviousIssueFromDb) result.matching(issue)).getDto();
+      IssueDto ref = ((ServerIssueFromDb) result.matching(issue)).getDto();
 
       // invariant fields
       issue.setKey(ref.getKee());
@@ -208,9 +208,9 @@ public class IssueTrackingDecorator implements Decorator {
     }
   }
 
-  private void addUnmatched(Collection<PreviousIssue> unmatchedIssues, SourceHashHolder sourceHashHolder, Collection<DefaultIssue> issues) {
-    for (PreviousIssue unmatchedIssue : unmatchedIssues) {
-      IssueDto unmatchedDto = ((PreviousIssueFromDb) unmatchedIssue).getDto();
+  private void addUnmatched(Collection<ServerIssue> unmatchedIssues, SourceHashHolder sourceHashHolder, Collection<DefaultIssue> issues) {
+    for (ServerIssue unmatchedIssue : unmatchedIssues) {
+      IssueDto unmatchedDto = ((ServerIssueFromDb) unmatchedIssue).getDto();
       DefaultIssue unmatched = unmatchedDto.toDefaultIssue();
       if (StringUtils.isNotBlank(unmatchedDto.getReporter()) && !Issue.STATUS_CLOSED.equals(unmatchedDto.getStatus())) {
         relocateManualIssue(unmatched, unmatchedDto, sourceHashHolder);

@@ -17,14 +17,46 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.repository;
+package org.sonar.batch.issue.tracking;
 
-import com.google.common.base.Function;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.batch.protocol.input.issues.PreviousIssue;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.core.issue.db.IssueDto;
 
-public interface PreviousIssuesLoader {
+public class ServerIssueFromDb implements ServerIssue {
 
-  void load(ProjectReactor reactor, Function<PreviousIssue, Void> consumer);
+  private IssueDto dto;
+
+  public ServerIssueFromDb(IssueDto dto) {
+    this.dto = dto;
+  }
+
+  public IssueDto getDto() {
+    return dto;
+  }
+
+  @Override
+  public String key() {
+    return dto.getKee();
+  }
+
+  @Override
+  public RuleKey ruleKey() {
+    return dto.getRuleKey();
+  }
+
+  @Override
+  public String checksum() {
+    return dto.getChecksum();
+  }
+
+  @Override
+  public Integer line() {
+    return dto.getLine();
+  }
+
+  @Override
+  public String message() {
+    return dto.getMessage();
+  }
 
 }

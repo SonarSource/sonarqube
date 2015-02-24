@@ -17,31 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.issue.tracking;
+package org.sonar.batch.repository;
 
-import org.sonar.api.rule.RuleKey;
+import com.google.common.base.Function;
+import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.batch.protocol.input.BatchInput.ServerIssue;
 
-import javax.annotation.CheckForNull;
+public interface ServerIssuesLoader {
 
-public interface PreviousIssue {
-
-  String key();
-
-  RuleKey ruleKey();
-
-  /**
-   * Null for issue with no line
-   */
-  @CheckForNull
-  String checksum();
-
-  /**
-   * Global issues have no line
-   */
-  @CheckForNull
-  Integer line();
-
-  @CheckForNull
-  String message();
+  void load(ProjectReactor reactor, Function<ServerIssue, Void> consumer);
 
 }

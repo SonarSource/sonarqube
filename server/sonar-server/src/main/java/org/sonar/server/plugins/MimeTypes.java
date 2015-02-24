@@ -34,6 +34,7 @@ public final class MimeTypes {
   public static final String JSON = "application/json";
   public static final String XML = "application/xml";
   public static final String TXT = "text/plain";
+  public static final String PROTOBUF = "application/x-protobuf";
   public static final String DEFAULT = "application/octet-stream";
 
   private static final Map<String, String> MAP = new ImmutableMap.Builder<String, String>()

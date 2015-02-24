@@ -20,43 +20,28 @@
 package org.sonar.batch.issue.tracking;
 
 import org.sonar.api.rule.RuleKey;
-import org.sonar.core.issue.db.IssueDto;
 
-public class PreviousIssueFromDb implements PreviousIssue {
+import javax.annotation.CheckForNull;
 
-  private IssueDto dto;
+public interface ServerIssue {
 
-  public PreviousIssueFromDb(IssueDto dto) {
-    this.dto = dto;
-  }
+  String key();
 
-  public IssueDto getDto() {
-    return dto;
-  }
+  RuleKey ruleKey();
 
-  @Override
-  public String key() {
-    return dto.getKee();
-  }
+  /**
+   * Null for issue with no line
+   */
+  @CheckForNull
+  String checksum();
 
-  @Override
-  public RuleKey ruleKey() {
-    return dto.getRuleKey();
-  }
+  /**
+   * Global issues have no line
+   */
+  @CheckForNull
+  Integer line();
 
-  @Override
-  public String checksum() {
-    return dto.getChecksum();
-  }
-
-  @Override
-  public Integer line() {
-    return dto.getLine();
-  }
-
-  @Override
-  public String message() {
-    return dto.getMessage();
-  }
+  @CheckForNull
+  String message();
 
 }

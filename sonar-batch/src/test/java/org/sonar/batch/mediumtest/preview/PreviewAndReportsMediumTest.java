@@ -29,8 +29,8 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.issue.Issue;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
+import org.sonar.batch.protocol.Constants.Severity;
 import org.sonar.batch.protocol.input.ActiveRule;
-import org.sonar.batch.protocol.input.issues.PreviousIssue;
 import org.sonar.xoo.XooPlugin;
 
 import java.io.File;
@@ -47,9 +47,9 @@ public class PreviewAndReportsMediumTest {
 
   private static SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
-  private static Date date(String date) {
+  private static Long date(String date) {
     try {
-      return sdf.parse(date);
+      return sdf.parse(date).getTime();
     } catch (ParseException e) {
       throw new IllegalStateException(e);
     }
@@ -63,32 +63,38 @@ public class PreviewAndReportsMediumTest {
     .activateRule(new ActiveRule("manual", "MyManualIssue", null, "My manual issue", "MAJOR", null, null))
     .setPreviousAnalysisDate(new Date())
     // Existing issue
-    .addPreviousIssue(new PreviousIssue().setKey("xyz")
+    .mockServerIssue(org.sonar.batch.protocol.input.BatchInput.ServerIssue.newBuilder().setKey("xyz")
       .setComponentKey("sample:xources/hello/HelloJava.xoo")
-      .setRuleKey("xoo", "OneIssuePerLine")
+      .setRuleRepository("xoo")
+      .setRuleKey("OneIssuePerLine")
       .setLine(1)
-      .setSeverity("MAJOR")
+      .setSeverity(Severity.MAJOR)
       .setCreationDate(date("14/03/2004"))
       .setChecksum(DigestUtils.md5Hex("packagehello;"))
-      .setStatus("OPEN"))
+      .setStatus("OPEN")
+      .build())
     // Resolved issue
-    .addPreviousIssue(new PreviousIssue().setKey("resolved")
+    .mockServerIssue(org.sonar.batch.protocol.input.BatchInput.ServerIssue.newBuilder().setKey("resolved")
       .setComponentKey("sample:xources/hello/HelloJava.xoo")
-      .setRuleKey("xoo", "OneIssuePerLine")
+      .setRuleRepository("xoo")
+      .setRuleKey("OneIssuePerLine")
       .setLine(1)
-      .setSeverity("MAJOR")
+      .setSeverity(Severity.MAJOR)
       .setCreationDate(date("14/03/2004"))
       .setChecksum(DigestUtils.md5Hex("dontexist"))
-      .setStatus("OPEN"))
+      .setStatus("OPEN")
+      .build())
     // Manual issue
-    .addPreviousIssue(new PreviousIssue().setKey("manual")
+    .mockServerIssue(org.sonar.batch.protocol.input.BatchInput.ServerIssue.newBuilder().setKey("manual")
       .setComponentKey("sample:xources/hello/HelloJava.xoo")
-      .setRuleKey("manual", "MyManualIssue")
+      .setRuleRepository("manual")
+      .setRuleKey("MyManualIssue")
       .setLine(1)
-      .setSeverity("MAJOR")
+      .setSeverity(Severity.MAJOR)
       .setCreationDate(date("14/03/2004"))
       .setChecksum(DigestUtils.md5Hex("packagehello;"))
-      .setStatus("OPEN"))
+      .setStatus("OPEN")
+      .build())
     .build();
 
   @Before

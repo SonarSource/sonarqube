@@ -34,13 +34,13 @@ import org.sonar.batch.bootstrap.TaskProperties;
 import org.sonar.batch.bootstrapper.Batch;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.protocol.input.ActiveRule;
+import org.sonar.batch.protocol.input.BatchInput.ServerIssue;
 import org.sonar.batch.protocol.input.FileData;
 import org.sonar.batch.protocol.input.GlobalRepositories;
 import org.sonar.batch.protocol.input.ProjectRepositories;
-import org.sonar.batch.protocol.input.issues.PreviousIssue;
 import org.sonar.batch.repository.GlobalRepositoriesLoader;
-import org.sonar.batch.repository.PreviousIssuesLoader;
 import org.sonar.batch.repository.ProjectRepositoriesLoader;
+import org.sonar.batch.repository.ServerIssuesLoader;
 import org.sonar.core.plugins.DefaultPluginMetadata;
 import org.sonar.core.plugins.RemotePlugin;
 
@@ -75,7 +75,7 @@ public class BatchMediumTester {
     private final FakeGlobalRepositoriesLoader globalRefProvider = new FakeGlobalRepositoriesLoader();
     private final FakeProjectRepositoriesLoader projectRefProvider = new FakeProjectRepositoriesLoader();
     private final FakePluginsRepository pluginsReferential = new FakePluginsRepository();
-    private final FakePreviousIssuesLoader previousIssues = new FakePreviousIssuesLoader();
+    private final FakeServerIssuesLoader serverIssues = new FakeServerIssuesLoader();
     private final Map<String, String> bootstrapProperties = new HashMap<String, String>();
 
     public BatchMediumTester build() {
@@ -135,8 +135,8 @@ public class BatchMediumTester {
       return this;
     }
 
-    public BatchMediumTesterBuilder addPreviousIssue(PreviousIssue issue) {
-      previousIssues.getPreviousIssues().add(issue);
+    public BatchMediumTesterBuilder mockServerIssue(ServerIssue issue) {
+      serverIssues.getServerIssues().add(issue);
       return this;
     }
 
@@ -158,7 +158,7 @@ public class BatchMediumTester {
         builder.pluginsReferential,
         builder.globalRefProvider,
         builder.projectRefProvider,
-        builder.previousIssues,
+        builder.serverIssues,
         new DefaultDebtModel())
       .setBootstrapProperties(builder.bootstrapProperties)
       .build();
@@ -305,17 +305,17 @@ public class BatchMediumTester {
 
   }
 
-  private static class FakePreviousIssuesLoader implements PreviousIssuesLoader {
+  private static class FakeServerIssuesLoader implements ServerIssuesLoader {
 
-    List<PreviousIssue> previousIssues = new ArrayList<>();
+    List<ServerIssue> previousIssues = new ArrayList<>();
 
-    public List<PreviousIssue> getPreviousIssues() {
+    public List<ServerIssue> getServerIssues() {
       return previousIssues;
     }
 
     @Override
-    public void load(ProjectReactor reactor, Function<PreviousIssue, Void> consumer) {
-      for (PreviousIssue previousIssue : previousIssues) {
+    public void load(ProjectReactor reactor, Function<ServerIssue, Void> consumer) {
+      for (ServerIssue previousIssue : previousIssues) {
         consumer.apply(previousIssue);
       }
 
