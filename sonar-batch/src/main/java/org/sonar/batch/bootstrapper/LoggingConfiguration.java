@@ -35,16 +35,11 @@ import java.util.Map;
 public final class LoggingConfiguration {
 
   public static final String PROPERTY_ROOT_LOGGER_LEVEL = "ROOT_LOGGER_LEVEL";
-  public static final String PROPERTY_SQL_RESULTS_LOGGER_LEVEL = "SQL_RESULTS_LOGGER_LEVEL";
+  public static final String PROPERTY_SQL_LOGGER_LEVEL = "SQL_LOGGER_LEVEL";
   public static final String PROPERTY_FORMAT = "FORMAT";
-
   public static final String LEVEL_ROOT_VERBOSE = "DEBUG";
-  public static final String LEVEL_ROOT_DEFAULT = "INFO";
-  public static final String LEVEL_SQL_VERBOSE = "DEBUG";
-  public static final String LEVEL_SQL_DEFAULT = "WARN";
-  public static final String LEVEL_SQL_RESULTS_VERBOSE = "DEBUG";
-  public static final String LEVEL_SQL_RESULTS_DEFAULT = "WARN";
 
+  public static final String LEVEL_ROOT_DEFAULT = "INFO";
   @VisibleForTesting
   static final String FORMAT_DEFAULT = "%d{HH:mm:ss.SSS} %-5level - %msg%n";
   @VisibleForTesting
@@ -66,9 +61,15 @@ public final class LoggingConfiguration {
   }
 
   public LoggingConfiguration setProperties(Map<String, String> properties) {
-    //TODO
-    setShowSqlResults(false);
-    setVerbose("true".equals(properties.get("sonar.verbose")));
+    String logLevel = properties.get("sonar.log.level");
+    String deprecatedProfilingLevel = properties.get("sonar.log.profilingLevel");
+    boolean verbose = "true".equals(properties.get("sonar.verbose")) ||
+      "DEBUG".equals(logLevel) || "TRACE".equals(logLevel) ||
+      "BASIC".equals(deprecatedProfilingLevel) || "FULL".equals(deprecatedProfilingLevel);
+    boolean sql = "TRACE".equals(logLevel) || "FULL".equals(deprecatedProfilingLevel);
+
+    setShowSql(sql);
+    setVerbose(verbose);
     return this;
   }
 
@@ -76,16 +77,12 @@ public final class LoggingConfiguration {
     return setRootLevel(verbose ? LEVEL_ROOT_VERBOSE : LEVEL_ROOT_DEFAULT);
   }
 
-  public LoggingConfiguration setShowSqlResults(boolean showSqlResults) {
-    return setSqlResultsLevel(showSqlResults ? LEVEL_SQL_RESULTS_VERBOSE : LEVEL_SQL_RESULTS_DEFAULT);
-  }
-
   public LoggingConfiguration setRootLevel(String level) {
     return addSubstitutionVariable(PROPERTY_ROOT_LOGGER_LEVEL, level);
   }
 
-  public LoggingConfiguration setSqlResultsLevel(String level) {
-    return addSubstitutionVariable(PROPERTY_SQL_RESULTS_LOGGER_LEVEL, level);
+  public LoggingConfiguration setShowSql(boolean showSql) {
+    return addSubstitutionVariable(PROPERTY_SQL_LOGGER_LEVEL, showSql ? "TRACE" : "WARN");
   }
 
   @VisibleForTesting

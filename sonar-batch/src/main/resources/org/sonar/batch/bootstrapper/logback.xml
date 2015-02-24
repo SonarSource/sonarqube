@@ -46,7 +46,7 @@
     <level value="${SQL_LOGGER_LEVEL:-WARN}"/>
   </logger>
   <logger name="java.sql.ResultSet">
-    <level value="${SQL_RESULTS_LOGGER_LEVEL:-WARN}"/>
+    <level value="WARN"/>
   </logger>
   <logger name="PERSISTIT">
     <level value="WARN"/>
