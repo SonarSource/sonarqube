@@ -21,6 +21,7 @@ package org.sonar.batch.issue.tracking;
 
 import com.google.common.base.Function;
 import org.sonar.api.BatchComponent;
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.log.Logger;
@@ -36,6 +37,9 @@ import org.sonar.core.component.ComponentKeys;
 
 import javax.annotation.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 public class ServerIssueRepository implements BatchComponent {
 
@@ -46,19 +50,24 @@ public class ServerIssueRepository implements BatchComponent {
   private final ServerIssuesLoader previousIssuesLoader;
   private final ProjectReactor reactor;
   private final ResourceCache resourceCache;
+  private final AnalysisMode analysisMode;
 
-  public ServerIssueRepository(Caches caches, ServerIssuesLoader previousIssuesLoader, ProjectReactor reactor, ResourceCache resourceCache) {
+  public ServerIssueRepository(Caches caches, ServerIssuesLoader previousIssuesLoader, ProjectReactor reactor, ResourceCache resourceCache, AnalysisMode analysisMode) {
     this.caches = caches;
     this.previousIssuesLoader = previousIssuesLoader;
     this.reactor = reactor;
     this.resourceCache = resourceCache;
+    this.analysisMode = analysisMode;
   }
 
   public void load() {
-    Profiler profiler = Profiler.create(LOG).startInfo("Load previous issues");
+    if (analysisMode.isIncremental()) {
+      return;
+    }
+    Profiler profiler = Profiler.create(LOG).startInfo("Load server issues");
     this.issuesCache = caches.createCache("previousIssues");
     caches.registerValueCoder(ServerIssue.class, new ServerIssueValueCoder());
-    previousIssuesLoader.load(reactor, new Function<ServerIssue, Void>() {
+    previousIssuesLoader.load(reactor.getRoot().getKeyWithBranch(), new Function<ServerIssue, Void>() {
 
       @Override
       public Void apply(@Nullable ServerIssue issue) {
@@ -75,15 +84,39 @@ public class ServerIssueRepository implements BatchComponent {
         }
         return null;
       }
-    });
+    }, false);
     profiler.stopDebug();
   }
 
   public Iterable<ServerIssue> byComponent(BatchResource component) {
-    return issuesCache.values(component.batchId());
+    if (analysisMode.isIncremental()) {
+      if (!component.isFile()) {
+        throw new UnsupportedOperationException("Incremental mode should only get issues on files");
+      }
+      Profiler profiler = Profiler.create(LOG).startInfo("Load server issues for " + component.resource().getPath());
+      final List<ServerIssue> result = new ArrayList<>();
+      previousIssuesLoader.load(component.key(), new Function<ServerIssue, Void>() {
+
+        @Override
+        public Void apply(@Nullable ServerIssue issue) {
+          if (issue == null) {
+            return null;
+          }
+          result.add(issue);
+          return null;
+        }
+      }, true);
+      profiler.stopDebug();
+      return result;
+    } else {
+      return issuesCache.values(component.batchId());
+    }
   }
 
   public Iterable<ServerIssue> issuesOnMissingComponents() {
+    if (analysisMode.isIncremental()) {
+      throw new UnsupportedOperationException("Only issues of analyzed components are loaded in incremental mode");
+    }
     return issuesCache.values(0);
   }
 }

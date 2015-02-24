@@ -21,7 +21,6 @@ package org.sonar.batch.repository;
 
 import com.google.common.base.Function;
 import com.google.common.io.InputSupplier;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.protocol.input.BatchInput.ServerIssue;
@@ -38,8 +37,8 @@ public class DefaultServerIssuesLoader implements ServerIssuesLoader {
   }
 
   @Override
-  public void load(ProjectReactor reactor, Function<ServerIssue, Void> consumer) {
-    InputSupplier<InputStream> request = serverClient.doRequest("/batch/issues?key=" + ServerClient.encodeForUrl(reactor.getRoot().getKeyWithBranch()), "GET", null);
+  public void load(String componentKey, Function<ServerIssue, Void> consumer, boolean incremental) {
+    InputSupplier<InputStream> request = serverClient.doRequest("/batch/issues?key=" + ServerClient.encodeForUrl(componentKey), "GET", null);
     try (InputStream is = request.getInput()) {
       ServerIssue previousIssue = ServerIssue.parseDelimitedFrom(is);
       while (previousIssue != null) {

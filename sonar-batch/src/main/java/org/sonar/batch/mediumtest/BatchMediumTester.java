@@ -41,6 +41,7 @@ import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonar.batch.repository.GlobalRepositoriesLoader;
 import org.sonar.batch.repository.ProjectRepositoriesLoader;
 import org.sonar.batch.repository.ServerIssuesLoader;
+import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.plugins.DefaultPluginMetadata;
 import org.sonar.core.plugins.RemotePlugin;
 
@@ -307,16 +308,18 @@ public class BatchMediumTester {
 
   private static class FakeServerIssuesLoader implements ServerIssuesLoader {
 
-    List<ServerIssue> previousIssues = new ArrayList<>();
+    private List<ServerIssue> serverIssues = new ArrayList<>();
 
     public List<ServerIssue> getServerIssues() {
-      return previousIssues;
+      return serverIssues;
     }
 
     @Override
-    public void load(ProjectReactor reactor, Function<ServerIssue, Void> consumer) {
-      for (ServerIssue previousIssue : previousIssues) {
-        consumer.apply(previousIssue);
+    public void load(String componentKey, Function<ServerIssue, Void> consumer, boolean incremental) {
+      for (ServerIssue serverIssue : serverIssues) {
+        if (!incremental || ComponentKeys.createEffectiveKey(serverIssue.getModuleKey(), serverIssue.getPath()).equals(componentKey)) {
+          consumer.apply(serverIssue);
+        }
       }
 
     }

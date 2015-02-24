@@ -24,6 +24,7 @@ import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.batch.rule.ActiveRules;
@@ -60,12 +61,14 @@ public class LocalIssueTracking implements BatchComponent {
   private final ActiveRules activeRules;
   private final InputPathCache inputPathCache;
   private final ResourceCache resourceCache;
-  private final ServerIssueRepository previousIssueCache;
+  private final ServerIssueRepository serverIssueRepository;
   private final ProjectRepositories projectRepositories;
+  private final AnalysisMode analysisMode;
 
   public LocalIssueTracking(ResourceCache resourceCache, IssueCache issueCache, IssueTracking tracking,
     LastLineHashes lastLineHashes, IssueWorkflow workflow, IssueUpdater updater,
-    ActiveRules activeRules, InputPathCache inputPathCache, ServerIssueRepository previousIssueCache, ProjectRepositories projectRepositories) {
+    ActiveRules activeRules, InputPathCache inputPathCache, ServerIssueRepository serverIssueRepository,
+    ProjectRepositories projectRepositories, AnalysisMode analysisMode) {
     this.resourceCache = resourceCache;
     this.issueCache = issueCache;
     this.tracking = tracking;
@@ -73,8 +76,9 @@ public class LocalIssueTracking implements BatchComponent {
     this.workflow = workflow;
     this.updater = updater;
     this.inputPathCache = inputPathCache;
-    this.previousIssueCache = previousIssueCache;
+    this.serverIssueRepository = serverIssueRepository;
     this.projectRepositories = projectRepositories;
+    this.analysisMode = analysisMode;
     this.changeContext = IssueChangeContext.createScan(((Project) resourceCache.getRoot().resource()).getAnalysisDate());
     this.activeRules = activeRules;
   }
@@ -85,7 +89,7 @@ public class LocalIssueTracking implements BatchComponent {
       return;
     }
 
-    previousIssueCache.load();
+    serverIssueRepository.load();
 
     for (BatchResource component : resourceCache.all()) {
       trackIssues(component);
@@ -101,9 +105,14 @@ public class LocalIssueTracking implements BatchComponent {
     issueCache.clear(component.resource().getEffectiveKey());
     // issues = all the issues created by rule engines during this module scan and not excluded by filters
 
+    if (analysisMode.isIncremental() && !component.isFile()) {
+      // No need to report issues on project or directories in preview mode since it is likely to be wrong anyway
+      return;
+    }
+
     // all the issues that are not closed in db before starting this module scan, including manual issues
     Collection<ServerIssue> previousIssues = new ArrayList<>();
-    for (org.sonar.batch.protocol.input.BatchInput.ServerIssue previousIssue : previousIssueCache.byComponent(component)) {
+    for (org.sonar.batch.protocol.input.BatchInput.ServerIssue previousIssue : serverIssueRepository.byComponent(component)) {
       previousIssues.add(new ServerIssueFromWs(previousIssue));
     }
 
@@ -173,7 +182,7 @@ public class LocalIssueTracking implements BatchComponent {
   }
 
   private void addIssuesOnDeletedComponents(Collection<DefaultIssue> issues) {
-    for (org.sonar.batch.protocol.input.BatchInput.ServerIssue previous : previousIssueCache.issuesOnMissingComponents()) {
+    for (org.sonar.batch.protocol.input.BatchInput.ServerIssue previous : serverIssueRepository.issuesOnMissingComponents()) {
       DefaultIssue dead = toUnmatchedIssue(previous);
       updateUnmatchedIssue(dead, true);
       issues.add(dead);
