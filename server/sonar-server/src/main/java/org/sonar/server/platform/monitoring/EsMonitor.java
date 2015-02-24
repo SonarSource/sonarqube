@@ -101,7 +101,6 @@ public class EsMonitor extends BaseMonitorMBean implements EsMonitorMBean {
       NodeStats stats = entry.getValue();
       nodeAttributes.put("Address", stats.getNode().getAddress().toString());
       nodeAttributes.put("Type", stats.getNode().isMasterNode() ? "Master" : "Slave");
-      nodeAttributes.put("Disk Usage", byteCountToDisplaySize(stats.getFs().getTotal().getTotal().bytes()));
       nodeAttributes.put("Disk Available", byteCountToDisplaySize(stats.getFs().getTotal().getAvailable().bytes()));
       nodeAttributes.put("Store Size", byteCountToDisplaySize(stats.getIndices().getStore().getSizeInBytes()));
       nodeAttributes.put("Open Files", stats.getProcess().getOpenFileDescriptors());

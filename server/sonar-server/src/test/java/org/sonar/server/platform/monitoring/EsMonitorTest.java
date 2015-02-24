@@ -62,7 +62,6 @@ public class EsMonitorTest {
     assertThat(nodesAttributes).hasSize(1);
     Map nodeAttributes = (Map)nodesAttributes.values().iterator().next();
     assertThat(nodeAttributes.get("Type")).isEqualTo("Master");
-    assertThat(nodeAttributes.get("Disk Usage")).isNotNull();
     assertThat(nodeAttributes.get("Store Size")).isNotNull();
   }
 
