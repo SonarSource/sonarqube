@@ -123,6 +123,9 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
 
       @Override
       public DOMAIN next() {
+        if(!hasNext()){
+          throw new NoSuchElementException();
+        }
         return toDoc(hits.poll().getSource());
       }
 
