@@ -20,7 +20,6 @@
 
 package org.sonar.server.batch;
 
-import com.google.common.base.Charsets;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.server.ws.Request;
@@ -28,8 +27,7 @@ import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
-import org.sonar.batch.protocol.input.issues.PreviousIssue;
-import org.sonar.batch.protocol.input.issues.PreviousIssueHelper;
+import org.sonar.batch.protocol.input.BatchInput;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.db.BatchIssueDto;
 import org.sonar.core.permission.GlobalPermissions;
@@ -39,9 +37,8 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.user.UserSession;
 
-import javax.annotation.Nullable;
-
-import java.io.OutputStreamWriter;
+import java.io.IOException;
+import java.io.OutputStream;
 
 public class IssuesAction implements RequestHandler {
 
@@ -72,14 +69,13 @@ public class IssuesAction implements RequestHandler {
     UserSession.get().checkGlobalPermission(GlobalPermissions.PREVIEW_EXECUTION);
     final String moduleKey = request.mandatoryParam(PARAM_KEY);
 
-    response.stream().setMediaType(MimeTypes.JSON);
-    PreviousIssueHelper previousIssueHelper = PreviousIssueHelper.create(new OutputStreamWriter(response.stream().output(), Charsets.UTF_8));
+    response.stream().setMediaType(MimeTypes.DEFAULT);
     DbSession session = dbClient.openSession(false);
     try {
       ComponentDto moduleOrProject = dbClient.componentDao().getByKey(session, moduleKey);
       UserSession.get().checkComponentPermission(UserRole.USER, moduleKey);
 
-      BatchIssueResultHandler batchIssueResultHandler = new BatchIssueResultHandler(previousIssueHelper);
+      BatchIssueResultHandler batchIssueResultHandler = new BatchIssueResultHandler(response.stream().output());
       if (moduleOrProject.isRootProject()) {
         dbClient.issueDao().selectNonClosedIssuesByProjectUuid(session, moduleOrProject.uuid(), batchIssueResultHandler);
       } else {
@@ -87,43 +83,52 @@ public class IssuesAction implements RequestHandler {
       }
 
     } finally {
-      previousIssueHelper.close();
       MyBatis.closeQuietly(session);
     }
   }
 
   private static class BatchIssueResultHandler implements ResultHandler {
-    private final PreviousIssueHelper previousIssueHelper;
+    private OutputStream out;
+    BatchInput.PreviousIssue.Builder issueBuilder = BatchInput.PreviousIssue.newBuilder();
 
-    public BatchIssueResultHandler(PreviousIssueHelper previousIssueHelper) {
-      this.previousIssueHelper = previousIssueHelper;
+    public BatchIssueResultHandler(OutputStream out) {
+      this.out = out;
     }
 
     @Override
     public void handleResult(ResultContext rc) {
-      previousIssueHelper.addIssue((BatchIssueDto) rc.getResultObject(), new BatchIssueFunction());
-    }
-  }
-
-  private static class BatchIssueFunction implements PreviousIssueHelper.Function<BatchIssueDto, PreviousIssue> {
-    @Override
-    public PreviousIssue apply(@Nullable BatchIssueDto batchIssueDto) {
-      if (batchIssueDto != null) {
-        return new PreviousIssue()
-          .setKey(batchIssueDto.getKey())
-          .setComponentKey(batchIssueDto.getComponentKey())
-          .setChecksum(batchIssueDto.getChecksum())
-          .setAssigneeLogin(batchIssueDto.getAssigneeLogin())
-          .setLine(batchIssueDto.getLine())
-          .setRuleKey(batchIssueDto.getRuleRepo(), batchIssueDto.getRuleKey())
-          .setMessage(batchIssueDto.getMessage())
-          .setResolution(batchIssueDto.getResolution())
-          .setSeverity(batchIssueDto.getSeverity())
-          .setManualSeverity(batchIssueDto.isManualSeverity())
-          .setStatus(batchIssueDto.getStatus())
-          .setCreationDate(batchIssueDto.getCreationDate());
+      BatchIssueDto batchIssueDto = (BatchIssueDto) rc.getResultObject();
+      issueBuilder.setKey(batchIssueDto.getKey());
+      issueBuilder.setComponentKey(batchIssueDto.getComponentKey());
+      issueBuilder.setRuleRepository(batchIssueDto.getRuleRepo());
+      issueBuilder.setRuleKey(batchIssueDto.getRuleKey());
+      issueBuilder.setChecksum(batchIssueDto.getChecksum());
+      String assigneeLogin = batchIssueDto.getAssigneeLogin();
+      if (assigneeLogin != null) {
+        issueBuilder.setAssigneeLogin(assigneeLogin);
       }
-      return null;
+      Integer line = batchIssueDto.getLine();
+      if (line != null) {
+        issueBuilder.setLine(line.intValue());
+      }
+      String message = batchIssueDto.getMessage();
+      if (message != null) {
+        issueBuilder.setMsg(message);
+      }
+      issueBuilder.setSeverity(org.sonar.batch.protocol.Constants.Severity.valueOf(batchIssueDto.getSeverity()));
+      issueBuilder.setManualSeverity(batchIssueDto.isManualSeverity());
+      issueBuilder.setStatus(batchIssueDto.getStatus());
+      String resolution = batchIssueDto.getResolution();
+      if (resolution != null) {
+        issueBuilder.setResolution(resolution);
+      }
+      issueBuilder.setCreationDate(batchIssueDto.getCreationTime());
+      try {
+        issueBuilder.build().writeDelimitedTo(out);
+      } catch (IOException e) {
+        throw new IllegalStateException("Unable to serialize issue", e);
+      }
+      issueBuilder.clear();
     }
   }
 }

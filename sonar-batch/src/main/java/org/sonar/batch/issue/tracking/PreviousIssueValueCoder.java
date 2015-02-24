@@ -17,8 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.batch.protocol.input.issues;
+package org.sonar.batch.issue.tracking;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import com.persistit.Value;
+import com.persistit.encoding.CoderContext;
+import com.persistit.encoding.ValueCoder;
+import com.persistit.exception.ConversionException;
+import org.sonar.batch.protocol.input.BatchInput.PreviousIssue;
 
+import java.io.IOException;
+
+public class PreviousIssueValueCoder implements ValueCoder {
+
+  @Override
+  public void put(Value value, Object object, CoderContext context) throws ConversionException {
+    PreviousIssue issue = (PreviousIssue) object;
+    value.putByteArray(issue.toByteArray());
+  }
+
+  @Override
+  public Object get(Value value, Class<?> clazz, CoderContext context) throws ConversionException {
+    try {
+      return PreviousIssue.parseFrom(value.getByteArray());
+    } catch (IOException e) {
+      throw new IllegalStateException("Unable to read issue from cache", e);
+    }
+  }
+
+}

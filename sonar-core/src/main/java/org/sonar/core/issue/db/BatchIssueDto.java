@@ -150,6 +150,10 @@ public class BatchIssueDto {
     return new Date(creationTime);
   }
 
+  public Long getCreationTime() {
+    return creationTime;
+  }
+
   public BatchIssueDto setCreationDate(Date creationDate) {
     this.creationTime = creationDate.getTime();
     return this;

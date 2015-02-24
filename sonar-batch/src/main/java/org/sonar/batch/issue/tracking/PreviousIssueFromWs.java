@@ -23,39 +23,39 @@ import org.sonar.api.rule.RuleKey;
 
 public class PreviousIssueFromWs implements PreviousIssue {
 
-  private org.sonar.batch.protocol.input.issues.PreviousIssue dto;
+  private org.sonar.batch.protocol.input.BatchInput.PreviousIssue dto;
 
-  public PreviousIssueFromWs(org.sonar.batch.protocol.input.issues.PreviousIssue dto) {
+  public PreviousIssueFromWs(org.sonar.batch.protocol.input.BatchInput.PreviousIssue dto) {
     this.dto = dto;
   }
 
-  public org.sonar.batch.protocol.input.issues.PreviousIssue getDto() {
+  public org.sonar.batch.protocol.input.BatchInput.PreviousIssue getDto() {
     return dto;
   }
 
   @Override
   public String key() {
-    return dto.key();
+    return dto.getKey();
   }
 
   @Override
   public RuleKey ruleKey() {
-    return RuleKey.of(dto.ruleRepo(), dto.ruleKey());
+    return RuleKey.of(dto.getRuleRepository(), dto.getRuleKey());
   }
 
   @Override
   public String checksum() {
-    return dto.checksum();
+    return dto.getChecksum();
   }
 
   @Override
   public Integer line() {
-    return dto.line();
+    return dto.hasLine() ? dto.getLine() : null;
   }
 
   @Override
   public String message() {
-    return dto.message();
+    return dto.hasMsg() ? dto.getMsg() : null;
   }
 
 }

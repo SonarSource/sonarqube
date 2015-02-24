@@ -21,7 +21,7 @@ package org.sonar.batch.repository;
 
 import com.google.common.base.Function;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.batch.protocol.input.issues.PreviousIssue;
+import org.sonar.batch.protocol.input.BatchInput.PreviousIssue;
 
 public interface PreviousIssuesLoader {
 

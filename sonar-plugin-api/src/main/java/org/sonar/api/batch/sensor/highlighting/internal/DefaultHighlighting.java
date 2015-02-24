@@ -29,6 +29,7 @@ import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.internal.DefaultStorable;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import java.util.Iterator;
@@ -47,8 +48,7 @@ public class DefaultHighlighting extends DefaultStorable implements NewHighlight
     super(storage);
     syntaxHighlightingRuleSet = Sets.newTreeSet(new Ordering<SyntaxHighlightingRule>() {
       @Override
-      public int compare(@Nullable SyntaxHighlightingRule left,
-        @Nullable SyntaxHighlightingRule right) {
+      public int compare(@Nonnull SyntaxHighlightingRule left, @Nonnull SyntaxHighlightingRule right) {
         int result = left.getStartPosition() - right.getStartPosition();
         if (result == 0) {
           result = right.getEndPosition() - left.getEndPosition();

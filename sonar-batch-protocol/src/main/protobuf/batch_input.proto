@@ -1,0 +1,56 @@
+/*
+    SonarQube, open source software quality management tool.
+    Copyright (C) 2008-2015 SonarSource
+    mailto:contact AT sonarsource DOT com
+
+    SonarQube is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    SonarQube is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with this program; if not, write to the Free Software Foundation,
+    Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
+
+/*
+Notes
+
+  - "required" fields are not used as recommended by Google to keep forward-compatibility:
+    https://developers.google.com/protocol-buffers/docs/proto#simple
+
+  - this is beta version of specification. It will evolve during next releases and is
+    not forward-compatible yet.
+
+  - the related Java files are not generated during build. Indeed the existing protoc maven
+    plugins require protobuf to be installed on boxes. That means that generated Java files
+    are updated and committed for each change (see src/main/gen-java).
+*/
+
+
+import "constants.proto";
+
+option java_package = "org.sonar.batch.protocol.input";
+option optimize_for = SPEED;
+
+message PreviousIssue {
+    optional string key = 1;
+    optional string component_key = 2;
+    optional string rule_repository = 3;
+    optional string rule_key = 4;
+    optional int32 line = 5;
+    optional string msg = 6;
+    optional Severity severity = 7;
+    optional bool manual_severity = 8;
+    optional string resolution = 9;
+    optional string status = 10;
+    optional string checksum = 11;
+    optional string assigneeLogin = 12;
+    optional int64 creation_date = 13;
+}
+

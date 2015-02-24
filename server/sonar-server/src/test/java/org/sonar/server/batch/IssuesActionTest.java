@@ -27,6 +27,8 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.platform.Server;
 import org.sonar.api.web.UserRole;
+import org.sonar.batch.protocol.Constants.Severity;
+import org.sonar.batch.protocol.input.BatchInput.PreviousIssue;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
@@ -39,6 +41,9 @@ import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
 import org.sonar.test.DbTests;
 
+import java.io.ByteArrayInputStream;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 @Category(DbTests.class)
@@ -84,7 +89,20 @@ public class IssuesActionTest {
     MockUserSession.set().setLogin("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION).addComponentPermission(UserRole.USER, PROJECT_KEY, PROJECT_KEY);
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", PROJECT_KEY);
-    request.execute().assertJson(getClass(), "issues_on_project-expected.json", false);
+
+    PreviousIssue previousIssue = PreviousIssue.parseDelimitedFrom(new ByteArrayInputStream(request.execute().output()));
+    assertThat(previousIssue.getKey()).isEqualTo("EFGH");
+    assertThat(previousIssue.getComponentKey()).isEqualTo("Action.java");
+    assertThat(previousIssue.getRuleRepository()).isEqualTo("squid");
+    assertThat(previousIssue.getRuleKey()).isEqualTo("AvoidCycle");
+    assertThat(previousIssue.getLine()).isEqualTo(200);
+    assertThat(previousIssue.getMsg()).isEqualTo("Do not use this method");
+    assertThat(previousIssue.getResolution()).isEqualTo("FALSE-POSITIVE");
+    assertThat(previousIssue.getStatus()).isEqualTo("RESOLVED");
+    assertThat(previousIssue.getSeverity()).isEqualTo(Severity.BLOCKER);
+    assertThat(previousIssue.getManualSeverity()).isFalse();
+    assertThat(previousIssue.getChecksum()).isEqualTo("123456");
+    assertThat(previousIssue.getAssigneeLogin()).isEqualTo("john");
   }
 
   @Test
@@ -94,7 +112,20 @@ public class IssuesActionTest {
     MockUserSession.set().setLogin("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION).addComponentPermission(UserRole.USER, PROJECT_KEY, PROJECT_KEY);
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", PROJECT_KEY);
-    request.execute().assertJson(getClass(), "return_only_manual_severity-expected.json", false);
+
+    PreviousIssue previousIssue = PreviousIssue.parseDelimitedFrom(new ByteArrayInputStream(request.execute().output()));
+    assertThat(previousIssue.getKey()).isEqualTo("FGHI");
+    assertThat(previousIssue.getComponentKey()).isEqualTo("Action.java");
+    assertThat(previousIssue.getRuleRepository()).isEqualTo("manual");
+    assertThat(previousIssue.getRuleKey()).isEqualTo("API");
+    assertThat(previousIssue.getLine()).isEqualTo(201);
+    assertThat(previousIssue.getMsg()).isEqualTo("Do not use this method");
+    assertThat(previousIssue.hasResolution()).isFalse();
+    assertThat(previousIssue.getStatus()).isEqualTo("OPEN");
+    assertThat(previousIssue.getSeverity()).isEqualTo(Severity.CRITICAL);
+    assertThat(previousIssue.getManualSeverity()).isTrue();
+    assertThat(previousIssue.getChecksum()).isEqualTo("234567");
+    assertThat(previousIssue.getAssigneeLogin()).isEqualTo("john");
   }
 
   @Test
@@ -104,7 +135,20 @@ public class IssuesActionTest {
     MockUserSession.set().setLogin("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION).addComponentPermission(UserRole.USER, PROJECT_KEY, MODULE_KEY);
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", MODULE_KEY);
-    request.execute().assertJson(getClass(), "issues_on_module-expected.json", false);
+
+    PreviousIssue previousIssue = PreviousIssue.parseDelimitedFrom(new ByteArrayInputStream(request.execute().output()));
+    assertThat(previousIssue.getKey()).isEqualTo("EFGH");
+    assertThat(previousIssue.getComponentKey()).isEqualTo("Action.java");
+    assertThat(previousIssue.getRuleRepository()).isEqualTo("squid");
+    assertThat(previousIssue.getRuleKey()).isEqualTo("AvoidCycle");
+    assertThat(previousIssue.getLine()).isEqualTo(200);
+    assertThat(previousIssue.getMsg()).isEqualTo("Do not use this method");
+    assertThat(previousIssue.getResolution()).isEqualTo("FALSE-POSITIVE");
+    assertThat(previousIssue.getStatus()).isEqualTo("RESOLVED");
+    assertThat(previousIssue.getSeverity()).isEqualTo(Severity.BLOCKER);
+    assertThat(previousIssue.getManualSeverity()).isFalse();
+    assertThat(previousIssue.getChecksum()).isEqualTo("123456");
+    assertThat(previousIssue.getAssigneeLogin()).isEqualTo("john");
   }
 
   @Test(expected = ForbiddenException.class)

@@ -30,7 +30,7 @@ import org.sonar.batch.index.BatchResource;
 import org.sonar.batch.index.Cache;
 import org.sonar.batch.index.Caches;
 import org.sonar.batch.index.ResourceCache;
-import org.sonar.batch.protocol.input.issues.PreviousIssue;
+import org.sonar.batch.protocol.input.BatchInput.PreviousIssue;
 import org.sonar.batch.repository.PreviousIssuesLoader;
 
 import javax.annotation.Nullable;
@@ -56,6 +56,7 @@ public class PreviousIssueRepository implements BatchComponent {
   public void load() {
     Profiler profiler = Profiler.create(LOG).startInfo("Load previous issues");
     this.issuesCache = caches.createCache("previousIssues");
+    caches.registerValueCoder(PreviousIssue.class, new PreviousIssueValueCoder());
     previousIssuesLoader.load(reactor, new Function<PreviousIssue, Void>() {
 
       @Override
@@ -63,13 +64,13 @@ public class PreviousIssueRepository implements BatchComponent {
         if (issue == null) {
           return null;
         }
-        String componentKey = issue.componentKey();
+        String componentKey = issue.getComponentKey();
         BatchResource r = resourceCache.get(componentKey);
         if (r == null) {
           // Deleted resource
-          issuesCache.put(0, issue.key(), issue);
+          issuesCache.put(0, issue.getKey(), issue);
         } else {
-          issuesCache.put(r.batchId(), issue.key(), issue);
+          issuesCache.put(r.batchId(), issue.getKey(), issue);
         }
         return null;
       }
