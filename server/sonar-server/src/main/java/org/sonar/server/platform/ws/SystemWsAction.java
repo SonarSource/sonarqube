@@ -25,5 +25,5 @@ import org.sonar.api.server.ws.WebService;
 
 public interface SystemWsAction extends RequestHandler {
 
-  public void define(WebService.NewController controller);
+  void define(WebService.NewController controller);
 }
