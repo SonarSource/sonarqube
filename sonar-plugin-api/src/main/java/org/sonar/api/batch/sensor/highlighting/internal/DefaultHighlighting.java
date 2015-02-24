@@ -20,7 +20,6 @@
 package org.sonar.api.batch.sensor.highlighting.internal;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -31,6 +30,7 @@ import org.sonar.api.batch.sensor.internal.SensorStorage;
 
 import javax.annotation.Nullable;
 
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -45,10 +45,9 @@ public class DefaultHighlighting extends DefaultStorable implements NewHighlight
 
   public DefaultHighlighting(@Nullable SensorStorage storage) {
     super(storage);
-    syntaxHighlightingRuleSet = Sets.newTreeSet(new Ordering<SyntaxHighlightingRule>() {
+    syntaxHighlightingRuleSet = Sets.newTreeSet(new Comparator<SyntaxHighlightingRule>() {
       @Override
-      public int compare(@Nullable SyntaxHighlightingRule left,
-        @Nullable SyntaxHighlightingRule right) {
+      public int compare(SyntaxHighlightingRule left, SyntaxHighlightingRule right) {
         int result = left.getStartPosition() - right.getStartPosition();
         if (result == 0) {
           result = right.getEndPosition() - left.getEndPosition();
