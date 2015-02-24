@@ -36,6 +36,7 @@ import org.sonar.server.activity.ActivityService;
 import org.sonar.server.computation.step.ComputationStep;
 import org.sonar.server.computation.step.ComputationSteps;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.properties.ProjectSettingsFactory;
 
 public class ComputationService implements ServerComponent {
 
@@ -44,11 +45,13 @@ public class ComputationService implements ServerComponent {
   private final DbClient dbClient;
   private final ComputationSteps steps;
   private final ActivityService activityService;
+  private final ProjectSettingsFactory projectSettingsFactory;
 
-  public ComputationService(DbClient dbClient, ComputationSteps steps, ActivityService activityService) {
+  public ComputationService(DbClient dbClient, ComputationSteps steps, ActivityService activityService, ProjectSettingsFactory projectSettingsFactory) {
     this.dbClient = dbClient;
     this.steps = steps;
     this.activityService = activityService;
+    this.projectSettingsFactory = projectSettingsFactory;
   }
 
   public void process(AnalysisReportDto report) {
@@ -58,6 +61,7 @@ public class ComputationService implements ServerComponent {
     ComponentDto project = loadProject(report);
     try {
       ComputationContext context = new ComputationContext(report, project);
+      context.setProjectSettings(projectSettingsFactory.newProjectSettings(dbClient.openSession(false), project.getId()));
       for (ComputationStep step : steps.orderedSteps()) {
         if (ArrayUtils.contains(step.supportedProjectQualifiers(), context.getProject().qualifier())) {
           Profiler stepProfiler = Profiler.create(LOG).startInfo(step.getDescription());

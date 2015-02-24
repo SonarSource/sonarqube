@@ -21,18 +21,23 @@ package org.sonar.server.computation.issue;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterators;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.LogTester;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.user.index.UserDoc;
+import org.sonar.server.user.index.UserIndex;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -47,6 +52,9 @@ public class IssueComputationTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
+  @Rule
+  public LogTester logTester = new LogTester();
+
   IssueComputation sut;
 
   // inputs
@@ -59,6 +67,8 @@ public class IssueComputationTest {
     .setRuleRepository(RULE_KEY.repository())
     .setRuleKey(RULE_KEY.rule())
     .setStatus(Issue.STATUS_OPEN);
+  ComputationContext context = mock(ComputationContext.class, Mockito.RETURNS_DEEP_STUBS);
+  UserIndex userIndex = mock(UserIndex.class);
 
   // output
   IssueCache outputIssues;
@@ -67,7 +77,12 @@ public class IssueComputationTest {
   public void setUp() throws IOException {
     when(ruleCache.get(RULE_KEY)).thenReturn(rule);
     outputIssues = new IssueCache(temp.newFile(), System2.INSTANCE);
-    sut = new IssueComputation(ruleCache, lineCache, scmAccountCache, outputIssues);
+    sut = new IssueComputation(ruleCache, lineCache, scmAccountCache, outputIssues, userIndex);
+  }
+
+  @After
+  public void after() throws Exception {
+    sut.afterReportProcessing();
   }
 
   @Test
@@ -172,8 +187,33 @@ public class IssueComputationTest {
     verifyZeroInteractions(scmAccountCache);
   }
 
+  @Test
+  public void assign_default_assignee_when_available() throws Exception {
+    inputIssue.setIsNew(true);
+    String wolinski = "wolinski";
+    when(context.getProjectSettings().getString(CoreProperties.DEFAULT_ISSUE_ASSIGNEE)).thenReturn(wolinski);
+    when(userIndex.getNullableByLogin(wolinski)).thenReturn(new UserDoc());
+
+    process();
+
+    assertThat(Iterators.getOnlyElement(outputIssues.traverse()).assignee()).isEqualTo(wolinski);
+    assertThat(logTester.logs()).doesNotContain(String.format("the %s property was set with an unknown login: %s", CoreProperties.DEFAULT_ISSUE_ASSIGNEE, wolinski));
+  }
+
+  @Test
+  public void do_not_assign_default_assignee_when_not_found_in_index() throws Exception {
+    inputIssue.setIsNew(true);
+    String wolinski = "wolinski";
+    when(context.getProjectSettings().getString(CoreProperties.DEFAULT_ISSUE_ASSIGNEE)).thenReturn(wolinski);
+    when(userIndex.getNullableByLogin(wolinski)).thenReturn(null);
+
+    process();
+
+    assertThat(Iterators.getOnlyElement(outputIssues.traverse()).assignee()).isNull();
+    assertThat(logTester.logs()).contains(String.format("the %s property was set with an unknown login: %s", CoreProperties.DEFAULT_ISSUE_ASSIGNEE, wolinski));
+  }
+
   private void process() {
-    sut.processComponentIssues(mock(ComputationContext.class, Mockito.RETURNS_DEEP_STUBS), "FILE_A", Arrays.asList(inputIssue.build()));
-    sut.afterReportProcessing();
+    sut.processComponentIssues(context, "FILE_A", Arrays.asList(inputIssue.build()));
   }
 }

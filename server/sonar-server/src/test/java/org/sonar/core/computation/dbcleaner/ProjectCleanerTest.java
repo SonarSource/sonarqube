@@ -55,26 +55,22 @@ public class ProjectCleanerTest {
   @Before
   public void before() throws Exception {
     this.projectSettingsFactory = mock(ProjectSettingsFactory.class);
-    when(projectSettingsFactory.newProjectSettings(any(DbSession.class), any(Long.class))).thenReturn(settings);
 
-    this.sut = new ProjectCleaner(dao, periodCleaner, profiler, purgeListener, projectSettingsFactory, issueIndex);
+    this.sut = new ProjectCleaner(dao, periodCleaner, profiler, purgeListener, issueIndex);
   }
 
   @Test
   public void no_profiling_when_property_is_false() throws Exception {
     settings.setProperty(CoreProperties.PROFILING_LOG_PROPERTY, false);
-    when(projectSettingsFactory.newProjectSettings(any(DbSession.class), any(Long.class))).thenReturn(settings);
 
-    sut.purge(mock(DbSession.class), mock(IdUuidPair.class));
+    sut.purge(mock(DbSession.class), mock(IdUuidPair.class), settings);
 
     verify(profiler, never()).dump(anyLong(), any(Logger.class));
   }
 
   @Test
   public void no_indexing_when_no_issue_to_delete() throws Exception {
-    when(projectSettingsFactory.newProjectSettings(any(DbSession.class), any(Long.class))).thenReturn(settings);
-
-    sut.purge(mock(DbSession.class), mock(IdUuidPair.class));
+    sut.purge(mock(DbSession.class), mock(IdUuidPair.class), settings);
 
     verifyZeroInteractions(issueIndex);
   }
@@ -83,7 +79,7 @@ public class ProjectCleanerTest {
   public void profiling_when_property_is_true() throws Exception {
     settings.setProperty(CoreProperties.PROFILING_LOG_PROPERTY, true);
 
-    sut.purge(mock(DbSession.class), mock(IdUuidPair.class));
+    sut.purge(mock(DbSession.class), mock(IdUuidPair.class), settings);
 
     verify(profiler).dump(anyLong(), any(Logger.class));
   }
@@ -92,7 +88,7 @@ public class ProjectCleanerTest {
   public void call_period_cleaner_index_client_and_purge_dao() throws Exception {
     settings.setProperty(DbCleanerConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES, 5);
 
-    sut.purge(mock(DbSession.class), mock(IdUuidPair.class));
+    sut.purge(mock(DbSession.class), mock(IdUuidPair.class), settings);
 
     verify(periodCleaner).clean(any(DbSession.class), any(Long.class), any(Settings.class));
     verify(dao).purge(any(DbSession.class), any(PurgeConfiguration.class), any(PurgeListener.class));
@@ -103,7 +99,7 @@ public class ProjectCleanerTest {
   public void if_dao_purge_fails_it_should_not_interrupt_program_execution() throws Exception {
     doThrow(RuntimeException.class).when(dao).purge(any(DbSession.class), any(PurgeConfiguration.class), any(PurgeListener.class));
 
-    sut.purge(mock(DbSession.class), mock(IdUuidPair.class));
+    sut.purge(mock(DbSession.class), mock(IdUuidPair.class), settings);
 
     verify(dao).purge(any(DbSession.class), any(PurgeConfiguration.class), any(PurgeListener.class));
   }
@@ -112,7 +108,7 @@ public class ProjectCleanerTest {
   public void if_profiler_cleaning_fails_it_should_not_interrupt_program_execution() throws Exception {
     doThrow(RuntimeException.class).when(periodCleaner).clean(any(DbSession.class), anyLong(), any(Settings.class));
 
-    sut.purge(mock(DbSession.class), mock(IdUuidPair.class));
+    sut.purge(mock(DbSession.class), mock(IdUuidPair.class), settings);
 
     verify(periodCleaner).clean(any(DbSession.class), anyLong(), any(Settings.class));
   }

@@ -68,20 +68,21 @@ public class UserDao implements BatchComponent, ServerComponent, DaoComponent {
   public UserDto selectActiveUserByLogin(String login) {
     DbSession session = mybatis.openSession(false);
     try {
-      return selectActiveUserByLogin(login, session);
+      return selectActiveUserByLogin(session, login);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public UserDto selectActiveUserByLogin(String login, DbSession session) {
+  @CheckForNull
+  public UserDto selectActiveUserByLogin(DbSession session, String login) {
     UserMapper mapper = session.getMapper(UserMapper.class);
     return mapper.selectUserByLogin(login);
   }
 
   public List<UserDto> selectUsersByLogins(List<String> logins) {
     List<UserDto> users = Lists.newArrayList();
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       users.addAll(selectUsersByLogins(session, logins));
     } finally {
@@ -90,7 +91,7 @@ public class UserDao implements BatchComponent, ServerComponent, DaoComponent {
     return users;
   }
 
-  public List<UserDto> selectUsersByLogins(SqlSession session, List<String> logins) {
+  public List<UserDto> selectUsersByLogins(DbSession session, List<String> logins) {
     List<UserDto> users = Lists.newArrayList();
     if (!logins.isEmpty()) {
       UserMapper mapper = session.getMapper(UserMapper.class);

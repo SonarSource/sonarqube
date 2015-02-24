@@ -24,6 +24,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.sonar.api.config.Settings;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.SnapshotDto;
@@ -33,11 +34,13 @@ import org.sonar.core.computation.dbcleaner.DbCleanerConstants;
 import org.sonar.core.computation.dbcleaner.ProjectCleaner;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.SnapshotTesting;
 import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.properties.ProjectSettingsFactory;
 import org.sonar.server.tester.ServerTester;
 
 import java.util.Date;
@@ -95,6 +98,7 @@ public class PurgeDatastoresStepMediumTest {
     dbClient.propertiesDao().setProperty(new PropertyDto().setKey(DbCleanerConstants.WEEKS_BEFORE_DELETING_ALL_SNAPSHOTS).setValue("52"));
     dbSession.commit();
     ComputationContext context = new ComputationContext(report, project);
+    context.setProjectSettings(new ProjectSettingsFactory(tester.get(Settings.class), tester.get(PropertiesDao.class)).newProjectSettings(dbSession, project.getId()));
 
     // ACT
     sut.execute(context);
@@ -133,6 +137,7 @@ public class PurgeDatastoresStepMediumTest {
     dbClient.propertiesDao().setProperty(new PropertyDto().setKey(DbCleanerConstants.WEEKS_BEFORE_DELETING_ALL_SNAPSHOTS).setValue("1").setResourceId(project.getId()));
     dbSession.commit();
     ComputationContext context = new ComputationContext(report, project);
+    context.setProjectSettings(new ProjectSettingsFactory(tester.get(Settings.class), tester.get(PropertiesDao.class)).newProjectSettings(dbSession, project.getId()));
 
     // ACT
     sut.execute(context);
