@@ -335,7 +335,7 @@ module.exports = (grunt) ->
           'no-colors': true
           'fail-fast': true
           concise: true
-          parallel: true
+#          parallel: true
           port: expressPort
         src: ['<%= pkg.sources %>js/tests/e2e/tests/**/*.js']
       single:
