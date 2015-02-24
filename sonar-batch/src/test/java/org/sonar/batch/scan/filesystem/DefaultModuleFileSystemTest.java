@@ -187,4 +187,12 @@ public class DefaultModuleFileSystemTest {
     verify(componentIndexer).execute(fs);
   }
 
+  @Test
+  public void should_not_fail_with_null_basedir() throws Exception {
+    // This is the case with views
+    when(initializer.baseDir()).thenReturn(null);
+    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(moduleInputFileCache, ProjectDefinition.create(),
+      new Project("foo"), settings, fileIndexer, initializer, componentIndexer);
+  }
+
 }
