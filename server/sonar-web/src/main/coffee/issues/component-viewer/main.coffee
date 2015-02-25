@@ -58,7 +58,7 @@ define [
       key 'm', 'componentViewer', -> doAction 'assign-to-me'
       key 'p', 'componentViewer', -> doAction 'plan'
       key 'i', 'componentViewer', -> doAction 'set-severity'
-      key 'o', 'componentViewer', -> doAction 'comment'
+      key 'c', 'componentViewer', -> doAction 'comment'
 
 
     unbindShortcuts: ->

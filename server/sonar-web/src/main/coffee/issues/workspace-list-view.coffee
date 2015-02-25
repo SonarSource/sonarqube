@@ -42,7 +42,7 @@ define [
       key 'm', 'list', -> doAction 'assign-to-me'
       key 'p', 'list', -> doAction 'plan'
       key 'i', 'list', -> doAction 'set-severity'
-      key 'o', 'list', -> doAction 'comment'
+      key 'c', 'list', -> doAction 'comment'
       key 't', 'list', -> doAction 'edit-tags'
 
 
