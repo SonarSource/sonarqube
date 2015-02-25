@@ -409,6 +409,9 @@ module.exports = (grunt) ->
   grunt.registerTask 'default',
       ['build']
 
+  grunt.registerTask 'dw',
+      ['dev', 'watch']
+
   grunt.registerTask 'test',
       ['dev', 'express:test', 'casper:test']
 
