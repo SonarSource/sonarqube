@@ -296,6 +296,9 @@ module.exports = (grunt) ->
           '<%= grunt.option("assetsDir") || pkg.assets %>js/templates/nav.js': [
             '<%= pkg.sources %>hbs/nav/**/*.hbs'
           ]
+          '<%= grunt.option("assetsDir") || pkg.assets %>js/templates/workspace.js': [
+            '<%= pkg.sources %>hbs/workspace/**/*.hbs'
+          ]
 
 
     clean:

@@ -20,7 +20,8 @@
 define([
   'nav/global-navbar-view',
   'nav/context-navbar-view',
-  'nav/settings-navbar-view'
+  'nav/settings-navbar-view',
+  'workspace/main'
 ], function (GlobalNavbarView, ContextNavbarView, SettingsNavbarView) {
 
   var $ = jQuery,
