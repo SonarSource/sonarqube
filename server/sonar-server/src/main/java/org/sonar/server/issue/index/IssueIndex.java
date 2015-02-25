@@ -725,7 +725,6 @@ public class IssueIndex extends BaseIndex {
   // Scrolling within the index
   private Iterator<IssueDoc> scroll(final String scrollId) {
     return new Iterator<IssueDoc>() {
-
       private final Queue<SearchHit> hits = new ArrayDeque<>();
 
       @Override
@@ -740,6 +739,9 @@ public class IssueIndex extends BaseIndex {
 
       @Override
       public IssueDoc next() {
+        if(!hasNext()){
+          throw new NoSuchElementException();
+        }
         return new IssueDoc(hits.poll().getSource());
       }
 
