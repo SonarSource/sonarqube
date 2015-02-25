@@ -25,9 +25,7 @@ import org.slf4j.Logger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 public class ProgressLoggerTest {
 
@@ -38,7 +36,7 @@ public class ProgressLoggerTest {
     ProgressLogger progress = new ProgressLogger("ProgressLoggerTest", counter, logger);
     progress.setPeriodMs(1L);
     progress.start();
-    Thread.sleep(50L);
+    Thread.sleep(80L);
     progress.stop();
     verify(logger, atLeast(1)).info("42 rows processed");
 
