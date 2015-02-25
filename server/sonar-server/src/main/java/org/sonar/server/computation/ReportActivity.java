@@ -30,14 +30,14 @@ import java.util.Map;
 import static org.sonar.api.utils.DateUtils.formatDateTimeNullSafe;
 import static org.sonar.api.utils.DateUtils.longToDate;
 
-public class AnalysisReportLog implements ActivityLog {
+public class ReportActivity implements ActivityLog {
 
   private static final String ACTION = "LOG_ANALYSIS_REPORT";
 
   private final AnalysisReportDto report;
   private final ComponentDto project;
 
-  public AnalysisReportLog(AnalysisReportDto report, ComponentDto project) {
+  public ReportActivity(AnalysisReportDto report, ComponentDto project) {
     this.report = report;
     this.project = project;
   }

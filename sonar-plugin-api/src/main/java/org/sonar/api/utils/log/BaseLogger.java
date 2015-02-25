@@ -24,127 +24,127 @@ import javax.annotation.Nullable;
 abstract class BaseLogger implements Logger {
   @Override
   public void trace(String msg) {
-    LogInterceptors.get().log(msg);
+    LogInterceptors.get().log(LoggerLevel.TRACE, msg);
     doTrace(msg);
   }
 
   @Override
   public void trace(String pattern, @Nullable Object arg) {
-    LogInterceptors.get().log(pattern, arg);
+    LogInterceptors.get().log(LoggerLevel.TRACE, pattern, arg);
     doTrace(pattern, arg);
   }
 
   @Override
   public void trace(String msg, @Nullable Object arg1, @Nullable Object arg2) {
-    LogInterceptors.get().log(msg, arg1, arg2);
+    LogInterceptors.get().log(LoggerLevel.TRACE, msg, arg1, arg2);
     doTrace(msg, arg1, arg2);
   }
 
   @Override
   public void trace(String msg, Object... args) {
-    LogInterceptors.get().log(msg, args);
+    LogInterceptors.get().log(LoggerLevel.TRACE, msg, args);
     doTrace(msg, args);
   }
 
   @Override
   public void debug(String msg) {
-    LogInterceptors.get().log(msg);
+    LogInterceptors.get().log(LoggerLevel.DEBUG, msg);
     doDebug(msg);
   }
 
   @Override
   public void debug(String pattern, @Nullable Object arg) {
-    LogInterceptors.get().log(pattern, arg);
+    LogInterceptors.get().log(LoggerLevel.DEBUG, pattern, arg);
     doDebug(pattern, arg);
   }
 
   @Override
   public void debug(String msg, @Nullable Object arg1, @Nullable Object arg2) {
-    LogInterceptors.get().log(msg, arg1, arg2);
+    LogInterceptors.get().log(LoggerLevel.DEBUG, msg, arg1, arg2);
     doDebug(msg, arg1, arg2);
   }
 
   @Override
   public void debug(String msg, Object... args) {
-    LogInterceptors.get().log(msg, args);
+    LogInterceptors.get().log(LoggerLevel.DEBUG, msg, args);
     doDebug(msg, args);
   }
 
   @Override
   public void info(String msg) {
-    LogInterceptors.get().log(msg);
+    LogInterceptors.get().log(LoggerLevel.INFO, msg);
     doInfo(msg);
   }
 
   @Override
   public void info(String msg, @Nullable Object arg) {
-    LogInterceptors.get().log(msg, arg);
+    LogInterceptors.get().log(LoggerLevel.INFO, msg, arg);
     doInfo(msg, arg);
   }
 
   @Override
   public void info(String msg, @Nullable Object arg1, @Nullable Object arg2) {
-    LogInterceptors.get().log(msg, arg1, arg2);
+    LogInterceptors.get().log(LoggerLevel.INFO, msg, arg1, arg2);
     doInfo(msg, arg1, arg2);
   }
 
   @Override
   public void info(String msg, Object... args) {
-    LogInterceptors.get().log(msg, args);
+    LogInterceptors.get().log(LoggerLevel.INFO, msg, args);
     doInfo(msg, args);
   }
 
   @Override
   public void warn(String msg) {
-    LogInterceptors.get().log(msg);
+    LogInterceptors.get().log(LoggerLevel.WARN, msg);
     doWarn(msg);
   }
 
   @Override
   public void warn(String msg, @Nullable Object arg) {
-    LogInterceptors.get().log(msg, arg);
+    LogInterceptors.get().log(LoggerLevel.WARN, msg, arg);
     doWarn(msg, arg);
   }
 
   @Override
   public void warn(String msg, @Nullable Object arg1, @Nullable Object arg2) {
-    LogInterceptors.get().log(msg, arg1, arg2);
+    LogInterceptors.get().log(LoggerLevel.WARN, msg, arg1, arg2);
     doWarn(msg, arg1, arg2);
   }
 
   @Override
   public void warn(String msg, Object... args) {
-    LogInterceptors.get().log(msg, args);
+    LogInterceptors.get().log(LoggerLevel.WARN, msg, args);
     doWarn(msg, args);
   }
 
   @Override
   public void error(String msg) {
-    LogInterceptors.get().log(msg);
+    LogInterceptors.get().log(LoggerLevel.ERROR, msg);
     doError(msg);
   }
 
   @Override
   public void error(String msg, @Nullable Object arg) {
-    LogInterceptors.get().log(msg, arg);
+    LogInterceptors.get().log(LoggerLevel.ERROR, msg, arg);
     doError(msg, arg);
   }
 
   @Override
   public void error(String msg, @Nullable Object arg1, @Nullable Object arg2) {
-    LogInterceptors.get().log(msg, arg1, arg2);
+    LogInterceptors.get().log(LoggerLevel.ERROR, msg, arg1, arg2);
     doError(msg, arg1, arg2);
   }
 
   @Override
   public void error(String msg, Object... args) {
-    LogInterceptors.get().log(msg, args);
+    LogInterceptors.get().log(LoggerLevel.ERROR, msg, args);
     doError(msg, args);
   }
 
   @Override
   public void error(String msg, Throwable thrown) {
-    LogInterceptors.get().log(msg, thrown);
+    LogInterceptors.get().log(LoggerLevel.ERROR, msg, thrown);
     doError(msg, thrown);
   }
 

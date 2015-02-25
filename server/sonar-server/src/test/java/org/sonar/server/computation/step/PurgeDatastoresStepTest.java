@@ -20,13 +20,12 @@
 
 package org.sonar.server.computation.step;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
+import org.sonar.batch.protocol.output.BatchOutputReader;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.computation.dbcleaner.ProjectCleaner;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.purge.IdUuidPair;
@@ -38,30 +37,28 @@ import java.io.IOException;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
-public class PurgeDatastoresStepTest {
+public class PurgeDatastoresStepTest extends BaseStepTest {
 
-  PurgeDatastoresStep sut;
-  ProjectCleaner projectCleaner;
+  ProjectCleaner projectCleaner = mock(ProjectCleaner.class);;
+  PurgeDatastoresStep sut = new PurgeDatastoresStep(mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS), projectCleaner);
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-
-  @Before
-  public void before() {
-    this.projectCleaner = mock(ProjectCleaner.class);
-
-    this.sut = new PurgeDatastoresStep(mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS), projectCleaner);
-  }
 
   @Test
   public void call_purge_method_of_the_purge_task() throws IOException {
     ComponentDto project = mock(ComponentDto.class);
     when(project.getId()).thenReturn(123L);
     when(project.uuid()).thenReturn("UUID-1234");
-    ComputationContext context = new ComputationContext(mock(AnalysisReportDto.class), project);
+    ComputationContext context = new ComputationContext(mock(BatchOutputReader.class), project);
 
     sut.execute(context);
 
     verify(projectCleaner).purge(any(DbSession.class), any(IdUuidPair.class));
+  }
+
+  @Override
+  protected ComputationStep step() {
+    return sut;
   }
 }

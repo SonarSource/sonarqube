@@ -42,6 +42,9 @@ message Metadata {
   optional int64 analysis_date = 1;
   optional string project_key = 2;
   optional int32 root_component_ref = 3;
+
+  // temporary field used during development of computation stack
+  optional int64 snapshot_id = 4;
 }
 
 message Component {

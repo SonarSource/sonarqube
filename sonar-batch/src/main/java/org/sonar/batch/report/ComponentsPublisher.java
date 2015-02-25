@@ -48,12 +48,15 @@ public class ComponentsPublisher implements ReportPublisher {
   @Override
   public void publish(BatchOutputWriter writer) {
     BatchResource rootProject = resourceCache.get(reactor.getRoot().getKeyWithBranch());
-    BatchReport.Metadata metadata = BatchReport.Metadata.newBuilder()
+    BatchReport.Metadata.Builder builder = BatchReport.Metadata.newBuilder()
       .setAnalysisDate(((Project) rootProject.resource()).getAnalysisDate().getTime())
       .setProjectKey(((Project) rootProject.resource()).key())
-      .setRootComponentRef(rootProject.batchId())
-      .build();
-    writer.writeMetadata(metadata);
+      .setRootComponentRef(rootProject.batchId());
+    Integer sid = rootProject.snapshotId();
+    if (sid != null) {
+      builder.setSnapshotId(sid);
+    }
+    writer.writeMetadata(builder.build());
     recursiveWriteComponent(rootProject, writer);
   }
 

@@ -20,41 +20,39 @@
 
 package org.sonar.server.computation;
 
-import com.google.common.base.Preconditions;
+import org.sonar.batch.protocol.output.BatchOutputReader;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.computation.db.AnalysisReportDto;
-import org.sonar.server.computation.step.ParseReportStep;
 
 public class ComputationContext {
 
-  private final AnalysisReportDto reportDto;
+  private final BatchOutputReader reportReader;
   private final ComponentDto project;
 
-  /**
-   * Cache of analysis date as it can be accessed several times
-   */
-  private BatchReport.Metadata reportMetadata = null;
+  // cache of metadata as it's frequently accessed
+  private final BatchReport.Metadata reportMetadata;
 
-  public ComputationContext(AnalysisReportDto reportDto, ComponentDto project) {
-    this.reportDto = reportDto;
+  public ComputationContext(BatchOutputReader reportReader, ComponentDto project) {
+    this.reportReader = reportReader;
     this.project = project;
+    this.reportMetadata = reportReader.readMetadata();
   }
 
-  public AnalysisReportDto getReportDto() {
-    return reportDto;
+  public ComputationContext(BatchOutputReader reportReader, ComponentDto project, BatchReport.Metadata reportMetadata) {
+    this.reportReader = reportReader;
+    this.project = project;
+    this.reportMetadata = reportMetadata;
+  }
+
+  public BatchReport.Metadata getReportMetadata() {
+    return reportMetadata;
   }
 
   public ComponentDto getProject() {
     return project;
   }
 
-  public BatchReport.Metadata getReportMetadata() {
-    Preconditions.checkState(reportMetadata != null, "Report metadata is available after execution of " + ParseReportStep.class);
-    return reportMetadata;
-  }
-
-  public void setReportMetadata(BatchReport.Metadata m) {
-    this.reportMetadata = m;
+  public BatchOutputReader getReportReader() {
+    return reportReader;
   }
 }

@@ -19,27 +19,20 @@
  */
 package org.sonar.server.computation.step;
 
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.utils.ZipUtils;
-import org.sonar.api.utils.internal.DefaultTempFolder;
 import org.sonar.batch.protocol.Constants;
+import org.sonar.batch.protocol.output.BatchOutputReader;
 import org.sonar.batch.protocol.output.BatchOutputWriter;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.computation.db.AnalysisReportDto;
-import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.computation.ComputationContext;
-import org.sonar.server.computation.db.AnalysisReportDao;
 import org.sonar.server.computation.issue.IssueComputation;
-import org.sonar.server.db.DbClient;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Collections;
 
@@ -47,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class ParseReportStepTest {
+public class ParseReportStepTest extends BaseStepTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -55,21 +48,15 @@ public class ParseReportStepTest {
   @ClassRule
   public static DbTester dbTester = new DbTester();
 
-  @Before
-  public void setUp() throws Exception {
-    dbTester.truncateTables();
-  }
+  IssueComputation issueComputation = mock(IssueComputation.class);
+  ParseReportStep sut = new ParseReportStep(issueComputation);
 
   @Test
   public void extract_report_from_db_and_browse_components() throws Exception {
-    AnalysisReportDto reportDto = prepareAnalysisReportInDb();
+    File reportDir = generateReport();
 
-
-    IssueComputation issueComputation = mock(IssueComputation.class);
-    DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new AnalysisReportDao());
-    ParseReportStep step = new ParseReportStep(issueComputation, dbClient, new DefaultTempFolder(temp.newFolder()));
-    ComputationContext context = new ComputationContext(reportDto, mock(ComponentDto.class));
-    step.execute(context);
+    ComputationContext context = new ComputationContext(new BatchOutputReader(reportDir), mock(ComponentDto.class));
+    sut.execute(context);
 
     // verify that all components are processed (currently only for issues)
     verify(issueComputation).processComponentIssues(context, "PROJECT_UUID", Collections.<BatchReport.Issue>emptyList());
@@ -79,7 +66,7 @@ public class ParseReportStepTest {
     assertThat(context.getReportMetadata().getRootComponentRef()).isEqualTo(1);
   }
 
-  private AnalysisReportDto prepareAnalysisReportInDb() throws IOException {
+  private File generateReport() throws IOException {
     File dir = temp.newFolder();
     // project and 2 files
     BatchOutputWriter writer = new BatchOutputWriter(dir);
@@ -105,28 +92,11 @@ public class ParseReportStepTest {
       .setType(Constants.ComponentType.FILE)
       .setUuid("FILE2_UUID")
       .build());
-    File zipFile = temp.newFile();
-    ZipUtils.zipDir(dir, zipFile);
+    return dir;
+  }
 
-    AnalysisReportDto dto = new AnalysisReportDto();
-    DbSession dbSession = dbTester.myBatis().openSession(false);
-    try {
-      dto.setProjectKey("PROJECT_KEY");
-      dto.setCreatedAt(System.currentTimeMillis());
-      dto.setSnapshotId(1L);
-      dto.setStatus(AnalysisReportDto.Status.PENDING);
-      FileInputStream inputStream = new FileInputStream(zipFile);
-      dto.setData(inputStream);
-      AnalysisReportDao dao = new AnalysisReportDao();
-      dao.insert(dbSession, dto);
-      inputStream.close();
-      dbSession.commit();
-
-      // dao#insert() does not set the generated id, so the row
-      // is loaded again to get its id
-      return dao.selectByProjectKey(dbSession, "PROJECT_KEY").get(0);
-    } finally {
-      dbSession.close();
-    }
+  @Override
+  protected ComputationStep step() {
+    return sut;
   }
 }

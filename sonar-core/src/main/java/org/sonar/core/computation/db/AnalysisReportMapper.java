@@ -34,6 +34,8 @@ public interface AnalysisReportMapper {
 
   void truncate();
 
+  void insert(AnalysisReportDto reportDto);
+
   int update(AnalysisReportDto report);
 
   int updateWithBookingReport(@Param("id") Long id, @Param("startedAt") long startedAt,

@@ -32,9 +32,7 @@ import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class PublishReportJobTest extends AbstractDbUnitTestCase {
 
@@ -52,7 +50,7 @@ public class PublishReportJobTest extends AbstractDbUnitTestCase {
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.SERVER_BASE_URL, "http://myserver/");
     Project project = new Project("struts");
-    PublishReportJob job = new PublishReportJob(settings, mock(ServerClient.class), mock(Server.class), project, mode, mock(TempFolder.class), mock(ResourceCache.class));
+    PublishReportJob job = new PublishReportJob(settings, mock(ServerClient.class), mock(Server.class), project, mode, mock(TempFolder.class));
 
     Logger logger = mock(Logger.class);
     job.logSuccess(logger);
@@ -66,7 +64,7 @@ public class PublishReportJobTest extends AbstractDbUnitTestCase {
     Settings settings = new Settings();
     when(mode.isPreview()).thenReturn(true);
     Project project = new Project("struts");
-    PublishReportJob job = new PublishReportJob(settings, mock(ServerClient.class), mock(Server.class), project, mode, mock(TempFolder.class), mock(ResourceCache.class));
+    PublishReportJob job = new PublishReportJob(settings, mock(ServerClient.class), mock(Server.class), project, mode, mock(TempFolder.class));
 
     Logger logger = mock(Logger.class);
     job.logSuccess(logger);

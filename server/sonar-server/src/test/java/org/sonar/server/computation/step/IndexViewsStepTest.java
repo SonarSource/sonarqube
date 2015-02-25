@@ -28,7 +28,7 @@ import org.sonar.server.view.index.ViewIndexer;
 
 import static org.mockito.Mockito.*;
 
-public class IndexViewsStepTest {
+public class IndexViewsStepTest extends BaseStepTest {
 
   ComputationContext context = mock(ComputationContext.class);
   ViewIndexer indexer = mock(ViewIndexer.class);
@@ -43,4 +43,8 @@ public class IndexViewsStepTest {
     verify(indexer).index("ABCD");
   }
 
+  @Override
+  protected ComputationStep step() {
+    return sut;
+  }
 }

@@ -23,6 +23,7 @@ package org.sonar.server.computation.step;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Qualifiers;
@@ -45,31 +46,25 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class PurgeRemovedViewsStepTest {
+public class PurgeRemovedViewsStepTest extends BaseStepTest {
 
   @ClassRule
   public static EsTester esTester = new EsTester().addDefinitions(new ViewIndexDefinition(new Settings()));
 
-  @ClassRule
-  public static DbTester db = new DbTester();
+  @Rule
+  public DbTester db = new DbTester();
 
-  ComputationContext context;
-
+  ComputationContext context = mock(ComputationContext.class);
   DbSession session;
-
   DbClient dbClient;
-
-  PurgeRemovedViewsStep step;
+  PurgeRemovedViewsStep sut;
 
   @Before
   public void setUp() {
     esTester.truncateIndices();
-    db.truncateTables();
-
-    context = mock(ComputationContext.class);
     session = db.myBatis().openSession(false);
     dbClient = new DbClient(db.database(), db.myBatis(), new IssueDao(db.myBatis()), new ComponentDao());
-    step = new PurgeRemovedViewsStep(new ViewIndex(esTester.client()), dbClient);
+    sut = new PurgeRemovedViewsStep(new ViewIndex(esTester.client()), dbClient);
   }
 
   @After
@@ -92,7 +87,7 @@ public class PurgeRemovedViewsStepTest {
     dbClient.componentDao().insert(session, view, subView);
     session.commit();
 
-    step.execute(context);
+    sut.execute(context);
 
     List<String> viewUuids = esTester.getDocumentFields(ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW, ViewIndexDefinition.FIELD_UUID);
     assertThat(viewUuids).containsOnly("ABCD", "BCDE");
@@ -100,7 +95,11 @@ public class PurgeRemovedViewsStepTest {
 
   @Test
   public void only_support_views() throws Exception {
-    assertThat(step.supportedProjectQualifiers()).containsOnly(Qualifiers.VIEW);
+    assertThat(sut.supportedProjectQualifiers()).containsOnly(Qualifiers.VIEW);
   }
 
+  @Override
+  protected ComputationStep step() {
+    return sut;
+  }
 }

@@ -20,17 +20,25 @@
 package org.sonar.server.computation.step;
 
 import org.junit.Test;
+import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class ApplyPermissionsStepTest {
+public class ApplyPermissionsStepTest extends BaseStepTest {
+
+  IssueAuthorizationIndexer indexer = mock(IssueAuthorizationIndexer.class);
+  ApplyPermissionsStep step = new ApplyPermissionsStep(indexer);
 
   @Test
   public void index_issue_permissions() throws Exception {
-    IssueAuthorizationIndexer indexer = mock(IssueAuthorizationIndexer.class);
-    new ApplyPermissionsStep(indexer).execute(null);
+    step.execute(mock(ComputationContext.class));
     verify(indexer).index();
+  }
+
+  @Override
+  protected ComputationStep step() {
+    return step;
   }
 }

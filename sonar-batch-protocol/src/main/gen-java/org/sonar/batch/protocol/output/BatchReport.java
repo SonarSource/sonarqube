@@ -43,6 +43,23 @@ public final class BatchReport {
      * <code>optional int32 root_component_ref = 3;</code>
      */
     int getRootComponentRef();
+
+    /**
+     * <code>optional int64 snapshot_id = 4;</code>
+     *
+     * <pre>
+     * temporary field used during development of computation stack
+     * </pre>
+     */
+    boolean hasSnapshotId();
+    /**
+     * <code>optional int64 snapshot_id = 4;</code>
+     *
+     * <pre>
+     * temporary field used during development of computation stack
+     * </pre>
+     */
+    long getSnapshotId();
   }
   /**
    * Protobuf type {@code Metadata}
@@ -110,6 +127,11 @@ public final class BatchReport {
             case 24: {
               bitField0_ |= 0x00000004;
               rootComponentRef_ = input.readInt32();
+              break;
+            }
+            case 32: {
+              bitField0_ |= 0x00000008;
+              snapshotId_ = input.readInt64();
               break;
             }
           }
@@ -224,10 +246,34 @@ public final class BatchReport {
       return rootComponentRef_;
     }
 
+    public static final int SNAPSHOT_ID_FIELD_NUMBER = 4;
+    private long snapshotId_;
+    /**
+     * <code>optional int64 snapshot_id = 4;</code>
+     *
+     * <pre>
+     * temporary field used during development of computation stack
+     * </pre>
+     */
+    public boolean hasSnapshotId() {
+      return ((bitField0_ & 0x00000008) == 0x00000008);
+    }
+    /**
+     * <code>optional int64 snapshot_id = 4;</code>
+     *
+     * <pre>
+     * temporary field used during development of computation stack
+     * </pre>
+     */
+    public long getSnapshotId() {
+      return snapshotId_;
+    }
+
     private void initFields() {
       analysisDate_ = 0L;
       projectKey_ = "";
       rootComponentRef_ = 0;
+      snapshotId_ = 0L;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -251,6 +297,9 @@ public final class BatchReport {
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         output.writeInt32(3, rootComponentRef_);
       }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        output.writeInt64(4, snapshotId_);
+      }
       getUnknownFields().writeTo(output);
     }
 
@@ -271,6 +320,10 @@ public final class BatchReport {
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(3, rootComponentRef_);
+      }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(4, snapshotId_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -395,6 +448,8 @@ public final class BatchReport {
         bitField0_ = (bitField0_ & ~0x00000002);
         rootComponentRef_ = 0;
         bitField0_ = (bitField0_ & ~0x00000004);
+        snapshotId_ = 0L;
+        bitField0_ = (bitField0_ & ~0x00000008);
         return this;
       }
 
@@ -435,6 +490,10 @@ public final class BatchReport {
           to_bitField0_ |= 0x00000004;
         }
         result.rootComponentRef_ = rootComponentRef_;
+        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
+          to_bitField0_ |= 0x00000008;
+        }
+        result.snapshotId_ = snapshotId_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -461,6 +520,9 @@ public final class BatchReport {
         }
         if (other.hasRootComponentRef()) {
           setRootComponentRef(other.getRootComponentRef());
+        }
+        if (other.hasSnapshotId()) {
+          setSnapshotId(other.getSnapshotId());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -625,6 +687,54 @@ public final class BatchReport {
       public Builder clearRootComponentRef() {
         bitField0_ = (bitField0_ & ~0x00000004);
         rootComponentRef_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private long snapshotId_ ;
+      /**
+       * <code>optional int64 snapshot_id = 4;</code>
+       *
+       * <pre>
+       * temporary field used during development of computation stack
+       * </pre>
+       */
+      public boolean hasSnapshotId() {
+        return ((bitField0_ & 0x00000008) == 0x00000008);
+      }
+      /**
+       * <code>optional int64 snapshot_id = 4;</code>
+       *
+       * <pre>
+       * temporary field used during development of computation stack
+       * </pre>
+       */
+      public long getSnapshotId() {
+        return snapshotId_;
+      }
+      /**
+       * <code>optional int64 snapshot_id = 4;</code>
+       *
+       * <pre>
+       * temporary field used during development of computation stack
+       * </pre>
+       */
+      public Builder setSnapshotId(long value) {
+        bitField0_ |= 0x00000008;
+        snapshotId_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int64 snapshot_id = 4;</code>
+       *
+       * <pre>
+       * temporary field used during development of computation stack
+       * </pre>
+       */
+      public Builder clearSnapshotId() {
+        bitField0_ = (bitField0_ & ~0x00000008);
+        snapshotId_ = 0L;
         onChanged();
         return this;
       }
@@ -6411,30 +6521,30 @@ public final class BatchReport {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\022batch_report.proto\032\017constants.proto\"R\n" +
+      "\n\022batch_report.proto\032\017constants.proto\"g\n" +
       "\010Metadata\022\025\n\ranalysis_date\030\001 \001(\003\022\023\n\013proj" +
       "ect_key\030\002 \001(\t\022\032\n\022root_component_ref\030\003 \001(" +
-      "\005\"\260\001\n\tComponent\022\013\n\003ref\030\001 \001(\005\022\014\n\004path\030\002 \001" +
-      "(\t\022\014\n\004name\030\003 \001(\t\022\034\n\004type\030\004 \001(\0162\016.Compone" +
-      "ntType\022\017\n\007is_test\030\005 \001(\010\022\020\n\010language\030\006 \001(" +
-      "\t\022\026\n\nchild_refs\030\007 \003(\005B\002\020\001\022\023\n\013snapshot_id" +
-      "\030\010 \001(\005\022\014\n\004uuid\030\t \001(\t\"\232\004\n\005Issue\022\027\n\017rule_r" +
-      "epository\030\001 \001(\t\022\020\n\010rule_key\030\002 \001(\t\022\014\n\004lin" +
-      "e\030\003 \001(\005\022\013\n\003msg\030\004 \001(\t\022\033\n\010severity\030\005 \001(\0162\t",
-      ".Severity\022\014\n\004tags\030\006 \003(\t\022\025\n\reffort_to_fix" +
-      "\030\007 \001(\001\022\016\n\006is_new\030\010 \001(\010\022\014\n\004uuid\030\t \001(\t\022\027\n\017" +
-      "debt_in_minutes\030\n \001(\003\022\022\n\nresolution\030\013 \001(" +
-      "\t\022\016\n\006status\030\014 \001(\t\022\020\n\010checksum\030\r \001(\t\022\027\n\017m" +
-      "anual_severity\030\016 \001(\010\022\020\n\010reporter\030\017 \001(\t\022\020" +
-      "\n\010assignee\030\020 \001(\t\022\027\n\017action_plan_key\030\021 \001(" +
-      "\t\022\022\n\nattributes\030\022 \001(\t\022\024\n\014author_login\030\023 " +
-      "\001(\t\022\025\n\rcreation_date\030\024 \001(\003\022\022\n\nclose_date" +
-      "\030\025 \001(\003\022\023\n\013update_date\030\026 \001(\003\022\023\n\013selected_" +
-      "at\030\027 \001(\003\022\023\n\013diff_fields\030\030 \001(\t\022\022\n\nis_chan",
-      "ged\030\031 \001(\010\022\036\n\026must_send_notification\030\032 \001(" +
-      "\010\"5\n\006Issues\022\025\n\rcomponent_ref\030\001 \001(\005\022\024\n\004li" +
-      "st\030\002 \003(\0132\006.IssueB#\n\037org.sonar.batch.prot" +
-      "ocol.outputH\001"
+      "\005\022\023\n\013snapshot_id\030\004 \001(\003\"\260\001\n\tComponent\022\013\n\003" +
+      "ref\030\001 \001(\005\022\014\n\004path\030\002 \001(\t\022\014\n\004name\030\003 \001(\t\022\034\n" +
+      "\004type\030\004 \001(\0162\016.ComponentType\022\017\n\007is_test\030\005" +
+      " \001(\010\022\020\n\010language\030\006 \001(\t\022\026\n\nchild_refs\030\007 \003" +
+      "(\005B\002\020\001\022\023\n\013snapshot_id\030\010 \001(\005\022\014\n\004uuid\030\t \001(" +
+      "\t\"\232\004\n\005Issue\022\027\n\017rule_repository\030\001 \001(\t\022\020\n\010" +
+      "rule_key\030\002 \001(\t\022\014\n\004line\030\003 \001(\005\022\013\n\003msg\030\004 \001(",
+      "\t\022\033\n\010severity\030\005 \001(\0162\t.Severity\022\014\n\004tags\030\006" +
+      " \003(\t\022\025\n\reffort_to_fix\030\007 \001(\001\022\016\n\006is_new\030\010 " +
+      "\001(\010\022\014\n\004uuid\030\t \001(\t\022\027\n\017debt_in_minutes\030\n \001" +
+      "(\003\022\022\n\nresolution\030\013 \001(\t\022\016\n\006status\030\014 \001(\t\022\020" +
+      "\n\010checksum\030\r \001(\t\022\027\n\017manual_severity\030\016 \001(" +
+      "\010\022\020\n\010reporter\030\017 \001(\t\022\020\n\010assignee\030\020 \001(\t\022\027\n" +
+      "\017action_plan_key\030\021 \001(\t\022\022\n\nattributes\030\022 \001" +
+      "(\t\022\024\n\014author_login\030\023 \001(\t\022\025\n\rcreation_dat" +
+      "e\030\024 \001(\003\022\022\n\nclose_date\030\025 \001(\003\022\023\n\013update_da" +
+      "te\030\026 \001(\003\022\023\n\013selected_at\030\027 \001(\003\022\023\n\013diff_fi",
+      "elds\030\030 \001(\t\022\022\n\nis_changed\030\031 \001(\010\022\036\n\026must_s" +
+      "end_notification\030\032 \001(\010\"5\n\006Issues\022\025\n\rcomp" +
+      "onent_ref\030\001 \001(\005\022\024\n\004list\030\002 \003(\0132\006.IssueB#\n" +
+      "\037org.sonar.batch.protocol.outputH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -6454,7 +6564,7 @@ public final class BatchReport {
     internal_static_Metadata_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_Metadata_descriptor,
-        new java.lang.String[] { "AnalysisDate", "ProjectKey", "RootComponentRef", });
+        new java.lang.String[] { "AnalysisDate", "ProjectKey", "RootComponentRef", "SnapshotId", });
     internal_static_Component_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_Component_fieldAccessorTable = new

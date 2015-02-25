@@ -36,14 +36,14 @@ public class ComputationThreadLauncher implements Startable, ServerComponent, Se
 
   public static final String THREAD_NAME_PREFIX = "computation-";
 
-  private final AnalysisReportQueue queue;
+  private final ReportQueue queue;
   private final ScheduledExecutorService executorService;
 
   private final long delayBetweenTasks;
   private final long delayForFirstStart;
   private final TimeUnit timeUnit;
 
-  public ComputationThreadLauncher(AnalysisReportQueue queue) {
+  public ComputationThreadLauncher(ReportQueue queue) {
     this.queue = queue;
     this.executorService = Executors.newSingleThreadScheduledExecutor(newThreadFactory());
 
@@ -53,7 +53,7 @@ public class ComputationThreadLauncher implements Startable, ServerComponent, Se
   }
 
   @VisibleForTesting
-  ComputationThreadLauncher(AnalysisReportQueue queue, long delayForFirstStart, long delayBetweenTasks, TimeUnit timeUnit) {
+  ComputationThreadLauncher(ReportQueue queue, long delayForFirstStart, long delayBetweenTasks, TimeUnit timeUnit) {
     this.queue = queue;
     this.executorService = Executors.newSingleThreadScheduledExecutor(newThreadFactory());
 

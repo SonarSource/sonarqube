@@ -30,27 +30,27 @@ class NullInterceptor extends LogInterceptor {
   }
 
   @Override
-  void log(String msg) {
+  void log(LoggerLevel level, String msg) {
     // nothing
   }
 
   @Override
-  void log(String msg, Object arg) {
+  void log(LoggerLevel level, String msg, Object arg) {
     // nothing
   }
 
   @Override
-  void log(String msg, Object arg1, Object arg2) {
+  void log(LoggerLevel level, String msg, Object arg1, Object arg2) {
     // nothing
   }
 
   @Override
-  void log(String msg, Object... args) {
+  void log(LoggerLevel level, String msg, Object... args) {
     // nothing
   }
 
   @Override
-  void log(String msg, Throwable thrown) {
+  void log(LoggerLevel level, String msg, Throwable thrown) {
     // nothing
   }
 }

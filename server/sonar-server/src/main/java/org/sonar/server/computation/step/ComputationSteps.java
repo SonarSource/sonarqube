@@ -21,11 +21,14 @@
 package org.sonar.server.computation.step;
 
 import com.google.common.collect.Lists;
-import org.sonar.server.computation.ComputationComponents;
+import org.sonar.server.computation.ComputationContainer;
 
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Ordered list of steps to be executed
+ */
 public class ComputationSteps {
 
   /**
@@ -77,6 +80,6 @@ public class ComputationSteps {
         return step;
       }
     }
-    throw new IllegalStateException("Component not found: " + clazz + ". Check " + ComputationComponents.class);
+    throw new IllegalStateException("Component not found: " + clazz + ". Check " + ComputationContainer.class);
   }
 }
