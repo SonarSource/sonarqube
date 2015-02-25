@@ -95,8 +95,7 @@ public class IssuesAction implements RequestHandler {
     issueBuilder.setKey(issue.key());
     issueBuilder.setModuleKey(keysByUUid.get(issue.moduleUuid()));
     String path = issue.filePath();
-    // Issue on module/project should not have a path
-    if (path != null && !issue.componentUuid().equals(issue.moduleUuid())) {
+    if (path != null) {
       issueBuilder.setPath(path);
     }
     issueBuilder.setRuleRepository(issue.ruleKey().repository());

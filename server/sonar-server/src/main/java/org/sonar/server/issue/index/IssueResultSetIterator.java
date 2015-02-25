@@ -114,13 +114,27 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
   }
 
   @CheckForNull
-  private static String extractDirPath(@Nullable String filePath) {
+  private static String extractDirPath(@Nullable String filePath, String scope) {
     if (filePath != null) {
+      if (Scopes.DIRECTORY.equals(scope)) {
+        return filePath;
+      }
       int lastSlashIndex = CharMatcher.anyOf("/").lastIndexIn(filePath);
       if (lastSlashIndex > 0) {
         return filePath.substring(0, lastSlashIndex);
       }
       return "/";
+    }
+    return null;
+  }
+
+  @CheckForNull
+  private static String extractFilePath(@Nullable String filePath, String scope) {
+    // On modules, the path contains the relative path of the module starting from its parent, and in E/S we're only interested in the path
+    // of files and directories.
+    // That's why the file path should be null on modules and projects.
+    if (filePath != null && !Scopes.PROJECT.equals(scope)) {
+      return filePath;
     }
     return null;
   }
@@ -165,10 +179,10 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
     String moduleUuidPath = rs.getString(25);
     doc.setModuleUuid(extractModule(moduleUuidPath));
     doc.setModuleUuidPath(moduleUuidPath);
-    String filePath = rs.getString(26);
-    doc.setFilePath(filePath);
     String scope = rs.getString(27);
-    doc.setDirectoryPath(Scopes.DIRECTORY.equals(scope) ? filePath : extractDirPath(doc.filePath()));
+    String filePath = extractFilePath(rs.getString(26), scope);
+    doc.setFilePath(filePath);
+    doc.setDirectoryPath(extractDirPath(doc.filePath(), scope));
     String tags = rs.getString(28);
     doc.setTags(ImmutableList.copyOf(TAGS_SPLITTER.split(tags == null ? "" : tags)));
     return doc;
