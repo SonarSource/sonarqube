@@ -20,12 +20,9 @@
 var express = require('express'),
     path = require('path'),
     errorhandler = require('errorhandler'),
-    serveStatic = require('serve-static'),
-    istanbul = require('istanbul'),
-    im = require('istanbul-middleware');
+    serveStatic = require('serve-static');
 
 var staticPath = path.join(__dirname, '../../../webapp');
-im.hookLoader(staticPath);
 
 var app = express();
 
@@ -34,19 +31,10 @@ app.set('view engine', 'jade');
 
 app.use(errorhandler({ dumpExceptions: true, showStack: true }));
 
-app.use(im.createClientHandler(staticPath));
-app.use('/coverage', im.createHandler());
 app.use('/', serveStatic(staticPath));
 
 app.get('/pages/:page', function (req, res) {
   res.render(req.param('page'));
-});
-
-app.get('/generate-report', function (req, res) {
-  var reporter = istanbul.Report.create('html', {}),
-      collector = new istanbul.Collector;
-  collector.add();
-  reporter.writeReport(collector, true);
 });
 
 // Get the port from environment variables

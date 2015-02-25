@@ -322,6 +322,10 @@ module.exports = (grunt) ->
         options:
           script: '<%= pkg.sources %>js/tests/e2e/server.js'
           port: expressPort
+      testCoverage:
+        options:
+          script: '<%= pkg.sources %>js/tests/e2e/server-coverage.js'
+          port: expressPort
       dev:
         options:
           background: false
@@ -335,7 +339,15 @@ module.exports = (grunt) ->
           'no-colors': true
           'fail-fast': true
           concise: true
-#          parallel: true
+          parallel: true
+          port: expressPort
+        src: ['<%= pkg.sources %>js/tests/e2e/tests/**/*.js']
+      testCoverage:
+        options:
+          test: true
+          'no-colors': true
+          'fail-fast': true
+          concise: true
           port: expressPort
         src: ['<%= pkg.sources %>js/tests/e2e/tests/**/*.js']
       single:
@@ -441,7 +453,10 @@ module.exports = (grunt) ->
       ['dev', 'watch']
 
   grunt.registerTask 'test',
-      ['dev', 'express:test', 'curl:resetCoverage', 'casper:test', 'curl:downloadCoverage', 'unzip', 'replace:lcov']
+      ['dev', 'express:test', 'casper:test']
+
+  grunt.registerTask 'testCoverage',
+      ['dev', 'express:testCoverage', 'curl:resetCoverage', 'casper:testCoverage', 'curl:downloadCoverage', 'unzip', 'replace:lcov']
 
   grunt.registerTask 'single',
       ['dev', 'express:test', 'casper:single']
@@ -450,8 +465,11 @@ module.exports = (grunt) ->
       ['dev', 'express:test', 'casper:testfile']
 
   # tasks used by Maven build (see pom.xml)
-  grunt.registerTask 'maven-build-skip-tests-true',
+  grunt.registerTask 'maven-build-skip-tests-true-nocoverage',
       ['build']
 
-  grunt.registerTask 'maven-build-skip-tests-false',
+  grunt.registerTask 'maven-build-skip-tests-false-nocoverage',
       ['test', 'build']
+
+  grunt.registerTask 'maven-build-skip-tests-false-coverage',
+      ['testCoverage', 'build']
