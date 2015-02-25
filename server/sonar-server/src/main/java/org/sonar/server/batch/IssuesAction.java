@@ -100,7 +100,10 @@ public class IssuesAction implements RequestHandler {
     }
     issueBuilder.setRuleRepository(issue.ruleKey().repository());
     issueBuilder.setRuleKey(issue.ruleKey().rule());
-    issueBuilder.setChecksum(issue.checksum());
+    String checksum = issue.checksum();
+    if (checksum != null) {
+      issueBuilder.setChecksum(checksum);
+    }
     String assigneeLogin = issue.assignee();
     if (assigneeLogin != null) {
       issueBuilder.setAssigneeLogin(assigneeLogin);

@@ -123,7 +123,7 @@ public class IssuesActionTest {
       .setManualSeverity(false)
       .setMessage(null)
       .setLine(null)
-      .setChecksum("123456")
+      .setChecksum(null)
       .setAssignee(null));
 
     MockUserSession.set().setLogin("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
@@ -142,7 +142,7 @@ public class IssuesActionTest {
     assertThat(serverIssue.getStatus()).isEqualTo("RESOLVED");
     assertThat(serverIssue.getSeverity()).isEqualTo(Severity.BLOCKER);
     assertThat(serverIssue.getManualSeverity()).isFalse();
-    assertThat(serverIssue.getChecksum()).isEqualTo("123456");
+    assertThat(serverIssue.hasChecksum()).isFalse();
     assertThat(serverIssue.hasAssigneeLogin()).isFalse();
   }
 

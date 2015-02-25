@@ -97,8 +97,9 @@ public class IssueDoc extends BaseDoc implements Issue {
     return BooleanUtils.isTrue((Boolean) getField(IssueIndexDefinition.FIELD_ISSUE_MANUAL_SEVERITY));
   }
 
+  @Nullable
   public String checksum() {
-    return getField(IssueIndexDefinition.FIELD_ISSUE_CHECKSUM);
+    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_CHECKSUM);
   }
 
   @Override
