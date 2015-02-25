@@ -19,6 +19,9 @@
  */
 package org.sonar.api.utils.log;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
+
 import javax.annotation.Nullable;
 
 import java.util.ArrayList;
@@ -27,37 +30,51 @@ import java.util.List;
 class ListInterceptor extends LogInterceptor {
 
   private final List<String> logs = new ArrayList<>();
+  private final ListMultimap<LoggerLevel, String> logsByLevel = ArrayListMultimap.create();
 
   @Override
-  public void log(String msg) {
+  public void log(LoggerLevel level, String msg) {
     logs.add(msg);
+    logsByLevel.put(level, msg);
   }
 
   @Override
-  public void log(String msg, @Nullable Object arg) {
-    logs.add(ConsoleFormatter.format(msg, arg));
+  public void log(LoggerLevel level, String msg, @Nullable Object arg) {
+    String s = ConsoleFormatter.format(msg, arg);
+    logs.add(s);
+    logsByLevel.put(level, s);
   }
 
   @Override
-  public void log(String msg, @Nullable Object arg1, @Nullable Object arg2) {
-    logs.add(ConsoleFormatter.format(msg, arg1, arg2));
+  public void log(LoggerLevel level, String msg, @Nullable Object arg1, @Nullable Object arg2) {
+    String s = ConsoleFormatter.format(msg, arg1, arg2);
+    logs.add(s);
+    logsByLevel.put(level, s);
   }
 
   @Override
-  public void log(String msg, Object... args) {
-    logs.add(ConsoleFormatter.format(msg, args));
+  public void log(LoggerLevel level, String msg, Object... args) {
+    String s = ConsoleFormatter.format(msg, args);
+    logs.add(s);
+    logsByLevel.put(level, s);
   }
 
   @Override
-  public void log(String msg, Throwable thrown) {
+  public void log(LoggerLevel level, String msg, Throwable thrown) {
     logs.add(msg);
+    logsByLevel.put(level, msg);
   }
 
   public List<String> logs() {
     return logs;
   }
 
+  public List<String> logs(LoggerLevel level) {
+    return logsByLevel.get(level);
+  }
+
   public void clear() {
     logs.clear();
+    logsByLevel.clear();
   }
 }

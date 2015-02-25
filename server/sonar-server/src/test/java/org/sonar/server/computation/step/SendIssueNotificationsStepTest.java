@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.step;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -35,10 +36,12 @@ import org.sonar.server.issue.notification.IssueChangeNotification;
 import org.sonar.server.issue.notification.NewIssuesNotification;
 import org.sonar.server.notifications.NotificationService;
 
+import java.io.IOException;
+
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
-public class SendIssueNotificationsStepTest {
+public class SendIssueNotificationsStepTest extends BaseStepTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -46,32 +49,41 @@ public class SendIssueNotificationsStepTest {
   RuleCache ruleCache = mock(RuleCache.class);
   NotificationService notifService = mock(NotificationService.class);
   ComputationContext context = mock(ComputationContext.class, Mockito.RETURNS_DEEP_STUBS);
+  IssueCache issueCache;
+  SendIssueNotificationsStep sut;
+
+  @Before
+  public void setUp() throws Exception {
+    issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
+    sut = new SendIssueNotificationsStep(issueCache, ruleCache, notifService);
+  }
 
   @Test
   public void do_not_send_notifications_if_no_subscribers() throws Exception {
-    IssueCache issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
     when(context.getProject().uuid()).thenReturn("PROJECT_UUID");
     when(notifService.hasProjectSubscribersForTypes("PROJECT_UUID", SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(false);
 
-    SendIssueNotificationsStep step = new SendIssueNotificationsStep(issueCache, ruleCache, notifService);
-    step.execute(context);
+    sut.execute(context);
 
     verify(notifService, never()).deliver(any(Notification.class));
   }
 
   @Test
   public void send_notifications_if_subscribers() throws Exception {
-    IssueCache issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
     issueCache.newAppender().append(new DefaultIssue().setSeverity(Severity.BLOCKER)).close();
 
     when(context.getProject().uuid()).thenReturn("PROJECT_UUID");
     when(context.getReportMetadata()).thenReturn(BatchReport.Metadata.newBuilder().build());
     when(notifService.hasProjectSubscribersForTypes("PROJECT_UUID", SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(true);
 
-    SendIssueNotificationsStep step = new SendIssueNotificationsStep(issueCache, ruleCache, notifService);
-    step.execute(context);
+    sut.execute(context);
 
     verify(notifService).deliver(any(NewIssuesNotification.class));
     verify(notifService, atLeastOnce()).deliver(any(IssueChangeNotification.class));
+  }
+
+  @Override
+  protected ComputationStep step() throws IOException {
+    return sut;
   }
 }

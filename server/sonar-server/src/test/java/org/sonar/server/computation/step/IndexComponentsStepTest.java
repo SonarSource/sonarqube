@@ -20,10 +20,9 @@
 
 package org.sonar.server.computation.step;
 
-import org.junit.Before;
 import org.junit.Test;
+import org.sonar.batch.protocol.output.BatchOutputReader;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.server.computation.ComputationContext;
 
@@ -31,26 +30,24 @@ import java.io.IOException;
 
 import static org.mockito.Mockito.*;
 
-public class IndexComponentsStepTest {
+public class IndexComponentsStepTest extends BaseStepTest {
 
-  IndexComponentsStep sut;
-  ResourceIndexerDao resourceIndexerDao;
-
-  @Before
-  public void before() {
-    this.resourceIndexerDao = mock(ResourceIndexerDao.class);
-    this.sut = new IndexComponentsStep(resourceIndexerDao);
-  }
+  ResourceIndexerDao resourceIndexerDao = mock(ResourceIndexerDao.class);
+  IndexComponentsStep sut = new IndexComponentsStep(resourceIndexerDao);
 
   @Test
   public void call_indexProject_of_dao() throws IOException {
     ComponentDto project = mock(ComponentDto.class);
     when(project.getId()).thenReturn(123L);
-    ComputationContext context = new ComputationContext(mock(AnalysisReportDto.class), project);
+    ComputationContext context = new ComputationContext(mock(BatchOutputReader.class), project);
 
     sut.execute(context);
 
     verify(resourceIndexerDao).indexProject(123L);
   }
 
+  @Override
+  protected ComputationStep step() {
+    return sut;
+  }
 }

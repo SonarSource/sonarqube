@@ -42,10 +42,10 @@ import java.util.List;
  * }
  *
  * public class MyTest {
- *   &#064;Rule
+ *   &#064;org.junit.Rule
  *   public LogTester logTester = new LogTester();
  *
- *   &#064;Test
+ *   &#064;org.junit.Test
  *   public void test_log() {
  *     new MyClass().doSomething();
  *
@@ -93,6 +93,14 @@ public class LogTester extends ExternalResource {
    */
   public List<String> logs() {
     return ((ListInterceptor) LogInterceptors.get()).logs();
+  }
+
+  /**
+   * Logs in chronological order (item at index 0 is the oldest one) for
+   * a given level
+   */
+  public List<String> logs(LoggerLevel level) {
+    return ((ListInterceptor) LogInterceptors.get()).logs(level);
   }
 
   public LogTester clear() {

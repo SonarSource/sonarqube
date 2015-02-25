@@ -7,22 +7,32 @@
     ar.id,
     ar.project_key as projectKey,
     ar.report_status as status,
-    ar.snapshot_id as snapshotId,
+    ar.uuid as uuid,
     ar.created_at as createdAt,
     ar.updated_at as updatedAt,
     ar.started_at as startedAt,
     ar.finished_at as finishedAt
   </sql>
 
+  <insert id="insert" parameterType="AnalysisReport" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+    insert into analysis_reports
+    (project_key, uuid, report_status, created_at, updated_at, started_at, finished_at)
+    values (
+    #{projectKey,jdbcType=VARCHAR}, #{uuid,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR},
+    #{createdAt,jdbcType=BIGINT}, #{updatedAt,jdbcType=BIGINT}, #{startedAt,jdbcType=BIGINT},
+    #{finishedAt,jdbcType=BIGINT}
+    )
+  </insert>
+
   <update id="resetAllToPendingStatus" parameterType="map">
     update analysis_reports
-    set report_status='PENDING', updated_at=#{updatedAt}, started_at=NULL
+    set report_status='PENDING', updated_at=#{updatedAt,jdbcType=BIGINT}, started_at=NULL
   </update>
 
   <update id="updateWithBookingReport" parameterType="map">
     update analysis_reports
-    set report_status=#{busyStatus},
-    started_at=#{startedAt}
+    set report_status=#{busyStatus,jdbcType=VARCHAR},
+    started_at=#{startedAt,jdbcType=BIGINT}
     where id=#{id} and report_status=#{availableStatus}
   </update>
 

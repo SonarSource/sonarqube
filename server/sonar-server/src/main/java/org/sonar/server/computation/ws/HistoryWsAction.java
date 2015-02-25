@@ -42,21 +42,19 @@ public class HistoryWsAction implements ComputationWsAction, RequestHandler {
 
   public static final String PARAM_TYPE = "type";
 
-  public static final String SEARCH_ACTION = "history";
-
-  private final ActivityService logService;
+  private final ActivityService activityService;
   private final ActivityMapping mapping;
 
-  public HistoryWsAction(ActivityService logService, ActivityMapping mapping) {
-    this.logService = logService;
+  public HistoryWsAction(ActivityService activityService, ActivityMapping mapping) {
+    this.activityService = activityService;
     this.mapping = mapping;
   }
 
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller
-      .createAction(SEARCH_ACTION)
-      .setDescription("Search for activities")
+      .createAction("history")
+      .setDescription("Past integrations of analysis reports")
       .setSince("5.0")
       .setInternal(true)
       .setHandler(this);
@@ -70,13 +68,13 @@ public class HistoryWsAction implements ComputationWsAction, RequestHandler {
   public void handle(Request request, Response response) {
     checkUserRights();
 
-    ActivityQuery query = logService.newActivityQuery();
+    ActivityQuery query = activityService.newActivityQuery();
     query.setTypes(Arrays.asList(Activity.Type.ANALYSIS_REPORT));
 
     SearchOptions searchOptions = SearchOptions.create(request);
     QueryContext queryContext = mapping.newQueryOptions(searchOptions);
 
-    Result<Activity> results = logService.search(query, queryContext);
+    Result<Activity> results = activityService.search(query, queryContext);
 
     JsonWriter json = response.newJsonWriter().beginObject();
     searchOptions.writeStatistics(json, results);

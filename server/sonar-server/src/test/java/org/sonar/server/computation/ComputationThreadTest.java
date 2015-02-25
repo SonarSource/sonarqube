@@ -20,44 +20,81 @@
 
 package org.sonar.server.computation;
 
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.sonar.api.utils.log.LogTester;
 import org.sonar.core.computation.db.AnalysisReportDto;
 
+import java.io.IOException;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class ComputationThreadTest {
 
-  private ComputationThread sut;
-  private AnalysisReportQueue queue;
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
-  @Before
-  public void before() {
-    this.queue = mock(AnalysisReportQueue.class);
-    this.sut = new ComputationThread(queue);
-  }
+  @Rule
+  public LogTester logTester = new LogTester();
+
+  ComputationContainer container = mock(ComputationContainer.class);
+  ReportQueue queue = mock(ReportQueue.class);
+  ComputationThread sut = new ComputationThread(queue, container);
 
   @Test
-  public void call_findAndBook_and_no_call_to_analyze_if_no_report_found() {
+  public void do_nothing_if_queue_empty() {
+    when(queue.pop()).thenReturn(null);
+
     sut.run();
 
     verify(queue).pop();
+    verifyZeroInteractions(container);
   }
 
   @Test
-  public void call_findAndBook_and_then_analyze_if_there_is_a_report() {
+  public void pop_queue_and_integrate_report() throws IOException {
     AnalysisReportDto report = AnalysisReportDto.newForTests(1L);
-    when(queue.pop()).thenReturn(report);
+    ReportQueue.Item item = new ReportQueue.Item(report, temp.newFile());
+    when(queue.pop()).thenReturn(item);
 
     sut.run();
 
     verify(queue).pop();
+    verify(container).execute(item);
   }
 
   @Test
-  public void when_the_analysis_throws_an_exception_it_does_not_break_the_task() throws Exception {
+  public void handle_error_during_queue_pop() throws Exception {
     when(queue.pop()).thenThrow(new IllegalStateException());
 
     sut.run();
+
+    assertThat(logTester.logs()).contains("Failed to pop the queue of analysis reports");
+  }
+
+  @Test
+  public void handle_error_during_integration() throws Exception {
+    AnalysisReportDto report = AnalysisReportDto.newForTests(1L).setProjectKey("P1");
+    ReportQueue.Item item = new ReportQueue.Item(report, temp.newFile());
+    when(queue.pop()).thenReturn(item);
+    doThrow(new IllegalStateException("pb")).when(container).execute(item);
+
+    sut.run();
+
+    assertThat(logTester.logs()).contains("Failed to process analysis report 1 of project P1");
+  }
+
+  @Test
+  public void handle_error_during_removal_from_queue() throws Exception {
+    AnalysisReportDto report = AnalysisReportDto.newForTests(1L).setProjectKey("P1");
+    ReportQueue.Item item = new ReportQueue.Item(report, temp.newFile());
+    when(queue.pop()).thenReturn(item);
+    doThrow(new IllegalStateException("pb")).when(queue).remove(item);
+
+    sut.run();
+
+    assertThat(logTester.logs()).contains("Failed to remove analysis report 1 from queue");
   }
 }

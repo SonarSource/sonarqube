@@ -26,7 +26,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.computation.db.AnalysisReportDto;
-import org.sonar.server.computation.AnalysisReportQueue;
+import org.sonar.server.computation.ReportQueue;
 
 import java.util.List;
 
@@ -36,9 +36,9 @@ import static org.sonar.api.utils.DateUtils.longToDate;
  * @since 5.0
  */
 public class QueueWsAction implements ComputationWsAction, RequestHandler {
-  private final AnalysisReportQueue queue;
+  private final ReportQueue queue;
 
-  public QueueWsAction(AnalysisReportQueue queue) {
+  public QueueWsAction(ReportQueue queue) {
     this.queue = queue;
   }
 

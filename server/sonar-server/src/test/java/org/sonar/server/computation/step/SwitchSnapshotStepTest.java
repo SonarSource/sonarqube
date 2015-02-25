@@ -26,9 +26,8 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.core.computation.db.AnalysisReportDto;
+import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.persistence.DbTester;
-import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.SnapshotDao;
 import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.db.DbClient;
@@ -58,20 +57,13 @@ public class SwitchSnapshotStepTest {
   @Test
   public void one_switch_with_a_snapshot_and_his_children() throws IOException {
     db.prepareDbUnit(getClass(), "snapshots.xml");
-    ComputationContext context = new ComputationContext(AnalysisReportDto.newForTests(1L).setSnapshotId(1L),
-      ComponentTesting.newProjectDto());
+
+    BatchReport.Metadata metadata = BatchReport.Metadata.newBuilder()
+      .setSnapshotId(1L).build();
+    ComputationContext context = new ComputationContext(null, null, metadata);
 
     sut.execute(context);
 
     db.assertDbUnit(getClass(), "snapshots-result.xml", "snapshots");
-  }
-
-  @Test(expected = IllegalStateException.class)
-  public void throw_IllegalStateException_when_not_finding_snapshot() throws IOException {
-    db.prepareDbUnit(getClass(), "empty.xml");
-    ComputationContext context = new ComputationContext(AnalysisReportDto.newForTests(1L).setSnapshotId(1L),
-      ComponentTesting.newProjectDto());
-
-    sut.execute(context);
   }
 }

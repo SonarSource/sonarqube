@@ -23,8 +23,12 @@ package org.sonar.server.computation.ws;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.computation.AnalysisReportQueue;
+import org.sonar.core.computation.db.AnalysisReportDto;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.computation.ComputationThreadLauncher;
+import org.sonar.server.computation.ReportQueue;
+import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
 
 import java.io.InputStream;
@@ -34,16 +38,13 @@ import static org.mockito.Mockito.*;
 
 public class SubmitReportWsActionTest {
 
-  private static final String DEFAULT_PROJECT_KEY = "123456789-987654321";
-  private SubmitReportWsAction sut;
-
-  private WsTester wsTester;
-  private ComputationThreadLauncher workerLauncher = mock(ComputationThreadLauncher.class);
-  private AnalysisReportQueue queue;
+  ComputationThreadLauncher workerLauncher = mock(ComputationThreadLauncher.class);
+  ReportQueue queue = mock(ReportQueue.class);
+  WsTester wsTester;
+  SubmitReportWsAction sut;
 
   @Before
   public void before() {
-    queue = mock(AnalysisReportQueue.class);
     sut = new SubmitReportWsAction(queue, workerLauncher);
     wsTester = new WsTester(new ComputationWebService(sut));
   }
@@ -57,33 +58,36 @@ public class SubmitReportWsActionTest {
 
     WebService.Action action = context.controller("api/computation").action("submit_report");
     assertThat(action).isNotNull();
-    assertThat(action.params()).hasSize(3);
+    assertThat(action.params()).hasSize(2);
   }
 
   @Test
   public void add_element_to_queue_and_launch_analysis_task() throws Exception {
-    when(queue.add(any(String.class), anyLong(), any(InputStream.class))).thenReturn("P1");
+    MockUserSession.set().setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    AnalysisReportDto dto = mock(AnalysisReportDto.class);
+    when(dto.getId()).thenReturn(42L);
+    when(queue.add(any(String.class), any(InputStream.class))).thenReturn(new ReportQueue.Item(dto, null));
 
     WsTester.TestRequest request = wsTester
       .newGetRequest(ComputationWebService.API_ENDPOINT, "submit_report")
       .setParam(SubmitReportWsAction.PARAM_PROJECT_KEY, "P1")
-      .setParam(SubmitReportWsAction.PARAM_SNAPSHOT, "456")
+      .setParam(SubmitReportWsAction.PARAM_REPORT_DATA, null);
+    WsTester.Result response = request.execute();
+
+    verify(queue).add(eq("P1"), any(InputStream.class));
+    verify(workerLauncher).startAnalysisTaskNow();
+    assertThat(response.outputAsString()).isEqualTo("{\"key\":\"42\"}");
+  }
+
+  @Test(expected = ForbiddenException.class)
+  public void requires_scan_permission() throws Exception {
+    MockUserSession.set().setGlobalPermissions(GlobalPermissions.DASHBOARD_SHARING);
+
+    WsTester.TestRequest request = wsTester
+      .newGetRequest(ComputationWebService.API_ENDPOINT, "submit_report")
+      .setParam(SubmitReportWsAction.PARAM_PROJECT_KEY, "P1")
       .setParam(SubmitReportWsAction.PARAM_REPORT_DATA, null);
     request.execute();
 
-    verify(queue).add(eq("P1"), eq(456L), any(InputStream.class));
-    verify(workerLauncher).startAnalysisTaskNow();
-  }
-
-  @Test
-  public void return_report_key() throws Exception {
-    when(queue.add(any(String.class), anyLong(), any(InputStream.class))).thenReturn("P1");
-
-    WsTester.TestRequest request = wsTester
-      .newPostRequest(ComputationWebService.API_ENDPOINT, "submit_report")
-      .setParam(SubmitReportWsAction.PARAM_PROJECT_KEY, "P1")
-      .setParam(SubmitReportWsAction.PARAM_SNAPSHOT, "456")
-      .setParam(SubmitReportWsAction.PARAM_REPORT_DATA, null);
-    request.execute().assertJson(getClass(), "submit_report.json", false);
   }
 }

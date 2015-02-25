@@ -21,12 +21,16 @@
 package org.sonar.server.computation;
 
 import com.google.common.base.Throwables;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.TempFolder;
+import org.sonar.api.utils.ZipUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
+import org.sonar.batch.protocol.output.BatchOutputReader;
 import org.sonar.core.activity.Activity;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
@@ -37,6 +41,9 @@ import org.sonar.server.computation.step.ComputationStep;
 import org.sonar.server.computation.step.ComputationSteps;
 import org.sonar.server.db.DbClient;
 
+import java.io.File;
+import java.io.IOException;
+
 public class ComputationService implements ServerComponent {
 
   private static final Logger LOG = Loggers.get(ComputationService.class);
@@ -44,43 +51,64 @@ public class ComputationService implements ServerComponent {
   private final DbClient dbClient;
   private final ComputationSteps steps;
   private final ActivityService activityService;
+  private final TempFolder tempFolder;
 
-  public ComputationService(DbClient dbClient, ComputationSteps steps, ActivityService activityService) {
+  public ComputationService(DbClient dbClient, ComputationSteps steps, ActivityService activityService,
+    TempFolder tempFolder) {
     this.dbClient = dbClient;
     this.steps = steps;
     this.activityService = activityService;
+    this.tempFolder = tempFolder;
   }
 
-  public void process(AnalysisReportDto report) {
-    Profiler profiler = Profiler.create(LOG).startInfo(String.format(
-      "#%s - %s - processing analysis report", report.getId(), report.getProjectKey()));
+  public void process(ReportQueue.Item item) {
+    Profiler profiler = Profiler.create(LOG).startDebug(String.format(
+      "Analysis of project %s (report %d)", item.dto.getProjectKey(), item.dto.getId()));
 
-    ComponentDto project = loadProject(report);
+    ComponentDto project = loadProject(item);
     try {
-      ComputationContext context = new ComputationContext(report, project);
+      File reportDir = extractReportInDir(item);
+      BatchOutputReader reader = new BatchOutputReader(reportDir);
+      ComputationContext context = new ComputationContext(reader, project);
       for (ComputationStep step : steps.orderedSteps()) {
         if (ArrayUtils.contains(step.supportedProjectQualifiers(), context.getProject().qualifier())) {
-          Profiler stepProfiler = Profiler.create(LOG).startInfo(step.getDescription());
+          Profiler stepProfiler = Profiler.createIfDebug(LOG).startDebug(step.getDescription());
           step.execute(context);
-          stepProfiler.stopInfo();
+          stepProfiler.stopDebug();
         }
       }
-      report.succeed();
+      item.dto.succeed();
 
     } catch (Exception e) {
-      report.fail();
+      item.dto.fail();
       throw Throwables.propagate(e);
 
     } finally {
-      logActivity(report, project);
+      logActivity(item.dto, project);
       profiler.stopInfo();
     }
   }
 
-  private ComponentDto loadProject(AnalysisReportDto report) {
+  private File extractReportInDir(ReportQueue.Item item) {
+    File dir = tempFolder.newDir();
+    try {
+      Profiler profiler = Profiler.createIfDebug(LOG).start();
+      ZipUtils.unzip(item.zipFile, dir);
+      if (profiler.isDebugEnabled()) {
+        String message = String.format("Report extracted | size=%s | project=%s",
+          FileUtils.byteCountToDisplaySize(FileUtils.sizeOf(dir)), item.dto.getProjectKey());
+        profiler.stopDebug(message);
+      }
+      return dir;
+    } catch (IOException e) {
+      throw new IllegalStateException(String.format("Fail to unzip %s into %s", item.zipFile, dir), e);
+    }
+  }
+
+  private ComponentDto loadProject(ReportQueue.Item queueItem) {
     DbSession session = dbClient.openSession(false);
     try {
-      return dbClient.componentDao().getByKey(session, report.getProjectKey());
+      return dbClient.componentDao().getByKey(session, queueItem.dto.getProjectKey());
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -90,7 +118,7 @@ public class ComputationService implements ServerComponent {
     DbSession session = dbClient.openSession(false);
     try {
       report.setFinishedAt(System2.INSTANCE.now());
-      activityService.write(session, Activity.Type.ANALYSIS_REPORT, new AnalysisReportLog(report, project));
+      activityService.write(session, Activity.Type.ANALYSIS_REPORT, new ReportActivity(report, project));
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);

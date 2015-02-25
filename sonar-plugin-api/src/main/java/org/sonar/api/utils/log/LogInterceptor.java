@@ -23,13 +23,13 @@ import javax.annotation.Nullable;
 
 abstract class LogInterceptor {
 
-  abstract void log(String msg);
+  abstract void log(LoggerLevel level, String msg);
 
-  abstract void log(String msg, @Nullable Object arg);
+  abstract void log(LoggerLevel level, String msg, @Nullable Object arg);
 
-  abstract void log(String msg, @Nullable Object arg1, @Nullable Object arg2);
+  abstract void log(LoggerLevel level, String msg, @Nullable Object arg1, @Nullable Object arg2);
 
-  abstract void log(String msg, Object... args);
+  abstract void log(LoggerLevel level, String msg, Object... args);
 
-  abstract void log(String msg, Throwable thrown);
+  abstract void log(LoggerLevel level, String msg, Throwable thrown);
 }
