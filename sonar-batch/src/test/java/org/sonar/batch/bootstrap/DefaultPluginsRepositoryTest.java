@@ -36,7 +36,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class DefaultPluginsReferentialTest {
+public class DefaultPluginsRepositoryTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -49,7 +49,7 @@ public class DefaultPluginsReferentialTest {
     FileCache cache = mock(FileCache.class);
     ServerClient server = mock(ServerClient.class);
     when(server.request("/deploy/plugins/index.txt")).thenReturn("checkstyle,true\nsqale,false");
-    DefaultPluginsReferential downloader = new DefaultPluginsReferential(cache, server);
+    DefaultPluginsRepository downloader = new DefaultPluginsRepository(cache, server);
 
     List<RemotePlugin> plugins = downloader.pluginList();
     assertThat(plugins).hasSize(2);
@@ -67,7 +67,7 @@ public class DefaultPluginsReferentialTest {
     when(cache.get(eq("checkstyle-plugin.jar"), eq("fakemd5_1"), any(FileCache.Downloader.class))).thenReturn(pluginJar);
 
     ServerClient server = mock(ServerClient.class);
-    DefaultPluginsReferential downloader = new DefaultPluginsReferential(cache, server);
+    DefaultPluginsRepository downloader = new DefaultPluginsRepository(cache, server);
 
     RemotePlugin plugin = new RemotePlugin("checkstyle", true)
       .setFile("checkstyle-plugin.jar", "fakemd5_1");
@@ -83,6 +83,6 @@ public class DefaultPluginsReferentialTest {
     ServerClient server = mock(ServerClient.class);
     doThrow(new IllegalStateException()).when(server).request("/deploy/plugins/index.txt");
 
-    new DefaultPluginsReferential(mock(FileCache.class), server).pluginList();
+    new DefaultPluginsRepository(mock(FileCache.class), server).pluginList();
   }
 }

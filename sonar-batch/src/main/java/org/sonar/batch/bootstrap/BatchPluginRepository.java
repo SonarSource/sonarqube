@@ -37,11 +37,7 @@ import org.sonar.core.plugins.RemotePlugin;
 
 import java.io.File;
 import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
@@ -132,6 +128,7 @@ public class BatchPluginRepository implements PluginRepository {
   }
 
   static class PluginFilter {
+    private static final String BUILDBREAKER_PLUGIN_KEY = "buildbreaker";
     private static final String PROPERTY_IS_DEPRECATED_MSG = "Property {0} is deprecated. Please use {1} instead.";
     Set<String> whites = newHashSet(), blacks = newHashSet();
     private DefaultAnalysisMode mode;
@@ -180,6 +177,11 @@ public class BatchPluginRepository implements PluginRepository {
     boolean accepts(String pluginKey) {
       if (CORE_PLUGIN.equals(pluginKey)) {
         return !mode.isMediumTest();
+      }
+
+      if (BUILDBREAKER_PLUGIN_KEY.equals(pluginKey) && mode.isPreview()) {
+        LOG.info("Build Breaker plugin is no more supported in preview/incremental mode");
+        return false;
       }
 
       List<String> mergeList = newArrayList(blacks);

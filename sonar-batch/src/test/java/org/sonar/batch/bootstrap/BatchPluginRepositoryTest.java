@@ -53,6 +53,7 @@ public class BatchPluginRepositoryTest {
   @Before
   public void before() throws IOException {
     mode = mock(DefaultAnalysisMode.class);
+    when(mode.isPreview()).thenReturn(false);
     userHome = temp.newFolder();
     cache = new FileCacheBuilder().setUserHome(userHome).build();
   }
@@ -68,7 +69,7 @@ public class BatchPluginRepositoryTest {
   public void shouldLoadPlugin() throws Exception {
     RemotePlugin checkstyle = new RemotePlugin("checkstyle", true);
 
-    DefaultPluginsReferential downloader = mock(DefaultPluginsReferential.class);
+    DefaultPluginsRepository downloader = mock(DefaultPluginsRepository.class);
     when(downloader.pluginFile(checkstyle)).thenReturn(fileFromCache("sonar-checkstyle-plugin-2.8.jar"));
 
     repository = new BatchPluginRepository(downloader, new Settings(), mode, new BatchPluginJarInstaller(cache));
@@ -86,7 +87,7 @@ public class BatchPluginRepositoryTest {
     RemotePlugin checkstyle = new RemotePlugin("checkstyle", true);
     RemotePlugin checkstyleExt = new RemotePlugin("checkstyleextensions", false);
 
-    DefaultPluginsReferential downloader = mock(DefaultPluginsReferential.class);
+    DefaultPluginsRepository downloader = mock(DefaultPluginsRepository.class);
     when(downloader.pluginFile(checkstyle)).thenReturn(fileFromCache("sonar-checkstyle-plugin-2.8.jar"));
     when(downloader.pluginFile(checkstyleExt)).thenReturn(fileFromCache("sonar-checkstyle-extensions-plugin-0.1-SNAPSHOT.jar"));
 
@@ -106,7 +107,7 @@ public class BatchPluginRepositoryTest {
     RemotePlugin checkstyle = new RemotePlugin("checkstyle", true);
     RemotePlugin checkstyleExt = new RemotePlugin("checkstyleextensions", false);
 
-    DefaultPluginsReferential downloader = mock(DefaultPluginsReferential.class);
+    DefaultPluginsRepository downloader = mock(DefaultPluginsRepository.class);
     when(downloader.pluginFile(checkstyle)).thenReturn(fileFromCache("sonar-checkstyle-plugin-2.8.jar"));
     when(downloader.pluginFile(checkstyleExt)).thenReturn(fileFromCache("sonar-checkstyle-extensions-plugin-0.1-SNAPSHOT.jar"));
 
@@ -131,6 +132,14 @@ public class BatchPluginRepositoryTest {
   public void shouldAlwaysAcceptIfNoWhiteListAndBlackList() {
     BatchPluginRepository.PluginFilter filter = new BatchPluginRepository.PluginFilter(new Settings(), mode);
     assertThat(filter.accepts("pmd")).isTrue();
+    assertThat(filter.accepts("buildbreaker")).isTrue();
+  }
+
+  @Test
+  public void shouldBlackListBuildBreakerInPreviewMode() {
+    when(mode.isPreview()).thenReturn(true);
+    BatchPluginRepository.PluginFilter filter = new BatchPluginRepository.PluginFilter(new Settings(), mode);
+    assertThat(filter.accepts("buildbreaker")).isFalse();
   }
 
   @Test

@@ -39,14 +39,14 @@ import java.util.Map;
 /**
  * A {@link PluginsRepository} implementation that put downloaded plugins in a FS cache.
  */
-public class DefaultPluginsReferential implements PluginsRepository {
+public class DefaultPluginsRepository implements PluginsRepository {
 
-  private static final Logger LOG = LoggerFactory.getLogger(DefaultPluginsReferential.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultPluginsRepository.class);
 
   private ServerClient server;
   private FileCache fileCache;
 
-  public DefaultPluginsReferential(FileCache fileCache, ServerClient server) {
+  public DefaultPluginsRepository(FileCache fileCache, ServerClient server) {
     this.server = server;
     this.fileCache = fileCache;
   }
