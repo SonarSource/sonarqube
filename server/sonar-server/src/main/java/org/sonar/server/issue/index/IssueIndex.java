@@ -683,9 +683,10 @@ public class IssueIndex extends BaseIndex {
   }
 
   /**
-   * Return non closed issue for a given project, module, or file. Other kind of components are not allowed.
+   * Return non closed issues for a given project, module, or file. Other kind of components are not allowed.
+   * Only fields needed for the batch are returned.
    */
-  public Iterator<IssueDoc> searchNonClosedIssuesByComponent(ComponentDto component) {
+  public Iterator<IssueDoc> selectIssuesForBatch(ComponentDto component) {
     BoolFilterBuilder filter = FilterBuilders.boolFilter()
       .must(createAuthorizationFilter(true, UserSession.get().login(), UserSession.get().userGroups()))
       .mustNot(FilterBuilders.termsFilter(IssueIndexDefinition.FIELD_ISSUE_STATUS, Issue.STATUS_CLOSED));
@@ -706,7 +707,14 @@ public class IssueIndex extends BaseIndex {
       .setTypes(IssueIndexDefinition.TYPE_ISSUE)
       .setSearchType(SearchType.SCAN)
       .setScroll(TimeValue.timeValueMinutes(SCROLL_TIME_IN_MINUTES))
-      .setSize(100)
+      .setSize(1000)
+      .setFetchSource(
+        new String[] {IssueIndexDefinition.FIELD_ISSUE_KEY, IssueIndexDefinition.FIELD_ISSUE_RULE_KEY, IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID,
+          IssueIndexDefinition.FIELD_ISSUE_FILE_PATH, IssueIndexDefinition.FIELD_ISSUE_SEVERITY, IssueIndexDefinition.FIELD_ISSUE_MANUAL_SEVERITY,
+          IssueIndexDefinition.FIELD_ISSUE_RESOLUTION, IssueIndexDefinition.FIELD_ISSUE_STATUS, IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE,
+          IssueIndexDefinition.FIELD_ISSUE_LINE, IssueIndexDefinition.FIELD_ISSUE_MESSAGE, IssueIndexDefinition.FIELD_ISSUE_CHECKSUM,
+          IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT},
+        null)
       .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), filter));
     SearchResponse response = requestBuilder.get();
 

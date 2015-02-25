@@ -79,7 +79,9 @@ public class IssueTesting {
     doc.setStatus(Issue.STATUS_OPEN);
     doc.setResolution(null);
     doc.setSeverity(Severity.MAJOR);
+    doc.setManualSeverity(true);
     doc.setDebt(10L);
+    doc.setChecksum("12345");
     doc.setFuncCreationDate(DateUtils.parseDate("2014-09-04"));
     doc.setFuncUpdateDate(DateUtils.parseDate("2014-12-04"));
     doc.setFuncCloseDate(null);

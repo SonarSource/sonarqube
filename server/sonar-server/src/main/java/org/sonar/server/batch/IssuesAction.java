@@ -83,7 +83,7 @@ public class IssuesAction implements RequestHandler {
       Map<String, String> keysByUUid = keysByUUid(session, component);
 
       BatchInput.ServerIssue.Builder issueBuilder = BatchInput.ServerIssue.newBuilder();
-      for (Iterator<IssueDoc> issueDocIterator = issueIndex.searchNonClosedIssuesByComponent(component); issueDocIterator.hasNext();) {
+      for (Iterator<IssueDoc> issueDocIterator = issueIndex.selectIssuesForBatch(component); issueDocIterator.hasNext();) {
         handleIssue(issueDocIterator.next(), issueBuilder, keysByUUid, response.stream().output());
       }
     } finally {

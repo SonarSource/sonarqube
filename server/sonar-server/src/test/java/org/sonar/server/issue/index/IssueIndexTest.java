@@ -1208,7 +1208,43 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void search_non_closed_issues_by_component() throws Exception {
+  public void search_issues_for_batch_return_needed_fields() throws Exception {
+    ComponentDto project = ComponentTesting.newProjectDto("PROJECT");
+    ComponentDto file = ComponentTesting.newFileDto(project).setPath("src/File.xoo");
+
+    IssueDoc issue = IssueTesting.newDoc("ISSUE", file)
+      .setRuleKey("squid:S001")
+      .setChecksum("12345")
+      .setAssignee("john")
+      .setLine(11)
+      .setMessage("the message")
+      .setSeverity(Severity.BLOCKER)
+      .setManualSeverity(true)
+      .setStatus(Issue.STATUS_RESOLVED)
+      .setResolution(Issue.RESOLUTION_FIXED)
+      .setFuncCreationDate(new Date());
+    indexIssues(issue);
+
+    List<IssueDoc> issues = Lists.newArrayList(index.selectIssuesForBatch(file));
+    assertThat(issues).hasSize(1);
+    IssueDoc result = issues.get(0);
+    assertThat(result.key()).isEqualTo("ISSUE");
+    assertThat(result.moduleUuid()).isEqualTo("PROJECT");
+    assertThat(result.filePath()).isEqualTo("src/File.xoo");
+    assertThat(result.ruleKey()).isEqualTo(RuleKey.of("squid", "S001"));
+    assertThat(result.checksum()).isEqualTo("12345");
+    assertThat(result.assignee()).isEqualTo("john");
+    assertThat(result.line()).isEqualTo(11);
+    assertThat(result.message()).isEqualTo("the message");
+    assertThat(result.severity()).isEqualTo(Severity.BLOCKER);
+    assertThat(result.isManualSeverity()).isTrue();
+    assertThat(result.status()).isEqualTo(Issue.STATUS_RESOLVED);
+    assertThat(result.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
+    assertThat(result.creationDate()).isNotNull();
+  }
+
+  @Test
+  public void search_issues_for_batch() throws Exception {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto module = ComponentTesting.newModuleDto(project);
     ComponentDto subModule = ComponentTesting.newModuleDto(module);
@@ -1221,17 +1257,17 @@ public class IssueIndexTest {
       // Close Issue, should never be returned
       IssueTesting.newDoc("CLOSE_ISSUE", file).setStatus(Issue.STATUS_CLOSED).setResolution(Issue.RESOLUTION_FIXED));
 
-    assertThat(Lists.newArrayList(index.searchNonClosedIssuesByComponent(project))).hasSize(3);
-    assertThat(Lists.newArrayList(index.searchNonClosedIssuesByComponent(module))).hasSize(3);
-    assertThat(Lists.newArrayList(index.searchNonClosedIssuesByComponent(subModule))).hasSize(2);
-    assertThat(Lists.newArrayList(index.searchNonClosedIssuesByComponent(file))).hasSize(1);
-    assertThat(Lists.newArrayList(index.searchNonClosedIssuesByComponent(ComponentTesting.newProjectDto()))).isEmpty();
+    assertThat(Lists.newArrayList(index.selectIssuesForBatch(project))).hasSize(3);
+    assertThat(Lists.newArrayList(index.selectIssuesForBatch(module))).hasSize(3);
+    assertThat(Lists.newArrayList(index.selectIssuesForBatch(subModule))).hasSize(2);
+    assertThat(Lists.newArrayList(index.selectIssuesForBatch(file))).hasSize(1);
+    assertThat(Lists.newArrayList(index.selectIssuesForBatch(ComponentTesting.newProjectDto()))).isEmpty();
   }
 
   @Test
-  public void fail_to_search_non_closed_issues_on_not_allowed_scope() throws Exception {
+  public void fail_to_search_issues_for_batch_on_not_allowed_scope() throws Exception {
     try {
-      index.searchNonClosedIssuesByComponent(new ComponentDto().setScope(Scopes.DIRECTORY));
+      index.selectIssuesForBatch(new ComponentDto().setScope(Scopes.DIRECTORY));
       failBecauseExceptionWasNotThrown(IllegalStateException.class);
     } catch (IllegalStateException e) {
       assertThat(e).hasMessage("Component of scope 'DIR' is not allowed");
@@ -1239,7 +1275,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void search_non_closed_issues_by_component_return_only_authorized_issues() throws Exception {
+  public void search_issues_for_batch_return_only_authorized_issues() throws Exception {
     ComponentDto project1 = ComponentTesting.newProjectDto().setKey("project1");
     ComponentDto project2 = ComponentTesting.newProjectDto().setKey("project2");
 
@@ -1252,10 +1288,10 @@ public class IssueIndexTest {
     indexIssue(IssueTesting.newDoc("ISSUE3", file2), null, null);
 
     MockUserSession.set().setUserGroups("sonar-users");
-    assertThat(Lists.newArrayList(index.searchNonClosedIssuesByComponent(project1))).hasSize(1);
+    assertThat(Lists.newArrayList(index.selectIssuesForBatch(project1))).hasSize(1);
 
     MockUserSession.set().setUserGroups("another group");
-    assertThat(Lists.newArrayList(index.searchNonClosedIssuesByComponent(project2))).isEmpty();
+    assertThat(Lists.newArrayList(index.selectIssuesForBatch(project2))).isEmpty();
   }
 
   private void indexIssues(IssueDoc... issues) {
