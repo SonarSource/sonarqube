@@ -44,6 +44,8 @@ import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 
+import javax.annotation.CheckForNull;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -111,21 +113,11 @@ public class LocalIssueTracking implements BatchComponent {
     }
 
     // all the issues that are not closed in db before starting this module scan, including manual issues
-    Collection<ServerIssue> previousIssues = new ArrayList<>();
-    for (org.sonar.batch.protocol.input.BatchInput.ServerIssue previousIssue : serverIssueRepository.byComponent(component)) {
-      previousIssues.add(new ServerIssueFromWs(previousIssue));
-    }
+    Collection<ServerIssue> serverIssues = loadServerIssues(component);
 
-    SourceHashHolder sourceHashHolder = null;
-    if (component.isFile()) {
-      DefaultInputFile file = (DefaultInputFile) inputPathCache.getInputPath(component);
-      if (file == null) {
-        throw new IllegalStateException("Resource " + component.resource() + " was not found in InputPath cache");
-      }
-      sourceHashHolder = new SourceHashHolder((DefaultInputFile) file, lastLineHashes);
-    }
+    SourceHashHolder sourceHashHolder = loadSourceHashes(component);
 
-    IssueTrackingResult trackingResult = tracking.track(sourceHashHolder, previousIssues, issues);
+    IssueTrackingResult trackingResult = tracking.track(sourceHashHolder, serverIssues, issues);
 
     // unmatched = issues that have been resolved + issues on disabled/removed rules + manual issues
     addUnmatched(trackingResult.unmatched(), sourceHashHolder, issues);
@@ -141,6 +133,27 @@ public class LocalIssueTracking implements BatchComponent {
       workflow.doAutomaticTransition(issue, changeContext);
       issueCache.put(issue);
     }
+  }
+
+  @CheckForNull
+  private SourceHashHolder loadSourceHashes(BatchResource component) {
+    SourceHashHolder sourceHashHolder = null;
+    if (component.isFile()) {
+      DefaultInputFile file = (DefaultInputFile) inputPathCache.getInputPath(component);
+      if (file == null) {
+        throw new IllegalStateException("Resource " + component.resource() + " was not found in InputPath cache");
+      }
+      sourceHashHolder = new SourceHashHolder((DefaultInputFile) file, lastLineHashes);
+    }
+    return sourceHashHolder;
+  }
+
+  private Collection<ServerIssue> loadServerIssues(BatchResource component) {
+    Collection<ServerIssue> serverIssues = new ArrayList<>();
+    for (org.sonar.batch.protocol.input.BatchInput.ServerIssue previousIssue : serverIssueRepository.byComponent(component)) {
+      serverIssues.add(new ServerIssueFromWs(previousIssue));
+    }
+    return serverIssues;
   }
 
   @VisibleForTesting

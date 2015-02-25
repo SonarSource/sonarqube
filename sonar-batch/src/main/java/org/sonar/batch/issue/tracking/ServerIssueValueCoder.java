@@ -22,7 +22,6 @@ package org.sonar.batch.issue.tracking;
 import com.persistit.Value;
 import com.persistit.encoding.CoderContext;
 import com.persistit.encoding.ValueCoder;
-import com.persistit.exception.ConversionException;
 import org.sonar.batch.protocol.input.BatchInput.ServerIssue;
 
 import java.io.IOException;
@@ -30,13 +29,13 @@ import java.io.IOException;
 public class ServerIssueValueCoder implements ValueCoder {
 
   @Override
-  public void put(Value value, Object object, CoderContext context) throws ConversionException {
+  public void put(Value value, Object object, CoderContext context) {
     ServerIssue issue = (ServerIssue) object;
     value.putByteArray(issue.toByteArray());
   }
 
   @Override
-  public Object get(Value value, Class<?> clazz, CoderContext context) throws ConversionException {
+  public Object get(Value value, Class<?> clazz, CoderContext context) {
     try {
       return ServerIssue.parseFrom(value.getByteArray());
     } catch (IOException e) {
