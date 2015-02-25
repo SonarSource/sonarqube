@@ -49,11 +49,11 @@ public class InitialOpenIssuesStack implements BatchExtension {
     return this;
   }
 
-  public List<PreviousIssue> selectAndRemoveIssues(String componentKey) {
+  public List<ServerIssue> selectAndRemoveIssues(String componentKey) {
     Iterable<IssueDto> issues = issuesCache.values(componentKey);
-    List<PreviousIssue> result = newArrayList();
+    List<ServerIssue> result = newArrayList();
     for (IssueDto issue : issues) {
-      result.add(new PreviousIssueFromDb(issue));
+      result.add(new ServerIssueFromDb(issue));
     }
     issuesCache.clear(componentKey);
     return result;

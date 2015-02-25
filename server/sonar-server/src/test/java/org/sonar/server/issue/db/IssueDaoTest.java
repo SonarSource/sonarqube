@@ -19,16 +19,12 @@
  */
 package org.sonar.server.issue.db;
 
-import org.apache.ibatis.executor.result.DefaultResultHandler;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.issue.db.BatchIssueDto;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
@@ -132,66 +128,6 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(issue.getRule()).isEqualTo("AvoidCycle");
     assertThat(issue.getComponentKey()).isEqualTo("Action.java");
     assertThat(issue.getProjectKey()).isEqualTo("struts");
-  }
-
-  @Test
-  public void select_non_closed_issues_by_module_uuid() {
-    setupData("shared", "select_non_closed_issues_by_module_uuid");
-
-    // BCDE is a non-root module, we should find 2 issues from classes and one on itself
-    DefaultResultHandler handler = new DefaultResultHandler();
-    sut.selectNonClosedIssuesByModuleUuid(session, "BCDE", handler);
-    assertThat(handler.getResultList()).extracting("key").containsOnly("100", "101", "103");
-
-    // DBCA is a a simple project with a single file
-    handler = new DefaultResultHandler();
-    sut.selectNonClosedIssuesByModuleUuid(session, "DBCA", handler);
-    assertThat(handler.getResultList()).hasSize(1);
-
-    BatchIssueDto batchIssueDto = (BatchIssueDto) handler.getResultList().get(0);
-    assertThat(batchIssueDto.getKey()).isEqualTo("1000");
-    assertThat(batchIssueDto.getRuleKey()).isEqualTo("AvoidCycle");
-    assertThat(batchIssueDto.getRuleRepo()).isEqualTo("squid");
-    assertThat(batchIssueDto.getMessage()).isEqualTo("Avoid this");
-    assertThat(batchIssueDto.getLine()).isEqualTo(200);
-    assertThat(batchIssueDto.getResolution()).isEqualTo(Issue.RESOLUTION_FALSE_POSITIVE);
-    assertThat(batchIssueDto.getStatus()).isEqualTo(Issue.STATUS_RESOLVED);
-    assertThat(batchIssueDto.getSeverity()).isEqualTo(Severity.BLOCKER);
-    assertThat(batchIssueDto.isManualSeverity()).isTrue();
-    assertThat(batchIssueDto.getComponentKey()).isEqualTo("Sample.java");
-    assertThat(batchIssueDto.getChecksum()).isEqualTo("123456");
-    assertThat(batchIssueDto.getAssigneeLogin()).isEqualTo("john");
-    assertThat(batchIssueDto.getCreationDate()).isNotNull();
-  }
-
-  @Test
-  public void select_non_closed_issues_by_project_uuid() {
-    setupData("shared", "select_non_closed_issues_by_project_uuid");
-
-    // ABCD is the root module, we should find all 4 issues
-    DefaultResultHandler handler = new DefaultResultHandler();
-    sut.selectNonClosedIssuesByProjectUuid(session, "ABCD", handler);
-    assertThat(handler.getResultList()).hasSize(4);
-
-    // DBCA is a a simple project with a single file
-    handler = new DefaultResultHandler();
-    sut.selectNonClosedIssuesByProjectUuid(session, "DBCA", handler);
-    assertThat(handler.getResultList()).hasSize(1);
-
-    BatchIssueDto batchIssueDto = (BatchIssueDto) handler.getResultList().get(0);
-    assertThat(batchIssueDto.getKey()).isEqualTo("1000");
-    assertThat(batchIssueDto.getRuleKey()).isEqualTo("AvoidCycle");
-    assertThat(batchIssueDto.getRuleRepo()).isEqualTo("squid");
-    assertThat(batchIssueDto.getMessage()).isEqualTo("Avoid this");
-    assertThat(batchIssueDto.getLine()).isEqualTo(200);
-    assertThat(batchIssueDto.getResolution()).isEqualTo(Issue.RESOLUTION_FALSE_POSITIVE);
-    assertThat(batchIssueDto.getStatus()).isEqualTo(Issue.STATUS_RESOLVED);
-    assertThat(batchIssueDto.getSeverity()).isEqualTo(Severity.BLOCKER);
-    assertThat(batchIssueDto.isManualSeverity()).isTrue();
-    assertThat(batchIssueDto.getComponentKey()).isEqualTo("Sample.java");
-    assertThat(batchIssueDto.getChecksum()).isEqualTo("123456");
-    assertThat(batchIssueDto.getAssigneeLogin()).isEqualTo("john");
-    assertThat(batchIssueDto.getCreationDate()).isNotNull();
   }
 
   @Test

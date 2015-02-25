@@ -20,6 +20,7 @@
 package org.sonar.server.issue.index;
 
 import com.google.common.collect.Maps;
+import org.apache.commons.lang.BooleanUtils;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
 import org.sonar.api.rule.RuleKey;
@@ -90,6 +91,14 @@ public class IssueDoc extends BaseDoc implements Issue {
   @Override
   public String severity() {
     return getField(IssueIndexDefinition.FIELD_ISSUE_SEVERITY);
+  }
+
+  public boolean isManualSeverity() {
+    return BooleanUtils.isTrue((Boolean) getField(IssueIndexDefinition.FIELD_ISSUE_MANUAL_SEVERITY));
+  }
+
+  public String checksum() {
+    return getField(IssueIndexDefinition.FIELD_ISSUE_CHECKSUM);
   }
 
   @Override
@@ -246,8 +255,18 @@ public class IssueDoc extends BaseDoc implements Issue {
     return this;
   }
 
+  public IssueDoc setManualSeverity(boolean b) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_MANUAL_SEVERITY, b);
+    return this;
+  }
+
   public IssueDoc setMessage(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_MESSAGE, s);
+    return this;
+  }
+
+  public IssueDoc setChecksum(@Nullable String s) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_CHECKSUM, s);
     return this;
   }
 

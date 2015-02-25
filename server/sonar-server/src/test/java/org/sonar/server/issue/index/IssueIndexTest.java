@@ -21,12 +21,14 @@ package org.sonar.server.issue.index;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
 import org.assertj.core.api.Fail;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.security.DefaultGroups;
@@ -51,8 +53,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
+import static org.assertj.core.api.Assertions.*;
 
 public class IssueIndexTest {
 
@@ -181,16 +182,15 @@ public class IssueIndexTest {
       IssueTesting.newDoc("ISSUE5", subModule),
       IssueTesting.newDoc("ISSUE2", file));
 
-    assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid()))
-      .moduleUuids(newArrayList(file.uuid())).build(), new SearchOptions()).getDocs()).isEmpty();
-    assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid()))
-      .moduleUuids(newArrayList(module.uuid())).build(), new SearchOptions()).getDocs()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid()))
-      .moduleUuids(newArrayList(subModule.uuid())).build(), new SearchOptions()).getDocs()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid()))
-      .moduleUuids(newArrayList(project.uuid())).build(), new SearchOptions()).getDocs()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid()))
-      .moduleUuids(newArrayList("unknown")).build(), new SearchOptions()).getDocs()).isEmpty();
+    assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(file.uuid())).build(), new SearchOptions()).getDocs())
+      .isEmpty();
+    assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(module.uuid())).build(), new SearchOptions()).getDocs())
+      .hasSize(1);
+    assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(subModule.uuid())).build(), new SearchOptions()).getDocs())
+      .hasSize(2);
+    assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(project.uuid())).build(), new SearchOptions()).getDocs())
+      .isEmpty();
+    assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList("unknown")).build(), new SearchOptions()).getDocs()).isEmpty();
   }
 
   @Test
@@ -251,7 +251,7 @@ public class IssueIndexTest {
     assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).build(), new SearchOptions()).getDocs()).hasSize(6);
     assertThat(index.search(IssueQuery.builder().viewUuids(newArrayList(view)).build(), new SearchOptions()).getDocs()).hasSize(6);
     assertThat(index.search(IssueQuery.builder().moduleUuids(newArrayList(module.uuid())).build(), new SearchOptions()).getDocs()).hasSize(2);
-    assertThat(index.search(IssueQuery.builder().moduleUuids(newArrayList(subModule.uuid())).build(), new SearchOptions()).getDocs()).hasSize(1); // XXX
+    assertThat(index.search(IssueQuery.builder().moduleUuids(newArrayList(subModule.uuid())).build(), new SearchOptions()).getDocs()).hasSize(2); // XXX
     // Misleading
     // !
     assertThat(index.search(IssueQuery.builder().fileUuids(newArrayList(file1.uuid())).build(), new SearchOptions()).getDocs()).hasSize(1);
@@ -1143,9 +1143,8 @@ public class IssueIndexTest {
     indexIssue(IssueTesting.newDoc("ISSUE1", file1), "sonar-users", "john");
     indexIssue(IssueTesting.newDoc("ISSUE2", file2), null, "max");
 
-    IssueQuery.Builder query = IssueQuery.builder();
     MockUserSession.set().setLogin("john").setUserGroups("sonar-users");
-    assertThat(index.search(query.build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().build(), new SearchOptions()).getDocs()).hasSize(1);
   }
 
   @Test
@@ -1206,6 +1205,93 @@ public class IssueIndexTest {
 
     assertThat(index.countAll()).isEqualTo(2);
     assertThat(dates).containsOnly(null, today);
+  }
+
+  @Test
+  public void search_issues_for_batch_return_needed_fields() throws Exception {
+    ComponentDto project = ComponentTesting.newProjectDto("PROJECT");
+    ComponentDto file = ComponentTesting.newFileDto(project).setPath("src/File.xoo");
+
+    IssueDoc issue = IssueTesting.newDoc("ISSUE", file)
+      .setRuleKey("squid:S001")
+      .setChecksum("12345")
+      .setAssignee("john")
+      .setLine(11)
+      .setMessage("the message")
+      .setSeverity(Severity.BLOCKER)
+      .setManualSeverity(true)
+      .setStatus(Issue.STATUS_RESOLVED)
+      .setResolution(Issue.RESOLUTION_FIXED)
+      .setFuncCreationDate(new Date());
+    indexIssues(issue);
+
+    List<IssueDoc> issues = Lists.newArrayList(index.selectIssuesForBatch(file));
+    assertThat(issues).hasSize(1);
+    IssueDoc result = issues.get(0);
+    assertThat(result.key()).isEqualTo("ISSUE");
+    assertThat(result.moduleUuid()).isEqualTo("PROJECT");
+    assertThat(result.filePath()).isEqualTo("src/File.xoo");
+    assertThat(result.ruleKey()).isEqualTo(RuleKey.of("squid", "S001"));
+    assertThat(result.checksum()).isEqualTo("12345");
+    assertThat(result.assignee()).isEqualTo("john");
+    assertThat(result.line()).isEqualTo(11);
+    assertThat(result.message()).isEqualTo("the message");
+    assertThat(result.severity()).isEqualTo(Severity.BLOCKER);
+    assertThat(result.isManualSeverity()).isTrue();
+    assertThat(result.status()).isEqualTo(Issue.STATUS_RESOLVED);
+    assertThat(result.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
+    assertThat(result.creationDate()).isNotNull();
+  }
+
+  @Test
+  public void search_issues_for_batch() throws Exception {
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto module = ComponentTesting.newModuleDto(project);
+    ComponentDto subModule = ComponentTesting.newModuleDto(module);
+    ComponentDto file = ComponentTesting.newFileDto(subModule);
+
+    indexIssues(
+      IssueTesting.newDoc("ISSUE3", module),
+      IssueTesting.newDoc("ISSUE5", subModule),
+      IssueTesting.newDoc("ISSUE2", file),
+      // Close Issue, should never be returned
+      IssueTesting.newDoc("CLOSE_ISSUE", file).setStatus(Issue.STATUS_CLOSED).setResolution(Issue.RESOLUTION_FIXED));
+
+    assertThat(Lists.newArrayList(index.selectIssuesForBatch(project))).hasSize(3);
+    assertThat(Lists.newArrayList(index.selectIssuesForBatch(module))).hasSize(3);
+    assertThat(Lists.newArrayList(index.selectIssuesForBatch(subModule))).hasSize(2);
+    assertThat(Lists.newArrayList(index.selectIssuesForBatch(file))).hasSize(1);
+    assertThat(Lists.newArrayList(index.selectIssuesForBatch(ComponentTesting.newProjectDto()))).isEmpty();
+  }
+
+  @Test
+  public void fail_to_search_issues_for_batch_on_not_allowed_scope() throws Exception {
+    try {
+      index.selectIssuesForBatch(new ComponentDto().setScope(Scopes.DIRECTORY));
+      failBecauseExceptionWasNotThrown(IllegalStateException.class);
+    } catch (IllegalStateException e) {
+      assertThat(e).hasMessage("Component of scope 'DIR' is not allowed");
+    }
+  }
+
+  @Test
+  public void search_issues_for_batch_return_only_authorized_issues() throws Exception {
+    ComponentDto project1 = ComponentTesting.newProjectDto().setKey("project1");
+    ComponentDto project2 = ComponentTesting.newProjectDto().setKey("project2");
+
+    ComponentDto file1 = ComponentTesting.newFileDto(project1).setKey("file1");
+    ComponentDto file2 = ComponentTesting.newFileDto(project2).setKey("file2");
+
+    // project1 can be seen by sonar-users
+    indexIssue(IssueTesting.newDoc("ISSUE1", file1), "sonar-users", null);
+    // project3 can be seen by nobody
+    indexIssue(IssueTesting.newDoc("ISSUE3", file2), null, null);
+
+    MockUserSession.set().setUserGroups("sonar-users");
+    assertThat(Lists.newArrayList(index.selectIssuesForBatch(project1))).hasSize(1);
+
+    MockUserSession.set().setUserGroups("another group");
+    assertThat(Lists.newArrayList(index.selectIssuesForBatch(project2))).isEmpty();
   }
 
   private void indexIssues(IssueDoc... issues) {

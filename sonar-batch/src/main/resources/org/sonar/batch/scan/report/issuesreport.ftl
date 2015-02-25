@@ -168,6 +168,11 @@
   <div class="subtitle">${report.getTitle()} - ${report.getDate()?datetime}</div>
 </div>
 
+<#if report.isNoFile()>
+<div id="content">
+  <div class="banner">No file analyzed</div>
+</div>
+<#else>
 <div id="content">
 
   <#if !complete>
@@ -452,5 +457,6 @@
     refreshFilters(true);
   });
 </script>
+</#if>
 </body>
 </html>

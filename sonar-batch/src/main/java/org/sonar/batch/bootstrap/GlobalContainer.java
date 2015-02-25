@@ -19,14 +19,6 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.sonar.batch.components.PastSnapshotFinder;
-
-import org.sonar.batch.deprecated.components.PastSnapshotFinderByDate;
-import org.sonar.batch.deprecated.components.PastSnapshotFinderByDays;
-import org.sonar.batch.deprecated.components.PastSnapshotFinderByPreviousAnalysis;
-import org.sonar.batch.deprecated.components.PastSnapshotFinderByPreviousVersion;
-import org.sonar.batch.deprecated.components.PastSnapshotFinderByVersion;
-import org.sonar.batch.repository.user.UserRepository;
 import org.sonar.api.Plugin;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.platform.ComponentContainer;
@@ -36,14 +28,21 @@ import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
 import org.sonar.api.utils.internal.TempFolderCleaner;
+import org.sonar.batch.components.PastSnapshotFinder;
+import org.sonar.batch.deprecated.components.PastSnapshotFinderByDate;
+import org.sonar.batch.deprecated.components.PastSnapshotFinderByDays;
+import org.sonar.batch.deprecated.components.PastSnapshotFinderByPreviousAnalysis;
+import org.sonar.batch.deprecated.components.PastSnapshotFinderByPreviousVersion;
+import org.sonar.batch.deprecated.components.PastSnapshotFinderByVersion;
 import org.sonar.batch.platform.DefaultServer;
 import org.sonar.batch.repository.DefaultGlobalRepositoriesLoader;
-import org.sonar.batch.repository.DefaultPreviousIssuesLoader;
 import org.sonar.batch.repository.DefaultProjectRepositoriesLoader;
+import org.sonar.batch.repository.DefaultServerIssuesLoader;
 import org.sonar.batch.repository.GlobalRepositoriesLoader;
 import org.sonar.batch.repository.GlobalRepositoriesProvider;
-import org.sonar.batch.repository.PreviousIssuesLoader;
 import org.sonar.batch.repository.ProjectRepositoriesLoader;
+import org.sonar.batch.repository.ServerIssuesLoader;
+import org.sonar.batch.repository.user.UserRepository;
 import org.sonar.core.cluster.NullQueue;
 import org.sonar.core.config.Logback;
 import org.sonar.core.i18n.DefaultI18n;
@@ -81,7 +80,7 @@ public class GlobalContainer extends ComponentContainer {
   @Override
   protected void doBeforeStart() {
     BootstrapProperties bootstrapProps = new BootstrapProperties(bootstrapProperties);
-    DefaultAnalysisMode analysisMode = new DefaultAnalysisMode(bootstrapProps);
+    DefaultAnalysisMode analysisMode = new DefaultAnalysisMode(bootstrapProps.properties());
     add(bootstrapProps, analysisMode);
     addBootstrapComponents();
     if (analysisMode.isDb()) {
@@ -117,8 +116,8 @@ public class GlobalContainer extends ComponentContainer {
     if (getComponentByType(ProjectRepositoriesLoader.class) == null) {
       add(DefaultProjectRepositoriesLoader.class);
     }
-    if (getComponentByType(PreviousIssuesLoader.class) == null) {
-      add(DefaultPreviousIssuesLoader.class);
+    if (getComponentByType(ServerIssuesLoader.class) == null) {
+      add(DefaultServerIssuesLoader.class);
     }
   }
 

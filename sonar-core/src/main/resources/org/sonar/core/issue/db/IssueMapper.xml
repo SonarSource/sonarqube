@@ -187,49 +187,6 @@
     where i.status &lt;&gt; 'CLOSED'
   </select>
 
-  <select id="selectNonClosedIssuesByModuleUuid" parameterType="String" resultType="BatchIssue">
-    SELECT
-    i.kee as kee,
-    i.message as message,
-    i.line as line,
-    i.status as status,
-    i.severity as severity,
-    i.manual_severity as manualSeverity,
-    i.resolution as resolution,
-    i.checksum as checksum,
-    i.assignee as assigneeLogin,
-    i.issue_creation_date as creationTime,
-    r.plugin_rule_key as ruleKey,
-    r.plugin_name as ruleRepo,
-    component.kee as componentKey
-    FROM issues i
-    INNER JOIN (SELECT p.id,p.uuid, p.kee FROM projects p WHERE p.module_uuid=#{uuid} OR p.uuid=#{uuid}) component ON
-    component.uuid=i.component_uuid
-    INNER JOIN rules r ON r.id=i.rule_id
-    WHERE i.status &lt;&gt; 'CLOSED'
-  </select>
-
-  <select id="selectNonClosedIssuesByProjectUuid" parameterType="String" resultType="BatchIssue">
-    SELECT
-    i.kee as kee,
-    i.message as message,
-    i.line as line,
-    i.status as status,
-    i.severity as severity,
-    i.manual_severity as manualSeverity,
-    i.resolution as resolution,
-    i.checksum as checksum,
-    i.assignee as assigneeLogin,
-    i.issue_creation_date as creationTime,
-    r.plugin_rule_key as ruleKey,
-    r.plugin_name as ruleRepo,
-    component.kee as componentKey
-    FROM issues i
-    INNER JOIN projects component on component.uuid=i.component_uuid
-    INNER JOIN rules r ON r.id=i.rule_id
-    WHERE i.status &lt;&gt; 'CLOSED' AND i.project_uuid=#{uuid}
-  </select>
-
   <select id="selectByKeys" parameterType="map" resultType="Issue">
     select
     <include refid="issueColumns"/>

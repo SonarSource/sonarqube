@@ -33,6 +33,7 @@ import org.sonar.batch.ProjectTree;
 import org.sonar.batch.index.BatchResource;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.issue.IssueCache;
+import org.sonar.batch.scan.filesystem.InputPathCache;
 
 import javax.annotation.CheckForNull;
 
@@ -44,17 +45,20 @@ public class IssuesReportBuilder implements BatchExtension {
   private final RuleFinder ruleFinder;
   private final ResourceCache resourceCache;
   private final ProjectTree projectTree;
+  private final InputPathCache inputPathCache;
 
-  public IssuesReportBuilder(IssueCache issueCache, RuleFinder ruleFinder, ResourceCache resourceCache, ProjectTree projectTree) {
+  public IssuesReportBuilder(IssueCache issueCache, RuleFinder ruleFinder, ResourceCache resourceCache, ProjectTree projectTree, InputPathCache inputPathCache) {
     this.issueCache = issueCache;
     this.ruleFinder = ruleFinder;
     this.resourceCache = resourceCache;
     this.projectTree = projectTree;
+    this.inputPathCache = inputPathCache;
   }
 
   public IssuesReport buildReport() {
     Project project = projectTree.getRootProject();
     IssuesReport issuesReport = new IssuesReport();
+    issuesReport.setNoFile(!inputPathCache.allFiles().iterator().hasNext());
     issuesReport.setTitle(project.getName());
     issuesReport.setDate(project.getAnalysisDate());
 

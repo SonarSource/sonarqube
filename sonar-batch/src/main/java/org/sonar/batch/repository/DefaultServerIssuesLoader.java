@@ -19,34 +19,31 @@
  */
 package org.sonar.batch.repository;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.io.InputSupplier;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.batch.bootstrap.ServerClient;
-import org.sonar.batch.protocol.input.issues.PreviousIssue;
-import org.sonar.batch.protocol.input.issues.PreviousIssueHelper;
+import org.sonar.batch.protocol.input.BatchInput.ServerIssue;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 
-public class DefaultPreviousIssuesLoader implements PreviousIssuesLoader {
+public class DefaultServerIssuesLoader implements ServerIssuesLoader {
 
   private final ServerClient serverClient;
 
-  public DefaultPreviousIssuesLoader(ServerClient serverClient) {
+  public DefaultServerIssuesLoader(ServerClient serverClient) {
     this.serverClient = serverClient;
   }
 
   @Override
-  public void load(ProjectReactor reactor, Function<PreviousIssue, Void> consumer) {
-    InputSupplier<InputStream> request = serverClient.doRequest("/batch/issues?key=" + ServerClient.encodeForUrl(reactor.getRoot().getKeyWithBranch()), "GET", null);
-    try (InputStream is = request.getInput(); Reader reader = new InputStreamReader(is, Charsets.UTF_8)) {
-      for (PreviousIssue issue : PreviousIssueHelper.getIssues(reader)) {
-        consumer.apply(issue);
+  public void load(String componentKey, Function<ServerIssue, Void> consumer, boolean incremental) {
+    InputSupplier<InputStream> request = serverClient.doRequest("/batch/issues?key=" + ServerClient.encodeForUrl(componentKey), "GET", null);
+    try (InputStream is = request.getInput()) {
+      ServerIssue previousIssue = ServerIssue.parseDelimitedFrom(is);
+      while (previousIssue != null) {
+        consumer.apply(previousIssue);
+        previousIssue = ServerIssue.parseDelimitedFrom(is);
       }
     } catch (HttpDownloader.HttpException e) {
       throw serverClient.handleHttpException(e);

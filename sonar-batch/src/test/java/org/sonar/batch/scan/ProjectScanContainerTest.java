@@ -62,7 +62,7 @@ public class ProjectScanContainerTest {
   public void prepare() {
     projectBootstrapper = mock(ProjectBootstrapper.class);
     bootstrapProperties = new BootstrapProperties(Collections.<String, String>emptyMap());
-    DefaultAnalysisMode analysisMode = new DefaultAnalysisMode(bootstrapProperties);
+    DefaultAnalysisMode analysisMode = new DefaultAnalysisMode(Collections.<String, String>emptyMap());
     when(projectBootstrapper.bootstrap()).thenReturn(new ProjectReactor(ProjectDefinition.create()));
     parentContainer = new ComponentContainer();
     parentContainer.add(System2.INSTANCE);

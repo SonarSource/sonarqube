@@ -180,6 +180,10 @@ public class WsTester {
       return new String(response.output.toByteArray(), Charsets.UTF_8);
     }
 
+    public byte[] output() {
+      return response.output.toByteArray();
+    }
+
     public Result assertJson(String expectedJson) throws Exception {
       return assertJson(expectedJson, true);
     }

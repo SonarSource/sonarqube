@@ -26,6 +26,7 @@ import org.sonar.api.batch.AnalysisMode;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 
 import java.text.MessageFormat;
+import java.util.Map;
 
 /**
  * @since 4.0
@@ -38,8 +39,8 @@ public class DefaultAnalysisMode implements AnalysisMode {
   private boolean incremental;
   private boolean mediumTestMode;
 
-  public DefaultAnalysisMode(BootstrapProperties bootstrapProps) {
-    init(bootstrapProps);
+  public DefaultAnalysisMode(Map<String, String> props) {
+    init(props);
   }
 
   public boolean isDb() {
@@ -60,17 +61,17 @@ public class DefaultAnalysisMode implements AnalysisMode {
     return mediumTestMode;
   }
 
-  private void init(BootstrapProperties bootstrapProps) {
-    if (bootstrapProps.properties().containsKey(CoreProperties.DRY_RUN)) {
+  private void init(Map<String, String> props) {
+    if (props.containsKey(CoreProperties.DRY_RUN)) {
       LOG.warn(MessageFormat.format("Property {0} is deprecated. Please use {1} instead.", CoreProperties.DRY_RUN, CoreProperties.ANALYSIS_MODE));
-      preview = "true".equals(bootstrapProps.property(CoreProperties.DRY_RUN));
+      preview = "true".equals(props.get(CoreProperties.DRY_RUN));
       incremental = false;
     } else {
-      String mode = bootstrapProps.property(CoreProperties.ANALYSIS_MODE);
+      String mode = props.get(CoreProperties.ANALYSIS_MODE);
       preview = CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode);
       incremental = CoreProperties.ANALYSIS_MODE_INCREMENTAL.equals(mode);
     }
-    mediumTestMode = "true".equals(bootstrapProps.property(BatchMediumTester.MEDIUM_TEST_ENABLED));
+    mediumTestMode = "true".equals(props.get(BatchMediumTester.MEDIUM_TEST_ENABLED));
     if (incremental) {
       LOG.info("Incremental mode");
     } else if (preview) {
@@ -81,7 +82,7 @@ public class DefaultAnalysisMode implements AnalysisMode {
     }
     // To stay compatible with plugins that use the old property to check mode
     if (incremental || preview) {
-      bootstrapProps.properties().put(CoreProperties.DRY_RUN, "true");
+      props.put(CoreProperties.DRY_RUN, "true");
     }
   }
 

@@ -21,41 +21,41 @@ package org.sonar.batch.issue.tracking;
 
 import org.sonar.api.rule.RuleKey;
 
-public class PreviousIssueFromWs implements PreviousIssue {
+public class ServerIssueFromWs implements ServerIssue {
 
-  private org.sonar.batch.protocol.input.issues.PreviousIssue dto;
+  private org.sonar.batch.protocol.input.BatchInput.ServerIssue dto;
 
-  public PreviousIssueFromWs(org.sonar.batch.protocol.input.issues.PreviousIssue dto) {
+  public ServerIssueFromWs(org.sonar.batch.protocol.input.BatchInput.ServerIssue dto) {
     this.dto = dto;
   }
 
-  public org.sonar.batch.protocol.input.issues.PreviousIssue getDto() {
+  public org.sonar.batch.protocol.input.BatchInput.ServerIssue getDto() {
     return dto;
   }
 
   @Override
   public String key() {
-    return dto.key();
+    return dto.getKey();
   }
 
   @Override
   public RuleKey ruleKey() {
-    return RuleKey.of(dto.ruleRepo(), dto.ruleKey());
+    return RuleKey.of(dto.getRuleRepository(), dto.getRuleKey());
   }
 
   @Override
   public String checksum() {
-    return dto.checksum();
+    return dto.hasChecksum() ? dto.getChecksum() : null;
   }
 
   @Override
   public Integer line() {
-    return dto.line();
+    return dto.hasLine() ? dto.getLine() : null;
   }
 
   @Override
   public String message() {
-    return dto.message();
+    return dto.hasMsg() ? dto.getMsg() : null;
   }
 
 }

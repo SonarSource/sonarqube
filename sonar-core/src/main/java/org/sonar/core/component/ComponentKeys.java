@@ -64,13 +64,17 @@ public final class ComponentKeys {
     return key;
   }
 
-  public static String createEffectiveKey(String projectKey, InputPath inputPath) {
-    // not a project nor a library
-    return new StringBuilder(ResourceModel.KEY_SIZE)
-      .append(projectKey)
-      .append(':')
-      .append(inputPath.relativePath())
-      .toString();
+  public static String createEffectiveKey(String moduleKey, InputPath inputPath) {
+    return createEffectiveKey(moduleKey, inputPath.relativePath());
+  }
+
+  public static String createEffectiveKey(String moduleKey, @Nullable String path) {
+    StringBuilder sb = new StringBuilder(ResourceModel.KEY_SIZE);
+    sb.append(moduleKey);
+    if (path != null) {
+      sb.append(':').append(path);
+    }
+    return sb.toString();
   }
 
   /**

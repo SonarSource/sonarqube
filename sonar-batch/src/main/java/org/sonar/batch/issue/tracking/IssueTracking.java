@@ -44,7 +44,7 @@ public class IssueTracking implements BatchComponent {
   /**
    * @param sourceHashHolder Null when working on resource that is not a file (directory/project)
    */
-  public IssueTrackingResult track(@Nullable SourceHashHolder sourceHashHolder, Collection<PreviousIssue> previousIssues, Collection<DefaultIssue> newIssues) {
+  public IssueTrackingResult track(@Nullable SourceHashHolder sourceHashHolder, Collection<ServerIssue> previousIssues, Collection<DefaultIssue> newIssues) {
     IssueTrackingResult result = new IssueTrackingResult();
 
     if (sourceHashHolder != null) {
@@ -69,7 +69,7 @@ public class IssueTracking implements BatchComponent {
   }
 
   @VisibleForTesting
-  void mapIssues(Collection<DefaultIssue> newIssues, @Nullable Collection<PreviousIssue> previousIssues, @Nullable SourceHashHolder sourceHashHolder, IssueTrackingResult result) {
+  void mapIssues(Collection<DefaultIssue> newIssues, @Nullable Collection<ServerIssue> previousIssues, @Nullable SourceHashHolder sourceHashHolder, IssueTrackingResult result) {
     boolean hasLastScan = false;
 
     if (previousIssues != null) {
@@ -89,8 +89,8 @@ public class IssueTracking implements BatchComponent {
     }
   }
 
-  private void mapLastIssues(Collection<DefaultIssue> newIssues, Collection<PreviousIssue> previousIssues, IssueTrackingResult result) {
-    for (PreviousIssue lastIssue : previousIssues) {
+  private void mapLastIssues(Collection<DefaultIssue> newIssues, Collection<ServerIssue> previousIssues, IssueTrackingResult result) {
+    for (ServerIssue lastIssue : previousIssues) {
       result.addUnmatched(lastIssue);
     }
 
@@ -118,7 +118,7 @@ public class IssueTracking implements BatchComponent {
     RollingFileHashes b = RollingFileHashes.create(hashedSource, 5);
 
     Multimap<Integer, DefaultIssue> newIssuesByLines = newIssuesByLines(newIssues, rec, result);
-    Multimap<Integer, PreviousIssue> lastIssuesByLines = lastIssuesByLines(result.unmatched(), rec);
+    Multimap<Integer, ServerIssue> lastIssuesByLines = lastIssuesByLines(result.unmatched(), rec);
 
     Map<Integer, HashOccurrence> map = Maps.newHashMap();
 
@@ -204,10 +204,10 @@ public class IssueTracking implements BatchComponent {
     }
   }
 
-  private void map(Collection<DefaultIssue> newIssues, Collection<PreviousIssue> previousIssues, IssueTrackingResult result) {
+  private void map(Collection<DefaultIssue> newIssues, Collection<ServerIssue> previousIssues, IssueTrackingResult result) {
     for (DefaultIssue newIssue : newIssues) {
       if (isNotAlreadyMapped(newIssue, result)) {
-        for (PreviousIssue previousIssue : previousIssues) {
+        for (ServerIssue previousIssue : previousIssues) {
           if (isNotAlreadyMapped(previousIssue, result) && Objects.equal(newIssue.ruleKey(), previousIssue.ruleKey())) {
             mapIssue(newIssue, previousIssue, result);
             break;
@@ -227,9 +227,9 @@ public class IssueTracking implements BatchComponent {
     return newIssuesByLines;
   }
 
-  private Multimap<Integer, PreviousIssue> lastIssuesByLines(Collection<PreviousIssue> previousIssues, IssueTrackingBlocksRecognizer rec) {
-    Multimap<Integer, PreviousIssue> previousIssuesByLines = LinkedHashMultimap.create();
-    for (PreviousIssue previousIssue : previousIssues) {
+  private Multimap<Integer, ServerIssue> lastIssuesByLines(Collection<ServerIssue> previousIssues, IssueTrackingBlocksRecognizer rec) {
+    Multimap<Integer, ServerIssue> previousIssuesByLines = LinkedHashMultimap.create();
+    for (ServerIssue previousIssue : previousIssues) {
       if (rec.isValidLineInReference(previousIssue.line())) {
         previousIssuesByLines.put(previousIssue.line(), previousIssue);
       }
@@ -237,8 +237,8 @@ public class IssueTracking implements BatchComponent {
     return previousIssuesByLines;
   }
 
-  private PreviousIssue findLastIssueWithSameChecksum(DefaultIssue newIssue, Collection<PreviousIssue> previousIssues) {
-    for (PreviousIssue previousIssue : previousIssues) {
+  private ServerIssue findLastIssueWithSameChecksum(DefaultIssue newIssue, Collection<ServerIssue> previousIssues) {
+    for (ServerIssue previousIssue : previousIssues) {
       if (isSameChecksum(newIssue, previousIssue)) {
         return previousIssue;
       }
@@ -246,8 +246,8 @@ public class IssueTracking implements BatchComponent {
     return null;
   }
 
-  private PreviousIssue findLastIssueWithSameLineAndMessage(DefaultIssue newIssue, Collection<PreviousIssue> previousIssues) {
-    for (PreviousIssue previousIssue : previousIssues) {
+  private ServerIssue findLastIssueWithSameLineAndMessage(DefaultIssue newIssue, Collection<ServerIssue> previousIssues) {
+    for (ServerIssue previousIssue : previousIssues) {
       if (isSameLine(newIssue, previousIssue) && isSameMessage(newIssue, previousIssue)) {
         return previousIssue;
       }
@@ -255,8 +255,8 @@ public class IssueTracking implements BatchComponent {
     return null;
   }
 
-  private PreviousIssue findLastIssueWithSameChecksumAndMessage(DefaultIssue newIssue, Collection<PreviousIssue> previousIssues) {
-    for (PreviousIssue previousIssue : previousIssues) {
+  private ServerIssue findLastIssueWithSameChecksumAndMessage(DefaultIssue newIssue, Collection<ServerIssue> previousIssues) {
+    for (ServerIssue previousIssue : previousIssues) {
       if (isSameChecksum(newIssue, previousIssue) && isSameMessage(newIssue, previousIssue)) {
         return previousIssue;
       }
@@ -264,15 +264,15 @@ public class IssueTracking implements BatchComponent {
     return null;
   }
 
-  private PreviousIssue findLastIssueWithSameLineAndChecksum(DefaultIssue newIssue, IssueTrackingResult result) {
-    Collection<PreviousIssue> sameRuleAndSameLineAndSameChecksum = result.unmatchedForRuleAndForLineAndForChecksum(newIssue.ruleKey(), newIssue.line(), newIssue.checksum());
+  private ServerIssue findLastIssueWithSameLineAndChecksum(DefaultIssue newIssue, IssueTrackingResult result) {
+    Collection<ServerIssue> sameRuleAndSameLineAndSameChecksum = result.unmatchedForRuleAndForLineAndForChecksum(newIssue.ruleKey(), newIssue.line(), newIssue.checksum());
     if (!sameRuleAndSameLineAndSameChecksum.isEmpty()) {
       return sameRuleAndSameLineAndSameChecksum.iterator().next();
     }
     return null;
   }
 
-  private boolean isNotAlreadyMapped(PreviousIssue previousIssue, IssueTrackingResult result) {
+  private boolean isNotAlreadyMapped(ServerIssue previousIssue, IssueTrackingResult result) {
     return result.unmatched().contains(previousIssue);
   }
 
@@ -280,19 +280,19 @@ public class IssueTracking implements BatchComponent {
     return !result.isMatched(newIssue);
   }
 
-  private boolean isSameChecksum(DefaultIssue newIssue, PreviousIssue previousIssue) {
+  private boolean isSameChecksum(DefaultIssue newIssue, ServerIssue previousIssue) {
     return Objects.equal(previousIssue.checksum(), newIssue.checksum());
   }
 
-  private boolean isSameLine(DefaultIssue newIssue, PreviousIssue previousIssue) {
+  private boolean isSameLine(DefaultIssue newIssue, ServerIssue previousIssue) {
     return Objects.equal(previousIssue.line(), newIssue.line());
   }
 
-  private boolean isSameMessage(DefaultIssue newIssue, PreviousIssue previousIssue) {
+  private boolean isSameMessage(DefaultIssue newIssue, ServerIssue previousIssue) {
     return Objects.equal(newIssue.message(), previousIssue.message());
   }
 
-  private void mapIssue(DefaultIssue issue, @Nullable PreviousIssue ref, IssueTrackingResult result) {
+  private void mapIssue(DefaultIssue issue, @Nullable ServerIssue ref, IssueTrackingResult result) {
     if (ref != null) {
       result.setMatch(issue, ref);
     }

@@ -24,17 +24,15 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.utils.log.LogTester;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.batch.protocol.Constants.Severity;
 import org.sonar.batch.protocol.input.ActiveRule;
-import org.sonar.batch.scan.report.ConsoleReport;
+import org.sonar.batch.protocol.input.FileData;
 import org.sonar.xoo.XooPlugin;
 
 import java.io.File;
@@ -44,13 +42,12 @@ import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class PreviewAndReportsMediumTest {
+public class IncrementalModeMediumTest {
 
-  @Rule
+  private static final String SAMPLE_CONTENT = "Sample content\nwith\n4\nlines";
+
+  @org.junit.Rule
   public TemporaryFolder temp = new TemporaryFolder();
-
-  @Rule
-  public LogTester logTester = new LogTester();
 
   private static SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
@@ -63,28 +60,29 @@ public class PreviewAndReportsMediumTest {
   }
 
   public BatchMediumTester tester = BatchMediumTester.builder()
-    .bootstrapProperties(ImmutableMap.of(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_PREVIEW))
+    .bootstrapProperties(ImmutableMap.of(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_INCREMENTAL))
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
     .activateRule(new ActiveRule("xoo", "OneIssuePerLine", null, "One issue per line", "MAJOR", null, "xoo"))
     .activateRule(new ActiveRule("manual", "MyManualIssue", null, "My manual issue", "MAJOR", null, null))
     .setPreviousAnalysisDate(new Date())
-    // Existing issue that is still detected
+    .addFileData("sample", "xources/hello/HelloJava.xoo", new FileData(DigestUtils.md5Hex(SAMPLE_CONTENT), false, null, null, null))
+    // Existing issue
     .mockServerIssue(org.sonar.batch.protocol.input.BatchInput.ServerIssue.newBuilder().setKey("xyz")
       .setModuleKey("sample")
-      .setPath("xources/hello/HelloJava.xoo")
+      .setPath("src/sample.xoo")
       .setRuleRepository("xoo")
       .setRuleKey("OneIssuePerLine")
       .setLine(1)
       .setSeverity(Severity.MAJOR)
       .setCreationDate(date("14/03/2004"))
-      .setChecksum(DigestUtils.md5Hex("packagehello;"))
+      .setChecksum(DigestUtils.md5Hex("Samplecontent"))
       .setStatus("OPEN")
       .build())
-    // Existing issue that is no more detected (will be closed)
+    // Resolved issue
     .mockServerIssue(org.sonar.batch.protocol.input.BatchInput.ServerIssue.newBuilder().setKey("resolved")
       .setModuleKey("sample")
-      .setPath("xources/hello/HelloJava.xoo")
+      .setPath("src/sample.xoo")
       .setRuleRepository("xoo")
       .setRuleKey("OneIssuePerLine")
       .setLine(1)
@@ -93,25 +91,16 @@ public class PreviewAndReportsMediumTest {
       .setChecksum(DigestUtils.md5Hex("dontexist"))
       .setStatus("OPEN")
       .build())
-    // Existing issue on project that is no more detected
-    .mockServerIssue(org.sonar.batch.protocol.input.BatchInput.ServerIssue.newBuilder().setKey("resolved-on-project")
-      .setModuleKey("sample")
-      .setRuleRepository("xoo")
-      .setRuleKey("OneIssuePerModule")
-      .setSeverity(Severity.CRITICAL)
-      .setCreationDate(date("14/03/2004"))
-      .setStatus("OPEN")
-      .build())
     // Manual issue
     .mockServerIssue(org.sonar.batch.protocol.input.BatchInput.ServerIssue.newBuilder().setKey("manual")
       .setModuleKey("sample")
-      .setPath("xources/hello/HelloJava.xoo")
+      .setPath("src/sample.xoo")
       .setRuleRepository("manual")
       .setRuleKey("MyManualIssue")
       .setLine(1)
       .setSeverity(Severity.MAJOR)
       .setCreationDate(date("14/03/2004"))
-      .setChecksum(DigestUtils.md5Hex("packagehello;"))
+      .setChecksum(DigestUtils.md5Hex("Samplecontent"))
       .setStatus("OPEN")
       .build())
     .build();
@@ -127,11 +116,24 @@ public class PreviewAndReportsMediumTest {
   }
 
   @Test
-  public void testIssueTracking() throws Exception {
-    File projectDir = new File(PreviewAndReportsMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
+  public void testIssueTrackingIncrementalMode() throws Exception {
+    File baseDir = temp.newFolder();
+    File srcDir = new File(baseDir, "src");
+    srcDir.mkdir();
 
-    TaskResult result = tester
-      .newScanTask(new File(projectDir, "sonar-project.properties"))
+    File xooFile = new File(srcDir, "sample.xoo");
+    FileUtils.write(xooFile, SAMPLE_CONTENT);
+
+    TaskResult result = tester.newTask()
+      .properties(ImmutableMap.<String, String>builder()
+        .put("sonar.task", "scan")
+        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+        .put("sonar.projectKey", "sample")
+        .put("sonar.projectName", "Foo Project")
+        .put("sonar.projectVersion", "1.0-SNAPSHOT")
+        .put("sonar.projectDescription", "Description of Foo Project")
+        .put("sonar.sources", "src")
+        .build())
       .start();
 
     int newIssues = 0;
@@ -146,66 +148,9 @@ public class PreviewAndReportsMediumTest {
         openIssues++;
       }
     }
-    assertThat(newIssues).isEqualTo(13);
+    assertThat(newIssues).isEqualTo(3);
     assertThat(openIssues).isEqualTo(2);
-    assertThat(resolvedIssue).isEqualTo(2);
-  }
-
-  @Test
-  public void testConsoleReport() throws Exception {
-    File projectDir = new File(PreviewAndReportsMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
-
-    tester
-      .newScanTask(new File(projectDir, "sonar-project.properties"))
-      .property("sonar.issuesReport.console.enable", "true")
-      .start();
-
-    assertThat(getReportLog()).contains("+13 issues", "+13 major");
-  }
-
-  private String getReportLog() {
-    for (String log : logTester.logs()) {
-      if (log.contains(ConsoleReport.HEADER)) {
-        return log;
-      }
-    }
-    throw new IllegalStateException("No console report");
-  }
-
-  @Test
-  public void testHtmlReport() throws Exception {
-    File projectDir = new File(PreviewAndReportsMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
-
-    tester
-      .newScanTask(new File(projectDir, "sonar-project.properties"))
-      .property("sonar.issuesReport.html.enable", "true")
-      .start();
-
-    assertThat(new File(projectDir, ".sonar/issues-report/issues-report.html")).exists();
-    assertThat(new File(projectDir, ".sonar/issues-report/issues-report-light.html")).exists();
-  }
-
-  @Test
-  public void testHtmlReportNoFile() throws Exception {
-    File baseDir = temp.newFolder();
-    File srcDir = new File(baseDir, "src");
-    srcDir.mkdir();
-
-    tester.newTask()
-      .properties(ImmutableMap.<String, String>builder()
-        .put("sonar.task", "scan")
-        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
-        .put("sonar.projectKey", "sample")
-        .put("sonar.projectName", "Foo Project")
-        .put("sonar.projectVersion", "1.0-SNAPSHOT")
-        .put("sonar.projectDescription", "Description of Foo Project")
-        .put("sonar.sources", "src")
-        .put("sonar.issuesReport.html.enable", "true")
-        .build())
-      .start();
-
-    assertThat(FileUtils.readFileToString(new File(baseDir, ".sonar/issues-report/issues-report.html"))).contains("No file analyzed");
-    assertThat(FileUtils.readFileToString(new File(baseDir, ".sonar/issues-report/issues-report-light.html"))).contains("No file analyzed");
+    assertThat(resolvedIssue).isEqualTo(1);
   }
 
 }

@@ -74,7 +74,9 @@ public class IssueIndexDefinition implements IndexDefinition {
   public static final String FIELD_ISSUE_RULE_KEY = "ruleKey";
   public static final String FIELD_ISSUE_SEVERITY = "severity";
   public static final String FIELD_ISSUE_SEVERITY_VALUE = "severityValue";
+  public static final String FIELD_ISSUE_MANUAL_SEVERITY = "manualSeverity";
   public static final String FIELD_ISSUE_STATUS = "status";
+  public static final String FIELD_ISSUE_CHECKSUM = "checksum";
   public static final String FIELD_ISSUE_TAGS = "tags";
   /**
    * Technical date

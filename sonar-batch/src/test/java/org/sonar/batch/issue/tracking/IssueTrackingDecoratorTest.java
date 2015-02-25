@@ -130,7 +130,7 @@ public class IssueTrackingDecoratorTest {
 
     // INPUT : one issue, no open issues during previous scan, no filtering
     when(issueCache.byComponent("struts:Action.java")).thenReturn(Arrays.asList(issue));
-    List<PreviousIssue> dbIssues = Collections.emptyList();
+    List<ServerIssue> dbIssues = Collections.emptyList();
     when(initialOpenIssues.selectAndRemoveIssues("struts:Action.java")).thenReturn(dbIssues);
     when(inputPathCache.getFile("foo", "Action.java")).thenReturn(mock(DefaultInputFile.class));
     when(inputPathCache.getFileMetadata("foo", "Action.java")).thenReturn(new InputFileMetadata());
@@ -155,7 +155,7 @@ public class IssueTrackingDecoratorTest {
     Resource file = File.create("Action.java").setEffectiveKey("struts:Action.java").setId(123);
 
     // INPUT : one issue existing during previous scan
-    PreviousIssue unmatchedIssue = new PreviousIssueFromDb(new IssueDto().setKee("ABCDE").setResolution(null).setStatus("OPEN").setRuleKey("squid", "AvoidCycle"));
+    ServerIssue unmatchedIssue = new ServerIssueFromDb(new IssueDto().setKee("ABCDE").setResolution(null).setStatus("OPEN").setRuleKey("squid", "AvoidCycle"));
 
     IssueTrackingResult trackingResult = new IssueTrackingResult();
     trackingResult.addUnmatched(unmatchedIssue);
@@ -181,7 +181,7 @@ public class IssueTrackingDecoratorTest {
   @Test
   public void manual_issues_should_be_moved_if_matching_line_found() throws Exception {
     // INPUT : one issue existing during previous scan
-    PreviousIssue unmatchedIssue = new PreviousIssueFromDb(new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(6).setStatus("OPEN").setRuleKey("manual", "Performance"));
+    ServerIssue unmatchedIssue = new ServerIssueFromDb(new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(6).setStatus("OPEN").setRuleKey("manual", "Performance"));
     when(ruleFinder.findByKey(RuleKey.of("manual", "Performance"))).thenReturn(new Rule("manual", "Performance"));
 
     IssueTrackingResult trackingResult = new IssueTrackingResult();
@@ -240,7 +240,7 @@ public class IssueTrackingDecoratorTest {
   public void manual_issues_should_be_untouched_if_already_closed() throws Exception {
 
     // INPUT : one issue existing during previous scan
-    PreviousIssue unmatchedIssue = new PreviousIssueFromDb(new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(1).setStatus("CLOSED").setRuleKey("manual", "Performance"));
+    ServerIssue unmatchedIssue = new ServerIssueFromDb(new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(1).setStatus("CLOSED").setRuleKey("manual", "Performance"));
     when(ruleFinder.findByKey(RuleKey.of("manual", "Performance"))).thenReturn(new Rule("manual", "Performance"));
 
     IssueTrackingResult trackingResult = new IssueTrackingResult();
@@ -272,7 +272,7 @@ public class IssueTrackingDecoratorTest {
   public void manual_issues_should_be_untouched_if_line_is_null() throws Exception {
 
     // INPUT : one issue existing during previous scan
-    PreviousIssue unmatchedIssue = new PreviousIssueFromDb(new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(null).setStatus("OPEN").setRuleKey("manual", "Performance"));
+    ServerIssue unmatchedIssue = new ServerIssueFromDb(new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(null).setStatus("OPEN").setRuleKey("manual", "Performance"));
     when(ruleFinder.findByKey(RuleKey.of("manual", "Performance"))).thenReturn(new Rule("manual", "Performance"));
 
     IssueTrackingResult trackingResult = new IssueTrackingResult();
@@ -306,7 +306,7 @@ public class IssueTrackingDecoratorTest {
 
     // INPUT : one issue existing during previous scan
     final int issueOnLine = 6;
-    PreviousIssue unmatchedIssue = new PreviousIssueFromDb(new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(issueOnLine).setStatus("OPEN")
+    ServerIssue unmatchedIssue = new ServerIssueFromDb(new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(issueOnLine).setStatus("OPEN")
       .setRuleKey("manual", "Performance"));
     when(ruleFinder.findByKey(RuleKey.of("manual", "Performance"))).thenReturn(new Rule("manual", "Performance"));
 
@@ -354,7 +354,7 @@ public class IssueTrackingDecoratorTest {
 
     // INPUT : one issue existing during previous scan
     final int issueOnLine = 3;
-    PreviousIssue unmatchedIssue = new PreviousIssueFromDb(new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(issueOnLine).setStatus("OPEN")
+    ServerIssue unmatchedIssue = new ServerIssueFromDb(new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(issueOnLine).setStatus("OPEN")
       .setRuleKey("manual", "Performance"));
     when(ruleFinder.findByKey(RuleKey.of("manual", "Performance"))).thenReturn(new Rule("manual", "Performance"));
 
@@ -400,7 +400,7 @@ public class IssueTrackingDecoratorTest {
     // "Unmatched" issues existed in previous scan but not in current one -> they have to be closed
 
     // INPUT : one issue existing during previous scan
-    PreviousIssue unmatchedIssue = new PreviousIssueFromDb(new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(1).setStatus("OPEN").setRuleKey("manual", "Performance"));
+    ServerIssue unmatchedIssue = new ServerIssueFromDb(new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(1).setStatus("OPEN").setRuleKey("manual", "Performance"));
     when(ruleFinder.findByKey(RuleKey.of("manual", "Performance"))).thenReturn(new Rule("manual", "Performance").setStatus(Rule.STATUS_REMOVED));
 
     IssueTrackingResult trackingResult = new IssueTrackingResult();
@@ -431,7 +431,7 @@ public class IssueTrackingDecoratorTest {
     // "Unmatched" issues existed in previous scan but not in current one -> they have to be closed
 
     // INPUT : one issue existing during previous scan
-    PreviousIssue unmatchedIssue = new PreviousIssueFromDb(new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(1).setStatus("OPEN").setRuleKey("manual", "Performance"));
+    ServerIssue unmatchedIssue = new ServerIssueFromDb(new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(1).setStatus("OPEN").setRuleKey("manual", "Performance"));
     when(ruleFinder.findByKey(RuleKey.of("manual", "Performance"))).thenReturn(null);
 
     IssueTrackingResult trackingResult = new IssueTrackingResult();
@@ -462,7 +462,7 @@ public class IssueTrackingDecoratorTest {
     // "Unmatched" issues existed in previous scan but not in current one -> they have to be closed
 
     // INPUT : one issue existing during previous scan
-    PreviousIssue unmatchedIssue = new PreviousIssueFromDb(new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(6).setStatus("OPEN").setRuleKey("manual", "Performance"));
+    ServerIssue unmatchedIssue = new ServerIssueFromDb(new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(6).setStatus("OPEN").setRuleKey("manual", "Performance"));
     when(ruleFinder.findByKey(RuleKey.of("manual", "Performance"))).thenReturn(null);
 
     IssueTrackingResult trackingResult = new IssueTrackingResult();
@@ -527,7 +527,7 @@ public class IssueTrackingDecoratorTest {
 
   @Test
   public void merge_matched_issue() throws Exception {
-    PreviousIssue previousIssue = new PreviousIssueFromDb(new IssueDto().setKee("ABCDE").setResolution(null).setStatus("OPEN").setRuleKey("squid", "AvoidCycle")
+    ServerIssue previousIssue = new ServerIssueFromDb(new IssueDto().setKee("ABCDE").setResolution(null).setStatus("OPEN").setRuleKey("squid", "AvoidCycle")
       .setLine(10).setSeverity("MAJOR").setMessage("Message").setEffortToFix(1.5).setDebt(1L).setProjectKey("sample"));
     DefaultIssue issue = new DefaultIssue();
 
@@ -546,7 +546,7 @@ public class IssueTrackingDecoratorTest {
 
   @Test
   public void merge_matched_issue_on_manual_severity() throws Exception {
-    PreviousIssue previousIssue = new PreviousIssueFromDb(new IssueDto().setKee("ABCDE").setResolution(null).setStatus("OPEN").setRuleKey("squid", "AvoidCycle")
+    ServerIssue previousIssue = new ServerIssueFromDb(new IssueDto().setKee("ABCDE").setResolution(null).setStatus("OPEN").setRuleKey("squid", "AvoidCycle")
       .setLine(10).setManualSeverity(true).setSeverity("MAJOR").setMessage("Message").setEffortToFix(1.5).setDebt(1L));
     DefaultIssue issue = new DefaultIssue();
 
@@ -564,7 +564,7 @@ public class IssueTrackingDecoratorTest {
   public void merge_issue_changelog_with_previous_changelog() throws Exception {
     when(initialOpenIssues.selectChangelog("ABCDE")).thenReturn(newArrayList(new IssueChangeDto().setIssueKey("ABCD").setCreatedAt(System2.INSTANCE.now())));
 
-    PreviousIssue previousIssue = new PreviousIssueFromDb(new IssueDto().setKee("ABCDE").setResolution(null).setStatus("OPEN").setRuleKey("squid", "AvoidCycle")
+    ServerIssue previousIssue = new ServerIssueFromDb(new IssueDto().setKee("ABCDE").setResolution(null).setStatus("OPEN").setRuleKey("squid", "AvoidCycle")
       .setLine(10).setMessage("Message").setEffortToFix(1.5).setDebt(1L).setCreatedAt(System2.INSTANCE.now()));
     DefaultIssue issue = new DefaultIssue();
 

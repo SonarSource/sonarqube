@@ -62,7 +62,7 @@ import org.sonar.batch.issue.DefaultProjectIssues;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.issue.tracking.InitialOpenIssuesStack;
 import org.sonar.batch.issue.tracking.LocalIssueTracking;
-import org.sonar.batch.issue.tracking.PreviousIssueRepository;
+import org.sonar.batch.issue.tracking.ServerIssueRepository;
 import org.sonar.batch.mediumtest.ScanTaskObservers;
 import org.sonar.batch.phases.GraphPersister;
 import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
@@ -165,7 +165,7 @@ public class ProjectScanContainer extends ComponentContainer {
       DefaultProjectIssues.class,
       IssueChangelogDebtCalculator.class,
       LocalIssueTracking.class,
-      PreviousIssueRepository.class,
+      ServerIssueRepository.class,
 
       // tests
       TestPlanPerspectiveLoader.class,

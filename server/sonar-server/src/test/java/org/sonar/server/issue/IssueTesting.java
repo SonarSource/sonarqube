@@ -21,6 +21,7 @@ package org.sonar.server.issue;
 
 import com.google.common.collect.Maps;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.internal.Uuids;
@@ -78,7 +79,9 @@ public class IssueTesting {
     doc.setStatus(Issue.STATUS_OPEN);
     doc.setResolution(null);
     doc.setSeverity(Severity.MAJOR);
+    doc.setManualSeverity(true);
     doc.setDebt(10L);
+    doc.setChecksum("12345");
     doc.setFuncCreationDate(DateUtils.parseDate("2014-09-04"));
     doc.setFuncUpdateDate(DateUtils.parseDate("2014-12-04"));
     doc.setFuncCloseDate(null);
@@ -90,9 +93,10 @@ public class IssueTesting {
     return newDoc()
       .setKey(key)
       .setComponentUuid(componentDto.uuid())
-      .setModuleUuid(componentDto.moduleUuid())
+      .setModuleUuid(!componentDto.scope().equals(Scopes.PROJECT) ? componentDto.moduleUuid() : componentDto.uuid())
       .setModuleUuidPath(componentDto.moduleUuidPath())
       .setProjectUuid(componentDto.projectUuid())
-      .setFilePath(componentDto.path());
+      // File path make no sens on modules and projects
+      .setFilePath(!componentDto.scope().equals(Scopes.PROJECT) ? componentDto.path() : null);
   }
 }

@@ -20,11 +20,10 @@
 package org.sonar.batch.repository;
 
 import com.google.common.base.Function;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.batch.protocol.input.issues.PreviousIssue;
+import org.sonar.batch.protocol.input.BatchInput.ServerIssue;
 
-public interface PreviousIssuesLoader {
+public interface ServerIssuesLoader {
 
-  void load(ProjectReactor reactor, Function<PreviousIssue, Void> consumer);
+  void load(String componentKey, Function<ServerIssue, Void> consumer, boolean incremental);
 
 }

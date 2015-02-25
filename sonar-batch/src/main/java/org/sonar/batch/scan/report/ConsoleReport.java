@@ -21,42 +21,43 @@ package org.sonar.batch.scan.report;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.batch.issue.IssueCache;
+import org.sonar.batch.scan.filesystem.InputPathCache;
 
 @Properties({
   @Property(key = ConsoleReport.CONSOLE_REPORT_ENABLED_KEY, name = "Enable console report", description = "Set this to true to generate a report in console output",
     type = PropertyType.BOOLEAN, defaultValue = "false")})
 public class ConsoleReport implements Reporter {
-  private static final Logger LOG = LoggerFactory.getLogger(ConsoleReport.class);
+
+  @VisibleForTesting
+  public static final String HEADER = "-------------  Issues Report  -------------";
+
+  private static final Logger LOG = Loggers.get(ConsoleReport.class);
 
   public static final String CONSOLE_REPORT_ENABLED_KEY = "sonar.issuesReport.console.enable";
   private static final int LEFT_PAD = 10;
 
   private Settings settings;
-  private Logger logger;
-
   private IssueCache issueCache;
-
-  public ConsoleReport(Settings settings, IssueCache issueCache) {
-    this(settings, issueCache, LOG);
-  }
+  private InputPathCache inputPathCache;
 
   @VisibleForTesting
-  public ConsoleReport(Settings settings, IssueCache issueCache, Logger logger) {
+  public ConsoleReport(Settings settings, IssueCache issueCache, InputPathCache inputPathCache) {
     this.settings = settings;
     this.issueCache = issueCache;
-    this.logger = logger;
+    this.inputPathCache = inputPathCache;
   }
 
   private static class Report {
+    boolean noFile = false;
     int totalNewIssues = 0;
     int newBlockerIssues = 0;
     int newCriticalIssues = 0;
@@ -88,24 +89,40 @@ public class ConsoleReport implements Reporter {
         }
       }
     }
+
+    public void setNoFile(boolean value) {
+      this.noFile = value;
+    }
   }
 
   @Override
   public void execute() {
     if (settings.getBoolean(CONSOLE_REPORT_ENABLED_KEY)) {
       Report r = new Report();
+      r.setNoFile(!inputPathCache.allFiles().iterator().hasNext());
       for (DefaultIssue issue : issueCache.all()) {
         r.process(issue);
       }
-      printNewIssues(r);
+      printReport(r);
     }
   }
 
-  public void printNewIssues(Report r) {
+  public void printReport(Report r) {
     StringBuilder sb = new StringBuilder();
 
+    sb.append("\n\n" + HEADER + "\n\n");
+    if (r.noFile) {
+      sb.append("  No file analyzed\n");
+    } else {
+      printNewIssues(r, sb);
+    }
+    sb.append("\n-------------------------------------------\n\n");
+
+    LOG.info(sb.toString());
+  }
+
+  private void printNewIssues(Report r, StringBuilder sb) {
     int newIssues = r.totalNewIssues;
-    sb.append("\n\n-------------  Issues Report  -------------\n\n");
     if (newIssues > 0) {
       sb.append(StringUtils.leftPad("+" + newIssues, LEFT_PAD)).append(" issue" + (newIssues > 1 ? "s" : "")).append("\n\n");
       printNewIssues(sb, r.newBlockerIssues, Severity.BLOCKER, "blocking");
@@ -116,9 +133,6 @@ public class ConsoleReport implements Reporter {
     } else {
       sb.append("  No new issue").append("\n");
     }
-    sb.append("\n-------------------------------------------\n\n");
-
-    logger.info(sb.toString());
   }
 
   private void printNewIssues(StringBuilder sb, int issueCount, String severity, String severityLabel) {

@@ -22,11 +22,11 @@ package org.sonar.batch.issue.tracking;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.issue.db.IssueDto;
 
-public class PreviousIssueFromDb implements PreviousIssue {
+public class ServerIssueFromDb implements ServerIssue {
 
   private IssueDto dto;
 
-  public PreviousIssueFromDb(IssueDto dto) {
+  public ServerIssueFromDb(IssueDto dto) {
     this.dto = dto;
   }
 

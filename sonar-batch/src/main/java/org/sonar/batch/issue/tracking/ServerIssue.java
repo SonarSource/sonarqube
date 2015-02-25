@@ -23,7 +23,7 @@ import org.sonar.api.rule.RuleKey;
 
 import javax.annotation.CheckForNull;
 
-public interface PreviousIssue {
+public interface ServerIssue {
 
   String key();
 

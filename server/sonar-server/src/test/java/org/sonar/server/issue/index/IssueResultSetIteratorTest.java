@@ -27,6 +27,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
@@ -58,15 +59,44 @@ public class IssueResultSetIteratorTest {
   }
 
   @Test
+  public void iterator_over_one_issue() throws Exception {
+    dbTester.prepareDbUnit(getClass(), "one_issue.xml");
+    IssueResultSetIterator it = IssueResultSetIterator.create(client, connection, 0L);
+    Map<String, IssueDoc> issuesByKey = issuesByKey(it);
+    it.close();
+
+    assertThat(issuesByKey).hasSize(1);
+
+    IssueDoc issue = issuesByKey.get("ABC");
+    assertThat(issue.key()).isEqualTo("ABC");
+    assertThat(issue.resolution()).isEqualTo("FIXED");
+    assertThat(issue.status()).isEqualTo("RESOLVED");
+    assertThat(issue.severity()).isEqualTo("BLOCKER");
+    assertThat(issue.isManualSeverity()).isFalse();
+    assertThat(issue.assignee()).isEqualTo("guy1");
+    assertThat(issue.authorLogin()).isEqualTo("guy2");
+    assertThat(issue.reporter()).isEqualTo("john");
+    assertThat(issue.checksum()).isEqualTo("FFFFF");
+    assertThat(issue.line()).isEqualTo(444);
+    assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("squid", "AvoidCycles"));
+    assertThat(issue.componentUuid()).isEqualTo("FILE1");
+    assertThat(issue.projectUuid()).isEqualTo("PROJECT1");
+    assertThat(issue.moduleUuid()).isEqualTo("PROJECT1");
+    assertThat(issue.modulePath()).isEqualTo(".PROJECT1.");
+    assertThat(issue.directoryPath()).isEqualTo("src/main/java");
+    assertThat(issue.filePath()).isEqualTo("src/main/java/Action.java");
+    assertThat(issue.tags()).containsOnly("tag1", "tag2", "tag3");
+    assertThat(issue.debt().toMinutes()).isGreaterThan(0L);
+    assertThat(issue.effortToFix()).isEqualTo(2d);
+    assertThat(issue.actionPlanKey()).isEqualTo("PLAN1");
+    assertThat(issue.attribute("JIRA")).isEqualTo("http://jira.com");
+  }
+
+  @Test
   public void iterator_over_issues() throws Exception {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
     IssueResultSetIterator it = IssueResultSetIterator.create(client, connection, 0L);
-    Map<String, IssueDoc> issuesByKey = Maps.uniqueIndex(it, new Function<IssueDoc, String>() {
-      @Override
-      public String apply(IssueDoc issue) {
-        return issue.key();
-      }
-    });
+    Map<String, IssueDoc> issuesByKey = issuesByKey(it);
     it.close();
 
     assertThat(issuesByKey).hasSize(4);
@@ -124,15 +154,10 @@ public class IssueResultSetIteratorTest {
   public void extract_directory_path() throws Exception {
     dbTester.prepareDbUnit(getClass(), "extract_directory_path.xml");
     IssueResultSetIterator it = IssueResultSetIterator.create(client, connection, 0L);
-    Map<String, IssueDoc> issuesByKey = Maps.uniqueIndex(it, new Function<IssueDoc, String>() {
-      @Override
-      public String apply(IssueDoc issue) {
-        return issue.key();
-      }
-    });
+    Map<String, IssueDoc> issuesByKey = issuesByKey(it);
     it.close();
 
-    assertThat(issuesByKey).hasSize(3);
+    assertThat(issuesByKey).hasSize(4);
 
     // File in sub directoy
     assertThat(issuesByKey.get("ABC").directoryPath()).isEqualTo("src/main/java");
@@ -140,8 +165,33 @@ public class IssueResultSetIteratorTest {
     // File in root directoy
     assertThat(issuesByKey.get("DEF").directoryPath()).isEqualTo("/");
 
+    // Module
+    assertThat(issuesByKey.get("EFG").filePath()).isNull();
+
     // Project
-    assertThat(issuesByKey.get("EFG").directoryPath()).isNull();
+    assertThat(issuesByKey.get("FGH").filePath()).isNull();
+  }
+
+  @Test
+  public void extract_file_path() throws Exception {
+    dbTester.prepareDbUnit(getClass(), "extract_file_path.xml");
+    IssueResultSetIterator it = IssueResultSetIterator.create(client, connection, 0L);
+    Map<String, IssueDoc> issuesByKey = issuesByKey(it);
+    it.close();
+
+    assertThat(issuesByKey).hasSize(4);
+
+    // File in sub directoy
+    assertThat(issuesByKey.get("ABC").filePath()).isEqualTo("src/main/java/Action.java");
+
+    // File in root directoy
+    assertThat(issuesByKey.get("DEF").filePath()).isEqualTo("pom.xml");
+
+    // Module
+    assertThat(issuesByKey.get("EFG").filePath()).isNull();
+
+    // Project
+    assertThat(issuesByKey.get("FGH").filePath()).isNull();
   }
 
   @Test
@@ -155,5 +205,14 @@ public class IssueResultSetIteratorTest {
 
     assertThat(it.hasNext()).isFalse();
     it.close();
+  }
+
+  private static Map<String, IssueDoc> issuesByKey(IssueResultSetIterator it) {
+    return Maps.uniqueIndex(it, new Function<IssueDoc, String>() {
+      @Override
+      public String apply(IssueDoc issue) {
+        return issue.key();
+      }
+    });
   }
 }
