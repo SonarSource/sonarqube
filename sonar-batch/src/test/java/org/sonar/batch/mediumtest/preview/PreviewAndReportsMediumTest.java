@@ -21,16 +21,20 @@ package org.sonar.batch.mediumtest.preview;
 
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.utils.log.LogTester;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.batch.protocol.Constants.Severity;
 import org.sonar.batch.protocol.input.ActiveRule;
+import org.sonar.batch.scan.report.ConsoleReport;
 import org.sonar.xoo.XooPlugin;
 
 import java.io.File;
@@ -42,8 +46,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class PreviewAndReportsMediumTest {
 
-  @org.junit.Rule
+  @Rule
   public TemporaryFolder temp = new TemporaryFolder();
+
+  @Rule
+  public LogTester logTester = new LogTester();
 
   private static SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
@@ -139,25 +146,57 @@ public class PreviewAndReportsMediumTest {
   public void testConsoleReport() throws Exception {
     File projectDir = new File(PreviewAndReportsMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
 
-    TaskResult result = tester
+    tester
       .newScanTask(new File(projectDir, "sonar-project.properties"))
       .property("sonar.issuesReport.console.enable", "true")
       .start();
 
-    // TODO wait for ability to assert on logs
+    assertThat(getReportLog()).contains("+13 issues", "+13 major");
+  }
+
+  private String getReportLog() {
+    for (String log : logTester.logs()) {
+      if (log.contains(ConsoleReport.HEADER)) {
+        return log;
+      }
+    }
+    throw new IllegalStateException("No console report");
   }
 
   @Test
   public void testHtmlReport() throws Exception {
     File projectDir = new File(PreviewAndReportsMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
 
-    TaskResult result = tester
+    tester
       .newScanTask(new File(projectDir, "sonar-project.properties"))
       .property("sonar.issuesReport.html.enable", "true")
       .start();
 
     assertThat(new File(projectDir, ".sonar/issues-report/issues-report.html")).exists();
     assertThat(new File(projectDir, ".sonar/issues-report/issues-report-light.html")).exists();
+  }
+
+  @Test
+  public void testHtmlReportNoFile() throws Exception {
+    File baseDir = temp.newFolder();
+    File srcDir = new File(baseDir, "src");
+    srcDir.mkdir();
+
+    tester.newTask()
+      .properties(ImmutableMap.<String, String>builder()
+        .put("sonar.task", "scan")
+        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+        .put("sonar.projectKey", "sample")
+        .put("sonar.projectName", "Foo Project")
+        .put("sonar.projectVersion", "1.0-SNAPSHOT")
+        .put("sonar.projectDescription", "Description of Foo Project")
+        .put("sonar.sources", "src")
+        .put("sonar.issuesReport.html.enable", "true")
+        .build())
+      .start();
+
+    assertThat(FileUtils.readFileToString(new File(baseDir, ".sonar/issues-report/issues-report.html"))).contains("No file analyzed");
+    assertThat(FileUtils.readFileToString(new File(baseDir, ".sonar/issues-report/issues-report-light.html"))).contains("No file analyzed");
   }
 
 }

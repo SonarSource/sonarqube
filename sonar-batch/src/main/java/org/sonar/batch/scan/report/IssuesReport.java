@@ -35,6 +35,7 @@ public class IssuesReport {
   public static final int TOO_MANY_ISSUES_THRESHOLD = 1000;
   private String title;
   private Date date;
+  private boolean noFile;
   private final ReportSummary summary = new ReportSummary();
   private final Map<BatchResource, ResourceReport> resourceReportsByResource = Maps.newLinkedHashMap();
 
@@ -59,6 +60,14 @@ public class IssuesReport {
 
   public void setDate(Date date) {
     this.date = date;
+  }
+
+  public boolean isNoFile() {
+    return noFile;
+  }
+
+  public void setNoFile(boolean noFile) {
+    this.noFile = noFile;
   }
 
   public Map<BatchResource, ResourceReport> getResourceReportsByResource() {
