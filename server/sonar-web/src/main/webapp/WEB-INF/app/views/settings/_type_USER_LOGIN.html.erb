@@ -1,0 +1,5 @@
+<%
+   options = {:id => id}
+   options[:size] = (defined? size) ? size : nil
+%>
+<%= property_input_field(name, PropertyType::TYPE_USER_LOGIN, value, PropertiesHelper::SCREEN_SETTINGS, options) %>

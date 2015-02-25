@@ -67,7 +67,7 @@ public class CorePropertyDefinitions {
         .category(CoreProperties.CATEGORY_GENERAL)
         .subCategory(CoreProperties.SUBCATEGORY_ISSUES)
         .onQualifiers(Qualifiers.PROJECT)
-        .type(PropertyType.STRING)
+        .type(PropertyType.USER_LOGIN)
         .build(),
 
       // BATCH

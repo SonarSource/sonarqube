@@ -104,6 +104,9 @@ module PropertiesHelper
         end
         select_tag name, select_options, html_options
 
+      when PropertyType::TYPE_USER_LOGIN
+        text_field_tag name, value, {:size => options[:size] || 50}.update(html_options)
+
       else
         hidden_field_tag id, html_options
     end

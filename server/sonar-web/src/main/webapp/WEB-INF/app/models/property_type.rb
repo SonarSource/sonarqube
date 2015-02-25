@@ -32,6 +32,7 @@ class PropertyType
   TYPE_FILTER = 'FILTER'
   # Since 3.7
   TYPE_ISSUE_FILTER = 'ISSUE_FILTER'
+  TYPE_USER_LOGIN = 'USER_LOGIN'
 
   def self.text_to_value(text, type)
     case type

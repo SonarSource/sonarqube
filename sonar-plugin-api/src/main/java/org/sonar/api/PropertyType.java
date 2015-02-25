@@ -80,5 +80,11 @@ public enum PropertyType {
    *
    * @since 3.3
    */
-  PROPERTY_SET
+  PROPERTY_SET,
+
+  /**
+   * User login
+   * @since 5.1
+   */
+  USER_LOGIN
 }
