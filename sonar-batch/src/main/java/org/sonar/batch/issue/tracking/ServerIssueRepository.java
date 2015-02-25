@@ -74,7 +74,7 @@ public class ServerIssueRepository implements BatchComponent {
         if (issue == null) {
           return null;
         }
-        String componentKey = issue.hasPath() ? ComponentKeys.createEffectiveKey(issue.getModuleKey(), issue.getPath()) : issue.getModuleKey();
+        String componentKey = ComponentKeys.createEffectiveKey(issue.getModuleKey(), issue.hasPath() ? issue.getPath() : null);
         BatchResource r = resourceCache.get(componentKey);
         if (r == null) {
           // Deleted resource

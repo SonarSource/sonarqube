@@ -45,7 +45,7 @@ public class ServerIssueFromWs implements ServerIssue {
 
   @Override
   public String checksum() {
-    return dto.getChecksum();
+    return dto.hasChecksum() ? dto.getChecksum() : null;
   }
 
   @Override

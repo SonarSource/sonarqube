@@ -317,7 +317,7 @@ public class BatchMediumTester {
     @Override
     public void load(String componentKey, Function<ServerIssue, Void> consumer, boolean incremental) {
       for (ServerIssue serverIssue : serverIssues) {
-        if (!incremental || ComponentKeys.createEffectiveKey(serverIssue.getModuleKey(), serverIssue.getPath()).equals(componentKey)) {
+        if (!incremental || ComponentKeys.createEffectiveKey(serverIssue.getModuleKey(), serverIssue.hasPath() ? serverIssue.getPath() : null).equals(componentKey)) {
           consumer.apply(serverIssue);
         }
       }

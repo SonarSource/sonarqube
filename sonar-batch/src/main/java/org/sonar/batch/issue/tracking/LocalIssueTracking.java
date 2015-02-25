@@ -189,19 +189,19 @@ public class LocalIssueTracking implements BatchComponent {
     }
   }
 
-  private DefaultIssue toUnmatchedIssue(org.sonar.batch.protocol.input.BatchInput.ServerIssue previous) {
+  private DefaultIssue toUnmatchedIssue(org.sonar.batch.protocol.input.BatchInput.ServerIssue serverIssue) {
     DefaultIssue issue = new DefaultIssue();
-    issue.setKey(previous.getKey());
-    issue.setStatus(previous.getStatus());
-    issue.setResolution(previous.hasResolution() ? previous.getResolution() : null);
-    issue.setMessage(previous.hasMsg() ? previous.getMsg() : null);
-    issue.setLine(previous.hasLine() ? previous.getLine() : null);
-    issue.setSeverity(previous.getSeverity().name());
-    issue.setAssignee(previous.hasAssigneeLogin() ? previous.getAssigneeLogin() : null);
-    issue.setComponentKey(previous.hasPath() ? ComponentKeys.createEffectiveKey(previous.getModuleKey(), previous.getPath()) : previous.getModuleKey());
-    issue.setManualSeverity(previous.getManualSeverity());
-    issue.setCreationDate(new Date(previous.getCreationDate()));
-    issue.setRuleKey(RuleKey.of(previous.getRuleRepository(), previous.getRuleKey()));
+    issue.setKey(serverIssue.getKey());
+    issue.setStatus(serverIssue.getStatus());
+    issue.setResolution(serverIssue.hasResolution() ? serverIssue.getResolution() : null);
+    issue.setMessage(serverIssue.hasMsg() ? serverIssue.getMsg() : null);
+    issue.setLine(serverIssue.hasLine() ? serverIssue.getLine() : null);
+    issue.setSeverity(serverIssue.getSeverity().name());
+    issue.setAssignee(serverIssue.hasAssigneeLogin() ? serverIssue.getAssigneeLogin() : null);
+    issue.setComponentKey(ComponentKeys.createEffectiveKey(serverIssue.getModuleKey(), serverIssue.hasPath() ? serverIssue.getPath() : null));
+    issue.setManualSeverity(serverIssue.getManualSeverity());
+    issue.setCreationDate(new Date(serverIssue.getCreationDate()));
+    issue.setRuleKey(RuleKey.of(serverIssue.getRuleRepository(), serverIssue.getRuleKey()));
     issue.setNew(false);
     return issue;
   }

@@ -69,7 +69,7 @@ public class PreviewAndReportsMediumTest {
     .activateRule(new ActiveRule("xoo", "OneIssuePerLine", null, "One issue per line", "MAJOR", null, "xoo"))
     .activateRule(new ActiveRule("manual", "MyManualIssue", null, "My manual issue", "MAJOR", null, null))
     .setPreviousAnalysisDate(new Date())
-    // Existing issue
+    // Existing issue that is still detected
     .mockServerIssue(org.sonar.batch.protocol.input.BatchInput.ServerIssue.newBuilder().setKey("xyz")
       .setModuleKey("sample")
       .setPath("xources/hello/HelloJava.xoo")
@@ -81,7 +81,7 @@ public class PreviewAndReportsMediumTest {
       .setChecksum(DigestUtils.md5Hex("packagehello;"))
       .setStatus("OPEN")
       .build())
-    // Resolved issue
+    // Existing issue that is no more detected (will be closed)
     .mockServerIssue(org.sonar.batch.protocol.input.BatchInput.ServerIssue.newBuilder().setKey("resolved")
       .setModuleKey("sample")
       .setPath("xources/hello/HelloJava.xoo")
@@ -91,6 +91,15 @@ public class PreviewAndReportsMediumTest {
       .setSeverity(Severity.MAJOR)
       .setCreationDate(date("14/03/2004"))
       .setChecksum(DigestUtils.md5Hex("dontexist"))
+      .setStatus("OPEN")
+      .build())
+    // Existing issue on project that is no more detected
+    .mockServerIssue(org.sonar.batch.protocol.input.BatchInput.ServerIssue.newBuilder().setKey("resolved-on-project")
+      .setModuleKey("sample")
+      .setRuleRepository("xoo")
+      .setRuleKey("OneIssuePerModule")
+      .setSeverity(Severity.CRITICAL)
+      .setCreationDate(date("14/03/2004"))
       .setStatus("OPEN")
       .build())
     // Manual issue
@@ -139,7 +148,7 @@ public class PreviewAndReportsMediumTest {
     }
     assertThat(newIssues).isEqualTo(13);
     assertThat(openIssues).isEqualTo(2);
-    assertThat(resolvedIssue).isEqualTo(1);
+    assertThat(resolvedIssue).isEqualTo(2);
   }
 
   @Test
