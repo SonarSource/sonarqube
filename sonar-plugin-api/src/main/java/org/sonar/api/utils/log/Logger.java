@@ -27,11 +27,11 @@ import javax.annotation.Nullable;
  * Example:
  * <pre>
  * public class MyClass {
- *   private final Logger logger = Loggers.get("logger_name");
+ *   private static final Logger LOGGER = Loggers.get("logger_name");
  *
  *   public void doSomething() {
- *     logger.info("something valuable for production environment");
- *     logger.warn("message with arguments {} and {}", "foo", 42);
+ *     LOGGER.info("something valuable for production environment");
+ *     LOGGER.warn("message with arguments {} and {}", "foo", 42);
  *   }
  * }
  * </pre>
@@ -165,8 +165,8 @@ public interface Logger {
    * the underlying logging facility does not allow to change level at
    * runtime.
    * <p/>
-   * This method must not be used to enable debug logs in tests. Use
-   * {@link org.sonar.api.utils.log.LogTester#enableDebug(boolean)}.
+   * This method must not be used to enable DEBUG or TRACE logs in tests. Use
+   * {@link org.sonar.api.utils.log.LogTester#setLevel(LoggerLevel)} instead.
    * <p/>
    * The standard use-case is to customize logging of embedded 3rd-party
    * libraries.
