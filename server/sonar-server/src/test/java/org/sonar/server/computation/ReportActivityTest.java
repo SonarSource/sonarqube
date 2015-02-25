@@ -20,48 +20,18 @@
 
 package org.sonar.server.computation;
 
-import com.google.common.collect.Iterables;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.core.activity.Activity;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.server.activity.ActivityService;
-import org.sonar.server.activity.index.ActivityIndex;
 import org.sonar.server.component.ComponentTesting;
-import org.sonar.server.db.DbClient;
-import org.sonar.server.tester.ServerTester;
 
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.activity.Activity.Type.ANALYSIS_REPORT;
 import static org.sonar.core.computation.db.AnalysisReportDto.Status.FAILED;
 
-public class AnalysisReportLogMediumTest {
-  @ClassRule
-  public static ServerTester tester = new ServerTester();
-
-  private ActivityService service = tester.get(ActivityService.class);
-  private ActivityIndex index = tester.get(ActivityIndex.class);
-  private DbSession dbSession;
-
-  private AnalysisReportLog sut;
-
-  @Before
-  public void before() {
-    tester.clearDbAndIndexes();
-    dbSession = tester.get(DbClient.class).openSession(false);
-  }
-
-  @After
-  public void after() {
-    dbSession.close();
-  }
+public class ReportActivityTest {
 
   @Test
   public void insert_find_analysis_report_log() {
@@ -74,15 +44,9 @@ public class AnalysisReportLogMediumTest {
       .setFinishedAt(DateUtils.parseDate("2014-10-18").getTime());
     ComponentDto project = ComponentTesting.newProjectDto();
 
-    service.write(dbSession, ANALYSIS_REPORT, new AnalysisReportLog(report, project));
-    dbSession.commit();
+    ReportActivity activity = new ReportActivity(report, project);
 
-    // 0. AssertBase case
-    assertThat(index.findAll().getHits()).hasSize(1);
-
-    Activity activity = Iterables.getFirst(index.findAll().getHits(), null);
-    assertThat(activity).isNotNull();
-    Map<String, String> details = activity.details();
+    Map<String, String> details = activity.getDetails();
     assertThat(details.get("key")).isEqualTo(String.valueOf(report.getId()));
     assertThat(details.get("projectKey")).isEqualTo(project.key());
     assertThat(details.get("projectName")).isEqualTo(project.name());

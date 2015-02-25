@@ -32,7 +32,11 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 import static org.sonar.api.utils.DateUtils.dateToLong;
 
@@ -69,7 +73,7 @@ public class PurgeDao {
     PurgeCommands commands = new PurgeCommands(session, mapper, profiler);
     List<ResourceDto> projects = getProjects(conf.rootProjectIdUuid().getId(), session);
     for (ResourceDto project : projects) {
-      LOG.info("-> Clean " + project.getLongName() + " [id=" + project.getId() + "]");
+      LOG.debug("-> Clean " + project.getLongName() + " [id=" + project.getId() + "]");
       deleteAbortedBuilds(project, commands);
       purge(project, conf.scopesWithoutHistoricalData(), commands);
     }
@@ -87,7 +91,7 @@ public class PurgeDao {
 
   private void deleteAbortedBuilds(ResourceDto project, PurgeCommands commands) {
     if (hasAbortedBuilds(project.getId(), commands)) {
-      LOG.info("<- Delete aborted builds");
+      LOG.debug("<- Delete aborted builds");
       PurgeSnapshotQuery query = PurgeSnapshotQuery.create()
         .setIslast(false)
         .setStatus(new String[] {"U"})
@@ -112,7 +116,7 @@ public class PurgeDao {
         .setNotPurged(true)
       );
     for (final Long projectSnapshotId : projectSnapshotIds) {
-      LOG.info("<- Clean snapshot " + projectSnapshotId);
+      LOG.debug("<- Clean snapshot " + projectSnapshotId);
       if (!ArrayUtils.isEmpty(scopesWithoutHistoricalData)) {
         PurgeSnapshotQuery query = PurgeSnapshotQuery.create()
           .setIslast(false)

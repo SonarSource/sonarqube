@@ -19,6 +19,7 @@
  */
 package org.sonar.core.component;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.component.Component;
 import org.sonar.api.resources.Scopes;
 import org.sonar.core.persistence.Dto;
@@ -238,6 +239,7 @@ public class ComponentDto extends Dto<String> implements Component {
     return moduleUuid == null && Scopes.PROJECT.equals(scope);
   }
 
+  // FIXME equals/hashCode mean nothing on DTOs, especially when on id
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -246,19 +248,40 @@ public class ComponentDto extends Dto<String> implements Component {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-
     ComponentDto that = (ComponentDto) o;
-
-    if (!id.equals(that.id)) {
+    if (id != null ? !id.equals(that.id) : that.id != null) {
       return false;
     }
-
     return true;
   }
 
+  // FIXME equals/hashCode mean nothing on DTOs, especially when on id
   @Override
   public int hashCode() {
-    return id.hashCode();
+    return id != null ? id.hashCode() : 0;
+  }
+
+  @Override
+  public String toString() {
+    return new ToStringBuilder(this)
+      .append("id", id)
+      .append("uuid", uuid)
+      .append("kee", kee)
+      .append("scope", scope)
+      .append("qualifier", qualifier)
+      .append("projectUuid", projectUuid)
+      .append("moduleUuid", moduleUuid)
+      .append("moduleUuidPath", moduleUuidPath)
+      .append("parentProjectId", parentProjectId)
+      .append("copyResourceId", copyResourceId)
+      .append("path", path)
+      .append("deprecatedKey", deprecatedKey)
+      .append("name", name)
+      .append("longName", longName)
+      .append("language", language)
+      .append("enabled", enabled)
+      .append("authorizationUpdatedAt", authorizationUpdatedAt)
+      .toString();
   }
 
   @Override

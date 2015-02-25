@@ -19,25 +19,45 @@
  */
 package org.sonar.server.computation;
 
+import org.sonar.api.platform.ComponentContainer;
 import org.sonar.core.issue.db.UpdateConflictResolver;
-import org.sonar.server.computation.issue.*;
+import org.sonar.server.computation.issue.IssueCache;
+import org.sonar.server.computation.issue.IssueComputation;
+import org.sonar.server.computation.issue.RuleCache;
+import org.sonar.server.computation.issue.RuleCacheLoader;
+import org.sonar.server.computation.issue.ScmAccountCache;
+import org.sonar.server.computation.issue.ScmAccountCacheLoader;
+import org.sonar.server.computation.issue.SourceLinesCache;
 import org.sonar.server.computation.step.ComputationSteps;
+import org.sonar.server.platform.Platform;
 import org.sonar.server.view.index.ViewIndex;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class ComputationComponents {
+public class ComputationContainer {
 
-  private ComputationComponents() {
-    // only static stuff
+  public void execute(ReportQueue.Item item) {
+    ComponentContainer container = Platform.getInstance().getContainer();
+    ComponentContainer child = container.createChild();
+    child.addSingletons(componentClasses());
+    child.addSingletons(ComputationSteps.orderedStepClasses());
+    child.startComponents();
+    try {
+      child.getComponentByType(ComputationService.class).process(item);
+    } finally {
+      child.stopComponents();
+      // TODO not possible to have multiple children -> will be
+      // a problem when we will have multiple concurrent computation workers
+      container.removeChild();
+    }
   }
 
   /**
-   * List of all objects to be injected in the picocontainer dedicated to computation stack. 
+   * List of all objects to be injected in the picocontainer dedicated to computation stack.
    * Does not contain the steps declared in {@link org.sonar.server.computation.step.ComputationSteps#orderedStepClasses()}.
    */
-  public static List nonStepComponents() {
+  static List componentClasses() {
     return Arrays.asList(
       ComputationService.class,
       ComputationSteps.class,

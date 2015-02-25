@@ -23,16 +23,12 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.io.InputStream;
 
 public class AnalysisReportDto {
   private Long id;
   private String projectKey;
   private Status status;
-  private InputStream data;
-  private Long snapshotId;
+  private String uuid;
   private Long createdAt;
   private Long updatedAt;
   private Long startedAt;
@@ -76,17 +72,13 @@ public class AnalysisReportDto {
     this.status = Status.SUCCESS;
   }
 
-  public InputStream getData() {
-    return data;
+  public String getUuid() {
+    return uuid;
   }
 
-  public AnalysisReportDto setData(@Nullable InputStream data) {
-    this.data = data;
+  public AnalysisReportDto setUuid(String s) {
+    this.uuid = s;
     return this;
-  }
-
-  public String getKey() {
-    return String.valueOf(getId());
   }
 
   public Long getId() {
@@ -98,21 +90,12 @@ public class AnalysisReportDto {
     return Objects.toStringHelper(this)
       .add("id", getId())
       .add("projectKey", getProjectKey())
-      .add("snapshotId", getSnapshotId())
+      .add("uuid", getUuid())
       .add("status", getStatus())
       .add("createdAt", getCreatedAt())
       .add("startedAt", getStartedAt())
       .add("finishedAt", getFinishedAt())
       .toString();
-  }
-
-  public Long getSnapshotId() {
-    return snapshotId;
-  }
-
-  public AnalysisReportDto setSnapshotId(Long snapshotId) {
-    this.snapshotId = snapshotId;
-    return this;
   }
 
   @CheckForNull

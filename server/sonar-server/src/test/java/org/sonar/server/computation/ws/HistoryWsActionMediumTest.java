@@ -37,8 +37,8 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.user.UserDto;
 import org.sonar.server.activity.ActivityService;
 import org.sonar.server.component.ComponentTesting;
-import org.sonar.server.computation.AnalysisReportLog;
-import org.sonar.server.computation.AnalysisReportQueue;
+import org.sonar.server.computation.ReportActivity;
+import org.sonar.server.computation.ReportQueue;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.ServerTester;
@@ -50,8 +50,8 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * TODO replace this medium test by a small test
- */
+* TODO replace this medium test by a small test
+*/
 public class HistoryWsActionMediumTest {
   private static final String DEFAULT_PROJECT_KEY = "DefaultProjectKey";
   private static final String DEFAULT_PROJECT_NAME = "DefaultProjectName";
@@ -63,7 +63,7 @@ public class HistoryWsActionMediumTest {
   private DbClient dbClient;
   private DbSession session;
   private WsTester wsTester;
-  private AnalysisReportQueue queue;
+  private ReportQueue queue;
   private MockUserSession userSession;
   private ActivityService activityService;
 
@@ -73,7 +73,7 @@ public class HistoryWsActionMediumTest {
     dbClient = tester.get(DbClient.class);
     wsTester = tester.get(WsTester.class);
     session = dbClient.openSession(false);
-    queue = tester.get(AnalysisReportQueue.class);
+    queue = tester.get(ReportQueue.class);
     activityService = tester.get(ActivityService.class);
 
     UserDto connectedUser = new UserDto().setLogin("gandalf").setName("Gandalf");
@@ -93,9 +93,9 @@ public class HistoryWsActionMediumTest {
   @Test
   public void add_and_try_to_retrieve_activities() throws Exception {
     insertPermissionsForProject(DEFAULT_PROJECT_KEY);
-    queue.add(DEFAULT_PROJECT_KEY, 123L, IOUtils.toInputStream(DEFAULT_REPORT_DATA));
-    queue.add(DEFAULT_PROJECT_KEY, 123L, IOUtils.toInputStream(DEFAULT_REPORT_DATA));
-    queue.add(DEFAULT_PROJECT_KEY, 123L, IOUtils.toInputStream(DEFAULT_REPORT_DATA));
+    queue.add(DEFAULT_PROJECT_KEY, IOUtils.toInputStream(DEFAULT_REPORT_DATA));
+    queue.add(DEFAULT_PROJECT_KEY, IOUtils.toInputStream(DEFAULT_REPORT_DATA));
+    queue.add(DEFAULT_PROJECT_KEY, IOUtils.toInputStream(DEFAULT_REPORT_DATA));
 
     List<AnalysisReportDto> reports = queue.all();
     ComponentDto project = ComponentTesting.newProjectDto()
@@ -103,13 +103,13 @@ public class HistoryWsActionMediumTest {
       .setKey(DEFAULT_PROJECT_KEY);
     for (AnalysisReportDto report : reports) {
       report.succeed();
-      activityService.write(session, Activity.Type.ANALYSIS_REPORT, new AnalysisReportLog(report, project));
+      activityService.write(session, Activity.Type.ANALYSIS_REPORT, new ReportActivity(report, project));
     }
 
     session.commit();
     userSession.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
-    WsTester.TestRequest request = wsTester.newGetRequest(ComputationWebService.API_ENDPOINT, HistoryWsAction.SEARCH_ACTION);
+    WsTester.TestRequest request = wsTester.newGetRequest(ComputationWebService.API_ENDPOINT, "history");
     WsTester.Result result = request.execute();
 
     assertThat(result).isNotNull();
@@ -132,14 +132,14 @@ public class HistoryWsActionMediumTest {
   @Test(expected = ForbiddenException.class)
   public void user_rights_is_not_enough_throw_ForbiddenException() throws Exception {
     insertPermissionsForProject(DEFAULT_PROJECT_KEY);
-    queue.add(DEFAULT_PROJECT_KEY, 123L, IOUtils.toInputStream(DEFAULT_REPORT_DATA));
+    queue.add(DEFAULT_PROJECT_KEY, IOUtils.toInputStream(DEFAULT_REPORT_DATA));
 
     AnalysisReportDto report = queue.all().get(0);
     report.succeed();
-    queue.remove(report);
+    // queue.remove(report);
     userSession.setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
 
-    WsTester.TestRequest sut = wsTester.newGetRequest(ComputationWebService.API_ENDPOINT, HistoryWsAction.SEARCH_ACTION);
+    WsTester.TestRequest sut = wsTester.newGetRequest(ComputationWebService.API_ENDPOINT, "history");
     sut.execute();
   }
 }

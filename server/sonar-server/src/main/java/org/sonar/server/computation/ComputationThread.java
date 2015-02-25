@@ -20,67 +20,56 @@
 
 package org.sonar.server.computation;
 
-
-import org.sonar.api.platform.ComponentContainer;
+import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.computation.db.AnalysisReportDto;
-import org.sonar.server.computation.step.ComputationSteps;
-import org.sonar.server.platform.Platform;
 
 /**
- * This thread pops queue of reports and processes the report if present
+ * This thread pops a report from the queue and integrate it.
  */
 public class ComputationThread implements Runnable {
+
   private static final Logger LOG = Loggers.get(ComputationThread.class);
 
-  private final AnalysisReportQueue queue;
+  private final ReportQueue queue;
+  private final ComputationContainer container;
 
-  public ComputationThread(AnalysisReportQueue queue) {
+  public ComputationThread(ReportQueue queue) {
     this.queue = queue;
+    this.container = new ComputationContainer();
+  }
+
+  @VisibleForTesting
+  ComputationThread(ReportQueue queue, ComputationContainer container) {
+    this.queue = queue;
+    this.container = container;
   }
 
   @Override
   public void run() {
-    AnalysisReportDto report = null;
+    ReportQueue.Item item = null;
     try {
-      report = queue.pop();
+      item = queue.pop();
     } catch (Exception e) {
       LOG.error("Failed to pop the queue of analysis reports", e);
     }
-    if (report != null) {
+    if (item != null) {
       try {
-        process(report);
+        container.execute(item);
       } catch (Exception e) {
         LOG.error(String.format(
-          "Failed to process analysis report %d of project %s", report.getId(), report.getProjectKey()), e);
+          "Failed to process analysis report %d of project %s", item.dto.getId(), item.dto.getProjectKey()), e);
       } finally {
-        removeSilentlyFromQueue(report);
+        removeSilentlyFromQueue(item);
       }
     }
   }
 
-  private void removeSilentlyFromQueue(AnalysisReportDto report) {
+  private void removeSilentlyFromQueue(ReportQueue.Item item) {
     try {
-      queue.remove(report);
+      queue.remove(item);
     } catch (Exception e) {
-      LOG.error(String.format("Failed to remove analysis report %d from queue", report.getId()), e);
-    }
-  }
-
-  private void process(AnalysisReportDto report) {
-    ComponentContainer container = Platform.getInstance().getContainer();
-    ComponentContainer child = container.createChild();
-    child.addSingletons(ComputationSteps.orderedStepClasses());
-    child.addSingletons(ComputationComponents.nonStepComponents());
-    child.startComponents();
-    try {
-      child.getComponentByType(ComputationService.class).process(report);
-    } finally {
-      child.stopComponents();
-      // TODO not possible to have multiple children -> will be
-      // a problem when we will have multiple concurrent computation workers
-      container.removeChild();
+      LOG.error(String.format("Failed to remove analysis report %d from queue", item.dto.getId()), e);
     }
   }
 }

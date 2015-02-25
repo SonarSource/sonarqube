@@ -33,7 +33,6 @@ import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.ZipUtils;
 import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.ServerClient;
-import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.protocol.output.BatchOutputWriter;
 
 import java.io.File;
@@ -50,26 +49,24 @@ public class PublishReportJob implements BatchComponent {
   private final Settings settings;
   private final Project project;
   private final DefaultAnalysisMode analysisMode;
-  private final ResourceCache resourceCache;
   private final TempFolder temp;
 
   private ReportPublisher[] publishers;
 
   public PublishReportJob(Settings settings, ServerClient serverClient, Server server,
-    Project project, DefaultAnalysisMode analysisMode, TempFolder temp, ResourceCache resourceCache, ReportPublisher[] publishers) {
+    Project project, DefaultAnalysisMode analysisMode, TempFolder temp, ReportPublisher[] publishers) {
     this.serverClient = serverClient;
     this.server = server;
     this.project = project;
     this.settings = settings;
     this.analysisMode = analysisMode;
     this.temp = temp;
-    this.resourceCache = resourceCache;
     this.publishers = publishers;
   }
 
   public PublishReportJob(Settings settings, ServerClient serverClient, Server server,
-    Project project, DefaultAnalysisMode analysisMode, TempFolder temp, ResourceCache resourceCache) {
-    this(settings, serverClient, server, project, analysisMode, temp, resourceCache, new ReportPublisher[0]);
+    Project project, DefaultAnalysisMode analysisMode, TempFolder temp) {
+    this(settings, serverClient, server, project, analysisMode, temp, new ReportPublisher[0]);
   }
 
   public void execute() {
@@ -112,8 +109,7 @@ public class PublishReportJob implements BatchComponent {
     long startTime = System.currentTimeMillis();
     URL url;
     try {
-      int snapshotId = resourceCache.get(project.getEffectiveKey()).snapshotId();
-      url = new URL(serverClient.getURL() + "/api/computation/submit_report?projectKey=" + project.getEffectiveKey() + "&snapshot=" + snapshotId);
+      url = new URL(serverClient.getURL() + "/api/computation/submit_report?projectKey=" + project.getEffectiveKey());
     } catch (MalformedURLException e) {
       throw new IllegalArgumentException("Invalid URL", e);
     }

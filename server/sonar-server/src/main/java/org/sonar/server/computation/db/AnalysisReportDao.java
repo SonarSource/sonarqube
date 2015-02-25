@@ -21,27 +21,14 @@
 package org.sonar.server.computation.db;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.io.ByteStreams;
-import org.apache.commons.io.IOUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.ZipUtils;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.computation.db.AnalysisReportMapper;
 import org.sonar.core.persistence.DaoComponent;
-import org.sonar.core.persistence.DatabaseUtils;
 import org.sonar.core.persistence.DbSession;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
 import java.util.List;
 
 import static org.sonar.core.computation.db.AnalysisReportDto.Status.PENDING;
@@ -55,8 +42,7 @@ public class AnalysisReportDao implements DaoComponent {
     this(System2.INSTANCE);
   }
 
-  @VisibleForTesting
-  AnalysisReportDao(System2 system2) {
+  public AnalysisReportDao(System2 system2) {
     this.system2 = system2;
   }
 
@@ -111,76 +97,8 @@ public class AnalysisReportDao implements DaoComponent {
   public AnalysisReportDto insert(DbSession session, AnalysisReportDto report) {
     report.setCreatedAt(system2.now());
     report.setUpdatedAt(system2.now());
-
-    Connection connection = session.getConnection();
-    PreparedStatement ps = null;
-    try {
-      ps = connection.prepareStatement(
-        "insert into analysis_reports " +
-          " (project_key, snapshot_id, report_status, report_data, created_at, updated_at, started_at, finished_at)" +
-          " values (?, ?, ?, ?, ?, ?, ?, ?)");
-      ps.setString(1, report.getProjectKey());
-      ps.setLong(2, report.getSnapshotId());
-      ps.setString(3, report.getStatus().toString());
-      setData(ps, 4, report.getData());
-      ps.setLong(5, report.getCreatedAt());
-      setLong(ps, 6, report.getUpdatedAt());
-      setLong(ps, 7, report.getStartedAt());
-      setLong(ps, 8, report.getFinishedAt());
-      ps.executeUpdate();
-      connection.commit();
-    } catch (SQLException | IOException e) {
-      throw new IllegalStateException(String.format("Failed to insert %s in the database", report), e);
-    } finally {
-      DatabaseUtils.closeQuietly(ps);
-    }
-
+    mapper(session).insert(report);
     return report;
-  }
-
-  private void setLong(PreparedStatement ps, int index, @Nullable Long time) throws SQLException {
-    if (time == null) {
-      ps.setNull(index, Types.BIGINT);
-    } else {
-      ps.setLong(index, time);
-    }
-  }
-
-  private void setData(PreparedStatement ps, int parameterIndex, @Nullable InputStream reportDataStream) throws IOException, SQLException {
-    if (reportDataStream == null) {
-      ps.setBytes(parameterIndex, null);
-    } else {
-      ps.setBytes(parameterIndex, ByteStreams.toByteArray(reportDataStream));
-    }
-  }
-
-  @CheckForNull
-  public void selectAndDecompressToDir(DbSession session, long id, File toDir) {
-    Connection connection = session.getConnection();
-    InputStream stream = null;
-    PreparedStatement ps = null;
-    ResultSet rs = null;
-    try {
-      ps = connection.prepareStatement("select report_data from analysis_reports where id=?");
-      ps.setLong(1, id);
-
-      rs = ps.executeQuery();
-      if (rs.next()) {
-        stream = rs.getBinaryStream(1);
-        if (stream != null) {
-          ZipUtils.unzip(stream, toDir);
-        }
-      }
-      // TODO what to do if id not found or no stream ?
-    } catch (SQLException e) {
-      throw new IllegalStateException(String.format("Failed to read report '%d' in the database", id), e);
-    } catch (IOException e) {
-      throw new IllegalStateException(String.format("Failed to decompress report '%d'", id), e);
-    } finally {
-      IOUtils.closeQuietly(stream);
-      DatabaseUtils.closeQuietly(rs);
-      DatabaseUtils.closeQuietly(ps);
-    }
   }
 
   public void delete(DbSession session, long id) {

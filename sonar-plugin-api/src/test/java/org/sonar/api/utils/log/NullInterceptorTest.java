@@ -28,10 +28,10 @@ public class NullInterceptorTest {
   @Test
   public void do_not_throws_exception() throws Exception {
     // verify that... it does nothing
-    NullInterceptor.NULL_INSTANCE.log("foo");
-    NullInterceptor.NULL_INSTANCE.log("foo {}", 42);
-    NullInterceptor.NULL_INSTANCE.log("foo {} {}", 42, 66);
-    NullInterceptor.NULL_INSTANCE.log("foo {} {} {}", 42, 66, 84);
-    NullInterceptor.NULL_INSTANCE.log("foo", mock(Exception.class));
+    NullInterceptor.NULL_INSTANCE.log(LoggerLevel.INFO, "foo");
+    NullInterceptor.NULL_INSTANCE.log(LoggerLevel.INFO, "foo {}", 42);
+    NullInterceptor.NULL_INSTANCE.log(LoggerLevel.INFO, "foo {} {}", 42, 66);
+    NullInterceptor.NULL_INSTANCE.log(LoggerLevel.INFO, "foo {} {} {}", 42, 66, 84);
+    NullInterceptor.NULL_INSTANCE.log(LoggerLevel.INFO, "foo", mock(Exception.class));
   }
 }
