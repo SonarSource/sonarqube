@@ -29,29 +29,17 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
 import org.sonar.api.utils.internal.TempFolderCleaner;
 import org.sonar.batch.components.PastSnapshotFinder;
-import org.sonar.batch.deprecated.components.PastSnapshotFinderByDate;
-import org.sonar.batch.deprecated.components.PastSnapshotFinderByDays;
-import org.sonar.batch.deprecated.components.PastSnapshotFinderByPreviousAnalysis;
-import org.sonar.batch.deprecated.components.PastSnapshotFinderByPreviousVersion;
-import org.sonar.batch.deprecated.components.PastSnapshotFinderByVersion;
+import org.sonar.batch.deprecated.components.*;
+import org.sonar.batch.issue.tracking.DefaultServerLineHashesLoader;
+import org.sonar.batch.issue.tracking.ServerLineHashesLoader;
 import org.sonar.batch.platform.DefaultServer;
-import org.sonar.batch.repository.DefaultGlobalRepositoriesLoader;
-import org.sonar.batch.repository.DefaultProjectRepositoriesLoader;
-import org.sonar.batch.repository.DefaultServerIssuesLoader;
-import org.sonar.batch.repository.GlobalRepositoriesLoader;
-import org.sonar.batch.repository.GlobalRepositoriesProvider;
-import org.sonar.batch.repository.ProjectRepositoriesLoader;
-import org.sonar.batch.repository.ServerIssuesLoader;
+import org.sonar.batch.repository.*;
 import org.sonar.batch.repository.user.UserRepository;
 import org.sonar.core.cluster.NullQueue;
 import org.sonar.core.config.Logback;
 import org.sonar.core.i18n.DefaultI18n;
 import org.sonar.core.i18n.RuleI18nManager;
-import org.sonar.core.persistence.DaoUtils;
-import org.sonar.core.persistence.DatabaseVersion;
-import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.persistence.SemaphoreUpdater;
-import org.sonar.core.persistence.SemaphoresImpl;
+import org.sonar.core.persistence.*;
 import org.sonar.core.purge.PurgeProfiler;
 import org.sonar.core.rule.CacheRuleFinder;
 import org.sonar.core.user.HibernateUserFinder;
@@ -118,6 +106,9 @@ public class GlobalContainer extends ComponentContainer {
     }
     if (getComponentByType(ServerIssuesLoader.class) == null) {
       add(DefaultServerIssuesLoader.class);
+    }
+    if (getComponentByType(ServerLineHashesLoader.class) == null) {
+      add(DefaultServerLineHashesLoader.class);
     }
   }
 

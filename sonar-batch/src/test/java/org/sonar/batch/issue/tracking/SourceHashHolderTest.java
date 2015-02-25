@@ -28,7 +28,6 @@ import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.batch.scan.LastLineHashes;
 
 import java.io.File;
 
@@ -45,14 +44,14 @@ public class SourceHashHolderTest {
 
   SourceHashHolder sourceHashHolder;
 
-  LastLineHashes lastSnapshots;
+  ServerLineHashesLoader lastSnapshots;
   DefaultInputFile file;
 
   private File ioFile;
 
   @Before
   public void setUp() throws Exception {
-    lastSnapshots = mock(LastLineHashes.class);
+    lastSnapshots = mock(ServerLineHashesLoader.class);
     file = mock(DefaultInputFile.class);
     ioFile = temp.newFile();
     when(file.file()).thenReturn(ioFile);

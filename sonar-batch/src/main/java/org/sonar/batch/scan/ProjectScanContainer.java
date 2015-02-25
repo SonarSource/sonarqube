@@ -34,30 +34,14 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.batch.DefaultFileLinesContextFactory;
 import org.sonar.batch.ProjectConfigurator;
 import org.sonar.batch.ProjectTree;
-import org.sonar.batch.bootstrap.DefaultAnalysisMode;
-import org.sonar.batch.bootstrap.ExtensionInstaller;
-import org.sonar.batch.bootstrap.ExtensionMatcher;
-import org.sonar.batch.bootstrap.ExtensionUtils;
-import org.sonar.batch.bootstrap.MetricProvider;
+import org.sonar.batch.bootstrap.*;
 import org.sonar.batch.debt.DebtModelProvider;
 import org.sonar.batch.debt.IssueChangelogDebtCalculator;
 import org.sonar.batch.dependency.DependencyCache;
 import org.sonar.batch.deprecated.components.DefaultResourceCreationLock;
 import org.sonar.batch.deprecated.components.PeriodsDefinition;
 import org.sonar.batch.duplication.DuplicationCache;
-import org.sonar.batch.index.Caches;
-import org.sonar.batch.index.ComponentDataCache;
-import org.sonar.batch.index.DefaultIndex;
-import org.sonar.batch.index.DependencyPersister;
-import org.sonar.batch.index.DuplicationPersister;
-import org.sonar.batch.index.EventPersister;
-import org.sonar.batch.index.LinkPersister;
-import org.sonar.batch.index.MeasurePersister;
-import org.sonar.batch.index.ResourceCache;
-import org.sonar.batch.index.ResourceKeyMigration;
-import org.sonar.batch.index.ResourcePersister;
-import org.sonar.batch.index.SourceDataFactory;
-import org.sonar.batch.index.SourcePersister;
+import org.sonar.batch.index.*;
 import org.sonar.batch.issue.DefaultProjectIssues;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.issue.tracking.InitialOpenIssuesStack;
@@ -144,7 +128,6 @@ public class ProjectScanContainer extends ComponentContainer {
       ProjectConfigurator.class,
       DefaultIndex.class,
       DefaultFileLinesContextFactory.class,
-      LastLineHashes.class,
       Caches.class,
       ResourceCache.class,
       ComponentDataCache.class,

@@ -49,7 +49,6 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.issue.IssueCache;
-import org.sonar.batch.scan.LastLineHashes;
 import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.db.IssueChangeDto;
@@ -68,7 +67,7 @@ public class IssueTrackingDecorator implements Decorator {
   private final IssueCache issueCache;
   private final InitialOpenIssuesStack initialOpenIssues;
   private final IssueTracking tracking;
-  private final LastLineHashes lastLineHashes;
+  private final ServerLineHashesLoader lastLineHashes;
   private final IssueHandlers handlers;
   private final IssueWorkflow workflow;
   private final IssueUpdater updater;
@@ -80,7 +79,7 @@ public class IssueTrackingDecorator implements Decorator {
   private final Project project;
 
   public IssueTrackingDecorator(IssueCache issueCache, InitialOpenIssuesStack initialOpenIssues, IssueTracking tracking,
-    LastLineHashes lastLineHashes,
+    ServerLineHashesLoader lastLineHashes,
     IssueHandlers handlers, IssueWorkflow workflow,
     IssueUpdater updater,
     Project project,

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.scan;
+package org.sonar.batch.issue.tracking;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -35,7 +35,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class LastLineHashesTest {
+public class DefaultServerLineHashesLoaderTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -49,7 +49,7 @@ public class LastLineHashesTest {
     ServerClient server = mock(ServerClient.class);
     when(server.request(anyString())).thenReturn("ae12\n\n43fb");
 
-    LastLineHashes lastSnapshots = new LastLineHashes(server);
+    ServerLineHashesLoader lastSnapshots = new DefaultServerLineHashesLoader(server);
 
     String[] hashes = lastSnapshots.getLineHashes("myproject:org/foo/Bar.c");
     assertThat(hashes).containsOnly("ae12", "", "43fb");
@@ -61,7 +61,7 @@ public class LastLineHashesTest {
     ServerClient server = mock(ServerClient.class);
     when(server.request(anyString())).thenReturn("ae12\n\n43fb");
 
-    LastLineHashes lastSnapshots = new LastLineHashes(server);
+    ServerLineHashesLoader lastSnapshots = new DefaultServerLineHashesLoader(server);
 
     String[] hashes = lastSnapshots.getLineHashes("myproject:org/foo/Foo Bar.c");
     assertThat(hashes).containsOnly("ae12", "", "43fb");
@@ -73,7 +73,7 @@ public class LastLineHashesTest {
     ServerClient server = mock(ServerClient.class);
     when(server.request(anyString())).thenThrow(new HttpDownloader.HttpException(new URI(""), 500));
 
-    LastLineHashes lastSnapshots = new LastLineHashes(server);
+    ServerLineHashesLoader lastSnapshots = new DefaultServerLineHashesLoader(server);
 
     thrown.expect(HttpDownloader.HttpException.class);
     lastSnapshots.getLineHashes("foo");

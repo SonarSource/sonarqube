@@ -22,7 +22,6 @@ package org.sonar.batch.issue.tracking;
 import com.google.common.collect.ImmutableSet;
 import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.batch.scan.LastLineHashes;
 
 import javax.annotation.CheckForNull;
 
@@ -30,13 +29,13 @@ import java.util.Collection;
 
 public class SourceHashHolder {
 
-  private final LastLineHashes lastSnapshots;
+  private final ServerLineHashesLoader lastSnapshots;
 
   private FileHashes hashedReference;
   private FileHashes hashedSource;
   private DefaultInputFile inputFile;
 
-  public SourceHashHolder(DefaultInputFile inputFile, LastLineHashes lastSnapshots) {
+  public SourceHashHolder(DefaultInputFile inputFile, ServerLineHashesLoader lastSnapshots) {
     this.inputFile = inputFile;
     this.lastSnapshots = lastSnapshots;
   }

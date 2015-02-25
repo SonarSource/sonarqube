@@ -38,7 +38,6 @@ import org.sonar.batch.index.BatchResource;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.protocol.input.ProjectRepositories;
-import org.sonar.batch.scan.LastLineHashes;
 import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.issue.IssueUpdater;
@@ -56,7 +55,7 @@ public class LocalIssueTracking implements BatchComponent {
 
   private final IssueCache issueCache;
   private final IssueTracking tracking;
-  private final LastLineHashes lastLineHashes;
+  private final ServerLineHashesLoader lastLineHashes;
   private final IssueWorkflow workflow;
   private final IssueUpdater updater;
   private final IssueChangeContext changeContext;
@@ -68,7 +67,7 @@ public class LocalIssueTracking implements BatchComponent {
   private final AnalysisMode analysisMode;
 
   public LocalIssueTracking(ResourceCache resourceCache, IssueCache issueCache, IssueTracking tracking,
-    LastLineHashes lastLineHashes, IssueWorkflow workflow, IssueUpdater updater,
+    ServerLineHashesLoader lastLineHashes, IssueWorkflow workflow, IssueUpdater updater,
     ActiveRules activeRules, InputPathCache inputPathCache, ServerIssueRepository serverIssueRepository,
     ProjectRepositories projectRepositories, AnalysisMode analysisMode) {
     this.resourceCache = resourceCache;

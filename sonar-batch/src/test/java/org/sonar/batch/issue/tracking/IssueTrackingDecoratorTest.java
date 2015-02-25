@@ -44,7 +44,6 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.issue.IssueCache;
-import org.sonar.batch.scan.LastLineHashes;
 import org.sonar.batch.scan.filesystem.InputFileMetadata;
 import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.core.issue.IssueUpdater;
@@ -84,7 +83,7 @@ public class IssueTrackingDecoratorTest {
   IssueCache issueCache = mock(IssueCache.class, RETURNS_MOCKS);
   InitialOpenIssuesStack initialOpenIssues = mock(InitialOpenIssuesStack.class);
   IssueTracking tracking = mock(IssueTracking.class, RETURNS_MOCKS);
-  LastLineHashes lastSnapshots = mock(LastLineHashes.class);
+  ServerLineHashesLoader lastSnapshots = mock(ServerLineHashesLoader.class);
   IssueHandlers handlers = mock(IssueHandlers.class);
   IssueWorkflow workflow = mock(IssueWorkflow.class);
   IssueUpdater updater = mock(IssueUpdater.class);

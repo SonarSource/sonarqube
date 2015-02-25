@@ -24,6 +24,8 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
@@ -33,11 +35,13 @@ import org.sonar.batch.index.Caches;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.protocol.input.BatchInput.ServerIssue;
 import org.sonar.batch.repository.ServerIssuesLoader;
+import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.core.component.ComponentKeys;
 
 import javax.annotation.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
@@ -51,13 +55,16 @@ public class ServerIssueRepository implements BatchComponent {
   private final ProjectReactor reactor;
   private final ResourceCache resourceCache;
   private final AnalysisMode analysisMode;
+  private final InputPathCache inputPathCache;
 
-  public ServerIssueRepository(Caches caches, ServerIssuesLoader previousIssuesLoader, ProjectReactor reactor, ResourceCache resourceCache, AnalysisMode analysisMode) {
+  public ServerIssueRepository(Caches caches, ServerIssuesLoader previousIssuesLoader, ProjectReactor reactor, ResourceCache resourceCache,
+    AnalysisMode analysisMode, InputPathCache inputPathCache) {
     this.caches = caches;
     this.previousIssuesLoader = previousIssuesLoader;
     this.reactor = reactor;
     this.resourceCache = resourceCache;
     this.analysisMode = analysisMode;
+    this.inputPathCache = inputPathCache;
   }
 
   public void load() {
@@ -92,6 +99,10 @@ public class ServerIssueRepository implements BatchComponent {
     if (analysisMode.isIncremental()) {
       if (!component.isFile()) {
         throw new UnsupportedOperationException("Incremental mode should only get issues on files");
+      }
+      InputFile inputFile = (InputFile) inputPathCache.getInputPath(component);
+      if (inputFile.status() == Status.ADDED) {
+        return Collections.emptyList();
       }
       Profiler profiler = Profiler.create(LOG).startInfo("Load server issues for " + component.resource().getPath());
       final List<ServerIssue> result = new ArrayList<>();

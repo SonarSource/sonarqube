@@ -36,7 +36,6 @@ import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.batch.scan.LastLineHashes;
 import org.sonar.core.issue.db.IssueDto;
 
 import java.io.File;
@@ -58,12 +57,12 @@ public class IssueTrackingTest {
   IssueTracking tracking;
   Resource project;
   SourceHashHolder sourceHashHolder;
-  LastLineHashes lastSnapshots;
+  ServerLineHashesLoader lastSnapshots;
   long violationId = 0;
 
   @Before
   public void before() {
-    lastSnapshots = mock(LastLineHashes.class);
+    lastSnapshots = mock(ServerLineHashesLoader.class);
 
     project = mock(Project.class);
     tracking = new IssueTracking();

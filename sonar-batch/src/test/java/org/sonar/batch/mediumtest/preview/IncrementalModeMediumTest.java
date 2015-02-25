@@ -59,15 +59,18 @@ public class IncrementalModeMediumTest {
     }
   }
 
-  public BatchMediumTester tester = BatchMediumTester.builder()
+  public BatchMediumTester tester = BatchMediumTester
+    .builder()
     .bootstrapProperties(ImmutableMap.of(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_INCREMENTAL))
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
     .activateRule(new ActiveRule("xoo", "OneIssuePerLine", null, "One issue per line", "MAJOR", null, "xoo"))
     .activateRule(new ActiveRule("manual", "MyManualIssue", null, "My manual issue", "MAJOR", null, null))
     .setPreviousAnalysisDate(new Date())
-    .addFileData("sample", "xources/hello/HelloJava.xoo", new FileData(DigestUtils.md5Hex(SAMPLE_CONTENT), false, null, null, null))
-    // Existing issue
+    .addFileData("sample", "src/sample.xoo", new FileData(DigestUtils.md5Hex(SAMPLE_CONTENT), false, null, null, null))
+    .mockLineHashes("sample:src/sample.xoo",
+      new String[] {DigestUtils.md5Hex("Samplecontent"), DigestUtils.md5Hex("oldcode"), DigestUtils.md5Hex("4"), DigestUtils.md5Hex("lines")})
+    // Remote open issue => will be tracked and not new
     .mockServerIssue(org.sonar.batch.protocol.input.BatchInput.ServerIssue.newBuilder().setKey("xyz")
       .setModuleKey("sample")
       .setPath("src/sample.xoo")
@@ -79,16 +82,17 @@ public class IncrementalModeMediumTest {
       .setChecksum(DigestUtils.md5Hex("Samplecontent"))
       .setStatus("OPEN")
       .build())
-    // Resolved issue
+    // Remote open issue that no more exists => will be closed
     .mockServerIssue(org.sonar.batch.protocol.input.BatchInput.ServerIssue.newBuilder().setKey("resolved")
       .setModuleKey("sample")
       .setPath("src/sample.xoo")
       .setRuleRepository("xoo")
-      .setRuleKey("OneIssuePerLine")
-      .setLine(1)
+      .setRuleKey("OneIssuePerFile")
+      .setMsg("An issue that is no more detected")
+      .setLine(2)
       .setSeverity(Severity.MAJOR)
       .setCreationDate(date("14/03/2004"))
-      .setChecksum(DigestUtils.md5Hex("dontexist"))
+      .setChecksum(DigestUtils.md5Hex("oldcode"))
       .setStatus("OPEN")
       .build())
     // Manual issue
@@ -97,10 +101,10 @@ public class IncrementalModeMediumTest {
       .setPath("src/sample.xoo")
       .setRuleRepository("manual")
       .setRuleKey("MyManualIssue")
-      .setLine(1)
+      .setLine(4)
       .setSeverity(Severity.MAJOR)
       .setCreationDate(date("14/03/2004"))
-      .setChecksum(DigestUtils.md5Hex("Samplecontent"))
+      .setChecksum(DigestUtils.md5Hex("lines"))
       .setStatus("OPEN")
       .build())
     .build();
@@ -122,7 +126,7 @@ public class IncrementalModeMediumTest {
     srcDir.mkdir();
 
     File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, SAMPLE_CONTENT);
+    FileUtils.write(xooFile, SAMPLE_CONTENT + "\nmodification");
 
     TaskResult result = tester.newTask()
       .properties(ImmutableMap.<String, String>builder()
@@ -140,6 +144,7 @@ public class IncrementalModeMediumTest {
     int openIssues = 0;
     int resolvedIssue = 0;
     for (Issue issue : result.issues()) {
+      System.out.println(issue.key() + " " + issue.line() + " " + issue.status());
       if (issue.isNew()) {
         newIssues++;
       } else if (issue.resolution() != null) {
@@ -148,7 +153,7 @@ public class IncrementalModeMediumTest {
         openIssues++;
       }
     }
-    assertThat(newIssues).isEqualTo(3);
+    assertThat(newIssues).isEqualTo(4);
     assertThat(openIssues).isEqualTo(2);
     assertThat(resolvedIssue).isEqualTo(1);
   }

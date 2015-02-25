@@ -33,11 +33,9 @@ import org.sonar.batch.bootstrap.PluginsRepository;
 import org.sonar.batch.bootstrap.TaskProperties;
 import org.sonar.batch.bootstrapper.Batch;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
-import org.sonar.batch.protocol.input.ActiveRule;
+import org.sonar.batch.issue.tracking.ServerLineHashesLoader;
+import org.sonar.batch.protocol.input.*;
 import org.sonar.batch.protocol.input.BatchInput.ServerIssue;
-import org.sonar.batch.protocol.input.FileData;
-import org.sonar.batch.protocol.input.GlobalRepositories;
-import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonar.batch.repository.GlobalRepositoriesLoader;
 import org.sonar.batch.repository.ProjectRepositoriesLoader;
 import org.sonar.batch.repository.ServerIssuesLoader;
@@ -49,12 +47,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Main utility class for writing batch medium tests.
@@ -77,6 +70,7 @@ public class BatchMediumTester {
     private final FakeProjectRepositoriesLoader projectRefProvider = new FakeProjectRepositoriesLoader();
     private final FakePluginsRepository pluginsReferential = new FakePluginsRepository();
     private final FakeServerIssuesLoader serverIssues = new FakeServerIssuesLoader();
+    private final FakeServerLineHashesLoader serverLineHashes = new FakeServerLineHashesLoader();
     private final Map<String, String> bootstrapProperties = new HashMap<String, String>();
 
     public BatchMediumTester build() {
@@ -141,6 +135,11 @@ public class BatchMediumTester {
       return this;
     }
 
+    public BatchMediumTesterBuilder mockLineHashes(String fileKey, String[] lineHashes) {
+      serverLineHashes.byKey.put(fileKey, lineHashes);
+      return this;
+    }
+
   }
 
   public void start() {
@@ -160,6 +159,7 @@ public class BatchMediumTester {
         builder.globalRefProvider,
         builder.projectRefProvider,
         builder.serverIssues,
+        builder.serverLineHashes,
         new DefaultDebtModel())
       .setBootstrapProperties(builder.bootstrapProperties)
       .build();
@@ -324,6 +324,19 @@ public class BatchMediumTester {
 
     }
 
+  }
+
+  private static class FakeServerLineHashesLoader implements ServerLineHashesLoader {
+    private Map<String, String[]> byKey = new HashMap<String, String[]>();
+
+    @Override
+    public String[] getLineHashes(String fileKey) {
+      if (byKey.containsKey(fileKey)) {
+        return byKey.get(fileKey);
+      } else {
+        throw new IllegalStateException("You forgot to mock line hashes for " + fileKey);
+      }
+    }
   }
 
 }

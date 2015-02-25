@@ -17,23 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.scan;
+package org.sonar.batch.issue.tracking;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterators;
-import org.sonar.api.BatchComponent;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.batch.bootstrap.ServerClient;
 
-public class LastLineHashes implements BatchComponent {
+public class DefaultServerLineHashesLoader implements ServerLineHashesLoader {
 
   private final ServerClient server;
 
-  public LastLineHashes(ServerClient server) {
+  public DefaultServerLineHashesLoader(ServerClient server) {
     this.server = server;
   }
 
+  @Override
   public String[] getLineHashes(String fileKey) {
     String hashesFromWs = loadHashesFromWs(fileKey);
     return Iterators.toArray(Splitter.on('\n').split(hashesFromWs).iterator(), String.class);
