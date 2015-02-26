@@ -105,7 +105,8 @@ module PropertiesHelper
         select_tag name, select_options, html_options
 
       when PropertyType::TYPE_USER_LOGIN
-        text_field_tag name, value, {:size => options[:size] || 50}.update(html_options)
+        user = User.find_active_by_login(value)
+        user_select_tag name, {:size => options[:size] || 50, :selected_user => user, :allow_empty => true, :include_choices => [ ['', message('none')] ] }.update(html_options)
 
       else
         hidden_field_tag id, html_options
