@@ -26,6 +26,7 @@ class AddUuidToAnalysisReports < ActiveRecord::Migration
   def self.up
     add_column 'analysis_reports', 'uuid', :string, :limit => 50, :null => false
     remove_column 'analysis_reports', 'report_data'
+    remove_column 'analysis_reports', 'snapshot_id'
   end
 
 end
