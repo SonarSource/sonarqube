@@ -19,6 +19,7 @@
  */
 package org.sonar.core.component;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.component.Component;
 import org.sonar.api.resources.Scopes;
 import org.sonar.core.persistence.Dto;
@@ -249,6 +250,7 @@ public class ComponentDto extends Dto<String> implements Component {
 
     ComponentDto that = (ComponentDto) o;
 
+    // FIXME id can be null. Moreover equals/hashCode mean nothing on DTOs
     if (!id.equals(that.id)) {
       return false;
     }
@@ -258,7 +260,31 @@ public class ComponentDto extends Dto<String> implements Component {
 
   @Override
   public int hashCode() {
+    // FIXME id can be null. Moreover equals/hashCode mean nothing on DTOs
     return id.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    return new ToStringBuilder(this)
+      .append("id", id)
+      .append("uuid", uuid)
+      .append("kee", kee)
+      .append("scope", scope)
+      .append("qualifier", qualifier)
+      .append("projectUuid", projectUuid)
+      .append("moduleUuid", moduleUuid)
+      .append("moduleUuidPath", moduleUuidPath)
+      .append("parentProjectId", parentProjectId)
+      .append("copyResourceId", copyResourceId)
+      .append("path", path)
+      .append("deprecatedKey", deprecatedKey)
+      .append("name", name)
+      .append("longName", longName)
+      .append("language", language)
+      .append("enabled", enabled)
+      .append("authorizationUpdatedAt", authorizationUpdatedAt)
+      .toString();
   }
 
   @Override
