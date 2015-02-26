@@ -50,8 +50,8 @@
 <script>
   $j("#user_create_form").modalForm();
 
-  $j('#user_create_form .delete').click(function () {
-    $j(this).parents('.scm_account').remove();
+  $j('#user_create_form').on('click', '.delete', function () {
+    $j(this).closest('.scm_account').remove();
     return false;
   });
 
