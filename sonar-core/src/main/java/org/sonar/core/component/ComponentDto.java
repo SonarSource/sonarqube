@@ -239,6 +239,7 @@ public class ComponentDto extends Dto<String> implements Component {
     return moduleUuid == null && Scopes.PROJECT.equals(scope);
   }
 
+  // FIXME equals/hashCode mean nothing on DTOs, especially when on id
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -247,21 +248,17 @@ public class ComponentDto extends Dto<String> implements Component {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-
     ComponentDto that = (ComponentDto) o;
-
-    // FIXME id can be null. Moreover equals/hashCode mean nothing on DTOs
-    if (!id.equals(that.id)) {
+    if (id != null ? !id.equals(that.id) : that.id != null) {
       return false;
     }
-
     return true;
   }
 
+  // FIXME equals/hashCode mean nothing on DTOs, especially when on id
   @Override
   public int hashCode() {
-    // FIXME id can be null. Moreover equals/hashCode mean nothing on DTOs
-    return id.hashCode();
+    return id != null ? id.hashCode() : 0;
   }
 
   @Override
