@@ -4,7 +4,7 @@ var express = require('express'),
     serveStatic = require('serve-static'),
     im = require('istanbul-middleware');
 
-var staticPath = path.join(__dirname, '../../../webapp');
+var staticPath = path.join(__dirname, '../main/webapp');
 im.hookLoader(staticPath);
 
 var app = express();

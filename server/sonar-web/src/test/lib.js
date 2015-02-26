@@ -55,7 +55,9 @@ exports.changeWorkingDirectory = function (dir) {
   var currentFile = commandLineArgs[4];
   var curFilePath = fs.absolute(currentFile).split(fs.separator);
   if (curFilePath.length > 1) {
-    curFilePath.pop(); // PhantomJS does not have an equivalent path.baseName()-like method
+    curFilePath.pop(); // test name
+    curFilePath.pop(); // "js" dir
+    curFilePath.push('json');
     curFilePath.push(dir);
     fs.changeWorkingDirectory(curFilePath.join(fs.separator));
   }

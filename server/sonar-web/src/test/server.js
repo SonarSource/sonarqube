@@ -22,7 +22,7 @@ var express = require('express'),
     errorhandler = require('errorhandler'),
     serveStatic = require('serve-static');
 
-var staticPath = path.join(__dirname, '../../../webapp');
+var staticPath = path.join(__dirname, '../main/webapp');
 
 var app = express();
 

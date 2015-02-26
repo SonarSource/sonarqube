@@ -320,16 +320,16 @@ module.exports = (grunt) ->
     express:
       test:
         options:
-          script: '<%= pkg.sources %>js/tests/e2e/server.js'
+          script: 'src/test/server.js'
           port: expressPort
       testCoverage:
         options:
-          script: '<%= pkg.sources %>js/tests/e2e/server-coverage.js'
+          script: 'src/test/server-coverage.js'
           port: expressPort
       dev:
         options:
           background: false
-          script: '<%= pkg.sources %>js/tests/e2e/server.js'
+          script: 'src/test/server.js'
 
 
     casper:
@@ -341,7 +341,7 @@ module.exports = (grunt) ->
           concise: true
           parallel: true
           port: expressPort
-        src: ['<%= pkg.sources %>js/tests/e2e/tests/**/*.js']
+        src: ['src/test/js/**/*.js']
       testCoverage:
         options:
           test: true
@@ -349,14 +349,14 @@ module.exports = (grunt) ->
           'fail-fast': true
           concise: true
           port: expressPort
-        src: ['<%= pkg.sources %>js/tests/e2e/tests/**/*.js']
+        src: ['src/test/js/**/*.js']
       single:
         options:
           test: true
           verbose: true
           'fail-fast': true
           port: expressPort
-        src: ['<%= pkg.sources %>js/tests/e2e/tests/<%= grunt.option("spec") %>-spec.js']
+        src: ['src/test/js/<%= grunt.option("spec") %>-spec.js']
       testfile:
         options:
           test: true
