@@ -40,17 +40,18 @@ option optimize_for = SPEED;
 
 message ServerIssue {
     optional string key = 1;
-    optional string component_key = 2;
-    optional string rule_repository = 3;
-    optional string rule_key = 4;
-    optional int32 line = 5;
-    optional string msg = 6;
-    optional Severity severity = 7;
-    optional bool manual_severity = 8;
-    optional string resolution = 9;
-    optional string status = 10;
-    optional string checksum = 11;
-    optional string assignee_login = 12;
-    optional int64 creation_date = 13;
+    optional string module_key = 2;
+    optional string path = 3;
+    optional string rule_repository = 4;
+    optional string rule_key = 5;
+    optional int32 line = 6;
+    optional string msg = 7;
+    optional Severity severity = 8;
+    optional bool manual_severity = 9;
+    optional string resolution = 10;
+    optional string status = 11;
+    optional string checksum = 12;
+    optional string assignee_login = 13;
+    optional int64 creation_date = 14;
 }
 
