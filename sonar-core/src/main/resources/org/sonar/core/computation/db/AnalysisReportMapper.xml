@@ -69,7 +69,7 @@
     where ar.project_key = ar2.project_key
     and ar2.report_status=#{busyStatus}
     )
-    order by created_at asc
+    order by ar.created_at asc, ar.id asc
   </select>
 
   <select id="selectAll" resultType="AnalysisReport">
