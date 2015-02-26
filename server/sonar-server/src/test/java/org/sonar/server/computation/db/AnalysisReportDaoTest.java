@@ -47,7 +47,6 @@ import static org.sonar.core.computation.db.AnalysisReportDto.Status.WORKING;
 public class AnalysisReportDaoTest {
 
   private static final String DEFAULT_PROJECT_KEY = "123456789-987654321";
-  private static final long DEFAULT_SNAPSHOT_ID = 123L;
 
   @ClassRule
   public static DbTester db = new DbTester();
@@ -55,13 +54,12 @@ public class AnalysisReportDaoTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  private AnalysisReportDao sut;
-  private DbSession session;
-  private System2 system2;
+  AnalysisReportDao sut;
+  DbSession session;
+  System2 system2;
 
   @Before
   public void before() {
-    db.truncateTables();
     this.session = db.myBatis().openSession(false);
     this.system2 = mock(System2.class);
     this.sut = new AnalysisReportDao(system2);
