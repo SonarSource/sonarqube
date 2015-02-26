@@ -67,6 +67,7 @@ requirejs [
     'BRC': ['projectUuids']
     'DIR': ['projectUuids', 'moduleUuids', 'directories']
     'DEV': ['authors']
+    'DEV_PRJ': ['projectUuids', 'authors']
 
 
   App.updateContextFacets = ->
