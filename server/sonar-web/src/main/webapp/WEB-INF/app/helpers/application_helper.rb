@@ -614,7 +614,7 @@ module ApplicationHelper
 
   def select2_tag(name, ws_url, options={})
     width=options[:width]||'250px'
-    html_id=options[:html_id]||name
+    html_id=options[:html_id]||sanitize_to_id(name).gsub('.', '_')
     html_class=options[:html_class]||''
     min_length=options[:min_length]
 
@@ -764,7 +764,7 @@ module ApplicationHelper
     if user
       # the login is a string so it have to be surrounded by quote to be taken in account by select2
       options[:selected_id]="'" + user.login + "'"
-      options[:selected_text]=user.name
+      options[:selected_text]=user.name + ' (' + user.login + ')'
     end
 
     select2_tag(name, ws_url, options)
