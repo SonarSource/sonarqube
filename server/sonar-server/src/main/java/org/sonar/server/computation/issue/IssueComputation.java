@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.issue;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.issue.internal.DefaultIssue;
@@ -143,17 +144,19 @@ public class IssueComputation {
     issue.setTags(Sets.union(rule.getTags(), rule.getSystemTags()));
   }
 
-  private void computeDefaultAssignee(String login) {
+  private void computeDefaultAssignee(@Nullable String login) {
     if (hasAssigneeBeenComputed) {
       return;
     }
 
     hasAssigneeBeenComputed = true;
-    UserDoc user = userIndex.getNullableByLogin(login);
-    if (user == null) {
-      LOG.info("the {} property was set with an unknown login: {}", CoreProperties.DEFAULT_ISSUE_ASSIGNEE, login);
-    } else {
-      defaultAssignee = login;
+    if (!Strings.isNullOrEmpty(login)) {
+      UserDoc user = userIndex.getNullableByLogin(login);
+      if (user == null) {
+        LOG.info("the {} property was set with an unknown login: {}", CoreProperties.DEFAULT_ISSUE_ASSIGNEE, login);
+      } else {
+        defaultAssignee = login;
+      }
     }
   }
 }
