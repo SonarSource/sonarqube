@@ -45,6 +45,7 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.utils.System2;
 import org.sonar.api.utils.ZipUtils;
 import org.sonar.api.utils.internal.JUnitTempFolder;
 import org.sonar.api.utils.log.LogTester;
@@ -86,12 +87,13 @@ public class ComputationServiceTest {
   ComputationStep viewStep = mockStep(Qualifiers.VIEW);
   ComputationSteps steps = mock(ComputationSteps.class);
   ActivityService activityService = mock(ActivityService.class);
+  System2 system = mock(System2.class);
   ComputationService sut;
 
   @Before
   public void setUp() throws Exception {
     DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao());
-    sut = new ComputationService(dbClient, steps, activityService, tempFolder);
+    sut = new ComputationService(dbClient, steps, activityService, tempFolder, system);
 
     // db contains project with key "P1"
     dbTester.prepareDbUnit(getClass(), "shared.xml");

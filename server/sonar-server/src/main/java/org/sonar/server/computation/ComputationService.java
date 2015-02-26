@@ -52,13 +52,15 @@ public class ComputationService implements ServerComponent {
   private final ComputationSteps steps;
   private final ActivityService activityService;
   private final TempFolder tempFolder;
+  private final System2 system;
 
   public ComputationService(DbClient dbClient, ComputationSteps steps, ActivityService activityService,
-    TempFolder tempFolder) {
+    TempFolder tempFolder, System2 system) {
     this.dbClient = dbClient;
     this.steps = steps;
     this.activityService = activityService;
     this.tempFolder = tempFolder;
+    this.system = system;
   }
 
   public void process(ReportQueue.Item item) {
@@ -84,6 +86,7 @@ public class ComputationService implements ServerComponent {
       throw Throwables.propagate(e);
 
     } finally {
+      item.dto.setFinishedAt(system.now());
       logActivity(item.dto, project);
       profiler.stopInfo();
     }

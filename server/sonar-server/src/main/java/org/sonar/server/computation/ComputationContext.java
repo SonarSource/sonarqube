@@ -38,12 +38,6 @@ public class ComputationContext {
     this.reportMetadata = reportReader.readMetadata();
   }
 
-  public ComputationContext(BatchOutputReader reportReader, ComponentDto project, BatchReport.Metadata reportMetadata) {
-    this.reportReader = reportReader;
-    this.project = project;
-    this.reportMetadata = reportMetadata;
-  }
-
   public BatchReport.Metadata getReportMetadata() {
     return reportMetadata;
   }

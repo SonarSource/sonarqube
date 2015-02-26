@@ -60,7 +60,8 @@ public class SwitchSnapshotStepTest {
 
     BatchReport.Metadata metadata = BatchReport.Metadata.newBuilder()
       .setSnapshotId(1L).build();
-    ComputationContext context = new ComputationContext(null, null, metadata);
+    ComputationContext context = mock(ComputationContext.class);
+    when(context.getReportMetadata()).thenReturn(metadata);
 
     sut.execute(context);
 

@@ -73,7 +73,7 @@ public class ReportQueueTest {
     when(system.now()).thenReturn(NOW);
 
     DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao(), new AnalysisReportDao(system));
-    sut = new ReportQueue(dbClient, system, settings);
+    sut = new ReportQueue(dbClient, settings);
 
     try (DbSession session = dbClient.openSession(false)) {
       dbClient.componentDao().insert(session, new ComponentDto().setKey("P1"));

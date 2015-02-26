@@ -23,7 +23,6 @@ package org.sonar.server.computation;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.config.Settings;
-import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.Uuids;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.computation.db.AnalysisReportDto;
@@ -54,12 +53,10 @@ public class ReportQueue implements ServerComponent {
   }
 
   private final DbClient dbClient;
-  private final System2 system2;
   private final Settings settings;
 
-  public ReportQueue(DbClient dbClient, System2 system2, Settings settings) {
+  public ReportQueue(DbClient dbClient, Settings settings) {
     this.dbClient = dbClient;
-    this.system2 = system2;
     this.settings = settings;
   }
 
@@ -99,9 +96,6 @@ public class ReportQueue implements ServerComponent {
     DbSession session = dbClient.openSession(false);
     try {
       FileUtils.deleteQuietly(item.zipFile);
-
-      // FIXME why functional date is updated here ?
-      item.dto.setFinishedAt(system2.now());
       dbClient.analysisReportDao().delete(session, item.dto.getId());
       session.commit();
     } finally {
