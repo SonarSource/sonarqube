@@ -92,7 +92,7 @@ public interface DatabaseMigrations {
     FeedProjectMeasuresLongDates.class,
     FeedManualMeasuresLongDates.class,
     FeedEventsLongDates.class,
-    AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigration.class,
+    AddNewCharacteristics.class,
     RemovePermissionsOnModulesMigration.class
     );
 }
