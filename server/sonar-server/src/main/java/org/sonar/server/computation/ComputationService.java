@@ -61,7 +61,7 @@ public class ComputationService implements ServerComponent {
     ComponentDto project = loadProject(report);
     try {
       ComputationContext context = new ComputationContext(report, project);
-      context.setProjectSettings(projectSettingsFactory.newProjectSettings(dbClient.openSession(false), project.getId()));
+      context.setProjectSettings(projectSettingsFactory.newProjectSettings(project.getId()));
       for (ComputationStep step : steps.orderedSteps()) {
         if (ArrayUtils.contains(step.supportedProjectQualifiers(), context.getProject().qualifier())) {
           Profiler stepProfiler = Profiler.create(LOG).startInfo(step.getDescription());

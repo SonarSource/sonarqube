@@ -24,7 +24,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.config.Settings;
-import org.sonar.core.persistence.DbSession;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 
@@ -41,8 +40,8 @@ public class ProjectSettingsFactory implements ServerComponent {
     this.settings = settings;
   }
 
-  public Settings newProjectSettings(DbSession session, long projectId) {
-    List<PropertyDto> propertyList = dao.selectProjectProperties(projectId, session);
+  public Settings newProjectSettings(long projectId) {
+    List<PropertyDto> propertyList = dao.selectProjectProperties(projectId);
 
     return new ProjectSettings(settings, getPropertyMap(propertyList));
   }
