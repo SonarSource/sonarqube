@@ -30,7 +30,7 @@ import org.sonar.api.utils.ZipUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.batch.protocol.output.BatchOutputReader;
+import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.core.activity.Activity;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
@@ -70,7 +70,7 @@ public class ComputationService implements ServerComponent {
     ComponentDto project = loadProject(item);
     try {
       File reportDir = extractReportInDir(item);
-      BatchOutputReader reader = new BatchOutputReader(reportDir);
+      BatchReportReader reader = new BatchReportReader(reportDir);
       ComputationContext context = new ComputationContext(reader, project);
       for (ComputationStep step : steps.orderedSteps()) {
         if (ArrayUtils.contains(step.supportedProjectQualifiers(), context.getProject().qualifier())) {

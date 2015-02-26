@@ -22,14 +22,15 @@ package org.sonar.batch.protocol.output;
 import org.sonar.batch.protocol.ProtobufUtil;
 
 import javax.annotation.CheckForNull;
+
 import java.io.File;
 import java.util.Collections;
 
-public class BatchOutputReader {
+public class BatchReportReader {
 
   private final FileStructure fileStructure;
 
-  public BatchOutputReader(File dir) {
+  public BatchReportReader(File dir) {
     this.fileStructure = new FileStructure(dir);
   }
 

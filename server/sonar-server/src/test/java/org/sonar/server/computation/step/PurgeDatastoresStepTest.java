@@ -24,7 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
-import org.sonar.batch.protocol.output.BatchOutputReader;
+import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.dbcleaner.ProjectCleaner;
 import org.sonar.core.persistence.DbSession;
@@ -50,7 +50,7 @@ public class PurgeDatastoresStepTest extends BaseStepTest {
     ComponentDto project = mock(ComponentDto.class);
     when(project.getId()).thenReturn(123L);
     when(project.uuid()).thenReturn("UUID-1234");
-    ComputationContext context = new ComputationContext(mock(BatchOutputReader.class), project);
+    ComputationContext context = new ComputationContext(mock(BatchReportReader.class), project);
 
     sut.execute(context);
 

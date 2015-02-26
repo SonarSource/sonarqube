@@ -24,9 +24,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.batch.protocol.Constants;
-import org.sonar.batch.protocol.output.BatchOutputReader;
 import org.sonar.batch.protocol.output.BatchOutputWriter;
 import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.computation.ComputationContext;
@@ -55,7 +55,7 @@ public class ParseReportStepTest extends BaseStepTest {
   public void extract_report_from_db_and_browse_components() throws Exception {
     File reportDir = generateReport();
 
-    ComputationContext context = new ComputationContext(new BatchOutputReader(reportDir), mock(ComponentDto.class));
+    ComputationContext context = new ComputationContext(new BatchReportReader(reportDir), mock(ComponentDto.class));
     sut.execute(context);
 
     // verify that all components are processed (currently only for issues)

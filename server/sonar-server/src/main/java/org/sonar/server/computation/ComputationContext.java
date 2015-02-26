@@ -20,19 +20,19 @@
 
 package org.sonar.server.computation;
 
-import org.sonar.batch.protocol.output.BatchOutputReader;
 import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.core.component.ComponentDto;
 
 public class ComputationContext {
 
-  private final BatchOutputReader reportReader;
+  private final BatchReportReader reportReader;
   private final ComponentDto project;
 
   // cache of metadata as it's frequently accessed
   private final BatchReport.Metadata reportMetadata;
 
-  public ComputationContext(BatchOutputReader reportReader, ComponentDto project) {
+  public ComputationContext(BatchReportReader reportReader, ComponentDto project) {
     this.reportReader = reportReader;
     this.project = project;
     this.reportMetadata = reportReader.readMetadata();
@@ -46,7 +46,7 @@ public class ComputationContext {
     return project;
   }
 
-  public BatchOutputReader getReportReader() {
+  public BatchReportReader getReportReader() {
     return reportReader;
   }
 }
