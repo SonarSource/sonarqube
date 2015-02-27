@@ -105,18 +105,21 @@ public class DuplicationsJsonWriter implements ServerComponent {
 
   private void addFile(JsonWriter json, ComponentDto file) {
     json.prop("key", file.key());
+    json.prop("uuid", file.uuid());
     json.prop("name", file.longName());
   }
 
   private void addProject(JsonWriter json, @Nullable ComponentDto project, @Nullable ComponentDto subProject) {
     if (project != null) {
       json.prop("project", project.key());
+      json.prop("projectUuid", project.uuid());
       json.prop("projectName", project.longName());
 
       // Do not return sub project if sub project and project are the same
       boolean displaySubProject = subProject != null && !subProject.getId().equals(project.getId());
       if (displaySubProject) {
         json.prop("subProject", subProject.key());
+        json.prop("subProjectUuid", subProject.uuid());
         json.prop("subProjectName", subProject.longName());
       }
     }

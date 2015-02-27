@@ -74,7 +74,7 @@ public class TestsTestCasesAction implements RequestHandler {
     action
       .createParam(UUID)
       .setDescription("File UUID")
-      .setExampleValue("my_project:/src/foo/Bar.php");
+      .setExampleValue("584a89f2-8037-4f7b-b82c-8b45d2d63fb2");
 
     action
       .createParam(LINE)
