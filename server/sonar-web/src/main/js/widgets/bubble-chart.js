@@ -208,7 +208,27 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .style('stroke', function () {
           return widget.bubbleColor();
         })
-        .style('transition', 'all 0.2s ease');
+        .style('transition', 'all 0.2s ease')
+
+        .attr('title', function (d) {
+          var xMetricName = widget.metrics()[widget.xMetric].name,
+              yMetricName = widget.metrics()[widget.yMetric].name,
+              sizeMetricName = widget.metrics()[widget.sizeMetric].name,
+
+              xMetricValue = d.measures[widget.xMetric].fval,
+              yMetricValue = d.measures[widget.yMetric].fval,
+              sizeMetricValue = d.measures[widget.sizeMetric].fval;
+
+          return '<div class="text-left">' +
+              collapsedDirFromPath(d.longName) + '<br>' +
+              fileFromPath(d.longName) + '<br>' + '<br>' +
+              xMetricName + ': ' + xMetricValue + '<br>' +
+              yMetricName + ': ' + yMetricValue + '<br>' +
+              sizeMetricName + ': ' + sizeMetricValue +
+              '</div>';
+        })
+        .attr('data-placement', 'bottom')
+        .attr('data-toggle', 'tooltip');
 
     this.items.exit().remove();
 
@@ -224,43 +244,13 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .on('click', function (d) {
           window.location = widget.options().baseUrl + '?id=' + encodeURIComponent(d.key);
         })
-        .on('mouseenter', function (d) {
+        .on('mouseenter', function () {
           d3.select(this).select('circle')
               .style('fill-opacity', 0.8);
-
-          widget.infoDate.text(d.longName);
-
-          var metricLineList = [
-            {
-              metric: widget.metrics()[widget.xMetric].name,
-              value: d.measures[widget.xMetric].fval
-            },
-            {
-              metric: widget.metrics()[widget.yMetric].name,
-              value: d.measures[widget.yMetric].fval
-            },
-            {
-              metric: widget.metrics()[widget.sizeMetric].name,
-              value: (!!d.measures[widget.sizeMetric] ? d.measures[widget.sizeMetric].fval : '–')
-            }
-          ];
-
-          var lastX = 0;
-          widget.infoMetrics
-              .data(metricLineList)
-              .text(function(m) { return m.metric + ': ' + m.value; })
-              .attr('transform', function(d2, i) {
-                var posX = lastX;
-                lastX += widget.infoMetricWidth[i];
-                return trans(posX, 20);
-              });
         })
         .on('mouseleave', function () {
           d3.select(this).select('circle')
               .style('fill-opacity', 0.2);
-
-          widget.infoDate.text('');
-          widget.infoMetrics.text('');
         });
   };
 
@@ -302,26 +292,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this.gGrid.selectAll('line')
         .style('stroke', '#000')
         .style('stroke-opacity', 0.25);
-
-
-    // Configure info placeholders
-    this.infoWrap
-        .attr('transform', trans(-this.margin().left, -this.margin().top + 20));
-
-    this.infoDate
-        .style('text-anchor', 'start')
-        .style('font-weight', 'bold');
-
-    var metricLines = [this.metrics().x, this.metrics().y, this.metrics().size];
-    this.infoMetrics = this.infoWrap.selectAll('.metric')
-        .data(metricLines);
-    this.infoMetrics.enter().append('text').attr('class', 'metric info-text-small')
-        .text(function(d) { return d; });
-    this.infoMetricWidth = [];
-    this.infoMetrics.each(function() {
-      widget.infoMetricWidth.push(this.getComputedTextLength() + 140);
-    });
-    this.infoMetrics.text('');
   };
 
 
@@ -344,6 +314,8 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this.initGrid();
 
     this.update(containerS);
+
+    jQuery('[data-toggle="tooltip"]').tooltip({ container: 'body', html: true });
 
     return this;
   };
@@ -542,7 +514,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
   window.SonarWidgets.BubbleChart.defaults = {
     width: 350,
     height: 150,
-    margin: { top: 60, right: 10, bottom: 50, left: 70 },
+    margin: { top: 10, right: 10, bottom: 50, left: 70 },
     xLog: false,
     yLog: false,
     bubbleColor: '#4b9fd5',
