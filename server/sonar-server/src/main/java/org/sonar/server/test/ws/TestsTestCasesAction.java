@@ -20,6 +20,7 @@
 
 package org.sonar.server.test.ws;
 
+import com.google.common.base.Preconditions;
 import com.google.common.io.Resources;
 import org.sonar.api.component.Component;
 import org.sonar.api.server.ws.Request;
@@ -31,7 +32,11 @@ import org.sonar.api.test.TestCase;
 import org.sonar.api.test.Testable;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.SnapshotPerspectives;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.server.component.ComponentService;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
 
 import java.util.Map;
@@ -41,12 +46,17 @@ import static com.google.common.collect.Maps.newHashMap;
 public class TestsTestCasesAction implements RequestHandler {
 
   private static final String KEY = "key";
+  private static final String UUID = "uuid";
   private static final String LINE = "line";
 
   private final SnapshotPerspectives snapshotPerspectives;
+  private final ComponentService componentService;
+  private final DbClient dbClient;
 
-  public TestsTestCasesAction(SnapshotPerspectives snapshotPerspectives) {
+  public TestsTestCasesAction(SnapshotPerspectives snapshotPerspectives, ComponentService componentService, DbClient dbClient) {
     this.snapshotPerspectives = snapshotPerspectives;
+    this.componentService = componentService;
+    this.dbClient = dbClient;
   }
 
   void define(WebService.NewController controller) {
@@ -58,8 +68,12 @@ public class TestsTestCasesAction implements RequestHandler {
 
     action
       .createParam(KEY)
-      .setRequired(true)
       .setDescription("File key")
+      .setExampleValue("my_project:/src/foo/Bar.php");
+
+    action
+      .createParam(UUID)
+      .setDescription("File UUID")
       .setExampleValue("my_project:/src/foo/Bar.php");
 
     action
@@ -71,8 +85,17 @@ public class TestsTestCasesAction implements RequestHandler {
 
   @Override
   public void handle(Request request, Response response) {
-    String fileKey = request.mandatoryParam(KEY);
-    UserSession.get().checkComponentPermission(UserRole.CODEVIEWER, fileKey);
+    String fileKey = request.param(KEY);
+    String fileUuid = request.param(UUID);
+    Preconditions.checkArgument(fileKey != null || fileUuid != null, "At least one of 'key' or 'uuid' must be provided");
+
+    if (fileKey != null) {
+      UserSession.get().checkComponentPermission(UserRole.CODEVIEWER, fileKey);
+    } else {
+      ComponentDto component = componentService.getByUuid(fileUuid);
+      fileKey = component.getKey();
+      UserSession.get().checkComponentPermission(UserRole.CODEVIEWER, fileKey);
+    }
     int line = request.mandatoryParamAsInt(LINE);
 
     Testable testable = snapshotPerspectives.as(MutableTestable.class, fileKey);
@@ -108,6 +131,15 @@ public class TestsTestCasesAction implements RequestHandler {
   }
 
   private void writeFiles(Map<String, Integer> refByTestPlan, Map<String, Component> componentsByKey, JsonWriter json) {
+    DbSession session = dbClient.openSession(false);
+    try {
+      for (ComponentDto componentDto : dbClient.componentDao().getByKeys(session, componentsByKey.keySet())) {
+        componentsByKey.put(componentDto.key(), componentDto);
+      }
+    } finally {
+      session.close();
+    }
+
     json.name("files").beginObject();
     for (Map.Entry<String, Integer> entry : refByTestPlan.entrySet()) {
       String componentKey = entry.getKey();
@@ -115,6 +147,7 @@ public class TestsTestCasesAction implements RequestHandler {
       Component file = componentsByKey.get(componentKey);
       json.name(Integer.toString(ref)).beginObject();
       json.prop("key", file.key());
+      json.prop("uuid", ((ComponentDto) file).uuid());
       json.prop("longName", file.longName());
       json.endObject();
     }
