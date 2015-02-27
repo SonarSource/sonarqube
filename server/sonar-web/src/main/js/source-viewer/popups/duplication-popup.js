@@ -19,8 +19,9 @@
  */
 define([
   'common/popup',
+  'workspace/main',
   'templates/source-viewer'
-], function (Popup) {
+], function (Popup, Workspace) {
 
   var $ = jQuery;
 
@@ -28,15 +29,17 @@ define([
     template: Templates['source-viewer-duplication-popup'],
 
     events: {
-      'click a[data-key]': 'goToFile'
+      'click a[data-uuid]': 'goToFile'
     },
 
     goToFile: function (e) {
-      var key = $(e.currentTarget).data('key'),
-          line = $(e.currentTarget).data('line'),
-          url = baseUrl + '/component/index?id=' + encodeURIComponent(key) + (line ? ('&line=' + line) : ''),
-          windowParams = 'resizable=1,scrollbars=1,status=1';
-      window.open(url, key, windowParams);
+      var uuid = $(e.currentTarget).data('uuid'),
+          line = $(e.currentTarget).data('line');
+      console.log(uuid);
+      if (Workspace == null) {
+        Workspace = require('workspace/main');
+      }
+      Workspace.openComponent({ uuid: uuid, line: line });
     },
 
     serializeData: function () {

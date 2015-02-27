@@ -18,64 +18,46 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 define([
+  'workspace/views/viewer-header-view',
   'source-viewer/viewer',
   'templates/workspace'
-], function (SourceViewer) {
+], function (HeaderView, SourceViewer) {
 
   return Marionette.Layout.extend({
     className: 'workspace-viewer',
     template: Templates['workspace-viewer'],
 
     regions: {
+      headerRegion: '.workspace-viewer-header',
       viewerRegion: '.workspace-viewer-container'
     },
 
-    events: {
-      'click .js-minimize': 'onMinimizeClick',
-      'click .js-full-screen': 'onFullScreenClick',
-      'click .js-normal-size': 'onNormalSizeClick',
-      'click .js-close': 'onCloseClick'
-    },
-
     onRender: function () {
+      this.showHeader();
       this.showViewer();
     },
 
-    onMinimizeClick: function (e) {
-      e.preventDefault();
-      this.trigger('minimize', this.model);
-    },
-
-    onFullScreenClick: function (e) {
-      e.preventDefault();
-      this.toFullScreen();
-    },
-
-    onNormalSizeClick: function (e) {
-      e.preventDefault();
-      this.toNormalSize();
-    },
-
-    onCloseClick: function (e) {
-      e.preventDefault();
-      this.trigger('close');
+    showHeader: function () {
+      var headerView = new HeaderView({ model: this.model });
+      this.headerRegion.show(headerView);
     },
 
     showViewer: function () {
       if (SourceViewer == null) {
         SourceViewer = require('source-viewer/viewer');
       }
-      var viewer = new SourceViewer();
+      var that = this,
+          viewer = new SourceViewer(),
+          options = this.model.toJSON();
       viewer.open(this.model.id);
+      viewer.on('loaded', function () {
+        that.model.set(viewer.model.toJSON());
+        if (options.line != null) {
+          viewer.highlightLine(options.line);
+          viewer.scrollToLine(options.line);
+        }
+      });
       this.viewerRegion.show(viewer);
-    },
-
-    toFullScreen: function () {
-      this.$el.addClass('workspace-viewer-full-screen');
-    },
-
-    toNormalSize: function () {
-      this.$el.removeClass('workspace-viewer-full-screen');
     }
   });
 

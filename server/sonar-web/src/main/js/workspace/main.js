@@ -74,21 +74,23 @@ define([
     },
 
     showComponentViewer: function (options) {
-      var that = this;
+      var that = this,
+          model = new Item(options);
       if (this.viewerView != null) {
         this.viewerView.close();
       }
       $('.source-viewer').addClass('with-workspace');
       this.viewerView = new ViewerView({
-        model: new Item(options)
+        model: model
       });
-      this.viewerView.on('minimize', function (model) {
-        that.addComponent(model.toJSON());
-        that.closeComponentViewer();
-      });
-      this.viewerView.on('close', function () {
-        that.closeComponentViewer();
-      });
+      model
+          .on('minimize', function () {
+            that.addComponent(model.toJSON());
+            that.closeComponentViewer();
+          })
+          .on('close', function () {
+            that.closeComponentViewer();
+          });
       this.viewerView.render().$el.appendTo(document.body);
     },
 

@@ -217,7 +217,7 @@ define([
         requestDuplications: function () {
           var that = this,
               url = baseUrl + '/api/duplications/show',
-              options = {key: this.model.key()};
+              options = { uuid  : this.model.id };
           return $.get(url, options, function (data) {
             var hasDuplications = (data != null) && (data.duplications != null),
                 duplications = [];
@@ -347,11 +347,6 @@ define([
         },
 
         highlightUsages: function (e) {
-          if (Workspace == null) {
-            Workspace = require('workspace/main');
-          }
-          Workspace.openComponent(_.pick(this.model.toJSON(), 'uuid', 'name', 'q'));
-
           var highlighted = $(e.currentTarget).is('.highlighted'),
               key = e.currentTarget.className.split(/\s+/)[0];
           this.$('.sym.highlighted').removeClass('highlighted');
@@ -380,7 +375,7 @@ define([
               row = _.findWhere(this.model.get('source'), {line: line}),
               url = baseUrl + '/api/tests/test_cases',
               options = {
-                key: this.model.key(),
+                uuid: this.model.id,
                 line: line
               };
           return $.get(url, options).done(function (data) {

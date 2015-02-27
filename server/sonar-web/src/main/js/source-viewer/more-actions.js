@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 define([
+  'workspace/main',
   'templates/source-viewer'
-], function () {
+], function (Workspace) {
 
   var $ = jQuery;
 
@@ -30,6 +31,7 @@ define([
     events: {
       'click .js-measures': 'showMeasures',
       'click .js-new-window': 'openNewWindow',
+      'click .js-workspace': 'openInWorkspace',
       'click .js-raw-source': 'showRawSource'
     },
 
@@ -47,6 +49,14 @@ define([
 
     openNewWindow: function () {
       this.options.parent.getPermalink();
+    },
+
+    openInWorkspace: function () {
+      var uuid = this.options.parent.model.id;
+      if (Workspace == null) {
+        Workspace = require('workspace/main');
+      }
+      Workspace.openComponent({ uuid: uuid });
     },
 
     showRawSource: function () {
