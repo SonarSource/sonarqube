@@ -17,27 +17,105 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.issue.notification;
 
+import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.rule.Severity;
+import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.Duration;
+import org.sonar.core.component.ComponentDto;
+import org.sonar.server.component.ComponentTesting;
+
+import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.server.issue.notification.NewIssuesStatistics.METRIC.*;
 
 public class NewIssuesNotificationTest {
 
+  NewIssuesNotification sut = new NewIssuesNotification();
+  NewIssuesStatistics stats = new NewIssuesStatistics();
+
   @Test
-  public void stats() {
-    NewIssuesNotification.Stats sut = new NewIssuesNotification.Stats();
-    assertThat(sut.size()).isEqualTo(0);
+  public void set_project() throws Exception {
+    ComponentDto component = ComponentTesting.newProjectDto()
+      .setLongName("project-long-name")
+      .setUuid("project-uuid")
+      .setKey("project-key");
 
-    sut.add(new DefaultIssue().setSeverity("MINOR"));
-    sut.add(new DefaultIssue().setSeverity("BLOCKER"));
-    sut.add(new DefaultIssue().setSeverity("MINOR"));
+    sut.setProject(component);
 
-    assertThat(sut.size()).isEqualTo(3);
-    assertThat(sut.countIssuesWithSeverity("INFO")).isEqualTo(0);
-    assertThat(sut.countIssuesWithSeverity("MINOR")).isEqualTo(2);
-    assertThat(sut.countIssuesWithSeverity("BLOCKER")).isEqualTo(1);
+    assertThat(sut.getFieldValue(NewIssuesEmailTemplate.FIELD_PROJECT_NAME)).isEqualTo("project-long-name");
+    assertThat(sut.getFieldValue(NewIssuesEmailTemplate.FIELD_PROJECT_UUID)).isEqualTo("project-uuid");
+    assertThat(sut.getFieldValue(NewIssuesEmailTemplate.FIELD_PROJECT_KEY)).isEqualTo("project-key");
+  }
+
+  @Test
+  public void set_date() throws Exception {
+    Date date = new Date();
+
+    sut.setAnalysisDate(date);
+
+    assertThat(sut.getFieldValue(NewIssuesEmailTemplate.FIELD_PROJECT_DATE)).isEqualTo(DateUtils.formatDateTime(date));
+  }
+
+  @Test
+  public void set_statistics() throws Exception {
+    ComponentDto component = ComponentTesting.newProjectDto()
+      .setLongName("project-long-name");
+    addIssueNTimes(newIssue1(), 5);
+    addIssueNTimes(newIssue2(), 3);
+
+    sut.setStatistics(component, stats);
+
+    assertThat(sut.getFieldValue(SEVERITY + ".INFO.count")).isEqualTo("5");
+    assertThat(sut.getFieldValue(SEVERITY + ".BLOCKER.count")).isEqualTo("3");
+    assertThat(sut.getFieldValue(LOGIN + ".1.label")).isEqualTo("maynard");
+    assertThat(sut.getFieldValue(LOGIN + ".1.count")).isEqualTo("5");
+    assertThat(sut.getFieldValue(LOGIN + ".2.label")).isEqualTo("keenan");
+    assertThat(sut.getFieldValue(LOGIN + ".2.count")).isEqualTo("3");
+    assertThat(sut.getFieldValue(TAGS + ".1.label")).isEqualTo("owasp");
+    assertThat(sut.getFieldValue(TAGS + ".1.count")).isEqualTo("8");
+    assertThat(sut.getFieldValue(TAGS + ".2.label")).isEqualTo("bug");
+    assertThat(sut.getFieldValue(TAGS + ".2.count")).isEqualTo("5");
+    assertThat(sut.getFieldValue(COMPONENT + ".1.label")).isEqualTo("file-uuid");
+    assertThat(sut.getFieldValue(COMPONENT + ".1.count")).isEqualTo("5");
+    assertThat(sut.getFieldValue(COMPONENT + ".2.label")).isEqualTo("directory-uuid");
+    assertThat(sut.getFieldValue(COMPONENT + ".2.count")).isEqualTo("3");
+    assertThat(sut.getDefaultMessage()).startsWith("8 new issues on project-long-name");
+  }
+
+  @Test
+  public void set_debt() throws Exception {
+    sut.setDebt("55min");
+
+    assertThat(sut.getFieldValue(DEBT + ".count")).isEqualTo("55min");
+  }
+
+  private void addIssueNTimes(DefaultIssue issue, int times) {
+    for (int i = 0; i < times; i++) {
+      stats.add(issue);
+    }
+  }
+
+  private DefaultIssue newIssue1() {
+    return new DefaultIssue()
+      .setAssignee("maynard")
+      .setComponentUuid("file-uuid")
+      .setSeverity(Severity.INFO)
+      .setTags(Lists.newArrayList("bug", "owasp"))
+      .setDebt(Duration.create(5L));
+  }
+
+  private DefaultIssue newIssue2() {
+    return new DefaultIssue()
+      .setAssignee("keenan")
+      .setComponentUuid("directory-uuid")
+      .setSeverity(Severity.BLOCKER)
+      .setTags(Lists.newArrayList("owasp"))
+      .setDebt(Duration.create(10L));
   }
 }

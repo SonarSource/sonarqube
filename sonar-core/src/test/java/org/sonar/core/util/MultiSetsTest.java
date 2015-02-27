@@ -17,29 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.core.util;
 
-import com.google.common.base.Function;
+import com.google.common.collect.HashMultiset;
+import com.google.common.collect.Multiset;
+import org.junit.Test;
 
-import javax.annotation.Nullable;
+import java.util.List;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * Guava Function that does not accept null input elements
- * @since 5.1
- */
-public abstract class NonNullInputFunction<F,T> implements Function<F, T> {
+public class MultiSetsTest {
+  @Test
+  public void order_with_highest_count_first() throws Exception {
+    Multiset<String> multiset = HashMultiset.create();
+    add(multiset, "seneca", 10);
+    add(multiset, "plato", 5);
+    add(multiset, "confucius", 3);
 
-  @Override
-  public final T apply(@Nullable F input) {
-    checkArgument(input != null, "Null inputs are not allowed in this function");
-    return doApply(input);
+    List<Multiset.Entry<String>> orderedEntries = MultiSets.listOrderedByHighestCounts(multiset);
+
+    assertThat(orderedEntries).extracting("element").containsExactly("seneca", "plato", "confucius");
   }
 
-  /**
-   * This method is the same as {@link #apply(Object)} except that the input argument
-   * is not marked as nullable
-   */
-  protected abstract T doApply(F input);
+  private void add(Multiset<String> multiset, String element, int times) {
+    for (int i = 0; i < times; i++) {
+      multiset.add(element);
+    }
+  }
 }

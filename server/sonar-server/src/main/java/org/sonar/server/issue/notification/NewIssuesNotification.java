@@ -19,16 +19,19 @@
  */
 package org.sonar.server.issue.notification;
 
-import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 import org.sonar.api.component.Component;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.server.issue.notification.NewIssuesStatistics.METRIC;
 
 import java.util.Date;
+import java.util.List;
+
+import static org.sonar.server.issue.notification.NewIssuesEmailTemplate.*;
+import static org.sonar.server.issue.notification.NewIssuesStatistics.METRIC.SEVERITY;
 
 public class NewIssuesNotification extends Notification {
 
@@ -39,39 +42,45 @@ public class NewIssuesNotification extends Notification {
   }
 
   public NewIssuesNotification setAnalysisDate(Date d) {
-    setFieldValue("projectDate", DateUtils.formatDateTime(d));
+    setFieldValue(FIELD_PROJECT_DATE, DateUtils.formatDateTime(d));
     return this;
   }
 
   public NewIssuesNotification setProject(ComponentDto project) {
-    setFieldValue("projectName", project.longName());
-    setFieldValue("projectKey", project.key());
-    setFieldValue("projectUuid", project.uuid());
+    setFieldValue(FIELD_PROJECT_NAME, project.longName());
+    setFieldValue(FIELD_PROJECT_KEY, project.key());
+    setFieldValue(FIELD_PROJECT_UUID, project.uuid());
     return this;
   }
 
-  public NewIssuesNotification setStatistics(Component project, Stats stats) {
-    setDefaultMessage(stats.size() + " new issues on " + project.longName() + ".\n");
-    setFieldValue("count", String.valueOf(stats.size()));
+  public NewIssuesNotification setStatistics(Component project, NewIssuesStatistics stats) {
+    setDefaultMessage(stats.countForMetric(SEVERITY) + " new issues on " + project.longName() + ".\n");
+
+    setSeverityStatistics(stats);
+    setTop5CountsForMetric(stats, METRIC.LOGIN);
+    setTop5CountsForMetric(stats, METRIC.TAGS);
+    setTop5CountsForMetric(stats, METRIC.COMPONENT);
+
+    return this;
+  }
+
+  public NewIssuesNotification setDebt(String debt) {
+    setFieldValue(METRIC.DEBT + ".count", debt);
+    return this;
+  }
+
+  private void setTop5CountsForMetric(NewIssuesStatistics stats, METRIC metric) {
+    List<Multiset.Entry<String>> loginStats = stats.statsForMetric(metric);
+    for (int i = 0; i < 5 && i < loginStats.size(); i++) {
+      setFieldValue(metric + "." + (i + 1) + ".count", String.valueOf(loginStats.get(i).getCount()));
+      setFieldValue(metric + "." + (i + 1) + ".label", loginStats.get(i).getElement());
+    }
+  }
+
+  private void setSeverityStatistics(NewIssuesStatistics stats) {
+    setFieldValue(SEVERITY + ".count", String.valueOf(stats.countForMetric(SEVERITY)));
     for (String severity : Severity.ALL) {
-      setFieldValue("count-" + severity, String.valueOf(stats.countIssuesWithSeverity(severity)));
-    }
-    return this;
-  }
-
-  public static class Stats {
-    private final Multiset<String> set = HashMultiset.create();
-
-    public void add(Issue issue) {
-      set.add(issue.severity());
-    }
-
-    public int countIssuesWithSeverity(String severity) {
-      return set.count(severity);
-    }
-
-    public int size() {
-      return set.size();
+      setFieldValue(SEVERITY + "." + severity + ".count", String.valueOf(stats.countForMetric(SEVERITY, severity)));
     }
   }
 }

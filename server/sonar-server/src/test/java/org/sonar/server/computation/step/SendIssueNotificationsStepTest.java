@@ -27,6 +27,7 @@ import org.mockito.Mockito;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.server.computation.ComputationContext;
@@ -50,12 +51,13 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   NotificationService notifService = mock(NotificationService.class);
   ComputationContext context = mock(ComputationContext.class, Mockito.RETURNS_DEEP_STUBS);
   IssueCache issueCache;
+  Durations durations = mock(Durations.class);
   SendIssueNotificationsStep sut;
 
   @Before
   public void setUp() throws Exception {
     issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
-    sut = new SendIssueNotificationsStep(issueCache, ruleCache, notifService);
+    sut = new SendIssueNotificationsStep(issueCache, ruleCache, notifService, durations);
   }
 
   @Test
@@ -70,7 +72,8 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
 
   @Test
   public void send_notifications_if_subscribers() throws Exception {
-    issueCache.newAppender().append(new DefaultIssue().setSeverity(Severity.BLOCKER)).close();
+    issueCache.newAppender().append(new DefaultIssue()
+        .setSeverity(Severity.BLOCKER)).close();
 
     when(context.getProject().uuid()).thenReturn("PROJECT_UUID");
     when(context.getReportMetadata()).thenReturn(BatchReport.Metadata.newBuilder().build());

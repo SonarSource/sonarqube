@@ -22,12 +22,14 @@ package org.sonar.server.computation.step;
 import com.google.common.collect.ImmutableSet;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.utils.Durations;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.issue.IssueCache;
 import org.sonar.server.computation.issue.RuleCache;
 import org.sonar.server.issue.notification.IssueChangeNotification;
 import org.sonar.server.issue.notification.NewIssuesNotification;
+import org.sonar.server.issue.notification.NewIssuesStatistics;
 import org.sonar.server.notifications.NotificationService;
 import org.sonar.server.util.CloseableIterator;
 
@@ -48,11 +50,13 @@ public class SendIssueNotificationsStep implements ComputationStep {
   private final IssueCache issueCache;
   private final RuleCache rules;
   private final NotificationService service;
+  private final Durations durations;
 
-  public SendIssueNotificationsStep(IssueCache issueCache, RuleCache rules, NotificationService service) {
+  public SendIssueNotificationsStep(IssueCache issueCache, RuleCache rules, NotificationService service, Durations durations) {
     this.issueCache = issueCache;
     this.rules = rules;
     this.service = service;
+    this.durations = durations;
   }
 
   @Override
@@ -68,13 +72,13 @@ public class SendIssueNotificationsStep implements ComputationStep {
   }
 
   private void doExecute(ComputationContext context) {
-    NewIssuesNotification.Stats newIssueStats = new NewIssuesNotification.Stats();
+    NewIssuesStatistics newIssuesStats = new NewIssuesStatistics();
     CloseableIterator<DefaultIssue> issues = issueCache.traverse();
     try {
       while (issues.hasNext()) {
         DefaultIssue issue = issues.next();
         if (issue.isNew() && issue.resolution() == null) {
-          newIssueStats.add(issue);
+          newIssuesStats.add(issue);
         } else if (issue.isChanged() && issue.mustSendNotifications()) {
           IssueChangeNotification changeNotification = new IssueChangeNotification();
           changeNotification.setRuleName(rules.ruleName(issue.ruleKey()));
@@ -87,16 +91,17 @@ public class SendIssueNotificationsStep implements ComputationStep {
     } finally {
       issues.close();
     }
-    sendNewIssuesStatistics(context, newIssueStats);
+    sendNewIssuesStatistics(context, newIssuesStats);
   }
 
-  private void sendNewIssuesStatistics(ComputationContext context, NewIssuesNotification.Stats stats) {
-    if (stats.size() > 0) {
+  private void sendNewIssuesStatistics(ComputationContext context, NewIssuesStatistics stats) {
+    if (stats.hasIssues()) {
       ComponentDto project = context.getProject();
       NewIssuesNotification notification = new NewIssuesNotification();
       notification.setProject(project);
       notification.setAnalysisDate(new Date(context.getReportMetadata().getAnalysisDate()));
       notification.setStatistics(project, stats);
+      notification.setDebt(durations.encode(stats.debt()));
       service.deliver(notification);
     }
   }

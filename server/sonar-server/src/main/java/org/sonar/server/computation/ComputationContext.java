@@ -24,8 +24,6 @@ import org.sonar.api.config.Settings;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.computation.db.AnalysisReportDto;
-import org.sonar.server.computation.step.ParseReportStep;
 
 import static com.google.common.base.Preconditions.checkState;
 
@@ -33,10 +31,9 @@ public class ComputationContext {
 
   private final BatchReportReader reportReader;
   private final ComponentDto project;
-  private Settings projectSettings;
-
   // cache of metadata as it's frequently accessed
   private final BatchReport.Metadata reportMetadata;
+  private Settings projectSettings;
 
   public ComputationContext(BatchReportReader reportReader, ComponentDto project) {
     this.reportReader = reportReader;
