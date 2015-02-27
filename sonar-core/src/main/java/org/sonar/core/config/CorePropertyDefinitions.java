@@ -60,16 +60,6 @@ public class CorePropertyDefinitions {
         .subCategory(CoreProperties.SUBCATEGORY_LOOKNFEEL)
         .build(),
 
-      // ISSUES
-      PropertyDefinition.builder(CoreProperties.DEFAULT_ISSUE_ASSIGNEE)
-        .name("Default Assignee")
-        .description("Login assigned to a new issue if an assignee has not been found.")
-        .category(CoreProperties.CATEGORY_GENERAL)
-        .subCategory(CoreProperties.SUBCATEGORY_ISSUES)
-        .onQualifiers(Qualifiers.PROJECT)
-        .type(PropertyType.STRING)
-        .build(),
-
       // BATCH
 
       PropertyDefinition.builder(CoreProperties.CORE_VIOLATION_LOCALE_PROPERTY)
@@ -163,7 +153,7 @@ public class CorePropertyDefinitions {
         .subCategory(CoreProperties.SUBCATEGORY_DUPLICATIONS_EXCLUSIONS)
         .multiValues(true)
         .build()
-    ));
+      ));
     return defs;
   }
 }

@@ -232,7 +232,7 @@ public class QProfileService implements ServerComponent {
 
         String login = profileActivity.login();
         if (login != null) {
-          UserDto user = db.userDao().selectActiveUserByLogin(session, login);
+          UserDto user = db.userDao().selectActiveUserByLogin(login, session);
           profileActivity.authorName(user != null ? user.getName() : null);
         }
         result.getHits().add(profileActivity);

@@ -33,10 +33,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigrationTest {
+public class AddNewCharacteristicsTest {
 
   @ClassRule
-  public static DbTester db = new DbTester().schema(AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigrationTest.class, "schema.sql");
+  public static DbTester db = new DbTester().schema(AddNewCharacteristicsTest.class, "schema.sql");
 
   DatabaseMigration migration;
 
@@ -48,7 +48,7 @@ public class AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigrationT
 
     when(system.now()).thenReturn(DateUtils.parseDate("2015-02-15").getTime());
 
-    migration = new AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigration(db.database(), system);
+    migration = new AddNewCharacteristics(db.database(), system);
   }
 
   @Test

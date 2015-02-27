@@ -28,8 +28,13 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.computation.dbcleaner.period.DefaultPeriodCleaner;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.purge.*;
+import org.sonar.core.purge.IdUuidPair;
+import org.sonar.core.purge.PurgeConfiguration;
+import org.sonar.core.purge.PurgeDao;
+import org.sonar.core.purge.PurgeListener;
+import org.sonar.core.purge.PurgeProfiler;
 import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.properties.ProjectSettingsFactory;
 
 import javax.annotation.Nullable;
 
@@ -44,30 +49,33 @@ public class ProjectCleaner implements ServerComponent {
   private final PurgeListener purgeListener;
   private final PurgeDao purgeDao;
   private final DefaultPeriodCleaner periodCleaner;
+  private final ProjectSettingsFactory projectSettingsFactory;
   private final IssueIndex issueIndex;
 
   public ProjectCleaner(PurgeDao purgeDao, DefaultPeriodCleaner periodCleaner, PurgeProfiler profiler, PurgeListener purgeListener,
-    IssueIndex issueIndex) {
+                        ProjectSettingsFactory projectSettingsFactory, IssueIndex issueIndex) {
     this.purgeDao = purgeDao;
     this.periodCleaner = periodCleaner;
     this.profiler = profiler;
     this.purgeListener = purgeListener;
+    this.projectSettingsFactory = projectSettingsFactory;
     this.issueIndex = issueIndex;
   }
 
-  public ProjectCleaner purge(DbSession session, IdUuidPair idUuidPair, Settings projectSettings) {
+  public ProjectCleaner purge(DbSession session, IdUuidPair idUuidPair) {
     long start = System.currentTimeMillis();
     profiler.reset();
 
-    PurgeConfiguration configuration = newDefaultPurgeConfiguration(projectSettings, idUuidPair);
+    Settings settings = projectSettingsFactory.newProjectSettings(session, idUuidPair.getId());
+    PurgeConfiguration configuration = newDefaultPurgeConfiguration(settings, idUuidPair);
 
-    cleanHistoricalData(session, configuration.rootProjectIdUuid().getId(), projectSettings);
+    cleanHistoricalData(session, configuration.rootProjectIdUuid().getId(), settings);
     doPurge(session, configuration);
 
     deleteIndexedIssuesBefore(idUuidPair.getUuid(), configuration.maxLiveDateOfClosedIssues());
 
     session.commit();
-    logProfiling(start, projectSettings);
+    logProfiling(start, settings);
     return this;
   }
 

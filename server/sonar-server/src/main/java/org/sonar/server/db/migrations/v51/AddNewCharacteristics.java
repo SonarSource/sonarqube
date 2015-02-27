@@ -31,7 +31,6 @@ import org.sonar.server.db.migrations.Select;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
@@ -47,9 +46,9 @@ import java.util.List;
  * Before 4.3 the characteristics table contains requirements, then when selecting characteristics we should not forget to exclude them (with a filter on rule_id IS NULL)
  *
  */
-public class AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigration extends BaseDataChange {
+public class AddNewCharacteristics extends BaseDataChange {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigration.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(AddNewCharacteristics.class);
 
   private static final String COMPLIANCE_NAME = "Compliance";
   private static final String COMPLIANCE_KEY_SUFFIX = "_COMPLIANCE";
@@ -62,7 +61,7 @@ public class AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigration 
 
   private final System2 system;
 
-  public AddCharacteristicUsabilityAndSubCharacteristicsComplianceMigration(Database db, System2 system) {
+  public AddNewCharacteristics(Database db, System2 system) {
     super(db);
     this.system = system;
   }

@@ -94,12 +94,15 @@ define([
       metrics = _.filter(metrics, function (metric) {
         return metric.value != null;
       });
-      return _.map(_.pairs(_.groupBy(metrics, 'domain')), function (domain) {
-        return {
-          name: domain[0],
-          metrics: domain[1]
-        };
-      });
+      return _.sortBy(
+          _.map(_.pairs(_.groupBy(metrics, 'domain')), function (domain) {
+            return {
+              name: domain[0],
+              metrics: domain[1]
+            };
+          }),
+          'name'
+      );
     },
 
 
@@ -125,6 +128,7 @@ define([
           measures: measures,
           measuresToDisplay: that.prepareMetrics(metrics)
         });
+        console.log(that.model.get('measuresToDisplay'));
       });
     },
 

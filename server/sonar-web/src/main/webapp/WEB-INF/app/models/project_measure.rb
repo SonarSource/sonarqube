@@ -37,12 +37,12 @@ class ProjectMeasure < ActiveRecord::Base
         Metric.by_id(metric_id)
       end
   end
-  
+
   def metric=(m)
     @metric = m
     write_attribute(:metric_id, m.id) if m.id
   end
-  
+
   def rule_measure?
     rule_id || rule_priority
   end
@@ -119,6 +119,8 @@ class ProjectMeasure < ActiveRecord::Base
         millisecs_formatted_value(val)
       when Metric::VALUE_TYPE_WORK_DUR
         work_duration_formatted_value(val)
+      when Metric::VALUE_TYPE_RATING
+        number_with_precision(val, :precision => 0)
       else
         val.to_s
     end
@@ -252,7 +254,7 @@ class ProjectMeasure < ActiveRecord::Base
       metric_key
     end
   end
-  
+
   def metric_key
     metric ? metric.name : nil
   end

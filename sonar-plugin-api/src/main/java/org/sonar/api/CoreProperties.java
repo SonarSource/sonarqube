@@ -60,11 +60,6 @@ public interface CoreProperties {
   String SUBCATEGORY_LOOKNFEEL = "looknfeel";
 
   /**
-   * @since 5.1
-   */
-  String SUBCATEGORY_ISSUES = "issues";
-
-  /**
    * @since 4.0
    */
   String SUBCATEGORY_L10N = "localization";
@@ -568,10 +563,5 @@ public interface CoreProperties {
    * @since 5.1
    */
   String IMPORT_UNKNOWN_FILES_KEY = "sonar.import_unknown_files";
-
-  /**
-   * @since 5.1
-   */
-  String DEFAULT_ISSUE_ASSIGNEE = "sonar.issues.defaultAssigneeLogin";
 
 }

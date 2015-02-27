@@ -25,7 +25,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
-import org.sonar.api.config.Settings;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.computation.dbcleaner.ProjectCleaner;
@@ -63,6 +62,6 @@ public class PurgeDatastoresStepTest {
 
     sut.execute(context);
 
-    verify(projectCleaner).purge(any(DbSession.class), any(IdUuidPair.class), any(Settings.class));
+    verify(projectCleaner).purge(any(DbSession.class), any(IdUuidPair.class));
   }
 }
