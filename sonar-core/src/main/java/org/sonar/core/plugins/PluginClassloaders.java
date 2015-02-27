@@ -46,7 +46,7 @@ import java.util.Map;
  * <h3>IMPORTANT</h3>
  * <p>
  * If we have pluginA , then all classes and resources from package and subpackages of <b>org.sonar.plugins.pluginA.api</b> will be visible
- * for all other plugins even if they located in dependent library.
+ * for all other plugins even if they are located in dependent library.
  * </p>
  * <p/>
  * <h4>Search order for {@link ClassRealm} :</h4>
