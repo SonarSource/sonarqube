@@ -54,6 +54,7 @@ public class SearchSettingsTest {
     File homeDir = temp.newFolder();
     Props props = new Props(new Properties());
     props.set(ProcessConstants.SEARCH_PORT, "1234");
+    props.set(ProcessConstants.SEARCH_HOST, "127.0.0.1");
     props.set(ProcessConstants.PATH_HOME, homeDir.getAbsolutePath());
     props.set(ProcessConstants.CLUSTER_NAME, "tests");
     props.set(ProcessConstants.CLUSTER_NODE_NAME, "test");
@@ -62,9 +63,11 @@ public class SearchSettingsTest {
     assertThat(searchSettings.inCluster()).isFalse();
     assertThat(searchSettings.clusterName()).isEqualTo("tests");
     assertThat(searchSettings.tcpPort()).isEqualTo(1234);
+    assertThat(searchSettings.hostName()).isEqualTo("127.0.0.1");
 
     Settings generated = searchSettings.build();
     assertThat(generated.get("transport.tcp.port")).isEqualTo("1234");
+    assertThat(generated.get("transport.host")).isEqualTo("127.0.0.1");
     assertThat(generated.get("cluster.name")).isEqualTo("tests");
     assertThat(generated.get("node.name")).isEqualTo("test");
 
@@ -78,6 +81,23 @@ public class SearchSettingsTest {
     // no cluster, but node name is set though
     assertThat(generated.get("index.number_of_replicas")).isEqualTo("0");
     assertThat(generated.get("discovery.zen.ping.unicast.hosts")).isNull();
+  }
+  
+  @Test
+  public void test_default_hosts() throws Exception {
+    Props props = minProps();
+
+    SearchSettings searchSettings = new SearchSettings(props);
+    assertThat(searchSettings.inCluster()).isFalse();
+    assertThat(searchSettings.clusterName()).isEqualTo("tests");
+    assertThat(searchSettings.tcpPort()).isEqualTo(1234);
+    assertThat(searchSettings.hostName()).isEqualTo(null);
+
+    Settings generated = searchSettings.build();
+    assertThat(generated.get("transport.tcp.port")).isEqualTo("1234");
+    assertThat(generated.get("transport.host")).isEqualTo(null);
+    assertThat(generated.get("cluster.name")).isEqualTo("tests");
+    assertThat(generated.get("node.name")).isEqualTo("test");
   }
 
   @Test
@@ -146,6 +166,18 @@ public class SearchSettingsTest {
 
     assertThat(settings.get("http.port")).isEqualTo("9010");
     assertThat(settings.get("http.host")).isEqualTo("127.0.0.1");
+    assertThat(settings.get("http.enabled")).isEqualTo("true");
+  }
+  
+  @Test
+  public void enable_http_connector_different_host() throws Exception {
+    Props props = minProps();
+    props.set(SearchSettings.PROP_HTTP_PORT, "9010");
+    props.set(ProcessConstants.SEARCH_HOST, "127.0.0.2");
+    Settings settings = new SearchSettings(props).build();
+
+    assertThat(settings.get("http.port")).isEqualTo("9010");
+    assertThat(settings.get("http.host")).isEqualTo("127.0.0.2");
     assertThat(settings.get("http.enabled")).isEqualTo("true");
   }
 
