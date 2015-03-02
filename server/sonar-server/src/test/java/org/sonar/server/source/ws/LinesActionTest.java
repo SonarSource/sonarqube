@@ -21,7 +21,6 @@ package org.sonar.server.source.ws;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,7 +34,6 @@ import org.sonar.core.component.ComponentDto;
 import org.sonar.server.component.ComponentService;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.search.BaseNormalizer;
 import org.sonar.server.source.HtmlSourceDecorator;
 import org.sonar.server.source.index.SourceLineDoc;
 import org.sonar.server.source.index.SourceLineIndex;
@@ -44,7 +42,6 @@ import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
 
 import java.util.Date;
-import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -93,66 +90,67 @@ public class LinesActionTest {
 
   @Test
   public void show_source() throws Exception {
+    String projectUuid = "abcd";
     String componentUuid = "efgh";
     Date updatedAt = new Date();
     String scmDate = "2014-01-01T12:34:56.789Z";
-    Map<String, Object> map1 = Maps.newHashMap();
-    map1.put(SourceLineIndexDefinition.FIELD_PROJECT_UUID, "abcd");
-    map1.put(SourceLineIndexDefinition.FIELD_FILE_UUID, "efgh");
-    map1.put(SourceLineIndexDefinition.FIELD_LINE, 1);
-    map1.put(SourceLineIndexDefinition.FIELD_SCM_REVISION, "cafebabe");
-    map1.put(SourceLineIndexDefinition.FIELD_SCM_DATE, scmDate);
-    map1.put(SourceLineIndexDefinition.FIELD_SCM_AUTHOR, "polop");
-    map1.put(SourceLineIndexDefinition.FIELD_SOURCE, "class Polop {");
-    map1.put(SourceLineIndexDefinition.FIELD_HIGHLIGHTING, "h1");
-    map1.put(SourceLineIndexDefinition.FIELD_SYMBOLS, "palap");
-    map1.put(SourceLineIndexDefinition.FIELD_UT_LINE_HITS, 3);
-    map1.put(SourceLineIndexDefinition.FIELD_UT_CONDITIONS, 2);
-    map1.put(SourceLineIndexDefinition.FIELD_UT_COVERED_CONDITIONS, 1);
-    map1.put(SourceLineIndexDefinition.FIELD_IT_LINE_HITS, 3);
-    map1.put(SourceLineIndexDefinition.FIELD_IT_CONDITIONS, 2);
-    map1.put(SourceLineIndexDefinition.FIELD_IT_COVERED_CONDITIONS, 1);
-    map1.put(SourceLineIndexDefinition.FIELD_DUPLICATIONS, ImmutableList.of());
-    map1.put(BaseNormalizer.UPDATED_AT_FIELD, updatedAt);
-    SourceLineDoc line1 = new SourceLineDoc(map1);
-    Map<String, Object> map2 = Maps.newHashMap();
-    map2.put(SourceLineIndexDefinition.FIELD_PROJECT_UUID, "abcd");
-    map2.put(SourceLineIndexDefinition.FIELD_FILE_UUID, "efgh");
-    map2.put(SourceLineIndexDefinition.FIELD_LINE, 2);
-    map2.put(SourceLineIndexDefinition.FIELD_SCM_REVISION, "cafebabe");
-    map2.put(SourceLineIndexDefinition.FIELD_SCM_DATE, scmDate);
-    map2.put(SourceLineIndexDefinition.FIELD_SCM_AUTHOR, "polop");
-    map2.put(SourceLineIndexDefinition.FIELD_SOURCE, "  // Empty");
-    map2.put(SourceLineIndexDefinition.FIELD_HIGHLIGHTING, "h2");
-    map2.put(SourceLineIndexDefinition.FIELD_SYMBOLS, "pulup");
-    map2.put(SourceLineIndexDefinition.FIELD_UT_LINE_HITS, 3);
-    map2.put(SourceLineIndexDefinition.FIELD_UT_CONDITIONS, 2);
-    map2.put(SourceLineIndexDefinition.FIELD_UT_COVERED_CONDITIONS, 1);
-    map2.put(SourceLineIndexDefinition.FIELD_IT_LINE_HITS, null);
-    map2.put(SourceLineIndexDefinition.FIELD_IT_CONDITIONS, null);
-    map2.put(SourceLineIndexDefinition.FIELD_IT_COVERED_CONDITIONS, null);
-    map2.put(SourceLineIndexDefinition.FIELD_DUPLICATIONS, ImmutableList.of(1));
-    map2.put(BaseNormalizer.UPDATED_AT_FIELD, updatedAt);
-    SourceLineDoc line2 = new SourceLineDoc(map2);
-    Map<String, Object> map3 = Maps.newHashMap();
-    map3.put(SourceLineIndexDefinition.FIELD_PROJECT_UUID, "abcd");
-    map3.put(SourceLineIndexDefinition.FIELD_FILE_UUID, "efgh");
-    map3.put(SourceLineIndexDefinition.FIELD_LINE, 3);
-    map3.put(SourceLineIndexDefinition.FIELD_SCM_REVISION, "cafebabe");
-    map3.put(SourceLineIndexDefinition.FIELD_SCM_DATE, scmDate);
-    map3.put(SourceLineIndexDefinition.FIELD_SCM_AUTHOR, "polop");
-    map3.put(SourceLineIndexDefinition.FIELD_SOURCE, "}");
-    map3.put(SourceLineIndexDefinition.FIELD_HIGHLIGHTING, "h3");
-    map3.put(SourceLineIndexDefinition.FIELD_SYMBOLS, "pylyp");
-    map3.put(SourceLineIndexDefinition.FIELD_UT_LINE_HITS, null);
-    map3.put(SourceLineIndexDefinition.FIELD_UT_CONDITIONS, null);
-    map3.put(SourceLineIndexDefinition.FIELD_UT_COVERED_CONDITIONS, null);
-    map3.put(SourceLineIndexDefinition.FIELD_IT_LINE_HITS, 3);
-    map3.put(SourceLineIndexDefinition.FIELD_IT_CONDITIONS, 2);
-    map3.put(SourceLineIndexDefinition.FIELD_IT_COVERED_CONDITIONS, 1);
-    map3.put(SourceLineIndexDefinition.FIELD_DUPLICATIONS, ImmutableList.of());
-    map3.put(BaseNormalizer.UPDATED_AT_FIELD, updatedAt);
-    SourceLineDoc line3 = new SourceLineDoc(map3);
+    SourceLineDoc line1 = new SourceLineDoc()
+      .setProjectUuid(projectUuid)
+      .setFileUuid(componentUuid)
+      .setLine(1)
+      .setScmRevision("cafebabe")
+      .setScmAuthor("polop")
+      .setSource("class Polop {")
+      .setHighlighting("h1")
+      .setSymbols("palap")
+      .setUtLineHits(3)
+      .setUtConditions(2)
+      .setUtCoveredConditions(1)
+      .setItLineHits(3)
+      .setItConditions(2)
+      .setItCoveredConditions(1)
+      .setDuplications(ImmutableList.<Integer>of())
+      .setUpdateDate(updatedAt);
+    line1.setField(SourceLineIndexDefinition.FIELD_SCM_DATE, scmDate);
+
+    SourceLineDoc line2 = new SourceLineDoc()
+      .setProjectUuid(projectUuid)
+      .setFileUuid(componentUuid)
+      .setLine(2)
+      .setScmRevision("cafebabe")
+      .setScmAuthor("polop")
+      .setSource("  // Empty")
+      .setHighlighting("h2")
+      .setSymbols("pulup")
+      .setUtLineHits(3)
+      .setUtConditions(2)
+      .setUtCoveredConditions(1)
+      .setItLineHits(null)
+      .setItConditions(null)
+      .setItCoveredConditions(null)
+      .setDuplications(ImmutableList.<Integer>of(1))
+      .setUpdateDate(updatedAt);
+    line2.setField(SourceLineIndexDefinition.FIELD_SCM_DATE, scmDate);
+
+    SourceLineDoc line3 = new SourceLineDoc()
+      .setProjectUuid(projectUuid)
+      .setFileUuid(componentUuid)
+      .setLine(3)
+      .setScmRevision("cafebabe")
+      .setScmAuthor("polop")
+      .setSource("}")
+      .setHighlighting("h3")
+      .setSymbols("pylyp")
+      .setUtLineHits(null)
+      .setUtConditions(null)
+      .setUtCoveredConditions(null)
+      .setItLineHits(3)
+      .setItConditions(2)
+      .setItCoveredConditions(1)
+      .setDuplications(ImmutableList.<Integer>of())
+      .setUpdateDate(updatedAt);
+    line3.setField(SourceLineIndexDefinition.FIELD_SCM_DATE, scmDate);
+
     when(sourceLineIndex.getLines(eq(componentUuid), anyInt(), anyInt())).thenReturn(newArrayList(
       line1,
       line2,
@@ -160,8 +158,8 @@ public class LinesActionTest {
     ));
 
     String componentKey = "componentKey";
-    when(componentService.getByUuid(componentUuid)).thenReturn(new ComponentDto().setKey(componentKey));
-    MockUserSession.set().setLogin("login").addComponentPermission(UserRole.CODEVIEWER, "polop", componentKey);
+    when(componentService.getByUuid(componentUuid)).thenReturn(new ComponentDto().setKey(componentKey).setProjectUuid(projectUuid));
+    MockUserSession.set().setLogin("login").addProjectUuidPermissions(UserRole.CODEVIEWER, projectUuid);
 
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "lines").setParam("uuid", componentUuid);
     // Using non-strict match b/c of dates
@@ -171,11 +169,12 @@ public class LinesActionTest {
   @Test
   public void fail_to_show_source_if_no_source_found() throws Exception {
     String componentUuid = "abcd";
+    String projectUuid = "efgh";
     when(sourceLineIndex.getLines(anyString(), anyInt(), anyInt())).thenReturn(Lists.<SourceLineDoc>newArrayList());
 
     String componentKey = "componentKey";
-    when(componentService.getByUuid(componentUuid)).thenReturn(new ComponentDto().setKey(componentKey));
-    MockUserSession.set().setLogin("login").addComponentPermission(UserRole.CODEVIEWER, "polop", componentKey);
+    when(componentService.getByUuid(componentUuid)).thenReturn(new ComponentDto().setKey(componentKey).setProjectUuid(projectUuid));
+    MockUserSession.set().setLogin("login").addProjectUuidPermissions(UserRole.CODEVIEWER, projectUuid);
 
     try {
       WsTester.TestRequest request = tester.newGetRequest("api/sources", "lines").setParam("uuid", componentUuid);
@@ -188,32 +187,32 @@ public class LinesActionTest {
 
   @Test
   public void show_source_with_from_and_to_params() throws Exception {
+    String projectUuid = "abcd";
     String fileUuid = "efgh";
-    Map<String, Object> fieldMap = Maps.newHashMap();
-    fieldMap.put(SourceLineIndexDefinition.FIELD_PROJECT_UUID, "abcd");
-    fieldMap.put(SourceLineIndexDefinition.FIELD_FILE_UUID, "efgh");
-    fieldMap.put(SourceLineIndexDefinition.FIELD_LINE, 3);
-    fieldMap.put(SourceLineIndexDefinition.FIELD_SCM_REVISION, "cafebabe");
-    fieldMap.put(SourceLineIndexDefinition.FIELD_SCM_DATE, null);
-    fieldMap.put(SourceLineIndexDefinition.FIELD_SCM_AUTHOR, "polop");
-    fieldMap.put(SourceLineIndexDefinition.FIELD_SOURCE, "}");
-    fieldMap.put(SourceLineIndexDefinition.FIELD_HIGHLIGHTING, "");
-    fieldMap.put(SourceLineIndexDefinition.FIELD_SYMBOLS, "");
-    fieldMap.put(SourceLineIndexDefinition.FIELD_UT_LINE_HITS, null);
-    fieldMap.put(SourceLineIndexDefinition.FIELD_UT_CONDITIONS, null);
-    fieldMap.put(SourceLineIndexDefinition.FIELD_UT_COVERED_CONDITIONS, null);
-    fieldMap.put(SourceLineIndexDefinition.FIELD_IT_LINE_HITS, null);
-    fieldMap.put(SourceLineIndexDefinition.FIELD_IT_CONDITIONS, null);
-    fieldMap.put(SourceLineIndexDefinition.FIELD_IT_COVERED_CONDITIONS, null);
-    fieldMap.put(SourceLineIndexDefinition.FIELD_DUPLICATIONS, null);
-    fieldMap.put(BaseNormalizer.UPDATED_AT_FIELD, new Date());
 
     String componentKey = "componentKey";
-    when(componentService.getByUuid(fileUuid)).thenReturn(new ComponentDto().setKey(componentKey));
-    MockUserSession.set().setLogin("login").addComponentPermission(UserRole.CODEVIEWER, "polop", componentKey);
+    when(componentService.getByUuid(fileUuid)).thenReturn(new ComponentDto().setKey(componentKey).setProjectUuid(projectUuid));
+    MockUserSession.set().setLogin("login").addProjectUuidPermissions(UserRole.CODEVIEWER, projectUuid);
 
     when(sourceLineIndex.getLines(fileUuid, 3, 3)).thenReturn(newArrayList(
-      new SourceLineDoc(fieldMap)
+      new SourceLineDoc()
+        .setProjectUuid(projectUuid)
+        .setFileUuid(fileUuid)
+        .setLine(3)
+        .setScmRevision("cafebabe")
+        .setScmDate(null)
+        .setScmAuthor("polop")
+        .setSource("}")
+        .setHighlighting("")
+        .setSymbols("")
+        .setUtLineHits(null)
+        .setUtConditions(null)
+        .setUtCoveredConditions(null)
+        .setItLineHits(null)
+        .setItConditions(null)
+        .setItCoveredConditions(null)
+        .setDuplications(null)
+        .setUpdateDate(new Date())
     ));
     WsTester.TestRequest request = tester
       .newGetRequest("api/sources", "lines")

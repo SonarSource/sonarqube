@@ -5,9 +5,9 @@
       "line": 1,
       "scmAuthor": "polop",
       "scmRevision": "cafebabe",
-      "lineHits": 3,
-      "conditions": 2,
-      "coveredConditions": 1,
+      "utLineHits": 3,
+      "utConditions": 2,
+      "utCoveredConditions": 1,
       "itLineHits": 3,
       "itConditions": 2,
       "itCoveredConditions": 1
@@ -17,9 +17,9 @@
       "line": 2,
       "scmAuthor": "polop",
       "scmRevision": "cafebabe",
-      "lineHits": 3,
-      "conditions": 2,
-      "coveredConditions": 1,
+      "utLineHits": 3,
+      "utConditions": 2,
+      "utCoveredConditions": 1,
       "duplicated": true
     },
     {

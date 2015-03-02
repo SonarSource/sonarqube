@@ -95,7 +95,7 @@ public class LinesAction implements RequestHandler {
   public void handle(Request request, Response response) {
     String fileUuid = request.mandatoryParam("uuid");
     ComponentDto component = componentService.getByUuid(fileUuid);
-    UserSession.get().checkComponentPermission(UserRole.CODEVIEWER, component.key());
+    UserSession.get().checkProjectUuidPermission(UserRole.CODEVIEWER, component.projectUuid());
 
     int from = Math.max(request.mandatoryParamAsInt("from"), 1);
     int to = (Integer) ObjectUtils.defaultIfNull(request.paramAsInt("to"), Integer.MAX_VALUE);
@@ -121,9 +121,9 @@ public class LinesAction implements RequestHandler {
         .prop("scmRevision", line.scmRevision());
       Date scmDate = line.scmDate();
       json.prop("scmDate", scmDate == null ? null : DateUtils.formatDateTime(scmDate));
-      json.prop("lineHits", line.utLineHits())
-        .prop("conditions", line.utConditions())
-        .prop("coveredConditions", line.utCoveredConditions())
+      json.prop("utLineHits", line.utLineHits())
+        .prop("utConditions", line.utConditions())
+        .prop("utCoveredConditions", line.utCoveredConditions())
         .prop("itLineHits", line.itLineHits())
         .prop("itConditions", line.itConditions())
         .prop("itCoveredConditions", line.itCoveredConditions());
