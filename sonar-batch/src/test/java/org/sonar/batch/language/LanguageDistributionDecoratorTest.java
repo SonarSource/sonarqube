@@ -93,6 +93,21 @@ public class LanguageDistributionDecoratorTest {
   }
 
   @Test
+  public void save_ncloc_language_distribution_on_file_without_language() {
+
+    when(resource.getScope()).thenReturn(Scopes.FILE);
+    when(context.getMeasure(CoreMetrics.NCLOC)).thenReturn(new Measure(CoreMetrics.NCLOC, 200.0));
+
+    decorator.decorate(resource, context);
+
+    verify(context).saveMeasure(measureCaptor.capture());
+
+    Measure result = measureCaptor.getValue();
+    assertThat(result.getMetric()).isEqualTo(CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION);
+    assertThat(result.getData()).isEqualTo("<null>=200");
+  }
+
+  @Test
   public void save_ncloc_language_distribution_on_project() {
     when(resource.getScope()).thenReturn(Scopes.PROJECT);
     when(context.getChildrenMeasures(CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION)).thenReturn(newArrayList(

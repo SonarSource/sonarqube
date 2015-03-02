@@ -35,6 +35,8 @@ import org.sonar.api.resources.ResourceUtils;
 
 public class LanguageDistributionDecorator implements Decorator {
 
+  private static final String UNKNOWN_LANGUAGE_KEY = "<null>";
+
   @Override
   public boolean shouldExecuteOnProject(Project project) {
     return true;
@@ -56,8 +58,8 @@ public class LanguageDistributionDecorator implements Decorator {
     if (ResourceUtils.isFile(resource)) {
       Language language = resource.getLanguage();
       Measure ncloc = context.getMeasure(CoreMetrics.NCLOC);
-      if (language != null && ncloc != null) {
-        nclocDistribution.add(language.getKey(), ncloc.getIntValue());
+      if (ncloc != null) {
+        nclocDistribution.add(language != null ? language.getKey() : UNKNOWN_LANGUAGE_KEY, ncloc.getIntValue());
       }
     } else {
       for (Measure measure : context.getChildrenMeasures(CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION)) {
