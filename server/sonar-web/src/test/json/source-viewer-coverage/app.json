@@ -1,0 +1,19 @@
+{
+  "uuid": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaaa",
+  "key": "sample:sample",
+  "path": "sample/path",
+  "name": "Sample",
+  "longName": "Sample",
+  "q": "FIL",
+  "subProject": "sample:subproject",
+  "subProjectName": "Sample Sub-Project",
+  "project": "sample:project",
+  "projectName": "Sample Project",
+  "fav": false,
+  "canMarkAsFavourite": true,
+  "canCreateManualIssue": true,
+  "measures": {
+    "lines": "20",
+    "duplicationDensity": "25%"
+  }
+}
