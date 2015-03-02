@@ -7,7 +7,10 @@
       "scmRevision": "cafebabe",
       "lineHits": 3,
       "conditions": 2,
-      "coveredConditions": 1
+      "coveredConditions": 1,
+      "itLineHits": 3,
+      "itConditions": 2,
+      "itCoveredConditions": 1
     },
     {
       "code": "<span class=\"h2 sym-pulup\">  // Empty</span>",
@@ -24,9 +27,9 @@
       "line": 3,
       "scmAuthor": "polop",
       "scmRevision": "cafebabe",
-      "lineHits": 3,
-      "conditions": 2,
-      "coveredConditions": 1
+      "itLineHits": 3,
+      "itConditions": 2,
+      "itCoveredConditions": 1
     }
   ]
 }

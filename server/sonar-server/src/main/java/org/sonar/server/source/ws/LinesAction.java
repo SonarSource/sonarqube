@@ -61,6 +61,12 @@ public class LinesAction implements RequestHandler {
         "<li>Author of the line (from SCM information)</li>" +
         "<li>Revision of the line (from SCM information)</li>" +
         "<li>Last commit date of the line (from SCM information)</li>" +
+        "<li>Line hits from unit test coverage</li>" +
+        "<li>Number of conditions to cover in unit tests</li>" +
+        "<li>Number of conditions covered by unit tests</li>" +
+        "<li>Line hits from integration test coverage</li>" +
+        "<li>Number of conditions to cover in integration tests</li>" +
+        "<li>Number of conditions covered by integration tests</li>" +
         "</ol>")
       .setSince("5.0")
       .setInternal(true)
@@ -115,9 +121,12 @@ public class LinesAction implements RequestHandler {
         .prop("scmRevision", line.scmRevision());
       Date scmDate = line.scmDate();
       json.prop("scmDate", scmDate == null ? null : DateUtils.formatDateTime(scmDate));
-      json.prop("lineHits", line.overallLineHits())
-        .prop("conditions", line.overallConditions())
-        .prop("coveredConditions", line.overallCoveredConditions());
+      json.prop("lineHits", line.utLineHits())
+        .prop("conditions", line.utConditions())
+        .prop("coveredConditions", line.utCoveredConditions())
+        .prop("itLineHits", line.itLineHits())
+        .prop("itConditions", line.itConditions())
+        .prop("itCoveredConditions", line.itCoveredConditions());
       if (! line.duplications().isEmpty()) {
         json.prop("duplicated", true);
       }

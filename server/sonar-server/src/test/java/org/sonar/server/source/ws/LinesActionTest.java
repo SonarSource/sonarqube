@@ -20,10 +20,9 @@
 package org.sonar.server.source.ws;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.elasticsearch.common.collect.Lists;
-import org.elasticsearch.common.collect.Maps;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -97,54 +96,63 @@ public class LinesActionTest {
     String componentUuid = "efgh";
     Date updatedAt = new Date();
     String scmDate = "2014-01-01T12:34:56.789Z";
-    SourceLineDoc line1 = new SourceLineDoc(ImmutableMap.<String, Object>builder()
-      .put(SourceLineIndexDefinition.FIELD_PROJECT_UUID, "abcd")
-      .put(SourceLineIndexDefinition.FIELD_FILE_UUID, "efgh")
-      .put(SourceLineIndexDefinition.FIELD_LINE, 1)
-      .put(SourceLineIndexDefinition.FIELD_SCM_REVISION, "cafebabe")
-      .put(SourceLineIndexDefinition.FIELD_SCM_DATE, scmDate)
-      .put(SourceLineIndexDefinition.FIELD_SCM_AUTHOR, "polop")
-      .put(SourceLineIndexDefinition.FIELD_SOURCE, "class Polop {")
-      .put(SourceLineIndexDefinition.FIELD_HIGHLIGHTING, "h1")
-      .put(SourceLineIndexDefinition.FIELD_SYMBOLS, "palap")
-      .put(SourceLineIndexDefinition.FIELD_OVERALL_LINE_HITS, 3)
-      .put(SourceLineIndexDefinition.FIELD_OVERALL_CONDITIONS, 2)
-      .put(SourceLineIndexDefinition.FIELD_OVERALL_COVERED_CONDITIONS, 1)
-      .put(SourceLineIndexDefinition.FIELD_DUPLICATIONS, ImmutableList.of())
-      .put(BaseNormalizer.UPDATED_AT_FIELD, updatedAt)
-      .build());
-    SourceLineDoc line2 = new SourceLineDoc(ImmutableMap.<String, Object>builder()
-      .put(SourceLineIndexDefinition.FIELD_PROJECT_UUID, "abcd")
-      .put(SourceLineIndexDefinition.FIELD_FILE_UUID, "efgh")
-      .put(SourceLineIndexDefinition.FIELD_LINE, 2)
-      .put(SourceLineIndexDefinition.FIELD_SCM_REVISION, "cafebabe")
-      .put(SourceLineIndexDefinition.FIELD_SCM_DATE, scmDate)
-      .put(SourceLineIndexDefinition.FIELD_SCM_AUTHOR, "polop")
-      .put(SourceLineIndexDefinition.FIELD_SOURCE, "  // Empty")
-      .put(SourceLineIndexDefinition.FIELD_HIGHLIGHTING, "h2")
-      .put(SourceLineIndexDefinition.FIELD_SYMBOLS, "pulup")
-      .put(SourceLineIndexDefinition.FIELD_OVERALL_LINE_HITS, 3)
-      .put(SourceLineIndexDefinition.FIELD_OVERALL_CONDITIONS, 2)
-      .put(SourceLineIndexDefinition.FIELD_OVERALL_COVERED_CONDITIONS, 1)
-      .put(SourceLineIndexDefinition.FIELD_DUPLICATIONS, ImmutableList.of(1))
-      .put(BaseNormalizer.UPDATED_AT_FIELD, updatedAt)
-      .build());
-    SourceLineDoc line3 = new SourceLineDoc(ImmutableMap.<String, Object>builder()
-      .put(SourceLineIndexDefinition.FIELD_PROJECT_UUID, "abcd")
-      .put(SourceLineIndexDefinition.FIELD_FILE_UUID, "efgh")
-      .put(SourceLineIndexDefinition.FIELD_LINE, 3)
-      .put(SourceLineIndexDefinition.FIELD_SCM_REVISION, "cafebabe")
-      .put(SourceLineIndexDefinition.FIELD_SCM_DATE, scmDate)
-      .put(SourceLineIndexDefinition.FIELD_SCM_AUTHOR, "polop")
-      .put(SourceLineIndexDefinition.FIELD_SOURCE, "}")
-      .put(SourceLineIndexDefinition.FIELD_HIGHLIGHTING, "h3")
-      .put(SourceLineIndexDefinition.FIELD_SYMBOLS, "pylyp")
-      .put(SourceLineIndexDefinition.FIELD_OVERALL_LINE_HITS, 3)
-      .put(SourceLineIndexDefinition.FIELD_OVERALL_CONDITIONS, 2)
-      .put(SourceLineIndexDefinition.FIELD_OVERALL_COVERED_CONDITIONS, 1)
-      .put(SourceLineIndexDefinition.FIELD_DUPLICATIONS, ImmutableList.of())
-      .put(BaseNormalizer.UPDATED_AT_FIELD, updatedAt)
-      .build());
+    Map<String, Object> map1 = Maps.newHashMap();
+    map1.put(SourceLineIndexDefinition.FIELD_PROJECT_UUID, "abcd");
+    map1.put(SourceLineIndexDefinition.FIELD_FILE_UUID, "efgh");
+    map1.put(SourceLineIndexDefinition.FIELD_LINE, 1);
+    map1.put(SourceLineIndexDefinition.FIELD_SCM_REVISION, "cafebabe");
+    map1.put(SourceLineIndexDefinition.FIELD_SCM_DATE, scmDate);
+    map1.put(SourceLineIndexDefinition.FIELD_SCM_AUTHOR, "polop");
+    map1.put(SourceLineIndexDefinition.FIELD_SOURCE, "class Polop {");
+    map1.put(SourceLineIndexDefinition.FIELD_HIGHLIGHTING, "h1");
+    map1.put(SourceLineIndexDefinition.FIELD_SYMBOLS, "palap");
+    map1.put(SourceLineIndexDefinition.FIELD_UT_LINE_HITS, 3);
+    map1.put(SourceLineIndexDefinition.FIELD_UT_CONDITIONS, 2);
+    map1.put(SourceLineIndexDefinition.FIELD_UT_COVERED_CONDITIONS, 1);
+    map1.put(SourceLineIndexDefinition.FIELD_IT_LINE_HITS, 3);
+    map1.put(SourceLineIndexDefinition.FIELD_IT_CONDITIONS, 2);
+    map1.put(SourceLineIndexDefinition.FIELD_IT_COVERED_CONDITIONS, 1);
+    map1.put(SourceLineIndexDefinition.FIELD_DUPLICATIONS, ImmutableList.of());
+    map1.put(BaseNormalizer.UPDATED_AT_FIELD, updatedAt);
+    SourceLineDoc line1 = new SourceLineDoc(map1);
+    Map<String, Object> map2 = Maps.newHashMap();
+    map2.put(SourceLineIndexDefinition.FIELD_PROJECT_UUID, "abcd");
+    map2.put(SourceLineIndexDefinition.FIELD_FILE_UUID, "efgh");
+    map2.put(SourceLineIndexDefinition.FIELD_LINE, 2);
+    map2.put(SourceLineIndexDefinition.FIELD_SCM_REVISION, "cafebabe");
+    map2.put(SourceLineIndexDefinition.FIELD_SCM_DATE, scmDate);
+    map2.put(SourceLineIndexDefinition.FIELD_SCM_AUTHOR, "polop");
+    map2.put(SourceLineIndexDefinition.FIELD_SOURCE, "  // Empty");
+    map2.put(SourceLineIndexDefinition.FIELD_HIGHLIGHTING, "h2");
+    map2.put(SourceLineIndexDefinition.FIELD_SYMBOLS, "pulup");
+    map2.put(SourceLineIndexDefinition.FIELD_UT_LINE_HITS, 3);
+    map2.put(SourceLineIndexDefinition.FIELD_UT_CONDITIONS, 2);
+    map2.put(SourceLineIndexDefinition.FIELD_UT_COVERED_CONDITIONS, 1);
+    map2.put(SourceLineIndexDefinition.FIELD_IT_LINE_HITS, null);
+    map2.put(SourceLineIndexDefinition.FIELD_IT_CONDITIONS, null);
+    map2.put(SourceLineIndexDefinition.FIELD_IT_COVERED_CONDITIONS, null);
+    map2.put(SourceLineIndexDefinition.FIELD_DUPLICATIONS, ImmutableList.of(1));
+    map2.put(BaseNormalizer.UPDATED_AT_FIELD, updatedAt);
+    SourceLineDoc line2 = new SourceLineDoc(map2);
+    Map<String, Object> map3 = Maps.newHashMap();
+    map3.put(SourceLineIndexDefinition.FIELD_PROJECT_UUID, "abcd");
+    map3.put(SourceLineIndexDefinition.FIELD_FILE_UUID, "efgh");
+    map3.put(SourceLineIndexDefinition.FIELD_LINE, 3);
+    map3.put(SourceLineIndexDefinition.FIELD_SCM_REVISION, "cafebabe");
+    map3.put(SourceLineIndexDefinition.FIELD_SCM_DATE, scmDate);
+    map3.put(SourceLineIndexDefinition.FIELD_SCM_AUTHOR, "polop");
+    map3.put(SourceLineIndexDefinition.FIELD_SOURCE, "}");
+    map3.put(SourceLineIndexDefinition.FIELD_HIGHLIGHTING, "h3");
+    map3.put(SourceLineIndexDefinition.FIELD_SYMBOLS, "pylyp");
+    map3.put(SourceLineIndexDefinition.FIELD_UT_LINE_HITS, null);
+    map3.put(SourceLineIndexDefinition.FIELD_UT_CONDITIONS, null);
+    map3.put(SourceLineIndexDefinition.FIELD_UT_COVERED_CONDITIONS, null);
+    map3.put(SourceLineIndexDefinition.FIELD_IT_LINE_HITS, 3);
+    map3.put(SourceLineIndexDefinition.FIELD_IT_CONDITIONS, 2);
+    map3.put(SourceLineIndexDefinition.FIELD_IT_COVERED_CONDITIONS, 1);
+    map3.put(SourceLineIndexDefinition.FIELD_DUPLICATIONS, ImmutableList.of());
+    map3.put(BaseNormalizer.UPDATED_AT_FIELD, updatedAt);
+    SourceLineDoc line3 = new SourceLineDoc(map3);
     when(sourceLineIndex.getLines(eq(componentUuid), anyInt(), anyInt())).thenReturn(newArrayList(
       line1,
       line2,
@@ -191,9 +199,12 @@ public class LinesActionTest {
     fieldMap.put(SourceLineIndexDefinition.FIELD_SOURCE, "}");
     fieldMap.put(SourceLineIndexDefinition.FIELD_HIGHLIGHTING, "");
     fieldMap.put(SourceLineIndexDefinition.FIELD_SYMBOLS, "");
-    fieldMap.put(SourceLineIndexDefinition.FIELD_OVERALL_LINE_HITS, null);
-    fieldMap.put(SourceLineIndexDefinition.FIELD_OVERALL_CONDITIONS, null);
-    fieldMap.put(SourceLineIndexDefinition.FIELD_OVERALL_COVERED_CONDITIONS, null);
+    fieldMap.put(SourceLineIndexDefinition.FIELD_UT_LINE_HITS, null);
+    fieldMap.put(SourceLineIndexDefinition.FIELD_UT_CONDITIONS, null);
+    fieldMap.put(SourceLineIndexDefinition.FIELD_UT_COVERED_CONDITIONS, null);
+    fieldMap.put(SourceLineIndexDefinition.FIELD_IT_LINE_HITS, null);
+    fieldMap.put(SourceLineIndexDefinition.FIELD_IT_CONDITIONS, null);
+    fieldMap.put(SourceLineIndexDefinition.FIELD_IT_COVERED_CONDITIONS, null);
     fieldMap.put(SourceLineIndexDefinition.FIELD_DUPLICATIONS, null);
     fieldMap.put(BaseNormalizer.UPDATED_AT_FIELD, new Date());
 
