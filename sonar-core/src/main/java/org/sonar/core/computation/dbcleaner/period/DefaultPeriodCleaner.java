@@ -21,12 +21,12 @@
 package org.sonar.core.computation.dbcleaner.period;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.config.Settings;
 import org.sonar.api.task.TaskExtension;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.purge.PurgeDao;
@@ -37,7 +37,7 @@ import java.util.List;
 
 public class DefaultPeriodCleaner implements TaskExtension, ServerExtension {
 
-  private static final Logger LOG = LoggerFactory.getLogger(DefaultPeriodCleaner.class);
+  private static final Logger LOG = Loggers.get(DefaultPeriodCleaner.class);
   private PurgeDao purgeDao;
   private Settings settings;
   private MyBatis mybatis;
@@ -76,7 +76,7 @@ public class DefaultPeriodCleaner implements TaskExtension, ServerExtension {
 
   private void delete(List<PurgeableSnapshotDto> snapshots, DbSession session) {
     for (PurgeableSnapshotDto snapshot : snapshots) {
-      LOG.info("<- Delete snapshot: " + DateUtils.formatDateTime(snapshot.getDate()) + " [" + snapshot.getSnapshotId() + "]");
+      LOG.debug("<- Delete snapshot: {} [{}]", DateUtils.formatDateTime(snapshot.getDate()), snapshot.getSnapshotId());
       purgeDao.deleteSnapshots(PurgeSnapshotQuery.create().setRootSnapshotId(snapshot.getSnapshotId()), session);
       purgeDao.deleteSnapshots(PurgeSnapshotQuery.create().setId(snapshot.getSnapshotId()), session);
     }

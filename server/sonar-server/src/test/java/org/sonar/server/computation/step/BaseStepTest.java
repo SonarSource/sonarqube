@@ -17,22 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation;
+package org.sonar.server.computation.step;
 
 import org.junit.Test;
-import org.sonar.test.TestUtils;
+
+import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ComputationComponentsTest {
+/**
+ * Temporary solution to test metadata. Should be replaced by a medium test of
+ * all computation stack
+ */
+public abstract class BaseStepTest {
+
+  protected abstract ComputationStep step() throws IOException;
 
   @Test
-  public void nonStepComponents() throws Exception {
-    assertThat(ComputationComponents.nonStepComponents()).isNotEmpty();
-  }
+  public void test_metadata() throws Exception {
+    assertThat(step().toString()).isNotEmpty();
+    assertThat(step().supportedProjectQualifiers().length).isGreaterThan(0);
 
-  @Test
-  public void util_class() throws Exception {
-    assertThat(TestUtils.hasOnlyPrivateConstructors(ComputationComponents.class)).isTrue();
   }
 }

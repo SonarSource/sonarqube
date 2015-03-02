@@ -25,7 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.computation.db.AnalysisReportDto;
-import org.sonar.server.computation.AnalysisReportQueue;
+import org.sonar.server.computation.ReportQueue;
 import org.sonar.server.ws.WsTester;
 
 import java.util.List;
@@ -38,11 +38,11 @@ import static org.sonar.core.computation.db.AnalysisReportDto.Status.PENDING;
 public class QueueWsActionTest {
 
   WsTester tester;
-  private AnalysisReportQueue queue;
+  private ReportQueue queue;
 
   @Before
   public void setup() throws Exception {
-    queue = mock(AnalysisReportQueue.class);
+    queue = mock(ReportQueue.class);
     tester = new WsTester(new ComputationWebService(new QueueWsAction(queue)));
   }
 
@@ -52,7 +52,7 @@ public class QueueWsActionTest {
       .newForTests(1L)
       .setProjectKey("project-key")
       .setStatus(PENDING)
-      .setData(null)
+      .setUuid("PROJECT_UUID")
       .setCreatedAt(DateUtils.parseDateTime("2014-10-13T00:00:00+0200").getTime())
       .setStartedAt(DateUtils.parseDateTime("2014-10-13T00:00:00+0200").getTime())
       .setFinishedAt(DateUtils.parseDateTime("2014-10-13T00:00:00+0200").getTime());

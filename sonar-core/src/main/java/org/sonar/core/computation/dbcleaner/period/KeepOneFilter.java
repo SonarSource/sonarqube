@@ -22,8 +22,8 @@ package org.sonar.core.computation.dbcleaner.period;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.purge.PurgeableSnapshotDto;
 
 import java.util.Date;
@@ -56,7 +56,7 @@ class KeepOneFilter implements Filter {
 
   @Override
   public void log() {
-    LoggerFactory.getLogger(getClass()).info("-> Keep one snapshot per " + label + " between " + DateUtils.formatDate(start) + " and " + DateUtils.formatDate(end));
+    Loggers.get(getClass()).debug("-> Keep one snapshot per {} between {} and {}", label, DateUtils.formatDate(start), DateUtils.formatDate(end));
   }
 
   private void appendSnapshotsToDelete(Interval interval, List<PurgeableSnapshotDto> toDelete) {

@@ -39,11 +39,11 @@ public class ComputationThreadLauncherTest {
   public TestRule timeout = new DisableOnDebug(Timeout.seconds(5));
 
   ComputationThreadLauncher sut;
-  AnalysisReportQueue queue;
+  ReportQueue queue;
 
   @Before
   public void before() {
-    this.queue = mock(AnalysisReportQueue.class);
+    this.queue = mock(ReportQueue.class);
   }
 
   @After
@@ -72,6 +72,12 @@ public class ComputationThreadLauncherTest {
     sleep();
 
     verify(queue, atLeastOnce()).pop();
+  }
+
+  @Test
+  public void test_real_constructor() throws Exception {
+    sut = new ComputationThreadLauncher(queue);
+    sut.start();
   }
 
   private void sleep() throws InterruptedException {

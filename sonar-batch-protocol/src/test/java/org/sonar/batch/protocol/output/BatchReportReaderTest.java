@@ -28,7 +28,7 @@ import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class BatchOutputReaderTest {
+public class BatchReportReaderTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -39,7 +39,7 @@ public class BatchOutputReaderTest {
 
     initFiles(dir);
 
-    BatchOutputReader reader = new BatchOutputReader(dir);
+    BatchReportReader reader = new BatchReportReader(dir);
     assertThat(reader.readMetadata().getAnalysisDate()).isEqualTo(15000000L);
     assertThat(reader.readComponentIssues(1)).hasSize(1);
     assertThat(reader.readComponentIssues(200)).isEmpty();

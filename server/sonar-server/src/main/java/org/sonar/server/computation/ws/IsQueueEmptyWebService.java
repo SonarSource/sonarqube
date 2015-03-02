@@ -26,7 +26,7 @@ import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.computation.db.AnalysisReportDto;
-import org.sonar.server.computation.AnalysisReportQueue;
+import org.sonar.server.computation.ReportQueue;
 
 import java.util.List;
 
@@ -38,7 +38,7 @@ public class IsQueueEmptyWebService implements WebService {
 
   private final IsQueueEmptyWsAction action;
 
-  public IsQueueEmptyWebService(AnalysisReportQueue queue) {
+  public IsQueueEmptyWebService(ReportQueue queue) {
     this.action = new IsQueueEmptyWsAction(queue);
   }
 
@@ -52,9 +52,9 @@ public class IsQueueEmptyWebService implements WebService {
   }
 
   static class IsQueueEmptyWsAction implements RequestHandler {
-    private final AnalysisReportQueue queue;
+    private final ReportQueue queue;
 
-    public IsQueueEmptyWsAction(AnalysisReportQueue queue) {
+    public IsQueueEmptyWsAction(ReportQueue queue) {
       this.queue = queue;
     }
 

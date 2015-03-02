@@ -20,8 +20,11 @@
 
 package org.sonar.server.computation.db;
 
-import org.apache.commons.io.IOUtils;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.utils.System2;
@@ -31,8 +34,6 @@ import org.sonar.core.persistence.DbTester;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.test.DbTests;
 
-import java.io.File;
-import java.io.InputStream;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,7 +47,6 @@ import static org.sonar.core.computation.db.AnalysisReportDto.Status.WORKING;
 public class AnalysisReportDaoTest {
 
   private static final String DEFAULT_PROJECT_KEY = "123456789-987654321";
-  private static final long DEFAULT_SNAPSHOT_ID = 123L;
 
   @ClassRule
   public static DbTester db = new DbTester();
@@ -54,13 +54,12 @@ public class AnalysisReportDaoTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  private AnalysisReportDao sut;
-  private DbSession session;
-  private System2 system2;
+  AnalysisReportDao sut;
+  DbSession session;
+  System2 system2;
 
   @Before
   public void before() {
-    db.truncateTables();
     this.session = db.myBatis().openSession(false);
     this.system2 = mock(System2.class);
     this.sut = new AnalysisReportDao(system2);
@@ -78,23 +77,14 @@ public class AnalysisReportDaoTest {
   public void insert_multiple_reports() throws Exception {
     db.prepareDbUnit(getClass(), "empty.xml");
 
-    AnalysisReportDto report1 = newDefaultAnalysisReport();
-    AnalysisReportDto report2 = newDefaultAnalysisReport();
+    AnalysisReportDto report1 = newDefaultAnalysisReport().setUuid("UUID_1");
+    AnalysisReportDto report2 = newDefaultAnalysisReport().setUuid("UUID_2");
 
     sut.insert(session, report1);
     sut.insert(session, report2);
     session.commit();
 
     db.assertDbUnit(getClass(), "insert-result.xml", "analysis_reports");
-  }
-
-  @Test
-  public void insert_report_data_do_not_throw_exception() throws Exception {
-    db.prepareDbUnit(getClass(), "empty.xml");
-    AnalysisReportDto report = newDefaultAnalysisReport()
-      .setData(getClass().getResource("/org/sonar/server/computation/db/AnalysisReportDaoTest/zip.zip").openStream());
-
-    sut.insert(session, report);
   }
 
   @Test
@@ -171,8 +161,6 @@ public class AnalysisReportDaoTest {
     assertThat(report.getStartedAt()).isEqualTo(parseDate("2014-09-26").getTime());
     assertThat(report.getFinishedAt()).isEqualTo(parseDate("2014-09-27").getTime());
     assertThat(report.getStatus()).isEqualTo(WORKING);
-    assertThat(report.getData()).isNull();
-    assertThat(report.getKey()).isEqualTo("1");
   }
 
   @Test
@@ -221,31 +209,10 @@ public class AnalysisReportDaoTest {
     assertThat(reports).hasSize(3);
   }
 
-  @Test
-  public void insert_and_then_retrieve_report_data_with_decompressed_files_medium_test() throws Exception {
-    // ARRANGE
-    db.prepareDbUnit(getClass(), "empty.xml");
-    AnalysisReportDto report = newDefaultAnalysisReport();
-    InputStream zip = getClass().getResource("/org/sonar/server/computation/db/AnalysisReportDaoTest/zip.zip").openStream();
-    report.setData(zip);
-
-    File toDir = temp.newFolder();
-    sut.insert(session, report);
-    session.commit();
-    IOUtils.closeQuietly(zip);
-
-    // ACT
-    sut.selectAndDecompressToDir(session, 1L, toDir);
-
-    // ASSERT
-    assertThat(toDir.list()).hasSize(3);
-  }
-
   private AnalysisReportDto newDefaultAnalysisReport() {
     return AnalysisReportDto.newForTests(1L)
       .setProjectKey(DEFAULT_PROJECT_KEY)
-      .setSnapshotId(DEFAULT_SNAPSHOT_ID)
-      .setData(null)
+      .setUuid("REPORT_UUID")
       .setStatus(PENDING);
   }
 }

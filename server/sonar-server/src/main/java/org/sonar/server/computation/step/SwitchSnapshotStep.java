@@ -22,7 +22,6 @@ package org.sonar.server.computation.step;
 
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.core.component.SnapshotDto;
-import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.component.db.SnapshotDao;
@@ -48,8 +47,9 @@ public class SwitchSnapshotStep implements ComputationStep {
   public void execute(ComputationContext context) {
     DbSession session = dbClient.openSession(true);
     try {
-      disablePreviousSnapshot(session, context.getReportDto());
-      enableCurrentSnapshot(session, context.getReportDto());
+      long snapshotId = context.getReportMetadata().getSnapshotId();
+      disablePreviousSnapshot(session, snapshotId);
+      enableCurrentSnapshot(session, snapshotId);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -60,16 +60,8 @@ public class SwitchSnapshotStep implements ComputationStep {
     return "Switch last snapshot flag";
   }
 
-  private void disablePreviousSnapshot(DbSession session, AnalysisReportDto report) {
-    SnapshotDto referenceSnapshot;
-
-    try {
-      referenceSnapshot = dbClient.snapshotDao().getByKey(session, report.getSnapshotId());
-    } catch (Exception exception) {
-      throw new IllegalStateException(String.format("Unexpected error while trying to retrieve snapshot of analysis %s", report), exception);
-    }
-
-    List<SnapshotDto> snapshots = dbClient.snapshotDao().findSnapshotAndChildrenOfProjectScope(session, referenceSnapshot);
+  private void disablePreviousSnapshot(DbSession session, long reportSnapshotId) {
+    List<SnapshotDto> snapshots = dbClient.snapshotDao().findSnapshotAndChildrenOfProjectScope(session, dbClient.snapshotDao().getByKey(session, reportSnapshotId));
     for (SnapshotDto snapshot : snapshots) {
       SnapshotDto previousLastSnapshot = dbClient.snapshotDao().getLastSnapshot(session, snapshot);
       if (previousLastSnapshot != null) {
@@ -79,9 +71,9 @@ public class SwitchSnapshotStep implements ComputationStep {
     }
   }
 
-  private void enableCurrentSnapshot(DbSession session, AnalysisReportDto report) {
+  private void enableCurrentSnapshot(DbSession session, long reportSnapshotId) {
     SnapshotDao dao = dbClient.snapshotDao();
-    SnapshotDto snapshot = dao.getByKey(session, report.getSnapshotId());
+    SnapshotDto snapshot = dao.getByKey(session, reportSnapshotId);
     SnapshotDto previousLastSnapshot = dao.getLastSnapshot(session, snapshot);
 
     boolean isLast = dao.isLast(snapshot, previousLastSnapshot);

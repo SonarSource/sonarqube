@@ -20,12 +20,15 @@
 
 package org.sonar.server.computation.ws;
 
+import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.computation.AnalysisReportQueue;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.computation.ComputationThreadLauncher;
+import org.sonar.server.computation.ReportQueue;
+import org.sonar.server.user.UserSession;
 
 import java.io.InputStream;
 
@@ -33,13 +36,12 @@ public class SubmitReportWsAction implements ComputationWsAction, RequestHandler
 
   public static final String ACTION = "submit_report";
   public static final String PARAM_PROJECT_KEY = "projectKey";
-  public static final String PARAM_SNAPSHOT = "snapshot";
   public static final String PARAM_REPORT_DATA = "report";
 
-  private final AnalysisReportQueue queue;
+  private final ReportQueue queue;
   private final ComputationThreadLauncher workerLauncher;
 
-  public SubmitReportWsAction(AnalysisReportQueue queue, ComputationThreadLauncher workerLauncher) {
+  public SubmitReportWsAction(ReportQueue queue, ComputationThreadLauncher workerLauncher) {
     this.queue = queue;
     this.workerLauncher = workerLauncher;
   }
@@ -59,12 +61,6 @@ public class SubmitReportWsAction implements ComputationWsAction, RequestHandler
       .setExampleValue("org.codehaus.sonar:sonar");
 
     action
-      .createParam(PARAM_SNAPSHOT)
-      .setRequired(true)
-      .setDescription("Snapshot ID")
-      .setExampleValue("123");
-
-    action
       .createParam(PARAM_REPORT_DATA)
       .setRequired(false)
       .setDescription("Report file. Format is not an API, it changes among SonarQube versions.");
@@ -72,16 +68,21 @@ public class SubmitReportWsAction implements ComputationWsAction, RequestHandler
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    UserSession.get().checkGlobalPermission(GlobalPermissions.SCAN_EXECUTION);
     String projectKey = request.mandatoryParam(PARAM_PROJECT_KEY);
-    long snapshotId = request.mandatoryParamAsLong(PARAM_SNAPSHOT);
-    try (InputStream reportData = request.paramAsInputStream(PARAM_REPORT_DATA)) {
-      String reportKey = queue.add(projectKey, snapshotId, reportData);
+    InputStream reportData = request.paramAsInputStream(PARAM_REPORT_DATA);
+    try {
+      ReportQueue.Item item = queue.add(projectKey, reportData);
       workerLauncher.startAnalysisTaskNow();
       response.newJsonWriter()
         .beginObject()
-        .prop("key", reportKey)
+        // do not write integer for forward-compatibility, for example
+        // if we want to write UUID later
+        .prop("key", String.valueOf(item.dto.getId()))
         .endObject()
         .close();
+    } finally {
+      IOUtils.closeQuietly(reportData);
     }
   }
 }

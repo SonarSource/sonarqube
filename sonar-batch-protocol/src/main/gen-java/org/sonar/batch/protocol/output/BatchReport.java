@@ -8,10 +8,10 @@ public final class BatchReport {
   public static void registerAllExtensions(
       com.google.protobuf.ExtensionRegistry registry) {
   }
-  public interface MetadataOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface MetadataOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:Metadata)
+      com.google.protobuf.MessageOrBuilder {
 
-    // optional int64 analysis_date = 1;
     /**
      * <code>optional int64 analysis_date = 1;</code>
      */
@@ -21,7 +21,6 @@ public final class BatchReport {
      */
     long getAnalysisDate();
 
-    // optional string project_key = 2;
     /**
      * <code>optional string project_key = 2;</code>
      */
@@ -36,7 +35,6 @@ public final class BatchReport {
     com.google.protobuf.ByteString
         getProjectKeyBytes();
 
-    // optional int32 root_component_ref = 3;
     /**
      * <code>optional int32 root_component_ref = 3;</code>
      */
@@ -45,13 +43,31 @@ public final class BatchReport {
      * <code>optional int32 root_component_ref = 3;</code>
      */
     int getRootComponentRef();
+
+    /**
+     * <code>optional int64 snapshot_id = 4;</code>
+     *
+     * <pre>
+     * temporary field used during development of computation stack
+     * </pre>
+     */
+    boolean hasSnapshotId();
+    /**
+     * <code>optional int64 snapshot_id = 4;</code>
+     *
+     * <pre>
+     * temporary field used during development of computation stack
+     * </pre>
+     */
+    long getSnapshotId();
   }
   /**
    * Protobuf type {@code Metadata}
    */
   public static final class Metadata extends
-      com.google.protobuf.GeneratedMessage
-      implements MetadataOrBuilder {
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:Metadata)
+      MetadataOrBuilder {
     // Use Metadata.newBuilder() to construct.
     private Metadata(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
@@ -103,13 +119,19 @@ public final class BatchReport {
               break;
             }
             case 18: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000002;
-              projectKey_ = input.readBytes();
+              projectKey_ = bs;
               break;
             }
             case 24: {
               bitField0_ |= 0x00000004;
               rootComponentRef_ = input.readInt32();
+              break;
+            }
+            case 32: {
+              bitField0_ |= 0x00000008;
+              snapshotId_ = input.readInt64();
               break;
             }
           }
@@ -152,7 +174,6 @@ public final class BatchReport {
     }
 
     private int bitField0_;
-    // optional int64 analysis_date = 1;
     public static final int ANALYSIS_DATE_FIELD_NUMBER = 1;
     private long analysisDate_;
     /**
@@ -168,7 +189,6 @@ public final class BatchReport {
       return analysisDate_;
     }
 
-    // optional string project_key = 2;
     public static final int PROJECT_KEY_FIELD_NUMBER = 2;
     private java.lang.Object projectKey_;
     /**
@@ -211,7 +231,6 @@ public final class BatchReport {
       }
     }
 
-    // optional int32 root_component_ref = 3;
     public static final int ROOT_COMPONENT_REF_FIELD_NUMBER = 3;
     private int rootComponentRef_;
     /**
@@ -227,15 +246,40 @@ public final class BatchReport {
       return rootComponentRef_;
     }
 
+    public static final int SNAPSHOT_ID_FIELD_NUMBER = 4;
+    private long snapshotId_;
+    /**
+     * <code>optional int64 snapshot_id = 4;</code>
+     *
+     * <pre>
+     * temporary field used during development of computation stack
+     * </pre>
+     */
+    public boolean hasSnapshotId() {
+      return ((bitField0_ & 0x00000008) == 0x00000008);
+    }
+    /**
+     * <code>optional int64 snapshot_id = 4;</code>
+     *
+     * <pre>
+     * temporary field used during development of computation stack
+     * </pre>
+     */
+    public long getSnapshotId() {
+      return snapshotId_;
+    }
+
     private void initFields() {
       analysisDate_ = 0L;
       projectKey_ = "";
       rootComponentRef_ = 0;
+      snapshotId_ = 0L;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       memoizedIsInitialized = 1;
       return true;
@@ -252,6 +296,9 @@ public final class BatchReport {
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         output.writeInt32(3, rootComponentRef_);
+      }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        output.writeInt64(4, snapshotId_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -273,6 +320,10 @@ public final class BatchReport {
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(3, rootComponentRef_);
+      }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(4, snapshotId_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -356,8 +407,9 @@ public final class BatchReport {
      * Protobuf type {@code Metadata}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements org.sonar.batch.protocol.output.BatchReport.MetadataOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:Metadata)
+        org.sonar.batch.protocol.output.BatchReport.MetadataOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return org.sonar.batch.protocol.output.BatchReport.internal_static_Metadata_descriptor;
@@ -396,6 +448,8 @@ public final class BatchReport {
         bitField0_ = (bitField0_ & ~0x00000002);
         rootComponentRef_ = 0;
         bitField0_ = (bitField0_ & ~0x00000004);
+        snapshotId_ = 0L;
+        bitField0_ = (bitField0_ & ~0x00000008);
         return this;
       }
 
@@ -436,6 +490,10 @@ public final class BatchReport {
           to_bitField0_ |= 0x00000004;
         }
         result.rootComponentRef_ = rootComponentRef_;
+        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
+          to_bitField0_ |= 0x00000008;
+        }
+        result.snapshotId_ = snapshotId_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -462,6 +520,9 @@ public final class BatchReport {
         }
         if (other.hasRootComponentRef()) {
           setRootComponentRef(other.getRootComponentRef());
+        }
+        if (other.hasSnapshotId()) {
+          setSnapshotId(other.getSnapshotId());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -490,7 +551,6 @@ public final class BatchReport {
       }
       private int bitField0_;
 
-      // optional int64 analysis_date = 1;
       private long analysisDate_ ;
       /**
        * <code>optional int64 analysis_date = 1;</code>
@@ -523,7 +583,6 @@ public final class BatchReport {
         return this;
       }
 
-      // optional string project_key = 2;
       private java.lang.Object projectKey_ = "";
       /**
        * <code>optional string project_key = 2;</code>
@@ -537,9 +596,12 @@ public final class BatchReport {
       public java.lang.String getProjectKey() {
         java.lang.Object ref = projectKey_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          projectKey_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            projectKey_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -597,7 +659,6 @@ public final class BatchReport {
         return this;
       }
 
-      // optional int32 root_component_ref = 3;
       private int rootComponentRef_ ;
       /**
        * <code>optional int32 root_component_ref = 3;</code>
@@ -630,6 +691,54 @@ public final class BatchReport {
         return this;
       }
 
+      private long snapshotId_ ;
+      /**
+       * <code>optional int64 snapshot_id = 4;</code>
+       *
+       * <pre>
+       * temporary field used during development of computation stack
+       * </pre>
+       */
+      public boolean hasSnapshotId() {
+        return ((bitField0_ & 0x00000008) == 0x00000008);
+      }
+      /**
+       * <code>optional int64 snapshot_id = 4;</code>
+       *
+       * <pre>
+       * temporary field used during development of computation stack
+       * </pre>
+       */
+      public long getSnapshotId() {
+        return snapshotId_;
+      }
+      /**
+       * <code>optional int64 snapshot_id = 4;</code>
+       *
+       * <pre>
+       * temporary field used during development of computation stack
+       * </pre>
+       */
+      public Builder setSnapshotId(long value) {
+        bitField0_ |= 0x00000008;
+        snapshotId_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int64 snapshot_id = 4;</code>
+       *
+       * <pre>
+       * temporary field used during development of computation stack
+       * </pre>
+       */
+      public Builder clearSnapshotId() {
+        bitField0_ = (bitField0_ & ~0x00000008);
+        snapshotId_ = 0L;
+        onChanged();
+        return this;
+      }
+
       // @@protoc_insertion_point(builder_scope:Metadata)
     }
 
@@ -641,10 +750,10 @@ public final class BatchReport {
     // @@protoc_insertion_point(class_scope:Metadata)
   }
 
-  public interface ComponentOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface ComponentOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:Component)
+      com.google.protobuf.MessageOrBuilder {
 
-    // optional int32 ref = 1;
     /**
      * <code>optional int32 ref = 1;</code>
      */
@@ -654,7 +763,6 @@ public final class BatchReport {
      */
     int getRef();
 
-    // optional string path = 2;
     /**
      * <code>optional string path = 2;</code>
      */
@@ -669,7 +777,6 @@ public final class BatchReport {
     com.google.protobuf.ByteString
         getPathBytes();
 
-    // optional string name = 3;
     /**
      * <code>optional string name = 3;</code>
      */
@@ -684,7 +791,6 @@ public final class BatchReport {
     com.google.protobuf.ByteString
         getNameBytes();
 
-    // optional .ComponentType type = 4;
     /**
      * <code>optional .ComponentType type = 4;</code>
      */
@@ -694,7 +800,6 @@ public final class BatchReport {
      */
     org.sonar.batch.protocol.Constants.ComponentType getType();
 
-    // optional bool is_test = 5;
     /**
      * <code>optional bool is_test = 5;</code>
      */
@@ -704,7 +809,6 @@ public final class BatchReport {
      */
     boolean getIsTest();
 
-    // optional string language = 6;
     /**
      * <code>optional string language = 6;</code>
      */
@@ -719,7 +823,6 @@ public final class BatchReport {
     com.google.protobuf.ByteString
         getLanguageBytes();
 
-    // repeated int32 child_refs = 7 [packed = true];
     /**
      * <code>repeated int32 child_refs = 7 [packed = true];</code>
      */
@@ -733,7 +836,6 @@ public final class BatchReport {
      */
     int getChildRefs(int index);
 
-    // optional int32 snapshot_id = 8;
     /**
      * <code>optional int32 snapshot_id = 8;</code>
      *
@@ -751,7 +853,6 @@ public final class BatchReport {
      */
     int getSnapshotId();
 
-    // optional string uuid = 9;
     /**
      * <code>optional string uuid = 9;</code>
      */
@@ -770,8 +871,9 @@ public final class BatchReport {
    * Protobuf type {@code Component}
    */
   public static final class Component extends
-      com.google.protobuf.GeneratedMessage
-      implements ComponentOrBuilder {
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:Component)
+      ComponentOrBuilder {
     // Use Component.newBuilder() to construct.
     private Component(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
@@ -823,13 +925,15 @@ public final class BatchReport {
               break;
             }
             case 18: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000002;
-              path_ = input.readBytes();
+              path_ = bs;
               break;
             }
             case 26: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000004;
-              name_ = input.readBytes();
+              name_ = bs;
               break;
             }
             case 32: {
@@ -849,8 +953,9 @@ public final class BatchReport {
               break;
             }
             case 50: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000020;
-              language_ = input.readBytes();
+              language_ = bs;
               break;
             }
             case 56: {
@@ -880,8 +985,9 @@ public final class BatchReport {
               break;
             }
             case 74: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000080;
-              uuid_ = input.readBytes();
+              uuid_ = bs;
               break;
             }
           }
@@ -927,7 +1033,6 @@ public final class BatchReport {
     }
 
     private int bitField0_;
-    // optional int32 ref = 1;
     public static final int REF_FIELD_NUMBER = 1;
     private int ref_;
     /**
@@ -943,7 +1048,6 @@ public final class BatchReport {
       return ref_;
     }
 
-    // optional string path = 2;
     public static final int PATH_FIELD_NUMBER = 2;
     private java.lang.Object path_;
     /**
@@ -986,7 +1090,6 @@ public final class BatchReport {
       }
     }
 
-    // optional string name = 3;
     public static final int NAME_FIELD_NUMBER = 3;
     private java.lang.Object name_;
     /**
@@ -1029,7 +1132,6 @@ public final class BatchReport {
       }
     }
 
-    // optional .ComponentType type = 4;
     public static final int TYPE_FIELD_NUMBER = 4;
     private org.sonar.batch.protocol.Constants.ComponentType type_;
     /**
@@ -1045,7 +1147,6 @@ public final class BatchReport {
       return type_;
     }
 
-    // optional bool is_test = 5;
     public static final int IS_TEST_FIELD_NUMBER = 5;
     private boolean isTest_;
     /**
@@ -1061,7 +1162,6 @@ public final class BatchReport {
       return isTest_;
     }
 
-    // optional string language = 6;
     public static final int LANGUAGE_FIELD_NUMBER = 6;
     private java.lang.Object language_;
     /**
@@ -1104,7 +1204,6 @@ public final class BatchReport {
       }
     }
 
-    // repeated int32 child_refs = 7 [packed = true];
     public static final int CHILD_REFS_FIELD_NUMBER = 7;
     private java.util.List<java.lang.Integer> childRefs_;
     /**
@@ -1128,7 +1227,6 @@ public final class BatchReport {
     }
     private int childRefsMemoizedSerializedSize = -1;
 
-    // optional int32 snapshot_id = 8;
     public static final int SNAPSHOT_ID_FIELD_NUMBER = 8;
     private int snapshotId_;
     /**
@@ -1152,7 +1250,6 @@ public final class BatchReport {
       return snapshotId_;
     }
 
-    // optional string uuid = 9;
     public static final int UUID_FIELD_NUMBER = 9;
     private java.lang.Object uuid_;
     /**
@@ -1209,7 +1306,8 @@ public final class BatchReport {
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       memoizedIsInitialized = 1;
       return true;
@@ -1386,8 +1484,9 @@ public final class BatchReport {
      * Protobuf type {@code Component}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements org.sonar.batch.protocol.output.BatchReport.ComponentOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:Component)
+        org.sonar.batch.protocol.output.BatchReport.ComponentOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return org.sonar.batch.protocol.output.BatchReport.internal_static_Component_descriptor;
@@ -1588,7 +1687,6 @@ public final class BatchReport {
       }
       private int bitField0_;
 
-      // optional int32 ref = 1;
       private int ref_ ;
       /**
        * <code>optional int32 ref = 1;</code>
@@ -1621,7 +1719,6 @@ public final class BatchReport {
         return this;
       }
 
-      // optional string path = 2;
       private java.lang.Object path_ = "";
       /**
        * <code>optional string path = 2;</code>
@@ -1635,9 +1732,12 @@ public final class BatchReport {
       public java.lang.String getPath() {
         java.lang.Object ref = path_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          path_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            path_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -1695,7 +1795,6 @@ public final class BatchReport {
         return this;
       }
 
-      // optional string name = 3;
       private java.lang.Object name_ = "";
       /**
        * <code>optional string name = 3;</code>
@@ -1709,9 +1808,12 @@ public final class BatchReport {
       public java.lang.String getName() {
         java.lang.Object ref = name_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          name_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            name_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -1769,7 +1871,6 @@ public final class BatchReport {
         return this;
       }
 
-      // optional .ComponentType type = 4;
       private org.sonar.batch.protocol.Constants.ComponentType type_ = org.sonar.batch.protocol.Constants.ComponentType.PROJECT;
       /**
        * <code>optional .ComponentType type = 4;</code>
@@ -1805,7 +1906,6 @@ public final class BatchReport {
         return this;
       }
 
-      // optional bool is_test = 5;
       private boolean isTest_ ;
       /**
        * <code>optional bool is_test = 5;</code>
@@ -1838,7 +1938,6 @@ public final class BatchReport {
         return this;
       }
 
-      // optional string language = 6;
       private java.lang.Object language_ = "";
       /**
        * <code>optional string language = 6;</code>
@@ -1852,9 +1951,12 @@ public final class BatchReport {
       public java.lang.String getLanguage() {
         java.lang.Object ref = language_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          language_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            language_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -1912,7 +2014,6 @@ public final class BatchReport {
         return this;
       }
 
-      // repeated int32 child_refs = 7 [packed = true];
       private java.util.List<java.lang.Integer> childRefs_ = java.util.Collections.emptyList();
       private void ensureChildRefsIsMutable() {
         if (!((bitField0_ & 0x00000040) == 0x00000040)) {
@@ -1964,7 +2065,8 @@ public final class BatchReport {
       public Builder addAllChildRefs(
           java.lang.Iterable<? extends java.lang.Integer> values) {
         ensureChildRefsIsMutable();
-        super.addAll(values, childRefs_);
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, childRefs_);
         onChanged();
         return this;
       }
@@ -1978,7 +2080,6 @@ public final class BatchReport {
         return this;
       }
 
-      // optional int32 snapshot_id = 8;
       private int snapshotId_ ;
       /**
        * <code>optional int32 snapshot_id = 8;</code>
@@ -2027,7 +2128,6 @@ public final class BatchReport {
         return this;
       }
 
-      // optional string uuid = 9;
       private java.lang.Object uuid_ = "";
       /**
        * <code>optional string uuid = 9;</code>
@@ -2041,9 +2141,12 @@ public final class BatchReport {
       public java.lang.String getUuid() {
         java.lang.Object ref = uuid_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          uuid_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            uuid_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -2112,10 +2215,10 @@ public final class BatchReport {
     // @@protoc_insertion_point(class_scope:Component)
   }
 
-  public interface IssueOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface IssueOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:Issue)
+      com.google.protobuf.MessageOrBuilder {
 
-    // optional string rule_repository = 1;
     /**
      * <code>optional string rule_repository = 1;</code>
      */
@@ -2130,7 +2233,6 @@ public final class BatchReport {
     com.google.protobuf.ByteString
         getRuleRepositoryBytes();
 
-    // optional string rule_key = 2;
     /**
      * <code>optional string rule_key = 2;</code>
      */
@@ -2145,7 +2247,6 @@ public final class BatchReport {
     com.google.protobuf.ByteString
         getRuleKeyBytes();
 
-    // optional int32 line = 3;
     /**
      * <code>optional int32 line = 3;</code>
      */
@@ -2155,7 +2256,6 @@ public final class BatchReport {
      */
     int getLine();
 
-    // optional string msg = 4;
     /**
      * <code>optional string msg = 4;</code>
      */
@@ -2170,7 +2270,6 @@ public final class BatchReport {
     com.google.protobuf.ByteString
         getMsgBytes();
 
-    // optional .Severity severity = 5;
     /**
      * <code>optional .Severity severity = 5;</code>
      */
@@ -2180,12 +2279,11 @@ public final class BatchReport {
      */
     org.sonar.batch.protocol.Constants.Severity getSeverity();
 
-    // repeated string tags = 6;
     /**
      * <code>repeated string tags = 6;</code>
      */
-    java.util.List<java.lang.String>
-    getTagsList();
+    com.google.protobuf.ProtocolStringList
+        getTagsList();
     /**
      * <code>repeated string tags = 6;</code>
      */
@@ -2200,7 +2298,6 @@ public final class BatchReport {
     com.google.protobuf.ByteString
         getTagsBytes(int index);
 
-    // optional double effort_to_fix = 7;
     /**
      * <code>optional double effort_to_fix = 7;</code>
      *
@@ -2218,7 +2315,6 @@ public final class BatchReport {
      */
     double getEffortToFix();
 
-    // optional bool is_new = 8;
     /**
      * <code>optional bool is_new = 8;</code>
      */
@@ -2228,7 +2324,6 @@ public final class BatchReport {
      */
     boolean getIsNew();
 
-    // optional string uuid = 9;
     /**
      * <code>optional string uuid = 9;</code>
      */
@@ -2243,7 +2338,6 @@ public final class BatchReport {
     com.google.protobuf.ByteString
         getUuidBytes();
 
-    // optional int64 debt_in_minutes = 10;
     /**
      * <code>optional int64 debt_in_minutes = 10;</code>
      */
@@ -2253,7 +2347,6 @@ public final class BatchReport {
      */
     long getDebtInMinutes();
 
-    // optional string resolution = 11;
     /**
      * <code>optional string resolution = 11;</code>
      */
@@ -2268,7 +2361,6 @@ public final class BatchReport {
     com.google.protobuf.ByteString
         getResolutionBytes();
 
-    // optional string status = 12;
     /**
      * <code>optional string status = 12;</code>
      */
@@ -2283,7 +2375,6 @@ public final class BatchReport {
     com.google.protobuf.ByteString
         getStatusBytes();
 
-    // optional string checksum = 13;
     /**
      * <code>optional string checksum = 13;</code>
      */
@@ -2298,7 +2389,6 @@ public final class BatchReport {
     com.google.protobuf.ByteString
         getChecksumBytes();
 
-    // optional bool manual_severity = 14;
     /**
      * <code>optional bool manual_severity = 14;</code>
      */
@@ -2308,7 +2398,6 @@ public final class BatchReport {
      */
     boolean getManualSeverity();
 
-    // optional string reporter = 15;
     /**
      * <code>optional string reporter = 15;</code>
      */
@@ -2323,7 +2412,6 @@ public final class BatchReport {
     com.google.protobuf.ByteString
         getReporterBytes();
 
-    // optional string assignee = 16;
     /**
      * <code>optional string assignee = 16;</code>
      */
@@ -2338,7 +2426,6 @@ public final class BatchReport {
     com.google.protobuf.ByteString
         getAssigneeBytes();
 
-    // optional string action_plan_key = 17;
     /**
      * <code>optional string action_plan_key = 17;</code>
      */
@@ -2353,7 +2440,6 @@ public final class BatchReport {
     com.google.protobuf.ByteString
         getActionPlanKeyBytes();
 
-    // optional string attributes = 18;
     /**
      * <code>optional string attributes = 18;</code>
      */
@@ -2368,7 +2454,6 @@ public final class BatchReport {
     com.google.protobuf.ByteString
         getAttributesBytes();
 
-    // optional string author_login = 19;
     /**
      * <code>optional string author_login = 19;</code>
      */
@@ -2383,7 +2468,6 @@ public final class BatchReport {
     com.google.protobuf.ByteString
         getAuthorLoginBytes();
 
-    // optional int64 creation_date = 20;
     /**
      * <code>optional int64 creation_date = 20;</code>
      */
@@ -2393,7 +2477,6 @@ public final class BatchReport {
      */
     long getCreationDate();
 
-    // optional int64 close_date = 21;
     /**
      * <code>optional int64 close_date = 21;</code>
      */
@@ -2403,7 +2486,6 @@ public final class BatchReport {
      */
     long getCloseDate();
 
-    // optional int64 update_date = 22;
     /**
      * <code>optional int64 update_date = 22;</code>
      */
@@ -2413,7 +2495,6 @@ public final class BatchReport {
      */
     long getUpdateDate();
 
-    // optional int64 selected_at = 23;
     /**
      * <code>optional int64 selected_at = 23;</code>
      */
@@ -2423,7 +2504,6 @@ public final class BatchReport {
      */
     long getSelectedAt();
 
-    // optional string diff_fields = 24;
     /**
      * <code>optional string diff_fields = 24;</code>
      */
@@ -2438,7 +2518,6 @@ public final class BatchReport {
     com.google.protobuf.ByteString
         getDiffFieldsBytes();
 
-    // optional bool is_changed = 25;
     /**
      * <code>optional bool is_changed = 25;</code>
      */
@@ -2448,7 +2527,6 @@ public final class BatchReport {
      */
     boolean getIsChanged();
 
-    // optional bool must_send_notification = 26;
     /**
      * <code>optional bool must_send_notification = 26;</code>
      */
@@ -2462,8 +2540,9 @@ public final class BatchReport {
    * Protobuf type {@code Issue}
    */
   public static final class Issue extends
-      com.google.protobuf.GeneratedMessage
-      implements IssueOrBuilder {
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:Issue)
+      IssueOrBuilder {
     // Use Issue.newBuilder() to construct.
     private Issue(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
@@ -2510,13 +2589,15 @@ public final class BatchReport {
               break;
             }
             case 10: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000001;
-              ruleRepository_ = input.readBytes();
+              ruleRepository_ = bs;
               break;
             }
             case 18: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000002;
-              ruleKey_ = input.readBytes();
+              ruleKey_ = bs;
               break;
             }
             case 24: {
@@ -2525,8 +2606,9 @@ public final class BatchReport {
               break;
             }
             case 34: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000008;
-              msg_ = input.readBytes();
+              msg_ = bs;
               break;
             }
             case 40: {
@@ -2541,11 +2623,12 @@ public final class BatchReport {
               break;
             }
             case 50: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               if (!((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
                 tags_ = new com.google.protobuf.LazyStringArrayList();
                 mutable_bitField0_ |= 0x00000020;
               }
-              tags_.add(input.readBytes());
+              tags_.add(bs);
               break;
             }
             case 57: {
@@ -2559,8 +2642,9 @@ public final class BatchReport {
               break;
             }
             case 74: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000080;
-              uuid_ = input.readBytes();
+              uuid_ = bs;
               break;
             }
             case 80: {
@@ -2569,18 +2653,21 @@ public final class BatchReport {
               break;
             }
             case 90: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000200;
-              resolution_ = input.readBytes();
+              resolution_ = bs;
               break;
             }
             case 98: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000400;
-              status_ = input.readBytes();
+              status_ = bs;
               break;
             }
             case 106: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000800;
-              checksum_ = input.readBytes();
+              checksum_ = bs;
               break;
             }
             case 112: {
@@ -2589,28 +2676,33 @@ public final class BatchReport {
               break;
             }
             case 122: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00002000;
-              reporter_ = input.readBytes();
+              reporter_ = bs;
               break;
             }
             case 130: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00004000;
-              assignee_ = input.readBytes();
+              assignee_ = bs;
               break;
             }
             case 138: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00008000;
-              actionPlanKey_ = input.readBytes();
+              actionPlanKey_ = bs;
               break;
             }
             case 146: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00010000;
-              attributes_ = input.readBytes();
+              attributes_ = bs;
               break;
             }
             case 154: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00020000;
-              authorLogin_ = input.readBytes();
+              authorLogin_ = bs;
               break;
             }
             case 160: {
@@ -2634,8 +2726,9 @@ public final class BatchReport {
               break;
             }
             case 194: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00400000;
-              diffFields_ = input.readBytes();
+              diffFields_ = bs;
               break;
             }
             case 200: {
@@ -2657,7 +2750,7 @@ public final class BatchReport {
             e.getMessage()).setUnfinishedMessage(this);
       } finally {
         if (((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
-          tags_ = new com.google.protobuf.UnmodifiableLazyStringList(tags_);
+          tags_ = tags_.getUnmodifiableView();
         }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -2691,7 +2784,6 @@ public final class BatchReport {
     }
 
     private int bitField0_;
-    // optional string rule_repository = 1;
     public static final int RULE_REPOSITORY_FIELD_NUMBER = 1;
     private java.lang.Object ruleRepository_;
     /**
@@ -2734,7 +2826,6 @@ public final class BatchReport {
       }
     }
 
-    // optional string rule_key = 2;
     public static final int RULE_KEY_FIELD_NUMBER = 2;
     private java.lang.Object ruleKey_;
     /**
@@ -2777,7 +2868,6 @@ public final class BatchReport {
       }
     }
 
-    // optional int32 line = 3;
     public static final int LINE_FIELD_NUMBER = 3;
     private int line_;
     /**
@@ -2793,7 +2883,6 @@ public final class BatchReport {
       return line_;
     }
 
-    // optional string msg = 4;
     public static final int MSG_FIELD_NUMBER = 4;
     private java.lang.Object msg_;
     /**
@@ -2836,7 +2925,6 @@ public final class BatchReport {
       }
     }
 
-    // optional .Severity severity = 5;
     public static final int SEVERITY_FIELD_NUMBER = 5;
     private org.sonar.batch.protocol.Constants.Severity severity_;
     /**
@@ -2852,13 +2940,12 @@ public final class BatchReport {
       return severity_;
     }
 
-    // repeated string tags = 6;
     public static final int TAGS_FIELD_NUMBER = 6;
     private com.google.protobuf.LazyStringList tags_;
     /**
      * <code>repeated string tags = 6;</code>
      */
-    public java.util.List<java.lang.String>
+    public com.google.protobuf.ProtocolStringList
         getTagsList() {
       return tags_;
     }
@@ -2882,7 +2969,6 @@ public final class BatchReport {
       return tags_.getByteString(index);
     }
 
-    // optional double effort_to_fix = 7;
     public static final int EFFORT_TO_FIX_FIELD_NUMBER = 7;
     private double effortToFix_;
     /**
@@ -2906,7 +2992,6 @@ public final class BatchReport {
       return effortToFix_;
     }
 
-    // optional bool is_new = 8;
     public static final int IS_NEW_FIELD_NUMBER = 8;
     private boolean isNew_;
     /**
@@ -2922,7 +3007,6 @@ public final class BatchReport {
       return isNew_;
     }
 
-    // optional string uuid = 9;
     public static final int UUID_FIELD_NUMBER = 9;
     private java.lang.Object uuid_;
     /**
@@ -2965,7 +3049,6 @@ public final class BatchReport {
       }
     }
 
-    // optional int64 debt_in_minutes = 10;
     public static final int DEBT_IN_MINUTES_FIELD_NUMBER = 10;
     private long debtInMinutes_;
     /**
@@ -2981,7 +3064,6 @@ public final class BatchReport {
       return debtInMinutes_;
     }
 
-    // optional string resolution = 11;
     public static final int RESOLUTION_FIELD_NUMBER = 11;
     private java.lang.Object resolution_;
     /**
@@ -3024,7 +3106,6 @@ public final class BatchReport {
       }
     }
 
-    // optional string status = 12;
     public static final int STATUS_FIELD_NUMBER = 12;
     private java.lang.Object status_;
     /**
@@ -3067,7 +3148,6 @@ public final class BatchReport {
       }
     }
 
-    // optional string checksum = 13;
     public static final int CHECKSUM_FIELD_NUMBER = 13;
     private java.lang.Object checksum_;
     /**
@@ -3110,7 +3190,6 @@ public final class BatchReport {
       }
     }
 
-    // optional bool manual_severity = 14;
     public static final int MANUAL_SEVERITY_FIELD_NUMBER = 14;
     private boolean manualSeverity_;
     /**
@@ -3126,7 +3205,6 @@ public final class BatchReport {
       return manualSeverity_;
     }
 
-    // optional string reporter = 15;
     public static final int REPORTER_FIELD_NUMBER = 15;
     private java.lang.Object reporter_;
     /**
@@ -3169,7 +3247,6 @@ public final class BatchReport {
       }
     }
 
-    // optional string assignee = 16;
     public static final int ASSIGNEE_FIELD_NUMBER = 16;
     private java.lang.Object assignee_;
     /**
@@ -3212,7 +3289,6 @@ public final class BatchReport {
       }
     }
 
-    // optional string action_plan_key = 17;
     public static final int ACTION_PLAN_KEY_FIELD_NUMBER = 17;
     private java.lang.Object actionPlanKey_;
     /**
@@ -3255,7 +3331,6 @@ public final class BatchReport {
       }
     }
 
-    // optional string attributes = 18;
     public static final int ATTRIBUTES_FIELD_NUMBER = 18;
     private java.lang.Object attributes_;
     /**
@@ -3298,7 +3373,6 @@ public final class BatchReport {
       }
     }
 
-    // optional string author_login = 19;
     public static final int AUTHOR_LOGIN_FIELD_NUMBER = 19;
     private java.lang.Object authorLogin_;
     /**
@@ -3341,7 +3415,6 @@ public final class BatchReport {
       }
     }
 
-    // optional int64 creation_date = 20;
     public static final int CREATION_DATE_FIELD_NUMBER = 20;
     private long creationDate_;
     /**
@@ -3357,7 +3430,6 @@ public final class BatchReport {
       return creationDate_;
     }
 
-    // optional int64 close_date = 21;
     public static final int CLOSE_DATE_FIELD_NUMBER = 21;
     private long closeDate_;
     /**
@@ -3373,7 +3445,6 @@ public final class BatchReport {
       return closeDate_;
     }
 
-    // optional int64 update_date = 22;
     public static final int UPDATE_DATE_FIELD_NUMBER = 22;
     private long updateDate_;
     /**
@@ -3389,7 +3460,6 @@ public final class BatchReport {
       return updateDate_;
     }
 
-    // optional int64 selected_at = 23;
     public static final int SELECTED_AT_FIELD_NUMBER = 23;
     private long selectedAt_;
     /**
@@ -3405,7 +3475,6 @@ public final class BatchReport {
       return selectedAt_;
     }
 
-    // optional string diff_fields = 24;
     public static final int DIFF_FIELDS_FIELD_NUMBER = 24;
     private java.lang.Object diffFields_;
     /**
@@ -3448,7 +3517,6 @@ public final class BatchReport {
       }
     }
 
-    // optional bool is_changed = 25;
     public static final int IS_CHANGED_FIELD_NUMBER = 25;
     private boolean isChanged_;
     /**
@@ -3464,7 +3532,6 @@ public final class BatchReport {
       return isChanged_;
     }
 
-    // optional bool must_send_notification = 26;
     public static final int MUST_SEND_NOTIFICATION_FIELD_NUMBER = 26;
     private boolean mustSendNotification_;
     /**
@@ -3511,7 +3578,8 @@ public final class BatchReport {
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       memoizedIsInitialized = 1;
       return true;
@@ -3798,8 +3866,9 @@ public final class BatchReport {
      * Protobuf type {@code Issue}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements org.sonar.batch.protocol.output.BatchReport.IssueOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:Issue)
+        org.sonar.batch.protocol.output.BatchReport.IssueOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return org.sonar.batch.protocol.output.BatchReport.internal_static_Issue_descriptor;
@@ -3933,8 +4002,7 @@ public final class BatchReport {
         }
         result.severity_ = severity_;
         if (((bitField0_ & 0x00000020) == 0x00000020)) {
-          tags_ = new com.google.protobuf.UnmodifiableLazyStringList(
-              tags_);
+          tags_ = tags_.getUnmodifiableView();
           bitField0_ = (bitField0_ & ~0x00000020);
         }
         result.tags_ = tags_;
@@ -4172,7 +4240,6 @@ public final class BatchReport {
       }
       private int bitField0_;
 
-      // optional string rule_repository = 1;
       private java.lang.Object ruleRepository_ = "";
       /**
        * <code>optional string rule_repository = 1;</code>
@@ -4186,9 +4253,12 @@ public final class BatchReport {
       public java.lang.String getRuleRepository() {
         java.lang.Object ref = ruleRepository_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          ruleRepository_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            ruleRepository_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -4246,7 +4316,6 @@ public final class BatchReport {
         return this;
       }
 
-      // optional string rule_key = 2;
       private java.lang.Object ruleKey_ = "";
       /**
        * <code>optional string rule_key = 2;</code>
@@ -4260,9 +4329,12 @@ public final class BatchReport {
       public java.lang.String getRuleKey() {
         java.lang.Object ref = ruleKey_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          ruleKey_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            ruleKey_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -4320,7 +4392,6 @@ public final class BatchReport {
         return this;
       }
 
-      // optional int32 line = 3;
       private int line_ ;
       /**
        * <code>optional int32 line = 3;</code>
@@ -4353,7 +4424,6 @@ public final class BatchReport {
         return this;
       }
 
-      // optional string msg = 4;
       private java.lang.Object msg_ = "";
       /**
        * <code>optional string msg = 4;</code>
@@ -4367,9 +4437,12 @@ public final class BatchReport {
       public java.lang.String getMsg() {
         java.lang.Object ref = msg_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          msg_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            msg_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -4427,7 +4500,6 @@ public final class BatchReport {
         return this;
       }
 
-      // optional .Severity severity = 5;
       private org.sonar.batch.protocol.Constants.Severity severity_ = org.sonar.batch.protocol.Constants.Severity.INFO;
       /**
        * <code>optional .Severity severity = 5;</code>
@@ -4463,7 +4535,6 @@ public final class BatchReport {
         return this;
       }
 
-      // repeated string tags = 6;
       private com.google.protobuf.LazyStringList tags_ = com.google.protobuf.LazyStringArrayList.EMPTY;
       private void ensureTagsIsMutable() {
         if (!((bitField0_ & 0x00000020) == 0x00000020)) {
@@ -4474,9 +4545,9 @@ public final class BatchReport {
       /**
        * <code>repeated string tags = 6;</code>
        */
-      public java.util.List<java.lang.String>
+      public com.google.protobuf.ProtocolStringList
           getTagsList() {
-        return java.util.Collections.unmodifiableList(tags_);
+        return tags_.getUnmodifiableView();
       }
       /**
        * <code>repeated string tags = 6;</code>
@@ -4529,7 +4600,8 @@ public final class BatchReport {
       public Builder addAllTags(
           java.lang.Iterable<java.lang.String> values) {
         ensureTagsIsMutable();
-        super.addAll(values, tags_);
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, tags_);
         onChanged();
         return this;
       }
@@ -4556,7 +4628,6 @@ public final class BatchReport {
         return this;
       }
 
-      // optional double effort_to_fix = 7;
       private double effortToFix_ ;
       /**
        * <code>optional double effort_to_fix = 7;</code>
@@ -4605,7 +4676,6 @@ public final class BatchReport {
         return this;
       }
 
-      // optional bool is_new = 8;
       private boolean isNew_ ;
       /**
        * <code>optional bool is_new = 8;</code>
@@ -4638,7 +4708,6 @@ public final class BatchReport {
         return this;
       }
 
-      // optional string uuid = 9;
       private java.lang.Object uuid_ = "";
       /**
        * <code>optional string uuid = 9;</code>
@@ -4652,9 +4721,12 @@ public final class BatchReport {
       public java.lang.String getUuid() {
         java.lang.Object ref = uuid_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          uuid_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            uuid_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -4712,7 +4784,6 @@ public final class BatchReport {
         return this;
       }
 
-      // optional int64 debt_in_minutes = 10;
       private long debtInMinutes_ ;
       /**
        * <code>optional int64 debt_in_minutes = 10;</code>
@@ -4745,7 +4816,6 @@ public final class BatchReport {
         return this;
       }
 
-      // optional string resolution = 11;
       private java.lang.Object resolution_ = "";
       /**
        * <code>optional string resolution = 11;</code>
@@ -4759,9 +4829,12 @@ public final class BatchReport {
       public java.lang.String getResolution() {
         java.lang.Object ref = resolution_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          resolution_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            resolution_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -4819,7 +4892,6 @@ public final class BatchReport {
         return this;
       }
 
-      // optional string status = 12;
       private java.lang.Object status_ = "";
       /**
        * <code>optional string status = 12;</code>
@@ -4833,9 +4905,12 @@ public final class BatchReport {
       public java.lang.String getStatus() {
         java.lang.Object ref = status_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          status_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            status_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -4893,7 +4968,6 @@ public final class BatchReport {
         return this;
       }
 
-      // optional string checksum = 13;
       private java.lang.Object checksum_ = "";
       /**
        * <code>optional string checksum = 13;</code>
@@ -4907,9 +4981,12 @@ public final class BatchReport {
       public java.lang.String getChecksum() {
         java.lang.Object ref = checksum_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          checksum_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            checksum_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -4967,7 +5044,6 @@ public final class BatchReport {
         return this;
       }
 
-      // optional bool manual_severity = 14;
       private boolean manualSeverity_ ;
       /**
        * <code>optional bool manual_severity = 14;</code>
@@ -5000,7 +5076,6 @@ public final class BatchReport {
         return this;
       }
 
-      // optional string reporter = 15;
       private java.lang.Object reporter_ = "";
       /**
        * <code>optional string reporter = 15;</code>
@@ -5014,9 +5089,12 @@ public final class BatchReport {
       public java.lang.String getReporter() {
         java.lang.Object ref = reporter_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          reporter_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            reporter_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -5074,7 +5152,6 @@ public final class BatchReport {
         return this;
       }
 
-      // optional string assignee = 16;
       private java.lang.Object assignee_ = "";
       /**
        * <code>optional string assignee = 16;</code>
@@ -5088,9 +5165,12 @@ public final class BatchReport {
       public java.lang.String getAssignee() {
         java.lang.Object ref = assignee_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          assignee_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            assignee_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -5148,7 +5228,6 @@ public final class BatchReport {
         return this;
       }
 
-      // optional string action_plan_key = 17;
       private java.lang.Object actionPlanKey_ = "";
       /**
        * <code>optional string action_plan_key = 17;</code>
@@ -5162,9 +5241,12 @@ public final class BatchReport {
       public java.lang.String getActionPlanKey() {
         java.lang.Object ref = actionPlanKey_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          actionPlanKey_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            actionPlanKey_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -5222,7 +5304,6 @@ public final class BatchReport {
         return this;
       }
 
-      // optional string attributes = 18;
       private java.lang.Object attributes_ = "";
       /**
        * <code>optional string attributes = 18;</code>
@@ -5236,9 +5317,12 @@ public final class BatchReport {
       public java.lang.String getAttributes() {
         java.lang.Object ref = attributes_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          attributes_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            attributes_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -5296,7 +5380,6 @@ public final class BatchReport {
         return this;
       }
 
-      // optional string author_login = 19;
       private java.lang.Object authorLogin_ = "";
       /**
        * <code>optional string author_login = 19;</code>
@@ -5310,9 +5393,12 @@ public final class BatchReport {
       public java.lang.String getAuthorLogin() {
         java.lang.Object ref = authorLogin_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          authorLogin_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            authorLogin_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -5370,7 +5456,6 @@ public final class BatchReport {
         return this;
       }
 
-      // optional int64 creation_date = 20;
       private long creationDate_ ;
       /**
        * <code>optional int64 creation_date = 20;</code>
@@ -5403,7 +5488,6 @@ public final class BatchReport {
         return this;
       }
 
-      // optional int64 close_date = 21;
       private long closeDate_ ;
       /**
        * <code>optional int64 close_date = 21;</code>
@@ -5436,7 +5520,6 @@ public final class BatchReport {
         return this;
       }
 
-      // optional int64 update_date = 22;
       private long updateDate_ ;
       /**
        * <code>optional int64 update_date = 22;</code>
@@ -5469,7 +5552,6 @@ public final class BatchReport {
         return this;
       }
 
-      // optional int64 selected_at = 23;
       private long selectedAt_ ;
       /**
        * <code>optional int64 selected_at = 23;</code>
@@ -5502,7 +5584,6 @@ public final class BatchReport {
         return this;
       }
 
-      // optional string diff_fields = 24;
       private java.lang.Object diffFields_ = "";
       /**
        * <code>optional string diff_fields = 24;</code>
@@ -5516,9 +5597,12 @@ public final class BatchReport {
       public java.lang.String getDiffFields() {
         java.lang.Object ref = diffFields_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          diffFields_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            diffFields_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -5576,7 +5660,6 @@ public final class BatchReport {
         return this;
       }
 
-      // optional bool is_changed = 25;
       private boolean isChanged_ ;
       /**
        * <code>optional bool is_changed = 25;</code>
@@ -5609,7 +5692,6 @@ public final class BatchReport {
         return this;
       }
 
-      // optional bool must_send_notification = 26;
       private boolean mustSendNotification_ ;
       /**
        * <code>optional bool must_send_notification = 26;</code>
@@ -5653,10 +5735,10 @@ public final class BatchReport {
     // @@protoc_insertion_point(class_scope:Issue)
   }
 
-  public interface IssuesOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface IssuesOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:Issues)
+      com.google.protobuf.MessageOrBuilder {
 
-    // optional int32 component_ref = 1;
     /**
      * <code>optional int32 component_ref = 1;</code>
      */
@@ -5666,7 +5748,6 @@ public final class BatchReport {
      */
     int getComponentRef();
 
-    // repeated .Issue list = 2;
     /**
      * <code>repeated .Issue list = 2;</code>
      */
@@ -5695,8 +5776,9 @@ public final class BatchReport {
    * Protobuf type {@code Issues}
    */
   public static final class Issues extends
-      com.google.protobuf.GeneratedMessage
-      implements IssuesOrBuilder {
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:Issues)
+      IssuesOrBuilder {
     // Use Issues.newBuilder() to construct.
     private Issues(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
@@ -5798,7 +5880,6 @@ public final class BatchReport {
     }
 
     private int bitField0_;
-    // optional int32 component_ref = 1;
     public static final int COMPONENT_REF_FIELD_NUMBER = 1;
     private int componentRef_;
     /**
@@ -5814,7 +5895,6 @@ public final class BatchReport {
       return componentRef_;
     }
 
-    // repeated .Issue list = 2;
     public static final int LIST_FIELD_NUMBER = 2;
     private java.util.List<org.sonar.batch.protocol.output.BatchReport.Issue> list_;
     /**
@@ -5857,7 +5937,8 @@ public final class BatchReport {
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       memoizedIsInitialized = 1;
       return true;
@@ -5971,8 +6052,9 @@ public final class BatchReport {
      * Protobuf type {@code Issues}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements org.sonar.batch.protocol.output.BatchReport.IssuesOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:Issues)
+        org.sonar.batch.protocol.output.BatchReport.IssuesOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return org.sonar.batch.protocol.output.BatchReport.internal_static_Issues_descriptor;
@@ -6127,7 +6209,6 @@ public final class BatchReport {
       }
       private int bitField0_;
 
-      // optional int32 component_ref = 1;
       private int componentRef_ ;
       /**
        * <code>optional int32 component_ref = 1;</code>
@@ -6160,7 +6241,6 @@ public final class BatchReport {
         return this;
       }
 
-      // repeated .Issue list = 2;
       private java.util.List<org.sonar.batch.protocol.output.BatchReport.Issue> list_ =
         java.util.Collections.emptyList();
       private void ensureListIsMutable() {
@@ -6302,7 +6382,8 @@ public final class BatchReport {
           java.lang.Iterable<? extends org.sonar.batch.protocol.output.BatchReport.Issue> values) {
         if (listBuilder_ == null) {
           ensureListIsMutable();
-          super.addAll(values, list_);
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, list_);
           onChanged();
         } else {
           listBuilder_.addAllMessages(values);
@@ -6411,22 +6492,22 @@ public final class BatchReport {
     // @@protoc_insertion_point(class_scope:Issues)
   }
 
-  private static com.google.protobuf.Descriptors.Descriptor
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_Metadata_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_Metadata_fieldAccessorTable;
-  private static com.google.protobuf.Descriptors.Descriptor
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_Component_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_Component_fieldAccessorTable;
-  private static com.google.protobuf.Descriptors.Descriptor
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_Issue_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_Issue_fieldAccessorTable;
-  private static com.google.protobuf.Descriptors.Descriptor
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_Issues_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
@@ -6440,68 +6521,69 @@ public final class BatchReport {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\022batch_report.proto\032\017constants.proto\"R\n" +
+      "\n\022batch_report.proto\032\017constants.proto\"g\n" +
       "\010Metadata\022\025\n\ranalysis_date\030\001 \001(\003\022\023\n\013proj" +
       "ect_key\030\002 \001(\t\022\032\n\022root_component_ref\030\003 \001(" +
-      "\005\"\260\001\n\tComponent\022\013\n\003ref\030\001 \001(\005\022\014\n\004path\030\002 \001" +
-      "(\t\022\014\n\004name\030\003 \001(\t\022\034\n\004type\030\004 \001(\0162\016.Compone" +
-      "ntType\022\017\n\007is_test\030\005 \001(\010\022\020\n\010language\030\006 \001(" +
-      "\t\022\026\n\nchild_refs\030\007 \003(\005B\002\020\001\022\023\n\013snapshot_id" +
-      "\030\010 \001(\005\022\014\n\004uuid\030\t \001(\t\"\232\004\n\005Issue\022\027\n\017rule_r" +
-      "epository\030\001 \001(\t\022\020\n\010rule_key\030\002 \001(\t\022\014\n\004lin" +
-      "e\030\003 \001(\005\022\013\n\003msg\030\004 \001(\t\022\033\n\010severity\030\005 \001(\0162\t",
-      ".Severity\022\014\n\004tags\030\006 \003(\t\022\025\n\reffort_to_fix" +
-      "\030\007 \001(\001\022\016\n\006is_new\030\010 \001(\010\022\014\n\004uuid\030\t \001(\t\022\027\n\017" +
-      "debt_in_minutes\030\n \001(\003\022\022\n\nresolution\030\013 \001(" +
-      "\t\022\016\n\006status\030\014 \001(\t\022\020\n\010checksum\030\r \001(\t\022\027\n\017m" +
-      "anual_severity\030\016 \001(\010\022\020\n\010reporter\030\017 \001(\t\022\020" +
-      "\n\010assignee\030\020 \001(\t\022\027\n\017action_plan_key\030\021 \001(" +
-      "\t\022\022\n\nattributes\030\022 \001(\t\022\024\n\014author_login\030\023 " +
-      "\001(\t\022\025\n\rcreation_date\030\024 \001(\003\022\022\n\nclose_date" +
-      "\030\025 \001(\003\022\023\n\013update_date\030\026 \001(\003\022\023\n\013selected_" +
-      "at\030\027 \001(\003\022\023\n\013diff_fields\030\030 \001(\t\022\022\n\nis_chan",
-      "ged\030\031 \001(\010\022\036\n\026must_send_notification\030\032 \001(" +
-      "\010\"5\n\006Issues\022\025\n\rcomponent_ref\030\001 \001(\005\022\024\n\004li" +
-      "st\030\002 \003(\0132\006.IssueB#\n\037org.sonar.batch.prot" +
-      "ocol.outputH\001"
+      "\005\022\023\n\013snapshot_id\030\004 \001(\003\"\260\001\n\tComponent\022\013\n\003" +
+      "ref\030\001 \001(\005\022\014\n\004path\030\002 \001(\t\022\014\n\004name\030\003 \001(\t\022\034\n" +
+      "\004type\030\004 \001(\0162\016.ComponentType\022\017\n\007is_test\030\005" +
+      " \001(\010\022\020\n\010language\030\006 \001(\t\022\026\n\nchild_refs\030\007 \003" +
+      "(\005B\002\020\001\022\023\n\013snapshot_id\030\010 \001(\005\022\014\n\004uuid\030\t \001(" +
+      "\t\"\232\004\n\005Issue\022\027\n\017rule_repository\030\001 \001(\t\022\020\n\010" +
+      "rule_key\030\002 \001(\t\022\014\n\004line\030\003 \001(\005\022\013\n\003msg\030\004 \001(",
+      "\t\022\033\n\010severity\030\005 \001(\0162\t.Severity\022\014\n\004tags\030\006" +
+      " \003(\t\022\025\n\reffort_to_fix\030\007 \001(\001\022\016\n\006is_new\030\010 " +
+      "\001(\010\022\014\n\004uuid\030\t \001(\t\022\027\n\017debt_in_minutes\030\n \001" +
+      "(\003\022\022\n\nresolution\030\013 \001(\t\022\016\n\006status\030\014 \001(\t\022\020" +
+      "\n\010checksum\030\r \001(\t\022\027\n\017manual_severity\030\016 \001(" +
+      "\010\022\020\n\010reporter\030\017 \001(\t\022\020\n\010assignee\030\020 \001(\t\022\027\n" +
+      "\017action_plan_key\030\021 \001(\t\022\022\n\nattributes\030\022 \001" +
+      "(\t\022\024\n\014author_login\030\023 \001(\t\022\025\n\rcreation_dat" +
+      "e\030\024 \001(\003\022\022\n\nclose_date\030\025 \001(\003\022\023\n\013update_da" +
+      "te\030\026 \001(\003\022\023\n\013selected_at\030\027 \001(\003\022\023\n\013diff_fi",
+      "elds\030\030 \001(\t\022\022\n\nis_changed\030\031 \001(\010\022\036\n\026must_s" +
+      "end_notification\030\032 \001(\010\"5\n\006Issues\022\025\n\rcomp" +
+      "onent_ref\030\001 \001(\005\022\024\n\004list\030\002 \003(\0132\006.IssueB#\n" +
+      "\037org.sonar.batch.protocol.outputH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
-      new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
-        public com.google.protobuf.ExtensionRegistry assignDescriptors(
-            com.google.protobuf.Descriptors.FileDescriptor root) {
-          descriptor = root;
-          internal_static_Metadata_descriptor =
-            getDescriptor().getMessageTypes().get(0);
-          internal_static_Metadata_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_Metadata_descriptor,
-              new java.lang.String[] { "AnalysisDate", "ProjectKey", "RootComponentRef", });
-          internal_static_Component_descriptor =
-            getDescriptor().getMessageTypes().get(1);
-          internal_static_Component_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_Component_descriptor,
-              new java.lang.String[] { "Ref", "Path", "Name", "Type", "IsTest", "Language", "ChildRefs", "SnapshotId", "Uuid", });
-          internal_static_Issue_descriptor =
-            getDescriptor().getMessageTypes().get(2);
-          internal_static_Issue_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_Issue_descriptor,
-              new java.lang.String[] { "RuleRepository", "RuleKey", "Line", "Msg", "Severity", "Tags", "EffortToFix", "IsNew", "Uuid", "DebtInMinutes", "Resolution", "Status", "Checksum", "ManualSeverity", "Reporter", "Assignee", "ActionPlanKey", "Attributes", "AuthorLogin", "CreationDate", "CloseDate", "UpdateDate", "SelectedAt", "DiffFields", "IsChanged", "MustSendNotification", });
-          internal_static_Issues_descriptor =
-            getDescriptor().getMessageTypes().get(3);
-          internal_static_Issues_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_Issues_descriptor,
-              new java.lang.String[] { "ComponentRef", "List", });
-          return null;
-        }
-      };
+        new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
+          public com.google.protobuf.ExtensionRegistry assignDescriptors(
+              com.google.protobuf.Descriptors.FileDescriptor root) {
+            descriptor = root;
+            return null;
+          }
+        };
     com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
           org.sonar.batch.protocol.Constants.getDescriptor(),
         }, assigner);
+    internal_static_Metadata_descriptor =
+      getDescriptor().getMessageTypes().get(0);
+    internal_static_Metadata_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_Metadata_descriptor,
+        new java.lang.String[] { "AnalysisDate", "ProjectKey", "RootComponentRef", "SnapshotId", });
+    internal_static_Component_descriptor =
+      getDescriptor().getMessageTypes().get(1);
+    internal_static_Component_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_Component_descriptor,
+        new java.lang.String[] { "Ref", "Path", "Name", "Type", "IsTest", "Language", "ChildRefs", "SnapshotId", "Uuid", });
+    internal_static_Issue_descriptor =
+      getDescriptor().getMessageTypes().get(2);
+    internal_static_Issue_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_Issue_descriptor,
+        new java.lang.String[] { "RuleRepository", "RuleKey", "Line", "Msg", "Severity", "Tags", "EffortToFix", "IsNew", "Uuid", "DebtInMinutes", "Resolution", "Status", "Checksum", "ManualSeverity", "Reporter", "Assignee", "ActionPlanKey", "Attributes", "AuthorLogin", "CreationDate", "CloseDate", "UpdateDate", "SelectedAt", "DiffFields", "IsChanged", "MustSendNotification", });
+    internal_static_Issues_descriptor =
+      getDescriptor().getMessageTypes().get(3);
+    internal_static_Issues_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_Issues_descriptor,
+        new java.lang.String[] { "ComponentRef", "List", });
+    org.sonar.batch.protocol.Constants.getDescriptor();
   }
 
   // @@protoc_insertion_point(outer_class_scope)

@@ -23,10 +23,6 @@ package org.sonar.server.computation;
 import org.picocontainer.Startable;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.platform.ServerUpgradeStatus;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
-import org.sonar.server.computation.db.AnalysisReportDao;
-import org.sonar.server.db.DbClient;
 
 /**
  * Clean-up queue of reports at server startup:
@@ -36,30 +32,22 @@ import org.sonar.server.db.DbClient;
  *   <li>reset reports that were in status WORKING while server stopped</li>
  * </ul>
  */
-public class AnalysisReportQueueCleaner implements Startable, ServerComponent {
+public class ReportQueueCleaner implements Startable, ServerComponent {
 
   private final ServerUpgradeStatus serverUpgradeStatus;
-  private final DbClient dbClient;
+  private final ReportQueue queue;
 
-  public AnalysisReportQueueCleaner(ServerUpgradeStatus serverUpgradeStatus, DbClient dbClient) {
+  public ReportQueueCleaner(ServerUpgradeStatus serverUpgradeStatus, ReportQueue queue) {
     this.serverUpgradeStatus = serverUpgradeStatus;
-    this.dbClient = dbClient;
+    this.queue = queue;
   }
 
   @Override
   public void start() {
-    AnalysisReportDao dao = dbClient.analysisReportDao();
-    DbSession session = dbClient.openSession(false);
-    try {
-      if (serverUpgradeStatus.isUpgraded()) {
-        dao.truncate(session);
-      } else {
-        dao.resetAllToPendingStatus(session);
-      }
-
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
+    if (serverUpgradeStatus.isUpgraded()) {
+      queue.clear();
+    } else {
+      queue.resetToPendingStatus();
     }
   }
 

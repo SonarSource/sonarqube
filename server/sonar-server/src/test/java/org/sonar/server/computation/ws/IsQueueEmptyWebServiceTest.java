@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.core.computation.db.AnalysisReportDto;
-import org.sonar.server.computation.AnalysisReportQueue;
+import org.sonar.server.computation.ReportQueue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
@@ -39,12 +39,12 @@ import static org.mockito.Mockito.when;
 public class IsQueueEmptyWebServiceTest {
 
   IsQueueEmptyWebService.IsQueueEmptyWsAction sut;
-  AnalysisReportQueue queue;
+  ReportQueue queue;
   Response response;
 
   @Before
   public void before() throws Exception {
-    queue = mock(AnalysisReportQueue.class);
+    queue = mock(ReportQueue.class);
     sut = new IsQueueEmptyWebService.IsQueueEmptyWsAction(queue);
 
     response = mock(Response.class);

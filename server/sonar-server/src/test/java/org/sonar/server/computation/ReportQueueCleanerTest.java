@@ -20,48 +20,29 @@
 
 package org.sonar.server.computation;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.platform.ServerUpgradeStatus;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.server.computation.db.AnalysisReportDao;
-import org.sonar.server.db.DbClient;
 
 import static org.mockito.Mockito.*;
 
-public class AnalysisReportQueueCleanerTest {
+public class ReportQueueCleanerTest {
 
-  AnalysisReportQueueCleaner sut;
-  ServerUpgradeStatus serverUpgradeStatus;
-  DbClient dbClient;
-  AnalysisReportDao analysisReportDao;
-  DbSession session;
-
-  @Before
-  public void before() {
-    analysisReportDao = mock(AnalysisReportDao.class);
-    serverUpgradeStatus = mock(ServerUpgradeStatus.class);
-    dbClient = mock(DbClient.class);
-    session = mock(DbSession.class);
-
-    when(dbClient.analysisReportDao()).thenReturn(analysisReportDao);
-    when(dbClient.openSession(false)).thenReturn(session);
-
-    sut = new AnalysisReportQueueCleaner(serverUpgradeStatus, dbClient);
-  }
+  ServerUpgradeStatus serverUpgradeStatus = mock(ServerUpgradeStatus.class);
+  ReportQueue queue = mock(ReportQueue.class);
+  ReportQueueCleaner sut = new ReportQueueCleaner(serverUpgradeStatus, queue);
 
   @Test
-  public void start_must_call_dao_clean_update_to_pending_by_default() {
+  public void reset_reports_on_restart() {
     sut.start();
-    verify(analysisReportDao).resetAllToPendingStatus(any(DbSession.class));
+    verify(queue).resetToPendingStatus();
     sut.stop();
   }
 
   @Test
-  public void start_must_call_dao_truncate_when_upgrading() {
+  public void delete_all_reports_on_upgrade() {
     when(serverUpgradeStatus.isUpgraded()).thenReturn(Boolean.TRUE);
     sut.start();
-    verify(analysisReportDao).truncate(any(DbSession.class));
+    verify(queue).clear();
     sut.stop();
   }
 }

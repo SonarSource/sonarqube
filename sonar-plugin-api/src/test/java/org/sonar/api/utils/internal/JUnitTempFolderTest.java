@@ -17,37 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.api.utils.internal;
 
-package org.sonar.core.computation.dbcleaner.period;
+import org.junit.Test;
 
-import com.google.common.collect.Lists;
-import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.purge.PurgeableSnapshotDto;
+import java.io.File;
 
-import java.util.Date;
-import java.util.List;
+import static org.assertj.core.api.Assertions.assertThat;
 
-class DeleteAllFilter implements Filter {
-  private final Date before;
+public class JUnitTempFolderTest {
 
-  public DeleteAllFilter(Date before) {
-    this.before = before;
+  @Test
+  public void apply() throws Throwable {
+    JUnitTempFolder temp = new JUnitTempFolder();
+    temp.before();
+    File dir1 = temp.newDir();
+    assertThat(dir1).isDirectory().exists();
+
+    File dir2 = temp.newDir("foo");
+    assertThat(dir2).isDirectory().exists();
+
+    File file1 = temp.newFile();
+    assertThat(file1).isFile().exists();
+
+    File file2 = temp.newFile("foo", "txt");
+    assertThat(file2).isFile().exists();
+
+    temp.after();
+    assertThat(dir1).doesNotExist();
+    assertThat(dir2).doesNotExist();
+    assertThat(file1).doesNotExist();
+    assertThat(file2).doesNotExist();
   }
 
-  @Override
-  public List<PurgeableSnapshotDto> filter(List<PurgeableSnapshotDto> history) {
-    List<PurgeableSnapshotDto> result = Lists.newArrayList();
-    for (PurgeableSnapshotDto snapshot : history) {
-      if (snapshot.getDate().before(before)) {
-        result.add(snapshot);
-      }
-    }
-    return result;
-  }
-
-  @Override
-  public void log() {
-    Loggers.get(getClass()).debug("-> Delete data prior to: {}", DateUtils.formatDate(before));
-  }
 }

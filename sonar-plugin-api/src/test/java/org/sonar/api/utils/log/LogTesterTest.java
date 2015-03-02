@@ -54,9 +54,13 @@ public class LogTesterTest {
     Loggers.get("logger2").warn("warning: {}", 42);
 
     assertThat(sut.logs()).containsExactly("an information", "warning: 42");
+    assertThat(sut.logs(LoggerLevel.ERROR)).isEmpty();
+    assertThat(sut.logs(LoggerLevel.INFO)).containsOnly("an information");
+    assertThat(sut.logs(LoggerLevel.WARN)).containsOnly("warning: 42");
 
     sut.clear();
     assertThat(sut.logs()).isEmpty();
+    assertThat(sut.logs(LoggerLevel.INFO)).isEmpty();
 
     sut.after();
     assertThat(LogInterceptors.get()).isSameAs(NullInterceptor.NULL_INSTANCE);
