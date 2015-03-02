@@ -22,19 +22,14 @@ package org.sonar.server.computation;
 
 import org.junit.Test;
 import org.sonar.api.config.Settings;
+import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.computation.db.AnalysisReportDto;
 
 import static org.mockito.Mockito.mock;
 
 public class ComputationContextTest {
 
-  ComputationContext sut = new ComputationContext(mock(AnalysisReportDto.class), mock(ComponentDto.class));
-
-  @Test(expected = IllegalStateException.class)
-  public void getReportMetadata() throws Exception {
-    sut.getReportMetadata();
-  }
+  ComputationContext sut = new ComputationContext(mock(BatchReportReader.class), mock(ComponentDto.class));
 
   @Test(expected = IllegalStateException.class)
   public void setProjectSettings() throws Exception {
