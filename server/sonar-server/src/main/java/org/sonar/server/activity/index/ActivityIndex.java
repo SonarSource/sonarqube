@@ -19,119 +19,86 @@
  */
 package org.sonar.server.activity.index;
 
+import com.google.common.base.Function;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.common.settings.ImmutableSettings;
-import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.query.AndFilterBuilder;
+import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.OrFilterBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.sort.SortOrder;
-import org.sonar.core.activity.Activity;
-import org.sonar.core.activity.db.ActivityDto;
-import org.sonar.server.search.*;
+import org.sonar.core.util.NonNullInputFunction;
+import org.sonar.server.es.BaseIndex;
+import org.sonar.server.es.EsClient;
+import org.sonar.server.es.SearchOptions;
+import org.sonar.server.es.SearchResult;
 
-import javax.annotation.Nullable;
-
-import java.util.HashMap;
+import java.util.Date;
 import java.util.Map;
 
-/**
- * @since 4.4
- */
-public class ActivityIndex extends BaseIndex<Activity, ActivityDto, String> {
+public class ActivityIndex extends BaseIndex {
 
-  public ActivityIndex(ActivityNormalizer normalizer, SearchClient node) {
-    super(IndexDefinition.LOG, normalizer, node);
-  }
-
-  @Override
-  protected String getKeyValue(String key) {
-    return key;
-  }
-
-  @Override
-  protected Map mapKey() {
-    Map<String, Object> mapping = new HashMap<String, Object>();
-    mapping.put("path", ActivityNormalizer.LogFields.KEY.field());
-    return mapping;
-  }
-
-  @Override
-  protected ImmutableSettings.Builder addCustomIndexSettings(ImmutableSettings.Builder settings) {
-    return settings
-      .put("analysis.analyzer.default.type", "keyword");
-  }
-
-  @Override
-  protected Map mapProperties() {
-    Map<String, Object> mapping = new HashMap<String, Object>();
-    for (IndexField field : ActivityNormalizer.LogFields.ALL_FIELDS) {
-      mapping.put(field.field(), mapField(field));
+  /**
+   * Convert an Elasticsearch result (a map) to an {@link org.sonar.server.activity.index.ActivityDoc}. It's
+   * used for {@link org.sonar.server.es.SearchResult}.
+   */
+  private static final Function<Map<String, Object>, ActivityDoc> DOC_CONVERTER = new NonNullInputFunction<Map<String, Object>, ActivityDoc>() {
+    @Override
+    protected ActivityDoc doApply(Map<String, Object> input) {
+      return new ActivityDoc(input);
     }
-    return mapping;
+  };
+
+  public ActivityIndex(EsClient esClient) {
+    super(esClient);
   }
 
-  @Override
-  protected Activity toDoc(final Map<String, Object> fields) {
-    return new ActivityDoc(fields);
+  public SearchResult<ActivityDoc> search(ActivityQuery query, SearchOptions options) {
+    SearchResponse response = doSearch(query, options);
+    return new SearchResult<>(response, DOC_CONVERTER);
   }
 
-  public Result<Activity> findAll() {
-    SearchRequestBuilder request = getClient().prepareSearch(this.getIndexName())
-      .setQuery(QueryBuilders.matchAllQuery())
-      .setTypes(this.getIndexType())
-      .setSize(Integer.MAX_VALUE);
-    SearchResponse response = request.get();
-    return new Result<Activity>(this, response);
-  }
+  public SearchResponse doSearch(ActivityQuery query, SearchOptions options) {
+    SearchRequestBuilder requestBuilder = getClient()
+      .prepareSearch(ActivityIndexDefinition.INDEX)
+      .setTypes(ActivityIndexDefinition.TYPE);
 
-  public SearchResponse search(ActivityQuery query, QueryContext options) {
-    return search(query, options, null);
-  }
-
-  public SearchResponse search(ActivityQuery query, QueryContext options,
-    @Nullable FilterBuilder domainFilter) {
-
-    // Prepare query
-    SearchRequestBuilder esSearch = getClient()
-      .prepareSearch(this.getIndexName())
-      .setTypes(this.getIndexType())
-      .setIndices(this.getIndexName());
-
-    // Integrate Pagination
-    esSearch.setFrom(options.getOffset());
-    esSearch.setSize(options.getLimit());
-
-    // Sort Date Desc
-    esSearch.addSort(ActivityNormalizer.LogFields.CREATED_AT.field(), SortOrder.DESC);
+    requestBuilder.setFrom(options.getOffset());
+    requestBuilder.setSize(options.getLimit());
+    requestBuilder.addSort(ActivityIndexDefinition.FIELD_CREATED_AT, SortOrder.DESC);
 
     AndFilterBuilder filter = FilterBuilders.andFilter();
-
-    // implement Type Filtering
-    OrFilterBuilder typeFilter = FilterBuilders.orFilter();
-    for (Activity.Type type : query.getTypes()) {
-      typeFilter.add(FilterBuilders.termFilter(ActivityNormalizer.LogFields.TYPE.field(), type));
-    }
-    filter.add(typeFilter);
-
-    // Implement date Filter
-    filter.add(FilterBuilders.rangeFilter(ActivityNormalizer.LogFields.CREATED_AT.field())
-      .from(query.getSince())
-      .to(query.getTo()));
-
-    // Add any additional domain filter
-    if (domainFilter != null) {
-      filter.add(domainFilter);
+    if (!query.getTypes().isEmpty()) {
+      OrFilterBuilder typeFilter = FilterBuilders.orFilter();
+      for (String type : query.getTypes()) {
+        typeFilter.add(FilterBuilders.termFilter(ActivityIndexDefinition.FIELD_TYPE, type));
+      }
+      filter.add(typeFilter);
     }
 
-    esSearch.setQuery(QueryBuilders.filteredQuery(
-      QueryBuilders.matchAllQuery(), filter));
-
-    if (options.isScroll()) {
-      esSearch.setSearchType(SearchType.SCAN);
-      esSearch.setScroll(TimeValue.timeValueMinutes(3));
+    if (!query.getDataOrFilters().isEmpty()) {
+      for (Map.Entry<String, Object> entry : query.getDataOrFilters().entrySet()) {
+        OrFilterBuilder orFilter = FilterBuilders.orFilter();
+        orFilter.add(FilterBuilders.nestedFilter(ActivityIndexDefinition.FIELD_DETAILS,
+          FilterBuilders.termFilter(ActivityIndexDefinition.FIELD_DETAILS + "." + entry.getKey(), entry.getValue())));
+        filter.add(orFilter);
+      }
     }
 
-    return esSearch.get();
+    Date since = query.getSince();
+    if (since != null) {
+      filter.add(FilterBuilders.rangeFilter(ActivityIndexDefinition.FIELD_CREATED_AT)
+        .gt(since)
+        .cache(false));
+    }
+    Date to = query.getTo();
+    if (to != null) {
+      filter.add(FilterBuilders.rangeFilter(ActivityIndexDefinition.FIELD_CREATED_AT)
+        .lt(to)
+        .cache(false));
+    }
+
+    requestBuilder.setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), filter));
+    return requestBuilder.get();
   }
 }

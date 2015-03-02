@@ -21,19 +21,17 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.Maps;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.core.activity.Activity;
 import org.sonar.server.activity.index.ActivityDoc;
-import org.sonar.server.activity.index.ActivityNormalizer;
+import org.sonar.server.activity.index.ActivityIndexDefinition;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.Map;
 
 /**
  * @since 4.4
  */
-public class QProfileActivity extends ActivityDoc implements Activity {
+public class QProfileActivity extends ActivityDoc {
 
   private String ruleName = null;
   private String authorName = null;
@@ -77,8 +75,8 @@ public class QProfileActivity extends ActivityDoc implements Activity {
 
   @Override
   @CheckForNull
-  public String login() {
-    return getNullableField(ActivityNormalizer.LogFields.LOGIN.field());
+  public String getLogin() {
+    return getNullableField(ActivityIndexDefinition.FIELD_LOGIN);
   }
 
   @CheckForNull

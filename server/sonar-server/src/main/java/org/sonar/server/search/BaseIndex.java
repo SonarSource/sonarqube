@@ -55,6 +55,10 @@ import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.*;
 
+/**
+ * @deprecated replaced by {@link org.sonar.server.es.BaseIndex}
+ */
+@Deprecated
 public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serializable>
   implements Index<DOMAIN, DTO, KEY> {
 
@@ -215,7 +219,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   protected abstract String getKeyValue(KEY key);
 
   public final Settings getIndexSettings() {
-    ImmutableSettings.Builder settings = this.addCustomIndexSettings(this.getBaseIndexSettings());
+    ImmutableSettings.Builder settings = this.getBaseIndexSettings();
 
     // In case there is a replication factor set by the index,
     // it is removed since we're using global cluster state
@@ -223,10 +227,6 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
     settings.remove("index.number_of_replicas");
 
     return settings.build();
-  }
-
-  protected ImmutableSettings.Builder addCustomIndexSettings(ImmutableSettings.Builder baseIndexSettings) {
-    return baseIndexSettings;
   }
 
   protected abstract Map mapProperties();

@@ -23,10 +23,10 @@ package org.sonar.server.activity;
 import org.picocontainer.Startable;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.Paging;
+import org.sonar.server.es.SearchOptions;
 import org.sonar.server.qualityprofile.QProfileActivity;
 import org.sonar.server.qualityprofile.QProfileActivityQuery;
 import org.sonar.server.qualityprofile.QProfileService;
-import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 import org.sonar.server.util.RubyUtils;
 
@@ -51,11 +51,8 @@ public class RubyQProfileActivityService implements ServerComponent, Startable {
    */
   public QProfileActivityResult search(Map<String, Object> params) {
     QProfileActivityQuery query = new QProfileActivityQuery();
-    QueryContext queryContext = new QueryContext().setMaxLimit();
-    List<String> profileKeys = RubyUtils.toStrings(params.get("profileKeys"));
-    if (profileKeys != null) {
-      query.setQprofileKeys(profileKeys);
-    }
+
+    query.setQprofileKey((String)params.get("profileKey"));
     Date since = RubyUtils.toDate(params.get("since"));
     if (since != null) {
       query.setSince(since);
@@ -64,12 +61,14 @@ public class RubyQProfileActivityService implements ServerComponent, Startable {
     if (to != null) {
       query.setTo(to);
     }
+
+    SearchOptions options = new SearchOptions();
     Integer page = RubyUtils.toInteger(params.get("p"));
     int pageIndex = page != null ? page : 1;
-    queryContext.setPage(pageIndex, 50);
+    options.setPage(pageIndex, 50);
 
-    Result<QProfileActivity> result = service.searchActivities(query, queryContext);
-    return new QProfileActivityResult(result.getHits(), Paging.create(queryContext.getLimit(), pageIndex, (int) result.getTotal()));
+    Result<QProfileActivity> result = service.searchActivities(query, options);
+    return new QProfileActivityResult(result.getHits(), Paging.create(options.getLimit(), pageIndex, (int) result.getTotal()));
   }
 
   @Override

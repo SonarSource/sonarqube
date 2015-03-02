@@ -19,32 +19,30 @@
  */
 package org.sonar.server.qualityprofile;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
-import org.sonar.core.activity.Activity;
+import org.sonar.server.activity.Activity;
 import org.sonar.server.activity.index.ActivityQuery;
 
-import java.util.Collection;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import java.util.Arrays;
 
 /**
  * @since 4.4
  */
 public class QProfileActivityQuery extends ActivityQuery {
 
-  Collection<String> qprofileKeys;
-
   public QProfileActivityQuery() {
     super();
-    this.setTypes(ImmutableSet.of(Activity.Type.QPROFILE));
-    qprofileKeys = Lists.newArrayList();
+    setTypes(Arrays.asList(Activity.Type.QPROFILE.name()));
   }
 
-  public Collection<String> getQprofileKeys() {
-    return qprofileKeys;
+  @CheckForNull
+  public String getQprofileKey() {
+    return (String)getDataOrFilters().get("profileKey");
   }
 
-  public QProfileActivityQuery setQprofileKeys(Collection<String> qprofileKeys) {
-    this.qprofileKeys = qprofileKeys;
+  public QProfileActivityQuery setQprofileKey(@Nullable String qprofileKey) {
+    addDataOrFilter("profileKey", qprofileKey);
     return this;
   }
 }

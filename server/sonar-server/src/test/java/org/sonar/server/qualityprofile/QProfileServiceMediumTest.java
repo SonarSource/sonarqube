@@ -20,7 +20,6 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import org.junit.After;
@@ -36,19 +35,19 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.core.activity.Activity;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.user.UserDto;
+import org.sonar.server.activity.Activity;
 import org.sonar.server.activity.ActivityService;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.es.SearchOptions;
 import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.search.FacetValue;
-import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
@@ -187,24 +186,23 @@ public class QProfileServiceMediumTest {
     // We need an actual rule in DB to test RuleName in Activity
     RuleDto rule = db.ruleDao().getByKey(dbSession, RuleTesting.XOO_X1);
 
-    tester.get(ActivityService.class).write(dbSession, Activity.Type.QPROFILE,
-      ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1))
-        .setSeverity(Severity.MAJOR)
-        .setParameter("max", "10")
-      );
     dbSession.commit();
 
-    Result<QProfileActivity> activities = service.searchActivities(new QProfileActivityQuery(), new QueryContext());
+    tester.get(ActivityService.class).save(ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1))
+      .setSeverity(Severity.MAJOR)
+      .setParameter("max", "10").toActivity());
+
+    Result<QProfileActivity> activities = service.searchActivities(new QProfileActivityQuery(), new SearchOptions());
     assertThat(activities.getHits()).hasSize(1);
 
     QProfileActivity activity = activities.getHits().get(0);
-    assertThat(activity.type()).isEqualTo(Activity.Type.QPROFILE);
-    assertThat(activity.action()).isEqualTo(ActiveRuleChange.Type.ACTIVATED.name());
+    assertThat(activity.getType()).isEqualTo(Activity.Type.QPROFILE.name());
+    assertThat(activity.getAction()).isEqualTo(ActiveRuleChange.Type.ACTIVATED.name());
     assertThat(activity.ruleKey()).isEqualTo(RuleTesting.XOO_X1);
     assertThat(activity.profileKey()).isEqualTo(XOO_P1_KEY);
     assertThat(activity.severity()).isEqualTo(Severity.MAJOR);
     assertThat(activity.ruleName()).isEqualTo(rule.getName());
-    assertThat(activity.login()).isEqualTo("david");
+    assertThat(activity.getLogin()).isEqualTo("david");
     assertThat(activity.authorName()).isEqualTo("David");
 
     assertThat(activity.parameters()).hasSize(1);
@@ -217,13 +215,11 @@ public class QProfileServiceMediumTest {
 
     RuleKey ruleKey = RuleKey.of("xoo", "deleted_rule");
 
-    tester.get(ActivityService.class).write(dbSession, Activity.Type.QPROFILE,
-      ActiveRuleChange.createFor(ActiveRuleChange.Type.UPDATED, ActiveRuleKey.of(XOO_P1_KEY, ruleKey))
-        .setParameter("max", "10")
+    tester.get(ActivityService.class).save(ActiveRuleChange.createFor(ActiveRuleChange.Type.UPDATED, ActiveRuleKey.of(XOO_P1_KEY, ruleKey))
+      .setParameter("max", "10").toActivity()
       );
-    dbSession.commit();
 
-    Result<QProfileActivity> activities = service.searchActivities(new QProfileActivityQuery(), new QueryContext());
+    Result<QProfileActivity> activities = service.searchActivities(new QProfileActivityQuery(), new SearchOptions());
     assertThat(activities.getHits()).hasSize(1);
 
     QProfileActivity activity = activities.getHits().get(0);
@@ -238,19 +234,20 @@ public class QProfileServiceMediumTest {
 
     // We need an actual rule in DB to test RuleName in Activity
     db.ruleDao().getByKey(dbSession, RuleTesting.XOO_X1);
+    dbSession.commit();
 
-    tester.get(ActivityService.class).write(dbSession, Activity.Type.QPROFILE,
+    tester.get(ActivityService.class).save(
       ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1))
         .setSeverity(Severity.MAJOR)
         .setParameter("max", "10")
+        .toActivity()
       );
-    dbSession.commit();
 
-    Result<QProfileActivity> activities = service.searchActivities(new QProfileActivityQuery(), new QueryContext());
+    Result<QProfileActivity> activities = service.searchActivities(new QProfileActivityQuery(), new SearchOptions());
     assertThat(activities.getHits()).hasSize(1);
 
     QProfileActivity activity = activities.getHits().get(0);
-    assertThat(activity.login()).isEqualTo("david");
+    assertThat(activity.getLogin()).isEqualTo("david");
     assertThat(activity.authorName()).isNull();
   }
 
@@ -260,14 +257,14 @@ public class QProfileServiceMediumTest {
 
     RuleKey ruleKey = RuleKey.of("xoo", "deleted_rule");
 
-    tester.get(ActivityService.class).write(dbSession, Activity.Type.QPROFILE,
-      ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, ruleKey))
-        .setSeverity(Severity.MAJOR)
-        .setParameter("max", "10")
+    tester.get(ActivityService.class).save(ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, ruleKey))
+      .setSeverity(Severity.MAJOR)
+      .setParameter("max", "10")
+      .toActivity()
       );
     dbSession.commit();
 
-    Result<QProfileActivity> activities = service.searchActivities(new QProfileActivityQuery(), new QueryContext());
+    Result<QProfileActivity> activities = service.searchActivities(new QProfileActivityQuery(), new SearchOptions());
     assertThat(activities.getHits()).hasSize(1);
 
     QProfileActivity activity = activities.getHits().get(0);
@@ -278,48 +275,36 @@ public class QProfileServiceMediumTest {
   @Test
   public void search_activity_by_qprofile() throws InterruptedException {
 
-    tester.get(ActivityService.class).write(dbSession, Activity.Type.QPROFILE,
-      ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1)));
-    tester.get(ActivityService.class).write(dbSession, Activity.Type.QPROFILE,
-      ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P2_KEY, RuleTesting.XOO_X1)));
-    dbSession.commit();
+    tester.get(ActivityService.class).save(
+      ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1)).toActivity());
+    tester.get(ActivityService.class).save(
+      ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P2_KEY, RuleTesting.XOO_X1)).toActivity());
 
     // 0. Base case verify 2 activities in index
-    assertThat(service.searchActivities(new QProfileActivityQuery(), new QueryContext()).getHits())
+    assertThat(service.searchActivities(new QProfileActivityQuery(), new SearchOptions()).getHits())
       .hasSize(2);
 
     // 1. filter by QProfile
     List<QProfileActivity> result = service.searchActivities(new QProfileActivityQuery()
-      .setQprofileKeys(ImmutableSet.of(XOO_P1_KEY)), new QueryContext()).getHits();
+      .setQprofileKey(XOO_P1_KEY), new SearchOptions()).getHits();
     assertThat(result).hasSize(1);
-
-    // 1. filter by QProfiles
-    assertThat(service.searchActivities(new QProfileActivityQuery()
-      .setQprofileKeys(ImmutableSet.of(XOO_P1_KEY, XOO_P2_KEY))
-      , new QueryContext()).getHits()).hasSize(2);
   }
 
   @Test
   public void search_activity_by_qprofile_having_dashes_in_keys() throws InterruptedException {
-    tester.get(ActivityService.class).write(dbSession, Activity.Type.QPROFILE,
-      ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of("java-default", RuleTesting.XOO_X1)));
-    tester.get(ActivityService.class).write(dbSession, Activity.Type.QPROFILE,
-      ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of("java-toto", RuleTesting.XOO_X1)));
-    dbSession.commit();
+    tester.get(ActivityService.class).save(
+      ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of("java-default", RuleTesting.XOO_X1)).toActivity());
+    tester.get(ActivityService.class).save(
+      ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of("java-toto", RuleTesting.XOO_X1)).toActivity());
 
     // 0. Base case verify 2 activities in index
-    assertThat(service.searchActivities(new QProfileActivityQuery(), new QueryContext()).getHits())
+    assertThat(service.searchActivities(new QProfileActivityQuery(), new SearchOptions()).getHits())
       .hasSize(2);
 
     // 1. filter by QProfile
     List<QProfileActivity> result = service.searchActivities(new QProfileActivityQuery()
-      .setQprofileKeys(ImmutableSet.of("java-default")), new QueryContext()).getHits();
+      .setQprofileKey("java-default"), new SearchOptions()).getHits();
     assertThat(result).hasSize(1);
-
-    // 1. filter by QProfiles
-    assertThat(service.searchActivities(new QProfileActivityQuery()
-      .setQprofileKeys(ImmutableSet.of("java-default", "java-toto"))
-      , new QueryContext()).getHits()).hasSize(2);
   }
 
   @Test

@@ -23,31 +23,23 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.core.activity.db.ActivityDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.activity.db.ActivityDao;
 import org.sonar.server.db.DbClient;
 
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
 public class ChangeLogMigrationTest {
 
   @ClassRule
   public static DbTester db = new DbTester().schema(ChangeLogMigrationTest.class, "schema.sql");
 
-  @Mock
-  System2 system2;
-
+  System2 system2 = mock(System2.class);
   DbClient dbClient;
   ActivityDao dao;
   ChangeLogMigration migration;
@@ -56,7 +48,7 @@ public class ChangeLogMigrationTest {
   @Before
   public void setUp() throws Exception {
     when(system2.now()).thenReturn(DateUtils.parseDate("2014-03-13").getTime());
-    dao = new ActivityDao(system2);
+    dao = new ActivityDao(db.myBatis(), system2);
     dbClient = new DbClient(db.database(), db.myBatis(), dao);
     migration = new ChangeLogMigration(dao, dbClient);
     session = dbClient.openSession(false);
@@ -71,10 +63,10 @@ public class ChangeLogMigrationTest {
   public void migrate() throws Exception {
     db.prepareDbUnit(getClass(), "active_rules_changes.xml");
     migration.execute();
-    assertThat(dao.findAll(session)).hasSize(5);
+    assertThat(db.countRowsOfTable("activities")).isEqualTo(5);
 
-    List<ActivityDto> changes = dao.findAll(session);
-    assertThat(changes.get(1).getData()).contains("param_PARAM1=TODO");
+    int count = db.countSql("select count(*) from activities where data_field like '%param_PARAM1=TODO%'");
+    assertThat(count).isGreaterThan(0);
   }
 
   @Test
@@ -82,6 +74,6 @@ public class ChangeLogMigrationTest {
     db.prepareDbUnit(getClass(), "migrate_when_no_changelog.xml");
     migration.execute();
 
-    assertThat(dao.findAll(session)).isEmpty();
+    assertThat(db.countRowsOfTable("activities")).isEqualTo(0);
   }
 }

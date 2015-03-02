@@ -30,11 +30,10 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.core.activity.Activity;
+import org.sonar.server.es.SearchOptions;
 import org.sonar.server.qualityprofile.QProfileActivity;
 import org.sonar.server.qualityprofile.QProfileActivityQuery;
 import org.sonar.server.qualityprofile.QProfileService;
-import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 
 import java.util.Date;
@@ -53,7 +52,7 @@ public class RubyQProfileActivityServiceTest {
   ArgumentCaptor<QProfileActivityQuery> activityArgumentCaptor;
 
   @Captor
-  ArgumentCaptor<QueryContext> queryOptionsArgumentCaptor;
+  ArgumentCaptor<SearchOptions> queryOptionsArgumentCaptor;
 
   RubyQProfileActivityService rubyQProfileActivityService;
 
@@ -70,16 +69,16 @@ public class RubyQProfileActivityServiceTest {
     Result<QProfileActivity> result = mock(Result.class);
     when(result.getHits()).thenReturn(Lists.<QProfileActivity>newArrayList());
     when(result.getTotal()).thenReturn(10L);
-    when(service.searchActivities(any(QProfileActivityQuery.class), any(QueryContext.class))).thenReturn(result);
+    when(service.searchActivities(any(QProfileActivityQuery.class), any(SearchOptions.class))).thenReturn(result);
 
-    rubyQProfileActivityService.search(ImmutableMap.<String, Object>of("profileKeys", "PROFILE_KEY", "since", since, "to", to));
+    rubyQProfileActivityService.search(ImmutableMap.<String, Object>of("profileKey", "PROFILE_KEY", "since", since, "to", to));
 
     verify(service).searchActivities(activityArgumentCaptor.capture(), queryOptionsArgumentCaptor.capture());
 
     assertThat(queryOptionsArgumentCaptor.getValue().getLimit()).isEqualTo(50);
 
-    assertThat(activityArgumentCaptor.getValue().getQprofileKeys()).containsOnly("PROFILE_KEY");
-    assertThat(activityArgumentCaptor.getValue().getTypes()).containsOnly(Activity.Type.QPROFILE);
+    assertThat(activityArgumentCaptor.getValue().getQprofileKey()).isEqualTo("PROFILE_KEY");
+    assertThat(activityArgumentCaptor.getValue().getTypes()).containsOnly(Activity.Type.QPROFILE.name());
     assertThat(activityArgumentCaptor.getValue().getSince()).isEqualTo(since);
     assertThat(activityArgumentCaptor.getValue().getTo()).isEqualTo(to);
   }
@@ -89,7 +88,7 @@ public class RubyQProfileActivityServiceTest {
     Result<QProfileActivity> result = mock(Result.class);
     when(result.getHits()).thenReturn(Lists.<QProfileActivity>newArrayList());
     when(result.getTotal()).thenReturn(10L);
-    when(service.searchActivities(any(QProfileActivityQuery.class), any(QueryContext.class))).thenReturn(result);
+    when(service.searchActivities(any(QProfileActivityQuery.class), any(SearchOptions.class))).thenReturn(result);
 
     rubyQProfileActivityService.search(ImmutableMap.<String, Object>of());
 
@@ -97,7 +96,7 @@ public class RubyQProfileActivityServiceTest {
 
     assertThat(queryOptionsArgumentCaptor.getValue().getLimit()).isEqualTo(50);
 
-    assertThat(activityArgumentCaptor.getValue().getQprofileKeys()).isEmpty();
+    assertThat(activityArgumentCaptor.getValue().getQprofileKey()).isNull();
     assertThat(activityArgumentCaptor.getValue().getSince()).isNull();
     assertThat(activityArgumentCaptor.getValue().getTo()).isNull();
   }

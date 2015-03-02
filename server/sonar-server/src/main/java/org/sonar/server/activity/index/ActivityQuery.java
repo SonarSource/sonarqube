@@ -19,49 +19,60 @@
  */
 package org.sonar.server.activity.index;
 
-import com.google.common.collect.Lists;
-import org.sonar.core.activity.Activity;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-/**
- * @since 4.4
- */
 public class ActivityQuery {
 
   private Date since;
   private Date to;
-  private Collection<Activity.Type> types;
+  private final Collection<String> types = new ArrayList<>();
+  private final Map<String, Object> dataOrFilters = new LinkedHashMap<>();
 
-  public ActivityQuery() {
-    types = Lists.newArrayList();
-  }
-
+  @CheckForNull
   public Date getSince() {
     return since;
   }
 
-  public ActivityQuery setSince(Date since) {
+  public ActivityQuery setSince(@Nullable Date since) {
     this.since = since;
     return this;
   }
 
+  @CheckForNull
   public Date getTo() {
     return to;
   }
 
-  public ActivityQuery setTo(Date to) {
+  public ActivityQuery setTo(@Nullable Date to) {
     this.to = to;
     return this;
   }
 
-  public Collection<Activity.Type> getTypes() {
+  public Collection<String> getTypes() {
     return types;
   }
 
-  public ActivityQuery setTypes(Collection<Activity.Type> types) {
-    this.types = types;
+  public ActivityQuery setTypes(@Nullable Collection<String> types) {
+    this.types.clear();
+    if (types != null) {
+      this.types.addAll(types);
+    }
+    return this;
+  }
+
+  public Map<String, Object> getDataOrFilters() {
+    return dataOrFilters;
+  }
+
+  public ActivityQuery addDataOrFilter(String dataKey, Object dataValue) {
+    dataOrFilters.put(dataKey, dataValue);
     return this;
   }
 }

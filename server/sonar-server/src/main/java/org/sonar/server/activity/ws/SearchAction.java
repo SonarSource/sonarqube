@@ -19,34 +19,30 @@
  */
 package org.sonar.server.activity.ws;
 
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.activity.Activity;
-import org.sonar.server.activity.ActivityService;
+import org.sonar.server.activity.Activity;
+import org.sonar.server.activity.index.ActivityDoc;
+import org.sonar.server.activity.index.ActivityIndex;
 import org.sonar.server.activity.index.ActivityQuery;
+import org.sonar.server.es.SearchOptions;
+import org.sonar.server.es.SearchResult;
 import org.sonar.server.search.QueryContext;
-import org.sonar.server.search.Result;
-import org.sonar.server.search.ws.SearchOptions;
 
-/**
- * @since 4.4
- */
 public class SearchAction implements RequestHandler {
 
   public static final String PARAM_TYPE = "type";
-
   public static final String SEARCH_ACTION = "search";
 
-  private final ActivityService logService;
-  private final ActivityMapping mapping;
+  private final ActivityIndex activityIndex;
+  private final ActivityMapping docToJsonMapping;
 
-  public SearchAction(ActivityService logService, ActivityMapping mapping) {
-    this.logService = logService;
-    this.mapping = mapping;
+  public SearchAction(ActivityIndex activityIndex, ActivityMapping docToJsonMapping) {
+    this.activityIndex = activityIndex;
+    this.docToJsonMapping = docToJsonMapping;
   }
 
   void define(WebService.NewController controller) {
@@ -57,36 +53,34 @@ public class SearchAction implements RequestHandler {
       .setInternal(true)
       .setHandler(this);
 
-    // Other parameters
     action.createParam(PARAM_TYPE)
-      .setDescription("Types of activities to search")
-      .setPossibleValues(Activity.Type.values())
-      .setDefaultValue(StringUtils.join(Activity.Type.values(), ","));
+      .setDescription("Activity type")
+      .setPossibleValues(Activity.Type.values());
 
-    // Generic search parameters
-    SearchOptions.defineFieldsParam(action, mapping.supportedFields());
-
-    SearchOptions.definePageParams(action);
+    action.addPagingParams(10);
+    action.addFieldsParam(docToJsonMapping.supportedFields());
   }
 
   @Override
   public void handle(Request request, Response response) {
-    ActivityQuery query = logService.newActivityQuery();
-    SearchOptions searchOptions = SearchOptions.create(request);
-    QueryContext queryContext = mapping.newQueryOptions(searchOptions);
+    ActivityQuery query = new ActivityQuery();
+    query.setTypes(request.paramAsStrings(PARAM_TYPE));
 
-    Result<Activity> results = logService.search(query, queryContext);
+    SearchOptions options = new SearchOptions();
+    options.setPage(request.mandatoryParamAsInt(WebService.Param.PAGE), request.mandatoryParamAsInt(WebService.Param.PAGE_SIZE));
+
+    SearchResult<ActivityDoc> results = activityIndex.search(query, options);
 
     JsonWriter json = response.newJsonWriter().beginObject();
-    searchOptions.writeStatistics(json, results);
-    writeLogs(results, json, queryContext);
+    options.writeJson(json, results.getTotal());
+    writeActivities(results, json, new QueryContext().setFieldsToReturn(request.paramAsStrings(WebService.Param.FIELDS)));
     json.endObject().close();
   }
 
-  private void writeLogs(Result<Activity> result, JsonWriter json, QueryContext context) {
+  private void writeActivities(SearchResult<ActivityDoc> docs, JsonWriter json, QueryContext context) {
     json.name("logs").beginArray();
-    for (Activity log : result.getHits()) {
-      mapping.write(log, json, context);
+    for (ActivityDoc doc : docs.getDocs()) {
+      docToJsonMapping.write(doc, json, context);
     }
     json.endArray();
   }
