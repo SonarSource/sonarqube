@@ -225,7 +225,7 @@ define([
                 d.blocks.forEach(function (b) {
                   if (b._ref === '1') {
                     var lineFrom = b.from,
-                        lineTo = b.from + b.size;
+                        lineTo = b.from + b.size - 1;
                     for (var j = lineFrom; j <= lineTo; j++) {
                       duplications[j] = true;
                     }
