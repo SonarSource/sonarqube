@@ -26,6 +26,7 @@ define(function () {
       return {
         hasSource: false,
         hasCoverage: false,
+        hasITCoverage: false,
         hasDuplications: false,
         hasSCM: false,
 
@@ -88,6 +89,18 @@ define(function () {
         });
       }
       this.set({ hasDuplications: hasDuplications });
+    },
+
+    hasCoverage: function (source) {
+      return _.some(source, function (line) {
+        return line.coverageStatus != null;
+      });
+    },
+
+    hasITCoverage: function (source) {
+      return _.some(source, function (line) {
+        return line.itCoverageStatus != null;
+      });
     }
   });
 

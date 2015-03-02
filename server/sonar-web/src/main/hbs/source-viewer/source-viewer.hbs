@@ -17,10 +17,19 @@
           {{/ifSCMChanged2}}
         </td>
 
-        <td class="source-meta source-line-coverage {{#notNull coverageStatus}}source-line-{{coverageStatus}}{{/notNull}}"
-            data-line-number="{{line}}" {{#notNull coverageStatus}}title="{{t 'source_viewer.tooltip' coverageStatus}}" data-placement="right" data-toggle="tooltip"{{/notNull}}>
-          <div class="source-line-bar"></div>
-        </td>
+        {{#if ../hasCoverage}}
+          <td class="source-meta source-line-coverage {{#notNull coverageStatus}}source-line-{{coverageStatus}}{{/notNull}}"
+              data-line-number="{{line}}" {{#notNull coverageStatus}}title="{{t 'source_viewer.tooltip.ut' coverageStatus}}" data-placement="right" data-toggle="tooltip"{{/notNull}}>
+            <div class="source-line-bar"></div>
+          </td>
+        {{/if}}
+
+        {{#if ../hasITCoverage}}
+          <td class="source-meta source-line-coverage {{#notNull itCoverageStatus}}source-line-{{itCoverageStatus}}{{/notNull}}"
+              data-line-number="{{line}}" {{#notNull itCoverageStatus}}title="{{t 'source_viewer.tooltip.it' itCoverageStatus}}" data-placement="right" data-toggle="tooltip"{{/notNull}}>
+            <div class="source-line-bar"></div>
+          </td>
+        {{/if}}
 
         {{#if ../hasDuplications}}
           <td class="source-meta source-line-duplications {{#if duplicated}}source-line-duplicated{{/if}}"
