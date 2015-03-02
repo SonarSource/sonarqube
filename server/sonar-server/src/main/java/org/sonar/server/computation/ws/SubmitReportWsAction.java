@@ -62,7 +62,7 @@ public class SubmitReportWsAction implements ComputationWsAction, RequestHandler
 
     action
       .createParam(PARAM_REPORT_DATA)
-      .setRequired(false)
+      .setRequired(true)
       .setDescription("Report file. Format is not an API, it changes among SonarQube versions.");
   }
 

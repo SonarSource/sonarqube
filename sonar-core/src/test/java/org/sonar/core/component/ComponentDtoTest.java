@@ -74,6 +74,12 @@ public class ComponentDtoTest {
   }
 
   @Test
+  public void toString_does_not_fail_if_empty() throws Exception {
+    ComponentDto dto = new ComponentDto();
+    assertThat(dto.toString()).isNotEmpty();
+  }
+
+  @Test
   public void is_root_project() throws Exception {
     assertThat(new ComponentDto().setModuleUuid("ABCD").isRootProject()).isFalse();
     assertThat(new ComponentDto().setModuleUuid("ABCD").setScope(Scopes.DIRECTORY).isRootProject()).isFalse();
