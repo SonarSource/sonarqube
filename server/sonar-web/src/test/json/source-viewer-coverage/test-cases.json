@@ -1,0 +1,17 @@
+{
+  "tests": [
+    {
+      "name": "sampleTest",
+      "status": "OK",
+      "durationInMs": 2,
+      "_ref": "1"
+    }
+  ],
+  "files": {
+    "1": {
+      "uuid": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbbb",
+      "key": "test:sample",
+      "longName": "SampleTest"
+    }
+  }
+}

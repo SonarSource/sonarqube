@@ -1,6 +1,8 @@
 module.exports = (grunt) ->
   require('jit-grunt')(grunt, {
     express: 'grunt-express-server'
+    unzip: 'grunt-zip'
+    replace: 'grunt-text-replace'
   });
 
   pkg = grunt.file.readJSON('package.json')
@@ -318,12 +320,16 @@ module.exports = (grunt) ->
     express:
       test:
         options:
-          script: '<%= pkg.sources %>js/tests/e2e/server.js'
+          script: 'src/test/server.js'
+          port: expressPort
+      testCoverage:
+        options:
+          script: 'src/test/server-coverage.js'
           port: expressPort
       dev:
         options:
           background: false
-          script: '<%= pkg.sources %>js/tests/e2e/server.js'
+          script: 'src/test/server.js'
 
 
     casper:
@@ -335,14 +341,22 @@ module.exports = (grunt) ->
           concise: true
           parallel: true
           port: expressPort
-        src: ['<%= pkg.sources %>js/tests/e2e/tests/**/*.js']
+        src: ['src/test/js/**/*.js']
+      testCoverage:
+        options:
+          test: true
+          'no-colors': true
+          'fail-fast': true
+          concise: true
+          port: expressPort
+        src: ['src/test/js/**/*.js']
       single:
         options:
           test: true
           verbose: true
           'fail-fast': true
           port: expressPort
-        src: ['<%= pkg.sources %>js/tests/e2e/tests/<%= grunt.option("spec") %>-spec.js']
+        src: ['src/test/js/<%= grunt.option("spec") %>-spec.js']
       testfile:
         options:
           test: true
@@ -361,6 +375,32 @@ module.exports = (grunt) ->
           dest: '<%= grunt.option("assetsDir") || pkg.assets %>js'
           ext: '.js'
         ]
+
+
+    curl:
+      resetCoverage:
+        src:
+          url: 'http://localhost:' + expressPort + '/coverage/reset'
+          method: 'POST'
+        dest: 'target/reset_coverage.dump'
+
+      downloadCoverage:
+        src: 'http://localhost:' + expressPort + '/coverage/download'
+        dest: 'target/coverage.zip'
+
+
+    unzip:
+      'target/js-coverage': 'target/coverage.zip'
+
+
+    replace:
+      lcov:
+        src: 'target/js-coverage/lcov.info'
+        dest: 'target/js-coverage/lcov.info'
+        replacements: [{
+          from: '/webapp'
+          to: ''
+        }]
 
 
     jshint:
@@ -415,6 +455,9 @@ module.exports = (grunt) ->
   grunt.registerTask 'test',
       ['dev', 'express:test', 'casper:test']
 
+  grunt.registerTask 'testCoverage',
+      ['dev', 'express:testCoverage', 'curl:resetCoverage', 'casper:testCoverage', 'curl:downloadCoverage', 'unzip', 'replace:lcov']
+
   grunt.registerTask 'single',
       ['dev', 'express:test', 'casper:single']
 
@@ -422,8 +465,11 @@ module.exports = (grunt) ->
       ['dev', 'express:test', 'casper:testfile']
 
   # tasks used by Maven build (see pom.xml)
-  grunt.registerTask 'maven-build-skip-tests-true',
+  grunt.registerTask 'maven-build-skip-tests-true-nocoverage',
       ['build']
 
-  grunt.registerTask 'maven-build-skip-tests-false',
+  grunt.registerTask 'maven-build-skip-tests-false-nocoverage',
       ['test', 'build']
+
+  grunt.registerTask 'maven-build-skip-tests-false-coverage',
+      ['testCoverage', 'build']

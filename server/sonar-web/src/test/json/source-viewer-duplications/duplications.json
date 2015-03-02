@@ -1,0 +1,41 @@
+{
+  "duplications": [
+    {
+      "blocks": [
+        {
+          "from": 11,
+          "size": 5,
+          "_ref": "1"
+        },
+        {
+          "from": 12,
+          "size": 5,
+          "_ref": "2"
+        }
+      ]
+    }
+  ],
+  "files": {
+    "2": {
+      "uuid": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbbb",
+      "key": "duplicated:duplicated",
+      "name": "Duplicated",
+      "q": "FIL",
+      "subProject": "duplicated:subproject",
+      "subProjectName": "Duplicated Sub-Project",
+      "project": "duplicated:project",
+      "projectName": "Duplicated Project"
+    },
+    "1": {
+      "uuid": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaaa",
+      "key": "sample:sample",
+      "name": "Sample",
+      "longName": "Sample",
+      "q": "FIL",
+      "subProject": "sample:subproject",
+      "subProjectName": "Sample Sub-Project",
+      "project": "sample:project",
+      "projectName": "Sample Project"
+    }
+  }
+}
