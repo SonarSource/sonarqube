@@ -61,6 +61,7 @@ import static com.google.common.collect.Lists.newArrayList;
 public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
   private static final String FILTER_DEBT_CHARACTERISTICS = "debtCharacteristics";
+  private static final String FILTER_HAS_DEBT_CHARACTERISTICS = "hasDebtCharacteristic";
   public static final String FACET_LANGUAGES = "languages";
   public static final String FACET_TAGS = "tags";
   public static final String FACET_REPOSITORIES = "repositories";
@@ -270,14 +271,25 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
     // Debt char exist filter
     Boolean hasDebtCharacteristic = query.getHasDebtCharacteristic();
-    if (hasDebtCharacteristic != null && hasDebtCharacteristic) {
-      filters.put("hasDebtCharacteristic",
-        FilterBuilders.boolFilter().mustNot(
-          FilterBuilders.termsFilter(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field(), DebtCharacteristic.NONE))
-          .should(
-            FilterBuilders.existsFilter(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field()))
-          .should(
-            FilterBuilders.existsFilter(RuleNormalizer.RuleField.DEFAULT_SUB_CHARACTERISTIC.field())));
+    if (hasDebtCharacteristic != null) {
+      if (hasDebtCharacteristic) {
+        filters.put(FILTER_HAS_DEBT_CHARACTERISTICS,
+          // Match either characteristic is not disabled, either characteristic or default characteristic is defined on the rule
+          FilterBuilders.boolFilter()
+            .mustNot(FilterBuilders.termsFilter(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field(), DebtCharacteristic.NONE))
+            .should(FilterBuilders.existsFilter(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field()))
+            .should(FilterBuilders.existsFilter(RuleNormalizer.RuleField.DEFAULT_SUB_CHARACTERISTIC.field())));
+      } else {
+        filters.put(FILTER_HAS_DEBT_CHARACTERISTICS,
+          // Match either characteristic is disabled, either no characteristic or default characteristic is defined on the rule
+          FilterBuilders.orFilter(
+            FilterBuilders.termsFilter(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field(), DebtCharacteristic.NONE),
+            FilterBuilders.andFilter(
+              FilterBuilders.missingFilter(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field()),
+              FilterBuilders.missingFilter(RuleNormalizer.RuleField.DEFAULT_SUB_CHARACTERISTIC.field())
+              )
+            ));
+      }
     }
 
     if (query.getAvailableSince() != null) {
