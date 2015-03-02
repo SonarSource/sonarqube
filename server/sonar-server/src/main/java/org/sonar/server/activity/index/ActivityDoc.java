@@ -19,54 +19,88 @@
  */
 package org.sonar.server.activity.index;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.sonar.core.activity.Activity;
 import org.sonar.server.search.BaseDoc;
-import org.sonar.server.search.IndexUtils;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
-/**
- * @since 4.4
- */
-public class ActivityDoc extends BaseDoc implements Activity {
+public class ActivityDoc extends BaseDoc {
 
-  protected ActivityDoc(Map<String, Object> fields) {
+  public ActivityDoc(Map<String, Object> fields) {
     super(fields);
   }
 
-  @Override
-  public Date time() {
-    return IndexUtils.parseDateTime((String) getField(ActivityNormalizer.LogFields.CREATED_AT.field()));
+  @VisibleForTesting
+  ActivityDoc() {
+    super(new HashMap<String, Object>());
   }
 
-  @Override
-  public String login() {
-    return this.getNullableField(ActivityNormalizer.LogFields.LOGIN.field());
+  public void setCreatedAt(Date date) {
+    setField(ActivityIndexDefinition.FIELD_CREATED_AT, date);
   }
 
-  @Override
-  public Type type() {
-    return Type.valueOf((String) getField(ActivityNormalizer.LogFields.TYPE.field()));
+  public Date getCreatedAt() {
+    return getFieldAsDate(ActivityIndexDefinition.FIELD_CREATED_AT);
   }
 
-  @Override
-  public String action() {
-    return this.getNullableField(ActivityNormalizer.LogFields.ACTION.field());
+  public String getKey() {
+    return this.getField(ActivityIndexDefinition.FIELD_KEY);
   }
 
-  @Override
-  public Map<String, String> details() {
-    return this.getNullableField(ActivityNormalizer.LogFields.DETAILS.field());
+  public void setKey(String s) {
+    setField(ActivityIndexDefinition.FIELD_KEY, s);
   }
 
-  @Override
-  public String message() {
-    return this.getNullableField(ActivityNormalizer.LogFields.MESSAGE.field());
+  @CheckForNull
+  public String getLogin() {
+    return this.getNullableField(ActivityIndexDefinition.FIELD_LOGIN);
   }
 
-  @Override
+  public void setLogin(@Nullable String s) {
+    setField(ActivityIndexDefinition.FIELD_LOGIN, s);
+  }
+
+  public String getType() {
+    return ((String) getField(ActivityIndexDefinition.FIELD_TYPE));
+  }
+
+  public void setType(String s) {
+    setField(ActivityIndexDefinition.FIELD_TYPE, s);
+  }
+
+  @CheckForNull
+  public String getAction() {
+    return this.getNullableField(ActivityIndexDefinition.FIELD_ACTION);
+  }
+
+  public void setAction(@Nullable String s) {
+    setField(ActivityIndexDefinition.FIELD_ACTION, s);
+  }
+
+  @CheckForNull
+  public Map<String, String> getDetails() {
+    return this.getNullableField(ActivityIndexDefinition.FIELD_DETAILS);
+  }
+
+  public void setDetails(Map<String, String> details) {
+    setField(ActivityIndexDefinition.FIELD_DETAILS, details);
+  }
+
+  @CheckForNull
+  public String getMessage() {
+    return this.getNullableField(ActivityIndexDefinition.FIELD_MESSAGE);
+  }
+
+  public void setMessage(@Nullable String s) {
+    setField(ActivityIndexDefinition.FIELD_MESSAGE, s);
+  }
+
   public String toString() {
     return ReflectionToStringBuilder.toString(this);
   }

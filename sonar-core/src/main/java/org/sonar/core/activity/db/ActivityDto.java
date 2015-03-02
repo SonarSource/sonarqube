@@ -21,44 +21,42 @@ package org.sonar.core.activity.db;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.api.utils.internal.Uuids;
-import org.sonar.core.activity.Activity;
-import org.sonar.core.activity.ActivityLog;
-import org.sonar.core.persistence.Dto;
 
-/**
- * @since 4.4
- */
-public final class ActivityDto extends Dto<String> {
+import java.util.Date;
+
+public class ActivityDto {
 
   private String key;
   private String message;
-  private Activity.Type type;
+  private String type;
   private String action;
   private String author;
-
   private String data;
+  private Date createdAt;
 
-  protected ActivityDto() {
-    this.key = Uuids.create();
+  public ActivityDto setKey(String key) {
+    this.key = key;
+    return this;
   }
 
-  @Override
   public String getKey() {
     return key;
   }
 
-  @Override
-  public String toString() {
-    return ReflectionToStringBuilder.toString(this, ToStringStyle.MULTI_LINE_STYLE);
+  public Date getCreatedAt() {
+    return createdAt;
   }
 
-  public Activity.Type getType() {
+  public ActivityDto setCreatedAt(Date createdAt) {
+    this.createdAt = createdAt;
+    return this;
+  }
+
+  public String getType() {
     return type;
   }
 
-  public ActivityDto setType(Activity.Type type) {
+  public ActivityDto setType(String type) {
     this.type = type;
     return this;
   }
@@ -99,21 +97,8 @@ public final class ActivityDto extends Dto<String> {
     return this;
   }
 
-  public static ActivityDto createFor(String message) {
-    return new ActivityDto()
-      .setMessage(message);
-  }
-
-  public static ActivityDto createFor(String action, String message) {
-    return new ActivityDto()
-      .setAction(action)
-      .setMessage(message);
-  }
-
-  public static ActivityDto createFor(ActivityLog activityLog) {
-    return new ActivityDto()
-      .setAction(activityLog.getAction())
-      .setData(KeyValueFormat.format(activityLog.getDetails()));
-
+  @Override
+  public String toString() {
+    return ReflectionToStringBuilder.toString(this, ToStringStyle.MULTI_LINE_STYLE);
   }
 }

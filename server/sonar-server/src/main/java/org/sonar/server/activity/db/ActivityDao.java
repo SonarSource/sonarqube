@@ -19,46 +19,39 @@
  */
 package org.sonar.server.activity.db;
 
+import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.System2;
 import org.sonar.core.activity.db.ActivityDto;
 import org.sonar.core.activity.db.ActivityMapper;
+import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.server.db.BaseDao;
-import org.sonar.server.search.IndexDefinition;
+import org.sonar.core.persistence.MyBatis;
 
-import java.util.List;
+import java.util.Date;
 
-/**
- * @since 4.4
- */
-public class ActivityDao extends BaseDao<ActivityMapper, ActivityDto, String> {
+public class ActivityDao implements DaoComponent, ServerComponent {
 
-  public ActivityDao(System2 system) {
-    super(IndexDefinition.LOG, ActivityMapper.class, system);
+  private final MyBatis mybatis;
+  private final System2 system;
+
+  public ActivityDao(MyBatis mybatis, System2 system) {
+    this.mybatis = mybatis;
+    this.system = system;
   }
 
-  @Override
-  protected ActivityDto doGetNullableByKey(DbSession session, String key) {
-    throw new IllegalStateException("Cannot execute getByKey on Activities in DB");
+  public void insert(ActivityDto dto) {
+    DbSession session = mybatis.openSession(false);
+    try {
+      insert(session, dto);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 
-  @Override
-  protected ActivityDto doInsert(DbSession session, ActivityDto item) {
-    mapper(session).insert(item);
-    return item;
+  public void insert(DbSession session, ActivityDto dto) {
+    dto.setCreatedAt(new Date(system.now()));
+    session.getMapper(ActivityMapper.class).insert(dto);
   }
 
-  @Override
-  protected ActivityDto doUpdate(DbSession session, ActivityDto item) {
-    throw new IllegalStateException("Cannot update Log!");
-  }
-
-  @Override
-  protected void doDeleteByKey(DbSession session, String key) {
-    throw new IllegalStateException("Cannot delete Log!");
-  }
-
-  public List<ActivityDto> findAll(DbSession session) {
-    return mapper(session).selectAll();
-  }
 }

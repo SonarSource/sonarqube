@@ -19,60 +19,33 @@
  */
 package org.sonar.server.activity;
 
-import org.sonar.core.activity.Activity;
-import org.sonar.core.activity.ActivityLog;
+import org.sonar.api.ServerComponent;
+import org.sonar.api.utils.KeyValueFormat;
+import org.sonar.api.utils.internal.Uuids;
 import org.sonar.core.activity.db.ActivityDto;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.server.activity.index.ActivityIndex;
-import org.sonar.server.activity.index.ActivityQuery;
+import org.sonar.server.activity.index.ActivityIndexer;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.search.IndexClient;
-import org.sonar.server.search.QueryContext;
-import org.sonar.server.search.Result;
 import org.sonar.server.user.UserSession;
 
-import javax.annotation.Nullable;
-
-/**
- * Log service is used to log Activity classes which represents an event to DB and Index.
- *
- * @see org.sonar.core.activity.ActivityLog
- */
-public class ActivityService {
+public class ActivityService implements ServerComponent {
 
   private final DbClient dbClient;
-  private final IndexClient indexClient;
+  private final ActivityIndexer indexer;
 
-  public ActivityService(DbClient dbClient, IndexClient indexClient) {
+  public ActivityService(DbClient dbClient, ActivityIndexer indexer) {
     this.dbClient = dbClient;
-    this.indexClient = indexClient;
+    this.indexer = indexer;
   }
 
-  @Nullable
-  private String getAuthor() {
-    return (UserSession.get().login() != null) ? UserSession.get().login() : null;
-  }
-
-  private void save(DbSession session, ActivityDto log) {
-    dbClient.activityDao().insert(session,
-      log.setAuthor(getAuthor()));
-  }
-
-  public void write(DbSession session, Activity.Type type, String message) {
-    save(session, ActivityDto.createFor(message).setType(type));
-  }
-
-  public <L extends ActivityLog> void write(DbSession session, Activity.Type type, L log) {
-    this.save(session, ActivityDto.createFor(log)
-      .setType(type));
-  }
-
-  public ActivityQuery newActivityQuery() {
-    return new ActivityQuery();
-  }
-
-  public Result<Activity> search(ActivityQuery query, QueryContext options) {
-    ActivityIndex index = indexClient.get(ActivityIndex.class);
-    return new Result<Activity>(index, index.search(query, options));
+  public void save(Activity activity) {
+    ActivityDto dto = new ActivityDto()
+      .setKey(Uuids.create())
+      .setAuthor(UserSession.get().login())
+      .setAction(activity.getAction())
+      .setMessage(activity.getMessage())
+      .setData(KeyValueFormat.format(activity.getData()))
+      .setType(activity.getType().name());
+    dbClient.activityDao().insert(dto);
+    indexer.index();
   }
 }

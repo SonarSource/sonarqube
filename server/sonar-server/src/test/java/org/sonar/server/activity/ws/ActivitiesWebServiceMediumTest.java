@@ -19,15 +19,12 @@
  */
 package org.sonar.server.activity.ws;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.activity.Activity;
-import org.sonar.core.persistence.DbSession;
+import org.sonar.server.activity.Activity;
 import org.sonar.server.activity.ActivityService;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
@@ -39,22 +36,14 @@ public class ActivitiesWebServiceMediumTest {
   @ClassRule
   public static ServerTester tester = new ServerTester();
 
-  private ActivitiesWebService ws;
-  private ActivityService service;
-  private DbSession session;
-
+  ActivitiesWebService ws;
+  ActivityService service;
 
   @Before
   public void setUp() throws Exception {
     tester.clearDbAndIndexes();
     ws = tester.get(ActivitiesWebService.class);
     service = tester.get(ActivityService.class);
-    session = tester.get(DbClient.class).openSession(false);
-  }
-
-  @After
-  public void after() {
-    session.close();
   }
 
   @Test
@@ -70,14 +59,20 @@ public class ActivitiesWebServiceMediumTest {
   }
 
   @Test
-  public void search_logs() throws Exception {
-    service.write(session, Activity.Type.QPROFILE, "Hello World");
-    session.commit();
+  public void search() throws Exception {
+    Activity activity = new Activity();
+    activity.setType(Activity.Type.ANALYSIS_REPORT);
+    activity.setAction("THE_ACTION");
+    activity.setMessage("THE_MSG");
+    activity.setData("foo", "bar");
+    service.save(activity);
 
     MockUserSession.set();
 
-    // 1. List single Text log
-    WsTester.TestRequest request = tester.wsTester().newGetRequest(ActivitiesWebService.API_ENDPOINT, SearchAction.SEARCH_ACTION);
+    WsTester.TestRequest request = tester.wsTester().newGetRequest("api/activities", "search");
     WsTester.Result result = request.execute();
+    assertThat(result.outputAsString()).contains("\"total\":1");
+    assertThat(result.outputAsString()).contains("\"type\":\"ANALYSIS_REPORT\"");
+    assertThat(result.outputAsString()).contains("\"details\":{\"foo\":\"bar\"}");
   }
 }

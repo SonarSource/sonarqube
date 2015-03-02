@@ -20,9 +20,6 @@
 package org.sonar.server.qualityprofile;
 
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.FilterBuilders;
-import org.elasticsearch.index.query.OrFilterBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.permission.GlobalPermissions;
@@ -33,15 +30,13 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.core.user.UserDto;
 import org.sonar.server.activity.index.ActivityIndex;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.es.SearchOptions;
 import org.sonar.server.rule.index.RuleQuery;
-import org.sonar.server.search.IndexClient;
-import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -53,7 +48,7 @@ import java.util.Map;
 public class QProfileService implements ServerComponent {
 
   private final DbClient db;
-  private final IndexClient index;
+  private final ActivityIndex activityIndex;
   private final RuleActivator ruleActivator;
   private final QProfileFactory factory;
   private final QProfileBackuper backuper;
@@ -61,10 +56,10 @@ public class QProfileService implements ServerComponent {
   private final QProfileReset reset;
   private final QProfileExporters exporters;
 
-  public QProfileService(DbClient db, IndexClient index, RuleActivator ruleActivator, QProfileFactory factory,
+  public QProfileService(DbClient db, ActivityIndex activityIndex, RuleActivator ruleActivator, QProfileFactory factory,
                          QProfileBackuper backuper, QProfileCopier copier, QProfileReset reset, QProfileExporters exporters) {
     this.db = db;
-    this.index = index;
+    this.activityIndex = activityIndex;
     this.ruleActivator = ruleActivator;
     this.factory = factory;
     this.backuper = backuper;
@@ -214,23 +209,17 @@ public class QProfileService implements ServerComponent {
     UserSession.get().checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 
-  public Result<QProfileActivity> searchActivities(QProfileActivityQuery query, QueryContext options) {
+  public Result<QProfileActivity> searchActivities(QProfileActivityQuery query, SearchOptions options) {
     DbSession session = db.openSession(false);
     try {
-      OrFilterBuilder activityFilter = FilterBuilders.orFilter();
-      for (String profileKey : query.getQprofileKeys()) {
-        activityFilter.add(FilterBuilders.nestedFilter("details",
-          QueryBuilders.matchQuery("details.profileKey", profileKey)));
-      }
-
-      SearchResponse response = index.get(ActivityIndex.class).search(query, options, activityFilter);
+      SearchResponse response = activityIndex.doSearch(query, options);
       Result<QProfileActivity> result = new Result<QProfileActivity>(response);
       for (SearchHit hit : response.getHits().getHits()) {
         QProfileActivity profileActivity = new QProfileActivity(hit.getSource());
         RuleDto ruleDto = db.ruleDao().getNullableByKey(session, profileActivity.ruleKey());
         profileActivity.ruleName(ruleDto != null ? ruleDto.getName() : null);
 
-        String login = profileActivity.login();
+        String login = profileActivity.getLogin();
         if (login != null) {
           UserDto user = db.userDao().selectActiveUserByLogin(login, session);
           profileActivity.authorName(user != null ? user.getName() : null);

@@ -20,7 +20,6 @@
 package org.sonar.server.search;
 
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
-import org.elasticsearch.common.settings.ImmutableSettings;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -89,11 +88,6 @@ public class BaseIndexTest {
     BaseIndex newIndex = new BaseIndex(
       IndexDefinition.TEST,
       null, searchClient) {
-
-      @Override
-      protected ImmutableSettings.Builder addCustomIndexSettings(ImmutableSettings.Builder baseIndexSettings) {
-        return baseIndexSettings.put("index.number_of_replicas", 22);
-      }
 
       @Override
       protected String getKeyValue(Serializable key) {

@@ -52,10 +52,9 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.batch.protocol.output.BatchOutputWriter;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.core.activity.Activity;
 import org.sonar.core.computation.db.AnalysisReportDto;
-import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
+import org.sonar.server.activity.Activity;
 import org.sonar.server.activity.ActivityService;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.computation.step.ComputationStep;
@@ -122,7 +121,7 @@ public class ComputationServiceTest {
     verify(projectStep1).execute(any(ComputationContext.class));
     verify(projectStep2).execute(any(ComputationContext.class));
     verify(viewStep, never()).execute(any(ComputationContext.class));
-    verify(activityService).write(any(DbSession.class), eq(Activity.Type.ANALYSIS_REPORT), any(ReportActivity.class));
+    verify(activityService).save(any(Activity.class));
   }
 
   @Test

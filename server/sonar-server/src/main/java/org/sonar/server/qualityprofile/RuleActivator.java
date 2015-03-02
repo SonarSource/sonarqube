@@ -23,7 +23,6 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.server.rule.RuleParamType;
-import org.sonar.core.activity.Activity;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
@@ -63,16 +62,16 @@ public class RuleActivator implements ServerComponent {
   private final TypeValidations typeValidations;
   private final RuleActivatorContextFactory contextFactory;
   private final IndexClient index;
-  private final ActivityService log;
+  private final ActivityService activityService;
 
   public RuleActivator(DbClient db, IndexClient index,
     RuleActivatorContextFactory contextFactory, TypeValidations typeValidations,
-    ActivityService log) {
+    ActivityService activityService) {
     this.db = db;
     this.index = index;
     this.contextFactory = contextFactory;
     this.typeValidations = typeValidations;
-    this.log = log;
+    this.activityService = activityService;
   }
 
   public List<ActiveRuleChange> activate(DbSession dbSession, RuleActivation activation, String profileKey) {
@@ -240,7 +239,7 @@ public class RuleActivator implements ServerComponent {
     } else if (change.getType() == ActiveRuleChange.Type.UPDATED) {
       activeRule = doUpdate(change, context, dbSession);
     }
-    log.write(dbSession, Activity.Type.QPROFILE, change);
+    activityService.save(change.toActivity());
     return activeRule;
   }
 

@@ -31,11 +31,11 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.batch.protocol.output.BatchReportReader;
-import org.sonar.core.activity.Activity;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.server.activity.Activity;
 import org.sonar.server.activity.ActivityService;
 import org.sonar.server.computation.step.ComputationStep;
 import org.sonar.server.computation.step.ComputationSteps;
@@ -43,6 +43,9 @@ import org.sonar.server.db.DbClient;
 
 import java.io.File;
 import java.io.IOException;
+
+import static org.sonar.api.utils.DateUtils.formatDateTimeNullSafe;
+import static org.sonar.api.utils.DateUtils.longToDate;
 
 public class ComputationService implements ServerComponent {
 
@@ -87,7 +90,7 @@ public class ComputationService implements ServerComponent {
 
     } finally {
       item.dto.setFinishedAt(system.now());
-      logActivity(item.dto, project);
+      saveActivity(item.dto, project);
       profiler.stopInfo();
     }
   }
@@ -117,14 +120,19 @@ public class ComputationService implements ServerComponent {
     }
   }
 
-  private void logActivity(AnalysisReportDto report, ComponentDto project) {
-    DbSession session = dbClient.openSession(false);
-    try {
-      report.setFinishedAt(System2.INSTANCE.now());
-      activityService.write(session, Activity.Type.ANALYSIS_REPORT, new ReportActivity(report, project));
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
+  private void saveActivity(AnalysisReportDto report, ComponentDto project) {
+    Activity activity = new Activity();
+    activity.setType(Activity.Type.ANALYSIS_REPORT);
+    activity.setAction("LOG_ANALYSIS_REPORT");
+    activity
+      .setData("key", String.valueOf(report.getId()))
+      .setData("projectKey", project.key())
+      .setData("projectName", project.name())
+      .setData("projectUuid", project.uuid())
+      .setData("status", String.valueOf(report.getStatus()))
+      .setData("submittedAt", formatDateTimeNullSafe(longToDate(report.getCreatedAt())))
+      .setData("startedAt", formatDateTimeNullSafe(longToDate(report.getStartedAt())))
+      .setData("finishedAt", formatDateTimeNullSafe(longToDate(report.getFinishedAt())));
+    activityService.save(activity);
   }
 }

@@ -19,116 +19,50 @@
  */
 package org.sonar.server.activity.db;
 
-
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
-import org.junit.After;
+import org.apache.commons.io.IOUtils;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.KeyValueFormat;
+import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
-import org.sonar.core.activity.Activity;
-import org.sonar.core.activity.ActivityLog;
 import org.sonar.core.activity.db.ActivityDto;
-import org.sonar.core.persistence.AbstractDaoTestCase;
-import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.DbTester;
+import org.sonar.test.DbTests;
 
+import java.sql.Clob;
+import java.sql.Timestamp;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-public class ActivityDaoTest extends AbstractDaoTestCase {
+@Category(DbTests.class)
+public class ActivityDaoTest {
 
-  private ActivityDao dao;
-  private DbSession session;
+  @Rule
+  public DbTester dbTester = new DbTester();
+
+  System2 system = mock(System2.class);
+  ActivityDao sut;
 
   @Before
   public void before() throws Exception {
-    this.session = getMyBatis().openSession(false);
-    this.dao = new ActivityDao(mock(System2.class));
-  }
-
-  @After
-  public void after() {
-    session.close();
+    sut = new ActivityDao(dbTester.myBatis(), system);
   }
 
   @Test
-  public void fail_insert_missing_type() {
-    String testValue = "hello world";
-    ActivityDto log = ActivityDto.createFor(testValue);
-    try {
-      dao.insert(session, log);
-    } catch (IllegalArgumentException e) {
-      assertThat(e.getMessage()).isEqualTo("Type must be set");
-    }
+  public void insert() throws Exception {
+    when(system.now()).thenReturn(1_500_000_000_000L);
+    ActivityDto dto = new ActivityDto()
+      .setKey("UUID_1").setAction("THE_ACTION").setType("THE_TYPE")
+      .setAuthor("THE_AUTHOR").setData("THE_DATA");
+    sut.insert(dto);
+
+    Map<String, Object> map = dbTester.selectFirst("select created_at as \"createdAt\", log_action as \"action\", data_field as \"data\" from activities where log_key='UUID_1'");
+    assertThat(map.get("action")).isEqualTo("THE_ACTION");
+    assertThat(((Timestamp)map.get("createdAt")).getTime()).isEqualTo(1_500_000_000_000L);
+    Clob data = (Clob) map.get("data");
+    assertThat(IOUtils.toString(data.getAsciiStream())).isEqualTo("THE_DATA");
   }
-
-
-  @Test
-  public void fail_get_by_key() {
-    try {
-      dao.getByKey(session, "hello world");
-    } catch (IllegalStateException e) {
-      assertThat(e.getMessage()).isEqualTo("Cannot execute getByKey on Activities in DB");
-    }
-  }
-
-
-  @Test
-  public void fail_insert_missing_author() {
-    String testValue = "hello world";
-    ActivityDto log = ActivityDto.createFor(testValue)
-      .setType(Activity.Type.QPROFILE);
-    try {
-      dao.insert(session, log);
-    } catch (IllegalArgumentException e) {
-      assertThat(e.getMessage()).isEqualTo("Type must be set");
-    }
-  }
-
-  @Test
-  public void insert_text_log() {
-    String testValue = "hello world";
-    ActivityDto log = ActivityDto.createFor(testValue)
-      .setType(Activity.Type.QPROFILE)
-      .setAuthor("jUnit");
-    dao.insert(session, log);
-
-    ActivityDto newDto = Iterables.getFirst(dao.findAll(session), null);
-    assertThat(newDto).isNotNull();
-    assertThat(newDto.getAuthor()).isEqualTo(log.getAuthor());
-    assertThat(newDto.getMessage()).isEqualTo(testValue);
-  }
-
-  @Test
-  public void insert_loggable_log() {
-    final String testKey = "message";
-    final String testValue = "hello world";
-    ActivityDto log = ActivityDto.createFor(new ActivityLog() {
-
-      @Override
-      public Map<String, String> getDetails() {
-        return ImmutableMap.of(testKey, testValue);
-      }
-
-      @Override
-      public String getAction() {
-        return "myAction";
-      }
-    })
-      .setAuthor("jUnit")
-      .setType(Activity.Type.QPROFILE);
-
-    dao.insert(session, log);
-
-    ActivityDto newDto = Iterables.getFirst(dao.findAll(session), null);
-    assertThat(newDto).isNotNull();
-    assertThat(newDto.getAuthor()).isEqualTo(log.getAuthor());
-    assertThat(newDto.getData()).isNotNull();
-    Map<String, String> details = KeyValueFormat.parse(newDto.getData());
-    assertThat(details.get(testKey)).isEqualTo(testValue);
-  }
-
 }

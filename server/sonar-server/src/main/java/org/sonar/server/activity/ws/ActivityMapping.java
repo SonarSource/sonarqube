@@ -20,9 +20,8 @@
 package org.sonar.server.activity.ws;
 
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.activity.Activity;
 import org.sonar.server.activity.index.ActivityDoc;
-import org.sonar.server.activity.index.ActivityNormalizer;
+import org.sonar.server.activity.index.ActivityIndexDefinition;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.ws.BaseMapping;
 
@@ -34,16 +33,16 @@ import java.util.Map;
 public class ActivityMapping extends BaseMapping<ActivityDoc, Object> {
 
   public ActivityMapping() {
-    map("type", ActivityNormalizer.LogFields.TYPE.field());
-    map("action", ActivityNormalizer.LogFields.ACTION.field());
-    mapDateTime("createdAt", ActivityNormalizer.LogFields.CREATED_AT.field());
-    map("login", ActivityNormalizer.LogFields.LOGIN.field());
-    map("message", ActivityNormalizer.LogFields.MESSAGE.field());
-    map("details", new IndexMapper<ActivityDoc, Object>(ActivityNormalizer.LogFields.DETAILS.field()) {
+    map("type", ActivityIndexDefinition.FIELD_TYPE);
+    map("action", ActivityIndexDefinition.FIELD_ACTION);
+    mapDateTime("createdAt", ActivityIndexDefinition.FIELD_CREATED_AT);
+    map("login", ActivityIndexDefinition.FIELD_LOGIN);
+    map("message", ActivityIndexDefinition.FIELD_MESSAGE);
+    map("details", new IndexMapper<ActivityDoc, Object>(ActivityIndexDefinition.FIELD_DETAILS) {
       @Override
       public void write(JsonWriter json, ActivityDoc activity, Object context) {
         json.name("details").beginObject();
-        for (Map.Entry<String, String> detail : activity.details().entrySet()) {
+        for (Map.Entry<String, String> detail : activity.getDetails().entrySet()) {
           json.prop(detail.getKey(), detail.getValue());
         }
         json.endObject();
@@ -51,8 +50,8 @@ public class ActivityMapping extends BaseMapping<ActivityDoc, Object> {
     });
   }
 
-  public void write(Activity activity, JsonWriter writer, QueryContext context) {
-    doWrite((ActivityDoc) activity, null, writer, context);
+  public void write(ActivityDoc activity, JsonWriter writer, QueryContext context) {
+    doWrite(activity, null, writer, context);
   }
 
 }
