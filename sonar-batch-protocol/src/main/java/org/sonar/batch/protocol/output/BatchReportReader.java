@@ -20,6 +20,7 @@
 package org.sonar.batch.protocol.output;
 
 import org.sonar.batch.protocol.ProtobufUtil;
+import org.sonar.batch.protocol.output.BatchReport.Issues;
 
 import javax.annotation.CheckForNull;
 
@@ -59,5 +60,14 @@ public class BatchReportReader {
       return issues.getListList();
     }
     return Collections.emptyList();
+  }
+
+  public Issues readDeletedComponentIssues(int deletedComponentRef) {
+    File file = fileStructure.fileFor(FileStructure.Domain.ISSUES_ON_DELETED, deletedComponentRef);
+    if (!file.exists() || !file.isFile()) {
+      throw new IllegalStateException("Unable to find report for deleted component #" + deletedComponentRef);
+    }
+    // all the issues are loaded in memory
+    return ProtobufUtil.readFile(file, Issues.PARSER);
   }
 }

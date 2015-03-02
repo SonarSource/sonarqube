@@ -22,6 +22,7 @@ package org.sonar.server.computation.step;
 
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.issue.IssueComputation;
 
@@ -42,17 +43,27 @@ public class ParseReportStep implements ComputationStep {
   public void execute(ComputationContext context) {
     int rootComponentRef = context.getReportMetadata().getRootComponentRef();
     recursivelyProcessComponent(context, rootComponentRef);
+    processDeletedComponents(context);
     issueComputation.afterReportProcessing();
   }
 
   private void recursivelyProcessComponent(ComputationContext context, int componentRef) {
-    BatchReport.Component component = context.getReportReader().readComponent(componentRef);
+    BatchReportReader reportReader = context.getReportReader();
+    BatchReport.Component component = reportReader.readComponent(componentRef);
     if (component != null) {
-      Iterable<BatchReport.Issue> issues = context.getReportReader().readComponentIssues(componentRef);
+      Iterable<BatchReport.Issue> issues = reportReader.readComponentIssues(componentRef);
       issueComputation.processComponentIssues(context, component.getUuid(), issues);
       for (Integer childRef : component.getChildRefsList()) {
         recursivelyProcessComponent(context, childRef);
       }
+    }
+  }
+
+  private void processDeletedComponents(ComputationContext context) {
+    int deletedComponentsCount = context.getReportMetadata().getDeletedComponentsCount();
+    for (int componentRef = 1; componentRef <= deletedComponentsCount; componentRef++) {
+      BatchReport.Issues issues = context.getReportReader().readDeletedComponentIssues(componentRef);
+      issueComputation.processComponentIssues(context, issues.getComponentUuid(), issues.getListList());
     }
   }
 

@@ -43,8 +43,9 @@ message Metadata {
   optional string project_key = 2;
   optional int32 root_component_ref = 3;
 
-  // temporary field used during development of computation stack
+  // temporary fields used during development of computation stack
   optional int64 snapshot_id = 4;
+  optional int32 deleted_components_count = 5;
 }
 
 message Component {
@@ -95,4 +96,7 @@ message Issue {
 message Issues {
     optional int32 component_ref = 1;
     repeated Issue list = 2;
+    
+    // Temporary field for issues on deleted components
+    optional string component_uuid = 3;
 }

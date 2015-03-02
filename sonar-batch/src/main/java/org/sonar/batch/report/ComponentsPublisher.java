@@ -21,7 +21,6 @@ package org.sonar.batch.report;
 
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.batch.index.BatchResource;
@@ -48,15 +47,6 @@ public class ComponentsPublisher implements ReportPublisher {
   @Override
   public void publish(BatchOutputWriter writer) {
     BatchResource rootProject = resourceCache.get(reactor.getRoot().getKeyWithBranch());
-    BatchReport.Metadata.Builder builder = BatchReport.Metadata.newBuilder()
-      .setAnalysisDate(((Project) rootProject.resource()).getAnalysisDate().getTime())
-      .setProjectKey(((Project) rootProject.resource()).key())
-      .setRootComponentRef(rootProject.batchId());
-    Integer sid = rootProject.snapshotId();
-    if (sid != null) {
-      builder.setSnapshotId(sid);
-    }
-    writer.writeMetadata(builder.build());
     recursiveWriteComponent(rootProject, writer);
   }
 

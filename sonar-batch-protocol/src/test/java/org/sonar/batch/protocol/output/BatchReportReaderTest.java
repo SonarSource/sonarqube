@@ -22,6 +22,8 @@ package org.sonar.batch.protocol.output;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.batch.protocol.output.BatchReport.Issues;
+import org.sonar.batch.protocol.output.BatchReport.Metadata;
 
 import java.io.File;
 import java.util.Arrays;
@@ -40,11 +42,16 @@ public class BatchReportReaderTest {
     initFiles(dir);
 
     BatchReportReader reader = new BatchReportReader(dir);
-    assertThat(reader.readMetadata().getAnalysisDate()).isEqualTo(15000000L);
+    Metadata readMetadata = reader.readMetadata();
+    assertThat(readMetadata.getAnalysisDate()).isEqualTo(15000000L);
+    assertThat(readMetadata.getDeletedComponentsCount()).isEqualTo(1);
     assertThat(reader.readComponentIssues(1)).hasSize(1);
     assertThat(reader.readComponentIssues(200)).isEmpty();
     assertThat(reader.readComponent(1).getUuid()).isEqualTo("UUID_A");
     assertThat(reader.readComponent(200)).isNull();
+    Issues deletedComponentIssues = reader.readDeletedComponentIssues(1);
+    assertThat(deletedComponentIssues.getComponentUuid()).isEqualTo("compUuid");
+    assertThat(deletedComponentIssues.getListList()).hasSize(1);
 
   }
 
@@ -54,7 +61,8 @@ public class BatchReportReaderTest {
     BatchReport.Metadata.Builder metadata = BatchReport.Metadata.newBuilder()
       .setAnalysisDate(15000000L)
       .setProjectKey("PROJECT_A")
-      .setRootComponentRef(1);
+      .setRootComponentRef(1)
+      .setDeletedComponentsCount(1);
     writer.writeMetadata(metadata.build());
 
     BatchReport.Component.Builder component = BatchReport.Component.newBuilder()
@@ -68,10 +76,7 @@ public class BatchReportReaderTest {
       .build();
 
     writer.writeComponentIssues(1, Arrays.asList(issue));
-  }
 
-  @Test
-  public void readMetadata() throws Exception {
-
+    writer.writeDeletedComponentIssues(1, "compUuid", Arrays.asList(issue));
   }
 }
