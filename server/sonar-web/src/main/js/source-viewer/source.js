@@ -91,9 +91,9 @@ define(function () {
       this.set({ hasDuplications: hasDuplications });
     },
 
-    hasCoverage: function (source) {
+    hasUTCoverage: function (source) {
       return _.some(source, function (line) {
-        return line.coverageStatus != null;
+        return line.utCoverageStatus != null;
       });
     },
 
