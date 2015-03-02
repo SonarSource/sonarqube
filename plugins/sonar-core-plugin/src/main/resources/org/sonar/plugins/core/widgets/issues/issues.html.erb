@@ -54,7 +54,7 @@
         <span class="widget-label"><%= message('widget.rules.issues') -%></span>
         <span class="nowrap">
           <span class="link-<%= widget.key %>-issues">
-            <%= format_measure(issues, :url => url_for(:controller => 'drilldown', :action => 'issues', :id => @project.key)) -%>
+            <%= format_measure(issues, :url => ApplicationController.root_context + '/drilldown/issues?id=' + u(@project.key)) -%>
           </span>
           <%= dashboard_configuration.selected_period? ? format_variation(issues) : trend_icon(issues) -%>
         </span>
@@ -69,7 +69,7 @@
           <% if new_issues_variation && new_issues_variation > 0 %>
                     <p class="small">
                       <%= message('widget.rules.added') %>
-                      <a href="<%= url_for(:controller => 'drilldown', :action => 'issues', :id => @project.key, :period => dashboard_configuration.period_index) -%>"
+                      <a href="<%= ApplicationController.root_context + "/drilldown/issues?id=#{u @project.key}&period=#{dashboard_configuration.period_index}" -%>"
                          class="varw widget-link widget-link-red link-<%= widget.key %>-new-issues"><%= format_variation(new_issues, :style => 'none', :default => '-') -%></a>
                     </p>
           <% end %>
@@ -101,7 +101,7 @@
           <%= message('blocker') -%>
         </td>
         <td class="thin right nowrap">
-          <%= link_to format_measure(blocker_issues), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'BLOCKER'}, :class => 'widget-link drilldown_BLOCKER' -%>
+          <%= link_to format_measure(blocker_issues), ApplicationController.root_context + "/drilldown/issues?id=#{u @project.key}&severity=BLOCKER", :class => 'widget-link drilldown_BLOCKER' -%>
         </td>
         <td class="thin">
           <%= dashboard_configuration.selected_period? ? format_variation(blocker_issues) : trend_icon(blocker_issues, :empty => true) -%>
@@ -123,7 +123,7 @@
           <%= message('critical') -%>
         </td>
         <td class="thin right nowrap">
-          <%= link_to format_measure(critical_issues), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'CRITICAL'}, :class => 'widget-link drilldown_CRITICAL' -%>
+          <%= link_to format_measure(critical_issues), ApplicationController.root_context + "/drilldown/issues?id=#{u @project.key}&severity=CRITICAL", :class => 'widget-link drilldown_CRITICAL' -%>
         </td>
         <td class="thin">
           <%= dashboard_configuration.selected_period? ? format_variation(critical_issues) : trend_icon(critical_issues, :empty => true) -%>
@@ -145,7 +145,7 @@
           <%= message('major') -%>
         </td>
         <td class="thin right nowrap">
-          <%= link_to format_measure(major_issues), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'MAJOR'}, :class => 'widget-link drilldown_MAJOR' -%>
+          <%= link_to format_measure(major_issues), ApplicationController.root_context + "/drilldown/issues?id=#{u @project.key}&severity=MAJOR", :class => 'widget-link drilldown_MAJOR' -%>
         </td>
         <td class="thin">
           <%= dashboard_configuration.selected_period? ? format_variation(major_issues) : trend_icon(major_issues, :empty => true) -%>
@@ -167,7 +167,7 @@
           <%= message('minor') -%>
         </td>
         <td class="thin right nowrap">
-          <%= link_to format_measure(minor_issues), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'MINOR'}, :class => 'widget-link drilldown_MINOR' -%>
+          <%= link_to format_measure(minor_issues), ApplicationController.root_context + "/drilldown/issues?id=#{u @project.key}&severity=MINOR", :class => 'widget-link drilldown_MINOR' -%>
         </td>
         <td class="thin">
           <%= dashboard_configuration.selected_period? ? format_variation(minor_issues) : trend_icon(minor_issues, :empty => true) -%>
@@ -189,7 +189,7 @@
           <%= message('info') -%>
         </td>
         <td class="thin right nowrap">
-          <%= link_to format_measure(info_issues), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'INFO'}, :class => 'widget-link drilldown_INFO' -%>
+          <%= link_to format_measure(info_issues), ApplicationController.root_context + "/drilldown/issues?id=#{u @project.key}&severity=INFO", :class => 'widget-link drilldown_INFO' -%>
         </td>
         <td class="thin">
           <%= dashboard_configuration.selected_period? ? format_variation(info_issues) : trend_icon(info_issues, :empty => true) -%>

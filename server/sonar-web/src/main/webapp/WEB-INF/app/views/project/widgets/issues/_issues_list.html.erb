@@ -37,7 +37,7 @@
       <tr class="<%= cycle 'even', 'odd', :name => ('issues-widget-list-' + widget_id) -%>">
         <td><i class="icon-severity-<%= issue.severity.downcase -%>"></i></td>
         <td>
-          <a class="rule-modal" href="#" onclick="return openModalWindow('<%= url_for :controller => 'issue', :action => 'show', :id => issue.key, :modal => true -%>', {'width': 800})">
+          <a class="rule-modal" href="#" onclick="return openModalWindow('<%= ApplicationController.root_context + "/issue/show?id=#{u issue.key}&modal=true" -%>', {'width': 800})">
             <%= h truncate(issue.message, :length => 100) -%></a>
           <% if last_comment && last_comment.userLogin() %>
             <div class="comment-excerpt">
