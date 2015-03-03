@@ -209,7 +209,7 @@ public class EsTester extends ExternalResource {
   /**
    * Get a list of a specific field from all indexed documents.
    */
-  public <T> List<T> getDocumentFields(String indexName, String typeName, final String fieldNameToReturn) {
+  public <T> List<T> getDocumentFieldValues(String indexName, String typeName, final String fieldNameToReturn) {
     return newArrayList(Iterables.transform(getDocuments(indexName, typeName), new Function<SearchHit, T>() {
       @Override
       public T apply(SearchHit input) {
