@@ -206,6 +206,8 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
 
     RegisterRules task = new RegisterRules(loader, ruleActivator, dbClient, languages);
     task.start();
+    // Execute a commit to refresh session state as the task is using its own session
+    dbSession.commit();
   }
 
   private RuleParamDto getParam(List<RuleParamDto> params, String key) {

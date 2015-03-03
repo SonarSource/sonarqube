@@ -52,12 +52,7 @@ import org.sonar.server.startup.RegisterDebtModel;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -83,7 +78,7 @@ public class RegisterRules implements Startable {
 
   @VisibleForTesting
   RegisterRules(RuleDefinitionsLoader defLoader, RuleActivator ruleActivator,
-    DbClient dbClient, Languages languages) {
+                DbClient dbClient, Languages languages) {
     this.defLoader = defLoader;
     this.ruleActivator = ruleActivator;
     this.dbClient = dbClient;
@@ -231,7 +226,9 @@ public class RegisterRules implements Startable {
       dto.setName(def.name());
       changed = true;
     }
-    changed = mergeDescription(def, dto);
+    if (mergeDescription(def, dto)) {
+      changed= true;
+    }
     if (!dto.getSystemTags().containsAll(def.tags())) {
       dto.setSystemTags(def.tags());
       changed = true;
@@ -291,7 +288,7 @@ public class RegisterRules implements Startable {
   }
 
   private boolean mergeDebtDefinitions(RulesDefinition.Rule def, RuleDto dto, @Nullable Integer characteristicId, @Nullable String remediationFunction,
-    @Nullable String remediationCoefficient, @Nullable String remediationOffset, @Nullable String effortToFixDescription) {
+                                       @Nullable String remediationCoefficient, @Nullable String remediationOffset, @Nullable String effortToFixDescription) {
     boolean changed = false;
 
     if (!ObjectUtils.equals(dto.getDefaultSubCharacteristicId(), characteristicId)) {
@@ -482,12 +479,12 @@ public class RegisterRules implements Startable {
    */
   private void removeActiveRulesOnStillExistingRepositories(DbSession session, Collection<RuleDto> removedRules, RulesDefinition.Context context) {
     List<String> repositoryKeys = newArrayList(Iterables.transform(context.repositories(), new Function<RulesDefinition.Repository, String>() {
-      @Override
-      public String apply(RulesDefinition.Repository input) {
-        return input.key();
+        @Override
+        public String apply(RulesDefinition.Repository input) {
+          return input.key();
+        }
       }
-    }
-      ));
+    ));
 
     for (RuleDto rule : removedRules) {
       // SONAR-4642 Remove active rules only when repository still exists
