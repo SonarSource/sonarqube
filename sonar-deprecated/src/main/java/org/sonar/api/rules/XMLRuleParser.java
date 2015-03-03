@@ -38,18 +38,14 @@ import org.sonar.check.Cardinality;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 /**
  * @since 2.3
- * @deprecated in 4.2. Replaced by org.sonar.api.rule.RuleDefinitions#loadXml()
+ * @deprecated in 4.2. Replaced by org.sonar.api.server.rule.RulesDefinition and org.sonar.api.server.rule.RulesDefinitionXmlLoader
  */
 @Deprecated
 public final class XMLRuleParser implements ServerComponent {
