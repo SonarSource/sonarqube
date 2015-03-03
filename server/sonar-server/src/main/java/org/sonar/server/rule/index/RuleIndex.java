@@ -385,24 +385,46 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
   }
 
   private void addCharacteristicsFacetIfNeeded(RuleQuery query, QueryContext options, Map<String, AggregationBuilder> aggregations, StickyFacetBuilder stickyFacetBuilder) {
+
     if (options.facets().contains(FACET_DEBT_CHARACTERISTICS)) {
+      /*
+       * Since this facet concerns 2 fields, we're using an aggregation structure like this:
+       * global aggregation
+       *  |- sub-aggregation on characteristics: filter
+       *  |  |- classic sub-aggregation with top-n terms, excluding NONE
+       *  |  |- classic sub-aggregation with selected terms
+       *  |  |- terms aggregation on "NONE"
+       *  |  |- missing aggregation
+       *  |- sub-aggregation on sub-characteristics: filter, excluding NONE
+       *     |- classic sub-aggregation with top-n terms
+       *     |- classic sub-aggregation with selected terms
+       */
       int characsSize = 10;
       int subCharacsSize = 300;
       Collection<String> characsFromQuery = query.getDebtCharacteristics();
       Object[] selectedChars = characsFromQuery == null ? new Object[0] : characsFromQuery.toArray();
+      BoolFilterBuilder stickyFacetFilter = stickyFacetBuilder.getStickyFacetFilter(FILTER_DEBT_CHARACTERISTICS, FILTER_HAS_DEBT_CHARACTERISTICS);
       AggregationBuilder debtChar = AggregationBuilders.filter(FACET_DEBT_CHARACTERISTICS + "__chars")
-        .filter(stickyFacetBuilder.getStickyFacetFilter(FILTER_DEBT_CHARACTERISTICS))
+        .filter(stickyFacetFilter)
         .subAggregation(
           AggregationBuilders.terms(FACET_DEBT_CHARACTERISTICS + "__chars_top").field(RuleNormalizer.RuleField.CHARACTERISTIC.field())
+            .exclude(DebtCharacteristic.NONE)
             .size(characsSize))
         .subAggregation(
           AggregationBuilders.terms(FACET_DEBT_CHARACTERISTICS + "__chars_selected").field(RuleNormalizer.RuleField.CHARACTERISTIC.field())
             .include(Joiner.on('|').join(selectedChars))
-            .size(characsSize));
+            .size(characsSize))
+        .subAggregation(
+          AggregationBuilders.terms(FACET_DEBT_CHARACTERISTICS + "__chars_none").field(RuleNormalizer.RuleField.CHARACTERISTIC.field())
+              .include(DebtCharacteristic.NONE)
+              .size(characsSize))
+        .subAggregation(
+          AggregationBuilders.missing(FACET_DEBT_CHARACTERISTICS + "__chars_missing").field(RuleNormalizer.RuleField.CHARACTERISTIC.field()));
       AggregationBuilder debtSubChar = AggregationBuilders.filter(FACET_DEBT_CHARACTERISTICS + "__subchars")
-        .filter(stickyFacetBuilder.getStickyFacetFilter(FILTER_DEBT_CHARACTERISTICS))
+        .filter(stickyFacetFilter)
         .subAggregation(
           AggregationBuilders.terms(FACET_DEBT_CHARACTERISTICS + "__subchars_top").field(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field())
+            .exclude(DebtCharacteristic.NONE)
             .size(subCharacsSize))
         .subAggregation(
           AggregationBuilders.terms(FACET_DEBT_CHARACTERISTICS + "__chars_selected").field(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field())

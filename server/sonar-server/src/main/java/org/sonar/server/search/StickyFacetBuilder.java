@@ -20,7 +20,7 @@
 package org.sonar.server.search;
 
 import com.google.common.base.Joiner;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.elasticsearch.index.query.BoolFilterBuilder;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
@@ -67,10 +67,10 @@ public class StickyFacetBuilder {
       .subAggregation(facetTopAggregation);
   }
 
-  public BoolFilterBuilder getStickyFacetFilter(String fieldName) {
+  public BoolFilterBuilder getStickyFacetFilter(String... fieldNames) {
     BoolFilterBuilder facetFilter = FilterBuilders.boolFilter().must(FilterBuilders.queryFilter(query));
     for (Map.Entry<String, FilterBuilder> filter : filters.entrySet()) {
-      if (filter.getValue() != null && !StringUtils.equals(filter.getKey(), fieldName)) {
+      if (filter.getValue() != null && !ArrayUtils.contains(fieldNames, filter.getKey())) {
         facetFilter.must(filter.getValue());
       }
     }
