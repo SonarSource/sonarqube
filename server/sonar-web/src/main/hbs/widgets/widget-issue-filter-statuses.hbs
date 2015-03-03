@@ -1,0 +1,27 @@
+<table class="data zebra">
+  <tr>
+    <td><strong>{{t 'total'}}</strong></td>
+    <td class="text-right"><strong>{{total}}</strong></td>
+    <td class="barchart">
+      <div class="barchart" style="width: 100%;">
+        <div style="width: 100%;"></div>
+      </div>
+    </td>
+  </tr>
+  {{#each items}}
+    <tr>
+      <td>
+        {{statusIcon val}}
+        <a href="{{issueFilterItemLink ../parsedQuery ../property val}}">{{t 'issue.status' val}}</a>
+      </td>
+      <td class="text-right nowrap">
+        {{numberShort count}}
+      </td>
+      <td class="barchart">
+        <div class="barchart" style="width: 100%;">
+          <div style="width: {{percent count ../total}};"></div>
+        </div>
+      </td>
+    </tr>
+  {{/each}}
+</table>

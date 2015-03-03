@@ -28,13 +28,15 @@ import static org.sonar.api.web.WidgetScope.GLOBAL;
 @WidgetScope(GLOBAL)
 @WidgetProperties({
   @WidgetProperty(key = IssueFilterWidget.FILTER_PROPERTY, type = WidgetPropertyType.ISSUE_FILTER, optional = false),
-  @WidgetProperty(key = IssueFilterWidget.PAGE_SIZE_PROPERTY, type = WidgetPropertyType.INTEGER, defaultValue = "30"),
+  @WidgetProperty(key = IssueFilterWidget.DISTRIBUTION_AXIS_PROPERTY, type = WidgetPropertyType.SINGLE_SELECT_LIST, defaultValue = "severities",
+          options = {"severities", "resolutions", "statuses", "rules", "tags", "projectUuids", "assignees", "reporters",
+                  "authors", "languages", "actionPlans", "createdAt"}),
   @WidgetProperty(key = IssueFilterWidget.DISPLAY_FILTER_DESCRIPTION, type = WidgetPropertyType.BOOLEAN, defaultValue = "false")
 })
 public class IssueFilterWidget extends CoreWidget {
 
   public static final String FILTER_PROPERTY = "filter";
-  public static final String PAGE_SIZE_PROPERTY = "numberOfLines";
+  public static final String DISTRIBUTION_AXIS_PROPERTY = "distributionAxis";
   public static final String DISPLAY_FILTER_DESCRIPTION = "displayFilterDescription";
   public static final String ID = "issue_filter";
 

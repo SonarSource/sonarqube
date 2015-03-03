@@ -243,6 +243,10 @@ module.exports = (grunt) ->
         name: 'nav/app'
         out: '<%= grunt.option("assetsDir") || pkg.assets %>build/js/nav/app.js'
 
+      issueFilterWidget: options:
+        name: 'widgets/issue-filter'
+        out: '<%= grunt.option("assetsDir") || pkg.assets %>build/js/widgets/issue-filter.js'
+
 
     handlebars:
       options:
@@ -295,6 +299,9 @@ module.exports = (grunt) ->
           ]
           '<%= grunt.option("assetsDir") || pkg.assets %>js/templates/nav.js': [
             '<%= pkg.sources %>hbs/nav/**/*.hbs'
+          ]
+          '<%= grunt.option("assetsDir") || pkg.assets %>js/templates/widgets.js': [
+            '<%= pkg.sources %>hbs/widgets/**/*.hbs'
           ]
 
 

@@ -1,25 +1,38 @@
 <%
+   container_id = 'widget-issue-filter-' + widget.id.to_s
    filter_id = widget_properties['filter']
    filter = Internal.issues.findIssueFilterById(filter_id.to_i)
-   if filter
-     if Internal.issues.isUserAuthorized(filter)
-       search_options = {}
-       search_options['filter'] = filter_id
-       @widget_title = link_to h(filter.name), {:controller => 'issues', :action => 'filter', :id => filter.id}
+   distribution_axis = widget_properties['distributionAxis']
 %>
+
+<% if filter %>
+  <% if Internal.issues.isUserAuthorized(filter) %>
+
+    <% @widget_title = "<a href=\"#{url_for({:controller => 'issues', :action => 'index'})}#id=#{filter.id}\">#{h(filter.name)}</a>" %>
     <% if widget_properties['displayFilterDescription'] && !filter.description.blank? %>
-      <div style="padding-bottom: 5px">
-        <span class="note"><%= h filter.description -%></span>
-      </div>
+      <p class="note spacer-bottom"><%= h filter.description -%></p>
     <% end %>
 
-    <%= render :partial => 'project/widgets/issues/issues_list_widget',
-               :locals => {:search_options => search_options, :widget_id => widget.id.to_s, :widget_properties => widget_properties} %>
-  <%
-     end
-   else
-  %>
-  <p><%= image_tag 'warning.png' %> <%= message 'widget.issue_filter.unknown_filter_warning' -%></p>
-<%
-   end
-%>
+    <div id="<%= container_id -%>"></div>
+    <script>
+      require(['widgets/issue-filter'], function (IssueFilter) {
+        window.requestMessages().done(function () {
+          new IssueFilter({
+            el: '#<%= container_id -%>',
+            query: '<%= filter.data -%>',
+            distributionAxis: '<%= distribution_axis -%>'
+          });
+        });
+      });
+    </script>
+
+  <% else %>
+
+    <p class="message-alert"><%= message 'widget.issue_filter.insufficient_privileges_warning' -%></p>
+
+  <% end %>
+<% else %>
+
+  <p class="message-alert"><%= message 'widget.issue_filter.unknown_filter_warning' -%></p>
+
+<% end %>

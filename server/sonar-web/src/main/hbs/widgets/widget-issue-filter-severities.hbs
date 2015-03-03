@@ -1,0 +1,19 @@
+<table class="data zebra">
+  <tr>
+    <td>
+      <a href="{{link '/issues/search#' query}}"><strong>{{t 'total'}}</strong></a>
+    </td>
+    <td class="text-right"><strong>{{total}}</strong></td>
+  </tr>
+  {{#each items}}
+    <tr>
+      <td>
+        {{severityIcon val}}
+        <a href="{{issueFilterItemLink ../parsedQuery ../property val}}">{{t 'severity' val}}</a>
+      </td>
+      <td class="text-right nowrap">
+        {{numberShort count}}
+      </td>
+    </tr>
+  {{/each}}
+</table>
