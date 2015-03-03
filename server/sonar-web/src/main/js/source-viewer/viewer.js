@@ -166,15 +166,29 @@ define([
           };
         },
 
-        getCoverageStatus: function (row) {
+        getUTCoverageStatus: function (row) {
           var status = null;
-          if (row.lineHits > 0) {
+          if (row.utLineHits > 0) {
             status = 'partially-covered';
           }
-          if (row.lineHits > 0 && row.conditions === row.coveredConditions) {
+          if (row.utLineHits > 0 && row.utConditions === row.utCoveredConditions) {
             status = 'covered';
           }
-          if (row.lineHits === 0 || row.coveredConditions === 0) {
+          if (row.utLineHits === 0 || row.utCoveredConditions === 0) {
+            status = 'uncovered';
+          }
+          return status;
+        },
+
+        getItCoverageStatus: function (row) {
+          var status = null;
+          if (row.itLineHits > 0) {
+            status = 'partially-covered';
+          }
+          if (row.itLineHits > 0 && row.itConditions === row.itCoveredConditions) {
+            status = 'covered';
+          }
+          if (row.itLineHits === 0 || row.itCoveredConditions === 0) {
             status = 'uncovered';
           }
           return status;
@@ -190,12 +204,17 @@ define([
               source.unshift({line: 0});
             }
             source = source.map(function (row) {
-              return _.extend(row, { coverageStatus: that.getCoverageStatus(row) });
+              return _.extend(row, {
+                utCoverageStatus: that.getUTCoverageStatus(row),
+                itCoverageStatus: that.getItCoverageStatus(row)
+              });
             });
             var firstLine = _.first(source).line,
                 linesRequested = options.to - options.from + 1;
             that.model.set({
               source: source,
+              hasUTCoverage: that.model.hasUTCoverage(source),
+              hasITCoverage: that.model.hasITCoverage(source),
               hasSourceBefore: firstLine > 1,
               hasSourceAfter: data.sources.length === linesRequested
             });
@@ -225,7 +244,7 @@ define([
                 d.blocks.forEach(function (b) {
                   if (b._ref === '1') {
                     var lineFrom = b.from,
-                        lineTo = b.from + b.size;
+                        lineTo = b.from + b.size - 1;
                     for (var j = lineFrom; j <= lineTo; j++) {
                       duplications[j] = true;
                     }
@@ -370,7 +389,7 @@ define([
           $('body').click();
           this.clearTooltips();
           var line = $(e.currentTarget).data('line-number'),
-              row = _.findWhere(this.model.get('source'), {line: line}),
+              row = _.findWhere(this.model.get('source'), { line: line }),
               url = baseUrl + '/api/tests/test_cases',
               options = {
                 key: this.model.key(),
@@ -380,6 +399,7 @@ define([
             var popup = new CoveragePopupView({
               model: new Backbone.Model(data),
               row: row,
+              tests: $(e.currentTarget).data('tests'),
               triggerEl: $(e.currentTarget)
             });
             popup.render();
@@ -573,10 +593,15 @@ define([
               source.unshift({line: 0});
             }
             source = source.map(function (row) {
-              return _.extend(row, { coverageStatus: that.getCoverageStatus(row) });
+              return _.extend(row, {
+                utCoverageStatus: that.getUTCoverageStatus(row),
+                itCoverageStatus: that.getItCoverageStatus(row)
+              });
             });
             that.model.set({
               source: source,
+              hasUTCoverage: that.model.hasUTCoverage(source),
+              hasITCoverage: that.model.hasITCoverage(source),
               hasSourceBefore: (data.sources.length === that.LINES_AROUND) && (_.first(source).line > 0)
             });
             that.addIssuesPerLineMeta(that.issues);
@@ -611,10 +636,15 @@ define([
               that.model.set({ hasSourceBefore: true });
             }
             source = source.map(function (row) {
-              return _.extend(row, { coverageStatus: that.getCoverageStatus(row) });
+              return _.extend(row, {
+                utCoverageStatus: that.getUTCoverageStatus(row),
+                itCoverageStatus: that.getItCoverageStatus(row)
+              });
             });
             that.model.set({
               source: source,
+              hasUTCoverage: that.model.hasUTCoverage(source),
+              hasITCoverage: that.model.hasITCoverage(source),
               hasSourceAfter: data.sources.length === that.LINES_AROUND
             });
             that.addIssuesPerLineMeta(that.issues);

@@ -281,7 +281,6 @@ public final class CorePlugin extends SonarPlugin {
       DirectoriesDecorator.class,
       FilesDecorator.class,
       ManualMeasureDecorator.class,
-      MissingOverallCoverageDecorator.class,
 
       // time machine
       TendencyDecorator.class,

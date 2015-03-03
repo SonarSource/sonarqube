@@ -83,6 +83,11 @@ public class RubyRuleService implements ServerComponent, Startable {
     query.setDebtCharacteristics(RubyUtils.toStrings(params.get("debtCharacteristics")));
     query.setHasDebtCharacteristic(RubyUtils.toBoolean(params.get("hasDebtCharacteristic")));
     query.setSortField(RuleNormalizer.RuleField.NAME);
+    String profile = Strings.emptyToNull((String) params.get("profile"));
+    if (profile != null) {
+      query.setQProfileKey(profile);
+      query.setActivation(true);
+    }
 
     QueryContext options = new QueryContext();
     Integer pageSize = RubyUtils.toInteger(params.get("pageSize"));

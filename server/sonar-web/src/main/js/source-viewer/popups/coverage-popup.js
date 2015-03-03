@@ -44,7 +44,8 @@ define([
     },
 
     serializeData: function () {
-      var files = this.model.get('files'),
+      var row = this.options.row || {},
+          files = this.model.get('files'),
           tests = _.groupBy(this.model.get('tests'), '_ref'),
           testFiles = _.map(tests, function (testSet, fileRef) {
             return {
@@ -52,9 +53,14 @@ define([
               tests: testSet
             };
           });
+      _.extend(row, {
+        lineHits: row[this.options.tests + 'LineHits'],
+        conditions: row[this.options.tests + 'Conditions'],
+        coveredConditions: row[this.options.tests + 'CoveredConditions']
+      });
       return {
         testFiles: testFiles,
-        row: this.options.row
+        row: row
       };
     }
   });

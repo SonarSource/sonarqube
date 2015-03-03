@@ -111,7 +111,7 @@
   <span class="empty_widget"><%= message('widget.events.no_event') -%></span>
 </div>
 
-<a href="#" onclick="showAllEvents(<%= widget.id -%>);" id="show_more_events_<%= widget.id -%>" class="action"><%= message('widget.events.show_more') -%></a>
+<a href="#" onclick="showAllEvents(<%= widget.id -%>);return false;" id="show_more_events_<%= widget.id -%>" class="action"><%= message('widget.events.show_all') -%></a>
 
 <script type="text/javascript">
   changeCategory('all', <%= widget.id -%>);

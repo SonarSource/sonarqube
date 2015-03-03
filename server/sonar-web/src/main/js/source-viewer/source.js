@@ -26,6 +26,7 @@ define(function () {
       return {
         hasSource: false,
         hasCoverage: false,
+        hasITCoverage: false,
         hasDuplications: false,
         hasSCM: false,
 
@@ -63,7 +64,7 @@ define(function () {
             d.blocks.forEach(function (b) {
               if (b._ref === '1') {
                 var lineFrom = b.from,
-                    lineTo = b.from + b.size;
+                    lineTo = b.from + b.size - 1;
                 if (line.line >= lineFrom && line.line <= lineTo) {
                   duplicated = true;
                 }
@@ -88,6 +89,18 @@ define(function () {
         });
       }
       this.set({ hasDuplications: hasDuplications });
+    },
+
+    hasUTCoverage: function (source) {
+      return _.some(source, function (line) {
+        return line.utCoverageStatus != null;
+      });
+    },
+
+    hasITCoverage: function (source) {
+      return _.some(source, function (line) {
+        return line.itCoverageStatus != null;
+      });
     }
   });
 

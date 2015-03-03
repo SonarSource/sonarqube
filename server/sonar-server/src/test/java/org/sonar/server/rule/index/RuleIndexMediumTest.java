@@ -52,15 +52,7 @@ import org.sonar.server.tester.ServerTester;
 
 import javax.annotation.Nullable;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -329,15 +321,23 @@ public class RuleIndexMediumTest {
       .setRemediationFunction("LINEAR").setRemediationCoefficient("2h")
       .setDefaultSubCharacteristicId(null)
       .setDefaultRemediationFunction(null));
+    // Rule without debt characteristic
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("xoo", "S001"))
+      .setSubCharacteristicId(null)
+      .setRemediationFunction(null).setRemediationCoefficient(null)
+      .setDefaultSubCharacteristicId(null)
+      .setDefaultRemediationFunction(null).setDefaultRemediationCoefficient(null));
+    // Rule with disabled debt characteristic
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("xoo", "S002"))
+      .setSubCharacteristicId(-1)
+      .setRemediationFunction(null).setRemediationCoefficient(null)
+      .setDefaultSubCharacteristicId(null)
+      .setDefaultRemediationFunction(null).setDefaultRemediationCoefficient(null));
     dbSession.commit();
 
-    // 0. assert base case
-    assertThat(index.search(new RuleQuery(), new QueryContext()).getTotal()).isEqualTo(2);
-    assertThat(db.debtCharacteristicDao().selectCharacteristics()).hasSize(2);
-
-    // 1. assert hasSubChar filter
-    assertThat(index.search(new RuleQuery().setHasDebtCharacteristic(true), new QueryContext()).getTotal())
-      .isEqualTo(2);
+    assertThat(index.search(new RuleQuery().setHasDebtCharacteristic(null), new QueryContext()).getTotal()).isEqualTo(4);
+    assertThat(index.search(new RuleQuery().setHasDebtCharacteristic(true), new QueryContext()).getTotal()).isEqualTo(2);
+    assertThat(index.search(new RuleQuery().setHasDebtCharacteristic(false), new QueryContext()).getTotal()).isEqualTo(2);
   }
 
   @Test

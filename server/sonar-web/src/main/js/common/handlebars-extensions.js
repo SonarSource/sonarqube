@@ -259,7 +259,10 @@
   });
 
   Handlebars.registerHelper('sum', function(a, b) {
-    return a + b;
+    var args = Array.prototype.slice.call(arguments, 0, -1);
+    return args.reduce(function (p, c) {
+      return p + +c;
+    }, 0);
   });
 
   Handlebars.registerHelper('dashboardUrl', function(componentKey, componentQualifier) {

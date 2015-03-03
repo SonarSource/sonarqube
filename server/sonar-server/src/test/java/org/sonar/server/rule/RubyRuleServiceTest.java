@@ -103,9 +103,25 @@ public class RubyRuleServiceTest {
     assertThat(ruleQueryCaptor.getValue().getTags()).containsOnly("tag1", "tag2");
     assertThat(ruleQueryCaptor.getValue().getDebtCharacteristics()).containsOnly("char1", "char2");
     assertThat(ruleQueryCaptor.getValue().getHasDebtCharacteristic()).isTrue();
+    assertThat(ruleQueryCaptor.getValue().getQProfileKey()).isNull();
+    assertThat(ruleQueryCaptor.getValue().getActivation()).isNull();
 
     assertThat(optionsCaptor.getValue().getLimit()).isEqualTo(40);
     assertThat(optionsCaptor.getValue().getOffset()).isEqualTo(0);
+  }
+
+  @Test
+  public void search_rules_activated_on_a_profile() throws Exception {
+    when(ruleService.search(any(RuleQuery.class), any(QueryContext.class))).thenReturn(mock(Result.class));
+
+    HashMap<String, Object> params = newHashMap();
+    params.put("profile", "xoo-profile");
+    service.find(params);
+
+    verify(ruleService).search(ruleQueryCaptor.capture(), optionsCaptor.capture());
+
+    assertThat(ruleQueryCaptor.getValue().getQProfileKey()).isEqualTo("xoo-profile");
+    assertThat(ruleQueryCaptor.getValue().getActivation()).isTrue();
   }
 
   @Test
