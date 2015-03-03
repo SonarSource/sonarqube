@@ -56,6 +56,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -220,14 +221,18 @@ public class DbTester extends ExternalResource {
     return rows.get(0);
   }
 
-  private static List<Map<String, Object>> getHashMap(ResultSet resultSet) throws SQLException {
+  private static List<Map<String, Object>> getHashMap(ResultSet resultSet) throws Exception {
     ResultSetMetaData metaData = resultSet.getMetaData();
     int colCount = metaData.getColumnCount();
     List<Map<String, Object>> rows = newArrayList();
     while (resultSet.next()) {
       Map<String, Object> columns = newHashMap();
       for (int i = 1; i <= colCount; i++) {
-        columns.put(metaData.getColumnLabel(i), resultSet.getObject(i));
+        Object value = resultSet.getObject(i);
+        if (value instanceof Clob) {
+          value = IOUtils.toString(((Clob)value).getAsciiStream());
+        }
+        columns.put(metaData.getColumnLabel(i), value);
       }
       rows.add(columns);
     }

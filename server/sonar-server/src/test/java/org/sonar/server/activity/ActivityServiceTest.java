@@ -19,7 +19,6 @@
  */
 package org.sonar.server.activity;
 
-import org.apache.commons.io.IOUtils;
 import org.assertj.core.data.MapEntry;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -35,7 +34,6 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.db.IssueDao;
 
-import java.sql.Clob;
 import java.util.List;
 import java.util.Map;
 
@@ -77,8 +75,7 @@ public class ActivityServiceTest {
     assertThat(dbMap).containsEntry("type", "ANALYSIS_REPORT");
     assertThat(dbMap).containsEntry("action", "THE_ACTION");
     assertThat(dbMap).containsEntry("msg", "THE_MSG");
-    Clob data = (Clob) dbMap.get("data");
-    assertThat(IOUtils.toString(data.getAsciiStream())).isEqualTo("foo=bar");
+    assertThat(dbMap.get("data")).isEqualTo("foo=bar");
 
     List<ActivityDoc> docs = es.getDocuments("activities", "activity", ActivityDoc.class);
     assertThat(docs).hasSize(1);
