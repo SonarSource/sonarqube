@@ -68,6 +68,7 @@ public class SourceLineIndexerTest {
     es.truncateIndices();
     db.truncateTables();
     indexer = new SourceLineIndexer(new DbClient(db.database(), db.myBatis()), es.client());
+    indexer.setEnabled(true);
   }
 
   @Test

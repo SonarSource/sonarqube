@@ -57,7 +57,10 @@ public class ActivityServiceTest {
     ActivityDao activityDao = new ActivityDao(db.myBatis(), system);
     IssueDao issueDao = new IssueDao(db.myBatis());
     DbClient dbClient = new DbClient(db.database(), db.myBatis(), issueDao, activityDao);
-    service = new ActivityService(dbClient, new ActivityIndexer(dbClient, es.client()));
+    ActivityIndexer indexer = new ActivityIndexer(dbClient, es.client());
+    // indexers are disabled by default
+    indexer.setEnabled(true);
+    service = new ActivityService(dbClient, indexer);
   }
 
   @Test

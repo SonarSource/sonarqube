@@ -37,6 +37,17 @@ public abstract class BaseIndexer implements ServerComponent, Startable {
   protected final EsClient esClient;
   private volatile long lastUpdatedAt = 0L;
 
+  /**
+   * Indexers are disabled during server startup, to avoid too many consecutive refreshes of the same index
+   * An example is RegisterQualityProfiles. If {@link org.sonar.server.activity.index.ActivityIndexer} is enabled by
+   * default during startup, then each new activated rule generates a bulk request with a single document and then
+   * asks for index refresh -> big performance hit.
+   *
+   * Indices are populated and refreshed when all startup components have been executed. See
+   * {@link org.sonar.server.search.IndexSynchronizer}
+   */
+  private boolean enabled = false;
+
   protected BaseIndexer(EsClient client, long threadKeepAliveSeconds, String indexName, String typeName) {
     this.indexName = indexName;
     this.typeName = typeName;
@@ -46,25 +57,32 @@ public abstract class BaseIndexer implements ServerComponent, Startable {
   }
 
   public void index() {
-    final long requestedAt = System.currentTimeMillis();
-    Future submit = executor.submit(new Runnable() {
-      @Override
-      public void run() {
-        if (requestedAt > lastUpdatedAt) {
-          long l = doIndex(lastUpdatedAt);
-          // l can be 0 if no documents were indexed
-          lastUpdatedAt = Math.max(l, lastUpdatedAt);
+    if (enabled) {
+      final long requestedAt = System.currentTimeMillis();
+      Future submit = executor.submit(new Runnable() {
+        @Override
+        public void run() {
+          if (requestedAt > lastUpdatedAt) {
+            long l = doIndex(lastUpdatedAt);
+            // l can be 0 if no documents were indexed
+            lastUpdatedAt = Math.max(l, lastUpdatedAt);
+          }
         }
+      });
+      try {
+        Uninterruptibles.getUninterruptibly(submit);
+      } catch (ExecutionException e) {
+        Throwables.propagate(e);
       }
-    });
-    try {
-      Uninterruptibles.getUninterruptibly(submit);
-    } catch (ExecutionException e) {
-      Throwables.propagate(e);
     }
   }
 
   protected abstract long doIndex(long lastUpdatedAt);
+
+  public BaseIndexer setEnabled(boolean b) {
+    this.enabled = b;
+    return this;
+  }
 
   @Override
   public void start() {

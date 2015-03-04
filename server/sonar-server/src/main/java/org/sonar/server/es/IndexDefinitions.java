@@ -30,7 +30,7 @@ import java.util.Map;
 /**
  * This class collects definitions of all Elasticsearch indices during server startup
  */
-public class IndexRegistry implements ServerComponent, Startable {
+public class IndexDefinitions implements ServerComponent, Startable {
 
   /**
    * Immutable copy of {@link org.sonar.server.es.NewIndex}
@@ -88,7 +88,7 @@ public class IndexRegistry implements ServerComponent, Startable {
   private final Map<String, Index> byKey = Maps.newHashMap();
   private final IndexDefinition[] defs;
 
-  public IndexRegistry(IndexDefinition[] defs) {
+  public IndexDefinitions(IndexDefinition[] defs) {
     this.defs = defs;
   }
 

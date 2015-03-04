@@ -41,7 +41,7 @@ public class IndexCreatorTest {
   public void create_index() throws Exception {
     assertThat(mappings()).isEmpty();
 
-    IndexRegistry registry = new IndexRegistry(new IndexDefinition[] {new FakeIndexDefinition()});
+    IndexDefinitions registry = new IndexDefinitions(new IndexDefinition[] {new FakeIndexDefinition()});
     registry.start();
     IndexCreator creator = new IndexCreator(es.client(), registry);
     creator.start();
@@ -66,7 +66,7 @@ public class IndexCreatorTest {
     assertThat(mappings()).isEmpty();
 
     // v1
-    IndexRegistry registry = new IndexRegistry(new IndexDefinition[] {new FakeIndexDefinition()});
+    IndexDefinitions registry = new IndexDefinitions(new IndexDefinition[] {new FakeIndexDefinition()});
     registry.start();
     IndexCreator creator = new IndexCreator(es.client(), registry);
     creator.start();
@@ -75,7 +75,7 @@ public class IndexCreatorTest {
     assertThat(hashV1).isNotEmpty();
 
     // v2
-    registry = new IndexRegistry(new IndexDefinition[] {new FakeIndexDefinitionV2()});
+    registry = new IndexDefinitions(new IndexDefinition[] {new FakeIndexDefinitionV2()});
     registry.start();
     creator = new IndexCreator(es.client(), registry);
     creator.start();

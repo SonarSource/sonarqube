@@ -74,7 +74,17 @@ public class UserIndexerTest {
     assertThat(doc.updatedAt()).isEqualTo(1500000000000L);
   }
 
+  @Test
+  public void do_nothing_if_disabled() throws Exception {
+    dbTester.prepareDbUnit(getClass(), "index.xml");
+
+    createIndexer().setEnabled(false).index();
+    assertThat(esTester.countDocuments("users", "user")).isEqualTo(0);
+  }
+
   private UserIndexer createIndexer() {
-    return new UserIndexer(new DbClient(dbTester.database(), dbTester.myBatis()), esTester.client());
+    UserIndexer indexer = new UserIndexer(new DbClient(dbTester.database(), dbTester.myBatis()), esTester.client());
+    indexer.setEnabled(true);
+    return indexer;
   }
 }

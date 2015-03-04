@@ -55,6 +55,7 @@ public class ViewIndexerTest {
     dbTester.truncateTables();
     esTester.truncateIndices();
     indexer = new ViewIndexer(new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao()), esTester.client());
+    indexer.setEnabled(true);
   }
 
   @Test

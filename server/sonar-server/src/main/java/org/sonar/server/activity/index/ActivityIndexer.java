@@ -19,7 +19,6 @@
  */
 package org.sonar.server.activity.index;
 
-import org.elasticsearch.action.support.replication.ReplicationType;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
@@ -34,7 +33,6 @@ import java.util.Iterator;
  * Add to Elasticsearch index {@link org.sonar.server.activity.index.ActivityIndexDefinition} the rows of
  * db table ACTIVITIES that are not indexed yet
  * <p/>
- * TODO idea of improvement - index asynchronously with UpdateRequest#replicationType(ReplicationType.ASYNC)
  */
 public class ActivityIndexer extends BaseIndexer {
 
@@ -47,7 +45,7 @@ public class ActivityIndexer extends BaseIndexer {
 
   @Override
   protected long doIndex(long lastUpdatedAt) {
-    final BulkIndexer bulk = new BulkIndexer(esClient, ActivityIndexDefinition.INDEX);
+    BulkIndexer bulk = new BulkIndexer(esClient, ActivityIndexDefinition.INDEX);
     bulk.setLarge(lastUpdatedAt == 0L);
 
     DbSession dbSession = dbClient.openSession(false);
@@ -64,7 +62,7 @@ public class ActivityIndexer extends BaseIndexer {
   }
 
   public long index(Iterator<ActivityDoc> activities) {
-    final BulkIndexer bulk = new BulkIndexer(esClient, ActivityIndexDefinition.INDEX);
+    BulkIndexer bulk = new BulkIndexer(esClient, ActivityIndexDefinition.INDEX);
     return doIndex(bulk, activities);
   }
 
@@ -85,7 +83,6 @@ public class ActivityIndexer extends BaseIndexer {
   private UpdateRequest newUpsertRequest(ActivityDoc doc) {
     return new UpdateRequest(ActivityIndexDefinition.INDEX, ActivityIndexDefinition.TYPE, doc.getKey())
       .doc(doc.getFields())
-      .upsert(doc.getFields())
-      .replicationType(ReplicationType.ASYNC);
+      .upsert(doc.getFields());
   }
 }

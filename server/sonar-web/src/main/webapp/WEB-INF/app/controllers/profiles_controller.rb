@@ -268,6 +268,7 @@ class ProfilesController < ApplicationController
     require_parameters 'key'
 
     @profile = Internal.qprofile_loader.getByKey(params[:key])
+    not_found('Quality profile does not exist') unless @profile
     search = {'profileKey' => @profile.key().to_s, 'since' => params[:since], 'to' => params[:to], 'p' => params[:p]}
     result = Internal.component(Java::OrgSonarServerActivity::RubyQProfileActivityService.java_class).search(search)
     @changes = result.activities
