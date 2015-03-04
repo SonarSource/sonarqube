@@ -57,7 +57,6 @@ public class BulkIndexer implements Startable {
   private final EsClient client;
   private final String indexName;
   private boolean large = false;
-  private boolean refresh = true;
   private long flushByteSize = FLUSH_BYTE_SIZE;
   private BulkRequestBuilder bulkRequest = null;
   private Map<String, Object> largeInitialSettings = null;
@@ -80,12 +79,6 @@ public class BulkIndexer implements Startable {
   public BulkIndexer setLarge(boolean b) {
     Preconditions.checkState(bulkRequest == null, ALREADY_STARTED_MESSAGE);
     this.large = b;
-    return this;
-  }
-
-  public BulkIndexer setRefresh(boolean b) {
-    Preconditions.checkState(bulkRequest == null, ALREADY_STARTED_MESSAGE);
-    this.refresh = b;
     return this;
   }
 
@@ -144,9 +137,7 @@ public class BulkIndexer implements Startable {
       progress.stop();
     }
 
-    if (refresh) {
-      client.prepareRefresh(indexName).get();
-    }
+    client.prepareRefresh(indexName).get();
     if (large) {
       // optimize lucene segments and revert index settings
       // Optimization must be done before re-applying replicas:
