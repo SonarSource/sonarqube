@@ -38,13 +38,19 @@ import org.sonar.server.computation.issue.IssueComputation;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class ParseReportStepTest extends BaseStepTest {
+
+  private static final List<BatchReport.Issue> ISSUES_ON_DELETED_COMPONENT = Arrays.asList(BatchReport.Issue.newBuilder()
+    .setUuid("DELETED_ISSUE_UUID")
+    .build());
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -62,12 +68,15 @@ public class ParseReportStepTest extends BaseStepTest {
     ComputationContext context = new ComputationContext(new BatchReportReader(reportDir), mock(ComponentDto.class));
     sut.execute(context);
 
+    assertThat(context.getReportMetadata().getRootComponentRef()).isEqualTo(1);
+    assertThat(context.getReportMetadata().getDeletedComponentsCount()).isEqualTo(1);
+
     // verify that all components are processed (currently only for issues)
     verify(issueComputation).processComponentIssues(context, "PROJECT_UUID", Collections.<BatchReport.Issue>emptyList());
     verify(issueComputation).processComponentIssues(context, "FILE1_UUID", Collections.<BatchReport.Issue>emptyList());
     verify(issueComputation).processComponentIssues(context, "FILE2_UUID", Collections.<BatchReport.Issue>emptyList());
+    verify(issueComputation).processComponentIssues(context, "DELETED_UUID", ISSUES_ON_DELETED_COMPONENT);
     verify(issueComputation).afterReportProcessing();
-    assertThat(context.getReportMetadata().getRootComponentRef()).isEqualTo(1);
   }
 
   private File generateReport() throws IOException {
@@ -78,7 +87,9 @@ public class ParseReportStepTest extends BaseStepTest {
       .setRootComponentRef(1)
       .setProjectKey("PROJECT_KEY")
       .setAnalysisDate(150000000L)
+      .setDeletedComponentsCount(1)
       .build());
+
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
@@ -96,6 +107,9 @@ public class ParseReportStepTest extends BaseStepTest {
       .setType(Constants.ComponentType.FILE)
       .setUuid("FILE2_UUID")
       .build());
+
+    // deleted components
+    writer.writeDeletedComponentIssues(1, "DELETED_UUID", ISSUES_ON_DELETED_COMPONENT);
     return dir;
   }
 

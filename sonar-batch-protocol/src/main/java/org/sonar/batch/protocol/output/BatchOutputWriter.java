@@ -62,4 +62,18 @@ public class BatchOutputWriter {
     File file = fileStructure.fileFor(FileStructure.Domain.ISSUES, componentRef);
     ProtobufUtil.writeToFile(issuesBuilder.build(), file);
   }
+
+  /**
+   * Issues on components which have been deleted are stored in another location.
+   * Temporary hack, waiting for computation stack
+   */
+  public void writeDeletedComponentIssues(int componentRef, String componentUuid, Iterable<BatchReport.Issue> issues) {
+    BatchReport.Issues.Builder issuesBuilder = BatchReport.Issues.newBuilder();
+    issuesBuilder.setComponentRef(componentRef);
+    issuesBuilder.setComponentUuid(componentUuid);
+    issuesBuilder.addAllList(issues);
+    File file = fileStructure.fileFor(FileStructure.Domain.ISSUES_ON_DELETED, componentRef);
+    ProtobufUtil.writeToFile(issuesBuilder.build(), file);
+  }
+
 }

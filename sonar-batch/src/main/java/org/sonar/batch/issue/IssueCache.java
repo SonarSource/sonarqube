@@ -24,6 +24,8 @@ import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.batch.index.Cache;
 import org.sonar.batch.index.Caches;
 
+import java.util.Collection;
+
 /**
  * Shared issues among all project modules
  */
@@ -42,6 +44,10 @@ public class IssueCache implements BatchComponent {
 
   public Iterable<DefaultIssue> all() {
     return cache.values();
+  }
+
+  public Collection<Object> componentKeys() {
+    return cache.keySet();
   }
 
   public IssueCache put(DefaultIssue issue) {

@@ -21,8 +21,10 @@ package org.sonar.batch.report;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
+import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.FieldDiffs;
+import org.sonar.api.resources.Project;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.index.BatchResource;
 import org.sonar.batch.index.ResourceCache;
@@ -33,29 +35,73 @@ import org.sonar.batch.protocol.output.BatchReport;
 
 import javax.annotation.Nullable;
 
+import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 
 public class IssuesPublisher implements ReportPublisher {
 
   private final ResourceCache resourceCache;
   private final IssueCache issueCache;
+  private final ProjectReactor reactor;
 
-  public IssuesPublisher(ResourceCache resourceCache, IssueCache issueCache) {
+  public IssuesPublisher(ProjectReactor reactor, ResourceCache resourceCache, IssueCache issueCache) {
+    this.reactor = reactor;
     this.resourceCache = resourceCache;
     this.issueCache = issueCache;
   }
 
   @Override
   public void publish(BatchOutputWriter writer) {
+    Collection<Object> deletedComponentKeys = issueCache.componentKeys();
     for (BatchResource resource : resourceCache.all()) {
-      Iterable<DefaultIssue> issues = issueCache.byComponent(resource.resource().getEffectiveKey());
+      String componentKey = resource.resource().getEffectiveKey();
+      Iterable<DefaultIssue> issues = issueCache.byComponent(componentKey);
       writer.writeComponentIssues(resource.batchId(), Iterables.transform(issues, new Function<DefaultIssue, BatchReport.Issue>() {
         @Override
         public BatchReport.Issue apply(DefaultIssue input) {
           return toReportIssue(input);
         }
       }));
+      deletedComponentKeys.remove(componentKey);
     }
+
+    int count = exportIssuesOfDeletedComponents(deletedComponentKeys, writer);
+
+    exportMetadata(writer, count);
+  }
+
+  private void exportMetadata(BatchOutputWriter writer, int count) {
+    BatchResource rootProject = resourceCache.get(reactor.getRoot().getKeyWithBranch());
+    BatchReport.Metadata.Builder builder = BatchReport.Metadata.newBuilder()
+      .setAnalysisDate(((Project) rootProject.resource()).getAnalysisDate().getTime())
+      .setProjectKey(((Project) rootProject.resource()).key())
+      .setRootComponentRef(rootProject.batchId())
+      .setDeletedComponentsCount(count);
+    Integer sid = rootProject.snapshotId();
+    if (sid != null) {
+      builder.setSnapshotId(sid);
+    }
+    writer.writeMetadata(builder.build());
+  }
+
+  private int exportIssuesOfDeletedComponents(Collection<Object> deletedComponentKeys, BatchOutputWriter writer) {
+    int deletedComponentCount = 0;
+    for (Object componentKey : deletedComponentKeys) {
+      deletedComponentCount++;
+      Iterable<DefaultIssue> issues = issueCache.byComponent(componentKey.toString());
+      Iterator<DefaultIssue> iterator = issues.iterator();
+      if (iterator.hasNext()) {
+        String componentUuid = iterator.next().componentUuid();
+        writer.writeDeletedComponentIssues(deletedComponentCount, componentUuid, Iterables.transform(issues, new Function<DefaultIssue, BatchReport.Issue>() {
+          @Override
+          public BatchReport.Issue apply(DefaultIssue input) {
+            return toReportIssue(input);
+          }
+        }));
+      }
+    }
+    return deletedComponentCount;
   }
 
   private BatchReport.Issue toReportIssue(DefaultIssue issue) {
