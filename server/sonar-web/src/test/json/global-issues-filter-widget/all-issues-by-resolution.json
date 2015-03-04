@@ -1,0 +1,32 @@
+{
+  "total": 71571,
+  "p": 1,
+  "ps": 1,
+  "facets": [
+    {
+      "property": "resolutions",
+      "values": [
+        {
+          "val": "",
+          "count": 6851
+        },
+        {
+          "val": "FIXED",
+          "count": 47092
+        },
+        {
+          "val": "REMOVED",
+          "count": 16326
+        },
+        {
+          "val": "FALSE-POSITIVE",
+          "count": 752
+        },
+        {
+          "val": "WONTFIX",
+          "count": 550
+        }
+      ]
+    }
+  ]
+}

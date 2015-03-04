@@ -1,0 +1,32 @@
+{
+  "total": 6851,
+  "p": 1,
+  "ps": 1,
+  "facets": [
+    {
+      "property": "severities",
+      "values": [
+        {
+          "val": "MAJOR",
+          "count": 5027
+        },
+        {
+          "val": "INFO",
+          "count": 1178
+        },
+        {
+          "val": "MINOR",
+          "count": 540
+        },
+        {
+          "val": "CRITICAL",
+          "count": 105
+        },
+        {
+          "val": "BLOCKER",
+          "count": 1
+        }
+      ]
+    }
+  ]
+}

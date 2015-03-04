@@ -1,0 +1,48 @@
+{
+  "total": 4134,
+  "p": 1,
+  "ps": 1,
+  "users": [
+    {
+      "login": "second.user",
+      "name": "Second User",
+      "active": true,
+      "email": "second.user@example.com"
+    },
+    {
+      "login": "third.user",
+      "name": "Third User",
+      "active": true,
+      "email": "third.user@example  .com"
+    },
+    {
+      "login": "first.user",
+      "name": "First User",
+      "active": true,
+      "email": "first.user@example.com"
+    }
+  ],
+  "facets": [
+    {
+      "property": "assignees",
+      "values": [
+        {
+          "val": "",
+          "count": 4134
+        },
+        {
+          "val": "first.user",
+          "count": 698
+        },
+        {
+          "val": "second.user",
+          "count": 504
+        },
+        {
+          "val": "third.user",
+          "count": 426
+        }
+      ]
+    }
+  ]
+}

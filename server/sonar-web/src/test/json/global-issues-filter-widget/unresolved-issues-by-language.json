@@ -1,0 +1,46 @@
+{
+  "total": 6851,
+  "p": 1,
+  "ps": 1,
+  "languages": [
+    {
+      "key": "py",
+      "name": "Python"
+    },
+    {
+      "key": "js",
+      "name": "JavaScript"
+    },
+    {
+      "key": "php",
+      "name": "PHP"
+    },
+    {
+      "key": "java",
+      "name": "Java"
+    }
+  ],
+  "facets": [
+    {
+      "property": "languages",
+      "values": [
+        {
+          "val": "java",
+          "count": 6336
+        },
+        {
+          "val": "py",
+          "count": 444
+        },
+        {
+          "val": "php",
+          "count": 22
+        },
+        {
+          "val": "js",
+          "count": 15
+        }
+      ]
+    }
+  ]
+}

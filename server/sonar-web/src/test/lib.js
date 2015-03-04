@@ -168,7 +168,6 @@ exports.assertLinkHref = function assertElementCount(selector, href, message) {
 
 exports.sendCoverage = function () {
   return casper.evaluate(function () {
-    console.log(Object.keys(window.__coverage__));
     jQuery.ajax({
       type: 'POST',
       url: '/coverage/client',

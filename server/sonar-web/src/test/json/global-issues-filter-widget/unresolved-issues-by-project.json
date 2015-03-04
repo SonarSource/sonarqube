@@ -1,0 +1,62 @@
+{
+  "total": 2598,
+  "p": 1,
+  "ps": 1,
+  "projects": [
+    {
+      "uuid": "5eab015a-1f76-4ba4-bd89-bf547132d673",
+      "key": "org.codehaus.sonar-plugins.javascript:javascript",
+      "id": 10159,
+      "qualifier": "TRK",
+      "name": "JavaScript",
+      "longName": "JavaScript"
+    },
+    {
+      "uuid": "c156940b-e3ec-43f6-9589-e3b75aa9ca32",
+      "key": "org.codehaus.sonar-plugins.python:python",
+      "id": 11752,
+      "qualifier": "TRK",
+      "name": "Python",
+      "longName": "Python"
+    },
+    {
+      "uuid": "dd7c3556-ce3f-42d0-a348-914a582dc944",
+      "key": "org.codehaus.sonar-plugins.java:java",
+      "id": 13265,
+      "qualifier": "TRK",
+      "name": "SonarQube Java",
+      "longName": "SonarQube Java"
+    },
+    {
+      "uuid": "69e57151-be0d-4157-adff-c06741d88879",
+      "key": "org.codehaus.sonar:sonar",
+      "id": 2865,
+      "qualifier": "TRK",
+      "name": "SonarQube",
+      "longName": "SonarQube"
+    }
+  ],
+  "facets": [
+    {
+      "property": "projectUuids",
+      "values": [
+        {
+          "val": "69e57151-be0d-4157-adff-c06741d88879",
+          "count": 1766
+        },
+        {
+          "val": "dd7c3556-ce3f-42d0-a348-914a582dc944",
+          "count": 442
+        },
+        {
+          "val": "5eab015a-1f76-4ba4-bd89-bf547132d673",
+          "count": 283
+        },
+        {
+          "val": "c156940b-e3ec-43f6-9589-e3b75aa9ca32",
+          "count": 107
+        }
+      ]
+    }
+  ]
+}

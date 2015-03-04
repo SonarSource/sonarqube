@@ -81,6 +81,13 @@ define(['templates/widgets'], function () {
                 return user.name;
               }
             }
+          },
+          filter: function (item) {
+            if ('' + this.query.assigned === 'false') {
+              return item.val === '';
+            } else {
+              return defaultFilter.call(this, item);
+            }
           }
         },
         'languages': {
@@ -101,6 +108,13 @@ define(['templates/widgets'], function () {
               if (actionPlan != null) {
                 return actionPlan.name;
               }
+            }
+          },
+          filter: function (item) {
+            if ('' + this.query.planned === 'false') {
+              return item.val === '';
+            } else {
+              return defaultFilter.call(this, item);
             }
           }
         },

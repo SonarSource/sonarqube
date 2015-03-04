@@ -1,0 +1,186 @@
+{
+  "total": 6851,
+  "p": 1,
+  "ps": 1,
+  "rules": [
+    {
+      "key": "squid:S1698",
+      "name": "Objects should be compared with \"equals()\"",
+      "lang": "java",
+      "desc": "<p>Using the equality (<code>==</code>) and inequality (<code>!=</code>) operators to compare two objects does not check to see if they have the same values. Rather it checks to see if both object references point to exactly the same object in memory. The vast majority of the time, this is not what you want to do. Use the .equals() method to compare the values of two objects or to compare a string object to a string literal.</p>\n\n<h2>Noncompliant Code Sample</h2>\n<pre>\nString str1 = \"blue\";\nString str2 = \"blue\";\nString str3 = str1;\n\nif (str1 == str2)\n{\n  System.out.println(\"they're both 'blue'\"); // this doesn't print because the objects are different\n}\n\nif (str1 == \"blue\")\n{\n  System.out.println(\"they're both 'blue'\"); // this doesn't print because the objects are different\n}\n\nif (str1 == str3)\n{\n  System.out.println(\"they're the same object\"); // this prints\n}\n</pre>\n\n<h2>Compliant Solution</h2>\n<pre>\nString str1 = \"blue\";\nString str2 = \"blue\";\nString str3 = str1;\n\nif (str1.equals(str2))\n{\n  System.out.println(\"they're both 'blue'\"); // this prints\n}\n\nif (str1.equals(\"blue\"))\n{\n  System.out.println(\"they're both 'blue'\"); // this prints\n}\n\nif (str1 == str3)\n{\n  System.out.println(\"they're the same object\"); // this still prints, but it's probably not what you meant to do\n}\n</pre>\n\n<h2>Exception</h2>\nComparing two instances of the <code>Class</code> object will not raise an issue.\n<pre>\nClass c;\nif(c == Integer.class) { //No issue raised\n}\n</pre>\n\n<h2>See</h2>\n    <ul>\n      <li><a href=\"http://cwe.mitre.org/data/definitions/595.html\">MITRE, CWE-595</a> - Comparison of Object References Instead of Object Contents</li>\n    </ul>",
+      "status": "READY",
+      "langName": "Java"
+    },
+    {
+      "key": "squid:AstNode_SSLR_class_should_not_be_used",
+      "name": "AstNode SSLR class should not be used",
+      "lang": "java",
+      "desc": "Once strongly typed AST is in place on a language plugin, the AstNode class should not be used anymore. ",
+      "status": "READY",
+      "langName": "Java"
+    },
+    {
+      "key": "squid:IndentationCheck",
+      "name": "Source code should be correctly indented",
+      "lang": "java",
+      "desc": "<p>\nProper indentation is a simple and effective way to improve the code's readability.\nConsistent indentation among developers also reduces the differences that are committed to source control systems, making code reviews easier.\n</p>\n\n<p>The following code illustrates this rule with an indentation level of 2:</p>\n\n<pre>\nclass Foo {\n  public int a; // Compliant\npublic int b;   // Non-Compliant\n}\n</pre>",
+      "status": "READY",
+      "langName": "Java"
+    },
+    {
+      "key": "squid:S1161",
+      "name": "\"@Override\" annotation should be used on any method overriding (since Java 5) or implementing (since Java 6) another one",
+      "lang": "java",
+      "desc": "<p>Using the <code>@Override</code> annotation is useful for two reasons :</p>\n<ul>\n  <li>It elicits a warning from the compiler if the annotated method doesn't actually override anything, as in the case of a misspelling.</li>\n  <li>It improves the readability of the source code by making it obvious that methods are overridden.</li>\n</ul>\n<h2>Noncompliant Code Example</h2>\n<pre>\nclass ParentClass {\n  public boolean doSomething(){...}\n}\nclass FirstChildClass extends ParentClass {\n  public boolean doSomething(){...}  //Non-Compliant\n}\n</pre>\n\n<h2>Compliant Solution</h2>\n<pre>\nclass ParentClass {\n  public boolean doSomething(){...}\n}\nclass FirstChildClass extends ParentClass {\n  @Override\n  public boolean doSomething(){...}  //Compliant\n}\n</pre>",
+      "status": "READY",
+      "langName": "Java"
+    },
+    {
+      "key": "common-java:DuplicatedBlocks",
+      "name": "Duplicated blocks",
+      "lang": "java",
+      "desc": "<p>An issue is created on a file as soon as there is a block of duplicated code on this file. It gives the number of blocks in the file.</p>",
+      "status": "READY",
+      "langName": "Java"
+    },
+    {
+      "key": "squid:S1192",
+      "name": "String literals should not be duplicated",
+      "lang": "java",
+      "desc": "<p>\n  Duplicated string literals make the process of refactoring error-prone, since you must be sure to update all occurrences.\n  On the other hand, constants can be referenced from many places, but only need to be updated in a single place.\n</p>\n\n<h2>Non Compliant Code Example</h2>\n\n<pre>\npublic void run() {\n  prepare(\"action1\");                              // Non-Compliant - \"action1\" is duplicated 3 times\n  execute(\"action1\");\n  release(\"action1\");\n}\n\n@SuppressWarning(\"all\")                            // Compliant - annotations are excluded\nprivate void method1() { /* ... */ }\n@SuppressWarning(\"all\")\nprivate void method2() { /* ... */ }\n\npublic String method3(String a) {\n  System.out.println(\"'\" + a + \"'\");               // Compliant - literal \"'\" has less than 5 characters and is excluded\n  return \"\";                                       // Compliant - literal \"\" has less than 5 characters and is excluded\n}\n</pre>\n\n<h2>Compliant Code Example</h2>\n\n<pre>\nprivate static final String ACTION_1 = \"action1\";  // Compliant\n\npublic void run() {\n  prepare(ACTION_1);                               // Compliant\n  execute(ACTION_1);\n  release(ACTION_1);\n}\n</pre>\n\n<h2>Exceptions</h2>\n<p>To prevent generating some false-positives, literals having less than 5 characters are excluded.</p>",
+      "status": "READY",
+      "langName": "Java"
+    },
+    {
+      "key": "squid:MethodCyclomaticComplexity",
+      "name": "Methods should not be too complex",
+      "lang": "java",
+      "desc": "<p>The Cyclomatic Complexity is measured by the number of\n\t(&amp;&amp;, ||) operators and (if, while, do, for, ?:, catch, switch,\n\tcase, return, throw) statements in the body of a class plus one for\n\teach constructor, method (but not getter/setter), static initializer,\n\tor instance initializer in the class. The last return statement in\n\tmethod, if exists, is not taken into account.</p>\n<p>\n\tEven when the Cyclomatic Complexity of a class is very high, this\n\tcomplexity might be well distributed among all methods. Nevertheless,\n\tmost of the time, a very complex class is a class which breaks the <a\n\t\thref=\"http://en.wikipedia.org/wiki/Single_responsibility_principle\">Single\n\t\tResponsibility Principle</a> and which should be re-factored to be split\n\tin several classes.\n</p>",
+      "status": "READY",
+      "langName": "Java"
+    },
+    {
+      "key": "squid:S1135",
+      "name": "TODO tags should be handled",
+      "lang": "java",
+      "desc": "<p>\n<code>TODO</code> tags are commonly used to mark places where some more code is required, but which the developer wants to implement later.\nSometimes the developer will not have the time or will simply forget to get back to that tag.\nThis rule is meant to track those tags, and ensure that they do not go unnoticed.\n</p>\n\n<p>The following code illustrates this rule:</p>\n\n<pre>\nvoid doSomething() {\n  // TODO\n}\n</pre>",
+      "status": "READY",
+      "langName": "Java"
+    },
+    {
+      "key": "common-java:InsufficientBranchCoverage",
+      "name": "Insufficient branch coverage by unit tests",
+      "lang": "java",
+      "desc": "<p>An issue is created on a file as soon as the branch coverage on this file is less than the required threshold.It gives the number of branches to be covered in order to reach the required threshold.</p>",
+      "status": "READY",
+      "langName": "Java"
+    },
+    {
+      "key": "squid:S00115",
+      "name": "Constant names should comply with a naming convention",
+      "lang": "java",
+      "desc": "<p>\nSharing some naming conventions is a key point to make it possible for a team to efficiently collaborate. This rule allows to check that all constant names match a provided regular expression.\n</p>\n\n<p>\nThe following code snippet illustrates this rule when the regular expression value is \"^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$\":\n</p>\n<pre>\npublic class MyClass {\n  public static final int first = 1; // Non-Compliant\n  public static final int SECOND = 2; // Compliant\n}\n\npublic enum MyEnum {\n  first, // Non-Compliant\n  SECOND; // Compliant\n}\n</pre>",
+      "status": "READY",
+      "langName": "Java"
+    },
+    {
+      "key": "squid:S1134",
+      "name": "FIXME tags should be handled",
+      "lang": "java",
+      "desc": "<p>\n<code>FIXME</code> tags are commonly used to mark places where a bug is suspected, but which the developer wants to deal with later.\nSometimes the developer will not have the time or will simply forget to get back to that tag.\nThis rule is meant to track those tags, and ensure that they do not go unnoticed.\n</p>\n\n<p>The following code illustrates this rule:</p>\n\n<pre>\nint divide(int numerator, int denominator) {\n  return numerator / denominator;              // FIXME denominator = 0, Non-Compliant\n}\n</pre>",
+      "status": "READY",
+      "langName": "Java"
+    },
+    {
+      "key": "squid:S1133",
+      "name": "Deprecated code should be removed eventually",
+      "lang": "java",
+      "desc": "<p>\nThis rule is meant to be used as a way to track code which is marked as being deprecated.\nDeprecated code should eventually be removed.\n</p>\n\n<p>\nThe following code illustrates this rule:\n</p>\n\n<pre>\nclass Foo {\n  /**\n    * @deprecated\n    */\n  public void foo() {    // Non-Compliant\n  }\n\n  @Deprecated            // Non-Compliant\n  public void bar() {\n  }\n\n  public void baz() {    // Compliant\n  }\n}\n</pre>",
+      "status": "READY",
+      "langName": "Java"
+    },
+    {
+      "key": "squid:CallToDeprecatedMethod",
+      "name": "Avoid use of deprecated method",
+      "lang": "java",
+      "desc": "<p>Once deprecated, a method should no longer be used as it means\n\tthat the method might be removed sooner or later.</p>",
+      "status": "READY",
+      "langName": "Java"
+    },
+    {
+      "key": "squid:S1228",
+      "name": "Packages should have a javadoc file 'package-info.java'",
+      "lang": "java",
+      "desc": "<p>Each package in a Java project should include a <code>package-info.java</code> file. The purpose of this file is to document the Java package using javadoc and declare package annotations.</p>\n\n<h2>Compliant Solution</h2>\n<pre>\n/**\n* This package has non null parameters and is documented.\n**/\n@ParametersAreNonnullByDefault\npackage org.foo.bar;\n</pre>",
+      "status": "READY",
+      "langName": "Java"
+    }
+  ],
+  "facets": [
+    {
+      "property": "rules",
+      "values": [
+        {
+          "val": "squid:S1161",
+          "count": 879
+        },
+        {
+          "val": "squid:S1135",
+          "count": 571
+        },
+        {
+          "val": "squid:S1133",
+          "count": 558
+        },
+        {
+          "val": "common-java:InsufficientBranchCoverage",
+          "count": 550
+        },
+        {
+          "val": "common-java:DuplicatedBlocks",
+          "count": 408
+        },
+        {
+          "val": "squid:AstNode_SSLR_class_should_not_be_used",
+          "count": 265
+        },
+        {
+          "val": "squid:IndentationCheck",
+          "count": 264
+        },
+        {
+          "val": "squid:CallToDeprecatedMethod",
+          "count": 237
+        },
+        {
+          "val": "squid:MethodCyclomaticComplexity",
+          "count": 233
+        },
+        {
+          "val": "squid:S00115",
+          "count": 212
+        },
+        {
+          "val": "resharper-cs:RedundantUsingDirective",
+          "count": 175
+        },
+        {
+          "val": "squid:S1228",
+          "count": 174
+        },
+        {
+          "val": "squid:S1698",
+          "count": 139
+        },
+        {
+          "val": "squid:S1134",
+          "count": 113
+        },
+        {
+          "val": "squid:S1192",
+          "count": 111
+        }
+      ]
+    }
+  ]
+}

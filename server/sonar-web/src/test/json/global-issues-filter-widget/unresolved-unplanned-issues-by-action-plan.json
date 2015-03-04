@@ -1,0 +1,63 @@
+{
+  "total": 5877,
+  "p": 1,
+  "ps": 1,
+  "actionPlans": [
+    {
+      "key": "0cf48508-2fcd-4cb8-a50b-c5cd7c3decc0",
+      "name": "First Action Plan",
+      "status": "OPEN",
+      "project": "example:project",
+      "userLogin": "example.login",
+      "createdAt": "2014-04-03T12:28:05+0200",
+      "fCreatedAt": "Apr 3, 2014 12:28 PM",
+      "updatedAt": "2014-04-03T12:28:05+0200",
+      "fUpdatedAt": "Apr 3, 2014 12:28 PM"
+    },
+    {
+      "key": "1b9e7e52-ff58-40c1-80bf-f68429a3275e",
+      "name": "Second Action Plan",
+      "status": "OPEN",
+      "project": "example:project",
+      "userLogin": "example.login",
+      "createdAt": "2014-04-03T12:28:05+0200",
+      "fCreatedAt": "Apr 3, 2014 12:28 PM",
+      "updatedAt": "2014-04-03T12:28:05+0200",
+      "fUpdatedAt": "Apr 3, 2014 12:28 PM"
+    },
+    {
+      "key": "8c1d5d01-948e-4670-a0d9-17c512979486",
+      "name": "Third Action Plan",
+      "status": "OPEN",
+      "project": "example:project",
+      "userLogin": "example.login",
+      "createdAt": "2014-04-03T12:28:05+0200",
+      "fCreatedAt": "Apr 3, 2014 12:28 PM",
+      "updatedAt": "2014-04-03T12:28:05+0200",
+      "fUpdatedAt": "Apr 3, 2014 12:28 PM"
+    }
+  ],
+  "facets": [
+    {
+      "property": "actionPlans",
+      "values": [
+        {
+          "val": "",
+          "count": 5877
+        },
+        {
+          "val": "0cf48508-2fcd-4cb8-a50b-c5cd7c3decc0",
+          "count": 532
+        },
+        {
+          "val": "1b9e7e52-ff58-40c1-80bf-f68429a3275e",
+          "count": 56
+        },
+        {
+          "val": "8c1d5d01-948e-4670-a0d9-17c512979486",
+          "count": 52
+        }
+      ]
+    }
+  ]
+}
