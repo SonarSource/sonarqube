@@ -1,0 +1,49 @@
+<%
+   container_id = 'widget-issue-filter-' + widget.id.to_s
+   filter_id = widget_properties['filter']
+   filter = Internal.issues.findIssueFilterById(filter_id.to_i)
+   distribution_axis = widget_properties['distributionAxis']
+
+   if @dashboard_configuration.selected_period?
+     period_date = @snapshot.period_datetime(@dashboard_configuration.period_index).strftime('%FT%T%z')
+   else
+     period_date = nil
+   end
+%>
+
+<% if filter %>
+  <% if Internal.issues.isUserAuthorized(filter) %>
+
+    <% @widget_title = "<a href=\"#{url_for({:controller => 'component_issues', :action => 'index'})}?id=#{u(@project.key)}##{filter.data}\">#{h(filter.name)}</a>" %>
+    <% if widget_properties['displayFilterDescription'] && !filter.description.blank? %>
+      <p class="note spacer-bottom"><%= h filter.description -%></p>
+    <% end %>
+
+    <div id="<%= container_id -%>"></div>
+    <script>
+      require(['widgets/issue-filter'], function (IssueFilter) {
+        window.requestMessages().done(function () {
+          new IssueFilter({
+            el: '#<%= container_id -%>',
+            query: '<%= filter.data -%>',
+            distributionAxis: '<%= distribution_axis -%>',
+            <% if period_date %>
+            periodDate: '<%= period_date -%>',
+            <% end %>
+            componentUuid: '<%= @project.uuid -%>',
+            componentKey: '<%= @project.key -%>'
+          });
+        });
+      });
+    </script>
+
+  <% else %>
+
+    <p class="message-alert"><%= message 'widget.issue_filter.insufficient_privileges_warning' -%></p>
+
+  <% end %>
+<% else %>
+
+  <p class="message-alert"><%= message 'widget.issue_filter.unknown_filter_warning' -%></p>
+
+<% end %>

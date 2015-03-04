@@ -263,6 +263,7 @@ public final class CorePlugin extends SonarPlugin {
       UnresolvedIssuesPerAssigneeWidget.class,
       UnresolvedIssuesStatusesWidget.class,
       IssueFilterWidget.class,
+      ProjectIssueFilterWidget.class,
       IssueTagCloudWidget.class,
 
       // batch

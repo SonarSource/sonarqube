@@ -12,7 +12,7 @@
         <a href="{{issueFilterItemLink ../parsedQuery ../property val}}">{{t 'severity' val}}</a>
       </td>
       <td class="text-right nowrap">
-        {{numberShort count}}
+        {{#notNull ../periodDate}}+{{/notNull}}{{numberShort count}}
       </td>
     </tr>
   {{/each}}

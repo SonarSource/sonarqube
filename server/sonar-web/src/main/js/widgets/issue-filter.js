@@ -16,7 +16,12 @@ define(['templates/widgets'], function () {
         var criterion = {};
         criterion[property] = item.val;
         var r = _.extend({}, query, criterion);
-        return baseUrl + '/issues/search#' + getQuery(r);
+        if (r.componentKey != null) {
+          return baseUrl + '/component_issues/index?id=' + encodeURIComponent(r.componentKey) +
+              '#' + getQuery(_.omit(r, 'componentKey'));
+        } else {
+          return baseUrl + '/issues/search#' + getQuery(r);
+        }
       },
       byDistributionConf = {
         'severities': {
@@ -38,6 +43,13 @@ define(['templates/widgets'], function () {
           comparator: function (item) {
             var order = ['', 'FALSE-POSITIVE', 'WONTFIX', 'FIXED', 'REMOVED'];
             return order.indexOf(item.val);
+          },
+          filter: function (item) {
+            if ('' + this.query.resolved === 'false') {
+              return item.val === '';
+            } else {
+              return defaultFilter.call(this, item);
+            }
           }
         },
         'rules': {
@@ -115,7 +127,12 @@ define(['templates/widgets'], function () {
               createdAfter: createdAfter.format('YYYY-MM-DD'),
               createdBefore: createdBefore.format('YYYY-MM-DD')
             });
-            return baseUrl + '/issues/search#' + getQuery(r);
+            if (r.componentKey != null) {
+              return baseUrl + '/component_issues/index?id=' + encodeURIComponent(r.componentKey) +
+                  '#' + getQuery(_.omit(r, 'componentKey'));
+            } else {
+              return baseUrl + '/issues/search#' + getQuery(r);
+            }
           }
         }
       };
@@ -133,7 +150,22 @@ define(['templates/widgets'], function () {
     var criterion = {};
     criterion[property] = value;
     var r = _.extend({}, query, criterion);
-    return baseUrl + '/issues/search#' + getQuery(r);
+    if (r.componentKey != null) {
+      return baseUrl + '/component_issues/index?id=' + encodeURIComponent(r.componentKey) +
+          '#' + getQuery(_.omit(r, 'componentKey'));
+    } else {
+      return baseUrl + '/issues/search#' + getQuery(r);
+    }
+  });
+
+  Handlebars.registerHelper('issueFilterTotalLink', function (query) {
+    var r = _.extend({}, query);
+    if (r.componentKey != null) {
+      return baseUrl + '/component_issues/index?id=' + encodeURIComponent(r.componentKey) +
+          '#' + getQuery(_.omit(r, 'componentKey'));
+    } else {
+      return baseUrl + '/issues/search#' + getQuery(r);
+    }
   });
 
   return Marionette.ItemView.extend({
@@ -147,7 +179,8 @@ define(['templates/widgets'], function () {
       this.model = new Backbone.Model({
         query: this.options.query,
         parsedQuery: this.getParsedQuery(),
-        property: this.options.distributionAxis
+        property: this.options.distributionAxis,
+        periodDate: this.options.periodDate
       });
       this.listenTo(this.model, 'change', this.render);
       this.conf = byDistributionConf[this.options.distributionAxis];
@@ -164,6 +197,12 @@ define(['templates/widgets'], function () {
           query[criterion[0]] = criterion[1];
         }
       });
+      if (this.options.componentKey != null) {
+        _.extend(query, { componentKey: this.options.componentKey });
+      }
+      if (this.options.periodDate != null) {
+        _.extend(query, { createdAfter: this.options.periodDate });
+      }
       return query;
     },
 
@@ -202,6 +241,12 @@ define(['templates/widgets'], function () {
             ps: 1,
             facets: this.options.distributionAxis
           });
+      if (this.options.componentUuid != null) {
+        _.extend(options, { componentUuids: this.options.componentUuid });
+      }
+      if (this.options.periodDate != null) {
+        _.extend(options, { createdAfter: this.options.periodDate });
+      }
       return $.get(url, options).done(function (r) {
         if (_.isArray(r.facets) && r.facets.length === 1) {
           // save response object, but do not trigger repaint
