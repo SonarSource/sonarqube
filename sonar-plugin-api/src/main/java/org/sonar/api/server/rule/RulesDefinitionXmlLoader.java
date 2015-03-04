@@ -19,7 +19,6 @@
  */
 package org.sonar.api.server.rule;
 
-import com.google.common.io.Closeables;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
@@ -31,10 +30,12 @@ import org.sonar.check.Cardinality;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,10 +58,10 @@ import java.util.List;
  *     &lt;severity&gt;BLOCKER&lt;/severity&gt;
  *     &lt;cardinality&gt;MULTIPLE&lt;/cardinality&gt;
  *     &lt;status&gt;BETA&lt;/status&gt;
+ *     &lt;tag&gt;style&lt;/tag&gt;
+ *     &lt;tag&gt;security&lt;/tag&gt;
  *     &lt;param&gt;
  *       &lt;key&gt;the-param-key&lt;/key&gt;
- *       &lt;tag&gt;style&lt;/tag&gt;
- *       &lt;tag&gt;security&lt;/tag&gt;
  *       &lt;description&gt;
  *         &lt;![CDATA[the param-description]]&gt;
  *       &lt;/description&gt;
@@ -83,16 +84,17 @@ import java.util.List;
 public class RulesDefinitionXmlLoader implements ServerComponent {
 
   public void load(RulesDefinition.NewRepository repo, InputStream input, String encoding) {
-    Reader reader = null;
-    try {
-      reader = new InputStreamReader(input, encoding);
+    load(repo, input, Charset.forName(encoding));
+  }
+
+  /**
+   * @since 5.1
+   */
+  public void load(RulesDefinition.NewRepository repo, InputStream input, Charset charset) {
+    try (Reader reader = new InputStreamReader(input, charset)) {
       load(repo, reader);
-
     } catch (IOException e) {
-      throw new IllegalStateException("Fail to load XML file", e);
-
-    } finally {
-      Closeables.closeQuietly(reader);
+      throw new IllegalStateException("Error while reading XML rules definition for repository " + repo.key(), e);
     }
   }
 
