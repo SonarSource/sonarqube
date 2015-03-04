@@ -12,17 +12,17 @@
     <input id="description" name="description" type="text" size="50" maxlength="4000" value="<%= h(@filter.description) if @filter  -%>"/>
   </div>
   <% if display_owner && can_be_reassigned_by(current_user, @filter) %>
-    <% filter_owner = Api.users.findByLogin(@filter.user) %>
+    <% filter_owner = Api.users.findByLogin(@filter.userLogin) %>
     <div class="modal-field">
       <label for="user"><%= h message('issue_filter.form.owner') -%></label>
       <%= user_select_tag('user', :html_id => 'select-filter-owner', :selected_user => filter_owner) -%>
     </div>
   <% else %>
-    <input id="user" name="user" type="hidden" value="<%= h(@filter.user) if @filter -%>"/>
+    <input id="user" name="user" type="hidden" value="<%= h(@filter.userLogin) if @filter -%>"/>
   <% end %>
   <% if Internal.issues.canUserShareIssueFilter() %>
     <div class="modal-field">
-      <% if !@filter || @filter.user.nil? || @filter.user == current_user.login %>
+      <% if !@filter || @filter.userLogin.nil? || @filter.userLogin == current_user.login %>
         <label for="shared"><%= message('issue_filter.form.share') -%></label>
         <input id="shared" name="shared" type="checkbox" value="true" <%= 'checked' if (@filter && @filter.shared) -%>/>
       <% else %>

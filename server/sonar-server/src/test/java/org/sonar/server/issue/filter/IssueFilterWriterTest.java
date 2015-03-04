@@ -24,7 +24,7 @@ import org.json.JSONException;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.issue.DefaultIssueFilter;
+import org.sonar.core.issue.db.IssueFilterDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
@@ -39,12 +39,12 @@ public class IssueFilterWriterTest {
   public void write_filter() throws Exception {
     UserSession userSession = MockUserSession.set();
     test(userSession,
-      new DefaultIssueFilter()
+      new IssueFilterDto()
         .setId(13L)
         .setName("Blocker issues")
         .setDescription("All Blocker Issues")
         .setShared(true)
-        .setUser("simon")
+        .setUserLogin("simon")
         .setData("severity=BLOCKER"),
       "{\"filter\":{\n" +
         "      \"id\":13,\n" +
@@ -62,12 +62,12 @@ public class IssueFilterWriterTest {
   public void can_modify_if_logged_user_own_filter() throws Exception {
     UserSession userSession = MockUserSession.set().setLogin("simon");
     test(userSession,
-      new DefaultIssueFilter()
+      new IssueFilterDto()
         .setId(13L)
         .setName("Blocker issues")
         .setDescription("All Blocker Issues")
         .setShared(true)
-        .setUser("simon")
+        .setUserLogin("simon")
         .setData("severity=BLOCKER"),
       "{\"filter\":{\n" +
         "      \"id\":13,\n" +
@@ -85,12 +85,12 @@ public class IssueFilterWriterTest {
   public void can_modify_if_logged_user_has_permission() throws Exception {
     UserSession userSession = MockUserSession.set().setLogin("simon").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     test(userSession,
-      new DefaultIssueFilter()
+      new IssueFilterDto()
         .setId(13L)
         .setName("Blocker issues")
         .setDescription("All Blocker Issues")
         .setShared(true)
-        .setUser("julien")
+        .setUserLogin("julien")
         .setData("severity=BLOCKER"),
       "{\"filter\":{\n" +
         "      \"id\":13,\n" +
@@ -104,7 +104,7 @@ public class IssueFilterWriterTest {
     );
   }
 
-  private void test(UserSession userSession, DefaultIssueFilter filter, String expected) throws JSONException {
+  private void test(UserSession userSession, IssueFilterDto filter, String expected) throws JSONException {
     StringWriter output = new StringWriter();
     JsonWriter jsonWriter = JsonWriter.of(output);
     jsonWriter.beginObject();

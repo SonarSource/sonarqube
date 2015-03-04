@@ -26,7 +26,7 @@ import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.issue.DefaultIssueFilter;
+import org.sonar.core.issue.db.IssueFilterDto;
 import org.sonar.server.user.UserSession;
 
 public class ShowAction implements RequestHandler {
@@ -54,7 +54,7 @@ public class ShowAction implements RequestHandler {
   @Override
   public void handle(Request request, Response response) throws Exception {
     UserSession session = UserSession.get();
-    DefaultIssueFilter filter = service.find(request.mandatoryParamAsLong("id"), session);
+    IssueFilterDto filter = service.find(request.mandatoryParamAsLong("id"), session);
 
     JsonWriter json = response.newJsonWriter();
     json.beginObject();

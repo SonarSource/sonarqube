@@ -27,7 +27,6 @@ import org.hamcrest.Description;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.issue.DefaultIssueFilter;
 import org.sonar.core.issue.IssueFilterSerializer;
 import org.sonar.core.issue.db.IssueFilterDao;
 import org.sonar.core.issue.db.IssueFilterDto;
@@ -54,12 +53,9 @@ import java.util.Map;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyMap;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
 public class IssueFilterServiceTest {
@@ -77,9 +73,9 @@ public class IssueFilterServiceTest {
     IssueFilterDto dto = new IssueFilterDto().setId(1L).setName("My Issue").setUserLogin("john");
     when(issueFilterDao.selectById(1L)).thenReturn(dto);
 
-    DefaultIssueFilter issueFilter = service.findById(1L);
+    IssueFilterDto issueFilter = service.findById(1L);
     assertThat(issueFilter).isNotNull();
-    assertThat(issueFilter.id()).isEqualTo(1L);
+    assertThat(issueFilter.getId()).isEqualTo(1L);
   }
 
   @Test
@@ -87,9 +83,9 @@ public class IssueFilterServiceTest {
     IssueFilterDto issueFilterDto = new IssueFilterDto().setId(1L).setName("My Issue").setUserLogin("john");
     when(issueFilterDao.selectById(1L)).thenReturn(issueFilterDto);
 
-    DefaultIssueFilter issueFilter = service.find(1L, userSession);
+    IssueFilterDto issueFilter = service.find(1L, userSession);
     assertThat(issueFilter).isNotNull();
-    assertThat(issueFilter.id()).isEqualTo(1L);
+    assertThat(issueFilter.getId()).isEqualTo(1L);
   }
 
   @Test
@@ -97,9 +93,9 @@ public class IssueFilterServiceTest {
     IssueFilterDto issueFilterDto = new IssueFilterDto().setId(1L).setName("My Issue").setUserLogin("arthur").setShared(true);
     when(issueFilterDao.selectById(1L)).thenReturn(issueFilterDto);
 
-    DefaultIssueFilter issueFilter = service.find(1L, userSession);
+    IssueFilterDto issueFilter = service.find(1L, userSession);
     assertThat(issueFilter).isNotNull();
-    assertThat(issueFilter.id()).isEqualTo(1L);
+    assertThat(issueFilter.getId()).isEqualTo(1L);
   }
 
   @Test
@@ -142,9 +138,9 @@ public class IssueFilterServiceTest {
   public void should_find_by_user() {
     when(issueFilterDao.selectByUser("john")).thenReturn(newArrayList(new IssueFilterDto().setId(1L).setName("My Issue").setUserLogin("john")));
 
-    List<DefaultIssueFilter> issueFilter = service.findByUser(userSession);
+    List<IssueFilterDto> issueFilter = service.findByUser(userSession);
     assertThat(issueFilter).hasSize(1);
-    assertThat(issueFilter.get(0).id()).isEqualTo(1L);
+    assertThat(issueFilter.get(0).getId()).isEqualTo(1L);
   }
 
   @Test
@@ -160,17 +156,17 @@ public class IssueFilterServiceTest {
 
   @Test
   public void should_save() {
-    DefaultIssueFilter issueFilter = new DefaultIssueFilter().setName("My Issue");
-    DefaultIssueFilter result = service.save(issueFilter, userSession);
-    assertThat(result.name()).isEqualTo("My Issue");
-    assertThat(result.user()).isEqualTo("john");
+    IssueFilterDto issueFilter = new IssueFilterDto().setName("My Issue");
+    IssueFilterDto result = service.save(issueFilter, userSession);
+    assertThat(result.getName()).isEqualTo("My Issue");
+    assertThat(result.getUserLogin()).isEqualTo("john");
 
     verify(issueFilterDao).insert(any(IssueFilterDto.class));
   }
 
   @Test
   public void should_add_favorite_on_save() {
-    DefaultIssueFilter issueFilter = new DefaultIssueFilter().setName("My Issue");
+    IssueFilterDto issueFilter = new IssueFilterDto().setName("My Issue");
     service.save(issueFilter, userSession);
 
     verify(issueFilterDao).insert(any(IssueFilterDto.class));
@@ -181,7 +177,7 @@ public class IssueFilterServiceTest {
   public void should_not_save_if_not_logged() {
     UserSession userSession = MockUserSession.create().setLogin(null);
     try {
-      DefaultIssueFilter issueFilter = new DefaultIssueFilter().setName("My Issue");
+      IssueFilterDto issueFilter = new IssueFilterDto().setName("My Issue");
       service.save(issueFilter, userSession);
       fail();
     } catch (Exception e) {
@@ -194,7 +190,7 @@ public class IssueFilterServiceTest {
   public void should_not_save_if_name_already_used() {
     when(issueFilterDao.selectByUser(eq("john"))).thenReturn(newArrayList(new IssueFilterDto().setId(1L).setName("My Issue")));
     try {
-      DefaultIssueFilter issueFilter = new DefaultIssueFilter().setName("My Issue");
+      IssueFilterDto issueFilter = new IssueFilterDto().setName("My Issue");
       service.save(issueFilter, userSession);
       fail();
     } catch (Exception e) {
@@ -207,7 +203,7 @@ public class IssueFilterServiceTest {
   public void should_not_save_shared_filter_if_name_already_used_by_shared_filter() {
     when(issueFilterDao.selectByUser(eq("john"))).thenReturn(Collections.<IssueFilterDto>emptyList());
     when(issueFilterDao.selectSharedFilters()).thenReturn(newArrayList(new IssueFilterDto().setId(1L).setName("My Issue").setUserLogin("henry").setShared(true)));
-    DefaultIssueFilter issueFilter = new DefaultIssueFilter().setName("My Issue").setShared(true);
+    IssueFilterDto issueFilter = new IssueFilterDto().setName("My Issue").setShared(true);
     try {
       service.save(issueFilter, userSession);
       fail();
@@ -221,8 +217,8 @@ public class IssueFilterServiceTest {
   public void should_update() {
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Old Filter").setUserLogin("john"));
 
-    DefaultIssueFilter result = service.update(new DefaultIssueFilter().setId(1L).setName("My New Filter").setUser("john"), userSession);
-    assertThat(result.name()).isEqualTo("My New Filter");
+    IssueFilterDto result = service.update(new IssueFilterDto().setId(1L).setName("My New Filter").setUserLogin("john"), userSession);
+    assertThat(result.getName()).isEqualTo("My New Filter");
 
     verify(issueFilterDao).update(any(IssueFilterDto.class));
   }
@@ -232,8 +228,8 @@ public class IssueFilterServiceTest {
     when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(GlobalPermissions.DASHBOARD_SHARING));
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Filter").setShared(false).setUserLogin("john"));
 
-    DefaultIssueFilter result = service.update(new DefaultIssueFilter().setId(1L).setName("My Filter").setShared(true).setUser("john"), userSession);
-    assertThat(result.shared()).isTrue();
+    IssueFilterDto result = service.update(new IssueFilterDto().setId(1L).setName("My Filter").setShared(true).setUserLogin("john"), userSession);
+    assertThat(result.isShared()).isTrue();
 
     verify(issueFilterDao).update(any(IssueFilterDto.class));
   }
@@ -244,10 +240,24 @@ public class IssueFilterServiceTest {
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Filter").setShared(false).setUserLogin("john"));
 
     try {
-      service.update(new DefaultIssueFilter().setId(1L).setName("My Filter").setShared(true).setUser("john"), userSession);
+      service.update(new IssueFilterDto().setId(1L).setName("My Filter").setShared(true).setUserLogin("john"), userSession);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(ForbiddenException.class).hasMessage("User cannot own this filter because of insufficient rights");
+    }
+    verify(issueFilterDao, never()).update(any(IssueFilterDto.class));
+  }
+
+  @Test
+  public void should_not_share_filter_if_filter_owner_is_platform() {
+    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(GlobalPermissions.DASHBOARD_SHARING));
+    when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Filter").setShared(false));
+
+    try {
+      service.update(new IssueFilterDto().setId(1L).setName("My Filter").setShared(true), userSession);
+      failBecauseExceptionWasNotThrown(ForbiddenException.class);
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(ForbiddenException.class).hasMessage("Only owner of a filter can change sharing");
     }
     verify(issueFilterDao, never()).update(any(IssueFilterDto.class));
   }
@@ -259,7 +269,7 @@ public class IssueFilterServiceTest {
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("Arthur Filter").setShared(true).setUserLogin("arthur"));
 
     try {
-      service.update(new DefaultIssueFilter().setId(1L).setName("Arthur Filter").setShared(false).setUser("john"), userSession);
+      service.update(new IssueFilterDto().setId(1L).setName("Arthur Filter").setShared(false).setUserLogin("john"), userSession);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(ForbiddenException.class).hasMessage("Only owner of a filter can change sharing");
@@ -273,8 +283,8 @@ public class IssueFilterServiceTest {
     when(issueFilterDao.selectById(1L)).thenReturn(dto);
     when(issueFilterDao.selectByUser("john")).thenReturn(newArrayList(dto));
 
-    DefaultIssueFilter result = service.update(new DefaultIssueFilter().setId(1L).setName("My Filter").setUser("john"), userSession);
-    assertThat(result.name()).isEqualTo("My Filter");
+    IssueFilterDto result = service.update(new IssueFilterDto().setId(1L).setName("My Filter").setUserLogin("john"), userSession);
+    assertThat(result.getName()).isEqualTo("My Filter");
 
     verify(issueFilterDao).update(any(IssueFilterDto.class));
   }
@@ -286,8 +296,8 @@ public class IssueFilterServiceTest {
     IssueFilterFavouriteDto otherFavouriteDto = new IssueFilterFavouriteDto().setId(11L).setUserLogin("arthur").setIssueFilterId(1L);
     when(issueFilterFavouriteDao.selectByFilterId(1L)).thenReturn(newArrayList(userFavouriteDto, otherFavouriteDto));
 
-    DefaultIssueFilter result = service.update(new DefaultIssueFilter().setId(1L).setName("My New Filter").setUser("john").setShared(false), userSession);
-    assertThat(result.name()).isEqualTo("My New Filter");
+    IssueFilterDto result = service.update(new IssueFilterDto().setId(1L).setName("My New Filter").setUserLogin("john").setShared(false), userSession);
+    assertThat(result.getName()).isEqualTo("My New Filter");
 
     verify(issueFilterDao).update(any(IssueFilterDto.class));
     verify(issueFilterFavouriteDao).delete(11L);
@@ -301,10 +311,10 @@ public class IssueFilterServiceTest {
     when(issueFilterDao.selectById(1L))
       .thenReturn(new IssueFilterDto().setId(1L).setName("My Old Filter").setDescription("Old description").setUserLogin("arthur").setShared(true));
 
-    DefaultIssueFilter result = service.update(new DefaultIssueFilter().setId(1L).setName("My New Filter").setDescription("New description").setShared(true).setUser("arthur"),
+    IssueFilterDto result = service.update(new IssueFilterDto().setId(1L).setName("My New Filter").setDescription("New description").setShared(true).setUserLogin("arthur"),
       userSession);
-    assertThat(result.name()).isEqualTo("My New Filter");
-    assertThat(result.description()).isEqualTo("New description");
+    assertThat(result.getName()).isEqualTo("My New Filter");
+    assertThat(result.getDescription()).isEqualTo("New description");
 
     verify(issueFilterDao).update(any(IssueFilterDto.class));
   }
@@ -317,7 +327,7 @@ public class IssueFilterServiceTest {
       .thenReturn(new IssueFilterDto().setId(1L).setName("My Old Filter").setDescription("Old description").setUserLogin("arthur").setShared(true));
 
     try {
-      service.update(new DefaultIssueFilter().setId(1L).setName("My New Filter").setDescription("New description").setShared(true).setUser("arthur"), userSession);
+      service.update(new IssueFilterDto().setId(1L).setName("My New Filter").setDescription("New description").setShared(true).setUserLogin("arthur"), userSession);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(ForbiddenException.class).hasMessage("User cannot own this filter because of insufficient rights");
@@ -330,7 +340,7 @@ public class IssueFilterServiceTest {
     when(issueFilterDao.selectById(1L)).thenReturn(null);
 
     try {
-      service.update(new DefaultIssueFilter().setId(1L).setName("My New Filter"), userSession);
+      service.update(new IssueFilterDto().setId(1L).setName("My New Filter"), userSession);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(NotFoundException.class).hasMessage("Filter not found: 1");
@@ -344,7 +354,7 @@ public class IssueFilterServiceTest {
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Old Filter").setUserLogin("arthur").setShared(true));
 
     try {
-      service.update(new DefaultIssueFilter().setId(1L).setName("My New Filter"), userSession);
+      service.update(new IssueFilterDto().setId(1L).setName("My New Filter"), userSession);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(ForbiddenException.class).hasMessage("User is not authorized to modify this filter");
@@ -358,7 +368,7 @@ public class IssueFilterServiceTest {
     when(issueFilterDao.selectByUser(eq("john"))).thenReturn(newArrayList(new IssueFilterDto().setId(2L).setName("My Issue")));
 
     try {
-      service.update(new DefaultIssueFilter().setId(1L).setUser("john").setName("My Issue"), userSession);
+      service.update(new IssueFilterDto().setId(1L).setUserLogin("john").setName("My Issue"), userSession);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Name already exists");
@@ -374,8 +384,8 @@ public class IssueFilterServiceTest {
     Map<String, Object> data = newHashMap();
     data.put("componentRoots", "struts");
 
-    DefaultIssueFilter result = service.updateFilterQuery(1L, data, userSession);
-    assertThat(result.data()).isEqualTo("componentRoots=struts");
+    IssueFilterDto result = service.updateFilterQuery(1L, data, userSession);
+    assertThat(result.getData()).isEqualTo("componentRoots=struts");
 
     verify(issueFilterDao).update(any(IssueFilterDto.class));
   }
@@ -392,7 +402,7 @@ public class IssueFilterServiceTest {
     when(issueFilterDao.selectById(1L)).thenReturn(sharedFilter);
     when(issueFilterDao.selectSharedFilters()).thenReturn(Lists.newArrayList(sharedFilter));
 
-    DefaultIssueFilter issueFilter = new DefaultIssueFilter().setId(1L).setName("My filter").setShared(true).setUser("new.owner");
+    IssueFilterDto issueFilter = new IssueFilterDto().setId(1L).setName("My filter").setShared(true).setUserLogin("new.owner");
     service.update(issueFilter, userSession);
 
     verify(issueFilterDao).update(argThat(Matches.filter(expectedDto)));
@@ -407,7 +417,7 @@ public class IssueFilterServiceTest {
     when(issueFilterDao.selectById(1L)).thenReturn(sharedFilter);
 
     try {
-      DefaultIssueFilter issueFilter = new DefaultIssueFilter().setId(1L).setName("My filter").setShared(true).setUser("new.owner");
+      IssueFilterDto issueFilter = new IssueFilterDto().setId(1L).setName("My filter").setShared(true).setUserLogin("new.owner");
       service.update(issueFilter, MockUserSession.create().setUserId(1).setLogin(currentUser));
       fail();
     } catch (Exception e) {
@@ -491,12 +501,12 @@ public class IssueFilterServiceTest {
   @Test
   public void should_copy() {
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Issues").setUserLogin("john").setData("componentRoots=struts"));
-    DefaultIssueFilter issueFilter = new DefaultIssueFilter().setName("Copy Of My Issue");
+    IssueFilterDto issueFilter = new IssueFilterDto().setName("Copy Of My Issue");
 
-    DefaultIssueFilter result = service.copy(1L, issueFilter, userSession);
-    assertThat(result.name()).isEqualTo("Copy Of My Issue");
-    assertThat(result.user()).isEqualTo("john");
-    assertThat(result.data()).isEqualTo("componentRoots=struts");
+    IssueFilterDto result = service.copy(1L, issueFilter, userSession);
+    assertThat(result.getName()).isEqualTo("Copy Of My Issue");
+    assertThat(result.getUserLogin()).isEqualTo("john");
+    assertThat(result.getData()).isEqualTo("componentRoots=struts");
 
     verify(issueFilterDao).insert(any(IssueFilterDto.class));
   }
@@ -504,12 +514,12 @@ public class IssueFilterServiceTest {
   @Test
   public void should_copy_shared_filter() {
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Issues").setUserLogin("arthur").setShared(true));
-    DefaultIssueFilter issueFilter = new DefaultIssueFilter().setName("Copy Of My Issue");
+    IssueFilterDto issueFilter = new IssueFilterDto().setName("Copy Of My Issue");
 
-    DefaultIssueFilter result = service.copy(1L, issueFilter, userSession);
-    assertThat(result.name()).isEqualTo("Copy Of My Issue");
-    assertThat(result.user()).isEqualTo("john");
-    assertThat(result.shared()).isFalse();
+    IssueFilterDto result = service.copy(1L, issueFilter, userSession);
+    assertThat(result.getName()).isEqualTo("Copy Of My Issue");
+    assertThat(result.getUserLogin()).isEqualTo("john");
+    assertThat(result.isShared()).isFalse();
 
     verify(issueFilterDao).insert(any(IssueFilterDto.class));
   }
@@ -517,7 +527,7 @@ public class IssueFilterServiceTest {
   @Test
   public void should_add_favorite_on_copy() {
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Issues").setUserLogin("john").setData("componentRoots=struts"));
-    DefaultIssueFilter issueFilter = new DefaultIssueFilter().setName("Copy Of My Issue");
+    IssueFilterDto issueFilter = new IssueFilterDto().setName("Copy Of My Issue");
     service.copy(1L, issueFilter, userSession);
 
     verify(issueFilterDao).insert(any(IssueFilterDto.class));
@@ -548,17 +558,17 @@ public class IssueFilterServiceTest {
       new IssueFilterDto().setId(2L).setName("Project Issues").setUserLogin("arthur").setShared(true)
       ));
 
-    List<DefaultIssueFilter> results = service.findSharedFiltersWithoutUserFilters(userSession);
+    List<IssueFilterDto> results = service.findSharedFiltersWithoutUserFilters(userSession);
     assertThat(results).hasSize(1);
-    DefaultIssueFilter filter = results.get(0);
-    assertThat(filter.name()).isEqualTo("Project Issues");
+    IssueFilterDto filter = results.get(0);
+    assertThat(filter.getName()).isEqualTo("Project Issues");
   }
 
   @Test
   public void should_find_favourite_issue_filter() {
     when(issueFilterDao.selectFavoriteFiltersByUser("john")).thenReturn(newArrayList(new IssueFilterDto().setId(1L).setName("My Issue").setUserLogin("john")));
 
-    List<DefaultIssueFilter> results = service.findFavoriteFilters(userSession);
+    List<IssueFilterDto> results = service.findFavoriteFilters(userSession);
     assertThat(results).hasSize(1);
   }
 
@@ -645,7 +655,7 @@ public class IssueFilterServiceTest {
 
   @Test
   public void should_deserialize_filter_query() {
-    DefaultIssueFilter issueFilter = new DefaultIssueFilter().setData("componentRoots=struts");
+    IssueFilterDto issueFilter = new IssueFilterDto().setData("componentRoots=struts");
     service.deserializeIssueFilterQuery(issueFilter);
     verify(issueFilterSerializer).deserialize("componentRoots=struts");
   }
@@ -662,6 +672,21 @@ public class IssueFilterServiceTest {
     when(authorizationDao.selectGlobalPermissions("john")).thenReturn(Collections.<String>emptyList());
     userSession = MockUserSession.create().setLogin("john");
     assertThat(service.canShareFilter(userSession)).isFalse();
+  }
+
+  @Test
+  public void should_create_filter_provided_by_platform() throws Exception {
+
+    ArgumentCaptor<IssueFilterDto> filterCaptor = ArgumentCaptor.forClass(IssueFilterDto.class);
+
+    String savedData = "my super filter";
+    service.save(new IssueFilterDto().setData(savedData));
+
+    verify(issueFilterDao).insert(filterCaptor.capture());
+
+    IssueFilterDto persistedFilter = filterCaptor.getValue();
+
+    assertThat(persistedFilter.getData()).isEqualTo(savedData);
   }
 
   private static class Matches extends BaseMatcher<IssueFilterDto> {

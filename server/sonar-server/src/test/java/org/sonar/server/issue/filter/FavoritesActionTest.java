@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.core.issue.DefaultIssueFilter;
+import org.sonar.core.issue.db.IssueFilterDto;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
 
@@ -65,7 +65,7 @@ public class FavoritesActionTest {
   public void favorites_of_logged_in_user() throws Exception {
     MockUserSession session = MockUserSession.set().setLogin("eric").setUserId(123);
     when(service.findFavoriteFilters(session)).thenReturn(Arrays.asList(
-      new DefaultIssueFilter().setId(13L).setName("Blocker issues").setData("severity=BLOCKER").setUser("simon").setShared(true)
+      new IssueFilterDto().setId(13L).setName("Blocker issues").setData("severity=BLOCKER").setUserLogin("simon").setShared(true)
     ));
 
     tester.newGetRequest("api/issue_filters", "favorites").execute()

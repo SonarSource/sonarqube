@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.core.issue.DefaultIssueFilter;
+import org.sonar.core.issue.db.IssueFilterDto;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
 
@@ -69,8 +69,8 @@ public class AppActionTest {
   public void logged_in_app_with_favorites() throws Exception {
     MockUserSession session = MockUserSession.set().setLogin("eric").setUserId(123);
     when(service.findFavoriteFilters(session)).thenReturn(Arrays.asList(
-      new DefaultIssueFilter().setId(6L).setName("My issues"),
-      new DefaultIssueFilter().setId(13L).setName("Blocker issues")
+      new IssueFilterDto().setId(6L).setName("My issues"),
+      new IssueFilterDto().setId(13L).setName("Blocker issues")
     ));
     tester.newGetRequest("api/issue_filters", "app").execute()
       .assertJson(getClass(), "logged_in_page_with_favorites.json");
@@ -80,7 +80,7 @@ public class AppActionTest {
   public void logged_in_app_with_selected_filter() throws Exception {
     MockUserSession session = MockUserSession.set().setLogin("eric").setUserId(123);
     when(service.find(13L, session)).thenReturn(
-      new DefaultIssueFilter().setId(13L).setName("Blocker issues").setData("severity=BLOCKER").setUser("eric")
+      new IssueFilterDto().setId(13L).setName("Blocker issues").setData("severity=BLOCKER").setUserLogin("eric")
     );
 
     tester.newGetRequest("api/issue_filters", "app").setParam("id", "13").execute()
@@ -92,7 +92,7 @@ public class AppActionTest {
     // logged-in user is 'eric' but filter is owned by 'simon'
     MockUserSession session = MockUserSession.set().setLogin("eric").setUserId(123).setGlobalPermissions("none");
     when(service.find(13L, session)).thenReturn(
-      new DefaultIssueFilter().setId(13L).setName("Blocker issues").setData("severity=BLOCKER").setUser("simon").setShared(true)
+      new IssueFilterDto().setId(13L).setName("Blocker issues").setData("severity=BLOCKER").setUserLogin("simon").setShared(true)
     );
 
     tester.newGetRequest("api/issue_filters", "app").setParam("id", "13").execute()

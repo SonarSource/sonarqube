@@ -32,7 +32,7 @@ import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.user.User;
 import org.sonar.core.issue.DefaultActionPlan;
-import org.sonar.core.issue.DefaultIssueFilter;
+import org.sonar.core.issue.db.IssueFilterDto;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
@@ -412,11 +412,11 @@ public class InternalRubyIssueServiceTest {
 
     service.createIssueFilter(parameters);
 
-    ArgumentCaptor<DefaultIssueFilter> issueFilterCaptor = ArgumentCaptor.forClass(DefaultIssueFilter.class);
+    ArgumentCaptor<IssueFilterDto> issueFilterCaptor = ArgumentCaptor.forClass(IssueFilterDto.class);
     verify(issueFilterService).save(issueFilterCaptor.capture(), any(UserSession.class));
-    DefaultIssueFilter issueFilter = issueFilterCaptor.getValue();
-    assertThat(issueFilter.name()).isEqualTo("Long term");
-    assertThat(issueFilter.description()).isEqualTo("Long term issues");
+    IssueFilterDto issueFilter = issueFilterCaptor.getValue();
+    assertThat(issueFilter.getName()).isEqualTo("Long term");
+    assertThat(issueFilter.getDescription()).isEqualTo("Long term issues");
   }
 
   @Test
@@ -429,12 +429,12 @@ public class InternalRubyIssueServiceTest {
 
     service.updateIssueFilter(parameters);
 
-    ArgumentCaptor<DefaultIssueFilter> issueFilterCaptor = ArgumentCaptor.forClass(DefaultIssueFilter.class);
+    ArgumentCaptor<IssueFilterDto> issueFilterCaptor = ArgumentCaptor.forClass(IssueFilterDto.class);
     verify(issueFilterService).update(issueFilterCaptor.capture(), any(UserSession.class));
-    DefaultIssueFilter issueFilter = issueFilterCaptor.getValue();
-    assertThat(issueFilter.id()).isEqualTo(10L);
-    assertThat(issueFilter.name()).isEqualTo("Long term");
-    assertThat(issueFilter.description()).isEqualTo("Long term issues");
+    IssueFilterDto issueFilter = issueFilterCaptor.getValue();
+    assertThat(issueFilter.getId()).isEqualTo(10L);
+    assertThat(issueFilter.getName()).isEqualTo("Long term");
+    assertThat(issueFilter.getDescription()).isEqualTo("Long term issues");
   }
 
   @Test
@@ -458,11 +458,11 @@ public class InternalRubyIssueServiceTest {
 
     service.copyIssueFilter(1L, parameters);
 
-    ArgumentCaptor<DefaultIssueFilter> issueFilterCaptor = ArgumentCaptor.forClass(DefaultIssueFilter.class);
+    ArgumentCaptor<IssueFilterDto> issueFilterCaptor = ArgumentCaptor.forClass(IssueFilterDto.class);
     verify(issueFilterService).copy(eq(1L), issueFilterCaptor.capture(), any(UserSession.class));
-    DefaultIssueFilter issueFilter = issueFilterCaptor.getValue();
-    assertThat(issueFilter.name()).isEqualTo("Copy of Long term");
-    assertThat(issueFilter.description()).isEqualTo("Copy of Long term issues");
+    IssueFilterDto issueFilter = issueFilterCaptor.getValue();
+    assertThat(issueFilter.getName()).isEqualTo("Copy of Long term");
+    assertThat(issueFilter.getDescription()).isEqualTo("Copy of Long term issues");
   }
 
   @Test
@@ -555,7 +555,7 @@ public class InternalRubyIssueServiceTest {
     parameters.put("description", "Long term issues");
     parameters.put("user", null);
 
-    DefaultIssueFilter result = service.createIssueFilterResultForCopy(parameters);
+    IssueFilterDto result = service.createIssueFilterResultForCopy(parameters);
     assertThat(result).isNotNull();
   }
 
@@ -570,7 +570,7 @@ public class InternalRubyIssueServiceTest {
     Map<String, Object> props = newHashMap();
     props.put("componentRoots", "struts");
     props.put("statuses", "OPEN");
-    when(issueFilterService.deserializeIssueFilterQuery(any(DefaultIssueFilter.class))).thenReturn(props);
+    when(issueFilterService.deserializeIssueFilterQuery(any(IssueFilterDto.class))).thenReturn(props);
 
     Map<String, Object> overrideProps = newHashMap();
     overrideProps.put("statuses", "CLOSED");
@@ -604,7 +604,7 @@ public class InternalRubyIssueServiceTest {
 
   @Test
   public void deserialize_filter_query() {
-    DefaultIssueFilter issueFilter = new DefaultIssueFilter();
+    IssueFilterDto issueFilter = new IssueFilterDto();
     service.deserializeFilterQuery(issueFilter);
     verify(issueFilterService).deserializeIssueFilterQuery(issueFilter);
   }
@@ -645,7 +645,7 @@ public class InternalRubyIssueServiceTest {
 
   @Test
   public void check_if_user_is_authorized_to_see_issue_filter() {
-    DefaultIssueFilter issueFilter = new DefaultIssueFilter();
+    IssueFilterDto issueFilter = new IssueFilterDto();
     service.isUserAuthorized(issueFilter);
     verify(issueFilterService).getLoggedLogin(any(UserSession.class));
     verify(issueFilterService).verifyCurrentUserCanReadFilter(eq(issueFilter), anyString());

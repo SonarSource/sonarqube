@@ -26,7 +26,7 @@ import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.issue.DefaultIssueFilter;
+import org.sonar.core.issue.db.IssueFilterDto;
 import org.sonar.server.user.UserSession;
 
 import java.util.List;
@@ -62,7 +62,7 @@ public class AppAction implements RequestHandler {
 
     // Current filter (optional)
     Integer filterId = request.paramAsInt("id");
-    DefaultIssueFilter filter = null;
+    IssueFilterDto filter = null;
     if (filterId != null && filterId >= 0) {
       filter = service.find((long) filterId, session);
     }
@@ -78,13 +78,13 @@ public class AppAction implements RequestHandler {
 
     // Favorite filters, if logged in
     if (session.isLoggedIn()) {
-      List<DefaultIssueFilter> favorites = service.findFavoriteFilters(session);
+      List<IssueFilterDto> favorites = service.findFavoriteFilters(session);
       json.name("favorites").beginArray();
-      for (DefaultIssueFilter favorite : favorites) {
+      for (IssueFilterDto favorite : favorites) {
         json
           .beginObject()
-          .prop("id", favorite.id())
-          .prop("name", favorite.name())
+          .prop("id", favorite.getId())
+          .prop("name", favorite.getName())
           .endObject();
       }
       json.endArray();

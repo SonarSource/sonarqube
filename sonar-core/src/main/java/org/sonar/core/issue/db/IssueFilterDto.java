@@ -19,8 +19,6 @@
  */
 package org.sonar.core.issue.db;
 
-import org.sonar.core.issue.DefaultIssueFilter;
-
 import javax.annotation.Nullable;
 
 import java.util.Date;
@@ -38,6 +36,12 @@ public class IssueFilterDto {
   private String data;
   private Date createdAt;
   private Date updatedAt;
+
+  public IssueFilterDto() {
+    Date now = new Date();
+    createdAt = updatedAt = now;
+    shared = false;
+  }
 
   public Long getId() {
     return id;
@@ -109,29 +113,5 @@ public class IssueFilterDto {
   public IssueFilterDto setUpdatedAt(Date updatedAt) {
     this.updatedAt = updatedAt;
     return this;
-  }
-
-  public DefaultIssueFilter toIssueFilter() {
-    return new DefaultIssueFilter()
-      .setId(id)
-      .setName(name)
-      .setUser(userLogin)
-      .setDescription(description)
-      .setShared(shared)
-      .setData(data)
-      .setCreatedAt(createdAt)
-      .setUpdatedAt(updatedAt);
-  }
-
-  public static IssueFilterDto toIssueFilter(DefaultIssueFilter issueFilter) {
-    return new IssueFilterDto()
-      .setId(issueFilter.id())
-      .setName(issueFilter.name())
-      .setUserLogin(issueFilter.user())
-      .setDescription(issueFilter.description())
-      .setShared(issueFilter.shared())
-      .setData(issueFilter.data())
-      .setCreatedAt(issueFilter.createdAt())
-      .setUpdatedAt(issueFilter.updatedAt());
   }
 }

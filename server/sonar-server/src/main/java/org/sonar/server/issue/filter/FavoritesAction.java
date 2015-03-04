@@ -25,7 +25,7 @@ import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.issue.DefaultIssueFilter;
+import org.sonar.core.issue.db.IssueFilterDto;
 import org.sonar.server.user.UserSession;
 
 public class FavoritesAction implements RequestHandler {
@@ -50,12 +50,12 @@ public class FavoritesAction implements RequestHandler {
     JsonWriter json = response.newJsonWriter();
     json.beginObject().name("favoriteFilters").beginArray();
     if (session.isLoggedIn()) {
-      for (DefaultIssueFilter favorite : service.findFavoriteFilters(session)) {
+      for (IssueFilterDto favorite : service.findFavoriteFilters(session)) {
         json.beginObject();
-        json.prop("id", favorite.id());
-        json.prop("name", favorite.name());
-        json.prop("user", favorite.user());
-        json.prop("shared", favorite.shared());
+        json.prop("id", favorite.getId());
+        json.prop("name", favorite.getName());
+        json.prop("user", favorite.getUserLogin());
+        json.prop("shared", favorite.isShared());
         // no need to export description and query fields
         json.endObject();
       }
