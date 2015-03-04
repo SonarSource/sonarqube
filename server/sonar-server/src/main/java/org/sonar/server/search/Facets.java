@@ -71,7 +71,11 @@ class Facets {
     Missing missing = (Missing) aggregation;
     long docCount = missing.getDocCount();
     if (docCount > 0L) {
-      this.facetValues.put(aggregation.getName().replace("_missing", ""), new FacetValue("", docCount));
+      String facetName = aggregation.getName();
+      if (facetName.contains("__") && !facetName.startsWith("__")) {
+        facetName = facetName.substring(0, facetName.indexOf("__"));
+      }
+      this.facetValues.put(facetName.replace("_missing", ""), new FacetValue("", docCount));
     }
   }
 

@@ -253,6 +253,56 @@ public class RegisterRulesMediumTest {
   }
 
   @Test
+  public void update_only_rule_name() {
+    register(new Rules() {
+      @Override
+      public void init(RulesDefinition.NewRepository repository) {
+        repository.createRule("x1")
+          .setName("Name1")
+          .setHtmlDescription("Desc1");
+      }
+    });
+
+    register(new Rules() {
+      @Override
+      public void init(RulesDefinition.NewRepository repository) {
+        repository.createRule(RuleTesting.XOO_X1.rule())
+          .setName("Name2")
+          .setHtmlDescription("Desc1");
+      }
+    });
+
+    Rule rule = ruleIndex.getByKey(RuleTesting.XOO_X1);
+    assertThat(rule.name()).isEqualTo("Name2");
+    assertThat(rule.htmlDescription()).isEqualTo("Desc1");
+  }
+
+  @Test
+  public void update_only_rule_description() {
+    register(new Rules() {
+      @Override
+      public void init(RulesDefinition.NewRepository repository) {
+        repository.createRule("x1")
+          .setName("Name1")
+          .setHtmlDescription("Desc1");
+      }
+    });
+
+    register(new Rules() {
+      @Override
+      public void init(RulesDefinition.NewRepository repository) {
+        repository.createRule(RuleTesting.XOO_X1.rule())
+          .setName("Name1")
+          .setHtmlDescription("Desc2");
+      }
+    });
+
+    Rule rule = ruleIndex.getByKey(RuleTesting.XOO_X1);
+    assertThat(rule.name()).isEqualTo("Name1");
+    assertThat(rule.htmlDescription()).isEqualTo("Desc2");
+  }
+
+  @Test
   public void do_not_update_rules_if_no_changes() throws Exception {
     Rules rules = new Rules() {
       @Override

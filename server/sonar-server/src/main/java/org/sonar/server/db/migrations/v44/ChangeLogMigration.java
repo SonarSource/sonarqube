@@ -21,13 +21,15 @@ package org.sonar.server.db.migrations.v44;
 
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.core.activity.Activity;
+import org.sonar.api.utils.KeyValueFormat;
+import org.sonar.api.utils.internal.Uuids;
 import org.sonar.core.activity.db.ActivityDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.migration.v44.ChangeLog;
 import org.sonar.core.persistence.migration.v44.Migration44Mapper;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.rule.SeverityUtil;
+import org.sonar.server.activity.Activity;
 import org.sonar.server.activity.db.ActivityDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.db.migrations.DatabaseMigration;
@@ -99,11 +101,16 @@ public class ChangeLogMigration implements DatabaseMigration {
   }
 
   private void saveActiveRuleChange(DbSession session, ActiveRuleChange ruleChange, String author, Date currentTimeStamp) {
-    ActivityDto activity = ActivityDto.createFor(ruleChange);
-    activity.setType(Activity.Type.QPROFILE);
-    activity.setAuthor(author);
-    activity.setCreatedAt(currentTimeStamp);
-    dao.insert(session, activity);
+    Activity activity = ruleChange.toActivity();
+    ActivityDto dto = new ActivityDto();
+    dto.setKey(Uuids.create());
+    dto.setType(Activity.Type.QPROFILE.name());
+    dto.setAction(activity.getAction());
+    dto.setMessage(activity.getMessage());
+    dto.setAuthor(author);
+    dto.setData(KeyValueFormat.format(activity.getData()));
+    dto.setCreatedAt(currentTimeStamp);
+    dao.insert(session, dto);
   }
 
   private void processRuleChange(ActiveRuleChange ruleChange, ChangeLog change) {

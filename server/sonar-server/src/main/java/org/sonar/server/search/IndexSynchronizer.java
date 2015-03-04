@@ -23,7 +23,7 @@ package org.sonar.server.search;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.server.activity.index.ActivityIndex;
+import org.sonar.server.activity.index.ActivityIndexer;
 import org.sonar.server.db.Dao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
@@ -47,9 +47,11 @@ public class IndexSynchronizer {
   private final IssueIndexer issueIndexer;
   private final UserIndexer userIndexer;
   private final ViewIndexer viewIndexer;
+  private final ActivityIndexer activityIndexer;
 
   public IndexSynchronizer(DbClient db, IndexClient index, SourceLineIndexer sourceLineIndexer,
-    IssueAuthorizationIndexer issueAuthorizationIndexer, IssueIndexer issueIndexer, UserIndexer userIndexer, ViewIndexer viewIndexer) {
+                           IssueAuthorizationIndexer issueAuthorizationIndexer, IssueIndexer issueIndexer,
+                           UserIndexer userIndexer, ViewIndexer viewIndexer, ActivityIndexer activityIndexer) {
     this.db = db;
     this.index = index;
     this.sourceLineIndexer = sourceLineIndexer;
@@ -57,6 +59,7 @@ public class IndexSynchronizer {
     this.issueIndexer = issueIndexer;
     this.userIndexer = userIndexer;
     this.viewIndexer = viewIndexer;
+    this.activityIndexer = activityIndexer;
   }
 
   public void execute() {
@@ -64,11 +67,13 @@ public class IndexSynchronizer {
     try {
       synchronize(session, db.ruleDao(), index.get(RuleIndex.class));
       synchronize(session, db.activeRuleDao(), index.get(ActiveRuleIndex.class));
-      synchronize(session, db.activityDao(), index.get(ActivityIndex.class));
       session.commit();
     } finally {
       session.close();
     }
+
+    LOG.info("Index activities");
+    activityIndexer.index();
 
     LOG.info("Index issues");
     issueAuthorizationIndexer.index();

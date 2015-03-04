@@ -78,7 +78,8 @@ import org.sonar.server.activity.ActivityService;
 import org.sonar.server.activity.RubyQProfileActivityService;
 import org.sonar.server.activity.db.ActivityDao;
 import org.sonar.server.activity.index.ActivityIndex;
-import org.sonar.server.activity.index.ActivityNormalizer;
+import org.sonar.server.activity.index.ActivityIndexDefinition;
+import org.sonar.server.activity.index.ActivityIndexer;
 import org.sonar.server.activity.ws.ActivitiesWebService;
 import org.sonar.server.activity.ws.ActivityMapping;
 import org.sonar.server.authentication.ws.AuthenticationWs;
@@ -423,10 +424,6 @@ class ServerComponents {
       IssueIndex.class,
       IssueDao.class,
 
-      // Activity
-      ActivityService.class,
-      ActivityNormalizer.class,
-      ActivityIndex.class,
       ActivityDao.class
       ));
     components.addAll(CorePropertyDefinitions.all());
@@ -490,6 +487,12 @@ class ServerComponents {
     pico.addSingleton(BackendCleanup.class);
     pico.addSingleton(IndexRegistry.class);
     pico.addSingleton(IndexCreator.class);
+
+    // Activity
+    pico.addSingleton(ActivityService.class);
+    pico.addSingleton(ActivityIndexDefinition.class);
+    pico.addSingleton(ActivityIndexer.class);
+    pico.addSingleton(ActivityIndex.class);
 
     // batch
     pico.addSingleton(BatchIndex.class);

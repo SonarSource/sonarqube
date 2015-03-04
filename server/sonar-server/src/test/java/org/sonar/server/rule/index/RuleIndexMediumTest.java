@@ -341,6 +341,97 @@ public class RuleIndexMediumTest {
   }
 
   @Test
+  public void facet_on_debt_characteristic() throws InterruptedException {
+    CharacteristicDto char1 = DebtTesting.newCharacteristicDto("c1")
+      .setEnabled(true)
+      .setName("char1");
+    db.debtCharacteristicDao().insert(char1, dbSession);
+    dbSession.commit();
+
+    CharacteristicDto char11 = DebtTesting.newCharacteristicDto("c11")
+      .setEnabled(true)
+      .setName("char11")
+      .setParentId(char1.getId());
+    db.debtCharacteristicDao().insert(char11, dbSession);
+
+    // Rule with default characteristic
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("findbugs", "S001"))
+      .setSubCharacteristicId(null)
+      .setRemediationFunction(null)
+      .setDefaultSubCharacteristicId(char11.getId())
+      .setDefaultRemediationFunction("LINEAR").setDefaultRemediationCoefficient("2h"));
+    // Rule with overridden characteristic
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("pmd", "S002"))
+      .setSubCharacteristicId(char11.getId())
+      .setRemediationFunction("LINEAR").setRemediationCoefficient("2h")
+      .setDefaultSubCharacteristicId(null)
+      .setDefaultRemediationFunction(null));
+    // Rule without debt characteristic
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("xoo", "S001"))
+      .setSubCharacteristicId(null)
+      .setRemediationFunction(null).setRemediationCoefficient(null)
+      .setDefaultSubCharacteristicId(null)
+      .setDefaultRemediationFunction(null).setDefaultRemediationCoefficient(null));
+    // Rule with disabled debt characteristic
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("xoo", "S002"))
+      .setSubCharacteristicId(-1)
+      .setRemediationFunction(null).setRemediationCoefficient(null)
+      .setDefaultSubCharacteristicId(null)
+      .setDefaultRemediationFunction(null).setDefaultRemediationCoefficient(null));
+    dbSession.commit();
+
+    QueryContext withDebtCharFacet = new QueryContext().addFacets(Arrays.asList(RuleIndex.FACET_DEBT_CHARACTERISTICS));
+
+    // Facet show results on characs, subcharacs and uncharacterized rules 
+    Result<Rule> result1 = index.search(new RuleQuery(), withDebtCharFacet);
+    assertThat(result1.getFacetValues(RuleIndex.FACET_DEBT_CHARACTERISTICS)).containsOnly(
+      new FacetValue("c1", 2L),
+      new FacetValue("c11", 2L),
+      new FacetValue("", 1L),
+      new FacetValue("NONE", 1L)
+    );
+
+    // Facet is sticky when using a charac filter
+    Result<Rule> result2 = index.search(new RuleQuery().setDebtCharacteristics(Arrays.asList("c1")), withDebtCharFacet);
+    assertThat(result2.getFacetValues(RuleIndex.FACET_DEBT_CHARACTERISTICS)).containsOnly(
+      new FacetValue("c1", 2L),
+      new FacetValue("c11", 2L),
+      new FacetValue("", 1L),
+      new FacetValue("NONE", 1L)
+    );
+
+    // Facet is sticky when using a sub-charac filter
+    Result<Rule> result3 = index.search(new RuleQuery().setDebtCharacteristics(Arrays.asList("c11")), withDebtCharFacet);
+    assertThat(result3.getFacetValues(RuleIndex.FACET_DEBT_CHARACTERISTICS)).containsOnly(
+      new FacetValue("c1", 2L),
+      new FacetValue("c11", 2L),
+      new FacetValue("", 1L),
+      new FacetValue("NONE", 1L)
+    );
+
+    // Facet is sticky when using hasCharac filter
+    Result<Rule> result4 = index.search(new RuleQuery().setHasDebtCharacteristic(false), withDebtCharFacet);
+    assertThat(result4.getFacetValues(RuleIndex.FACET_DEBT_CHARACTERISTICS)).containsOnly(
+      new FacetValue("c1", 2L),
+      new FacetValue("c11", 2L),
+      new FacetValue("", 1L),
+      new FacetValue("NONE", 1L)
+    );
+
+    // Facet applies other filters
+    Result<Rule> result5 = index.search(new RuleQuery().setRepositories(Arrays.asList("xoo")), withDebtCharFacet);
+    assertThat(result5.getFacetValues(RuleIndex.FACET_DEBT_CHARACTERISTICS)).containsOnly(
+      new FacetValue("", 1L),
+      new FacetValue("NONE", 1L)
+    );
+    Result<Rule> result6 = index.search(new RuleQuery().setRepositories(Arrays.asList("findbugs")), withDebtCharFacet);
+    assertThat(result6.getFacetValues(RuleIndex.FACET_DEBT_CHARACTERISTICS)).containsOnly(
+      new FacetValue("c1", 1L),
+      new FacetValue("c11", 1L)
+    );
+  }
+
+  @Test
   public void search_by_any_of_repositories() {
     dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("findbugs", "S001")));
     dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("pmd", "S002")));

@@ -96,6 +96,10 @@ public class NewIndex {
       return setProperty(fieldName, ImmutableMap.of("type", "long"));
     }
 
+    public NewIndexType createDynamicNestedField(String fieldName) {
+      return setProperty(fieldName, ImmutableMap.of("type", "nested", "dynamic", "true"));
+    }
+
     public NewIndexType createShortField(String fieldName) {
       return setProperty(fieldName, ImmutableMap.of("type", "short"));
     }

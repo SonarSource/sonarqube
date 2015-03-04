@@ -129,7 +129,7 @@ define([
               url: baseUrl + '/dashboard/index?id=' + encodeURIComponent(historyItem.key) + dashboardParameters(true),
               name: historyItem.name,
               q: historyItem.icon,
-              extra: index === 0 ? t('recent_history') : null
+              extra: index === 0 ? t('browsed_recently') : null
             };
           }),
           qualifiers = this.model.get('qualifiers').map(function (q, index) {

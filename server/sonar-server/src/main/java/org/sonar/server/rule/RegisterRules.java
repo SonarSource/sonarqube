@@ -51,12 +51,8 @@ import org.sonar.server.startup.RegisterDebtModel;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -228,7 +224,9 @@ public class RegisterRules implements Startable {
       dto.setName(def.name());
       changed = true;
     }
-    changed = mergeDescription(def, dto);
+    if (mergeDescription(def, dto)) {
+      changed= true;
+    }
     if (!dto.getSystemTags().containsAll(def.tags())) {
       dto.setSystemTags(def.tags());
       changed = true;

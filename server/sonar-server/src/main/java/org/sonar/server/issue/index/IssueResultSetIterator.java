@@ -150,7 +150,7 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
     String key = rs.getString(1);
     String projectUuid = rs.getString(2);
 
-    // all the keys must be present, even if value is null
+    // all the fields must be present, even if value is null
     doc.setKey(key);
     doc.setProjectUuid(projectUuid);
     doc.setTechnicalUpdateDate(new Date(rs.getLong(3)));

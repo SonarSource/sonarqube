@@ -19,8 +19,6 @@
  */
 package org.sonar.server.rule.ws;
 
-import org.sonar.core.rule.RuleDto.Format;
-
 import com.google.common.collect.ImmutableSet;
 import org.junit.After;
 import org.junit.Before;
@@ -38,6 +36,7 @@ import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.rule.RuleDto;
+import org.sonar.core.rule.RuleDto.Format;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.db.DbClient;
@@ -316,14 +315,36 @@ public class RulesWebServiceMediumTest {
       .setRemediationCoefficient("30min")
       .setRemediationOffset("5min")
       );
+    ruleDao.insert(session, RuleTesting.newXooX3()
+      .setDefaultSubCharacteristicId(null)
+      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+      .setDefaultRemediationCoefficient("2min")
+      .setDefaultRemediationOffset("1min")
+
+      .setSubCharacteristicId(null)
+      .setRemediationFunction(null)
+      .setRemediationCoefficient(null)
+      .setRemediationOffset(null)
+      );
+    ruleDao.insert(session, RuleTesting.newDto(RuleKey.of("xoo", "x4")).setLanguage("xoo")
+      .setDefaultSubCharacteristicId(softReliabilityId)
+      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+      .setDefaultRemediationCoefficient("2min")
+      .setDefaultRemediationOffset("1min")
+
+      .setSubCharacteristicId(-1)
+      .setRemediationFunction(null)
+      .setRemediationCoefficient(null)
+      .setRemediationOffset(null)
+      );
     session.commit();
 
     MockUserSession.set();
-    WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
-    request.setParam(SearchOptions.PARAM_FIELDS, "debtChar,debtCharName,debtSubChar,debtSubCharName,debtRemFn,debtOverloaded,defaultDebtChar,defaultDebtSubChar,defaultDebtRemFn");
-    request.setParam("debt_characteristics", "SOFT_RELIABILITY");
-    request.setParam(SearchAction.PARAM_FACETS, "debt_characteristics");
-    WsTester.Result result = request.execute();
+    WsTester.Result result = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD)
+      .setParam(SearchOptions.PARAM_FIELDS, "debtChar,debtCharName,debtSubChar,debtSubCharName,debtRemFn,debtOverloaded,defaultDebtChar,defaultDebtSubChar,defaultDebtRemFn")
+      .setParam("debt_characteristics", "SOFT_RELIABILITY")
+      .setParam(SearchAction.PARAM_FACETS, "debt_characteristics")
+      .execute();
     result.assertJson(this.getClass(), "search_debt_rules_sticky.json", false);
   }
 

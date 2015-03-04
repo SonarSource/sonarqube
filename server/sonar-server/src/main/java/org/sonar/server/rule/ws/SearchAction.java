@@ -25,6 +25,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
@@ -35,6 +36,7 @@ import org.sonar.server.rule.RuleService;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.rule.index.RuleQuery;
+import org.sonar.server.search.FacetValue;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 import org.sonar.server.search.ws.SearchOptions;
@@ -44,6 +46,7 @@ import javax.annotation.CheckForNull;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * @since 4.4
@@ -314,6 +317,31 @@ public class SearchAction extends SearchRequestHandler<RuleQuery, Rule> implemen
     addMandatoryFacetValues(results, RuleIndex.FACET_STATUSES, RuleIndex.ALL_STATUSES_EXCEPT_REMOVED);
     addMandatoryFacetValues(results, RuleIndex.FACET_SEVERITIES, Severity.ALL);
     addMandatoryFacetValues(results, RuleIndex.FACET_TAGS, request.paramAsStrings(PARAM_TAGS));
+
+    mergeNoneAndEmptyBucketOnCharacteristics(results);
+
     super.writeFacets(request, context, results, json);
+  }
+
+  protected void mergeNoneAndEmptyBucketOnCharacteristics(Result<?> results) {
+    if (results.getFacets().containsKey(RuleIndex.FACET_DEBT_CHARACTERISTICS)) {
+      Collection<FacetValue> characValues = results.getFacetValues(RuleIndex.FACET_DEBT_CHARACTERISTICS);
+      if (characValues == null) {
+        return;
+      }
+
+      long mergedCount = 0L;
+      Iterator<FacetValue> characIterator = characValues.iterator();
+      while (characIterator.hasNext()) {
+        FacetValue characValue = characIterator.next();
+        if ("".equals(characValue.getKey()) || DebtCharacteristic.NONE.equals(characValue.getKey())) {
+          mergedCount += characValue.getValue();
+          characIterator.remove();
+        }
+      }
+
+      FacetValue mergedNoneValue = new FacetValue(DebtCharacteristic.NONE, mergedCount);
+      characValues.add(mergedNoneValue);
+    }
   }
 }

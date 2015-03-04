@@ -25,29 +25,28 @@ import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.activity.Activity;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.server.activity.ActivityService;
+import org.sonar.server.activity.Activity;
+import org.sonar.server.activity.index.ActivityDoc;
+import org.sonar.server.activity.index.ActivityIndex;
 import org.sonar.server.activity.index.ActivityQuery;
-import org.sonar.server.activity.ws.ActivityMapping;
-import org.sonar.server.search.QueryContext;
-import org.sonar.server.search.Result;
-import org.sonar.server.search.ws.SearchOptions;
+import org.sonar.server.es.SearchOptions;
+import org.sonar.server.es.SearchResult;
+import org.sonar.server.issue.ws.IssuesWs;
 import org.sonar.server.user.UserSession;
 
 import java.util.Arrays;
 import java.util.Map;
 
+// FIXME replace by api/activities/search
 public class HistoryWsAction implements ComputationWsAction, RequestHandler {
 
   public static final String PARAM_TYPE = "type";
 
-  private final ActivityService activityService;
-  private final ActivityMapping mapping;
+  private final ActivityIndex activityIndex;
 
-  public HistoryWsAction(ActivityService activityService, ActivityMapping mapping) {
-    this.activityService = activityService;
-    this.mapping = mapping;
+  public HistoryWsAction(ActivityIndex activityIndex) {
+    this.activityIndex = activityIndex;
   }
 
   @Override
@@ -59,38 +58,31 @@ public class HistoryWsAction implements ComputationWsAction, RequestHandler {
       .setInternal(true)
       .setHandler(this);
 
-    // Generic search parameters
-    SearchOptions.defineFieldsParam(action, mapping.supportedFields());
-    SearchOptions.definePageParams(action);
+    action.addPagingParams(10);
   }
 
   @Override
   public void handle(Request request, Response response) {
-    checkUserRights();
+    UserSession.get().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
 
-    ActivityQuery query = activityService.newActivityQuery();
-    query.setTypes(Arrays.asList(Activity.Type.ANALYSIS_REPORT));
+    ActivityQuery query = new ActivityQuery();
+    query.setTypes(Arrays.asList(Activity.Type.ANALYSIS_REPORT.name()));
 
-    SearchOptions searchOptions = SearchOptions.create(request);
-    QueryContext queryContext = mapping.newQueryOptions(searchOptions);
-
-    Result<Activity> results = activityService.search(query, queryContext);
+    SearchOptions options = new SearchOptions();
+    options.setPage(request.mandatoryParamAsInt(IssuesWs.Param.PAGE), request.mandatoryParamAsInt(IssuesWs.Param.PAGE_SIZE));
+    SearchResult<ActivityDoc> results = activityIndex.search(query, options);
 
     JsonWriter json = response.newJsonWriter().beginObject();
-    searchOptions.writeStatistics(json, results);
+    options.writeJson(json, results.getTotal());
     writeReports(results, json);
     json.endObject().close();
   }
 
-  private void checkUserRights() {
-    UserSession.get().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
-  }
-
-  private void writeReports(Result<Activity> result, JsonWriter json) {
+  private void writeReports(SearchResult<ActivityDoc> result, JsonWriter json) {
     json.name("reports").beginArray();
-    for (Activity reportActivity : result.getHits()) {
+    for (ActivityDoc doc : result.getDocs()) {
       json.beginObject();
-      for (Map.Entry<String, String> detail : reportActivity.details().entrySet()) {
+      for (Map.Entry<String, String> detail : doc.getDetails().entrySet()) {
         json.prop(detail.getKey(), detail.getValue());
       }
       json.endObject();

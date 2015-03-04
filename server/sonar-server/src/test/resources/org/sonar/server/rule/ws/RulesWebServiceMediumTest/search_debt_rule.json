@@ -27,6 +27,10 @@
       {
         "val": "HARD_RELIABILITY",
         "count": 1
+      },
+      {
+        "val": "NONE",
+        "count": 0
       }
     ]
   }

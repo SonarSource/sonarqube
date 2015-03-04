@@ -17,17 +17,54 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.activity;
+package org.sonar.server.activity;
 
+import javax.annotation.Nullable;
+
+import java.util.LinkedHashMap;
 import java.util.Map;
 
-/**
- * @since 4.4
- */
-public interface ActivityLog {
+public class Activity {
 
-  Map<String, String> getDetails();
+  public static enum Type {
+    QPROFILE, SERVER, ANALYSIS_REPORT
+  }
 
-  public String getAction();
+  private Type type;
+  private String action;
+  private String message;
+  private final Map<String,Object> data = new LinkedHashMap<>();
 
+  public Type getType() {
+    return type;
+  }
+
+  public void setType(Type type) {
+    this.type = type;
+  }
+
+  public String getAction() {
+    return action;
+  }
+
+  public void setAction(String action) {
+    this.action = action;
+  }
+
+  public String getMessage() {
+    return message;
+  }
+
+  public void setMessage(@Nullable String message) {
+    this.message = message;
+  }
+
+  public Map<String, Object> getData() {
+    return data;
+  }
+
+  public Activity setData(String key, Object val) {
+    this.data.put(key, val);
+    return this;
+  }
 }

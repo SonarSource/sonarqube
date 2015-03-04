@@ -63,7 +63,13 @@ import org.sonar.server.user.UserSession;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -263,7 +269,7 @@ public class SearchAction implements BaseIssuesWsAction {
   @Override
   public final void handle(Request request, Response response) throws Exception {
     SearchOptions options = new SearchOptions();
-    options.setPage(request.mandatoryParamAsInt(IssuesWs.Param.PAGE), request.mandatoryParamAsInt(IssuesWs.Param.PAGE_SIZE));
+    options.setPage(request.mandatoryParamAsInt(WebService.Param.PAGE), request.mandatoryParamAsInt(WebService.Param.PAGE_SIZE));
     options.addFacets(request.paramAsStrings(WebService.Param.FACETS));
 
     IssueQuery query = issueQueryService.createFromRequest(request);

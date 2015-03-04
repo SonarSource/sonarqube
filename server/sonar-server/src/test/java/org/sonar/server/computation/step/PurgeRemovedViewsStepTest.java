@@ -20,11 +20,7 @@
 
 package org.sonar.server.computation.step;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.core.component.ComponentDto;
@@ -89,7 +85,7 @@ public class PurgeRemovedViewsStepTest extends BaseStepTest {
 
     sut.execute(context);
 
-    List<String> viewUuids = esTester.getDocumentFields(ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW, ViewIndexDefinition.FIELD_UUID);
+    List<String> viewUuids = esTester.getDocumentFieldValues(ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW, ViewIndexDefinition.FIELD_UUID);
     assertThat(viewUuids).containsOnly("ABCD", "BCDE");
   }
 

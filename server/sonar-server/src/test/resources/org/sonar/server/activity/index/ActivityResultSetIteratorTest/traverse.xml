@@ -1,0 +1,7 @@
+<dataset>
+  <activities id="1" log_key="UUID1" log_type="ANALYSIS_REPORT" log_action="THE_ACTION" log_message="THE_MSG"
+              created_at="2014-01-01" data_field="foo=bar" user_login="THE_AUTHOR"/>
+
+  <activities id="2" log_key="UUID2" log_type="ANALYSIS_REPORT" log_action="THE_ACTION" log_message="THE_MSG"
+              created_at="2015-01-01" data_field="foo=bar" user_login="THE_AUTHOR"/>
+</dataset>
