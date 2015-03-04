@@ -26,18 +26,14 @@ import com.google.common.primitives.Ints;
 
 import java.util.List;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 /**
  * Utility class heavily inspired by Guava
  */
 public class MultiSets {
 
-  private static final Ordering<Multiset.Entry<?>> DECREASING_COUNT_ORDERING = new Ordering<Multiset.Entry<?>>() {
+  private static final Ordering<Multiset.Entry<?>> DECREASING_COUNT_ORDERING = new NonNullOrdering<Multiset.Entry<?>>() {
     @Override
-    public int compare(Multiset.Entry<?> entry1, Multiset.Entry<?> entry2) {
-      checkNotNull(entry1);
-      checkNotNull(entry2);
+    public int doCompare(Multiset.Entry<?> entry1, Multiset.Entry<?> entry2) {
       return Ints.compare(entry2.getCount(), entry1.getCount());
     }
   };
@@ -52,5 +48,15 @@ public class MultiSets {
    */
   public static <E> List<Multiset.Entry<E>> listOrderedByHighestCounts(Multiset<E> multiset) {
     return DECREASING_COUNT_ORDERING.sortedCopy(multiset.entrySet());
+  }
+
+  private abstract static class NonNullOrdering<T> extends Ordering<T> {
+
+    @Override
+    public int compare(T left, T right) {
+      return doCompare(left, right);
+    }
+
+    public abstract int doCompare(T left, T right);
   }
 }

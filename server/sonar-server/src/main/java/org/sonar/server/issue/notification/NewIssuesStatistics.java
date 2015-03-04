@@ -107,8 +107,9 @@ public class NewIssuesStatistics {
       for (String tag : issue.tags()) {
         distributions.get(TAGS).add(tag);
       }
-      if (issue.debt() != null) {
-        debtInMinutes += issue.debt().toMinutes();
+      Duration debt = issue.debt();
+      if (debt != null) {
+        debtInMinutes += debt.toMinutes();
       }
     }
 

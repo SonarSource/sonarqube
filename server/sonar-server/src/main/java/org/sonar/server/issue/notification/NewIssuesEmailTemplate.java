@@ -48,6 +48,12 @@ public class NewIssuesEmailTemplate extends EmailTemplate {
   public static final String FIELD_PROJECT_DATE = "projectDate";
   public static final String FIELD_PROJECT_UUID = "projectUuid";
 
+  private static final char NEW_LINE = '\n';
+  private static final String TAB = "   ";
+  private static final String DOT = ".";
+  private static final String COUNT = DOT + "count";
+  private static final String LABEL = DOT + "label";
+
   private final EmailSettings settings;
   private final I18n i18n;
   private final UserIndex userIndex;
@@ -74,7 +80,7 @@ public class NewIssuesEmailTemplate extends EmailTemplate {
     String projectName = notification.getFieldValue(FIELD_PROJECT_NAME);
 
     StringBuilder message = new StringBuilder();
-    message.append("Project: ").append(projectName).append("\n\n");
+    message.append("Project: ").append(projectName).append(NEW_LINE).append(NEW_LINE);
     appendSeverity(message, notification);
     appendAssignees(message, notification);
     appendTags(message, notification);
@@ -83,7 +89,7 @@ public class NewIssuesEmailTemplate extends EmailTemplate {
 
     return new EmailMessage()
       .setMessageId("new-issues/" + notification.getFieldValue(FIELD_PROJECT_KEY))
-      .setSubject(projectName + ": " + notification.getFieldValue(METRIC.SEVERITY + ".count") + " new issues")
+      .setSubject(projectName + ": " + notification.getFieldValue(METRIC.SEVERITY + COUNT) + " new issues")
       .setMessage(message.toString());
   }
 
@@ -94,33 +100,34 @@ public class NewIssuesEmailTemplate extends EmailTemplate {
 
     message.append("   Components:\n");
     int i = 1;
-    while (notification.getFieldValue(METRIC.COMPONENT + "." + i + ".label") != null && i <= 5) {
-      String component = notification.getFieldValue(METRIC.COMPONENT + "." + i + ".label");
-      message.append("      ")
+    while (notification.getFieldValue(METRIC.COMPONENT + DOT + i + LABEL) != null && i <= 5) {
+      String component = notification.getFieldValue(METRIC.COMPONENT + DOT + i + LABEL);
+      message
+        .append(TAB).append(TAB)
         .append(component)
         .append(" : ")
-        .append(notification.getFieldValue(METRIC.COMPONENT + "." + i + ".count"))
+        .append(notification.getFieldValue(METRIC.COMPONENT + DOT + i + COUNT))
         .append("\n");
       i += 1;
     }
   }
 
   private void appendAssignees(StringBuilder message, Notification notification) {
-    if (notification.getFieldValue(METRIC.LOGIN + ".1.label") == null) {
+    if (notification.getFieldValue(METRIC.LOGIN + DOT + "1" + LABEL) == null) {
       return;
     }
 
-    message.append("   Assignee - ");
+    message.append(TAB + "Assignee - ");
     int i = 1;
-    while (notification.getFieldValue(METRIC.LOGIN + "." + i + ".label") != null && i <= 5) {
-      String login = notification.getFieldValue(METRIC.LOGIN + "." + i + ".label");
+    while (notification.getFieldValue(METRIC.LOGIN + DOT + i + LABEL) != null && i <= 5) {
+      String login = notification.getFieldValue(METRIC.LOGIN + DOT + i + LABEL);
       UserDoc user = userIndex.getNullableByLogin(login);
       String name = user == null ? null : user.name();
       message.append(Objects.firstNonNull(name, login))
         .append(": ")
-        .append(notification.getFieldValue(METRIC.LOGIN + "." + i + ".count"));
+        .append(notification.getFieldValue(METRIC.LOGIN + DOT + i + COUNT));
       if (i < 5) {
-        message.append("   ");
+        message.append(TAB);
       }
       i += 1;
     }
@@ -129,39 +136,39 @@ public class NewIssuesEmailTemplate extends EmailTemplate {
   }
 
   private void appendTags(StringBuilder message, Notification notification) {
-    if (notification.getFieldValue(METRIC.TAGS + ".1.label") == null) {
+    if (notification.getFieldValue(METRIC.TAGS + DOT + "1" + LABEL) == null) {
       return;
     }
 
-    message.append("   Tags - ");
+    message.append(TAB + "Tags - ");
     int i = 1;
-    while (notification.getFieldValue(METRIC.TAGS + "." + i + ".label") != null && i <= 5) {
-      String tag = notification.getFieldValue(METRIC.TAGS + "." + i + ".label");
+    while (notification.getFieldValue(METRIC.TAGS + DOT + i + LABEL) != null && i <= 5) {
+      String tag = notification.getFieldValue(METRIC.TAGS + DOT + i + LABEL);
       message.append(tag)
         .append(": ")
-        .append(notification.getFieldValue(METRIC.TAGS + "." + i + ".count"));
+        .append(notification.getFieldValue(METRIC.TAGS + DOT + i + COUNT));
       if (i < 5) {
-        message.append("   ");
+        message.append(TAB);
       }
       i += 1;
     }
-    message.append("\n");
+    message.append(NEW_LINE);
   }
 
   private void appendSeverity(StringBuilder message, Notification notification) {
-    message.append(notification.getFieldValue(METRIC.SEVERITY + ".count")).append(" new issues - Total debt: ")
-      .append(notification.getFieldValue(METRIC.DEBT + ".count"))
-      .append("\n\n")
-      .append("   Severity - ");
+    message.append(notification.getFieldValue(METRIC.SEVERITY + COUNT)).append(" new issues - Total debt: ")
+      .append(notification.getFieldValue(METRIC.DEBT + COUNT))
+      .append(NEW_LINE).append(NEW_LINE)
+      .append(TAB + "Severity - ");
     for (Iterator<String> severityIterator = Lists.reverse(Severity.ALL).iterator(); severityIterator.hasNext();) {
       String severity = severityIterator.next();
       String severityLabel = i18n.message(getLocale(), "severity." + severity, severity);
-      message.append(severityLabel).append(": ").append(notification.getFieldValue(METRIC.SEVERITY + "." + severity + ".count"));
+      message.append(severityLabel).append(": ").append(notification.getFieldValue(METRIC.SEVERITY + DOT + severity + COUNT));
       if (severityIterator.hasNext()) {
-        message.append("   ");
+        message.append(TAB);
       }
     }
-    message.append('\n');
+    message.append(NEW_LINE);
   }
 
   private void appendFooter(StringBuilder message, Notification notification) {
@@ -171,7 +178,7 @@ public class NewIssuesEmailTemplate extends EmailTemplate {
       Date date = DateUtils.parseDateTime(dateString);
       String url = String.format("%s/issues/search#projectUuids=%s|createdAt=%s",
         settings.getServerBaseURL(), encode(projectUuid), encode(DateUtils.formatDateTime(date)));
-      message.append("\n").append("See it in SonarQube: ").append(url).append("\n");
+      message.append("\n").append("See it in SonarQube: ").append(url).append(NEW_LINE);
     }
   }
 

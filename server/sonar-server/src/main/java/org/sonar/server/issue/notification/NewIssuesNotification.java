@@ -36,6 +36,7 @@ import static org.sonar.server.issue.notification.NewIssuesStatistics.METRIC.SEV
 public class NewIssuesNotification extends Notification {
 
   public static final String TYPE = "new-issues";
+  private static final String COUNT = ".count";
 
   public NewIssuesNotification() {
     super(TYPE);
@@ -65,22 +66,22 @@ public class NewIssuesNotification extends Notification {
   }
 
   public NewIssuesNotification setDebt(String debt) {
-    setFieldValue(METRIC.DEBT + ".count", debt);
+    setFieldValue(METRIC.DEBT + COUNT, debt);
     return this;
   }
 
   private void setTop5CountsForMetric(NewIssuesStatistics stats, METRIC metric) {
     List<Multiset.Entry<String>> loginStats = stats.statsForMetric(metric);
     for (int i = 0; i < 5 && i < loginStats.size(); i++) {
-      setFieldValue(metric + "." + (i + 1) + ".count", String.valueOf(loginStats.get(i).getCount()));
+      setFieldValue(metric + "." + (i + 1) + COUNT, String.valueOf(loginStats.get(i).getCount()));
       setFieldValue(metric + "." + (i + 1) + ".label", loginStats.get(i).getElement());
     }
   }
 
   private void setSeverityStatistics(NewIssuesStatistics stats) {
-    setFieldValue(SEVERITY + ".count", String.valueOf(stats.countForMetric(SEVERITY)));
+    setFieldValue(SEVERITY + COUNT, String.valueOf(stats.countForMetric(SEVERITY)));
     for (String severity : Severity.ALL) {
-      setFieldValue(SEVERITY + "." + severity + ".count", String.valueOf(stats.countForMetric(SEVERITY, severity)));
+      setFieldValue(SEVERITY + "." + severity + COUNT, String.valueOf(stats.countForMetric(SEVERITY, severity)));
     }
   }
 }
