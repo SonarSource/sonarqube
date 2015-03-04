@@ -40,9 +40,14 @@ public class Benchmark extends ErrorCollector {
     }
   }
 
-  public void expectLessThanOrEqualTo(String label, long val, long max) {
+  public void expectAround(String label, long val, long expect, double marginPercents) {
     if (ENABLED) {
-      checkThat(label, val, Matchers.lessThan(max));
+      if (marginPercents > 0.2) {
+        throw new IllegalArgumentException("Error margin must be less than 0.2 (20%). Has: " + marginPercents);
+      }
+      long min = (long) (expect * (1.0 - marginPercents));
+      long max = (long) (expect * (1.0 + marginPercents));
+      checkThat(label, val, Matchers.allOf(Matchers.greaterThan(min), Matchers.lessThan(max)));
     }
   }
 
