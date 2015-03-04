@@ -67,7 +67,7 @@ public class IndexSynchronizer {
     this.activityIndexer = activityIndexer;
   }
 
-  public void execute() {
+  public void executeDeprecated() {
     DbSession session = db.openSession(false);
     try {
       synchronize(session, db.ruleDao(), index.get(RuleIndex.class));
@@ -76,7 +76,9 @@ public class IndexSynchronizer {
     } finally {
       session.close();
     }
+  }
 
+  public void execute() {
     LOG.info("Index activities");
     activityIndexer.setEnabled(true).index();
 

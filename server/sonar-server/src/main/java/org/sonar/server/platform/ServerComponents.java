@@ -847,6 +847,7 @@ class ServerComponents {
     DoPrivileged.execute(new DoPrivileged.Task() {
       @Override
       protected void doPrivileged() {
+        startupContainer.getComponentByType(IndexSynchronizer.class).executeDeprecated();
         startupContainer.startComponents();
         startupContainer.getComponentByType(IndexSynchronizer.class).execute();
         startupContainer.getComponentByType(ServerLifecycleNotifier.class).notifyStart();
