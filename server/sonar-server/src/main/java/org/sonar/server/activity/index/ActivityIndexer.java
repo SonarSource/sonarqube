@@ -19,6 +19,7 @@
  */
 package org.sonar.server.activity.index;
 
+import org.elasticsearch.action.support.replication.ReplicationType;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
@@ -84,6 +85,7 @@ public class ActivityIndexer extends BaseIndexer {
   private UpdateRequest newUpsertRequest(ActivityDoc doc) {
     return new UpdateRequest(ActivityIndexDefinition.INDEX, ActivityIndexDefinition.TYPE, doc.getKey())
       .doc(doc.getFields())
-      .upsert(doc.getFields());
+      .upsert(doc.getFields())
+      .replicationType(ReplicationType.ASYNC);
   }
 }
