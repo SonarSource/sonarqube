@@ -41,6 +41,6 @@ public class ProjectIssueFilterWidget extends CoreWidget {
   public static final String ID = "project_issue_filter";
 
   public ProjectIssueFilterWidget() {
-    super(ID, "Issue Filter", "/org/sonar/plugins/core/widgets/issues/project_issue_filter.html.erb");
+    super(ID, "Project Issue Filter", "/org/sonar/plugins/core/widgets/issues/project_issue_filter.html.erb");
   }
 }
