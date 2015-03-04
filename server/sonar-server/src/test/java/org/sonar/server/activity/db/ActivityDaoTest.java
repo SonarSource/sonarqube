@@ -28,7 +28,6 @@ import org.sonar.core.activity.db.ActivityDto;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.test.DbTests;
 
-import java.sql.Timestamp;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,7 +58,9 @@ public class ActivityDaoTest {
 
     Map<String, Object> map = dbTester.selectFirst("select created_at as \"createdAt\", log_action as \"action\", data_field as \"data\" from activities where log_key='UUID_1'");
     assertThat(map.get("action")).isEqualTo("THE_ACTION");
-    assertThat(((Timestamp)map.get("createdAt")).getTime()).isEqualTo(1_500_000_000_000L);
+    // not possible to check exact date yet. dbTester#selectFirst() uses ResultSet#getObject(), which returns
+    // non-JDBC interface in Oracle driver.
+    assertThat(map.get("createdAt")).isNotNull();
     assertThat(map.get("data")).isEqualTo("THE_DATA");
   }
 }
