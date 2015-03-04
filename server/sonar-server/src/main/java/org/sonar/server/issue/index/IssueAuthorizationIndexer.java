@@ -47,7 +47,7 @@ public class IssueAuthorizationIndexer extends BaseIndexer {
   private final DbClient dbClient;
 
   public IssueAuthorizationIndexer(DbClient dbClient, EsClient esClient) {
-    super(esClient, 0L, IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION);
+    super(esClient, 0L, IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION, IssueIndexDefinition.FIELD_ISSUE_TECHNICAL_UPDATED_AT);
     this.dbClient = dbClient;
   }
 

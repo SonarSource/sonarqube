@@ -49,6 +49,11 @@ public class IndexSynchronizer {
   private final ViewIndexer viewIndexer;
   private final ActivityIndexer activityIndexer;
 
+  /**
+   * Limitation - {@link org.sonar.server.es.BaseIndexer} are not injected through an array or a collection
+   * because we need {@link org.sonar.server.issue.index.IssueAuthorizationIndexer} to be executed before
+   * {@link org.sonar.server.issue.index.IssueIndexer}
+   */
   public IndexSynchronizer(DbClient db, IndexClient index, SourceLineIndexer sourceLineIndexer,
                            IssueAuthorizationIndexer issueAuthorizationIndexer, IssueIndexer issueIndexer,
                            UserIndexer userIndexer, ViewIndexer viewIndexer, ActivityIndexer activityIndexer) {
@@ -73,30 +78,29 @@ public class IndexSynchronizer {
     }
 
     LOG.info("Index activities");
-    activityIndexer.index();
+    activityIndexer.setEnabled(true).index();
 
     LOG.info("Index issues");
-    issueAuthorizationIndexer.index();
-    issueIndexer.index();
+    issueAuthorizationIndexer.setEnabled(true).index();
+    issueIndexer.setEnabled(true).index();
 
-    LOG.info("Index source files");
-    sourceLineIndexer.index();
+    LOG.info("Index source lines");
+    sourceLineIndexer.setEnabled(true).index();
 
     LOG.info("Index users");
-    userIndexer.index();
+    userIndexer.setEnabled(true).index();
 
     LOG.info("Index views");
-    viewIndexer.index();
+    viewIndexer.setEnabled(true).index();
   }
 
   void synchronize(DbSession session, Dao dao, Index index) {
     long count = index.getIndexStat().getDocumentCount();
     Date lastSynch = index.getLastSynchronization();
+    LOG.info("Index {}s", index.getIndexType());
     if (count <= 0) {
-      LOG.info("Index {}s", index.getIndexType());
       dao.synchronizeAfter(session);
     } else {
-      LOG.info("Index {}s for updates after {}", index.getIndexType(), lastSynch);
       dao.synchronizeAfter(session, lastSynch);
     }
   }

@@ -183,12 +183,12 @@ public class EsClient implements Startable {
     return new ProxyClearCacheRequestBuilder(client).setIndices(indices);
   }
 
-  public long getLastUpdatedAt(String indexName, String typeName) {
+  public long getMaxFieldValue(String indexName, String typeName, String fieldName) {
     SearchRequestBuilder request = prepareSearch(indexName)
       .setTypes(typeName)
       .setQuery(QueryBuilders.matchAllQuery())
       .setSize(0)
-      .addAggregation(AggregationBuilders.max("latest").field("updatedAt"));
+      .addAggregation(AggregationBuilders.max("latest").field(fieldName));
 
     Max max = request.get().getAggregations().get("latest");
     return (long) max.getValue();

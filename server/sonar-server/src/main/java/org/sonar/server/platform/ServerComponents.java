@@ -136,7 +136,7 @@ import org.sonar.server.duplication.ws.DuplicationsParser;
 import org.sonar.server.duplication.ws.DuplicationsWs;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.IndexCreator;
-import org.sonar.server.es.IndexRegistry;
+import org.sonar.server.es.IndexDefinitions;
 import org.sonar.server.issue.ActionService;
 import org.sonar.server.issue.AddTagsAction;
 import org.sonar.server.issue.AssignAction;
@@ -485,7 +485,7 @@ class ServerComponents {
     pico.addSingleton(Periods.class);
     pico.addSingleton(ServerWs.class);
     pico.addSingleton(BackendCleanup.class);
-    pico.addSingleton(IndexRegistry.class);
+    pico.addSingleton(IndexDefinitions.class);
     pico.addSingleton(IndexCreator.class);
 
     // Activity
@@ -847,8 +847,8 @@ class ServerComponents {
     DoPrivileged.execute(new DoPrivileged.Task() {
       @Override
       protected void doPrivileged() {
-        startupContainer.getComponentsByType(IndexSynchronizer.class).get(0).execute();
         startupContainer.startComponents();
+        startupContainer.getComponentByType(IndexSynchronizer.class).execute();
         startupContainer.getComponentByType(ServerLifecycleNotifier.class).notifyStart();
       }
     });

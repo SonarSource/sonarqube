@@ -37,7 +37,7 @@ class IndexDefinitionHash {
 
   private static final char DELIMITER = ',';
 
-  String of(IndexRegistry.Index index) {
+  String of(IndexDefinitions.Index index) {
     return of(index.getSettings().getAsMap(), index.getTypes());
   }
 
@@ -50,8 +50,8 @@ class IndexDefinitionHash {
   }
 
   private void appendObject(StringBuilder sb, Object value) {
-    if (value instanceof IndexRegistry.IndexType) {
-      appendIndexType(sb, (IndexRegistry.IndexType) value);
+    if (value instanceof IndexDefinitions.IndexType) {
+      appendIndexType(sb, (IndexDefinitions.IndexType) value);
     } else if (value instanceof Map) {
       appendMap(sb, (Map) value);
     } else if (value instanceof Iterable) {
@@ -61,7 +61,7 @@ class IndexDefinitionHash {
     }
   }
 
-  private void appendIndexType(StringBuilder sb, IndexRegistry.IndexType type) {
+  private void appendIndexType(StringBuilder sb, IndexDefinitions.IndexType type) {
     appendMap(sb, type.getAttributes());
   }
 

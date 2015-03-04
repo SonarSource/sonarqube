@@ -21,12 +21,10 @@ package org.sonar.server.source.index;
 
 import com.google.common.collect.ImmutableList;
 import org.sonar.server.search.BaseDoc;
-import org.sonar.server.search.BaseNormalizer;
 import org.sonar.server.search.IndexUtils;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -119,11 +117,11 @@ public class SourceLineDoc extends BaseDoc {
   }
 
   public Date updateDate() {
-    return getFieldAsDate(BaseNormalizer.UPDATED_AT_FIELD);
+    return getFieldAsDate(SourceLineIndexDefinition.FIELD_UPDATED_AT);
   }
 
   public SourceLineDoc setUpdateDate(@Nullable Date updatedAt) {
-    setField(BaseNormalizer.UPDATED_AT_FIELD, updatedAt);
+    setField(SourceLineIndexDefinition.FIELD_UPDATED_AT, updatedAt);
     return this;
   }
 

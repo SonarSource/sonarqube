@@ -242,7 +242,7 @@ public class DefaultIndex extends SonarIndex {
       if (metric == null) {
         throw new SonarException("Unknown metric: " + measure.getMetricKey());
       }
-      if (!isTechnicalProjectCopy(resource) && !measure.isFromCore() && INTERNAL_METRICS.contains(metric)) {
+      if (!isViewResource(resource) && !measure.isFromCore() && INTERNAL_METRICS.contains(metric)) {
         LOG.debug("Metric " + metric.key() + " is an internal metric computed by SonarQube. Provided value is ignored.");
         return measure;
       }
@@ -257,8 +257,9 @@ public class DefaultIndex extends SonarIndex {
   /**
    * Views plugin creates copy of technical projects and should be allowed to copy all measures even internal ones
    */
-  private boolean isTechnicalProjectCopy(Resource resource) {
-    return Scopes.FILE.equals(resource.getScope()) && Qualifiers.PROJECT.equals(resource.getQualifier());
+  private boolean isViewResource(Resource resource) {
+    boolean isTechnicalProject = Scopes.FILE.equals(resource.getScope()) && Qualifiers.PROJECT.equals(resource.getQualifier());
+    return isTechnicalProject || ResourceUtils.isView(resource) || ResourceUtils.isSubview(resource);
   }
 
   //

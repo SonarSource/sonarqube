@@ -37,7 +37,6 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.search.BaseNormalizer;
 import org.sonar.server.source.db.FileSourceTesting;
 import org.sonar.test.DbTests;
 import org.sonar.test.TestUtils;
@@ -68,6 +67,7 @@ public class SourceLineIndexerTest {
     es.truncateIndices();
     db.truncateTables();
     indexer = new SourceLineIndexer(new DbClient(db.database(), db.myBatis()), es.client());
+    indexer.setEnabled(true);
   }
 
   @Test
@@ -102,7 +102,7 @@ public class SourceLineIndexerTest {
       .put(FIELD_SCM_AUTHOR, "polop")
       .put(FIELD_SOURCE, "package org.sonar.server.source;")
       .put(FIELD_DUPLICATIONS, duplications)
-      .put(BaseNormalizer.UPDATED_AT_FIELD, new Date())
+      .put(FIELD_UPDATED_AT, new Date())
       .build());
     SourceLineResultSetIterator.SourceFile file = new SourceLineResultSetIterator.SourceFile("efgh", System.currentTimeMillis());
     file.addLine(line1);
@@ -175,7 +175,7 @@ public class SourceLineIndexerTest {
       .put(FIELD_OVERALL_LINE_HITS, bigValue)
       .put(FIELD_OVERALL_CONDITIONS, bigValue)
       .put(FIELD_OVERALL_COVERED_CONDITIONS, bigValue)
-      .put(BaseNormalizer.UPDATED_AT_FIELD, new Date())
+      .put(FIELD_UPDATED_AT, new Date())
       .build());
     SourceLineResultSetIterator.SourceFile file = new SourceLineResultSetIterator.SourceFile("efgh", System.currentTimeMillis());
     file.addLine(line1);

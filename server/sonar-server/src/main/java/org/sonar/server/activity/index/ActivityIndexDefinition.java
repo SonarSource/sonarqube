@@ -50,7 +50,6 @@ public class ActivityIndexDefinition implements IndexDefinition {
   @Override
   public void define(IndexDefinitionContext context) {
     NewIndex index = context.create(INDEX);
-    // refresh is always handled by ActivityIndexer
     index.getSettings().put("index.refresh_interval", "-1");
     index.getSettings().put("analysis.analyzer.default.type", "keyword");
 

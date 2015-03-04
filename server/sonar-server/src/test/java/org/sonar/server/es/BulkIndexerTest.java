@@ -48,8 +48,7 @@ public class BulkIndexerTest {
 
   @Test
   public void index_documents() throws Exception {
-    BulkIndexer indexer = new BulkIndexer(esTester.client(), FakeIndexDefinition.INDEX)
-      .setRefresh(true);
+    BulkIndexer indexer = new BulkIndexer(esTester.client(), FakeIndexDefinition.INDEX);
     indexer.start();
     indexer.add(newIndexRequest(42));
     indexer.add(newIndexRequest(78));

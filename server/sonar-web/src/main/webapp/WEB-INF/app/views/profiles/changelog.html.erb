@@ -37,19 +37,19 @@
         %>
         <tr class="<%= cycle('even', 'odd') -%>">
           <%
-             action = change.action()
+             action = change.getAction()
              action_message = message('quality_profiles.changelog.' + action.downcase) if action
 
              if change.authorName() && !change.authorName().empty?()
                author = change.authorName()
-             elsif change.login() && !change.login().empty?()
-               author = change.login()
+             elsif change.login() && !change.getLogin().empty?()
+               author = change.getLogin()
              else
                author = 'System'
              end
              rule = change.ruleName() ? change.ruleName() : change.ruleKey()
           %>
-          <td valign="top" width="1%" nowrap><%= Internal.i18n.formatDateTime(change.time()) -%></td>
+          <td valign="top" width="1%" nowrap><%= Internal.i18n.formatDateTime(change.getCreatedAt()) -%></td>
           <td valign="top" width="1%" nowrap><%= author %></td>
           <td valign="top" width="1%" nowrap><%= action_message %></td>
           <td valign="top"><%= rule %></td>

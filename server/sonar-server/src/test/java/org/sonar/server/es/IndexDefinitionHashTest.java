@@ -29,7 +29,7 @@ public class IndexDefinitionHashTest {
 
   @Test
   public void of() throws Exception {
-    IndexRegistry.Index indexV1 = new IndexRegistry.Index(createIndex());
+    IndexDefinitions.Index indexV1 = new IndexDefinitions.Index(createIndex());
     String hashV1 = new IndexDefinitionHash().of(indexV1);
     assertThat(hashV1).isNotEmpty();
     // always the same
@@ -37,7 +37,7 @@ public class IndexDefinitionHashTest {
 
     NewIndex newIndexV2 = createIndex();
     newIndexV2.getTypes().get("fake").createIntegerField("max");
-    String hashV2 = new IndexDefinitionHash().of(new IndexRegistry.Index(newIndexV2));
+    String hashV2 = new IndexDefinitionHash().of(new IndexDefinitions.Index(newIndexV2));
     assertThat(hashV2).isNotEmpty().isNotEqualTo(hashV1);
   }
 

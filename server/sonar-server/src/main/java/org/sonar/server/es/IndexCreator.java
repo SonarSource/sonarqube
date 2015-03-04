@@ -45,17 +45,17 @@ public class IndexCreator implements ServerComponent, Startable {
   private static final String SETTING_HASH = "sonar_hash";
 
   private final EsClient client;
-  private final IndexRegistry registry;
+  private final IndexDefinitions definitions;
 
-  public IndexCreator(EsClient client, IndexRegistry registry) {
+  public IndexCreator(EsClient client, IndexDefinitions definitions) {
     this.client = client;
-    this.registry = registry;
+    this.definitions = definitions;
   }
 
   @Override
   public void start() {
     // create indices that do not exist or that have a new definition (different mapping, cluster enabled, ...)
-    for (IndexRegistry.Index index : registry.getIndices().values()) {
+    for (IndexDefinitions.Index index : definitions.getIndices().values()) {
       boolean exists = client.prepareIndicesExist(index.getName()).get().isExists();
       if (exists && needsToDeleteIndex(index)) {
         LOGGER.info(String.format("Delete index %s (settings changed)", index.getName()));
@@ -73,7 +73,7 @@ public class IndexCreator implements ServerComponent, Startable {
     // nothing to do
   }
 
-  private void createIndex(IndexRegistry.Index index) {
+  private void createIndex(IndexDefinitions.Index index) {
     LOGGER.info(String.format("Create index %s", index.getName()));
     ImmutableSettings.Builder settings = ImmutableSettings.builder();
     settings.put(index.getSettings());
@@ -88,7 +88,7 @@ public class IndexCreator implements ServerComponent, Startable {
     client.waitForStatus(ClusterHealthStatus.YELLOW);
 
     // create types
-    for (Map.Entry<String, IndexRegistry.IndexType> entry : index.getTypes().entrySet()) {
+    for (Map.Entry<String, IndexDefinitions.IndexType> entry : index.getTypes().entrySet()) {
       LOGGER.info(String.format("Create type %s/%s", index.getName(), entry.getKey()));
       PutMappingResponse mappingResponse = client.preparePutMapping(index.getName())
         .setType(entry.getKey())
@@ -106,7 +106,7 @@ public class IndexCreator implements ServerComponent, Startable {
     client.nativeClient().admin().indices().prepareDelete(indexName).get();
   }
 
-  private boolean needsToDeleteIndex(IndexRegistry.Index index) {
+  private boolean needsToDeleteIndex(IndexDefinitions.Index index) {
     boolean toBeDeleted = false;
     String hash = client.nativeClient().admin().indices().prepareGetSettings(index.getName()).get().getSetting(index.getName(), "index." + SETTING_HASH);
     if (hash != null) {

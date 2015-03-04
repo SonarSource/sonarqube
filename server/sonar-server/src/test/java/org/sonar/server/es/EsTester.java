@@ -103,7 +103,7 @@ public class EsTester extends ExternalResource {
       ComponentContainer container = new ComponentContainer();
       container.addSingletons(definitions);
       container.addSingleton(client);
-      container.addSingleton(IndexRegistry.class);
+      container.addSingleton(IndexDefinitions.class);
       container.addSingleton(IndexCreator.class);
       container.startComponents();
     }

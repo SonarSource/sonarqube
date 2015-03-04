@@ -19,7 +19,6 @@
  */
 package org.sonar.server.ui;
 
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.config.License;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
@@ -30,6 +29,7 @@ import org.sonar.api.platform.PluginRepository;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.web.Footer;
 import org.sonar.api.web.Page;
 import org.sonar.api.web.RubyRailsWebservice;
@@ -46,11 +46,7 @@ import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.ServerIdGenerator;
 import org.sonar.server.platform.ServerSettings;
 import org.sonar.server.platform.SettingsChangeNotifier;
-import org.sonar.server.plugins.InstalledPluginReferentialFactory;
-import org.sonar.server.plugins.PluginDownloader;
-import org.sonar.server.plugins.ServerPluginJarsInstaller;
-import org.sonar.server.plugins.ServerPluginRepository;
-import org.sonar.server.plugins.UpdateCenterMatrixFactory;
+import org.sonar.server.plugins.*;
 import org.sonar.server.rule.RuleRepositories;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.updatecenter.common.PluginReferential;
@@ -309,6 +305,9 @@ public final class JRubyFacade {
     get(ResourceIndexerDao.class).indexResource(resourceId);
   }
 
+  /*
+   * /!\ Used by Views
+   */
   public void deleteResourceTree(String projectKey) {
     try {
       get(ComponentCleanerService.class).delete(projectKey);

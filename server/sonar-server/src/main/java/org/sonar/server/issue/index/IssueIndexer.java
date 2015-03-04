@@ -38,7 +38,7 @@ public class IssueIndexer extends BaseIndexer {
   private final DbClient dbClient;
 
   public IssueIndexer(DbClient dbClient, EsClient esClient) {
-    super(esClient, 300, IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE);
+    super(esClient, 300, IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE, IssueIndexDefinition.FIELD_ISSUE_TECHNICAL_UPDATED_AT);
     this.dbClient = dbClient;
   }
 

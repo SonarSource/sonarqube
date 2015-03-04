@@ -43,7 +43,7 @@ public class SourceLineIndexer extends BaseIndexer {
   private final DbClient dbClient;
 
   public SourceLineIndexer(DbClient dbClient, EsClient esClient) {
-    super(esClient, 0L, SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE);
+    super(esClient, 0L, SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE, SourceLineIndexDefinition.FIELD_UPDATED_AT);
     this.dbClient = dbClient;
   }
 

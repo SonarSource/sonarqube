@@ -58,6 +58,15 @@ public class IssueIndexerTest {
   }
 
   @Test
+  public void index_nothing_if_disabled() throws Exception {
+    dbTester.prepareDbUnit(getClass(), "index.xml");
+
+    createIndexer().setEnabled(false).index();
+
+    assertThat(esTester.countDocuments("issues", "issue")).isEqualTo(0);
+  }
+
+  @Test
   public void index() throws Exception {
     dbTester.prepareDbUnit(getClass(), "index.xml");
 
@@ -82,6 +91,8 @@ public class IssueIndexerTest {
   }
 
   private IssueIndexer createIndexer() {
-    return new IssueIndexer(new DbClient(dbTester.database(), dbTester.myBatis()), esTester.client());
+    IssueIndexer indexer = new IssueIndexer(new DbClient(dbTester.database(), dbTester.myBatis()), esTester.client());
+    indexer.setEnabled(true);
+    return indexer;
   }
 }
