@@ -36,7 +36,7 @@ public class UserIndexer extends BaseIndexer {
   private final DbClient dbClient;
 
   public UserIndexer(DbClient dbClient, EsClient esClient) {
-    super(esClient, 300, UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER);
+    super(esClient, 300, UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, UserIndexDefinition.FIELD_UPDATED_AT);
     this.dbClient = dbClient;
   }
 

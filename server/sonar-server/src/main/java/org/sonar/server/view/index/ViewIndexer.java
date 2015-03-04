@@ -41,7 +41,7 @@ public class ViewIndexer extends BaseIndexer {
   private final EsClient esClient;
 
   public ViewIndexer(DbClient dbClient, EsClient esClient) {
-    super(esClient, 300, ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW);
+    super(esClient, 300, ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW, "updatedAt");
     this.dbClient = dbClient;
     this.esClient = esClient;
   }

@@ -24,7 +24,6 @@ import org.sonar.api.config.Settings;
 import org.sonar.process.ProcessConstants;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.NewIndex;
-import org.sonar.server.search.BaseNormalizer;
 
 public class SourceLineIndexDefinition implements IndexDefinition {
 
@@ -47,6 +46,7 @@ public class SourceLineIndexDefinition implements IndexDefinition {
   public static final String FIELD_OVERALL_COVERED_CONDITIONS = "overallCoveredConditions";
   public static final String FIELD_SYMBOLS = "symbols";
   public static final String FIELD_DUPLICATIONS = "duplications";
+  public static final String FIELD_UPDATED_AT = "updatedAt";
 
   public static final String INDEX = "sourcelines";
 
@@ -95,6 +95,6 @@ public class SourceLineIndexDefinition implements IndexDefinition {
     sourceLineMapping.createIntegerField(FIELD_OVERALL_COVERED_CONDITIONS);
     sourceLineMapping.stringFieldBuilder(FIELD_SYMBOLS).disableSearch().build();
     sourceLineMapping.createShortField(FIELD_DUPLICATIONS);
-    sourceLineMapping.createDateTimeField(BaseNormalizer.UPDATED_AT_FIELD);
+    sourceLineMapping.createDateTimeField(FIELD_UPDATED_AT);
   }
 }

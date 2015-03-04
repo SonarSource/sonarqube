@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 public abstract class BaseIndexer implements ServerComponent, Startable {
 
   private final ThreadPoolExecutor executor;
-  private final String indexName, typeName;
+  private final String indexName, typeName, dateFieldName;
   protected final EsClient esClient;
   private volatile long lastUpdatedAt = 0L;
 
@@ -48,9 +48,11 @@ public abstract class BaseIndexer implements ServerComponent, Startable {
    */
   private boolean enabled = false;
 
-  protected BaseIndexer(EsClient client, long threadKeepAliveSeconds, String indexName, String typeName) {
+  protected BaseIndexer(EsClient client, long threadKeepAliveSeconds, String indexName, String typeName,
+                        String dateFieldName) {
     this.indexName = indexName;
     this.typeName = typeName;
+    this.dateFieldName = dateFieldName;
     this.esClient = client;
     this.executor = new ThreadPoolExecutor(0, 1,
       threadKeepAliveSeconds, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
@@ -86,7 +88,7 @@ public abstract class BaseIndexer implements ServerComponent, Startable {
 
   @Override
   public void start() {
-    lastUpdatedAt = esClient.getLastUpdatedAt(indexName, typeName);
+    lastUpdatedAt = esClient.getMaxFieldValue(indexName, typeName, dateFieldName);
   }
 
   @Override

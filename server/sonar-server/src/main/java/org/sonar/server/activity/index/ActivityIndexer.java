@@ -39,7 +39,7 @@ public class ActivityIndexer extends BaseIndexer {
   private final DbClient dbClient;
 
   public ActivityIndexer(DbClient dbClient, EsClient esClient) {
-    super(esClient, 0L, ActivityIndexDefinition.INDEX, ActivityIndexDefinition.TYPE);
+    super(esClient, 0L, ActivityIndexDefinition.INDEX, ActivityIndexDefinition.TYPE, ActivityIndexDefinition.FIELD_CREATED_AT);
     this.dbClient = dbClient;
   }
 
