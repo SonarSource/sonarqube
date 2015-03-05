@@ -40,11 +40,19 @@ public final class ProjectIssuesDashboard extends DashboardTemplate {
     Dashboard dashboard = Dashboard.create();
     dashboard.setLayout(DashboardLayout.TWO_COLUMNS);
     addFirstColumn(dashboard);
+    addSecondColumn();
     return dashboard;
   }
 
   private void addFirstColumn(Dashboard dashboard) {
+    // TODO: + unresolved issues by status
     dashboard.addWidget("action_plans", 1);
+  }
+
+  private void addSecondColumn() {
+    // TODO: + unresolved issues by assignee
+    // TODO: + my unresolved issues
+    // TODO: + false positive and won't fix issues
   }
 
 }
