@@ -64,6 +64,10 @@ public class UsersWs implements WebService {
       .setDescription("Comma-separated list of user logins")
       .setExampleValue("admin,sbrandhof");
 
+    action.createParam("s")
+      .setDescription("UTF-8 search query")
+      .setExampleValue("sbran");
+
     RailsHandler.addFormatParam(action);
   }
 
