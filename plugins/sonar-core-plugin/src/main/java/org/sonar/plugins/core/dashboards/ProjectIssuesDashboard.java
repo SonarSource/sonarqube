@@ -40,19 +40,11 @@ public final class ProjectIssuesDashboard extends DashboardTemplate {
     Dashboard dashboard = Dashboard.create();
     dashboard.setLayout(DashboardLayout.TWO_COLUMNS);
     addFirstColumn(dashboard);
-    addSecondColumn(dashboard);
     return dashboard;
   }
 
   private void addFirstColumn(Dashboard dashboard) {
-    dashboard.addWidget("unresolved_issues_statuses", 1);
     dashboard.addWidget("action_plans", 1);
-  }
-
-  private void addSecondColumn(Dashboard dashboard) {
-    dashboard.addWidget("reviews_per_developer", 2);
-    dashboard.addWidget("my_reviews", 2);
-    dashboard.addWidget("false_positive_reviews", 2);
   }
 
 }
