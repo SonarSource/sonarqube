@@ -67,23 +67,14 @@ define [
       filter.fetch().done => @options.app.controller.applyFilter filter
 
 
-    getSaveQuery: ->
-      query = @options.app.controller.getQuery '&'
-      facets = @options.app.state.get('facets').join ','
-      if facets.length > 0
-        facetsQuery = "facets=#{encodeURIComponent(facets)}"
-        query = [query, facetsQuery].join('&')
-      query
-
-
     saveAs: ->
-      query = @getSaveQuery()
+      query = @options.app.controller.getQuery '&'
       url = "#{baseUrl}/issues/save_as_form?#{query}"
       openModalWindow url, {}
 
 
     save: ->
-      query = @getSaveQuery()
+      query = @options.app.controller.getQuery '&'
       url = "#{baseUrl}/issues/save/#{@options.app.state.get('filter').id}?#{query}"
       $.post(url).done =>
         @options.app.state.set changed: false
