@@ -188,11 +188,6 @@ public class DefaultIndex extends SonarIndex {
       }
     }
 
-    // store dependencies
-    for (Dependency dep : dependencies) {
-      dependencyPersister.saveDependency(currentProject, dep);
-    }
-
     // Keep only inter module dependencies
     Set<Dependency> projectDependencies = getDependenciesBetweenProjects();
     dependencies.clear();
@@ -290,6 +285,7 @@ public class DefaultIndex extends SonarIndex {
       addDependency(parentDependency);
     }
     registerDependency(dependency);
+    dependencyPersister.saveDependency(currentProject, dependency);
     return dependency;
   }
 
