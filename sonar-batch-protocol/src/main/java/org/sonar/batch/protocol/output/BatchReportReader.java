@@ -26,6 +26,7 @@ import javax.annotation.CheckForNull;
 
 import java.io.File;
 import java.util.Collections;
+import java.util.List;
 
 public class BatchReportReader {
 
@@ -52,7 +53,7 @@ public class BatchReportReader {
     return null;
   }
 
-  public Iterable<BatchReport.Issue> readComponentIssues(int componentRef) {
+  public List<BatchReport.Issue> readComponentIssues(int componentRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.ISSUES, componentRef);
     if (file.exists() && file.isFile()) {
       // all the issues are loaded in memory

@@ -311,6 +311,10 @@ public class IssueDoc extends BaseDoc implements Issue {
     return this;
   }
 
+  public Date getTechnicalUpdateDate() {
+    return getFieldAsDate(IssueIndexDefinition.FIELD_ISSUE_TECHNICAL_UPDATED_AT);
+  }
+
   public IssueDoc setTechnicalUpdateDate(@Nullable Date d) {
     setField(IssueIndexDefinition.FIELD_ISSUE_TECHNICAL_UPDATED_AT, d);
     return this;

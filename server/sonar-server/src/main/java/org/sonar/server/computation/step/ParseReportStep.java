@@ -26,6 +26,8 @@ import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.issue.IssueComputation;
 
+import java.util.List;
+
 public class ParseReportStep implements ComputationStep {
 
   private final IssueComputation issueComputation;
@@ -51,7 +53,7 @@ public class ParseReportStep implements ComputationStep {
     BatchReportReader reportReader = context.getReportReader();
     BatchReport.Component component = reportReader.readComponent(componentRef);
     if (component != null) {
-      Iterable<BatchReport.Issue> issues = reportReader.readComponentIssues(componentRef);
+      List<BatchReport.Issue> issues = reportReader.readComponentIssues(componentRef);
       issueComputation.processComponentIssues(context, component.getUuid(), issues);
       for (Integer childRef : component.getChildRefsList()) {
         recursivelyProcessComponent(context, childRef);
