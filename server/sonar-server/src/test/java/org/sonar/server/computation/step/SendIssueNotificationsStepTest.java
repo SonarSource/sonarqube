@@ -27,7 +27,6 @@ import org.mockito.Mockito;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.server.computation.ComputationContext;
@@ -35,6 +34,7 @@ import org.sonar.server.computation.issue.IssueCache;
 import org.sonar.server.computation.issue.RuleCache;
 import org.sonar.server.issue.notification.IssueChangeNotification;
 import org.sonar.server.issue.notification.NewIssuesNotification;
+import org.sonar.server.issue.notification.NewIssuesNotificationFactory;
 import org.sonar.server.notifications.NotificationService;
 
 import java.io.IOException;
@@ -51,13 +51,13 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   NotificationService notifService = mock(NotificationService.class);
   ComputationContext context = mock(ComputationContext.class, Mockito.RETURNS_DEEP_STUBS);
   IssueCache issueCache;
-  Durations durations = mock(Durations.class);
+  NewIssuesNotificationFactory newIssuesNotificationFactory = mock(NewIssuesNotificationFactory.class, Mockito.RETURNS_DEEP_STUBS);
   SendIssueNotificationsStep sut;
 
   @Before
   public void setUp() throws Exception {
     issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
-    sut = new SendIssueNotificationsStep(issueCache, ruleCache, notifService, durations);
+    sut = new SendIssueNotificationsStep(issueCache, ruleCache, notifService, newIssuesNotificationFactory);
   }
 
   @Test

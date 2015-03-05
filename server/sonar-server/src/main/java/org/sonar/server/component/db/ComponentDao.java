@@ -36,7 +36,6 @@ import org.sonar.server.db.BaseDao;
 import org.sonar.server.exceptions.NotFoundException;
 
 import javax.annotation.CheckForNull;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;

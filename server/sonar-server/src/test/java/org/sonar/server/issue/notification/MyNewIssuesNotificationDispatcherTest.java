@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.issue.notification;
 
 import com.google.common.collect.HashMultimap;
@@ -31,39 +32,42 @@ import org.sonar.api.notifications.NotificationManager;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
-public class NewIssuesNotificationDispatcherTest {
+public class MyNewIssuesNotificationDispatcherTest {
 
-  private NotificationManager notifications = mock(NotificationManager.class);
+  private MyNewIssuesNotificationDispatcher sut;
+
+  private NotificationManager notificationManager = mock(NotificationManager.class);
   private NotificationDispatcher.Context context = mock(NotificationDispatcher.Context.class);
   private NotificationChannel emailChannel = mock(NotificationChannel.class);
   private NotificationChannel twitterChannel = mock(NotificationChannel.class);
-  private NewIssuesNotificationDispatcher dispatcher = mock(NewIssuesNotificationDispatcher.class);
+
 
   @Before
   public void setUp() {
-    dispatcher = new NewIssuesNotificationDispatcher(notifications);
+    sut = new MyNewIssuesNotificationDispatcher(notificationManager);
   }
 
   @Test
-  public void shouldNotDispatchIfNotNewViolationsNotification() throws Exception {
+  public void do_not_dispatch_if_no_new_notification() throws Exception {
     Notification notification = new Notification("other-notif");
-    dispatcher.performDispatch(notification, context);
+    sut.performDispatch(notification, context);
 
     verify(context, never()).addUser(any(String.class), any(NotificationChannel.class));
   }
 
   @Test
-  public void shouldDispatchToUsersWhoHaveSubscribedAndFlaggedProjectAsFavourite() {
+  public void dispatch_to_users_who_have_subscribed_to_notification_and_project() {
     Multimap<String, NotificationChannel> recipients = HashMultimap.create();
     recipients.put("user1", emailChannel);
     recipients.put("user2", twitterChannel);
-    when(notifications.findNotificationSubscribers(dispatcher, "struts")).thenReturn(recipients);
+    when(notificationManager.findNotificationSubscribers(sut, "struts")).thenReturn(recipients);
 
-    Notification notification = new Notification(NewIssuesNotification.TYPE).setFieldValue("projectKey", "struts");
-    dispatcher.performDispatch(notification, context);
+    Notification notification = new Notification(MyNewIssuesNotification.TYPE)
+      .setFieldValue("projectKey", "struts")
+      .setFieldValue("assignee", "user1");
+    sut.performDispatch(notification, context);
 
     verify(context).addUser("user1", emailChannel);
-    verify(context).addUser("user2", twitterChannel);
     verifyNoMoreInteractions(context);
   }
 }

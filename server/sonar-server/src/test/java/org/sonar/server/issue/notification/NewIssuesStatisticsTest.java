@@ -41,21 +41,21 @@ public class NewIssuesStatisticsTest {
     sut.add(issue.setAssignee("james"));
     sut.add(issue.setAssignee("keenan"));
 
-    assertThat(countDistribution(METRIC.LOGIN, "maynard")).isEqualTo(1);
-    assertThat(countDistribution(METRIC.LOGIN, "james")).isEqualTo(1);
-    assertThat(countDistribution(METRIC.LOGIN, "keenan")).isEqualTo(1);
-    assertThat(countDistribution(METRIC.LOGIN, "wrong.login")).isEqualTo(0);
+    assertThat(countDistribution(METRIC.ASSIGNEE, "maynard")).isEqualTo(1);
+    assertThat(countDistribution(METRIC.ASSIGNEE, "james")).isEqualTo(1);
+    assertThat(countDistribution(METRIC.ASSIGNEE, "keenan")).isEqualTo(1);
+    assertThat(countDistribution(METRIC.ASSIGNEE, "wrong.login")).isEqualTo(0);
     assertThat(countDistribution(METRIC.COMPONENT, "file-uuid")).isEqualTo(3);
     assertThat(countDistribution(METRIC.COMPONENT, "wrong-uuid")).isEqualTo(0);
     assertThat(countDistribution(METRIC.SEVERITY, Severity.INFO)).isEqualTo(3);
     assertThat(countDistribution(METRIC.SEVERITY, Severity.CRITICAL)).isEqualTo(0);
     assertThat(countDistribution(METRIC.TAGS, "owasp")).isEqualTo(3);
     assertThat(countDistribution(METRIC.TAGS, "wrong-tag")).isEqualTo(0);
-    assertThat(sut.debt().toMinutes()).isEqualTo(15L);
+    assertThat(sut.globalStatistics().debt().toMinutes()).isEqualTo(15L);
   }
 
   private int countDistribution(METRIC metric, String label) {
-    return sut.countForMetric(metric, label);
+    return sut.globalStatistics().countForMetric(metric, label);
   }
 
   private DefaultIssue defaultIssue() {

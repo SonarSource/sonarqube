@@ -1,0 +1,64 @@
+/*
+ * SonarQube, open source software quality management tool.
+ * Copyright (C) 2008-2014 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * SonarQube is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * SonarQube is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
+package org.sonar.server.issue.notification;
+
+import com.google.common.collect.Multimap;
+import org.sonar.api.notifications.*;
+
+import java.util.Collection;
+
+/**
+ * This dispatcher means: "notify me when new issues are introduced during project analysis"
+ */
+public class MyNewIssuesNotificationDispatcher extends NotificationDispatcher {
+
+  public static final String KEY = "MyNewIssues";
+  private final NotificationManager manager;
+
+  public MyNewIssuesNotificationDispatcher(NotificationManager manager) {
+    super(MyNewIssuesNotification.TYPE);
+    this.manager = manager;
+  }
+
+  public static NotificationDispatcherMetadata newMetadata() {
+    return NotificationDispatcherMetadata.create(KEY)
+      .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, String.valueOf(true))
+      .setProperty(NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION, String.valueOf(true));
+  }
+
+  @Override
+  public String getKey() {
+    return KEY;
+  }
+
+  @Override
+  public void dispatch(Notification notification, Context context) {
+    String projectKey = notification.getFieldValue("projectKey");
+    String assignee = notification.getFieldValue("assignee");
+    Multimap<String, NotificationChannel> subscribedRecipients = manager.findNotificationSubscribers(this, projectKey);
+
+    Collection<NotificationChannel> channels = subscribedRecipients.get(assignee);
+    for (NotificationChannel channel : channels) {
+      context.addUser(assignee, channel);
+    }
+  }
+
+}

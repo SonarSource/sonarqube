@@ -538,13 +538,17 @@ class ServerComponents {
     pico.addSingleton(IssueActionsWriter.class);
     pico.addSingleton(IssueQueryService.class);
     pico.addSingleton(NewIssuesEmailTemplate.class);
+    pico.addSingleton(MyNewIssuesEmailTemplate.class);
     pico.addSingleton(IssueChangesEmailTemplate.class);
     pico.addSingleton(ChangesOnMyIssueNotificationDispatcher.class);
     pico.addSingleton(ChangesOnMyIssueNotificationDispatcher.newMetadata());
     pico.addSingleton(NewIssuesNotificationDispatcher.class);
     pico.addSingleton(NewIssuesNotificationDispatcher.newMetadata());
+    pico.addSingleton(MyNewIssuesNotificationDispatcher.class);
+    pico.addSingleton(MyNewIssuesNotificationDispatcher.newMetadata());
     pico.addSingleton(DoNotFixNotificationDispatcher.class);
     pico.addSingleton(DoNotFixNotificationDispatcher.newMetadata());
+    pico.addSingleton(NewIssuesNotificationFactory.class);
 
     // issue filters
     pico.addSingleton(IssueFilterService.class);

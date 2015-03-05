@@ -27,7 +27,7 @@ import org.sonar.api.utils.Duration;
 import org.sonar.core.util.MultiSets;
 
 import java.util.EnumMap;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,58 +35,50 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.METRIC.*;
 
 public class NewIssuesStatistics {
-  private Map<String, Stats> statisticsByLogin = new HashMap<>();
+  private Map<String, Stats> assigneesStatistics = new LinkedHashMap<>();
   private Stats globalStatistics = new Stats();
 
   public void add(Issue issue) {
     globalStatistics.add(issue);
     String login = issue.assignee();
     if (login != null) {
-      statisticsForLogin(login).add(issue);
+      getOrCreate(login).add(issue);
     }
   }
 
-  private Stats statisticsForLogin(String login) {
-    if (statisticsByLogin.get(login) == null) {
-      statisticsByLogin.put(login, new Stats());
+  private Stats getOrCreate(String assignee) {
+    if (assigneesStatistics.get(assignee) == null) {
+      assigneesStatistics.put(assignee, new Stats());
     }
-    return statisticsByLogin.get(login);
+    return assigneesStatistics.get(assignee);
   }
 
-  public int countForMetric(METRIC metric) {
-    return globalStatistics.distributionFor(metric).size();
+  public Map<String, Stats> assigneesStatistics() {
+    return assigneesStatistics;
   }
 
-  public int countForMetric(METRIC metric, String label) {
-    return globalStatistics.distributionFor(metric).count(label);
-  }
-
-  public List<Multiset.Entry<String>> statsForMetric(METRIC metric) {
-    return MultiSets.listOrderedByHighestCounts(globalStatistics.distributionFor(metric));
-  }
-
-  public Duration debt() {
-    return globalStatistics.debt();
+  public Stats globalStatistics() {
+    return globalStatistics;
   }
 
   public boolean hasIssues() {
     return globalStatistics.hasIssues();
   }
 
-  public enum METRIC {
-    SEVERITY(true), TAGS(true), COMPONENT(true), LOGIN(true), DEBT(false);
-    private final boolean computeDistribution;
+  enum METRIC {
+    SEVERITY(true), TAGS(true), COMPONENT(true), ASSIGNEE(true), DEBT(false);
+    private final boolean isComputedByDistribution;
 
-    METRIC(boolean computeDistribution) {
-      this.computeDistribution = computeDistribution;
+    METRIC(boolean isComputedByDistribution) {
+      this.isComputedByDistribution = isComputedByDistribution;
     }
 
     boolean isComputedByDistribution() {
-      return this.computeDistribution;
+      return this.isComputedByDistribution;
     }
   }
 
-  private static class Stats {
+  public static class Stats {
     private final Map<METRIC, Multiset<String>> distributions = new EnumMap<>(METRIC.class);
     private long debtInMinutes = 0L;
 
@@ -102,7 +94,7 @@ public class NewIssuesStatistics {
       distributions.get(SEVERITY).add(issue.severity());
       distributions.get(COMPONENT).add(issue.componentUuid());
       if (issue.assignee() != null) {
-        distributions.get(LOGIN).add(issue.assignee());
+        distributions.get(ASSIGNEE).add(issue.assignee());
       }
       for (String tag : issue.tags()) {
         distributions.get(TAGS).add(tag);
@@ -113,9 +105,12 @@ public class NewIssuesStatistics {
       }
     }
 
-    public Multiset<String> distributionFor(METRIC metric) {
-      checkArgument(metric.isComputedByDistribution());
-      return distributions.get(metric);
+    public int countForMetric(METRIC metric) {
+      return distributionFor(metric).size();
+    }
+
+    public int countForMetric(METRIC metric, String label) {
+      return distributionFor(metric).count(label);
     }
 
     public Duration debt() {
@@ -124,6 +119,15 @@ public class NewIssuesStatistics {
 
     public boolean hasIssues() {
       return distributions.get(SEVERITY) != null;
+    }
+
+    public List<Multiset.Entry<String>> statsForMetric(METRIC metric) {
+      return MultiSets.listOrderedByHighestCounts(distributionFor(metric));
+    }
+
+    private Multiset<String> distributionFor(METRIC metric) {
+      checkArgument(metric.isComputedByDistribution());
+      return distributions.get(metric);
     }
   }
 }

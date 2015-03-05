@@ -17,23 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.issue.notification;
 
-import org.sonar.api.config.EmailSettings;
-import org.sonar.api.i18n.I18n;
-import org.sonar.api.notifications.Notification;
+import org.junit.Test;
+import org.sonar.api.utils.Durations;
+import org.sonar.server.db.DbClient;
+import org.sonar.server.user.index.UserIndex;
 
-/**
- * Creates email message for notification "new-issues".
- */
-public class NewIssuesEmailTemplate extends AbstractNewIssuesEmailTemplate {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.sonar.server.issue.notification.AbstractNewIssuesEmailTemplate.FIELD_ASSIGNEE;
 
-  public NewIssuesEmailTemplate(EmailSettings settings, I18n i18n) {
-    super(settings, i18n);
+public class MyNewIssuesNotificationTest {
+
+  MyNewIssuesNotification sut = new MyNewIssuesNotification(mock(UserIndex.class), mock(DbClient.class), mock(Durations.class));
+
+  @Test
+  public void set_assignee() throws Exception {
+    sut.setAssignee("myAssignee");
+
+    assertThat(sut.getFieldValue(FIELD_ASSIGNEE)).isEqualTo("myAssignee");
   }
 
-  @Override
-  protected boolean shouldNotFormat(Notification notification) {
-    return !NewIssuesNotification.TYPE.equals(notification.getType());
+  @Test
+  public void set_with_a_specific_type() throws Exception {
+    assertThat(sut.getType()).isEqualTo(MyNewIssuesNotification.TYPE);
+
   }
 }

@@ -22,22 +22,34 @@ package org.sonar.server.issue.notification;
 
 import com.google.common.collect.Lists;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
+import org.sonar.api.utils.Durations;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.server.component.ComponentTesting;
+import org.sonar.server.db.DbClient;
+import org.sonar.server.user.index.UserIndex;
 
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.METRIC.*;
 
 public class NewIssuesNotificationTest {
 
-  NewIssuesNotification sut = new NewIssuesNotification();
-  NewIssuesStatistics stats = new NewIssuesStatistics();
+  NewIssuesStatistics.Stats stats = new NewIssuesStatistics.Stats();
+  UserIndex userIndex = mock(UserIndex.class);
+  DbClient dbClient = mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS);
+  Durations durations = mock(Durations.class);
+  NewIssuesNotification sut = new NewIssuesNotification(userIndex, dbClient, durations);
 
   @Test
   public void set_project() throws Exception {
@@ -68,29 +80,33 @@ public class NewIssuesNotificationTest {
       .setLongName("project-long-name");
     addIssueNTimes(newIssue1(), 5);
     addIssueNTimes(newIssue2(), 3);
+    when(dbClient.componentDao().getByUuid(any(DbSession.class), eq("file-uuid")).name()).thenReturn("file-name");
+    when(dbClient.componentDao().getByUuid(any(DbSession.class), eq("directory-uuid")).name()).thenReturn("directory-name");
 
     sut.setStatistics(component, stats);
 
     assertThat(sut.getFieldValue(SEVERITY + ".INFO.count")).isEqualTo("5");
     assertThat(sut.getFieldValue(SEVERITY + ".BLOCKER.count")).isEqualTo("3");
-    assertThat(sut.getFieldValue(LOGIN + ".1.label")).isEqualTo("maynard");
-    assertThat(sut.getFieldValue(LOGIN + ".1.count")).isEqualTo("5");
-    assertThat(sut.getFieldValue(LOGIN + ".2.label")).isEqualTo("keenan");
-    assertThat(sut.getFieldValue(LOGIN + ".2.count")).isEqualTo("3");
+    assertThat(sut.getFieldValue(ASSIGNEE + ".1.label")).isEqualTo("maynard");
+    assertThat(sut.getFieldValue(ASSIGNEE + ".1.count")).isEqualTo("5");
+    assertThat(sut.getFieldValue(ASSIGNEE + ".2.label")).isEqualTo("keenan");
+    assertThat(sut.getFieldValue(ASSIGNEE + ".2.count")).isEqualTo("3");
     assertThat(sut.getFieldValue(TAGS + ".1.label")).isEqualTo("owasp");
     assertThat(sut.getFieldValue(TAGS + ".1.count")).isEqualTo("8");
     assertThat(sut.getFieldValue(TAGS + ".2.label")).isEqualTo("bug");
     assertThat(sut.getFieldValue(TAGS + ".2.count")).isEqualTo("5");
-    assertThat(sut.getFieldValue(COMPONENT + ".1.label")).isEqualTo("file-uuid");
+    assertThat(sut.getFieldValue(COMPONENT + ".1.label")).isEqualTo("file-name");
     assertThat(sut.getFieldValue(COMPONENT + ".1.count")).isEqualTo("5");
-    assertThat(sut.getFieldValue(COMPONENT + ".2.label")).isEqualTo("directory-uuid");
+    assertThat(sut.getFieldValue(COMPONENT + ".2.label")).isEqualTo("directory-name");
     assertThat(sut.getFieldValue(COMPONENT + ".2.count")).isEqualTo("3");
     assertThat(sut.getDefaultMessage()).startsWith("8 new issues on project-long-name");
   }
 
   @Test
   public void set_debt() throws Exception {
-    sut.setDebt("55min");
+    when(durations.encode(any(Duration.class))).thenReturn("55min");
+
+    sut.setDebt(Duration.create(55));
 
     assertThat(sut.getFieldValue(DEBT + ".count")).isEqualTo("55min");
   }
