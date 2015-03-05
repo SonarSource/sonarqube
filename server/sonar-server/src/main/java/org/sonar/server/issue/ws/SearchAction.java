@@ -63,13 +63,7 @@ import org.sonar.server.user.UserSession;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -182,6 +176,9 @@ public class SearchAction implements BaseIssuesWsAction {
       .setExampleValue("admin,usera");
     action.createParam(IssueFilterParameters.ASSIGNED)
       .setDescription("To retrieve assigned or unassigned issues")
+      .setBooleanPossibleValues();
+    action.createParam(IssueFilterParameters.ASSIGNED_TO_ME)
+      .setDescription("To retrieve issues assigned to the authenticating user. Only valid when providing user credentials")
       .setBooleanPossibleValues();
     action.createParam(IssueFilterParameters.LANGUAGES)
       .setDescription("Comma-separated list of languages. Available since 4.4")
@@ -400,11 +397,8 @@ public class SearchAction implements BaseIssuesWsAction {
     if (assigneesFromRequest != null) {
       assignees.addAll(assigneesFromRequest);
     }
-    UserSession userSession = UserSession.get();
-    if (userSession.isLoggedIn()) {
-      assignees.add(userSession.login());
-    }
     addMandatoryFacetValues(results, IssueFilterParameters.ASSIGNEES, assignees);
+    addMandatoryFacetValues(results, IssueFilterParameters.ASSIGNED_TO_ME, Arrays.asList(UserSession.get().login()));
     addMandatoryFacetValues(results, IssueFilterParameters.REPORTERS, request.paramAsStrings(IssueFilterParameters.REPORTERS));
     addMandatoryFacetValues(results, IssueFilterParameters.RULES, request.paramAsStrings(IssueFilterParameters.RULES));
     addMandatoryFacetValues(results, IssueFilterParameters.LANGUAGES, request.paramAsStrings(IssueFilterParameters.LANGUAGES));
@@ -432,7 +426,10 @@ public class SearchAction implements BaseIssuesWsAction {
           json.prop("count", bucket.getValue());
           json.endObject();
         }
-        addZeroFacetsForSelectedItems(request, facetName, itemsFromFacets, json);
+        // Prevent appearance of a glitch value due to dedicated parameter for this facet
+        if (!IssueFilterParameters.ASSIGNED_TO_ME.equals(facetName)) {
+          addZeroFacetsForSelectedItems(request, facetName, itemsFromFacets, json);
+        }
       }
       json.endArray().endObject();
     }

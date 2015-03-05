@@ -88,7 +88,7 @@ public class SearchActionMediumTest {
     assertThat(show.isPost()).isFalse();
     assertThat(show.isInternal()).isFalse();
     assertThat(show.responseExampleAsString()).isNotEmpty();
-    assertThat(show.params()).hasSize(39);
+    assertThat(show.params()).hasSize(40);
   }
 
   @Test
@@ -428,9 +428,58 @@ public class SearchActionMediumTest {
       .setParam("resolved", "false")
       .setParam("severities", "MAJOR,MINOR")
       .setParam("languages", "xoo,polop,palap")
-      .setParam(WebService.Param.FACETS, "statuses,severities,resolutions,projectUuids,rules,fileUuids,assignees,languages,actionPlans")
+      .setParam(WebService.Param.FACETS, "statuses,severities,resolutions,projectUuids,rules,fileUuids,assignees,assigned_to_me,languages,actionPlans")
       .execute();
     result.assertJson(this.getClass(), "display_zero_facets.json", false);
+  }
+
+  @Test
+  public void filter_by_assigned_to_me() throws Exception {
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    setDefaultProjectPermission(project);
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
+    RuleDto rule = newRule();
+    IssueDto issue1 = IssueTesting.newDto(rule, file, project)
+      .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
+      .setIssueUpdateDate(DateUtils.parseDate("2017-12-04"))
+      .setDebt(10L)
+      .setStatus("OPEN")
+      .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
+      .setSeverity("MAJOR")
+      .setAssignee("john");
+    IssueDto issue2 = IssueTesting.newDto(rule, file, project)
+      .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
+      .setIssueUpdateDate(DateUtils.parseDate("2017-12-04"))
+      .setDebt(10L)
+      .setStatus("OPEN")
+      .setKee("7b112bd4-b650-4037-80bc-82fd47d4eac2")
+      .setSeverity("MAJOR")
+      .setAssignee("alice");
+    IssueDto issue3 = IssueTesting.newDto(rule, file, project)
+      .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
+      .setIssueUpdateDate(DateUtils.parseDate("2017-12-04"))
+      .setDebt(10L)
+      .setStatus("OPEN")
+      .setKee("82fd47d4-4037-b650-80bc-7b112bd4eac2")
+      .setSeverity("MAJOR");
+    db.issueDao().insert(session, issue1, issue2, issue3);
+    session.commit();
+    tester.get(IssueIndexer.class).indexAll();
+
+    MockUserSession.set().setLogin("john");
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+      .setParam("resolved", "false")
+      .setParam("assigned_to_me", "true")
+      .setParam(WebService.Param.FACETS, "assignees,assigned_to_me")
+      .execute()
+      .assertJson(this.getClass(), "filter_by_assigned_to_me.json", false);
+
+    MockUserSession.set();
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+      .setParam("resolved", "false")
+      .setParam("assigned_to_me", "true")
+      .execute()
+      .assertJson(this.getClass(), "empty_result.json", false);
   }
 
   @Test

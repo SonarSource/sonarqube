@@ -82,7 +82,9 @@ public class IssueQueryService implements ServerComponent {
         .rules(toRules(params.get(IssueFilterParameters.RULES)))
         .actionPlans(RubyUtils.toStrings(params.get(IssueFilterParameters.ACTION_PLANS)))
         .reporters(RubyUtils.toStrings(params.get(IssueFilterParameters.REPORTERS)))
-        .assignees(RubyUtils.toStrings(params.get(IssueFilterParameters.ASSIGNEES)))
+        .assignees(buildAssignees(
+          RubyUtils.toStrings(params.get(IssueFilterParameters.ASSIGNEES)),
+          RubyUtils.toBoolean(params.get(IssueFilterParameters.ASSIGNED_TO_ME))))
         .languages(RubyUtils.toStrings(params.get(IssueFilterParameters.LANGUAGES)))
         .tags(RubyUtils.toStrings(params.get(IssueFilterParameters.TAGS)))
         .assigned(RubyUtils.toBoolean(params.get(IssueFilterParameters.ASSIGNED)))
@@ -145,7 +147,9 @@ public class IssueQueryService implements ServerComponent {
         .rules(stringsToRules(request.paramAsStrings(IssueFilterParameters.RULES)))
         .actionPlans(request.paramAsStrings(IssueFilterParameters.ACTION_PLANS))
         .reporters(request.paramAsStrings(IssueFilterParameters.REPORTERS))
-        .assignees(request.paramAsStrings(IssueFilterParameters.ASSIGNEES))
+        .assignees(buildAssignees(
+          request.paramAsStrings(IssueFilterParameters.ASSIGNEES),
+          request.paramAsBoolean(IssueFilterParameters.ASSIGNED_TO_ME)))
         .languages(request.paramAsStrings(IssueFilterParameters.LANGUAGES))
         .tags(request.paramAsStrings(IssueFilterParameters.TAGS))
         .assigned(request.paramAsBoolean(IssueFilterParameters.ASSIGNED))
@@ -184,6 +188,22 @@ public class IssueQueryService implements ServerComponent {
     } finally {
       session.close();
     }
+  }
+
+  private List<String> buildAssignees(@Nullable List<String> assigneesFromParams, @Nullable Boolean assignedToMe) {
+    List<String> assignees = Lists.newArrayList();
+    if (assigneesFromParams != null) {
+      assignees.addAll(assigneesFromParams);
+    }
+    if (BooleanUtils.isTrue(assignedToMe)) {
+      String login = UserSession.get().login();
+      if (login == null) {
+        assignees.add(UNKNOWN);
+      } else {
+        assignees.add(login);
+      }
+    }
+    return assignees;
   }
 
   private boolean mergeDeprecatedComponentParameters(DbSession session, Boolean onComponentOnly,

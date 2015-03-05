@@ -120,7 +120,12 @@
         {
           "val": "",
           "count": 1
-        },
+        }
+      ]
+    },
+    {
+      "property": "assigned_to_me",
+      "values": [
         {
           "val": "john",
           "count": 0
