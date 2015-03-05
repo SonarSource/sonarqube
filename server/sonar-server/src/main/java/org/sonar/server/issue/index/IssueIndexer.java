@@ -82,7 +82,7 @@ public class IssueIndexer extends BaseIndexer {
       bulk.add(newUpsertRequest(issue));
 
       // it's more efficient to sort programmatically than in SQL on some databases (MySQL for instance)
-      maxDate = Math.max(maxDate, issue.updateDate().getTime());
+      maxDate = Math.max(maxDate, issue.getTechnicalUpdateDate().getTime());
     }
     bulk.stop();
     return maxDate;

@@ -22,6 +22,8 @@ package org.sonar.core.activity.db;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import javax.annotation.Nullable;
+
 import java.util.Date;
 
 public class ActivityDto {
@@ -65,7 +67,7 @@ public class ActivityDto {
     return author;
   }
 
-  public ActivityDto setAuthor(String author) {
+  public ActivityDto setAuthor(@Nullable String author) {
     this.author = author;
     return this;
   }
@@ -83,7 +85,7 @@ public class ActivityDto {
     return message;
   }
 
-  public ActivityDto setMessage(String message) {
+  public ActivityDto setMessage(@Nullable String message) {
     this.message = message;
     return this;
   }

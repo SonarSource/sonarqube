@@ -84,6 +84,12 @@ public class IssueIndexerTest {
     assertThat(doc.severity()).isEqualTo("BLOCKER");
     assertThat(doc.ruleKey()).isEqualTo(RuleKey.of("squid", "AvoidCycles"));
 
+    // functional date
+    assertThat(doc.updateDate().getTime()).isEqualTo(1368828000000L);
+
+    // technical date
+    assertThat(doc.getTechnicalUpdateDate().getTime()).isEqualTo(1550000000000L);
+
     // delete project
     indexer.deleteProject("THE_PROJECT", true);
 

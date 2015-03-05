@@ -33,7 +33,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Duration;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.issue.IssueCache;
-import org.sonar.batch.protocol.output.BatchOutputWriter;
+import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.batch.protocol.output.BatchReport.Metadata;
 import org.sonar.batch.protocol.output.BatchReportReader;
 
@@ -98,7 +98,7 @@ public class IssuesPublisherTest {
     when(issueCache.byComponent("foo:src/Foo.php")).thenReturn(Arrays.asList(issue1, issue2));
 
     File outputDir = temp.newFolder();
-    BatchOutputWriter writer = new BatchOutputWriter(outputDir);
+    BatchReportWriter writer = new BatchReportWriter(outputDir);
 
     publisher.publish(writer);
 
@@ -149,7 +149,7 @@ public class IssuesPublisherTest {
     when(issueCache.componentKeys()).thenReturn(Arrays.<Object>asList("foo:deleted.php"));
 
     File outputDir = temp.newFolder();
-    BatchOutputWriter writer = new BatchOutputWriter(outputDir);
+    BatchReportWriter writer = new BatchReportWriter(outputDir);
 
     publisher.publish(writer);
 

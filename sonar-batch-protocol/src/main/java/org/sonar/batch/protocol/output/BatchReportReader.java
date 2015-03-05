@@ -22,10 +22,9 @@ package org.sonar.batch.protocol.output;
 import org.sonar.batch.protocol.ProtobufUtil;
 import org.sonar.batch.protocol.output.BatchReport.Issues;
 
-import javax.annotation.CheckForNull;
-
 import java.io.File;
 import java.util.Collections;
+import java.util.List;
 
 public class BatchReportReader {
 
@@ -43,16 +42,15 @@ public class BatchReportReader {
     return ProtobufUtil.readFile(file, BatchReport.Metadata.PARSER);
   }
 
-  @CheckForNull
   public BatchReport.Component readComponent(int componentRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.COMPONENT, componentRef);
-    if (file.exists() && file.isFile()) {
-      return ProtobufUtil.readFile(file, BatchReport.Component.PARSER);
+    if (!file.exists() || !file.isFile()) {
+      throw new IllegalStateException("Unable to find report for component #" + componentRef + ". File does not exist: " + file);
     }
-    return null;
+    return ProtobufUtil.readFile(file, BatchReport.Component.PARSER);
   }
 
-  public Iterable<BatchReport.Issue> readComponentIssues(int componentRef) {
+  public List<BatchReport.Issue> readComponentIssues(int componentRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.ISSUES, componentRef);
     if (file.exists() && file.isFile()) {
       // all the issues are loaded in memory

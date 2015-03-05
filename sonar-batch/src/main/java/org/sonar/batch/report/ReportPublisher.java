@@ -19,13 +19,13 @@
  */
 package org.sonar.batch.report;
 
-import org.sonar.batch.protocol.output.BatchOutputWriter;
+import org.sonar.batch.protocol.output.BatchReportWriter;
 
 /**
  * Adds a sub-part of data to output report
  */
 public interface ReportPublisher {
 
-  void publish(BatchOutputWriter writer);
+  void publish(BatchReportWriter writer);
 
 }

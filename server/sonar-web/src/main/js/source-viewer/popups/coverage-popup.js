@@ -60,6 +60,7 @@ define([
       });
       return {
         testFiles: testFiles,
+        tests: this.options.tests,
         row: row
       };
     }

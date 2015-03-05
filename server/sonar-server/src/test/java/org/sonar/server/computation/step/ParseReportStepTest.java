@@ -28,7 +28,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.utils.ZipUtils;
 import org.sonar.api.utils.internal.DefaultTempFolder;
 import org.sonar.batch.protocol.Constants;
-import org.sonar.batch.protocol.output.BatchOutputWriter;
+import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.core.component.ComponentDto;
@@ -82,7 +82,7 @@ public class ParseReportStepTest extends BaseStepTest {
   private File generateReport() throws IOException {
     File dir = temp.newFolder();
     // project and 2 files
-    BatchOutputWriter writer = new BatchOutputWriter(dir);
+    BatchReportWriter writer = new BatchReportWriter(dir);
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
       .setProjectKey("PROJECT_KEY")

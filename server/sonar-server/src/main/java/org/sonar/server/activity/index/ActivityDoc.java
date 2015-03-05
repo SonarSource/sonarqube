@@ -67,7 +67,7 @@ public class ActivityDoc extends BaseDoc {
   }
 
   public String getType() {
-    return ((String) getField(ActivityIndexDefinition.FIELD_TYPE));
+    return (String) getField(ActivityIndexDefinition.FIELD_TYPE);
   }
 
   public void setType(String s) {
@@ -83,9 +83,8 @@ public class ActivityDoc extends BaseDoc {
     setField(ActivityIndexDefinition.FIELD_ACTION, s);
   }
 
-  @CheckForNull
   public Map<String, String> getDetails() {
-    return this.getNullableField(ActivityIndexDefinition.FIELD_DETAILS);
+    return this.getField(ActivityIndexDefinition.FIELD_DETAILS);
   }
 
   public void setDetails(Map<String, String> details) {
@@ -101,6 +100,7 @@ public class ActivityDoc extends BaseDoc {
     setField(ActivityIndexDefinition.FIELD_MESSAGE, s);
   }
 
+  @Override
   public String toString() {
     return ReflectionToStringBuilder.toString(this);
   }

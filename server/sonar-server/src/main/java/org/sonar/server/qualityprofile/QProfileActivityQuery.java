@@ -42,7 +42,9 @@ public class QProfileActivityQuery extends ActivityQuery {
   }
 
   public QProfileActivityQuery setQprofileKey(@Nullable String qprofileKey) {
-    addDataOrFilter("profileKey", qprofileKey);
+    if (qprofileKey != null) {
+      addDataOrFilter("profileKey", qprofileKey);
+    }
     return this;
   }
 }

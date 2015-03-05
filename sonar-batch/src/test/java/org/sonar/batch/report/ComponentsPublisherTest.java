@@ -30,7 +30,7 @@ import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.batch.index.ResourceCache;
-import org.sonar.batch.protocol.output.BatchOutputWriter;
+import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.batch.protocol.output.FileStructure;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -77,7 +77,7 @@ public class ComponentsPublisherTest {
     testFile.setId(6).setUuid("TEST_FILE_UUID");
     resourceCache.add(testFile, dir).setSnapshot(new Snapshot().setId(16));
 
-    BatchOutputWriter writer = new BatchOutputWriter(temp.newFolder());
+    BatchReportWriter writer = new BatchReportWriter(temp.newFolder());
     publisher.publish(writer);
 
     assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 1)).isTrue();
