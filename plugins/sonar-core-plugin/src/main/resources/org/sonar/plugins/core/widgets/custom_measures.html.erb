@@ -18,7 +18,7 @@
             <p class="widget-measure widget-measure-main">
               <span class="widget-label"><%= measure.metric.short_name -%></span>
               <span class="nowrap">
-                <% if measure.value.nil? -%>
+                <% if measure.value.nil? && measure.text_value.nil? -%>
                   <%= format_measure(measure, :url => url_for_drilldown(measure, :period => period), :period => period) -%>
                 <% else %>
                   <%= format_measure(measure, :url => url_for_drilldown(measure)) -%>

@@ -274,7 +274,7 @@ class ProjectMeasure < ActiveRecord::Base
   end
 
   def visible?(period)
-    ! (value.nil? && variation(period).nil?)
+    !(text_value.nil? && value.nil? && variation(period).nil?)
   end
 
 end
