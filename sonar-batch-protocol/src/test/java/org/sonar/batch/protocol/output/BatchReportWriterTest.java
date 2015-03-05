@@ -31,7 +31,7 @@ import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class BatchOutputWriterTest {
+public class BatchReportWriterTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -41,7 +41,7 @@ public class BatchOutputWriterTest {
     File dir = temp.newFolder();
     FileUtils.deleteQuietly(dir);
 
-    new BatchOutputWriter(dir);
+    new BatchReportWriter(dir);
 
     assertThat(dir).isDirectory().exists();
   }
@@ -49,7 +49,7 @@ public class BatchOutputWriterTest {
   @Test
   public void write_metadata() throws Exception {
     File dir = temp.newFolder();
-    BatchOutputWriter writer = new BatchOutputWriter(dir);
+    BatchReportWriter writer = new BatchReportWriter(dir);
     BatchReport.Metadata.Builder metadata = BatchReport.Metadata.newBuilder()
       .setAnalysisDate(15000000L)
       .setProjectKey("PROJECT_A")
@@ -65,7 +65,7 @@ public class BatchOutputWriterTest {
   @Test
   public void write_component() throws Exception {
     File dir = temp.newFolder();
-    BatchOutputWriter writer = new BatchOutputWriter(dir);
+    BatchReportWriter writer = new BatchReportWriter(dir);
 
     // no data yet
     assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 1)).isFalse();
@@ -96,7 +96,7 @@ public class BatchOutputWriterTest {
   @Test
   public void write_issues() throws Exception {
     File dir = temp.newFolder();
-    BatchOutputWriter writer = new BatchOutputWriter(dir);
+    BatchReportWriter writer = new BatchReportWriter(dir);
 
     // no data yet
     assertThat(writer.hasComponentData(FileStructure.Domain.ISSUES, 1)).isFalse();
@@ -122,7 +122,7 @@ public class BatchOutputWriterTest {
   @Test
   public void write_issues_of_deleted_component() throws Exception {
     File dir = temp.newFolder();
-    BatchOutputWriter writer = new BatchOutputWriter(dir);
+    BatchReportWriter writer = new BatchReportWriter(dir);
 
     // no data yet
     assertThat(writer.hasComponentData(FileStructure.Domain.ISSUES_ON_DELETED, 1)).isFalse();

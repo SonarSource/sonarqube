@@ -23,11 +23,11 @@ import org.sonar.batch.protocol.ProtobufUtil;
 
 import java.io.File;
 
-public class BatchOutputWriter {
+public class BatchReportWriter {
 
   private final FileStructure fileStructure;
 
-  public BatchOutputWriter(File dir) {
+  public BatchReportWriter(File dir) {
     if (!dir.exists() && !dir.mkdirs()) {
       throw new IllegalStateException("Unable to create directory: " + dir);
     }

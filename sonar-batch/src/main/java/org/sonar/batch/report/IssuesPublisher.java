@@ -30,7 +30,7 @@ import org.sonar.batch.index.BatchResource;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.protocol.Constants;
-import org.sonar.batch.protocol.output.BatchOutputWriter;
+import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.batch.protocol.output.BatchReport;
 
 import javax.annotation.Nullable;
@@ -52,7 +52,7 @@ public class IssuesPublisher implements ReportPublisher {
   }
 
   @Override
-  public void publish(BatchOutputWriter writer) {
+  public void publish(BatchReportWriter writer) {
     Collection<Object> deletedComponentKeys = issueCache.componentKeys();
     for (BatchResource resource : resourceCache.all()) {
       String componentKey = resource.resource().getEffectiveKey();
@@ -71,7 +71,7 @@ public class IssuesPublisher implements ReportPublisher {
     exportMetadata(writer, count);
   }
 
-  private void exportMetadata(BatchOutputWriter writer, int count) {
+  private void exportMetadata(BatchReportWriter writer, int count) {
     BatchResource rootProject = resourceCache.get(reactor.getRoot().getKeyWithBranch());
     BatchReport.Metadata.Builder builder = BatchReport.Metadata.newBuilder()
       .setAnalysisDate(((Project) rootProject.resource()).getAnalysisDate().getTime())
@@ -85,7 +85,7 @@ public class IssuesPublisher implements ReportPublisher {
     writer.writeMetadata(builder.build());
   }
 
-  private int exportIssuesOfDeletedComponents(Collection<Object> deletedComponentKeys, BatchOutputWriter writer) {
+  private int exportIssuesOfDeletedComponents(Collection<Object> deletedComponentKeys, BatchReportWriter writer) {
     int deletedComponentCount = 0;
     for (Object componentKey : deletedComponentKeys) {
       deletedComponentCount++;

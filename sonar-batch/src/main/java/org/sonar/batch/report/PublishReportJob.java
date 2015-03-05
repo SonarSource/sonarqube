@@ -33,7 +33,7 @@ import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.ZipUtils;
 import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.ServerClient;
-import org.sonar.batch.protocol.output.BatchOutputWriter;
+import org.sonar.batch.protocol.output.BatchReportWriter;
 
 import java.io.File;
 import java.io.IOException;
@@ -84,7 +84,7 @@ public class PublishReportJob implements BatchComponent {
     try {
       long startTime = System.currentTimeMillis();
       File reportDir = temp.newDir("batch-report");
-      BatchOutputWriter writer = new BatchOutputWriter(reportDir);
+      BatchReportWriter writer = new BatchReportWriter(reportDir);
       for (ReportPublisher publisher : publishers) {
         publisher.publish(writer);
       }

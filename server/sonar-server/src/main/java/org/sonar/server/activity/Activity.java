@@ -19,6 +19,7 @@
  */
 package org.sonar.server.activity;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.util.LinkedHashMap;
@@ -51,6 +52,7 @@ public class Activity {
     this.action = action;
   }
 
+  @CheckForNull
   public String getMessage() {
     return message;
   }

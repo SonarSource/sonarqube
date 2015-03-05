@@ -48,15 +48,48 @@ public class BatchReportReaderTest {
     assertThat(reader.readComponentIssues(1)).hasSize(1);
     assertThat(reader.readComponentIssues(200)).isEmpty();
     assertThat(reader.readComponent(1).getUuid()).isEqualTo("UUID_A");
-    assertThat(reader.readComponent(200)).isNull();
     Issues deletedComponentIssues = reader.readDeletedComponentIssues(1);
     assertThat(deletedComponentIssues.getComponentUuid()).isEqualTo("compUuid");
     assertThat(deletedComponentIssues.getListList()).hasSize(1);
+  }
 
+  @Test(expected = IllegalStateException.class)
+  public void fail_if_missing_metadata_file() throws Exception {
+    File dir = temp.newFolder();
+
+    BatchReportReader reader = new BatchReportReader(dir);
+    reader.readMetadata();
+  }
+
+  @Test(expected = IllegalStateException.class)
+   public void fail_if_missing_file_on_deleted_component() throws Exception {
+    File dir = temp.newFolder();
+
+    BatchReportReader reader = new BatchReportReader(dir);
+    reader.readDeletedComponentIssues(666);
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void fail_if_missing_file_on_component() throws Exception {
+    File dir = temp.newFolder();
+
+    BatchReportReader reader = new BatchReportReader(dir);
+    reader.readComponent(666);
+  }
+
+  /**
+   * no file if no issues
+   */
+  @Test
+  public void ignore_missing_file_on_component_issues() throws Exception {
+    File dir = temp.newFolder();
+
+    BatchReportReader reader = new BatchReportReader(dir);
+    assertThat(reader.readComponentIssues(666)).isEmpty();
   }
 
   private void initFiles(File dir) {
-    BatchOutputWriter writer = new BatchOutputWriter(dir);
+    BatchReportWriter writer = new BatchReportWriter(dir);
 
     BatchReport.Metadata.Builder metadata = BatchReport.Metadata.newBuilder()
       .setAnalysisDate(15000000L)

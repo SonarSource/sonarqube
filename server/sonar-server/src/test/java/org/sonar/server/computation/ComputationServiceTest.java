@@ -50,7 +50,7 @@ import org.sonar.api.utils.ZipUtils;
 import org.sonar.api.utils.internal.JUnitTempFolder;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.batch.protocol.output.BatchOutputWriter;
+import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbTester;
@@ -178,7 +178,7 @@ public class ComputationServiceTest {
 
   private File generateZip() throws IOException {
     File dir = tempFolder.newDir();
-    BatchOutputWriter writer = new BatchOutputWriter(dir);
+    BatchReportWriter writer = new BatchReportWriter(dir);
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
       .setProjectKey("PROJECT_KEY")
