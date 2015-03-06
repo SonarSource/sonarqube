@@ -124,24 +124,6 @@
     top: 0; bottom: 0; left: 0; right: 0;
     background: #fff url(../images/loading.gif) no-repeat 4px 4px;
   }
-
-  &#tab-issue-rule {
-    position: relative;
-
-    &:before {
-      z-index: 3;
-      background-color: #EFEFEF;
-    }
-  }
-
-  &.code-issue-actions {
-    position: relative;
-
-    &:before {
-      z-index: 3;
-      background-color: #E4ECF3;
-    }
-  }
 }
 
 
@@ -360,38 +342,6 @@
 
   &.loading {
     background: @white url("../images/loading.gif") no-repeat 4px 2px;
-  }
-
-  .code-issue-name {
-    border-bottom: none;
-  }
-
-  .code-issue-actions {
-    background-color: #E4ECF3;
-  }
-
-  .source_title {
-    z-index: 3;
-    top: @navigatorTopOffset + @navigatorHeaderHeight + @navigatorFiltersHeight;
-    left: @navigatorResultsWidth;
-    right: 0;
-    padding: 0 0 @navigatorPadding 0;
-    background-color: #fff;
-  }
-
-  .source {
-    & > table {
-      border: 1px solid #DDD;
-    }
-  }
-
-  .scm .author {
-    display: inline-block;
-    vertical-align: middle;
-    max-width: 100px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
 }
 
