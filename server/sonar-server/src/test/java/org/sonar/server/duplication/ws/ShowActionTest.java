@@ -101,6 +101,32 @@ public class ShowActionTest {
   }
 
   @Test
+  public void show_duplications_by_uuid() throws Exception {
+    String uuid = "ABCD";
+    String componentKey = "src/Foo.java";
+    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "org.codehaus.sonar:sonar", componentKey);
+
+    when(componentDao.getByUuid(session, uuid)).thenReturn(new ComponentDto().setKey(componentKey));
+
+    ComponentDto componentDto = new ComponentDto().setId(10L);
+    when(componentDao.getNullableByKey(session, componentKey)).thenReturn(componentDto);
+
+    String data = "{duplications}";
+    MeasureKey measureKey = MeasureKey.of(componentKey, CoreMetrics.DUPLICATIONS_DATA_KEY);
+    when(measureDao.getNullableByKey(session, measureKey)).thenReturn(
+      MeasureDto.createFor(measureKey).setTextValue("{duplications}")
+      );
+
+    List<DuplicationsParser.Block> blocks = newArrayList(new DuplicationsParser.Block(newArrayList(new DuplicationsParser.Duplication(componentDto, 1, 2))));
+    when(parser.parse(componentDto, data, session)).thenReturn(blocks);
+
+    WsTester.TestRequest request = tester.newGetRequest("api/duplications", "show").setParam("uuid", uuid);
+    request.execute();
+
+    verify(duplicationsJsonWriter).write(eq(blocks), any(JsonWriter.class), eq(session));
+  }
+
+  @Test
   public void no_duplications_when_no_data() throws Exception {
     String componentKey = "src/Foo.java";
     MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "org.codehaus.sonar:sonar", componentKey);

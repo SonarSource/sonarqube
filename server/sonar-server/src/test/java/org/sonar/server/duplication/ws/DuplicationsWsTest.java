@@ -48,7 +48,7 @@ public class DuplicationsWsTest {
     assertThat(show.since()).isEqualTo("4.4");
     assertThat(show.isInternal()).isFalse();
     assertThat(show.responseExampleAsString()).isNotEmpty();
-    assertThat(show.params()).hasSize(1);
+    assertThat(show.params()).hasSize(2);
   }
 
 }
