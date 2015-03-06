@@ -128,28 +128,3 @@
 
   & > li { padding: 2px 0; }
 }
-
-
-@overlayPopupMargin: 20px;
-@overlayPopupPadding: 40px;
-
-.overlay-popup {
-  position: fixed;
-  z-index: 1200;
-  top: @overlayPopupMargin;
-  bottom: @overlayPopupMargin;
-  left: @overlayPopupMargin;
-  right: @overlayPopupMargin;
-  padding: @overlayPopupPadding @overlayPopupPadding @overlayPopupPadding + 30px;
-  background-color: #fff;
-  overflow: scroll;
-  box-shadow: 0 0 20px 15px rgba(0, 0, 0, 0.5);
-
-  .modal-foot {
-    position: fixed;
-    z-index: 1201;
-    bottom: @overlayPopupMargin;
-    left: @overlayPopupMargin;
-    right: @overlayPopupMargin;
-  }
-}
