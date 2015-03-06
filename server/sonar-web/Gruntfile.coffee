@@ -360,13 +360,13 @@ module.exports = (grunt) ->
           concise: true
           port: expressPort
         src: ['src/test/js/**/*.js']
-      testCoverageTemp:
+      testCoverageLight:
         options:
           test: true
           'fail-fast': true
           verbose: true
           port: expressPort
-        src: ['src/test/js/**/*-issue-filter-widget.js']
+        src: ['src/test/js/**/*<%= grunt.option("spec") %>*.js']
       single:
         options:
           test: true
@@ -475,8 +475,8 @@ module.exports = (grunt) ->
   grunt.registerTask 'testCoverage',
       ['dev', 'express:testCoverage', 'curl:resetCoverage', 'casper:testCoverage', 'curl:downloadCoverage', 'unzip', 'replace:lcov']
 
-  grunt.registerTask 'testCoverageTemp',
-      ['dev', 'express:testCoverage', 'curl:resetCoverage', 'casper:testCoverageTemp', 'curl:downloadCoverage', 'unzip', 'replace:lcov']
+  grunt.registerTask 'testCoverageLight',
+      ['dev', 'express:testCoverage', 'curl:resetCoverage', 'casper:testCoverageLight', 'curl:downloadCoverage', 'unzip', 'replace:lcov']
 
   grunt.registerTask 'single',
       ['dev', 'express:test', 'casper:single']
