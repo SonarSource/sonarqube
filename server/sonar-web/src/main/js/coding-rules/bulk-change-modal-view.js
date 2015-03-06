@@ -82,6 +82,7 @@ define([
       looper.done(function () {
         that.options.app.controller.fetchList();
         that.$(that.ui.codingRulesSubmitBulkChange.selector).hide();
+        that.$('.modal-field').hide();
         that.$('.js-modal-close').focus();
       });
     },
