@@ -64,7 +64,6 @@ casper.test.begin(testName('Base'), function (test) {
           test.assertSelectorContains('.issue', '1 more branches need to be covered by unit tests to reach');
 
           // Filters
-          test.assertExists('.js-toggle-filters');
           test.assertExists('.js-new-search');
           test.assertExists('.js-filter-save-as');
 
