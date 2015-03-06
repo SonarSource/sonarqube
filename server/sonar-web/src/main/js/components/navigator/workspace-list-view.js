@@ -87,16 +87,7 @@ define(function () {
       }
     },
 
-    disablePointerEvents: function () {
-      clearTimeout(this.scrollTimer);
-      $('body').addClass('disabled-pointer-events');
-      this.scrollTimer = setTimeout(function () {
-        $('body').removeClass('disabled-pointer-events');
-      }, 250);
-    },
-
     onScroll: function () {
-      this.disablePointerEvents();
       if ($(window).scrollTop() + $(window).height() >= this.ui.loadMore.offset().top) {
         this.loadMoreThrottled();
       }

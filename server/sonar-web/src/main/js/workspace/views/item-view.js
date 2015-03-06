@@ -17,29 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@import "components/ui";
-@import "components/source";
-@import "components/facets";
-@import "components/modals";
-@import "components/issues";
-@import "components/measures";
-@import "components/rules";
-@import "components/search-navigator";
-@import "components/typography";
-@import "components/tooltips";
-@import "components/dropdowns";
-@import "components/menu";
-@import "components/page";
-@import "components/component-name";
-@import "components/component-viewer";
-@import "components/navbar";
-@import "components/navigator";
-@import "components/select-list";
-@import "components/login";
-@import "components/graphics";
-@import "components/bubble-popup";
-@import "components/list-groups";
-@import "components/panels";
-@import "components/badges";
-@import "components/columns";
-@import "components/workspace";
+define([
+  'templates/workspace'
+], function () {
+
+  return Marionette.ItemView.extend({
+    tagName: 'li',
+    className: 'workspace-nav-item',
+    template: Templates['workspace-item'],
+
+    events: {
+      'click': 'onClick',
+      'click .js-close': 'onCloseClick'
+    },
+
+    onClick: function (e) {
+      e.preventDefault();
+      this.options.collectionView.trigger('click', this.model.id, this.model);
+    },
+
+    onCloseClick: function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      this.model.destroy();
+    }
+  });
+
+});

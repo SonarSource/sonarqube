@@ -1,0 +1,111 @@
+/*
+ * SonarQube, open source software quality management tool.
+ * Copyright (C) 2008-2014 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * SonarQube is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * SonarQube is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+@import (reference) "../mixins";
+@import (reference) "../variables";
+
+.workspace-nav {
+  position: fixed;
+  z-index: @workspace-nav-z-index;
+  bottom: 0;
+  right: 0;
+  height: 30px;
+}
+
+.workspace-nav-list {
+  float: right;
+}
+
+.workspace-nav-item {
+  float: left;
+  height: 30px;
+  line-height: 30px;
+  margin-right: 10px;
+  padding: 0 10px;
+  background-color: #404040;
+  color: #fff;
+  font-size: @smallFontSize;
+  font-weight: 300;
+  cursor: pointer;
+}
+
+.workspace-viewer {
+  position: fixed;
+  z-index: @workspace-viewer-z-index;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  .box-sizing(border-box);
+  background-color: #fff;
+  box-shadow: 0 -6px 12px rgba(0, 0, 0, .175);
+}
+
+.workspace-viewer-full-screen {
+  .workspace-viewer-container {
+    height: ~"calc(100vh - 30px - @{navbarGlobalHeight} - 10px)";
+  }
+
+  .workspace-for-full-screen {
+    display: inline;
+  }
+
+  .workspace-for-normal-size {
+    display: none;
+  }
+}
+
+.workspace-viewer-header {
+  @topPadding: (30px - @formControlHeight) / 2;
+  height: 30px;
+  padding: @topPadding 10px;
+  .box-sizing(border-box);
+  background-color: #404040;
+  color: #fff;
+  font-weight: 300;
+}
+
+.workspace-viewer-name {
+  float: left;
+  line-height: @formControlHeight;
+}
+
+.workspace-viewer-actions {
+  float: right;
+  line-height: @formControlHeight;
+
+  a { color: inherit; }
+}
+
+.workspace-viewer-container {
+  height: ~"calc(40vh - 30px)";
+  padding: 5px 10px;
+  overflow-y: scroll;
+  overflow-x: auto;
+  .box-sizing(border-box);
+}
+
+.workspace-for-full-screen {
+  display: none;
+}
+
+
+// Misc
+.with-workspace {
+  padding-bottom: 40vh;
+}

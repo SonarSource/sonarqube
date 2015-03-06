@@ -20,6 +20,7 @@
 
 package org.sonar.server.duplication.ws;
 
+import com.google.common.base.Preconditions;
 import com.google.common.io.Resources;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.server.ws.Request;
@@ -68,17 +69,28 @@ public class ShowAction implements RequestHandler {
 
     action
       .createParam("key")
-      .setRequired(true)
       .setDescription("File key")
       .setExampleValue("my_project:/src/foo/Bar.php");
+
+    action
+      .createParam("uuid")
+      .setDescription("File UUID")
+      .setExampleValue("584a89f2-8037-4f7b-b82c-8b45d2d63fb2");
   }
 
   @Override
   public void handle(Request request, Response response) {
-    String fileKey = request.mandatoryParam("key");
-    UserSession.get().checkComponentPermission(UserRole.CODEVIEWER, fileKey);
+    String fileKey = request.param("key");
+    String fileUuid = request.param("uuid");
+    Preconditions.checkArgument(fileKey != null || fileUuid != null, "At least one of 'key' or 'uuid' must be provided");
 
     DbSession session = dbClient.openSession(false);
+    if (fileKey == null) {
+      fileKey = componentDao.getByUuid(session, fileUuid).key();
+    }
+
+    UserSession.get().checkComponentPermission(UserRole.CODEVIEWER, fileKey);
+
     try {
       ComponentDto component = findComponent(fileKey, session);
       JsonWriter json = response.newJsonWriter().beginObject();

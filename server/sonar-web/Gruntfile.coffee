@@ -305,6 +305,9 @@ module.exports = (grunt) ->
           '<%= grunt.option("assetsDir") || pkg.assets %>js/templates/widgets.js': [
             '<%= pkg.sources %>hbs/widgets/**/*.hbs'
           ]
+          '<%= grunt.option("assetsDir") || pkg.assets %>js/templates/workspace.js': [
+            '<%= pkg.sources %>hbs/workspace/**/*.hbs'
+          ]
 
 
     clean:

@@ -27,6 +27,7 @@ define([
       'source-viewer/popups/coverage-popup',
       'source-viewer/popups/duplication-popup',
       'source-viewer/popups/line-actions-popup',
+      'workspace/main',
       'templates/source-viewer'
     ],
     function (Source,
@@ -37,7 +38,8 @@ define([
               SCMPopupView,
               CoveragePopupView,
               DuplicationPopupView,
-              LineActionsPopupView) {
+              LineActionsPopupView,
+              Workspace) {
 
       var $ = jQuery,
           HIGHLIGHTED_ROW_CLASS = 'source-line-highlighted';
@@ -234,7 +236,7 @@ define([
         requestDuplications: function () {
           var that = this,
               url = baseUrl + '/api/duplications/show',
-              options = {key: this.model.key()};
+              options = { uuid  : this.model.id };
           return $.get(url, options, function (data) {
             var hasDuplications = (data != null) && (data.duplications != null),
                 duplications = [];
@@ -392,7 +394,7 @@ define([
               row = _.findWhere(this.model.get('source'), { line: line }),
               url = baseUrl + '/api/tests/test_cases',
               options = {
-                key: this.model.key(),
+                uuid: this.model.id,
                 line: line
               };
           return $.get(url, options).done(function (data) {
@@ -504,16 +506,7 @@ define([
           this.$el.scrollParent().off('scroll.source-viewer');
         },
 
-        disablePointerEvents: function () {
-          clearTimeout(this.scrollTimer);
-          $('body').addClass('disabled-pointer-events');
-          this.scrollTimer = setTimeout((function () {
-            $('body').removeClass('disabled-pointer-events');
-          }), 250);
-        },
-
         onScroll: function () {
-          this.disablePointerEvents();
           var p = this.$el.scrollParent();
           if (p.is(document)) {
             p = $(window);

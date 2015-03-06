@@ -40,7 +40,9 @@ import java.util.List;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DuplicationsJsonWriterTest {
@@ -227,7 +229,7 @@ public class DuplicationsJsonWriterTest {
     jsonWriter.beginObject();
     writer.write(blocks, jsonWriter, session);
     jsonWriter.endObject();
-    JSONAssert.assertEquals(output.toString(), expected, true);
+    JSONAssert.assertEquals(expected, output.toString(), false);
   }
 
 }
