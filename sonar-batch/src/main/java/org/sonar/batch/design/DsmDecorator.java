@@ -74,7 +74,6 @@ public abstract class DsmDecorator implements Decorator {
         return;
       }
       Dsm<Resource> dsm = getDsm(children, feedbackEdges);
-      // Optimization, don't save DSM if there is no dependency at all
       saveDsm(context, dsm);
     }
   }
