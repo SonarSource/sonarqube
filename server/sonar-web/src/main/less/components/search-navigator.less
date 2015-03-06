@@ -108,42 +108,102 @@
 
 .search-navigator-facet {
   position: relative;
+  display: inline-block;
+  vertical-align: middle;
   width: 100%;
+  line-height: 1;
   margin: 0 0 1px 0;
-  border-color: transparent;
+  padding: 4px 5px;
+  border: 1px solid transparent;
+  border-radius: 2px;
   .box-sizing(border-box);
   background-color: @barBackgroundColor;
   white-space: normal;
   overflow: hidden;
+  font-size: 0;
+  cursor: pointer;
+  .trans(none);
 
+  &:hover {
+    border: 1px solid @blue;
+  }
+  
   .facet-name {
-    white-space: nowrap;
     background-color: @barBackgroundColor;
     color: @baseFontColor;
+    font-size: @smallFontSize;
+    white-space: nowrap;
   }
 
   .facet-stat {
     position: absolute;
-    top: 0; right: 0;
+    top: 0;
+    right: 0;
+    margin-left: 5px;
     padding: 4px 5px;
-    border: none;
     background-color: @barBackgroundColor;
+    color: @secondFontColor;
+    font-size: @smallFontSize;
 
     &:before {
       content: " ";
       position: absolute;
-      top: 0; bottom: 0; right: 100%;
+      top: 0;
+      bottom: 0;
+      right: 100%;
       width: 10px;
       background-image: linear-gradient(to right, fade(@barBackgroundColor, 0%), @barBackgroundColor 75%);
     }
   }
 
-  &.active .facet-stat:before {
-    background-image: linear-gradient(to right, fade(@lightBlue, 0%), @lightBlue 75%);
+  .facet-toggle {
+    display: none;
+    float: left;
+    height: 16px;
+    line-height: 16px;
+    margin-top: -2px;
+    padding: 0 5px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 300;
+    text-transform: lowercase;
+
+    &:hover {
+      color: @baseFontColor;
+    }
   }
 
-  &.active .facet-toggle {
-    display: inline;
+  .facet-toggle-active.facet-toggle-green {
+    background-color: @green;
+    color: #fff;
+  }
+
+  .facet-toggle-active.facet-toggle-red {
+    background-color: @red;
+    color: #fff;
+  }
+
+  &.active {
+    border: 1px solid @blue;
+    background-color: @lightBlue;
+    text-decoration: none;
+
+    .facet-name {
+      background-color: @lightBlue;
+    }
+
+    .facet-stat {
+      border-color: @blue;
+      background-color: @lightBlue;
+
+      &:before {
+        background-image: linear-gradient(to right, fade(@lightBlue, 0%), @lightBlue 75%);
+      }
+    }
+
+    .facet-toggle {
+      display: inline;
+    }
   }
 }
 
