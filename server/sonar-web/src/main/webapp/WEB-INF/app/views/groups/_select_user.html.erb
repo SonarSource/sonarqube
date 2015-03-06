@@ -14,7 +14,7 @@
   var selectList = new SelectList({
     el: '#select-list-group',
     width: '100%',
-    format: function (item) { return item.name + ' <div class="subtitle">' + item.login + '</div>'; },
+    format: function (item) { return item.name + ' <div class="note">' + item.login + '</div>'; },
     searchUrl: baseUrl + '/groups/search_users?group=<%= @group.name -%>',
     selectUrl: baseUrl + '/groups/add_member',
     deselectUrl: baseUrl + '/groups/remove_member',

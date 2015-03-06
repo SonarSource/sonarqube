@@ -6,7 +6,7 @@
   <%= render :partial => 'header' -%>
 
   <% if params[:period] && @snapshot.project_snapshot.periods? %>
-    <div id="snapshot_title" class="page_title">
+    <div id="snapshot_title" class="spacer-bottom">
       <h4>
         <form method="GET" action="<%= url_for :action => 'measures' -%>" style="display: inline">
           <input type="hidden" name="metric" value="<%= params[:metric] -%>"/>
@@ -92,7 +92,7 @@
                     <%= link_to(h(resource.name), params.merge({:only_path => true, :rids => (selected ? rids-[resource.id] : rids+[resource.id])})) -%>
                   <% end %>
                 </td>
-                <td class="right">
+                <td class="text-right">
                   <%= format_measure(measure, :skip_span_id => true, :period => @period) -%>
                 </td>
               </tr>

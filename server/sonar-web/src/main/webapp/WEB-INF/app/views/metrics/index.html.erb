@@ -17,12 +17,12 @@
         <table class="sortable data width100" id="metrics">
           <thead>
           <tr>
-            <th class="left"><a>Key</a></th>
-            <th class="left sortfirstasc"><a>Name</a></th>
-            <th class="left"><a>Description</a></th>
-            <th class="left"><a>Domain</a></th>
-            <th class="left"><a>Type</a></th>
-            <th class="left nosort"><a>Operations</a></th>
+            <th class="text-left"><a>Key</a></th>
+            <th class="text-left sortfirstasc"><a>Name</a></th>
+            <th class="text-left"><a>Description</a></th>
+            <th class="text-left"><a>Domain</a></th>
+            <th class="text-left"><a>Type</a></th>
+            <th class="text-left nosort"><a>Operations</a></th>
           </tr>
           </thead>
           <tbody>
@@ -33,13 +33,13 @@
           <% end %>
           <% @metrics.each do |metric| %>
             <tr>
-              <td class="left" nowrap id="metric_key_<%= metric.key -%>"><span class="note"><%= metric.key -%></span>
+              <td class="text-left" nowrap id="metric_key_<%= metric.key -%>"><span class="note"><%= metric.key -%></span>
               </td>
-              <td class="left" nowrap id="metric_name_<%= metric.key -%>"><%= h metric.short_name -%></td>
-              <td class="left" id="metric_desc_<%= metric.key -%>"><%= h metric.description -%></td>
-              <td class="left" id="metric_domain_<%= metric.key -%>"><%= h metric.domain -%></td>
-              <td class="left" id="metric_type_name<%= metric.key -%>"><%= h metric.value_type_name -%></td>
-              <td class="right thin nowrap">
+              <td class="text-left" nowrap id="metric_name_<%= metric.key -%>"><%= h metric.short_name -%></td>
+              <td class="text-left" id="metric_desc_<%= metric.key -%>"><%= h metric.description -%></td>
+              <td class="text-left" id="metric_domain_<%= metric.key -%>"><%= h metric.domain -%></td>
+              <td class="text-left" id="metric_type_name<%= metric.key -%>"><%= h metric.value_type_name -%></td>
+              <td class="text-right thin nowrap">
                 <% if is_admin? %>
                   <a id="edit_<%= metric.key.parameterize -%>" href="<%= ApplicationController.root_context -%>/metrics/edit_form/<%= metric.id -%>" id="edit_<%= h(metric.short_name) -%>" class="open-modal link-action">Edit</a>&nbsp;
                   <%= link_to_action message('delete'), "#{ApplicationController.root_context}/metrics/delete_from_web/#{metric.id}",

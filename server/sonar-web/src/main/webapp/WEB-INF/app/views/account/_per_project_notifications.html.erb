@@ -23,7 +23,7 @@
            unless @per_project_notifications.empty?
              @per_project_dispatchers.each do |dispatcher| 
         %>
-          <td style="width: 180px;" class="center"><b><%= message('notification.dispatcher.' + dispatcher) -%></b></td>
+          <td style="width: 180px;" class="text-center"><b><%= message('notification.dispatcher.' + dispatcher) -%></b></td>
         <% 
              end
            end
@@ -37,7 +37,7 @@
              index += 1
       %>
       <tr id="row_<%= index -%>">
-        <td class="middle">
+        <td class="text-middle">
           <table style="width: 100%">
             <tr>
               <td class="nowrap" style="vertical-align: bottom; width: 100%;"><b><%= Project.by_key(r_id).name -%></b></td>

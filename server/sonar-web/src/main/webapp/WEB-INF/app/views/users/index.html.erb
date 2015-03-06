@@ -21,24 +21,24 @@
         <table class="data width100 sortable" id="users">
           <thead>
           <tr>
-            <th class="left"><a>Login</a></th>
-            <th class="left sortfirstasc"><a>Name</a></th>
-            <th class="left"><a>Email</a></th>
-            <th class="left nosort"><a>Groups</a></th>
-            <th class="right nosort" nowrap><a>Operations</a></th>
+            <th class="text-left"><a>Login</a></th>
+            <th class="text-left sortfirstasc"><a>Name</a></th>
+            <th class="text-left"><a>Email</a></th>
+            <th class="text-left nosort"><a>Groups</a></th>
+            <th class="text-right nosort" nowrap><a>Operations</a></th>
           </tr>
           </thead>
           <tbody>
           <% @users.each do |user| %>
             <tr id="user-<%= user.login.parameterize -%>">
-              <td class="left" valign="top"><%= h user.login -%></td>
-              <td class="left" valign="top"><%= h user.name -%></td>
-              <td class="left" valign="top"><%= h user.email -%></td>
-              <td class="left" valign="top">
+              <td class="text-left" valign="top"><%= h user.login -%></td>
+              <td class="text-left" valign="top"><%= h user.name -%></td>
+              <td class="text-left" valign="top"><%= h user.email -%></td>
+              <td class="text-left" valign="top">
                 <%= h user.groups.sort.map(&:name).join(', ') %>
                 (<%= link_to "select", {:action => 'select_group', :id => user.id}, {:id => "select-#{user.login.parameterize}", :class => 'open-modal link-action'} %>)
               </td>
-              <td class="right" valign="top">
+              <td class="text-right" valign="top">
                 <a id="edit-<%= user.login -%>" class="open-modal link-action" href="<%= ApplicationController.root_context -%>/users/edit_form/<%= u user.login -%>">Edit</a>
                 &nbsp;
                 <%= link_to 'Change password', {:id => user.id, :action => 'change_password_form'}, {:id => "change-password-#{user.login.parameterize}", :class => 'open-modal link-action'} -%>

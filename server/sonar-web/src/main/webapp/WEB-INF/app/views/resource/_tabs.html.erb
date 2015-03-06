@@ -10,7 +10,7 @@
   <% if display_title %>
     <div class="source_title">
       <% if @resource.project %>
-        <div class="subtitle">
+        <div class="note">
           <%= h @resource.ancestor_projects.reverse.map{|p| p.name(true)}.join(' / ') -%>
         </div>
       <% end %>

@@ -14,7 +14,7 @@
   var selectList = new SelectList({
     el: '#select-list-user',
     width: '100%',
-    format: function (item) { return item.name + ' <div class="subtitle">' + item.login + '</div>'; },
+    format: function (item) { return item.name + ' <div class="note">' + item.login + '</div>'; },
     searchUrl: baseUrl + '/permission_templates/search_users?permission=<%= @permission -%>&template=<%= @permission_template.key -%>',
     selectUrl: baseUrl + '/permission_templates/add_user_permission',
     deselectUrl: baseUrl + '/permission_templates/remove_user_permission',

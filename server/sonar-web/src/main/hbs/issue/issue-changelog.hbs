@@ -3,9 +3,9 @@
     <tbody>
 
     <tr>
-      <td class="thin left top" nowrap>{{dt issue.creationDate}}</td>
-      <td class="thin left top" nowrap></td>
-      <td class="left top">
+      <td class="thin text-left text-top" nowrap>{{dt issue.creationDate}}</td>
+      <td class="thin text-left text-top" nowrap></td>
+      <td class="text-left text-top">
         {{#if issue.reporter}}
           {{t 'issue.reported_by'}} {{default issue.reporterName issue.reporter}}
         {{else}}
@@ -20,9 +20,9 @@
 
     {{#each items}}
       <tr>
-        <td class="thin left top" nowrap>{{dt creationDate}}</td>
-        <td class="thin left top" nowrap>{{userName}}</td>
-        <td class="left top">
+        <td class="thin text-left text-top" nowrap>{{dt creationDate}}</td>
+        <td class="thin text-left text-top" nowrap>{{userName}}</td>
+        <td class="text-left text-top">
           {{#each diffs}}
             {{changelog this}}<br>
           {{/each}}

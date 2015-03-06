@@ -6,7 +6,7 @@
       <td class="coding-rules-detail-parameter-description" data-key="{{key}}">
         <p>{{{htmlDesc}}}</p>
         {{#if ../../templateKey}}
-          <div class="subtitle">
+          <div class="note spacer-top">
             {{#if defaultValue }}
               <span class="coding-rules-detail-parameter-value">{{defaultValue}}</span>
             {{else}}
@@ -15,7 +15,7 @@
           </div>
         {{else}}
           {{#if defaultValue}}
-            <div class="subtitle">
+            <div class="note spacer-top">
               {{t 'coding_rules.parameters.default_value'}}<br>
               <span class="coding-rules-detail-parameter-value">{{defaultValue}}</span>
             </div>

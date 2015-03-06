@@ -1,7 +1,7 @@
 <% errors = [] -%>
 <% key_field = key_field(property) -%>
 
-<tr class="top multi_value <%= 'template' unless set_key -%> odd" style="<%= 'display:none' unless set_key -%>">
+<tr class="text-top multi_value <%= 'template' unless set_key -%> odd" style="<%= 'display:none' unless set_key -%>">
   <% unless key_field -%>
     <%= hidden_field_tag "property_sets[#{property.key}][]", set_key -%>
   <% end -%>

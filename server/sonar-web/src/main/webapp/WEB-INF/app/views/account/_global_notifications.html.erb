@@ -6,7 +6,7 @@
   <tr>
     <td></td>
     <% for channel in @channels %>
-      <td class="center"><b><%= message('notification.channel.' + channel.getKey()) -%></b></td>
+      <td class="text-center"><b><%= message('notification.channel.' + channel.getKey()) -%></b></td>
     <% end %>
   </tr>
   <% for dispatcher in @global_dispatchers %>
@@ -18,7 +18,7 @@
              check_box_id = 'global_notifs[' + notification_id + ']'
              check_box_checked = @global_notifications[notification_id]
       %>
-      <td class="center">
+      <td class="text-center">
           <%= check_box_tag check_box_id, 'true', check_box_checked %>
       </td>
       <% end %>

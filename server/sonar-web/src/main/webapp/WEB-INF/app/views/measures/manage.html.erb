@@ -32,7 +32,7 @@
           <th class="thin"></th>
           <th><%= message('name') -%></th>
           <th><%= message('measure_filter.sharing') -%></th>
-          <th class="right"><%= message('operations') -%></th>
+          <th class="text-right"><%= message('operations') -%></th>
         </tr>
         </thead>
         <tbody>
@@ -59,7 +59,7 @@
                   <%= message 'measure_filter.private' -%>
                 <% end %>
               </td>
-              <td class="thin nowrap right">
+              <td class="text-thin nowrap text-right">
                 <a id="copy-<%= filter.name.parameterize -%>" href="<%= ApplicationController.root_context -%>/measures/copy_form/<%= filter.id -%>" class="link-action open-modal"><%= message('copy') -%></a>
                 &nbsp;
                 <a id="edit_<%= filter.name.parameterize -%>" href="<%= ApplicationController.root_context -%>/measures/edit_form/<%= filter.id -%>" class="link-action open-modal"><%= message('edit') -%></a>
@@ -87,7 +87,7 @@
           <th class="thin"></th>
           <th><%= message('name') -%></th>
           <th><%= message('shared_by') -%></th>
-          <th class="right"><%= message('operations') -%></th>
+          <th class="text-right"><%= message('operations') -%></th>
         </tr>
         </thead>
         <tbody>
@@ -110,7 +110,7 @@
               <td>
                 <%= filter.user ? h(filter.user.name) : '[SonarQube]' -%>
               </td>
-              <td class="thin nowrap right">
+              <td class="thin nowrap text-right">
                 <a id="copy-<%= filter.name.parameterize -%>" href="<%= ApplicationController.root_context -%>/measures/copy_form/<%= filter.id -%>" class="link-action open-modal"><%= message('copy') -%></a>
                 <% if has_role?(:admin) %>
                   &nbsp;

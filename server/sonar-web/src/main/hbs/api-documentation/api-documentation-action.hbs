@@ -2,7 +2,7 @@
   {{#if post}}POST{{else}}GET{{/if}}
   {{path}}
 </h3>
-<span class="subtitle">
+<span class="note">
   {{#if since}}Since {{since}}{{#if internal}} -{{/if}}{{/if}}
   {{#if internal}}<span class="badge">For internal use only</span>{{/if}}
 </span>
@@ -14,7 +14,7 @@
   <tr>
     <td style="width:10em">
       <code>{{key}}</code>
-      <div class="subtitle">{{#if required}}required{{else}}optional{{/if}}</div>
+      <div class="note">{{#if required}}required{{else}}optional{{/if}}</div>
     </td>
     <td>
       <p>{{{description}}}</p>

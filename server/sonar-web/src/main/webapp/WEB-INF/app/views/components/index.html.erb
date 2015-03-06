@@ -51,7 +51,7 @@
                       <%= link_to_resource(project, '<i class="icon-detach"></i>') %>
                     <% end %>
                   </td>
-                  <td class="left" x="<%= u(snapshot.project.name) -%>">
+                  <td class="text-left" x="<%= u(snapshot.project.name) -%>">
                     <%= qualifier_icon(snapshot) %>
                     <% if snapshot.display_dashboard? %>
                       <%= link_to_resource(project, h(snapshot.project.name)) %>

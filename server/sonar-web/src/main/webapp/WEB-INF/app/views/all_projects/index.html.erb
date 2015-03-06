@@ -47,7 +47,7 @@
               <%= h row.snapshot.resource.description -%>
             </td>
             <td class="sep"></td>
-            <td class="nowrap right">
+            <td class="nowrap text-right">
               <%
                  if row.links
                    row.links.select { |link| link.href.start_with?('http') }.each do |link|

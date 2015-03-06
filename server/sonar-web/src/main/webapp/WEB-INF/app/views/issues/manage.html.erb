@@ -44,7 +44,7 @@
         <th class="thin"></th>
         <th><%= message('issue_filter.form.name') -%></th>
         <th><%= message('issue_filter.sharing') -%></th>
-        <th class="right"><%= message('operations') -%></th>
+        <th class="text-right"><%= message('operations') -%></th>
       </tr>
       </thead>
       <tbody>
@@ -71,7 +71,7 @@
                 <%= message 'issue_filter.private' -%>
               <% end %>
             </td>
-            <td class="thin nowrap right">
+            <td class="thin nowrap text-right">
               <a id="copy-<%= filter.name.parameterize -%>" href="<%= ApplicationController.root_context -%>/issues/copy_form/<%= filter.id -%>"
                  class="link-action open-modal"><%= message('copy') -%></a>
               &nbsp;
@@ -101,7 +101,7 @@
         <th class="thin"></th>
         <th><%= message('issue_filter.form.name') -%></th>
         <th><%= message('shared_by') -%></th>
-        <th class="right"><%= message('operations') -%></th>
+        <th class="text-right"><%= message('operations') -%></th>
       </tr>
       </thead>
       <tbody>
@@ -124,7 +124,7 @@
             <td>
               <%= h Api.users.findByLogin(filter.user).name -%>
             </td>
-            <td class="thin nowrap right">
+            <td class="thin nowrap text-right">
               <a id="copy-<%= filter.name.parameterize -%>" href="<%= ApplicationController.root_context -%>/issues/copy_form/<%= filter.id -%>" class="link-action open-modal"><%= message('copy') -%></a>
               <% if has_role?(:admin) %>
                 &nbsp;

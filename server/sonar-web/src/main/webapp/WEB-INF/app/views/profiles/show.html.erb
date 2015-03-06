@@ -58,7 +58,7 @@
                 <td>
                   <i class="icon-severity-<%= severity %>"></i> <%= message(severity) -%>
                 </td>
-                <td class="thin right">
+                <td class="thin text-right">
                   <a href="<%= "#{ApplicationController.root_context}/coding_rules#qprofile=#{@profile.key()}|activation=true|languages=#{@profile.language()}|active_severities=#{severity.upcase}" -%>"
                     class="widget-link">
                     <span><%= value -%></span>

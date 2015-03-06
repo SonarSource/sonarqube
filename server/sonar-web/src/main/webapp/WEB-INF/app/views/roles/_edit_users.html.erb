@@ -14,7 +14,7 @@
   var selectList = new SelectList({
     el: '#select-users-permissions',
     width: '100%',
-    format: function (item) { return item.name + ' <div class="subtitle">' + item.login + '</div>'; },
+    format: function (item) { return item.name + ' <div class="note">' + item.login + '</div>'; },
     searchUrl: baseUrl + '/permissions/search_users?permission=<%= u @role -%><%= @project ? "&component=" + u(@project.key) : "" -%>',
     selectUrl: baseUrl + '/api/permissions/add',
     deselectUrl: baseUrl + '/api/permissions/remove',

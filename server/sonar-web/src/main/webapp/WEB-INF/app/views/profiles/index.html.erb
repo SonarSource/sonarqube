@@ -41,12 +41,12 @@
   <table class="data width100" id="profiles_<%= language.getKey() -%>">
     <thead>
     <tr>
-      <th class="left"><%= message('name') -%></th>
-      <th class="right"><%= message('rules') -%></th>
-      <th class="right"><%= message('projects') -%></th>
-      <th class="right"><%= message('default') -%></th>
+      <th class="text-left"><%= message('name') -%></th>
+      <th class="text-right"><%= message('rules') -%></th>
+      <th class="text-right"><%= message('projects') -%></th>
+      <th class="text-right"><%= message('default') -%></th>
       <% if profiles_administrator? %>
-        <th width="1%" class="right" colspan="4"><%= message('operations') -%></th>
+        <th width="1%" class="text-right" colspan="4"><%= message('operations') -%></th>
       <% end %>
     </tr>
     </thead>

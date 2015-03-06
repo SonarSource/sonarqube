@@ -20,10 +20,10 @@
             <th class="thin nowrap"><%= message('action_plans.col.status') -%></th>
             <th class="thin nowrap"><%= message('action_plans.col.name') -%></th>
             <th class="thin nowrap righticon sortfirstasc" style="text-align: right"><%= message('action_plans.col.due_for') -%></th>
-            <th class="nowrap center"><%= message('action_plans.col.progress') -%></th>
+            <th class="nowrap text-center"><%= message('action_plans.col.progress') -%></th>
             <th class="nowrap"><%= message('action_plans.col.description') -%></th>
             <th class="nowrap"><%= message('action_plans.col.author') -%></th>
-            <th class="thin nowrap right"><%= message('action_plans.col.operations') -%></th>
+            <th class="thin nowrap text-right"><%= message('action_plans.col.operations') -%></th>
           </tr>
           </thead>
           <tbody>
@@ -34,7 +34,7 @@
              @open_action_plans.each do |plan|
           %>
             <tr class="<%= cycle('even', 'odd', :name => 'open_plans') -%>">
-              <td class="thin nowrap center">
+              <td class="thin nowrap text-center">
                 <img src="<%= ApplicationController.root_context -%>/images/status/<%= plan.status() -%>.png" title="<%= message("action_plans.status.#{plan.status}") -%>"/></td>
               <td class="thin nowrap"><%= h(plan.name()) -%></td>
               <td class="thin nowrap <%= 'over-due' if plan.overDue() -%>" align="right"><%= format_date(plan.deadLine()) -%></td>
@@ -49,7 +49,7 @@
               <% end %>
               <td id="desc"><%= h(plan.description()) -%></td>
               <td id="desc"><%= h(@users[plan.userLogin()]) -%></td>
-              <td class="thin nowrap right">
+              <td class="thin nowrap text-right">
                 <%= link_to message('edit'), {:action => 'edit_form', :id => @resource.id, :plan_key => plan.key()}, :class => 'open-modal link-action' -%>
                 &nbsp;
                 <%
@@ -87,10 +87,10 @@
               <th class="thin nowrap"><%= message('action_plans.col.name') -%></th>
               <th class="thin nowrap righticon sortfirstdesc" style="text-align: right"><%= message('action_plans.col.due_for') -%></th>
               <th class="thin nowrap righticon" style="text-align: right"><%= message('action_plans.col.closed_on') -%></th>
-              <th class="nowrap  center"><%= message('action_plans.col.progress') -%></th>
+              <th class="nowrap text-center"><%= message('action_plans.col.progress') -%></th>
               <th class="nowrap"><%= message('action_plans.col.description') -%></th>
               <th class="nowrap"><%= message('action_plans.col.author') -%></th>
-              <th class="thin nowrap  right"><%= message('action_plans.col.operations') -%></th>
+              <th class="thin nowrap text-right"><%= message('action_plans.col.operations') -%></th>
             </tr>
             </thead>
             <tbody>
@@ -98,7 +98,7 @@
                @closed_action_plans.each do |plan|
             %>
               <tr class="<%= cycle('even', 'odd', :name => 'closed_plans') -%>">
-                <td class="thin nowrap center"><img src="<%= ApplicationController.root_context -%>/images/status/<%= plan.status() -%>.png" title="<%= message("action_plans.status.#{plan.status}") -%>"/>
+                <td class="thin nowrap text-center"><img src="<%= ApplicationController.root_context -%>/images/status/<%= plan.status() -%>.png" title="<%= message("action_plans.status.#{plan.status}") -%>"/>
                 </td>
                 <td class="thin nowrap"><%= h(plan.name) -%></td>
                 <td class="thin nowrap <%= 'over-due' if plan.overDue() -%>" align="right"><%= format_date(plan.deadLine()) -%></td>
@@ -114,7 +114,7 @@
                 <% end %>
                 <td id="desc"><%= h(plan.description()) -%></td>
                 <td id="desc"><%= h(@users[plan.userLogin()]) -%></td>
-                <td class="thin nowrap right">
+                <td class="thin nowrap text-right">
                   <%= link_to message('action_plans.reopen'),
                               {:action => 'change_status', :id => @resource.id, :plan_key => plan.key}, {:method => 'POST', :class => 'link-action'} -%>
                   &nbsp;

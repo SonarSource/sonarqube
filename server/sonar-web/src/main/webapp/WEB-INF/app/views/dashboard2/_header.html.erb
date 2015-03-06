@@ -15,7 +15,7 @@
   <% end %>
 
   <% if @snapshot %>
-    <div id="snapshot_title" class="page_title">
+    <div id="snapshot_title">
       <h4>
         <%= "Version #{@snapshot.version} - " if @snapshot.version.present? -%><%= l @snapshot.created_at -%>
         <% if @snapshot.project_snapshot.periods? %>
