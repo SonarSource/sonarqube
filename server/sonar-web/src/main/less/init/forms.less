@@ -148,7 +148,7 @@ input[type=button] {
   & > button,
   & > .button {
     position: relative;
-    z-index: 2;
+    z-index: @normal-z-index;
     display: inline-block;
     vertical-align: middle;
     margin: 0;
@@ -158,7 +158,7 @@ input[type=button] {
     cursor: pointer;
 
     &:hover, &:focus, &:active, &.active {
-      z-index: 3;
+      z-index: @above-normal-z-index;
     }
   }
 

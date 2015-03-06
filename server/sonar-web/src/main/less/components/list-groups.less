@@ -27,6 +27,7 @@
 
 .list-group-item {
   position: relative;
+  z-index: @normal-z-index;
   display: block;
   margin-bottom: -1px;
   padding: 5px 10px;
@@ -39,7 +40,7 @@
   &.active,
   &.active:hover,
   &.active:focus {
-    z-index: 2;
+    z-index: @above-normal-z-index;
     border-color: @blue !important;
     background-color: @lightBlue;
   }

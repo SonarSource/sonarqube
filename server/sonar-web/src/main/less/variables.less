@@ -154,6 +154,50 @@
 
 /*
  * z-index
+ * =======
+ *    1 -  100  for page elements (e.g. sidebars, panels)
+ *  101 -  500  for generic page fixed elements (e.g. navigation, workspace)
+ *  501 - 3000  for page ui elements
+ * 3001 - 8000  for generic ui elements (e.g. dropdowns, tooltips)
  */
-@workspace-nav-z-index: 301;
-@workspace-viewer-z-index: 300;
+
+// common
+@above-normal-z-index: 2;
+@normal-z-index: 1;
+
+// page elements
+@search-navigator-side-z-index: 51;
+@search-navigator-sticky-side-z-index: 51;
+@search-navigator-sticky-workspace-header-z-index: 50;
+
+@navigator-results-loader-z-index: 10;
+@navigator-actions-z-index: 4;
+@navigator-details-source-title-z-index: 3;
+@navigator-fetching-z-index: 3;
+@navigator-filter-context-z-index: 3;
+@navigator-element-z-index: 2;
+@navigator-results-z-index: 2;
+
+@treemap-link-z-index: 2;
+
+@dashboard-transparent-z-index: 100;
+
+@navbar-global-z-index: 421;
+@navbar-context-z-index: 420;
+
+@workspace-nav-z-index: 451;
+@workspace-viewer-z-index: 450;
+
+// ui elements
+@tooltip-z-index: 8000;
+@tip-z-index: 8000;
+
+@select2-drop-z-index: 7500;
+@dropdown-menu-z-index: 7500;
+
+@process-container-z-index: 7000;
+
+@modal-z-index: 6001;
+@modal-overlay-z-index: 6000;
+
+@bubble-popup-z-index: 5000;
