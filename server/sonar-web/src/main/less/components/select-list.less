@@ -131,7 +131,7 @@
 
 .select-list-control-button {
   position: relative;
-  z-index: 1;
+  z-index: @normal-z-index;
   display: inline-block;
   vertical-align: middle;
   width: 110px;
@@ -152,7 +152,7 @@
 
 .select-list-control-button:active,
 .select-list-control-button.active {
-  z-index: 2;
+  z-index: @above-normal-z-index;
   background-color: #efefef;
   color: @baseFontColor;
 }
