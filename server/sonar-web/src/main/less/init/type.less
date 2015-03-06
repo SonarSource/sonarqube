@@ -109,22 +109,19 @@ small,
   font-size: (100% * (@bigFontSize / @baseFontSize));
 }
 
-.text-right {
-  text-align: right;
+.zero-font-size { font-size: 0 !important; }
+
+.text-left    { text-align: left; }
+.text-center  { text-align: center; }
+.text-right   { text-align: right; }
+.text-justify { text-align: justify; }
+
+.text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.text-left {
-  text-align: left;
-}
+.text-no-transform { text-transform: none; }
 
-.text-center {
-  text-align: center;
-}
-
-.text-justify {
-  text-align: justify;
-}
-
-.text-danger {
-  color: @red;
-}
+.text-danger { color: @red; }

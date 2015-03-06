@@ -20,38 +20,34 @@
 @import (reference) "../variables";
 @import (reference) "../mixins";
 
+.link-variant(@baseColor, @hoverColor, @borderColor) {
+  border-bottom: 1px solid @borderColor;
+  color: @baseColor;
+  
+  &:hover, &:active, &:focus { color: @hoverColor; }
+}
+
 a {
-  border-bottom: 1px solid @lightBlue;
-  color: @darkBlue;
+  .link-variant(@darkBlue, @blue, @lightBlue);
   cursor: pointer;
   outline: none;
   text-decoration: none;
   .trans;
-
-  &:hover {
-    color: @blue;
-  }
-
-  &:active, &:focus {
-    color: @darkBlue;
-  }
 }
 
 .link-base-color {
-  border-color: mix(@baseFontColor, @barBackgroundColor, 20%);
-  color: @baseFontColor;
+  .link-variant(@baseFontColor, @blue, mix(@baseFontColor, @barBackgroundColor, 20%));
 
-  &:hover {
-    border-bottom-color: @lightBlue;
-    color: @blue;
-  }
-
-  &:active, &:focus {
-    border-bottom-color: @lightBlue;
-    color: @darkBlue;
-  }
+  &:hover { border-bottom-color: @lightBlue; }
+  &:active, &:focus { border-bottom-color: @lightBlue; }
 }
 
-.link-no-underline {
+.link-no-underline { border-bottom: none; }
+
+a.active-link {
   border-bottom: none;
+  font-weight: 500;
 }
+
+a.text-danger,
+.link-red /* deprecated */ { .link-variant(@red, @red, @lightRed); }

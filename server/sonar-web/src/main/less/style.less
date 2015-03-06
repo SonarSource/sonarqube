@@ -261,11 +261,7 @@ span.empty_widget {
     font-weight: 300;
   }
 
-  a {
-    .widget-link;
-
-    .rating { color: #fff; }
-  }
+  a .rating { color: #fff; }
 }
 
 .adminportlet {
@@ -873,18 +869,6 @@ table.nowrap td.small, td.nowrap.small, th.nowrap.small {
 
 .yellowHighlight {
   background: #FFFBCC;
-}
-
-/* Used on links which are located inside a dense text place or in tables */
-/* in order to rapidly identify them                                      */
-.link-action {
-  .widget-link;
-
-  &.link-red { .widget-link-red; }
-}
-
-.link-red {
-  color: @red !important;
 }
 
 .link-more {
