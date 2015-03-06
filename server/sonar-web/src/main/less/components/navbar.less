@@ -162,7 +162,7 @@
 
 .navbar-global {
   top: 0;
-  z-index: 499;
+  z-index: @navbar-global-z-index;
   background-color: @navbarGlobalBackground;
 
   .navbar-nav > li > a {
@@ -207,7 +207,7 @@
 
 .navbar-context {
   top: @navbarGlobalHeight;
-  z-index: 498;
+  z-index: @navbar-context-z-index;
   height: @navbarContextHeight;
   background-color: @navbarContextBackground;
 

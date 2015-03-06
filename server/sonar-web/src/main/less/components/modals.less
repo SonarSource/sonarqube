@@ -17,9 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+@import (reference) "../mixins";
+@import (reference) "../variables";
+
 .modal {
   position: fixed;
-  z-index: 9000;
+  z-index: @modal-z-index;
   top: 0;
   left: 50%;
   margin-left: -270px;
@@ -41,7 +44,7 @@
 
 .modal-overlay {
   position: fixed;
-  z-index: 8999;
+  z-index: @modal-overlay-z-index;
   top: 0; bottom: 0; left: 0; right: 0;
   background-color: rgba(0, 0, 0, 0.7);
   opacity: 0;
