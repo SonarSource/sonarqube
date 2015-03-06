@@ -21,44 +21,29 @@ package org.sonar.server.issue.notification;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.notifications.*;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.notifications.Notification;
+import org.sonar.api.notifications.NotificationChannel;
+import org.sonar.api.notifications.NotificationDispatcher;
+import org.sonar.api.notifications.NotificationDispatcherMetadata;
+import org.sonar.api.notifications.NotificationManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
-public class NewFalsePositiveNotificationDispatcherTest {
-  @Mock
-  NotificationManager notifications;
-
-  @Mock
-  NotificationDispatcher.Context context;
-
-  @Mock
-  NotificationChannel emailChannel;
-
-  @Mock
-  NotificationChannel twitterChannel;
-
-  NewFalsePositiveNotificationDispatcher dispatcher;
-
-  @Before
-  public void setUp() {
-    dispatcher = new NewFalsePositiveNotificationDispatcher(notifications);
-  }
+public class DoNotFixNotificationDispatcherTest {
+  NotificationManager notifications = mock(NotificationManager.class);
+  NotificationDispatcher.Context context = mock(NotificationDispatcher.Context.class);
+  NotificationChannel emailChannel = mock(NotificationChannel.class);
+  NotificationChannel twitterChannel = mock(NotificationChannel.class);
+  DoNotFixNotificationDispatcher sut = new DoNotFixNotificationDispatcher(notifications);;
 
   @Test
   public void test_metadata() throws Exception {
-    NotificationDispatcherMetadata metadata = NewFalsePositiveNotificationDispatcher.newMetadata();
-    assertThat(metadata.getDispatcherKey()).isEqualTo(dispatcher.getKey());
+    NotificationDispatcherMetadata metadata = DoNotFixNotificationDispatcher.newMetadata();
+    assertThat(metadata.getDispatcherKey()).isEqualTo(sut.getKey());
     assertThat(metadata.getProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION)).isEqualTo("true");
     assertThat(metadata.getProperty(NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION)).isEqualTo("true");
   }
@@ -66,7 +51,7 @@ public class NewFalsePositiveNotificationDispatcherTest {
   @Test
   public void should_not_dispatch_if_other_notification_type() throws Exception {
     Notification notification = new Notification("other");
-    dispatcher.performDispatch(notification, context);
+    sut.performDispatch(notification, context);
 
     verify(context, never()).addUser(any(String.class), any(NotificationChannel.class));
   }
@@ -77,13 +62,13 @@ public class NewFalsePositiveNotificationDispatcherTest {
     recipients.put("simon", emailChannel);
     recipients.put("freddy", twitterChannel);
     recipients.put("godin", twitterChannel);
-    when(notifications.findNotificationSubscribers(dispatcher, "struts")).thenReturn(recipients);
+    when(notifications.findNotificationSubscribers(sut, "struts")).thenReturn(recipients);
 
-    Notification notification = new IssueChangeNotification().setFieldValue("projectKey", "struts")
+    Notification fpNotif = new IssueChangeNotification().setFieldValue("projectKey", "struts")
       .setFieldValue("changeAuthor", "godin")
-      .setFieldValue("new.resolution", "FALSE-POSITIVE")
+      .setFieldValue("new.resolution", Issue.RESOLUTION_FALSE_POSITIVE)
       .setFieldValue("assignee", "freddy");
-    dispatcher.performDispatch(notification, context);
+    sut.performDispatch(fpNotif, context);
 
     verify(context).addUser("simon", emailChannel);
     verify(context).addUser("freddy", twitterChannel);
@@ -92,4 +77,22 @@ public class NewFalsePositiveNotificationDispatcherTest {
     verifyNoMoreInteractions(context);
   }
 
+  /**
+   * Only false positive and won't fix resolutions
+   */
+  @Test
+  public void ignore_other_resolutions() {
+    Multimap<String, NotificationChannel> recipients = HashMultimap.create();
+    recipients.put("simon", emailChannel);
+    recipients.put("freddy", twitterChannel);
+    when(notifications.findNotificationSubscribers(sut, "struts")).thenReturn(recipients);
+
+    Notification fixedNotif = new IssueChangeNotification().setFieldValue("projectKey", "struts")
+      .setFieldValue("changeAuthor", "godin")
+      .setFieldValue("new.resolution", Issue.RESOLUTION_FIXED)
+      .setFieldValue("assignee", "freddy");
+    sut.performDispatch(fixedNotif, context);
+
+    verifyZeroInteractions(context);
+  }
 }

@@ -165,7 +165,7 @@ import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.notification.ChangesOnMyIssueNotificationDispatcher;
 import org.sonar.server.issue.notification.IssueChangesEmailTemplate;
-import org.sonar.server.issue.notification.NewFalsePositiveNotificationDispatcher;
+import org.sonar.server.issue.notification.DoNotFixNotificationDispatcher;
 import org.sonar.server.issue.notification.NewIssuesEmailTemplate;
 import org.sonar.server.issue.notification.NewIssuesNotificationDispatcher;
 import org.sonar.server.issue.ws.ComponentTagsAction;
@@ -690,8 +690,8 @@ class ServerComponents {
     pico.addSingleton(ChangesOnMyIssueNotificationDispatcher.newMetadata());
     pico.addSingleton(NewIssuesNotificationDispatcher.class);
     pico.addSingleton(NewIssuesNotificationDispatcher.newMetadata());
-    pico.addSingleton(NewFalsePositiveNotificationDispatcher.class);
-    pico.addSingleton(NewFalsePositiveNotificationDispatcher.newMetadata());
+    pico.addSingleton(DoNotFixNotificationDispatcher.class);
+    pico.addSingleton(DoNotFixNotificationDispatcher.newMetadata());
 
     // issue filters
     pico.addSingleton(IssueFilterService.class);
