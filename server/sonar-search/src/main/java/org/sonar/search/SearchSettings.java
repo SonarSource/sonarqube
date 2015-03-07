@@ -53,7 +53,7 @@ class SearchSettings {
     this.props = props;
     masterHosts.addAll(Arrays.asList(StringUtils.split(props.value(ProcessConstants.CLUSTER_MASTER_HOST, ""), ",")));
     clusterName = props.value(ProcessConstants.CLUSTER_NAME);
-    hostName = props.value(ProcessConstants.SEARCH_HOST);
+    hostName = props.value(ProcessConstants.WEB_HOST);
     Integer port = props.valueAsInt(ProcessConstants.SEARCH_PORT);
     if (port == null) {
       throw new MessageException("Property is not set: " + ProcessConstants.SEARCH_PORT);

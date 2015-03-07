@@ -84,7 +84,7 @@ public class ServerTester extends ExternalResource {
       properties.setProperty(ProcessConstants.CLUSTER_NAME, esServerHolder.getClusterName());
       properties.setProperty(ProcessConstants.CLUSTER_NODE_NAME, esServerHolder.getNodeName());
       properties.setProperty(ProcessConstants.SEARCH_PORT, String.valueOf(esServerHolder.getPort()));
-      properties.setProperty(ProcessConstants.SEARCH_HOST, String.valueOf(esServerHolder.getHostName()));
+      properties.setProperty(ProcessConstants.WEB_HOST, String.valueOf(esServerHolder.getHostName()));
       properties.setProperty(ProcessConstants.PATH_HOME, homeDir.getAbsolutePath());
       properties.setProperty(DatabaseProperties.PROP_URL, "jdbc:h2:" + homeDir.getAbsolutePath() + "/h2");
       for (Map.Entry<Object, Object> entry : System.getProperties().entrySet()) {

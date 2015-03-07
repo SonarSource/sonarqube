@@ -111,7 +111,7 @@ public class EsServerHolder {
       properties.setProperty(ProcessConstants.CLUSTER_NAME, clusterName);
       properties.setProperty(ProcessConstants.CLUSTER_NODE_NAME, nodeName);
       properties.setProperty(ProcessConstants.SEARCH_PORT, String.valueOf(port));
-      properties.setProperty(ProcessConstants.SEARCH_HOST, hostName);
+      properties.setProperty(ProcessConstants.WEB_HOST, hostName);
       properties.setProperty(ProcessConstants.PATH_HOME, homeDir.getAbsolutePath());
       SearchServer server = new SearchServer(new Props(properties));
       server.start();

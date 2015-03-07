@@ -54,7 +54,7 @@ public class SearchSettingsTest {
     File homeDir = temp.newFolder();
     Props props = new Props(new Properties());
     props.set(ProcessConstants.SEARCH_PORT, "1234");
-    props.set(ProcessConstants.SEARCH_HOST, "127.0.0.1");
+    props.set(ProcessConstants.WEB_HOST, "127.0.0.1");
     props.set(ProcessConstants.PATH_HOME, homeDir.getAbsolutePath());
     props.set(ProcessConstants.CLUSTER_NAME, "tests");
     props.set(ProcessConstants.CLUSTER_NODE_NAME, "test");
@@ -173,7 +173,7 @@ public class SearchSettingsTest {
   public void enable_http_connector_different_host() throws Exception {
     Props props = minProps();
     props.set(SearchSettings.PROP_HTTP_PORT, "9010");
-    props.set(ProcessConstants.SEARCH_HOST, "127.0.0.2");
+    props.set(ProcessConstants.WEB_HOST, "127.0.0.2");
     Settings settings = new SearchSettings(props).build();
 
     assertThat(settings.get("http.port")).isEqualTo("9010");
