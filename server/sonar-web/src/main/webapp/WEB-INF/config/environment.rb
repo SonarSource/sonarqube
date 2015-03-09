@@ -191,10 +191,8 @@ class ActiveRecord::Migration
     # Oracle constraint (see names of triggers and indices)
     raise ArgumentError, "Table name is too long: #{table_name}" if table_name.to_s.length>25
 
-    unless table_exists?(table_name)
-      super(table_name, options)
-      create_id_trigger(table_name) if dialect()=='oracle' && options[:id] != false
-    end
+    super(table_name, options)
+    create_id_trigger(table_name) if dialect()=='oracle' && options[:id] != false
   end
 
   def drop_table(table_name, options = {})
