@@ -20,23 +20,9 @@
 package org.sonar.xoo;
 
 import org.sonar.api.SonarPlugin;
-import org.sonar.xoo.lang.DependencySensor;
-import org.sonar.xoo.lang.MeasureSensor;
-import org.sonar.xoo.lang.SymbolReferencesSensor;
-import org.sonar.xoo.lang.SyntaxHighlightingSensor;
-import org.sonar.xoo.lang.XooCpdMapping;
-import org.sonar.xoo.lang.XooTokenizer;
-import org.sonar.xoo.rule.ChecksSensor;
-import org.sonar.xoo.rule.CreateIssueByInternalKeySensor;
-import org.sonar.xoo.rule.DeprecatedResourceApiSensor;
-import org.sonar.xoo.rule.OneIssueOnDirPerFileSensor;
-import org.sonar.xoo.rule.OneIssuePerLineSensor;
-import org.sonar.xoo.rule.RandomAccessSensor;
-import org.sonar.xoo.rule.XooFakeExporter;
-import org.sonar.xoo.rule.XooFakeImporter;
-import org.sonar.xoo.rule.XooFakeImporterWithMessages;
-import org.sonar.xoo.rule.XooQualityProfile;
-import org.sonar.xoo.rule.XooRulesDefinition;
+import org.sonar.xoo.extensions.XooProjectBuilder;
+import org.sonar.xoo.lang.*;
+import org.sonar.xoo.rule.*;
 import org.sonar.xoo.scm.XooBlameCommand;
 import org.sonar.xoo.scm.XooScmProvider;
 
@@ -81,7 +67,9 @@ public class XooPlugin extends SonarPlugin {
 
       OneIssuePerLineSensor.class,
       OneIssueOnDirPerFileSensor.class,
-      CreateIssueByInternalKeySensor.class
-      );
+      CreateIssueByInternalKeySensor.class,
+
+      // Other
+      XooProjectBuilder.class);
   }
 }

@@ -39,7 +39,7 @@ public class ModuleSettings extends Settings {
   private final ProjectRepositories projectReferentials;
   private DefaultAnalysisMode analysisMode;
 
-  public ModuleSettings(GlobalSettings batchSettings, ProjectDefinition project, ProjectRepositories projectReferentials,
+  public ModuleSettings(GlobalSettings batchSettings, ProjectDefinition moduleDefinition, ProjectRepositories projectReferentials,
     DefaultAnalysisMode analysisMode) {
     super(batchSettings.getDefinitions());
     this.projectReferentials = projectReferentials;
@@ -47,18 +47,18 @@ public class ModuleSettings extends Settings {
     getEncryption().setPathToSecretKey(batchSettings.getString(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
 
     LoggerFactory.getLogger(ModuleSettings.class).info("Load module settings");
-    init(project, batchSettings);
+    init(moduleDefinition, batchSettings);
   }
 
-  private ModuleSettings init(ProjectDefinition project, GlobalSettings batchSettings) {
-    addProjectProperties(project, batchSettings);
-    addBuildProperties(project);
+  private ModuleSettings init(ProjectDefinition moduleDefinition, GlobalSettings batchSettings) {
+    addProjectProperties(moduleDefinition, batchSettings);
+    addBuildProperties(moduleDefinition);
     return this;
   }
 
-  private void addProjectProperties(ProjectDefinition project, GlobalSettings batchSettings) {
+  private void addProjectProperties(ProjectDefinition moduleDefinition, GlobalSettings batchSettings) {
     addProperties(batchSettings.getProperties());
-    addProperties(projectReferentials.settings(project.getKeyWithBranch()));
+    addProperties(projectReferentials.settings(moduleDefinition.getKeyWithBranch()));
   }
 
   private void addBuildProperties(ProjectDefinition project) {
