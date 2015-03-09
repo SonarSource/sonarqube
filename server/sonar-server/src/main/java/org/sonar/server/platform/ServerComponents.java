@@ -543,8 +543,8 @@ class ServerComponents {
     pico.addSingleton(ChangesOnMyIssueNotificationDispatcher.newMetadata());
     pico.addSingleton(NewIssuesNotificationDispatcher.class);
     pico.addSingleton(NewIssuesNotificationDispatcher.newMetadata());
-    pico.addSingleton(NewFalsePositiveNotificationDispatcher.class);
-    pico.addSingleton(NewFalsePositiveNotificationDispatcher.newMetadata());
+    pico.addSingleton(DoNotFixNotificationDispatcher.class);
+    pico.addSingleton(DoNotFixNotificationDispatcher.newMetadata());
 
     // issue filters
     pico.addSingleton(IssueFilterService.class);
