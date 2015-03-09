@@ -17,9 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-define(['templates/design'], function () {
+define([
+  'common/modals',
+  'templates/design'
+], function (ModalView) {
 
-  return Marionette.ItemView.extend({
+  return ModalView.extend({
+    className: 'modal modal-large',
     template: Templates['dsm-info'],
 
     serializeData: function () {

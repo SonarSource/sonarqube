@@ -49,16 +49,17 @@ casper.test.begin(testName('Base'), 9, function (test) {
 
       .then(function () {
         casper.mouse.doubleclick('.dsm-body-cell-cycle');
-        casper.waitForSelector('.spinner', function () {
-          casper.waitWhileSelector('.spinner');
-        });
+        casper.waitForSelector('.modal');
       })
 
       .then(function () {
-        test.assertElementCount('.dsm-info tr', 7);
-        test.assertSelectorContains('.dsm-info', 'src/main/java/com/maif/sonar/cobol/api/MaifCobolMeasureProvider.java');
-        test.assertSelectorContains('.dsm-info', 'src/main/java/com/maif/sonar/cobol/metrics/BusinessRuleCounter.java ');
-        test.assertSelectorContains('.dsm-info', 'src/main/java/com/maif/sonar/cobol/metrics/TableMetricsVisitor.java ');
+        test.assertElementCount('.modal .dsm-info tr', 7);
+        test.assertSelectorContains('.modal .dsm-info',
+            'src/main/java/com/maif/sonar/cobol/api/MaifCobolMeasureProvider.java');
+        test.assertSelectorContains('.modal .dsm-info',
+            'src/main/java/com/maif/sonar/cobol/metrics/BusinessRuleCounter.java');
+        test.assertSelectorContains('.modal .dsm-info',
+            'src/main/java/com/maif/sonar/cobol/metrics/TableMetricsVisitor.java');
       })
 
       .then(function () {

@@ -1,30 +1,34 @@
-<table>
-  <thead>
-  <tr>
-    <th>{{qualifierIcon first.q}} {{first.n}}</th>
-    <th>&nbsp;</th>
-    <th>{{qualifierIcon second.q}} {{second.n}}</th>
-  </tr>
-  </thead>
-  <tbody>
-  {{#eachChanged items 'fk'}}
+<div class="modal-body modal-container">
+  <table class="dsm-info">
+    <thead>
     <tr>
-      <td {{#if changed}}class="changed"{{/if}}>
-        {{#if changed}}
-          {{qualifierIcon fq}}
-          <a href="{{dashboardUrl fk}}">{{fn}}</a>
-        {{/if}}
-      </td>
-      <td {{#if changed}}class="changed"{{/if}}>
-        {{#if changed}}
-          {{u}}
-        {{/if}}
-      </td>
-      <td {{#if changed}}class="changed"{{/if}}>
-        {{qualifierIcon tq}}
-        <a href="{{dashboardUrl tk}}"> {{tn}} </a>
-      </td>
+      <th>{{qualifierIcon first.q}} {{first.n}}</th>
+      <th>&nbsp;</th>
+      <th>{{qualifierIcon second.q}} {{second.n}}</th>
     </tr>
-  {{/eachChanged}}
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+    {{#eachChanged items 'fk'}}
+      <tr>
+        <td {{#if changed}}class="changed"{{/if}}>
+          {{#if changed}}
+            {{qualifierIcon fq}}&nbsp;<a href="{{dashboardUrl fk}}">{{fn}}</a>
+          {{/if}}
+        </td>
+        <td {{#if changed}}class="changed"{{/if}}>
+          {{#if changed}}
+            {{u}}
+          {{/if}}
+        </td>
+        <td {{#if changed}}class="changed"{{/if}}>
+          {{qualifierIcon tq}}&nbsp;<a href="{{dashboardUrl tk}}">{{tn}}</a>
+        </td>
+      </tr>
+    {{/eachChanged}}
+    </tbody>
+  </table>
+</div>
+
+<div class="modal-foot">
+  <a class="js-modal-close" href="#">{{t 'close'}}</a>
+</div>

@@ -17,7 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-define(['design/info-view', 'templates/design'], function (InfoView) {
+define([
+  'design/info-view',
+  'templates/design'
+], function (InfoView) {
   var $ = jQuery,
       API_DEPENDENCIES = baseUrl + '/api/dependencies';
 
@@ -130,26 +133,13 @@ define(['design/info-view', 'templates/design'], function (InfoView) {
       if (!id) {
         return;
       }
-      this.showInfoViewSpinner();
-      this.scrollToInfoView();
       return $.get(API_DEPENDENCIES, { parent: id }).done(function (data) {
-        that.infoRegion.show(new InfoView({
+        new InfoView({
           collection: new Backbone.Collection(data),
           first: that.collection.at(column).toJSON(),
           second: that.collection.at(row).toJSON()
-        }));
-        that.scrollToInfoView();
+        }).render();
       });
-    },
-
-    showInfoViewSpinner: function () {
-      this.infoRegion.reset();
-      this.$(this.infoRegion.el).html('<i class="spinner"></i>');
-    },
-
-    scrollToInfoView: function () {
-      var delta = this.$(this.infoRegion.el).offset().top - 40;
-      $('html, body').animate({ scrollTop: delta }, 500);
     },
 
     toggleDirDisplay: function () {
