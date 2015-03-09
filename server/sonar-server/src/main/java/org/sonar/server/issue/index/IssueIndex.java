@@ -88,7 +88,7 @@ public class IssueIndex extends BaseIndex {
     IssueFilterParameters.PROJECT_UUIDS,
     IssueFilterParameters.RULES,
     IssueFilterParameters.ASSIGNEES,
-    IssueFilterParameters.ASSIGNED_TO_ME,
+    IssueFilterParameters.FACET_ASSIGNED_TO_ME,
     IssueFilterParameters.REPORTERS,
     IssueFilterParameters.AUTHORS,
     IssueFilterParameters.MODULE_UUIDS,
@@ -476,7 +476,6 @@ public class IssueIndex extends BaseIndex {
     Map<String, FilterBuilder> assigneeFilters = Maps.newHashMap(filters);
     assigneeFilters.remove("__isAssigned");
     assigneeFilters.remove(fieldName);
-    assigneeFilters.remove(IssueFilterParameters.ASSIGNED_TO_ME);
     StickyFacetBuilder assigneeFacetBuilder = new StickyFacetBuilder(queryBuilder, assigneeFilters);
     BoolFilterBuilder facetFilter = assigneeFacetBuilder.getStickyFacetFilter(fieldName);
     FilterAggregationBuilder facetTopAggregation = assigneeFacetBuilder.buildTopFacetAggregation(fieldName, facetName, facetFilter, DEFAULT_FACET_SIZE);
@@ -497,7 +496,7 @@ public class IssueIndex extends BaseIndex {
   }
 
   private void addAssignedToMeFacetIfNeeded(SearchRequestBuilder builder, SearchOptions options, IssueQuery query, Map<String, FilterBuilder> filters, QueryBuilder queryBuilder) {
-    if (!options.getFacets().contains(IssueFilterParameters.ASSIGNED_TO_ME)) {
+    if (!options.getFacets().contains(IssueFilterParameters.FACET_ASSIGNED_TO_ME)) {
       return;
     }
 
@@ -507,7 +506,7 @@ public class IssueIndex extends BaseIndex {
     }
 
     String fieldName = IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE;
-    String facetName = IssueFilterParameters.ASSIGNED_TO_ME;
+    String facetName = IssueFilterParameters.FACET_ASSIGNED_TO_ME;
 
     // Same as in super.stickyFacetBuilder
     Map<String, FilterBuilder> assigneeFilters = Maps.newHashMap(filters);

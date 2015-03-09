@@ -88,7 +88,7 @@ public class SearchActionMediumTest {
     assertThat(show.isPost()).isFalse();
     assertThat(show.isInternal()).isFalse();
     assertThat(show.responseExampleAsString()).isNotEmpty();
-    assertThat(show.params()).hasSize(40);
+    assertThat(show.params()).hasSize(39);
   }
 
   @Test
@@ -469,7 +469,7 @@ public class SearchActionMediumTest {
     MockUserSession.set().setLogin("john");
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam("resolved", "false")
-      .setParam("assigned_to_me", "true")
+      .setParam("assignees", "__me__")
       .setParam(WebService.Param.FACETS, "assignees,assigned_to_me")
       .execute()
       .assertJson(this.getClass(), "filter_by_assigned_to_me.json", false);
@@ -477,7 +477,7 @@ public class SearchActionMediumTest {
     MockUserSession.set();
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam("resolved", "false")
-      .setParam("assigned_to_me", "true")
+      .setParam("assignees", "__me__")
       .execute()
       .assertJson(this.getClass(), "empty_result.json", false);
   }

@@ -172,13 +172,10 @@ public class SearchAction implements BaseIssuesWsAction {
       .setDescription("Comma-separated list of SCM accounts")
       .setExampleValue("torvalds@linux-foundation.org");
     action.createParam(IssueFilterParameters.ASSIGNEES)
-      .setDescription("Comma-separated list of assignee logins")
+      .setDescription("Comma-separated list of assignee logins. The value '__me__' can be used as a placeholder for the current authenticating user")
       .setExampleValue("admin,usera");
     action.createParam(IssueFilterParameters.ASSIGNED)
       .setDescription("To retrieve assigned or unassigned issues")
-      .setBooleanPossibleValues();
-    action.createParam(IssueFilterParameters.ASSIGNED_TO_ME)
-      .setDescription("To retrieve issues assigned to the authenticating user. Only valid when providing user credentials")
       .setBooleanPossibleValues();
     action.createParam(IssueFilterParameters.LANGUAGES)
       .setDescription("Comma-separated list of languages. Available since 4.4")
@@ -396,9 +393,10 @@ public class SearchAction implements BaseIssuesWsAction {
     List<String> assigneesFromRequest = request.paramAsStrings(IssueFilterParameters.ASSIGNEES);
     if (assigneesFromRequest != null) {
       assignees.addAll(assigneesFromRequest);
+      assignees.remove(IssueQueryService.LOGIN_MYSELF);
     }
     addMandatoryFacetValues(results, IssueFilterParameters.ASSIGNEES, assignees);
-    addMandatoryFacetValues(results, IssueFilterParameters.ASSIGNED_TO_ME, Arrays.asList(UserSession.get().login()));
+    addMandatoryFacetValues(results, IssueFilterParameters.FACET_ASSIGNED_TO_ME, Arrays.asList(UserSession.get().login()));
     addMandatoryFacetValues(results, IssueFilterParameters.REPORTERS, request.paramAsStrings(IssueFilterParameters.REPORTERS));
     addMandatoryFacetValues(results, IssueFilterParameters.RULES, request.paramAsStrings(IssueFilterParameters.RULES));
     addMandatoryFacetValues(results, IssueFilterParameters.LANGUAGES, request.paramAsStrings(IssueFilterParameters.LANGUAGES));
@@ -427,7 +425,7 @@ public class SearchAction implements BaseIssuesWsAction {
           json.endObject();
         }
         // Prevent appearance of a glitch value due to dedicated parameter for this facet
-        if (!IssueFilterParameters.ASSIGNED_TO_ME.equals(facetName)) {
+        if (!IssueFilterParameters.FACET_ASSIGNED_TO_ME.equals(facetName)) {
           addZeroFacetsForSelectedItems(request, facetName, itemsFromFacets, json);
         }
       }
@@ -800,7 +798,7 @@ public class SearchAction implements BaseIssuesWsAction {
     List<String> requestParams = request.paramAsStrings(facetName);
     if (requestParams != null) {
       for (String param : requestParams) {
-        if (!itemsFromFacets.contains(param)) {
+        if (!itemsFromFacets.contains(param) && !IssueQueryService.LOGIN_MYSELF.equals(param)) {
           json.beginObject();
           json.prop("val", param);
           json.prop("count", 0);

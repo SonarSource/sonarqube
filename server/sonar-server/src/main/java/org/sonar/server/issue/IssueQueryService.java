@@ -60,6 +60,8 @@ import static com.google.common.collect.Lists.newArrayList;
  */
 public class IssueQueryService implements ServerComponent {
 
+  public static final String LOGIN_MYSELF = "__me__";
+
   private static final String UNKNOWN = "<UNKNOWN>";
   private final DbClient dbClient;
   private final ComponentService componentService;
@@ -82,9 +84,7 @@ public class IssueQueryService implements ServerComponent {
         .rules(toRules(params.get(IssueFilterParameters.RULES)))
         .actionPlans(RubyUtils.toStrings(params.get(IssueFilterParameters.ACTION_PLANS)))
         .reporters(RubyUtils.toStrings(params.get(IssueFilterParameters.REPORTERS)))
-        .assignees(buildAssignees(
-          RubyUtils.toStrings(params.get(IssueFilterParameters.ASSIGNEES)),
-          RubyUtils.toBoolean(params.get(IssueFilterParameters.ASSIGNED_TO_ME))))
+        .assignees(buildAssignees(RubyUtils.toStrings(params.get(IssueFilterParameters.ASSIGNEES))))
         .languages(RubyUtils.toStrings(params.get(IssueFilterParameters.LANGUAGES)))
         .tags(RubyUtils.toStrings(params.get(IssueFilterParameters.TAGS)))
         .assigned(RubyUtils.toBoolean(params.get(IssueFilterParameters.ASSIGNED)))
@@ -147,9 +147,7 @@ public class IssueQueryService implements ServerComponent {
         .rules(stringsToRules(request.paramAsStrings(IssueFilterParameters.RULES)))
         .actionPlans(request.paramAsStrings(IssueFilterParameters.ACTION_PLANS))
         .reporters(request.paramAsStrings(IssueFilterParameters.REPORTERS))
-        .assignees(buildAssignees(
-          request.paramAsStrings(IssueFilterParameters.ASSIGNEES),
-          request.paramAsBoolean(IssueFilterParameters.ASSIGNED_TO_ME)))
+        .assignees(buildAssignees(request.paramAsStrings(IssueFilterParameters.ASSIGNEES)))
         .languages(request.paramAsStrings(IssueFilterParameters.LANGUAGES))
         .tags(request.paramAsStrings(IssueFilterParameters.TAGS))
         .assigned(request.paramAsBoolean(IssueFilterParameters.ASSIGNED))
@@ -190,12 +188,12 @@ public class IssueQueryService implements ServerComponent {
     }
   }
 
-  private List<String> buildAssignees(@Nullable List<String> assigneesFromParams, @Nullable Boolean assignedToMe) {
+  private List<String> buildAssignees(@Nullable List<String> assigneesFromParams) {
     List<String> assignees = Lists.newArrayList();
     if (assigneesFromParams != null) {
       assignees.addAll(assigneesFromParams);
     }
-    if (BooleanUtils.isTrue(assignedToMe)) {
+    if (assignees.contains(LOGIN_MYSELF)) {
       String login = UserSession.get().login();
       if (login == null) {
         assignees.add(UNKNOWN);
