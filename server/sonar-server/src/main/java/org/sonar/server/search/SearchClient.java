@@ -75,12 +75,12 @@ public class SearchClient extends TransportClient implements Startable {
   public SearchClient(Settings settings) {
     super(ImmutableSettings.settingsBuilder()
       .put("node.name", StringUtils.defaultIfEmpty(settings.getString(ProcessConstants.CLUSTER_NODE_NAME), "sq_local_client"))
-      .put("network.bind_host", StringUtils.defaultIfEmpty(settings.getString(ProcessConstants.WEB_HOST), "localhost"))
+      .put("network.bind_host", StringUtils.defaultIfEmpty(settings.getString(ProcessConstants.SEARCH_HOST), "localhost"))
       .put("node.rack_id", StringUtils.defaultIfEmpty(settings.getString(ProcessConstants.CLUSTER_NODE_NAME), "unknown"))
       .put("cluster.name", StringUtils.defaultIfBlank(settings.getString(ProcessConstants.CLUSTER_NAME), "sonarqube"))
       .build());
     initLogging();
-    this.addTransportAddress(new InetSocketTransportAddress(StringUtils.defaultIfEmpty(settings.getString(ProcessConstants.WEB_HOST), LoopbackAddress.get().getHostAddress()),
+    this.addTransportAddress(new InetSocketTransportAddress(StringUtils.defaultIfEmpty(settings.getString(ProcessConstants.SEARCH_HOST), LoopbackAddress.get().getHostAddress()),
       settings.getInt(ProcessConstants.SEARCH_PORT)));
   }
 

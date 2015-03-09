@@ -52,7 +52,7 @@ public class BaseIndexTest {
     settings.setProperty(ProcessConstants.CLUSTER_NAME, holder.getClusterName());
     settings.setProperty(ProcessConstants.CLUSTER_NODE_NAME, holder.getNodeName());
     settings.setProperty(ProcessConstants.SEARCH_PORT, String.valueOf(holder.getPort()));
-    settings.setProperty(ProcessConstants.WEB_HOST, String.valueOf(holder.getHostName()));
+    settings.setProperty(ProcessConstants.SEARCH_HOST, String.valueOf(holder.getHostName()));
     searchClient = new SearchClient(settings);
   }
 
