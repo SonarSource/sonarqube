@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 public class Benchmark extends ErrorCollector {
 
   private static final boolean ENABLED = "true".equals(System.getProperty("enableBenchmarkAssertions"));
+  public static final double DEFAULT_ERROR_MARGIN_PERCENTS = 0.08;
 
   static {
     if (ENABLED) {

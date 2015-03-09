@@ -18,6 +18,9 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
+#
+# SonarQube 5.0
+#
 class RemoveSortFieldFromIssueFilters < ActiveRecord::Migration
 
   def self.up

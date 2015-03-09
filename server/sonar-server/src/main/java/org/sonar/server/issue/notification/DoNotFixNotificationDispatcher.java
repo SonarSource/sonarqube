@@ -29,17 +29,15 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- * This dispatcher means: "notify me when someone resolves an issue as false positive".
- *
- * @since 3.6
+ * This dispatcher means: "notify me when an issue is resolved as false positive or won't fix".
  */
-public class NewFalsePositiveNotificationDispatcher extends NotificationDispatcher {
+public class DoNotFixNotificationDispatcher extends NotificationDispatcher {
 
   public static final String KEY = "NewFalsePositiveIssue";
 
   private final NotificationManager notifications;
 
-  public NewFalsePositiveNotificationDispatcher(NotificationManager notifications) {
+  public DoNotFixNotificationDispatcher(NotificationManager notifications) {
     super(IssueChangeNotification.TYPE);
     this.notifications = notifications;
   }
@@ -58,7 +56,7 @@ public class NewFalsePositiveNotificationDispatcher extends NotificationDispatch
   @Override
   public void dispatch(Notification notification, Context context) {
     String newResolution = notification.getFieldValue("new.resolution");
-    if (Objects.equal(newResolution, Issue.RESOLUTION_FALSE_POSITIVE)) {
+    if (Objects.equal(newResolution, Issue.RESOLUTION_FALSE_POSITIVE) || Objects.equal(newResolution, Issue.RESOLUTION_WONT_FIX)) {
       String author = notification.getFieldValue("changeAuthor");
       String projectKey = notification.getFieldValue("projectKey");
       Multimap<String, NotificationChannel> subscribedRecipients = notifications.findNotificationSubscribers(this, projectKey);

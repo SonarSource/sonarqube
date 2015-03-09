@@ -72,7 +72,7 @@ public class DefaultI18nTest {
     // Only in english
     assertThat(manager.getPropertyKeys().contains("assignee")).isTrue();
     assertThat(manager.getPropertyKeys().contains("sqale.page")).isTrue();
-    assertThat(manager.getPropertyKeys().contains("unknown")).isFalse();
+    assertThat(manager.getPropertyKeys().contains("bla_bla_bla")).isFalse();
   }
 
   @Test
@@ -124,8 +124,8 @@ public class DefaultI18nTest {
 
   @Test
   public void return_default_value_if_missing_key() {
-    assertThat(manager.message(Locale.ENGLISH, "unknown", "default")).isEqualTo("default");
-    assertThat(manager.message(Locale.FRENCH, "unknown", "default")).isEqualTo("default");
+    assertThat(manager.message(Locale.ENGLISH, "bla_bla_bla", "default")).isEqualTo("default");
+    assertThat(manager.message(Locale.FRENCH, "bla_bla_bla", "default")).isEqualTo("default");
   }
 
   @Test

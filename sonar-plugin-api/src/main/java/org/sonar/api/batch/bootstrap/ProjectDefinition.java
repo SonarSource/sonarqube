@@ -28,11 +28,8 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Properties;
 
 /**
  * Defines project metadata (key, name, source directories, ...). It's generally used by the
@@ -204,12 +201,23 @@ public class ProjectDefinition {
    * @since 4.5
    */
   public String getKeyWithBranch() {
-    String branch = properties.get(CoreProperties.PROJECT_BRANCH_PROPERTY);
+    String branch = getBranch();
     String projectKey = getKey();
     if (StringUtils.isNotBlank(branch)) {
       projectKey = String.format("%s:%s", projectKey, branch);
     }
     return projectKey;
+  }
+
+  @CheckForNull
+  private String getBranch() {
+    String branch = properties.get(CoreProperties.PROJECT_BRANCH_PROPERTY);
+    if (StringUtils.isNotBlank(branch)) {
+      return branch;
+    } else if (getParent() != null) {
+      return getParent().getBranch();
+    }
+    return null;
   }
 
   public String getVersion() {
