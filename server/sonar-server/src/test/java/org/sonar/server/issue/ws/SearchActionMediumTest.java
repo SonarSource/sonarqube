@@ -483,6 +483,34 @@ public class SearchActionMediumTest {
   }
 
   @Test
+  public void filter_by_assigned_to_me_unauthenticated() throws Exception {
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    setDefaultProjectPermission(project);
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
+    RuleDto rule = newRule();
+    IssueDto issue1 = IssueTesting.newDto(rule, file, project)
+      .setStatus("OPEN")
+      .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
+      .setAssignee("john");
+    IssueDto issue2 = IssueTesting.newDto(rule, file, project)
+      .setStatus("OPEN")
+      .setKee("7b112bd4-b650-4037-80bc-82fd47d4eac2")
+      .setAssignee("alice");
+    IssueDto issue3 = IssueTesting.newDto(rule, file, project)
+      .setStatus("OPEN")
+      .setKee("82fd47d4-4037-b650-80bc-7b112bd4eac2");
+    db.issueDao().insert(session, issue1, issue2, issue3);
+    session.commit();
+    tester.get(IssueIndexer.class).indexAll();
+
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+      .setParam("resolved", "false")
+      .setParam("assignees", "__me__")
+      .execute()
+      .assertJson(this.getClass(), "empty_result.json", false);
+  }
+
+  @Test
   public void hide_rules() throws Exception {
     ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
     setDefaultProjectPermission(project);

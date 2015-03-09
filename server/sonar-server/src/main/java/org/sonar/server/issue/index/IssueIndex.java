@@ -496,12 +496,9 @@ public class IssueIndex extends BaseIndex {
   }
 
   private void addAssignedToMeFacetIfNeeded(SearchRequestBuilder builder, SearchOptions options, IssueQuery query, Map<String, FilterBuilder> filters, QueryBuilder queryBuilder) {
-    if (!options.getFacets().contains(IssueFilterParameters.FACET_ASSIGNED_TO_ME)) {
-      return;
-    }
-
     String login = UserSession.get().login();
-    if (StringUtils.isEmpty(login)) {
+
+    if (!options.getFacets().contains(IssueFilterParameters.FACET_ASSIGNED_TO_ME) || StringUtils.isEmpty(login)) {
       return;
     }
 

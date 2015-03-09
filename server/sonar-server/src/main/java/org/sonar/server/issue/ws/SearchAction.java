@@ -172,8 +172,8 @@ public class SearchAction implements BaseIssuesWsAction {
       .setDescription("Comma-separated list of SCM accounts")
       .setExampleValue("torvalds@linux-foundation.org");
     action.createParam(IssueFilterParameters.ASSIGNEES)
-      .setDescription("Comma-separated list of assignee logins. The value '__me__' can be used as a placeholder for the current authenticating user")
-      .setExampleValue("admin,usera");
+      .setDescription("Comma-separated list of assignee logins. The value '__me__' can be used as a placeholder for user who performs the request")
+      .setExampleValue("admin,usera,__me__");
     action.createParam(IssueFilterParameters.ASSIGNED)
       .setDescription("To retrieve assigned or unassigned issues")
       .setBooleanPossibleValues();
