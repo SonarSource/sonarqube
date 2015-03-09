@@ -17,15 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+/* globals casper: false */
 var lib = require('../lib'),
-    testName = lib.testName('Design');
+    testName = lib.testName('DSM');
 
 lib.initMessages();
 lib.changeWorkingDirectory('design-spec');
 lib.configureCasper();
 
 
-casper.test.begin(testName('Base'), function suite(test) {
+casper.test.begin(testName('Base'), 9, function (test) {
   casper
       .start(lib.buildUrl('design'), function () {
         lib.setDefaultViewport();
@@ -50,7 +51,7 @@ casper.test.begin(testName('Base'), function suite(test) {
         casper.mouse.doubleclick('.dsm-body-cell-cycle');
         casper.waitForSelector('.spinner', function () {
           casper.waitWhileSelector('.spinner');
-        })
+        });
       })
 
       .then(function () {
@@ -58,6 +59,53 @@ casper.test.begin(testName('Base'), function suite(test) {
         test.assertSelectorContains('.dsm-info', 'src/main/java/com/maif/sonar/cobol/api/MaifCobolMeasureProvider.java');
         test.assertSelectorContains('.dsm-info', 'src/main/java/com/maif/sonar/cobol/metrics/BusinessRuleCounter.java ');
         test.assertSelectorContains('.dsm-info', 'src/main/java/com/maif/sonar/cobol/metrics/TableMetricsVisitor.java ');
+      })
+
+      .then(function () {
+        lib.sendCoverage();
+      })
+
+      .run(function () {
+        test.done();
+      });
+});
+
+casper.test.begin(testName('Highlight'), 13, function (test) {
+  casper
+      .start(lib.buildUrl('design'), function () {
+        lib.setDefaultViewport();
+        lib.mockRequest('/api/l10n/index', '{}');
+        lib.mockRequestFromFile('/api/resources', 'resources.json');
+        lib.mockRequestFromFile('/api/dependencies', 'dependencies.json');
+      })
+
+      .then(function () {
+        casper.waitWhileSelector('.spinner');
+      })
+
+      .then(function () {
+        casper.click('tr:nth-child(2) > .dsm-body-title');
+        test.assertElementCount('.dsm-body-highlighted', 12);
+        test.assertElementCount('tr:nth-child(2) .dsm-body-highlighted', 7);
+        test.assertElementCount('td:nth-child(3).dsm-body-highlighted', 6);
+      })
+
+      .then(function () {
+        casper.click('tr:nth-child(3) > td:nth-child(5)');
+        test.assertElementCount('.dsm-body-dependency', 12);
+        test.assertElementCount('tr:nth-child(3) .dsm-body-dependency', 7);
+        test.assertElementCount('td:nth-child(4).dsm-body-dependency', 6);
+        test.assertElementCount('.dsm-body-usage', 12);
+        test.assertElementCount('tr:nth-child(4) .dsm-body-usage', 7);
+        test.assertElementCount('td:nth-child(5).dsm-body-usage', 6);
+        test.assertElementCount('.dsm-body-dependency.dsm-body-usage', 2);
+      })
+
+      .then(function () {
+        casper.click('tr:nth-child(2) > td:nth-child(3)');
+        test.assertElementCount('.dsm-body-highlighted', 12);
+        test.assertElementCount('tr:nth-child(2) .dsm-body-highlighted', 7);
+        test.assertElementCount('td:nth-child(3).dsm-body-highlighted', 6);
       })
 
       .then(function () {
