@@ -187,11 +187,16 @@ public class SearchAction implements BaseIssuesWsAction {
       .setDescription("To retrieve issues created at a given date. Format: date or datetime ISO formats")
       .setExampleValue("2013-05-01 (or 2013-05-01T13:00:00+0100)");
     action.createParam(IssueFilterParameters.CREATED_AFTER)
-      .setDescription("To retrieve issues created after the given date (exclusive). Format: date or datetime ISO formats")
+      .setDescription("To retrieve issues created after the given date (exclusive). Format: date or datetime ISO formats. If this parameter is set, createdSince must not be set")
       .setExampleValue("2013-05-01 (or 2013-05-01T13:00:00+0100)");
     action.createParam(IssueFilterParameters.CREATED_BEFORE)
       .setDescription("To retrieve issues created before the given date (exclusive). Format: date or datetime ISO formats")
       .setExampleValue("2013-05-01 (or 2013-05-01T13:00:00+0100)");
+    action.createParam(IssueFilterParameters.CREATED_IN_LAST)
+      .setDescription("To retrieve issues created during a time span before the current time (exclusive). " +
+        "Accepted units are 'y' for year, 'm' for month, 'w' for week and 'd' for day. " +
+        "If this parameter is set, createdAfter must not be set")
+      .setExampleValue("1m2w (1 month 2 weeks)");
     action.createParam(IssueFilterParameters.IGNORE_PAGING)
       .setDescription("Return the full list of issues, regardless of paging. For internal use only")
       .setBooleanPossibleValues()

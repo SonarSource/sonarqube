@@ -21,20 +21,20 @@
 package org.sonar.server.issue;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
+import com.google.common.base.*;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.ObjectUtils;
+import org.joda.time.DateTime;
+import org.joda.time.format.ISOPeriodFormat;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ws.Request;
+import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
@@ -48,10 +48,7 @@ import org.sonar.server.util.RubyUtils;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -65,10 +62,12 @@ public class IssueQueryService implements ServerComponent {
   private static final String UNKNOWN = "<UNKNOWN>";
   private final DbClient dbClient;
   private final ComponentService componentService;
+  private final System2 system;
 
-  public IssueQueryService(DbClient dbClient, ComponentService componentService) {
+  public IssueQueryService(DbClient dbClient, ComponentService componentService, System2 system) {
     this.dbClient = dbClient;
     this.componentService = componentService;
+    this.system = system;
   }
 
   public IssueQuery createFromMap(Map<String, Object> params) {
@@ -91,7 +90,7 @@ public class IssueQueryService implements ServerComponent {
         .planned(RubyUtils.toBoolean(params.get(IssueFilterParameters.PLANNED)))
         .hideRules(RubyUtils.toBoolean(params.get(IssueFilterParameters.HIDE_RULES)))
         .createdAt(RubyUtils.toDate(params.get(IssueFilterParameters.CREATED_AT)))
-        .createdAfter(RubyUtils.toDate(params.get(IssueFilterParameters.CREATED_AFTER)))
+        .createdAfter(buildCreatedAfter(RubyUtils.toDate(params.get(IssueFilterParameters.CREATED_AFTER)), (String) params.get(IssueFilterParameters.CREATED_IN_LAST)))
         .createdBefore(RubyUtils.toDate(params.get(IssueFilterParameters.CREATED_BEFORE)));
 
       Set<String> allComponentUuids = Sets.newHashSet();
@@ -135,6 +134,16 @@ public class IssueQueryService implements ServerComponent {
     }
   }
 
+  private Date buildCreatedAfter(@Nullable Date createdAfter, @Nullable String createdSince) {
+    Preconditions.checkArgument(createdAfter == null || createdSince == null, "createdAfter and createdSince cannot be set simultaneously");
+
+    Date actualCreatedAfter = createdAfter;
+    if (createdSince != null) {
+      actualCreatedAfter = new DateTime(system.now()).minus(ISOPeriodFormat.standard().parsePeriod("P" + createdSince.toUpperCase())).toDate();
+    }
+    return actualCreatedAfter;
+  }
+
   public IssueQuery createFromRequest(Request request) {
     DbSession session = dbClient.openSession(false);
     try {
@@ -153,7 +162,7 @@ public class IssueQueryService implements ServerComponent {
         .assigned(request.paramAsBoolean(IssueFilterParameters.ASSIGNED))
         .planned(request.paramAsBoolean(IssueFilterParameters.PLANNED))
         .createdAt(request.paramAsDateTime(IssueFilterParameters.CREATED_AT))
-        .createdAfter(request.paramAsDateTime(IssueFilterParameters.CREATED_AFTER))
+        .createdAfter(buildCreatedAfter(request.paramAsDateTime(IssueFilterParameters.CREATED_AFTER), request.param(IssueFilterParameters.CREATED_IN_LAST)))
         .createdBefore(request.paramAsDateTime(IssueFilterParameters.CREATED_BEFORE))
         .ignorePaging(request.paramAsBoolean(IssueFilterParameters.IGNORE_PAGING));
 

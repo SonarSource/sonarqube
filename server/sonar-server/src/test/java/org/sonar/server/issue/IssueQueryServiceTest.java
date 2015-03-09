@@ -35,6 +35,7 @@ import org.mockito.stubbing.Answer;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
@@ -44,10 +45,7 @@ import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.user.MockUserSession;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -78,6 +76,9 @@ public class IssueQueryServiceTest {
   @Mock
   ComponentService componentService;
 
+  @Mock
+  System2 system;
+
   IssueQueryService issueQueryService;
 
   @Before
@@ -94,7 +95,7 @@ public class IssueQueryServiceTest {
       }
     });
 
-    issueQueryService = new IssueQueryService(dbClient, componentService);
+    issueQueryService = new IssueQueryService(dbClient, componentService, system);
   }
 
   @After
@@ -433,5 +434,30 @@ public class IssueQueryServiceTest {
 
     IssueQuery query = issueQueryService.createFromMap(map);
     assertThat(query.fileUuids()).containsExactly(fileUuid);
+  }
+
+  @Test
+  public void fail_if_created_after_and_created_since_are_both_set() {
+    Map<String, Object> map = newHashMap();
+    map.put("createdAfter", "2013-07-25T07:35:00+0100");
+    map.put("createdInLast", "palap");
+
+    try {
+      issueQueryService.createFromMap(map);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("createdAfter and createdSince cannot be set simultaneously");
+    }
+  }
+
+  @Test
+  public void set_created_after_from_created_since() {
+    Date now = DateUtils.parseDateTime("2013-07-25T07:35:00+0100");
+    when(system.now()).thenReturn(now.getTime());
+    Map<String, Object> map = newHashMap();
+
+    map.put("createdInLast", "1y2m3w4d");
+    assertThat(issueQueryService.createFromMap(map).createdAfter()).isEqualTo(DateUtils.parseDateTime("2012-04-30T07:35:00+0100"));
+
   }
 }
