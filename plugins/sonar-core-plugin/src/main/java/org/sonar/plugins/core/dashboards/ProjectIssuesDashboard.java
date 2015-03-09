@@ -19,9 +19,12 @@
  */
 package org.sonar.plugins.core.dashboards;
 
+import com.google.common.base.Preconditions;
 import org.sonar.api.web.Dashboard;
 import org.sonar.api.web.DashboardLayout;
 import org.sonar.api.web.DashboardTemplate;
+import org.sonar.core.issue.db.IssueFilterDao;
+import org.sonar.core.issue.db.IssueFilterDto;
 
 /**
  * Issues dashboard for Sonar
@@ -29,6 +32,12 @@ import org.sonar.api.web.DashboardTemplate;
  * @since 3.6
  */
 public final class ProjectIssuesDashboard extends DashboardTemplate {
+
+  private final IssueFilterDao issueFilterDao;
+
+  public ProjectIssuesDashboard(IssueFilterDao issueFilterDao) {
+    this.issueFilterDao = issueFilterDao;
+  }
 
   @Override
   public String getName() {
@@ -39,20 +48,43 @@ public final class ProjectIssuesDashboard extends DashboardTemplate {
   public Dashboard createDashboard() {
     Dashboard dashboard = Dashboard.create();
     dashboard.setLayout(DashboardLayout.TWO_COLUMNS);
-    addFirstColumn(dashboard);
-    addSecondColumn();
+
+    IssueFilterDto unresolvedIssues = getIssueFilterByName("Unresolved Issues");
+    IssueFilterDto hiddenDebt = getIssueFilterByName("False Positive and Won't Fix Issues");
+    IssueFilterDto myUnresolvedIssues = getIssueFilterByName("My Unresolved Issues");
+
+    addFirstColumn(dashboard, unresolvedIssues);
+    addSecondColumn(dashboard, unresolvedIssues, hiddenDebt, myUnresolvedIssues);
     return dashboard;
   }
 
-  private void addFirstColumn(Dashboard dashboard) {
-    // TODO: + unresolved issues by status
+  private IssueFilterDto getIssueFilterByName(String name) {
+    IssueFilterDto filter = issueFilterDao.selectProvidedFilterByName(name);
+    Preconditions.checkState(filter != null, String.format("Could not find a provided issue filter with name '%s'", name));
+    return filter;
+  }
+
+  private void addFirstColumn(Dashboard dashboard, IssueFilterDto unresolvedIssues) {
+    // Unresolved issues by status
+    dashboard.addWidget("project_issue_filter", 1)
+      .setProperty("filter", Long.toString(unresolvedIssues.getId()))
+      .setProperty("distributionAxis", "statuses");
+    // Action plans
     dashboard.addWidget("action_plans", 1);
   }
 
-  private void addSecondColumn() {
-    // TODO: + unresolved issues by assignee
-    // TODO: + my unresolved issues
-    // TODO: + false positive and won't fix issues
+  private void addSecondColumn(Dashboard dashboard, IssueFilterDto unresolvedIssues, IssueFilterDto hiddenDebt, IssueFilterDto myUnresolvedIssues) {
+    // Unresolved issues by assignee
+    dashboard.addWidget("project_issue_filter", 2)
+      .setProperty("filter", Long.toString(unresolvedIssues.getId()))
+      .setProperty("distributionAxis", "assignees");
+    // My unresolved issues
+    dashboard.addWidget("project_issue_filter", 2)
+      .setProperty("filter", Long.toString(myUnresolvedIssues.getId()));
+    // False positive and won't fix issues by resolution
+    dashboard.addWidget("project_issue_filter", 2)
+      .setProperty("filter", Long.toString(hiddenDebt.getId()))
+      .setProperty("distributionAxis", "resolutions");
   }
 
 }

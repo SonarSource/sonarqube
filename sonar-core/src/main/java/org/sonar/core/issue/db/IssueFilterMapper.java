@@ -37,9 +37,12 @@ public interface IssueFilterMapper {
 
   List<IssueFilterDto> selectSharedFilters();
 
+  IssueFilterDto selectProvidedFilterByName(String name);
+
   void insert(IssueFilterDto filter);
 
   void update(IssueFilterDto filter);
 
   void delete(long id);
+
 }

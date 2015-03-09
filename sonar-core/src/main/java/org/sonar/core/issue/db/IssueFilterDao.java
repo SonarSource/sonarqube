@@ -69,6 +69,15 @@ public class IssueFilterDao implements BatchComponent, ServerComponent {
     }
   }
 
+  public IssueFilterDto selectProvidedFilterByName(String name) {
+    SqlSession session = mybatis.openSession(false);
+    try {
+      return getMapper(session).selectProvidedFilterByName(name);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
   public List<IssueFilterDto> selectSharedFilters() {
     SqlSession session = mybatis.openSession(false);
     try {

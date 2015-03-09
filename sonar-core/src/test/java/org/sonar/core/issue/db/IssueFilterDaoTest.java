@@ -78,6 +78,15 @@ public class IssueFilterDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void should_select_provided_by_name() {
+    setupData("should_select_provided_by_name");
+
+    assertThat(dao.selectProvidedFilterByName("Unresolved Issues").getName()).isEqualTo("Unresolved Issues");
+    assertThat(dao.selectProvidedFilterByName("My Unresolved Issues").getName()).isEqualTo("My Unresolved Issues");
+    assertThat(dao.selectProvidedFilterByName("Unknown Filter")).isNull();
+  }
+
+  @Test
   public void should_insert() {
     setupData("shared");
 

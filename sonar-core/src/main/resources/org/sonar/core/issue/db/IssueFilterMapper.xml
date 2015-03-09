@@ -40,6 +40,14 @@
     where filters.shared=${_true}
   </select>
 
+  <select id="selectProvidedFilterByName" parameterType="String" resultType="IssueFilter">
+    select <include refid="issueFilterColumns"/>
+    from issue_filters filters
+    where filters.user_login is null
+      and filters.shared=${_true}
+      and filters.name=#{name}
+  </select>
+
   <insert id="insert" parameterType="IssueFilter" keyColumn="id" useGeneratedKeys="true" keyProperty="id" >
     INSERT INTO issue_filters (name, user_login, shared, description, data, created_at, updated_at)
     VALUES (#{name}, #{userLogin}, #{shared}, #{description}, #{data}, #{createdAt}, #{updatedAt})

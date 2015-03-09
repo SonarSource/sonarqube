@@ -20,16 +20,32 @@
 
 package org.sonar.plugins.core.dashboards;
 
+import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.api.web.Dashboard;
 import org.sonar.api.web.DashboardLayout;
+import org.sonar.core.issue.db.IssueFilterDao;
+import org.sonar.core.persistence.DbTester;
 import org.sonar.plugins.core.CorePlugin;
+import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Category(DbTests.class)
 public class ProjectIssuesDashboardTest {
 
-  ProjectIssuesDashboard template = new ProjectIssuesDashboard();
+  @ClassRule
+  public static final DbTester dbTester = new DbTester();
+
+  ProjectIssuesDashboard template;
+
+  @Before
+  public void setUp() throws Exception {
+    IssueFilterDao issueFilterDao = new IssueFilterDao(dbTester.myBatis());
+    template = new ProjectIssuesDashboard(issueFilterDao);
+  }
 
   @Test
   public void should_have_a_name() {
@@ -43,10 +59,19 @@ public class ProjectIssuesDashboardTest {
 
   @Test
   public void should_create_dashboard() {
+    dbTester.prepareDbUnit(getClass(), "filters.xml");
     Dashboard dashboard = template.createDashboard();
 
     assertThat(dashboard.getLayout()).isEqualTo(DashboardLayout.TWO_COLUMNS);
-    assertThat(dashboard.getWidgets()).hasSize(1);
+    assertThat(dashboard.getWidgets()).hasSize(5);
   }
 
+  @Test
+  public void should_provide_clean_error_message_on_failure() {
+    try {
+      template.createDashboard();
+    } catch (IllegalStateException illegalState) {
+      assertThat(illegalState).hasMessage("Could not find a provided issue filter with name 'Unresolved Issues'");
+    }
+  }
 }
