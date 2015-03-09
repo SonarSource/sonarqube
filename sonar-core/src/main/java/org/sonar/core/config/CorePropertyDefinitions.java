@@ -63,7 +63,7 @@ public class CorePropertyDefinitions {
       // ISSUES
       PropertyDefinition.builder(CoreProperties.DEFAULT_ISSUE_ASSIGNEE)
         .name("Default Assignee")
-        .description("Login assigned to a new issue if an assignee has not been found.")
+        .description("New issues will be assigned to this user each time it is not possible to determine the user who is the author of the issue.")
         .category(CoreProperties.CATEGORY_GENERAL)
         .subCategory(CoreProperties.SUBCATEGORY_ISSUES)
         .onQualifiers(Qualifiers.PROJECT)
@@ -163,7 +163,7 @@ public class CorePropertyDefinitions {
         .subCategory(CoreProperties.SUBCATEGORY_DUPLICATIONS_EXCLUSIONS)
         .multiValues(true)
         .build()
-    ));
+      ));
     return defs;
   }
 }
