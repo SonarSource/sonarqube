@@ -18,7 +18,7 @@
  # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  #
 class ProjectLink < ActiveRecord::Base
-  belongs_to :project
+  belongs_to :project, :foreign_key => 'uuid', :primary_key => 'component_uuid'
   
   LINK_HOMEPAGE = "homepage"
   LINK_CONTINUOUS_INTEGRATION = "ci"
