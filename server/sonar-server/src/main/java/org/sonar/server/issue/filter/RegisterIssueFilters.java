@@ -84,7 +84,7 @@ public class RegisterIssueFilters implements Startable {
       .setShared(true)
       .setCreatedAt(now)
       .setUpdatedAt(now)
-      .setData("resolved=false|assigned_to_me=true");
+      .setData("resolved=false|assignees=__me__");
     issueFilterDao.insert(myUnresolvedFilter);
 
   }
