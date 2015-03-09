@@ -50,7 +50,10 @@ import org.sonar.server.view.index.ViewIndexer;
 
 import javax.annotation.Nullable;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.*;
@@ -1145,37 +1148,6 @@ public class IssueIndexTest {
 
     MockUserSession.set().setLogin("john").setUserGroups("sonar-users");
     assertThat(index.search(IssueQuery.builder().build(), new SearchOptions()).getDocs()).hasSize(1);
-  }
-
-  @Test
-  public void list_assignees() throws Exception {
-    ComponentDto project = ComponentTesting.newProjectDto();
-    ComponentDto file = ComponentTesting.newFileDto(project);
-
-    indexIssues(
-      IssueTesting.newDoc("ISSUE1", file).setAssignee("steph").setStatus(Issue.STATUS_OPEN),
-      IssueTesting.newDoc("ISSUE2", file).setAssignee("simon").setStatus(Issue.STATUS_OPEN),
-      IssueTesting.newDoc("ISSUE3", file).setAssignee(null).setStatus(Issue.STATUS_OPEN),
-      IssueTesting.newDoc("ISSUE4", file).setAssignee("steph").setStatus(Issue.STATUS_OPEN),
-      // Issue assigned to julien should not be returned as the issue is closed
-      IssueTesting.newDoc("ISSUE5", file).setAssignee("julien").setStatus(Issue.STATUS_CLOSED));
-
-    LinkedHashMap<String, Long> results = index.searchForAssignees(IssueQuery.builder().statuses(newArrayList(Issue.STATUS_OPEN)).build());
-    assertThat(results).hasSize(3);
-
-    Iterator<Map.Entry<String, Long>> buckets = results.entrySet().iterator();
-
-    Map.Entry<String, Long> bucket = buckets.next();
-    assertThat(bucket.getKey()).isEqualTo("steph");
-    assertThat(bucket.getValue()).isEqualTo(2L);
-
-    bucket = buckets.next();
-    assertThat(bucket.getKey()).isEqualTo("simon");
-    assertThat(bucket.getValue()).isEqualTo(1L);
-
-    bucket = buckets.next();
-    assertThat(bucket.getKey()).isEqualTo("_notAssigned_");
-    assertThat(bucket.getValue()).isEqualTo(1L);
   }
 
   @Test

@@ -19,11 +19,7 @@
  */
 package org.sonar.server.issue;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Multiset;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -72,7 +68,6 @@ import org.sonar.server.user.db.GroupDao;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -498,28 +493,6 @@ public class IssueServiceMediumTest {
 
     List<IssueDoc> result = service.search(IssueQuery.builder().build(), new SearchOptions()).getDocs();
     assertThat(result).hasSize(1);
-  }
-
-  @Test
-  public void find_issue_assignees() throws Exception {
-    RuleDto rule = newRule();
-    ComponentDto project = newProject();
-    ComponentDto file = newFile(project);
-    saveIssue(IssueTesting.newDto(rule, file, project).setAssignee("steph"));
-    saveIssue(IssueTesting.newDto(rule, file, project).setAssignee("simon"));
-    saveIssue(IssueTesting.newDto(rule, file, project));
-    saveIssue(IssueTesting.newDto(rule, file, project).setAssignee("steph"));
-
-    Map<String, Long> results = service.findIssueAssignees(IssueQuery.builder().build());
-
-    assertThat(results).hasSize(3);
-    assertThat(results.get("steph")).isEqualTo(2L);
-    assertThat(results.get("simon")).isEqualTo(1L);
-    assertThat(results.get(null)).isEqualTo(1L);
-
-    assertThat(results.keySet().toArray()[0]).isEqualTo("steph");
-    assertThat(results.keySet().toArray()[1]).isEqualTo("simon");
-    assertThat(results.keySet().toArray()[2]).isNull();
   }
 
   @Test

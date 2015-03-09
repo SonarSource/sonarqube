@@ -40,7 +40,6 @@ import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuil
 import org.elasticsearch.search.aggregations.bucket.global.Global;
 import org.elasticsearch.search.aggregations.bucket.global.GlobalBuilder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
-import org.elasticsearch.search.aggregations.bucket.missing.InternalMissing;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
 import org.elasticsearch.search.aggregations.metrics.min.Min;
@@ -653,34 +652,6 @@ public class IssueIndex extends BaseIndex {
       );
 
     getClient().prepareDeleteByQuery(IssueIndexDefinition.INDEX).setQuery(queryBuilder).get();
-  }
-
-  public LinkedHashMap<String, Long> searchForAssignees(IssueQuery query) {
-    // TODO do not return hits
-    // TODO what's max size ?
-
-    SearchRequestBuilder esSearch = getClient()
-      .prepareSearch(IssueIndexDefinition.INDEX)
-      .setTypes(IssueIndexDefinition.TYPE_ISSUE);
-
-    QueryBuilder esQuery = QueryBuilders.matchAllQuery();
-    BoolFilterBuilder esFilter = createBoolFilter(query);
-    if (esFilter.hasClauses()) {
-      esSearch.setQuery(QueryBuilders.filteredQuery(esQuery, esFilter));
-    } else {
-      esSearch.setQuery(esQuery);
-    }
-    esSearch.addAggregation(AggregationBuilders.terms(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE)
-      .size(Integer.MAX_VALUE)
-      .field(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE));
-    esSearch.addAggregation(AggregationBuilders.missing("notAssigned")
-      .field(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE));
-
-    SearchResponse response = esSearch.get();
-    Terms aggregation = (Terms) response.getAggregations().getAsMap().get(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE);
-    LinkedHashMap<String, Long> result = EsUtils.termsToMap(aggregation);
-    result.put("_notAssigned_", ((InternalMissing) response.getAggregations().get("notAssigned")).getDocCount());
-    return result;
   }
 
   private BoolFilterBuilder createBoolFilter(IssueQuery query) {

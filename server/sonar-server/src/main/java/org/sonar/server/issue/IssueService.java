@@ -66,8 +66,6 @@ import javax.annotation.Nullable;
 
 import java.util.*;
 
-import static com.google.common.collect.Maps.newLinkedHashMap;
-
 public class IssueService implements ServerComponent {
 
   private final DbClient dbClient;
@@ -297,20 +295,6 @@ public class IssueService implements ServerComponent {
       aggregation.add(severity);
     }
     return aggregation;
-  }
-
-  public Map<String, Long> findIssueAssignees(IssueQuery query) {
-    Map<String, Long> result = newLinkedHashMap();
-    Map<String,Long> buckets = issueIndex.searchForAssignees(query);
-    for (Map.Entry<String, Long> bucket : buckets.entrySet()) {
-      if ("_notAssigned_".equals(bucket.getKey())) {
-        // TODO null key ?
-        result.put(null, bucket.getValue());
-      } else {
-        result.put(bucket.getKey(), bucket.getValue());
-      }
-    }
-    return result;
   }
 
   public Issue getByKey(String key) {

@@ -30,16 +30,13 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.server.paging.PagedResult;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 import org.sonar.server.user.UserSession;
 
 import java.util.HashMap;
-import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -136,24 +133,6 @@ public class RubyRuleServiceTest {
 
     assertThat(optionsCaptor.getValue().getLimit()).isEqualTo(50);
     assertThat(optionsCaptor.getValue().getOffset()).isEqualTo(0);
-  }
-
-  @Test
-  public void search_all_rules() throws Exception {
-    List<Rule> rules = newArrayList(mock(Rule.class));
-    Result serviceResult = mock(Result.class);
-    when(serviceResult.scroll()).thenReturn(rules.iterator());
-
-    when(ruleService.search(any(RuleQuery.class), any(QueryContext.class))).thenReturn(serviceResult);
-
-    HashMap<String, Object> params = newHashMap();
-    params.put("pageSize", "-1");
-    PagedResult<Rule> result = service.find(params);
-
-    verify(serviceResult).scroll();
-
-    verify(ruleService).search(ruleQueryCaptor.capture(), optionsCaptor.capture());
-    assertThat(result.paging().pageSize()).isEqualTo(Integer.MAX_VALUE);
   }
 
   @Test

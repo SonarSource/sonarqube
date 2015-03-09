@@ -55,10 +55,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class InternalRubyIssueServiceTest {
 
@@ -105,12 +102,6 @@ public class InternalRubyIssueServiceTest {
   public void get_issue_by_key() throws Exception {
     service.getIssueByKey("ABCD");
     verify(issueService).getByKey("ABCD");
-  }
-
-  @Test
-  public void find_issue_assignees() throws Exception {
-    service.findIssueAssignees(ImmutableMap.<String, Object>of("issues", "ABCD"));
-    verify(issueService).findIssueAssignees(any(IssueQuery.class));
   }
 
   @Test
