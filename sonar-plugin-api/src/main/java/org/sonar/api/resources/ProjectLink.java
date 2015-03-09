@@ -38,7 +38,7 @@ public class ProjectLink extends BaseIdentifiable {
   public static final int HREF_COLUMN_SIZE = 2048;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "project_id", updatable = false, nullable = false)
+  @JoinColumn(name = "component_uuid", referencedColumnName = "uuid", updatable = false, nullable = false)
   private ResourceModel resource;
 
   @Column(name = "link_type", updatable = true, nullable = true, length = 20)

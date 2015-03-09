@@ -197,9 +197,9 @@
   </delete>
 
   <delete id="deleteResourceLinks" parameterType="map">
-    delete from project_links where project_id in
-    <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
-      #{resourceId}
+    delete from project_links where component_uuid in
+    <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
+      #{componentUuid}
     </foreach>
   </delete>
 

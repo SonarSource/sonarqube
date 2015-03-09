@@ -22,6 +22,7 @@ package org.sonar.core.purge;
 import org.apache.ibatis.annotations.Param;
 
 import javax.annotation.Nullable;
+
 import java.util.List;
 
 public interface PurgeMapper {
@@ -66,7 +67,7 @@ public interface PurgeMapper {
 
   void setSnapshotIsLastToFalse(long resourceId);
 
-  void deleteResourceLinks(@Param("resourceIds") List<Long> resourceIds);
+  void deleteResourceLinks(@Param("componentUuids") List<String> componentUuids);
 
   void deleteResourceProperties(@Param("resourceIds") List<Long> resourceIds);
 
