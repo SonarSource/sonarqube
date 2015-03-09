@@ -50,7 +50,7 @@
                 <tr>
                   <td>
                     <% if  language_key.eql? '<null>' %>
-                      <%= message('other') -%>
+                      <%= message('unknown') -%>
                     <% else %>
                       <% language = languages.find { |l| l.getKey()==language_key.to_s } -%>
                       <%= language ? language.getName() : language_key -%>
@@ -80,7 +80,7 @@
             <% 
               language_key = ncloc_language_dist_hash.first[0]
               if  language_key.eql? '<null>' %>
-              <%= message('other') -%>
+              <%= message('unknown') -%>
             <% else %>
               <% language = languages.find { |l| l.getKey()==language_key.to_s } -%>
               <%= language ? language.getName() : language_key -%>
