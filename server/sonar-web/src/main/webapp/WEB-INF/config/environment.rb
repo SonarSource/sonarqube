@@ -116,13 +116,31 @@ class ActiveRecord::Migration
     ActiveRecord::Base.configurations[ENV['RAILS_ENV']]['dialect']
   end
 
+  def self.column_exists?(table_name, column_name)
+    columns(table_name).any?{ |c| c.name == column_name.to_s }
+  end
+
   def self.add_index(table_name, column_name, options = {})
     # ActiveRecord can generate index names longer than 30 characters, but that's
     # not supported by Oracle, the "Enterprise" database.
     # For this reason we force to set name of indexes.
     raise ArgumentError, 'Missing index name' unless options[:name]
 
-    super(table_name, column_name, options)
+    unless index_exists?(table_name, column_name, :name => options[:name])
+      super(table_name, column_name, options)
+    end
+  end
+
+  def self.remove_column(table_name, column_name)
+    if column_exists?(table_name, column_name)
+      super(table_name, column_name)
+    end
+  end
+
+  def self.add_column(table_name, column_name, type, options = {})
+    unless column_exists?(table_name, column_name)
+      super(table_name, column_name, type, options)
+    end
   end
 
   def self.add_varchar_index(table_name, column_name, options = {})
@@ -173,8 +191,10 @@ class ActiveRecord::Migration
     # Oracle constraint (see names of triggers and indices)
     raise ArgumentError, "Table name is too long: #{table_name}" if table_name.to_s.length>25
 
-    super(table_name, options)
-    create_id_trigger(table_name) if dialect()=='oracle' && options[:id] != false
+    unless table_exists?(table_name)
+      super(table_name, options)
+      create_id_trigger(table_name) if dialect()=='oracle' && options[:id] != false
+    end
   end
 
   def drop_table(table_name, options = {})

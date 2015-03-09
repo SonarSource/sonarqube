@@ -24,7 +24,7 @@
 #
 class CreateActivitiesTable < ActiveRecord::Migration
   def self.up
-    create_table 'activities'do |t|
+    create_table 'activities' do |t|
       t.column 'created_at',   :datetime, :null => false
       t.column 'user_login', :string, :limit => 255
       t.column 'data_field', :text
