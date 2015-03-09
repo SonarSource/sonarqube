@@ -63,8 +63,8 @@ class PurgeCommands {
     // possible missing optimization: filter requests according to resource scope
 
     profiler.start("deleteResourceLinks (project_links)");
-    for (List<Long> partResourceIds : componentIdPartitions) {
-      purgeMapper.deleteResourceLinks(partResourceIds);
+    for (List<String> componentUuidPartition : componentUuidsPartitions) {
+      purgeMapper.deleteResourceLinks(componentUuidPartition);
     }
     session.commit();
     profiler.stop();
