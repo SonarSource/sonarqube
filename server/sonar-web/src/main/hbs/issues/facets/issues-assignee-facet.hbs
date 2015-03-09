@@ -1,9 +1,16 @@
 {{> '_issues-facet-header'}}
 
 <div class="search-navigator-facet-list">
+  {{#notNull myIssues}}
+    <a class="facet search-navigator-facet js-facet" data-value="__me__" title="{{t 'me'}}">
+      <span class="facet-name">{{t 'me'}}</span>
+      <span class="facet-stat">{{myIssues}}</span>
+    </a>
+  {{/notNull}}
+
   {{#each values}}
     {{#eq val ''}}
-      {{! unassigned }}
+    {{! unassigned }}
       <a class="facet search-navigator-facet js-facet" data-unassigned title="{{t 'unassigned'}}">
         <span class="facet-name">{{t 'unassigned'}}</span>
         <span class="facet-stat">{{numberShort count}}</span>

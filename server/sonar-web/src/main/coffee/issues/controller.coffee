@@ -35,6 +35,12 @@ define [
 
   class extends Controller
 
+    _facetsFromServer: ->
+      facets = super || []
+      facets.push 'assigned_to_me'
+      facets
+
+
     _issuesParameters: ->
       p: @options.app.state.get 'page'
       ps: @pageSize
@@ -42,6 +48,14 @@ define [
       asc: true
       extra_fields: EXTRA_FIELDS
       facets: @_facetsFromServer().join()
+
+
+    _myIssuesFromResponse: (r) ->
+      myIssuesData = _.findWhere r.facets, property: 'assigned_to_me'
+      if myIssuesData? && _.isArray(myIssuesData.values) && myIssuesData.values.length > 0
+        @options.app.state.set { myIssues: myIssuesData.values[0].count }, { silent: true }
+      else
+        @options.app.state.unset 'myIssues', { silent: true }
 
 
     fetchList: (firstPage = true) ->
@@ -63,7 +77,8 @@ define [
         @options.app.list.setIndex()
         FACET_DATA_FIELDS.forEach (field) => @options.app.facets[field] = r[field]
         @options.app.facets.reset @_allFacets()
-        @options.app.facets.add r.facets, merge: true
+        @options.app.facets.add _.reject(r.facets, (f) -> f.property == 'assigned_to_me'), merge: true
+        @_myIssuesFromResponse r
         @enableFacets @_enabledFacets()
         @options.app.state.set
           page: r.p
@@ -94,6 +109,7 @@ define [
 
 
     requestFacet: (id) ->
+      return @requestAssigneeFacet() if id == 'assignees'
       facet = @options.app.facets.get id
       data = _.extend { facets: id, ps: 1 }, @options.app.state.get('query')
       _.extend data, @options.app.state.get 'contextQuery' if @options.app.state.get 'isContext'
@@ -101,6 +117,18 @@ define [
         FACET_DATA_FIELDS.forEach (field) =>
           @options.app.facets[field] = @_mergeCollections @options.app.facets[field], r[field]
         facetData = _.findWhere r.facets, property: id
+        facet.set facetData if facetData?
+
+
+    requestAssigneeFacet: ->
+      facet = @options.app.facets.get 'assignees'
+      data = _.extend { facets: 'assignees,assigned_to_me', ps: 1 }, @options.app.state.get('query')
+      _.extend data, @options.app.state.get 'contextQuery' if @options.app.state.get 'isContext'
+      $.get "#{baseUrl}/api/issues/search", data, (r) =>
+        FACET_DATA_FIELDS.forEach (field) =>
+          @options.app.facets[field] = @_mergeCollections @options.app.facets[field], r[field]
+        facetData = _.findWhere r.facets, property: 'assignees'
+        @_myIssuesFromResponse r
         facet.set facetData if facetData?
 
 

@@ -90,6 +90,11 @@ define [
         x
 
 
+    getNumberOfMyIssues: ->
+      @options.app.state.get 'myIssues'
+
+
     serializeData: ->
       _.extend super,
+        myIssues: @getNumberOfMyIssues()
         values: @sortValues @getValuesWithLabels()
