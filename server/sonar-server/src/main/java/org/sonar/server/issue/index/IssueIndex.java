@@ -21,10 +21,7 @@ package org.sonar.server.issue.index;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -66,6 +63,7 @@ import javax.annotation.Nullable;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Pattern;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -478,8 +476,10 @@ public class IssueIndex extends BaseIndex {
     StickyFacetBuilder assigneeFacetBuilder = new StickyFacetBuilder(queryBuilder, assigneeFilters);
     BoolFilterBuilder facetFilter = assigneeFacetBuilder.getStickyFacetFilter(fieldName);
     FilterAggregationBuilder facetTopAggregation = assigneeFacetBuilder.buildTopFacetAggregation(fieldName, facetName, facetFilter, DEFAULT_FACET_SIZE);
-    if (!query.assignees().isEmpty()) {
-      facetTopAggregation = assigneeFacetBuilder.addSelectedItemsToFacet(fieldName, facetName, facetTopAggregation, query.assignees());
+
+    Collection<String> assigneesEscaped = escapeValuesForFacetInclusion(query.assignees());
+    if (!assigneesEscaped.isEmpty()) {
+      facetTopAggregation = assigneeFacetBuilder.addSelectedItemsToFacet(fieldName, facetName, facetTopAggregation, assigneesEscaped);
     }
 
     // Add missing facet for unassigned issues
@@ -494,6 +494,15 @@ public class IssueIndex extends BaseIndex {
       .subAggregation(facetTopAggregation);
   }
 
+  private Collection<String> escapeValuesForFacetInclusion(@Nullable Collection<String> values) {
+    return values == null ? Arrays.<String>asList() : Collections2.transform(values, new Function<String, String>() {
+        @Override
+        public String apply(String input) {
+          return Pattern.quote(input);
+        }
+      });
+  }
+
   private void addAssignedToMeFacetIfNeeded(SearchRequestBuilder builder, SearchOptions options, IssueQuery query, Map<String, FilterBuilder> filters, QueryBuilder queryBuilder) {
     String login = UserSession.get().login();
 
@@ -505,14 +514,17 @@ public class IssueIndex extends BaseIndex {
     String facetName = IssueFilterParameters.FACET_ASSIGNED_TO_ME;
 
     // Same as in super.stickyFacetBuilder
-    Map<String, FilterBuilder> assigneeFilters = Maps.newHashMap(filters);
-    StickyFacetBuilder assignedToMeFacetBuilder = new StickyFacetBuilder(queryBuilder, assigneeFilters);
-    BoolFilterBuilder facetFilter = assignedToMeFacetBuilder.getStickyFacetFilter("__assigned_to_me");
+    StickyFacetBuilder assignedToMeFacetBuilder = new StickyFacetBuilder(queryBuilder, filters);
+    BoolFilterBuilder facetFilter = assignedToMeFacetBuilder.getStickyFacetFilter("__isAssigned", fieldName);
 
-    builder.addAggregation(AggregationBuilders
-      .filter(facetName)
+    FilterAggregationBuilder facetTopAggregation = AggregationBuilders
+      .filter(facetName + "__filter")
       .filter(facetFilter)
-      .subAggregation(AggregationBuilders.terms(facetName + "__terms").field(fieldName).include(login)));
+      .subAggregation(AggregationBuilders.terms(facetName + "__terms").field(fieldName).include(login));
+
+    builder.addAggregation(
+      AggregationBuilders.global(facetName)
+        .subAggregation(facetTopAggregation));
   }
 
   private AggregationBuilder createResolutionFacet(Map<String, FilterBuilder> filters, QueryBuilder esQuery) {
