@@ -22,13 +22,23 @@
 @import (reference) "../components/ui";
 
 ol, ul {
-  list-style: none;
-}
-
-.list-unstyled {
   padding-left: 0;
   list-style: none;
 }
+
+
+// Styled lists
+
+.list-styled {
+  margin-bottom: 10px;
+  padding-left: 40px;
+
+  ul& { list-style: disc; }
+  ol& { list-style: decimal; }
+}
+
+
+// Inline lists
 
 .list-inline {
   padding-left: 0;
@@ -41,6 +51,9 @@ ol, ul {
   padding-right: 5px;
   padding-left: 5px;
 }
+
+
+// Definition lists
 
 dl {
   margin-top: 0;

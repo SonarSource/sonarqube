@@ -35,11 +35,6 @@
 .note {
   color: @secondFontColor;
   font-size: @smallFontSize;
-
-  img {
-    // FIXME why bottom?
-    vertical-align: bottom;
-  }
 }
 
 .spacer-left   { margin-left: 8px; }
@@ -78,3 +73,16 @@ td.spacer-top    { padding-top: 8px; }
 .disabled-pointer-events {
   pointer-events: none !important;
 }
+
+
+// Background Color
+
+.bg-variant(@color) {
+  background-color: @color;
+  color: #fff;
+}
+
+.bg-danger  { .bg-variant(@red); }
+.bg-warning { .bg-variant(@orange); }
+.bg-info    { .bg-variant(@blue); }
+.bg-success { .bg-variant(@green); }
