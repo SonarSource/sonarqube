@@ -89,32 +89,48 @@ define [
 
 
     disable: ->
-      @options.app.state.updateFilter createdAfter: null, createdBefore: null, createdAt: null
+      @options.app.state.updateFilter
+        createdAfter: null
+        createdBefore: null
+        createdAt: null
+        createdInLast: null
 
 
     selectBar: (e) ->
       periodStart = $(e.currentTarget).data 'period-start'
       periodEnd = $(e.currentTarget).data 'period-end'
-      @options.app.state.updateFilter createdAfter: periodStart, createdBefore: periodEnd, createdAt: null
+      @options.app.state.updateFilter
+        createdAfter: periodStart
+        createdBefore: periodEnd
+        createdAt: null
+        createdInLast: null
+
+
+    selectPeriod: (period) ->
+      @options.app.state.updateFilter
+        createdAfter: null
+        createdBefore: null
+        createdAt: null
+        createdInLast: period
 
 
     onAllClick: ->
       @disable()
 
 
-    onLastWeekClick: ->
-      createdAfter = moment().subtract(1, 'weeks').format 'YYYY-MM-DD'
-      @options.app.state.updateFilter createdAfter: createdAfter, createdBefore: null, createdAt: null
+    onLastWeekClick: (e) ->
+      e.preventDefault()
+      @selectPeriod '1w'
 
 
-    onLastMonthClick: ->
-      createdAfter = moment().subtract(1, 'months').format 'YYYY-MM-DD'
-      @options.app.state.updateFilter createdAfter: createdAfter, createdBefore: null, createdAt: null
+    onLastMonthClick: (e) ->
+      e.preventDefault()
+      @selectPeriod '1m'
 
 
-    onLastYearClick: ->
-      createdAfter = moment().subtract(1, 'years').format 'YYYY-MM-DD'
-      @options.app.state.updateFilter createdAfter: createdAfter, createdBefore: null, createdAt: null
+    onLastYearClick: (e) ->
+      e.preventDefault()
+      @selectPeriod '1y'
 
 
     serializeData: ->
@@ -122,3 +138,4 @@ define [
         periodStart: @options.app.state.get('query').createdAfter
         periodEnd: @options.app.state.get('query').createdBefore
         createdAt: @options.app.state.get('query').createdAt
+        createdInLast: @options.app.state.get('query').createdInLast

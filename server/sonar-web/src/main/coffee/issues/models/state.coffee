@@ -42,5 +42,6 @@ define [
         'planned': 'actionPlans'
         'createdBefore': 'createdAt'
         'createdAfter': 'createdAt'
+        'createdInLast': 'createdAt'
       }
 
