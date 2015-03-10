@@ -20,6 +20,7 @@
 define(['templates/widgets'], function () {
 
   var $ = jQuery,
+      FACET_LIMIT = 15,
       defaultComparator = function (item) {
         return -item.count;
       },
@@ -119,6 +120,16 @@ define(['templates/widgets'], function () {
             }
           }
         },
+        'reporters': {
+          label: function (item, r) {
+            if (_.isArray(r.users)) {
+              var reporter = _.findWhere(r.users, { login: item.val });
+              if (reporter != null) {
+                return reporter.name;
+              }
+            }
+          }
+        },
         'actionPlans': {
           template: 'widget-issue-filter-action-plans',
           label: function (item, r) {
@@ -139,7 +150,7 @@ define(['templates/widgets'], function () {
         },
         'createdAt': {
           comparator: function (item) {
-            return moment(item.val).toDate();
+            return -moment(item.val).unix();
           },
           label: function (item, r, items, index, query) {
             var beginning = moment(item.val),
@@ -284,8 +295,11 @@ define(['templates/widgets'], function () {
         if (_.isArray(r.facets) && r.facets.length === 1) {
           // save response object, but do not trigger repaint
           that.model.set({ rawResponse: r }, { silent: true });
+          var items = that.sortItems(that.withLabels(that.withLink(that.filterItems(r.facets[0].values))));
           that.model.set({
-            items: that.sortItems(that.withLabels(that.withLink(that.filterItems(r.facets[0].values)))),
+            items: items,
+            maxResultsReached: r.facets[0].values.length >= FACET_LIMIT,
+            maxResults: items.length,
             total: r.total
           });
         }

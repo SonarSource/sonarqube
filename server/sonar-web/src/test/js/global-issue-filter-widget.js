@@ -545,6 +545,66 @@ casper.test.begin(testName('Unresolved Unassigned Issues By Assignee'), 6, funct
 });
 
 
+casper.test.begin(testName('Unresolved Issues By Reporter'), 12, function (test) {
+  casper
+      .start(lib.buildUrl('issue-filter-widget'), function () {
+        lib.setDefaultViewport();
+
+        lib.mockRequest('/api/l10n/index', '{}');
+        lib.mockRequestFromFile('/api/issues/search', 'unresolved-issues-by-reporter.json',
+            { data: { resolved: 'false' } });
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/widgets/issue-filter.js'], function (IssueFilter) {
+            window.requestMessages().done(function () {
+              new IssueFilter({
+                el: '#issue-filter-widget',
+                query: 'resolved=false',
+                distributionAxis: 'reporters'
+              });
+            });
+          });
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('#issue-filter-widget > table');
+      })
+
+      .then(function () {
+        // check count
+        test.assertElementCount('tr', 4);
+
+        // check order and values
+        test.assertSelectorContains('tr:nth-child(1)', '6851');
+        test.assertSelectorContains('tr:nth-child(2)', '698');
+        test.assertSelectorContains('tr:nth-child(3)', '504');
+        test.assertSelectorContains('tr:nth-child(4)', '426');
+
+        // check links
+        test.assertExists('tr:nth-child(1) a[href="/issues/search#resolved=false"]');
+        test.assertExists('tr:nth-child(2) a[href="/issues/search#resolved=false|reporters=first.user"]');
+        test.assertExists('tr:nth-child(3) a[href="/issues/search#resolved=false|reporters=second.user"]');
+        test.assertExists('tr:nth-child(4) a[href="/issues/search#resolved=false|reporters=third.user"]');
+
+        // check labels
+        test.assertSelectorContains('tr:nth-child(2)', 'First User');
+        test.assertSelectorContains('tr:nth-child(3)', 'Second User');
+        test.assertSelectorContains('tr:nth-child(4)', 'Third User');
+      })
+
+      .then(function () {
+        lib.sendCoverage();
+      })
+
+      .run(function () {
+        test.done();
+      });
+});
+
+
 casper.test.begin(testName('Unresolved Issues By Language'), 15, function (test) {
   casper
       .start(lib.buildUrl('issue-filter-widget'), function () {
@@ -759,28 +819,28 @@ casper.test.begin(testName('Unresolved Issues By Date'), 18, function (test) {
 
         // check order and values
         test.assertSelectorContains('tr:nth-child(1)', '6851');
-        test.assertSelectorContains('tr:nth-child(2)', '72');
-        test.assertSelectorContains('tr:nth-child(3)', '64');
+        test.assertSelectorContains('tr:nth-child(2)', '1724');
+        test.assertSelectorContains('tr:nth-child(3)', '3729');
         test.assertSelectorContains('tr:nth-child(4)', '1262');
-        test.assertSelectorContains('tr:nth-child(5)', '3729');
-        test.assertSelectorContains('tr:nth-child(6)', '1724');
+        test.assertSelectorContains('tr:nth-child(5)', '64');
+        test.assertSelectorContains('tr:nth-child(6)', '72');
 
         // check links
         test.assertExists('tr:nth-child(1) a[href="/issues/search#resolved=false"]');
-        test.assertExists('tr:nth-child(2) a[href="/issues/search#resolved=false|createdAfter=2011-01-01|createdBefore=2011-12-31"]');
-        test.assertExists('tr:nth-child(3) a[href="/issues/search#resolved=false|createdAfter=2012-01-01|createdBefore=2012-12-31"]');
-        test.assertExists('tr:nth-child(4) a[href="/issues/search#resolved=false|createdAfter=2013-01-01|createdBefore=2013-12-31"]');
-        test.assertExists('tr:nth-child(5) a[href="/issues/search#resolved=false|createdAfter=2014-01-01|createdBefore=2014-12-31"]');
         // do not check createdBefore value, because it is set dynamically to *now*
-        test.assertExists('tr:nth-child(6) a[href^="/issues/search#resolved=false|createdAfter=2015-01-01|createdBefore="]');
+        test.assertExists('tr:nth-child(2) a[href^="/issues/search#resolved=false|createdAfter=2015-01-01|createdBefore="]');
+        test.assertExists('tr:nth-child(3) a[href="/issues/search#resolved=false|createdAfter=2014-01-01|createdBefore=2014-12-31"]');
+        test.assertExists('tr:nth-child(4) a[href="/issues/search#resolved=false|createdAfter=2013-01-01|createdBefore=2013-12-31"]');
+        test.assertExists('tr:nth-child(5) a[href="/issues/search#resolved=false|createdAfter=2012-01-01|createdBefore=2012-12-31"]');
+        test.assertExists('tr:nth-child(6) a[href="/issues/search#resolved=false|createdAfter=2011-01-01|createdBefore=2011-12-31"]');
 
         // check labels
-        test.assertSelectorContains('tr:nth-child(2)', 'January 1 2011 – December 31 2011');
-        test.assertSelectorContains('tr:nth-child(3)', 'January 1 2012 – December 31 2012');
-        test.assertSelectorContains('tr:nth-child(4)', 'January 1 2013 – December 31 2013');
-        test.assertSelectorContains('tr:nth-child(5)', 'January 1 2014 – December 31 2014');
         // do not check label fully, because it is set dynamically using *now*
-        test.assertSelectorContains('tr:nth-child(6)', 'January 1 2015 – ');
+        test.assertSelectorContains('tr:nth-child(2)', 'January 1 2015 – ');
+        test.assertSelectorContains('tr:nth-child(3)', 'January 1 2014 – December 31 2014');
+        test.assertSelectorContains('tr:nth-child(4)', 'January 1 2013 – December 31 2013');
+        test.assertSelectorContains('tr:nth-child(5)', 'January 1 2012 – December 31 2012');
+        test.assertSelectorContains('tr:nth-child(6)', 'January 1 2011 – December 31 2011');
       })
 
       .then(function () {
@@ -827,20 +887,20 @@ casper.test.begin(testName('Unresolved Issues on a Limited Period By Date'), 12,
 
         // check order and values
         test.assertSelectorContains('tr:nth-child(1)', '6851');
-        test.assertSelectorContains('tr:nth-child(2)', '49');
+        test.assertSelectorContains('tr:nth-child(2)', '47');
         test.assertSelectorContains('tr:nth-child(3)', '48');
-        test.assertSelectorContains('tr:nth-child(4)', '47');
+        test.assertSelectorContains('tr:nth-child(4)', '49');
 
         // check links
         test.assertExists('tr:nth-child(1) a[href="/issues/search#resolved=false|createdAfter=2015-02-16|createdBefore=2015-02-18"]');
-        test.assertExists('tr:nth-child(2) a[href="/issues/search#resolved=false|createdAfter=2015-02-16|createdBefore=2015-02-17"]');
+        test.assertExists('tr:nth-child(2) a[href="/issues/search#resolved=false|createdAfter=2015-02-18|createdBefore=2015-02-19"]');
         test.assertExists('tr:nth-child(3) a[href="/issues/search#resolved=false|createdAfter=2015-02-17|createdBefore=2015-02-18"]');
-        test.assertExists('tr:nth-child(4) a[href="/issues/search#resolved=false|createdAfter=2015-02-18|createdBefore=2015-02-19"]');
+        test.assertExists('tr:nth-child(4) a[href="/issues/search#resolved=false|createdAfter=2015-02-16|createdBefore=2015-02-17"]');
 
         // check labels
-        test.assertSelectorContains('tr:nth-child(2)', 'February 16 2015');
+        test.assertSelectorContains('tr:nth-child(2)', 'February 18 2015');
         test.assertSelectorContains('tr:nth-child(3)', 'February 17 2015');
-        test.assertSelectorContains('tr:nth-child(4)', 'February 18 2015');
+        test.assertSelectorContains('tr:nth-child(4)', 'February 16 2015');
       })
 
       .then(function () {

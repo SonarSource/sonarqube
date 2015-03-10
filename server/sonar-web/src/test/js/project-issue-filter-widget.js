@@ -125,28 +125,28 @@ casper.test.begin(testName('Unresolved Issues By Date'), 18, function (test) {
 
         // check order and values
         test.assertSelectorContains('tr:nth-child(1)', '6851');
-        test.assertSelectorContains('tr:nth-child(2)', '72');
-        test.assertSelectorContains('tr:nth-child(3)', '64');
+        test.assertSelectorContains('tr:nth-child(2)', '1724');
+        test.assertSelectorContains('tr:nth-child(3)', '3729');
         test.assertSelectorContains('tr:nth-child(4)', '1262');
-        test.assertSelectorContains('tr:nth-child(5)', '3729');
-        test.assertSelectorContains('tr:nth-child(6)', '1724');
+        test.assertSelectorContains('tr:nth-child(5)', '64');
+        test.assertSelectorContains('tr:nth-child(6)', '72');
 
         // check links
         test.assertExists('tr:nth-child(1) a[href="/component_issues/index?id=org.codehaus.sonar%3Asonar#resolved=false"]');
-        test.assertExists('tr:nth-child(2) a[href="/component_issues/index?id=org.codehaus.sonar%3Asonar#resolved=false|createdAfter=2011-01-01|createdBefore=2011-12-31"]');
-        test.assertExists('tr:nth-child(3) a[href="/component_issues/index?id=org.codehaus.sonar%3Asonar#resolved=false|createdAfter=2012-01-01|createdBefore=2012-12-31"]');
-        test.assertExists('tr:nth-child(4) a[href="/component_issues/index?id=org.codehaus.sonar%3Asonar#resolved=false|createdAfter=2013-01-01|createdBefore=2013-12-31"]');
-        test.assertExists('tr:nth-child(5) a[href="/component_issues/index?id=org.codehaus.sonar%3Asonar#resolved=false|createdAfter=2014-01-01|createdBefore=2014-12-31"]');
         // do not check createdBefore value, because it is set dynamically to *now*
-        test.assertExists('tr:nth-child(6) a[href^="/component_issues/index?id=org.codehaus.sonar%3Asonar#resolved=false|createdAfter=2015-01-01|createdBefore="]');
+        test.assertExists('tr:nth-child(2) a[href^="/component_issues/index?id=org.codehaus.sonar%3Asonar#resolved=false|createdAfter=2015-01-01|createdBefore="]');
+        test.assertExists('tr:nth-child(3) a[href="/component_issues/index?id=org.codehaus.sonar%3Asonar#resolved=false|createdAfter=2014-01-01|createdBefore=2014-12-31"]');
+        test.assertExists('tr:nth-child(4) a[href="/component_issues/index?id=org.codehaus.sonar%3Asonar#resolved=false|createdAfter=2013-01-01|createdBefore=2013-12-31"]');
+        test.assertExists('tr:nth-child(5) a[href="/component_issues/index?id=org.codehaus.sonar%3Asonar#resolved=false|createdAfter=2012-01-01|createdBefore=2012-12-31"]');
+        test.assertExists('tr:nth-child(6) a[href="/component_issues/index?id=org.codehaus.sonar%3Asonar#resolved=false|createdAfter=2011-01-01|createdBefore=2011-12-31"]');
 
         // check labels
-        test.assertSelectorContains('tr:nth-child(2)', 'January 1 2011 – December 31 2011');
-        test.assertSelectorContains('tr:nth-child(3)', 'January 1 2012 – December 31 2012');
-        test.assertSelectorContains('tr:nth-child(4)', 'January 1 2013 – December 31 2013');
-        test.assertSelectorContains('tr:nth-child(5)', 'January 1 2014 – December 31 2014');
         // do not check label fully, because it is set dynamically using *now*
-        test.assertSelectorContains('tr:nth-child(6)', 'January 1 2015 – ');
+        test.assertSelectorContains('tr:nth-child(2)', 'January 1 2015 – ');
+        test.assertSelectorContains('tr:nth-child(3)', 'January 1 2014 – December 31 2014');
+        test.assertSelectorContains('tr:nth-child(4)', 'January 1 2013 – December 31 2013');
+        test.assertSelectorContains('tr:nth-child(5)', 'January 1 2012 – December 31 2012');
+        test.assertSelectorContains('tr:nth-child(6)', 'January 1 2011 – December 31 2011');
       })
 
       .then(function () {
