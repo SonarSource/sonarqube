@@ -446,7 +446,7 @@ public class SearchActionMediumTest {
       .setStatus("OPEN")
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
       .setSeverity("MAJOR")
-      .setAssignee("john-bob.polop");
+      .setAssignee("john");
     IssueDto issue2 = IssueTesting.newDto(rule, file, project)
       .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
       .setIssueUpdateDate(DateUtils.parseDate("2017-12-04"))
@@ -466,7 +466,7 @@ public class SearchActionMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    MockUserSession.set().setLogin("john-bob.polop");
+    MockUserSession.set().setLogin("john");
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam("resolved", "false")
       .setParam("assignees", "__me__")
@@ -477,6 +477,8 @@ public class SearchActionMediumTest {
 
   @Test
   public void filter_by_assigned_to_me_unauthenticated() throws Exception {
+    MockUserSession.set();
+
     ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
     setDefaultProjectPermission(project);
     ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));

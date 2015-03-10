@@ -477,15 +477,7 @@ public class IssueIndex extends BaseIndex {
     BoolFilterBuilder facetFilter = assigneeFacetBuilder.getStickyFacetFilter(fieldName);
     FilterAggregationBuilder facetTopAggregation = assigneeFacetBuilder.buildTopFacetAggregation(fieldName, facetName, facetFilter, DEFAULT_FACET_SIZE);
 
-    Collection<String> assigneesEscaped = query.assignees();
-    if (assigneesEscaped != null) {
-      assigneesEscaped = Collections2.transform(assigneesEscaped, new Function<String, String>() {
-        @Override
-        public String apply(String input) {
-          return Pattern.quote(input);
-        }
-      });
-    }
+    Collection<String> assigneesEscaped = escapeValuesForFacetInclusion(query.assignees());
     if (!assigneesEscaped.isEmpty()) {
       facetTopAggregation = assigneeFacetBuilder.addSelectedItemsToFacet(fieldName, facetName, facetTopAggregation, assigneesEscaped);
     }
@@ -500,6 +492,15 @@ public class IssueIndex extends BaseIndex {
     return AggregationBuilders
       .global(facetName)
       .subAggregation(facetTopAggregation);
+  }
+
+  private Collection<String> escapeValuesForFacetInclusion(@Nullable Collection<String> values) {
+    return values == null ? Arrays.<String>asList() : Collections2.transform(values, new Function<String, String>() {
+        @Override
+        public String apply(String input) {
+          return Pattern.quote(input);
+        }
+      });
   }
 
   private void addAssignedToMeFacetIfNeeded(SearchRequestBuilder builder, SearchOptions options, IssueQuery query, Map<String, FilterBuilder> filters, QueryBuilder queryBuilder) {

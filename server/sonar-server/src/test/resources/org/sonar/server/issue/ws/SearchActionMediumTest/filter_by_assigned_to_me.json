@@ -9,7 +9,7 @@
       "severity": "MAJOR",
       "debt": "10min",
       "fUpdateAge": "less than a minute",
-      "assignee": "john-bob.polop"
+      "assignee": "john"
     }
   ],
   "facets": [
@@ -17,7 +17,7 @@
       "property": "assignees",
       "values": [
         {
-          "val": "john-bob.polop",
+          "val": "john",
           "count": 1
         },
         {
@@ -34,7 +34,7 @@
       "property": "assigned_to_me",
       "values": [
         {
-          "val": "john-bob.polop",
+          "val": "john",
           "count": 1
         }
       ]

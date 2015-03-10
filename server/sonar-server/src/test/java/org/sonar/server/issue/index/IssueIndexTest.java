@@ -56,7 +56,9 @@ import java.util.List;
 import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
+import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 
 public class IssueIndexTest {
 
@@ -550,6 +552,22 @@ public class IssueIndexTest {
     SearchResult<IssueDoc> result = index.search(IssueQuery.builder().build(), new SearchOptions().addFacets(newArrayList("assignees")));
     assertThat(result.getFacets().getNames()).containsOnly("assignees");
     assertThat(result.getFacets().get("assignees")).containsOnly(entry("steph", 1L), entry("simon", 2L), entry("", 1L));
+  }
+
+  @Test
+  public void facets_on_assignees_supports_dashes() throws Exception {
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+
+    indexIssues(
+      IssueTesting.newDoc("ISSUE1", file).setAssignee("j-b"),
+      IssueTesting.newDoc("ISSUE2", file).setAssignee("simon"),
+      IssueTesting.newDoc("ISSUE3", file).setAssignee("simon"),
+      IssueTesting.newDoc("ISSUE4", file).setAssignee(null));
+
+    SearchResult<IssueDoc> result = index.search(IssueQuery.builder().assignees(Arrays.asList("j-b")).build(), new SearchOptions().addFacets(newArrayList("assignees")));
+    assertThat(result.getFacets().getNames()).containsOnly("assignees");
+    assertThat(result.getFacets().get("assignees")).containsOnly(entry("j-b", 1L), entry("simon", 2L), entry("", 1L));
   }
 
   @Test
