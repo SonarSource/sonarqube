@@ -48,7 +48,7 @@
     $(this).each(function () {
       var options = _.defaults($(this).data(), defaults());
       _.extend(options, {
-        width: $(this).width(),
+        width: options.width || $(this).width(),
         endDate: moment(options.endDate)
       });
 
@@ -116,7 +116,7 @@
                   isSameDay = ending.diff(beginning, 'days') <= 1;
               return d.count + '<br>' + beginning.format('LL') + (isSameDay ? '' : (' – ' + ending.format('LL')));
             })
-            .attr('data-placement', 'right')
+            .attr('data-placement', 'bottom')
             .attr('data-toggle', 'tooltip');
 
         var maxValue = d3.max(data, function (d) {

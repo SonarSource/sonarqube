@@ -35,6 +35,7 @@ define [
       workspaceHeaderRegion: '.search-navigator-workspace-header'
       workspaceListRegion: '.search-navigator-workspace-list'
       workspaceComponentViewerRegion: '.issues-workspace-component-viewer'
+      workspaceHomeRegion: '.issues-workspace-home'
 
 
     onRender: ->
@@ -58,3 +59,11 @@ define [
     hideComponentViewer: ->
       $('.issues').removeClass 'issues-extended-view'
       $(window).scrollTop @scroll if @scroll?
+
+
+    showHomePage: ->
+      $('.issues').addClass 'issues-home-view'
+
+
+    hideHomePage: ->
+      $('.issues').removeClass 'issues-home-view'

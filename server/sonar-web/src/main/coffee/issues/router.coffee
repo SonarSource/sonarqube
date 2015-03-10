@@ -26,7 +26,7 @@ define [
 
   class extends Router
     routes:
-      '': 'emptyQuery'
+      '': 'home'
       ':query': 'index'
 
 
@@ -35,8 +35,11 @@ define [
       @listenTo options.app.state, 'change:filter', @updateRoute
 
 
-    emptyQuery: ->
-      @navigate 'resolved=false', { trigger: true, replace: true }
+    home: ->
+      if @options.app.state.get 'isContext'
+        @navigate 'resolved=false', { trigger: true, replace: true }
+      else
+        @options.app.controller.showHomePage()
 
 
     index: (query) ->

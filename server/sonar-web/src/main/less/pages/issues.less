@@ -29,7 +29,8 @@
   &.sticky {
 
     .issues-workspace-list,
-    .issues-workspace-component-viewer {
+    .issues-workspace-component-viewer,
+    .issues-workspace-home {
       padding-top: 22px + 5px + 5px + 1px + 10px;
     }
 
@@ -152,4 +153,21 @@
   background-repeat: repeat-x;
   background-size: 4px;
   background-position: bottom;
+}
+
+.issues-home-view {
+  .search-navigator-workspace-list,
+  .issues-workspace-component-viewer {
+    display: none;
+  }
+}
+
+.issues-workspace-home {
+  width: ~"calc(100vw - @{sideWidth})";
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 10px;
+  padding-right: 10px;
+  .box-sizing(border-box);
 }
