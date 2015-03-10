@@ -2,7 +2,7 @@
   <h1 class="page-title"><%= h @dashboard.name -%></h1>
 
 
-  <div class="page-actions operations noprint">
+  <div class="page-actions noprint">
     <% if @snapshot %>
       <% if @snapshot.project_snapshot.periods? %>
         <% period_options = period_select_option_tags(@snapshot, 'small') %>

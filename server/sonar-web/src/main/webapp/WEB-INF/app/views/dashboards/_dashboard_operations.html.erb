@@ -1,4 +1,4 @@
-<td class="thin nowrap operations">
+<td class="thin nowrap text-right">
   <% resource_id = @resource.id if @resource %>
   <% if dashboard.editable_by?(current_user) %>
     <%= link_to message('dashboard.configure_widgets'), {:controller => :dashboard, :action => :configure, :did => dashboard.id, :id => (resource_id unless dashboard.global?)},

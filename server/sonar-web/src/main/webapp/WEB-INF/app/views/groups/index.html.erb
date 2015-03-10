@@ -24,7 +24,7 @@
             <th class="text-left sortfirstasc"><a>Name</a></th>
             <th class="text-left"><a>Description</a></th>
             <th class="text-left"><a>Members</a></th>
-            <th class="operations nosort" nowrap><a>Operations</a></th>
+            <th class="text-right nosort" nowrap><a>Operations</a></th>
           </tr>
           </thead>
           <tbody>
@@ -42,7 +42,7 @@
                 <span id="count-<%= group.name.parameterize -%>"><%= group.users.count -%></span>
                 (<a id="select-<%= group.name.parameterize -%>" class="open-modal link-action" href="<%= ApplicationController.root_context -%>/groups/select_user/<%= group.id -%>">select</a>)
               </td>
-              <td class="operations">
+              <td class="text-right">
                 <a id='edit-<%= group.name.parameterize -%>' class='open-modal link-action' href="<%= ApplicationController.root_context -%>/groups/edit_form/<%= group.id -%>">Edit</a>
                 &nbsp;
                 <%= link_to_action message('delete'), "#{ApplicationController.root_context}/groups/delete/#{group.id}",
