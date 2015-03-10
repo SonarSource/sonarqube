@@ -49,13 +49,13 @@ define(['common/modals'], function (ModalView) {
       var container = this.ui.messagesContainer.empty();
       if (_.isArray(errors)) {
         errors.forEach(function (error) {
-          var html = '<div class="message-error">' + error.msg + '</div>';
+          var html = '<div class="alert alert-danger">' + error.msg + '</div>';
           container.append(html);
         });
       }
       if (_.isArray(warnings)) {
         warnings.forEach(function (warn) {
-          var html = '<div class="message-alert">' + warn.msg + '</div>';
+          var html = '<div class="alert alert-warning">' + warn.msg + '</div>';
           container.append(html);
         });
       }

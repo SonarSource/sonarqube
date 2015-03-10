@@ -101,8 +101,7 @@ define([
     },
 
     sendRequest: function (action, options) {
-      this.$('.modal-error').hide();
-      this.$('.modal-warning').hide();
+      this.$('.alert').addClass('hidden');
       var that = this,
           url = baseUrl + '/api/rules/' + action;
       return $.post(url, options).done(function (r) {
@@ -114,7 +113,7 @@ define([
       }).fail(function (jqXHR) {
         if (jqXHR.status === 409) {
           that.existingRule = jqXHR.responseJSON.rule;
-          that.$('.modal-warning').show();
+          that.$('.alert-warning').removeClass('hidden');
         } else {
           that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
         }

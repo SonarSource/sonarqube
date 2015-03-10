@@ -20,33 +20,32 @@
 @import (reference) "../variables";
 @import (reference) "../mixins";
 
-.message-notice {
+
+// Base
+
+.alert {
   display: block;
   padding: 5px 8px;
-  border: 2px solid @blue;
+  border: 2px solid @secondFontColor;
 }
 
-.message-alert {
-  display: block;
-  padding: 5px 8px;
-  border: 2px solid @orange;
-}
-
-.message-error {
-  display: block;
-  padding: 5px 8px;
-  background-color: @red;
-  color: #fff;
-}
-
-.message-notice + .message-notice,
-.message-notice + .message-alert,
-.message-notice + .message-error,
-.message-alert + .message-notice,
-.message-alert + .message-alert,
-.message-alert + .message-error,
-.message-error + .message-notice,
-.message-error + .message-alert,
-.message-error + .message-error {
+.alert + .alert:not(.hidden):not(:empty) {
   margin-top: 5px;
 }
+
+.alert:empty { display: none; }
+
+
+// Color
+
+.alert-emphasis-variant(@color) {
+  background-color: @white;
+  border-color: @color;
+  color: @color;
+}
+.alert-danger  { .alert-emphasis-variant(@red); }
+.alert-warning { .alert-emphasis-variant(@orange); }
+.alert-info    { .alert-emphasis-variant(@blue); }
+.alert-success { .alert-emphasis-variant(@green); }
+
+
