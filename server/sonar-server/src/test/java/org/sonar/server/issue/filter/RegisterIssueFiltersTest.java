@@ -66,6 +66,7 @@ public class RegisterIssueFiltersTest {
     Date now = DateUtils.parseDateTime("2011-04-25T01:15:00+0200");
     when(system.newDate()).thenReturn(now);
 
+    db.prepareDbUnit(getClass(), "empty.xml");
     taskUnderTest.start();
     taskUnderTest.stop();
     db.assertDbUnit(getClass(), "register-result.xml", "issue_filters", "loaded_templates");
