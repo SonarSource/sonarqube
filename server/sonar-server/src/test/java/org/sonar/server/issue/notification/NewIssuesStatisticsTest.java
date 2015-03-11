@@ -52,6 +52,14 @@ public class NewIssuesStatisticsTest {
     assertThat(countDistribution(METRIC.TAGS, "owasp")).isEqualTo(3);
     assertThat(countDistribution(METRIC.TAGS, "wrong-tag")).isEqualTo(0);
     assertThat(sut.globalStatistics().debt().toMinutes()).isEqualTo(15L);
+    assertThat(sut.globalStatistics().hasIssues()).isTrue();
+    assertThat(sut.hasIssues()).isTrue();
+    assertThat(sut.assigneesStatistics().get("maynard").hasIssues()).isTrue();
+  }
+
+  @Test
+  public void do_not_have_issues_when_no_issue_added() throws Exception {
+    assertThat(sut.globalStatistics().hasIssues()).isFalse();
   }
 
   private int countDistribution(METRIC metric, String label) {
