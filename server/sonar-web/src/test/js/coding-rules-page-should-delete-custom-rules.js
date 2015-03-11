@@ -31,7 +31,7 @@ casper.test.begin('coding-rules-page-should-delete-custom-rules', 2, function (t
       .start(lib.buildUrl('coding-rules'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/rules/app', 'app.json');
         lib.mockRequestFromFile('/api/rules/search', 'search-custom-rules.json',
             { data: { template_key: 'squid:ArchitecturalConstraint' } });

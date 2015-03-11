@@ -33,7 +33,7 @@ casper.test.begin(testName('Unresolved Issues By Severity'), 13, function (test)
       .start(lib.buildUrl('issue-filter-widget'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/issues/search', 'unresolved-issues-by-severity.json',
             { data: { resolved: 'false' } });
       })
@@ -92,7 +92,7 @@ casper.test.begin(testName('Red Issues By Severity'), 9, function (test) {
       .start(lib.buildUrl('issue-filter-widget'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/issues/search', 'red-issues-by-severity.json',
             { data: { resolved: 'false', severities: 'BLOCKER,CRITICAL,MAJOR' } });
       })
@@ -147,7 +147,7 @@ casper.test.begin(testName('All Issues By Status'), 9, function (test) {
       .start(lib.buildUrl('issue-filter-widget'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/issues/search', 'all-issues-by-status.json');
       })
 
@@ -201,7 +201,7 @@ casper.test.begin(testName('All Issues By Resolution'), 10, function (test) {
       .start(lib.buildUrl('issue-filter-widget'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/issues/search', 'all-issues-by-resolution.json');
       })
 
@@ -256,7 +256,7 @@ casper.test.begin(testName('Unresolved Issues By Resolution'), 5, function (test
       .start(lib.buildUrl('issue-filter-widget'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/issues/search', 'unresolved-issues-by-resolution.json',
             { data: { resolved: 'false' } });
       })
@@ -307,7 +307,7 @@ casper.test.begin(testName('Unresolved Issues By Rule'), 15, function (test) {
       .start(lib.buildUrl('issue-filter-widget'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/issues/search', 'unresolved-issues-by-rule.json',
             { data: { resolved: 'false' } });
       })
@@ -370,7 +370,7 @@ casper.test.begin(testName('Unresolved Issues By Project'), 15, function (test) 
       .start(lib.buildUrl('issue-filter-widget'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/issues/search', 'unresolved-issues-by-project.json',
             { data: { resolved: 'false' } });
       })
@@ -433,7 +433,7 @@ casper.test.begin(testName('Unresolved Issues By Assignee'), 15, function (test)
       .start(lib.buildUrl('issue-filter-widget'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/issues/search', 'unresolved-issues-by-assignee.json',
             { data: { resolved: 'false' } });
       })
@@ -496,7 +496,7 @@ casper.test.begin(testName('Unresolved Unassigned Issues By Assignee'), 6, funct
       .start(lib.buildUrl('issue-filter-widget'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/issues/search', 'unresolved-unassigned-issues-by-assignee.json',
             { data: { resolved: 'false', assigned: 'false' } });
       })
@@ -550,7 +550,7 @@ casper.test.begin(testName('Unresolved Issues By Reporter'), 12, function (test)
       .start(lib.buildUrl('issue-filter-widget'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/issues/search', 'unresolved-issues-by-reporter.json',
             { data: { resolved: 'false' } });
       })
@@ -610,7 +610,7 @@ casper.test.begin(testName('Unresolved Issues By Language'), 15, function (test)
       .start(lib.buildUrl('issue-filter-widget'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/issues/search', 'unresolved-issues-by-language.json',
             { data: { resolved: 'false' } });
       })
@@ -673,7 +673,7 @@ casper.test.begin(testName('Unresolved Issues By Action Plan'), 15, function (te
       .start(lib.buildUrl('issue-filter-widget'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/issues/search', 'unresolved-issues-by-action-plan.json',
             { data: { resolved: 'false' } });
       })
@@ -736,7 +736,7 @@ casper.test.begin(testName('Unresolved Unplanned Issues By Action Plan'), 6, fun
       .start(lib.buildUrl('issue-filter-widget'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/issues/search', 'unresolved-unplanned-issues-by-action-plan.json',
             { data: { resolved: 'false', planned: 'false' } });
       })
@@ -790,7 +790,7 @@ casper.test.begin(testName('Unresolved Issues By Date'), 18, function (test) {
       .start(lib.buildUrl('issue-filter-widget'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/issues/search', 'unresolved-issues-by-date.json',
             { data: { resolved: 'false' } });
       })
@@ -858,7 +858,7 @@ casper.test.begin(testName('Unresolved Issues on a Limited Period By Date'), 12,
       .start(lib.buildUrl('issue-filter-widget'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/issues/search', 'unresolved-issues-by-date-limited.json',
             { data: { resolved: 'false', createdAfter: '2015-02-16', createdBefore: '2015-02-18' } });
       })

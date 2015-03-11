@@ -32,7 +32,7 @@ casper.test.begin(testName('source-viewer-should-not-show-source-if-no-permissio
       .start(lib.buildUrl('source-viewer'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/components/app', 'api-components-app.json');
         lib.mockRequest('/api/sources/lines', '{}', { status: 403 });
         lib.mockRequestFromFile('/api/issues/search', 'api-issues-search.json');

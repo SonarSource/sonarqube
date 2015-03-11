@@ -32,7 +32,7 @@ casper.test.begin(testName('source-viewer-create-manual-issue'), function (test)
       .start(lib.buildUrl('source-viewer'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/components/app', 'app.json');
         lib.mockRequestFromFile('/api/sources/lines', 'lines.json');
         lib.mockRequestFromFile('/api/issues/search', 'issues.json');

@@ -53,6 +53,13 @@ app.use('/js', express.static(path.join(staticPath, 'js')));
 app.use('/css', express.static(path.join(staticPath, 'css')));
 
 
+// API
+app.get('/api/l10n/index', function (req, res) {
+  res.setHeader('Content-Type', 'application/json');
+  res.end('{}');
+});
+
+
 // Pages
 app.get('/pages/:page', function (req, res) {
   res.render(req.param('page'));

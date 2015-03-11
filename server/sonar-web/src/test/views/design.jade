@@ -1,9 +1,8 @@
 extends layouts/main
 
 block header
-  script(src='../js/require.js')
+  script(src='/js/require.js')
   script.
-    requirejs.config({ baseUrl: "/js" });
     window.waitForMocks('/js/design/app.js');
 
 block body

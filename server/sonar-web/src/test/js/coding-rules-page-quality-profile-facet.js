@@ -31,7 +31,7 @@ casper.test.begin('coding-rules-page-quality-profile-facet', 6, function (test) 
       .start(lib.buildUrl('coding-rules'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/rules/app', 'app.json');
         lib.mockRequestFromFile('/api/rules/search', 'search-qprofile-active.json',
             { data: { activation: true } });

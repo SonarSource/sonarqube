@@ -33,7 +33,7 @@ casper.test.begin(testName('Base'), function (test) {
       .start(lib.buildUrl('source-viewer'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/components/app', 'app.json');
         lib.mockRequestFromFile('/api/sources/lines', 'lines.json');
         lib.mockRequestFromFile('/api/issues/search', 'issues.json');
@@ -80,7 +80,7 @@ casper.test.begin(testName('Decoration'), function (test) {
       .start(lib.buildUrl('source-viewer'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/components/app', 'app.json');
         lib.mockRequestFromFile('/api/sources/lines', 'lines.json');
         lib.mockRequestFromFile('/api/issues/search', 'issues.json');
@@ -129,7 +129,7 @@ casper.test.begin(testName('Test File'), function (test) {
       .start(lib.buildUrl('source-viewer'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/components/app', 'tests/app.json');
         lib.mockRequestFromFile('/api/sources/lines', 'tests/lines.json');
         lib.mockRequestFromFile('/api/issues/search', 'issues.json');
