@@ -55,7 +55,7 @@ casper.test.begin('coding-rules-page-no-available-profiles-for-activation', 2, f
       })
 
       .then(function () {
-        test.assertExists('.modal .message-notice');
+        test.assertExists('.modal .alert');
       })
 
       .then(function () {
