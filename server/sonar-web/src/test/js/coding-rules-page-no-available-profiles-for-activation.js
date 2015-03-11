@@ -39,6 +39,12 @@ casper.test.begin('coding-rules-page-no-available-profiles-for-activation', 2, f
       })
 
       .then(function () {
+        casper.evaluate(function () {
+          require(['/js/coding-rules/app.js']);
+        });
+      })
+
+      .then(function () {
         casper.waitForSelector('.coding-rule.selected', function () {
           casper.click('.coding-rule.selected .js-rule');
         });

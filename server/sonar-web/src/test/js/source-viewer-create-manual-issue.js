@@ -42,6 +42,12 @@ casper.test.begin(testName('source-viewer-create-manual-issue'), function (test)
       })
 
       .then(function () {
+        casper.evaluate(function () {
+          require(['/js/source-viewer/app.js']);
+        });
+      })
+
+      .then(function () {
         casper.waitForSelector('.source-line-number[data-line-number="3"]');
       })
 

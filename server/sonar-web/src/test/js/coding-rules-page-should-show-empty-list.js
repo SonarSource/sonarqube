@@ -37,6 +37,12 @@ casper.test.begin('coding-rules-page-should-show-empty-list', 3, function (test)
       })
 
       .then(function () {
+        casper.evaluate(function () {
+          require(['/js/coding-rules/app.js']);
+        });
+      })
+
+      .then(function () {
         casper.waitForSelector('.search-navigator-facet-box');
       })
 

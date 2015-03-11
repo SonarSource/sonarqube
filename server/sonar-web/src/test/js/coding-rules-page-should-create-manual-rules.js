@@ -40,6 +40,12 @@ casper.test.begin('coding-rules-page-should-delete-manual-rules', 3, function (t
       })
 
       .then(function () {
+        casper.evaluate(function () {
+          require(['/js/coding-rules/app.js']);
+        });
+      })
+
+      .then(function () {
         casper.waitForSelector('.js-create-manual-rule', function () {
           casper.click('.js-create-manual-rule');
         });

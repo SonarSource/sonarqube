@@ -40,6 +40,12 @@ casper.test.begin(testName('Mark as Favorite'), function (test) {
       })
 
       .then(function () {
+        casper.evaluate(function () {
+          require(['/js/source-viewer/app.js']);
+        });
+      })
+
+      .then(function () {
         casper.waitForSelector('.source-line');
       })
 
@@ -74,6 +80,12 @@ casper.test.begin(testName('Don\'t Show Favorite If Not Logged In'), function (t
         lib.mockRequestFromFile('/api/components/app', 'app-not-logged-in.json');
         lib.mockRequestFromFile('/api/sources/lines', 'lines.json');
         lib.mockRequestFromFile('/api/issues/search', 'issues.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/source-viewer/app.js']);
+        });
       })
 
       .then(function () {

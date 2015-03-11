@@ -37,6 +37,12 @@ casper.test.begin('coding-rules-page-should-show-deprecated-label', 1, function 
       })
 
       .then(function () {
+        casper.evaluate(function () {
+          require(['/js/coding-rules/app.js']);
+        });
+      })
+
+      .then(function () {
         casper.waitForSelector('.coding-rule.selected');
       })
 

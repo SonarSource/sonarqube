@@ -40,6 +40,12 @@ casper.test.begin('coding-rules-page-should-activate-profile', 5, function (test
       })
 
       .then(function () {
+        casper.evaluate(function () {
+          require(['/js/coding-rules/app.js']);
+        });
+      })
+
+      .then(function () {
         casper.waitForSelector('.coding-rule.selected', function () {
           casper.click('.coding-rule.selected .js-rule');
         });

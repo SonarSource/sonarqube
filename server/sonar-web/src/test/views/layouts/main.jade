@@ -45,6 +45,10 @@ html
     script(src='/js/dashboard.js')
     script(src='/js/recent-history.js')
 
+    script(src='/js/require.js')
+    script.
+      requirejs.config({ baseUrl: '/js' });
+
     script(src='/js/third-party/jquery.mockjax.js')
     script.
       var baseUrl = '';
@@ -52,10 +56,7 @@ html
       window.suppressTranslationWarnings = true;
       jQuery.mockjaxSettings.contentType = 'text/json';
       jQuery.mockjaxSettings.responseTime = 50;
-      $j(document).ready(function () { $j('.open-modal').modal(); });
-      window.waitForMocks = function (app) {
-        require([app]);
-      };
+      jQuery(document).ready(function () { $j('.open-modal').modal(); });
     block header
   body
     #body

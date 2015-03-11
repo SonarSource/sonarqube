@@ -39,7 +39,12 @@ casper.test.begin(testName('source-viewer-should-not-show-source-if-no-permissio
       })
 
       .then(function () {
-        lib.capture();
+        casper.evaluate(function () {
+          require(['/js/source-viewer/app.js']);
+        });
+      })
+
+      .then(function () {
         casper.waitForSelector('.alert', function () {
           test.assertDoesntExist('.source-line');
         });

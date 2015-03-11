@@ -39,6 +39,12 @@ casper.test.begin('coding-rules-page-available-since', 2, function (test) {
       })
 
       .then(function () {
+        casper.evaluate(function () {
+          require(['/js/coding-rules/app.js']);
+        });
+      })
+
+      .then(function () {
         casper.waitForSelector('.coding-rule');
       })
 

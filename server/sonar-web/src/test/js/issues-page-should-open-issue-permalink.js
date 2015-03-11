@@ -44,6 +44,12 @@ casper.test.begin('issues-page-should-open-issue-permalink', 3, function (test) 
       })
 
       .then(function () {
+        casper.evaluate(function () {
+          require(['/js/issues/app-new.js']);
+        });
+      })
+
+      .then(function () {
         casper.waitForSelector('.source-line', function () {
           test.assertSelectorContains('.source-viewer', 'public void executeOn(Project project, SensorContext context');
           test.assertElementCount('.issue', 1);

@@ -40,6 +40,12 @@ casper.test.begin(testName('SCM'), 4, function (test) {
       })
 
       .then(function () {
+        casper.evaluate(function () {
+          require(['/js/source-viewer/app.js']);
+        });
+      })
+
+      .then(function () {
         casper.waitForSelector('.source-line');
       })
 

@@ -40,6 +40,12 @@ casper.test.begin(testName('Base'), function (test) {
       })
 
       .then(function () {
+        casper.evaluate(function () {
+          require(['/js/source-viewer/app.js']);
+        });
+      })
+
+      .then(function () {
         casper.waitForSelector('.source-line', function () {
           // Check header elements
           test.assertExists('.source-viewer-header');
@@ -84,6 +90,12 @@ casper.test.begin(testName('Decoration'), function (test) {
         lib.mockRequestFromFile('/api/components/app', 'app.json');
         lib.mockRequestFromFile('/api/sources/lines', 'lines.json');
         lib.mockRequestFromFile('/api/issues/search', 'issues.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/source-viewer/app.js']);
+        });
       })
 
       .then(function () {
@@ -133,6 +145,12 @@ casper.test.begin(testName('Test File'), function (test) {
         lib.mockRequestFromFile('/api/components/app', 'tests/app.json');
         lib.mockRequestFromFile('/api/sources/lines', 'tests/lines.json');
         lib.mockRequestFromFile('/api/issues/search', 'issues.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/source-viewer/app.js']);
+        });
       })
 
       .then(function () {

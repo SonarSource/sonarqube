@@ -36,6 +36,12 @@ casper.test.begin(testName('Base'), 9, function (test) {
       })
 
       .then(function () {
+        casper.evaluate(function () {
+          require(['/js/design/app.js']);
+        });
+      })
+
+      .then(function () {
         casper.waitWhileSelector('.spinner');
       })
 
@@ -78,6 +84,12 @@ casper.test.begin(testName('Highlight'), 13, function (test) {
 
         lib.mockRequestFromFile('/api/resources', 'resources.json');
         lib.mockRequestFromFile('/api/dependencies', 'dependencies.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/design/app.js']);
+        });
       })
 
       .then(function () {

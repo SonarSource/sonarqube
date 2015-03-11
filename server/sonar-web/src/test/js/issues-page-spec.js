@@ -39,6 +39,12 @@ casper.test.begin(testName('Base'), function (test) {
       })
 
       .then(function () {
+        casper.evaluate(function () {
+          require(['/js/issues/app-new.js']);
+        });
+      })
+
+      .then(function () {
         casper.waitForSelector('.facet[data-value=BLOCKER]', function () {
           // Facets
           test.assertExists('.facet[data-value=BLOCKER]');
@@ -97,6 +103,12 @@ casper.test.begin(testName('Issue Box', 'Check Elements'), function (test) {
       })
 
       .then(function () {
+        casper.evaluate(function () {
+          require(['/js/issues/app-new.js']);
+        });
+      })
+
+      .then(function () {
         casper.waitForSelector('.issue.selected');
       })
 
@@ -138,6 +150,12 @@ casper.test.begin(testName('Issue Box', 'Tags'), function (test) {
         lib.mockRequestFromFile('/api/issues/search', 'search-with-tags.json');
         lib.mockRequestFromFile('/api/issues/tags', 'tags.json');
         lib.mockRequestFromFile('/api/issues/set_tags', 'tags-modified.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/issues/app-new.js']);
+        });
       })
 
       .then(function () {
@@ -186,6 +204,12 @@ casper.test.begin(testName('Issue Box', 'Transitions'), function (test) {
       })
 
       .then(function () {
+        casper.evaluate(function () {
+          require(['/js/issues/app-new.js']);
+        });
+      })
+
+      .then(function () {
         casper.waitForSelector('.issue.selected .js-issue-transition');
       })
 
@@ -226,6 +250,12 @@ casper.test.begin(testName('File-Level Issues'), function (test) {
       })
 
       .then(function () {
+        casper.evaluate(function () {
+          require(['/js/issues/app-new.js']);
+        });
+      })
+
+      .then(function () {
         casper.waitForSelector(issueSelector, function () {
           casper.click(issueSelector + ' .js-issue-navigate');
         });
@@ -256,6 +286,12 @@ casper.test.begin(testName('Severity Facet'), function (test) {
         lib.mockRequestFromFile('/api/issue_filters/app', 'app.json');
         lib.mockRequestFromFile('/api/issues/search', 'search-reopened.json', { data: { severities: 'BLOCKER' } });
         lib.mockRequestFromFile('/api/issues/search', 'search.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/issues/app-new.js']);
+        });
       })
 
       .then(function () {
@@ -290,6 +326,12 @@ casper.test.begin(testName('Bulk Change'), function (test) {
         lib.mockRequestFromFile('/api/issues/search', 'search.json');
         lib.mockRequest('/issues/bulk_change_form?resolved=false',
             '<div id="bulk-change-form">bulk change form</div>', { contentType: 'text/plain' });
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/issues/app-new.js']);
+        });
       })
 
       .then(function () {

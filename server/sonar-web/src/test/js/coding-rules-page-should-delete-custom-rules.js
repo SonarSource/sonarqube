@@ -42,6 +42,12 @@ casper.test.begin('coding-rules-page-should-delete-custom-rules', 2, function (t
       })
 
       .then(function () {
+        casper.evaluate(function () {
+          require(['/js/coding-rules/app.js']);
+        });
+      })
+
+      .then(function () {
         casper.waitForSelector('.coding-rule.selected', function () {
           casper.click('.coding-rule.selected .js-rule');
         });
