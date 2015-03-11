@@ -155,6 +155,7 @@ class SearchSettings {
       .put("indices.store.throttle.type", "none");
 
     if ("spinning".equals(props.value(ProcessConstants.DATA_DISK_TYPE))) {
+      LOGGER.info("Elasticsearch configured for spinning disk");
       builder.put("index.merge.scheduler.max_thread_count", "1");
     }
   }
