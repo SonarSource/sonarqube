@@ -35,6 +35,7 @@ import org.sonar.server.user.index.UserIndex;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import static org.sonar.server.issue.notification.NewIssuesEmailTemplate.*;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.METRIC.SEVERITY;
@@ -120,7 +121,7 @@ public class NewIssuesNotification extends Notification {
   }
 
   public NewIssuesNotification setDebt(Duration debt) {
-    setFieldValue(METRIC.DEBT + COUNT, durations.encode(debt));
+    setFieldValue(METRIC.DEBT + COUNT, durations.format(Locale.ENGLISH, debt));
     return this;
   }
 

@@ -27,7 +27,6 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.i18n.I18n;
 
 import javax.annotation.CheckForNull;
-
 import java.util.Locale;
 
 /**
@@ -82,8 +81,21 @@ public class Durations implements BatchComponent, ServerComponent {
    * Return the formatted work duration.
    * <br>
    * Example : format(Locale.FRENCH, Duration.encode("9d 10h"), DurationFormat.SHORT) -> 10j 2h (if sonar.technicalDebt.hoursInDay property is set to 8)
+   *
+   * @deprecated since 5.2 replaced by format(java.util.Locale, org.sonar.api.utils.Duration)
    */
+  @Deprecated
   public String format(Locale locale, Duration duration, DurationFormat format) {
+    return format(locale, duration);
+  }
+
+  /**
+   * Return the formatted work duration.
+   * <br>
+   * Example : format(Locale.FRENCH, Duration.encode("9d 10h"), DurationFormat.SHORT) -> 10j 2h (if sonar.technicalDebt.hoursInDay property is set to 8)
+   *
+   */
+  public String format(Locale locale, Duration duration) {
     Long durationInMinutes = duration.toMinutes();
     if (durationInMinutes == 0) {
       return "0";

@@ -118,8 +118,7 @@ public class NewIssuesStatistics {
     }
 
     public boolean hasIssues() {
-      Multiset<String> severityStats = distributions.get(SEVERITY);
-      return severityStats != null && severityStats.size() > 0;
+      return !distributionFor(SEVERITY).isEmpty();
     }
 
     public List<Multiset.Entry<String>> statsForMetric(METRIC metric) {
