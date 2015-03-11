@@ -4,39 +4,43 @@
 package org.sonar.server.source.db;
 
 public final class FileSourceDb {
-  private FileSourceDb() {}
-  public static void registerAllExtensions(
-      com.google.protobuf.ExtensionRegistry registry) {
+  private FileSourceDb() {
   }
-  public interface LineOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
 
-    // optional int32 line = 1;
+  public static void registerAllExtensions(
+    com.google.protobuf.ExtensionRegistry registry) {
+  }
+
+  public interface LineOrBuilder extends
+    // @@protoc_insertion_point(interface_extends:org.sonar.server.source.db.Line)
+    com.google.protobuf.MessageOrBuilder {
+
     /**
      * <code>optional int32 line = 1;</code>
      */
     boolean hasLine();
+
     /**
      * <code>optional int32 line = 1;</code>
      */
     int getLine();
 
-    // optional string source = 2;
     /**
      * <code>optional string source = 2;</code>
      */
     boolean hasSource();
+
     /**
      * <code>optional string source = 2;</code>
      */
     java.lang.String getSource();
+
     /**
      * <code>optional string source = 2;</code>
      */
     com.google.protobuf.ByteString
-        getSourceBytes();
+      getSourceBytes();
 
-    // optional string scm_revision = 3;
     /**
      * <code>optional string scm_revision = 3;</code>
      *
@@ -45,6 +49,7 @@ public final class FileSourceDb {
      * </pre>
      */
     boolean hasScmRevision();
+
     /**
      * <code>optional string scm_revision = 3;</code>
      *
@@ -53,6 +58,7 @@ public final class FileSourceDb {
      * </pre>
      */
     java.lang.String getScmRevision();
+
     /**
      * <code>optional string scm_revision = 3;</code>
      *
@@ -61,34 +67,34 @@ public final class FileSourceDb {
      * </pre>
      */
     com.google.protobuf.ByteString
-        getScmRevisionBytes();
+      getScmRevisionBytes();
 
-    // optional string scm_author = 4;
     /**
      * <code>optional string scm_author = 4;</code>
      */
     boolean hasScmAuthor();
+
     /**
      * <code>optional string scm_author = 4;</code>
      */
     java.lang.String getScmAuthor();
+
     /**
      * <code>optional string scm_author = 4;</code>
      */
     com.google.protobuf.ByteString
-        getScmAuthorBytes();
+      getScmAuthorBytes();
 
-    // optional int64 scm_date = 5;
     /**
      * <code>optional int64 scm_date = 5;</code>
      */
     boolean hasScmDate();
+
     /**
      * <code>optional int64 scm_date = 5;</code>
      */
     long getScmDate();
 
-    // optional int32 ut_line_hits = 6;
     /**
      * <code>optional int32 ut_line_hits = 6;</code>
      *
@@ -97,6 +103,7 @@ public final class FileSourceDb {
      * </pre>
      */
     boolean hasUtLineHits();
+
     /**
      * <code>optional int32 ut_line_hits = 6;</code>
      *
@@ -106,27 +113,26 @@ public final class FileSourceDb {
      */
     int getUtLineHits();
 
-    // optional int32 ut_conditions = 7;
     /**
      * <code>optional int32 ut_conditions = 7;</code>
      */
     boolean hasUtConditions();
+
     /**
      * <code>optional int32 ut_conditions = 7;</code>
      */
     int getUtConditions();
 
-    // optional int32 ut_covered_conditions = 8;
     /**
      * <code>optional int32 ut_covered_conditions = 8;</code>
      */
     boolean hasUtCoveredConditions();
+
     /**
      * <code>optional int32 ut_covered_conditions = 8;</code>
      */
     int getUtCoveredConditions();
 
-    // optional int32 it_line_hits = 9;
     /**
      * <code>optional int32 it_line_hits = 9;</code>
      *
@@ -135,6 +141,7 @@ public final class FileSourceDb {
      * </pre>
      */
     boolean hasItLineHits();
+
     /**
      * <code>optional int32 it_line_hits = 9;</code>
      *
@@ -144,27 +151,26 @@ public final class FileSourceDb {
      */
     int getItLineHits();
 
-    // optional int32 it_conditions = 10;
     /**
      * <code>optional int32 it_conditions = 10;</code>
      */
     boolean hasItConditions();
+
     /**
      * <code>optional int32 it_conditions = 10;</code>
      */
     int getItConditions();
 
-    // optional int32 it_covered_conditions = 11;
     /**
      * <code>optional int32 it_covered_conditions = 11;</code>
      */
     boolean hasItCoveredConditions();
+
     /**
      * <code>optional int32 it_covered_conditions = 11;</code>
      */
     int getItCoveredConditions();
 
-    // optional int32 overall_line_hits = 12;
     /**
      * <code>optional int32 overall_line_hits = 12;</code>
      *
@@ -173,6 +179,7 @@ public final class FileSourceDb {
      * </pre>
      */
     boolean hasOverallLineHits();
+
     /**
      * <code>optional int32 overall_line_hits = 12;</code>
      *
@@ -182,65 +189,68 @@ public final class FileSourceDb {
      */
     int getOverallLineHits();
 
-    // optional int32 overall_conditions = 13;
     /**
      * <code>optional int32 overall_conditions = 13;</code>
      */
     boolean hasOverallConditions();
+
     /**
      * <code>optional int32 overall_conditions = 13;</code>
      */
     int getOverallConditions();
 
-    // optional int32 overall_covered_conditions = 14;
     /**
      * <code>optional int32 overall_covered_conditions = 14;</code>
      */
     boolean hasOverallCoveredConditions();
+
     /**
      * <code>optional int32 overall_covered_conditions = 14;</code>
      */
     int getOverallCoveredConditions();
 
-    // optional string highlighting = 15;
     /**
      * <code>optional string highlighting = 15;</code>
      */
     boolean hasHighlighting();
+
     /**
      * <code>optional string highlighting = 15;</code>
      */
     java.lang.String getHighlighting();
+
     /**
      * <code>optional string highlighting = 15;</code>
      */
     com.google.protobuf.ByteString
-        getHighlightingBytes();
+      getHighlightingBytes();
 
-    // optional string symbols = 16;
     /**
      * <code>optional string symbols = 16;</code>
      */
     boolean hasSymbols();
+
     /**
      * <code>optional string symbols = 16;</code>
      */
     java.lang.String getSymbols();
+
     /**
      * <code>optional string symbols = 16;</code>
      */
     com.google.protobuf.ByteString
-        getSymbolsBytes();
+      getSymbolsBytes();
 
-    // repeated int32 duplications = 17 [packed = true];
     /**
      * <code>repeated int32 duplications = 17 [packed = true];</code>
      */
     java.util.List<java.lang.Integer> getDuplicationsList();
+
     /**
      * <code>repeated int32 duplications = 17 [packed = true];</code>
      */
     int getDuplicationsCount();
+
     /**
      * <code>repeated int32 duplications = 17 [packed = true];</code>
      */
@@ -250,16 +260,21 @@ public final class FileSourceDb {
    * Protobuf type {@code org.sonar.server.source.db.Line}
    */
   public static final class Line extends
-      com.google.protobuf.GeneratedMessage
-      implements LineOrBuilder {
+    com.google.protobuf.GeneratedMessage implements
+    // @@protoc_insertion_point(message_implements:org.sonar.server.source.db.Line)
+    LineOrBuilder {
     // Use Line.newBuilder() to construct.
     private Line(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
       this.unknownFields = builder.getUnknownFields();
     }
-    private Line(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+    private Line(boolean noInit) {
+      this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance();
+    }
 
     private static final Line defaultInstance;
+
     public static Line getDefaultInstance() {
       return defaultInstance;
     }
@@ -269,19 +284,21 @@ public final class FileSourceDb {
     }
 
     private final com.google.protobuf.UnknownFieldSet unknownFields;
+
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+      getUnknownFields() {
       return this.unknownFields;
     }
+
     private Line(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
+      com.google.protobuf.CodedInputStream input,
+      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+      throws com.google.protobuf.InvalidProtocolBufferException {
       initFields();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder();
+        com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
         boolean done = false;
         while (!done) {
@@ -292,7 +309,7 @@ public final class FileSourceDb {
               break;
             default: {
               if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
+                extensionRegistry, tag)) {
                 done = true;
               }
               break;
@@ -303,18 +320,21 @@ public final class FileSourceDb {
               break;
             }
             case 18: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000002;
-              source_ = input.readBytes();
+              source_ = bs;
               break;
             }
             case 26: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000004;
-              scmRevision_ = input.readBytes();
+              scmRevision_ = bs;
               break;
             }
             case 34: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000008;
-              scmAuthor_ = input.readBytes();
+              scmAuthor_ = bs;
               break;
             }
             case 40: {
@@ -368,13 +388,15 @@ public final class FileSourceDb {
               break;
             }
             case 122: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00004000;
-              highlighting_ = input.readBytes();
+              highlighting_ = bs;
               break;
             }
             case 130: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00008000;
-              symbols_ = input.readBytes();
+              symbols_ = bs;
               break;
             }
             case 136: {
@@ -404,7 +426,7 @@ public final class FileSourceDb {
         throw e.setUnfinishedMessage(this);
       } catch (java.io.IOException e) {
         throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+          e.getMessage()).setUnfinishedMessage(this);
       } finally {
         if (((mutable_bitField0_ & 0x00010000) == 0x00010000)) {
           duplications_ = java.util.Collections.unmodifiableList(duplications_);
@@ -413,27 +435,28 @@ public final class FileSourceDb {
         makeExtensionsImmutable();
       }
     }
+
     public static final com.google.protobuf.Descriptors.Descriptor
-        getDescriptor() {
+      getDescriptor() {
       return org.sonar.server.source.db.FileSourceDb.internal_static_org_sonar_server_source_db_Line_descriptor;
     }
 
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-        internalGetFieldAccessorTable() {
+      internalGetFieldAccessorTable() {
       return org.sonar.server.source.db.FileSourceDb.internal_static_org_sonar_server_source_db_Line_fieldAccessorTable
-          .ensureFieldAccessorsInitialized(
-              org.sonar.server.source.db.FileSourceDb.Line.class, org.sonar.server.source.db.FileSourceDb.Line.Builder.class);
+        .ensureFieldAccessorsInitialized(
+          org.sonar.server.source.db.FileSourceDb.Line.class, org.sonar.server.source.db.FileSourceDb.Line.Builder.class);
     }
 
     public static com.google.protobuf.Parser<Line> PARSER =
-        new com.google.protobuf.AbstractParser<Line>() {
-      public Line parsePartialFrom(
+      new com.google.protobuf.AbstractParser<Line>() {
+        public Line parsePartialFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
-        return new Line(input, extensionRegistry);
-      }
-    };
+          return new Line(input, extensionRegistry);
+        }
+      };
 
     @java.lang.Override
     public com.google.protobuf.Parser<Line> getParserForType() {
@@ -441,15 +464,16 @@ public final class FileSourceDb {
     }
 
     private int bitField0_;
-    // optional int32 line = 1;
     public static final int LINE_FIELD_NUMBER = 1;
     private int line_;
+
     /**
      * <code>optional int32 line = 1;</code>
      */
     public boolean hasLine() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
+
     /**
      * <code>optional int32 line = 1;</code>
      */
@@ -457,15 +481,16 @@ public final class FileSourceDb {
       return line_;
     }
 
-    // optional string source = 2;
     public static final int SOURCE_FIELD_NUMBER = 2;
     private java.lang.Object source_;
+
     /**
      * <code>optional string source = 2;</code>
      */
     public boolean hasSource() {
       return ((bitField0_ & 0x00000002) == 0x00000002);
     }
+
     /**
      * <code>optional string source = 2;</code>
      */
@@ -474,8 +499,8 @@ public final class FileSourceDb {
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
+        com.google.protobuf.ByteString bs =
+          (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
         if (bs.isValidUtf8()) {
           source_ = s;
@@ -483,16 +508,17 @@ public final class FileSourceDb {
         return s;
       }
     }
+
     /**
      * <code>optional string source = 2;</code>
      */
     public com.google.protobuf.ByteString
-        getSourceBytes() {
+      getSourceBytes() {
       java.lang.Object ref = source_;
       if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
+        com.google.protobuf.ByteString b =
+          com.google.protobuf.ByteString.copyFromUtf8(
+            (java.lang.String) ref);
         source_ = b;
         return b;
       } else {
@@ -500,9 +526,9 @@ public final class FileSourceDb {
       }
     }
 
-    // optional string scm_revision = 3;
     public static final int SCM_REVISION_FIELD_NUMBER = 3;
     private java.lang.Object scmRevision_;
+
     /**
      * <code>optional string scm_revision = 3;</code>
      *
@@ -513,6 +539,7 @@ public final class FileSourceDb {
     public boolean hasScmRevision() {
       return ((bitField0_ & 0x00000004) == 0x00000004);
     }
+
     /**
      * <code>optional string scm_revision = 3;</code>
      *
@@ -525,8 +552,8 @@ public final class FileSourceDb {
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
+        com.google.protobuf.ByteString bs =
+          (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
         if (bs.isValidUtf8()) {
           scmRevision_ = s;
@@ -534,6 +561,7 @@ public final class FileSourceDb {
         return s;
       }
     }
+
     /**
      * <code>optional string scm_revision = 3;</code>
      *
@@ -542,12 +570,12 @@ public final class FileSourceDb {
      * </pre>
      */
     public com.google.protobuf.ByteString
-        getScmRevisionBytes() {
+      getScmRevisionBytes() {
       java.lang.Object ref = scmRevision_;
       if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
+        com.google.protobuf.ByteString b =
+          com.google.protobuf.ByteString.copyFromUtf8(
+            (java.lang.String) ref);
         scmRevision_ = b;
         return b;
       } else {
@@ -555,15 +583,16 @@ public final class FileSourceDb {
       }
     }
 
-    // optional string scm_author = 4;
     public static final int SCM_AUTHOR_FIELD_NUMBER = 4;
     private java.lang.Object scmAuthor_;
+
     /**
      * <code>optional string scm_author = 4;</code>
      */
     public boolean hasScmAuthor() {
       return ((bitField0_ & 0x00000008) == 0x00000008);
     }
+
     /**
      * <code>optional string scm_author = 4;</code>
      */
@@ -572,8 +601,8 @@ public final class FileSourceDb {
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
+        com.google.protobuf.ByteString bs =
+          (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
         if (bs.isValidUtf8()) {
           scmAuthor_ = s;
@@ -581,16 +610,17 @@ public final class FileSourceDb {
         return s;
       }
     }
+
     /**
      * <code>optional string scm_author = 4;</code>
      */
     public com.google.protobuf.ByteString
-        getScmAuthorBytes() {
+      getScmAuthorBytes() {
       java.lang.Object ref = scmAuthor_;
       if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
+        com.google.protobuf.ByteString b =
+          com.google.protobuf.ByteString.copyFromUtf8(
+            (java.lang.String) ref);
         scmAuthor_ = b;
         return b;
       } else {
@@ -598,15 +628,16 @@ public final class FileSourceDb {
       }
     }
 
-    // optional int64 scm_date = 5;
     public static final int SCM_DATE_FIELD_NUMBER = 5;
     private long scmDate_;
+
     /**
      * <code>optional int64 scm_date = 5;</code>
      */
     public boolean hasScmDate() {
       return ((bitField0_ & 0x00000010) == 0x00000010);
     }
+
     /**
      * <code>optional int64 scm_date = 5;</code>
      */
@@ -614,9 +645,9 @@ public final class FileSourceDb {
       return scmDate_;
     }
 
-    // optional int32 ut_line_hits = 6;
     public static final int UT_LINE_HITS_FIELD_NUMBER = 6;
     private int utLineHits_;
+
     /**
      * <code>optional int32 ut_line_hits = 6;</code>
      *
@@ -627,6 +658,7 @@ public final class FileSourceDb {
     public boolean hasUtLineHits() {
       return ((bitField0_ & 0x00000020) == 0x00000020);
     }
+
     /**
      * <code>optional int32 ut_line_hits = 6;</code>
      *
@@ -638,15 +670,16 @@ public final class FileSourceDb {
       return utLineHits_;
     }
 
-    // optional int32 ut_conditions = 7;
     public static final int UT_CONDITIONS_FIELD_NUMBER = 7;
     private int utConditions_;
+
     /**
      * <code>optional int32 ut_conditions = 7;</code>
      */
     public boolean hasUtConditions() {
       return ((bitField0_ & 0x00000040) == 0x00000040);
     }
+
     /**
      * <code>optional int32 ut_conditions = 7;</code>
      */
@@ -654,15 +687,16 @@ public final class FileSourceDb {
       return utConditions_;
     }
 
-    // optional int32 ut_covered_conditions = 8;
     public static final int UT_COVERED_CONDITIONS_FIELD_NUMBER = 8;
     private int utCoveredConditions_;
+
     /**
      * <code>optional int32 ut_covered_conditions = 8;</code>
      */
     public boolean hasUtCoveredConditions() {
       return ((bitField0_ & 0x00000080) == 0x00000080);
     }
+
     /**
      * <code>optional int32 ut_covered_conditions = 8;</code>
      */
@@ -670,9 +704,9 @@ public final class FileSourceDb {
       return utCoveredConditions_;
     }
 
-    // optional int32 it_line_hits = 9;
     public static final int IT_LINE_HITS_FIELD_NUMBER = 9;
     private int itLineHits_;
+
     /**
      * <code>optional int32 it_line_hits = 9;</code>
      *
@@ -683,6 +717,7 @@ public final class FileSourceDb {
     public boolean hasItLineHits() {
       return ((bitField0_ & 0x00000100) == 0x00000100);
     }
+
     /**
      * <code>optional int32 it_line_hits = 9;</code>
      *
@@ -694,15 +729,16 @@ public final class FileSourceDb {
       return itLineHits_;
     }
 
-    // optional int32 it_conditions = 10;
     public static final int IT_CONDITIONS_FIELD_NUMBER = 10;
     private int itConditions_;
+
     /**
      * <code>optional int32 it_conditions = 10;</code>
      */
     public boolean hasItConditions() {
       return ((bitField0_ & 0x00000200) == 0x00000200);
     }
+
     /**
      * <code>optional int32 it_conditions = 10;</code>
      */
@@ -710,15 +746,16 @@ public final class FileSourceDb {
       return itConditions_;
     }
 
-    // optional int32 it_covered_conditions = 11;
     public static final int IT_COVERED_CONDITIONS_FIELD_NUMBER = 11;
     private int itCoveredConditions_;
+
     /**
      * <code>optional int32 it_covered_conditions = 11;</code>
      */
     public boolean hasItCoveredConditions() {
       return ((bitField0_ & 0x00000400) == 0x00000400);
     }
+
     /**
      * <code>optional int32 it_covered_conditions = 11;</code>
      */
@@ -726,9 +763,9 @@ public final class FileSourceDb {
       return itCoveredConditions_;
     }
 
-    // optional int32 overall_line_hits = 12;
     public static final int OVERALL_LINE_HITS_FIELD_NUMBER = 12;
     private int overallLineHits_;
+
     /**
      * <code>optional int32 overall_line_hits = 12;</code>
      *
@@ -739,6 +776,7 @@ public final class FileSourceDb {
     public boolean hasOverallLineHits() {
       return ((bitField0_ & 0x00000800) == 0x00000800);
     }
+
     /**
      * <code>optional int32 overall_line_hits = 12;</code>
      *
@@ -750,15 +788,16 @@ public final class FileSourceDb {
       return overallLineHits_;
     }
 
-    // optional int32 overall_conditions = 13;
     public static final int OVERALL_CONDITIONS_FIELD_NUMBER = 13;
     private int overallConditions_;
+
     /**
      * <code>optional int32 overall_conditions = 13;</code>
      */
     public boolean hasOverallConditions() {
       return ((bitField0_ & 0x00001000) == 0x00001000);
     }
+
     /**
      * <code>optional int32 overall_conditions = 13;</code>
      */
@@ -766,15 +805,16 @@ public final class FileSourceDb {
       return overallConditions_;
     }
 
-    // optional int32 overall_covered_conditions = 14;
     public static final int OVERALL_COVERED_CONDITIONS_FIELD_NUMBER = 14;
     private int overallCoveredConditions_;
+
     /**
      * <code>optional int32 overall_covered_conditions = 14;</code>
      */
     public boolean hasOverallCoveredConditions() {
       return ((bitField0_ & 0x00002000) == 0x00002000);
     }
+
     /**
      * <code>optional int32 overall_covered_conditions = 14;</code>
      */
@@ -782,15 +822,16 @@ public final class FileSourceDb {
       return overallCoveredConditions_;
     }
 
-    // optional string highlighting = 15;
     public static final int HIGHLIGHTING_FIELD_NUMBER = 15;
     private java.lang.Object highlighting_;
+
     /**
      * <code>optional string highlighting = 15;</code>
      */
     public boolean hasHighlighting() {
       return ((bitField0_ & 0x00004000) == 0x00004000);
     }
+
     /**
      * <code>optional string highlighting = 15;</code>
      */
@@ -799,8 +840,8 @@ public final class FileSourceDb {
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
+        com.google.protobuf.ByteString bs =
+          (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
         if (bs.isValidUtf8()) {
           highlighting_ = s;
@@ -808,16 +849,17 @@ public final class FileSourceDb {
         return s;
       }
     }
+
     /**
      * <code>optional string highlighting = 15;</code>
      */
     public com.google.protobuf.ByteString
-        getHighlightingBytes() {
+      getHighlightingBytes() {
       java.lang.Object ref = highlighting_;
       if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
+        com.google.protobuf.ByteString b =
+          com.google.protobuf.ByteString.copyFromUtf8(
+            (java.lang.String) ref);
         highlighting_ = b;
         return b;
       } else {
@@ -825,15 +867,16 @@ public final class FileSourceDb {
       }
     }
 
-    // optional string symbols = 16;
     public static final int SYMBOLS_FIELD_NUMBER = 16;
     private java.lang.Object symbols_;
+
     /**
      * <code>optional string symbols = 16;</code>
      */
     public boolean hasSymbols() {
       return ((bitField0_ & 0x00008000) == 0x00008000);
     }
+
     /**
      * <code>optional string symbols = 16;</code>
      */
@@ -842,8 +885,8 @@ public final class FileSourceDb {
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
+        com.google.protobuf.ByteString bs =
+          (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
         if (bs.isValidUtf8()) {
           symbols_ = s;
@@ -851,16 +894,17 @@ public final class FileSourceDb {
         return s;
       }
     }
+
     /**
      * <code>optional string symbols = 16;</code>
      */
     public com.google.protobuf.ByteString
-        getSymbolsBytes() {
+      getSymbolsBytes() {
       java.lang.Object ref = symbols_;
       if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
+        com.google.protobuf.ByteString b =
+          com.google.protobuf.ByteString.copyFromUtf8(
+            (java.lang.String) ref);
         symbols_ = b;
         return b;
       } else {
@@ -868,28 +912,31 @@ public final class FileSourceDb {
       }
     }
 
-    // repeated int32 duplications = 17 [packed = true];
     public static final int DUPLICATIONS_FIELD_NUMBER = 17;
     private java.util.List<java.lang.Integer> duplications_;
+
     /**
      * <code>repeated int32 duplications = 17 [packed = true];</code>
      */
     public java.util.List<java.lang.Integer>
-        getDuplicationsList() {
+      getDuplicationsList() {
       return duplications_;
     }
+
     /**
      * <code>repeated int32 duplications = 17 [packed = true];</code>
      */
     public int getDuplicationsCount() {
       return duplications_.size();
     }
+
     /**
      * <code>repeated int32 duplications = 17 [packed = true];</code>
      */
     public int getDuplications(int index) {
       return duplications_.get(index);
     }
+
     private int duplicationsMemoizedSerializedSize = -1;
 
     private void initFields() {
@@ -911,17 +958,22 @@ public final class FileSourceDb {
       symbols_ = "";
       duplications_ = java.util.Collections.emptyList();
     }
+
     private byte memoizedIsInitialized = -1;
+
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1)
+        return true;
+      if (isInitialized == 0)
+        return false;
 
       memoizedIsInitialized = 1;
       return true;
     }
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
-                        throws java.io.IOException {
+      throws java.io.IOException {
       getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         output.writeInt32(1, line_);
@@ -982,9 +1034,11 @@ public final class FileSourceDb {
     }
 
     private int memoizedSerializedSize = -1;
+
     public int getSerializedSize() {
       int size = memoizedSerializedSize;
-      if (size != -1) return size;
+      if (size != -1)
+        return size;
 
       size = 0;
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
@@ -1061,7 +1115,7 @@ public final class FileSourceDb {
         if (!getDuplicationsList().isEmpty()) {
           size += 2;
           size += com.google.protobuf.CodedOutputStream
-              .computeInt32SizeNoTag(dataSize);
+            .computeInt32SizeNoTag(dataSize);
         }
         duplicationsMemoizedSerializedSize = dataSize;
       }
@@ -1071,94 +1125,115 @@ public final class FileSourceDb {
     }
 
     private static final long serialVersionUID = 0L;
+
     @java.lang.Override
     protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
+      throws java.io.ObjectStreamException {
       return super.writeReplace();
     }
 
     public static org.sonar.server.source.db.FileSourceDb.Line parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
+      com.google.protobuf.ByteString data)
+      throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
+
     public static org.sonar.server.source.db.FileSourceDb.Line parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
+      com.google.protobuf.ByteString data,
+      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+      throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
+
     public static org.sonar.server.source.db.FileSourceDb.Line parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
+      throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
+
     public static org.sonar.server.source.db.FileSourceDb.Line parseFrom(
-        byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
+      byte[] data,
+      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+      throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
+
     public static org.sonar.server.source.db.FileSourceDb.Line parseFrom(java.io.InputStream input)
-        throws java.io.IOException {
+      throws java.io.IOException {
       return PARSER.parseFrom(input);
     }
+
     public static org.sonar.server.source.db.FileSourceDb.Line parseFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return PARSER.parseFrom(input, extensionRegistry);
-    }
-    public static org.sonar.server.source.db.FileSourceDb.Line parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return PARSER.parseDelimitedFrom(input);
-    }
-    public static org.sonar.server.source.db.FileSourceDb.Line parseDelimitedFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return PARSER.parseDelimitedFrom(input, extensionRegistry);
-    }
-    public static org.sonar.server.source.db.FileSourceDb.Line parseFrom(
-        com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
-      return PARSER.parseFrom(input);
-    }
-    public static org.sonar.server.source.db.FileSourceDb.Line parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
+      java.io.InputStream input,
+      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+      throws java.io.IOException {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
-    public Builder newBuilderForType() { return newBuilder(); }
+    public static org.sonar.server.source.db.FileSourceDb.Line parseDelimitedFrom(java.io.InputStream input)
+      throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+
+    public static org.sonar.server.source.db.FileSourceDb.Line parseDelimitedFrom(
+      java.io.InputStream input,
+      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+      throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+
+    public static org.sonar.server.source.db.FileSourceDb.Line parseFrom(
+      com.google.protobuf.CodedInputStream input)
+      throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+
+    public static org.sonar.server.source.db.FileSourceDb.Line parseFrom(
+      com.google.protobuf.CodedInputStream input,
+      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+      throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() {
+      return Builder.create();
+    }
+
+    public Builder newBuilderForType() {
+      return newBuilder();
+    }
+
     public static Builder newBuilder(org.sonar.server.source.db.FileSourceDb.Line prototype) {
       return newBuilder().mergeFrom(prototype);
     }
-    public Builder toBuilder() { return newBuilder(this); }
+
+    public Builder toBuilder() {
+      return newBuilder(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      com.google.protobuf.GeneratedMessage.BuilderParent parent) {
       Builder builder = new Builder(parent);
       return builder;
     }
+
     /**
      * Protobuf type {@code org.sonar.server.source.db.Line}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements org.sonar.server.source.db.FileSourceDb.LineOrBuilder {
+      com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+      // @@protoc_insertion_point(builder_implements:org.sonar.server.source.db.Line)
+      org.sonar.server.source.db.FileSourceDb.LineOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
+        getDescriptor() {
         return org.sonar.server.source.db.FileSourceDb.internal_static_org_sonar_server_source_db_Line_descriptor;
       }
 
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-          internalGetFieldAccessorTable() {
+        internalGetFieldAccessorTable() {
         return org.sonar.server.source.db.FileSourceDb.internal_static_org_sonar_server_source_db_Line_fieldAccessorTable
-            .ensureFieldAccessorsInitialized(
-                org.sonar.server.source.db.FileSourceDb.Line.class, org.sonar.server.source.db.FileSourceDb.Line.Builder.class);
+          .ensureFieldAccessorsInitialized(
+            org.sonar.server.source.db.FileSourceDb.Line.class, org.sonar.server.source.db.FileSourceDb.Line.Builder.class);
       }
 
       // Construct using org.sonar.server.source.db.FileSourceDb.Line.newBuilder()
@@ -1167,14 +1242,16 @@ public final class FileSourceDb {
       }
 
       private Builder(
-          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
         super(parent);
         maybeForceBuilderInitialization();
       }
+
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
         }
       }
+
       private static Builder create() {
         return new Builder();
       }
@@ -1223,7 +1300,7 @@ public final class FileSourceDb {
       }
 
       public com.google.protobuf.Descriptors.Descriptor
-          getDescriptorForType() {
+        getDescriptorForType() {
         return org.sonar.server.source.db.FileSourceDb.internal_static_org_sonar_server_source_db_Line_descriptor;
       }
 
@@ -1319,7 +1396,7 @@ public final class FileSourceDb {
 
       public Builder mergeFrom(com.google.protobuf.Message other) {
         if (other instanceof org.sonar.server.source.db.FileSourceDb.Line) {
-          return mergeFrom((org.sonar.server.source.db.FileSourceDb.Line)other);
+          return mergeFrom((org.sonar.server.source.db.FileSourceDb.Line) other);
         } else {
           super.mergeFrom(other);
           return this;
@@ -1327,7 +1404,8 @@ public final class FileSourceDb {
       }
 
       public Builder mergeFrom(org.sonar.server.source.db.FileSourceDb.Line other) {
-        if (other == org.sonar.server.source.db.FileSourceDb.Line.getDefaultInstance()) return this;
+        if (other == org.sonar.server.source.db.FileSourceDb.Line.getDefaultInstance())
+          return this;
         if (other.hasLine()) {
           setLine(other.getLine());
         }
@@ -1405,9 +1483,9 @@ public final class FileSourceDb {
       }
 
       public Builder mergeFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
         org.sonar.server.source.db.FileSourceDb.Line parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
@@ -1421,22 +1499,25 @@ public final class FileSourceDb {
         }
         return this;
       }
+
       private int bitField0_;
 
-      // optional int32 line = 1;
-      private int line_ ;
+      private int line_;
+
       /**
        * <code>optional int32 line = 1;</code>
        */
       public boolean hasLine() {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
+
       /**
        * <code>optional int32 line = 1;</code>
        */
       public int getLine() {
         return line_;
       }
+
       /**
        * <code>optional int32 line = 1;</code>
        */
@@ -1446,6 +1527,7 @@ public final class FileSourceDb {
         onChanged();
         return this;
       }
+
       /**
        * <code>optional int32 line = 1;</code>
        */
@@ -1456,57 +1538,64 @@ public final class FileSourceDb {
         return this;
       }
 
-      // optional string source = 2;
       private java.lang.Object source_ = "";
+
       /**
        * <code>optional string source = 2;</code>
        */
       public boolean hasSource() {
         return ((bitField0_ & 0x00000002) == 0x00000002);
       }
+
       /**
        * <code>optional string source = 2;</code>
        */
       public java.lang.String getSource() {
         java.lang.Object ref = source_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          source_ = s;
+          com.google.protobuf.ByteString bs =
+            (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            source_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
         }
       }
+
       /**
        * <code>optional string source = 2;</code>
        */
       public com.google.protobuf.ByteString
-          getSourceBytes() {
+        getSourceBytes() {
         java.lang.Object ref = source_;
         if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
+          com.google.protobuf.ByteString b =
+            com.google.protobuf.ByteString.copyFromUtf8(
+              (java.lang.String) ref);
           source_ = b;
           return b;
         } else {
           return (com.google.protobuf.ByteString) ref;
         }
       }
+
       /**
        * <code>optional string source = 2;</code>
        */
       public Builder setSource(
-          java.lang.String value) {
+        java.lang.String value) {
         if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000002;
+          throw new NullPointerException();
+        }
+        bitField0_ |= 0x00000002;
         source_ = value;
         onChanged();
         return this;
       }
+
       /**
        * <code>optional string source = 2;</code>
        */
@@ -1516,22 +1605,23 @@ public final class FileSourceDb {
         onChanged();
         return this;
       }
+
       /**
        * <code>optional string source = 2;</code>
        */
       public Builder setSourceBytes(
-          com.google.protobuf.ByteString value) {
+        com.google.protobuf.ByteString value) {
         if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000002;
+          throw new NullPointerException();
+        }
+        bitField0_ |= 0x00000002;
         source_ = value;
         onChanged();
         return this;
       }
 
-      // optional string scm_revision = 3;
       private java.lang.Object scmRevision_ = "";
+
       /**
        * <code>optional string scm_revision = 3;</code>
        *
@@ -1542,6 +1632,7 @@ public final class FileSourceDb {
       public boolean hasScmRevision() {
         return ((bitField0_ & 0x00000004) == 0x00000004);
       }
+
       /**
        * <code>optional string scm_revision = 3;</code>
        *
@@ -1552,14 +1643,18 @@ public final class FileSourceDb {
       public java.lang.String getScmRevision() {
         java.lang.Object ref = scmRevision_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          scmRevision_ = s;
+          com.google.protobuf.ByteString bs =
+            (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            scmRevision_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
         }
       }
+
       /**
        * <code>optional string scm_revision = 3;</code>
        *
@@ -1568,18 +1663,19 @@ public final class FileSourceDb {
        * </pre>
        */
       public com.google.protobuf.ByteString
-          getScmRevisionBytes() {
+        getScmRevisionBytes() {
         java.lang.Object ref = scmRevision_;
         if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
+          com.google.protobuf.ByteString b =
+            com.google.protobuf.ByteString.copyFromUtf8(
+              (java.lang.String) ref);
           scmRevision_ = b;
           return b;
         } else {
           return (com.google.protobuf.ByteString) ref;
         }
       }
+
       /**
        * <code>optional string scm_revision = 3;</code>
        *
@@ -1588,15 +1684,16 @@ public final class FileSourceDb {
        * </pre>
        */
       public Builder setScmRevision(
-          java.lang.String value) {
+        java.lang.String value) {
         if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000004;
+          throw new NullPointerException();
+        }
+        bitField0_ |= 0x00000004;
         scmRevision_ = value;
         onChanged();
         return this;
       }
+
       /**
        * <code>optional string scm_revision = 3;</code>
        *
@@ -1610,6 +1707,7 @@ public final class FileSourceDb {
         onChanged();
         return this;
       }
+
       /**
        * <code>optional string scm_revision = 3;</code>
        *
@@ -1618,67 +1716,74 @@ public final class FileSourceDb {
        * </pre>
        */
       public Builder setScmRevisionBytes(
-          com.google.protobuf.ByteString value) {
+        com.google.protobuf.ByteString value) {
         if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000004;
+          throw new NullPointerException();
+        }
+        bitField0_ |= 0x00000004;
         scmRevision_ = value;
         onChanged();
         return this;
       }
 
-      // optional string scm_author = 4;
       private java.lang.Object scmAuthor_ = "";
+
       /**
        * <code>optional string scm_author = 4;</code>
        */
       public boolean hasScmAuthor() {
         return ((bitField0_ & 0x00000008) == 0x00000008);
       }
+
       /**
        * <code>optional string scm_author = 4;</code>
        */
       public java.lang.String getScmAuthor() {
         java.lang.Object ref = scmAuthor_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          scmAuthor_ = s;
+          com.google.protobuf.ByteString bs =
+            (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            scmAuthor_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
         }
       }
+
       /**
        * <code>optional string scm_author = 4;</code>
        */
       public com.google.protobuf.ByteString
-          getScmAuthorBytes() {
+        getScmAuthorBytes() {
         java.lang.Object ref = scmAuthor_;
         if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
+          com.google.protobuf.ByteString b =
+            com.google.protobuf.ByteString.copyFromUtf8(
+              (java.lang.String) ref);
           scmAuthor_ = b;
           return b;
         } else {
           return (com.google.protobuf.ByteString) ref;
         }
       }
+
       /**
        * <code>optional string scm_author = 4;</code>
        */
       public Builder setScmAuthor(
-          java.lang.String value) {
+        java.lang.String value) {
         if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000008;
+          throw new NullPointerException();
+        }
+        bitField0_ |= 0x00000008;
         scmAuthor_ = value;
         onChanged();
         return this;
       }
+
       /**
        * <code>optional string scm_author = 4;</code>
        */
@@ -1688,34 +1793,37 @@ public final class FileSourceDb {
         onChanged();
         return this;
       }
+
       /**
        * <code>optional string scm_author = 4;</code>
        */
       public Builder setScmAuthorBytes(
-          com.google.protobuf.ByteString value) {
+        com.google.protobuf.ByteString value) {
         if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000008;
+          throw new NullPointerException();
+        }
+        bitField0_ |= 0x00000008;
         scmAuthor_ = value;
         onChanged();
         return this;
       }
 
-      // optional int64 scm_date = 5;
-      private long scmDate_ ;
+      private long scmDate_;
+
       /**
        * <code>optional int64 scm_date = 5;</code>
        */
       public boolean hasScmDate() {
         return ((bitField0_ & 0x00000010) == 0x00000010);
       }
+
       /**
        * <code>optional int64 scm_date = 5;</code>
        */
       public long getScmDate() {
         return scmDate_;
       }
+
       /**
        * <code>optional int64 scm_date = 5;</code>
        */
@@ -1725,6 +1833,7 @@ public final class FileSourceDb {
         onChanged();
         return this;
       }
+
       /**
        * <code>optional int64 scm_date = 5;</code>
        */
@@ -1735,8 +1844,8 @@ public final class FileSourceDb {
         return this;
       }
 
-      // optional int32 ut_line_hits = 6;
-      private int utLineHits_ ;
+      private int utLineHits_;
+
       /**
        * <code>optional int32 ut_line_hits = 6;</code>
        *
@@ -1747,6 +1856,7 @@ public final class FileSourceDb {
       public boolean hasUtLineHits() {
         return ((bitField0_ & 0x00000020) == 0x00000020);
       }
+
       /**
        * <code>optional int32 ut_line_hits = 6;</code>
        *
@@ -1757,6 +1867,7 @@ public final class FileSourceDb {
       public int getUtLineHits() {
         return utLineHits_;
       }
+
       /**
        * <code>optional int32 ut_line_hits = 6;</code>
        *
@@ -1770,6 +1881,7 @@ public final class FileSourceDb {
         onChanged();
         return this;
       }
+
       /**
        * <code>optional int32 ut_line_hits = 6;</code>
        *
@@ -1784,20 +1896,22 @@ public final class FileSourceDb {
         return this;
       }
 
-      // optional int32 ut_conditions = 7;
-      private int utConditions_ ;
+      private int utConditions_;
+
       /**
        * <code>optional int32 ut_conditions = 7;</code>
        */
       public boolean hasUtConditions() {
         return ((bitField0_ & 0x00000040) == 0x00000040);
       }
+
       /**
        * <code>optional int32 ut_conditions = 7;</code>
        */
       public int getUtConditions() {
         return utConditions_;
       }
+
       /**
        * <code>optional int32 ut_conditions = 7;</code>
        */
@@ -1807,6 +1921,7 @@ public final class FileSourceDb {
         onChanged();
         return this;
       }
+
       /**
        * <code>optional int32 ut_conditions = 7;</code>
        */
@@ -1817,20 +1932,22 @@ public final class FileSourceDb {
         return this;
       }
 
-      // optional int32 ut_covered_conditions = 8;
-      private int utCoveredConditions_ ;
+      private int utCoveredConditions_;
+
       /**
        * <code>optional int32 ut_covered_conditions = 8;</code>
        */
       public boolean hasUtCoveredConditions() {
         return ((bitField0_ & 0x00000080) == 0x00000080);
       }
+
       /**
        * <code>optional int32 ut_covered_conditions = 8;</code>
        */
       public int getUtCoveredConditions() {
         return utCoveredConditions_;
       }
+
       /**
        * <code>optional int32 ut_covered_conditions = 8;</code>
        */
@@ -1840,6 +1957,7 @@ public final class FileSourceDb {
         onChanged();
         return this;
       }
+
       /**
        * <code>optional int32 ut_covered_conditions = 8;</code>
        */
@@ -1850,8 +1968,8 @@ public final class FileSourceDb {
         return this;
       }
 
-      // optional int32 it_line_hits = 9;
-      private int itLineHits_ ;
+      private int itLineHits_;
+
       /**
        * <code>optional int32 it_line_hits = 9;</code>
        *
@@ -1862,6 +1980,7 @@ public final class FileSourceDb {
       public boolean hasItLineHits() {
         return ((bitField0_ & 0x00000100) == 0x00000100);
       }
+
       /**
        * <code>optional int32 it_line_hits = 9;</code>
        *
@@ -1872,6 +1991,7 @@ public final class FileSourceDb {
       public int getItLineHits() {
         return itLineHits_;
       }
+
       /**
        * <code>optional int32 it_line_hits = 9;</code>
        *
@@ -1885,6 +2005,7 @@ public final class FileSourceDb {
         onChanged();
         return this;
       }
+
       /**
        * <code>optional int32 it_line_hits = 9;</code>
        *
@@ -1899,20 +2020,22 @@ public final class FileSourceDb {
         return this;
       }
 
-      // optional int32 it_conditions = 10;
-      private int itConditions_ ;
+      private int itConditions_;
+
       /**
        * <code>optional int32 it_conditions = 10;</code>
        */
       public boolean hasItConditions() {
         return ((bitField0_ & 0x00000200) == 0x00000200);
       }
+
       /**
        * <code>optional int32 it_conditions = 10;</code>
        */
       public int getItConditions() {
         return itConditions_;
       }
+
       /**
        * <code>optional int32 it_conditions = 10;</code>
        */
@@ -1922,6 +2045,7 @@ public final class FileSourceDb {
         onChanged();
         return this;
       }
+
       /**
        * <code>optional int32 it_conditions = 10;</code>
        */
@@ -1932,20 +2056,22 @@ public final class FileSourceDb {
         return this;
       }
 
-      // optional int32 it_covered_conditions = 11;
-      private int itCoveredConditions_ ;
+      private int itCoveredConditions_;
+
       /**
        * <code>optional int32 it_covered_conditions = 11;</code>
        */
       public boolean hasItCoveredConditions() {
         return ((bitField0_ & 0x00000400) == 0x00000400);
       }
+
       /**
        * <code>optional int32 it_covered_conditions = 11;</code>
        */
       public int getItCoveredConditions() {
         return itCoveredConditions_;
       }
+
       /**
        * <code>optional int32 it_covered_conditions = 11;</code>
        */
@@ -1955,6 +2081,7 @@ public final class FileSourceDb {
         onChanged();
         return this;
       }
+
       /**
        * <code>optional int32 it_covered_conditions = 11;</code>
        */
@@ -1965,8 +2092,8 @@ public final class FileSourceDb {
         return this;
       }
 
-      // optional int32 overall_line_hits = 12;
-      private int overallLineHits_ ;
+      private int overallLineHits_;
+
       /**
        * <code>optional int32 overall_line_hits = 12;</code>
        *
@@ -1977,6 +2104,7 @@ public final class FileSourceDb {
       public boolean hasOverallLineHits() {
         return ((bitField0_ & 0x00000800) == 0x00000800);
       }
+
       /**
        * <code>optional int32 overall_line_hits = 12;</code>
        *
@@ -1987,6 +2115,7 @@ public final class FileSourceDb {
       public int getOverallLineHits() {
         return overallLineHits_;
       }
+
       /**
        * <code>optional int32 overall_line_hits = 12;</code>
        *
@@ -2000,6 +2129,7 @@ public final class FileSourceDb {
         onChanged();
         return this;
       }
+
       /**
        * <code>optional int32 overall_line_hits = 12;</code>
        *
@@ -2014,20 +2144,22 @@ public final class FileSourceDb {
         return this;
       }
 
-      // optional int32 overall_conditions = 13;
-      private int overallConditions_ ;
+      private int overallConditions_;
+
       /**
        * <code>optional int32 overall_conditions = 13;</code>
        */
       public boolean hasOverallConditions() {
         return ((bitField0_ & 0x00001000) == 0x00001000);
       }
+
       /**
        * <code>optional int32 overall_conditions = 13;</code>
        */
       public int getOverallConditions() {
         return overallConditions_;
       }
+
       /**
        * <code>optional int32 overall_conditions = 13;</code>
        */
@@ -2037,6 +2169,7 @@ public final class FileSourceDb {
         onChanged();
         return this;
       }
+
       /**
        * <code>optional int32 overall_conditions = 13;</code>
        */
@@ -2047,20 +2180,22 @@ public final class FileSourceDb {
         return this;
       }
 
-      // optional int32 overall_covered_conditions = 14;
-      private int overallCoveredConditions_ ;
+      private int overallCoveredConditions_;
+
       /**
        * <code>optional int32 overall_covered_conditions = 14;</code>
        */
       public boolean hasOverallCoveredConditions() {
         return ((bitField0_ & 0x00002000) == 0x00002000);
       }
+
       /**
        * <code>optional int32 overall_covered_conditions = 14;</code>
        */
       public int getOverallCoveredConditions() {
         return overallCoveredConditions_;
       }
+
       /**
        * <code>optional int32 overall_covered_conditions = 14;</code>
        */
@@ -2070,6 +2205,7 @@ public final class FileSourceDb {
         onChanged();
         return this;
       }
+
       /**
        * <code>optional int32 overall_covered_conditions = 14;</code>
        */
@@ -2080,57 +2216,64 @@ public final class FileSourceDb {
         return this;
       }
 
-      // optional string highlighting = 15;
       private java.lang.Object highlighting_ = "";
+
       /**
        * <code>optional string highlighting = 15;</code>
        */
       public boolean hasHighlighting() {
         return ((bitField0_ & 0x00004000) == 0x00004000);
       }
+
       /**
        * <code>optional string highlighting = 15;</code>
        */
       public java.lang.String getHighlighting() {
         java.lang.Object ref = highlighting_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          highlighting_ = s;
+          com.google.protobuf.ByteString bs =
+            (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            highlighting_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
         }
       }
+
       /**
        * <code>optional string highlighting = 15;</code>
        */
       public com.google.protobuf.ByteString
-          getHighlightingBytes() {
+        getHighlightingBytes() {
         java.lang.Object ref = highlighting_;
         if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
+          com.google.protobuf.ByteString b =
+            com.google.protobuf.ByteString.copyFromUtf8(
+              (java.lang.String) ref);
           highlighting_ = b;
           return b;
         } else {
           return (com.google.protobuf.ByteString) ref;
         }
       }
+
       /**
        * <code>optional string highlighting = 15;</code>
        */
       public Builder setHighlighting(
-          java.lang.String value) {
+        java.lang.String value) {
         if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00004000;
+          throw new NullPointerException();
+        }
+        bitField0_ |= 0x00004000;
         highlighting_ = value;
         onChanged();
         return this;
       }
+
       /**
        * <code>optional string highlighting = 15;</code>
        */
@@ -2140,71 +2283,79 @@ public final class FileSourceDb {
         onChanged();
         return this;
       }
+
       /**
        * <code>optional string highlighting = 15;</code>
        */
       public Builder setHighlightingBytes(
-          com.google.protobuf.ByteString value) {
+        com.google.protobuf.ByteString value) {
         if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00004000;
+          throw new NullPointerException();
+        }
+        bitField0_ |= 0x00004000;
         highlighting_ = value;
         onChanged();
         return this;
       }
 
-      // optional string symbols = 16;
       private java.lang.Object symbols_ = "";
+
       /**
        * <code>optional string symbols = 16;</code>
        */
       public boolean hasSymbols() {
         return ((bitField0_ & 0x00008000) == 0x00008000);
       }
+
       /**
        * <code>optional string symbols = 16;</code>
        */
       public java.lang.String getSymbols() {
         java.lang.Object ref = symbols_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          symbols_ = s;
+          com.google.protobuf.ByteString bs =
+            (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            symbols_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
         }
       }
+
       /**
        * <code>optional string symbols = 16;</code>
        */
       public com.google.protobuf.ByteString
-          getSymbolsBytes() {
+        getSymbolsBytes() {
         java.lang.Object ref = symbols_;
         if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
+          com.google.protobuf.ByteString b =
+            com.google.protobuf.ByteString.copyFromUtf8(
+              (java.lang.String) ref);
           symbols_ = b;
           return b;
         } else {
           return (com.google.protobuf.ByteString) ref;
         }
       }
+
       /**
        * <code>optional string symbols = 16;</code>
        */
       public Builder setSymbols(
-          java.lang.String value) {
+        java.lang.String value) {
         if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00008000;
+          throw new NullPointerException();
+        }
+        bitField0_ |= 0x00008000;
         symbols_ = value;
         onChanged();
         return this;
       }
+
       /**
        * <code>optional string symbols = 16;</code>
        */
@@ -2214,57 +2365,63 @@ public final class FileSourceDb {
         onChanged();
         return this;
       }
+
       /**
        * <code>optional string symbols = 16;</code>
        */
       public Builder setSymbolsBytes(
-          com.google.protobuf.ByteString value) {
+        com.google.protobuf.ByteString value) {
         if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00008000;
+          throw new NullPointerException();
+        }
+        bitField0_ |= 0x00008000;
         symbols_ = value;
         onChanged();
         return this;
       }
 
-      // repeated int32 duplications = 17 [packed = true];
       private java.util.List<java.lang.Integer> duplications_ = java.util.Collections.emptyList();
+
       private void ensureDuplicationsIsMutable() {
         if (!((bitField0_ & 0x00010000) == 0x00010000)) {
           duplications_ = new java.util.ArrayList<java.lang.Integer>(duplications_);
           bitField0_ |= 0x00010000;
-         }
+        }
       }
+
       /**
        * <code>repeated int32 duplications = 17 [packed = true];</code>
        */
       public java.util.List<java.lang.Integer>
-          getDuplicationsList() {
+        getDuplicationsList() {
         return java.util.Collections.unmodifiableList(duplications_);
       }
+
       /**
        * <code>repeated int32 duplications = 17 [packed = true];</code>
        */
       public int getDuplicationsCount() {
         return duplications_.size();
       }
+
       /**
        * <code>repeated int32 duplications = 17 [packed = true];</code>
        */
       public int getDuplications(int index) {
         return duplications_.get(index);
       }
+
       /**
        * <code>repeated int32 duplications = 17 [packed = true];</code>
        */
       public Builder setDuplications(
-          int index, int value) {
+        int index, int value) {
         ensureDuplicationsIsMutable();
         duplications_.set(index, value);
         onChanged();
         return this;
       }
+
       /**
        * <code>repeated int32 duplications = 17 [packed = true];</code>
        */
@@ -2274,16 +2431,19 @@ public final class FileSourceDb {
         onChanged();
         return this;
       }
+
       /**
        * <code>repeated int32 duplications = 17 [packed = true];</code>
        */
       public Builder addAllDuplications(
-          java.lang.Iterable<? extends java.lang.Integer> values) {
+        java.lang.Iterable<? extends java.lang.Integer> values) {
         ensureDuplicationsIsMutable();
-        super.addAll(values, duplications_);
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+          values, duplications_);
         onChanged();
         return this;
       }
+
       /**
        * <code>repeated int32 duplications = 17 [packed = true];</code>
        */
@@ -2305,48 +2465,57 @@ public final class FileSourceDb {
     // @@protoc_insertion_point(class_scope:org.sonar.server.source.db.Line)
   }
 
-  public interface DataOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface DataOrBuilder extends
+    // @@protoc_insertion_point(interface_extends:org.sonar.server.source.db.Data)
+    com.google.protobuf.MessageOrBuilder {
 
-    // repeated .org.sonar.server.source.db.Line lines = 1;
     /**
      * <code>repeated .org.sonar.server.source.db.Line lines = 1;</code>
      */
-    java.util.List<org.sonar.server.source.db.FileSourceDb.Line> 
-        getLinesList();
+    java.util.List<org.sonar.server.source.db.FileSourceDb.Line>
+      getLinesList();
+
     /**
      * <code>repeated .org.sonar.server.source.db.Line lines = 1;</code>
      */
     org.sonar.server.source.db.FileSourceDb.Line getLines(int index);
+
     /**
      * <code>repeated .org.sonar.server.source.db.Line lines = 1;</code>
      */
     int getLinesCount();
+
     /**
      * <code>repeated .org.sonar.server.source.db.Line lines = 1;</code>
      */
-    java.util.List<? extends org.sonar.server.source.db.FileSourceDb.LineOrBuilder> 
-        getLinesOrBuilderList();
+    java.util.List<? extends org.sonar.server.source.db.FileSourceDb.LineOrBuilder>
+      getLinesOrBuilderList();
+
     /**
      * <code>repeated .org.sonar.server.source.db.Line lines = 1;</code>
      */
     org.sonar.server.source.db.FileSourceDb.LineOrBuilder getLinesOrBuilder(
-        int index);
+      int index);
   }
   /**
    * Protobuf type {@code org.sonar.server.source.db.Data}
    */
   public static final class Data extends
-      com.google.protobuf.GeneratedMessage
-      implements DataOrBuilder {
+    com.google.protobuf.GeneratedMessage implements
+    // @@protoc_insertion_point(message_implements:org.sonar.server.source.db.Data)
+    DataOrBuilder {
     // Use Data.newBuilder() to construct.
     private Data(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
       this.unknownFields = builder.getUnknownFields();
     }
-    private Data(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+    private Data(boolean noInit) {
+      this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance();
+    }
 
     private static final Data defaultInstance;
+
     public static Data getDefaultInstance() {
       return defaultInstance;
     }
@@ -2356,19 +2525,21 @@ public final class FileSourceDb {
     }
 
     private final com.google.protobuf.UnknownFieldSet unknownFields;
+
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+      getUnknownFields() {
       return this.unknownFields;
     }
+
     private Data(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
+      com.google.protobuf.CodedInputStream input,
+      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+      throws com.google.protobuf.InvalidProtocolBufferException {
       initFields();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder();
+        com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
         boolean done = false;
         while (!done) {
@@ -2379,7 +2550,7 @@ public final class FileSourceDb {
               break;
             default: {
               if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
+                extensionRegistry, tag)) {
                 done = true;
               }
               break;
@@ -2398,7 +2569,7 @@ public final class FileSourceDb {
         throw e.setUnfinishedMessage(this);
       } catch (java.io.IOException e) {
         throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+          e.getMessage()).setUnfinishedMessage(this);
       } finally {
         if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
           lines_ = java.util.Collections.unmodifiableList(lines_);
@@ -2407,83 +2578,93 @@ public final class FileSourceDb {
         makeExtensionsImmutable();
       }
     }
+
     public static final com.google.protobuf.Descriptors.Descriptor
-        getDescriptor() {
+      getDescriptor() {
       return org.sonar.server.source.db.FileSourceDb.internal_static_org_sonar_server_source_db_Data_descriptor;
     }
 
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-        internalGetFieldAccessorTable() {
+      internalGetFieldAccessorTable() {
       return org.sonar.server.source.db.FileSourceDb.internal_static_org_sonar_server_source_db_Data_fieldAccessorTable
-          .ensureFieldAccessorsInitialized(
-              org.sonar.server.source.db.FileSourceDb.Data.class, org.sonar.server.source.db.FileSourceDb.Data.Builder.class);
+        .ensureFieldAccessorsInitialized(
+          org.sonar.server.source.db.FileSourceDb.Data.class, org.sonar.server.source.db.FileSourceDb.Data.Builder.class);
     }
 
     public static com.google.protobuf.Parser<Data> PARSER =
-        new com.google.protobuf.AbstractParser<Data>() {
-      public Data parsePartialFrom(
+      new com.google.protobuf.AbstractParser<Data>() {
+        public Data parsePartialFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
-        return new Data(input, extensionRegistry);
-      }
-    };
+          return new Data(input, extensionRegistry);
+        }
+      };
 
     @java.lang.Override
     public com.google.protobuf.Parser<Data> getParserForType() {
       return PARSER;
     }
 
-    // repeated .org.sonar.server.source.db.Line lines = 1;
     public static final int LINES_FIELD_NUMBER = 1;
     private java.util.List<org.sonar.server.source.db.FileSourceDb.Line> lines_;
+
     /**
      * <code>repeated .org.sonar.server.source.db.Line lines = 1;</code>
      */
     public java.util.List<org.sonar.server.source.db.FileSourceDb.Line> getLinesList() {
       return lines_;
     }
+
     /**
      * <code>repeated .org.sonar.server.source.db.Line lines = 1;</code>
      */
-    public java.util.List<? extends org.sonar.server.source.db.FileSourceDb.LineOrBuilder> 
-        getLinesOrBuilderList() {
+    public java.util.List<? extends org.sonar.server.source.db.FileSourceDb.LineOrBuilder>
+      getLinesOrBuilderList() {
       return lines_;
     }
+
     /**
      * <code>repeated .org.sonar.server.source.db.Line lines = 1;</code>
      */
     public int getLinesCount() {
       return lines_.size();
     }
+
     /**
      * <code>repeated .org.sonar.server.source.db.Line lines = 1;</code>
      */
     public org.sonar.server.source.db.FileSourceDb.Line getLines(int index) {
       return lines_.get(index);
     }
+
     /**
      * <code>repeated .org.sonar.server.source.db.Line lines = 1;</code>
      */
     public org.sonar.server.source.db.FileSourceDb.LineOrBuilder getLinesOrBuilder(
-        int index) {
+      int index) {
       return lines_.get(index);
     }
 
     private void initFields() {
       lines_ = java.util.Collections.emptyList();
     }
+
     private byte memoizedIsInitialized = -1;
+
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1)
+        return true;
+      if (isInitialized == 0)
+        return false;
 
       memoizedIsInitialized = 1;
       return true;
     }
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
-                        throws java.io.IOException {
+      throws java.io.IOException {
       getSerializedSize();
       for (int i = 0; i < lines_.size(); i++) {
         output.writeMessage(1, lines_.get(i));
@@ -2492,9 +2673,11 @@ public final class FileSourceDb {
     }
 
     private int memoizedSerializedSize = -1;
+
     public int getSerializedSize() {
       int size = memoizedSerializedSize;
-      if (size != -1) return size;
+      if (size != -1)
+        return size;
 
       size = 0;
       for (int i = 0; i < lines_.size(); i++) {
@@ -2507,94 +2690,115 @@ public final class FileSourceDb {
     }
 
     private static final long serialVersionUID = 0L;
+
     @java.lang.Override
     protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
+      throws java.io.ObjectStreamException {
       return super.writeReplace();
     }
 
     public static org.sonar.server.source.db.FileSourceDb.Data parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
+      com.google.protobuf.ByteString data)
+      throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
+
     public static org.sonar.server.source.db.FileSourceDb.Data parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
+      com.google.protobuf.ByteString data,
+      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+      throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
+
     public static org.sonar.server.source.db.FileSourceDb.Data parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
+      throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
+
     public static org.sonar.server.source.db.FileSourceDb.Data parseFrom(
-        byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
+      byte[] data,
+      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+      throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
+
     public static org.sonar.server.source.db.FileSourceDb.Data parseFrom(java.io.InputStream input)
-        throws java.io.IOException {
+      throws java.io.IOException {
       return PARSER.parseFrom(input);
     }
+
     public static org.sonar.server.source.db.FileSourceDb.Data parseFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return PARSER.parseFrom(input, extensionRegistry);
-    }
-    public static org.sonar.server.source.db.FileSourceDb.Data parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return PARSER.parseDelimitedFrom(input);
-    }
-    public static org.sonar.server.source.db.FileSourceDb.Data parseDelimitedFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return PARSER.parseDelimitedFrom(input, extensionRegistry);
-    }
-    public static org.sonar.server.source.db.FileSourceDb.Data parseFrom(
-        com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
-      return PARSER.parseFrom(input);
-    }
-    public static org.sonar.server.source.db.FileSourceDb.Data parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
+      java.io.InputStream input,
+      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+      throws java.io.IOException {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
-    public Builder newBuilderForType() { return newBuilder(); }
+    public static org.sonar.server.source.db.FileSourceDb.Data parseDelimitedFrom(java.io.InputStream input)
+      throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+
+    public static org.sonar.server.source.db.FileSourceDb.Data parseDelimitedFrom(
+      java.io.InputStream input,
+      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+      throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+
+    public static org.sonar.server.source.db.FileSourceDb.Data parseFrom(
+      com.google.protobuf.CodedInputStream input)
+      throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+
+    public static org.sonar.server.source.db.FileSourceDb.Data parseFrom(
+      com.google.protobuf.CodedInputStream input,
+      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+      throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() {
+      return Builder.create();
+    }
+
+    public Builder newBuilderForType() {
+      return newBuilder();
+    }
+
     public static Builder newBuilder(org.sonar.server.source.db.FileSourceDb.Data prototype) {
       return newBuilder().mergeFrom(prototype);
     }
-    public Builder toBuilder() { return newBuilder(this); }
+
+    public Builder toBuilder() {
+      return newBuilder(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      com.google.protobuf.GeneratedMessage.BuilderParent parent) {
       Builder builder = new Builder(parent);
       return builder;
     }
+
     /**
      * Protobuf type {@code org.sonar.server.source.db.Data}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements org.sonar.server.source.db.FileSourceDb.DataOrBuilder {
+      com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+      // @@protoc_insertion_point(builder_implements:org.sonar.server.source.db.Data)
+      org.sonar.server.source.db.FileSourceDb.DataOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
+        getDescriptor() {
         return org.sonar.server.source.db.FileSourceDb.internal_static_org_sonar_server_source_db_Data_descriptor;
       }
 
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-          internalGetFieldAccessorTable() {
+        internalGetFieldAccessorTable() {
         return org.sonar.server.source.db.FileSourceDb.internal_static_org_sonar_server_source_db_Data_fieldAccessorTable
-            .ensureFieldAccessorsInitialized(
-                org.sonar.server.source.db.FileSourceDb.Data.class, org.sonar.server.source.db.FileSourceDb.Data.Builder.class);
+          .ensureFieldAccessorsInitialized(
+            org.sonar.server.source.db.FileSourceDb.Data.class, org.sonar.server.source.db.FileSourceDb.Data.Builder.class);
       }
 
       // Construct using org.sonar.server.source.db.FileSourceDb.Data.newBuilder()
@@ -2603,15 +2807,17 @@ public final class FileSourceDb {
       }
 
       private Builder(
-          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
         super(parent);
         maybeForceBuilderInitialization();
       }
+
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
           getLinesFieldBuilder();
         }
       }
+
       private static Builder create() {
         return new Builder();
       }
@@ -2632,7 +2838,7 @@ public final class FileSourceDb {
       }
 
       public com.google.protobuf.Descriptors.Descriptor
-          getDescriptorForType() {
+        getDescriptorForType() {
         return org.sonar.server.source.db.FileSourceDb.internal_static_org_sonar_server_source_db_Data_descriptor;
       }
 
@@ -2666,7 +2872,7 @@ public final class FileSourceDb {
 
       public Builder mergeFrom(com.google.protobuf.Message other) {
         if (other instanceof org.sonar.server.source.db.FileSourceDb.Data) {
-          return mergeFrom((org.sonar.server.source.db.FileSourceDb.Data)other);
+          return mergeFrom((org.sonar.server.source.db.FileSourceDb.Data) other);
         } else {
           super.mergeFrom(other);
           return this;
@@ -2674,7 +2880,8 @@ public final class FileSourceDb {
       }
 
       public Builder mergeFrom(org.sonar.server.source.db.FileSourceDb.Data other) {
-        if (other == org.sonar.server.source.db.FileSourceDb.Data.getDefaultInstance()) return this;
+        if (other == org.sonar.server.source.db.FileSourceDb.Data.getDefaultInstance())
+          return this;
         if (linesBuilder_ == null) {
           if (!other.lines_.isEmpty()) {
             if (lines_.isEmpty()) {
@@ -2693,9 +2900,9 @@ public final class FileSourceDb {
               linesBuilder_ = null;
               lines_ = other.lines_;
               bitField0_ = (bitField0_ & ~0x00000001);
-              linesBuilder_ = 
+              linesBuilder_ =
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
-                   getLinesFieldBuilder() : null;
+                  getLinesFieldBuilder() : null;
             } else {
               linesBuilder_.addAllMessages(other.lines_);
             }
@@ -2710,9 +2917,9 @@ public final class FileSourceDb {
       }
 
       public Builder mergeFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
         org.sonar.server.source.db.FileSourceDb.Data parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
@@ -2726,20 +2933,20 @@ public final class FileSourceDb {
         }
         return this;
       }
+
       private int bitField0_;
 
-      // repeated .org.sonar.server.source.db.Line lines = 1;
       private java.util.List<org.sonar.server.source.db.FileSourceDb.Line> lines_ =
         java.util.Collections.emptyList();
+
       private void ensureLinesIsMutable() {
         if (!((bitField0_ & 0x00000001) == 0x00000001)) {
           lines_ = new java.util.ArrayList<org.sonar.server.source.db.FileSourceDb.Line>(lines_);
           bitField0_ |= 0x00000001;
-         }
+        }
       }
 
-      private com.google.protobuf.RepeatedFieldBuilder<
-          org.sonar.server.source.db.FileSourceDb.Line, org.sonar.server.source.db.FileSourceDb.Line.Builder, org.sonar.server.source.db.FileSourceDb.LineOrBuilder> linesBuilder_;
+      private com.google.protobuf.RepeatedFieldBuilder<org.sonar.server.source.db.FileSourceDb.Line, org.sonar.server.source.db.FileSourceDb.Line.Builder, org.sonar.server.source.db.FileSourceDb.LineOrBuilder> linesBuilder_;
 
       /**
        * <code>repeated .org.sonar.server.source.db.Line lines = 1;</code>
@@ -2751,6 +2958,7 @@ public final class FileSourceDb {
           return linesBuilder_.getMessageList();
         }
       }
+
       /**
        * <code>repeated .org.sonar.server.source.db.Line lines = 1;</code>
        */
@@ -2761,6 +2969,7 @@ public final class FileSourceDb {
           return linesBuilder_.getCount();
         }
       }
+
       /**
        * <code>repeated .org.sonar.server.source.db.Line lines = 1;</code>
        */
@@ -2771,11 +2980,12 @@ public final class FileSourceDb {
           return linesBuilder_.getMessage(index);
         }
       }
+
       /**
        * <code>repeated .org.sonar.server.source.db.Line lines = 1;</code>
        */
       public Builder setLines(
-          int index, org.sonar.server.source.db.FileSourceDb.Line value) {
+        int index, org.sonar.server.source.db.FileSourceDb.Line value) {
         if (linesBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -2788,11 +2998,12 @@ public final class FileSourceDb {
         }
         return this;
       }
+
       /**
        * <code>repeated .org.sonar.server.source.db.Line lines = 1;</code>
        */
       public Builder setLines(
-          int index, org.sonar.server.source.db.FileSourceDb.Line.Builder builderForValue) {
+        int index, org.sonar.server.source.db.FileSourceDb.Line.Builder builderForValue) {
         if (linesBuilder_ == null) {
           ensureLinesIsMutable();
           lines_.set(index, builderForValue.build());
@@ -2802,6 +3013,7 @@ public final class FileSourceDb {
         }
         return this;
       }
+
       /**
        * <code>repeated .org.sonar.server.source.db.Line lines = 1;</code>
        */
@@ -2818,11 +3030,12 @@ public final class FileSourceDb {
         }
         return this;
       }
+
       /**
        * <code>repeated .org.sonar.server.source.db.Line lines = 1;</code>
        */
       public Builder addLines(
-          int index, org.sonar.server.source.db.FileSourceDb.Line value) {
+        int index, org.sonar.server.source.db.FileSourceDb.Line value) {
         if (linesBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -2835,11 +3048,12 @@ public final class FileSourceDb {
         }
         return this;
       }
+
       /**
        * <code>repeated .org.sonar.server.source.db.Line lines = 1;</code>
        */
       public Builder addLines(
-          org.sonar.server.source.db.FileSourceDb.Line.Builder builderForValue) {
+        org.sonar.server.source.db.FileSourceDb.Line.Builder builderForValue) {
         if (linesBuilder_ == null) {
           ensureLinesIsMutable();
           lines_.add(builderForValue.build());
@@ -2849,11 +3063,12 @@ public final class FileSourceDb {
         }
         return this;
       }
+
       /**
        * <code>repeated .org.sonar.server.source.db.Line lines = 1;</code>
        */
       public Builder addLines(
-          int index, org.sonar.server.source.db.FileSourceDb.Line.Builder builderForValue) {
+        int index, org.sonar.server.source.db.FileSourceDb.Line.Builder builderForValue) {
         if (linesBuilder_ == null) {
           ensureLinesIsMutable();
           lines_.add(index, builderForValue.build());
@@ -2863,20 +3078,23 @@ public final class FileSourceDb {
         }
         return this;
       }
+
       /**
        * <code>repeated .org.sonar.server.source.db.Line lines = 1;</code>
        */
       public Builder addAllLines(
-          java.lang.Iterable<? extends org.sonar.server.source.db.FileSourceDb.Line> values) {
+        java.lang.Iterable<? extends org.sonar.server.source.db.FileSourceDb.Line> values) {
         if (linesBuilder_ == null) {
           ensureLinesIsMutable();
-          super.addAll(values, lines_);
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, lines_);
           onChanged();
         } else {
           linesBuilder_.addAllMessages(values);
         }
         return this;
       }
+
       /**
        * <code>repeated .org.sonar.server.source.db.Line lines = 1;</code>
        */
@@ -2890,6 +3108,7 @@ public final class FileSourceDb {
         }
         return this;
       }
+
       /**
        * <code>repeated .org.sonar.server.source.db.Line lines = 1;</code>
        */
@@ -2903,66 +3122,74 @@ public final class FileSourceDb {
         }
         return this;
       }
+
       /**
        * <code>repeated .org.sonar.server.source.db.Line lines = 1;</code>
        */
       public org.sonar.server.source.db.FileSourceDb.Line.Builder getLinesBuilder(
-          int index) {
+        int index) {
         return getLinesFieldBuilder().getBuilder(index);
       }
+
       /**
        * <code>repeated .org.sonar.server.source.db.Line lines = 1;</code>
        */
       public org.sonar.server.source.db.FileSourceDb.LineOrBuilder getLinesOrBuilder(
-          int index) {
+        int index) {
         if (linesBuilder_ == null) {
-          return lines_.get(index);  } else {
+          return lines_.get(index);
+        } else {
           return linesBuilder_.getMessageOrBuilder(index);
         }
       }
+
       /**
        * <code>repeated .org.sonar.server.source.db.Line lines = 1;</code>
        */
-      public java.util.List<? extends org.sonar.server.source.db.FileSourceDb.LineOrBuilder> 
-           getLinesOrBuilderList() {
+      public java.util.List<? extends org.sonar.server.source.db.FileSourceDb.LineOrBuilder>
+        getLinesOrBuilderList() {
         if (linesBuilder_ != null) {
           return linesBuilder_.getMessageOrBuilderList();
         } else {
           return java.util.Collections.unmodifiableList(lines_);
         }
       }
+
       /**
        * <code>repeated .org.sonar.server.source.db.Line lines = 1;</code>
        */
       public org.sonar.server.source.db.FileSourceDb.Line.Builder addLinesBuilder() {
         return getLinesFieldBuilder().addBuilder(
-            org.sonar.server.source.db.FileSourceDb.Line.getDefaultInstance());
+          org.sonar.server.source.db.FileSourceDb.Line.getDefaultInstance());
       }
+
       /**
        * <code>repeated .org.sonar.server.source.db.Line lines = 1;</code>
        */
       public org.sonar.server.source.db.FileSourceDb.Line.Builder addLinesBuilder(
-          int index) {
+        int index) {
         return getLinesFieldBuilder().addBuilder(
-            index, org.sonar.server.source.db.FileSourceDb.Line.getDefaultInstance());
+          index, org.sonar.server.source.db.FileSourceDb.Line.getDefaultInstance());
       }
+
       /**
        * <code>repeated .org.sonar.server.source.db.Line lines = 1;</code>
        */
-      public java.util.List<org.sonar.server.source.db.FileSourceDb.Line.Builder> 
-           getLinesBuilderList() {
+      public java.util.List<org.sonar.server.source.db.FileSourceDb.Line.Builder>
+        getLinesBuilderList() {
         return getLinesFieldBuilder().getBuilderList();
       }
+
       private com.google.protobuf.RepeatedFieldBuilder<
-          org.sonar.server.source.db.FileSourceDb.Line, org.sonar.server.source.db.FileSourceDb.Line.Builder, org.sonar.server.source.db.FileSourceDb.LineOrBuilder> 
-          getLinesFieldBuilder() {
+        org.sonar.server.source.db.FileSourceDb.Line, org.sonar.server.source.db.FileSourceDb.Line.Builder, org.sonar.server.source.db.FileSourceDb.LineOrBuilder>
+        getLinesFieldBuilder() {
         if (linesBuilder_ == null) {
           linesBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
-              org.sonar.server.source.db.FileSourceDb.Line, org.sonar.server.source.db.FileSourceDb.Line.Builder, org.sonar.server.source.db.FileSourceDb.LineOrBuilder>(
-                  lines_,
-                  ((bitField0_ & 0x00000001) == 0x00000001),
-                  getParentForChildren(),
-                  isClean());
+            org.sonar.server.source.db.FileSourceDb.Line, org.sonar.server.source.db.FileSourceDb.Line.Builder, org.sonar.server.source.db.FileSourceDb.LineOrBuilder>(
+              lines_,
+              ((bitField0_ & 0x00000001) == 0x00000001),
+              getParentForChildren(),
+              isClean());
           lines_ = null;
         }
         return linesBuilder_;
@@ -2979,56 +3206,38 @@ public final class FileSourceDb {
     // @@protoc_insertion_point(class_scope:org.sonar.server.source.db.Data)
   }
 
-  private static com.google.protobuf.Descriptors.Descriptor
-    internal_static_org_sonar_server_source_db_Line_descriptor;
-  private static
-    com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_org_sonar_server_source_db_Line_fieldAccessorTable;
-  private static com.google.protobuf.Descriptors.Descriptor
-    internal_static_org_sonar_server_source_db_Data_descriptor;
-  private static
-    com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_org_sonar_server_source_db_Data_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor internal_static_org_sonar_server_source_db_Line_descriptor;
+  private static com.google.protobuf.GeneratedMessage.FieldAccessorTable internal_static_org_sonar_server_source_db_Line_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor internal_static_org_sonar_server_source_db_Data_descriptor;
+  private static com.google.protobuf.GeneratedMessage.FieldAccessorTable internal_static_org_sonar_server_source_db_Data_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
-      getDescriptor() {
+    getDescriptor() {
     return descriptor;
   }
-  private static com.google.protobuf.Descriptors.FileDescriptor
-      descriptor;
+
+  private static com.google.protobuf.Descriptors.FileDescriptor descriptor;
   static {
     java.lang.String[] descriptorData = {
       "\n\024file_source_db.proto\022\032org.sonar.server" +
-      ".source.db\"\224\003\n\004Line\022\014\n\004line\030\001 \001(\005\022\016\n\006sou" +
-      "rce\030\002 \001(\t\022\024\n\014scm_revision\030\003 \001(\t\022\022\n\nscm_a" +
-      "uthor\030\004 \001(\t\022\020\n\010scm_date\030\005 \001(\003\022\024\n\014ut_line" +
-      "_hits\030\006 \001(\005\022\025\n\rut_conditions\030\007 \001(\005\022\035\n\025ut" +
-      "_covered_conditions\030\010 \001(\005\022\024\n\014it_line_hit" +
-      "s\030\t \001(\005\022\025\n\rit_conditions\030\n \001(\005\022\035\n\025it_cov" +
-      "ered_conditions\030\013 \001(\005\022\031\n\021overall_line_hi" +
-      "ts\030\014 \001(\005\022\032\n\022overall_conditions\030\r \001(\005\022\"\n\032" +
-      "overall_covered_conditions\030\016 \001(\005\022\024\n\014high",
+        ".source.db\"\224\003\n\004Line\022\014\n\004line\030\001 \001(\005\022\016\n\006sou" +
+        "rce\030\002 \001(\t\022\024\n\014scm_revision\030\003 \001(\t\022\022\n\nscm_a" +
+        "uthor\030\004 \001(\t\022\020\n\010scm_date\030\005 \001(\003\022\024\n\014ut_line" +
+        "_hits\030\006 \001(\005\022\025\n\rut_conditions\030\007 \001(\005\022\035\n\025ut" +
+        "_covered_conditions\030\010 \001(\005\022\024\n\014it_line_hit" +
+        "s\030\t \001(\005\022\025\n\rit_conditions\030\n \001(\005\022\035\n\025it_cov" +
+        "ered_conditions\030\013 \001(\005\022\031\n\021overall_line_hi" +
+        "ts\030\014 \001(\005\022\032\n\022overall_conditions\030\r \001(\005\022\"\n\032" +
+        "overall_covered_conditions\030\016 \001(\005\022\024\n\014high",
       "lighting\030\017 \001(\t\022\017\n\007symbols\030\020 \001(\t\022\030\n\014dupli" +
-      "cations\030\021 \003(\005B\002\020\001\"7\n\004Data\022/\n\005lines\030\001 \003(\013" +
-      "2 .org.sonar.server.source.db.LineB\002H\001"
+        "cations\030\021 \003(\005B\002\020\001\"7\n\004Data\022/\n\005lines\030\001 \003(\013" +
+        "2 .org.sonar.server.source.db.LineB\002H\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
         public com.google.protobuf.ExtensionRegistry assignDescriptors(
-            com.google.protobuf.Descriptors.FileDescriptor root) {
+          com.google.protobuf.Descriptors.FileDescriptor root) {
           descriptor = root;
-          internal_static_org_sonar_server_source_db_Line_descriptor =
-            getDescriptor().getMessageTypes().get(0);
-          internal_static_org_sonar_server_source_db_Line_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_org_sonar_server_source_db_Line_descriptor,
-              new java.lang.String[] { "Line", "Source", "ScmRevision", "ScmAuthor", "ScmDate", "UtLineHits", "UtConditions", "UtCoveredConditions", "ItLineHits", "ItConditions", "ItCoveredConditions", "OverallLineHits", "OverallConditions", "OverallCoveredConditions", "Highlighting", "Symbols", "Duplications", });
-          internal_static_org_sonar_server_source_db_Data_descriptor =
-            getDescriptor().getMessageTypes().get(1);
-          internal_static_org_sonar_server_source_db_Data_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_org_sonar_server_source_db_Data_descriptor,
-              new java.lang.String[] { "Lines", });
           return null;
         }
       };
@@ -3036,6 +3245,19 @@ public final class FileSourceDb {
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
         }, assigner);
+    internal_static_org_sonar_server_source_db_Line_descriptor =
+      getDescriptor().getMessageTypes().get(0);
+    internal_static_org_sonar_server_source_db_Line_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_org_sonar_server_source_db_Line_descriptor,
+        new java.lang.String[] {"Line", "Source", "ScmRevision", "ScmAuthor", "ScmDate", "UtLineHits", "UtConditions", "UtCoveredConditions", "ItLineHits", "ItConditions",
+          "ItCoveredConditions", "OverallLineHits", "OverallConditions", "OverallCoveredConditions", "Highlighting", "Symbols", "Duplications",});
+    internal_static_org_sonar_server_source_db_Data_descriptor =
+      getDescriptor().getMessageTypes().get(1);
+    internal_static_org_sonar_server_source_db_Data_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_org_sonar_server_source_db_Data_descriptor,
+        new java.lang.String[] {"Lines",});
   }
 
   // @@protoc_insertion_point(outer_class_scope)

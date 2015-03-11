@@ -35,11 +35,9 @@ import org.sonar.api.database.model.MeasureModel;
 import org.sonar.core.activity.db.ActivityDto;
 import org.sonar.core.activity.db.ActivityMapper;
 import org.sonar.core.cluster.WorkQueue;
-import org.sonar.core.component.ComponentDto;
-import org.sonar.core.component.FilePathWithHashDto;
-import org.sonar.core.component.SnapshotDto;
-import org.sonar.core.component.UuidWithProjectUuidDto;
+import org.sonar.core.component.*;
 import org.sonar.core.component.db.ComponentIndexMapper;
+import org.sonar.core.component.db.ComponentLinkMapper;
 import org.sonar.core.component.db.ComponentMapper;
 import org.sonar.core.component.db.SnapshotMapper;
 import org.sonar.core.computation.db.AnalysisReportDto;
@@ -133,6 +131,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "ActiveDashboard", ActiveDashboardDto.class);
     loadAlias(conf, "Author", AuthorDto.class);
     loadAlias(conf, "Component", ComponentDto.class);
+    loadAlias(conf, "ComponentLink", ComponentLinkDto.class);
     loadAlias(conf, "Dashboard", DashboardDto.class);
     loadAlias(conf, "Dependency", DependencyDto.class);
     loadAlias(conf, "DuplicationUnit", DuplicationUnitDto.class);
@@ -204,7 +203,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
       GroupMembershipMapper.class, QualityProfileMapper.class, ActiveRuleMapper.class,
       MeasureMapper.class, MetricMapper.class, QualityGateMapper.class, QualityGateConditionMapper.class, ComponentMapper.class, SnapshotMapper.class,
       ProjectQgateAssociationMapper.class,
-      AnalysisReportMapper.class, ComponentIndexMapper.class,
+      AnalysisReportMapper.class, ComponentIndexMapper.class, ComponentLinkMapper.class,
       Migration45Mapper.class, Migration50Mapper.class
     };
     loadMappers(conf, mappers);

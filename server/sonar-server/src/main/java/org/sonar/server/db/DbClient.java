@@ -37,6 +37,7 @@ import org.sonar.core.user.AuthorizationDao;
 import org.sonar.server.activity.db.ActivityDao;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.component.db.ComponentIndexDao;
+import org.sonar.server.component.db.ComponentLinkDao;
 import org.sonar.server.component.db.SnapshotDao;
 import org.sonar.server.computation.db.AnalysisReportDao;
 import org.sonar.server.dashboard.db.DashboardDao;
@@ -89,6 +90,7 @@ public class DbClient implements ServerComponent {
   private final FileSourceDao fileSourceDao;
   private final AuthorDao authorDao;
   private final ComponentIndexDao componentIndexDao;
+  private final ComponentLinkDao componentLinkDao;
 
   public DbClient(Database db, MyBatis myBatis, DaoComponent... daoComponents) {
     this.db = db;
@@ -123,6 +125,7 @@ public class DbClient implements ServerComponent {
     fileSourceDao = getDao(map, FileSourceDao.class);
     authorDao = getDao(map, AuthorDao.class);
     componentIndexDao = getDao(map, ComponentIndexDao.class);
+    componentLinkDao = getDao(map, ComponentLinkDao.class);
   }
 
   public Database database() {
@@ -231,6 +234,10 @@ public class DbClient implements ServerComponent {
 
   public ComponentIndexDao componentIndexDao() {
     return componentIndexDao;
+  }
+
+  public ComponentLinkDao componentLinkDao() {
+    return componentLinkDao;
   }
 
   private <K> K getDao(Map<Class, DaoComponent> map, Class<K> clazz) {

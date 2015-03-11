@@ -37,3 +37,11 @@ enum ComponentType {
   VIEW = 4;
   SUBVIEW = 5;
 }
+
+enum ComponentLinkType {
+  HOME = 0;
+  SCM = 1;
+  SCM_DEV = 2;
+  ISSUE = 3;
+  CI = 4;
+}

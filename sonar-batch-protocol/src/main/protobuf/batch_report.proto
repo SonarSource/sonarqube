@@ -48,6 +48,11 @@ message Metadata {
   optional int32 deleted_components_count = 5;
 }
 
+message ComponentLink {
+  optional ComponentLinkType type = 1;
+  optional string href = 2;
+}
+
 message Component {
   optional int32 ref = 1;
   optional string path = 2;
@@ -56,6 +61,7 @@ message Component {
   optional bool is_test = 5;
   optional string language = 6;
   repeated int32 child_refs = 7 [packed=true];
+  repeated ComponentLink links = 10;
 
   // temporary fields during development of computation stack
   optional int32 snapshot_id = 8;
