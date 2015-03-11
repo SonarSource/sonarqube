@@ -25,6 +25,7 @@ import org.sonar.api.web.DashboardLayout;
 import org.sonar.api.web.DashboardTemplate;
 import org.sonar.core.issue.db.IssueFilterDao;
 import org.sonar.core.issue.db.IssueFilterDto;
+import org.sonar.plugins.core.widgets.issues.ProjectIssueFilterWidget;
 
 /**
  * Issues dashboard for Sonar
@@ -66,25 +67,25 @@ public final class ProjectIssuesDashboard extends DashboardTemplate {
 
   private void addFirstColumn(Dashboard dashboard, IssueFilterDto unresolvedIssues) {
     // Unresolved issues by status
-    dashboard.addWidget("project_issue_filter", 1)
-      .setProperty("filter", Long.toString(unresolvedIssues.getId()))
-      .setProperty("distributionAxis", "statuses");
+    dashboard.addWidget(ProjectIssueFilterWidget.ID, 1)
+      .setProperty(ProjectIssueFilterWidget.FILTER_PROPERTY, Long.toString(unresolvedIssues.getId()))
+      .setProperty(ProjectIssueFilterWidget.DISTRIBUTION_AXIS_PROPERTY, "statuses");
     // Action plans
     dashboard.addWidget("action_plans", 1);
   }
 
   private void addSecondColumn(Dashboard dashboard, IssueFilterDto unresolvedIssues, IssueFilterDto hiddenDebt, IssueFilterDto myUnresolvedIssues) {
     // Unresolved issues by assignee
-    dashboard.addWidget("project_issue_filter", 2)
-      .setProperty("filter", Long.toString(unresolvedIssues.getId()))
-      .setProperty("distributionAxis", "assignees");
+    dashboard.addWidget(ProjectIssueFilterWidget.ID, 2)
+      .setProperty(ProjectIssueFilterWidget.FILTER_PROPERTY, Long.toString(unresolvedIssues.getId()))
+      .setProperty(ProjectIssueFilterWidget.DISTRIBUTION_AXIS_PROPERTY, "assignees");
     // My unresolved issues
-    dashboard.addWidget("project_issue_filter", 2)
+    dashboard.addWidget(ProjectIssueFilterWidget.ID, 2)
       .setProperty("filter", Long.toString(myUnresolvedIssues.getId()));
     // False positive and won't fix issues by resolution
-    dashboard.addWidget("project_issue_filter", 2)
-      .setProperty("filter", Long.toString(hiddenDebt.getId()))
-      .setProperty("distributionAxis", "resolutions");
+    dashboard.addWidget(ProjectIssueFilterWidget.ID, 2)
+      .setProperty(ProjectIssueFilterWidget.FILTER_PROPERTY, Long.toString(hiddenDebt.getId()))
+      .setProperty(ProjectIssueFilterWidget.DISTRIBUTION_AXIS_PROPERTY, "resolutions");
   }
 
 }

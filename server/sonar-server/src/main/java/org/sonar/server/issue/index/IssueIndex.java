@@ -73,6 +73,7 @@ import static com.google.common.collect.Lists.newArrayList;
  */
 public class IssueIndex extends BaseIndex {
 
+
   private static final int SCROLL_TIME_IN_MINUTES = 3;
 
   private static final String SUBSTRING_MATCH_REGEXP = ".*%s.*";
@@ -98,6 +99,8 @@ public class IssueIndex extends BaseIndex {
   // TODO to be documented
   // TODO move to Facets ?
   private static final String FACET_SUFFIX_MISSING = "_missing";
+
+  private static final String IS_ASSIGNED_FILTER = "__isAssigned";
 
   private static final int DEFAULT_FACET_SIZE = 15;
   private static final Duration TWENTY_DAYS = Duration.standardDays(20L);
@@ -210,11 +213,10 @@ public class IssueIndex extends BaseIndex {
     filters.put("__authorization", createAuthorizationFilter(query.checkAuthorization(), query.userLogin(), query.userGroups()));
 
     // Issue is assigned Filter
-    String isAssigned = "__isAssigned";
     if (BooleanUtils.isTrue(query.assigned())) {
-      filters.put(isAssigned, FilterBuilders.existsFilter(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE));
+      filters.put(IS_ASSIGNED_FILTER, FilterBuilders.existsFilter(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE));
     } else if (BooleanUtils.isFalse(query.assigned())) {
-      filters.put(isAssigned, FilterBuilders.missingFilter(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE));
+      filters.put(IS_ASSIGNED_FILTER, FilterBuilders.missingFilter(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE));
     }
 
     // Issue is planned Filter
@@ -471,7 +473,7 @@ public class IssueIndex extends BaseIndex {
 
     // Same as in super.stickyFacetBuilder
     Map<String, FilterBuilder> assigneeFilters = Maps.newHashMap(filters);
-    assigneeFilters.remove("__isAssigned");
+    assigneeFilters.remove(IS_ASSIGNED_FILTER);
     assigneeFilters.remove(fieldName);
     StickyFacetBuilder assigneeFacetBuilder = new StickyFacetBuilder(queryBuilder, assigneeFilters);
     BoolFilterBuilder facetFilter = assigneeFacetBuilder.getStickyFacetFilter(fieldName);
@@ -515,7 +517,7 @@ public class IssueIndex extends BaseIndex {
 
     // Same as in super.stickyFacetBuilder
     StickyFacetBuilder assignedToMeFacetBuilder = new StickyFacetBuilder(queryBuilder, filters);
-    BoolFilterBuilder facetFilter = assignedToMeFacetBuilder.getStickyFacetFilter("__isAssigned", fieldName);
+    BoolFilterBuilder facetFilter = assignedToMeFacetBuilder.getStickyFacetFilter(IS_ASSIGNED_FILTER, fieldName);
 
     FilterAggregationBuilder facetTopAggregation = AggregationBuilders
       .filter(facetName + "__filter")
@@ -593,8 +595,12 @@ public class IssueIndex extends BaseIndex {
 
     requestBuilder.setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
       createBoolFilter(query)));
+
     GlobalBuilder topAggreg = AggregationBuilders.global("tags");
-    TermsBuilder issueTags = AggregationBuilders.terms("tags__issues")
+    String tagsOnIssuesSubAggregation = "tags__issues";
+    String tagsOnRulesSubAggregation = "tags__rules";
+
+    TermsBuilder issueTags = AggregationBuilders.terms(tagsOnIssuesSubAggregation)
       .field(IssueIndexDefinition.FIELD_ISSUE_TAGS)
       .size(maxNumberOfTags)
       .order(Terms.Order.term(true))
@@ -602,7 +608,7 @@ public class IssueIndex extends BaseIndex {
     if (textQuery != null) {
       issueTags.include(String.format(SUBSTRING_MATCH_REGEXP, textQuery));
     }
-    TermsBuilder ruleTags = AggregationBuilders.terms("tags__rules")
+    TermsBuilder ruleTags = AggregationBuilders.terms(tagsOnRulesSubAggregation)
       .field(RuleNormalizer.RuleField.ALL_TAGS.field())
       .size(maxNumberOfTags)
       .order(Terms.Order.term(true))
@@ -614,8 +620,8 @@ public class IssueIndex extends BaseIndex {
     SearchResponse searchResponse = requestBuilder.addAggregation(topAggreg.subAggregation(issueTags).subAggregation(ruleTags)).get();
     Global allTags = searchResponse.getAggregations().get("tags");
     SortedSet<String> result = Sets.newTreeSet();
-    Terms issuesResult = allTags.getAggregations().get("tags__issues");
-    Terms rulesResult = allTags.getAggregations().get("tags__rules");
+    Terms issuesResult = allTags.getAggregations().get(tagsOnIssuesSubAggregation);
+    Terms rulesResult = allTags.getAggregations().get(tagsOnRulesSubAggregation);
     result.addAll(EsUtils.termsKeys(issuesResult));
     result.addAll(EsUtils.termsKeys(rulesResult));
     List<String> resultAsList = Lists.newArrayList(result);
@@ -635,12 +641,12 @@ public class IssueIndex extends BaseIndex {
   private Terms listTermsMatching(String fieldName, IssueQuery query, @Nullable String textQuery, Terms.Order termsOrder, int maxNumberOfTags) {
     SearchRequestBuilder requestBuilder = getClient()
       .prepareSearch(IssueIndexDefinition.INDEX)
+      // Avoids returning search hits
+      .setSearchType(SearchType.COUNT)
       .setTypes(IssueIndexDefinition.TYPE_ISSUE);
 
     requestBuilder.setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
       createBoolFilter(query)));
-
-    // TODO do not return hits
 
     TermsBuilder aggreg = AggregationBuilders.terms("_ref")
       .field(fieldName)
