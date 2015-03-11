@@ -219,3 +219,74 @@ casper.test.begin(testName('Unresolved Issues By Severity With Differential Peri
         test.done();
       });
 });
+
+
+casper.test.begin(testName('Unresolved Issues By Severity With IGNORED Differential Period'), 19, function (test) {
+  casper
+      .start(lib.buildUrl('issue-filter-widget'), function () {
+        lib.setDefaultViewport();
+
+        lib.mockRequest('/api/l10n/index', '{}');
+        lib.mockRequestFromFile('/api/issues/search',
+            'unresolved-issues-by-severity-with-IGNORED-differential-period.json',
+            { data: { resolved: 'false', createdInLast: '1w' } });
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/widgets/issue-filter.js'], function (IssueFilter) {
+            window.requestMessages().done(function () {
+              new IssueFilter({
+                el: '#issue-filter-widget',
+                query: 'resolved=false|createdInLast=1w',
+                distributionAxis: 'severities',
+                periodDate: '2014-12-09T17:12:38+0100',
+                componentUuid: '69e57151-be0d-4157-adff-c06741d88879',
+                componentKey: 'org.codehaus.sonar:sonar'
+              });
+            });
+          });
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('#issue-filter-widget > table');
+      })
+
+      .then(function () {
+        // check count
+        test.assertElementCount('tr', 6);
+
+        // check order and values
+        test.assertSelectorContains('tr:nth-child(1)', '549');
+        test.assertSelectorContains('tr:nth-child(2)', '0');
+        test.assertSelectorContains('tr:nth-child(3)', '59');
+        test.assertSelectorContains('tr:nth-child(4)', '306');
+        test.assertSelectorContains('tr:nth-child(5)', '135');
+        test.assertSelectorContains('tr:nth-child(6)', '49');
+
+        // check that differential period is ignored
+        test.assertSelectorDoesntContain('tr:nth-child(1)', '+');
+        test.assertSelectorDoesntContain('tr:nth-child(2)', '+');
+        test.assertSelectorDoesntContain('tr:nth-child(3)', '+');
+        test.assertSelectorDoesntContain('tr:nth-child(4)', '+');
+        test.assertSelectorDoesntContain('tr:nth-child(5)', '+');
+        test.assertSelectorDoesntContain('tr:nth-child(6)', '+');
+
+        // check links
+        test.assertExists('tr:nth-child(1) a[href="/component_issues/index?id=org.codehaus.sonar%3Asonar#resolved=false|createdInLast=1w"]');
+        test.assertExists('tr:nth-child(2) a[href="/component_issues/index?id=org.codehaus.sonar%3Asonar#resolved=false|createdInLast=1w|severities=BLOCKER"]');
+        test.assertExists('tr:nth-child(3) a[href="/component_issues/index?id=org.codehaus.sonar%3Asonar#resolved=false|createdInLast=1w|severities=CRITICAL"]');
+        test.assertExists('tr:nth-child(4) a[href="/component_issues/index?id=org.codehaus.sonar%3Asonar#resolved=false|createdInLast=1w|severities=MAJOR"]');
+        test.assertExists('tr:nth-child(5) a[href="/component_issues/index?id=org.codehaus.sonar%3Asonar#resolved=false|createdInLast=1w|severities=MINOR"]');
+        test.assertExists('tr:nth-child(6) a[href="/component_issues/index?id=org.codehaus.sonar%3Asonar#resolved=false|createdInLast=1w|severities=INFO"]');
+      })
+
+      .then(function () {
+        lib.sendCoverage();
+      })
+
+      .run(function () {
+        test.done();
+      });
+});

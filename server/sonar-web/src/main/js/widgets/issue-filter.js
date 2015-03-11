@@ -220,12 +220,19 @@ define(['templates/widgets'], function () {
     },
 
     initialize: function () {
+      this.shouldIgnorePeriod = false;
       this.model = new Backbone.Model({
         query: this.options.query,
         parsedQuery: this.getParsedQuery(),
-        property: this.options.distributionAxis,
-        periodDate: this.options.periodDate
+        property: this.options.distributionAxis
       });
+
+      // Ignore the period date if the filter contains any date criteria
+      // `this.shouldIgnorePeriod` is set in `this.getParsedQuery()`
+      if (!this.shouldIgnorePeriod) {
+        this.model.set({ periodDate: this.options.periodDate });
+      }
+
       this.listenTo(this.model, 'change', this.render);
       this.conf = byDistributionConf[this.options.distributionAxis];
       this.query = this.getParsedQuery();
@@ -244,10 +251,19 @@ define(['templates/widgets'], function () {
       if (this.options.componentKey != null) {
         _.extend(query, { componentKey: this.options.componentKey });
       }
-      if (this.options.periodDate != null) {
+      if (!this.hasDateFilter(query) && this.options.periodDate != null) {
         _.extend(query, { createdAfter: this.options.periodDate });
+      } else {
+        this.shouldIgnorePeriod = true;
       }
       return query;
+    },
+
+    hasDateFilter: function (query) {
+      var q = query || this.model.get('parsedQuery');
+      return _.some(['createdAt', 'createdBefore', 'createdAfter', 'createdInLast'], function (p) {
+        return q[p] != null;
+      });
     },
 
     sortItems: function (items) {
@@ -288,7 +304,7 @@ define(['templates/widgets'], function () {
       if (this.options.componentUuid != null) {
         _.extend(options, { componentUuids: this.options.componentUuid });
       }
-      if (this.options.periodDate != null) {
+      if (this.options.periodDate != null && !this.shouldIgnorePeriod) {
         _.extend(options, { createdAfter: this.options.periodDate });
       }
       return $.get(url, options).done(function (r) {
