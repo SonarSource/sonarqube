@@ -69,6 +69,7 @@ class DefaultSettings {
     defaults.put(ProcessConstants.CLUSTER_NODE_NAME, "sonar-" + System.currentTimeMillis());
     defaults.put(ProcessConstants.WEB_JAVA_OPTS, "-Xmx768m -XX:MaxPermSize=160m -XX:+HeapDumpOnOutOfMemoryError -Djava.net.preferIPv4Stack=true");
     defaults.put(ProcessConstants.WEB_JAVA_ADDITIONAL_OPTS, "");
+    defaults.put(ProcessConstants.DATA_DISK_TYPE, "ssd");
     defaults.put(ProcessConstants.JDBC_URL, "jdbc:h2:tcp://localhost:9092/sonar");
     defaults.put(ProcessConstants.JDBC_LOGIN, "sonar");
     defaults.put(ProcessConstants.JDBC_PASSWORD, "sonar");

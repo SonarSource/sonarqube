@@ -153,6 +153,11 @@ class SearchSettings {
       .put("index.number_of_shards", "1")
       .put("index.refresh_interval", "30s")
       .put("indices.store.throttle.type", "none");
+
+    if ("spinning".equals(props.value(ProcessConstants.DATA_DISK_TYPE))) {
+      LOGGER.info("Elasticsearch configured for spinning disk");
+      builder.put("index.merge.scheduler.max_thread_count", "1");
+    }
   }
 
   private void configureCluster(ImmutableSettings.Builder builder) {
