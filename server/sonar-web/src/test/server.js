@@ -18,24 +18,27 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 var express = require('express'),
-    path = require('path'),
-    errorhandler = require('errorhandler'),
-    serveStatic = require('serve-static');
-
-var staticPath = path.join(__dirname, '../main/webapp');
+    path = require('path');
 
 var app = express();
 
+
+// Views
 app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
 
-app.use(errorhandler({ dumpExceptions: true, showStack: true }));
 
-app.use('/', serveStatic(staticPath));
+// Static
+var staticPath = path.join(__dirname, '../main/webapp');
+app.use('/js', express.static(path.join(staticPath, 'js')));
+app.use('/css', express.static(path.join(staticPath, 'css')));
 
+
+// Pages
 app.get('/pages/:page', function (req, res) {
   res.render(req.param('page'));
 });
+
 
 // Get the port from environment variables
 var port = process.env.PORT || 8000;
