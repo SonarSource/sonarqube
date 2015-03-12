@@ -113,15 +113,16 @@ public class ComponentsPublisherTest {
   }
 
   @Test
-  public void add_components_with_links() throws Exception {
+  public void add_components_with_links_and_branch() throws Exception {
     // inputs
-    Project root = new Project("foo").setName("Root project")
+    Project root = new Project("foo:my_branch").setName("Root project")
       .setAnalysisDate(DateUtils.parseDate(("2012-12-12")));
     root.setId(1).setUuid("PROJECT_UUID");
     resourceCache.add(root, null).setSnapshot(new Snapshot().setId(11));
     reactor.getRoot().properties().put(CoreProperties.LINKS_HOME_PAGE, "http://home");
+    reactor.getRoot().properties().put(CoreProperties.PROJECT_BRANCH_PROPERTY, "my_branch");
 
-    Project module1 = new Project("module1").setName("Module1");
+    Project module1 = new Project("module1:my_branch").setName("Module1");
     module1.setParent(root);
     module1.setId(2).setUuid("MODULE_UUID");
     resourceCache.add(module1, root).setSnapshot(new Snapshot().setId(12));

@@ -92,7 +92,7 @@ public class ComponentsPublisher implements ReportPublisher {
       builder.addChildRefs(child.batchId());
     }
     if (ResourceUtils.isProject(r)) {
-      ProjectDefinition def = reactor.getProject(r.getKey());
+      ProjectDefinition def = getProjectDefinition(reactor, r.getKey());
       ComponentLink.Builder linkBuilder = ComponentLink.newBuilder();
 
       writeProjectLink(builder, def, linkBuilder, CoreProperties.LINKS_HOME_PAGE, ComponentLinkType.HOME);
@@ -106,6 +106,15 @@ public class ComponentsPublisher implements ReportPublisher {
     for (BatchResource child : batchResource.children()) {
       recursiveWriteComponent(child, writer);
     }
+  }
+
+  private ProjectDefinition getProjectDefinition(ProjectReactor reactor, String keyWithBranch) {
+    for (ProjectDefinition p : reactor.getProjects()) {
+      if (keyWithBranch.equals(p.getKeyWithBranch())) {
+        return p;
+      }
+    }
+    return null;
   }
 
   private void writeProjectLink(BatchReport.Component.Builder componentBuilder, ProjectDefinition def, ComponentLink.Builder linkBuilder, String linkProp,
