@@ -35,6 +35,7 @@ define([
     onRender: function () {
       this.showHeader();
       this.showViewer();
+      this.$('.workspace-viewer-container').isolatedScroll();
     },
 
     showHeader: function () {
