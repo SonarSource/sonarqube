@@ -92,6 +92,7 @@
   padding: 2px 4px;
 }
 
+// use `.alert.alert-warning` instead
 .warning, .modal-warning {
   margin: 0 0 8px;
   padding: 5px 8px;
@@ -100,6 +101,7 @@
   color: @orange;
 }
 
+// use `.alert.alert-danger` instead
 .error, .modal-error {
   margin: 0 0 8px;
   padding: 5px 8px;
@@ -108,12 +110,13 @@
   color: @red;
 }
 
+// use `.alert.alert-success` or `.alert.alert-info` instead
 .notice, .modal-notice {
   margin: 0 0 8px;
   padding: 5px 8px;
-  border: 2px solid @blue;
+  border: 2px solid @green;
   background-color: @white;
-  color: @blue;
+  color: @green;
 }
 
 .info {
@@ -405,6 +408,125 @@ div.autocompleteNote {
   cursor: default;
 }
 
-.link-red {
-  color: @red !important;
+a.external {
+  background: url('../images/links/external.png') no-repeat 100% 0;
+  padding: 0 16px 0 0;
+}
+
+.fav {
+  display: inline-block;
+  background: url('../images/star.png') no-repeat 100% 0;
+  width: 16px;
+  height: 16px;
+  vertical-align: text-bottom;
+}
+
+.notfav {
+  display: inline-block;
+  background: url('../images/star_off.png') no-repeat 100% 0;
+  width: 16px;
+  height: 16px;
+  vertical-align: text-bottom;
+}
+
+/* DUPLICATIONS */
+
+.duplications {
+  max-width: 100%;
+}
+
+.duplications td.item {
+  text-align: right;
+  vertical-align: top;
+  padding: 0;
+}
+
+.duplications td.item p {
+  padding: 3px 5px;
+}
+
+.duplications td.fileItem {
+  text-align: left;
+  vertical-align: top;
+  padding: 0;
+  white-space: nowrap;
+}
+
+.duplications td.fileItem p {
+  padding: 3px 5px;
+}
+
+.duplications td.item p.selected, .duplications td.fileItem p.selected {
+  background-color: #EFEFEF;
+  border-top: 1px solid #DDD;
+  border-bottom: 1px solid #DDD;
+  padding: 3px 5px;
+}
+
+.duplications td.fileItem p.selected a {
+  text-decoration: none;
+}
+
+.duplications td.sourceItem {
+  padding: 0;
+  background-color: #EFEFEF;
+  border: 1px solid #DDD;
+  border-left: none;
+}
+
+.duplications td.sourceItem p {
+  padding: 3px;
+}
+
+.duplicationsMessage {
+  padding: 10px;
+}
+
+.discussion {
+  width: 100%;
+  border: 1px solid #DDDDDD;
+}
+
+.discussionComment.first {
+  border-top: none;
+}
+
+.discussionComment {
+  background-color: #EFEFEF;
+  border-top: 1px solid #DDDDDD;
+  line-height: 1.5em;
+  margin: 0;
+  padding: 5px 10px;
+
+  h4 {
+    font-size: 90%;
+    margin-bottom: 2px;
+  }
+
+  h4 img {
+    vertical-align: sub;
+  }
+
+  ol li {
+    list-style: decimal inside;
+  }
+
+  ul li {
+    list-style: square inside;
+  }
+
+  pre {
+    padding: 10px;
+    border: 1px dashed #DDD;
+    color: #444;
+    font-size: 12px;
+  }
+}
+
+div.comment-excerpt {
+  background-color: transparent;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  color: #777777;
+  font-size: 90%;
 }
