@@ -101,7 +101,6 @@ define([
     },
 
     sendRequest: function (action, options) {
-      this.$('.alert').addClass('hidden');
       var that = this,
           url = baseUrl + '/api/rules/' + action;
       return $.post(url, options).done(function (r) {
