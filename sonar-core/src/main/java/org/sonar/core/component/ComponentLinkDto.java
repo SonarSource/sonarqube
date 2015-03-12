@@ -20,11 +20,23 @@
 
 package org.sonar.core.component;
 
+import com.google.common.collect.ImmutableList;
+
+import java.util.List;
+
 /**
  * Component links should be merge in a 'links' column (using protobuf for instance) of the projects table.
  * But to do this we'll have to wait for the measure filters page (where links are displayed) to be rewritten in JS/WS (because it's in Rails for the moment).
  */
 public class ComponentLinkDto {
+
+  public static String TYPE_HOME_PAGE = "homepage";
+  public static String TYPE_CI = "ci";
+  public static String TYPE_ISSUE_TRACKER = "issue";
+  public static String TYPE_SOURCES = "scm";
+  public static String TYPE_SOURCES_DEV = "scm_dev";
+
+  public static List<String> PROVIDED_TYPES = ImmutableList.of(TYPE_HOME_PAGE, TYPE_CI, TYPE_ISSUE_TRACKER, TYPE_SOURCES, TYPE_SOURCES_DEV);
 
   private Long id;
   private String componentUuid;

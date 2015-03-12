@@ -86,6 +86,7 @@ import org.sonar.server.component.DefaultComponentFinder;
 import org.sonar.server.component.DefaultRubyComponentService;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.component.db.ComponentIndexDao;
+import org.sonar.server.component.db.ComponentLinkDao;
 import org.sonar.server.component.db.SnapshotDao;
 import org.sonar.server.component.ws.*;
 import org.sonar.server.computation.ComputationThreadLauncher;
@@ -239,13 +240,6 @@ class ServerComponents {
       System2.INSTANCE,
 
       // DB
-      MeasureDao.class,
-      MetricDao.class,
-      ComponentDao.class,
-      SnapshotDao.class,
-      MeasureFilterDao.class,
-      AnalysisReportDao.class,
-      ComponentIndexDao.class,
       DbClient.class,
 
       // Elasticsearch
@@ -277,7 +271,19 @@ class ServerComponents {
       IssueIndex.class,
       IssueDao.class,
 
-      ActivityDao.class
+      // measures
+      MeasureDao.class,
+      MetricDao.class,
+      MeasureFilterDao.class,
+
+      // components
+      ComponentDao.class,
+      ComponentIndexDao.class,
+      ComponentLinkDao.class,
+      SnapshotDao.class,
+
+      ActivityDao.class,
+      AnalysisReportDao.class
       ));
     components.addAll(CorePropertyDefinitions.all());
     components.addAll(DatabaseMigrations.CLASSES);

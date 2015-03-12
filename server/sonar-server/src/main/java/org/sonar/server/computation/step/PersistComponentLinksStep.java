@@ -117,7 +117,7 @@ public class PersistComponentLinksStep implements ComputationStep {
     }
 
     for (ComponentLinkDto dto : previousLinks) {
-      if (!linkType.contains(dto.getType())) {
+      if (!linkType.contains(dto.getType()) && ComponentLinkDto.PROVIDED_TYPES.contains(dto.getType())) {
         dbClient.componentLinkDao().delete(session, dto.getId());
       }
     }
@@ -126,15 +126,15 @@ public class PersistComponentLinksStep implements ComputationStep {
   private static String convertType(Constants.ComponentLinkType type) {
     switch (type) {
       case HOME:
-        return "homepage";
+        return ComponentLinkDto.TYPE_HOME_PAGE;
       case SCM:
-        return "scm";
+        return ComponentLinkDto.TYPE_SOURCES;
       case SCM_DEV:
-        return "scm_dev";
+        return ComponentLinkDto.TYPE_SOURCES_DEV;
       case CI:
-        return "ci";
+        return ComponentLinkDto.TYPE_CI;
       case ISSUE:
-        return "issue";
+        return ComponentLinkDto.TYPE_ISSUE_TRACKER;
       default:
         throw new IllegalArgumentException(String.format("Unsupported type %s", type.name()));
     }

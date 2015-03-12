@@ -195,6 +195,29 @@ public class PersistComponentLinksStepTest {
   }
 
   @Test
+  public void not_delete_custom_link() throws Exception {
+    dbTester.prepareDbUnit(getClass(), "not_delete_custom_link.xml");
+
+    File reportDir = temp.newFolder();
+    BatchReportWriter writer = new BatchReportWriter(reportDir);
+    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+      .setRootComponentRef(1)
+      .setProjectKey("PROJECT_KEY")
+      .setAnalysisDate(150000000L)
+      .build());
+
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(1)
+      .setType(Constants.ComponentType.PROJECT)
+      .setUuid("ABCD")
+      .build());
+
+    step.execute(new ComputationContext(new BatchReportReader(reportDir), mock(ComponentDto.class)));
+
+    dbTester.assertDbUnit(getClass(), "not_delete_custom_link.xml", "project_links");
+  }
+
+  @Test
   public void fail_when_trying_to_add_same_link_type_multiple_times() throws Exception {
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
