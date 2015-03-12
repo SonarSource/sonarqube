@@ -10,11 +10,9 @@
     </header>
 
     <div class="yui-g widget" id="widget_delete_project">
-      <div class="warning">
-        <%= message('project_deletion.operation_cannot_be_undone') -%><br/>
-        <a id="delete_resource" class="open-modal button button-red"
-           href="<%= ApplicationController.root_context -%>/project/delete_form/<%= h(@project.id) -%>"><%= delete_resource_message -%></a>
-      </div>
+      <div class="alert alert-warning spacer-bottom"><%= message('project_deletion.operation_cannot_be_undone') -%></div>
+      <a id="delete_resource" class="open-modal button button-red"
+         href="<%= ApplicationController.root_context -%>/project/delete_form/<%= h(@project.id) -%>"><%= delete_resource_message -%></a>
     </div>
   <% end %>
 </div>

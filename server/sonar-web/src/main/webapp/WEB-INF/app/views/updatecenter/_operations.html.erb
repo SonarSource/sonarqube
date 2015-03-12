@@ -1,5 +1,5 @@
 <script type="text/javascript">
-  function showPlugin(key) {
+  function showPlugin (key) {
     if ($j('#detail-' + key).is(':visible')) {
       $j('#detail-' + key).hide();
     } else {
@@ -10,25 +10,26 @@
 </script>
 
 <% if @uninstalls.size > 0 %>
-<form action="<%= ApplicationController.root_context -%>/updatecenter/cancel_uninstalls" method="post" class="warning">
-<p>SonarQube needs to be restarted in order to uninstall the following plugins: <ul>
-  <% @uninstalls.each do |uninstall| %>
-    <li><%= uninstall -%></li>
-  <% end %>
-  </ul>
-  <input type="submit" value="Cancel uninstalls" id="cancel-uninstall"/>
-</p>
-</form>
+  <form action="<%= ApplicationController.root_context -%>/updatecenter/cancel_uninstalls" method="post" class="warning">
+    <p>SonarQube needs to be restarted in order to uninstall the following plugins:</p>
+    <ul class="list-styled spacer-top spacer-bottom">
+      <% @uninstalls.each do |uninstall| %>
+        <li><%= uninstall -%></li>
+      <% end %>
+    </ul>
+    <input type="submit" value="Cancel uninstalls" id="cancel-uninstall"/>
+  </form>
 <% end %>
 
 <% if @downloads.size > 0 %>
-<form action="<%= ApplicationController.root_context -%>/updatecenter/cancel_downloads" method="post" class="warning">
-<p>SonarQube needs to be restarted in order to install the following plugins: <ul>
-  <% @downloads.each do |download| %>
-    <li><%= download -%></li>
-  <% end %>
-  </ul>
-  <input type="submit" value="Cancel pending installations" id="cancel-pending-installations"/>
-</p>
-</form>
+  <form action="<%= ApplicationController.root_context -%>/updatecenter/cancel_downloads" method="post" class="warning">
+    <p>SonarQube needs to be restarted in order to install the following plugins:
+    <ul>
+      <% @downloads.each do |download| %>
+        <li><%= download -%></li>
+      <% end %>
+    </ul>
+    <input type="submit" value="Cancel pending installations" id="cancel-pending-installations"/>
+    </p>
+  </form>
 <% end %>
