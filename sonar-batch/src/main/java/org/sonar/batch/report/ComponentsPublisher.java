@@ -92,7 +92,7 @@ public class ComponentsPublisher implements ReportPublisher {
       builder.addChildRefs(child.batchId());
     }
     if (ResourceUtils.isProject(r)) {
-      ProjectDefinition def = reactor.getProject(r.getEffectiveKey());
+      ProjectDefinition def = reactor.getProject(r.getKey());
       ComponentLink.Builder linkBuilder = ComponentLink.newBuilder();
 
       writeProjectLink(builder, def, linkBuilder, CoreProperties.LINKS_HOME_PAGE, ComponentLinkType.HOME);
