@@ -31,7 +31,7 @@ casper.test.begin('coding-rules-page-inheritance-facet', 11, function (test) {
       .start(lib.buildUrl('coding-rules'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/rules/app', 'app.json');
         lib.mockRequestFromFile('/api/rules/search', 'search-not-inherited.json', { data: { inheritance: 'NONE' } });
         lib.mockRequestFromFile('/api/rules/search', 'search-inherited.json', { data: { inheritance: 'INHERITED' } });
@@ -41,6 +41,12 @@ casper.test.begin('coding-rules-page-inheritance-facet', 11, function (test) {
         lib.mockRequestFromFile('/api/rules/search', 'search-qprofile2.json',
             { data: { qprofile: 'java-top-profile-without-formatting-conventions-50037' } });
         lib.mockRequestFromFile('/api/rules/search', 'search.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/coding-rules/app.js']);
+        });
       })
 
       .then(function () {

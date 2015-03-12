@@ -33,11 +33,17 @@ casper.test.begin(testName('Coverage'), 4, function (test) {
       .start(lib.buildUrl('source-viewer'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/components/app', 'app.json');
         lib.mockRequestFromFile('/api/sources/lines', 'lines.json');
         lib.mockRequestFromFile('/api/issues/search', 'issues.json');
         lib.mockRequestFromFile('/api/tests/test_cases', 'test-cases.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/source-viewer/app.js']);
+        });
       })
 
       .then(function () {

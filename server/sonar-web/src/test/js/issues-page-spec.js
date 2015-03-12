@@ -33,9 +33,15 @@ casper.test.begin(testName('Base'), function (test) {
       .start(lib.buildUrl('issues'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/issue_filters/app', 'app.json');
         lib.mockRequestFromFile('/api/issues/search', 'search.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/issues/app-new.js']);
+        });
       })
 
       .then(function () {
@@ -91,9 +97,15 @@ casper.test.begin(testName('Issue Box', 'Check Elements'), function (test) {
       .start(lib.buildUrl('issues'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/issue_filters/app', 'app.json');
         lib.mockRequestFromFile('/api/issues/search', 'search.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/issues/app-new.js']);
+        });
       })
 
       .then(function () {
@@ -133,11 +145,17 @@ casper.test.begin(testName('Issue Box', 'Tags'), function (test) {
       .start(lib.buildUrl('issues'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/issue_filters/app', 'app.json');
         lib.mockRequestFromFile('/api/issues/search', 'search-with-tags.json');
         lib.mockRequestFromFile('/api/issues/tags', 'tags.json');
         lib.mockRequestFromFile('/api/issues/set_tags', 'tags-modified.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/issues/app-new.js']);
+        });
       })
 
       .then(function () {
@@ -178,11 +196,17 @@ casper.test.begin(testName('Issue Box', 'Transitions'), function (test) {
       .start(lib.buildUrl('issues'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/issue_filters/app', 'app.json');
         lib.mockRequestFromFile('/api/issues/search', 'search.json');
         lib.mockRequestFromFile('/api/issues/show*', 'show.json');
         lib.mockRequest('/api/issues/do_transition', '{}');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/issues/app-new.js']);
+        });
       })
 
       .then(function () {
@@ -218,11 +242,17 @@ casper.test.begin(testName('File-Level Issues'), function (test) {
       .start(lib.buildUrl('issues'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/issue_filters/app', 'app.json');
         lib.mockRequestFromFile('/api/issues/search', 'file-level/search.json');
         lib.mockRequestFromFile('/api/components/app', 'file-level/components-app.json');
         lib.mockRequestFromFile('/api/sources/lines', 'file-level/lines.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/issues/app-new.js']);
+        });
       })
 
       .then(function () {
@@ -252,10 +282,16 @@ casper.test.begin(testName('Severity Facet'), function (test) {
       .start(lib.buildUrl('issues'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/issue_filters/app', 'app.json');
         lib.mockRequestFromFile('/api/issues/search', 'search-reopened.json', { data: { severities: 'BLOCKER' } });
         lib.mockRequestFromFile('/api/issues/search', 'search.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/issues/app-new.js']);
+        });
       })
 
       .then(function () {
@@ -285,11 +321,17 @@ casper.test.begin(testName('Bulk Change'), function (test) {
       .start(lib.buildUrl('issues'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/issue_filters/app', 'app.json');
         lib.mockRequestFromFile('/api/issues/search', 'search.json');
         lib.mockRequest('/issues/bulk_change_form?resolved=false',
             '<div id="bulk-change-form">bulk change form</div>', { contentType: 'text/plain' });
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/issues/app-new.js']);
+        });
       })
 
       .then(function () {

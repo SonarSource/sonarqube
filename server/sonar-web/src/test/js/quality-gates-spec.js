@@ -31,10 +31,16 @@ casper.test.begin('Quality Gates', function suite (test) {
       .start(lib.buildUrl('quality-gates'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/qualitygates/app', 'app.json');
         lib.mockRequestFromFile('/api/qualitygates/list', 'list.json');
         lib.mockRequestFromFile('/api/qualitygates/show?id=1', 'show.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/quality-gate/app.js']);
+        });
       })
 
       .then(function () {

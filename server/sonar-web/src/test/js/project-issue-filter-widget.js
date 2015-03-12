@@ -33,7 +33,7 @@ casper.test.begin(testName('Unresolved Issues By Severity'), 13, function (test)
       .start(lib.buildUrl('issue-filter-widget'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/issues/search', 'unresolved-issues-by-severity.json',
             { data: { resolved: 'false' } });
       })
@@ -94,7 +94,7 @@ casper.test.begin(testName('Unresolved Issues By Date'), 18, function (test) {
       .start(lib.buildUrl('issue-filter-widget'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/issues/search', 'unresolved-issues-by-date.json',
             { data: { resolved: 'false' } });
       })
@@ -164,7 +164,7 @@ casper.test.begin(testName('Unresolved Issues By Severity With Differential Peri
       .start(lib.buildUrl('issue-filter-widget'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/issues/search', 'unresolved-issues-by-severity-with-differential-period.json',
             { data: { resolved: 'false', createdAfter: '2014-12-09T17:12:38+0100' } });
       })
@@ -226,7 +226,7 @@ casper.test.begin(testName('Unresolved Issues By Severity With IGNORED Different
       .start(lib.buildUrl('issue-filter-widget'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/issues/search',
             'unresolved-issues-by-severity-with-IGNORED-differential-period.json',
             { data: { resolved: 'false', createdInLast: '1w' } });

@@ -30,9 +30,15 @@ casper.test.begin(testName('Base'), 9, function (test) {
   casper
       .start(lib.buildUrl('design'), function () {
         lib.setDefaultViewport();
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/resources', 'resources.json');
         lib.mockRequestFromFile('/api/dependencies', 'dependencies.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/design/app.js']);
+        });
       })
 
       .then(function () {
@@ -75,9 +81,15 @@ casper.test.begin(testName('Highlight'), 13, function (test) {
   casper
       .start(lib.buildUrl('design'), function () {
         lib.setDefaultViewport();
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/resources', 'resources.json');
         lib.mockRequestFromFile('/api/dependencies', 'dependencies.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/design/app.js']);
+        });
       })
 
       .then(function () {

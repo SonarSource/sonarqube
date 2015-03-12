@@ -35,12 +35,18 @@ casper.test.begin('issues-page-should-open-issue-permalink', 3, function (test) 
       .start(lib.buildUrl('issues#issues=' + encodeURI(issueKey)), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/issue_filters/app', 'app.json');
         lib.mockRequest('/api/issues/search', '{}', { data: { issues: issueKey, p: 2 } });
         lib.mockRequestFromFile('/api/issues/search', 'search.json', { data: { issues: issueKey } });
         lib.mockRequestFromFile('/api/components/app', 'components-app.json');
         lib.mockRequestFromFile('/api/sources/lines', 'lines.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/issues/app-new.js']);
+        });
       })
 
       .then(function () {

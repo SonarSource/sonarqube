@@ -31,12 +31,18 @@ casper.test.begin('coding-rules-page-active-severity-facet', 7, function (test) 
       .start(lib.buildUrl('coding-rules'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/rules/app', 'app.json');
         lib.mockRequestFromFile('/api/rules/search', 'search-BLOCKER.json', { data: { active_severities: 'BLOCKER' } });
         lib.mockRequestFromFile('/api/rules/search', 'search-qprofile.json',
             { data: { qprofile: 'java-default-with-mojo-conventions-49307' } });
         lib.mockRequestFromFile('/api/rules/search', 'search.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/coding-rules/app.js']);
+        });
       })
 
       .then(function () {

@@ -31,12 +31,18 @@ casper.test.begin('coding-rules-page-should-delete-manual-rules', 1, function (t
       .start(lib.buildUrl('coding-rules'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/rules/app', 'app.json');
         this.searchMock = lib.mockRequestFromFile('/api/rules/search', 'search-before.json');
         lib.mockRequestFromFile('/api/rules/show', 'show.json');
         lib.mockRequest('/api/rules/delete', '{}');
         lib.mockRequest('/api/issues/search', '{}');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/coding-rules/app.js']);
+        });
       })
 
       .then(function () {
