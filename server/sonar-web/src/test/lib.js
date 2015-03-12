@@ -173,7 +173,9 @@ exports.sendCoverage = function () {
       url: '/coverage/client',
       data: JSON.stringify(window.__coverage__),
       processData: false,
-      contentType: 'application/json; charset=UTF-8'
+      contentType: 'application/json; charset=UTF-8',
+      async: false
     });
   });
+  casper.wait(500);
 };
