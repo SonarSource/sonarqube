@@ -358,7 +358,6 @@ module.exports = (grunt) ->
           'no-colors': true
           'fail-fast': true
           concise: true
-          parallel: true
           port: expressPort
         src: ['src/test/js/**/*.js']
       testCoverageLight:
