@@ -1,0 +1,34 @@
+{
+  "total": 3,
+  "results": [
+    {
+      "q": "TRK",
+      "name": "Projects",
+      "items": [
+        {
+          "key": "org.codehaus.sonar-plugins.java:java",
+          "name": "SonarQube Java"
+        }
+      ]
+    },
+    {
+      "q": "BRC",
+      "name": "Sub-projects",
+      "items": [
+        {
+          "key": "org.codehaus.sonar-plugins.java:java-squid",
+          "name": "SonarQube Java :: Squid"
+        },
+        {
+          "key": "org.codehaus.sonar-plugins.java:java-checks",
+          "name": "SonarQube Java :: Checks"
+        }
+      ]
+    },
+    {
+      "q": "DIR",
+      "name": "Directories",
+      "items": []
+    }
+  ]
+}
