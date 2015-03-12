@@ -27,12 +27,7 @@ import org.mockito.ArgumentMatcher;
 import org.sonar.api.web.Dashboard;
 import org.sonar.api.web.DashboardLayout;
 import org.sonar.api.web.DashboardTemplate;
-import org.sonar.core.dashboard.ActiveDashboardDao;
-import org.sonar.core.dashboard.ActiveDashboardDto;
-import org.sonar.core.dashboard.DashboardDao;
-import org.sonar.core.dashboard.DashboardDto;
-import org.sonar.core.dashboard.WidgetDto;
-import org.sonar.core.dashboard.WidgetPropertyDto;
+import org.sonar.core.dashboard.*;
 import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.template.LoadedTemplateDto;
 
@@ -64,7 +59,7 @@ public class RegisterDashboardsTest {
     fakeDashboardTemplate = mock(DashboardTemplate.class);
 
     task = new RegisterDashboards(new DashboardTemplate[]{fakeDashboardTemplate}, dashboardDao,
-      activeDashboardDao, loadedTemplateDao);
+      activeDashboardDao, loadedTemplateDao, null);
   }
 
   @Test

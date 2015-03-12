@@ -1,0 +1,81 @@
+<dataset>
+
+  <issue_filters
+      id="1"
+      name="Unresolved Issues"
+      user_login="[null]"
+      shared="[true]"
+      description="[null]"
+      data="resolved=false"
+      created_at="2011-04-25 01:15:00"
+      updated_at="2011-04-25 01:15:00" />
+
+  <issue_filters
+      id="2"
+      name="False Positive and Won't Fix Issues"
+      user_login="[null]"
+      shared="[true]"
+      description="[null]"
+      data="resolutions=FALSE-POSITIVE,WONTFIX"
+      created_at="2011-04-25 01:15:00"
+      updated_at="2011-04-25 01:15:00" />
+
+  <issue_filters
+      id="3"
+      name="My Unresolved Issues"
+      user_login="[null]"
+      shared="[true]"
+      description="[null]"
+      data="resolved=false|assignees=__me__"
+      created_at="2011-04-25 01:15:00"
+      updated_at="2011-04-25 01:15:00" />
+
+
+  <widgets id="1" dashboard_id="1" widget_key="polop" name="[null]" description="[null]"
+     column_index="1" row_index="1" configured="true" created_at="[null]" updated_at="[null]" resource_id="[null]"/>
+
+  <widget_properties id="1" widget_id="1" kee="palap" text_value="pulup"/>
+
+
+  <!-- 'False Positive Issues' - replaced by project_issue_filter w/ 'False Positive and Won't Fix Issues' filter -->
+  <widgets id="2" dashboard_id="1" widget_key="project_issue_filter" name="[null]" description="[null]"
+     column_index="1" row_index="2" configured="true" created_at="[null]" updated_at="2003-03-23 01:23:45" resource_id="[null]"/>
+
+  <!-- filter = 'False Positive and Won't Fix Issues' -->
+  <widget_properties id="3" widget_id="2" kee="filter" text_value="2"/>
+  <!-- distributionAxis is 'resolutions' -->
+  <widget_properties id="4" widget_id="2" kee="distributionAxis" text_value="resolutions"/>
+
+
+  <!-- 'My Unresolved Issues' - replaced by project_issue_filter w/ 'My Unresolved Issues' filter -->
+  <widgets id="3" dashboard_id="1" widget_key="project_issue_filter" name="[null]" description="[null]"
+     column_index="1" row_index="3" configured="true" created_at="[null]" updated_at="2003-03-23 01:23:45" resource_id="[null]"/>
+
+  <!-- filter = 'My Unresolved Issues' -->
+  <widget_properties id="5" widget_id="3" kee="filter" text_value="3"/>
+  <!-- distributionAxis is 'default', no other config -->
+
+
+  <!-- 'Unresolved Issues Per Developer' - replaced by project_issue_filter w/ 'Unresolved Issues' filter -->
+  <widgets id="4" dashboard_id="1" widget_key="project_issue_filter" name="[null]" description="[null]"
+     column_index="1" row_index="4" configured="true" created_at="[null]" updated_at="2003-03-23 01:23:45" resource_id="[null]"/>
+
+  <!-- filter = 'Unresolved Issues' -->
+  <widget_properties id="6" widget_id="4" kee="filter" text_value="1"/>
+  <!-- distributionAxis is 'assignees' -->
+  <widget_properties id="7" widget_id="4" kee="distributionAxis" text_value="assignees"/>
+
+
+  <!-- 'Unresolved Issues Per Status' - replaced by project_issue_filter w/ 'Unresolved Issues' filter -->
+  <widgets id="5" dashboard_id="1" widget_key="project_issue_filter" name="[null]" description="[null]"
+     column_index="1" row_index="5" configured="true" created_at="[null]" updated_at="2003-03-23 01:23:45" resource_id="[null]"/>
+
+  <!-- filter = 'Unresolved Issues' -->
+  <widget_properties id="8" widget_id="5" kee="filter" text_value="1"/>
+  <!-- distributionAxis is 'assignees' -->
+  <widget_properties id="9" widget_id="5" kee="distributionAxis" text_value="statuses"/>
+
+
+  <loaded_templates id="1" template_type="ONE_SHOT_TASK" kee="RenameIssueWidgets"/>
+
+</dataset>

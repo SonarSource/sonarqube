@@ -22,6 +22,7 @@ package org.sonar.server.db;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.issue.db.ActionPlanDao;
 import org.sonar.core.issue.db.IssueChangeDao;
+import org.sonar.core.issue.db.IssueFilterDao;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.DbSession;
@@ -82,6 +83,7 @@ public class DbClient implements ServerComponent {
   private final UserDao userDao;
   private final GroupDao groupDao;
   private final IssueDao issueDao;
+  private final IssueFilterDao issueFilterDao;
   private final IssueChangeDao issueChangeDao;
   private final ActionPlanDao actionPlanDao;
   private final AnalysisReportDao analysisReportDao;
@@ -118,6 +120,7 @@ public class DbClient implements ServerComponent {
     userDao = getDao(map, UserDao.class);
     groupDao = getDao(map, GroupDao.class);
     issueDao = getDao(map, IssueDao.class);
+    issueFilterDao = getDao(map, IssueFilterDao.class);
     issueChangeDao = getDao(map, IssueChangeDao.class);
     actionPlanDao = getDao(map, ActionPlanDao.class);
     analysisReportDao = getDao(map, AnalysisReportDao.class);
@@ -149,6 +152,10 @@ public class DbClient implements ServerComponent {
 
   public IssueDao issueDao() {
     return issueDao;
+  }
+
+  public IssueFilterDao issueFilterDao() {
+    return issueFilterDao;
   }
 
   public IssueChangeDao issueChangeDao() {

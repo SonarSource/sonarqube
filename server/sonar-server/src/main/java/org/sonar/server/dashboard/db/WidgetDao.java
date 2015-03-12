@@ -38,7 +38,17 @@ public class WidgetDao extends BaseDao<WidgetMapper, WidgetDto, Long> {
     return mapper(session).selectById(widgetId);
   }
 
+  @Override
+  protected WidgetDto doUpdate(DbSession session, WidgetDto item) {
+    mapper(session).update(item);
+    return item;
+  }
+
   public Collection<WidgetDto> findByDashboard(DbSession session, long dashboardKey) {
     return mapper(session).selectByDashboard(dashboardKey);
+  }
+
+  public Collection<WidgetDto> findAll(DbSession session) {
+    return mapper(session).selectAll();
   }
 }

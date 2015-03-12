@@ -23,6 +23,7 @@ package org.sonar.core.issue.db;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
+import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
@@ -32,7 +33,7 @@ import java.util.List;
 /**
  * @since 3.7
  */
-public class IssueFilterDao implements BatchComponent, ServerComponent {
+public class IssueFilterDao implements BatchComponent, ServerComponent, DaoComponent {
 
   private final MyBatis mybatis;
 

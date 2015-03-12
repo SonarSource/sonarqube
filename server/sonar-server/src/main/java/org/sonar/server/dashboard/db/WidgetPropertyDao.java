@@ -26,11 +26,18 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.BaseDao;
 
 import java.util.Collection;
+import java.util.List;
 
 public class WidgetPropertyDao extends BaseDao<WidgetPropertyMapper, WidgetPropertyDto, Long> {
 
   public WidgetPropertyDao(System2 system2) {
     super(WidgetPropertyMapper.class, system2);
+  }
+
+  @Override
+  protected WidgetPropertyDto doInsert(DbSession session, WidgetPropertyDto item) {
+    mapper(session).insert(item);
+    return item;
   }
 
   @Override
@@ -40,6 +47,10 @@ public class WidgetPropertyDao extends BaseDao<WidgetPropertyMapper, WidgetPrope
 
   public Collection<WidgetPropertyDto> findByDashboard(DbSession session, long dashboardKey) {
     return mapper(session).selectByDashboard(dashboardKey);
+  }
+
+  public void deleteByWidgetIds(DbSession session, List<Long> widgetIdsWithPropertiesToDelete) {
+    mapper(session).deleteByWidgetIds(widgetIdsWithPropertiesToDelete);
   }
 
 }

@@ -22,6 +22,7 @@ package org.sonar.core.dashboard;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.Collection;
 
@@ -43,4 +44,21 @@ public interface WidgetMapper {
 
   @Select("select " + COLUMNS + " from widgets where dashboard_id=#{id}")
   Collection<WidgetDto> selectByDashboard(long dashboardKey);
+
+  @Select("select " + COLUMNS + " from widgets")
+  Collection<WidgetDto> selectAll();
+
+  @Update("UPDATE widgets SET " +
+    "dashboard_id=#{dashboardId}, " +
+    "widget_key=#{widgetKey}, " +
+    "name=#{name}, " +
+    "description=#{description}, " +
+    "column_index=#{columnIndex}, " +
+    "row_index=#{rowIndex}, " +
+    "configured=#{configured}, " +
+    "created_at=#{createdAt}, " +
+    "updated_at=#{updatedAt}, " +
+    "resource_id=#{resourceId} " +
+    "WHERE id=#{id}")
+  void update(WidgetDto item);
 }

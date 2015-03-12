@@ -27,14 +27,10 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.api.web.Dashboard;
 import org.sonar.api.web.DashboardTemplate;
-import org.sonar.core.dashboard.ActiveDashboardDao;
-import org.sonar.core.dashboard.ActiveDashboardDto;
-import org.sonar.core.dashboard.DashboardDao;
-import org.sonar.core.dashboard.DashboardDto;
-import org.sonar.core.dashboard.WidgetDto;
-import org.sonar.core.dashboard.WidgetPropertyDto;
+import org.sonar.core.dashboard.*;
 import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.template.LoadedTemplateDto;
+import org.sonar.server.issue.filter.RegisterIssueFilters;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -55,7 +51,7 @@ public class RegisterDashboards implements Startable {
   private final LoadedTemplateDao loadedTemplateDao;
 
   public RegisterDashboards(DashboardTemplate[] dashboardTemplatesArray, DashboardDao dashboardDao,
-    ActiveDashboardDao activeDashboardDao, LoadedTemplateDao loadedTemplateDao) {
+    ActiveDashboardDao activeDashboardDao, LoadedTemplateDao loadedTemplateDao, RegisterIssueFilters startupDependency) {
     this.dashboardTemplates = Lists.newArrayList(dashboardTemplatesArray);
     this.dashboardDao = dashboardDao;
     this.activeDashboardDao = activeDashboardDao;
@@ -65,8 +61,8 @@ public class RegisterDashboards implements Startable {
   /**
    * Used when no plugin is defining some DashboardTemplate
    */
-  public RegisterDashboards(DashboardDao dashboardDao, ActiveDashboardDao activeDashboardDao, LoadedTemplateDao loadedTemplateDao) {
-    this(new DashboardTemplate[] {}, dashboardDao, activeDashboardDao, loadedTemplateDao);
+  public RegisterDashboards(DashboardDao dashboardDao, ActiveDashboardDao activeDashboardDao, LoadedTemplateDao loadedTemplateDao, RegisterIssueFilters registerIssueFilters) {
+    this(new DashboardTemplate[] {}, dashboardDao, activeDashboardDao, loadedTemplateDao, registerIssueFilters);
   }
 
   @Override

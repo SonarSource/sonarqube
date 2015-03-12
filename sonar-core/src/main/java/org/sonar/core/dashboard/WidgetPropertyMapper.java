@@ -26,6 +26,7 @@ import org.apache.ibatis.annotations.Select;
 import javax.annotation.CheckForNull;
 
 import java.util.Collection;
+import java.util.List;
 
 public interface WidgetPropertyMapper {
 
@@ -42,4 +43,6 @@ public interface WidgetPropertyMapper {
   @Select("select " + COLUMNS + " from widget_properties wp " +
     "inner join widgets w on w.id=wp.widget_id where w.dashboard_id=#{id}")
   Collection<WidgetPropertyDto> selectByDashboard(long dashboardKey);
+
+  void deleteByWidgetIds(List<Long> widgetIds);
 }

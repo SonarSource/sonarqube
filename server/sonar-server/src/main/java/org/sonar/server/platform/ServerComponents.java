@@ -709,6 +709,7 @@ class ServerComponents {
     startupContainer.addSingleton(RegisterServletFilters.class);
     startupContainer.addSingleton(CopyRequirementsFromCharacteristicsToRules.class);
     startupContainer.addSingleton(ReportQueueCleaner.class);
+    startupContainer.addSingleton(RenameIssueWidgets.class);
 
     DoPrivileged.execute(new DoPrivileged.Task() {
       @Override
