@@ -90,7 +90,6 @@ public class DefaultIndex extends SonarIndex {
   private final MeasureCache measureCache;
   private final ResourceKeyMigration migration;
   private final DependencyPersister dependencyPersister;
-  private final LinkPersister linkPersister;
   private final EventPersister eventPersister;
   // caches
   private Project currentProject;
@@ -102,11 +101,10 @@ public class DefaultIndex extends SonarIndex {
   private ModuleIssues moduleIssues;
 
   public DefaultIndex(ResourceCache resourceCache, DependencyPersister dependencyPersister,
-    LinkPersister linkPersister, EventPersister eventPersister, ProjectTree projectTree, MetricFinder metricFinder,
+    EventPersister eventPersister, ProjectTree projectTree, MetricFinder metricFinder,
     ResourceKeyMigration migration, MeasureCache measureCache) {
     this.resourceCache = resourceCache;
     this.dependencyPersister = dependencyPersister;
-    this.linkPersister = linkPersister;
     this.eventPersister = eventPersister;
     this.projectTree = projectTree;
     this.metricFinder = metricFinder;
@@ -117,7 +115,6 @@ public class DefaultIndex extends SonarIndex {
   public DefaultIndex(ResourceCache resourceCache, DependencyPersister dependencyPersister, ProjectTree projectTree, MetricFinder metricFinder, MeasureCache measureCache) {
     this.resourceCache = resourceCache;
     this.dependencyPersister = dependencyPersister;
-    this.linkPersister = null;
     this.eventPersister = null;
     this.projectTree = projectTree;
     this.metricFinder = metricFinder;
@@ -408,28 +405,6 @@ public class DefaultIndex extends SonarIndex {
 
     violation.setResource(bucket.getResource());
     moduleIssues.initAndAddViolation(violation);
-  }
-
-  //
-  //
-  //
-  // LINKS
-  //
-  //
-  //
-
-  @Override
-  public void addLink(ProjectLink link) {
-    if (linkPersister != null) {
-      linkPersister.saveLink(currentProject, link);
-    }
-  }
-
-  @Override
-  public void deleteLink(String key) {
-    if (linkPersister != null) {
-      linkPersister.deleteLink(currentProject, key);
-    }
   }
 
   //

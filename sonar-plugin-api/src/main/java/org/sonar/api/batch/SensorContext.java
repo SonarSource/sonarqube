@@ -25,7 +25,6 @@ import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.resources.ProjectLink;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
 
@@ -226,19 +225,6 @@ public interface SensorContext extends org.sonar.api.batch.sensor.SensorContext 
    */
   @Deprecated
   void saveSource(Resource reference, String source);
-
-  // ----------- LINKS --------------
-
-  /**
-   * add a link to an external page like project homepage, sources (subversion, ...), continuous integration server... Example :
-   * context.addLink(new ProjectLink("maven_site, "Maven site", "http://my.maven.com)
-   */
-  void saveLink(ProjectLink link);
-
-  /**
-   * remove a link. It does not fail if key is unknown.
-   */
-  void deleteLink(String key);
 
   // ----------- EVENTS --------------
 

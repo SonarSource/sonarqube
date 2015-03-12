@@ -19,6 +19,9 @@
  */
 package org.sonar.batch.report;
 
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Resource;
@@ -26,8 +29,10 @@ import org.sonar.api.resources.ResourceUtils;
 import org.sonar.batch.index.BatchResource;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.protocol.Constants;
-import org.sonar.batch.protocol.output.BatchReportWriter;
+import org.sonar.batch.protocol.Constants.ComponentLinkType;
 import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.batch.protocol.output.BatchReport.ComponentLink;
+import org.sonar.batch.protocol.output.BatchReportWriter;
 
 import javax.annotation.CheckForNull;
 
@@ -86,10 +91,31 @@ public class ComponentsPublisher implements ReportPublisher {
     for (BatchResource child : batchResource.children()) {
       builder.addChildRefs(child.batchId());
     }
+    if (ResourceUtils.isProject(r)) {
+      ProjectDefinition def = reactor.getProject(r.getEffectiveKey());
+      ComponentLink.Builder linkBuilder = ComponentLink.newBuilder();
+
+      writeProjectLink(builder, def, linkBuilder, CoreProperties.LINKS_HOME_PAGE, ComponentLinkType.HOME);
+      writeProjectLink(builder, def, linkBuilder, CoreProperties.LINKS_CI, ComponentLinkType.CI);
+      writeProjectLink(builder, def, linkBuilder, CoreProperties.LINKS_ISSUE_TRACKER, ComponentLinkType.ISSUE);
+      writeProjectLink(builder, def, linkBuilder, CoreProperties.LINKS_SOURCES, ComponentLinkType.SCM);
+      writeProjectLink(builder, def, linkBuilder, CoreProperties.LINKS_SOURCES_DEV, ComponentLinkType.SCM_DEV);
+    }
     writer.writeComponent(builder.build());
 
     for (BatchResource child : batchResource.children()) {
       recursiveWriteComponent(child, writer);
+    }
+  }
+
+  private void writeProjectLink(BatchReport.Component.Builder componentBuilder, ProjectDefinition def, ComponentLink.Builder linkBuilder, String linkProp,
+    ComponentLinkType linkType) {
+    String link = def.properties().get(linkProp);
+    if (StringUtils.isNotBlank(link)) {
+      linkBuilder.setType(linkType);
+      linkBuilder.setHref(link);
+      componentBuilder.addLinks(linkBuilder.build());
+      linkBuilder.clear();
     }
   }
 

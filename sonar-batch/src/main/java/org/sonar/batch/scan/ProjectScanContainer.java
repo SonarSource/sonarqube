@@ -185,7 +185,6 @@ public class ProjectScanContainer extends ComponentContainer {
   private void addDataBaseComponents() {
     add(
       EventPersister.class,
-      LinkPersister.class,
       MeasurePersister.class,
       DuplicationPersister.class,
       ResourcePersister.class,
