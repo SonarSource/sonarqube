@@ -418,10 +418,10 @@ module.exports = (grunt) ->
       lcov:
         src: 'target/js-coverage/lcov.info'
         dest: 'target/js-coverage/lcov.info'
-        replacements: [{
-          from: '/webapp'
-          to: ''
-        }]
+        replacements: [
+          { from: '/webapp', to: '' }
+          { from: '\webapp', to: '' }
+        ]
 
 
     jshint:
