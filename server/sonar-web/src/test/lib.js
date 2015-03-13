@@ -59,6 +59,7 @@ exports.changeWorkingDirectory = function (dir) {
     curFilePath.pop(); // "js" dir
     curFilePath.push('json');
     curFilePath.push(dir);
+    casper.log('changing working dir to: ' + curFilePath.join(fs.separator));
     fs.changeWorkingDirectory(curFilePath.join(fs.separator));
   }
 };
