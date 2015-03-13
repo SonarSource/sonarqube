@@ -30,11 +30,11 @@ import java.util.List;
  */
 public class ComponentLinkDto {
 
-  public static String TYPE_HOME_PAGE = "homepage";
-  public static String TYPE_CI = "ci";
-  public static String TYPE_ISSUE_TRACKER = "issue";
-  public static String TYPE_SOURCES = "scm";
-  public static String TYPE_SOURCES_DEV = "scm_dev";
+  public static final String TYPE_HOME_PAGE = "homepage";
+  public static final String TYPE_CI = "ci";
+  public static final String TYPE_ISSUE_TRACKER = "issue";
+  public static final String TYPE_SOURCES = "scm";
+  public static final String TYPE_SOURCES_DEV = "scm_dev";
 
   public static List<String> PROVIDED_TYPES = ImmutableList.of(TYPE_HOME_PAGE, TYPE_CI, TYPE_ISSUE_TRACKER, TYPE_SOURCES, TYPE_SOURCES_DEV);
 

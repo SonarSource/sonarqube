@@ -21,6 +21,7 @@
 package org.sonar.server.computation.step;
 
 import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Qualifiers;
@@ -37,6 +38,7 @@ import javax.annotation.Nullable;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.collect.Sets.newHashSet;
@@ -45,6 +47,14 @@ public class PersistComponentLinksStep implements ComputationStep {
 
   private final DbClient dbClient;
   private final I18n i18n;
+
+  private static final Map<Constants.ComponentLinkType, String> typesConverter = ImmutableMap.of(
+    Constants.ComponentLinkType.HOME, ComponentLinkDto.TYPE_HOME_PAGE,
+    Constants.ComponentLinkType.SCM, ComponentLinkDto.TYPE_SOURCES,
+    Constants.ComponentLinkType.SCM_DEV, ComponentLinkDto.TYPE_SOURCES_DEV,
+    Constants.ComponentLinkType.CI, ComponentLinkDto.TYPE_CI,
+    Constants.ComponentLinkType.ISSUE, ComponentLinkDto.TYPE_ISSUE_TRACKER
+  );
 
   public PersistComponentLinksStep(DbClient dbClient, I18n i18n) {
     this.dbClient = dbClient;
@@ -123,20 +133,12 @@ public class PersistComponentLinksStep implements ComputationStep {
     }
   }
 
-  private static String convertType(Constants.ComponentLinkType type) {
-    switch (type) {
-      case HOME:
-        return ComponentLinkDto.TYPE_HOME_PAGE;
-      case SCM:
-        return ComponentLinkDto.TYPE_SOURCES;
-      case SCM_DEV:
-        return ComponentLinkDto.TYPE_SOURCES_DEV;
-      case CI:
-        return ComponentLinkDto.TYPE_CI;
-      case ISSUE:
-        return ComponentLinkDto.TYPE_ISSUE_TRACKER;
-      default:
-        throw new IllegalArgumentException(String.format("Unsupported type %s", type.name()));
+  private static String convertType(Constants.ComponentLinkType reportType) {
+    String type = typesConverter.get(reportType);
+    if (type != null) {
+      return type;
+    } else {
+      throw new IllegalArgumentException(String.format("Unsupported type %s", reportType.name()));
     }
   }
 
