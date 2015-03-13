@@ -41,7 +41,7 @@ Note that measures, events and reviews are not deleted.
   <!--parent_dependency_id="[null]" project_snapshot_id="2"-->
   <!--dep_usage="USES" dep_weight="1" from_scope="LIB" to_scope="PRJ"/>-->
 
-  <events id="1" resource_id="1" snapshot_id="1"
+  <events id="1" component_uuid="1" snapshot_id="1"
           category="VERSION" description="[null]" name="Version 1.0" event_date="1228222680000"
           created_at="1228222680000"
           event_data="[null]"/>
@@ -80,7 +80,7 @@ Note that measures, events and reviews are not deleted.
                 parent_dependency_id="[null]" project_snapshot_id="2"
                 dep_usage="USES" dep_weight="1" from_scope="LIB" to_scope="PRJ"/>
 
-  <events id="2" resource_id="2" snapshot_id="2"
+  <events id="2" component_uuid="2" snapshot_id="2"
           category="VERSION" description="[null]" name="Version 1.0" event_date="1228222680000"
           created_at="1228222680000"
           event_data="[null]"/>

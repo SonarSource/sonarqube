@@ -41,7 +41,7 @@ public class EventPersister {
   }
 
   public List<Event> getEvents(Resource resource) {
-    return session.getResults(Event.class, "resourceId", resource.getId());
+    return session.getResults(Event.class, "componentUuid", resource.getUuid());
   }
 
   public void deleteEvent(Event event) {
@@ -56,8 +56,9 @@ public class EventPersister {
     event.setCreatedAt(new Date(system2.now()));
     if (event.getDate() == null) {
       event.setSnapshot(batchResource.snapshot());
+      event.setComponentUuid(batchResource.resource().getUuid());
     } else {
-      event.setResourceId(batchResource.resource().getId());
+      event.setComponentUuid(batchResource.resource().getUuid());
     }
 
     session.save(event);

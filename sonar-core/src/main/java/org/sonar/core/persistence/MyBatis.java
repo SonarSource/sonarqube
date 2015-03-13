@@ -50,6 +50,8 @@ import org.sonar.core.dependency.ResourceSnapshotDto;
 import org.sonar.core.dependency.ResourceSnapshotMapper;
 import org.sonar.core.duplication.DuplicationMapper;
 import org.sonar.core.duplication.DuplicationUnitDto;
+import org.sonar.core.event.EventDto;
+import org.sonar.core.event.db.EventMapper;
 import org.sonar.core.graph.jdbc.GraphDto;
 import org.sonar.core.graph.jdbc.GraphDtoMapper;
 import org.sonar.core.issue.db.*;
@@ -184,6 +186,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "IdUuidPair", IdUuidPair.class);
     loadAlias(conf, "FilePathWithHash", FilePathWithHashDto.class);
     loadAlias(conf, "UuidWithProjectUuid", UuidWithProjectUuidDto.class);
+    loadAlias(conf, "Event", EventDto.class);
 
     // AuthorizationMapper has to be loaded before IssueMapper because this last one used it
     loadMapper(conf, "org.sonar.core.user.AuthorizationMapper");
@@ -202,7 +205,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
       NotificationQueueMapper.class, CharacteristicMapper.class,
       GroupMembershipMapper.class, QualityProfileMapper.class, ActiveRuleMapper.class,
       MeasureMapper.class, MetricMapper.class, QualityGateMapper.class, QualityGateConditionMapper.class, ComponentMapper.class, SnapshotMapper.class,
-      ProjectQgateAssociationMapper.class,
+      ProjectQgateAssociationMapper.class, EventMapper.class,
       AnalysisReportMapper.class, ComponentIndexMapper.class, ComponentLinkMapper.class,
       Migration45Mapper.class, Migration50Mapper.class
     };

@@ -37,10 +37,10 @@ class Api::EventsController < Api::ApiController
       end
       
       if @resource
-        conditions<<'resource_id=:rid'
-        values[:rid]=@resource.id
+        conditions<<'component_uuid=:component_uuid'
+        values[:component_uuid]=@resource.uuid
       else
-        conditions<<'resource_id IS NULL'
+        conditions<<'component_uuid IS NULL'
       end
 
       from=nil
@@ -87,7 +87,7 @@ class Api::EventsController < Api::ApiController
   def show
     begin
       event=Event.find(params[:id])
-      load_resource(:user, event.resource_id)
+      load_resource_by_uuid(:user, event.component_uuid)
 
       respond_to do |format|
         format.json { render :json => jsonp(events_to_json([event])) }
@@ -144,7 +144,7 @@ class Api::EventsController < Api::ApiController
       name = params[:name]
       desc = params[:description]
       category = params[:category]
-      snapshots = Snapshot.find(:all, :include => 'events', :conditions => ["(root_snapshot_id = ? OR id = ?) AND scope = 'PRJ'", root_snapshot.id, root_snapshot.id])
+      snapshots = Snapshot.find(:all, :include => ['events', 'project'], :conditions => ["(root_snapshot_id = ? OR id = ?) AND scope = 'PRJ'", root_snapshot.id, root_snapshot.id])
       snapshots.each do |snapshot|
         # if this is a 'Version' event, must propagate the version number to the snapshot
         if category==EventCategory::KEY_VERSION
@@ -157,7 +157,7 @@ class Api::EventsController < Api::ApiController
           :description => desc,
           :category => category,
           :snapshot => snapshot,
-          :resource_id => snapshot.project_id,
+          :component_uuid => snapshot.project.uuid,
           :event_date => snapshot.created_at
         )
         event.save!
@@ -185,7 +185,7 @@ class Api::EventsController < Api::ApiController
   def destroy
     begin
       event=Event.find(params[:id])
-      load_resource(:admin, event.resource_id)
+      load_resource_by_uuid(:admin, event.component_uuid)
       
       events = []
       name = event.name
@@ -225,6 +225,24 @@ class Api::EventsController < Api::ApiController
       @resource=Project.by_key(resource_key)
       if @resource.nil?
         raise ApiException.new 404, "Resource not found: #{resource_key}"
+      end
+
+      unless has_role?(required_resource_role, @resource)
+        raise ApiException.new 401, "Unauthorized"
+      end
+    else
+      # global events
+      unless is_admin?
+        raise ApiException.new 401, "Unauthorized"
+      end
+    end
+  end
+
+  def load_resource_by_uuid(required_resource_role, component_uuid=nil)
+    if component_uuid
+      @resource=Project.first(:conditions => {:uuid => component_uuid})
+      if @resource.nil?
+        raise ApiException.new 404, "Component uuid not found: #{component_uuid}"
       end
 
       unless has_role?(required_resource_role, @resource)

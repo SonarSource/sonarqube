@@ -30,6 +30,7 @@ import org.sonar.api.resources.Resource;
 import javax.annotation.Nullable;
 import javax.persistence.*;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -37,7 +38,7 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "projects")
-public class ResourceModel extends BaseIdentifiable implements Cloneable {
+public class ResourceModel extends BaseIdentifiable implements Cloneable, Serializable {
 
   public static final String SCOPE_PROJECT = "PRJ";
   public static final String QUALIFIER_PROJECT_TRUNK = "TRK";
