@@ -20,21 +20,22 @@
 
 package org.sonar.server.benchmark;
 
-import com.google.common.collect.Maps;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.server.es.EsClient;
+import org.sonar.server.source.db.FileSourceDb;
+import org.sonar.server.source.index.SourceFileResultSetIterator;
 import org.sonar.server.source.index.SourceLineDoc;
 import org.sonar.server.source.index.SourceLineIndex;
 import org.sonar.server.source.index.SourceLineIndexDefinition;
 import org.sonar.server.source.index.SourceLineIndexer;
-import org.sonar.server.source.index.SourceLineResultSetIterator;
 import org.sonar.server.tester.ServerTester;
 
+import java.util.Arrays;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Timer;
@@ -109,11 +110,12 @@ public class SourceIndexBenchmarkTest {
     // TODO assertions
   }
 
-  private static class SourceIterator implements Iterator<SourceLineResultSetIterator.SourceFile> {
+  private static class SourceIterator implements Iterator<SourceFileResultSetIterator.Row> {
     private final long nbFiles;
     private final int nbLinesPerFile;
     private int currentProject = 0;
     private AtomicLong count = new AtomicLong(0L);
+    private final FileSourceDb.Data.Builder dataBuilder = FileSourceDb.Data.newBuilder();
 
     SourceIterator(long nbFiles, int nbLinesPerFile) {
       this.nbFiles = nbFiles;
@@ -130,34 +132,35 @@ public class SourceIndexBenchmarkTest {
     }
 
     @Override
-    public SourceLineResultSetIterator.SourceFile next() {
+    public SourceFileResultSetIterator.Row next() {
+      String projectUuid = "P" + currentProject;
       String fileUuid = "FILE" + count.get();
-      SourceLineResultSetIterator.SourceFile file = new SourceLineResultSetIterator.SourceFile(fileUuid, System.currentTimeMillis());
+      dataBuilder.clear();
       for (int indexLine = 1; indexLine <= nbLinesPerFile; indexLine++) {
-        SourceLineDoc line = new SourceLineDoc(Maps.<String, Object>newHashMap());
-        line.setFileUuid(fileUuid);
-        line.setLine(indexLine);
-        line.setHighlighting(StringUtils.repeat("HIGHLIGHTING", 5));
-        line.setItConditions(4);
-        line.setItCoveredConditions(2);
-        line.setItLineHits(2);
-        line.setOverallConditions(8);
-        line.setOverallCoveredConditions(2);
-        line.setOverallLineHits(2);
-        line.setUtConditions(8);
-        line.setUtCoveredConditions(2);
-        line.setUtLineHits(2);
-        line.setProjectUuid("PROJECT" + currentProject);
-        line.setScmAuthor("a_guy");
-        line.setScmRevision("ABCDEFGHIJKL");
-        line.setSource(StringUtils.repeat("SOURCE", 10));
-        file.addLine(line);
+        dataBuilder.addLinesBuilder()
+          .setLine(indexLine)
+          .setScmRevision("REVISION_" + indexLine)
+          .setScmAuthor("a_guy")
+          .setSource("this is not java code " + indexLine)
+          .setUtLineHits(2)
+          .setUtConditions(8)
+          .setUtCoveredConditions(2)
+          .setItLineHits(2)
+          .setItConditions(8)
+          .setItCoveredConditions(2)
+          .setOverallLineHits(2)
+          .setOverallConditions(8)
+          .setOverallCoveredConditions(2)
+          .setScmDate(1_500_000_000_000L)
+          .setHighlighting("2,9,k;9,18,k")
+          .addAllDuplications(Arrays.asList(19, 33, 141))
+          .build();
       }
       count.incrementAndGet();
       if (count.get() % 500 == 0) {
         currentProject++;
       }
-      return file;
+      return SourceFileResultSetIterator.toRow(projectUuid, fileUuid, new Date(), dataBuilder.build());
     }
 
     @Override

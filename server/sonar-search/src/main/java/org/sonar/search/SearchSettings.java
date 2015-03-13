@@ -151,8 +151,7 @@ class SearchSettings {
   private void configureStorage(ImmutableSettings.Builder builder) {
     builder
       .put("index.number_of_shards", "1")
-      .put("index.refresh_interval", "30s")
-      .put("indices.store.throttle.type", "none");
+      .put("index.refresh_interval", "30s");
   }
 
   private void configureCluster(ImmutableSettings.Builder builder) {

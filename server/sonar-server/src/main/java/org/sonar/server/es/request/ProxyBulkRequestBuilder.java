@@ -21,7 +21,7 @@
 package org.sonar.server.es.request;
 
 import com.google.common.collect.HashMultiset;
-import com.google.common.collect.Multiset.Entry;
+import com.google.common.collect.Multiset;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
@@ -69,7 +69,7 @@ public class ProxyBulkRequestBuilder extends BulkRequestBuilder {
 
   @Override
   public ListenableActionFuture<BulkResponse> execute() {
-    throw new UnsupportedOperationException("execute() should not be called as it's used for asynchronous");
+    throw unsupported();
   }
 
   private UnsupportedOperationException unsupported() {
@@ -106,10 +106,10 @@ public class ProxyBulkRequestBuilder extends BulkRequestBuilder {
       groupedRequests.add(new BulkRequestKey(requestType, index, docType));
     }
 
-    Set<Entry<BulkRequestKey>> entrySet = groupedRequests.entrySet();
+    Set<Multiset.Entry<BulkRequestKey>> entrySet = groupedRequests.entrySet();
     int size = entrySet.size();
     int current = 0;
-    for (Entry<BulkRequestKey> requestEntry : entrySet) {
+    for (Multiset.Entry<BulkRequestKey> requestEntry : entrySet) {
       message.append(requestEntry.getCount()).append(" ").append(requestEntry.getElement().toString());
       current++;
       if (current < size) {

@@ -31,7 +31,7 @@ import org.sonar.core.source.db.FileSourceDao;
 import org.sonar.core.source.db.FileSourceDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.db.FileSourceDb;
-import org.sonar.server.source.index.SourceLineResultSetIterator;
+import org.sonar.server.source.index.SourceFileResultSetIterator;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -73,10 +73,10 @@ public class SourceDbBenchmarkTest {
 
     try {
       long start = System.currentTimeMillis();
-      SourceLineResultSetIterator it = SourceLineResultSetIterator.create(dbClient, connection, 0L);
+      SourceFileResultSetIterator it = SourceFileResultSetIterator.create(dbClient, connection, 0L);
       while (it.hasNext()) {
-        SourceLineResultSetIterator.SourceFile row = it.next();
-        assertThat(row.getLines().size()).isEqualTo(NUMBER_OF_LINES);
+        SourceFileResultSetIterator.Row row = it.next();
+        assertThat(row.getLineUpdateRequests().size()).isEqualTo(NUMBER_OF_LINES);
         assertThat(row.getFileUuid()).isNotEmpty();
         counter.incrementAndGet();
       }
@@ -131,7 +131,7 @@ public class SourceDbBenchmarkTest {
         .setOverallLineHits(i)
         .setOverallConditions(i+1)
         .setOverallCoveredConditions(i)
-        .setScmDate(150000000L)
+        .setScmDate(1_500_000_000_000L)
         .setHighlighting("2,9,k;9,18,k")
         .addAllDuplications(Arrays.asList(19,33,141))
         .build();

@@ -21,6 +21,7 @@ package org.sonar.server.activity.index;
 
 import org.apache.commons.dbutils.DbUtils;
 import org.assertj.core.data.MapEntry;
+import org.elasticsearch.action.update.UpdateRequest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -32,6 +33,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
 
 import java.sql.Connection;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -56,23 +58,29 @@ public class ActivityResultSetIteratorTest {
     DbUtils.closeQuietly(connection);
   }
 
+  /**
+   * Iterate over two rows in table.
+   */
   @Test
   public void traverse() throws Exception {
     dbTester.prepareDbUnit(getClass(), "traverse.xml");
     ActivityResultSetIterator it = ActivityResultSetIterator.create(client, connection, 0L);
+
     assertThat(it.hasNext()).isTrue();
-    ActivityDoc doc = it.next();
-    assertThat(doc).isNotNull();
-    assertThat(doc.getKey()).isEqualTo("UUID1");
-    assertThat(doc.getAction()).isEqualTo("THE_ACTION");
-    assertThat(doc.getMessage()).isEqualTo("THE_MSG");
-    assertThat(doc.getDetails()).containsOnly(MapEntry.entry("foo", "bar"));
-    assertThat(doc.getLogin()).isEqualTo("THE_AUTHOR");
+    UpdateRequest request = it.next();
+    Map<String, Object> doc = request.doc().sourceAsMap();
+    assertThat(doc.get(ActivityIndexDefinition.FIELD_KEY)).isEqualTo("UUID1");
+    assertThat(doc.get(ActivityIndexDefinition.FIELD_ACTION)).isEqualTo("THE_ACTION");
+    assertThat(doc.get(ActivityIndexDefinition.FIELD_MESSAGE)).isEqualTo("THE_MSG");
+    assertThat((Map) doc.get(ActivityIndexDefinition.FIELD_DETAILS)).containsOnly(MapEntry.entry("foo", "bar"));
+    assertThat(doc.get(ActivityIndexDefinition.FIELD_LOGIN)).isEqualTo("THE_AUTHOR");
 
     assertThat(it.hasNext()).isTrue();
     assertThat(it.next()).isNotNull();
     assertThat(it.hasNext()).isFalse();
     it.close();
+
+    assertThat(it.getMaxRowDate()).isEqualTo(1420066800000L);
   }
 
   @Test
@@ -81,11 +89,25 @@ public class ActivityResultSetIteratorTest {
     ActivityResultSetIterator it = ActivityResultSetIterator.create(client, connection, DateUtils.parseDate("2014-12-01").getTime());
 
     assertThat(it.hasNext()).isTrue();
-    ActivityDoc doc = it.next();
-    assertThat(doc).isNotNull();
-    assertThat(doc.getKey()).isEqualTo("UUID2");
+    UpdateRequest request = it.next();
+    assertThat(request).isNotNull();
+    Map<String, Object> doc = request.doc().sourceAsMap();
+    assertThat(doc.get(ActivityIndexDefinition.FIELD_KEY)).isEqualTo("UUID2");
 
     assertThat(it.hasNext()).isFalse();
     it.close();
+
+    assertThat(it.getMaxRowDate()).isEqualTo(1420066800000L);
+  }
+
+  @Test
+  public void nothing_to_traverse() throws Exception {
+    dbTester.prepareDbUnit(getClass(), "traverse.xml");
+    ActivityResultSetIterator it = ActivityResultSetIterator.create(client, connection, DateUtils.parseDate("2030-01-01").getTime());
+
+    assertThat(it.hasNext()).isFalse();
+    it.close();
+
+    assertThat(it.getMaxRowDate()).isEqualTo(0L);
   }
 }

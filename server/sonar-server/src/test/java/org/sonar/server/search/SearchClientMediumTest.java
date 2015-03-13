@@ -79,12 +79,22 @@ public class SearchClientMediumTest {
   }
 
   @Test
+  public void delete_by_query_is_not_supported() throws Exception {
+    try {
+      searchClient.prepareDeleteByQuery();
+      fail();
+    } catch (UnsupportedOperationException e) {
+      assertThat(e).hasMessage("Delete by query must not be used. See https://github.com/elastic/elasticsearch/issues/10067. See alternatives in BulkIndexer.");
+    }
+  }
+
+  @Test
   public void prepare_percolate_is_not_yet_implemented() throws Exception {
     try {
       searchClient.preparePercolate();
       fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
+    } catch (IllegalStateException e) {
+      assertThat(e).hasMessage("Not yet implemented");
     }
   }
 

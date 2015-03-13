@@ -21,12 +21,16 @@ package org.sonar.server.es;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import org.elasticsearch.common.joda.time.format.ISODateTimeFormat;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.sonar.server.search.BaseDoc;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,5 +65,21 @@ public class EsUtils {
         return bucket.getKey();
       }
     });
+  }
+
+  @CheckForNull
+  public static Date parseDateTime(@Nullable String s) {
+    if (s != null) {
+      return ISODateTimeFormat.dateTime().parseDateTime(s).toDate();
+    }
+    return null;
+  }
+
+  @CheckForNull
+  public static String formatDateTime(@Nullable Date date) {
+    if (date != null) {
+      return ISODateTimeFormat.dateTime().print(date.getTime());
+    }
+    return null;
   }
 }

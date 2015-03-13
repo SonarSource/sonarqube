@@ -20,25 +20,30 @@
 package org.sonar.server.activity.index;
 
 import org.apache.commons.lang.StringUtils;
+import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.api.utils.KeyValueFormat;
+import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.db.ResultSetIterator;
+import org.sonar.server.es.EsUtils;
+import org.sonar.server.util.DateCollector;
 
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStreamWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.HashMap;
+import java.util.Date;
 
 /**
  * Scrolls over table ACTIVITIES and reads documents to populate
  * the index "activities/activity"
  */
-class ActivityResultSetIterator extends ResultSetIterator<ActivityDoc> {
+class ActivityResultSetIterator extends ResultSetIterator<UpdateRequest> {
 
   private static final String[] FIELDS = {
-    // column 1
     "log_key",
     "log_action",
     "log_message",
@@ -51,6 +56,8 @@ class ActivityResultSetIterator extends ResultSetIterator<ActivityDoc> {
   private static final String SQL_ALL = "select " + StringUtils.join(FIELDS, ",") + " from activities ";
 
   private static final String SQL_AFTER_DATE = SQL_ALL + " where created_at>=?";
+
+  private final DateCollector dates = new DateCollector();
 
   private ActivityResultSetIterator(PreparedStatement stmt) throws SQLException {
     super(stmt);
@@ -70,17 +77,30 @@ class ActivityResultSetIterator extends ResultSetIterator<ActivityDoc> {
   }
 
   @Override
-  protected ActivityDoc read(ResultSet rs) throws SQLException {
-    ActivityDoc doc = new ActivityDoc(new HashMap<String, Object>(10));
-
+  protected UpdateRequest read(ResultSet rs) throws SQLException {
+    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
     // all the fields must be present, even if value is null
-    doc.setKey(rs.getString(1));
-    doc.setAction(rs.getString(2));
-    doc.setMessage(rs.getString(3));
-    doc.setDetails(KeyValueFormat.parse(rs.getString(4)));
-    doc.setLogin(rs.getString(5));
-    doc.setType(rs.getString(6));
-    doc.setCreatedAt(rs.getTimestamp(7));
-    return doc;
+    JsonWriter writer = JsonWriter.of(new OutputStreamWriter(bytes)).setSerializeNulls(true);
+    writer.beginObject();
+    String key = rs.getString(1);
+    writer.prop(ActivityIndexDefinition.FIELD_KEY, key);
+    writer.prop(ActivityIndexDefinition.FIELD_ACTION, rs.getString(2));
+    writer.prop(ActivityIndexDefinition.FIELD_MESSAGE, rs.getString(3));
+    writer.name(ActivityIndexDefinition.FIELD_DETAILS).valueObject(KeyValueFormat.parse(rs.getString(4)));
+    writer.prop(ActivityIndexDefinition.FIELD_LOGIN, rs.getString(5));
+    writer.prop(ActivityIndexDefinition.FIELD_TYPE, rs.getString(6));
+    Date createdAt = rs.getTimestamp(7);
+    writer.prop(ActivityIndexDefinition.FIELD_CREATED_AT, EsUtils.formatDateTime(createdAt));
+    writer.endObject().close();
+    byte[] jsonDoc = bytes.toByteArray();
+
+    // it's more efficient to sort programmatically than in SQL on some databases (MySQL for instance)
+    dates.add(createdAt);
+
+    return new UpdateRequest(ActivityIndexDefinition.INDEX, ActivityIndexDefinition.TYPE, key).doc(jsonDoc).upsert(jsonDoc);
+  }
+
+  long getMaxRowDate() {
+    return dates.getMax();
   }
 }

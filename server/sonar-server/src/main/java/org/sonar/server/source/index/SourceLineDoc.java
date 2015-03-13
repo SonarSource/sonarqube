@@ -125,10 +125,6 @@ public class SourceLineDoc extends BaseDoc {
     return this;
   }
 
-  public String key() {
-    return String.format("%s_%d", fileUuid(), line());
-  }
-
   @CheckForNull
   public Integer utLineHits() {
     Number lineHits = getNullableField(SourceLineIndexDefinition.FIELD_UT_LINE_HITS);

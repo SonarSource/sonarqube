@@ -19,6 +19,7 @@
  */
 package org.sonar.server.source.index;
 
+import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -55,7 +56,7 @@ public class SourceLineIndexer extends BaseIndexer {
     DbSession dbSession = dbClient.openSession(false);
     Connection dbConnection = dbSession.getConnection();
     try {
-      SourceLineResultSetIterator rowIt = SourceLineResultSetIterator.create(dbClient, dbConnection, lastUpdatedAt);
+      SourceFileResultSetIterator rowIt = SourceFileResultSetIterator.create(dbClient, dbConnection, lastUpdatedAt);
       long maxUpdatedAt = doIndex(bulk, rowIt);
       rowIt.close();
       return maxUpdatedAt;
@@ -65,59 +66,64 @@ public class SourceLineIndexer extends BaseIndexer {
     }
   }
 
-  public long index(Iterator<SourceLineResultSetIterator.SourceFile> sourceFiles) {
-    final BulkIndexer bulk = new BulkIndexer(esClient, SourceLineIndexDefinition.INDEX);
-    return doIndex(bulk, sourceFiles);
+  public long index(Iterator<SourceFileResultSetIterator.Row> dbRows) {
+    BulkIndexer bulk = new BulkIndexer(esClient, SourceLineIndexDefinition.INDEX);
+    return doIndex(bulk, dbRows);
   }
 
-  private long doIndex(BulkIndexer bulk, Iterator<SourceLineResultSetIterator.SourceFile> files) {
+  private long doIndex(BulkIndexer bulk, Iterator<SourceFileResultSetIterator.Row> dbRows) {
     long maxUpdatedAt = 0L;
     bulk.start();
-    while (files.hasNext()) {
-      SourceLineResultSetIterator.SourceFile file = files.next();
-      for (SourceLineDoc line : file.getLines()) {
-        bulk.add(newUpsertRequest(line));
+    while (dbRows.hasNext()) {
+      SourceFileResultSetIterator.Row row = dbRows.next();
+      addDeleteRequestsForLinesGreaterThan(bulk, row);
+      for (UpdateRequest updateRequest : row.getLineUpdateRequests()) {
+        bulk.add(updateRequest);
       }
-      deleteLinesFromFileAbove(file.getFileUuid(), file.getLines().size());
-      maxUpdatedAt = Math.max(maxUpdatedAt, file.getUpdatedAt());
+      maxUpdatedAt = Math.max(maxUpdatedAt, row.getUpdatedAt());
     }
     bulk.stop();
     return maxUpdatedAt;
   }
 
-  private UpdateRequest newUpsertRequest(SourceLineDoc lineDoc) {
-    String projectUuid = lineDoc.projectUuid();
-    return new UpdateRequest(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE, lineDoc.key())
-      .routing(projectUuid)
-      .doc(lineDoc.getFields())
-      .upsert(lineDoc.getFields());
-  }
-
   /**
-   * Unindex all lines in file with UUID <code>fileUuid</code> above line <code>lastLine</code>
+   * Use-case:
+   * - file had 10 lines in previous analysis
+   * - same file has now 5 lines
+   * Lines 6 to 10 must be removed from index.
    */
-  private void deleteLinesFromFileAbove(String fileUuid, int lastLine) {
-    esClient.prepareDeleteByQuery(SourceLineIndexDefinition.INDEX)
+  private void addDeleteRequestsForLinesGreaterThan(BulkIndexer bulk, SourceFileResultSetIterator.Row fileRow) {
+    int numberOfLines = fileRow.getLineUpdateRequests().size();
+    SearchRequestBuilder searchRequest = esClient.prepareSearch(SourceLineIndexDefinition.INDEX)
       .setTypes(SourceLineIndexDefinition.TYPE)
-      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), FilterBuilders.boolFilter()
-        .must(FilterBuilders.termFilter(FIELD_FILE_UUID, fileUuid).cache(false))
-        .must(FilterBuilders.rangeFilter(SourceLineIndexDefinition.FIELD_LINE).gt(lastLine).cache(false))
-        )).get();
+      .setRouting(fileRow.getProjectUuid())
+      .setQuery(QueryBuilders.filteredQuery(
+        QueryBuilders.matchAllQuery(),
+        FilterBuilders.boolFilter()
+          .must(FilterBuilders.termFilter(FIELD_FILE_UUID, fileRow.getFileUuid()).cache(false))
+          .must(FilterBuilders.rangeFilter(SourceLineIndexDefinition.FIELD_LINE).gt(numberOfLines).cache(false))
+          .cache(false)
+      ));
+    bulk.addDeletion(searchRequest);
   }
 
   public void deleteByFile(String fileUuid) {
-    esClient.prepareDeleteByQuery(SourceLineIndexDefinition.INDEX)
+    // TODO would be great to have the projectUuid for routing
+    SearchRequestBuilder searchRequest = esClient.prepareSearch(SourceLineIndexDefinition.INDEX)
       .setTypes(SourceLineIndexDefinition.TYPE)
-      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
-        FilterBuilders.termFilter(FIELD_FILE_UUID, fileUuid).cache(false)))
-      .get();
+      .setQuery(QueryBuilders.filteredQuery(
+        QueryBuilders.matchAllQuery(),
+        FilterBuilders.termFilter(FIELD_FILE_UUID, fileUuid).cache(false)));
+    BulkIndexer.delete(esClient, SourceLineIndexDefinition.INDEX, searchRequest);
   }
 
   public void deleteByProject(String projectUuid) {
-    esClient.prepareDeleteByQuery(SourceLineIndexDefinition.INDEX)
+    SearchRequestBuilder searchRequest = esClient.prepareSearch(SourceLineIndexDefinition.INDEX)
+      .setRouting(projectUuid)
       .setTypes(SourceLineIndexDefinition.TYPE)
-      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
-        FilterBuilders.termFilter(FIELD_PROJECT_UUID, projectUuid).cache(false)))
-      .get();
+      .setQuery(QueryBuilders.filteredQuery(
+        QueryBuilders.matchAllQuery(),
+        FilterBuilders.termFilter(FIELD_PROJECT_UUID, projectUuid).cache(false)));
+    BulkIndexer.delete(esClient, SourceLineIndexDefinition.INDEX, searchRequest);
   }
 }

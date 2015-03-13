@@ -90,10 +90,11 @@ public class ProgressLogger {
     task.log();
   }
 
-  private static class LoggerTimerTask extends TimerTask {
+  private class LoggerTimerTask extends TimerTask {
     private final AtomicLong counter;
     private final Logger logger;
     private String pluralLabel = "rows";
+    private long previousCounter = 0L;
 
     private LoggerTimerTask(AtomicLong counter, Logger logger) {
       this.counter = counter;
@@ -106,7 +107,9 @@ public class ProgressLogger {
     }
 
     private void log() {
-      logger.info(String.format("%d %s processed", counter.get(), pluralLabel));
+      long current = counter.get();
+      logger.info(String.format("%d %s processed (%d items/sec)", current, pluralLabel, 1000 * (current-previousCounter) / periodMs));
+      previousCounter = current;
     }
   }
 }

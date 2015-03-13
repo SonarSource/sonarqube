@@ -89,7 +89,6 @@ public interface DatabaseMigrations {
     FeedIssuesLongDates.class,
     FeedFileSourcesBinaryData.class,
     FeedSemaphoresLongDates.class,
-    FeedProjectMeasuresLongDates.class,
     FeedManualMeasuresLongDates.class,
     FeedEventsLongDates.class,
     AddNewCharacteristics.class,

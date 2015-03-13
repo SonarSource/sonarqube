@@ -69,6 +69,11 @@ public class JsonWriter {
     return new JsonWriter(writer);
   }
 
+  public JsonWriter setSerializeNulls(boolean b) {
+    this.stream.setSerializeNulls(b);
+    return this;
+  }
+
   /**
    * Begins encoding a new array. Each call to this method must be paired with
    * a call to {@link #endArray}. Output is <code>[</code>.

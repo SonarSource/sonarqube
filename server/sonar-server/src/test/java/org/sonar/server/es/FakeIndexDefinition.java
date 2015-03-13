@@ -41,6 +41,7 @@ public class FakeIndexDefinition implements IndexDefinition {
   public void define(IndexDefinitionContext context) {
     NewIndex index = context.create(INDEX);
     index.getSettings().put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, replicas);
+    index.getSettings().put("index.refresh_interval", "-1");
     NewIndex.NewIndexType type = index.createType(TYPE);
     type.createIntegerField(INT_FIELD);
   }

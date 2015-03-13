@@ -19,7 +19,6 @@
  */
 package org.sonar.server.issue;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Multiset;
@@ -60,9 +59,9 @@ import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
-import org.sonar.server.source.index.SourceLineDoc;
+import org.sonar.server.source.db.FileSourceDb;
+import org.sonar.server.source.index.SourceFileResultSetIterator;
 import org.sonar.server.source.index.SourceLineIndexer;
-import org.sonar.server.source.index.SourceLineResultSetIterator;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.NewUser;
@@ -77,7 +76,6 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.junit.Assert.fail;
-import static org.sonar.server.source.index.SourceLineIndexDefinition.*;
 
 public class IssueServiceMediumTest {
 
@@ -648,16 +646,13 @@ public class IssueServiceMediumTest {
   }
 
   private void newSourceLine(ComponentDto file, int line, String scmAuthor) {
-    SourceLineDoc line1 = new SourceLineDoc(ImmutableMap.<String, Object>builder()
-      .put(FIELD_PROJECT_UUID, file.projectUuid())
-      .put(FIELD_FILE_UUID, file.uuid())
-      .put(FIELD_LINE, line)
-      .put(FIELD_UPDATED_AT, new Date())
-      .put(FIELD_SCM_AUTHOR, scmAuthor)
-      .build());
-    SourceLineResultSetIterator.SourceFile sourceFile = new SourceLineResultSetIterator.SourceFile(file.uuid(), System.currentTimeMillis());
-    sourceFile.addLine(line1);
-    tester.get(SourceLineIndexer.class).index(Iterators.singletonIterator(sourceFile));
+    FileSourceDb.Data.Builder dataBuilder = FileSourceDb.Data.newBuilder();
+    dataBuilder.addLinesBuilder()
+      .setLine(line)
+      .setScmAuthor(scmAuthor)
+      .build();
+    SourceFileResultSetIterator.Row row = SourceFileResultSetIterator.toRow(file.projectUuid(), file.uuid(), new Date(), dataBuilder.build());
+    tester.get(SourceLineIndexer.class).index(Iterators.singletonIterator(row));
   }
 
   private void newUser(String login) {
