@@ -23,16 +23,10 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import org.sonar.api.batch.DecoratorContext;
-import org.sonar.api.batch.Event;
 import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
 import org.sonar.api.design.Dependency;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Measure;
-import org.sonar.api.measures.MeasuresFilter;
-import org.sonar.api.measures.MeasuresFilters;
-import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.MetricFinder;
+import org.sonar.api.measures.*;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
@@ -44,7 +38,6 @@ import org.sonar.batch.sensor.coverage.CoverageExclusions;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -220,21 +213,6 @@ public class DefaultDecoratorContext implements DecoratorContext {
   @Override
   public Collection<Dependency> getOutgoingDependencies() {
     return sonarIndex.getOutgoingEdges(resource);
-  }
-
-  @Override
-  public List<Event> getEvents() {
-    return sonarIndex.getEvents(resource);
-  }
-
-  @Override
-  public Event createEvent(String name, String description, String category, Date date) {
-    return sonarIndex.addEvent(resource, name, description, category, date);
-  }
-
-  @Override
-  public void deleteEvent(Event event) {
-    sonarIndex.deleteEvent(event);
   }
 
   @Override

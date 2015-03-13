@@ -21,22 +21,14 @@ package org.sonar.batch.rule;
 
 import com.google.common.collect.ImmutableSortedMap;
 import org.apache.commons.lang.time.DateUtils;
-import org.sonar.api.batch.Decorator;
-import org.sonar.api.batch.DecoratorContext;
-import org.sonar.api.batch.DependsUpon;
-import org.sonar.api.batch.Event;
-import org.sonar.api.batch.TimeMachine;
-import org.sonar.api.batch.TimeMachineQuery;
+import org.sonar.api.batch.*;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Languages;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.*;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.batch.index.EventPersister;
+import org.sonar.batch.protocol.Constants.EventCategory;
+import org.sonar.batch.report.EventCache;
 import org.sonar.core.UtcDateUtils;
 
 import javax.annotation.CheckForNull;
@@ -49,12 +41,12 @@ public class QProfileEventsDecorator implements Decorator {
 
   private final TimeMachine timeMachine;
   private final Languages languages;
-  private final EventPersister eventPersister;
+  private final EventCache eventCache;
 
-  public QProfileEventsDecorator(TimeMachine timeMachine, Languages languages, EventPersister eventPersister) {
+  public QProfileEventsDecorator(TimeMachine timeMachine, Languages languages, EventCache eventCache) {
     this.timeMachine = timeMachine;
     this.languages = languages;
-    this.eventPersister = eventPersister;
+    this.eventCache = eventCache;
   }
 
   @DependsUpon
@@ -112,18 +104,13 @@ public class QProfileEventsDecorator implements Decorator {
   }
 
   private void markAsChanged(DecoratorContext context, QProfile previousProfile, QProfile profile) {
-    // DecoratorContext does not allow to set event data, so SonarIndex must be used
-    Event event = new Event();
-    event.setName(String.format("Changes in %s", profileLabel(profile)));
-    event.setCategory(Event.CATEGORY_PROFILE);
     Date from = previousProfile.getRulesUpdatedAt();
 
     String data = KeyValueFormat.format(ImmutableSortedMap.of(
       "key", profile.getKey(),
       "from", UtcDateUtils.formatDateTime(fixDate(from)),
       "to", UtcDateUtils.formatDateTime(fixDate(profile.getRulesUpdatedAt()))));
-    event.setData(data);
-    eventPersister.saveEvent(context.getResource(), event);
+    eventCache.createEvent(context.getResource(), String.format("Changes in %s", profileLabel(profile)), null, EventCategory.PROFILE, data);
   }
 
   /**
@@ -134,11 +121,11 @@ public class QProfileEventsDecorator implements Decorator {
   }
 
   private void markAsRemoved(DecoratorContext context, QProfile profile) {
-    context.createEvent(String.format("Stop using %s", profileLabel(profile)), null, Event.CATEGORY_PROFILE, null);
+    eventCache.createEvent(context.getResource(), String.format("Stop using %s", profileLabel(profile)), null, EventCategory.PROFILE, null);
   }
 
   private void markAsAdded(DecoratorContext context, QProfile profile) {
-    context.createEvent(String.format("Use %s", profileLabel(profile)), null, Event.CATEGORY_PROFILE, null);
+    eventCache.createEvent(context.getResource(), String.format("Use %s", profileLabel(profile)), null, EventCategory.PROFILE, null);
   }
 
   @CheckForNull

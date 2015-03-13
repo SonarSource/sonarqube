@@ -123,17 +123,17 @@ public class SourceDbBenchmarkTest {
         .setScmAuthor("a_guy")
         .setSource("this is not java code " + i)
         .setUtLineHits(i)
-        .setUtConditions(i+1)
+        .setUtConditions(i + 1)
         .setUtCoveredConditions(i)
         .setItLineHits(i)
-        .setItConditions(i+1)
+        .setItConditions(i + 1)
         .setItCoveredConditions(i)
         .setOverallLineHits(i)
-        .setOverallConditions(i+1)
+        .setOverallConditions(i + 1)
         .setOverallCoveredConditions(i)
         .setScmDate(150000000L)
         .setHighlighting("2,9,k;9,18,k")
-        .addAllDuplications(Arrays.asList(19,33,141))
+        .addAllDuplication(Arrays.asList(19, 33, 141))
         .build();
     }
     return FileSourceDto.encodeData(dataBuilder.build());

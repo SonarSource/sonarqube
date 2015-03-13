@@ -28,7 +28,6 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
 
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -116,30 +115,5 @@ public interface DecoratorContext {
    */
   @Deprecated
   DecoratorContext saveViolation(Violation violation);
-
-  // EVENTS
-
-  /**
-   * @return the list of events associated to the current resource
-   */
-  List<Event> getEvents();
-
-  /**
-   * Creates an event for a given date
-   * 
-   * @param name the event name
-   * @param description the event description
-   * @param category the event category
-   * @param date the event date
-   * @return the created event
-   */
-  Event createEvent(String name, String description, String category, Date date);
-
-  /**
-   * Deletes an event
-   * 
-   * @param event the event to delete
-   */
-  void deleteEvent(Event event);
 
 }

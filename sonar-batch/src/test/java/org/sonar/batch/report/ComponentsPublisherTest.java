@@ -33,14 +33,17 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.protocol.Constants.ComponentLinkType;
+import org.sonar.batch.protocol.Constants.EventCategory;
 import org.sonar.batch.protocol.output.BatchReport.Component;
-import org.sonar.batch.protocol.output.BatchReportReader;
-import org.sonar.batch.protocol.output.BatchReportWriter;
-import org.sonar.batch.protocol.output.FileStructure;
+import org.sonar.batch.protocol.output.BatchReport.Event;
+import org.sonar.batch.protocol.output.*;
 
 import java.io.File;
+import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ComponentsPublisherTest {
 
@@ -50,12 +53,15 @@ public class ComponentsPublisherTest {
   private ProjectReactor reactor;
   private ResourceCache resourceCache;
   private ComponentsPublisher publisher;
+  private EventCache eventCache;
 
   @Before
   public void prepare() {
     reactor = new ProjectReactor(ProjectDefinition.create().setKey("foo"));
+    reactor.getRoot().properties().put(CoreProperties.PROJECT_VERSION_PROPERTY, "1.0");
     resourceCache = new ResourceCache();
-    publisher = new ComponentsPublisher(reactor, resourceCache);
+    eventCache = mock(EventCache.class);
+    publisher = new ComponentsPublisher(reactor, resourceCache, eventCache);
   }
 
   @Test
@@ -73,22 +79,22 @@ public class ComponentsPublisherTest {
     reactor.getRoot().addSubProject(ProjectDefinition.create().setKey("module1"));
 
     Directory dir = Directory.create("src");
-    dir.setEffectiveKey("foo:src");
+    dir.setEffectiveKey("module1:src");
     dir.setId(3).setUuid("DIR_UUID");
     resourceCache.add(dir, module1).setSnapshot(new Snapshot().setId(13));
 
     org.sonar.api.resources.File file = org.sonar.api.resources.File.create("src/Foo.java", Java.INSTANCE, false);
-    file.setEffectiveKey("foo:src/Foo.java");
+    file.setEffectiveKey("module1:src/Foo.java");
     file.setId(4).setUuid("FILE_UUID");
     resourceCache.add(file, dir).setSnapshot(new Snapshot().setId(14));
 
     org.sonar.api.resources.File fileWithoutLang = org.sonar.api.resources.File.create("src/make", null, false);
-    fileWithoutLang.setEffectiveKey("foo:src/make");
+    fileWithoutLang.setEffectiveKey("module1:src/make");
     fileWithoutLang.setId(5).setUuid("FILE_WITHOUT_LANG_UUID");
     resourceCache.add(fileWithoutLang, dir).setSnapshot(new Snapshot().setId(15));
 
     org.sonar.api.resources.File testFile = org.sonar.api.resources.File.create("test/FooTest.java", Java.INSTANCE, true);
-    testFile.setEffectiveKey("foo:test/FooTest.java");
+    testFile.setEffectiveKey("module1:test/FooTest.java");
     testFile.setId(6).setUuid("TEST_FILE_UUID");
     resourceCache.add(testFile, dir).setSnapshot(new Snapshot().setId(16));
 
@@ -108,8 +114,11 @@ public class ComponentsPublisherTest {
 
     BatchReportReader reader = new BatchReportReader(outputDir);
     Component rootProtobuf = reader.readComponent(1);
+    assertThat(rootProtobuf.getVersion()).isEqualTo("1.0");
     assertThat(rootProtobuf.getLinkCount()).isEqualTo(0);
 
+    Component module1Protobuf = reader.readComponent(2);
+    assertThat(module1Protobuf.getVersion()).isEqualTo("1.0");
   }
 
   @Test
@@ -131,12 +140,12 @@ public class ComponentsPublisherTest {
     reactor.getRoot().addSubProject(moduleDef);
 
     Directory dir = Directory.create("src");
-    dir.setEffectiveKey("foo:src");
+    dir.setEffectiveKey("module1:my_branch:my_branch:src");
     dir.setId(3).setUuid("DIR_UUID");
     resourceCache.add(dir, module1).setSnapshot(new Snapshot().setId(13));
 
     org.sonar.api.resources.File file = org.sonar.api.resources.File.create("src/Foo.java", Java.INSTANCE, false);
-    file.setEffectiveKey("foo:src/Foo.java");
+    file.setEffectiveKey("module1:my_branch:my_branch:src/Foo.java");
     file.setId(4).setUuid("FILE_UUID");
     resourceCache.add(file, dir).setSnapshot(new Snapshot().setId(14));
 
@@ -146,13 +155,52 @@ public class ComponentsPublisherTest {
 
     BatchReportReader reader = new BatchReportReader(outputDir);
     Component rootProtobuf = reader.readComponent(1);
+    assertThat(rootProtobuf.getVersion()).isEqualTo("1.0");
     assertThat(rootProtobuf.getLinkCount()).isEqualTo(1);
     assertThat(rootProtobuf.getLink(0).getType()).isEqualTo(ComponentLinkType.HOME);
     assertThat(rootProtobuf.getLink(0).getHref()).isEqualTo("http://home");
 
     Component module1Protobuf = reader.readComponent(2);
+    assertThat(module1Protobuf.getVersion()).isEqualTo("1.0");
     assertThat(module1Protobuf.getLinkCount()).isEqualTo(1);
     assertThat(module1Protobuf.getLink(0).getType()).isEqualTo(ComponentLinkType.CI);
     assertThat(module1Protobuf.getLink(0).getHref()).isEqualTo("http://ci");
+  }
+
+  @Test
+  public void add_components_with_events() throws Exception {
+    // inputs
+    Project root = new Project("foo").setName("Root project")
+      .setAnalysisDate(DateUtils.parseDate(("2012-12-12")));
+    root.setId(1).setUuid("PROJECT_UUID");
+    resourceCache.add(root, null).setSnapshot(new Snapshot().setId(11));
+
+    Project module1 = new Project("module1").setName("Module1");
+    module1.setParent(root);
+    module1.setId(2).setUuid("MODULE_UUID");
+    resourceCache.add(module1, root).setSnapshot(new Snapshot().setId(12));
+    ProjectDefinition moduleDef = ProjectDefinition.create().setKey("module1");
+    reactor.getRoot().addSubProject(moduleDef);
+
+    when(eventCache.getEvents(2)).thenReturn(Arrays.asList(Event.newBuilder().setName("name").setCategory(EventCategory.ALERT).setComponentRef(2).build()));
+
+    Directory dir = Directory.create("src");
+    dir.setEffectiveKey("module1:src");
+    dir.setId(3).setUuid("DIR_UUID");
+    resourceCache.add(dir, module1).setSnapshot(new Snapshot().setId(13));
+
+    File outputDir = temp.newFolder();
+    BatchReportWriter writer = new BatchReportWriter(outputDir);
+    publisher.publish(writer);
+
+    BatchReportReader reader = new BatchReportReader(outputDir);
+    Component rootProtobuf = reader.readComponent(1);
+    assertThat(rootProtobuf.getVersion()).isEqualTo("1.0");
+    assertThat(rootProtobuf.getEventCount()).isEqualTo(0);
+
+    Component module1Protobuf = reader.readComponent(2);
+    assertThat(module1Protobuf.getVersion()).isEqualTo("1.0");
+    assertThat(module1Protobuf.getEventCount()).isEqualTo(1);
+    assertThat(module1Protobuf.getEvent(0).getCategory()).isEqualTo(EventCategory.ALERT);
   }
 }

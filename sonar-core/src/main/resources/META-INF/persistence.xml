@@ -17,7 +17,6 @@
     <class>org.sonar.api.database.model.ResourceModel</class>
     <class>org.sonar.api.rules.Rule</class>
     <class>org.sonar.api.rules.RuleParam</class>
-    <class>org.sonar.api.batch.Event</class>
 
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
     <properties>
