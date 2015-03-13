@@ -2535,29 +2535,29 @@ public final class BatchReport {
     com.google.protobuf.ByteString
         getUuidBytes();
 
-    // repeated .Event events = 11;
+    // repeated .Event event = 11;
     /**
-     * <code>repeated .Event events = 11;</code>
+     * <code>repeated .Event event = 11;</code>
      */
     java.util.List<org.sonar.batch.protocol.output.BatchReport.Event> 
-        getEventsList();
+        getEventList();
     /**
-     * <code>repeated .Event events = 11;</code>
+     * <code>repeated .Event event = 11;</code>
      */
-    org.sonar.batch.protocol.output.BatchReport.Event getEvents(int index);
+    org.sonar.batch.protocol.output.BatchReport.Event getEvent(int index);
     /**
-     * <code>repeated .Event events = 11;</code>
+     * <code>repeated .Event event = 11;</code>
      */
-    int getEventsCount();
+    int getEventCount();
     /**
-     * <code>repeated .Event events = 11;</code>
+     * <code>repeated .Event event = 11;</code>
      */
     java.util.List<? extends org.sonar.batch.protocol.output.BatchReport.EventOrBuilder> 
-        getEventsOrBuilderList();
+        getEventOrBuilderList();
     /**
-     * <code>repeated .Event events = 11;</code>
+     * <code>repeated .Event event = 11;</code>
      */
-    org.sonar.batch.protocol.output.BatchReport.EventOrBuilder getEventsOrBuilder(
+    org.sonar.batch.protocol.output.BatchReport.EventOrBuilder getEventOrBuilder(
         int index);
   }
   /**
@@ -2688,10 +2688,10 @@ public final class BatchReport {
             }
             case 90: {
               if (!((mutable_bitField0_ & 0x00000800) == 0x00000800)) {
-                events_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.Event>();
+                event_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.Event>();
                 mutable_bitField0_ |= 0x00000800;
               }
-              events_.add(input.readMessage(org.sonar.batch.protocol.output.BatchReport.Event.PARSER, extensionRegistry));
+              event_.add(input.readMessage(org.sonar.batch.protocol.output.BatchReport.Event.PARSER, extensionRegistry));
               break;
             }
             case 98: {
@@ -2714,7 +2714,7 @@ public final class BatchReport {
           link_ = java.util.Collections.unmodifiableList(link_);
         }
         if (((mutable_bitField0_ & 0x00000800) == 0x00000800)) {
-          events_ = java.util.Collections.unmodifiableList(events_);
+          event_ = java.util.Collections.unmodifiableList(event_);
         }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -3107,40 +3107,40 @@ public final class BatchReport {
       }
     }
 
-    // repeated .Event events = 11;
-    public static final int EVENTS_FIELD_NUMBER = 11;
-    private java.util.List<org.sonar.batch.protocol.output.BatchReport.Event> events_;
+    // repeated .Event event = 11;
+    public static final int EVENT_FIELD_NUMBER = 11;
+    private java.util.List<org.sonar.batch.protocol.output.BatchReport.Event> event_;
     /**
-     * <code>repeated .Event events = 11;</code>
+     * <code>repeated .Event event = 11;</code>
      */
-    public java.util.List<org.sonar.batch.protocol.output.BatchReport.Event> getEventsList() {
-      return events_;
+    public java.util.List<org.sonar.batch.protocol.output.BatchReport.Event> getEventList() {
+      return event_;
     }
     /**
-     * <code>repeated .Event events = 11;</code>
+     * <code>repeated .Event event = 11;</code>
      */
     public java.util.List<? extends org.sonar.batch.protocol.output.BatchReport.EventOrBuilder> 
-        getEventsOrBuilderList() {
-      return events_;
+        getEventOrBuilderList() {
+      return event_;
     }
     /**
-     * <code>repeated .Event events = 11;</code>
+     * <code>repeated .Event event = 11;</code>
      */
-    public int getEventsCount() {
-      return events_.size();
+    public int getEventCount() {
+      return event_.size();
     }
     /**
-     * <code>repeated .Event events = 11;</code>
+     * <code>repeated .Event event = 11;</code>
      */
-    public org.sonar.batch.protocol.output.BatchReport.Event getEvents(int index) {
-      return events_.get(index);
+    public org.sonar.batch.protocol.output.BatchReport.Event getEvent(int index) {
+      return event_.get(index);
     }
     /**
-     * <code>repeated .Event events = 11;</code>
+     * <code>repeated .Event event = 11;</code>
      */
-    public org.sonar.batch.protocol.output.BatchReport.EventOrBuilder getEventsOrBuilder(
+    public org.sonar.batch.protocol.output.BatchReport.EventOrBuilder getEventOrBuilder(
         int index) {
-      return events_.get(index);
+      return event_.get(index);
     }
 
     private void initFields() {
@@ -3155,7 +3155,7 @@ public final class BatchReport {
       version_ = "";
       snapshotId_ = 0L;
       uuid_ = "";
-      events_ = java.util.Collections.emptyList();
+      event_ = java.util.Collections.emptyList();
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -3203,8 +3203,8 @@ public final class BatchReport {
       for (int i = 0; i < link_.size(); i++) {
         output.writeMessage(10, link_.get(i));
       }
-      for (int i = 0; i < events_.size(); i++) {
-        output.writeMessage(11, events_.get(i));
+      for (int i = 0; i < event_.size(); i++) {
+        output.writeMessage(11, event_.get(i));
       }
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
         output.writeBytes(12, getVersionBytes());
@@ -3268,9 +3268,9 @@ public final class BatchReport {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(10, link_.get(i));
       }
-      for (int i = 0; i < events_.size(); i++) {
+      for (int i = 0; i < event_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(11, events_.get(i));
+          .computeMessageSize(11, event_.get(i));
       }
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
         size += com.google.protobuf.CodedOutputStream
@@ -3385,7 +3385,7 @@ public final class BatchReport {
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
           getLinkFieldBuilder();
-          getEventsFieldBuilder();
+          getEventFieldBuilder();
         }
       }
       private static Builder create() {
@@ -3420,11 +3420,11 @@ public final class BatchReport {
         bitField0_ = (bitField0_ & ~0x00000200);
         uuid_ = "";
         bitField0_ = (bitField0_ & ~0x00000400);
-        if (eventsBuilder_ == null) {
-          events_ = java.util.Collections.emptyList();
+        if (eventBuilder_ == null) {
+          event_ = java.util.Collections.emptyList();
           bitField0_ = (bitField0_ & ~0x00000800);
         } else {
-          eventsBuilder_.clear();
+          eventBuilder_.clear();
         }
         return this;
       }
@@ -3504,14 +3504,14 @@ public final class BatchReport {
           to_bitField0_ |= 0x00000100;
         }
         result.uuid_ = uuid_;
-        if (eventsBuilder_ == null) {
+        if (eventBuilder_ == null) {
           if (((bitField0_ & 0x00000800) == 0x00000800)) {
-            events_ = java.util.Collections.unmodifiableList(events_);
+            event_ = java.util.Collections.unmodifiableList(event_);
             bitField0_ = (bitField0_ & ~0x00000800);
           }
-          result.events_ = events_;
+          result.event_ = event_;
         } else {
-          result.events_ = eventsBuilder_.build();
+          result.event_ = eventBuilder_.build();
         }
         result.bitField0_ = to_bitField0_;
         onBuilt();
@@ -3602,29 +3602,29 @@ public final class BatchReport {
           uuid_ = other.uuid_;
           onChanged();
         }
-        if (eventsBuilder_ == null) {
-          if (!other.events_.isEmpty()) {
-            if (events_.isEmpty()) {
-              events_ = other.events_;
+        if (eventBuilder_ == null) {
+          if (!other.event_.isEmpty()) {
+            if (event_.isEmpty()) {
+              event_ = other.event_;
               bitField0_ = (bitField0_ & ~0x00000800);
             } else {
-              ensureEventsIsMutable();
-              events_.addAll(other.events_);
+              ensureEventIsMutable();
+              event_.addAll(other.event_);
             }
             onChanged();
           }
         } else {
-          if (!other.events_.isEmpty()) {
-            if (eventsBuilder_.isEmpty()) {
-              eventsBuilder_.dispose();
-              eventsBuilder_ = null;
-              events_ = other.events_;
+          if (!other.event_.isEmpty()) {
+            if (eventBuilder_.isEmpty()) {
+              eventBuilder_.dispose();
+              eventBuilder_ = null;
+              event_ = other.event_;
               bitField0_ = (bitField0_ & ~0x00000800);
-              eventsBuilder_ = 
+              eventBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
-                   getEventsFieldBuilder() : null;
+                   getEventFieldBuilder() : null;
             } else {
-              eventsBuilder_.addAllMessages(other.events_);
+              eventBuilder_.addAllMessages(other.event_);
             }
           }
         }
@@ -4506,244 +4506,244 @@ public final class BatchReport {
         return this;
       }
 
-      // repeated .Event events = 11;
-      private java.util.List<org.sonar.batch.protocol.output.BatchReport.Event> events_ =
+      // repeated .Event event = 11;
+      private java.util.List<org.sonar.batch.protocol.output.BatchReport.Event> event_ =
         java.util.Collections.emptyList();
-      private void ensureEventsIsMutable() {
+      private void ensureEventIsMutable() {
         if (!((bitField0_ & 0x00000800) == 0x00000800)) {
-          events_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.Event>(events_);
+          event_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.Event>(event_);
           bitField0_ |= 0x00000800;
          }
       }
 
       private com.google.protobuf.RepeatedFieldBuilder<
-          org.sonar.batch.protocol.output.BatchReport.Event, org.sonar.batch.protocol.output.BatchReport.Event.Builder, org.sonar.batch.protocol.output.BatchReport.EventOrBuilder> eventsBuilder_;
+          org.sonar.batch.protocol.output.BatchReport.Event, org.sonar.batch.protocol.output.BatchReport.Event.Builder, org.sonar.batch.protocol.output.BatchReport.EventOrBuilder> eventBuilder_;
 
       /**
-       * <code>repeated .Event events = 11;</code>
+       * <code>repeated .Event event = 11;</code>
        */
-      public java.util.List<org.sonar.batch.protocol.output.BatchReport.Event> getEventsList() {
-        if (eventsBuilder_ == null) {
-          return java.util.Collections.unmodifiableList(events_);
+      public java.util.List<org.sonar.batch.protocol.output.BatchReport.Event> getEventList() {
+        if (eventBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(event_);
         } else {
-          return eventsBuilder_.getMessageList();
+          return eventBuilder_.getMessageList();
         }
       }
       /**
-       * <code>repeated .Event events = 11;</code>
+       * <code>repeated .Event event = 11;</code>
        */
-      public int getEventsCount() {
-        if (eventsBuilder_ == null) {
-          return events_.size();
+      public int getEventCount() {
+        if (eventBuilder_ == null) {
+          return event_.size();
         } else {
-          return eventsBuilder_.getCount();
+          return eventBuilder_.getCount();
         }
       }
       /**
-       * <code>repeated .Event events = 11;</code>
+       * <code>repeated .Event event = 11;</code>
        */
-      public org.sonar.batch.protocol.output.BatchReport.Event getEvents(int index) {
-        if (eventsBuilder_ == null) {
-          return events_.get(index);
+      public org.sonar.batch.protocol.output.BatchReport.Event getEvent(int index) {
+        if (eventBuilder_ == null) {
+          return event_.get(index);
         } else {
-          return eventsBuilder_.getMessage(index);
+          return eventBuilder_.getMessage(index);
         }
       }
       /**
-       * <code>repeated .Event events = 11;</code>
+       * <code>repeated .Event event = 11;</code>
        */
-      public Builder setEvents(
+      public Builder setEvent(
           int index, org.sonar.batch.protocol.output.BatchReport.Event value) {
-        if (eventsBuilder_ == null) {
+        if (eventBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureEventsIsMutable();
-          events_.set(index, value);
+          ensureEventIsMutable();
+          event_.set(index, value);
           onChanged();
         } else {
-          eventsBuilder_.setMessage(index, value);
+          eventBuilder_.setMessage(index, value);
         }
         return this;
       }
       /**
-       * <code>repeated .Event events = 11;</code>
+       * <code>repeated .Event event = 11;</code>
        */
-      public Builder setEvents(
+      public Builder setEvent(
           int index, org.sonar.batch.protocol.output.BatchReport.Event.Builder builderForValue) {
-        if (eventsBuilder_ == null) {
-          ensureEventsIsMutable();
-          events_.set(index, builderForValue.build());
+        if (eventBuilder_ == null) {
+          ensureEventIsMutable();
+          event_.set(index, builderForValue.build());
           onChanged();
         } else {
-          eventsBuilder_.setMessage(index, builderForValue.build());
+          eventBuilder_.setMessage(index, builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .Event events = 11;</code>
+       * <code>repeated .Event event = 11;</code>
        */
-      public Builder addEvents(org.sonar.batch.protocol.output.BatchReport.Event value) {
-        if (eventsBuilder_ == null) {
+      public Builder addEvent(org.sonar.batch.protocol.output.BatchReport.Event value) {
+        if (eventBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureEventsIsMutable();
-          events_.add(value);
+          ensureEventIsMutable();
+          event_.add(value);
           onChanged();
         } else {
-          eventsBuilder_.addMessage(value);
+          eventBuilder_.addMessage(value);
         }
         return this;
       }
       /**
-       * <code>repeated .Event events = 11;</code>
+       * <code>repeated .Event event = 11;</code>
        */
-      public Builder addEvents(
+      public Builder addEvent(
           int index, org.sonar.batch.protocol.output.BatchReport.Event value) {
-        if (eventsBuilder_ == null) {
+        if (eventBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureEventsIsMutable();
-          events_.add(index, value);
+          ensureEventIsMutable();
+          event_.add(index, value);
           onChanged();
         } else {
-          eventsBuilder_.addMessage(index, value);
+          eventBuilder_.addMessage(index, value);
         }
         return this;
       }
       /**
-       * <code>repeated .Event events = 11;</code>
+       * <code>repeated .Event event = 11;</code>
        */
-      public Builder addEvents(
+      public Builder addEvent(
           org.sonar.batch.protocol.output.BatchReport.Event.Builder builderForValue) {
-        if (eventsBuilder_ == null) {
-          ensureEventsIsMutable();
-          events_.add(builderForValue.build());
+        if (eventBuilder_ == null) {
+          ensureEventIsMutable();
+          event_.add(builderForValue.build());
           onChanged();
         } else {
-          eventsBuilder_.addMessage(builderForValue.build());
+          eventBuilder_.addMessage(builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .Event events = 11;</code>
+       * <code>repeated .Event event = 11;</code>
        */
-      public Builder addEvents(
+      public Builder addEvent(
           int index, org.sonar.batch.protocol.output.BatchReport.Event.Builder builderForValue) {
-        if (eventsBuilder_ == null) {
-          ensureEventsIsMutable();
-          events_.add(index, builderForValue.build());
+        if (eventBuilder_ == null) {
+          ensureEventIsMutable();
+          event_.add(index, builderForValue.build());
           onChanged();
         } else {
-          eventsBuilder_.addMessage(index, builderForValue.build());
+          eventBuilder_.addMessage(index, builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .Event events = 11;</code>
+       * <code>repeated .Event event = 11;</code>
        */
-      public Builder addAllEvents(
+      public Builder addAllEvent(
           java.lang.Iterable<? extends org.sonar.batch.protocol.output.BatchReport.Event> values) {
-        if (eventsBuilder_ == null) {
-          ensureEventsIsMutable();
-          super.addAll(values, events_);
+        if (eventBuilder_ == null) {
+          ensureEventIsMutable();
+          super.addAll(values, event_);
           onChanged();
         } else {
-          eventsBuilder_.addAllMessages(values);
+          eventBuilder_.addAllMessages(values);
         }
         return this;
       }
       /**
-       * <code>repeated .Event events = 11;</code>
+       * <code>repeated .Event event = 11;</code>
        */
-      public Builder clearEvents() {
-        if (eventsBuilder_ == null) {
-          events_ = java.util.Collections.emptyList();
+      public Builder clearEvent() {
+        if (eventBuilder_ == null) {
+          event_ = java.util.Collections.emptyList();
           bitField0_ = (bitField0_ & ~0x00000800);
           onChanged();
         } else {
-          eventsBuilder_.clear();
+          eventBuilder_.clear();
         }
         return this;
       }
       /**
-       * <code>repeated .Event events = 11;</code>
+       * <code>repeated .Event event = 11;</code>
        */
-      public Builder removeEvents(int index) {
-        if (eventsBuilder_ == null) {
-          ensureEventsIsMutable();
-          events_.remove(index);
+      public Builder removeEvent(int index) {
+        if (eventBuilder_ == null) {
+          ensureEventIsMutable();
+          event_.remove(index);
           onChanged();
         } else {
-          eventsBuilder_.remove(index);
+          eventBuilder_.remove(index);
         }
         return this;
       }
       /**
-       * <code>repeated .Event events = 11;</code>
+       * <code>repeated .Event event = 11;</code>
        */
-      public org.sonar.batch.protocol.output.BatchReport.Event.Builder getEventsBuilder(
+      public org.sonar.batch.protocol.output.BatchReport.Event.Builder getEventBuilder(
           int index) {
-        return getEventsFieldBuilder().getBuilder(index);
+        return getEventFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .Event events = 11;</code>
+       * <code>repeated .Event event = 11;</code>
        */
-      public org.sonar.batch.protocol.output.BatchReport.EventOrBuilder getEventsOrBuilder(
+      public org.sonar.batch.protocol.output.BatchReport.EventOrBuilder getEventOrBuilder(
           int index) {
-        if (eventsBuilder_ == null) {
-          return events_.get(index);  } else {
-          return eventsBuilder_.getMessageOrBuilder(index);
+        if (eventBuilder_ == null) {
+          return event_.get(index);  } else {
+          return eventBuilder_.getMessageOrBuilder(index);
         }
       }
       /**
-       * <code>repeated .Event events = 11;</code>
+       * <code>repeated .Event event = 11;</code>
        */
       public java.util.List<? extends org.sonar.batch.protocol.output.BatchReport.EventOrBuilder> 
-           getEventsOrBuilderList() {
-        if (eventsBuilder_ != null) {
-          return eventsBuilder_.getMessageOrBuilderList();
+           getEventOrBuilderList() {
+        if (eventBuilder_ != null) {
+          return eventBuilder_.getMessageOrBuilderList();
         } else {
-          return java.util.Collections.unmodifiableList(events_);
+          return java.util.Collections.unmodifiableList(event_);
         }
       }
       /**
-       * <code>repeated .Event events = 11;</code>
+       * <code>repeated .Event event = 11;</code>
        */
-      public org.sonar.batch.protocol.output.BatchReport.Event.Builder addEventsBuilder() {
-        return getEventsFieldBuilder().addBuilder(
+      public org.sonar.batch.protocol.output.BatchReport.Event.Builder addEventBuilder() {
+        return getEventFieldBuilder().addBuilder(
             org.sonar.batch.protocol.output.BatchReport.Event.getDefaultInstance());
       }
       /**
-       * <code>repeated .Event events = 11;</code>
+       * <code>repeated .Event event = 11;</code>
        */
-      public org.sonar.batch.protocol.output.BatchReport.Event.Builder addEventsBuilder(
+      public org.sonar.batch.protocol.output.BatchReport.Event.Builder addEventBuilder(
           int index) {
-        return getEventsFieldBuilder().addBuilder(
+        return getEventFieldBuilder().addBuilder(
             index, org.sonar.batch.protocol.output.BatchReport.Event.getDefaultInstance());
       }
       /**
-       * <code>repeated .Event events = 11;</code>
+       * <code>repeated .Event event = 11;</code>
        */
       public java.util.List<org.sonar.batch.protocol.output.BatchReport.Event.Builder> 
-           getEventsBuilderList() {
-        return getEventsFieldBuilder().getBuilderList();
+           getEventBuilderList() {
+        return getEventFieldBuilder().getBuilderList();
       }
       private com.google.protobuf.RepeatedFieldBuilder<
           org.sonar.batch.protocol.output.BatchReport.Event, org.sonar.batch.protocol.output.BatchReport.Event.Builder, org.sonar.batch.protocol.output.BatchReport.EventOrBuilder> 
-          getEventsFieldBuilder() {
-        if (eventsBuilder_ == null) {
-          eventsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+          getEventFieldBuilder() {
+        if (eventBuilder_ == null) {
+          eventBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
               org.sonar.batch.protocol.output.BatchReport.Event, org.sonar.batch.protocol.output.BatchReport.Event.Builder, org.sonar.batch.protocol.output.BatchReport.EventOrBuilder>(
-                  events_,
+                  event_,
                   ((bitField0_ & 0x00000800) == 0x00000800),
                   getParentForChildren(),
                   isClean());
-          events_ = null;
+          event_ = null;
         }
-        return eventsBuilder_;
+        return eventBuilder_;
       }
 
       // @@protoc_insertion_point(builder_scope:Component)
@@ -9308,29 +9308,29 @@ public final class BatchReport {
       "(\t\"w\n\005Event\022\025\n\rcomponent_ref\030\001 \001(\005\022\014\n\004na" +
       "me\030\002 \001(\t\022\023\n\013description\030\003 \001(\t\022 \n\010categor" +
       "y\030\004 \001(\0162\016.EventCategory\022\022\n\nevent_data\030\005 " +
-      "\001(\t\"\366\001\n\tComponent\022\013\n\003ref\030\001 \001(\005\022\014\n\004path\030\002",
+      "\001(\t\"\365\001\n\tComponent\022\013\n\003ref\030\001 \001(\005\022\014\n\004path\030\002",
       " \001(\t\022\014\n\004name\030\003 \001(\t\022\034\n\004type\030\004 \001(\0162\016.Compo" +
       "nentType\022\017\n\007is_test\030\005 \001(\010\022\020\n\010language\030\006 " +
       "\001(\t\022\025\n\tchild_ref\030\007 \003(\005B\002\020\001\022\034\n\004link\030\n \003(\013" +
       "2\016.ComponentLink\022\017\n\007version\030\014 \001(\t\022\023\n\013sna" +
-      "pshot_id\030\010 \001(\003\022\014\n\004uuid\030\t \001(\t\022\026\n\006events\030\013" +
-      " \003(\0132\006.Event\"\231\004\n\005Issue\022\027\n\017rule_repositor" +
-      "y\030\001 \001(\t\022\020\n\010rule_key\030\002 \001(\t\022\014\n\004line\030\003 \001(\005\022" +
-      "\013\n\003msg\030\004 \001(\t\022\033\n\010severity\030\005 \001(\0162\t.Severit" +
-      "y\022\013\n\003tag\030\006 \003(\t\022\025\n\reffort_to_fix\030\007 \001(\001\022\016\n" +
-      "\006is_new\030\010 \001(\010\022\014\n\004uuid\030\t \001(\t\022\027\n\017debt_in_m",
-      "inutes\030\n \001(\003\022\022\n\nresolution\030\013 \001(\t\022\016\n\006stat" +
-      "us\030\014 \001(\t\022\020\n\010checksum\030\r \001(\t\022\027\n\017manual_sev" +
-      "erity\030\016 \001(\010\022\020\n\010reporter\030\017 \001(\t\022\020\n\010assigne" +
-      "e\030\020 \001(\t\022\027\n\017action_plan_key\030\021 \001(\t\022\022\n\nattr" +
-      "ibutes\030\022 \001(\t\022\024\n\014author_login\030\023 \001(\t\022\025\n\rcr" +
-      "eation_date\030\024 \001(\003\022\022\n\nclose_date\030\025 \001(\003\022\023\n" +
-      "\013update_date\030\026 \001(\003\022\023\n\013selected_at\030\027 \001(\003\022" +
-      "\023\n\013diff_fields\030\030 \001(\t\022\022\n\nis_changed\030\031 \001(\010" +
-      "\022\036\n\026must_send_notification\030\032 \001(\010\"N\n\006Issu" +
-      "es\022\025\n\rcomponent_ref\030\001 \001(\005\022\025\n\005issue\030\002 \003(\013",
-      "2\006.Issue\022\026\n\016component_uuid\030\003 \001(\tB#\n\037org." +
-      "sonar.batch.protocol.outputH\001"
+      "pshot_id\030\010 \001(\003\022\014\n\004uuid\030\t \001(\t\022\025\n\005event\030\013 " +
+      "\003(\0132\006.Event\"\231\004\n\005Issue\022\027\n\017rule_repository" +
+      "\030\001 \001(\t\022\020\n\010rule_key\030\002 \001(\t\022\014\n\004line\030\003 \001(\005\022\013" +
+      "\n\003msg\030\004 \001(\t\022\033\n\010severity\030\005 \001(\0162\t.Severity" +
+      "\022\013\n\003tag\030\006 \003(\t\022\025\n\reffort_to_fix\030\007 \001(\001\022\016\n\006" +
+      "is_new\030\010 \001(\010\022\014\n\004uuid\030\t \001(\t\022\027\n\017debt_in_mi",
+      "nutes\030\n \001(\003\022\022\n\nresolution\030\013 \001(\t\022\016\n\006statu" +
+      "s\030\014 \001(\t\022\020\n\010checksum\030\r \001(\t\022\027\n\017manual_seve" +
+      "rity\030\016 \001(\010\022\020\n\010reporter\030\017 \001(\t\022\020\n\010assignee" +
+      "\030\020 \001(\t\022\027\n\017action_plan_key\030\021 \001(\t\022\022\n\nattri" +
+      "butes\030\022 \001(\t\022\024\n\014author_login\030\023 \001(\t\022\025\n\rcre" +
+      "ation_date\030\024 \001(\003\022\022\n\nclose_date\030\025 \001(\003\022\023\n\013" +
+      "update_date\030\026 \001(\003\022\023\n\013selected_at\030\027 \001(\003\022\023" +
+      "\n\013diff_fields\030\030 \001(\t\022\022\n\nis_changed\030\031 \001(\010\022" +
+      "\036\n\026must_send_notification\030\032 \001(\010\"N\n\006Issue" +
+      "s\022\025\n\rcomponent_ref\030\001 \001(\005\022\025\n\005issue\030\002 \003(\0132",
+      "\006.Issue\022\026\n\016component_uuid\030\003 \001(\tB#\n\037org.s" +
+      "onar.batch.protocol.outputH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -9360,7 +9360,7 @@ public final class BatchReport {
           internal_static_Component_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_Component_descriptor,
-              new java.lang.String[] { "Ref", "Path", "Name", "Type", "IsTest", "Language", "ChildRef", "Link", "Version", "SnapshotId", "Uuid", "Events", });
+              new java.lang.String[] { "Ref", "Path", "Name", "Type", "IsTest", "Language", "ChildRef", "Link", "Version", "SnapshotId", "Uuid", "Event", });
           internal_static_Issue_descriptor =
             getDescriptor().getMessageTypes().get(4);
           internal_static_Issue_fieldAccessorTable = new

@@ -66,20 +66,20 @@ public class PersistEventsStep implements ComputationStep {
     processEvents(session, component, context.getReportMetadata().getAnalysisDate());
     createVersionEvent(session, component, context.getReportMetadata().getAnalysisDate());
 
-    for (Integer childRef : component.getChildRefsList()) {
+    for (Integer childRef : component.getChildRefList()) {
       recursivelyProcessComponent(session, context, childRef);
     }
   }
 
   private void processEvents(DbSession session, BatchReport.Component component, Long analysisDate) {
-    List<BatchReport.Event> events = component.getEventsList();
+    List<BatchReport.Event> events = component.getEventList();
     if (!events.isEmpty()) {
-      for (BatchReport.Event event : component.getEventsList()) {
+      for (BatchReport.Event event : component.getEventList()) {
         dbClient.eventDao().insert(session, createBaseEvent(component, analysisDate)
-            .setName(event.getName())
-            .setCategory(convertCategory(event.getCategory()))
-            .setDescription(event.hasDescription() ? event.getDescription() : null)
-            .setData(event.hasEventData() ? event.getEventData() : null)
+          .setName(event.getName())
+          .setCategory(convertCategory(event.getCategory()))
+          .setDescription(event.hasDescription() ? event.getDescription() : null)
+          .setData(event.hasEventData() ? event.getEventData() : null)
           );
       }
     }
@@ -89,13 +89,13 @@ public class PersistEventsStep implements ComputationStep {
     if (component.hasVersion()) {
       deletePreviousEventsHavingSameVersion(session, component);
       dbClient.eventDao().insert(session, createBaseEvent(component, analysisDate)
-          .setName(component.getVersion())
-          .setCategory(EventDto.CATEGORY_VERSION)
+        .setName(component.getVersion())
+        .setCategory(EventDto.CATEGORY_VERSION)
         );
     }
   }
 
-  private void deletePreviousEventsHavingSameVersion(DbSession session, BatchReport.Component component){
+  private void deletePreviousEventsHavingSameVersion(DbSession session, BatchReport.Component component) {
     for (EventDto dto : dbClient.eventDao().selectByComponentUuid(session, component.getUuid())) {
       if (dto.getCategory().equals(EventDto.CATEGORY_VERSION) && dto.getName().equals(component.getVersion())) {
         dbClient.eventDao().delete(session, dto.getId());

@@ -38,11 +38,9 @@
  */
 package org.sonar.batch.rule;
 
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
+import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.DecoratorContext;
-import org.sonar.api.batch.Event;
 import org.sonar.api.batch.TimeMachine;
 import org.sonar.api.batch.TimeMachineQuery;
 import org.sonar.api.measures.CoreMetrics;
@@ -51,17 +49,14 @@ import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.batch.index.EventPersister;
+import org.sonar.batch.protocol.Constants.EventCategory;
+import org.sonar.batch.report.EventCache;
 
 import java.util.Arrays;
-import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -77,8 +72,13 @@ public class QProfileEventsDecoratorTest {
   DecoratorContext decoratorContext = mock(DecoratorContext.class);
   TimeMachine timeMachine = mock(TimeMachine.class);
   Languages languages = mock(Languages.class);
-  EventPersister eventPersister = mock(EventPersister.class);
-  QProfileEventsDecorator decorator = new QProfileEventsDecorator(timeMachine, languages, eventPersister);
+  EventCache eventCache = mock(EventCache.class);
+  QProfileEventsDecorator decorator = new QProfileEventsDecorator(timeMachine, languages, eventCache);
+
+  @Before
+  public void prepare() {
+    when(decoratorContext.getResource()).thenReturn(project);
+  }
 
   @Test
   public void basic_tests() {
@@ -98,7 +98,7 @@ public class QProfileEventsDecoratorTest {
 
     decorator.decorate(project, decoratorContext);
 
-    verify(decoratorContext, never()).createEvent(anyString(), anyString(), anyString(), any(Date.class));
+    verify(eventCache, never()).createEvent(any(Resource.class), anyString(), anyString(), any(EventCategory.class), anyString());
   }
 
   @Test
@@ -115,20 +115,8 @@ public class QProfileEventsDecoratorTest {
 
     decorator.decorate(project, decoratorContext);
 
-    verify(eventPersister).saveEvent(any(Resource.class), argThat(new BaseMatcher<Event>() {
-      @Override
-      public void describeTo(Description description) {
-      }
-
-      @Override
-      public boolean matches(Object item) {
-        Event event = (Event) item;
-        return event.getCategory().equals(Event.CATEGORY_PROFILE) &&
-          "Changes in 'Java One' (Java)".equals(event.getName()) &&
-          // "from" and "to" must have one second more because of lack of ms precision
-          "from=2014-01-15T12:00:01+0000;key=J1;to=2014-02-20T12:00:01+0000".equals(event.getData());
-      }
-    }));
+    // "from" and "to" must have one second more because of lack of ms precision
+    verify(eventCache).createEvent(project, "Changes in 'Java One' (Java)", null, EventCategory.PROFILE, "from=2014-01-15T12:00:01+0000;key=J1;to=2014-02-20T12:00:01+0000");
   }
 
   @Test
@@ -145,10 +133,7 @@ public class QProfileEventsDecoratorTest {
 
     decorator.decorate(project, decoratorContext);
 
-    verify(decoratorContext).createEvent(
-      eq("Stop using 'Java One' (Java)"),
-      eq((String) null),
-      same(Event.CATEGORY_PROFILE), any(Date.class));
+    verify(eventCache).createEvent(project, "Stop using 'Java One' (Java)", null, EventCategory.PROFILE, null);
   }
 
   @Test
@@ -161,6 +146,6 @@ public class QProfileEventsDecoratorTest {
 
     decorator.decorate(project, decoratorContext);
 
-    verify(decoratorContext, never()).createEvent(anyString(), anyString(), anyString(), any(Date.class));
+    verify(eventCache, never()).createEvent(any(Resource.class), anyString(), anyString(), any(EventCategory.class), anyString());
   }
 }
