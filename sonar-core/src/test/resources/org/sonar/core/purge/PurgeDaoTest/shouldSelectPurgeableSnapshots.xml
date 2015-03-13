@@ -55,7 +55,7 @@
              period5_mode="[null]" period5_param="[null]" period5_date="[null]"
              depth="[null]" scope="PRJ" qualifier="TRK" created_at="1228222680000" build_date="1228222680000" version="[null]" path="[null]"/>
 
-  <events id="2" resource_id="1" snapshot_id="5"
+  <events id="2" component_uuid="1" snapshot_id="5"
           category="Version" description="[null]" name="Version 1.0" event_date="1228222680000" created_at="1228222680000"
           event_data="[null]"/>
 

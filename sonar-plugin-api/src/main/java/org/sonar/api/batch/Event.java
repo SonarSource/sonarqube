@@ -21,9 +21,11 @@ package org.sonar.api.batch;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.database.BaseIdentifiable;
+import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.Snapshot;
 
 import javax.persistence.*;
+
 import java.util.Date;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -61,8 +63,12 @@ public class Event extends BaseIdentifiable {
   @JoinColumn(name = "snapshot_id", updatable = true, nullable = true)
   private Snapshot snapshot;
 
-  @Column(name = "resource_id", updatable = true, nullable = true)
-  private Integer resourceId;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "component_uuid", referencedColumnName = "uuid", insertable = false, updatable = false, nullable = false)
+  private ResourceModel resource;
+
+  @Column(name = "component_uuid", updatable = true, nullable = true)
+  private String componentUuid;
 
   public Event() {
   }
@@ -128,16 +134,23 @@ public class Event extends BaseIdentifiable {
   public final void setSnapshot(Snapshot snapshot) {
     this.snapshot = checkNotNull(snapshot, "it is not possible to set a null snapshot linked to an event");
     this.date = snapshot.getCreatedAtMs();
-    this.resourceId = snapshot.getResourceId();
+//    this.resourceId = snapshot.getResourceId();
   }
 
-  public Integer getResourceId() {
-    return resourceId;
+  public ResourceModel getResource() {
+    return resource;
   }
 
-  public Event setResourceId(Integer resourceId) {
-    this.resourceId = resourceId;
-    return this;
+  public void setResource(ResourceModel resource) {
+    this.resource = resource;
+  }
+
+  public String getComponentUuid() {
+    return componentUuid;
+  }
+
+  public void setComponentUuid(String componentUuid) {
+    this.componentUuid = componentUuid;
   }
 
   public String getData() {
@@ -155,7 +168,7 @@ public class Event extends BaseIdentifiable {
       .append("categ", category)
       .append("date", date)
       .append("snapshot", snapshot)
-      .append("resource", resourceId)
+      .append("resource", resource)
       .toString();
   }
 }

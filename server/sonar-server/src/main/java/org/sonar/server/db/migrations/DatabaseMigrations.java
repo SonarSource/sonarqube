@@ -31,6 +31,7 @@ import org.sonar.server.db.migrations.v451.AddMissingCustomRuleParametersMigrati
 import org.sonar.server.db.migrations.v451.DeleteUnescapedActivities;
 import org.sonar.server.db.migrations.v50.*;
 import org.sonar.server.db.migrations.v51.*;
+import org.sonar.server.db.migrations.v52.FeedEventsComponentUuid;
 import org.sonar.server.db.migrations.v52.FeedProjectLinksComponentUuid;
 
 import java.util.List;
@@ -97,6 +98,7 @@ public interface DatabaseMigrations {
     RemovePermissionsOnModulesMigration.class,
 
     // 5.2
-    FeedProjectLinksComponentUuid.class
+    FeedProjectLinksComponentUuid.class,
+    FeedEventsComponentUuid.class
     );
 }

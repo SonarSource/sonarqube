@@ -238,10 +238,10 @@
     </foreach>
   </delete>
 
-  <delete id="deleteResourceEvents" parameterType="map">
-    delete from events where resource_id in
-    <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
-      #{resourceId}
+  <delete id="deleteComponentEvents" parameterType="map">
+    delete from events where component_uuid in
+    <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
+      #{componentUuid}
     </foreach>
   </delete>
 

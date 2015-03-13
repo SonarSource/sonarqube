@@ -1,8 +1,8 @@
 <% 
   if @resource.scope=='PRJ'
 
-    conditions = "resource_id=:resource_id"
-    values = {:resource_id => @resource.id}
+    conditions = "component_uuid=:component_uuid"
+    values = {:component_uuid => @resource.uuid}
     # in order to not display events linked to deleted snapshot, we build the SQL request with 'NOT IN' as most of the time, there won't be unprocessed snapshots
     snapshots_to_be_deleted = Snapshot.find(:all, :conditions => ["status='U' AND project_id=?", @resource.id])
     unless snapshots_to_be_deleted.empty?

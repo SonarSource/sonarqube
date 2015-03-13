@@ -25,7 +25,7 @@
   <dependencies id="1" from_resource_id="1" from_snapshot_id="1" to_resource_id="30" to_snapshot_id="30"
                 parent_dependency_id="[null]" project_snapshot_id="1"
                 dep_usage="USES" dep_weight="1" from_scope="PRJ" to_scope="LIB"/>
-  <events id="1" name="Version 1.0" resource_id="1" snapshot_id="1" category="VERSION" description="[null]"
+  <events id="1" name="Version 1.0" component_uuid="1" snapshot_id="1" category="VERSION" description="[null]"
           event_date="1228222680000" created_at="1228222680000" event_data="[null]"/>
   <duplications_index id="1" project_snapshot_id="1" snapshot_id="1" hash="bb" index_in_file="0" start_line="0"
                       end_line="0"/>

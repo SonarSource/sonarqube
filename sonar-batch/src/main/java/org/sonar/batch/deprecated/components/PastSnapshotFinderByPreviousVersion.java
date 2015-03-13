@@ -19,13 +19,12 @@
  */
 package org.sonar.batch.deprecated.components;
 
-import org.sonar.batch.components.PastSnapshot;
-
 import org.sonar.api.BatchExtension;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.Event;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
+import org.sonar.batch.components.PastSnapshot;
 
 import java.util.List;
 
@@ -43,8 +42,8 @@ public class PastSnapshotFinderByPreviousVersion implements BatchExtension {
     String currentVersion = projectSnapshot.getVersion();
     Integer resourceId = projectSnapshot.getResourceId();
 
-    String hql = "from " + Event.class.getSimpleName() +
-      " where name<>:version AND category='Version' AND resourceId=:resourceId ORDER BY date DESC";
+    String hql = "select e from " + Event.class.getSimpleName() + " e " +
+      " join e.resource component where e.name<>:version AND e.category='Version' AND component.id=:resourceId ORDER BY e.date DESC";
 
     List<Event> events = session.createQuery(hql)
       .setParameter("version", currentVersion)

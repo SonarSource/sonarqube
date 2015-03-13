@@ -79,7 +79,7 @@ public interface PurgeMapper {
 
   void deleteResourceManualMeasures(@Param("resourceIds") List<Long> resourceIds);
 
-  void deleteResourceEvents(@Param("resourceIds") List<Long> resourceIds);
+  void deleteComponentEvents(@Param("componentUuids") List<String> componentUuids);
 
   void deleteResourceActionPlans(@Param("resourceIds") List<Long> resourceIds);
 

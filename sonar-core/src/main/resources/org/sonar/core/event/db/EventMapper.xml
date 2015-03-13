@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.sonar.core.event.db.EventMapper">
+
+  <sql id="eventColumns">
+    e.id,
+    e.name,
+    e.category,
+    e.description,
+    e.event_data as "data",
+    e.event_date as "date",
+    e.component_uuid as "componentUuid",
+    e.snapshot_id as "snapshotId",
+    e.created_at as "createdAt"
+  </sql>
+
+  <select id="selectByComponentUuid" parameterType="String" resultType="Event">
+    SELECT <include refid="eventColumns"/>
+    FROM events e
+    <where>
+      AND e.component_uuid=#{uuid}
+    </where>
+  </select>
+
+  <insert id="insert" parameterType="Event" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO events (name, category, description, event_data, event_date, component_uuid, snapshot_id, created_at)
+    VALUES (#{name}, #{category}, #{description}, #{data}, #{date}, #{componentUuid}, #{snapshotId}, #{createdAt})
+  </insert>
+
+  <delete id="delete">
+    DELETE FROM events WHERE id=#{id}
+  </delete>
+
+</mapper>
+

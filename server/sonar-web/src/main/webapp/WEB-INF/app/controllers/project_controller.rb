@@ -283,7 +283,7 @@ class ProjectController < ApplicationController
   end
 
   def update_version
-    snapshot=Snapshot.find(params[:sid])
+    snapshot=Snapshot.find(params[:sid], :include => 'project')
     not_found("Snapshot not found") unless snapshot
     access_denied unless is_admin?(snapshot)
 
@@ -307,7 +307,7 @@ class ProjectController < ApplicationController
           # We create an event for every concerned snapshot
           snapshots.each do |snapshot|
             event = Event.create!(:name => params[:version_name], :snapshot => snapshot,
-                                  :resource_id => snapshot.project_id, :category => EventCategory::KEY_VERSION,
+                                  :component_uuid => snapshot.project.uuid, :category => EventCategory::KEY_VERSION,
                                   :event_date => snapshot.created_at)
           end
           flash[:notice] = message('project_history.version_created', :params => params[:version_name])
@@ -359,7 +359,7 @@ class ProjectController < ApplicationController
         e = Event.new({:name => params[:event_name],
                        :category => EventCategory::KEY_OTHER,
                        :snapshot => s,
-                       :resource_id => s.project_id,
+                       :component_uuid => s.project.uuid,
                        :event_date => s.created_at})
         e.save!
       end
@@ -385,7 +385,7 @@ class ProjectController < ApplicationController
       flash[:notice] = message('project_history.event_updated')
     end
 
-    redirect_to :action => 'history', :id => event.resource_id
+    redirect_to :action => 'history', :id => event.resource.id
   end
 
   def delete_event
@@ -394,7 +394,7 @@ class ProjectController < ApplicationController
     access_denied unless is_admin?(event.resource)
 
     name = event.name
-    resource_id = event.resource_id
+    resource_id = event.resource.id
     events = find_events(event)
     Event.transaction do
       events.map { |e| e.id }.each_slice(999) do |safe_for_oracle_ids|
@@ -416,7 +416,7 @@ class ProjectController < ApplicationController
   end
 
   def find_project_snapshots(root_snapshot_id)
-    snapshots = Snapshot.find(:all, :include => 'events', :conditions => ["(root_snapshot_id = ? OR id = ?) AND scope = 'PRJ'", root_snapshot_id, root_snapshot_id])
+    Snapshot.find(:all, :include => ['events', 'project'], :conditions => ["(root_snapshot_id = ? OR id = ?) AND scope = 'PRJ'", root_snapshot_id, root_snapshot_id])
   end
 
   # Returns all an array that contains the given event + all the events that are the same, but which are attached on the submodules
