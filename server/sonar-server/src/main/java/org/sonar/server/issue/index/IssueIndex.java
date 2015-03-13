@@ -481,7 +481,7 @@ public class IssueIndex extends BaseIndex {
 
     Collection<String> assigneesEscaped = escapeValuesForFacetInclusion(query.assignees());
     if (!assigneesEscaped.isEmpty()) {
-      facetTopAggregation = assigneeFacetBuilder.addSelectedItemsToFacet(fieldName, facetName, facetTopAggregation, assigneesEscaped);
+      facetTopAggregation = assigneeFacetBuilder.addSelectedItemsToFacet(fieldName, facetName, facetTopAggregation, assigneesEscaped.toArray());
     }
 
     // Add missing facet for unassigned issues
