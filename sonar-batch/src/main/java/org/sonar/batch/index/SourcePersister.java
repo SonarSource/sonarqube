@@ -112,8 +112,11 @@ public class SourcePersister implements ScanPersister {
           .setBinaryData(data)
           .setDataHash(dataHash)
           .setSrcHash(metadata.hash())
-          .setLineHashes(lineHashesAsMd5Hex(inputFile))
-          .setUpdatedAt(system2.now());
+          .setLineHashes(lineHashesAsMd5Hex(inputFile));
+        // Optimization do not change updated at when updating src_hash to avoid indexation by E/S
+        if (!dataHash.equals(previousDto.getDataHash())) {
+          previousDto.setUpdatedAt(system2.now());
+        }
         mapper.update(previousDto);
         session.commit();
       }
