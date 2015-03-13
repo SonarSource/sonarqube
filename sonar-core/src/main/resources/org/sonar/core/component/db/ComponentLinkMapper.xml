@@ -24,7 +24,7 @@
     VALUES (#{componentUuid,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{href,jdbcType=VARCHAR})
   </insert>
 
-  <insert id="update" parameterType="ComponentLink" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+  <insert id="update" parameterType="ComponentLink" useGeneratedKeys="false">
     UPDATE project_links SET component_uuid=#{componentUuid,jdbcType=VARCHAR}, link_type=#{type,jdbcType=VARCHAR}, name=#{name,jdbcType=VARCHAR}, href=#{href,jdbcType=VARCHAR}
     WHERE id=#{id}
   </insert>
