@@ -349,8 +349,7 @@ module.exports = (grunt) ->
           test: true
           'no-colors': true
           'fail-fast': true
-          verbose: true
-          'log-level': 'debug'
+          concise: true
           parallel: !isWindows
           port: expressPort
         src: ['src/test/js/**/*.js']
@@ -358,9 +357,7 @@ module.exports = (grunt) ->
         options:
           test: true
           'no-colors': true
-          'fail-fast': true
-          verbose: true
-          'log-level': 'debug'
+          concise: true
           parallel: !isWindows
           port: expressPort
         src: ['src/test/js/**/*.js']
