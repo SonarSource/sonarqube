@@ -7,6 +7,7 @@ module.exports = (grunt) ->
 
   pkg = grunt.file.readJSON('package.json')
   expressPort = '<%= grunt.option("port") || 3000 %>'
+  isWindows = process.platform == 'win32'
 
   grunt.initConfig
     pkg: grunt.file.readJSON('package.json')
@@ -348,7 +349,9 @@ module.exports = (grunt) ->
           test: true
           'no-colors': true
           'fail-fast': true
+          verbose: true
           'log-level': 'debug'
+          parallel: !isWindows
           port: expressPort
         src: ['src/test/js/**/*.js']
       testCoverage:
@@ -356,8 +359,9 @@ module.exports = (grunt) ->
           test: true
           'no-colors': true
           'fail-fast': true
-          concise: true
-          parallel: true
+          verbose: true
+          'log-level': 'debug'
+          parallel: !isWindows
           port: expressPort
         src: ['src/test/js/**/*.js']
       testCoverageLight:

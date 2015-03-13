@@ -53,7 +53,10 @@ exports.changeWorkingDirectory = function (dir) {
   // Since Casper has control, the invoked script is deep in the argument stack
   // commandLineArgs = casper/bin/bootstrap.js,--casper-path=.../casperjs,--cli,--test,[file(s) under test],[options]
   var currentFile = commandLineArgs[4];
-  var curFilePath = fs.absolute(currentFile).split(fs.separator);
+  console.log('');
+  console.log(currentFile);
+  console.log('');
+  var curFilePath = currentFile.split(fs.separator);
   if (curFilePath.length > 1) {
     curFilePath.pop(); // test name
     curFilePath.pop(); // "js" dir
