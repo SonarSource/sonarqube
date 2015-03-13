@@ -36,7 +36,7 @@ public class ComponentLinkDto {
   public static final String TYPE_SOURCES = "scm";
   public static final String TYPE_SOURCES_DEV = "scm_dev";
 
-  public static List<String> PROVIDED_TYPES = ImmutableList.of(TYPE_HOME_PAGE, TYPE_CI, TYPE_ISSUE_TRACKER, TYPE_SOURCES, TYPE_SOURCES_DEV);
+  public static final List<String> PROVIDED_TYPES = ImmutableList.of(TYPE_HOME_PAGE, TYPE_CI, TYPE_ISSUE_TRACKER, TYPE_SOURCES, TYPE_SOURCES_DEV);
 
   private Long id;
   private String componentUuid;
