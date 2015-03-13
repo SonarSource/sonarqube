@@ -29,7 +29,6 @@ import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.SnapshotPerspectives;
 import org.sonar.core.measure.db.MeasureDto;
-import org.sonar.core.measure.db.MeasureKey;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.measure.persistence.MeasureDao;
@@ -109,7 +108,7 @@ public class CoverageService implements ServerComponent {
   private Map<Integer, Integer> findDataFromComponent(String fileKey, String metricKey) {
     DbSession session = myBatis.openSession(false);
     try {
-      MeasureDto data = measureDao.getNullableByKey(session, MeasureKey.of(fileKey, metricKey));
+      MeasureDto data = measureDao.findByComponentKeyAndMetricKey(session, fileKey, metricKey);
       String dataValue = data != null ? data.getData() : null;
       if (dataValue != null) {
         return KeyValueFormat.parseIntInt(dataValue);

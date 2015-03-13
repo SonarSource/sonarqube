@@ -27,7 +27,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.measure.db.MeasureKey;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -41,31 +40,23 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SourceServiceTest {
 
-  @Mock
-  DbSession session;
-
-  @Mock
-  HtmlSourceDecorator sourceDecorator;
-
-  @Mock
-  MeasureDao measureDao;
-
-  @Mock
-  SourceLineIndex sourceLineIndex;
-
   static final String PROJECT_KEY = "org.sonar.sample";
   static final String COMPONENT_UUID = "abc123";
-
+  @Mock
+  DbSession session;
+  @Mock
+  HtmlSourceDecorator sourceDecorator;
+  @Mock
+  MeasureDao measureDao;
+  @Mock
+  SourceLineIndex sourceLineIndex;
   SourceService service;
 
   @Before
@@ -104,7 +95,7 @@ public class SourceServiceTest {
   @Test
   public void get_scm_author_data() throws Exception {
     service.getScmAuthorData(COMPONENT_UUID);
-    verify(measureDao).getNullableByKey(session, MeasureKey.of(COMPONENT_UUID, CoreMetrics.SCM_AUTHORS_BY_LINE_KEY));
+    verify(measureDao).findByComponentKeyAndMetricKey(session, COMPONENT_UUID, CoreMetrics.SCM_AUTHORS_BY_LINE_KEY);
   }
 
   @Test
@@ -122,7 +113,7 @@ public class SourceServiceTest {
   @Test
   public void not_get_scm_author_data_if_no_data() throws Exception {
     MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_UUID);
-    when(measureDao.getNullableByKey(eq(session), any(MeasureKey.class))).thenReturn(null);
+    when(measureDao.findByComponentKeyAndMetricKey(eq(session), anyString(), anyString())).thenReturn(null);
     assertThat(service.getScmAuthorData(COMPONENT_UUID)).isNull();
   }
 
@@ -130,13 +121,13 @@ public class SourceServiceTest {
   public void get_scm_date_data() throws Exception {
     MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_UUID);
     service.getScmDateData(COMPONENT_UUID);
-    verify(measureDao).getNullableByKey(session, MeasureKey.of(COMPONENT_UUID, CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY));
+    verify(measureDao).findByComponentKeyAndMetricKey(session, COMPONENT_UUID, CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY);
   }
 
   @Test
   public void not_get_scm_date_data_if_no_data() throws Exception {
     MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_UUID);
-    when(measureDao.getNullableByKey(eq(session), any(MeasureKey.class))).thenReturn(null);
+    when(measureDao.findByComponentKeyAndMetricKey(eq(session), anyString(), anyString())).thenReturn(null);
     assertThat(service.getScmDateData(COMPONENT_UUID)).isNull();
   }
 

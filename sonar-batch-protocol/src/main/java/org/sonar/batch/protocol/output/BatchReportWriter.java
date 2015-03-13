@@ -63,6 +63,14 @@ public class BatchReportWriter {
     ProtobufUtil.writeToFile(issuesBuilder.build(), file);
   }
 
+  public void writeComponentMeasures(int componentRef, Iterable<BatchReport.Measure> measures) {
+    BatchReport.Measures.Builder measuresBuilder = BatchReport.Measures.newBuilder();
+    measuresBuilder.setComponentRef(componentRef);
+    measuresBuilder.addAllMeasure(measures);
+    File file = fileStructure.fileFor(FileStructure.Domain.MEASURES, componentRef);
+    ProtobufUtil.writeToFile(measuresBuilder.build(), file);
+  }
+
   /**
    * Issues on components which have been deleted are stored in another location.
    * Temporary hack, waiting for computation stack

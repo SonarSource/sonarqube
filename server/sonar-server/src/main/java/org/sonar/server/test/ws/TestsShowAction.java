@@ -138,7 +138,7 @@ public class TestsShowAction implements RequestHandler {
   private String findTestData(String fileKey) {
     DbSession session = dbClient.openSession(false);
     try {
-      MeasureDto testData = dbClient.measureDao().findByComponentKeyAndMetricKey(fileKey, CoreMetrics.TEST_DATA_KEY, session);
+      MeasureDto testData = dbClient.measureDao().findByComponentKeyAndMetricKey(session, fileKey, CoreMetrics.TEST_DATA_KEY);
       if (testData != null) {
         return testData.getData();
       }

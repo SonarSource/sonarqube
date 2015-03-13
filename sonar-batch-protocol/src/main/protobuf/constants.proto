@@ -38,6 +38,14 @@ enum ComponentType {
   SUBVIEW = 5;
 }
 
+enum MeasureValueType {
+  INT = 0;
+  LONG = 1;
+  DOUBLE = 2;
+  BOOLEAN = 3;
+  STRING = 4;
+}
+
 // temporary enum during development of computation stack
 enum EventCategory {
   ALERT = 0;

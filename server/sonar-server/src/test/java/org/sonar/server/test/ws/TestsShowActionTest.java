@@ -31,7 +31,6 @@ import org.sonar.api.test.TestCase;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.SnapshotPerspectives;
 import org.sonar.core.measure.db.MeasureDto;
-import org.sonar.core.measure.db.MeasureKey;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.measure.persistence.MeasureDao;
@@ -96,8 +95,10 @@ public class TestsShowActionTest {
   public void show_from_test_data() throws Exception {
     MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "SonarQube", TEST_PLAN_KEY);
 
-    when(measureDao.findByComponentKeyAndMetricKey(TEST_PLAN_KEY, "test_data", session)).thenReturn(MeasureDto.createFor(MeasureKey.of(TEST_PLAN_KEY, "test_data"))
-      .setTextValue("<tests-details>" +
+    when(measureDao.findByComponentKeyAndMetricKey(session, TEST_PLAN_KEY, "test_data")).thenReturn(new MeasureDto()
+      .setComponentKey(TEST_PLAN_KEY)
+      .setMetricKey("test_data")
+      .setData("<tests-details>" +
         "<testcase status=\"ok\" time=\"10\" name=\"test1\"/>" +
         "<testcase status=\"error\" time=\"97\" name=\"test2\">" +
         "<error message=\"expected:&lt;true&gt; but was:&lt;false&gt;\">" +
@@ -121,10 +122,13 @@ public class TestsShowActionTest {
   public void show_from_test_data_with_a_time_in_float() throws Exception {
     MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "SonarQube", TEST_PLAN_KEY);
 
-    when(measureDao.findByComponentKeyAndMetricKey(TEST_PLAN_KEY, "test_data", session)).thenReturn(MeasureDto.createFor(MeasureKey.of(TEST_PLAN_KEY, "test_data"))
-      .setTextValue("<tests-details>" +
-        "<testcase status=\"ok\" time=\"12.5\" name=\"test1\"/>" +
-        "</tests-details>"));
+    when(measureDao.findByComponentKeyAndMetricKey(session, TEST_PLAN_KEY, "test_data")).thenReturn(
+      new MeasureDto()
+        .setComponentKey(TEST_PLAN_KEY)
+        .setMetricKey("test_data")
+        .setData("<tests-details>" +
+          "<testcase status=\"ok\" time=\"12.5\" name=\"test1\"/>" +
+          "</tests-details>"));
 
     WsTester.TestRequest request = tester.newGetRequest("api/tests", "show").setParam("key", TEST_PLAN_KEY);
 

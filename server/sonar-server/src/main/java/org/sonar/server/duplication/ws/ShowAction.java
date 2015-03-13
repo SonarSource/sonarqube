@@ -31,7 +31,6 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.measure.db.MeasureDto;
-import org.sonar.core.measure.db.MeasureKey;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.component.db.ComponentDao;
@@ -41,7 +40,6 @@ import org.sonar.server.measure.persistence.MeasureDao;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
-
 import java.util.List;
 
 public class ShowAction implements RequestHandler {
@@ -105,9 +103,9 @@ public class ShowAction implements RequestHandler {
 
   @CheckForNull
   private String findDataFromComponent(String fileKey, String metricKey, DbSession session) {
-    MeasureDto data = measureDao.getNullableByKey(session, MeasureKey.of(fileKey, metricKey));
-    if (data != null) {
-      return data.getData();
+    MeasureDto measure = measureDao.findByComponentKeyAndMetricKey(session, fileKey, metricKey);
+    if (measure != null) {
+      return measure.getData();
     }
     return null;
   }

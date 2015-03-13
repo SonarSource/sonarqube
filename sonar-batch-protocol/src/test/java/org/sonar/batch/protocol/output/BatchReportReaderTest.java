@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.protocol.output;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -35,57 +36,59 @@ public class BatchReportReaderTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
+  BatchReportReader sut;
+
+  @Before
+  public void setUp() throws Exception {
+    sut = new BatchReportReader(temp.newFolder());
+  }
+
   @Test
   public void create_dir_if_does_not_exist() throws Exception {
     File dir = temp.newFolder();
 
     initFiles(dir);
 
-    BatchReportReader reader = new BatchReportReader(dir);
-    Metadata readMetadata = reader.readMetadata();
+    sut = new BatchReportReader(dir);
+    Metadata readMetadata = sut.readMetadata();
     assertThat(readMetadata.getAnalysisDate()).isEqualTo(15000000L);
     assertThat(readMetadata.getDeletedComponentsCount()).isEqualTo(1);
-    assertThat(reader.readComponentIssues(1)).hasSize(1);
-    assertThat(reader.readComponentIssues(200)).isEmpty();
-    assertThat(reader.readComponent(1).getUuid()).isEqualTo("UUID_A");
-    Issues deletedComponentIssues = reader.readDeletedComponentIssues(1);
+    assertThat(sut.readComponentIssues(1)).hasSize(1);
+    assertThat(sut.readComponentIssues(200)).isEmpty();
+    assertThat(sut.readComponent(1).getUuid()).isEqualTo("UUID_A");
+    Issues deletedComponentIssues = sut.readDeletedComponentIssues(1);
     assertThat(deletedComponentIssues.getComponentUuid()).isEqualTo("compUuid");
     assertThat(deletedComponentIssues.getIssueList()).hasSize(1);
+    assertThat(sut.readComponentMeasures(1)).hasSize(1);
+    assertThat(sut.readComponentMeasures(1).get(0).getStringValue()).isEqualTo("value_a");
   }
 
   @Test(expected = IllegalStateException.class)
   public void fail_if_missing_metadata_file() throws Exception {
-    File dir = temp.newFolder();
-
-    BatchReportReader reader = new BatchReportReader(dir);
-    reader.readMetadata();
+    sut.readMetadata();
   }
 
   @Test(expected = IllegalStateException.class)
-  public void fail_if_missing_file_on_deleted_component() throws Exception {
-    File dir = temp.newFolder();
-
-    BatchReportReader reader = new BatchReportReader(dir);
-    reader.readDeletedComponentIssues(666);
+   public void fail_if_missing_file_on_deleted_component() throws Exception {
+    sut.readDeletedComponentIssues(666);
   }
 
   @Test(expected = IllegalStateException.class)
   public void fail_if_missing_file_on_component() throws Exception {
-    File dir = temp.newFolder();
+    sut.readComponent(666);
+  }
 
-    BatchReportReader reader = new BatchReportReader(dir);
-    reader.readComponent(666);
+  @Test
+  public void empty_list_if_no_measure_found() throws Exception {
+    assertThat(sut.readComponentMeasures(666)).isEmpty();
   }
 
   /**
    * no file if no issues
    */
   @Test
-  public void ignore_missing_file_on_component_issues() throws Exception {
-    File dir = temp.newFolder();
-
-    BatchReportReader reader = new BatchReportReader(dir);
-    assertThat(reader.readComponentIssues(666)).isEmpty();
+  public void empty_list_if_no_issue_found() throws Exception {
+    assertThat(sut.readComponentIssues(666)).isEmpty();
   }
 
   private void initFiles(File dir) {
@@ -111,5 +114,10 @@ public class BatchReportReaderTest {
     writer.writeComponentIssues(1, Arrays.asList(issue));
 
     writer.writeDeletedComponentIssues(1, "compUuid", Arrays.asList(issue));
+
+    BatchReport.Measure.Builder measure = BatchReport.Measure.newBuilder()
+      .setStringValue("value_a");
+
+    writer.writeComponentMeasures(1, Arrays.asList(measure.build()));
   }
 }

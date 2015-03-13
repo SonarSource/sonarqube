@@ -36,6 +36,7 @@ Notes
 import "constants.proto";
 
 option java_package = "org.sonar.batch.protocol.output";
+
 option optimize_for = SPEED;
 
 message Metadata {
@@ -75,9 +76,39 @@ message Component {
   optional string version = 12;
 
   // temporary fields during development of computation stack
+  optional int64 id = 13;
   optional int64 snapshot_id = 8;
   optional string uuid = 9;
   repeated Event event = 11;
+}
+
+message Measure {
+  optional MeasureValueType value_type = 1;
+  optional bool boolean_value = 2;
+  optional int32 int_value = 3;
+  optional int64 long_value = 4;
+  optional double double_value = 5;
+  optional string string_value = 6;
+  optional string metric_key = 7;
+
+  // temporary fields during development of computation stack
+  optional string description = 9;
+  optional string rule_key = 10;
+  optional Severity severity = 11;
+  optional string alert_status = 12;
+  optional string alert_text = 13;
+  optional double variation_value_1 = 14;
+  optional double variation_value_2 = 15;
+  optional double variation_value_3 = 16;
+  optional double variation_value_4 = 17;
+  optional double variation_value_5 = 18;
+  optional int32 tendency = 19;
+  optional int32 characteric_id = 20;
+}
+
+message Measures {
+  optional int32 component_ref = 1;
+  repeated Measure measure = 2;
 }
 
 message Issue {

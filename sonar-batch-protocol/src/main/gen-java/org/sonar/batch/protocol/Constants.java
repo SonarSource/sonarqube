@@ -236,6 +236,115 @@ public final class Constants {
   }
 
   /**
+   * Protobuf enum {@code MeasureValueType}
+   */
+  public enum MeasureValueType
+      implements com.google.protobuf.ProtocolMessageEnum {
+    /**
+     * <code>INT = 0;</code>
+     */
+    INT(0, 0),
+    /**
+     * <code>LONG = 1;</code>
+     */
+    LONG(1, 1),
+    /**
+     * <code>DOUBLE = 2;</code>
+     */
+    DOUBLE(2, 2),
+    /**
+     * <code>BOOLEAN = 3;</code>
+     */
+    BOOLEAN(3, 3),
+    /**
+     * <code>STRING = 4;</code>
+     */
+    STRING(4, 4),
+    ;
+
+    /**
+     * <code>INT = 0;</code>
+     */
+    public static final int INT_VALUE = 0;
+    /**
+     * <code>LONG = 1;</code>
+     */
+    public static final int LONG_VALUE = 1;
+    /**
+     * <code>DOUBLE = 2;</code>
+     */
+    public static final int DOUBLE_VALUE = 2;
+    /**
+     * <code>BOOLEAN = 3;</code>
+     */
+    public static final int BOOLEAN_VALUE = 3;
+    /**
+     * <code>STRING = 4;</code>
+     */
+    public static final int STRING_VALUE = 4;
+
+
+    public final int getNumber() { return value; }
+
+    public static MeasureValueType valueOf(int value) {
+      switch (value) {
+        case 0: return INT;
+        case 1: return LONG;
+        case 2: return DOUBLE;
+        case 3: return BOOLEAN;
+        case 4: return STRING;
+        default: return null;
+      }
+    }
+
+    public static com.google.protobuf.Internal.EnumLiteMap<MeasureValueType>
+        internalGetValueMap() {
+      return internalValueMap;
+    }
+    private static com.google.protobuf.Internal.EnumLiteMap<MeasureValueType>
+        internalValueMap =
+          new com.google.protobuf.Internal.EnumLiteMap<MeasureValueType>() {
+            public MeasureValueType findValueByNumber(int number) {
+              return MeasureValueType.valueOf(number);
+            }
+          };
+
+    public final com.google.protobuf.Descriptors.EnumValueDescriptor
+        getValueDescriptor() {
+      return getDescriptor().getValues().get(index);
+    }
+    public final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptorForType() {
+      return getDescriptor();
+    }
+    public static final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptor() {
+      return org.sonar.batch.protocol.Constants.getDescriptor().getEnumTypes().get(2);
+    }
+
+    private static final MeasureValueType[] VALUES = values();
+
+    public static MeasureValueType valueOf(
+        com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
+      if (desc.getType() != getDescriptor()) {
+        throw new java.lang.IllegalArgumentException(
+          "EnumValueDescriptor is not for this type.");
+      }
+      return VALUES[desc.getIndex()];
+    }
+
+    private final int index;
+    private final int value;
+
+    private MeasureValueType(int index, int value) {
+      this.index = index;
+      this.value = value;
+    }
+
+    // @@protoc_insertion_point(enum_scope:MeasureValueType)
+  }
+
+  /**
    * Protobuf enum {@code EventCategory}
    *
    * <pre>
@@ -296,7 +405,7 @@ public final class Constants {
     }
     public static final com.google.protobuf.Descriptors.EnumDescriptor
         getDescriptor() {
-      return org.sonar.batch.protocol.Constants.getDescriptor().getEnumTypes().get(2);
+      return org.sonar.batch.protocol.Constants.getDescriptor().getEnumTypes().get(3);
     }
 
     private static final EventCategory[] VALUES = values();
@@ -405,7 +514,7 @@ public final class Constants {
     }
     public static final com.google.protobuf.Descriptors.EnumDescriptor
         getDescriptor() {
-      return org.sonar.batch.protocol.Constants.getDescriptor().getEnumTypes().get(3);
+      return org.sonar.batch.protocol.Constants.getDescriptor().getEnumTypes().get(4);
     }
 
     private static final ComponentLinkType[] VALUES = values();
@@ -443,20 +552,21 @@ public final class Constants {
       "\t\n\005MINOR\020\001\022\t\n\005MAJOR\020\002\022\014\n\010CRITICAL\020\003\022\013\n\007B" +
       "LOCKER\020\004*X\n\rComponentType\022\013\n\007PROJECT\020\000\022\n" +
       "\n\006MODULE\020\001\022\r\n\tDIRECTORY\020\002\022\010\n\004FILE\020\003\022\010\n\004V" +
-      "IEW\020\004\022\013\n\007SUBVIEW\020\005*\'\n\rEventCategory\022\t\n\005A" +
-      "LERT\020\000\022\013\n\007PROFILE\020\001*F\n\021ComponentLinkType" +
-      "\022\010\n\004HOME\020\000\022\007\n\003SCM\020\001\022\013\n\007SCM_DEV\020\002\022\t\n\005ISSU" +
-      "E\020\003\022\006\n\002CI\020\004B\034\n\030org.sonar.batch.protocolH" +
-      "\001"
+      "IEW\020\004\022\013\n\007SUBVIEW\020\005*J\n\020MeasureValueType\022\007" +
+      "\n\003INT\020\000\022\010\n\004LONG\020\001\022\n\n\006DOUBLE\020\002\022\013\n\007BOOLEAN" +
+      "\020\003\022\n\n\006STRING\020\004*\'\n\rEventCategory\022\t\n\005ALERT" +
+      "\020\000\022\013\n\007PROFILE\020\001*F\n\021ComponentLinkType\022\010\n\004" +
+      "HOME\020\000\022\007\n\003SCM\020\001\022\013\n\007SCM_DEV\020\002\022\t\n\005ISSUE\020\003\022" +
+      "\006\n\002CI\020\004B\034\n\030org.sonar.batch.protocolH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
-      new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
-        public com.google.protobuf.ExtensionRegistry assignDescriptors(
-            com.google.protobuf.Descriptors.FileDescriptor root) {
-          descriptor = root;
-          return null;
-        }
-      };
+        new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
+          public com.google.protobuf.ExtensionRegistry assignDescriptors(
+              com.google.protobuf.Descriptors.FileDescriptor root) {
+            descriptor = root;
+            return null;
+          }
+        };
     com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {

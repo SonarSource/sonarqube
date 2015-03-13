@@ -111,7 +111,6 @@ public class MeasurePersister implements ScanPersister {
     model.setVariationValue3(measure.getVariation3());
     model.setVariationValue4(measure.getVariation4());
     model.setVariationValue5(measure.getVariation5());
-    model.setUrl(measure.getUrl());
     Characteristic characteristic = measure.getCharacteristic();
     if (characteristic != null) {
       model.setCharacteristicId(characteristic.id());

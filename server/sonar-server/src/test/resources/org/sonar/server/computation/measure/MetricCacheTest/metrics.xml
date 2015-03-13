@@ -1,0 +1,13 @@
+<dataset>
+  <!-- enabled metrics -->
+  <metrics id="1" name="ncloc" VAL_TYPE="INT" DESCRIPTION="[null]" domain="[null]"
+           short_name="" enabled="true" worst_value="[null]" optimized_best_value="[null]" best_value="[null]"
+           direction="0" delete_historical_data="[null]" hidden="false"/>
+  <metrics id="2" name="coverage" VAL_TYPE="INT" DESCRIPTION="[null]" domain="[null]"
+           short_name="" enabled="true" worst_value="0" optimized_best_value="true" best_value="100" direction="1"
+           delete_historical_data="[null]" hidden="false"/>
+  <!-- disabled metric -->
+  <metrics id="3" name="complexity" VAL_TYPE="INT" DESCRIPTION="[null]" domain="[null]"
+           short_name="" enabled="false" worst_value="0" optimized_best_value="true" best_value="100" direction="1"
+           delete_historical_data="[null]" hidden="false"/>
+</dataset>

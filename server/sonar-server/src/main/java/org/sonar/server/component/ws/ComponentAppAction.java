@@ -183,8 +183,8 @@ public class ComponentAppAction implements RequestHandler {
   private Map<String, MeasureDto> measuresByMetricKey(ComponentDto component, DbSession session) {
     Map<String, MeasureDto> measuresByMetricKey = newHashMap();
     String fileKey = component.getKey();
-    for (MeasureDto measureDto : dbClient.measureDao().findByComponentKeyAndMetricKeys(fileKey, METRIC_KEYS, session)) {
-      measuresByMetricKey.put(measureDto.getKey().metricKey(), measureDto);
+    for (MeasureDto measureDto : dbClient.measureDao().findByComponentKeyAndMetricKeys(session, fileKey, METRIC_KEYS)) {
+      measuresByMetricKey.put(measureDto.getMetricKey(), measureDto);
     }
     return measuresByMetricKey;
   }
@@ -199,29 +199,31 @@ public class ComponentAppAction implements RequestHandler {
 
   @CheckForNull
   private String formatMeasure(@Nullable MeasureDto measure) {
-    if (measure != null) {
-      Metric metric = CoreMetrics.getMetric(measure.getKey().metricKey());
-      Metric.ValueType metricType = metric.getType();
-      Double value = measure.getValue();
-      String data = measure.getData();
-      if (BooleanUtils.isTrue(metric.isOptimizedBestValue()) && value == null) {
-        value = metric.getBestValue();
-      }
-      if (metricType.equals(Metric.ValueType.FLOAT) && value != null) {
-        return i18n.formatDouble(UserSession.get().locale(), value);
-      }
-      if (metricType.equals(Metric.ValueType.INT) && value != null) {
-        return i18n.formatInteger(UserSession.get().locale(), value.intValue());
-      }
-      if (metricType.equals(Metric.ValueType.PERCENT) && value != null) {
-        return i18n.formatDouble(UserSession.get().locale(), value) + "%";
-      }
-      if (metricType.equals(Metric.ValueType.WORK_DUR) && value != null) {
-        return durations.format(UserSession.get().locale(), durations.create(value.longValue()), Durations.DurationFormat.SHORT);
-      }
-      if ((metricType.equals(Metric.ValueType.STRING) || metricType.equals(Metric.ValueType.RATING)) && data != null) {
-        return data;
-      }
+    if (measure == null) {
+      return null;
+    }
+
+    Metric metric = CoreMetrics.getMetric(measure.getMetricKey());
+    Metric.ValueType metricType = metric.getType();
+    Double value = measure.getValue();
+    String data = measure.getData();
+    if (BooleanUtils.isTrue(metric.isOptimizedBestValue()) && value == null) {
+      value = metric.getBestValue();
+    }
+    if (metricType.equals(Metric.ValueType.FLOAT) && value != null) {
+      return i18n.formatDouble(UserSession.get().locale(), value);
+    }
+    if (metricType.equals(Metric.ValueType.INT) && value != null) {
+      return i18n.formatInteger(UserSession.get().locale(), value.intValue());
+    }
+    if (metricType.equals(Metric.ValueType.PERCENT) && value != null) {
+      return i18n.formatDouble(UserSession.get().locale(), value) + "%";
+    }
+    if (metricType.equals(Metric.ValueType.WORK_DUR) && value != null) {
+      return durations.format(UserSession.get().locale(), durations.create(value.longValue()), Durations.DurationFormat.SHORT);
+    }
+    if ((metricType.equals(Metric.ValueType.STRING) || metricType.equals(Metric.ValueType.RATING)) && data != null) {
+      return data;
     }
     return null;
   }

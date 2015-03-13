@@ -36,15 +36,25 @@ public class BatchReportReader {
 
   public BatchReport.Metadata readMetadata() {
     File file = fileStructure.metadataFile();
-    if (!file.exists() || !file.isFile()) {
+    if (isNotAnExistingFile(file)) {
       throw new IllegalStateException("Metadata file is missing in analysis report: " + file);
     }
     return ProtobufUtil.readFile(file, BatchReport.Metadata.PARSER);
   }
 
+  public List<BatchReport.Measure> readComponentMeasures(int componentRef) {
+    File file = fileStructure.fileFor(FileStructure.Domain.MEASURES, componentRef);
+    if (file.exists() && file.isFile()) {
+      // all the measures are loaded in memory
+      BatchReport.Measures measures = ProtobufUtil.readFile(file, BatchReport.Measures.PARSER);
+      return measures.getMeasureList();
+    }
+    return Collections.emptyList();
+  }
+
   public BatchReport.Component readComponent(int componentRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.COMPONENT, componentRef);
-    if (!file.exists() || !file.isFile()) {
+    if (isNotAnExistingFile(file)) {
       throw new IllegalStateException("Unable to find report for component #" + componentRef + ". File does not exist: " + file);
     }
     return ProtobufUtil.readFile(file, BatchReport.Component.PARSER);
@@ -62,10 +72,14 @@ public class BatchReportReader {
 
   public Issues readDeletedComponentIssues(int deletedComponentRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.ISSUES_ON_DELETED, deletedComponentRef);
-    if (!file.exists() || !file.isFile()) {
+    if (isNotAnExistingFile(file)) {
       throw new IllegalStateException("Unable to find report for deleted component #" + deletedComponentRef);
     }
     // all the issues are loaded in memory
     return ProtobufUtil.readFile(file, Issues.PARSER);
+  }
+
+  private boolean isNotAnExistingFile(File file) {
+    return !file.exists() || !file.isFile();
   }
 }

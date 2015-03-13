@@ -120,6 +120,30 @@ public class BatchReportWriterTest {
   }
 
   @Test
+  public void write_measures() throws Exception {
+    File dir = temp.newFolder();
+    BatchReportWriter writer = new BatchReportWriter(dir);
+
+    assertThat(writer.hasComponentData(FileStructure.Domain.MEASURES, 1)).isFalse();
+
+    BatchReport.Measure measure = BatchReport.Measure.newBuilder()
+      .setStringValue("text-value")
+      .setDoubleValue(2.5d)
+      .setValueType(Constants.MeasureValueType.DOUBLE)
+      .setDescription("description")
+      .build();
+
+    writer.writeComponentMeasures(1, Arrays.asList(measure));
+
+    assertThat(writer.hasComponentData(FileStructure.Domain.MEASURES, 1)).isTrue();
+    File file = writer.getFileStructure().fileFor(FileStructure.Domain.MEASURES, 1);
+    assertThat(file).exists().isFile();
+    BatchReport.Measures measures = ProtobufUtil.readFile(file, BatchReport.Measures.PARSER);
+    assertThat(measures.getComponentRef()).isEqualTo(1);
+    assertThat(measures.getMeasureCount()).isEqualTo(1);
+  }
+
+  @Test
   public void write_issues_of_deleted_component() throws Exception {
     File dir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(dir);

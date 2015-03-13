@@ -27,7 +27,7 @@ import java.io.File;
 public class FileStructure {
 
   public static enum Domain {
-    ISSUES("issues-"), ISSUES_ON_DELETED("issues-deleted-"), COMPONENT("component-");
+    ISSUES("issues-"), ISSUES_ON_DELETED("issues-deleted-"), COMPONENT("component-"), MEASURES("measures-");
 
     private final String filePrefix;
 
