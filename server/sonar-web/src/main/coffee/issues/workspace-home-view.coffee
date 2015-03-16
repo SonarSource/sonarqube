@@ -57,30 +57,33 @@ define [
 
     _getProjects: (r) ->
       projectFacet = _.findWhere r.facets, property: 'projectUuids'
-      values = _.head projectFacet.values, 3
-      values.forEach (v) =>
-        project = _.findWhere r.projects, uuid: v.val
-        v.label = project.longName
-      values
+      if projectFacet?
+        values = _.head projectFacet.values, 3
+        values.forEach (v) =>
+          project = _.findWhere r.projects, uuid: v.val
+          v.label = project.longName
+        values
 
 
     _getAuthors: (r) ->
       authorFacet = _.findWhere r.facets, property: 'authors'
-      values = _.head authorFacet.values, 3
-      values
+      if authorFacet?
+        values = _.head authorFacet.values, 3
+        values
 
 
     _getTags: (r) ->
       MIN_SIZE = 10
       MAX_SIZE = 24
       tagFacet = _.findWhere r.facets, property: 'tags'
-      values = _.head tagFacet.values, 10
-      minCount = _.min(values, (v) -> v.count).count
-      maxCount = _.max(values, (v) -> v.count).count
-      scale = d3.scale.linear().domain([minCount, maxCount]).range([MIN_SIZE, MAX_SIZE])
-      values.forEach (v) =>
-        v.size = scale v.count
-      values
+      if tagFacet?
+        values = _.head tagFacet.values, 10
+        minCount = _.min(values, (v) -> v.count).count
+        maxCount = _.max(values, (v) -> v.count).count
+        scale = d3.scale.linear().domain([minCount, maxCount]).range([MIN_SIZE, MAX_SIZE])
+        values.forEach (v) =>
+          v.size = scale v.count
+        values
 
 
     requestIssues: ->
@@ -92,7 +95,7 @@ define [
         facets: 'createdAt,projectUuids,authors,tags'
       $.get(url, options).done (r) =>
         @model.set
-          createdAt: _.findWhere(r.facets, property: 'createdAt').values
+          createdAt: _.findWhere(r.facets, property: 'createdAt')?.values
           projects: @_getProjects r
           authors: @_getAuthors r
           tags: @_getTags r
@@ -108,7 +111,7 @@ define [
         facets: 'createdAt,projectUuids,authors,tags'
       $.get(url, options).done (r) =>
         @model.set
-          myCreatedAt: _.findWhere(r.facets, property: 'createdAt').values
+          myCreatedAt: _.findWhere(r.facets, property: 'createdAt')?.values
           myProjects: @_getProjects r
           myTags: @_getTags r
 

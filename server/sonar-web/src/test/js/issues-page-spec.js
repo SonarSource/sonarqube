@@ -324,7 +324,7 @@ casper.test.begin(testName('Bulk Change'), function (test) {
 
         lib.mockRequestFromFile('/api/issue_filters/app', 'app.json');
         lib.mockRequestFromFile('/api/issues/search', 'search.json');
-        lib.mockRequest('/issues/bulk_change_form?resolved=false',
+        lib.mockRequest('/issues/bulk_change_form*',
             '<div id="bulk-change-form">bulk change form</div>', { contentType: 'text/plain' });
       })
 
@@ -335,9 +335,7 @@ casper.test.begin(testName('Bulk Change'), function (test) {
       })
 
       .then(function () {
-        casper.waitForSelector('.issue', function () {
-          casper.waitForSelector('#issues-bulk-change');
-        });
+        casper.waitForSelector('#issues-bulk-change');
       })
 
       .then(function () {
