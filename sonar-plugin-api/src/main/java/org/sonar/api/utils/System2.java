@@ -28,6 +28,7 @@ import javax.annotation.CheckForNull;
 import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
+import java.util.TimeZone;
 
 /**
  * Proxy over {@link java.lang.System}. It aims to improve testability of classes
@@ -124,6 +125,10 @@ public class System2 implements BatchComponent, ServerComponent {
 
   public Date newDate() {
     return new Date();
+  }
+
+  public TimeZone getDefaultTimeZone() {
+    return TimeZone.getDefault();
   }
 
   /**
