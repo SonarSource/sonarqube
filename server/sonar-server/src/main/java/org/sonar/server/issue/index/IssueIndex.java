@@ -64,7 +64,6 @@ import org.sonar.server.view.index.ViewIndexDefinition;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -408,9 +407,8 @@ public class IssueIndex extends BaseIndex {
 
   private AggregationBuilder getCreatedAtFacet(IssueQuery query, Map<String, FilterBuilder> filters, QueryBuilder esQuery) {
     Date now = system.newDate();
-    SimpleDateFormat tzFormat = new SimpleDateFormat("XX");
-    tzFormat.setTimeZone(TimeZone.getDefault());
-    String timeZoneString = tzFormat.format(now);
+
+    String timeZoneString = system.getDefaultTimeZone().getID();
 
     DateHistogram.Interval bucketSize = DateHistogram.Interval.YEAR;
     Date createdAfter = query.createdAfter();
