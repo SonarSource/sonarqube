@@ -37,9 +37,9 @@ define [
 
     serializeData: ->
       duration = null
-      if @model.has('startedAt') && @model.has('finishedAt')
+      if @model.has 'startedAt'
         startedAtMoment = moment @model.get 'startedAt'
-        finishedAtMoment = moment @model.get 'finishedAt'
+        finishedAtMoment = moment(@model.get('finishedAt') || new Date())
         duration = finishedAtMoment.diff startedAtMoment
         duration =
           seconds: Math.floor (duration / 1000) % 60
