@@ -43,6 +43,7 @@ public class ComputationSteps {
       IndexComponentsStep.class,
       PurgeDatastoresStep.class,
       PersistComponentLinksStep.class,
+      PersistEventsStep.class,
 
       // ES indexing is done after all db changes
       ApplyPermissionsStep.class,
