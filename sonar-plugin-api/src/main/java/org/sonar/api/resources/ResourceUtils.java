@@ -87,7 +87,7 @@ public final class ResourceUtils {
   }
 
   /**
-   * This method equal isRootProject(resource) or isModuleProject(resource)
+   * This method equal isRootProject(resource) or isModuleProject(resource) or isView(resource) or isSubview(resource)
    */
   public static boolean isProject(Resource resource) {
     return isSet(resource);

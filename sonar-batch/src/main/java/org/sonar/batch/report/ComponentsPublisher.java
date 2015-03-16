@@ -91,7 +91,7 @@ public class ComponentsPublisher implements ReportPublisher {
     for (BatchResource child : batchResource.children()) {
       builder.addChildRefs(child.batchId());
     }
-    if (ResourceUtils.isProject(r)) {
+    if (isRealProjectOrModule(r)) {
       ProjectDefinition def = getProjectDefinition(reactor, r.getKey());
       ComponentLink.Builder linkBuilder = ComponentLink.newBuilder();
 
@@ -106,6 +106,11 @@ public class ComponentsPublisher implements ReportPublisher {
     for (BatchResource child : batchResource.children()) {
       recursiveWriteComponent(child, writer);
     }
+  }
+
+  // Exclude views
+  private static boolean isRealProjectOrModule(Resource r) {
+    return ResourceUtils.isProject(r) && !ResourceUtils.isView(r) && !ResourceUtils.isSubview(r);
   }
 
   private ProjectDefinition getProjectDefinition(ProjectReactor reactor, String keyWithBranch) {
