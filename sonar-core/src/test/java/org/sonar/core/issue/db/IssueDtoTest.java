@@ -29,7 +29,6 @@ import org.sonar.api.utils.Duration;
 import org.sonar.core.rule.RuleDto;
 
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -106,9 +105,9 @@ public class IssueDtoTest {
     assertThat(issue.assignee()).isEqualTo("perceval");
     assertThat(issue.attribute("key")).isEqualTo("value");
     assertThat(issue.authorLogin()).isEqualTo("pierre");
-    assertThat(issue.creationDate()).isEqualTo(DateUtils.truncate(createdAt, Calendar.SECOND));
-    assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(updatedAt, Calendar.SECOND));
-    assertThat(issue.closeDate()).isEqualTo(DateUtils.truncate(closedAt, Calendar.SECOND));
+    assertThat(issue.creationDate()).isEqualTo(createdAt);
+    assertThat(issue.updateDate()).isEqualTo(updatedAt);
+    assertThat(issue.closeDate()).isEqualTo(closedAt);
     assertThat(issue.isNew()).isFalse();
   }
 
