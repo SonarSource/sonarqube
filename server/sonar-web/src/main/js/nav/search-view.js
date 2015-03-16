@@ -115,7 +115,10 @@ define([
         return;
       }
       this._bufferedValue = this.$('.js-search-input').val();
-      this.search(value);
+      if (this.searchRequest != null) {
+        this.searchRequest.abort();
+      }
+      this.searchRequest = this.search(value);
     },
 
     onSubmit: function () {
