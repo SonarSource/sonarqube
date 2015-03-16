@@ -30,8 +30,8 @@ import org.sonar.batch.index.BatchResource;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.protocol.Constants;
-import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.batch.protocol.output.BatchReportWriter;
 
 import javax.annotation.Nullable;
 
@@ -114,7 +114,7 @@ public class IssuesPublisher implements ReportPublisher {
     builder.setRuleRepository(issue.ruleKey().repository());
     builder.setRuleKey(issue.ruleKey().rule());
     builder.setAttributes(KeyValueFormat.format(issue.attributes()));
-    builder.addAllTags(issue.tags());
+    builder.addAllTag(issue.tags());
     builder.setMustSendNotification(issue.mustSendNotifications());
     builder.setIsChanged(issue.isChanged());
 

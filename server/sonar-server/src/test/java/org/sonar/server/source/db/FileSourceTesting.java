@@ -70,7 +70,7 @@ public class FileSourceTesting {
         .setOverallCoveredConditions(i + 8)
         .setHighlighting("HIGHLIGHTING_" + i)
         .setSymbols("SYMBOLS_" + i)
-        .addAllDuplications(Arrays.asList(i))
+        .addAllDuplication(Arrays.asList(i))
         .build();
     }
     return dataBuilder;
@@ -99,7 +99,7 @@ public class FileSourceTesting {
         .setOverallCoveredConditions(RandomUtils.nextInt(4))
         .setHighlighting(RandomStringUtils.randomAlphanumeric(40))
         .setSymbols(RandomStringUtils.randomAlphanumeric(30))
-        .addAllDuplications(Arrays.asList(RandomUtils.nextInt(200), RandomUtils.nextInt(200)))
+        .addAllDuplication(Arrays.asList(RandomUtils.nextInt(200), RandomUtils.nextInt(200)))
         .build();
     }
     return dataBuilder;

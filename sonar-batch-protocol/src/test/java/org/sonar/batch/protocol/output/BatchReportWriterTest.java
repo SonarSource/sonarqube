@@ -78,8 +78,8 @@ public class BatchReportWriterTest {
       .setUuid("UUID_A")
       .setType(Constants.ComponentType.FILE)
       .setIsTest(false)
-      .addChildRefs(5)
-      .addChildRefs(42);
+      .addChildRef(5)
+      .addChildRef(42);
     writer.writeComponent(component.build());
 
     assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 1)).isTrue();
@@ -87,7 +87,7 @@ public class BatchReportWriterTest {
     assertThat(file).exists().isFile();
     BatchReport.Component read = ProtobufUtil.readFile(file, BatchReport.Component.PARSER);
     assertThat(read.getRef()).isEqualTo(1);
-    assertThat(read.getChildRefsList()).containsOnly(5, 42);
+    assertThat(read.getChildRefList()).containsOnly(5, 42);
     assertThat(read.hasName()).isFalse();
     assertThat(read.getIsTest()).isFalse();
     assertThat(read.getUuid()).isEqualTo("UUID_A");
@@ -116,7 +116,7 @@ public class BatchReportWriterTest {
     BatchReport.Issues read = ProtobufUtil.readFile(file, BatchReport.Issues.PARSER);
     assertThat(read.getComponentRef()).isEqualTo(1);
     assertThat(read.hasComponentUuid()).isFalse();
-    assertThat(read.getListCount()).isEqualTo(1);
+    assertThat(read.getIssueCount()).isEqualTo(1);
   }
 
   @Test
@@ -142,6 +142,6 @@ public class BatchReportWriterTest {
     BatchReport.Issues read = ProtobufUtil.readFile(file, BatchReport.Issues.PARSER);
     assertThat(read.getComponentRef()).isEqualTo(1);
     assertThat(read.getComponentUuid()).isEqualTo("componentUuid");
-    assertThat(read.getListCount()).isEqualTo(1);
+    assertThat(read.getIssueCount()).isEqualTo(1);
   }
 }

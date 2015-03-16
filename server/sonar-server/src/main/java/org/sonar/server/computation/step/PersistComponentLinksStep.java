@@ -54,7 +54,7 @@ public class PersistComponentLinksStep implements ComputationStep {
     Constants.ComponentLinkType.SCM_DEV, ComponentLinkDto.TYPE_SOURCES_DEV,
     Constants.ComponentLinkType.CI, ComponentLinkDto.TYPE_CI,
     Constants.ComponentLinkType.ISSUE, ComponentLinkDto.TYPE_ISSUE_TRACKER
-  );
+    );
 
   public PersistComponentLinksStep(DbClient dbClient, I18n i18n) {
     this.dbClient = dbClient;
@@ -83,14 +83,14 @@ public class PersistComponentLinksStep implements ComputationStep {
     BatchReport.Component component = reportReader.readComponent(componentRef);
     processLinks(session, component);
 
-    for (Integer childRef : component.getChildRefsList()) {
+    for (Integer childRef : component.getChildRefList()) {
       recursivelyProcessComponent(session, context, childRef);
     }
   }
 
   private void processLinks(DbSession session, BatchReport.Component component) {
     if (component.getType().equals(Constants.ComponentType.PROJECT) || component.getType().equals(Constants.ComponentType.MODULE)) {
-      List<BatchReport.ComponentLink> links = component.getLinksList();
+      List<BatchReport.ComponentLink> links = component.getLinkList();
       List<ComponentLinkDto> previousLinks = dbClient.componentLinkDao().selectByComponentUuid(session, component.getUuid());
       mergeLinks(session, component.getUuid(), links, previousLinks);
     }

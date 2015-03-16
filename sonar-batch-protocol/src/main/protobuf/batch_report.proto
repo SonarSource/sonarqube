@@ -60,8 +60,8 @@ message Component {
   optional ComponentType type = 4;
   optional bool is_test = 5;
   optional string language = 6;
-  repeated int32 child_refs = 7 [packed=true];
-  repeated ComponentLink links = 10;
+  repeated int32 child_ref = 7 [packed=true];
+  repeated ComponentLink link = 10;
 
   // temporary fields during development of computation stack
   optional int32 snapshot_id = 8;
@@ -74,7 +74,7 @@ message Issue {
     optional int32 line = 3;
     optional string msg = 4;
     optional Severity severity = 5;
-    repeated string tags = 6;
+    repeated string tag = 6;
 
     // temporary fields during development of computation stack
     optional double effort_to_fix = 7;
@@ -101,7 +101,7 @@ message Issue {
 
 message Issues {
     optional int32 component_ref = 1;
-    repeated Issue list = 2;
+    repeated Issue issue = 2;
     
     // Temporary field for issues on deleted components
     optional string component_uuid = 3;

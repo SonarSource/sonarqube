@@ -187,9 +187,9 @@ public class SourceDataFactoryTest {
     sut.applyDuplications(inputFile.key(), output);
 
     FileSourceDb.Data data = output.build();
-    assertThat(data.getLines(0).getDuplicationsList()).containsExactly(1, 3);
-    assertThat(data.getLines(1).getDuplicationsList()).containsExactly(3);
-    assertThat(data.getLines(2).getDuplicationsList()).containsExactly(2);
+    assertThat(data.getLines(0).getDuplicationList()).containsExactly(1, 3);
+    assertThat(data.getLines(1).getDuplicationList()).containsExactly(3);
+    assertThat(data.getLines(2).getDuplicationList()).containsExactly(2);
   }
 
   @Test
@@ -203,9 +203,9 @@ public class SourceDataFactoryTest {
     sut.applyDuplications(inputFile.key(), output);
 
     FileSourceDb.Data data = output.build();
-    assertThat(data.getLines(0).getDuplicationsList()).containsExactly(1);
-    assertThat(data.getLines(1).getDuplicationsList()).containsExactly(1);
-    assertThat(data.getLines(2).getDuplicationsList()).containsExactly(1);
+    assertThat(data.getLines(0).getDuplicationList()).containsExactly(1);
+    assertThat(data.getLines(1).getDuplicationList()).containsExactly(1);
+    assertThat(data.getLines(2).getDuplicationList()).containsExactly(1);
   }
 
   @Test

@@ -95,7 +95,7 @@ public class IssueComputation {
       target.setCurrentChange(fieldDiffs);
     }
     target.setStatus(issue.getStatus());
-    target.setTags(issue.getTagsList());
+    target.setTags(issue.getTagList());
     target.setResolution(issue.hasResolution() ? issue.getResolution() : null);
     target.setReporter(issue.hasReporter() ? issue.getReporter() : null);
     target.setAssignee(issue.hasAssignee() ? issue.getAssignee() : null);

@@ -50,7 +50,7 @@ public class BatchReportReaderTest {
     assertThat(reader.readComponent(1).getUuid()).isEqualTo("UUID_A");
     Issues deletedComponentIssues = reader.readDeletedComponentIssues(1);
     assertThat(deletedComponentIssues.getComponentUuid()).isEqualTo("compUuid");
-    assertThat(deletedComponentIssues.getListList()).hasSize(1);
+    assertThat(deletedComponentIssues.getIssueList()).hasSize(1);
   }
 
   @Test(expected = IllegalStateException.class)
@@ -62,7 +62,7 @@ public class BatchReportReaderTest {
   }
 
   @Test(expected = IllegalStateException.class)
-   public void fail_if_missing_file_on_deleted_component() throws Exception {
+  public void fail_if_missing_file_on_deleted_component() throws Exception {
     File dir = temp.newFolder();
 
     BatchReportReader reader = new BatchReportReader(dir);

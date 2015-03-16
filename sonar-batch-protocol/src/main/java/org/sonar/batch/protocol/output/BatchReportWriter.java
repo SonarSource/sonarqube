@@ -58,7 +58,7 @@ public class BatchReportWriter {
   public void writeComponentIssues(int componentRef, Iterable<BatchReport.Issue> issues) {
     BatchReport.Issues.Builder issuesBuilder = BatchReport.Issues.newBuilder();
     issuesBuilder.setComponentRef(componentRef);
-    issuesBuilder.addAllList(issues);
+    issuesBuilder.addAllIssue(issues);
     File file = fileStructure.fileFor(FileStructure.Domain.ISSUES, componentRef);
     ProtobufUtil.writeToFile(issuesBuilder.build(), file);
   }
@@ -71,7 +71,7 @@ public class BatchReportWriter {
     BatchReport.Issues.Builder issuesBuilder = BatchReport.Issues.newBuilder();
     issuesBuilder.setComponentRef(componentRef);
     issuesBuilder.setComponentUuid(componentUuid);
-    issuesBuilder.addAllList(issues);
+    issuesBuilder.addAllIssue(issues);
     File file = fileStructure.fileFor(FileStructure.Domain.ISSUES_ON_DELETED, componentRef);
     ProtobufUtil.writeToFile(issuesBuilder.build(), file);
   }

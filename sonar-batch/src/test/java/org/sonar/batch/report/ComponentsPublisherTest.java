@@ -108,7 +108,7 @@ public class ComponentsPublisherTest {
 
     BatchReportReader reader = new BatchReportReader(outputDir);
     Component rootProtobuf = reader.readComponent(1);
-    assertThat(rootProtobuf.getLinksCount()).isEqualTo(0);
+    assertThat(rootProtobuf.getLinkCount()).isEqualTo(0);
 
   }
 
@@ -146,13 +146,13 @@ public class ComponentsPublisherTest {
 
     BatchReportReader reader = new BatchReportReader(outputDir);
     Component rootProtobuf = reader.readComponent(1);
-    assertThat(rootProtobuf.getLinksCount()).isEqualTo(1);
-    assertThat(rootProtobuf.getLinks(0).getType()).isEqualTo(ComponentLinkType.HOME);
-    assertThat(rootProtobuf.getLinks(0).getHref()).isEqualTo("http://home");
+    assertThat(rootProtobuf.getLinkCount()).isEqualTo(1);
+    assertThat(rootProtobuf.getLink(0).getType()).isEqualTo(ComponentLinkType.HOME);
+    assertThat(rootProtobuf.getLink(0).getHref()).isEqualTo("http://home");
 
     Component module1Protobuf = reader.readComponent(2);
-    assertThat(module1Protobuf.getLinksCount()).isEqualTo(1);
-    assertThat(module1Protobuf.getLinks(0).getType()).isEqualTo(ComponentLinkType.CI);
-    assertThat(module1Protobuf.getLinks(0).getHref()).isEqualTo("http://ci");
+    assertThat(module1Protobuf.getLinkCount()).isEqualTo(1);
+    assertThat(module1Protobuf.getLink(0).getType()).isEqualTo(ComponentLinkType.CI);
+    assertThat(module1Protobuf.getLink(0).getHref()).isEqualTo("http://ci");
   }
 }

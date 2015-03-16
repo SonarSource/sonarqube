@@ -129,7 +129,7 @@ public class SourceLineResultSetIterator extends ResultSetIterator<SourceLineRes
 
       doc.setHighlighting(line.hasHighlighting() ? line.getHighlighting() : null);
       doc.setSymbols(line.hasSymbols() ? line.getSymbols() : null);
-      doc.setDuplications(line.getDuplicationsList());
+      doc.setDuplications(line.getDuplicationList());
 
       // source is always the latest field. All future fields will be added between duplications (14) and source.
       doc.setSource(line.hasSource() ? line.getSource() : null);

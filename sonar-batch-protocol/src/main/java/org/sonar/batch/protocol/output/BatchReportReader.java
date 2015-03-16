@@ -55,7 +55,7 @@ public class BatchReportReader {
     if (file.exists() && file.isFile()) {
       // all the issues are loaded in memory
       BatchReport.Issues issues = ProtobufUtil.readFile(file, BatchReport.Issues.PARSER);
-      return issues.getListList();
+      return issues.getIssueList();
     }
     return Collections.emptyList();
   }

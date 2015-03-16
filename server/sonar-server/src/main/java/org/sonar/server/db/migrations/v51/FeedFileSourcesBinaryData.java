@@ -136,7 +136,7 @@ public class FeedFileSourcesBinaryData extends BaseDataChange {
             }
             s = row.get(14);
             if (StringUtils.isNotEmpty(s)) {
-              lineBuilder.addAllDuplications(splitIntegers(s));
+              lineBuilder.addAllDuplication(splitIntegers(s));
             }
             s = row.get(15);
             if (s != null) {

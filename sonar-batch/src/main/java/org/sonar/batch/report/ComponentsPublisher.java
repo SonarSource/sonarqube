@@ -89,7 +89,7 @@ public class ComponentsPublisher implements ReportPublisher {
       builder.setLanguage(lang);
     }
     for (BatchResource child : batchResource.children()) {
-      builder.addChildRefs(child.batchId());
+      builder.addChildRef(child.batchId());
     }
     if (isRealProjectOrModule(r)) {
       ProjectDefinition def = getProjectDefinition(reactor, r.getKey());
@@ -128,7 +128,7 @@ public class ComponentsPublisher implements ReportPublisher {
     if (StringUtils.isNotBlank(link)) {
       linkBuilder.setType(linkType);
       linkBuilder.setHref(link);
-      componentBuilder.addLinks(linkBuilder.build());
+      componentBuilder.addLink(linkBuilder.build());
       linkBuilder.clear();
     }
   }

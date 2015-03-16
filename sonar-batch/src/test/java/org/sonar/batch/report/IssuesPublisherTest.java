@@ -33,9 +33,9 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Duration;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.issue.IssueCache;
-import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.batch.protocol.output.BatchReport.Metadata;
 import org.sonar.batch.protocol.output.BatchReportReader;
+import org.sonar.batch.protocol.output.BatchReportWriter;
 
 import java.io.File;
 import java.util.Arrays;
@@ -160,7 +160,7 @@ public class IssuesPublisherTest {
     assertThat(reader.readComponentIssues(1)).hasSize(0);
     assertThat(reader.readComponentIssues(2)).hasSize(0);
     assertThat(reader.readDeletedComponentIssues(1).getComponentUuid()).isEqualTo("deletedUuid");
-    assertThat(reader.readDeletedComponentIssues(1).getListList()).hasSize(2);
+    assertThat(reader.readDeletedComponentIssues(1).getIssueList()).hasSize(2);
 
   }
 }

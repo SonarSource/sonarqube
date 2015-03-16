@@ -23,14 +23,10 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.mockito.Mockito;
-import org.sonar.api.config.Settings;
-import org.sonar.api.utils.ZipUtils;
-import org.sonar.api.utils.internal.DefaultTempFolder;
 import org.sonar.batch.protocol.Constants;
-import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportReader;
+import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.computation.ComputationContext;
@@ -94,8 +90,8 @@ public class ParseReportStepTest extends BaseStepTest {
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .setUuid("PROJECT_UUID")
-      .addChildRefs(2)
-      .addChildRefs(3)
+      .addChildRef(2)
+      .addChildRef(3)
       .build());
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(2)

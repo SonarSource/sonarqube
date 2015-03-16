@@ -43,12 +43,7 @@ import org.sonar.core.source.db.FileSourceDto;
 import org.sonar.server.source.db.FileSourceDb;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Consolidate different caches for the export of file sources to server.
@@ -362,7 +357,7 @@ public class SourceDataFactory implements BatchComponent {
     int currentLine = block.startLine();
     for (int i = 0; i < block.length(); i++) {
       if (currentLine <= to.getLinesCount()) {
-        to.getLinesBuilder(currentLine - 1).addDuplications(blockId);
+        to.getLinesBuilder(currentLine - 1).addDuplication(blockId);
         currentLine++;
       }
     }
