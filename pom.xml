@@ -297,7 +297,27 @@
             <suppressionFile>cve-false-positives.xml</suppressionFile>
           </configuration>
         </plugin>
-
+        <plugin>
+          <!--
+          Detection of conflicts in classpath.
+          Command line is: mvn org.basepom.maven:duplicate-finder-maven-plugin:check
+          See https://github.com/basepom/duplicate-finder-maven-plugin
+          -->
+          <groupId>org.basepom.maven</groupId>
+          <artifactId>duplicate-finder-maven-plugin</artifactId>
+          <version>1.1.0</version>
+          <configuration>
+            <printEqualFiles>true</printEqualFiles>
+            <!--
+            <failBuildInCaseOfDifferentContentConflict>true</failBuildInCaseOfDifferentContentConflict>
+            <failBuildInCaseOfEqualContentConflict>true</failBuildInCaseOfEqualContentConflict>
+            <failBuildInCaseOfConflict>true</failBuildInCaseOfConflict>
+            -->
+            <checkCompileClasspath>true</checkCompileClasspath>
+            <checkRuntimeClasspath>true</checkRuntimeClasspath>
+            <checkTestClasspath>false</checkTestClasspath>
+          </configuration>
+        </plugin>
       </plugins>
     </pluginManagement>
 
