@@ -64,7 +64,7 @@ public class PersistEventsStep implements ComputationStep {
     BatchReportReader reportReader = context.getReportReader();
     BatchReport.Component component = reportReader.readComponent(componentRef);
     processEvents(session, component, context.getReportMetadata().getAnalysisDate());
-    createVersionEvent(session, component, context.getReportMetadata().getAnalysisDate());
+    saveVersionEvent(session, component, context.getReportMetadata().getAnalysisDate());
 
     for (Integer childRef : component.getChildRefList()) {
       recursivelyProcessComponent(session, context, childRef);
@@ -75,7 +75,7 @@ public class PersistEventsStep implements ComputationStep {
     List<BatchReport.Event> events = component.getEventList();
     if (!events.isEmpty()) {
       for (BatchReport.Event event : component.getEventList()) {
-        dbClient.eventDao().insert(session, createBaseEvent(component, analysisDate)
+        dbClient.eventDao().insert(session, newBaseEvent(component, analysisDate)
           .setName(event.getName())
           .setCategory(convertCategory(event.getCategory()))
           .setDescription(event.hasDescription() ? event.getDescription() : null)
@@ -85,10 +85,10 @@ public class PersistEventsStep implements ComputationStep {
     }
   }
 
-  private void createVersionEvent(DbSession session, BatchReport.Component component, Long analysisDate) {
+  private void saveVersionEvent(DbSession session, BatchReport.Component component, Long analysisDate) {
     if (component.hasVersion()) {
       deletePreviousEventsHavingSameVersion(session, component);
-      dbClient.eventDao().insert(session, createBaseEvent(component, analysisDate)
+      dbClient.eventDao().insert(session, newBaseEvent(component, analysisDate)
         .setName(component.getVersion())
         .setCategory(EventDto.CATEGORY_VERSION)
         );
@@ -103,7 +103,7 @@ public class PersistEventsStep implements ComputationStep {
     }
   }
 
-  private EventDto createBaseEvent(BatchReport.Component component, Long analysisDate) {
+  private EventDto newBaseEvent(BatchReport.Component component, Long analysisDate) {
     return new EventDto()
       .setComponentUuid(component.getUuid())
       .setSnapshotId(component.getSnapshotId())
