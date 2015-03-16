@@ -14,8 +14,8 @@
     <module>sonar-plugin-api-deps</module>
     <module>sonar-application</module>
     <module>sonar-batch</module>
-    <module>sonar-batch-maven-compat</module>
     <module>sonar-batch-protocol</module>
+    <module>sonar-batch-shaded</module>
     <module>sonar-check-api</module>
     <module>sonar-colorizer</module>
     <module>sonar-core</module>
@@ -29,6 +29,7 @@
     <module>sonar-testing-harness</module>
     <module>plugins/sonar-email-notifications-plugin</module>
     <module>plugins/sonar-xoo-plugin</module>
+    <module>plugins/sonar-batch-maven-plugin</module>
   </modules>
 
   <organization>
@@ -163,7 +164,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-dependency-plugin</artifactId>
-          <version>2.9</version>
+          <version>2.10</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -389,14 +390,6 @@
                   <message>commons-beanutils:commons-beanutils should be used instead</message>
                   <excludes>
                     <exclude>commons-beanutils:commons-beanutils-core</exclude>
-                  </excludes>
-                  <searchTransitive>true</searchTransitive>
-                </bannedDependencies>
-                <bannedDependencies>
-                  <!-- See SONAR-2455 -->
-                  <message>org.codehaus.plexus:plexus-classworlds should be used instead</message>
-                  <excludes>
-                    <exclude>classworlds:classworlds</exclude>
                   </excludes>
                   <searchTransitive>true</searchTransitive>
                 </bannedDependencies>
@@ -785,6 +778,16 @@
         </exclusions>
       </dependency>
       <dependency>
+        <groupId>org.apache.maven</groupId>
+        <artifactId>maven-artifact</artifactId>
+        <version>2.0.7</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.maven</groupId>
+        <artifactId>maven-core</artifactId>
+        <version>2.0.7</version>
+      </dependency>
+      <dependency>
         <groupId>com.ibm.icu</groupId>
         <artifactId>icu4j</artifactId>
         <!-- animal-sniffer doesn't work with 2.6.1 -->
@@ -983,50 +986,6 @@
         <groupId>xpp3</groupId>
         <artifactId>xpp3</artifactId>
         <version>1.1.3.3</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.maven</groupId>
-        <artifactId>maven-core</artifactId>
-        <version>${maven.api.version}</version>
-        <exclusions>
-          <exclusion>
-            <!-- See SONAR-2455 -->
-            <groupId>classworlds</groupId>
-            <artifactId>classworlds</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.maven</groupId>
-        <artifactId>maven-plugin-api</artifactId>
-        <version>${maven.api.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.maven</groupId>
-        <artifactId>maven-compat</artifactId>
-        <version>${maven.api.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.maven</groupId>
-        <artifactId>maven-artifact</artifactId>
-        <version>${maven.api.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.maven.shared</groupId>
-        <artifactId>maven-dependency-tree</artifactId>
-        <version>2.1</version>
-        <exclusions>
-          <exclusion>
-            <!-- See SONAR-2455 -->
-            <groupId>classworlds</groupId>
-            <artifactId>classworlds</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.maven.shared</groupId>
-        <artifactId>maven-common-artifact-filters</artifactId>
-        <version>1.4</version>
       </dependency>
       <dependency>
         <groupId>org.jruby</groupId>

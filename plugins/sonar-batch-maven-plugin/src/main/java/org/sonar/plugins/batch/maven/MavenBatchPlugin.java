@@ -17,26 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.maven;
+package org.sonar.plugins.batch.maven;
 
-import static org.junit.Assert.assertEquals;
-import org.junit.Test;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import org.sonar.api.resources.Project;
-import org.sonar.api.test.MavenTestUtils;
+import org.sonar.api.SonarPlugin;
 
-public class MavenSurefireUtilsTest {
+import java.util.Arrays;
+import java.util.List;
 
-  @Test
-  public void shouldConfigureProject() {
-    Project prj = mock(Project.class);
-    when(prj.getPom()).thenReturn(MavenTestUtils.loadPom("/org/sonar/api/batch/maven/MavenSurefireUtilsTest/MavenPom.xml"));
+public class MavenBatchPlugin extends SonarPlugin {
 
-    MavenPlugin configuredPlugin = MavenSurefireUtils.configure(prj);
-    assertEquals("true", configuredPlugin.getParameter("testFailureIgnore"));
-    assertEquals("false", configuredPlugin.getParameter("disableXmlReport"));
-    assertEquals(MavenSurefireUtils.VERSION, configuredPlugin.getPlugin().getVersion());
+  @Override
+  public List getExtensions() {
+    return Arrays.asList(MavenProjectBuilder.class);
   }
 
 }

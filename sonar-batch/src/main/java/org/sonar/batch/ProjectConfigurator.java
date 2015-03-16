@@ -20,7 +20,6 @@
 package org.sonar.batch;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.maven.project.MavenProject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.BatchSide;
@@ -64,18 +63,7 @@ public class ProjectConfigurator {
 
   public Project create(ProjectDefinition definition) {
     Project project = new Project(definition.getKey(), loadProjectBranch(), definition.getName());
-
-    // For backward compatibility we must set POM and actual packaging
     project.setDescription(StringUtils.defaultString(definition.getDescription()));
-    project.setPackaging("jar");
-
-    for (Object component : definition.getContainerExtensions()) {
-      if (component instanceof MavenProject) {
-        MavenProject pom = (MavenProject) component;
-        project.setPom(pom);
-        project.setPackaging(pom.getPackaging());
-      }
-    }
     return project;
   }
 

@@ -57,9 +57,6 @@ import org.sonar.batch.issue.tracking.IssueHandlers;
 import org.sonar.batch.issue.tracking.IssueTracking;
 import org.sonar.batch.issue.tracking.IssueTrackingDecorator;
 import org.sonar.batch.language.LanguageDistributionDecorator;
-import org.sonar.batch.maven.MavenProjectBootstrapper;
-import org.sonar.batch.maven.MavenProjectBuilder;
-import org.sonar.batch.maven.MavenProjectConverter;
 import org.sonar.batch.qualitygate.GenerateQualityGateEvents;
 import org.sonar.batch.qualitygate.QualityGateVerifier;
 import org.sonar.batch.rule.QProfileEventsDecorator;
@@ -85,10 +82,6 @@ public class BatchComponents {
   public static Collection all(DefaultAnalysisMode analysisMode) {
     List components = Lists.newArrayList(
       DefaultResourceTypes.get(),
-
-      // Maven
-      MavenProjectBootstrapper.class, MavenProjectConverter.class, MavenProjectBuilder.class,
-
       // SCM
       ScmConfiguration.class,
       ScmSensor.class,

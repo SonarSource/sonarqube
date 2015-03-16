@@ -33,18 +33,6 @@
       <outputDirectory>lib/common</outputDirectory>
       <useTransitiveFiltering>true</useTransitiveFiltering>
       <useProjectArtifact>false</useProjectArtifact>
-      <excludes>
-        <exclude>mysql:mysql-connector-java</exclude>
-        <exclude>org.postgresql:postgresql</exclude>
-        <exclude>net.sourceforge.jtds:jtds</exclude>
-        <exclude>tanukisoft:wrapper</exclude>
-        <exclude>org.codehaus.sonar:sonar-server</exclude>
-        <exclude>org.codehaus.sonar:sonar-web</exclude>
-        <exclude>org.codehaus.sonar:sonar-search</exclude>
-        <exclude>org.codehaus.sonar.plugins:*</exclude>
-        <exclude>org.codehaus.sonar-plugins.java:*</exclude>
-        <exclude>org.sonatype.jsw-binaries:jsw-binaries</exclude>
-      </excludes>
       <scope>runtime</scope>
     </dependencySet>
 
@@ -85,7 +73,7 @@
       <outputDirectory>lib/batch</outputDirectory>
       <useTransitiveDependencies>false</useTransitiveDependencies>
       <includes>
-        <include>org.codehaus.sonar:sonar-batch-maven-compat</include>
+        <include>org.codehaus.sonar:sonar-batch-shaded</include>
       </includes>
       <scope>provided</scope>
     </dependencySet>
