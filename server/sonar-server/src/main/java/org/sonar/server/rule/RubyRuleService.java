@@ -92,11 +92,16 @@ public class RubyRuleService implements ServerComponent, Startable {
     QueryContext options = new QueryContext();
     Integer pageSize = RubyUtils.toInteger(params.get("pageSize"));
     int size = pageSize != null ? pageSize : 50;
-    Integer page = RubyUtils.toInteger(params.get("p"));
-    int pageIndex = page != null ? page : 1;
-    options.setPage(pageIndex, size);
-    Result<Rule> result = service.search(query, options);
-    return new PagedResult<Rule>(result.getHits(), PagingResult.create(options.getLimit(), pageIndex, result.getTotal()));
+    if (size > -1) {
+      Integer page = RubyUtils.toInteger(params.get("p"));
+      int pageIndex = page != null ? page : 1;
+      options.setPage(pageIndex, size);
+      Result<Rule> result = service.search(query, options);
+      return new PagedResult<>(result.getHits(), PagingResult.create(options.getLimit(), pageIndex, result.getTotal()));
+    } else {
+      List<Rule> rules = newArrayList(service.search(query, new QueryContext().setScroll(true)).scroll());
+      return new PagedResult<>(rules, PagingResult.create(Integer.MAX_VALUE, 1, rules.size()));
+    }
   }
 
   /**
