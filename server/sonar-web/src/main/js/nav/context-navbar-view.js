@@ -51,9 +51,18 @@ define([
     },
 
     serializeData: function () {
+      var href = window.location.href,
+          search = window.location.search,
+          isOverviewActive = href.indexOf('/dashboard/') !== -1 && search.indexOf('did=') === -1,
+          isMoreActive = !isOverviewActive && href.indexOf('/components') === -1 &&
+              href.indexOf('/component_issues') === -1;
+
       return _.extend(Marionette.Layout.prototype.serializeData.apply(this, arguments), {
         canManageContextDashboards: window.SS.user != null,
-        contextKeyEncoded: encodeURIComponent(this.model.get('contextKey'))
+        contextKeyEncoded: encodeURIComponent(this.model.get('contextKey')),
+
+        isOverviewActive: isOverviewActive,
+        isMoreActive: isMoreActive
       });
     }
   });
