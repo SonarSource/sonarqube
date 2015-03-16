@@ -53,7 +53,11 @@ import javax.annotation.Nullable;
 import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
+import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class IssueIndexTest {
 
@@ -72,7 +76,12 @@ public class IssueIndexTest {
     issueIndexer = new IssueIndexer(null, tester.client());
     issueAuthorizationIndexer = new IssueAuthorizationIndexer(null, tester.client());
     viewIndexer = new ViewIndexer(null, tester.client());
-    index = new IssueIndex(tester.client(), System2.INSTANCE);
+    System2 system = mock(System2.class);
+    when(system.getDefaultTimeZone()).thenReturn(TimeZone.getTimeZone("+01:00"));
+    when(system.newDate()).thenReturn(new Date());
+
+    index = new IssueIndex(tester.client(), system);
+
   }
 
   @Test
@@ -730,14 +739,14 @@ public class IssueIndexTest {
     SearchResult<IssueDoc> result = index.search(query, options);
     Map<String, Long> buckets = result.getFacets().get("createdAt");
     assertThat(buckets).containsOnly(
-      entry("2014-08-31T01:00:00+0000", 0L),
-      entry("2014-09-01T01:00:00+0000", 2L),
-      entry("2014-09-02T01:00:00+0000", 1L),
-      entry("2014-09-03T01:00:00+0000", 0L),
-      entry("2014-09-04T01:00:00+0000", 0L),
-      entry("2014-09-05T01:00:00+0000", 1L),
-      entry("2014-09-06T01:00:00+0000", 0L),
-      entry("2014-09-07T01:00:00+0000", 0L));
+      entry("2014-08-31T00:00:00+0000", 0L),
+      entry("2014-09-01T00:00:00+0000", 2L),
+      entry("2014-09-02T00:00:00+0000", 1L),
+      entry("2014-09-03T00:00:00+0000", 0L),
+      entry("2014-09-04T00:00:00+0000", 0L),
+      entry("2014-09-05T00:00:00+0000", 1L),
+      entry("2014-09-06T00:00:00+0000", 0L),
+      entry("2014-09-07T00:00:00+0000", 0L));
   }
 
   @Test
@@ -748,10 +757,10 @@ public class IssueIndexTest {
     Map<String, Long> createdAt = index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2014-09-01")).createdBefore(DateUtils.parseDate("2014-09-21")).build(),
       SearchOptions).getFacets().get("createdAt");
     assertThat(createdAt).containsOnly(
-      entry("2014-08-25T01:00:00+0000", 0L),
-      entry("2014-09-01T01:00:00+0000", 4L),
-      entry("2014-09-08T01:00:00+0000", 0L),
-      entry("2014-09-15T01:00:00+0000", 1L));
+      entry("2014-08-25T00:00:00+0000", 0L),
+      entry("2014-09-01T00:00:00+0000", 4L),
+      entry("2014-09-08T00:00:00+0000", 0L),
+      entry("2014-09-15T00:00:00+0000", 1L));
   }
 
   @Test
@@ -762,12 +771,12 @@ public class IssueIndexTest {
     Map<String, Long> createdAt = index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2014-09-01")).createdBefore(DateUtils.parseDate("2015-01-19")).build(),
       SearchOptions).getFacets().get("createdAt");
     assertThat(createdAt).containsOnly(
-      entry("2014-08-01T01:00:00+0000", 0L),
-      entry("2014-09-01T01:00:00+0000", 5L),
-      entry("2014-10-01T01:00:00+0000", 0L),
-      entry("2014-11-01T01:00:00+0000", 0L),
-      entry("2014-12-01T01:00:00+0000", 0L),
-      entry("2015-01-01T01:00:00+0000", 1L));
+      entry("2014-08-01T00:00:00+0000", 0L),
+      entry("2014-09-01T00:00:00+0000", 5L),
+      entry("2014-10-01T00:00:00+0000", 0L),
+      entry("2014-11-01T00:00:00+0000", 0L),
+      entry("2014-12-01T00:00:00+0000", 0L),
+      entry("2015-01-01T00:00:00+0000", 1L));
   }
 
   @Test
@@ -777,12 +786,12 @@ public class IssueIndexTest {
     Map<String, Long> createdAt = index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2011-01-01")).createdBefore(DateUtils.parseDate("2016-01-01")).build(),
       SearchOptions).getFacets().get("createdAt");
     assertThat(createdAt).containsOnly(
-      entry("2011-01-01T01:00:00+0000", 1L),
-      entry("2012-01-01T01:00:00+0000", 0L),
-      entry("2013-01-01T01:00:00+0000", 0L),
-      entry("2014-01-01T01:00:00+0000", 5L),
-      entry("2015-01-01T01:00:00+0000", 1L),
-      entry("2016-01-01T01:00:00+0000", 0L));
+      entry("2010-01-01T00:00:00+0000", 0L),
+      entry("2011-01-01T00:00:00+0000", 1L),
+      entry("2012-01-01T00:00:00+0000", 0L),
+      entry("2013-01-01T00:00:00+0000", 0L),
+      entry("2014-01-01T00:00:00+0000", 5L),
+      entry("2015-01-01T00:00:00+0000", 1L));
 
   }
 
@@ -795,14 +804,14 @@ public class IssueIndexTest {
       .createdBefore(DateUtils.parseDate("2016-01-01"))
       .build(), options).getFacets().get("createdAt");
     assertThat(createdAt).containsOnly(
-      entry("2009-01-01T01:00:00+0000", 0L),
-      entry("2010-01-01T01:00:00+0000", 0L),
-      entry("2011-01-01T01:00:00+0000", 1L),
-      entry("2012-01-01T01:00:00+0000", 0L),
-      entry("2013-01-01T01:00:00+0000", 0L),
-      entry("2014-01-01T01:00:00+0000", 5L),
-      entry("2015-01-01T01:00:00+0000", 1L),
-      entry("2016-01-01T01:00:00+0000", 0L));
+      entry("2008-01-01T00:00:00+0000", 0L),
+      entry("2009-01-01T00:00:00+0000", 0L),
+      entry("2010-01-01T00:00:00+0000", 0L),
+      entry("2011-01-01T00:00:00+0000", 1L),
+      entry("2012-01-01T00:00:00+0000", 0L),
+      entry("2013-01-01T00:00:00+0000", 0L),
+      entry("2014-01-01T00:00:00+0000", 5L),
+      entry("2015-01-01T00:00:00+0000", 1L));
   }
 
   @Test
@@ -812,12 +821,11 @@ public class IssueIndexTest {
     Map<String, Long> createdAt = index.search(IssueQuery.builder().createdBefore(DateUtils.parseDate("2016-01-01")).build(),
       SearchOptions).getFacets().get("createdAt");
     assertThat(createdAt).containsOnly(
-      entry("2011-01-01T01:00:00+0000", 1L),
-      entry("2012-01-01T01:00:00+0000", 0L),
-      entry("2013-01-01T01:00:00+0000", 0L),
-      entry("2014-01-01T01:00:00+0000", 5L),
-      entry("2015-01-01T01:00:00+0000", 1L),
-      entry("2016-01-01T01:00:00+0000", 0L));
+      entry("2011-01-01T00:00:00+0000", 1L),
+      entry("2012-01-01T00:00:00+0000", 0L),
+      entry("2013-01-01T00:00:00+0000", 0L),
+      entry("2014-01-01T00:00:00+0000", 5L),
+      entry("2015-01-01T00:00:00+0000", 1L));
   }
 
   @Test
