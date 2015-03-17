@@ -20,12 +20,12 @@
 
 #
 # SonarQube 5.1
-# SONAR-5896
 #
-class AddIssuesTagsColumn < ActiveRecord::Migration
+class RemoveIssuesComponentIdsAndCreationDateIndexes < ActiveRecord::Migration
 
   def self.up
-    add_column 'issues', :tags, :string, :null => true, :limit => 4000
+    remove_index 'issues', :name => 'issues_component_id'
+    remove_index 'issues', :name => 'issues_root_component_id'
+    remove_index 'issues', :name => 'issues_creation_date'
   end
-
 end

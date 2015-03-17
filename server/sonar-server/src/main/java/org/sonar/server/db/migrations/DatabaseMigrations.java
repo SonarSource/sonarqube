@@ -93,6 +93,8 @@ public interface DatabaseMigrations {
     FeedManualMeasuresLongDates.class,
     FeedEventsLongDates.class,
     AddNewCharacteristics.class,
-    RemovePermissionsOnModulesMigration.class
+    RemovePermissionsOnModulesMigration.class,
+    AddIssuesColumns.class,
+    DropIssuesColumns.class
     );
 }

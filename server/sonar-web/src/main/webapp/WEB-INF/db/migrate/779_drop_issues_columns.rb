@@ -21,9 +21,9 @@
 #
 # SonarQube 5.1
 #
-class FeedIssuesLongDates < ActiveRecord::Migration
+class DropIssuesColumns < ActiveRecord::Migration
+
   def self.up
-    execute_java_migration('org.sonar.server.db.migrations.v51.FeedIssuesLongDates')
+    execute_java_migration('org.sonar.server.db.migrations.v51.DropIssuesColumns')
   end
 end
-

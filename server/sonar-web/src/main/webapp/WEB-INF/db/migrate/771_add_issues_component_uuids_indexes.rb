@@ -21,10 +21,10 @@
 #
 # SonarQube 5.1
 #
-class AddIssuesLongDates < ActiveRecord::Migration
+class AddIssuesComponentUuidsIndexes < ActiveRecord::Migration
+
   def self.up
-    add_column 'issues', :issue_creation_date_ms, :big_integer, :null => true
-    add_column 'issues', :issue_update_date_ms, :big_integer, :null => true
-    add_column 'issues', :issue_close_date_ms, :big_integer, :null => true
+    add_index 'issues', 'component_uuid', :name => 'issues_component_uuid'
+    add_index 'issues', 'project_uuid', :name => 'issues_project_uuid'
   end
 end
