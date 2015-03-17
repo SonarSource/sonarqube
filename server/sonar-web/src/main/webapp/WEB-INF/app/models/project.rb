@@ -23,7 +23,7 @@ class Project < ActiveRecord::Base
 
   has_many :snapshots
   has_many :processed_snapshots, :class_name => 'Snapshot', :conditions => "status='#{Snapshot::STATUS_PROCESSED}' AND qualifier<>'LIB'", :order => 'created_at asc'
-  has_many :events, :foreign_key => 'resource_id', :order => 'event_date DESC'
+  has_many :events, :foreign_key => 'component_uuid', :primary_key => 'uuid', :order => 'event_date DESC'
   has_many :project_links, :foreign_key => 'component_uuid', :primary_key => 'uuid', :dependent => :delete_all, :order => 'link_type'
   has_many :user_roles, :foreign_key => 'resource_id'
   has_many :group_roles, :foreign_key => 'resource_id'

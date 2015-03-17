@@ -29,6 +29,8 @@ import org.sonar.api.notifications.NotificationManager;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
+import org.sonar.batch.protocol.Constants.EventCategory;
+import org.sonar.batch.report.EventCache;
 
 import java.util.List;
 
@@ -36,12 +38,14 @@ public class GenerateQualityGateEvents implements Decorator {
 
   private final QualityGate qualityGate;
   private final TimeMachine timeMachine;
-  private NotificationManager notificationManager;
+  private final NotificationManager notificationManager;
+  private final EventCache eventCache;
 
-  public GenerateQualityGateEvents(QualityGate qualityGate, TimeMachine timeMachine, NotificationManager notificationManager) {
+  public GenerateQualityGateEvents(QualityGate qualityGate, TimeMachine timeMachine, NotificationManager notificationManager, EventCache eventCache) {
     this.qualityGate = qualityGate;
     this.timeMachine = timeMachine;
     this.notificationManager = notificationManager;
+    this.eventCache = eventCache;
   }
 
   @Override
@@ -122,6 +126,6 @@ public class GenerateQualityGateEvents implements Decorator {
   }
 
   private void createEvent(DecoratorContext context, String name, String description) {
-    context.createEvent(name, description, Event.CATEGORY_ALERT, null);
+    eventCache.createEvent(context.getResource(), name, description, EventCategory.ALERT, null);
   }
 }

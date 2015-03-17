@@ -113,6 +113,7 @@ import org.sonar.server.duplication.ws.DuplicationsWs;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.IndexCreator;
 import org.sonar.server.es.IndexDefinitions;
+import org.sonar.server.event.db.EventDao;
 import org.sonar.server.issue.*;
 import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.issue.actionplan.ActionPlanWs;
@@ -282,6 +283,7 @@ class ServerComponents {
       ComponentLinkDao.class,
       SnapshotDao.class,
 
+      EventDao.class,
       ActivityDao.class,
       AnalysisReportDao.class
       ));

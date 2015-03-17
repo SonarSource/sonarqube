@@ -19,21 +19,27 @@
  */
 package org.sonar.batch.deprecated.components;
 
-import org.sonar.batch.components.PastSnapshot;
-
-import org.sonar.batch.deprecated.components.PastSnapshotFinderByPreviousVersion;
+import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.database.model.Snapshot;
+import org.sonar.batch.components.PastSnapshot;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class PastSnapshotFinderByPreviousVersionTest extends AbstractDbUnitTestCase {
 
+  private PastSnapshotFinderByPreviousVersion finder;
+
+  @Before
+  public void before() throws Exception {
+    finder = new PastSnapshotFinderByPreviousVersion(getSession(), getMyBatis());
+  }
+
   @Test
   public void shouldFindByPreviousVersion() {
     setupData("with-previous-version");
-    PastSnapshotFinderByPreviousVersion finder = new PastSnapshotFinderByPreviousVersion(getSession());
 
     Snapshot currentProjectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1003);
     PastSnapshot foundSnapshot = finder.findByPreviousVersion(currentProjectSnapshot);
@@ -45,7 +51,6 @@ public class PastSnapshotFinderByPreviousVersionTest extends AbstractDbUnitTestC
   @Test
   public void shouldFindByPreviousVersionWhenPreviousVersionDeleted() {
     setupData("with-previous-version-deleted");
-    PastSnapshotFinderByPreviousVersion finder = new PastSnapshotFinderByPreviousVersion(getSession());
 
     Snapshot currentProjectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1003);
     PastSnapshot foundSnapshot = finder.findByPreviousVersion(currentProjectSnapshot);
@@ -57,7 +62,6 @@ public class PastSnapshotFinderByPreviousVersionTest extends AbstractDbUnitTestC
   @Test
   public void testWithNoPreviousVersion() {
     setupData("no-previous-version");
-    PastSnapshotFinderByPreviousVersion finder = new PastSnapshotFinderByPreviousVersion(getSession());
 
     Snapshot currentProjectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1003);
     PastSnapshot foundSnapshot = finder.findByPreviousVersion(currentProjectSnapshot);

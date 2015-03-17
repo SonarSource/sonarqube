@@ -54,7 +54,6 @@ import org.sonar.batch.issue.tracking.IssueTrackingDecorator;
 import org.sonar.batch.language.LanguageDistributionDecorator;
 import org.sonar.batch.phases.*;
 import org.sonar.batch.qualitygate.GenerateQualityGateEvents;
-import org.sonar.batch.qualitygate.QualityGateProvider;
 import org.sonar.batch.qualitygate.QualityGateVerifier;
 import org.sonar.batch.report.ComponentsPublisher;
 import org.sonar.batch.report.IssuesPublisher;
@@ -179,8 +178,7 @@ public class ModuleScanContainer extends ComponentContainer {
   private void addDataBaseComponents() {
     add(DecoratorsExecutor.class,
 
-      // quality gates
-      new QualityGateProvider(),
+      // Quality Gate
       QualityGateVerifier.class,
       GenerateQualityGateEvents.class,
 

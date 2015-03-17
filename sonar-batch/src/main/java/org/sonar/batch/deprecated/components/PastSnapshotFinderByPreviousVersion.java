@@ -19,45 +19,40 @@
  */
 package org.sonar.batch.deprecated.components;
 
-import org.sonar.batch.components.PastSnapshot;
-
 import org.sonar.api.BatchExtension;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.Event;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
-
-import java.util.List;
+import org.sonar.batch.components.PastSnapshot;
+import org.sonar.core.event.db.EventMapper;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.MyBatis;
 
 import static org.sonar.api.utils.DateUtils.longToDate;
 
 public class PastSnapshotFinderByPreviousVersion implements BatchExtension {
 
   private final DatabaseSession session;
+  private final MyBatis mybatis;
 
-  public PastSnapshotFinderByPreviousVersion(DatabaseSession session) {
+  public PastSnapshotFinderByPreviousVersion(DatabaseSession session, MyBatis mybatis) {
     this.session = session;
+    this.mybatis = mybatis;
   }
 
   public PastSnapshot findByPreviousVersion(Snapshot projectSnapshot) {
     String currentVersion = projectSnapshot.getVersion();
     Integer resourceId = projectSnapshot.getResourceId();
+    Long snapshotId;
+    try (DbSession dbSession = mybatis.openSession(false)) {
+      snapshotId = dbSession.getMapper(EventMapper.class).findSnapshotIdOfPreviousVersion(resourceId, currentVersion);
+    }
 
-    String hql = "from " + Event.class.getSimpleName() +
-      " where name<>:version AND category='Version' AND resourceId=:resourceId ORDER BY date DESC";
-
-    List<Event> events = session.createQuery(hql)
-      .setParameter("version", currentVersion)
-      .setParameter("resourceId", resourceId)
-      .setMaxResults(1)
-      .getResultList();
-
-    if (events.isEmpty()) {
+    if (snapshotId == null) {
       return new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION);
     }
 
-    Event previousVersionEvent = events.get(0);
-    Snapshot snapshot = session.getSingleResult(Snapshot.class, "id", previousVersionEvent.getSnapshot().getId());
+    Snapshot snapshot = session.getSingleResult(Snapshot.class, "id", snapshotId.intValue());
 
     return new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION, longToDate(snapshot.getCreatedAtMs()), snapshot).setModeParameter(snapshot.getVersion());
   }

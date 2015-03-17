@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 @ParametersAreNonnullByDefault
-package org.sonar.batch.scan.sensor;
+package org.sonar.core.event.db;
 
 import javax.annotation.ParametersAreNonnullByDefault;
