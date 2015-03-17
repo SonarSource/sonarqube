@@ -60,6 +60,7 @@ define([
     onRender: function () {
       ModalFormView.prototype.onRender.apply(this, arguments);
       this.keyModifiedByUser = false;
+      this.ui.manualRuleCreationReactivate.addClass('hidden');
     },
 
     generateKey: function () {
@@ -71,8 +72,6 @@ define([
 
     flagKey: function () {
       this.keyModifiedByUser = true;
-      // Cannot use @ui.manualRuleCreationReactivate.hide() directly since it was not there at initial render
-      $(this.ui.manualRuleCreationReactivate.selector).hide();
     },
 
     create: function () {
@@ -112,7 +111,9 @@ define([
       }).fail(function (jqXHR) {
         if (jqXHR.status === 409) {
           that.existingRule = jqXHR.responseJSON.rule;
-          that.$('.alert-warning').removeClass('hidden');
+          that.showErrors([], [{ msg: t('coding_rules.reactivate.help') }]);
+          that.ui.manualRuleCreationCreate.addClass('hidden');
+          that.ui.manualRuleCreationReactivate.removeClass('hidden');
         } else {
           that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
         }
