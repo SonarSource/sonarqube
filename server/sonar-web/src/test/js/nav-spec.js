@@ -270,7 +270,9 @@ casper.test.begin(testName('Search'), 16, function (test) {
       })
 
       .then(function () {
-        casper.fill('.navbar-search', { q: 'search query' }, true);
+        casper.evaluate(function () {
+          jQuery('.navbar-search [name="q"]').val('search query').keyup();
+        });
         casper.evaluate(function () {
           jQuery('.navbar-search [name="q"]').keyup();
         });
@@ -286,9 +288,8 @@ casper.test.begin(testName('Search'), 16, function (test) {
 
       .then(function () {
         // should reset search results
-        casper.fill('.navbar-search', { q: '' }, true);
         casper.evaluate(function () {
-          jQuery('.navbar-search [name="q"]').keyup();
+          jQuery('.navbar-search [name="q"]').val('').keyup();
         });
         casper.waitForSelectorTextChange('.js-search-results');
       })

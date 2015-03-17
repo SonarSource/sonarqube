@@ -66,9 +66,9 @@ casper.test.begin('coding-rules-page-should-delete-create-rules', 2, function (t
       .then(function () {
         test.assertElementCount('#coding-rules-detail-custom-rules .coding-rules-detail-list-name', 1);
         casper.click('.js-create-custom-rule');
-        casper.fillForm('.modal form', {
-          name: 'test',
-          markdown_description: 'test'
+		casper.evaluate(function () {
+          jQuery('.modal form [name="test"]').val('test');
+		  jQuery('.modal form [name="markdown_description"]').val('test');
         });
         casper.click('#coding-rules-custom-rule-creation-create');
         lib.waitForElementCount('#coding-rules-detail-custom-rules .coding-rules-detail-list-name', 2, function () {

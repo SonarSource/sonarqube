@@ -66,7 +66,7 @@ exports.changeWorkingDirectory = function (dir) {
 
 
 exports.configureCasper = function () {
-  casper.options.waitTimeout = 60000;
+  casper.options.waitTimeout = 20000;
 };
 
 
