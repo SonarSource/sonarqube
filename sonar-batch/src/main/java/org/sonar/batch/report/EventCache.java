@@ -38,10 +38,12 @@ public class EventCache implements BatchComponent {
     this.resourceCache = resourceCache;
   }
 
-  public void createEvent(Resource resource, String name, String description, EventCategory category, @Nullable String data) {
+  public void createEvent(Resource resource, String name, @Nullable String description, EventCategory category, @Nullable String data) {
     org.sonar.batch.protocol.output.BatchReport.Event.Builder eventBuilder = org.sonar.batch.protocol.output.BatchReport.Event.newBuilder();
     eventBuilder.setName(name);
-    eventBuilder.setDescription(description);
+    if (description != null) {
+      eventBuilder.setDescription(description);
+    }
     eventBuilder.setCategory(category);
     if (data != null) {
       eventBuilder.setEventData(data);
