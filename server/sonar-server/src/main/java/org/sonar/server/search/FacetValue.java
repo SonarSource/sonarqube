@@ -61,9 +61,6 @@ public class FacetValue {
 
   @Override
   public String toString() {
-    return "FacetValue{" +
-      "key='" + getKey() + '\'' +
-      ", value=" + getValue() +
-      '}';
+    return String.format("{%s=%d}", getKey(), getValue());
   }
 }

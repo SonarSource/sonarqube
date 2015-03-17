@@ -20,7 +20,8 @@
 
 package org.sonar.server.es.request;
 
-import com.google.common.collect.HashMultiset;
+import com.google.common.collect.LinkedHashMultiset;
+import com.google.common.collect.Multiset;
 import com.google.common.collect.Multiset.Entry;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.ListenableActionFuture;
@@ -80,7 +81,7 @@ public class ProxyBulkRequestBuilder extends BulkRequestBuilder {
   public String toString() {
     StringBuilder message = new StringBuilder();
     message.append("Bulk[");
-    HashMultiset<BulkRequestKey> groupedRequests = HashMultiset.create();
+    Multiset<BulkRequestKey> groupedRequests = LinkedHashMultiset.create();
     for (int i = 0; i < request.requests().size(); i++) {
       ActionRequest item = request.requests().get(i);
       String requestType, index, docType;
