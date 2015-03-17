@@ -128,6 +128,16 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
     checkTable("update", "file_sources", "project_uuid", "file_uuid", "data_hash", "line_hashes", "src_hash", "created_at", "updated_at");
   }
 
+  @Test
+  public void update_date_when_updated_date_is_zero() throws Exception {
+    setupData("update_date_when_updated_date_is_zero");
+
+    dao.updateDateWhenUpdatedDateIsZero(session, "ABCD", 1500000000002L);
+    session.commit();
+
+    checkTable("update_date_when_updated_date_is_zero", "file_sources", "project_uuid", "file_uuid", "data_hash", "line_hashes", "src_hash", "created_at", "updated_at");
+  }
+
   private static class ReaderToStringFunction implements Function<Reader, String> {
 
     String result = null;

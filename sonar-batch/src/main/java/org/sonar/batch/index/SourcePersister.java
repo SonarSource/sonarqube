@@ -102,7 +102,7 @@ public class SourcePersister implements ScanPersister {
         .setSrcHash(metadata.hash())
         .setLineHashes(lineHashesAsMd5Hex(inputFile))
         .setCreatedAt(system2.now())
-        .setUpdatedAt(system2.now());
+        .setUpdatedAt(0L);
       mapper.insert(dto);
       session.commit();
     } else {
@@ -115,7 +115,7 @@ public class SourcePersister implements ScanPersister {
           .setLineHashes(lineHashesAsMd5Hex(inputFile));
         // Optimization do not change updated at when updating src_hash to avoid indexation by E/S
         if (!dataHash.equals(previousDto.getDataHash())) {
-          previousDto.setUpdatedAt(system2.now());
+          previousDto.setUpdatedAt(0L);
         }
         mapper.update(previousDto);
         session.commit();

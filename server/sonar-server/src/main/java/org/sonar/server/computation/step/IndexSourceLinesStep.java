@@ -20,14 +20,22 @@
 package org.sonar.server.computation.step;
 
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.utils.System2;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.source.index.SourceLineIndexer;
 
 public class IndexSourceLinesStep implements ComputationStep {
 
+  private final DbClient dbClient;
+  private final System2 system2;
   private final SourceLineIndexer indexer;
 
-  public IndexSourceLinesStep(SourceLineIndexer indexer) {
+  public IndexSourceLinesStep(DbClient dbClient, System2 system2, SourceLineIndexer indexer) {
+    this.dbClient = dbClient;
+    this.system2 = system2;
     this.indexer = indexer;
   }
 
@@ -38,7 +46,20 @@ public class IndexSourceLinesStep implements ComputationStep {
 
   @Override
   public void execute(ComputationContext context) {
+    updateSourceUpdateDate(context.getProject().uuid());
     indexer.index();
+  }
+
+  // Temporary solution to only index in E/S updated sources from current project
+  // Should be removed when source wil be persisted in compute engine
+  private void updateSourceUpdateDate(String projectUuid){
+    DbSession session = dbClient.openSession(true);
+    try {
+      dbClient.fileSourceDao().updateDateWhenUpdatedDateIsZero(session, projectUuid, system2.now());
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 
   @Override

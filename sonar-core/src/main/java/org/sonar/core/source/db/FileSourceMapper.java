@@ -20,6 +20,8 @@
 
 package org.sonar.core.source.db;
 
+import org.apache.ibatis.annotations.Param;
+
 import javax.annotation.CheckForNull;
 
 import java.util.List;
@@ -34,6 +36,8 @@ public interface FileSourceMapper {
   void insert(FileSourceDto dto);
 
   void update(FileSourceDto dto);
+
+  void updateDateWhenUpdatedDateIsZero(@Param("projectUuid") String projectUuid, @Param("date") Long updateDate);
 
   @CheckForNull
   String selectLineHashes(String fileUuid);

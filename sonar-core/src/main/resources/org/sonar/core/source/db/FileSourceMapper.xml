@@ -18,20 +18,27 @@
   </select>
   
   <insert id="insert" parameterType="org.sonar.core.source.db.FileSourceDto" useGeneratedKeys="false">
-    insert into file_sources (project_uuid, file_uuid, created_at, updated_at, binary_data, line_hashes, data_hash, src_hash)
-    values (#{projectUuid,jdbcType=VARCHAR}, #{fileUuid,jdbcType=VARCHAR}, #{createdAt,jdbcType=BIGINT},
+    INSERT INTO file_sources (project_uuid, file_uuid, created_at, updated_at, binary_data, line_hashes, data_hash, src_hash)
+    VALUES (#{projectUuid,jdbcType=VARCHAR}, #{fileUuid,jdbcType=VARCHAR}, #{createdAt,jdbcType=BIGINT},
     #{updatedAt,jdbcType=BIGINT}, #{binaryData,jdbcType=BLOB}, #{lineHashes,jdbcType=CLOB},
     #{dataHash,jdbcType=VARCHAR}, #{srcHash,jdbcType=VARCHAR})
   </insert>
   
   <update id="update" parameterType="org.sonar.core.source.db.FileSourceDto" useGeneratedKeys="false">
-    update file_sources set
+    UPDATE file_sources SET
       updated_at = #{updatedAt,jdbcType=BIGINT},
       binary_data = #{binaryData,jdbcType=BLOB},
       line_hashes = #{lineHashes,jdbcType=CLOB},
       data_hash = #{dataHash,jdbcType=VARCHAR},
       src_hash = #{srcHash,jdbcType=VARCHAR}
-    where id = #{id}
+    WHERE id = #{id}
+  </update>
+
+  <update id="updateDateWhenUpdatedDateIsZero" parameterType="org.sonar.core.source.db.FileSourceDto" useGeneratedKeys="false">
+    UPDATE file_sources SET
+    updated_at = #{date,jdbcType=BIGINT}
+    WHERE project_uuid = #{projectUuid}
+      AND updated_at = 0
   </update>
 
   <select id="selectLineHashes" parameterType="string" resultType="String">
