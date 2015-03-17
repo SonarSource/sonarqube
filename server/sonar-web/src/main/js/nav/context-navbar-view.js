@@ -58,7 +58,7 @@ define([
               href.indexOf('/component_issues') === -1;
 
       return _.extend(Marionette.Layout.prototype.serializeData.apply(this, arguments), {
-        canManageContextDashboards: window.SS.user != null,
+        canManageContextDashboards: !!window.SS.user,
         contextKeyEncoded: encodeURIComponent(this.model.get('contextKey')),
 
         isOverviewActive: isOverviewActive,
