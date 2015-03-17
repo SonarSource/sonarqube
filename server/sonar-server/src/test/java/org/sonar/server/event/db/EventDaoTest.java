@@ -101,7 +101,7 @@ public class EventDaoTest {
       );
     session.commit();
 
-    dbTester.assertDbUnit(getClass(), "insert-result.xml", "events");
+    dbTester.assertDbUnit(getClass(), "insert-result.xml", new String[]{"id"}, "events");
   }
 
   @Test

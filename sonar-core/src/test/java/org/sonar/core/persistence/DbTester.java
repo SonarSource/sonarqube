@@ -37,7 +37,9 @@ import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.dataset.CompositeDataSet;
 import org.dbunit.dataset.IDataSet;
+import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
+import org.dbunit.dataset.filter.DefaultColumnFilter;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
 import org.dbunit.ext.mssql.InsertIdentityOperation;
 import org.dbunit.operation.DatabaseOperation;
@@ -56,12 +58,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.sql.Clob;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -282,17 +279,27 @@ public class DbTester extends ExternalResource {
   }
 
   public void assertDbUnit(Class testClass, String filename, String... tables) {
+    assertDbUnit(testClass, filename, new String[0], tables);
+  }
+
+  public void assertDbUnit(Class testClass, String filename, String[] excludedColumnNames, String... tables) {
     IDatabaseConnection connection = null;
     try {
       connection = dbUnitConnection();
 
       IDataSet dataSet = connection.createDataSet();
       String path = "/" + testClass.getName().replace('.', '/') + "/" + filename;
-      IDataSet expectedDataSet = dbUnitDataSet(testClass.getResourceAsStream(path));
+      InputStream inputStream = testClass.getResourceAsStream(path);
+      if (inputStream == null) {
+        throw new IllegalStateException(String.format("File '%s' does not exist", path));
+      }
+      IDataSet expectedDataSet = dbUnitDataSet(inputStream);
       for (String table : tables) {
         DiffCollectingFailureHandler diffHandler = new DiffCollectingFailureHandler();
 
-        Assertion.assertEquals(expectedDataSet.getTable(table), dataSet.getTable(table), diffHandler);
+        ITable filteredTable = DefaultColumnFilter.excludedColumnsTable(dataSet.getTable(table), excludedColumnNames);
+        ITable filteredExpectedTable = DefaultColumnFilter.excludedColumnsTable(expectedDataSet.getTable(table), excludedColumnNames);
+        Assertion.assertEquals(filteredExpectedTable, filteredTable, diffHandler);
         // Evaluate the differences and ignore some column values
         List diffList = diffHandler.getDiffList();
         for (Object o : diffList) {

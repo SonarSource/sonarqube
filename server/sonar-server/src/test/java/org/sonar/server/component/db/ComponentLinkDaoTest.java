@@ -31,7 +31,6 @@ import org.sonar.core.persistence.DbTester;
 import org.sonar.test.DbTests;
 
 import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -86,13 +85,7 @@ public class ComponentLinkDaoTest {
       );
     session.commit();
 
-    // For an unknown reason, on MySQL the id of the links is set to 2, so we can't use assertDbUnit() to check inserted values
-    Map<String, Object> result = dbTester.selectFirst("select id as \"id\", component_uuid as \"componentUuid\", link_type as \"type\", name as \"name\", href as \"href\" from project_links");
-    assertThat(result.get("id")).isNotNull();
-    assertThat(result.get("componentUuid")).isEqualTo("ABCD");
-    assertThat(result.get("type")).isEqualTo("homepage");
-    assertThat(result.get("name")).isEqualTo("Home");
-    assertThat(result.get("href")).isEqualTo("http://www.sonarqube.org");
+    dbTester.assertDbUnit(getClass(), "insert-result.xml", new String[]{"id"}, "project_links");
   }
 
   @Test
