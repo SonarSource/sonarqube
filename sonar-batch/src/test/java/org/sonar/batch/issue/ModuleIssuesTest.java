@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.issue;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,6 +40,7 @@ import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.MessageException;
 
+import java.util.Calendar;
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -152,7 +154,7 @@ public class ModuleIssuesTest {
     ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
     verify(cache).put(argument.capture());
     assertThat(argument.getValue().severity()).isEqualTo(Severity.CRITICAL);
-    assertThat(argument.getValue().creationDate()).isEqualTo(analysisDate);
+    assertThat(argument.getValue().creationDate()).isEqualTo(DateUtils.truncate(analysisDate, Calendar.SECOND));
   }
 
   @Test
@@ -171,7 +173,7 @@ public class ModuleIssuesTest {
     ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
     verify(cache).put(argument.capture());
     assertThat(argument.getValue().severity()).isEqualTo(Severity.INFO);
-    assertThat(argument.getValue().creationDate()).isEqualTo(analysisDate);
+    assertThat(argument.getValue().creationDate()).isEqualTo(DateUtils.truncate(analysisDate, Calendar.SECOND));
   }
 
   @Test

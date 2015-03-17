@@ -29,6 +29,7 @@ import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
 import org.sonar.api.rule.RuleKey;
@@ -333,7 +334,8 @@ public class DefaultIssue implements Issue {
   }
 
   public DefaultIssue setCreationDate(Date d) {
-    this.creationDate = d;
+    // d is not marked as Nullable but we still allow null parameter for unit testing.
+    this.creationDate = (d != null ? DateUtils.truncate(d, Calendar.SECOND) : null);
     return this;
   }
 
@@ -344,7 +346,7 @@ public class DefaultIssue implements Issue {
   }
 
   public DefaultIssue setUpdateDate(@Nullable Date d) {
-    this.updateDate = d;
+    this.updateDate = (d != null ? DateUtils.truncate(d, Calendar.SECOND) : null);
     return this;
   }
 
@@ -355,7 +357,7 @@ public class DefaultIssue implements Issue {
   }
 
   public DefaultIssue setCloseDate(@Nullable Date d) {
-    this.closeDate = d;
+    this.closeDate = (d != null ? DateUtils.truncate(d, Calendar.SECOND) : null);
     return this;
   }
 

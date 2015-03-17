@@ -26,6 +26,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.ActionPlan;
@@ -38,6 +39,7 @@ import org.sonar.api.utils.Duration;
 
 import javax.annotation.Nullable;
 
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 
@@ -182,7 +184,8 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
   }
 
   public void setCloseDate(DefaultIssue issue, @Nullable Date d, IssueChangeContext context) {
-    if (!Objects.equal(d, issue.closeDate())) {
+    Date dateWithoutMilliseconds = d == null ? null : DateUtils.truncate(d, Calendar.SECOND);
+    if (!Objects.equal(dateWithoutMilliseconds, issue.closeDate())) {
       issue.setCloseDate(d);
       issue.setUpdateDate(context.date());
       issue.setChanged(true);

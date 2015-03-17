@@ -21,6 +21,7 @@ package org.sonar.core.issue.workflow;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
+import org.apache.commons.lang.time.DateUtils;
 import org.junit.Test;
 import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.issue.Issue;
@@ -31,6 +32,7 @@ import org.sonar.core.issue.IssueUpdater;
 
 import javax.annotation.Nullable;
 
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -137,6 +139,7 @@ public class IssueWorkflowTest {
     }
   }
 
+
   @Test
   public void do_automatic_transition() throws Exception {
     workflow.start();
@@ -152,7 +155,7 @@ public class IssueWorkflowTest {
     assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
     assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
     assertThat(issue.closeDate()).isNotNull();
-    assertThat(issue.updateDate()).isEqualTo(now);
+    assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(now, Calendar.SECOND));
   }
 
   @Test
@@ -170,7 +173,7 @@ public class IssueWorkflowTest {
     assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
     assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
     assertThat(issue.closeDate()).isNotNull();
-    assertThat(issue.updateDate()).isEqualTo(now);
+    assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(now, Calendar.SECOND));
   }
 
   @Test
@@ -188,7 +191,7 @@ public class IssueWorkflowTest {
     assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
     assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
     assertThat(issue.closeDate()).isNotNull();
-    assertThat(issue.updateDate()).isEqualTo(now);
+    assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(now, Calendar.SECOND));
   }
 
   @Test
@@ -206,8 +209,9 @@ public class IssueWorkflowTest {
     assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
     assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
     assertThat(issue.closeDate()).isNotNull();
-    assertThat(issue.updateDate()).isEqualTo(now);
+    assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(now, Calendar.SECOND));
   }
+
 
   @Test
   public void fail_if_unknown_status_on_automatic_trans() throws Exception {
@@ -279,7 +283,7 @@ public class IssueWorkflowTest {
       Transition.create("resolve", "OPEN", "RESOLVED"),
       Transition.create("falsepositive", "OPEN", "RESOLVED"),
       Transition.create("wontfix", "OPEN", "RESOLVED")
-      );
+    );
 
     workflow.doTransition(issue, "resolve", mock(IssueChangeContext.class));
     assertThat(issue.resolution()).isEqualTo("FIXED");
@@ -287,7 +291,7 @@ public class IssueWorkflowTest {
 
     assertThat(workflow.outTransitions(issue)).containsOnly(
       Transition.create("reopen", "RESOLVED", "REOPENED")
-      );
+    );
 
     workflow.doAutomaticTransition(issue, mock(IssueChangeContext.class));
     assertThat(issue.resolution()).isEqualTo("FIXED");
@@ -310,7 +314,7 @@ public class IssueWorkflowTest {
       Transition.create("resolve", "OPEN", "RESOLVED"),
       Transition.create("falsepositive", "OPEN", "RESOLVED"),
       Transition.create("wontfix", "OPEN", "RESOLVED")
-      );
+    );
 
     workflow.doTransition(issue, "confirm", mock(IssueChangeContext.class));
     assertThat(issue.resolution()).isNull();
@@ -321,7 +325,7 @@ public class IssueWorkflowTest {
       Transition.create("resolve", "CONFIRMED", "RESOLVED"),
       Transition.create("falsepositive", "CONFIRMED", "RESOLVED"),
       Transition.create("wontfix", "CONFIRMED", "RESOLVED")
-      );
+    );
 
     // keep confirmed and unresolved
     workflow.doAutomaticTransition(issue, mock(IssueChangeContext.class));
