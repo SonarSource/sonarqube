@@ -366,6 +366,7 @@ module.exports = (grunt) ->
           test: true
           'fail-fast': true
           verbose: true
+          parallel: !isWindows
           port: expressPort
         src: ['src/test/js/**/*<%= grunt.option("spec") %>*.js']
       single:

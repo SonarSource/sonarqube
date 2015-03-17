@@ -1,0 +1,316 @@
+{
+  "canWrite": true,
+  "qualityprofiles": [
+    {
+      "key": "java-default-with-mojo-conventions-49307",
+      "name": "Default - Maven Conventions",
+      "lang": "java",
+      "parentKey": "java-top-profile-without-formatting-conventions-50037"
+    },
+    {
+      "key": "java-default-with-sonarsource-conventions-27339",
+      "name": "Default - SonarSource conventions",
+      "lang": "java",
+      "parentKey": "java-top-profile-without-formatting-conventions-50037"
+    },
+    {
+      "key": "java-top-profile-without-formatting-conventions-50037",
+      "name": "Default - Top",
+      "lang": "java"
+    },
+    {
+      "key": "java-findbugs-14954",
+      "name": "FindBugs",
+      "lang": "java"
+    },
+    {
+      "key": "java-for-sq-java-plugin-only-92289",
+      "name": "For SQ Java Plugin Only",
+      "lang": "java",
+      "parentKey": "java-default-with-sonarsource-conventions-27339"
+    },
+    {
+      "key": "java-for-sq-only-95381",
+      "name": "For SQ Only",
+      "lang": "java",
+      "parentKey": "java-default-with-sonarsource-conventions-27339"
+    },
+    {
+      "key": "php-psr-2-06315",
+      "name": "PSR-2",
+      "lang": "php"
+    },
+    {
+      "key": "java-sonar-way-80423",
+      "name": "Sonar way",
+      "lang": "java"
+    },
+    {
+      "key": "js-sonar-way",
+      "name": "Sonar way",
+      "lang": "js"
+    },
+    {
+      "key": "php-sonar-way-05548",
+      "name": "Sonar way",
+      "lang": "php"
+    },
+    {
+      "key": "py-sonar-way-80265",
+      "name": "Sonar way",
+      "lang": "py"
+    },
+    {
+      "key": "java-without-findbugs",
+      "name": "Without Findbugs",
+      "lang": "java"
+    }
+  ],
+  "languages": {
+    "py": "Python",
+    "js": "JavaScript",
+    "php": "PHP",
+    "java": "Java"
+  },
+  "repositories": [
+    {
+      "key": "common-java",
+      "name": "Common SonarQube",
+      "language": "java"
+    },
+    {
+      "key": "common-js",
+      "name": "Common SonarQube",
+      "language": "js"
+    },
+    {
+      "key": "common-php",
+      "name": "Common SonarQube",
+      "language": "php"
+    },
+    {
+      "key": "common-py",
+      "name": "Common SonarQube",
+      "language": "py"
+    },
+    {
+      "key": "Pylint",
+      "name": "Pylint",
+      "language": "py"
+    },
+    {
+      "key": "javascript",
+      "name": "SonarQube",
+      "language": "js"
+    },
+    {
+      "key": "php",
+      "name": "SonarQube",
+      "language": "php"
+    },
+    {
+      "key": "python",
+      "name": "SonarQube",
+      "language": "py"
+    },
+    {
+      "key": "squid",
+      "name": "SonarQube",
+      "language": "java"
+    }
+  ],
+  "statuses": {
+    "BETA": "Beta",
+    "DEPRECATED": "Deprecated",
+    "READY": "Ready"
+  },
+  "characteristics": [
+    {
+      "key": "UNDERSTANDABILITY",
+      "name": "Understandability",
+      "parent": "MAINTAINABILITY"
+    },
+    {
+      "key": "MAINTAINABILITY",
+      "name": "Maintainability"
+    },
+    {
+      "key": "TIME_ZONE_RELATED_PORTABILITY",
+      "name": "Time zone related portability",
+      "parent": "PORTABILITY"
+    },
+    {
+      "key": "READABILITY",
+      "name": "Readability",
+      "parent": "MAINTAINABILITY"
+    },
+    {
+      "key": "SECURITY_FEATURES",
+      "name": "Security features",
+      "parent": "SECURITY"
+    },
+    {
+      "key": "ARCHITECTURE_RELIABILITY",
+      "name": "Architecture related reliability",
+      "parent": "RELIABILITY"
+    },
+    {
+      "key": "OS_RELATED_PORTABILITY",
+      "name": "OS related portability",
+      "parent": "PORTABILITY"
+    },
+    {
+      "key": "EXCEPTION_HANDLING",
+      "name": "Exception handling",
+      "parent": "RELIABILITY"
+    },
+    {
+      "key": "LOGIC_CHANGEABILITY",
+      "name": "Logic related changeability",
+      "parent": "CHANGEABILITY"
+    },
+    {
+      "key": "SOFTWARE_RELATED_PORTABILITY",
+      "name": "Software related portability",
+      "parent": "PORTABILITY"
+    },
+    {
+      "key": "INPUT_VALIDATION_AND_REPRESENTATION",
+      "name": "Input validation and representation",
+      "parent": "SECURITY"
+    },
+    {
+      "key": "LANGUAGE_RELATED_PORTABILITY",
+      "name": "Language related portability",
+      "parent": "PORTABILITY"
+    },
+    {
+      "key": "ERRORS",
+      "name": "Errors",
+      "parent": "SECURITY"
+    },
+    {
+      "key": "SECURITY",
+      "name": "Security"
+    },
+    {
+      "key": "RELIABILITY",
+      "name": "Reliability"
+    },
+    {
+      "key": "PORTABILITY",
+      "name": "Portability"
+    },
+    {
+      "key": "HARDWARE_RELATED_PORTABILITY",
+      "name": "Hardware related portability",
+      "parent": "PORTABILITY"
+    },
+    {
+      "key": "SYNCHRONIZATION_RELIABILITY",
+      "name": "Synchronization related reliability",
+      "parent": "RELIABILITY"
+    },
+    {
+      "key": "TRANSPORTABILITY",
+      "name": "Transportability",
+      "parent": "REUSABILITY"
+    },
+    {
+      "key": "COMPILER_RELATED_PORTABILITY",
+      "name": "Compiler related portability",
+      "parent": "PORTABILITY"
+    },
+    {
+      "key": "RESOURCE_RELIABILITY",
+      "name": "Resource",
+      "parent": "RELIABILITY"
+    },
+    {
+      "key": "CPU_EFFICIENCY",
+      "name": "Processor use",
+      "parent": "EFFICIENCY"
+    },
+    {
+      "key": "EFFICIENCY",
+      "name": "Efficiency"
+    },
+    {
+      "key": "CHANGEABILITY",
+      "name": "Changeability"
+    },
+    {
+      "key": "DATA_CHANGEABILITY",
+      "name": "Data related changeability",
+      "parent": "CHANGEABILITY"
+    },
+    {
+      "key": "API_ABUSE",
+      "name": "API abuse",
+      "parent": "SECURITY"
+    },
+    {
+      "key": "ARCHITECTURE_CHANGEABILITY",
+      "name": "Architecture related changeability",
+      "parent": "CHANGEABILITY"
+    },
+    {
+      "key": "UNIT_TESTS",
+      "name": "Unit tests",
+      "parent": "RELIABILITY"
+    },
+    {
+      "key": "INSTRUCTION_RELIABILITY",
+      "name": "Instruction related reliability",
+      "parent": "RELIABILITY"
+    },
+    {
+      "key": "REUSABILITY",
+      "name": "Reusability"
+    },
+    {
+      "key": "MODULARITY",
+      "name": "Modularity",
+      "parent": "REUSABILITY"
+    },
+    {
+      "key": "UNIT_TESTABILITY",
+      "name": "Unit level testability",
+      "parent": "TESTABILITY"
+    },
+    {
+      "key": "TESTABILITY",
+      "name": "Testability"
+    },
+    {
+      "key": "INTEGRATION_TESTABILITY",
+      "name": "Integration level testability",
+      "parent": "TESTABILITY"
+    },
+    {
+      "key": "NETWORK_USE",
+      "name": "Network use",
+      "parent": "EFFICIENCY"
+    },
+    {
+      "key": "MEMORY_EFFICIENCY",
+      "name": "Memory use",
+      "parent": "EFFICIENCY"
+    },
+    {
+      "key": "DATA_RELIABILITY",
+      "name": "Data related reliability",
+      "parent": "RELIABILITY"
+    },
+    {
+      "key": "FAULT_TOLERANCE",
+      "name": "Fault tolerance",
+      "parent": "RELIABILITY"
+    },
+    {
+      "key": "LOGIC_RELIABILITY",
+      "name": "Logic related reliability",
+      "parent": "RELIABILITY"
+    }
+  ]
+}
