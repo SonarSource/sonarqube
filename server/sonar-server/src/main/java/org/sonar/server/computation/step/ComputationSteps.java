@@ -37,13 +37,18 @@ public class ComputationSteps {
    */
   public static List<Class<? extends ComputationStep>> orderedStepClasses() {
     return Arrays.asList(
+      // Read report
       ParseReportStep.class,
+
+      // Persist data
       PersistIssuesStep.class,
+      PersistComponentLinksStep.class,
+      PersistEventsStep.class,
+
+      // Switch snapshot and purge
       SwitchSnapshotStep.class,
       IndexComponentsStep.class,
       PurgeDatastoresStep.class,
-      PersistComponentLinksStep.class,
-      PersistEventsStep.class,
 
       // ES indexing is done after all db changes
       ApplyPermissionsStep.class,
