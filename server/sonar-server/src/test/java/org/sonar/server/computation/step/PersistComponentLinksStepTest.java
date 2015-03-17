@@ -37,6 +37,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,7 +46,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @Category(DbTests.class)
-public class PersistComponentLinksStepTest {
+public class PersistComponentLinksStepTest extends BaseStepTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -75,6 +76,11 @@ public class PersistComponentLinksStepTest {
     when(i18n.message(Locale.ENGLISH, "project_links.issue", null)).thenReturn("Issues");
 
     step = new PersistComponentLinksStep(dbClient, i18n);
+  }
+
+  @Override
+  protected ComputationStep step() throws IOException {
+    return step;
   }
 
   @After
@@ -145,6 +151,30 @@ public class PersistComponentLinksStepTest {
     step.execute(new ComputationContext(new BatchReportReader(reportDir), mock(ComponentDto.class)));
 
     dbTester.assertDbUnit(getClass(), "nothing_to_do_when_link_already_exists.xml", "project_links");
+  }
+
+  @Test
+  public void do_not_add_links_on_file() throws Exception {
+    dbTester.prepareDbUnit(getClass(), "empty.xml");
+
+    File reportDir = temp.newFolder();
+    BatchReportWriter writer = new BatchReportWriter(reportDir);
+    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+      .setRootComponentRef(1)
+      .setProjectKey("PROJECT_KEY")
+      .setAnalysisDate(150000000L)
+      .build());
+
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(1)
+      .setType(Constants.ComponentType.FILE)
+      .setUuid("ABCD")
+      .addLink(BatchReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.HOME).setHref("http://www.sonarqube.org").build())
+      .build());
+
+    step.execute(new ComputationContext(new BatchReportReader(reportDir), mock(ComponentDto.class)));
+
+    assertThat(dbTester.countRowsOfTable("project_links")).isEqualTo(0);
   }
 
   @Test

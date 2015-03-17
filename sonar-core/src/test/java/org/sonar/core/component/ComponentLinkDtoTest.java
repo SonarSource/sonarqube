@@ -17,27 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.step;
+
+package org.sonar.core.component;
 
 import org.junit.Test;
 
-import java.io.IOException;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * Temporary solution to test metadata. Should be replaced by a medium test of
- * all computation stack
- */
-public abstract class BaseStepTest {
-
-  protected abstract ComputationStep step() throws IOException;
+public class ComponentLinkDtoTest {
 
   @Test
-  public void test_metadata() throws Exception {
-    assertThat(step().toString()).isNotEmpty();
-    assertThat(step().getDescription()).isNotEmpty();
-    assertThat(step().supportedProjectQualifiers().length).isGreaterThan(0);
+  public void test_getters_and_setters() throws Exception {
+    ComponentLinkDto dto = new ComponentLinkDto()
+      .setId(1L)
+      .setComponentUuid("ABCD")
+      .setType("homepage")
+      .setName("Home")
+      .setHref("http://www.sonarqube.org");
 
+    assertThat(dto.getId()).isEqualTo(1L);
+    assertThat(dto.getComponentUuid()).isEqualTo("ABCD");
+    assertThat(dto.getType()).isEqualTo("homepage");
+    assertThat(dto.getName()).isEqualTo("Home");
+    assertThat(dto.getHref()).isEqualTo("http://www.sonarqube.org");
+  }
+
+  @Test
+  public void test_provided_types() throws Exception {
+    assertThat(ComponentLinkDto.PROVIDED_TYPES).hasSize(5);
   }
 }

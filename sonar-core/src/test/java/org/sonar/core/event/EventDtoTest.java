@@ -17,27 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.step;
+
+package org.sonar.core.event;
 
 import org.junit.Test;
 
-import java.io.IOException;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * Temporary solution to test metadata. Should be replaced by a medium test of
- * all computation stack
- */
-public abstract class BaseStepTest {
-
-  protected abstract ComputationStep step() throws IOException;
+public class EventDtoTest {
 
   @Test
-  public void test_metadata() throws Exception {
-    assertThat(step().toString()).isNotEmpty();
-    assertThat(step().getDescription()).isNotEmpty();
-    assertThat(step().supportedProjectQualifiers().length).isGreaterThan(0);
+  public void test_getters_and_setters() throws Exception {
+    EventDto dto = new EventDto()
+      .setId(1L)
+      .setName("1.0")
+      .setCategory("Version")
+      .setDescription("Version 1.0")
+      .setData("some data")
+      .setDate(1413407091086L)
+      .setComponentUuid("ABCD")
+      .setSnapshotId(1000L)
+      .setCreatedAt(1225630680000L);
 
+    assertThat(dto.getId()).isEqualTo(1L);
+    assertThat(dto.getName()).isEqualTo("1.0");
+    assertThat(dto.getCategory()).isEqualTo("Version");
+    assertThat(dto.getDescription()).isEqualTo("Version 1.0");
+    assertThat(dto.getData()).isEqualTo("some data");
+    assertThat(dto.getComponentUuid()).isEqualTo("ABCD");
+    assertThat(dto.getSnapshotId()).isEqualTo(1000L);
+    assertThat(dto.getCreatedAt()).isEqualTo(1225630680000L);
   }
+
 }

@@ -37,13 +37,14 @@ import org.sonar.server.event.db.EventDao;
 import org.sonar.test.DbTests;
 
 import java.io.File;
+import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @Category(DbTests.class)
-public class PersistEventsStepTest {
+public class PersistEventsStepTest extends BaseStepTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -69,6 +70,11 @@ public class PersistEventsStepTest {
     when(system2.now()).thenReturn(1225630680000L);
 
     step = new PersistEventsStep(dbClient, system2);
+  }
+
+  @Override
+  protected ComputationStep step() throws IOException {
+    return step;
   }
 
   @After
@@ -138,6 +144,48 @@ public class PersistEventsStepTest {
     step.execute(new ComputationContext(new BatchReportReader(reportDir), mock(ComponentDto.class)));
 
     dbTester.assertDbUnit(getClass(), "add_events-result.xml", "events");
+  }
+
+  @Test
+  public void persist_report_events_with_component_children() throws Exception {
+    dbTester.prepareDbUnit(getClass(), "empty.xml");
+
+    File reportDir = temp.newFolder();
+    BatchReportWriter writer = new BatchReportWriter(reportDir);
+    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+      .setRootComponentRef(1)
+      .setProjectKey("PROJECT_KEY")
+      .setAnalysisDate(150000000L)
+      .build());
+
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(1)
+      .setType(Constants.ComponentType.PROJECT)
+      .setUuid("ABCD")
+      .setSnapshotId(1000L)
+      .addEvent(BatchReport.Event.newBuilder()
+        .setName("Red (was Orange)")
+        .setCategory(Constants.EventCategory.ALERT)
+        .setDescription("Open issues > 0")
+        .build())
+      .addChildRef(2)
+      .build());
+
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(2)
+      .setType(Constants.ComponentType.MODULE)
+      .setUuid("BCDE")
+      .setSnapshotId(1001L)
+      .addEvent(BatchReport.Event.newBuilder()
+          .setName("Red (was Orange)")
+          .setCategory(Constants.EventCategory.ALERT)
+          .setDescription("Open issues > 0")
+          .build()
+      ).build());
+
+    step.execute(new ComputationContext(new BatchReportReader(reportDir), mock(ComponentDto.class)));
+
+    dbTester.assertDbUnit(getClass(), "persist_report_events_with_component_children-result.xml", "events");
   }
 
   @Test
