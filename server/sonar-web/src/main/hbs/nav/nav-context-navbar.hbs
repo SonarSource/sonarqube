@@ -30,6 +30,18 @@
     <li {{#isActiveLink '/component_issues'}}class="active"{{/isActiveLink}}>
       <a href="{{link '/component_issues/index?id=' contextKeyEncoded }}">{{t 'issues.page'}}</a>
     </li>
+    {{#if contextConfiguration}}
+      <li class="dropdown {{#if isSettingsActive}}active{{/if}}">
+        <a class="dropdown-toggle navbar-admin-link" data-toggle="dropdown" href="#">{{t 'layout.settings'}}&nbsp;<i class="icon-dropdown"></i></a>
+        <ul class="dropdown-menu">
+          {{#each contextConfiguration}}
+            <li>
+              <a href="{{link url}}">{{name}}</a>
+            </li>
+          {{/each}}
+        </ul>
+      </li>
+    {{/if}}
     <li class="dropdown {{#if isMoreActive}}active{{/if}}">
       <a class="dropdown-toggle" data-toggle="dropdown" href="#">{{t 'more'}}&nbsp;<i class="icon-dropdown"></i></a>
       <ul class="dropdown-menu">
@@ -57,15 +69,6 @@
           <li>
             <a href="{{link '/comparison/index?resource=' contextKey}}">{{t 'comparison.page'}}</a>
           </li>
-        {{/if}}
-        {{#if contextConfiguration}}
-          <li class="divider"></li>
-          <li class="dropdown-header">Configuration</li>
-          {{#each contextConfiguration}}
-            <li>
-              <a href="{{link url}}">{{name}}</a>
-            </li>
-          {{/each}}
         {{/if}}
       </ul>
     </li>
