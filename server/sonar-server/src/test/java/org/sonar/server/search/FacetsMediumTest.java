@@ -98,7 +98,13 @@ public class FacetsMediumTest {
     assertThat(facets.getFacets()).isNotEmpty();
     assertThat(facets.getFacetKeys(FIELD_TAGS)).containsOnly("", "tag1", "tag2", "tag4");
     assertThat(facets.getFacetKeys(FIELD_CREATED_AT)).isEmpty();
-    assertThat(facets.toString()).isEqualTo("{tags=[{tag4=1}, {=1}, {tag1=2}, {tag2=1}], __ignored=[{tag3=1}]}");
+    // ES internals use HashMap, so can't test the exact string for compatibility with both java 7 and java 8
+    assertThat(facets.toString()).startsWith("{tags=[{")
+      .contains("__ignored=[{tag3=1}]")
+      .contains("{tag4=1}")
+      .contains("{=1}")
+      .contains("{tag1=2}")
+      .contains("{tag2=1}");
   }
 
   @Test
