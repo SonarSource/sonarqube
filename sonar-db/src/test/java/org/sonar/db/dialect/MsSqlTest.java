@@ -30,7 +30,7 @@ public class MsSqlTest {
   @Test
   public void matchesJdbcURL() {
     assertThat(msSql.matchesJdbcURL("jdbc:jtds:sqlserver://localhost;databaseName=SONAR;SelectMethod=Cursor")).isTrue();
-    assertThat(msSql.matchesJdbcURL("jdbc:microsoft:sqlserver://localhost:1433;databasename=sonar")).isTrue();
+    assertThat(msSql.matchesJdbcURL("jdbc:sqlserver://localhost:1433;databasename=sonar")).isTrue();
 
     assertThat(msSql.matchesJdbcURL("jdbc:hsql:foo")).isFalse();
     assertThat(msSql.matchesJdbcURL("jdbc:mysql:foo")).isFalse();
@@ -46,7 +46,7 @@ public class MsSqlTest {
   public void should_configure() {
     assertThat(msSql.getId()).isEqualTo("mssql");
     assertThat(msSql.getActiveRecordDialectCode()).isEqualTo("sqlserver");
-    assertThat(msSql.getDefaultDriverClassName()).isEqualTo("net.sourceforge.jtds.jdbc.Driver");
+    assertThat(msSql.getDefaultDriverClassName()).isEqualTo("com.microsoft.sqlserver.jdbc.SQLServerDriver");
     assertThat(msSql.getValidationQuery()).isEqualTo("SELECT 1");
   }
 

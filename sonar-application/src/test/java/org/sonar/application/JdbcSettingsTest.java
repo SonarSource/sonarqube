@@ -46,10 +46,10 @@ public class JdbcSettingsTest {
     assertThat(settings.driverProvider("jdbc:mysql://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8&rewriteBatchedStatements=true&useConfigs=maxPerformance"))
       .isEqualTo(JdbcSettings.Provider.MYSQL);
     try {
-      settings.driverProvider("jdbc:sqlserver://localhost");
+      settings.driverProvider("jdbc:microsoft:sqlserver://localhost");
       fail();
     } catch (MessageException e) {
-      assertThat(e).hasMessage("Unsupported JDBC driver provider: sqlserver");
+      assertThat(e).hasMessage("Unsupported JDBC driver provider: microsoft");
     }
     try {
       settings.driverProvider("oracle:thin:@localhost/XE");
@@ -118,11 +118,11 @@ public class JdbcSettingsTest {
   @Test
   public void check_mssql() throws Exception {
     File home = temp.newFolder();
-    File driverFile = new File(home, "lib/jdbc/jtds/jtds.jar");
+    File driverFile = new File(home, "lib/jdbc/mssql/sqljdbc4.jar");
     FileUtils.touch(driverFile);
 
     Props props = new Props(new Properties());
-    props.set("sonar.jdbc.url", "jdbc:jtds:sqlserver://localhost/sonar;SelectMethod=Cursor");
+    props.set("sonar.jdbc.url", "jdbc:sqlserver://localhost/sonar;SelectMethod=Cursor");
     settings.checkAndComplete(home, props);
     assertThat(props.nonNullValueAsFile(ProcessProperties.JDBC_DRIVER_PATH)).isEqualTo(driverFile);
   }
