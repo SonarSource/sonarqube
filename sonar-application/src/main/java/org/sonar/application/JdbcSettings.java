@@ -34,7 +34,7 @@ import org.sonar.process.Props;
 public class JdbcSettings {
 
   enum Provider {
-    H2("lib/jdbc/h2"), JTDS("lib/jdbc/jtds"), MYSQL("lib/jdbc/mysql"), ORACLE("extensions/jdbc-driver/oracle"),
+    H2("lib/jdbc/h2"), SQLSERVER("lib/jdbc/mssql"), MYSQL("lib/jdbc/mysql"), ORACLE("extensions/jdbc-driver/oracle"),
     POSTGRESQL("lib/jdbc/postgresql");
 
     final String path;
