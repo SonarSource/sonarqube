@@ -17,34 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-define(function () {
+/* globals casper: false */
 
-  return Backbone.Model.extend({
+var lib = require('../lib'),
+    testName = lib.testName('Workspace');
 
-    validate: function () {
-      if (!this.has('type')) {
-        return 'type is missing';
-      }
-      if (this.get('type') === 'component' && !this.has('uuid')) {
-        return 'uuid is missing';
-      }
-      if (this.get('type') === 'rule' && !this.has('key')) {
-        return 'key is missing';
-      }
-    },
 
-    isComponent: function () {
-      return this.get('type') === 'component';
-    },
+lib.initMessages();
+lib.configureCasper();
 
-    isRule: function () {
-      return this.get('type') === 'rule';
-    },
 
-    destroy: function (options) {
-      this.stopListening();
-      this.trigger('destroy', this, this.collection, options);
-    }
-  });
+casper.test.begin(testName('API'), function (test) {
+  casper
+      .start(lib.buildUrl('nav'), function () {
+        lib.setDefaultViewport();
+      })
 
+      .then(function () {
+        test.assertNotEquals(casper.evaluate(function () {
+          window.workspace = require(['/js/workspace/main.js'])();
+          console.log(window.workspace);
+          return window.workspace;
+        }), null);
+      })
+
+      .then(function () {
+        lib.sendCoverage();
+      })
+
+      .run(function () {
+        test.done();
+      });
 });

@@ -37,7 +37,7 @@ define([
 
     onMinimizeClick: function (e) {
       e.preventDefault();
-      this.model.trigger('minimize');
+      this.trigger('viewerMinimize');
     },
 
     onFullScreenClick: function (e) {
@@ -52,9 +52,8 @@ define([
 
     onCloseClick: function (e) {
       e.preventDefault();
-      this.model.trigger('close');
+      this.trigger('viewerClose');
     },
-
 
     toFullScreen: function () {
       this.$el.closest('.workspace-viewer').addClass('workspace-viewer-full-screen');

@@ -61,6 +61,13 @@ define([
 
     showRawSource: function () {
       this.options.parent.showRawSources();
+    },
+
+    serializeData: function () {
+      var options = this.options.parent.options.viewer.options;
+      return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
+        options: options
+      });
     }
   });
 

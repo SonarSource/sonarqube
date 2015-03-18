@@ -27,7 +27,6 @@ define([
       'source-viewer/popups/coverage-popup',
       'source-viewer/popups/duplication-popup',
       'source-viewer/popups/line-actions-popup',
-      'workspace/main',
       'templates/source-viewer'
     ],
     function (Source,
@@ -38,8 +37,7 @@ define([
               SCMPopupView,
               CoveragePopupView,
               DuplicationPopupView,
-              LineActionsPopupView,
-              Workspace) {
+              LineActionsPopupView) {
 
       var $ = jQuery,
           HIGHLIGHTED_ROW_CLASS = 'source-line-highlighted';
@@ -124,14 +122,16 @@ define([
           this.bindScrollEvents();
         },
 
-        open: function (id) {
+        open: function (id, options) {
           var that = this,
+              opts = typeof options === 'object' ? options : {},
               finalize = function () {
                 that.requestIssues().done(function () {
                   that.render();
                   that.trigger('loaded');
                 });
               };
+          _.extend(this.options, _.defaults(opts, { workspace: false }));
           this.model
               .clear()
               .set(_.result(this.model, 'defaults'))

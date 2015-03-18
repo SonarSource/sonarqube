@@ -41,12 +41,14 @@ define([
 
       this.items = new Items();
       this.items.load();
+      this.items.on('change', function () {
+        that.save();
+      });
 
       this.itemsView = new ItemsView({ collection: this.items });
       this.itemsView.render().$el.appendTo(document.body);
-      this.itemsView.on('click', function (uuid, model) {
-        model.collection.remove(model);
-        that.showComponentViewer(model.toJSON());
+      this.itemsView.on('click', function (model) {
+        that.open(model);
       });
     },
 
@@ -58,24 +60,28 @@ define([
       this.items.load();
     },
 
-    addComponent: function (options) {
-      if (options == null || typeof options.uuid !== 'string') {
-        throw new Error('You must specify the component\'s uuid');
-      }
-      this.items.add(options);
+    addComponent: function (model) {
+      this.items.add(model);
       this.save();
     },
 
-    openComponent: function (options) {
-      if (options == null || typeof options.uuid !== 'string') {
-        throw new Error('You must specify the component\'s uuid');
+    open: function (options) {
+      var model = typeof options.toJSON === 'function' ? options : new Item(options);
+      if (!model.isValid()) {
+        throw new Error(model.validationError);
       }
-      this.showComponentViewer(options);
+      this.addComponent(model);
+      if (model.isComponent()) {
+        this.showComponentViewer(model);
+      }
     },
 
-    showComponentViewer: function (options) {
-      var that = this,
-          model = new Item(options);
+    openComponent: function (options) {
+      return this.open(_.extend(options, { type: 'component' }));
+    },
+
+    showComponentViewer: function (model) {
+      var that = this;
       if (this.viewerView != null) {
         this.viewerView.close();
       }
@@ -83,13 +89,13 @@ define([
       this.viewerView = new ViewerView({
         model: model
       });
-      model
-          .on('minimize', function () {
-            that.addComponent(model.toJSON());
+      this.viewerView
+          .on('viewerMinimize', function () {
             that.closeComponentViewer();
           })
-          .on('close', function () {
+          .on('viewerClose', function (model) {
             that.closeComponentViewer();
+            model.destroy();
           });
       this.viewerView.render().$el.appendTo(document.body);
     },

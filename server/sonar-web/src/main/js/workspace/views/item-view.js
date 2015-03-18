@@ -26,6 +26,10 @@ define([
     className: 'workspace-nav-item',
     template: Templates['workspace-item'],
 
+    modelEvents: {
+      'change': 'render'
+    },
+
     events: {
       'click': 'onClick',
       'click .js-close': 'onCloseClick'
@@ -33,7 +37,7 @@ define([
 
     onClick: function (e) {
       e.preventDefault();
-      this.options.collectionView.trigger('click', this.model.id, this.model);
+      this.options.collectionView.trigger('click', this.model);
     },
 
     onCloseClick: function (e) {
