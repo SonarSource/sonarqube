@@ -28,14 +28,15 @@ import java.util.Collection;
 
 public interface WidgetMapper {
 
-  String COLUMNS = "ID, DASHBOARD_ID as \"dashboardId\", WIDGET_KEY as \"widgetKey\", NAME, DESCRIPTION, " +
-    "COLUMN_INDEX as \"columnIndex\", ROW_INDEX as \"rowIndex\", CONFIGURED, CREATED_AT as \"createdAt\", " +
-    "UPDATED_AT as \"updatedAt\", RESOURCE_ID as \"resourceId\"";
+  String COLUMNS = "id, dashboard_id as \"dashboardId\", widget_key as \"widgetKey\", name, description, " +
+    "column_index as \"columnIndex\", row_index as \"rowIndex\", configured, created_at as \"createdAt\", " +
+    "updated_at as \"updatedAt\", resource_id as \"resourceId\"";
 
   @Insert("insert into widgets (dashboard_id, widget_key, name, description, column_index, " +
     " row_index, configured, created_at, updated_at, resource_id)" +
-    " values (#{dashboardId}, #{widgetKey}, #{name}, #{description}, #{columnIndex}, " +
-    " #{rowIndex}, #{configured}, #{createdAt}, #{updatedAt}, #{resourceId})")
+    " values (#{dashboardId,jdbcType=INTEGER}, #{widgetKey,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, " +
+    " #{description,jdbcType=VARCHAR}, #{columnIndex,jdbcType=INTEGER}, " +
+    " #{rowIndex,jdbcType=INTEGER}, #{configured,jdbcType=BOOLEAN}, #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP}, #{resourceId,jdbcType=INTEGER})")
   @Options(keyColumn = "id", useGeneratedKeys = true, keyProperty = "id")
   void insert(WidgetDto widgetDto);
 
@@ -49,16 +50,16 @@ public interface WidgetMapper {
   Collection<WidgetDto> selectAll();
 
   @Update("UPDATE widgets SET " +
-    "dashboard_id=#{dashboardId}, " +
-    "widget_key=#{widgetKey}, " +
-    "name=#{name}, " +
-    "description=#{description}, " +
-    "column_index=#{columnIndex}, " +
-    "row_index=#{rowIndex}, " +
-    "configured=#{configured}, " +
-    "created_at=#{createdAt}, " +
-    "updated_at=#{updatedAt}, " +
-    "resource_id=#{resourceId} " +
+    "dashboard_id=#{dashboardId,jdbcType=INTEGER}, " +
+    "widget_key=#{widgetKey,jdbcType=VARCHAR}, " +
+    "name=#{name,jdbcType=VARCHAR}, " +
+    "description=#{description,jdbcType=VARCHAR}, " +
+    "column_index=#{columnIndex,jdbcType=INTEGER}, " +
+    "row_index=#{rowIndex,jdbcType=INTEGER}, " +
+    "configured=#{configured,jdbcType=BOOLEAN}, " +
+    "created_at=#{createdAt,jdbcType=TIMESTAMP}, " +
+    "updated_at=#{updatedAt,jdbcType=TIMESTAMP}, " +
+    "resource_id=#{resourceId,jdbcType=INTEGER} " +
     "WHERE id=#{id}")
   void update(WidgetDto item);
 }

@@ -38,7 +38,7 @@ import java.util.Map;
 
 public class RenameIssueWidgets implements Startable {
 
-  private final static String TASK_KEY = "RenameIssueWidgets";
+  private static final String TASK_KEY = "RenameIssueWidgets";
 
   private static final String WIDGET_FALSE_POSITIVES = "false_positive_reviews";
   private static final String WIDGET_MY_UNRESOLVED = "my_reviews";
@@ -112,14 +112,12 @@ public class RenameIssueWidgets implements Startable {
     IssueFilterDto hiddenDebt = dbClient.issueFilterDao().selectProvidedFilterByName("False Positive and Won't Fix Issues");
     IssueFilterDto myUnresolvedIssues = dbClient.issueFilterDao().selectProvidedFilterByName("My Unresolved Issues");
 
-    Map<String, IssueFilterDto> filterByWidgetKey = ImmutableMap.of(
+    return ImmutableMap.of(
       WIDGET_FALSE_POSITIVES, hiddenDebt,
       WIDGET_MY_UNRESOLVED, myUnresolvedIssues,
       WIDGET_UNRESOLVED_BY_DEVELOPER, unresolvedIssues,
       WIDGET_UNRESOLVED_BY_STATUS, unresolvedIssues
     );
-
-    return filterByWidgetKey;
   }
 
   private WidgetPropertyDto createFilterProperty(IssueFilterDto issueFilter, WidgetDto widget) {
