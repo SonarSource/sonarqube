@@ -25,12 +25,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.server.util.CloseableIterator;
 import org.sonar.server.util.ObjectInputStreamIterator;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
+import java.io.*;
 
 /**
  * Serialize and deserialize objects on disk. No search capabilities, only traversal (full scan).
@@ -90,6 +85,7 @@ public class DiskCache<O extends Serializable> {
     public DiskAppender append(O object) {
       try {
         output.writeObject(object);
+        output.reset();
         return this;
       } catch (IOException e) {
         throw new IllegalStateException("Fail to write into file " + file, e);

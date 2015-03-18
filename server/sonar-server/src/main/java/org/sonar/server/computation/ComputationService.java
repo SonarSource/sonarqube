@@ -88,10 +88,9 @@ public class ComputationService implements ServerComponent {
       }
       item.dto.succeed();
 
-    } catch (Exception e) {
+    } catch (Throwable e) {
       item.dto.fail();
       throw Throwables.propagate(e);
-
     } finally {
       item.dto.setFinishedAt(system.now());
       saveActivity(item.dto, project);
