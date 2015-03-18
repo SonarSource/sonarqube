@@ -1,0 +1,34 @@
+{
+  "profiles": [
+    {
+      "key": "sonar-way-cs-12345",
+      "name": "Sonar way",
+      "language": "cs",
+      "isInherited": false
+    },
+    {
+      "key": "my-bu-profile-java-34567",
+      "name": "My BU Profile",
+      "language": "java",
+      "isInherited": true,
+      "parentKey": "my-company-profile-java-23456"
+    },
+    {
+      "key": "my-company-profile-java-23456",
+      "name": "My Company Profile",
+      "language": "java",
+      "isInherited": false
+    },
+    {
+      "key": "sonar-way-python-01234",
+      "name": "Sonar way",
+      "language": "py",
+      "isInherited": false
+    }
+  ],
+  "languages": [
+    {"key": "cs", "name": "C#"},
+    {"key": "java", "name": "Java"},
+    {"key": "py", "name": "Python"}
+  ]
+}

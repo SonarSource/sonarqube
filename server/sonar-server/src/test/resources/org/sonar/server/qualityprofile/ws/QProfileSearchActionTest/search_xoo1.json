@@ -1,0 +1,14 @@
+{
+  "profiles": [
+    {
+      "key": "sonar-way-xoo1-12345",
+      "name": "Sonar way",
+      "language": "xoo1",
+      "isInherited": false
+    }
+  ],
+  "languages": [
+    {"key": "xoo1", "name": "Xoo1"},
+    {"key": "xoo2", "name": "Xoo2"}
+  ]
+}
