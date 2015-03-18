@@ -53,7 +53,8 @@
 
   <!-- filter = 'My Unresolved Issues' -->
   <widget_properties id="5" widget_id="3" kee="filter" text_value="3"/>
-  <!-- distributionAxis is 'default', no other config -->
+  <!-- distributionAxis is 'severities' -->
+  <widget_properties id="6" widget_id="3" kee="distributionAxis" text_value="severities"/>
 
 
   <!-- 'Unresolved Issues Per Developer' - replaced by project_issue_filter w/ 'Unresolved Issues' filter -->
@@ -61,9 +62,9 @@
      column_index="1" row_index="4" configured="true" created_at="[null]" updated_at="2003-03-23 01:23:45" resource_id="[null]"/>
 
   <!-- filter = 'Unresolved Issues' -->
-  <widget_properties id="6" widget_id="4" kee="filter" text_value="1"/>
+  <widget_properties id="7" widget_id="4" kee="filter" text_value="1"/>
   <!-- distributionAxis is 'assignees' -->
-  <widget_properties id="7" widget_id="4" kee="distributionAxis" text_value="assignees"/>
+  <widget_properties id="8" widget_id="4" kee="distributionAxis" text_value="assignees"/>
 
 
   <!-- 'Unresolved Issues Per Status' - replaced by project_issue_filter w/ 'Unresolved Issues' filter -->
@@ -71,9 +72,9 @@
      column_index="1" row_index="5" configured="true" created_at="[null]" updated_at="2003-03-23 01:23:45" resource_id="[null]"/>
 
   <!-- filter = 'Unresolved Issues' -->
-  <widget_properties id="8" widget_id="5" kee="filter" text_value="1"/>
+  <widget_properties id="9" widget_id="5" kee="filter" text_value="1"/>
   <!-- distributionAxis is 'assignees' -->
-  <widget_properties id="9" widget_id="5" kee="distributionAxis" text_value="statuses"/>
+  <widget_properties id="10" widget_id="5" kee="distributionAxis" text_value="statuses"/>
 
 
   <loaded_templates id="1" template_type="ONE_SHOT_TASK" kee="RenameIssueWidgets"/>

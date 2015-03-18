@@ -53,17 +53,12 @@ public class RenameIssueWidgetsTest {
   }
 
   @Test
-  public void should_skip_when_filter_removed() throws Exception {
-    dbTester.prepareDbUnit(this.getClass(), "empty.xml");
-
-    doStart();
-  }
-
-  @Test
   public void should_skip_when_already_executed() throws Exception {
     dbTester.prepareDbUnit(this.getClass(), "after.xml");
 
     doStart();
+
+    dbTester.assertDbUnit(this.getClass(), "after.xml", "widgets", "widget_properties", "loaded_templates");
   }
 
   private void doStart() {
@@ -80,7 +75,8 @@ public class RenameIssueWidgetsTest {
         new IssueFilterDao(dbTester.myBatis()),
         new LoadedTemplateDao(dbTester.myBatis())
       ),
-      system2);
+      system2,
+      null);
 
     task.start();
     task.stop();

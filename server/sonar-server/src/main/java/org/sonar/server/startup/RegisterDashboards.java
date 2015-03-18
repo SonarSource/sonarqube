@@ -56,6 +56,7 @@ public class RegisterDashboards implements Startable {
     this.dashboardDao = dashboardDao;
     this.activeDashboardDao = activeDashboardDao;
     this.loadedTemplateDao = loadedTemplateDao;
+    // RegisterIssueFilters must be run before this task, to be able to reference issue filters in widget properties
   }
 
   /**

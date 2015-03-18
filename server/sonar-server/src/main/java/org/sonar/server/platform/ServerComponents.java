@@ -563,7 +563,6 @@ class ServerComponents {
     pico.addSingleton(IssueFilterSerializer.class);
     pico.addSingleton(IssueFilterWs.class);
     pico.addSingleton(IssueFilterWriter.class);
-    pico.addSingleton(RegisterIssueFilters.class);
     pico.addSingleton(org.sonar.server.issue.filter.AppAction.class);
     pico.addSingleton(org.sonar.server.issue.filter.ShowAction.class);
     pico.addSingleton(org.sonar.server.issue.filter.FavoritesAction.class);
@@ -709,6 +708,7 @@ class ServerComponents {
     startupContainer.addSingleton(RegisterServletFilters.class);
     startupContainer.addSingleton(CopyRequirementsFromCharacteristicsToRules.class);
     startupContainer.addSingleton(ReportQueueCleaner.class);
+    startupContainer.addSingleton(RegisterIssueFilters.class);
     startupContainer.addSingleton(RenameIssueWidgets.class);
 
     DoPrivileged.execute(new DoPrivileged.Task() {

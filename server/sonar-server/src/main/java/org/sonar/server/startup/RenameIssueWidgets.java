@@ -19,6 +19,7 @@
  */
 package org.sonar.server.startup;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.picocontainer.Startable;
 import org.sonar.api.utils.System2;
@@ -30,13 +31,22 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.template.LoadedTemplateDto;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.issue.filter.RegisterIssueFilters;
 
-import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public class RenameIssueWidgets implements Startable {
 
-  private static final String PROJECT_ISSUE_FILTER_WIDGET_KEY = "project_issue_filter";
+  private final static String TASK_KEY = "RenameIssueWidgets";
+
+  private static final String WIDGET_FALSE_POSITIVES = "false_positive_reviews";
+  private static final String WIDGET_MY_UNRESOLVED = "my_reviews";
+  private static final String WIDGET_UNRESOLVED_BY_DEVELOPER = "reviews_per_developer";
+  private static final String WIDGET_UNRESOLVED_BY_STATUS = "unresolved_issues_statuses";
+
+  private static final String WIDGET_PROJECT_ISSUE_FILTER = "project_issue_filter";
+
   private static final String FILTER_PROPERTY = "filter";
   private static final String DISTRIBUTION_AXIS_PROPERTY = "distributionAxis";
 
@@ -44,9 +54,10 @@ public class RenameIssueWidgets implements Startable {
 
   private final System2 system;
 
-  public RenameIssueWidgets(DbClient dbClient, System2 system) {
+  public RenameIssueWidgets(DbClient dbClient, System2 system, RegisterIssueFilters startupDependency) {
     this.dbClient = dbClient;
     this.system = system;
+    // RegisterIssueFilters must be run before this task, to be able to reference issue filters in widget properties
   }
 
   @Override
@@ -54,87 +65,41 @@ public class RenameIssueWidgets implements Startable {
     DbSession session = dbClient.openSession(false);
 
     try {
-      if (dbClient.loadedTemplateDao().countByTypeAndKey(LoadedTemplateDto.ONE_SHOT_TASK_TYPE, getClass().getSimpleName()) != 0) {
+      if (dbClient.loadedTemplateDao().countByTypeAndKey(LoadedTemplateDto.ONE_SHOT_TASK_TYPE, TASK_KEY) != 0) {
         // Already done
         return;
       }
 
-      IssueFilterDto unresolvedIssues = dbClient.issueFilterDao().selectProvidedFilterByName("Unresolved Issues");
-      IssueFilterDto hiddenDebt = dbClient.issueFilterDao().selectProvidedFilterByName("False Positive and Won't Fix Issues");
-      IssueFilterDto myUnresolvedIssues = dbClient.issueFilterDao().selectProvidedFilterByName("My Unresolved Issues");
+      Map<String, IssueFilterDto> filterByWidgetKey = loadRequiredIssueFilters();
 
-      if (unresolvedIssues == null || hiddenDebt == null || myUnresolvedIssues == null) {
-        // One of the filter has been deleted, no need to do anything
-        return;
-      }
+      Map<String, String> distributionAxisByWidgetKey = ImmutableMap.of(
+        WIDGET_FALSE_POSITIVES, "resolutions",
+        WIDGET_MY_UNRESOLVED, "severities",
+        WIDGET_UNRESOLVED_BY_DEVELOPER, "assignees",
+        WIDGET_UNRESOLVED_BY_STATUS, "statuses"
+      );
 
       Loggers.get(getClass()).info("Replacing issue related widgets with issue filter widgets");
 
-      List<Long> widgetIdsWithPropertiesToDelete = Lists.newArrayList();
-      List<WidgetPropertyDto> widgetPropertiesToCreate = Lists.newArrayList();
-      Date now = system.newDate();
+      List<Long> updatedWidgetIds = Lists.newArrayList();
+      List<WidgetPropertyDto> newWidgetProperties = Lists.newArrayList();
 
       for (WidgetDto widget : dbClient.widgetDao().findAll(session)) {
-        switch (widget.getWidgetKey()) {
-          case "false_positive_reviews":
-            widgetPropertiesToCreate.add(
-              new WidgetPropertyDto()
-                .setWidgetId(widget.getId())
-                .setPropertyKey(FILTER_PROPERTY)
-                .setTextValue(hiddenDebt.getId().toString()));
-            widgetPropertiesToCreate.add(
-              new WidgetPropertyDto()
-                .setWidgetId(widget.getId())
-                .setPropertyKey(DISTRIBUTION_AXIS_PROPERTY)
-                .setTextValue("resolutions"));
-            updateWidget(session, widgetIdsWithPropertiesToDelete, widget);
-            break;
-          case "my_reviews":
-            widgetPropertiesToCreate.add(
-              new WidgetPropertyDto()
-                .setWidgetId(widget.getId())
-                .setPropertyKey(FILTER_PROPERTY)
-                .setTextValue(myUnresolvedIssues.getId().toString()));
-            updateWidget(session, widgetIdsWithPropertiesToDelete, widget);
-            break;
-          case "reviews_per_developer":
-            widgetPropertiesToCreate.add(
-              new WidgetPropertyDto()
-                .setWidgetId(widget.getId())
-                .setPropertyKey(FILTER_PROPERTY)
-                .setTextValue(unresolvedIssues.getId().toString()));
-            widgetPropertiesToCreate.add(
-              new WidgetPropertyDto()
-                .setWidgetId(widget.getId())
-                .setPropertyKey(DISTRIBUTION_AXIS_PROPERTY)
-                .setTextValue("assignees"));
-            updateWidget(session, widgetIdsWithPropertiesToDelete, widget);
-            break;
-          case "unresolved_issues_statuses":
-            widgetPropertiesToCreate.add(
-              new WidgetPropertyDto()
-                .setWidgetId(widget.getId())
-                .setPropertyKey(FILTER_PROPERTY)
-                .setTextValue(unresolvedIssues.getId().toString()));
-            widgetPropertiesToCreate.add(
-              new WidgetPropertyDto()
-                .setWidgetId(widget.getId())
-                .setPropertyKey(DISTRIBUTION_AXIS_PROPERTY)
-                .setTextValue("statuses"));
-            updateWidget(session, widgetIdsWithPropertiesToDelete, widget);
-            break;
-          default:
-            // Nothing to do, move along
-            break;
+        String widgetKey = widget.getWidgetKey();
+        if (filterByWidgetKey.keySet().contains(widgetKey)) {
+          newWidgetProperties.add(createFilterProperty(filterByWidgetKey.get(widgetKey), widget));
+          newWidgetProperties.add(createDistributionAxisProperty(distributionAxisByWidgetKey.get(widgetKey), widget));
+          updateWidget(session, widget);
+          updatedWidgetIds.add(widget.getId());
         }
       }
 
-      dbClient.widgetPropertyDao().deleteByWidgetIds(session, widgetIdsWithPropertiesToDelete);
-      dbClient.widgetPropertyDao().insert(session, widgetPropertiesToCreate);
+      dbClient.widgetPropertyDao().deleteByWidgetIds(session, updatedWidgetIds);
+      dbClient.widgetPropertyDao().insert(session, newWidgetProperties);
 
       dbClient.loadedTemplateDao().insert(new LoadedTemplateDto()
         .setType(LoadedTemplateDto.ONE_SHOT_TASK_TYPE)
-        .setKey(getClass().getSimpleName()), session);
+        .setKey(TASK_KEY), session);
 
       session.commit();
     } finally {
@@ -142,12 +107,41 @@ public class RenameIssueWidgets implements Startable {
     }
   }
 
-  private void updateWidget(DbSession session, List<Long> widgetIdsWithPropertiesToDelete, WidgetDto widget) {
+  protected Map<String, IssueFilterDto> loadRequiredIssueFilters() {
+    IssueFilterDto unresolvedIssues = dbClient.issueFilterDao().selectProvidedFilterByName("Unresolved Issues");
+    IssueFilterDto hiddenDebt = dbClient.issueFilterDao().selectProvidedFilterByName("False Positive and Won't Fix Issues");
+    IssueFilterDto myUnresolvedIssues = dbClient.issueFilterDao().selectProvidedFilterByName("My Unresolved Issues");
+
+    Map<String, IssueFilterDto> filterByWidgetKey = ImmutableMap.of(
+      WIDGET_FALSE_POSITIVES, hiddenDebt,
+      WIDGET_MY_UNRESOLVED, myUnresolvedIssues,
+      WIDGET_UNRESOLVED_BY_DEVELOPER, unresolvedIssues,
+      WIDGET_UNRESOLVED_BY_STATUS, unresolvedIssues
+    );
+
+    return filterByWidgetKey;
+  }
+
+  private WidgetPropertyDto createFilterProperty(IssueFilterDto issueFilter, WidgetDto widget) {
+    return createWidgetProperty(FILTER_PROPERTY, issueFilter.getId().toString(), widget);
+  }
+
+  private WidgetPropertyDto createDistributionAxisProperty(String distributionAxis, WidgetDto widget) {
+    return createWidgetProperty(DISTRIBUTION_AXIS_PROPERTY, distributionAxis, widget);
+  }
+
+  private WidgetPropertyDto createWidgetProperty(String key, String value, WidgetDto widget) {
+    return new WidgetPropertyDto()
+      .setWidgetId(widget.getId())
+      .setPropertyKey(key)
+      .setTextValue(value);
+  }
+
+  private void updateWidget(DbSession session, WidgetDto widget) {
     dbClient.widgetDao().update(session,
-      widget.setWidgetKey(PROJECT_ISSUE_FILTER_WIDGET_KEY)
+      widget.setWidgetKey(WIDGET_PROJECT_ISSUE_FILTER)
         .setUpdatedAt(system.newDate())
         .setConfigured(true));
-    widgetIdsWithPropertiesToDelete.add(widget.getId());
   }
 
   @Override
