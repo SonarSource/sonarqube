@@ -21,10 +21,9 @@
 #
 # SonarQube 5.1
 #
-class FeedMeasuresLongDates < ActiveRecord::Migration
+class AddManualMeasuresLongDates < ActiveRecord::Migration
   def self.up
-    execute_java_migration('org.sonar.server.db.migrations.v51.FeedProjectMeasuresLongDates')
-    execute_java_migration('org.sonar.server.db.migrations.v51.FeedManualMeasuresLongDates')
+    add_column 'manual_measures', :created_at_ms, :big_integer, :null => true
+    add_column 'manual_measures', :updated_at_ms, :big_integer, :null => true
   end
 end
-

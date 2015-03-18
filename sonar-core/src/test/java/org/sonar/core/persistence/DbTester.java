@@ -52,6 +52,9 @@ import org.sonar.core.cluster.NullQueue;
 import org.sonar.core.config.Logback;
 import org.sonar.core.persistence.dialect.Dialect;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -65,6 +68,7 @@ import java.util.Properties;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 /**
@@ -227,7 +231,7 @@ public class DbTester extends ExternalResource {
       for (int i = 1; i <= colCount; i++) {
         Object value = resultSet.getObject(i);
         if (value instanceof Clob) {
-          value = IOUtils.toString(((Clob)value).getAsciiStream());
+          value = IOUtils.toString(((Clob) value).getAsciiStream());
         }
         columns.put(metaData.getColumnLabel(i), value);
       }
@@ -315,6 +319,42 @@ public class DbTester extends ExternalResource {
       throw translateException("Error while checking results", e);
     } finally {
       closeQuietly(connection);
+    }
+  }
+
+  public void assertColumnDefinition(String table, String column, int expectedType, @Nullable Integer expectedSize) {
+    try (Connection connection = openConnection();
+      PreparedStatement stmt = connection.prepareStatement("select * from " + table);
+      ResultSet res = stmt.executeQuery()) {
+      Integer columnIndex = getColumnIndex(res, column);
+      if (columnIndex == null) {
+        fail("The column '" + column + "' does not exist");
+      }
+
+      assertThat(res.getMetaData().getColumnType(columnIndex)).isEqualTo(expectedType);
+      if (expectedSize != null) {
+        assertThat(res.getMetaData().getColumnDisplaySize(columnIndex)).isEqualTo(expectedSize);
+      }
+
+    } catch (Exception e) {
+      throw new IllegalStateException("Fail to check column");
+    }
+  }
+
+  @CheckForNull
+  private Integer getColumnIndex(ResultSet res, String column) {
+    try {
+      ResultSetMetaData meta = res.getMetaData();
+      int numCol = meta.getColumnCount();
+      for (int i = 1; i < numCol + 1; i++) {
+        if (meta.getColumnLabel(i).toLowerCase().equals(column.toLowerCase())) {
+          return i;
+        }
+      }
+      return null;
+
+    } catch (Exception e) {
+      throw new IllegalStateException("Fail to get column idnex");
     }
   }
 

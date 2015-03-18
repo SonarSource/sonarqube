@@ -91,11 +91,12 @@ public interface DatabaseMigrations {
     FeedIssuesLongDates.class,
     FeedFileSourcesBinaryData.class,
     FeedSemaphoresLongDates.class,
-    FeedProjectMeasuresLongDates.class,
     FeedManualMeasuresLongDates.class,
     FeedEventsLongDates.class,
     AddNewCharacteristics.class,
     RemovePermissionsOnModulesMigration.class,
+    AddIssuesColumns.class,
+    DropIssuesColumns.class,
 
     // 5.2
     FeedProjectLinksComponentUuid.class,

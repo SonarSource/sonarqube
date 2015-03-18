@@ -21,21 +21,9 @@
 #
 # SonarQube 5.1
 #
-class RemoveIssueComponentIds < ActiveRecord::Migration
+class DropIssuesColumns < ActiveRecord::Migration
 
   def self.up
-    if dialect()=='sqlserver'
-      remove_index :issues, :name => 'issues_component_uuid'
-      remove_index :issues, :name => 'issues_project_uuid'
-    end
-    remove_index 'issues', :name => 'issues_component_id'
-    remove_index 'issues', :name => 'issues_root_component_id'
-    remove_column 'issues', 'component_id'
-    remove_column 'issues', 'root_component_id'
-
-    if dialect()=='sqlserver'
-      add_index :issues, :component_uuid, :name => 'issues_component_uuid'
-      add_index :issues, :project_uuid, :name => 'issues_project_uuid'
-    end
+    execute_java_migration('org.sonar.server.db.migrations.v51.DropIssuesColumns')
   end
 end

@@ -38,12 +38,12 @@ public class ProgressLoggerTest {
     progress.start();
     Thread.sleep(80L);
     progress.stop();
-    verify(logger, atLeast(1)).info("42 rows processed");
+    verify(logger, atLeast(1)).info(startsWith("42 rows processed"));
 
     // ability to manual log, generally final status
     counter.incrementAndGet();
     progress.log();
-    verify(logger).info("43 rows processed");
+    verify(logger).info(startsWith("43 rows processed"));
   }
 
   @Test

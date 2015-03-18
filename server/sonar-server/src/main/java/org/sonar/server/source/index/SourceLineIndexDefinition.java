@@ -19,6 +19,7 @@
  */
 package org.sonar.server.source.index;
 
+import com.google.common.collect.ImmutableMap;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.sonar.api.config.Settings;
 import org.sonar.process.ProcessConstants;
@@ -27,6 +28,8 @@ import org.sonar.server.es.NewIndex;
 
 public class SourceLineIndexDefinition implements IndexDefinition {
 
+  public static final String INDEX = "sourcelines";
+  public static final String TYPE = "sourceline";
   public static final String FIELD_PROJECT_UUID = "projectUuid";
   public static final String FIELD_FILE_UUID = "fileUuid";
   public static final String FIELD_LINE = "line";
@@ -47,11 +50,6 @@ public class SourceLineIndexDefinition implements IndexDefinition {
   public static final String FIELD_SYMBOLS = "symbols";
   public static final String FIELD_DUPLICATIONS = "duplications";
   public static final String FIELD_UPDATED_AT = "updatedAt";
-
-  public static final String INDEX = "sourcelines";
-
-  public static final String TYPE = "sourceline";
-
 
   private final Settings settings;
 
@@ -75,26 +73,31 @@ public class SourceLineIndexDefinition implements IndexDefinition {
     }
 
     // type "sourceline"
-    NewIndex.NewIndexType sourceLineMapping = index.createType(TYPE);
-    sourceLineMapping.stringFieldBuilder(FIELD_PROJECT_UUID).build();
-    sourceLineMapping.stringFieldBuilder(FIELD_FILE_UUID).build();
-    sourceLineMapping.createIntegerField(FIELD_LINE);
-    sourceLineMapping.stringFieldBuilder(FIELD_SCM_REVISION).build();
-    sourceLineMapping.stringFieldBuilder(FIELD_SCM_AUTHOR).build();
-    sourceLineMapping.createDateTimeField(FIELD_SCM_DATE);
-    sourceLineMapping.stringFieldBuilder(FIELD_HIGHLIGHTING).disableSearch().build();
-    sourceLineMapping.stringFieldBuilder(FIELD_SOURCE).disableSearch().build();
-    sourceLineMapping.createIntegerField(FIELD_UT_LINE_HITS);
-    sourceLineMapping.createIntegerField(FIELD_UT_CONDITIONS);
-    sourceLineMapping.createIntegerField(FIELD_UT_COVERED_CONDITIONS);
-    sourceLineMapping.createIntegerField(FIELD_IT_LINE_HITS);
-    sourceLineMapping.createIntegerField(FIELD_IT_CONDITIONS);
-    sourceLineMapping.createIntegerField(FIELD_IT_COVERED_CONDITIONS);
-    sourceLineMapping.createIntegerField(FIELD_OVERALL_LINE_HITS);
-    sourceLineMapping.createIntegerField(FIELD_OVERALL_CONDITIONS);
-    sourceLineMapping.createIntegerField(FIELD_OVERALL_COVERED_CONDITIONS);
-    sourceLineMapping.stringFieldBuilder(FIELD_SYMBOLS).disableSearch().build();
-    sourceLineMapping.createShortField(FIELD_DUPLICATIONS);
-    sourceLineMapping.createDateTimeField(FIELD_UPDATED_AT);
+    NewIndex.NewIndexType mapping = index.createType(TYPE);
+    mapping.setAttribute("_routing", ImmutableMap.of("required", true, "path", FIELD_PROJECT_UUID));
+    mapping.stringFieldBuilder(FIELD_PROJECT_UUID).build();
+    mapping.stringFieldBuilder(FIELD_FILE_UUID).build();
+    mapping.createIntegerField(FIELD_LINE);
+    mapping.stringFieldBuilder(FIELD_SCM_REVISION).disableSearch().build();
+    mapping.stringFieldBuilder(FIELD_SCM_AUTHOR).disableSearch().build();
+    mapping.createDateTimeField(FIELD_SCM_DATE);
+    mapping.stringFieldBuilder(FIELD_HIGHLIGHTING).disableSearch().build();
+    mapping.stringFieldBuilder(FIELD_SOURCE).disableSearch().build();
+    mapping.createIntegerField(FIELD_UT_LINE_HITS);
+    mapping.createIntegerField(FIELD_UT_CONDITIONS);
+    mapping.createIntegerField(FIELD_UT_COVERED_CONDITIONS);
+    mapping.createIntegerField(FIELD_IT_LINE_HITS);
+    mapping.createIntegerField(FIELD_IT_CONDITIONS);
+    mapping.createIntegerField(FIELD_IT_COVERED_CONDITIONS);
+    mapping.createIntegerField(FIELD_OVERALL_LINE_HITS);
+    mapping.createIntegerField(FIELD_OVERALL_CONDITIONS);
+    mapping.createIntegerField(FIELD_OVERALL_COVERED_CONDITIONS);
+    mapping.stringFieldBuilder(FIELD_SYMBOLS).disableSearch().build();
+    mapping.createShortField(FIELD_DUPLICATIONS);
+    mapping.createDateTimeField(FIELD_UPDATED_AT);
+  }
+
+  public static String docKey(String fileUuid, int line) {
+    return String.format("%s_%d", fileUuid, line);
   }
 }

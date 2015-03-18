@@ -54,18 +54,7 @@ import org.picocontainer.Startable;
 import org.sonar.api.config.Settings;
 import org.sonar.process.LoopbackAddress;
 import org.sonar.process.ProcessConstants;
-import org.sonar.server.es.request.ProxyBulkRequestBuilder;
-import org.sonar.server.es.request.ProxyCountRequestBuilder;
-import org.sonar.server.es.request.ProxyCreateIndexRequestBuilder;
-import org.sonar.server.es.request.ProxyDeleteByQueryRequestBuilder;
-import org.sonar.server.es.request.ProxyDeleteRequestBuilder;
-import org.sonar.server.es.request.ProxyGetRequestBuilder;
-import org.sonar.server.es.request.ProxyIndicesExistsRequestBuilder;
-import org.sonar.server.es.request.ProxyMultiGetRequestBuilder;
-import org.sonar.server.es.request.ProxyPutMappingRequestBuilder;
-import org.sonar.server.es.request.ProxyRefreshRequestBuilder;
-import org.sonar.server.es.request.ProxySearchRequestBuilder;
-import org.sonar.server.es.request.ProxySearchScrollRequestBuilder;
+import org.sonar.server.es.request.*;
 
 /**
  * ElasticSearch Node used to connect to index.
@@ -136,7 +125,7 @@ public class SearchClient extends TransportClient implements Startable {
 
   @Override
   public DeleteByQueryRequestBuilder prepareDeleteByQuery(String... indices) {
-    return new ProxyDeleteByQueryRequestBuilder(this).setIndices(indices);
+    throw new UnsupportedOperationException("Delete by query must not be used. See https://github.com/elastic/elasticsearch/issues/10067. See alternatives in BulkIndexer.");
   }
 
   // ****************************************************************************************************************

@@ -21,14 +21,12 @@
 #
 # SonarQube 5.1
 #
-class RenameMeasuresLongDates < ActiveRecord::Migration
+class RenameManualMeasuresLongDates < ActiveRecord::Migration
   def self.up
-    remove_column 'project_measures', 'measure_date'
     remove_column 'manual_measures', 'created_at'
     remove_column 'manual_measures', 'updated_at'
     rename_column 'manual_measures', 'created_at_ms', 'created_at'
     rename_column 'manual_measures', 'updated_at_ms', 'updated_at'
-    rename_column 'project_measures', 'measure_date_ms', 'measure_date'
   end
 end
 

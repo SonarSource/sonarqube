@@ -21,10 +21,11 @@
 #
 # SonarQube 5.1
 #
-class AddIssuesLongDates < ActiveRecord::Migration
+class FeedIssuesLongDates < ActiveRecord::Migration
+
   def self.up
-    add_column 'issues', :issue_creation_date_ms, :big_integer, :null => true
-    add_column 'issues', :issue_update_date_ms, :big_integer, :null => true
-    add_column 'issues', :issue_close_date_ms, :big_integer, :null => true
+    execute_java_migration('org.sonar.server.db.migrations.v51.FeedIssuesLongDates')
   end
+
 end
+

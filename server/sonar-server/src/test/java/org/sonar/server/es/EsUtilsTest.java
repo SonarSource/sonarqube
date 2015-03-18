@@ -28,6 +28,7 @@ import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.search.BaseDoc;
 import org.sonar.test.TestUtils;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -65,5 +66,14 @@ public class EsUtilsTest {
   @Test
   public void util_class() throws Exception {
     assertThat(TestUtils.hasOnlyPrivateConstructors(EsUtils.class));
+  }
+
+  @Test
+  public void es_date_format() throws Exception {
+    assertThat(EsUtils.formatDateTime(new Date(1_500_000_000_000L))).startsWith("2017-07-").hasSize(29);
+    assertThat(EsUtils.formatDateTime(null)).isNull();
+
+    assertThat(EsUtils.parseDateTime("2017-07-14T04:40:00.000+02:00").getTime()).isEqualTo(1_500_000_000_000L);
+    assertThat(EsUtils.parseDateTime(null)).isNull();
   }
 }

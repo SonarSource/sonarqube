@@ -22,15 +22,13 @@
 # SonarQube 5.1
 #
 class RenameIssuesLongDates < ActiveRecord::Migration
+
   def self.up
-    remove_index 'issues', :name => 'issues_creation_date'
-    remove_column 'issues', 'issue_creation_date'
-    remove_column 'issues', 'issue_update_date'
-    remove_column 'issues', 'issue_close_date'
     rename_column 'issues', 'issue_creation_date_ms', 'issue_creation_date'
     rename_column 'issues', 'issue_update_date_ms', 'issue_update_date'
     rename_column 'issues', 'issue_close_date_ms', 'issue_close_date'
     add_index 'issues', 'issue_creation_date', :name => 'issues_creation_date'
   end
+
 end
 

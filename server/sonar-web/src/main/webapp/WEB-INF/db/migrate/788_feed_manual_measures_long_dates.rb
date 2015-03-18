@@ -20,12 +20,10 @@
 
 #
 # SonarQube 5.1
-# SONAR-5896
 #
-class AddIssuesTagsColumn < ActiveRecord::Migration
-
+class FeedManualMeasuresLongDates < ActiveRecord::Migration
   def self.up
-    add_column 'issues', :tags, :string, :null => true, :limit => 4000
+    execute_java_migration('org.sonar.server.db.migrations.v51.FeedManualMeasuresLongDates')
   end
-
 end
+

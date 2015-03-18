@@ -23,17 +23,15 @@ import com.google.common.collect.ImmutableMap;
 import org.elasticsearch.action.admin.indices.settings.get.GetSettingsResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
-import org.elasticsearch.common.unit.ByteSizeUnit;
-import org.elasticsearch.common.unit.ByteSizeValue;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BulkIndexerTest {
 
-  @ClassRule
-  public static EsTester esTester = new EsTester().addDefinitions(new FakeIndexDefinition().setReplicas(1));
+  @Rule
+  public EsTester esTester = new EsTester().addDefinitions(new FakeIndexDefinition().setReplicas(1));
 
   @Test
   public void index_nothing() throws Exception {
@@ -67,8 +65,7 @@ public class BulkIndexerTest {
     assertThat(replicas()).isEqualTo(1);
 
     BulkIndexer indexer = new BulkIndexer(esTester.client(), FakeIndexDefinition.INDEX)
-      .setLarge(true)
-      .setFlushByteSize(new ByteSizeValue(1, ByteSizeUnit.BYTES).bytes());
+      .setLarge(true);
     indexer.start();
 
     // replicas are temporarily disabled
@@ -84,6 +81,22 @@ public class BulkIndexerTest {
     // replicas are re-enabled
     assertThat(replicas()).isEqualTo(1);
   }
+
+  @Test
+  public void disable_refresh() throws Exception {
+    BulkIndexer indexer = new BulkIndexer(esTester.client(), FakeIndexDefinition.INDEX)
+      .setDisableRefresh(true);
+    indexer.start();
+    indexer.add(newIndexRequest(42));
+    indexer.add(newIndexRequest(78));
+    indexer.stop();
+
+    assertThat(count()).isEqualTo(0);
+
+    esTester.client().prepareRefresh(FakeIndexDefinition.INDEX).get();
+    assertThat(count()).isEqualTo(2);
+  }
+
 
   private long count() {
     return esTester.countDocuments("fakes", "fake");

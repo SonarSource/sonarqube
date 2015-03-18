@@ -21,9 +21,11 @@
 #
 # SonarQube 5.1
 #
-class FeedIssuesLongDates < ActiveRecord::Migration
+class RemoveIssuesComponentIdsAndCreationDateIndexes < ActiveRecord::Migration
+
   def self.up
-    execute_java_migration('org.sonar.server.db.migrations.v51.FeedIssuesLongDates')
+    remove_index 'issues', :name => 'issues_component_id'
+    remove_index 'issues', :name => 'issues_root_component_id'
+    remove_index 'issues', :name => 'issues_creation_date'
   end
 end
-

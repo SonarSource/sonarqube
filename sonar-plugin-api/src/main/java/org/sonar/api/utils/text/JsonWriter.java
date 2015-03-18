@@ -22,6 +22,7 @@ package org.sonar.api.utils.text;
 import org.sonar.api.utils.DateUtils;
 
 import javax.annotation.Nullable;
+
 import java.io.Writer;
 import java.util.Date;
 import java.util.Map;
@@ -67,6 +68,11 @@ public class JsonWriter {
 
   public static JsonWriter of(Writer writer) {
     return new JsonWriter(writer);
+  }
+
+  public JsonWriter setSerializeNulls(boolean b) {
+    this.stream.setSerializeNulls(b);
+    return this;
   }
 
   /**
