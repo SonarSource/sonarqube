@@ -1,0 +1,94 @@
+{
+  "total": 13,
+  "p": 1,
+  "ps": 25,
+  "rules": [
+    {
+      "key": "squid:S2077",
+      "name": "Values passed to SQL commands should be sanitized",
+      "lang": "java",
+      "langName": "Java",
+      "sysTags": [
+        "cwe",
+        "owasp-top10",
+        "security",
+        "sql"
+      ],
+      "tags": [
+        "custom-tag"
+      ]
+    }
+  ],
+  "facets": [
+    {
+      "property": "languages",
+      "values": [
+        {
+          "val": "java",
+          "count": 227
+        },
+        {
+          "val": "py",
+          "count": 212
+        },
+        {
+          "val": "php",
+          "count": 103
+        },
+        {
+          "val": "js",
+          "count": 78
+        },
+        {
+          "val": "custom",
+          "count": 13
+        }
+      ]
+    },
+    {
+      "property": "tags",
+      "values": [
+        {
+          "val": "convention",
+          "count": 77
+        },
+        {
+          "val": "bug",
+          "count": 67
+        },
+        {
+          "val": "brain-overload",
+          "count": 44
+        },
+        {
+          "val": "cwe",
+          "count": 31
+        },
+        {
+          "val": "pitfall",
+          "count": 29
+        },
+        {
+          "val": "misra",
+          "count": 24
+        },
+        {
+          "val": "security",
+          "count": 22
+        },
+        {
+          "val": "unused",
+          "count": 21
+        },
+        {
+          "val": "cert",
+          "count": 17
+        },
+        {
+          "val": "psr2",
+          "count": 12
+        }
+      ]
+    }
+  ]
+}
