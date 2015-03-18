@@ -27,7 +27,6 @@ import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.server.ws.WebService;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
@@ -59,8 +58,6 @@ public class QProfilesWsMediumTest {
   @ClassRule
   public static ServerTester tester = new ServerTester();
 
-  private static final String API_BUILT_IN_METHOD = "restore_built_in";
-
   QProfilesWs ws;
   DbClient db;
   DbSession session;
@@ -80,23 +77,6 @@ public class QProfilesWsMediumTest {
   @After
   public void after() {
     session.close();
-  }
-
-  @Test
-  public void define() throws Exception {
-
-    WebService.Context context = new WebService.Context();
-    ws.define(context);
-
-    WebService.Controller controller = context.controller(QProfilesWs.API_ENDPOINT);
-
-    assertThat(controller).isNotNull();
-    assertThat(controller.actions()).hasSize(7);
-    assertThat(controller.action(BulkRuleActivationActions.BULK_ACTIVATE_ACTION)).isNotNull();
-    assertThat(controller.action(BulkRuleActivationActions.BULK_DEACTIVATE_ACTION)).isNotNull();
-    assertThat(controller.action(RuleActivationActions.ACTIVATE_ACTION)).isNotNull();
-    assertThat(controller.action(RuleActivationActions.DEACTIVATE_ACTION)).isNotNull();
-    assertThat(controller.action(API_BUILT_IN_METHOD)).isNotNull();
   }
 
   @Test
