@@ -91,11 +91,7 @@ public class AddColumnsBuilder {
       case STRING:
         return "VARCHAR";
       case BIG_INTEGER:
-        if (dialect.getId().equals(Oracle.ID)) {
-          return "NUMBER (38)";
-        } else {
-          return "BIGINT";
-        }
+        return !dialect.getId().equals(Oracle.ID) ? "BIGINT" : "NUMBER (38)";
       default:
         throw new IllegalArgumentException("Unsupported type : " + columnDef.getType());
     }

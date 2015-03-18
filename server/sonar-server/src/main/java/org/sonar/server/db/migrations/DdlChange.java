@@ -47,7 +47,7 @@ public abstract class DdlChange implements DatabaseMigration {
     }
   }
 
-  public class Context {
+  public static class Context {
     private final Connection writeConnection;
 
     public Context(Connection writeConnection) {
