@@ -1,0 +1,43 @@
+{
+  "total": 2,
+  "p": 1,
+  "ps": 200,
+  "rules": [
+    {
+      "key": "common-java:DuplicatedBlocks",
+      "tags": [],
+      "status": "READY",
+      "langName": "Java",
+      "name": "Duplicated blocks",
+      "severity": "MAJOR",
+      "isTemplate": false,
+      "params": [],
+      "lang": "java",
+      "sysTags": []
+    }
+  ],
+  "actives": {
+    "common-java:DuplicatedBlocks": [
+      {
+        "qProfile": "java-default-with-mojo-conventions-49307",
+        "inherit": "NONE",
+        "severity": "MAJOR",
+        "params": []
+      }
+    ]
+  },
+  "qProfiles": {
+    "java-default-with-mojo-conventions-49307": {
+      "name": "Default - Maven Conventions",
+      "lang": "java",
+      "langName": "Java",
+      "parent": "java-top-profile-without-formatting-conventions-50037"
+    },
+    "java-top-profile-without-formatting-conventions-50037": {
+      "name": "Default - Top",
+      "lang": "java",
+      "langName": "Java"
+    }
+  },
+  "facets": []
+}
