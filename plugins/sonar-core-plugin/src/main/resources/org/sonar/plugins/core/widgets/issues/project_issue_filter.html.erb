@@ -12,7 +12,6 @@
 %>
 
 <% if filter %>
-  <% if Internal.issues.isUserAuthorized(filter) %>
 
     <% @widget_title = "<a href=\"#{url_for({:controller => 'component_issues', :action => 'index'})}?id=#{u(@project.key)}##{filter.data}\">#{h(filter.name)}</a>" %>
     <% if widget_properties['displayFilterDescription'] && !filter.description.blank? %>
@@ -37,13 +36,8 @@
       });
     </script>
 
-  <% else %>
-
-    <p class="message-alert"><%= message 'widget.issue_filter.insufficient_privileges_warning' -%></p>
-
-  <% end %>
 <% else %>
 
-  <p class="message-alert"><%= message 'widget.issue_filter.unknown_filter_warning' -%></p>
+  <p class="alert alert-warning"><%= message 'widget.issue_filter.unknown_filter_warning' -%></p>
 
 <% end %>
