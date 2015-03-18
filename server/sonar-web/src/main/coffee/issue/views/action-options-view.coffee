@@ -69,12 +69,12 @@ define [
 
 
     selectNextOption: ->
-      @makeActive @getActiveOption().next('.issue-action-option')
+      @makeActive @getActiveOption().nextAll('.issue-action-option').first()
       false # return `false` to use with keymaster
 
 
     selectPreviousOption: ->
-      @makeActive @getActiveOption().prev('.issue-action-option')
+      @makeActive @getActiveOption().prevAll('.issue-action-option').first()
       false # return `false` to use with keymaster
 
 

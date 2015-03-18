@@ -56,10 +56,12 @@ define [
         if project
           _.extend issue,
             projectLongName: project.longName
+            projectUuid: project.uuid
 
         if subProject
           _.extend issue,
             subProjectLongName: subProject.longName
+            subProjectUuid: subProject.uuid
 
         if rule
           _.extend issue,

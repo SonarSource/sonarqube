@@ -20,17 +20,32 @@
 
 define [
   'issue/issue-view'
+  'issues/issue-filter-view'
+  'templates/issues'
 ], (
   IssueView
+  IssueFilterView
 ) ->
 
+  $ = jQuery
+
+  SHOULD_NULL =
+    resolutions: ['resolved']
+    resolved: ['resolutions']
+    assignees: ['assigned']
+    assigned: ['assignees']
+    actionPlans: ['planned']
+    planned: ['actionPlans']
+
   class extends IssueView
+    filterTemplate: Templates['issues-issue-filter']
 
     events: ->
       _.extend super,
         'click': 'selectCurrent'
         'dblclick': 'openComponentViewer'
         'click .js-issue-navigate': 'openComponentViewer'
+        'click .js-issue-filter': 'onIssueFilterClick'
 
 
     initialize: (options) ->
@@ -41,7 +56,31 @@ define [
     onRender: ->
       super
       @select()
+      @addFilterSelect()
       @$el.addClass 'issue-navigate-right'
+
+
+    onIssueFilterClick: (e) ->
+      e.preventDefault()
+      e.stopPropagation()
+      $('body').click()
+      @popup = new IssueFilterView
+        triggerEl: $(e.currentTarget)
+        bottomRight: true
+        model: @model
+      @popup.on 'select', (property, value) =>
+        obj = {}
+        obj[property] = '' + value
+        if SHOULD_NULL[property]?
+          SHOULD_NULL[property].forEach (p) -> obj[p] = null
+        @options.app.state.updateFilter obj
+        @popup.close()
+      @popup.render()
+
+
+
+    addFilterSelect: ->
+      @$('.issue-table-meta-cell-first').find('.issue-meta-list').append @filterTemplate @model.toJSON()
 
 
     select: ->

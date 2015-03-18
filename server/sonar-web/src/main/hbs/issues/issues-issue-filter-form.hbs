@@ -1,0 +1,72 @@
+<h6>{{t 'issue.filter_similar_issues'}}</h6>
+
+<div class="issue-action-options">
+  <a href="#" class="issue-action-option" data-property="severities" data-value="{{s}}">
+    {{severityIcon severity}}&nbsp;{{t 'severity' severity}}
+  </a>
+
+  <a href="#" class="issue-action-option" data-property="statuses" data-value="{{status}}">
+    {{statusIcon status}}&nbsp;{{t 'issue.status' status}}
+  </a>
+
+  {{#if resolution}}
+    <a href="#" class="issue-action-option" data-property="resolutions" data-value="{{resolution}}">
+      {{t 'issue.resolution' resolution}}
+    </a>
+  {{else}}
+    <a href="#" class="issue-action-option" data-property="resolved" data-value="false">
+      {{t 'unresolved'}}
+    </a>
+  {{/if}}
+
+  <a href="#" class="issue-action-option" data-property="rules" data-value="{{rule}}">
+    {{limitString ruleName}}
+  </a>
+
+  {{#if assignee}}
+    <a href="#" class="issue-action-option" data-property="assignees" data-value="{{assignee}}">
+      {{t 'assigned_to'}} {{assigneeName}}
+    </a>
+  {{else}}
+    <a href="#" class="issue-action-option" data-property="assigned" data-value="false">
+      {{t 'unassigned'}}
+    </a>
+  {{/if}}
+
+  {{#if actionPlan}}
+    <a href="#" class="issue-action-option" data-property="actionPlans" data-value="{{actionPlan}}">
+      {{t 'issue.planned_for'}} {{actionPlanName}}
+    </a>
+  {{else}}
+    <a href="#" class="issue-action-option" data-property="planned" data-value="false">
+      {{t 'issue.unplanned'}}
+    </a>
+  {{/if}}
+
+  {{#notEmpty tags}}
+    <hr>
+    {{#each tags}}
+      <a href="#" class="issue-action-option" data-property="tags" data-value="{{this}}">
+        <i class="icon-tags icon-half-transparent"></i>&nbsp;{{this}}
+      </a>
+    {{/each}}
+  {{/notEmpty}}
+
+  <hr>
+
+  <a href="#" class="issue-action-option" data-property="projectUuids" data-value="{{projectUuid}}">
+    {{qualifierIcon 'TRK'}}&nbsp;{{projectLongName}}
+  </a>
+
+  {{#if subProject}}
+    <a href="#" class="issue-action-option" data-property="moduleUuids" data-value="{{subProjectUuid}}">
+      {{qualifierIcon 'BRC'}}&nbsp;{{subProjectLongName}}
+    </a>
+  {{/if}}
+
+  <a href="#" class="issue-action-option" data-property="fileUuids" data-value="{{componentUuid}}">
+    {{qualifierIcon componentQualifier}}&nbsp;{{fileFromPath componentLongName}}
+  </a>
+</div>
+
+<div class="bubble-popup-arrow"></div>
