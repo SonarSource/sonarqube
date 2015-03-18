@@ -32,6 +32,8 @@ import org.sonar.server.dashboard.db.WidgetPropertyDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
 
+import java.util.Date;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -66,17 +68,19 @@ public class RenameIssueWidgetsTest {
 
   private void doStart() {
     System2 system2 = mock(System2.class);
-    when(system2.now()).thenReturn(DateUtils.parseDateTime("2003-03-23T01:23:45+0100").getTime());
+    Date now = DateUtils.parseDateTime("2003-03-23T01:23:45+0100");
+    when(system2.newDate()).thenReturn(now);
 
     RenameIssueWidgets task = new RenameIssueWidgets(
       new DbClient(
         dbTester.database(),
         dbTester.myBatis(),
-        new WidgetDao(system2),
-        new WidgetPropertyDao(system2),
+        new WidgetDao(dbTester.myBatis()),
+        new WidgetPropertyDao(dbTester.myBatis()),
         new IssueFilterDao(dbTester.myBatis()),
         new LoadedTemplateDao(dbTester.myBatis())
-      ));
+      ),
+      system2);
 
     task.start();
     task.stop();

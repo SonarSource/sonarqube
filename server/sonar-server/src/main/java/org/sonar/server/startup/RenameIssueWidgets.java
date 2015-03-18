@@ -21,6 +21,7 @@ package org.sonar.server.startup;
 
 import com.google.common.collect.Lists;
 import org.picocontainer.Startable;
+import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.dashboard.WidgetDto;
 import org.sonar.core.dashboard.WidgetPropertyDto;
@@ -30,6 +31,7 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.template.LoadedTemplateDto;
 import org.sonar.server.db.DbClient;
 
+import java.util.Date;
 import java.util.List;
 
 public class RenameIssueWidgets implements Startable {
@@ -40,8 +42,11 @@ public class RenameIssueWidgets implements Startable {
 
   private final DbClient dbClient;
 
-  public RenameIssueWidgets(DbClient dbClient) {
+  private final System2 system;
+
+  public RenameIssueWidgets(DbClient dbClient, System2 system) {
     this.dbClient = dbClient;
+    this.system = system;
   }
 
   @Override
@@ -67,6 +72,7 @@ public class RenameIssueWidgets implements Startable {
 
       List<Long> widgetIdsWithPropertiesToDelete = Lists.newArrayList();
       List<WidgetPropertyDto> widgetPropertiesToCreate = Lists.newArrayList();
+      Date now = system.newDate();
 
       for (WidgetDto widget : dbClient.widgetDao().findAll(session)) {
         switch (widget.getWidgetKey()) {
@@ -139,6 +145,7 @@ public class RenameIssueWidgets implements Startable {
   private void updateWidget(DbSession session, List<Long> widgetIdsWithPropertiesToDelete, WidgetDto widget) {
     dbClient.widgetDao().update(session,
       widget.setWidgetKey(PROJECT_ISSUE_FILTER_WIDGET_KEY)
+        .setUpdatedAt(system.newDate())
         .setConfigured(true));
     widgetIdsWithPropertiesToDelete.add(widget.getId());
   }

@@ -19,29 +19,53 @@
  */
 package org.sonar.server.dashboard.db;
 
-import org.sonar.api.utils.System2;
 import org.sonar.core.dashboard.WidgetPropertyDto;
 import org.sonar.core.dashboard.WidgetPropertyMapper;
+import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.server.db.BaseDao;
+import org.sonar.core.persistence.MyBatis;
 
 import java.util.Collection;
 import java.util.List;
 
-public class WidgetPropertyDao extends BaseDao<WidgetPropertyMapper, WidgetPropertyDto, Long> {
+public class WidgetPropertyDao implements DaoComponent {
 
-  public WidgetPropertyDao(System2 system2) {
-    super(WidgetPropertyMapper.class, system2);
+  private final MyBatis myBatis;
+
+  public WidgetPropertyDao(MyBatis myBatis) {
+    this.myBatis = myBatis;
   }
 
-  @Override
-  protected WidgetPropertyDto doInsert(DbSession session, WidgetPropertyDto item) {
+  public WidgetPropertyDto insert(WidgetPropertyDto item) {
+    DbSession session = myBatis.openSession(false);
+    try {
+      return insert(session, item);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public WidgetPropertyDto insert(DbSession session, WidgetPropertyDto item) {
     mapper(session).insert(item);
     return item;
   }
 
-  @Override
-  protected WidgetPropertyDto doGetNullableByKey(DbSession session, Long propertyId) {
+  public void insert(DbSession session, Collection<WidgetPropertyDto> items) {
+    for (WidgetPropertyDto item : items) {
+      insert(session, item);
+    }
+  }
+
+  public WidgetPropertyDto getNullableByKey(Long propertyId) {
+    DbSession session = myBatis.openSession(false);
+    try {
+      return getNullableByKey(session, propertyId);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public WidgetPropertyDto getNullableByKey(DbSession session, Long propertyId) {
     return mapper(session).selectById(propertyId);
   }
 
@@ -53,4 +77,7 @@ public class WidgetPropertyDao extends BaseDao<WidgetPropertyMapper, WidgetPrope
     mapper(session).deleteByWidgetIds(widgetIdsWithPropertiesToDelete);
   }
 
+  private WidgetPropertyMapper mapper(DbSession session) {
+    return session.getMapper(WidgetPropertyMapper.class);
+  }
 }
