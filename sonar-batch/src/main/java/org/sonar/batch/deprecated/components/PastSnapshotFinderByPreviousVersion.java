@@ -44,6 +44,8 @@ public class PastSnapshotFinderByPreviousVersion implements BatchExtension {
     String currentVersion = projectSnapshot.getVersion();
     Integer resourceId = projectSnapshot.getResourceId();
     Long snapshotId;
+    // Commit Hibernate transaction to avoid lock of project table
+    session.commit();
     try (DbSession dbSession = mybatis.openSession(false)) {
       snapshotId = dbSession.getMapper(EventMapper.class).findSnapshotIdOfPreviousVersion(resourceId, currentVersion);
     }
