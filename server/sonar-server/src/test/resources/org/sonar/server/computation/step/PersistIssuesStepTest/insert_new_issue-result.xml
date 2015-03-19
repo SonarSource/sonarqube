@@ -1,0 +1,31 @@
+<dataset>
+
+  <issues
+      id="1"
+      kee="ISSUE"
+      component_uuid="COMPONENT"
+      project_uuid="PROJECT"
+      rule_id="1"
+      severity="BLOCKER"
+      manual_severity="[false]"
+      message="[null]"
+      line="[null]"
+      effort_to_fix="[null]"
+      technical_debt="[null]"
+      status="OPEN"
+      resolution="[null]"
+      checksum="[null]"
+      reporter="[null]"
+      author_login="[null]"
+      assignee="[null]"
+      action_plan_key="[null]"
+      tags="[null]"
+      issue_attributes=""
+      issue_creation_date="[null]"
+      issue_update_date="[null]"
+      issue_close_date="[null]"
+      created_at="1400000000000"
+      updated_at="1400000000000"
+      />
+
+</dataset>

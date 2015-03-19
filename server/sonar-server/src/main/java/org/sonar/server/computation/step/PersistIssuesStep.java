@@ -26,12 +26,7 @@ import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
-import org.sonar.core.issue.db.IssueChangeDto;
-import org.sonar.core.issue.db.IssueChangeMapper;
-import org.sonar.core.issue.db.IssueDto;
-import org.sonar.core.issue.db.IssueMapper;
-import org.sonar.core.issue.db.UpdateConflictResolver;
-import org.sonar.core.persistence.BatchSession;
+import org.sonar.core.issue.db.*;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.computation.ComputationContext;
@@ -67,7 +62,6 @@ public class PersistIssuesStep implements ComputationStep {
     DbSession session = dbClient.openSession(true);
     IssueMapper mapper = session.getMapper(IssueMapper.class);
     IssueChangeMapper changeMapper = session.getMapper(IssueChangeMapper.class);
-    int count = 0;
 
     CloseableIterator<DefaultIssue> issues = issueCache.traverse();
     try {
@@ -77,17 +71,14 @@ public class PersistIssuesStep implements ComputationStep {
         if (issue.isNew()) {
           Integer ruleId = ruleCache.get(issue.ruleKey()).getId();
           mapper.insert(IssueDto.toDtoForComputationInsert(issue, ruleId, system2.now()));
-          count++;
           saved = true;
         } else if (issue.isChanged()) {
           IssueDto dto = IssueDto.toDtoForUpdate(issue, system2.now());
           if (Issue.STATUS_CLOSED.equals(issue.status()) || issue.selectedAt() == null) {
             // Issue is closed by scan or changed by end-user
             mapper.update(dto);
-            count++;
           } else {
             int updateCount = mapper.updateIfBeforeSelectedDate(dto);
-            count++;
             if (updateCount == 0) {
               // End-user and scan changed the issue at the same time.
               // See https://jira.codehaus.org/browse/SONAR-4309
@@ -97,12 +88,7 @@ public class PersistIssuesStep implements ComputationStep {
           saved = true;
         }
         if (saved) {
-          count += insertChanges(changeMapper, issue);
-          if (count > BatchSession.MAX_BATCH_SIZE) {
-            session.flushStatements();
-            session.commit();
-            count = 0;
-          }
+          insertChanges(changeMapper, issue);
         }
       }
       session.flushStatements();
@@ -113,23 +99,19 @@ public class PersistIssuesStep implements ComputationStep {
     }
   }
 
-  private int insertChanges(IssueChangeMapper mapper, DefaultIssue issue) {
-    int count = 0;
+  private void insertChanges(IssueChangeMapper mapper, DefaultIssue issue) {
     for (IssueComment comment : issue.comments()) {
       DefaultIssueComment c = (DefaultIssueComment) comment;
       if (c.isNew()) {
         IssueChangeDto changeDto = IssueChangeDto.of(c);
         mapper.insert(changeDto);
-        count++;
       }
     }
     FieldDiffs diffs = issue.currentChange();
     if (!issue.isNew() && diffs != null) {
       IssueChangeDto changeDto = IssueChangeDto.of(issue.key(), diffs);
       mapper.insert(changeDto);
-      count++;
     }
-    return count;
   }
 
   @Override
