@@ -196,6 +196,61 @@ casper.test.begin(testName('All Issues By Status'), 9, function (test) {
 });
 
 
+casper.test.begin(testName('Unresolved Issues By Status'), 9, function (test) {
+  casper
+      .start(lib.buildUrl('issue-filter-widget'), function () {
+        lib.setDefaultViewport();
+
+
+        lib.mockRequestFromFile('/api/issues/search', 'unresolved-issues-by-status.json',
+            { data: { resolved: 'false' } });
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/widgets/issue-filter.js'], function (IssueFilter) {
+            window.requestMessages().done(function () {
+              new IssueFilter({
+                el: '#issue-filter-widget',
+                query: 'resolved=false',
+                distributionAxis: 'statuses'
+              });
+            });
+          });
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('#issue-filter-widget > table');
+      })
+
+      .then(function () {
+        // check count
+        test.assertElementCount('tr', 4);
+
+        // check order and values
+        test.assertSelectorContains('tr:nth-child(1)', '71571');
+        test.assertSelectorContains('tr:nth-child(2)', '238');
+        test.assertSelectorContains('tr:nth-child(3)', '4');
+        test.assertSelectorContains('tr:nth-child(4)', '6609');
+
+        // check links
+        test.assertExists('tr:nth-child(1) a[href="/issues/search#resolved=false"]');
+        test.assertExists('tr:nth-child(2) a[href="/issues/search#resolved=false|statuses=OPEN"]');
+        test.assertExists('tr:nth-child(3) a[href="/issues/search#resolved=false|statuses=REOPENED"]');
+        test.assertExists('tr:nth-child(4) a[href="/issues/search#resolved=false|statuses=CONFIRMED"]');
+      })
+
+      .then(function () {
+        lib.sendCoverage();
+      })
+
+      .run(function () {
+        test.done();
+      });
+});
+
+
 casper.test.begin(testName('All Issues By Resolution'), 10, function (test) {
   casper
       .start(lib.buildUrl('issue-filter-widget'), function () {

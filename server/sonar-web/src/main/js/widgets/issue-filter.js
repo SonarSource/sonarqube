@@ -56,6 +56,11 @@ define(['templates/widgets'], function () {
           comparator: function (item) {
             var order = ['OPEN', 'REOPENED', 'CONFIRMED', 'RESOLVED', 'CLOSED'];
             return order.indexOf(item.val);
+          },
+          filter: function (item) {
+            var unresolvedQuery = '' + this.query.resolved === 'false',
+                resolvedStatus = item.val === 'RESOLVED' || item.val === 'CLOSED';
+            return !(unresolvedQuery && resolvedStatus);
           }
         },
         'resolutions': {
