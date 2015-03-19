@@ -39,7 +39,6 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.core.computation.db.AnalysisReportDto.Status.PENDING;
 import static org.sonar.core.computation.db.AnalysisReportDto.Status.WORKING;
 
@@ -64,8 +63,7 @@ public class AnalysisReportDaoTest {
     this.system2 = mock(System2.class);
     this.sut = new AnalysisReportDao(system2);
 
-    when(system2.now()).thenReturn(parseDate("2014-09-26").getTime());
-    when(system2.newDate()).thenReturn(parseDate("2014-09-26"));
+    when(system2.now()).thenReturn(1_500_000_000_000L);
   }
 
   @After
@@ -156,10 +154,10 @@ public class AnalysisReportDaoTest {
     AnalysisReportDto report = sut.selectById(session, 1L);
 
     assertThat(report.getProjectKey()).isEqualTo(DEFAULT_PROJECT_KEY);
-    assertThat(report.getCreatedAt()).isEqualTo(parseDate("2014-09-24").getTime());
-    assertThat(report.getUpdatedAt()).isEqualTo(parseDate("2014-09-25").getTime());
-    assertThat(report.getStartedAt()).isEqualTo(parseDate("2014-09-26").getTime());
-    assertThat(report.getFinishedAt()).isEqualTo(parseDate("2014-09-27").getTime());
+    assertThat(report.getCreatedAt()).isEqualTo(1_500_000_000_001L);
+    assertThat(report.getUpdatedAt()).isEqualTo(1_500_000_000_002L);
+    assertThat(report.getStartedAt()).isEqualTo(1_500_000_000_003L);
+    assertThat(report.getFinishedAt()).isEqualTo(1_500_000_000_004L);
     assertThat(report.getStatus()).isEqualTo(WORKING);
   }
 

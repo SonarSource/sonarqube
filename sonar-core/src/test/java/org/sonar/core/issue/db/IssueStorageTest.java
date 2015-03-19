@@ -63,7 +63,7 @@ public class IssueStorageTest extends AbstractDaoTestCase {
     // override generated key
     comment.setKey("FGHIJ");
 
-    Date date = DateUtils.parseDate("2013-05-18");
+    Date date = DateUtils.parseDateTime("2013-05-18T12:00:00+0000");
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setNew(true)
@@ -98,7 +98,7 @@ public class IssueStorageTest extends AbstractDaoTestCase {
     // override generated key
     comment.setKey("FGHIJ");
 
-    Date date = DateUtils.parseDate("2013-05-18");
+    Date date = DateUtils.parseDateTime("2013-05-18T12:00:00+0000");
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setNew(true)
@@ -136,7 +136,7 @@ public class IssueStorageTest extends AbstractDaoTestCase {
     // override generated key
     comment.setKey("FGHIJ");
 
-    Date date = DateUtils.parseDate("2013-05-18");
+    Date date = DateUtils.parseDateTime("2013-05-18T12:00:00+0000");
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setNew(true)
@@ -174,7 +174,7 @@ public class IssueStorageTest extends AbstractDaoTestCase {
     // override generated key
     comment.setKey("FGHIJ");
 
-    Date date = DateUtils.parseDate("2013-05-18");
+    Date date = DateUtils.parseDateTime("2013-05-18T12:00:00+0000");
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setNew(false)
@@ -220,7 +220,7 @@ public class IssueStorageTest extends AbstractDaoTestCase {
     // override generated key
     comment.setKey("FGHIJ");
 
-    Date date = DateUtils.parseDate("2013-05-18");
+    Date date = DateUtils.parseDateTime("2013-05-18T12:00:00+0000");
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setNew(false)

@@ -21,7 +21,6 @@ package org.sonar.server.issue;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterators;
-import com.google.common.collect.Multiset;
 import com.google.common.collect.Sets;
 import org.junit.After;
 import org.junit.Before;
@@ -454,36 +453,6 @@ public class IssueServiceMediumTest {
     session.commit();
 
     service.createManualIssue(file.key(), rule.getKey(), 10, "Fix it", null, 2d);
-  }
-
-  @Test
-  public void find_rules_by_component() throws Exception {
-    RuleDto rule = newRule();
-    ComponentDto project = newProject();
-    ComponentDto file = newFile(project);
-
-    // 2 issues on the same rule
-    saveIssue(IssueTesting.newDto(rule, file, project));
-    saveIssue(IssueTesting.newDto(rule, file, project));
-
-    RulesAggregation result = service.findRulesByComponent(file.key(), null, session);
-    assertThat(result.rules()).hasSize(1);
-  }
-
-  @Test
-  public void find_rules_by_severity() throws Exception {
-    RuleDto rule = newRule();
-    ComponentDto project = newProject();
-    ComponentDto file = newFile(project);
-
-    saveIssue(IssueTesting.newDto(rule, file, project).setSeverity(Severity.MAJOR));
-    saveIssue(IssueTesting.newDto(rule, file, project).setSeverity(Severity.MAJOR));
-    saveIssue(IssueTesting.newDto(rule, file, project).setSeverity(Severity.INFO));
-
-    Multiset<String> result = service.findSeveritiesByComponent(file.key(), null, session);
-    assertThat(result.count("MAJOR")).isEqualTo(2);
-    assertThat(result.count("INFO")).isEqualTo(1);
-    assertThat(result.count("UNKNOWN")).isEqualTo(0);
   }
 
   @Test

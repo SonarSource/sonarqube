@@ -21,8 +21,6 @@ package org.sonar.server.issue;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
-import com.google.common.collect.HashMultiset;
-import com.google.common.collect.Multiset;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.ActionPlan;
@@ -46,7 +44,6 @@ import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.issue.workflow.Transition;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
@@ -63,8 +60,12 @@ import org.sonar.server.user.index.UserIndex;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 public class IssueService implements ServerComponent {
 
@@ -277,24 +278,6 @@ public class IssueService implements ServerComponent {
     } finally {
       session.close();
     }
-  }
-
-  // TODO result should be replaced by an aggregation object in IssueIndex
-  public RulesAggregation findRulesByComponent(String componentKey, @Nullable Date periodDate, DbSession session) {
-    RulesAggregation rulesAggregation = new RulesAggregation();
-    for (RuleDto ruleDto : deprecatedIssueDao.findRulesByComponent(componentKey, periodDate, session)) {
-      rulesAggregation.add(ruleDto);
-    }
-    return rulesAggregation;
-  }
-
-  // TODO result should be replaced by an aggregation object in IssueIndex
-  public Multiset<String> findSeveritiesByComponent(String componentKey, @Nullable Date periodDate, DbSession session) {
-    Multiset<String> aggregation = HashMultiset.create();
-    for (String severity : deprecatedIssueDao.findSeveritiesByComponent(componentKey, periodDate, session)) {
-      aggregation.add(severity);
-    }
-    return aggregation;
   }
 
   public Issue getByKey(String key) {

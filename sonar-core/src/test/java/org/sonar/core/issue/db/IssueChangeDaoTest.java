@@ -191,9 +191,9 @@ public class IssueChangeDaoTest extends AbstractDaoTestCase {
       .setChangeData("Some text")
       .setChangeType("comment")
       .setIssueKey("ABCDE")
-      .setCreatedAt(DateUtils.parseDate("2014-09-09").getTime())
-      .setUpdatedAt(DateUtils.parseDate("2014-09-10").getTime())
-      .setIssueChangeCreationDate(DateUtils.parseDate("2014-09-11").getTime());
+      .setCreatedAt(1_500_000_000_000L)
+      .setUpdatedAt(1_501_000_000_000L)
+      .setIssueChangeCreationDate(1_502_000_000_000L);
 
     dao.insert(session, changeDto);
     session.commit();
@@ -210,7 +210,7 @@ public class IssueChangeDaoTest extends AbstractDaoTestCase {
 
     // Only the following fields can be updated:
     change.setChangeData("new comment");
-    change.setUpdatedAt(DateUtils.parseDate("2013-06-30").getTime());
+    change.setUpdatedAt(1_500_000_000_000L);
 
     assertThat(dao.update(change)).isTrue();
 
