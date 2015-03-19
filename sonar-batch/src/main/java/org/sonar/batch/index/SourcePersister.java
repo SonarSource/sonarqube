@@ -107,14 +107,16 @@ public class SourcePersister implements ScanPersister {
       session.commit();
     } else {
       // Update only if data_hash has changed or if src_hash is missing (progressive migration)
-      if (!dataHash.equals(previousDto.getDataHash()) || !metadata.hash().equals(previousDto.getSrcHash())) {
+      boolean binaryDataUpdated = !dataHash.equals(previousDto.getDataHash());
+      boolean srcHashUpdated = !metadata.hash().equals(previousDto.getSrcHash());
+      if (binaryDataUpdated || srcHashUpdated) {
         previousDto
           .setBinaryData(data)
           .setDataHash(dataHash)
           .setSrcHash(metadata.hash())
           .setLineHashes(lineHashesAsMd5Hex(inputFile));
-        // Optimization do not change updated at when updating src_hash to avoid indexation by E/S
-        if (!dataHash.equals(previousDto.getDataHash())) {
+        // Optimization only change updated at when updating binary data to avoid unecessary indexation by E/S
+        if (binaryDataUpdated) {
           previousDto.setUpdatedAt(0L);
         }
         mapper.update(previousDto);
