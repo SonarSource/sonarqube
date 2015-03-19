@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.picocontainer.Startable;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.dashboard.DashboardDto;
 import org.sonar.core.dashboard.WidgetDto;
@@ -38,6 +39,8 @@ import java.util.List;
 import java.util.Map;
 
 public class RenameIssueWidgets implements Startable {
+
+  private static final Logger LOGGER = Loggers.get(RenameIssueWidgets.class);
 
   private static final String TASK_KEY = "RenameIssueWidgets";
 
@@ -81,7 +84,7 @@ public class RenameIssueWidgets implements Startable {
         WIDGET_UNRESOLVED_BY_STATUS, "statuses"
       );
 
-      Loggers.get(getClass()).info("Replacing issue related widgets with issue filter widgets");
+      LOGGER.info("Replacing issue related widgets with issue filter widgets");
 
       List<Long> updatedWidgetIds = Lists.newArrayList();
       List<WidgetPropertyDto> newWidgetProperties = Lists.newArrayList();
@@ -146,6 +149,9 @@ public class RenameIssueWidgets implements Startable {
 
   private String getReplacementWidgetKey(DbSession session, WidgetDto widget) {
     DashboardDto dashboard = dbClient.dashboardDao().getNullableByKey(session, widget.getDashboardId());
+    if (dashboard == null) {
+      LOGGER.warn(String.format("Widget with ID=%d is not displayed on any dashboard, updating nevertheless", widget.getId()));
+    }
     boolean isOnGlobalDashboard = dashboard != null && dashboard.getGlobal();
 
     return isOnGlobalDashboard && widget.getResourceId() == null ? WIDGET_ISSUE_FILTER : WIDGET_PROJECT_ISSUE_FILTER;

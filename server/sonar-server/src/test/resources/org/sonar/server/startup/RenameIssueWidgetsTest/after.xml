@@ -102,6 +102,16 @@
   <widget_properties id="10" widget_id="5" kee="distributionAxis" text_value="statuses"/>
 
 
+  <!-- 'Unresolved Issues Per Status' - dashboard not found, still replaced by issue_filter w/ 'Unresolved Issues' filter -->
+  <widgets id="6" dashboard_id="3" widget_key="project_issue_filter" name="[null]" description="[null]"
+     column_index="1" row_index="1" configured="[true]" created_at="[null]" updated_at="2003-03-23 01:23:45" resource_id="[null]"/>
+
+  <!-- filter = 'Unresolved Issues' -->
+  <widget_properties id="11" widget_id="6" kee="filter" text_value="1"/>
+  <!-- distributionAxis is 'assignees' -->
+  <widget_properties id="12" widget_id="6" kee="distributionAxis" text_value="statuses"/>
+
+
   <loaded_templates id="1" template_type="ONE_SHOT_TASK" kee="RenameIssueWidgets"/>
 
 </dataset>

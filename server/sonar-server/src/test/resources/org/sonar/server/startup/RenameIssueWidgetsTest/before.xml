@@ -86,5 +86,9 @@
   <widgets id="5" dashboard_id="2" widget_key="unresolved_issues_statuses" name="[null]" description="[null]"
      column_index="1" row_index="5" configured="[true]" created_at="[null]" updated_at="[null]" resource_id="[null]"/>
 
+  <!-- 'Unresolved Issues Per Status' - dashboard not found, still replaced by issue_filter w/ 'Unresolved Issues' filter -->
+  <widgets id="6" dashboard_id="3" widget_key="unresolved_issues_statuses" name="[null]" description="[null]"
+     column_index="1" row_index="1" configured="[true]" created_at="[null]" updated_at="[null]" resource_id="[null]"/>
+
 
 </dataset>
