@@ -13,3 +13,6 @@ sudo: false
 cache:
   directories:
     - '$HOME/.m2/repository'
+
+notifications:
+  email: false
