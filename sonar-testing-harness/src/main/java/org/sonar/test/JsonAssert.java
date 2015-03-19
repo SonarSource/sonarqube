@@ -44,6 +44,19 @@ import java.net.URL;
  *   </li>
  * </ul>
  *
+ * <h3>Usage</h3>
+ * <pre>
+ * String actual = "{}";
+ * String expected = "{}";
+ * JsonAssert.assertJson(actual).isSimilarTo(expected);
+ * </pre>
+ *
+ * <p>Expected JSON document can be loaded from URLs:</p>
+ * <pre>
+ * String actual = "{}";
+ * JsonAssert.assertJson(actual).isSimilarTo(getClass().getResource("MyTest/expected.json"));
+ * </pre>
+ *
  * @since 5.2
  */
 public class JsonAssert {
