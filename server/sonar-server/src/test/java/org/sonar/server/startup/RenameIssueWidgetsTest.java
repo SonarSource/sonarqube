@@ -27,6 +27,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.issue.db.IssueFilterDao;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.core.template.LoadedTemplateDao;
+import org.sonar.server.dashboard.db.DashboardDao;
 import org.sonar.server.dashboard.db.WidgetDao;
 import org.sonar.server.dashboard.db.WidgetPropertyDao;
 import org.sonar.server.db.DbClient;
@@ -73,7 +74,8 @@ public class RenameIssueWidgetsTest {
         new WidgetDao(dbTester.myBatis()),
         new WidgetPropertyDao(dbTester.myBatis()),
         new IssueFilterDao(dbTester.myBatis()),
-        new LoadedTemplateDao(dbTester.myBatis())
+        new LoadedTemplateDao(dbTester.myBatis()),
+        new DashboardDao(system2)
       ),
       system2,
       null);

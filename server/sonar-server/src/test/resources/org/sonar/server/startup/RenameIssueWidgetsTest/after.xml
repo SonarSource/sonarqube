@@ -31,6 +31,31 @@
       updated_at="2011-04-25 01:15:00" />
 
 
+  <dashboards
+    id="1"
+    user_id="[null]"
+    name="[null]"
+    description="[null]"
+    column_layout="[null]"
+    shared="[true]"
+    is_global="[false]"
+    created_at="[null]"
+    updated_at="[null]"
+  />
+
+  <dashboards
+    id="2"
+    user_id="[null]"
+    name="[null]"
+    description="[null]"
+    column_layout="[null]"
+    shared="[true]"
+    is_global="[true]"
+    created_at="[null]"
+    updated_at="[null]"
+  />
+
+
   <widgets id="1" dashboard_id="1" widget_key="polop" name="[null]" description="[null]"
      column_index="1" row_index="1" configured="[true]" created_at="[null]" updated_at="[null]" resource_id="[null]"/>
 
@@ -57,9 +82,9 @@
   <widget_properties id="6" widget_id="3" kee="distributionAxis" text_value="severities"/>
 
 
-  <!-- 'Unresolved Issues Per Developer' - replaced by project_issue_filter w/ 'Unresolved Issues' filter -->
-  <widgets id="4" dashboard_id="1" widget_key="project_issue_filter" name="[null]" description="[null]"
-     column_index="1" row_index="4" configured="[true]" created_at="[null]" updated_at="2003-03-23 01:23:45" resource_id="[null]"/>
+  <!-- 'Unresolved Issues Per Developer' - on a global dashboard, replaced by project_issue_filter w/ 'Unresolved Issues' filter -->
+  <widgets id="4" dashboard_id="2" widget_key="project_issue_filter" name="[null]" description="[null]"
+     column_index="1" row_index="4" configured="[true]" created_at="[null]" updated_at="2003-03-23 01:23:45" resource_id="12345"/>
 
   <!-- filter = 'Unresolved Issues' -->
   <widget_properties id="7" widget_id="4" kee="filter" text_value="1"/>
@@ -67,8 +92,8 @@
   <widget_properties id="8" widget_id="4" kee="distributionAxis" text_value="assignees"/>
 
 
-  <!-- 'Unresolved Issues Per Status' - replaced by project_issue_filter w/ 'Unresolved Issues' filter -->
-  <widgets id="5" dashboard_id="1" widget_key="project_issue_filter" name="[null]" description="[null]"
+  <!-- 'Unresolved Issues Per Status' - on a global dashboard without resource_id, replaced by issue_filter w/ 'Unresolved Issues' filter -->
+  <widgets id="5" dashboard_id="2" widget_key="issue_filter" name="[null]" description="[null]"
      column_index="1" row_index="5" configured="[true]" created_at="[null]" updated_at="2003-03-23 01:23:45" resource_id="[null]"/>
 
   <!-- filter = 'Unresolved Issues' -->

@@ -24,6 +24,7 @@ import com.google.common.collect.Lists;
 import org.picocontainer.Startable;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.dashboard.DashboardDto;
 import org.sonar.core.dashboard.WidgetDto;
 import org.sonar.core.dashboard.WidgetPropertyDto;
 import org.sonar.core.issue.db.IssueFilterDto;
@@ -45,6 +46,7 @@ public class RenameIssueWidgets implements Startable {
   private static final String WIDGET_UNRESOLVED_BY_DEVELOPER = "reviews_per_developer";
   private static final String WIDGET_UNRESOLVED_BY_STATUS = "unresolved_issues_statuses";
 
+  private static final String WIDGET_ISSUE_FILTER = "issue_filter";
   private static final String WIDGET_PROJECT_ISSUE_FILTER = "project_issue_filter";
 
   private static final String FILTER_PROPERTY = "filter";
@@ -137,9 +139,16 @@ public class RenameIssueWidgets implements Startable {
 
   private void updateWidget(DbSession session, WidgetDto widget) {
     dbClient.widgetDao().update(session,
-      widget.setWidgetKey(WIDGET_PROJECT_ISSUE_FILTER)
+      widget.setWidgetKey(getReplacementWidgetKey(session, widget))
         .setUpdatedAt(system.newDate())
         .setConfigured(true));
+  }
+
+  private String getReplacementWidgetKey(DbSession session, WidgetDto widget) {
+    DashboardDto dashboard = dbClient.dashboardDao().getNullableByKey(session, widget.getDashboardId());
+    boolean isOnGlobalDashboard = dashboard != null && dashboard.getGlobal();
+
+    return isOnGlobalDashboard && widget.getResourceId() == null ? WIDGET_ISSUE_FILTER : WIDGET_PROJECT_ISSUE_FILTER;
   }
 
   @Override
