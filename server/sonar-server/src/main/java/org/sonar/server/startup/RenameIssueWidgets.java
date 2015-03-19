@@ -65,7 +65,7 @@ public class RenameIssueWidgets implements Startable {
     DbSession session = dbClient.openSession(false);
 
     try {
-      if (dbClient.loadedTemplateDao().countByTypeAndKey(LoadedTemplateDto.ONE_SHOT_TASK_TYPE, TASK_KEY) != 0) {
+      if (dbClient.loadedTemplateDao().countByTypeAndKey(LoadedTemplateDto.ONE_SHOT_TASK_TYPE, TASK_KEY, session) != 0) {
         // Already done
         return;
       }
@@ -87,10 +87,10 @@ public class RenameIssueWidgets implements Startable {
       for (WidgetDto widget : dbClient.widgetDao().findAll(session)) {
         String widgetKey = widget.getWidgetKey();
         if (filterByWidgetKey.keySet().contains(widgetKey)) {
+          updatedWidgetIds.add(widget.getId());
           newWidgetProperties.add(createFilterProperty(filterByWidgetKey.get(widgetKey), widget));
           newWidgetProperties.add(createDistributionAxisProperty(distributionAxisByWidgetKey.get(widgetKey), widget));
           updateWidget(session, widget);
-          updatedWidgetIds.add(widget.getId());
         }
       }
 

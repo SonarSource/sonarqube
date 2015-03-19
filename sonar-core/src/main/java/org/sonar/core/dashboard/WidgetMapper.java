@@ -21,16 +21,11 @@ package org.sonar.core.dashboard;
 
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Options;
-import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
 import java.util.Collection;
 
 public interface WidgetMapper {
-
-  String COLUMNS = "id, dashboard_id as \"dashboardId\", widget_key as \"widgetKey\", name, description, " +
-    "column_index as \"columnIndex\", row_index as \"rowIndex\", configured, created_at as \"createdAt\", " +
-    "updated_at as \"updatedAt\", resource_id as \"resourceId\"";
 
   @Insert("insert into widgets (dashboard_id, widget_key, name, description, column_index, " +
     " row_index, configured, created_at, updated_at, resource_id)" +
@@ -40,13 +35,10 @@ public interface WidgetMapper {
   @Options(keyColumn = "id", useGeneratedKeys = true, keyProperty = "id")
   void insert(WidgetDto widgetDto);
 
-  @Select("select " + COLUMNS + " from widgets where id=#{id}")
   WidgetDto selectById(long widgetId);
 
-  @Select("select " + COLUMNS + " from widgets where dashboard_id=#{id}")
   Collection<WidgetDto> selectByDashboard(long dashboardKey);
 
-  @Select("select " + COLUMNS + " from widgets")
   Collection<WidgetDto> selectAll();
 
   @Update("UPDATE widgets SET " +
@@ -61,5 +53,6 @@ public interface WidgetMapper {
     "updated_at=#{updatedAt,jdbcType=TIMESTAMP}, " +
     "resource_id=#{resourceId,jdbcType=INTEGER} " +
     "WHERE id=#{id}")
+  @Options(useGeneratedKeys = false)
   void update(WidgetDto item);
 }

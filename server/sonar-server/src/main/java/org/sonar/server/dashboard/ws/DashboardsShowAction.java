@@ -102,7 +102,7 @@ public class DashboardsShowAction implements DashboardsAction {
         json.prop("configured", widget.getConfigured());
         json.prop("componentId", widget.getResourceId());
         json.name("props").beginArray();
-        for (WidgetPropertyDto prop : propertiesByWidget.get(widget.getKey())) {
+        for (WidgetPropertyDto prop : propertiesByWidget.get(widget.getId())) {
           json.beginObject();
           json.prop("key", prop.getPropertyKey());
           json.prop("val", prop.getTextValue());

@@ -185,10 +185,6 @@ public class WidgetDto {
     return this;
   }
 
-  public Long getKey() {
-    return id;
-  }
-
   public WidgetDto setCreatedAt(Date datetime) {
     this.createdAt = datetime;
     return this;
