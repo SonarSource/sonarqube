@@ -51,7 +51,8 @@ define([
       ModalFormView.prototype.onRender.apply(this, arguments);
       this.$('#coding-rules-bulk-change-profile').select2({
         width: '250px',
-        minimumResultsForSearch: 1
+        minimumResultsForSearch: 1,
+        openOnEnter: false
       });
     },
 
