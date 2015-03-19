@@ -45,11 +45,17 @@
         },
 
         fail: function (message) {
-          var that = this;
+          var that = this,
+              msg = message || t('process.fail');
+          if (msg === 'process.fail') {
+            // no translation
+            msg = 'An error happened, some parts of the page might not render correctly. ' +
+                  'Please contact the administrator if you keep on experiencing this error.';
+          }
           clearInterval(this.get('timer'));
           this.set({
             state: 'failed',
-            message: message || t('process.fail')
+            message: msg
           });
           this.set('state', 'failed');
           setTimeout(function () {
