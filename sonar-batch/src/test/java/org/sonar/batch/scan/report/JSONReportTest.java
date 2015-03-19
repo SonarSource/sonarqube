@@ -21,12 +21,9 @@ package org.sonar.batch.scan.report;
 
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
-import org.apache.commons.codec.Charsets;
-import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.skyscreamer.jsonassert.JSONAssert;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
@@ -45,6 +42,7 @@ import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.repository.user.User;
 import org.sonar.batch.repository.user.UserRepository;
 import org.sonar.batch.scan.filesystem.InputPathCache;
+import org.sonar.test.JsonAssert;
 
 import java.io.File;
 import java.io.IOException;
@@ -119,13 +117,12 @@ public class JSONReportTest {
     when(jsonReport.getIssues()).thenReturn(Lists.newArrayList(issue));
     User user1 = new User("julien", "Julien");
     User user2 = new User("simon", "Simon");
-    when(userRepository.loadFromWs(anyListOf(String.class))).thenReturn(Lists.<User>newArrayList(user1, user2));
+    when(userRepository.loadFromWs(anyListOf(String.class))).thenReturn(Lists.newArrayList(user1, user2));
 
     StringWriter writer = new StringWriter();
     jsonReport.writeJson(writer);
 
-    String expected = Resources.toString(Resources.getResource("org/sonar/batch/scan/report/JsonReportTest/report.json"), Charsets.UTF_8);
-    JSONAssert.assertEquals(expected, writer.toString(), false);
+    JsonAssert.assertJson(writer.toString()).isSimilarTo(Resources.getResource("org/sonar/batch/scan/report/JsonReportTest/report.json"));
   }
 
   @Test
@@ -146,19 +143,18 @@ public class JSONReportTest {
     StringWriter writer = new StringWriter();
     jsonReport.writeJson(writer);
 
-    String expected = Resources.toString(Resources.getResource(
-      "org/sonar/batch/scan/report/JsonReportTest/report-without-resolved-issues.json"), Charsets.UTF_8);
-    JSONAssert.assertEquals(expected, writer.toString(), false);
+    JsonAssert.assertJson(writer.toString()).isSimilarTo(Resources.getResource(
+      "org/sonar/batch/scan/report/JsonReportTest/report-without-resolved-issues.json"));
   }
 
   @Test
-  public void should_ignore_components_without_issue() throws JSONException {
+  public void should_ignore_components_without_issue() {
     when(jsonReport.getIssues()).thenReturn(Collections.<DefaultIssue>emptyList());
 
     StringWriter writer = new StringWriter();
     jsonReport.writeJson(writer);
 
-    JSONAssert.assertEquals("{\"version\":\"3.6\"}", writer.toString(), false);
+    JsonAssert.assertJson(writer.toString()).isSimilarTo("{\"version\":\"3.6\"}");
   }
 
   @Test

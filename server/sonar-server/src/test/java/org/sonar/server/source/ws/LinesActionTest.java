@@ -163,7 +163,7 @@ public class LinesActionTest {
 
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "lines").setParam("uuid", componentUuid);
     // Using non-strict match b/c of dates
-    request.execute().assertJson(getClass(), "show_source.json", false);
+    request.execute().assertJson(getClass(), "show_source.json");
   }
 
   @Test

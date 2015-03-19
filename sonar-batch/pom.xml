@@ -192,11 +192,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.skyscreamer</groupId>
-      <artifactId>jsonassert</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.codehaus.sonar.plugins</groupId>
       <artifactId>sonar-xoo-plugin</artifactId>
       <scope>test</scope>

@@ -19,10 +19,9 @@
  */
 package org.sonar.server.source.ws;
 
-import org.json.JSONException;
 import org.junit.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.test.JsonAssert;
 
 import java.io.StringWriter;
 
@@ -63,13 +62,12 @@ public class ScmWriterTest {
     test(authors, dates, 10, 20, false, "{\"scm\": []}");
   }
 
-
-  private void test(String authors, String dates, int from, int to, boolean group, String expected) throws JSONException {
+  private void test(String authors, String dates, int from, int to, boolean group, String expected) {
     StringWriter output = new StringWriter();
     JsonWriter jsonWriter = JsonWriter.of(output);
     jsonWriter.beginObject();
     writer.write(authors, dates, from, to, group, jsonWriter);
     jsonWriter.endObject();
-    JSONAssert.assertEquals(output.toString(), expected, true);
+    JsonAssert.assertJson(output.toString()).isSimilarTo(expected);
   }
 }

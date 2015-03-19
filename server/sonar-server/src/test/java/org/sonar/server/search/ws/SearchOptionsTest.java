@@ -21,13 +21,13 @@ package org.sonar.server.search.ws;
 
 import com.google.common.collect.Lists;
 import org.junit.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.internal.SimpleGetRequest;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
+import org.sonar.test.JsonAssert;
 
 import java.io.StringWriter;
 
@@ -101,7 +101,7 @@ public class SearchOptionsTest {
     options.writeStatistics(jsonWriter, result);
     jsonWriter.endObject().close();
 
-    JSONAssert.assertEquals("{\"total\": 42, \"p\": 3, \"ps\": 10}", json.toString(), true);
+    JsonAssert.assertJson(json.toString()).isSimilarTo("{\"total\": 42, \"p\": 3, \"ps\": 10}");
   }
 
   @Test

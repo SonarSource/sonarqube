@@ -1,0 +1,21 @@
+{
+  "timestamp": 10,
+  "metrics": [
+    {
+      "id": 1,
+      "key": "ncloc",
+      "valueType": "INT",
+      "description": "Description",
+      "direction": -1,
+      "name": "NCLOC",
+      "qualitative": true,
+      "userManaged": false,
+      "worstValue": 2.0,
+      "bestValue": 1.0,
+      "optimizedBestValue": true
+    }
+  ],
+  "globalSettings": {
+    "prop": "value"
+  }
+}

@@ -20,9 +20,9 @@
 package org.sonar.server.es;
 
 import org.junit.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.search.QueryContext;
+import org.sonar.test.JsonAssert;
 
 import java.io.StringWriter;
 
@@ -129,7 +129,7 @@ public class SearchOptionsTest {
     options.writeJson(jsonWriter, 42L);
     jsonWriter.endObject().close();
 
-    JSONAssert.assertEquals("{\"total\": 42, \"p\": 3, \"ps\": 10}", json.toString(), true);
+    JsonAssert.assertJson(json.toString()).isSimilarTo("{\"total\": 42, \"p\": 3, \"ps\": 10}");
   }
 
   @Test
@@ -140,7 +140,7 @@ public class SearchOptionsTest {
     options.writeDeprecatedJson(jsonWriter, 42L);
     jsonWriter.endObject().close();
 
-    JSONAssert.assertEquals("{\"paging\": {\"pageIndex\": 3, \"pageSize\": 10, \"total\": 42, \"fTotal\": \"42\", \"pages\": 5}}", json.toString(), true);
+    JsonAssert.assertJson(json.toString()).isSimilarTo("{\"paging\": {\"pageIndex\": 3, \"pageSize\": 10, \"total\": 42, \"fTotal\": \"42\", \"pages\": 5}}");
   }
 
   @Test
@@ -151,6 +151,6 @@ public class SearchOptionsTest {
     options.writeDeprecatedJson(jsonWriter, 30L);
     jsonWriter.endObject().close();
 
-    JSONAssert.assertEquals("{\"paging\": {\"pageIndex\": 3, \"pageSize\": 10, \"total\": 30, \"fTotal\": \"30\", \"pages\": 3}}", json.toString(), true);
+    JsonAssert.assertJson(json.toString()).isSimilarTo("{\"paging\": {\"pageIndex\": 3, \"pageSize\": 10, \"total\": 30, \"fTotal\": \"30\", \"pages\": 3}}");
   }
 }

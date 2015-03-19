@@ -19,9 +19,8 @@
  */
 package org.sonar.batch.protocol.input;
 
-import org.json.JSONException;
 import org.junit.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
+import org.sonar.test.JsonAssert;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,16 +33,13 @@ public class GlobalRepositoriesTest {
     ref.addGlobalSetting("prop", "value");
     ref.setTimestamp(10);
 
-    JSONAssert
-      .assertEquals(
-        "{timestamp:10,"
-          + "metrics:[{id:1,key:ncloc,valueType:INT,description:Description,direction:-1,name:NCLOC,qualitative:true,userManaged:false,worstValue:2.0,bestValue:1.0,optimizedBestValue:true}],"
-          + "globalSettings:{prop:value}}",
-        ref.toJson(), true);
+    JsonAssert
+      .assertJson(ref.toJson())
+      .isSimilarTo(getClass().getResource("GlobalRepositoriesTest/expected.json"));
   }
 
   @Test
-  public void from_json() throws JSONException {
+  public void from_json() {
     GlobalRepositories ref = GlobalRepositories
       .fromJson(
       "{timestamp:1,"

@@ -105,7 +105,7 @@ public class SearchActionComponentsMediumTest {
     tester.get(IssueIndexer.class).indexAll();
 
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).execute();
-    result.assertJson(this.getClass(), "issues_on_different_projects.json", false);
+    result.assertJson(this.getClass(), "issues_on_different_projects.json");
   }
 
   @Test
@@ -121,22 +121,22 @@ public class SearchActionComponentsMediumTest {
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.PROJECT_UUIDS, project.uuid())
       .execute()
-      .assertJson(this.getClass(), "search_by_project_uuid.json", false);
+      .assertJson(this.getClass(), "search_by_project_uuid.json");
 
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.PROJECT_UUIDS, "unknown")
       .execute()
-      .assertJson(this.getClass(), "no_issue.json", false);
+      .assertJson(this.getClass(), "no_issue.json");
 
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, project.uuid())
       .execute()
-      .assertJson(this.getClass(), "search_by_project_uuid.json", false);
+      .assertJson(this.getClass(), "search_by_project_uuid.json");
 
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, "unknown")
       .execute()
-      .assertJson(this.getClass(), "no_issue.json", false);
+      .assertJson(this.getClass(), "no_issue.json");
   }
 
   @Test
@@ -162,7 +162,7 @@ public class SearchActionComponentsMediumTest {
       .setParam(IssueFilterParameters.PROJECT_UUIDS, project1.uuid())
       .setParam(WebService.Param.FACETS, "projectUuids")
       .execute()
-      .assertJson(this.getClass(), "display_sticky_project_facet.json", false);
+      .assertJson(this.getClass(), "display_sticky_project_facet.json");
   }
 
   @Test
@@ -178,22 +178,22 @@ public class SearchActionComponentsMediumTest {
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.FILE_UUIDS, file.uuid())
       .execute()
-      .assertJson(this.getClass(), "search_by_file_uuid.json", false);
+      .assertJson(this.getClass(), "search_by_file_uuid.json");
 
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.FILE_UUIDS, "unknown")
       .execute()
-      .assertJson(this.getClass(), "no_issue.json", false);
+      .assertJson(this.getClass(), "no_issue.json");
 
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, file.uuid())
       .execute()
-      .assertJson(this.getClass(), "search_by_file_uuid.json", false);
+      .assertJson(this.getClass(), "search_by_file_uuid.json");
 
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, "unknown")
       .execute()
-      .assertJson(this.getClass(), "no_issue.json", false);
+      .assertJson(this.getClass(), "no_issue.json");
   }
 
   @Test
@@ -212,12 +212,12 @@ public class SearchActionComponentsMediumTest {
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENTS, file.key())
       .execute()
-      .assertJson(this.getClass(), "search_by_file_key.json", false);
+      .assertJson(this.getClass(), "search_by_file_key.json");
 
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENTS, unitTest.key())
       .execute()
-      .assertJson(this.getClass(), "search_by_test_key.json", false);
+      .assertJson(this.getClass(), "search_by_test_key.json");
 
   }
 
@@ -240,7 +240,7 @@ public class SearchActionComponentsMediumTest {
       .setParam(IssueFilterParameters.FILE_UUIDS, file1.uuid() + "," + file3.uuid())
       .setParam(WebService.Param.FACETS, "fileUuids")
       .execute()
-      .assertJson(this.getClass(), "display_file_facet.json", false);
+      .assertJson(this.getClass(), "display_file_facet.json");
   }
 
   @Test
@@ -257,22 +257,22 @@ public class SearchActionComponentsMediumTest {
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, directory.uuid())
       .execute()
-      .assertJson(this.getClass(), "search_by_file_uuid.json", false);
+      .assertJson(this.getClass(), "search_by_file_uuid.json");
 
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, "unknown")
       .execute()
-      .assertJson(this.getClass(), "no_issue.json", false);
+      .assertJson(this.getClass(), "no_issue.json");
 
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.DIRECTORIES, "src/main/java/dir")
       .execute()
-      .assertJson(this.getClass(), "search_by_file_uuid.json", false);
+      .assertJson(this.getClass(), "search_by_file_uuid.json");
 
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.DIRECTORIES, "src/main/java")
       .execute()
-      .assertJson(this.getClass(), "no_issue.json", false);
+      .assertJson(this.getClass(), "no_issue.json");
   }
 
   @Test
@@ -295,34 +295,34 @@ public class SearchActionComponentsMediumTest {
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, directory1.uuid())
       .execute()
-      .assertJson(this.getClass(), "search_by_directory_uuid.json", false);
+      .assertJson(this.getClass(), "search_by_directory_uuid.json");
 
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, directory2.uuid())
       .execute()
-      .assertJson(this.getClass(), "no_issue.json", false);
+      .assertJson(this.getClass(), "no_issue.json");
 
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.MODULE_UUIDS, module1.uuid())
       .setParam(IssueFilterParameters.DIRECTORIES, "src/main/java/dir")
       .execute()
-      .assertJson(this.getClass(), "search_by_directory_uuid.json", false);
+      .assertJson(this.getClass(), "search_by_directory_uuid.json");
 
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.MODULE_UUIDS, module2.uuid())
       .setParam(IssueFilterParameters.DIRECTORIES, "src/main/java/dir")
       .execute()
-      .assertJson(this.getClass(), "no_issue.json", false);
+      .assertJson(this.getClass(), "no_issue.json");
 
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.DIRECTORIES, "src/main/java/dir")
       .execute()
-      .assertJson(this.getClass(), "search_by_directory_uuid.json", false);
+      .assertJson(this.getClass(), "search_by_directory_uuid.json");
 
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.DIRECTORIES, "src/main/java")
       .execute()
-      .assertJson(this.getClass(), "no_issue.json", false);
+      .assertJson(this.getClass(), "no_issue.json");
   }
 
   @Test
@@ -347,7 +347,7 @@ public class SearchActionComponentsMediumTest {
       .setParam(IssueFilterParameters.MODULE_UUIDS, subModule1.uuid() + "," + subModule3.uuid())
       .setParam(WebService.Param.FACETS, "moduleUuids")
       .execute()
-      .assertJson(this.getClass(), "display_module_facet.json", false);
+      .assertJson(this.getClass(), "display_module_facet.json");
   }
 
   @Test
@@ -366,7 +366,7 @@ public class SearchActionComponentsMediumTest {
       .setParam("resolved", "false")
       .setParam(WebService.Param.FACETS, "directories")
       .execute();
-    result.assertJson(this.getClass(), "display_directory_facet.json", false);
+    result.assertJson(this.getClass(), "display_directory_facet.json");
   }
 
   @Test
@@ -385,7 +385,7 @@ public class SearchActionComponentsMediumTest {
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, view.uuid())
       .execute()
-      .assertJson(this.getClass(), "search_by_view_uuid.json", false);
+      .assertJson(this.getClass(), "search_by_view_uuid.json");
   }
 
   @Test
@@ -405,7 +405,7 @@ public class SearchActionComponentsMediumTest {
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, view.uuid())
       .execute()
-      .assertJson(this.getClass(), "no_issue.json", false);
+      .assertJson(this.getClass(), "no_issue.json");
   }
 
   @Test
@@ -426,7 +426,7 @@ public class SearchActionComponentsMediumTest {
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, subView.uuid())
       .execute()
-      .assertJson(this.getClass(), "search_by_view_uuid.json", false);
+      .assertJson(this.getClass(), "search_by_view_uuid.json");
   }
 
   @Test
@@ -448,7 +448,7 @@ public class SearchActionComponentsMediumTest {
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, subView.uuid())
       .execute()
-      .assertJson(this.getClass(), "no_issue.json", false);
+      .assertJson(this.getClass(), "no_issue.json");
   }
 
   public void search_by_author() throws Exception {
@@ -467,12 +467,12 @@ public class SearchActionComponentsMediumTest {
       .setParam(IssueFilterParameters.AUTHORS, "leia")
       .setParam(WebService.Param.FACETS, "authors")
       .execute()
-      .assertJson(this.getClass(), "search_by_authors.json", false);
+      .assertJson(this.getClass(), "search_by_authors.json");
 
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.AUTHORS, "unknown")
       .execute()
-      .assertJson(this.getClass(), "no_issue.json", false);
+      .assertJson(this.getClass(), "no_issue.json");
 
   }
 
@@ -496,7 +496,7 @@ public class SearchActionComponentsMediumTest {
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, developer.uuid())
       .execute()
-      .assertJson(this.getClass(), "search_by_developer.json", false);
+      .assertJson(this.getClass(), "search_by_developer.json");
   }
 
   @Test
@@ -530,7 +530,7 @@ public class SearchActionComponentsMediumTest {
       .execute();
     System.out.println(result.outputAsString());
     result
-      .assertJson(this.getClass(), "search_by_developer.json", false);
+      .assertJson(this.getClass(), "search_by_developer.json");
   }
 
   private RuleDto newRule() {

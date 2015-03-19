@@ -86,7 +86,7 @@ public class ComponentTagsActionTest {
 
   @Test
   public void should_return_empty_list() throws Exception {
-    tester.newGetRequest("api/issues", "component_tags").setParam("componentUuid", "polop").execute().assertJson("{tags:[]}");
+    tester.newGetRequest("api/issues", "component_tags").setParam("componentUuid", "polop").execute().assertJson("{\"tags\":[]}");
   }
 
   @Test

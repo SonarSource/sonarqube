@@ -58,7 +58,7 @@ public class FavoritesActionTest {
     MockUserSession.set();
 
     tester.newGetRequest("api/issue_filters", "favorites").execute()
-      .assertJson("{'favoriteFilters': []}");
+      .assertJson("{\"favoriteFilters\": []}");
   }
 
   @Test
@@ -69,7 +69,7 @@ public class FavoritesActionTest {
     ));
 
     tester.newGetRequest("api/issue_filters", "favorites").execute()
-      .assertJson("{'favoriteFilters': [{'id': 13, 'name': 'Blocker issues', 'user': 'simon', 'shared': true}]}");
+      .assertJson("{\"favoriteFilters\": [{\"id\": 13, \"name\": \"Blocker issues\", \"user\": \"simon\", \"shared\": true}]}");
   }
 
 }

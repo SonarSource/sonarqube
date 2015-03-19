@@ -20,18 +20,17 @@
 
 package org.sonar.server.duplication.ws;
 
-import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.skyscreamer.jsonassert.JSONAssert;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
+import org.sonar.test.JsonAssert;
 
 import java.io.StringWriter;
 import java.util.Collections;
@@ -40,9 +39,7 @@ import java.util.List;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DuplicationsJsonWriterTest {
@@ -77,14 +74,15 @@ public class DuplicationsJsonWriterTest {
 
     when(componentDao.getNullableByKey(session, key1)).thenReturn(file1);
     when(componentDao.getNullableByKey(session, key2)).thenReturn(file2);
-    when(componentDao.getNullableById(5L, session)).thenReturn(new ComponentDto().setId(5L).setKey("org.codehaus.sonar:sonar-ws-client").setLongName("SonarQube :: Web Service Client"));
+    when(componentDao.getNullableById(5L, session)).thenReturn(
+      new ComponentDto().setId(5L).setKey("org.codehaus.sonar:sonar-ws-client").setLongName("SonarQube :: Web Service Client"));
     when(componentDao.getNullableByUuid(session, project.uuid())).thenReturn(project);
 
     List<DuplicationsParser.Block> blocks = newArrayList();
     blocks.add(new DuplicationsParser.Block(newArrayList(
       new DuplicationsParser.Duplication(file1, 57, 12),
       new DuplicationsParser.Duplication(file2, 73, 12)
-    )));
+      )));
 
     test(blocks,
       "{\n" +
@@ -118,8 +116,7 @@ public class DuplicationsJsonWriterTest {
         "      \"subProjectName\": \"SonarQube :: Web Service Client\"\n" +
         "    }\n" +
         "  }" +
-        "}"
-    );
+        "}");
 
     verify(componentDao, times(2)).getNullableByKey(eq(session), anyString());
     // Verify call to dao is cached when searching for project / sub project
@@ -142,7 +139,7 @@ public class DuplicationsJsonWriterTest {
     blocks.add(new DuplicationsParser.Block(newArrayList(
       new DuplicationsParser.Duplication(file1, 57, 12),
       new DuplicationsParser.Duplication(file2, 73, 12)
-    )));
+      )));
 
     test(blocks,
       "{\n" +
@@ -172,8 +169,7 @@ public class DuplicationsJsonWriterTest {
         "      \"projectName\": \"SonarQube\"\n" +
         "    }\n" +
         "  }" +
-        "}"
-    );
+        "}");
   }
 
   @Test
@@ -190,7 +186,7 @@ public class DuplicationsJsonWriterTest {
       new DuplicationsParser.Duplication(file1, 57, 12),
       // Duplication on a removed file
       new DuplicationsParser.Duplication(null, 73, 12)
-    )));
+      )));
 
     test(blocks,
       "{\n" +
@@ -214,8 +210,7 @@ public class DuplicationsJsonWriterTest {
         "      \"projectName\": \"SonarQube\"\n" +
         "    }\n" +
         "  }" +
-        "}"
-    );
+        "}");
   }
 
   @Test
@@ -223,13 +218,13 @@ public class DuplicationsJsonWriterTest {
     test(Collections.<DuplicationsParser.Block>emptyList(), "{\"duplications\": [], \"files\": {}}");
   }
 
-  private void test(List<DuplicationsParser.Block> blocks, String expected) throws JSONException {
+  private void test(List<DuplicationsParser.Block> blocks, String expected) {
     StringWriter output = new StringWriter();
     JsonWriter jsonWriter = JsonWriter.of(output);
     jsonWriter.beginObject();
     writer.write(blocks, jsonWriter, session);
     jsonWriter.endObject();
-    JSONAssert.assertEquals(expected, output.toString(), false);
+    JsonAssert.assertJson(output.toString()).isSimilarTo(expected);
   }
 
 }

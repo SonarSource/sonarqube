@@ -1,5 +1,7 @@
 {
-  "total": 2, "p": 1, "ps": 100,
+  "total": 2,
+  "p": 1,
+  "ps": 100,
   "rules": [
     {
       "key": "xoo:x2",
@@ -10,8 +12,14 @@
       "status": "READY",
       "internalKey": "InternalKeyx2",
       "isTemplate": false,
-      "tags": ["tag1", "tag2"],
-      "sysTags": ["systag1", "systag2"],
+      "tags": [
+        "tag1",
+        "tag2"
+      ],
+      "sysTags": [
+        "systag1",
+        "systag2"
+      ],
       "debtRemFnType": "LINEAR",
       "debtRemFnCoeff": "1h",
       "debtRemFnOffset": "5min",
@@ -27,12 +35,19 @@
       "status": "READY",
       "internalKey": "InternalKeyx1",
       "isTemplate": false,
-      "tags": ["tag1", "tag2"],
-      "sysTags": ["systag1", "systag2"],
+      "tags": [
+        "tag1",
+        "tag2"
+      ],
+      "sysTags": [
+        "systag1",
+        "systag2"
+      ],
       "debtRemFnType": "LINEAR",
       "debtRemFnCoeff": "1h",
       "debtRemFnOffset": "5min",
       "lang": "xoo",
       "params": []
     }
-  ]}
+  ]
+}

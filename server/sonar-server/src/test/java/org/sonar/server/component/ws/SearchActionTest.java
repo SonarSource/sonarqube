@@ -88,7 +88,7 @@ public class SearchActionTest {
     MockUserSession.set().setLogin("john").addProjectUuidPermissions(UserRole.USER, "EFGH");
 
     WsTester.TestRequest request = tester.newGetRequest("api/components", "search").setParam("componentUuid", "EFGH").setParam("q", "st").setParam("p", "2").setParam("ps", "1");
-    request.execute().assertJson(getClass(), "return_paged_result.json", false);
+    request.execute().assertJson(getClass(), "return_paged_result.json");
   }
 
   @Test
@@ -97,7 +97,7 @@ public class SearchActionTest {
     MockUserSession.set().setLogin("john").addProjectUuidPermissions(UserRole.USER, "EFGH");
 
     WsTester.TestRequest request = tester.newGetRequest("api/components", "search").setParam("componentUuid", "EFGH").setParam("q", "st").setParam("p", "1").setParam("ps", "1");
-    request.execute().assertJson(getClass(), "return_only_first_page.json", false);
+    request.execute().assertJson(getClass(), "return_only_first_page.json");
   }
 
   @Test

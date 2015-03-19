@@ -20,9 +20,7 @@
 
 package org.sonar.server.issue.filter;
 
-import org.json.JSONException;
 import org.junit.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.issue.db.IssueFilterDto;
 import org.sonar.core.permission.GlobalPermissions;
@@ -30,6 +28,8 @@ import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 
 import java.io.StringWriter;
+
+import static org.sonar.test.JsonAssert.assertJson;
 
 public class IssueFilterWriterTest {
 
@@ -54,8 +54,7 @@ public class IssueFilterWriterTest {
         "        \"query\":\"severity=BLOCKER\",\n" +
         "        \"user\":\"simon\",\n" +
         "        \"canModify\":false\n" +
-        "    }}"
-    );
+        "    }}");
   }
 
   @Test
@@ -77,8 +76,7 @@ public class IssueFilterWriterTest {
         "        \"query\":\"severity=BLOCKER\",\n" +
         "        \"user\":\"simon\",\n" +
         "        \"canModify\":true\n" +
-        "    }}"
-    );
+        "    }}");
   }
 
   @Test
@@ -100,16 +98,15 @@ public class IssueFilterWriterTest {
         "        \"query\":\"severity=BLOCKER\",\n" +
         "        \"user\":\"julien\",\n" +
         "        \"canModify\":true\n" +
-        "    }}"
-    );
+        "    }}");
   }
 
-  private void test(UserSession userSession, IssueFilterDto filter, String expected) throws JSONException {
+  private void test(UserSession userSession, IssueFilterDto filter, String expected) {
     StringWriter output = new StringWriter();
     JsonWriter jsonWriter = JsonWriter.of(output);
     jsonWriter.beginObject();
     writer.write(userSession, filter, jsonWriter);
     jsonWriter.endObject();
-    JSONAssert.assertEquals(output.toString(), expected, true);
+    assertJson(output.toString()).isSimilarTo(expected);
   }
 }
