@@ -81,10 +81,10 @@ public class SourceIndexBenchmarkTest {
     long nbLines = files.count.get() * LINES_PER_FILE;
     long throughputPerSecond = 1000L * nbLines / period;
     LOGGER.info(String.format("%d lines indexed in %d ms (%d docs/second)", nbLines, period, throughputPerSecond));
-    benchmark.expectAround("Throughput to index source lines", throughputPerSecond, 7800, Benchmark.DEFAULT_ERROR_MARGIN_PERCENTS);
+    benchmark.expectAround("Throughput to index source lines", throughputPerSecond, 8950, Benchmark.DEFAULT_ERROR_MARGIN_PERCENTS);
 
     // be sure that physical files do not evolve during estimation of size
-    tester.get(EsClient.class).prepareOptimize(SourceLineIndexDefinition.INDEX).get();
+    tester.get(EsClient.class).prepareOptimize(SourceLineIndexDefinition.INDEX).setWaitForMerge(true).get();
     long dirSize = FileUtils.sizeOfDirectory(tester.getEsServerHolder().getHomeDir());
     LOGGER.info(String.format("ES dir: " + FileUtils.byteCountToDisplaySize(dirSize)));
     benchmark.expectBetween("ES dir size (b)", dirSize, 103L * FileUtils.ONE_MB, 109L * FileUtils.ONE_MB);
@@ -108,6 +108,7 @@ public class SourceIndexBenchmarkTest {
     private int currentProject = 0;
     private AtomicLong count = new AtomicLong(0L);
     private final FileSourceDb.Data.Builder dataBuilder = FileSourceDb.Data.newBuilder();
+    private final FileSourceDb.Line.Builder lineBuilder = FileSourceDb.Line.newBuilder();
 
     SourceIterator(long nbFiles, int nbLinesPerFile) {
       this.nbFiles = nbFiles;
@@ -128,8 +129,10 @@ public class SourceIndexBenchmarkTest {
       String projectUuid = "P" + currentProject;
       String fileUuid = "FILE" + count.get();
       dataBuilder.clear();
+
       for (int indexLine = 1; indexLine <= nbLinesPerFile; indexLine++) {
-        dataBuilder.addLinesBuilder()
+        lineBuilder.clear();
+        dataBuilder.addLines(lineBuilder
           .setLine(indexLine)
           .setScmRevision("REVISION_" + indexLine)
           .setScmAuthor("a_guy")
@@ -146,7 +149,7 @@ public class SourceIndexBenchmarkTest {
           .setScmDate(1_500_000_000_000L)
           .setHighlighting("2,9,k;9,18,k")
           .addAllDuplication(Arrays.asList(19, 33, 141))
-          .build();
+          .build());
       }
       count.incrementAndGet();
       if (count.get() % 500 == 0) {
