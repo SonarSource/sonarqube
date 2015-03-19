@@ -75,7 +75,7 @@ public class RenameIssueWidgetsTest {
         new WidgetPropertyDao(dbTester.myBatis()),
         new IssueFilterDao(dbTester.myBatis()),
         new LoadedTemplateDao(dbTester.myBatis()),
-        new DashboardDao(system2)
+        new DashboardDao()
       ),
       system2,
       null);

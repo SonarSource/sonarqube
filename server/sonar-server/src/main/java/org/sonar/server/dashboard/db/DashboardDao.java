@@ -19,23 +19,18 @@
  */
 package org.sonar.server.dashboard.db;
 
-import org.sonar.api.utils.System2;
 import org.sonar.core.dashboard.DashboardDto;
 import org.sonar.core.dashboard.DashboardMapper;
+import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.server.db.BaseDao;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-public class DashboardDao extends BaseDao<DashboardMapper, DashboardDto, Long> {
+public class DashboardDao implements DaoComponent {
 
-  public DashboardDao(System2 system2) {
-    super(DashboardMapper.class, system2);
-  }
-
-  @Override
-  protected DashboardDto doGetNullableByKey(DbSession session, Long key) {
+  @CheckForNull
+  public DashboardDto getNullableByKey(DbSession session, Long key) {
     return mapper(session).selectById(key);
   }
 
@@ -47,4 +42,9 @@ public class DashboardDao extends BaseDao<DashboardMapper, DashboardDto, Long> {
   public DashboardDto getAllowedByKey(DbSession session, Long key, @Nullable Long userId) {
     return mapper(session).selectAllowedById(key, userId != null ? userId : -1L);
   }
+
+  private DashboardMapper mapper(DbSession session) {
+    return session.getMapper(DashboardMapper.class);
+  }
+
 }
