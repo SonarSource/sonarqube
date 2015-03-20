@@ -20,7 +20,6 @@
 package org.sonar.server.es;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.ActionRequest;
@@ -42,7 +41,6 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.util.ProgressLogger;
 
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -102,8 +100,6 @@ public class BulkIndexer implements Startable {
     this.disableRefresh = b;
     return this;
   }
-
-
 
   @Override
   public void start() {
@@ -212,35 +208,13 @@ public class BulkIndexer implements Startable {
         semaphore.release();
         counter.addAndGet(response.getItems().length);
 
-        List<ActionRequest> retries = Lists.newArrayList();
         for (BulkItemResponse item : response.getItems()) {
           if (item.isFailed()) {
-            ActionRequest retry = req.request().requests().get(item.getItemId());
-            retries.add(retry);
-          }
-        }
-
-        if (!retries.isEmpty()) {
-          LOGGER.warn(String.format("%d index requests failed. Trying again.", retries.size()));
-          BulkRequestBuilder retryBulk = client.prepareBulk();
-          for (ActionRequest retry : retries) {
-            retryBulk.request().add(retry);
-          }
-          BulkResponse retryBulkResponse = retryBulk.get();
-          if (retryBulkResponse.hasFailures()) {
-            LOGGER.error("New attempt to index documents failed");
-            for (int index = 0; index < retryBulkResponse.getItems().length; index++) {
-              BulkItemResponse item = retryBulkResponse.getItems()[index];
-              if (item.isFailed()) {
-                StringBuilder sb = new StringBuilder();
-                String msg = sb.append("\n[").append(index)
-                  .append("]: index [").append(item.getIndex()).append("], type [").append(item.getType()).append("], id [").append(item.getId())
-                  .append("], message [").append(item.getFailureMessage()).append("]").toString();
-                LOGGER.error(msg);
-              }
-            }
-          } else {
-            LOGGER.info("New index attempt succeeded");
+            StringBuilder sb = new StringBuilder();
+            String msg = sb
+              .append("index [").append(item.getIndex()).append("], type [").append(item.getType()).append("], id [").append(item.getId())
+              .append("], message [").append(item.getFailureMessage()).append("]").toString();
+            LOGGER.error(msg);
           }
         }
       }

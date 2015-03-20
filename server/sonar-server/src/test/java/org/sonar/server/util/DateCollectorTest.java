@@ -36,6 +36,7 @@ public class DateCollectorTest {
   @Test
   public void max() throws Exception {
     collector.add(DateUtils.parseDate("2013-06-01"));
+    collector.add(null);
     collector.add(DateUtils.parseDate("2014-01-01"));
     collector.add(DateUtils.parseDate("2013-08-01"));
 
