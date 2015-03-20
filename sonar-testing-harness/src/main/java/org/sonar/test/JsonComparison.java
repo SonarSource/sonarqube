@@ -26,18 +26,21 @@ import org.json.simple.parser.JSONParser;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Not thread-safe because of field datetimeFormat which is SimpleDateFormat.
  */
 class JsonComparison {
 
-  private static final SimpleDateFormat datetimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+  private static final DateFormat DATETIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
   private boolean strictTimezone = false;
   private boolean strictArrayOrder = false;
@@ -80,6 +83,7 @@ class JsonComparison {
       return actualObject == null;
     }
     if (actualObject == null) {
+      // expected non-null, got null
       return false;
     }
     if (expectedObject.getClass() != actualObject.getClass()) {
@@ -89,7 +93,7 @@ class JsonComparison {
       return compareArrays((JSONArray) expectedObject, (JSONArray) actualObject);
     }
     if (expectedObject instanceof JSONObject) {
-      return compareMaps((JSONObject) expectedObject, (JSONObject) actualObject);
+      return compareObjects((JSONObject) expectedObject, (JSONObject) actualObject);
     }
     if (expectedObject instanceof String) {
       return compareStrings((String) expectedObject, (String) actualObject);
@@ -110,7 +114,7 @@ class JsonComparison {
     if (Double.compare(d1, d2) == 0) {
       return true;
     }
-    return (Math.abs(d1 - d2) <= 0.0000001);
+    return Math.abs(d1 - d2) <= 0.0000001;
   }
 
   private boolean compareStrings(String expected, String actual) {
@@ -173,13 +177,14 @@ class JsonComparison {
     return true;
   }
 
-  private boolean compareMaps(JSONObject expectedMap, JSONObject actualMap) {
+  private boolean compareObjects(JSONObject expectedMap, JSONObject actualMap) {
     // each key-value of expected map must exist in actual map
-    for (Object expectedKey : expectedMap.keySet()) {
-      if (!actualMap.containsKey(expectedKey)) {
+    for (Map.Entry<Object, Object> expectedEntry : (Set<Map.Entry<Object, Object>>) expectedMap.entrySet()) {
+      Object key = expectedEntry.getKey();
+      if (!actualMap.containsKey(key)) {
         return false;
       }
-      if (!compare(expectedMap.get(expectedKey), actualMap.get(expectedKey))) {
+      if (!compare(expectedEntry.getValue(), actualMap.get(key))) {
         return false;
       }
     }
@@ -187,9 +192,9 @@ class JsonComparison {
   }
 
   @CheckForNull
-  Date tryParseDate(String s) {
+  static Date tryParseDate(String s) {
     try {
-      return datetimeFormat.parse(s);
+      return DATETIME_FORMAT.parse(s);
     } catch (ParseException ignored) {
       // not a datetime
       return null;
