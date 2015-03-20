@@ -116,8 +116,10 @@ public class SourceDbBenchmarkTest {
 
   private byte[] generateData() throws IOException {
     FileSourceDb.Data.Builder dataBuilder = FileSourceDb.Data.newBuilder();
+    FileSourceDb.Line.Builder lineBuilder = FileSourceDb.Line.newBuilder();
     for (int i = 1; i <= NUMBER_OF_LINES; i++) {
-      dataBuilder.addLinesBuilder()
+      lineBuilder.clear();
+      dataBuilder.addLines(lineBuilder
         .setLine(i)
         .setScmRevision("REVISION_" + i)
         .setScmAuthor("a_guy")
@@ -134,7 +136,7 @@ public class SourceDbBenchmarkTest {
         .setScmDate(1_500_000_000_000L)
         .setHighlighting("2,9,k;9,18,k")
         .addAllDuplication(Arrays.asList(19, 33, 141))
-        .build();
+        .build());
     }
     return FileSourceDto.encodeData(dataBuilder.build());
   }

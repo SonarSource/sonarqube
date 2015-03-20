@@ -70,7 +70,7 @@ public class EsUtilsTest {
 
   @Test
   public void es_date_format() throws Exception {
-    assertThat(EsUtils.formatDateTime(new Date(1_500_000_000_000L))).startsWith("2017-07-").hasSize(29);
+    assertThat(EsUtils.formatDateTime(new Date(1_500_000_000_000L))).startsWith("2017-07-");
     assertThat(EsUtils.formatDateTime(null)).isNull();
 
     assertThat(EsUtils.parseDateTime("2017-07-14T04:40:00.000+02:00").getTime()).isEqualTo(1_500_000_000_000L);
