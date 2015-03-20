@@ -71,7 +71,7 @@ message Component {
   optional ComponentType type = 4;
   optional bool is_test = 5;
   optional string language = 6;
-  repeated int32 child_ref = 7 [packed=true];
+  repeated int32 child_ref = 7 [packed = true];
   repeated ComponentLink link = 10;
   // Only available on PROJECT and MODULE type
   optional string version = 12;
@@ -117,43 +117,57 @@ message Measures {
 }
 
 message Issue {
-    optional string rule_repository = 1;
-    optional string rule_key = 2;
-    optional int32 line = 3;
-    optional string msg = 4;
-    optional Severity severity = 5;
-    repeated string tag = 6;
+  optional string rule_repository = 1;
+  optional string rule_key = 2;
+  optional int32 line = 3;
+  optional string msg = 4;
+  optional Severity severity = 5;
+  repeated string tag = 6;
 
-    // temporary fields during development of computation stack
-    optional double effort_to_fix = 7;
-    optional bool is_new = 8;
-    optional string uuid = 9;
-    optional int64 debt_in_minutes = 10;
-    optional string resolution = 11;
-    optional string status = 12;
-    optional string checksum = 13;
-    optional bool manual_severity = 14;
-    optional string reporter = 15;
-    optional string assignee = 16;
-    optional string action_plan_key = 17;
-    optional string attributes = 18;
-    optional string author_login = 19;
-    optional int64 creation_date = 20;
-    optional int64 close_date = 21;
-    optional int64 update_date = 22;
-    optional int64 selected_at = 23;
-    optional string diff_fields = 24;
-    optional bool is_changed = 25;
-    optional bool must_send_notification = 26;
+  // temporary fields during development of computation stack
+  optional double effort_to_fix = 7;
+  optional bool is_new = 8;
+  optional string uuid = 9;
+  optional int64 debt_in_minutes = 10;
+  optional string resolution = 11;
+  optional string status = 12;
+  optional string checksum = 13;
+  optional bool manual_severity = 14;
+  optional string reporter = 15;
+  optional string assignee = 16;
+  optional string action_plan_key = 17;
+  optional string attributes = 18;
+  optional string author_login = 19;
+  optional int64 creation_date = 20;
+  optional int64 close_date = 21;
+  optional int64 update_date = 22;
+  optional int64 selected_at = 23;
+  optional string diff_fields = 24;
+  optional bool is_changed = 25;
+  optional bool must_send_notification = 26;
 }
 
 message Issues {
-    optional int32 component_ref = 1;
-    repeated Issue issue = 2;
-    
-    // Temporary field for issues on deleted components
-    optional string component_uuid = 3;
+  optional int32 component_ref = 1;
+  repeated Issue issue = 2;
+
+  // Temporary field for issues on deleted components
+  optional string component_uuid = 3;
 }
+
+message Scm {
+  optional int32 component_ref = 1;
+  repeated Changeset changeset = 2;
+  // if changesetIndexByLine[3] = 2 then it means that changeset[2] is the last one on line 4
+  repeated int32 changesetIndexByLine = 3 [packed=true];
+
+  message Changeset {
+    optional string revision = 1;
+    optional string author = 2;
+    optional int64 date = 3;
+  }
+}
+
 
 message DuplicationBlock {
   // Will be null on original blocks or when duplications are on the same file
@@ -202,3 +216,4 @@ message SyntaxHighlighting {
     optional HighlightingType type = 2;
   }
 }
+

@@ -33,6 +33,7 @@ public class FileStructure {
     MEASURES("measures-"),
     DUPLICATIONS("duplications-"),
     SYNTAX_HIGHLIGHTING("syntax-highlighting-"),
+    SCM("scm-"),
     SYMBOLS("symbol-")
     ;
     

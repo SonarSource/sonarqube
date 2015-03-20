@@ -53,7 +53,7 @@ public class ParseReportStep implements ComputationStep {
     BatchReportReader reportReader = context.getReportReader();
     BatchReport.Component component = reportReader.readComponent(componentRef);
     List<BatchReport.Issue> issues = reportReader.readComponentIssues(componentRef);
-    issueComputation.processComponentIssues(context, component.getUuid(), issues);
+    issueComputation.processComponentIssues(context, issues, component.getUuid(), componentRef);
     for (Integer childRef : component.getChildRefList()) {
       recursivelyProcessComponent(context, childRef);
     }
@@ -63,7 +63,7 @@ public class ParseReportStep implements ComputationStep {
     int deletedComponentsCount = context.getReportMetadata().getDeletedComponentsCount();
     for (int componentRef = 1; componentRef <= deletedComponentsCount; componentRef++) {
       BatchReport.Issues issues = context.getReportReader().readDeletedComponentIssues(componentRef);
-      issueComputation.processComponentIssues(context, issues.getComponentUuid(), issues.getIssueList());
+      issueComputation.processComponentIssues(context, issues.getIssueList(), issues.getComponentUuid(), null);
     }
   }
 

@@ -71,6 +71,11 @@ public class BatchReportWriter {
     ProtobufUtil.writeToFile(measuresBuilder.build(), file);
   }
 
+  public void writeComponentScm(BatchReport.Scm scm) {
+    File file = fileStructure.fileFor(FileStructure.Domain.SCM, scm.getComponentRef());
+    ProtobufUtil.writeToFile(scm, file);
+  }
+
   /**
    * Issues on components which have been deleted are stored in another location.
    * Temporary hack, waiting for computation stack

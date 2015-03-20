@@ -214,6 +214,6 @@ public class IssueComputationTest {
   }
 
   private void process() {
-    sut.processComponentIssues(context, "FILE_A", Arrays.asList(inputIssue.build()));
+    sut.processComponentIssues(context, Arrays.asList(inputIssue.build()), "FILE_A", 1);
   }
 }

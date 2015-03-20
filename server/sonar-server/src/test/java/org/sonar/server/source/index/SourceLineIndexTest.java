@@ -54,6 +54,7 @@ public class SourceLineIndexTest {
     assertThat(index.getLines("file1", 1, 3)).hasSize(3);
     assertThat(index.getLines("file1", 1, Integer.MAX_VALUE)).hasSize(3);
     assertThat(index.getLines("file1", 2, 2)).hasSize(1);
+    assertThat(index.getLines("file1")).hasSize(3);
   }
 
   @Test(expected = IllegalArgumentException.class)

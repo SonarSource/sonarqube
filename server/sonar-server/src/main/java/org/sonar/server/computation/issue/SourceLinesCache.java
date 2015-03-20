@@ -19,83 +19,135 @@
  */
 package org.sonar.server.computation.issue;
 
-import com.google.common.base.Function;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.core.source.db.FileSourceDto;
-import org.sonar.server.db.DbClient;
-import org.sonar.server.source.db.FileSourceDb;
+import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.batch.protocol.output.BatchReportReader;
+import org.sonar.server.source.index.SourceLineDoc;
+import org.sonar.server.source.index.SourceLineIndex;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.io.InputStream;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
- * Cache of the lines of the currently processed file. Only a single file
- * is kept in memory at a time. Moreover data is loaded on demand to avoid
- * useless db trips.
- * <p/>
- * It assumes that db table FILE_SOURCES is up-to-date before using this
- * cache.
+ * Cache of the lines of the currently processed file. Only a <strong>single</strong> file
+ * is kept in memory at a time. Data is loaded <strong>on demand</strong> (to avoid non necessary
+ * loading).<br />
+ * It relies on:
+ * <ul>
+ *   <li>the SCM information sent in the report for modified files</li>
+ *   <li>the source line index for non-modified files</li>
+ * </ul>
+ *
  */
 public class SourceLinesCache {
 
-  private final DbClient dbClient;
-  private final FileDataParser parserFunction = new FileDataParser();
+  private final SourceLineIndex index;
+  private BatchReportReader reportReader;
 
-  private final List<String> authors = new ArrayList<>();
   private boolean loaded = false;
-  private String currentFileUuid = null;
+  private BatchReport.Scm scm;
+  private String currentFileUuid;
+  private Integer currentFileReportRef;
 
-  // date of the latest commit on the file
   private long lastCommitDate = 0L;
-
-  // author of the latest commit on the file
   private String lastCommitAuthor = null;
 
-  public SourceLinesCache(DbClient dbClient) {
-    this.dbClient = dbClient;
+  public SourceLinesCache(SourceLineIndex index) {
+    this.index = index;
   }
 
   /**
    * Marks the currently processed component
    */
-  void init(String fileUuid) {
+  void init(String fileUuid, @Nullable Integer fileReportRef, BatchReportReader thisReportReader) {
     loaded = false;
     currentFileUuid = fileUuid;
-    authors.clear();
+    currentFileReportRef = fileReportRef;
     lastCommitDate = 0L;
     lastCommitAuthor = null;
+    reportReader = thisReportReader;
+    clear();
   }
 
   /**
    * Last committer of the line, can be null.
-   * @param lineId starts at 0
+   * @param lineIndex starts at 0
    */
   @CheckForNull
-  public String lineAuthor(@Nullable Integer lineId) {
+  public String lineAuthor(@Nullable Integer lineIndex) {
     loadIfNeeded();
 
-    if (lineId == null) {
+    if (lineIndex == null) {
       // issue on file, approximately estimate that author is the last committer on the file
       return lastCommitAuthor;
     }
     String author = null;
-    if (lineId <= authors.size()) {
-      author = authors.get(lineId - 1);
+    if (lineIndex < scm.getChangesetIndexByLineCount()) {
+      BatchReport.Scm.Changeset changeset = scm.getChangeset(scm.getChangesetIndexByLine(lineIndex));
+      author = changeset.hasAuthor() ? changeset.getAuthor() : null;
     }
+
     return StringUtils.defaultIfEmpty(author, lastCommitAuthor);
   }
 
-  /**
-   * Load only on demand, to avoid useless db requests on files without any new issues
-   */
   private void loadIfNeeded() {
+    checkState();
+
     if (!loaded) {
-      dbClient.fileSourceDao().readDataStream(currentFileUuid, parserFunction);
+      scm = loadScmFromReport();
+      loaded = scm != null;
+    }
+
+    if (!loaded) {
+      scm = loadLinesFromIndexAndBuildScm();
       loaded = true;
+    }
+
+    computeLastCommitDateAndAuthor();
+  }
+
+  private BatchReport.Scm loadScmFromReport() {
+    return reportReader.readComponentScm(currentFileReportRef);
+  }
+
+  private BatchReport.Scm loadLinesFromIndexAndBuildScm() {
+    List<SourceLineDoc> lines = index.getLines(currentFileUuid);
+    Map<String, BatchReport.Scm.Changeset> changesetByRevision = new HashMap<>();
+    BatchReport.Scm.Builder scmBuilder = BatchReport.Scm.newBuilder()
+      .setComponentRef(currentFileReportRef);
+    for (SourceLineDoc sourceLine : lines) {
+      if (changesetByRevision.get(sourceLine.scmRevision()) == null) {
+        BatchReport.Scm.Changeset changeset = BatchReport.Scm.Changeset.newBuilder()
+          .setAuthor(sourceLine.scmAuthor())
+          .setDate(sourceLine.scmDate().getTime())
+          .setRevision(sourceLine.scmRevision())
+          .build();
+        scmBuilder.addChangeset(changeset);
+        scmBuilder.addChangesetIndexByLine(scmBuilder.getChangesetCount() - 1);
+        changesetByRevision.put(sourceLine.scmRevision(), changeset);
+      } else {
+        scmBuilder.addChangesetIndexByLine(scmBuilder.getChangesetList().indexOf(changesetByRevision.get(sourceLine.scmRevision())));
+      }
+    }
+    return scmBuilder.build();
+  }
+
+  private void computeLastCommitDateAndAuthor() {
+    for (BatchReport.Scm.Changeset changeset : scm.getChangesetList()) {
+      if (changeset.hasAuthor() && changeset.hasDate() && changeset.getDate() > lastCommitDate) {
+        lastCommitDate = changeset.getDate();
+        lastCommitAuthor = changeset.getAuthor();
+      }
+    }
+  }
+
+  private void checkState() {
+    if (currentFileReportRef == null) {
+      throw new IllegalStateException("Report component reference must not be null to use the cache");
     }
   }
 
@@ -103,35 +155,6 @@ public class SourceLinesCache {
    * Makes cache eligible to GC
    */
   public void clear() {
-    authors.clear();
-  }
-
-  /**
-   * Number of lines in cache of the current file
-   */
-  int countLines() {
-    return authors.size();
-  }
-
-  /**
-   * Parse lines from db and collect SCM information
-   */
-  class FileDataParser implements Function<InputStream, Void> {
-    @Override
-    public Void apply(InputStream input) {
-      FileSourceDb.Data data = FileSourceDto.decodeData(input);
-      for (FileSourceDb.Line line : data.getLinesList()) {
-        String author = null;
-        if (line.hasScmAuthor()) {
-          author = line.getScmAuthor();
-        }
-        authors.add(author);
-        if (line.hasScmDate() && line.getScmDate() > lastCommitDate && author != null) {
-          lastCommitDate = line.getScmDate();
-          lastCommitAuthor = author;
-        }
-      }
-      return null;
-    }
+    scm = null;
   }
 }

@@ -120,6 +120,32 @@ public class BatchReportWriterTest {
   }
 
   @Test
+  public void write_scm() throws Exception {
+    File dir = temp.newFolder();
+    BatchReportWriter writer = new BatchReportWriter(dir);
+
+    assertThat(writer.hasComponentData(FileStructure.Domain.SCM, 1)).isFalse();
+
+    BatchReport.Scm scm = BatchReport.Scm.newBuilder()
+      .setComponentRef(1)
+      .addChangesetIndexByLine(0)
+      .addChangeset(BatchReport.Scm.Changeset.newBuilder()
+        .setRevision("123-456-789")
+        .setAuthor("author")
+        .setDate(123_456_789L))
+      .build();
+
+    writer.writeComponentScm(scm);
+
+    assertThat(writer.hasComponentData(FileStructure.Domain.SCM, 1)).isTrue();
+    File file = writer.getFileStructure().fileFor(FileStructure.Domain.SCM, 1);
+    assertThat(file).exists().isFile();
+    BatchReport.Scm read = ProtobufUtil.readFile(file, BatchReport.Scm.PARSER);
+    assertThat(read.getComponentRef()).isEqualTo(1);
+    assertThat(read.getChangesetCount()).isEqualTo(1);
+  }
+
+  @Test
   public void write_measures() throws Exception {
     File dir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(dir);

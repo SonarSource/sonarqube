@@ -12874,6 +12874,1691 @@ public final class BatchReport {
     // @@protoc_insertion_point(class_scope:Issues)
   }
 
+  public interface ScmOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:Scm)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>optional int32 component_ref = 1;</code>
+     */
+    boolean hasComponentRef();
+    /**
+     * <code>optional int32 component_ref = 1;</code>
+     */
+    int getComponentRef();
+
+    /**
+     * <code>repeated .Scm.Changeset changeset = 2;</code>
+     */
+    java.util.List<org.sonar.batch.protocol.output.BatchReport.Scm.Changeset> 
+        getChangesetList();
+    /**
+     * <code>repeated .Scm.Changeset changeset = 2;</code>
+     */
+    org.sonar.batch.protocol.output.BatchReport.Scm.Changeset getChangeset(int index);
+    /**
+     * <code>repeated .Scm.Changeset changeset = 2;</code>
+     */
+    int getChangesetCount();
+    /**
+     * <code>repeated .Scm.Changeset changeset = 2;</code>
+     */
+    java.util.List<? extends org.sonar.batch.protocol.output.BatchReport.Scm.ChangesetOrBuilder> 
+        getChangesetOrBuilderList();
+    /**
+     * <code>repeated .Scm.Changeset changeset = 2;</code>
+     */
+    org.sonar.batch.protocol.output.BatchReport.Scm.ChangesetOrBuilder getChangesetOrBuilder(
+        int index);
+
+    /**
+     * <code>repeated int32 changesetIndexByLine = 3 [packed = true];</code>
+     *
+     * <pre>
+     * if changesetIndexByLine[3] = 2 then it means that changeset[2] is the last one on line 4
+     * </pre>
+     */
+    java.util.List<java.lang.Integer> getChangesetIndexByLineList();
+    /**
+     * <code>repeated int32 changesetIndexByLine = 3 [packed = true];</code>
+     *
+     * <pre>
+     * if changesetIndexByLine[3] = 2 then it means that changeset[2] is the last one on line 4
+     * </pre>
+     */
+    int getChangesetIndexByLineCount();
+    /**
+     * <code>repeated int32 changesetIndexByLine = 3 [packed = true];</code>
+     *
+     * <pre>
+     * if changesetIndexByLine[3] = 2 then it means that changeset[2] is the last one on line 4
+     * </pre>
+     */
+    int getChangesetIndexByLine(int index);
+  }
+  /**
+   * Protobuf type {@code Scm}
+   */
+  public static final class Scm extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:Scm)
+      ScmOrBuilder {
+    // Use Scm.newBuilder() to construct.
+    private Scm(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+      this.unknownFields = builder.getUnknownFields();
+    }
+    private Scm(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+    private static final Scm defaultInstance;
+    public static Scm getDefaultInstance() {
+      return defaultInstance;
+    }
+
+    public Scm getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+
+    private final com.google.protobuf.UnknownFieldSet unknownFields;
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+      return this.unknownFields;
+    }
+    private Scm(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      initFields();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 8: {
+              bitField0_ |= 0x00000001;
+              componentRef_ = input.readInt32();
+              break;
+            }
+            case 18: {
+              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+                changeset_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.Scm.Changeset>();
+                mutable_bitField0_ |= 0x00000002;
+              }
+              changeset_.add(input.readMessage(org.sonar.batch.protocol.output.BatchReport.Scm.Changeset.PARSER, extensionRegistry));
+              break;
+            }
+            case 24: {
+              if (!((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
+                changesetIndexByLine_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000004;
+              }
+              changesetIndexByLine_.add(input.readInt32());
+              break;
+            }
+            case 26: {
+              int length = input.readRawVarint32();
+              int limit = input.pushLimit(length);
+              if (!((mutable_bitField0_ & 0x00000004) == 0x00000004) && input.getBytesUntilLimit() > 0) {
+                changesetIndexByLine_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000004;
+              }
+              while (input.getBytesUntilLimit() > 0) {
+                changesetIndexByLine_.add(input.readInt32());
+              }
+              input.popLimit(limit);
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e.getMessage()).setUnfinishedMessage(this);
+      } finally {
+        if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+          changeset_ = java.util.Collections.unmodifiableList(changeset_);
+        }
+        if (((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
+          changesetIndexByLine_ = java.util.Collections.unmodifiableList(changesetIndexByLine_);
+        }
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return org.sonar.batch.protocol.output.BatchReport.internal_static_Scm_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return org.sonar.batch.protocol.output.BatchReport.internal_static_Scm_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              org.sonar.batch.protocol.output.BatchReport.Scm.class, org.sonar.batch.protocol.output.BatchReport.Scm.Builder.class);
+    }
+
+    public static com.google.protobuf.Parser<Scm> PARSER =
+        new com.google.protobuf.AbstractParser<Scm>() {
+      public Scm parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new Scm(input, extensionRegistry);
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Scm> getParserForType() {
+      return PARSER;
+    }
+
+    public interface ChangesetOrBuilder extends
+        // @@protoc_insertion_point(interface_extends:Scm.Changeset)
+        com.google.protobuf.MessageOrBuilder {
+
+      /**
+       * <code>optional string revision = 1;</code>
+       */
+      boolean hasRevision();
+      /**
+       * <code>optional string revision = 1;</code>
+       */
+      java.lang.String getRevision();
+      /**
+       * <code>optional string revision = 1;</code>
+       */
+      com.google.protobuf.ByteString
+          getRevisionBytes();
+
+      /**
+       * <code>optional string author = 2;</code>
+       */
+      boolean hasAuthor();
+      /**
+       * <code>optional string author = 2;</code>
+       */
+      java.lang.String getAuthor();
+      /**
+       * <code>optional string author = 2;</code>
+       */
+      com.google.protobuf.ByteString
+          getAuthorBytes();
+
+      /**
+       * <code>optional int64 date = 3;</code>
+       */
+      boolean hasDate();
+      /**
+       * <code>optional int64 date = 3;</code>
+       */
+      long getDate();
+    }
+    /**
+     * Protobuf type {@code Scm.Changeset}
+     */
+    public static final class Changeset extends
+        com.google.protobuf.GeneratedMessage implements
+        // @@protoc_insertion_point(message_implements:Scm.Changeset)
+        ChangesetOrBuilder {
+      // Use Changeset.newBuilder() to construct.
+      private Changeset(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+        super(builder);
+        this.unknownFields = builder.getUnknownFields();
+      }
+      private Changeset(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+      private static final Changeset defaultInstance;
+      public static Changeset getDefaultInstance() {
+        return defaultInstance;
+      }
+
+      public Changeset getDefaultInstanceForType() {
+        return defaultInstance;
+      }
+
+      private final com.google.protobuf.UnknownFieldSet unknownFields;
+      @java.lang.Override
+      public final com.google.protobuf.UnknownFieldSet
+          getUnknownFields() {
+        return this.unknownFields;
+      }
+      private Changeset(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        initFields();
+        int mutable_bitField0_ = 0;
+        com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+            com.google.protobuf.UnknownFieldSet.newBuilder();
+        try {
+          boolean done = false;
+          while (!done) {
+            int tag = input.readTag();
+            switch (tag) {
+              case 0:
+                done = true;
+                break;
+              default: {
+                if (!parseUnknownField(input, unknownFields,
+                                       extensionRegistry, tag)) {
+                  done = true;
+                }
+                break;
+              }
+              case 10: {
+                com.google.protobuf.ByteString bs = input.readBytes();
+                bitField0_ |= 0x00000001;
+                revision_ = bs;
+                break;
+              }
+              case 18: {
+                com.google.protobuf.ByteString bs = input.readBytes();
+                bitField0_ |= 0x00000002;
+                author_ = bs;
+                break;
+              }
+              case 24: {
+                bitField0_ |= 0x00000004;
+                date_ = input.readInt64();
+                break;
+              }
+            }
+          }
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          throw e.setUnfinishedMessage(this);
+        } catch (java.io.IOException e) {
+          throw new com.google.protobuf.InvalidProtocolBufferException(
+              e.getMessage()).setUnfinishedMessage(this);
+        } finally {
+          this.unknownFields = unknownFields.build();
+          makeExtensionsImmutable();
+        }
+      }
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.sonar.batch.protocol.output.BatchReport.internal_static_Scm_Changeset_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.sonar.batch.protocol.output.BatchReport.internal_static_Scm_Changeset_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.sonar.batch.protocol.output.BatchReport.Scm.Changeset.class, org.sonar.batch.protocol.output.BatchReport.Scm.Changeset.Builder.class);
+      }
+
+      public static com.google.protobuf.Parser<Changeset> PARSER =
+          new com.google.protobuf.AbstractParser<Changeset>() {
+        public Changeset parsePartialFrom(
+            com.google.protobuf.CodedInputStream input,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+          return new Changeset(input, extensionRegistry);
+        }
+      };
+
+      @java.lang.Override
+      public com.google.protobuf.Parser<Changeset> getParserForType() {
+        return PARSER;
+      }
+
+      private int bitField0_;
+      public static final int REVISION_FIELD_NUMBER = 1;
+      private java.lang.Object revision_;
+      /**
+       * <code>optional string revision = 1;</code>
+       */
+      public boolean hasRevision() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>optional string revision = 1;</code>
+       */
+      public java.lang.String getRevision() {
+        java.lang.Object ref = revision_;
+        if (ref instanceof java.lang.String) {
+          return (java.lang.String) ref;
+        } else {
+          com.google.protobuf.ByteString bs = 
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            revision_ = s;
+          }
+          return s;
+        }
+      }
+      /**
+       * <code>optional string revision = 1;</code>
+       */
+      public com.google.protobuf.ByteString
+          getRevisionBytes() {
+        java.lang.Object ref = revision_;
+        if (ref instanceof java.lang.String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          revision_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+
+      public static final int AUTHOR_FIELD_NUMBER = 2;
+      private java.lang.Object author_;
+      /**
+       * <code>optional string author = 2;</code>
+       */
+      public boolean hasAuthor() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>optional string author = 2;</code>
+       */
+      public java.lang.String getAuthor() {
+        java.lang.Object ref = author_;
+        if (ref instanceof java.lang.String) {
+          return (java.lang.String) ref;
+        } else {
+          com.google.protobuf.ByteString bs = 
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            author_ = s;
+          }
+          return s;
+        }
+      }
+      /**
+       * <code>optional string author = 2;</code>
+       */
+      public com.google.protobuf.ByteString
+          getAuthorBytes() {
+        java.lang.Object ref = author_;
+        if (ref instanceof java.lang.String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          author_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+
+      public static final int DATE_FIELD_NUMBER = 3;
+      private long date_;
+      /**
+       * <code>optional int64 date = 3;</code>
+       */
+      public boolean hasDate() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>optional int64 date = 3;</code>
+       */
+      public long getDate() {
+        return date_;
+      }
+
+      private void initFields() {
+        revision_ = "";
+        author_ = "";
+        date_ = 0L;
+      }
+      private byte memoizedIsInitialized = -1;
+      public final boolean isInitialized() {
+        byte isInitialized = memoizedIsInitialized;
+        if (isInitialized == 1) return true;
+        if (isInitialized == 0) return false;
+
+        memoizedIsInitialized = 1;
+        return true;
+      }
+
+      public void writeTo(com.google.protobuf.CodedOutputStream output)
+                          throws java.io.IOException {
+        getSerializedSize();
+        if (((bitField0_ & 0x00000001) == 0x00000001)) {
+          output.writeBytes(1, getRevisionBytes());
+        }
+        if (((bitField0_ & 0x00000002) == 0x00000002)) {
+          output.writeBytes(2, getAuthorBytes());
+        }
+        if (((bitField0_ & 0x00000004) == 0x00000004)) {
+          output.writeInt64(3, date_);
+        }
+        getUnknownFields().writeTo(output);
+      }
+
+      private int memoizedSerializedSize = -1;
+      public int getSerializedSize() {
+        int size = memoizedSerializedSize;
+        if (size != -1) return size;
+
+        size = 0;
+        if (((bitField0_ & 0x00000001) == 0x00000001)) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeBytesSize(1, getRevisionBytes());
+        }
+        if (((bitField0_ & 0x00000002) == 0x00000002)) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeBytesSize(2, getAuthorBytes());
+        }
+        if (((bitField0_ & 0x00000004) == 0x00000004)) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeInt64Size(3, date_);
+        }
+        size += getUnknownFields().getSerializedSize();
+        memoizedSerializedSize = size;
+        return size;
+      }
+
+      private static final long serialVersionUID = 0L;
+      @java.lang.Override
+      protected java.lang.Object writeReplace()
+          throws java.io.ObjectStreamException {
+        return super.writeReplace();
+      }
+
+      public static org.sonar.batch.protocol.output.BatchReport.Scm.Changeset parseFrom(
+          com.google.protobuf.ByteString data)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data);
+      }
+      public static org.sonar.batch.protocol.output.BatchReport.Scm.Changeset parseFrom(
+          com.google.protobuf.ByteString data,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data, extensionRegistry);
+      }
+      public static org.sonar.batch.protocol.output.BatchReport.Scm.Changeset parseFrom(byte[] data)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data);
+      }
+      public static org.sonar.batch.protocol.output.BatchReport.Scm.Changeset parseFrom(
+          byte[] data,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data, extensionRegistry);
+      }
+      public static org.sonar.batch.protocol.output.BatchReport.Scm.Changeset parseFrom(java.io.InputStream input)
+          throws java.io.IOException {
+        return PARSER.parseFrom(input);
+      }
+      public static org.sonar.batch.protocol.output.BatchReport.Scm.Changeset parseFrom(
+          java.io.InputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        return PARSER.parseFrom(input, extensionRegistry);
+      }
+      public static org.sonar.batch.protocol.output.BatchReport.Scm.Changeset parseDelimitedFrom(java.io.InputStream input)
+          throws java.io.IOException {
+        return PARSER.parseDelimitedFrom(input);
+      }
+      public static org.sonar.batch.protocol.output.BatchReport.Scm.Changeset parseDelimitedFrom(
+          java.io.InputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        return PARSER.parseDelimitedFrom(input, extensionRegistry);
+      }
+      public static org.sonar.batch.protocol.output.BatchReport.Scm.Changeset parseFrom(
+          com.google.protobuf.CodedInputStream input)
+          throws java.io.IOException {
+        return PARSER.parseFrom(input);
+      }
+      public static org.sonar.batch.protocol.output.BatchReport.Scm.Changeset parseFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        return PARSER.parseFrom(input, extensionRegistry);
+      }
+
+      public static Builder newBuilder() { return Builder.create(); }
+      public Builder newBuilderForType() { return newBuilder(); }
+      public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.Scm.Changeset prototype) {
+        return newBuilder().mergeFrom(prototype);
+      }
+      public Builder toBuilder() { return newBuilder(this); }
+
+      @java.lang.Override
+      protected Builder newBuilderForType(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        Builder builder = new Builder(parent);
+        return builder;
+      }
+      /**
+       * Protobuf type {@code Scm.Changeset}
+       */
+      public static final class Builder extends
+          com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+          // @@protoc_insertion_point(builder_implements:Scm.Changeset)
+          org.sonar.batch.protocol.output.BatchReport.Scm.ChangesetOrBuilder {
+        public static final com.google.protobuf.Descriptors.Descriptor
+            getDescriptor() {
+          return org.sonar.batch.protocol.output.BatchReport.internal_static_Scm_Changeset_descriptor;
+        }
+
+        protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+            internalGetFieldAccessorTable() {
+          return org.sonar.batch.protocol.output.BatchReport.internal_static_Scm_Changeset_fieldAccessorTable
+              .ensureFieldAccessorsInitialized(
+                  org.sonar.batch.protocol.output.BatchReport.Scm.Changeset.class, org.sonar.batch.protocol.output.BatchReport.Scm.Changeset.Builder.class);
+        }
+
+        // Construct using org.sonar.batch.protocol.output.BatchReport.Scm.Changeset.newBuilder()
+        private Builder() {
+          maybeForceBuilderInitialization();
+        }
+
+        private Builder(
+            com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+          super(parent);
+          maybeForceBuilderInitialization();
+        }
+        private void maybeForceBuilderInitialization() {
+          if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          }
+        }
+        private static Builder create() {
+          return new Builder();
+        }
+
+        public Builder clear() {
+          super.clear();
+          revision_ = "";
+          bitField0_ = (bitField0_ & ~0x00000001);
+          author_ = "";
+          bitField0_ = (bitField0_ & ~0x00000002);
+          date_ = 0L;
+          bitField0_ = (bitField0_ & ~0x00000004);
+          return this;
+        }
+
+        public Builder clone() {
+          return create().mergeFrom(buildPartial());
+        }
+
+        public com.google.protobuf.Descriptors.Descriptor
+            getDescriptorForType() {
+          return org.sonar.batch.protocol.output.BatchReport.internal_static_Scm_Changeset_descriptor;
+        }
+
+        public org.sonar.batch.protocol.output.BatchReport.Scm.Changeset getDefaultInstanceForType() {
+          return org.sonar.batch.protocol.output.BatchReport.Scm.Changeset.getDefaultInstance();
+        }
+
+        public org.sonar.batch.protocol.output.BatchReport.Scm.Changeset build() {
+          org.sonar.batch.protocol.output.BatchReport.Scm.Changeset result = buildPartial();
+          if (!result.isInitialized()) {
+            throw newUninitializedMessageException(result);
+          }
+          return result;
+        }
+
+        public org.sonar.batch.protocol.output.BatchReport.Scm.Changeset buildPartial() {
+          org.sonar.batch.protocol.output.BatchReport.Scm.Changeset result = new org.sonar.batch.protocol.output.BatchReport.Scm.Changeset(this);
+          int from_bitField0_ = bitField0_;
+          int to_bitField0_ = 0;
+          if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+            to_bitField0_ |= 0x00000001;
+          }
+          result.revision_ = revision_;
+          if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+            to_bitField0_ |= 0x00000002;
+          }
+          result.author_ = author_;
+          if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+            to_bitField0_ |= 0x00000004;
+          }
+          result.date_ = date_;
+          result.bitField0_ = to_bitField0_;
+          onBuilt();
+          return result;
+        }
+
+        public Builder mergeFrom(com.google.protobuf.Message other) {
+          if (other instanceof org.sonar.batch.protocol.output.BatchReport.Scm.Changeset) {
+            return mergeFrom((org.sonar.batch.protocol.output.BatchReport.Scm.Changeset)other);
+          } else {
+            super.mergeFrom(other);
+            return this;
+          }
+        }
+
+        public Builder mergeFrom(org.sonar.batch.protocol.output.BatchReport.Scm.Changeset other) {
+          if (other == org.sonar.batch.protocol.output.BatchReport.Scm.Changeset.getDefaultInstance()) return this;
+          if (other.hasRevision()) {
+            bitField0_ |= 0x00000001;
+            revision_ = other.revision_;
+            onChanged();
+          }
+          if (other.hasAuthor()) {
+            bitField0_ |= 0x00000002;
+            author_ = other.author_;
+            onChanged();
+          }
+          if (other.hasDate()) {
+            setDate(other.getDate());
+          }
+          this.mergeUnknownFields(other.getUnknownFields());
+          return this;
+        }
+
+        public final boolean isInitialized() {
+          return true;
+        }
+
+        public Builder mergeFrom(
+            com.google.protobuf.CodedInputStream input,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws java.io.IOException {
+          org.sonar.batch.protocol.output.BatchReport.Scm.Changeset parsedMessage = null;
+          try {
+            parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+          } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+            parsedMessage = (org.sonar.batch.protocol.output.BatchReport.Scm.Changeset) e.getUnfinishedMessage();
+            throw e;
+          } finally {
+            if (parsedMessage != null) {
+              mergeFrom(parsedMessage);
+            }
+          }
+          return this;
+        }
+        private int bitField0_;
+
+        private java.lang.Object revision_ = "";
+        /**
+         * <code>optional string revision = 1;</code>
+         */
+        public boolean hasRevision() {
+          return ((bitField0_ & 0x00000001) == 0x00000001);
+        }
+        /**
+         * <code>optional string revision = 1;</code>
+         */
+        public java.lang.String getRevision() {
+          java.lang.Object ref = revision_;
+          if (!(ref instanceof java.lang.String)) {
+            com.google.protobuf.ByteString bs =
+                (com.google.protobuf.ByteString) ref;
+            java.lang.String s = bs.toStringUtf8();
+            if (bs.isValidUtf8()) {
+              revision_ = s;
+            }
+            return s;
+          } else {
+            return (java.lang.String) ref;
+          }
+        }
+        /**
+         * <code>optional string revision = 1;</code>
+         */
+        public com.google.protobuf.ByteString
+            getRevisionBytes() {
+          java.lang.Object ref = revision_;
+          if (ref instanceof String) {
+            com.google.protobuf.ByteString b = 
+                com.google.protobuf.ByteString.copyFromUtf8(
+                    (java.lang.String) ref);
+            revision_ = b;
+            return b;
+          } else {
+            return (com.google.protobuf.ByteString) ref;
+          }
+        }
+        /**
+         * <code>optional string revision = 1;</code>
+         */
+        public Builder setRevision(
+            java.lang.String value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
+          revision_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string revision = 1;</code>
+         */
+        public Builder clearRevision() {
+          bitField0_ = (bitField0_ & ~0x00000001);
+          revision_ = getDefaultInstance().getRevision();
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string revision = 1;</code>
+         */
+        public Builder setRevisionBytes(
+            com.google.protobuf.ByteString value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
+          revision_ = value;
+          onChanged();
+          return this;
+        }
+
+        private java.lang.Object author_ = "";
+        /**
+         * <code>optional string author = 2;</code>
+         */
+        public boolean hasAuthor() {
+          return ((bitField0_ & 0x00000002) == 0x00000002);
+        }
+        /**
+         * <code>optional string author = 2;</code>
+         */
+        public java.lang.String getAuthor() {
+          java.lang.Object ref = author_;
+          if (!(ref instanceof java.lang.String)) {
+            com.google.protobuf.ByteString bs =
+                (com.google.protobuf.ByteString) ref;
+            java.lang.String s = bs.toStringUtf8();
+            if (bs.isValidUtf8()) {
+              author_ = s;
+            }
+            return s;
+          } else {
+            return (java.lang.String) ref;
+          }
+        }
+        /**
+         * <code>optional string author = 2;</code>
+         */
+        public com.google.protobuf.ByteString
+            getAuthorBytes() {
+          java.lang.Object ref = author_;
+          if (ref instanceof String) {
+            com.google.protobuf.ByteString b = 
+                com.google.protobuf.ByteString.copyFromUtf8(
+                    (java.lang.String) ref);
+            author_ = b;
+            return b;
+          } else {
+            return (com.google.protobuf.ByteString) ref;
+          }
+        }
+        /**
+         * <code>optional string author = 2;</code>
+         */
+        public Builder setAuthor(
+            java.lang.String value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+          author_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string author = 2;</code>
+         */
+        public Builder clearAuthor() {
+          bitField0_ = (bitField0_ & ~0x00000002);
+          author_ = getDefaultInstance().getAuthor();
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string author = 2;</code>
+         */
+        public Builder setAuthorBytes(
+            com.google.protobuf.ByteString value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+          author_ = value;
+          onChanged();
+          return this;
+        }
+
+        private long date_ ;
+        /**
+         * <code>optional int64 date = 3;</code>
+         */
+        public boolean hasDate() {
+          return ((bitField0_ & 0x00000004) == 0x00000004);
+        }
+        /**
+         * <code>optional int64 date = 3;</code>
+         */
+        public long getDate() {
+          return date_;
+        }
+        /**
+         * <code>optional int64 date = 3;</code>
+         */
+        public Builder setDate(long value) {
+          bitField0_ |= 0x00000004;
+          date_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional int64 date = 3;</code>
+         */
+        public Builder clearDate() {
+          bitField0_ = (bitField0_ & ~0x00000004);
+          date_ = 0L;
+          onChanged();
+          return this;
+        }
+
+        // @@protoc_insertion_point(builder_scope:Scm.Changeset)
+      }
+
+      static {
+        defaultInstance = new Changeset(true);
+        defaultInstance.initFields();
+      }
+
+      // @@protoc_insertion_point(class_scope:Scm.Changeset)
+    }
+
+    private int bitField0_;
+    public static final int COMPONENT_REF_FIELD_NUMBER = 1;
+    private int componentRef_;
+    /**
+     * <code>optional int32 component_ref = 1;</code>
+     */
+    public boolean hasComponentRef() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>optional int32 component_ref = 1;</code>
+     */
+    public int getComponentRef() {
+      return componentRef_;
+    }
+
+    public static final int CHANGESET_FIELD_NUMBER = 2;
+    private java.util.List<org.sonar.batch.protocol.output.BatchReport.Scm.Changeset> changeset_;
+    /**
+     * <code>repeated .Scm.Changeset changeset = 2;</code>
+     */
+    public java.util.List<org.sonar.batch.protocol.output.BatchReport.Scm.Changeset> getChangesetList() {
+      return changeset_;
+    }
+    /**
+     * <code>repeated .Scm.Changeset changeset = 2;</code>
+     */
+    public java.util.List<? extends org.sonar.batch.protocol.output.BatchReport.Scm.ChangesetOrBuilder> 
+        getChangesetOrBuilderList() {
+      return changeset_;
+    }
+    /**
+     * <code>repeated .Scm.Changeset changeset = 2;</code>
+     */
+    public int getChangesetCount() {
+      return changeset_.size();
+    }
+    /**
+     * <code>repeated .Scm.Changeset changeset = 2;</code>
+     */
+    public org.sonar.batch.protocol.output.BatchReport.Scm.Changeset getChangeset(int index) {
+      return changeset_.get(index);
+    }
+    /**
+     * <code>repeated .Scm.Changeset changeset = 2;</code>
+     */
+    public org.sonar.batch.protocol.output.BatchReport.Scm.ChangesetOrBuilder getChangesetOrBuilder(
+        int index) {
+      return changeset_.get(index);
+    }
+
+    public static final int CHANGESETINDEXBYLINE_FIELD_NUMBER = 3;
+    private java.util.List<java.lang.Integer> changesetIndexByLine_;
+    /**
+     * <code>repeated int32 changesetIndexByLine = 3 [packed = true];</code>
+     *
+     * <pre>
+     * if changesetIndexByLine[3] = 2 then it means that changeset[2] is the last one on line 4
+     * </pre>
+     */
+    public java.util.List<java.lang.Integer>
+        getChangesetIndexByLineList() {
+      return changesetIndexByLine_;
+    }
+    /**
+     * <code>repeated int32 changesetIndexByLine = 3 [packed = true];</code>
+     *
+     * <pre>
+     * if changesetIndexByLine[3] = 2 then it means that changeset[2] is the last one on line 4
+     * </pre>
+     */
+    public int getChangesetIndexByLineCount() {
+      return changesetIndexByLine_.size();
+    }
+    /**
+     * <code>repeated int32 changesetIndexByLine = 3 [packed = true];</code>
+     *
+     * <pre>
+     * if changesetIndexByLine[3] = 2 then it means that changeset[2] is the last one on line 4
+     * </pre>
+     */
+    public int getChangesetIndexByLine(int index) {
+      return changesetIndexByLine_.get(index);
+    }
+    private int changesetIndexByLineMemoizedSerializedSize = -1;
+
+    private void initFields() {
+      componentRef_ = 0;
+      changeset_ = java.util.Collections.emptyList();
+      changesetIndexByLine_ = java.util.Collections.emptyList();
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeInt32(1, componentRef_);
+      }
+      for (int i = 0; i < changeset_.size(); i++) {
+        output.writeMessage(2, changeset_.get(i));
+      }
+      if (getChangesetIndexByLineList().size() > 0) {
+        output.writeRawVarint32(26);
+        output.writeRawVarint32(changesetIndexByLineMemoizedSerializedSize);
+      }
+      for (int i = 0; i < changesetIndexByLine_.size(); i++) {
+        output.writeInt32NoTag(changesetIndexByLine_.get(i));
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(1, componentRef_);
+      }
+      for (int i = 0; i < changeset_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(2, changeset_.get(i));
+      }
+      {
+        int dataSize = 0;
+        for (int i = 0; i < changesetIndexByLine_.size(); i++) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeInt32SizeNoTag(changesetIndexByLine_.get(i));
+        }
+        size += dataSize;
+        if (!getChangesetIndexByLineList().isEmpty()) {
+          size += 1;
+          size += com.google.protobuf.CodedOutputStream
+              .computeInt32SizeNoTag(dataSize);
+        }
+        changesetIndexByLineMemoizedSerializedSize = dataSize;
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+
+    public static org.sonar.batch.protocol.output.BatchReport.Scm parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonar.batch.protocol.output.BatchReport.Scm parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonar.batch.protocol.output.BatchReport.Scm parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonar.batch.protocol.output.BatchReport.Scm parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonar.batch.protocol.output.BatchReport.Scm parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonar.batch.protocol.output.BatchReport.Scm parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static org.sonar.batch.protocol.output.BatchReport.Scm parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static org.sonar.batch.protocol.output.BatchReport.Scm parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static org.sonar.batch.protocol.output.BatchReport.Scm parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonar.batch.protocol.output.BatchReport.Scm parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.Scm prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code Scm}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:Scm)
+        org.sonar.batch.protocol.output.BatchReport.ScmOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.sonar.batch.protocol.output.BatchReport.internal_static_Scm_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.sonar.batch.protocol.output.BatchReport.internal_static_Scm_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.sonar.batch.protocol.output.BatchReport.Scm.class, org.sonar.batch.protocol.output.BatchReport.Scm.Builder.class);
+      }
+
+      // Construct using org.sonar.batch.protocol.output.BatchReport.Scm.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          getChangesetFieldBuilder();
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+
+      public Builder clear() {
+        super.clear();
+        componentRef_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000001);
+        if (changesetBuilder_ == null) {
+          changeset_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000002);
+        } else {
+          changesetBuilder_.clear();
+        }
+        changesetIndexByLine_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000004);
+        return this;
+      }
+
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return org.sonar.batch.protocol.output.BatchReport.internal_static_Scm_descriptor;
+      }
+
+      public org.sonar.batch.protocol.output.BatchReport.Scm getDefaultInstanceForType() {
+        return org.sonar.batch.protocol.output.BatchReport.Scm.getDefaultInstance();
+      }
+
+      public org.sonar.batch.protocol.output.BatchReport.Scm build() {
+        org.sonar.batch.protocol.output.BatchReport.Scm result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public org.sonar.batch.protocol.output.BatchReport.Scm buildPartial() {
+        org.sonar.batch.protocol.output.BatchReport.Scm result = new org.sonar.batch.protocol.output.BatchReport.Scm(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        result.componentRef_ = componentRef_;
+        if (changesetBuilder_ == null) {
+          if (((bitField0_ & 0x00000002) == 0x00000002)) {
+            changeset_ = java.util.Collections.unmodifiableList(changeset_);
+            bitField0_ = (bitField0_ & ~0x00000002);
+          }
+          result.changeset_ = changeset_;
+        } else {
+          result.changeset_ = changesetBuilder_.build();
+        }
+        if (((bitField0_ & 0x00000004) == 0x00000004)) {
+          changesetIndexByLine_ = java.util.Collections.unmodifiableList(changesetIndexByLine_);
+          bitField0_ = (bitField0_ & ~0x00000004);
+        }
+        result.changesetIndexByLine_ = changesetIndexByLine_;
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof org.sonar.batch.protocol.output.BatchReport.Scm) {
+          return mergeFrom((org.sonar.batch.protocol.output.BatchReport.Scm)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(org.sonar.batch.protocol.output.BatchReport.Scm other) {
+        if (other == org.sonar.batch.protocol.output.BatchReport.Scm.getDefaultInstance()) return this;
+        if (other.hasComponentRef()) {
+          setComponentRef(other.getComponentRef());
+        }
+        if (changesetBuilder_ == null) {
+          if (!other.changeset_.isEmpty()) {
+            if (changeset_.isEmpty()) {
+              changeset_ = other.changeset_;
+              bitField0_ = (bitField0_ & ~0x00000002);
+            } else {
+              ensureChangesetIsMutable();
+              changeset_.addAll(other.changeset_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.changeset_.isEmpty()) {
+            if (changesetBuilder_.isEmpty()) {
+              changesetBuilder_.dispose();
+              changesetBuilder_ = null;
+              changeset_ = other.changeset_;
+              bitField0_ = (bitField0_ & ~0x00000002);
+              changesetBuilder_ = 
+                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                   getChangesetFieldBuilder() : null;
+            } else {
+              changesetBuilder_.addAllMessages(other.changeset_);
+            }
+          }
+        }
+        if (!other.changesetIndexByLine_.isEmpty()) {
+          if (changesetIndexByLine_.isEmpty()) {
+            changesetIndexByLine_ = other.changesetIndexByLine_;
+            bitField0_ = (bitField0_ & ~0x00000004);
+          } else {
+            ensureChangesetIndexByLineIsMutable();
+            changesetIndexByLine_.addAll(other.changesetIndexByLine_);
+          }
+          onChanged();
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        org.sonar.batch.protocol.output.BatchReport.Scm parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (org.sonar.batch.protocol.output.BatchReport.Scm) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private int componentRef_ ;
+      /**
+       * <code>optional int32 component_ref = 1;</code>
+       */
+      public boolean hasComponentRef() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>optional int32 component_ref = 1;</code>
+       */
+      public int getComponentRef() {
+        return componentRef_;
+      }
+      /**
+       * <code>optional int32 component_ref = 1;</code>
+       */
+      public Builder setComponentRef(int value) {
+        bitField0_ |= 0x00000001;
+        componentRef_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int32 component_ref = 1;</code>
+       */
+      public Builder clearComponentRef() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        componentRef_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private java.util.List<org.sonar.batch.protocol.output.BatchReport.Scm.Changeset> changeset_ =
+        java.util.Collections.emptyList();
+      private void ensureChangesetIsMutable() {
+        if (!((bitField0_ & 0x00000002) == 0x00000002)) {
+          changeset_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.Scm.Changeset>(changeset_);
+          bitField0_ |= 0x00000002;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonar.batch.protocol.output.BatchReport.Scm.Changeset, org.sonar.batch.protocol.output.BatchReport.Scm.Changeset.Builder, org.sonar.batch.protocol.output.BatchReport.Scm.ChangesetOrBuilder> changesetBuilder_;
+
+      /**
+       * <code>repeated .Scm.Changeset changeset = 2;</code>
+       */
+      public java.util.List<org.sonar.batch.protocol.output.BatchReport.Scm.Changeset> getChangesetList() {
+        if (changesetBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(changeset_);
+        } else {
+          return changesetBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .Scm.Changeset changeset = 2;</code>
+       */
+      public int getChangesetCount() {
+        if (changesetBuilder_ == null) {
+          return changeset_.size();
+        } else {
+          return changesetBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .Scm.Changeset changeset = 2;</code>
+       */
+      public org.sonar.batch.protocol.output.BatchReport.Scm.Changeset getChangeset(int index) {
+        if (changesetBuilder_ == null) {
+          return changeset_.get(index);
+        } else {
+          return changesetBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .Scm.Changeset changeset = 2;</code>
+       */
+      public Builder setChangeset(
+          int index, org.sonar.batch.protocol.output.BatchReport.Scm.Changeset value) {
+        if (changesetBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureChangesetIsMutable();
+          changeset_.set(index, value);
+          onChanged();
+        } else {
+          changesetBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .Scm.Changeset changeset = 2;</code>
+       */
+      public Builder setChangeset(
+          int index, org.sonar.batch.protocol.output.BatchReport.Scm.Changeset.Builder builderForValue) {
+        if (changesetBuilder_ == null) {
+          ensureChangesetIsMutable();
+          changeset_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          changesetBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .Scm.Changeset changeset = 2;</code>
+       */
+      public Builder addChangeset(org.sonar.batch.protocol.output.BatchReport.Scm.Changeset value) {
+        if (changesetBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureChangesetIsMutable();
+          changeset_.add(value);
+          onChanged();
+        } else {
+          changesetBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .Scm.Changeset changeset = 2;</code>
+       */
+      public Builder addChangeset(
+          int index, org.sonar.batch.protocol.output.BatchReport.Scm.Changeset value) {
+        if (changesetBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureChangesetIsMutable();
+          changeset_.add(index, value);
+          onChanged();
+        } else {
+          changesetBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .Scm.Changeset changeset = 2;</code>
+       */
+      public Builder addChangeset(
+          org.sonar.batch.protocol.output.BatchReport.Scm.Changeset.Builder builderForValue) {
+        if (changesetBuilder_ == null) {
+          ensureChangesetIsMutable();
+          changeset_.add(builderForValue.build());
+          onChanged();
+        } else {
+          changesetBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .Scm.Changeset changeset = 2;</code>
+       */
+      public Builder addChangeset(
+          int index, org.sonar.batch.protocol.output.BatchReport.Scm.Changeset.Builder builderForValue) {
+        if (changesetBuilder_ == null) {
+          ensureChangesetIsMutable();
+          changeset_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          changesetBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .Scm.Changeset changeset = 2;</code>
+       */
+      public Builder addAllChangeset(
+          java.lang.Iterable<? extends org.sonar.batch.protocol.output.BatchReport.Scm.Changeset> values) {
+        if (changesetBuilder_ == null) {
+          ensureChangesetIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, changeset_);
+          onChanged();
+        } else {
+          changesetBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .Scm.Changeset changeset = 2;</code>
+       */
+      public Builder clearChangeset() {
+        if (changesetBuilder_ == null) {
+          changeset_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000002);
+          onChanged();
+        } else {
+          changesetBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .Scm.Changeset changeset = 2;</code>
+       */
+      public Builder removeChangeset(int index) {
+        if (changesetBuilder_ == null) {
+          ensureChangesetIsMutable();
+          changeset_.remove(index);
+          onChanged();
+        } else {
+          changesetBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .Scm.Changeset changeset = 2;</code>
+       */
+      public org.sonar.batch.protocol.output.BatchReport.Scm.Changeset.Builder getChangesetBuilder(
+          int index) {
+        return getChangesetFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .Scm.Changeset changeset = 2;</code>
+       */
+      public org.sonar.batch.protocol.output.BatchReport.Scm.ChangesetOrBuilder getChangesetOrBuilder(
+          int index) {
+        if (changesetBuilder_ == null) {
+          return changeset_.get(index);  } else {
+          return changesetBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .Scm.Changeset changeset = 2;</code>
+       */
+      public java.util.List<? extends org.sonar.batch.protocol.output.BatchReport.Scm.ChangesetOrBuilder> 
+           getChangesetOrBuilderList() {
+        if (changesetBuilder_ != null) {
+          return changesetBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(changeset_);
+        }
+      }
+      /**
+       * <code>repeated .Scm.Changeset changeset = 2;</code>
+       */
+      public org.sonar.batch.protocol.output.BatchReport.Scm.Changeset.Builder addChangesetBuilder() {
+        return getChangesetFieldBuilder().addBuilder(
+            org.sonar.batch.protocol.output.BatchReport.Scm.Changeset.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .Scm.Changeset changeset = 2;</code>
+       */
+      public org.sonar.batch.protocol.output.BatchReport.Scm.Changeset.Builder addChangesetBuilder(
+          int index) {
+        return getChangesetFieldBuilder().addBuilder(
+            index, org.sonar.batch.protocol.output.BatchReport.Scm.Changeset.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .Scm.Changeset changeset = 2;</code>
+       */
+      public java.util.List<org.sonar.batch.protocol.output.BatchReport.Scm.Changeset.Builder> 
+           getChangesetBuilderList() {
+        return getChangesetFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonar.batch.protocol.output.BatchReport.Scm.Changeset, org.sonar.batch.protocol.output.BatchReport.Scm.Changeset.Builder, org.sonar.batch.protocol.output.BatchReport.Scm.ChangesetOrBuilder> 
+          getChangesetFieldBuilder() {
+        if (changesetBuilder_ == null) {
+          changesetBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+              org.sonar.batch.protocol.output.BatchReport.Scm.Changeset, org.sonar.batch.protocol.output.BatchReport.Scm.Changeset.Builder, org.sonar.batch.protocol.output.BatchReport.Scm.ChangesetOrBuilder>(
+                  changeset_,
+                  ((bitField0_ & 0x00000002) == 0x00000002),
+                  getParentForChildren(),
+                  isClean());
+          changeset_ = null;
+        }
+        return changesetBuilder_;
+      }
+
+      private java.util.List<java.lang.Integer> changesetIndexByLine_ = java.util.Collections.emptyList();
+      private void ensureChangesetIndexByLineIsMutable() {
+        if (!((bitField0_ & 0x00000004) == 0x00000004)) {
+          changesetIndexByLine_ = new java.util.ArrayList<java.lang.Integer>(changesetIndexByLine_);
+          bitField0_ |= 0x00000004;
+         }
+      }
+      /**
+       * <code>repeated int32 changesetIndexByLine = 3 [packed = true];</code>
+       *
+       * <pre>
+       * if changesetIndexByLine[3] = 2 then it means that changeset[2] is the last one on line 4
+       * </pre>
+       */
+      public java.util.List<java.lang.Integer>
+          getChangesetIndexByLineList() {
+        return java.util.Collections.unmodifiableList(changesetIndexByLine_);
+      }
+      /**
+       * <code>repeated int32 changesetIndexByLine = 3 [packed = true];</code>
+       *
+       * <pre>
+       * if changesetIndexByLine[3] = 2 then it means that changeset[2] is the last one on line 4
+       * </pre>
+       */
+      public int getChangesetIndexByLineCount() {
+        return changesetIndexByLine_.size();
+      }
+      /**
+       * <code>repeated int32 changesetIndexByLine = 3 [packed = true];</code>
+       *
+       * <pre>
+       * if changesetIndexByLine[3] = 2 then it means that changeset[2] is the last one on line 4
+       * </pre>
+       */
+      public int getChangesetIndexByLine(int index) {
+        return changesetIndexByLine_.get(index);
+      }
+      /**
+       * <code>repeated int32 changesetIndexByLine = 3 [packed = true];</code>
+       *
+       * <pre>
+       * if changesetIndexByLine[3] = 2 then it means that changeset[2] is the last one on line 4
+       * </pre>
+       */
+      public Builder setChangesetIndexByLine(
+          int index, int value) {
+        ensureChangesetIndexByLineIsMutable();
+        changesetIndexByLine_.set(index, value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated int32 changesetIndexByLine = 3 [packed = true];</code>
+       *
+       * <pre>
+       * if changesetIndexByLine[3] = 2 then it means that changeset[2] is the last one on line 4
+       * </pre>
+       */
+      public Builder addChangesetIndexByLine(int value) {
+        ensureChangesetIndexByLineIsMutable();
+        changesetIndexByLine_.add(value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated int32 changesetIndexByLine = 3 [packed = true];</code>
+       *
+       * <pre>
+       * if changesetIndexByLine[3] = 2 then it means that changeset[2] is the last one on line 4
+       * </pre>
+       */
+      public Builder addAllChangesetIndexByLine(
+          java.lang.Iterable<? extends java.lang.Integer> values) {
+        ensureChangesetIndexByLineIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, changesetIndexByLine_);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated int32 changesetIndexByLine = 3 [packed = true];</code>
+       *
+       * <pre>
+       * if changesetIndexByLine[3] = 2 then it means that changeset[2] is the last one on line 4
+       * </pre>
+       */
+      public Builder clearChangesetIndexByLine() {
+        changesetIndexByLine_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000004);
+        onChanged();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:Scm)
+    }
+
+    static {
+      defaultInstance = new Scm(true);
+      defaultInstance.initFields();
+    }
+
+    // @@protoc_insertion_point(class_scope:Scm)
+  }
+
   public interface DuplicationBlockOrBuilder extends
       // @@protoc_insertion_point(interface_extends:DuplicationBlock)
       com.google.protobuf.MessageOrBuilder {
@@ -19050,6 +20735,16 @@ public final class BatchReport {
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_Issues_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_Scm_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_Scm_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_Scm_Changeset_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_Scm_Changeset_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_DuplicationBlock_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
@@ -19143,25 +20838,29 @@ public final class BatchReport {
       "\030 \001(\t\022\022\n\nis_changed\030\031 \001(\010\022\036\n\026must_send_n" +
       "otification\030\032 \001(\010\"N\n\006Issues\022\025\n\rcomponent" +
       "_ref\030\001 \001(\005\022\025\n\005issue\030\002 \003(\0132\006.Issue\022\026\n\016com" +
-      "ponent_uuid\030\003 \001(\t\"l\n\020DuplicationBlock\022\033\n" +
-      "\023other_component_ref\030\001 \001(\005\022\022\n\nstart_line" +
-      "\030\002 \001(\005\022\020\n\010end_line\030\003 \001(\005\022\025\n\rcomponent_ke" +
-      "y\030\004 \001(\t\"`\n\013Duplication\022\'\n\014origin_block\030\001" +
-      " \001(\0132\021.DuplicationBlock\022(\n\rduplicated_by",
-      "\030\002 \003(\0132\021.DuplicationBlock\"H\n\014Duplication" +
-      "s\022\025\n\rcomponent_ref\030\001 \001(\005\022!\n\013duplication\030" +
-      "\002 \003(\0132\014.Duplication\"W\n\005Range\022\022\n\nstart_li" +
-      "ne\030\001 \001(\005\022\020\n\010end_line\030\002 \001(\005\022\024\n\014start_offs" +
-      "et\030\003 \001(\005\022\022\n\nend_offset\030\004 \001(\005\"\203\001\n\007Symbols" +
-      "\022\025\n\rcomponent_ref\030\001 \001(\005\022\037\n\006symbol\030\002 \003(\0132" +
-      "\017.Symbols.Symbol\032@\n\006Symbol\022\033\n\013declaratio" +
-      "n\030\001 \001(\0132\006.Range\022\031\n\treference\030\002 \003(\0132\006.Ran" +
-      "ge\"\270\001\n\022SyntaxHighlighting\022\025\n\rcomponent_r" +
-      "ef\030\001 \001(\005\022?\n\021highlighting_rule\030\002 \003(\0132$.Sy",
-      "ntaxHighlighting.HighlightingRule\032J\n\020Hig" +
-      "hlightingRule\022\025\n\005range\030\001 \001(\0132\006.Range\022\037\n\004" +
-      "type\030\002 \001(\0162\021.HighlightingTypeB#\n\037org.son" +
-      "ar.batch.protocol.outputH\001"
+      "ponent_uuid\030\003 \001(\t\"\236\001\n\003Scm\022\025\n\rcomponent_r" +
+      "ef\030\001 \001(\005\022!\n\tchangeset\030\002 \003(\0132\016.Scm.Change" +
+      "set\022 \n\024changesetIndexByLine\030\003 \003(\005B\002\020\001\032;\n" +
+      "\tChangeset\022\020\n\010revision\030\001 \001(\t\022\016\n\006author\030\002" +
+      " \001(\t\022\014\n\004date\030\003 \001(\003\"l\n\020DuplicationBlock\022\033",
+      "\n\023other_component_ref\030\001 \001(\005\022\022\n\nstart_lin" +
+      "e\030\002 \001(\005\022\020\n\010end_line\030\003 \001(\005\022\025\n\rcomponent_k" +
+      "ey\030\004 \001(\t\"`\n\013Duplication\022\'\n\014origin_block\030" +
+      "\001 \001(\0132\021.DuplicationBlock\022(\n\rduplicated_b" +
+      "y\030\002 \003(\0132\021.DuplicationBlock\"H\n\014Duplicatio" +
+      "ns\022\025\n\rcomponent_ref\030\001 \001(\005\022!\n\013duplication" +
+      "\030\002 \003(\0132\014.Duplication\"W\n\005Range\022\022\n\nstart_l" +
+      "ine\030\001 \001(\005\022\020\n\010end_line\030\002 \001(\005\022\024\n\014start_off" +
+      "set\030\003 \001(\005\022\022\n\nend_offset\030\004 \001(\005\"\203\001\n\007Symbol" +
+      "s\022\025\n\rcomponent_ref\030\001 \001(\005\022\037\n\006symbol\030\002 \003(\013",
+      "2\017.Symbols.Symbol\032@\n\006Symbol\022\033\n\013declarati" +
+      "on\030\001 \001(\0132\006.Range\022\031\n\treference\030\002 \003(\0132\006.Ra" +
+      "nge\"\270\001\n\022SyntaxHighlighting\022\025\n\rcomponent_" +
+      "ref\030\001 \001(\005\022?\n\021highlighting_rule\030\002 \003(\0132$.S" +
+      "yntaxHighlighting.HighlightingRule\032J\n\020Hi" +
+      "ghlightingRule\022\025\n\005range\030\001 \001(\0132\006.Range\022\037\n" +
+      "\004type\030\002 \001(\0162\021.HighlightingTypeB#\n\037org.so" +
+      "nar.batch.protocol.outputH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -19224,32 +20923,44 @@ public final class BatchReport {
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_Issues_descriptor,
         new java.lang.String[] { "ComponentRef", "Issue", "ComponentUuid", });
-    internal_static_DuplicationBlock_descriptor =
+    internal_static_Scm_descriptor =
       getDescriptor().getMessageTypes().get(8);
+    internal_static_Scm_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_Scm_descriptor,
+        new java.lang.String[] { "ComponentRef", "Changeset", "ChangesetIndexByLine", });
+    internal_static_Scm_Changeset_descriptor =
+      internal_static_Scm_descriptor.getNestedTypes().get(0);
+    internal_static_Scm_Changeset_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_Scm_Changeset_descriptor,
+        new java.lang.String[] { "Revision", "Author", "Date", });
+    internal_static_DuplicationBlock_descriptor =
+      getDescriptor().getMessageTypes().get(9);
     internal_static_DuplicationBlock_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_DuplicationBlock_descriptor,
         new java.lang.String[] { "OtherComponentRef", "StartLine", "EndLine", "ComponentKey", });
     internal_static_Duplication_descriptor =
-      getDescriptor().getMessageTypes().get(9);
+      getDescriptor().getMessageTypes().get(10);
     internal_static_Duplication_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_Duplication_descriptor,
         new java.lang.String[] { "OriginBlock", "DuplicatedBy", });
     internal_static_Duplications_descriptor =
-      getDescriptor().getMessageTypes().get(10);
+      getDescriptor().getMessageTypes().get(11);
     internal_static_Duplications_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_Duplications_descriptor,
         new java.lang.String[] { "ComponentRef", "Duplication", });
     internal_static_Range_descriptor =
-      getDescriptor().getMessageTypes().get(11);
+      getDescriptor().getMessageTypes().get(12);
     internal_static_Range_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_Range_descriptor,
         new java.lang.String[] { "StartLine", "EndLine", "StartOffset", "EndOffset", });
     internal_static_Symbols_descriptor =
-      getDescriptor().getMessageTypes().get(12);
+      getDescriptor().getMessageTypes().get(13);
     internal_static_Symbols_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_Symbols_descriptor,
@@ -19261,7 +20972,7 @@ public final class BatchReport {
         internal_static_Symbols_Symbol_descriptor,
         new java.lang.String[] { "Declaration", "Reference", });
     internal_static_SyntaxHighlighting_descriptor =
-      getDescriptor().getMessageTypes().get(13);
+      getDescriptor().getMessageTypes().get(14);
     internal_static_SyntaxHighlighting_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_SyntaxHighlighting_descriptor,

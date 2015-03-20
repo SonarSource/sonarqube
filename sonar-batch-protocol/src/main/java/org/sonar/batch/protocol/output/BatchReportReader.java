@@ -22,6 +22,7 @@ package org.sonar.batch.protocol.output;
 import org.sonar.batch.protocol.ProtobufUtil;
 import org.sonar.batch.protocol.output.BatchReport.Issues;
 
+import javax.annotation.CheckForNull;
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
@@ -50,6 +51,16 @@ public class BatchReportReader {
       return measures.getMeasureList();
     }
     return Collections.emptyList();
+  }
+
+  @CheckForNull
+  public BatchReport.Scm readComponentScm(int componentRef) {
+    File file = fileStructure.fileFor(FileStructure.Domain.SCM, componentRef);
+    if (file.exists() && file.isFile()) {
+      BatchReport.Scm scm = ProtobufUtil.readFile(file, BatchReport.Scm.PARSER);
+      return scm;
+    }
+    return null;
   }
 
   public BatchReport.Component readComponent(int componentRef) {
