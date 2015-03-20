@@ -3,9 +3,12 @@
    filter_id = widget_properties['filter']
    filter = Internal.issues.findIssueFilterById(filter_id.to_i)
    distribution_axis = widget_properties['distributionAxis']
+   is_enough_permissions = filter.shared || (current_user && filter.userLogin == current_user.login)
 %>
 
 <% if filter %>
+
+  <% if is_enough_permissions %>
 
     <% @widget_title = "<a href=\"#{url_for({:controller => 'issues', :action => 'index'})}#id=#{filter.id}\">#{h(filter.name)}</a>" %>
     <% if widget_properties['displayFilterDescription'] && !filter.description.blank? %>
@@ -16,6 +19,7 @@
     <script>
       (function () {
         var query = '<%= filter.data -%>';
+
         // do not show widget if the filter contains "my" criterion,
         // and a user is not authenticated
         if (query && query.indexOf('__me__') !== -1 && !window.SS.user) {
@@ -34,6 +38,12 @@
         });
       })();
     </script>
+
+  <% else %>
+
+    <p class="alert alert-warning"><%= message 'widget.issue_filter.insufficient_privileges_warning' -%></p>
+
+  <% end %>
 
 <% else %>
 
