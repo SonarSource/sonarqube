@@ -346,55 +346,71 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_modules_tree() throws Exception {
+  public void select_enabled_modules_tree() throws Exception {
     setupData("multi-modules");
 
     // From root project
-    List<ComponentDto> modules = dao.selectModulesTree(session, "ABCD");
+    List<ComponentDto> modules = dao.selectEnabledDescendantModules(session, "ABCD");
     assertThat(modules).extracting("uuid").containsOnly("ABCD", "EFGH", "FGHI");
 
     // From module
-    modules = dao.selectModulesTree(session, "EFGH");
+    modules = dao.selectEnabledDescendantModules(session, "EFGH");
     assertThat(modules).extracting("uuid").containsOnly("EFGH", "FGHI");
 
     // From sub module
-    modules = dao.selectModulesTree(session, "FGHI");
+    modules = dao.selectEnabledDescendantModules(session, "FGHI");
     assertThat(modules).extracting("uuid").containsOnly("FGHI");
 
     // Folder
-    assertThat(dao.selectModulesTree(session, "GHIJ")).isEmpty();
-    assertThat(dao.selectModulesTree(session, "unknown")).isEmpty();
+    assertThat(dao.selectEnabledDescendantModules(session, "GHIJ")).isEmpty();
+    assertThat(dao.selectEnabledDescendantModules(session, "unknown")).isEmpty();
   }
 
   @Test
-  public void select_module_files_tree() throws Exception {
+  public void select_all_modules_tree() throws Exception {
+    setupData("multi-modules");
+
+    // From root project, disabled sub module is returned
+    List<ComponentDto> modules = dao.selectDescendantModules(session, "ABCD");
+    assertThat(modules).extracting("uuid").containsOnly("ABCD", "EFGH", "FGHI", "IHGF");
+
+    // From module, disabled sub module is returned
+    modules = dao.selectDescendantModules(session, "EFGH");
+    assertThat(modules).extracting("uuid").containsOnly("EFGH", "FGHI", "IHGF");
+
+    // From removed sub module -> should not be returned
+    assertThat(dao.selectDescendantModules(session, "IHGF")).isEmpty();
+  }
+
+  @Test
+  public void select_enabled_module_files_tree() throws Exception {
     setupData("select_module_files_tree");
 
     // From root project
-    List<FilePathWithHashDto> files = dao.selectModuleFilesTree(session, "ABCD");
+    List<FilePathWithHashDto> files = dao.selectEnabledDescendantFiles(session, "ABCD");
     assertThat(files).extracting("uuid").containsOnly("EFGHI", "HIJK");
     assertThat(files).extracting("moduleUuid").containsOnly("EFGH", "FGHI");
     assertThat(files).extracting("srcHash").containsOnly("srcEFGHI", "srcHIJK");
     assertThat(files).extracting("path").containsOnly("src/org/struts/pom.xml", "src/org/struts/RequestContext.java");
 
     // From module
-    files = dao.selectModuleFilesTree(session, "EFGH");
+    files = dao.selectEnabledDescendantFiles(session, "EFGH");
     assertThat(files).extracting("uuid").containsOnly("EFGHI", "HIJK");
     assertThat(files).extracting("moduleUuid").containsOnly("EFGH", "FGHI");
     assertThat(files).extracting("srcHash").containsOnly("srcEFGHI", "srcHIJK");
     assertThat(files).extracting("path").containsOnly("src/org/struts/pom.xml", "src/org/struts/RequestContext.java");
 
     // From sub module
-    files = dao.selectModuleFilesTree(session, "FGHI");
+    files = dao.selectEnabledDescendantFiles(session, "FGHI");
     assertThat(files).extracting("uuid").containsOnly("HIJK");
     assertThat(files).extracting("moduleUuid").containsOnly("FGHI");
     assertThat(files).extracting("srcHash").containsOnly("srcHIJK");
     assertThat(files).extracting("path").containsOnly("src/org/struts/RequestContext.java");
 
     // From directory
-    assertThat(dao.selectModuleFilesTree(session, "GHIJ")).isEmpty();
+    assertThat(dao.selectEnabledDescendantFiles(session, "GHIJ")).isEmpty();
 
-    assertThat(dao.selectModuleFilesTree(session, "unknown")).isEmpty();
+    assertThat(dao.selectEnabledDescendantFiles(session, "unknown")).isEmpty();
   }
 
   @Test

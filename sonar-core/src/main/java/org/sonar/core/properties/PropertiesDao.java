@@ -157,8 +157,8 @@ public class PropertiesDao implements BatchComponent, ServerComponent, DaoCompon
     }
   }
 
-  public List<PropertyDto> selectModulePropertiesTree(String moduleUuid, SqlSession session) {
-    return session.getMapper(PropertiesMapper.class).selectModulePropertiesTree(moduleUuid, Scopes.PROJECT);
+  public List<PropertyDto> selectEnabledDescendantModuleProperties(String moduleUuid, SqlSession session) {
+    return session.getMapper(PropertiesMapper.class).selectDescendantModuleProperties(moduleUuid, Scopes.PROJECT, true);
   }
 
   public PropertyDto selectProjectProperty(long resourceId, String propertyKey) {

@@ -44,7 +44,8 @@ public interface PropertiesMapper {
 
   List<PropertyDto> selectByQuery(@Param("query") PropertyQuery query);
 
-  List<PropertyDto> selectModulePropertiesTree(@Param("moduleUuid") String moduleUuid, @Param(value = "scope") String scope);
+  List<PropertyDto> selectDescendantModuleProperties(@Param("moduleUuid") String moduleUuid, @Param(value = "scope") String scope,
+                                                     @Param(value = "excludeDisabled") boolean excludeDisabled);
 
   void update(PropertyDto property);
 

@@ -82,7 +82,7 @@ public class ViewIndexer extends BaseIndexer {
     DbSession dbSession = dbClient.openSession(false);
     try {
       Map<String, String> viewAndProjectViewUuidMap = newHashMap();
-      for (ComponentDto viewOrSubView : dbClient.componentDao().selectModulesTree(dbSession, rootViewUuid)) {
+      for (ComponentDto viewOrSubView : dbClient.componentDao().selectEnabledDescendantModules(dbSession, rootViewUuid)) {
         viewAndProjectViewUuidMap.put(viewOrSubView.uuid(), viewOrSubView.projectUuid());
       }
       index(dbSession, viewAndProjectViewUuidMap, true);
