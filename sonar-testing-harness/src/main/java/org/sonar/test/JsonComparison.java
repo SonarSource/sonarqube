@@ -25,8 +25,8 @@ import org.json.simple.parser.JSONParser;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.ThreadSafe;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -35,12 +35,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Not thread-safe because of field datetimeFormat which is SimpleDateFormat.
- */
+@ThreadSafe
 class JsonComparison {
-
-  private static final DateFormat DATETIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
   private boolean strictTimezone = false;
   private boolean strictArrayOrder = false;
@@ -194,7 +190,7 @@ class JsonComparison {
   @CheckForNull
   static Date tryParseDate(String s) {
     try {
-      return DATETIME_FORMAT.parse(s);
+      return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").parse(s);
     } catch (ParseException ignored) {
       // not a datetime
       return null;
