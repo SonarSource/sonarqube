@@ -491,4 +491,9 @@
     return ret;
   });
 
+  Handlebars.registerHelper('limitString', function (str) {
+    var LIMIT = 30;
+    return str.length > LIMIT ? str.substr(0, LIMIT) + '...' : str;
+  });
+
 })();

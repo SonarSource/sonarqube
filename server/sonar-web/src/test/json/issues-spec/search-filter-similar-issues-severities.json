@@ -1,0 +1,191 @@
+{
+  "total": 17,
+  "p": 1,
+  "ps": 50,
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 50,
+    "total": 1,
+    "fTotal": "1",
+    "pages": 1
+  },
+  "projects": [
+    {
+      "uuid": "69e57151-be0d-4157-adff-c06741d88879",
+      "key": "org.codehaus.sonar:sonar",
+      "id": 2865,
+      "qualifier": "TRK",
+      "name": "SonarQube",
+      "longName": "SonarQube"
+    }
+  ],
+  "components": [
+    {
+      "uuid": "7feef7c3-11b9-4175-b5a7-527ca3c75cb7",
+      "key": "org.codehaus.sonar:sonar-plugin-api",
+      "id": 16,
+      "enabled": true,
+      "qualifier": "BRC",
+      "name": "SonarQube :: Plugin API",
+      "longName": "SonarQube :: Plugin API",
+      "path": "sonar-plugin-api",
+      "projectId": 2865,
+      "subProjectId": 2865
+    },
+    {
+      "uuid": "69e57151-be0d-4157-adff-c06741d88879",
+      "key": "org.codehaus.sonar:sonar",
+      "id": 2865,
+      "enabled": true,
+      "qualifier": "TRK",
+      "name": "SonarQube",
+      "longName": "SonarQube"
+    },
+    {
+      "uuid": "b0517331-0aaf-4091-b5cf-8e305dd0337a",
+      "key": "org.codehaus.sonar:sonar-plugin-api:src/main/java/org/sonar/api/CoreProperties.java",
+      "id": 3509,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "CoreProperties.java",
+      "longName": "src/main/java/org/sonar/api/CoreProperties.java",
+      "path": "src/main/java/org/sonar/api/CoreProperties.java",
+      "projectId": 2865,
+      "subProjectId": 16
+    }
+  ],
+  "issues": [
+    {
+      "key": "10c6eeca-cc71-40fc-9ea8-fa90fef8db72",
+      "component": "org.codehaus.sonar:sonar-plugin-api:src/main/java/org/sonar/api/CoreProperties.java",
+      "componentId": 3509,
+      "project": "org.codehaus.sonar:sonar",
+      "subProject": "org.codehaus.sonar:sonar-plugin-api",
+      "rule": "squid:S1214",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "Move constants to a class or enum.",
+      "line": 30,
+      "debt": "20min",
+      "author": "simon.brandhof@gmail.com",
+      "creationDate": "2013-08-28T12:19:16+0200",
+      "updateDate": "2015-03-19T14:15:56+0100",
+      "fUpdateAge": "about a minute",
+      "tags": [
+        "bad-practice",
+        "brain-overload"
+      ],
+      "actions": [
+        "comment",
+        "assign",
+        "set_tags",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive",
+        "wontfix"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "key": "squid:S1214",
+      "name": "Constants should not be defined in interfaces",
+      "lang": "java",
+      "desc": "<p>According to Joshua Bloch, author of \"Effective Java\":</p>\n\n<blockquote>\n<p>\nThe constant interface pattern is a poor use of interfaces.\n</p>\n\n<p>\nThat a class uses some constants internally is an implementation detail.\nImplementing a constant interface causes this implementation detail to leak into the class's exported API.\nIt is of no consequence to the users of a class that the class implements a constant interface.\nIn fact, it may even confuse them.\nWorse, it represents a commitment:\nif in a future release the class is modified so that it no longer needs to use the constants,\nit still must implement the interface to ensure binary compatibility.\nIf a nonfinal class implements a constant interface,\nall of its subclasses will have their namespaces polluted by the constants in the interface.\n</p>\n</blockquote>\n\n<h2>Noncompliant Code Example</h2>\n\n<pre>\ninterface Status {                      // Non-Compliant\n   int OPEN = 1;\n   int CLOSED = 2;\n}\n</pre>\n\n<h2>Compliant Solution</h2>\n\n<pre>\npublic enum Status {                    // Compliant\n  OPEN,\n  CLOSED;\n}\n</pre>\n\n<p>or</p>\n\n<pre>\npublic final class Status {             // Compliant\n   public static final int OPEN = 1;\n   public static final int CLOSED = 2;\n}\n</pre>",
+      "status": "READY",
+      "langName": "Java"
+    }
+  ],
+  "users": [
+    {
+      "login": "admin",
+      "name": "Admin Admin",
+      "active": true,
+      "email": "admin@sonarsource.com"
+    }
+  ],
+  "languages": [
+    {
+      "key": "py",
+      "name": "Python"
+    },
+    {
+      "key": "js",
+      "name": "JavaScript"
+    },
+    {
+      "key": "php",
+      "name": "PHP"
+    },
+    {
+      "key": "java",
+      "name": "Java"
+    }
+  ],
+  "facets": [
+    {
+      "property": "severities",
+      "values": [
+        {
+          "val": "MAJOR",
+          "count": 1
+        },
+        {
+          "val": "INFO",
+          "count": 0
+        },
+        {
+          "val": "MINOR",
+          "count": 0
+        },
+        {
+          "val": "CRITICAL",
+          "count": 0
+        },
+        {
+          "val": "BLOCKER",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "property": "resolutions",
+      "values": [
+        {
+          "val": "",
+          "count": 1
+        },
+        {
+          "val": "FALSE-POSITIVE",
+          "count": 0
+        },
+        {
+          "val": "WONTFIX",
+          "count": 0
+        },
+        {
+          "val": "FIXED",
+          "count": 0
+        },
+        {
+          "val": "REMOVED",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "property": "assigned_to_me",
+      "values": [
+        {
+          "val": "admin",
+          "count": 0
+        }
+      ]
+    }
+  ]
+}

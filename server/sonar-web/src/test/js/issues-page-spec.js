@@ -353,3 +353,59 @@ casper.test.begin(testName('Bulk Change'), function (test) {
         test.done();
       });
 });
+
+
+casper.test.begin(testName('Filter Similar Issues'), 12, function (test) {
+  casper
+      .start(lib.buildUrl('issues'), function () {
+        lib.setDefaultViewport();
+
+
+        lib.mockRequestFromFile('/api/issue_filters/app', 'app.json');
+        lib.mockRequestFromFile('/api/issues/search', 'search-filter-similar-issues-severities.json',
+            { data: { severities: 'MAJOR' } });
+        lib.mockRequestFromFile('/api/issues/search', 'search-filter-similar-issues.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/issues/app-new.js']);
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('.issue.selected');
+      })
+
+      .then(function () {
+        casper.click('.issue.selected .js-issue-filter');
+        casper.waitForSelector('.bubble-popup');
+      })
+
+      .then(function () {
+        test.assertExists('.bubble-popup [data-property="severities"][data-value="MAJOR"]');
+        test.assertExists('.bubble-popup [data-property="statuses"][data-value="CONFIRMED"]');
+        test.assertExists('.bubble-popup [data-property="resolved"][data-value="false"]');
+        test.assertExists('.bubble-popup [data-property="rules"][data-value="squid:S1214"]');
+        test.assertExists('.bubble-popup [data-property="assigned"][data-value="false"]');
+        test.assertExists('.bubble-popup [data-property="planned"][data-value="false"]');
+        test.assertExists('.bubble-popup [data-property="tags"][data-value="bad-practice"]');
+        test.assertExists('.bubble-popup [data-property="tags"][data-value="brain-overload"]');
+        test.assertExists('.bubble-popup [data-property="projectUuids"][data-value="69e57151-be0d-4157-adff-c06741d88879"]');
+        test.assertExists('.bubble-popup [data-property="moduleUuids"][data-value="7feef7c3-11b9-4175-b5a7-527ca3c75cb7"]');
+        test.assertExists('.bubble-popup [data-property="fileUuids"][data-value="b0517331-0aaf-4091-b5cf-8e305dd0337a"]');
+
+        casper.click('.bubble-popup [data-property="severities"]');
+        casper.waitForSelectorTextChange('#issues-total', function () {
+          test.assertSelectorContains('#issues-total', '17');
+        });
+      })
+
+      .then(function () {
+        lib.sendCoverage();
+      })
+
+      .run(function () {
+        test.done();
+      });
+});
