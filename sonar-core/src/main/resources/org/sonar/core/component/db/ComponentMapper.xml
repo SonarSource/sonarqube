@@ -136,7 +136,7 @@
     </where>
   </select>
 
-  <select id="selectModulesTree" parameterType="map" resultType="Component">
+  <select id="selectDescendantModules" parameterType="map" resultType="Component">
     SELECT <include refid="componentColumns"/>
     FROM projects p
     <include refid="modulesTreeQuery"/>
@@ -144,9 +144,11 @@
 
   <sql id="modulesTreeQuery">
     INNER JOIN projects root_project ON root_project.uuid = p.project_uuid AND root_project.enabled = ${_true}
-    INNER JOIN projects module ON module.project_uuid = root_project.uuid AND module.enabled = ${_true} AND module.uuid = #{moduleUuid} AND module.scope='PRJ'
+    INNER JOIN projects module ON module.project_uuid = root_project.uuid AND module.uuid = #{moduleUuid} AND module.scope='PRJ' AND module.enabled = ${_true}
     <where>
-      p.enabled = ${_true}
+      <if test="excludeDisabled">
+        p.enabled = ${_true}
+      </if>
       AND p.scope = #{scope}
       AND
       <choose>
@@ -163,7 +165,7 @@
     </where>
   </sql>
 
-  <select id="selectModuleFilesTree" parameterType="map" resultType="FilePathWithHash">
+  <select id="selectDescendantFiles" parameterType="map" resultType="FilePathWithHash">
     SELECT p.uuid, p.path, p.module_uuid as moduleUuid, fs.src_hash as srcHash
     FROM projects p
     INNER JOIN file_sources fs ON fs.file_uuid=p.uuid

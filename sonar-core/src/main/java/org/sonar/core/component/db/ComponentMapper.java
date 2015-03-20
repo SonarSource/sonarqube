@@ -68,14 +68,16 @@ public interface ComponentMapper {
   List<String> findProjectUuids();
 
   /**
-   * Return all modules tree (child, grand child, etc. including itself) from a module uuid
+   * Return all descendant modules (including itself) from a given component uuid and scope
    */
-  List<ComponentDto> selectModulesTree(@Param("moduleUuid") String moduleUuid, @Param(value = "scope") String scope);
+  List<ComponentDto> selectDescendantModules(@Param("moduleUuid") String moduleUuid, @Param(value = "scope") String scope,
+                                             @Param(value = "excludeDisabled") boolean excludeDisabled);
 
   /**
-   * Return all files children from a module uuid
+   * Return all descendant files from a given component uuid and scope
    */
-  List<FilePathWithHashDto> selectModuleFilesTree(@Param("moduleUuid") String moduleUuid, @Param(value = "scope") String scope);
+  List<FilePathWithHashDto> selectDescendantFiles(@Param("moduleUuid") String moduleUuid, @Param(value = "scope") String scope,
+                                                  @Param(value = "excludeDisabled") boolean excludeDisabled);
 
   /**
    * Return uuids and project uuids from list of qualifiers

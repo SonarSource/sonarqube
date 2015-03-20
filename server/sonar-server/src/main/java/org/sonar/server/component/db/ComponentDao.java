@@ -94,12 +94,16 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
     return mapper(session).findSubProjectsByComponentUuids(keys);
   }
 
-  public List<ComponentDto> selectModulesTree(DbSession session, String rootComponentUuid) {
-    return mapper(session).selectModulesTree(rootComponentUuid, Scopes.PROJECT);
+  public List<ComponentDto> selectDescendantModules(DbSession session, String rootComponentUuid) {
+    return mapper(session).selectDescendantModules(rootComponentUuid, Scopes.PROJECT, false);
   }
 
-  public List<FilePathWithHashDto> selectModuleFilesTree(DbSession session, String rootComponentUuid) {
-    return mapper(session).selectModuleFilesTree(rootComponentUuid, Scopes.FILE);
+  public List<ComponentDto> selectEnabledDescendantModules(DbSession session, String rootComponentUuid) {
+    return mapper(session).selectDescendantModules(rootComponentUuid, Scopes.PROJECT, true);
+  }
+
+  public List<FilePathWithHashDto> selectEnabledDescendantFiles(DbSession session, String rootComponentUuid) {
+    return mapper(session).selectDescendantFiles(rootComponentUuid, Scopes.FILE, true);
   }
 
   public List<ComponentDto> getByIds(final DbSession session, Collection<Long> ids) {
