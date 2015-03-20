@@ -87,7 +87,7 @@ public class SourceIndexBenchmarkTest {
     tester.get(EsClient.class).prepareOptimize(SourceLineIndexDefinition.INDEX).setWaitForMerge(true).get();
     long dirSize = FileUtils.sizeOfDirectory(tester.getEsServerHolder().getHomeDir());
     LOGGER.info(String.format("ES dir: " + FileUtils.byteCountToDisplaySize(dirSize)));
-    benchmark.expectBetween("ES dir size (b)", dirSize, 103L * FileUtils.ONE_MB, 109L * FileUtils.ONE_MB);
+    benchmark.expectBetween("ES dir size (b)", dirSize, 172L * FileUtils.ONE_MB, 182L * FileUtils.ONE_MB);
   }
 
   private void benchmarkQueries() {
