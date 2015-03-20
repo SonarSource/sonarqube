@@ -37,11 +37,7 @@ import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.batch.scan.filesystem.FileSystemLogger;
 import org.sonar.batch.scan.report.IssuesReports;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
 public final class DatabaseModePhaseExecutor implements PhaseExecutor {
 
@@ -157,29 +153,16 @@ public final class DatabaseModePhaseExecutor implements PhaseExecutor {
   private void executePersisters() {
     if (!analysisMode.isPreview()) {
       LOGGER.info("Store results in database");
-      List<ScanPersister> sortedPersisters = sortedPersisters();
-      eventBus.fireEvent(new PersistersPhaseEvent(sortedPersisters, true));
-      for (ScanPersister persister : sortedPersisters) {
+      eventBus.fireEvent(new PersistersPhaseEvent(Arrays.asList(persisters), true));
+      for (ScanPersister persister : persisters) {
         LOGGER.debug("Execute {}", persister.getClass().getName());
         eventBus.fireEvent(new PersisterExecutionEvent(persister, true));
         persister.persist();
         eventBus.fireEvent(new PersisterExecutionEvent(persister, false));
       }
 
-      eventBus.fireEvent(new PersistersPhaseEvent(sortedPersisters, false));
+      eventBus.fireEvent(new PersistersPhaseEvent(Arrays.asList(persisters), false));
     }
-  }
-
-  List<ScanPersister> sortedPersisters() {
-    // Sort by reverse name so that ResourcePersister is executed before MeasurePersister
-    List<ScanPersister> sortedPersisters = new ArrayList<>(Arrays.asList(persisters));
-    Collections.sort(sortedPersisters, new Comparator<ScanPersister>() {
-      @Override
-      public int compare(ScanPersister o1, ScanPersister o2) {
-        return o2.getClass().getName().compareTo(o1.getClass().getName());
-      }
-    });
-    return sortedPersisters;
   }
 
   private void publishReportJob() {

@@ -28,14 +28,7 @@ import org.sonar.api.batch.InstantiationStrategy;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import javax.persistence.*;
 
 import java.io.Serializable;
 
@@ -72,7 +65,7 @@ public class Metric<G extends Serializable> implements ServerExtension, BatchExt
     DATA(String.class),
     LEVEL(Metric.Level.class),
     DISTRIB(String.class),
-    RATING(String.class),
+    RATING(Integer.class),
     WORK_DUR(Long.class);
 
     private final Class valueClass;

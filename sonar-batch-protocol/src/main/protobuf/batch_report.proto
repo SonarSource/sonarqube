@@ -84,6 +84,7 @@ message Component {
 
 message Measure {
   optional MeasureValueType value_type = 1;
+  # all values may be unset for "new_xxx" measures (only variations are populated)
   optional bool boolean_value = 2;
   optional int32 int_value = 3;
   optional int64 long_value = 4;

@@ -30,6 +30,7 @@ import org.mockito.Mockito;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.batch.protocol.Constants;
+import org.sonar.batch.protocol.Constants.MeasureValueType;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.protocol.output.BatchReportWriter;
@@ -49,7 +50,10 @@ import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class PersistMeasuresStepTest extends BaseStepTest {
 
@@ -63,6 +67,8 @@ public class PersistMeasuresStepTest extends BaseStepTest {
 
   PersistMeasuresStep sut;
 
+  private BatchReport.Component component;
+
   @Before
   public void setUp() throws Exception {
     dbClient = mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS);
@@ -73,6 +79,8 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     when(ruleCache.get(any(RuleKey.class)).getId()).thenReturn(987);
 
     sut = new PersistMeasuresStep(dbClient, ruleCache, metricCache);
+
+    component = defaultComponent().build();
   }
 
   @Test
@@ -172,8 +180,6 @@ public class PersistMeasuresStepTest extends BaseStepTest {
       .setCharactericId(123456)
       .build();
 
-    BatchReport.Component component = defaultComponent().build();
-
     MeasureDto measure = sut.toMeasureDto(batchMeasure, component);
 
     assertThat(measure).isEqualToComparingFieldByField(expectedFullMeasure());
@@ -183,18 +189,131 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   public void map_minimal_batch_measure() throws Exception {
     BatchReport.Measure batchMeasure = BatchReport.Measure.newBuilder()
       .setValueType(Constants.MeasureValueType.INT)
-      .setIntValue(123)
-      .setSeverity(Constants.Severity.INFO)
       .setMetricKey("metric-key")
-      .setRuleKey("repo:rule-key")
-      .build();
-
-    BatchReport.Component component = defaultComponent()
       .build();
 
     MeasureDto measure = sut.toMeasureDto(batchMeasure, component);
 
     assertThat(measure).isEqualToComparingFieldByField(expectedMinimalistMeasure());
+  }
+
+  @Test
+  public void map_boolean_batch_measure() throws Exception {
+    BatchReport.Measure batchMeasure = BatchReport.Measure.newBuilder()
+      .setValueType(Constants.MeasureValueType.BOOLEAN)
+      .setBooleanValue(true)
+      .setMetricKey("metric-key")
+      .build();
+
+    MeasureDto measure = sut.toMeasureDto(batchMeasure, component);
+
+    assertThat(measure.getValue()).isEqualTo(1.0);
+
+    batchMeasure = BatchReport.Measure.newBuilder()
+      .setValueType(Constants.MeasureValueType.BOOLEAN)
+      .setBooleanValue(false)
+      .setMetricKey("metric-key")
+      .build();
+
+    measure = sut.toMeasureDto(batchMeasure, component);
+
+    assertThat(measure.getValue()).isEqualTo(0.0);
+
+    batchMeasure = BatchReport.Measure.newBuilder()
+      .setValueType(Constants.MeasureValueType.BOOLEAN)
+      .setMetricKey("metric-key")
+      .build();
+
+    measure = sut.toMeasureDto(batchMeasure, component);
+
+    assertThat(measure.getValue()).isNull();
+  }
+
+  @Test
+  public void map_double_batch_measure() throws Exception {
+    BatchReport.Measure batchMeasure = BatchReport.Measure.newBuilder()
+      .setValueType(Constants.MeasureValueType.DOUBLE)
+      .setDoubleValue(3.2)
+      .setMetricKey("metric-key")
+      .build();
+
+    MeasureDto measure = sut.toMeasureDto(batchMeasure, component);
+
+    assertThat(measure.getValue()).isEqualTo(3.2);
+
+    batchMeasure = BatchReport.Measure.newBuilder()
+      .setValueType(Constants.MeasureValueType.DOUBLE)
+      .setMetricKey("metric-key")
+      .build();
+
+    measure = sut.toMeasureDto(batchMeasure, component);
+
+    assertThat(measure.getValue()).isNull();
+  }
+
+  @Test
+  public void map_int_batch_measure() throws Exception {
+    BatchReport.Measure batchMeasure = BatchReport.Measure.newBuilder()
+      .setValueType(Constants.MeasureValueType.INT)
+      .setIntValue(3)
+      .setMetricKey("metric-key")
+      .build();
+
+    MeasureDto measure = sut.toMeasureDto(batchMeasure, component);
+
+    assertThat(measure.getValue()).isEqualTo(3.0);
+
+    batchMeasure = BatchReport.Measure.newBuilder()
+      .setValueType(Constants.MeasureValueType.INT)
+      .setMetricKey("metric-key")
+      .build();
+
+    measure = sut.toMeasureDto(batchMeasure, component);
+
+    assertThat(measure.getValue()).isNull();
+  }
+
+  @Test
+  public void map_long_batch_measure() throws Exception {
+    BatchReport.Measure batchMeasure = BatchReport.Measure.newBuilder()
+      .setValueType(Constants.MeasureValueType.LONG)
+      .setLongValue(3L)
+      .setMetricKey("metric-key")
+      .build();
+
+    MeasureDto measure = sut.toMeasureDto(batchMeasure, component);
+
+    assertThat(measure.getValue()).isEqualTo(3.0);
+
+    batchMeasure = BatchReport.Measure.newBuilder()
+      .setValueType(Constants.MeasureValueType.LONG)
+      .setMetricKey("metric-key")
+      .build();
+
+    measure = sut.toMeasureDto(batchMeasure, component);
+
+    assertThat(measure.getValue()).isNull();
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void fail_when_no_metric_key() throws Exception {
+    BatchReport.Measure measure = BatchReport.Measure.newBuilder()
+      .setValueType(MeasureValueType.STRING)
+      .setStringValue("string-value")
+      .build();
+    BatchReport.Component component = defaultComponent()
+      .build();
+    sut.toMeasureDto(measure, component);
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void fail_when_no_value() throws Exception {
+    BatchReport.Measure measure = BatchReport.Measure.newBuilder()
+      .setMetricKey("repo:metric-key")
+      .build();
+    BatchReport.Component component = defaultComponent()
+      .build();
+    sut.toMeasureDto(measure, component);
   }
 
   private MeasureDto expectedFullMeasure() {
@@ -221,10 +340,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     return new MeasureDto()
       .setComponentId(2L)
       .setSnapshotId(3L)
-      .setValue(123d)
-      .setSeverity(Severity.INFO)
-      .setMetricId(654)
-      .setRuleId(987);
+      .setMetricId(654);
   }
 
   @Override

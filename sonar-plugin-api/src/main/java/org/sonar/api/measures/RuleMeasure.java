@@ -26,6 +26,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 /**
@@ -54,6 +55,7 @@ public class RuleMeasure extends Measure {
     this.rulePriority = rulePriority;
   }
 
+  @CheckForNull
   public RuleKey ruleKey() {
     return ruleKey;
   }
@@ -84,6 +86,7 @@ public class RuleMeasure extends Measure {
    * @deprecated since 2.14 use {@link #getSeverity()} instead. See SONAR-1829.
    */
   @Deprecated
+  @CheckForNull
   public RulePriority getRulePriority() {
     return rulePriority;
   }
@@ -91,6 +94,7 @@ public class RuleMeasure extends Measure {
   /**
    * @since 2.14
    */
+  @CheckForNull
   public RulePriority getSeverity() {
     return rulePriority;
   }
