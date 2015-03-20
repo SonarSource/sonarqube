@@ -19,10 +19,6 @@
     </a>
   {{/if}}
 
-  <a href="#" class="issue-action-option" data-property="rules" data-value="{{rule}}">
-    {{limitString ruleName}}
-  </a>
-
   {{#if assignee}}
     <a href="#" class="issue-action-option" data-property="assignees" data-value="{{assignee}}">
       {{t 'assigned_to'}} {{assigneeName}}
@@ -43,14 +39,17 @@
     </a>
   {{/if}}
 
-  {{#notEmpty tags}}
-    <hr>
-    {{#each tags}}
-      <a href="#" class="issue-action-option" data-property="tags" data-value="{{this}}">
-        <i class="icon-tags icon-half-transparent"></i>&nbsp;{{this}}
-      </a>
-    {{/each}}
-  {{/notEmpty}}
+  <hr>
+
+  <a href="#" class="issue-action-option" data-property="rules" data-value="{{rule}}">
+    {{limitString ruleName}}
+  </a>
+
+  {{#each tags}}
+    <a href="#" class="issue-action-option" data-property="tags" data-value="{{this}}">
+      <i class="icon-tags icon-half-transparent"></i>&nbsp;{{this}}
+    </a>
+  {{/each}}
 
   <hr>
 

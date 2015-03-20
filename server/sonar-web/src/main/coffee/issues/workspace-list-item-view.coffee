@@ -30,6 +30,7 @@ define [
   $ = jQuery
 
   SHOULD_NULL =
+    any: ['issues']
     resolutions: ['resolved']
     resolved: ['resolutions']
     assignees: ['assigned']
@@ -71,6 +72,7 @@ define [
       @popup.on 'select', (property, value) =>
         obj = {}
         obj[property] = '' + value
+        SHOULD_NULL.any.forEach (p) -> obj[p] = null
         if SHOULD_NULL[property]?
           SHOULD_NULL[property].forEach (p) -> obj[p] = null
         @options.app.state.updateFilter obj
