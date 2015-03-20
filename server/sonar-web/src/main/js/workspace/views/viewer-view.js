@@ -27,6 +27,10 @@ define([
     className: 'workspace-viewer',
     template: Templates['workspace-viewer'],
 
+    modelEvents: {
+      'destroy': 'close'
+    },
+
     regions: {
       headerRegion: '.workspace-viewer-header',
       viewerRegion: '.workspace-viewer-container'

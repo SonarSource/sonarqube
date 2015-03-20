@@ -61,7 +61,9 @@ define([
     },
 
     addComponent: function (model) {
-      this.items.add(model);
+      if (!this.items.has(model)) {
+        this.items.add(model);
+      }
       this.save();
     },
 

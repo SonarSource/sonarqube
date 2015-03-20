@@ -1,0 +1,72 @@
+{"sources": [
+  {
+    "line": 1,
+    "code": "<span class=\"cppd\">/*</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 2,
+    "code": "<span class=\"cppd\"> * SonarQube, open source software quality management tool.</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b1436788cfc71b23cc3e3c15400a6c630c914bec",
+    "scmDate": "2013-04-21T11:58:14+0200"
+  },
+  {
+    "line": 3,
+    "code": "<span class=\"cppd\"> * Copyright (C) 2008-2014 SonarSource</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "57ae3026c36ae3b0b71756d6161124b1ae594c53",
+    "scmDate": "2014-03-11T17:52:41+0100"
+  },
+  {
+    "line": 4,
+    "code": "<span class=\"cppd\"> * mailto:contact AT sonarsource DOT com</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 5,
+    "code": "<span class=\"cppd\"> *</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 6,
+    "code": "<span class=\"cppd\"> * SonarQube is free software; you can redistribute it and/or</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "b1436788cfc71b23cc3e3c15400a6c630c914bec",
+    "scmDate": "2013-04-21T11:58:14+0200"
+  },
+  {
+    "line": 7,
+    "code": "<span class=\"cppd\"> * modify it under the terms of the GNU Lesser General Public</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 8,
+    "code": "<span class=\"cppd\"> * License as published by the Free Software Foundation; either</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 9,
+    "code": "<span class=\"cppd\"> * version 3 of the License, or (at your option) any later version.</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  },
+  {
+    "line": 10,
+    "code": "<span class=\"cppd\"> *</span>",
+    "scmAuthor": "simon.brandhof@gmail.com",
+    "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
+    "scmDate": "2013-04-16T17:26:34+0200"
+  }
+]}

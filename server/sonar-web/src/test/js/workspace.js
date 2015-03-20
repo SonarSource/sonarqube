@@ -24,21 +24,260 @@ var lib = require('../lib'),
 
 
 lib.initMessages();
+lib.changeWorkingDirectory('workspace');
 lib.configureCasper();
 
 
-casper.test.begin(testName('API'), function (test) {
+casper.test.begin(testName('Open From Component Viewer'), 8, function (test) {
   casper
-      .start(lib.buildUrl('nav'), function () {
+      .start(lib.buildUrl('source-viewer'), function () {
         lib.setDefaultViewport();
+
+        lib.mockRequestFromFile('/api/components/app', 'app.json');
+        lib.mockRequestFromFile('/api/sources/lines', 'lines.json');
+        lib.mockRequestFromFile('/api/issues/search', 'issues.json');
       })
 
       .then(function () {
-        test.assertNotEquals(casper.evaluate(function () {
-          window.workspace = require(['/js/workspace/main.js'])();
-          console.log(window.workspace);
-          return window.workspace;
-        }), null);
+        casper.evaluate(function () {
+          window.localStorage.removeItem('sonarqube-workspace');
+          require(['/js/source-viewer/app.js']);
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('.source-line');
+      })
+
+      .then(function () {
+        casper.click('.js-actions');
+        casper.waitForSelector('.js-workspace', function () {
+          casper.click('.js-workspace');
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('.workspace-viewer .source-line');
+      })
+
+      .then(function () {
+        test.assertElementCount('.workspace-nav-item', 1);
+        test.assertSelectorContains('.workspace-nav-item', 'Cache.java');
+        test.assertExists('.workspace-nav-item .icon-qualifier-fil');
+
+        test.assertSelectorContains('.workspace-viewer-name', 'Cache.java');
+        test.assertExists('.workspace-viewer-name .icon-qualifier-fil');
+
+        test.assertExists('.workspace-viewer .source-viewer');
+        test.assertElementCount('.workspace-viewer .source-line', 11);
+      })
+
+      .then(function () {
+        casper.click('.workspace-viewer .js-close');
+        test.assertDoesntExist('.workspace-viewer');
+      })
+
+      .then(function () {
+        lib.sendCoverage();
+      })
+
+      .run(function () {
+        test.done();
+      });
+});
+
+
+casper.test.begin(testName('Load From Local Storage'), 7, function (test) {
+  casper
+      .start(lib.buildUrl('nav'), function () {
+        lib.setDefaultViewport();
+
+        lib.mockRequestFromFile('/api/components/app', 'app.json');
+        lib.mockRequestFromFile('/api/sources/lines', 'lines.json');
+        lib.mockRequestFromFile('/api/issues/search', 'issues.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          window.localStorage.setItem('sonarqube-workspace',
+              '[{"uuid":"12345","type":"component","name":"Cache.java","q":"FIL"}]');
+          window.SS.isUserAdmin = false;
+          window.navbarOptions = new Backbone.Model();
+          require(['/js/nav/app.js']);
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('.workspace-nav-item');
+      })
+
+      .then(function () {
+        test.assertElementCount('.workspace-nav-item', 1);
+        test.assertSelectorContains('.workspace-nav-item', 'Cache.java');
+        test.assertExists('.workspace-nav-item .icon-qualifier-fil');
+      })
+
+      .then(function () {
+        casper.click('.workspace-nav-item');
+        casper.waitForSelector('.workspace-viewer .source-line');
+      })
+
+      .then(function () {
+        test.assertSelectorContains('.workspace-viewer-name', 'Cache.java');
+        test.assertExists('.workspace-viewer-name .icon-qualifier-fil');
+
+        test.assertExists('.workspace-viewer .source-viewer');
+        test.assertElementCount('.workspace-viewer .source-line', 11);
+      })
+
+      .then(function () {
+        lib.sendCoverage();
+      })
+
+      .run(function () {
+        test.done();
+      });
+});
+
+
+casper.test.begin(testName('Close From Nav'), 2, function (test) {
+  casper
+      .start(lib.buildUrl('nav'), function () {
+        lib.setDefaultViewport();
+
+        lib.mockRequestFromFile('/api/components/app', 'app.json');
+        lib.mockRequestFromFile('/api/sources/lines', 'lines.json');
+        lib.mockRequestFromFile('/api/issues/search', 'issues.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          window.localStorage.setItem('sonarqube-workspace',
+              '[{"uuid":"12345","type":"component","name":"Cache.java","q":"FIL"}]');
+          window.SS.isUserAdmin = false;
+          window.navbarOptions = new Backbone.Model();
+          require(['/js/nav/app.js']);
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('.workspace-nav-item');
+      })
+
+      .then(function () {
+        casper.click('.workspace-nav-item');
+        casper.waitForSelector('.workspace-viewer .source-line');
+      })
+
+      .then(function () {
+        casper.click('.workspace-nav-item .js-close');
+        test.assertDoesntExist('.workspace-nav-item');
+        test.assertDoesntExist('.workspace-viewer');
+      })
+
+      .then(function () {
+        lib.sendCoverage();
+      })
+
+      .run(function () {
+        test.done();
+      });
+});
+
+
+casper.test.begin(testName('Minimize'), 2, function (test) {
+  casper
+      .start(lib.buildUrl('source-viewer'), function () {
+        lib.setDefaultViewport();
+
+        lib.mockRequestFromFile('/api/components/app', 'app.json');
+        lib.mockRequestFromFile('/api/sources/lines', 'lines.json');
+        lib.mockRequestFromFile('/api/issues/search', 'issues.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          window.localStorage.removeItem('sonarqube-workspace');
+          require(['/js/source-viewer/app.js']);
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('.source-line');
+      })
+
+      .then(function () {
+        casper.click('.js-actions');
+        casper.waitForSelector('.js-workspace', function () {
+          casper.click('.js-workspace');
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('.workspace-viewer .source-line');
+      })
+
+      .then(function () {
+        casper.click('.workspace-viewer .js-minimize');
+        test.assertDoesntExist('.workspace-viewer');
+        test.assertElementCount('.workspace-nav-item', 1);
+      })
+
+      .then(function () {
+        lib.sendCoverage();
+      })
+
+      .run(function () {
+        test.done();
+      });
+});
+
+
+casper.test.begin(testName('Full Screen'), 8, function (test) {
+  casper
+      .start(lib.buildUrl('source-viewer'), function () {
+        lib.setDefaultViewport();
+
+        lib.mockRequestFromFile('/api/components/app', 'app.json');
+        lib.mockRequestFromFile('/api/sources/lines', 'lines.json');
+        lib.mockRequestFromFile('/api/issues/search', 'issues.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          window.localStorage.removeItem('sonarqube-workspace');
+          require(['/js/source-viewer/app.js']);
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('.source-line');
+      })
+
+      .then(function () {
+        casper.click('.js-actions');
+        casper.waitForSelector('.js-workspace', function () {
+          casper.click('.js-workspace');
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('.workspace-viewer .source-line');
+      })
+
+      .then(function () {
+        test.assertVisible('.workspace-viewer .js-full-screen');
+        test.assertNotVisible('.workspace-viewer .js-normal-size');
+
+        casper.click('.workspace-viewer .js-full-screen');
+        test.assertExists('.workspace-viewer.workspace-viewer-full-screen');
+        test.assertNotVisible('.workspace-viewer .js-full-screen');
+        test.assertVisible('.workspace-viewer .js-normal-size');
+
+        casper.click('.workspace-viewer .js-normal-size');
+        test.assertDoesntExist('.workspace-viewer.workspace-viewer-full-screen');
+        test.assertVisible('.workspace-viewer .js-full-screen');
+        test.assertNotVisible('.workspace-viewer .js-normal-size');
       })
 
       .then(function () {

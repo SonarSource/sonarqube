@@ -21,6 +21,8 @@ define([
   'templates/workspace'
 ], function () {
 
+  var $ = jQuery;
+
   return Marionette.ItemView.extend({
     template: Templates['workspace-viewer-header'],
 
@@ -33,6 +35,15 @@ define([
       'click .js-full-screen': 'onFullScreenClick',
       'click .js-normal-size': 'onNormalSizeClick',
       'click .js-close': 'onCloseClick'
+    },
+
+    onRender: function () {
+      this.$('[data-toggle="tooltip"]').tooltip({ container: 'body' });
+    },
+
+    onClose: function () {
+      this.$('[data-toggle="tooltip"]').tooltip('destroy');
+      $('.tooltip').remove();
     },
 
     onMinimizeClick: function (e) {
