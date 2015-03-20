@@ -65,7 +65,7 @@ public class RenameIssueWidgetsTest {
   private void doStart() {
     System2 system2 = mock(System2.class);
     Date now = DateUtils.parseDateTime("2003-03-23T01:23:45+0100");
-    when(system2.newDate()).thenReturn(now);
+    when(system2.now()).thenReturn(now.getTime());
 
     RenameIssueWidgets task = new RenameIssueWidgets(
       new DbClient(

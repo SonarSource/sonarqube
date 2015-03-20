@@ -64,7 +64,7 @@ public class RegisterIssueFiltersTest {
   @Test
   public void should_register_issue_filters() throws Exception {
     Date now = DateUtils.parseDateTime("2011-04-25T01:15:00+0200");
-    when(system.newDate()).thenReturn(now);
+    when(system.now()).thenReturn(now.getTime());
 
     db.prepareDbUnit(getClass(), "empty.xml");
     taskUnderTest.start();

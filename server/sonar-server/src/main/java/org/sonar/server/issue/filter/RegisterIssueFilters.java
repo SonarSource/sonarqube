@@ -64,7 +64,7 @@ public class RegisterIssueFilters implements Startable {
   }
 
   private void createBuiltinIssueFilters() {
-    Date now = system.newDate();
+    Date now = new Date(system.now());
 
     IssueFilterDto unresolvedIssueFilter = new IssueFilterDto().setName(BUILTIN_ISSUE_FILTER_UNRESOLVED)
       .setShared(true)

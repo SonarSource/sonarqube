@@ -78,7 +78,7 @@ public class IssueIndexTest {
     viewIndexer = new ViewIndexer(null, tester.client());
     System2 system = mock(System2.class);
     when(system.getDefaultTimeZone()).thenReturn(TimeZone.getTimeZone("+01:00"));
-    when(system.newDate()).thenReturn(new Date());
+    when(system.now()).thenReturn(System.currentTimeMillis());
 
     index = new IssueIndex(tester.client(), system);
 

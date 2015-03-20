@@ -348,7 +348,7 @@ public class IssueIndex extends BaseIndex {
   }
 
   private void validateCreationDateBounds(Date createdBefore, Date createdAfter) {
-    Preconditions.checkArgument(createdAfter == null || createdAfter.before(system.newDate()),
+    Preconditions.checkArgument(createdAfter == null || createdAfter.before(new Date(system.now())),
       "Start bound cannot be in the future");
     Preconditions.checkArgument(createdAfter == null || createdAfter.equals(createdBefore) || createdBefore == null || createdAfter.before(createdBefore),
       "Start bound cannot be larger than end bound");
@@ -408,7 +408,7 @@ public class IssueIndex extends BaseIndex {
   }
 
   private AggregationBuilder getCreatedAtFacet(IssueQuery query, Map<String, FilterBuilder> filters, QueryBuilder esQuery) {
-    Date now = system.newDate();
+    long now = system.now();
 
     String timeZoneString = system.getDefaultTimeZone().getID();
 
@@ -416,7 +416,7 @@ public class IssueIndex extends BaseIndex {
     Date createdAfter = query.createdAfter();
     long startTime = createdAfter == null ? getMinCreatedAt(filters, esQuery) : createdAfter.getTime();
     Date createdBefore = query.createdBefore();
-    long endTime = createdBefore == null ? now.getTime() : createdBefore.getTime();
+    long endTime = createdBefore == null ? now : createdBefore.getTime();
 
     Duration timeSpan = new Duration(startTime, endTime);
 

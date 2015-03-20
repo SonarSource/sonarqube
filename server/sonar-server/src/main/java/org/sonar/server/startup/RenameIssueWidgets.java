@@ -35,6 +35,7 @@ import org.sonar.core.template.LoadedTemplateDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.filter.RegisterIssueFilters;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -143,8 +144,8 @@ public class RenameIssueWidgets implements Startable {
   private void updateWidget(DbSession session, WidgetDto widget) {
     dbClient.widgetDao().update(session,
       widget.setWidgetKey(getReplacementWidgetKey(session, widget))
-        .setUpdatedAt(system.newDate())
-        .setConfigured(true));
+        .setUpdatedAt(new Date(system.now()))
+          .setConfigured(true));
   }
 
   private String getReplacementWidgetKey(DbSession session, WidgetDto widget) {
