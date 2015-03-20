@@ -28,6 +28,7 @@ import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.notification.NewIssuesStatistics.METRIC;
 import org.sonar.server.user.index.UserDoc;
@@ -89,13 +90,16 @@ public class NewIssuesNotification extends Notification {
   protected void setComponentsStatistics(NewIssuesStatistics.Stats stats) {
     METRIC metric = METRIC.COMPONENT;
     List<Multiset.Entry<String>> componentStats = stats.statsForMetric(metric);
-    try (DbSession dbSession = dbClient.openSession(false)) {
+    DbSession dbSession = dbClient.openSession(false);
+    try {
       for (int i = 0; i < 5 && i < componentStats.size(); i++) {
         String uuid = componentStats.get(i).getElement();
         String componentName = dbClient.componentDao().getByUuid(dbSession, uuid).name();
         setFieldValue(metric + "." + (i + 1) + LABEL, componentName);
         setFieldValue(metric + "." + (i + 1) + COUNT, String.valueOf(componentStats.get(i).getCount()));
       }
+    } finally {
+      MyBatis.closeQuietly(dbSession);
     }
   }
 

@@ -24,6 +24,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import org.sonar.core.measure.db.MetricDto;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 
@@ -34,7 +35,8 @@ public class MetricCache {
   private final Map<String, MetricDto> metrics;
 
   public MetricCache(DbClient dbClient) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
+    DbSession dbSession = dbClient.openSession(false);
+    try {
       List<MetricDto> metricList = dbClient.metricDao().findEnabled(dbSession);
       this.metrics = Maps.uniqueIndex(metricList, new Function<MetricDto, String>() {
         @Override
@@ -42,6 +44,8 @@ public class MetricCache {
           return metric.getKey();
         }
       });
+    } finally {
+      MyBatis.closeQuietly(dbSession);
     }
   }
 

@@ -82,9 +82,7 @@ public class Durations implements BatchComponent, ServerComponent {
    * <br>
    * Example : format(Locale.FRENCH, Duration.encode("9d 10h"), DurationFormat.SHORT) -> 10j 2h (if sonar.technicalDebt.hoursInDay property is set to 8)
    *
-   * @deprecated since 5.2 replaced by format(java.util.Locale, org.sonar.api.utils.Duration)
    */
-  @Deprecated
   public String format(Locale locale, Duration duration, DurationFormat format) {
     return format(locale, duration);
   }
