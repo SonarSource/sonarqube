@@ -97,24 +97,32 @@ public class PersistMeasuresStep implements ComputationStep {
   MeasureDto toMeasureDto(BatchReport.Measure in, BatchReport.Component component) {
     checkMeasure(in);
 
-    MeasureDto out = new MeasureDto()
-      .setTendency(in.hasTendency() ? in.getTendency() : null)
-      .setVariation(1, in.hasVariationValue1() ? in.getVariationValue1() : null)
-      .setVariation(2, in.hasVariationValue2() ? in.getVariationValue2() : null)
-      .setVariation(3, in.hasVariationValue3() ? in.getVariationValue3() : null)
-      .setVariation(4, in.hasVariationValue4() ? in.getVariationValue4() : null)
-      .setVariation(5, in.hasVariationValue5() ? in.getVariationValue5() : null)
-      .setAlertStatus(in.hasAlertStatus() ? in.getAlertStatus() : null)
-      .setAlertText(in.hasAlertText() ? in.getAlertText() : null)
-      .setDescription(in.hasDescription() ? in.getDescription() : null)
-      .setSeverity(in.hasSeverity() ? in.getSeverity().name() : null)
-      .setComponentId(component.getId())
-      .setSnapshotId(component.getSnapshotId())
-      .setMetricId(metricCache.get(in.getMetricKey()).getId())
-      .setRuleId(ruleCache.get(RuleKey.parse(in.getRuleKey())).getId())
-      .setCharacteristicId(in.hasCharactericId() ? in.getCharactericId() : null);
+    MeasureDto out = new MeasureDto();
+    out.setTendency(in.hasTendency() ? in.getTendency() : null);
+    out.setVariation(1, in.hasVariationValue1() ? in.getVariationValue1() : null);
+    out.setVariation(2, in.hasVariationValue2() ? in.getVariationValue2() : null);
+    out.setVariation(3, in.hasVariationValue3() ? in.getVariationValue3() : null);
+    out.setVariation(4, in.hasVariationValue4() ? in.getVariationValue4() : null);
+    out.setVariation(5, in.hasVariationValue5() ? in.getVariationValue5() : null);
+    out.setAlertStatus(in.hasAlertStatus() ? in.getAlertStatus() : null);
+    out.setAlertText(in.hasAlertText() ? in.getAlertText() : null);
+    out.setDescription(in.hasDescription() ? in.getDescription() : null);
+    out.setSeverity(in.hasSeverity() ? in.getSeverity().name() : null);
+    out.setComponentId(component.getId());
+    out.setSnapshotId(component.getSnapshotId());
+    out.setMetricId(metricCache.get(in.getMetricKey()).getId());
+    out.setRuleId(ruleCache.get(RuleKey.parse(in.getRuleKey())).getId());
+    out.setCharacteristicId(in.hasCharactericId() ? in.getCharactericId() : null);
     out.setValue(valueAsDouble(in));
-    out.setData(in.hasStringValue() ? in.getStringValue() : null);
+    setData(in, out);
+    return out;
+  }
+
+  private MeasureDto setData(BatchReport.Measure in, MeasureDto out) {
+    if (in.hasStringValue()) {
+      out.setData(in.getStringValue());
+    }
+
     return out;
   }
 }

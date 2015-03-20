@@ -53,11 +53,11 @@ public class BatchReportMeasureUtils {
    * check that measure has a value (numerical or string) and a metric key
    */
   public static void checkMeasure(BatchReport.Measure measure) {
-    if (!measure.hasValueType() || !measure.hasMetricKey()) {
+    if (!hasValueTypeAndMetricKey(measure)) {
       throw newIllegalStateException(measure);
     }
 
-    boolean hasValueOrData = false;
+    boolean hasValueOrData;
     switch (measure.getValueType()) {
       case DOUBLE:
         hasValueOrData = measure.hasDoubleValue();
@@ -74,11 +74,17 @@ public class BatchReportMeasureUtils {
       case BOOLEAN:
         hasValueOrData = measure.hasBooleanValue();
         break;
+      default:
+        throw newIllegalStateException(measure);
     }
 
     if (!hasValueOrData) {
       throw newIllegalStateException(measure);
     }
+  }
+
+  private static boolean hasValueTypeAndMetricKey(BatchReport.Measure measure) {
+    return measure.hasValueType() && measure.hasMetricKey();
   }
 
   private static IllegalStateException newIllegalStateException(BatchReport.Measure measure) {
