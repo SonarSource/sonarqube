@@ -19,6 +19,7 @@
  */
 package org.sonar.server.activity.index;
 
+import org.apache.commons.io.Charsets;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.api.utils.KeyValueFormat;
@@ -80,7 +81,7 @@ class ActivityResultSetIterator extends ResultSetIterator<UpdateRequest> {
   protected UpdateRequest read(ResultSet rs) throws SQLException {
     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
     // all the fields must be present, even if value is null
-    JsonWriter writer = JsonWriter.of(new OutputStreamWriter(bytes)).setSerializeNulls(true);
+    JsonWriter writer = JsonWriter.of(new OutputStreamWriter(bytes, Charsets.UTF_8)).setSerializeNulls(true);
     writer.beginObject();
     String key = rs.getString(1);
     writer.prop(ActivityIndexDefinition.FIELD_KEY, key);
