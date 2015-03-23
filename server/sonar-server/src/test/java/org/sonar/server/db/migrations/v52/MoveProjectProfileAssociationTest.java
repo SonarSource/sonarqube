@@ -24,7 +24,6 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.core.persistence.DbTester;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.db.migrations.DatabaseMigration;
 
 public class MoveProjectProfileAssociationTest {
@@ -41,7 +40,7 @@ public class MoveProjectProfileAssociationTest {
     db.executeUpdateSql("truncate table properties");
     db.executeUpdateSql("truncate table rules_profiles");
 
-    migration = new MoveProjectProfileAssociation(new DbClient(db.database(), db.myBatis()));
+    migration = new MoveProjectProfileAssociation(db.database());
   }
 
   @Test
