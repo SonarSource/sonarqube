@@ -34,10 +34,9 @@ import org.sonar.server.computation.issue.RuleCache;
 import org.sonar.server.computation.measure.MetricCache;
 import org.sonar.server.db.DbClient;
 
-import java.util.List;
+import javax.annotation.CheckForNull;
 
-import static org.sonar.server.computation.measure.BatchReportMeasureUtils.checkMeasure;
-import static org.sonar.server.computation.measure.BatchReportMeasureUtils.valueAsDouble;
+import java.util.List;
 
 public class PersistMeasuresStep implements ComputationStep {
 
@@ -95,7 +94,12 @@ public class PersistMeasuresStep implements ComputationStep {
 
   @VisibleForTesting
   MeasureDto toMeasureDto(BatchReport.Measure in, BatchReport.Component component) {
-    checkMeasure(in);
+    if (!in.hasValueType()) {
+      throw new IllegalStateException(String.format("Measure %s does not have value type", in));
+    }
+    if (!in.hasMetricKey()) {
+      throw new IllegalStateException(String.format("Measure %s does not have metric key", in));
+    }
 
     MeasureDto out = new MeasureDto();
     out.setTendency(in.hasTendency() ? in.getTendency() : null);
@@ -111,11 +115,31 @@ public class PersistMeasuresStep implements ComputationStep {
     out.setComponentId(component.getId());
     out.setSnapshotId(component.getSnapshotId());
     out.setMetricId(metricCache.get(in.getMetricKey()).getId());
-    out.setRuleId(ruleCache.get(RuleKey.parse(in.getRuleKey())).getId());
+    out.setRuleId(in.hasRuleKey() ? ruleCache.get(RuleKey.parse(in.getRuleKey())).getId() : null);
     out.setCharacteristicId(in.hasCharactericId() ? in.getCharactericId() : null);
     out.setValue(valueAsDouble(in));
     setData(in, out);
     return out;
+  }
+
+  /**
+   * return the numerical value as a double. It's the type used in db.
+   * Returns null if no numerical value found
+   */
+  @CheckForNull
+  private static Double valueAsDouble(BatchReport.Measure measure) {
+    switch (measure.getValueType()) {
+      case BOOLEAN:
+        return measure.hasBooleanValue() ? (measure.getBooleanValue() ? 1.0d : 0.0d) : null;
+      case INT:
+        return measure.hasIntValue() ? Double.valueOf(measure.getIntValue()) : null;
+      case LONG:
+        return measure.hasLongValue() ? Double.valueOf(measure.getLongValue()) : null;
+      case DOUBLE:
+        return measure.hasDoubleValue() ? measure.getDoubleValue() : null;
+      default:
+        return null;
+    }
   }
 
   private MeasureDto setData(BatchReport.Measure in, MeasureDto out) {
