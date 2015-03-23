@@ -33,6 +33,7 @@ import org.sonar.server.db.migrations.v50.*;
 import org.sonar.server.db.migrations.v51.*;
 import org.sonar.server.db.migrations.v52.FeedEventsComponentUuid;
 import org.sonar.server.db.migrations.v52.FeedProjectLinksComponentUuid;
+import org.sonar.server.db.migrations.v52.MoveProjectProfileAssociation;
 
 import java.util.List;
 
@@ -100,6 +101,7 @@ public interface DatabaseMigrations {
 
     // 5.2
     FeedProjectLinksComponentUuid.class,
-    FeedEventsComponentUuid.class
+    FeedEventsComponentUuid.class,
+    MoveProjectProfileAssociation.class
     );
 }
