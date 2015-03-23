@@ -70,8 +70,8 @@ public class GlobalRepositoryActionTest {
 
   @Test
   public void return_metrics() throws Exception {
-    when(metricDao.findEnabled(session)).thenReturn(newArrayList(
-      MetricDto.createFor("coverage").setDescription("Coverage by unit tests").setValueType("PERCENT").setQualitative(true)
+    when(metricDao.selectEnabled(session)).thenReturn(newArrayList(
+      new MetricDto().setKey("coverage").setDescription("Coverage by unit tests").setValueType("PERCENT").setQualitative(true)
         .setWorstValue(0d).setBestValue(100d).setOptimizedBestValue(false).setDirection(1).setEnabled(true)
       ));
 

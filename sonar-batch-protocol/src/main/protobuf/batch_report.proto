@@ -42,6 +42,7 @@ option optimize_for = SPEED;
 message Metadata {
   optional int64 analysis_date = 1;
   optional string project_key = 2;
+  optional string branch = 6;
   optional int32 root_component_ref = 3;
 
   // temporary fields used during development of computation stack
@@ -74,6 +75,8 @@ message Component {
   repeated ComponentLink link = 10;
   // Only available on PROJECT and MODULE type
   optional string version = 12;
+  // Only available on PROJECT and MODULE type
+  optional string key = 14;
 
   // temporary fields during development of computation stack
   optional int64 id = 13;
@@ -149,4 +152,24 @@ message Issues {
     
     // Temporary field for issues on deleted components
     optional string component_uuid = 3;
+}
+
+message DuplicationBlock {
+  // Will be null on original blocks or when duplications are on the same file
+  optional int32 other_component_ref = 1;
+  optional int32 start_line = 2;
+  optional int32 end_line = 3;
+
+  // temporary field during development of computation stack for cross project duplications
+  optional string component_key = 4;
+}
+
+message Duplication {
+  optional DuplicationBlock origin_block = 1;
+  repeated DuplicationBlock duplicated_by = 2;
+}
+
+message Duplications {
+  optional int32 component_ref = 1;
+  repeated Duplication duplication = 2;
 }

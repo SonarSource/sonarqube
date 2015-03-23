@@ -84,4 +84,12 @@ public class BatchReportWriter {
     ProtobufUtil.writeToFile(issuesBuilder.build(), file);
   }
 
+  public void writeComponentDuplications(int componentRef, Iterable<BatchReport.Duplication> duplications) {
+    BatchReport.Duplications.Builder builder = BatchReport.Duplications.newBuilder();
+    builder.setComponentRef(componentRef);
+    builder.addAllDuplication(duplications);
+    File file = fileStructure.fileFor(FileStructure.Domain.DUPLICATIONS, componentRef);
+    ProtobufUtil.writeToFile(builder.build(), file);
+  }
+
 }

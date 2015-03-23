@@ -30,4 +30,6 @@ public interface MetricMapper {
 
   List<MetricDto> selectAllEnabled();
 
+  void insert(MetricDto dto);
+
 }

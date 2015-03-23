@@ -68,7 +68,7 @@
     </where>
   </select>
 
-  <insert id="insert" parameterType="Measure" useGeneratedKeys="false" keyColumn="id" keyProperty="id">
+  <insert id="insert" parameterType="Measure" useGeneratedKeys="false">
     INSERT INTO project_measures (
     value, metric_id, snapshot_id, rule_id, text_value, tendency, project_id, alert_status, alert_text, description,
     rule_priority, characteristic_id, variation_value_1, variation_value_2, variation_value_3, variation_value_4,

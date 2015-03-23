@@ -79,6 +79,16 @@ public class BatchReportReader {
     return ProtobufUtil.readFile(file, Issues.PARSER);
   }
 
+  public List<BatchReport.Duplication> readComponentDuplications(int componentRef) {
+    File file = fileStructure.fileFor(FileStructure.Domain.DUPLICATIONS, componentRef);
+    if (file.exists() && file.isFile()) {
+      // all the duplications are loaded in memory
+      BatchReport.Duplications duplications = ProtobufUtil.readFile(file, BatchReport.Duplications.PARSER);
+      return duplications.getDuplicationList();
+    }
+    return Collections.emptyList();
+  }
+
   private boolean isNotAnExistingFile(File file) {
     return !file.exists() || !file.isFile();
   }

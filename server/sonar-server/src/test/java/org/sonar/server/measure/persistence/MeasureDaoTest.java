@@ -22,7 +22,7 @@ package org.sonar.server.measure.persistence;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.rule.Severity;
@@ -39,14 +39,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Category(DbTests.class)
 public class MeasureDaoTest {
 
-  @Rule
-  public DbTester db = new DbTester();
+  @ClassRule
+  public static DbTester db = new DbTester();
 
   DbSession session;
   MeasureDao sut;
 
   @Before
   public void setUp() {
+    db.truncateTables();
     session = db.myBatis().openSession(false);
     sut = new MeasureDao();
   }

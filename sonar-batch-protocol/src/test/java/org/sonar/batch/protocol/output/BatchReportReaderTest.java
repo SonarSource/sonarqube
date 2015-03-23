@@ -61,6 +61,9 @@ public class BatchReportReaderTest {
     assertThat(deletedComponentIssues.getIssueList()).hasSize(1);
     assertThat(sut.readComponentMeasures(1)).hasSize(1);
     assertThat(sut.readComponentMeasures(1).get(0).getStringValue()).isEqualTo("value_a");
+    assertThat(sut.readComponentDuplications(1)).hasSize(1);
+    assertThat(sut.readComponentDuplications(1).get(0).getOriginBlock()).isNotNull();
+    assertThat(sut.readComponentDuplications(1).get(0).getDuplicatedByList()).hasSize(1);    
   }
 
   @Test(expected = IllegalStateException.class)
@@ -69,7 +72,7 @@ public class BatchReportReaderTest {
   }
 
   @Test(expected = IllegalStateException.class)
-   public void fail_if_missing_file_on_deleted_component() throws Exception {
+  public void fail_if_missing_file_on_deleted_component() throws Exception {
     sut.readDeletedComponentIssues(666);
   }
 
@@ -119,5 +122,21 @@ public class BatchReportReaderTest {
       .setStringValue("value_a");
 
     writer.writeComponentMeasures(1, Arrays.asList(measure.build()));
+
+    BatchReport.Duplication duplication = BatchReport.Duplication.newBuilder()
+      .setOriginBlock(BatchReport.DuplicationBlock.newBuilder()
+        .setComponentKey("COMPONENT_A")
+        .setOtherComponentRef(2)
+        .setStartLine(1)
+        .setEndLine(5)
+        .build())
+      .addDuplicatedBy(BatchReport.DuplicationBlock.newBuilder()
+        .setComponentKey("COMPONENT_A")
+        .setOtherComponentRef(2)
+        .setStartLine(6)
+        .setEndLine(10)
+        .build())
+      .build();
+    writer.writeComponentDuplications(1, Arrays.asList(duplication));
   }
 }
