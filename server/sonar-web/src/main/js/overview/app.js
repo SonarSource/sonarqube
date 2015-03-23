@@ -1,7 +1,9 @@
 requirejs([
   'overview/layout',
-  'overview/models/state'
-], function (Layout, State) {
+  'overview/models/state',
+  'overview/views/issues-view',
+  'overview/views/coverage-view'
+], function (Layout, State, IssuesView, CoverageView) {
 
   var App = new Marionette.Application();
 
@@ -11,6 +13,8 @@ requirejs([
       el: '.overview',
       model: this.state
     }).render();
+    this.layout.issuesRegion.show(new IssuesView());
+    this.layout.coverageRegion.show(new CoverageView());
   });
 
   window.requestMessages().done(function () {

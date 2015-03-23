@@ -22,12 +22,7 @@ define([
 ], function () {
 
   return Marionette.Layout.extend({
-    template: Templates['overview-layout'],
-
-    regions: {
-      issuesRegion: '#overview-issues',
-      coverageRegion: '#overview-coverage'
-    }
+    template: Templates['overview-coverage']
   });
 
 });
