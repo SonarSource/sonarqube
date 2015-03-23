@@ -35,7 +35,6 @@ define([
     goToFile: function (e) {
       var uuid = $(e.currentTarget).data('uuid'),
           line = $(e.currentTarget).data('line');
-      console.log(uuid);
       if (Workspace == null) {
         Workspace = require('workspace/main');
       }

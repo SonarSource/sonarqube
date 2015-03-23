@@ -48,7 +48,6 @@ define([
         obj.has_debt_characteristic = null;
         obj[property] = this.getValue();
       }
-      console.log(obj);
       this.options.app.state.updateFilter(obj);
     },
 
