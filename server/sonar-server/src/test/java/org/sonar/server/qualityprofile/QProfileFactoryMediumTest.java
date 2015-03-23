@@ -27,7 +27,6 @@ import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
@@ -196,24 +195,6 @@ public class QProfileFactoryMediumTest {
   }
 
   @Test
-  public void renaming_is_applied_to_default_profile_properties() {
-    QualityProfileDto p1 = factory.create(dbSession, new QProfileName("xoo", "P1"));
-    db.propertiesDao().setProperty(new PropertyDto().setKey("sonar.profile.xoo").setValue("P1"), dbSession);
-    db.propertiesDao().setProperty(new PropertyDto().setKey("sonar.profile.java").setValue("P1"), dbSession);
-    db.propertiesDao().setProperty(new PropertyDto().setKey("sonar.profile.js").setValue("JS1"), dbSession);
-    dbSession.commit();
-    dbSession.clearCache();
-
-    factory.rename(p1.getKey(), "P2");
-    dbSession.clearCache();
-
-    // do not touch java and js profiles, even if java profile has same name
-    assertThat(db.propertiesDao().selectGlobalProperty("sonar.profile.xoo").getValue()).isEqualTo("P2");
-    assertThat(db.propertiesDao().selectGlobalProperty("sonar.profile.java").getValue()).isEqualTo("P1");
-    assertThat(db.propertiesDao().selectGlobalProperty("sonar.profile.js").getValue()).isEqualTo("JS1");
-  }
-
-  @Test
   public void delete() {
     initRules();
     db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1());
@@ -305,13 +286,12 @@ public class QProfileFactoryMediumTest {
     dbSession.commit();
     dbSession.clearCache();
 
-    assertThat(db.propertiesDao().selectGlobalProperty("sonar.profile.xoo")).isNull();
-    assertThat(factory.getDefault("xoo")).isNull();
+    assertThat(db.qualityProfileDao().getByKey(dbSession, XOO_P1_KEY).isDefault()).isFalse();
 
     factory.setDefault(XOO_P1_KEY);
     dbSession.clearCache();
-    assertThat(db.propertiesDao().selectGlobalProperty("sonar.profile.xoo").getValue()).isEqualTo("P1");
-    assertThat(factory.getDefault("xoo").getKey()).isEqualTo(XOO_P1_KEY);
+
+    assertThat(db.qualityProfileDao().getByKey(dbSession, XOO_P1_KEY).isDefault()).isTrue();
   }
 
   @Test
@@ -329,6 +309,7 @@ public class QProfileFactoryMediumTest {
   public void get_profile_by_project_and_language() {
     ComponentDto project = new ComponentDto()
       .setId(1L)
+      .setUuid("ABCD")
       .setKey("org.codehaus.sonar:sonar")
       .setName("SonarQube")
       .setLongName("SonarQube")

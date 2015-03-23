@@ -9,20 +9,22 @@
     p.name as name,
     p.language as language,
     p.parent_kee as parentKee,
+    p.is_default as isDefault,
     p.created_at as createdAt,
     p.updated_at as updatedAt,
     p.rules_updated_at as rulesUpdatedAt
   </sql>
 
   <insert id="insert" parameterType="QualityProfile" keyColumn="id" useGeneratedKeys="true" keyProperty="id" >
-    INSERT INTO rules_profiles (kee, parent_kee, name, language, created_at, updated_at, rules_updated_at)
-    VALUES (#{kee}, #{parentKee}, #{name}, #{language}, #{createdAt}, #{updatedAt}, #{rulesUpdatedAt,})
+    INSERT INTO rules_profiles (kee, parent_kee, name, language, is_default, created_at, updated_at, rules_updated_at)
+    VALUES (#{kee}, #{parentKee}, #{name}, #{language}, #{isDefault}, #{createdAt}, #{updatedAt}, #{rulesUpdatedAt,})
   </insert>
 
   <update id="update" parameterType="QualityProfile" >
     UPDATE rules_profiles SET
     name=#{name},
     language=#{language},
+    is_default=#{isDefault},
     parent_kee=#{parentKee},
     updated_at=#{updatedAt},
     rules_updated_at=#{rulesUpdatedAt}
@@ -86,54 +88,61 @@
   <select id="selectDefaultProfile" parameterType="map" resultType="QualityProfile">
     SELECT <include refid="profilesColumns"/>
     FROM rules_profiles p
-    INNER JOIN properties prop ON prop.prop_key=#{propKey}
-      AND prop.resource_id IS NULL
-      AND prop.text_value LIKE p.name
+    WHERE p.is_default=${_true}
       AND p.language=#{language}
   </select>
 
   <select id="selectProjects" parameterType="Integer" resultType="Component">
-    SELECT projects.id as id, projects.name as name, projects.kee as kee
+    SELECT projects.id as id, projects.name as name, projects.kee as kee, projects.uuid as uuid
     FROM projects projects
-    LEFT JOIN properties ON properties.resource_id = projects.id
+    JOIN project_profiles pp ON pp.project_uuid = projects.uuid
+    JOIN rules_profiles prof ON pp.profile_key = prof.kee
     <where>
-      AND properties.resource_id IS NOT NULL
-      AND properties.prop_key=#{key}
-      AND properties.text_value LIKE #{value}
+      AND prof.name = #{profileName}
+      AND prof.language = #{language}
     </where>
   </select>
 
   <select id="countProjects" parameterType="Integer" resultType="Integer">
     SELECT count(projects.id)
     FROM projects projects
-    LEFT JOIN properties ON properties.resource_id = projects.id
+    JOIN project_profiles pp ON pp.project_uuid=projects.uuid
+    JOIN rules_profiles prof ON pp.profile_key=prof.kee
     <where>
-      AND properties.resource_id IS NOT NULL
-      AND properties.prop_key=#{key}
-      AND properties.text_value LIKE #{value}
+      AND prof.language=#{language}
+      AND prof.name=#{profileName}
     </where>
   </select>
 
   <select id="selectByProjectIdAndLanguage" parameterType="map" resultType="QualityProfile">
     SELECT <include refid="profilesColumns"/>
     FROM rules_profiles p
-    INNER JOIN properties prop ON prop.resource_id=#{projectId}
-      AND prop.prop_key LIKE #{key}
-      AND prop.text_value LIKE p.name
+    JOIN project_profiles pp ON pp.profile_key=p.kee
+    JOIN projects project ON pp.project_uuid=project.uuid
+      AND project.id=#{projectId}
     WHERE p.language=#{language}
   </select>
 
   <select id="selectByProjectAndLanguage" parameterType="map" resultType="QualityProfile">
     SELECT <include refid="profilesColumns"/>
-    FROM rules_profiles p, projects project
-    INNER JOIN properties prop ON prop.resource_id=project.id
-    <where>
-      AND p.language=#{language}
-      AND prop.prop_key LIKE #{propertyKey}
-      AND prop.text_value LIKE p.name
+    FROM rules_profiles p
+    JOIN project_profiles pp ON pp.profile_key=p.kee
+    JOIN projects project ON pp.project_uuid=project.uuid
       AND project.kee=#{projectKey}
-    </where>
+    WHERE p.language=#{language}
   </select>
+
+  <insert id="insertProjectProfileAssociation" keyColumn="id" useGeneratedKeys="true">
+    INSERT INTO project_profiles (project_uuid, profile_key) VALUES (#{projectUuid}, #{profileKey})
+  </insert>
+
+  <update id="deleteProjectProfileAssociation">
+    DELETE FROM project_profiles WHERE project_uuid=#{projectUuid} AND profile_key=#{profileKey}
+  </update>
+
+  <update id="deleteAllProjectProfileAssociation">
+    DELETE FROM project_profiles WHERE profile_key=#{profileKey}
+  </update>
 
 </mapper>
 
