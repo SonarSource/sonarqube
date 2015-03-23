@@ -66,8 +66,6 @@ define([
 
     flagKey: function () {
       this.keyModifiedByUser = true;
-      // Cannot use @ui.customRuleCreationReactivate.hide() directly since it was not there at initial render
-      jQuery(this.ui.customRuleCreationReactivate.selector).hide();
     },
 
     onRender: function () {
@@ -166,8 +164,9 @@ define([
       }).fail(function (jqXHR) {
         if (jqXHR.status === 409) {
           that.existingRule = jqXHR.responseJSON.rule;
-          that.$('.alert-warning').removeClass('hidden');
-          that.ui.modalFoot.html(Templates['coding-rules-custom-rule-reactivation']());
+          that.showErrors([], [{ msg: t('coding_rules.reactivate.help') }]);
+          that.ui.customRuleCreationCreate.addClass('hidden');
+          that.ui.customRuleCreationReactivate.removeClass('hidden');
         } else {
           that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
         }

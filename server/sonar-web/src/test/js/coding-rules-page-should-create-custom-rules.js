@@ -19,14 +19,15 @@
  */
 /* global casper:false */
 
-var lib = require('../lib');
+var lib = require('../lib'),
+    testName = lib.testName('Coding Rules', 'Custom Rule');
 
 lib.initMessages();
 lib.changeWorkingDirectory('coding-rules-page-should-create-custom-rules');
 lib.configureCasper();
 
 
-casper.test.begin('coding-rules-page-should-delete-create-rules', 2, function (test) {
+casper.test.begin(testName('Create'), 2, function (test) {
   casper
       .start(lib.buildUrl('coding-rules'), function () {
         lib.setDefaultViewport();
@@ -66,11 +67,83 @@ casper.test.begin('coding-rules-page-should-delete-create-rules', 2, function (t
       .then(function () {
         test.assertElementCount('#coding-rules-detail-custom-rules .coding-rules-detail-list-name', 1);
         casper.click('.js-create-custom-rule');
-		casper.evaluate(function () {
-          jQuery('.modal form [name="test"]').val('test');
-		  jQuery('.modal form [name="markdown_description"]').val('test');
+        casper.evaluate(function () {
+          jQuery('.modal form [name="name"]').val('test').keyup();
+          jQuery('.modal form [name="markdown_description"]').val('test');
         });
         casper.click('#coding-rules-custom-rule-creation-create');
+        lib.waitForElementCount('#coding-rules-detail-custom-rules .coding-rules-detail-list-name', 2, function () {
+          test.assert(true); // put dummy assert into wait statement
+        });
+      })
+
+      .then(function () {
+        lib.sendCoverage();
+      })
+
+      .run(function () {
+        test.done();
+      });
+});
+
+
+casper.test.begin(testName('Reactivate'), 3, function (test) {
+  casper
+      .start(lib.buildUrl('coding-rules'), function () {
+        lib.setDefaultViewport();
+
+
+        lib.mockRequestFromFile('/api/rules/app', 'app.json');
+        this.customRulesSearchMock = lib.mockRequestFromFile('/api/rules/search', 'search-custom-rules.json',
+            { data: { template_key: 'squid:ArchitecturalConstraint' } });
+        this.searchMock = lib.mockRequestFromFile('/api/rules/search', 'search.json');
+        lib.mockRequestFromFile('/api/rules/show', 'show.json');
+        this.createMock = lib.mockRequestFromFile('/api/rules/create', 'create.json', { status: 409 });
+        lib.mockRequest('/api/issues/search', '{}');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/coding-rules/app.js']);
+          jQuery.ajaxSetup({ dataType: 'json' });
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('.coding-rule.selected', function () {
+          casper.click('.coding-rule.selected .js-rule');
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('.js-create-custom-rule');
+      })
+
+      .then(function () {
+        casper.click('.js-create-custom-rule');
+        casper.waitForSelector('.modal');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          jQuery('.modal form [name="name"]').val('My Custom Rule').keyup();
+          jQuery('.modal form [name="markdown_description"]').val('My Description');
+        });
+        casper.click('#coding-rules-custom-rule-creation-create');
+        casper.waitForSelector('.modal .alert-warning');
+      })
+
+      .then(function () {
+        test.assertVisible('.modal #coding-rules-custom-rule-creation-reactivate');
+        test.assertNotVisible('.modal #coding-rules-custom-rule-creation-create');
+        lib.clearRequestMock(this.createMock);
+        lib.clearRequestMock(this.customRulesSearchMock);
+        lib.clearRequestMock(this.searchMock);
+        lib.mockRequestFromFile('/api/rules/create', 'create.json');
+        this.customRulesSearchMock = lib.mockRequestFromFile('/api/rules/search', 'search-custom-rules2.json',
+            { data: { template_key: 'squid:ArchitecturalConstraint' } });
+        this.searchMock = lib.mockRequestFromFile('/api/rules/search', 'search.json');
+        casper.click('.modal #coding-rules-custom-rule-creation-reactivate');
         lib.waitForElementCount('#coding-rules-detail-custom-rules .coding-rules-detail-list-name', 2, function () {
           test.assert(true); // put dummy assert into wait statement
         });

@@ -9,8 +9,6 @@
 
   <div class="modal-body modal-container">
     <div class="js-modal-messages"></div>
-    <div class="alert alert-danger"></div>
-    <div class="alert alert-warning">{{t 'coding_rules.reactivate.help'}}</div>
 
     <table>
       <tr class="property">
@@ -82,6 +80,7 @@
     <button id="coding-rules-custom-rule-creation-create">
       {{#if change}}{{t 'save'}}{{else}}{{t 'create'}}{{/if}}
     </button>
-    <a id="coding-rules-custom-rule-creation-cancel" class="action">{{t 'cancel'}}</a>
+    <button id="coding-rules-custom-rule-creation-reactivate" class="hidden">{{t 'coding_rules.reactivate'}}</button>
+    <a id="coding-rules-custom-rule-creation-cancel">{{t 'cancel'}}</a>
   </div>
 </form>

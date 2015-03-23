@@ -59,6 +59,7 @@ define(['common/modals'], function (ModalView) {
           container.append(html);
         });
       }
+      this.ui.messagesContainer.scrollParent().scrollTop(0);
     }
   });
 
