@@ -50,6 +50,7 @@ public class QProfileProjectOperationsMediumTest {
   ComponentDto project;
   QualityProfileDto profile;
   static final String PROJECT_KEY = "SonarQube";
+  static final String PROJECT_UUID = "ABCD";
 
   UserSession authorizedProfileAdminUserSession = MockUserSession.create().setLogin("john").setName("John").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   UserSession authorizedProjectAdminUserSession = MockUserSession.create().setLogin("john").setName("John").addProjectPermissions(UserRole.ADMIN, PROJECT_KEY);
@@ -63,6 +64,7 @@ public class QProfileProjectOperationsMediumTest {
     projectOperations = tester.get(QProfileProjectOperations.class);
 
     project = new ComponentDto()
+      .setUuid(PROJECT_UUID)
       .setKey(PROJECT_KEY)
       .setName("SonarQube")
       .setLongName("SonarQube")
@@ -117,6 +119,7 @@ public class QProfileProjectOperationsMediumTest {
   @Test
   public void remove_all_projects() throws Exception {
     ComponentDto project1 = new ComponentDto()
+      .setUuid("BCDE")
       .setKey("project1")
       .setName("project1")
       .setLongName("project1")
@@ -124,6 +127,7 @@ public class QProfileProjectOperationsMediumTest {
       .setScope("PRJ")
       .setEnabled(true);
     ComponentDto project2 = new ComponentDto()
+      .setUuid("CDEF")
       .setKey("project2")
       .setName("project2")
       .setLongName("project2")

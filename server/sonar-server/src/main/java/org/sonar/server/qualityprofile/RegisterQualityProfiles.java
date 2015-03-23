@@ -42,11 +42,8 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.platform.PersistentSettings;
 
 import javax.annotation.Nullable;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import java.util.*;
 
 /**
  * Synchronize Quality profiles during server startup
@@ -154,21 +151,17 @@ public class RegisterQualityProfiles implements ServerComponent {
   }
 
   private void setDefault(String language, List<RulesProfile> profileDefs, DbSession session) {
-    String propertyKey = "sonar.profile." + language;
     boolean upToDate = false;
-    String currentDefault = settings.getString(propertyKey);
+    QualityProfileDto currentDefault = dbClient.qualityProfileDao().getDefaultProfile(language, session);
     if (currentDefault != null) {
-      // check validity
-      QualityProfileDto profile = dbClient.qualityProfileDao().getByNameAndLanguage(currentDefault, language, session);
-      if (profile != null) {
-        upToDate = true;
-      }
+      upToDate = true;
     }
 
     if (!upToDate) {
       String defaultProfileName = nameOfDefaultProfile(profileDefs);
       LOGGER.info("Set default " + language + " profile: " + defaultProfileName);
-      settings.saveProperty(propertyKey, defaultProfileName);
+      QualityProfileDto newDefaultProfile = dbClient.qualityProfileDao().getByNameAndLanguage(defaultProfileName, language, session);
+      dbClient.qualityProfileDao().update(session, newDefaultProfile.setDefault(true));
     }
   }
 

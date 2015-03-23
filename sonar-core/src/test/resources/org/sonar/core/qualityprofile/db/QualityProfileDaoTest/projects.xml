@@ -1,21 +1,16 @@
 <dataset>
 
-  <rules_profiles id="1" name="Sonar Way" language="java" parent_kee="[null]" kee="java_sonar_way" is_default="[false]"
+  <rules_profiles id="1" name="Sonar Way" language="java" parent_kee="[null]" kee="java_sonar_way" is_default="[true]"
                   rules_updated_at="[null]" created_at="[null]" updated_at="[null]"/>
-  <rules_profiles id="2" name="Sonar Way" language="js" parent_kee="[null]" kee="js_sonar_way" is_default="[false]"
+  <rules_profiles id="2" name="Sonar Way" language="js" parent_kee="[null]" kee="js_sonar_way" is_default="[true]"
                   rules_updated_at="[null]" created_at="[null]" updated_at="[null]"/>
 
   <projects id="1" uuid="A" kee="org.codehaus.sonar:sonar" name="SonarQube"/>
   <projects id="2" uuid="B" kee="org.codehaus.sonar-plugins.java:java" name="SonarQube Java"/>
 
-  <properties id="1" prop_key="sonar.profile.java" text_value="Sonar Way" resource_id="1"/>
-  <properties id="2" prop_key="sonar.profile.java" text_value="Sonar Way" resource_id="2"/>
-
-  <!-- Property used to know the default profile, should not be returned when searching for projects -->
-  <properties id="3" prop_key="sonar.profile.java" text_value="Sonar Way" resource_id="[null]"/>
-
-  <properties id="4" prop_key="sonar.profile.js" text_value="Sonar Way" resource_id="1"/>
-  <properties id="5" prop_key="sonar.profile.js" text_value="Sonar Way" resource_id="2"/>
-  <properties id="6" prop_key="sonar.profile.js" text_value="Sonar Way" resource_id="[null]"/>
+  <project_profiles id="1" project_uuid="A" profile_key="java_sonar_way"/>
+  <project_profiles id="2" project_uuid="B" profile_key="java_sonar_way"/>
+  <project_profiles id="3" project_uuid="A" profile_key="js_sonar_way"/>
+  <project_profiles id="4" project_uuid="B" profile_key="js_sonar_way"/>
 
 </dataset>
