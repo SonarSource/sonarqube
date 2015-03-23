@@ -23,156 +23,111 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.server.db.DbClient;
-import org.sonar.server.db.migrations.DatabaseMigration;
-import org.sonar.server.util.ProgressLogger;
+import org.sonar.core.persistence.Database;
+import org.sonar.server.db.migrations.*;
+import org.sonar.server.db.migrations.MassUpdate.Handler;
+import org.sonar.server.db.migrations.Select.Row;
+import org.sonar.server.db.migrations.Select.RowReader;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * SonarQube 5.2
  * SONAR-6328
  *
  */
-public class MoveProjectProfileAssociation implements DatabaseMigration {
+public class MoveProjectProfileAssociation extends BaseDataChange {
+
+  private static final class ProjectProfileAssociationHandler implements Handler {
+    private final Upsert setDefaultProfile;
+    private final Upsert associateProjectToProfile;
+    private final Table<String, String, String> profileKeysByLanguageThenName;
+
+    private ProjectProfileAssociationHandler(Upsert setDefaultProfile, Upsert associateProjectToProfile, Table<String, String, String> profileKeysByLanguageThenName) {
+      this.setDefaultProfile = setDefaultProfile;
+      this.associateProjectToProfile = associateProjectToProfile;
+      this.profileKeysByLanguageThenName = profileKeysByLanguageThenName;
+    }
+
+    @Override
+    public boolean handle(Row row, SqlStatement update) throws SQLException {
+      Long id = row.getLong(1);
+      String profileLanguage = extractLanguage(row.getString(2));
+      String profileName = row.getString(3);
+      Long projectId = row.getLong(4);
+      String projectUuid = row.getString(5);
+ 
+      if (profileKeysByLanguageThenName.contains(profileLanguage, profileName)) {
+        String profileKey = profileKeysByLanguageThenName.get(profileLanguage, profileName);
+
+        if (projectUuid == null) {
+          if (projectId == null || projectId == 0L) {
+            setDefaultProfile.setBoolean(1, true).setString(2, profileKey).execute();
+          } else {
+            LOGGER.warn(String.format("Profile with language '%s' and name '%s' is associated with unknown project '%d', ignored", profileLanguage, profileName, projectId));
+          }
+        } else {
+          associateProjectToProfile.setString(1, projectUuid).setString(2, profileKey).execute();
+        }
+      } else {
+        LOGGER.warn(String.format("Unable to find profile with language '%s' and name '%s', ignored", profileLanguage, profileName));
+      }
+
+      update.setLong(1, id);
+      return true;
+    }
+  }
 
   private static final Logger LOGGER = Loggers.get(MoveProjectProfileAssociation.class);
 
-  private final DbClient db;
-  private final AtomicLong counter = new AtomicLong(0L);
-
-  public MoveProjectProfileAssociation(DbClient db) {
-    this.db = db;
-
+  public MoveProjectProfileAssociation(Database db) {
+    super(db);
   }
 
   @Override
-  public void execute() throws SQLException {
-    ProgressLogger progress = ProgressLogger.create(getClass(), counter);
-    progress.start();
+  public void execute(Context context) throws SQLException {
 
-    final DbSession readSession = db.openSession(false);
-    final DbSession writeSession = db.openSession(true);
+    final Table<String, String, String> profileKeysByLanguageThenName = getProfileKeysByLanguageThenName(context);
 
-    PreparedStatement selectStatement = readSession.getConnection().prepareStatement(
-      "SELECT prop.id, prop.prop_key, prop.text_value, prop.resource_id, proj.uuid " +
-        "FROM properties prop " +
-        "LEFT OUTER JOIN projects proj ON prop.resource_id = proj.id " +
-        "WHERE prop.prop_key LIKE 'sonar.profile.%'"
+    MassUpdate massUpdate = context.prepareMassUpdate();
+    massUpdate.select("SELECT prop.id, prop.prop_key, prop.text_value, prop.resource_id, proj.uuid " +
+      "FROM properties prop " +
+      "LEFT OUTER JOIN projects proj ON prop.resource_id = proj.id " +
+      "WHERE prop.prop_key LIKE 'sonar.profile.%'"
       );
-    PreparedStatement deleteProperty = writeSession.getConnection().prepareStatement(
-      "DELETE FROM properties WHERE id = ?");
+    massUpdate.update("DELETE FROM properties WHERE id = ?");
+
+    final Upsert setDefaultProfile = context.prepareUpsert("UPDATE rules_profiles SET is_default = ? WHERE kee = ?");
+    final Upsert associateProjectToProfile = context.prepareUpsert("INSERT INTO project_profiles (project_uuid, profile_key) VALUES (?, ?)");
 
     try {
-      Table<String, String, String> profileKeysByLanguageThenName = getProfileKeysByLanguageThenName(readSession);
-
-      ResultSet profileProperties = selectStatement.executeQuery();
-
-      Long id;
-      String profileLanguage;
-      String profileName;
-      Long projectId;
-      String projectUuid;
-
-      while (profileProperties.next()) {
-        id = profileProperties.getLong(1);
-        profileLanguage = extractLanguage(profileProperties.getString(2));
-        profileName = profileProperties.getString(3);
-        projectId = profileProperties.getLong(4);
-        projectUuid = profileProperties.getString(5);
-
-        if (profileKeysByLanguageThenName.contains(profileLanguage, profileName)) {
-          String profileKey = profileKeysByLanguageThenName.get(profileLanguage, profileName);
-
-          if (projectUuid == null) {
-            if (projectId == null || projectId == 0L) {
-              setProfileIsDefault(profileKey, writeSession);
-            } else {
-              LOGGER.warn(String.format("Profile with language '%s' and name '%s' is associated with unknown project '%d', ignored", profileLanguage, profileName, projectId));
-            }
-          } else {
-            associateProjectWithProfile(projectUuid, profileKey, writeSession);
-          }
-        } else {
-          LOGGER.warn(String.format("Unable to find profile with language '%s' and name '%s', ignored", profileLanguage, profileName));
-        }
-
-        deleteProperty.setLong(1, id);
-        deleteProperty.execute();
-
-        counter.getAndIncrement();
-      }
-
-      writeSession.commit(true);
-      readSession.commit(true);
-
-      // log the total number of process rows
-      progress.log();
+      massUpdate.execute(new ProjectProfileAssociationHandler(setDefaultProfile, associateProjectToProfile, profileKeysByLanguageThenName));
     } finally {
-      deleteProperty.close();
-      selectStatement.close();
-      readSession.close();
-      writeSession.close();
-      progress.stop();
+      associateProjectToProfile.close();
+      setDefaultProfile.close();
     }
-
   }
 
-  private String extractLanguage(String propertyKey) {
+  private static String extractLanguage(String propertyKey) {
     return propertyKey.substring("sonar.profile.".length());
   }
 
-  private void setProfileIsDefault(String profileKey, final DbSession writeSession) throws SQLException {
-    PreparedStatement updateStatement = writeSession.getConnection().prepareStatement(
-      "UPDATE rules_profiles SET is_default = ? WHERE kee = ?");
+  private Table<String, String, String> getProfileKeysByLanguageThenName(final Context context) throws SQLException {
+    final Table<String, String, String> profilesByLanguageAndName = HashBasedTable.create();
+
+    Select selectProfiles = context.prepareSelect("SELECT kee, name, language FROM rules_profiles");
     try {
-      PreparedStatement setDefaultProfile = updateStatement;
-      setDefaultProfile.setBoolean(1, true);
-      setDefaultProfile.setString(2, profileKey);
-      setDefaultProfile.execute();
+      selectProfiles.list(new RowReader<Void>() {
+        @Override
+        public Void read(Row row) throws SQLException {
+          profilesByLanguageAndName.put(row.getString(3), row.getString(2), row.getString(1));
+          return null;
+        }
+      });
     } finally {
-      updateStatement.close();
+      selectProfiles.close();
     }
-  }
 
-  private void associateProjectWithProfile(String projectUuid, String profileKey, final DbSession writeSession) throws SQLException {
-    PreparedStatement insertStatement = writeSession.getConnection().prepareStatement(
-      "INSERT INTO project_profiles (project_uuid, profile_key) VALUES (?, ?)");
-    try {
-      PreparedStatement insertAssociation = insertStatement;
-      insertAssociation.setString(1, projectUuid);
-      insertAssociation.setString(2, profileKey);
-      insertAssociation.execute();
-    } finally {
-      insertStatement.close();
-    }
-  }
-
-  private Table<String, String, String> getProfileKeysByLanguageThenName(final DbSession readSession) throws SQLException {
-    Table<String, String, String> profilesByLanguageAndName = HashBasedTable.create();
-
-    PreparedStatement selectStatement = readSession.getConnection().prepareStatement(
-      "SELECT kee, name, language FROM rules_profiles"
-      );
-    try {
-      ResultSet profiles = selectStatement.executeQuery();
-
-      String key;
-      String name;
-      String language;
-      while (profiles.next()) {
-        key = profiles.getString(1);
-        name = profiles.getString(2);
-        language = profiles.getString(3);
-        profilesByLanguageAndName.put(language, name, key);
-      }
-    } finally {
-      selectStatement.close();
-    }
     return profilesByLanguageAndName;
   }
 }
