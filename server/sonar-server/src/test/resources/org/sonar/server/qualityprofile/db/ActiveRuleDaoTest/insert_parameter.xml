@@ -7,5 +7,5 @@
            plugin_config_key="Parent1" priority="2" is_template="[false]" language="golo" created_at="1981-10-24 15:20:00" />
 
     <rules_profiles id="1" name="Child" language="java" parent_name="Parent" version="1"
-                    used_profile="[false]"/>
+                    used_profile="[false]" is_default="[false]"/>
 </dataset>

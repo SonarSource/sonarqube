@@ -6,7 +6,7 @@
            enabled="[true]" worst_value="0" optimized_best_value="[true]" best_value="100" direction="1"
            hidden="[false]" delete_historical_data="[null]"/>
 
-  <rules_profiles id="1" name="Sonar way with Findbugs" language="java" parent_kee="" kee="sonar_way_with_findbugs"/>
+  <rules_profiles id="1" name="Sonar way with Findbugs" language="java" parent_kee="" kee="sonar_way_with_findbugs" is_default="[false]"/>
 
   <projects id="399" uuid="A" kee="struts" root_id="[null]"/>
   <projects id="400" uuid="B" kee="Action.java" root_id="399"/>
