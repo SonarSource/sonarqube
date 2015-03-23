@@ -19,14 +19,16 @@
  */
 package org.sonar.batch.report;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.*;
 import org.sonar.api.measures.Metric.Level;
 import org.sonar.api.measures.Metric.ValueType;
-import org.sonar.api.measures.RuleMeasure;
+import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.technicaldebt.batch.Characteristic;
@@ -39,6 +41,8 @@ import org.sonar.batch.protocol.Constants.MeasureValueType;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.batch.scan.measure.MeasureCache;
+
+import javax.annotation.Nullable;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -57,8 +61,15 @@ public class MeasuresPublisher implements ReportPublisher {
 
   @Override
   public void publish(BatchReportWriter writer) {
-    for (BatchResource resource : resourceCache.all()) {
+    for (final BatchResource resource : resourceCache.all()) {
       Iterable<Measure> batchMeasures = measureCache.byResource(resource.resource());
+      batchMeasures = Iterables.filter(batchMeasures, new Predicate<Measure>() {
+        @Override
+        public boolean apply(Measure input) {
+          return shouldPersistMeasure(resource.resource(), input);
+        }
+
+      });
       Iterable<org.sonar.batch.protocol.output.BatchReport.Measure> reportMeasures = Iterables.transform(batchMeasures, new Function<Measure, BatchReport.Measure>() {
         private BatchReport.Measure.Builder builder = BatchReport.Measure.newBuilder();
 
@@ -75,6 +86,23 @@ public class MeasuresPublisher implements ReportPublisher {
         writer.writeComponentMeasures(resource.batchId(), reportMeasures);
       }
     }
+  }
+
+  @VisibleForTesting
+  static boolean shouldPersistMeasure(@Nullable Resource resource, @Nullable Measure measure) {
+    if (resource == null || measure == null) {
+      return false;
+    }
+    return measure.getPersistenceMode().useDatabase() &&
+      !(ResourceUtils.isEntity(resource) && measure.isBestValue()) && isMeasureNotEmpty(measure);
+  }
+
+  private static boolean isMeasureNotEmpty(Measure measure) {
+    boolean isNotEmpty = false;
+    for (int i = 1; i <= 5; i++) {
+      isNotEmpty = isNotEmpty || measure.getVariation(i) != null;
+    }
+    return measure.getValue() != null || measure.getData() != null || isNotEmpty;
   }
 
   private BatchReport.Measure toReportMeasure(BatchReport.Measure.Builder builder, Iterable<DefaultDuplication> dups) {

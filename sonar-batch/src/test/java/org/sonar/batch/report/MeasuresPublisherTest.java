@@ -60,6 +60,7 @@ public class MeasuresPublisherTest {
   private MeasureCache measureCache;
   private DuplicationCache duplicationCache;
   private MeasuresPublisher publisher;
+  private org.sonar.api.resources.File aFile = org.sonar.api.resources.File.create("org/foo/Bar.java");
 
   private org.sonar.api.resources.Resource sampleFile;
 
@@ -158,6 +159,29 @@ public class MeasuresPublisherTest {
       .isEqualTo(
         "<duplications><g><b s=\"1\" l=\"10\" r=\"foo:src/Foo.php\"/><b s=\"20\" l=\"31\" r=\"foo:src/Foo.php\"/></g><g><b s=\"1\" l=\"10\" r=\"foo:src/Foo.php\"/><b s=\"20\" l=\"31\" r=\"another\"/></g></duplications>");
 
+  }
+
+  @Test
+  public void should_not_save_some_file_measures_with_best_value() {
+    assertThat(MeasuresPublisher.shouldPersistMeasure(aFile, new Measure(CoreMetrics.LINES, 200.0))).isTrue();
+    assertThat(MeasuresPublisher.shouldPersistMeasure(aFile, new Measure(CoreMetrics.DUPLICATED_LINES_DENSITY, 3.0))).isTrue();
+
+    Measure duplicatedLines = new Measure(CoreMetrics.DUPLICATED_LINES_DENSITY, 0.0);
+    assertThat(MeasuresPublisher.shouldPersistMeasure(aFile, duplicatedLines)).isFalse();
+
+    duplicatedLines.setVariation1(0.0);
+    assertThat(MeasuresPublisher.shouldPersistMeasure(aFile, duplicatedLines)).isFalse();
+
+    duplicatedLines.setVariation1(-3.0);
+    assertThat(MeasuresPublisher.shouldPersistMeasure(aFile, duplicatedLines)).isTrue();
+  }
+
+  @Test
+  public void should_not_save_measures_without_data() {
+    assertThat(MeasuresPublisher.shouldPersistMeasure(aFile, new Measure(CoreMetrics.LINES))).isFalse();
+
+    Measure duplicatedLines = new Measure(CoreMetrics.DUPLICATED_LINES_DENSITY);
+    assertThat(MeasuresPublisher.shouldPersistMeasure(aFile, duplicatedLines)).isFalse();
   }
 
 }
