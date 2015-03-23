@@ -1,8 +1,8 @@
 <dataset>
 
-  <rules_profiles id="1" name="Sonar Way" language="java" parent_kee="[null]" kee="java_sonar_way"
+  <rules_profiles id="1" name="Sonar Way" language="java" parent_kee="[null]" kee="java_sonar_way" is_default="[false]"
                   rules_updated_at="[null]" created_at="[null]" updated_at="[null]"/>
-  <rules_profiles id="2" name="Sonar Way" language="js" parent_kee="[null]" kee="js_sonar_way"
+  <rules_profiles id="2" name="Sonar Way" language="js" parent_kee="[null]" kee="js_sonar_way" is_default="[false]"
                   rules_updated_at="[null]" created_at="[null]" updated_at="[null]"/>
 
   <projects id="1" uuid="A" kee="org.codehaus.sonar:sonar" name="SonarQube"/>
