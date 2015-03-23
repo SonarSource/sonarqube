@@ -22,7 +22,45 @@ define([
 ], function () {
 
   return Marionette.Layout.extend({
-    template: Templates['overview-issues']
+    template: Templates['overview-issues'],
+
+    events: {
+      'click .js-issues': 'onIssuesClick',
+      'click .js-debt': 'onDebtClick',
+      'click .js-guide': 'onGuideClick'
+    },
+
+    onIssuesClick: function (e) {
+      e.preventDefault();
+      this.showIssues();
+    },
+
+    onDebtClick: function (e) {
+      e.preventDefault();
+      this.showDebt();
+    },
+
+    onGuideClick: function (e) {
+      e.preventDefault();
+      this.showGuide();
+    },
+
+    showSection: function (jsSelector) {
+      this.$('.page-actions').find('.badge').addClass('badge-muted');
+      this.$('.page-actions').find('.badge').filter(jsSelector).removeClass('badge-muted');
+    },
+
+    showIssues: function () {
+      this.showSection('.js-issues');
+    },
+
+    showDebt: function () {
+      this.showSection('.js-debt');
+    },
+
+    showGuide: function () {
+      this.showSection('.js-guide');
+    }
   });
 
 });
