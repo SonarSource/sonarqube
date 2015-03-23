@@ -20,11 +20,23 @@
 @import (reference) "../variables";
 @import (reference) "../mixins";
 
-.panel {
-  padding: 10px;
+.overview {
+  padding: 10px 0;
+  .box-sizing(border-box);
 }
 
-.panel-info {
-  border: 1px solid @blue;
-  background-color: @lightBlue;
+.overview-status-ok {}
+
+.overview-status-warn {}
+
+.overview-status-error {}
+
+.overview-card {
+  padding: 10px;
+  background: @white;
+}
+
+.overview-card-header {
+  padding-bottom: 5px;
+  border-bottom: 1px solid @barBorderColor;
 }

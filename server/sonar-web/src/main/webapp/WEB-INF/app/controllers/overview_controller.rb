@@ -19,6 +19,9 @@
 #
 
 class OverviewController < ApplicationController
+  before_filter :init_resource_for_user_role
+
+  SECTION=Navigation::SECTION_RESOURCE
 
   def index
 

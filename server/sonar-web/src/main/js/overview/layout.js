@@ -22,7 +22,11 @@ define([
 ], function () {
 
   return Marionette.Layout.extend({
-    template: Templates['overview-layout']
+    template: Templates['overview-layout'],
+
+    onRender: function () {
+      this.$el.addClass('overview-status-' + this.model.get('qualityGateStatus').toLowerCase());
+    }
   });
 
 });
