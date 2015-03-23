@@ -22,9 +22,11 @@ package org.sonar.batch.report;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
-import org.sonar.api.measures.*;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric.Level;
 import org.sonar.api.measures.Metric.ValueType;
+import org.sonar.api.measures.RuleMeasure;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.technicaldebt.batch.Characteristic;
@@ -126,19 +128,19 @@ public class MeasuresPublisher implements ReportPublisher {
     }
     Double variation2 = measure.getVariation2();
     if (variation2 != null) {
-      builder.setVariationValue1(variation2);
+      builder.setVariationValue2(variation2);
     }
     Double variation3 = measure.getVariation3();
     if (variation3 != null) {
-      builder.setVariationValue1(variation3);
+      builder.setVariationValue3(variation3);
     }
     Double variation4 = measure.getVariation4();
     if (variation4 != null) {
-      builder.setVariationValue1(variation4);
+      builder.setVariationValue4(variation4);
     }
     Double variation5 = measure.getVariation5();
     if (variation5 != null) {
-      builder.setVariationValue1(variation5);
+      builder.setVariationValue5(variation5);
     }
     Integer tendency = measure.getTendency();
     if (tendency != null) {
