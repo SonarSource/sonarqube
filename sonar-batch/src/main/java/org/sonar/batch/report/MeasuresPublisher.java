@@ -52,11 +52,13 @@ public class MeasuresPublisher implements ReportPublisher {
   private final ResourceCache resourceCache;
   private final MeasureCache measureCache;
   private final DuplicationCache duplicationCache;
+  private final MetricFinder metricFinder;
 
-  public MeasuresPublisher(ResourceCache resourceCache, MeasureCache measureCache, DuplicationCache duplicationCache) {
+  public MeasuresPublisher(ResourceCache resourceCache, MeasureCache measureCache, DuplicationCache duplicationCache, MetricFinder metricFinder) {
     this.resourceCache = resourceCache;
     this.measureCache = measureCache;
     this.duplicationCache = duplicationCache;
+    this.metricFinder = metricFinder;
   }
 
   @Override
@@ -66,6 +68,8 @@ public class MeasuresPublisher implements ReportPublisher {
       batchMeasures = Iterables.filter(batchMeasures, new Predicate<Measure>() {
         @Override
         public boolean apply(Measure input) {
+          // Reload Metric to have all Hibernate fields populated
+          input.setMetric(metricFinder.findByKey(input.getMetricKey()));
           return shouldPersistMeasure(resource.resource(), input);
         }
 

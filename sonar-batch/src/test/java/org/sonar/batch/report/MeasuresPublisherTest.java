@@ -75,7 +75,15 @@ public class MeasuresPublisherTest {
     duplicationCache = mock(DuplicationCache.class);
     when(measureCache.byResource(any(Resource.class))).thenReturn(Collections.<Measure>emptyList());
     when(duplicationCache.byComponent(anyString())).thenReturn(Collections.<DefaultDuplication>emptyList());
-    publisher = new MeasuresPublisher(resourceCache, measureCache, duplicationCache);
+    MetricFinder metricFinder = mock(MetricFinder.class);
+    when(metricFinder.findByKey(CoreMetrics.COVERAGE_KEY)).thenReturn(CoreMetrics.COVERAGE);
+    when(metricFinder.findByKey(CoreMetrics.NEW_BLOCKER_VIOLATIONS_KEY)).thenReturn(CoreMetrics.NEW_BLOCKER_VIOLATIONS);
+    when(metricFinder.findByKey("manual_metric")).thenReturn(new Metric<>("manual_metric", ValueType.BOOL));
+    when(metricFinder.findByKey(CoreMetrics.NCLOC_KEY)).thenReturn(CoreMetrics.NCLOC);
+    when(metricFinder.findByKey(CoreMetrics.SQALE_RATING_KEY)).thenReturn(CoreMetrics.SQALE_RATING);
+    when(metricFinder.findByKey(CoreMetrics.TECHNICAL_DEBT_KEY)).thenReturn(CoreMetrics.TECHNICAL_DEBT);
+    when(metricFinder.findByKey(CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY)).thenReturn(CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION);
+    publisher = new MeasuresPublisher(resourceCache, measureCache, duplicationCache, metricFinder);
   }
 
   @Test
