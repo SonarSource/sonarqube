@@ -23,6 +23,7 @@
 .overview {
   padding: 10px 0;
   .box-sizing(border-box);
+  overflow: hidden;
 }
 
 .overview-status-ok {}
@@ -34,6 +35,10 @@
 .overview-card {
   padding: 10px;
   background: @white;
+}
+
+.overview-card + .overview-card {
+  margin-top: 20px;
 }
 
 .overview-card-header {
