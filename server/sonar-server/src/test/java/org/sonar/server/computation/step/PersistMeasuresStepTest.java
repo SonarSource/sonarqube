@@ -178,6 +178,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
       .setMetricKey("metric-key")
       .setRuleKey("repo:rule-key")
       .setCharactericId(123456)
+      .setPersonId(5432)
       .build();
 
     MeasureDto measure = sut.toMeasureDto(batchMeasure, component);
@@ -321,6 +322,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
       .setComponentId(2L)
       .setSnapshotId(3L)
       .setCharacteristicId(123456)
+      .setPersonId(5432)
       .setValue(123.123d)
       .setTendency(2)
       .setVariation(1, 1.1d)

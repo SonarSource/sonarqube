@@ -182,6 +182,10 @@ public class MeasuresPublisher implements ReportPublisher {
     if (charac != null) {
       builder.setCharactericId(charac.id());
     }
+    Integer personId = measure.getPersonId();
+    if (personId != null) {
+      builder.setPersonId(personId);
+    }
     return builder.build();
   }
 

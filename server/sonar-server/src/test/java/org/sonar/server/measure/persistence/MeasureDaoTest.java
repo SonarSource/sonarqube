@@ -141,6 +141,7 @@ public class MeasureDaoTest {
       .setSnapshotId(2L)
       .setMetricId(3)
       .setCharacteristicId(4)
+      .setPersonId(23)
       .setRuleId(5)
       .setComponentId(6L)
       .setValue(2.0d)

@@ -117,6 +117,7 @@ public class PersistMeasuresStep implements ComputationStep {
     out.setMetricId(metricCache.get(in.getMetricKey()).getId());
     out.setRuleId(in.hasRuleKey() ? ruleCache.get(RuleKey.parse(in.getRuleKey())).getId() : null);
     out.setCharacteristicId(in.hasCharactericId() ? in.getCharactericId() : null);
+    out.setPersonId(in.hasPersonId() ? in.getPersonId() : null);
     out.setValue(valueAsDouble(in));
     setData(in, out);
     return out;

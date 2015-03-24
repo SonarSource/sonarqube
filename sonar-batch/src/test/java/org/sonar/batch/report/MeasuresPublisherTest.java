@@ -94,7 +94,8 @@ public class MeasuresPublisherTest {
       .setAlertStatus(Level.ERROR)
       .setAlertText("Foo")
       .setTendency(-1)
-      .setCharacteristic(mock(Characteristic.class));
+      .setCharacteristic(mock(Characteristic.class))
+      .setPersonId(2);
     // No value on new_xxx
     Measure measure2 = new Measure<>(CoreMetrics.NEW_BLOCKER_VIOLATIONS)
       .setVariation1(1.0)
@@ -135,6 +136,7 @@ public class MeasuresPublisherTest {
     assertThat(componentMeasures.get(0).getDoubleValue()).isEqualTo(2.0);
     assertThat(componentMeasures.get(0).getAlertStatus()).isEqualTo("ERROR");
     assertThat(componentMeasures.get(0).getAlertText()).isEqualTo("Foo");
+    assertThat(componentMeasures.get(0).getPersonId()).isEqualTo(2);
 
   }
 

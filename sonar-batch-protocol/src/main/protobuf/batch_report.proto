@@ -84,7 +84,7 @@ message Component {
 
 message Measure {
   optional MeasureValueType value_type = 1;
-  # all values may be unset for "new_xxx" measures (only variations are populated)
+  // all values may be unset for "new_xxx" measures (only variations are populated)
   optional bool boolean_value = 2;
   optional int32 int_value = 3;
   optional int64 long_value = 4;
@@ -105,6 +105,7 @@ message Measure {
   optional double variation_value_5 = 18;
   optional int32 tendency = 19;
   optional int32 characteric_id = 20;
+  optional int32 person_id = 21;
 }
 
 message Measures {
