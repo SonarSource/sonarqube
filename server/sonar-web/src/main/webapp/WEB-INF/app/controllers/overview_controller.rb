@@ -20,6 +20,7 @@
 
 class OverviewController < ApplicationController
   before_filter :init_resource_for_user_role
+  helper DashboardHelper
 
   SECTION=Navigation::SECTION_RESOURCE
 

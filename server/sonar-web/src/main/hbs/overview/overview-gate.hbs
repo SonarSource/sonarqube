@@ -1,27 +1,37 @@
 <div class="overview-card-header page-header">
   <h2 class="page-title">Quality Gate</h2>
-  <div class="page-actions">
-    <a class="badge badge-muted" href="#">SonarQube Way</a>
+  {{#if gateName}}
+    <div class="page-actions">
+      <a class="badge badge-muted" href="#">{{gateName}}</a>
+    </div>
+  {{/if}}
+</div>
+
+{{#eq gateStatus 'ERROR'}}
+  <div class="alert alert-danger">
+    <i class="icon-alert-error"></i>&nbsp;{{t 'widget.alerts.errors'}}
   </div>
-</div>
+{{/eq}}
+{{#eq gateStatus 'WARN'}}
+  <div class="alert alert-warning">
+    <i class="icon-alert-warn"></i>&nbsp;{{t 'widget.alerts.warnings'}}
+  </div>
+{{/eq}}
+{{#eq gateStatus 'OK'}}
+  <div class="alert alert-success">
+    <i class="icon-alert-ok"></i>&nbsp;{{t 'widget.alerts.no_alert'}}
+  </div>
+{{/eq}}
 
-<div class="alert alert-danger">
-  <i class="icon-alert-error"></i>&nbsp;The project failed the quality gate on the following conditions:
-</div>
-
-<ul class="list-inline spacer-top">
-  <li>
-    <span class="big alert_ERROR">7</span>
-    <p class="note" style="padding-top: 4px;">blocker issues</p>
-  </li>
-  <li>
-    <span class="big alert_ERROR">26</span>
-    <p class="note" style="padding-top: 4px;">critical issues</p>
-    <p class="note">since 5.1</p>
-  </li>
-  <li>
-    <span class="big alert_WARN">78.4%</span>
-    <p class="note" style="padding-top: 4px;">coverage on new code</p>
-    <p class="note">since 5.1</p>
-  </li>
-</ul>
+{{#notEmpty gateConditions}}
+  <ul class="list-inline spacer-top">
+    {{#each gateConditions}}
+      <li>
+        <span class="big alert_{{level}}">{{actualValue}}</span>
+        <span>{{operator}} {{thresholdValue}}</span>
+        <p class="note text-lowercase" style="padding-top: 4px;">{{metric}}</p>
+        <p class="note">{{period}}</p>
+      </li>
+    {{/each}}
+  </ul>
+{{/notEmpty}}
