@@ -22,13 +22,12 @@ package org.sonar.server.db.migrations.v44;
 
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbTester;
-import org.sonar.core.qualityprofile.db.QualityProfileDao;
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
+
+import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class FeedQProfileKeysMigrationTest {
 
@@ -41,29 +40,29 @@ public class FeedQProfileKeysMigrationTest {
 
     new FeedQProfileKeysMigration(db.database()).execute();
 
-    QualityProfileDao dao = new QualityProfileDao(db.myBatis(), mock(System2.class));
+    List<Map<String, Object>> profiles = db.select("SELECT kee, name, language, parent_kee FROM rules_profiles ORDER BY id ASC");
 
-    QualityProfileDto parentProfile = dao.getById(10);
-    assertThat(parentProfile.getKey()).startsWith("java-sonar-way-");
-    assertThat(parentProfile.getName()).isEqualTo("Sonar Way");
-    assertThat(parentProfile.getLanguage()).isEqualTo("java");
-    assertThat(parentProfile.getParentKee()).isNull();
+    Map<String, Object> parentProfile = profiles.get(0);
+    assertThat((String) parentProfile.get("KEE")).startsWith("java-sonar-way-");
+    assertThat(parentProfile.get("NAME")).isEqualTo("Sonar Way");
+    assertThat(parentProfile.get("LANGUAGE")).isEqualTo("java");
+    assertThat(parentProfile.get("PARENT_KEE")).isNull();
 
-    QualityProfileDto differentCaseProfile = dao.getById(11);
-    assertThat(differentCaseProfile.getKey()).startsWith("java-sonar-way-").isNotEqualTo(parentProfile.getKey());
-    assertThat(differentCaseProfile.getName()).isEqualTo("Sonar way");
-    assertThat(differentCaseProfile.getParentKee()).isNull();
+    Map<String, Object> differentCaseProfile = profiles.get(1);
+    assertThat((String) differentCaseProfile.get("KEE")).startsWith("java-sonar-way-").isNotEqualTo(parentProfile.get("KEE"));
+    assertThat(differentCaseProfile.get("NAME")).isEqualTo("Sonar way");
+    assertThat(differentCaseProfile.get("PARENT_KEE")).isNull();
 
-    QualityProfileDto childProfile = dao.getById(12);
-    assertThat(childProfile.getKey()).startsWith("java-child-");
-    assertThat(childProfile.getName()).isEqualTo("Child");
-    assertThat(childProfile.getParentKee()).isEqualTo(parentProfile.getKey());
+    Map<String, Object> childProfile = profiles.get(2);
+    assertThat((String) childProfile.get("KEE")).startsWith("java-child-");
+    assertThat(childProfile.get("NAME")).isEqualTo("Child");
+    assertThat(childProfile.get("PARENT_KEE")).isEqualTo(parentProfile.get("KEE"));
 
-    QualityProfileDto phpProfile = dao.getById(13);
-    assertThat(phpProfile.getKey()).startsWith("php-sonar-way-");
-    assertThat(phpProfile.getName()).isEqualTo("Sonar Way");
-    assertThat(phpProfile.getLanguage()).isEqualTo("php");
-    assertThat(phpProfile.getParentKee()).isNull();
+    Map<String, Object> phpProfile = profiles.get(3);
+    assertThat((String) phpProfile.get("KEE")).startsWith("php-sonar-way-");
+    assertThat(phpProfile.get("NAME")).isEqualTo("Sonar Way");
+    assertThat(phpProfile.get("LANGUAGE")).isEqualTo("php");
+    assertThat(phpProfile.get("PARENT_KEE")).isNull();
   }
 
 }
