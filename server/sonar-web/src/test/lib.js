@@ -148,6 +148,16 @@ exports.waitForElementCount = function (selector, count, callback) {
   }, callback);
 };
 
+
+exports.waitWhileElementCount = function (selector, count, callback) {
+  return casper.waitFor(function () {
+    return casper.evaluate(function (selector, count) {
+      return document.querySelectorAll(selector).length !== count;
+    }, selector, count);
+  }, callback);
+};
+
+
 exports.assertLinkHref = function assertElementCount(selector, href, message) {
   var linkHref = this.casper.evaluate(function(selector) {
       return document.querySelector(selector);
