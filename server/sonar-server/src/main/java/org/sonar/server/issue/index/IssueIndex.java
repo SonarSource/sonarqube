@@ -623,7 +623,7 @@ public class IssueIndex extends BaseIndex {
     result.addAll(EsUtils.termsKeys(issuesResult));
     result.addAll(EsUtils.termsKeys(rulesResult));
     List<String> resultAsList = Lists.newArrayList(result);
-    return resultAsList.size() > maxNumberOfTags ? resultAsList.subList(0, maxNumberOfTags) : resultAsList;
+    return resultAsList.size() > maxNumberOfTags && maxNumberOfTags > 0 ? resultAsList.subList(0, maxNumberOfTags) : resultAsList;
   }
 
   public Map<String, Long> countTags(IssueQuery query, int maxNumberOfTags) {
