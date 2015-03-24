@@ -106,8 +106,8 @@ public class RuleMapping extends BaseMapping<RuleDoc, RuleMappingContext> {
     map("defaultDebtChar", new IndexStringMapper("defaultDebtChar", RuleNormalizer.RuleField.DEFAULT_CHARACTERISTIC.field()));
     map("defaultDebtSubChar", new IndexStringMapper("defaultDebtSubChar", RuleNormalizer.RuleField.DEFAULT_SUB_CHARACTERISTIC.field()));
 
-    map("debtChar", new IndexStringMapper("debtChar", RuleNormalizer.RuleField.CHARACTERISTIC.field()));
-    map("debtSubChar", new IndexStringMapper("debtSubChar", RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field()));
+    map("debtChar", new CharacteristicMapper());
+    map("debtSubChar", new SubCharacteristicMapper());
 
     map("debtCharName", new CharacteristicNameMapper());
     map("debtSubCharName", new SubCharacteristicNameMapper());
@@ -198,6 +198,34 @@ public class RuleMapping extends BaseMapping<RuleDoc, RuleMappingContext> {
     return context == null || context.getFieldsToReturn().contains("debtSubCharName");
   }
 
+  private static class CharacteristicMapper extends IndexMapper<RuleDoc, RuleMappingContext> {
+    private CharacteristicMapper() {
+      super(RuleNormalizer.RuleField.CHARACTERISTIC.field());
+    }
+
+    @Override
+    public void write(JsonWriter json, RuleDoc rule, RuleMappingContext context) {
+      String debtCharacteristicKey = rule.debtCharacteristicKey();
+      if (debtCharacteristicKey != null && !DebtCharacteristic.NONE.equals(debtCharacteristicKey)) {
+        json.prop("debtChar", debtCharacteristicKey);
+      }
+    }
+  }
+
+  private static class SubCharacteristicMapper extends IndexMapper<RuleDoc, RuleMappingContext> {
+    private SubCharacteristicMapper() {
+      super(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field());
+    }
+
+    @Override
+    public void write(JsonWriter json, RuleDoc rule, RuleMappingContext context) {
+      String debtSubCharacteristicKey = rule.debtSubCharacteristicKey();
+      if (debtSubCharacteristicKey != null && !DebtCharacteristic.NONE.equals(debtSubCharacteristicKey)) {
+        json.prop("debtSubChar", debtSubCharacteristicKey);
+      }
+    }
+  }
+
   private static class CharacteristicNameMapper extends IndexMapper<RuleDoc, RuleMappingContext> {
     private CharacteristicNameMapper() {
       super(RuleNormalizer.RuleField.CHARACTERISTIC.field());
@@ -237,7 +265,7 @@ class RuleMappingContext {
   private final Map<String, String> debtCharacteristicNamesByKey = Maps.newHashMap();
 
   @CheckForNull
-  public String debtCharacteristicName(String key) {
+  public String debtCharacteristicName(@Nullable String key) {
     return debtCharacteristicNamesByKey.get(key);
   }
 
