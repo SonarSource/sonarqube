@@ -46,6 +46,8 @@ public interface Migration44Mapper {
   QProfileDto44 selectProfileById(int id);
 
   // creation of columns RULES_PROFILES.CREATED_AT and UPDATED_AT
+  List<QProfileDto44> selectAllProfiles();
+
   @CheckForNull
   Date selectProfileCreatedAt(int profileId);
 
