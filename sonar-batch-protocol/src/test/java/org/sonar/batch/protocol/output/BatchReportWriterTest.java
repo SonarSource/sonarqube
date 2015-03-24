@@ -168,4 +168,35 @@ public class BatchReportWriterTest {
     assertThat(read.getComponentUuid()).isEqualTo("componentUuid");
     assertThat(read.getIssueCount()).isEqualTo(1);
   }
+
+  @Test
+  public void write_duplications() throws Exception {
+    File dir = temp.newFolder();
+    BatchReportWriter writer = new BatchReportWriter(dir);
+
+    assertThat(writer.hasComponentData(FileStructure.Domain.DUPLICATIONS, 1)).isFalse();
+
+    BatchReport.Duplication duplication = BatchReport.Duplication.newBuilder()
+      .setOriginBlock(BatchReport.DuplicationBlock.newBuilder()
+        .setComponentKey("COMPONENT_A")
+        .setOtherComponentRef(2)
+        .setStartLine(1)
+        .setEndLine(5)
+        .build())
+      .addDuplicatedBy(BatchReport.DuplicationBlock.newBuilder()
+        .setComponentKey("COMPONENT_A")
+        .setOtherComponentRef(2)
+        .setStartLine(6)
+        .setEndLine(10)
+        .build())
+      .build();
+    writer.writeComponentDuplications(1, Arrays.asList(duplication));
+
+    assertThat(writer.hasComponentData(FileStructure.Domain.DUPLICATIONS, 1)).isTrue();
+    File file = writer.getFileStructure().fileFor(FileStructure.Domain.DUPLICATIONS, 1);
+    assertThat(file).exists().isFile();
+    BatchReport.Duplications duplications = ProtobufUtil.readFile(file, BatchReport.Duplications.PARSER);
+    assertThat(duplications.getComponentRef()).isEqualTo(1);
+    assertThat(duplications.getDuplicationList()).hasSize(1);
+  }
 }

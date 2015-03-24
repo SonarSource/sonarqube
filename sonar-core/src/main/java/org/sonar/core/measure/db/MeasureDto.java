@@ -81,7 +81,7 @@ public class MeasureDto {
     return textValue;
   }
 
-  public MeasureDto setData(String data) {
+  public MeasureDto setData(@Nullable String data) {
     if (data == null) {
       this.textValue = null;
       this.dataValue = null;

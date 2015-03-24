@@ -20,20 +20,22 @@
 
 package org.sonar.core.measure.db;
 
-import org.sonar.core.persistence.Dto;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-public class MetricDto extends Dto<String> {
+public class MetricDto {
 
-  private int id;
+  private Integer id;
 
   private String name;
+
+  private String shortName;
 
   private String valueType;
 
   private String description;
+
+  private String domain;
 
   private int direction;
 
@@ -45,29 +47,40 @@ public class MetricDto extends Dto<String> {
 
   private Double bestValue;
 
-  private Boolean optimizedBestValue;
+  private boolean optimizedBestValue;
+
+  private String origin;
+
+  private boolean hidden;
+
+  private boolean deleteHistoricalData;
 
   private boolean enabled;
 
-  private MetricDto() {
-    // Nothing here
-  }
-
-  public int getId() {
+  public Integer getId() {
     return id;
   }
 
-  public MetricDto setId(int id) {
+  public MetricDto setId(Integer id) {
     this.id = id;
     return this;
   }
 
-  public String getName() {
+  public String getKey() {
     return name;
   }
 
-  public MetricDto setName(String name) {
+  public MetricDto setKey(String name) {
     this.name = name;
+    return this;
+  }
+
+  public String getShortName() {
+    return shortName;
+  }
+
+  public MetricDto setShortName(String shortName) {
+    this.shortName = shortName;
     return this;
   }
 
@@ -90,6 +103,15 @@ public class MetricDto extends Dto<String> {
 
   public MetricDto setDescription(@Nullable String description) {
     this.description = description;
+    return this;
+  }
+
+  public String getDomain() {
+    return domain;
+  }
+
+  public MetricDto setDomain(String domain) {
+    this.domain = domain;
     return this;
   }
 
@@ -153,6 +175,33 @@ public class MetricDto extends Dto<String> {
     return this;
   }
 
+  public String getOrigin() {
+    return origin;
+  }
+
+  public MetricDto setOrigin(String origin) {
+    this.origin = origin;
+    return this;
+  }
+
+  public boolean isHidden() {
+    return hidden;
+  }
+
+  public MetricDto setHidden(boolean hidden) {
+    this.hidden = hidden;
+    return this;
+  }
+
+  public boolean isDeleteHistoricalData() {
+    return deleteHistoricalData;
+  }
+
+  public MetricDto setDeleteHistoricalData(boolean deleteHistoricalData) {
+    this.deleteHistoricalData = deleteHistoricalData;
+    return this;
+  }
+
   public boolean isEnabled() {
     return enabled;
   }
@@ -162,12 +211,4 @@ public class MetricDto extends Dto<String> {
     return this;
   }
 
-  @Override
-  public String getKey() {
-    return name;
-  }
-
-  public static MetricDto createFor(String key) {
-    return new MetricDto().setName(key);
-  }
 }

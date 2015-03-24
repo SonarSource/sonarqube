@@ -78,14 +78,14 @@ public class GlobalRepositoryAction implements RequestHandler {
   }
 
   private void addMetrics(GlobalRepositories ref, DbSession session) {
-    for (MetricDto metric : dbClient.metricDao().findEnabled(session)) {
+    for (MetricDto metric : dbClient.metricDao().selectEnabled(session)) {
       Boolean optimizedBestValue = metric.isOptimizedBestValue();
       ref.addMetric(
         new org.sonar.batch.protocol.input.Metric(metric.getId(), metric.getKey(),
           metric.getValueType(),
           metric.getDescription(),
           metric.getDirection(),
-          metric.getName(),
+          metric.getKey(),
           metric.isQualitative(),
           metric.isUserManaged(),
           metric.getWorstValue(),

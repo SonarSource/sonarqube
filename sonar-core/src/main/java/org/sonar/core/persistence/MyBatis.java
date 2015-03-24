@@ -164,7 +164,6 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "WidgetProperty", WidgetPropertyDto.class);
     loadAlias(conf, "MeasureModel", MeasureModel.class);
     loadAlias(conf, "Measure", MeasureDto.class);
-    loadAlias(conf, "Metric", MetricDto.class);
     loadAlias(conf, "Issue", IssueDto.class);
     loadAlias(conf, "IssueChange", IssueChangeDto.class);
     loadAlias(conf, "IssueFilter", IssueFilterDto.class);
