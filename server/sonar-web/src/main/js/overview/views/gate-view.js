@@ -22,7 +22,11 @@ define([
 ], function () {
 
   return Marionette.Layout.extend({
-    template: Templates['overview-gate']
+    template: Templates['overview-gate'],
+
+    modelEvents: {
+      'change': 'render'
+    }
   });
 
 });

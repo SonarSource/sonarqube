@@ -1,10 +1,8 @@
 <div class="overview-card-header page-header">
   <h2 class="page-title">Quality Gate</h2>
-  {{#if gateName}}
-    <div class="page-actions">
-      <a class="badge badge-muted" href="#">{{gateName}}</a>
-    </div>
-  {{/if}}
+  <div class="page-actions">
+    <a class="badge badge-muted" href="#">{{default gateName 'project-quality-gate-name'}}</a>
+  </div>
 </div>
 
 {{#eq gateStatus 'ERROR'}}
@@ -26,12 +24,18 @@
 {{#notEmpty gateConditions}}
   <ul class="list-inline spacer-top">
     {{#each gateConditions}}
-      <li>
-        <span class="big alert_{{level}}">{{actualValue}}</span>
-        <span>{{operator}} {{thresholdValue}}</span>
-        <p class="note text-lowercase" style="padding-top: 4px;">{{metric}}</p>
-        <p class="note">{{period}}</p>
-      </li>
+      {{#notEq level 'OK'}}
+        <li>
+          <span class="big alert_{{level}}">{{actual}}</span>
+          <span>
+            {{t 'quality_gates.operator' op 'short'}}
+            {{#eq level 'ERROR'}}{{error}}{{/eq}}
+            {{#eq level 'WARN'}}{{warning}}{{/eq}}
+          </span>
+          <p class="note text-lowercase" style="padding-top: 4px;">{{t 'metric' metric 'name'}}</p>
+          <p class="note">{{period}}</p>
+        </li>
+      {{/notEq}}
     {{/each}}
   </ul>
 {{/notEmpty}}

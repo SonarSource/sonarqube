@@ -17,7 +17,9 @@ requirejs([
   var App = new Marionette.Application();
 
   App.addInitializer(function () {
-    this.state = new State(window.overviewConf);
+    this.state = new State({
+      resource: getResource()
+    });
     this.layout = new Layout({
       el: '.overview',
       model: this.state
@@ -27,10 +29,21 @@ requirejs([
     this.layout.issuesRegion.show(new IssuesView({ model: this.state }));
     this.layout.coverageRegion.show(new CoverageView({ model: this.state }));
     this.layout.duplicationsRegion.show(new DuplicationsView({ model: this.state }));
+    this.state.fetch();
   });
 
   window.requestMessages().done(function () {
     App.start();
   });
+
+  function getResource () {
+    var search = window.location.search,
+        idMatch = search.match(/id=([^&]+)/);
+    if (_.isArray(idMatch) && idMatch.length === 2) {
+      return decodeURIComponent(idMatch[1]);
+    } else {
+      throw Error('The current URL does not contain resource ID');
+    }
+  }
 
 });

@@ -496,4 +496,8 @@
     return str.length > LIMIT ? str.substr(0, LIMIT) + '...' : str;
   });
 
+  Handlebars.registerHelper('withSign', function (number) {
+    return number >= 0 ? '+' + number : number;
+  });
+
 })();

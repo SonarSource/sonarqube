@@ -26,7 +26,8 @@
   var defaults = {
     height: 140,
     color: '#1f77b4',
-    interpolate: 'basis'
+    interpolate: 'bundle',
+    tension: 0.5
   };
 
   /*
@@ -69,7 +70,8 @@
               .y(function (d) {
                 return yScale(d.count);
               })
-              .interpolate(options.interpolate),
+              .interpolate(options.interpolate)
+              .tension(options.tension),
 
           minDate = xScale.domain()[0],
           minDateTick = svg.append('text')
@@ -96,7 +98,7 @@
 
       plot.attr('transform', trans(options.marginLeft, options.marginTop));
       xScale.range([0, options.availableWidth]);
-      yScale.range([0, options.availableHeight]);
+      yScale.range([options.availableHeight, 0]);
 
       minDateTick
           .attr('x', options.marginLeft)
