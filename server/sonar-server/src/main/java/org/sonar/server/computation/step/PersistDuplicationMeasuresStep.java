@@ -23,6 +23,7 @@ package org.sonar.server.computation.step;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.core.component.ComponentKeys;
@@ -32,8 +33,6 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.db.DbClient;
-
-import javax.annotation.Nullable;
 
 import java.util.List;
 
@@ -57,23 +56,26 @@ public class PersistDuplicationMeasuresStep implements ComputationStep {
       MetricDto duplicationMetric = dbClient.metricDao().selectByKey(session, CoreMetrics.DUPLICATIONS_DATA_KEY);
       DuplicationContext duplicationContext = new DuplicationContext(context, duplicationMetric, session);
       int rootComponentRef = context.getReportMetadata().getRootComponentRef();
-      recursivelyProcessComponent(duplicationContext, null, rootComponentRef);
+      recursivelyProcessComponent(duplicationContext, rootComponentRef, rootComponentRef);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  private void recursivelyProcessComponent(DuplicationContext duplicationContext, @Nullable Integer parentComponentRef, int componentRef) {
+  private void recursivelyProcessComponent(DuplicationContext duplicationContext, int parentModuleRef, int componentRef) {
     BatchReportReader reportReader = duplicationContext.context().getReportReader();
     BatchReport.Component component = reportReader.readComponent(componentRef);
     List<BatchReport.Duplication> duplications = reportReader.readComponentDuplications(componentRef);
-    if (!duplications.isEmpty() && parentComponentRef != null) {
-      saveDuplications(duplicationContext, reportReader.readComponent(parentComponentRef), component, duplications);
+    if (!duplications.isEmpty()) {
+      saveDuplications(duplicationContext, reportReader.readComponent(parentModuleRef), component, duplications);
     }
 
     for (Integer childRef : component.getChildRefList()) {
-      recursivelyProcessComponent(duplicationContext, componentRef, childRef);
+      // If current component is a folder, we need to keep the parent reference to module parent
+      int nextParent = !component.getType().equals(Constants.ComponentType.PROJECT) && !component.getType().equals(Constants.ComponentType.MODULE) ?
+        parentModuleRef : componentRef;
+      recursivelyProcessComponent(duplicationContext, nextParent, childRef);
     }
   }
 

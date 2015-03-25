@@ -30,10 +30,11 @@ import org.sonar.batch.index.BatchResource;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.Constants.ComponentLinkType;
-import org.sonar.batch.protocol.output.*;
+import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.Component.Builder;
 import org.sonar.batch.protocol.output.BatchReport.ComponentLink;
 import org.sonar.batch.protocol.output.BatchReport.Event;
+import org.sonar.batch.protocol.output.BatchReportWriter;
 
 import javax.annotation.CheckForNull;
 
@@ -65,6 +66,7 @@ public class ComponentsPublisher implements ReportPublisher {
     // non-null fields
     builder.setRef(batchResource.batchId());
     builder.setType(getType(r));
+    builder.setKey(r.getKey());
 
     // protocol buffers does not accept null values
 

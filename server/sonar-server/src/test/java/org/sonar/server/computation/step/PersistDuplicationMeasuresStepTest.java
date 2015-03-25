@@ -131,22 +131,18 @@ public class PersistDuplicationMeasuresStepTest extends BaseStepTest {
     BatchReportWriter writer = new BatchReportWriter(reportDir);
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
-      .setProjectKey("PROJECT_KEY")
-      .setAnalysisDate(150000000L)
       .build());
 
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
-      .setUuid("UUID_A")
       .setKey("PROJECT_KEY")
       .setSnapshotId(10L)
       .addChildRef(2)
       .build());
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(2)
-      .setType(Constants.ComponentType.PROJECT)
-      .setUuid("UUID_B")
+      .setType(Constants.ComponentType.MODULE)
       .setKey("MODULE_KEY")
       .setSnapshotId(11L)
       .addChildRef(3)
@@ -154,7 +150,6 @@ public class PersistDuplicationMeasuresStepTest extends BaseStepTest {
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(3)
       .setType(Constants.ComponentType.FILE)
-      .setUuid("UUID_C")
       .setSnapshotId(12L)
       .setPath("file")
       .build());
@@ -183,6 +178,118 @@ public class PersistDuplicationMeasuresStepTest extends BaseStepTest {
   }
 
   @Test
+  public void persist_duplications_on_same_file_linked_on_a_folder() throws Exception {
+    saveDuplicationMetric();
+
+    BatchReportWriter writer = new BatchReportWriter(reportDir);
+    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+      .setRootComponentRef(1)
+      .build());
+
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(1)
+      .setType(Constants.ComponentType.PROJECT)
+      .setKey("PROJECT_KEY")
+      .setSnapshotId(10L)
+      .addChildRef(2)
+      .build());
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(2)
+      .setType(Constants.ComponentType.DIRECTORY)
+      .setSnapshotId(11L)
+      .addChildRef(3)
+      .setPath("dir")
+      .build());
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(3)
+      .setType(Constants.ComponentType.FILE)
+      .setSnapshotId(12L)
+      .setPath("file")
+      .build());
+
+    BatchReport.Duplication duplication = BatchReport.Duplication.newBuilder()
+      .setOriginBlock(BatchReport.DuplicationBlock.newBuilder()
+        .setOtherComponentRef(3)
+        .setStartLine(1)
+        .setEndLine(5)
+        .build())
+      .addDuplicatedBy(BatchReport.DuplicationBlock.newBuilder()
+        .setOtherComponentRef(3)
+        .setStartLine(6)
+        .setEndLine(10)
+        .build())
+      .build();
+    writer.writeComponentDuplications(3, newArrayList(duplication));
+
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto("PROJECT")));
+
+    assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
+
+    Map<String, Object> dto =  dbTester.selectFirst("select snapshot_id as \"snapshotId\", text_value as \"textValue\" from project_measures");
+    assertThat(dto.get("snapshotId")).isEqualTo(12L);
+    assertThat(dto.get("textValue")).isEqualTo("<duplications><g><b s=\"1\" l=\"4\" r=\"PROJECT_KEY:file\"/><b s=\"6\" l=\"4\" r=\"PROJECT_KEY:file\"/></g></duplications>");
+  }
+
+  @Test
+  public void persist_duplications_on_same_file_linked_on_sub_folder() throws Exception {
+    saveDuplicationMetric();
+
+    BatchReportWriter writer = new BatchReportWriter(reportDir);
+    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+      .setRootComponentRef(1)
+      .build());
+
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(1)
+      .setType(Constants.ComponentType.PROJECT)
+      .setKey("PROJECT_KEY")
+      .setSnapshotId(10L)
+      .addChildRef(2)
+      .build());
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(2)
+      .setType(Constants.ComponentType.DIRECTORY)
+      .setSnapshotId(11L)
+      .addChildRef(3)
+      .setPath("dir")
+      .build());
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(3)
+      .setType(Constants.ComponentType.DIRECTORY)
+      .setSnapshotId(12L)
+      .addChildRef(10)
+      .setPath("dir2")
+      .build());
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(10)
+      .setType(Constants.ComponentType.FILE)
+      .setSnapshotId(20L)
+      .setPath("file")
+      .build());
+
+    BatchReport.Duplication duplication = BatchReport.Duplication.newBuilder()
+      .setOriginBlock(BatchReport.DuplicationBlock.newBuilder()
+        .setOtherComponentRef(10)
+        .setStartLine(1)
+        .setEndLine(5)
+        .build())
+      .addDuplicatedBy(BatchReport.DuplicationBlock.newBuilder()
+        .setOtherComponentRef(10)
+        .setStartLine(6)
+        .setEndLine(10)
+        .build())
+      .build();
+    writer.writeComponentDuplications(10, newArrayList(duplication));
+
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto("PROJECT")));
+
+    assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
+
+    Map<String, Object> dto =  dbTester.selectFirst("select snapshot_id as \"snapshotId\", text_value as \"textValue\" from project_measures");
+    assertThat(dto.get("textValue")).isEqualTo("<duplications><g><b s=\"1\" l=\"4\" r=\"PROJECT_KEY:file\"/><b s=\"6\" l=\"4\" r=\"PROJECT_KEY:file\"/></g></duplications>");
+  }
+
+  @Test
   public void persist_duplications_on_same_file_when_a_branch_is_used() throws Exception {
     saveDuplicationMetric();
 
@@ -190,15 +297,12 @@ public class PersistDuplicationMeasuresStepTest extends BaseStepTest {
     BatchReportWriter writer = new BatchReportWriter(reportDir);
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
-      .setProjectKey("PROJECT_KEY")
       .setBranch("origin/master")
-      .setAnalysisDate(150000000L)
       .build());
 
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
-      .setUuid("UUID_A")
       .setKey("PROJECT_KEY")
       .setSnapshotId(10L)
       .addChildRef(2)
@@ -206,7 +310,6 @@ public class PersistDuplicationMeasuresStepTest extends BaseStepTest {
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(2)
       .setType(Constants.ComponentType.FILE)
-      .setUuid("UUID_B")
       .setSnapshotId(11L)
       .setPath("file")
       .build());
@@ -242,7 +345,6 @@ public class PersistDuplicationMeasuresStepTest extends BaseStepTest {
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(3)
       .setType(Constants.ComponentType.FILE)
-      .setUuid("UUID_C")
       .setSnapshotId(12L)
       .setPath("file2")
       .build());
@@ -302,14 +404,11 @@ public class PersistDuplicationMeasuresStepTest extends BaseStepTest {
     BatchReportWriter writer = new BatchReportWriter(reportDir);
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
-      .setProjectKey("PROJECT_KEY")
-      .setAnalysisDate(150000000L)
       .build());
 
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
-      .setUuid("UUID_A")
       .setKey("PROJECT_KEY")
       .setSnapshotId(10L)
       .addChildRef(2)
@@ -317,7 +416,6 @@ public class PersistDuplicationMeasuresStepTest extends BaseStepTest {
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(2)
       .setType(Constants.ComponentType.FILE)
-      .setUuid("UUID_B")
       .setSnapshotId(11L)
       .setPath("file")
       .build());
