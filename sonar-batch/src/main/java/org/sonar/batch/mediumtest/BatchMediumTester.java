@@ -140,6 +140,13 @@ public class BatchMediumTester {
       return this;
     }
 
+    public BatchMediumTesterBuilder registerMetrics(List<Metric> metrics) {
+      for (Metric<?> m : metrics) {
+        registerMetric(m);
+      }
+      return this;
+    }
+
   }
 
   public void start() {
