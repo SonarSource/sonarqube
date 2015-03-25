@@ -66,7 +66,7 @@ public class HttpDownloaderTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Rule
-  public TestRule timeout = new DisableOnDebug(Timeout.seconds(2));
+  public TestRule timeout = new DisableOnDebug(Timeout.seconds(5));
 
   private static SocketConnection socketConnection;
   private static String baseUrl;
@@ -106,7 +106,7 @@ public class HttpDownloaderTest {
         } finally {
           try {
             resp.close();
-          } catch (IOException e) {
+          } catch (IOException ignored) {
           }
         }
       }
