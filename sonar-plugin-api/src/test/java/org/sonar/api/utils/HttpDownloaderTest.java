@@ -113,7 +113,7 @@ public class HttpDownloaderTest {
     });
     SocketAddress address = socketConnection.connect(new InetSocketAddress(0));
 
-    baseUrl = "http://localhost:" + ((InetSocketAddress) address).getPort();
+    baseUrl = "http://0.0.0.0:" + ((InetSocketAddress) address).getPort();
   }
 
   @AfterClass
