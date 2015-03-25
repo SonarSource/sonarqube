@@ -26,8 +26,7 @@
   var defaults = {
     height: 140,
     color: '#1f77b4',
-    interpolate: 'bundle',
-    tension: 0.5
+    interpolate: 'cardinal'
   };
 
   /*
@@ -39,79 +38,117 @@
 
   $.fn.timeline = function (data) {
     $(this).each(function () {
-      var options = _.defaults($(this).data(), defaults);
-      _.extend(options, { width: $(this).width() });
+          var options = _.defaults($(this).data(), defaults);
+          _.extend(options, { width: $(this).width() });
 
-      var container = d3.select(this),
-          svg = container.append('svg')
-              .attr('width', options.width + 2)
-              .attr('height', options.height + 2)
-              .classed('sonar-d3', true),
+          var container = d3.select(this),
+              svg = container.append('svg')
+                  .attr('width', options.width + 12)
+                  .attr('height', options.height + 12)
+                  .classed('sonar-d3', true),
 
-          plot = svg.append('g')
-              .classed('plot', true),
+              extra = svg.append('g'),
 
-          xScale = d3.time.scale()
-              .domain(d3.extent(data, function (d) {
-                return new Date(d.val);
-              })),
+              plot = svg.append('g')
+                  .classed('plot', true),
 
-          yScale = d3.scale.linear()
-              .domain(d3.extent(data, function (d) {
+              xScale = d3.time.scale()
+                  .domain(d3.extent(data, function (d) {
+                    return new Date(d.val);
+                  })),
+
+              yScale = d3.scale.linear()
+                  .domain(d3.extent(data, function (d) {
+                    return d.count;
+                  })),
+
+              line = d3.svg.line()
+                  .x(function (d) {
+                    return xScale(new Date(d.val));
+                  })
+                  .y(function (d) {
+                    return yScale(d.count);
+                  })
+                  .interpolate(options.interpolate);
+
+          // Medians
+          var medianValueMax = getNiceMedian(0.9, data, function (d) {
                 return d.count;
-              })),
+              }),
+              medianLabelMax = extra.append('text')
+                  .text(numeral(medianValueMax).format('0.[0]'))
+                  .style('text-anchor', 'end')
+                  .style('font-size', '10px')
+                  .style('fill', '#ccc')
+                  .attr('dy', '0.32em'),
+              medianValueMin = getNiceMedian(0.1, data, function (d) {
+                return d.count;
+              }),
+              medianLabelMin = extra.append('text')
+                  .text(numeral(medianValueMin).format('0.[0]'))
+                  .style('text-anchor', 'end')
+                  .style('font-size', '10px')
+                  .style('fill', '#ccc')
+                  .attr('dy', '0.32em'),
+              medianLabelWidth = Math.max(medianLabelMax.node().getBBox().width, medianLabelMin.node().getBBox().width);
 
-          line = d3.svg.line()
-              .x(function (d) {
-                return xScale(new Date(d.val));
-              })
-              .y(function (d) {
-                return yScale(d.count);
-              })
-              .interpolate(options.interpolate)
-              .tension(options.tension),
+          _.extend(options, {
+            marginLeft: 1,
+            marginRight: 1 + medianLabelWidth + 4,
+            marginTop: 6,
+            marginBottom: 6
+          });
 
-          minDate = xScale.domain()[0],
-          minDateTick = svg.append('text')
-              .classed('subtitle', true)
-              .text(moment(minDate).format('LL')),
+          _.extend(options, {
+            availableWidth: options.width - options.marginLeft - options.marginRight,
+            availableHeight: options.height - options.marginTop - options.marginBottom
+          });
 
-          maxDate = xScale.domain()[1],
-          maxDateTick = svg.append('text')
-              .classed('subtitle', true)
-              .text(moment(maxDate).format('LL'))
-              .style('text-anchor', 'end');
+          plot.attr('transform', trans(options.marginLeft, options.marginTop));
+          xScale.range([0, options.availableWidth]);
+          yScale.range([options.availableHeight, 0]);
 
-      _.extend(options, {
-        marginLeft: 1,
-        marginRight: 1,
-        marginTop: 1,
-        marginBottom: 1 + maxDateTick.node().getBBox().height
-      });
+          plot.append('path')
+              .datum(data)
+              .attr('d', line)
+              .classed('line', true)
+              .style('stroke', options.color);
 
-      _.extend(options, {
-        availableWidth: options.width - options.marginLeft - options.marginRight,
-        availableHeight: options.height - options.marginTop - options.marginBottom
-      });
-
-      plot.attr('transform', trans(options.marginLeft, options.marginTop));
-      xScale.range([0, options.availableWidth]);
-      yScale.range([options.availableHeight, 0]);
-
-      minDateTick
-          .attr('x', options.marginLeft)
-          .attr('y', options.height);
-      maxDateTick
-          .attr('x', options.width - options.marginRight)
-          .attr('y', options.height);
-
-      plot.append('path')
-          .datum(data)
-          .attr('d', line)
-          .attr('class', 'line')
-          .style('stroke', options.color);
-
-    });
+          medianLabelMax
+              .attr('x', options.width - 1)
+              .attr('y', yScale(medianValueMax));
+          medianLabelMin
+              .attr('x', options.width - 1)
+              .attr('y', yScale(medianValueMin));
+          extra.append('line')
+              .attr('x1', options.marginLeft)
+              .attr('y1', yScale(medianValueMax))
+              .attr('x2', options.availableWidth + options.marginLeft)
+              .attr('y2', yScale(medianValueMax))
+              .style('stroke', '#eee')
+              .style('shape-rendering', 'crispedges');
+          extra.append('line')
+              .attr('x1', options.marginLeft)
+              .attr('y1', yScale(medianValueMin))
+              .attr('x2', options.availableWidth + options.marginLeft)
+              .attr('y2', yScale(medianValueMin))
+              .style('stroke', '#eee')
+              .style('shape-rendering', 'crispedges');
+        }
+    )
+    ;
   };
 
-})(window.jQuery);
+  function getNiceMedian (p, array, accessor) {
+    var min = d3.min(array, accessor),
+        max = d3.max(array, accessor),
+        median = (max - min) * p + min,
+        threshold = (max - min) / 2,
+        threshold10 = Math.pow(10, Math.floor(Math.log(threshold) / Math.LN10) - 1);
+    return (p - 0.5) > 0.0001 ?
+        Math.floor(median / threshold10) * threshold10 :
+        Math.ceil(median / threshold10) * threshold10;
+  }
+
+})
+(window.jQuery);
