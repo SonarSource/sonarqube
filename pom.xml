@@ -528,6 +528,8 @@
           <redirectTestOutputToFile>true</redirectTestOutputToFile>
           <systemPropertyVariables>
             <java.io.tmpdir>${project.build.directory}</java.io.tmpdir>
+            <!-- temporary workaround. Waiting for tests to not be coupled with env timezone. -->
+            <user.timezone>GMT+1</user.timezone>
           </systemPropertyVariables>
           <groups>${junitGroups}</groups>
           <threadCount>1</threadCount>
