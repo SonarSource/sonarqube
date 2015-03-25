@@ -26,13 +26,14 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.utils.internal.Uuids;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.computation.db.AnalysisReportDto;
+import org.sonar.core.computation.db.AnalysisReportDto.Status;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.process.ProcessConstants;
+import org.sonar.server.computation.db.AnalysisReportDao;
 import org.sonar.server.db.DbClient;
 
 import javax.annotation.CheckForNull;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,19 +43,8 @@ import static org.sonar.core.computation.db.AnalysisReportDto.Status.PENDING;
 
 public class ReportQueue implements ServerComponent {
 
-  public static class Item {
-    public final AnalysisReportDto dto;
-    public final File zipFile;
-
-    public Item(AnalysisReportDto dto, File zipFile) {
-      this.dto = dto;
-      this.zipFile = zipFile;
-    }
-  }
-
   private final DbClient dbClient;
   private final Settings settings;
-
   public ReportQueue(DbClient dbClient, Settings settings) {
     this.dbClient = dbClient;
     this.settings = settings;
@@ -68,24 +58,48 @@ public class ReportQueue implements ServerComponent {
     try {
       checkThatProjectExistsInDatabase(projectKey, session);
 
-      // save report data on file. Directory is created if it does not exist yet.
-      FileUtils.copyInputStreamToFile(reportData, file);
+      saveReportOnDisk(reportData, file);
+
+      List<AnalysisReportDto> reportsOnSameProject = dao().selectByProjectKey(session, projectKey);
+      deleteReportsOfSameProjectFromDb(session, reportsOnSameProject);
 
       // add report metadata to the queue
       AnalysisReportDto dto = new AnalysisReportDto()
         .setProjectKey(projectKey)
         .setStatus(PENDING)
         .setUuid(uuid);
-      dbClient.analysisReportDao().insert(session, dto);
+      dao().insert(session, dto);
       session.commit();
-      return new Item(dto, file);
 
+      deleteReportsOfSameProjectOnDisk(reportsOnSameProject);
+
+      return new Item(dto, file);
     } catch (Exception e) {
       FileUtils.deleteQuietly(file);
       throw new IllegalStateException("Fail to store analysis report of project " + projectKey, e);
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  private void deleteReportsOfSameProjectOnDisk(List<AnalysisReportDto> reportsOnSameProject) {
+    for (AnalysisReportDto reportOnSameProject : reportsOnSameProject) {
+      Loggers.get(getClass()).info("Report '{}' of project '{}' removed from queue.", reportOnSameProject.getUuid(), reportOnSameProject.getProjectKey());
+      FileUtils.deleteQuietly(reportFileForUuid(reportOnSameProject.getUuid()));
+    }
+  }
+
+  private void deleteReportsOfSameProjectFromDb(DbSession session, List<AnalysisReportDto> reports) {
+    for (AnalysisReportDto report : reports) {
+      if (!Status.PENDING.equals(report.getStatus())) {
+        throw new IllegalStateException(String.format("Cannot insert a report when there is already a report in progress on the same project (%s)", report.getProjectKey()));
+      }
+      dao().delete(session, report.getId());
+    }
+  }
+
+  private void saveReportOnDisk(InputStream reportData, File file) throws IOException {
+    FileUtils.copyInputStreamToFile(reportData, file);
   }
 
   private void checkThatProjectExistsInDatabase(String projectKey, DbSession session) {
@@ -96,7 +110,7 @@ public class ReportQueue implements ServerComponent {
     DbSession session = dbClient.openSession(false);
     try {
       FileUtils.deleteQuietly(item.zipFile);
-      dbClient.analysisReportDao().delete(session, item.dto.getId());
+      dao().delete(session, item.dto.getId());
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
@@ -107,14 +121,14 @@ public class ReportQueue implements ServerComponent {
   public Item pop() {
     DbSession session = dbClient.openSession(false);
     try {
-      AnalysisReportDto dto = dbClient.analysisReportDao().pop(session);
+      AnalysisReportDto dto = dao().pop(session);
       if (dto != null) {
         File file = reportFileForUuid(dto.getUuid());
         if (file.exists()) {
           return new Item(dto, file);
         }
         Loggers.get(getClass()).error("Analysis report not found: " + file.getAbsolutePath());
-        dbClient.analysisReportDao().delete(session, dto.getId());
+        dao().delete(session, dto.getId());
         session.commit();
       }
       return null;
@@ -123,10 +137,10 @@ public class ReportQueue implements ServerComponent {
     }
   }
 
-  public List<AnalysisReportDto> findByProjectKey(String projectKey) {
+  public List<AnalysisReportDto> selectByProjectKey(String projectKey) {
     DbSession session = dbClient.openSession(false);
     try {
-      return dbClient.analysisReportDao().selectByProjectKey(session, projectKey);
+      return dao().selectByProjectKey(session, projectKey);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -145,7 +159,7 @@ public class ReportQueue implements ServerComponent {
 
     DbSession session = dbClient.openSession(false);
     try {
-      dbClient.analysisReportDao().truncate(session);
+      dao().truncate(session);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
@@ -155,7 +169,7 @@ public class ReportQueue implements ServerComponent {
   public void resetToPendingStatus() {
     DbSession session = dbClient.openSession(false);
     try {
-      dbClient.analysisReportDao().resetAllToPendingStatus(session);
+      dao().resetAllToPendingStatus(session);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
@@ -168,7 +182,7 @@ public class ReportQueue implements ServerComponent {
   public List<AnalysisReportDto> all() {
     DbSession session = dbClient.openSession(false);
     try {
-      return dbClient.analysisReportDao().selectAll(session);
+      return dao().selectAll(session);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -184,5 +198,19 @@ public class ReportQueue implements ServerComponent {
 
   private File reportFileForUuid(String uuid) {
     return new File(reportsDir(), String.format("%s.zip", uuid));
+  }
+
+  private AnalysisReportDao dao() {
+    return dbClient.analysisReportDao();
+  }
+
+  public static class Item {
+    public final AnalysisReportDto dto;
+    public final File zipFile;
+
+    public Item(AnalysisReportDto dto, File zipFile) {
+      this.dto = dto;
+      this.zipFile = zipFile;
+    }
   }
 }

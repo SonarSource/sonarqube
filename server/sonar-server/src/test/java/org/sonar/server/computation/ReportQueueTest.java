@@ -29,6 +29,7 @@ import org.junit.experimental.categories.Category;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.LogTester;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
@@ -40,11 +41,11 @@ import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.computation.db.AnalysisReportDto.Status.PENDING;
@@ -56,10 +57,13 @@ public class ReportQueueTest {
   static final long NOW = 1_500_000_000_000L;
 
   @Rule
-  public DbTester dbTester = new DbTester();
+  public DbTester db = new DbTester();
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
+
+  @Rule
+  public LogTester log = new LogTester();
 
   Settings settings = new Settings();
   File dataDir;
@@ -72,7 +76,7 @@ public class ReportQueueTest {
     settings.setProperty(ProcessConstants.PATH_DATA, dataDir.getAbsolutePath());
     when(system.now()).thenReturn(NOW);
 
-    DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao(), new AnalysisReportDao(system));
+    DbClient dbClient = new DbClient(db.database(), db.myBatis(), new ComponentDao(), new AnalysisReportDao(system));
     sut = new ReportQueue(dbClient, settings);
 
     try (DbSession session = dbClient.openSession(false)) {
@@ -84,7 +88,7 @@ public class ReportQueueTest {
   }
 
   @Test
-  public void add_report_to_queue() throws IOException {
+  public void add_report_to_queue() throws Exception {
     // must:
     // 1. insert metadata in db
     // 2. copy report content to directory /data/analysis
@@ -95,7 +99,7 @@ public class ReportQueueTest {
     assertThat(item.dto.getUuid()).isNotEmpty();
     assertThat(item.dto.getId()).isGreaterThan(0L);
 
-    List<AnalysisReportDto> reports = sut.findByProjectKey("P1");
+    List<AnalysisReportDto> reports = sut.selectByProjectKey("P1");
     assertThat(reports).hasSize(1);
     AnalysisReportDto report = reports.get(0);
 
@@ -113,10 +117,48 @@ public class ReportQueueTest {
   }
 
   @Test
+  public void add_several_reports_of_the_same_project_and_keep_the_last_one() throws Exception {
+    ReportQueue.Item firstItem = sut.add("P1", generateData());
+    ReportQueue.Item secondItem = sut.add("P1", generateData());
+    ReportQueue.Item thirdItem = sut.add("P1", generateData());
+
+    List<AnalysisReportDto> reports = sut.selectByProjectKey("P1");
+    AnalysisReportDto report = reports.get(0);
+
+    assertThat(reports).hasSize(1);
+    assertThat(report.getStartedAt()).isEqualTo(thirdItem.dto.getStartedAt());
+    assertThat(report.getId()).isEqualTo(thirdItem.dto.getId());
+    assertThat(thirdItem.zipFile).exists().isFile();
+    assertThat(firstItem.zipFile).doesNotExist();
+    assertThat(secondItem.zipFile).doesNotExist();
+    assertThat(log.logs()).contains(String.format("Report '%s' of project '%s' removed from queue.", firstItem.dto.getUuid(), firstItem.dto.getProjectKey()));
+    assertThat(log.logs()).contains(String.format("Report '%s' of project '%s' removed from queue.", secondItem.dto.getUuid(), secondItem.dto.getProjectKey()));
+  }
+
+  @Test
+  public void add_report_fails_when_there_is_a_report_in_progress() throws Exception {
+    ReportQueue.Item firstItem = sut.add("P1", generateData());
+    sut.pop();
+
+    try {
+      sut.add("P1", generateData());
+      fail("should fail when trying to add with a WORKING report on the same project");
+    } catch (IllegalStateException e) {
+    }
+
+    List<AnalysisReportDto> reports = sut.selectByProjectKey("P1");
+    AnalysisReportDto report = reports.get(0);
+
+    assertThat(reports).hasSize(1);
+    assertThat(report.getId()).isEqualTo(firstItem.dto.getId());
+    assertThat(firstItem.zipFile).exists().isFile();
+  }
+
+  @Test
   public void find_by_project_key() throws Exception {
     sut.add("P1", generateData());
-    assertThat(sut.findByProjectKey("P1")).hasSize(1).extracting("projectKey").containsExactly("P1");
-    assertThat(sut.findByProjectKey("P2")).isEmpty();
+    assertThat(sut.selectByProjectKey("P1")).hasSize(1).extracting("projectKey").containsExactly("P1");
+    assertThat(sut.selectByProjectKey("P2")).isEmpty();
   }
 
   @Test
@@ -147,10 +189,10 @@ public class ReportQueueTest {
   @Test
   public void remove() {
     ReportQueue.Item item = sut.add("P1", generateData());
-    assertThat(dbTester.countRowsOfTable("analysis_reports")).isEqualTo(1);
+    assertThat(db.countRowsOfTable("analysis_reports")).isEqualTo(1);
 
     sut.remove(item);
-    assertThat(dbTester.countRowsOfTable("analysis_reports")).isEqualTo(0);
+    assertThat(db.countRowsOfTable("analysis_reports")).isEqualTo(0);
     assertThat(item.zipFile).doesNotExist();
   }
 
@@ -164,7 +206,7 @@ public class ReportQueueTest {
     assertThat(sut.pop()).isNull();
 
     // table sanitized
-    assertThat(dbTester.countRowsOfTable("analysis_reports")).isEqualTo(0);
+    assertThat(db.countRowsOfTable("analysis_reports")).isEqualTo(0);
   }
 
   @Test
@@ -175,8 +217,14 @@ public class ReportQueueTest {
 
     sut.clear();
 
-    assertThat(dbTester.countRowsOfTable("analysis_reports")).isEqualTo(0);
+    assertThat(db.countRowsOfTable("analysis_reports")).isEqualTo(0);
     assertThat(analysisDir()).doesNotExist();
+  }
+
+  @Test
+  public void clear_does_not_fail_when_directory_already_deleted() throws Exception {
+    sut.clear();
+    sut.clear();
   }
 
   @Test
