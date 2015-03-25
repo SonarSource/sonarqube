@@ -86,30 +86,30 @@ public class QProfileProjectOperationsMediumTest {
 
   @Test
   public void add_project() throws Exception {
-    projectOperations.addProject(profile.getId(), project.getId(), authorizedProfileAdminUserSession);
+    projectOperations.addProject(profile.getKey(), project.uuid(), authorizedProfileAdminUserSession);
 
     assertThat(factory.getByProjectAndLanguage(PROJECT_KEY, profile.getLanguage())).isNotNull();
   }
 
   @Test
   public void add_project_with_only_project_admin_permission() throws Exception {
-    projectOperations.addProject(profile.getId(), project.getId(), authorizedProjectAdminUserSession);
+    projectOperations.addProject(profile.getKey(), project.uuid(), authorizedProjectAdminUserSession);
 
     assertThat(factory.getByProjectAndLanguage(PROJECT_KEY, profile.getLanguage())).isNotNull();
   }
 
   @Test
   public void remove_project_from_project_id() throws Exception {
-    projectOperations.addProject(profile.getId(), project.getId(), authorizedProfileAdminUserSession);
+    projectOperations.addProject(profile.getKey(), project.uuid(), authorizedProfileAdminUserSession);
     assertThat(factory.getByProjectAndLanguage(PROJECT_KEY, profile.getLanguage())).isNotNull();
 
-    projectOperations.removeProject(profile.getId(), project.getId(), authorizedProfileAdminUserSession);
+    projectOperations.removeProject(profile.getKey(), project.uuid(), authorizedProfileAdminUserSession);
     assertThat(factory.getByProjectAndLanguage(PROJECT_KEY, profile.getLanguage())).isNull();
   }
 
   @Test
   public void remove_project_from_language() throws Exception {
-    projectOperations.addProject(profile.getId(), project.getId(), authorizedProfileAdminUserSession);
+    projectOperations.addProject(profile.getKey(), project.uuid(), authorizedProfileAdminUserSession);
     assertThat(factory.getByProjectAndLanguage(PROJECT_KEY, profile.getLanguage())).isNotNull();
 
     projectOperations.removeProject(profile.getLanguage(), project.getId(), authorizedProfileAdminUserSession);
@@ -147,11 +147,11 @@ public class QProfileProjectOperationsMediumTest {
 
     dbSession.commit();
 
-    projectOperations.addProject(profile.getId(), project1.getId(), userSession);
-    projectOperations.addProject(profile.getId(), project2.getId(), userSession);
+    projectOperations.addProject(profile.getKey(), project1.uuid(), userSession);
+    projectOperations.addProject(profile.getKey(), project2.uuid(), userSession);
     assertThat(tester.get(QProfileProjectLookup.class).projects(profile.getId())).hasSize(2);
 
-    projectOperations.removeAllProjects(profile.getId(), userSession);
+    projectOperations.removeAllProjects(profile.getKey(), userSession);
     assertThat(tester.get(QProfileProjectLookup.class).projects(profile.getId())).isEmpty();
   }
 }

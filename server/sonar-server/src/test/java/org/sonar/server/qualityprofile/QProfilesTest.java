@@ -116,14 +116,14 @@ public class QProfilesTest {
 
   @Test
   public void add_project() throws Exception {
-    qProfiles.addProject(1, 10L);
-    verify(projectOperations).addProject(eq(1), eq(10L), any(UserSession.class));
+    qProfiles.addProject("sonar-way-java", "ABCD");
+    verify(projectOperations).addProject(eq("sonar-way-java"), eq("ABCD"), any(UserSession.class));
   }
 
   @Test
-  public void remove_project_by_quality_profile_id() throws Exception {
-    qProfiles.removeProject(1, 10L);
-    verify(projectOperations).removeProject(eq(1), eq(10L), any(UserSession.class));
+  public void remove_project_by_quality_profile_key() throws Exception {
+    qProfiles.removeProject("sonar-way-java", "ABCD");
+    verify(projectOperations).removeProject(eq("sonar-way-java"), eq("ABCD"), any(UserSession.class));
   }
 
   @Test
@@ -134,7 +134,7 @@ public class QProfilesTest {
 
   @Test
   public void remove_all_projects() throws Exception {
-    qProfiles.removeAllProjects(1);
-    verify(projectOperations).removeAllProjects(eq(1), any(UserSession.class));
+    qProfiles.removeAllProjects("sonar-way-java");
+    verify(projectOperations).removeAllProjects(eq("sonar-way-java"), any(UserSession.class));
   }
 }

@@ -28,6 +28,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
@@ -36,6 +37,8 @@ import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileName;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
@@ -88,7 +91,7 @@ public class QProfilesWsMediumTest {
     WebService.Controller controller = context.controller(QProfilesWs.API_ENDPOINT);
 
     assertThat(controller).isNotNull();
-    assertThat(controller.actions()).hasSize(5);
+    assertThat(controller.actions()).hasSize(7);
     assertThat(controller.action(BulkRuleActivationActions.BULK_ACTIVATE_ACTION)).isNotNull();
     assertThat(controller.action(BulkRuleActivationActions.BULK_DEACTIVATE_ACTION)).isNotNull();
     assertThat(controller.action(RuleActivationActions.ACTIVATE_ACTION)).isNotNull();
@@ -394,6 +397,142 @@ public class QProfilesWsMediumTest {
 
     // 2. assert rule child rule is NOT minor
     assertThat(db.activeRuleDao().getByKey(session, active2.getKey()).getSeverityString()).isNotEqualTo("MINOR");
+  }
+
+  @Test
+  public void add_project_with_key_and_uuid() throws Exception {
+    ComponentDto project = new ComponentDto()
+      .setId(1L)
+      .setUuid("ABCD")
+      .setKey("org.codehaus.sonar:sonar")
+      .setName("SonarQube")
+      .setLongName("SonarQube")
+      .setQualifier("TRK")
+      .setScope("TRK")
+      .setEnabled(true);
+    db.componentDao().insert(session, project);
+    QualityProfileDto profile = QProfileTesting.newXooP1();
+    db.qualityProfileDao().insert(session, profile);
+
+    session.commit();
+
+    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "add_project")
+      .setParam("profileKey", profile.getKee()).setParam("projectUuid", project.uuid())
+      .execute().assertNoContent();
+    assertThat(tester.get(QProfileFactory.class).getByProjectAndLanguage(session, project.getKey(), "xoo").getKee()).isEqualTo(profile.getKee());
+  }
+
+  @Test
+  public void add_project_with_name_language_and_key() throws Exception {
+    ComponentDto project = new ComponentDto()
+      .setId(1L)
+      .setUuid("ABCD")
+      .setKey("org.codehaus.sonar:sonar")
+      .setName("SonarQube")
+      .setLongName("SonarQube")
+      .setQualifier("TRK")
+      .setScope("TRK")
+      .setEnabled(true);
+    db.componentDao().insert(session, project);
+    QualityProfileDto profile = QProfileTesting.newXooP1();
+    db.qualityProfileDao().insert(session, profile);
+
+    session.commit();
+
+    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "add_project")
+      .setParam("language", "xoo").setParam("profileName", profile.getName()).setParam("projectKey", project.getKey())
+      .execute().assertNoContent();
+    assertThat(tester.get(QProfileFactory.class).getByProjectAndLanguage(session, project.getKey(), "xoo").getKee()).isEqualTo(profile.getKee());
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void add_project_missing_language() throws Exception {
+    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "add_project")
+      .setParam("profileName", "polop").setParam("projectKey", "palap")
+      .execute();
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void add_project_missing_name() throws Exception {
+    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "add_project")
+      .setParam("language", "xoo").setParam("projectKey", "palap")
+      .execute();
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void add_project_too_many_profile_parameters() throws Exception {
+    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "add_project")
+      .setParam("profileKey", "plouf").setParam("language", "xoo").setParam("profileName", "polop").setParam("projectUuid", "palap")
+      .execute();
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void add_project_missing_project() throws Exception {
+    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "add_project")
+      .setParam("profileKey", "plouf")
+      .execute();
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void add_project_too_many_project_parameters() throws Exception {
+    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "add_project")
+      .setParam("profileKey", "plouf").setParam("projectUuid", "polop").setParam("projectKey", "palap")
+      .execute();
+  }
+
+  @Test(expected = NotFoundException.class)
+  public void add_project_unknown_profile() throws Exception {
+    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "add_project")
+      .setParam("projectUuid", "plouf").setParam("profileName", "polop").setParam("language", "xoo")
+      .execute();
+  }
+
+  @Test
+  public void remove_project_with_key_and_uuid() throws Exception {
+    ComponentDto project = new ComponentDto()
+      .setId(1L)
+      .setUuid("ABCD")
+      .setKey("org.codehaus.sonar:sonar")
+      .setName("SonarQube")
+      .setLongName("SonarQube")
+      .setQualifier("TRK")
+      .setScope("TRK")
+      .setEnabled(true);
+    db.componentDao().insert(session, project);
+    QualityProfileDto profile = QProfileTesting.newXooP1();
+    db.qualityProfileDao().insert(session, profile);
+    db.qualityProfileDao().insertProjectProfileAssociation(project.uuid(), profile.getKee(), session);
+
+    session.commit();
+
+    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "remove_project")
+      .setParam("profileKey", profile.getKee()).setParam("projectUuid", project.uuid())
+      .execute().assertNoContent();
+    assertThat(tester.get(QProfileFactory.class).getByProjectAndLanguage(session, project.getKey(), "xoo")).isNull();
+  }
+
+  @Test
+  public void remove_project_with_name_language_and_key() throws Exception {
+    ComponentDto project = new ComponentDto()
+      .setId(1L)
+      .setUuid("ABCD")
+      .setKey("org.codehaus.sonar:sonar")
+      .setName("SonarQube")
+      .setLongName("SonarQube")
+      .setQualifier("TRK")
+      .setScope("TRK")
+      .setEnabled(true);
+    db.componentDao().insert(session, project);
+    QualityProfileDto profile = QProfileTesting.newXooP1();
+    db.qualityProfileDao().insert(session, profile);
+    db.qualityProfileDao().insertProjectProfileAssociation(project.uuid(), profile.getKee(), session);
+
+    session.commit();
+
+    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "remove_project")
+      .setParam("language", "xoo").setParam("profileName", profile.getName()).setParam("projectKey", project.getKey())
+      .execute().assertNoContent();
+    assertThat(tester.get(QProfileFactory.class).getByProjectAndLanguage(session, project.getKey(), "xoo")).isNull();
   }
 
   private QualityProfileDto createProfile(String lang) {

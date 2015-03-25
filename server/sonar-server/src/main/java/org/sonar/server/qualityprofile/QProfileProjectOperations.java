@@ -43,31 +43,31 @@ public class QProfileProjectOperations implements ServerComponent {
     this.db = db;
   }
 
-  public void addProject(int profileId, long projectId, UserSession userSession) {
+  public void addProject(String profileKey, String projectUuid, UserSession userSession) {
     DbSession session = db.openSession(false);
     try {
-      addProject(profileId, projectId, userSession, session);
+      addProject(profileKey, projectUuid, userSession, session);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  void addProject(int profileId, long projectId, UserSession userSession, DbSession session) {
-    ComponentDto project = db.componentDao().getById(projectId, session);
+  void addProject(String profileKey, String projectUuid, UserSession userSession, DbSession session) {
+    ComponentDto project = db.componentDao().getByUuid(session, projectUuid);
     checkPermission(userSession, project.key());
-    QualityProfileDto qualityProfile = findNotNull(profileId, session);
+    QualityProfileDto qualityProfile = findNotNull(profileKey, session);
 
     db.qualityProfileDao().insertProjectProfileAssociation(project.uuid(), qualityProfile.getKey(), session);
     session.commit();
   }
 
-  public void removeProject(int profileId, long projectId, UserSession userSession) {
+  public void removeProject(String profileKey, String projectUuid, UserSession userSession) {
     DbSession session = db.openSession(false);
     try {
-      ComponentDto project = db.componentDao().getById(projectId, session);
+      ComponentDto project = db.componentDao().getByUuid(session, projectUuid);
       checkPermission(userSession, project.key());
-      QualityProfileDto qualityProfile = findNotNull(profileId, session);
+      QualityProfileDto qualityProfile = findNotNull(profileKey, session);
 
       db.qualityProfileDao().deleteProjectProfileAssociation(project.uuid(), qualityProfile.getKey(), session);
       session.commit();
@@ -92,11 +92,11 @@ public class QProfileProjectOperations implements ServerComponent {
     }
   }
 
-  public void removeAllProjects(int profileId, UserSession userSession) {
+  public void removeAllProjects(String profileKey, UserSession userSession) {
     checkPermission(userSession);
     DbSession session = db.openSession(false);
     try {
-      QualityProfileDto qualityProfile = findNotNull(profileId, session);
+      QualityProfileDto qualityProfile = findNotNull(profileKey, session);
       db.qualityProfileDao().deleteAllProjectProfileAssociation(qualityProfile.getKey(), session);
       session.commit();
     } finally {
@@ -104,8 +104,8 @@ public class QProfileProjectOperations implements ServerComponent {
     }
   }
 
-  private QualityProfileDto findNotNull(int id, DbSession session) {
-    QualityProfileDto qualityProfile = db.qualityProfileDao().getById(id, session);
+  private QualityProfileDto findNotNull(String key, DbSession session) {
+    QualityProfileDto qualityProfile = db.qualityProfileDao().getByKey(session, key);
     QProfileValidations.checkProfileIsNotNull(qualityProfile);
     return qualityProfile;
   }
