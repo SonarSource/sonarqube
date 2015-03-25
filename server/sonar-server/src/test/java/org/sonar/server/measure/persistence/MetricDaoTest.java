@@ -83,6 +83,29 @@ public class MetricDaoTest {
   }
 
   @Test
+  public void get_manual_metric() throws Exception {
+    dbTester.prepareDbUnit(getClass(), "manual_metric.xml");
+
+    MetricDto result = dao.selectByKey(session, "manual");
+    assertThat(result.getId()).isEqualTo(1);
+    assertThat(result.getKey()).isEqualTo("manual");
+    assertThat(result.getShortName()).isEqualTo("Manual metric");
+    assertThat(result.getDescription()).isEqualTo("Manual metric");
+    assertThat(result.getDomain()).isNullOrEmpty();
+    assertThat(result.getValueType()).isEqualTo("INT");
+    assertThat(result.getOrigin()).isEqualTo("GUI");
+    assertThat(result.getDirection()).isEqualTo(0);
+    assertThat(result.isQualitative()).isFalse();
+    assertThat(result.isUserManaged()).isTrue();
+    assertThat(result.getWorstValue()).isNull();
+    assertThat(result.getBestValue()).isNull();
+    assertThat(result.isOptimizedBestValue()).isNull();
+    assertThat(result.isDeleteHistoricalData()).isNull();
+    assertThat(result.isHidden()).isNull();
+    assertThat(result.isEnabled()).isTrue();
+  }
+
+  @Test
   public void find_all_enabled() throws Exception {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 

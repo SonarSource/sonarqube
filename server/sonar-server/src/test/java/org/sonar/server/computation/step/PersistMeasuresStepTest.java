@@ -50,10 +50,7 @@ import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class PersistMeasuresStepTest extends BaseStepTest {
 
@@ -311,6 +308,16 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   public void fail_when_no_value() throws Exception {
     BatchReport.Measure measure = BatchReport.Measure.newBuilder()
       .setMetricKey("repo:metric-key")
+      .build();
+    BatchReport.Component component = defaultComponent()
+      .build();
+    sut.toMeasureDto(measure, component);
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void fail_when_forbid_metric() throws Exception {
+    BatchReport.Measure measure = BatchReport.Measure.newBuilder()
+      .setMetricKey("duplications_data")
       .build();
     BatchReport.Component component = defaultComponent()
       .build();

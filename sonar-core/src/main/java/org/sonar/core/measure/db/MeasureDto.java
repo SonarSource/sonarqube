@@ -204,11 +204,12 @@ public class MeasureDto {
     return this;
   }
 
+  @CheckForNull
   public Integer getRuleId() {
     return ruleId;
   }
 
-  public MeasureDto setRuleId(Integer ruleId) {
+  public MeasureDto setRuleId(@Nullable Integer ruleId) {
     this.ruleId = ruleId;
     return this;
   }
@@ -222,11 +223,12 @@ public class MeasureDto {
     return this;
   }
 
+  @CheckForNull
   public Integer getPersonId() {
     return personId;
   }
 
-  public MeasureDto setPersonId(Integer personId) {
+  public MeasureDto setPersonId(@Nullable Integer personId) {
     this.personId = personId;
     return this;
   }

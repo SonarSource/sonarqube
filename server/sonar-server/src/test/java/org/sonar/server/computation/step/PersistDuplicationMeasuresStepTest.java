@@ -326,7 +326,10 @@ public class PersistDuplicationMeasuresStepTest extends BaseStepTest {
   }
 
   private MetricDto saveDuplicationMetric(){
-    MetricDto duplicationMetric = new MetricDto().setKey(CoreMetrics.DUPLICATIONS_DATA_KEY);
+    MetricDto duplicationMetric = new MetricDto().setKey(CoreMetrics.DUPLICATIONS_DATA_KEY)
+      .setOptimizedBestValue(false)
+      .setDeleteHistoricalData(false)
+      .setHidden(false);
     dbClient.metricDao().insert(session, duplicationMetric);
     session.commit();
     return duplicationMetric;
