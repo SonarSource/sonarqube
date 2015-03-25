@@ -80,9 +80,6 @@ module DashboardHelper
 
   def short_period_label(snapshot, index)
     if snapshot.project_snapshot
-      mode = snapshot.period_mode(index)
-      mode_param = snapshot.period_param(index)
-      date = localize(snapshot.period_datetime(index).to_date) if snapshot.period_datetime(index)
       Api::Utils.java_facade.getPeriodLabel(index)
     end
   end

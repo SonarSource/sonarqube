@@ -3,7 +3,12 @@
 <script>
   window.overviewConf = {
     componentKey: '<%= @resource.key -%>',
-    componentUuid: '<%= @resource.uuid -%>'
+    componentUuid: '<%= @resource.uuid -%>',
+
+    period1Name: '<%= short_period_label(@snapshot, 1) -%>',
+    period1Date: '<%= @snapshot.period_datetime(1).strftime('%FT%T%z') -%>',
+    period3Name: '<%= short_period_label(@snapshot, 3) -%>',
+    period3Date: '<%= @snapshot.period_datetime(3).strftime('%FT%T%z') -%>'
   };
   require(['overview/app']);
 </script>

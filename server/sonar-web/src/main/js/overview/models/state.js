@@ -172,7 +172,7 @@ define(function () {
           options = {
             ps: 1,
             resolved: 'false',
-            createdInLast: '1m',
+            createdAfter: this.get('period3Date'),
             componentUuids: this.get('componentUuid'),
             facets: 'severities,statuses'
           };
@@ -195,7 +195,7 @@ define(function () {
           options = {
             ps: 1,
             resolved: 'false',
-            createdInLast: '1w',
+            createdAfter: this.get('period1Date'),
             componentUuids: this.get('componentUuid'),
             facets: 'severities,statuses'
           };
