@@ -324,7 +324,7 @@ public class QProfileFactoryMediumTest {
     dbSession.clearCache();
     assertThat(factory.getByProjectAndLanguage("org.codehaus.sonar:sonar", "xoo")).isNull();
 
-    tester.get(QProfileProjectOperations.class).addProject(profileDto.getId(), project.getId(),
+    tester.get(QProfileProjectOperations.class).addProject(profileDto.getKey(), project.uuid(),
       MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN), dbSession);
     dbSession.commit();
     dbSession.clearCache();

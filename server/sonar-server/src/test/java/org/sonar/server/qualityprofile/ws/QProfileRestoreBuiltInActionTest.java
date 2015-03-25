@@ -50,7 +50,8 @@ public class QProfileRestoreBuiltInActionTest {
     tester = new WsTester(new QProfilesWs(
       new QProfileRestoreBuiltInAction(this.profileService),
       new RuleActivationActions(profileService),
-      new BulkRuleActivationActions(profileService, ruleService, i18n)));
+      new BulkRuleActivationActions(profileService, ruleService, i18n),
+      mock(ProjectAssociationActions.class)));
   }
 
   @Test

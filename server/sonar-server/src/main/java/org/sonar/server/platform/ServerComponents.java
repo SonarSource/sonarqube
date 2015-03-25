@@ -383,6 +383,7 @@ class ServerComponents {
     pico.addSingleton(ProfilesWs.class);
     pico.addSingleton(RuleActivationActions.class);
     pico.addSingleton(BulkRuleActivationActions.class);
+    pico.addSingleton(ProjectAssociationActions.class);
     pico.addSingleton(RuleActivator.class);
     pico.addSingleton(QProfileLoader.class);
     pico.addSingleton(QProfileExporters.class);
