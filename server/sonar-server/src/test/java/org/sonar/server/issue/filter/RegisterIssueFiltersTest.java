@@ -69,7 +69,7 @@ public class RegisterIssueFiltersTest {
     db.prepareDbUnit(getClass(), "empty.xml");
     taskUnderTest.start();
     taskUnderTest.stop();
-    db.assertDbUnit(getClass(), "register-result.xml", "issue_filters", "loaded_templates");
+    db.assertDbUnit(getClass(), "register-result.xml", new String[]{"created_at", "updated_at"}, "issue_filters", "loaded_templates");
 
   }
 }
