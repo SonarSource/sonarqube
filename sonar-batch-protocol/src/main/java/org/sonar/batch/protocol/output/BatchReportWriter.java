@@ -92,4 +92,12 @@ public class BatchReportWriter {
     ProtobufUtil.writeToFile(builder.build(), file);
   }
 
+  public void writeComponentSymbols(int componentRef, Iterable<BatchReport.Symbols.Symbol> symbols) {
+    BatchReport.Symbols.Builder builder = BatchReport.Symbols.newBuilder();
+    builder.setComponentRef(componentRef);
+    builder.addAllSymbol(symbols);
+    File file = fileStructure.fileFor(FileStructure.Domain.SYMBOLS, componentRef);
+    ProtobufUtil.writeToFile(builder.build(), file);
+  }
+
 }

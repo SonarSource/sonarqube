@@ -89,6 +89,16 @@ public class BatchReportReader {
     return Collections.emptyList();
   }
 
+  public List<BatchReport.Symbols.Symbol> readComponentSymbols(int componentRef) {
+    File file = fileStructure.fileFor(FileStructure.Domain.SYMBOLS, componentRef);
+    if (file.exists() && file.isFile()) {
+      // all the symbols are loaded in memory
+      BatchReport.Symbols symbols = ProtobufUtil.readFile(file, BatchReport.Symbols.PARSER);
+      return symbols.getSymbolList();
+    }
+    return Collections.emptyList();
+  }
+
   private boolean isNotAnExistingFile(File file) {
     return !file.exists() || !file.isFile();
   }

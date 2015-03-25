@@ -174,3 +174,20 @@ message Duplications {
   optional int32 component_ref = 1;
   repeated Duplication duplication = 2;
 }
+
+message Range {
+  optional int32 start_line = 1;
+  optional int32 end_line = 2;
+  optional int32 start_offset = 3;
+  optional int32 end_offset = 4;
+}
+
+message Symbols {
+  optional int32 component_ref = 1;
+  repeated Symbol symbol = 2;
+
+  message Symbol {
+    optional Range declaration = 1;
+    repeated Range reference = 2;
+  }
+}

@@ -96,13 +96,46 @@ public class BatchReportReaderTest {
     assertThat(sut.readComponentDuplications(1).get(0).getDuplicatedByList()).hasSize(1);
   }
 
+  @Test
+  public void read_symbols() throws Exception {
+    File dir = temp.newFolder();
+    BatchReportWriter writer = new BatchReportWriter(dir);
+
+    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+      .setRootComponentRef(1)
+      .build());
+
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(1).build());
+
+    writer.writeComponentSymbols(1, Arrays.asList(BatchReport.Symbols.Symbol.newBuilder()
+      .setDeclaration(BatchReport.Range.newBuilder()
+        .setStartLine(1)
+        .setStartOffset(3)
+        .setEndLine(1)
+        .setEndOffset(5)
+        .build())
+      .addReference(BatchReport.Range.newBuilder()
+        .setStartLine(10)
+        .setStartOffset(15)
+        .setEndLine(11)
+        .setEndOffset(2)
+        .build())
+      .build()));
+
+    sut = new BatchReportReader(dir);
+    assertThat(sut.readComponentSymbols(1)).hasSize(1);
+    assertThat(sut.readComponentSymbols(1).get(0).getDeclaration().getStartLine()).isEqualTo(1);
+    assertThat(sut.readComponentSymbols(1).get(0).getReference(0).getStartLine()).isEqualTo(10);
+  }
+
   @Test(expected = IllegalStateException.class)
   public void fail_if_missing_metadata_file() throws Exception {
     sut.readMetadata();
   }
 
   @Test(expected = IllegalStateException.class)
-  public void fail_if_missing_file_on_deleted_component() throws Exception {
+   public void fail_if_missing_file_on_deleted_component() throws Exception {
     sut.readDeletedComponentIssues(666);
   }
 
