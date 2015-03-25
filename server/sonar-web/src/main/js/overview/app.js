@@ -17,9 +17,7 @@ requirejs([
   var App = new Marionette.Application();
 
   App.addInitializer(function () {
-    this.state = new State({
-      resource: getResource()
-    });
+    this.state = new State(window.overviewConf);
     this.layout = new Layout({
       el: '.overview',
       model: this.state
@@ -35,15 +33,5 @@ requirejs([
   window.requestMessages().done(function () {
     App.start();
   });
-
-  function getResource () {
-    var search = window.location.search,
-        idMatch = search.match(/id=([^&]+)/);
-    if (_.isArray(idMatch) && idMatch.length === 2) {
-      return decodeURIComponent(idMatch[1]);
-    } else {
-      throw Error('The current URL does not contain resource ID');
-    }
-  }
 
 });

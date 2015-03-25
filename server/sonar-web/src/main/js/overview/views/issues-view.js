@@ -24,10 +24,20 @@ define([
   return Marionette.Layout.extend({
     template: Templates['overview-issues'],
 
+    modelEvents: {
+      'change': 'render'
+    },
+
     events: {
       'click .js-issues': 'onIssuesClick',
       'click .js-debt': 'onDebtClick',
       'click .js-guide': 'onGuideClick'
+    },
+
+    onRender: function () {
+      if (this.model.has('issuesTrend')) {
+        this.$('#overview-issues-trend').timeline(this.model.get('issuesTrend'));
+      }
     },
 
     onIssuesClick: function (e) {

@@ -57,11 +57,9 @@
               })),
 
           yScale = d3.scale.linear()
-              .domain([
-                0, d3.max(data, function (d) {
-                  return d.count;
-                })
-              ]),
+              .domain(d3.extent(data, function (d) {
+                return d.count;
+              })),
 
           line = d3.svg.line()
               .x(function (d) {

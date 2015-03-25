@@ -22,7 +22,18 @@ define([
 ], function () {
 
   return Marionette.Layout.extend({
-    template: Templates['overview-coverage']
+    template: Templates['overview-coverage'],
+
+    modelEvents: {
+      'change': 'render'
+    },
+
+    onRender: function () {
+      this.$('.js-pie-chart').pieChart();
+      if (this.model.has('coverageTrend')) {
+        this.$('#overview-coverage-trend').timeline(this.model.get('coverageTrend'));
+      }
+    }
   });
 
 });

@@ -1,5 +1,9 @@
 <div class="overview"></div>
 
 <script>
+  window.overviewConf = {
+    componentKey: '<%= @resource.key -%>',
+    componentUuid: '<%= @resource.uuid -%>'
+  };
   require(['overview/app']);
 </script>

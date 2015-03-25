@@ -22,7 +22,18 @@ define([
 ], function () {
 
   return Marionette.Layout.extend({
-    template: Templates['overview-duplications']
+    template: Templates['overview-duplications'],
+
+    modelEvents: {
+      'change': 'render'
+    },
+
+    onRender: function () {
+      this.$('.js-pie-chart').pieChart();
+      if (this.model.has('duplicationsTrend')) {
+        this.$('#overview-duplications-trend').timeline(this.model.get('duplicationsTrend'));
+      }
+    }
   });
 
 });
