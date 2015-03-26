@@ -48,7 +48,7 @@
   </select>
 
   <select id="selectAllProfiles" resultType="org.sonar.core.persistence.migration.v44.QProfileDto44">
-    select id, kee as key, name, language from rules_profiles
+    select id, kee, name, language from rules_profiles
   </select>
 
   <select id="selectProfileUpdatedAt" resultType="date" parameterType="int">
