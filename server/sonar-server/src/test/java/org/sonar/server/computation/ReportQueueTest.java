@@ -40,7 +40,6 @@ import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
@@ -56,7 +55,7 @@ public class ReportQueueTest {
   static final long NOW = 1_500_000_000_000L;
 
   @Rule
-  public DbTester dbTester = new DbTester();
+  public DbTester db = new DbTester();
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -72,7 +71,7 @@ public class ReportQueueTest {
     settings.setProperty(ProcessConstants.PATH_DATA, dataDir.getAbsolutePath());
     when(system.now()).thenReturn(NOW);
 
-    DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao(), new AnalysisReportDao(system));
+    DbClient dbClient = new DbClient(db.database(), db.myBatis(), new ComponentDao(), new AnalysisReportDao(system));
     sut = new ReportQueue(dbClient, settings);
 
     try (DbSession session = dbClient.openSession(false)) {
@@ -84,7 +83,7 @@ public class ReportQueueTest {
   }
 
   @Test
-  public void add_report_to_queue() throws IOException {
+  public void add_report_to_queue() throws Exception {
     // must:
     // 1. insert metadata in db
     // 2. copy report content to directory /data/analysis
@@ -95,7 +94,7 @@ public class ReportQueueTest {
     assertThat(item.dto.getUuid()).isNotEmpty();
     assertThat(item.dto.getId()).isGreaterThan(0L);
 
-    List<AnalysisReportDto> reports = sut.findByProjectKey("P1");
+    List<AnalysisReportDto> reports = sut.selectByProjectKey("P1");
     assertThat(reports).hasSize(1);
     AnalysisReportDto report = reports.get(0);
 
@@ -115,8 +114,8 @@ public class ReportQueueTest {
   @Test
   public void find_by_project_key() throws Exception {
     sut.add("P1", generateData());
-    assertThat(sut.findByProjectKey("P1")).hasSize(1).extracting("projectKey").containsExactly("P1");
-    assertThat(sut.findByProjectKey("P2")).isEmpty();
+    assertThat(sut.selectByProjectKey("P1")).hasSize(1).extracting("projectKey").containsExactly("P1");
+    assertThat(sut.selectByProjectKey("P2")).isEmpty();
   }
 
   @Test
@@ -147,10 +146,10 @@ public class ReportQueueTest {
   @Test
   public void remove() {
     ReportQueue.Item item = sut.add("P1", generateData());
-    assertThat(dbTester.countRowsOfTable("analysis_reports")).isEqualTo(1);
+    assertThat(db.countRowsOfTable("analysis_reports")).isEqualTo(1);
 
     sut.remove(item);
-    assertThat(dbTester.countRowsOfTable("analysis_reports")).isEqualTo(0);
+    assertThat(db.countRowsOfTable("analysis_reports")).isEqualTo(0);
     assertThat(item.zipFile).doesNotExist();
   }
 
@@ -164,7 +163,7 @@ public class ReportQueueTest {
     assertThat(sut.pop()).isNull();
 
     // table sanitized
-    assertThat(dbTester.countRowsOfTable("analysis_reports")).isEqualTo(0);
+    assertThat(db.countRowsOfTable("analysis_reports")).isEqualTo(0);
   }
 
   @Test
@@ -175,8 +174,19 @@ public class ReportQueueTest {
 
     sut.clear();
 
-    assertThat(dbTester.countRowsOfTable("analysis_reports")).isEqualTo(0);
+    assertThat(db.countRowsOfTable("analysis_reports")).isEqualTo(0);
     assertThat(analysisDir()).doesNotExist();
+  }
+
+  @Test
+  public void clear_do_not_fail_when_directory_do_not_exist() throws Exception {
+    sut.clear();
+    sut.clear();
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void add_on_non_existent_project() throws Exception {
+    sut.add("UNKNOWN_PROJECT_KEY", generateData());
   }
 
   @Test
