@@ -30,7 +30,6 @@ public class QProfilesWs implements WebService {
   private final ProjectAssociationActions projectAssociationActions;
   private final BaseQProfileWsAction[] actions;
 
-
   public QProfilesWs(RuleActivationActions ruleActivationActions,
                      BulkRuleActivationActions bulkRuleActivationActions,
                      ProjectAssociationActions projectAssociationActions,

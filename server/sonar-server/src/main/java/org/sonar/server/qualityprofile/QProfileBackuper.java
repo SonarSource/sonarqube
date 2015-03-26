@@ -57,7 +57,7 @@ public class QProfileBackuper implements ServerComponent {
     this.index = index;
   }
 
-  void backup(String key, Writer writer) {
+  public void backup(String key, Writer writer) {
     QualityProfileDto profile;
     DbSession dbSession = db.openSession(false);
     try {

@@ -53,7 +53,8 @@ public class QProfilesWsTest {
       new ProjectAssociationActions(null, null, null, languages),
       new QProfileRestoreBuiltInAction(null),
       new QProfileSearchAction(languages, null, null),
-      new QProfileSetDefaultAction(languages, null, null)
+      new QProfileSetDefaultAction(languages, null, null),
+      new QProfileBackupAction(null)
     )).controller(QProfilesWs.API_ENDPOINT);
   }
 
