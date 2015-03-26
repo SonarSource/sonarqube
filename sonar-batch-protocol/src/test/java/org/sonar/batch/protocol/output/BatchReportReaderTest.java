@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport.Issues;
 import org.sonar.batch.protocol.output.BatchReport.Metadata;
 
@@ -97,6 +98,32 @@ public class BatchReportReaderTest {
   }
 
   @Test
+  public void read_syntax_highlighting() throws Exception {
+    File dir = temp.newFolder();
+    BatchReportWriter writer = new BatchReportWriter(dir);
+
+    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+      .setRootComponentRef(1).build());
+
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(1).build());
+
+    BatchReport.SyntaxHighlighting.HighlightingRule highlightingRule = BatchReport.SyntaxHighlighting.HighlightingRule.newBuilder()
+      .setRange(BatchReport.Range.newBuilder()
+        .setStartLine(1)
+        .setEndLine(1)
+        .build())
+      .setType(Constants.HighlightingType.ANNOTATION)
+      .build();
+    writer.writeComponentSyntaxHighlighting(1, Arrays.asList(highlightingRule));
+
+    BatchReportReader sut = new BatchReportReader(dir);
+    assertThat(sut.readComponentSyntaxHighlighting(1)).hasSize(1);
+    assertThat(sut.readComponentSyntaxHighlighting(1).get(0).getRange()).isNotNull();
+    assertThat(sut.readComponentSyntaxHighlighting(1).get(0).getType()).isEqualTo(Constants.HighlightingType.ANNOTATION);
+  }
+
+  @Test
   public void read_symbols() throws Exception {
     File dir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(dir);
@@ -135,7 +162,7 @@ public class BatchReportReaderTest {
   }
 
   @Test(expected = IllegalStateException.class)
-   public void fail_if_missing_file_on_deleted_component() throws Exception {
+  public void fail_if_missing_file_on_deleted_component() throws Exception {
     sut.readDeletedComponentIssues(666);
   }
 

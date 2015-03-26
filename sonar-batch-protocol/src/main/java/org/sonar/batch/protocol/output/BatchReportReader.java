@@ -99,6 +99,16 @@ public class BatchReportReader {
     return Collections.emptyList();
   }
 
+  public List<BatchReport.SyntaxHighlighting.HighlightingRule> readComponentSyntaxHighlighting(int componentRef) {
+    File file = fileStructure.fileFor(FileStructure.Domain.SYNTAX_HIGHLIGHTING, componentRef);
+    if (file.exists() && file.isFile()) {
+      // all the highlighting are loaded in memory
+      BatchReport.SyntaxHighlighting syntaxHighlighting = ProtobufUtil.readFile(file, BatchReport.SyntaxHighlighting.PARSER);
+      return syntaxHighlighting.getHighlightingRuleList();
+    }
+    return Collections.emptyList();
+  }
+
   private boolean isNotAnExistingFile(File file) {
     return !file.exists() || !file.isFile();
   }

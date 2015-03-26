@@ -191,3 +191,14 @@ message Symbols {
     repeated Range reference = 2;
   }
 }
+
+message SyntaxHighlighting {
+  optional int32 component_ref = 1;
+  // Rule must be sorted by line and start offset
+  repeated HighlightingRule highlighting_rule = 2;
+
+  message HighlightingRule {
+    optional Range range = 1;
+    optional HighlightingType type = 2;
+  }
+}

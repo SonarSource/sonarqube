@@ -234,4 +234,28 @@ public class BatchReportWriterTest {
     assertThat(read.getComponentRef()).isEqualTo(1);
     assertThat(read.getSymbolList()).hasSize(1);
   }
+
+  @Test
+  public void write_syntax_highlighting() throws Exception {
+    File dir = temp.newFolder();
+    BatchReportWriter writer = new BatchReportWriter(dir);
+
+    assertThat(writer.hasComponentData(FileStructure.Domain.SYNTAX_HIGHLIGHTING, 1)).isFalse();
+
+    BatchReport.SyntaxHighlighting.HighlightingRule highlightingRule = BatchReport.SyntaxHighlighting.HighlightingRule.newBuilder()
+      .setRange(BatchReport.Range.newBuilder()
+        .setStartLine(1)
+        .setEndLine(1)
+        .build())
+      .setType(Constants.HighlightingType.ANNOTATION)
+      .build();
+    writer.writeComponentSyntaxHighlighting(1, Arrays.asList(highlightingRule));
+
+    assertThat(writer.hasComponentData(FileStructure.Domain.SYNTAX_HIGHLIGHTING, 1)).isTrue();
+    File file = writer.getFileStructure().fileFor(FileStructure.Domain.SYNTAX_HIGHLIGHTING, 1);
+    assertThat(file).exists().isFile();
+    BatchReport.SyntaxHighlighting syntaxHighlighting = ProtobufUtil.readFile(file, BatchReport.SyntaxHighlighting.PARSER);
+    assertThat(syntaxHighlighting.getComponentRef()).isEqualTo(1);
+    assertThat(syntaxHighlighting.getHighlightingRuleList()).hasSize(1);
+  }
 }

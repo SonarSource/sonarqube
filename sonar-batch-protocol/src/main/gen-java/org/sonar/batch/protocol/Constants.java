@@ -539,6 +539,151 @@ public final class Constants {
     // @@protoc_insertion_point(enum_scope:ComponentLinkType)
   }
 
+  /**
+   * Protobuf enum {@code HighlightingType}
+   */
+  public enum HighlightingType
+      implements com.google.protobuf.ProtocolMessageEnum {
+    /**
+     * <code>ANNOTATION = 0;</code>
+     */
+    ANNOTATION(0, 0),
+    /**
+     * <code>CONSTANT = 1;</code>
+     */
+    CONSTANT(1, 1),
+    /**
+     * <code>COMMENT = 2;</code>
+     */
+    COMMENT(2, 2),
+    /**
+     * <code>CPP_DOC = 3;</code>
+     */
+    CPP_DOC(3, 3),
+    /**
+     * <code>STRUCTURED_COMMENT = 4;</code>
+     */
+    STRUCTURED_COMMENT(4, 4),
+    /**
+     * <code>KEYWORD = 5;</code>
+     */
+    KEYWORD(5, 5),
+    /**
+     * <code>HIGHLIGHTING_STRING = 6;</code>
+     */
+    HIGHLIGHTING_STRING(6, 6),
+    /**
+     * <code>KEYWORD_LIGHT = 7;</code>
+     */
+    KEYWORD_LIGHT(7, 7),
+    /**
+     * <code>PREPROCESS_DIRECTIVE = 8;</code>
+     */
+    PREPROCESS_DIRECTIVE(8, 8),
+    ;
+
+    /**
+     * <code>ANNOTATION = 0;</code>
+     */
+    public static final int ANNOTATION_VALUE = 0;
+    /**
+     * <code>CONSTANT = 1;</code>
+     */
+    public static final int CONSTANT_VALUE = 1;
+    /**
+     * <code>COMMENT = 2;</code>
+     */
+    public static final int COMMENT_VALUE = 2;
+    /**
+     * <code>CPP_DOC = 3;</code>
+     */
+    public static final int CPP_DOC_VALUE = 3;
+    /**
+     * <code>STRUCTURED_COMMENT = 4;</code>
+     */
+    public static final int STRUCTURED_COMMENT_VALUE = 4;
+    /**
+     * <code>KEYWORD = 5;</code>
+     */
+    public static final int KEYWORD_VALUE = 5;
+    /**
+     * <code>HIGHLIGHTING_STRING = 6;</code>
+     */
+    public static final int HIGHLIGHTING_STRING_VALUE = 6;
+    /**
+     * <code>KEYWORD_LIGHT = 7;</code>
+     */
+    public static final int KEYWORD_LIGHT_VALUE = 7;
+    /**
+     * <code>PREPROCESS_DIRECTIVE = 8;</code>
+     */
+    public static final int PREPROCESS_DIRECTIVE_VALUE = 8;
+
+
+    public final int getNumber() { return value; }
+
+    public static HighlightingType valueOf(int value) {
+      switch (value) {
+        case 0: return ANNOTATION;
+        case 1: return CONSTANT;
+        case 2: return COMMENT;
+        case 3: return CPP_DOC;
+        case 4: return STRUCTURED_COMMENT;
+        case 5: return KEYWORD;
+        case 6: return HIGHLIGHTING_STRING;
+        case 7: return KEYWORD_LIGHT;
+        case 8: return PREPROCESS_DIRECTIVE;
+        default: return null;
+      }
+    }
+
+    public static com.google.protobuf.Internal.EnumLiteMap<HighlightingType>
+        internalGetValueMap() {
+      return internalValueMap;
+    }
+    private static com.google.protobuf.Internal.EnumLiteMap<HighlightingType>
+        internalValueMap =
+          new com.google.protobuf.Internal.EnumLiteMap<HighlightingType>() {
+            public HighlightingType findValueByNumber(int number) {
+              return HighlightingType.valueOf(number);
+            }
+          };
+
+    public final com.google.protobuf.Descriptors.EnumValueDescriptor
+        getValueDescriptor() {
+      return getDescriptor().getValues().get(index);
+    }
+    public final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptorForType() {
+      return getDescriptor();
+    }
+    public static final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptor() {
+      return org.sonar.batch.protocol.Constants.getDescriptor().getEnumTypes().get(5);
+    }
+
+    private static final HighlightingType[] VALUES = values();
+
+    public static HighlightingType valueOf(
+        com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
+      if (desc.getType() != getDescriptor()) {
+        throw new java.lang.IllegalArgumentException(
+          "EnumValueDescriptor is not for this type.");
+      }
+      return VALUES[desc.getIndex()];
+    }
+
+    private final int index;
+    private final int value;
+
+    private HighlightingType(int index, int value) {
+      this.index = index;
+      this.value = value;
+    }
+
+    // @@protoc_insertion_point(enum_scope:HighlightingType)
+  }
+
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -557,7 +702,12 @@ public final class Constants {
       "\020\003\022\n\n\006STRING\020\004*\'\n\rEventCategory\022\t\n\005ALERT" +
       "\020\000\022\013\n\007PROFILE\020\001*F\n\021ComponentLinkType\022\010\n\004" +
       "HOME\020\000\022\007\n\003SCM\020\001\022\013\n\007SCM_DEV\020\002\022\t\n\005ISSUE\020\003\022" +
-      "\006\n\002CI\020\004B\034\n\030org.sonar.batch.protocolH\001"
+      "\006\n\002CI\020\004*\265\001\n\020HighlightingType\022\016\n\nANNOTATI",
+      "ON\020\000\022\014\n\010CONSTANT\020\001\022\013\n\007COMMENT\020\002\022\013\n\007CPP_D" +
+      "OC\020\003\022\026\n\022STRUCTURED_COMMENT\020\004\022\013\n\007KEYWORD\020" +
+      "\005\022\027\n\023HIGHLIGHTING_STRING\020\006\022\021\n\rKEYWORD_LI" +
+      "GHT\020\007\022\030\n\024PREPROCESS_DIRECTIVE\020\010B\034\n\030org.s" +
+      "onar.batch.protocolH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {

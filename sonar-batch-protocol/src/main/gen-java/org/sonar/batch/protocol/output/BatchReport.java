@@ -17545,6 +17545,1470 @@ public final class BatchReport {
     // @@protoc_insertion_point(class_scope:Symbols)
   }
 
+  public interface SyntaxHighlightingOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:SyntaxHighlighting)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>optional int32 component_ref = 1;</code>
+     */
+    boolean hasComponentRef();
+    /**
+     * <code>optional int32 component_ref = 1;</code>
+     */
+    int getComponentRef();
+
+    /**
+     * <code>repeated .SyntaxHighlighting.HighlightingRule highlighting_rule = 2;</code>
+     *
+     * <pre>
+     * Rule must be sorted by line and start offset
+     * </pre>
+     */
+    java.util.List<org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule> 
+        getHighlightingRuleList();
+    /**
+     * <code>repeated .SyntaxHighlighting.HighlightingRule highlighting_rule = 2;</code>
+     *
+     * <pre>
+     * Rule must be sorted by line and start offset
+     * </pre>
+     */
+    org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule getHighlightingRule(int index);
+    /**
+     * <code>repeated .SyntaxHighlighting.HighlightingRule highlighting_rule = 2;</code>
+     *
+     * <pre>
+     * Rule must be sorted by line and start offset
+     * </pre>
+     */
+    int getHighlightingRuleCount();
+    /**
+     * <code>repeated .SyntaxHighlighting.HighlightingRule highlighting_rule = 2;</code>
+     *
+     * <pre>
+     * Rule must be sorted by line and start offset
+     * </pre>
+     */
+    java.util.List<? extends org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRuleOrBuilder> 
+        getHighlightingRuleOrBuilderList();
+    /**
+     * <code>repeated .SyntaxHighlighting.HighlightingRule highlighting_rule = 2;</code>
+     *
+     * <pre>
+     * Rule must be sorted by line and start offset
+     * </pre>
+     */
+    org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRuleOrBuilder getHighlightingRuleOrBuilder(
+        int index);
+  }
+  /**
+   * Protobuf type {@code SyntaxHighlighting}
+   */
+  public static final class SyntaxHighlighting extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:SyntaxHighlighting)
+      SyntaxHighlightingOrBuilder {
+    // Use SyntaxHighlighting.newBuilder() to construct.
+    private SyntaxHighlighting(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+      this.unknownFields = builder.getUnknownFields();
+    }
+    private SyntaxHighlighting(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+    private static final SyntaxHighlighting defaultInstance;
+    public static SyntaxHighlighting getDefaultInstance() {
+      return defaultInstance;
+    }
+
+    public SyntaxHighlighting getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+
+    private final com.google.protobuf.UnknownFieldSet unknownFields;
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+      return this.unknownFields;
+    }
+    private SyntaxHighlighting(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      initFields();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 8: {
+              bitField0_ |= 0x00000001;
+              componentRef_ = input.readInt32();
+              break;
+            }
+            case 18: {
+              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+                highlightingRule_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule>();
+                mutable_bitField0_ |= 0x00000002;
+              }
+              highlightingRule_.add(input.readMessage(org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule.PARSER, extensionRegistry));
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e.getMessage()).setUnfinishedMessage(this);
+      } finally {
+        if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+          highlightingRule_ = java.util.Collections.unmodifiableList(highlightingRule_);
+        }
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return org.sonar.batch.protocol.output.BatchReport.internal_static_SyntaxHighlighting_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return org.sonar.batch.protocol.output.BatchReport.internal_static_SyntaxHighlighting_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.class, org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.Builder.class);
+    }
+
+    public static com.google.protobuf.Parser<SyntaxHighlighting> PARSER =
+        new com.google.protobuf.AbstractParser<SyntaxHighlighting>() {
+      public SyntaxHighlighting parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new SyntaxHighlighting(input, extensionRegistry);
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<SyntaxHighlighting> getParserForType() {
+      return PARSER;
+    }
+
+    public interface HighlightingRuleOrBuilder extends
+        // @@protoc_insertion_point(interface_extends:SyntaxHighlighting.HighlightingRule)
+        com.google.protobuf.MessageOrBuilder {
+
+      /**
+       * <code>optional .Range range = 1;</code>
+       */
+      boolean hasRange();
+      /**
+       * <code>optional .Range range = 1;</code>
+       */
+      org.sonar.batch.protocol.output.BatchReport.Range getRange();
+      /**
+       * <code>optional .Range range = 1;</code>
+       */
+      org.sonar.batch.protocol.output.BatchReport.RangeOrBuilder getRangeOrBuilder();
+
+      /**
+       * <code>optional .HighlightingType type = 2;</code>
+       */
+      boolean hasType();
+      /**
+       * <code>optional .HighlightingType type = 2;</code>
+       */
+      org.sonar.batch.protocol.Constants.HighlightingType getType();
+    }
+    /**
+     * Protobuf type {@code SyntaxHighlighting.HighlightingRule}
+     */
+    public static final class HighlightingRule extends
+        com.google.protobuf.GeneratedMessage implements
+        // @@protoc_insertion_point(message_implements:SyntaxHighlighting.HighlightingRule)
+        HighlightingRuleOrBuilder {
+      // Use HighlightingRule.newBuilder() to construct.
+      private HighlightingRule(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+        super(builder);
+        this.unknownFields = builder.getUnknownFields();
+      }
+      private HighlightingRule(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+      private static final HighlightingRule defaultInstance;
+      public static HighlightingRule getDefaultInstance() {
+        return defaultInstance;
+      }
+
+      public HighlightingRule getDefaultInstanceForType() {
+        return defaultInstance;
+      }
+
+      private final com.google.protobuf.UnknownFieldSet unknownFields;
+      @java.lang.Override
+      public final com.google.protobuf.UnknownFieldSet
+          getUnknownFields() {
+        return this.unknownFields;
+      }
+      private HighlightingRule(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        initFields();
+        int mutable_bitField0_ = 0;
+        com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+            com.google.protobuf.UnknownFieldSet.newBuilder();
+        try {
+          boolean done = false;
+          while (!done) {
+            int tag = input.readTag();
+            switch (tag) {
+              case 0:
+                done = true;
+                break;
+              default: {
+                if (!parseUnknownField(input, unknownFields,
+                                       extensionRegistry, tag)) {
+                  done = true;
+                }
+                break;
+              }
+              case 10: {
+                org.sonar.batch.protocol.output.BatchReport.Range.Builder subBuilder = null;
+                if (((bitField0_ & 0x00000001) == 0x00000001)) {
+                  subBuilder = range_.toBuilder();
+                }
+                range_ = input.readMessage(org.sonar.batch.protocol.output.BatchReport.Range.PARSER, extensionRegistry);
+                if (subBuilder != null) {
+                  subBuilder.mergeFrom(range_);
+                  range_ = subBuilder.buildPartial();
+                }
+                bitField0_ |= 0x00000001;
+                break;
+              }
+              case 16: {
+                int rawValue = input.readEnum();
+                org.sonar.batch.protocol.Constants.HighlightingType value = org.sonar.batch.protocol.Constants.HighlightingType.valueOf(rawValue);
+                if (value == null) {
+                  unknownFields.mergeVarintField(2, rawValue);
+                } else {
+                  bitField0_ |= 0x00000002;
+                  type_ = value;
+                }
+                break;
+              }
+            }
+          }
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          throw e.setUnfinishedMessage(this);
+        } catch (java.io.IOException e) {
+          throw new com.google.protobuf.InvalidProtocolBufferException(
+              e.getMessage()).setUnfinishedMessage(this);
+        } finally {
+          this.unknownFields = unknownFields.build();
+          makeExtensionsImmutable();
+        }
+      }
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.sonar.batch.protocol.output.BatchReport.internal_static_SyntaxHighlighting_HighlightingRule_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.sonar.batch.protocol.output.BatchReport.internal_static_SyntaxHighlighting_HighlightingRule_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule.class, org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule.Builder.class);
+      }
+
+      public static com.google.protobuf.Parser<HighlightingRule> PARSER =
+          new com.google.protobuf.AbstractParser<HighlightingRule>() {
+        public HighlightingRule parsePartialFrom(
+            com.google.protobuf.CodedInputStream input,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+          return new HighlightingRule(input, extensionRegistry);
+        }
+      };
+
+      @java.lang.Override
+      public com.google.protobuf.Parser<HighlightingRule> getParserForType() {
+        return PARSER;
+      }
+
+      private int bitField0_;
+      public static final int RANGE_FIELD_NUMBER = 1;
+      private org.sonar.batch.protocol.output.BatchReport.Range range_;
+      /**
+       * <code>optional .Range range = 1;</code>
+       */
+      public boolean hasRange() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>optional .Range range = 1;</code>
+       */
+      public org.sonar.batch.protocol.output.BatchReport.Range getRange() {
+        return range_;
+      }
+      /**
+       * <code>optional .Range range = 1;</code>
+       */
+      public org.sonar.batch.protocol.output.BatchReport.RangeOrBuilder getRangeOrBuilder() {
+        return range_;
+      }
+
+      public static final int TYPE_FIELD_NUMBER = 2;
+      private org.sonar.batch.protocol.Constants.HighlightingType type_;
+      /**
+       * <code>optional .HighlightingType type = 2;</code>
+       */
+      public boolean hasType() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>optional .HighlightingType type = 2;</code>
+       */
+      public org.sonar.batch.protocol.Constants.HighlightingType getType() {
+        return type_;
+      }
+
+      private void initFields() {
+        range_ = org.sonar.batch.protocol.output.BatchReport.Range.getDefaultInstance();
+        type_ = org.sonar.batch.protocol.Constants.HighlightingType.ANNOTATION;
+      }
+      private byte memoizedIsInitialized = -1;
+      public final boolean isInitialized() {
+        byte isInitialized = memoizedIsInitialized;
+        if (isInitialized == 1) return true;
+        if (isInitialized == 0) return false;
+
+        memoizedIsInitialized = 1;
+        return true;
+      }
+
+      public void writeTo(com.google.protobuf.CodedOutputStream output)
+                          throws java.io.IOException {
+        getSerializedSize();
+        if (((bitField0_ & 0x00000001) == 0x00000001)) {
+          output.writeMessage(1, range_);
+        }
+        if (((bitField0_ & 0x00000002) == 0x00000002)) {
+          output.writeEnum(2, type_.getNumber());
+        }
+        getUnknownFields().writeTo(output);
+      }
+
+      private int memoizedSerializedSize = -1;
+      public int getSerializedSize() {
+        int size = memoizedSerializedSize;
+        if (size != -1) return size;
+
+        size = 0;
+        if (((bitField0_ & 0x00000001) == 0x00000001)) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeMessageSize(1, range_);
+        }
+        if (((bitField0_ & 0x00000002) == 0x00000002)) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeEnumSize(2, type_.getNumber());
+        }
+        size += getUnknownFields().getSerializedSize();
+        memoizedSerializedSize = size;
+        return size;
+      }
+
+      private static final long serialVersionUID = 0L;
+      @java.lang.Override
+      protected java.lang.Object writeReplace()
+          throws java.io.ObjectStreamException {
+        return super.writeReplace();
+      }
+
+      public static org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule parseFrom(
+          com.google.protobuf.ByteString data)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data);
+      }
+      public static org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule parseFrom(
+          com.google.protobuf.ByteString data,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data, extensionRegistry);
+      }
+      public static org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule parseFrom(byte[] data)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data);
+      }
+      public static org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule parseFrom(
+          byte[] data,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data, extensionRegistry);
+      }
+      public static org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule parseFrom(java.io.InputStream input)
+          throws java.io.IOException {
+        return PARSER.parseFrom(input);
+      }
+      public static org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule parseFrom(
+          java.io.InputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        return PARSER.parseFrom(input, extensionRegistry);
+      }
+      public static org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule parseDelimitedFrom(java.io.InputStream input)
+          throws java.io.IOException {
+        return PARSER.parseDelimitedFrom(input);
+      }
+      public static org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule parseDelimitedFrom(
+          java.io.InputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        return PARSER.parseDelimitedFrom(input, extensionRegistry);
+      }
+      public static org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule parseFrom(
+          com.google.protobuf.CodedInputStream input)
+          throws java.io.IOException {
+        return PARSER.parseFrom(input);
+      }
+      public static org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule parseFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        return PARSER.parseFrom(input, extensionRegistry);
+      }
+
+      public static Builder newBuilder() { return Builder.create(); }
+      public Builder newBuilderForType() { return newBuilder(); }
+      public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule prototype) {
+        return newBuilder().mergeFrom(prototype);
+      }
+      public Builder toBuilder() { return newBuilder(this); }
+
+      @java.lang.Override
+      protected Builder newBuilderForType(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        Builder builder = new Builder(parent);
+        return builder;
+      }
+      /**
+       * Protobuf type {@code SyntaxHighlighting.HighlightingRule}
+       */
+      public static final class Builder extends
+          com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+          // @@protoc_insertion_point(builder_implements:SyntaxHighlighting.HighlightingRule)
+          org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRuleOrBuilder {
+        public static final com.google.protobuf.Descriptors.Descriptor
+            getDescriptor() {
+          return org.sonar.batch.protocol.output.BatchReport.internal_static_SyntaxHighlighting_HighlightingRule_descriptor;
+        }
+
+        protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+            internalGetFieldAccessorTable() {
+          return org.sonar.batch.protocol.output.BatchReport.internal_static_SyntaxHighlighting_HighlightingRule_fieldAccessorTable
+              .ensureFieldAccessorsInitialized(
+                  org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule.class, org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule.Builder.class);
+        }
+
+        // Construct using org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule.newBuilder()
+        private Builder() {
+          maybeForceBuilderInitialization();
+        }
+
+        private Builder(
+            com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+          super(parent);
+          maybeForceBuilderInitialization();
+        }
+        private void maybeForceBuilderInitialization() {
+          if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+            getRangeFieldBuilder();
+          }
+        }
+        private static Builder create() {
+          return new Builder();
+        }
+
+        public Builder clear() {
+          super.clear();
+          if (rangeBuilder_ == null) {
+            range_ = org.sonar.batch.protocol.output.BatchReport.Range.getDefaultInstance();
+          } else {
+            rangeBuilder_.clear();
+          }
+          bitField0_ = (bitField0_ & ~0x00000001);
+          type_ = org.sonar.batch.protocol.Constants.HighlightingType.ANNOTATION;
+          bitField0_ = (bitField0_ & ~0x00000002);
+          return this;
+        }
+
+        public Builder clone() {
+          return create().mergeFrom(buildPartial());
+        }
+
+        public com.google.protobuf.Descriptors.Descriptor
+            getDescriptorForType() {
+          return org.sonar.batch.protocol.output.BatchReport.internal_static_SyntaxHighlighting_HighlightingRule_descriptor;
+        }
+
+        public org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule getDefaultInstanceForType() {
+          return org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule.getDefaultInstance();
+        }
+
+        public org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule build() {
+          org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule result = buildPartial();
+          if (!result.isInitialized()) {
+            throw newUninitializedMessageException(result);
+          }
+          return result;
+        }
+
+        public org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule buildPartial() {
+          org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule result = new org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule(this);
+          int from_bitField0_ = bitField0_;
+          int to_bitField0_ = 0;
+          if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+            to_bitField0_ |= 0x00000001;
+          }
+          if (rangeBuilder_ == null) {
+            result.range_ = range_;
+          } else {
+            result.range_ = rangeBuilder_.build();
+          }
+          if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+            to_bitField0_ |= 0x00000002;
+          }
+          result.type_ = type_;
+          result.bitField0_ = to_bitField0_;
+          onBuilt();
+          return result;
+        }
+
+        public Builder mergeFrom(com.google.protobuf.Message other) {
+          if (other instanceof org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule) {
+            return mergeFrom((org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule)other);
+          } else {
+            super.mergeFrom(other);
+            return this;
+          }
+        }
+
+        public Builder mergeFrom(org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule other) {
+          if (other == org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule.getDefaultInstance()) return this;
+          if (other.hasRange()) {
+            mergeRange(other.getRange());
+          }
+          if (other.hasType()) {
+            setType(other.getType());
+          }
+          this.mergeUnknownFields(other.getUnknownFields());
+          return this;
+        }
+
+        public final boolean isInitialized() {
+          return true;
+        }
+
+        public Builder mergeFrom(
+            com.google.protobuf.CodedInputStream input,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws java.io.IOException {
+          org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule parsedMessage = null;
+          try {
+            parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+          } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+            parsedMessage = (org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule) e.getUnfinishedMessage();
+            throw e;
+          } finally {
+            if (parsedMessage != null) {
+              mergeFrom(parsedMessage);
+            }
+          }
+          return this;
+        }
+        private int bitField0_;
+
+        private org.sonar.batch.protocol.output.BatchReport.Range range_ = org.sonar.batch.protocol.output.BatchReport.Range.getDefaultInstance();
+        private com.google.protobuf.SingleFieldBuilder<
+            org.sonar.batch.protocol.output.BatchReport.Range, org.sonar.batch.protocol.output.BatchReport.Range.Builder, org.sonar.batch.protocol.output.BatchReport.RangeOrBuilder> rangeBuilder_;
+        /**
+         * <code>optional .Range range = 1;</code>
+         */
+        public boolean hasRange() {
+          return ((bitField0_ & 0x00000001) == 0x00000001);
+        }
+        /**
+         * <code>optional .Range range = 1;</code>
+         */
+        public org.sonar.batch.protocol.output.BatchReport.Range getRange() {
+          if (rangeBuilder_ == null) {
+            return range_;
+          } else {
+            return rangeBuilder_.getMessage();
+          }
+        }
+        /**
+         * <code>optional .Range range = 1;</code>
+         */
+        public Builder setRange(org.sonar.batch.protocol.output.BatchReport.Range value) {
+          if (rangeBuilder_ == null) {
+            if (value == null) {
+              throw new NullPointerException();
+            }
+            range_ = value;
+            onChanged();
+          } else {
+            rangeBuilder_.setMessage(value);
+          }
+          bitField0_ |= 0x00000001;
+          return this;
+        }
+        /**
+         * <code>optional .Range range = 1;</code>
+         */
+        public Builder setRange(
+            org.sonar.batch.protocol.output.BatchReport.Range.Builder builderForValue) {
+          if (rangeBuilder_ == null) {
+            range_ = builderForValue.build();
+            onChanged();
+          } else {
+            rangeBuilder_.setMessage(builderForValue.build());
+          }
+          bitField0_ |= 0x00000001;
+          return this;
+        }
+        /**
+         * <code>optional .Range range = 1;</code>
+         */
+        public Builder mergeRange(org.sonar.batch.protocol.output.BatchReport.Range value) {
+          if (rangeBuilder_ == null) {
+            if (((bitField0_ & 0x00000001) == 0x00000001) &&
+                range_ != org.sonar.batch.protocol.output.BatchReport.Range.getDefaultInstance()) {
+              range_ =
+                org.sonar.batch.protocol.output.BatchReport.Range.newBuilder(range_).mergeFrom(value).buildPartial();
+            } else {
+              range_ = value;
+            }
+            onChanged();
+          } else {
+            rangeBuilder_.mergeFrom(value);
+          }
+          bitField0_ |= 0x00000001;
+          return this;
+        }
+        /**
+         * <code>optional .Range range = 1;</code>
+         */
+        public Builder clearRange() {
+          if (rangeBuilder_ == null) {
+            range_ = org.sonar.batch.protocol.output.BatchReport.Range.getDefaultInstance();
+            onChanged();
+          } else {
+            rangeBuilder_.clear();
+          }
+          bitField0_ = (bitField0_ & ~0x00000001);
+          return this;
+        }
+        /**
+         * <code>optional .Range range = 1;</code>
+         */
+        public org.sonar.batch.protocol.output.BatchReport.Range.Builder getRangeBuilder() {
+          bitField0_ |= 0x00000001;
+          onChanged();
+          return getRangeFieldBuilder().getBuilder();
+        }
+        /**
+         * <code>optional .Range range = 1;</code>
+         */
+        public org.sonar.batch.protocol.output.BatchReport.RangeOrBuilder getRangeOrBuilder() {
+          if (rangeBuilder_ != null) {
+            return rangeBuilder_.getMessageOrBuilder();
+          } else {
+            return range_;
+          }
+        }
+        /**
+         * <code>optional .Range range = 1;</code>
+         */
+        private com.google.protobuf.SingleFieldBuilder<
+            org.sonar.batch.protocol.output.BatchReport.Range, org.sonar.batch.protocol.output.BatchReport.Range.Builder, org.sonar.batch.protocol.output.BatchReport.RangeOrBuilder> 
+            getRangeFieldBuilder() {
+          if (rangeBuilder_ == null) {
+            rangeBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+                org.sonar.batch.protocol.output.BatchReport.Range, org.sonar.batch.protocol.output.BatchReport.Range.Builder, org.sonar.batch.protocol.output.BatchReport.RangeOrBuilder>(
+                    getRange(),
+                    getParentForChildren(),
+                    isClean());
+            range_ = null;
+          }
+          return rangeBuilder_;
+        }
+
+        private org.sonar.batch.protocol.Constants.HighlightingType type_ = org.sonar.batch.protocol.Constants.HighlightingType.ANNOTATION;
+        /**
+         * <code>optional .HighlightingType type = 2;</code>
+         */
+        public boolean hasType() {
+          return ((bitField0_ & 0x00000002) == 0x00000002);
+        }
+        /**
+         * <code>optional .HighlightingType type = 2;</code>
+         */
+        public org.sonar.batch.protocol.Constants.HighlightingType getType() {
+          return type_;
+        }
+        /**
+         * <code>optional .HighlightingType type = 2;</code>
+         */
+        public Builder setType(org.sonar.batch.protocol.Constants.HighlightingType value) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          bitField0_ |= 0x00000002;
+          type_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional .HighlightingType type = 2;</code>
+         */
+        public Builder clearType() {
+          bitField0_ = (bitField0_ & ~0x00000002);
+          type_ = org.sonar.batch.protocol.Constants.HighlightingType.ANNOTATION;
+          onChanged();
+          return this;
+        }
+
+        // @@protoc_insertion_point(builder_scope:SyntaxHighlighting.HighlightingRule)
+      }
+
+      static {
+        defaultInstance = new HighlightingRule(true);
+        defaultInstance.initFields();
+      }
+
+      // @@protoc_insertion_point(class_scope:SyntaxHighlighting.HighlightingRule)
+    }
+
+    private int bitField0_;
+    public static final int COMPONENT_REF_FIELD_NUMBER = 1;
+    private int componentRef_;
+    /**
+     * <code>optional int32 component_ref = 1;</code>
+     */
+    public boolean hasComponentRef() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>optional int32 component_ref = 1;</code>
+     */
+    public int getComponentRef() {
+      return componentRef_;
+    }
+
+    public static final int HIGHLIGHTING_RULE_FIELD_NUMBER = 2;
+    private java.util.List<org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule> highlightingRule_;
+    /**
+     * <code>repeated .SyntaxHighlighting.HighlightingRule highlighting_rule = 2;</code>
+     *
+     * <pre>
+     * Rule must be sorted by line and start offset
+     * </pre>
+     */
+    public java.util.List<org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule> getHighlightingRuleList() {
+      return highlightingRule_;
+    }
+    /**
+     * <code>repeated .SyntaxHighlighting.HighlightingRule highlighting_rule = 2;</code>
+     *
+     * <pre>
+     * Rule must be sorted by line and start offset
+     * </pre>
+     */
+    public java.util.List<? extends org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRuleOrBuilder> 
+        getHighlightingRuleOrBuilderList() {
+      return highlightingRule_;
+    }
+    /**
+     * <code>repeated .SyntaxHighlighting.HighlightingRule highlighting_rule = 2;</code>
+     *
+     * <pre>
+     * Rule must be sorted by line and start offset
+     * </pre>
+     */
+    public int getHighlightingRuleCount() {
+      return highlightingRule_.size();
+    }
+    /**
+     * <code>repeated .SyntaxHighlighting.HighlightingRule highlighting_rule = 2;</code>
+     *
+     * <pre>
+     * Rule must be sorted by line and start offset
+     * </pre>
+     */
+    public org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule getHighlightingRule(int index) {
+      return highlightingRule_.get(index);
+    }
+    /**
+     * <code>repeated .SyntaxHighlighting.HighlightingRule highlighting_rule = 2;</code>
+     *
+     * <pre>
+     * Rule must be sorted by line and start offset
+     * </pre>
+     */
+    public org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRuleOrBuilder getHighlightingRuleOrBuilder(
+        int index) {
+      return highlightingRule_.get(index);
+    }
+
+    private void initFields() {
+      componentRef_ = 0;
+      highlightingRule_ = java.util.Collections.emptyList();
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeInt32(1, componentRef_);
+      }
+      for (int i = 0; i < highlightingRule_.size(); i++) {
+        output.writeMessage(2, highlightingRule_.get(i));
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(1, componentRef_);
+      }
+      for (int i = 0; i < highlightingRule_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(2, highlightingRule_.get(i));
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+
+    public static org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code SyntaxHighlighting}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:SyntaxHighlighting)
+        org.sonar.batch.protocol.output.BatchReport.SyntaxHighlightingOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.sonar.batch.protocol.output.BatchReport.internal_static_SyntaxHighlighting_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.sonar.batch.protocol.output.BatchReport.internal_static_SyntaxHighlighting_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.class, org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.Builder.class);
+      }
+
+      // Construct using org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          getHighlightingRuleFieldBuilder();
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+
+      public Builder clear() {
+        super.clear();
+        componentRef_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000001);
+        if (highlightingRuleBuilder_ == null) {
+          highlightingRule_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000002);
+        } else {
+          highlightingRuleBuilder_.clear();
+        }
+        return this;
+      }
+
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return org.sonar.batch.protocol.output.BatchReport.internal_static_SyntaxHighlighting_descriptor;
+      }
+
+      public org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting getDefaultInstanceForType() {
+        return org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.getDefaultInstance();
+      }
+
+      public org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting build() {
+        org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting buildPartial() {
+        org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting result = new org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        result.componentRef_ = componentRef_;
+        if (highlightingRuleBuilder_ == null) {
+          if (((bitField0_ & 0x00000002) == 0x00000002)) {
+            highlightingRule_ = java.util.Collections.unmodifiableList(highlightingRule_);
+            bitField0_ = (bitField0_ & ~0x00000002);
+          }
+          result.highlightingRule_ = highlightingRule_;
+        } else {
+          result.highlightingRule_ = highlightingRuleBuilder_.build();
+        }
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting) {
+          return mergeFrom((org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting other) {
+        if (other == org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.getDefaultInstance()) return this;
+        if (other.hasComponentRef()) {
+          setComponentRef(other.getComponentRef());
+        }
+        if (highlightingRuleBuilder_ == null) {
+          if (!other.highlightingRule_.isEmpty()) {
+            if (highlightingRule_.isEmpty()) {
+              highlightingRule_ = other.highlightingRule_;
+              bitField0_ = (bitField0_ & ~0x00000002);
+            } else {
+              ensureHighlightingRuleIsMutable();
+              highlightingRule_.addAll(other.highlightingRule_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.highlightingRule_.isEmpty()) {
+            if (highlightingRuleBuilder_.isEmpty()) {
+              highlightingRuleBuilder_.dispose();
+              highlightingRuleBuilder_ = null;
+              highlightingRule_ = other.highlightingRule_;
+              bitField0_ = (bitField0_ & ~0x00000002);
+              highlightingRuleBuilder_ = 
+                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                   getHighlightingRuleFieldBuilder() : null;
+            } else {
+              highlightingRuleBuilder_.addAllMessages(other.highlightingRule_);
+            }
+          }
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private int componentRef_ ;
+      /**
+       * <code>optional int32 component_ref = 1;</code>
+       */
+      public boolean hasComponentRef() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>optional int32 component_ref = 1;</code>
+       */
+      public int getComponentRef() {
+        return componentRef_;
+      }
+      /**
+       * <code>optional int32 component_ref = 1;</code>
+       */
+      public Builder setComponentRef(int value) {
+        bitField0_ |= 0x00000001;
+        componentRef_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int32 component_ref = 1;</code>
+       */
+      public Builder clearComponentRef() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        componentRef_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private java.util.List<org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule> highlightingRule_ =
+        java.util.Collections.emptyList();
+      private void ensureHighlightingRuleIsMutable() {
+        if (!((bitField0_ & 0x00000002) == 0x00000002)) {
+          highlightingRule_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule>(highlightingRule_);
+          bitField0_ |= 0x00000002;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule, org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule.Builder, org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRuleOrBuilder> highlightingRuleBuilder_;
+
+      /**
+       * <code>repeated .SyntaxHighlighting.HighlightingRule highlighting_rule = 2;</code>
+       *
+       * <pre>
+       * Rule must be sorted by line and start offset
+       * </pre>
+       */
+      public java.util.List<org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule> getHighlightingRuleList() {
+        if (highlightingRuleBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(highlightingRule_);
+        } else {
+          return highlightingRuleBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .SyntaxHighlighting.HighlightingRule highlighting_rule = 2;</code>
+       *
+       * <pre>
+       * Rule must be sorted by line and start offset
+       * </pre>
+       */
+      public int getHighlightingRuleCount() {
+        if (highlightingRuleBuilder_ == null) {
+          return highlightingRule_.size();
+        } else {
+          return highlightingRuleBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .SyntaxHighlighting.HighlightingRule highlighting_rule = 2;</code>
+       *
+       * <pre>
+       * Rule must be sorted by line and start offset
+       * </pre>
+       */
+      public org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule getHighlightingRule(int index) {
+        if (highlightingRuleBuilder_ == null) {
+          return highlightingRule_.get(index);
+        } else {
+          return highlightingRuleBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .SyntaxHighlighting.HighlightingRule highlighting_rule = 2;</code>
+       *
+       * <pre>
+       * Rule must be sorted by line and start offset
+       * </pre>
+       */
+      public Builder setHighlightingRule(
+          int index, org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule value) {
+        if (highlightingRuleBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureHighlightingRuleIsMutable();
+          highlightingRule_.set(index, value);
+          onChanged();
+        } else {
+          highlightingRuleBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .SyntaxHighlighting.HighlightingRule highlighting_rule = 2;</code>
+       *
+       * <pre>
+       * Rule must be sorted by line and start offset
+       * </pre>
+       */
+      public Builder setHighlightingRule(
+          int index, org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule.Builder builderForValue) {
+        if (highlightingRuleBuilder_ == null) {
+          ensureHighlightingRuleIsMutable();
+          highlightingRule_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          highlightingRuleBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .SyntaxHighlighting.HighlightingRule highlighting_rule = 2;</code>
+       *
+       * <pre>
+       * Rule must be sorted by line and start offset
+       * </pre>
+       */
+      public Builder addHighlightingRule(org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule value) {
+        if (highlightingRuleBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureHighlightingRuleIsMutable();
+          highlightingRule_.add(value);
+          onChanged();
+        } else {
+          highlightingRuleBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .SyntaxHighlighting.HighlightingRule highlighting_rule = 2;</code>
+       *
+       * <pre>
+       * Rule must be sorted by line and start offset
+       * </pre>
+       */
+      public Builder addHighlightingRule(
+          int index, org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule value) {
+        if (highlightingRuleBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureHighlightingRuleIsMutable();
+          highlightingRule_.add(index, value);
+          onChanged();
+        } else {
+          highlightingRuleBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .SyntaxHighlighting.HighlightingRule highlighting_rule = 2;</code>
+       *
+       * <pre>
+       * Rule must be sorted by line and start offset
+       * </pre>
+       */
+      public Builder addHighlightingRule(
+          org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule.Builder builderForValue) {
+        if (highlightingRuleBuilder_ == null) {
+          ensureHighlightingRuleIsMutable();
+          highlightingRule_.add(builderForValue.build());
+          onChanged();
+        } else {
+          highlightingRuleBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .SyntaxHighlighting.HighlightingRule highlighting_rule = 2;</code>
+       *
+       * <pre>
+       * Rule must be sorted by line and start offset
+       * </pre>
+       */
+      public Builder addHighlightingRule(
+          int index, org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule.Builder builderForValue) {
+        if (highlightingRuleBuilder_ == null) {
+          ensureHighlightingRuleIsMutable();
+          highlightingRule_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          highlightingRuleBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .SyntaxHighlighting.HighlightingRule highlighting_rule = 2;</code>
+       *
+       * <pre>
+       * Rule must be sorted by line and start offset
+       * </pre>
+       */
+      public Builder addAllHighlightingRule(
+          java.lang.Iterable<? extends org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule> values) {
+        if (highlightingRuleBuilder_ == null) {
+          ensureHighlightingRuleIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, highlightingRule_);
+          onChanged();
+        } else {
+          highlightingRuleBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .SyntaxHighlighting.HighlightingRule highlighting_rule = 2;</code>
+       *
+       * <pre>
+       * Rule must be sorted by line and start offset
+       * </pre>
+       */
+      public Builder clearHighlightingRule() {
+        if (highlightingRuleBuilder_ == null) {
+          highlightingRule_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000002);
+          onChanged();
+        } else {
+          highlightingRuleBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .SyntaxHighlighting.HighlightingRule highlighting_rule = 2;</code>
+       *
+       * <pre>
+       * Rule must be sorted by line and start offset
+       * </pre>
+       */
+      public Builder removeHighlightingRule(int index) {
+        if (highlightingRuleBuilder_ == null) {
+          ensureHighlightingRuleIsMutable();
+          highlightingRule_.remove(index);
+          onChanged();
+        } else {
+          highlightingRuleBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .SyntaxHighlighting.HighlightingRule highlighting_rule = 2;</code>
+       *
+       * <pre>
+       * Rule must be sorted by line and start offset
+       * </pre>
+       */
+      public org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule.Builder getHighlightingRuleBuilder(
+          int index) {
+        return getHighlightingRuleFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .SyntaxHighlighting.HighlightingRule highlighting_rule = 2;</code>
+       *
+       * <pre>
+       * Rule must be sorted by line and start offset
+       * </pre>
+       */
+      public org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRuleOrBuilder getHighlightingRuleOrBuilder(
+          int index) {
+        if (highlightingRuleBuilder_ == null) {
+          return highlightingRule_.get(index);  } else {
+          return highlightingRuleBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .SyntaxHighlighting.HighlightingRule highlighting_rule = 2;</code>
+       *
+       * <pre>
+       * Rule must be sorted by line and start offset
+       * </pre>
+       */
+      public java.util.List<? extends org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRuleOrBuilder> 
+           getHighlightingRuleOrBuilderList() {
+        if (highlightingRuleBuilder_ != null) {
+          return highlightingRuleBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(highlightingRule_);
+        }
+      }
+      /**
+       * <code>repeated .SyntaxHighlighting.HighlightingRule highlighting_rule = 2;</code>
+       *
+       * <pre>
+       * Rule must be sorted by line and start offset
+       * </pre>
+       */
+      public org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule.Builder addHighlightingRuleBuilder() {
+        return getHighlightingRuleFieldBuilder().addBuilder(
+            org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .SyntaxHighlighting.HighlightingRule highlighting_rule = 2;</code>
+       *
+       * <pre>
+       * Rule must be sorted by line and start offset
+       * </pre>
+       */
+      public org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule.Builder addHighlightingRuleBuilder(
+          int index) {
+        return getHighlightingRuleFieldBuilder().addBuilder(
+            index, org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .SyntaxHighlighting.HighlightingRule highlighting_rule = 2;</code>
+       *
+       * <pre>
+       * Rule must be sorted by line and start offset
+       * </pre>
+       */
+      public java.util.List<org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule.Builder> 
+           getHighlightingRuleBuilderList() {
+        return getHighlightingRuleFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule, org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule.Builder, org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRuleOrBuilder> 
+          getHighlightingRuleFieldBuilder() {
+        if (highlightingRuleBuilder_ == null) {
+          highlightingRuleBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+              org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule, org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule.Builder, org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRuleOrBuilder>(
+                  highlightingRule_,
+                  ((bitField0_ & 0x00000002) == 0x00000002),
+                  getParentForChildren(),
+                  isClean());
+          highlightingRule_ = null;
+        }
+        return highlightingRuleBuilder_;
+      }
+
+      // @@protoc_insertion_point(builder_scope:SyntaxHighlighting)
+    }
+
+    static {
+      defaultInstance = new SyntaxHighlighting(true);
+      defaultInstance.initFields();
+    }
+
+    // @@protoc_insertion_point(class_scope:SyntaxHighlighting)
+  }
+
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_Metadata_descriptor;
   private static
@@ -17615,6 +19079,16 @@ public final class BatchReport {
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_Symbols_Symbol_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_SyntaxHighlighting_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_SyntaxHighlighting_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_SyntaxHighlighting_HighlightingRule_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_SyntaxHighlighting_HighlightingRule_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -17682,7 +19156,12 @@ public final class BatchReport {
       "\022\025\n\rcomponent_ref\030\001 \001(\005\022\037\n\006symbol\030\002 \003(\0132" +
       "\017.Symbols.Symbol\032@\n\006Symbol\022\033\n\013declaratio" +
       "n\030\001 \001(\0132\006.Range\022\031\n\treference\030\002 \003(\0132\006.Ran" +
-      "geB#\n\037org.sonar.batch.protocol.outputH\001"
+      "ge\"\270\001\n\022SyntaxHighlighting\022\025\n\rcomponent_r" +
+      "ef\030\001 \001(\005\022?\n\021highlighting_rule\030\002 \003(\0132$.Sy",
+      "ntaxHighlighting.HighlightingRule\032J\n\020Hig" +
+      "hlightingRule\022\025\n\005range\030\001 \001(\0132\006.Range\022\037\n\004" +
+      "type\030\002 \001(\0162\021.HighlightingTypeB#\n\037org.son" +
+      "ar.batch.protocol.outputH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -17781,6 +19260,18 @@ public final class BatchReport {
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_Symbols_Symbol_descriptor,
         new java.lang.String[] { "Declaration", "Reference", });
+    internal_static_SyntaxHighlighting_descriptor =
+      getDescriptor().getMessageTypes().get(13);
+    internal_static_SyntaxHighlighting_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_SyntaxHighlighting_descriptor,
+        new java.lang.String[] { "ComponentRef", "HighlightingRule", });
+    internal_static_SyntaxHighlighting_HighlightingRule_descriptor =
+      internal_static_SyntaxHighlighting_descriptor.getNestedTypes().get(0);
+    internal_static_SyntaxHighlighting_HighlightingRule_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_SyntaxHighlighting_HighlightingRule_descriptor,
+        new java.lang.String[] { "Range", "Type", });
     org.sonar.batch.protocol.Constants.getDescriptor();
   }
 
