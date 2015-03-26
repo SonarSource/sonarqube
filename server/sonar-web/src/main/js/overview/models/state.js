@@ -38,10 +38,19 @@ define(function () {
             metrics: 'quality_gate_details'
           };
       return $.get(url, options).done(function (r) {
-        var gateData = JSON.parse(r[0].msr[0].data);
-        that.set({
-          gateStatus: gateData.level,
-          gateConditions: gateData.conditions
+        var gateData = JSON.parse(r[0].msr[0].data),
+            gateConditions = gateData.conditions,
+            urlMetrics = baseUrl + '/api/metrics';
+        $.get(urlMetrics).done(function (r) {
+          that.set({
+            gateStatus: gateData.level,
+            gateConditions: gateConditions.map(function (c) {
+              var metric = _.findWhere(r, { key: c.metric }),
+                  type = metric != null ? metric.val_type : null,
+                  periodName = that.get('period' + c.period + 'Name');
+              return _.extend(c, { type: type, periodName: periodName });
+            })
+          });
         });
       });
     },
@@ -67,9 +76,9 @@ define(function () {
             }),
             nclocLang = _.first(nclocLangSorted, 2);
         that.set({
-          ncloc: nclocMeasure.frmt_val,
-          ncloc1: nclocMeasure.fvar3,
-          ncloc2: nclocMeasure.fvar1,
+          ncloc: nclocMeasure.val,
+          ncloc1: nclocMeasure.var3,
+          ncloc2: nclocMeasure.var1,
           nclocLang: nclocLang
         });
       });
@@ -207,7 +216,7 @@ define(function () {
           blockerIssues2: _.findWhere(severityFacet.values, { val: 'BLOCKER' }).count,
           criticalIssues2: _.findWhere(severityFacet.values, { val: 'CRITICAL' }).count,
           openIssues2: _.findWhere(statusFacet.values, { val: 'OPEN' }).count +
-                       _.findWhere(statusFacet.values, { val: 'REOPENED' }).count
+          _.findWhere(statusFacet.values, { val: 'REOPENED' }).count
         });
       });
     },
@@ -240,12 +249,11 @@ define(function () {
             coverageMeasure = _.findWhere(msr, { key: 'overall_coverage' }),
             newCoverageMeasure = _.findWhere(msr, { key: 'new_overall_coverage' });
         that.set({
-          coverageRaw: coverageMeasure.val,
-          coverage: coverageMeasure.frmt_val,
-          coverage1: coverageMeasure.fvar3,
-          coverage2: coverageMeasure.fvar1,
-          newCoverage1: newCoverageMeasure.fvar3,
-          newCoverage2: newCoverageMeasure.fvar1
+          coverage: coverageMeasure.val,
+          coverage1: coverageMeasure.var3,
+          coverage2: coverageMeasure.var1,
+          newCoverage1: newCoverageMeasure.var3,
+          newCoverage2: newCoverageMeasure.var1
         });
       });
     },
@@ -277,10 +285,9 @@ define(function () {
         var msr = r[0].msr,
             duplicationsMeasure = _.findWhere(msr, { key: 'duplicated_lines_density' });
         that.set({
-          duplicationsRaw: duplicationsMeasure.val,
-          duplications: duplicationsMeasure.frmt_val,
-          duplications1: duplicationsMeasure.fvar3,
-          duplications2: duplicationsMeasure.fvar1
+          duplications: duplicationsMeasure.val,
+          duplications1: duplicationsMeasure.var3,
+          duplications2: duplicationsMeasure.var1
         });
       });
     },

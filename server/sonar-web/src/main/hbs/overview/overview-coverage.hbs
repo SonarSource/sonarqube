@@ -13,19 +13,19 @@
   <tr>
     <td>
       <span class="js-pie-chart"
-            data-value="{{default coverageRaw}}"
+            data-value="{{default coverage}}"
             data-max="100"
             data-color="#85bb43"
             data-base-color="#d4333f"
             data-size="47"></span>
       <div style="display: inline-block; vertical-align: middle; margin-left: 10px;">
-        <p style="font-size: 36px; font-weight: 300;">{{coverage}}</p>
+        <p style="font-size: 36px; font-weight: 300;">{{formatMeasure coverage 'PERCENT'}}</p>
       </div>
     </td>
     <td>
       <div style="display: inline-block; vertical-align: middle;">
         <p>
-          <span style="font-size: 16px;">{{withSign coverage1}}</span>
+          <span style="font-size: 16px;">{{formatMeasureVariation coverage1 'PERCENT'}}</span>
         </p>
         <p style="color: #777; font-size: 12px; font-weight: 300;">{{period3Name}}</p>
       </div>
@@ -33,7 +33,7 @@
     <td>
       <div style="display: inline-block; vertical-align: middle;">
         <p>
-          <span style="font-size: 16px;">{{withSign coverage2}}</span>
+          <span style="font-size: 16px;">{{formatMeasureVariation coverage2 'PERCENT'}}</span>
         </p>
         <p style="color: #777; font-size: 12px; font-weight: 300;">{{period1Name}}</p>
       </div>
@@ -44,16 +44,20 @@
       <div id="overview-coverage-trend" data-height="50" style="width: 300px;" data-color="#4b9fd5"></div>
     </td>
     <td>
-      <p>
-        <span style="font-size: 16px;">{{withSign newCoverage1}}</span>
-      </p>
-      <p style="color: #777; font-size: 12px; font-weight: 300;">on new code</p>
+      {{#notNull newCoverage1}}
+        <p>
+          <span style="font-size: 16px;">{{formatMeasure newCoverage1 'PERCENT'}}</span>
+        </p>
+        <p style="color: #777; font-size: 12px; font-weight: 300;">on new code</p>
+      {{/notNull}}
     </td>
     <td>
-      <p>
-        <span style="font-size: 16px;">{{withSign newCoverage2}}</span>
-      </p>
-      <p style="color: #777; font-size: 12px; font-weight: 300;">on new code</p>
+      {{#notNull newCoverage2}}
+        <p>
+          <span style="font-size: 16px;">{{formatMeasure newCoverage2 'PERCENT'}}</span>
+        </p>
+        <p style="color: #777; font-size: 12px; font-weight: 300;">on new code</p>
+      {{/notNull}}
     </td>
   </tr>
 </table>

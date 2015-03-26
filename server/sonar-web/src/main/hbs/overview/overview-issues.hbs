@@ -12,17 +12,17 @@
   <tr>
     <td>
       <div style="display: inline-block; vertical-align: middle;">
-        <p style="font-size: 36px; font-weight: 300;">{{issues}}</p>
+        <p style="font-size: 36px; font-weight: 300;">{{numberShort issues}}</p>
       </div>
       <ul class="list-inline" style="display: inline-block; vertical-align: middle; margin-left: 10px;">
-        <li>{{severityIcon 'BLOCKER'}}&nbsp;{{blockerIssues}}</li>
-        <li>{{severityIcon 'CRITICAL'}}&nbsp;{{criticalIssues}}</li>
+        <li>{{severityIcon 'BLOCKER'}}&nbsp;{{numberShort blockerIssues}}</li>
+        <li>{{severityIcon 'CRITICAL'}}&nbsp;{{numberShort criticalIssues}}</li>
       </ul>
     </td>
     <td>
       <div style="display: inline-block; vertical-align: middle;">
         <p>
-          <span class="text-danger" style="font-size: 16px;">{{withSign issues1}}</span>
+          <span class="text-danger" style="font-size: 16px;">+{{numberShort issues1}}</span>
         </p>
         <p style="color: #777; font-size: 12px; font-weight: 300;">{{period3Name}}</p>
       </div>
@@ -30,7 +30,7 @@
     <td>
       <div style="display: inline-block; vertical-align: middle;">
         <p>
-          <span class="text-danger" style="font-size: 16px;">{{withSign issues2}}</span>
+          <span class="text-danger" style="font-size: 16px;">+{{numberShort issues2}}</span>
         </p>
         <p style="color: #777; font-size: 12px; font-weight: 300;">{{period1Name}}</p>
       </div>
@@ -42,21 +42,33 @@
     </td>
     <td class="text-top" style="padding-top: 15px;">
       <ul class="list-inline">
-        <li class="text-danger">{{severityIcon 'BLOCKER'}}&nbsp;{{withSign blockerIssues1}}</li>
-        <li class="text-danger">{{severityIcon 'CRITICAL'}}&nbsp;{{withSign criticalIssues1}}</li>
+        {{#gt blockerIssues1 0}}
+          <li class="text-danger">{{severityIcon 'BLOCKER'}}&nbsp;+{{numberShort blockerIssues1}}</li>
+        {{/gt}}
+        {{#gt criticalIssues1 0}}
+          <li class="text-danger">{{severityIcon 'CRITICAL'}}&nbsp;+{{numberShort criticalIssues1}}</li>
+        {{/gt}}
       </ul>
-      <ul class="list-inline spacer-top">
-        <li>{{statusIcon 'OPEN'}}&nbsp;{{openIssues1}}&nbsp;<span class="note">open</span></li>
-      </ul>
+      {{#gt openIssues1 0}}
+        <ul class="list-inline spacer-top">
+          <li>{{statusIcon 'OPEN'}}&nbsp;{{numberShort openIssues1}}&nbsp;<span class="note">open</span></li>
+        </ul>
+      {{/gt}}
     </td>
     <td class="text-top" style="padding-top: 15px;">
       <ul class="list-inline">
-        <li class="text-danger">{{severityIcon 'BLOCKER'}}&nbsp;{{withSign blockerIssues2}}</li>
-        <li class="text-danger">{{severityIcon 'CRITICAL'}}&nbsp;{{withSign criticalIssues2}}</li>
+        {{#gt blockerIssues2 0}}
+          <li class="text-danger">{{severityIcon 'BLOCKER'}}&nbsp;+{{numberShort blockerIssues2}}</li>
+        {{/gt}}
+        {{#gt criticalIssues2 0}}
+          <li class="text-danger">{{severityIcon 'CRITICAL'}}&nbsp;+{{numberShort criticalIssues2}}</li>
+        {{/gt}}
       </ul>
-      <ul class="list-inline spacer-top">
-        <li>{{statusIcon 'OPEN'}}&nbsp;{{openIssues2}}&nbsp;<span class="note">open</span></li>
-      </ul>
+      {{#gt openIssues2 0}}
+        <ul class="list-inline spacer-top">
+          <li>{{statusIcon 'OPEN'}}&nbsp;{{numberShort openIssues2}}&nbsp;<span class="note">open</span></li>
+        </ul>
+      {{/gt}}
     </td>
   </tr>
 </table>
@@ -69,7 +81,8 @@
   <div class="sonar-d3 cloud-widget">
     <div>
       {{#each issuesTags}}
-        <a class="cloud-word" href="#" title="{{count}}&nbsp;Issues" style="font-size: {{size}}px;">{{val}}</a>
+        <a class="cloud-word" href="#" title="{{numberShort count}}" data-toggle="tooltip"
+           style="font-size: {{size}}px;">{{val}}</a>
       {{/each}}
     </div>
   </div>

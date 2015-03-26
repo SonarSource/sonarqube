@@ -11,18 +11,18 @@
   <tr>
     <td>
       <span class="js-pie-chart"
-            data-value="{{default duplicationsRaw}}"
+            data-value="{{default duplications}}"
             data-max="100"
             data-color="#f3ca8e"
             data-size="47"></span>
       <div style="display: inline-block; vertical-align: middle; margin-left: 10px;">
-        <p style="font-size: 36px; font-weight: 300;">{{duplications}}</p>
+        <p style="font-size: 36px; font-weight: 300;">{{formatMeasure duplications 'PERCENT'}}</p>
       </div>
     </td>
     <td>
       <div style="display: inline-block; vertical-align: middle;">
         <p>
-          <span style="font-size: 16px;">{{duplications1}}</span>
+          <span style="font-size: 16px;">{{formatMeasureVariation duplications1 'PERCENT'}}</span>
         </p>
         <p style="color: #777; font-size: 12px; font-weight: 300;">{{period3Name}}</p>
       </div>
@@ -30,7 +30,7 @@
     <td>
       <div style="display: inline-block; vertical-align: middle;">
         <p>
-          <span style="font-size: 16px;">{{duplications2}}</span>
+          <span style="font-size: 16px;">{{formatMeasureVariation duplications2 'PERCENT'}}</span>
         </p>
         <p style="color: #777; font-size: 12px; font-weight: 300;">{{period1Name}}</p>
       </div>

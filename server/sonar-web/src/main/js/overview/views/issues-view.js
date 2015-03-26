@@ -36,8 +36,13 @@ define([
 
     onRender: function () {
       if (this.model.has('issuesTrend')) {
-        this.$('#overview-issues-trend').timeline(this.model.get('issuesTrend'));
+        this.$('#overview-issues-trend').timeline(this.model.get('issuesTrend'), { type: 'INT' });
       }
+      this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
+    },
+
+    onClose: function () {
+      this.$('[data-toggle="tooltip"]').tooltip('destroy');
     },
 
     onIssuesClick: function (e) {

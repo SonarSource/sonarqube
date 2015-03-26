@@ -312,7 +312,7 @@
     if (number > 9999) {
       return numeral(number).format('0.[0]a');
     } else {
-      return number;
+      return numeral(number).format('0,0');
     }
   });
 
@@ -498,6 +498,14 @@
 
   Handlebars.registerHelper('withSign', function (number) {
     return number >= 0 ? '+' + number : number;
+  });
+
+  Handlebars.registerHelper('formatMeasure', function (measure, type) {
+    return window.formatMeasure(measure, type);
+  });
+
+  Handlebars.registerHelper('formatMeasureVariation', function (measure, type) {
+    return window.formatMeasureVariation(measure, type);
   });
 
 })();

@@ -26,14 +26,14 @@
     {{#each gateConditions}}
       {{#notEq level 'OK'}}
         <li>
-          <span class="big alert_{{level}}">{{actual}}</span>
+          <span class="big alert_{{level}}">{{formatMeasure actual type}}</span>
           <span>
             {{t 'quality_gates.operator' op 'short'}}
-            {{#eq level 'ERROR'}}{{error}}{{/eq}}
-            {{#eq level 'WARN'}}{{warning}}{{/eq}}
+            {{#eq level 'ERROR'}}{{formatMeasure error type}}{{/eq}}
+            {{#eq level 'WARN'}}{{formatMeasure warning type}}{{/eq}}
           </span>
           <p class="note text-lowercase" style="padding-top: 4px;">{{t 'metric' metric 'name'}}</p>
-          <p class="note">{{period}}</p>
+          <p class="note">{{default periodName period}}</p>
         </li>
       {{/notEq}}
     {{/each}}

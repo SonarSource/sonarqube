@@ -7,12 +7,12 @@
     <td>
       <div>
         <div style="display: inline-block; vertical-align: middle;">
-          <p style="font-size: 36px; font-weight: 300;">{{ncloc}}</p>
+          <p style="font-size: 36px; font-weight: 300;">{{formatMeasure ncloc 'INT'}}</p>
         </div>
         {{#notEmpty nclocLang}}
           <div style="display: inline-block; vertical-align: middle; margin-left: 10px;">
             {{#each nclocLang}}
-              <p>{{value}} <span class="note">{{key}}</span></p>
+              <p>{{formatMeasure value 'INT'}} <span class="note">{{key}}</span></p>
             {{/each}}
           </div>
         {{/notEmpty}}
@@ -22,7 +22,7 @@
     <td>
       <div style="display: inline-block; vertical-align: middle;">
         <p>
-          <span style="font-size: 16px;">{{withSign ncloc1}}</span>
+          <span style="font-size: 16px;">{{formatMeasureVariation ncloc1 'INT'}}</span>
         </p>
         <p style="color: #777; font-size: 12px; font-weight: 300;">{{period3Name}}</p>
       </div>
@@ -30,7 +30,7 @@
     <td>
       <div style="display: inline-block; vertical-align: middle;">
         <p>
-          <span style="font-size: 16px;">{{withSign ncloc2}}</span>
+          <span style="font-size: 16px;">{{formatMeasureVariation ncloc2 'INT'}}</span>
         </p>
         <p style="color: #777; font-size: 12px; font-weight: 300;">{{period1Name}}</p>
       </div>

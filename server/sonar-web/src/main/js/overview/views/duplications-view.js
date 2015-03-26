@@ -31,7 +31,7 @@ define([
     onRender: function () {
       this.$('.js-pie-chart').pieChart();
       if (this.model.has('duplicationsTrend')) {
-        this.$('#overview-duplications-trend').timeline(this.model.get('duplicationsTrend'));
+        this.$('#overview-duplications-trend').timeline(this.model.get('duplicationsTrend'), { type: 'PERCENT' });
       }
     }
   });

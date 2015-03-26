@@ -30,7 +30,7 @@ define([
 
     onRender: function () {
       if (this.model.has('sizeTrend')) {
-        this.$('#overview-size-trend').timeline(this.model.get('sizeTrend'));
+        this.$('#overview-size-trend').timeline(this.model.get('sizeTrend'), { type: 'INT' });
       }
 
       if (this.model.has('treemapMetrics') && this.model.has('treemapMetricsPriority') && this.model.has('treemapComponents')) {

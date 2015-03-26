@@ -31,7 +31,7 @@ define([
     onRender: function () {
       this.$('.js-pie-chart').pieChart();
       if (this.model.has('coverageTrend')) {
-        this.$('#overview-coverage-trend').timeline(this.model.get('coverageTrend'));
+        this.$('#overview-coverage-trend').timeline(this.model.get('coverageTrend'), { type: 'PERCENT' });
       }
     }
   });

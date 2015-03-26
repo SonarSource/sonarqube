@@ -26,7 +26,8 @@
   var defaults = {
     height: 140,
     color: '#1f77b4',
-    interpolate: 'cardinal'
+    interpolate: 'basis',
+    type: 'UNKNOWN'
   };
 
   /*
@@ -36,9 +37,9 @@
    * ]
    */
 
-  $.fn.timeline = function (data) {
+  $.fn.timeline = function (data, opts) {
     $(this).each(function () {
-          var options = _.defaults($(this).data(), defaults);
+          var options = _.defaults(opts || {}, $(this).data(), defaults);
           _.extend(options, { width: $(this).width() });
 
           var container = d3.select(this),
@@ -72,25 +73,16 @@
                   .interpolate(options.interpolate);
 
           // Medians
-          var medianValueMax = getNiceMedian(0.9, data, function (d) {
+          var medianValue = getNiceMedian(0.5, data, function (d) {
                 return d.count;
               }),
-              medianLabelMax = extra.append('text')
-                  .text(numeral(medianValueMax).format('0.[0]'))
+              medianLabel = extra.append('text')
+                  .text(window.formatMeasure(medianValue, options.type))
                   .style('text-anchor', 'end')
                   .style('font-size', '10px')
                   .style('fill', '#ccc')
                   .attr('dy', '0.32em'),
-              medianValueMin = getNiceMedian(0.1, data, function (d) {
-                return d.count;
-              }),
-              medianLabelMin = extra.append('text')
-                  .text(numeral(medianValueMin).format('0.[0]'))
-                  .style('text-anchor', 'end')
-                  .style('font-size', '10px')
-                  .style('fill', '#ccc')
-                  .attr('dy', '0.32em'),
-              medianLabelWidth = Math.max(medianLabelMax.node().getBBox().width, medianLabelMin.node().getBBox().width);
+              medianLabelWidth = medianLabel.node().getBBox().width;
 
           _.extend(options, {
             marginLeft: 1,
@@ -114,24 +106,14 @@
               .classed('line', true)
               .style('stroke', options.color);
 
-          medianLabelMax
+          medianLabel
               .attr('x', options.width - 1)
-              .attr('y', yScale(medianValueMax));
-          medianLabelMin
-              .attr('x', options.width - 1)
-              .attr('y', yScale(medianValueMin));
+              .attr('y', yScale(medianValue));
           extra.append('line')
               .attr('x1', options.marginLeft)
-              .attr('y1', yScale(medianValueMax))
+              .attr('y1', yScale(medianValue))
               .attr('x2', options.availableWidth + options.marginLeft)
-              .attr('y2', yScale(medianValueMax))
-              .style('stroke', '#eee')
-              .style('shape-rendering', 'crispedges');
-          extra.append('line')
-              .attr('x1', options.marginLeft)
-              .attr('y1', yScale(medianValueMin))
-              .attr('x2', options.availableWidth + options.marginLeft)
-              .attr('y2', yScale(medianValueMin))
+              .attr('y2', yScale(medianValue))
               .style('stroke', '#eee')
               .style('shape-rendering', 'crispedges');
         }
@@ -142,7 +124,7 @@
   function getNiceMedian (p, array, accessor) {
     var min = d3.min(array, accessor),
         max = d3.max(array, accessor),
-        median = (max - min) * p + min,
+        median = d3.median(array, accessor),
         threshold = (max - min) / 2,
         threshold10 = Math.pow(10, Math.floor(Math.log(threshold) / Math.LN10) - 1);
     return (p - 0.5) > 0.0001 ?
