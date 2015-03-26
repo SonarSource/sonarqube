@@ -22,6 +22,9 @@ define(function () {
           this.fetchIssues2(),
           this.fetchIssuesTrend(),
 
+          this.fetchDebt(),
+          this.fetchDebtTrend(),
+
           this.fetchCoverage(),
           this.fetchCoverageTrend(),
 
@@ -233,6 +236,48 @@ define(function () {
           return { val: cell.d, count: cell.v[0] };
         });
         that.set({ issuesTrend: trend });
+      });
+    },
+
+    fetchDebt: function () {
+      var that = this,
+          url = baseUrl + '/api/resources/index',
+          options = {
+            resource: this.get('componentKey'),
+            metrics: 'sqale_index,blocker_remediation_cost,critical_remediation_cost',
+            includetrends: true
+          };
+      return $.get(url, options).done(function (r) {
+        var msr = r[0].msr,
+            debtMeasure = _.findWhere(msr, { key: 'sqale_index' }),
+            blockerDebtMeasure = _.findWhere(msr, { key: 'blocker_remediation_cost' }),
+            criticalDebtMeasure = _.findWhere(msr, { key: 'critical_remediation_cost' });
+        that.set({
+          debt: debtMeasure.val,
+          debt1: debtMeasure.var3,
+          debt2: debtMeasure.var1,
+          blockerDebt: blockerDebtMeasure != null ? blockerDebtMeasure.val : null,
+          blockerDebt1: blockerDebtMeasure != null ? blockerDebtMeasure.var3 : null,
+          blockerDebt2: blockerDebtMeasure != null ? blockerDebtMeasure.var1 : null,
+          criticalDebt: criticalDebtMeasure != null ? criticalDebtMeasure.val : null,
+          criticalDebt1: criticalDebtMeasure != null ? criticalDebtMeasure.var3 : null,
+          criticalDebt2: criticalDebtMeasure != null ? criticalDebtMeasure.var1 : null
+        });
+      });
+    },
+
+    fetchDebtTrend: function () {
+      var that = this,
+          url = baseUrl + '/api/timemachine/index',
+          options = {
+            resource: this.get('componentKey'),
+            metrics: 'sqale_index'
+          };
+      return $.get(url, options).done(function (r) {
+        var trend = r[0].cells.map(function (cell) {
+          return { val: cell.d, count: cell.v[0] };
+        });
+        that.set({ debtTrend: trend });
       });
     },
 

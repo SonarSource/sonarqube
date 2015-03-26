@@ -22,7 +22,8 @@ define([
 ], function () {
 
   return Marionette.Layout.extend({
-    template: Templates['overview-issues'],
+    issuesTemplate: Templates['overview-issues'],
+    debtTemplate: Templates['overview-debt'],
 
     modelEvents: {
       'change': 'render'
@@ -34,9 +35,16 @@ define([
       'click .js-guide': 'onGuideClick'
     },
 
+    initialize: function () {
+      this.section = 'issues';
+    },
+
     onRender: function () {
       if (this.model.has('issuesTrend')) {
         this.$('#overview-issues-trend').timeline(this.model.get('issuesTrend'), { type: 'INT' });
+      }
+      if (this.model.has('debtTrend')) {
+        this.$('#overview-debt-trend').timeline(this.model.get('debtTrend'), { type: 'WORK_DUR' });
       }
       this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
     },
@@ -60,21 +68,23 @@ define([
       this.showGuide();
     },
 
-    showSection: function (jsSelector) {
-      this.$('.page-actions').find('.badge').addClass('badge-muted');
-      this.$('.page-actions').find('.badge').filter(jsSelector).removeClass('badge-muted');
+    getTemplate: function () {
+      var option = this.section + 'Template';
+      return Marionette.getOption(this, option);
     },
 
     showIssues: function () {
-      this.showSection('.js-issues');
+      this.section = 'issues';
+      this.render();
     },
 
     showDebt: function () {
-      this.showSection('.js-debt');
+      this.section = 'debt';
+      this.render();
     },
 
     showGuide: function () {
-      this.showSection('.js-guide');
+
     }
   });
 

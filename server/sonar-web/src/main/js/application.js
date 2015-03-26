@@ -368,44 +368,98 @@ function fileFromPath (path) {
 }
 
 
-function formatMeasure (measure, type) {
-  var formatted = null,
-      formatters = {
-        'INT': function (value) {
-          return numeral(value).format('0,0');
-        },
-        'FLOAT': function (value) {
-          return numeral(value).format('0,0.0');
-        },
-        'PERCENT': function (value) {
-          return numeral(+value / 100).format('0,0.0%');
-        }
-      };
-  if (measure != null && type != null) {
-    formatted = formatters[type] != null ? formatters[type](measure) : measure;
-  }
-  return formatted;
-}
+/*
+ * Measures
+ */
 
-function formatMeasureVariation (measure, type) {
-  var formatted = null,
-      formatters = {
-        'INT': function (value) {
-          return numeral(value).format('+0,0');
-        },
-        'FLOAT': function (value) {
-          return numeral(value).format('+0,0.0');
-        },
-        'PERCENT': function (value) {
-          return numeral(+value / 100).format('+0,0.0%');
-        }
-      };
-  if (measure != null && type != null) {
-    formatted = formatters[type] != null ? formatters[type](measure) : measure;
-  }
-  return formatted;
-}
+(function () {
+  /**
+   * Format a work duration measure
+   * @param {number} value
+   * @returns {string}
+   */
+  var durationFormatter = function (value) {
+    if (value === 0) {
+      return '0';
+    }
+    var hoursInDay = window.SS.hoursInDay || 8,
+        isNegative = value < 0,
+        absValue = Math.abs(value);
+    var days = Math.floor(absValue / hoursInDay / 60);
+    var remainingValue = absValue - days * hoursInDay * 60;
+    var hours = Math.floor(remainingValue / 60);
+    remainingValue -= hours * 60;
+    var minutes = remainingValue;
+    var formatted = '';
+    if (days > 0) {
+      formatted += tp('work_duration.x_days', isNegative ? -1 * days : days);
+    }
+    if (hours > 0 && days < 10) {
+      if (formatted.length > 0) {
+        formatted += ' ';
+      }
+      formatted += tp('work_duration.x_hours', isNegative && formatted.length === 0 ? -1 * hours : hours);
+    }
+    if (minutes > 0 && hours < 10 && days === 0) {
+      if (formatted.length > 0) {
+        formatted += ' ';
+      }
+      formatted += tp('work_duration.x_minutes', isNegative && formatted.length === 0 ? -1 * minutes : minutes);
+    }
+    return formatted;
+  };
 
+  /**
+   * Format a measure according to its type
+   * @param measure
+   * @param {string} type
+   * @returns {string|null}
+   */
+  window.formatMeasure = function (measure, type) {
+    var formatted = null,
+        formatters = {
+          'INT': function (value) {
+            return numeral(value).format('0,0');
+          },
+          'FLOAT': function (value) {
+            return numeral(value).format('0,0.0');
+          },
+          'PERCENT': function (value) {
+            return numeral(+value / 100).format('0,0.0%');
+          },
+          'WORK_DUR': durationFormatter
+        };
+    if (measure != null && type != null) {
+      formatted = formatters[type] != null ? formatters[type](measure) : measure;
+    }
+    return formatted;
+  };
+
+  /**
+   * Format a measure variation according to its type
+   * @param measure
+   * @param {string} type
+   * @returns {string|null}
+   */
+  window.formatMeasureVariation = function (measure, type) {
+    var formatted = null,
+        formatters = {
+          'INT': function (value) {
+            return numeral(value).format('+0,0');
+          },
+          'FLOAT': function (value) {
+            return numeral(value).format('+0,0.0');
+          },
+          'PERCENT': function (value) {
+            return numeral(+value / 100).format('+0,0.0%');
+          }
+        };
+    if (measure != null && type != null) {
+      formatted = formatters[type] != null ? formatters[type](measure) : measure;
+    }
+    return formatted;
+  };
+})();
 
 jQuery(function () {
 
