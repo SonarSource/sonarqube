@@ -108,12 +108,12 @@
 
           medianLabel
               .attr('x', options.width - 1)
-              .attr('y', yScale(medianValue));
+              .attr('y', options.marginTop + yScale(medianValue));
           extra.append('line')
               .attr('x1', options.marginLeft)
-              .attr('y1', yScale(medianValue))
+              .attr('y1', options.marginTop + yScale(medianValue))
               .attr('x2', options.availableWidth + options.marginLeft)
-              .attr('y2', yScale(medianValue))
+              .attr('y2', options.marginTop + yScale(medianValue))
               .style('stroke', '#eee')
               .style('shape-rendering', 'crispedges');
         }
