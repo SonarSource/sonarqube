@@ -83,9 +83,9 @@ define([
         userName: window.SS.userName,
         isUserAdmin: window.SS.isUserAdmin,
 
-        canManageGlobalDashboards: window.SS.user != null,
-        canManageIssueFilters: window.SS.user != null,
-        canManageMeasureFilters: window.SS.user != null
+        canManageGlobalDashboards: !!window.SS.user,
+        canManageIssueFilters: !!window.SS.user,
+        canManageMeasureFilters: !!window.SS.user
       });
     }
   });

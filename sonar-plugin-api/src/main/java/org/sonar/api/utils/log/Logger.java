@@ -23,7 +23,7 @@ import javax.annotation.Nullable;
 
 /**
  * SonarQube plugins are not coupled with external logging libraries like SLF4J or Logback.
- * <p/>
+ * <p></p>
  * Example:
  * <pre>
  * public class MyClass {
@@ -35,13 +35,13 @@ import javax.annotation.Nullable;
  *   }
  * }
  * </pre>
- * <p/>
+ * <p></p>
  * Message arguments are defined with <code>{}</code>, but not with {@link java.util.Formatter} syntax.
  *
- * <p/>
+ * <p></p>
  * INFO, WARN and ERROR levels are always enabled. They can't be disabled by users.
  * DEBUG and TRACE levels are enabled on demand with the property <code>sonar.log.level</code>.
- * <p/>
+ * <p></p>
  * See {@link org.sonar.api.utils.log.LogTester} for testing facilities.
  * @since 5.1
  */
@@ -50,7 +50,9 @@ public interface Logger {
   boolean isTraceEnabled();
 
   /**
-   * Logs a TRACE message. TRACE messages must
+   * Logs a TRACE message.
+   * <p></p>
+   * TRACE messages must
    * be valuable for diagnosing production problems. They must not be used for development debugging.
    * They can significantly slow down performances. The standard use-case is logging of
    * SQL and Elasticsearch requests.
@@ -58,17 +60,39 @@ public interface Logger {
   void trace(String msg);
 
   /**
-   * @see #trace(String)
+   * Logs an TRACE parameterized message according to the specified format and argument. Example:
+   * <code>trace("Value is {}", value)</code>
+   * <p></p>
+   * TRACE messages must
+   * be valuable for diagnosing production problems. They must not be used for development debugging.
+   * They can significantly slow down performances. The standard use-case is logging of
+   * SQL and Elasticsearch requests.
    */
   void trace(String pattern, @Nullable Object arg);
 
   /**
-   * @see #trace(String)
+   * Logs an TRACE parameterized message according to the specified format and arguments. Example:
+   * <code>trace("Values are {} and {}", value1, value2)</code>
+   * <p></p>
+   * TRACE messages must
+   * be valuable for diagnosing production problems. They must not be used for development debugging.
+   * They can significantly slow down performances. The standard use-case is logging of
+   * SQL and Elasticsearch requests.
    */
   void trace(String msg, @Nullable Object arg1, @Nullable Object arg2);
 
   /**
-   * @see #trace(String)
+   * Logs an TRACE parameterized message according to the specified format and arguments. Example:
+   * <code>trace("Values are {} and {}", value1, value2)</code>
+   * <p></p>
+   * TRACE messages must
+   * be valuable for diagnosing production problems. They must not be used for development debugging.
+   * They can significantly slow down performances. The standard use-case is logging of
+   * SQL and Elasticsearch requests.
+   * <p></p>
+   * This variant incurs the hidden cost of creating an Object[] before invoking the method.
+   * The variants taking one and two arguments exist solely in order to avoid this hidden cost. See
+   * {@link #trace(String, Object)} and {@link #trace(String, Object, Object)}
    */
   void trace(String msg, Object... args);
 
@@ -81,17 +105,33 @@ public interface Logger {
   void debug(String msg);
 
   /**
-   * @see #debug(String) 
+   * Logs an DEBUG parameterized message according to the specified format and argument. Example:
+   * <code>debug("Value is {}", value)</code>
+   * <p></p>
+   * Debug messages must
+   * be valuable for diagnosing production problems. They must not be used for development debugging.
    */
   void debug(String pattern, @Nullable Object arg);
 
   /**
-   * @see #debug(String)
+   * Logs an DEBUG parameterized message according to the specified format and arguments. Example:
+   * <code>debug("Values are {} and {}", value1, value2)</code>
+   * <p></p>
+   * Debug messages must
+   * be valuable for diagnosing production problems. They must not be used for development debugging.
    */
   void debug(String msg, @Nullable Object arg1, @Nullable Object arg2);
 
   /**
-   * @see #debug(String)
+   * Logs an DEBUG parameterized message according to the specified format and arguments. Example:
+   * <code>debug("Values are {}, {} and {}", value1, value2, value3)</code>
+   * <p></p>
+   * Debug messages must
+   * be valuable for diagnosing production problems. They must not be used for development debugging.
+   * * <p></p>
+   * This variant incurs the hidden cost of creating an Object[] before invoking the method.
+   * The variants taking one and two arguments exist solely in order to avoid this hidden cost. See
+   * {@link #debug(String, Object)} and {@link #debug(String, Object, Object)}
    */
   void debug(String msg, Object... args);
 
@@ -101,17 +141,24 @@ public interface Logger {
   void info(String msg);
 
   /**
-   * @see #info(String)
+   * Logs an INFO parameterized message according to the specified format and argument. Example:
+   * <code>info("Value is {}", value)</code>
    */
   void info(String msg, @Nullable Object arg);
 
   /**
-   * @see #info(String)
+   * Logs an INFO parameterized message according to the specified format and arguments. Example:
+   * <code>info("Values are {} and {}", value1, value2)</code>
    */
   void info(String msg, @Nullable Object arg1, @Nullable Object arg2);
 
   /**
-   * @see #info(String)
+   * Logs an INFO parameterized message according to the specified format and arguments. Example:
+   * <code>info("Values are {}, {} and {}", value1, value2, value3)</code>
+   * <p></p>
+   * This variant incurs the hidden cost of creating an Object[] before invoking the method.
+   * The variants taking one and two arguments exist solely in order to avoid this hidden cost. See
+   * {@link #info(String, Object)} and {@link #info(String, Object, Object)}
    */
   void info(String msg, Object... args);
 
@@ -121,17 +168,24 @@ public interface Logger {
   void warn(String msg);
 
   /**
-   * @see #warn(String)
+   * Logs a WARN parameterized message according to the specified format and argument. Example:
+   * <code>warn("Value is {}", value)</code>
    */
   void warn(String msg, @Nullable Object arg);
 
   /**
-   * @see #warn(String)
+   * Logs a WARN parameterized message according to the specified format and arguments. Example:
+   * <code>warn("Values are {} and {}", value1, value2)</code>
    */
   void warn(String msg, @Nullable Object arg1, @Nullable Object arg2);
 
   /**
-   * @see #warn(String)
+   * Logs a WARN parameterized message according to the specified format and arguments. Example:
+   * <code>warn("Values are {}, {} and {}", value1, value2, value3)</code>
+   * <p></p>
+   * This variant incurs the hidden cost of creating an Object[] before invoking the method.
+   * The variants taking one and two arguments exist solely in order to avoid this hidden cost. See
+   * {@link #warn(String, Object)} and {@link #warn(String, Object, Object)}
    */
   void warn(String msg, Object... args);
 
@@ -141,22 +195,29 @@ public interface Logger {
   void error(String msg);
 
   /**
-   * @see #error(String)
+   * Logs an ERROR parameterized message according to the specified format and argument. Example:
+   * <code>error("Value is {}", value)</code>
    */
   void error(String msg, @Nullable Object arg);
 
   /**
-   * @see #error(String)
+   * Logs a ERROR parameterized message according to the specified format and arguments. Example:
+   * <code>error("Values are {} and {}", value1, value2)</code>
    */
   void error(String msg, @Nullable Object arg1, @Nullable Object arg2);
 
   /**
-   * @see #error(String)
+   * Logs a ERROR parameterized message according to the specified format and arguments. Example:
+   * <code>error("Values are {}, {} and {}", value1, value2, value3)</code>
+   * <p></p>
+   * This variant incurs the hidden cost of creating an Object[] before invoking the method.
+   * The variants taking one and two arguments exist solely in order to avoid this hidden cost. See
+   * {@link #error(String, Object)} and {@link #error(String, Object, Object)}
    */
   void error(String msg, Object... args);
 
   /**
-   * @see #error(String)
+   * Logs an exception at the ERROR level with an accompanying message.
    */
   void error(String msg, Throwable thrown);
 
@@ -164,10 +225,10 @@ public interface Logger {
    * Attempt to change logger level. Return true if it succeeded, false if
    * the underlying logging facility does not allow to change level at
    * runtime.
-   * <p/>
+   * <p></p>
    * This method must not be used to enable DEBUG or TRACE logs in tests. Use
    * {@link org.sonar.api.utils.log.LogTester#setLevel(LoggerLevel)} instead.
-   * <p/>
+   * <p></p>
    * The standard use-case is to customize logging of embedded 3rd-party
    * libraries.
    */
