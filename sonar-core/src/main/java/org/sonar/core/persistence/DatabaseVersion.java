@@ -76,7 +76,7 @@ public class DatabaseVersion implements BatchComponent, ServerComponent {
     "projects",
     "project_links",
     "project_measures",
-    "project_profiles",
+    "project_qprofiles",
     "properties",
     "resource_index",
     "rules",
