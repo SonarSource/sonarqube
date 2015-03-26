@@ -26,6 +26,7 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.batch.protocol.output.BatchReport.Range;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.core.measure.db.MetricDto;
@@ -100,15 +101,16 @@ public class PersistDuplicationMeasuresStepTest extends BaseStepTest {
     BatchReportWriter writer = initReportWithProjectAndFile();
 
     BatchReport.Duplication duplication = BatchReport.Duplication.newBuilder()
-      .setOriginBlock(BatchReport.DuplicationBlock.newBuilder()
-        .setOtherComponentRef(2)
+      .setOriginPosition(Range.newBuilder()
         .setStartLine(1)
         .setEndLine(5)
         .build())
-      .addDuplicatedBy(BatchReport.DuplicationBlock.newBuilder()
-        .setOtherComponentRef(2)
-        .setStartLine(6)
-        .setEndLine(10)
+      .addDuplicate(BatchReport.Duplicate.newBuilder()
+        .setOtherFileRef(2)
+        .setRange(Range.newBuilder()
+          .setStartLine(6)
+          .setEndLine(10)
+          .build())
         .build())
       .build();
     writer.writeComponentDuplications(2, newArrayList(duplication));
@@ -117,10 +119,10 @@ public class PersistDuplicationMeasuresStepTest extends BaseStepTest {
 
     assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
 
-    Map<String, Object> dto =  dbTester.selectFirst("select snapshot_id as \"snapshotId\", metric_id as \"metricId\", text_value as \"textValue\" from project_measures");
+    Map<String, Object> dto = dbTester.selectFirst("select snapshot_id as \"snapshotId\", metric_id as \"metricId\", text_value as \"textValue\" from project_measures");
     assertThat(dto.get("snapshotId")).isEqualTo(11L);
     assertThat(dto.get("metricId")).isEqualTo(duplicationMetric.getId().longValue());
-    assertThat(dto.get("textValue")).isEqualTo("<duplications><g><b s=\"1\" l=\"4\" r=\"PROJECT_KEY:file\"/><b s=\"6\" l=\"4\" r=\"PROJECT_KEY:file\"/></g></duplications>");
+    assertThat(dto.get("textValue")).isEqualTo("<duplications><g><b s=\"1\" l=\"5\" r=\"PROJECT_KEY:file\"/><b s=\"6\" l=\"5\" r=\"PROJECT_KEY:file\"/></g></duplications>");
   }
 
   @Test
@@ -155,15 +157,16 @@ public class PersistDuplicationMeasuresStepTest extends BaseStepTest {
       .build());
 
     BatchReport.Duplication duplication = BatchReport.Duplication.newBuilder()
-      .setOriginBlock(BatchReport.DuplicationBlock.newBuilder()
-        .setOtherComponentRef(3)
+      .setOriginPosition(Range.newBuilder()
         .setStartLine(1)
         .setEndLine(5)
         .build())
-      .addDuplicatedBy(BatchReport.DuplicationBlock.newBuilder()
-        .setOtherComponentRef(3)
-        .setStartLine(6)
-        .setEndLine(10)
+      .addDuplicate(BatchReport.Duplicate.newBuilder()
+        .setOtherFileRef(3)
+        .setRange(Range.newBuilder()
+          .setStartLine(6)
+          .setEndLine(10)
+          .build())
         .build())
       .build();
     writer.writeComponentDuplications(3, newArrayList(duplication));
@@ -172,9 +175,9 @@ public class PersistDuplicationMeasuresStepTest extends BaseStepTest {
 
     assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
 
-    Map<String, Object> dto =  dbTester.selectFirst("select snapshot_id as \"snapshotId\", text_value as \"textValue\" from project_measures");
+    Map<String, Object> dto = dbTester.selectFirst("select snapshot_id as \"snapshotId\", text_value as \"textValue\" from project_measures");
     assertThat(dto.get("snapshotId")).isEqualTo(12L);
-    assertThat(dto.get("textValue")).isEqualTo("<duplications><g><b s=\"1\" l=\"4\" r=\"MODULE_KEY:file\"/><b s=\"6\" l=\"4\" r=\"MODULE_KEY:file\"/></g></duplications>");
+    assertThat(dto.get("textValue")).isEqualTo("<duplications><g><b s=\"1\" l=\"5\" r=\"MODULE_KEY:file\"/><b s=\"6\" l=\"5\" r=\"MODULE_KEY:file\"/></g></duplications>");
   }
 
   @Test
@@ -208,15 +211,16 @@ public class PersistDuplicationMeasuresStepTest extends BaseStepTest {
       .build());
 
     BatchReport.Duplication duplication = BatchReport.Duplication.newBuilder()
-      .setOriginBlock(BatchReport.DuplicationBlock.newBuilder()
-        .setOtherComponentRef(3)
+      .setOriginPosition(Range.newBuilder()
         .setStartLine(1)
         .setEndLine(5)
         .build())
-      .addDuplicatedBy(BatchReport.DuplicationBlock.newBuilder()
-        .setOtherComponentRef(3)
-        .setStartLine(6)
-        .setEndLine(10)
+      .addDuplicate(BatchReport.Duplicate.newBuilder()
+        .setOtherFileRef(3)
+        .setRange(Range.newBuilder()
+          .setStartLine(6)
+          .setEndLine(10)
+          .build())
         .build())
       .build();
     writer.writeComponentDuplications(3, newArrayList(duplication));
@@ -225,9 +229,9 @@ public class PersistDuplicationMeasuresStepTest extends BaseStepTest {
 
     assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
 
-    Map<String, Object> dto =  dbTester.selectFirst("select snapshot_id as \"snapshotId\", text_value as \"textValue\" from project_measures");
+    Map<String, Object> dto = dbTester.selectFirst("select snapshot_id as \"snapshotId\", text_value as \"textValue\" from project_measures");
     assertThat(dto.get("snapshotId")).isEqualTo(12L);
-    assertThat(dto.get("textValue")).isEqualTo("<duplications><g><b s=\"1\" l=\"4\" r=\"PROJECT_KEY:file\"/><b s=\"6\" l=\"4\" r=\"PROJECT_KEY:file\"/></g></duplications>");
+    assertThat(dto.get("textValue")).isEqualTo("<duplications><g><b s=\"1\" l=\"5\" r=\"PROJECT_KEY:file\"/><b s=\"6\" l=\"5\" r=\"PROJECT_KEY:file\"/></g></duplications>");
   }
 
   @Test
@@ -268,15 +272,16 @@ public class PersistDuplicationMeasuresStepTest extends BaseStepTest {
       .build());
 
     BatchReport.Duplication duplication = BatchReport.Duplication.newBuilder()
-      .setOriginBlock(BatchReport.DuplicationBlock.newBuilder()
-        .setOtherComponentRef(10)
+      .setOriginPosition(Range.newBuilder()
         .setStartLine(1)
         .setEndLine(5)
         .build())
-      .addDuplicatedBy(BatchReport.DuplicationBlock.newBuilder()
-        .setOtherComponentRef(10)
-        .setStartLine(6)
-        .setEndLine(10)
+      .addDuplicate(BatchReport.Duplicate.newBuilder()
+        .setOtherFileRef(10)
+        .setRange(Range.newBuilder()
+          .setStartLine(6)
+          .setEndLine(10)
+          .build())
         .build())
       .build();
     writer.writeComponentDuplications(10, newArrayList(duplication));
@@ -285,8 +290,8 @@ public class PersistDuplicationMeasuresStepTest extends BaseStepTest {
 
     assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
 
-    Map<String, Object> dto =  dbTester.selectFirst("select snapshot_id as \"snapshotId\", text_value as \"textValue\" from project_measures");
-    assertThat(dto.get("textValue")).isEqualTo("<duplications><g><b s=\"1\" l=\"4\" r=\"PROJECT_KEY:file\"/><b s=\"6\" l=\"4\" r=\"PROJECT_KEY:file\"/></g></duplications>");
+    Map<String, Object> dto = dbTester.selectFirst("select snapshot_id as \"snapshotId\", text_value as \"textValue\" from project_measures");
+    assertThat(dto.get("textValue")).isEqualTo("<duplications><g><b s=\"1\" l=\"5\" r=\"PROJECT_KEY:file\"/><b s=\"6\" l=\"5\" r=\"PROJECT_KEY:file\"/></g></duplications>");
   }
 
   @Test
@@ -315,15 +320,16 @@ public class PersistDuplicationMeasuresStepTest extends BaseStepTest {
       .build());
 
     BatchReport.Duplication duplication = BatchReport.Duplication.newBuilder()
-      .setOriginBlock(BatchReport.DuplicationBlock.newBuilder()
-        .setOtherComponentRef(2)
+      .setOriginPosition(Range.newBuilder()
         .setStartLine(1)
         .setEndLine(5)
         .build())
-      .addDuplicatedBy(BatchReport.DuplicationBlock.newBuilder()
-        .setOtherComponentRef(2)
-        .setStartLine(6)
-        .setEndLine(10)
+      .addDuplicate(BatchReport.Duplicate.newBuilder()
+        .setOtherFileRef(2)
+        .setRange(Range.newBuilder()
+          .setStartLine(6)
+          .setEndLine(10)
+          .build())
         .build())
       .build();
     writer.writeComponentDuplications(2, newArrayList(duplication));
@@ -332,9 +338,10 @@ public class PersistDuplicationMeasuresStepTest extends BaseStepTest {
 
     assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
 
-    Map<String, Object> dto =  dbTester.selectFirst("select snapshot_id as \"snapshotId\", text_value as \"textValue\" from project_measures");
+    Map<String, Object> dto = dbTester.selectFirst("select snapshot_id as \"snapshotId\", text_value as \"textValue\" from project_measures");
     assertThat(dto.get("snapshotId")).isEqualTo(11L);
-    assertThat(dto.get("textValue")).isEqualTo("<duplications><g><b s=\"1\" l=\"4\" r=\"PROJECT_KEY:file:origin/master\"/><b s=\"6\" l=\"4\" r=\"PROJECT_KEY:file:origin/master\"/></g></duplications>");
+    assertThat(dto.get("textValue")).isEqualTo(
+      "<duplications><g><b s=\"1\" l=\"5\" r=\"PROJECT_KEY:file:origin/master\"/><b s=\"6\" l=\"5\" r=\"PROJECT_KEY:file:origin/master\"/></g></duplications>");
   }
 
   @Test
@@ -350,15 +357,16 @@ public class PersistDuplicationMeasuresStepTest extends BaseStepTest {
       .build());
 
     BatchReport.Duplication duplication = BatchReport.Duplication.newBuilder()
-      .setOriginBlock(BatchReport.DuplicationBlock.newBuilder()
-        .setOtherComponentRef(2)
+      .setOriginPosition(Range.newBuilder()
         .setStartLine(1)
         .setEndLine(5)
         .build())
-      .addDuplicatedBy(BatchReport.DuplicationBlock.newBuilder()
-        .setOtherComponentRef(3)
-        .setStartLine(6)
-        .setEndLine(10)
+      .addDuplicate(BatchReport.Duplicate.newBuilder()
+        .setOtherFileRef(3)
+        .setRange(Range.newBuilder()
+          .setStartLine(6)
+          .setEndLine(10)
+          .build())
         .build())
       .build();
     writer.writeComponentDuplications(2, newArrayList(duplication));
@@ -367,9 +375,9 @@ public class PersistDuplicationMeasuresStepTest extends BaseStepTest {
 
     assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
 
-    Map<String, Object> dto =  dbTester.selectFirst("select snapshot_id as \"snapshotId\", text_value as \"textValue\" from project_measures");
+    Map<String, Object> dto = dbTester.selectFirst("select snapshot_id as \"snapshotId\", text_value as \"textValue\" from project_measures");
     assertThat(dto.get("snapshotId")).isEqualTo(11L);
-    assertThat(dto.get("textValue")).isEqualTo("<duplications><g><b s=\"1\" l=\"4\" r=\"PROJECT_KEY:file\"/><b s=\"6\" l=\"4\" r=\"PROJECT_KEY:file2\"/></g></duplications>");
+    assertThat(dto.get("textValue")).isEqualTo("<duplications><g><b s=\"1\" l=\"5\" r=\"PROJECT_KEY:file\"/><b s=\"6\" l=\"5\" r=\"PROJECT_KEY:file2\"/></g></duplications>");
   }
 
   @Test
@@ -378,15 +386,16 @@ public class PersistDuplicationMeasuresStepTest extends BaseStepTest {
     BatchReportWriter writer = initReportWithProjectAndFile();
 
     BatchReport.Duplication duplication = BatchReport.Duplication.newBuilder()
-      .setOriginBlock(BatchReport.DuplicationBlock.newBuilder()
-        .setOtherComponentRef(2)
+      .setOriginPosition(Range.newBuilder()
         .setStartLine(1)
         .setEndLine(5)
         .build())
-      .addDuplicatedBy(BatchReport.DuplicationBlock.newBuilder()
-        .setComponentKey("PROJECT2_KEY:file2")
-        .setStartLine(6)
-        .setEndLine(10)
+      .addDuplicate(BatchReport.Duplicate.newBuilder()
+        .setOtherFileKey("PROJECT2_KEY:file2")
+        .setRange(Range.newBuilder()
+          .setStartLine(6)
+          .setEndLine(10)
+          .build())
         .build())
       .build();
     writer.writeComponentDuplications(2, newArrayList(duplication));
@@ -395,9 +404,9 @@ public class PersistDuplicationMeasuresStepTest extends BaseStepTest {
 
     assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
 
-    Map<String, Object> dto =  dbTester.selectFirst("select snapshot_id as \"snapshotId\", text_value as \"textValue\" from project_measures");
+    Map<String, Object> dto = dbTester.selectFirst("select snapshot_id as \"snapshotId\", text_value as \"textValue\" from project_measures");
     assertThat(dto.get("snapshotId")).isEqualTo(11L);
-    assertThat(dto.get("textValue")).isEqualTo("<duplications><g><b s=\"1\" l=\"4\" r=\"PROJECT_KEY:file\"/><b s=\"6\" l=\"4\" r=\"PROJECT2_KEY:file2\"/></g></duplications>");
+    assertThat(dto.get("textValue")).isEqualTo("<duplications><g><b s=\"1\" l=\"5\" r=\"PROJECT_KEY:file\"/><b s=\"6\" l=\"5\" r=\"PROJECT2_KEY:file2\"/></g></duplications>");
   }
 
   private BatchReportWriter initReportWithProjectAndFile() throws IOException {
@@ -423,7 +432,7 @@ public class PersistDuplicationMeasuresStepTest extends BaseStepTest {
     return writer;
   }
 
-  private MetricDto saveDuplicationMetric(){
+  private MetricDto saveDuplicationMetric() {
     MetricDto duplicationMetric = new MetricDto().setKey(CoreMetrics.DUPLICATIONS_DATA_KEY)
       .setOptimizedBestValue(false)
       .setDeleteHistoricalData(false)

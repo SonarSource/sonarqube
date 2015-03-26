@@ -99,7 +99,7 @@ public class BatchReportWriter {
 
   public void writeComponentSymbols(int componentRef, Iterable<BatchReport.Symbols.Symbol> symbols) {
     BatchReport.Symbols.Builder builder = BatchReport.Symbols.newBuilder();
-    builder.setComponentRef(componentRef);
+    builder.setFileRef(componentRef);
     builder.addAllSymbol(symbols);
     File file = fileStructure.fileFor(FileStructure.Domain.SYMBOLS, componentRef);
     ProtobufUtil.writeToFile(builder.build(), file);
@@ -107,7 +107,7 @@ public class BatchReportWriter {
 
   public void writeComponentSyntaxHighlighting(int componentRef, Iterable<BatchReport.SyntaxHighlighting.HighlightingRule> highlightingRules) {
     BatchReport.SyntaxHighlighting.Builder builder = BatchReport.SyntaxHighlighting.newBuilder();
-    builder.setComponentRef(componentRef);
+    builder.setFileRef(componentRef);
     builder.addAllHighlightingRule(highlightingRules);
     File file = fileStructure.fileFor(FileStructure.Domain.SYNTAX_HIGHLIGHTING, componentRef);
     ProtobufUtil.writeToFile(builder.build(), file);

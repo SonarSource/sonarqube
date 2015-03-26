@@ -26,6 +26,7 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport.Issues;
 import org.sonar.batch.protocol.output.BatchReport.Metadata;
+import org.sonar.batch.protocol.output.BatchReport.Range;
 
 import java.io.File;
 import java.util.Arrays;
@@ -78,25 +79,25 @@ public class BatchReportReaderTest {
       .setRef(1).build());
 
     BatchReport.Duplication duplication = BatchReport.Duplication.newBuilder()
-      .setOriginBlock(BatchReport.DuplicationBlock.newBuilder()
-        .setComponentKey("COMPONENT_A")
-        .setOtherComponentRef(2)
+      .setOriginPosition(Range.newBuilder()
         .setStartLine(1)
         .setEndLine(5)
         .build())
-      .addDuplicatedBy(BatchReport.DuplicationBlock.newBuilder()
-        .setComponentKey("COMPONENT_A")
-        .setOtherComponentRef(2)
-        .setStartLine(6)
-        .setEndLine(10)
+      .addDuplicate(BatchReport.Duplicate.newBuilder()
+        .setOtherFileKey("COMPONENT_A")
+        .setOtherFileRef(2)
+        .setRange(Range.newBuilder()
+          .setStartLine(6)
+          .setEndLine(10)
+          .build())
         .build())
       .build();
     writer.writeComponentDuplications(1, Arrays.asList(duplication));
 
     BatchReportReader sut = new BatchReportReader(dir);
     assertThat(sut.readComponentDuplications(1)).hasSize(1);
-    assertThat(sut.readComponentDuplications(1).get(0).getOriginBlock()).isNotNull();
-    assertThat(sut.readComponentDuplications(1).get(0).getDuplicatedByList()).hasSize(1);
+    assertThat(sut.readComponentDuplications(1).get(0).getOriginPosition()).isNotNull();
+    assertThat(sut.readComponentDuplications(1).get(0).getDuplicateList()).hasSize(1);
   }
 
   @Test

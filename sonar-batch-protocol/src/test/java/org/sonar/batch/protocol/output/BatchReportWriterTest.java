@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.ProtobufUtil;
+import org.sonar.batch.protocol.output.BatchReport.Range;
 
 import java.io.File;
 import java.util.Arrays;
@@ -203,17 +204,17 @@ public class BatchReportWriterTest {
     assertThat(writer.hasComponentData(FileStructure.Domain.DUPLICATIONS, 1)).isFalse();
 
     BatchReport.Duplication duplication = BatchReport.Duplication.newBuilder()
-      .setOriginBlock(BatchReport.DuplicationBlock.newBuilder()
-        .setComponentKey("COMPONENT_A")
-        .setOtherComponentRef(2)
+      .setOriginPosition(Range.newBuilder()
         .setStartLine(1)
         .setEndLine(5)
         .build())
-      .addDuplicatedBy(BatchReport.DuplicationBlock.newBuilder()
-        .setComponentKey("COMPONENT_A")
-        .setOtherComponentRef(2)
-        .setStartLine(6)
-        .setEndLine(10)
+      .addDuplicate(BatchReport.Duplicate.newBuilder()
+        .setOtherFileKey("COMPONENT_A")
+        .setOtherFileRef(2)
+        .setRange(Range.newBuilder()
+          .setStartLine(6)
+          .setEndLine(10)
+          .build())
         .build())
       .build();
     writer.writeComponentDuplications(1, Arrays.asList(duplication));
@@ -257,7 +258,7 @@ public class BatchReportWriterTest {
     File file = writer.getFileStructure().fileFor(FileStructure.Domain.SYMBOLS, 1);
     assertThat(file).exists().isFile();
     BatchReport.Symbols read = ProtobufUtil.readFile(file, BatchReport.Symbols.PARSER);
-    assertThat(read.getComponentRef()).isEqualTo(1);
+    assertThat(read.getFileRef()).isEqualTo(1);
     assertThat(read.getSymbolList()).hasSize(1);
   }
 
@@ -281,7 +282,7 @@ public class BatchReportWriterTest {
     File file = writer.getFileStructure().fileFor(FileStructure.Domain.SYNTAX_HIGHLIGHTING, 1);
     assertThat(file).exists().isFile();
     BatchReport.SyntaxHighlighting syntaxHighlighting = ProtobufUtil.readFile(file, BatchReport.SyntaxHighlighting.PARSER);
-    assertThat(syntaxHighlighting.getComponentRef()).isEqualTo(1);
+    assertThat(syntaxHighlighting.getFileRef()).isEqualTo(1);
     assertThat(syntaxHighlighting.getHighlightingRuleList()).hasSize(1);
   }
 }

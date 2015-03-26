@@ -168,20 +168,19 @@ message Scm {
   }
 }
 
-
-message DuplicationBlock {
-  // Will be null on original blocks or when duplications are on the same file
-  optional int32 other_component_ref = 1;
-  optional int32 start_line = 2;
-  optional int32 end_line = 3;
+message Duplicate {
+  // Will be null when duplicate is in the same file
+  optional int32 other_file_ref = 1;
+  optional Range range = 2;
 
   // temporary field during development of computation stack for cross project duplications
-  optional string component_key = 4;
+  optional string other_file_key = 3;
 }
 
 message Duplication {
-  optional DuplicationBlock origin_block = 1;
-  repeated DuplicationBlock duplicated_by = 2;
+  // Origin position in current file
+  optional Range origin_position = 1;
+  repeated Duplicate duplicate = 2;
 }
 
 message Duplications {
@@ -189,15 +188,20 @@ message Duplications {
   repeated Duplication duplication = 2;
 }
 
+// Lines start at 1 and line offsets start at 0
 message Range {
+  // Should never be null
   optional int32 start_line = 1;
+  // End line (inclusive). Null means it is same as start line
   optional int32 end_line = 2;
+  // If null it means range starts at the first offset of start line
   optional int32 start_offset = 3;
+  // If null it means range ends at the last offset of end line
   optional int32 end_offset = 4;
 }
 
 message Symbols {
-  optional int32 component_ref = 1;
+  optional int32 file_ref = 1;
   repeated Symbol symbol = 2;
 
   message Symbol {
@@ -207,7 +211,7 @@ message Symbols {
 }
 
 message SyntaxHighlighting {
-  optional int32 component_ref = 1;
+  optional int32 file_ref = 1;
   // Rule must be sorted by line and start offset
   repeated HighlightingRule highlighting_rule = 2;
 

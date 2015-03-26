@@ -26,10 +26,10 @@ import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.BatchResource;
 import org.sonar.batch.index.ResourceCache;
-import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.batch.protocol.output.*;
+import org.sonar.batch.protocol.output.BatchReport.Duplicate;
 import org.sonar.batch.protocol.output.BatchReport.Duplication;
-import org.sonar.batch.protocol.output.BatchReport.DuplicationBlock;
-import org.sonar.batch.protocol.output.BatchReportWriter;
+import org.sonar.batch.protocol.output.BatchReport.Range;
 
 public class DuplicationsPublisher implements ReportPublisher {
 
@@ -49,7 +49,7 @@ public class DuplicationsPublisher implements ReportPublisher {
         Iterable<org.sonar.batch.protocol.output.BatchReport.Duplication> reportDuplications = Iterables.transform(dups,
           new Function<DefaultDuplication, BatchReport.Duplication>() {
             private final BatchReport.Duplication.Builder dupBuilder = BatchReport.Duplication.newBuilder();
-            private final BatchReport.DuplicationBlock.Builder blockBuilder = BatchReport.DuplicationBlock.newBuilder();
+            private final BatchReport.Duplicate.Builder blockBuilder = BatchReport.Duplicate.newBuilder();
 
             @Override
             public BatchReport.Duplication apply(DefaultDuplication input) {
@@ -62,27 +62,31 @@ public class DuplicationsPublisher implements ReportPublisher {
     }
   }
 
-  private Duplication toReportDuplication(String currentComponentKey, Duplication.Builder dupBuilder, DuplicationBlock.Builder blockBuilder, DefaultDuplication input) {
+  private Duplication toReportDuplication(String currentComponentKey, Duplication.Builder dupBuilder, Duplicate.Builder blockBuilder, DefaultDuplication input) {
     dupBuilder.clear();
     Block originBlock = input.originBlock();
     blockBuilder.clear();
-    dupBuilder.setOriginBlock(blockBuilder
+    dupBuilder.setOriginPosition(Range.newBuilder()
       .setStartLine(originBlock.startLine())
-      .setEndLine(originBlock.startLine() + originBlock.length() - 1).build());
+      .setEndLine(originBlock.startLine() + originBlock.length() - 1)
+      .build());
     for (Block duplicate : input.duplicates()) {
       blockBuilder.clear();
       String componentKey = duplicate.resourceKey();
       if (!currentComponentKey.equals(componentKey)) {
         BatchResource sameProjectComponent = resourceCache.get(componentKey);
         if (sameProjectComponent != null) {
-          blockBuilder.setOtherComponentRef(sameProjectComponent.batchId());
+          blockBuilder.setOtherFileRef(sameProjectComponent.batchId());
         } else {
-          blockBuilder.setComponentKey(componentKey);
+          blockBuilder.setOtherFileKey(componentKey);
         }
       }
-      dupBuilder.addDuplicatedBy(blockBuilder
-        .setStartLine(duplicate.startLine())
-        .setEndLine(duplicate.startLine() + duplicate.length() - 1).build());
+      dupBuilder.addDuplicate(blockBuilder
+        .setRange(Range.newBuilder()
+          .setStartLine(duplicate.startLine())
+          .setEndLine(duplicate.startLine() + duplicate.length() - 1)
+          .build())
+        .build());
     }
     return dupBuilder.build();
   }

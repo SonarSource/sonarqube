@@ -25,6 +25,7 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.batch.protocol.output.BatchReport.Range;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.measure.db.MeasureDto;
@@ -99,8 +100,8 @@ public class PersistDuplicationMeasuresStep implements ComputationStep {
     for (BatchReport.Duplication duplication : duplications) {
       xml.append("<g>");
       appendDuplication(xml, ComponentKeys.createKey(parentComponent.getKey(), componentPath, duplicationContext.context().getReportMetadata().getBranch()),
-        duplication.getOriginBlock());
-      for (BatchReport.DuplicationBlock duplicationBlock : duplication.getDuplicatedByList()) {
+        duplication.getOriginPosition());
+      for (BatchReport.Duplicate duplicationBlock : duplication.getDuplicateList()) {
         processDuplicationBlock(duplicationContext, xml, duplicationBlock, parentComponent.getKey(), componentPath);
       }
       xml.append("</g>");
@@ -109,29 +110,33 @@ public class PersistDuplicationMeasuresStep implements ComputationStep {
     return xml.toString();
   }
 
-  private void processDuplicationBlock(DuplicationContext duplicationContext, StringBuilder xml, BatchReport.DuplicationBlock duplicationBlock, String parentComponentKey,
+  private void processDuplicationBlock(DuplicationContext duplicationContext, StringBuilder xml, BatchReport.Duplicate duplicate, String parentComponentKey,
     String componentPath) {
 
-    if (duplicationBlock.hasComponentKey()) {
+    if (duplicate.hasOtherFileKey()) {
       // componentKey is only set for cross project duplications
-      String crossProjectComponentKey = duplicationBlock.getComponentKey();
-      appendDuplication(xml, crossProjectComponentKey, duplicationBlock);
+      String crossProjectComponentKey = duplicate.getOtherFileKey();
+      appendDuplication(xml, crossProjectComponentKey, duplicate);
     } else {
       String branch = duplicationContext.context().getReportMetadata().getBranch();
-      if (duplicationBlock.hasOtherComponentRef()) {
+      if (duplicate.hasOtherFileRef()) {
         // Duplication is on a different file
-        BatchReport.Component duplicationComponent = duplicationContext.context().getReportReader().readComponent(duplicationBlock.getOtherComponentRef());
-        appendDuplication(xml, ComponentKeys.createKey(parentComponentKey, duplicationComponent.getPath(), branch), duplicationBlock);
+        BatchReport.Component duplicationComponent = duplicationContext.context().getReportReader().readComponent(duplicate.getOtherFileRef());
+        appendDuplication(xml, ComponentKeys.createKey(parentComponentKey, duplicationComponent.getPath(), branch), duplicate);
       } else {
         // Duplication is on a the same file
-        appendDuplication(xml, ComponentKeys.createKey(parentComponentKey, componentPath, branch), duplicationBlock);
+        appendDuplication(xml, ComponentKeys.createKey(parentComponentKey, componentPath, branch), duplicate);
       }
     }
   }
 
-  private static void appendDuplication(StringBuilder xml, String componentKey, BatchReport.DuplicationBlock duplicationBlock) {
-    int length = duplicationBlock.getEndLine() - duplicationBlock.getStartLine();
-    xml.append("<b s=\"").append(duplicationBlock.getStartLine())
+  private static void appendDuplication(StringBuilder xml, String componentKey, BatchReport.Duplicate duplicate) {
+    appendDuplication(xml, componentKey, duplicate.getRange());
+  }
+
+  private static void appendDuplication(StringBuilder xml, String componentKey, Range range) {
+    int length = range.getEndLine() - range.getStartLine() + 1;
+    xml.append("<b s=\"").append(range.getStartLine())
       .append("\" l=\"").append(length)
       .append("\" r=\"").append(StringEscapeUtils.escapeXml(componentKey))
       .append("\"/>");
