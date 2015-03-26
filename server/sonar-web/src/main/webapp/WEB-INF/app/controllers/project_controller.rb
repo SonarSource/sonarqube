@@ -104,7 +104,7 @@ class ProjectController < ApplicationController
 
     call_backend do
       if profile_id.blank?
-        Internal.quality_profiles.removeProjectByLanguage(language, project)
+        Internal.quality_profiles.removeProjectByLanguage(language, project.id())
       else
         profile = Internal.quality_profiles.profile(profile_id.to_i)
         Internal.quality_profiles.addProject(profile.key(), project.uuid())
