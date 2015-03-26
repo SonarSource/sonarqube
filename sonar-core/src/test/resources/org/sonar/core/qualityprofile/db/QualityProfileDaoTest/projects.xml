@@ -8,9 +8,9 @@
   <projects id="1" uuid="A" kee="org.codehaus.sonar:sonar" name="SonarQube"/>
   <projects id="2" uuid="B" kee="org.codehaus.sonar-plugins.java:java" name="SonarQube Java"/>
 
-  <project_profiles id="1" project_uuid="A" profile_key="java_sonar_way"/>
-  <project_profiles id="2" project_uuid="B" profile_key="java_sonar_way"/>
-  <project_profiles id="3" project_uuid="A" profile_key="js_sonar_way"/>
-  <project_profiles id="4" project_uuid="B" profile_key="js_sonar_way"/>
+  <project_qprofiles id="1" project_uuid="A" profile_key="java_sonar_way"/>
+  <project_qprofiles id="2" project_uuid="B" profile_key="java_sonar_way"/>
+  <project_qprofiles id="3" project_uuid="A" profile_key="js_sonar_way"/>
+  <project_qprofiles id="4" project_uuid="B" profile_key="js_sonar_way"/>
 
 </dataset>

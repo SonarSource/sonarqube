@@ -54,14 +54,14 @@ public class MoveProjectProfileAssociation extends BaseDataChange {
       Long id = row.getLong(1);
       String profileLanguage = extractLanguage(row.getString(2));
       String profileName = row.getString(3);
-      Long projectId = row.getLong(4);
+      Long projectId = row.getNullableLong(4);
       String projectUuid = row.getString(5);
  
       if (profileKeysByLanguageThenName.contains(profileLanguage, profileName)) {
         String profileKey = profileKeysByLanguageThenName.get(profileLanguage, profileName);
 
         if (projectUuid == null) {
-          if (projectId == null || projectId == 0L) {
+          if (projectId == null) {
             setDefaultProfile.setBoolean(1, true).setString(2, profileKey).execute();
           } else {
             LOGGER.warn(String.format("Profile with language '%s' and name '%s' is associated with unknown project '%d', ignored", profileLanguage, profileName, projectId));
@@ -98,7 +98,7 @@ public class MoveProjectProfileAssociation extends BaseDataChange {
     massUpdate.update("DELETE FROM properties WHERE id = ?");
 
     final Upsert setDefaultProfile = context.prepareUpsert("UPDATE rules_profiles SET is_default = ? WHERE kee = ?");
-    final Upsert associateProjectToProfile = context.prepareUpsert("INSERT INTO project_profiles (project_uuid, profile_key) VALUES (?, ?)");
+    final Upsert associateProjectToProfile = context.prepareUpsert("INSERT INTO project_qprofiles (project_uuid, profile_key) VALUES (?, ?)");
 
     try {
       massUpdate.execute(new ProjectProfileAssociationHandler(setDefaultProfile, associateProjectToProfile, profileKeysByLanguageThenName));

@@ -23,6 +23,6 @@
   <properties id="1" prop_key="polop.palap" text_value="Untouched" resource_id="[null]" user_id="[null]"/>
 
   <!-- Project 'Struts' uses profile 'Java Two', moved to association table -->
-  <project_profiles id="1" project_uuid="ABCD" profile_key="java-two"/>
+  <project_qprofiles id="1" project_uuid="ABCD" profile_key="java-two"/>
 
 </dataset>

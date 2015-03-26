@@ -24,12 +24,12 @@
 class CreateProjectProfiles < ActiveRecord::Migration
 
   def self.up
-    create_table :project_profiles do |t|
+    create_table :project_qprofiles do |t|
       t.column :project_uuid, :string, :limit => 50, :null => false
       t.column :profile_key, :string, :limit => 255, :null => false
     end
 
-    add_index 'project_profiles', ['project_uuid', 'profile_key'], :unique => true, :name => 'uniq_project_profiles'
+    add_index 'project_qprofiles', ['project_uuid', 'profile_key'], :unique => true, :name => 'uniq_project_qprofiles'
   end
 
 end

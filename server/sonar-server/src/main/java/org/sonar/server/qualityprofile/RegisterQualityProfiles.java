@@ -53,7 +53,6 @@ public class RegisterQualityProfiles implements ServerComponent {
   private static final Logger LOGGER = Loggers.get(RegisterQualityProfiles.class);
   private static final String DEFAULT_PROFILE_NAME = "Sonar way";
 
-  private final PersistentSettings settings;
   private final List<ProfileDefinition> definitions;
   private final BuiltInProfiles builtInProfiles;
   private final DbClient dbClient;
@@ -72,7 +71,6 @@ public class RegisterQualityProfiles implements ServerComponent {
   public RegisterQualityProfiles(PersistentSettings settings, BuiltInProfiles builtInProfiles,
     DbClient dbClient, QProfileFactory profileFactory, RuleActivator ruleActivator,
     List<ProfileDefinition> definitions, Languages languages) {
-    this.settings = settings;
     this.builtInProfiles = builtInProfiles;
     this.dbClient = dbClient;
     this.profileFactory = profileFactory;
@@ -151,13 +149,9 @@ public class RegisterQualityProfiles implements ServerComponent {
   }
 
   private void setDefault(String language, List<RulesProfile> profileDefs, DbSession session) {
-    boolean upToDate = false;
     QualityProfileDto currentDefault = dbClient.qualityProfileDao().getDefaultProfile(language, session);
-    if (currentDefault != null) {
-      upToDate = true;
-    }
 
-    if (!upToDate) {
+    if (currentDefault == null) {
       String defaultProfileName = nameOfDefaultProfile(profileDefs);
       LOGGER.info("Set default " + language + " profile: " + defaultProfileName);
       QualityProfileDto newDefaultProfile = dbClient.qualityProfileDao().getByNameAndLanguage(defaultProfileName, language, session);

@@ -36,7 +36,7 @@ public class MoveProjectProfileAssociationTest {
   @Before
   public void setUp() throws Exception {
     db.executeUpdateSql("truncate table projects");
-    db.executeUpdateSql("truncate table project_profiles");
+    db.executeUpdateSql("truncate table project_qprofiles");
     db.executeUpdateSql("truncate table properties");
     db.executeUpdateSql("truncate table rules_profiles");
 
@@ -52,14 +52,14 @@ public class MoveProjectProfileAssociationTest {
   public void migrate() throws Exception {
     db.prepareDbUnit(this.getClass(), "migrate.xml");
     migration.execute();
-    db.assertDbUnit(this.getClass(), "migrate-result.xml", "rules_profiles", "project_profiles");
+    db.assertDbUnit(this.getClass(), "migrate-result.xml", "rules_profiles", "project_qprofiles");
   }
 
   @Test
   public void not_migrate_already_migrated_data() throws Exception {
     db.prepareDbUnit(this.getClass(), "migrate-result.xml");
     migration.execute();
-    db.assertDbUnit(this.getClass(), "migrate-result.xml", "rules_profiles", "project_profiles");
+    db.assertDbUnit(this.getClass(), "migrate-result.xml", "rules_profiles", "project_qprofiles");
   }
 
 }
