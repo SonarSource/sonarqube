@@ -25,11 +25,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.measure.persistence.MeasureDao;
 import org.sonar.server.source.index.SourceLineDoc;
 import org.sonar.server.source.index.SourceLineIndex;
@@ -39,10 +37,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SourceServiceTest {
@@ -90,45 +87,6 @@ public class SourceServiceTest {
 
     verify(sourceDecorator).getDecoratedSourceAsHtml("source", "highlight", "symbols");
     verify(sourceDecorator).getDecoratedSourceAsHtml("source2", "highlight2", "symbols2");
-  }
-
-  @Test
-  public void get_scm_author_data() throws Exception {
-    service.getScmAuthorData(COMPONENT_UUID);
-    verify(measureDao).findByComponentKeyAndMetricKey(session, COMPONENT_UUID, CoreMetrics.SCM_AUTHORS_BY_LINE_KEY);
-  }
-
-  @Test
-  public void fail_to_get_scm_author_data_if_no_permission() throws Exception {
-    MockUserSession.set().setLogin("johh");
-    try {
-      service.getScmAuthorData(COMPONENT_UUID);
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(ForbiddenException.class);
-    }
-    verifyZeroInteractions(measureDao);
-  }
-
-  @Test
-  public void not_get_scm_author_data_if_no_data() throws Exception {
-    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_UUID);
-    when(measureDao.findByComponentKeyAndMetricKey(eq(session), anyString(), anyString())).thenReturn(null);
-    assertThat(service.getScmAuthorData(COMPONENT_UUID)).isNull();
-  }
-
-  @Test
-  public void get_scm_date_data() throws Exception {
-    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_UUID);
-    service.getScmDateData(COMPONENT_UUID);
-    verify(measureDao).findByComponentKeyAndMetricKey(session, COMPONENT_UUID, CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY);
-  }
-
-  @Test
-  public void not_get_scm_date_data_if_no_data() throws Exception {
-    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_UUID);
-    when(measureDao.findByComponentKeyAndMetricKey(eq(session), anyString(), anyString())).thenReturn(null);
-    assertThat(service.getScmDateData(COMPONENT_UUID)).isNull();
   }
 
   @Test

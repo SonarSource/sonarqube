@@ -289,7 +289,8 @@ public class ProjectRepositoryLoader implements ServerComponent {
     }
 
     for (FilePathWithHashDto file : dbClient.componentDao().selectEnabledDescendantFiles(session, moduleKey)) {
-      FileData fileData = new FileData(file.getSrcHash(), false, null, null, null);
+      // TODO should query E/S to know if blame is missing on this file
+      FileData fileData = new FileData(file.getSrcHash(), true);
       ref.addFileData(moduleKeysByUuid.get(file.getModuleUuid()), file.getPath(), fileData);
     }
   }

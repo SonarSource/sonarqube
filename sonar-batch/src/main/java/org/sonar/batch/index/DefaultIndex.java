@@ -70,11 +70,7 @@ public class DefaultIndex extends SonarIndex {
     CoreMetrics.FILE_FEEDBACK_EDGES,
     CoreMetrics.FILE_TANGLE_INDEX,
     CoreMetrics.FILE_TANGLES,
-    // Computed by ScmSensor
-    CoreMetrics.SCM_AUTHORS_BY_LINE,
-    CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE,
-    CoreMetrics.SCM_REVISIONS_BY_LINE,
-    // Computed by core duplication plugin
+    // Computed by CpdSensor
     CoreMetrics.DUPLICATIONS_DATA,
     CoreMetrics.DUPLICATION_LINES_DATA,
     CoreMetrics.DUPLICATED_FILES,

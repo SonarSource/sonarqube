@@ -21,6 +21,8 @@ package org.sonar.server.computation.issue;
 
 import org.apache.commons.lang.StringUtils;
 import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.batch.protocol.output.BatchReport.Scm.Changeset;
+import org.sonar.batch.protocol.output.BatchReport.Scm.Changeset.Builder;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.server.source.index.SourceLineDoc;
 import org.sonar.server.source.index.SourceLineIndex;
@@ -28,6 +30,7 @@ import org.sonar.server.source.index.SourceLineIndex;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -120,17 +123,29 @@ public class SourceLinesCache {
     BatchReport.Scm.Builder scmBuilder = BatchReport.Scm.newBuilder()
       .setComponentRef(currentFileReportRef);
     for (SourceLineDoc sourceLine : lines) {
-      if (changesetByRevision.get(sourceLine.scmRevision()) == null) {
-        BatchReport.Scm.Changeset changeset = BatchReport.Scm.Changeset.newBuilder()
-          .setAuthor(sourceLine.scmAuthor())
-          .setDate(sourceLine.scmDate().getTime())
-          .setRevision(sourceLine.scmRevision())
-          .build();
+      String scmRevision = sourceLine.scmRevision();
+      if (scmRevision == null || changesetByRevision.get(scmRevision) == null) {
+        Builder changeSetBuilder = BatchReport.Scm.Changeset.newBuilder();
+        String scmAuthor = sourceLine.scmAuthor();
+        if (scmAuthor != null) {
+          changeSetBuilder.setAuthor(scmAuthor);
+        }
+        Date scmDate = sourceLine.scmDate();
+        if (scmDate != null) {
+          changeSetBuilder.setDate(scmDate.getTime());
+        }
+        if (scmRevision != null) {
+          changeSetBuilder.setRevision(scmRevision);
+        }
+
+        Changeset changeset = changeSetBuilder.build();
         scmBuilder.addChangeset(changeset);
         scmBuilder.addChangesetIndexByLine(scmBuilder.getChangesetCount() - 1);
-        changesetByRevision.put(sourceLine.scmRevision(), changeset);
+        if (scmRevision != null) {
+          changesetByRevision.put(scmRevision, changeset);
+        }
       } else {
-        scmBuilder.addChangesetIndexByLine(scmBuilder.getChangesetList().indexOf(changesetByRevision.get(sourceLine.scmRevision())));
+        scmBuilder.addChangesetIndexByLine(scmBuilder.getChangesetList().indexOf(changesetByRevision.get(scmRevision)));
       }
     }
     return scmBuilder.build();

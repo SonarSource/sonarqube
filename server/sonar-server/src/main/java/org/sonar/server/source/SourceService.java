@@ -23,18 +23,12 @@ package org.sonar.server.source;
 import org.apache.commons.lang.ObjectUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.web.UserRole;
-import org.sonar.core.measure.db.MeasureDto;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.index.SourceLineDoc;
 import org.sonar.server.source.index.SourceLineIndex;
-import org.sonar.server.user.UserSession;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.List;
 
 public class SourceService implements ServerComponent {
@@ -73,35 +67,5 @@ public class SourceService implements ServerComponent {
       lines.add(sourceDecorator.getDecoratedSourceAsHtml(lineDoc.source(), lineDoc.highlighting(), lineDoc.symbols()));
     }
     return lines;
-  }
-
-  @CheckForNull
-  public String getScmAuthorData(String fileKey) {
-    checkPermission(fileKey);
-    return findDataFromComponent(fileKey, CoreMetrics.SCM_AUTHORS_BY_LINE_KEY);
-  }
-
-  @CheckForNull
-  public String getScmDateData(String fileKey) {
-    checkPermission(fileKey);
-    return findDataFromComponent(fileKey, CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY);
-  }
-
-  private void checkPermission(String fileKey) {
-    UserSession.get().checkComponentPermission(UserRole.CODEVIEWER, fileKey);
-  }
-
-  @CheckForNull
-  private String findDataFromComponent(String fileKey, String metricKey) {
-    DbSession session = dbClient.openSession(false);
-    try {
-      MeasureDto data = dbClient.measureDao().findByComponentKeyAndMetricKey(session, fileKey, metricKey);
-      if (data != null) {
-        return data.getData();
-      }
-      return null;
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
   }
 }

@@ -19,15 +19,10 @@
  */
 package org.sonar.plugins.core.timemachine;
 
-import org.sonar.batch.components.Period;
-
-import org.sonar.batch.components.TimeMachineConfiguration;
-import org.sonar.api.batch.RequiresDB;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.ObjectUtils;
 import org.sonar.api.batch.*;
-import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
@@ -35,6 +30,13 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.KeyValueFormat;
+import org.sonar.batch.components.Period;
+import org.sonar.batch.components.TimeMachineConfiguration;
+import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.protocol.output.BatchReport.Scm;
+import org.sonar.batch.protocol.output.BatchReport.Scm.Changeset;
+import org.sonar.batch.protocol.output.BatchReportReader;
+import org.sonar.batch.report.PublishReportJob;
 
 import javax.annotation.Nullable;
 
@@ -50,16 +52,20 @@ import java.util.Map;
 @DependedUpon(DecoratorBarriers.END_OF_TIME_MACHINE)
 public abstract class AbstractNewCoverageFileAnalyzer implements Decorator {
 
-  private List<PeriodStruct> structs;
+  private final List<PeriodStruct> structs;
+  private final PublishReportJob publishReportJob;
+  private final ResourceCache resourceCache;
 
-  public AbstractNewCoverageFileAnalyzer(TimeMachineConfiguration timeMachineConfiguration) {
-    structs = Lists.newArrayList();
+  public AbstractNewCoverageFileAnalyzer(TimeMachineConfiguration timeMachineConfiguration, PublishReportJob publishReportJob, ResourceCache resourceCache) {
+    this(Lists.<PeriodStruct>newArrayList(), publishReportJob, resourceCache);
     for (Period period : timeMachineConfiguration.periods()) {
       structs.add(new PeriodStruct(period.getIndex(), period.getDate()));
     }
   }
 
-  AbstractNewCoverageFileAnalyzer(List<PeriodStruct> structs) {
+  AbstractNewCoverageFileAnalyzer(List<PeriodStruct> structs, PublishReportJob publishReportJob, ResourceCache resourceCache) {
+    this.resourceCache = resourceCache;
+    this.publishReportJob = publishReportJob;
     this.structs = structs;
   }
 
@@ -89,8 +95,7 @@ public abstract class AbstractNewCoverageFileAnalyzer implements Decorator {
   @DependsUpon
   public List<Metric> dependsOnMetrics() {
 
-    return Arrays.asList(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE,
-      getCoverageLineHitsDataMetric(), getConditionsByLineMetric(), getCoveredConditionsByLineMetric());
+    return Arrays.asList(getCoverageLineHitsDataMetric(), getConditionsByLineMetric(), getCoveredConditionsByLineMetric());
   }
 
   @DependedUpon
@@ -112,11 +117,11 @@ public abstract class AbstractNewCoverageFileAnalyzer implements Decorator {
   }
 
   private boolean parse(DecoratorContext context) {
-    Measure lastCommits = context.getMeasure(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE);
+    BatchReportReader reader = new BatchReportReader(publishReportJob.getReportDir());
+    Scm componentScm = reader.readComponentScm(resourceCache.get(context.getResource()).batchId());
     Measure hitsByLineMeasure = context.getMeasure(getCoverageLineHitsDataMetric());
 
-    if (lastCommits != null && lastCommits.hasData() && hitsByLineMeasure != null && hitsByLineMeasure.hasData()) {
-      Map<Integer, Date> datesByLine = KeyValueFormat.parseIntDateTime(lastCommits.getData());
+    if (componentScm != null && hitsByLineMeasure != null && hitsByLineMeasure.hasData()) {
       Map<Integer, Integer> hitsByLine = parseCountByLine(hitsByLineMeasure);
       Map<Integer, Integer> conditionsByLine = parseCountByLine(context.getMeasure(getConditionsByLineMetric()));
       Map<Integer, Integer> coveredConditionsByLine = parseCountByLine(context.getMeasure(getCoveredConditionsByLineMetric()));
@@ -128,7 +133,8 @@ public abstract class AbstractNewCoverageFileAnalyzer implements Decorator {
         int hits = entry.getValue();
         int conditions = (Integer) ObjectUtils.defaultIfNull(conditionsByLine.get(lineId), 0);
         int coveredConditions = (Integer) ObjectUtils.defaultIfNull(coveredConditionsByLine.get(lineId), 0);
-        Date date = datesByLine.get(lineId);
+        Changeset changeset = componentScm.getChangeset(componentScm.getChangesetIndexByLine(lineId - 1));
+        Date date = changeset.hasDate() ? new Date(changeset.getDate()) : null;
         for (PeriodStruct struct : structs) {
           struct.analyze(date, hits, conditions, coveredConditions);
         }

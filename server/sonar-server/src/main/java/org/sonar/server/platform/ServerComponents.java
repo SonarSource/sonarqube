@@ -599,10 +599,8 @@ class ServerComponents {
     pico.addSingleton(ShowAction.class);
     pico.addSingleton(LinesAction.class);
     pico.addSingleton(HashAction.class);
-    pico.addSingleton(ScmWriter.class);
     pico.addSingleton(RawAction.class);
     pico.addSingleton(IndexAction.class);
-    pico.addSingleton(ScmAction.class);
     pico.addSingleton(SourceLineIndexDefinition.class);
     pico.addSingleton(SourceLineIndex.class);
     pico.addSingleton(SourceLineIndexer.class);

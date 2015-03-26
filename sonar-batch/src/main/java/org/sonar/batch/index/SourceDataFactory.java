@@ -30,10 +30,13 @@ import org.sonar.api.batch.sensor.highlighting.internal.SyntaxHighlightingRule;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.source.Symbol;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.highlighting.SyntaxHighlightingData;
+import org.sonar.batch.protocol.output.BatchReport.Scm;
+import org.sonar.batch.protocol.output.BatchReport.Scm.Changeset;
+import org.sonar.batch.protocol.output.BatchReportReader;
+import org.sonar.batch.report.PublishReportJob;
 import org.sonar.batch.scan.filesystem.InputFileMetadata;
 import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.batch.source.CodeColorizers;
@@ -41,6 +44,7 @@ import org.sonar.batch.symbol.SymbolData;
 import org.sonar.core.source.SnapshotDataTypes;
 import org.sonar.core.source.db.FileSourceDto;
 import org.sonar.server.source.db.FileSourceDb;
+import org.sonar.server.source.db.FileSourceDb.Data.Builder;
 
 import java.io.IOException;
 import java.util.*;
@@ -57,18 +61,24 @@ public class SourceDataFactory implements BatchComponent {
   private final ComponentDataCache componentDataCache;
   private final DuplicationCache duplicationCache;
   private final CodeColorizers codeColorizers;
+  private final PublishReportJob publishReportJob;
+
+  private final ResourceCache resourceCache;
 
   public SourceDataFactory(MeasureCache measureCache, ComponentDataCache componentDataCache,
-    DuplicationCache duplicationCache, CodeColorizers codeColorizers) {
+    DuplicationCache duplicationCache, CodeColorizers codeColorizers, PublishReportJob publishReportJob, ResourceCache resourceCache) {
     this.measureCache = measureCache;
     this.componentDataCache = componentDataCache;
     this.duplicationCache = duplicationCache;
     this.codeColorizers = codeColorizers;
+    this.publishReportJob = publishReportJob;
+    this.resourceCache = resourceCache;
   }
 
   public byte[] consolidateData(DefaultInputFile inputFile, InputFileMetadata metadata) throws IOException {
     FileSourceDb.Data.Builder dataBuilder = createForSource(inputFile);
     applyLineMeasures(inputFile, dataBuilder);
+    applyScm(inputFile, dataBuilder);
     applyDuplications(inputFile.key(), dataBuilder);
     applyHighlighting(inputFile, metadata, dataBuilder);
     applySymbolReferences(inputFile, metadata, dataBuilder);
@@ -90,25 +100,30 @@ public class SourceDataFactory implements BatchComponent {
     return result;
   }
 
+  void applyScm(DefaultInputFile inputFile, Builder dataBuilder) {
+    BatchReportReader reader = new BatchReportReader(publishReportJob.getReportDir());
+    Scm componentScm = reader.readComponentScm(resourceCache.get(inputFile).batchId());
+    if (componentScm != null) {
+      for (int i = 0; i < componentScm.getChangesetIndexByLineCount(); i++) {
+        int index = componentScm.getChangesetIndexByLine(i);
+        Changeset changeset = componentScm.getChangeset(index);
+        if (i < dataBuilder.getLinesCount()) {
+          FileSourceDb.Line.Builder lineBuilder = dataBuilder.getLinesBuilder(i);
+          if (changeset.hasAuthor()) {
+            lineBuilder.setScmAuthor(changeset.getAuthor());
+          }
+          if (changeset.hasRevision()) {
+            lineBuilder.setScmRevision(changeset.getRevision());
+          }
+          if (changeset.hasDate()) {
+            lineBuilder.setScmDate(changeset.getDate());
+          }
+        }
+      }
+    }
+  }
+
   void applyLineMeasures(DefaultInputFile file, FileSourceDb.Data.Builder dataBuilder) {
-    applyLineMeasure(file.key(), CoreMetrics.SCM_AUTHORS_BY_LINE_KEY, dataBuilder, new MeasureOperation() {
-      @Override
-      public void apply(String value, FileSourceDb.Line.Builder lineBuilder) {
-        lineBuilder.setScmAuthor(value);
-      }
-    });
-    applyLineMeasure(file.key(), CoreMetrics.SCM_REVISIONS_BY_LINE_KEY, dataBuilder, new MeasureOperation() {
-      @Override
-      public void apply(String value, FileSourceDb.Line.Builder lineBuilder) {
-        lineBuilder.setScmRevision(value);
-      }
-    });
-    applyLineMeasure(file.key(), CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY, dataBuilder, new MeasureOperation() {
-      @Override
-      public void apply(String value, FileSourceDb.Line.Builder lineBuilder) {
-        lineBuilder.setScmDate(DateUtils.parseDateTimeQuietly(value).getTime());
-      }
-    });
     applyLineMeasure(file.key(), CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY, dataBuilder, new MeasureOperation() {
       @Override
       public void apply(String value, FileSourceDb.Line.Builder lineBuilder) {
@@ -167,17 +182,16 @@ public class SourceDataFactory implements BatchComponent {
 
   void applyLineMeasure(String inputFileKey, String metricKey, FileSourceDb.Data.Builder to, MeasureOperation op) {
     Iterable<Measure> measures = measureCache.byMetric(inputFileKey, metricKey);
-    if (measures != null) {
-      for (Measure measure : measures) {
-        Map<Integer, String> lineMeasures = KeyValueFormat.parseIntString((String) measure.value());
-        for (Map.Entry<Integer, String> lineMeasure : lineMeasures.entrySet()) {
-          int lineIdx = lineMeasure.getKey();
-          if (lineIdx <= to.getLinesCount()) {
-            String value = lineMeasure.getValue();
-            if (StringUtils.isNotEmpty(value)) {
-              FileSourceDb.Line.Builder lineBuilder = to.getLinesBuilder(lineIdx - 1);
-              op.apply(value, lineBuilder);
-            }
+    if (measures.iterator().hasNext()) {
+      Measure measure = measures.iterator().next();
+      Map<Integer, String> lineMeasures = KeyValueFormat.parseIntString((String) measure.value());
+      for (Map.Entry<Integer, String> lineMeasure : lineMeasures.entrySet()) {
+        int lineIdx = lineMeasure.getKey();
+        if (lineIdx <= to.getLinesCount()) {
+          String value = lineMeasure.getValue();
+          if (StringUtils.isNotEmpty(value)) {
+            FileSourceDb.Line.Builder lineBuilder = to.getLinesBuilder(lineIdx - 1);
+            op.apply(value, lineBuilder);
           }
         }
       }

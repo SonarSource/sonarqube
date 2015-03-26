@@ -26,16 +26,10 @@ public class FileData {
 
   private final String hash;
   private final boolean needBlame;
-  private final String scmLastCommitDatetimesByLine;
-  private final String scmRevisionsByLine;
-  private final String scmAuthorsByLine;
 
-  public FileData(@Nullable String hash, boolean needBlame, @Nullable String scmLastCommitDatetimesByLine, @Nullable String scmRevisionsByLine, @Nullable String scmAuthorsByLine) {
+  public FileData(@Nullable String hash, boolean needBlame) {
     this.hash = hash;
     this.needBlame = needBlame;
-    this.scmLastCommitDatetimesByLine = scmLastCommitDatetimesByLine;
-    this.scmRevisionsByLine = scmRevisionsByLine;
-    this.scmAuthorsByLine = scmAuthorsByLine;
   }
 
   @CheckForNull
@@ -45,21 +39,6 @@ public class FileData {
 
   public boolean needBlame() {
     return needBlame;
-  }
-
-  @CheckForNull
-  public String scmLastCommitDatetimesByLine() {
-    return scmLastCommitDatetimesByLine;
-  }
-
-  @CheckForNull
-  public String scmRevisionsByLine() {
-    return scmRevisionsByLine;
-  }
-
-  @CheckForNull
-  public String scmAuthorsByLine() {
-    return scmAuthorsByLine;
   }
 
 }

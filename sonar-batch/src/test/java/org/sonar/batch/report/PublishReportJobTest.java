@@ -23,16 +23,19 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
-import org.sonar.api.resources.Project;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class PublishReportJobTest extends AbstractDbUnitTestCase {
 
@@ -40,17 +43,20 @@ public class PublishReportJobTest extends AbstractDbUnitTestCase {
 
   ResourceCache resourceCache = mock(ResourceCache.class);
 
+  private ProjectReactor reactor;
+
   @Before
   public void setUp() {
     mode = mock(DefaultAnalysisMode.class);
+    reactor = mock(ProjectReactor.class);
+    when(reactor.getRoot()).thenReturn(ProjectDefinition.create().setKey("struts"));
   }
 
   @Test
   public void should_log_successful_analysis() throws Exception {
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.SERVER_BASE_URL, "http://myserver/");
-    Project project = new Project("struts");
-    PublishReportJob job = new PublishReportJob(settings, mock(ServerClient.class), mock(Server.class), project, mode, mock(TempFolder.class));
+    PublishReportJob job = new PublishReportJob(settings, mock(ServerClient.class), mock(Server.class), reactor, mode, mock(TempFolder.class), new ReportPublisher[0]);
 
     Logger logger = mock(Logger.class);
     job.logSuccess(logger);
@@ -63,8 +69,7 @@ public class PublishReportJobTest extends AbstractDbUnitTestCase {
   public void should_log_successful_preview_analysis() throws Exception {
     Settings settings = new Settings();
     when(mode.isPreview()).thenReturn(true);
-    Project project = new Project("struts");
-    PublishReportJob job = new PublishReportJob(settings, mock(ServerClient.class), mock(Server.class), project, mode, mock(TempFolder.class));
+    PublishReportJob job = new PublishReportJob(settings, mock(ServerClient.class), mock(Server.class), reactor, mode, mock(TempFolder.class), new ReportPublisher[0]);
 
     Logger logger = mock(Logger.class);
     job.logSuccess(logger);

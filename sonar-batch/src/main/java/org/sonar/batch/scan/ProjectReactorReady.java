@@ -22,7 +22,6 @@ package org.sonar.batch.scan;
 import org.sonar.api.batch.bootstrap.ProjectBuilder;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.batch.bootstrap.internal.ProjectBuilderContext;
-import org.sonar.batch.repository.ProjectScmRepositoryLoader;
 
 import javax.annotation.Nullable;
 
@@ -43,27 +42,16 @@ public class ProjectReactorReady {
   private final ProjectBuilder[] projectBuilders;
   private final ProjectExclusions exclusions;
   private final ProjectReactorValidator validator;
-  private final ProjectScmRepositoryLoader projectScmRepositoryLoader;
 
-  public ProjectReactorReady(ProjectExclusions exclusions, ProjectReactor reactor, @Nullable ProjectBuilder[] projectBuilders, ProjectReactorValidator validator,
-    @Nullable ProjectScmRepositoryLoader projectScmRepositoryLoader) {
+  public ProjectReactorReady(ProjectExclusions exclusions, ProjectReactor reactor, @Nullable ProjectBuilder[] projectBuilders, ProjectReactorValidator validator) {
     this.exclusions = exclusions;
     this.reactor = reactor;
     this.projectBuilders = projectBuilders;
     this.validator = validator;
-    this.projectScmRepositoryLoader = projectScmRepositoryLoader;
-  }
-
-  public ProjectReactorReady(ProjectExclusions exclusions, ProjectReactor reactor, @Nullable ProjectBuilder[] projectBuilders, ProjectReactorValidator validator) {
-    this(exclusions, reactor, projectBuilders, validator, null);
-  }
-
-  public ProjectReactorReady(ProjectExclusions exclusions, ProjectReactor reactor, ProjectReactorValidator validator, ProjectScmRepositoryLoader projectScmRepositoryLoader) {
-    this(exclusions, reactor, new ProjectBuilder[0], validator, projectScmRepositoryLoader);
   }
 
   public ProjectReactorReady(ProjectExclusions exclusions, ProjectReactor reactor, ProjectReactorValidator validator) {
-    this(exclusions, reactor, new ProjectBuilder[0], validator, null);
+    this(exclusions, reactor, new ProjectBuilder[0], validator);
   }
 
   public void start() {
@@ -79,11 +67,6 @@ public class ProjectReactorReady {
 
     // 3 Validate final reactor
     validator.validate(reactor);
-
-    // 4 Complete missing SCM information from project repositories
-    if (projectScmRepositoryLoader != null) {
-      projectScmRepositoryLoader.complete();
-    }
 
   }
 }

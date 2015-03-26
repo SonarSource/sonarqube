@@ -38,6 +38,10 @@ import org.sonar.api.source.Symbol;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.highlighting.SyntaxHighlightingData;
 import org.sonar.batch.highlighting.SyntaxHighlightingDataBuilder;
+import org.sonar.batch.protocol.output.BatchReport.Scm;
+import org.sonar.batch.protocol.output.BatchReport.Scm.Changeset;
+import org.sonar.batch.protocol.output.BatchReportWriter;
+import org.sonar.batch.report.PublishReportJob;
 import org.sonar.batch.scan.filesystem.InputFileMetadata;
 import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.batch.source.CodeColorizers;
@@ -59,17 +63,25 @@ public class SourceDataFactoryTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  MeasureCache measureCache = mock(MeasureCache.class);
-  ComponentDataCache componentDataCache = mock(ComponentDataCache.class);
-  DuplicationCache duplicationCache = mock(DuplicationCache.class);
-  CodeColorizers colorizers = mock(CodeColorizers.class);
-  DefaultInputFile inputFile;
-  InputFileMetadata metadata;
-  SourceDataFactory sut = new SourceDataFactory(measureCache, componentDataCache, duplicationCache, colorizers);
-  FileSourceDb.Data.Builder output;
+  private MeasureCache measureCache = mock(MeasureCache.class);
+  private ComponentDataCache componentDataCache = mock(ComponentDataCache.class);
+  private DuplicationCache duplicationCache = mock(DuplicationCache.class);
+  private CodeColorizers colorizers = mock(CodeColorizers.class);
+  private DefaultInputFile inputFile;
+  private InputFileMetadata metadata;
+  private SourceDataFactory sut;
+  private FileSourceDb.Data.Builder output;
+  private File reportDir;
 
   @Before
   public void setUp() throws Exception {
+    PublishReportJob publishReportJob = mock(PublishReportJob.class);
+    reportDir = temp.newFolder();
+    when(publishReportJob.getReportDir()).thenReturn(reportDir);
+    ResourceCache resourceCache = new ResourceCache();
+    resourceCache.add(org.sonar.api.resources.File.create("src/Foo.java").setEffectiveKey("module_key:src/Foo.java"), null);
+    when(measureCache.byMetric(anyString(), anyString())).thenReturn(Collections.<Measure>emptyList());
+    sut = new SourceDataFactory(measureCache, componentDataCache, duplicationCache, colorizers, publishReportJob, resourceCache);
     // generate a file with 3 lines
     File baseDir = temp.newFolder();
     DefaultFileSystem fs = new DefaultFileSystem(baseDir.toPath());
@@ -137,10 +149,39 @@ public class SourceDataFactoryTest {
   }
 
   @Test
+  public void applyScm() throws Exception {
+    BatchReportWriter writer = new BatchReportWriter(reportDir);
+    writer.writeComponentScm(Scm.newBuilder().setComponentRef(1)
+      .addChangeset(Changeset.newBuilder()
+        .setRevision("ABC")
+        .setAuthor("him")
+        .setDate(123456L)
+        .build())
+      .addChangeset(Changeset.newBuilder()
+        .build())
+      .addChangesetIndexByLine(0)
+      .addChangesetIndexByLine(1)
+      .addChangesetIndexByLine(0)
+      // This should never happens but here there is 4 data but inputfile has only 3 lines
+      .addChangesetIndexByLine(1)
+      .build());
+
+    sut.applyScm(inputFile, output);
+
+    FileSourceDb.Data data = output.build();
+    assertThat(data.getLines(0).getScmRevision()).isEqualTo("ABC");
+    assertThat(data.getLines(0).getScmAuthor()).isEqualTo("him");
+
+    assertThat(data.getLines(1).hasScmRevision()).isFalse();
+    assertThat(data.getLines(1).hasScmAuthor()).isFalse();
+
+    assertThat(data.getLines(2).getScmRevision()).isEqualTo("ABC");
+    assertThat(data.getLines(2).getScmAuthor()).isEqualTo("him");
+
+  }
+
+  @Test
   public void applyLineMeasures() throws Exception {
-    setupLineMeasure(CoreMetrics.SCM_AUTHORS_BY_LINE, "1=him;2=her");
-    setupLineMeasure(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE, "1=2014-10-11T16:44:02+0100;2=2014-10-12T16:44:02+0100;3=2014-10-13T16:44:02+0100");
-    setupLineMeasure(CoreMetrics.SCM_REVISIONS_BY_LINE, "1=ABC;2=234;3=345");
     setupLineMeasure(CoreMetrics.COVERAGE_LINE_HITS_DATA, "1=10;3=4");
     setupLineMeasure(CoreMetrics.CONDITIONS_BY_LINE, "1=10;3=4");
     setupLineMeasure(CoreMetrics.CONDITIONS_BY_LINE, "1=10;3=4");
@@ -157,15 +198,11 @@ public class SourceDataFactoryTest {
     FileSourceDb.Data data = output.build();
     assertThat(data.getLines(0).getUtLineHits()).isEqualTo(10);
     assertThat(data.getLines(0).getItLineHits()).isEqualTo(11);
-    assertThat(data.getLines(0).getScmRevision()).isEqualTo("ABC");
-    assertThat(data.getLines(0).getScmAuthor()).isEqualTo("him");
 
     assertThat(data.getLines(1).hasUtLineHits()).isFalse();
     assertThat(data.getLines(1).getItLineHits()).isEqualTo(4);
-    assertThat(data.getLines(1).getScmAuthor()).isEqualTo("her");
 
     assertThat(data.getLines(2).getUtLineHits()).isEqualTo(4);
-    assertThat(data.getLines(2).hasScmAuthor()).isFalse();
   }
 
   private void setupLineMeasure(Metric metric, String dataPerLine) {
