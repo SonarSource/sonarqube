@@ -57,8 +57,7 @@ public class BatchReportReader {
   public BatchReport.Scm readComponentScm(int componentRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.SCM, componentRef);
     if (file.exists() && file.isFile()) {
-      BatchReport.Scm scm = ProtobufUtil.readFile(file, BatchReport.Scm.PARSER);
-      return scm;
+      return ProtobufUtil.readFile(file, BatchReport.Scm.PARSER);
     }
     return null;
   }
