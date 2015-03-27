@@ -34,7 +34,8 @@ public class FileStructure {
     DUPLICATIONS("duplications-"),
     SYNTAX_HIGHLIGHTING("syntax-highlighting-"),
     SCM("scm-"),
-    SYMBOLS("symbol-")
+    SYMBOLS("symbol-"),
+    COVERAGE("coverage-")
     ;
     
     private final String filePrefix;

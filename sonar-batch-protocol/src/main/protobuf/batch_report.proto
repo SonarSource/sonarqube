@@ -210,6 +210,24 @@ message Symbols {
   }
 }
 
+message Coverage {
+  // Only FILE component has coverage information
+  optional int32 file_ref = 1;
+
+  // List of number of conditions by line : 0 => not to cover, 1+ => number of conditions to cover
+  repeated int32 conditions_by_line = 2 [packed = true];
+  // List of unit test hits by line
+  repeated bool ut_hits_by_line = 3 [packed = true];
+  // List of integration test hits by line
+  repeated bool it_hits_by_line = 4 [packed = true];
+  // List of number of conditions covered by unit test by line
+  repeated int32 ut_covered_conditions_by_line = 5 [packed = true];
+  // List of number of conditions covered by integration test by line
+  repeated int32 it_covered_conditions_by_line = 6 [packed = true];
+  // List of number of conditions covered by overall test by line
+  repeated int32 overall_covered_conditions_by_line = 7 [packed = true];
+}
+
 message SyntaxHighlighting {
   optional int32 file_ref = 1;
   // Rule must be sorted by line and start offset
