@@ -30,10 +30,8 @@ import org.sonar.api.batch.rule.internal.DefaultActiveRule;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.MessageException;
-import org.sonar.core.issue.DefaultIssueBuilder;
 
 import javax.annotation.Nullable;
 
@@ -48,7 +46,7 @@ public class ModuleIssues {
   private final Project project;
   private final IssueFilters filters;
 
-  public ModuleIssues(ActiveRules activeRules, @Nullable Rules rules, IssueCache cache, @Nullable Project project, IssueFilters filters) {
+  public ModuleIssues(ActiveRules activeRules, @Nullable Rules rules, IssueCache cache, Project project, IssueFilters filters) {
     this.activeRules = activeRules;
     this.rules = rules;
     this.cache = cache;
@@ -56,33 +54,8 @@ public class ModuleIssues {
     this.filters = filters;
   }
 
-  public ModuleIssues(ActiveRules activeRules, IssueCache cache, @Nullable Project project, IssueFilters filters) {
+  public ModuleIssues(ActiveRules activeRules, IssueCache cache, Project project, IssueFilters filters) {
     this(activeRules, null, cache, project, filters);
-  }
-
-  /** 
-   * Used by scan2
-   */
-  public ModuleIssues(ActiveRules activeRules, Rules rules, IssueCache cache, IssueFilters filters) {
-    this(activeRules, rules, cache, null, filters);
-  }
-
-  public boolean initAndAddViolation(Violation violation) {
-    DefaultIssue issue = newIssue(violation);
-    return initAndAddIssue(issue);
-  }
-
-  private DefaultIssue newIssue(Violation violation) {
-    return new DefaultIssueBuilder()
-      .componentKey(violation.getResource().getEffectiveKey())
-      // Project can be null but Violation not used by scan2
-      .projectKey(project.getRoot().getEffectiveKey())
-      .ruleKey(RuleKey.of(violation.getRule().getRepositoryKey(), violation.getRule().getKey()))
-      .effortToFix(violation.getCost())
-      .line(violation.getLineId())
-      .message(violation.getMessage())
-      .severity(violation.getSeverity() != null ? violation.getSeverity().name() : null)
-      .build();
   }
 
   public boolean initAndAddIssue(DefaultIssue issue) {
@@ -119,10 +92,8 @@ public class ModuleIssues {
     if (Strings.isNullOrEmpty(issue.message())) {
       issue.setMessage(((DefaultActiveRule) activeRule).name());
     }
-    if (project != null) {
-      issue.setCreationDate(project.getAnalysisDate());
-      issue.setUpdateDate(project.getAnalysisDate());
-    }
+    issue.setCreationDate(project.getAnalysisDate());
+    issue.setUpdateDate(project.getAnalysisDate());
     if (issue.severity() == null) {
       issue.setSeverity(activeRule.severity());
     }

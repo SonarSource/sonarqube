@@ -20,6 +20,7 @@
 package org.sonar.api.batch.rule;
 
 import org.sonar.api.BatchComponent;
+import org.sonar.api.batch.RequiresDB;
 import org.sonar.api.rule.RuleKey;
 
 import javax.annotation.CheckForNull;
@@ -31,7 +32,10 @@ import java.util.Collection;
  * be extended by plugins.
  *
  * @since 4.2
+ * @deprecated since 5.2 no more possible to query any rule on batch side. Use {@link ActiveRules} to get active rules.
  */
+@Deprecated
+@RequiresDB
 public interface Rules extends BatchComponent {
 
   /**
