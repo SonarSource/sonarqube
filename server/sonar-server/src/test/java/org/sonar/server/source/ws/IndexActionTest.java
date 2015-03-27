@@ -66,7 +66,7 @@ public class IndexActionTest {
   public void setUp() throws Exception {
     when(dbClient.componentDao()).thenReturn(componentDao);
     when(dbClient.openSession(false)).thenReturn(session);
-    tester = new WsTester(new SourcesWs(mock(ShowAction.class), mock(RawAction.class), mock(ScmAction.class), mock(LinesAction.class),
+    tester = new WsTester(new SourcesWs(mock(ShowAction.class), mock(RawAction.class), mock(LinesAction.class),
       mock(HashAction.class), new IndexAction(dbClient, sourceService)));
   }
 
@@ -116,7 +116,7 @@ public class IndexActionTest {
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "index").setParam("resource", fileKey);
     try {
       request.execute();
-    } catch(NotFoundException nfe) {
+    } catch (NotFoundException nfe) {
       verify(session).close();
     }
   }

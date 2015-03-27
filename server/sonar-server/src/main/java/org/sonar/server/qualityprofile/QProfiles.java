@@ -101,20 +101,20 @@ public class QProfiles implements ServerComponent {
     return projectLookup.findProfileByProjectAndLanguage(projectId, language);
   }
 
-  public void addProject(int profileId, long projectId) {
-    projectOperations.addProject(profileId, projectId, UserSession.get());
+  public void addProject(String profileKey, String projectUuid) {
+    projectOperations.addProject(profileKey, projectUuid, UserSession.get());
   }
 
-  public void removeProject(int profileId, long projectId) {
-    projectOperations.removeProject(profileId, projectId, UserSession.get());
+  public void removeProject(String profileKey, String projectUuid) {
+    projectOperations.removeProject(profileKey, projectUuid, UserSession.get());
   }
 
   public void removeProjectByLanguage(String language, long projectId) {
     projectOperations.removeProject(language, projectId, UserSession.get());
   }
 
-  public void removeAllProjects(int profileId) {
-    projectOperations.removeAllProjects(profileId, UserSession.get());
+  public void removeAllProjects(String profileKey) {
+    projectOperations.removeAllProjects(profileKey, UserSession.get());
   }
 
   private void checkProfileNameParam(String name) {

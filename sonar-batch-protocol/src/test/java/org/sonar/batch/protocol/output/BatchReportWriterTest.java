@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.ProtobufUtil;
+import org.sonar.batch.protocol.output.BatchReport.Range;
 
 import java.io.File;
 import java.util.Arrays;
@@ -120,6 +121,32 @@ public class BatchReportWriterTest {
   }
 
   @Test
+  public void write_scm() throws Exception {
+    File dir = temp.newFolder();
+    BatchReportWriter writer = new BatchReportWriter(dir);
+
+    assertThat(writer.hasComponentData(FileStructure.Domain.SCM, 1)).isFalse();
+
+    BatchReport.Scm scm = BatchReport.Scm.newBuilder()
+      .setComponentRef(1)
+      .addChangesetIndexByLine(0)
+      .addChangeset(BatchReport.Scm.Changeset.newBuilder()
+        .setRevision("123-456-789")
+        .setAuthor("author")
+        .setDate(123_456_789L))
+      .build();
+
+    writer.writeComponentScm(scm);
+
+    assertThat(writer.hasComponentData(FileStructure.Domain.SCM, 1)).isTrue();
+    File file = writer.getFileStructure().fileFor(FileStructure.Domain.SCM, 1);
+    assertThat(file).exists().isFile();
+    BatchReport.Scm read = ProtobufUtil.readFile(file, BatchReport.Scm.PARSER);
+    assertThat(read.getComponentRef()).isEqualTo(1);
+    assertThat(read.getChangesetCount()).isEqualTo(1);
+  }
+
+  @Test
   public void write_measures() throws Exception {
     File dir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(dir);
@@ -167,5 +194,95 @@ public class BatchReportWriterTest {
     assertThat(read.getComponentRef()).isEqualTo(1);
     assertThat(read.getComponentUuid()).isEqualTo("componentUuid");
     assertThat(read.getIssueCount()).isEqualTo(1);
+  }
+
+  @Test
+  public void write_duplications() throws Exception {
+    File dir = temp.newFolder();
+    BatchReportWriter writer = new BatchReportWriter(dir);
+
+    assertThat(writer.hasComponentData(FileStructure.Domain.DUPLICATIONS, 1)).isFalse();
+
+    BatchReport.Duplication duplication = BatchReport.Duplication.newBuilder()
+      .setOriginPosition(Range.newBuilder()
+        .setStartLine(1)
+        .setEndLine(5)
+        .build())
+      .addDuplicate(BatchReport.Duplicate.newBuilder()
+        .setOtherFileKey("COMPONENT_A")
+        .setOtherFileRef(2)
+        .setRange(Range.newBuilder()
+          .setStartLine(6)
+          .setEndLine(10)
+          .build())
+        .build())
+      .build();
+    writer.writeComponentDuplications(1, Arrays.asList(duplication));
+
+    assertThat(writer.hasComponentData(FileStructure.Domain.DUPLICATIONS, 1)).isTrue();
+    File file = writer.getFileStructure().fileFor(FileStructure.Domain.DUPLICATIONS, 1);
+    assertThat(file).exists().isFile();
+    BatchReport.Duplications duplications = ProtobufUtil.readFile(file, BatchReport.Duplications.PARSER);
+    assertThat(duplications.getComponentRef()).isEqualTo(1);
+    assertThat(duplications.getDuplicationList()).hasSize(1);
+  }
+
+  @Test
+  public void write_symbols() throws Exception {
+    File dir = temp.newFolder();
+    BatchReportWriter writer = new BatchReportWriter(dir);
+
+    // no data yet
+    assertThat(writer.hasComponentData(FileStructure.Domain.SYMBOLS, 1)).isFalse();
+
+    // write data
+    BatchReport.Symbols.Symbol symbol = BatchReport.Symbols.Symbol.newBuilder()
+      .setDeclaration(BatchReport.Range.newBuilder()
+        .setStartLine(1)
+        .setStartOffset(3)
+        .setEndLine(1)
+        .setEndOffset(5)
+        .build())
+      .addReference(BatchReport.Range.newBuilder()
+        .setStartLine(10)
+        .setStartOffset(15)
+        .setEndLine(11)
+        .setEndOffset(2)
+        .build())
+      .build();
+
+    writer.writeComponentSymbols(1, Arrays.asList(symbol));
+
+    assertThat(writer.hasComponentData(FileStructure.Domain.SYMBOLS, 1)).isTrue();
+
+    File file = writer.getFileStructure().fileFor(FileStructure.Domain.SYMBOLS, 1);
+    assertThat(file).exists().isFile();
+    BatchReport.Symbols read = ProtobufUtil.readFile(file, BatchReport.Symbols.PARSER);
+    assertThat(read.getFileRef()).isEqualTo(1);
+    assertThat(read.getSymbolList()).hasSize(1);
+  }
+
+  @Test
+  public void write_syntax_highlighting() throws Exception {
+    File dir = temp.newFolder();
+    BatchReportWriter writer = new BatchReportWriter(dir);
+
+    assertThat(writer.hasComponentData(FileStructure.Domain.SYNTAX_HIGHLIGHTING, 1)).isFalse();
+
+    BatchReport.SyntaxHighlighting.HighlightingRule highlightingRule = BatchReport.SyntaxHighlighting.HighlightingRule.newBuilder()
+      .setRange(BatchReport.Range.newBuilder()
+        .setStartLine(1)
+        .setEndLine(1)
+        .build())
+      .setType(Constants.HighlightingType.ANNOTATION)
+      .build();
+    writer.writeComponentSyntaxHighlighting(1, Arrays.asList(highlightingRule));
+
+    assertThat(writer.hasComponentData(FileStructure.Domain.SYNTAX_HIGHLIGHTING, 1)).isTrue();
+    File file = writer.getFileStructure().fileFor(FileStructure.Domain.SYNTAX_HIGHLIGHTING, 1);
+    assertThat(file).exists().isFile();
+    BatchReport.SyntaxHighlighting syntaxHighlighting = ProtobufUtil.readFile(file, BatchReport.SyntaxHighlighting.PARSER);
+    assertThat(syntaxHighlighting.getFileRef()).isEqualTo(1);
+    assertThat(syntaxHighlighting.getHighlightingRuleList()).hasSize(1);
   }
 }

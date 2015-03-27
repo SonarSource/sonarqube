@@ -50,13 +50,7 @@ import org.sonar.core.source.SnapshotDataTypes;
 import javax.annotation.CheckForNull;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
 
@@ -96,8 +90,7 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
       String componentKey = measureEntry.key()[0].toString();
       InputFile file = inputFileCache.getFile(StringUtils.substringBeforeLast(componentKey, ":"), StringUtils.substringAfterLast(componentKey, ":"));
       Measure oldMeasure = measureEntry.value();
-      DefaultMeasure<Serializable> newMeasure = new DefaultMeasure<>()
-        .forMetric(oldMeasure.getMetric());
+      DefaultMeasure<Serializable> newMeasure = new DefaultMeasure<>().forMetric(oldMeasure.getMetric());
       if (file != null) {
         newMeasure.onFile(file);
       } else {

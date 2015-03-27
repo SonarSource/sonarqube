@@ -27,7 +27,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.i18n.I18n;
 import org.sonar.server.qualityprofile.QProfileService;
-import org.sonar.server.rule.RuleService;
 import org.sonar.server.ws.WsTester;
 
 import static org.mockito.Mockito.mock;
@@ -45,18 +44,15 @@ public class QProfileRestoreBuiltInActionTest {
 
   @Before
   public void setUp() throws Exception {
-    QProfileService profileService = mock(QProfileService.class);
-    RuleService ruleService = mock(RuleService.class);
     tester = new WsTester(new QProfilesWs(
-      new QProfileRestoreBuiltInAction(this.profileService),
-      new RuleActivationActions(profileService),
-      new BulkRuleActivationActions(profileService, ruleService, i18n)));
+      mock(RuleActivationActions.class),
+      mock(BulkRuleActivationActions.class),
+      mock(ProjectAssociationActions.class),
+      new QProfileRestoreBuiltInAction(profileService)));
   }
 
   @Test
   public void return_empty_result_when_no_infos_or_warnings() throws Exception {
-    //when(profileService.resetBuiltInProfilesForLanguage("java")).thenReturn(new QProfileResult());
-
     WsTester.TestRequest request = tester.newPostRequest("api/qualityprofiles", "restore_built_in").setParam("language", "java");
     request.execute().assertNoContent();
   }

@@ -25,13 +25,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Library;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.resources.ResourceUtils;
-import org.sonar.api.resources.Scopes;
+import org.sonar.api.resources.*;
 import org.sonar.api.security.ResourcePermissions;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.internal.Uuids;
@@ -213,7 +207,7 @@ public class ResourcePersister implements ScanPersister {
    * Everything except project and library
    */
   private Snapshot persistFileOrDirectory(Project project, Resource resource, @Nullable Resource parentReference) {
-    BatchResource moduleResource = resourceCache.get(project.getEffectiveKey());
+    BatchResource moduleResource = resourceCache.get(project);
     Integer moduleId = moduleResource.resource().getId();
     ResourceModel model = findOrCreateModel(resource, parentReference != null ? parentReference : project);
     model.setRootId(moduleId);
@@ -223,7 +217,7 @@ public class ResourcePersister implements ScanPersister {
 
     Snapshot parentSnapshot;
     if (parentReference != null) {
-      parentSnapshot = resourceCache.get(parentReference.getEffectiveKey()).snapshot();
+      parentSnapshot = resourceCache.get(parentReference).snapshot();
     } else {
       parentSnapshot = moduleResource.snapshot();
     }

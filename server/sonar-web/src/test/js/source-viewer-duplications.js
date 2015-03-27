@@ -21,14 +21,14 @@
 
 
 var lib = require('../lib'),
-    testName = lib.testName('Source Viewer');
+    testName = lib.testName('Source Viewer', 'Duplications');
 
 lib.initMessages();
 lib.changeWorkingDirectory('source-viewer-duplications');
 lib.configureCasper();
 
 
-casper.test.begin(testName('Duplications'), 4, function (test) {
+casper.test.begin(testName(), 4, function (test) {
   casper
       .start(lib.buildUrl('source-viewer'), function () {
         lib.setDefaultViewport();
@@ -64,6 +64,53 @@ casper.test.begin(testName('Duplications'), 4, function (test) {
         test.assertSelectorContains('.bubble-popup', 'Duplicated');
         test.assertSelectorContains('.bubble-popup', '12');
         test.assertSelectorContains('.bubble-popup', '16');
+      })
+
+      .then(function () {
+        lib.sendCoverage();
+      })
+
+      .run(function () {
+        test.done();
+      });
+});
+
+
+casper.test.begin(testName('In Removed Component'), 2, function (test) {
+  casper
+      .start(lib.buildUrl('source-viewer'), function () {
+        lib.setDefaultViewport();
+
+
+        lib.mockRequestFromFile('/api/components/app', 'app.json');
+        lib.mockRequestFromFile('/api/sources/lines', 'lines.json');
+        lib.mockRequestFromFile('/api/issues/search', 'issues.json');
+        lib.mockRequestFromFile('/api/duplications/show', 'duplications-removed.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/source-viewer/app.js']);
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('.source-line');
+      })
+
+      .then(function () {
+        test.assertElementCount('.source-line-duplications.source-line-duplicated', 5);
+        casper.click('.source-line-duplicated');
+        lib.waitForElementCount('.source-line-duplications-extra.source-line-duplicated', 5);
+      })
+
+      .then(function () {
+        casper.waitForSelector('.bubble-popup');
+      })
+
+      .then(function () {
+        lib.capture();
+        test.assertExists('.bubble-popup .alert');
       })
 
       .then(function () {

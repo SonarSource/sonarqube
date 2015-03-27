@@ -50,8 +50,8 @@ public class ProjectRepositoriesTest {
     ref.addActiveRule(activeRule);
     ref.setLastAnalysisDate(DATE_FORMAT.parse("2014-05-18T15:50:45+0100"));
     ref.setTimestamp(10);
-    ref.addFileData("foo", "src/main/java/Foo.java", new FileData("xyz", true, "1=12345,2=3456", "1=345,2=345", "1=henryju,2=gaudin"));
-    ref.addFileData("foo", "src/main/java/Foo2.java", new FileData("xyz", false, "1=12345,2=3456", "1=345,2=345", "1=henryju,2=gaudin"));
+    ref.addFileData("foo", "src/main/java/Foo.java", new FileData("xyz", true));
+    ref.addFileData("foo", "src/main/java/Foo2.java", new FileData("xyz", false));
 
     JsonAssert.assertJson(ref.toJson())
       .isSimilarTo(getClass().getResource("ProjectRepositoriesTest/testToJson.json"));
@@ -89,9 +89,6 @@ public class ProjectRepositoriesTest {
 
     assertThat(ref.fileData("foo", "src/main/java/Foo.java").hash()).isEqualTo("xyz");
     assertThat(ref.fileData("foo", "src/main/java/Foo.java").needBlame()).isTrue();
-    assertThat(ref.fileData("foo", "src/main/java/Foo.java").scmAuthorsByLine()).isEqualTo("1=henryju,2=gaudin");
-    assertThat(ref.fileData("foo", "src/main/java/Foo.java").scmLastCommitDatetimesByLine()).isEqualTo("1=12345,2=3456");
-    assertThat(ref.fileData("foo", "src/main/java/Foo.java").scmRevisionsByLine()).isEqualTo("1=345,2=345");
 
     assertThat(ref.lastAnalysisDate().getTime()).isEqualTo(DATE_FORMAT.parse("2014-10-31T00:00:00+0100").getTime());
   }

@@ -2,7 +2,7 @@
   "timestamp": 0,
   "metrics": [
     {
-      "id": 0,
+      "id": 1,
       "key": "coverage",
       "valueType": "PERCENT",
       "description": "Coverage by unit tests",

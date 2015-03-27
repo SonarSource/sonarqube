@@ -23,8 +23,10 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport.Issues;
 import org.sonar.batch.protocol.output.BatchReport.Metadata;
+import org.sonar.batch.protocol.output.BatchReport.Range;
 
 import java.io.File;
 import java.util.Arrays;
@@ -61,6 +63,100 @@ public class BatchReportReaderTest {
     assertThat(deletedComponentIssues.getIssueList()).hasSize(1);
     assertThat(sut.readComponentMeasures(1)).hasSize(1);
     assertThat(sut.readComponentMeasures(1).get(0).getStringValue()).isEqualTo("value_a");
+    assertThat(sut.readComponentScm(1).getChangesetList()).hasSize(1);
+    assertThat(sut.readComponentScm(1).getChangeset(0).getDate()).isEqualTo(123_456_789L);
+  }
+
+  @Test
+  public void read_duplications() throws Exception {
+    File dir = temp.newFolder();
+    BatchReportWriter writer = new BatchReportWriter(dir);
+
+    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+      .setRootComponentRef(1).build());
+
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(1).build());
+
+    BatchReport.Duplication duplication = BatchReport.Duplication.newBuilder()
+      .setOriginPosition(Range.newBuilder()
+        .setStartLine(1)
+        .setEndLine(5)
+        .build())
+      .addDuplicate(BatchReport.Duplicate.newBuilder()
+        .setOtherFileKey("COMPONENT_A")
+        .setOtherFileRef(2)
+        .setRange(Range.newBuilder()
+          .setStartLine(6)
+          .setEndLine(10)
+          .build())
+        .build())
+      .build();
+    writer.writeComponentDuplications(1, Arrays.asList(duplication));
+
+    BatchReportReader sut = new BatchReportReader(dir);
+    assertThat(sut.readComponentDuplications(1)).hasSize(1);
+    assertThat(sut.readComponentDuplications(1).get(0).getOriginPosition()).isNotNull();
+    assertThat(sut.readComponentDuplications(1).get(0).getDuplicateList()).hasSize(1);
+  }
+
+  @Test
+  public void read_syntax_highlighting() throws Exception {
+    File dir = temp.newFolder();
+    BatchReportWriter writer = new BatchReportWriter(dir);
+
+    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+      .setRootComponentRef(1).build());
+
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(1).build());
+
+    BatchReport.SyntaxHighlighting.HighlightingRule highlightingRule = BatchReport.SyntaxHighlighting.HighlightingRule.newBuilder()
+      .setRange(BatchReport.Range.newBuilder()
+        .setStartLine(1)
+        .setEndLine(1)
+        .build())
+      .setType(Constants.HighlightingType.ANNOTATION)
+      .build();
+    writer.writeComponentSyntaxHighlighting(1, Arrays.asList(highlightingRule));
+
+    BatchReportReader sut = new BatchReportReader(dir);
+    assertThat(sut.readComponentSyntaxHighlighting(1)).hasSize(1);
+    assertThat(sut.readComponentSyntaxHighlighting(1).get(0).getRange()).isNotNull();
+    assertThat(sut.readComponentSyntaxHighlighting(1).get(0).getType()).isEqualTo(Constants.HighlightingType.ANNOTATION);
+  }
+
+  @Test
+  public void read_symbols() throws Exception {
+    File dir = temp.newFolder();
+    BatchReportWriter writer = new BatchReportWriter(dir);
+
+    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+      .setRootComponentRef(1)
+      .build());
+
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(1).build());
+
+    writer.writeComponentSymbols(1, Arrays.asList(BatchReport.Symbols.Symbol.newBuilder()
+      .setDeclaration(BatchReport.Range.newBuilder()
+        .setStartLine(1)
+        .setStartOffset(3)
+        .setEndLine(1)
+        .setEndOffset(5)
+        .build())
+      .addReference(BatchReport.Range.newBuilder()
+        .setStartLine(10)
+        .setStartOffset(15)
+        .setEndLine(11)
+        .setEndOffset(2)
+        .build())
+      .build()));
+
+    sut = new BatchReportReader(dir);
+    assertThat(sut.readComponentSymbols(1)).hasSize(1);
+    assertThat(sut.readComponentSymbols(1).get(0).getDeclaration().getStartLine()).isEqualTo(1);
+    assertThat(sut.readComponentSymbols(1).get(0).getReference(0).getStartLine()).isEqualTo(10);
   }
 
   @Test(expected = IllegalStateException.class)
@@ -69,7 +165,7 @@ public class BatchReportReaderTest {
   }
 
   @Test(expected = IllegalStateException.class)
-   public void fail_if_missing_file_on_deleted_component() throws Exception {
+  public void fail_if_missing_file_on_deleted_component() throws Exception {
     sut.readDeletedComponentIssues(666);
   }
 
@@ -81,6 +177,11 @@ public class BatchReportReaderTest {
   @Test
   public void empty_list_if_no_measure_found() throws Exception {
     assertThat(sut.readComponentMeasures(666)).isEmpty();
+  }
+
+  @Test
+  public void null_if_no_scm_found() throws Exception {
+    assertThat(sut.readComponentScm(666)).isNull();
   }
 
   /**
@@ -117,7 +218,11 @@ public class BatchReportReaderTest {
 
     BatchReport.Measure.Builder measure = BatchReport.Measure.newBuilder()
       .setStringValue("value_a");
-
     writer.writeComponentMeasures(1, Arrays.asList(measure.build()));
+
+    BatchReport.Scm.Builder scm = BatchReport.Scm.newBuilder()
+      .setComponentRef(1)
+      .addChangeset(BatchReport.Scm.Changeset.newBuilder().setDate(123_456_789).setAuthor("jack.daniels").setRevision("123-456-789"));
+    writer.writeComponentScm(scm.build());
   }
 }

@@ -25,8 +25,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.UtcDateUtils;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.migration.v44.Migration44Mapper;
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.core.qualityprofile.db.QualityProfileMapper;
+import org.sonar.core.persistence.migration.v44.QProfileDto44;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.db.migrations.DatabaseMigration;
 
@@ -53,9 +52,8 @@ public class FeedQProfileDatesMigration implements DatabaseMigration {
     try {
       Date now = new Date(system.now());
       int i = 0;
-      QualityProfileMapper profileMapper = session.getMapper(QualityProfileMapper.class);
       Migration44Mapper migrationMapper = session.getMapper(Migration44Mapper.class);
-      for (QualityProfileDto profile : profileMapper.selectAll()) {
+      for (QProfileDto44 profile : migrationMapper.selectAllProfiles()) {
         Date createdAt = (Date) ObjectUtils.defaultIfNull(migrationMapper.selectProfileCreatedAt(profile.getId()), now);
         Date updatedAt = (Date) ObjectUtils.defaultIfNull(migrationMapper.selectProfileUpdatedAt(profile.getId()), now);
 

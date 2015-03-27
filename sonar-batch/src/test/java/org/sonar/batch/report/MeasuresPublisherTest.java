@@ -23,8 +23,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.sensor.duplication.Duplication;
-import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.measures.*;
 import org.sonar.api.measures.Metric.Level;
@@ -34,7 +32,6 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.technicaldebt.batch.Characteristic;
-import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.protocol.output.BatchReportWriter;
@@ -48,7 +45,6 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -58,7 +54,6 @@ public class MeasuresPublisherTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   private MeasureCache measureCache;
-  private DuplicationCache duplicationCache;
   private MeasuresPublisher publisher;
   private org.sonar.api.resources.File aFile = org.sonar.api.resources.File.create("org/foo/Bar.java");
 
@@ -72,9 +67,7 @@ public class MeasuresPublisherTest {
     resourceCache.add(p, null).setSnapshot(new Snapshot().setId(2));
     resourceCache.add(sampleFile, null);
     measureCache = mock(MeasureCache.class);
-    duplicationCache = mock(DuplicationCache.class);
     when(measureCache.byResource(any(Resource.class))).thenReturn(Collections.<Measure>emptyList());
-    when(duplicationCache.byComponent(anyString())).thenReturn(Collections.<DefaultDuplication>emptyList());
     MetricFinder metricFinder = mock(MetricFinder.class);
     when(metricFinder.findByKey(CoreMetrics.COVERAGE_KEY)).thenReturn(CoreMetrics.COVERAGE);
     when(metricFinder.findByKey(CoreMetrics.NEW_BLOCKER_VIOLATIONS_KEY)).thenReturn(CoreMetrics.NEW_BLOCKER_VIOLATIONS);
@@ -83,7 +76,7 @@ public class MeasuresPublisherTest {
     when(metricFinder.findByKey(CoreMetrics.SQALE_RATING_KEY)).thenReturn(CoreMetrics.SQALE_RATING);
     when(metricFinder.findByKey(CoreMetrics.TECHNICAL_DEBT_KEY)).thenReturn(CoreMetrics.TECHNICAL_DEBT);
     when(metricFinder.findByKey(CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY)).thenReturn(CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION);
-    publisher = new MeasuresPublisher(resourceCache, measureCache, duplicationCache, metricFinder);
+    publisher = new MeasuresPublisher(resourceCache, measureCache, metricFinder);
   }
 
   @Test
@@ -94,7 +87,8 @@ public class MeasuresPublisherTest {
       .setAlertStatus(Level.ERROR)
       .setAlertText("Foo")
       .setTendency(-1)
-      .setCharacteristic(mock(Characteristic.class));
+      .setCharacteristic(mock(Characteristic.class))
+      .setPersonId(2);
     // No value on new_xxx
     Measure measure2 = new Measure<>(CoreMetrics.NEW_BLOCKER_VIOLATIONS)
       .setVariation1(1.0)
@@ -135,37 +129,7 @@ public class MeasuresPublisherTest {
     assertThat(componentMeasures.get(0).getDoubleValue()).isEqualTo(2.0);
     assertThat(componentMeasures.get(0).getAlertStatus()).isEqualTo("ERROR");
     assertThat(componentMeasures.get(0).getAlertText()).isEqualTo("Foo");
-
-  }
-
-  @Test
-  public void publishMeasureAndDuplication() throws Exception {
-
-    Measure measure1 = new Measure<>(CoreMetrics.COVERAGE)
-      .setValue(2.0);
-
-    when(measureCache.byResource(sampleFile)).thenReturn(Arrays.asList(measure1));
-    DefaultDuplication dup1 = new DefaultDuplication()
-      .setOriginBlock(new Duplication.Block("foo:src/Foo.php", 1, 10))
-      .isDuplicatedBy("foo:src/Foo.php", 20, 50);
-    DefaultDuplication dup2 = new DefaultDuplication()
-      .setOriginBlock(new Duplication.Block("foo:src/Foo.php", 1, 10))
-      .isDuplicatedBy("another", 20, 50);
-    when(duplicationCache.byComponent("foo:src/Foo.php")).thenReturn(Arrays.asList(dup1, dup2));
-
-    File outputDir = temp.newFolder();
-    BatchReportWriter writer = new BatchReportWriter(outputDir);
-
-    publisher.publish(writer);
-
-    BatchReportReader reader = new BatchReportReader(outputDir);
-
-    assertThat(reader.readComponentMeasures(1)).hasSize(0);
-    List<org.sonar.batch.protocol.output.BatchReport.Measure> componentMeasures = reader.readComponentMeasures(2);
-    assertThat(componentMeasures).hasSize(2);
-    assertThat(componentMeasures.get(0).getStringValue())
-      .isEqualTo(
-        "<duplications><g><b s=\"1\" l=\"10\" r=\"foo:src/Foo.php\"/><b s=\"20\" l=\"31\" r=\"foo:src/Foo.php\"/></g><g><b s=\"1\" l=\"10\" r=\"foo:src/Foo.php\"/><b s=\"20\" l=\"31\" r=\"another\"/></g></duplications>");
+    assertThat(componentMeasures.get(0).getPersonId()).isEqualTo(2);
 
   }
 

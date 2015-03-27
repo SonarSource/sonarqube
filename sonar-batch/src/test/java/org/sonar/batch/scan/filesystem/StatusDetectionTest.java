@@ -30,8 +30,8 @@ public class StatusDetectionTest {
   @Test
   public void detect_status() throws Exception {
     ProjectRepositories ref = new ProjectRepositories();
-    ref.addFileData("foo", "src/Foo.java", new FileData("ABCDE", true, null, null, null));
-    ref.addFileData("foo", "src/Bar.java", new FileData("FGHIJ", true, null, null, null));
+    ref.addFileData("foo", "src/Foo.java", new FileData("ABCDE", true));
+    ref.addFileData("foo", "src/Bar.java", new FileData("FGHIJ", true));
     StatusDetection statusDetection = new StatusDetection(ref);
 
     assertThat(statusDetection.status("foo", "src/Foo.java", "ABCDE")).isEqualTo(InputFile.Status.SAME);

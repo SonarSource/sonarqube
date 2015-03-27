@@ -54,4 +54,9 @@ public final class Language {
     return Arrays.asList(fileSuffixes);
   }
 
+  @Override
+  public String toString() {
+    return name;
+  }
+
 }

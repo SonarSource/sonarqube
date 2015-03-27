@@ -379,10 +379,12 @@ class ServerComponents {
     pico.addSingleton(QProfileProjectLookup.class);
     pico.addSingleton(BuiltInProfiles.class);
     pico.addSingleton(QProfileRestoreBuiltInAction.class);
+    pico.addSingleton(QProfileSearchAction.class);
     pico.addSingleton(QProfilesWs.class);
     pico.addSingleton(ProfilesWs.class);
     pico.addSingleton(RuleActivationActions.class);
     pico.addSingleton(BulkRuleActivationActions.class);
+    pico.addSingleton(ProjectAssociationActions.class);
     pico.addSingleton(RuleActivator.class);
     pico.addSingleton(QProfileLoader.class);
     pico.addSingleton(QProfileExporters.class);
@@ -597,10 +599,8 @@ class ServerComponents {
     pico.addSingleton(ShowAction.class);
     pico.addSingleton(LinesAction.class);
     pico.addSingleton(HashAction.class);
-    pico.addSingleton(ScmWriter.class);
     pico.addSingleton(RawAction.class);
     pico.addSingleton(IndexAction.class);
-    pico.addSingleton(ScmAction.class);
     pico.addSingleton(SourceLineIndexDefinition.class);
     pico.addSingleton(SourceLineIndex.class);
     pico.addSingleton(SourceLineIndexer.class);

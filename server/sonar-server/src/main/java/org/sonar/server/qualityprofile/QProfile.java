@@ -34,6 +34,7 @@ public class QProfile {
   private String name;
   private String language;
   private String parent;
+  private boolean isDefault;
 
   /**
    * @deprecated in 4.4
@@ -93,17 +94,27 @@ public class QProfile {
     return parent != null;
   }
 
+  public QProfile setDefault(boolean isDefault) {
+    this.isDefault = isDefault;
+    return this;
+  }
+
   public static QProfile from(QualityProfileDto dto) {
     return new QProfile()
       .setId(dto.getId())
       .setKey(dto.getKey())
       .setName(dto.getName())
       .setLanguage(dto.getLanguage())
-      .setParent(dto.getParentKee());
+      .setParent(dto.getParentKee())
+      .setDefault(dto.isDefault());
   }
 
   @Override
   public String toString() {
     return new ReflectionToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
+  }
+
+  public boolean isDefault() {
+    return isDefault;
   }
 }

@@ -65,7 +65,7 @@ public class IssueChangelogMigrationTest {
 
     migration.execute();
 
-    db.assertDbUnit(getClass(), "migrate_issue_changelog_debt_result.xml", "issue_changes");
+    db.assertDbUnit(getClass(), "migrate_issue_changelog_debt_result.xml", new String[]{"updated_at"}, "issue_changes");
   }
 
   @Test

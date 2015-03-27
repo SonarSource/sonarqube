@@ -38,7 +38,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.DefaultIssueBuilder;
 import org.sonar.core.issue.IssueUpdater;
-import org.sonar.core.issue.db.IssueDao;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.core.issue.workflow.IssueWorkflow;
@@ -60,12 +59,8 @@ import org.sonar.server.user.index.UserIndex;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
 
 public class IssueService implements ServerComponent {
 
@@ -78,7 +73,6 @@ public class IssueService implements ServerComponent {
   private final NotificationManager notificationService;
   private final ActionPlanService actionPlanService;
   private final RuleFinder ruleFinder;
-  private final IssueDao deprecatedIssueDao;
   private final UserFinder userFinder;
   private final UserIndex userIndex;
   private final SourceLineIndex sourceLineIndex;
@@ -90,7 +84,6 @@ public class IssueService implements ServerComponent {
     NotificationManager notificationService,
     ActionPlanService actionPlanService,
     RuleFinder ruleFinder,
-    IssueDao deprecatedIssueDao,
     UserFinder userFinder,
     UserIndex userIndex, SourceLineIndex sourceLineIndex) {
     this.dbClient = dbClient;
@@ -101,7 +94,6 @@ public class IssueService implements ServerComponent {
     this.actionPlanService = actionPlanService;
     this.ruleFinder = ruleFinder;
     this.notificationService = notificationService;
-    this.deprecatedIssueDao = deprecatedIssueDao;
     this.userFinder = userFinder;
     this.userIndex = userIndex;
     this.sourceLineIndex = sourceLineIndex;

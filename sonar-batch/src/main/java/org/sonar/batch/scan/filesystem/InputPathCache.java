@@ -25,17 +25,12 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.batch.index.BatchResource;
 
 import javax.annotation.CheckForNull;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * Cache of all files and dirs. This cache is shared amongst all project modules. Inclusion and
@@ -141,6 +136,10 @@ public class InputPathCache implements BatchComponent {
       return inputFileMetadataCache.get(moduleKey).get(relativePath);
     }
     return null;
+  }
+
+  public InputFileMetadata getFileMetadata(DefaultInputFile inputFile) {
+    return getFileMetadata(inputFile.moduleKey(), inputFile.relativePath());
   }
 
   @CheckForNull

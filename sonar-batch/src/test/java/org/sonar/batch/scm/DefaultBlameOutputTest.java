@@ -37,7 +37,7 @@ public class DefaultBlameOutputTest {
   public void shouldNotFailIfNotSameNumberOfLines() {
     InputFile file = new DefaultInputFile("foo", "src/main/java/Foo.java").setLines(10);
 
-    new DefaultBlameOutput(null, Arrays.asList(file)).blameResult(file, Arrays.asList(new BlameLine().revision("1").author("guy")));
+    new DefaultBlameOutput(null, null, Arrays.asList(file)).blameResult(file, Arrays.asList(new BlameLine().revision("1").author("guy")));
   }
 
   @Test
@@ -47,7 +47,7 @@ public class DefaultBlameOutputTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("It was not expected to blame file src/main/java/Foo.java");
 
-    new DefaultBlameOutput(null, Arrays.<InputFile>asList(new DefaultInputFile("foo", "src/main/java/Foo2.java")))
+    new DefaultBlameOutput(null, null, Arrays.<InputFile>asList(new DefaultInputFile("foo", "src/main/java/Foo2.java")))
       .blameResult(file, Arrays.asList(new BlameLine().revision("1").author("guy")));
   }
 

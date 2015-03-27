@@ -50,6 +50,7 @@ public class QProfileProjectOperationsMediumTest {
   ComponentDto project;
   QualityProfileDto profile;
   static final String PROJECT_KEY = "SonarQube";
+  static final String PROJECT_UUID = "ABCD";
 
   UserSession authorizedProfileAdminUserSession = MockUserSession.create().setLogin("john").setName("John").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   UserSession authorizedProjectAdminUserSession = MockUserSession.create().setLogin("john").setName("John").addProjectPermissions(UserRole.ADMIN, PROJECT_KEY);
@@ -63,6 +64,7 @@ public class QProfileProjectOperationsMediumTest {
     projectOperations = tester.get(QProfileProjectOperations.class);
 
     project = new ComponentDto()
+      .setUuid(PROJECT_UUID)
       .setKey(PROJECT_KEY)
       .setName("SonarQube")
       .setLongName("SonarQube")
@@ -84,30 +86,30 @@ public class QProfileProjectOperationsMediumTest {
 
   @Test
   public void add_project() throws Exception {
-    projectOperations.addProject(profile.getId(), project.getId(), authorizedProfileAdminUserSession);
+    projectOperations.addProject(profile.getKey(), project.uuid(), authorizedProfileAdminUserSession);
 
     assertThat(factory.getByProjectAndLanguage(PROJECT_KEY, profile.getLanguage())).isNotNull();
   }
 
   @Test
   public void add_project_with_only_project_admin_permission() throws Exception {
-    projectOperations.addProject(profile.getId(), project.getId(), authorizedProjectAdminUserSession);
+    projectOperations.addProject(profile.getKey(), project.uuid(), authorizedProjectAdminUserSession);
 
     assertThat(factory.getByProjectAndLanguage(PROJECT_KEY, profile.getLanguage())).isNotNull();
   }
 
   @Test
   public void remove_project_from_project_id() throws Exception {
-    projectOperations.addProject(profile.getId(), project.getId(), authorizedProfileAdminUserSession);
+    projectOperations.addProject(profile.getKey(), project.uuid(), authorizedProfileAdminUserSession);
     assertThat(factory.getByProjectAndLanguage(PROJECT_KEY, profile.getLanguage())).isNotNull();
 
-    projectOperations.removeProject(profile.getId(), project.getId(), authorizedProfileAdminUserSession);
+    projectOperations.removeProject(profile.getKey(), project.uuid(), authorizedProfileAdminUserSession);
     assertThat(factory.getByProjectAndLanguage(PROJECT_KEY, profile.getLanguage())).isNull();
   }
 
   @Test
   public void remove_project_from_language() throws Exception {
-    projectOperations.addProject(profile.getId(), project.getId(), authorizedProfileAdminUserSession);
+    projectOperations.addProject(profile.getKey(), project.uuid(), authorizedProfileAdminUserSession);
     assertThat(factory.getByProjectAndLanguage(PROJECT_KEY, profile.getLanguage())).isNotNull();
 
     projectOperations.removeProject(profile.getLanguage(), project.getId(), authorizedProfileAdminUserSession);
@@ -117,6 +119,7 @@ public class QProfileProjectOperationsMediumTest {
   @Test
   public void remove_all_projects() throws Exception {
     ComponentDto project1 = new ComponentDto()
+      .setUuid("BCDE")
       .setKey("project1")
       .setName("project1")
       .setLongName("project1")
@@ -124,6 +127,7 @@ public class QProfileProjectOperationsMediumTest {
       .setScope("PRJ")
       .setEnabled(true);
     ComponentDto project2 = new ComponentDto()
+      .setUuid("CDEF")
       .setKey("project2")
       .setName("project2")
       .setLongName("project2")
@@ -143,11 +147,11 @@ public class QProfileProjectOperationsMediumTest {
 
     dbSession.commit();
 
-    projectOperations.addProject(profile.getId(), project1.getId(), userSession);
-    projectOperations.addProject(profile.getId(), project2.getId(), userSession);
+    projectOperations.addProject(profile.getKey(), project1.uuid(), userSession);
+    projectOperations.addProject(profile.getKey(), project2.uuid(), userSession);
     assertThat(tester.get(QProfileProjectLookup.class).projects(profile.getId())).hasSize(2);
 
-    projectOperations.removeAllProjects(profile.getId(), userSession);
+    projectOperations.removeAllProjects(profile.getKey(), userSession);
     assertThat(tester.get(QProfileProjectLookup.class).projects(profile.getId())).isEmpty();
   }
 }

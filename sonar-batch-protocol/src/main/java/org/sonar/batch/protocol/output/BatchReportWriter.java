@@ -71,6 +71,11 @@ public class BatchReportWriter {
     ProtobufUtil.writeToFile(measuresBuilder.build(), file);
   }
 
+  public void writeComponentScm(BatchReport.Scm scm) {
+    File file = fileStructure.fileFor(FileStructure.Domain.SCM, scm.getComponentRef());
+    ProtobufUtil.writeToFile(scm, file);
+  }
+
   /**
    * Issues on components which have been deleted are stored in another location.
    * Temporary hack, waiting for computation stack
@@ -82,6 +87,30 @@ public class BatchReportWriter {
     issuesBuilder.addAllIssue(issues);
     File file = fileStructure.fileFor(FileStructure.Domain.ISSUES_ON_DELETED, componentRef);
     ProtobufUtil.writeToFile(issuesBuilder.build(), file);
+  }
+
+  public void writeComponentDuplications(int componentRef, Iterable<BatchReport.Duplication> duplications) {
+    BatchReport.Duplications.Builder builder = BatchReport.Duplications.newBuilder();
+    builder.setComponentRef(componentRef);
+    builder.addAllDuplication(duplications);
+    File file = fileStructure.fileFor(FileStructure.Domain.DUPLICATIONS, componentRef);
+    ProtobufUtil.writeToFile(builder.build(), file);
+  }
+
+  public void writeComponentSymbols(int componentRef, Iterable<BatchReport.Symbols.Symbol> symbols) {
+    BatchReport.Symbols.Builder builder = BatchReport.Symbols.newBuilder();
+    builder.setFileRef(componentRef);
+    builder.addAllSymbol(symbols);
+    File file = fileStructure.fileFor(FileStructure.Domain.SYMBOLS, componentRef);
+    ProtobufUtil.writeToFile(builder.build(), file);
+  }
+
+  public void writeComponentSyntaxHighlighting(int componentRef, Iterable<BatchReport.SyntaxHighlighting.HighlightingRule> highlightingRules) {
+    BatchReport.SyntaxHighlighting.Builder builder = BatchReport.SyntaxHighlighting.newBuilder();
+    builder.setFileRef(componentRef);
+    builder.addAllHighlightingRule(highlightingRules);
+    File file = fileStructure.fileFor(FileStructure.Domain.SYNTAX_HIGHLIGHTING, componentRef);
+    ProtobufUtil.writeToFile(builder.build(), file);
   }
 
 }

@@ -21,12 +21,11 @@
 package org.sonar.server.qualityprofile.ws;
 
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.qualityprofile.QProfileService;
 
-public class QProfileRestoreBuiltInAction implements RequestHandler {
+public class QProfileRestoreBuiltInAction implements BaseQProfileWsAction {
 
   private final QProfileService service;
 
@@ -34,7 +33,8 @@ public class QProfileRestoreBuiltInAction implements RequestHandler {
     this.service = service;
   }
 
-  void define(WebService.NewController controller) {
+  @Override
+  public void define(WebService.NewController controller) {
     WebService.NewAction restoreDefault = controller.createAction("restore_built_in")
       .setDescription("Restore built-in profiles from the definitions declared by plugins. " +
         "Missing profiles are created, existing ones are updated.")

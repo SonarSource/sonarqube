@@ -32,16 +32,10 @@
       "src/main/java/Foo.java": {
         "hash": "xyz",
         "needBlame": true,
-        "scmLastCommitDatetimesByLine": "1\u003d12345,2\u003d3456",
-        "scmRevisionsByLine": "1\u003d345,2\u003d345",
-        "scmAuthorsByLine": "1\u003dhenryju,2\u003dgaudin"
       },
       "src/main/java/Foo2.java": {
         "hash": "xyz",
         "needBlame": false,
-        "scmLastCommitDatetimesByLine": "1\u003d12345,2\u003d3456",
-        "scmRevisionsByLine": "1\u003d345,2\u003d345",
-        "scmAuthorsByLine": "1\u003dhenryju,2\u003dgaudin"
       }
     }
   },

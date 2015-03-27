@@ -23,7 +23,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
 import org.sonar.api.measures.*;
 import org.sonar.api.measures.Metric.Level;
 import org.sonar.api.measures.Metric.ValueType;
@@ -32,8 +31,6 @@ import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.technicaldebt.batch.Characteristic;
-import org.sonar.batch.duplication.DuplicationCache;
-import org.sonar.batch.duplication.DuplicationUtils;
 import org.sonar.batch.index.BatchResource;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.protocol.Constants;
@@ -45,19 +42,16 @@ import org.sonar.batch.scan.measure.MeasureCache;
 import javax.annotation.Nullable;
 
 import java.io.Serializable;
-import java.util.Arrays;
 
 public class MeasuresPublisher implements ReportPublisher {
 
   private final ResourceCache resourceCache;
   private final MeasureCache measureCache;
-  private final DuplicationCache duplicationCache;
   private final MetricFinder metricFinder;
 
-  public MeasuresPublisher(ResourceCache resourceCache, MeasureCache measureCache, DuplicationCache duplicationCache, MetricFinder metricFinder) {
+  public MeasuresPublisher(ResourceCache resourceCache, MeasureCache measureCache, MetricFinder metricFinder) {
     this.resourceCache = resourceCache;
     this.measureCache = measureCache;
-    this.duplicationCache = duplicationCache;
     this.metricFinder = metricFinder;
   }
 
@@ -75,20 +69,14 @@ public class MeasuresPublisher implements ReportPublisher {
 
       });
       Iterable<org.sonar.batch.protocol.output.BatchReport.Measure> reportMeasures = Iterables.transform(batchMeasures, new Function<Measure, BatchReport.Measure>() {
-        private BatchReport.Measure.Builder builder = BatchReport.Measure.newBuilder();
+        private final BatchReport.Measure.Builder builder = BatchReport.Measure.newBuilder();
 
         @Override
         public BatchReport.Measure apply(Measure input) {
           return toReportMeasure(builder, input);
         }
       });
-      Iterable<DefaultDuplication> dups = duplicationCache.byComponent(resource.resource().getEffectiveKey());
-      if (dups.iterator().hasNext()) {
-        org.sonar.batch.protocol.output.BatchReport.Measure dupMeasure = toReportMeasure(BatchReport.Measure.newBuilder(), dups);
-        writer.writeComponentMeasures(resource.batchId(), Iterables.concat(Arrays.asList(dupMeasure), reportMeasures));
-      } else {
-        writer.writeComponentMeasures(resource.batchId(), reportMeasures);
-      }
+      writer.writeComponentMeasures(resource.batchId(), reportMeasures);
     }
   }
 
@@ -107,15 +95,6 @@ public class MeasuresPublisher implements ReportPublisher {
       isNotEmpty = isNotEmpty || measure.getVariation(i) != null;
     }
     return measure.getValue() != null || measure.getData() != null || isNotEmpty;
-  }
-
-  private BatchReport.Measure toReportMeasure(BatchReport.Measure.Builder builder, Iterable<DefaultDuplication> dups) {
-    builder.clear();
-
-    builder.setValueType(MeasureValueType.STRING);
-    builder.setStringValue(DuplicationUtils.toXml(dups));
-    builder.setMetricKey(CoreMetrics.DUPLICATIONS_DATA_KEY);
-    return builder.build();
   }
 
   private BatchReport.Measure toReportMeasure(BatchReport.Measure.Builder builder, Measure measure) {
@@ -181,6 +160,10 @@ public class MeasuresPublisher implements ReportPublisher {
     Characteristic charac = measure.getCharacteristic();
     if (charac != null) {
       builder.setCharactericId(charac.id());
+    }
+    Integer personId = measure.getPersonId();
+    if (personId != null) {
+      builder.setPersonId(personId);
     }
     return builder.build();
   }

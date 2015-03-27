@@ -170,7 +170,7 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
 
   @CheckForNull
   public QualityProfileDto getDefaultProfile(String language, DbSession session) {
-    return session.getMapper(QualityProfileMapper.class).selectDefaultProfile(language, String.format("sonar.profile.%s", language));
+    return session.getMapper(QualityProfileMapper.class).selectDefaultProfile(language);
   }
 
   @CheckForNull
@@ -184,18 +184,18 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
   }
 
   @CheckForNull
-  public QualityProfileDto getByProjectAndLanguage(long projectId, String language, String key) {
+  public QualityProfileDto getByProjectAndLanguage(long projectId, String language) {
     DbSession session = mybatis.openSession(false);
     try {
-      return session.getMapper(QualityProfileMapper.class).selectByProjectIdAndLanguage(projectId, language, key);
+      return session.getMapper(QualityProfileMapper.class).selectByProjectIdAndLanguage(projectId, language);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
   @CheckForNull
-  public QualityProfileDto getByProjectAndLanguage(String projectKey, String language, String propertyKeyPrefix, DbSession session) {
-    return session.getMapper(QualityProfileMapper.class).selectByProjectAndLanguage(projectKey, language, propertyKeyPrefix);
+  public QualityProfileDto getByProjectAndLanguage(String projectKey, String language, DbSession session) {
+    return session.getMapper(QualityProfileMapper.class).selectByProjectAndLanguage(projectKey, language);
   }
 
   public List<QualityProfileDto> findByLanguage(String language) {
@@ -297,25 +297,37 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
     }
   }
 
-  public List<ComponentDto> selectProjects(String propertyKey, String propertyValue) {
+  public List<ComponentDto> selectProjects(String profileName, String language) {
     DbSession session = mybatis.openSession(false);
     try {
-      return selectProjects(propertyKey, propertyValue, session);
+      return selectProjects(profileName, language, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public List<ComponentDto> selectProjects(String propertyKey, String propertyValue, DbSession session) {
-    return session.getMapper(QualityProfileMapper.class).selectProjects(propertyKey, propertyValue);
+  public List<ComponentDto> selectProjects(String profileName, String language, DbSession session) {
+    return session.getMapper(QualityProfileMapper.class).selectProjects(profileName, language);
   }
 
-  public int countProjects(String propertyKey, String propertyValue) {
+  public int countProjects(String profileName, String language) {
     DbSession session = mybatis.openSession(false);
     try {
-      return session.getMapper(QualityProfileMapper.class).countProjects(propertyKey, propertyValue);
+      return session.getMapper(QualityProfileMapper.class).countProjects(profileName, language);
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  public void insertProjectProfileAssociation(String projectUuid, String profileKey, DbSession session) {
+    session.getMapper(QualityProfileMapper.class).insertProjectProfileAssociation(projectUuid, profileKey);
+  }
+
+  public void deleteProjectProfileAssociation(String projectUuid, String profileKey, DbSession session) {
+    session.getMapper(QualityProfileMapper.class).deleteProjectProfileAssociation(projectUuid, profileKey);
+  }
+
+  public void deleteAllProjectProfileAssociation(String profileKey, DbSession session) {
+    session.getMapper(QualityProfileMapper.class).deleteAllProjectProfileAssociation(profileKey);
   }
 }

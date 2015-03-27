@@ -68,17 +68,17 @@
     </where>
   </select>
 
-  <insert id="insert" parameterType="Measure" useGeneratedKeys="false" keyColumn="id" keyProperty="id">
+  <insert id="insert" parameterType="Measure" useGeneratedKeys="false">
     INSERT INTO project_measures (
     value, metric_id, snapshot_id, rule_id, text_value, tendency, project_id, alert_status, alert_text, description,
-    rule_priority, characteristic_id, variation_value_1, variation_value_2, variation_value_3, variation_value_4,
+    rule_priority, characteristic_id, person_id, variation_value_1, variation_value_2, variation_value_3, variation_value_4,
     variation_value_5, measure_data)
     VALUES (
     #{value, jdbcType=DOUBLE}, #{metricId, jdbcType=INTEGER}, #{snapshotId, jdbcType=INTEGER},
     #{ruleId, jdbcType=INTEGER}, #{textValue, jdbcType=VARCHAR}, #{tendency, jdbcType=INTEGER},
     #{projectId, jdbcType=INTEGER}, #{alertStatus, jdbcType=VARCHAR}, #{alertText, jdbcType=VARCHAR},
     #{description, jdbcType=VARCHAR}, #{severityIndex, jdbcType=INTEGER}, #{characteristicId, jdbcType=INTEGER},
-    #{variation1, jdbcType=DOUBLE}, #{variation2, jdbcType=DOUBLE}, #{variation3, jdbcType=DOUBLE},
+    #{personId, jdbcType=INTEGER}, #{variation1, jdbcType=DOUBLE}, #{variation2, jdbcType=DOUBLE}, #{variation3, jdbcType=DOUBLE},
     #{variation4, jdbcType=DOUBLE}, #{variation5, jdbcType=DOUBLE}, #{dataValue, jdbcType=BINARY}
     )
   </insert>

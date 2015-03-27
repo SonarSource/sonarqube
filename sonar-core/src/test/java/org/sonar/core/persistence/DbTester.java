@@ -58,6 +58,7 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -232,6 +233,12 @@ public class DbTester extends ExternalResource {
         Object value = resultSet.getObject(i);
         if (value instanceof Clob) {
           value = IOUtils.toString(((Clob) value).getAsciiStream());
+        } else if (value instanceof BigDecimal) {
+          // In Oracle, INTEGER types are mapped as BigDecimal
+          value = ((BigDecimal) value).longValue();
+        } else if (value instanceof Integer) {
+          // To be consistent, all INTEGER types are mapped as Long
+          value = ((Integer) value).longValue();
         }
         columns.put(metaData.getColumnLabel(i), value);
       }

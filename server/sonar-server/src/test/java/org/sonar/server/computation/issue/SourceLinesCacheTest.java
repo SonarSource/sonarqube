@@ -21,16 +21,22 @@ package org.sonar.server.computation.issue;
 
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.sonar.core.persistence.DbTester;
-import org.sonar.core.source.db.FileSourceDao;
-import org.sonar.server.db.DbClient;
-import org.sonar.server.source.db.FileSourceDb;
-import org.sonar.server.source.db.FileSourceTesting;
+import org.junit.rules.TemporaryFolder;
+import org.sonar.api.config.Settings;
+import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.batch.protocol.output.BatchReportReader;
+import org.sonar.batch.protocol.output.BatchReportWriter;
+import org.sonar.server.es.EsTester;
+import org.sonar.server.source.index.SourceLineDoc;
+import org.sonar.server.source.index.SourceLineIndex;
+import org.sonar.server.source.index.SourceLineIndexDefinition;
 import org.sonar.test.DbTests;
 
-import java.sql.Connection;
+import java.io.File;
+import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -38,46 +44,82 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SourceLinesCacheTest {
 
   @ClassRule
-  public static DbTester dbTester = new DbTester();
+  public static EsTester esTester = new EsTester().addDefinitions(new SourceLineIndexDefinition(new Settings()));
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
+  File dir;
+  SourceLinesCache sut;
 
   @Before
   public void setUp() throws Exception {
-    dbTester.truncateTables();
+    esTester.truncateIndices();
+    dir = temp.newFolder();
+    sut = new SourceLinesCache(new SourceLineIndex(esTester.client()));
   }
 
   @Test
-  public void line_author() throws Exception {
-    dbTester.prepareDbUnit(getClass(), "load_data.xml");
-    FileSourceDb.Data.Builder data = FileSourceDb.Data.newBuilder();
-    data.addLinesBuilder().setLine(1).setScmAuthor("charb").setScmDate(1_400_000_000_000L);
-    data.addLinesBuilder().setLine(2).setScmAuthor("cabu").setScmDate(1_500_000_000_000L);
-    data.addLinesBuilder().setLine(3).setScmAuthor("wolinski").setScmDate(1_300_000_000_000L);
-    data.addLinesBuilder().setLine(4);
-    try (Connection connection = dbTester.openConnection()) {
-      FileSourceTesting.updateDataColumn(connection, "FILE_A", data.build());
-    }
+  public void line_author_from_report() throws Exception {
+    BatchReportWriter reportWriter = new BatchReportWriter(dir);
+    reportWriter.writeComponentScm(BatchReport.Scm.newBuilder()
+      .setComponentRef(123_456_789)
+      .addChangeset(newChangeset("charb", "123-456-789", 123_456_789L))
+      .addChangeset(newChangeset("wolinski", "987-654-321", 987_654_321L))
+      .addChangesetIndexByLine(0)
+      .addChangesetIndexByLine(0)
+      .addChangesetIndexByLine(1)
+      .build());
 
-    DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new FileSourceDao(dbTester.myBatis()));
-    SourceLinesCache cache = new SourceLinesCache(dbClient);
-    cache.init("FILE_A");
+    sut.init("ANY_UUID", 123_456_789, new BatchReportReader(dir));
 
-    // load data on demand -> still nothing in cache
-    assertThat(cache.countLines()).isEqualTo(0);
-
-    assertThat(cache.lineAuthor(1)).isEqualTo("charb");
-    assertThat(cache.lineAuthor(2)).isEqualTo("cabu");
-    assertThat(cache.lineAuthor(3)).isEqualTo("wolinski");
-
-    // blank author on line 4 -> return last committer on file
-    assertThat(cache.lineAuthor(4)).isEqualTo("cabu");
-
-    // only 4 lines in the file -> return last committer on file
-    assertThat(cache.lineAuthor(100)).isEqualTo("cabu");
-
-    assertThat(cache.countLines()).isEqualTo(4);
-
-    cache.clear();
-    assertThat(cache.countLines()).isEqualTo(0);
+    assertThat(sut.lineAuthor(0)).isEqualTo("charb");
+    assertThat(sut.lineAuthor(1)).isEqualTo("charb");
+    assertThat(sut.lineAuthor(2)).isEqualTo("wolinski");
+    // compute last author
+    assertThat(sut.lineAuthor(3)).isEqualTo("wolinski");
+    assertThat(sut.lineAuthor(null)).isEqualTo("wolinski");
   }
 
+  @Test
+  public void line_author_from_index() throws Exception {
+    esTester.putDocuments(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE,
+      newSourceLine("cabu", "123-456-789", 123_456_789, 1),
+      newSourceLine("cabu", "123-456-789", 123_456_789, 2),
+      newSourceLine("cabu", "123-123-789", 123_456_789, 3),
+      newSourceLine("wolinski", "987-654-321", 987_654_321, 4),
+      newSourceLine("cabu", "123-456-789", 123_456_789, 5)
+      );
+
+    sut.init("DEFAULT_UUID", 123, new BatchReportReader(dir));
+
+    assertThat(sut.lineAuthor(0)).isEqualTo("cabu");
+    assertThat(sut.lineAuthor(1)).isEqualTo("cabu");
+    assertThat(sut.lineAuthor(2)).isEqualTo("cabu");
+    assertThat(sut.lineAuthor(3)).isEqualTo("wolinski");
+    assertThat(sut.lineAuthor(4)).isEqualTo("cabu");
+    assertThat(sut.lineAuthor(5)).isEqualTo("wolinski");
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void fail_when_component_ref_is_not_filled() throws Exception {
+    sut.init("ANY_UUID", null, new BatchReportReader(dir));
+    sut.lineAuthor(0);
+  }
+
+  private BatchReport.Scm.Changeset.Builder newChangeset(String author, String revision, long date) {
+    return BatchReport.Scm.Changeset.newBuilder()
+      .setAuthor(author)
+      .setRevision(revision)
+      .setDate(date);
+  }
+
+  private SourceLineDoc newSourceLine(String author, String revision, long date, int line) {
+    return new SourceLineDoc()
+      .setScmAuthor(author)
+      .setScmRevision(revision)
+      .setScmDate(new Date(date))
+      .setLine(line)
+      .setProjectUuid("PROJECT_UUID")
+      .setFileUuid("DEFAULT_UUID");
+  }
 }

@@ -21,8 +21,7 @@
 package org.sonar.server.computation.step;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.protocol.output.BatchReport;
@@ -38,7 +37,14 @@ import javax.annotation.CheckForNull;
 
 import java.util.List;
 
+import static com.google.common.collect.Lists.newArrayList;
+
 public class PersistMeasuresStep implements ComputationStep {
+
+  /**
+   * List of metrics that should not be received from the report, as they should only by fed by the compute engine
+   */
+  private static final List<String> FORBIDDEN_METRIC_KEYS = newArrayList(CoreMetrics.DUPLICATIONS_DATA_KEY);
 
   private final DbClient dbClient;
   private final RuleCache ruleCache;
@@ -80,15 +86,11 @@ public class PersistMeasuresStep implements ComputationStep {
   }
 
   private void persistMeasures(DbSession dbSession, List<BatchReport.Measure> batchReportMeasures, final BatchReport.Component component) {
-    List<MeasureDto> measures = Lists.transform(batchReportMeasures, new Function<BatchReport.Measure, MeasureDto>() {
-      @Override
-      public MeasureDto apply(BatchReport.Measure batchMeasure) {
-        return toMeasureDto(batchMeasure, component);
+    for (BatchReport.Measure measure : batchReportMeasures) {
+      if (FORBIDDEN_METRIC_KEYS.contains(measure.getMetricKey())) {
+        throw new IllegalStateException(String.format("Measures on metric '%s' cannot be send in the report", measure.getMetricKey()));
       }
-    });
-
-    for (MeasureDto measure : measures) {
-      dbClient.measureDao().insert(dbSession, measure);
+      dbClient.measureDao().insert(dbSession, toMeasureDto(measure, component));
     }
   }
 
@@ -117,6 +119,7 @@ public class PersistMeasuresStep implements ComputationStep {
     out.setMetricId(metricCache.get(in.getMetricKey()).getId());
     out.setRuleId(in.hasRuleKey() ? ruleCache.get(RuleKey.parse(in.getRuleKey())).getId() : null);
     out.setCharacteristicId(in.hasCharactericId() ? in.getCharactericId() : null);
+    out.setPersonId(in.hasPersonId() ? in.getPersonId() : null);
     out.setValue(valueAsDouble(in));
     setData(in, out);
     return out;
@@ -132,9 +135,9 @@ public class PersistMeasuresStep implements ComputationStep {
       case BOOLEAN:
         return measure.hasBooleanValue() ? (measure.getBooleanValue() ? 1.0d : 0.0d) : null;
       case INT:
-        return measure.hasIntValue() ? Double.valueOf(measure.getIntValue()) : null;
+        return measure.hasIntValue() ? (double) measure.getIntValue() : null;
       case LONG:
-        return measure.hasLongValue() ? Double.valueOf(measure.getLongValue()) : null;
+        return measure.hasLongValue() ? (double) measure.getLongValue() : null;
       case DOUBLE:
         return measure.hasDoubleValue() ? measure.getDoubleValue() : null;
       default:

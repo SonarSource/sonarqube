@@ -67,7 +67,7 @@ public class IncrementalModeMediumTest {
     .activateRule(new ActiveRule("xoo", "OneIssuePerLine", null, "One issue per line", "MAJOR", null, "xoo"))
     .activateRule(new ActiveRule("manual", "MyManualIssue", null, "My manual issue", "MAJOR", null, null))
     .setPreviousAnalysisDate(new Date())
-    .addFileData("sample", "src/sample.xoo", new FileData(DigestUtils.md5Hex(SAMPLE_CONTENT), false, null, null, null))
+    .addFileData("sample", "src/sample.xoo", new FileData(DigestUtils.md5Hex(SAMPLE_CONTENT), false))
     .mockLineHashes("sample:src/sample.xoo",
       new String[] {DigestUtils.md5Hex("Samplecontent"), DigestUtils.md5Hex("oldcode"), DigestUtils.md5Hex("4"), DigestUtils.md5Hex("lines")})
     // Remote open issue => will be tracked and not new

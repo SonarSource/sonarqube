@@ -73,7 +73,8 @@ public class QualityProfileDaoTest extends AbstractDaoTestCase {
       .setId(1)
       .setName("New Name")
       .setLanguage("js")
-      .setParentKee("fghij");
+      .setParentKee("fghij")
+      .setDefault(false);
 
     dao.update(dto);
 
@@ -214,21 +215,21 @@ public class QualityProfileDaoTest extends AbstractDaoTestCase {
   public void select_projects() {
     setupData("projects");
 
-    assertThat(dao.selectProjects("Sonar Way", "sonar.profile.java")).hasSize(2);
+    assertThat(dao.selectProjects("Sonar Way", "java")).hasSize(2);
   }
 
   @Test
   public void count_projects() {
     setupData("projects");
 
-    assertThat(dao.countProjects("Sonar Way", "sonar.profile.java")).isEqualTo(2);
+    assertThat(dao.countProjects("Sonar Way", "java")).isEqualTo(2);
   }
 
   @Test
   public void select_by_project_id_and_language() {
     setupData("projects");
 
-    QualityProfileDto dto = dao.getByProjectAndLanguage(1L, "java", "sonar.profile.java");
+    QualityProfileDto dto = dao.getByProjectAndLanguage(1L, "java");
     assertThat(dto.getId()).isEqualTo(1);
   }
 
@@ -236,10 +237,10 @@ public class QualityProfileDaoTest extends AbstractDaoTestCase {
   public void select_by_project_key_and_language() {
     setupData("projects");
 
-    QualityProfileDto dto = dao.getByProjectAndLanguage("org.codehaus.sonar:sonar", "java", "sonar.profile.java", session);
+    QualityProfileDto dto = dao.getByProjectAndLanguage("org.codehaus.sonar:sonar", "java", session);
     assertThat(dto.getId()).isEqualTo(1);
 
-    assertThat(dao.getByProjectAndLanguage("org.codehaus.sonar:sonar", "unkown", "sonar.profile.java", session)).isNull();
-    assertThat(dao.getByProjectAndLanguage("unknown", "java", "sonar.profile.java", session)).isNull();
+    assertThat(dao.getByProjectAndLanguage("org.codehaus.sonar:sonar", "unkown", session)).isNull();
+    assertThat(dao.getByProjectAndLanguage("unknown", "java", session)).isNull();
   }
 }

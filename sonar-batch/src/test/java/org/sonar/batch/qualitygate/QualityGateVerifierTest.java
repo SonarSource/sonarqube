@@ -344,12 +344,12 @@ public class QualityGateVerifierTest {
 
   @Test(expected = NotImplementedException.class)
   public void shouldNotAllowPeriodVariationAlertOnStringMetric() {
-    Measure measure = new Measure(CoreMetrics.SCM_AUTHORS_BY_LINE, 100d);
+    Measure measure = new Measure(CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION, 100d);
     measure.setVariation1(50d);
-    when(context.getMeasure(CoreMetrics.SCM_AUTHORS_BY_LINE)).thenReturn(measure);
+    when(context.getMeasure(CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION)).thenReturn(measure);
 
     ArrayList<ResolvedCondition> conditions = Lists.newArrayList(
-      mockCondition(CoreMetrics.SCM_AUTHORS_BY_LINE, QualityGateConditionDto.OPERATOR_GREATER_THAN, null, "30", 1)
+      mockCondition(CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION, QualityGateConditionDto.OPERATOR_GREATER_THAN, null, "30", 1)
       );
     when(qualityGate.conditions()).thenReturn(conditions);
 

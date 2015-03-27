@@ -22,6 +22,7 @@ package org.sonar.batch.protocol.output;
 import org.sonar.batch.protocol.ProtobufUtil;
 import org.sonar.batch.protocol.output.BatchReport.Issues;
 
+import javax.annotation.CheckForNull;
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
@@ -52,6 +53,16 @@ public class BatchReportReader {
     return Collections.emptyList();
   }
 
+  @CheckForNull
+  public BatchReport.Scm readComponentScm(int componentRef) {
+    File file = fileStructure.fileFor(FileStructure.Domain.SCM, componentRef);
+    if (file.exists() && file.isFile()) {
+      BatchReport.Scm scm = ProtobufUtil.readFile(file, BatchReport.Scm.PARSER);
+      return scm;
+    }
+    return null;
+  }
+
   public BatchReport.Component readComponent(int componentRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.COMPONENT, componentRef);
     if (isNotAnExistingFile(file)) {
@@ -77,6 +88,36 @@ public class BatchReportReader {
     }
     // all the issues are loaded in memory
     return ProtobufUtil.readFile(file, Issues.PARSER);
+  }
+
+  public List<BatchReport.Duplication> readComponentDuplications(int componentRef) {
+    File file = fileStructure.fileFor(FileStructure.Domain.DUPLICATIONS, componentRef);
+    if (file.exists() && file.isFile()) {
+      // all the duplications are loaded in memory
+      BatchReport.Duplications duplications = ProtobufUtil.readFile(file, BatchReport.Duplications.PARSER);
+      return duplications.getDuplicationList();
+    }
+    return Collections.emptyList();
+  }
+
+  public List<BatchReport.Symbols.Symbol> readComponentSymbols(int componentRef) {
+    File file = fileStructure.fileFor(FileStructure.Domain.SYMBOLS, componentRef);
+    if (file.exists() && file.isFile()) {
+      // all the symbols are loaded in memory
+      BatchReport.Symbols symbols = ProtobufUtil.readFile(file, BatchReport.Symbols.PARSER);
+      return symbols.getSymbolList();
+    }
+    return Collections.emptyList();
+  }
+
+  public List<BatchReport.SyntaxHighlighting.HighlightingRule> readComponentSyntaxHighlighting(int componentRef) {
+    File file = fileStructure.fileFor(FileStructure.Domain.SYNTAX_HIGHLIGHTING, componentRef);
+    if (file.exists() && file.isFile()) {
+      // all the highlighting are loaded in memory
+      BatchReport.SyntaxHighlighting syntaxHighlighting = ProtobufUtil.readFile(file, BatchReport.SyntaxHighlighting.PARSER);
+      return syntaxHighlighting.getHighlightingRuleList();
+    }
+    return Collections.emptyList();
   }
 
   private boolean isNotAnExistingFile(File file) {

@@ -20,25 +20,23 @@
 package org.sonar.batch.scm;
 
 import com.google.common.base.Preconditions;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.scm.BlameCommand.BlameOutput;
 import org.sonar.api.batch.scm.BlameLine;
-import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.PropertiesBuilder;
-import org.sonar.api.utils.DateUtils;
+import org.sonar.batch.index.BatchResource;
+import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.batch.protocol.output.BatchReport.Scm.Builder;
+import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.batch.util.ProgressReport;
 
 import javax.annotation.Nullable;
 
 import java.text.Normalizer;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
@@ -49,14 +47,16 @@ class DefaultBlameOutput implements BlameOutput {
   private static final Pattern NON_ASCII_CHARS = Pattern.compile("[^\\x00-\\x7F]");
   private static final Pattern ACCENT_CODES = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
 
-  private final SensorContext context;
+  private final BatchReportWriter writer;
+  private final ResourceCache componentCache;
   private final Set<InputFile> allFilesToBlame = new HashSet<InputFile>();
   private ProgressReport progressReport;
   private int count;
   private int total;
 
-  DefaultBlameOutput(SensorContext context, List<InputFile> filesToBlame) {
-    this.context = context;
+  DefaultBlameOutput(BatchReportWriter writer, ResourceCache componentCache, List<InputFile> filesToBlame) {
+    this.writer = writer;
+    this.componentCache = componentCache;
     this.allFilesToBlame.addAll(filesToBlame);
     count = 0;
     total = filesToBlame.size();
@@ -75,22 +75,43 @@ class DefaultBlameOutput implements BlameOutput {
       return;
     }
 
-    PropertiesBuilder<Integer, String> authors = propertiesBuilder(CoreMetrics.SCM_AUTHORS_BY_LINE);
-    PropertiesBuilder<Integer, String> dates = propertiesBuilder(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE);
-    PropertiesBuilder<Integer, String> revisions = propertiesBuilder(CoreMetrics.SCM_REVISIONS_BY_LINE);
+    BatchResource batchComponent = componentCache.get(file);
+    Builder scmBuilder = BatchReport.Scm.newBuilder();
+    scmBuilder.setComponentRef(batchComponent.batchId());
+    Map<String, Integer> changesetsIdByRevision = new HashMap<>();
 
-    int lineNumber = 1;
     for (BlameLine line : lines) {
-      authors.add(lineNumber, normalizeString(line.author()));
-      Date date = line.date();
-      dates.add(lineNumber, date != null ? DateUtils.formatDateTime(date) : "");
-      revisions.add(lineNumber, line.revision());
-      lineNumber++;
+      if (StringUtils.isNotBlank(line.revision())) {
+        Integer changesetId = changesetsIdByRevision.get(line.revision());
+        if (changesetId == null) {
+          addChangeset(scmBuilder, line);
+          changesetId = scmBuilder.getChangesetCount() - 1;
+          changesetsIdByRevision.put(line.revision(), changesetId);
+        }
+        scmBuilder.addChangesetIndexByLine(changesetId);
+      } else {
+        addChangeset(scmBuilder, line);
+      }
     }
-    ScmSensor.saveMeasures(context, file, authors.buildData(), dates.buildData(), revisions.buildData());
+    writer.writeComponentScm(scmBuilder.build());
     allFilesToBlame.remove(file);
     count++;
     progressReport.message(count + "/" + total + " files analyzed, last one was " + file.absolutePath());
+  }
+
+  private void addChangeset(Builder scmBuilder, BlameLine line) {
+    BatchReport.Scm.Changeset.Builder changesetBuilder = BatchReport.Scm.Changeset.newBuilder();
+    if (StringUtils.isNotBlank(line.revision())) {
+      changesetBuilder.setRevision(line.revision());
+    }
+    if (StringUtils.isNotBlank(line.author())) {
+      changesetBuilder.setAuthor(normalizeString(line.author()));
+    }
+    Date date = line.date();
+    if (date != null) {
+      changesetBuilder.setDate(date.getTime());
+    }
+    scmBuilder.addChangeset(changesetBuilder.build());
   }
 
   private String normalizeString(@Nullable String inputString) {
@@ -109,10 +130,6 @@ class DefaultBlameOutput implements BlameOutput {
 
   private String removeNonAsciiCharacters(String inputString) {
     return NON_ASCII_CHARS.matcher(inputString).replaceAll("_");
-  }
-
-  private static PropertiesBuilder<Integer, String> propertiesBuilder(Metric metric) {
-    return new PropertiesBuilder<Integer, String>(metric);
   }
 
   public void finish() {

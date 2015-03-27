@@ -36,7 +36,9 @@ import org.sonar.batch.protocol.Constants.ComponentLinkType;
 import org.sonar.batch.protocol.Constants.EventCategory;
 import org.sonar.batch.protocol.output.BatchReport.Component;
 import org.sonar.batch.protocol.output.BatchReport.Event;
-import org.sonar.batch.protocol.output.*;
+import org.sonar.batch.protocol.output.BatchReportReader;
+import org.sonar.batch.protocol.output.BatchReportWriter;
+import org.sonar.batch.protocol.output.FileStructure;
 
 import java.io.File;
 import java.util.Arrays;
@@ -114,10 +116,12 @@ public class ComponentsPublisherTest {
 
     BatchReportReader reader = new BatchReportReader(outputDir);
     Component rootProtobuf = reader.readComponent(1);
+    assertThat(rootProtobuf.getKey()).isEqualTo("foo");
     assertThat(rootProtobuf.getVersion()).isEqualTo("1.0");
     assertThat(rootProtobuf.getLinkCount()).isEqualTo(0);
 
     Component module1Protobuf = reader.readComponent(2);
+    assertThat(module1Protobuf.getKey()).isEqualTo("module1");
     assertThat(module1Protobuf.getVersion()).isEqualTo("1.0");
   }
 

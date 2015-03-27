@@ -66,6 +66,11 @@ public class ComponentsPublisher implements ReportPublisher {
     builder.setRef(batchResource.batchId());
     builder.setType(getType(r));
 
+    // Don't set key on directories and files to save space since it can be deduced from path
+    if (ResourceUtils.isProject(r)) {
+      builder.setKey(r.getKey());
+    }
+
     // protocol buffers does not accept null values
 
     String uuid = r.getUuid();

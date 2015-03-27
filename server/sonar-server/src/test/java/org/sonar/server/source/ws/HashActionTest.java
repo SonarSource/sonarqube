@@ -67,7 +67,6 @@ public class HashActionTest {
       new SourcesWs(
         mock(ShowAction.class),
         mock(RawAction.class),
-        mock(ScmAction.class),
         mock(LinesAction.class),
         new HashAction(dbClient),
         mock(IndexAction.class)

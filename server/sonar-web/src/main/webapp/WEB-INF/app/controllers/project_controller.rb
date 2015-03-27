@@ -99,14 +99,15 @@ class ProjectController < ApplicationController
     verify_post_request
 
     language = params[:language]
-    project = params[:id].to_i
+    project = get_current_project(params[:id])
     profile_id = params[:profile_id]
 
     call_backend do
       if profile_id.blank?
-        Internal.quality_profiles.removeProjectByLanguage(language, project)
+        Internal.quality_profiles.removeProjectByLanguage(language, project.id())
       else
-        Internal.quality_profiles.addProject(profile_id.to_i, project)
+        profile = Internal.quality_profiles.profile(profile_id.to_i)
+        Internal.quality_profiles.addProject(profile.key(), project.uuid())
       end
     end
 

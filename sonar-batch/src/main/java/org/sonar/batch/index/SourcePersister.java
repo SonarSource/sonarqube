@@ -87,9 +87,9 @@ public class SourcePersister implements ScanPersister {
   }
 
   private void persist(DbSession session, FileSourceMapper mapper, DefaultInputFile inputFile, Map<String, FileSourceDto> previousDtosByUuid) {
-    String fileUuid = resourceCache.get(inputFile.key()).resource().getUuid();
+    String fileUuid = resourceCache.get(inputFile).resource().getUuid();
 
-    InputFileMetadata metadata = inputPathCache.getFileMetadata(inputFile.moduleKey(), inputFile.relativePath());
+    InputFileMetadata metadata = inputPathCache.getFileMetadata(inputFile);
     byte[] data = computeData(inputFile, metadata);
     String dataHash = DigestUtils.md5Hex(data);
     FileSourceDto previousDto = previousDtosByUuid.get(fileUuid);

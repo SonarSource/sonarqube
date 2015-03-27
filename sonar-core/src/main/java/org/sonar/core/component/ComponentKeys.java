@@ -129,4 +129,13 @@ public final class ComponentKeys {
       return keyWithoutBranch;
     }
   }
+
+  public static String createKey(String moduleKey, @Nullable String path, @Nullable String branch) {
+    String effectiveKey = createEffectiveKey(moduleKey, path);
+    if (StringUtils.isNotBlank(branch)) {
+      return String.format(KEY_WITH_BRANCH_FORMAT, effectiveKey, branch);
+    } else {
+      return effectiveKey;
+    }
+  }
 }

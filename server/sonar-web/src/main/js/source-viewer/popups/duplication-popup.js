@@ -42,27 +42,25 @@ define([
     },
 
     serializeData: function () {
-      var duplications, files, groupedBlocks;
-      files = this.model.get('duplicationFiles');
-      groupedBlocks = _.groupBy(this.collection.toJSON(), '_ref');
-      duplications = _.map(groupedBlocks, function (blocks, fileRef) {
-        return {
-          blocks: blocks,
-          file: files[fileRef]
-        };
+      var that = this,
+          files = this.model.get('duplicationFiles'),
+          groupedBlocks = _.groupBy(this.collection.toJSON(), '_ref'),
+          duplications = _.map(groupedBlocks, function (blocks, fileRef) {
+            return {
+              blocks: blocks,
+              file: files[fileRef]
+            };
+          });
+      duplications = _.sortBy(duplications, function (d) {
+        var a = d.file.projectName !== that.model.get('projectName'),
+            b = d.file.subProjectName !== that.model.get('subProjectName'),
+            c = d.file.key !== that.model.get('key');
+        return '' + a + b + c;
       });
-      duplications = _.sortBy(duplications, (function (_this) {
-        return function (d) {
-          var a, b, c;
-          a = d.file.projectName !== _this.model.get('projectName');
-          b = d.file.subProjectName !== _this.model.get('subProjectName');
-          c = d.file.key !== _this.model.get('key');
-          return '' + a + b + c;
-        };
-      })(this));
       return {
         component: this.model.toJSON(),
-        duplications: duplications
+        duplications: duplications,
+        inRemovedComponent: this.options.inRemovedComponent
       };
     }
   });

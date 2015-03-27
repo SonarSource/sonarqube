@@ -58,7 +58,7 @@ public final class LinesSensor implements Sensor {
         .save();
       if (f.language() == null) {
         // As an approximation for files with no language plugin we consider every non blank line as ncloc
-        InputFileMetadata metadata = inputPathCache.getFileMetadata(((DefaultInputFile) f).moduleKey(), f.relativePath());
+        InputFileMetadata metadata = inputPathCache.getFileMetadata((DefaultInputFile) f);
         ((DefaultMeasure<Integer>) context.<Integer>newMeasure()
           .onFile(f)
           .forMetric(CoreMetrics.NCLOC)

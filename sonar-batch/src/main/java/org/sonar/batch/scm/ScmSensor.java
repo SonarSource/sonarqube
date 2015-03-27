@@ -30,10 +30,10 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
-import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
-import org.sonar.api.measures.CoreMetrics;
+import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.protocol.input.FileData;
 import org.sonar.batch.protocol.input.ProjectRepositories;
+import org.sonar.batch.report.PublishReportJob;
 import org.sonar.batch.scan.filesystem.InputFileMetadata;
 import org.sonar.batch.scan.filesystem.InputPathCache;
 
@@ -49,14 +49,19 @@ public final class ScmSensor implements Sensor {
   private final FileSystem fs;
   private final ProjectRepositories projectReferentials;
   private final InputPathCache inputPathCache;
+  private final ResourceCache resourceCache;
+  private final PublishReportJob publishReportJob;
 
   public ScmSensor(ProjectDefinition projectDefinition, ScmConfiguration configuration,
-    ProjectRepositories projectReferentials, FileSystem fs, InputPathCache inputPathCache) {
+    ProjectRepositories projectReferentials, FileSystem fs, InputPathCache inputPathCache, ResourceCache resourceCache,
+    PublishReportJob publishReportJob) {
     this.projectDefinition = projectDefinition;
     this.configuration = configuration;
     this.projectReferentials = projectReferentials;
     this.fs = fs;
     this.inputPathCache = inputPathCache;
+    this.resourceCache = resourceCache;
+    this.publishReportJob = publishReportJob;
   }
 
   @Override
@@ -66,9 +71,9 @@ public final class ScmSensor implements Sensor {
   }
 
   @Override
-  public void execute(final SensorContext context) {
+  public void execute(SensorContext context) {
     if (configuration.isDisabled()) {
-      LOG.info("SCM Sensor is disabled");
+      LOG.info("SCM Publisher is disabled");
       return;
     }
     if (configuration.provider() == null) {
@@ -76,78 +81,39 @@ public final class ScmSensor implements Sensor {
       return;
     }
 
-    List<InputFile> filesToBlame = collectFilesToBlame(context);
+    List<InputFile> filesToBlame = collectFilesToBlame();
     if (!filesToBlame.isEmpty()) {
       String key = configuration.provider().key();
       LOG.info("SCM provider for this project is: " + key);
-      DefaultBlameOutput output = new DefaultBlameOutput(context, filesToBlame);
+      DefaultBlameOutput output = new DefaultBlameOutput(publishReportJob.getWriter(), resourceCache, filesToBlame);
       configuration.provider().blameCommand().blame(new DefaultBlameInput(fs, filesToBlame), output);
       output.finish();
     }
   }
 
-  private List<InputFile> collectFilesToBlame(final SensorContext context) {
+  private List<InputFile> collectFilesToBlame() {
     if (configuration.forceReloadAll()) {
       LOG.warn("Forced reloading of SCM data for all files.");
     }
     List<InputFile> filesToBlame = new LinkedList<InputFile>();
-    for (InputFile f : fs.inputFiles(fs.predicates().all())) {
-      if (!configuration.forceReloadAll()) {
-        copyPreviousMeasuresForUnmodifiedFiles(context, filesToBlame, f);
+    for (InputFile f : inputPathCache.allFiles()) {
+      if (configuration.forceReloadAll()) {
+        addIfNotEmpty(filesToBlame, (DefaultInputFile) f);
       } else {
-        filesToBlame.add(f);
+        FileData fileData = projectReferentials.fileData(projectDefinition.getKeyWithBranch(), f.relativePath());
+        if (f.status() != Status.SAME || fileData == null || fileData.needBlame()) {
+          addIfNotEmpty(filesToBlame, (DefaultInputFile) f);
+        }
       }
     }
     return filesToBlame;
   }
 
-  private void copyPreviousMeasuresForUnmodifiedFiles(final SensorContext context, List<InputFile> filesToBlame, InputFile f) {
-    FileData fileData = projectReferentials.fileData(projectDefinition.getKeyWithBranch(), f.relativePath());
-
-    if (f.status() == Status.SAME && fileData != null) {
-      if (fileData.needBlame()) {
-        addIfNotEmpty(filesToBlame, (DefaultInputFile) f);
-      } else {
-        // Copy previous measures
-        String scmAuthorsByLine = fileData.scmAuthorsByLine();
-        String scmLastCommitDatetimesByLine = fileData.scmLastCommitDatetimesByLine();
-        String scmRevisionsByLine = fileData.scmRevisionsByLine();
-        if (scmAuthorsByLine != null
-          && scmLastCommitDatetimesByLine != null
-          && scmRevisionsByLine != null) {
-          saveMeasures(context, f, scmAuthorsByLine, scmLastCommitDatetimesByLine, scmRevisionsByLine);
-        }
-      }
-    } else {
-      addIfNotEmpty(filesToBlame, (DefaultInputFile) f);
-    }
-  }
-
   private void addIfNotEmpty(List<InputFile> filesToBlame, DefaultInputFile f) {
-    InputFileMetadata metadata = inputPathCache.getFileMetadata(f.moduleKey(), f.relativePath());
+    InputFileMetadata metadata = inputPathCache.getFileMetadata(f);
     if (!metadata.isEmpty()) {
       filesToBlame.add(f);
     }
   }
 
-  static void saveMeasures(SensorContext context, InputFile f, String scmAuthorsByLine, String scmLastCommitDatetimesByLine, String scmRevisionsByLine) {
-    ((DefaultMeasure<String>) context.<String>newMeasure()
-      .onFile(f)
-      .forMetric(CoreMetrics.SCM_AUTHORS_BY_LINE)
-      .withValue(scmAuthorsByLine))
-      .setFromCore()
-      .save();
-    ((DefaultMeasure<String>) context.<String>newMeasure()
-      .onFile(f)
-      .forMetric(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE)
-      .withValue(scmLastCommitDatetimesByLine))
-      .setFromCore()
-      .save();
-    ((DefaultMeasure<String>) context.<String>newMeasure()
-      .onFile(f)
-      .forMetric(CoreMetrics.SCM_REVISIONS_BY_LINE)
-      .withValue(scmRevisionsByLine))
-      .setFromCore()
-      .save();
-  }
 }

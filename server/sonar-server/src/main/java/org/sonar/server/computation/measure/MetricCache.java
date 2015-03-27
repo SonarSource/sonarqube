@@ -37,7 +37,7 @@ public class MetricCache {
   public MetricCache(DbClient dbClient) {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      List<MetricDto> metricList = dbClient.metricDao().findEnabled(dbSession);
+      List<MetricDto> metricList = dbClient.metricDao().selectEnabled(dbSession);
       this.metrics = Maps.uniqueIndex(metricList, new Function<MetricDto, String>() {
         @Override
         public String apply(MetricDto metric) {

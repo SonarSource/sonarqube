@@ -38,7 +38,7 @@ public interface QualityProfileMapper {
   List<QualityProfileDto> selectAll();
 
   @CheckForNull
-  QualityProfileDto selectDefaultProfile(@Param("language") String language, @Param("propKey") String propKey);
+  QualityProfileDto selectDefaultProfile(@Param("language") String language);
 
   @CheckForNull
   QualityProfileDto selectByNameAndLanguage(@Param("name") String name, @Param("language") String language);
@@ -63,11 +63,17 @@ public interface QualityProfileMapper {
 
   // PROJECTS
 
-  List<ComponentDto> selectProjects(@Param("value") String propertyValue, @Param("key") String propertyKey);
+  List<ComponentDto> selectProjects(@Param("profileName") String profileName, @Param("language") String language);
 
-  int countProjects(@Param("value") String propertyValue, @Param("key") String propertyKey);
+  int countProjects(@Param("profileName") String profileName, @Param("language") String language);
 
-  QualityProfileDto selectByProjectIdAndLanguage(@Param("projectId") Long projectId, @Param("language") String language, @Param("key") String propertyKeyPrefix);
+  QualityProfileDto selectByProjectIdAndLanguage(@Param("projectId") Long projectId, @Param("language") String language);
 
-  QualityProfileDto selectByProjectAndLanguage(@Param("projectKey") String projectKey, @Param("language") String language, @Param("propertyKey") String propertyKeyPrefix);
+  QualityProfileDto selectByProjectAndLanguage(@Param("projectKey") String projectKey, @Param("language") String language);
+
+  void insertProjectProfileAssociation(@Param("projectUuid") String projectUuid, @Param("profileKey") String profileKey);
+
+  void deleteProjectProfileAssociation(@Param("projectUuid") String projectUuid, @Param("profileKey") String profileKey);
+
+  void deleteAllProjectProfileAssociation(@Param("profileKey") String profileKey);
 }

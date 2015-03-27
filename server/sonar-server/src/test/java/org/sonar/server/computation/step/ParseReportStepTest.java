@@ -68,10 +68,10 @@ public class ParseReportStepTest extends BaseStepTest {
     assertThat(context.getReportMetadata().getDeletedComponentsCount()).isEqualTo(1);
 
     // verify that all components are processed (currently only for issues)
-    verify(issueComputation).processComponentIssues(context, "PROJECT_UUID", Collections.<BatchReport.Issue>emptyList());
-    verify(issueComputation).processComponentIssues(context, "FILE1_UUID", Collections.<BatchReport.Issue>emptyList());
-    verify(issueComputation).processComponentIssues(context, "FILE2_UUID", Collections.<BatchReport.Issue>emptyList());
-    verify(issueComputation).processComponentIssues(context, "DELETED_UUID", ISSUES_ON_DELETED_COMPONENT);
+    verify(issueComputation).processComponentIssues(context, Collections.<BatchReport.Issue>emptyList(), "PROJECT_UUID", 1);
+    verify(issueComputation).processComponentIssues(context, Collections.<BatchReport.Issue>emptyList(), "FILE1_UUID", 2);
+    verify(issueComputation).processComponentIssues(context, Collections.<BatchReport.Issue>emptyList(), "FILE2_UUID", 3);
+    verify(issueComputation).processComponentIssues(context, ISSUES_ON_DELETED_COMPONENT, "DELETED_UUID", null);
     verify(issueComputation).afterReportProcessing();
   }
 
