@@ -7,6 +7,8 @@
 
     period1Name: '<%= short_period_label(@snapshot, 1) -%>',
     period1Date: '<%= @snapshot.period_datetime(1).strftime('%FT%T%z') -%>',
+    period2Name: '<%= short_period_label(@snapshot, 2) -%>',
+    period2Date: '<%= @snapshot.period_datetime(2).strftime('%FT%T%z') -%>',
     period3Name: '<%= short_period_label(@snapshot, 3) -%>',
     period3Date: '<%= @snapshot.period_datetime(3).strftime('%FT%T%z') -%>'
   };

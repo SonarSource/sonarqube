@@ -28,6 +28,7 @@ define([
       gateRegion: '#overview-gate',
       sizeRegion: '#overview-size',
       issuesRegion: '#overview-issues',
+      debtRegion: '#overview-debt',
       coverageRegion: '#overview-coverage',
       duplicationsRegion: '#overview-duplications'
     }

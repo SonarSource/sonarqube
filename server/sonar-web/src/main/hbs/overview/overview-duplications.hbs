@@ -1,46 +1,45 @@
-<div class="overview-card-header page-header">
-  <h2 class="page-title">Duplications</h2>
-
-  <div class="page-actions">
-    <a class="badge" href="#">Overall</a>
-    <a class="badge badge-muted" href="#">What To Do</a>
-  </div>
-</div>
-
 <table class="width100">
   <tr>
-    <td>
-      <span class="js-pie-chart"
-            data-value="{{default duplications}}"
-            data-max="100"
-            data-color="#f3ca8e"
-            data-size="47"></span>
-      <div style="display: inline-block; vertical-align: middle; margin-left: 10px;">
+    <td class="width-55">
+      <div style="display: inline-block; vertical-align: middle;">
+        <p class="note">Duplications</p>
         <p style="font-size: 36px; font-weight: 300;">{{formatMeasure duplications 'PERCENT'}}</p>
       </div>
+      <div style="display: inline-block; vertical-align: middle; margin-left: 15px;">
+        <div id="overview-duplications-trend" data-width="100" data-height="30" data-color="#4b9fd5"></div>
+      </div>
     </td>
-    <td>
+    <td class="width-15">
       <div style="display: inline-block; vertical-align: middle;">
         <p>
           <span style="font-size: 16px;">{{formatMeasureVariation duplications1 'PERCENT'}}</span>
         </p>
-        <p style="color: #777; font-size: 12px; font-weight: 300;">{{period3Name}}</p>
+        <p style="color: #777; font-size: 12px; font-weight: 300;">{{period1Name}}</p>
       </div>
     </td>
-    <td>
+    <td class="width-15">
       <div style="display: inline-block; vertical-align: middle;">
         <p>
           <span style="font-size: 16px;">{{formatMeasureVariation duplications2 'PERCENT'}}</span>
         </p>
-        <p style="color: #777; font-size: 12px; font-weight: 300;">{{period1Name}}</p>
+        <p style="color: #777; font-size: 12px; font-weight: 300;">{{period2Name}}</p>
+      </div>
+    </td>
+    <td class="width-15">
+      <div style="display: inline-block; vertical-align: middle;">
+        <p>
+          <span style="font-size: 16px;">{{formatMeasureVariation duplications3 'PERCENT'}}</span>
+        </p>
+        <p style="color: #777; font-size: 12px; font-weight: 300;">{{period3Name}}</p>
       </div>
     </td>
   </tr>
   <tr>
-    <td class="text-top" style="padding: 15px 10px 0 10px;">
-      <div id="overview-duplications-trend" data-height="50" style="width: 300px;" data-color="#4b9fd5"></div>
+    <td class="width-55 text-top" style="padding: 15px 10px 0 10px;">
+
     </td>
-    <td></td>
-    <td></td>
+    <td class="width-15"></td>
+    <td class="width-15"></td>
+    <td class="width-15"></td>
   </tr>
 </table>

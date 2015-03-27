@@ -1,41 +1,15 @@
-<div class="overview-card-header page-header">
-  <h2 class="page-title">Quality Gate</h2>
-  <div class="page-actions">
-    <a class="badge badge-muted" href="#">{{default gateName 'project-quality-gate-name'}}</a>
-  </div>
-</div>
-
-{{#eq gateStatus 'ERROR'}}
-  <div class="alert alert-danger">
-    <i class="icon-alert-error"></i>&nbsp;{{t 'widget.alerts.errors'}}
-  </div>
-{{/eq}}
-{{#eq gateStatus 'WARN'}}
-  <div class="alert alert-warning">
-    <i class="icon-alert-warn"></i>&nbsp;{{t 'widget.alerts.warnings'}}
-  </div>
-{{/eq}}
-{{#eq gateStatus 'OK'}}
-  <div class="alert alert-success">
-    <i class="icon-alert-ok"></i>&nbsp;{{t 'widget.alerts.no_alert'}}
-  </div>
-{{/eq}}
-
-{{#notEmpty gateConditions}}
-  <ul class="list-inline spacer-top">
-    {{#each gateConditions}}
-      {{#notEq level 'OK'}}
+<div class="text-center">
+  {{#notEmpty gateConditions}}
+    <ul class="list-inline spacer-top" style="display: inline-block;">
+      {{#each gateConditions}}
         <li>
-          <span class="big alert_{{level}}">{{formatMeasure actual type}}</span>
-          <span>
-            {{t 'quality_gates.operator' op 'short'}}
-            {{#eq level 'ERROR'}}{{formatMeasure error type}}{{/eq}}
-            {{#eq level 'WARN'}}{{formatMeasure warning type}}{{/eq}}
-          </span>
+          <span class="alert_{{level}}" style="font-size: 24px; font-weight: 300; padding: 0 6px;"
+              title="{{#notEq level 'OK'}}{{t 'quality_gates.operator' op 'short'}} {{/notEq}}{{#eq level 'ERROR'}}{{formatMeasure error type}}{{/eq}}{{#eq level 'WARN'}}{{formatMeasure warning type}}{{/eq}}"
+              data-toggle="tooltip" data-placement="bottom">{{formatMeasure actual type}}</span>
           <p class="note text-lowercase" style="padding-top: 4px;">{{t 'metric' metric 'name'}}</p>
           <p class="note">{{default periodName period}}</p>
         </li>
-      {{/notEq}}
-    {{/each}}
-  </ul>
-{{/notEmpty}}
+      {{/each}}
+    </ul>
+  {{/notEmpty}}
+</div>

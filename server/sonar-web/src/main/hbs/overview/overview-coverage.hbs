@@ -1,47 +1,44 @@
-<div class="overview-card-header page-header">
-  <h2 class="page-title">Coverage</h2>
-
-  <div class="page-actions">
-    <span class="badge">Overall</span>
-    <span class="badge badge-muted">What To Do</span>
-  </div>
-</div>
-
 <table class="width100">
   <tr>
-    <td>
-      <span class="js-pie-chart"
-            data-value="{{default coverage}}"
-            data-max="100"
-            data-color="#85bb43"
-            data-base-color="#d4333f"
-            data-size="47"></span>
-      <div style="display: inline-block; vertical-align: middle; margin-left: 10px;">
+    <td class="width-55">
+      <div style="display: inline-block; vertical-align: middle;">
+        <p class="note">Coverage</p>
         <p style="font-size: 36px; font-weight: 300;">{{formatMeasure coverage 'PERCENT'}}</p>
       </div>
+      <div style="display: inline-block; vertical-align: middle; margin-left: 15px;">
+        <div id="overview-coverage-trend" data-width="100" data-height="30" data-color="#4b9fd5"></div>
+      </div>
     </td>
-    <td>
+    <td class="width-15">
       <div style="display: inline-block; vertical-align: middle;">
         <p>
           <span style="font-size: 16px;">{{formatMeasureVariation coverage1 'PERCENT'}}</span>
         </p>
-        <p style="color: #777; font-size: 12px; font-weight: 300;">{{period3Name}}</p>
+        <p style="color: #777; font-size: 12px; font-weight: 300;">{{period1Name}}</p>
       </div>
     </td>
-    <td>
+    <td class="width-15">
       <div style="display: inline-block; vertical-align: middle;">
         <p>
           <span style="font-size: 16px;">{{formatMeasureVariation coverage2 'PERCENT'}}</span>
         </p>
-        <p style="color: #777; font-size: 12px; font-weight: 300;">{{period1Name}}</p>
+        <p style="color: #777; font-size: 12px; font-weight: 300;">{{period2Name}}</p>
+      </div>
+    </td>
+    <td class="width-15">
+      <div style="display: inline-block; vertical-align: middle;">
+        <p>
+          <span style="font-size: 16px;">{{formatMeasureVariation coverage3 'PERCENT'}}</span>
+        </p>
+        <p style="color: #777; font-size: 12px; font-weight: 300;">{{period3Name}}</p>
       </div>
     </td>
   </tr>
   <tr>
-    <td class="text-top" style="padding: 15px 10px 0 10px;">
-      <div id="overview-coverage-trend" data-height="50" style="width: 300px;" data-color="#4b9fd5"></div>
+    <td class="width-55 text-top" style="padding: 15px 10px 0 10px;">
+
     </td>
-    <td>
+    <td class="width-15">
       {{#notNull newCoverage1}}
         <p>
           <span style="font-size: 16px;">{{formatMeasure newCoverage1 'PERCENT'}}</span>
@@ -49,10 +46,18 @@
         <p style="color: #777; font-size: 12px; font-weight: 300;">on new code</p>
       {{/notNull}}
     </td>
-    <td>
+    <td class="width-15">
       {{#notNull newCoverage2}}
         <p>
           <span style="font-size: 16px;">{{formatMeasure newCoverage2 'PERCENT'}}</span>
+        </p>
+        <p style="color: #777; font-size: 12px; font-weight: 300;">on new code</p>
+      {{/notNull}}
+    </td>
+    <td class="width-15">
+      {{#notNull newCoverage3}}
+        <p>
+          <span style="font-size: 16px;">{{formatMeasure newCoverage3 'PERCENT'}}</span>
         </p>
         <p style="color: #777; font-size: 12px; font-weight: 300;">on new code</p>
       {{/notNull}}

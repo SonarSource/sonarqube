@@ -1,46 +1,113 @@
-<div class="overview-card-header page-header">
-  <h2 class="page-title">Size</h2>
-</div>
-
 <table class="width100">
   <tr>
-    <td>
+    <td class="width-55" style="padding-bottom: 8px;">
       <div>
         <div style="display: inline-block; vertical-align: middle;">
+          <p class="note">Lines of Code</p>
           <p style="font-size: 36px; font-weight: 300;">{{formatMeasure ncloc 'INT'}}</p>
         </div>
-        {{#notEmpty nclocLang}}
-          <div style="display: inline-block; vertical-align: middle; margin-left: 10px;">
-            {{#each nclocLang}}
-              <p>{{formatMeasure value 'INT'}} <span class="note">{{key}}</span></p>
-            {{/each}}
-          </div>
-        {{/notEmpty}}
+        <div style="display: inline-block; vertical-align: middle; margin-left: 15px;">
+          <div id="overview-size-trend" data-width="100" data-height="30" data-color="#4b9fd5"></div>
+        </div>
       </div>
-      <p class="note">Lines of Code</p>
     </td>
-    <td>
+    <td class="width-15" style="padding-bottom: 8px;">
       <div style="display: inline-block; vertical-align: middle;">
         <p>
           <span style="font-size: 16px;">{{formatMeasureVariation ncloc1 'INT'}}</span>
         </p>
-        <p style="color: #777; font-size: 12px; font-weight: 300;">{{period3Name}}</p>
+        <p style="color: #777; font-size: 12px; font-weight: 300;">{{period1Name}}</p>
       </div>
     </td>
-    <td>
+    <td class="width-15" style="padding-bottom: 8px;">
       <div style="display: inline-block; vertical-align: middle;">
         <p>
           <span style="font-size: 16px;">{{formatMeasureVariation ncloc2 'INT'}}</span>
         </p>
-        <p style="color: #777; font-size: 12px; font-weight: 300;">{{period1Name}}</p>
+        <p style="color: #777; font-size: 12px; font-weight: 300;">{{period2Name}}</p>
+      </div>
+    </td>
+    <td class="width-15" style="padding-bottom: 8px;">
+      <div style="display: inline-block; vertical-align: middle;">
+        <p>
+          <span style="font-size: 16px;">{{formatMeasureVariation ncloc3 'INT'}}</span>
+        </p>
+        <p style="color: #777; font-size: 12px; font-weight: 300;">{{period3Name}}</p>
       </div>
     </td>
   </tr>
   <tr>
-    <td class="text-top" style="padding: 15px 10px 0 10px;">
-      <div id="overview-size-trend" data-height="50" style="width: 300px;" data-color="#4b9fd5"></div>
+    <td class="width-55" style="padding-top: 8px; border-top: 1px solid #f0f0f0;">
+      <div>
+        <div style="display: inline-block; vertical-align: middle;">
+          <p class="note">Complexity /function</p>
+          <p style="font-size: 20px; font-weight: 300;">{{formatMeasure functionComplexity 'FLOAT'}}</p>
+        </div>
+        <div style="display: inline-block; vertical-align: middle; margin-left: 15px;">
+          <div id="overview-size-trend" data-width="100" data-height="30" data-color="#4b9fd5"></div>
+        </div>
+      </div>
+    </td>
+    <td class="width-15" style="padding-top: 8px; border-top: 1px solid #f0f0f0;">
+      <div style="display: inline-block; vertical-align: middle;">
+        <p>
+          <span style="font-size: 16px;">{{formatMeasureVariation functionComplexity1 'FLOAT'}}</span>
+        </p>
+        <p style="color: #777; font-size: 12px; font-weight: 300;">{{period1Name}}</p>
+      </div>
+    </td>
+    <td class="width-15" style="padding-top: 8px; border-top: 1px solid #f0f0f0;">
+      <div style="display: inline-block; vertical-align: middle;">
+        <p>
+          <span style="font-size: 16px;">{{formatMeasureVariation functionComplexity2 'FLOAT'}}</span>
+        </p>
+        <p style="color: #777; font-size: 12px; font-weight: 300;">{{period2Name}}</p>
+      </div>
+    </td>
+    <td class="width-15" style="padding-top: 8px; border-top: 1px solid #f0f0f0;">
+      <div style="display: inline-block; vertical-align: middle;">
+        <p>
+          <span style="font-size: 16px;">{{formatMeasureVariation functionComplexity3 'FLOAT'}}</span>
+        </p>
+        <p style="color: #777; font-size: 12px; font-weight: 300;">{{period3Name}}</p>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="width-55" style="padding-top: 15px;">
+      <div>
+        <div style="display: inline-block; vertical-align: middle;">
+          <p class="note">Complexity /file</p>
+          <p style="font-size: 20px; font-weight: 300;">{{formatMeasure fileComplexity 'FLOAT'}}</p>
+        </div>
+        <div style="display: inline-block; vertical-align: middle; margin-left: 15px;">
+          <div id="overview-size-trend" data-width="100" data-height="30" data-color="#4b9fd5"></div>
+        </div>
+      </div>
+    </td>
+    <td class="width-15" style="padding-top: 15px;">
+      <div style="display: inline-block; vertical-align: middle;">
+        <p>
+          <span style="font-size: 16px;">{{formatMeasureVariation fileComplexity 'FLOAT'}}</span>
+        </p>
+        <p style="color: #777; font-size: 12px; font-weight: 300;">{{period1Name}}</p>
+      </div>
+    </td>
+    <td class="width-15" style="padding-top: 15px;">
+      <div style="display: inline-block; vertical-align: middle;">
+        <p>
+          <span style="font-size: 16px;">{{formatMeasureVariation fileComplexity 'FLOAT'}}</span>
+        </p>
+        <p style="color: #777; font-size: 12px; font-weight: 300;">{{period2Name}}</p>
+      </div>
+    </td>
+    <td class="width-15" style="padding-top: 15px;">
+      <div style="display: inline-block; vertical-align: middle;">
+        <p>
+          <span style="font-size: 16px;">{{formatMeasureVariation fileComplexity 'FLOAT'}}</span>
+        </p>
+        <p style="color: #777; font-size: 12px; font-weight: 300;">{{period3Name}}</p>
+      </div>
     </td>
   </tr>
 </table>
-
-<div id="overview-size-treemap" style="padding-top: 15px;"></div>

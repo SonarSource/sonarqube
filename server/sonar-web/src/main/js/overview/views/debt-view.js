@@ -22,15 +22,15 @@ define([
 ], function () {
 
   return Marionette.Layout.extend({
-    template: Templates['overview-gate'],
+    template: Templates['overview-debt'],
 
     modelEvents: {
       'change': 'render'
     },
 
     onRender: function () {
-      if (this.model.has('gateStatus')) {
-        this.$el.closest('.overview-card').addClass('overview-gate-' + this.model.get('gateStatus').toLowerCase());
+      if (this.model.has('debtTrend')) {
+        this.$('#overview-debt-trend').sparkline(this.model.get('debtTrend'));
       }
       this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
     },

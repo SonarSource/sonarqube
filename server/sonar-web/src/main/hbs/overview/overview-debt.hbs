@@ -1,87 +1,37 @@
-<div class="overview-card-header page-header">
-  <h2 class="page-title">Issues & Technical Debt</h2>
-
-  <div class="page-actions">
-    <a class="badge badge-muted js-issues" href="#">Issues</a>
-    <a class="badge js-debt" href="#">Debt</a>
-    <a class="badge badge-muted js-guide" href="#">What To Do</a>
-  </div>
-</div>
-
 <table class="width100">
   <tr>
-    <td>
+    <td class="width-55">
       <div style="display: inline-block; vertical-align: middle;">
+        <p class="note">Debt</p>
         <p style="font-size: 36px; font-weight: 300;">{{formatMeasure debt 'WORK_DUR'}}</p>
       </div>
-      <ul class="list-inline" style="display: inline-block; vertical-align: middle; margin-left: 10px;">
-        {{#notNull blockerDebt}}
-          <li>{{severityIcon 'BLOCKER'}}&nbsp;{{formatMeasure blockerDebt 'WORK_DUR'}}</li>
-        {{/notNull}}
-        {{#notNull criticalDebt}}
-          <li>{{severityIcon 'CRITICAL'}}&nbsp;{{formatMeasure criticalDebt 'WORK_DUR'}}</li>
-        {{/notNull}}
-      </ul>
+      <div style="display: inline-block; vertical-align: middle; margin-left: 15px;">
+        <div id="overview-debt-trend" data-width="100" data-height="30" data-color="#4b9fd5"></div>
+      </div>
     </td>
-    <td>
-      {{#notNull debt1}}
-        <div style="display: inline-block; vertical-align: middle;">
-          <p>
-            <span class="text-danger" style="font-size: 16px;">+{{formatMeasure debt1 'WORK_DUR'}}</span>
-          </p>
-          <p style="color: #777; font-size: 12px; font-weight: 300;">{{period3Name}}</p>
-        </div>
-      {{/notNull}}
+    <td class="width-15">
+      <div style="display: inline-block; vertical-align: middle;">
+        <p>
+          <span class="{{#gt deb1 0}}text-danger{{/gt}}{{#lt debt1 0}}text-success{{/lt}}" style="font-size: 16px;">{{formatMeasureVariation debt1 'WORK_DUR'}}</span>
+        </p>
+        <p style="color: #777; font-size: 12px; font-weight: 300;">{{period1Name}}</p>
+      </div>
     </td>
-    <td>
-      {{#notNull debt2}}
-        <div style="display: inline-block; vertical-align: middle;">
-          <p>
-            <span class="text-danger" style="font-size: 16px;">+{{formatMeasure debt2 'WORK_DUR'}}</span>
-          </p>
-          <p style="color: #777; font-size: 12px; font-weight: 300;">{{period1Name}}</p>
-        </div>
-      {{/notNull}}
+    <td class="width-15">
+      <div style="display: inline-block; vertical-align: middle;">
+        <p>
+          <span class="{{#gt debt2 0}}text-danger{{/gt}}{{#lt debt2 0}}text-success{{/lt}}" style="font-size: 16px;">{{formatMeasureVariation debt2 'WORK_DUR'}}</span>
+        </p>
+        <p style="color: #777; font-size: 12px; font-weight: 300;">{{period2Name}}</p>
+      </div>
     </td>
-  </tr>
-  <tr>
-    <td class="text-top" style="padding: 15px 10px 0 10px;">
-      <div id="overview-debt-trend" data-height="50" style="width: 300px;" data-color="#4b9fd5"></div>
-    </td>
-    <td class="text-top" style="padding-top: 15px;">
-      <ul class="list-inline">
-        {{#notNull blockerDebt1}}
-          <li class="text-danger">{{severityIcon 'BLOCKER'}}&nbsp;+{{formatMeasure blockerDebt1 'WORK_DUR'}}</li>
-        {{/notNull}}
-        {{#notNull criticalDebt1}}
-          <li class="text-danger">{{severityIcon 'CRITICAL'}}&nbsp;+{{formatMeasure criticalDebt1 'WORK_DUR'}}</li>
-        {{/notNull}}
-      </ul>
-    </td>
-    <td class="text-top" style="padding-top: 15px;">
-      <ul class="list-inline">
-        {{#notNull blockerDebt2}}
-          <li class="text-danger">{{severityIcon 'BLOCKER'}}&nbsp;+{{formatMeasure blockerDebt2 'WORK_DUR'}}</li>
-        {{/notNull}}
-        {{#notNull criticalDebt2}}
-          <li class="text-danger">{{severityIcon 'CRITICAL'}}&nbsp;+{{formatMeasure criticalDebt2 'WORK_DUR'}}</li>
-        {{/notNull}}
-      </ul>
+    <td class="width-15">
+      <div style="display: inline-block; vertical-align: middle;">
+        <p>
+          <span class="{{#gt debt3 0}}text-danger{{/gt}}{{#lt debt3 0}}text-success{{/lt}}" style="font-size: 16px;">{{formatMeasureVariation debt3 'WORK_DUR'}}</span>
+        </p>
+        <p style="color: #777; font-size: 12px; font-weight: 300;">{{period3Name}}</p>
+      </div>
     </td>
   </tr>
 </table>
-
-<div style="margin: 20px 0;">
-
-</div>
-
-<div style="margin: 20px 0;">
-  <div class="sonar-d3 cloud-widget">
-    <div>
-      {{#each issuesTags}}
-        <a class="cloud-word" href="#" title="{{numberShort count}}" data-toggle="tooltip"
-           style="font-size: {{size}}px;">{{val}}</a>
-      {{/each}}
-    </div>
-  </div>
-</div>

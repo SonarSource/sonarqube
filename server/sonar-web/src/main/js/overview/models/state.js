@@ -14,12 +14,12 @@ define(function () {
           this.fetchGate(),
 
           this.fetchSize(),
-          this.fetchSizeTreemap(),
           this.fetchSizeTrend(),
 
           this.fetchIssues(),
           this.fetchIssues1(),
           this.fetchIssues2(),
+          this.fetchIssues3(),
           this.fetchIssuesTrend(),
 
           this.fetchDebt(),
@@ -45,14 +45,15 @@ define(function () {
             gateConditions = gateData.conditions,
             urlMetrics = baseUrl + '/api/metrics';
         $.get(urlMetrics).done(function (r) {
+          var gateConditionsWithMetric = gateConditions.map(function (c) {
+            var metric = _.findWhere(r, { key: c.metric }),
+                type = metric != null ? metric.val_type : null,
+                periodName = that.get('period' + c.period + 'Name');
+            return _.extend(c, { type: type, periodName: periodName });
+          });
           that.set({
             gateStatus: gateData.level,
-            gateConditions: gateConditions.map(function (c) {
-              var metric = _.findWhere(r, { key: c.metric }),
-                  type = metric != null ? metric.val_type : null,
-                  periodName = that.get('period' + c.period + 'Name');
-              return _.extend(c, { type: type, periodName: periodName });
-            })
+            gateConditions: gateConditionsWithMetric
           });
         });
       });
@@ -63,7 +64,7 @@ define(function () {
           url = baseUrl + '/api/resources/index',
           options = {
             resource: this.get('componentKey'),
-            metrics: 'ncloc,ncloc_language_distribution',
+            metrics: 'ncloc,ncloc_language_distribution,function_complexity,file_complexity',
             includetrends: true
           };
       return $.get(url, options).done(function (r) {
@@ -77,56 +78,25 @@ define(function () {
             nclocLangSorted = _.sortBy(nclocLangParsed, function (item) {
               return -item.value;
             }),
-            nclocLang = _.first(nclocLangSorted, 2);
+            nclocLang = _.first(nclocLangSorted, 2),
+            functionComplexityMeasure =  _.findWhere(msr, { key: 'function_complexity' }),
+            fileComplexityMeasure =  _.findWhere(msr, { key: 'file_complexity' });
         that.set({
           ncloc: nclocMeasure.val,
-          ncloc1: nclocMeasure.var3,
-          ncloc2: nclocMeasure.var1,
-          nclocLang: nclocLang
-        });
-      });
-    },
+          ncloc1: nclocMeasure.var1,
+          ncloc2: nclocMeasure.var2,
+          ncloc3: nclocMeasure.var3,
+          nclocLang: nclocLang,
 
-    fetchSizeTreemap: function () {
-      var that = this,
-          url = baseUrl + '/api/resources/index',
-          options = {
-            resource: this.get('componentKey'),
-            depth: 1,
-            metrics: 'ncloc,sqale_debt_ratio'
-          };
-      return $.get(url, options).done(function (r) {
-        var components = r.map(function (component) {
-          var measures = component.msr.map(function (measure) {
-                return {
-                  key: measure.key,
-                  val: measure.val,
-                  fval: measure.frmt_val
-                };
-              }),
-              indexedMeasures = _.indexBy(measures, 'key');
-          return {
-            key: component.key,
-            name: component.name,
-            longName: component.lname,
-            qualifier: component.qualifier,
-            measures: indexedMeasures
-          };
-        });
+          functionComplexity: functionComplexityMeasure.val,
+          functionComplexity1: functionComplexityMeasure.var1,
+          functionComplexity2: functionComplexityMeasure.var2,
+          functionComplexity3: functionComplexityMeasure.var3,
 
-        that.set({
-          treemapComponents: components,
-          treemapMetrics: {
-            'sqale_debt_ratio': {
-              name: t('metric.sqale_debt_ratio.name'),
-              direction: '1',
-              type: 'PERCENT'
-            },
-            ncloc: {
-              name: t('metric.ncloc.name')
-            }
-          },
-          treemapMetricsPriority: ['sqale_debt_ratio', 'ncloc']
+          fileComplexity: fileComplexityMeasure.val,
+          fileComplexity1: fileComplexityMeasure.var1,
+          fileComplexity2: fileComplexityMeasure.var2,
+          fileComplexity3: fileComplexityMeasure.var3
         });
       });
     },
@@ -153,10 +123,11 @@ define(function () {
             ps: 1,
             resolved: 'false',
             componentUuids: this.get('componentUuid'),
-            facets: 'severities,tags'
+            facets: 'severities,statuses,tags'
           };
       return $.get(url, options).done(function (r) {
         var severityFacet = _.findWhere(r.facets, { property: 'severities' }),
+            statusFacet = _.findWhere(r.facets, { property: 'statuses' }),
             tagFacet = _.findWhere(r.facets, { property: 'tags' }),
             tags = _.first(tagFacet.values, 10),
             minTagCount = _.min(tags, function (t) {
@@ -173,35 +144,15 @@ define(function () {
           issues: r.total,
           blockerIssues: _.findWhere(severityFacet.values, { val: 'BLOCKER' }).count,
           criticalIssues: _.findWhere(severityFacet.values, { val: 'CRITICAL' }).count,
+          majorIssues: _.findWhere(severityFacet.values, { val: 'MAJOR' }).count,
+          openIssues: _.findWhere(statusFacet.values, { val: 'OPEN' }).count +
+          _.findWhere(statusFacet.values, { val: 'REOPENED' }).count,
           issuesTags: sizedTags
         });
       });
     },
 
     fetchIssues1: function () {
-      var that = this,
-          url = baseUrl + '/api/issues/search',
-          options = {
-            ps: 1,
-            resolved: 'false',
-            createdAfter: this.get('period3Date'),
-            componentUuids: this.get('componentUuid'),
-            facets: 'severities,statuses'
-          };
-      return $.get(url, options).done(function (r) {
-        var severityFacet = _.findWhere(r.facets, { property: 'severities' }),
-            statusFacet = _.findWhere(r.facets, { property: 'statuses' });
-        that.set({
-          issues1: r.total,
-          blockerIssues1: _.findWhere(severityFacet.values, { val: 'BLOCKER' }).count,
-          criticalIssues1: _.findWhere(severityFacet.values, { val: 'CRITICAL' }).count,
-          openIssues1: _.findWhere(statusFacet.values, { val: 'OPEN' }).count +
-          _.findWhere(statusFacet.values, { val: 'REOPENED' }).count
-        });
-      });
-    },
-
-    fetchIssues2: function () {
       var that = this,
           url = baseUrl + '/api/issues/search',
           options = {
@@ -215,10 +166,59 @@ define(function () {
         var severityFacet = _.findWhere(r.facets, { property: 'severities' }),
             statusFacet = _.findWhere(r.facets, { property: 'statuses' });
         that.set({
+          issues1: r.total,
+          blockerIssues1: _.findWhere(severityFacet.values, { val: 'BLOCKER' }).count,
+          criticalIssues1: _.findWhere(severityFacet.values, { val: 'CRITICAL' }).count,
+          majorIssues1: _.findWhere(severityFacet.values, { val: 'MAJOR' }).count,
+          openIssues1: _.findWhere(statusFacet.values, { val: 'OPEN' }).count +
+          _.findWhere(statusFacet.values, { val: 'REOPENED' }).count
+        });
+      });
+    },
+
+    fetchIssues2: function () {
+      var that = this,
+          url = baseUrl + '/api/issues/search',
+          options = {
+            ps: 1,
+            resolved: 'false',
+            createdAfter: this.get('period2Date'),
+            componentUuids: this.get('componentUuid'),
+            facets: 'severities,statuses'
+          };
+      return $.get(url, options).done(function (r) {
+        var severityFacet = _.findWhere(r.facets, { property: 'severities' }),
+            statusFacet = _.findWhere(r.facets, { property: 'statuses' });
+        that.set({
           issues2: r.total,
           blockerIssues2: _.findWhere(severityFacet.values, { val: 'BLOCKER' }).count,
           criticalIssues2: _.findWhere(severityFacet.values, { val: 'CRITICAL' }).count,
+          majorIssues2: _.findWhere(severityFacet.values, { val: 'MAJOR' }).count,
           openIssues2: _.findWhere(statusFacet.values, { val: 'OPEN' }).count +
+          _.findWhere(statusFacet.values, { val: 'REOPENED' }).count
+        });
+      });
+    },
+
+    fetchIssues3: function () {
+      var that = this,
+          url = baseUrl + '/api/issues/search',
+          options = {
+            ps: 1,
+            resolved: 'false',
+            createdAfter: this.get('period3Date'),
+            componentUuids: this.get('componentUuid'),
+            facets: 'severities,statuses'
+          };
+      return $.get(url, options).done(function (r) {
+        var severityFacet = _.findWhere(r.facets, { property: 'severities' }),
+            statusFacet = _.findWhere(r.facets, { property: 'statuses' });
+        that.set({
+          issues3: r.total,
+          blockerIssues3: _.findWhere(severityFacet.values, { val: 'BLOCKER' }).count,
+          criticalIssues3: _.findWhere(severityFacet.values, { val: 'CRITICAL' }).count,
+          majorIssues3: _.findWhere(severityFacet.values, { val: 'MAJOR' }).count,
+          openIssues3: _.findWhere(statusFacet.values, { val: 'OPEN' }).count +
           _.findWhere(statusFacet.values, { val: 'REOPENED' }).count
         });
       });
@@ -244,24 +244,17 @@ define(function () {
           url = baseUrl + '/api/resources/index',
           options = {
             resource: this.get('componentKey'),
-            metrics: 'sqale_index,blocker_remediation_cost,critical_remediation_cost',
+            metrics: 'sqale_index',
             includetrends: true
           };
       return $.get(url, options).done(function (r) {
         var msr = r[0].msr,
-            debtMeasure = _.findWhere(msr, { key: 'sqale_index' }),
-            blockerDebtMeasure = _.findWhere(msr, { key: 'blocker_remediation_cost' }),
-            criticalDebtMeasure = _.findWhere(msr, { key: 'critical_remediation_cost' });
+            debtMeasure = _.findWhere(msr, { key: 'sqale_index' });
         that.set({
           debt: debtMeasure.val,
-          debt1: debtMeasure.var3,
-          debt2: debtMeasure.var1,
-          blockerDebt: blockerDebtMeasure != null ? blockerDebtMeasure.val : null,
-          blockerDebt1: blockerDebtMeasure != null ? blockerDebtMeasure.var3 : null,
-          blockerDebt2: blockerDebtMeasure != null ? blockerDebtMeasure.var1 : null,
-          criticalDebt: criticalDebtMeasure != null ? criticalDebtMeasure.val : null,
-          criticalDebt1: criticalDebtMeasure != null ? criticalDebtMeasure.var3 : null,
-          criticalDebt2: criticalDebtMeasure != null ? criticalDebtMeasure.var1 : null
+          debt1: debtMeasure.var1,
+          debt2: debtMeasure.var2,
+          debt3: debtMeasure.var3
         });
       });
     },
@@ -295,10 +288,12 @@ define(function () {
             newCoverageMeasure = _.findWhere(msr, { key: 'new_overall_coverage' });
         that.set({
           coverage: coverageMeasure.val,
-          coverage1: coverageMeasure.var3,
-          coverage2: coverageMeasure.var1,
-          newCoverage1: newCoverageMeasure.var3,
-          newCoverage2: newCoverageMeasure.var1
+          coverage1: coverageMeasure.var1,
+          coverage2: coverageMeasure.var2,
+          coverage3: coverageMeasure.var3,
+          newCoverage1: newCoverageMeasure.var1,
+          newCoverage2: newCoverageMeasure.var2,
+          newCoverage3: newCoverageMeasure.var3
         });
       });
     },
@@ -331,8 +326,9 @@ define(function () {
             duplicationsMeasure = _.findWhere(msr, { key: 'duplicated_lines_density' });
         that.set({
           duplications: duplicationsMeasure.val,
-          duplications1: duplicationsMeasure.var3,
-          duplications2: duplicationsMeasure.var1
+          duplications1: duplicationsMeasure.var1,
+          duplications2: duplicationsMeasure.var2,
+          duplications3: duplicationsMeasure.var3
         });
       });
     },

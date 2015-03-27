@@ -373,6 +373,7 @@ function fileFromPath (path) {
  */
 
 (function () {
+
   /**
    * Format a work duration measure
    * @param {number} value
@@ -407,6 +408,15 @@ function fileFromPath (path) {
       formatted += tp('work_duration.x_minutes', isNegative && formatted.length === 0 ? -1 * minutes : minutes);
     }
     return formatted;
+  };
+
+  /**
+   * Format a work duration variation
+   * @param value
+   */
+  var durationVariationFormatter = function (value) {
+    var formatted = durationFormatter(value);
+    return formatted[0] !== '-' ? '+' + formatted : formatted;
   };
 
   /**
@@ -452,7 +462,8 @@ function fileFromPath (path) {
           },
           'PERCENT': function (value) {
             return numeral(+value / 100).format('+0,0.0%');
-          }
+          },
+          'WORK_DUR': durationVariationFormatter
         };
     if (measure != null && type != null) {
       formatted = formatters[type] != null ? formatters[type](measure) : measure;

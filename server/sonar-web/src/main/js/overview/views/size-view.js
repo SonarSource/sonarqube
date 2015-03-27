@@ -30,27 +30,7 @@ define([
 
     onRender: function () {
       if (this.model.has('sizeTrend')) {
-        this.$('#overview-size-trend').timeline(this.model.get('sizeTrend'), { type: 'INT' });
-      }
-
-      if (this.model.has('treemapMetrics') && this.model.has('treemapMetricsPriority') && this.model.has('treemapComponents')) {
-        var widget = new SonarWidgets.Treemap();
-        widget
-            .metrics(this.model.get('treemapMetrics'))
-            .metricsPriority(this.model.get('treemapMetricsPriority'))
-            .components(this.model.get('treemapComponents'))
-            .options({
-              heightInPercents: 55,
-              maxItems: 10,
-              maxItemsReachedMessage: tp('widget.measure_filter_histogram.max_items_reached', 10),
-              baseUrl: baseUrl + '/dashboard/index',
-              noData: t('no_data'),
-              resource: ''
-            })
-            .render('#overview-size-treemap');
-        autoResize(500, function () {
-          widget.update('#overview-size-treemap');
-        });
+        this.$('#overview-size-trend').sparkline(this.model.get('sizeTrend'));
       }
     }
   });

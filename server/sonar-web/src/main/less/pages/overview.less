@@ -21,25 +21,26 @@
 @import (reference) "../mixins";
 
 .overview {
-  padding: 10px 0;
+  padding: 10px;
   .box-sizing(border-box);
   overflow: hidden;
 }
 
-.overview-status-ok {}
-
-.overview-status-warn {}
-
-.overview-status-error {}
-
 .overview-card {
   padding: 10px;
   background: @white;
+  border: 1px solid @barBorderColor;
 }
 
 .overview-card + .overview-card {
-  margin-top: 20px;
+  margin-top: 10px;
 }
+
+.overview-gate-ok { border: 2px solid @green; }
+
+.overview-gate-warn { border: 2px solid @orange; }
+
+.overview-gate-error { border: 2px solid @red; }
 
 .overview-card-header {
   padding-bottom: 5px;
