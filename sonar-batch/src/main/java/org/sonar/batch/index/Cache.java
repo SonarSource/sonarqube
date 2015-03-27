@@ -492,7 +492,6 @@ public class Cache<V> {
       return key;
     }
 
-    @CheckForNull
     public V value() {
       return value;
     }

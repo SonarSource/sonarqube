@@ -47,7 +47,6 @@ public class ResourceCache implements BatchComponent {
     return resources.get(componentKey);
   }
 
-  @CheckForNull
   public BatchResource get(Resource resource) {
     if (!(resource instanceof Library)) {
       return resources.get(resource.getEffectiveKey());

@@ -26,8 +26,6 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.scm.BlameCommand.BlameOutput;
 import org.sonar.api.batch.scm.BlameLine;
-import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.PropertiesBuilder;
 import org.sonar.batch.index.BatchResource;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.protocol.output.BatchReport;
@@ -132,10 +130,6 @@ class DefaultBlameOutput implements BlameOutput {
 
   private String removeNonAsciiCharacters(String inputString) {
     return NON_ASCII_CHARS.matcher(inputString).replaceAll("_");
-  }
-
-  private static PropertiesBuilder<Integer, String> propertiesBuilder(Metric metric) {
-    return new PropertiesBuilder<Integer, String>(metric);
   }
 
   public void finish() {

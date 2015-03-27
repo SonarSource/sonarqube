@@ -110,7 +110,7 @@ public final class ScmSensor implements Sensor {
   }
 
   private void addIfNotEmpty(List<InputFile> filesToBlame, DefaultInputFile f) {
-    InputFileMetadata metadata = inputPathCache.getFileMetadata(f.moduleKey(), f.relativePath());
+    InputFileMetadata metadata = inputPathCache.getFileMetadata(f);
     if (!metadata.isEmpty()) {
       filesToBlame.add(f);
     }
