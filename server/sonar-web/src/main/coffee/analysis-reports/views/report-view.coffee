@@ -32,6 +32,7 @@ define [
       @$el.addClass 'analysis-reports-report-pending' if status is 'PENDING'
       @$el.addClass 'analysis-reports-report-working' if status is 'WORKING'
       @$el.addClass 'analysis-reports-report-done' if status is 'SUCCESS'
+      @$el.addClass 'analysis-reports-report-cancelled' if status is 'CANCELLED'
       @$el.addClass 'analysis-reports-report-failed' if status is 'FAIL'
 
 
