@@ -101,7 +101,6 @@ public class CommandExecutor {
       return exitCode;
 
     } catch (java.util.concurrent.TimeoutException te) {
-      process.destroy();
       throw new TimeoutException(command, "Timeout exceeded: " + timeoutMilliseconds + " ms", te);
 
     } catch (CommandException e) {
@@ -111,6 +110,9 @@ public class CommandExecutor {
       throw new CommandException(command, e);
 
     } finally {
+      if (process != null) {
+        process.destroy();
+      }
       waitUntilFinish(outputGobbler);
       waitUntilFinish(errorGobbler);
       closeStreams(process);
