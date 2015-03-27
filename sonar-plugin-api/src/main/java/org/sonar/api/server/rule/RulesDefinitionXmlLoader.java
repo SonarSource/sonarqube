@@ -58,6 +58,9 @@ import java.util.List;
  *     &lt;severity&gt;BLOCKER&lt;/severity&gt;
  *     &lt;cardinality&gt;MULTIPLE&lt;/cardinality&gt;
  *     &lt;status&gt;BETA&lt;/status&gt;
+ *     &lt;debtSubCharacteristic&gt;INTEGRATION_TESTABILITY&lt;/debtSubCharacteristic&gt;
+ *     &lt;debtRemediationFunctionCoefficient&gt;2d 2h 2min&lt;/debtRemediationFunctionCoefficient&gt;
+ *     &lt;debtRemediationFunctionOffset&gt;1d 1h 1min&lt;/debtRemediationFunctionOffset&gt;
  *     &lt;tag&gt;style&lt;/tag&gt;
  *     &lt;tag&gt;security&lt;/tag&gt;
  *     &lt;param&gt;
@@ -83,155 +86,174 @@ import java.util.List;
  */
 public class RulesDefinitionXmlLoader implements ServerComponent {
 
-  public void load(RulesDefinition.NewRepository repo, InputStream input, String encoding) {
-    load(repo, input, Charset.forName(encoding));
-  }
-
-  /**
-   * @since 5.1
-   */
-  public void load(RulesDefinition.NewRepository repo, InputStream input, Charset charset) {
-    try (Reader reader = new InputStreamReader(input, charset)) {
-      load(repo, reader);
-    } catch (IOException e) {
-      throw new IllegalStateException("Error while reading XML rules definition for repository " + repo.key(), e);
+    public void load(RulesDefinition.NewRepository repo, InputStream input, String encoding) {
+        load(repo, input, Charset.forName(encoding));
     }
-  }
 
-  public void load(RulesDefinition.NewRepository repo, Reader reader) {
-    XMLInputFactory xmlFactory = XMLInputFactory.newInstance();
-    xmlFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.TRUE);
-    xmlFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, Boolean.FALSE);
-    // just so it won't try to load DTD in if there's DOCTYPE
-    xmlFactory.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);
-    xmlFactory.setProperty(XMLInputFactory.IS_VALIDATING, Boolean.FALSE);
-    SMInputFactory inputFactory = new SMInputFactory(xmlFactory);
-    try {
-      SMHierarchicCursor rootC = inputFactory.rootElementCursor(reader);
-      rootC.advance(); // <rules>
-
-      SMInputCursor rulesC = rootC.childElementCursor("rule");
-      while (rulesC.getNext() != null) {
-        // <rule>
-        processRule(repo, rulesC);
-      }
-
-    } catch (XMLStreamException e) {
-      throw new IllegalStateException("XML is not valid", e);
+    /**
+     * @since 5.1
+     */
+    public void load(RulesDefinition.NewRepository repo, InputStream input, Charset charset) {
+        try (Reader reader = new InputStreamReader(input, charset)) {
+            load(repo, reader);
+        } catch (IOException e) {
+            throw new IllegalStateException("Error while reading XML rules definition for repository " + repo.key(), e);
+        }
     }
-  }
 
-  private void processRule(RulesDefinition.NewRepository repo, SMInputCursor ruleC) throws XMLStreamException {
-    String key = null, name = null, description = null, internalKey = null, severity = Severity.defaultSeverity(), status = null;
-    Cardinality cardinality = Cardinality.SINGLE;
-    List<ParamStruct> params = new ArrayList<ParamStruct>();
-    List<String> tags = new ArrayList<String>();
+    public void load(RulesDefinition.NewRepository repo, Reader reader) {
+        XMLInputFactory xmlFactory = XMLInputFactory.newInstance();
+        xmlFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.TRUE);
+        xmlFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, Boolean.FALSE);
+        // just so it won't try to load DTD in if there's DOCTYPE
+        xmlFactory.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);
+        xmlFactory.setProperty(XMLInputFactory.IS_VALIDATING, Boolean.FALSE);
+        SMInputFactory inputFactory = new SMInputFactory(xmlFactory);
+        try {
+            SMHierarchicCursor rootC = inputFactory.rootElementCursor(reader);
+            rootC.advance(); // <rules>
+
+            SMInputCursor rulesC = rootC.childElementCursor("rule");
+            while (rulesC.getNext() != null) {
+                // <rule>
+                processRule(repo, rulesC);
+            }
+
+        } catch (XMLStreamException e) {
+            throw new IllegalStateException("XML is not valid", e);
+        }
+    }
+
+    private void processRule(RulesDefinition.NewRepository repo, SMInputCursor ruleC) throws XMLStreamException {
+        String key = null, name = null, description = null, internalKey = null, severity = Severity.defaultSeverity(), status = null, debtSubCharacteristic = null, debtRemediationFunctionCoefficient = null, debtRemediationFunctionOffset = null;
+        Cardinality cardinality = Cardinality.SINGLE;
+        List<ParamStruct> params = new ArrayList<ParamStruct>();
+        List<String> tags = new ArrayList<String>();
 
     /* BACKWARD COMPATIBILITY WITH VERY OLD FORMAT */
-    String keyAttribute = ruleC.getAttrValue("key");
-    if (StringUtils.isNotBlank(keyAttribute)) {
-      key = StringUtils.trim(keyAttribute);
+        String keyAttribute = ruleC.getAttrValue("key");
+        if (StringUtils.isNotBlank(keyAttribute)) {
+            key = StringUtils.trim(keyAttribute);
+        }
+        String priorityAttribute = ruleC.getAttrValue("priority");
+        if (StringUtils.isNotBlank(priorityAttribute)) {
+            severity = StringUtils.trim(priorityAttribute);
+        }
+
+        SMInputCursor cursor = ruleC.childElementCursor();
+        while (cursor.getNext() != null) {
+            String nodeName = cursor.getLocalName();
+
+            if (StringUtils.equalsIgnoreCase("name", nodeName)) {
+                name = StringUtils.trim(cursor.collectDescendantText(false));
+
+            } else if (StringUtils.equalsIgnoreCase("description", nodeName)) {
+                description = StringUtils.trim(cursor.collectDescendantText(false));
+
+            } else if (StringUtils.equalsIgnoreCase("key", nodeName)) {
+                key = StringUtils.trim(cursor.collectDescendantText(false));
+
+            } else if (StringUtils.equalsIgnoreCase("configKey", nodeName)) {
+                // deprecated field, replaced by internalKey
+                internalKey = StringUtils.trim(cursor.collectDescendantText(false));
+
+            } else if (StringUtils.equalsIgnoreCase("internalKey", nodeName)) {
+                internalKey = StringUtils.trim(cursor.collectDescendantText(false));
+
+            } else if (StringUtils.equalsIgnoreCase("priority", nodeName)) {
+                // deprecated field, replaced by severity
+                severity = StringUtils.trim(cursor.collectDescendantText(false));
+
+            } else if (StringUtils.equalsIgnoreCase("severity", nodeName)) {
+                severity = StringUtils.trim(cursor.collectDescendantText(false));
+
+            } else if (StringUtils.equalsIgnoreCase("cardinality", nodeName)) {
+                cardinality = Cardinality.valueOf(StringUtils.trim(cursor.collectDescendantText(false)));
+
+            } else if (StringUtils.equalsIgnoreCase("status", nodeName)) {
+                status = StringUtils.trim(cursor.collectDescendantText(false));
+
+            } else if (StringUtils.equalsIgnoreCase("param", nodeName)) {
+                params.add(processParameter(cursor));
+
+            } else if (StringUtils.equalsIgnoreCase("tag", nodeName)) {
+                tags.add(StringUtils.trim(cursor.collectDescendantText(false)));
+
+            } else if (StringUtils.equalsIgnoreCase("debtSubCharacteristic", nodeName)) {
+                debtSubCharacteristic = StringUtils.trim(cursor.collectDescendantText(false));
+
+            } else if (StringUtils.equalsIgnoreCase("debtRemediationFunctionCoefficient", nodeName)) {
+                debtRemediationFunctionCoefficient = StringUtils.trim(cursor.collectDescendantText(false));
+
+            } else if (StringUtils.equalsIgnoreCase("debtRemediationFunctionOffset", nodeName)) {
+                debtRemediationFunctionOffset = StringUtils.trim(cursor.collectDescendantText(false));
+            }
+        }
+        RulesDefinition.NewRule rule = repo.createRule(key)
+                .setHtmlDescription(description)
+                .setSeverity(severity)
+                .setName(name)
+                .setInternalKey(internalKey)
+                .setTags(tags.toArray(new String[tags.size()]))
+                .setTemplate(cardinality == Cardinality.MULTIPLE);
+        if (status != null) {
+            rule.setStatus(RuleStatus.valueOf(status));
+        }
+        for (ParamStruct param : params) {
+            rule.createParam(param.key)
+                    .setDefaultValue(param.defaultValue)
+                    .setType(param.type)
+                    .setDescription(param.description);
+        }
+        rule.setDebtSubCharacteristic(debtSubCharacteristic);
+        if (debtRemediationFunctionCoefficient != null && debtRemediationFunctionOffset != null) {
+            rule.setDebtRemediationFunction(rule.debtRemediationFunctions().linearWithOffset(debtRemediationFunctionCoefficient, debtRemediationFunctionOffset));
+
+        } else if (debtRemediationFunctionCoefficient != null) {
+            rule.setDebtRemediationFunction(rule.debtRemediationFunctions().linear(debtRemediationFunctionCoefficient));
+
+        } else if (debtRemediationFunctionOffset != null) {
+            rule.setDebtRemediationFunction(rule.debtRemediationFunctions().constantPerIssue(debtRemediationFunctionOffset));
+        }
     }
-    String priorityAttribute = ruleC.getAttrValue("priority");
-    if (StringUtils.isNotBlank(priorityAttribute)) {
-      severity = StringUtils.trim(priorityAttribute);
+
+    private static class ParamStruct {
+        String key, description, defaultValue;
+        RuleParamType type = RuleParamType.STRING;
     }
 
-    SMInputCursor cursor = ruleC.childElementCursor();
-    while (cursor.getNext() != null) {
-      String nodeName = cursor.getLocalName();
+    private ParamStruct processParameter(SMInputCursor ruleC) throws XMLStreamException {
+        ParamStruct param = new ParamStruct();
 
-      if (StringUtils.equalsIgnoreCase("name", nodeName)) {
-        name = StringUtils.trim(cursor.collectDescendantText(false));
+        // BACKWARD COMPATIBILITY WITH DEPRECATED FORMAT
+        String keyAttribute = ruleC.getAttrValue("key");
+        if (StringUtils.isNotBlank(keyAttribute)) {
+            param.key = StringUtils.trim(keyAttribute);
+        }
 
-      } else if (StringUtils.equalsIgnoreCase("description", nodeName)) {
-        description = StringUtils.trim(cursor.collectDescendantText(false));
+        // BACKWARD COMPATIBILITY WITH DEPRECATED FORMAT
+        String typeAttribute = ruleC.getAttrValue("type");
+        if (StringUtils.isNotBlank(typeAttribute)) {
+            param.type = RuleParamType.parse(typeAttribute);
+        }
 
-      } else if (StringUtils.equalsIgnoreCase("key", nodeName)) {
-        key = StringUtils.trim(cursor.collectDescendantText(false));
+        SMInputCursor paramC = ruleC.childElementCursor();
+        while (paramC.getNext() != null) {
+            String propNodeName = paramC.getLocalName();
+            String propText = StringUtils.trim(paramC.collectDescendantText(false));
+            if (StringUtils.equalsIgnoreCase("key", propNodeName)) {
+                param.key = propText;
 
-      } else if (StringUtils.equalsIgnoreCase("configKey", nodeName)) {
-        // deprecated field, replaced by internalKey
-        internalKey = StringUtils.trim(cursor.collectDescendantText(false));
+            } else if (StringUtils.equalsIgnoreCase("description", propNodeName)) {
+                param.description = propText;
 
-      } else if (StringUtils.equalsIgnoreCase("internalKey", nodeName)) {
-        internalKey = StringUtils.trim(cursor.collectDescendantText(false));
+            } else if (StringUtils.equalsIgnoreCase("type", propNodeName)) {
+                param.type = RuleParamType.parse(propText);
 
-      } else if (StringUtils.equalsIgnoreCase("priority", nodeName)) {
-        // deprecated field, replaced by severity
-        severity = StringUtils.trim(cursor.collectDescendantText(false));
-
-      } else if (StringUtils.equalsIgnoreCase("severity", nodeName)) {
-        severity = StringUtils.trim(cursor.collectDescendantText(false));
-
-      } else if (StringUtils.equalsIgnoreCase("cardinality", nodeName)) {
-        cardinality = Cardinality.valueOf(StringUtils.trim(cursor.collectDescendantText(false)));
-
-      } else if (StringUtils.equalsIgnoreCase("status", nodeName)) {
-        status = StringUtils.trim(cursor.collectDescendantText(false));
-
-      } else if (StringUtils.equalsIgnoreCase("param", nodeName)) {
-        params.add(processParameter(cursor));
-
-      } else if (StringUtils.equalsIgnoreCase("tag", nodeName)) {
-        tags.add(StringUtils.trim(cursor.collectDescendantText(false)));
-      }
+            } else if (StringUtils.equalsIgnoreCase("defaultValue", propNodeName)) {
+                param.defaultValue = propText;
+            }
+        }
+        return param;
     }
-    RulesDefinition.NewRule rule = repo.createRule(key)
-      .setHtmlDescription(description)
-      .setSeverity(severity)
-      .setName(name)
-      .setInternalKey(internalKey)
-      .setTags(tags.toArray(new String[tags.size()]))
-      .setTemplate(cardinality == Cardinality.MULTIPLE);
-    if (status != null) {
-      rule.setStatus(RuleStatus.valueOf(status));
-    }
-    for (ParamStruct param : params) {
-      rule.createParam(param.key)
-        .setDefaultValue(param.defaultValue)
-        .setType(param.type)
-        .setDescription(param.description);
-    }
-  }
-
-  private static class ParamStruct {
-    String key, description, defaultValue;
-    RuleParamType type = RuleParamType.STRING;
-  }
-
-  private ParamStruct processParameter(SMInputCursor ruleC) throws XMLStreamException {
-    ParamStruct param = new ParamStruct();
-
-    // BACKWARD COMPATIBILITY WITH DEPRECATED FORMAT
-    String keyAttribute = ruleC.getAttrValue("key");
-    if (StringUtils.isNotBlank(keyAttribute)) {
-      param.key = StringUtils.trim(keyAttribute);
-    }
-
-    // BACKWARD COMPATIBILITY WITH DEPRECATED FORMAT
-    String typeAttribute = ruleC.getAttrValue("type");
-    if (StringUtils.isNotBlank(typeAttribute)) {
-      param.type = RuleParamType.parse(typeAttribute);
-    }
-
-    SMInputCursor paramC = ruleC.childElementCursor();
-    while (paramC.getNext() != null) {
-      String propNodeName = paramC.getLocalName();
-      String propText = StringUtils.trim(paramC.collectDescendantText(false));
-      if (StringUtils.equalsIgnoreCase("key", propNodeName)) {
-        param.key = propText;
-
-      } else if (StringUtils.equalsIgnoreCase("description", propNodeName)) {
-        param.description = propText;
-
-      } else if (StringUtils.equalsIgnoreCase("type", propNodeName)) {
-        param.type = RuleParamType.parse(propText);
-
-      } else if (StringUtils.equalsIgnoreCase("defaultValue", propNodeName)) {
-        param.defaultValue = propText;
-      }
-    }
-    return param;
-  }
 }
