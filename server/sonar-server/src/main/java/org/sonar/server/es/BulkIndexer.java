@@ -64,6 +64,7 @@ public class BulkIndexer implements Startable {
   private final EsClient client;
   private final String indexName;
   private boolean large = false;
+  private long flushByteSize = FLUSH_BYTE_SIZE;
   private boolean disableRefresh = false;
   private BulkRequestBuilder bulkRequest = null;
   private Map<String, Object> largeInitialSettings = null;
@@ -89,6 +90,11 @@ public class BulkIndexer implements Startable {
   public BulkIndexer setLarge(boolean b) {
     Preconditions.checkState(bulkRequest == null, ALREADY_STARTED_MESSAGE);
     this.large = b;
+    return this;
+  }
+
+  public BulkIndexer setFlushByteSize(long flushByteSize) {
+    this.flushByteSize = flushByteSize;
     return this;
   }
 
@@ -130,7 +136,7 @@ public class BulkIndexer implements Startable {
 
   public void add(ActionRequest request) {
     bulkRequest.request().add(request);
-    if (bulkRequest.request().estimatedSizeInBytes() >= FLUSH_BYTE_SIZE) {
+    if (bulkRequest.request().estimatedSizeInBytes() >= flushByteSize) {
       executeBulk();
     }
   }
@@ -139,6 +145,7 @@ public class BulkIndexer implements Startable {
     searchRequest
       .setScroll(TimeValue.timeValueMinutes(5))
       .setSearchType(SearchType.SCAN)
+      .setSize(100)
       // load only doc ids, not _source fields
       .setFetchSource(false);
 
@@ -147,9 +154,18 @@ public class BulkIndexer implements Startable {
     // Same semaphore can't be reused because of potential deadlock (requires to acquire
     // two locks)
     SearchResponse searchResponse = searchRequest.get();
-    searchResponse = client.prepareSearchScroll(searchResponse.getScrollId()).get();
-    for (SearchHit hit : searchResponse.getHits()) {
-      add(client.prepareDelete(hit.index(), hit.type(), hit.getId()).request());
+
+    while (true) {
+      searchResponse = client.prepareSearchScroll(searchResponse.getScrollId())
+        .setScroll(TimeValue.timeValueMinutes(5))
+        .get();
+      SearchHit[] hits = searchResponse.getHits().getHits();
+      for (SearchHit hit : hits) {
+        add(client.prepareDelete(hit.index(), hit.type(), hit.getId()).request());
+      }
+      if (hits.length == 0) {
+        break;
+      }
     }
   }
 
