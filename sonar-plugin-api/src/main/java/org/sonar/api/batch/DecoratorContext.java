@@ -25,6 +25,7 @@ import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.rules.Violation;
 
 import java.util.Collection;
 import java.util.List;
@@ -95,5 +96,24 @@ public interface DecoratorContext {
   Collection<Dependency> getIncomingDependencies();
 
   Collection<Dependency> getOutgoingDependencies();
+
+  // RULES
+
+  /**
+   * Save a coding rule violation. The decorator which calls this method must be depended upon BatchBarriers.END_OF_VIOLATIONS_GENERATION.
+   * 
+   * @since 2.5
+   * @param force allows to force creation of violation even if it was suppressed by {@link org.sonar.api.rules.ViolationFilter}
+   * @deprecated in 3.6, replaced by {@link org.sonar.api.issue.Issuable}
+   */
+  @Deprecated
+  DecoratorContext saveViolation(Violation violation, boolean force);
+
+  /**
+   * Save a coding rule violation. The decorator which calls this method must be depended upon BatchBarriers.END_OF_VIOLATIONS_GENERATION.
+   * @deprecated in 3.6, replaced by {@link org.sonar.api.issue.Issuable}
+   */
+  @Deprecated
+  DecoratorContext saveViolation(Violation violation);
 
 }

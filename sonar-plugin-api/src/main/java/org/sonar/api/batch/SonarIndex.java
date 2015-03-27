@@ -25,6 +25,7 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.rules.Violation;
 import org.sonar.graph.DirectedGraphAccessor;
 
 import javax.annotation.CheckForNull;
@@ -117,6 +118,21 @@ public abstract class SonarIndex implements DirectedGraphAccessor<Resource, Depe
 
   @CheckForNull
   public abstract <M> M getMeasures(Resource resource, MeasuresFilter<M> filter);
+
+  /**
+   * @since 2.5
+   * @deprecated in 3.6
+   */
+  @Deprecated
+  public abstract void addViolation(Violation violation, boolean force);
+
+  /**
+   * @deprecated in 3.6
+   */
+  @Deprecated
+  public final void addViolation(Violation violation) {
+    addViolation(violation, false);
+  }
 
   /**
    * Warning: the resource is automatically indexed for backward-compatibility, but it should be explictly

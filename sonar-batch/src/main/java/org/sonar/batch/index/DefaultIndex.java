@@ -38,6 +38,8 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.measures.MeasuresFilters;
 import org.sonar.api.resources.*;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.Violation;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.ProjectTree;
@@ -357,6 +359,44 @@ public class DefaultIndex extends SonarIndex {
       }
     }
     return result;
+  }
+
+  //
+  //
+  //
+  // VIOLATIONS
+  //
+  //
+  //
+
+  @Override
+  public void addViolation(Violation violation, boolean force) {
+    Resource resource = violation.getResource();
+    if (resource == null) {
+      violation.setResource(currentProject);
+    } else if (!Scopes.isHigherThanOrEquals(resource, Scopes.FILE)) {
+      throw new IllegalArgumentException("Violations are only supported on files, directories and project");
+    }
+
+    Rule rule = violation.getRule();
+    if (rule == null) {
+      LOG.warn("Rule is null. Ignoring violation {}", violation);
+      return;
+    }
+
+    Bucket bucket = getBucket(resource);
+    if (bucket == null) {
+      LOG.warn("Resource is not indexed. Ignoring violation {}", violation);
+      return;
+    }
+
+    // keep a limitation (bug?) of deprecated violations api : severity is always
+    // set by sonar. The severity set by plugins is overridden.
+    // This is not the case with issue api.
+    violation.setSeverity(null);
+
+    violation.setResource(bucket.getResource());
+    moduleIssues.initAndAddViolation(violation);
   }
 
   @Override

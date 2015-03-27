@@ -37,6 +37,7 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.*;
+import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.sensor.DefaultSensorContext;
 import org.sonar.batch.sensor.coverage.CoverageExclusions;
@@ -178,6 +179,28 @@ public class DeprecatedSensorContext extends DefaultSensorContext implements Sen
       return index.addMeasure(resourceOrProject, measure);
     } else {
       return measure;
+    }
+  }
+
+  @Override
+  public void saveViolation(Violation violation, boolean force) {
+    if (violation.getResource() == null) {
+      violation.setResource(resourceOrProject(violation.getResource()));
+    }
+    index.addViolation(violation, force);
+  }
+
+  @Override
+  public void saveViolation(Violation violation) {
+    saveViolation(violation, false);
+  }
+
+  @Override
+  public void saveViolations(Collection<Violation> violations) {
+    if (violations != null) {
+      for (Violation violation : violations) {
+        saveViolation(violation);
+      }
     }
   }
 

@@ -23,7 +23,6 @@ package org.sonar.batch.rule;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import org.picocontainer.injectors.ProviderAdapter;
-import org.sonar.api.batch.RequiresDB;
 import org.sonar.api.batch.debt.DebtCharacteristic;
 import org.sonar.api.batch.debt.DebtModel;
 import org.sonar.api.batch.debt.DebtRemediationFunction;
@@ -40,13 +39,11 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 
 import javax.annotation.Nullable;
-
 import java.util.List;
 
 /**
  * Loads all enabled and non manual rules
  */
-@RequiresDB
 public class RulesProvider extends ProviderAdapter {
 
   private Rules singleton = null;

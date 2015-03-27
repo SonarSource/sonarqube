@@ -29,6 +29,7 @@ import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.*;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.duplication.DuplicationUtils;
@@ -212,5 +213,19 @@ public class DefaultDecoratorContext implements DecoratorContext {
   @Override
   public Collection<Dependency> getOutgoingDependencies() {
     return sonarIndex.getOutgoingEdges(resource);
+  }
+
+  @Override
+  public DefaultDecoratorContext saveViolation(Violation violation, boolean force) {
+    if (violation.getResource() == null) {
+      violation.setResource(resource);
+    }
+    sonarIndex.addViolation(violation, force);
+    return this;
+  }
+
+  @Override
+  public DefaultDecoratorContext saveViolation(Violation violation) {
+    return saveViolation(violation, false);
   }
 }
