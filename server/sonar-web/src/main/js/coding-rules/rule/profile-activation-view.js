@@ -103,6 +103,10 @@ define([
           rule_key: ruleKey,
           severity: severity,
           params: paramsHash
+        },
+        statusCode: {
+          // do not show global error
+          400: null
         }
       }).done(function () {
         that.trigger('profileActivated', severity, params);
