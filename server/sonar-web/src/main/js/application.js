@@ -415,6 +415,9 @@ function fileFromPath (path) {
    * @param value
    */
   var durationVariationFormatter = function (value) {
+    if (value === 0) {
+      return '0';
+    }
     var formatted = durationFormatter(value);
     return formatted[0] !== '-' ? '+' + formatted : formatted;
   };
@@ -455,13 +458,13 @@ function fileFromPath (path) {
     var formatted = null,
         formatters = {
           'INT': function (value) {
-            return numeral(value).format('+0,0');
+            return value === 0 ? '0' : numeral(value).format('+0,0');
           },
           'FLOAT': function (value) {
-            return numeral(value).format('+0,0.0');
+            return value === 0 ? '0' : numeral(value).format('+0,0.0');
           },
           'PERCENT': function (value) {
-            return numeral(+value / 100).format('+0,0.0%');
+            return value === 0 ? '0%' : numeral(+value / 100).format('+0,0.0%');
           },
           'WORK_DUR': durationVariationFormatter
         };

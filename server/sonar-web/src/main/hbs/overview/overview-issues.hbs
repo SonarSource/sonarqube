@@ -1,9 +1,10 @@
+<p class="note">Issues</p>
+
 <table class="width100">
   <tr>
     <td class="width-55">
       <div style="display: inline-block; vertical-align: middle;">
-        <p class="note">Issues</p>
-        <p style="font-size: 36px; font-weight: 300;">{{numberShort issues}}</p>
+        <p style="font-size: 36px; font-weight: 300;">{{formatMeasure issues 'INT'}}</p>
       </div>
       <div style="display: inline-block; vertical-align: middle; margin-left: 15px;">
         <div id="overview-issues-trend" data-width="100" data-height="30" data-color="#4b9fd5"></div>
@@ -12,7 +13,7 @@
     <td class="width-15">
       <div style="display: inline-block; vertical-align: middle;">
         <p>
-          <span class="{{#gt issues1 0}}text-danger{{else}}text-success{{/gt}}" style="font-size: 16px;">+{{numberShort issues1}} <span class="note">new</span></span>
+          <span class="{{#gt issues1 0}}text-danger{{else}}text-success{{/gt}}" style="font-size: 16px;">{{formatMeasureVariation issues1 'INT'}} <span class="note">new</span></span>
         </p>
         <p style="color: #777; font-size: 12px; font-weight: 300;">{{period1Name}}</p>
       </div>
@@ -20,7 +21,7 @@
     <td class="width-15">
       <div style="display: inline-block; vertical-align: middle;">
         <p>
-          <span class="{{#gt issues2 0}}text-danger{{else}}text-success{{/gt}}" style="font-size: 16px;">+{{numberShort issues2}} <span class="note">new</span></span>
+          <span class="{{#gt issues2 0}}text-danger{{else}}text-success{{/gt}}" style="font-size: 16px;">{{formatMeasureVariation issues2 'INT'}} <span class="note">new</span></span>
         </p>
         <p style="color: #777; font-size: 12px; font-weight: 300;">{{period2Name}}</p>
       </div>
@@ -28,88 +29,10 @@
     <td class="width-15">
       <div style="display: inline-block; vertical-align: middle;">
         <p>
-          <span class="{{#gt issues3 0}}text-danger{{else}}text-success{{/gt}}" style="font-size: 16px;">+{{numberShort issues3}} <span class="note">new</span></span>
+          <span class="{{#gt issues3 0}}text-danger{{else}}text-success{{/gt}}" style="font-size: 16px;">{{formatMeasureVariation issues3 'INT'}} <span class="note">new</span></span>
         </p>
         <p style="color: #777; font-size: 12px; font-weight: 300;">{{period3Name}}</p>
       </div>
-    </td>
-  </tr>
-  <tr>
-    <td class="width-55">
-      {{#gt openIssues 0}}
-        <ul class="list-inline spacer-top">
-          <li>{{statusIcon 'OPEN'}}&nbsp;{{numberShort openIssues}}&nbsp;<span class="note">open</span></li>
-        </ul>
-      {{/gt}}
-    </td>
-    <td class="width-15">
-      {{#gt openIssues1 0}}
-        <ul class="list-inline spacer-top">
-          <li>{{statusIcon 'OPEN'}}&nbsp;+{{numberShort openIssues1}}&nbsp;<span class="note">open</span></li>
-        </ul>
-      {{/gt}}
-    </td>
-    <td class="width-15">
-      {{#gt openIssues2 0}}
-        <ul class="list-inline spacer-top">
-          <li>{{statusIcon 'OPEN'}}&nbsp;+{{numberShort openIssues2}}&nbsp;<span class="note">open</span></li>
-        </ul>
-      {{/gt}}
-    </td>
-    <td class="width-15">
-      {{#gt openIssues3 0}}
-        <ul class="list-inline spacer-top">
-          <li>{{statusIcon 'OPEN'}}&nbsp;+{{numberShort openIssues3}}&nbsp;<span class="note">open</span></li>
-        </ul>
-      {{/gt}}
-    </td>
-  </tr>
-  <tr>
-    <td class="width-55 text-top" style="padding-top: 15px;">
-      <ul class="list-inline">
-        <li>{{severityIcon 'BLOCKER'}}&nbsp;{{numberShort blockerIssues}}&nbsp;<span class="note">blocker</span></li>
-        <li>{{severityIcon 'CRITICAL'}}&nbsp;{{numberShort criticalIssues}}&nbsp;<span class="note">critical</span></li>
-        <li>{{severityIcon 'MAJOR'}}&nbsp;{{numberShort majorIssues}}&nbsp;<span class="note">major</span></li>
-      </ul>
-    </td>
-    <td class="width-15 text-top" style="padding-top: 15px;">
-      <ul>
-        {{#gt blockerIssues1 0}}
-          <li class="text-danger">{{severityIcon 'BLOCKER'}}&nbsp;+{{numberShort blockerIssues1}}&nbsp;<span class="note">blocker</span></li>
-        {{/gt}}
-        {{#gt criticalIssues1 0}}
-          <li class="text-danger">{{severityIcon 'CRITICAL'}}&nbsp;+{{numberShort criticalIssues1}}&nbsp;<span class="note">critical</span></li>
-        {{/gt}}
-        {{#gt majorIssues1 0}}
-          <li class="text-danger">{{severityIcon 'MAJOR'}}&nbsp;+{{numberShort majorIssues1}}&nbsp;<span class="note">major</span></li>
-        {{/gt}}
-      </ul>
-    </td>
-    <td class="width-15 text-top" style="padding-top: 15px;">
-      <ul>
-        {{#gt blockerIssues2 0}}
-          <li class="text-danger">{{severityIcon 'BLOCKER'}}&nbsp;+{{numberShort blockerIssues2}}&nbsp;<span class="note">blocker</span></li>
-        {{/gt}}
-        {{#gt criticalIssues2 0}}
-          <li class="text-danger">{{severityIcon 'CRITICAL'}}&nbsp;+{{numberShort criticalIssues2}}&nbsp;<span class="note">critical</span></li>
-        {{/gt}}
-        {{#gt majorIssues2 0}}
-          <li class="text-danger">{{severityIcon 'MAJOR'}}&nbsp;+{{numberShort majorIssues2}}&nbsp;<span class="note">major</span></li>
-        {{/gt}}
-      </ul>
-    </td>
-    <td class="width-15 text-top" style="padding-top: 15px;">
-      <ul>
-        {{#gt blockerIssues3 0}}
-          <li class="text-danger">{{severityIcon 'BLOCKER'}}&nbsp;+{{numberShort blockerIssues3}}&nbsp;<span class="note">blocker</span></li>
-        {{/gt}}
-        {{#gt criticalIssues3 0}}
-          <li class="text-danger">{{severityIcon 'CRITICAL'}}&nbsp;+{{numberShort criticalIssues3}}&nbsp;<span class="note">critical</span></li>
-        {{/gt}}
-        {{#gt majorIssues3 0}}
-          <li class="text-danger">{{severityIcon 'MAJOR'}}&nbsp;+{{numberShort majorIssues3}}&nbsp;<span class="note">major</span></li>
-        {{/gt}}
-      </ul>
     </td>
   </tr>
 </table>
