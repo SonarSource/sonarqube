@@ -31,6 +31,7 @@ import org.sonar.server.db.migrations.Select;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
@@ -269,11 +270,16 @@ public class AddNewCharacteristics extends BaseDataChange {
     }
 
     private int selectCharacteristicId(String key) throws SQLException {
-      return context.prepareSelect(
+      Long id = context.prepareSelect(
         "SELECT c.id FROM characteristics c WHERE c.kee = ? AND c.enabled=?")
         .setString(1, key)
         .setBoolean(2, true)
-        .get(Select.LONG_READER).intValue();
+        .get(Select.LONG_READER);
+      if (id != null) {
+        return id.intValue();
+      } else {
+        throw new IllegalStateException(String.format("Characteristic '%s' could not be inserted", key));
+      }
     }
 
     public void insertCharacteristic(Characteristic characteristic) throws SQLException {

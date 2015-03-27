@@ -25,19 +25,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.web.UserRole;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.measure.persistence.MeasureDao;
 import org.sonar.server.source.index.SourceLineDoc;
 import org.sonar.server.source.index.SourceLineIndex;
-import org.sonar.server.user.MockUserSession;
 
 import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -46,27 +41,25 @@ public class SourceServiceTest {
 
   static final String PROJECT_KEY = "org.sonar.sample";
   static final String COMPONENT_UUID = "abc123";
-  @Mock
-  DbSession session;
+
   @Mock
   HtmlSourceDecorator sourceDecorator;
+
   @Mock
   MeasureDao measureDao;
+
   @Mock
   SourceLineIndex sourceLineIndex;
+
   SourceService service;
 
   @Before
   public void setUp() throws Exception {
-    DbClient dbClient = mock(DbClient.class);
-    when(dbClient.openSession(false)).thenReturn(session);
-    when(dbClient.measureDao()).thenReturn(measureDao);
-    service = new SourceService(dbClient, sourceDecorator, sourceLineIndex);
+    service = new SourceService(sourceDecorator, sourceLineIndex);
   }
 
   @Test
   public void get_html_lines() throws Exception {
-    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_UUID);
     when(sourceLineIndex.getLines(COMPONENT_UUID, 1, Integer.MAX_VALUE)).thenReturn(
       Arrays.asList(new SourceLineDoc().setSource("source").setHighlighting("highlight").setSymbols("symbols")));
 
@@ -77,7 +70,6 @@ public class SourceServiceTest {
 
   @Test
   public void get_block_of_lines() throws Exception {
-    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_UUID);
 
     when(sourceLineIndex.getLines(COMPONENT_UUID, 1, Integer.MAX_VALUE)).thenReturn(
       Arrays.asList(new SourceLineDoc().setSource("source").setHighlighting("highlight").setSymbols("symbols"),
@@ -91,7 +83,6 @@ public class SourceServiceTest {
 
   @Test
   public void getLinesAsTxt() throws Exception {
-    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_UUID);
     when(sourceLineIndex.getLines(COMPONENT_UUID, 1, Integer.MAX_VALUE)).thenReturn(
       Arrays.asList(
         new SourceLineDoc().setSource("line1"),

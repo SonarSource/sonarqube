@@ -23,7 +23,6 @@ package org.sonar.server.source;
 import org.apache.commons.lang.ObjectUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.sonar.api.ServerComponent;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.source.index.SourceLineDoc;
 import org.sonar.server.source.index.SourceLineIndex;
 
@@ -33,12 +32,10 @@ import java.util.List;
 
 public class SourceService implements ServerComponent {
 
-  private final DbClient dbClient;
   private final HtmlSourceDecorator sourceDecorator;
   private final SourceLineIndex sourceLineIndex;
 
-  public SourceService(DbClient dbClient, HtmlSourceDecorator sourceDecorator, SourceLineIndex sourceLineIndex) {
-    this.dbClient = dbClient;
+  public SourceService(HtmlSourceDecorator sourceDecorator, SourceLineIndex sourceLineIndex) {
     this.sourceDecorator = sourceDecorator;
     this.sourceLineIndex = sourceLineIndex;
   }

@@ -28,6 +28,7 @@ import org.sonar.server.db.migrations.Select;
 import org.sonar.server.db.migrations.SqlStatement;
 
 import java.sql.SQLException;
+import java.util.Date;
 
 public class FeedIssuesLongDates extends BaseDataChange {
 
@@ -51,7 +52,8 @@ public class FeedIssuesLongDates extends BaseDataChange {
       @Override
       public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
         for (int i = 1; i <= 3; i++) {
-          update.setLong(i, row.getNullableDate(i) == null ? null : Math.min(now, row.getNullableDate(i).getTime()));
+          Date date = row.getNullableDate(i);
+          update.setLong(i, date == null ? null : Math.min(now, date.getTime()));
         }
 
         Long id = row.getNullableLong(4);
