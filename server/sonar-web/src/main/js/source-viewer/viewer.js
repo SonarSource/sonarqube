@@ -429,14 +429,24 @@ define([
           this.clearTooltips();
           var index = $(e.currentTarget).data('index'),
               line = $(e.currentTarget).data('line-number'),
-              blocks = this.model.get('duplications')[index - 1].blocks;
+              blocks = this.model.get('duplications')[index - 1].blocks,
+              inRemovedComponent = _.some(blocks, function (b) {
+                return b._ref == null;
+              }),
+              foundOne = false;
           blocks = _.filter(blocks, function (b) {
-            var outOfBounds = b.from > line || b.from + b.size < line;
-            return (b._ref !== '1') || (b._ref === '1' && outOfBounds);
+            var outOfBounds = b.from > line || b.from + b.size < line,
+                currentFile = b._ref === '1',
+                isOk = (b._ref != null) && (!currentFile || (currentFile && (outOfBounds || foundOne)));
+            if (b._ref === '1' && !outOfBounds) {
+              foundOne = true;
+            }
+            return isOk;
           });
           var popup = new DuplicationPopupView({
             triggerEl: $(e.currentTarget),
             model: this.model,
+            inRemovedComponent: inRemovedComponent,
             collection: new Backbone.Collection(blocks)
           });
           popup.render();
