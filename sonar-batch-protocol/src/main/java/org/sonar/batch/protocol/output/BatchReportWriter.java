@@ -113,4 +113,9 @@ public class BatchReportWriter {
     ProtobufUtil.writeToFile(builder.build(), file);
   }
 
+  public void writeFileCoverage(BatchReport.Coverage coverage) {
+    File file = fileStructure.fileFor(FileStructure.Domain.COVERAGE, coverage.getFileRef());
+    ProtobufUtil.writeToFile(coverage, file);
+  }
+
 }

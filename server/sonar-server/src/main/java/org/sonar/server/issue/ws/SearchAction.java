@@ -269,6 +269,9 @@ public class SearchAction implements BaseIssuesWsAction {
   public final void handle(Request request, Response response) throws Exception {
     SearchOptions options = new SearchOptions();
     options.setPage(request.mandatoryParamAsInt(WebService.Param.PAGE), request.mandatoryParamAsInt(WebService.Param.PAGE_SIZE));
+    if (shouldIgnorePaging(request)) {
+      options.disableLimit();
+    }
     options.addFacets(request.paramAsStrings(WebService.Param.FACETS));
 
     IssueQuery query = issueQueryService.createFromRequest(request);
@@ -283,6 +286,13 @@ public class SearchAction implements BaseIssuesWsAction {
       writeFacets(request, options, result, json);
     }
     json.endObject().close();
+  }
+
+  private boolean shouldIgnorePaging(Request request) {
+    List<String> componentUuids = request.paramAsStrings(IssueFilterParameters.COMPONENT_UUIDS);
+    // Paging can be ignored only when querying issues for a single component (e.g in component viewer)
+    return componentUuids != null && componentUuids.size() == 1
+        && BooleanUtils.isTrue(request.paramAsBoolean(IssueFilterParameters.IGNORE_PAGING));
   }
 
   private SearchResult<IssueDoc> execute(IssueQuery query, SearchOptions options) {

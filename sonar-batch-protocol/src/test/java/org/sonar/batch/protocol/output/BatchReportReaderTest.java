@@ -159,6 +159,38 @@ public class BatchReportReaderTest {
     assertThat(sut.readComponentSymbols(1).get(0).getReference(0).getStartLine()).isEqualTo(10);
   }
 
+  @Test
+  public void read_coverage() throws Exception {
+    File dir = temp.newFolder();
+    BatchReportWriter writer = new BatchReportWriter(dir);
+
+    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+      .setRootComponentRef(1)
+      .build());
+
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(1).build());
+
+    writer.writeFileCoverage(BatchReport.Coverage.newBuilder()
+      .setFileRef(1)
+      .addAllConditionsByLine(Arrays.asList(1, 5))
+      .addAllUtHitsByLine(Arrays.asList(true, false))
+      .addAllItHitsByLine(Arrays.asList(false, false))
+      .addAllUtCoveredConditionsByLine(Arrays.asList(1, 4))
+      .addAllItCoveredConditionsByLine(Arrays.asList(1, 5))
+      .addAllOverallCoveredConditionsByLine(Arrays.asList(1, 5))
+      .build());
+
+    sut = new BatchReportReader(dir);
+    assertThat(sut.readFileCoverage(1).getFileRef()).isEqualTo(1);
+    assertThat(sut.readFileCoverage(1).getConditionsByLineList()).hasSize(2);
+    assertThat(sut.readFileCoverage(1).getUtHitsByLineList()).hasSize(2);
+    assertThat(sut.readFileCoverage(1).getItHitsByLineList()).hasSize(2);
+    assertThat(sut.readFileCoverage(1).getUtCoveredConditionsByLineList()).hasSize(2);
+    assertThat(sut.readFileCoverage(1).getItCoveredConditionsByLineList()).hasSize(2);
+    assertThat(sut.readFileCoverage(1).getOverallCoveredConditionsByLineList()).hasSize(2);
+  }
+
   @Test(expected = IllegalStateException.class)
   public void fail_if_missing_metadata_file() throws Exception {
     sut.readMetadata();

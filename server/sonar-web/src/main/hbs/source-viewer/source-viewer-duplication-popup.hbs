@@ -21,7 +21,7 @@
 
           {{#notEq file.key ../component.key}}
             <div class="component-name-path">
-              <a data-uuid="{{file.uuid}}" title="{{file.name}}">
+              <a class="link-action" data-uuid="{{file.uuid}}" title="{{file.name}}">
                 <span>{{collapsedDirFromPath file.name}}</span><span
                   class="component-name-file">{{fileFromPath file.name}}</span>
               </a>

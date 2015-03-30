@@ -22,9 +22,14 @@ package org.sonar.server.es;
 import com.google.common.collect.ImmutableMap;
 import org.elasticsearch.action.admin.indices.settings.get.GetSettingsResponse;
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
+import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.Rule;
 import org.junit.Test;
+
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -65,6 +70,7 @@ public class BulkIndexerTest {
     assertThat(replicas()).isEqualTo(1);
 
     BulkIndexer indexer = new BulkIndexer(esTester.client(), FakeIndexDefinition.INDEX)
+      .setFlushByteSize(500)
       .setLarge(true);
     indexer.start();
 
@@ -80,6 +86,27 @@ public class BulkIndexerTest {
 
     // replicas are re-enabled
     assertThat(replicas()).isEqualTo(1);
+  }
+
+  @Test
+  public void bulk_delete() throws Exception {
+    int max = 500;
+    int removeFrom = 200;
+    Map[] docs = new Map[max];
+    for (int i = 0; i < max; i++) {
+      docs[i] = ImmutableMap.of(FakeIndexDefinition.INT_FIELD, i);
+    }
+    esTester.putDocuments(FakeIndexDefinition.INDEX, FakeIndexDefinition.TYPE, docs);
+    assertThat(count()).isEqualTo(max);
+
+    SearchRequestBuilder req = esTester.client().prepareSearch(FakeIndexDefinition.INDEX)
+      .setTypes(FakeIndexDefinition.TYPE)
+      .setQuery(QueryBuilders.filteredQuery(
+        QueryBuilders.matchAllQuery(),
+        FilterBuilders.rangeFilter(FakeIndexDefinition.INT_FIELD).gte(removeFrom)));
+    BulkIndexer.delete(esTester.client(), FakeIndexDefinition.INDEX, req);
+
+    assertThat(count()).isEqualTo(removeFrom);
   }
 
   @Test

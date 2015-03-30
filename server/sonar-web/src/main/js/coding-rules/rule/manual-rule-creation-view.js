@@ -102,7 +102,15 @@ define([
     sendRequest: function (action, options) {
       var that = this,
           url = baseUrl + '/api/rules/' + action;
-      return $.post(url, options).done(function (r) {
+      return $.ajax({
+        url: url,
+        type: 'POST',
+        data: options,
+        statusCode: {
+          // do not show global error
+          400: null
+        }
+      }).done(function (r) {
         if (typeof r === 'string') {
           r = JSON.parse(r);
         }

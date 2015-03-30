@@ -43,9 +43,8 @@ import static org.sonar.server.issue.notification.NewIssuesStatistics.METRIC.SEV
 
 public class NewIssuesNotification extends Notification {
 
-  private static final long serialVersionUID = -6305871981920103093L;
-
   public static final String TYPE = "new-issues";
+  private static final long serialVersionUID = -6305871981920103093L;
   private static final String COUNT = ".count";
   private static final String LABEL = ".label";
 
@@ -134,5 +133,15 @@ public class NewIssuesNotification extends Notification {
     for (String severity : Severity.ALL) {
       setFieldValue(SEVERITY + "." + severity + COUNT, String.valueOf(stats.countForMetric(SEVERITY, severity)));
     }
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    return super.equals(obj);
+  }
+
+  @Override
+  public int hashCode() {
+    return super.hashCode();
   }
 }

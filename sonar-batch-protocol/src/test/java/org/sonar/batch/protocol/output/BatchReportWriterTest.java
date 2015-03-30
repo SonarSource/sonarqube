@@ -285,4 +285,37 @@ public class BatchReportWriterTest {
     assertThat(syntaxHighlighting.getFileRef()).isEqualTo(1);
     assertThat(syntaxHighlighting.getHighlightingRuleList()).hasSize(1);
   }
+
+  @Test
+  public void write_coverage() throws Exception {
+    File dir = temp.newFolder();
+    BatchReportWriter writer = new BatchReportWriter(dir);
+
+    // no data yet
+    assertThat(writer.hasComponentData(FileStructure.Domain.COVERAGE, 1)).isFalse();
+
+    // write data
+    writer.writeFileCoverage(BatchReport.Coverage.newBuilder()
+      .setFileRef(1)
+      .addAllConditionsByLine(Arrays.asList(1, 5))
+      .addAllUtHitsByLine(Arrays.asList(true, false))
+      .addAllItHitsByLine(Arrays.asList(false, false))
+      .addAllUtCoveredConditionsByLine(Arrays.asList(1, 4))
+      .addAllItCoveredConditionsByLine(Arrays.asList(1, 5))
+      .addAllOverallCoveredConditionsByLine(Arrays.asList(1, 5))
+      .build());
+
+    assertThat(writer.hasComponentData(FileStructure.Domain.COVERAGE, 1)).isTrue();
+
+    File file = writer.getFileStructure().fileFor(FileStructure.Domain.COVERAGE, 1);
+    assertThat(file).exists().isFile();
+    BatchReport.Coverage read = ProtobufUtil.readFile(file, BatchReport.Coverage.PARSER);
+    assertThat(read.getFileRef()).isEqualTo(1);
+    assertThat(read.getConditionsByLineList()).hasSize(2);
+    assertThat(read.getUtHitsByLineList()).hasSize(2);
+    assertThat(read.getItHitsByLineList()).hasSize(2);
+    assertThat(read.getUtCoveredConditionsByLineList()).hasSize(2);
+    assertThat(read.getItCoveredConditionsByLineList()).hasSize(2);
+    assertThat(read.getOverallCoveredConditionsByLineList()).hasSize(2);
+  }
 }

@@ -18,35 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.issue.notification;
+@ParametersAreNonnullByDefault
+package org.sonar.server.computation.measure;
 
-import org.sonar.api.utils.Durations;
-import org.sonar.server.db.DbClient;
-import org.sonar.server.user.index.UserIndex;
-
-import static org.sonar.server.issue.notification.AbstractNewIssuesEmailTemplate.FIELD_ASSIGNEE;
-
-public class MyNewIssuesNotification extends NewIssuesNotification {
-
-  public static final String TYPE = "my-new-issues";
-
-  MyNewIssuesNotification(UserIndex userIndex, DbClient dbClient, Durations durations) {
-    super(TYPE, userIndex, dbClient, durations);
-  }
-
-  public MyNewIssuesNotification setAssignee(String assignee) {
-    setFieldValue(FIELD_ASSIGNEE, assignee);
-
-    return this;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    return super.equals(obj);
-  }
-
-  @Override
-  public int hashCode() {
-    return super.hashCode();
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;
