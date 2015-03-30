@@ -61,12 +61,12 @@ casper.test.begin(testName('Unresolved Issues By Severity'), 13, function (test)
         test.assertElementCount('tr', 6);
 
         // check order and values
-        test.assertSelectorContains('tr:nth-child(1)', '6851');
+        test.assertSelectorContains('tr:nth-child(1)', '6,851');
         test.assertSelectorContains('tr:nth-child(2)', '1');
         test.assertSelectorContains('tr:nth-child(3)', '105');
-        test.assertSelectorContains('tr:nth-child(4)', '5027');
+        test.assertSelectorContains('tr:nth-child(4)', '5,027');
         test.assertSelectorContains('tr:nth-child(5)', '540');
-        test.assertSelectorContains('tr:nth-child(6)', '1178');
+        test.assertSelectorContains('tr:nth-child(6)', '1,178');
 
         // check links
         test.assertExists('tr:nth-child(1) a[href="/issues/search#resolved=false"]');
@@ -120,10 +120,10 @@ casper.test.begin(testName('Red Issues By Severity'), 9, function (test) {
         test.assertElementCount('tr', 4);
 
         // check order and values
-        test.assertSelectorContains('tr:nth-child(1)', '6851');
+        test.assertSelectorContains('tr:nth-child(1)', '6,851');
         test.assertSelectorContains('tr:nth-child(2)', '1');
         test.assertSelectorContains('tr:nth-child(3)', '105');
-        test.assertSelectorContains('tr:nth-child(4)', '5027');
+        test.assertSelectorContains('tr:nth-child(4)', '5,027');
 
         // check links
         test.assertExists('tr:nth-child(1) a[href="/issues/search#resolved=false|severities=BLOCKER%2CCRITICAL%2CMAJOR"]');
@@ -174,11 +174,11 @@ casper.test.begin(testName('All Issues By Status'), 9, function (test) {
         test.assertElementCount('tr', 6);
 
         // check order and values
-        test.assertSelectorContains('tr:nth-child(1)', '71571');
+        test.assertSelectorContains('tr:nth-child(1)', '71.6k');
         test.assertSelectorContains('tr:nth-child(2)', '238');
         test.assertSelectorContains('tr:nth-child(3)', '4');
-        test.assertSelectorContains('tr:nth-child(4)', '6609');
-        test.assertSelectorContains('tr:nth-child(5)', '1307');
+        test.assertSelectorContains('tr:nth-child(4)', '6,609');
+        test.assertSelectorContains('tr:nth-child(5)', '1,307');
         test.assertSelectorContains('tr:nth-child(6)', '63.4k');
 
         // check links
@@ -229,10 +229,10 @@ casper.test.begin(testName('Unresolved Issues By Status'), 9, function (test) {
         test.assertElementCount('tr', 4);
 
         // check order and values
-        test.assertSelectorContains('tr:nth-child(1)', '71571');
+        test.assertSelectorContains('tr:nth-child(1)', '71.6k');
         test.assertSelectorContains('tr:nth-child(2)', '238');
         test.assertSelectorContains('tr:nth-child(3)', '4');
-        test.assertSelectorContains('tr:nth-child(4)', '6609');
+        test.assertSelectorContains('tr:nth-child(4)', '6,609');
 
         // check links
         test.assertExists('tr:nth-child(1) a[href="/issues/search#resolved=false"]');
@@ -283,8 +283,8 @@ casper.test.begin(testName('All Issues By Resolution'), 10, function (test) {
         test.assertElementCount('tr', 6);
 
         // check order and values
-        test.assertSelectorContains('tr:nth-child(1)', '71571');
-        test.assertSelectorContains('tr:nth-child(2)', '6851');
+        test.assertSelectorContains('tr:nth-child(1)', '71.6k');
+        test.assertSelectorContains('tr:nth-child(2)', '6,851');
         test.assertSelectorContains('tr:nth-child(3)', '752');
         test.assertSelectorContains('tr:nth-child(4)', '550');
         test.assertSelectorContains('tr:nth-child(5)', '47.1k');
@@ -339,8 +339,8 @@ casper.test.begin(testName('Unresolved Issues By Resolution'), 5, function (test
         test.assertElementCount('tr', 2);
 
         // check order and values
-        test.assertSelectorContains('tr:nth-child(1)', '6851');
-        test.assertSelectorContains('tr:nth-child(2)', '6851');
+        test.assertSelectorContains('tr:nth-child(1)', '6,851');
+        test.assertSelectorContains('tr:nth-child(2)', '6,851');
 
         // check links
         test.assertExists('tr:nth-child(1) a[href="/issues/search#resolved=false"]');
@@ -390,7 +390,7 @@ casper.test.begin(testName('Unresolved Issues By Rule'), 15, function (test) {
         test.assertElementCount('tr', 16);
 
         // check order and values
-        test.assertSelectorContains('tr:nth-child(1)', '6851');
+        test.assertSelectorContains('tr:nth-child(1)', '6,851');
         test.assertSelectorContains('tr:nth-child(2)', '879');
         test.assertSelectorContains('tr:nth-child(3)', '571');
         test.assertSelectorContains('tr:nth-child(15)', '113');
@@ -453,8 +453,8 @@ casper.test.begin(testName('Unresolved Issues By Project'), 15, function (test) 
         test.assertElementCount('tr', 5);
 
         // check order and values
-        test.assertSelectorContains('tr:nth-child(1)', '2598');
-        test.assertSelectorContains('tr:nth-child(2)', '1766');
+        test.assertSelectorContains('tr:nth-child(1)', '2,598');
+        test.assertSelectorContains('tr:nth-child(2)', '1,766');
         test.assertSelectorContains('tr:nth-child(3)', '442');
         test.assertSelectorContains('tr:nth-child(4)', '283');
         test.assertSelectorContains('tr:nth-child(5)', '107');
@@ -516,8 +516,8 @@ casper.test.begin(testName('Unresolved Issues By Assignee'), 15, function (test)
         test.assertElementCount('tr', 5);
 
         // check order and values
-        test.assertSelectorContains('tr:nth-child(1)', '6851');
-        test.assertSelectorContains('tr:nth-child(2)', '4134');
+        test.assertSelectorContains('tr:nth-child(1)', '6,851');
+        test.assertSelectorContains('tr:nth-child(2)', '4,134');
         test.assertSelectorContains('tr:nth-child(3)', '698');
         test.assertSelectorContains('tr:nth-child(4)', '504');
         test.assertSelectorContains('tr:nth-child(5)', '426');
@@ -579,8 +579,8 @@ casper.test.begin(testName('Unresolved Unassigned Issues By Assignee'), 6, funct
         test.assertElementCount('tr', 2);
 
         // check order and values
-        test.assertSelectorContains('tr:nth-child(1)', '4134');
-        test.assertSelectorContains('tr:nth-child(2)', '4134');
+        test.assertSelectorContains('tr:nth-child(1)', '4,134');
+        test.assertSelectorContains('tr:nth-child(2)', '4,134');
 
         // check links
         test.assertExists('tr:nth-child(1) a[href="/issues/search#resolved=false|assigned=false"]');
@@ -633,7 +633,7 @@ casper.test.begin(testName('Unresolved Issues By Reporter'), 12, function (test)
         test.assertElementCount('tr', 4);
 
         // check order and values
-        test.assertSelectorContains('tr:nth-child(1)', '6851');
+        test.assertSelectorContains('tr:nth-child(1)', '6,851');
         test.assertSelectorContains('tr:nth-child(2)', '698');
         test.assertSelectorContains('tr:nth-child(3)', '504');
         test.assertSelectorContains('tr:nth-child(4)', '426');
@@ -693,8 +693,8 @@ casper.test.begin(testName('Unresolved Issues By Language'), 15, function (test)
         test.assertElementCount('tr', 5);
 
         // check order and values
-        test.assertSelectorContains('tr:nth-child(1)', '6851');
-        test.assertSelectorContains('tr:nth-child(2)', '6336');
+        test.assertSelectorContains('tr:nth-child(1)', '6,851');
+        test.assertSelectorContains('tr:nth-child(2)', '6,336');
         test.assertSelectorContains('tr:nth-child(3)', '444');
         test.assertSelectorContains('tr:nth-child(4)', '22');
         test.assertSelectorContains('tr:nth-child(5)', '15');
@@ -756,8 +756,8 @@ casper.test.begin(testName('Unresolved Issues By Action Plan'), 15, function (te
         test.assertElementCount('tr', 5);
 
         // check order and values
-        test.assertSelectorContains('tr:nth-child(1)', '6851');
-        test.assertSelectorContains('tr:nth-child(2)', '5877');
+        test.assertSelectorContains('tr:nth-child(1)', '6,851');
+        test.assertSelectorContains('tr:nth-child(2)', '5,877');
         test.assertSelectorContains('tr:nth-child(3)', '532');
         test.assertSelectorContains('tr:nth-child(4)', '56');
         test.assertSelectorContains('tr:nth-child(5)', '52');
@@ -819,8 +819,8 @@ casper.test.begin(testName('Unresolved Unplanned Issues By Action Plan'), 6, fun
         test.assertElementCount('tr', 2);
 
         // check order and values
-        test.assertSelectorContains('tr:nth-child(1)', '5877');
-        test.assertSelectorContains('tr:nth-child(2)', '5877');
+        test.assertSelectorContains('tr:nth-child(1)', '5,877');
+        test.assertSelectorContains('tr:nth-child(2)', '5,877');
 
         // check links
         test.assertExists('tr:nth-child(1) a[href="/issues/search#resolved=false|planned=false"]');
@@ -873,10 +873,10 @@ casper.test.begin(testName('Unresolved Issues By Date'), 18, function (test) {
         test.assertElementCount('tr', 6);
 
         // check order and values
-        test.assertSelectorContains('tr:nth-child(1)', '6851');
-        test.assertSelectorContains('tr:nth-child(2)', '1724');
-        test.assertSelectorContains('tr:nth-child(3)', '3729');
-        test.assertSelectorContains('tr:nth-child(4)', '1262');
+        test.assertSelectorContains('tr:nth-child(1)', '6,851');
+        test.assertSelectorContains('tr:nth-child(2)', '1,724');
+        test.assertSelectorContains('tr:nth-child(3)', '3,729');
+        test.assertSelectorContains('tr:nth-child(4)', '1,262');
         test.assertSelectorContains('tr:nth-child(5)', '64');
         test.assertSelectorContains('tr:nth-child(6)', '72');
 
@@ -941,7 +941,7 @@ casper.test.begin(testName('Unresolved Issues on a Limited Period By Date'), 12,
         test.assertElementCount('tr', 4);
 
         // check order and values
-        test.assertSelectorContains('tr:nth-child(1)', '6851');
+        test.assertSelectorContains('tr:nth-child(1)', '6,851');
         test.assertSelectorContains('tr:nth-child(2)', '47');
         test.assertSelectorContains('tr:nth-child(3)', '48');
         test.assertSelectorContains('tr:nth-child(4)', '49');
