@@ -60,6 +60,9 @@ define(function () {
             metrics: 'quality_gate_details'
           };
       return $.get(url, options).done(function (r) {
+        if (!r || !r[0] || !r[0].msr || !r[0].msr[0] || !r[0].msr[0].data) {
+          return;
+        }
         var gateData = JSON.parse(r[0].msr[0].data),
             gateConditions = gateData.conditions,
             urlMetrics = baseUrl + '/api/metrics';
@@ -106,21 +109,21 @@ define(function () {
             functionComplexityMeasure =  _.findWhere(msr, { key: 'function_complexity' }),
             fileComplexityMeasure =  _.findWhere(msr, { key: 'file_complexity' });
         that.set({
-          ncloc: nclocMeasure.val,
-          ncloc1: nclocMeasure.var1,
-          ncloc2: nclocMeasure.var2,
-          ncloc3: nclocMeasure.var3,
+          ncloc: nclocMeasure && nclocMeasure.val,
+          ncloc1: nclocMeasure && nclocMeasure.var1,
+          ncloc2: nclocMeasure && nclocMeasure.var2,
+          ncloc3: nclocMeasure && nclocMeasure.var3,
           nclocLang: nclocLang,
 
-          functionComplexity: functionComplexityMeasure.val,
-          functionComplexity1: functionComplexityMeasure.var1,
-          functionComplexity2: functionComplexityMeasure.var2,
-          functionComplexity3: functionComplexityMeasure.var3,
+          functionComplexity: functionComplexityMeasure && functionComplexityMeasure.val,
+          functionComplexity1: functionComplexityMeasure && functionComplexityMeasure.var1,
+          functionComplexity2: functionComplexityMeasure && functionComplexityMeasure.var2,
+          functionComplexity3: functionComplexityMeasure && functionComplexityMeasure.var3,
 
-          fileComplexity: fileComplexityMeasure.val,
-          fileComplexity1: fileComplexityMeasure.var1,
-          fileComplexity2: fileComplexityMeasure.var2,
-          fileComplexity3: fileComplexityMeasure.var3
+          fileComplexity: fileComplexityMeasure && fileComplexityMeasure.val,
+          fileComplexity1: fileComplexityMeasure && fileComplexityMeasure.var1,
+          fileComplexity2: fileComplexityMeasure && fileComplexityMeasure.var2,
+          fileComplexity3: fileComplexityMeasure && fileComplexityMeasure.var3
         });
       });
     },
@@ -177,6 +180,9 @@ define(function () {
     },
 
     fetchIssues1: function () {
+      if (!this.get('period1Date')) {
+        return;
+      }
       var that = this,
           url = baseUrl + '/api/issues/search',
           options = {
@@ -201,6 +207,9 @@ define(function () {
     },
 
     fetchIssues2: function () {
+      if (!this.get('period2Date')) {
+        return;
+      }
       var that = this,
           url = baseUrl + '/api/issues/search',
           options = {
@@ -225,6 +234,9 @@ define(function () {
     },
 
     fetchIssues3: function () {
+      if (!this.get('period3Date')) {
+        return;
+      }
       var that = this,
           url = baseUrl + '/api/issues/search',
           options = {
@@ -275,10 +287,10 @@ define(function () {
         var msr = r[0].msr,
             debtMeasure = _.findWhere(msr, { key: 'sqale_index' });
         that.set({
-          debt: debtMeasure.val,
-          debt1: debtMeasure.var1,
-          debt2: debtMeasure.var2,
-          debt3: debtMeasure.var3
+          debt: debtMeasure && debtMeasure.val,
+          debt1: debtMeasure && debtMeasure.var1,
+          debt2: debtMeasure && debtMeasure.var2,
+          debt3: debtMeasure && debtMeasure.var3
         });
       });
     },
@@ -311,13 +323,13 @@ define(function () {
             coverageMeasure = _.findWhere(msr, { key: 'overall_coverage' }),
             newCoverageMeasure = _.findWhere(msr, { key: 'new_overall_coverage' });
         that.set({
-          coverage: coverageMeasure.val,
-          coverage1: coverageMeasure.var1,
-          coverage2: coverageMeasure.var2,
-          coverage3: coverageMeasure.var3,
-          newCoverage1: newCoverageMeasure.var1,
-          newCoverage2: newCoverageMeasure.var2,
-          newCoverage3: newCoverageMeasure.var3
+          coverage: coverageMeasure && coverageMeasure.val,
+          coverage1: coverageMeasure && coverageMeasure.var1,
+          coverage2: coverageMeasure && coverageMeasure.var2,
+          coverage3: coverageMeasure && coverageMeasure.var3,
+          newCoverage1: newCoverageMeasure && newCoverageMeasure.var1,
+          newCoverage2: newCoverageMeasure && newCoverageMeasure.var2,
+          newCoverage3: newCoverageMeasure && newCoverageMeasure.var3
         });
       });
     },
@@ -349,10 +361,10 @@ define(function () {
         var msr = r[0].msr,
             duplicationsMeasure = _.findWhere(msr, { key: 'duplicated_lines_density' });
         that.set({
-          duplications: duplicationsMeasure.val,
-          duplications1: duplicationsMeasure.var1,
-          duplications2: duplicationsMeasure.var2,
-          duplications3: duplicationsMeasure.var3
+          duplications: duplicationsMeasure && duplicationsMeasure.val,
+          duplications1: duplicationsMeasure && duplicationsMeasure.var1,
+          duplications2: duplicationsMeasure && duplicationsMeasure.var2,
+          duplications3: duplicationsMeasure && duplicationsMeasure.var3
         });
       });
     },

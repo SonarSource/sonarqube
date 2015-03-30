@@ -34,13 +34,15 @@ define([
     },
 
     modelEvents: {
-      'change:gateConditions': 'toggleGate'
+      'change': 'toggleRegions'
     },
 
-    toggleGate: function () {
+    toggleRegions: function () {
       var conditions = this.model.get('gateConditions'),
-          hasGate = _.isArray(conditions) && conditions.length > 0;
+          hasGate = _.isArray(conditions) && conditions.length > 0,
+          hasCoverage = !!this.model.get('coverage');
       this.$(this.gateRegion.el).toggle(hasGate);
+      this.$(this.coverageRegion.el).toggle(hasCoverage);
     }
   });
 

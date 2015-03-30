@@ -11,30 +11,34 @@
       </div>
     </td>
     <td class="width-15">
-      <a href="{{urlForIssuesOverview componentKey period1Date}}"
-         class="overview-measure {{#gt issues1 0}}text-danger{{else}}text-success{{/gt}}">
-        {{formatMeasureVariation issues1 'INT'}}
-      </a>
-      <span class="note">new</span>
-      <p class="note">{{period1Name}}</p>
+      {{#notNull issues1}}
+        <a href="{{urlForIssuesOverview componentKey period1Date}}"
+           class="overview-measure {{#gt issues1 0}}text-danger{{else}}text-success{{/gt}}">
+          {{formatMeasureVariation issues1 'INT'}}
+        </a>
+        <span class="note">new</span>
+        <p class="note">{{period1Name}}</p>
+      {{/notNull}}
     </td>
     <td class="width-15">
-      <div style="display: inline-block; vertical-align: middle;">
+      {{#notNull issues2}}
         <a href="{{urlForIssuesOverview componentKey period2Date}}"
            class="overview-measure {{#gt issues2 0}}text-danger{{else}}text-success{{/gt}}">
           {{formatMeasureVariation issues2 'INT'}}
         </a>
         <span class="note">new</span>
         <p class="note">{{period2Name}}</p>
-      </div>
+      {{/notNull}}
     </td>
     <td class="width-15">
-      <a href="{{urlForIssuesOverview componentKey period3Date}}"
-         class="overview-measure {{#gt issues3 0}}text-danger{{else}}text-success{{/gt}}">
-        {{formatMeasureVariation issues3 'INT'}}
-      </a>
-      <span class="note">new</span>
-      <p class="note">{{period3Name}}</p>
+      {{#notNull issues3}}
+        <a href="{{urlForIssuesOverview componentKey period3Date}}"
+           class="overview-measure {{#gt issues3 0}}text-danger{{else}}text-success{{/gt}}">
+          {{formatMeasureVariation issues3 'INT'}}
+        </a>
+        <span class="note">new</span>
+        <p class="note">{{period3Name}}</p>
+      {{/notNull}}
     </td>
   </tr>
 </table>
