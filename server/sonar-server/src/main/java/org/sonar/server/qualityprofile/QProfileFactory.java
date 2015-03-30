@@ -138,7 +138,7 @@ public class QProfileFactory implements ServerComponent {
     return db.qualityProfileDao().getDefaultProfile(language, session);
   }
 
-  void setDefault(String profileKey) {
+  public void setDefault(String profileKey) {
     DbSession dbSession = db.openSession(false);
     try {
       setDefault(dbSession, profileKey);
