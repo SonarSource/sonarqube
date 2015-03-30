@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.checks.NoSonarFilter;
 import org.sonar.api.platform.ComponentContainer;
@@ -37,6 +38,7 @@ import org.sonar.batch.deprecated.DeprecatedSensorContext;
 import org.sonar.batch.deprecated.ResourceFilters;
 import org.sonar.batch.deprecated.components.DefaultProjectClasspath;
 import org.sonar.batch.deprecated.components.DefaultTimeMachine;
+import org.sonar.batch.deprecated.perspectives.BatchPerspectives;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.issue.IssuableFactory;
@@ -63,7 +65,8 @@ import org.sonar.batch.sensor.AnalyzerOptimizer;
 import org.sonar.batch.sensor.DefaultSensorContext;
 import org.sonar.batch.sensor.DefaultSensorStorage;
 import org.sonar.batch.sensor.coverage.CoverageExclusions;
-import org.sonar.core.component.ScanPerspectives;
+import org.sonar.batch.source.HighlightableBuilder;
+import org.sonar.batch.source.SymbolizableBuilder;
 
 public class ModuleScanContainer extends ComponentContainer {
   private static final Logger LOG = LoggerFactory.getLogger(ModuleScanContainer.class);
@@ -111,7 +114,7 @@ public class ModuleScanContainer extends ComponentContainer {
       SensorsExecutor.class,
       InitializersExecutor.class,
       ProjectInitializer.class,
-      PublishReportJob.class,
+      ReportPublisher.class,
       ComponentsPublisher.class,
       IssuesPublisher.class,
       MeasuresPublisher.class,
@@ -172,7 +175,10 @@ public class ModuleScanContainer extends ComponentContainer {
       IgnoreIssuesFilter.class,
       NoSonarFilter.class,
 
-      ScanPerspectives.class);
+      // Perspectives
+      BatchPerspectives.class,
+      HighlightableBuilder.class,
+      SymbolizableBuilder.class);
   }
 
   private void addDataBaseComponents() {

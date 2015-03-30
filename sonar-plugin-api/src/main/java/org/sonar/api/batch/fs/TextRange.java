@@ -17,5 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@javax.annotation.ParametersAreNonnullByDefault
-package org.sonar.batch.symbol;
+package org.sonar.api.batch.fs;
+
+/**
+ * Represents a text range in an {@link InputFile}
+ *
+ * @since 5.2
+ */
+public interface TextRange {
+
+  /**
+   * Start position of the range
+   */
+  TextPointer start();
+
+  /**
+   * End position of the range
+   */
+  TextPointer end();
+
+  /**
+   * Test if the current range has some common area with another range.
+   * Exemple: say the two ranges are on same line. Range with offsets [1,3] overlaps range with offsets [2,4] but not
+   * range with offset [3,5]
+   */
+  boolean overlap(TextRange another);
+
+}

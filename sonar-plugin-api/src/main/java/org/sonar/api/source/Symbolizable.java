@@ -44,6 +44,10 @@ public interface Symbolizable extends Perspective {
 
     List<Symbol> symbols();
 
+    /**
+     * @deprecated since 5.2 not used
+     */
+    @Deprecated
     List<Integer> references(Symbol symbol);
   }
 

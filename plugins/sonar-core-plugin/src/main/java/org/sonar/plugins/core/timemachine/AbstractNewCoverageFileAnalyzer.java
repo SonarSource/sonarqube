@@ -36,7 +36,7 @@ import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.protocol.output.BatchReport.Scm;
 import org.sonar.batch.protocol.output.BatchReport.Scm.Changeset;
 import org.sonar.batch.protocol.output.BatchReportReader;
-import org.sonar.batch.report.PublishReportJob;
+import org.sonar.batch.report.ReportPublisher;
 
 import javax.annotation.Nullable;
 
@@ -53,17 +53,17 @@ import java.util.Map;
 public abstract class AbstractNewCoverageFileAnalyzer implements Decorator {
 
   private final List<PeriodStruct> structs;
-  private final PublishReportJob publishReportJob;
+  private final ReportPublisher publishReportJob;
   private final ResourceCache resourceCache;
 
-  public AbstractNewCoverageFileAnalyzer(TimeMachineConfiguration timeMachineConfiguration, PublishReportJob publishReportJob, ResourceCache resourceCache) {
+  public AbstractNewCoverageFileAnalyzer(TimeMachineConfiguration timeMachineConfiguration, ReportPublisher publishReportJob, ResourceCache resourceCache) {
     this(Lists.<PeriodStruct>newArrayList(), publishReportJob, resourceCache);
     for (Period period : timeMachineConfiguration.periods()) {
       structs.add(new PeriodStruct(period.getIndex(), period.getDate()));
     }
   }
 
-  AbstractNewCoverageFileAnalyzer(List<PeriodStruct> structs, PublishReportJob publishReportJob, ResourceCache resourceCache) {
+  AbstractNewCoverageFileAnalyzer(List<PeriodStruct> structs, ReportPublisher publishReportJob, ResourceCache resourceCache) {
     this.resourceCache = resourceCache;
     this.publishReportJob = publishReportJob;
     this.structs = structs;

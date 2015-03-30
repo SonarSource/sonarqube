@@ -25,12 +25,14 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -66,12 +68,13 @@ public class SyntaxHighlightingSensorTest {
   public void testExecution() throws IOException {
     File symbol = new File(baseDir, "src/foo.xoo.highlighting");
     FileUtils.write(symbol, "1:4:k\n12:15:cppd\n\n#comment");
-    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setLanguage("xoo").setLastValidOffset(100);
+    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setLanguage("xoo")
+      .initMetadata(new FileMetadata().readMetadata(new StringReader(" xoo\nazertyazer\nfoo")));
     context.fileSystem().add(inputFile);
 
     sensor.execute(context);
 
-    assertThat(context.highlightingTypeFor("foo:src/foo.xoo", 2)).containsOnly(TypeOfText.KEYWORD);
-    assertThat(context.highlightingTypeFor("foo:src/foo.xoo", 13)).containsOnly(TypeOfText.CPP_DOC);
+    assertThat(context.highlightingTypeAt("foo:src/foo.xoo", 1, 2)).containsOnly(TypeOfText.KEYWORD);
+    assertThat(context.highlightingTypeAt("foo:src/foo.xoo", 2, 8)).containsOnly(TypeOfText.CPP_DOC);
   }
 }

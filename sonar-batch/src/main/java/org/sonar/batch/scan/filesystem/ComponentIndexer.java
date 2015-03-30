@@ -26,6 +26,7 @@ import org.sonar.api.resources.File;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
+import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.index.ResourceKeyMigration;
 import org.sonar.batch.index.ResourcePersister;
 
@@ -43,18 +44,20 @@ public class ComponentIndexer implements BatchComponent {
   private final ResourceKeyMigration migration;
   private final Project module;
   private final ResourcePersister resourcePersister;
+  private final ResourceCache resourceCache;
 
-  public ComponentIndexer(Project module, Languages languages, SonarIndex sonarIndex, @Nullable ResourceKeyMigration migration,
+  public ComponentIndexer(Project module, Languages languages, SonarIndex sonarIndex, ResourceCache resourceCache, @Nullable ResourceKeyMigration migration,
     @Nullable ResourcePersister resourcePersister) {
     this.module = module;
     this.languages = languages;
     this.sonarIndex = sonarIndex;
+    this.resourceCache = resourceCache;
     this.migration = migration;
     this.resourcePersister = resourcePersister;
   }
 
-  public ComponentIndexer(Project module, Languages languages, SonarIndex sonarIndex) {
-    this(module, languages, sonarIndex, null, null);
+  public ComponentIndexer(Project module, Languages languages, SonarIndex sonarIndex, ResourceCache resourceCache) {
+    this(module, languages, sonarIndex, resourceCache, null, null);
   }
 
   public void execute(DefaultModuleFileSystem fs) {
@@ -74,6 +77,7 @@ public class ComponentIndexer implements BatchComponent {
       boolean unitTest = InputFile.Type.TEST == inputFile.type();
       Resource sonarFile = File.create(inputFile.relativePath(), languages.get(languageKey), unitTest);
       sonarIndex.index(sonarFile);
+      resourceCache.get(sonarFile).setInputPath(inputFile);
     }
 
     if (resourcePersister != null) {
@@ -81,5 +85,4 @@ public class ComponentIndexer implements BatchComponent {
       resourcePersister.persist();
     }
   }
-
 }

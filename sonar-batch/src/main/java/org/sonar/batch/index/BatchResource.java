@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.index;
 
+import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
@@ -36,6 +37,7 @@ public class BatchResource {
   private Snapshot s;
   private final BatchResource parent;
   private final Collection<BatchResource> children = new ArrayList<BatchResource>();
+  private InputPath inputPath;
 
   public BatchResource(int batchId, Resource r, @Nullable BatchResource parent) {
     this.batchId = batchId;
@@ -90,5 +92,15 @@ public class BatchResource {
 
   public boolean isDir() {
     return ResourceUtils.isDirectory(r);
+  }
+
+  public BatchResource setInputPath(InputPath inputPath) {
+    this.inputPath = inputPath;
+    return this;
+  }
+
+  @CheckForNull
+  public InputPath inputPath() {
+    return inputPath;
   }
 }

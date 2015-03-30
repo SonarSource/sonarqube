@@ -25,7 +25,6 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.batch.index.BatchResource;
 
 import javax.annotation.CheckForNull;
@@ -40,7 +39,6 @@ public class InputPathCache implements BatchComponent {
 
   private final Map<String, SortedMap<String, InputFile>> inputFileCache = new LinkedHashMap<>();
   private final Map<String, SortedMap<String, InputDir>> inputDirCache = new LinkedHashMap<>();
-  private final Map<String, Map<String, InputFileMetadata>> inputFileMetadataCache = new LinkedHashMap<>();
 
   public Iterable<InputFile> allFiles() {
     return Iterables.concat(Iterables.transform(inputFileCache.values(), new Function<Map<String, InputFile>, Collection<InputFile>>() {
@@ -77,16 +75,12 @@ public class InputPathCache implements BatchComponent {
   public InputPathCache removeModule(String moduleKey) {
     inputFileCache.remove(moduleKey);
     inputDirCache.remove(moduleKey);
-    inputFileMetadataCache.remove(moduleKey);
     return this;
   }
 
   public InputPathCache remove(String moduleKey, InputFile inputFile) {
     if (inputFileCache.containsKey(moduleKey)) {
       inputFileCache.get(moduleKey).remove(inputFile.relativePath());
-    }
-    if (inputFileMetadataCache.containsKey(moduleKey)) {
-      inputFileMetadataCache.get(moduleKey).remove(inputFile.relativePath());
     }
     return this;
   }
@@ -106,14 +100,6 @@ public class InputPathCache implements BatchComponent {
     return this;
   }
 
-  public synchronized InputPathCache put(String moduleKey, String relativePath, InputFileMetadata metadata) {
-    if (!inputFileMetadataCache.containsKey(moduleKey)) {
-      inputFileMetadataCache.put(moduleKey, new HashMap<String, InputFileMetadata>());
-    }
-    inputFileMetadataCache.get(moduleKey).put(relativePath, metadata);
-    return this;
-  }
-
   public InputPathCache put(String moduleKey, InputDir inputDir) {
     if (!inputDirCache.containsKey(moduleKey)) {
       inputDirCache.put(moduleKey, new TreeMap<String, InputDir>());
@@ -128,18 +114,6 @@ public class InputPathCache implements BatchComponent {
       return inputFileCache.get(moduleKey).get(relativePath);
     }
     return null;
-  }
-
-  @CheckForNull
-  public InputFileMetadata getFileMetadata(String moduleKey, String relativePath) {
-    if (inputFileMetadataCache.containsKey(moduleKey)) {
-      return inputFileMetadataCache.get(moduleKey).get(relativePath);
-    }
-    return null;
-  }
-
-  public InputFileMetadata getFileMetadata(DefaultInputFile inputFile) {
-    return getFileMetadata(inputFile.moduleKey(), inputFile.relativePath());
   }
 
   @CheckForNull

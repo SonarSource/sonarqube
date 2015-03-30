@@ -38,11 +38,8 @@ import org.sonar.api.batch.sensor.dependency.internal.DefaultDependency;
 import org.sonar.api.batch.sensor.issue.Issue.Severity;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
-import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.config.Settings;
 import org.sonar.api.design.Dependency;
-import org.sonar.api.issue.Issuable;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.PersistenceMode;
@@ -52,9 +49,10 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.duplication.DuplicationCache;
-import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.issue.ModuleIssues;
+import org.sonar.batch.report.ReportPublisher;
 import org.sonar.batch.sensor.coverage.CoverageExclusions;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -77,7 +75,7 @@ public class DefaultSensorStorageTest {
   private DefaultFileSystem fs;
   private DefaultSensorStorage sensorStorage;
   private Settings settings;
-  private ResourcePerspectives resourcePerspectives;
+  private ModuleIssues moduleIssues;
   private Project project;
   private DefaultIndex sonarIndex;
 
@@ -91,15 +89,14 @@ public class DefaultSensorStorageTest {
     when(metricFinder.findByKey(CoreMetrics.NCLOC_KEY)).thenReturn(CoreMetrics.NCLOC);
     when(metricFinder.findByKey(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION_KEY)).thenReturn(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION);
     settings = new Settings();
-    resourcePerspectives = mock(ResourcePerspectives.class);
-    ComponentDataCache componentDataCache = mock(ComponentDataCache.class);
+    moduleIssues = mock(ModuleIssues.class);
     project = new Project("myProject");
     sonarIndex = mock(DefaultIndex.class);
     CoverageExclusions coverageExclusions = mock(CoverageExclusions.class);
     when(coverageExclusions.accept(any(Resource.class), any(Measure.class))).thenReturn(true);
     resourceCache = new ResourceCache();
     sensorStorage = new DefaultSensorStorage(metricFinder, project,
-      resourcePerspectives, settings, fs, activeRules, componentDataCache, mock(DuplicationCache.class), sonarIndex, coverageExclusions, resourceCache);
+      moduleIssues, settings, fs, activeRules, mock(DuplicationCache.class), sonarIndex, coverageExclusions, resourceCache, mock(ReportPublisher.class));
   }
 
   @Test
@@ -178,12 +175,7 @@ public class DefaultSensorStorageTest {
   public void shouldAddIssueOnFile() {
     InputFile file = new DefaultInputFile("foo", "src/Foo.php").setLines(4);
 
-    ArgumentCaptor<Issue> argumentCaptor = ArgumentCaptor.forClass(Issue.class);
-
-    Issuable issuable = mock(Issuable.class);
-    when(resourcePerspectives.as(Issuable.class, File.create("src/Foo.php"))).thenReturn(issuable);
-
-    when(issuable.addIssue(argumentCaptor.capture())).thenReturn(true);
+    ArgumentCaptor<org.sonar.api.issue.internal.DefaultIssue> argumentCaptor = ArgumentCaptor.forClass(org.sonar.api.issue.internal.DefaultIssue.class);
 
     sensorStorage.store(new DefaultIssue()
       .onFile(file)
@@ -192,7 +184,9 @@ public class DefaultSensorStorageTest {
       .atLine(3)
       .effortToFix(10.0));
 
-    Issue issue = argumentCaptor.getValue();
+    verify(moduleIssues).initAndAddIssue(argumentCaptor.capture());
+
+    org.sonar.api.issue.internal.DefaultIssue issue = argumentCaptor.getValue();
     assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("foo", "bar"));
     assertThat(issue.message()).isEqualTo("Foo");
     assertThat(issue.line()).isEqualTo(3);
@@ -204,12 +198,7 @@ public class DefaultSensorStorageTest {
   public void shouldAddIssueOnDirectory() {
     InputDir dir = new DefaultInputDir("foo", "src");
 
-    ArgumentCaptor<Issue> argumentCaptor = ArgumentCaptor.forClass(Issue.class);
-
-    Issuable issuable = mock(Issuable.class);
-    when(resourcePerspectives.as(Issuable.class, Directory.create("src"))).thenReturn(issuable);
-
-    when(issuable.addIssue(argumentCaptor.capture())).thenReturn(true);
+    ArgumentCaptor<org.sonar.api.issue.internal.DefaultIssue> argumentCaptor = ArgumentCaptor.forClass(org.sonar.api.issue.internal.DefaultIssue.class);
 
     sensorStorage.store(new DefaultIssue()
       .onDir(dir)
@@ -217,7 +206,9 @@ public class DefaultSensorStorageTest {
       .message("Foo")
       .effortToFix(10.0));
 
-    Issue issue = argumentCaptor.getValue();
+    verify(moduleIssues).initAndAddIssue(argumentCaptor.capture());
+
+    org.sonar.api.issue.internal.DefaultIssue issue = argumentCaptor.getValue();
     assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("foo", "bar"));
     assertThat(issue.message()).isEqualTo("Foo");
     assertThat(issue.line()).isNull();
@@ -227,12 +218,7 @@ public class DefaultSensorStorageTest {
 
   @Test
   public void shouldAddIssueOnProject() {
-    ArgumentCaptor<Issue> argumentCaptor = ArgumentCaptor.forClass(Issue.class);
-
-    Issuable issuable = mock(Issuable.class);
-    when(resourcePerspectives.as(Issuable.class, (Resource) project)).thenReturn(issuable);
-
-    when(issuable.addIssue(argumentCaptor.capture())).thenReturn(true);
+    ArgumentCaptor<org.sonar.api.issue.internal.DefaultIssue> argumentCaptor = ArgumentCaptor.forClass(org.sonar.api.issue.internal.DefaultIssue.class);
 
     sensorStorage.store(new DefaultIssue()
       .onProject()
@@ -241,7 +227,9 @@ public class DefaultSensorStorageTest {
       .overrideSeverity(Severity.BLOCKER)
       .effortToFix(10.0));
 
-    Issue issue = argumentCaptor.getValue();
+    verify(moduleIssues).initAndAddIssue(argumentCaptor.capture());
+
+    org.sonar.api.issue.internal.DefaultIssue issue = argumentCaptor.getValue();
     assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("foo", "bar"));
     assertThat(issue.message()).isEqualTo("Foo");
     assertThat(issue.line()).isNull();

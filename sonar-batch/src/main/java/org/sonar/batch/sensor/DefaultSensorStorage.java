@@ -19,73 +19,74 @@
  */
 package org.sonar.batch.sensor;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.batch.fs.InputDir;
+import com.google.common.collect.Iterables;
+import org.sonar.api.batch.fs.*;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.duplication.Duplication;
 import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
 import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
+import org.sonar.api.batch.sensor.highlighting.internal.SyntaxHighlightingRule;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.Issue.Severity;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
-import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.config.Settings;
 import org.sonar.api.design.Dependency;
-import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.measures.Formula;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.measures.SumChildDistributionFormula;
-import org.sonar.api.resources.Directory;
-import org.sonar.api.resources.File;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.resources.Scopes;
+import org.sonar.api.resources.*;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.source.Symbol;
 import org.sonar.batch.duplication.DuplicationCache;
-import org.sonar.batch.highlighting.SyntaxHighlightingData;
 import org.sonar.batch.index.BatchResource;
-import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.issue.ModuleIssues;
+import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.batch.protocol.output.BatchReport.Range;
+import org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule;
+import org.sonar.batch.protocol.output.BatchReportWriter;
+import org.sonar.batch.report.BatchReportUtils;
+import org.sonar.batch.report.ReportPublisher;
 import org.sonar.batch.sensor.coverage.CoverageExclusions;
+import org.sonar.batch.source.DefaultSymbol;
 import org.sonar.core.component.ComponentKeys;
-import org.sonar.core.source.SnapshotDataTypes;
+
+import java.util.Map;
+import java.util.Set;
 
 public class DefaultSensorStorage implements SensorStorage {
 
   private static final String USES = "USES";
   private final MetricFinder metricFinder;
   private final Project project;
-  private final ResourcePerspectives perspectives;
+  private final ModuleIssues moduleIssues;
   private final DefaultIndex sonarIndex;
   private final CoverageExclusions coverageExclusions;
   private final DuplicationCache duplicationCache;
   private final ResourceCache resourceCache;
-  private final ComponentDataCache componentDataCache;
+  private final ReportPublisher reportPublisher;
 
-  public DefaultSensorStorage(MetricFinder metricFinder, Project project,
-    ResourcePerspectives perspectives,
-    Settings settings, FileSystem fs, ActiveRules activeRules, ComponentDataCache componentDataCache,
-    DuplicationCache duplicationCache, DefaultIndex sonarIndex, CoverageExclusions coverageExclusions,
-    ResourceCache resourceCache) {
+  public DefaultSensorStorage(MetricFinder metricFinder, Project project, ModuleIssues moduleIssues,
+    Settings settings, FileSystem fs, ActiveRules activeRules, DuplicationCache duplicationCache, DefaultIndex sonarIndex,
+    CoverageExclusions coverageExclusions, ResourceCache resourceCache, ReportPublisher reportPublisher) {
     this.metricFinder = metricFinder;
     this.project = project;
-    this.perspectives = perspectives;
-    this.componentDataCache = componentDataCache;
+    this.moduleIssues = moduleIssues;
     this.sonarIndex = sonarIndex;
     this.coverageExclusions = coverageExclusions;
     this.duplicationCache = duplicationCache;
     this.resourceCache = resourceCache;
+    this.reportPublisher = reportPublisher;
   }
 
   private Metric findMetricOrFail(String metricKey) {
@@ -161,11 +162,7 @@ public class DefaultSensorStorage implements SensorStorage {
     } else {
       r = project;
     }
-    Issuable issuable = perspectives.as(Issuable.class, r);
-    if (issuable == null) {
-      return;
-    }
-    issuable.addIssue(toDefaultIssue(project.getKey(), ComponentKeys.createEffectiveKey(project, r), issue));
+    moduleIssues.initAndAddIssue(toDefaultIssue(project.getKey(), ComponentKeys.createEffectiveKey(project, r), issue));
   }
 
   public static DefaultIssue toDefaultIssue(String projectKey, String componentKey, Issue issue) {
@@ -246,7 +243,56 @@ public class DefaultSensorStorage implements SensorStorage {
 
   @Override
   public void store(DefaultHighlighting highlighting) {
-    String componentKey = ((DefaultInputFile) highlighting.inputFile()).key();
-    componentDataCache.setData(componentKey, SnapshotDataTypes.SYNTAX_HIGHLIGHTING, new SyntaxHighlightingData(highlighting.getSyntaxHighlightingRuleSet()));
+    BatchReportWriter writer = reportPublisher.getWriter();
+    DefaultInputFile inputFile = (DefaultInputFile) highlighting.inputFile();
+    writer.writeComponentSyntaxHighlighting(resourceCache.get(inputFile).batchId(),
+      Iterables.transform(highlighting.getSyntaxHighlightingRuleSet(), new Function<SyntaxHighlightingRule, HighlightingRule>() {
+        private HighlightingRule.Builder builder = HighlightingRule.newBuilder();
+        private Range.Builder rangeBuilder = Range.newBuilder();
+
+        @Override
+        public HighlightingRule apply(SyntaxHighlightingRule input) {
+          builder.clear();
+          rangeBuilder.clear();
+          builder.setRange(rangeBuilder.setStartLine(input.range().start().line())
+            .setStartOffset(input.range().start().lineOffset())
+            .setEndLine(input.range().end().line())
+            .setEndOffset(input.range().end().lineOffset())
+            .build());
+          builder.setType(BatchReportUtils.toProtocolType(input.getTextType()));
+          return builder.build();
+        }
+
+      }));
+  }
+
+  public void store(DefaultInputFile inputFile, Map<Symbol, Set<TextRange>> referencesBySymbol) {
+    BatchReportWriter writer = reportPublisher.getWriter();
+    writer.writeComponentSymbols(resourceCache.get(inputFile).batchId(),
+      Iterables.transform(referencesBySymbol.entrySet(), new Function<Map.Entry<Symbol, Set<TextRange>>, BatchReport.Symbols.Symbol>() {
+        private BatchReport.Symbols.Symbol.Builder builder = BatchReport.Symbols.Symbol.newBuilder();
+        private Range.Builder rangeBuilder = Range.newBuilder();
+
+        @Override
+        public BatchReport.Symbols.Symbol apply(Map.Entry<Symbol, Set<TextRange>> input) {
+          builder.clear();
+          rangeBuilder.clear();
+          DefaultSymbol symbol = (DefaultSymbol) input.getKey();
+          builder.setDeclaration(rangeBuilder.setStartLine(symbol.range().start().line())
+            .setStartOffset(symbol.range().start().lineOffset())
+            .setEndLine(symbol.range().end().line())
+            .setEndOffset(symbol.range().end().lineOffset())
+            .build());
+          for (TextRange reference : input.getValue()) {
+            builder.addReference(rangeBuilder.setStartLine(reference.start().line())
+              .setStartOffset(reference.start().lineOffset())
+              .setEndLine(reference.end().line())
+              .setEndOffset(reference.end().lineOffset())
+              .build());
+          }
+          return builder.build();
+        }
+
+      }));
   }
 }

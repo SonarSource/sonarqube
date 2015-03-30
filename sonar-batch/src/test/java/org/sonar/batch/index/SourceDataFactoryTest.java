@@ -30,23 +30,18 @@ import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.duplication.Duplication;
 import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
-import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.source.Symbol;
 import org.sonar.batch.duplication.DuplicationCache;
-import org.sonar.batch.highlighting.SyntaxHighlightingData;
-import org.sonar.batch.highlighting.SyntaxHighlightingDataBuilder;
+import org.sonar.batch.protocol.Constants.HighlightingType;
+import org.sonar.batch.protocol.output.*;
+import org.sonar.batch.protocol.output.BatchReport.Range;
 import org.sonar.batch.protocol.output.BatchReport.Scm;
 import org.sonar.batch.protocol.output.BatchReport.Scm.Changeset;
-import org.sonar.batch.protocol.output.BatchReportWriter;
-import org.sonar.batch.report.PublishReportJob;
-import org.sonar.batch.scan.filesystem.InputFileMetadata;
+import org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule;
+import org.sonar.batch.report.ReportPublisher;
 import org.sonar.batch.scan.measure.MeasureCache;
-import org.sonar.batch.source.CodeColorizers;
-import org.sonar.batch.symbol.DefaultSymbolTableBuilder;
-import org.sonar.core.source.SnapshotDataTypes;
 import org.sonar.server.source.db.FileSourceDb;
 
 import java.io.File;
@@ -64,24 +59,23 @@ public class SourceDataFactoryTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   private MeasureCache measureCache = mock(MeasureCache.class);
-  private ComponentDataCache componentDataCache = mock(ComponentDataCache.class);
   private DuplicationCache duplicationCache = mock(DuplicationCache.class);
-  private CodeColorizers colorizers = mock(CodeColorizers.class);
   private DefaultInputFile inputFile;
-  private InputFileMetadata metadata;
   private SourceDataFactory sut;
   private FileSourceDb.Data.Builder output;
   private File reportDir;
+  private BatchReportWriter batchReportWriter;
 
   @Before
   public void setUp() throws Exception {
-    PublishReportJob publishReportJob = mock(PublishReportJob.class);
+    ReportPublisher reportPublisher = mock(ReportPublisher.class);
     reportDir = temp.newFolder();
-    when(publishReportJob.getReportDir()).thenReturn(reportDir);
+    batchReportWriter = new BatchReportWriter(reportDir);
+    when(reportPublisher.getReportDir()).thenReturn(reportDir);
     ResourceCache resourceCache = new ResourceCache();
     resourceCache.add(org.sonar.api.resources.File.create("src/Foo.java").setEffectiveKey("module_key:src/Foo.java"), null);
     when(measureCache.byMetric(anyString(), anyString())).thenReturn(Collections.<Measure>emptyList());
-    sut = new SourceDataFactory(measureCache, componentDataCache, duplicationCache, colorizers, publishReportJob, resourceCache);
+    sut = new SourceDataFactory(measureCache, duplicationCache, reportPublisher, resourceCache);
     // generate a file with 3 lines
     File baseDir = temp.newFolder();
     DefaultFileSystem fs = new DefaultFileSystem(baseDir.toPath());
@@ -89,7 +83,6 @@ public class SourceDataFactoryTest {
       .setLines(3)
       .setCharset(Charsets.UTF_8);
     fs.add(inputFile);
-    metadata = new InputFileMetadata();
     FileUtils.write(inputFile.file(), "one\ntwo\nthree\n");
     output = sut.createForSource(inputFile);
     when(duplicationCache.byComponent(anyString())).thenReturn(Collections.<DefaultDuplication>emptyList());
@@ -106,7 +99,7 @@ public class SourceDataFactoryTest {
 
   @Test
   public void consolidateData() throws Exception {
-    byte[] bytes = sut.consolidateData(inputFile, metadata);
+    byte[] bytes = sut.consolidateData(inputFile);
     assertThat(bytes).isNotEmpty();
   }
 
@@ -247,9 +240,7 @@ public class SourceDataFactoryTest {
 
   @Test
   public void applyHighlighting_missing() throws Exception {
-    when(componentDataCache.getData(inputFile.key(), SnapshotDataTypes.SYNTAX_HIGHLIGHTING)).thenReturn(null);
-
-    sut.applyHighlighting(inputFile, metadata, output);
+    sut.applyHighlighting(inputFile, output);
 
     FileSourceDb.Data data = output.build();
     assertThat(data.getLines(0).hasHighlighting()).isFalse();
@@ -259,49 +250,28 @@ public class SourceDataFactoryTest {
 
   @Test
   public void applyHighlighting() throws Exception {
-    SyntaxHighlightingData highlighting = new SyntaxHighlightingDataBuilder()
-      .registerHighlightingRule(0, 4, TypeOfText.ANNOTATION)
-      .registerHighlightingRule(4, 5, TypeOfText.COMMENT)
-      .registerHighlightingRule(7, 16, TypeOfText.CONSTANT)
-      .build();
-    when(componentDataCache.getData(inputFile.key(), SnapshotDataTypes.SYNTAX_HIGHLIGHTING)).thenReturn(highlighting);
-    metadata.setOriginalLineOffsets(new int[] {0, 4, 7});
-
-    sut.applyHighlighting(inputFile, metadata, output);
+    batchReportWriter.writeComponentSyntaxHighlighting(1, Arrays.asList(
+      newRule(1, 0, 1, 4, HighlightingType.ANNOTATION),
+      newRule(2, 0, 2, 1, HighlightingType.COMMENT),
+      newRule(3, 1, 3, 9, HighlightingType.CONSTANT)));
+    inputFile.setOriginalLineOffsets(new int[] {0, 4, 7});
+    sut.applyHighlighting(inputFile, output);
 
     FileSourceDb.Data data = output.build();
     assertThat(data.getLines(0).getHighlighting()).isEqualTo("0,4,a");
     assertThat(data.getLines(1).getHighlighting()).isEqualTo("0,1,cd");
-    assertThat(data.getLines(2).getHighlighting()).isEqualTo("0,9,c");
-  }
-
-  @Test
-  public void applyHighlighting_ignore_bad_line() throws Exception {
-    SyntaxHighlightingData highlighting = new SyntaxHighlightingDataBuilder()
-      .registerHighlightingRule(0, 4, TypeOfText.ANNOTATION)
-      .registerHighlightingRule(4, 5, TypeOfText.COMMENT)
-      .registerHighlightingRule(7, 25, TypeOfText.CONSTANT)
-      .build();
-    when(componentDataCache.getData(inputFile.key(), SnapshotDataTypes.SYNTAX_HIGHLIGHTING)).thenReturn(highlighting);
-    metadata.setOriginalLineOffsets(new int[] {0, 4, 7, 15});
-
-    sut.applyHighlighting(inputFile, metadata, output);
-
-    FileSourceDb.Data data = output.build();
-    assertThat(data.getLinesCount()).isEqualTo(3);
+    assertThat(data.getLines(2).getHighlighting()).isEqualTo("1,9,c");
   }
 
   @Test
   public void applyHighlighting_multiple_lines() throws Exception {
-    SyntaxHighlightingData highlighting = new SyntaxHighlightingDataBuilder()
-      .registerHighlightingRule(0, 3, TypeOfText.ANNOTATION)
-      .registerHighlightingRule(4, 9, TypeOfText.COMMENT)
-      .registerHighlightingRule(10, 16, TypeOfText.CONSTANT)
-      .build();
-    when(componentDataCache.getData(inputFile.key(), SnapshotDataTypes.SYNTAX_HIGHLIGHTING)).thenReturn(highlighting);
-    metadata.setOriginalLineOffsets(new int[] {0, 4, 7});
+    batchReportWriter.writeComponentSyntaxHighlighting(1, Arrays.asList(
+      newRule(1, 0, 1, 3, HighlightingType.ANNOTATION),
+      newRule(2, 0, 3, 2, HighlightingType.COMMENT),
+      newRule(3, 3, 3, 9, HighlightingType.CONSTANT)));
+    inputFile.setOriginalLineOffsets(new int[] {0, 4, 7});
 
-    sut.applyHighlighting(inputFile, metadata, output);
+    sut.applyHighlighting(inputFile, output);
 
     FileSourceDb.Data data = output.build();
     assertThat(data.getLines(0).getHighlighting()).isEqualTo("0,3,a");
@@ -311,16 +281,15 @@ public class SourceDataFactoryTest {
 
   @Test
   public void applyHighlighting_nested_rules() throws Exception {
-    SyntaxHighlightingData highlighting = new SyntaxHighlightingDataBuilder()
-      .registerHighlightingRule(0, 3, TypeOfText.ANNOTATION)
-      .registerHighlightingRule(4, 6, TypeOfText.COMMENT)
-      .registerHighlightingRule(7, 16, TypeOfText.CONSTANT)
-      .registerHighlightingRule(8, 15, TypeOfText.KEYWORD)
-      .build();
-    when(componentDataCache.getData(inputFile.key(), SnapshotDataTypes.SYNTAX_HIGHLIGHTING)).thenReturn(highlighting);
-    metadata.setOriginalLineOffsets(new int[] {0, 4, 7});
+    batchReportWriter.writeComponentSyntaxHighlighting(1, Arrays.asList(
+      newRule(1, 0, 1, 3, HighlightingType.ANNOTATION),
+      newRule(2, 0, 2, 2, HighlightingType.COMMENT),
+      newRule(3, 0, 3, 9, HighlightingType.CONSTANT),
+      newRule(3, 1, 3, 8, HighlightingType.KEYWORD)));
 
-    sut.applyHighlighting(inputFile, metadata, output);
+    inputFile.setOriginalLineOffsets(new int[] {0, 4, 7});
+
+    sut.applyHighlighting(inputFile, output);
 
     FileSourceDb.Data data = output.build();
     assertThat(data.getLines(0).getHighlighting()).isEqualTo("0,3,a");
@@ -330,16 +299,15 @@ public class SourceDataFactoryTest {
 
   @Test
   public void applyHighlighting_nested_rules_and_multiple_lines() throws Exception {
-    SyntaxHighlightingData highlighting = new SyntaxHighlightingDataBuilder()
-      .registerHighlightingRule(0, 3, TypeOfText.ANNOTATION)
-      .registerHighlightingRule(4, 6, TypeOfText.COMMENT)
-      .registerHighlightingRule(4, 16, TypeOfText.CONSTANT)
-      .registerHighlightingRule(8, 15, TypeOfText.KEYWORD)
-      .build();
-    when(componentDataCache.getData(inputFile.key(), SnapshotDataTypes.SYNTAX_HIGHLIGHTING)).thenReturn(highlighting);
-    metadata.setOriginalLineOffsets(new int[] {0, 4, 7});
+    batchReportWriter.writeComponentSyntaxHighlighting(1, Arrays.asList(
+      newRule(1, 0, 1, 3, HighlightingType.ANNOTATION),
+      newRule(2, 0, 3, 9, HighlightingType.CONSTANT),
+      newRule(2, 0, 2, 2, HighlightingType.COMMENT),
+      newRule(3, 1, 3, 8, HighlightingType.KEYWORD)));
 
-    sut.applyHighlighting(inputFile, metadata, output);
+    inputFile.setOriginalLineOffsets(new int[] {0, 4, 7});
+
+    sut.applyHighlighting(inputFile, output);
 
     FileSourceDb.Data data = output.build();
     assertThat(data.getLines(0).getHighlighting()).isEqualTo("0,3,a");
@@ -347,11 +315,26 @@ public class SourceDataFactoryTest {
     assertThat(data.getLines(2).getHighlighting()).isEqualTo("0,9,c;1,8,k");
   }
 
+  private HighlightingRule newRule(int startLine, int startOffset, int endLine, int endOffset, HighlightingType type) {
+    return BatchReport.SyntaxHighlighting.HighlightingRule.newBuilder()
+      .setRange(Range.newBuilder().setStartLine(startLine).setStartOffset(startOffset).setEndLine(endLine).setEndOffset(endOffset).build())
+      .setType(type)
+      .build();
+  }
+
+  private BatchReport.Symbols.Symbol newSymbol(int startLine, int startOffset, int endLine, int endOffset,
+    int startLine1, int startOffset1, int endLine1, int endOffset1,
+    int startLine2, int startOffset2, int endLine2, int endOffset2) {
+    return BatchReport.Symbols.Symbol.newBuilder()
+      .setDeclaration(Range.newBuilder().setStartLine(startLine).setStartOffset(startOffset).setEndLine(endLine).setEndOffset(endOffset).build())
+      .addReference(Range.newBuilder().setStartLine(startLine1).setStartOffset(startOffset1).setEndLine(endLine1).setEndOffset(endOffset1).build())
+      .addReference(Range.newBuilder().setStartLine(startLine2).setStartOffset(startOffset2).setEndLine(endLine2).setEndOffset(endOffset2).build())
+      .build();
+  }
+
   @Test
   public void applySymbolReferences_missing() throws Exception {
-    when(componentDataCache.getData(inputFile.key(), SnapshotDataTypes.SYMBOL_HIGHLIGHTING)).thenReturn(null);
-
-    sut.applySymbolReferences(inputFile, metadata, output);
+    sut.applySymbolReferences(inputFile, output);
 
     FileSourceDb.Data data = output.build();
     assertThat(data.getLines(0).hasSymbols()).isFalse();
@@ -361,17 +344,17 @@ public class SourceDataFactoryTest {
 
   @Test
   public void applySymbolReferences() throws Exception {
-    DefaultSymbolTableBuilder symbolBuilder = new DefaultSymbolTableBuilder(inputFile.key(), null);
-    Symbol s1 = symbolBuilder.newSymbol(1, 2);
-    symbolBuilder.newReference(s1, 4);
-    symbolBuilder.newReference(s1, 11);
-    Symbol s2 = symbolBuilder.newSymbol(4, 6);
-    symbolBuilder.newReference(s2, 0);
-    symbolBuilder.newReference(s2, 7);
-    when(componentDataCache.getData(inputFile.key(), SnapshotDataTypes.SYMBOL_HIGHLIGHTING)).thenReturn(symbolBuilder.build());
-    metadata.setOriginalLineOffsets(new int[] {0, 4, 7});
+    batchReportWriter.writeComponentSymbols(1, Arrays.asList(
+      newSymbol(1, 1, 1, 2,
+        2, 0, 2, 1,
+        3, 4, 3, 5),
+      newSymbol(2, 0, 2, 2,
+        1, 0, 1, 2,
+        3, 0, 3, 2)
+      ));
+    inputFile.setOriginalLineOffsets(new int[] {0, 4, 7});
 
-    sut.applySymbolReferences(inputFile, metadata, output);
+    sut.applySymbolReferences(inputFile, output);
 
     FileSourceDb.Data data = output.build();
     assertThat(data.getLines(0).getSymbols()).isEqualTo("1,2,1;0,2,2");
@@ -381,17 +364,18 @@ public class SourceDataFactoryTest {
 
   @Test
   public void applySymbolReferences_declaration_order_is_not_important() throws Exception {
-    DefaultSymbolTableBuilder symbolBuilder = new DefaultSymbolTableBuilder(inputFile.key(), null);
-    Symbol s2 = symbolBuilder.newSymbol(4, 6);
-    symbolBuilder.newReference(s2, 7);
-    symbolBuilder.newReference(s2, 0);
-    Symbol s1 = symbolBuilder.newSymbol(1, 2);
-    symbolBuilder.newReference(s1, 11);
-    symbolBuilder.newReference(s1, 4);
-    when(componentDataCache.getData(inputFile.key(), SnapshotDataTypes.SYMBOL_HIGHLIGHTING)).thenReturn(symbolBuilder.build());
-    metadata.setOriginalLineOffsets(new int[] {0, 4, 7});
+    batchReportWriter.writeComponentSymbols(1, Arrays.asList(
+      newSymbol(2, 0, 2, 2,
+        1, 0, 1, 2,
+        3, 0, 3, 2),
+      newSymbol(1, 1, 1, 2,
+        2, 0, 2, 1,
+        3, 4, 3, 5)
 
-    sut.applySymbolReferences(inputFile, metadata, output);
+      ));
+    inputFile.setOriginalLineOffsets(new int[] {0, 4, 7});
+
+    sut.applySymbolReferences(inputFile, output);
 
     FileSourceDb.Data data = output.build();
     assertThat(data.getLines(0).getSymbols()).isEqualTo("1,2,1;0,2,2");

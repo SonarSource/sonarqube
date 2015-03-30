@@ -27,6 +27,7 @@ import org.sonar.api.batch.fs.InputFile;
 import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 
 public class DefaultInputFileTest {
 
@@ -72,5 +73,111 @@ public class DefaultInputFileTest {
   public void test_toString() throws Exception {
     DefaultInputFile file = new DefaultInputFile("ABCDE", "src/Foo.php");
     assertThat(file.toString()).isEqualTo("[moduleKey=ABCDE, relative=src/Foo.php, basedir=null]");
+  }
+
+  @Test
+  public void checkValidPointer() {
+    DefaultInputFile file = new DefaultInputFile("ABCDE", "src/Foo.php");
+    file.setLines(2);
+    file.setOriginalLineOffsets(new int[] {0, 10});
+    file.setLastValidOffset(15);
+    assertThat(file.newPointer(1, 0).line()).isEqualTo(1);
+    assertThat(file.newPointer(1, 0).lineOffset()).isEqualTo(0);
+    // Don't fail
+    file.newPointer(1, 9);
+    file.newPointer(2, 0);
+    file.newPointer(2, 5);
+
+    try {
+      file.newPointer(0, 1);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).hasMessage("0 is not a valid line for a file");
+    }
+    try {
+      file.newPointer(3, 1);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).hasMessage("3 is not a valid line for pointer. File [moduleKey=ABCDE, relative=src/Foo.php, basedir=null] has 2 line(s)");
+    }
+    try {
+      file.newPointer(1, -1);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).hasMessage("-1 is not a valid line offset for a file");
+    }
+    try {
+      file.newPointer(1, 10);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).hasMessage("10 is not a valid line offset for pointer. File [moduleKey=ABCDE, relative=src/Foo.php, basedir=null] has 9 character(s) at line 1");
+    }
+  }
+
+  @Test
+  public void checkValidPointerUsingGlobalOffset() {
+    DefaultInputFile file = new DefaultInputFile("ABCDE", "src/Foo.php");
+    file.setLines(2);
+    file.setOriginalLineOffsets(new int[] {0, 10});
+    file.setLastValidOffset(15);
+    assertThat(file.newPointer(0).line()).isEqualTo(1);
+    assertThat(file.newPointer(0).lineOffset()).isEqualTo(0);
+
+    assertThat(file.newPointer(9).line()).isEqualTo(1);
+    assertThat(file.newPointer(9).lineOffset()).isEqualTo(9);
+
+    assertThat(file.newPointer(10).line()).isEqualTo(2);
+    assertThat(file.newPointer(10).lineOffset()).isEqualTo(0);
+
+    assertThat(file.newPointer(15).line()).isEqualTo(2);
+    assertThat(file.newPointer(15).lineOffset()).isEqualTo(5);
+
+    try {
+      file.newPointer(-1);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).hasMessage("-1 is not a valid offset for a file");
+    }
+
+    try {
+      file.newPointer(16);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).hasMessage("16 is not a valid offset for file [moduleKey=ABCDE, relative=src/Foo.php, basedir=null]. Max offset is 15");
+    }
+  }
+
+  @Test
+  public void checkValidRange() {
+    DefaultInputFile file = new DefaultInputFile("ABCDE", "src/Foo.php");
+    file.setLines(2);
+    file.setOriginalLineOffsets(new int[] {0, 10});
+    file.setLastValidOffset(15);
+    assertThat(file.newRange(file.newPointer(1, 0), file.newPointer(2, 1)).start().line()).isEqualTo(1);
+    // Don't fail
+    file.newRange(file.newPointer(1, 0), file.newPointer(1, 1));
+    file.newRange(file.newPointer(1, 0), file.newPointer(1, 9));
+    file.newRange(file.newPointer(1, 0), file.newPointer(2, 0));
+    assertThat(file.newRange(file.newPointer(1, 0), file.newPointer(2, 5))).isEqualTo(file.newRange(0, 15));
+
+    try {
+      file.newRange(file.newPointer(1, 0), file.newPointer(1, 0));
+      fail();
+    } catch (Exception e) {
+      assertThat(e).hasMessage("Start pointer [line=1, lineOffset=0] should be before end pointer [line=1, lineOffset=0]");
+    }
+  }
+
+  @Test
+  public void testRangeOverlap() {
+    DefaultInputFile file = new DefaultInputFile("ABCDE", "src/Foo.php");
+    file.setLines(2);
+    file.setOriginalLineOffsets(new int[] {0, 10});
+    file.setLastValidOffset(15);
+    // Don't fail
+    assertThat(file.newRange(file.newPointer(1, 0), file.newPointer(1, 1)).overlap(file.newRange(file.newPointer(1, 0), file.newPointer(1, 1)))).isTrue();
+    assertThat(file.newRange(file.newPointer(1, 0), file.newPointer(1, 1)).overlap(file.newRange(file.newPointer(1, 0), file.newPointer(1, 2)))).isTrue();
+    assertThat(file.newRange(file.newPointer(1, 0), file.newPointer(1, 1)).overlap(file.newRange(file.newPointer(1, 1), file.newPointer(1, 2)))).isFalse();
+    assertThat(file.newRange(file.newPointer(1, 2), file.newPointer(1, 3)).overlap(file.newRange(file.newPointer(1, 0), file.newPointer(1, 2)))).isFalse();
   }
 }

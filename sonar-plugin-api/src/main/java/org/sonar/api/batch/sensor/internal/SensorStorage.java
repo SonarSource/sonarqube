@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch.sensor.internal;
 
+import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.sensor.dependency.Dependency;
 import org.sonar.api.batch.sensor.duplication.Duplication;
 import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
@@ -29,7 +30,7 @@ import org.sonar.api.batch.sensor.measure.Measure;
  * Interface for storing data computed by sensors.
  * @since 5.1
  */
-public interface SensorStorage {
+public interface SensorStorage extends BatchComponent {
 
   void store(Measure measure);
 

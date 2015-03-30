@@ -36,7 +36,7 @@ import java.util.Set;
 
 public class DefaultHighlighting extends DefaultStorable implements NewHighlighting {
 
-  private InputFile inputFile;
+  private DefaultInputFile inputFile;
   private Set<SyntaxHighlightingRule> syntaxHighlightingRuleSet;
 
   public DefaultHighlighting() {
@@ -48,9 +48,9 @@ public class DefaultHighlighting extends DefaultStorable implements NewHighlight
     syntaxHighlightingRuleSet = Sets.newTreeSet(new Comparator<SyntaxHighlightingRule>() {
       @Override
       public int compare(SyntaxHighlightingRule left, SyntaxHighlightingRule right) {
-        int result = left.getStartPosition() - right.getStartPosition();
+        int result = left.range().start().compareTo(right.range().start());
         if (result == 0) {
-          result = right.getEndPosition() - left.getEndPosition();
+          result = right.range().end().compareTo(left.range().end());
         }
         return result;
       }
@@ -67,9 +67,9 @@ public class DefaultHighlighting extends DefaultStorable implements NewHighlight
       SyntaxHighlightingRule previous = it.next();
       while (it.hasNext()) {
         SyntaxHighlightingRule current = it.next();
-        if (previous.getEndPosition() > current.getStartPosition() && !(previous.getEndPosition() >= current.getEndPosition())) {
-          String errorMsg = String.format("Cannot register highlighting rule for characters from %s to %s as it " +
-            "overlaps at least one existing rule", current.getStartPosition(), current.getEndPosition());
+        if (previous.range().end().compareTo(current.range().start()) > 0 && !(previous.range().end().compareTo(current.range().end()) >= 0)) {
+          String errorMsg = String.format("Cannot register highlighting rule for characters at %s as it " +
+            "overlaps at least one existing rule", current.range());
           throw new IllegalStateException(errorMsg);
         }
         previous = current;
@@ -80,7 +80,7 @@ public class DefaultHighlighting extends DefaultStorable implements NewHighlight
   @Override
   public DefaultHighlighting onFile(InputFile inputFile) {
     Preconditions.checkNotNull(inputFile, "file can't be null");
-    this.inputFile = inputFile;
+    this.inputFile = (DefaultInputFile) inputFile;
     return this;
   }
 
@@ -91,19 +91,9 @@ public class DefaultHighlighting extends DefaultStorable implements NewHighlight
   @Override
   public DefaultHighlighting highlight(int startOffset, int endOffset, TypeOfText typeOfText) {
     Preconditions.checkState(inputFile != null, "Call onFile() first");
-    int maxValidOffset = ((DefaultInputFile) inputFile).lastValidOffset();
-    checkOffset(startOffset, maxValidOffset, "startOffset");
-    checkOffset(endOffset, maxValidOffset, "endOffset");
-    Preconditions.checkArgument(startOffset < endOffset, "startOffset (" + startOffset + ") should be < endOffset (" + endOffset + ") for file " + inputFile + ".");
-    SyntaxHighlightingRule syntaxHighlightingRule = SyntaxHighlightingRule.create(startOffset, endOffset,
-      typeOfText);
+    SyntaxHighlightingRule syntaxHighlightingRule = SyntaxHighlightingRule.create(inputFile.newRange(startOffset, endOffset), typeOfText);
     this.syntaxHighlightingRuleSet.add(syntaxHighlightingRule);
     return this;
-  }
-
-  private void checkOffset(int offset, int maxValidOffset, String label) {
-    Preconditions.checkArgument(offset >= 0 && offset <= maxValidOffset, "Invalid " + label + " " + offset + ". Should be >= 0 and <= " + maxValidOffset
-      + " for file " + inputFile);
   }
 
   @Override

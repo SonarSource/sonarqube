@@ -17,29 +17,44 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.highlighting;
+package org.sonar.batch.deprecated;
 
-import com.persistit.Value;
-import com.persistit.encoding.CoderContext;
-import com.persistit.encoding.ValueCoder;
-import org.sonar.api.batch.sensor.highlighting.TypeOfText;
-import org.sonar.api.batch.sensor.highlighting.internal.SyntaxHighlightingRule;
+import org.sonar.api.batch.fs.InputFile.Type;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.component.Component;
+import org.sonar.api.resources.Qualifiers;
 
-class SyntaxHighlightingRuleValueCoder implements ValueCoder {
+public class InputFileComponent implements Component {
 
-  @Override
-  public void put(Value value, Object object, CoderContext context) {
-    SyntaxHighlightingRule rule = (SyntaxHighlightingRule) object;
-    value.put(rule.getStartPosition());
-    value.put(rule.getEndPosition());
-    value.put(rule.getTextType().ordinal());
+  private final DefaultInputFile inputFile;
+
+  public InputFileComponent(DefaultInputFile inputFile) {
+    this.inputFile = inputFile;
   }
 
   @Override
-  public Object get(Value value, Class clazz, CoderContext context) {
-    int startPosition = value.getInt();
-    int endPosition = value.getInt();
-    TypeOfText type = TypeOfText.values()[value.getInt()];
-    return SyntaxHighlightingRule.create(startPosition, endPosition, type);
+  public String key() {
+    return inputFile.key();
   }
+
+  @Override
+  public String path() {
+    return inputFile.relativePath();
+  }
+
+  @Override
+  public String name() {
+    return inputFile.file().getName();
+  }
+
+  @Override
+  public String longName() {
+    return inputFile.relativePath();
+  }
+
+  @Override
+  public String qualifier() {
+    return inputFile.type() == Type.MAIN ? Qualifiers.FILE : Qualifiers.UNIT_TEST_FILE;
+  }
+
 }

@@ -17,7 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.batch.highlighting;
+package org.sonar.api.batch.fs;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+/**
+ * Represents a position in a text file {@link InputFile}
+ *
+ * @since 5.2
+ */
+public interface TextPointer extends Comparable<TextPointer> {
+
+  /**
+   * The logical line where this pointer is located. First line is 1.
+   */
+  int line();
+
+  /**
+   * The offset of this pointer in the current line. First position in a line is 0.
+   */
+  int lineOffset();
+
+}

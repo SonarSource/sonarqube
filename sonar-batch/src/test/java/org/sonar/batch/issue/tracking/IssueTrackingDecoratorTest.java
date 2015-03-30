@@ -44,7 +44,6 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.issue.IssueCache;
-import org.sonar.batch.scan.filesystem.InputFileMetadata;
 import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.db.IssueChangeDto;
@@ -60,19 +59,8 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyCollection;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.RETURNS_MOCKS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.*;
 
 public class IssueTrackingDecoratorTest {
 
@@ -132,7 +120,6 @@ public class IssueTrackingDecoratorTest {
     List<ServerIssue> dbIssues = Collections.emptyList();
     when(initialOpenIssues.selectAndRemoveIssues("struts:Action.java")).thenReturn(dbIssues);
     when(inputPathCache.getFile("foo", "Action.java")).thenReturn(mock(DefaultInputFile.class));
-    when(inputPathCache.getFileMetadata("foo", "Action.java")).thenReturn(new InputFileMetadata());
     decorator.doDecorate(file);
 
     // Apply filters, track, apply transitions, notify extensions then update cache
@@ -161,7 +148,6 @@ public class IssueTrackingDecoratorTest {
 
     when(tracking.track(isA(SourceHashHolder.class), anyCollection(), anyCollection())).thenReturn(trackingResult);
     when(inputPathCache.getFile("foo", "Action.java")).thenReturn(mock(DefaultInputFile.class));
-    when(inputPathCache.getFileMetadata("foo", "Action.java")).thenReturn(new InputFileMetadata());
 
     decorator.doDecorate(file);
 

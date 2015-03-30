@@ -23,31 +23,37 @@ import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.TextPointer;
+import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.dependency.internal.DefaultDependency;
 import org.sonar.api.batch.sensor.duplication.Duplication;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
-import org.sonar.api.batch.sensor.highlighting.internal.SyntaxHighlightingRule;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.measures.Measure;
-import org.sonar.api.source.Symbol;
 import org.sonar.batch.dependency.DependencyCache;
 import org.sonar.batch.duplication.DuplicationCache;
-import org.sonar.batch.highlighting.SyntaxHighlightingData;
 import org.sonar.batch.index.Cache.Entry;
-import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.batch.issue.IssueCache;
+import org.sonar.batch.protocol.output.BatchReport.Component;
+import org.sonar.batch.protocol.output.BatchReport.Metadata;
+import org.sonar.batch.protocol.output.BatchReport.Range;
+import org.sonar.batch.protocol.output.BatchReport.Symbols.Symbol;
+import org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule;
+import org.sonar.batch.protocol.output.*;
+import org.sonar.batch.report.BatchReportUtils;
+import org.sonar.batch.report.ReportPublisher;
 import org.sonar.batch.scan.ProjectScanContainer;
 import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.batch.scan.measure.MeasureCache;
-import org.sonar.batch.symbol.SymbolData;
-import org.sonar.core.source.SnapshotDataTypes;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.io.Serializable;
 import java.util.*;
@@ -60,10 +66,10 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
   private List<org.sonar.api.batch.sensor.measure.Measure> measures = new ArrayList<>();
   private Map<String, List<Duplication>> duplications = new HashMap<>();
   private Map<String, InputFile> inputFiles = new HashMap<>();
+  private Map<String, Component> reportComponents = new HashMap<>();
   private Map<String, InputDir> inputDirs = new HashMap<>();
-  private Map<InputFile, SyntaxHighlightingData> highlightingPerFile = new HashMap<>();
-  private Map<InputFile, SymbolData> symbolTablePerFile = new HashMap<>();
   private Map<String, Map<String, Integer>> dependencies = new HashMap<>();
+  private BatchReportReader reader;
 
   @Override
   public void scanTaskCompleted(ProjectScanContainer container) {
@@ -72,16 +78,37 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
       issues.add(issue);
     }
 
+    if (!container.getComponentByType(AnalysisMode.class).isPreview()) {
+      ReportPublisher reportPublisher = container.getComponentByType(ReportPublisher.class);
+      reader = new BatchReportReader(reportPublisher.getReportDir());
+      Metadata readMetadata = getReportReader().readMetadata();
+      int rootComponentRef = readMetadata.getRootComponentRef();
+      storeReportComponents(rootComponentRef, null, readMetadata.hasBranch() ? readMetadata.getBranch() : null);
+    }
+
     storeFs(container);
 
     storeMeasures(container);
 
-    storeComponentData(container);
     storeDuplication(container);
-    // storeTestCases(container);
-    // storeCoveragePerTest(container);
     storeDependencies(container);
+  }
 
+  private void storeReportComponents(int componentRef, String parentModuleKey, @Nullable String branch) {
+    Component component = getReportReader().readComponent(componentRef);
+    if (component.hasKey()) {
+      reportComponents.put(component.getKey() + (branch != null ? ":" + branch : ""), component);
+    } else {
+      reportComponents.put(parentModuleKey + (branch != null ? ":" + branch : "") + ":" + component.getPath(), component);
+    }
+    for (int childId : component.getChildRefList()) {
+      storeReportComponents(childId, component.hasKey() ? component.getKey() : parentModuleKey, branch);
+    }
+
+  }
+
+  public BatchReportReader getReportReader() {
+    return reader;
   }
 
   private void storeMeasures(ProjectScanContainer container) {
@@ -105,20 +132,6 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
     DuplicationCache duplicationCache = container.getComponentByType(DuplicationCache.class);
     for (String effectiveKey : duplicationCache.componentKeys()) {
       duplications.put(effectiveKey, Lists.<Duplication>newArrayList(duplicationCache.byComponent(effectiveKey)));
-    }
-  }
-
-  private void storeComponentData(ProjectScanContainer container) {
-    ComponentDataCache componentDataCache = container.getComponentByType(ComponentDataCache.class);
-    for (InputFile file : inputFiles.values()) {
-      SyntaxHighlightingData highlighting = componentDataCache.getData(((DefaultInputFile) file).key(), SnapshotDataTypes.SYNTAX_HIGHLIGHTING);
-      if (highlighting != null) {
-        highlightingPerFile.put(file, highlighting);
-      }
-      SymbolData symbolTable = componentDataCache.getData(((DefaultInputFile) file).key(), SnapshotDataTypes.SYMBOL_HIGHLIGHTING);
-      if (symbolTable != null) {
-        symbolTablePerFile.put(file, symbolTable);
-      }
     }
   }
 
@@ -178,37 +191,45 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
    * Get highlighting types at a given position in an inputfile
    * @param charIndex 0-based offset in file
    */
-  public List<TypeOfText> highlightingTypeFor(InputFile file, int charIndex) {
-    SyntaxHighlightingData syntaxHighlightingData = highlightingPerFile.get(file);
-    if (syntaxHighlightingData == null) {
+  public List<TypeOfText> highlightingTypeFor(InputFile file, int line, int lineOffset) {
+    int ref = reportComponents.get(((DefaultInputFile) file).key()).getRef();
+    List<HighlightingRule> syntaxHighlightingRules = getReportReader().readComponentSyntaxHighlighting(ref);
+    if (syntaxHighlightingRules.isEmpty()) {
       return Collections.emptyList();
     }
+    TextPointer pointer = file.newPointer(line, lineOffset);
     List<TypeOfText> result = new ArrayList<TypeOfText>();
-    for (SyntaxHighlightingRule sortedRule : syntaxHighlightingData.syntaxHighlightingRuleSet()) {
-      if (sortedRule.getStartPosition() <= charIndex && sortedRule.getEndPosition() > charIndex) {
-        result.add(sortedRule.getTextType());
+    for (HighlightingRule sortedRule : syntaxHighlightingRules) {
+      TextRange ruleRange = toRange(file, sortedRule.getRange());
+      if (ruleRange.start().compareTo(pointer) <= 0 && ruleRange.end().compareTo(pointer) > 0) {
+        result.add(BatchReportUtils.toBatchType(sortedRule.getType()));
       }
     }
     return result;
   }
 
+  private static TextRange toRange(InputFile file, Range reportRange) {
+    return file.newRange(file.newPointer(reportRange.getStartLine(), reportRange.getStartOffset()), file.newPointer(reportRange.getEndLine(), reportRange.getEndOffset()));
+  }
+
   /**
-   * Get list of all positions of a symbol in an inputfile
+   * Get list of all start positions of a symbol in an inputfile
    * @param symbolStartOffset 0-based start offset for the symbol in file
    * @param symbolEndOffset 0-based end offset for the symbol in file
    */
   @CheckForNull
-  public Set<Integer> symbolReferencesFor(InputFile file, int symbolStartOffset, int symbolEndOffset) {
-    SymbolData data = symbolTablePerFile.get(file);
-    if (data == null) {
-      return null;
+  public List<Range> symbolReferencesFor(InputFile file, int symbolStartLine, int symbolStartLineOffset) {
+    int ref = reportComponents.get(((DefaultInputFile) file).key()).getRef();
+    List<Symbol> symbols = getReportReader().readComponentSymbols(ref);
+    if (symbols.isEmpty()) {
+      return Collections.emptyList();
     }
-    for (Symbol symbol : data.referencesBySymbol().keySet()) {
-      if (symbol.getDeclarationStartOffset() == symbolStartOffset && symbol.getDeclarationEndOffset() == symbolEndOffset) {
-        return data.referencesBySymbol().get(symbol);
+    for (Symbol symbol : symbols) {
+      if (symbol.getDeclaration().getStartLine() == symbolStartLine && symbol.getDeclaration().getStartOffset() == symbolStartLineOffset) {
+        return symbol.getReferenceList();
       }
     }
-    return null;
+    return Collections.emptyList();
   }
 
   /**

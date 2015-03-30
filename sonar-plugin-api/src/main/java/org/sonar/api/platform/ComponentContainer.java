@@ -32,6 +32,7 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.config.PropertyDefinitions;
 
 import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.List;
 
@@ -172,7 +173,11 @@ public class ComponentContainer implements BatchComponent, ServerComponent {
     if (component instanceof ComponentAdapter) {
       pico.addAdapter((ComponentAdapter) component);
     } else {
-      pico.as(singleton ? Characteristics.CACHE : Characteristics.NO_CACHE).addComponent(key, component);
+      try {
+        pico.as(singleton ? Characteristics.CACHE : Characteristics.NO_CACHE).addComponent(key, component);
+      } catch (Throwable t) {
+        throw new IllegalStateException("Unable to register component " + getName(component), t);
+      }
       declareExtension(null, component);
     }
     return this;

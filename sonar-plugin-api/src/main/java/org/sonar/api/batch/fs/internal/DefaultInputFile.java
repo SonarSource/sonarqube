@@ -19,7 +19,11 @@
  */
 package org.sonar.api.batch.fs.internal;
 
+import com.google.common.base.Preconditions;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.TextPointer;
+import org.sonar.api.batch.fs.TextRange;
+import org.sonar.api.batch.fs.internal.FileMetadata.Metadata;
 import org.sonar.api.utils.PathUtils;
 
 import javax.annotation.CheckForNull;
@@ -28,6 +32,7 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
+import java.util.Arrays;
 
 /**
  * @since 4.2
@@ -40,9 +45,13 @@ public class DefaultInputFile implements InputFile {
   private String language;
   private Type type = Type.MAIN;
   private Status status;
-  private int lines;
+  private int lines = -1;
   private Charset charset;
-  private int lastValidOffset;
+  private int lastValidOffset = -1;
+  private String hash;
+  private int nonBlankLines;
+  private int[] originalLineOffsets;
+  private boolean empty;
 
   public DefaultInputFile(String moduleKey, String relativePath) {
     this.moduleKey = moduleKey;
@@ -145,11 +154,114 @@ public class DefaultInputFile implements InputFile {
   }
 
   public int lastValidOffset() {
+    Preconditions.checkState(lastValidOffset >= 0, "InputFile is not properly initialized. Please set 'lastValidOffset' property.");
     return lastValidOffset;
   }
 
   public DefaultInputFile setLastValidOffset(int lastValidOffset) {
     this.lastValidOffset = lastValidOffset;
+    return this;
+  }
+
+  /**
+   * Digest hash of the file.
+   */
+  public String hash() {
+    return hash;
+  }
+
+  public int nonBlankLines() {
+    return nonBlankLines;
+  }
+
+  public int[] originalLineOffsets() {
+    Preconditions.checkState(originalLineOffsets != null, "InputFile is not properly initialized. Please set 'originalLineOffsets' property.");
+    Preconditions.checkState(originalLineOffsets.length == lines, "InputFile is not properly initialized. 'originalLineOffsets' property length should be equal to 'lines'");
+    return originalLineOffsets;
+  }
+
+  public DefaultInputFile setHash(String hash) {
+    this.hash = hash;
+    return this;
+  }
+
+  public DefaultInputFile setNonBlankLines(int nonBlankLines) {
+    this.nonBlankLines = nonBlankLines;
+    return this;
+  }
+
+  public DefaultInputFile setOriginalLineOffsets(int[] originalLineOffsets) {
+    this.originalLineOffsets = originalLineOffsets;
+    return this;
+  }
+
+  public boolean isEmpty() {
+    return this.empty;
+  }
+
+  public DefaultInputFile setEmpty(boolean empty) {
+    this.empty = empty;
+    return this;
+  }
+
+  @Override
+  public TextPointer newPointer(int line, int lineOffset) {
+    DefaultTextPointer textPointer = new DefaultTextPointer(line, lineOffset);
+    checkValid(textPointer, "pointer");
+    return textPointer;
+  }
+
+  private void checkValid(TextPointer pointer, String owner) {
+    Preconditions.checkArgument(pointer.line() >= 1, "%s is not a valid line for a file", pointer.line());
+    Preconditions.checkArgument(pointer.line() <= this.lines, "%s is not a valid line for %s. File %s has %s line(s)", pointer.line(), owner, this, lines);
+    Preconditions.checkArgument(pointer.lineOffset() >= 0, "%s is not a valid line offset for a file", pointer.lineOffset());
+    int lineLength = lineLength(pointer.line());
+    Preconditions.checkArgument(pointer.lineOffset() <= lineLength,
+      "%s is not a valid line offset for %s. File %s has %s character(s) at line %s", pointer.lineOffset(), owner, this, lineLength, pointer.line());
+  }
+
+  private int lineLength(int line) {
+    return lastValidGlobalOffsetForLine(line) - originalLineOffsets()[line - 1];
+  }
+
+  private int lastValidGlobalOffsetForLine(int line) {
+    return line < this.lines ? (originalLineOffsets()[line] - 1) : lastValidOffset();
+  }
+
+  @Override
+  public TextRange newRange(TextPointer start, TextPointer end) {
+    checkValid(start, "start pointer");
+    checkValid(end, "end pointer");
+    Preconditions.checkArgument(start.compareTo(end) < 0, "Start pointer %s should be before end pointer %s", start, end);
+    return new DefaultTextRange(start, end);
+  }
+
+  /**
+   * Create Range from global offsets. Used for backward compatibility with older API.
+   */
+  public TextRange newRange(int startOffset, int endOffset) {
+    return newRange(newPointer(startOffset), newPointer(endOffset));
+  }
+
+  public TextPointer newPointer(int globalOffset) {
+    Preconditions.checkArgument(globalOffset >= 0, "%s is not a valid offset for a file", globalOffset);
+    Preconditions.checkArgument(globalOffset <= lastValidOffset(), "%s is not a valid offset for file %s. Max offset is %s", globalOffset, this, lastValidOffset());
+    int line = findLine(globalOffset);
+    int startLineOffset = originalLineOffsets()[line - 1];
+    return new DefaultTextPointer(line, globalOffset - startLineOffset);
+  }
+
+  private int findLine(int globalOffset) {
+    return Math.abs(Arrays.binarySearch(originalLineOffsets(), globalOffset) + 1);
+  }
+
+  public DefaultInputFile initMetadata(Metadata metadata) {
+    this.setLines(metadata.lines);
+    this.setLastValidOffset(metadata.lastValidOffset);
+    this.setNonBlankLines(metadata.nonBlankLines);
+    this.setHash(metadata.hash);
+    this.setOriginalLineOffsets(metadata.originalLineOffsets);
+    this.setEmpty(metadata.empty);
     return this;
   }
 

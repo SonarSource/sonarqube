@@ -37,7 +37,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class PublishReportJobTest extends AbstractDbUnitTestCase {
+public class ReportPublisherTest extends AbstractDbUnitTestCase {
 
   private DefaultAnalysisMode mode;
 
@@ -56,7 +56,7 @@ public class PublishReportJobTest extends AbstractDbUnitTestCase {
   public void should_log_successful_analysis() throws Exception {
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.SERVER_BASE_URL, "http://myserver/");
-    PublishReportJob job = new PublishReportJob(settings, mock(ServerClient.class), mock(Server.class), reactor, mode, mock(TempFolder.class), new ReportPublisher[0]);
+    ReportPublisher job = new ReportPublisher(settings, mock(ServerClient.class), mock(Server.class), reactor, mode, mock(TempFolder.class), new ReportPublisherStep[0]);
 
     Logger logger = mock(Logger.class);
     job.logSuccess(logger);
@@ -69,7 +69,7 @@ public class PublishReportJobTest extends AbstractDbUnitTestCase {
   public void should_log_successful_preview_analysis() throws Exception {
     Settings settings = new Settings();
     when(mode.isPreview()).thenReturn(true);
-    PublishReportJob job = new PublishReportJob(settings, mock(ServerClient.class), mock(Server.class), reactor, mode, mock(TempFolder.class), new ReportPublisher[0]);
+    ReportPublisher job = new ReportPublisher(settings, mock(ServerClient.class), mock(Server.class), reactor, mode, mock(TempFolder.class), new ReportPublisherStep[0]);
 
     Logger logger = mock(Logger.class);
     job.logSuccess(logger);

@@ -21,38 +21,47 @@
 package org.sonar.batch.source;
 
 import com.google.common.base.Objects;
+import org.sonar.api.batch.fs.TextRange;
 
 import java.io.Serializable;
 
 public class DefaultSymbol implements org.sonar.api.source.Symbol, Serializable {
 
-  private final int declarationStartOffset;
-  private final int declarationEndOffset;
+  private TextRange range;
+  private int length;
 
-  public DefaultSymbol(int startOffset, int endOffset) {
-    this.declarationStartOffset = startOffset;
-    this.declarationEndOffset = endOffset;
+  public DefaultSymbol(TextRange range, int length) {
+    this.range = range;
+    this.length = length;
   }
 
   @Override
   public int getDeclarationStartOffset() {
-    return declarationStartOffset;
+    throw new UnsupportedOperationException("getDeclarationStartOffset");
   }
 
   @Override
   public int getDeclarationEndOffset() {
-    return declarationEndOffset;
+    throw new UnsupportedOperationException("getDeclarationEndOffset");
   }
 
   @Override
   public String getFullyQualifiedName() {
-    return null;
+    throw new UnsupportedOperationException("getFullyQualifiedName");
+  }
+
+  public TextRange range() {
+    return range;
+  }
+
+  public int getLength() {
+    return length;
   }
 
   @Override
   public String toString() {
     return Objects.toStringHelper("Symbol")
-      .add("offset", String.format("%d-%d", declarationStartOffset, declarationEndOffset))
+      .add("range", range)
       .toString();
   }
 }

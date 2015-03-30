@@ -20,35 +20,34 @@
 
 package org.sonar.batch.source;
 
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.component.Component;
 import org.sonar.api.source.Symbolizable;
-import org.sonar.batch.index.ComponentDataCache;
-import org.sonar.batch.symbol.SymbolData;
-import org.sonar.core.source.SnapshotDataTypes;
+import org.sonar.batch.deprecated.InputFileComponent;
+import org.sonar.batch.sensor.DefaultSensorStorage;
 
 public class DefaultSymbolizable implements Symbolizable {
 
-  private final ComponentDataCache cache;
-  private final Component component;
+  private final DefaultInputFile inputFile;
+  private final DefaultSensorStorage sensorStorage;
 
-  public DefaultSymbolizable(ComponentDataCache cache, Component component) {
-    this.cache = cache;
-    this.component = component;
+  public DefaultSymbolizable(DefaultInputFile inputFile, DefaultSensorStorage sensorStorage) {
+    this.inputFile = inputFile;
+    this.sensorStorage = sensorStorage;
   }
 
   @Override
   public Component component() {
-    return component;
+    return new InputFileComponent(inputFile);
   }
 
   @Override
   public SymbolTableBuilder newSymbolTableBuilder() {
-    return new DefaultSymbolTable.Builder(component.key());
+    return new DefaultSymbolTable.Builder(inputFile);
   }
 
   @Override
   public void setSymbolTable(SymbolTable symbolTable) {
-    SymbolData symbolData = new SymbolData(((DefaultSymbolTable) symbolTable).getReferencesBySymbol());
-    cache.setData(component().key(), SnapshotDataTypes.SYMBOL_HIGHLIGHTING, symbolData);
+    sensorStorage.store(inputFile, ((DefaultSymbolTable) symbolTable).getReferencesBySymbol());
   }
 }

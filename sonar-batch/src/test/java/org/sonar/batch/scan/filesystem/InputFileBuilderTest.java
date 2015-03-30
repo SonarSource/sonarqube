@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
+import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.config.Settings;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.PathUtils;
@@ -66,7 +67,7 @@ public class InputFileBuilderTest {
       .thenReturn(InputFile.Status.ADDED);
 
     InputFileBuilder builder = new InputFileBuilder("struts", new PathResolver(),
-      langDetection, statusDetection, fs, analysisMode, new Settings(), new FileMetadata(analysisMode));
+      langDetection, statusDetection, fs, analysisMode, new Settings(), new FileMetadata());
     DeprecatedDefaultInputFile inputFile = builder.create(srcFile);
     builder.completeAndComputeMetadata(inputFile, InputFile.Type.MAIN);
 
@@ -89,7 +90,7 @@ public class InputFileBuilderTest {
     when(fs.baseDir()).thenReturn(basedir);
 
     InputFileBuilder builder = new InputFileBuilder("struts", new PathResolver(),
-      langDetection, statusDetection, fs, analysisMode, new Settings(), new FileMetadata(analysisMode));
+      langDetection, statusDetection, fs, analysisMode, new Settings(), new FileMetadata());
     DeprecatedDefaultInputFile inputFile = builder.create(srcFile);
 
     assertThat(inputFile).isNull();
@@ -109,11 +110,11 @@ public class InputFileBuilderTest {
     when(langDetection.language(any(InputFile.class))).thenReturn(null);
 
     InputFileBuilder builder = new InputFileBuilder("struts", new PathResolver(),
-      langDetection, statusDetection, fs, analysisMode, new Settings(), new FileMetadata(analysisMode));
+      langDetection, statusDetection, fs, analysisMode, new Settings(), new FileMetadata());
     DeprecatedDefaultInputFile inputFile = builder.create(srcFile);
-    InputFileMetadata metadata = builder.completeAndComputeMetadata(inputFile, InputFile.Type.MAIN);
+    inputFile = builder.completeAndComputeMetadata(inputFile, InputFile.Type.MAIN);
 
-    assertThat(metadata).isNull();
+    assertThat(inputFile).isNull();
   }
 
 }

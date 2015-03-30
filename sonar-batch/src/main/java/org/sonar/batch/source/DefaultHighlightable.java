@@ -19,64 +19,57 @@
  */
 package org.sonar.batch.source;
 
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
+import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
+import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.component.Component;
 import org.sonar.api.source.Highlightable;
-import org.sonar.batch.highlighting.SyntaxHighlightingDataBuilder;
-import org.sonar.batch.index.ComponentDataCache;
-import org.sonar.core.source.SnapshotDataTypes;
+import org.sonar.batch.deprecated.InputFileComponent;
 
 /**
  * @since 3.6
  */
 public class DefaultHighlightable implements Highlightable {
 
-  private final Component component;
-  private final ComponentDataCache cache;
-  private final SyntaxHighlightingDataBuilder builder;
+  private final DefaultInputFile inputFile;
+  private final SensorStorage sensorStorage;
 
-  public DefaultHighlightable(Component component, ComponentDataCache cache) {
-    this.component = component;
-    this.cache = cache;
-    this.builder = new SyntaxHighlightingDataBuilder();
+  public DefaultHighlightable(DefaultInputFile inputFile, SensorStorage sensorStorage) {
+    this.inputFile = inputFile;
+    this.sensorStorage = sensorStorage;
   }
 
   @Override
   public HighlightingBuilder newHighlighting() {
-    return new DefaultHighlightingBuilder(component.key(), cache, builder);
+    DefaultHighlighting defaultHighlighting = new DefaultHighlighting(sensorStorage);
+    defaultHighlighting.onFile(inputFile);
+    return new DefaultHighlightingBuilder(defaultHighlighting);
   }
 
   @Override
   public Component component() {
-    return component;
-  }
-
-  public SyntaxHighlightingDataBuilder getHighlightingRules() {
-    return builder;
+    return new InputFileComponent(inputFile);
   }
 
   private static class DefaultHighlightingBuilder implements HighlightingBuilder {
 
-    private final SyntaxHighlightingDataBuilder builder;
-    private String componentKey;
-    private ComponentDataCache cache;
+    private final DefaultHighlighting defaultHighlighting;
 
-    public DefaultHighlightingBuilder(String componentKey, ComponentDataCache cache, SyntaxHighlightingDataBuilder builder) {
-      this.componentKey = componentKey;
-      this.cache = cache;
-      this.builder = builder;
+    public DefaultHighlightingBuilder(DefaultHighlighting defaultHighlighting) {
+      this.defaultHighlighting = defaultHighlighting;
     }
 
     @Override
     public HighlightingBuilder highlight(int startOffset, int endOffset, String typeOfText) {
       TypeOfText type = org.sonar.api.batch.sensor.highlighting.TypeOfText.forCssClass(typeOfText);
-      builder.registerHighlightingRule(startOffset, endOffset, type);
+      defaultHighlighting.highlight(startOffset, endOffset, type);
       return this;
     }
 
     @Override
     public void done() {
-      cache.setData(componentKey, SnapshotDataTypes.SYNTAX_HIGHLIGHTING, builder.build());
+      defaultHighlighting.save();
     }
   }
 }

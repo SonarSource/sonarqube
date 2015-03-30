@@ -35,7 +35,7 @@ import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.protocol.output.BatchReport.Scm;
 import org.sonar.batch.protocol.output.BatchReport.Scm.Changeset;
 import org.sonar.batch.protocol.output.BatchReportWriter;
-import org.sonar.batch.report.PublishReportJob;
+import org.sonar.batch.report.ReportPublisher;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -69,7 +69,7 @@ public class NewCoverageFileAnalyzerTest {
     List<AbstractNewCoverageFileAnalyzer.PeriodStruct> structs = Arrays.asList(
       new AbstractNewCoverageFileAnalyzer.PeriodStruct(1, newDate("2009-12-25")),
       new AbstractNewCoverageFileAnalyzer.PeriodStruct(3, newDate("2011-02-18")));
-    PublishReportJob publishReportJob = mock(PublishReportJob.class);
+    ReportPublisher publishReportJob = mock(ReportPublisher.class);
     java.io.File reportBaseDir = temp.newFolder();
     when(publishReportJob.getReportDir()).thenReturn(reportBaseDir);
     writer = new BatchReportWriter(reportBaseDir);

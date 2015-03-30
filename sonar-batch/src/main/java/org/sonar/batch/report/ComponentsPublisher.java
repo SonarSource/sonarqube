@@ -40,7 +40,7 @@ import javax.annotation.CheckForNull;
 /**
  * Adds components and analysis metadata to output report
  */
-public class ComponentsPublisher implements ReportPublisher {
+public class ComponentsPublisher implements ReportPublisherStep {
 
   private final ResourceCache resourceCache;
   private final ProjectReactor reactor;

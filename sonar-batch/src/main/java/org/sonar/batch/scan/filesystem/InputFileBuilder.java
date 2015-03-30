@@ -25,6 +25,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
+import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.config.Settings;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.batch.bootstrap.DefaultAnalysisMode;
@@ -92,7 +93,7 @@ class InputFileBuilder {
    * Optimization to not compute InputFile metadata if the file is excluded from analysis.
    */
   @CheckForNull
-  InputFileMetadata completeAndComputeMetadata(DeprecatedDefaultInputFile inputFile, InputFile.Type type) {
+  DeprecatedDefaultInputFile completeAndComputeMetadata(DeprecatedDefaultInputFile inputFile, InputFile.Type type) {
     inputFile.setType(type);
     inputFile.setModuleBaseDir(fs.baseDir().toPath());
     inputFile.setCharset(fs.encoding());
@@ -103,22 +104,13 @@ class InputFileBuilder {
     }
     inputFile.setLanguage(lang);
 
-    InputFileMetadata result = new InputFileMetadata();
+    inputFile.initMetadata(fileMetadata.readMetadata(inputFile.file(), fs.encoding()));
 
-    FileMetadata.Metadata metadata = fileMetadata.read(inputFile.file(), fs.encoding());
-    inputFile.setLines(metadata.lines);
-    inputFile.setLastValidOffset(metadata.lastValidOffset);
-
-    result.setNonBlankLines(metadata.nonBlankLines);
-    result.setHash(metadata.hash);
-    result.setOriginalLineOffsets(metadata.originalLineOffsets);
-    result.setEmpty(metadata.empty);
-
-    inputFile.setStatus(statusDetection.status(inputFile.moduleKey(), inputFile.relativePath(), metadata.hash));
+    inputFile.setStatus(statusDetection.status(inputFile.moduleKey(), inputFile.relativePath(), inputFile.hash()));
     if (analysisMode.isIncremental() && inputFile.status() == InputFile.Status.SAME) {
       return null;
     }
-    return result;
+    return inputFile;
   }
 
 }

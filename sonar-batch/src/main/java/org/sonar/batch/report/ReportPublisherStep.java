@@ -17,26 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.batch.report;
 
-package org.sonar.api.source;
+import org.sonar.batch.protocol.output.BatchReportWriter;
 
-public interface Symbol {
+/**
+ * Adds a sub-part of data to output report
+ */
+public interface ReportPublisherStep {
 
-  /**
-   * @deprecated in 5.2 not used.
-   */
-  @Deprecated
-  int getDeclarationStartOffset();
+  void publish(BatchReportWriter writer);
 
-  /**
-   * @deprecated in 5.2 not used.
-   */
-  @Deprecated
-  int getDeclarationEndOffset();
-
-  /**
-   * @deprecated in 4.3 not used.
-   */
-  @Deprecated
-  String getFullyQualifiedName();
 }

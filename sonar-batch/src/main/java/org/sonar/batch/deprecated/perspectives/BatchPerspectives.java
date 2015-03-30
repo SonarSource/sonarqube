@@ -17,7 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.component;
+package org.sonar.batch.deprecated.perspectives;
+
+import org.sonar.core.component.PerspectiveBuilder;
+import org.sonar.core.component.PerspectiveNotFoundException;
+import org.sonar.core.component.ResourceComponent;
 
 import com.google.common.collect.Maps;
 import org.sonar.api.batch.SonarIndex;
@@ -32,14 +36,15 @@ import org.sonar.api.resources.File;
 import org.sonar.api.resources.Resource;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Map;
 
-public class ScanPerspectives implements ResourcePerspectives {
+public class BatchPerspectives implements ResourcePerspectives {
 
   private final Map<Class<?>, PerspectiveBuilder<?>> builders = Maps.newHashMap();
   private final SonarIndex resourceIndex;
 
-  public ScanPerspectives(PerspectiveBuilder[] builders, SonarIndex resourceIndex) {
+  public BatchPerspectives(PerspectiveBuilder[] builders, SonarIndex resourceIndex) {
     this.resourceIndex = resourceIndex;
     for (PerspectiveBuilder builder : builders) {
       // TODO check duplications

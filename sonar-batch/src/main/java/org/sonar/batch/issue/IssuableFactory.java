@@ -47,7 +47,7 @@ public class IssuableFactory extends PerspectiveBuilder<Issuable> {
 
   @CheckForNull
   @Override
-  protected Issuable loadPerspective(Class<Issuable> perspectiveClass, Component component) {
+  public Issuable loadPerspective(Class<Issuable> perspectiveClass, Component component) {
     boolean supported = true;
     if (component instanceof ResourceComponent) {
       supported = Scopes.isHigherThanOrEquals(((ResourceComponent) component).scope(), Scopes.FILE);

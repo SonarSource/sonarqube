@@ -30,15 +30,14 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
-import org.sonar.api.resources.AbstractLanguage;
-import org.sonar.api.resources.Java;
-import org.sonar.api.resources.Languages;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.*;
+import org.sonar.batch.index.BatchResource;
+import org.sonar.batch.index.ResourceCache;
 
 import java.io.File;
 import java.io.IOException;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -97,7 +96,9 @@ public class ComponentIndexerTest {
   }
 
   private ComponentIndexer createIndexer(Languages languages) {
-    return new ComponentIndexer(project, languages, sonarIndex);
+    ResourceCache resourceCache = mock(ResourceCache.class);
+    when(resourceCache.get(any(Resource.class))).thenReturn(new BatchResource(1, org.sonar.api.resources.File.create("foo.php"), null));
+    return new ComponentIndexer(project, languages, sonarIndex, resourceCache);
   }
 
   @Test

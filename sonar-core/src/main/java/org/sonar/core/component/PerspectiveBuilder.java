@@ -34,10 +34,10 @@ public abstract class PerspectiveBuilder<T extends Perspective> implements Batch
     this.perspectiveClass = perspectiveClass;
   }
 
-  protected Class<T> getPerspectiveClass() {
+  public Class<T> getPerspectiveClass() {
     return perspectiveClass;
   }
 
   @CheckForNull
-  protected abstract T loadPerspective(Class<T> perspectiveClass, Component component);
+  public abstract T loadPerspective(Class<T> perspectiveClass, Component component);
 }

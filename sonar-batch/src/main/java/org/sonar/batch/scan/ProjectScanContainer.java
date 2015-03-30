@@ -59,8 +59,6 @@ import org.sonar.batch.rule.RulesProvider;
 import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.batch.source.CodeColorizers;
-import org.sonar.batch.source.HighlightableBuilder;
-import org.sonar.batch.source.SymbolizableBuilder;
 import org.sonar.core.component.ScanGraph;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.workflow.FunctionExecutor;
@@ -131,7 +129,6 @@ public class ProjectScanContainer extends ComponentContainer {
       DefaultFileLinesContextFactory.class,
       Caches.class,
       ResourceCache.class,
-      ComponentDataCache.class,
       SourceDataFactory.class,
 
       // file system
@@ -162,8 +159,6 @@ public class ProjectScanContainer extends ComponentContainer {
       // lang
       Languages.class,
       DefaultLanguagesRepository.class,
-      HighlightableBuilder.class,
-      SymbolizableBuilder.class,
 
       // Differential periods
       PeriodsDefinition.class,
@@ -187,7 +182,7 @@ public class ProjectScanContainer extends ComponentContainer {
       ProjectSettings.class,
 
       // Report
-      PublishReportJob.class,
+      ReportPublisher.class,
       ComponentsPublisher.class,
       IssuesPublisher.class,
       MeasuresPublisher.class,

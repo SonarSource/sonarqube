@@ -26,7 +26,7 @@ import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.issue.ignore.scanner.IssueExclusionsLoader;
 import org.sonar.batch.issue.tracking.LocalIssueTracking;
-import org.sonar.batch.report.PublishReportJob;
+import org.sonar.batch.report.ReportPublisher;
 import org.sonar.batch.rule.QProfileVerifier;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.batch.scan.filesystem.FileSystemLogger;
@@ -47,12 +47,12 @@ public final class DatabaseLessPhaseExecutor implements PhaseExecutor {
   private final IssueExclusionsLoader issueExclusionsLoader;
   private final IssuesReports issuesReport;
   private final LocalIssueTracking localIssueTracking;
-  private final PublishReportJob publishReportJob;
+  private final ReportPublisher publishReportJob;
 
   public DatabaseLessPhaseExecutor(Phases phases, InitializersExecutor initializersExecutor, SensorsExecutor sensorsExecutor,
     SensorContext sensorContext, DefaultIndex index,
     EventBus eventBus, ProjectInitializer pi, FileSystemLogger fsLogger, IssuesReports jsonReport, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
-    IssueExclusionsLoader issueExclusionsLoader, LocalIssueTracking localIssueTracking, PublishReportJob publishReportJob) {
+    IssueExclusionsLoader issueExclusionsLoader, LocalIssueTracking localIssueTracking, ReportPublisher publishReportJob) {
     this.phases = phases;
     this.initializersExecutor = initializersExecutor;
     this.sensorsExecutor = sensorsExecutor;
