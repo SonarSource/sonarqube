@@ -95,8 +95,19 @@ define(function () {
     },
 
     sortValues: function (values) {
-      return _.sortBy(values, function (v) {
-        return -v.count;
+      return values.slice().sort(function (left, right) {
+        if (left.count !== right.count) {
+          return right.count - left.count;
+        }
+        if (left.val !== right.val) {
+          if (left.val > right.val) {
+            return 1;
+          }
+          if (left.val < right.val) {
+            return -1;
+          }
+        }
+        return 0;
       });
     },
 
