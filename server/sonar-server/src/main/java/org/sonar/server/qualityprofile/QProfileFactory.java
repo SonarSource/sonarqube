@@ -208,7 +208,6 @@ public class QProfileFactory implements ServerComponent {
         if (db.qualityProfileDao().getByNameAndLanguage(newName, profile.getLanguage(), dbSession) != null) {
           throw new BadRequestException("Quality profile already exists: " + newName);
         }
-        String previousName = profile.getName();
         profile.setName(newName);
         db.qualityProfileDao().update(dbSession, profile);
         dbSession.commit();

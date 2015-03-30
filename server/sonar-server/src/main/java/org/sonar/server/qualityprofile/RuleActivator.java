@@ -269,31 +269,33 @@ public class RuleActivator implements ServerComponent {
   private ActiveRuleDto doUpdate(ActiveRuleChange change, RuleActivatorContext context, DbSession dbSession) {
     ActiveRuleDao dao = db.activeRuleDao();
     ActiveRuleDto activeRule = context.activeRule();
-    String severity = change.getSeverity();
-    if (severity != null) {
-      activeRule.setSeverity(severity);
-    }
-    ActiveRule.Inheritance inheritance = change.getInheritance();
-    if (inheritance != null) {
-      activeRule.setInheritance(inheritance.name());
-    }
-    dao.update(dbSession, activeRule);
+    if (activeRule != null) {
+      String severity = change.getSeverity();
+      if (severity != null) {
+        activeRule.setSeverity(severity);
+      }
+      ActiveRule.Inheritance inheritance = change.getInheritance();
+      if (inheritance != null) {
+        activeRule.setInheritance(inheritance.name());
+      }
+      dao.update(dbSession, activeRule);
 
-    for (Map.Entry<String, String> param : change.getParameters().entrySet()) {
-      ActiveRuleParamDto activeRuleParamDto = context.activeRuleParamsAsMap().get(param.getKey());
-      if (activeRuleParamDto == null) {
-        // did not exist
-        if (param.getValue() != null) {
-          activeRuleParamDto = ActiveRuleParamDto.createFor(context.ruleParamsByKeys().get(param.getKey()));
-          activeRuleParamDto.setValue(param.getValue());
-          dao.addParam(dbSession, activeRule, activeRuleParamDto);
-        }
-      } else {
-        if (param.getValue() != null) {
-          activeRuleParamDto.setValue(param.getValue());
-          dao.updateParam(dbSession, activeRule, activeRuleParamDto);
+      for (Map.Entry<String, String> param : change.getParameters().entrySet()) {
+        ActiveRuleParamDto activeRuleParamDto = context.activeRuleParamsAsMap().get(param.getKey());
+        if (activeRuleParamDto == null) {
+          // did not exist
+          if (param.getValue() != null) {
+            activeRuleParamDto = ActiveRuleParamDto.createFor(context.ruleParamsByKeys().get(param.getKey()));
+            activeRuleParamDto.setValue(param.getValue());
+            dao.addParam(dbSession, activeRule, activeRuleParamDto);
+          }
         } else {
-          dao.deleteParam(dbSession, activeRule, activeRuleParamDto);
+          if (param.getValue() != null) {
+            activeRuleParamDto.setValue(param.getValue());
+            dao.updateParam(dbSession, activeRule, activeRuleParamDto);
+          } else {
+            dao.deleteParam(dbSession, activeRule, activeRuleParamDto);
+          }
         }
       }
     }

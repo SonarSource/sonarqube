@@ -218,28 +218,36 @@ public class BulkIndexer implements Startable {
     final BulkRequestBuilder req = this.bulkRequest;
     this.bulkRequest = client.prepareBulk().setRefresh(false);
     semaphore.acquireUninterruptibly();
-    req.execute(new ActionListener<BulkResponse>() {
-      @Override
-      public void onResponse(BulkResponse response) {
-        semaphore.release();
-        counter.addAndGet(response.getItems().length);
+    req.execute(new BulkResponseActionListener(req));
+  }
 
-        for (BulkItemResponse item : response.getItems()) {
-          if (item.isFailed()) {
-            StringBuilder sb = new StringBuilder();
-            String msg = sb
-              .append("index [").append(item.getIndex()).append("], type [").append(item.getType()).append("], id [").append(item.getId())
-              .append("], message [").append(item.getFailureMessage()).append("]").toString();
-            LOGGER.error(msg);
-          }
+  private class BulkResponseActionListener implements ActionListener<BulkResponse> {
+    private final BulkRequestBuilder req;
+
+    public BulkResponseActionListener(BulkRequestBuilder req) {
+      this.req = req;
+    }
+
+    @Override
+    public void onResponse(BulkResponse response) {
+      semaphore.release();
+      counter.addAndGet(response.getItems().length);
+
+      for (BulkItemResponse item : response.getItems()) {
+        if (item.isFailed()) {
+          StringBuilder sb = new StringBuilder();
+          String msg = sb
+            .append("index [").append(item.getIndex()).append("], type [").append(item.getType()).append("], id [").append(item.getId())
+            .append("], message [").append(item.getFailureMessage()).append("]").toString();
+          LOGGER.error(msg);
         }
       }
+    }
 
-      @Override
-      public void onFailure(Throwable e) {
-        semaphore.release();
-        LOGGER.error("Fail to execute bulk index request: " + req, e);
-      }
-    });
+    @Override
+    public void onFailure(Throwable e) {
+      semaphore.release();
+      LOGGER.error("Fail to execute bulk index request: " + req, e);
+    }
   }
 }

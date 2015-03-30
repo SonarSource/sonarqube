@@ -23,7 +23,6 @@ package org.sonar.server.computation;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.picocontainer.Startable;
-import org.sonar.api.ServerComponent;
 import org.sonar.api.platform.Server;
 import org.sonar.api.platform.ServerStartHandler;
 
@@ -32,7 +31,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-public class ComputationThreadLauncher implements Startable, ServerComponent, ServerStartHandler {
+public class ComputationThreadLauncher implements Startable, ServerStartHandler {
 
   public static final String THREAD_NAME_PREFIX = "computation-";
 
