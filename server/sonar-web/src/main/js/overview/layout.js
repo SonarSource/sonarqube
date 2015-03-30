@@ -31,6 +31,16 @@ define([
       debtRegion: '#overview-debt',
       coverageRegion: '#overview-coverage',
       duplicationsRegion: '#overview-duplications'
+    },
+
+    modelEvents: {
+      'change:gateConditions': 'toggleGate'
+    },
+
+    toggleGate: function () {
+      var conditions = this.model.get('gateConditions'),
+          hasGate = _.isArray(conditions) && conditions.length > 0;
+      this.$(this.gateRegion.el).toggle(hasGate);
     }
   });
 
