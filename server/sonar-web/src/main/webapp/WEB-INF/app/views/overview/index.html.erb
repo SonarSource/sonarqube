@@ -1,16 +1,34 @@
 <div class="overview"></div>
 
+<%
+   period1Name = short_period_label(@snapshot, 1)
+   period2Name = short_period_label(@snapshot, 2)
+   period3Name = short_period_label(@snapshot, 3)
+
+   period1Date = @snapshot.period_datetime(1)
+   period2Date = @snapshot.period_datetime(2)
+   period3Date = @snapshot.period_datetime(3)
+%>
+
 <script>
   window.overviewConf = {
-    componentKey: '<%= @resource.key -%>',
-    componentUuid: '<%= @resource.uuid -%>',
+    <% if period1Date %>
+    period1Name: '<%= period1Name -%>',
+    period1Date: '<%= period1Date.strftime('%FT%T%z') -%>',
+    <% end %>
 
-    period1Name: '<%= short_period_label(@snapshot, 1) -%>',
-    period1Date: '<%= @snapshot.period_datetime(1).strftime('%FT%T%z') -%>',
-    period2Name: '<%= short_period_label(@snapshot, 2) -%>',
-    period2Date: '<%= @snapshot.period_datetime(2).strftime('%FT%T%z') -%>',
-    period3Name: '<%= short_period_label(@snapshot, 3) -%>',
-    period3Date: '<%= @snapshot.period_datetime(3).strftime('%FT%T%z') -%>'
+    <% if period2Date %>
+    period2Name: '<%= period2Name -%>',
+    period2Date: '<%= period2Date.strftime('%FT%T%z') -%>',
+    <% end %>
+
+    <% if period3Date %>
+    period3Name: '<%= period3Name -%>',
+    period3Date: '<%= period3Date.strftime('%FT%T%z') -%>',
+    <% end %>
+
+    componentKey: '<%= @resource.key -%>',
+    componentUuid: '<%= @resource.uuid -%>'
   };
   require(['overview/app']);
 </script>
