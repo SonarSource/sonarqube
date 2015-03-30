@@ -26,11 +26,6 @@ class DashboardController < ApplicationController
 
   def index
     load_resource()
-    if @resource && !params[:did] && !params[:name]
-      url = url_for :controller => 'overview', :action => 'index'
-      url = url + '?id=' + @resource.key.to_s.gsub(/[^a-zA-Z0-9_\-.]/n){ sprintf("%%%02X", $&.unpack("C")[0]) }
-      return redirect_to url
-    end
     if !@resource || @resource.display_dashboard?
       redirect_if_bad_component()
       load_dashboard()
