@@ -154,7 +154,15 @@ define([
       this.$('.alert').addClass('hidden');
       var that = this,
           url = baseUrl + '/api/rules/' + action;
-      return $.post(url, options).done(function () {
+      return $.ajax({
+        url: url,
+        type: 'POST',
+        data: options,
+        statusCode: {
+          // do not show global error
+          400: null
+        }
+      }).done(function () {
         if (that.options.templateRule) {
           that.options.app.controller.showDetails(that.options.templateRule);
         } else {

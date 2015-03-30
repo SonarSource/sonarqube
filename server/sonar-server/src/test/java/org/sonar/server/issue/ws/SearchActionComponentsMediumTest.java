@@ -528,7 +528,6 @@ public class SearchActionComponentsMediumTest {
     Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, technicalProject.uuid())
       .execute();
-    System.out.println(result.outputAsString());
     result
       .assertJson(this.getClass(), "search_by_developer.json");
   }
