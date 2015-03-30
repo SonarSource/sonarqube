@@ -22,6 +22,7 @@ package org.sonar.server.rule.ws;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -57,28 +58,41 @@ public class RepositoriesAction implements RulesAction {
     int pageSize = request.mandatoryParamAsInt("ps");
 
     JsonWriter json = response.newJsonWriter().beginObject().name("repositories").beginArray();
-    for (Repository repo : listMatchingRepositories(query, languageKey, pageSize)) {
-      json.beginObject().prop("key", repo.key()).prop("name", repo.name()).prop(LANGUAGE, repo.language()).endObject();
+    for (Repo repo : listMatchingRepositories(query, languageKey, pageSize)) {
+      json.beginObject().prop("key", repo.key).prop("name", repo.name).prop(LANGUAGE, repo.language).endObject();
     }
     json.endArray().endObject().close();
   }
 
-  private Collection<Repository> listMatchingRepositories(@Nullable String query, @Nullable String languageKey, int pageSize) {
+  private Collection<Repo> listMatchingRepositories(@Nullable String query, @Nullable String languageKey, int pageSize) {
     Pattern pattern = Pattern.compile(query == null ? MATCH_ALL : MATCH_ALL + query + MATCH_ALL, Pattern.CASE_INSENSITIVE);
 
-    SortedMap<String, Repository> reposByName = Maps.newTreeMap();
-    Collection<Repository> repos = languageKey == null ? repositories.repositories() : repositories.repositoriesForLang(languageKey);
+    SortedMap<String, Repo> reposByName = Maps.newTreeMap();
+    Collection<Repo> repos = listRepositories(languageKey);
 
-    for (Repository repo : repos) {
-      if (pattern.matcher(repo.key()).matches() || pattern.matcher(repo.name()).matches()) {
-        reposByName.put(repo.name() + " -- " + repo.language(), repo);
+    for (Repo repo : repos) {
+      if (pattern.matcher(repo.key).matches() || pattern.matcher(repo.name).matches()) {
+        reposByName.put(repo.name + " -- " + repo.language, repo);
       }
     }
-    List<Repository> result = Lists.newArrayList(reposByName.values());
+
+    List<Repo> result = Lists.newArrayList(reposByName.values());
     if (pageSize > 0 && pageSize < result.size()) {
       result = result.subList(0, pageSize);
     }
     return result;
+  }
+
+  private Collection<Repo> listRepositories(String languageKey) {
+    List<Repo> allRepos = Lists.newArrayList();
+    Collection<Repository> reposFromPlugins = languageKey == null ? repositories.repositories() : repositories.repositoriesForLang(languageKey);
+    for (Repository repo: reposFromPlugins) {
+      allRepos.add(new Repo(repo));
+    }
+    if (languageKey == null) {
+      allRepos.add(new Repo(RuleKey.MANUAL_REPOSITORY_KEY, "Manual Rule", "None"));
+    }
+    return allRepos;
   }
 
   @Override
@@ -100,4 +114,19 @@ public class RepositoriesAction implements RulesAction {
       .setDefaultValue("0");
   }
 
+  private static final class Repo {
+    private String key;
+    private String name;
+    private String language;
+
+    private Repo(String key, String name, String language) {
+      this.key = key;
+      this.name = name;
+      this.language = language;
+    }
+
+    private Repo(Repository repo) {
+      this(repo.key(), repo.name(), repo.language());
+    }
+  }
 }
