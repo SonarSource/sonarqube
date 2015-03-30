@@ -20,17 +20,25 @@
 (function () {
   var defaultActions = ['comment', 'assign', 'assign_to_me', 'plan', 'set_severity', 'set_tags'];
 
-  Handlebars.registerHelper('log', function() {
+  function isIssuesMetric (metric) {
+    var METRICS = ['violations', 'blocker_violations', 'critical_violations', 'major_violations', 'minor_violations',
+      'info_violations', 'new_blocker_violations', 'new_critical_violations', 'new_major_violations',
+      'new_minor_violations', 'new_info_violations', 'open_issues', 'reopened_issues', 'confirmed_issues',
+      'false_positive_issues'];
+    return METRICS.indexOf(metric) !== -1;
+  }
+
+  Handlebars.registerHelper('log', function () {
     var args = Array.prototype.slice.call(arguments, 0, -1);
     console.log.apply(console, args);
   });
 
-  Handlebars.registerHelper('link', function() {
+  Handlebars.registerHelper('link', function () {
     var url = Array.prototype.slice.call(arguments, 0, -1).join('');
     return baseUrl + url;
   });
 
-  Handlebars.registerHelper('isActiveLink', function() {
+  Handlebars.registerHelper('isActiveLink', function () {
     var args = Array.prototype.slice.call(arguments, 0, -1),
         options = arguments[arguments.length - 1],
         prefix = args.join(''),
@@ -39,29 +47,29 @@
     return match ? options.fn(this) : options.inverse(this);
   });
 
-  Handlebars.registerHelper('capitalize', function(string) {
+  Handlebars.registerHelper('capitalize', function (string) {
     return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
   });
 
-  Handlebars.registerHelper('severityIcon', function(severity) {
+  Handlebars.registerHelper('severityIcon', function (severity) {
     return new Handlebars.SafeString(
         '<i class="icon-severity-' + severity.toLowerCase() + '"></i>'
     );
   });
 
-  Handlebars.registerHelper('severity', function(severity) {
+  Handlebars.registerHelper('severity', function (severity) {
     return new Handlebars.SafeString(
-            '<i class="icon-severity-' + severity.toLowerCase() + '"></i>&nbsp;' + t('severity', severity)
+        '<i class="icon-severity-' + severity.toLowerCase() + '"></i>&nbsp;' + t('severity', severity)
     );
   });
 
-  Handlebars.registerHelper('statusIcon', function(status) {
+  Handlebars.registerHelper('statusIcon', function (status) {
     return new Handlebars.SafeString(
         '<i class="icon-status-' + status.toLowerCase() + '"></i>'
     );
   });
 
-  Handlebars.registerHelper('statusHelper', function(status, resolution) {
+  Handlebars.registerHelper('statusHelper', function (status, resolution) {
     var s = '<i class="icon-status-' + status.toLowerCase() + '"></i>&nbsp;' + t('issue.status', status);
     if (resolution != null) {
       s = s + '&nbsp;(' + t('issue.resolution', resolution) + ')';
@@ -69,41 +77,41 @@
     return new Handlebars.SafeString(s);
   });
 
-  Handlebars.registerHelper('testStatusIcon', function(status) {
+  Handlebars.registerHelper('testStatusIcon', function (status) {
     return new Handlebars.SafeString(
-            '<i class="icon-test-status-' + status.toLowerCase() + '"></i>'
+        '<i class="icon-test-status-' + status.toLowerCase() + '"></i>'
     );
   });
 
-  Handlebars.registerHelper('testStatusIconClass', function(status) {
+  Handlebars.registerHelper('testStatusIconClass', function (status) {
     return new Handlebars.SafeString('' +
-            'icon-test-status-' + status.toLowerCase()
+        'icon-test-status-' + status.toLowerCase()
     );
   });
 
-  Handlebars.registerHelper('alertIconClass', function(alert) {
+  Handlebars.registerHelper('alertIconClass', function (alert) {
     return new Handlebars.SafeString(
         'icon-alert-' + alert.toLowerCase()
     );
   });
 
-  Handlebars.registerHelper('qualifierIcon', function(qualifier) {
+  Handlebars.registerHelper('qualifierIcon', function (qualifier) {
     return new Handlebars.SafeString(
-        qualifier ? '<i class="icon-qualifier-' + qualifier.toLowerCase() + '"></i>': ''
+        qualifier ? '<i class="icon-qualifier-' + qualifier.toLowerCase() + '"></i>' : ''
     );
   });
 
-  Handlebars.registerHelper('default', function() {
+  Handlebars.registerHelper('default', function () {
     var args = Array.prototype.slice.call(arguments, 0, -1);
-    return args.reduce(function(prev, current) {
+    return args.reduce(function (prev, current) {
       return prev != null ? prev : current;
     }, null);
   });
 
-  Handlebars.registerHelper('show', function() {
+  Handlebars.registerHelper('show', function () {
     var args = Array.prototype.slice.call(arguments),
         ret = null;
-    args.forEach(function(arg) {
+    args.forEach(function (arg) {
       if (typeof arg === 'string' && ret == null) {
         ret = arg;
       }
@@ -111,7 +119,7 @@
     return ret || '';
   });
 
-  Handlebars.registerHelper('percent', function(value, total) {
+  Handlebars.registerHelper('percent', function (value, total) {
     if (total > 0) {
       return '' + ((value || 0) / total * 100) + '%';
     } else {
@@ -158,57 +166,57 @@
     return ret;
   });
 
-  Handlebars.registerHelper('eq', function(v1, v2, options) {
+  Handlebars.registerHelper('eq', function (v1, v2, options) {
     // use `==` instead of `===` to ignore types
     return v1 == v2 ? options.fn(this) : options.inverse(this);
   });
 
-  Handlebars.registerHelper('notEq', function(v1, v2, options) {
+  Handlebars.registerHelper('notEq', function (v1, v2, options) {
     // use `==` instead of `===` to ignore types
     return v1 != v2 ? options.fn(this) : options.inverse(this);
   });
 
-  Handlebars.registerHelper('gt', function(v1, v2, options) {
+  Handlebars.registerHelper('gt', function (v1, v2, options) {
     return v1 > v2 ? options.fn(this) : options.inverse(this);
   });
 
-  Handlebars.registerHelper('lt', function(v1, v2, options) {
+  Handlebars.registerHelper('lt', function (v1, v2, options) {
     return v1 < v2 ? options.fn(this) : options.inverse(this);
   });
 
-  Handlebars.registerHelper('notNull', function(value, options) {
+  Handlebars.registerHelper('notNull', function (value, options) {
     return value != null ? options.fn(this) : options.inverse(this);
   });
 
-  Handlebars.registerHelper('notEmpty', function(array, options) {
+  Handlebars.registerHelper('notEmpty', function (array, options) {
     var cond = _.isArray(array) && array.length > 0;
     return cond ? options.fn(this) : options.inverse(this);
   });
 
-  Handlebars.registerHelper('empty', function(array, options) {
+  Handlebars.registerHelper('empty', function (array, options) {
     var cond = _.isArray(array) && array.length > 0;
     return cond ? options.inverse(this) : options.fn(this);
   });
 
-  Handlebars.registerHelper('all', function() {
+  Handlebars.registerHelper('all', function () {
     var args = Array.prototype.slice.call(arguments, 0, -1),
         options = arguments[arguments.length - 1],
-        all = args.reduce(function(prev, current) {
+        all = args.reduce(function (prev, current) {
           return prev && current;
         }, true);
     return all ? options.fn(this) : options.inverse(this);
   });
 
-  Handlebars.registerHelper('any', function() {
+  Handlebars.registerHelper('any', function () {
     var args = Array.prototype.slice.call(arguments, 0, -1),
         options = arguments[arguments.length - 1],
-        any = args.reduce(function(prev, current) {
+        any = args.reduce(function (prev, current) {
           return prev || current;
         }, false);
     return any ? options.fn(this) : options.inverse(this);
   });
 
-  Handlebars.registerHelper('inArray', function(array, element, options) {
+  Handlebars.registerHelper('inArray', function (array, element, options) {
     if (_.isArray(array)) {
       if (array.indexOf(element) !== -1) {
         return options.fn(this);
@@ -218,20 +226,20 @@
     }
   });
 
-  Handlebars.registerHelper('ifNotEmpty', function() {
+  Handlebars.registerHelper('ifNotEmpty', function () {
     var args = Array.prototype.slice.call(arguments, 0, -1),
         options = arguments[arguments.length - 1],
-        notEmpty = args.reduce(function(prev, current) {
+        notEmpty = args.reduce(function (prev, current) {
           return prev || (current && current.length > 0);
         }, false);
     return notEmpty ? options.fn(this) : options.inverse(this);
   });
 
-  Handlebars.registerHelper('join', function(array, separator) {
+  Handlebars.registerHelper('join', function (array, separator) {
     return array.join(separator);
   });
 
-  Handlebars.registerHelper('eachReverse', function(array, options) {
+  Handlebars.registerHelper('eachReverse', function (array, options) {
     var ret = '';
 
     if (array && array.length > 0) {
@@ -245,7 +253,7 @@
     return ret;
   });
 
-  Handlebars.registerHelper('joinEach', function(array, separator, options) {
+  Handlebars.registerHelper('joinEach', function (array, separator, options) {
     var ret = '';
 
     if (array && array.length > 0) {
@@ -262,14 +270,14 @@
     return ret;
   });
 
-  Handlebars.registerHelper('sum', function(a, b) {
+  Handlebars.registerHelper('sum', function (a, b) {
     var args = Array.prototype.slice.call(arguments, 0, -1);
     return args.reduce(function (p, c) {
       return p + +c;
     }, 0);
   });
 
-  Handlebars.registerHelper('dashboardUrl', function(componentKey, componentQualifier) {
+  Handlebars.registerHelper('dashboardUrl', function (componentKey, componentQualifier) {
     var url = baseUrl + '/dashboard/index?id=' + encodeURIComponent(componentKey);
     if (componentQualifier === 'FIL' || componentQualifier === 'CLA') {
       url += '&metric=sqale_index';
@@ -277,42 +285,42 @@
     return url;
   });
 
-  Handlebars.registerHelper('translate', function() {
+  Handlebars.registerHelper('translate', function () {
     var args = Array.prototype.slice.call(arguments, 0, -1);
     return window.translate.apply(this, args);
   });
 
-  Handlebars.registerHelper('t', function() {
+  Handlebars.registerHelper('t', function () {
     var args = Array.prototype.slice.call(arguments, 0, -1);
     return window.t.apply(this, args);
   });
 
-  Handlebars.registerHelper('tp', function() {
+  Handlebars.registerHelper('tp', function () {
     var args = Array.prototype.slice.call(arguments, 0, -1);
     return window.tp.apply(this, args);
   });
 
-  Handlebars.registerHelper('d', function(date) {
+  Handlebars.registerHelper('d', function (date) {
     return moment(date).format('LL');
   });
 
-  Handlebars.registerHelper('dt', function(date) {
+  Handlebars.registerHelper('dt', function (date) {
     return moment(date).format('LLL');
   });
 
-  Handlebars.registerHelper('ds', function(date) {
+  Handlebars.registerHelper('ds', function (date) {
     return moment(date).format('YYYY-MM-DD');
   });
 
-  Handlebars.registerHelper('fromNow', function(date) {
+  Handlebars.registerHelper('fromNow', function (date) {
     return moment(date).fromNow();
   });
 
-  Handlebars.registerHelper('durationFromNow', function(date, units) {
+  Handlebars.registerHelper('durationFromNow', function (date, units) {
     return moment(new Date()).diff(date, units);
   });
 
-  Handlebars.registerHelper('numberShort', function(number) {
+  Handlebars.registerHelper('numberShort', function (number) {
     if (number > 9999) {
       return numeral(number).format('0.[0]a');
     } else {
@@ -320,14 +328,14 @@
     }
   });
 
-  Handlebars.registerHelper('pluginActions', function(actions, options) {
+  Handlebars.registerHelper('pluginActions', function (actions, options) {
     var pluginActions = _.difference(actions, defaultActions);
-    return pluginActions.reduce(function(prev, current) {
+    return pluginActions.reduce(function (prev, current) {
       return prev + options.fn(current);
     }, '');
   });
 
-  Handlebars.registerHelper('ifHasExtraActions', function(actions, options) {
+  Handlebars.registerHelper('ifHasExtraActions', function (actions, options) {
     var actionsLeft = _.difference(actions, defaultActions);
     if (actionsLeft.length > 0) {
       return options.fn(this);
@@ -336,7 +344,7 @@
     }
   });
 
-  Handlebars.registerHelper('withFirst', function(list, options) {
+  Handlebars.registerHelper('withFirst', function (list, options) {
     if (list && list.length > 0) {
       return options.fn(list[0]);
     } else {
@@ -344,7 +352,7 @@
     }
   });
 
-  Handlebars.registerHelper('withLast', function(list, options) {
+  Handlebars.registerHelper('withLast', function (list, options) {
     if (list && list.length > 0) {
       return options.fn(list[list.length - 1]);
     } else {
@@ -352,9 +360,9 @@
     }
   });
 
-  Handlebars.registerHelper('withoutFirst', function(list, options) {
+  Handlebars.registerHelper('withoutFirst', function (list, options) {
     if (list && list.length > 1) {
-      return list.slice(1).reduce(function(prev, current) {
+      return list.slice(1).reduce(function (prev, current) {
         return prev + options.fn(current);
       }, '');
     } else {
@@ -363,27 +371,27 @@
   });
 
   var audaciousFn;
-  Handlebars.registerHelper('recursive', function(children, options) {
+  Handlebars.registerHelper('recursive', function (children, options) {
     var out = '';
 
     if (options.fn !== undefined) {
       audaciousFn = options.fn;
     }
 
-    children.forEach(function(child){
+    children.forEach(function (child) {
       out = out + audaciousFn(child);
     });
 
     return out;
   });
 
-  Handlebars.registerHelper('sources', function(source, scm, options) {
+  Handlebars.registerHelper('sources', function (source, scm, options) {
     if (options == null) {
       options = scm;
       scm = null;
     }
 
-    var sources = _.map(source, function(code, line) {
+    var sources = _.map(source, function (code, line) {
       return {
         lineNumber: line,
         code: code,
@@ -391,20 +399,20 @@
       };
     });
 
-    return sources.reduce(function(prev, current, index) {
+    return sources.reduce(function (prev, current, index) {
       return prev + options.fn(_.extend({ first: index === 0 }, current));
     }, '');
   });
 
-  Handlebars.registerHelper('operators', function(metricType, options) {
+  Handlebars.registerHelper('operators', function (metricType, options) {
     var ops = ['LT', 'GT', 'EQ', 'NE'];
 
-    return ops.reduce(function(prev, current) {
+    return ops.reduce(function (prev, current) {
       return prev + options.fn(current);
     }, '');
   });
 
-  Handlebars.registerHelper('changelog', function(diff) {
+  Handlebars.registerHelper('changelog', function (diff) {
     var message = '';
     if (diff.newValue != null) {
       message = tp('issue.changelog.changed_to', t('issue.changelog.field', diff.key), diff.newValue);
@@ -419,7 +427,7 @@
     return message;
   });
 
-  Handlebars.registerHelper('ifMeasureShouldBeShown', function(measure, period, options) {
+  Handlebars.registerHelper('ifMeasureShouldBeShown', function (measure, period, options) {
     if (measure != null || period != null) {
       return options.fn(this);
     } else {
@@ -427,18 +435,18 @@
     }
   });
 
-  Handlebars.registerHelper('ifSCMChanged', function(source, line, options) {
+  Handlebars.registerHelper('ifSCMChanged', function (source, line, options) {
     var currentLine = _.findWhere(source, { lineNumber: line }),
         prevLine = _.findWhere(source, { lineNumber: line - 1 }),
         changed = true;
     if (currentLine && prevLine && currentLine.scm && prevLine.scm) {
       changed = (currentLine.scm.author !== prevLine.scm.author) ||
-          (currentLine.scm.date !== prevLine.scm.date) || (!prevLine.show);
+      (currentLine.scm.date !== prevLine.scm.date) || (!prevLine.show);
     }
     return changed ? options.fn(this) : options.inverse(this);
   });
 
-  Handlebars.registerHelper('ifSCMChanged2', function(source, line, options) {
+  Handlebars.registerHelper('ifSCMChanged2', function (source, line, options) {
     var currentLine = _.findWhere(source, { line: line }),
         prevLine = _.findWhere(source, { line: line - 1 }),
         changed = true;
@@ -448,7 +456,7 @@
     return changed ? options.fn(this) : options.inverse(this);
   });
 
-  Handlebars.registerHelper('ifTestData', function(test, options) {
+  Handlebars.registerHelper('ifTestData', function (test, options) {
     if ((test.status !== 'OK') || ((test.status === 'OK') && test.coveredLines)) {
       return options.fn(this);
     } else {
@@ -510,6 +518,83 @@
 
   Handlebars.registerHelper('formatMeasureVariation', function (measure, type) {
     return window.formatMeasureVariation(measure, type);
+  });
+
+  Handlebars.registerHelper('urlForDrilldown', function (component, metric, period, periodDate) {
+
+    function buildIssuesUrl (component, metric, periodDate) {
+      var url = baseUrl + '/component_issues/index?id=' + encodeURIComponent(component) + '#';
+      if (periodDate != null) {
+        url += 'createdAfter=' + encodeURIComponent(periodDate) + '|';
+      }
+      switch (metric) {
+        case 'blocker_violations':
+        case 'new_blocker_violations':
+          url += 'resolved=false|severities=BLOCKER';
+          break;
+        case 'critical_violations':
+        case 'new_critical_violations':
+          url += 'resolved=false|severities=CRITICAL';
+          break;
+        case 'major_violations':
+        case 'new_major_violations':
+          url += 'resolved=false|severities=MAJOR';
+          break;
+        case 'minor_violations':
+        case 'new_minor_violations':
+          url += 'resolved=false|severities=MINOR';
+          break;
+        case 'info_violations':
+        case 'new_info_violations':
+          url += 'resolved=false|severities=INFO';
+          break;
+        case 'open_issues':
+          url += 'resolved=false|statuses=OPEN';
+          break;
+        case 'reopened_issues':
+          url += 'resolved=false|statuses=REOPENED';
+          break;
+        case 'confirmed_issues':
+          url += 'resolved=false|statuses=CONFIRMED';
+          break;
+        case 'false_positive_issues':
+          url += 'resolutions=FALSE-POSITIVE';
+          break;
+        default:
+          url += 'resolved=false';
+      }
+      return url;
+    }
+
+    var url;
+    if (isIssuesMetric(metric)) {
+      url = buildIssuesUrl(component, metric, periodDate);
+    } else {
+      if (metric === 'package_cycles') {
+        url = baseUrl + '/design/index?id=' + encodeURIComponent(component);
+      } else {
+        url = baseUrl + '/drilldown/measures?id=' + encodeURIComponent(component) + '&metric=' + metric;
+        if (period != null && !_.isObject(period)) {
+          url += '&period=' + period;
+        }
+      }
+    }
+    return url;
+  });
+
+  Handlebars.registerHelper('canHaveDrilldownUrl', function (metric, period, options) {
+    var isDifferentialMetric = metric.indexOf('new_') === 0,
+        _isIssuesMetric = isIssuesMetric(metric),
+        r = isDifferentialMetric || period == null || _isIssuesMetric;
+    return r ? options.fn(this) : options.inverse(this);
+  });
+
+  Handlebars.registerHelper('urlForIssuesOverview', function (componentKey, periodDate) {
+    var url = baseUrl + '/component_issues/index?id=' + encodeURIComponent(componentKey) + '#resolved=false';
+    if (typeof periodDate === 'string') {
+      url += '|createdAfter=' + encodeURIComponent(periodDate);
+    }
+    return url;
   });
 
 })();

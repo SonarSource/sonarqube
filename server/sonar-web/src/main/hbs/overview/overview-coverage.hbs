@@ -1,66 +1,64 @@
-<p class="note">Coverage</p>
+<h6 class="note">{{t 'overview.coverage'}}</h6>
 
 <table class="width100">
   <tr>
     <td class="width-55">
-      <div style="display: inline-block; vertical-align: middle;">
-        <p style="font-size: 36px; font-weight: 300;">{{formatMeasure coverage 'PERCENT'}}</p>
+      <div class="overview-main-measure">
+        <a href="{{urlForDrilldown componentKey 'overall_coverage'}}">{{formatMeasure coverage 'PERCENT'}}</a>
       </div>
-      <div style="display: inline-block; vertical-align: middle; margin-left: 15px;">
+      <div class="overview-trend">
         <div id="overview-coverage-trend" data-width="100" data-height="30" data-color="#4b9fd5"></div>
       </div>
     </td>
     <td class="width-15">
-      <div style="display: inline-block; vertical-align: middle;">
-        <p>
-          <span style="font-size: 16px;">{{formatMeasureVariation coverage1 'PERCENT'}}</span>
-        </p>
-        <p style="color: #777; font-size: 12px; font-weight: 300;">{{period1Name}}</p>
-      </div>
+      {{#notNull coverage1}}
+        <a class="overview-measure" href="{{urlForDrilldown componentKey 'overall_coverage' 1}}">
+          {{formatMeasureVariation coverage1 'PERCENT'}}
+        </a>
+        <p class="note">{{period1Name}}</p>
+      {{/notNull}}
     </td>
     <td class="width-15">
-      <div style="display: inline-block; vertical-align: middle;">
-        <p>
-          <span style="font-size: 16px;">{{formatMeasureVariation coverage2 'PERCENT'}}</span>
-        </p>
-        <p style="color: #777; font-size: 12px; font-weight: 300;">{{period2Name}}</p>
-      </div>
+      {{#notNull coverage2}}
+        <a class="overview-measure" href="{{urlForDrilldown componentKey 'overall_coverage' 2}}">
+          {{formatMeasureVariation coverage2 'PERCENT'}}
+        </a>
+        <p class="note">{{period2Name}}</p>
+      {{/notNull}}
     </td>
     <td class="width-15">
-      <div style="display: inline-block; vertical-align: middle;">
-        <p>
-          <span style="font-size: 16px;">{{formatMeasureVariation coverage3 'PERCENT'}}</span>
-        </p>
-        <p style="color: #777; font-size: 12px; font-weight: 300;">{{period3Name}}</p>
-      </div>
+      {{#notNull coverage3}}
+        <a class="overview-measure" href="{{urlForDrilldown componentKey 'overall_coverage' 3}}">
+          {{formatMeasureVariation coverage3 'PERCENT'}}
+        </a>
+        <p class="note">{{period3Name}}</p>
+      {{/notNull}}
     </td>
   </tr>
   <tr>
-    <td class="width-55 text-top" style="padding: 15px 10px 0 10px;">
-
-    </td>
+    <td class="width-55"></td>
     <td class="width-15">
       {{#notNull newCoverage1}}
-        <p>
-          <span style="font-size: 16px;">{{formatMeasure newCoverage1 'PERCENT'}}</span>
-        </p>
-        <p style="color: #777; font-size: 12px; font-weight: 300;">on new code</p>
+        <a class="overview-measure" href="{{urlForDrilldown componentKey 'new_overall_coverage' 1}}">
+          {{formatMeasure newCoverage1 'PERCENT'}}
+        </a>
+        <p class="note">on new code</p>
       {{/notNull}}
     </td>
     <td class="width-15">
       {{#notNull newCoverage2}}
-        <p>
-          <span style="font-size: 16px;">{{formatMeasure newCoverage2 'PERCENT'}}</span>
-        </p>
-        <p style="color: #777; font-size: 12px; font-weight: 300;">on new code</p>
+        <a class="overview-measure spacer-top" href="{{urlForDrilldown componentKey 'new_overall_coverage' 2}}">
+          {{formatMeasure newCoverage2 'PERCENT'}}
+        </a>
+        <p class="note">on new code</p>
       {{/notNull}}
     </td>
     <td class="width-15">
       {{#notNull newCoverage3}}
-        <p>
-          <span style="font-size: 16px;">{{formatMeasure newCoverage3 'PERCENT'}}</span>
-        </p>
-        <p style="color: #777; font-size: 12px; font-weight: 300;">on new code</p>
+        <a class="overview-measure spacer-top" href="{{urlForDrilldown componentKey 'new_overall_coverage' 3}}">
+          {{formatMeasure newCoverage3 'PERCENT'}}
+        </a>
+        <p class="note">on new code</p>
       {{/notNull}}
     </td>
   </tr>

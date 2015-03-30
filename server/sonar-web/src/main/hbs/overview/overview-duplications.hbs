@@ -1,46 +1,34 @@
-<p class="note">Duplications</p>
+<h6 class="note">{{t 'overview.duplications'}}</h6>
 
 <table class="width100">
   <tr>
     <td class="width-55">
-      <div style="display: inline-block; vertical-align: middle;">
-        <p style="font-size: 36px; font-weight: 300;">{{formatMeasure duplications 'PERCENT'}}</p>
+      <div class="overview-main-measure">
+        <a href="{{urlForDrilldown componentKey 'duplicated_lines_density'}}">
+          {{formatMeasure duplications 'PERCENT'}}
+        </a>
       </div>
-      <div style="display: inline-block; vertical-align: middle; margin-left: 15px;">
+      <div class="overview-trend">
         <div id="overview-duplications-trend" data-width="100" data-height="30" data-color="#4b9fd5"></div>
       </div>
     </td>
     <td class="width-15">
-      <div style="display: inline-block; vertical-align: middle;">
-        <p>
-          <span style="font-size: 16px;">{{formatMeasureVariation duplications1 'PERCENT'}}</span>
-        </p>
-        <p style="color: #777; font-size: 12px; font-weight: 300;">{{period1Name}}</p>
-      </div>
+      <a class="overview-measure" href="{{urlForDrilldown componentKey 'duplicated_lines_density' 1}}">
+        {{formatMeasureVariation duplications1 'PERCENT'}}
+      </a>
+      <p class="note">{{period1Name}}</p>
     </td>
     <td class="width-15">
-      <div style="display: inline-block; vertical-align: middle;">
-        <p>
-          <span style="font-size: 16px;">{{formatMeasureVariation duplications2 'PERCENT'}}</span>
-        </p>
-        <p style="color: #777; font-size: 12px; font-weight: 300;">{{period2Name}}</p>
-      </div>
+      <a class="overview-measure" href="{{urlForDrilldown componentKey 'duplicated_lines_density' 2}}">
+        {{formatMeasureVariation duplications2 'PERCENT'}}
+      </a>
+      <p class="note">{{period2Name}}</p>
     </td>
     <td class="width-15">
-      <div style="display: inline-block; vertical-align: middle;">
-        <p>
-          <span style="font-size: 16px;">{{formatMeasureVariation duplications3 'PERCENT'}}</span>
-        </p>
-        <p style="color: #777; font-size: 12px; font-weight: 300;">{{period3Name}}</p>
-      </div>
+      <a class="overview-measure" href="{{urlForDrilldown componentKey 'duplicated_lines_density' 3}}">
+        {{formatMeasureVariation duplications3 'PERCENT'}}
+      </a>
+      <p class="note">{{period3Name}}</p>
     </td>
-  </tr>
-  <tr>
-    <td class="width-55 text-top" style="padding: 15px 10px 0 10px;">
-
-    </td>
-    <td class="width-15"></td>
-    <td class="width-15"></td>
-    <td class="width-15"></td>
   </tr>
 </table>

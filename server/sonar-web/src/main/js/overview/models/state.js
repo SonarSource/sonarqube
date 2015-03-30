@@ -48,8 +48,13 @@ define(function () {
           var gateConditionsWithMetric = gateConditions.map(function (c) {
             var metric = _.findWhere(r, { key: c.metric }),
                 type = metric != null ? metric.val_type : null,
+                periodDate = that.get('period' + c.period + 'Date'),
                 periodName = that.get('period' + c.period + 'Name');
-            return _.extend(c, { type: type, periodName: periodName });
+            return _.extend(c, {
+              type: type,
+              periodName: periodName,
+              periodDate: periodDate
+            });
           });
           that.set({
             gateStatus: gateData.level,

@@ -3,9 +3,16 @@
     <ul class="list-inline spacer-top" style="display: inline-block;">
       {{#each gateConditions}}
         <li>
-          <span class="alert_{{level}}" style="font-size: 24px; font-weight: 300; padding: 0 6px;"
-              title="{{#notEq level 'OK'}}{{t 'quality_gates.operator' op 'short'}} {{/notEq}}{{#eq level 'ERROR'}}{{formatMeasure error type}}{{/eq}}{{#eq level 'WARN'}}{{formatMeasure warning type}}{{/eq}}"
-              data-toggle="tooltip" data-placement="bottom">{{formatMeasure actual type}}</span>
+          {{#canHaveDrilldownUrl metric period}}
+            <a href="{{urlForDrilldown ../../componentKey metric period periodDate}}"
+               class="overview-status overview-status-{{level}}"
+               title="{{#notEq level 'OK'}}{{t 'quality_gates.operator' op 'short'}} {{/notEq}}{{#eq level 'ERROR'}}{{formatMeasure error type}}{{/eq}}{{#eq level 'WARN'}}{{formatMeasure warning type}}{{/eq}}"
+               data-toggle="tooltip" data-placement="bottom">{{formatMeasure actual type}}</a>
+          {{else}}
+            <span class="overview-status overview-status-{{level}}"
+               title="{{#notEq level 'OK'}}{{t 'quality_gates.operator' op 'short'}} {{/notEq}}{{#eq level 'ERROR'}}{{formatMeasure error type}}{{/eq}}{{#eq level 'WARN'}}{{formatMeasure warning type}}{{/eq}}"
+               data-toggle="tooltip" data-placement="bottom">{{formatMeasure actual type}}</span>
+          {{/canHaveDrilldownUrl}}
           <p class="note text-lowercase" style="padding-top: 4px;">{{t 'metric' metric 'name'}}</p>
           <p class="note">{{default periodName period}}</p>
         </li>

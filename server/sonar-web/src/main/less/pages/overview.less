@@ -19,6 +19,7 @@
  */
 @import (reference) "../variables";
 @import (reference) "../mixins";
+@import (reference) "../init/links";
 
 .overview {
   padding: 10px;
@@ -45,4 +46,45 @@
 .overview-card-header {
   padding-bottom: 5px;
   border-bottom: 1px solid @barBorderColor;
+}
+
+.overview-status {
+  margin: 0;
+  padding: 0 6px;
+  color: #fff !important;
+  font-size: 24px;
+  font-weight: 300;
+
+  a& {
+    .link-no-underline;
+
+    &:hover, &:focus, &:active {
+      opacity: 0.8;
+    }
+  }
+}
+
+.overview-status-OK { background-color: @green; }
+.overview-status-WARN { background-color: @orange; }
+.overview-status-ERROR { background-color: @red; }
+
+.overview-main-measure {
+  display: inline-block;
+  vertical-align: middle;
+  font-size: 36px;
+  font-weight: 300;
+}
+
+.overview-trend {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 15px;
+}
+
+.overview-measure {
+  font-size: 16px;
+}
+
+.overview-measure ~ .note:last-child {
+  padding-top: 3px;
 }

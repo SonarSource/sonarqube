@@ -1,40 +1,28 @@
-<p class="note">Lines of Code</p>
+<h6 class="note">{{t 'overview.lines_of_code'}}</h6>
 
 <table class="width100">
   <tr>
     <td class="width-55">
       <div>
-        <div style="display: inline-block; vertical-align: middle;">
-          <p style="font-size: 36px; font-weight: 300;">{{formatMeasure ncloc 'INT'}}</p>
+        <div class="overview-main-measure">
+          <a href="{{urlForDrilldown componentKey 'ncloc'}}">{{formatMeasure ncloc 'INT'}}</a>
         </div>
-        <div style="display: inline-block; vertical-align: middle; margin-left: 15px;">
+        <div class="overview-trend">
           <div id="overview-size-trend" data-width="100" data-height="30" data-color="#4b9fd5"></div>
         </div>
       </div>
     </td>
     <td class="width-15">
-      <div style="display: inline-block; vertical-align: middle;">
-        <p>
-          <span style="font-size: 16px;">{{formatMeasureVariation ncloc1 'INT'}}</span>
-        </p>
-        <p style="color: #777; font-size: 12px; font-weight: 300;">{{period1Name}}</p>
-      </div>
+      <span class="overview-measure">{{formatMeasureVariation ncloc1 'INT'}}</span>
+      <p class="note">{{period1Name}}</p>
     </td>
     <td class="width-15">
-      <div style="display: inline-block; vertical-align: middle;">
-        <p>
-          <span style="font-size: 16px;">{{formatMeasureVariation ncloc2 'INT'}}</span>
-        </p>
-        <p style="color: #777; font-size: 12px; font-weight: 300;">{{period2Name}}</p>
-      </div>
+      <span class="overview-measure">{{formatMeasureVariation ncloc2 'INT'}}</span>
+      <p class="note">{{period2Name}}</p>
     </td>
     <td class="width-15">
-      <div style="display: inline-block; vertical-align: middle;">
-        <p>
-          <span style="font-size: 16px;">{{formatMeasureVariation ncloc3 'INT'}}</span>
-        </p>
-        <p style="color: #777; font-size: 12px; font-weight: 300;">{{period3Name}}</p>
-      </div>
+      <span class="overview-measure">{{formatMeasureVariation ncloc3 'INT'}}</span>
+      <p class="note">{{period3Name}}</p>
     </td>
   </tr>
 </table>
