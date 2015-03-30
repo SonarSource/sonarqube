@@ -87,8 +87,8 @@ public class SearchActionComponentsMediumTest {
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
       .setStatus("OPEN").setResolution("OPEN")
       .setSeverity("MAJOR")
-      .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
-      .setIssueUpdateDate(DateUtils.parseDate("2017-12-04"));
+      .setIssueCreationDate(DateUtils.parseDateTime("2014-09-04T00:00:00+0100"))
+      .setIssueUpdateDate(DateUtils.parseDateTime("2017-12-04T00:00:00+0100"));
     db.issueDao().insert(session, issue);
 
     ComponentDto project2 = insertComponent(ComponentTesting.newProjectDto("DBCA").setKey("MyProject2"));
@@ -98,8 +98,8 @@ public class SearchActionComponentsMediumTest {
       .setKee("92fd47d4-b650-4037-80bc-7b112bd4eac2")
       .setStatus("OPEN").setResolution("OPEN")
       .setSeverity("MAJOR")
-      .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
-      .setIssueUpdateDate(DateUtils.parseDate("2017-12-04"));
+      .setIssueCreationDate(DateUtils.parseDateTime("2014-09-04T00:00:00+0100"))
+      .setIssueUpdateDate(DateUtils.parseDateTime("2017-12-04T00:00:00+0100"));
     db.issueDao().insert(session, issue2);
     session.commit();
     tester.get(IssueIndexer.class).indexAll();

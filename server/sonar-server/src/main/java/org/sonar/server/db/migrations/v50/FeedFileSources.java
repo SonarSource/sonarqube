@@ -142,10 +142,10 @@ public class FeedFileSources extends BaseDataChange {
     "AND fs.file_uuid IS NULL";
 
   private static final class FileSourceBuilder implements MassUpdate.Handler {
-    private final Date now;
+    private final long now;
 
     public FileSourceBuilder(System2 system) {
-      now = new Date(system.now());
+      now = system.now();
     }
 
     @Override
@@ -199,8 +199,8 @@ public class FeedFileSources extends BaseDataChange {
 
       update.setString(1, projectUuid)
         .setString(2, fileUuid)
-        .setLong(3, now.getTime())
-        .setLong(4, (updatedAt == null ? now : updatedAt).getTime())
+        .setLong(3, now)
+        .setLong(4, updatedAt == null ? now : updatedAt.getTime())
         .setString(5, sourceData[0])
         .setString(6, sourceData[1])
         .setString(7, "");

@@ -32,6 +32,10 @@ import org.sonar.core.persistence.DbTester;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 
+import java.util.List;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -62,7 +66,17 @@ public class ConvertIssueDebtToMinutesMigrationTest {
 
     migration.execute();
 
-    db.assertDbUnit(getClass(), "migrate_issues_debt_result.xml", "issues");
+    db.assertDbUnit(getClass(), "migrate_issues_debt_result.xml", new String[]{"updated_at"}, "issues");
+
+    // Check only updated_at columns values, but we could also remove db unit file and check all fields
+    List<Map<String, Object>> results = db.select("select updated_at as \"updatedAt\" from issues");
+    assertThat(results).hasSize(5);
+    assertThat(results.get(0).get("updatedAt").toString()).startsWith("2014-02-19");
+    assertThat(results.get(1).get("updatedAt").toString()).startsWith("2014-02-19");
+    assertThat(results.get(2).get("updatedAt").toString()).startsWith("2014-02-19");
+    assertThat(results.get(3).get("updatedAt").toString()).startsWith("2014-02-19");
+    // Not updated because no debt
+    assertThat(results.get(4).get("updatedAt").toString()).startsWith("2012-01-05");
   }
 
 }

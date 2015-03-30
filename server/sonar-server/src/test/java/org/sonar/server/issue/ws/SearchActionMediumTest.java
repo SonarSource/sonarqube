@@ -117,14 +117,13 @@ public class SearchActionMediumTest {
       .setAssignee("simon")
       .setReporter("fabrice")
       .setActionPlanKey("AP-ABCD")
-      .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
-      .setIssueUpdateDate(DateUtils.parseDate("2017-12-04"));
+      .setIssueCreationDate(DateUtils.parseDateTime("2014-09-04T00:00:00+0100"))
+      .setIssueUpdateDate(DateUtils.parseDateTime("2017-12-04T00:00:00+0100"));
     db.issueDao().insert(session, issue);
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).execute();
-    // TODO date assertion is complex to test, and components id are not predictable, that's why strict boolean is set to false
     result.assertJson(this.getClass(), "issue.json");
   }
 
@@ -209,9 +208,9 @@ public class SearchActionMediumTest {
       .setStatus("OPEN")
       .setProjectId(project.getId())
       .setUserLogin("simon")
-      .setDeadLine(DateUtils.parseDateTime("2014-01-24T19:10:03+0100"))
-      .setCreatedAt(DateUtils.parseDateTime("2014-01-22T19:10:03+0100"))
-      .setUpdatedAt(DateUtils.parseDateTime("2014-01-23T19:10:03+0100")));
+      .setDeadLine(DateUtils.parseDateTime("2014-01-24T19:10:03+0000"))
+      .setCreatedAt(DateUtils.parseDateTime("2014-01-22T19:10:03+0000"))
+      .setUpdatedAt(DateUtils.parseDateTime("2014-01-23T19:10:03+0000")));
 
     IssueDto issue = IssueTesting.newDto(newRule(), file, project)
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
@@ -285,8 +284,8 @@ public class SearchActionMediumTest {
       .setComponent(removedFile)
       .setStatus("OPEN").setResolution("OPEN")
       .setSeverity("MAJOR")
-      .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
-      .setIssueUpdateDate(DateUtils.parseDate("2017-12-04"));
+      .setIssueCreationDate(DateUtils.parseDateTime("2014-09-04T00:00:00+0100"))
+      .setIssueUpdateDate(DateUtils.parseDateTime("2017-12-04T00:00:00+0100"));
     db.issueDao().insert(session, issue);
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
@@ -573,9 +572,15 @@ public class SearchActionMediumTest {
     ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
     setDefaultProjectPermission(project);
     ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
-    db.issueDao().insert(session, IssueTesting.newDto(rule, file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac1").setIssueUpdateDate(DateUtils.parseDate("2014-11-02")));
-    db.issueDao().insert(session, IssueTesting.newDto(rule, file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2").setIssueUpdateDate(DateUtils.parseDate("2014-11-01")));
-    db.issueDao().insert(session, IssueTesting.newDto(rule, file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac3").setIssueUpdateDate(DateUtils.parseDate("2014-11-03")));
+    db.issueDao().insert(session, IssueTesting.newDto(rule, file, project)
+      .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac1")
+      .setIssueUpdateDate(DateUtils.parseDateTime("2014-11-02T00:00:00+0100")));
+    db.issueDao().insert(session, IssueTesting.newDto(rule, file, project)
+      .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
+      .setIssueUpdateDate(DateUtils.parseDateTime("2014-11-01T00:00:00+0100")));
+    db.issueDao().insert(session, IssueTesting.newDto(rule, file, project)
+      .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac3")
+      .setIssueUpdateDate(DateUtils.parseDateTime("2014-11-03T00:00:00+0100")));
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 

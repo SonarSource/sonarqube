@@ -34,7 +34,10 @@ import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -50,7 +53,15 @@ public class RenameIssueWidgetsTest {
 
     doStart();
 
-    dbTester.assertDbUnit(this.getClass(), "after.xml", "widgets", "widget_properties", "loaded_templates");
+    dbTester.assertDbUnit(this.getClass(), "after.xml", new String[]{"updated_at"}, "widgets", "widget_properties", "loaded_templates");
+
+    List<Map<String, Object>> results = dbTester.select("select updated_at as \"updatedAt\" from widgets");
+    assertThat(results).hasSize(6);
+    // First widget is not updated
+    assertThat(results.get(0).get("updatedAt")).isNull();
+    for (int i=1; i<results.size(); i++) {
+      assertThat(results.get(i).get("updatedAt").toString()).startsWith("2003-03-23");
+    }
   }
 
   @Test

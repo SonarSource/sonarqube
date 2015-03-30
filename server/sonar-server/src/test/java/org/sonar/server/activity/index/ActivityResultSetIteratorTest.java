@@ -80,7 +80,7 @@ public class ActivityResultSetIteratorTest {
     assertThat(it.hasNext()).isFalse();
     it.close();
 
-    assertThat(it.getMaxRowDate()).isEqualTo(1420066800000L);
+    assertThat(formatLongDate(it.getMaxRowDate())).startsWith("2015-01-01");
   }
 
   @Test
@@ -97,7 +97,7 @@ public class ActivityResultSetIteratorTest {
     assertThat(it.hasNext()).isFalse();
     it.close();
 
-    assertThat(it.getMaxRowDate()).isEqualTo(1420066800000L);
+    assertThat(formatLongDate(it.getMaxRowDate())).startsWith("2015-01-01");
   }
 
   @Test
@@ -109,5 +109,9 @@ public class ActivityResultSetIteratorTest {
     it.close();
 
     assertThat(it.getMaxRowDate()).isEqualTo(0L);
+  }
+
+  private String formatLongDate(long dateInMs){
+    return DateUtils.formatDateTime(DateUtils.longToDate(dateInMs));
   }
 }
