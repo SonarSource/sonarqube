@@ -136,6 +136,10 @@
     INSERT INTO project_qprofiles (project_uuid, profile_key) VALUES (#{projectUuid}, #{profileKey})
   </insert>
 
+  <update id="updateProjectProfileAssociation">
+    UPDATE project_qprofiles SET profile_key=#{profileKey} WHERE project_uuid=#{projectUuid}
+  </update>
+
   <update id="deleteProjectProfileAssociation">
     DELETE FROM project_qprofiles WHERE project_uuid=#{projectUuid} AND profile_key=#{profileKey}
   </update>

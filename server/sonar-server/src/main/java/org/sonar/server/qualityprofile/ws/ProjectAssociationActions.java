@@ -61,7 +61,7 @@ public class ProjectAssociationActions implements ServerComponent {
   void define(WebService.NewController controller) {
     NewAction addProject = controller.createAction("add_project")
       .setSince("5.2")
-      .setDescription("Associate a project with a quality profile")
+      .setDescription("Associate a project with a quality profile.")
       .setHandler(new AssociationHandler(profileLookup, componentService) {
         @Override
         protected void changeAssociation(String profileKey, String projectUuid, UserSession userSession) {
@@ -72,7 +72,7 @@ public class ProjectAssociationActions implements ServerComponent {
 
     NewAction removeProject = controller.createAction("remove_project")
       .setSince("5.2")
-      .setDescription("Remove a project's association with a quality profile")
+      .setDescription("Remove a project's association with a quality profile.")
       .setHandler(new AssociationHandler(profileLookup, componentService) {
         @Override
         protected void changeAssociation(String profileKey, String projectUuid, UserSession userSession) {
@@ -85,15 +85,15 @@ public class ProjectAssociationActions implements ServerComponent {
   private void setCommonAttributes(NewAction action) {
     action.setPost(true);
     action.createParam(PARAM_PROJECT_UUID)
-      .setDescription("A project UUID. Either this parameter, or projectKey must be set");
+      .setDescription("A project UUID. Either this parameter, or projectKey must be set.");
     action.createParam(PARAM_PROJECT_KEY)
-      .setDescription("A project key. Either this parameter, or projectUuid must be set");
+      .setDescription("A project key. Either this parameter, or projectUuid must be set.");
     action.createParam(PARAM_PROFILE_KEY)
-      .setDescription("A quality profile key. Either this parameter, or a combination of profileName + language must be set");
+      .setDescription("A quality profile key. Either this parameter, or a combination of profileName + language must be set.");
     action.createParam(PARAM_PROFILE_NAME)
-      .setDescription("A quality profile name. If this parameter is set, profileKey must not be set and language must be set to disambiguate");
+      .setDescription("A quality profile name. If this parameter is set, profileKey must not be set and language must be set to disambiguate.");
     action.createParam(PARAM_LANGUAGE)
-      .setDescription("A quality profile language. If this parameter is set, profileKey must not be set and language must be set to disambiguate")
+      .setDescription("A quality profile language. If this parameter is set, profileKey must not be set and profileName must be set to disambiguate.")
       .setPossibleValues(Collections2.transform(Arrays.asList(languages.all()), new NonNullInputFunction<Language, String>() {
         @Override
         public String doApply(Language input) {
@@ -102,7 +102,7 @@ public class ProjectAssociationActions implements ServerComponent {
       }));
   }
 
-  private static abstract class AssociationHandler implements RequestHandler {
+  private abstract static class AssociationHandler implements RequestHandler {
 
     private final QProfileLookup profileLookup;
     private final ComponentService componentService;

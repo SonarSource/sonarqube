@@ -327,6 +327,10 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
     session.getMapper(QualityProfileMapper.class).deleteProjectProfileAssociation(projectUuid, profileKey);
   }
 
+  public void updateProjectProfileAssociation(String projectUuid, String profileKey, DbSession session) {
+    session.getMapper(QualityProfileMapper.class).updateProjectProfileAssociation(projectUuid, profileKey);
+  }
+
   public void deleteAllProjectProfileAssociation(String profileKey, DbSession session) {
     session.getMapper(QualityProfileMapper.class).deleteAllProjectProfileAssociation(profileKey);
   }

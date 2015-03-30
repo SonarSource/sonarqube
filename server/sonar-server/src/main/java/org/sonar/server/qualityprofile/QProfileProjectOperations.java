@@ -58,8 +58,19 @@ public class QProfileProjectOperations implements ServerComponent {
     checkPermission(userSession, project.key());
     QualityProfileDto qualityProfile = findNotNull(profileKey, session);
 
-    db.qualityProfileDao().insertProjectProfileAssociation(project.uuid(), qualityProfile.getKey(), session);
-    session.commit();
+    QualityProfileDto currentProfile = db.qualityProfileDao().getByProjectAndLanguage(project.key(), qualityProfile.getLanguage(), session);
+
+    boolean updated = false;
+    if (currentProfile == null) {
+      db.qualityProfileDao().insertProjectProfileAssociation(project.uuid(), qualityProfile.getKey(), session);
+      updated = true;
+    } else if (!profileKey.equals(currentProfile.getKey())) {
+      db.qualityProfileDao().updateProjectProfileAssociation(projectUuid, profileKey, session);
+      updated = true;
+    }
+    if (updated) {
+      session.commit();
+    }
   }
 
   public void removeProject(String profileKey, String projectUuid, UserSession userSession) {

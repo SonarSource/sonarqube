@@ -73,6 +73,8 @@ public interface QualityProfileMapper {
 
   void insertProjectProfileAssociation(@Param("projectUuid") String projectUuid, @Param("profileKey") String profileKey);
 
+  void updateProjectProfileAssociation(@Param("projectUuid") String projectUuid, @Param("profileKey") String profileKey);
+
   void deleteProjectProfileAssociation(@Param("projectUuid") String projectUuid, @Param("profileKey") String profileKey);
 
   void deleteAllProjectProfileAssociation(@Param("profileKey") String profileKey);

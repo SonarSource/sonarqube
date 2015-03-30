@@ -400,6 +400,37 @@ public class QProfilesWsMediumTest {
       .setParam("profileKey", profile.getKee()).setParam("projectUuid", project.uuid())
       .execute().assertNoContent();
     assertThat(tester.get(QProfileFactory.class).getByProjectAndLanguage(session, project.getKey(), "xoo").getKee()).isEqualTo(profile.getKee());
+
+    // Second call must not fail, do nothing
+    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "add_project")
+      .setParam("profileKey", profile.getKee()).setParam("projectUuid", project.uuid())
+      .execute().assertNoContent();
+    assertThat(tester.get(QProfileFactory.class).getByProjectAndLanguage(session, project.getKey(), "xoo").getKee()).isEqualTo(profile.getKee());
+  }
+
+  @Test
+  public void change_project_association_with_key_and_uuid() throws Exception {
+    ComponentDto project = new ComponentDto()
+      .setId(1L)
+      .setUuid("ABCD")
+      .setKey("org.codehaus.sonar:sonar")
+      .setName("SonarQube")
+      .setLongName("SonarQube")
+      .setQualifier("TRK")
+      .setScope("TRK")
+      .setEnabled(true);
+    db.componentDao().insert(session, project);
+    QualityProfileDto profile1 = QProfileTesting.newXooP1();
+    QualityProfileDto profile2 = QProfileTesting.newXooP2();
+    db.qualityProfileDao().insert(session, profile1, profile2);
+    db.qualityProfileDao().insertProjectProfileAssociation(project.uuid(), profile1.getKey(), session);
+
+    session.commit();
+
+    wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "add_project")
+      .setParam("profileKey", profile2.getKee()).setParam("projectUuid", project.uuid())
+      .execute().assertNoContent();
+    assertThat(tester.get(QProfileFactory.class).getByProjectAndLanguage(session, project.getKey(), "xoo").getKee()).isEqualTo(profile2.getKee());
   }
 
   @Test
