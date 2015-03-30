@@ -378,9 +378,15 @@
                   <version>${jdk.min.version}</version>
                 </requireJavaVersion>
                 <requireMavenVersion>
-                  <message>To build this project Maven ${maven.min.version} (or upper) is required. Please install it.
+                  <message>Maven ${maven.min.version} to 3.2.x is required.
                   </message>
-                  <version>${maven.min.version}</version>
+                  <!-- maven 3.3.1 is not supported because of frontend-maven-plugin :
+                  https://github.com/eirslett/frontend-maven-plugin/issues/184
+                  https://github.com/eirslett/frontend-maven-plugin/commit/c21b91cc91b8a4f329ad48f6fc1f6269ad0f1f5d
+                  Upgrading to frontend-m-p 0.0.23 drops support of maven 3.0, which is currently the reference version
+                  used at SonarSource.
+                  -->
+                  <version>[${maven.min.version},3.3)</version>
                 </requireMavenVersion>
                 <bannedDependencies>
                   <!-- See SONAR-2512 -->
