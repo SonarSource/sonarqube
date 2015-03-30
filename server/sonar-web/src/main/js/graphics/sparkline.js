@@ -24,10 +24,10 @@
   }
 
   var defaults = {
-    height: 140,
+    height: 30,
     color: '#1f77b4',
-    interpolate: 'basis',
-    type: 'UNKNOWN'
+    interpolate: 'bundle',
+    tension: 1
   };
 
   /*
@@ -37,18 +37,18 @@
    * ]
    */
 
-  $.fn.timeline = function (data, opts) {
+  $.fn.sparkline = function (data, opts) {
     $(this).each(function () {
           var options = _.defaults(opts || {}, $(this).data(), defaults);
-          _.extend(options, { width: $(this).width() });
+          if (!options.width) {
+            _.extend(options, { width: $(this).width() });
+          }
 
           var container = d3.select(this),
               svg = container.append('svg')
-                  .attr('width', options.width + 12)
-                  .attr('height', options.height + 12)
+                  .attr('width', options.width + 1)
+                  .attr('height', options.height + 1)
                   .classed('sonar-d3', true),
-
-              extra = svg.append('g'),
 
               plot = svg.append('g')
                   .classed('plot', true),
@@ -70,23 +70,12 @@
                   .y(function (d) {
                     return yScale(d.count);
                   })
-                  .interpolate(options.interpolate);
-
-          // Medians
-          var medianValue = getNiceMedian(0.5, data, function (d) {
-                return d.count;
-              }),
-              medianLabel = extra.append('text')
-                  .text(window.formatMeasure(medianValue, options.type))
-                  .style('text-anchor', 'end')
-                  .style('font-size', '10px')
-                  .style('fill', '#ccc')
-                  .attr('dy', '0.32em'),
-              medianLabelWidth = medianLabel.node().getBBox().width;
+                  .interpolate(options.interpolate)
+                  .tension(options.tension);
 
           _.extend(options, {
             marginLeft: 1,
-            marginRight: 1 + medianLabelWidth + 4,
+            marginRight: 1,
             marginTop: 6,
             marginBottom: 6
           });
@@ -105,32 +94,8 @@
               .attr('d', line)
               .classed('line', true)
               .style('stroke', options.color);
-
-          medianLabel
-              .attr('x', options.width - 1)
-              .attr('y', options.marginTop + yScale(medianValue));
-          extra.append('line')
-              .attr('x1', options.marginLeft)
-              .attr('y1', options.marginTop + yScale(medianValue))
-              .attr('x2', options.availableWidth + options.marginLeft)
-              .attr('y2', options.marginTop + yScale(medianValue))
-              .style('stroke', '#eee')
-              .style('shape-rendering', 'crispedges');
         }
-    )
-    ;
+    );
   };
 
-  function getNiceMedian (p, array, accessor) {
-    var min = d3.min(array, accessor),
-        max = d3.max(array, accessor),
-        median = d3.median(array, accessor),
-        threshold = (max - min) / 2,
-        threshold10 = Math.pow(10, Math.floor(Math.log(threshold) / Math.LN10) - 1);
-    return (p - 0.5) > 0.0001 ?
-        Math.floor(median / threshold10) * threshold10 :
-        Math.ceil(median / threshold10) * threshold10;
-  }
-
-})
-(window.jQuery);
+})(window.jQuery);

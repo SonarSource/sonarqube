@@ -1,0 +1,90 @@
+/*
+ * SonarQube, open source software quality management tool.
+ * Copyright (C) 2008-2014 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * SonarQube is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * SonarQube is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+@import (reference) "../variables";
+@import (reference) "../mixins";
+@import (reference) "../init/links";
+
+.overview {
+  padding: 10px;
+  .box-sizing(border-box);
+  overflow: hidden;
+}
+
+.overview-card {
+  padding: 10px;
+  background: @white;
+  border: 1px solid @barBorderColor;
+}
+
+.overview-card + .overview-card {
+  margin-top: 10px;
+}
+
+.overview-gate-ok { border: 2px solid @green; }
+
+.overview-gate-warn { border: 2px solid @orange; }
+
+.overview-gate-error { border: 2px solid @red; }
+
+.overview-card-header {
+  padding-bottom: 5px;
+  border-bottom: 1px solid @barBorderColor;
+}
+
+.overview-status {
+  margin: 0;
+  padding: 0 6px;
+  color: #fff !important;
+  font-size: 24px;
+  font-weight: 300;
+
+  a& {
+    .link-no-underline;
+
+    &:hover, &:focus, &:active {
+      opacity: 0.8;
+    }
+  }
+}
+
+.overview-status-OK { background-color: @green; }
+.overview-status-WARN { background-color: @orange; }
+.overview-status-ERROR { background-color: @red; }
+
+.overview-main-measure {
+  display: inline-block;
+  vertical-align: middle;
+  font-size: 36px;
+  font-weight: 300;
+}
+
+.overview-trend {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 15px;
+}
+
+.overview-measure {
+  font-size: 16px;
+}
+
+.overview-measure ~ .note:last-child {
+  padding-top: 3px;
+}

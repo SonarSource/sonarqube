@@ -17,14 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@import (reference) "../variables";
-@import (reference) "../mixins";
+define([
+  'templates/overview'
+], function () {
 
-.panel {
-  padding: 10px;
-}
+  return Marionette.Layout.extend({
+    template: Templates['overview-layout'],
 
-.panel-info {
-  border: 1px solid @blue;
-  background-color: @lightBlue;
-}
+    regions: {
+      gateRegion: '#overview-gate',
+      sizeRegion: '#overview-size',
+      issuesRegion: '#overview-issues',
+      debtRegion: '#overview-debt',
+      coverageRegion: '#overview-coverage',
+      duplicationsRegion: '#overview-duplications'
+    },
+
+    modelEvents: {
+      'change:gateConditions': 'toggleGate'
+    },
+
+    toggleGate: function () {
+      var conditions = this.model.get('gateConditions'),
+          hasGate = _.isArray(conditions) && conditions.length > 0;
+      this.$(this.gateRegion.el).toggle(hasGate);
+    }
+  });
+
+});

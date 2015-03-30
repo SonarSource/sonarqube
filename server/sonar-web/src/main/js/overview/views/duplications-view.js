@@ -17,14 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@import (reference) "../variables";
-@import (reference) "../mixins";
+define([
+  'templates/overview'
+], function () {
 
-.panel {
-  padding: 10px;
-}
+  return Marionette.Layout.extend({
+    template: Templates['overview-duplications'],
 
-.panel-info {
-  border: 1px solid @blue;
-  background-color: @lightBlue;
-}
+    modelEvents: {
+      'change': 'render'
+    },
+
+    onRender: function () {
+      this.$('.js-pie-chart').pieChart();
+      if (this.model.has('duplicationsTrend')) {
+        this.$('#overview-duplications-trend').sparkline(this.model.get('duplicationsTrend'));
+      }
+    }
+  });
+
+});

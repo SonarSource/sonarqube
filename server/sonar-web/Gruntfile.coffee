@@ -108,6 +108,7 @@ module.exports = (grunt) ->
             '<%= grunt.option("assetsDir") || pkg.assets %>js/widgets/treemap.js'
             '<%= grunt.option("assetsDir") || pkg.assets %>js/graphics/pie-chart.js'
             '<%= grunt.option("assetsDir") || pkg.assets %>js/graphics/timeline.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/graphics/sparkline.js'
             '<%= grunt.option("assetsDir") || pkg.assets %>js/graphics/barchart.js'
             '<%= grunt.option("assetsDir") || pkg.assets %>js/sortable.js'
             '<%= grunt.option("assetsDir") || pkg.assets %>js/common/inputs.js'
@@ -145,6 +146,7 @@ module.exports = (grunt) ->
             '<%= grunt.option("assetsDir") || pkg.assets %>js/widgets/widget.js'
             '<%= grunt.option("assetsDir") || pkg.assets %>js/widgets/bubble-chart.js'
             '<%= grunt.option("assetsDir") || pkg.assets %>js/widgets/timeline.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/graphics/sparkline.js'
             '<%= grunt.option("assetsDir") || pkg.assets %>js/widgets/stack-area.js'
             '<%= grunt.option("assetsDir") || pkg.assets %>js/widgets/pie-chart.js'
             '<%= grunt.option("assetsDir") || pkg.assets %>js/widgets/histogram.js'
@@ -250,6 +252,10 @@ module.exports = (grunt) ->
         name: 'widgets/issue-filter'
         out: '<%= grunt.option("assetsDir") || pkg.assets %>build/js/widgets/issue-filter.js'
 
+      overview: options:
+        name: 'overview/app'
+        out: '<%= grunt.option("assetsDir") || pkg.assets %>build/js/overview/app.js'
+
 
     handlebars:
       options:
@@ -308,6 +314,9 @@ module.exports = (grunt) ->
           ]
           '<%= grunt.option("assetsDir") || pkg.assets %>js/templates/workspace.js': [
             '<%= pkg.sources %>hbs/workspace/**/*.hbs'
+          ]
+          '<%= grunt.option("assetsDir") || pkg.assets %>js/templates/overview.js': [
+            '<%= pkg.sources %>hbs/overview/**/*.hbs'
           ]
 
 

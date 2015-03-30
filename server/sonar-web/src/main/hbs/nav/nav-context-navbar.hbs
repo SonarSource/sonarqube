@@ -21,8 +21,8 @@
   </div>
 
   <ul class="nav navbar-nav nav-tabs">
-    <li {{#if isOverviewActive}}class="active"{{/if}}>
-      <a href="{{dashboardUrl contextKey}}">{{t 'overview.page'}}</a>
+    <li {{#isActiveLink '/overview'}}class="active"{{/isActiveLink}}>
+      <a href="{{link '/overview/index?id=' contextKeyEncoded }}">{{t 'overview.page'}}</a>
     </li>
     <li {{#isActiveLink '/components'}}class="active"{{/isActiveLink}}>
       <a href="{{link '/components/index/' contextId }}">{{t 'components.page'}}</a>
@@ -46,11 +46,11 @@
       <a class="dropdown-toggle" data-toggle="dropdown" href="#">{{t 'more'}}&nbsp;<i class="icon-dropdown"></i></a>
       <ul class="dropdown-menu">
         <li class="dropdown-header">{{t 'layout.dashboards'}}</li>
-        {{#withoutFirst contextDashboards}}
+        {{#each contextDashboards}}
           <li>
             <a href="{{link url}}">{{name}}</a>
           </li>
-        {{/withoutFirst}}
+        {{/each}}
         {{#if canManageContextDashboards}}
           <li class="small-divider"></li>
           <li>
