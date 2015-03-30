@@ -22,7 +22,6 @@ package org.sonar.search;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.node.internal.InternalNode;
-import org.slf4j.LoggerFactory;
 import org.sonar.process.MinimumViableSystem;
 import org.sonar.process.Monitored;
 import org.sonar.process.ProcessEntryPoint;
@@ -40,8 +39,6 @@ public class SearchServer implements Monitored {
 
   @Override
   public void start() {
-    LoggerFactory.getLogger(SearchServer.class).info("Starting Elasticsearch[{}] on port {}", settings.clusterName(), settings.tcpPort());
-
     node = new InternalNode(settings.build(), false);
     node.start();
   }

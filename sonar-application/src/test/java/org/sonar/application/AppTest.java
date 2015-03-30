@@ -24,7 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
-import org.sonar.process.ProcessConstants;
+import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 import org.sonar.process.monitor.JavaCommand;
 import org.sonar.process.monitor.Monitor;
@@ -122,10 +122,10 @@ public class AppTest {
 
   private Props initDefaultProps() throws IOException {
     Props props = new Props(new Properties());
-    DefaultSettings.init(props);
-    props.set(ProcessConstants.PATH_HOME, temp.newFolder().getAbsolutePath());
-    props.set(ProcessConstants.PATH_TEMP, temp.newFolder().getAbsolutePath());
-    props.set(ProcessConstants.PATH_LOGS, temp.newFolder().getAbsolutePath());
+    ProcessProperties.completeDefaults(props);
+    props.set(ProcessProperties.PATH_HOME, temp.newFolder().getAbsolutePath());
+    props.set(ProcessProperties.PATH_TEMP, temp.newFolder().getAbsolutePath());
+    props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
     return props;
   }
 }

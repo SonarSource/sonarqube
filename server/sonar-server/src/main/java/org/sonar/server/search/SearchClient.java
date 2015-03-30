@@ -53,7 +53,7 @@ import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.picocontainer.Startable;
 import org.sonar.api.config.Settings;
 import org.sonar.process.LoopbackAddress;
-import org.sonar.process.ProcessConstants;
+import org.sonar.process.ProcessProperties;
 import org.sonar.server.es.request.*;
 
 /**
@@ -63,14 +63,14 @@ public class SearchClient extends TransportClient implements Startable {
 
   public SearchClient(Settings settings) {
     super(ImmutableSettings.settingsBuilder()
-      .put("node.name", StringUtils.defaultIfEmpty(settings.getString(ProcessConstants.CLUSTER_NODE_NAME), "sq_local_client"))
-      .put("network.bind_host", StringUtils.defaultIfEmpty(settings.getString(ProcessConstants.SEARCH_HOST), "localhost"))
-      .put("node.rack_id", StringUtils.defaultIfEmpty(settings.getString(ProcessConstants.CLUSTER_NODE_NAME), "unknown"))
-      .put("cluster.name", StringUtils.defaultIfBlank(settings.getString(ProcessConstants.CLUSTER_NAME), "sonarqube"))
+      .put("node.name", StringUtils.defaultIfEmpty(settings.getString(ProcessProperties.CLUSTER_NODE_NAME), "sq_local_client"))
+      .put("network.bind_host", StringUtils.defaultIfEmpty(settings.getString(ProcessProperties.SEARCH_HOST), "localhost"))
+      .put("node.rack_id", StringUtils.defaultIfEmpty(settings.getString(ProcessProperties.CLUSTER_NODE_NAME), "unknown"))
+      .put("cluster.name", StringUtils.defaultIfBlank(settings.getString(ProcessProperties.CLUSTER_NAME), "sonarqube"))
       .build());
     initLogging();
-    this.addTransportAddress(new InetSocketTransportAddress(StringUtils.defaultIfEmpty(settings.getString(ProcessConstants.SEARCH_HOST), LoopbackAddress.get().getHostAddress()),
-      settings.getInt(ProcessConstants.SEARCH_PORT)));
+    this.addTransportAddress(new InetSocketTransportAddress(StringUtils.defaultIfEmpty(settings.getString(ProcessProperties.SEARCH_HOST), LoopbackAddress.get().getHostAddress()),
+      settings.getInt(ProcessProperties.SEARCH_PORT)));
   }
 
   private void initLogging() {

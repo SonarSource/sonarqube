@@ -26,7 +26,7 @@ import org.elasticsearch.common.settings.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.MessageException;
-import org.sonar.process.ProcessConstants;
+import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 import org.sonar.search.script.ListUpdate;
 
@@ -40,45 +40,22 @@ class SearchSettings {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SearchSettings.class);
 
-  public static final String PROP_HTTP_PORT = "sonar.search.httpPort";
   public static final String PROP_MARVEL_HOSTS = "sonar.search.marvelHosts";
 
   private final Props props;
-  private final Set<String> masterHosts = new LinkedHashSet<String>();
-  private final String clusterName;
-  private final String hostName;
-  private final int tcpPort;
+  private final Set<String> masterHosts = new LinkedHashSet<>();
 
   SearchSettings(Props props) {
     this.props = props;
-    masterHosts.addAll(Arrays.asList(StringUtils.split(props.value(ProcessConstants.CLUSTER_MASTER_HOST, ""), ",")));
-    clusterName = props.value(ProcessConstants.CLUSTER_NAME);
-    hostName = props.value(ProcessConstants.SEARCH_HOST);
-    Integer port = props.valueAsInt(ProcessConstants.SEARCH_PORT);
-    if (port == null) {
-      throw new MessageException("Property is not set: " + ProcessConstants.SEARCH_PORT);
-    }
-    tcpPort = port.intValue();
+    masterHosts.addAll(Arrays.asList(StringUtils.split(props.value(ProcessProperties.CLUSTER_MASTER_HOST, ""), ",")));
   }
 
   boolean inCluster() {
-    return props.valueAsBoolean(ProcessConstants.CLUSTER_ACTIVATE, false);
+    return props.valueAsBoolean(ProcessProperties.CLUSTER_ACTIVATE, false);
   }
 
   boolean isMaster() {
-    return props.valueAsBoolean(ProcessConstants.CLUSTER_MASTER, false);
-  }
-
-  String clusterName() {
-    return clusterName;
-  }
-
-  int tcpPort() {
-    return tcpPort;
-  }
-  
-  String hostName() {
-    return hostName;
+    return props.valueAsBoolean(ProcessProperties.CLUSTER_MASTER, false);
   }
 
   Settings build() {
@@ -93,11 +70,11 @@ class SearchSettings {
   }
 
   private void configureFileSystem(ImmutableSettings.Builder builder) {
-    File homeDir = props.nonNullValueAsFile(ProcessConstants.PATH_HOME);
+    File homeDir = props.nonNullValueAsFile(ProcessProperties.PATH_HOME);
     File dataDir, workDir, logDir;
 
     // data dir
-    String dataPath = props.value(ProcessConstants.PATH_DATA);
+    String dataPath = props.value(ProcessProperties.PATH_DATA);
     if (StringUtils.isNotEmpty(dataPath)) {
       dataDir = new File(dataPath, "es");
     } else {
@@ -106,7 +83,7 @@ class SearchSettings {
     builder.put("path.data", dataDir.getAbsolutePath());
 
     // working dir
-    String workPath = props.value(ProcessConstants.PATH_TEMP);
+    String workPath = props.value(ProcessProperties.PATH_TEMP);
     if (StringUtils.isNotEmpty(workPath)) {
       workDir = new File(workPath);
     } else {
@@ -116,7 +93,7 @@ class SearchSettings {
     builder.put("path.plugins", workDir.getAbsolutePath());
 
     // log dir
-    String logPath = props.value(ProcessConstants.PATH_LOGS);
+    String logPath = props.value(ProcessProperties.PATH_LOGS);
     if (StringUtils.isNotEmpty(logPath)) {
       logDir = new File(logPath);
     } else {
@@ -128,22 +105,25 @@ class SearchSettings {
   private void configurePlugins(ImmutableSettings.Builder builder) {
     builder
       .put("script.default_lang", "native")
-      .put(String.format("script.native.%s.type", ProcessConstants.ES_PLUGIN_LISTUPDATE_SCRIPT_NAME),
+      .put(String.format("script.native.%s.type", ProcessProperties.ES_PLUGIN_LISTUPDATE_SCRIPT_NAME),
         ListUpdate.UpdateListScriptFactory.class.getName());
   }
 
   private void configureNetwork(ImmutableSettings.Builder builder) {
+    String host = props.value(ProcessProperties.SEARCH_HOST);
+    Integer port = props.valueAsInt(ProcessProperties.SEARCH_PORT);
+    LOGGER.info("Elasticsearch listening on {}:{}", host, port);
+
     // disable multicast
     builder.put("discovery.zen.ping.multicast.enabled", "false");
-    builder.put("transport.tcp.port", tcpPort);
-    if (hostName != null) {
-      builder.put("transport.host", hostName);
-    }
+    builder.put("transport.tcp.port", port);
+    builder.put("transport.host", host);
+
     // Elasticsearch sets the default value of TCP reuse address to true only on non-MSWindows machines, but why ?
     builder.put("network.tcp.reuse_address", true);
 
-    Integer httpPort = props.valueAsInt(PROP_HTTP_PORT);
-    if (httpPort == null) {
+    Integer httpPort = props.valueAsInt(ProcessProperties.SEARCH_HTTP_PORT);
+    if (httpPort == null || httpPort < 0) {
       // standard configuration
       builder.put("http.enabled", false);
     } else {
@@ -152,11 +132,7 @@ class SearchSettings {
       // see https://github.com/lmenezes/elasticsearch-kopf/issues/195
       builder.put("http.cors.enabled", true);
       builder.put("http.enabled", true);
-      if (hostName != null) {
-        builder.put("http.host", hostName);
-      } else {
-        builder.put("http.host", "127.0.0.1");
-      }
+      builder.put("http.host", host);
       builder.put("http.port", httpPort);
     }
   }
@@ -181,18 +157,18 @@ class SearchSettings {
         builder.put("discovery.zen.minimum_master_nodes", 1);
       } else {
         throw new MessageException(String.format("Not an Elasticsearch master nor slave. Please check properties %s and %s",
-          ProcessConstants.CLUSTER_MASTER, ProcessConstants.CLUSTER_MASTER_HOST));
+          ProcessProperties.CLUSTER_MASTER, ProcessProperties.CLUSTER_MASTER_HOST));
       }
     }
     builder.put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, replicationFactor);
-    builder.put("cluster.name", clusterName);
+    builder.put("cluster.name", props.value(ProcessProperties.CLUSTER_NAME));
     builder.put("cluster.routing.allocation.awareness.attributes", "rack_id");
-    builder.put("node.rack_id", props.value(ProcessConstants.CLUSTER_NODE_NAME, "unknown"));
-    builder.put("node.name", props.value(ProcessConstants.CLUSTER_NODE_NAME));
+    builder.put("node.rack_id", props.value(ProcessProperties.CLUSTER_NODE_NAME, "unknown"));
+    builder.put("node.name", props.value(ProcessProperties.CLUSTER_NODE_NAME));
   }
 
   private void configureMarvel(ImmutableSettings.Builder builder) {
-    Set<String> marvels = new TreeSet<String>();
+    Set<String> marvels = new TreeSet<>();
     marvels.addAll(Arrays.asList(StringUtils.split(props.value(PROP_MARVEL_HOSTS, ""), ",")));
 
     // If we're collecting indexing data send them to the Marvel host(s)

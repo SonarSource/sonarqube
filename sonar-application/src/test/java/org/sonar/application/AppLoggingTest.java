@@ -31,7 +31,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.process.LogbackHelper;
-import org.sonar.process.ProcessConstants;
+import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
 import java.io.File;
@@ -50,7 +50,7 @@ public class AppLoggingTest {
   @Before
   public void setUp() throws Exception {
     File dir = temp.newFolder();
-    props.set(ProcessConstants.PATH_LOGS, dir.getAbsolutePath());
+    props.set(ProcessProperties.PATH_LOGS, dir.getAbsolutePath());
   }
 
   @AfterClass

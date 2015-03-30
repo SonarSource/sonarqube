@@ -21,7 +21,7 @@ package org.sonar.server.source.index;
 
 import org.junit.Test;
 import org.sonar.api.config.Settings;
-import org.sonar.process.ProcessConstants;
+import org.sonar.process.ProcessProperties;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.NewIndex;
 
@@ -49,7 +49,7 @@ public class SourceLineIndexDefinitionTest {
   @Test
   public void enable_cluster() throws Exception {
     Settings settings = new Settings();
-    settings.setProperty(ProcessConstants.CLUSTER_ACTIVATE, true);
+    settings.setProperty(ProcessProperties.CLUSTER_ACTIVATE, true);
     IndexDefinition def = new SourceLineIndexDefinition(settings);
     def.define(context);
 

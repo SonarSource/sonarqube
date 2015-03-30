@@ -24,7 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.process.MessageException;
-import org.sonar.process.ProcessConstants;
+import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
 import java.io.File;
@@ -40,30 +40,17 @@ public class SearchSettingsTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   @Test
-  public void fail_if_tcp_port_is_not_set() throws Exception {
-    try {
-      new SearchSettings(new Props(new Properties()));
-      fail();
-    } catch (MessageException e) {
-      assertThat(e).hasMessage("Property is not set: sonar.search.port");
-    }
-  }
-
-  @Test
   public void test_default_settings() throws Exception {
     File homeDir = temp.newFolder();
     Props props = new Props(new Properties());
-    props.set(ProcessConstants.SEARCH_PORT, "1234");
-    props.set(ProcessConstants.SEARCH_HOST, "127.0.0.1");
-    props.set(ProcessConstants.PATH_HOME, homeDir.getAbsolutePath());
-    props.set(ProcessConstants.CLUSTER_NAME, "tests");
-    props.set(ProcessConstants.CLUSTER_NODE_NAME, "test");
+    props.set(ProcessProperties.SEARCH_PORT, "1234");
+    props.set(ProcessProperties.SEARCH_HOST, "127.0.0.1");
+    props.set(ProcessProperties.PATH_HOME, homeDir.getAbsolutePath());
+    props.set(ProcessProperties.CLUSTER_NAME, "tests");
+    props.set(ProcessProperties.CLUSTER_NODE_NAME, "test");
 
     SearchSettings searchSettings = new SearchSettings(props);
     assertThat(searchSettings.inCluster()).isFalse();
-    assertThat(searchSettings.clusterName()).isEqualTo("tests");
-    assertThat(searchSettings.tcpPort()).isEqualTo(1234);
-    assertThat(searchSettings.hostName()).isEqualTo("127.0.0.1");
 
     Settings generated = searchSettings.build();
     assertThat(generated.get("transport.tcp.port")).isEqualTo("1234");
@@ -89,24 +76,21 @@ public class SearchSettingsTest {
 
     SearchSettings searchSettings = new SearchSettings(props);
     assertThat(searchSettings.inCluster()).isFalse();
-    assertThat(searchSettings.clusterName()).isEqualTo("tests");
-    assertThat(searchSettings.tcpPort()).isEqualTo(1234);
-    assertThat(searchSettings.hostName()).isEqualTo(null);
 
     Settings generated = searchSettings.build();
-    assertThat(generated.get("transport.tcp.port")).isEqualTo("1234");
-    assertThat(generated.get("transport.host")).isEqualTo(null);
-    assertThat(generated.get("cluster.name")).isEqualTo("tests");
-    assertThat(generated.get("node.name")).isEqualTo("test");
+    assertThat(generated.get("transport.tcp.port")).isEqualTo("9001");
+    assertThat(generated.get("transport.host")).isEqualTo("127.0.0.1");
+    assertThat(generated.get("cluster.name")).isEqualTo("sonarqube");
+    assertThat(generated.get("node.name")).startsWith("sonar-");
   }
 
   @Test
   public void override_dirs() throws Exception {
     File dataDir = temp.newFolder(), logDir = temp.newFolder(), tempDir = temp.newFolder();
     Props props = minProps();
-    props.set(ProcessConstants.PATH_DATA, dataDir.getAbsolutePath());
-    props.set(ProcessConstants.PATH_LOGS, logDir.getAbsolutePath());
-    props.set(ProcessConstants.PATH_TEMP, tempDir.getAbsolutePath());
+    props.set(ProcessProperties.PATH_DATA, dataDir.getAbsolutePath());
+    props.set(ProcessProperties.PATH_LOGS, logDir.getAbsolutePath());
+    props.set(ProcessProperties.PATH_TEMP, tempDir.getAbsolutePath());
 
     Settings settings = new SearchSettings(props).build();
 
@@ -118,8 +102,8 @@ public class SearchSettingsTest {
   @Test
   public void test_cluster_master() throws Exception {
     Props props = minProps();
-    props.set(ProcessConstants.CLUSTER_ACTIVATE, "true");
-    props.set(ProcessConstants.CLUSTER_MASTER, "true");
+    props.set(ProcessProperties.CLUSTER_ACTIVATE, "true");
+    props.set(ProcessProperties.CLUSTER_MASTER, "true");
     Settings settings = new SearchSettings(props).build();
 
     assertThat(settings.get("index.number_of_replicas")).isEqualTo("1");
@@ -130,8 +114,8 @@ public class SearchSettingsTest {
   @Test
   public void test_cluster_slave() throws Exception {
     Props props = minProps();
-    props.set(ProcessConstants.CLUSTER_ACTIVATE, "true");
-    props.set(ProcessConstants.CLUSTER_MASTER_HOST, "127.0.0.2,127.0.0.3");
+    props.set(ProcessProperties.CLUSTER_ACTIVATE, "true");
+    props.set(ProcessProperties.CLUSTER_MASTER_HOST, "127.0.0.2,127.0.0.3");
     Settings settings = new SearchSettings(props).build();
 
     assertThat(settings.get("discovery.zen.ping.unicast.hosts")).isEqualTo("127.0.0.2,127.0.0.3");
@@ -141,11 +125,12 @@ public class SearchSettingsTest {
   @Test
   public void bad_cluster_configuration() throws Exception {
     Props props = minProps();
-    props.set(ProcessConstants.CLUSTER_ACTIVATE, "true");
+    props.set(ProcessProperties.CLUSTER_ACTIVATE, "true");
     try {
       new SearchSettings(props).build();
       fail();
-    } catch (MessageException e) {
+    } catch (MessageException ignored) {
+      // expected
     }
   }
 
@@ -161,7 +146,7 @@ public class SearchSettingsTest {
   @Test
   public void enable_http_connector() throws Exception {
     Props props = minProps();
-    props.set(SearchSettings.PROP_HTTP_PORT, "9010");
+    props.set(ProcessProperties.SEARCH_HTTP_PORT, "9010");
     Settings settings = new SearchSettings(props).build();
 
     assertThat(settings.get("http.port")).isEqualTo("9010");
@@ -172,8 +157,8 @@ public class SearchSettingsTest {
   @Test
   public void enable_http_connector_different_host() throws Exception {
     Props props = minProps();
-    props.set(SearchSettings.PROP_HTTP_PORT, "9010");
-    props.set(ProcessConstants.SEARCH_HOST, "127.0.0.2");
+    props.set(ProcessProperties.SEARCH_HTTP_PORT, "9010");
+    props.set(ProcessProperties.SEARCH_HOST, "127.0.0.2");
     Settings settings = new SearchSettings(props).build();
 
     assertThat(settings.get("http.port")).isEqualTo("9010");
@@ -184,10 +169,8 @@ public class SearchSettingsTest {
   private Props minProps() throws IOException {
     File homeDir = temp.newFolder();
     Props props = new Props(new Properties());
-    props.set(ProcessConstants.SEARCH_PORT, "1234");
-    props.set(ProcessConstants.PATH_HOME, homeDir.getAbsolutePath());
-    props.set(ProcessConstants.CLUSTER_NAME, "tests");
-    props.set(ProcessConstants.CLUSTER_NODE_NAME, "test");
+    ProcessProperties.completeDefaults(props);
+    props.set(ProcessProperties.PATH_HOME, homeDir.getAbsolutePath());
     return props;
   }
 }

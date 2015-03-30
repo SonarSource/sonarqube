@@ -28,7 +28,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 import org.sonar.api.utils.log.Logger;
-import org.sonar.process.ProcessConstants;
+import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
 import java.io.File;
@@ -55,7 +55,7 @@ public class TomcatAccessLogTest {
   public void enable_access_logs_by_Default() throws Exception {
     Tomcat tomcat = mock(Tomcat.class, Mockito.RETURNS_DEEP_STUBS);
     Props props = new Props(new Properties());
-    props.set(ProcessConstants.PATH_LOGS, temp.newFolder().getAbsolutePath());
+    props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
     sut.configure(tomcat, props);
 
     verify(tomcat.getHost().getPipeline()).addValve(any(ProgrammaticLogbackValve.class));

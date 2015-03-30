@@ -22,7 +22,7 @@ package org.sonar.server.view.index;
 
 import org.junit.Test;
 import org.sonar.api.config.Settings;
-import org.sonar.process.ProcessConstants;
+import org.sonar.process.ProcessProperties;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.NewIndex;
 
@@ -50,7 +50,7 @@ public class ViewIndexDefinitionTest {
   @Test
   public void enable_cluster() throws Exception {
     Settings settings = new Settings();
-    settings.setProperty(ProcessConstants.CLUSTER_ACTIVATE, true);
+    settings.setProperty(ProcessProperties.CLUSTER_ACTIVATE, true);
     ViewIndexDefinition def = new ViewIndexDefinition(settings);
     def.define(context);
 

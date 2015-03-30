@@ -32,7 +32,7 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.markdown.Markdown;
-import org.sonar.process.ProcessConstants;
+import org.sonar.process.ProcessProperties;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.search.BaseNormalizer;
 import org.sonar.server.search.IndexField;
@@ -322,22 +322,22 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
     return ImmutableList.of(new UpdateRequest()
       .id(key.toString())
-      .script(ProcessConstants.ES_PLUGIN_LISTUPDATE_SCRIPT_NAME)
-      .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_FIELD, RuleField.PARAMS.field())
-      .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_VALUE, newParam)
-      .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_ID_FIELD, RuleParamField.NAME.field())
-      .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_ID_VALUE, param.getName())
+      .script(ProcessProperties.ES_PLUGIN_LISTUPDATE_SCRIPT_NAME)
+      .addScriptParam(ProcessProperties.ES_PLUGIN_LISTUPDATE_FIELD, RuleField.PARAMS.field())
+      .addScriptParam(ProcessProperties.ES_PLUGIN_LISTUPDATE_VALUE, newParam)
+      .addScriptParam(ProcessProperties.ES_PLUGIN_LISTUPDATE_ID_FIELD, RuleParamField.NAME.field())
+      .addScriptParam(ProcessProperties.ES_PLUGIN_LISTUPDATE_ID_VALUE, param.getName())
       );
   }
 
   private List<UpdateRequest> nestedDelete(RuleParamDto param, RuleKey key) {
     return ImmutableList.of(new UpdateRequest()
       .id(key.toString())
-      .script(ProcessConstants.ES_PLUGIN_LISTUPDATE_SCRIPT_NAME)
-      .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_FIELD, RuleField.PARAMS.field())
-      .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_VALUE, null)
-      .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_ID_FIELD, RuleParamField.NAME.field())
-      .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_ID_VALUE, param.getName())
+      .script(ProcessProperties.ES_PLUGIN_LISTUPDATE_SCRIPT_NAME)
+      .addScriptParam(ProcessProperties.ES_PLUGIN_LISTUPDATE_FIELD, RuleField.PARAMS.field())
+      .addScriptParam(ProcessProperties.ES_PLUGIN_LISTUPDATE_VALUE, null)
+      .addScriptParam(ProcessProperties.ES_PLUGIN_LISTUPDATE_ID_FIELD, RuleParamField.NAME.field())
+      .addScriptParam(ProcessProperties.ES_PLUGIN_LISTUPDATE_ID_VALUE, param.getName())
       );
   }
 

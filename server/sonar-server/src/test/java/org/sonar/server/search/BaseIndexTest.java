@@ -26,7 +26,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.Settings;
-import org.sonar.process.ProcessConstants;
+import org.sonar.process.ProcessProperties;
 import org.sonar.server.es.EsServerHolder;
 
 import java.io.IOException;
@@ -47,11 +47,11 @@ public class BaseIndexTest {
   public void setup() throws IOException {
     EsServerHolder holder = EsServerHolder.get();
     Settings settings = new Settings();
-    settings.setProperty(ProcessConstants.CLUSTER_ACTIVATE, false);
-    settings.setProperty(ProcessConstants.CLUSTER_NAME, holder.getClusterName());
-    settings.setProperty(ProcessConstants.CLUSTER_NODE_NAME, holder.getNodeName());
-    settings.setProperty(ProcessConstants.SEARCH_PORT, String.valueOf(holder.getPort()));
-    settings.setProperty(ProcessConstants.SEARCH_HOST, String.valueOf(holder.getHostName()));
+    settings.setProperty(ProcessProperties.CLUSTER_ACTIVATE, false);
+    settings.setProperty(ProcessProperties.CLUSTER_NAME, holder.getClusterName());
+    settings.setProperty(ProcessProperties.CLUSTER_NODE_NAME, holder.getNodeName());
+    settings.setProperty(ProcessProperties.SEARCH_PORT, String.valueOf(holder.getPort()));
+    settings.setProperty(ProcessProperties.SEARCH_HOST, String.valueOf(holder.getHostName()));
     searchClient = new SearchClient(settings);
   }
 

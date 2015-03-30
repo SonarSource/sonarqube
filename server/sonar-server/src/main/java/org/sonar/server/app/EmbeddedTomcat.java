@@ -25,7 +25,7 @@ import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.process.ProcessConstants;
+import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
 import java.io.File;
@@ -86,7 +86,7 @@ class EmbeddedTomcat {
   }
 
   private File tomcatBasedir() {
-    return new File(props.value(ProcessConstants.PATH_TEMP), "tc");
+    return new File(props.value(ProcessProperties.PATH_TEMP), "tc");
   }
 
   void terminate() {

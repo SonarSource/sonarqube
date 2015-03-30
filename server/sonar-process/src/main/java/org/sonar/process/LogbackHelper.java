@@ -94,7 +94,7 @@ public class LogbackHelper {
   public RollingPolicy createRollingPolicy(Context ctx, Props props, String filenamePrefix) {
     String rollingPolicy = props.value(ROLLING_POLICY_PROPERTY, "time:yyyy-MM-dd");
     int maxFiles = props.valueAsInt(MAX_FILES_PROPERTY, 7);
-    File logsDir = props.nonNullValueAsFile(ProcessConstants.PATH_LOGS);
+    File logsDir = props.nonNullValueAsFile(ProcessProperties.PATH_LOGS);
 
     if (rollingPolicy.startsWith("time:")) {
       return new TimeRollingPolicy(ctx, filenamePrefix, logsDir, maxFiles, StringUtils.substringAfter(rollingPolicy, "time:"));

@@ -29,7 +29,7 @@ import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.resources.Language;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.process.ProcessConstants;
+import org.sonar.process.ProcessProperties;
 import org.sonar.server.es.EsServerHolder;
 import org.sonar.server.platform.BackendCleanup;
 import org.sonar.server.platform.Platform;
@@ -81,12 +81,12 @@ public class ServerTester extends ExternalResource {
       Properties properties = new Properties();
       properties.putAll(initialProps);
       esServerHolder = EsServerHolder.get();
-      properties.setProperty(ProcessConstants.CLUSTER_NAME, esServerHolder.getClusterName());
-      properties.setProperty(ProcessConstants.CLUSTER_NODE_NAME, esServerHolder.getNodeName());
-      properties.setProperty(ProcessConstants.SEARCH_PORT, String.valueOf(esServerHolder.getPort()));
-      properties.setProperty(ProcessConstants.SEARCH_HOST, String.valueOf(esServerHolder.getHostName()));
-      properties.setProperty(ProcessConstants.PATH_HOME, homeDir.getAbsolutePath());
-      properties.setProperty(ProcessConstants.PATH_DATA, new File(homeDir, "data").getAbsolutePath());
+      properties.setProperty(ProcessProperties.CLUSTER_NAME, esServerHolder.getClusterName());
+      properties.setProperty(ProcessProperties.CLUSTER_NODE_NAME, esServerHolder.getNodeName());
+      properties.setProperty(ProcessProperties.SEARCH_PORT, String.valueOf(esServerHolder.getPort()));
+      properties.setProperty(ProcessProperties.SEARCH_HOST, String.valueOf(esServerHolder.getHostName()));
+      properties.setProperty(ProcessProperties.PATH_HOME, homeDir.getAbsolutePath());
+      properties.setProperty(ProcessProperties.PATH_DATA, new File(homeDir, "data").getAbsolutePath());
       properties.setProperty(DatabaseProperties.PROP_URL, "jdbc:h2:" + homeDir.getAbsolutePath() + "/h2");
       for (Map.Entry<Object, Object> entry : System.getProperties().entrySet()) {
         String key = entry.getKey().toString();

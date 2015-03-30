@@ -24,7 +24,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.security.SecurityRealm;
-import org.sonar.process.ProcessConstants;
+import org.sonar.process.ProcessProperties;
 import org.sonar.server.user.SecurityRealmFactory;
 
 import java.util.LinkedHashMap;
@@ -86,10 +86,10 @@ public class SonarQubeMonitor extends BaseMonitorMBean implements SonarQubeMonit
     attributes.put("Automatic User Creation", getAutomaticUserCreation());
     attributes.put("Allow Users to Sign Up", getAllowUsersToSignUp());
     attributes.put("Force authentication", getForceAuthentication());
-    attributes.put("Home Dir", settings.getString(ProcessConstants.PATH_HOME));
-    attributes.put("Data Dir", settings.getString(ProcessConstants.PATH_DATA));
-    attributes.put("Logs Dir", settings.getString(ProcessConstants.PATH_LOGS));
-    attributes.put("Temp Dir", settings.getString(ProcessConstants.PATH_TEMP));
+    attributes.put("Home Dir", settings.getString(ProcessProperties.PATH_HOME));
+    attributes.put("Data Dir", settings.getString(ProcessProperties.PATH_DATA));
+    attributes.put("Logs Dir", settings.getString(ProcessProperties.PATH_LOGS));
+    attributes.put("Temp Dir", settings.getString(ProcessProperties.PATH_TEMP));
     return attributes;
 
   }

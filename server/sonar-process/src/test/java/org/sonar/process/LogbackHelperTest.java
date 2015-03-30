@@ -54,7 +54,7 @@ public class LogbackHelperTest {
   @Before
   public void setUp() throws Exception {
     File dir = temp.newFolder();
-    props.set(ProcessConstants.PATH_LOGS, dir.getAbsolutePath());
+    props.set(ProcessProperties.PATH_LOGS, dir.getAbsolutePath());
   }
 
   @AfterClass

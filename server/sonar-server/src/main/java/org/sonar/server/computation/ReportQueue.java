@@ -28,7 +28,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.process.ProcessConstants;
+import org.sonar.process.ProcessProperties;
 import org.sonar.server.computation.db.AnalysisReportDao;
 import org.sonar.server.db.DbClient;
 
@@ -179,7 +179,7 @@ public class ReportQueue implements ServerComponent {
    * Never return null but the directory may not exist.
    */
   private File reportsDir() {
-    return new File(settings.getString(ProcessConstants.PATH_DATA), "analysis");
+    return new File(settings.getString(ProcessProperties.PATH_DATA), "analysis");
   }
 
   private File reportFileForUuid(String uuid) {

@@ -25,7 +25,7 @@ import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.sonar.process.LoopbackAddress;
 import org.sonar.process.NetworkUtils;
-import org.sonar.process.ProcessConstants;
+import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 import org.sonar.search.SearchServer;
 import org.sonar.test.TestUtils;
@@ -108,11 +108,11 @@ public class EsServerHolder {
       int port = NetworkUtils.freePort();
 
       Properties properties = new Properties();
-      properties.setProperty(ProcessConstants.CLUSTER_NAME, clusterName);
-      properties.setProperty(ProcessConstants.CLUSTER_NODE_NAME, nodeName);
-      properties.setProperty(ProcessConstants.SEARCH_PORT, String.valueOf(port));
-      properties.setProperty(ProcessConstants.SEARCH_HOST, hostName);
-      properties.setProperty(ProcessConstants.PATH_HOME, homeDir.getAbsolutePath());
+      properties.setProperty(ProcessProperties.CLUSTER_NAME, clusterName);
+      properties.setProperty(ProcessProperties.CLUSTER_NODE_NAME, nodeName);
+      properties.setProperty(ProcessProperties.SEARCH_PORT, String.valueOf(port));
+      properties.setProperty(ProcessProperties.SEARCH_HOST, hostName);
+      properties.setProperty(ProcessProperties.PATH_HOME, homeDir.getAbsolutePath());
       SearchServer server = new SearchServer(new Props(properties));
       server.start();
       HOLDER = new EsServerHolder(server, clusterName, nodeName, port, hostName, homeDir);

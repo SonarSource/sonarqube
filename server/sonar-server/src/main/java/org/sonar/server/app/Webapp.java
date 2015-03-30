@@ -24,7 +24,7 @@ import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.process.ProcessConstants;
+import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
 import java.io.File;
@@ -100,7 +100,7 @@ class Webapp {
   static String webappPath(Props props) {
     String webDir = props.value("sonar.web.dev.sources");
     if (StringUtils.isEmpty(webDir)) {
-      webDir = new File(props.value(ProcessConstants.PATH_HOME), "web").getAbsolutePath();
+      webDir = new File(props.value(ProcessProperties.PATH_HOME), "web").getAbsolutePath();
     }
     Loggers.get(Webapp.class).info(String.format("Webapp directory: %s", webDir));
     return webDir;

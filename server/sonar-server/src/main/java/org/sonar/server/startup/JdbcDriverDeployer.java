@@ -22,7 +22,7 @@ package org.sonar.server.startup;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.config.Settings;
 import org.sonar.home.cache.FileHashes;
-import org.sonar.process.ProcessConstants;
+import org.sonar.process.ProcessProperties;
 import org.sonar.server.platform.DefaultServerFileSystem;
 
 import javax.annotation.Nullable;
@@ -42,7 +42,7 @@ public class JdbcDriverDeployer {
 
   public void start() {
     // see initialization of this property in sonar-application
-    String driverPath = settings.getString(ProcessConstants.JDBC_DRIVER_PATH);
+    String driverPath = settings.getString(ProcessProperties.JDBC_DRIVER_PATH);
     if (driverPath == null) {
       // Medium tests
       return;

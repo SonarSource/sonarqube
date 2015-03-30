@@ -34,9 +34,10 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.sonar.process.NetworkUtils;
-import org.sonar.process.ProcessConstants;
+import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
+import java.net.InetAddress;
 import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -70,16 +71,22 @@ public class SearchServerTest {
   @Test
   public void start_stop_server() throws Exception {
     Props props = new Props(new Properties());
-    props.set(ProcessConstants.SEARCH_PORT, String.valueOf(port));
-    props.set(ProcessConstants.CLUSTER_NAME, CLUSTER_NAME);
-    props.set(ProcessConstants.CLUSTER_NODE_NAME, "test");
-    props.set(ProcessConstants.PATH_HOME, temp.newFolder().getAbsolutePath());
+    // the following properties have always default values (see ProcessProperties)
+    String host = InetAddress.getLocalHost().getHostAddress();
+    props.set(ProcessProperties.SEARCH_HOST, host);
+    props.set(ProcessProperties.SEARCH_PORT, String.valueOf(port));
+    props.set(ProcessProperties.CLUSTER_NAME, CLUSTER_NAME);
+    props.set(ProcessProperties.CLUSTER_NODE_NAME, "test");
+    props.set(ProcessProperties.PATH_HOME, temp.newFolder().getAbsolutePath());
 
     searchServer = new SearchServer(props);
     searchServer.start();
     assertThat(searchServer.isReady()).isTrue();
 
-    client = getSearchClient();
+    Settings settings = ImmutableSettings.settingsBuilder().put("cluster.name", CLUSTER_NAME).build();
+    client = new TransportClient(settings)
+      .addTransportAddress(new InetSocketTransportAddress(host, port));
+    assertThat(client.admin().cluster().prepareClusterStats().get().getStatus()).isEqualTo(ClusterHealthStatus.GREEN);
 
     searchServer.stop();
     searchServer.awaitStop();
@@ -90,14 +97,5 @@ public class SearchServerTest {
     } catch (NoNodeAvailableException exception) {
       // ok
     }
-  }
-
-  private Client getSearchClient() {
-    Settings settings = ImmutableSettings.settingsBuilder()
-      .put("cluster.name", CLUSTER_NAME).build();
-    Client client = new TransportClient(settings)
-      .addTransportAddress(new InetSocketTransportAddress("localhost", port));
-    assertThat(client.admin().cluster().prepareClusterStats().get().getStatus()).isEqualTo(ClusterHealthStatus.GREEN);
-    return client;
   }
 }

@@ -21,8 +21,9 @@ package org.sonar.application;
 
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.sonar.process.ConfigurationUtils;
-import org.sonar.process.ProcessConstants;
+import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
 import java.io.File;
@@ -56,19 +57,19 @@ class PropsBuilder {
   Props build() throws IOException {
     Properties p = loadPropertiesFile(homeDir);
     p.putAll(rawProperties);
-    p.setProperty(ProcessConstants.PATH_HOME, homeDir.getAbsolutePath());
+    p.setProperty(ProcessProperties.PATH_HOME, homeDir.getAbsolutePath());
     p = ConfigurationUtils.interpolateVariables(p, System.getenv());
 
     // the difference between Properties and Props is that the latter
     // supports decryption of values, so it must be used when values
     // are accessed
     Props props = new Props(p);
-    DefaultSettings.init(props);
+    ProcessProperties.completeDefaults(props);
 
     // init file system
-    initExistingDir(props, ProcessConstants.PATH_DATA, "data");
-    initExistingDir(props, ProcessConstants.PATH_WEB, "web");
-    initExistingDir(props, ProcessConstants.PATH_LOGS, "logs");
+    initExistingDir(props, ProcessProperties.PATH_DATA, "data");
+    initExistingDir(props, ProcessProperties.PATH_WEB, "web");
+    initExistingDir(props, ProcessProperties.PATH_LOGS, "logs");
     initTempDir(props);
 
     // check JDBC properties and set path to driver
@@ -86,15 +87,18 @@ class PropsBuilder {
     Properties p = new Properties();
     File propsFile = new File(homeDir, "conf/sonar.properties");
     if (propsFile.exists()) {
-      try (Reader reader = new InputStreamReader(new FileInputStream(propsFile), Charsets.UTF_8)) {
+      Reader reader = new InputStreamReader(new FileInputStream(propsFile), Charsets.UTF_8);
+      try {
         p.load(reader);
+      } finally {
+        IOUtils.closeQuietly(reader);
       }
     }
     return p;
   }
 
   private void initTempDir(Props props) throws IOException {
-    File dir = configureDir(props, ProcessConstants.PATH_TEMP, "temp");
+    File dir = configureDir(props, ProcessProperties.PATH_TEMP, "temp");
     FileUtils.deleteQuietly(dir);
     FileUtils.forceMkdir(dir);
   }

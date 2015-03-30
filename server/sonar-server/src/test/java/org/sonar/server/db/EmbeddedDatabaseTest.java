@@ -26,7 +26,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.process.NetworkUtils;
-import org.sonar.process.ProcessConstants;
+import org.sonar.process.ProcessProperties;
 
 import java.io.File;
 import java.io.IOException;
@@ -73,6 +73,6 @@ public class EmbeddedDatabaseTest {
       .setProperty(DatabaseProperties.PROP_USER, "login")
       .setProperty(DatabaseProperties.PROP_PASSWORD, "pwd")
       .setProperty(DatabaseProperties.PROP_EMBEDDED_PORT, "" + port)
-      .setProperty(ProcessConstants.PATH_DATA, "./target/testDB");
+      .setProperty(ProcessProperties.PATH_DATA, "./target/testDB");
   }
 }

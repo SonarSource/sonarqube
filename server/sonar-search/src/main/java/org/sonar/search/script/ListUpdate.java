@@ -24,7 +24,7 @@ import org.elasticsearch.common.xcontent.support.XContentMapValues;
 import org.elasticsearch.script.AbstractExecutableScript;
 import org.elasticsearch.script.ExecutableScript;
 import org.elasticsearch.script.NativeScriptFactory;
-import org.sonar.process.ProcessConstants;
+import org.sonar.process.ProcessProperties;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,25 +36,25 @@ public class ListUpdate extends AbstractExecutableScript {
   public static class UpdateListScriptFactory implements NativeScriptFactory {
     @Override
     public ExecutableScript newScript(@Nullable Map<String, Object> params) {
-      String idField = XContentMapValues.nodeStringValue(params.get(ProcessConstants.ES_PLUGIN_LISTUPDATE_ID_FIELD), null);
-      String idValue = XContentMapValues.nodeStringValue(params.get(ProcessConstants.ES_PLUGIN_LISTUPDATE_ID_VALUE), null);
-      String field = XContentMapValues.nodeStringValue(params.get(ProcessConstants.ES_PLUGIN_LISTUPDATE_FIELD), null);
+      String idField = XContentMapValues.nodeStringValue(params.get(ProcessProperties.ES_PLUGIN_LISTUPDATE_ID_FIELD), null);
+      String idValue = XContentMapValues.nodeStringValue(params.get(ProcessProperties.ES_PLUGIN_LISTUPDATE_ID_VALUE), null);
+      String field = XContentMapValues.nodeStringValue(params.get(ProcessProperties.ES_PLUGIN_LISTUPDATE_FIELD), null);
       Map value = null;
       if (idField == null) {
-        throw new IllegalStateException(String.format("Missing '%s' parameter", ProcessConstants.ES_PLUGIN_LISTUPDATE_ID_FIELD));
+        throw new IllegalStateException(String.format("Missing '%s' parameter", ProcessProperties.ES_PLUGIN_LISTUPDATE_ID_FIELD));
       }
       if (idValue == null) {
-        throw new IllegalStateException(String.format("Missing '%s' parameter", ProcessConstants.ES_PLUGIN_LISTUPDATE_ID_VALUE));
+        throw new IllegalStateException(String.format("Missing '%s' parameter", ProcessProperties.ES_PLUGIN_LISTUPDATE_ID_VALUE));
       }
       if (field == null) {
-        throw new IllegalStateException(String.format("Missing '%s' parameter", ProcessConstants.ES_PLUGIN_LISTUPDATE_FIELD));
+        throw new IllegalStateException(String.format("Missing '%s' parameter", ProcessProperties.ES_PLUGIN_LISTUPDATE_FIELD));
       }
 
       //NULL case is deletion of nested item
-      if (params.containsKey(ProcessConstants.ES_PLUGIN_LISTUPDATE_VALUE)) {
-        Object obj = params.get(ProcessConstants.ES_PLUGIN_LISTUPDATE_VALUE);
+      if (params.containsKey(ProcessProperties.ES_PLUGIN_LISTUPDATE_VALUE)) {
+        Object obj = params.get(ProcessProperties.ES_PLUGIN_LISTUPDATE_VALUE);
         if (obj != null) {
-          value = XContentMapValues.nodeMapValue(params.get(ProcessConstants.ES_PLUGIN_LISTUPDATE_VALUE), "Update item");
+          value = XContentMapValues.nodeMapValue(params.get(ProcessProperties.ES_PLUGIN_LISTUPDATE_VALUE), "Update item");
         }
       }
 

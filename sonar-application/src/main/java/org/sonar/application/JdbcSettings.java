@@ -23,7 +23,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.MessageException;
-import org.sonar.process.ProcessConstants;
+import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
 import java.io.File;
@@ -46,11 +46,11 @@ public class JdbcSettings {
   }
 
   public void checkAndComplete(File homeDir, Props props) {
-    String url = props.nonNullValue(ProcessConstants.JDBC_URL);
+    String url = props.nonNullValue(ProcessProperties.JDBC_URL);
     Provider provider = driverProvider(url);
     checkUrlParameters(provider, url);
     String driverPath = driverPath(homeDir, provider);
-    props.set(ProcessConstants.JDBC_DRIVER_PATH, driverPath);
+    props.set(ProcessProperties.JDBC_DRIVER_PATH, driverPath);
   }
 
   String driverPath(File homeDir, Provider provider) {

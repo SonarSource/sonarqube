@@ -32,7 +32,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
-import org.sonar.process.ProcessConstants;
+import org.sonar.process.ProcessProperties;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.computation.db.AnalysisReportDao;
@@ -68,7 +68,7 @@ public class ReportQueueTest {
   @Before
   public void setUp() throws Exception {
     dataDir = temp.newFolder();
-    settings.setProperty(ProcessConstants.PATH_DATA, dataDir.getAbsolutePath());
+    settings.setProperty(ProcessProperties.PATH_DATA, dataDir.getAbsolutePath());
     when(system.now()).thenReturn(NOW);
 
     DbClient dbClient = new DbClient(db.database(), db.myBatis(), new ComponentDao(), new AnalysisReportDao(system));

@@ -17,22 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.application;
+package org.sonar.process;
 
 import org.junit.Test;
-import org.sonar.process.Props;
 import org.sonar.test.TestUtils;
 
 import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class DefaultSettingsTest {
+public class ProcessPropertiesTest {
 
   @Test
   public void init_defaults() throws Exception {
     Props props = new Props(new Properties());
-    DefaultSettings.init(props);
+    ProcessProperties.completeDefaults(props);
 
     assertThat(props.value("sonar.search.javaOpts")).contains("-Xmx");
     assertThat(props.value("sonar.jdbc.username")).isEqualTo("sonar");
@@ -44,7 +43,7 @@ public class DefaultSettingsTest {
     Properties p = new Properties();
     p.setProperty("sonar.jdbc.username", "angela");
     Props props = new Props(p);
-    DefaultSettings.init(props);
+    ProcessProperties.completeDefaults(props);
 
     assertThat(props.value("sonar.jdbc.username")).isEqualTo("angela");
   }
@@ -55,12 +54,12 @@ public class DefaultSettingsTest {
     p.setProperty("sonar.search.port", "0");
     Props props = new Props(p);
 
-    DefaultSettings.init(props);
+    ProcessProperties.completeDefaults(props);
     assertThat(props.valueAsInt("sonar.search.port")).isGreaterThan(0);
   }
 
   @Test
   public void private_constructor() throws Exception {
-    assertThat(TestUtils.hasOnlyPrivateConstructors(DefaultSettings.class)).isTrue();
+    assertThat(TestUtils.hasOnlyPrivateConstructors(ProcessProperties.class)).isTrue();
   }
 }

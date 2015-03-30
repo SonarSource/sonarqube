@@ -22,7 +22,7 @@ package org.sonar.server.user.index;
 import com.google.common.collect.ImmutableMap;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.sonar.api.config.Settings;
-import org.sonar.process.ProcessConstants;
+import org.sonar.process.ProcessProperties;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.NewIndex;
 
@@ -54,7 +54,7 @@ public class UserIndexDefinition implements IndexDefinition {
     NewIndex index = context.create(INDEX);
 
     // shards
-    boolean clusterMode = settings.getBoolean(ProcessConstants.CLUSTER_ACTIVATE);
+    boolean clusterMode = settings.getBoolean(ProcessProperties.CLUSTER_ACTIVATE);
     if (clusterMode) {
       index.getSettings().put(IndexMetaData.SETTING_NUMBER_OF_SHARDS, 4);
       index.getSettings().put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, 1);
