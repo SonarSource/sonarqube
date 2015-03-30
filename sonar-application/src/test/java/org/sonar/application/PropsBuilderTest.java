@@ -101,6 +101,11 @@ public class PropsBuilderTest {
     }
   }
 
+  //Remove bad comment of sonar.properties about encoding
+
+  //Encoding is UTF-8, but not ISO-8859-1 as documented
+
+
   @Test
   public void load_properties_file_if_exists() throws Exception {
     FileUtils.write(new File(homeDir, "conf/sonar.properties"), "sonar.jdbc.username=angela\nsonar.origin=file");
@@ -112,9 +117,18 @@ public class PropsBuilderTest {
     rawProperties.setProperty("sonar.origin", "raw");
     Props props = new PropsBuilder(rawProperties, jdbcSettings, homeDir).build();
 
+    // properties loaded from file
     assertThat(props.value("sonar.jdbc.username")).isEqualTo("angela");
+
     // command-line arguments override sonar.properties file
     assertThat(props.value("sonar.origin")).isEqualTo("raw");
+  }
+
+  @Test
+  public void utf8_file_encoding() throws Exception {
+    FileUtils.write(new File(homeDir, "conf/sonar.properties"), "utf8prop=Thônes");
+    Props props = new PropsBuilder(new Properties(), jdbcSettings, homeDir).build();
+    assertThat(props.value("utf8prop")).isEqualTo("Thônes");
   }
 
   @Test
