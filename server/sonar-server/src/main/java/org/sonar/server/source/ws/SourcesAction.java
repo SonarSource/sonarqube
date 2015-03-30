@@ -20,24 +20,11 @@
 
 package org.sonar.server.source.ws;
 
+import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.WebService;
 
-public class SourcesWs implements WebService {
+public interface SourcesAction extends RequestHandler {
 
-  private final SourcesAction[] actions;
+  void define(WebService.NewController controller);
 
-  public SourcesWs(SourcesAction... actions) {
-    this.actions = actions;
-  }
-
-  @Override
-  public void define(Context context) {
-    NewController controller = context.createController("api/sources")
-      .setSince("4.2")
-      .setDescription("Display sources information");
-    for (SourcesAction action : actions) {
-      action.define(controller);
-    }
-    controller.done();
-  }
 }

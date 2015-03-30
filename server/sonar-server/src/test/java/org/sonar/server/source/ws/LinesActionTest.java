@@ -46,10 +46,7 @@ import java.util.Date;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -68,15 +65,7 @@ public class LinesActionTest {
 
   @Before
   public void setUp() throws Exception {
-    tester = new WsTester(
-      new SourcesWs(
-        mock(ShowAction.class),
-        mock(RawAction.class),
-        new LinesAction(sourceLineIndex, htmlSourceDecorator, componentService),
-        mock(HashAction.class),
-        mock(IndexAction.class)
-      )
-      );
+    tester = new WsTester(new SourcesWs(new LinesAction(sourceLineIndex, htmlSourceDecorator, componentService)));
     when(htmlSourceDecorator.getDecoratedSourceAsHtml(anyString(), anyString(), anyString())).thenAnswer(new Answer<String>() {
       @Override
       public String answer(InvocationOnMock invocation) throws Throwable {

@@ -24,7 +24,6 @@ import com.google.common.io.Resources;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
@@ -37,7 +36,7 @@ import org.sonar.server.user.UserSession;
 import java.io.IOException;
 import java.util.List;
 
-public class RawAction implements RequestHandler {
+public class RawAction implements SourcesAction {
 
   private final DbClient dbClient;
   private final SourceService sourceService;
@@ -47,7 +46,8 @@ public class RawAction implements RequestHandler {
     this.sourceService = sourceService;
   }
 
-  void define(WebService.NewController controller) {
+  @Override
+  public void  define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("raw")
       .setDescription("Get source code as plain text. Require See Source Code permission on file")
       .setSince("5.0")

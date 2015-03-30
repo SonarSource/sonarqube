@@ -38,7 +38,6 @@ import org.sonar.server.ws.WsTester;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -65,8 +64,7 @@ public class RawActionTest {
   public void setUp() throws Exception {
     when(dbClient.componentDao()).thenReturn(componentDao);
     when(dbClient.openSession(false)).thenReturn(session);
-    tester = new WsTester(new SourcesWs(mock(ShowAction.class), new RawAction(dbClient, sourceService), mock(LinesAction.class),
-      mock(HashAction.class), mock(IndexAction.class)));
+    tester = new WsTester(new SourcesWs(new RawAction(dbClient, sourceService)));
   }
 
   @Test

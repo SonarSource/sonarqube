@@ -22,7 +22,6 @@ package org.sonar.server.source.ws;
 
 import com.google.common.io.Resources;
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
@@ -35,7 +34,7 @@ import org.sonar.server.user.UserSession;
 
 import java.util.List;
 
-public class IndexAction implements RequestHandler {
+public class IndexAction implements SourcesAction {
 
   private final DbClient dbClient;
   private final SourceService sourceService;
@@ -45,7 +44,8 @@ public class IndexAction implements RequestHandler {
     this.sourceService = sourceService;
   }
 
-  void define(WebService.NewController controller) {
+  @Override
+  public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("index")
       .setDescription("Get source code as line number / text pairs. Require See Source Code permission on file")
       .setSince("5.0")

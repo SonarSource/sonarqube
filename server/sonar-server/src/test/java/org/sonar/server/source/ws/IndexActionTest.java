@@ -38,7 +38,6 @@ import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -66,8 +65,7 @@ public class IndexActionTest {
   public void setUp() throws Exception {
     when(dbClient.componentDao()).thenReturn(componentDao);
     when(dbClient.openSession(false)).thenReturn(session);
-    tester = new WsTester(new SourcesWs(mock(ShowAction.class), mock(RawAction.class), mock(LinesAction.class),
-      mock(HashAction.class), new IndexAction(dbClient, sourceService)));
+    tester = new WsTester(new SourcesWs(new IndexAction(dbClient, sourceService)));
   }
 
   @Test

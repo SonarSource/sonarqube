@@ -38,9 +38,7 @@ import org.sonar.server.ws.WsTester;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ShowActionTest {
@@ -65,10 +63,7 @@ public class ShowActionTest {
   public void setUp() throws Exception {
     when(dbClient.componentDao()).thenReturn(componentDao);
     when(dbClient.openSession(false)).thenReturn(session);
-    tester = new WsTester(new SourcesWs(new ShowAction(sourceService, dbClient), mock(RawAction.class),
-      mock(LinesAction.class),
-      mock(HashAction.class),
-      mock(IndexAction.class)));
+    tester = new WsTester(new SourcesWs(new ShowAction(sourceService, dbClient)));
   }
 
   @Test

@@ -24,7 +24,6 @@ import com.google.common.io.CharStreams;
 import com.google.common.io.Resources;
 import org.apache.commons.io.Charsets;
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
@@ -37,7 +36,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 
-public class HashAction implements RequestHandler {
+public class HashAction implements SourcesAction {
 
   private final DbClient dbClient;
 
@@ -45,7 +44,8 @@ public class HashAction implements RequestHandler {
     this.dbClient = dbClient;
   }
 
-  void define(WebService.NewController controller) {
+  @Override
+  public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("hash")
       .setDescription("Show line line hashes for a given file. Require See Source Code permission on file's project<br/>")
       .setSince("5.0")

@@ -22,7 +22,6 @@ package org.sonar.server.source.ws;
 import com.google.common.io.Resources;
 import org.apache.commons.lang.ObjectUtils;
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
@@ -39,7 +38,7 @@ import org.sonar.server.user.UserSession;
 import java.util.Date;
 import java.util.List;
 
-public class LinesAction implements RequestHandler {
+public class LinesAction implements SourcesAction {
 
   private final SourceLineIndex sourceLineIndex;
   private final HtmlSourceDecorator htmlSourceDecorator;
@@ -51,7 +50,8 @@ public class LinesAction implements RequestHandler {
     this.componentService = componentService;
   }
 
-  void define(WebService.NewController controller) {
+  @Override
+  public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("lines")
       .setDescription("Show source code with line oriented info. Require See Source Code permission on file's project<br/>" +
         "Each element of the result array is an object which contains:" +
@@ -106,12 +106,12 @@ public class LinesAction implements RequestHandler {
     }
 
     JsonWriter json = response.newJsonWriter().beginObject();
-    writeSource(sourceLines, from, json);
+    writeSource(sourceLines, json);
 
     json.endObject().close();
   }
 
-  private void writeSource(List<SourceLineDoc> lines, int from, JsonWriter json) {
+  private void writeSource(List<SourceLineDoc> lines, JsonWriter json) {
     json.name("sources").beginArray();
     for (SourceLineDoc line: lines) {
       json.beginObject()

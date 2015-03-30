@@ -40,7 +40,6 @@ import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 @Category(DbTests.class)
@@ -63,15 +62,7 @@ public class HashActionTest {
 
     DbClient dbClient = new DbClient(db.database(), db.myBatis(), new FileSourceDao(db.myBatis()), new ComponentDao());
 
-    tester = new WsTester(
-      new SourcesWs(
-        mock(ShowAction.class),
-        mock(RawAction.class),
-        mock(LinesAction.class),
-        new HashAction(dbClient),
-        mock(IndexAction.class)
-      )
-      );
+    tester = new WsTester(new SourcesWs(new HashAction(dbClient)));
   }
 
   @After
