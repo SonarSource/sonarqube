@@ -127,7 +127,7 @@ define(function () {
     fetchIssues: function () {
       var that = this;
 
-      function _fetch (field, createdAfter) {
+      function fetchIssuesByPeriod (field, createdAfter) {
         var url = baseUrl + '/api/issues/search',
             options = {
               ps: 1,
@@ -142,15 +142,15 @@ define(function () {
         });
       }
 
-      _fetch('issues', null);
+      fetchIssuesByPeriod('issues', null);
       if (this.hasPeriod(1)) {
-        _fetch('issues1', this.get('period1Date'));
+        fetchIssuesByPeriod('issues1', this.get('period1Date'));
       }
       if (this.hasPeriod(2)) {
-        _fetch('issues2', this.get('period2Date'));
+        fetchIssuesByPeriod('issues2', this.get('period2Date'));
       }
       if (this.hasPeriod(3)) {
-        _fetch('issues3', this.get('period3Date'));
+        fetchIssuesByPeriod('issues3', this.get('period3Date'));
       }
     },
 

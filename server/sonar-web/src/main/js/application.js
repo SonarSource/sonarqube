@@ -375,22 +375,14 @@ function fileFromPath (path) {
 (function () {
 
   /**
-   * Format a work duration measure
-   * @param {number} value
+   * Format a work duration based on parameters
+   * @param {bool} isNegative
+   * @param {number} days
+   * @param {number} hours
+   * @param {number} minutes
    * @returns {string}
    */
-  var durationFormatter = function (value) {
-    if (value === 0) {
-      return '0';
-    }
-    var hoursInDay = window.SS.hoursInDay || 8,
-        isNegative = value < 0,
-        absValue = Math.abs(value);
-    var days = Math.floor(absValue / hoursInDay / 60);
-    var remainingValue = absValue - days * hoursInDay * 60;
-    var hours = Math.floor(remainingValue / 60);
-    remainingValue -= hours * 60;
-    var minutes = remainingValue;
+  var formatDuration = function (isNegative, days, hours, minutes) {
     var formatted = '';
     if (days > 0) {
       formatted += tp('work_duration.x_days', isNegative ? -1 * days : days);
@@ -411,8 +403,27 @@ function fileFromPath (path) {
   };
 
   /**
+   * Format a work duration measure
+   * @param {number} value
+   * @returns {string}
+   */
+  var durationFormatter = function (value) {
+    if (value === 0) {
+      return '0';
+    }
+    var hoursInDay = window.SS.hoursInDay || 8,
+        isNegative = value < 0,
+        absValue = Math.abs(value);
+    var days = Math.floor(absValue / hoursInDay / 60);
+    var remainingValue = absValue - days * hoursInDay * 60;
+    var hours = Math.floor(remainingValue / 60);
+    remainingValue -= hours * 60;
+    return formatDuration(isNegative, days, hours, remainingValue);
+  };
+
+  /**
    * Format a work duration variation
-   * @param value
+   * @param {number} value
    */
   var durationVariationFormatter = function (value) {
     if (value === 0) {
@@ -424,11 +435,10 @@ function fileFromPath (path) {
 
   /**
    * Format a rating measure
-   * @param value
+   * @param {number} value
    */
   var ratingFormatter = function (value) {
-    var intValue = +value;
-    return String.fromCharCode(97 + intValue - 1).toUpperCase();
+    return String.fromCharCode(97 + value - 1).toUpperCase();
   };
 
   /**
