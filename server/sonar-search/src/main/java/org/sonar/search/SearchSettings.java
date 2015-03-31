@@ -110,8 +110,9 @@ class SearchSettings {
   }
 
   private void configureNetwork(ImmutableSettings.Builder builder) {
-    String host = props.value(ProcessProperties.SEARCH_HOST);
-    Integer port = props.valueAsInt(ProcessProperties.SEARCH_PORT);
+    // the following properties can't be null as default values are defined by app process
+    String host = props.nonNullValue(ProcessProperties.SEARCH_HOST);
+    int port = Integer.parseInt(props.nonNullValue(ProcessProperties.SEARCH_PORT));
     LOGGER.info("Elasticsearch listening on {}:{}", host, port);
 
     // disable multicast

@@ -347,10 +347,11 @@ public class RuleActivator implements ServerComponent {
     List<ActiveRuleChange> changes = Lists.newArrayList();
     RuleActivatorContext context = contextFactory.create(key.qProfile(), key.ruleKey(), dbSession);
     ActiveRuleChange change;
-    if (context.activeRule() == null) {
+    ActiveRuleDto activeRuleDto = context.activeRule();
+    if (activeRuleDto == null) {
       return changes;
     }
-    if (!force && !isCascade && context.activeRule().getInheritance() != null) {
+    if (!force && !isCascade && activeRuleDto.getInheritance() != null) {
       throw new BadRequestException("Cannot deactivate inherited rule '" + key.ruleKey() + "'");
     }
     change = ActiveRuleChange.createFor(ActiveRuleChange.Type.DEACTIVATED, key);

@@ -152,7 +152,6 @@ class RuleActivatorContext {
     return rule.getSeverityString();
   }
 
-  @CheckForNull
   Map<String, ActiveRuleParamDto> activeRuleParamsAsMap() {
     return activeRuleParams;
   }
