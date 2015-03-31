@@ -62,15 +62,15 @@ public class PersistCoverageStep implements ComputationStep {
 
   private void processCoverage(BatchReport.Component component, Iterable<BatchReport.Coverage> coverageList) {
     fileSourceData = null;
-      FileSourceDb.Data.Builder dataBuilder = FileSourceDb.Data.newBuilder();
-      for (BatchReport.Coverage coverage : coverageList) {
-        FileSourceDb.Line.Builder lineBuilder = dataBuilder.addLinesBuilder().setLine(coverage.getLine());
-        processLineCoverage(coverage.getLine(), lineBuilder, coverage);
-      }
-      fileSourceData = dataBuilder.build();
+    FileSourceDb.Data.Builder dataBuilder = FileSourceDb.Data.newBuilder();
+    for (BatchReport.Coverage coverage : coverageList) {
+      FileSourceDb.Line.Builder lineBuilder = dataBuilder.addLinesBuilder().setLine(coverage.getLine());
+      processLineCoverage(coverage.getLine(), lineBuilder, coverage);
+    }
+    fileSourceData = dataBuilder.build();
   }
 
-  private void processLineCoverage(int line, FileSourceDb.Line.Builder lineBuilder, BatchReport.Coverage coverage){
+  private void processLineCoverage(int line, FileSourceDb.Line.Builder lineBuilder, BatchReport.Coverage coverage) {
     // Unit test
     if (coverage.getUtHits()) {
       lineBuilder.setUtLineHits(1);
