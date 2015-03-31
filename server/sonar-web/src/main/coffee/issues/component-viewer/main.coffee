@@ -52,7 +52,7 @@ define [
       super
       @bindShortcuts()
       if @baseIssue?
-        @scrollToLine @baseIssue.get 'line'
+        @scrollToLine @baseIssue.getDisplayLine()
 
 
     bindShortcuts: ->

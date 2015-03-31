@@ -298,7 +298,7 @@ define([
           var that = this,
               lines = {};
           issues.forEach(function (issue) {
-            var line = issue.get('line') || 0;
+            var line = issue.getDisplayLine();
             if (!_.isArray(lines[line])) {
               lines[line] = [];
             }
