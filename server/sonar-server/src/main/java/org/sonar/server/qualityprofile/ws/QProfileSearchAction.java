@@ -19,12 +19,9 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.builder.CompareToBuilder;
-import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -169,12 +166,7 @@ public class QProfileSearchAction implements BaseQProfileWsAction {
     search.createParam(PARAM_LANGUAGE)
       .setDescription("The key of a language supported by the platform. If specified, only profiles for the given language are returned.")
       .setExampleValue("js")
-      .setPossibleValues(Collections2.transform(Arrays.asList(languages.all()), new Function<Language, String>() {
-        @Override
-        public String apply(Language input) {
-          return input.getKey();
-        }
-      }));
+      .setPossibleValues(LanguageParamUtils.getLanguageKeys(languages));
 
     search.createParam(PARAM_FIELDS)
       .setDescription("Use to restrict returned fields.")

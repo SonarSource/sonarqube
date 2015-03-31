@@ -20,21 +20,16 @@
 package org.sonar.server.qualityprofile.ws;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Collections2;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.*;
 import org.sonar.api.server.ws.WebService.NewAction;
-import org.sonar.core.util.NonNullInputFunction;
 import org.sonar.server.component.ComponentService;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.qualityprofile.QProfile;
 import org.sonar.server.qualityprofile.QProfileLookup;
 import org.sonar.server.qualityprofile.QProfileProjectOperations;
 import org.sonar.server.user.UserSession;
-
-import java.util.Arrays;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
@@ -94,12 +89,7 @@ public class ProjectAssociationActions implements ServerComponent {
       .setDescription("A quality profile name. If this parameter is set, profileKey must not be set and language must be set to disambiguate.");
     action.createParam(PARAM_LANGUAGE)
       .setDescription("A quality profile language. If this parameter is set, profileKey must not be set and profileName must be set to disambiguate.")
-      .setPossibleValues(Collections2.transform(Arrays.asList(languages.all()), new NonNullInputFunction<Language, String>() {
-        @Override
-        public String doApply(Language input) {
-          return input.getKey();
-        }
-      }));
+      .setPossibleValues(LanguageParamUtils.getLanguageKeys(languages));
   }
 
   private abstract static class AssociationHandler implements RequestHandler {

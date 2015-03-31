@@ -20,14 +20,12 @@
 
 package org.sonar.server.qualityprofile.ws;
 
-import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.i18n.I18n;
-import org.sonar.api.resources.AbstractLanguage;
-import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.QProfileService;
 import org.sonar.server.rule.RuleService;
 import org.sonar.server.ws.WsTester;
@@ -39,38 +37,23 @@ public class QProfilesWsTest {
 
   WebService.Controller controller;
 
-  Language xoo1, xoo2;
+  String xoo1Key = "xoo1", xoo2Key = "xoo2";
 
   @Before
   public void setUp() {
-    Language xoo1 = new AbstractLanguage("xoo1", "Xoo1") {
-      @Override
-      public String[] getFileSuffixes() {
-        return new String[] {"xoo1"};
-      }
-    };
-    Language xoo2 = new AbstractLanguage("xoo2", "Xoo2") {
-      @Override
-      public String[] getFileSuffixes() {
-        return new String[] {"xoo2"};
-      }
-    };
-
     QProfileService profileService = mock(QProfileService.class);
     RuleService ruleService = mock(RuleService.class);
     I18n i18n = mock(I18n.class);
 
-    xoo1 = createLanguage("xoo1");
-    xoo2 = createLanguage("xoo2");
-    Languages languages = new Languages(xoo1, xoo2);
+    Languages languages = LanguageTesting.newLanguages(xoo1Key, xoo2Key);
 
     controller = new WsTester(new QProfilesWs(
       new RuleActivationActions(profileService),
       new BulkRuleActivationActions(profileService, ruleService, i18n),
       new ProjectAssociationActions(null, null, null, languages),
-      new QProfileRestoreBuiltInAction(
-        mock(QProfileService.class)),
-      new QProfileSearchAction(new Languages(xoo1, xoo2), null, null)
+      new QProfileRestoreBuiltInAction(null),
+      new QProfileSearchAction(languages, null, null),
+      new QProfileSetDefaultAction(languages, null, null)
     )).controller(QProfilesWs.API_ENDPOINT);
   }
 
@@ -79,7 +62,7 @@ public class QProfilesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo(QProfilesWs.API_ENDPOINT);
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(8);
+    assertThat(controller.actions()).hasSize(9);
   }
 
   @Test
@@ -96,7 +79,7 @@ public class QProfilesWsTest {
     assertThat(search).isNotNull();
     assertThat(search.isPost()).isFalse();
     assertThat(search.params()).hasSize(2);
-    assertThat(search.param("language").possibleValues()).containsOnly("xoo1", "xoo2");
+    assertThat(search.param("language").possibleValues()).containsOnly(xoo1Key, xoo2Key);
     assertThat(search.param("f").possibleValues())
       .containsOnly("key", "name", "language", "languageName", "isInherited", "parentKey", "parentName", "isDefault", "activeRuleCount");
   }
@@ -133,13 +116,12 @@ public class QProfilesWsTest {
     assertThat(removeProject.params()).hasSize(5);
   }
 
-  private Language createLanguage(final String key) {
-    return new AbstractLanguage(key, StringUtils.capitalize(key)) {
-      @Override
-      public String[] getFileSuffixes() {
-        return new String[] {key};
-      }
-    };
+  @Test
+  public void define_set_default_action() throws Exception {
+    WebService.Action setDefault = controller.action("set_default");
+    assertThat(setDefault).isNotNull();
+    assertThat(setDefault.isPost()).isTrue();
+    assertThat(setDefault.params()).hasSize(3);
   }
 
   public void define_bulk_activate_rule_action() throws Exception {

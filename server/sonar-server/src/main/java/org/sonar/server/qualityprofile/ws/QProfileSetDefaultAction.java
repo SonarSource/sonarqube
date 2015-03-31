@@ -19,10 +19,7 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Collections2;
-import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -34,8 +31,6 @@ import org.sonar.server.qualityprofile.QProfile;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileLookup;
 import org.sonar.server.user.UserSession;
-
-import java.util.Arrays;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
@@ -90,18 +85,14 @@ public class QProfileSetDefaultAction implements BaseQProfileWsAction {
     NewAction setDefault = controller.createAction("set_default")
       .setSince("5.2")
       .setDescription("Select the default profile for a given language.")
+      .setPost(true)
       .setHandler(this)
       .setResponseExample(getClass().getResource("example-search.json"));
 
     setDefault.createParam(PARAM_LANGUAGE)
       .setDescription("The key of a language supported by the platform. If specified, profileName must be set to select the default profile for the selected language.")
       .setExampleValue("js")
-      .setPossibleValues(Collections2.transform(Arrays.asList(languages.all()), new Function<Language, String>() {
-        @Override
-        public String apply(Language input) {
-          return input.getKey();
-        }
-      }));
+      .setPossibleValues(LanguageParamUtils.getLanguageKeys(languages));
 
     setDefault.createParam(PARAM_PROFILE_NAME)
       .setDescription("The name of a quality profile. If specified, language must be set. The matching profile will be used as default for the selected language.")

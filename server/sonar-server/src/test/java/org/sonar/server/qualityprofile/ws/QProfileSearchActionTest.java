@@ -20,12 +20,10 @@
 package org.sonar.server.qualityprofile.ws;
 
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.lang.StringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.api.resources.AbstractLanguage;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.utils.System2;
@@ -34,6 +32,7 @@ import org.sonar.core.persistence.DbTester;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.QProfileLoader;
 import org.sonar.server.qualityprofile.QProfileLookup;
 import org.sonar.server.ws.WsTester;
@@ -68,8 +67,8 @@ public class QProfileSearchActionTest {
     // TODO Replace with actual implementation after removal of DaoV2...
     profileLoader = mock(QProfileLoader.class);
 
-    xoo1 = createLanguage("xoo1");
-    xoo2 = createLanguage("xoo2");
+    xoo1 = LanguageTesting.newLanguage("xoo1");
+    xoo2 = LanguageTesting.newLanguage("xoo2");
 
     tester = new WsTester(new QProfilesWs(
       mock(RuleActivationActions.class),
@@ -127,14 +126,5 @@ public class QProfileSearchActionTest {
     session.commit();
 
     tester.newGetRequest("api/qualityprofiles", "search").setParam("language", xoo1.getKey()).execute().assertJson(this.getClass(), "search_xoo1.json");
-  }
-
-  private Language createLanguage(final String key) {
-    return new AbstractLanguage(key, StringUtils.capitalize(key)) {
-      @Override
-      public String[] getFileSuffixes() {
-        return new String[] {key};
-      }
-    };
   }
 }
