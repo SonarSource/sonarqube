@@ -79,6 +79,7 @@
     <maven.min.version>3.0.5</maven.min.version>
     <maven.api.version>3.0.5</maven.api.version>
     <jdk.min.version>1.7</jdk.min.version>
+    <guava.version>10.0.1</guava.version>
     <timestamp>${maven.build.timestamp}</timestamp>
     <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ssZ</maven.build.timestamp.format>
 
@@ -723,7 +724,7 @@
       <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
-        <version>10.0.1</version>
+        <version>${guava.version}</version>
         <exclusions>
           <exclusion>
             <!-- should be declared with scope provided -->
@@ -731,6 +732,11 @@
             <artifactId>jsr305</artifactId>
           </exclusion>
         </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava-testlib</artifactId>
+        <version>${guava.version}</version>
       </dependency>
       <dependency>
         <groupId>com.google.code.findbugs</groupId>
