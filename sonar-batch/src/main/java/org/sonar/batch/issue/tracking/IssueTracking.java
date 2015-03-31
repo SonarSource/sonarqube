@@ -22,6 +22,7 @@ package org.sonar.batch.issue.tracking;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -32,11 +33,7 @@ import org.sonar.api.issue.internal.DefaultIssue;
 
 import javax.annotation.Nullable;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 public class IssueTracking implements BatchComponent {
@@ -60,10 +57,13 @@ public class IssueTracking implements BatchComponent {
     if (issues.isEmpty()) {
       return;
     }
+    FileHashes hashedSource = sourceHashHolder.getHashedSource();
     for (DefaultIssue issue : issues) {
       Integer line = issue.line();
       if (line != null) {
-        issue.setChecksum(sourceHashHolder.getHashedSource().getHash(line));
+        // Extra verification if some plugin managed to create issue on a wrong line
+        Preconditions.checkState(line <= hashedSource.length(), "Invalid line number for issue %s. File has only %s line(s)", issue, hashedSource.length());
+        issue.setChecksum(hashedSource.getHash(line));
       }
     }
   }

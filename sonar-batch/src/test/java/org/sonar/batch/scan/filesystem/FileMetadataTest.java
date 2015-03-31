@@ -28,6 +28,8 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.batch.scan.filesystem.FileMetadata.LineHashConsumer;
 
 import javax.annotation.Nullable;
@@ -48,6 +50,9 @@ public class FileMetadataTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   private AnalysisMode mode = mock(AnalysisMode.class);
+
+  @Rule
+  public LogTester logTester = new LogTester();
 
   @Test
   public void empty_file() throws Exception {
@@ -253,6 +258,21 @@ public class FileMetadataTest {
     String hash2 = new FileMetadata(mode).read(file2, Charsets.UTF_8).hash;
     assertThat(hash1).isEqualTo(hash1a);
     assertThat(hash1).isNotEqualTo(hash2);
+  }
+
+  @Test
+  public void binary_file_with_unmappable_character() throws Exception {
+    File woff = new File(this.getClass().getResource("glyphicons-halflings-regular.woff").toURI());
+
+    FileMetadata.Metadata metadata = new FileMetadata(mode).read(woff, Charsets.UTF_8);
+    assertThat(metadata.lines).isEqualTo(135);
+    assertThat(metadata.nonBlankLines).isEqualTo(134);
+    assertThat(metadata.hash).isNotEmpty();
+    assertThat(metadata.empty).isFalse();
+
+    assertThat(logTester.logs(LoggerLevel.WARN).get(0)).contains("Invalid character encountered in file");
+    assertThat(logTester.logs(LoggerLevel.WARN).get(0)).contains(
+      "glyphicons-halflings-regular.woff at line 1 for encoding UTF-8. Please fix file content or configure the encoding to be used using property 'sonar.sourceEncoding'.");
   }
 
 }
