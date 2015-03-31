@@ -27,13 +27,12 @@ import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.ProtobufUtil;
 import org.sonar.batch.protocol.output.BatchReport.Range;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.util.Lists.newArrayList;
 
 public class BatchReportWriterTest {
 
@@ -124,29 +123,29 @@ public class BatchReportWriterTest {
   }
 
   @Test
-  public void write_scm() throws Exception {
+  public void write_issues_of_deleted_component() throws Exception {
     File dir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(dir);
 
-    assertThat(writer.hasComponentData(FileStructure.Domain.SCM, 1)).isFalse();
+    // no data yet
+    assertThat(writer.hasComponentData(FileStructure.Domain.ISSUES_ON_DELETED, 1)).isFalse();
 
-    BatchReport.Scm scm = BatchReport.Scm.newBuilder()
-      .setComponentRef(1)
-      .addChangesetIndexByLine(0)
-      .addChangeset(BatchReport.Scm.Changeset.newBuilder()
-        .setRevision("123-456-789")
-        .setAuthor("author")
-        .setDate(123_456_789L))
+    // write data
+    BatchReport.Issue issue = BatchReport.Issue.newBuilder()
+      .setUuid("ISSUE_A")
+      .setLine(50)
+      .setMsg("the message")
       .build();
 
-    writer.writeComponentScm(scm);
+    writer.writeDeletedComponentIssues(1, "componentUuid", Arrays.asList(issue));
 
-    assertThat(writer.hasComponentData(FileStructure.Domain.SCM, 1)).isTrue();
-    File file = writer.getFileStructure().fileFor(FileStructure.Domain.SCM, 1);
+    assertThat(writer.hasComponentData(FileStructure.Domain.ISSUES_ON_DELETED, 1)).isTrue();
+    File file = writer.getFileStructure().fileFor(FileStructure.Domain.ISSUES_ON_DELETED, 1);
     assertThat(file).exists().isFile();
-    BatchReport.Scm read = ProtobufUtil.readFile(file, BatchReport.Scm.PARSER);
+    BatchReport.Issues read = ProtobufUtil.readFile(file, BatchReport.Issues.PARSER);
     assertThat(read.getComponentRef()).isEqualTo(1);
-    assertThat(read.getChangesetCount()).isEqualTo(1);
+    assertThat(read.getComponentUuid()).isEqualTo("componentUuid");
+    assertThat(read.getIssueCount()).isEqualTo(1);
   }
 
   @Test
@@ -171,32 +170,38 @@ public class BatchReportWriterTest {
     BatchReport.Measures measures = ProtobufUtil.readFile(file, BatchReport.Measures.PARSER);
     assertThat(measures.getComponentRef()).isEqualTo(1);
     assertThat(measures.getMeasureCount()).isEqualTo(1);
+    assertThat(measures.getMeasure(0).getStringValue()).isEqualTo("text-value");
+    assertThat(measures.getMeasure(0).getDoubleValue()).isEqualTo(2.5d);
+    assertThat(measures.getMeasure(0).getValueType()).isEqualTo(Constants.MeasureValueType.DOUBLE);
+    assertThat(measures.getMeasure(0).getDescription()).isEqualTo("description");
   }
 
   @Test
-  public void write_issues_of_deleted_component() throws Exception {
+  public void write_scm() throws Exception {
     File dir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(dir);
 
-    // no data yet
-    assertThat(writer.hasComponentData(FileStructure.Domain.ISSUES_ON_DELETED, 1)).isFalse();
+    assertThat(writer.hasComponentData(FileStructure.Domain.SCM, 1)).isFalse();
 
-    // write data
-    BatchReport.Issue issue = BatchReport.Issue.newBuilder()
-      .setUuid("ISSUE_A")
-      .setLine(50)
-      .setMsg("the message")
+    BatchReport.Scm scm = BatchReport.Scm.newBuilder()
+      .setComponentRef(1)
+      .addChangesetIndexByLine(0)
+      .addChangeset(BatchReport.Scm.Changeset.newBuilder()
+        .setRevision("123-456-789")
+        .setAuthor("author")
+        .setDate(123_456_789L))
       .build();
 
-    writer.writeDeletedComponentIssues(1, "componentUuid", Arrays.asList(issue));
+    writer.writeComponentScm(scm);
 
-    assertThat(writer.hasComponentData(FileStructure.Domain.ISSUES_ON_DELETED, 1)).isTrue();
-    File file = writer.getFileStructure().fileFor(FileStructure.Domain.ISSUES_ON_DELETED, 1);
+    assertThat(writer.hasComponentData(FileStructure.Domain.SCM, 1)).isTrue();
+    File file = writer.getFileStructure().fileFor(FileStructure.Domain.SCM, 1);
     assertThat(file).exists().isFile();
-    BatchReport.Issues read = ProtobufUtil.readFile(file, BatchReport.Issues.PARSER);
+    BatchReport.Scm read = ProtobufUtil.readFile(file, BatchReport.Scm.PARSER);
     assertThat(read.getComponentRef()).isEqualTo(1);
-    assertThat(read.getComponentUuid()).isEqualTo("componentUuid");
-    assertThat(read.getIssueCount()).isEqualTo(1);
+    assertThat(read.getChangesetCount()).isEqualTo(1);
+    assertThat(read.getChangesetList()).hasSize(1);
+    assertThat(read.getChangeset(0).getDate()).isEqualTo(123_456_789L);
   }
 
   @Test
@@ -228,6 +233,8 @@ public class BatchReportWriterTest {
     BatchReport.Duplications duplications = ProtobufUtil.readFile(file, BatchReport.Duplications.PARSER);
     assertThat(duplications.getComponentRef()).isEqualTo(1);
     assertThat(duplications.getDuplicationList()).hasSize(1);
+    assertThat(duplications.getDuplication(0).getOriginPosition()).isNotNull();
+    assertThat(duplications.getDuplication(0).getDuplicateList()).hasSize(1);
   }
 
   @Test
@@ -263,6 +270,8 @@ public class BatchReportWriterTest {
     BatchReport.Symbols read = ProtobufUtil.readFile(file, BatchReport.Symbols.PARSER);
     assertThat(read.getFileRef()).isEqualTo(1);
     assertThat(read.getSymbolList()).hasSize(1);
+    assertThat(read.getSymbol(0).getDeclaration().getStartLine()).isEqualTo(1);
+    assertThat(read.getSymbol(0).getReference(0).getStartLine()).isEqualTo(10);
   }
 
   @Test
@@ -287,6 +296,7 @@ public class BatchReportWriterTest {
     BatchReport.SyntaxHighlighting syntaxHighlighting = ProtobufUtil.readFile(file, BatchReport.SyntaxHighlighting.PARSER);
     assertThat(syntaxHighlighting.getFileRef()).isEqualTo(1);
     assertThat(syntaxHighlighting.getHighlightingRuleList()).hasSize(1);
+    assertThat(syntaxHighlighting.getHighlightingRule(0).getType()).isEqualTo(Constants.HighlightingType.ANNOTATION);
   }
 
   @Test
@@ -316,30 +326,29 @@ public class BatchReportWriterTest {
         .setItCoveredConditions(5)
         .setOverallCoveredConditions(5)
         .build()
-      ));
+    ));
 
     assertThat(writer.hasComponentData(FileStructure.Domain.COVERAGE, 1)).isTrue();
 
-    File file = writer.getFileStructure().fileFor(FileStructure.Domain.COVERAGE, 1);
-    assertThat(file).exists().isFile();
+    List<BatchReport.Coverage> coverageList = newArrayList(new BatchReportReader(dir).readFileCoverage(1));
+    assertThat(coverageList).hasSize(2);
 
-    InputStream inputStream = new BufferedInputStream(new FileInputStream(file));
-    BatchReport.Coverage read = BatchReport.Coverage.PARSER.parseDelimitedFrom(inputStream);
-    assertThat(read.getLine()).isEqualTo(1);
-    assertThat(read.getConditions()).isEqualTo(1);
-    assertThat(read.getUtHits()).isTrue();
-    assertThat(read.getItHits()).isFalse();
-    assertThat(read.getUtCoveredConditions()).isEqualTo(1);
-    assertThat(read.getItCoveredConditions()).isEqualTo(1);
-    assertThat(read.getOverallCoveredConditions()).isEqualTo(1);
+    BatchReport.Coverage coverage = coverageList.get(0);
+    assertThat(coverage.getLine()).isEqualTo(1);
+    assertThat(coverage.getConditions()).isEqualTo(1);
+    assertThat(coverage.getUtHits()).isTrue();
+    assertThat(coverage.getItHits()).isFalse();
+    assertThat(coverage.getUtCoveredConditions()).isEqualTo(1);
+    assertThat(coverage.getItCoveredConditions()).isEqualTo(1);
+    assertThat(coverage.getOverallCoveredConditions()).isEqualTo(1);
 
-    read = BatchReport.Coverage.PARSER.parseDelimitedFrom(inputStream);
-    assertThat(read.getLine()).isEqualTo(2);
-    assertThat(read.getConditions()).isEqualTo(5);
-    assertThat(read.getUtHits()).isFalse();
-    assertThat(read.getItHits()).isFalse();
-    assertThat(read.getUtCoveredConditions()).isEqualTo(4);
-    assertThat(read.getItCoveredConditions()).isEqualTo(5);
-    assertThat(read.getOverallCoveredConditions()).isEqualTo(5);
+    coverage = coverageList.get(1);
+    assertThat(coverage.getLine()).isEqualTo(2);
+    assertThat(coverage.getConditions()).isEqualTo(5);
+    assertThat(coverage.getUtHits()).isFalse();
+    assertThat(coverage.getItHits()).isFalse();
+    assertThat(coverage.getUtCoveredConditions()).isEqualTo(4);
+    assertThat(coverage.getItCoveredConditions()).isEqualTo(5);
+    assertThat(coverage.getOverallCoveredConditions()).isEqualTo(5);
   }
 }
